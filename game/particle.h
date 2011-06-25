@@ -245,8 +245,8 @@ extern int prt_pressure_tests;
 void particle_system_begin( void );
 void particle_system_end( void );
 
-const PRT_REF end_one_particle_now( const PRT_REF particle );
-const PRT_REF end_one_particle_in_game( const PRT_REF particle );
+PRT_REF end_one_particle_now( const PRT_REF particle );
+PRT_REF end_one_particle_in_game( const PRT_REF particle );
 
 void update_all_particles( void );
 void move_all_particles( void );

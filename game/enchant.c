@@ -52,6 +52,14 @@ static enc_t * enc_config_deinit( enc_t * penc );
 static enc_t * enc_config_active( enc_t * penc );
 static enc_t * enc_config_dtor( enc_t * penc );
 
+static enc_t * enc_config_do_active( enc_t * penc );
+static enc_t * enc_config_do_init( enc_t * penc );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

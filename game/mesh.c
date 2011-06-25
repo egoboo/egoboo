@@ -67,6 +67,14 @@ static bool_t mesh_make_bbox( ego_mpd_t * pmesh );
 
 static float grid_get_mix( float u0, float u, float v0, float v );
 
+static ego_mpd_t * mesh_ctor_1( ego_mpd_t * pmesh, int tiles_x, int tiles_y );
+static bool_t mesh_remove_ambient( ego_mpd_t * pmesh );
+static bool_t mesh_recalc_twist( ego_mpd_t * pmesh );
+static bool_t mesh_make_texture( ego_mpd_t * pmesh );
+static ego_mpd_t * mesh_finalize( ego_mpd_t * pmesh );
+static bool_t mesh_test_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, float * pdelta );
+static bool_t mesh_light_one_corner( ego_mpd_t * pmesh, ego_tile_info_t * ptile, bool_t reflective, fvec3_base_t pos, fvec3_base_t nrm, float * plight );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 ego_mpd_t   mesh;
@@ -967,9 +975,9 @@ bool_t mesh_make_normals( ego_mpd_t * pmesh )
                 for ( j = 0; j < 4; j++ )
                 {
                     float vdot;
-                    int k = ( j + 1 ) % 4;
+                    int m = ( j + 1 ) % 4;
 
-                    vdot = fvec3_dot_product( nrm_lst[j].v, nrm_lst[k].v );
+                    vdot = fvec3_dot_product( nrm_lst[j].v, nrm_lst[m].v );
 
                     edge_is_crease[j] = ( vdot < INV_SQRT_TWO );
 

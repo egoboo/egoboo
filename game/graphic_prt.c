@@ -105,6 +105,10 @@ static void prt_draw_attached_point( prt_bundle_t * pbdl_prt );
 
 static void render_prt_bbox( prt_bundle_t * pbdl_prt );
 
+static gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pinst, prt_t * pprt );
+static fmat_4x4_t prt_instance_make_matrix( prt_instance_t * pinst );
+static gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, bool_t do_lighting );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint32  instance_update = ( Uint32 )~0;

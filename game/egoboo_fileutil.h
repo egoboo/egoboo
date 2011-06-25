@@ -134,7 +134,6 @@ extern "C"
     Sint32 fget_int( vfs_FILE* fileread );
     char   fget_first_letter( vfs_FILE* fileread );
     IDSZ   fget_idsz( vfs_FILE* fileread );
-    int    fget_int( vfs_FILE * fileread );
     float  fget_float( vfs_FILE * fileread );
     int    fget_damage_type( vfs_FILE * fileread );
     int    fget_next_damage_type( vfs_FILE * fileread );

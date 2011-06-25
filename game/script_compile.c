@@ -50,21 +50,7 @@ struct s_token
 };
 typedef struct s_token token_t;
 
-token_t * token_ctor( token_t * pt )
-{
-    if ( NULL == pt ) return NULL;
-
-    // blank every thing
-    BLANK_STRUCT_PTR( pt )
-
-    // to be explicit
-    pt->iIndex   = MAX_OPCODE;
-    pt->iValue   = 0;
-    pt->cType    = '?';
-    pt->szWord[0] = CSTR_END;
-
-    return pt;
-}
+token_t * token_ctor( token_t * pt );
 
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
@@ -1078,15 +1064,15 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
             // Convert reference to slot number
             for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
             {
-                pro_t *ppro;
+                pro_t *ppro_tmp;
 
                 if ( !LOADED_PRO( ipro ) ) continue;
-                ppro = ProList_get_ptr( ipro );
+                ppro_tmp = ProList_get_ptr( ipro );
 
                 //is this the object we are looking for?
-                if ( 0 == strcmp( obj_name, strrchr( ppro->name, '/' ) + 1 ) )
+                if ( 0 == strcmp( obj_name, strrchr( ppro_tmp->name, '/' ) + 1 ) )
                 {
-                    ptok->iValue = REF_TO_INT( ppro->icap );
+                    ptok->iValue = REF_TO_INT( ppro_tmp->icap );
                     break;
                 }
             }
@@ -1123,17 +1109,17 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
         {
             // a normal string
 
-            signed cnt;
+            signed tnc;
             bool_t message_found = bfalse;
 
             // see if this message is already loaded, no need to load it twice into memory
             if ( ppro->message )
             {
-                for ( cnt = ppro->message_count; cnt >= 0; cnt-- )
+                for ( tnc = ppro->message_count; tnc >= 0; tnc-- )
                 {
-                    if ( 0 == strcmp( ppro->message[cnt], str ) )
+                    if ( 0 == strcmp( ppro->message[tnc], str ) )
                     {
-                        ptok->iValue = cnt;
+                        ptok->iValue = tnc;
                         message_found = btrue;
                         break;
                     }
@@ -1619,6 +1605,25 @@ egoboo_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *
     return rv_success;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+token_t * token_ctor( token_t * pt )
+{
+    if ( NULL == pt ) return NULL;
+
+    // blank every thing
+    BLANK_STRUCT_PTR( pt )
+
+    // to be explicit
+    pt->iIndex   = MAX_OPCODE;
+    pt->iValue   = 0;
+    pt->cType    = '?';
+    pt->szWord[0] = CSTR_END;
+
+    return pt;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
 void print_token( token_t * ptok )
@@ -2312,7 +2317,7 @@ DEFINE_VARIABLE( VARTARGETTEAM,    "targetteam"    )           // == 75
 DEFINE_VARIABLE( VARTARGETARMOR,    "targetarmor"    )          // == 76
 DEFINE_VARIABLE( VARDIFFICULTY        // == 77,    "difficulty"    )    //
 
-DEFINE_OPERATOR( OPADD,    "+”    )    //
+DEFINE_OPERATOR( OPADD,    "+â€    )    //
 DEFINE_OPERATOR( OPSUB,    "-"    )    //
 DEFINE_OPERATOR( OPAND,    "&"    )    //
 DEFINE_OPERATOR( OPSHR,    ">"    )    //

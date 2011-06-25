@@ -85,7 +85,6 @@ enum e_gfx_rv
     gfx_fail    = bfalse,
     gfx_success = btrue
 };
-
 typedef enum e_gfx_rv gfx_rv;
 
 #define GFX_ERROR_MAX 256

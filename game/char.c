@@ -68,6 +68,33 @@ int chr_pressure_tests = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+struct s_grab_data
+{
+    CHR_REF ichr;
+    fvec3_t diff;
+    float   diff2_hrz;
+    float   diff2_vrt;
+    bool_t  too_dark, too_invis;
+};
+typedef struct s_grab_data grab_data_t;
+
+static int grab_data_cmp( const void * pleft, const void * pright );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+struct s_chr_anim_data
+{
+    bool_t allowed;
+    int    action;
+    int    lip;
+    float  speed;
+};
+typedef struct s_chr_anim_data chr_anim_data_t;
+
+static int cmp_chr_anim_data( void const * vp_lhs, void const * vp_rhs );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 static CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character );
 //static bool_t  chr_add_pack_item( const CHR_REF item, const CHR_REF character );
@@ -113,6 +140,40 @@ static float   chr_get_mesh_pressure( chr_t * pchr, float test_pos[] );
 static egoboo_rv chr_invalidate_child_instances( chr_t * pchr );
 
 static void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool_t healing );
+
+static void chr_set_enviro_grid_level( chr_t * pchr, float level );
+static void chr_log_script_time( const CHR_REF ichr );
+
+static bool_t chr_download_cap( chr_t * pchr, cap_t * pcap );
+
+static bool_t chr_get_environment( chr_t * pchr );
+
+static chr_t * chr_config_do_init( chr_t * pchr );
+static chr_t * chr_config_do_active( chr_t * pchr );
+static int chr_change_skin( const CHR_REF character, int skin );
+static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool_t permanent );
+
+static bool_t chr_update_pos( chr_t * pchr );
+
+static egoboo_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc );
+static bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp );
+static bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp );
+
+static void move_one_character_do_floor_friction( chr_t * pchr );
+static void move_one_character_do_voluntary( chr_t * pchr );
+static void move_one_character( chr_t * pchr );
+static void move_one_character_do_animation( chr_t * pchr );
+static void move_one_character_do_z_motion( chr_t * pchr );
+static bool_t move_one_character_integrate_motion( chr_t * pchr );
+static bool_t move_one_character_integrate_motion_attached( chr_t * pchr );
+
+static float set_character_animation_rate( chr_t * pchr );
+
+static bool_t chr_handle_madfx( chr_t * pchr );
+static bool_t chr_do_latch_button( chr_t * pchr );
+static bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot );
+
+static breadcrumb_t * chr_get_last_breadcrumb( chr_t * pchr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -648,20 +709,20 @@ void free_one_character_in_game( const CHR_REF character )
     }
 
     // Make sure everyone knows it died
-    CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
+    CHR_BEGIN_LOOP_ACTIVE( tnc, tmp_ptr )
     {
         ai_state_t * pai;
 
-        if ( !INGAME_CHR( cnt ) || cnt == character ) continue;
-        pai = chr_get_pai( cnt );
+        if ( !INGAME_CHR( tnc ) || tnc == character ) continue;
+        pai = chr_get_pai( tnc );
 
         if ( pai->target == character )
         {
             SET_BIT( pai->alert, ALERTIF_TARGETKILLED );
-            pai->target = cnt;
+            pai->target = tnc;
         }
 
-        if ( chr_get_pteam( cnt )->leader == character )
+        if ( chr_get_pteam( tnc )->leader == character )
         {
             SET_BIT( pai->alert, ALERTIF_LEADERKILLED );
         }
@@ -1684,24 +1745,24 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
 
     if ( pitem_cap->isstackable )
     {
-        PACK_BEGIN_LOOP( ChrList.lst[character].inventory, pitem, iitem )
+        PACK_BEGIN_LOOP( ChrList.lst[character].inventory, pstack, istack_new )
         {
-            cap_t * pstack_cap = chr_get_pcap( iitem );
+            cap_t * pstack_cap = chr_get_pcap( istack_new );
 
             found = pstack_cap->isstackable;
 
-            if ( pitem->ammo >= pitem->ammomax )
+            if ( pstack->ammo >= pstack->ammomax )
             {
                 found = bfalse;
             }
 
             // you can still stack something even if the profiles don't match exactly,
             // but they have to have all the same IDSZ properties
-            if ( found && ( pitem->profile_ref != pitem->profile_ref ) )
+            if ( found && ( pstack->profile_ref != pitem->profile_ref ) )
             {
                 for ( id = 0; id < IDSZ_COUNT && found; id++ )
                 {
-                    if ( chr_get_idsz( iitem, id ) != chr_get_idsz( item, id ) )
+                    if ( chr_get_idsz( istack_new, id ) != chr_get_idsz( item, id ) )
                     {
                         found = bfalse;
                     }
@@ -1710,7 +1771,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
 
             if ( found )
             {
-                istack = iitem;
+                istack = istack_new;
                 break;
             }
         }
@@ -1870,17 +1931,6 @@ bool_t drop_all_items( const CHR_REF character )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_grab_data
-{
-    CHR_REF ichr;
-    fvec3_t diff;
-    float   diff2_hrz;
-    float   diff2_vrt;
-    bool_t  too_dark, too_invis;
-};
-typedef struct s_grab_data grab_data_t;
-
-//--------------------------------------------------------------------------------------------
 int grab_data_cmp( const void * pleft, const void * pright )
 {
     int rv;
@@ -1976,7 +2026,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     bump_size2_a = SQR( 1.5f * pchr_a->bump.size );
 
     // Go through all characters to find the best match
-    CHR_BEGIN_LOOP_ACTIVE( ichr_b, pchr_b )
+    CHR_BEGIN_LOOP_ACTIVE( ichr_c, pchr_c )
     {
         fvec3_t   diff;
         float     bump_size2_b;
@@ -1987,55 +2037,55 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         bool_t    too_invis = btrue;
 
         // do nothing to yourself
-        if ( ichr_a == ichr_b ) continue;
+        if ( ichr_a == ichr_c ) continue;
 
         // Dont do hidden objects
-        if ( pchr_b->is_hidden ) continue;
+        if ( pchr_c->is_hidden ) continue;
 
         // pickpocket not allowed yet
-        if ( INGAME_CHR( pchr_b->inwhich_inventory ) ) continue;
+        if ( INGAME_CHR( pchr_c->inwhich_inventory ) ) continue;
 
         // disarm not allowed yet
-        if ( MAX_CHR != pchr_b->attachedto ) continue;
+        if ( MAX_CHR != pchr_c->attachedto ) continue;
 
         // do not pick up your mount
-        if ( pchr_b->holdingwhich[SLOT_LEFT] == ichr_a ||
-             pchr_b->holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
+        if ( pchr_c->holdingwhich[SLOT_LEFT] == ichr_a ||
+             pchr_c->holdingwhich[SLOT_RIGHT] == ichr_a ) continue;
 
         // do not notice completely broken items?
-        if ( pchr_b->isitem && !pchr_b->alive ) continue;
+        if ( pchr_c->isitem && !pchr_c->alive ) continue;
 
         // reasonable carrying capacity
-        if ( pchr_b->phys.weight > pchr_a->phys.weight + pchr_a->strength * INV_FF )
+        if ( pchr_c->phys.weight > pchr_a->phys.weight + pchr_a->strength * INV_FF )
         {
             can_grab = bfalse;
         }
 
         // grab_people == btrue allows you to pick up living non-items
         // grab_people == false allows you to pick up living (functioning) items
-        if ( !grab_people && !pchr_b->isitem )
+        if ( !grab_people && !pchr_c->isitem )
         {
             can_grab = bfalse;
         }
 
         // is the object visible
-        too_dark  = !chr_can_see_dark( pchr_a, pchr_b );
-        too_invis = !chr_can_see_invis( pchr_a, pchr_b );
+        too_dark  = !chr_can_see_dark( pchr_a, pchr_c );
+        too_invis = !chr_can_see_invis( pchr_a, pchr_c );
 
         // calculate the distance
-        fvec3_sub( diff.v, chr_get_pos_v( pchr_b ), slot_pos.v );
-        diff.z += pchr_b->bump.height * 0.5f;
+        fvec3_sub( diff.v, chr_get_pos_v( pchr_c ), slot_pos.v );
+        diff.z += pchr_c->bump.height * 0.5f;
 
         // find the squared difference horizontal and vertical
         diff2_hrz = fvec2_length_2( diff.v );
         diff2_vrt = diff.z * diff.z;
 
         // determine the actual max vertical distance
-        grab2_vrt = SQR( pchr_b->bump.height );
+        grab2_vrt = SQR( pchr_c->bump.height );
         grab2_vrt = MAX( grab2_vrt, const_grab2_vrt );
 
         // the normal horizontal grab distance is dependent on the size of the two objects
-        bump_size2_b = SQR( pchr_b->bump.size );
+        bump_size2_b = SQR( pchr_c->bump.size );
 
         // visibility affects the max grab distance.
         // if it is not visible then we have to be touching it.
@@ -2074,7 +2124,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
 
         if ( can_grab )
         {
-            grab_list[grab_count].ichr      = ichr_b;
+            grab_list[grab_count].ichr      = ichr_c;
             grab_list[grab_count].diff      = diff;
             grab_list[grab_count].diff2_hrz = diff2_hrz;
             grab_list[grab_count].diff2_vrt = diff2_vrt;
@@ -2084,7 +2134,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         }
         else
         {
-            ungrab_list[ungrab_count].ichr      = ichr_b;
+            ungrab_list[ungrab_count].ichr      = ichr_c;
             ungrab_list[ungrab_count].diff      = diff;
             ungrab_list[ungrab_count].diff2_hrz = diff2_hrz;
             ungrab_list[ungrab_count].diff2_vrt = diff2_vrt;
@@ -3792,43 +3842,6 @@ void spawn_poof( const CHR_REF character, const PRO_REF profile )
 }
 
 //--------------------------------------------------------------------------------------------
-void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank )
-{
-    chr_t * pchr;
-    pro_t * ppro;
-    cap_t * pcap;
-
-    pself = ai_state_ctor( pself );
-
-    if ( NULL == pself || !DEFINED_CHR( index ) ) return;
-    pchr = ChrList_get_ptr( index );
-
-    // a character cannot be spawned without a valid profile
-    if ( !LOADED_PRO( iobj ) ) return;
-    ppro = ProList_get_ptr( iobj );
-
-    // a character cannot be spawned without a valid cap
-    pcap = pro_get_pcap( iobj );
-    if ( NULL == pcap ) return;
-
-    pself->index      = index;
-    pself->alert      = ALERTIF_SPAWNED;
-    pself->state      = pcap->state_override;
-    pself->content    = pcap->content_override;
-    pself->passage    = 0;
-    pself->target     = index;
-    pself->owner      = index;
-    pself->child      = index;
-    pself->target_old = index;
-
-    pself->bumplast   = index;
-    pself->hitlast    = index;
-
-    pself->order_counter = rank;
-    pself->order_value   = 0;
-}
-
-//--------------------------------------------------------------------------------------------
 bool_t chr_get_environment( chr_t * pchr )
 {
     if ( NULL == pchr ) return bfalse;
@@ -5304,9 +5317,9 @@ bool_t cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
 //--------------------------------------------------------------------------------------------
 void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool_t permanent )
 {
-    chr_t * pchr;
-    bool_t  can_have_team;
-    int     loc_team_new;
+    chr_t  * pchr;
+    bool_t   can_have_team;
+    TEAM_REF loc_team_new;
 
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList_get_ptr( character );
@@ -5950,7 +5963,6 @@ void move_one_character_do_voluntary( chr_t * pchr )
         if ( VALID_PLA( ipla ) )
         {
             player_t * ppla;
-            bool_t sneak_mode_active;
 
             float dv = POW( dv2, 0.25f );
 
@@ -6875,13 +6887,13 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                 // try to get a normal from the mesh_get_diff() function
                 if ( !found_nrm )
                 {
-                    fvec2_t diff;
+                    fvec2_t tmp_diff;
 
-                    diff = chr_get_mesh_diff( pchr, tmp_pos.v, pressure );
+                    tmp_diff = chr_get_mesh_diff( pchr, tmp_pos.v, pressure );
                     diff_function_called = btrue;
 
-                    nrm.x = diff.x;
-                    nrm.y = diff.y;
+                    nrm.x = tmp_diff.x;
+                    nrm.y = tmp_diff.y;
 
                     if ( ABS( nrm.x ) + ABS( nrm.y ) > 0.0f )
                     {
@@ -6998,13 +7010,13 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                     dot = fvec2_dot_product( pchr->vel.v, nrm.v );
                     if ( dot < 0.0f )
                     {
-                        float bumpdampen;
+                        float loc_bumpdampen;
                         cap_t * pcap = chr_get_pcap( GET_REF_PCHR( pchr ) );
 
-                        bumpdampen = 0.0f;
+                        loc_bumpdampen = 0.0f;
                         if ( NULL == pcap )
                         {
-                            bumpdampen = pcap->bumpdampen;
+                            loc_bumpdampen = pcap->bumpdampen;
                         }
 
                         v_perp.x = v_perp.y = 0.0f;
@@ -7014,8 +7026,8 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                             v_perp.y = nrm.y * dot / nrm2;
                         }
 
-                        pchr->vel.x += - ( 1.0f + bumpdampen ) * v_perp.x * pressure;
-                        pchr->vel.y += - ( 1.0f + bumpdampen ) * v_perp.y * pressure;
+                        pchr->vel.x += - ( 1.0f + loc_bumpdampen ) * v_perp.x * pressure;
+                        pchr->vel.y += - ( 1.0f + loc_bumpdampen ) * v_perp.y * pressure;
                     }
                 }
             }
@@ -7121,15 +7133,7 @@ bool_t chr_handle_madfx( chr_t * pchr )
     return btrue;
 }
 
-struct s_chr_anim_data
-{
-    bool_t allowed;
-    int    action;
-    int    lip;
-    float  speed;
-};
-typedef struct s_chr_anim_data chr_anim_data_t;
-
+//--------------------------------------------------------------------------------------------
 int cmp_chr_anim_data( void const * vp_lhs, void const * vp_rhs )
 {
     /// @details BB@> Sort MOD REF values based on the rank of the module that they point to.
@@ -8034,7 +8038,7 @@ egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
     }
 
     // make sure the bounding box is calculated properly
-    if ( rv_error == chr_instance_update_bbox( &( pchr->inst ) ) )
+    if ( gfx_error == chr_instance_update_bbox( &( pchr->inst ) ) )
     {
         return rv_error;
     }
@@ -9448,7 +9452,7 @@ Uint32 chr_get_framefx( chr_t * pchr )
     if ( !DEFINED_PCHR( pchr ) ) return 0;
 
     return chr_instance_get_framefx( &( pchr->inst ) );
-};
+}
 
 //--------------------------------------------------------------------------------------------
 egoboo_rv chr_invalidate_child_instances( chr_t * pchr )
@@ -9797,7 +9801,7 @@ bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr
         int vert_stt = ( signed )( pmount_inst->vrt_count ) - ( signed )grip_offset;
         if ( vert_stt < 0 ) return bfalse;
 
-        if ( rv_error == chr_instance_update_vertices( pmount_inst, vert_stt, vert_stt + grip_offset, bfalse ) )
+        if ( gfx_error == chr_instance_update_vertices( pmount_inst, vert_stt, vert_stt + grip_offset, bfalse ) )
         {
             grip_count = 0;
             for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )

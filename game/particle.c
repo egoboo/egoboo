@@ -84,6 +84,20 @@ static prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt );
 
+static bool_t prt_update_pos( prt_t * pprt );
+static bool_t prt_update_safe( prt_t * pprt, bool_t force );
+static bool_t prt_update_safe_raw( prt_t * pprt );
+static PIP_REF PipStack_get_free();
+static bool_t move_one_particle( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt );
+static prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt );
+static fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure );
+static float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 IMPLEMENT_STACK( pip_t, PipStack, MAX_PIP );
@@ -197,7 +211,7 @@ void prt_play_sound( const PRT_REF particle, Sint8 sound )
 }
 
 //--------------------------------------------------------------------------------------------
-const PRT_REF end_one_particle_now( const PRT_REF particle )
+PRT_REF end_one_particle_now( const PRT_REF particle )
 {
     // this turns the particle into a ghost
 
@@ -215,7 +229,7 @@ const PRT_REF end_one_particle_now( const PRT_REF particle )
 }
 
 //--------------------------------------------------------------------------------------------
-const PRT_REF end_one_particle_in_game( const PRT_REF particle )
+PRT_REF end_one_particle_in_game( const PRT_REF particle )
 {
     /// @details ZZ@> this function causes the game to end a particle
     ///               and mark it as a ghost.
@@ -1367,12 +1381,12 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
     // Apply fluid friction for all particles
     if ( loc_pprt->buoyancy > 0.0f )
     {
-        float buoyancy_friction = air_friction * loc_pprt->air_resistance;
+        float loc_buoyancy_friction = air_friction * loc_pprt->air_resistance;
 
         // this is a buoyant particle, like smoke
         if ( loc_pprt->enviro.inwater )
         {
-            float water_friction = POW( buoyancy_friction, 2.0f );
+            float water_friction = POW( loc_buoyancy_friction, 2.0f );
 
             fluid_acc.x += ( waterspeed.x - loc_pprt->vel.x ) * ( 1.0f - water_friction );
             fluid_acc.y += ( waterspeed.y - loc_pprt->vel.y ) * ( 1.0f - water_friction );
@@ -1380,9 +1394,9 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
         }
         else
         {
-            fluid_acc.x += ( windspeed.x - loc_pprt->vel.x ) * ( 1.0f - buoyancy_friction );
-            fluid_acc.y += ( windspeed.y - loc_pprt->vel.y ) * ( 1.0f - buoyancy_friction );
-            fluid_acc.z += ( windspeed.z - loc_pprt->vel.z ) * ( 1.0f - buoyancy_friction );
+            fluid_acc.x += ( windspeed.x - loc_pprt->vel.x ) * ( 1.0f - loc_buoyancy_friction );
+            fluid_acc.y += ( windspeed.y - loc_pprt->vel.y ) * ( 1.0f - loc_buoyancy_friction );
+            fluid_acc.z += ( windspeed.z - loc_pprt->vel.z ) * ( 1.0f - loc_buoyancy_friction );
         }
     }
     else
@@ -1489,19 +1503,19 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
     else
     {
         float ftmp;
-        fvec3_t   vup = map_twist_nrm[penviro->twist];
+        fvec3_t vup_tmp = map_twist_nrm[penviro->twist];
 
-        ftmp = fvec3_dot_product( floor_acc.v, vup.v );
+        ftmp = fvec3_dot_product( floor_acc.v, vup_tmp.v );
 
-        floor_acc.x -= ftmp * vup.x;
-        floor_acc.y -= ftmp * vup.y;
-        floor_acc.z -= ftmp * vup.z;
+        floor_acc.x -= ftmp * vup_tmp.x;
+        floor_acc.y -= ftmp * vup_tmp.y;
+        floor_acc.z -= ftmp * vup_tmp.z;
 
-        ftmp = fvec3_dot_product( fric.v, vup.v );
+        ftmp = fvec3_dot_product( fric.v, vup_tmp.v );
 
-        fric.x -= ftmp * vup.x;
-        fric.y -= ftmp * vup.y;
-        fric.z -= ftmp * vup.z;
+        fric.x -= ftmp * vup_tmp.x;
+        fric.y -= ftmp * vup_tmp.y;
+        fric.z -= ftmp * vup_tmp.z;
     }
 
     // test to see if the player has any more friction left?

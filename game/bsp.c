@@ -56,6 +56,8 @@ static int    _find_child_index( const BSP_aabb_t * pbranch_aabb, const aabb_t *
 
 static BSP_branch_t * BSP_tree_alloc_branch( BSP_tree_t * t );
 
+static bool_t BSP_tree_insert_infinite( BSP_tree_t * ptree, BSP_leaf_t * pleaf );
+
 //static bool_t         BSP_tree_free_branch( BSP_tree_t * t, BSP_branch_t * B );
 //static bool_t         BSP_tree_remove_used( BSP_tree_t * t, BSP_branch_t * B );
 //static bool_t         BSP_tree_free_branches( BSP_tree_t * t );
@@ -72,11 +74,15 @@ static bool_t BSP_branch_prune( BSP_tree_t * t, BSP_branch_t * B, bool_t recursi
 static bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 static bool_t BSP_branch_collide_frustum( const BSP_branch_t * pbranch, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
+static int BSP_branch_insert_leaf_rec_1( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth );
+
 //--------------------------------------------------------------------------------------------
 // BSP_leaf_t private functions
 
 static bool_t BSP_leaf_list_collide_aabb( const BSP_leaf_list_t * LL, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 static bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+static BSP_leaf_t * BSP_leaf_create( void * data, int type, int index );
+static bool_t BSP_leaf_destroy( BSP_leaf_t ** ppleaf );
 
 //--------------------------------------------------------------------------------------------
 // Generic BSP functions

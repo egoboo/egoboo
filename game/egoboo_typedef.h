@@ -49,6 +49,7 @@
 #    define BLANK_ARY(XX)  memset( XX, 0, sizeof( XX ) );
 #endif
 
+
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
 
@@ -75,7 +76,6 @@ enum e_egoboo_rv
     rv_fail    = bfalse,
     rv_success = btrue
 };
-
 typedef enum e_egoboo_rv egoboo_rv;
 
 //--------------------------------------------------------------------------------------------
@@ -272,8 +272,6 @@ typedef struct s_latch latch_t;
 
 void latch_init( latch_t * platch );
 
-typedef enum  e_input_device INPUT_DEVICE;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // References
@@ -377,7 +375,6 @@ typedef Uint16 REF_T;
     bool_t      ARY_T##_alloc( ARY_T##_t * pary, size_t sz ); \
     bool_t      ARY_T##_free( ARY_T##_t * pary ); \
     void        ARY_T##_clear( ARY_T##_t * pary ); \
-    bool_t      ARY_T##_push_back( ARY_T##_t * pary, ELEM_T val ); \
     size_t      ARY_T##_get_top( const ARY_T##_t * pary ); \
     size_t      ARY_T##_get_size( const ARY_T##_t * pary ); \
     ELEM_T *    ARY_T##_pop_back( ARY_T##_t * pary ); \

@@ -47,6 +47,10 @@ static void camera_update_track( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF tra
 
 static size_t camera_create_track_list( CHR_REF track_list[], size_t track_list_max_size );
 
+static void dump_matrix( fmat_4x4_base_t a );
+static void camera_update_effects( camera_t * pcam );
+static void camera_update_zoom( camera_t * pcam );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

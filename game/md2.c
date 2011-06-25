@@ -45,6 +45,7 @@ float kMd2Normals[EGO_NORMAL_COUNT][3] =
 //--------------------------------------------------------------------------------------------
 static MD2_Frame_t * MD2_Frame_ctor( MD2_Frame_t * pframe, size_t size );
 static MD2_Frame_t * MD2_Frame_dtor( MD2_Frame_t * pframe );
+static void MD2_GLCommand_delete_list( MD2_GLCommand_t * command_ptr, int command_count );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

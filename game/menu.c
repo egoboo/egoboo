@@ -303,6 +303,35 @@ static egoboo_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPla
 static egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
 //static egoboo_rv mnu_copy_local_imports( import_list_t * imp_lst );
 
+
+static void mnu_ModList_release_images();
+static void mnu_module_init( mnu_module_t * pmod );
+
+static int doShowEndgame( float deltaTime );
+static int doGamePaused( float deltaTime );
+static int doNotImplemented( float deltaTime );
+static int doShowResults( float deltaTime );
+
+static int doVideoOptions( float deltaTime );
+static int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_screen_info_t * psdl_scr, STRING * psz_screen_size );
+static bool_t doVideoOptions_coerce_aspect_ratio( int width, int height, float * pratio, STRING * psz_ratio );
+
+static int doAudioOptions( float deltaTime );
+static int doGameOptions( float deltaTime );
+static int doInputOptions( float deltaTime );
+static int doOptions( float deltaTime );
+
+static int doChooseCharacter( float deltaTime );
+static bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mode, const int x, const int y, const int width, const int height );
+
+static int doChoosePlayer( float deltaTime );
+
+static int doChooseModule( float deltaTime );
+static int doSinglePlayerMenu( float deltaTime );
+static int doMainMenu( float deltaTime );
+
+static int cmp_mod_ref( const void * vref1, const void * vref2 );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -984,7 +1013,7 @@ int doChooseModule( float deltaTime )
     static oglx_texture_t background;
     static int menuState = MM_Begin;
     static Uint8 keycooldown;
-    static char* filterText = "All Modules";
+    static const char * filterText = "All Modules";
 
     static int validModules_count;
     static MOD_REF validModules[MAX_MODULE];
@@ -1197,8 +1226,8 @@ int doChooseModule( float deltaTime )
                 for ( i = startIndex; i < MIN( startIndex + 3, validModules_count ); i++ )
                 {
                     // fix the menu images in case one or more of them are undefined
-                    MOD_REF          imod       = validModules[i];
-                    TX_REF           tex_offset = mnu_ModList.lst[imod].tex_index;
+                    MOD_REF          loc_imod       = validModules[i];
+                    TX_REF           tex_offset = mnu_ModList.lst[loc_imod].tex_index;
                     oglx_texture_t * ptex       = TxTitleImage_get_ptr( tex_offset );
 
                     GLfloat * img_tint = normal_tint;
@@ -1206,7 +1235,7 @@ int doChooseModule( float deltaTime )
                     //only do modules that are valid
                     if ( i >= 0 && i <= validModules_count )
                     {
-                        if ( mnu_ModList.lst[imod].base.beaten )
+                        if ( mnu_ModList.lst[loc_imod].base.beaten )
                         {
                             img_tint = beat_tint;
                         }
@@ -1218,7 +1247,7 @@ int doChooseModule( float deltaTime )
                         }
 
                         //Draw a text over the image explaining what it means
-                        if ( mnu_ModList.lst[imod].base.beaten )
+                        if ( mnu_ModList.lst[loc_imod].base.beaten )
                         {
                             ui_drawTextBox( NULL, "BEATEN", moduleMenuOffsetX + x + 32, moduleMenuOffsetY + y + 64, 64, 30, 20 );
                         }
@@ -1346,7 +1375,8 @@ int doChooseModule( float deltaTime )
                             case FILTER_TOWN:      filterText = "Towns and Cities"; break;
                             case FILTER_FUN:       filterText = "Fun Modules";      break;
                             case FILTER_STARTER:   filterText = "Starter Modules";  break;
-                        default: case FILTER_OFF:  filterText = "All Modules";      break;
+                            default:
+                            case FILTER_OFF:       filterText = "All Modules";      break;
                         }
                     }
                 }
@@ -1628,11 +1658,11 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
                     if ( LOADED_CAP( icap ) )
                     {
                         TX_REF  icon_ref;
-                        cap_t * pcap = CapStack_get_ptr( icap );
+                        cap_t * loc_pcap = CapStack_get_ptr( icap );
 
                         STRING itemname;
-                        if ( pcap->nameknown ) strncpy( itemname, chop_create( &chop_mem, &( chooseplayer_ptr->chop ) ), SDL_arraysize( itemname ) );
-                        else                   strncpy( itemname, pcap->classname,   SDL_arraysize( itemname ) );
+                        if ( loc_pcap->nameknown ) strncpy( itemname, chop_create( &chop_mem, &( chooseplayer_ptr->chop ) ), SDL_arraysize( itemname ) );
+                        else                   strncpy( itemname, loc_pcap->classname,   SDL_arraysize( itemname ) );
 
                         //draw the icon for this item
                         icon_ref = mnu_get_icon_ref( icap, chooseplayer_ptr->tx_ref );

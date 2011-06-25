@@ -77,7 +77,6 @@ extern "C"
         ENC_SET_LAST  = SETCHANNEL
 
     };
-
     typedef enum e_enchant_set enum_enchant_set;
 
 //--------------------------------------------------------------------------------------------
@@ -122,7 +121,6 @@ extern "C"
         ENC_ADD_LAST  = ADDZAPRESIST
 
     };
-
     typedef enum e_enchant_add enum_enchant_add;
 
 //--------------------------------------------------------------------------------------------

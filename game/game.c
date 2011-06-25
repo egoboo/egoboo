@@ -188,9 +188,9 @@ static int game_process_do_leaving( game_process_t * gproc );
 
 // misc
 static bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which );
-//static void   game_end_menu( menu_process_t * mproc );
+static void   game_end_menu( menu_process_t * mproc );
 
-//static void   do_game_hud( void );
+static void   do_game_hud( void );
 
 // manage the game's vfs mount points
 static void   game_clear_vfs_paths( void );
@@ -200,13 +200,47 @@ void reset_all_object_lists( void );
 
 //line of sight calculations
 static bool_t collide_ray_with_mesh( line_of_sight_info_t * plos );
-//static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
+static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
 
 // implementing wawalite data
 static bool_t upload_light_data( const wawalite_data_t * pdata );
 static bool_t upload_phys_data( const wawalite_physics_t * pdata );
 static bool_t upload_graphics_data( const wawalite_graphics_t * pdata );
 static bool_t upload_camera_data( const wawalite_camera_t * pdata );
+
+// implementing water layer data
+bool_t upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
+
+// misc
+static float get_mesh_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y, bool_t waterwalk );
+static float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool_t waterwalk );
+static float get_mesh_max_vertex_2( ego_mpd_t * pmesh, chr_t * pchr );
+
+static bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info );
+static bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info );
+static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
+
+static void game_setup_module( const char *smallname );
+static void game_reset_module_data();
+
+static void game_load_all_assets( const char *modname );
+static void game_load_global_assets();
+static void game_load_module_assets( const char *modname );
+
+static void load_all_profiles_import();
+static void import_dir_profiles_vfs( const char * dirname );
+static void game_load_global_profiles();
+static void game_load_module_profiles( const char *modname );
+
+
+static void initialize_all_objects();
+static void finalize_all_objects();
+
+static void update_used_lists();
+static void update_all_objects();
+static void move_all_objects();
+static void cleanup_all_objects();
+static void bump_all_update_counters();
 
 //--------------------------------------------------------------------------------------------
 // Random Things
@@ -1732,9 +1766,9 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
     //Loop through every active object
     else
     {
-        CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
+        CHR_BEGIN_LOOP_ACTIVE( tnc, pchr )
         {
-            search_list[search_list_size] = cnt;
+            search_list[search_list_size] = tnc;
             search_list_size++;
         }
         CHR_END_LOOP();
@@ -1796,10 +1830,6 @@ void do_damage_tiles()
     CHR_BEGIN_LOOP_ACTIVE( character, pchr )
     {
         cap_t * pcap;
-        chr_t * pchr;
-
-        if ( !INGAME_CHR( character ) ) continue;
-        pchr = ChrList_get_ptr( character );
 
         pcap = pro_get_pcap( pchr->profile_ref );
         if ( NULL == pcap ) continue;
@@ -2863,41 +2893,6 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
 
     return btrue;
 }
-
-//--------------------------------------------------------------------------------------------
-// gcc does not define these functions on linux (at least not Ubuntu),
-// but it is defined under MinGW, which is yucky.
-// I actually had to spend like 45 minutes looking up the compiler flags
-// to catch this... good documentation, guys!
-#if defined(__GNUC__) && !(defined (__MINGW) || defined(__MINGW32__))
-char* strupr( char * str )
-{
-    char *ret = str;
-    if ( NULL != str )
-    {
-        while ( CSTR_END != *str )
-        {
-            *str = toupper( *str );
-            str++;
-        }
-    }
-    return ret;
-}
-
-char* strlwr( char * str )
-{
-    char *ret = str;
-    if ( NULL != str )
-    {
-        while ( CSTR_END != *str )
-        {
-            *str = tolower( *str );
-            str++;
-        }
-    }
-    return ret;
-}
-#endif
 
 void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
 {

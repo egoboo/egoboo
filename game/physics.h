@@ -108,6 +108,8 @@ typedef struct s_breadcrumb breadcrumb_t;
 breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, struct s_chr * pchr );
 breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, struct s_prt * pprt );
 
+int            breadcrumb_cmp( const void * lhs, const void * rhs );
+
 //--------------------------------------------------------------------------------------------
 #define MAX_BREADCRUMB 32
 
@@ -122,6 +124,13 @@ typedef struct s_breadcrumb_list breadcrumb_list_t;
 void           breadcrumb_list_validate( breadcrumb_list_t * lst );
 bool_t         breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew );
 breadcrumb_t * breadcrumb_list_last_valid( breadcrumb_list_t * lst );
+breadcrumb_t * breadcrumb_list_alloc( breadcrumb_list_t * lst );
+breadcrumb_t * breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 match_grid );
+breadcrumb_t * breadcrumb_list_oldest( breadcrumb_list_t * lst );
+breadcrumb_t * breadcrumb_list_newest( breadcrumb_list_t * lst );
+void           breadcrumb_list_compact( breadcrumb_list_t * lst );
+bool_t         breadcrumb_list_empty( breadcrumb_list_t * lst );
+bool_t         breadcrumb_list_full( breadcrumb_list_t *  lst );
 
 //--------------------------------------------------------------------------------------------
 // the global physics/friction values

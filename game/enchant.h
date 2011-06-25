@@ -128,8 +128,6 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 void    update_all_enchants( void );
 void    cleanup_all_enchants( void );
 
-bool_t  EncList_request_terminate( const ENC_REF  ienc );
-
 void    bump_all_enchants_update_counters( void );
 
 // enchant list management

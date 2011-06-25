@@ -40,12 +40,13 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 // What feedback does the user want
-    typedef enum e_feedback
+    enum e_feedback
     {
         FEEDBACK_OFF = 0,           //None
         FEEDBACK_TEXT,              //Descriptive text
         FEEDBACK_NUMBER             //Show the damage as a number
-    } FEEDBACK_TYPE;
+    };
+    typedef enum e_feedback FEEDBACK_TYPE;
 
 //--------------------------------------------------------------------------------------------
 // struct s_egoboo_config

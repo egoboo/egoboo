@@ -144,6 +144,8 @@ geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_base_t co
 
 geometry_rv aabb_intersects_aabb( const struct s_aabb * lhs, const struct s_aabb * rhs );
 
+geometry_rv plane_intersects_aabb( const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs );
+
 geometry_rv sphere_intersects_sphere( const sphere_t * lhs, const sphere_t * rhs );
 
 geometry_rv cone_intersects_point( const cone_t * lhs, const fvec3_base_t rhs );

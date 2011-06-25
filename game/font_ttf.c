@@ -53,10 +53,18 @@ struct s_Font
     GLfloat texCoords[4];
 };
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static int  fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** ppSurface, GLuint itex, float texCoords[], const char * szText );
+static void fnt_drawText_raw( Font *font, int x, int y, const char *text, SDL_Surface ** ppSurface );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static int fnt_atexit_registered = 0;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int fnt_init()
 {
     /// @details BB@> Make sure the TTF library was initialized

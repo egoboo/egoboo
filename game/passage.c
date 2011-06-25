@@ -46,6 +46,14 @@ INSTANTIATE_STACK( ACCESS_TYPE_NONE, shop_t,    ShopStack, MAX_SHOP );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+static int ShopStack_get_free();
+static void ShopStack_free_all();
+static int PasageStack_get_free();
+static void PassageStack_free_all();
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 IMPLEMENT_STACK( passage_t, PassageStack, MAX_PASS );
 IMPLEMENT_STACK( shop_t,    ShopStack, MAX_SHOP );
 

@@ -35,6 +35,19 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+static GLfloat ui_white_color[]  = {1.00f, 1.00f, 1.00f, 1.00f};
+
+static GLfloat ui_active_color[]  = {0.00f, 0.00f, 0.90f, 0.60f};
+static GLfloat ui_hot_color[]     = {0.54f, 0.00f, 0.00f, 1.00f};
+static GLfloat ui_normal_color[]  = {0.66f, 0.00f, 0.00f, 0.60f};
+
+static GLfloat ui_active_color2[] = {0.00f, 0.45f, 0.45f, 0.60f};
+static GLfloat ui_hot_color2[]    = {0.00f, 0.28f, 0.28f, 1.00f};
+static GLfloat ui_normal_color2[] = {0.33f, 0.00f, 0.33f, 0.60f};
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// The data to describe the UI state
 struct UiContext
 {
@@ -64,18 +77,20 @@ struct UiContext
 
 static struct UiContext ui_context;
 
-GLfloat ui_white_color[]  = {1.00f, 1.00f, 1.00f, 1.00f};
-
-GLfloat ui_active_color[]  = {0.00f, 0.00f, 0.90f, 0.60f};
-GLfloat ui_hot_color[]     = {0.54f, 0.00f, 0.00f, 1.00f};
-GLfloat ui_normal_color[]  = {0.66f, 0.00f, 0.00f, 0.60f};
-
-GLfloat ui_active_color2[] = {0.00f, 0.45f, 0.45f, 0.60f};
-GLfloat ui_hot_color2[]    = {0.00f, 0.28f, 0.28f, 1.00f};
-GLfloat ui_normal_color2[] = {0.33f, 0.00f, 0.33f, 0.60f};
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 static void ui_virtual_to_screen( float vx, float vy, float *rx, float *ry );
 static void ui_screen_to_virtual( float rx, float ry, float *vx, float *vy );
+
+static void ui_setactive( ui_id_t id );
+static void ui_sethot( ui_id_t id );
+
+static void ui_setWidgetactive( ui_Widget_t * pw );
+static void ui_setWidgethot( ui_Widget_t * pw );
+
+static float ui_drawWidgetButton( ui_Widget_t * pw );
+static float ui_drawWidgetImage( ui_Widget_t * pw );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

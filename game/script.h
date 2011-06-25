@@ -201,11 +201,13 @@ typedef struct s_ai_state ai_state_t;
 
 ai_state_t * ai_state_ctor( ai_state_t * pself );
 ai_state_t * ai_state_dtor( ai_state_t * pself );
+ai_state_t * ai_state_reconstruct( ai_state_t * pself );
 bool_t       ai_state_set_bumplast( ai_state_t * pself, const CHR_REF  ichr );
 bool_t       ai_state_get_wp( ai_state_t * pself );
 bool_t       ai_state_ensure_wp( ai_state_t * pself );
 bool_t       ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
 bool_t       ai_state_set_changed( ai_state_t * pai );
+void         ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank );
 
 //--------------------------------------------------------------------------------------------
 // struct s_script_state

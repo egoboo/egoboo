@@ -68,6 +68,7 @@ static gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, 
 static gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match );
 static gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
 static void   chr_instance_clear_cache( chr_instance_t * pinst );
+static void   chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], MD2_Vertex_t lst_ary[], MD2_Vertex_t nxt_ary[], int vmin, int vmax, float flip );
 
 // private vlst_cache_t methods
 static vlst_cache_t * vlst_cache_init( vlst_cache_t * );
@@ -2524,7 +2525,7 @@ gfx_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
         pcache->valid = bfalse;
     }
 
-    if (( pinst->frame_lst != pinst->frame_lst )  && ABS( pcache->flip - pinst->flip ) > flip_tolerance )
+    if (( pinst->frame_lst != pcache->frame_lst )  && ABS( pinst->flip - pcache->flip ) > flip_tolerance )
     {
         pcache->valid = bfalse;
     }

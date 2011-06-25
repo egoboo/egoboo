@@ -476,6 +476,36 @@ static gfx_rv gfx_make_dolist( dolist_t * pdolist, const camera_t * pcam );
 static gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam );
 static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam );
 
+
+static float draw_one_xp_bar( float x, float y, Uint8 ticks );
+static float draw_character_xp_bar( const CHR_REF character, float x, float y );
+static void draw_all_status();
+static void draw_map();
+static float draw_fps( float y );
+static float draw_help( float y );
+static float draw_debug( float y );
+static float draw_timer( float y );
+static float draw_game_status( float y );
+static float draw_messages( float y );
+static void render_shadow_sprite( float intensity, GLvertex v[] );
+static gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture );
+static gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture );
+static float calc_light_rotation( int rotation, int normal );
+static float calc_light_global( int rotation, int normal, float lx, float ly, float lz );
+static void BillboardList_clear_data();
+
+static void gfx_disable_texturing();
+static void gfx_reshape_viewport( int w, int h );
+static bool_t light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold );
+static gfx_rv light_fans_update_lcache( renderlist_t * prlist );
+static gfx_rv light_fans_update_clst( renderlist_t * prlist );
+static bool_t sum_global_lighting( lighting_vector_t lighting );
+static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
+static gfx_rv gfx_make_renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst );
+static gfx_rv gfx_make_dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst );
+static projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr );
+static bool_t gfx_frustum_intersects_oct( const ego_frustum_t * pf, const oct_bb_t * poct );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -798,7 +828,7 @@ void gfx_init_SDL_graphics()
     {
         //Setup the cute windows manager icon, don't do this on Mac
         SDL_Surface *theSurface;
-        char * fname = "icon.bmp";
+        const char * fname = "icon.bmp";
         STRING fileload;
 
         snprintf( fileload, SDL_arraysize( fileload ), "mp_data/%s", fname );
@@ -1144,25 +1174,25 @@ float draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_colo
     if ( NOSPARKLE != sparkle_color )
     {
         int         position;
-        float       blip_x, blip_y;
+        float       loc_blip_x, loc_blip_y;
 
         position = sparkle_timer & SPARKLE_AND;
 
-        blip_x = x + position * ( width / SPARKLE_SIZE );
-        blip_y = y;
-        draw_blip( 0.5f, sparkle_color, blip_x, blip_y, bfalse );
+        loc_blip_x = x + position * ( width / SPARKLE_SIZE );
+        loc_blip_y = y;
+        draw_blip( 0.5f, sparkle_color, loc_blip_x, loc_blip_y, bfalse );
 
-        blip_x = x + width;
-        blip_y = y + position * ( height / SPARKLE_SIZE );
-        draw_blip( 0.5f, sparkle_color, blip_x, blip_y, bfalse );
+        loc_blip_x = x + width;
+        loc_blip_y = y + position * ( height / SPARKLE_SIZE );
+        draw_blip( 0.5f, sparkle_color, loc_blip_x, loc_blip_y, bfalse );
 
-        blip_x = blip_x - position  * ( width / SPARKLE_SIZE );
-        blip_y = y + height;
-        draw_blip( 0.5f, sparkle_color, blip_x, blip_y, bfalse );
+        loc_blip_x = loc_blip_x - position  * ( width / SPARKLE_SIZE );
+        loc_blip_y = y + height;
+        draw_blip( 0.5f, sparkle_color, loc_blip_x, loc_blip_y, bfalse );
 
-        blip_x = x;
-        blip_y = blip_y - position * ( height / SPARKLE_SIZE );
-        draw_blip( 0.5f, sparkle_color, blip_x, blip_y, bfalse );
+        loc_blip_x = x;
+        loc_blip_y = loc_blip_y - position * ( height / SPARKLE_SIZE );
+        draw_blip( 0.5f, sparkle_color, loc_blip_x, loc_blip_y, bfalse );
     }
 
     return y + height;
@@ -7091,7 +7121,7 @@ renderlist_t * renderlist_init( renderlist_t * plst, ego_mpd_t * pmesh )
     plst->pmesh = pmesh;
 
     return plst;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 gfx_rv renderlist_reset( renderlist_t * plst )

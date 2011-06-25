@@ -57,7 +57,19 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, pro_t, ProList, MAX_PROFILE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 static void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject );
+
+static bool_t obj_verify_file_vfs( const char * tmploadname );
+static int obj_read_slot_vfs( const char * tmploadname );
+
+static bool_t release_one_pro_data( const PRO_REF iobj );
+static bool_t release_one_profile_textures( const PRO_REF iobj );
+static bool_t pro_init( pro_t * pobj );
+
+static bool_t ProList_push_free( const PRO_REF iobj );
+static size_t ProList_pop_free( int idx );
+static int ProList_search_free( const PRO_REF iobj );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -795,7 +807,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     // without permission
     if ( LOADED_PRO( iobj ) )
     {
-        pro_t * pobj = ProList_get_ptr( iobj );
+        pro_t * pobj_tmp = ProList_get_ptr( iobj );
 
         // Make sure global objects don't load over existing models
         if ( required && SPELLBOOK == iobj )
@@ -804,7 +816,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
         }
         else if ( required && overrideslots )
         {
-            log_error( "load_one_profile_vfs() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), pobj->name, tmploadname );
+            log_error( "load_one_profile_vfs() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), pobj_tmp->name, tmploadname );
         }
         else
         {

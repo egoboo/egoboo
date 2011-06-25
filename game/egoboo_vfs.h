@@ -129,6 +129,7 @@ extern "C"
     void                   vfs_findClose( vfs_search_context_t ** pctxt );
 
     long         vfs_fileLength( vfs_FILE * pfile );
+    int          vfs_rewind( vfs_FILE * pfile );
 
     int          vfs_scanf( vfs_FILE * pfile, const char *format, ... );
     int          vfs_printf( vfs_FILE * pfile, const char *format, ... );
@@ -136,18 +137,16 @@ extern "C"
     int          vfs_putc( int c, vfs_FILE * pfile );
     int          vfs_getc( vfs_FILE * pfile );
     int          vfs_ungetc( int c, vfs_FILE * pfile );
+    int          vfs_puts( const char * , vfs_FILE * );
+    char *       vfs_gets( char *, int, vfs_FILE * );
+    int          vfs_read_float( vfs_FILE * pfile, float * val );
 
     void         vfs_empty_temp_directories( void );
 
     int          vfs_copyFile( const char *source, const char *dest );
     int          vfs_copyDirectory( const char *sourceDir, const char *destDir );
 
-    int    vfs_ungetc( int, vfs_FILE * );
-    int    vfs_getc( vfs_FILE * );
     int    vfs_removeDirectoryAndContents( const char * dirname, int recursive );
-    int    vfs_putc( int , vfs_FILE * );
-    int    vfs_puts( const char * , vfs_FILE * );
-    char * vfs_gets( char *, int, vfs_FILE * );
 
     const char * vfs_resolveReadFilename( const char * src_filename );
     const char * vfs_resolveWriteFilename( const char * src_filename );
@@ -163,6 +162,9 @@ extern "C"
 
     void vfs_set_base_search_paths( void );
     const char * vfs_mount_info_strip_path( const char * some_path );
+
+    void vfs_listSearchPaths();
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

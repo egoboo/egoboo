@@ -51,14 +51,17 @@ bool_t maxparticles_dirty = btrue;
 //--------------------------------------------------------------------------------------------
 
 static size_t  PrtList_get_free( void );
-
-static bool_t PrtList_remove_used( const PRT_REF iprt );
-static bool_t PrtList_remove_used_index( int index );
+static int     PrtList_get_free_list_index( const PRT_REF iprt );
 static bool_t PrtList_add_free( const PRT_REF iprt );
 //static bool_t PrtList_remove_free( const PRT_REF iprt );
 static bool_t PrtList_remove_free_index( const int index );
 
-static size_t  PrtList_get_free( void );
+static bool_t PrtList_remove_used( const PRT_REF iprt );
+static bool_t PrtList_remove_used_index( const int index );
+static int    PrtList_get_used_list_index( const PRT_REF iprt );
+
+static void   PrtList_prune_used();
+static void   PrtList_prune_free();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

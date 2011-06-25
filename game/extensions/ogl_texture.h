@@ -43,7 +43,7 @@
 #define ERROR_IMAGE_BINDING( BIND ) ( ErrorImage_get_binding() == (BIND) )
 
 /// OpenGL Texture filtering methods
-typedef enum e_tx_filters
+enum e_tx_filters
 {
     TX_UNFILTERED,
     TX_LINEAR,
@@ -53,7 +53,8 @@ typedef enum e_tx_filters
     TX_TRILINEAR_2,
     TX_ANISOTROPIC,
     TX_FILTER_COUNT
-} TX_FILTERS;
+};
+typedef enum e_tx_filters  TX_FILTERS;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

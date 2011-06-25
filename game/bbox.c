@@ -44,17 +44,6 @@ static int cv_point_data_cmp( const void * pleft, const void * pright );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static oct_bb_t * oct_bb_ctor_index( oct_bb_t * pobb, int index );
-static egoboo_rv  oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
-static egoboo_rv  oct_bb_validate_index( oct_bb_t * pobb, int index );
-static bool_t     oct_bb_empty_index( const oct_bb_t * pbb, int index );
-
-static bool_t oct_bb_empty_raw( const oct_bb_t * pbb );
-static bool_t oct_bb_empty_index_raw( const oct_bb_t * pbb, int index );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 //static Uint32    cv_list_count = 0;
 //static OVolume_t cv_list[1000];
 
@@ -148,7 +137,7 @@ bool_t aabb_from_oct_bb( aabb_t * dst, const oct_bb_t * src )
     }
 
     return btrue;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )

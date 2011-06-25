@@ -136,6 +136,13 @@ Mix_Chunk * g_wavelist[GSND_COUNT];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+static bool_t sound_system_config_init( snd_config_t * psnd );
+static void music_stack_init();
+static bool_t music_stack_push( Mix_Music * mus, int song );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 IMPLEMENT_LIST( looped_sound_data_t, LoopedList, LOOPED_COUNT );
 
 //--------------------------------------------------------------------------------------------
@@ -1067,9 +1074,9 @@ void looped_update_all_sound( )
         if ( !INGAME_CHR( plooped->object ) )
         {
             // not a valid object
-            fvec3_t   diff = VECT3( 0, 0, 0 );
+            fvec3_t   diff_tmp = VECT3( 0, 0, 0 );
 
-            _update_stereo_channel( plooped->channel, diff.v, 0.0f );
+            _update_stereo_channel( plooped->channel, diff_tmp.v, 0.0f );
         }
         else
         {

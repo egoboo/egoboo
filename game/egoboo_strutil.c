@@ -361,3 +361,40 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
         text++;
     }
 }
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// gcc does not define these functions on linux (at least not Ubuntu),
+// but it is defined under MinGW, which is yucky.
+// I actually had to spend like 45 minutes looking up the compiler flags
+// to catch this... good documentation, guys!
+#if defined(__GNUC__) && !(defined (__MINGW) || defined(__MINGW32__))
+char* strupr( char * str )
+{
+    char *ret = str;
+    if ( NULL != str )
+    {
+        while ( CSTR_END != *str )
+        {
+            *str = toupper( *str );
+            str++;
+        }
+    }
+    return ret;
+}
+
+char* strlwr( char * str )
+{
+    char *ret = str;
+    if ( NULL != str )
+    {
+        while ( CSTR_END != *str )
+        {
+            *str = tolower( *str );
+            str++;
+        }
+    }
+    return ret;
+}
+#endif

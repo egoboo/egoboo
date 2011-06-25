@@ -141,6 +141,11 @@ static int          _vfs_mount_info_matches( const char * mount_point, const cha
 static bool_t       _vfs_mount_info_remove( int cnt );
 static int          _vfs_mount_info_search( const char * some_path );
 
+static const char * _vfs_potential_mount_point( const char * some_path, const char ** pstripped_pos );
+static void _vfs_findClose( vfs_search_context_t * ctxt );
+
+static int fake_physfs_vprintf( PHYSFS_File * pfile, const char *format, va_list args );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void vfs_init()
@@ -170,12 +175,12 @@ void vfs_init()
     }
     else
     {
-        char tmp_path[1024] = EMPTY_CSTR;
+        char loc_path[1024] = EMPTY_CSTR;
 
-        snprintf( tmp_path, SDL_arraysize( tmp_path ), "%s/debug", fs_getUserDirectory() );
+        snprintf( loc_path, SDL_arraysize( loc_path ), "%s/debug", fs_getUserDirectory() );
 
-        str_convert_slash_sys( tmp_path, SDL_arraysize( tmp_path ) );
-        fs_createDirectory( tmp_path );
+        str_convert_slash_sys( loc_path, SDL_arraysize( loc_path ) );
+        fs_createDirectory( loc_path );
     }
 
     // set the write directory to the root user directory

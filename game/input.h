@@ -46,6 +46,7 @@ enum e_input_device
     INPUT_DEVICE_BEGIN = INPUT_DEVICE_KEYBOARD,
     INPUT_DEVICE_END   = INPUT_DEVICE_MOUSE + MAX_JOYSTICK
 };
+typedef enum e_input_device INPUT_DEVICE;
 
 #define IS_VALID_JOYSTICK(XX) ( ( (XX) >= INPUT_DEVICE_JOY ) && ( (XX) < INPUT_DEVICE_JOY + MAX_JOYSTICK ) )
 

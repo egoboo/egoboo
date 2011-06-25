@@ -47,6 +47,13 @@ const float ice_friction = 0.9738f;  // the square of air_friction
 static egoboo_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
 static egoboo_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
 
+static bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
+static bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_base_t nrm, float * depth );
+static float phys_get_depth( const oct_vec_t * podepth, const fvec3_base_t nrm );
+static bool_t phys_warp_normal( float exponent, fvec3_base_t nrm );
+static bool_t phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth );
+static bool_t phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth )
@@ -616,7 +623,7 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
             }
             else
             {
-                float tmp_min, tmp_max;
+                float tmp_min = 0.0f, tmp_max = 0.0f;
 
                 retval = phys_intersect_oct_bb_index( index, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );
 

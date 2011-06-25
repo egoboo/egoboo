@@ -59,9 +59,14 @@ static int    _script_function_calls[SCRIPT_FUNCTIONS_COUNT];
 static double _script_function_times[SCRIPT_FUNCTIONS_COUNT];
 
 static PRO_REF script_error_model = ( PRO_REF ) MAX_PROFILE;
-static char*   script_error_classname = "UNKNOWN";
+static const char * script_error_classname = "UNKNOWN";
 
 static bool_t _scripting_system_initialized = bfalse;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static bool_t ai_state_free( ai_state_t * pself );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1813,7 +1818,7 @@ bool_t ai_state_free( ai_state_t * pself )
     PROFILE_FREE_STRUCT( pself );
 
     return btrue;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 ai_state_t * ai_state_reconstruct( ai_state_t * pself )
@@ -1921,4 +1926,41 @@ bool_t ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
     pself->bumplast = ichr;
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank )
+{
+    chr_t * pchr;
+    pro_t * ppro;
+    cap_t * pcap;
+
+    pself = ai_state_ctor( pself );
+
+    if ( NULL == pself || !DEFINED_CHR( index ) ) return;
+    pchr = ChrList_get_ptr( index );
+
+    // a character cannot be spawned without a valid profile
+    if ( !LOADED_PRO( iobj ) ) return;
+    ppro = ProList_get_ptr( iobj );
+
+    // a character cannot be spawned without a valid cap
+    pcap = pro_get_pcap( iobj );
+    if ( NULL == pcap ) return;
+
+    pself->index      = index;
+    pself->alert      = ALERTIF_SPAWNED;
+    pself->state      = pcap->state_override;
+    pself->content    = pcap->content_override;
+    pself->passage    = 0;
+    pself->target     = index;
+    pself->owner      = index;
+    pself->child      = index;
+    pself->target_old = index;
+
+    pself->bumplast   = index;
+    pself->hitlast    = index;
+
+    pself->order_counter = rank;
+    pself->order_value   = 0;
 }

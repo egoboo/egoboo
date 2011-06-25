@@ -149,7 +149,7 @@ static int  numplayerrespond = 0;
 
 static net_instance_t gnet = { bfalse, bfalse, bfalse, bfalse, bfalse };
 
-static net_order_t net_order[MAXORDER];
+//static net_order_t net_order[MAXORDER];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -172,6 +172,9 @@ Uint32 nexttimestamp;                          // Expected timestamp
 static egoboo_rv net_dispatchEvent( ENetEvent *event );
 static egoboo_rv netfile_handleEvent( net_instance_t * pnet, ENetEvent *event );
 static egoboo_rv net_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt );
+
+static void net_copyFileToAllPlayersOld_vfs( const char *source, const char *dest );
+static void net_copyFileToPeerOld_vfs( const char *source, const char *dest, ENetPeer *peer );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

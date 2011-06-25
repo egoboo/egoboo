@@ -46,7 +46,7 @@ struct s_egoboo_config;
 #define MIX_HIGH_QUALITY   44100
 
 /// Pre defined global particle sounds
-typedef enum e_global_sounds
+enum e_global_sounds
 {
     GSND_GETCOIN = 0,
     GSND_DEFEND,
@@ -57,10 +57,16 @@ typedef enum e_global_sounds
     GSND_PITFALL,
     GSND_SHIELDBLOCK,
     GSND_COUNT
-} GSND_GLOBAL;
+};
+typedef enum e_global_sounds GSND_GLOBAL;
 
 /// what type of music data is used by mix_ptr_t
-enum e_mix_type { MIX_UNKNOWN = 0, MIX_MUS, MIX_SND };
+enum e_mix_type
+{
+    MIX_UNKNOWN = 0,
+    MIX_MUS,
+    MIX_SND
+};
 typedef enum e_mix_type mix_type_t;
 
 //--------------------------------------------------------------------------------------------

@@ -51,11 +51,19 @@ Uint8  scancode_to_ascii_shift[SDLK_LAST];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew );
+static egoboo_console_t * egoboo_console_ctor( egoboo_console_t * pcon, SDL_Rect Con_rect, egoboo_console_callback_t pcall, void * data );
+static egoboo_console_t * egoboo_console_dtor( egoboo_console_t * pcon );
+
+static SDL_bool egoboo_console_run( egoboo_console_t * pcon );
 static void egoboo_console_write( egoboo_console_t * pcon, const char *format, va_list args );
 
+static const char * egoboo_console_get_saved( egoboo_console_t * pcon );
+static void egoboo_console_add_saved( egoboo_console_t * pcon, char * str );
+static void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew );
+
+static void egoboo_console_draw_begin();
+static void egoboo_console_draw_end();
 static SDL_bool egoboo_console_draw( egoboo_console_t * pcon );
-static SDL_bool egoboo_console_run( egoboo_console_t * pcon );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

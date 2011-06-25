@@ -46,12 +46,17 @@ int enc_loop_depth = 0;
 //--------------------------------------------------------------------------------------------
 
 static size_t  EncList_get_free( void );
-
-static bool_t EncList_remove_used( const ENC_REF ienc );
-static bool_t EncList_remove_used_index( int index );
+static int     EncList_get_free_list_index( const ENC_REF ienc );
 static bool_t EncList_add_free( const ENC_REF ienc );
 //static bool_t EncList_remove_free( const ENC_REF ienc );
 static bool_t EncList_remove_free_index( const int index );
+
+static bool_t EncList_remove_used( const ENC_REF ienc );
+static bool_t EncList_remove_used_index( const int index );
+static int    EncList_get_used_list_index( const ENC_REF ienc );
+
+static void   EncList_prune_used();
+static void   EncList_prune_free();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

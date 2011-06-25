@@ -46,12 +46,17 @@ int chr_loop_depth = 0;
 //--------------------------------------------------------------------------------------------
 
 static size_t  ChrList_get_free( void );
-
-static bool_t ChrList_remove_used( const CHR_REF ichr );
-static bool_t ChrList_remove_used_index( const int index );
+static int     ChrList_get_free_list_index( const CHR_REF ichr );
 static bool_t ChrList_add_free( const CHR_REF ichr );
 //static bool_t ChrList_remove_free( const CHR_REF ichr );
 static bool_t ChrList_remove_free_index( const int index );
+
+static bool_t ChrList_remove_used( const CHR_REF ichr );
+static bool_t ChrList_remove_used_index( const int index );
+static int    ChrList_get_used_list_index( const CHR_REF ichr );
+
+static void   ChrList_prune_used();
+static void   ChrList_prune_free();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

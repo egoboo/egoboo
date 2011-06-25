@@ -54,12 +54,6 @@ struct s_prt;
 //--------------------------------------------------------------------------------------------
 // internal structs
 //--------------------------------------------------------------------------------------------
-enum e_turn_modes;
-typedef enum e_turn_modes TURN_MODE;
-
-enum e_grip_offset;
-typedef enum e_grip_offset grip_offset_t;
-
 struct s_team;
 typedef struct s_team team_t;
 
@@ -179,6 +173,7 @@ enum e_turn_modes
     TURNMODE_WATCHTARGET,                        ///< For combat intensive AI
     TURNMODE_COUNT
 };
+typedef enum e_turn_modes TURN_MODE;
 
 /// The vertex offsets for the various grips
 enum e_grip_offset
@@ -192,6 +187,7 @@ enum e_grip_offset
     GRIP_INVENTORY =               GRIP_ORIGIN,
     GRIP_ONLY      =               GRIP_LEFT
 };
+typedef enum e_grip_offset grip_offset_t;
 
 /// Bits used to control options for the chr_get_name() function
 enum e_chr_name_bits

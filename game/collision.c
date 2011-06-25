@@ -112,8 +112,8 @@ typedef struct s_bumplist bumplist_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-//static bool_t add_chr_chr_interaction( CHashList_t * pclst, const CHR_REF ichr_a, const CHR_REF ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
-//static bool_t add_chr_prt_interaction( CHashList_t * pclst, const CHR_REF ichr_a, const PRT_REF iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
+static bool_t add_chr_chr_interaction( CHashList_t * pclst, const CHR_REF ichr_a, const CHR_REF ichr_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
+static bool_t add_chr_prt_interaction( CHashList_t * pclst, const CHR_REF ichr_a, const PRT_REF iprt_b, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
 
 static bool_t detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool_t detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b );
@@ -133,7 +133,7 @@ static bool_t bump_all_collisions( CoNode_ary_t * pcn_ary );
 
 static bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat );
-//static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
+static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
 static bool_t do_chr_chr_collision( CoNode_t * d );
 
 static bool_t do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collsion_data_t * pdata );
@@ -144,6 +144,17 @@ static bool_t do_chr_prt_collision_impulse( chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_bump( chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision( CoNode_t * d );
+
+
+static bool_t do_prt_platform_physics( chr_prt_collsion_data_t * pdata );
+static bool_t do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * pdata );
+static bool_t do_chr_chr_collision_pressure_normal( chr_t * pchr_a, chr_t * pchr_b, float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin );
+
+static int CoNode_matches( CoNode_t * pleft, CoNode_t * pright );
+static int CoNode_cmp_unique( const void * vleft, const void * vright );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 IMPLEMENT_DYNAMIC_ARY( CoNode_ary,   CoNode_t );
 IMPLEMENT_DYNAMIC_ARY( HashNode_ary, hash_node_t );
@@ -246,7 +257,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
 {
     REF_T AA, BB;
 
-    AA = ( Uint32 )( ~0 );
+    AA = ( Uint32 )( ~(( Uint32 )0) );
     if ( VALID_CHR_RANGE( coll->chra ) )
     {
         AA = REF_TO_INT( coll->chra );
@@ -256,7 +267,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
         AA = REF_TO_INT( coll->prta );
     }
 
-    BB = ( Uint32 )( ~0 );
+    BB = ( Uint32 )( ~(( Uint32 )0) );
     if ( VALID_CHR_RANGE( coll->chrb ) )
     {
         BB = REF_TO_INT( coll->chrb );
@@ -436,7 +447,7 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
     if ( !found )
     {
         size_t old_count;
-        hash_node_t * old_head, * new_head, * hn;
+        hash_node_t * old_head, * new_head, * tmp_hn;
 
         // pick a free collision data
         d = CoNode_ary_pop_back( free_cdata );
@@ -445,14 +456,14 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
         *d = *pdata;
 
         // generate a new hash node
-        hn = HashNode_ary_pop_back( free_hnodes );
+        tmp_hn = HashNode_ary_pop_back( free_hnodes );
 
         // link the hash node to the free CoNode
-        hn->data = d;
+        tmp_hn->data = d;
 
         // insert the node at the front of the collision list for this hash
         old_head = hash_list_get_node( pchlst, hashval );
-        new_head = hash_node_insert_before( old_head, hn );
+        new_head = hash_node_insert_before( old_head, tmp_hn );
         hash_list_set_node( pchlst, hashval, new_head );
 
         // add 1 to the count at this hash
@@ -1620,13 +1631,13 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
     int        cnt;
 
     // blank the accumulators
-    CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
+    CHR_BEGIN_LOOP_ACTIVE( tnc, pchr )
     {
         phys_data_clear( &( pchr->phys ) );
     }
     CHR_END_LOOP();
 
-    PRT_BEGIN_LOOP_ACTIVE( cnt, prt_bdl )
+    PRT_BEGIN_LOOP_ACTIVE( tnc, prt_bdl )
     {
         phys_data_clear( &( prt_bdl.prt_ptr->phys ) );
     }
@@ -1873,13 +1884,13 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
     PRT_END_LOOP();
 
     // blank the accumulators
-    CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
+    CHR_BEGIN_LOOP_ACTIVE( tnc, pchr )
     {
         phys_data_clear( &( pchr->phys ) );
     }
     CHR_END_LOOP();
 
-    PRT_BEGIN_LOOP_ACTIVE( cnt, prt_bdl )
+    PRT_BEGIN_LOOP_ACTIVE( tnc, prt_bdl )
     {
         phys_data_clear( &( prt_bdl.prt_ptr->phys ) );
     }
