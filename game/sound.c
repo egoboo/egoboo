@@ -530,7 +530,7 @@ bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_mix( fvec3_t pos, mix_ptr_t * pptr )
+int sound_play_mix( fvec3_base_t pos, mix_ptr_t * pptr )
 {
     int retval = INVALID_SOUND_CHANNEL;
     if ( !snd.soundvalid || !mixeron )
@@ -612,7 +612,7 @@ int get_current_song_playing()
 //--------------------------------------------------------------------------------------------
 // chunk stuff
 //--------------------------------------------------------------------------------------------
-int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF owner )
+int sound_play_chunk_looped( fvec3_base_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF owner )
 {
     /// ZF@> This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND_CHANNEL;
@@ -627,7 +627,7 @@ int sound_play_chunk_looped( fvec3_t pos, Mix_Chunk * pchunk, int loops, const C
     if ( !process_running( PROC_PBASE( GProc ) ) )  return INVALID_SOUND_CHANNEL;
 
     // measure the distance in tiles
-    _calculate_average_camera_stereo( pos.v, diff.v, &pan );
+    _calculate_average_camera_stereo( pos, diff.v, &pan );
 
     volume = _calculate_volume( diff.v, DEG_TO_RAD( CAM_FOV ) );
 

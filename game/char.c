@@ -2352,7 +2352,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        ithrown = spawn_one_character( pchr->pos, pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
+        ithrown = spawn_one_character( pchr->pos.v, pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
         if ( DEFINED_CHR( ithrown ) )
         {
             chr_t * pthrown = ChrList_get_ptr( ithrown );
@@ -2404,14 +2404,14 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_lpip, iholder, spawn_vrt_offset, chr_get_iteam( iholder ), iweapon, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                iparticle = spawn_one_particle( pweapon->pos.v, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_lpip, iholder, spawn_vrt_offset, chr_get_iteam( iholder ), iweapon, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
                 if ( DEFINED_PRT( iparticle ) )
                 {
                     fvec3_t tmp_pos;
                     prt_t * pprt = PrtList_get_ptr( iparticle );
 
-                    tmp_pos = prt_get_pos( pprt );
+                    prt_get_pos( pprt, tmp_pos.v );
 
                     if ( pweapon_cap->attack_attached )
                     {
@@ -2523,7 +2523,7 @@ void drop_money( const CHR_REF character, int money )
 
             for ( tnc = 0; tnc < count; tnc++ )
             {
-                spawn_one_particle_global( loc_pos, ATK_FRONT, pips[cnt], tnc );
+                spawn_one_particle_global( loc_pos.v, ATK_FRONT, pips[cnt], tnc );
             }
         }
     }
@@ -3636,7 +3636,7 @@ int damage_character( const CHR_REF character, FACING_T direction,
                 {
                     if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && DAMAGE_IS_PHYSICAL( damagetype ) ) )
                     {
-                        spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_lpip,
+                        spawn_one_particle( pchr->pos.v, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_lpip,
                                             ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
                     }
                 }
@@ -3805,7 +3805,7 @@ void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker )
     /// @details ZF@> Spawn a defend particle
     if ( 0 != pchr->damage_timer ) return;
 
-    spawn_one_particle_global( pchr->pos, pchr->ori.facing_z, PIP_DEFEND, 0 );
+    spawn_one_particle_global( pchr->pos.v, pchr->ori.facing_z, PIP_DEFEND, 0 );
 
     pchr->damage_timer    = DEFENDTIME;
     SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
@@ -3834,7 +3834,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profile )
     facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < pcap->gopoofprt_amount; cnt++ )
     {
-        spawn_one_particle( pchr->pos_old, facing_z, profile, pcap->gopoofprt_lpip,
+        spawn_one_particle( pchr->pos_old.v, facing_z, profile, pcap->gopoofprt_lpip,
                             ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, origin, ( PRT_REF )MAX_PRT, cnt, ( CHR_REF )MAX_CHR );
 
         facing_z += pcap->gopoofprt_facingadd;
@@ -4008,7 +4008,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // Particle attachments
     for ( tnc = 0; tnc < pcap->attachedprt_amount; tnc++ )
     {
-        spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip,
+        spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip,
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, ( PRT_REF )MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
     }
 
@@ -4096,7 +4096,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
             vtmp.y = pchr->pos.y;
             vtmp.z = water_level + RAISE;
 
-            spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0 );
+            spawn_one_particle_global( vtmp.v, ATK_FRONT, PIP_SPLASH, 0 );
 
             if ( water.is_water )
             {
@@ -4135,7 +4135,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
                     vtmp.y = pchr->pos.y;
                     vtmp.z = water_level;
 
-                    spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
+                    spawn_one_particle_global( vtmp.v, ATK_FRONT, PIP_RIPPLE, 0 );
                 }
             }
 
@@ -4559,7 +4559,7 @@ chr_t * chr_config_dtor( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF profile, const TEAM_REF team,
+CHR_REF spawn_one_character( fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team,
                              Uint8 skin, FACING_T facing, const char *name, const CHR_REF override )
 {
     /// @details ZZ@> This function spawns a character and returns the character's index number
@@ -4611,7 +4611,7 @@ CHR_REF spawn_one_character( fvec3_t pos, const PRO_REF profile, const TEAM_REF 
     POBJ_BEGIN_SPAWN( pchr );
 
     // just set the spawn info
-    pchr->spawn_data.pos      = pos;
+    fvec3_base_copy( pchr->spawn_data.pos.v, pos );
     pchr->spawn_data.profile  = profile;
     pchr->spawn_data.team     = team;
     pchr->spawn_data.skin     = skin;
@@ -6367,7 +6367,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 ijump = pro_get_pcap( pchr->profile_ref )->sound_index[SOUND_JUMP];
                 if ( VALID_SND( ijump ) )
                 {
-                    sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ijump ) );
+                    sound_play_chunk( pchr->pos.v, chr_get_chunk_ptr( pchr, ijump ) );
                 }
             }
 
@@ -6408,7 +6408,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                     ijump = pcap->sound_index[SOUND_JUMP];
                     if ( VALID_SND( ijump ) )
                     {
-                        sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ijump ) );
+                        sound_play_chunk( pchr->pos.v, chr_get_chunk_ptr( pchr, ijump ) );
                     }
                 }
             }
@@ -7125,7 +7125,7 @@ bool_t chr_handle_madfx( chr_t * pchr )
             int ifoot = pcap->sound_index[SOUND_FOOTFALL];
             if ( VALID_SND( ifoot ) )
             {
-                sound_play_chunk( pchr->pos, chr_get_chunk_ptr( pchr, ifoot ) );
+                sound_play_chunk( pchr->pos.v, chr_get_chunk_ptr( pchr, ifoot ) );
             }
         }
     }

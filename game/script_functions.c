@@ -1872,7 +1872,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = 0;
 
-    ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
+    ichr = spawn_one_character( pos.v, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
     returncode = DEFINED_CHR( ichr );
 
     if ( !returncode )
@@ -2113,7 +2113,7 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
 
     if ( pchr->pos_old.z > PITNOSOUND && VALID_SND( pstate->argument ) )
     {
-        sound_play_chunk( pchr->pos_old, chr_get_chunk_ptr( pchr, pstate->argument ) );
+        sound_play_chunk( pchr->pos_old.v, chr_get_chunk_ptr( pchr, pstate->argument ) );
     }
 
     SCRIPT_FUNCTION_END();
@@ -2142,7 +2142,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->holdingwhich[SLOT_LEFT];
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
     returncode = DEFINED_PRT( iprt );
     if ( returncode )
@@ -2154,7 +2154,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         place_particle_at_vertex( pprt, pself->index, pstate->distance );
         pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
 
-        tmp_pos = prt_get_pos( pprt );
+        prt_get_pos( pprt, tmp_pos.v );
 
         // Correct X, Y, Z spacing
         tmp_pos.z += PipStack.lst[pprt->pip_ref].spacing_vrt_pair.base;
@@ -3927,7 +3927,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = iholder;
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     returncode = DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
@@ -3956,7 +3956,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
         vtmp.x = pstate->x;
         vtmp.y = pstate->y;
         vtmp.z = pstate->distance;
-        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+        iprt = spawn_one_particle( vtmp.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
     returncode = DEFINED_PRT( iprt );
@@ -4124,7 +4124,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 
         if ( playing_chunk != new_chunk )
         {
-            pchr->loopedsound_channel = sound_play_chunk_looped( pchr->pos_old, new_chunk, -1, pself->index );
+            pchr->loopedsound_channel = sound_play_chunk_looped( pchr->pos_old.v, new_chunk, -1, pself->index );
         }
     }
 
@@ -4450,7 +4450,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
     returncode = DEFINED_PRT( iprt );
 
@@ -4530,7 +4530,7 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
         if ( VALID_SND( pstate->argument ) )
         {
             int channel;
-            channel = sound_play_chunk( pchr->pos_old, chr_get_chunk_ptr( pchr, pstate->argument ) );
+            channel = sound_play_chunk( pchr->pos_old.v, chr_get_chunk_ptr( pchr, pstate->argument ) );
 
             if ( channel != INVALID_SOUND_CHANNEL )
             {
@@ -4561,7 +4561,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos.v, CLIP_TO_16BITS( pstate->turn ), pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
     returncode = DEFINED_PRT( iprt );
 
@@ -4943,7 +4943,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ichr, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+    iprt = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ichr, pstate->distance, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
 
     returncode = DEFINED_PRT( iprt );
 
@@ -5313,7 +5313,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
+    ichr = spawn_one_character( pos.v, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
     returncode = DEFINED_CHR( ichr );
 
     if ( !returncode )
@@ -5367,7 +5367,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    ichr = spawn_one_character( pos, ( PRO_REF )pstate->argument, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
+    ichr = spawn_one_character( pos.v, ( PRO_REF )pstate->argument, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, ( CHR_REF )MAX_CHR );
     returncode = DEFINED_CHR( ichr );
 
     if ( !returncode )
@@ -5464,7 +5464,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
         vtmp.y = pstate->y;
         vtmp.z = pstate->distance;
 
-        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+        iprt = spawn_one_particle( vtmp.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
     returncode = DEFINED_PRT( iprt );
@@ -6591,7 +6591,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
         vtmp.y = pstate->y;
         vtmp.z = pstate->distance;
 
-        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+        iprt = spawn_one_particle( vtmp.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ( CHR_REF )MAX_CHR, 0, pchr->team, ichr, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
     }
 
     returncode = DEFINED_PRT( iprt );
@@ -7239,7 +7239,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    ichr = spawn_one_character( pos, ( PRO_REF )pstate->argument, pchr->team, 0, FACE_NORTH, NULL, ( CHR_REF )MAX_CHR );
+    ichr = spawn_one_character( pos.v, ( PRO_REF )pstate->argument, pchr->team, 0, FACE_NORTH, NULL, ( CHR_REF )MAX_CHR );
     returncode = DEFINED_CHR( ichr );
 
     if ( !returncode )

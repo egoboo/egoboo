@@ -6438,7 +6438,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam )
         plight = NULL;
 
         // find the distance to the camera
-        fvec3_sub( vdist.v, prt_get_pos_v( prt_bdl.prt_ptr ), pcam->track_pos.v );
+        fvec3_sub( vdist.v, prt_get_pos_v_const( prt_bdl.prt_ptr ), pcam->track_pos.v );
         distance = vdist.x * vdist.x + vdist.y * vdist.y + vdist.z * vdist.z;
 
         // insert the dynalight
@@ -6482,7 +6482,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam )
         if ( NULL != plight )
         {
             plight->distance = distance;
-            plight->pos      = prt_get_pos( prt_bdl.prt_ptr );
+            prt_get_pos( prt_bdl.prt_ptr, plight->pos.v );
             plight->level    = pprt_dyna->level;
             plight->falloff  = pprt_dyna->falloff;
         }

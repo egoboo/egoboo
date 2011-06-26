@@ -960,7 +960,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v_const( pchr_a ), pchr_a->vel.v, &( pprt_b->prt_max_cv ), prt_get_pos_v( pprt_b ), pprt_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v_const( pchr_a ), pchr_a->vel.v, &( pprt_b->prt_max_cv ), prt_get_pos_v_const( pprt_b ), pprt_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = ichr_a;
                             tmp_codata.prtb = iprt_b;
@@ -1107,7 +1107,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         if ( pchr_a->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_min_cv ), chr_get_pos_v_const( pchr_a ), pchr_a->vel.v, &( bdl.prt_ptr->prt_max_cv ), prt_get_pos_v( bdl.prt_ptr ), bdl.prt_ptr->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_min_cv ), chr_get_pos_v_const( pchr_a ), pchr_a->vel.v, &( bdl.prt_ptr->prt_max_cv ), prt_get_pos_v_const( bdl.prt_ptr ), bdl.prt_ptr->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
 
                             tmp_codata.chra = ichr_a;
@@ -1777,7 +1777,9 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         bool_t position_updated = bfalse;
         fvec3_t max_apos;
 
-        fvec3_t tmp_pos = prt_get_pos( bdl.prt_ptr );
+        fvec3_t tmp_pos;
+        
+        prt_get_pos( bdl.prt_ptr, tmp_pos.v );
 
         bump_str = 1.0f;
         if ( INGAME_CHR( bdl.prt_ptr->attachedto_ref ) )
@@ -2583,10 +2585,10 @@ bool_t do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t *
     oct_bb_add_fvec3( &( pdata->pchr->chr_min_cv ), chr_get_pos_v_const( pdata->pchr ), &cv_chr );
 
     // the smallest particle collision volume
-    oct_bb_add_fvec3( &( pdata->pprt->prt_min_cv ), prt_get_pos_v( pdata->pprt ), &cv_prt_min );
+    oct_bb_add_fvec3( &( pdata->pprt->prt_min_cv ), prt_get_pos_v_const( pdata->pprt ), &cv_prt_min );
 
     // the largest particle collision volume (the hit-box)
-    oct_bb_add_fvec3( &( pdata->pprt->prt_max_cv ), prt_get_pos_v( pdata->pprt ), &cv_prt_max );
+    oct_bb_add_fvec3( &( pdata->pprt->prt_max_cv ), prt_get_pos_v_const( pdata->pprt ), &cv_prt_max );
 
     if ( d->tmin <= 0.0f || ABS( d->tmin ) > 1e6 || ABS( d->tmax ) > 1e6 )
     {
@@ -2724,7 +2726,7 @@ bool_t do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
     // but the vertical distance is looser.
-    plat_collision = test_interaction_close_1( &( pdata->pchr->chr_max_cv ), chr_get_pos_v_const( pdata->pchr ), pdata->pprt->bump_padded, prt_get_pos_v( pdata->pprt ), btrue );
+    plat_collision = test_interaction_close_1( &( pdata->pchr->chr_max_cv ), chr_get_pos_v_const( pdata->pchr ), pdata->pprt->bump_padded, prt_get_pos_v_const( pdata->pprt ), btrue );
 
     if ( !plat_collision ) return bfalse;
 
@@ -2929,7 +2931,7 @@ bool_t do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                         // Attacker broke the block and batters away the shield
                         // Time to raise shield again = 40/50 (0.8 seconds)
                         pdata->pchr->reload_timer += 40;
-                        sound_play_chunk( pdata->pchr->pos, g_wavelist[GSND_SHIELDBLOCK] );
+                        sound_play_chunk( pdata->pchr->pos.v, g_wavelist[GSND_SHIELDBLOCK] );
                     }
                 }
             }

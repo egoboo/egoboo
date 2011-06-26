@@ -724,11 +724,11 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
     pinst->image_ref = FP8_TO_INT( pprt->image + pprt->image_stt );
 
     // set the position
-    pinst->pos         = prt_get_pos( pprt );
+    prt_get_pos( pprt, pinst->pos.v );
     pinst->orientation = ppip->orientation;
 
     // calculate the billboard vectors for the reflecions
-    pinst->ref_pos      = prt_get_pos( pprt );
+    prt_get_pos( pprt, pinst->ref_pos.v );
     pinst->ref_pos.z    = 2 * pprt->enviro.floor_level - pinst->pos.z;
 
     // get the vector from the camera to the particle

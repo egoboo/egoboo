@@ -23,6 +23,8 @@
 
 #include "char.inl"
 
+#include "egoboo_math.inl"
+
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATION
 //--------------------------------------------------------------------------------------------
@@ -37,8 +39,9 @@ static INLINE prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
 static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle );
 static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt );
 
-static INLINE float * prt_get_pos_v( prt_t * pprt );
-static INLINE fvec3_t prt_get_pos( prt_t * pprt );
+static INLINE const float * prt_get_pos_v_const( const prt_t * pprt );
+static INLINE float       * prt_get_pos_v( prt_t * pprt );
+static INLINE bool_t        prt_get_pos( const prt_t * pprt, fvec3_base_t pos );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
@@ -286,17 +289,29 @@ static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * ppr
 }
 
 //--------------------------------------------------------------------------------------------
-fvec3_t prt_get_pos( prt_t * pprt )
+bool_t prt_get_pos( const prt_t * pprt, fvec3_base_t pos )
 {
-    fvec3_t vtmp = ZERO_VECT3;
+    float * copy_rv;
 
-    if ( !ALLOCATED_PPRT( pprt ) ) return vtmp;
+    if ( !ALLOCATED_PPRT( pprt ) ) return bfalse;
 
-    return pprt->pos;
+    copy_rv = fvec3_base_copy( pos, pprt->pos.v );
+
+    return (NULL == copy_rv) ? bfalse : btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-float * prt_get_pos_v( prt_t * pprt )
+static INLINE const float * prt_get_pos_v_const( const prt_t * pprt )
+{
+    static fvec3_t vtmp = ZERO_VECT3;
+
+    if ( !ALLOCATED_PPRT( pprt ) ) return vtmp.v;
+
+    return pprt->pos.v;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * prt_get_pos_v_const( prt_t * pprt )
 {
     static fvec3_t vtmp = ZERO_VECT3;
 

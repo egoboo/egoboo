@@ -253,7 +253,7 @@ void move_all_particles( void );
 void cleanup_all_particles( void );
 void bump_all_particles_update_counters( void );
 
-PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
+PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget );
 

@@ -202,11 +202,11 @@ void prt_play_sound( const PRT_REF particle, Sint8 sound )
 
     if ( LOADED_PRO( pprt->profile_ref ) )
     {
-        sound_play_chunk( prt_get_pos( pprt ), pro_get_chunk( pprt->profile_ref, sound ) );
+        sound_play_chunk( prt_get_pos_v_const( pprt ), pro_get_chunk( pprt->profile_ref, sound ) );
     }
     else
     {
-        sound_play_chunk( prt_get_pos( pprt ), g_wavelist[sound] );
+        sound_play_chunk( prt_get_pos_v_const( pprt ), g_wavelist[sound] );
     }
 }
 
@@ -248,7 +248,7 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
 
         if ( SPAWNNOCHARACTER != pprt->endspawn_characterstate )
         {
-            child = spawn_one_character( prt_get_pos( pprt ), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, ( CHR_REF )MAX_CHR );
+            child = spawn_one_character( prt_get_pos_v_const( pprt ), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, ( CHR_REF )MAX_CHR );
             if ( DEFINED_CHR( child ) )
             {
                 chr_t * pchild = ChrList_get_ptr( child );
@@ -963,7 +963,7 @@ prt_t * prt_config_dtor( prt_t * pprt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
+PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget )
 {
@@ -1008,7 +1008,7 @@ PRT_REF spawn_one_particle( fvec3_t pos, FACING_T facing, const PRO_REF iprofile
 
     POBJ_BEGIN_SPAWN( pprt );
 
-    pprt->spawn_data.pos        = pos;
+    fvec3_base_copy( pprt->spawn_data.pos.v, pos );
     pprt->spawn_data.facing     = facing;
     pprt->spawn_data.iprofile   = iprofile;
     pprt->spawn_data.ipip       = ipip;
@@ -1050,7 +1050,7 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // deal with the optional parameters
-    if ( NULL == test_pos ) test_pos = prt_get_pos_v( pprt );
+    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const( pprt );
     if ( NULL == test_pos ) return 0;
 
     mesh_mpdfx_tests = 0;
@@ -1083,7 +1083,7 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // deal with the optional parameters
-    if ( NULL == test_pos ) test_pos = prt_get_pos_v( pprt );
+    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const( pprt );
     if ( NULL == test_pos ) return retval;
 
     // calculate the radius based on whether the particle is on camera
@@ -1125,7 +1125,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // deal with the optional parameters
-    if ( NULL == test_pos ) test_pos = prt_get_pos_v( pprt );
+    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const( pprt );
     if ( NULL == test_pos ) return EMPTY_BIT_FIELD;
 
     mesh_mpdfx_tests = 0;
@@ -1159,7 +1159,7 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // handle optional parameters
-    if ( NULL == test_pos ) test_pos = prt_get_pos_v( pprt );
+    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const( pprt );
     if ( NULL == test_pos ) return EMPTY_BIT_FIELD;
 
     // do the wall test
@@ -1571,7 +1571,7 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     // grab a pointer to the target
     ptarget = ChrList_get_ptr( loc_pprt->target_ref );
 
-    fvec3_sub( vdiff.v, ptarget->pos.v, prt_get_pos_v( loc_pprt ) );
+    fvec3_sub( vdiff.v, ptarget->pos.v, prt_get_pos_v_const( loc_pprt ) );
     vdiff.z += ptarget->bump.height * 0.5f;
 
     min_length = ( 2 * 5 * 256 * ChrList.lst[loc_pprt->owner_ref].wisdom ) / PERFECTBIG;
@@ -1737,7 +1737,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     if ( !DISPLAY_PPRT( loc_pprt ) ) return pbdl_prt;
 
     // capture the particle position
-    tmp_pos = prt_get_pos( loc_pprt );
+    prt_get_pos( loc_pprt, tmp_pos.v );
 
     // only deal with attached particles
     if ( MAX_CHR == loc_pprt->attachedto_ref ) return pbdl_prt;
@@ -1836,7 +1836,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     if ( !DISPLAY_PPRT( loc_pprt ) ) return pbdl_prt;
 
     // capture the position
-    tmp_pos = prt_get_pos( loc_pprt );
+    prt_get_pos( loc_pprt, tmp_pos.v );
 
     // no point in doing this if the particle thinks it's attached
     if ( MAX_CHR != loc_pprt->attachedto_ref )
@@ -2109,11 +2109,11 @@ bool_t move_one_particle( prt_bundle_t * pbdl_prt )
     // determine the actual velocity for attached particles
     if ( INGAME_CHR( loc_pprt->attachedto_ref ) )
     {
-        fvec3_sub( loc_pprt->vel.v, prt_get_pos_v( loc_pprt ), loc_pprt->pos_old.v );
+        fvec3_sub( loc_pprt->vel.v, prt_get_pos_v_const( loc_pprt ), loc_pprt->pos_old.v );
     }
 
     // Particle's old location
-    loc_pprt->pos_old = prt_get_pos( loc_pprt );
+    prt_get_pos( loc_pprt, loc_pprt->pos_old.v );
     loc_pprt->vel_old = loc_pprt->vel;
 
     // what is the local environment like?
@@ -2282,7 +2282,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
-                dist = fvec3_dist_abs( prt_get_pos_v( pprt ), chr_get_pos_v_const( pchr ) );
+                dist = fvec3_dist_abs( prt_get_pos_v_const( pprt ), chr_get_pos_v_const( pchr ) );
 
                 // clear the occupied list
                 z = pprt->pos.z - pchr->pos.z;
@@ -2338,7 +2338,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
                         }
                     }
 
-                    bs_part = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
+                    bs_part = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
                                                   character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character );
 
                     if ( DEFINED_PRT( bs_part ) )
@@ -2581,7 +2581,7 @@ int prt_do_end_spawn( const PRT_REF iprt )
             // we have determined the absolute pip reference when the particle was spawned
             // so, set the profile reference to (PRO_REF)MAX_PROFILE, so that the
             // value of pprt->endspawn_lpip will be used directly
-            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, pprt->profile_ref, pprt->endspawn_lpip,
+            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old.v, facing, pprt->profile_ref, pprt->endspawn_lpip,
                                   ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
 
             if ( DEFINED_PRT( spawned_prt ) )
@@ -2800,7 +2800,7 @@ int prt_do_contspawn( prt_bundle_t * pbdl_prt )
     facing = loc_pprt->facing;
     for ( tnc = 0; tnc < loc_ppip->contspawn_amount; tnc++ )
     {
-        PRT_REF prt_child = spawn_one_particle( prt_get_pos( loc_pprt ), facing, loc_pprt->profile_ref, loc_ppip->contspawn_lpip,
+        PRT_REF prt_child = spawn_one_particle( prt_get_pos_v_const( loc_pprt ), facing, loc_pprt->profile_ref, loc_ppip->contspawn_lpip,
                                                 ( CHR_REF )MAX_CHR, GRIP_LAST, loc_pprt->team, loc_pprt->owner_ref, pbdl_prt->prt_ref, tnc, loc_pprt->target_ref );
 
         if ( DEFINED_PRT( prt_child ) )
@@ -2910,7 +2910,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
         if ( spawn_valid )
         {
             // Splash for particles is just a ripple
-            spawn_one_particle_global( vtmp, 0, global_pip_index, 0 );
+            spawn_one_particle_global( vtmp.v, 0, global_pip_index, 0 );
         }
 
         pbdl_prt->prt_ptr->enviro.inwater  = btrue;
@@ -3207,7 +3207,7 @@ bool_t prt_update_safe_raw( prt_t * pprt )
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pprt->safe_valid = btrue;
-        pprt->safe_pos   = prt_get_pos( pprt );
+        prt_get_pos( pprt, pprt->safe_pos.v );
         pprt->safe_time  = update_wld;
         pprt->safe_grid  = mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
 

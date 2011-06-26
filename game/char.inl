@@ -87,6 +87,7 @@ static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_base_t vec );
 static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_base_t vec );
 
 static INLINE const float * chr_get_pos_v_const( const chr_t * pchr );
+static INLINE float       * chr_get_pos_v( chr_t * pchr );
 static INLINE bool_t        chr_get_pos( const chr_t * pchr, fvec3_base_t pos );
 
 //--------------------------------------------------------------------------------------------
@@ -658,6 +659,16 @@ static INLINE void chr_set_height( chr_t * pchr, float height )
 
 //--------------------------------------------------------------------------------------------
 static INLINE const float * chr_get_pos_v_const( const chr_t * pchr )
+{
+    static fvec3_t vtmp = ZERO_VECT3;
+
+    if ( !ALLOCATED_PCHR( pchr ) ) return vtmp.v;
+
+    return pchr->pos.v;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float * chr_get_pos_v( chr_t * pchr )
 {
     static fvec3_t vtmp = ZERO_VECT3;
 

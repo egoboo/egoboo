@@ -1874,7 +1874,7 @@ void do_damage_tiles()
 
             if (( actual_damage > 0 ) && ( -1 != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
             {
-                spawn_one_particle_global( pchr->pos, ATK_FRONT, damagetile.part_gpip, 0 );
+                spawn_one_particle_global( pchr->pos.v, ATK_FRONT, damagetile.part_gpip, 0 );
             }
         }
     }
@@ -1953,7 +1953,7 @@ void update_pits()
                         }
                         else
                         {
-                            sound_play_chunk( pchr->pos, g_wavelist[GSND_PITFALL] );
+                            sound_play_chunk( pchr->pos.v, g_wavelist[GSND_PITFALL] );
                         }
 
                         // Do some damage (same as damage tile)
@@ -2003,7 +2003,7 @@ void do_weather_spawn_particles()
                     chr_t * pchr = ChrList_get_ptr( ichr );
 
                     // Yes, so spawn over that character
-                    PRT_REF particle = spawn_one_particle_global( pchr->pos, ATK_FRONT, weather.part_gpip, 0 );
+                    PRT_REF particle = spawn_one_particle_global( pchr->pos.v, ATK_FRONT, weather.part_gpip, 0 );
                     if ( DEFINED_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList_get_ptr( particle );
@@ -2959,7 +2959,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
-    new_object = spawn_one_character( psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, ( CHR_REF )MAX_CHR );
+    new_object = spawn_one_character( psp_info->pos.v, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, ( CHR_REF )MAX_CHR );
     if ( !DEFINED_CHR( new_object ) ) return bfalse;
 
     pobject = ChrList_get_ptr( new_object );
@@ -3389,7 +3389,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
+        particle = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
         if ( DEFINED_PRT( particle ) )
         {
             prt_t * pprt = PrtList_get_ptr( particle );

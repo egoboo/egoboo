@@ -1127,7 +1127,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     bc->bits   = bits;
     bc->radius = pprt->bump_real.size;
 
-    bc->pos = prt_get_pos( pprt );
+    prt_get_pos( pprt, bc->pos.v );
     bc->pos.x  = ( FLOOR( bc->pos.x / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
     bc->pos.y  = ( FLOOR( bc->pos.y / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
 

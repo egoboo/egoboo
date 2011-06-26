@@ -359,7 +359,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             {
                 if ( NULL != target_ptr )
                 {
-                    sound_play_chunk( target_ptr->pos_old, pro_get_chunk( imodel, iwave ) );
+                    sound_play_chunk( target_ptr->pos_old.v, pro_get_chunk( imodel, iwave ) );
                 }
                 else
                 {
@@ -966,7 +966,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     // Create an overlay character?
     if ( peve->spawn_overlay && NULL != ptarget )
     {
-        overlay = spawn_one_character( ptarget->pos, pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, ( CHR_REF )MAX_CHR );
+        overlay = spawn_one_character( ptarget->pos.v, pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, ( CHR_REF )MAX_CHR );
         if ( DEFINED_CHR( overlay ) )
         {
             chr_t * povl;
@@ -1049,7 +1049,7 @@ enc_t * enc_config_do_active( enc_t * penc )
         facing = ptarget->ori.facing_z;
         for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
         {
-            spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_lpip,
+            spawn_one_particle( ptarget->pos.v, facing, penc->profile_ref, peve->contspawn_lpip,
                                 ( CHR_REF )MAX_CHR, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, ( PRT_REF )MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
 
             facing += peve->contspawn_facingadd;
