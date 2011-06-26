@@ -68,13 +68,13 @@ egoboo_rv quest_file_export( ConfigFilePtr_t pfile )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv quest_file_close( ConfigFilePtr_t * ppfile, bool_t export )
+egoboo_rv quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export )
 {
     egoboo_rv export_rv = rv_success;
 
     if ( NULL == ppfile || NULL == *ppfile ) return rv_error;
 
-    if ( export )
+    if ( do_export )
     {
         export_rv = quest_file_export( *ppfile );
 

@@ -3612,14 +3612,14 @@ int damage_character( const CHR_REF character, FACING_T direction,
         // Only actual_damage if not invincible
         if ( 0 == pchr->damage_timer || ignore_invictus )
         {
-            // Hard mode deals 25% extra actual damage to players!
-            if ( cfg.difficulty >= GAME_HARD && VALID_PLA( pchr->is_which_player ) && !VALID_PLA( ChrList.lst[attacker].is_which_player ) ) actual_damage *= 1.25f;
+            // Normal mode reduces damage dealt by monsters with 30%!
+            if ( cfg.difficulty == GAME_NORMAL && VALID_PLA( pchr->is_which_player ) /*&& !VALID_PLA( ChrList.lst[attacker].is_which_player )*/ ) actual_damage *= 0.70f;
 
-            // Easy mode deals 25% extra actual damage by players and 25% less to players
+            // Easy mode deals 25% extra actual damage by players and 50% less to players
             if ( cfg.difficulty <= GAME_EASY )
             {
                 if ( VALID_PLA( ChrList.lst[attacker].is_which_player ) && !VALID_PLA( pchr->is_which_player ) ) actual_damage *= 1.25f;
-                if ( !VALID_PLA( ChrList.lst[attacker].is_which_player ) &&  VALID_PLA( pchr->is_which_player ) ) actual_damage *= 0.75f;
+                if ( !VALID_PLA( ChrList.lst[attacker].is_which_player ) &&  VALID_PLA( pchr->is_which_player ) ) actual_damage *= 0.5f;
             }
 
             if ( 0 != actual_damage )

@@ -595,7 +595,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
     // currently, the spherical region around the origin of the cone has no special test and
     // a small volume behind the origin of the cone is not being culled.
 
-    geometry_rv retval;
+    geometry_rv retval = geometry_error;
     bool_t done;
 
     float offset_length;

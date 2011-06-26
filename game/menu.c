@@ -2834,13 +2834,13 @@ int doGameOptions( float deltaTime )
             switch ( cfg.difficulty )
             {
                 case GAME_EASY:
-                    strncpy( szDifficulty, "FORGIVING (Easy)\n - Players gain no bonus XP \n - 15%% XP loss upon death\n - Monsters take 25%% extra damage from players\n - Players take 25%% less damage from monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", SDL_arraysize( szDifficulty ) );
+                    strncpy( szDifficulty, "FORGIVING (Easy)\n - Players gain no bonus XP \n - 15%% XP loss upon death\n - Monsters take 25%% extra damage from players\n - Players take 50%% less damage from monsters\n - Halves the chance for Kursed items\n - Cannot unlock the final level in this mode\n - Life and Mana is refilled after quitting a module", SDL_arraysize( szDifficulty ) );
                     break;
                 case GAME_NORMAL:
-                    strncpy( szDifficulty, "CHALLENGING (Normal)\n - Players gain 10%% bonus XP \n - 15%% XP loss upon death \n - 15%% money loss upon death", SDL_arraysize( szDifficulty ) );
+                    strncpy( szDifficulty, "CHALLENGING (Normal)\n - Players gain 10%% bonus XP \n - 15%% XP loss upon death \n - 15%% money loss upon death \n - Players take 30%% less damage from monsters", SDL_arraysize( szDifficulty ) );
                     break;
                 case GAME_HARD:
-                    strncpy( szDifficulty, "PUNISHING (Hard)\n - Monsters award 20%% extra xp! \n - 15%% XP loss upon death\n - 15%% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take 25%% more damage\n - Doubles the chance for Kursed items", SDL_arraysize( szDifficulty ) );
+                    strncpy( szDifficulty, "PUNISHING (Hard)\n - Monsters award 20%% extra xp! \n - 15%% XP loss upon death\n - 15%% money loss upon death\n - No respawning\n - Channeling life can kill you\n - Players take full damage from monsters\n - Doubles the chance for Kursed items", SDL_arraysize( szDifficulty ) );
                     break;
             }
             str_add_linebreaks( szDifficulty, SDL_arraysize( szDifficulty ), 30 );
