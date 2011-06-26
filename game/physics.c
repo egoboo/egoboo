@@ -50,7 +50,7 @@ static egoboo_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * 
 static bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
 static bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_base_t nrm, float * depth );
 static float phys_get_depth( const oct_vec_t * podepth, const fvec3_base_t nrm );
-static bool_t phys_warp_normal( float exponent, fvec3_base_t nrm );
+static bool_t phys_warp_normal( const float exponent, fvec3_base_t nrm );
 static bool_t phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth );
 static bool_t phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth );
 
@@ -160,7 +160,7 @@ bool_t phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_warp_normal( float exponent, fvec3_base_t nrm )
+bool_t phys_warp_normal( const float exponent, fvec3_base_t nrm )
 {
     // use the exponent to warp the normal into a cylinder-like shape, if needed
 
@@ -1160,21 +1160,17 @@ int breadcrumb_cmp( const void * lhs, const void * rhs )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t breadcrumb_list_full( breadcrumb_list_t *  lst )
+bool_t breadcrumb_list_full( const breadcrumb_list_t *  lst )
 {
     if ( NULL == lst || !lst->on ) return btrue;
-
-    lst->count = CLIP( lst->count, 0, MAX_BREADCRUMB );
 
     return ( lst->count >= MAX_BREADCRUMB );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t breadcrumb_list_empty( breadcrumb_list_t * lst )
+bool_t breadcrumb_list_empty( const breadcrumb_list_t * lst )
 {
     if ( NULL == lst || !lst->on ) return btrue;
-
-    lst->count = CLIP( lst->count, 0, MAX_BREADCRUMB );
 
     return ( 0 == lst->count );
 }

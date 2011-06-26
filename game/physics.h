@@ -129,8 +129,8 @@ breadcrumb_t * breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 matc
 breadcrumb_t * breadcrumb_list_oldest( breadcrumb_list_t * lst );
 breadcrumb_t * breadcrumb_list_newest( breadcrumb_list_t * lst );
 void           breadcrumb_list_compact( breadcrumb_list_t * lst );
-bool_t         breadcrumb_list_empty( breadcrumb_list_t * lst );
-bool_t         breadcrumb_list_full( breadcrumb_list_t *  lst );
+bool_t         breadcrumb_list_empty( const breadcrumb_list_t * lst );
+bool_t         breadcrumb_list_full( const breadcrumb_list_t *  lst );
 
 //--------------------------------------------------------------------------------------------
 // the global physics/friction values
@@ -156,8 +156,8 @@ bool_t phys_expand_oct_bb( const oct_bb_t * src, const fvec3_base_t vel, const f
 bool_t phys_expand_chr_bb( struct s_chr * pchr, float tmin, float tmax, oct_bb_t * pdst );
 bool_t phys_expand_prt_bb( struct s_prt * pprt, float tmin, float tmax, oct_bb_t * pdst );
 
-bool_t phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin );
-bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth );
+bool_t phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin );
+bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth );
 
 bool_t phys_intersect_oct_bb( const oct_bb_t * src1, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
 

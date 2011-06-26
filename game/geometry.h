@@ -164,10 +164,10 @@ geometry_rv frustum_intersects_aabb( const frustum_base_t pf, const fvec3_base_t
 float plane_point_distance( const plane_base_t plane, const point_base_t pos );
 
 /// find the parametric line where two planes intersect
-bool_t two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, plane_base_t p0, plane_base_t p1 );
+bool_t two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const plane_base_t p0, const plane_base_t p1 );
 
 /// find the point where 3 planes intersect
-bool_t three_plane_intersection( fvec3_base_t dst_pos, plane_base_t p0, plane_base_t p1, plane_base_t p2 );
+bool_t three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

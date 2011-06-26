@@ -252,7 +252,7 @@ bool_t link_push_module()
             phero->pos_stt.y    = pchr->pos_stt.y;
             phero->pos_stt.z    = pchr->pos_stt.z;
 
-            phero->pos = chr_get_pos( pchr );
+            chr_get_pos( pchr, phero->pos.v );
         }
     }
 

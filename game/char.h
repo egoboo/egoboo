@@ -514,7 +514,7 @@ chr_t * chr_ctor( chr_t * pchr );
 chr_t * chr_dtor( chr_t * pchr );
 bool_t  chr_request_terminate( chr_t * pchr );
 
-bool_t    chr_matrix_valid( chr_t * pchr );
+bool_t    chr_matrix_valid( const chr_t * pchr );
 egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size );
 
 chr_t *   chr_update_hide( chr_t * pchr );
@@ -547,10 +547,10 @@ bool_t chr_update_safe_raw( chr_t * pchr );
 bool_t chr_update_safe( chr_t * pchr, bool_t force );
 bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos );
 
-bool_t  chr_set_pos( chr_t * pchr, fvec3_base_t pos );
+bool_t  chr_set_pos( chr_t * pchr, const fvec3_base_t pos );
 
 bool_t chr_set_maxaccel( chr_t * pchr, float new_val );
-bool_t character_is_attacking( chr_t *pchr );
+bool_t character_is_attacking( chr_t * pchr );
 
 void chr_set_floor_level( chr_t * pchr, float level );
 void chr_set_redshift( chr_t * pchr, int rs );
@@ -562,7 +562,7 @@ void chr_set_light( chr_t * pchr, int light );
 
 const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits );
 const char * chr_get_dir_name( const CHR_REF ichr );
-int chr_get_skill( chr_t *pchr, IDSZ whichskill );
+int chr_get_skill( chr_t * pchr, IDSZ whichskill );
 
 void reset_character_alpha( const CHR_REF character );
 void reset_character_accel( const CHR_REF character );
@@ -644,7 +644,7 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped );
 
 bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
 
-bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_ary, fvec3_base_t grip_up_ary, bool_t shift_origin );
+bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_vec, fvec3_base_t grip_up_vec, const bool_t shift_origin );
 
 // CapStack functions
 void CapStack_init_all( void );
@@ -667,7 +667,7 @@ void call_for_help( const CHR_REF character );
 void give_experience( const CHR_REF character, int amount, xp_type xptype, bool_t override_invictus );
 void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype );
 int  damage_character( const CHR_REF character, FACING_T direction,
-                       IPair damage, Uint8 damagetype, TEAM_REF team,
+                       IPair damage, Uint8 damagetype, const TEAM_REF team,
                        CHR_REF attacker, const BIT_FIELD effects, bool_t ignore_invictus );
 void kill_character( const CHR_REF character, const CHR_REF killer, bool_t ignore_invictus );
 bool_t heal_character( const CHR_REF character, const CHR_REF healer, int amount, bool_t ignore_invictus );

@@ -459,7 +459,7 @@ bool_t EncList_add_used( const ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t EncList_remove_used_index( int index )
+bool_t EncList_remove_used_index( const int index )
 {
     ENC_REF ienc;
 

@@ -217,8 +217,8 @@ prt_t * prt_ctor( prt_t * pprt );
 prt_t * prt_dtor( prt_t * pprt );
 bool_t  prt_request_terminate( prt_t * pprt );
 
-void   prt_set_level( prt_t * pprt, float level );
-bool_t prt_set_pos( prt_t * pprt, fvec3_base_t pos );
+void   prt_set_level( prt_t * pprt, const float level );
+bool_t prt_set_pos( prt_t * pprt, const fvec3_base_t pos );
 
 //--------------------------------------------------------------------------------------------
 struct s_prt_bundle

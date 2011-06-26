@@ -122,6 +122,9 @@ ext_camera_t * ext_camera_ctor( ext_camera_t * ptr )
 
     BLANK_STRUCT_PTR( ptr );
 
+    // construct the actual camera
+    camera_ctor( &(ptr->which) );
+
     // invalidate the targets the camera is tracking
     for ( tnc = 0; tnc < MAX_LOCAL_PLAYERS; tnc++ )
     {
@@ -1178,7 +1181,7 @@ ext_camera_list_t * ext_camera_list_reinit( ext_camera_list_t * plst )
 }
 
 //--------------------------------------------------------------------------------------------
-int camera_list_find_target_index( ext_camera_list_t * plst, CHR_REF itarget )
+int camera_list_find_target_index( ext_camera_list_t * plst, const CHR_REF itarget )
 {
     int cnt, tnc;
     int retval;
@@ -1208,7 +1211,7 @@ int camera_list_find_target_index( ext_camera_list_t * plst, CHR_REF itarget )
 }
 
 //--------------------------------------------------------------------------------------------
-camera_t * camera_list_find_target( ext_camera_list_t * plst, CHR_REF itarget )
+camera_t * camera_list_find_target( ext_camera_list_t * plst, const CHR_REF itarget )
 {
     int index;
 

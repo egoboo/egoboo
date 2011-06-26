@@ -133,7 +133,7 @@ static bool_t bump_all_collisions( CoNode_ary_t * pcn_ary );
 
 static bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 static bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat );
-static float  estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
+static float  estimate_chr_prt_normal( const chr_t * pchr, const prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff );
 static bool_t do_chr_chr_collision( CoNode_t * d );
 
 static bool_t do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collsion_data_t * pdata );
@@ -148,7 +148,7 @@ static bool_t do_chr_prt_collision( CoNode_t * d );
 
 static bool_t do_prt_platform_physics( chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * pdata );
-static bool_t do_chr_chr_collision_pressure_normal( chr_t * pchr_a, chr_t * pchr_b, float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin );
+static bool_t do_chr_chr_collision_pressure_normal( const chr_t * pchr_a, const chr_t * pchr_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin );
 
 static int CoNode_matches( CoNode_t * pleft, CoNode_t * pright );
 static int CoNode_cmp_unique( const void * vleft, const void * vright );
@@ -901,7 +901,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v( pchr_a ), pchr_a->vel.v, &( pchr_b->chr_max_cv ), chr_get_pos_v( pchr_b ), pchr_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v_const( pchr_a ), pchr_a->vel.v, &( pchr_b->chr_max_cv ), chr_get_pos_v_const( pchr_b ), pchr_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = ichr_a;
                             tmp_codata.chrb = ichr_b;
@@ -960,7 +960,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v( pchr_a ), pchr_a->vel.v, &( pprt_b->prt_max_cv ), prt_get_pos_v( pprt_b ), pprt_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v_const( pchr_a ), pchr_a->vel.v, &( pprt_b->prt_max_cv ), prt_get_pos_v( pprt_b ), pprt_b->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = ichr_a;
                             tmp_codata.prtb = iprt_b;
@@ -1107,7 +1107,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
                         if ( pchr_a->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_min_cv ), chr_get_pos_v( pchr_a ), pchr_a->vel.v, &( bdl.prt_ptr->prt_max_cv ), prt_get_pos_v( bdl.prt_ptr ), bdl.prt_ptr->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_min_cv ), chr_get_pos_v_const( pchr_a ), pchr_a->vel.v, &( bdl.prt_ptr->prt_max_cv ), prt_get_pos_v( bdl.prt_ptr ), bdl.prt_ptr->vel.v, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
 
                             tmp_codata.chra = ichr_a;
@@ -1669,7 +1669,9 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         bool_t position_updated = bfalse;
         fvec3_t max_apos;
 
-        fvec3_t tmp_pos = chr_get_pos( pchr );
+        fvec3_t tmp_pos;
+        
+        chr_get_pos( pchr, tmp_pos.v );
 
         bump_str = 1.0f;
         if ( INGAME_CHR( pchr->attachedto ) )
@@ -1931,8 +1933,8 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     if ( !mount_a && !mount_b ) return bfalse;
 
     // Ready for position calulations
-    oct_vec_ctor( apos, chr_get_pos_v( pchr_a ) );
-    oct_vec_ctor( bpos, chr_get_pos_v( pchr_b ) );
+    oct_vec_ctor( apos, chr_get_pos_v_const( pchr_a ) );
+    oct_vec_ctor( bpos, chr_get_pos_v_const( pchr_b ) );
 
     // assume the worst
     mounted = bfalse;
@@ -1945,7 +1947,7 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         //---- find out whether the object is overlapping with the saddle
 
         // the position of the saddle over the frame
-        oct_bb_add_fvec3( pchr_b->slot_cv + SLOT_LEFT, chr_get_pos_v( pchr_b ), &tmp_cv );
+        oct_bb_add_fvec3( pchr_b->slot_cv + SLOT_LEFT, chr_get_pos_v_const( pchr_b ), &tmp_cv );
         phys_expand_oct_bb( &tmp_cv, pchr_b->vel.v, 0.0f, 1.0f, &saddle_cv );
 
         if ( oct_bb_point_inside( &saddle_cv, apos ) )
@@ -1980,7 +1982,7 @@ bool_t bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         //---- find out whether the object is overlapping with the saddle
 
         // the position of the saddle over the frame
-        oct_bb_add_fvec3( pchr_a->slot_cv + SLOT_LEFT, chr_get_pos_v( pchr_a ), &tmp_cv );
+        oct_bb_add_fvec3( pchr_a->slot_cv + SLOT_LEFT, chr_get_pos_v_const( pchr_a ), &tmp_cv );
         phys_expand_oct_bb( &tmp_cv, pchr_a->vel.v, 0.0f, 1.0f, &saddle_cv );
 
         if ( oct_bb_point_inside( &saddle_cv, bpos ) )
@@ -2055,7 +2057,7 @@ bool_t do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
 }
 
 //--------------------------------------------------------------------------------------------
-float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff )
+float estimate_chr_prt_normal( const chr_t * pchr, const prt_t * pprt, fvec3_base_t nrm, fvec3_base_t vdiff )
 {
     fvec3_t collision_size;
     float dot;
@@ -2141,12 +2143,12 @@ float estimate_chr_prt_normal( chr_t * pchr, prt_t * pprt, fvec3_base_t nrm, fve
     return dot;
 }
 //--------------------------------------------------------------------------------------------
-bool_t do_chr_chr_collision_pressure_normal( chr_t * pchr_a, chr_t * pchr_b, float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin )
+bool_t do_chr_chr_collision_pressure_normal( const chr_t * pchr_a, const chr_t * pchr_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin )
 {
     oct_bb_t otmp_a, otmp_b;
 
-    oct_bb_add_fvec3( &( pchr_a->chr_min_cv ), chr_get_pos_v( pchr_a ), &otmp_a );
-    oct_bb_add_fvec3( &( pchr_b->chr_min_cv ), chr_get_pos_v( pchr_b ), &otmp_b );
+    oct_bb_add_fvec3( &( pchr_a->chr_min_cv ), chr_get_pos_v_const( pchr_a ), &otmp_a );
+    oct_bb_add_fvec3( &( pchr_b->chr_min_cv ), chr_get_pos_v_const( pchr_b ), &otmp_b );
 
     return phys_estimate_pressure_normal( &otmp_a, &otmp_b, exponent, podepth, nrm, tmin );
 }
@@ -2290,8 +2292,8 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     }
 
     // shift the character bounding boxes to be centered on their positions
-    oct_bb_add_fvec3( &( pchr_a->chr_min_cv ), chr_get_pos_v( pchr_a ), &map_bb_a );
-    oct_bb_add_fvec3( &( pchr_b->chr_min_cv ), chr_get_pos_v( pchr_b ), &map_bb_b );
+    oct_bb_add_fvec3( &( pchr_a->chr_min_cv ), chr_get_pos_v_const( pchr_a ), &map_bb_a );
+    oct_bb_add_fvec3( &( pchr_b->chr_min_cv ), chr_get_pos_v_const( pchr_b ), &map_bb_b );
 
     // make the object more like a table if there is a platform-like interaction
     exponent = 1.0f;
@@ -2578,7 +2580,7 @@ bool_t do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t *
     handled = bfalse;
 
     // shift the source bounding boxes to be centered on the given positions
-    oct_bb_add_fvec3( &( pdata->pchr->chr_min_cv ), chr_get_pos_v( pdata->pchr ), &cv_chr );
+    oct_bb_add_fvec3( &( pdata->pchr->chr_min_cv ), chr_get_pos_v_const( pdata->pchr ), &cv_chr );
 
     // the smallest particle collision volume
     oct_bb_add_fvec3( &( pdata->pprt->prt_min_cv ), prt_get_pos_v( pdata->pprt ), &cv_prt_min );
@@ -2722,7 +2724,7 @@ bool_t do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
     // but the vertical distance is looser.
-    plat_collision = test_interaction_close_1( &( pdata->pchr->chr_max_cv ), chr_get_pos_v( pdata->pchr ), pdata->pprt->bump_padded, prt_get_pos_v( pdata->pprt ), btrue );
+    plat_collision = test_interaction_close_1( &( pdata->pchr->chr_max_cv ), chr_get_pos_v_const( pdata->pchr ), pdata->pprt->bump_padded, prt_get_pos_v( pdata->pprt ), btrue );
 
     if ( !plat_collision ) return bfalse;
 

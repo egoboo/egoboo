@@ -145,7 +145,7 @@ bool_t lighting_cache_base_max_light( lighting_cache_base_t * cache )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t lighting_cache_base_blend( lighting_cache_base_t * cold, lighting_cache_base_t * cnew, float keep )
+bool_t lighting_cache_base_blend( lighting_cache_base_t * cold, const lighting_cache_base_t * cnew, float keep )
 {
     int tnc;
     float max_delta;

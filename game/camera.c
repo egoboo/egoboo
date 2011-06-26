@@ -42,12 +42,12 @@
 
 static void camera_update_position( camera_t * pcam );
 static void camera_update_center( camera_t * pcam );
-static void camera_update_track( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size_t track_list_size );
+static void camera_update_track( camera_t * pcam, const ego_mpd_t * pmesh, CHR_REF track_list[], const size_t track_list_size );
 //static void camera_update_zoom( camera_t * pcam, float height );
 
-static size_t camera_create_track_list( CHR_REF track_list[], size_t track_list_max_size );
+static size_t camera_create_track_list( CHR_REF track_list[], const size_t track_list_max_size );
 
-static void dump_matrix( fmat_4x4_base_t a );
+static void dump_matrix( const fmat_4x4_base_t a );
 static void camera_update_effects( camera_t * pcam );
 static void camera_update_zoom( camera_t * pcam );
 
@@ -128,11 +128,11 @@ camera_t * camera_ctor( camera_t * pcam )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void dump_matrix( fmat_4x4_base_t a )
+void dump_matrix( const fmat_4x4_base_t a )
 {
     /// @detalis ZZ@> dump a text representation of a 4x4 matrix to stdout
 
-    int i; int j;
+    int i, j;
 
     if ( NULL == a ) return;
 
@@ -161,25 +161,25 @@ void camera_update_position( camera_t * pcam )
     pcam->zgoto = pcam->zadd;
 
     // update the turn
-    if ( 0 != pcam->turn_time )
-    {
-        pcam->turn_z_rad   = ATAN2( pcam->center.y - pcam->pos.y, pcam->center.x - pcam->pos.x );  // xgg
-        pcam->turn_z_one   = RAD_TO_ONE( pcam->turn_z_rad );
-        pcam->ori.facing_z = ONE_TO_TURN( pcam->turn_z_one );
-    }
+    //if ( 0 != pcam->turn_time )
+    //{
+    //    pcam->turn_z_rad   = ATAN2( pcam->center.y - pcam->pos.y, pcam->center.x - pcam->pos.x );  // xgg
+    //    pcam->turn_z_one   = RAD_TO_ONE( pcam->turn_z_rad );
+    //    pcam->ori.facing_z = ONE_TO_TURN( pcam->turn_z_one );
+    //}
 
     // update the camera position
     turnsin = TO_TURN( pcam->ori.facing_z );
-    pos_new.x = pcam->center.x + pcam->zoom * SIN( pcam->turn_z_rad );
-    pos_new.y = pcam->center.y + pcam->zoom * COS( pcam->turn_z_rad );
+    pos_new.x = pcam->center.x + pcam->zoom * turntosin[turnsin];
+    pos_new.y = pcam->center.y + pcam->zoom * turntocos[turnsin];
     pos_new.z = pcam->center.z + pcam->zgoto;
 
     // make the camera motion smooth
     pcam->pos.x = 0.9f * pcam->pos.x + 0.1f * pos_new.x;
     pcam->pos.y = 0.9f * pcam->pos.y + 0.1f * pos_new.y;
     pcam->pos.z = 0.9f * pcam->pos.z + 0.1f * pos_new.z;
-
 }
+
 //--------------------------------------------------------------------------------------------
 static INLINE float camera_multiply_fov( const float old_fov_deg, const float factor )
 {
@@ -380,7 +380,11 @@ void camera_update_zoom( camera_t * pcam )
     pcam->zoom = ( CAM_ZOOM_MIN * percentmin ) + ( CAM_ZOOM_MAX * percentmax );
 
     // update turn_z
-    if ( 0.0f != pcam->turn_z_add )
+    if ( ABS(pcam->turn_z_add) < 0.5f )
+    {
+        pcam->turn_z_add = 0.0f;
+    }
+    else
     {
         pcam->ori.facing_z += pcam->turn_z_add;
         pcam->turn_z_one    = TURN_TO_ONE( pcam->ori.facing_z );
@@ -405,7 +409,18 @@ void camera_update_center( camera_t * pcam )
         fvec2_t vup, vrt, diff;
         float diff_up, diff_rt;
 
-        float track_dist_x, track_dist_y;
+        float track_fov, track_dist, track_size, track_size_x,track_size_y;
+        fvec3_t track_vec;
+        
+        // what is the distance to the track position?
+        fvec3_sub( track_vec.v, pcam->track_pos.v, pcam->pos.v );
+
+        // determine the size of the dead zone
+        track_fov = CAM_FOV * 0.25f;
+        track_dist = fvec3_length( track_vec.v );
+        track_size = track_dist * TAN( track_fov );
+        track_size_x = track_size;
+        track_size_y = track_size;  /// @todo adjust this based on the camera viewing angle
 
         // calculate the difference between the center of the tracked characters
         // and the center of the camera look_at
@@ -425,46 +440,34 @@ void camera_update_center( camera_t * pcam )
         // Get ready to scroll...
         scroll.x = 0;
         scroll.y = 0;
-
-        // Adjust for camera height...
-        track_dist_x = ( CAM_TRACK_X_AREA_LOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
-                       ( CAM_TRACK_X_AREA_HIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
-        track_dist_x /= ( CAM_ZADD_MAX - CAM_ZADD_MIN );
-        if ( diff_rt < -track_dist_x )
+        if ( diff_rt < -track_size_x )
         {
             // Scroll left
-            scroll.x += vrt.x * ( diff_rt + track_dist_x );
-            scroll.y += vrt.y * ( diff_rt + track_dist_x );
+            scroll.x += vrt.x * ( diff_rt + track_size_x );
+            scroll.y += vrt.y * ( diff_rt + track_size_x );
         }
-        if ( diff_rt > track_dist_x )
+        if ( diff_rt > track_size_x )
         {
             // Scroll right
-            scroll.x += vrt.x * ( diff_rt - track_dist_x );
-            scroll.y += vrt.y * ( diff_rt - track_dist_x );
+            scroll.x += vrt.x * ( diff_rt - track_size_x );
+            scroll.y += vrt.y * ( diff_rt - track_size_x );
         }
 
-        // Adjust for camera height...
-        track_dist_y = ( CAM_TRACK_Y_AREA_MINLOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
-                       ( CAM_TRACK_Y_AREA_MINHIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
-        track_dist_y /= ( CAM_ZADD_MAX - CAM_ZADD_MIN );
-        if ( diff_up > track_dist_y )
+        if ( diff_up > track_size_y )
         {
             // Scroll down
-            scroll.x += vup.x * ( diff_up - track_dist_y );
-            scroll.y += vup.y * ( diff_up - track_dist_y );
+            scroll.x += vup.x * ( diff_up - track_size_y );
+            scroll.y += vup.y * ( diff_up - track_size_y );
         }
 
-        // Adjust for camera height...
-        track_dist_y = ( CAM_TRACK_Y_AREA_MAXLOW  * ( CAM_ZADD_MAX - pcam->zadd ) ) +
-                       ( CAM_TRACK_Y_AREA_MAXHIGH * ( pcam->zadd - CAM_ZADD_MIN ) );
-        track_dist_y /= ( CAM_ZADD_MAX - CAM_ZADD_MIN );
-        if ( diff_up < -track_dist_y )
+        if ( diff_up < -track_size_y )
         {
             // Scroll up
-            scroll.x += vup.x * ( diff_up + track_dist_y );
-            scroll.y += vup.y * ( diff_up + track_dist_y );
+            scroll.x += vup.x * ( diff_up + track_size_y );
+            scroll.y += vup.y * ( diff_up + track_size_y );
         }
 
+        // scroll
         pcam->center.x += scroll.x;
         pcam->center.y += scroll.y;
     }
@@ -474,7 +477,7 @@ void camera_update_center( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_update_track( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size_t track_list_size )
+void camera_update_track( camera_t * pcam, const ego_mpd_t * pmesh, CHR_REF track_list[], const size_t track_list_size )
 {
     fvec3_t new_track;
     float new_track_level;
@@ -704,7 +707,7 @@ size_t camera_create_track_list( CHR_REF track_list[], size_t track_list_max_siz
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_move( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size_t track_list_size )
+void camera_move( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
     /// @details ZZ@> This function moves the camera
 
@@ -712,13 +715,13 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size
 
     CHR_REF _track_list[ MAX_PLAYER ];
 
-    CHR_REF * loc_track_list  = track_list;
+    CHR_REF * loc_track_list  = (CHR_REF *)track_list;
     size_t    loc_target_count = track_list_size;
 
     // deal with optional parameters
     if ( NULL == track_list )
     {
-        loc_track_list  = _track_list;
+        loc_track_list  = (CHR_REF *)_track_list;
         loc_target_count = camera_create_track_list( _track_list, SDL_arraysize( _track_list ) );
     }
 
@@ -751,7 +754,7 @@ void camera_move( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size
     // update the average position of the tracked characters
     camera_update_track( pcam, pmesh, loc_track_list, loc_target_count );
 
-    // move the camera cente, if need be
+    // move the camera center, if need be
     camera_update_center( pcam );
 
     // make the zadd and zoom work together
@@ -836,9 +839,11 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
     {
         // INPUT_DEVICE_KEYBOARD and any unknown device end up here
 
-        //Auto camera
+        
         if ( autoturn_camera )
         {
+            // Auto camera
+
             if ( input_device_control_active( pdevice,  CONTROL_LEFT ) )
             {
                 pcam->turn_z_add += CAM_TURN_KEY;
@@ -848,13 +853,15 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
                 pcam->turn_z_add -= CAM_TURN_KEY;
             }
         }
-
-        //Normal camera
         else
         {
+            // Normal camera
+
             int turn_z_diff = 0;
 
-            //rotation
+            turn_z_diff += CAM_TURN_KEY;
+
+            // rotation
             if ( input_device_control_active( pdevice,  CONTROL_CAMERA_LEFT ) )
             {
                 turn_z_diff += CAM_TURN_KEY;
@@ -885,7 +892,7 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_reset( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size_t track_list_size )
+void camera_reset( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
     /// @details ZZ@> This function makes sure the camera starts in a suitable position
 
@@ -926,7 +933,7 @@ void camera_reset( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], siz
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t camera_reset_target( camera_t * pcam, ego_mpd_t * pmesh, CHR_REF track_list[], size_t track_list_size )
+bool_t camera_reset_target( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
     // @details BB@> Force the camera to focus in on the players. Should be called any time there is
     //               a "change of scene". With the new velocity-tracking of the camera, this would include

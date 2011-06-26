@@ -58,7 +58,7 @@ typedef struct s_lighting_cache_base lighting_cache_base_t;
 
 lighting_cache_base_t * lighting_cache_base_init( lighting_cache_base_t * pdata );
 bool_t                  lighting_cache_base_max_light( lighting_cache_base_t * cache );
-bool_t                  lighting_cache_base_blend( lighting_cache_base_t * cache, lighting_cache_base_t * cnew, float keep );
+bool_t                  lighting_cache_base_blend( lighting_cache_base_t * cache, const lighting_cache_base_t * cnew, float keep );
 
 //--------------------------------------------------------------------------------------------
 struct s_lighting_cache

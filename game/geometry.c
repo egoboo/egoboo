@@ -218,7 +218,7 @@ plane_intersects_aabb_done:
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, plane_base_t p0, plane_base_t p1 )
+bool_t two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const plane_base_t p0, const plane_base_t p1 )
 {
     bool_t retval = bfalse;
 
@@ -246,7 +246,7 @@ bool_t two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, plane
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t three_plane_intersection( fvec3_base_t dst_pos, plane_base_t p0, plane_base_t p1, plane_base_t p2 )
+bool_t three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 )
 {
     float det;
     float tmp;

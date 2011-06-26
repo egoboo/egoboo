@@ -76,10 +76,10 @@ ext_camera_iterator_t * camera_list_iterator_next( ext_camera_iterator_t * );
 ext_camera_iterator_t * camera_list_iterator_end( ext_camera_iterator_t * );
 camera_t *              camera_list_iterator_get_camera( ext_camera_iterator_t * );
 
-camera_t *              camera_list_find_target( ext_camera_list_t * plst, CHR_REF itarget );
+camera_t *              camera_list_find_target( ext_camera_list_t * plst, const CHR_REF itarget );
 camera_t *              camera_list_get_camera_index( ext_camera_list_t * plst, int index );
 ext_camera_t *          camera_list_get_ext_camera_index( ext_camera_list_t * plst, int index );
-int                     camera_list_find_target_index( ext_camera_list_t * plst, CHR_REF itarget );
+int                     camera_list_find_target_index( ext_camera_list_t * plst, const CHR_REF itarget );
 
 bool_t ext_camera_set_screen( ext_camera_t * ptr, float xmin, float ymin, float xmax, float ymax );
 bool_t ext_camera_get_screen( ext_camera_t * pext, ego_frect_t * prect );

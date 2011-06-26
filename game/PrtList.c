@@ -612,7 +612,7 @@ bool_t PrtList_add_used( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t PrtList_remove_used_index( int index )
+bool_t PrtList_remove_used_index( const int index )
 {
     PRT_REF iprt;
 

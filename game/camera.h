@@ -180,9 +180,9 @@ camera_t * camera_ctor( camera_t * pcam );
 void   camera_read_input( camera_t *pcam, struct s_input_device *pdevice );
 void   camera_make_matrix( camera_t * pcam );
 
-void   camera_move( camera_t * pcam, struct s_ego_mpd * pmesh, CHR_REF track_list[], size_t track_list_size );
-void   camera_reset( camera_t * pcam, struct s_ego_mpd * pmesh, CHR_REF track_list[], size_t track_list_size );
-bool_t camera_reset_target( camera_t * pcam, struct s_ego_mpd * pmesh, CHR_REF track_list[], size_t track_list_size );
+void   camera_move( camera_t * pcam, const struct s_ego_mpd * pmesh, const CHR_REF track_list[], const size_t track_list_size );
+void   camera_reset( camera_t * pcam, const struct s_ego_mpd * pmesh, const CHR_REF track_list[], const size_t track_list_size );
+bool_t camera_reset_target( camera_t * pcam, const struct s_ego_mpd * pmesh, const CHR_REF track_list[], const size_t track_list_size );
 
 bool_t camera_reset_view( camera_t * pcam );
 bool_t camera_reset_projection( camera_t * pcam , float fov_deg, float ar );

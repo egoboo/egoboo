@@ -73,7 +73,7 @@ static bool_t mesh_recalc_twist( ego_mpd_t * pmesh );
 static bool_t mesh_make_texture( ego_mpd_t * pmesh );
 static ego_mpd_t * mesh_finalize( ego_mpd_t * pmesh );
 static bool_t mesh_test_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, float * pdelta );
-static bool_t mesh_light_one_corner( ego_mpd_t * pmesh, ego_tile_info_t * ptile, bool_t reflective, fvec3_base_t pos, fvec3_base_t nrm, float * plight );
+static bool_t mesh_light_one_corner( const ego_mpd_t * pmesh, ego_tile_info_t * ptile, const bool_t reflective, const fvec3_base_t pos, fvec3_base_t nrm, float * plight );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1165,7 +1165,7 @@ bool_t mesh_test_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, float * pdelta 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_light_one_corner( ego_mpd_t * pmesh, ego_tile_info_t * ptile, bool_t reflective, fvec3_base_t pos, fvec3_base_t nrm, float * plight )
+bool_t mesh_light_one_corner( const ego_mpd_t * pmesh, ego_tile_info_t * ptile, const bool_t reflective, const fvec3_base_t pos, fvec3_base_t nrm, float * plight )
 {
     lighting_cache_t grid_light;
 

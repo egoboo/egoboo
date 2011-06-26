@@ -496,7 +496,7 @@ void keep_weapons_with_holders()
             }
             else
             {
-                chr_set_pos( pchr, chr_get_pos_v( pattached ) );
+                chr_set_pos( pchr, chr_get_pos_v_const( pattached ) );
             }
 
             pchr->ori.facing_z = pattached->ori.facing_z;
@@ -552,7 +552,7 @@ void keep_weapons_with_holders()
                 PACK_BEGIN_LOOP( pchr->inventory, pitem, iitem )
                 {
 
-                    chr_set_pos( pitem, chr_get_pos_v( pchr ) );
+                    chr_set_pos( pitem, chr_get_pos_v_const( pchr ) );
 
                     // Copy olds to make SendMessageNear work
                     pitem->pos_old = pchr->pos_old;
@@ -587,7 +587,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         {
             chr_t * ptarget = ChrList_get_ptr( pchr->ai.target );
 
-            chr_set_pos( pchr, chr_get_pos_v( ptarget ) );
+            chr_set_pos( pchr, chr_get_pos_v_const( ptarget ) );
 
             // copy the matrix
             CopyMatrix( &( pinst->matrix ), &( ptarget->inst.matrix ) );
@@ -631,7 +631,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->ori.map_facing_y - MAP_TURN_OFFSET );
         pinst->matrix_cache.rotate.z = pchr->ori.facing_z;
 
-        pinst->matrix_cache.pos = chr_get_pos( pchr );
+        chr_get_pos( pchr, pinst->matrix_cache.pos.v );
     }
 }
 
@@ -850,7 +850,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
     else
     {
         // No matrix, so just wing it...
-        prt_set_pos( pprt, chr_get_pos_v( pchr ) );
+        prt_set_pos( pprt, chr_get_pos_v_const( pchr ) );
     }
 
     return pprt;
@@ -1174,7 +1174,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     }
     else
     {
-        chr_set_pos( pchr, chr_get_pos_v( pmount ) );
+        chr_set_pos( pchr, chr_get_pos_v_const( pmount ) );
     }
 
     // Make sure it's not dropped in a wall...
@@ -1849,7 +1849,7 @@ void drop_keys( const CHR_REF character )
 
         // do some more complicated things
         SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
-        chr_set_pos( pkey, chr_get_pos_v( pchr ) );
+        chr_set_pos( pkey, chr_get_pos_v_const( pchr ) );
         move_one_character_get_environment( pkey );
         chr_set_floor_level( pkey, pchr->enviro.floor_level );
     }
@@ -1918,7 +1918,7 @@ bool_t drop_all_items( const CHR_REF character )
 
         // do some more complicated things
         SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
-        chr_set_pos( pitem, chr_get_pos_v( pchr ) );
+        chr_set_pos( pitem, chr_get_pos_v_const( pchr ) );
         move_one_character_get_environment( pitem );
         chr_set_floor_level( pitem, pchr->enviro.floor_level );
 
@@ -2020,7 +2020,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
     slot_pos.x = mids[OCT_X];
     slot_pos.y = mids[OCT_Y];
     slot_pos.z = mids[OCT_Z];
-    fvec3_self_sum( slot_pos.v, chr_get_pos_v( pchr_a ) );
+    fvec3_self_sum( slot_pos.v, chr_get_pos_v_const( pchr_a ) );
 
     // get the size of object a
     bump_size2_a = SQR( 1.5f * pchr_a->bump.size );
@@ -2073,7 +2073,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         too_invis = !chr_can_see_invis( pchr_a, pchr_c );
 
         // calculate the distance
-        fvec3_sub( diff.v, chr_get_pos_v( pchr_c ), slot_pos.v );
+        fvec3_sub( diff.v, chr_get_pos_v_const( pchr_c ), slot_pos.v );
         diff.z += pchr_c->bump.height * 0.5f;
 
         // find the squared difference horizontal and vertical
@@ -2492,7 +2492,7 @@ void drop_money( const CHR_REF character, int money )
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList_get_ptr( character );
 
-    fvec3_base_copy( loc_pos.v, chr_get_pos_v( pchr ) );
+    fvec3_base_copy( loc_pos.v, chr_get_pos_v_const( pchr ) );
 
     // limit the about of money to the character's actual money
     if ( money > ChrList.lst[character].money )
@@ -5024,7 +5024,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
             ChrList.lst[item_ref].vel.z    = DISMOUNTZVEL;
             ChrList.lst[item_ref].jump_timer = JUMPDELAY;
 
-            tmp_pos = chr_get_pos( ChrList_get_ptr( item_ref ) );
+            chr_get_pos( ChrList_get_ptr( item_ref ), tmp_pos.v );
             tmp_pos.z += DISMOUNTZVEL;
             chr_set_pos( ChrList_get_ptr( item_ref ), tmp_pos.v );
         }
@@ -5044,7 +5044,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
             ChrList.lst[item_ref].vel.z    = DISMOUNTZVEL;
             ChrList.lst[item_ref].jump_timer = JUMPDELAY;
 
-            tmp_pos = chr_get_pos( ChrList_get_ptr( item_ref ) );
+            chr_get_pos( ChrList_get_ptr( item_ref ), tmp_pos.v );
             tmp_pos.z += DISMOUNTZVEL;
             chr_set_pos( ChrList_get_ptr( item_ref ), tmp_pos.v );
         }
@@ -6353,7 +6353,7 @@ bool_t chr_do_latch_button( chr_t * pchr )
                 pchr->vel.z += DISMOUNTZVEL;
             }
 
-            tmp_pos = chr_get_pos( pchr );
+            chr_get_pos( pchr, tmp_pos.v );
             tmp_pos.z += pchr->vel.z;
             chr_set_pos( pchr, tmp_pos.v );
 
@@ -6527,7 +6527,7 @@ bool_t chr_update_safe_raw( chr_t * pchr )
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pchr->safe_valid = btrue;
-        pchr->safe_pos   = chr_get_pos( pchr );
+        chr_get_pos( pchr, pchr->safe_pos.v );
         pchr->safe_time  = update_wld;
         pchr->safe_grid  = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
 
@@ -6592,7 +6592,7 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
     // by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt, I've tried a hotfix here instead
     if ( HAS_SOME_BITS( ALERTIF_SPAWNED, pchr->ai.alert ) )
     {
-        fvec3_base_copy( pos_v, chr_get_pos_v( pchr ) );
+        fvec3_base_copy( pos_v, chr_get_pos_v_const( pchr ) );
         return btrue;
     }
 
@@ -6745,7 +6745,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
         return move_one_character_integrate_motion_attached( pchr );
     }
 
-    tmp_pos = chr_get_pos( pchr );
+    chr_get_pos( pchr, tmp_pos.v );
 
     pai = &( pchr->ai );
     ichr = pai->index;
@@ -7544,7 +7544,7 @@ void move_one_character( chr_t * pchr )
     fvec3_sub( pchr->enviro.acc.v, pchr->vel.v, pchr->vel_old.v );
 
     // Character's old location
-    pchr->pos_old          = chr_get_pos( pchr );
+    chr_get_pos( pchr, pchr->pos_old.v );
     pchr->vel_old          = pchr->vel;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
@@ -8377,7 +8377,7 @@ bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T fac
     if ( x < 0.0f || x > PMesh->gmem.edge_x ) return bfalse;
     if ( y < 0.0f || y > PMesh->gmem.edge_y ) return bfalse;
 
-    pos_old  = chr_get_pos( pchr );
+    chr_get_pos( pchr, pos_old.v );
     facing_old = pchr->ori.facing_z;
 
     pos_new.x  = x;
@@ -8460,7 +8460,7 @@ chr_t * chr_update_hide( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_matrix_valid( chr_t * pchr )
+bool_t chr_matrix_valid( const chr_t * pchr )
 {
     /// @details BB@> Determine whether the character has a valid matrix
 
@@ -8606,7 +8606,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->ori.map_facing_y - MAP_TURN_OFFSET );
             mc_tmp->rotate.z = ptarget->ori.facing_z;
 
-            mc_tmp->pos = chr_get_pos( ptarget );
+            chr_get_pos( ptarget, mc_tmp->pos.v );
 
             mc_tmp->grip_scale.x = mc_tmp->grip_scale.y = mc_tmp->grip_scale.z = ptarget->fat;
         }
@@ -8833,7 +8833,7 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
                 mcache->rotate.y = CLIP_TO_16BITS( pchr->ori.map_facing_y - MAP_TURN_OFFSET );
                 mcache->rotate.z = pchr->ori.facing_z;
 
-                mcache->pos = chr_get_pos( pchr );
+                chr_get_pos( pchr, mcache->pos.v );
 
                 applied = btrue;
             }
@@ -9705,7 +9705,7 @@ bool_t chr_update_pos( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_set_pos( chr_t * pchr, fvec3_base_t pos )
+bool_t chr_set_pos( chr_t * pchr, const fvec3_base_t pos )
 {
     bool_t retval = bfalse;
 
@@ -9761,7 +9761,7 @@ chr_t * chr_set_ai_state( chr_t * pchr, int state )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin, fvec3_base_t grip_up, bool_t shift_origin )
+bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin, fvec3_base_t grip_up, const bool_t shift_origin )
 {
     /// @details BB@> use a standard size for the grip
 

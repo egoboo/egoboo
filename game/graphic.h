@@ -432,7 +432,7 @@ int  DisplayMsg_get_free( void );
 
 int debug_printf( const char *format, ... );
 
-bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos );
+bool_t grid_lighting_interpolate( const ego_mpd_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos );
 float  grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
 
 void line_list_init( void );

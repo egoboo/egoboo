@@ -4141,7 +4141,7 @@ float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t grid_lighting_interpolate( ego_mpd_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos )
+bool_t grid_lighting_interpolate( const ego_mpd_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos )
 {
     int ix, iy, cnt;
     Uint32 fan[4];

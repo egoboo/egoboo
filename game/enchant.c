@@ -217,7 +217,7 @@ bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t remove_all_enchants_with_idsz( CHR_REF ichr, IDSZ remove_idsz )
+bool_t remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
 {
     /// @details ZF@> This function removes all enchants with the character that has the specified
     ///               IDSZ. If idsz [NONE] is specified, all enchants will be removed. Return btrue
