@@ -31,6 +31,40 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+    struct s_wawalite_water_layer;
+    typedef struct s_wawalite_water_layer wawalite_water_layer_t;
+
+    struct s_wawalite_water;
+    typedef struct s_wawalite_water wawalite_water_t;
+
+    struct s_wawalite_physics;
+    typedef struct s_wawalite_physics wawalite_physics_t;
+
+    struct s_wawalite_animtile;
+    typedef struct s_wawalite_animtile wawalite_animtile_t;
+
+    struct s_wawalite_damagetile;
+    typedef struct s_wawalite_damagetile wawalite_damagetile_t;
+
+    struct s_wawalite_weather;
+    typedef struct s_wawalite_weather wawalite_weather_t;
+
+    struct s_wawalite_graphics;
+    typedef struct s_wawalite_graphics wawalite_graphics_t;
+
+    struct s_wawalite_camera;
+    typedef struct s_wawalite_camera wawalite_camera_t;
+
+    struct s_wawalite_fog;
+    typedef struct s_wawalite_fog wawalite_fog_t;
+
+    struct s_wawalite_data;
+    typedef struct s_wawalite_data wawalite_data_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define MAXWATERLAYER 2                             ///< Maximum water layers
 
 //--------------------------------------------------------------------------------------------
@@ -51,7 +85,6 @@ extern "C"
         fvec2_t tx_add;            ///< Texture movement
         Uint8   alpha;            ///< Transparency
     };
-    typedef struct s_wawalite_water_layer wawalite_water_layer_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -74,7 +107,6 @@ extern "C"
         float  foregroundrepeat;
         float  backgroundrepeat;
     };
-    typedef struct s_wawalite_water wawalite_water_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -88,7 +120,6 @@ extern "C"
         float noslipfriction;
         float gravity;
     };
-    typedef struct s_wawalite_physics wawalite_physics_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -98,7 +129,6 @@ extern "C"
         Uint32 update_and;
         Uint32 frame_and;
     };
-    typedef struct s_wawalite_animtile wawalite_animtile_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -112,7 +142,6 @@ extern "C"
         Uint32 partand;
         int    sound_index;
     };
-    typedef struct s_wawalite_damagetile wawalite_damagetile_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -124,15 +153,15 @@ extern "C"
         int     part_gpip;           ///< Which particle to spawn?
         STRING  weather_name;
     };
-    typedef struct s_wawalite_weather wawalite_weather_t;
 
-/// A wrapper for the graphics data in "wawalite.txt"
+//--------------------------------------------------------------------------------------------
+
+    /// A wrapper for the graphics data in "wawalite.txt"
     struct s_wawalite_graphics
     {
         bool_t exploremode;
         bool_t usefaredge;
     };
-    typedef struct s_wawalite_graphics wawalite_graphics_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -143,7 +172,6 @@ extern "C"
         float  swing_rate;
         float  swing_amp;
     };
-    typedef struct s_wawalite_camera wawalite_camera_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -158,7 +186,6 @@ extern "C"
         float  blu;
         bool_t affects_water;
     };
-    typedef struct s_wawalite_fog wawalite_fog_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -183,7 +210,6 @@ extern "C"
         float light_z;
         float light_a;
     };
-    typedef struct s_wawalite_data wawalite_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

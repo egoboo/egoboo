@@ -12,6 +12,36 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+    struct s_id_md2_header;
+    typedef struct s_id_md2_header id_md2_header_t;
+
+    struct s_id_md2_skin;
+    typedef struct s_id_md2_skin id_md2_skin_t;
+
+    struct s_id_md2_texcoord;
+    typedef struct s_id_md2_texcoord id_md2_texcoord_t;
+
+    struct s_id_md2_triangle;
+    typedef struct s_id_md2_triangle id_md2_triangle_t;
+
+    struct s_id_md2_vertex;
+    typedef struct s_id_md2_vertex id_md2_vertex_t;
+
+    struct s_id_md2_frame_header;
+    typedef struct s_id_md2_frame_header id_md2_frame_header_t;
+
+    struct s_id_md2_frame;
+    typedef struct s_id_md2_frame id_md2_frame_t;
+
+    struct s_id_glcmd_packed;
+    typedef struct s_id_glcmd_packed id_glcmd_packed_t;
+
+    struct s_id_md2_model;
+    typedef struct s_id_md2_model id_md2_model_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // gcc does not properly recognize #pragma pack statements
 
 #if !defined(SET_PACKED)
@@ -71,14 +101,12 @@ extern "C"
         int offset_end;
 
     } SET_PACKED();
-    typedef struct s_id_md2_header id_md2_header_t;
 
     /* Texture name */
     struct s_id_md2_skin
     {
         char name[64];
     } SET_PACKED();
-    typedef struct s_id_md2_skin id_md2_skin_t;
 
     /* Texture coords */
     struct s_id_md2_texcoord
@@ -86,7 +114,6 @@ extern "C"
         short s;
         short t;
     } SET_PACKED();
-    typedef struct s_id_md2_texcoord id_md2_texcoord_t;
 
     /* Triangle info */
     struct s_id_md2_triangle
@@ -94,7 +121,6 @@ extern "C"
         unsigned short vertex[3];
         unsigned short st[3];
     } SET_PACKED();
-    typedef struct s_id_md2_triangle id_md2_triangle_t;
 
     /* Compressed vertex */
     struct s_id_md2_vertex
@@ -102,7 +128,6 @@ extern "C"
         unsigned char v[3];
         unsigned char normalIndex;
     } SET_PACKED();
-    typedef struct s_id_md2_vertex id_md2_vertex_t;
 
     /* Model frame */
     struct s_id_md2_frame_header
@@ -111,7 +136,6 @@ extern "C"
         float            translate[3];
         char             name[16];
     } SET_PACKED();
-    typedef struct s_id_md2_frame_header id_md2_frame_header_t;
 
     /* Model frame */
     struct s_id_md2_frame
@@ -121,7 +145,6 @@ extern "C"
         char             name[16];
         id_md2_vertex_t *verts;
     } SET_PACKED();
-    typedef struct s_id_md2_frame id_md2_frame_t;
 
     /* GL command packet */
     struct s_id_glcmd_packed
@@ -130,7 +153,6 @@ extern "C"
         float t;
         int index;
     } SET_PACKED();
-    typedef struct s_id_glcmd_packed id_glcmd_packed_t;
 
     /* MD2 model structure */
     struct s_id_md2_model
@@ -144,12 +166,12 @@ extern "C"
         int               *glcmds;
         GLuint             tex_id;
     } SET_PACKED();
-    typedef struct s_id_md2_model id_md2_model_t;
 
 #pragma pack(pop)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
     extern float kid_md2_normals[MD2_MAX_NORMALS][3];
 
 //--------------------------------------------------------------------------------------------

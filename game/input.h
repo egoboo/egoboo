@@ -31,6 +31,30 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_control;
+typedef struct s_control control_t;
+
+struct s_input_device;
+typedef struct s_input_device input_device_t;
+
+struct s_device_list;
+typedef struct s_device_list device_list_t;
+
+struct s_cursor;
+typedef struct s_cursor input_cursor_t;
+
+struct s_mouse_data;
+typedef struct s_mouse_data mouse_data_t;
+
+struct s_keyboard_data;
+typedef struct s_keyboard_data keyboard_data_t;
+
+typedef struct s_joystick_data joystick_data_t;
+struct s_joystick_data;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define MAX_JOYSTICK         MAX_LOCAL_PLAYERS     ///< the maximum number of supported joysticks (up to one for each local player)
 
 /// Which input control
@@ -100,7 +124,6 @@ struct s_control
     Uint32 tag_mods;
     bool_t is_key;
 };
-typedef struct s_control control_t;
 
 //--------------------------------------------------------------------------------------------
 /// The mapping between the inputs detected by SDL and the device's in-game function
@@ -115,7 +138,6 @@ struct s_input_device
     int                     device_type;                        ///< Device type - mouse, keyboard, etc.
     control_t               control[CONTROL_COMMAND_COUNT];     ///< Key mappings
 };
-typedef struct s_input_device input_device_t;
 
 input_device_t * input_device_ctor( input_device_t * pdevice );
 BIT_FIELD input_device_get_buttonmask( input_device_t *pdevice );
@@ -132,7 +154,6 @@ struct s_device_list
     size_t         count;
     input_device_t lst[MAX_LOCAL_PLAYERS];      //up to 4 local players (input controllers)
 };
-typedef struct s_device_list device_list_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -148,7 +169,6 @@ struct s_cursor
     bool_t  pending_click;
     bool_t  wheel_event;
 };
-typedef struct s_cursor input_cursor_t;
 
 //--------------------------------------------------------------------------------------------
 // DEVICE DATA
@@ -169,7 +189,6 @@ struct s_mouse_data
     Uint8                   button[4];       ///< Mouse button states
     Uint32                  b;               ///< Button masks
 };
-typedef struct s_mouse_data mouse_data_t;
 
 #define MOUSE_INIT \
     {\
@@ -195,7 +214,6 @@ struct s_keyboard_data
     int     state_size;
     Uint8  *state_ptr;
 };
-typedef struct s_keyboard_data keyboard_data_t;
 
 #define KEYBOARD_INIT \
     {\
@@ -224,7 +242,6 @@ struct s_joystick_data
 
     SDL_Joystick * sdl_ptr;
 };
-typedef struct s_joystick_data joystick_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

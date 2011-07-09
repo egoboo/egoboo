@@ -26,6 +26,25 @@
 #include <stdlib.h>
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+struct s_ConfigFileValue;
+typedef struct s_ConfigFileValue ConfigFileValue_t;
+typedef struct s_ConfigFileValue *ConfigFileValuePtr_t;
+
+struct s_ConfigFileSection;
+typedef struct s_ConfigFileSection ConfigFileSection_t;
+typedef struct s_ConfigFileSection *ConfigFileSectionPtr_t;
+
+struct s_ConfigFileCarat;
+typedef struct s_ConfigFileCarat ConfigFileCarat_t;
+typedef struct s_ConfigFileCarat *ConfigFileCaratPtr_t;
+
+struct s_ConfigFile;
+typedef struct s_ConfigFile ConfigFile_t;
+typedef struct s_ConfigFile *ConfigFilePtr_t;
+
+//--------------------------------------------------------------------------------------------
 // BOOLEAN
 
 #if defined(__cplusplus)
@@ -72,10 +91,6 @@ extern "C"
 // struct s_ConfigFileValue
 //--------------------------------------------------------------------------------------------
 
-    struct s_ConfigFileValue;
-    typedef struct s_ConfigFileValue ConfigFileValue_t;
-    typedef struct s_ConfigFileValue *ConfigFileValuePtr_t;
-
 /// A single value in the congiguration file, specified by ["TAG"] = "VALUE"
     struct s_ConfigFileValue
     {
@@ -89,10 +104,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // struct s_ConfigFileSection
 //--------------------------------------------------------------------------------------------
-
-    struct s_ConfigFileSection;
-    typedef struct s_ConfigFileSection ConfigFileSection_t;
-    typedef struct s_ConfigFileSection *ConfigFileSectionPtr_t;
 
     /// One section of the congiguration file, delimited by {"BLAH"}
     struct s_ConfigFileSection
@@ -108,10 +119,6 @@ extern "C"
 // struct s_ConfigFileCarat
 //--------------------------------------------------------------------------------------------
 
-    struct s_ConfigFileCarat;
-    typedef struct s_ConfigFileCarat ConfigFileCarat_t;
-    typedef struct s_ConfigFileCarat *ConfigFileCaratPtr_t;
-
     struct s_ConfigFileCarat
     {
         ConfigFileSectionPtr_t  SectionPtr;
@@ -121,10 +128,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // struct s_ConfigFile
 //--------------------------------------------------------------------------------------------
-
-    struct s_ConfigFile;
-    typedef struct s_ConfigFile ConfigFile_t;
-    typedef struct s_ConfigFile *ConfigFilePtr_t;
 
     /// The congiguration file
     struct s_ConfigFile

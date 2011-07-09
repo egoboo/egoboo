@@ -39,6 +39,24 @@ struct s_prt_bundle;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_pro_import;
+typedef struct s_pro_import pro_import_t;
+
+struct s_chop_data;
+typedef struct s_chop_data chop_data_t;
+
+struct s_chop_section;
+typedef struct s_chop_section chop_section_t;
+
+struct s_chop_definition;
+typedef struct s_chop_definition chop_definition_t;
+
+struct s_object_profile;
+typedef struct s_object_profile pro_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// Placeholders used while importing profiles
 struct s_pro_import
 {
@@ -47,7 +65,6 @@ struct s_pro_import
     int   slot_lst[MAX_PROFILE];
     int   max_slot;
 };
-typedef struct s_pro_import pro_import_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -68,7 +85,6 @@ struct s_chop_data
     char    buffer[CHOPDATACHUNK];  ///< The name parts
     int     start[MAXCHOP];         ///< The first character of each part
 };
-typedef struct s_chop_data chop_data_t;
 
 chop_data_t * chop_data_init( chop_data_t * pdata );
 
@@ -82,7 +98,6 @@ struct s_chop_section
     int size;     ///< Number of choices, 0
     int start;    ///< A reference to a specific offset in the chop_data_t buffer
 };
-typedef struct s_chop_section chop_section_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -91,7 +106,6 @@ struct s_chop_definition
 {
     chop_section_t  section[MAXSECTION];
 };
-typedef struct s_chop_definition chop_definition_t;
 
 chop_definition_t * chop_definition_init( chop_definition_t * pdefinition );
 
@@ -128,8 +142,6 @@ struct s_object_profile
     // sounds
     struct Mix_Chunk *  wavelist[MAX_WAVE];             ///< sounds in a object
 };
-
-typedef struct s_object_profile pro_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

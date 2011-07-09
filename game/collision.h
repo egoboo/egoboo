@@ -37,6 +37,12 @@ struct s_prt;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_CoNode;
+typedef struct s_CoNode CoNode_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// element for storing pair-wise "collision" data
 /// @note this does not use the "standard" method of inheritance from hash_node_t, where an
 /// instance of hash_node_t is embedded inside CoNode_t as CoNode_t::base or something.
@@ -58,7 +64,6 @@ struct s_CoNode
     float    tmin, tmax;
     oct_bb_t cv;
 };
-typedef struct s_CoNode CoNode_t;
 
 CoNode_t * CoNode_ctor( CoNode_t * );
 Uint8      CoNode_generate_hash( CoNode_t * coll );

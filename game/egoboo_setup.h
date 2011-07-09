@@ -27,6 +27,12 @@ extern "C"
 #endif
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+    struct s_egoboo_config;
+    typedef struct s_egoboo_config egoboo_config_t;
+
+//--------------------------------------------------------------------------------------------
 // CONSTANTS
 //--------------------------------------------------------------------------------------------
 
@@ -115,7 +121,6 @@ extern "C"
         bool_t                  sdl_image_allowed;       ///< Allow advanced SDL_Image functions?
 
     };
-    typedef struct s_egoboo_config egoboo_config_t;
 
     extern egoboo_config_t cfg;
 

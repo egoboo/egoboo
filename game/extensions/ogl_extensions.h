@@ -37,6 +37,18 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+    struct s_oglx_caps;
+    typedef struct s_oglx_caps oglx_caps_t;
+
+    struct s_oglx_video_parameters;
+    typedef struct s_oglx_video_parameters oglx_video_parameters_t;
+
+    struct s_oglx_culling_data;
+    typedef struct s_oglx_culling_data oglx_culling_data_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // wrapper for uploading texture information
 
     void oglx_bind( GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLint min_f, GLint mag_f, GLfloat aniso );
@@ -105,7 +117,6 @@ extern "C"
         GLfloat   maxAnisotropy;                     ///< Max anisotropic filterings (Between 1.00 and 16.00)
         GLfloat   log2Anisotropy;                    ///< Max levels of anisotropy
     };
-    typedef struct s_oglx_caps oglx_caps_t;
 
     void oglx_Get_Screen_Info( oglx_caps_t * pcaps );
     void oglx_report_caps( void );
@@ -124,7 +135,6 @@ extern "C"
         GLenum    shading;                 ///< current shading type
         GLfloat   userAnisotropy;          ///< current value of the anisotropic filtering
     };
-    typedef struct s_oglx_video_parameters oglx_video_parameters_t;
 
     GLboolean oglx_video_parameters_default( oglx_video_parameters_t * pvid );
 
@@ -136,7 +146,6 @@ extern "C"
         GLint     face[1];
         GLint     mode[1];
     };
-    typedef struct s_oglx_culling_data oglx_culling_data_t;
 
     void oglx_set_culling( oglx_culling_data_t * new_data, oglx_culling_data_t * old_data );
     void oglx_begin_culling( GLenum which, GLenum mode );

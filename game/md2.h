@@ -33,6 +33,26 @@
 #include "egoboo_typedef.h"
 #include "physics.h"
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+struct s_ego_md2_vertex;
+typedef struct s_ego_md2_vertex MD2_Vertex_t;
+
+struct s_ego_md2_texcoord;
+typedef struct s_ego_md2_texcoord MD2_TexCoord_t;
+
+struct s_ego_md2_frame;
+typedef struct s_ego_md2_frame MD2_Frame_t;
+
+struct s_ego_md2_glcommand;
+typedef struct s_ego_md2_glcommand MD2_GLCommand_t;
+
+struct s_ego_md2_model;
+typedef struct s_ego_md2_model MD2_Model_t;
+
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -50,7 +70,6 @@ struct s_ego_md2_vertex
     int     normal;  ///< index to id-normal array
 
 };
-typedef struct s_ego_md2_vertex MD2_Vertex_t;
 
 //--------------------------------------------------------------------------------------------
 // MD2_TexCoord_t
@@ -60,7 +79,6 @@ struct s_ego_md2_texcoord
 {
     fvec2_t tex;
 };
-typedef struct s_ego_md2_texcoord MD2_TexCoord_t;
 
 //--------------------------------------------------------------------------------------------
 // MD2_Frame_t
@@ -77,7 +95,6 @@ struct s_ego_md2_frame
     int           framelip;       ///< the position in the current animation
     BIT_FIELD     framefx;        ///< the special effects associated with this frame
 };
-typedef struct s_ego_md2_frame MD2_Frame_t;
 
 //--------------------------------------------------------------------------------------------
 // MD2_Triangle_t
@@ -103,7 +120,6 @@ struct s_ego_md2_glcommand
     signed int          command_count;
     id_glcmd_packed_t * data;
 };
-typedef struct s_ego_md2_glcommand MD2_GLCommand_t;
 
 void MD2_GLCommand_ctor( MD2_GLCommand_t * m );
 void MD2_GLCommand_dtor( MD2_GLCommand_t * m );
@@ -133,7 +149,6 @@ struct s_ego_md2_model
     MD2_GLCommand_t *m_commands;
 
 };
-typedef struct s_ego_md2_model MD2_Model_t;
 
 // CTORS
 MD2_Model_t * MD2_Model_ctor( MD2_Model_t * m );

@@ -40,9 +40,10 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
     struct s_ClockState;
+    typedef struct s_ClockState ClockState_t;
 
     typedef double( *clock_source_ptr_t )( void );
-    typedef struct s_ClockState ClockState_t;
+
     typedef struct tm* EGO_TIME;
 
 //--------------------------------------------------------------------------------------------

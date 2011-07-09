@@ -32,6 +32,19 @@ extern "C"
 {
 #endif
 
+    struct s_fmat_4x4;
+    typedef struct s_fmat_4x4  fmat_4x4_t;
+
+    union u_fvec2;
+    typedef union u_fvec2 fvec2_t;
+
+    union u_fvec3;
+    typedef union u_fvec3 fvec3_t;
+
+    union u_fvec4;
+    typedef union u_fvec4 fvec4_t;
+
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // basic constants
@@ -240,16 +253,16 @@ extern "C"
 
 /// A wrapper for fmat_4x4_base_t
 /// Necessary in c so that the function return can be assigned to another matrix more simply.
-    typedef struct s_fmat_4x4  { fmat_4x4_base_t  v; } fmat_4x4_t;
+    struct s_fmat_4x4  { fmat_4x4_base_t  v; };
 
 /// A 2-vector type that allows more than one form of access
-    typedef union  u_fvec2     { fvec2_base_t v; struct { float x, y; }; struct { float s, t; }; } fvec2_t;
+    union  u_fvec2 { fvec2_base_t v; struct { float x, y; }; struct { float s, t; }; };
 
 /// A 3-vector type that allows more than one form of access
-    typedef union  u_fvec3     { fvec3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; } fvec3_t;
+    union  u_fvec3 { fvec3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; };
 
 /// A 4-vector type that allows more than one form of access
-    typedef union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } fvec4_t;
+    union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; };
 
 // macros for initializing vectors to zero
 #define ZERO_VECT2   { {0.0f,0.0f} }

@@ -33,6 +33,12 @@ struct s_script_state;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+struct s_shop;
+typedef struct s_shop shop_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define MAX_PASS             256                     ///< Maximum number of passages ( mul 32 )
 #define MAX_SHOP             MAX_PASS
 #define CLOSETOLERANCE       3                       ///< For closing doors
@@ -65,7 +71,6 @@ struct s_shop
     PASS_REF passage;  ///< The passage number
     CHR_REF  owner;    ///< Who gets the gold?
 };
-typedef struct s_shop shop_t;
 
 DECLARE_STACK_EXTERN( shop_t, ShopStack, MAX_SHOP );
 

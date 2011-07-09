@@ -30,6 +30,27 @@
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+struct s_irect;
+typedef struct s_irect irect_t;
+
+struct s_frect;
+typedef struct s_frect frect_t;
+
+struct s_ego_irect;
+typedef struct s_ego_irect ego_irect_t;
+
+struct s_ego_frect;
+typedef struct s_ego_frect ego_frect_t;
+
+struct s_pair;
+typedef struct s_pair IPair;
+
+struct s_range;
+typedef struct s_range FRange;
+
+//--------------------------------------------------------------------------------------------
 // portable definition of assert. the c++ version can be activated below.
 
 #include <assert.h>
@@ -169,8 +190,6 @@ struct s_irect
     int bottom;
 };
 
-typedef struct s_irect irect_t;
-
 bool_t irect_point_inside( irect_t * prect, int   ix, int   iy );
 
 struct s_frect
@@ -180,8 +199,6 @@ struct s_frect
     float top;
     float bottom;
 };
-
-typedef struct s_frect frect_t;
 
 bool_t frect_point_inside( frect_t * prect, float fx, float fy );
 
@@ -193,14 +210,12 @@ struct s_ego_irect
     int xmin, ymin;
     int xmax, ymax;
 };
-typedef struct s_ego_irect ego_irect_t;
 
 struct s_ego_frect
 {
     float xmin, ymin;
     float xmax, ymax;
 };
-typedef struct s_ego_frect ego_frect_t;
 
 //--------------------------------------------------------------------------------------------
 // PAIR AND RANGE
@@ -210,14 +225,12 @@ struct s_pair
 {
     int base, rand;
 };
-typedef struct s_pair IPair;
 
 // Specifies a value from "from" to "to"
 struct s_range
 {
     float from, to;
 };
-typedef struct s_range FRange;
 
 void pair_to_range( IPair pair, FRange * prange );
 void range_to_pair( FRange range, IPair * ppair );

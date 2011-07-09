@@ -31,6 +31,12 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+    struct s_treasure_table;
+    typedef struct s_treasure_table treasure_table_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define MAX_TABLES              32              //< Max number of tables
 #define TREASURE_TABLE_SIZE     128             //< Max number of objects per table
 
@@ -45,7 +51,6 @@ extern "C"
         STRING object_list[TREASURE_TABLE_SIZE];    //< List of treasure objects in this table
         size_t size;                                //< Number of objects loaded into this table
     };
-    typedef struct s_treasure_table treasure_table_t;
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL VARIABLES

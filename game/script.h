@@ -26,6 +26,21 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_waypoint_list;
+typedef struct s_waypoint_list waypoint_list_t;
+
+struct s_script_info;
+typedef struct s_script_info script_info_t;
+
+struct s_ai_state;
+typedef struct s_ai_state ai_state_t;
+
+struct s_script_state;
+typedef struct s_script_state script_state_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define MSGDISTANCE         2000                    ///< Range for SendMessageNear
 #define PITNOSOUND          -256                    ///< Stop sound at bottom of pits...
 
@@ -119,7 +134,6 @@ struct s_waypoint_list
     int          head;         ///< Where to stick next
     waypoint_t   pos[MAXWAY];  ///< Waypoint
 };
-typedef struct s_waypoint_list waypoint_list_t;
 
 bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp );
 bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y );
@@ -144,7 +158,6 @@ struct s_script_info
 
     Uint32          data[MAXAICOMPILESIZE];          // Compiled script data
 };
-typedef struct s_script_info script_info_t;
 
 //--------------------------------------------------------------------------------------------
 // struct s_ai_state
@@ -197,7 +210,6 @@ struct s_ai_state
     // performance monitoring
     PROFILE_DECLARE_STRUCT;
 };
-typedef struct s_ai_state ai_state_t;
 
 ai_state_t * ai_state_ctor( ai_state_t * pself );
 ai_state_t * ai_state_dtor( ai_state_t * pself );
@@ -224,7 +236,6 @@ struct s_script_state
     int     argument;
     int     operationsum;
 };
-typedef struct s_script_state script_state_t;
 
 //--------------------------------------------------------------------------------------------
 // FUNCTION PROTOTYPES

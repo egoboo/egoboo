@@ -27,6 +27,13 @@
 #include "network.h"
 #include "input.h"
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+struct s_player;
+typedef struct s_player player_t;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -63,8 +70,6 @@ struct s_player
     /// Network latch, set by net_unbuffer_player_latches(), used to set the local character's latch
     latch_t                 net_latch;
 };
-
-typedef struct s_player player_t;
 
 //void           player_init( player_t * ppla );
 void           pla_reinit( player_t * ppla );

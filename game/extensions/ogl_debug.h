@@ -37,6 +37,84 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+    struct s_gl_texture_gen;
+    typedef struct s_gl_texture_gen gl_texture_gen_t;
+
+    struct s_gl_texture;
+    typedef struct s_gl_texture gl_texture_t;
+
+    struct s_gl_clip_plane;
+    typedef struct s_gl_clip_plane gl_clip_plane_t;
+
+    struct s_gl_stencil;
+    typedef struct s_gl_stencil gl_stencil_t;
+
+    struct s_gl_packing;
+    typedef struct s_gl_packing gl_packing_t;
+
+    struct s_gl_blend;
+    typedef struct s_gl_blend gl_blend_t;
+
+    struct s_gl_alpha;
+    typedef struct s_gl_alpha gl_alpha_t;
+
+    struct s_gl_depth;
+    typedef struct s_gl_depth gl_depth_t;
+
+    struct s_gl_polygon;
+    typedef struct s_gl_polygon gl_polygon_t;
+
+    struct s_gl_line;
+    typedef struct s_gl_line gl_line_t;
+
+    struct s_gl_point;
+    typedef struct s_gl_point gl_point_t;
+
+    struct s_gl_scissor;
+    typedef struct s_gl_scissor gl_scissor_t;
+
+    struct s_gl_feedback;
+    typedef struct s_gl_feedback gl_feedback_t;
+
+    struct s_gl_selection;
+    typedef struct s_gl_selection gl_selection_t;
+
+    struct s_gl_render_mode;
+    typedef struct s_gl_render_mode gl_render_mode_t;
+
+    struct s_gl_matrix;
+    typedef struct s_gl_matrix gl_matrix_t;
+
+    struct s_gl_render_options;
+    typedef struct s_gl_render_options gl_render_options_t;
+
+    struct s_gl_buffer;
+    typedef struct s_gl_buffer gl_buffer_t;
+
+    struct s_gl_clipping;
+    typedef struct s_gl_clipping gl_clipping_t;
+
+    struct s_gl_texturing;
+    typedef struct s_gl_texturing gl_texturing_t;
+
+    struct s_gl_attrib;
+    typedef struct s_gl_attrib gl_attrib_t;
+
+    struct s_gl_logic_op;
+    typedef struct s_gl_logic_op gl_logic_op_t;
+
+    struct s_gl_mapping;
+    typedef struct s_gl_mapping gl_mapping_t;
+
+    struct s_ogl_state;
+    typedef struct s_ogl_state ogl_state_t;
+
+    struct s_ogl_state_comp;
+    typedef struct s_ogl_state_comp ogl_state_comp_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /// An encapsulation of the OpenGL texture gen state
     struct s_gl_texture_gen
     {
@@ -45,7 +123,6 @@ extern "C"
         GLfloat   object_plane[4];
         GLint     mode[1];
     };
-    typedef struct s_gl_texture_gen gl_texture_gen_t;
 
 /// Grab the OpenGL texture gen state
     void gl_grab_texture_gen_state( gl_texture_gen_t * pt, GLenum coord );
@@ -79,7 +156,6 @@ extern "C"
 
         gl_texture_gen_t gen[4];
     };
-    typedef struct s_gl_texture gl_texture_t;
 
 /// Grab the OpenGL textire state
     void gl_grab_texture_state( GLenum target, GLint level, gl_texture_t * pi );
@@ -92,7 +168,6 @@ extern "C"
         GLboolean enabled;
         GLdouble  coeffs[4];
     };
-    typedef struct s_gl_clip_plane gl_clip_plane_t;
 
 /// Grab the OpenGL clip plane state
     void gl_grab_clip_plane_state( gl_clip_plane_t * ps, GLint which );
@@ -120,7 +195,6 @@ extern "C"
         GLint        pass_depth_pass[1];
         const char * pass_depth_pass_sz;
     };
-    typedef struct s_gl_stencil gl_stencil_t;
 
 /// Grab the OpenGL stencil state
     void gl_grab_stencil_state( gl_stencil_t * ps );
@@ -137,7 +211,6 @@ extern "C"
         GLboolean swap_bytes[1];
         GLboolean lsb_first[1];
     };
-    typedef struct s_gl_packing gl_packing_t;
 
 /// Grab the OpenGL packing state
     void gl_grab_packing_state( gl_packing_t * pp );
@@ -158,7 +231,6 @@ extern "C"
         GLint        dst[1];
         const char * dst_sz;
     };
-    typedef struct s_gl_blend gl_blend_t;
 
 /// Grab the OpenGL blend state
     void gl_grab_blend_state( gl_blend_t * pb );
@@ -177,8 +249,6 @@ extern "C"
         GLfloat   scale[1];
         GLfloat   bias[1];
     };
-
-    typedef struct s_gl_alpha gl_alpha_t;
 
 /// Grab the OpenGL alpha state
     void gl_grab_alpha_state( gl_alpha_t * pa );
@@ -200,7 +270,6 @@ extern "C"
         GLfloat   scale[1];
         GLfloat   bias[1];
     };
-    typedef struct s_gl_depth gl_depth_t;
 
 /// Grab the OpenGL depth state
     void gl_grab_depth_state( gl_depth_t * pd );
@@ -225,7 +294,6 @@ extern "C"
 
         GLboolean stipple_enabled;
     };
-    typedef struct s_gl_polygon gl_polygon_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -242,7 +310,6 @@ extern "C"
         GLint     stipple_pattern[1];
         GLint     stipple_repeat[1];
     };
-    typedef struct s_gl_line gl_line_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -254,7 +321,6 @@ extern "C"
         GLint        smooth_hint[1];
         const char * smooth_hint_sz;
     };
-    typedef struct s_gl_point gl_point_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -264,7 +330,6 @@ extern "C"
         GLint     box[4];
         GLboolean test_enabled;
     };
-    typedef struct s_gl_scissor gl_scissor_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -275,7 +340,6 @@ extern "C"
         GLint     buffer_size[1];
         GLvoid  * buffer_pointer;
     };
-    typedef struct s_gl_feedback gl_feedback_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -286,7 +350,6 @@ extern "C"
         GLvoid  * buffer_pointer;
         GLint     buffer_size[1];
     };
-    typedef struct s_gl_selection gl_selection_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -299,7 +362,6 @@ extern "C"
         gl_feedback_t    feedback;
         gl_selection_t   selection;
     };
-    typedef struct s_gl_render_mode gl_render_mode_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -318,7 +380,6 @@ extern "C"
         GLint   texture_stack_depth[1];
         GLfloat texture_matrix[16];
     };
-    typedef struct s_gl_matrix gl_matrix_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -345,7 +406,6 @@ extern "C"
         GLint        shade_model[1];
         const char * shade_model_sz;
     };
-    typedef struct s_gl_render_options gl_render_options_t;
 
 /// Grab the OpenGL render options state
     void gl_grab_render_options_state( gl_render_options_t * po );
@@ -379,7 +439,6 @@ extern "C"
         GLfloat   blue_scale[1];
         GLfloat   blue_bias[1];
     };
-    typedef struct s_gl_buffer gl_buffer_t;
 
 /// Grab the OpenGL buffer state
     void gl_grab_buffer_state( gl_buffer_t * pb );
@@ -400,7 +459,6 @@ extern "C"
         GLint            front_face[1];
         const char     * front_face_sz;
     };
-    typedef struct s_gl_clipping gl_clipping_t;
 
 /// Grab the OpenGL clipping state
     void gl_grab_clipping_state( gl_clipping_t * ps );
@@ -421,7 +479,6 @@ extern "C"
 
         gl_texture_gen_t texture_gen[4];
     };
-    typedef struct s_gl_texturing gl_texturing_t;
 
 /// Grab the OpenGL texturing state
     void gl_grab_texturing_state( gl_texturing_t * pt );
@@ -434,7 +491,6 @@ extern "C"
         GLint client_stack_depth[1];
         GLint stack_depth[1];
     };
-    typedef struct s_gl_attrib gl_attrib_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -447,7 +503,6 @@ extern "C"
         GLboolean index_enabled;
         GLboolean color_enabled;
     };
-    typedef struct s_gl_logic_op gl_logic_op_t;
 
 /// Grab the OpenGL logic op state
     void gl_grab_logic_op_state( gl_logic_op_t * pl );
@@ -460,7 +515,6 @@ extern "C"
         GLboolean map_color[1];
         GLboolean map_stencil[1];
     };
-    typedef struct s_gl_mapping gl_mapping_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -486,7 +540,6 @@ extern "C"
         GLfloat zoom_x[1];
         GLfloat zoom_y[1];
     };
-    typedef struct s_ogl_state ogl_state_t;
 
 /// Grab the entire OpenGL state
     void oglx_grab_state( ogl_state_t * ps );
@@ -509,7 +562,6 @@ extern "C"
         GLboolean attrib;
         GLboolean logic_op;
     };
-    typedef struct s_ogl_state_comp ogl_state_comp_t;
 
 /// Compare two OpenGL states to see what parameters have changed.
 /// If this function compares the states going into, and coming out of

@@ -35,6 +35,7 @@
 //--------------------------------------------------------------------------------------------
 // external structs
 //--------------------------------------------------------------------------------------------
+
 struct s_chr;
 struct s_camera;
 struct s_egoboo_config;
@@ -47,6 +48,7 @@ struct s_renderlist;
 struct s_renderlist_ary;
 struct s_renderlist_mgr;
 
+struct s_dolist_data;
 struct s_dolist;
 struct s_dolist_ary;
 struct s_dolist_mgr;
@@ -59,9 +61,37 @@ typedef struct s_renderlist     renderlist_t;
 typedef struct s_renderlist_ary renderlist_ary_t;
 typedef struct s_renderlist_mgr renderlist_mgr_t;
 
-typedef struct s_dolist     dolist_t;
-typedef struct s_dolist_ary dolist_ary_t;
-typedef struct s_dolist_mgr dolist_mgr_t;
+typedef struct s_dolist_data dolist_data_t;
+typedef struct s_dolist      dolist_t;
+typedef struct s_dolist_ary  dolist_ary_t;
+typedef struct s_dolist_mgr  dolist_mgr_t;
+
+struct s_gfx_error_state;
+typedef struct s_gfx_error_state gfx_error_state_t;
+
+struct s_gfx_error_stack;
+typedef struct s_gfx_error_stack gfx_error_stack_t;
+
+struct s_obj_registry_entity;
+typedef struct s_obj_registry_entity obj_registry_entity_t;
+
+struct s_GLvertex;
+typedef struct s_GLvertex GLvertex;
+
+struct s_msg;
+typedef struct s_msg msg_t;
+
+struct s_gfx_config;
+typedef struct s_gfx_config gfx_config_t;
+
+struct s_billboard_data;
+typedef struct s_billboard_data billboard_data_t;
+
+struct s_line_data;
+typedef struct s_line_data line_data_t;
+
+struct s_point_data;
+typedef struct s_point_data point_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -100,7 +130,6 @@ struct s_gfx_error_state
     int    type;
     STRING string;
 };
-typedef struct s_gfx_error_state gfx_error_state_t;
 
 #define GFX_ERROR_STATE_INIT { "UNKNOWN", "UNKNOWN", -1, -1, "NONE" }
 
@@ -109,7 +138,6 @@ struct s_gfx_error_stack
     size_t count;
     gfx_error_state_t lst[GFX_ERROR_MAX];
 };
-typedef struct s_gfx_error_stack gfx_error_stack_t;
 
 #define GFX_ERROR_STACK_INIT { 0, { GFX_ERROR_STATE_INIT } }
 
@@ -143,12 +171,6 @@ void                gfx_error_clear( void );
 #define DONTFLASH                       255
 #define SEEKURSEAND                     31          ///< Blacking flash
 
-extern int GFX_WIDTH;
-extern int GFX_HEIGHT;
-
-//#define GFX_WIDTH                       800         ///< 640
-//#define GFX_HEIGHT                      600         ///< 480
-
 #define SHADOWRAISE                       5
 
 /// The supported colors of bars and blips
@@ -167,12 +189,11 @@ enum e_color
 //--------------------------------------------------------------------------------------------
 
 /// An element of the do-list, an all encompassing list of all objects to be drawn by the renderer
-struct s_do_list_data
+struct s_dolist_data
 {
     float   dist;
     CHR_REF chr;
 };
-typedef struct s_do_list_data do_list_data_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -183,7 +204,6 @@ struct s_obj_registry_entity
     PRT_REF iprt;
     float   dist;
 };
-typedef struct s_obj_registry_entity obj_registry_entity_t;
 
 #define OBJ_REGISTRY_ENTITY_INIT { MAX_CHR, MAX_PRT, 0.0f }
 
@@ -204,19 +224,9 @@ struct s_GLvertex
     GLfloat col[4];      ///< generic per-vertex lighting
     GLint   color_dir;   ///< "optimized" per-vertex directional lighting
 };
-typedef struct s_GLvertex GLvertex;
-
-//--------------------------------------------------------------------------------------------
-//extern Uint8           lightdirectionlookup[65536];                        ///< For lighting characters
-//extern float           lighttable_local[MAXLIGHTROTATION][EGO_NORMAL_COUNT];
-//extern float           lighttable_global[MAXLIGHTROTATION][EGO_NORMAL_COUNT];
-extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///< Environment map
-extern float           lighttoenviroy[256];                                ///< Environment map
-//extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
 //--------------------------------------------------------------------------------------------
 // Display messages
-extern int    msgtimechange;
 
 /// A display messages
 struct s_msg
@@ -224,11 +234,8 @@ struct s_msg
     int             time;                            ///< The time for this message
     EGO_MESSAGE     textdisplay;                     ///< The displayed text
 };
-typedef struct s_msg msg_t;
 
 DECLARE_STATIC_ARY_TYPE( DisplayMsgAry, msg_t, MAX_MESSAGE );
-
-DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
 //--------------------------------------------------------------------------------------------
 // encapsulation of all graphics options
@@ -258,9 +265,6 @@ struct s_gfx_config
     float vw, vh;
     float vdw, vdh;
 };
-typedef struct s_gfx_config gfx_config_t;
-
-extern gfx_config_t gfx;
 
 bool_t gfx_config_init( gfx_config_t * pgfx );
 bool_t gfx_set_virtual_screen( gfx_config_t * pgfx );
@@ -271,14 +275,6 @@ bool_t gfx_synch_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
 /// Minimap stuff
 #define MAXBLIP        128                          ///<Max blips on the screen
-extern Uint8           mapon;
-extern Uint8           mapvalid;
-extern Uint8           youarehereon;
-
-extern size_t          blip_count;
-extern float           blip_x[MAXBLIP];
-extern float           blip_y[MAXBLIP];
-extern Uint8           blip_c[MAXBLIP];
 
 #define BILLBOARD_COUNT     (2 * MAX_CHR)
 #define INVALID_BILLBOARD   BILLBOARD_COUNT
@@ -314,14 +310,11 @@ struct s_billboard_data
     float       size;
     float       size_add;
 };
-typedef struct s_billboard_data billboard_data_t;
 
 billboard_data_t * billboard_data_init( billboard_data_t * pbb );
 bool_t             billboard_data_free( billboard_data_t * pbb );
 bool_t             billboard_data_update( billboard_data_t * pbb );
 bool_t             billboard_data_printf_ttf( billboard_data_t * pbb, struct s_Font *font, SDL_Color color, const char * format, ... );
-
-DECLARE_LIST_EXTERN( billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
 void               BillboardList_init_all( void );
 void               BillboardList_update_all( void );
@@ -344,7 +337,6 @@ struct s_line_data
     fvec4_t   src, color;
     int time;
 };
-typedef struct s_line_data line_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -357,7 +349,6 @@ struct s_point_data
     fvec4_t   src, color;
     int time;
 };
-typedef struct s_point_data point_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -385,6 +376,33 @@ extern float time_render_scene_mesh_render_shadows;
 
 extern Uint32          game_frame_all;             ///< The total number of frames drawn so far
 extern Uint32          menu_frame_all;             ///< The total number of frames drawn so far
+
+extern gfx_config_t gfx;
+
+extern Uint8           mapon;
+extern Uint8           mapvalid;
+extern Uint8           youarehereon;
+
+extern size_t          blip_count;
+extern float           blip_x[MAXBLIP];
+extern float           blip_y[MAXBLIP];
+extern Uint8           blip_c[MAXBLIP];
+
+extern int GFX_WIDTH;
+extern int GFX_HEIGHT;
+
+//extern Uint8           lightdirectionlookup[65536];                        ///< For lighting characters
+//extern float           lighttable_local[MAXLIGHTROTATION][EGO_NORMAL_COUNT];
+//extern float           lighttable_global[MAXLIGHTROTATION][EGO_NORMAL_COUNT];
+extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///< Environment map
+extern float           lighttoenviroy[256];                                ///< Environment map
+//extern Uint32          lighttospek[MAXSPEKLEVEL][256];
+
+extern int    msgtimechange;
+
+DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
+
+DECLARE_LIST_EXTERN( billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

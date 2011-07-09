@@ -32,6 +32,15 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_rpc_base;
+typedef struct s_rpc_base ego_rpc_base_t;
+
+struct s_tx_request;
+typedef struct s_tx_request tx_request_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// a generic "remote procedure call" structure for handling "inter-thread" communication
 struct s_rpc_base
 {
@@ -44,7 +53,6 @@ struct s_rpc_base
     int    data_type;  ///< a the type of the "inherited" data
     void * data;       ///< a pointer to the "inherited" data
 };
-typedef struct s_rpc_base ego_rpc_base_t;
 
 static INLINE bool_t ego_rpc_valid( const ego_rpc_base_t * prpc )           { return ( NULL != prpc ) && prpc->allocated; }
 static INLINE bool_t ego_rpc_matches( const ego_rpc_base_t * prpc, const int guid ) { return ( NULL != prpc ) && prpc->allocated && ( guid == prpc->guid ); }
@@ -73,8 +81,6 @@ struct s_tx_request
     // the function call return value(s)
     TX_REF index;    /// the return value of the function
 };
-
-typedef struct s_tx_request tx_request_t;
 
 tx_request_t * tx_request_ctor( tx_request_t * preq, int type );
 tx_request_t * tx_request_dtor( tx_request_t * preq );

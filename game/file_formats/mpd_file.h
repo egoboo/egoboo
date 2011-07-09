@@ -30,6 +30,27 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+    struct s_mpd_info;
+    typedef struct s_mpd_info mpd_info_t;
+
+    struct s_tile_info;
+    typedef struct s_tile_info tile_info_t;
+
+    struct s_mpd_vertex;
+    typedef struct s_mpd_vertex mpd_vertex_t;
+
+    struct s_mpd_mem;
+    typedef struct s_mpd_mem mpd_mem_t;
+
+    struct s_mpd;
+    typedef struct s_mpd mpd_t;
+
+    struct s_tile_definition;
+    typedef struct s_tile_definition tile_definition_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 // mesh constants
 #define MPD_ID                    0x4470614d                   ///< The string... MapD
 #define MPD_VERTICES_MAX          (1024*100)
@@ -92,7 +113,6 @@ extern "C"
         int             tiles_x;                          ///< Size in tiles
         int             tiles_y;
     };
-    typedef struct s_mpd_info mpd_info_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -104,7 +124,6 @@ extern "C"
         Uint8   fx;                                ///< Special effects flags
         Uint8   twist;
     };
-    typedef struct s_tile_info tile_info_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -114,7 +133,6 @@ extern "C"
         fvec3_t    pos;                               ///< Vertex position
         Uint8      a;                                 ///< Vertex base light
     };
-    typedef struct s_mpd_vertex mpd_vertex_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -127,7 +145,6 @@ extern "C"
         size_t          vcount;                           ///< number of vertices
         mpd_vertex_t *  vlst;                             ///< list of vertices
     };
-    typedef struct s_mpd_mem mpd_mem_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -137,7 +154,6 @@ extern "C"
         mpd_info_t info;
         mpd_mem_t   mem;
     };
-    typedef struct s_mpd mpd_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -152,10 +168,10 @@ extern "C"
         Uint8           command_entries[MPD_FAN_MAX];       ///< Entries in each command
         Uint16          command_verts[MPD_FAN_ENTRIES_MAX]; ///< Fansquare vertex list
     };
-    typedef struct s_tile_definition tile_definition_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
     extern tile_definition_t tile_dict[MPD_FAN_TYPE_MAX];
 
 //--------------------------------------------------------------------------------------------

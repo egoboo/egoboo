@@ -31,6 +31,24 @@
 struct s_ego_mpd;
 typedef struct s_ego_mpd ego_mpd_t;
 
+struct s_ego_tile_info;
+typedef struct s_ego_tile_info ego_tile_info_t;
+
+struct s_ego_grid_info;
+typedef struct s_ego_grid_info ego_grid_info_t;
+
+struct s_grid_mem;
+typedef struct s_grid_mem grid_mem_t;
+
+struct s_tile_mem;
+typedef struct s_tile_mem tile_mem_t;
+
+struct s_ego_mpd_info;
+typedef struct s_ego_mpd_info ego_mpd_info_t;
+
+struct s_mesh_wall_data;
+typedef struct s_mesh_wall_data mesh_wall_data_t;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -109,7 +127,6 @@ struct s_ego_tile_info
     oct_bb_t       oct;                        ///< the octagonal bounding box for this tile
     BSP_leaf_t     bsp_leaf;                   ///< the octree node for this object
 };
-typedef struct s_ego_tile_info ego_tile_info_t;
 
 ego_tile_info_t * ego_tile_info_ctor( ego_tile_info_t * ptr, int index );
 ego_tile_info_t * ego_tile_info_dtor( ego_tile_info_t * ptr );
@@ -141,7 +158,6 @@ struct s_ego_grid_info
     lighting_cache_t cache;                    ///< the per-grid lighting info
     int              cache_frame;              ///< the last frame in which the cache was calculated
 };
-typedef struct s_ego_grid_info ego_grid_info_t;
 
 ego_grid_info_t * ego_grid_info_ctor( ego_grid_info_t * ptr );
 ego_grid_info_t * ego_grid_info_dtor( ego_grid_info_t * ptr );
@@ -174,7 +190,6 @@ struct s_grid_mem
     // the per-grid info
     ego_grid_info_t* grid_list;                        ///< tile command info
 };
-typedef struct s_grid_mem grid_mem_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -196,7 +211,6 @@ struct s_tile_mem
     GLXvector3f   * clst;                              ///< the color list (for lighting the mesh)
 
 };
-typedef struct s_tile_mem tile_mem_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -209,7 +223,6 @@ struct s_ego_mpd_info
     int             tiles_y;
     Uint32          tiles_count;                      ///< Number of tiles
 };
-typedef struct s_ego_mpd_info ego_mpd_info_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -237,7 +250,6 @@ struct s_mesh_wall_data
     ego_grid_info_t * glist;
 };
 
-typedef struct s_mesh_wall_data mesh_wall_data_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 extern fvec3_t   map_twist_nrm[256];

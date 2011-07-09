@@ -34,6 +34,9 @@
 
 struct s_ego_mpd;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// an opaque struct holding all of the extended camera information
 struct s_ext_camera;
 typedef struct s_ext_camera ext_camera_t;

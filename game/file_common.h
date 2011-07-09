@@ -36,6 +36,9 @@ extern "C"
     struct s_linux_find_context;
     struct s_mac_find_context;
 
+    struct s_fs_find_context;
+    typedef struct s_fs_find_context fs_find_context_t;
+
 //--------------------------------------------------------------------------------------------
 // struct s_fs_find_context
 //--------------------------------------------------------------------------------------------
@@ -70,8 +73,6 @@ extern "C"
         fs_find_type_t type;
         fs_find_ptr_t  ptr;
     };
-
-    typedef struct s_fs_find_context fs_find_context_t;
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES

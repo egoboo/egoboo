@@ -26,6 +26,19 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+struct s_lighting_cache_base;
+typedef struct s_lighting_cache_base lighting_cache_base_t;
+
+struct s_lighting_cache;
+typedef struct s_lighting_cache lighting_cache_t;
+
+struct s_dynalight;
+typedef struct s_dynalight dynalight_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 enum
 {
     LVEC_PX,               ///< light from +x
@@ -54,7 +67,6 @@ struct s_lighting_cache_base
     float             max_delta;  ///< max change in the light amplitude
     lighting_vector_t lighting;   ///< light from +x,-x, +y,-y, +z,-z, ambient
 };
-typedef struct s_lighting_cache_base lighting_cache_base_t;
 
 lighting_cache_base_t * lighting_cache_base_init( lighting_cache_base_t * pdata );
 bool_t                  lighting_cache_base_max_light( lighting_cache_base_t * cache );
@@ -69,7 +81,6 @@ struct s_lighting_cache
     lighting_cache_base_t low;
     lighting_cache_base_t hgh;
 };
-typedef struct s_lighting_cache lighting_cache_t;
 
 lighting_cache_t * lighting_cache_init( lighting_cache_t * pdata );
 bool_t             lighting_cache_max_light( lighting_cache_t * cache );
@@ -87,8 +98,6 @@ struct s_dynalight
     float   level;         ///< Light intensity
     float   falloff;       ///< Light radius
 };
-
-typedef struct s_dynalight dynalight_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

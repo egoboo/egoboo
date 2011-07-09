@@ -35,6 +35,14 @@ struct s_prt;
 struct s_prt_bundle;
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+struct s_prt_instance;
+typedef struct s_prt_instance prt_instance_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 // support for computing the particle texture coordinates on the fly.
 // currently, there ate two texture types: TX_PARTICLE_TRANS and TX_PARTICLE_LIGHT
 
@@ -94,7 +102,6 @@ struct s_prt_instance
     fvec3_t ref_right;
     fvec3_t ref_pos;
 };
-typedef struct s_prt_instance prt_instance_t;
 
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_prt_solid( const PRT_REF iprt );

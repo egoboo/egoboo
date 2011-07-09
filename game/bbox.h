@@ -28,14 +28,38 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_aabb;
-struct s_bumper;
-struct s_oct_bb;
-//struct s_ego_aabb;
-struct s_aabb_lst;
-struct s_aabb_ary;
 struct s_OVolume;
 struct s_CVolume;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+struct s_aabb;
+typedef struct s_aabb aabb_t;
+
+struct s_bumper;
+typedef struct s_bumper bumper_t;
+
+struct s_oct_bb;
+typedef struct s_oct_bb oct_bb_t;
+
+//struct s_ego_aabb;
+//typedef struct s_ego_aabb ego_aabb_t;
+
+//struct s_aabb_lst;
+//typedef struct s_aabb_lst aabb_lst_t;
+
+//struct s_aabb_ary;
+//typedef struct s_aabb_ary aabb_ary_t;
+
+struct s_OVolume;
+typedef struct s_OVolume OVolume_t;
+
+struct s_OVolume_Tree;
+typedef struct s_OVolume_Tree OVolume_Tree_t;
+
+struct s_CVolume;
+typedef struct s_CVolume CVolume_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -46,7 +70,6 @@ struct s_aabb
     float mins[3];
     float maxs[3];
 };
-typedef struct s_aabb aabb_t;
 
 bool_t aabb_copy( aabb_t * pdst, const aabb_t * psrc );
 bool_t aabb_self_clear( aabb_t * pdst );
@@ -70,7 +93,6 @@ struct s_bumper
     float  size_big;     ///< For octagonal bumpers
     float  height;      ///< Distance from head to toe
 };
-typedef struct s_bumper bumper_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -97,7 +119,6 @@ struct s_oct_bb
     bool_t    empty;
     oct_vec_t mins,  maxs;
 };
-typedef struct s_oct_bb oct_bb_t;
 
 egoboo_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip );
 
@@ -115,8 +136,6 @@ egoboo_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, o
 //
 //    aabb_t  bb;
 //};
-//
-//typedef struct s_ego_aabb ego_aabb_t;
 
 //--------------------------------------------------------------------------------------------
 //struct s_aabb_lst
@@ -124,7 +143,6 @@ egoboo_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, o
 //    int       count;
 //    ego_aabb_t * list;
 //};
-//typedef struct s_aabb_lst aabb_lst_t;
 //
 //EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst );
 //EGO_CONST aabb_lst_t * aabb_lst_dtor( aabb_lst_t * lst );
@@ -137,7 +155,6 @@ egoboo_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, o
 //    int         count;
 //    aabb_lst_t * list;
 //};
-//typedef struct s_aabb_ary aabb_ary_t;
 //
 //EGO_CONST aabb_ary_t * bbox_ary_ctor( aabb_ary_t * ary );
 //EGO_CONST aabb_ary_t * bbox_ary_dtor( aabb_ary_t * ary );
@@ -155,7 +172,6 @@ struct s_OVolume
 
     oct_bb_t oct;
 };
-typedef struct s_OVolume OVolume_t;
 
 OVolume_t OVolume_merge( const OVolume_t * pv1, const OVolume_t * pv2 );
 OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 );
@@ -166,8 +182,8 @@ OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 );
 bool_t    OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume );
 
 //--------------------------------------------------------------------------------------------
+
 struct s_OVolume_Tree { OVolume_t leaf[8]; };
-typedef struct s_OVolume_Tree OVolume_Tree_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -179,7 +195,6 @@ struct s_CVolume
     OVolume_t        ov;
     OVolume_Tree_t * tree;
 };
-typedef struct s_CVolume CVolume_t;
 
 bool_t CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * pvb );
 bool_t CVolume_refine( CVolume_t * pcv );

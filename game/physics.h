@@ -25,11 +25,31 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 struct s_chr;
 struct s_prt;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+struct s_orientation;
+typedef struct s_orientation orientation_t;
+
+struct s_apos;
+typedef struct s_apos apos_t;
+
+struct s_phys_data;
+typedef struct s_phys_data phys_data_t;
+
+struct s_breadcrumb;
+typedef struct s_breadcrumb breadcrumb_t;
+
+struct s_breadcrumb_list;
+typedef struct s_breadcrumb_list breadcrumb_list_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define PLATTOLERANCE       50                     ///< Platform tolerance...
 
 enum
@@ -47,7 +67,6 @@ struct s_orientation
     FACING_T       map_facing_y;                    ///< Character's y-rotation 0 to 0xFFFF
     FACING_T       map_facing_x;                    ///< Character's x-rotation 0 to 0xFFFF
 };
-typedef struct s_orientation orientation_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -57,8 +76,6 @@ struct s_apos
     fvec3_t maxs;
     fvec3_t sum;
 };
-
-typedef struct s_apos apos_t;
 
 bool_t apos_self_union( apos_t * lhs, apos_t * rhs );
 bool_t apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs );
@@ -79,7 +96,6 @@ struct s_phys_data
     Uint32         weight;                        ///< Weight
     float          dampen;                        ///< Bounciness
 };
-typedef struct s_phys_data phys_data_t;
 
 phys_data_t * phys_data_clear( phys_data_t * pphys );
 phys_data_t * phys_data_ctor( phys_data_t * pphys );
@@ -103,7 +119,6 @@ struct s_breadcrumb
     Uint32         time;                     ///< the time when the breadcrumb was created
     Uint32         id;                       ///< an id for differentiating the timing of several events at the same "time"
 };
-typedef struct s_breadcrumb breadcrumb_t;
 
 breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, struct s_chr * pchr );
 breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, struct s_prt * pprt );
@@ -119,7 +134,6 @@ struct s_breadcrumb_list
     int          count;
     breadcrumb_t lst[MAX_BREADCRUMB];
 };
-typedef struct s_breadcrumb_list breadcrumb_list_t;
 
 void           breadcrumb_list_validate( breadcrumb_list_t * lst );
 bool_t         breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew );

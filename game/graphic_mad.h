@@ -27,13 +27,23 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+struct s_camera;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 struct s_chr_instance;
 typedef struct s_chr_instance chr_instance_t;
 
 struct s_vlst_cache;
 typedef struct s_vlst_cache vlst_cache_t;
 
-struct s_camera;
+struct s_matrix_cache;
+typedef struct s_matrix_cache matrix_cache_t;
+
+typedef struct s_chr_reflection_cache chr_reflection_cache_t;
+struct s_chr_reflection_cache;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -110,7 +120,6 @@ struct s_matrix_cache
     // the body fixed scaling
     fvec3_t  self_scale;
 };
-typedef struct s_matrix_cache matrix_cache_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -128,7 +137,6 @@ struct s_chr_reflection_cache
 
     Uint32     update_wld;
 };
-typedef struct s_chr_reflection_cache chr_reflection_cache_t;
 
 //--------------------------------------------------------------------------------------------
 

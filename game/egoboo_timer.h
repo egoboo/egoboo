@@ -33,13 +33,19 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+    struct s_ego_timer;
+    typedef struct s_ego_timer ego_timer_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// SDL_GetTicks() always returns milli-seconds
 #define TICKS_PER_SEC                   1000.0f
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// a method for throttling processes using SDL_GetTicks()
-    struct s_timer
+    struct s_ego_timer
     {
         bool_t  free_running;
 
@@ -48,7 +54,6 @@ extern "C"
         int     ticks_next;
         int     ticks_diff;
     };
-    typedef struct s_timer ego_timer_t;
 
     bool_t ego_timer_throttle( ego_timer_t * timer, float rate );
     bool_t timer_reset( ego_timer_t * timer, int ticks, float rate );

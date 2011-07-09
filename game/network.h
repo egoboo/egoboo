@@ -29,7 +29,23 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+/// an opaque struct for encapsulating network data
 struct s_net_instance;
+typedef struct s_net_instance net_instance_t;
+
+struct s_time_latch;
+typedef struct s_time_latch time_latch_t;
+
+struct s_chat_buffer;
+typedef struct s_chat_buffer chat_buffer_t;
+
+/// opaque wrapper for the enet packet data
+struct s_ego_packet;
+typedef struct s_ego_packet ego_packet_t;
+
+/// opaque wrapper for the enet packet data
+struct s_enet_packet;
+typedef struct s_enet_packet enet_packet_t;
 
 //--------------------------------------------------------------------------------------------
 // Network constants
@@ -85,6 +101,7 @@ enum NetworkConstant
 };
 
 //--------------------------------------------------------------------------------------------
+// time_latch_t
 //--------------------------------------------------------------------------------------------
 
 /// A latch with a time attached
@@ -97,16 +114,12 @@ struct s_time_latch
     Uint32  button;
     Uint32  time;
 };
-typedef struct s_time_latch time_latch_t;
 
 void tlatch_ary_init( time_latch_t ary[], size_t len );
 
 //--------------------------------------------------------------------------------------------
+// net_instance_t
 //--------------------------------------------------------------------------------------------
-
-// an opaque struct for encapsulating network data
-struct s_net_instance;
-typedef struct s_net_instance net_instance_t;
 
 net_instance_t * net_instance_ctor( net_instance_t * pnet );
 bool_t net_on( const net_instance_t * pnet );
@@ -125,20 +138,6 @@ bool_t net_set_myHost( net_instance_t * pnet, ENetHost* phost );
 int    net_get_player_count( const net_instance_t * pnet );
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-extern net_instance_t * PNet;
-
-extern Uint32                  nexttimestamp;                ///< Expected timestamp
-
-extern Uint32                  randsave;                  ///< Used in network timer
-
-extern int                     net_players_ready;              ///< Number of players ready to start
-extern int                     net_players_loaded;
-
-extern Uint32                  numplatimes;
-
-//--------------------------------------------------------------------------------------------
 // CHAT BUFFER
 
 struct s_chat_buffer
@@ -146,9 +145,6 @@ struct s_chat_buffer
     int     buffer_count;
     char    buffer[CHAT_BUFFER_SIZE];
 };
-typedef struct s_chat_buffer chat_buffer_t;
-
-extern chat_buffer_t net_chat;
 
 //--------------------------------------------------------------------------------------------
 // Packet reading/writing
@@ -160,7 +156,6 @@ struct s_ego_packet
     Uint32  size;                             // The size of the packet
     Uint8   buffer[MAXSENDSIZE];              // The data packet
 };
-typedef struct s_ego_packet ego_packet_t;
 
 ego_packet_t * ego_packet_ctor( ego_packet_t * ptr );
 ego_packet_t * ego_packet_dtor( ego_packet_t * ptr );
@@ -182,10 +177,6 @@ bool_t ego_packet_addString( ego_packet_t * ptr, const char *string );
 //static bool_t ego_packet_readUint32( ego_packet_t * ptr, Uint32 * pval );
 //static bool_t ego_packet_readSint32( ego_packet_t * ptr, Sint32 * pval );
 
-// opaque wrapper for the enet packet data
-struct s_enet_packet;
-typedef struct s_enet_packet enet_packet_t;
-
 enet_packet_t * enet_packet_ctor( enet_packet_t * );
 enet_packet_t * enet_packet_dtor( enet_packet_t * );
 bool_t enet_packet_startReading( enet_packet_t * ptr, ENetPacket *packet );
@@ -198,6 +189,22 @@ bool_t enet_packet_readUint16( enet_packet_t * ptr, Uint16 * pval );
 bool_t enet_packet_readSint16( enet_packet_t * ptr, Sint16 * pval );
 bool_t enet_packet_readUint32( enet_packet_t * ptr, Uint32 * pval );
 bool_t enet_packet_readSint32( enet_packet_t * ptr, Sint32 * pval );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+extern net_instance_t * PNet;
+
+extern Uint32        nexttimestamp;                ///< Expected timestamp
+
+extern Uint32        randsave;                  ///< Used in network timer
+
+extern int           net_players_ready;              ///< Number of players ready to start
+extern int           net_players_loaded;
+
+extern Uint32        numplatimes;
+
+extern chat_buffer_t net_chat;
 
 //--------------------------------------------------------------------------------------------
 // Networking functions

@@ -29,6 +29,9 @@
 struct s_parser_state;
 typedef struct s_parser_state parser_state_t;
 
+struct s_opcode_data;
+typedef struct s_opcode_data opcode_data_t;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -59,7 +62,6 @@ struct s_opcode_data
     Uint32 iValue;
     char   cName[MAXCODENAMESIZE];
 };
-typedef struct s_opcode_data opcode_data_t;
 
 DECLARE_STATIC_ARY_TYPE( OpListAry, opcode_data_t, MAX_OPCODE );
 DECLARE_EXTERN_STATIC_ARY( OpListAry, OpList );

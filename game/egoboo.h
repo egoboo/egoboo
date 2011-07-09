@@ -40,6 +40,18 @@
 #    define EQ(x)
 #endif
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+struct s_local_stats;
+typedef struct s_local_stats local_stats_t;
+
+struct s_ego_process;
+typedef struct s_ego_process ego_process_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define VERSION "2.8.2 (Beta)"                            ///< Version of the game
 
 #define NOSPARKLE           255                     ///< Dont sparkle icons
@@ -62,10 +74,9 @@
 #define UPDATE_SKIP                     (TICKS_PER_SEC/TARGET_UPS)    ///< 1000 tics per sec / 50 fps = 20 ticks per frame
 #define ONESECOND                       (TICKS_PER_SEC/UPDATE_SKIP)    ///< 1000 tics per sec / 20 ticks per frame = 50 fps
 
-//------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // Timers
-//------------------------------------
-// fps stuff
 
 #define STABILIZED_KEEP  0.65f
 #define STABILIZED_COVER (1.0f - STABILIZED_KEEP)
@@ -129,6 +140,9 @@ EXTERN bool_t          fpson          EQ( btrue );         ///< Show FPS?
 
 #define INVISIBLE           20                      ///< The character can't be detected
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 struct s_local_stats
 {
     bool_t  noplayers;          ///< Are there any local players?
@@ -150,7 +164,6 @@ struct s_local_stats
     TEAM_REF sense_enemies_team;
     IDSZ     sense_enemies_idsz;
 };
-typedef struct s_local_stats local_stats_t;
 
 EXTERN local_stats_t local_stats;
 
@@ -176,9 +189,6 @@ struct s_ego_process
 
     char * argv0;
 };
-typedef struct s_ego_process ego_process_t;
-
-extern ego_process_t * EProc;
 
 void ego_init_SDL_base( void );
 
@@ -188,6 +198,12 @@ EXTERN bool_t single_frame_mode EQ( bfalse );
 EXTERN bool_t single_frame_keyready EQ( btrue );
 EXTERN bool_t single_frame_requested EQ( bfalse );
 EXTERN bool_t single_update_requested EQ( bfalse );
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+extern ego_process_t * EProc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -200,4 +216,4 @@ Uint32 egoboo_get_ticks( void );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define  _EGOBOO_H_
+#define  _egoboo_h_

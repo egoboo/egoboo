@@ -25,6 +25,13 @@
 #include "egoboo_typedef.h"
 #include "egoboo_state_machine.h"
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+struct s_ego_object_base;
+typedef struct s_ego_object_base obj_data_t;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // some basic data that all Egoboo objects should have
@@ -76,8 +83,6 @@ struct s_ego_object_base
 
     unsigned       update_guid;   ///< a value that lets you know if an object bookmark is in synch with the object list
 };
-
-typedef struct s_ego_object_base obj_data_t;
 
 obj_data_t * ego_object_ctor( obj_data_t * pbase );
 obj_data_t * ego_object_dtor( obj_data_t * pbase );

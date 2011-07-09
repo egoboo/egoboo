@@ -40,6 +40,18 @@ struct s_Font;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_menu_process;
+typedef struct s_menu_process menu_process_t;
+
+struct s_LoadPlayer_element;
+typedef struct s_LoadPlayer_element LoadPlayer_element_t;
+
+struct s_LoadPlayer_list;
+typedef struct s_LoadPlayer_list LoadPlayer_list_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// a process that controls the menu system
 struct s_menu_process
 {
@@ -50,7 +62,6 @@ struct s_menu_process
 
     ego_timer_t gui_timer;
 };
-typedef struct s_menu_process menu_process_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -108,7 +119,6 @@ struct s_LoadPlayer_element
     IDSZ_node_t       quest_log[MAX_IDSZ_MAP_SIZE]; ///< all the quests this player has
     chop_definition_t chop;                         ///< put this here so we can generate a name without loading an entire profile
 };
-typedef struct s_LoadPlayer_element LoadPlayer_element_t;
 
 LoadPlayer_element_t * LoadPlayer_element_ctor( LoadPlayer_element_t * );
 LoadPlayer_element_t * LoadPlayer_element_dtor( LoadPlayer_element_t * );
@@ -122,7 +132,6 @@ struct s_LoadPlayer_list
     int                  count;
     LoadPlayer_element_t lst[MAX_LOADPLAYER];
 };
-typedef struct s_LoadPlayer_list LoadPlayer_list_t;
 
 egoboo_rv              LoadPlayer_list_init( LoadPlayer_list_t * lst );
 egoboo_rv              LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foundfile );

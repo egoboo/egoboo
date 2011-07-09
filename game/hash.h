@@ -32,6 +32,18 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+    struct s_hash_node;
+    typedef struct s_hash_node hash_node_t;
+
+    struct s_hash_list;
+    typedef struct s_hash_list hash_list_t;
+
+    struct s_hash_list_iterator;
+    typedef struct s_hash_list_iterator hash_list_iterator_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// a hash type for "efficiently" storing data
     struct s_hash_node
     {
@@ -39,7 +51,6 @@ extern "C"
 
         void * data;
     };
-    typedef struct s_hash_node hash_node_t;
 
     hash_node_t * hash_node_create( void * data );
     bool_t        hash_node_destroy( hash_node_t ** );
@@ -56,7 +67,6 @@ extern "C"
         int         *  subcount;
         hash_node_t ** sublist;
     };
-    typedef struct s_hash_list hash_list_t;
 
     hash_list_t * hash_list_create( int size );
     bool_t        hash_list_destroy( hash_list_t ** );
@@ -85,8 +95,6 @@ extern "C"
         int           hash;
         hash_node_t * pnode;
     };
-
-    typedef struct s_hash_list_iterator hash_list_iterator_t;
 
     hash_list_iterator_t * hash_list_iterator_ctor( hash_list_iterator_t * it );
     void                 * hash_list_iterator_ptr( hash_list_iterator_t * it );
