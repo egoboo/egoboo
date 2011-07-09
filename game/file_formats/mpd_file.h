@@ -19,8 +19,8 @@
 //*
 //********************************************************************************************
 
-#include "egoboo_typedef.h"
-#include "egoboo_math.h"
+#include "../egoboo_typedef.h"
+#include "../egoboo_math.h"
 
 #if defined(__cplusplus)
 extern "C"

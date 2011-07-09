@@ -22,14 +22,14 @@
 /// @details
 
 #include "mpd_file.h"
-#include "log.h"
+#include "../log.h"
 
-#include "egoboo_endian.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
-#include "egoboo.h"
+#include "../egoboo_endian.h"
+#include "../egoboo_fileutil.h"
+#include "../egoboo_strutil.h"
+#include "../egoboo.h"
 
-#include "egoboo_math.inl"
+#include "../egoboo_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -201,7 +201,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
 
     if ( NULL == pmesh || INVALID_CSTR( loadname ) ) return pmesh;
 
-    printf( "---- mpd_load(\"%s\",%p)\n", loadname, (void*)pmesh );
+    printf( "---- mpd_load(\"%s\",%p)\n", loadname, ( void* )pmesh );
 
     pinfo = &( pmesh->info );
     pmem  = &( pmesh->mem );

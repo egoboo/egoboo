@@ -22,7 +22,7 @@
 /// @file file_formats/eve_file.h
 /// @details data and functions for reading and writing enchant.txt files
 
-#include "egoboo_typedef.h"
+#include "../egoboo_typedef.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -77,6 +77,8 @@ extern "C"
         ENC_SET_LAST  = SETCHANNEL
 
     };
+
+    // this typedef must be after the enum definition of gcc has a fit
     typedef enum e_enchant_set enum_enchant_set;
 
 //--------------------------------------------------------------------------------------------
@@ -121,6 +123,8 @@ extern "C"
         ENC_ADD_LAST  = ADDZAPRESIST
 
     };
+
+    // this typedef must be after the enum definition of gcc has a fit
     typedef enum e_enchant_add enum_enchant_add;
 
 //--------------------------------------------------------------------------------------------

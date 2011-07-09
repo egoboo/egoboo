@@ -28,7 +28,7 @@
 /// @note You will routinely include "md2.h" only in headers (*.h) files where you need to declare an
 ///       struct defined in this file. In *.inl files or *.c/*.cpp files you will routinely include "md2.inl", instead.
 
-#include "id_md2.h"
+#include "file_formats/id_md2.h"
 
 #include "egoboo_typedef.h"
 #include "physics.h"

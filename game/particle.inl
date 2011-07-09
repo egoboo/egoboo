@@ -297,7 +297,7 @@ bool_t prt_get_pos( const prt_t * pprt, fvec3_base_t pos )
 
     copy_rv = fvec3_base_copy( pos, pprt->pos.v );
 
-    return (NULL == copy_rv) ? bfalse : btrue;
+    return ( NULL == copy_rv ) ? bfalse : btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -311,7 +311,7 @@ static INLINE const float * prt_get_pos_v_const( const prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE float * prt_get_pos_v_const( prt_t * pprt )
+static INLINE float * prt_get_pos_v( prt_t * pprt )
 {
     static fvec3_t vtmp = ZERO_VECT3;
 

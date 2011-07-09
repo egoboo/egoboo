@@ -23,10 +23,10 @@
 
 #include "treasure_table_file.h"
 
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
+#include "../egoboo_fileutil.h"
+#include "../egoboo_strutil.h"
 
-#include "egoboo_math.inl"      //For randomization
+#include "../egoboo_math.inl"      //For randomization
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

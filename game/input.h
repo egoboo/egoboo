@@ -46,6 +46,8 @@ enum e_input_device
     INPUT_DEVICE_BEGIN = INPUT_DEVICE_KEYBOARD,
     INPUT_DEVICE_END   = INPUT_DEVICE_MOUSE + MAX_JOYSTICK
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_input_device INPUT_DEVICE;
 
 #define IS_VALID_JOYSTICK(XX) ( ( (XX) >= INPUT_DEVICE_JOY ) && ( (XX) < INPUT_DEVICE_JOY + MAX_JOYSTICK ) )
@@ -84,6 +86,8 @@ enum e_input_controls
     CONTROL_BEGIN     = CONTROL_JUMP,
     CONTROL_END       = CONTROL_RIGHT
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_input_controls CONTROL_BUTTON;
 
 //--------------------------------------------------------------------------------------------

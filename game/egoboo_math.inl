@@ -59,97 +59,106 @@
 // FORWARD DECLARATIONS
 //--------------------------------------------------------------------------------------------
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 // ieee 32-bit floating point number functions
-static INLINE Uint32 float32_to_uint32( float f );
-static INLINE float  uint32_to_float32( Uint32 i );
-static INLINE bool_t ieee32_infinite( float f );
-static INLINE bool_t ieee32_nan( float f );
-static INLINE bool_t ieee32_bad( float f );
+    static INLINE Uint32 float32_to_uint32( float f );
+    static INLINE float  uint32_to_float32( Uint32 i );
+    static INLINE bool_t ieee32_infinite( float f );
+    static INLINE bool_t ieee32_nan( float f );
+    static INLINE bool_t ieee32_bad( float f );
 
 // conversion functions
-static INLINE FACING_T vec_to_facing( const float dx, const float dy );
-static INLINE void     facing_to_vec( const FACING_T facing, float * dx, float * dy );
+    static INLINE FACING_T vec_to_facing( const float dx, const float dy );
+    static INLINE void     facing_to_vec( const FACING_T facing, float * dx, float * dy );
 
 // rotation functions
-static INLINE int terp_dir( const FACING_T majordir, const FACING_T minordir, const int weight );
+    static INLINE int terp_dir( const FACING_T majordir, const FACING_T minordir, const int weight );
 
 // limiting functions
-static INLINE void getadd( const int min, const int value, const int max, int* valuetoadd );
-static INLINE void fgetadd( const float min, const float value, const float max, float* valuetoadd );
+    static INLINE void getadd( const int min, const int value, const int max, int* valuetoadd );
+    static INLINE void fgetadd( const float min, const float value, const float max, float* valuetoadd );
 
 // random functions
-static INLINE int generate_irand_pair( const IPair num );
-static INLINE int generate_irand_range( const FRange num );
-static INLINE int generate_randmask( const int base, const int mask );
+    static INLINE int generate_irand_pair( const IPair num );
+    static INLINE int generate_irand_range( const FRange num );
+    static INLINE int generate_randmask( const int base, const int mask );
 
 // vector functions
-static INLINE bool_t  fvec2_valid( const fvec2_base_t A );
-static INLINE bool_t  fvec2_self_clear( fvec2_base_t A );
-static INLINE bool_t  fvec2_base_copy( fvec2_base_t A, const fvec2_base_t B );
-static INLINE float   fvec2_length( const fvec2_base_t A );
-static INLINE float   fvec2_length_abs( const fvec2_base_t A );
-static INLINE float   fvec2_length_2( const fvec2_base_t A );
-static INLINE bool_t  fvec2_self_scale( fvec2_base_t A, const float B );
-static INLINE bool_t  fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B );
-static INLINE bool_t  fvec2_self_normalize( fvec2_base_t A );
-static INLINE float   fvec2_cross_product( const fvec2_base_t A, const fvec2_base_t B );
-static INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_t B );
-static INLINE float   fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B );
-static INLINE float * fvec2_sub( fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS );
-static INLINE float * fvec2_add( fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS );
-static INLINE float * fvec2_normalize( fvec2_base_t DST, const fvec2_base_t SRC );
-static INLINE float * fvec2_scale( fvec2_base_t DST, const fvec2_base_t SRC, const float B );
+    static INLINE bool_t  fvec2_valid( const fvec2_base_t A );
+    static INLINE bool_t  fvec2_self_clear( fvec2_base_t A );
+    static INLINE bool_t  fvec2_base_copy( fvec2_base_t A, const fvec2_base_t B );
+    static INLINE float   fvec2_length( const fvec2_base_t A );
+    static INLINE float   fvec2_length_abs( const fvec2_base_t A );
+    static INLINE float   fvec2_length_2( const fvec2_base_t A );
+    static INLINE bool_t  fvec2_self_scale( fvec2_base_t A, const float B );
+    static INLINE bool_t  fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B );
+    static INLINE bool_t  fvec2_self_normalize( fvec2_base_t A );
+    static INLINE float   fvec2_cross_product( const fvec2_base_t A, const fvec2_base_t B );
+    static INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_t B );
+    static INLINE float   fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B );
+    static INLINE float * fvec2_sub( fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS );
+    static INLINE float * fvec2_add( fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS );
+    static INLINE float * fvec2_normalize( fvec2_base_t DST, const fvec2_base_t SRC );
+    static INLINE float * fvec2_scale( fvec2_base_t DST, const fvec2_base_t SRC, const float B );
 
-static INLINE bool_t  fvec3_valid( const fvec3_base_t A );
-static INLINE bool_t  fvec3_self_clear( fvec3_base_t A );
-static INLINE bool_t  fvec3_self_scale( fvec3_base_t A, const float B );
-static INLINE bool_t  fvec3_self_sum( fvec3_base_t A, const fvec3_base_t RHS );
-static INLINE float   fvec3_self_normalize( fvec3_base_t A );
-static INLINE float   fvec3_self_normalize_to( fvec3_base_t A, const float B );
-static INLINE float   fvec3_length_2( const fvec3_base_t SRC );
-static INLINE float   fvec3_length( const fvec3_base_t SRC );
-static INLINE float   fvec3_length_abs( const fvec3_base_t SRC );
-static INLINE float   fvec3_dot_product( const fvec3_base_t LHS, const fvec3_base_t RHS );
-static INLINE float   fvec3_dist_abs( const fvec3_base_t LHS, const fvec3_base_t RHS );
-static INLINE float * fvec3_base_copy( fvec3_base_t DST, const fvec3_base_t SRC );
-static INLINE float * fvec3_scale( fvec3_base_t DST, const fvec3_base_t SRC, const float B );
-static INLINE float * fvec3_normalize( fvec3_base_t DST, const fvec3_base_t SRC );
-static INLINE float * fvec3_add( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS );
-static INLINE float * fvec3_sub( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS );
-static INLINE float * fvec3_cross_product( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS );
-static INLINE float   fvec3_decompose( const fvec3_base_t src, const fvec3_base_t vnrm, fvec3_base_t vpara, fvec3_base_t vperp );
+    static INLINE bool_t  fvec3_valid( const fvec3_base_t A );
+    static INLINE bool_t  fvec3_self_clear( fvec3_base_t A );
+    static INLINE bool_t  fvec3_self_scale( fvec3_base_t A, const float B );
+    static INLINE bool_t  fvec3_self_sum( fvec3_base_t A, const fvec3_base_t RHS );
+    static INLINE float   fvec3_self_normalize( fvec3_base_t A );
+    static INLINE float   fvec3_self_normalize_to( fvec3_base_t A, const float B );
+    static INLINE float   fvec3_length_2( const fvec3_base_t SRC );
+    static INLINE float   fvec3_length( const fvec3_base_t SRC );
+    static INLINE float   fvec3_length_abs( const fvec3_base_t SRC );
+    static INLINE float   fvec3_dot_product( const fvec3_base_t LHS, const fvec3_base_t RHS );
+    static INLINE float   fvec3_dist_abs( const fvec3_base_t LHS, const fvec3_base_t RHS );
+    static INLINE float * fvec3_base_copy( fvec3_base_t DST, const fvec3_base_t SRC );
+    static INLINE float * fvec3_scale( fvec3_base_t DST, const fvec3_base_t SRC, const float B );
+    static INLINE float * fvec3_normalize( fvec3_base_t DST, const fvec3_base_t SRC );
+    static INLINE float * fvec3_add( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS );
+    static INLINE float * fvec3_sub( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS );
+    static INLINE float * fvec3_cross_product( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS );
+    static INLINE float   fvec3_decompose( const fvec3_base_t src, const fvec3_base_t vnrm, fvec3_base_t vpara, fvec3_base_t vperp );
 
-static INLINE bool_t fvec4_valid( const fvec4_base_t A );
-static INLINE bool_t fvec4_self_clear( fvec4_base_t A );
-static INLINE bool_t fvec4_self_scale( fvec4_base_t A, const float B );
+    static INLINE bool_t fvec4_valid( const fvec4_base_t A );
+    static INLINE bool_t fvec4_self_clear( fvec4_base_t A );
+    static INLINE bool_t fvec4_self_scale( fvec4_base_t A, const float B );
 
 // matrix functions
-static INLINE float * mat_Copy( fmat_4x4_base_t DST, const fmat_4x4_base_t src );
-static INLINE float * mat_Identity( fmat_4x4_base_t DST );
-static INLINE float * mat_Zero( fmat_4x4_base_t DST );
-static INLINE float * mat_Multiply( fmat_4x4_base_t DST, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2 );
-static INLINE float * mat_Translate( fmat_4x4_base_t DST, const float dx, const float dy, const float dz );
-static INLINE float * mat_RotateX( fmat_4x4_base_t DST, const float rads );
-static INLINE float * mat_RotateY( fmat_4x4_base_t DST, const float rads );
-static INLINE float * mat_RotateZ( fmat_4x4_base_t DST, const float rads );
-static INLINE float * mat_ScaleXYZ( fmat_4x4_base_t DST, const float sizex, const float sizey, const float sizez );
-static INLINE float * mat_FourPoints( fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_base_t wid, const fvec4_base_t frw, const fvec4_base_t upx, const float scale );
-static INLINE float * mat_View( fmat_4x4_base_t DST, const fvec3_base_t   from, const fvec3_base_t   at, const fvec3_base_t   world_up, const float roll );
-static INLINE float * mat_Projection( fmat_4x4_base_t DST, const float near_plane,  const float far_plane,  const float fov, const float ar );
-static INLINE float * mat_Projection_orig( fmat_4x4_base_t DST, const float near_plane, const float far_plane, const float fov );
-static INLINE void    mat_TransformVertices( const fmat_4x4_base_t Matrix, const fvec4_t pSourceV[], fvec4_t pDestV[], const Uint32 NumVertor );
+    static INLINE float * mat_Copy( fmat_4x4_base_t DST, const fmat_4x4_base_t src );
+    static INLINE float * mat_Identity( fmat_4x4_base_t DST );
+    static INLINE float * mat_Zero( fmat_4x4_base_t DST );
+    static INLINE float * mat_Multiply( fmat_4x4_base_t DST, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2 );
+    static INLINE float * mat_Translate( fmat_4x4_base_t DST, const float dx, const float dy, const float dz );
+    static INLINE float * mat_RotateX( fmat_4x4_base_t DST, const float rads );
+    static INLINE float * mat_RotateY( fmat_4x4_base_t DST, const float rads );
+    static INLINE float * mat_RotateZ( fmat_4x4_base_t DST, const float rads );
+    static INLINE float * mat_ScaleXYZ( fmat_4x4_base_t DST, const float sizex, const float sizey, const float sizez );
+    static INLINE float * mat_FourPoints( fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_base_t wid, const fvec4_base_t frw, const fvec4_base_t upx, const float scale );
+    static INLINE float * mat_View( fmat_4x4_base_t DST, const fvec3_base_t   from, const fvec3_base_t   at, const fvec3_base_t   world_up, const float roll );
+    static INLINE float * mat_Projection( fmat_4x4_base_t DST, const float near_plane,  const float far_plane,  const float fov, const float ar );
+    static INLINE float * mat_Projection_orig( fmat_4x4_base_t DST, const float near_plane, const float far_plane, const float fov );
+    static INLINE void    mat_TransformVertices( const fmat_4x4_base_t Matrix, const fvec4_t pSourceV[], fvec4_t pDestV[], const Uint32 NumVertor );
 
-static INLINE bool_t   mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
-static INLINE bool_t   mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
-static INLINE bool_t   mat_getChrRight( const fmat_4x4_base_t mat, fvec3_base_t vec );
-static INLINE bool_t   mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
-static INLINE bool_t   mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vec );
-static INLINE bool_t   mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
-static INLINE bool_t   mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vec );
-static INLINE float *  mat_getTranslate_v( const fmat_4x4_base_t mat );
+    static INLINE bool_t   mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool_t   mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool_t   mat_getChrRight( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool_t   mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool_t   mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool_t   mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool_t   mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE float *  mat_getTranslate_v( const fmat_4x4_base_t mat );
 
-static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed( fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z );
-static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed( fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z );
+    static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed( fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z );
+    static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed( fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z );
+
+#if defined(__cplusplus)
+}
+#endif
 
 //--------------------------------------------------------------------------------------------
 // IEEE 32-BIT FLOSTING POINT NUMBER FUNCTIONS

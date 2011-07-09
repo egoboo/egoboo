@@ -1269,7 +1269,7 @@ bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paa
             if ( BSP_retval ) retval = btrue;
             break;
 
-            default:
+        default:
             /* do nothing */
             break;
     }
@@ -1288,7 +1288,7 @@ bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paa
             if ( BSP_retval ) retval = btrue;
             break;
 
-            default:
+        default:
             /* do nothing */
             break;
     }
@@ -1307,7 +1307,7 @@ bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paa
             if ( BSP_retval ) retval = btrue;
             break;
 
-            default:
+        default:
             /* do nothing */
             break;
     }
@@ -1423,7 +1423,7 @@ bool_t BSP_branch_collide_frustum( const BSP_branch_t * pbranch, const ego_frust
             if ( BSP_retval ) retval = btrue;
             break;
 
-            default:
+        default:
             /* do nothing */
             break;
     }
@@ -1442,7 +1442,7 @@ bool_t BSP_branch_collide_frustum( const BSP_branch_t * pbranch, const ego_frust
             if ( BSP_retval ) retval = btrue;
             break;
 
-            default:
+        default:
             /* do nothing */
             break;
     }
@@ -1461,7 +1461,7 @@ bool_t BSP_branch_collide_frustum( const BSP_branch_t * pbranch, const ego_frust
             if ( BSP_retval ) retval = btrue;
             break;
 
-            default:
+        default:
             /* do nothing */
             break;
     }

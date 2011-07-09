@@ -303,7 +303,6 @@ static egoboo_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPla
 static egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
 //static egoboo_rv mnu_copy_local_imports( import_list_t * imp_lst );
 
-
 static void mnu_ModList_release_images();
 static void mnu_module_init( mnu_module_t * pmod );
 

@@ -25,10 +25,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#include "egoboo_typedef.h"
-//#include "file_common.h"
-//#include "egoboo_strutil.h"
-
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
 
@@ -42,6 +38,8 @@ enum e_config_bool
     config_true  = ( 1 == 1 ),
     config_false = ( !config_true )
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_config_bool config_bool_t;
 #endif
 

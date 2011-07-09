@@ -22,13 +22,13 @@
 /// @details
 
 #include "eve_file.h"
-
 #include "template.h"
-#include "sound.h"
 
-#include "egoboo_strutil.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_vfs.h"
+#include "../sound.h"
+
+#include "../egoboo_strutil.h"
+#include "../egoboo_fileutil.h"
+#include "../egoboo_vfs.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

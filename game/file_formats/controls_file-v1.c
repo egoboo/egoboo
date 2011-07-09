@@ -23,13 +23,13 @@
 
 #include "controls_file.h"
 #include "controls_file-v1.h"
-
 #include "scancode_file.h"
-#include "log.h"
 
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
-#include "egoboo_vfs.h"
+#include "../log.h"
+
+#include "../egoboo_fileutil.h"
+#include "../egoboo_strutil.h"
+#include "../egoboo_vfs.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

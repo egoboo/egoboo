@@ -476,7 +476,6 @@ static gfx_rv gfx_make_dolist( dolist_t * pdolist, const camera_t * pcam );
 static gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam );
 static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam );
 
-
 static float draw_one_xp_bar( float x, float y, Uint8 ticks );
 static float draw_character_xp_bar( const CHR_REF character, float x, float y );
 static void draw_all_status();

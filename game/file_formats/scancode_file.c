@@ -23,11 +23,11 @@
 
 #include "scancode_file.h"
 
-#include "log.h"
-#include "input.h"
+#include "../log.h"
+#include "../input.h"
 
-#include "egoboo_vfs.h"
-#include "egoboo_fileutil.h"
+#include "../egoboo_vfs.h"
+#include "../egoboo_fileutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

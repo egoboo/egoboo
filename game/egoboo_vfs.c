@@ -73,6 +73,8 @@ enum e_vfs_mode
     vfs_cfile,
     vfs_physfs
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_vfs_mode vfs_mode_t;
 
 /// An anonymized pointer type

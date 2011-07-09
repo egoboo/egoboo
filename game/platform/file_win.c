@@ -26,15 +26,15 @@
 #include <shellapi.h>
 #include <shlwapi.h>
 
-#include "file_common.h"
+#include "../file_common.h"
 
-#include "log.h"
+#include "../log.h"
 
-#include "egoboo_strutil.h"
-#include "egoboo.h"
+#include "../egoboo_strutil.h"
+#include "../egoboo.h"
 
 // this include must be the absolute last include
-#include "egoboo_mem.h"
+#include "../egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

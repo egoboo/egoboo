@@ -380,7 +380,7 @@ void camera_update_zoom( camera_t * pcam )
     pcam->zoom = ( CAM_ZOOM_MIN * percentmin ) + ( CAM_ZOOM_MAX * percentmax );
 
     // update turn_z
-    if ( ABS(pcam->turn_z_add) < 0.5f )
+    if ( ABS( pcam->turn_z_add ) < 0.5f )
     {
         pcam->turn_z_add = 0.0f;
     }
@@ -409,9 +409,9 @@ void camera_update_center( camera_t * pcam )
         fvec2_t vup, vrt, diff;
         float diff_up, diff_rt;
 
-        float track_fov, track_dist, track_size, track_size_x,track_size_y;
+        float track_fov, track_dist, track_size, track_size_x, track_size_y;
         fvec3_t track_vec;
-        
+
         // what is the distance to the track position?
         fvec3_sub( track_vec.v, pcam->track_pos.v, pcam->pos.v );
 
@@ -677,7 +677,7 @@ void camera_update_track( camera_t * pcam, const ego_mpd_t * pmesh, CHR_REF trac
 }
 
 //--------------------------------------------------------------------------------------------
-size_t camera_create_track_list( CHR_REF track_list[], size_t track_list_max_size )
+size_t camera_create_track_list( CHR_REF track_list[], const size_t track_list_max_size )
 {
     /// @details ZZ@> Create a default list of obhects that are tracked
 
@@ -715,13 +715,13 @@ void camera_move( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_
 
     CHR_REF _track_list[ MAX_PLAYER ];
 
-    CHR_REF * loc_track_list  = (CHR_REF *)track_list;
+    CHR_REF * loc_track_list  = ( CHR_REF * )track_list;
     size_t    loc_target_count = track_list_size;
 
     // deal with optional parameters
     if ( NULL == track_list )
     {
-        loc_track_list  = (CHR_REF *)_track_list;
+        loc_track_list  = ( CHR_REF * )_track_list;
         loc_target_count = camera_create_track_list( _track_list, SDL_arraysize( _track_list ) );
     }
 
@@ -839,7 +839,6 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
     {
         // INPUT_DEVICE_KEYBOARD and any unknown device end up here
 
-        
         if ( autoturn_camera )
         {
             // Auto camera

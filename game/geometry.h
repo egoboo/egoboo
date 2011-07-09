@@ -59,6 +59,8 @@ enum e_geometry_rv
     geometry_intersect,
     geometry_inside
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_geometry_rv geometry_rv;
 
 //--------------------------------------------------------------------------------------------

@@ -232,7 +232,6 @@ static void import_dir_profiles_vfs( const char * dirname );
 static void game_load_global_profiles();
 static void game_load_module_profiles( const char *modname );
 
-
 static void initialize_all_objects();
 static void finalize_all_objects();
 
@@ -1561,7 +1560,7 @@ int game_process_run( game_process_t * gproc, double frameDuration )
             process_resume( PROC_PBASE( MProc ) );
             break;
 
-            default:
+        default:
             /* do noithing */
             break;
     }
@@ -2486,7 +2485,7 @@ void show_armor( int statindex )
     cap_t * pcap;
     chr_t * pchr;
 
-    if ( statindex >= StatusList.count ) return;
+    if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
 
     ichr = StatusList.lst[statindex].who;
     if ( !INGAME_CHR( ichr ) ) return;
@@ -2578,7 +2577,7 @@ void show_full_status( int statindex )
     chr_t * pchr;
     Uint8  skinlevel;
 
-    if ( statindex >= StatusList.count ) return;
+    if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
     character = StatusList.lst[statindex].who;
 
     if ( !INGAME_CHR( character ) ) return;
@@ -2621,7 +2620,7 @@ void show_magic_status( int statindex )
     const char * missile_str;
     chr_t * pchr;
 
-    if ( statindex >= StatusList.count ) return;
+    if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
 
     character = StatusList.lst[statindex].who;
 
@@ -5378,7 +5377,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     ///  move_one_character() function, so the environment has already been determined this round
 
     cap_t * pchr_cap;
-    fvec3_t   platform_up = VECT3(0,0,1);
+    fvec3_t   platform_up = VECT3( 0, 0, 1 );
 
     // verify that we do not have two dud pointers
     if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
@@ -5701,8 +5700,8 @@ bool_t check_time( Uint32 check )
     switch ( check )
     {
             //Halloween between 31th october and the 1st of november
-        case SEASON_HALLOWEEN: return ( (10 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 31) ||
-                                            (11 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday <= 1) );
+        case SEASON_HALLOWEEN: return (( 10 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 31 ) ||
+                                           ( 11 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday <= 1 ) );
 
             //Xmas from december 16th until newyear
         case SEASON_CHRISTMAS: return ( 12 == getCurrentTime()->tm_mon + 1 && getCurrentTime()->tm_mday >= 16 );

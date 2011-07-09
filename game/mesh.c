@@ -419,17 +419,17 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
         ego_tile_info_t * ptile_dst = ptmem_dst->tile_list + cnt;
         ego_grid_info_t * pgrid_dst = pgmem_dst->grid_list + cnt;
 
-        // do not memset here, since these were constructed when they were allocated
+        // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
         // BLANK_STRUCT_PTR( ptile_dst )
         ptile_dst->type         = ptile_src->type;
         ptile_dst->img          = ptile_src->img;
 
-        // do not memset here, since these were constructed when they were allocated
+        // do not BLANK_STRUCT_PTR() here, since these were constructed when they were allocated
         // BLANK_STRUCT_PTR( pgrid_dst )
         pgrid_dst->base_fx = ptile_src->fx;
         pgrid_dst->twist   = ptile_src->twist;
 
-        // do some conversion
+        // set the local fx flags
         pgrid_dst->wall_fx = pgrid_dst->base_fx;
         pgrid_dst->pass_fx = 0;
 
@@ -1685,8 +1685,8 @@ fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius,
         {
             fvec2_t jitter_pos;
 
-             jitter_pos.x = fx;
-             jitter_pos.y = fy;
+            jitter_pos.x = fx;
+            jitter_pos.y = fy;
 
             if ( 4 == cnt ) continue;
 

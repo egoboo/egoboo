@@ -78,6 +78,8 @@ enum e_which_menu
     emnu_ShowEndgame,
     emnu_NotImplemented
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_which_menu which_menu_t;
 
 enum e_menu_retvals

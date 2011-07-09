@@ -20,16 +20,17 @@
 /// @file quest.c
 /// @brief Handles functions that modify quest.txt files and the players quest log
 
-#include "IDSZ_map.h"
 #include "quest_file.h"
-#include "log.h"
 
-#include "egoboo_fileutil.h"
-#include "egoboo_vfs.h"
-#include "egoboo_strutil.h"
-#include "egoboo.h"
+#include "../IDSZ_map.h"
+#include "../log.h"
 
-#include "egoboo_math.inl"
+#include "../egoboo_fileutil.h"
+#include "../egoboo_vfs.h"
+#include "../egoboo_strutil.h"
+#include "../egoboo.h"
+
+#include "../egoboo_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

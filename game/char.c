@@ -3478,9 +3478,9 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool_t i
 }
 
 //--------------------------------------------------------------------------------------------
-int damage_character( const CHR_REF character, FACING_T direction,
-                      IPair  damage, Uint8 damagetype, TEAM_REF team,
-                      CHR_REF attacker, const BIT_FIELD effects, bool_t ignore_invictus )
+int damage_character( const CHR_REF character, const FACING_T direction,
+                      const IPair  damage, const Uint8 damagetype, const TEAM_REF team,
+                      const CHR_REF attacker, const BIT_FIELD effects, const bool_t ignore_invictus )
 {
     /// @details ZZ@> This function calculates and applies damage to a character.  It also
     ///    sets alerts and begins actions.  Blocking and frame invincibility
@@ -5677,7 +5677,7 @@ void move_one_character_get_environment( chr_t * pchr )
         // unfortunately platforms are attached in the collision section
         // which occurs after the movement section.
 
-        fvec3_t   platform_up = VECT3(0.0f,0.0f,1.0f);
+        fvec3_t   platform_up = VECT3( 0.0f, 0.0f, 1.0f );
 
         chr_getMatUp( pplatform, platform_up.v );
         fvec3_self_normalize( platform_up.v );

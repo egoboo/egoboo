@@ -23,10 +23,10 @@
 
 #include "pip_file.h"
 
-#include "sound.h"
+#include "../sound.h"
 
-#include "egoboo_vfs.h"
-#include "egoboo_fileutil.h"
+#include "../egoboo_vfs.h"
+#include "../egoboo_fileutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

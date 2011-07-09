@@ -21,7 +21,7 @@
 
 /// @file treasure_tables.h
 
-#include "egoboo_typedef.h"
+#include "../egoboo_typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

@@ -1,9 +1,8 @@
-
 #pragma once
 
 //********************************************************************************************
 //*
-//*    This file is part of Egoboo.
+//*    This file is part of the SDL extensions library.
 //*
 //*    Egoboo is free software: you can redistribute it and/or modify it
 //*    under the terms of the GNU General Public License as published by
@@ -20,53 +19,16 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo_clock.c
-/// @brief Definitions of a clock "class" using SDL_GetTicks()
-/// @details
-
-#include "egoboo_typedef.h"
-
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
+/// @file egolib.inl
+/// @brief all-in-one inline file
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_clock;
-    typedef struct s_clock egoboo_clock_t;
+#include "egoboo_console.inl"
+#include "egoboo_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// a method for throttling processes using SDL_GetTicks()
-    struct s_clock
-    {
-        int ticks_stt;
-        int ticks_lst;
-        int ticks_now;
-
-        int time_lst;
-        int time_now;
-    };
-
-    bool_t clock_reset( egoboo_clock_t * pclock );
-
-    bool_t clock_update( egoboo_clock_t * pclock );
-    bool_t clock_update_1( egoboo_clock_t * pclock, int granularity );
-    bool_t clock_update_diff( egoboo_clock_t * pclock, int diff );
-
-#define EGOBOO_CLOCK_INIT { -1 }
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egoboo_clock_h
+#define _egolib_inl

@@ -24,6 +24,11 @@
 
 #include "egoboo_typedef.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define NUMFONTX            16          ///< Number of fonts in the bitmap
@@ -36,15 +41,27 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern int      fontoffset;                 ///< Line up fonts from top of screen
-extern SDL_Rect fontrect[NUMFONT];          ///< The font rectangles
-extern Uint8    fontxspacing[NUMFONT];      ///< The spacing stuff
-extern Uint8    fontyspacing;
+    extern int      fontoffset;                 ///< Line up fonts from top of screen
+    extern SDL_Rect fontrect[NUMFONT];          ///< The font rectangles
+    extern Uint8    fontxspacing[NUMFONT];      ///< The spacing stuff
+    extern Uint8    fontyspacing;
 
-extern Uint8    asciitofont[256];           ///< Conversion table
+    extern Uint8    asciitofont[256];           ///< Conversion table
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void font_bmp_init( void );
-void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing );
-int  font_bmp_length_of_word( const char *szText );
+    void font_bmp_init( void );
+    void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing );
+    int  font_bmp_length_of_word( const char *szText );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _font_bmp_h

@@ -45,6 +45,8 @@ enum e_ego_object_state
     ego_object_waiting,                         ///< The object has been fully destructed and is awaiting final "deletion"
     ego_object_terminated                       ///< The object is fully "deleted" and should now be on the free-store
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_ego_object_state ego_object_state_t;
 
 //--------------------------------------------------------------------------------------------
@@ -134,7 +136,7 @@ obj_data_t * ego_object_dtor( obj_data_t * pbase );
             ego_object_spawn_depth++;\
         }\
     }\
-
+     
 #define POBJ_END_SPAWN( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
     {\
@@ -144,7 +146,7 @@ obj_data_t * ego_object_dtor( obj_data_t * pbase );
             ego_object_spawn_depth--;\
         }\
     }\
-
+     
 /// Is the object flagged as requesting termination?
 #define FLAG_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )
 /// Is the object allocated?

@@ -19,8 +19,8 @@
 //*
 //********************************************************************************************
 
-#include "egoboo_typedef.h"
-#include "IDSZ_map.h"
+#include "../egoboo_typedef.h"
+#include "../IDSZ_map.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -54,6 +54,8 @@ extern "C"
         FILTER_NORMAL_BEGIN = FILTER_OFF,
         FILTER_NORMAL_END   = FILTER_FUN
     };
+
+    // this typedef must be after the enum definition of gcc has a fit
     typedef enum e_module_filter module_filter_t;
 
 //--------------------------------------------------------------------------------------------

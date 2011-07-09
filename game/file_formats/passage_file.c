@@ -22,10 +22,9 @@
 /// @details
 
 #include "passage_file.h"
-
 #include "mpd_file.h"
 
-#include "egoboo_fileutil.h"
+#include "../egoboo_fileutil.h"
 
 //--------------------------------------------------------------------------------------------
 passage_t * passage_init( passage_t * ppass )

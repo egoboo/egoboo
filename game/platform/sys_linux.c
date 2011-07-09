@@ -30,14 +30,17 @@
 
 //--------------------------------------------------------------------------------------------
 //Different methods of displaying messages in Linux
-typedef enum
+enum e_dialog
 {
     ZENITY = 0,
     KDIALOG,
     XMESSAGE,
     DIALOG_PROGRAM_END,
     DIALOG_PROGRAM_BEGIN = ZENITY
-} dialog_t;
+};
+
+// this typedef must be after the enum definition of gcc has a fit
+typedef enum e_dialog dialog_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -95,33 +98,33 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
 
     //Figure out if there is a method we prefer
     if ( 0 == strcmp( session, "gnome" ) ) type = ZENITY;
-    else if ( 0 == strcmp ( session, "kde" ) ) type = KDIALOG;
+    else if ( 0 == strcmp( session, "kde" ) ) type = KDIALOG;
 
     while ( btrue )
     {
         //Ready the command
         switch ( type )
-            {
-                case ZENITY:   sprintf( buffer, "zenity --error --text=\"%s\" --title=\"%s\"", message, popup_title ); break;
-                case KDIALOG:  sprintf( buffer, "kdialog %s \"--error\" --title \"%s\"", message, popup_title ); break;
-                case XMESSAGE: sprintf( buffer, "xmessage -center \"%s\"", message ); break;
-            }
-
-            //Did we succeed?
-            if ( 0 <= system( buffer ) ) break;
-
-            //Nope, try the next solution
-            tried[type] = btrue;
-
-            for ( i = DIALOG_PROGRAM_BEGIN; i < DIALOG_PROGRAM_END; i++ )
-            {
-                if ( tried[type] ) continue;
-                type = i;
-            }
-
-            //Did everything fail? If so we just give up
-            if ( i == DIALOG_PROGRAM_END ) break;
+        {
+            case ZENITY:   sprintf( buffer, "zenity --error --text=\"%s\" --title=\"%s\"", message, popup_title ); break;
+            case KDIALOG:  sprintf( buffer, "kdialog %s \"--error\" --title \"%s\"", message, popup_title ); break;
+            case XMESSAGE: sprintf( buffer, "xmessage -center \"%s\"", message ); break;
         }
+
+        //Did we succeed?
+        if ( 0 <= system( buffer ) ) break;
+
+        //Nope, try the next solution
+        tried[type] = btrue;
+
+        for ( i = DIALOG_PROGRAM_BEGIN; i < DIALOG_PROGRAM_END; i++ )
+        {
+            if ( tried[type] ) continue;
+            type = i;
+        }
+
+        //Did everything fail? If so we just give up
+        if ( i == DIALOG_PROGRAM_END ) break;
+    }
 
 }
 

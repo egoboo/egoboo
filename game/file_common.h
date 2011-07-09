@@ -48,6 +48,8 @@ extern "C"
         linux_find,
         mac_find
     };
+
+    // this typedef must be after the enum definition of gcc has a fit
     typedef enum e_fs_find_type fs_find_type_t;
 
 //--------------------------------------------------------------------------------------------

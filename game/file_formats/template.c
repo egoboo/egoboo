@@ -23,10 +23,10 @@
 
 #include "template.h"
 
-#include "egoboo_strutil.h"
-#include "egoboo_fileutil.h"
+#include "../egoboo_strutil.h"
+#include "../egoboo_fileutil.h"
 
-#include "char.inl"
+#include "../char.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

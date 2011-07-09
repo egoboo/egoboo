@@ -22,13 +22,13 @@
 #include "egoboo_typedef.h"
 #include <SDL_endian.h>
 
+#if defined(_APPLE_)
+#    include <Endian.h>
+#endif
+
 #if defined(__cplusplus)
 extern "C"
 {
-#endif
-
-#if defined(_APPLE_)
-#    include <Endian.h>
 #endif
 
 //--------------------------------------------------------------------------------------------

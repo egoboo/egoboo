@@ -46,6 +46,8 @@ extern "C"
         FEEDBACK_TEXT,              //Descriptive text
         FEEDBACK_NUMBER             //Show the damage as a number
     };
+
+    // this typedef must be after the enum definition of gcc has a fit
     typedef enum e_feedback FEEDBACK_TYPE;
 
 //--------------------------------------------------------------------------------------------

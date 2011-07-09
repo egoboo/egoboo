@@ -173,6 +173,8 @@ enum e_turn_modes
     TURNMODE_WATCHTARGET,                        ///< For combat intensive AI
     TURNMODE_COUNT
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_turn_modes TURN_MODE;
 
 /// The vertex offsets for the various grips
@@ -187,6 +189,8 @@ enum e_grip_offset
     GRIP_INVENTORY =               GRIP_ORIGIN,
     GRIP_ONLY      =               GRIP_LEFT
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_grip_offset grip_offset_t;
 
 /// Bits used to control options for the chr_get_name() function
@@ -666,9 +670,9 @@ void drop_money( const CHR_REF character, int money );
 void call_for_help( const CHR_REF character );
 void give_experience( const CHR_REF character, int amount, xp_type xptype, bool_t override_invictus );
 void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype );
-int  damage_character( const CHR_REF character, FACING_T direction,
-                       IPair damage, Uint8 damagetype, const TEAM_REF team,
-                       CHR_REF attacker, const BIT_FIELD effects, bool_t ignore_invictus );
+int  damage_character( const CHR_REF character, const FACING_T direction,
+                       const IPair damage, const Uint8 damagetype, const TEAM_REF team,
+                       const CHR_REF attacker, const BIT_FIELD effects, const bool_t ignore_invictus );
 void kill_character( const CHR_REF character, const CHR_REF killer, bool_t ignore_invictus );
 bool_t heal_character( const CHR_REF character, const CHR_REF healer, int amount, bool_t ignore_invictus );
 void spawn_poof( const CHR_REF character, const PRO_REF profile );

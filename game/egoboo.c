@@ -436,7 +436,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
             process_terminate( PROC_PBASE( eproc ) );
             break;
 
-            default:
+        default:
             /* do nothing */
             break;
     }

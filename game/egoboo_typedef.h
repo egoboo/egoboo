@@ -49,7 +49,6 @@
 #    define BLANK_ARY(XX)  memset( XX, 0, sizeof( XX ) );
 #endif
 
-
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
 
@@ -63,6 +62,8 @@ enum e_bool
     btrue  = ( 1 == 1 ),
     bfalse = ( !btrue )
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_bool bool_t;
 #endif
 
@@ -76,6 +77,8 @@ enum e_egoboo_rv
     rv_fail    = bfalse,
     rv_success = btrue
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_egoboo_rv egoboo_rv;
 
 //--------------------------------------------------------------------------------------------
@@ -120,11 +123,11 @@ typedef Uint32 BIT_FIELD;                               ///< A big string suppor
 #define RESET_BIT_FIELD(XX) XX = EMPTY_BIT_FIELD        ///< Resets all bits in a BIT_FIELD to 0
 
 #if !defined(SET_BIT)
-#define SET_BIT(XX, YY) XX |= YY
+#define SET_BIT(XX, YY) XX |= (YY)
 #endif
 
 #if !defined(UNSET_BIT)
-#define UNSET_BIT(XX, YY) XX &= ~YY
+#define UNSET_BIT(XX, YY) XX &= ~(YY)
 #endif
 
 #if !defined(BOOL_TO_BIT)

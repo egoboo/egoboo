@@ -60,6 +60,8 @@ enum e_ui_button_values
     BUTTON_DOWN,
     BUTTON_UP
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_ui_button_values ui_buttonValues;
 
 /// Possible UI button properties

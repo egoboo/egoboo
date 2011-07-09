@@ -145,7 +145,6 @@ static bool_t do_chr_prt_collision_bump( chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision( CoNode_t * d );
 
-
 static bool_t do_prt_platform_physics( chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * pdata );
 static bool_t do_chr_chr_collision_pressure_normal( const chr_t * pchr_a, const chr_t * pchr_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin );
@@ -257,7 +256,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
 {
     REF_T AA, BB;
 
-    AA = ( Uint32 )( ~(( Uint32 )0) );
+    AA = ( Uint32 )( ~(( Uint32 )0 ) );
     if ( VALID_CHR_RANGE( coll->chra ) )
     {
         AA = REF_TO_INT( coll->chra );
@@ -267,7 +266,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
         AA = REF_TO_INT( coll->prta );
     }
 
-    BB = ( Uint32 )( ~(( Uint32 )0) );
+    BB = ( Uint32 )( ~(( Uint32 )0 ) );
     if ( VALID_CHR_RANGE( coll->chrb ) )
     {
         BB = REF_TO_INT( coll->chrb );
@@ -1670,7 +1669,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         fvec3_t max_apos;
 
         fvec3_t tmp_pos;
-        
+
         chr_get_pos( pchr, tmp_pos.v );
 
         bump_str = 1.0f;
@@ -1778,7 +1777,7 @@ bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
         fvec3_t max_apos;
 
         fvec3_t tmp_pos;
-        
+
         prt_get_pos( bdl.prt_ptr, tmp_pos.v );
 
         bump_str = 1.0f;

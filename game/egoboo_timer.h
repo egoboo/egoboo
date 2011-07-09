@@ -25,6 +25,11 @@
 
 #include "egoboo_typedef.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -34,16 +39,28 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// a method for throttling processes using SDL_GetTicks()
-struct s_timer
-{
-    bool_t  free_running;
+    struct s_timer
+    {
+        bool_t  free_running;
 
-    int     ticks_lst;
-    int     ticks_now;
-    int     ticks_next;
-    int     ticks_diff;
-};
-typedef struct s_timer ego_timer_t;
+        int     ticks_lst;
+        int     ticks_now;
+        int     ticks_next;
+        int     ticks_diff;
+    };
+    typedef struct s_timer ego_timer_t;
 
-bool_t ego_timer_throttle( ego_timer_t * timer, float rate );
-bool_t timer_reset( ego_timer_t * timer, int ticks, float rate );
+    bool_t ego_timer_throttle( ego_timer_t * timer, float rate );
+    bool_t timer_reset( ego_timer_t * timer, int ticks, float rate );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define egoboo_timer_h

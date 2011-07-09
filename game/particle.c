@@ -1197,7 +1197,7 @@ void update_all_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-void prt_set_level( prt_t * pprt, float level )
+void prt_set_level( prt_t * pprt, const float level )
 {
     float loc_height;
 

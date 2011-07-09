@@ -123,7 +123,7 @@ ext_camera_t * ext_camera_ctor( ext_camera_t * ptr )
     BLANK_STRUCT_PTR( ptr );
 
     // construct the actual camera
-    camera_ctor( &(ptr->which) );
+    camera_ctor( &( ptr->which ) );
 
     // invalidate the targets the camera is tracking
     for ( tnc = 0; tnc < MAX_LOCAL_PLAYERS; tnc++ )

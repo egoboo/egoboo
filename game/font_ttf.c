@@ -53,7 +53,6 @@ struct s_Font
     GLfloat texCoords[4];
 };
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static int  fnt_print_raw( Font *font, SDL_Color color, SDL_Surface ** ppSurface, GLuint itex, float texCoords[], const char * szText );

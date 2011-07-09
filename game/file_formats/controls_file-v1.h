@@ -22,7 +22,7 @@
 /// @file file_formats/controls_file-v1.h
 /// @details routines for reading and writing version 1 of "controls.txt"
 
-#include "egoboo_typedef.h"
+#include "../egoboo_typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

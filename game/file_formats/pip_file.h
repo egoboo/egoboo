@@ -22,7 +22,7 @@
 /// @file file_formats/pip_file.h
 /// @details routines for reading and writing the particle profile file "part*.txt"
 
-#include "egoboo_typedef.h"
+#include "../egoboo_typedef.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -85,6 +85,8 @@ extern "C"
         ORIENTATION_V,       ///< vertical, like a candle
         ORIENTATION_H        ///< horizontal, like a plate
     };
+
+    // this typedef must be after the enum definition of gcc has a fit
     typedef enum e_prt_orientations prt_ori_t;
 
 // The special damage effects for particles
@@ -107,6 +109,8 @@ extern "C"
         prt_l = 0xE000,    ///< particle is diagonal (rotated 45 degrees to the right = 8192)
         prt_u = 0xFFFF     ///< particle is of unknown orientation
     };
+
+    // this typedef must be after the enum definition of gcc has a fit
     typedef enum e_particle_direction particle_direction_t;
 
 //--------------------------------------------------------------------------------------------

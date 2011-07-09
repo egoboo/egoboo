@@ -349,7 +349,7 @@ bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fve
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth )
+bool_t phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth )
 {
     // estimate the normal for collision volumes that are partially overlapping
 
@@ -387,7 +387,7 @@ bool_t phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t *
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth )
+bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth )
 {
     // use a more robust algorithm to get the normal no matter how the 2 volumes are
     // related

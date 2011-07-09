@@ -85,6 +85,8 @@ enum e_gfx_rv
     gfx_fail    = bfalse,
     gfx_success = btrue
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_gfx_rv gfx_rv;
 
 #define GFX_ERROR_MAX 256

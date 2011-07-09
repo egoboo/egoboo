@@ -25,6 +25,11 @@
 #include "egoboo_console.h"
 #include "font_ttf.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -39,31 +44,43 @@
 //--------------------------------------------------------------------------------------------
 
 /// The encapsulation of the data necessary to run a generic Quake-like console in Egoboo
-struct s_egoboo_console
-{
-    egoboo_console_t           * pnext;
+    struct s_egoboo_console
+    {
+        egoboo_console_t           * pnext;
 
-    egoboo_console_callback_t    run_func;
-    void                       * run_data;
+        egoboo_console_callback_t    run_func;
+        void                       * run_data;
 
-    Font * pfont;
+        Font * pfont;
 
-    SDL_bool on;
+        SDL_bool on;
 
-    SDL_Rect rect;
+        SDL_Rect rect;
 
-    int    save_count;
-    int    save_index;
-    char   save_buffer[EGOBOO_CONSOLE_LINES][EGOBOO_CONSOLE_LENGTH];
+        int    save_count;
+        int    save_index;
+        char   save_buffer[EGOBOO_CONSOLE_LINES][EGOBOO_CONSOLE_LENGTH];
 
-    size_t buffer_carat;
-    char   buffer[EGOBOO_CONSOLE_LENGTH];
+        size_t buffer_carat;
+        char   buffer[EGOBOO_CONSOLE_LENGTH];
 
-    size_t output_carat;
-    char   output_buffer[EGOBOO_CONSOLE_OUTPUT];
-};
+        size_t output_carat;
+        char   output_buffer[EGOBOO_CONSOLE_OUTPUT];
+    };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern egoboo_console_t * egoboo_console_top;
+    extern egoboo_console_t * egoboo_console_top;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define egoboo_console_inl

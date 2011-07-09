@@ -58,6 +58,8 @@ enum e_global_sounds
     GSND_SHIELDBLOCK,
     GSND_COUNT
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_global_sounds GSND_GLOBAL;
 
 /// what type of music data is used by mix_ptr_t
@@ -67,6 +69,8 @@ enum e_mix_type
     MIX_MUS,
     MIX_SND
 };
+
+// this typedef must be after the enum definition of gcc has a fit
 typedef enum e_mix_type mix_type_t;
 
 //--------------------------------------------------------------------------------------------

@@ -23,13 +23,13 @@
 
 #include "controls_file.h"
 #include "controls_file-v2.h"
-
 #include "scancode_file.h"
-#include "log.h"
 
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
-#include "egoboo_vfs.h"
+#include "../log.h"
+
+#include "../egoboo_fileutil.h"
+#include "../egoboo_strutil.h"
+#include "../egoboo_vfs.h"
 
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_load_vfs_2( const char* szFilename )

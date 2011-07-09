@@ -24,49 +24,72 @@
 #include "egoboo_typedef.h"
 #include "egoboo_state_machine.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+    struct s_process_instance;
+    typedef struct s_process_instance process_t;
+
+//--------------------------------------------------------------------------------------------
+// MACROS AND ENUMS
 //--------------------------------------------------------------------------------------------
 
 /// grab a pointer to the process_t of any object that "inherits" this type
 #define PROC_PBASE(PTR) (&( (PTR)->base ))
 
-//--------------------------------------------------------------------------------------------
 // The various states that a process can occupy
-enum e_process_states
-{
-    proc_invalid  = ego_state_invalid,
-    proc_begin    = ego_state_begin,
-    proc_entering = ego_state_entering,
-    proc_running  = ego_state_running,
-    proc_leaving  = ego_state_leaving,
-    proc_finish   = ego_state_finish
-};
-typedef enum e_process_states process_state_t;
+    enum e_process_states
+    {
+        proc_invalid  = ego_state_invalid,
+        proc_begin    = ego_state_begin,
+        proc_entering = ego_state_entering,
+        proc_running  = ego_state_running,
+        proc_leaving  = ego_state_leaving,
+        proc_finish   = ego_state_finish
+    };
+
+// this typedef must be after the enum definition of gcc has a fit
+    typedef enum e_process_states process_state_t;
 
 //--------------------------------------------------------------------------------------------
+// CLASS DEFINITIONS
 //--------------------------------------------------------------------------------------------
 
 /// A rudimantary implementation of "non-preemptive multitasking" in Egoboo.
 /// @details All other process types "inherit" from this one
 
-struct s_process_instance
-{
-    bool_t          valid;
-    bool_t          paused;
-    bool_t          killme;
-    bool_t          terminated;
-    process_state_t state;
-    double          frameDuration;
-};
-typedef struct s_process_instance process_t;
+    struct s_process_instance
+    {
+        bool_t          valid;
+        bool_t          paused;
+        bool_t          killme;
+        bool_t          terminated;
+        process_state_t state;
+        double          frameDuration;
+    };
+
+    process_t * process_init( process_t * proc );
+    bool_t      process_start( process_t * proc );
+    bool_t      process_kill( process_t * proc );
+    bool_t      process_validate( process_t * proc );
+    bool_t      process_terminate( process_t * proc );
+    bool_t      process_pause( process_t * proc );
+    bool_t      process_resume( process_t * proc );
+    bool_t      process_running( process_t * proc );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-process_t * process_init( process_t * proc );
-bool_t      process_start( process_t * proc );
-bool_t      process_kill( process_t * proc );
-bool_t      process_validate( process_t * proc );
-bool_t      process_terminate( process_t * proc );
-bool_t      process_pause( process_t * proc );
-bool_t      process_resume( process_t * proc );
-bool_t      process_running( process_t * proc );
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define egoboo_process_h

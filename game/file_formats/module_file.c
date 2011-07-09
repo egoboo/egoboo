@@ -22,24 +22,24 @@
 /// @details
 
 #include "module_file.h"
-
-#include "log.h"
-#include "menu.h"
-#include "sound.h"
-#include "graphic.h"
-#include "passage.h"
-#include "input.h"
-#include "game.h"
 #include "quest_file.h"
 
-#include "egoboo_vfs.h"
-#include "egoboo_strutil.h"
-#include "egoboo_setup.h"
-#include "egoboo_fileutil.h"
-#include "egoboo.h"
+#include "../log.h"
+#include "../menu.h"
+#include "../sound.h"
+#include "../graphic.h"
+#include "../passage.h"
+#include "../input.h"
+#include "../game.h"
 
-#include "char.inl"
-#include "enchant.inl"
+#include "../egoboo_vfs.h"
+#include "../egoboo_strutil.h"
+#include "../egoboo_setup.h"
+#include "../egoboo_fileutil.h"
+#include "../egoboo.h"
+
+#include "../char.inl"
+#include "../enchant.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

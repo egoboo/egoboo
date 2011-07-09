@@ -22,15 +22,15 @@
 /// @details
 
 #include "wawalite_file.h"
-
-#include "log.h"
 #include "pip_file.h"
 
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
+#include "../log.h"
 
-#include "char.inl"
-#include "egoboo_math.inl"
+#include "../egoboo_fileutil.h"
+#include "../egoboo_strutil.h"
+
+#include "../char.inl"
+#include "../egoboo_math.inl"
 
 #include <string.h>
 

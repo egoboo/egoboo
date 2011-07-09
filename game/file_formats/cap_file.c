@@ -22,16 +22,15 @@
 /// @details
 
 #include "cap_file.h"
-
-#include "char.h"
-
 #include "template.h"
 
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
-#include "egoboo_vfs.h"
-#include "egoboo_math.h"
-#include "egoboo.h"
+#include "../char.h"
+
+#include "../egoboo_fileutil.h"
+#include "../egoboo_strutil.h"
+#include "../egoboo_vfs.h"
+#include "../egoboo_math.h"
+#include "../egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

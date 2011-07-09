@@ -22,40 +22,60 @@
 /// @file quest.h
 /// @brief read/write/modify the quest.txt file
 
-#include "egoboo_typedef.h"
+#include "../egoboo_typedef.h"
 
-#include "file_formats/configfile.h"
+#include "configfile.h"
+
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 /// @note BB@> use this forward declaration of the "struct s_IDSZ_node" instead of including
 /// "IDSZ_map.h" to remove possible circular dependencies
-
-struct s_IDSZ_node;
+    struct s_IDSZ_node;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// Quest system values
-enum e_quest_values
-{
-    QUEST_BEATEN         = -2,
-    QUEST_NONE           = -1,
+    enum e_quest_values
+    {
+        QUEST_BEATEN         = -2,
+        QUEST_NONE           = -1,
 
-    QUEST_MINVAL         = QUEST_BEATEN,
-    QUEST_MAXVAL         = 0x7FFFFFFF  // maximum positive signed integer
-};
+        QUEST_MINVAL         = QUEST_BEATEN,
+        QUEST_MAXVAL         = 0x7FFFFFFF  // maximum positive signed integer
+    };
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 // Public functions
-egoboo_rv quest_log_download_vfs( struct s_IDSZ_node quest_log[], size_t quest_log_len, const char* player_directory );
-egoboo_rv quest_log_upload_vfs( struct s_IDSZ_node quest_log[], size_t quest_log_len, const char *player_directory );
-int       quest_log_set_level( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz, int level );
-int       quest_log_adjust_level( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz, int adjustment );
-int       quest_log_get_level( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz );
-egoboo_rv quest_log_add( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz, int level );
+    egoboo_rv quest_log_download_vfs( struct s_IDSZ_node quest_log[], size_t quest_log_len, const char* player_directory );
+    egoboo_rv quest_log_upload_vfs( struct s_IDSZ_node quest_log[], size_t quest_log_len, const char *player_directory );
+    int       quest_log_set_level( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz, int level );
+    int       quest_log_adjust_level( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz, int adjustment );
+    int       quest_log_get_level( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz );
+    egoboo_rv quest_log_add( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz, int level );
 
-ConfigFilePtr_t quest_file_open( const char *player_directory );
-egoboo_rv       quest_file_export( ConfigFilePtr_t pfile );
-egoboo_rv       quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export );
-egoboo_rv       quest_file_set_level( ConfigFilePtr_t ppfile, IDSZ idsz, int level );
-egoboo_rv       quest_file_adjust_level( ConfigFilePtr_t ppfile, IDSZ idsz, int adjustment );
-egoboo_rv       quest_file_get_level( ConfigFilePtr_t ppfile, IDSZ idsz );
+    ConfigFilePtr_t quest_file_open( const char *player_directory );
+    egoboo_rv       quest_file_export( ConfigFilePtr_t pfile );
+    egoboo_rv       quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export );
+    egoboo_rv       quest_file_set_level( ConfigFilePtr_t ppfile, IDSZ idsz, int level );
+    egoboo_rv       quest_file_adjust_level( ConfigFilePtr_t ppfile, IDSZ idsz, int adjustment );
+    egoboo_rv       quest_file_get_level( ConfigFilePtr_t ppfile, IDSZ idsz );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _quest_fille_h

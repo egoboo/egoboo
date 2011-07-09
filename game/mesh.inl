@@ -204,6 +204,7 @@ static INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, const BIT_F
     mesh_bound_tests++;
     if ( itile > pmesh->info.tiles_count ) return bfalse;
 
+    mesh_mpdfx_tests++;
     return ego_grid_info_sub_pass_fx( pmesh->gmem.grid_list + itile, flags );
 }
 
@@ -218,6 +219,7 @@ static INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, const BIT_FIE
     if ( itile > pmesh->info.tiles_count ) return bfalse;
 
     // succeed only of something actually changed
+    mesh_mpdfx_tests++;
     return ego_grid_info_add_pass_fx( pmesh->gmem.grid_list + itile, flags );
 }
 
@@ -240,6 +242,7 @@ static INLINE Uint32 mesh_test_fx( const ego_mpd_t * pmesh, Uint32 itile, const 
         return 0;
     }
 
+    mesh_mpdfx_tests++;
     return ego_grid_info_test_all_fx( pmesh->gmem.grid_list + itile, flags );
 }
 
