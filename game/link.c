@@ -42,6 +42,15 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+struct s_hero_spawn_data;
+typedef struct s_hero_spawn_data hero_spawn_data_t;
+
+struct s_link_stack_entry;
+typedef struct s_link_stack_entry link_stack_entry_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define LINK_HEROES_MAX MAX_PLAYER
 #define LINK_STACK_MAX  10
 
@@ -61,7 +70,6 @@ struct s_hero_spawn_data
 
     // are there any other hero things to add here?
 };
-typedef struct s_hero_spawn_data hero_spawn_data_t;
 
 /// A list of all the active links
 struct s_link_stack_entry
@@ -72,7 +80,6 @@ struct s_link_stack_entry
 
     // more module parameters, like whether it is beaten or some other things?
 };
-typedef struct s_link_stack_entry link_stack_entry_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

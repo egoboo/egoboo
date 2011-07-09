@@ -29,6 +29,12 @@
 #include "egoboo_mem.h"
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+struct s_cv_point_data;
+typedef struct s_cv_point_data cv_point_data_t;
+
+//--------------------------------------------------------------------------------------------
 // struct s_cv_point_data
 //--------------------------------------------------------------------------------------------
 struct s_cv_point_data
@@ -37,7 +43,6 @@ struct s_cv_point_data
     fvec3_t   pos;
     float   rads;
 };
-typedef struct s_cv_point_data cv_point_data_t;
 
 static int cv_point_data_cmp( const void * pleft, const void * pright );
 

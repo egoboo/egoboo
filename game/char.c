@@ -56,6 +56,15 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+struct s_grab_data;
+typedef struct s_grab_data grab_data_t;
+
+struct s_chr_anim_data;
+typedef struct s_chr_anim_data chr_anim_data_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static IDSZ    inventory_idsz[INVEN_COUNT];
 
 //--------------------------------------------------------------------------------------------
@@ -76,7 +85,6 @@ struct s_grab_data
     float   diff2_vrt;
     bool_t  too_dark, too_invis;
 };
-typedef struct s_grab_data grab_data_t;
 
 static int grab_data_cmp( const void * pleft, const void * pright );
 
@@ -89,7 +97,6 @@ struct s_chr_anim_data
     int    lip;
     float  speed;
 };
-typedef struct s_chr_anim_data chr_anim_data_t;
 
 static int cmp_chr_anim_data( void const * vp_lhs, void const * vp_rhs );
 
@@ -897,13 +904,15 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
 {
     float retval = 0.0f;
     float radius = 0.0f;
+    const float * loc_test_pos = NULL;
 
     if ( !DEFINED_PCHR( pchr ) ) return retval;
 
     if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return retval;
 
     // deal with the optional parameters
-    if ( NULL == test_pos ) test_pos = pchr->pos.v;
+    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ) : test_pos;
+    if ( NULL == loc_test_pos ) return 0;
 
     // calculate the radius based on whether the character is on camera
     radius = 0.0f;
@@ -934,13 +943,15 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
 {
     fvec2_t retval = ZERO_VECT2;
     float   radius;
+    const float * loc_test_pos = NULL;
 
     if ( !DEFINED_PCHR( pchr ) ) return retval;
 
     if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return retval;
 
     // deal with the optional parameters
-    if ( NULL == test_pos ) test_pos = pchr->pos.v;
+    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ) : test_pos;
+    if ( NULL == loc_test_pos ) return retval;
 
     // calculate the radius based on whether the character is on camera
     radius = 0.0f;
@@ -958,7 +969,7 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_get_diff( PMesh, test_pos, radius, center_pressure, pchr->stoppedby );
+        retval = mesh_get_diff( PMesh, loc_test_pos, radius, center_pressure, pchr->stoppedby );
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
@@ -974,13 +985,15 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
 
     BIT_FIELD    retval;
     float        radius;
+    const float * loc_test_pos = NULL;
 
     if ( !DEFINED_PCHR( pchr ) ) return 0;
 
     if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return 0;
 
     // deal with the optional parameters
-    if ( NULL == test_pos ) test_pos = pchr->pos.v;
+    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ) : test_pos;
+    if ( NULL == loc_test_pos ) return 0;
 
     // calculate the radius based on whether the character is on camera
     radius = 0.0f;
@@ -998,7 +1011,7 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_hit_wall( PMesh, test_pos, radius, pchr->stoppedby, nrm, pressure, pdata );
+        retval = mesh_hit_wall( PMesh, loc_test_pos, radius, pchr->stoppedby, nrm, pressure, pdata );
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests  += mesh_pressure_tests;
@@ -1014,6 +1027,7 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
 
     BIT_FIELD retval;
     float  radius;
+    const float * loc_test_pos = NULL;
 
     if ( !ACTIVE_PCHR( pchr ) ) return EMPTY_BIT_FIELD;
 
@@ -1031,14 +1045,15 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
         }
     }
 
-    if ( NULL == test_pos ) test_pos = pchr->pos.v;
+    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ) : test_pos;
+    if ( NULL == loc_test_pos ) return 0;
 
     // do the wall test
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_test_wall( PMesh, test_pos, radius, pchr->stoppedby, pdata );
+        retval = mesh_test_wall( PMesh, loc_test_pos, radius, pchr->stoppedby, pdata );
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
@@ -4559,8 +4574,8 @@ chr_t * chr_config_dtor( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF spawn_one_character( fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team,
-                             Uint8 skin, FACING_T facing, const char *name, const CHR_REF override )
+CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team,
+                             const Uint8 skin, const FACING_T facing, const char *name, const CHR_REF override )
 {
     /// @details ZZ@> This function spawns a character and returns the character's index number
     ///               if it worked, MAX_CHR otherwise

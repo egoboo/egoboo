@@ -50,6 +50,15 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_net_order;
+typedef struct s_net_order net_order_t;
+
+struct s_NetFileTransfer;
+typedef struct s_NetFileTransfer NetFileTransfer;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define COPYSIZE    0x1000
 #define TOTALSIZE   0x00200000L
 
@@ -103,7 +112,6 @@ struct s_net_order
     unsigned int            what;
     unsigned int            when;
 };
-typedef struct s_net_order net_order_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -119,12 +127,12 @@ struct s_enet_packet
 //--------------------------------------------------------------------------------------------
 
 /// Data for network file transfers
-typedef struct NetFileTransfer
+struct s_NetFileTransfer
 {
     char sourceName[NET_MAX_FILE_NAME];
     char destName[NET_MAX_FILE_NAME];
     ENetPeer *target;
-} NetFileTransfer;
+};
 
 /// Network file transfer queue
 static NetFileTransfer net_transferStates[NET_MAX_FILE_TRANSFERS];

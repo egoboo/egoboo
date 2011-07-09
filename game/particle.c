@@ -1040,6 +1040,7 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     float retval = 0.0f;
     BIT_FIELD  stoppedby;
     pip_t      * ppip;
+    const float * loc_test_pos = NULL;
 
     if ( !DEFINED_PPRT( pprt ) ) return retval;
 
@@ -1050,14 +1051,14 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // deal with the optional parameters
-    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const( pprt );
+    loc_test_pos = ( NULL == test_pos ) ? prt_get_pos_v_const( pprt ) : test_pos;
     if ( NULL == test_pos ) return 0;
 
     mesh_mpdfx_tests = 0;
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_get_pressure( PMesh, test_pos, 0.0f, stoppedby );
+        retval = mesh_get_pressure( PMesh, loc_test_pos, 0.0f, stoppedby );
     }
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
@@ -1073,6 +1074,7 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
     BIT_FIELD   stoppedby;
     pip_t      * ppip;
     ego_tile_info_t * ptile = NULL;
+    const float * loc_test_pos = NULL;
 
     if ( !DEFINED_PPRT( pprt ) ) return retval;
 
@@ -1083,7 +1085,7 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
 
     // deal with the optional parameters
-    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const( pprt );
+    loc_test_pos = ( NULL == test_pos ) ? prt_get_pos_v_const( pprt ) : test_pos;
     if ( NULL == test_pos ) return retval;
 
     // calculate the radius based on whether the particle is on camera
@@ -1098,7 +1100,7 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_get_diff( PMesh, test_pos, radius, center_pressure, stoppedby );
+        retval = mesh_get_diff( PMesh, loc_test_pos, radius, center_pressure, stoppedby );
     }
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;

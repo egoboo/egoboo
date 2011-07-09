@@ -41,6 +41,15 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_looped_sound_data;
+typedef struct s_looped_sound_data looped_sound_data_t;
+
+struct s_music_stack_element;
+typedef struct s_music_stack_element music_stack_element_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define LOOPED_COUNT 256
 
 #define MUSIC_STACK_COUNT 20
@@ -51,11 +60,10 @@
 /// Data needed to store and manipulate a looped sound
 struct s_looped_sound_data
 {
-    int         channel;
-    Mix_Chunk * chunk;
-    CHR_REF     object;
+    int               channel;
+    const Mix_Chunk * chunk;
+    CHR_REF           object;
 };
-typedef struct s_looped_sound_data looped_sound_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -67,8 +75,6 @@ struct s_music_stack_element
     Mix_Music * mus;
     int         number;
 };
-
-typedef struct s_music_stack_element music_stack_element_t;
 
 static bool_t                music_stack_pop( Mix_Music ** mus, int * song );
 
@@ -83,7 +89,7 @@ static bool_t LoopedList_free_one( size_t index );
 static size_t LoopedList_get_free( void );
 
 static bool_t LoopedList_validate( void );
-static size_t LoopedList_add( Mix_Chunk * sound, int loops, const CHR_REF  object );
+static size_t LoopedList_add( const Mix_Chunk * sound, int loops, const CHR_REF  object );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -612,7 +618,7 @@ int get_current_song_playing()
 //--------------------------------------------------------------------------------------------
 // chunk stuff
 //--------------------------------------------------------------------------------------------
-int sound_play_chunk_looped( fvec3_base_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF owner )
+int sound_play_chunk_looped( const fvec3_base_t pos, const Mix_Chunk * pchunk, const int loops, const CHR_REF owner )
 {
     /// ZF@> This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND_CHANNEL;
@@ -635,7 +641,7 @@ int sound_play_chunk_looped( fvec3_base_t pos, Mix_Chunk * pchunk, int loops, co
     if ( volume > 0 )
     {
         // play the sound
-        channel = Mix_PlayChannel( -1, pchunk, loops );
+        channel = Mix_PlayChannel( -1, (Mix_Chunk *)pchunk, loops );
 
         if ( INVALID_SOUND_CHANNEL == channel )
         {
@@ -992,7 +998,7 @@ void LoopedList_clear()
 }
 
 //--------------------------------------------------------------------------------------------
-size_t LoopedList_add( Mix_Chunk * sound, int channel, const CHR_REF  ichr )
+size_t LoopedList_add( const Mix_Chunk * sound, int channel, const CHR_REF  ichr )
 {
     /// @details BB@> add a looped sound to the list
 

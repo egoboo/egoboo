@@ -146,7 +146,7 @@ Mix_Music * sound_load_music( const char * szFileName );
 bool_t      sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type );
 
 int     sound_play_mix( fvec3_base_t pos, struct s_mix_ptr * pptr );
-int     sound_play_chunk_looped( fvec3_base_t pos, Mix_Chunk * pchunk, int loops, const CHR_REF object );
+int     sound_play_chunk_looped( const fvec3_base_t pos, const Mix_Chunk * pchunk, const int loops, const CHR_REF object );
 void    sound_play_song( int songnumber, Uint16 fadetime, int loops );
 void    sound_finish_song( Uint16 fadetime );
 int     sound_play_chunk_full( Mix_Chunk * pchunk );

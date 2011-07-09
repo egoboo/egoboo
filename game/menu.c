@@ -62,6 +62,30 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_SlidyButtonState;
+typedef struct s_SlidyButtonState mnu_SlidyButtonState_t;
+
+struct s_ChoosePlayer_element;
+typedef struct s_ChoosePlayer_element ChoosePlayer_element_t;
+
+struct s_ChoosePlayer_list;
+typedef struct s_ChoosePlayer_list ChoosePlayer_list_t;
+
+struct s_mnu_module;
+typedef struct s_mnu_module mnu_module_t;
+
+struct s_GameTips;
+typedef struct s_GameTips GameTips_t;
+
+struct s_SelectedPlayer_element;
+typedef struct s_SelectedPlayer_element SelectedPlayer_element_t;
+
+struct s_SelectedPlayer_list;
+typedef struct s_SelectedPlayer_list SelectedPlayer_list_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 /// The possible states of the menu state machine
 enum e_menu_states
 {
@@ -86,7 +110,6 @@ struct s_SlidyButtonState
     int top;
     int left;
 };
-typedef struct s_SlidyButtonState mnu_SlidyButtonState_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -99,7 +122,6 @@ struct s_ChoosePlayer_element
     int               skin_ref; ///< the index of the object skin from "skin.txt"
     chop_definition_t chop;     ///< the chop data from "naming.txt". put this here so we can generate a name without loading an entire profile
 };
-typedef struct s_ChoosePlayer_element ChoosePlayer_element_t;
 
 static ChoosePlayer_element_t * ChoosePlayer_ctor( ChoosePlayer_element_t * ptr );
 static ChoosePlayer_element_t * ChoosePlayer_dtor( ChoosePlayer_element_t * ptr );
@@ -115,7 +137,6 @@ struct s_ChoosePlayer_list
     int                    count;                         ///< the profiles that have been loaded
     ChoosePlayer_element_t lst[MAX_IMPORT_PER_PLAYER + 1];   ///< the profile data
 };
-typedef struct s_ChoosePlayer_list ChoosePlayer_list_t;
 
 static ChoosePlayer_list_t * ChoosePlayer_list_dealloc( ChoosePlayer_list_t * );
 
@@ -135,7 +156,6 @@ struct s_mnu_module
     STRING vfs_path;                               ///< the virtual pathname of the module
     STRING dest_path;                              ///< the path that module data can be written into
 };
-typedef struct s_mnu_module mnu_module_t;
 
 #define VALID_MOD_RANGE( IMOD ) ( ((IMOD) >= 0) && ((IMOD) < MAX_MODULE) )
 #define VALID_MOD( IMOD )       ( VALID_MOD_RANGE( IMOD ) && IMOD < mnu_ModList.count && mnu_ModList.lst[IMOD].loaded )
@@ -155,7 +175,6 @@ struct s_GameTips
     Uint8  local_count;                   //< Number of module specific tips loaded
     STRING local_hint[MENU_MAX_GAMETIPS]; //< Module specific hints and tips
 };
-typedef struct s_GameTips GameTips_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -164,7 +183,6 @@ struct s_SelectedPlayer_element
     int  input_device;
     int  player;
 };
-typedef struct s_SelectedPlayer_element SelectedPlayer_element_t;
 
 static egoboo_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr );
 
@@ -174,7 +192,6 @@ struct s_SelectedPlayer_list
     int count;
     SelectedPlayer_element_t lst[MAX_LOCAL_PLAYERS];
 };
-typedef struct s_SelectedPlayer_list SelectedPlayer_list_t;
 
 #define SELECTED_PLAYER_LIST_INIT { 0 }
 

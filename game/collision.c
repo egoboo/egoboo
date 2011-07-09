@@ -39,6 +39,15 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_chr_prt_collsion_data;
+typedef struct s_chr_prt_collsion_data chr_prt_collsion_data_t;
+
+struct s_bumplist;
+typedef struct s_bumplist bumplist_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define MAKE_HASH(AA,BB)         CLIP_TO_08BITS( ((AA) * 0x0111 + 0x006E) + ((BB) * 0x0111 + 0x006E) )
 
 #define CHR_MAX_COLLISIONS       (MAX_CHR*8 + MAX_PRT)
@@ -94,8 +103,6 @@ struct s_chr_prt_collsion_data
     bool_t  prt_damages_chr;
 };
 
-typedef struct s_chr_prt_collsion_data chr_prt_collsion_data_t;
-
 //--------------------------------------------------------------------------------------------
 
 /// one element of the data for partitioning character and particle positions
@@ -107,7 +114,6 @@ struct s_bumplist
     size_t   prtnum;                  // Number on the block
     CHR_REF  prt;                     // For particle collisions
 };
-typedef struct s_bumplist bumplist_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

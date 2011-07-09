@@ -37,6 +37,12 @@
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
+struct s_token;
+typedef struct s_token token_t;
+
+//--------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+
 /// The description of a single pre-defined egoscript token
 struct s_token
 {
@@ -48,7 +54,6 @@ struct s_token
     size_t szWord_length;
     STRING szWord;                      ///< The text representation
 };
-typedef struct s_token token_t;
 
 token_t * token_ctor( token_t * pt );
 

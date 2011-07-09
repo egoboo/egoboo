@@ -623,7 +623,7 @@ void move_one_character_get_environment( chr_t * pchr );
 BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
 BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], struct s_mesh_wall_data * pdata );
 
-CHR_REF spawn_one_character( fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team, Uint8 skin, FACING_T facing, const char *name, const CHR_REF override );
+CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team, const Uint8 skin, const FACING_T facing, const char *name, const CHR_REF override );
 void    respawn_character( const CHR_REF character );
 
 // inventory functions
