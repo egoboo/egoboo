@@ -17,6 +17,33 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+    struct s_id_glcmd_packed;
+    typedef struct s_id_glcmd_packed id_glcmd_packed_t;
+
+    struct s_SDL_md2_header;
+    typedef struct s_SDL_md2_header SDL_md2_header_t;
+
+    struct s_SDL_md2_skin;
+    typedef struct s_SDL_md2_skin SDL_md2_skin_t;
+
+    struct s_SDL_md2_texcoord;
+    typedef struct s_SDL_md2_texcoord SDL_md2_texcoord_t;
+
+    struct s_SDL_md2_triangle;
+    typedef struct s_SDL_md2_triangle SDL_md2_triangle_t;
+
+    struct s_SDL_md2_vertex;
+    typedef struct s_SDL_md2_vertex SDL_md2_vertex_t;
+
+    struct s_SDL_md2_frame;
+    typedef struct s_SDL_md2_frame SDL_md2_frame_t;
+
+    struct s_SDL_md2_model;
+    typedef struct s_SDL_md2_model SDL_md2_model_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
     enum e_id_md2_constant
     {
         MD2_MAGIC_NUMBER   = 0x32504449,
@@ -42,6 +69,7 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
     typedef float  md2_vec3f_t[3];
     typedef Uint8  md2_vec3uc_t[3];
     typedef Uint16 md2_vec3us_t[3];
@@ -77,14 +105,12 @@ extern "C"
 
         int num_glcmds;
     };
-    typedef struct s_SDL_md2_header SDL_md2_header_t;
 
     /* Texture name */
     struct s_SDL_md2_skin
     {
         char name[64];
     };
-    typedef struct s_SDL_md2_skin SDL_md2_skin_t;
 
     /* Texture coords */
     struct s_SDL_md2_texcoord
@@ -92,7 +118,6 @@ extern "C"
         short s;
         short t;
     };
-    typedef struct s_SDL_md2_texcoord SDL_md2_texcoord_t;
 
     /* Triangle info */
     struct s_SDL_md2_triangle
@@ -100,7 +125,6 @@ extern "C"
         md2_vec3us_t vertex;
         md2_vec3us_t st;
     };
-    typedef struct s_SDL_md2_triangle SDL_md2_triangle_t;
 
     /* Compressed vertex */
     struct s_SDL_md2_vertex
@@ -108,7 +132,6 @@ extern "C"
         md2_vec3uc_t v;
         Uint8    normalIndex;
     };
-    typedef struct s_SDL_md2_vertex SDL_md2_vertex_t;
 
     /* Model frame */
     struct s_SDL_md2_frame
@@ -118,7 +141,6 @@ extern "C"
         char             name[16];
         SDL_md2_vertex_t *verts;
     };
-    typedef struct s_SDL_md2_frame SDL_md2_frame_t;
 
     /* MD2 model structure */
     struct s_SDL_md2_model
@@ -132,7 +154,6 @@ extern "C"
         Sint32             *glcmds;
         GLuint              tex_id;
     };
-    typedef struct s_SDL_md2_model SDL_md2_model_t;
 
 #pragma pack(push, 1)
     /* GL command packet */
@@ -142,11 +163,11 @@ extern "C"
         float t;
         int index;
     } SET_PACKED();
-    typedef struct s_id_glcmd_packed id_glcmd_packed_t;
 #pragma pack(pop)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
     extern float kid_md2_normals[MD2_MAX_NORMALS][3];
 
 //--------------------------------------------------------------------------------------------

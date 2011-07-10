@@ -29,6 +29,9 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+    struct s_camera_options;
+    typedef struct s_camera_options camera_options_t;
+
     struct s_egoboo_config;
     typedef struct s_egoboo_config egoboo_config_t;
 
@@ -122,6 +125,9 @@ extern "C"
 
     };
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
     extern egoboo_config_t cfg;
 
 //--------------------------------------------------------------------------------------------
@@ -132,9 +138,9 @@ extern "C"
     bool_t setup_write( void );
     bool_t setup_quit( void );
 
-    bool_t setup_download( egoboo_config_t * pcfg );
-    bool_t setup_upload( egoboo_config_t * pcfg );
-    bool_t setup_synch( egoboo_config_t * pcfg );
+    bool_t config_download( egoboo_config_t * pcfg );
+    bool_t config_upload( egoboo_config_t * pcfg );
+    bool_t config_synch( egoboo_config_t * pcfg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

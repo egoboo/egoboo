@@ -39,6 +39,7 @@
 #include "egoboo_strutil.h"
 #include "egoboo_timer.h"
 #include "egoboo_vfs.h"
+#include "egoboo_setup.h"
 
 #include "font_bmp.h"
 #include "font_ttf.h"
@@ -67,7 +68,6 @@
 #include "file_formats/pip_file.h"
 #include "file_formats/quest_file.h"
 #include "file_formats/scancode_file.h"
-#include "file_formats/SDL_md2.h"
 #include "file_formats/spawn_file.h"
 #include "file_formats/template.h"
 #include "file_formats/treasure_table_file.h"

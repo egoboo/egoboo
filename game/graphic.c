@@ -4412,7 +4412,6 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     va_list args;
     int rv;
     oglx_texture_t * ptex;
-    float texCoords[4];
 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
@@ -4421,7 +4420,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     oglx_texture_Release( ptex );
 
     va_start( args, format );
-    rv = fnt_vprintf( font, color, &( ptex->surface ), ptex->base.binding, texCoords, format, args );
+    rv = fnt_vprintf_OGL( font, color, format, args, &( ptex->surface ) );
     va_end( args );
 
     ptex->base_valid = bfalse;

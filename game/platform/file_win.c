@@ -36,6 +36,7 @@
 // this include must be the absolute last include
 #include "../egoboo_mem.h"
 
+#define HAS_ATTRIBS(ATTRIBS,VAR) ((INVALID_FILE_ATTRIBUTES != (VAR)) && ( (ATTRIBS) == ( (VAR) & (ATTRIBS) ) ))
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -45,7 +46,7 @@ typedef struct s_win32_find_context win32_find_context_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern void sys_fs_init();
+extern void sys_fs_init( const char * root_dir );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -59,12 +60,12 @@ static char win32_configPath[MAX_PATH]   = EMPTY_CSTR;
 //--------------------------------------------------------------------------------------------
 // File Routines -----------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void sys_fs_init()
+void sys_fs_init( const char * root_dir )
 {
     /// @details JF@> This function determines the temporary, import,
     /// game data and save paths
 
-    HANDLE hFile;
+    DWORD attrib;
     char currentPath[MAX_PATH] = EMPTY_CSTR;
     char basicdatPath[MAX_PATH] = EMPTY_CSTR;
 
@@ -80,30 +81,35 @@ void sys_fs_init()
     GetModuleFileName( NULL, win32_binaryPath, MAX_PATH );
     PathRemoveFileSpec( win32_binaryPath );
 
-    // Last, try and determine where the game data is.  First, try the working
-    // directory.  If it's not there, try the directory where the executable
-    // is located.
-    GetCurrentDirectory( MAX_PATH, currentPath );
+    // if the root_path is not defined, let the use the starting directory
+    if( INVALID_CSTR(root_dir) )
+    {
+        // Last, try and determine where the game data is.  First, try the working
+        // directory.  If it's not there, try the directory where the executable
+        // is located.
+        GetCurrentDirectory( MAX_PATH, currentPath );
+    }
+    else
+    {
+        strncpy( currentPath, root_dir, SDL_arraysize(currentPath) );
+    }
 
     // try to find the basicdat directory in the current directory
+    win32_dataPath[0] = CSTR_END;
     snprintf( basicdatPath, MAX_PATH, "%s" SLASH_STR "basicdat", currentPath, MAX_PATH );
-    hFile = CreateFile( basicdatPath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL );
-
-    if ( NULL != hFile )
+    attrib = GetFileAttributes( basicdatPath );
+    if( HAS_ATTRIBS( FILE_ATTRIBUTE_DIRECTORY, attrib ) )
     {
         strncpy( win32_dataPath, currentPath, MAX_PATH );
-        CloseHandle( hFile );
     }
     else
     {
         // look in the binary directory
         snprintf( basicdatPath, MAX_PATH, "%s" SLASH_STR "basicdat", win32_binaryPath, MAX_PATH );
-        hFile = CreateFile( basicdatPath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-                            OPEN_EXISTING, 0, NULL );
-        if ( NULL != hFile )
+        attrib = GetFileAttributes( basicdatPath );
+        if( HAS_ATTRIBS( FILE_ATTRIBUTE_DIRECTORY, attrib ) )
         {
             strncpy( win32_dataPath, win32_binaryPath, MAX_PATH );
-            CloseHandle( hFile );
         }
     }
 
@@ -114,6 +120,7 @@ void sys_fs_init()
         exit( -1 );
     }
 
+    // config path is the same as the data path in win32
     strncpy( win32_configPath, win32_dataPath, SDL_arraysize( win32_configPath ) );
 
     // the log file cannot be started until there is a user data path to dump the file into
@@ -122,21 +129,25 @@ void sys_fs_init()
             win32_binaryPath, win32_dataPath, win32_userDataPath, win32_configPath );
 }
 
+//--------------------------------------------------------------------------------------------
 const char *fs_getBinaryDirectory()
 {
     return win32_binaryPath;
 }
 
+//--------------------------------------------------------------------------------------------
 const char *fs_getDataDirectory()
 {
     return win32_dataPath;
 }
 
+//--------------------------------------------------------------------------------------------
 const char *fs_getUserDirectory()
 {
     return win32_userDataPath;
 }
 
+//--------------------------------------------------------------------------------------------
 const char *fs_getConfigDirectory()
 {
     return win32_configPath;
@@ -147,37 +158,47 @@ int fs_fileIsDirectory( const char *filename )
 {
     // Returns 1 if this filename is a directory
     DWORD fileAttrs;
-    if ( NULL == filename ) return bfalse;
+
+    if ( INVALID_CSTR(filename) ) return bfalse;
 
     fileAttrs = GetFileAttributes( filename );
-    if ( INVALID_FILE_ATTRIBUTES == fileAttrs ) return 0;
 
-    return ( 0 != ( fileAttrs & FILE_ATTRIBUTE_DIRECTORY ) );
+    return HAS_ATTRIBS( FILE_ATTRIBUTE_DIRECTORY, fileAttrs );
 }
 
+//--------------------------------------------------------------------------------------------
 // Had to revert back to prog x code to prevent import/skin bug
 int fs_createDirectory( const char *dirname )
 {
-    return ( CreateDirectory( dirname, NULL ) != 0 );
+    if( INVALID_CSTR(dirname) ) return FALSE;
+
+    return ( 0 != CreateDirectory( dirname, NULL ) );
 }
 
+//--------------------------------------------------------------------------------------------
 int fs_removeDirectory( const char *dirname )
 {
-    return ( RemoveDirectory( dirname ) != 0 );
+    if( INVALID_CSTR(dirname) ) return FALSE;
+
+    return ( 0 != RemoveDirectory( dirname ) );
 }
 
 //--------------------------------------------------------------------------------------------
 void fs_deleteFile( const char *filename )
 {
     /// @details ZZ@> This function deletes a file
-    DeleteFile( filename );
+
+    if( VALID_CSTR(filename) )   
+    {
+        DeleteFile( filename );
+    }
 }
 
+//--------------------------------------------------------------------------------------------
 bool_t fs_copyFile( const char *source, const char *dest )
 {
-    /*bool_t retval =   CopyFile( source, dest, bfalse );
-    if(!retval) log_debug("fs_copyFile() - Failed to copy \"%s\" to \"%s\" (%d)\n", source, dest, GetLastError());
-    return retval;*/
+    if( INVALID_CSTR(source) || INVALID_CSTR(dest) ) return bfalse;
+
     return ( TRUE == CopyFile( source, dest, bfalse ) );
 }
 

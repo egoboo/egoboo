@@ -98,7 +98,7 @@ ego_process_t     * EProc   = &_eproc;
 int do_ego_proc_begin( ego_process_t * eproc )
 {
     // initialize the virtual filesystem first
-    vfs_init();
+    vfs_init( NULL );
     egoboo_setup_vfs_paths();
 
     // Initialize logging next, so that we can use it everywhere.
@@ -117,7 +117,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     setup_read_vfs();
 
     // download the "setup.txt" values into the cfg struct
-    setup_download( &cfg );
+    config_download( &cfg );
 
     // do basic system initialization
     ego_init_SDL();
@@ -140,7 +140,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // synchronize the config values with the various game subsystems
     // do this acter the ego_init_SDL() and ogl_init() in case the config values are clamped
     // to valid values
-    setup_synch( &cfg );
+    config_synch( &cfg );
 
     // initialize the sound system
     sound_system_initialize();
@@ -522,10 +522,10 @@ void memory_cleanUp( void )
     _quit_game( EProc );
 
     // synchronize the config values with the various game subsystems
-    setup_synch( &cfg );
+    config_synch( &cfg );
 
     // quit the setup system, making sure that the setup file is written
-    setup_upload( &cfg );
+    config_upload( &cfg );
     setup_write();
     setup_quit();
 

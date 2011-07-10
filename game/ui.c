@@ -45,6 +45,8 @@ static GLfloat ui_active_color2[] = {0.00f, 0.45f, 0.45f, 0.60f};
 static GLfloat ui_hot_color2[]    = {0.00f, 0.28f, 0.28f, 1.00f};
 static GLfloat ui_normal_color2[] = {0.33f, 0.00f, 0.33f, 0.60f};
 
+static const SDL_Color ui_text_color = { 0xFF, 0xFF, 0xFF, 0x00 };
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -590,7 +592,7 @@ float ui_drawTextBox( Font * font, const char *text, float vx, float vy, float v
     spacing = ui_context.ah * vspacing;
 
     // draw using screen coordinates
-    fnt_drawTextBox( font, NULL, x1, y1, x2 - x1, y2 - y1, spacing, text );
+    fnt_drawTextBox_OGL( font, ui_text_color, x1, y1, x2 - x1, y2 - y1, spacing, NULL, text );
 
     return MAX( vy + vheight, vy + vspacing );
 }
@@ -627,7 +629,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float vx
         text_y = (( y2 - y1 ) - text_h ) / 2 + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText( font, NULL, text_x, text_y, text );
+        fnt_drawText_OGL( font, ui_text_color, text_x, text_y, NULL, text );
     }
 
     return result;
@@ -686,7 +688,7 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture_t *img, const
         text_y = (( y2 - y1 ) - text_h ) / 2         + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText( font, NULL, text_x, text_y, text );
+        fnt_drawText_OGL( font, ui_text_color, text_x, text_y, NULL, text );
     }
 
     return result;
@@ -751,7 +753,7 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
         text_y = (( y2 - y1 ) - text_h ) / 2                + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText( pw->pfont, &( pw->text_surf ), text_x, text_y, pw->text );
+        fnt_drawText_OGL( pw->pfont, ui_text_color, text_x, text_y, &( pw->text_surf ), pw->text );
     }
 
     return result;

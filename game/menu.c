@@ -2977,10 +2977,10 @@ int doGameOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 7, sz_buttons[6], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 // synchronize the config values with the various game subsystems
-                setup_synch( &cfg );
+                config_synch( &cfg );
 
                 // save the setup file
-                setup_upload( &cfg );
+                config_upload( &cfg );
                 setup_write();
 
                 menuState = MM_Leaving;
@@ -3205,10 +3205,10 @@ int doAudioOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 9, sz_buttons[8], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 // synchronize the config values with the various game subsystems
-                setup_synch( &cfg );
+                config_synch( &cfg );
 
                 // save the setup file
-                setup_upload( &cfg );
+                config_upload( &cfg );
                 setup_write();
 
                 // Reload the sound system
@@ -4003,10 +4003,10 @@ int doVideoOptions( float deltaTime )
                 menuChoice = 1;
 
                 // synchronize the config values with the various game subsystems
-                setup_synch( &cfg );
+                config_synch( &cfg );
 
                 // save the setup file
-                setup_upload( &cfg );
+                config_upload( &cfg );
                 setup_write();
 
                 // Reload some of the graphics
@@ -4682,7 +4682,7 @@ void tipText_set_position( Font * font, const char * text, int spacing )
 
     if ( NULL == text ) return;
 
-    fnt_getTextBoxSize( font, text, spacing, &w, &h );
+    fnt_getTextBoxSize( font, spacing, text, &w, &h );
 
     // set the text
     tipText = text;
@@ -4709,7 +4709,7 @@ void copyrightText_set_position( Font * font, const char * text, int spacing )
     copyrightLeft = 0;
 
     // Figure out where to draw the copyright text
-    fnt_getTextBoxSize( font, text, 20, &w, &h );
+    fnt_getTextBoxSize( font, 20, text, &w, &h );
 
     // set the text
     copyrightText = text;

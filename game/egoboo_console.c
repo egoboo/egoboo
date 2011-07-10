@@ -356,6 +356,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
     ATTRIB_PUSH( __FUNCTION__, GL_SCISSOR_BIT | GL_ENABLE_BIT );
     {
         int text_w, text_h, height;
+        SDL_Color con_color = { 0xFF, 0xFF, 0xFF, 0x00 };
 
         // make the texture a "null" texture
         GL_DEBUG( glBindTexture )( GL_TEXTURE_2D, ( GLuint )( ~0 ) );
@@ -376,7 +377,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
 
         fnt_getTextSize( pcon->pfont, buffer, &text_w, &text_h );
         height -= text_h;
-        fnt_drawText( pcon->pfont, NULL, pwin->x, height - text_h, buffer );
+        fnt_drawText_OGL( pcon->pfont, con_color, pwin->x, height - text_h, NULL, buffer );
 
         if ( CSTR_END != pcon->output_buffer[0] )
         {
@@ -410,7 +411,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
 
                 fnt_getTextSize( pcon->pfont, buffer, &text_w, &text_h );
                 height -= text_h;
-                fnt_drawText( pcon->pfont, NULL, pwin->x, height - text_h, buffer );
+                fnt_drawText_OGL( pcon->pfont, con_color, pwin->x, height - text_h, NULL, buffer );
             }
         }
 

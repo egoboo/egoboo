@@ -155,11 +155,11 @@ static int fake_physfs_vprintf( PHYSFS_File * pfile, const char *format, va_list
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void vfs_init()
+void vfs_init( const char * root_dir )
 {
     VFS_PATH tmp_path;
 
-    fs_init();
+    fs_init( root_dir );
 
     if ( _vfs_initialized ) return;
 

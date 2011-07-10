@@ -48,7 +48,7 @@ typedef struct s_linux_find_context linux_find_context_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern void sys_fs_init();
+extern void sys_fs_init( const char * root_dir );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -67,8 +67,11 @@ struct s_linux_find_context
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // File Routines
-void sys_fs_init()
+void sys_fs_init( const char * root_dir )
 {
+    // root_dir currently has no use in linux, since all of the egoboo game directories
+    // are in fixed locations
+
     char * userhome;
 
     printf( "Initializing filesystem services...\n" );
@@ -83,9 +86,9 @@ void sys_fs_init()
     // so that the program will compile and install just like any other
     // .rpm or .deb package.
 
-    strncpy( linux_configPath, PREFIX "/etc/egoboo-2.x",         SDL_arraysize( linux_configPath ) );
-    strncpy( linux_binaryPath, PREFIX "/games/",                  SDL_arraysize( linux_binaryPath ) );
-    strncpy( linux_dataPath,   PREFIX "/share/games/egoboo-2.x", SDL_arraysize( linux_dataPath ) );
+    snprintf( linux_configPath, SDL_arraysize(linux_configPath), "%s/etc/egoboo-2.x/", PREFIX);
+    snprintf( linux_binaryPath, SDL_arraysize(linux_binaryPath), "%s/games/", PREFIX );
+    snprintf( linux_dataPath,   SDL_arraysize(linux_dataPath),   "%s/share/games/egoboo-2.x/", PREFIX );
 #else
     // these are read-only directories
     strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );

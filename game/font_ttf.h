@@ -24,6 +24,7 @@
 /// to do it's business. This depends on Freetype 2 & OpenGL.
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 #include <SDL_opengl.h>
 
 #if defined(__cplusplus)
@@ -54,16 +55,20 @@ extern "C"
     extern Font    *fnt_loadFont( const char *fileName, int pointSize );
     extern void    fnt_freeFont( Font *font );
 
-    extern void    fnt_drawTextBox( Font *font, SDL_Surface ** ppSurface, int x, int y, int width, int height, int spacing, const char *format, ... );
-    extern void    fnt_drawText( Font *font, SDL_Surface ** ppSurface, int x, int y, const char *format, ... );
-
 /// Only works properly on a single line of text
     extern void    fnt_getTextSize( Font *font, const char *text, int *width, int *height );
 /// Works for multiple-line strings, using the user-supplied spacing
-    extern void    fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, int *height );
+    extern void    fnt_getTextBoxSize( Font *font, int spacing, const char *text, int *width, int *height );
 
-/// handle variable arguments to print text to a GL texture
-    extern int fnt_vprintf( Font *font, SDL_Color color, SDL_Surface ** ppSurface, GLuint itex, float texCoords[], const char *format, va_list args );
+    extern void    fnt_drawTextBox_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, SDL_Surface ** ppSurface, const char *format, ... );
+    extern void    fnt_drawTextBox_OGL( Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, SDL_Surface ** ppSurface, const char *format, ... );
+
+    extern void    fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_Surface * pDstSurface, SDL_Surface ** ppTmpSurface, const char *format, ... );
+    extern void    fnt_drawText_OGL( Font *font, SDL_Color fnt_color, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, ... );
+
+/// handle variable arguments
+    extern int fnt_vprintf_SDL( TTF_Font *font, SDL_Color fnt_color, const char *format, va_list args, SDL_Surface ** ppTmpSurface );
+    extern int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, const char *format, va_list args, SDL_Surface ** ppTmpSurface );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
