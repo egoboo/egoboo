@@ -268,7 +268,7 @@ struct s_gfx_config
 
 bool_t gfx_config_init( gfx_config_t * pgfx );
 bool_t gfx_set_virtual_screen( gfx_config_t * pgfx );
-bool_t gfx_synch_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
+bool_t gfx_download_from_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -415,7 +415,7 @@ int    ogl_init( void );
 void   gfx_main( void );
 void   gfx_begin_3d( const struct s_camera * pcam );
 void   gfx_end_3d( void );
-bool_t gfx_synch_oglx_texture_parameters( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
+bool_t oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
 void   gfx_reload_all_textures( void );
 
 void   request_clear_screen( void );

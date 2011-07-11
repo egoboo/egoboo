@@ -175,16 +175,15 @@ void fnt_getTextBoxSize( Font *font, int spacing, const char *text, int *width, 
     EGOBOO_DELETE_ARY( buffer );
 }
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int fnt_print_raw_SDL( TTF_Font *font, SDL_Color fnt_color, const char * szText, SDL_Surface ** ppTmpSurface )
 {
     // if there is no external surface, there is no point
-    if( NULL == ppTmpSurface ) return -1;
+    if ( NULL == ppTmpSurface ) return -1;
 
     // maks sure to delete the original surface
-    if( NULL != *ppTmpSurface )
+    if ( NULL != *ppTmpSurface )
     {
         SDL_FreeSurface( *ppTmpSurface );
         *ppTmpSurface = NULL;
@@ -196,7 +195,7 @@ int fnt_print_raw_SDL( TTF_Font *font, SDL_Color fnt_color, const char * szText,
         *ppTmpSurface = TTF_RenderText_Blended( font, szText, fnt_color );
     }
 
-    return (NULL == *ppTmpSurface) ? -1 : 0;
+    return ( NULL == *ppTmpSurface ) ? -1 : 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -210,7 +209,7 @@ int fnt_vprintf_SDL( TTF_Font *font, SDL_Color fnt_color, const char *format, va
     if ( vsnprintf_rv < 0 ) return -1;
 
     print_rv = fnt_print_raw_SDL( font, fnt_color, szText, ppTmpSurface );
-    if( print_rv < 0 ) return -1;
+    if ( print_rv < 0 ) return -1;
 
     return 0;
 }
@@ -228,14 +227,14 @@ int fnt_drawText_raw_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, con
     if ( rv < 0 ) return -1;
 
     rv = -1;
-    if( NULL != ppSrcSurface && NULL != *ppSrcSurface )
+    if ( NULL != ppSrcSurface && NULL != *ppSrcSurface )
     {
         SDL_Rect rtmp;
 
         rtmp.x = x;
         rtmp.y = y;
-        rtmp.w = (*ppSrcSurface)->w;
-        rtmp.h = (*ppSrcSurface)->h;
+        rtmp.w = ( *ppSrcSurface )->w;
+        rtmp.h = ( *ppSrcSurface )->h;
 
         SDL_BlitSurface( *ppSrcSurface, NULL, *ppDstSurface, &rtmp );
 
@@ -263,7 +262,7 @@ void fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_S
     SDL_Surface *loc_pSurface = NULL;
     SDL_Surface **loc_ppTmpSurface = NULL;
 
-    if( NULL == pDstSurface ) return;
+    if ( NULL == pDstSurface ) return;
 
     if ( NULL != ppTmpSurface )
     {
@@ -280,16 +279,16 @@ void fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_S
     rv = fnt_vprintf_SDL( font, fnt_color, format, args, loc_ppTmpSurface );
     va_end( args );
 
-    if ( (rv <= 0) )
+    if (( rv <= 0 ) )
     {
-        if( (NULL != loc_ppTmpSurface) && (NULL != *loc_ppTmpSurface) )
+        if (( NULL != loc_ppTmpSurface ) && ( NULL != *loc_ppTmpSurface ) )
         {
             SDL_Rect rtmp;
 
             rtmp.x = x;
             rtmp.y = y;
-            rtmp.w = (*loc_ppTmpSurface)->w;
-            rtmp.h = (*loc_ppTmpSurface)->h;
+            rtmp.w = ( *loc_ppTmpSurface )->w;
+            rtmp.h = ( *loc_ppTmpSurface )->h;
 
             SDL_BlitSurface( *loc_ppTmpSurface, NULL, pDstSurface, &rtmp );
         }
@@ -298,7 +297,7 @@ void fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_S
     // unless something went wrong, there is a surface for us to delete
     if ( !sdl_surf_external )
     {
-        if( NULL != loc_ppTmpSurface && NULL != *loc_ppTmpSurface )
+        if ( NULL != loc_ppTmpSurface && NULL != *loc_ppTmpSurface )
         {
             // Done with the surface
             SDL_FreeSurface( *loc_ppTmpSurface );
@@ -370,7 +369,7 @@ void fnt_streamText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, int
     for ( line = strtok( buffer, "\n" ); NULL != line; line = strtok( NULL, "\n" ) )
     {
         fnt_drawText_raw_SDL( font, fnt_color, x, y, line, loc_ppTmpSurface );
-        y += spacing;   
+        y += spacing;
     }
 
     EGOBOO_DELETE_ARY( buffer );
@@ -395,10 +394,10 @@ int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText )
     if ( NULL == font ) return -1;
 
     print_rv = fnt_print_raw_SDL( font->ttfFont, fnt_color, szText, ppTmpSurface );
-    if( print_rv < 0 ) return -1;
+    if ( print_rv < 0 ) return -1;
 
     rv = 0;
-    if( NULL != ppTmpSurface && NULL != *ppTmpSurface )
+    if ( NULL != ppTmpSurface && NULL != *ppTmpSurface )
     {
         upload_rv = SDL_GL_uploadSurface( *ppTmpSurface, font->texture, font->texCoords );
         rv = -1;
@@ -478,7 +477,6 @@ fnt_drawText_raw_finish:
         *loc_ppTmpSurface = NULL;
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, ... )
@@ -597,7 +595,7 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, int x, int y, int spa
     for ( line = strtok( buffer, "\n" ); NULL != line; line = strtok( NULL, "\n" ) )
     {
         fnt_drawText_raw_OGL( font, fnt_color, x, y, line, loc_ppTmpSurface );
-        y += spacing;   
+        y += spacing;
     }
 
     EGOBOO_DELETE_ARY( buffer );

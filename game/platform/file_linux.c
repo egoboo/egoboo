@@ -38,7 +38,6 @@
 // this include must be the absolute last include
 #include "egoboo_mem.h"
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -86,9 +85,9 @@ void sys_fs_init( const char * root_dir )
     // so that the program will compile and install just like any other
     // .rpm or .deb package.
 
-    snprintf( linux_configPath, SDL_arraysize(linux_configPath), "%s/etc/egoboo-2.x/", PREFIX);
-    snprintf( linux_binaryPath, SDL_arraysize(linux_binaryPath), "%s/games/", PREFIX );
-    snprintf( linux_dataPath,   SDL_arraysize(linux_dataPath),   "%s/share/games/egoboo-2.x/", PREFIX );
+    snprintf( linux_configPath, SDL_arraysize( linux_configPath ), "%s/etc/egoboo-2.x/", PREFIX );
+    snprintf( linux_binaryPath, SDL_arraysize( linux_binaryPath ), "%s/games/", PREFIX );
+    snprintf( linux_dataPath,   SDL_arraysize( linux_dataPath ),   "%s/share/games/egoboo-2.x/", PREFIX );
 #else
     // these are read-only directories
     strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );

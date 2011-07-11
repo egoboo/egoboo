@@ -42,24 +42,24 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Macros for reading values from a ConfigFile
-//  - Must have a valid ConfigFilePtr_t named lConfigSetup
+//  - Must have a valid ConfigFilePtr_t named _lpConfigSetup
 //  - Must have a string named lCurSectionName to define the section
 //  - Must have temporary variables defined of the correct type (lTempBool, lTempInt, and lTempStr)
 
 #define GetKey_bool(LABEL, VAR, DEFAULT) \
     { \
-    if ( 0 == ConfigFile_GetValue_Boolean( lConfigSetup, lCurSectionName, LABEL, &lTempBool ) ) \
+        if ( 0 == ConfigFile_GetValue_Boolean( _lpConfigSetup, lCurSectionName, LABEL, &lTempBool ) ) \
         { \
-        lTempBool = DEFAULT; \
+            lTempBool = DEFAULT; \
         } \
         VAR = lTempBool; \
     }
 
 #define GetKey_int(LABEL, VAR, DEFAULT) \
     { \
-    if ( 0 == ConfigFile_GetValue_Int( lConfigSetup, lCurSectionName, LABEL, &lTempInt ) ) \
+        if ( 0 == ConfigFile_GetValue_Int( _lpConfigSetup, lCurSectionName, LABEL, &lTempInt ) ) \
         { \
-        lTempInt = DEFAULT; \
+            lTempInt = DEFAULT; \
         } \
         VAR = lTempInt; \
     }
@@ -67,23 +67,25 @@
 // Don't make LEN larger than 64
 #define GetKey_string(LABEL, VAR, LEN, DEFAULT) \
     { \
-    if ( 0 == ConfigFile_GetValue_String( lConfigSetup, lCurSectionName, LABEL, lTempStr, SDL_arraysize( lTempStr ) ) ) \
+        if ( 0 == ConfigFile_GetValue_String( _lpConfigSetup, lCurSectionName, LABEL, lTempStr, SDL_arraysize( lTempStr ) ) ) \
         { \
-        strncpy( lTempStr, DEFAULT, SDL_arraysize( lTempStr ) ); \
+            strncpy( lTempStr, DEFAULT, SDL_arraysize( lTempStr ) ); \
         } \
         strncpy( VAR, lTempStr, LEN ); \
         VAR[(LEN) - 1] = CSTR_END; \
     }
 
-#define SetKey_bool(LABEL, VAR)     ConfigFile_SetValue_Boolean( lConfigSetup, lCurSectionName, LABEL, VAR )
-#define SetKey_int(LABEL, VAR)      ConfigFile_SetValue_Int( lConfigSetup, lCurSectionName, LABEL, VAR )
-#define SetKey_string( LABEL, VAR ) ConfigFile_SetValue_String( lConfigSetup, lCurSectionName, LABEL, VAR )
+#define SetKey_bool(LABEL, VAR)     ConfigFile_SetValue_Boolean( _lpConfigSetup, lCurSectionName, LABEL, VAR )
+#define SetKey_int(LABEL, VAR)      ConfigFile_SetValue_Int( _lpConfigSetup, lCurSectionName, LABEL, VAR )
+#define SetKey_string( LABEL, VAR ) ConfigFile_SetValue_String( _lpConfigSetup, lCurSectionName, LABEL, VAR )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+static bool_t _setup_started = bfalse;
 static STRING _config_filename = EMPTY_CSTR;
-static ConfigFilePtr_t lConfigSetup = NULL;
+static ConfigFilePtr_t _lpConfigSetup = NULL;
+
 static egoboo_config_t cfg_default;
 
 //--------------------------------------------------------------------------------------------
@@ -91,39 +93,38 @@ static egoboo_config_t cfg_default;
 
 egoboo_config_t  cfg;
 
-static Uint8            cfg_turn_mode = CAM_TURN_AUTO;
-static bool_t           cfg_fpson        = btrue;
-
-// number of particles
-static size_t           cfg_maxparticles = 512;
-static bool_t           cfg_maxparticles_dirty = btrue;
-
-// messages
-static bool_t           cfg_messageon  = btrue;
-static int              cfg_maxmessage = MAX_MESSAGE;
-
-static int              cfg_wraptolerance = 80;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 static void egoboo_config_init( egoboo_config_t * pcfg );
 
-static bool_t setup_download( egoboo_config_t * pcfg );
-static bool_t setup_upload( egoboo_config_t * pcfg );
-static bool_t config_download_raw( egoboo_config_t * pcfg );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
-static bool_t config_download_raw( egoboo_config_t * pcfg );
-static bool_t config_upload_raw( egoboo_config_t * pcfg );
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+/// download the data from the egoboo_config_t data structure to program
+/// @note this function must be implemented by the user
+    extern bool_t config_download( egoboo_config_t * pcfg );
+
+/// convert program settings to an egoboo_config_t data structure
+/// @note this function must be implemented by the user
+    extern bool_t config_upload( egoboo_config_t * pcfg );
+
+#if defined(__cplusplus)
+}
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void egoboo_config_init( egoboo_config_t * pcfg )
 {
-    BLANK_STRUCT( cfg_default )
+    BLANK_STRUCT( cfg_default );
 
-        // {GRAPHIC}
-        pcfg->fullscreen_req        = bfalse;        // Start in fullscreen?
+    // {GRAPHIC}
+    pcfg->fullscreen_req        = bfalse;        // Start in fullscreen?
     pcfg->scrd_req              = 24;                 // Screen bit depth
     pcfg->scrz_req              = 8;                // Screen z-buffer depth ( 8 unsupported )
     pcfg->scrx_req              = 640;               // Screen X size
@@ -177,13 +178,42 @@ void egoboo_config_init( egoboo_config_t * pcfg )
     pcfg->hide_mouse        = btrue;
     pcfg->dev_mode          = bfalse;
     pcfg->sdl_image_allowed = btrue;    // Allow advanced SDL_Image functions?
+
+    // other values
+    pcfg->messageon_req     = ( pcfg->message_count_req > 0 );  // make it consistent with the default
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t setup_quit()
+bool_t setup_begin()
 {
-    return ConfigFile_succeed == ConfigFile_destroy( &lConfigSetup );
+    if ( _setup_started ) return btrue;
+
+    // set the default Egoboo values
+    egoboo_config_init( &cfg_default );
+
+    // Read the local setup.txt
+    if ( fs_ensureUserFile( "setup.txt", btrue ) )
+    {
+        snprintf( _config_filename, SDL_arraysize( _config_filename ), "%s" SLASH_STR "setup.txt", fs_getUserDirectory() );
+
+        // do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
+        // linux if the directory is read-only
+        _lpConfigSetup = ConfigFile_Load( _config_filename, bfalse );
+    }
+
+    if ( NULL != _lpConfigSetup )
+    {
+        _setup_started = btrue;
+    }
+
+    return _setup_started;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t setup_end()
+{
+    return ConfigFile_succeed == ConfigFile_destroy( &_lpConfigSetup );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -191,16 +221,10 @@ bool_t setup_read_vfs()
 {
     /// @details BB@> read the setup file
 
-    // Read the local setup.txt
-    fs_ensureUserFile( "setup.txt", btrue );
-    snprintf( _config_filename, SDL_arraysize( _config_filename ), "%s" SLASH_STR "setup.txt", fs_getUserDirectory() );
-
-    // do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
-    // linux if the directory is read-only
-    lConfigSetup = ConfigFile_Load( _config_filename, bfalse );
+    if ( !setup_begin() ) return bfalse;
 
     //Did something go wrong?
-    if ( NULL == lConfigSetup )
+    if ( NULL == _lpConfigSetup )
     {
         log_error( "Could not load setup settings: \"%s\"\n", _config_filename );
         return bfalse;
@@ -211,16 +235,16 @@ bool_t setup_read_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_write()
+bool_t setup_write_vfs()
 {
     /// @details BB@> save the current setup file
 
     ConfigFile_retval retval  = ConfigFile_fail;
     bool_t            success = bfalse;
 
-    if ( INVALID_CSTR( _config_filename ) ) return bfalse;
+    if ( !setup_begin() ) return bfalse;
 
-    retval = ConfigFile_SaveAs( lConfigSetup, _config_filename );
+    retval = ConfigFile_SaveAs( _lpConfigSetup, _config_filename );
 
     success = bfalse;
     if ( ConfigFile_succeed != retval )
@@ -247,10 +271,7 @@ bool_t setup_download( egoboo_config_t * pcfg )
     Sint32 lTempInt;
     STRING lTempStr;
 
-    if ( NULL == lConfigSetup || NULL == pcfg ) return bfalse;
-
-    // set the default Egoboo values
-    egoboo_config_init( &cfg_default );
+    if ( NULL == _lpConfigSetup || NULL == pcfg ) return bfalse;
 
     //*********************************************
     //* GRAPHIC Section
@@ -441,7 +462,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     /// @details BB@> upload game variables into the ConfigFile_t keys
 
     const char  *lCurSectionName;
-    if ( NULL == lConfigSetup || NULL == pcfg ) return bfalse;
+    if ( NULL == _lpConfigSetup || NULL == pcfg ) return bfalse;
 
     //*********************************************
     //* GRAPHIC Section
@@ -507,15 +528,15 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Do we do texture filtering?
     switch ( pcfg->texturefilter_req )
     {
-    case TX_UNFILTERED:  SetKey_string( "TEXTURE_FILTERING", "UNFILTERED" ); break;
-    case TX_MIPMAP:      SetKey_string( "TEXTURE_FILTERING", "MIPMAP" ); break;
-    case TX_BILINEAR:    SetKey_string( "TEXTURE_FILTERING", "BILINEAR" ); break;
-    case TX_TRILINEAR_1: SetKey_string( "TEXTURE_FILTERING", "TRILINEAR" ); break;
-    case TX_TRILINEAR_2: SetKey_string( "TEXTURE_FILTERING", "2_TRILINEAR" ); break;
-    case TX_ANISOTROPIC: SetKey_string( "TEXTURE_FILTERING", "ANISOTROPIC" ); break;
+        case TX_UNFILTERED:  SetKey_string( "TEXTURE_FILTERING", "UNFILTERED" ); break;
+        case TX_MIPMAP:      SetKey_string( "TEXTURE_FILTERING", "MIPMAP" ); break;
+        case TX_BILINEAR:    SetKey_string( "TEXTURE_FILTERING", "BILINEAR" ); break;
+        case TX_TRILINEAR_1: SetKey_string( "TEXTURE_FILTERING", "TRILINEAR" ); break;
+        case TX_TRILINEAR_2: SetKey_string( "TEXTURE_FILTERING", "2_TRILINEAR" ); break;
+        case TX_ANISOTROPIC: SetKey_string( "TEXTURE_FILTERING", "ANISOTROPIC" ); break;
 
-    default:
-    case TX_LINEAR:      SetKey_string( "TEXTURE_FILTERING", "LINEAR" ); break;
+        default:
+        case TX_LINEAR:      SetKey_string( "TEXTURE_FILTERING", "LINEAR" ); break;
     }
 
     // Max number of lights
@@ -566,11 +587,11 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Save diffculty mode
     switch ( pcfg->difficulty )
     {
-    case GAME_EASY:         SetKey_string( "DIFFICULTY_MODE", "EASY" ); break;
-    case GAME_HARD:         SetKey_string( "DIFFICULTY_MODE", "HARD" ); break;
+        case GAME_EASY:         SetKey_string( "DIFFICULTY_MODE", "EASY" ); break;
+        case GAME_HARD:         SetKey_string( "DIFFICULTY_MODE", "HARD" ); break;
 
-    default:
-    case GAME_NORMAL:       SetKey_string( "DIFFICULTY_MODE", "NORMAL" ); break;
+        default:
+        case GAME_NORMAL:       SetKey_string( "DIFFICULTY_MODE", "NORMAL" ); break;
     }
 
     // Feedback type
@@ -579,15 +600,15 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Camera control mode
     switch ( pcfg->autoturncamera )
     {
-    case CAM_TURN_NONE:  SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
-    case CAM_TURN_GOOD:  SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
+        case CAM_TURN_NONE:  SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
+        case CAM_TURN_GOOD:  SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
 
-    default:
-    case CAM_TURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", btrue );  break;
+        default:
+        case CAM_TURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", btrue );  break;
     }
 
     // Max number of messages displayed
-    SetKey_int( "MAX_TEXT_MESSAGE", cfg_messageon ? pcfg->message_count_req : 0 );
+    SetKey_int( "MAX_TEXT_MESSAGE", !pcfg->messageon_req ? 0 : CLIP( pcfg->message_count_req, 1, MAX_MESSAGE ) );
 
     // Max number of messages displayed
     SetKey_int( "MESSAGE_DURATION", pcfg->message_duration );
@@ -631,102 +652,17 @@ bool_t setup_upload( egoboo_config_t * pcfg )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t config_download( egoboo_config_t * pcfg )
-{
-    bool_t rv;
-
-    // convert the setup file to config values
-    rv = setup_download( pcfg );
-    if( !rv ) return bfalse;
-
-    cfg_wraptolerance = pcfg->show_stats ? 90 : 32;
-    cfg_maxparticles  = CLIP( pcfg->particle_count_req, 0, MAX_PRT );
-
-    cfg_messageon  = ( pcfg->message_count_req > 0 );
-    cfg_maxmessage = CLIP( pcfg->message_count_req, 1, MAX_MESSAGE );
-
-    cfg_fpson = pcfg->fps_allowed;
-
-    rv = config_download_raw( pcfg );
-
-    return rv;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t config_upload( egoboo_config_t * pcfg )
-{
-    config_upload_raw( pcfg );
-
-    // convert the config values to a setup file
-    return setup_upload( pcfg );
-}
-
-//--------------------------------------------------------------------------------------------
 bool_t config_synch( egoboo_config_t * pcfg )
 {
-    return config_download_raw( pcfg );
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t config_upload_raw( egoboo_config_t * pcfg )
-{
-    if ( NULL == pcfg ) return bfalse;
-
-    cfg_turn_mode = cam_options.turn_mode;
-    cfg_fpson = fpson;
-
-    // number of particles
-    if( maxparticles != cfg_maxparticles )
+    if ( !config_download( pcfg ) )
     {
-        cfg_maxparticles = maxparticles;
-        cfg_maxparticles_dirty = btrue;
+        return bfalse;
     }
 
-    // messages
-    cfg_messageon = messageon;
-    cfg_maxmessage = maxmessage;
-
-    cfg_wraptolerance = wraptolerance;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t config_download_raw( egoboo_config_t * pcfg )
-{
-    if ( NULL == pcfg ) return bfalse;
-
-    // status display
-    StatusList.on = pcfg->show_stats;
-
-    // fps display
-    fpson = cfg_fpson;
-
-    // message display
-    messageon = cfg_messageon;
-    maxmessage = cfg_maxmessage;
-    wraptolerance = cfg_wraptolerance;
-
-    // Get the particle limit
-    // if the particle limit has changed, make sure to make not of it
-    // number of particles
-    if( maxparticles != cfg_maxparticles )
+    if ( !config_upload( pcfg ) )
     {
-        maxparticles = cfg_maxparticles;
-        maxparticles_dirty = btrue;
+        return bfalse;
     }
-
-    // camera options
-    cam_options.turn_mode = cfg_turn_mode;
-
-    // sound options
-    sound_system_config_synch( &snd, pcfg );
-
-    // renderer options
-    gfx_synch_config( &gfx, pcfg );
-
-    // texture options
-    gfx_synch_oglx_texture_parameters( &tex_params, pcfg );
 
     return btrue;
 }

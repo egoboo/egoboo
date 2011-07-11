@@ -82,7 +82,7 @@ void sys_fs_init( const char * root_dir )
     PathRemoveFileSpec( win32_binaryPath );
 
     // if the root_path is not defined, let the use the starting directory
-    if( INVALID_CSTR(root_dir) )
+    if ( INVALID_CSTR( root_dir ) )
     {
         // Last, try and determine where the game data is.  First, try the working
         // directory.  If it's not there, try the directory where the executable
@@ -91,14 +91,14 @@ void sys_fs_init( const char * root_dir )
     }
     else
     {
-        strncpy( currentPath, root_dir, SDL_arraysize(currentPath) );
+        strncpy( currentPath, root_dir, SDL_arraysize( currentPath ) );
     }
 
     // try to find the basicdat directory in the current directory
     win32_dataPath[0] = CSTR_END;
     snprintf( basicdatPath, MAX_PATH, "%s" SLASH_STR "basicdat", currentPath, MAX_PATH );
     attrib = GetFileAttributes( basicdatPath );
-    if( HAS_ATTRIBS( FILE_ATTRIBUTE_DIRECTORY, attrib ) )
+    if ( HAS_ATTRIBS( FILE_ATTRIBUTE_DIRECTORY, attrib ) )
     {
         strncpy( win32_dataPath, currentPath, MAX_PATH );
     }
@@ -107,7 +107,7 @@ void sys_fs_init( const char * root_dir )
         // look in the binary directory
         snprintf( basicdatPath, MAX_PATH, "%s" SLASH_STR "basicdat", win32_binaryPath, MAX_PATH );
         attrib = GetFileAttributes( basicdatPath );
-        if( HAS_ATTRIBS( FILE_ATTRIBUTE_DIRECTORY, attrib ) )
+        if ( HAS_ATTRIBS( FILE_ATTRIBUTE_DIRECTORY, attrib ) )
         {
             strncpy( win32_dataPath, win32_binaryPath, MAX_PATH );
         }
@@ -159,7 +159,7 @@ int fs_fileIsDirectory( const char *filename )
     // Returns 1 if this filename is a directory
     DWORD fileAttrs;
 
-    if ( INVALID_CSTR(filename) ) return bfalse;
+    if ( INVALID_CSTR( filename ) ) return bfalse;
 
     fileAttrs = GetFileAttributes( filename );
 
@@ -170,7 +170,7 @@ int fs_fileIsDirectory( const char *filename )
 // Had to revert back to prog x code to prevent import/skin bug
 int fs_createDirectory( const char *dirname )
 {
-    if( INVALID_CSTR(dirname) ) return FALSE;
+    if ( INVALID_CSTR( dirname ) ) return FALSE;
 
     return ( 0 != CreateDirectory( dirname, NULL ) );
 }
@@ -178,7 +178,7 @@ int fs_createDirectory( const char *dirname )
 //--------------------------------------------------------------------------------------------
 int fs_removeDirectory( const char *dirname )
 {
-    if( INVALID_CSTR(dirname) ) return FALSE;
+    if ( INVALID_CSTR( dirname ) ) return FALSE;
 
     return ( 0 != RemoveDirectory( dirname ) );
 }
@@ -188,7 +188,7 @@ void fs_deleteFile( const char *filename )
 {
     /// @details ZZ@> This function deletes a file
 
-    if( VALID_CSTR(filename) )   
+    if ( VALID_CSTR( filename ) )
     {
         DeleteFile( filename );
     }
@@ -197,7 +197,7 @@ void fs_deleteFile( const char *filename )
 //--------------------------------------------------------------------------------------------
 bool_t fs_copyFile( const char *source, const char *dest )
 {
-    if( INVALID_CSTR(source) || INVALID_CSTR(dest) ) return bfalse;
+    if ( INVALID_CSTR( source ) || INVALID_CSTR( dest ) ) return bfalse;
 
     return ( TRUE == CopyFile( source, dest, bfalse ) );
 }

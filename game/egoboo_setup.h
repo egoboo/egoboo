@@ -123,6 +123,8 @@ extern "C"
         bool_t                  dev_mode;
         bool_t                  sdl_image_allowed;       ///< Allow advanced SDL_Image functions?
 
+        // other values
+        bool_t                  messageon_req;
     };
 
 //--------------------------------------------------------------------------------------------
@@ -134,12 +136,25 @@ extern "C"
 // EXTERNAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    bool_t setup_read_vfs( void );
-    bool_t setup_write( void );
-    bool_t setup_quit( void );
+    /// begin the setup module
+    extern bool_t setup_begin( void );
 
-    bool_t config_download( egoboo_config_t * pcfg );
-    bool_t config_upload( egoboo_config_t * pcfg );
+    /// end the setup module
+    extern bool_t setup_end( void );
+
+    /// Read the "setup.txt" file
+    extern bool_t setup_read_vfs( void );
+
+    /// Write the "setup.txt" file
+    bool_t setup_write_vfs( void );
+
+    /// download the data in "setup.txt" to an egoboo_config_t data structure
+    bool_t setup_download( egoboo_config_t * pcfg );
+
+    /// upload the data in an egoboo_config_t data structure to "setup.txt"
+    bool_t setup_upload( egoboo_config_t * pcfg );
+
+    /// ensure that the program, egoboo_config_t data structure, and "setup.txt" all agree
     bool_t config_synch( egoboo_config_t * pcfg );
 
 //--------------------------------------------------------------------------------------------

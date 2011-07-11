@@ -935,7 +935,7 @@ bool_t gfx_set_virtual_screen( gfx_config_t * pgfx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_synch_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
+bool_t gfx_download_from_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
 {
     // call gfx_config_init(), even if the config data is invalid
     if ( !gfx_config_init( pgfx ) ) return bfalse;
@@ -999,7 +999,7 @@ bool_t gfx_config_init( gfx_config_t * pgfx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_synch_oglx_texture_parameters( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg )
+bool_t oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg )
 {
     //// @details BB@> synch the texture parameters with the video mode
 

@@ -199,7 +199,6 @@ EXTERN bool_t single_frame_keyready EQ( btrue );
 EXTERN bool_t single_frame_requested EQ( bfalse );
 EXTERN bool_t single_update_requested EQ( bfalse );
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

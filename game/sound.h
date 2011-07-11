@@ -160,7 +160,7 @@ void    sound_stop_song( void );
 void    sound_load_global_waves_vfs( void );
 void    sound_load_all_music_sounds_vfs( void );
 
-bool_t sound_system_config_synch( snd_config_t * psnd, struct s_egoboo_config * pcfg );
+bool_t sound_system_download_from_config( snd_config_t * psnd, struct s_egoboo_config * pcfg );
 
 bool_t looped_stop_object_sounds( const CHR_REF  ichr );
 void   looped_update_all_sound( void );

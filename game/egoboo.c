@@ -79,6 +79,19 @@ static ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char *
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+    extern bool_t config_download( egoboo_config_t * pcfg );
+    extern bool_t config_upload( egoboo_config_t * pcfg );
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static ClockState_t    * _gclock = NULL;
 static ego_process_t     _eproc;
 
@@ -140,7 +153,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // synchronize the config values with the various game subsystems
     // do this acter the ego_init_SDL() and ogl_init() in case the config values are clamped
     // to valid values
-    config_synch( &cfg );
+    config_download( &cfg );
 
     // initialize the sound system
     sound_system_initialize();
@@ -525,9 +538,8 @@ void memory_cleanUp( void )
     config_synch( &cfg );
 
     // quit the setup system, making sure that the setup file is written
-    config_upload( &cfg );
-    setup_write();
-    setup_quit();
+    setup_write_vfs();
+    setup_end();
 
     // delete all the graphics allocated by SDL and OpenGL
     delete_all_graphics();
@@ -774,4 +786,69 @@ Uint32 egoboo_get_ticks( void )
     }
 
     return ticks;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t config_download( egoboo_config_t * pcfg )
+{
+    int tmp_maxparticles;
+    bool_t rv;
+
+    rv = setup_download( pcfg );
+    if ( !rv ) return bfalse;
+
+    // status display
+    StatusList.on = pcfg->show_stats;
+
+    // fps display
+    fpson = pcfg->fps_allowed;
+
+    // message display
+    maxmessage    = CLIP( pcfg->message_count_req, 1, MAX_MESSAGE );
+    messageon     = pcfg->message_count_req > 0;
+    wraptolerance = pcfg->show_stats ? 90 : 32;
+
+    // Get the particle limit
+    // if the particle limit has changed, make sure to make not of it
+    // number of particles
+    tmp_maxparticles = CLIP( pcfg->particle_count_req, 0, MAX_PRT );
+    if ( maxparticles != tmp_maxparticles )
+    {
+        maxparticles = tmp_maxparticles;
+        maxparticles_dirty = btrue;
+    }
+
+    // camera options
+    cam_options.turn_mode = pcfg->autoturncamera;
+
+    // sound options
+    sound_system_download_from_config( &snd, pcfg );
+
+    // renderer options
+    gfx_download_from_config( &gfx, pcfg );
+
+    // texture options
+    oglx_texture_parameters_download_gfx( &tex_params, pcfg );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t config_upload( egoboo_config_t * pcfg )
+{
+    if ( NULL == pcfg ) return bfalse;
+
+    pcfg->autoturncamera = cam_options.turn_mode;
+    pcfg->fps_allowed    = fpson;
+
+    // number of particles
+    pcfg->particle_count_req = CLIP( maxparticles, 0, MAX_PRT );
+
+    // messages
+    pcfg->messageon_req     = messageon;
+    pcfg->message_count_req = !messageon ? 0 : MAX( 1, MAX_MESSAGE );
+
+    // convert the config values to a setup file
+    return setup_upload( pcfg );
 }

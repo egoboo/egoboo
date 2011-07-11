@@ -2980,8 +2980,7 @@ int doGameOptions( float deltaTime )
                 config_synch( &cfg );
 
                 // save the setup file
-                config_upload( &cfg );
-                setup_write();
+                setup_write_vfs();
 
                 menuState = MM_Leaving;
             }
@@ -3208,8 +3207,7 @@ int doAudioOptions( float deltaTime )
                 config_synch( &cfg );
 
                 // save the setup file
-                config_upload( &cfg );
-                setup_write();
+                setup_write_vfs();
 
                 // Reload the sound system
                 sound_system_restart();
@@ -4006,8 +4004,7 @@ int doVideoOptions( float deltaTime )
                 config_synch( &cfg );
 
                 // save the setup file
-                config_upload( &cfg );
-                setup_write();
+                setup_write_vfs();
 
                 // Reload some of the graphics
                 load_graphics();

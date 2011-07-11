@@ -380,7 +380,7 @@ bool_t sound_system_config_init( snd_config_t * psnd )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t sound_system_config_synch( snd_config_t * psnd, egoboo_config_t * pcfg )
+bool_t sound_system_download_from_config( snd_config_t * psnd, egoboo_config_t * pcfg )
 {
     if ( NULL == psnd && NULL == pcfg ) return bfalse;
 
@@ -641,7 +641,7 @@ int sound_play_chunk_looped( const fvec3_base_t pos, const Mix_Chunk * pchunk, c
     if ( volume > 0 )
     {
         // play the sound
-        channel = Mix_PlayChannel( -1, (Mix_Chunk *)pchunk, loops );
+        channel = Mix_PlayChannel( -1, ( Mix_Chunk * )pchunk, loops );
 
         if ( INVALID_SOUND_CHANNEL == channel )
         {
