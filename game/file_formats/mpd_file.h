@@ -51,18 +51,18 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// mesh constants
-#define MPD_ID                    0x4470614d                   ///< The string... MapD
-#define MPD_VERTICES_MAX          (1024*100)
-#define MPD_TILEY_MAX             1024                       ///< Max tiles in y direction
-#define MPD_TILE_MAX              (512*512)                  ///< Terrain mesh size
-
 // fan constants
 #define MPD_FAN_VERTICES_MAX      16                         ///< Fansquare vertices
 #define MPD_FAN_TYPE_MAX          64                         ///< Number of fansquare command types
 #define MPD_FAN_MAX               4                          ///< Draw up to 4 fans
 #define MPD_FAN_ENTRIES_MAX       32                         ///< Fansquare command list size
 #define MPD_FAN_SIZE_MAX          32                         ///< Max trigs in each command
+
+// mesh constants
+#define MPD_ID                    0x4470614d                   ///< The string... MapD
+#define MPD_TILEY_MAX             1024                       ///< Max tiles in y direction
+#define MPD_TILE_MAX              (512*512)                  ///< Terrain mesh size
+#define MPD_VERTICES_MAX          (MPD_TILE_MAX*MPD_FAN_VERTICES_MAX)
 
 // tile constants
 #define MPD_TILE_TYPE_MAX         256                        ///< Max number of tile images
@@ -179,10 +179,13 @@ extern "C"
 
 /// the raw mpd loader
     mpd_t *      mpd_load( const char *modname, mpd_t * pmesh );
+    mpd_t *      mpd_save( const char *modname, mpd_t * pmesh );
 
     mpd_t *      mpd_ctor( mpd_t * pmesh );
     mpd_t *      mpd_dtor( mpd_t * pmesh );
+    mpd_t *      mpd_renew( mpd_t * pmesh );
     bool_t       mpd_free( mpd_t * pmesh );
+    bool_t       mpd_init( mpd_t * pmesh, mpd_info_t * pinfo );
 
     void tile_dictionary_load_vfs( const char * filename, tile_definition_t dict[], size_t dict_size );
 

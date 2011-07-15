@@ -1133,7 +1133,7 @@ int vfs_read_Sint16( vfs_FILE * pfile, Sint16 * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_INT16( itmp );
+        *val = ENDIAN_TO_SYS_INT16( itmp );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -1165,7 +1165,7 @@ int vfs_read_Uint16( vfs_FILE * pfile, Uint16 * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_INT16( itmp );
+        *val = ENDIAN_TO_SYS_INT16( itmp );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -1197,7 +1197,7 @@ int vfs_read_Sint32( vfs_FILE * pfile, Sint32 * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_INT32( itmp );
+        *val = ENDIAN_TO_SYS_INT32( itmp );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -1229,7 +1229,7 @@ int vfs_read_Uint32( vfs_FILE * pfile, Uint32 * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_INT32( itmp );
+        *val = ENDIAN_TO_SYS_INT32( itmp );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -1261,7 +1261,7 @@ int vfs_read_Sint64( vfs_FILE * pfile, Sint64 * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_INT64( itmp );
+        *val = ENDIAN_TO_SYS_INT64( itmp );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -1293,7 +1293,7 @@ int vfs_read_Uint64( vfs_FILE * pfile, Uint64 * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_INT64( itmp );
+        *val = ENDIAN_TO_SYS_INT64( itmp );
     }
     else if ( vfs_physfs == pfile->type )
     {
@@ -1325,7 +1325,7 @@ int vfs_read_float( vfs_FILE * pfile, float * val )
 
         error = ( 1 != retval );
 
-        *val = ENDIAN_FLOAT( ftmp );
+        *val = ENDIAN_TO_SYS_IEEE32( ftmp );
     }
     else if ( vfs_physfs == pfile->type )
     {

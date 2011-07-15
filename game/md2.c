@@ -319,23 +319,23 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
     fread( &md2_header, sizeof( md2_header ), 1, f );
 
     // Convert the byte ordering in the md2_header, if we need to
-    md2_header.ident            = ENDIAN_INT32( md2_header.ident );
-    md2_header.version          = ENDIAN_INT32( md2_header.version );
-    md2_header.skinwidth        = ENDIAN_INT32( md2_header.skinwidth );
-    md2_header.skinheight       = ENDIAN_INT32( md2_header.skinheight );
-    md2_header.framesize        = ENDIAN_INT32( md2_header.framesize );
-    md2_header.num_skins        = ENDIAN_INT32( md2_header.num_skins );
-    md2_header.num_vertices     = ENDIAN_INT32( md2_header.num_vertices );
-    md2_header.num_st           = ENDIAN_INT32( md2_header.num_st );
-    md2_header.num_tris         = ENDIAN_INT32( md2_header.num_tris );
-    md2_header.size_glcmds      = ENDIAN_INT32( md2_header.size_glcmds );
-    md2_header.num_frames       = ENDIAN_INT32( md2_header.num_frames );
-    md2_header.offset_skins     = ENDIAN_INT32( md2_header.offset_skins );
-    md2_header.offset_st        = ENDIAN_INT32( md2_header.offset_st );
-    md2_header.offset_tris      = ENDIAN_INT32( md2_header.offset_tris );
-    md2_header.offset_frames    = ENDIAN_INT32( md2_header.offset_frames );
-    md2_header.offset_glcmds    = ENDIAN_INT32( md2_header.offset_glcmds );
-    md2_header.offset_end       = ENDIAN_INT32( md2_header.offset_end );
+    md2_header.ident            = ENDIAN_TO_SYS_INT32( md2_header.ident );
+    md2_header.version          = ENDIAN_TO_SYS_INT32( md2_header.version );
+    md2_header.skinwidth        = ENDIAN_TO_SYS_INT32( md2_header.skinwidth );
+    md2_header.skinheight       = ENDIAN_TO_SYS_INT32( md2_header.skinheight );
+    md2_header.framesize        = ENDIAN_TO_SYS_INT32( md2_header.framesize );
+    md2_header.num_skins        = ENDIAN_TO_SYS_INT32( md2_header.num_skins );
+    md2_header.num_vertices     = ENDIAN_TO_SYS_INT32( md2_header.num_vertices );
+    md2_header.num_st           = ENDIAN_TO_SYS_INT32( md2_header.num_st );
+    md2_header.num_tris         = ENDIAN_TO_SYS_INT32( md2_header.num_tris );
+    md2_header.size_glcmds      = ENDIAN_TO_SYS_INT32( md2_header.size_glcmds );
+    md2_header.num_frames       = ENDIAN_TO_SYS_INT32( md2_header.num_frames );
+    md2_header.offset_skins     = ENDIAN_TO_SYS_INT32( md2_header.offset_skins );
+    md2_header.offset_st        = ENDIAN_TO_SYS_INT32( md2_header.offset_st );
+    md2_header.offset_tris      = ENDIAN_TO_SYS_INT32( md2_header.offset_tris );
+    md2_header.offset_frames    = ENDIAN_TO_SYS_INT32( md2_header.offset_frames );
+    md2_header.offset_glcmds    = ENDIAN_TO_SYS_INT32( md2_header.offset_glcmds );
+    md2_header.offset_end       = ENDIAN_TO_SYS_INT32( md2_header.offset_end );
 
     if ( md2_header.ident != MD2_MAGIC_NUMBER || md2_header.version != MD2_VERSION )
     {
@@ -376,8 +376,8 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
         fread( &tc, sizeof( tc ), 1, f );
 
         // auto-convert the byte ordering of the texture coordinates
-        tc.s = ENDIAN_INT16( tc.s );
-        tc.t = ENDIAN_INT16( tc.t );
+        tc.s = ENDIAN_TO_SYS_INT16( tc.s );
+        tc.t = ENDIAN_TO_SYS_INT16( tc.t );
 
         model->m_texCoords[i].tex.s = tc.s / ( float )md2_header.skinwidth;
         model->m_texCoords[i].tex.t = tc.t / ( float )md2_header.skinheight;
@@ -393,8 +393,8 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
     {
         for ( v = 0; v < 3; v++ )
         {
-            model->m_triangles[i].vertex[v] = ENDIAN_INT16( model->m_triangles[i].vertex[v] );
-            model->m_triangles[i].st[v]     = ENDIAN_INT16( model->m_triangles[i].st[v] );
+            model->m_triangles[i].vertex[v] = ENDIAN_TO_SYS_INT16( model->m_triangles[i].vertex[v] );
+            model->m_triangles[i].st[v]     = ENDIAN_TO_SYS_INT16( model->m_triangles[i].st[v] );
         }
     }
 
@@ -413,13 +413,13 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
 
         // Convert the byte ordering on the scale & translate vectors, if necessary
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
-        frame_header.scale[0]     = ENDIAN_FLOAT( frame_header.scale[0] );
-        frame_header.scale[1]     = ENDIAN_FLOAT( frame_header.scale[1] );
-        frame_header.scale[2]     = ENDIAN_FLOAT( frame_header.scale[2] );
+        frame_header.scale[0]     = ENDIAN_TO_SYS_FLOAT( frame_header.scale[0] );
+        frame_header.scale[1]     = ENDIAN_TO_SYS_FLOAT( frame_header.scale[1] );
+        frame_header.scale[2]     = ENDIAN_TO_SYS_FLOAT( frame_header.scale[2] );
 
-        frame_header.translate[0] = ENDIAN_FLOAT( frame_header.translate[0] );
-        frame_header.translate[1] = ENDIAN_FLOAT( frame_header.translate[1] );
-        frame_header.translate[2] = ENDIAN_FLOAT( frame_header.translate[2] );
+        frame_header.translate[0] = ENDIAN_TO_SYS_FLOAT( frame_header.translate[0] );
+        frame_header.translate[1] = ENDIAN_TO_SYS_FLOAT( frame_header.translate[1] );
+        frame_header.translate[2] = ENDIAN_TO_SYS_FLOAT( frame_header.translate[2] );
 #endif
 
         // unpack the md2 vertex_lst from this frame
@@ -486,7 +486,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
             cmd_size += sizeof( Sint32 ) / sizeof( Uint32 );
 
             // auto-convert the byte ordering
-            commands = ENDIAN_INT32( commands );
+            commands = ENDIAN_TO_SYS_INT32( commands );
 
             if ( 0 == commands || cmd_size == md2_header.size_glcmds ) break;
 
@@ -518,8 +518,8 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
                 for ( i = 0; i < cmd->command_count; i++ )
                 {
                     cmd->data[i].index = SDL_swap32( cmd->data[i].s );
-                    cmd->data[i].s     = ENDIAN_FLOAT( cmd->data[i].s );
-                    cmd->data[i].t     = ENDIAN_FLOAT( cmd->data[i].t );
+                    cmd->data[i].s     = ENDIAN_TO_SYS_FLOAT( cmd->data[i].s );
+                    cmd->data[i].t     = ENDIAN_TO_SYS_FLOAT( cmd->data[i].t );
                 };
             }
 #endif
