@@ -54,11 +54,13 @@ struct s_Font
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static int fnt_print_raw_SDL( TTF_Font *font, SDL_Color fnt_color, const char * szText, SDL_Surface ** ppTmpSurface );
-static int fnt_drawText_raw_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, const char *text, SDL_Surface ** ppDstSurface );
-static void fnt_streamText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, int spacing, const char *text, SDL_Surface ** ppTmpSurface );
+static int  fnt_vprintf_SDL( TTF_Font *font, SDL_Color fnt_color, const char *format, va_list args, SDL_Surface ** ppTmpSurface );
+static int  fnt_print_raw_SDL( TTF_Font *font, SDL_Color fnt_color, const char * szText, SDL_Surface ** ppTmpSurface );
+static int  fnt_drawText_raw_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, const char *text, SDL_Surface * pDstSurface, SDL_Surface ** ppTmpSurface );
+static void fnt_streamText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, int spacing, const char *text );
 
-static int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText );
+static int  fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, const char *format, va_list args, SDL_Surface ** ppTmpSurface );
+static int  fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText, SDL_Surface ** ppTmpSurface );
 static void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, int x, int y, const char *text, SDL_Surface ** ppTmpSurface );
 static void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, int x, int y, int spacing, const char *text, SDL_Surface ** ppTmpSurface );
 
@@ -215,38 +217,49 @@ int fnt_vprintf_SDL( TTF_Font *font, SDL_Color fnt_color, const char *format, va
 }
 
 //--------------------------------------------------------------------------------------------
-int fnt_drawText_raw_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, const char *text, SDL_Surface ** ppDstSurface )
+int fnt_drawText_raw_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, const char *text, SDL_Surface * pDstSurface, SDL_Surface ** ppSrcSurface )
 {
     int rv;
 
-    // an temporary surface that must be deleted
-    SDL_Surface *pSrcSurface = NULL;
-    SDL_Surface **ppSrcSurface = &pSrcSurface;
+    bool_t       sdl_surf_external;
+    SDL_Surface * loc_pSrcSurface = NULL;
+    SDL_Surface **loc_ppSrcSurface = NULL;
 
-    rv = fnt_print_raw_SDL( font, fnt_color, text, ppSrcSurface );
+    if ( NULL != ppSrcSurface )
+    {
+        sdl_surf_external = btrue;
+        loc_ppSrcSurface = ppSrcSurface;
+    }
+    else
+    {
+        sdl_surf_external = bfalse;
+        loc_ppSrcSurface = &loc_pSrcSurface;
+    }
+
+    rv = fnt_print_raw_SDL( font, fnt_color, text, loc_ppSrcSurface );
     if ( rv < 0 ) return -1;
 
     rv = -1;
-    if ( NULL != ppSrcSurface && NULL != *ppSrcSurface )
+    if ( NULL != loc_ppSrcSurface && NULL != *loc_ppSrcSurface )
     {
         SDL_Rect rtmp;
 
         rtmp.x = x;
         rtmp.y = y;
-        rtmp.w = ( *ppSrcSurface )->w;
-        rtmp.h = ( *ppSrcSurface )->h;
+        rtmp.w = ( *loc_ppSrcSurface )->w;
+        rtmp.h = ( *loc_ppSrcSurface )->h;
 
-        SDL_BlitSurface( *ppSrcSurface, NULL, *ppDstSurface, &rtmp );
+        SDL_BlitSurface( *loc_ppSrcSurface, NULL, pDstSurface, &rtmp );
 
         rv = 0;
     }
 
     // unless something went wrong, there is a surface for us to delete
-    if ( NULL != ppSrcSurface && NULL != *ppSrcSurface )
+    if ( !sdl_surf_external && NULL != *loc_ppSrcSurface )
     {
         // Done with the surface
-        SDL_FreeSurface( *ppSrcSurface );
-        *ppSrcSurface = NULL;
+        SDL_FreeSurface( *loc_ppSrcSurface );
+        *loc_ppSrcSurface = NULL;
     }
 
     return rv;
@@ -319,7 +332,7 @@ void fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_S
  * @var height  - Maximum height of the box (not implemented)
  * @var spacing - Amount of space to move down between lines. (usually close to your font size)
  */
-void fnt_drawTextBox_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, SDL_Surface ** ppTmpSurface, const char *format, ... )
+void fnt_drawTextBox_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, const char *format, ... )
 {
     va_list args;
     int rv;
@@ -332,23 +345,56 @@ void fnt_drawTextBox_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, int
     // some problem printing the text
     if ( rv >= 0 )
     {
-        fnt_streamText_SDL( font, fnt_color, x, y, spacing, text, ppTmpSurface );
+        fnt_streamText_SDL( font, fnt_color, x, y, spacing, text );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void fnt_streamText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, int spacing, const char *text, SDL_Surface ** ppTmpSurface )
+void fnt_streamText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, int spacing, const char *text )
 {
     size_t len;
     char *buffer, *line;
 
-    bool_t       sdl_surf_external;
-    SDL_Surface * loc_pTmpSurface = NULL, **loc_ppTmpSurface = NULL;
+    // a temporary surface that font is going to be drawn into
+    SDL_Surface * loc_pDstSurface = NULL;
+    SDL_Surface **loc_ppDstSurface = &loc_pDstSurface;
 
     if ( NULL == font ) return;
 
     // If text is empty, there's nothing to draw
     if ( NULL == text || '\0' == text[0] ) return;
+
+    // Split the passed in text into separate lines
+    len = strlen( text );
+    buffer = EGOBOO_NEW_ARY( char, len + 1 );
+    strncpy( buffer, text, len );
+
+    for ( line = strtok( buffer, "\n" ); NULL != line; line = strtok( NULL, "\n" ) )
+    {
+        fnt_drawText_raw_SDL( font, fnt_color, x, y, line, *loc_ppDstSurface, NULL );
+        y += spacing;
+    }
+
+    EGOBOO_DELETE_ARY( buffer );
+
+    // unless something went wrong, there is a surface for us to delete
+    if ( NULL != loc_ppDstSurface && NULL != *loc_ppDstSurface )
+    {
+        // Done with the surface
+        SDL_FreeSurface( *loc_ppDstSurface );
+        *loc_ppDstSurface = NULL;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText, SDL_Surface ** ppTmpSurface )
+{
+    int rv, print_rv, upload_rv;
+
+    bool_t       sdl_surf_external;
+    SDL_Surface *loc_pSurface = NULL;
+    SDL_Surface **loc_ppTmpSurface = NULL;
 
     if ( NULL != ppTmpSurface )
     {
@@ -358,57 +404,27 @@ void fnt_streamText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, int
     else
     {
         sdl_surf_external = bfalse;
-        loc_ppTmpSurface = &loc_pTmpSurface;
+        loc_ppTmpSurface = &loc_pSurface;
     }
 
-    // Split the passed in text into separate lines
-    len = strlen( text );
-    buffer = EGOBOO_NEW_ARY( char, len + 1 );
-    strncpy( buffer, text, len );
+    if ( NULL == font ) return -1;
 
-    for ( line = strtok( buffer, "\n" ); NULL != line; line = strtok( NULL, "\n" ) )
+    print_rv = fnt_print_raw_SDL( font->ttfFont, fnt_color, szText, loc_ppTmpSurface );
+    if ( print_rv < 0 ) return -1;
+
+    rv = 0;
+    if ( NULL != loc_ppTmpSurface && NULL != *loc_ppTmpSurface )
     {
-        fnt_drawText_raw_SDL( font, fnt_color, x, y, line, loc_ppTmpSurface );
-        y += spacing;
+        upload_rv = SDL_GL_uploadSurface( *loc_ppTmpSurface, font->texture, font->texCoords );
+        rv = -1;
     }
 
-    EGOBOO_DELETE_ARY( buffer );
-
+    // if the surface is not external, there is a surface for us to delete (unless something went wrong)
     if ( !sdl_surf_external && NULL != *loc_ppTmpSurface )
     {
         // Done with the surface
         SDL_FreeSurface( *loc_ppTmpSurface );
         *loc_ppTmpSurface = NULL;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText )
-{
-    int rv, print_rv, upload_rv;
-
-    SDL_Surface  * pSurface  =  NULL;
-    SDL_Surface ** ppTmpSurface = &pSurface;
-
-    if ( NULL == font ) return -1;
-
-    print_rv = fnt_print_raw_SDL( font->ttfFont, fnt_color, szText, ppTmpSurface );
-    if ( print_rv < 0 ) return -1;
-
-    rv = 0;
-    if ( NULL != ppTmpSurface && NULL != *ppTmpSurface )
-    {
-        upload_rv = SDL_GL_uploadSurface( *ppTmpSurface, font->texture, font->texCoords );
-        rv = -1;
-    }
-
-    // unless something went wrong, there is a surface for us to delete
-    if ( NULL != ppTmpSurface && NULL != *ppTmpSurface )
-    {
-        // Done with the surface
-        SDL_FreeSurface( *ppTmpSurface );
-        *ppTmpSurface = NULL;
     }
 
     return rv;
@@ -424,7 +440,7 @@ int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, const char *format, va_lis
     vsnprintf_rv = vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args );
     if ( vsnprintf_rv < 0 ) return -1;
 
-    rv = fnt_print_raw_OGL( font, fnt_color, szText );
+    rv = fnt_print_raw_OGL( font, fnt_color, szText, ppTmpSurface );
 
     return rv;
 }
@@ -448,7 +464,7 @@ void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, int x, int y, const 
         loc_ppTmpSurface = &loc_pTmpSurface;
     }
 
-    rv = fnt_print_raw_OGL( font, fnt_color, text );
+    rv = fnt_print_raw_OGL( font, fnt_color, text, loc_ppTmpSurface );
     if ( rv < 0 ) goto fnt_drawText_raw_finish;
 
     // And draw the darn thing

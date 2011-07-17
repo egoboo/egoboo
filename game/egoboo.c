@@ -112,7 +112,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 {
     // initialize the virtual filesystem first
     vfs_init( NULL );
-    egoboo_setup_vfs_paths();
+    setup_init_base_vfs_paths();
 
     // Initialize logging next, so that we can use it everywhere.
     log_init( vfs_resolveWriteFilename( "/debug/log.txt" ) );
@@ -388,7 +388,7 @@ int do_ego_proc_leaving( ego_process_t * eproc )
         console_end();
         ui_end();
         gfx_system_end();
-        egoboo_clear_vfs_paths();
+        setup_clear_base_vfs_paths();
     }
 
     return eproc->base.terminated ? 0 : 1;
@@ -726,49 +726,6 @@ ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char **argv )
     eproc->argv0 = ( argc > 0 ) ? argv[0] : NULL;
 
     return eproc;
-}
-
-//--------------------------------------------------------------------------------------------
-void egoboo_clear_vfs_paths()
-{
-    /// @details BB@> clear out the basic mount points
-
-    vfs_remove_mount_point( "mp_data" );
-    vfs_remove_mount_point( "mp_modules" );
-    vfs_remove_mount_point( "mp_players" );
-    vfs_remove_mount_point( "mp_remote" );
-}
-
-//--------------------------------------------------------------------------------------------
-void egoboo_setup_vfs_paths()
-{
-    /// @details BB@> set the basic mount points used by the main program
-
-    //---- tell the vfs to add the basic search paths
-    vfs_set_base_search_paths();
-
-    //---- mount all of the default global directories
-
-    // mount the global basicdat directory t the beginning of the list
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat", "mp_data", 1 );
-
-    // Create a mount point for the /user/modules directory
-    vfs_add_mount_point( fs_getUserDirectory(), "modules", "mp_modules", 1 );
-
-    // Create a mount point for the /data/modules directory
-    vfs_add_mount_point( fs_getDataDirectory(), "modules", "mp_modules", 1 );
-
-    // Create a mount point for the /user/players directory
-    vfs_add_mount_point( fs_getUserDirectory(), "players", "mp_players", 1 );
-
-    // Create a mount point for the /data/players directory
-    //vfs_add_mount_point( fs_getDataDirectory(), "players", "mp_players", 1 );     //ZF> Let's remove the local players folder since it caused so many problems for people
-
-    // Create a mount point for the /user/remote directory
-    vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 1 );
-
-    // Create a mount point for the /user/remote directory
-    vfs_add_mount_point( fs_getUserDirectory(), "remote", "mp_remote", 1 );
 }
 
 //--------------------------------------------------------------------------------------------

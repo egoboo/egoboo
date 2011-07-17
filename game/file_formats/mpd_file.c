@@ -158,7 +158,7 @@ mpd_t * mpd_ctor( mpd_t * pmesh )
 
     BLANK_STRUCT_PTR( pmesh )
 
-        if ( NULL == mpd_mem_ctor( &( pmesh->mem ) ) ) return NULL;
+    if ( NULL == mpd_mem_ctor( &( pmesh->mem ) ) ) return NULL;
     if ( NULL == mpd_info_ctor( &( pmesh->info ) ) ) return NULL;
 
     return pmesh;
@@ -199,10 +199,10 @@ bool_t mpd_init( mpd_t * pmesh, mpd_info_t * pinfo )
 {
     mpd_info_t loc_info;
 
-    if( NULL == pmesh || NULL == pinfo ) return bfalse;
+    if ( NULL == pmesh || NULL == pinfo ) return bfalse;
 
     // make a copy of the mesh info, in case "pinfo == &(pmesh->info)"
-    memcpy( &loc_info, pinfo, sizeof(loc_info) );
+    memcpy( &loc_info, pinfo, sizeof( loc_info ) );
 
     // renew the mesh
     mpd_renew( pmesh );
@@ -222,20 +222,20 @@ bool_t mpd_init( mpd_t * pmesh, mpd_info_t * pinfo )
     }
 
     // check the total number of vertices
-    if( loc_info.vertcount >= MPD_VERTICES_MAX )
+    if ( loc_info.vertcount >= MPD_VERTICES_MAX )
     {
         log_warning( "%s - invalid mpd size. too many vertices, %d.\n", __FUNCTION__ , loc_info.vertcount );
     }
 
     // allocate the mesh memory
-    if ( !mpd_mem_alloc( &(pmesh->mem), pinfo ) )
+    if ( !mpd_mem_alloc( &( pmesh->mem ), pinfo ) )
     {
         log_warning( "%s - could not allocate memory for the mesh!!\n", __FUNCTION__ );
         goto mpd_init_fail;
     }
 
     // copy the desired mesh info into the actual mesh info
-    memmove( &(pmesh->info), &loc_info, sizeof(pmesh->info) );
+    memmove( &( pmesh->info ), &loc_info, sizeof( pmesh->info ) );
 
     return btrue;
 
@@ -254,7 +254,7 @@ mpd_info_t * mpd_info_ctor( mpd_info_t * pinfo )
 
     BLANK_STRUCT_PTR( pinfo )
 
-        return pinfo;
+    return pinfo;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -264,7 +264,7 @@ mpd_info_t * mpd_info_dtor( mpd_info_t * pinfo )
 
     BLANK_STRUCT_PTR( pinfo )
 
-        return pinfo;
+    return pinfo;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -275,7 +275,7 @@ mpd_mem_t * mpd_mem_ctor( mpd_mem_t * pmem )
 
     BLANK_STRUCT_PTR( pmem )
 
-        return pmem;
+    return pmem;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -286,7 +286,7 @@ mpd_mem_t * mpd_mem_dtor( mpd_mem_t * pmem )
     mpd_mem_free( pmem );
     BLANK_STRUCT_PTR( pmem )
 
-        return pmem;
+    return pmem;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -367,7 +367,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     pmem  = &( pmesh->mem );
 
     // if there is no filename, fail and wipe the mesh struct
-    if( INVALID_CSTR( loadname ) )
+    if ( INVALID_CSTR( loadname ) )
     {
         goto mpd_load_fail;
     }
@@ -378,7 +378,6 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
         log_warning( "%s - cannot find \"%s\"!!\n", __FUNCTION__, loadname );
         goto mpd_load_fail;
     }
-
 
     // read the file type
     endian_fread_uint32( fileread, &ui32_tmp );
@@ -412,9 +411,9 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
     {
         endian_fread_uint32( fileread, &ui32_tmp );
 
-        pmem->tile_list[fan].type = CLIP_TO_08BITS(ui32_tmp >> 24 );
-        pmem->tile_list[fan].fx   = CLIP_TO_08BITS(ui32_tmp >> 16 );
-        pmem->tile_list[fan].img  = CLIP_TO_16BITS(ui32_tmp >>  0 );
+        pmem->tile_list[fan].type = CLIP_TO_08BITS( ui32_tmp >> 24 );
+        pmem->tile_list[fan].fx   = CLIP_TO_08BITS( ui32_tmp >> 16 );
+        pmem->tile_list[fan].img  = CLIP_TO_16BITS( ui32_tmp >>  0 );
     }
 
     // Load twist data
@@ -447,7 +446,7 @@ mpd_t * mpd_load( const char *loadname, mpd_t * pmesh )
         endian_fread_ieee32( fileread, &ieee32_tmp );
 
         // cartman scales the z-axis based off of a 4 bit fixed precision number
-        pmem->vlst[cnt].pos.y = ieee32_tmp / 16.0f;
+        pmem->vlst[cnt].pos.z = ieee32_tmp / 16.0f;
     }
 
     // Load vertex a data
@@ -466,15 +465,14 @@ mpd_load_fail:
 
     mpd_renew( pmesh );
 
-    if( NULL != fileread )
+    if ( NULL != fileread )
     {
-        fclose(fileread);
+        fclose( fileread );
         fileread = NULL;
     }
 
     return NULL;
 }
-
 
 //--------------------------------------------------------------------------------------------
 mpd_t * mpd_save( const char * savename, mpd_t * pmesh )
@@ -491,10 +489,10 @@ mpd_t * mpd_save( const char * savename, mpd_t * pmesh )
     pmem  = &( pmesh->mem );
 
     // a valid number of tiles?
-    if( 0 == pmem->tile_count || NULL == pmem->tile_list ) return NULL;
+    if ( 0 == pmem->tile_count || NULL == pmem->tile_list ) return NULL;
 
     // a valid number of vertices?
-    if( 0 == pmem->vcount || NULL == pmem->vlst ) return NULL;
+    if ( 0 == pmem->vcount || NULL == pmem->vlst ) return NULL;
 
     filewrite = fopen( savename, "wb" );
     if ( NULL == filewrite ) return NULL;
@@ -512,7 +510,7 @@ mpd_t * mpd_save( const char * savename, mpd_t * pmesh )
     endian_fwrite_uint32( filewrite, pinfo->tiles_y );
 
     // write the fx data for each tile
-    for( cnt = 0; cnt < pmem->tile_count; cnt++ )
+    for ( cnt = 0; cnt < pmem->tile_count; cnt++ )
     {
         tile_info_t * ptile = pmem->tile_list + cnt;
 
@@ -520,7 +518,7 @@ mpd_t * mpd_save( const char * savename, mpd_t * pmesh )
     }
 
     // write the twist data for each tile
-    for( cnt = 0; cnt < pmem->tile_count; cnt++ )
+    for ( cnt = 0; cnt < pmem->tile_count; cnt++ )
     {
         tile_info_t * ptile = pmem->tile_list + cnt;
 
@@ -528,7 +526,7 @@ mpd_t * mpd_save( const char * savename, mpd_t * pmesh )
     }
 
     // write the x-coordinate data for each vertex
-    for( cnt = 0; cnt < pmem->vcount; cnt++ )
+    for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
         mpd_vertex_t * pvert = pmem->vlst + cnt;
 
@@ -536,7 +534,7 @@ mpd_t * mpd_save( const char * savename, mpd_t * pmesh )
     }
 
     // write the y-coordinate data for each vertex
-    for( cnt = 0; cnt < pmem->vcount; cnt++ )
+    for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
         mpd_vertex_t * pvert = pmem->vlst + cnt;
 
@@ -544,7 +542,7 @@ mpd_t * mpd_save( const char * savename, mpd_t * pmesh )
     }
 
     // write the y-coordinate data for each vertex
-    for( cnt = 0; cnt < pmem->vcount; cnt++ )
+    for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
         mpd_vertex_t * pvert = pmem->vlst + cnt;
 
@@ -552,7 +550,7 @@ mpd_t * mpd_save( const char * savename, mpd_t * pmesh )
         endian_fwrite_ieee32( filewrite, pvert->pos.z * 16.0f );
     }
 
-    for( cnt = 0; cnt < pmem->vcount; cnt++ )
+    for ( cnt = 0; cnt < pmem->vcount; cnt++ )
     {
         mpd_vertex_t * pvert = pmem->vlst + cnt;
 

@@ -192,9 +192,6 @@ static void   game_end_menu( menu_process_t * mproc );
 
 static void   do_game_hud( void );
 
-// manage the game's vfs mount points
-static void   game_clear_vfs_paths( void );
-
 // place the object lists in the initial state
 void reset_all_object_lists( void );
 
@@ -3431,97 +3428,7 @@ void game_quit_module()
     sound_finish_sound();
 
     // remove the module-dependent mount points from the vfs
-    game_clear_vfs_paths();
-}
-
-//--------------------------------------------------------------------------------------------
-void game_clear_vfs_paths()
-{
-    /// @details BB@> clear out the all mount points
-
-    // clear out the basic mount points
-    egoboo_clear_vfs_paths();
-
-    // clear out the module's mount points
-    vfs_remove_mount_point( "mp_objects" );
-
-    // set up the basic mount points again
-    egoboo_setup_vfs_paths();
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t game_setup_vfs_paths( const char * mod_path )
-{
-    /// @details BB@> set up the virtual mount points for the module's data
-    ///               and objects
-
-    const char * path_seperator_1, * path_seperator_2;
-    const char * mod_dir_ptr;
-    STRING mod_dir_string;
-
-    STRING tmpDir;
-
-    if ( INVALID_CSTR( mod_path ) ) return bfalse;
-
-    // revert to the program's basic mount points
-    game_clear_vfs_paths();
-
-    path_seperator_1 = strrchr( mod_path, SLASH_CHR );
-    path_seperator_2 = strrchr( mod_path, NET_SLASH_CHR );
-    path_seperator_1 = MAX( path_seperator_1, path_seperator_2 );
-
-    if ( NULL == path_seperator_1 )
-    {
-        mod_dir_ptr = mod_path;
-    }
-    else
-    {
-        mod_dir_ptr = path_seperator_1 + 1;
-    }
-
-    strncpy( mod_dir_string, mod_dir_ptr, SDL_arraysize( mod_dir_string ) );
-
-    //==== set the module-dependent mount points
-
-    //---- add the "/modules/*.mod/objects" directories to mp_objects
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "objects", mod_dir_string );
-
-    // mount the user's module objects directory at the beginning of the mount point list
-    vfs_add_mount_point( fs_getDataDirectory(), tmpDir, "mp_objects", 1 );
-
-    // mount the global module objects directory next in the mount point list
-    vfs_add_mount_point( fs_getUserDirectory(), tmpDir, "mp_objects", 1 );
-
-    //---- add the "/basicdat/globalobjects/*" directories to mp_objects
-    //ZF> TODO: Maybe we should dynamically search for all folders in this directory and add them as valid mount points?
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "items",            "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic",            "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "magic_item",       "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "misc",             "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "monsters",         "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "players",          "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "potions",          "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "unique",           "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "weapons",          "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "work_in_progress", "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "traps",            "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "pets",             "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "scrolls",          "mp_objects", 1 );
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalobjects" SLASH_STR "armor",            "mp_objects", 1 );
-
-    //---- add the "/modules/*.mod/gamedat" directory to mp_data
-    snprintf( tmpDir, SDL_arraysize( tmpDir ), "modules" SLASH_STR "%s" SLASH_STR "gamedat",  mod_dir_string );
-
-    // mount the user's module gamedat directory at the beginning of the mount point list
-    vfs_add_mount_point( fs_getUserDirectory(), tmpDir, "mp_data", 1 );
-
-    // append the global module gamedat directory
-    vfs_add_mount_point( fs_getDataDirectory(), tmpDir, "mp_data", 1 );
-
-    // put the global globalparticles data after the module gamedat data
-    vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalparticles", "mp_data", 1 );
-
-    return btrue;
+    setup_clear_module_vfs_paths();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3538,7 +3445,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     reset_all_object_lists();
 
     // set up the virtual file system for the module
-    if ( !game_setup_vfs_paths( modname ) ) return bfalse;
+    if ( !setup_init_module_vfs_paths( modname ) ) return bfalse;
 
     // load all the in-game module data
     srand( seed );
@@ -4205,7 +4112,7 @@ bool_t game_choose_module( int imod, int seed )
     if ( retval )
     {
         // give everyone virtual access to the game directories
-        game_setup_vfs_paths( pickedmodule_path );
+        setup_init_module_vfs_paths( pickedmodule_path );
     }
 
     return retval;

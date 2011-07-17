@@ -60,10 +60,10 @@ extern "C"
 /// Works for multiple-line strings, using the user-supplied spacing
     extern void    fnt_getTextBoxSize( Font *font, int spacing, const char *text, int *width, int *height );
 
-    extern void    fnt_drawTextBox_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, SDL_Surface ** ppSurface, const char *format, ... );
-    extern void    fnt_drawTextBox_OGL( Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, SDL_Surface ** ppSurface, const char *format, ... );
-
+    extern void    fnt_drawTextBox_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, const char *format, ... );
     extern void    fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_Surface * pDstSurface, SDL_Surface ** ppTmpSurface, const char *format, ... );
+
+    extern void    fnt_drawTextBox_OGL( Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, SDL_Surface ** ppTmpSurface, const char *format, ... );
     extern void    fnt_drawText_OGL( Font *font, SDL_Color fnt_color, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, ... );
 
 /// handle variable arguments

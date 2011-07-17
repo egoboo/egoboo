@@ -157,6 +157,18 @@ extern "C"
     /// ensure that the program, egoboo_config_t data structure, and "setup.txt" all agree
     bool_t config_synch( egoboo_config_t * pcfg );
 
+    /// set the basic search paths used by the egoboo virtual file system
+    void setup_init_base_vfs_paths( void );
+
+    /// remove the basic search paths used by the egoboo virtual file system
+    void setup_clear_base_vfs_paths( void );
+
+    /// initialize a module's vfs mount points
+    bool_t setup_init_module_vfs_paths( const char * mod_path );
+
+    /// initialize a module's vfs mount points
+    void   setup_clear_module_vfs_paths( void );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

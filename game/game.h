@@ -547,9 +547,6 @@ float get_chr_level( struct s_ego_mpd * pmesh, struct s_chr * pchr );
 
 void disenchant_character( const CHR_REF ichr );
 
-// manage the game's vfs mount points
-bool_t game_setup_vfs_paths( const char * mod_path );
-
 void cleanup_character_enchants( struct s_chr * pchr );
 
 bool_t attach_one_particle( struct s_prt_bundle * pbdl_prt );
