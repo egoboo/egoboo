@@ -1,13 +1,13 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game_vs7.vcproj", "{E9988340-E474-4C0A-8496-EFF3296DE056}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game_vs9.vcproj", "{E9988340-E474-4C0A-8496-EFF3296DE056}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F4A0A221-1948-4A47-846B-8DE949633638} = {F4A0A221-1948-4A47-846B-8DE949633638}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enet", "enet\enet_vs7.vcproj", "{F4A0A221-1948-4A47-846B-8DE949633638}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enet", "enet\enet_vs9.vcproj", "{F4A0A221-1948-4A47-846B-8DE949633638}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib", "game\egolib.vcproj", "{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib", "game\egolib_vs9.vcproj", "{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
