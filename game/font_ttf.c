@@ -54,12 +54,10 @@ struct s_Font
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static int  fnt_vprintf_SDL( TTF_Font *font, SDL_Color fnt_color, const char *format, va_list args, SDL_Surface ** ppTmpSurface );
 static int  fnt_print_raw_SDL( TTF_Font *font, SDL_Color fnt_color, const char * szText, SDL_Surface ** ppTmpSurface );
 static int  fnt_drawText_raw_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, const char *text, SDL_Surface * pDstSurface, SDL_Surface ** ppTmpSurface );
 static void fnt_streamText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, int spacing, const char *text );
 
-static int  fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, const char *format, va_list args, SDL_Surface ** ppTmpSurface );
 static int  fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText, SDL_Surface ** ppTmpSurface );
 static void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, int x, int y, const char *text, SDL_Surface ** ppTmpSurface );
 static void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, int x, int y, int spacing, const char *text, SDL_Surface ** ppTmpSurface );

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="game"
 	ProjectGUID="{E9988340-E474-4C0A-8496-EFF3296DE056}"
 	RootNamespace="game"
@@ -18,9 +18,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="Debug"
+			OutputDirectory="$(ProjectName)-Debug"
+			IntermediateDirectory="$(ProjectName)-Debug"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -40,23 +41,27 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="4"
-				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
-				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;platform;extensions"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
+				Optimization="0"
+				InlineFunctionExpansion="0"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;platform;extensions;Fluid_Studios_Memory_Manager"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
+				GeneratePreprocessedFile="0"
+				KeepComments="false"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
+				AssemblerListingLocation="$(IntDir)/"
+				BrowseInformation="1"
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
-				CallingConvention="0"
-				CompileAs="1"
+				CompileAs="2"
+				DisableSpecificWarnings="4127;4239;4130;4505"
+				ShowIncludes="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -69,16 +74,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib SHFolder.lib Shell32.lib SDLd.lib SDLmaind.lib opengl32.lib glu32.lib ws2_32.lib SDL_ttf.lib SDL_mixerd.lib SDL_imaged.lib lua5.1.lib physfs.lib"
+				AdditionalDependencies="SDL_d.lib SDLmain_d.lib SDL_ttf_d.lib SDL_mixer_d.lib SDL_image_d.lib lua5.1_d.lib physfs_static_d.lib opengl32.lib glu32.lib shlwapi.lib SHFolder.lib Shell32.lib ws2_32.lib Advapi32.lib User32.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)/Egoboo2x.exe"
-				Version="2.8.0"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/game.pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
 				SubSystem="1"
-				LinkTimeCodeGeneration="0"
-				EntryPointSymbol=""
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -107,11 +110,12 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
+			OutputDirectory="$(ProjectName)-Release"
+			IntermediateDirectory="$(ProjectName)-Release"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -130,23 +134,32 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="0"
+				Optimization="4"
+				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="0"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)game\extensions&quot;;&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game\file_formats&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;;&quot;$(SolutionDir)game&quot;;file_formats;platform;extensions;Fluid_Studios_Memory_Manager"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE"
+				GeneratePreprocessedFile="0"
+				KeepComments="false"
+				ExceptionHandling="1"
+				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="true"
 				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="0"
+				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
-				WarningLevel="3"
+				BrowseInformation="1"
+				WarningLevel="4"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
-				CallingConvention="0"
 				CompileAs="1"
+				DisableSpecificWarnings="4505"
+				ShowIncludes="false"
+				UndefinePreprocessorDefinitions="_DEBUG"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -159,19 +172,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib SHFolder.lib Shell32.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib ws2_32.lib SDL_ttf.lib SDL_mixer.lib SDL_image.lib physfs.lib"
+				AdditionalDependencies="SDL.lib SDLmain.lib SDL_ttf.lib SDL_mixer.lib SDL_image.lib physfs_static.lib lua5.1.lib opengl32.lib glu32.lib shlwapi.lib SHFolder.lib Shell32.lib ws2_32.lib Advapi32.lib User32.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)/Egoboo2x.exe"
-				Version="2.8.0"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				EnableUAC="false"
-				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				LinkTimeCodeGeneration="0"
-				EntryPointSymbol=""
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -203,9 +211,7 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Game Source"
-			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			Name="Core Source"
 			>
 			<File
 				RelativePath=".\bbox.c"
@@ -216,7 +222,213 @@
 				>
 			</File>
 			<File
+				RelativePath=".\clock.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_clock.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_console.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_endian.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_fileutil.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_frustum.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_math.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_object.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_process.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_setup.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_strutil.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_timer.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_typedef.c"
+				>
+			</File>
+			<File
+				RelativePath=".\font_bmp.c"
+				>
+			</File>
+			<File
+				RelativePath=".\font_ttf.c"
+				>
+			</File>
+			<File
+				RelativePath=".\geometry.c"
+				>
+			</File>
+			<File
+				RelativePath=".\hash.c"
+				>
+			</File>
+			<File
+				RelativePath=".\input.c"
+				>
+			</File>
+			<File
+				RelativePath=".\log.c"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Core Headers"
+			>
+			<File
+				RelativePath=".\bbox.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bsp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\clock.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_clock.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_config.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_console.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_endian.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_fileutil.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_frustum.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_math.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_mem.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_object.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_platform.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_process.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_setup.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_state_machine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_strutil.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_timer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_typedef.h"
+				>
+			</File>
+			<File
+				RelativePath=".\font_bmp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\font_ttf.h"
+				>
+			</File>
+			<File
+				RelativePath=".\geometry.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hash.h"
+				>
+			</File>
+			<File
+				RelativePath=".\input.h"
+				>
+			</File>
+			<File
+				RelativePath=".\log.h"
+				>
+			</File>
+			<File
+				RelativePath=".\system.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Game Source"
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
+			<File
+				RelativePath=".\AStar.c"
+				>
+			</File>
+			<File
 				RelativePath=".\camera.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\camera_system.c"
 				>
 			</File>
 			<File
@@ -224,7 +436,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\char.inl"
+				RelativePath=".\ChrList.c"
 				>
 			</File>
 			<File
@@ -234,13 +446,18 @@
 			<File
 				RelativePath=".\collision.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+						KeepComments="false"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\egoboo.c"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_math.inl"
 				>
 			</File>
 			<File
@@ -248,7 +465,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\enchant.inl"
+				RelativePath=".\EncList.c"
 				>
 			</File>
 			<File
@@ -272,11 +489,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hash.c"
-				>
-			</File>
-			<File
-				RelativePath=".\input.c"
+				RelativePath=".\IDSZ_map.c"
 				>
 			</File>
 			<File
@@ -292,11 +505,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Md2.c"
-				>
-			</File>
-			<File
-				RelativePath=".\Md2.inl"
+				RelativePath=".\md2.c"
 				>
 			</File>
 			<File
@@ -308,7 +517,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mesh.inl"
+				RelativePath=".\mpd_BSP.c"
+				>
+			</File>
+			<File
+				RelativePath=".\mpd_functions.c"
 				>
 			</File>
 			<File
@@ -316,11 +529,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\particle.c"
+				RelativePath=".\obj_BSP.c"
 				>
 			</File>
 			<File
-				RelativePath=".\particle.inl"
+				RelativePath=".\particle.c"
 				>
 			</File>
 			<File
@@ -332,27 +545,27 @@
 				>
 			</File>
 			<File
-				RelativePath=".\physics.inl"
+				RelativePath=".\player.c"
 				>
 			</File>
 			<File
 				RelativePath=".\profile.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\profile.inl"
+				RelativePath=".\PrtList.c"
 				>
 			</File>
 			<File
-				RelativePath=".\script.c"
-				>
-			</File>
-			<File
-				RelativePath=".\script_compile.c"
-				>
-			</File>
-			<File
-				RelativePath=".\script_functions.c"
+				RelativePath=".\rpc.c"
 				>
 			</File>
 			<File
@@ -378,11 +591,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\bbox.h"
-				>
-			</File>
-			<File
-				RelativePath=".\bsp.h"
+				RelativePath=".\AStar.h"
 				>
 			</File>
 			<File
@@ -390,7 +599,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\camera_system.h"
+				>
+			</File>
+			<File
 				RelativePath=".\char.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ChrList.h"
 				>
 			</File>
 			<File
@@ -407,6 +624,10 @@
 			</File>
 			<File
 				RelativePath=".\enchant.h"
+				>
+			</File>
+			<File
+				RelativePath=".\EncList.h"
 				>
 			</File>
 			<File
@@ -430,11 +651,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hash.h"
-				>
-			</File>
-			<File
-				RelativePath=".\input.h"
+				RelativePath=".\IDSZ_map.h"
 				>
 			</File>
 			<File
@@ -462,7 +679,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mpd_BSP.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mpd_functions.h"
+				>
+			</File>
+			<File
 				RelativePath=".\network.h"
+				>
+			</File>
+			<File
+				RelativePath=".\obj_BSP.h"
 				>
 			</File>
 			<File
@@ -478,19 +707,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\player.h"
+				>
+			</File>
+			<File
 				RelativePath=".\profile.h"
 				>
 			</File>
 			<File
-				RelativePath=".\script.h"
+				RelativePath=".\PrtList.h"
 				>
 			</File>
 			<File
-				RelativePath=".\script_compile.h"
-				>
-			</File>
-			<File
-				RelativePath=".\script_functions.h"
+				RelativePath=".\rpc.h"
 				>
 			</File>
 			<File
@@ -511,86 +740,34 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Resource Files"
+			Name="Game Inline"
 			>
 			<File
-				RelativePath="..\res\egoboo.ico"
+				RelativePath=".\char.inl"
 				>
 			</File>
 			<File
-				RelativePath="..\res\egoboo.rc"
+				RelativePath=".\enchant.inl"
 				>
 			</File>
 			<File
-				RelativePath="..\res\egoboo3.ico"
+				RelativePath=".\Md2.inl"
 				>
 			</File>
 			<File
-				RelativePath="..\res\old-egoboo.ico"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="lua_interface"
-			>
-			<File
-				RelativePath=".\ego.i"
+				RelativePath=".\mesh.inl"
 				>
 			</File>
 			<File
-				RelativePath=".\ego_wrap.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\egoboo_console.c"
+				RelativePath=".\particle.inl"
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_console.h"
+				RelativePath=".\physics.inl"
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_console.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\lua_console.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\lua_console.h"
+				RelativePath=".\profile.inl"
 				>
 			</File>
 		</Filter>
@@ -651,54 +828,350 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Core Source"
+			Name="File System"
 			>
 			<File
-				RelativePath=".\clock.c"
+				RelativePath=".\egoboo_vfs.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\egoboo_vfs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_endian.c"
+				RelativePath=".\file_common.c"
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_fileutil.c"
+				RelativePath=".\file_common.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="file formats"
+			>
+			<Filter
+				Name="tris.md2"
+				>
+				<File
+					RelativePath=".\file_formats\id_md2.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\id_md2.h"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\id_normals.inl"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="level.mpd"
+				>
+				<File
+					RelativePath=".\file_formats\mpd_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\mpd_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="menu.txt"
+				>
+				<File
+					RelativePath=".\file_formats\module_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\module_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="naming.txt"
+				>
+			</Filter>
+			<Filter
+				Name="data.txt"
+				>
+				<File
+					RelativePath=".\file_formats\cap_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\cap_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="enchant.txt"
+				>
+				<File
+					RelativePath=".\file_formats\eve_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\eve_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="partX.txt"
+				>
+				<File
+					RelativePath=".\file_formats\pip_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\pip_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="passage.txt"
+				>
+				<File
+					RelativePath=".\file_formats\passage_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\passage_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="controls.txt"
+				>
+				<File
+					RelativePath=".\file_formats\controls_file-v1.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file-v1.h"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file-v2.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file-v2.h"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file-v3.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file-v3.h"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\controls_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="quest.txt"
+				>
+				<File
+					RelativePath=".\file_formats\quest_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\quest_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="template"
+				>
+				<File
+					RelativePath=".\file_formats\template.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\template.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="settings.txt"
+				>
+				<File
+					RelativePath=".\file_formats\configfile.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\configfile.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="wawalite.txt"
+				>
+				<File
+					RelativePath=".\file_formats\wawalite_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\wawalite_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="spawn.txt"
+				>
+				<File
+					RelativePath=".\file_formats\spawn_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\spawn_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="scancode.txt"
+				>
+				<File
+					RelativePath=".\file_formats\scancode_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\scancode_file.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="treasure_table"
+				>
+				<File
+					RelativePath=".\file_formats\treasure_table_file.c"
+					>
+				</File>
+				<File
+					RelativePath=".\file_formats\treasure_table_file.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="scripting system"
+			>
+			<File
+				RelativePath=".\script.c"
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_math.c"
+				RelativePath=".\script.h"
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_process.c"
+				RelativePath=".\script_compile.c"
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_setup.c"
+				RelativePath=".\script_compile.h"
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_strutil.c"
+				RelativePath=".\script_functions.c"
 				>
 			</File>
 			<File
-				RelativePath=".\egoboo_typedef.c"
+				RelativePath=".\script_functions.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="doxygen"
+			>
+			<File
+				RelativePath=".\egoboo_doxygen.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			>
+			<File
+				RelativePath="..\res\egoboo.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\font_bmp.c"
+				RelativePath="..\res\egoboo.rc"
 				>
 			</File>
 			<File
-				RelativePath=".\font_ttf.c"
+				RelativePath="..\res\egoboo3.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\log.c"
+				RelativePath="..\res\old-egoboo.ico"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Core Inline"
+			>
+			<File
+				RelativePath=".\bbox.inl"
 				>
 			</File>
 			<File
-				RelativePath=".\rpc.c"
+				RelativePath=".\bsp.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_console.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_math.inl"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Platform Dependent"
+			>
+			<File
+				RelativePath=".\platform\file_linux.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\platform\file_win.c"
 				>
 			</File>
 			<File
@@ -744,558 +1217,6 @@
 			<File
 				RelativePath=".\platform\sys_win32.c"
 				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Core Headers"
-			>
-			<File
-				RelativePath=".\clock.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_config.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_doxygen.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_endian.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_fileutil.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_math.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_mem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_object.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_platform.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_process.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_setup.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_strutil.h"
-				>
-			</File>
-			<File
-				RelativePath=".\egoboo_typedef.h"
-				>
-			</File>
-			<File
-				RelativePath=".\font_bmp.h"
-				>
-			</File>
-			<File
-				RelativePath=".\font_ttf.h"
-				>
-			</File>
-			<File
-				RelativePath=".\log.h"
-				>
-			</File>
-			<File
-				RelativePath=".\rpc.h"
-				>
-			</File>
-			<File
-				RelativePath=".\system.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="File System"
-			>
-			<File
-				RelativePath=".\egoboo_vfs.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						GeneratePreprocessedFile="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\egoboo_vfs.h"
-				>
-			</File>
-			<File
-				RelativePath=".\file_common.c"
-				>
-			</File>
-			<File
-				RelativePath=".\file_common.h"
-				>
-			</File>
-			<File
-				RelativePath=".\platform\file_linux.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\platform\file_win.c"
-				>
-			</File>
-			<Filter
-				Name="file formats"
-				>
-				<Filter
-					Name="tris.md2"
-					>
-					<File
-						RelativePath=".\file_formats\id_md2.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\id_md2.h"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\id_normals.inl"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="level.mpd"
-					>
-					<File
-						RelativePath=".\file_formats\mpd_file.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\mpd_file.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="menu.txt"
-					>
-					<File
-						RelativePath=".\file_formats\module_file.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\module_file.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="naming.txt"
-					>
-				</Filter>
-				<Filter
-					Name="data.txt"
-					>
-					<File
-						RelativePath=".\file_formats\cap_file.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\cap_file.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="enchant.txt"
-					>
-					<File
-						RelativePath=".\file_formats\eve_file.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\eve_file.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="partX.txt"
-					>
-					<File
-						RelativePath=".\file_formats\pip_file.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\pip_file.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="passage.txt"
-					>
-					<File
-						RelativePath=".\file_formats\passage_file.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\passage_file.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="controls.txt"
-					>
-					<File
-						RelativePath=".\file_formats\controls_file.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\controls_file.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="quest.txt"
-					>
-					<File
-						RelativePath=".\quest.c"
-						>
-					</File>
-					<File
-						RelativePath=".\quest.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="template"
-					>
-					<File
-						RelativePath=".\file_formats\template.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\template.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="settings.txt"
-					>
-					<File
-						RelativePath=".\file_formats\configfile.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\configfile.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="wawalite.txt"
-					>
-					<File
-						RelativePath=".\file_formats\wawalite_file.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\wawalite_file.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="spawn.txt"
-					>
-					<File
-						RelativePath=".\file_formats\spawn_file.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\spawn_file.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="scancodes.txt"
-					>
-					<File
-						RelativePath=".\file_formats\scancode_file.c"
-						>
-					</File>
-					<File
-						RelativePath=".\file_formats\scancode_file.h"
-						>
-					</File>
-				</Filter>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="Obsolete"
-			>
-			<File
-				RelativePath=".\Obsolete\code_2.6.x.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Obsolete\gltexture.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Obsolete\gltexture.h"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Obsolete\linux-file_old.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\MainLoop.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Obsolete\script_obsolete.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Task.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Task.h"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Ticker.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Ticker.h"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Timer.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Timer.h"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 	</Files>

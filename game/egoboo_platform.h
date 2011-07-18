@@ -182,9 +182,19 @@
 #    define strupr   _strupr
 
 /// This isn't needed in MSVC 2008 and causes errors
-#    if _MSC_VER < 1500
+#    if (_MSC_VER < 1500)
 #        define vsnprintf _vsnprintf
 #    endif
+
+// something could be done about this, but it would require us
+// using special names for the functions and defining
+// the other option is to define _CRT_SECURE_NO_WARNINGS
+//#if (_MSC_VER >= 1400 ) || !defined( __STDC_SECURE_LIB__ )
+//#   define ego_strncpy strncpy_s
+//#   define ego_strcat  strcat_s
+//#   define ego_fopen   fopen_s
+//#   define ego_sscanf  sscanf_s
+//#endif
 
 #endif
 

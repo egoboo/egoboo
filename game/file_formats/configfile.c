@@ -90,6 +90,8 @@
 
 #define CONFIG_ARRAYSIZE(A) ( sizeof(A) / sizeof(A[0]) )
 
+// the same as in platform.h, but this file is not to depend on egoboo explicitly,
+// so there is duplicated code
 #if defined(_MSC_VER)
 #    define snprintf _snprintf
 #endif
