@@ -1,15 +1,16 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game_vs7.vcproj", "{E9988340-E474-4C0A-8496-EFF3296DE056}"
 	ProjectSection(ProjectDependencies) = postProject
-		{F4A0A221-1948-4A47-846B-8DE949633638} = {F4A0A221-1948-4A47-846B-8DE949633638}
+		{0F32DD35-A264-4906-8FC9-2D0FE0613230} = {0F32DD35-A264-4906-8FC9-2D0FE0613230}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enet", "enet\enet_vs7.vcproj", "{F4A0A221-1948-4A47-846B-8DE949633638}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib", "egolib\egolib_vs7.vcproj", "{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib", "game\egolib_vs7.vcproj", "{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cartman", "cartman\src\cartman_vs7.vcproj", "{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}"
 	ProjectSection(ProjectDependencies) = postProject
+		{0F32DD35-A264-4906-8FC9-2D0FE0613230} = {0F32DD35-A264-4906-8FC9-2D0FE0613230}
 	EndProjectSection
 EndProject
 Global
@@ -22,14 +23,14 @@ Global
 		{E9988340-E474-4C0A-8496-EFF3296DE056}.Debug.Build.0 = Debug|Win32
 		{E9988340-E474-4C0A-8496-EFF3296DE056}.Release.ActiveCfg = Release|Win32
 		{E9988340-E474-4C0A-8496-EFF3296DE056}.Release.Build.0 = Release|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.Debug.ActiveCfg = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.Debug.Build.0 = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.Release.ActiveCfg = Release|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.Release.Build.0 = Release|Win32
 		{0F32DD35-A264-4906-8FC9-2D0FE0613230}.Debug.ActiveCfg = Debug|Win32
 		{0F32DD35-A264-4906-8FC9-2D0FE0613230}.Debug.Build.0 = Debug|Win32
 		{0F32DD35-A264-4906-8FC9-2D0FE0613230}.Release.ActiveCfg = Release|Win32
 		{0F32DD35-A264-4906-8FC9-2D0FE0613230}.Release.Build.0 = Release|Win32
+		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Debug.ActiveCfg = Debug|Win32
+		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Debug.Build.0 = Debug|Win32
+		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Release.ActiveCfg = Release|Win32
+		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
