@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="file_formats">
+      <UniqueIdentifier>{26f2c8e5-95f8-45aa-b69e-7ad964b40231}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform">
+      <UniqueIdentifier>{0263e1c7-208a-4936-a6a8-b9695367fecf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="extensions">
+      <UniqueIdentifier>{9ee0c819-9153-4fc0-a5c0-daff3cbb6c8a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="file_formats\cap_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\configfile.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\controls_file-v1.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\controls_file-v2.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\controls_file-v3.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\controls_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\eve_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\id_md2.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\module_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\mpd_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\passage_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\pip_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\quest_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\scancode_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\SDL_md2.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\spawn_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\template.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\treasure_table_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\wawalite_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\file_amiga.c">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\file_linux.c">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\file_win.c">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sys_linux.c">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sys_mac.c">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\sys_win32.c">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\ogl_debug.c">
+      <Filter>extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\ogl_extensions.c">
+      <Filter>extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\ogl_include.c">
+      <Filter>extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\ogl_texture.c">
+      <Filter>extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\SDL_extensions.c">
+      <Filter>extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\SDL_GL_extensions.c">
+      <Filter>extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="clock.c" />
+    <ClCompile Include="egoboo_clock.c" />
+    <ClCompile Include="egoboo_console.c" />
+    <ClCompile Include="egoboo_endian.c" />
+    <ClCompile Include="egoboo_fileutil.c" />
+    <ClCompile Include="egoboo_frustum.c" />
+    <ClCompile Include="egoboo_math.c" />
+    <ClCompile Include="egoboo_process.c" />
+    <ClCompile Include="egoboo_setup.c" />
+    <ClCompile Include="egoboo_strutil.c" />
+    <ClCompile Include="egoboo_timer.c" />
+    <ClCompile Include="egoboo_typedef.c" />
+    <ClCompile Include="egoboo_vfs.c" />
+    <ClCompile Include="file_common.c" />
+    <ClCompile Include="font_bmp.c" />
+    <ClCompile Include="font_ttf.c" />
+    <ClCompile Include="hash.c" />
+    <ClCompile Include="log.c" />
+    <ClCompile Include="lua_console.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="file_formats\cap_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\configfile.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\controls_file-v1.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\controls_file-v2.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\controls_file-v3.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\controls_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\eve_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\id_md2.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\module_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\mpd_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\passage_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\pip_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\quest_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\scancode_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\SDL_md2.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\spawn_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\template.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\treasure_table_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\wawalite_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\NSFileManager+DirectoryLocations.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\ogl_debug.h">
+      <Filter>extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\ogl_extensions.h">
+      <Filter>extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\ogl_include.h">
+      <Filter>extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\ogl_texture.h">
+      <Filter>extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\SDL_extensions.h">
+      <Filter>extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="extensions\SDL_GL_extensions.h">
+      <Filter>extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="clock.h" />
+    <ClInclude Include="egoboo_clock.h" />
+    <ClInclude Include="egoboo_console.h" />
+    <ClInclude Include="egoboo_endian.h" />
+    <ClInclude Include="egoboo_fileutil.h" />
+    <ClInclude Include="egoboo_frustum.h" />
+    <ClInclude Include="egoboo_math.h" />
+    <ClInclude Include="egoboo_mem.h" />
+    <ClInclude Include="egoboo_platform.h" />
+    <ClInclude Include="egoboo_process.h" />
+    <ClInclude Include="egoboo_setup.h" />
+    <ClInclude Include="egoboo_state_machine.h" />
+    <ClInclude Include="egoboo_strutil.h" />
+    <ClInclude Include="egoboo_timer.h" />
+    <ClInclude Include="egoboo_typedef.h" />
+    <ClInclude Include="egoboo_typedef_cpp.h" />
+    <ClInclude Include="egoboo_vfs.h" />
+    <ClInclude Include="egolib.h" />
+    <ClInclude Include="file_common.h" />
+    <ClInclude Include="font_bmp.h" />
+    <ClInclude Include="font_ttf.h" />
+    <ClInclude Include="hash.h" />
+    <ClInclude Include="log.h" />
+    <ClInclude Include="lua_console.h" />
+    <ClInclude Include="system.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="egolib.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="file_formats\id_normals.inl">
+      <Filter>file_formats</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="egoboo_console.inl" />
+    <CustomBuildStep Include="egoboo_math.inl" />
+  </ItemGroup>
+</Project>

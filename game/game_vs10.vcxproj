@@ -10,18 +10,128 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>game</ProjectName>
+    <ProjectGuid>{E9988340-E474-4C0A-8496-EFF3296DE056}</ProjectGuid>
+    <RootNamespace>game</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="OpenGL_app.props" />
+    <Import Project="SDL_app.props" />
+    <Import Project="physfs.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="OpenGL_app.props" />
+    <Import Project="SDL_app_d.props" />
+    <Import Project="physfs_d.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)-Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)-Debug\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)-Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)-Release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>$(SolutionDir)enet\include;$(SolutionDir)game;file_formats;platform;extensions;Fluid_Studios_Memory_Manager;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <PreprocessKeepComments>false</PreprocessKeepComments>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4127;4239;4130;4505;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL_d.lib;SDLmain_d.lib;SDL_ttf_d.lib;SDL_mixer_d.lib;SDL_image_d.lib;lua5.1_d.lib;physfs_static_d.lib;opengl32.lib;glu32.lib;shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib</AdditionalDependencies>
+      <OutputFile>$(OutDir)Egoboo2x.exe</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)enet\include;$(SolutionDir)game;file_formats;platform;extensions;Fluid_Studios_Memory_Manager;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <PreprocessKeepComments>false</PreprocessKeepComments>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+      <DisableSpecificWarnings>4505;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ShowIncludes>false</ShowIncludes>
+      <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>SDL.lib;SDLmain.lib;SDL_ttf.lib;SDL_mixer.lib;SDL_image.lib;physfs_static.lib;lua5.1.lib;opengl32.lib;glu32.lib;shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib</AdditionalDependencies>
+      <OutputFile>$(OutDir)Egoboo2x.exe</OutputFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AStar.c" />
     <ClCompile Include="bbox.c" />
     <ClCompile Include="bsp.c" />
-    <ClCompile Include="camera.c" />
-    <ClCompile Include="camera_system.c" />
-    <ClCompile Include="char.c" />
-    <ClCompile Include="ChrList.c" />
-    <ClCompile Include="client.c" />
     <ClCompile Include="clock.c" />
-    <ClCompile Include="collision.c" />
-    <ClCompile Include="egoboo.c" />
     <ClCompile Include="egoboo_clock.c" />
     <ClCompile Include="egoboo_console.c" />
     <ClCompile Include="egoboo_endian.c" />
@@ -34,58 +144,37 @@
     <ClCompile Include="egoboo_strutil.c" />
     <ClCompile Include="egoboo_timer.c" />
     <ClCompile Include="egoboo_typedef.c" />
-    <ClCompile Include="egoboo_vfs.c">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="ego_wrap.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="enchant.c" />
-    <ClCompile Include="EncList.c" />
-    <ClCompile Include="extensions\ogl_debug.c" />
-    <ClCompile Include="extensions\ogl_extensions.c" />
-    <ClCompile Include="extensions\ogl_include.c" />
-    <ClCompile Include="extensions\ogl_texture.c" />
-    <ClCompile Include="extensions\SDL_extensions.c" />
-    <ClCompile Include="extensions\SDL_GL_extensions.c" />
-    <ClCompile Include="file_common.c" />
-    <ClCompile Include="file_formats\cap_file.c" />
-    <ClCompile Include="file_formats\configfile.c" />
-    <ClCompile Include="file_formats\controls_file-v1.c" />
-    <ClCompile Include="file_formats\controls_file-v2.c" />
-    <ClCompile Include="file_formats\controls_file-v3.c" />
-    <ClCompile Include="file_formats\controls_file.c" />
-    <ClCompile Include="file_formats\eve_file.c" />
-    <ClCompile Include="file_formats\id_md2.c" />
-    <ClCompile Include="file_formats\module_file.c" />
-    <ClCompile Include="file_formats\mpd_file.c" />
-    <ClCompile Include="file_formats\passage_file.c" />
-    <ClCompile Include="file_formats\pip_file.c" />
-    <ClCompile Include="file_formats\scancode_file.c" />
-    <ClCompile Include="file_formats\SDL_md2.c" />
-    <ClCompile Include="file_formats\spawn_file.c" />
-    <ClCompile Include="file_formats\template.c" />
-    <ClCompile Include="file_formats\treasure_table_file.c" />
-    <ClCompile Include="file_formats\wawalite_file.c" />
     <ClCompile Include="font_bmp.c" />
     <ClCompile Include="font_ttf.c" />
-    <ClCompile Include="game.c" />
     <ClCompile Include="geometry.c" />
+    <ClCompile Include="hash.c" />
+    <ClCompile Include="input.c" />
+    <ClCompile Include="log.c" />
+    <ClCompile Include="AStar.c" />
+    <ClCompile Include="camera.c">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessSuppressLineNumbers>
+    </ClCompile>
+    <ClCompile Include="camera_system.c" />
+    <ClCompile Include="char.c" />
+    <ClCompile Include="ChrList.c" />
+    <ClCompile Include="client.c" />
+    <ClCompile Include="collision.c">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessSuppressLineNumbers>
+      <PreprocessKeepComments Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessKeepComments>
+    </ClCompile>
+    <ClCompile Include="egoboo.c" />
+    <ClCompile Include="enchant.c" />
+    <ClCompile Include="EncList.c" />
+    <ClCompile Include="game.c" />
     <ClCompile Include="graphic.c" />
     <ClCompile Include="graphic_fan.c" />
     <ClCompile Include="graphic_mad.c" />
     <ClCompile Include="graphic_prt.c" />
-    <ClCompile Include="hash.c" />
     <ClCompile Include="IDSZ_map.c" />
-    <ClCompile Include="input.c" />
     <ClCompile Include="lighting.c" />
     <ClCompile Include="link.c" />
-    <ClCompile Include="log.c" />
-    <ClCompile Include="lua_console.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="mad.c" />
     <ClCompile Include="md2.c" />
     <ClCompile Include="menu.c" />
@@ -97,50 +186,71 @@
     <ClCompile Include="particle.c" />
     <ClCompile Include="passage.c" />
     <ClCompile Include="physics.c" />
-    <ClCompile Include="platform\file_linux.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="platform\file_win.c" />
-    <ClCompile Include="platform\sys_linux.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="platform\sys_mac.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="platform\sys_win32.c" />
     <ClCompile Include="player.c" />
-    <ClCompile Include="profile.c" />
+    <ClCompile Include="profile.c">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessSuppressLineNumbers>
+    </ClCompile>
     <ClCompile Include="PrtList.c" />
-    <ClCompile Include="quest.c" />
     <ClCompile Include="rpc.c" />
-    <ClCompile Include="script.c" />
-    <ClCompile Include="script_compile.c" />
-    <ClCompile Include="script_functions.c" />
     <ClCompile Include="server.c" />
     <ClCompile Include="sound.c" />
     <ClCompile Include="texture.c" />
     <ClCompile Include="ui.c" />
+    <ClCompile Include="extensions\SDL_extensions.c" />
+    <ClCompile Include="extensions\SDL_GL_extensions.c" />
+    <ClCompile Include="extensions\ogl_debug.c" />
+    <ClCompile Include="extensions\ogl_extensions.c" />
+    <ClCompile Include="extensions\ogl_include.c" />
+    <ClCompile Include="extensions\ogl_texture.c" />
+    <ClCompile Include="egoboo_vfs.c">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessSuppressLineNumbers>
+    </ClCompile>
+    <ClCompile Include="file_common.c" />
+    <ClCompile Include="file_formats\id_md2.c" />
+    <ClCompile Include="file_formats\mpd_file.c" />
+    <ClCompile Include="file_formats\module_file.c" />
+    <ClCompile Include="file_formats\cap_file.c" />
+    <ClCompile Include="file_formats\eve_file.c" />
+    <ClCompile Include="file_formats\pip_file.c" />
+    <ClCompile Include="file_formats\passage_file.c" />
+    <ClCompile Include="file_formats\controls_file-v1.c" />
+    <ClCompile Include="file_formats\controls_file-v2.c" />
+    <ClCompile Include="file_formats\controls_file-v3.c" />
+    <ClCompile Include="file_formats\controls_file.c" />
+    <ClCompile Include="file_formats\quest_file.c" />
+    <ClCompile Include="file_formats\template.c" />
+    <ClCompile Include="file_formats\configfile.c" />
+    <ClCompile Include="file_formats\wawalite_file.c" />
+    <ClCompile Include="file_formats\spawn_file.c" />
+    <ClCompile Include="file_formats\scancode_file.c" />
+    <ClCompile Include="file_formats\treasure_table_file.c" />
+    <ClCompile Include="script.c" />
+    <ClCompile Include="script_compile.c" />
+    <ClCompile Include="script_functions.c" />
+    <ClCompile Include="platform\file_linux.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="platform\file_win.c" />
+    <ClCompile Include="platform\sys_linux.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="platform\sys_mac.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="platform\sys_win32.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\res\resource.h" />
-    <ClInclude Include="AStar.h" />
     <ClInclude Include="bbox.h" />
     <ClInclude Include="bsp.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="camera_system.h" />
-    <ClInclude Include="char.h" />
-    <ClInclude Include="ChrList.h" />
-    <ClInclude Include="client.h" />
     <ClInclude Include="clock.h" />
-    <ClInclude Include="collision.h" />
-    <ClInclude Include="egoboo.h" />
     <ClInclude Include="egoboo_clock.h" />
     <ClInclude Include="egoboo_config.h" />
     <ClInclude Include="egoboo_console.h" />
-    <ClInclude Include="egoboo_doxygen.h" />
     <ClInclude Include="egoboo_endian.h" />
     <ClInclude Include="egoboo_fileutil.h" />
     <ClInclude Include="egoboo_frustum.h" />
@@ -154,52 +264,33 @@
     <ClInclude Include="egoboo_strutil.h" />
     <ClInclude Include="egoboo_timer.h" />
     <ClInclude Include="egoboo_typedef.h" />
-    <ClInclude Include="egoboo_typedef_cpp.h" />
-    <ClInclude Include="egoboo_vfs.h" />
-    <ClInclude Include="enchant.h" />
-    <ClInclude Include="EncList.h" />
-    <ClInclude Include="extensions\ogl_debug.h" />
-    <ClInclude Include="extensions\ogl_extensions.h" />
-    <ClInclude Include="extensions\ogl_include.h" />
-    <ClInclude Include="extensions\ogl_texture.h" />
-    <ClInclude Include="extensions\SDL_extensions.h" />
-    <ClInclude Include="extensions\SDL_GL_extensions.h" />
-    <ClInclude Include="file_common.h" />
-    <ClInclude Include="file_formats\cap_file.h" />
-    <ClInclude Include="file_formats\configfile.h" />
-    <ClInclude Include="file_formats\controls_file-v1.h" />
-    <ClInclude Include="file_formats\controls_file-v2.h" />
-    <ClInclude Include="file_formats\controls_file-v3.h" />
-    <ClInclude Include="file_formats\controls_file.h" />
-    <ClInclude Include="file_formats\eve_file.h" />
-    <ClInclude Include="file_formats\id_md2.h" />
-    <ClInclude Include="file_formats\module_file.h" />
-    <ClInclude Include="file_formats\mpd_file.h" />
-    <ClInclude Include="file_formats\passage_file.h" />
-    <ClInclude Include="file_formats\pip_file.h" />
-    <ClInclude Include="file_formats\scancode_file.h" />
-    <ClInclude Include="file_formats\SDL_md2.h" />
-    <ClInclude Include="file_formats\spawn_file.h" />
-    <ClInclude Include="file_formats\template.h" />
-    <ClInclude Include="file_formats\treasure_table_file.h" />
-    <ClInclude Include="file_formats\wawalite_file.h" />
     <ClInclude Include="font_bmp.h" />
     <ClInclude Include="font_ttf.h" />
-    <ClInclude Include="game.h" />
     <ClInclude Include="geometry.h" />
+    <ClInclude Include="hash.h" />
+    <ClInclude Include="input.h" />
+    <ClInclude Include="log.h" />
+    <ClInclude Include="system.h" />
+    <ClInclude Include="AStar.h" />
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="camera_system.h" />
+    <ClInclude Include="char.h" />
+    <ClInclude Include="ChrList.h" />
+    <ClInclude Include="client.h" />
+    <ClInclude Include="collision.h" />
+    <ClInclude Include="egoboo.h" />
+    <ClInclude Include="enchant.h" />
+    <ClInclude Include="EncList.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="graphic.h" />
     <ClInclude Include="graphic_fan.h" />
     <ClInclude Include="graphic_mad.h" />
     <ClInclude Include="graphic_prt.h" />
-    <ClInclude Include="hash.h" />
     <ClInclude Include="IDSZ_map.h" />
-    <ClInclude Include="input.h" />
     <ClInclude Include="lighting.h" />
     <ClInclude Include="link.h" />
-    <ClInclude Include="log.h" />
-    <ClInclude Include="lua_console.h" />
     <ClInclude Include="mad.h" />
-    <ClInclude Include="md2.h" />
+    <ClInclude Include="Md2.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="mpd_BSP.h" />
@@ -208,156 +299,72 @@
     <ClInclude Include="obj_BSP.h" />
     <ClInclude Include="particle.h" />
     <ClInclude Include="passage.h" />
-    <ClInclude Include="physfs.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="profile.h" />
     <ClInclude Include="PrtList.h" />
-    <ClInclude Include="quest.h" />
     <ClInclude Include="rpc.h" />
+    <ClInclude Include="server.h" />
+    <ClInclude Include="sound.h" />
+    <ClInclude Include="texture.h" />
+    <ClInclude Include="ui.h" />
+    <ClInclude Include="extensions\SDL_extensions.h" />
+    <ClInclude Include="extensions\SDL_GL_extensions.h" />
+    <ClInclude Include="extensions\ogl_debug.h" />
+    <ClInclude Include="extensions\ogl_extensions.h" />
+    <ClInclude Include="extensions\ogl_include.h" />
+    <ClInclude Include="extensions\ogl_texture.h" />
+    <ClInclude Include="egoboo_vfs.h" />
+    <ClInclude Include="file_common.h" />
+    <ClInclude Include="file_formats\id_md2.h" />
+    <ClInclude Include="file_formats\mpd_file.h" />
+    <ClInclude Include="file_formats\module_file.h" />
+    <ClInclude Include="file_formats\cap_file.h" />
+    <ClInclude Include="file_formats\eve_file.h" />
+    <ClInclude Include="file_formats\pip_file.h" />
+    <ClInclude Include="file_formats\passage_file.h" />
+    <ClInclude Include="file_formats\controls_file-v1.h" />
+    <ClInclude Include="file_formats\controls_file-v2.h" />
+    <ClInclude Include="file_formats\controls_file-v3.h" />
+    <ClInclude Include="file_formats\controls_file.h" />
+    <ClInclude Include="file_formats\quest_file.h" />
+    <ClInclude Include="file_formats\template.h" />
+    <ClInclude Include="file_formats\configfile.h" />
+    <ClInclude Include="file_formats\wawalite_file.h" />
+    <ClInclude Include="file_formats\spawn_file.h" />
+    <ClInclude Include="file_formats\scancode_file.h" />
+    <ClInclude Include="file_formats\treasure_table_file.h" />
     <ClInclude Include="script.h" />
     <ClInclude Include="script_compile.h" />
     <ClInclude Include="script_functions.h" />
-    <ClInclude Include="server.h" />
-    <ClInclude Include="sound.h" />
-    <ClInclude Include="system.h" />
-    <ClInclude Include="texture.h" />
-    <ClInclude Include="ui.h" />
+    <ClInclude Include="egoboo_doxygen.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\res\egoboo.aps" />
-    <None Include="..\res\egoboo.ico" />
-    <None Include="..\res\egoboo3.ico" />
-    <None Include="..\res\install.ico" />
-    <None Include="..\res\old-egoboo.ico" />
-    <None Include="bbox.inl" />
-    <None Include="bsp.inl" />
     <None Include="char.inl" />
-    <None Include="egoboo_console.inl" />
-    <None Include="egoboo_math.inl" />
     <None Include="enchant.inl" />
-    <None Include="file_formats\id_normals.inl" />
-    <None Include="game.cbp" />
-    <None Include="md2.inl" />
+    <None Include="Md2.inl" />
     <None Include="mesh.inl" />
     <None Include="particle.inl" />
     <None Include="physics.inl" />
-    <None Include="platform\file_mac.m">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </None>
     <None Include="profile.inl" />
+    <None Include="file_formats\id_normals.inl" />
+    <None Include="..\res\egoboo.ico" />
+    <None Include="..\res\egoboo3.ico" />
+    <None Include="..\res\old-egoboo.ico" />
+    <None Include="bbox.inl" />
+    <None Include="bsp.inl" />
+    <None Include="egoboo_console.inl" />
+    <None Include="egoboo_math.inl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\egoboo.rc" />
   </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <ProjectGuid>{CE3BCC21-7613-4E63-B1C6-99BF0B32E1AD}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
-    <RootNamespace>game_vs10</RootNamespace>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>NotSet</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-    <CharacterSet>NotSet</CharacterSet>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\Egoboo\</OutDir>
-    <TargetName>egoboo_debug</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\Egoboo\</OutDir>
-    <TargetName>egoboo</TargetName>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>$(SolutionDir)enet\include;$(SolutionDir)game;$(SolutionDir)game\file_formats;$(SolutionDir)game\platform;$(SolutionDir)game\extensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <UndefinePreprocessorDefinitions>__cplusplus;</UndefinePreprocessorDefinitions>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <FloatingPointModel>Precise</FloatingPointModel>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
-      <CompileAsManaged>false</CompileAsManaged>
-      <MinimalRebuild>false</MinimalRebuild>
-      <OpenMPSupport>false</OpenMPSupport>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>enet.lib;shlwapi.lib;SHFolder.lib;Shell32.lib;SDL.lib;SDLmain.lib;opengl32.lib;glu32.lib;ws2_32.lib;SDL_ttf_d.lib;SDL_mixer_d.lib;SDL_image_d.lib;lua5.1.lib;physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <Version>2.8.1</Version>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <CompileAs>CompileAsCpp</CompileAs>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
-      <UndefinePreprocessorDefinitions>__cplusplus;</UndefinePreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)enet\include;$(SolutionDir)game;$(SolutionDir)game\file_formats;$(SolutionDir)game\platform;$(SolutionDir)game\extensions;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <MinimalRebuild>false</MinimalRebuild>
-      <DisableSpecificWarnings>4100;4702;4189;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <FloatingPointModel>Fast</FloatingPointModel>
-      <CompileAsManaged>false</CompileAsManaged>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>true</OmitFramePointers>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <Optimization>Full</Optimization>
-      <ErrorReporting>None</ErrorReporting>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>enet.lib;shlwapi.lib;SHFolder.lib;Shell32.lib;SDL.lib;SDLmain.lib;opengl32.lib;glu32.lib;ws2_32.lib;SDL_ttf.lib;SDL_mixer.lib;SDL_image.lib;lua5.1.lib;physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <TargetMachine>MachineX86</TargetMachine>
-      <EnableUAC>false</EnableUAC>
-      <Version>2.8.1</Version>
-      <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-      <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
-    </Link>
-  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="game_vs10.vcxproj">
+      <Project>{e9988340-e474-4c0a-8496-eff3296de056}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

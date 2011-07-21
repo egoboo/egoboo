@@ -1,0 +1,218 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>egolib</ProjectName>
+    <ProjectGuid>{0F32DD35-A264-4906-8FC9-2D0FE0613230}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)-Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)-Debug\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)-Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)-Release\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../enet/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName)-d.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <AdditionalIncludeDirectories>../enet/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)$(ProjectName).lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="file_formats\cap_file.c" />
+    <ClCompile Include="file_formats\configfile.c" />
+    <ClCompile Include="file_formats\controls_file-v1.c" />
+    <ClCompile Include="file_formats\controls_file-v2.c" />
+    <ClCompile Include="file_formats\controls_file-v3.c" />
+    <ClCompile Include="file_formats\controls_file.c" />
+    <ClCompile Include="file_formats\eve_file.c" />
+    <ClCompile Include="file_formats\id_md2.c" />
+    <ClCompile Include="file_formats\module_file.c" />
+    <ClCompile Include="file_formats\mpd_file.c" />
+    <ClCompile Include="file_formats\passage_file.c" />
+    <ClCompile Include="file_formats\pip_file.c" />
+    <ClCompile Include="file_formats\quest_file.c" />
+    <ClCompile Include="file_formats\scancode_file.c" />
+    <ClCompile Include="file_formats\SDL_md2.c" />
+    <ClCompile Include="file_formats\spawn_file.c" />
+    <ClCompile Include="file_formats\template.c" />
+    <ClCompile Include="file_formats\treasure_table_file.c" />
+    <ClCompile Include="file_formats\wawalite_file.c" />
+    <ClCompile Include="platform\file_amiga.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="platform\file_linux.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="platform\file_win.c" />
+    <ClCompile Include="platform\sys_linux.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="platform\sys_mac.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="platform\sys_win32.c" />
+    <ClCompile Include="extensions\ogl_debug.c" />
+    <ClCompile Include="extensions\ogl_extensions.c" />
+    <ClCompile Include="extensions\ogl_include.c" />
+    <ClCompile Include="extensions\ogl_texture.c" />
+    <ClCompile Include="extensions\SDL_extensions.c" />
+    <ClCompile Include="extensions\SDL_GL_extensions.c" />
+    <ClCompile Include="clock.c" />
+    <ClCompile Include="egoboo_clock.c" />
+    <ClCompile Include="egoboo_console.c" />
+    <ClCompile Include="egoboo_endian.c" />
+    <ClCompile Include="egoboo_fileutil.c" />
+    <ClCompile Include="egoboo_frustum.c" />
+    <ClCompile Include="egoboo_math.c" />
+    <ClCompile Include="egoboo_process.c" />
+    <ClCompile Include="egoboo_setup.c" />
+    <ClCompile Include="egoboo_strutil.c" />
+    <ClCompile Include="egoboo_timer.c" />
+    <ClCompile Include="egoboo_typedef.c" />
+    <ClCompile Include="egoboo_vfs.c" />
+    <ClCompile Include="file_common.c" />
+    <ClCompile Include="font_bmp.c" />
+    <ClCompile Include="font_ttf.c" />
+    <ClCompile Include="hash.c" />
+    <ClCompile Include="log.c" />
+    <ClCompile Include="lua_console.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="file_formats\cap_file.h" />
+    <ClInclude Include="file_formats\configfile.h" />
+    <ClInclude Include="file_formats\controls_file-v1.h" />
+    <ClInclude Include="file_formats\controls_file-v2.h" />
+    <ClInclude Include="file_formats\controls_file-v3.h" />
+    <ClInclude Include="file_formats\controls_file.h" />
+    <ClInclude Include="file_formats\eve_file.h" />
+    <ClInclude Include="file_formats\id_md2.h" />
+    <ClInclude Include="file_formats\module_file.h" />
+    <ClInclude Include="file_formats\mpd_file.h" />
+    <ClInclude Include="file_formats\passage_file.h" />
+    <ClInclude Include="file_formats\pip_file.h" />
+    <ClInclude Include="file_formats\quest_file.h" />
+    <ClInclude Include="file_formats\scancode_file.h" />
+    <ClInclude Include="file_formats\SDL_md2.h" />
+    <ClInclude Include="file_formats\spawn_file.h" />
+    <ClInclude Include="file_formats\template.h" />
+    <ClInclude Include="file_formats\treasure_table_file.h" />
+    <ClInclude Include="file_formats\wawalite_file.h" />
+    <ClInclude Include="platform\NSFileManager+DirectoryLocations.h" />
+    <ClInclude Include="extensions\ogl_debug.h" />
+    <ClInclude Include="extensions\ogl_extensions.h" />
+    <ClInclude Include="extensions\ogl_include.h" />
+    <ClInclude Include="extensions\ogl_texture.h" />
+    <ClInclude Include="extensions\SDL_extensions.h" />
+    <ClInclude Include="extensions\SDL_GL_extensions.h" />
+    <ClInclude Include="clock.h" />
+    <ClInclude Include="egoboo_clock.h" />
+    <ClInclude Include="egoboo_console.h" />
+    <ClInclude Include="egoboo_endian.h" />
+    <ClInclude Include="egoboo_fileutil.h" />
+    <ClInclude Include="egoboo_frustum.h" />
+    <ClInclude Include="egoboo_math.h" />
+    <ClInclude Include="egoboo_mem.h" />
+    <ClInclude Include="egoboo_platform.h" />
+    <ClInclude Include="egoboo_process.h" />
+    <ClInclude Include="egoboo_setup.h" />
+    <ClInclude Include="egoboo_state_machine.h" />
+    <ClInclude Include="egoboo_strutil.h" />
+    <ClInclude Include="egoboo_timer.h" />
+    <ClInclude Include="egoboo_typedef.h" />
+    <ClInclude Include="egoboo_typedef_cpp.h" />
+    <ClInclude Include="egoboo_vfs.h" />
+    <ClInclude Include="egolib.h" />
+    <ClInclude Include="file_common.h" />
+    <ClInclude Include="font_bmp.h" />
+    <ClInclude Include="font_ttf.h" />
+    <ClInclude Include="hash.h" />
+    <ClInclude Include="log.h" />
+    <ClInclude Include="lua_console.h" />
+    <ClInclude Include="system.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="file_formats\id_normals.inl">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuildStep>
+    <CustomBuildStep Include="egoboo_console.inl">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuildStep>
+    <CustomBuildStep Include="egoboo_math.inl">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </CustomBuildStep>
+    <None Include="egolib.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
