@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Cartman_SDL_GL" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="nix-gcc-debug">
+				<Option platforms="Unix;" />
+				<Option output="bin\cartman-nix-gcc-debug" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\nix-gcc-debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+			</Target>
+			<Target title="nix-gcc-release">
+				<Option platforms="Unix;" />
+				<Option output="bin\cartman-nix-gcc-release" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\nix-gcc-release\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-DNDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="cygwin-gcc-debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\cartman-cygwin-gcc-debug" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\cygwin-gcc-debug\" />
+				<Option type="1" />
+				<Option compiler="cygwin" />
+				<Compiler>
+					<Add option="-mno-cygwin" />
+					<Add option="-Wshadow" />
+					<Add option="-Winit-self" />
+					<Add option="-Wredundant-decls" />
+					<Add option="-Wcast-align" />
+					<Add option="-Wundef" />
+					<Add option="-Wfloat-equal" />
+					<Add option="-Winline" />
+					<Add option="-Wunreachable-code" />
+					<Add option="-Wmissing-declarations" />
+					<Add option="-Wmissing-include-dirs" />
+					<Add option="-Wswitch-enum" />
+					<Add option="-Wswitch-default" />
+					<Add option="-Weffc++" />
+					<Add option="-Wmain" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+					<Add option="-DWIN32" />
+					<Add option="-D_WINDOWS" />
+					<Add directory="C:\SDKs\SDL\include" />
+					<Add directory="C:\SDKs\SDL_image" />
+					<Add directory="C:\SDKs\SDL_ttf" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg" />
+					<Add library="SDLmain" />
+					<Add library="SDL" />
+					<Add library="SDL_image" />
+					<Add library="SDL_ttf" />
+					<Add library="SDL_mixer" />
+					<Add library="shlwapi" />
+					<Add library="Winmm" />
+					<Add directory="C:\SDKs\SDL\lib" />
+					<Add directory="C:\SDKs\SDL_image\lib" />
+					<Add directory="C:\SDKs\SDL_ttf\lib" />
+				</Linker>
+			</Target>
+			<Target title="cygwin-gcc-release">
+				<Option platforms="Windows;" />
+				<Option output="bin\cartman-cygwin-gcc-release" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\cygwin-gcc-release\" />
+				<Option type="1" />
+				<Option compiler="cygwin" />
+				<Compiler>
+					<Add option="-mno-cygwin" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-O2" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DWIN32" />
+					<Add option="-D_WINDOWS" />
+					<Add directory="C:\SDKs\SDL\include" />
+					<Add directory="C:\SDKs\SDL_image" />
+					<Add directory="C:\SDKs\SDL_ttf" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-pg" />
+					<Add library="SDLmain" />
+					<Add library="SDL" />
+					<Add library="SDL_image" />
+					<Add library="SDL_ttf" />
+					<Add library="SDL_mixer" />
+					<Add library="shlwapi" />
+					<Add library="Winmm" />
+					<Add directory="C:\SDKs\SDL\lib" />
+					<Add directory="C:\SDKs\SDL_image\lib" />
+					<Add directory="C:\SDKs\SDL_ttf\lib" />
+				</Linker>
+			</Target>
+			<Target title="win32-msvc10-debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\cartman-win32-msvc10-debug" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\win32-msvc10-debug\" />
+				<Option type="1" />
+				<Option compiler="microsoft_visual_c_2010" />
+				<Compiler>
+					<Add option="-mno-cygwin" />
+					<Add option="-Wshadow" />
+					<Add option="-Winit-self" />
+					<Add option="-Wredundant-decls" />
+					<Add option="-Wcast-align" />
+					<Add option="-Wundef" />
+					<Add option="-Wfloat-equal" />
+					<Add option="-Winline" />
+					<Add option="-Wunreachable-code" />
+					<Add option="-Wmissing-declarations" />
+					<Add option="-Wmissing-include-dirs" />
+					<Add option="-Wswitch-enum" />
+					<Add option="-Wswitch-default" />
+					<Add option="-Weffc++" />
+					<Add option="-Wmain" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+					<Add option="-DWIN32" />
+					<Add option="-D_WINDOWS" />
+					<Add directory="C:\SDKs\SDL\include" />
+					<Add directory="C:\SDKs\SDL_image" />
+					<Add directory="C:\SDKs\SDL_ttf" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg" />
+					<Add library="SDLmain" />
+					<Add library="SDL" />
+					<Add library="SDL_image" />
+					<Add library="SDL_ttf" />
+					<Add library="SDL_mixer" />
+					<Add library="shlwapi" />
+					<Add library="Winmm" />
+					<Add directory="C:\SDKs\SDL\lib" />
+					<Add directory="C:\SDKs\SDL_image\lib" />
+					<Add directory="C:\SDKs\SDL_ttf\lib" />
+				</Linker>
+			</Target>
+			<Target title="win32-msvc10-release">
+				<Option platforms="Windows;" />
+				<Option output="bin\cartman-win32-msvc10-release" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\win32-msvc10-release\" />
+				<Option type="1" />
+				<Option compiler="microsoft_visual_c_2010" />
+				<Compiler>
+					<Add option="-mno-cygwin" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-O2" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DWIN32" />
+					<Add option="-D_WINDOWS" />
+					<Add directory="C:\SDKs\SDL\include" />
+					<Add directory="C:\SDKs\SDL_image" />
+					<Add directory="C:\SDKs\SDL_ttf" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-pg" />
+					<Add library="SDLmain" />
+					<Add library="SDL" />
+					<Add library="SDL_image" />
+					<Add library="SDL_ttf" />
+					<Add library="SDL_mixer" />
+					<Add library="shlwapi" />
+					<Add library="Winmm" />
+					<Add directory="C:\SDKs\SDL\lib" />
+					<Add directory="C:\SDKs\SDL_image\lib" />
+					<Add directory="C:\SDKs\SDL_ttf\lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-D_CONSOLE" />
+			<Add option="-DMT" />
+			<Add directory="\usr\include" />
+			<Add directory="\usr\include\SDL" />
+			<Add directory="\include\SDL" />
+		</Compiler>
+		<Linker>
+			<Add option="-pg" />
+			<Add library="libSDLmain" />
+			<Add library="libSDL" />
+			<Add library="libSDL_ttf" />
+			<Add library="libSDL_image" />
+			<Add directory="\usr\lib" />
+		</Linker>
+		<Unit filename="SDL_GetPixel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SDL_Pixel.h" />
+		<Unit filename="SDL_PutPixel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SDL_rotozoom.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="SDL_rotozoom.h" />
+		<Unit filename="cartman.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="cartman.h" />
+		<Unit filename="cartman_functions.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="cartman_functions.h" />
+		<Unit filename="cartman_gfx.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="cartman_gfx.h" />
+		<Unit filename="cartman_gui.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="cartman_gui.h" />
+		<Unit filename="cartman_input.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="cartman_input.h" />
+		<Unit filename="cartman_math.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="cartman_math.h" />
+		<Unit filename="cartman_mpd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="cartman_mpd.h" />
+		<Unit filename="standard.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Extensions>
+			<envvars />
+			<code_completion />
+			<lib_finder disable_auto="1" />
+			<debugger>
+				<remote_debugging target="nix-gcc-debug">
+					<options conn_type="0" serial_baud="115200" additional_cmds_before="~/egoboo advent" />
+				</remote_debugging>
+			</debugger>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

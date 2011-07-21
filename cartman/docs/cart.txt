@@ -1,0 +1,106 @@
+Right now (6/01), the SDL port of cartman is still incomplete, so
+you have to use the old dos version. You have to start it up in the
+egoboo\cartman directory and give it the name of the module to edit.
+You can only run it from dos.
+
+>From programmer X:
+
+Generic keys
+  Esc           = Quit
+  F1            = Quit ( in case your Esc key is broken... )
+  W             = Write the file ( Save )
+
+Functions
+  5             = Adjust the height of selected vertices ( deep pit level )
+  6             = Adjust the height of selected vertices ( shallow pit level )
+  7             = Adjust the height of selected vertices ( raised platform level )
+  X             = Good key.  Put borders around tiles that the cursor is over
+  G             = Good key.  Welds corner vertices together so there aren`t holes
+  J             = Jitter all the vertices or selected vertices, good for outdoors ( J G )
+  Space         = Weld selected vertices together
+  F             = Fixes corner vertices for the tile the cursor is over
+  Q             = Mystery key
+  L + SHIFT     = Bad key.  Levels the walls...
+  C + SHIFT     = Bad key.  Clears the map.  Can use at start to set basic terrain
+
+Movement
+  Cursors     = Scroll around
+  M           = Move camera
+  Middle Drag = Move camera ( Use M key for a 2 button mouse )
+
+Brush Commands
+  1             = Remove random the texture pattern
+  2             = Set up a 2 tile random texture pattern
+  3             = Set up a 4 tile random texture pattern
+  4             = Set up a hi-res random texture pattern
+
+  R             = Toggle the Reflection tile effect 
+  D             = Toggle the Draw reflect tile effect 
+  A             = Toggle the Animated tile effect 
+  B             = Toggle the Barrier tile effect 
+  I             = Toggle the Impassable tile effect 
+  S             = Toggle the Slippy tile effect 
+  H             = Toggle the Hurt tile effect 
+  O             = Toggle the Overlay ( water ) tile effect 
+
+  Ins           = Change brush mesh type
+  Del           = Change brush mesh type
+
+  Keypad +      = Change the brush texture
+  Keypad -      = Change the brush texture
+
+  Keypad 1      = Set brush size 1
+  Keypad 3      = Set brush size 2
+  Keypad 7      = Set brush size 3
+  Keypad 9      = Set brush size 4
+
+FX Window (bottom right)
+  Left Click    = Set tile effects  
+  Right Click   = Pick tile effects
+  LShift (Hold) = Copy the tile effect to all similar tiles
+
+Tile Window (top right)
+  Left Click   = Drop tile ( Holding V or T is useful )
+  Right Click  = Pick tile 
+  K (Hold)     = Create a light ( do last, goes away if you quit )
+  T (Hold)     = Good key.  No tile effect or vertex update
+  V (Hold)     = Puts new tiles at floor level
+  Z (Hold)     = Set tile type to the current brush type
+
+Top Vertex Window (top left)
+  Left Click   = Select vertices ( Holding CTRL or ALT is useful )
+  Right Click  = Make a hill ( Use keypad 1, 3, 7, 9 )
+  P            = Make a hill
+
+Side Vertex Window (bottom left)
+  Left Click   = Select vertices
+  Right Click  = Move selected vertices
+  U (Hold)     = Move tiles of selected type up and down
+  Y (Hold)     = Move selected vertices up and down
+  N (Hold)     = Move entire mesh up and down 
+  E (Hold)     = Ease everything up and down
+
+
+Notes...
+  Red triangle mesh means hi-res 64x64 bitmap, blue means lo-res 32x32 bitmap
+  Use barriers for corner walls so arrows don`t get stopped
+  Same for iron gates
+  Setup animated tiles in wawalite.txt
+  Look at advent.mod to see how to do reflections
+  Slippy tiles are for steep cliffs and raised platforms
+  Use the two-triangle tiles as much as possible
+  The rightmost slider lets you set how fast the hills grow or shrink
+  To make a level...
+    Press C to clear the map to the basic type ( use 3F for wall tops?  3E? )
+    Draw the map, using 1 wall and 4 random floor tile types.  Map is ugly.
+    Make sure triangle mesh is correct.  Diagonals point out on corners.
+    Use X over the different tile types.  Map is pretty.
+  To make walls...
+    Use L to make everything flat
+    Use N to move everything up in the bottom left window
+    Select the floor tile by right clicking in the top right window
+    Use U to move the floor down in the bottom left window.  Press G.
+    Use U. Press G.
+    Use U. Press G.
+    Use U. Press G.
+    Use U. Press G.

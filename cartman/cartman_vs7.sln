@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cartman", "src\cartman_vs7.vcproj", "{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Debug.ActiveCfg = Debug|Win32
+		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Debug.Build.0 = Debug|Win32
+		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Release.ActiveCfg = Release|Win32
+		{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
