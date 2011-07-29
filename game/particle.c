@@ -24,7 +24,7 @@
 
 #include "PrtList.h"
 
-#include "log.h"
+#include <egolib/log.h>
 #include "sound.h"
 #include "camera_system.h"
 #include "game.h"
@@ -33,9 +33,9 @@
 #include "mpd_functions.h"
 #include "mad.h"
 
-#include "egoboo_setup.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
+#include <egolib/egoboo_setup.h>
+#include <egolib/fileutil.h>
+#include <egolib/strutil.h>
 #include "egoboo.h"
 
 #include "mesh.inl"
@@ -43,7 +43,7 @@
 #include "profile.inl"
 
 // this include must be the absolute last include
-#include "egoboo_mem.h"
+#include <egolib/mem.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

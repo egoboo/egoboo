@@ -25,21 +25,11 @@
 #include "quest_file.h"
 
 #include "../log.h"
-#include "../menu.h"
-#include "../sound.h"
-#include "../graphic.h"
-#include "../passage.h"
-#include "../input.h"
-#include "../game.h"
 
-#include "../egoboo_vfs.h"
-#include "../egoboo_strutil.h"
-#include "../egoboo_setup.h"
-#include "../egoboo_fileutil.h"
-#include "../egoboo.h"
-
-#include "../char.inl"
-#include "../enchant.inl"
+#include "../vfs.h"
+#include "../strutil.h"
+#include "../fileutil.h"
+#include "../platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -206,10 +196,12 @@ int module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, ch
 }
 
 //--------------------------------------------------------------------------------------------
-void module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer )
+bool_t module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer )
 {
     /// @details ZZ@> This function appends an IDSZ to the module's menu.txt file
+
     vfs_FILE *filewrite;
+    bool_t retval = bfalse;
 
     // Only add if there isn't one already
     if ( !module_has_idsz_vfs( szModName, idsz, 0, NULL ) )
@@ -223,7 +215,7 @@ void module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, c
 
         // Try to open the file in append mode
         filewrite = vfs_openAppend( dst_file );
-        if ( filewrite )
+        if ( NULL != filewrite )
         {
             // output the expansion IDSZ
             vfs_printf( filewrite, "\n:[%s]", undo_idsz( idsz ) );
@@ -237,11 +229,13 @@ void module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, c
             // end the line
             vfs_printf( filewrite, "\n" );
 
-            // invalidate any module list so that we will reload them
-            module_list_valid = bfalse;
+            // success
+            retval = btrue;
 
             // close the file
             vfs_close( filewrite );
         }
     }
+
+    return retval;
 }

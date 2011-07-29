@@ -23,10 +23,11 @@
 
 #include "pip_file.h"
 
-#include "../sound.h"
+#include "../vfs.h"
+#include "../fileutil.h"
 
-#include "../egoboo_vfs.h"
-#include "../egoboo_fileutil.h"
+// includes for egoboo constants
+#include <game/sound.h>                 // for INVALID_SOUND
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -615,4 +615,4 @@ parser_state_t * script_compiler_get_state( void );
 bool_t           script_compiler_error( parser_state_t * );
 bool_t           script_compiler_clear_error( parser_state_t * );
 
-egoboo_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript );
+egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript );

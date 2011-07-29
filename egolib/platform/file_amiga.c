@@ -24,8 +24,8 @@
 #include "file_common.h"
 #include "log.h"
 
-#include "egoboo_strutil.h"
-#include "egoboo.h"
+#include "../egolib/strutil.h"
+//#include "egoboo.h"
 
 #include <unistd.h>
 #include <pwd.h>
@@ -35,7 +35,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 //#include <sys/dir.h>
-#include "egoboo_mem.h"
+#include "../egolib/mem.h"
 
 #define PATH_MAX 256
 #define PREFIX "PROGDIR:"

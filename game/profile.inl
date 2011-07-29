@@ -87,7 +87,7 @@ static INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int pip_index )
     if ( !LOADED_PRO( iobj ) )
     {
         // check for a global pip
-        global_pip = pip_index;
+        global_pip = (( pip_index < 0 ) || ( pip_index > MAX_PIP ) ) ? MAX_PIP : ( PIP_REF )pip_index;
         if ( LOADED_PIP( global_pip ) )
         {
             found_pip = global_pip;
@@ -169,7 +169,7 @@ static INLINE pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index )
     if ( !LOADED_PRO( iobj ) )
     {
         // check for a global pip
-        global_pip = pip_index;
+        global_pip = (( pip_index < 0 ) || ( pip_index > MAX_PIP ) ) ? MAX_PIP : ( PIP_REF )pip_index;
         if ( LOADED_PIP( global_pip ) )
         {
             return PipStack_get_ptr( global_pip );

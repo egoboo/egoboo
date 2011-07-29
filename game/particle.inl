@@ -23,7 +23,7 @@
 
 #include "char.inl"
 
-#include "egoboo_math.inl"
+#include <egolib/_math.inl>
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATION

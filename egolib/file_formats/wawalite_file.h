@@ -22,7 +22,7 @@
 /// @file file_formats/wawalite_file.h
 /// @details loading the environment definitions for a module
 
-#include "../egoboo_math.h"
+#include "../_math.h"
 
 #if defined(__cplusplus)
 extern "C"

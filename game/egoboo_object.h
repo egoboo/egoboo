@@ -23,7 +23,7 @@
 /// @details Definitions of data that all Egoboo objects should "inherit"
 
 #include "egoboo_typedef.h"
-#include "egoboo_state_machine.h"
+#include <egolib/state_machine.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

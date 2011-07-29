@@ -22,7 +22,7 @@
 /// @file file_formats/eve_file.h
 /// @details data and functions for reading and writing enchant.txt files
 
-#include "../egoboo_typedef.h"
+#include "../typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

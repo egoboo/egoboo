@@ -23,9 +23,8 @@
 
 #include "egoboo_typedef.h"
 
-#include "hash.h"
-
-#include "bbox.inl"
+#include <egolib/hash.h>
+#include <egolib/bbox.inl>
 
 //--------------------------------------------------------------------------------------------
 // external structs

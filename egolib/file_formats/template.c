@@ -23,10 +23,13 @@
 
 #include "template.h"
 
-#include "../egoboo_strutil.h"
-#include "../egoboo_fileutil.h"
+#include "../strutil.h"
+#include "../fileutil.h"
 
-#include "../char.inl"
+#include "file_formats/cap_file.h"
+
+// includes for egoboo constants
+#include <game/mad.h>                     // for ACTION_* constants
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

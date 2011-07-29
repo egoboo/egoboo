@@ -171,7 +171,7 @@ SDL_Surface * cartman_LoadIMG( const char * szName );
 // camera stuff
 void cartman_begin_ortho_camera_hrz( struct s_window * pwin, struct s_camera * pcam, float zoom_x, float zoom_y );
 void cartman_begin_ortho_camera_vrt( struct s_window * pwin, struct s_camera * pcam, float zoom_x, float zoom_z );
-void cartman_end_ortho_camera( );
+void cartman_end_ortho_camera();
 
 // setup
 void create_imgcursor( void );

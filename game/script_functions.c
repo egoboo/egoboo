@@ -31,29 +31,30 @@
 
 #include "link.h"
 #include "camera_system.h"
-#include "passage.h"
 #include "graphic.h"
 #include "input.h"
 #include "network.h"
 #include "game.h"
-#include "log.h"
 #include "player.h"
+#include "menu.h"
 
+#include "passage.h"
 #include "AStar.h"
 
-#include "egoboo_math.h"
-#include "egoboo_strutil.h"
-#include "egoboo_setup.h"
+#include <egolib/log.h>
+#include <egolib/_math.h>
+#include <egolib/strutil.h>
+#include <egolib/egoboo_setup.h>
 
-#include "file_formats/spawn_file.h"
-#include "file_formats/quest_file.h"
+#include <egolib/file_formats/spawn_file.h>
+#include <egolib/file_formats/quest_file.h>
 
 #include "profile.inl"
 #include "enchant.inl"
 #include "char.inl"
 #include "particle.inl"
 #include "mesh.inl"
-#include "egoboo_math.inl"
+#include <egolib/_math.inl>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1405,7 +1406,11 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    module_add_idsz_vfs( pickedmodule_name, pstate->argument, 0, NULL );
+    if ( module_add_idsz_vfs( pickedmodule_name, pstate->argument, 0, NULL ) )
+    {
+        // invalidate any module list so that we will reload them
+        module_list_valid = bfalse;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -7006,7 +7011,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     // AddQuest( tmpargument = "quest idsz" )
     /// @details ZF@> This function adds a quest idsz set in tmpargument into the targets quest.txt to 0
 
-    egoboo_rv result = rv_fail;
+    egolib_rv result = rv_fail;
     chr_t * pself_target;
     PLA_REF ipla;
 
@@ -7873,7 +7878,7 @@ Uint8 scr_GiveSkillToTarget( script_state_t * pstate, ai_state_t * pself )
     // GiveSkillToTarget( tmpargument = "skill_IDSZ", tmpdistance = "skill_level" )
     /// @details ZF@> This function permanently gives the target character a skill
     chr_t *ptarget;
-    egoboo_rv rv;
+    egolib_rv rv;
 
     SCRIPT_FUNCTION_BEGIN();
 

@@ -44,8 +44,8 @@ static int breadcrumb_guid = 0;
 const float air_friction = 0.9868f;
 const float ice_friction = 0.9738f;  // the square of air_friction
 
-static egoboo_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
-static egoboo_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
+static egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
+static egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
 
 static bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
 static bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_base_t nrm, float * depth );
@@ -414,7 +414,7 @@ bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t * src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
+egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t * src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
 {
     float vdiff;
     float src1_min, src1_max;
@@ -614,7 +614,7 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
         // cycle through the coordinates to see when the two volumes might coincide
         for ( index = 0; index < OCT_COUNT; index++ )
         {
-            egoboo_rv retval;
+            egolib_rv retval;
 
             if ( ABS( ovel1[index] - ovel2[index] ) < 1.0e-6 )
             {
@@ -710,7 +710,7 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t * src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
+egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t * src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax )
 {
     float vdiff;
     float opos1, opos2;
@@ -936,7 +936,7 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
     *tmin = *tmax = -1.0f;
     for ( index = 0; index < OCT_COUNT; index ++ )
     {
-        egoboo_rv retval;
+        egolib_rv retval;
         float tmp_min, tmp_max;
 
         retval = phys_intersect_oct_bb_close_index( index, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );

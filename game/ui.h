@@ -25,7 +25,7 @@
 
 #include "egoboo_typedef.h"
 
-#include "extensions/ogl_texture.h"
+#include <egolib/extensions/ogl_texture.h>
 
 #include <SDL.h>
 

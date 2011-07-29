@@ -21,23 +21,20 @@
 /// @brief Functions for handling the setup.txt file
 /// @details
 
-#include "egoboo_setup.h"
+#include "../egolib/egoboo_setup.h"
 
-#include "log.h"
-#include "graphic.h"
-#include "input.h"
-#include "sound.h"
-#include "network.h"
-#include "camera_system.h"
-#include "game.h"
-
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
-#include "egoboo.h"
+#include "../egolib/log.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/strutil.h"
 
 #include "file_formats/configfile.h"
+#include "extensions/ogl_texture.h"
 
-#include "particle.inl"
+#include "../egolib/_math.inl"
+
+// includes for egoboo constants
+#include <game/camera.h>            // for CAM_TURN_*
+#include <game/graphic.h>           // for MAX_MESSAGE
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

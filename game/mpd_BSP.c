@@ -24,10 +24,10 @@
 #include "mpd_BSP.h"
 #include "obj_BSP.h"
 
-#include "egoboo_frustum.h"
+#include <egolib/frustum.h>
 
 #include "mesh.inl"
-#include "egoboo_math.inl"
+#include <egolib/_math.inl>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ bool_t mpd_BSP_system_started()
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv mpd_BSP_system_begin( ego_mpd_t * pmpd )
+egolib_rv mpd_BSP_system_begin( ego_mpd_t * pmpd )
 {
     // if he system is already started, do a reboot
     if ( _mpd_BSP_system_initialized )
@@ -78,7 +78,7 @@ egoboo_rv mpd_BSP_system_begin( ego_mpd_t * pmpd )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv  mpd_BSP_system_end()
+egolib_rv  mpd_BSP_system_end()
 {
     if ( _mpd_BSP_system_initialized )
     {
@@ -225,7 +225,7 @@ int mpd_BSP_collide_aabb( const mpd_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf
 }
 
 //--------------------------------------------------------------------------------------------
-int mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const ego_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+int mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
     /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
     //      Return the number of collisions found.

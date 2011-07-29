@@ -22,7 +22,7 @@
 /// @file quest.h
 /// @brief read/write/modify the quest.txt file
 
-#include "../egoboo_typedef.h"
+#include "../typedef.h"
 
 #include "configfile.h"
 
@@ -54,19 +54,19 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 // Public functions
-    egoboo_rv quest_log_download_vfs( struct s_IDSZ_node quest_log[], size_t quest_log_len, const char* player_directory );
-    egoboo_rv quest_log_upload_vfs( struct s_IDSZ_node quest_log[], size_t quest_log_len, const char *player_directory );
+    egolib_rv quest_log_download_vfs( struct s_IDSZ_node quest_log[], size_t quest_log_len, const char* player_directory );
+    egolib_rv quest_log_upload_vfs( struct s_IDSZ_node quest_log[], size_t quest_log_len, const char *player_directory );
     int       quest_log_set_level( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz, int level );
     int       quest_log_adjust_level( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz, int adjustment );
     int       quest_log_get_level( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz );
-    egoboo_rv quest_log_add( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz, int level );
+    egolib_rv quest_log_add( struct s_IDSZ_node quest_log[], size_t quest_log_len, IDSZ idsz, int level );
 
     ConfigFilePtr_t quest_file_open( const char *player_directory );
-    egoboo_rv       quest_file_export( ConfigFilePtr_t pfile );
-    egoboo_rv       quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export );
-    egoboo_rv       quest_file_set_level( ConfigFilePtr_t ppfile, IDSZ idsz, int level );
-    egoboo_rv       quest_file_adjust_level( ConfigFilePtr_t ppfile, IDSZ idsz, int adjustment );
-    egoboo_rv       quest_file_get_level( ConfigFilePtr_t ppfile, IDSZ idsz );
+    egolib_rv       quest_file_export( ConfigFilePtr_t pfile );
+    egolib_rv       quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export );
+    egolib_rv       quest_file_set_level( ConfigFilePtr_t ppfile, IDSZ idsz, int level );
+    egolib_rv       quest_file_adjust_level( ConfigFilePtr_t ppfile, IDSZ idsz, int adjustment );
+    egolib_rv       quest_file_get_level( ConfigFilePtr_t ppfile, IDSZ idsz );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

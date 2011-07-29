@@ -22,7 +22,7 @@
 /// @file file_formats/scancode_file.h
 /// @details routines for reading and writing the file "scancode.txt"
 
-#include "../egoboo_typedef.h"
+#include "../typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

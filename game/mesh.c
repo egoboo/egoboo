@@ -23,20 +23,20 @@
 
 #include "mesh.inl"
 
-#include "log.h"
+#include <egolib/log.h>
 #include "graphic.h"
 #include "mpd_functions.h"
 
-#include "egoboo_endian.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
-#include "egoboo_math.h"
+#include <egolib/endian.h>
+#include <egolib/fileutil.h>
+#include <egolib/strutil.h>
+#include <egolib/_math.h>
 #include "egoboo.h"
 
-#include "egoboo_math.inl"
+#include <egolib/_math.inl>
 
 // this include must be the absolute last include
-#include "egoboo_mem.h"
+#include <egolib/mem.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -82,6 +82,12 @@ ego_mpd_t   mesh;
 int mesh_mpdfx_tests = 0;
 int mesh_bound_tests = 0;
 int mesh_pressure_tests = 0;
+
+fvec3_t   map_twist_nrm[256];
+Uint32    map_twist_y[256];            // For surface normal of mesh
+Uint32    map_twist_x[256];
+fvec3_t   map_twist_vel[256];            // For sliding down steep hills
+Uint8     map_twist_flat[256];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

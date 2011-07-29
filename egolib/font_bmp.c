@@ -21,14 +21,14 @@
 /// @brief bitmapped font stuff
 /// @details
 
-#include "font_bmp.h"
+#include "../egolib/font_bmp.h"
+#include "../egolib/log.h"
 
-#include "texture.h"
-#include "log.h"
+#include "../egolib/vfs.h"
+#include "../egolib/strutil.h"
+#include "../egolib/fileutil.h"
 
-#include "egoboo_vfs.h"
-#include "egoboo_strutil.h"
-#include "egoboo_fileutil.h"
+#include "extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -54,8 +54,8 @@ void font_bmp_init()
         asciitofont[cnt] = 255;
     }
 
-    dx = 256 / NUMFONTX;
-    dy = 256 / NUMFONTY;
+    dx = 256.0f / NUMFONTX;
+    dy = 256.0f / NUMFONTY;
     for ( i = 0; i < NUMFONT; i++ )
     {
         ix = i % NUMFONTX;
@@ -71,7 +71,7 @@ void font_bmp_init()
 }
 
 //--------------------------------------------------------------------------------------------
-void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
+void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const char* szSpacing )
 {
     /// @details ZZ@> This function loads the font bitmap and sets up the coordinates
     ///    of each font on that bitmap...  Bitmap must have 16x6 fonts
@@ -83,14 +83,17 @@ void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing )
     vfs_FILE *fileread;
 
     font_bmp_init();
-    if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( szBitmap, ( TX_REF )TX_FONT, TRANSCOLOR ) )
+
+    if ( NULL == tx_font ) return;
+
+    if ( INVALID_GL_ID == ego_texture_load_vfs( tx_font, szBitmap, TRANSCOLOR ) )
     {
         log_error( "load_font() - Cannot load file! (\"%s\")\n", szBitmap );
     }
 
     // Get the size of the bitmap
-    xsize = oglx_texture_GetImageWidth( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ) );
-    ysize = oglx_texture_GetImageHeight( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ) );
+    xsize = oglx_texture_GetImageWidth( tx_font );
+    ysize = oglx_texture_GetImageHeight( tx_font );
     if ( 0 == xsize || 0 == ysize )
     {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );

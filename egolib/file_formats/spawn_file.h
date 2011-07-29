@@ -22,9 +22,9 @@
 /// @file file_formats/spawn_file.h
 /// @details loading the environment definitions for a module
 
-#include "../egoboo_typedef.h"
-#include "../egoboo_vfs.h"
-#include "../egoboo_math.h"
+#include "../typedef.h"
+#include "../vfs.h"
+#include "../_math.h"
 
 #if defined(__cplusplus)
 extern "C"

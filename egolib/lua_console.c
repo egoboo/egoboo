@@ -34,15 +34,15 @@ extern "C"
 }
 #endif
 
-#include "lua_console.h"
-#include "file_common.h"
+#include "../egolib/lua_console.h"
+#include "../egolib/file_common.h"
 
-#include "egoboo_console.inl"
-#include "egoboo_typedef.h"
+#include "../egolib/console.inl"
+#include "../egolib/typedef.h"
 
 #include <string.h>
 
-#include "egoboo_mem.h"
+#include "../egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ struct s_lua_console
 {
     lua_State * L;
 
-    egoboo_console_t base;
+    egolib_console_t base;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ static lua_State     * global_L = NULL;
 int luaopen_ego( lua_State* L );
 //extern void luaopen_ego( lua_State* L );
 
-static SDL_bool lua_console_run( egoboo_console_t * pcon, void * data );
+static SDL_bool lua_console_run( egolib_console_t * pcon, void * data );
 
 static int lua_console_print( lua_State * L );
 static int lua_console_report( lua_console_t * pcon, int status );
@@ -117,13 +117,13 @@ lua_console_t * lua_console_ctor( lua_console_t * pcon, SDL_Rect Con_rect )
     memset( pcon, 0, sizeof( *pcon ) );
 
     // call the new function for the "base class"
-    egoboo_console_create( &( pcon->base ), Con_rect, lua_console_run, pcon );
+    egolib_console_create( &( pcon->base ), Con_rect, lua_console_run, pcon );
 
     // connect to Lua
     pcon->L = lua_newthread( global_L );  /* create state */
     if ( NULL == pcon->L )
     {
-        egoboo_console_fprint( &( pcon->base ), "lua_console_init() - cannot create Lua state\n" );
+        egolib_console_fprint( &( pcon->base ), "lua_console_init() - cannot create Lua state\n" );
         return pcon;
     }
 
@@ -151,7 +151,7 @@ lua_console_t * lua_console_create( lua_console_t * pcon, SDL_Rect Con_rect )
 //--------------------------------------------------------------------------------------------
 lua_console_t * lua_console_dtor( lua_console_t * pcon )
 {
-    egoboo_console_t * ptr;
+    egolib_console_t * ptr;
 
     if ( NULL == pcon ) return NULL;
 
@@ -160,7 +160,7 @@ lua_console_t * lua_console_dtor( lua_console_t * pcon )
 
     // delete the "base class", but tell it not to actuall free the data
     ptr = &( pcon->base );
-    egoboo_console_destroy( &ptr, SDL_FALSE );
+    egolib_console_destroy( &ptr, SDL_FALSE );
 
     return pcon;
 }
@@ -179,7 +179,7 @@ SDL_bool lua_console_destroy( lua_console_t ** pcon )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_console_t * lua_console_get_base( lua_console_t * pcon )
+egolib_console_t * lua_console_get_base( lua_console_t * pcon )
 {
     if ( NULL == pcon ) return NULL;
 
@@ -199,7 +199,7 @@ int lua_console_report( lua_console_t * pcon, int status )
             msg = "(error object is not a string)";
         };
 
-        egoboo_console_fprint( &( pcon->base ), "%s\n", msg );
+        egolib_console_fprint( &( pcon->base ), "%s\n", msg );
 
         lua_pop( pcon->L, 1 );
     }
@@ -208,7 +208,7 @@ int lua_console_report( lua_console_t * pcon, int status )
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool lua_console_run( egoboo_console_t * ego_con, void * data )
+SDL_bool lua_console_run( egolib_console_t * ego_con, void * data )
 {
     int status;
     lua_console_t * lua_con;
@@ -221,8 +221,8 @@ SDL_bool lua_console_run( egoboo_console_t * ego_con, void * data )
 
     if ( status )
     {
-        egoboo_console_fprint( ego_con, "Could not load the line \"%s\"\n", ego_con->buffer );
-        egoboo_console_fprint( ego_con, "Lua status: \"%s\"\n", lua_tostring( lua_con->L, -1 ) );
+        egolib_console_fprint( ego_con, "Could not load the line \"%s\"\n", ego_con->buffer );
+        egolib_console_fprint( ego_con, "Lua status: \"%s\"\n", lua_tostring( lua_con->L, -1 ) );
     }
     else
     {
@@ -240,7 +240,7 @@ SDL_bool lua_console_run( egoboo_console_t * ego_con, void * data )
 */
 int lua_console_print( lua_State * L )
 {
-    egoboo_console_t * ego_con = egoboo_console_top;
+    egolib_console_t * ego_con = egolib_console_top;
 
     int n = lua_gettop( L );  /* number of arguments */
     int i;
@@ -256,11 +256,11 @@ int lua_console_print( lua_State * L )
         {
             return SDL_FALSE;
         }
-        if ( i > 1 ) egoboo_console_fprint( ego_con, "    ", stdout );
-        egoboo_console_fprint( ego_con, s );
+        if ( i > 1 ) egolib_console_fprint( ego_con, "    ", stdout );
+        egolib_console_fprint( ego_con, s );
         lua_pop( L, 1 );  /* pop result */
     }
-    egoboo_console_fprint( ego_con, "\n" );
+    egolib_console_fprint( ego_con, "\n" );
 
     return SDL_TRUE;
 }

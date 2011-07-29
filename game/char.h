@@ -32,11 +32,11 @@
 #include "md2.h"
 #include "graphic.h"
 #include "physics.h"
-#include "bsp.h"
+#include <egolib/bsp.h>
 
 #include "egoboo.h"
 
-#include "file_formats/cap_file.h"
+#include <egolib/file_formats/cap_file.h>
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -87,9 +87,7 @@ typedef struct s_chr chr_t;
 #define CHR_MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
 
 #define GRABSIZE            90.0f //135.0f             ///< Grab tolerance
-#define NOHIDE              127                        ///< Don't hide
 #define SEEINVISIBLE        128                        ///< Cutoff for invisible characters
-#define RESPAWN_ANYTIME     0xFF                       ///< Code for respawnvalid...
 
 #define RAISE               12                  ///< Helps correct z level
 
@@ -100,7 +98,6 @@ typedef struct s_chr chr_t;
 #define WATCHMIN            0.01f                 ///< Tolerance for TURNMODE_WATCH
 
 #define PITDEPTH            -60                     ///< Depth to kill character
-#define NO_SKIN_OVERRIDE    -1                      ///< For import
 #define HURTDAMAGE           256                    ///< Minimum damage for hurt animation
 
 //Dismounting
@@ -116,12 +113,6 @@ typedef struct s_chr chr_t;
 #define RIPPLETOLERANCE     60          ///< For deep water
 #define SPLASHTOLERANCE     10
 #define RIPPLEAND           15          ///< How often ripples spawn
-
-/// Stats
-#define LOWSTAT             256                     ///< Worst...
-#define PERFECTSTAT         (60*256)                ///< Maximum stat without magic effects
-#define PERFECTBIG          (100*256)               ///< Perfect life or mana...
-#define HIGHSTAT            (100*256)               ///< Absolute max adding enchantments as well
 
 /// Throwing
 #define THROWFIX            30.0f                    ///< To correct thrown velocities
@@ -519,10 +510,10 @@ chr_t * chr_dtor( chr_t * pchr );
 bool_t  chr_request_terminate( chr_t * pchr );
 
 bool_t    chr_matrix_valid( const chr_t * pchr );
-egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size );
+egolib_rv chr_update_matrix( chr_t * pchr, bool_t update_size );
 
 chr_t *   chr_update_hide( chr_t * pchr );
-egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
+egolib_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
 bool_t    chr_can_see_dark( const chr_t * pchr, const chr_t * pobj );
 bool_t    chr_can_see_invis( const chr_t * pchr, const chr_t * pobj );
 int       chr_get_price( const CHR_REF ichr );
@@ -537,14 +528,14 @@ bool_t chr_is_over_water( chr_t *pchr );
 
 Uint32 chr_get_framefx( chr_t * pchr );
 
-egoboo_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
+egolib_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
 
-egoboo_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
-egoboo_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
-egoboo_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready, bool_t override_action );
-egoboo_rv chr_increment_action( chr_t * pchr );
-egoboo_rv chr_increment_frame( chr_t * pchr );
-egoboo_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready );
+egolib_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
+egolib_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
+egolib_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready, bool_t override_action );
+egolib_rv chr_increment_action( chr_t * pchr );
+egolib_rv chr_increment_frame( chr_t * pchr );
+egolib_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready );
 bool_t chr_update_breadcrumb_raw( chr_t * pchr );
 bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force );
 bool_t chr_update_safe_raw( chr_t * pchr );
@@ -680,7 +671,7 @@ void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker );
 
 bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop );
 
-egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
+egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
 
 void free_inventory_in_game( const CHR_REF character );
 void do_level_up( const CHR_REF character );
@@ -693,7 +684,7 @@ bool_t  cost_mana( const CHR_REF character, int amount, const CHR_REF killer );
 void    switch_team( const CHR_REF character, const TEAM_REF team );
 void    issue_clean( const CHR_REF character );
 int     restock_ammo( const CHR_REF character, IDSZ idsz );
-egoboo_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
+egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
 void    drop_keys( const CHR_REF character );
 bool_t  drop_all_items( const CHR_REF character );

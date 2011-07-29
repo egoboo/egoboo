@@ -22,7 +22,7 @@
 /// @file log.h
 /// @details Basic logging functionality.
 
-#include "file_common.h"
+#include "../egolib/file_common.h"
 
 #if defined(__cplusplus)
 extern "C"

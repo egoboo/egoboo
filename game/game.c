@@ -21,17 +21,49 @@
 /// @brief The code for controlling the game
 /// @details
 
+#include <SDL_image.h>
+
+#include <time.h>
+#include <assert.h>
+#include <float.h>
+#include <string.h>
+
 #include "game.h"
+
+#include <egolib/clock.h>
+#include <egolib/throttle.h>
+#include <egolib/vfs.h>
+#include <egolib/endian.h>
+#include <egolib/egoboo_setup.h>
+#include <egolib/strutil.h>
+#include <egolib/fileutil.h>
+#include <egolib/vfs.h>
+#include <egolib/font_bmp.h>
+#include <egolib/font_ttf.h>
+#include <egolib/log.h>
+#include <egolib/system.h>
+
+#include <egolib/file_formats/controls_file.h>
+#include <egolib/file_formats/scancode_file.h>
+#include <egolib/file_formats/treasure_table_file.h>
+#include <egolib/file_formats/wawalite_file.h>
+#include <egolib/file_formats/spawn_file.h>
+#include <egolib/file_formats/quest_file.h>
+#include <egolib/file_formats/id_md2.h>
+
+#include <egolib/extensions/SDL_extensions.h>
+
+#include <egolib/console.h>
+
+#if defined(USE_LUA_CONSOLE)
+#   include <egolib/lua_console.h>
+#endif
 
 #include "mad.h"
 #include "player.h"
-#include "clock.h"
 #include "link.h"
 #include "ui.h"
-#include "font_bmp.h"
-#include "font_ttf.h"
-#include "log.h"
-#include "system.h"
+
 #include "script.h"
 #include "sound.h"
 #include "graphic.h"
@@ -42,38 +74,15 @@
 #include "client.h"
 #include "server.h"
 #include "texture.h"
-#include "clock.h"
 #include "camera_system.h"
-#include "id_md2.h"
 #include "collision.h"
 #include "graphic_fan.h"
 #include "obj_BSP.h"
 #include "mpd_BSP.h"
-#include "char.h"
 
 #include "script_compile.h"
 #include "script.h"
-
-#include "egoboo_vfs.h"
-#include "egoboo_endian.h"
-#include "egoboo_setup.h"
-#include "egoboo_strutil.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_vfs.h"
 #include "egoboo.h"
-
-#include "file_formats/controls_file.h"
-#include "file_formats/scancode_file.h"
-#include "file_formats/treasure_table_file.h"
-#include "file_formats/wawalite_file.h"
-#include "file_formats/spawn_file.h"
-#include "file_formats/quest_file.h"
-#include "extensions/SDL_extensions.h"
-
-#include "egoboo_console.h"
-#if defined(USE_LUA_CONSOLE)
-#include "lua_console.h"
-#endif
 
 #include "char.inl"
 #include "particle.inl"
@@ -82,13 +91,6 @@
 #include "mesh.inl"
 #include "physics.inl"
 
-#include <SDL_image.h>
-
-#include <time.h>
-#include <assert.h>
-#include <float.h>
-#include <string.h>
-
 //--------------------------------------------------------------------------------------------
 
 static ego_mpd_t         _mesh[2];
@@ -96,14 +98,14 @@ static ego_mpd_t         _mesh[2];
 static game_process_t    _gproc;
 static game_module_t     _gmod;
 
-static egoboo_clock_t     game_clock = EGOBOO_CLOCK_INIT;
+static egolib_throttle_t     game_throttle = EGOLIB_THROTTLE_INIT;
 
 PROFILE_DECLARE( game_update_loop );
 PROFILE_DECLARE( gfx_loop );
 PROFILE_DECLARE( game_single_update );
 
 PROFILE_DECLARE( talk_to_remotes );
-PROFILE_DECLARE( net_listen_for_packets );
+PROFILE_DECLARE( egonet_listen_for_packets );
 PROFILE_DECLARE( check_stats );
 PROFILE_DECLARE( set_local_latches );
 PROFILE_DECLARE( check_passage_music );
@@ -241,7 +243,7 @@ static void bump_all_update_counters();
 //--------------------------------------------------------------------------------------------
 // Random Things
 //--------------------------------------------------------------------------------------------
-egoboo_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool_t is_local )
+egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool_t is_local )
 {
     /// @details ZZ@> This function exports a character
 
@@ -354,13 +356,13 @@ egoboo_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv export_all_players( bool_t require_local )
+egolib_rv export_all_players( bool_t require_local )
 {
     /// @details ZZ@> This function saves all the local players in the
     ///    PLAYERS directory
 
-    egoboo_rv export_chr_rv;
-    egoboo_rv retval;
+    egolib_rv export_chr_rv;
+    egolib_rv retval;
     bool_t is_local;
     PLA_REF ipla;
     int number;
@@ -551,14 +553,14 @@ void statlist_sort()
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_set_frame( const CHR_REF character, int req_action, int frame_along, int ilip )
+egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_along, int ilip )
 {
     /// @details ZZ@> This function sets the frame for a character explicitly...  This is used to
     ///    rotate Tank turrets
 
     chr_t * pchr;
     MAD_REF imad;
-    egoboo_rv retval;
+    egolib_rv retval;
     int action;
 
     if ( !INGAME_CHR( character ) ) return rv_error;
@@ -577,7 +579,7 @@ egoboo_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
         // the action is set. now set the frame info.
         // pass along the imad in case the pchr->inst is not using this same mad
         // (corrupted data?)
-        retval = ( egoboo_rv )chr_instance_set_frame_full( &( pchr->inst ), frame_along, ilip, imad );
+        retval = ( egolib_rv )chr_instance_set_frame_full( &( pchr->inst ), frame_along, ilip, imad );
     }
 
     return retval;
@@ -693,7 +695,7 @@ int update_game()
     PLA_REF ipla;
 
     // is the update counter free running?
-    free_running = GProc->ups_timer.free_running && !net_on( PNet );
+    free_running = GProc->ups_timer.free_running && !egonet_on();
 
     // Check for all local players being dead
     local_stats.allpladead      = bfalse;
@@ -704,7 +706,7 @@ int update_game()
     local_stats.daze_level      = 0.0f;
 
     // count the total number of players
-    net_count_players( PNet );
+    net_count_players();
 
     numdead = numalive = 0;
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
@@ -837,11 +839,11 @@ int update_game()
                 input_read_all_devices();
 
                 // NETWORK PORT
-                PROFILE_BEGIN( net_listen_for_packets );
+                PROFILE_BEGIN( egonet_listen_for_packets );
                 {
-                    net_listen_for_packets();
+                    egonet_listen_for_packets();
                 }
-                PROFILE_END2( net_listen_for_packets );
+                PROFILE_END2( egonet_listen_for_packets );
 
                 PROFILE_BEGIN( set_local_latches );
                 {
@@ -851,14 +853,14 @@ int update_game()
 
                 PROFILE_BEGIN( cl_talkToHost );
                 {
-                    cl_talkToHost( PNet );
+                    cl_talkToHost();
                 }
                 PROFILE_END2( cl_talkToHost );
 
                 PROFILE_BEGIN( talk_to_remotes );
                 {
                     // get all player latches from the "remotes"
-                    sv_talkToRemotes( PNet );
+                    sv_talkToRemotes();
                 }
                 PROFILE_END2( talk_to_remotes );
 
@@ -926,7 +928,7 @@ int update_game()
     est_update_game_time = 0.9F * est_update_game_time + 0.1F * est_single_update_time * update_loop_cnt;
     est_max_game_ups     = 0.9F * est_max_game_ups     + 0.1F * ( 1.0F / est_update_game_time );
 
-    if ( net_on( PNet ) )
+    if ( egonet_on() )
     {
         if ( 0 == numplatimes )
         {
@@ -934,7 +936,7 @@ int update_game()
             // Make it go slower so it doesn't happen again
             clock_wld += 25;
         }
-        if ( numplatimes > 3 && !net_get_hostactive( PNet ) )
+        if ( numplatimes > 3 && !egonet_get_hostactive() )
         {
             // The host has too many messages, and is probably experiencing control
             // lag...  Speed it up so it gets closer to sync
@@ -958,7 +960,7 @@ void game_update_timers()
 
     // is the game/module paused?
     is_paused = bfalse;
-    if ( !net_on( PNet ) )
+    if ( !egonet_on() )
     {
         is_paused  = !process_running( PROC_PBASE( GProc ) ) || GProc->mod_paused;
     }
@@ -968,24 +970,24 @@ void game_update_timers()
     {
         // for a local game, force the function to ignore the accumulation of time
         // until you re-join the game
-        clock_update_diff( &game_clock, 0 );
+        egolib_throttle_update_diff( &game_throttle, 0 );
         was_paused = btrue;
         return;
     }
 
     // are the game updates free running?
     free_running = bfalse;
-    if ( !net_on( PNet ) )
+    if ( !egonet_on() )
     {
         free_running = GProc->ups_timer.free_running;
     }
 
     clock_diff = 0;
-    if ( net_on( PNet ) )
+    if ( egonet_on() )
     {
         // if the network game is on, there really is no real "pause"
         // so we can always measure the game time from the first clock reading
-        clock_update( &game_clock );
+        egolib_throttle_update( &game_throttle );
     }
     else
     {
@@ -997,16 +999,16 @@ void game_update_timers()
         // if the game was paused, assume that only one update time elapsed since the last time through this function
         if ( was_paused || single_frame_mode )
         {
-            clock_update_diff( &game_clock, UPDATE_SKIP );
+            egolib_throttle_update_diff( &game_throttle, UPDATE_SKIP );
         }
         else
         {
-            clock_update( &game_clock );
+            egolib_throttle_update( &game_throttle );
         }
     }
 
     // calculate the difference
-    clock_diff = game_clock.time_now - game_clock.time_lst;
+    clock_diff = game_throttle.time_now - game_throttle.time_lst;
 
     // return if there is no reason to continue
     if ( !free_running && 0 == clock_diff ) return;
@@ -1016,10 +1018,10 @@ void game_update_timers()
 
     // Use the number of updates that should have been performed up to this point (true_update)
     // to try to regulate the update speed of the game
-    true_update      = game_clock.time_now / UPDATE_SKIP;
+    true_update      = game_throttle.time_now / UPDATE_SKIP;
 
     // get the number of frames that should have happened so far in a similar way
-    true_frame      = ( game_clock.time_now  / TICKS_PER_SEC ) * cfg.framelimit;
+    true_frame      = ( game_throttle.time_now  / TICKS_PER_SEC ) * cfg.framelimit;
 
     // figure out the update rate
     game_ups_clock += clock_diff;
@@ -1079,7 +1081,7 @@ void game_reset_timers()
     clock_chr_stat = 0;
 
     // reset the game clock
-    clock_reset( &game_clock );
+    egolib_throttle_reset( &game_throttle );
 
     // reset the ups counter(s)
     game_ups_clock        = 0;
@@ -1125,7 +1127,7 @@ int game_do_menu( menu_process_t * mproc )
             // force the menu to be displayed immediately when the game stops
             timer_reset( &( mproc->gui_timer ), -1, cfg.framelimit );
         }
-        else if ( ego_timer_throttle( &( mproc->gui_timer ), cfg.framelimit ) )
+        else if ( egolib_timer_throttle( &( mproc->gui_timer ), cfg.framelimit ) )
         {
             need_menu = btrue;
         }
@@ -1208,7 +1210,7 @@ int game_process_do_begin( game_process_t * gproc )
     PROFILE_RESET( gfx_loop );
 
     PROFILE_RESET( talk_to_remotes );
-    PROFILE_RESET( net_listen_for_packets );
+    PROFILE_RESET( egonet_listen_for_packets );
     PROFILE_RESET( check_stats );
     PROFILE_RESET( set_local_latches );
     PROFILE_RESET( check_passage_music );
@@ -1268,7 +1270,7 @@ int game_process_do_running( game_process_t * gproc )
     if ( !process_running( PROC_PBASE( gproc ) ) ) return 0;
 
     // are the updates free running?
-    ups_free_running = gproc->ups_timer.free_running && !net_on( PNet );
+    ups_free_running = gproc->ups_timer.free_running && !egonet_on();
 
     // update all the timers
     game_update_timers();
@@ -1287,7 +1289,7 @@ int game_process_do_running( game_process_t * gproc )
     {
         need_ups_update = btrue;
     }
-    else if ( ego_timer_throttle( &( gproc->ups_timer ), TARGET_UPS ) )
+    else if ( egolib_timer_throttle( &( gproc->ups_timer ), TARGET_UPS ) )
     {
         need_ups_update = btrue;
     }
@@ -1297,9 +1299,9 @@ int game_process_do_running( game_process_t * gproc )
         PROFILE_BEGIN( game_update_loop );
         {
             // do the updates
-            if ( gproc->mod_paused && !net_on( PNet ) )
+            if ( gproc->mod_paused && !egonet_on() )
             {
-                clock_wld = game_clock.time_now;
+                clock_wld = game_throttle.time_now;
             }
             else
             {
@@ -1332,7 +1334,7 @@ int game_process_do_running( game_process_t * gproc )
                 }
 
                 // This is the control loop
-                if ( net_on( PNet ) && keyb.chat_done )
+                if ( egonet_on() && keyb.chat_done )
                 {
                     net_send_message();
                 }
@@ -1349,9 +1351,9 @@ int game_process_do_running( game_process_t * gproc )
                 }
                 PROFILE_END2( check_passage_music );
 
-                if ( net_waitingforplayers( PNet ) )
+                if ( egonet_get_waitingforclients() )
                 {
-                    clock_wld = game_clock.time_now;
+                    clock_wld = game_throttle.time_now;
                 }
                 else
                 {
@@ -1398,7 +1400,7 @@ int game_process_do_running( game_process_t * gproc )
     {
         need_fps_update = btrue;
     }
-    else if ( ego_timer_throttle( &( gproc->fps_timer ), cfg.framelimit ) )
+    else if ( egolib_timer_throttle( &( gproc->fps_timer ), cfg.framelimit ) )
     {
         need_fps_update = btrue;
     }
@@ -1492,7 +1494,7 @@ int game_process_do_leaving( game_process_t * gproc )
     PROFILE_FREE( gfx_loop );
 
     PROFILE_FREE( talk_to_remotes );
-    PROFILE_FREE( net_listen_for_packets );
+    PROFILE_FREE( egonet_listen_for_packets );
     PROFILE_FREE( check_stats );
     PROFILE_FREE( set_local_latches );
     PROFILE_FREE( check_passage_music );
@@ -3205,7 +3207,7 @@ void game_load_global_assets()
     }
     load_blips();
     load_bars();
-    font_bmp_load_vfs( "mp_data/font", "mp_data/font.txt" );
+    font_bmp_load_vfs( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ), "mp_data/font", "mp_data/font.txt" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3262,7 +3264,7 @@ bool_t game_load_module_data( const char *smallname )
 {
     /// @details ZZ@> This function loads a module
 
-    egoboo_rv mpd_BSP_retval;
+    egolib_rv mpd_BSP_retval;
     STRING modname;
     ego_mpd_t * pmesh_rv;
 
@@ -3416,7 +3418,7 @@ void game_quit_module()
     game_release_module_data();
 
     // turn off networking
-    net_close_session();
+    egonet_close_session();
 
     // reset the "ui" mouse state
     input_cursor_reset();
@@ -3429,6 +3431,9 @@ void game_quit_module()
 
     // remove the module-dependent mount points from the vfs
     setup_clear_module_vfs_paths();
+
+    // turn off networking
+    net_end();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3472,7 +3477,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     if ( cfg.dev_mode ) log_madused_vfs( "/debug/slotused.txt" );
 
     // initialize the network
-    net_initialize();
+    net_begin();
     net_sayHello();
 
     // start the module
@@ -3713,6 +3718,9 @@ void game_finish_module()
 
     // restart the menu song
     sound_play_song( MENU_SONG, 0, -1 );
+
+    // turn off networking
+    net_end();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4136,7 +4144,7 @@ game_process_t * game_process_init( game_process_t * gproc )
     PROFILE_INIT( gfx_loop );
 
     PROFILE_INIT( talk_to_remotes );
-    PROFILE_INIT( net_listen_for_packets );
+    PROFILE_INIT( egonet_listen_for_packets );
     PROFILE_INIT( check_stats );
     PROFILE_INIT( set_local_latches );
     PROFILE_INIT( check_passage_music );
@@ -4660,7 +4668,7 @@ bool_t game_module_start( game_module_t * pinst )
     pinst->randsave = rand();
     randindex = rand() % RANDIE_COUNT;
 
-    net_set_hostactive( PNet, btrue ); // very important or the input will not work
+    egonet_set_hostactive( btrue ); // very important or the input will not work
 
     return btrue;
 }
@@ -4675,7 +4683,7 @@ bool_t game_module_stop( game_module_t * pinst )
     pinst->active      = bfalse;
 
     // network stuff
-    net_set_hostactive( PNet, bfalse );
+    egonet_set_hostactive( bfalse );
 
     return btrue;
 }
@@ -4696,7 +4704,7 @@ wawalite_data_t * read_wawalite_vfs( /* const char *modname */ )
     memcpy( &wawalite_data, pdata, sizeof( wawalite_data_t ) );
 
     // fix any out-of-bounds data
-    fix_wawalite( &wawalite_data );
+    wawalite_finalize( &wawalite_data );
 
     // limit some values
     wawalite_data.damagetile.sound_index = CLIP( wawalite_data.damagetile.sound_index, INVALID_SOUND, MAX_WAVE );
@@ -4773,7 +4781,7 @@ wawalite_data_t * read_wawalite_vfs( /* const char *modname */ )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fix_wawalite( wawalite_data_t * pdata )
+bool_t wawalite_finalize( wawalite_data_t * pdata )
 {
     /// @details BB@> coerce all parameters to in-bounds values
 
@@ -4788,6 +4796,35 @@ bool_t fix_wawalite( wawalite_data_t * pdata )
     {
         pdata->water.layer[cnt].light_dir = CLIP( pdata->water.layer[cnt].light_dir, 0, 63 );
         pdata->water.layer[cnt].light_add = CLIP( pdata->water.layer[cnt].light_add, 0, 63 );
+    }
+
+    //No weather?
+    if ( 0 == strcmp( pdata->weather.weather_name, "NONE" ) )
+    {
+        pdata->weather.part_gpip = -1;
+    }
+    else
+    {
+        STRING prt_file, prt_end_file, line;
+        bool_t success;
+
+        strncpy( line, pdata->weather.weather_name, SDL_arraysize( line ) );
+
+        //prepeare the load paths
+        snprintf( prt_file, SDL_arraysize( prt_file ), "mp_data/weather_%s.txt", strlwr( line ) );
+        snprintf( prt_end_file, SDL_arraysize( prt_end_file ), "mp_data/weather_%s_finish.txt", strlwr( line ) );
+
+        //try to load the particle files, we need at least the first particle for weather to work
+        success = PipStack_load_one( prt_file, ( PIP_REF )PIP_WEATHER ) != MAX_PIP;
+        PipStack_load_one( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
+
+        //Unknown weather parsed
+        if ( !success )
+        {
+            log_warning( "Failed to load weather type from wawalite.txt: %s - (%s)\n", line, prt_file );
+            pdata->weather.part_gpip = -1;
+            strncpy( pdata->weather.weather_name, "NONE", SDL_arraysize( pdata->weather.weather_name ) );
+        }
     }
 
     return btrue;
@@ -5464,10 +5501,10 @@ bool_t import_element_init( import_element_t * ptr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv game_copy_imports( import_list_t * imp_lst )
+egolib_rv game_copy_imports( import_list_t * imp_lst )
 {
     int       tnc;
-    egoboo_rv retval;
+    egolib_rv retval;
     STRING    tmp_src_dir, tmp_dst_dir;
 
     int                import_idx = 0;
@@ -5543,7 +5580,7 @@ bool_t import_list_init( import_list_t * imp_lst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv import_list_from_players( import_list_t * imp_lst )
+egolib_rv import_list_from_players( import_list_t * imp_lst )
 {
     bool_t is_local;
     PLA_REF player;
@@ -5732,7 +5769,7 @@ bool_t upload_water_data( water_instance_t * pinst, const wawalite_water_t * pda
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv water_instance_move( water_instance_t * pwater )
+egolib_rv water_instance_move( water_instance_t * pwater )
 {
     /// @details ZZ@> This function animates the water overlays
 

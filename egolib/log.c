@@ -21,12 +21,12 @@
 /// @brief Basic logging functionality.
 /// @details
 
-#include "log.h"
-#include "system.h"
+#include "../egolib/log.h"
+#include "../egolib/system.h"
 
-#include "egoboo_strutil.h"
-#include "egoboo_config.h"
-#include "egoboo_setup.h"
+#include "../egolib/strutil.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/platform.h"
 
 #include <stdlib.h>
 #include <stdarg.h>

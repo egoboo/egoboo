@@ -22,12 +22,16 @@
 /// @details
 
 #include "spawn_file.h"
-#include "../game.h"
 
-#include "../egoboo_fileutil.h"
-#include "../egoboo_strutil.h"
+#include "cap_file.h"
 
-#include "../char.inl"
+#include "../fileutil.h"
+#include "../strutil.h"
+
+#include "../_math.inl"
+
+// includes for egoboo constants
+#include <game/char.h>       // for TEAM_* constants
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

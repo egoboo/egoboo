@@ -25,12 +25,12 @@
 #include "../IDSZ_map.h"
 #include "../log.h"
 
-#include "../egoboo_fileutil.h"
-#include "../egoboo_vfs.h"
-#include "../egoboo_strutil.h"
-#include "../egoboo.h"
+#include "../fileutil.h"
+#include "../vfs.h"
+#include "../strutil.h"
+//#include "../egoboo.h"
 
-#include "../egoboo_math.inl"
+#include "../_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -54,9 +54,9 @@ ConfigFilePtr_t quest_file_open( const char *player_directory )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv quest_file_export( ConfigFilePtr_t pfile )
+egolib_rv quest_file_export( ConfigFilePtr_t pfile )
 {
-    egoboo_rv         rv      = rv_error;
+    egolib_rv         rv      = rv_error;
     ConfigFile_retval save_rv = ConfigFile_succeed;
 
     if ( NULL == pfile ) return rv_error;
@@ -69,9 +69,9 @@ egoboo_rv quest_file_export( ConfigFilePtr_t pfile )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export )
+egolib_rv quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export )
 {
-    egoboo_rv export_rv = rv_success;
+    egolib_rv export_rv = rv_success;
 
     if ( NULL == ppfile || NULL == *ppfile ) return rv_error;
 
@@ -99,12 +99,12 @@ egoboo_rv quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv quest_log_download_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, const char* player_directory )
+egolib_rv quest_log_download_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, const char* player_directory )
 {
     /// @details ZF@> Reads a quest.txt for a player and turns it into a data structure
     ///               we can use. If the file isn't found, the quest log will be initialized as empty.
 
-    egoboo_rv retval = rv_success;
+    egolib_rv retval = rv_success;
     vfs_FILE *fileread;
     STRING newloadname;
 
@@ -124,7 +124,7 @@ egoboo_rv quest_log_download_vfs( IDSZ_node_t quest_log[], size_t quest_log_len,
     retval = rv_success;
     while ( goto_colon( NULL, fileread, btrue ) )
     {
-        egoboo_rv rv;
+        egolib_rv rv;
 
         IDSZ idsz = fget_idsz( fileread );
         int  level = fget_int( fileread );
@@ -154,7 +154,7 @@ egoboo_rv quest_log_download_vfs( IDSZ_node_t quest_log[], size_t quest_log_len,
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv quest_log_upload_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, const char *player_directory )
+egolib_rv quest_log_upload_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, const char *player_directory )
 {
     /// @details ZF@> This exports quest_log data into a quest.txt file
     vfs_FILE *filewrite;
@@ -263,7 +263,7 @@ int quest_log_get_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ ids
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv quest_log_add( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int level )
+egolib_rv quest_log_add( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int level )
 {
     ///@details ZF@> This adds a new quest to the quest log. If the quest is already in there, the higher quest
     ///                 level of either the old and new one will be kept.

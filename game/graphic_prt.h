@@ -23,9 +23,9 @@
 
 #include "graphic.h"
 
-#include "file_formats/pip_file.h"
+#include <egolib/file_formats/pip_file.h>
 
-#include "egoboo_math.h"
+#include <egolib/_math.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

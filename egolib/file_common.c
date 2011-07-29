@@ -22,13 +22,13 @@
 /// @details File operations that are shared between various operating systems.
 /// OS-specific code goes in *-file.c (such as win-file.c)
 
-#include "file_common.h"
+#include "../egolib/file_common.h"
 
-#include "log.h"
+#include "../egolib/log.h"
 
-#include "egoboo_strutil.h"
-#include "egoboo_vfs.h"
-#include "egoboo_config.h"
+#include "../egolib/strutil.h"
+#include "../egolib/vfs.h"
+#include "../egolib/platform.h"
 
 #if !defined(MAX_PATH)
 #define MAX_PATH 260  // Same value that Windows uses...

@@ -30,11 +30,12 @@
 
 #include "../log.h"
 
-#include "../egoboo_strutil.h"
-#include "../egoboo.h"
+#include "../strutil.h"
+#include "../platform.h"
+//#include "../egoboo.h"
 
 // this include must be the absolute last include
-#include "../egoboo_mem.h"
+#include "../mem.h"
 
 #define HAS_ATTRIBS(ATTRIBS,VAR) ((INVALID_FILE_ATTRIBUTES != (VAR)) && ( (ATTRIBS) == ( (VAR) & (ATTRIBS) ) ))
 //--------------------------------------------------------------------------------------------

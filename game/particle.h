@@ -23,9 +23,9 @@
 
 #include "graphic_prt.h"
 #include "physics.h"
-#include "bsp.h"
+#include <egolib/bsp.h>
 
-#include "file_formats/pip_file.h"
+#include <egolib/file_formats/pip_file.h>
 
 //--------------------------------------------------------------------------------------------
 // external structs

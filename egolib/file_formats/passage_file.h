@@ -22,8 +22,8 @@
 /// @file file_formats/passage_file.h
 /// @details help read/write the passage file
 
-#include "../egoboo_typedef.h"
-#include "../egoboo_vfs.h"
+#include "../typedef.h"
+#include "../vfs.h"
 
 #if defined(__cplusplus)
 extern "C"

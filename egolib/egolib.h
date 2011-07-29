@@ -25,30 +25,29 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#include "egoboo_typedef.h"
-#include "egoboo_clock.h"
-#include "egoboo_config.h"
-#include "egoboo_console.h"
-#include "egoboo_endian.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_frustum.h"
-#include "egoboo_math.h"
-#include "egoboo_platform.h"
-#include "egoboo_process.h"
-#include "egoboo_state_machine.h"
-#include "egoboo_strutil.h"
-#include "egoboo_timer.h"
-#include "egoboo_vfs.h"
-#include "egoboo_setup.h"
+#include "../egolib/typedef.h"
+#include "../egolib/clock.h"
+#include "../egolib/console.h"
+#include "../egolib/endian.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/frustum.h"
+#include "../egolib/_math.h"
+#include "../egolib/platform.h"
+#include "../egolib/process.h"
+#include "../egolib/state_machine.h"
+#include "../egolib/strutil.h"
+#include "../egolib/timer.h"
+#include "../egolib/vfs.h"
+#include "../egolib/egoboo_setup.h"
 
-#include "font_bmp.h"
-#include "font_ttf.h"
-#include "lua_console.h"
-#include "system.h"
-#include "clock.h"
-#include "file_common.h"
-#include "log.h"
-#include "hash.h"
+#include "../egolib/font_bmp.h"
+#include "../egolib/font_ttf.h"
+#include "../egolib/lua_console.h"
+#include "../egolib/system.h"
+#include "../egolib/clock.h"
+#include "../egolib/file_common.h"
+#include "../egolib/log.h"
+#include "../egolib/hash.h"
 
 #include "extensions/ogl_debug.h"
 #include "extensions/ogl_extensions.h"
@@ -75,7 +74,7 @@
 
 //!!! watch this one. if you are using the Fluid Studios memory manager,
 //!!! this must be the absolute last include file.
-#include "egoboo_mem.h"
+#include "../egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

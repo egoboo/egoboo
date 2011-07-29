@@ -21,41 +21,43 @@
 /// @brief Code for the main program process
 /// @details
 
+#include <SDL.h>
+#include <SDL_image.h>
+
 #define DECLARE_GLOBALS
 
-#include "log.h"
-#include "clock.h"
-#include "system.h"
+#include "egoboo.h"
+
+#include <egolib/log.h>
+#include <egolib/system.h>
+#include <egolib/font_bmp.h>
+#include <egolib/fileutil.h>
+#include <egolib/egoboo_setup.h>
+#include <egolib/vfs.h>
+#include <egolib/console.h>
+#include <egolib/strutil.h>
+
+#include <egolib/file_formats/scancode_file.h>
+#include <egolib/file_formats/controls_file.h>
+#include <egolib/file_formats/treasure_table_file.h>
+#include <egolib/extensions/SDL_extensions.h>
+#include <egolib/clock.h>
+
 #include "graphic.h"
 #include "network.h"
 #include "sound.h"
 #include "ui.h"
-#include "font_bmp.h"
 #include "input.h"
 #include "game.h"
 #include "menu.h"
 #include "player.h"
-
-#include "egoboo_fileutil.h"
-#include "egoboo_setup.h"
-#include "egoboo_vfs.h"
-#include "egoboo_console.h"
-#include "egoboo_strutil.h"
-#include "egoboo.h"
-
-#include "file_formats/scancode_file.h"
-#include "file_formats/controls_file.h"
-#include "file_formats/treasure_table_file.h"
-#include "extensions/SDL_extensions.h"
+#include "texture.h"
 
 #include "char.inl"
 #include "particle.inl"
 #include "enchant.inl"
 #include "collision.h"
 #include "profile.inl"
-
-#include <SDL.h>
-#include <SDL_image.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -135,8 +137,11 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // do basic system initialization
     ego_init_SDL();
     gfx_system_begin();
-    console_begin();
-    net_initialize();
+
+    // synchronize the config values with the various game subsystems
+    // do this after the ego_init_SDL() and ogl_init() in case the config values are clamped
+    // to valid values
+    config_download( &cfg );
 
     log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL );
     GLSetup_SupportedFormats();
@@ -150,10 +155,11 @@ int do_ego_proc_begin( ego_process_t * eproc )
     //Ready the mouse input_cursor
     init_mouse_cursor();
 
-    // synchronize the config values with the various game subsystems
-    // do this acter the ego_init_SDL() and ogl_init() in case the config values are clamped
-    // to valid values
-    config_download( &cfg );
+    // initialize the console
+    console_begin();
+
+    // initialize network communication
+    net_initialize();
 
     // initialize the sound system
     sound_system_initialize();
@@ -171,7 +177,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // setup the menu system's gui
     ui_begin( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 24 );
-    font_bmp_load_vfs( "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after init_all_graphics()
+    font_bmp_load_vfs( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ), "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after init_all_graphics()
 
     // clear out the import and remote directories
     vfs_empty_temp_directories();
@@ -345,7 +351,7 @@ int do_ego_proc_running( ego_process_t * eproc )
 
         if ( NULL != GProc )
         {
-            GProc->ups_timer.free_running = !GProc->ups_timer.free_running && !net_on( PNet );
+            GProc->ups_timer.free_running = !GProc->ups_timer.free_running && !egonet_on();
             GProc->fps_timer.free_running = !GProc->fps_timer.free_running;
         }
 
@@ -489,7 +495,7 @@ int SDL_main( int argc, char **argv )
     request_clear_screen();
     while ( !EProc->base.killme && !EProc->base.terminated )
     {
-        if ( !ego_timer_throttle( &( EProc->loop_timer ), 100.0f ) )
+        if ( !egolib_timer_throttle( &( EProc->loop_timer ), 100.0f ) )
         {
             // let the OS breathe. It may delay as long as 10ms
             SDL_Delay( 1 );
@@ -551,7 +557,7 @@ void memory_cleanUp( void )
     ui_end();
 
     // shut down the network
-    if ( net_on( PNet ) )
+    if ( egonet_on() )
     {
         net_shutDown();
     }
@@ -650,7 +656,7 @@ void console_begin()
     _top_con = lua_console_create( NULL, blah );
 #else
     // without a callback, this console just dumps the input and generates no output
-    _top_con = egoboo_console_create( NULL, blah, NULL, NULL );
+    _top_con = egolib_console_create( NULL, blah, NULL, NULL );
 #endif
 }
 
@@ -667,8 +673,8 @@ void console_end()
 #else
     // without a callback, this console just dumps the input and generates no output
     {
-        egoboo_console_t * ptmp = ( egoboo_console_t* )_top_con;
-        egoboo_console_destroy( &ptmp, SDL_TRUE );
+        egolib_console_t * ptmp = ( egolib_console_t* )_top_con;
+        egolib_console_destroy( &ptmp, SDL_TRUE );
     }
 #endif
 

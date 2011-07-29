@@ -597,11 +597,11 @@ extern "C"
 /// a special wrapper function that is the replacement for "GL_DEBUG( glEnd )()"
 /// this avoids the errors mentioned with the definition of GL_DEBUG()
 #    define GL_DEBUG_END() \
-    handle_gl_error(); \
+    handle_gl_error( void ); \
     next_cmd = "UNKNOWN"; \
     next_line = -1; \
     next_file = "UNKNOWN"; \
-    glEnd(); \
+    glEnd( void ); \
     glGetError();
 
 #else

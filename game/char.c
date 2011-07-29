@@ -26,7 +26,7 @@
 
 #include "mad.h"
 #include "player.h"
-#include "log.h"
+#include <egolib/log.h>
 #include "script.h"
 #include "menu.h"
 #include "sound.h"
@@ -40,19 +40,19 @@
 #include "collision.h"                  //Only or detach_character_from_platform()
 #include "obj_BSP.h"
 
-#include "egoboo_vfs.h"
-#include "egoboo_setup.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
+#include <egolib/vfs.h>
+#include <egolib/egoboo_setup.h>
+#include <egolib/fileutil.h>
+#include <egolib/strutil.h>
 #include "egoboo.h"
 
-#include "file_formats/quest_file.h"
+#include <egolib/file_formats/quest_file.h>
 
-#include "egoboo_math.inl"
+#include <egolib/_math.inl>
 #include "mesh.inl"
 
 // this include must be the absolute last include
-#include "egoboo_mem.h"
+#include <egolib/mem.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ static bool_t update_chr_darkvision( const CHR_REF character );
 static fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure );
 static float   chr_get_mesh_pressure( chr_t * pchr, float test_pos[] );
 
-static egoboo_rv chr_invalidate_child_instances( chr_t * pchr );
+static egolib_rv chr_invalidate_child_instances( chr_t * pchr );
 
 static void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool_t healing );
 
@@ -162,7 +162,7 @@ static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, 
 
 static bool_t chr_update_pos( chr_t * pchr );
 
-static egoboo_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc );
+static egolib_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc );
 static bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp );
 static bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp );
 
@@ -388,7 +388,7 @@ chr_t * chr_dtor( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
+egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
                                   Uint8 valuehigh, Sint16 high )
 {
     /// @details ZZ@> This function sets a character's lighting depending on vertex height...
@@ -1383,7 +1383,7 @@ void reset_character_alpha( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
+egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
 {
     /// @details ZZ@> This function attaches one character/item to another ( the holder/mount )
     ///    at a certain vertex offset ( grip_off )
@@ -2816,7 +2816,7 @@ bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF cha
     /// @details ZZ@> This function makes the naming.txt file for the character
 
     player_t *ppla;
-    egoboo_rv rv;
+    egolib_rv rv;
 
     if ( !INGAME_CHR( character ) ) return bfalse;
 
@@ -8005,7 +8005,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
+egolib_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 {
     ///< @detalis BB@> use this function to update the pchr->chr_max_cv and  pchr->chr_min_cv with
     ///<       values that reflect the best possible collision volume
@@ -8978,7 +8978,7 @@ cmp_matrix_cache_end:
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc )
+egolib_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc )
 {
     /// @details BB@> determine whether a matrix cache has become invalid and needs to be updated
 
@@ -8999,14 +8999,14 @@ egoboo_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
+egolib_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
 {
     /// @details BB@> Do everything necessary to set the current matrix for this character.
     ///     This might include recursively going down the list of this character's mounts, etc.
     ///
     ///     Return btrue if a new matrix is applied to the character, bfalse otherwise.
 
-    egoboo_rv      retval;
+    egolib_rv      retval;
     bool_t         needs_update = bfalse;
     bool_t         applied      = bfalse;
     matrix_cache_t mc_tmp;
@@ -9018,7 +9018,7 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     // recursively make sure that any mount matrices are updated
     if ( DEFINED_CHR( pchr->attachedto ) )
     {
-        egoboo_rv attached_update = rv_error;
+        egolib_rv attached_update = rv_error;
 
         attached_update = chr_update_matrix( ChrList_get_ptr( pchr->attachedto ), btrue );
 
@@ -9045,11 +9045,11 @@ egoboo_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
     // Update the grip vertices no matter what (if they are used)
     if ( HAS_SOME_BITS( mc_tmp.type_bits, MAT_WEAPON ) && INGAME_CHR( mc_tmp.grip_chr ) )
     {
-        egoboo_rv grip_retval;
+        egolib_rv grip_retval;
         chr_t   * ptarget = ChrList_get_ptr( mc_tmp.grip_chr );
 
         // has that character changes its animation?
-        grip_retval = ( egoboo_rv )chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts, GRIP_VERTS );
+        grip_retval = ( egolib_rv )chr_instance_update_grip_verts( &( ptarget->inst ), mc_tmp.grip_verts, GRIP_VERTS );
 
         if ( rv_error   == grip_retval ) return rv_error;
         if ( rv_success == grip_retval ) needs_update = btrue;
@@ -9470,7 +9470,7 @@ Uint32 chr_get_framefx( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_invalidate_child_instances( chr_t * pchr )
+egolib_rv chr_invalidate_child_instances( chr_t * pchr )
 {
     int cnt;
 
@@ -9490,13 +9490,13 @@ egoboo_rv chr_invalidate_child_instances( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action )
+egolib_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action )
 {
-    egoboo_rv retval;
+    egolib_rv retval;
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egoboo_rv )chr_instance_set_action( &( pchr->inst ), action, action_ready, override_action );
+    retval = ( egolib_rv )chr_instance_set_action( &( pchr->inst ), action, action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -9509,13 +9509,13 @@ egoboo_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t 
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action )
+egolib_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action )
 {
-    egoboo_rv retval;
+    egolib_rv retval;
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egoboo_rv )chr_instance_start_anim( &( pchr->inst ), action, action_ready, override_action );
+    retval = ( egolib_rv )chr_instance_start_anim( &( pchr->inst ), action, action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -9528,13 +9528,13 @@ egoboo_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t 
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready, bool_t override_action )
+egolib_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready, bool_t override_action )
 {
-    egoboo_rv retval;
+    egolib_rv retval;
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egoboo_rv )chr_instance_set_anim( &( pchr->inst ), action, frame, action_ready, override_action );
+    retval = ( egolib_rv )chr_instance_set_anim( &( pchr->inst ), action, frame, action_ready, override_action );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -9547,13 +9547,13 @@ egoboo_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_increment_action( chr_t * pchr )
+egolib_rv chr_increment_action( chr_t * pchr )
 {
-    egoboo_rv retval;
+    egolib_rv retval;
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egoboo_rv )chr_instance_increment_action( &( pchr->inst ) );
+    retval = ( egolib_rv )chr_instance_increment_action( &( pchr->inst ) );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object
@@ -9566,9 +9566,9 @@ egoboo_rv chr_increment_action( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_increment_frame( chr_t * pchr )
+egolib_rv chr_increment_frame( chr_t * pchr )
 {
-    egoboo_rv retval;
+    egolib_rv retval;
     mad_t * pmad;
     int mount_action;
     CHR_REF imount;
@@ -9615,7 +9615,7 @@ egoboo_rv chr_increment_frame( chr_t * pchr )
         }
     }
 
-    retval = ( egoboo_rv )chr_instance_increment_frame( &( pchr->inst ), pmad, imount, mount_action );
+    retval = ( egolib_rv )chr_instance_increment_frame( &( pchr->inst ), pmad, imount, mount_action );
     if ( rv_success != retval ) return retval;
 
     // BB@> this did not work as expected...
@@ -9635,13 +9635,13 @@ egoboo_rv chr_increment_frame( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready )
+egolib_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready )
 {
-    egoboo_rv retval;
+    egolib_rv retval;
 
     if ( !ACTIVE_PCHR( pchr ) ) return rv_error;
 
-    retval = ( egoboo_rv )chr_instance_play_action( &( pchr->inst ), action, action_ready );
+    retval = ( egolib_rv )chr_instance_play_action( &( pchr->inst ), action, action_ready );
     if ( rv_success != retval ) return retval;
 
     // if the instance is invalid, invalidate everything that depends on this object

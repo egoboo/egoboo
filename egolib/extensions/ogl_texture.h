@@ -30,7 +30,7 @@
 #include "ogl_debug.h"
 #include "ogl_extensions.h"
 
-#include "../egoboo_typedef.h"
+#include "../typedef.h"
 
 #include <SDL.h>
 

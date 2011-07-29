@@ -29,7 +29,11 @@
 #include "scancode_file.h"
 
 #include "../log.h"
-#include "../egoboo_fileutil.h"
+#include "../input_device.h"
+
+#include "../fileutil.h"
+#include "../strutil.h"
+#include "../platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

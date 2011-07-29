@@ -28,11 +28,11 @@
 #include "game.h"
 
 #include "ui.h"
-#include "log.h"
+#include <egolib/log.h>
 #include "link.h"
 #include "game.h"
 #include "texture.h"
-#include "font_ttf.h"
+#include <egolib/font_ttf.h>
 
 // To allow changing settings
 #include "sound.h"
@@ -40,20 +40,20 @@
 #include "camera_system.h"
 #include "graphic.h"
 
-#include "egoboo_math.h"
-#include "egoboo_vfs.h"
+#include <egolib/_math.h>
+#include <egolib/vfs.h>
 #include "egoboo_typedef.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_setup.h"
-#include "egoboo_strutil.h"
+#include <egolib/fileutil.h>
+#include <egolib/egoboo_setup.h>
+#include <egolib/strutil.h>
 
 #include "egoboo.h"
 
-#include "file_formats/quest_file.h"
-#include "file_formats/controls_file.h"
-#include "file_formats/scancode_file.h"
-#include "file_formats/module_file.h"
-#include "extensions/SDL_extensions.h"
+#include <egolib/file_formats/quest_file.h>
+#include <egolib/file_formats/controls_file.h>
+#include <egolib/file_formats/scancode_file.h>
+#include <egolib/file_formats/module_file.h>
+#include <egolib/extensions/SDL_extensions.h>
 
 #include "particle.inl"
 #include "char.inl"
@@ -148,13 +148,13 @@ struct s_mnu_module
 {
     EGO_PROFILE_STUFF                           ///< the "base class" of a profile obbject
 
-    mod_file_t base;                               ///< the data for the "base class" of the module
+    mod_file_t base;                            ///< the data for the "base class" of the module
 
     // extended data
-    TX_REF tex_index;                              ///< the index of the module's tile image
+    TX_REF tex_index;                           ///< the index of the module's tile image
 
-    STRING vfs_path;                               ///< the virtual pathname of the module
-    STRING dest_path;                              ///< the path that module data can be written into
+    STRING vfs_path;                            ///< the virtual pathname of the module
+    STRING dest_path;                           ///< the path that module data can be written into
 };
 
 #define VALID_MOD_RANGE( IMOD ) ( ((IMOD) >= 0) && ((IMOD) < MAX_MODULE) )
@@ -184,7 +184,7 @@ struct s_SelectedPlayer_element
     int  player;
 };
 
-static egoboo_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr );
+static egolib_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr );
 
 //--------------------------------------------------------------------------------------------
 struct s_SelectedPlayer_list
@@ -196,7 +196,7 @@ struct s_SelectedPlayer_list
 #define SELECTED_PLAYER_LIST_INIT { 0 }
 
 // implementation of the SelectedPlayer_list_t
-static egoboo_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst );
+static egolib_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst );
 static bool_t    SelectedPlayer_list_check_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
 static bool_t    SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
 static bool_t    SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
@@ -316,9 +316,9 @@ static void autoformat_init_copyright_text( void );
 // misc other stuff
 static void      mnu_release_one_module( const MOD_REF imod );
 static void      mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst );
-static egoboo_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst );
-static egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
-//static egoboo_rv mnu_copy_local_imports( import_list_t * imp_lst );
+static egolib_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst );
+static egolib_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
+//static egolib_rv mnu_copy_local_imports( import_list_t * imp_lst );
 
 static void mnu_ModList_release_images();
 static void mnu_module_init( mnu_module_t * pmod );
@@ -5380,7 +5380,7 @@ ChoosePlayer_list_t * ChoosePlayer_list_dealloc( ChoosePlayer_list_t * choosepla
 //--------------------------------------------------------------------------------------------
 // Implementation of the mnu_loadplayer array
 //--------------------------------------------------------------------------------------------
-egoboo_rv LoadPlayer_list_init( LoadPlayer_list_t * lst )
+egolib_rv LoadPlayer_list_init( LoadPlayer_list_t * lst )
 {
     if ( NULL == lst ) return rv_error;
 
@@ -5393,7 +5393,7 @@ egoboo_rv LoadPlayer_list_init( LoadPlayer_list_t * lst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foundfile )
+egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foundfile )
 {
     STRING  filename;
     int     slot;
@@ -5495,7 +5495,7 @@ LoadPlayer_element_t * LoadPlayer_list_get_ptr( LoadPlayer_list_t * lst, int idx
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv LoadPlayer_list_dealloc( LoadPlayer_list_t * lst )
+egolib_rv LoadPlayer_list_dealloc( LoadPlayer_list_t * lst )
 {
     int i;
 
@@ -5514,7 +5514,7 @@ egoboo_rv LoadPlayer_list_dealloc( LoadPlayer_list_t * lst )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, bool_t initialize )
+egolib_rv LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, bool_t initialize )
 {
     /// @details ZZ@> This function figures out which players may be imported, and loads basic
     ///     data for each
@@ -5546,7 +5546,7 @@ egoboo_rv LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirna
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
+egolib_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
 {
     int ipla;
     chr_t * pchr;
@@ -5653,7 +5653,7 @@ bool_t LoadPlayer_element_init( LoadPlayer_element_t * ptr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst )
+egolib_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst )
 {
     int                        src_idx = -1;
     LoadPlayer_element_t     * src_ptr = NULL;
@@ -5694,7 +5694,7 @@ egoboo_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * sr
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst )
+egolib_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst )
 {
     int                import_idx, i;
     import_element_t * import_ptr = NULL;
@@ -5746,7 +5746,7 @@ egoboo_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPlayer_lis
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr )
+egolib_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr )
 {
     if ( NULL == ptr ) return rv_error;
 
@@ -5761,7 +5761,7 @@ egoboo_rv SelectedPlayer_element_init( SelectedPlayer_element_t * ptr )
 //--------------------------------------------------------------------------------------------
 // implementation of SelectedPlayer_list_t
 //--------------------------------------------------------------------------------------------
-egoboo_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst )
+egolib_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst )
 {
     int cnt;
 

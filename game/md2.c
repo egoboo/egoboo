@@ -24,20 +24,20 @@
 
 #include "md2.inl"
 
-#include "log.h"
+#include <egolib/log.h>
 
-#include "egoboo_endian.h"
+#include <egolib/endian.h>
 
-#include "egoboo_math.inl"
+#include <egolib/_math.inl>
 
 // this include must be the absolute last include
-#include "egoboo_mem.h"
+#include <egolib/mem.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 float kMd2Normals[EGO_NORMAL_COUNT][3] =
 {
-#include "file_formats/id_normals.inl"
+#include <egolib/file_formats/id_normals.inl>
     , {0, 0, 0}                     ///< the "equal light" normal
 };
 

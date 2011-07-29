@@ -1137,7 +1137,7 @@ void cartman_begin_ortho_camera_vrt( window_t * pwin, camera_t * pcam, float zoo
 }
 
 //--------------------------------------------------------------------------------------------
-void cartman_end_ortho_camera( )
+void cartman_end_ortho_camera()
 {
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();

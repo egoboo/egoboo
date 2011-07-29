@@ -26,17 +26,17 @@
 #include "camera_system.h"
 
 #include "menu.h"
-#include "log.h"
+#include <egolib/log.h>
 #include "graphic.h"
 #include "game.h"
 #include "player.h"
 
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
+#include <egolib/fileutil.h>
+#include <egolib/strutil.h>
 #include "egoboo_typedef.h"
 #include "egoboo.h"
 
-#include "file_formats/module_file.h"
+#include <egolib/file_formats/module_file.h>
 
 #include "char.inl"
 

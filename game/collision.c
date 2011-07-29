@@ -24,11 +24,11 @@
 #include "collision.h"
 #include "obj_BSP.h"
 
-#include "log.h"
-#include "hash.h"
+#include <egolib/log.h>
+#include <egolib/hash.h>
 #include "game.h"
 
-#include "extensions/SDL_extensions.h"
+#include <egolib/extensions/SDL_extensions.h>
 
 #include "char.inl"
 #include "particle.inl"

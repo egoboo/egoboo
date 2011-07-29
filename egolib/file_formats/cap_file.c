@@ -22,15 +22,20 @@
 /// @details
 
 #include "cap_file.h"
+#include "mpd_file.h"
+
 #include "template.h"
 
-#include "../char.h"
+#include "../fileutil.h"
+#include "../strutil.h"
+#include "../vfs.h"
+#include "../_math.h"
 
-#include "../egoboo_fileutil.h"
-#include "../egoboo_strutil.h"
-#include "../egoboo_vfs.h"
-#include "../egoboo_math.h"
-#include "../egoboo.h"
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+// this function is declared in mad.h
+extern int    action_which( char cTmp );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -291,7 +296,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
     // More item and damage stuff
     pcap->damagetarget_damagetype = fget_next_damage_type( fileread );
-    pcap->weaponaction      = action_which( fget_next_char( fileread ) );
+    pcap->weaponaction            = action_which( fget_next_char( fileread ) );
 
     // Particle attachments
     pcap->attachedprt_amount              = fget_next_int( fileread );
@@ -324,10 +329,10 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     pcap->dampen    = fget_next_float( fileread );
 
     // More stuff I forgot
-    pcap->life_heal    = fget_next_float( fileread ) * 256;
-    pcap->manacost    = fget_next_float( fileread ) * 256;
+    pcap->life_heal    = fget_next_float( fileread ) * 0xff;
+    pcap->manacost     = fget_next_float( fileread ) * 0xff;
     pcap->life_return  = fget_next_int( fileread );
-    pcap->stoppedby  |= fget_next_int( fileread );
+    pcap->stoppedby   |= fget_next_int( fileread );
 
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
@@ -390,8 +395,8 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'P', 'L', 'A', 'T' ) ) pcap->canuseplatforms = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'R', 'I', 'P', 'P' ) ) pcap->ripple = ( 0 != fget_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'V', 'A', 'L', 'U' ) ) pcap->isvaluable = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'L', 'I', 'F', 'E' ) ) pcap->life_spawn = 256.0f * fget_float( fileread );
-        else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->mana_spawn = 256.0f * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'L', 'I', 'F', 'E' ) ) pcap->life_spawn = 0xff * fget_float( fileread );
+        else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->mana_spawn = 0xff * fget_float( fileread );
         else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) ) pcap->spelleffect_type = fget_int( fileread ) % MAX_SKIN;
         else if ( idsz == MAKE_IDSZ( 'F', 'A', 'S', 'T' ) ) pcap->attack_fast = ( 0 != fget_int( fileread ) );
 

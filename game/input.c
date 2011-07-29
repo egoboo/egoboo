@@ -24,34 +24,32 @@
 #include "input.h"
 
 #if defined(USE_LUA_CONSOLE)
-#    include "lua_console.h"
+#    include <egolib/lua_console.h>
 #else
-#    include "egoboo_console.h"
+#    include <egolib/console.h>
 #endif
 
 #include "ui.h"
-#include "log.h"
 #include "network.h"
 #include "menu.h"
 #include "graphic.h"
 #include "camera_system.h"
-
-#include "egoboo_setup.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
-#include "egoboo_math.h"
 #include "egoboo.h"
 
-#include "file_formats/controls_file.h"
-#include "extensions/SDL_extensions.h"
+#include <egolib/egoboo_setup.h>
+
+#include <egolib/log.h>
+#include <egolib/fileutil.h>
+#include <egolib/strutil.h>
+#include <egolib/_math.h>
+
+#include <egolib/file_formats/controls_file.h>
+#include <egolib/extensions/SDL_extensions.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// generic device list
-device_list_t     InputDevices;
-
-//Raw input devices
+// Raw input devices
 mouse_data_t           mous = MOUSE_INIT;
 keyboard_data_t        keyb = KEYBOARD_INIT;
 joystick_data_t JoyList[MAX_JOYSTICK];
@@ -446,7 +444,7 @@ void input_read_all_devices()
     {
         if ( cfg.dev_mode )
         {
-            if ( NULL == egoboo_console_handle_events( &evt ) )
+            if ( NULL == egolib_console_handle_events( &evt ) )
             {
                 continue;
             }
@@ -493,112 +491,7 @@ bool_t input_cursor_wheel_event_pending()
 }
 
 //--------------------------------------------------------------------------------------------
-int translate_string_to_input_type( const char *string )
-{
-    /// @details ZF@> This function turns a string into a input type (mouse, keyboard, joystick, etc.)
-
-    int retval = INPUT_DEVICE_UNKNOWN;
-
-    if ( INVALID_CSTR( string ) ) return INPUT_DEVICE_UNKNOWN;
-
-    if ( 0 == strcmp( string, "KEYBOARD" ) )
-    {
-        retval = INPUT_DEVICE_KEYBOARD;
-    }
-    else if ( 0 == strcmp( string, "MOUSE" ) )
-    {
-        retval = INPUT_DEVICE_MOUSE;
-    }
-    else if ( 0 == strncmp( string, "JOYSTICK", 8 ) && CSTR_END != string[9] )
-    {
-        int ijoy = ( int )string[9] - ( int )'A';
-
-        if ( ijoy >= 0 && ijoy < MAX_JOYSTICK )
-        {
-            retval = INPUT_DEVICE_JOY + ijoy;
-        }
-    }
-
-    // No matches
-    if ( INPUT_DEVICE_UNKNOWN == retval )
-    {
-        retval = INPUT_DEVICE_KEYBOARD;
-        log_warning( "Unknown device controller parsed (%s) - defaulted to Keyboard\n", string );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-const char* translate_input_type_to_string( const int type )
-{
-    /// @details ZF@> This function turns a input type into a string
-
-    static STRING retval;
-
-    if ( type == INPUT_DEVICE_KEYBOARD )
-    {
-        strncpy( retval, "KEYBOARD", SDL_arraysize( retval ) );
-    }
-    else if ( type == INPUT_DEVICE_MOUSE )
-    {
-        strncpy( retval, "MOUSE", SDL_arraysize( retval ) );
-    }
-    else if ( IS_VALID_JOYSTICK( type ) )
-    {
-        snprintf( retval, SDL_arraysize( retval ), "JOYSTICK_%c", ( char )( 'A' + ( type - INPUT_DEVICE_JOY ) ) );
-    }
-    else
-    {
-        // No matches
-        strncpy( retval, "UNKNOWN", SDL_arraysize( retval ) );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-// input_device_t
-//--------------------------------------------------------------------------------------------
-input_device_t * input_device_ctor( input_device_t * pdevice )
-{
-    if ( NULL == pdevice ) return NULL;
-
-    // clear out all the data, including all
-    // control data
-    BLANK_STRUCT_PTR( pdevice )
-
-    pdevice->device_type = INPUT_DEVICE_UNKNOWN;
-
-    return pdevice;
-}
-
-//--------------------------------------------------------------------------------------------
-void input_device_init( input_device_t * pdevice, int req_type )
-{
-    int type;
-
-    if ( NULL == pdevice ) return;
-
-    // save the old type
-    if ( INPUT_DEVICE_UNKNOWN == req_type )
-    {
-        type = pdevice->device_type;
-    }
-    else
-    {
-        type = req_type;
-    }
-
-    // clear out all the data
-    BLANK_STRUCT_PTR( pdevice )
-
-    // set everything that is not 0, bfalse, 0.0f, etc.
-    pdevice->sustain     = 0.58f;
-    pdevice->cover       = 1.0f - pdevice->sustain;
-    pdevice->device_type = type;
-}
-
+// implementation of specialized input_device_commands
 //--------------------------------------------------------------------------------------------
 BIT_FIELD input_device_get_buttonmask( input_device_t *pdevice )
 {
@@ -651,7 +544,6 @@ bool_t input_device_is_enabled( input_device_t *pdevice )
 
     return retval;
 }
-
 //--------------------------------------------------------------------------------------------
 bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontrol )
 {
@@ -679,28 +571,3 @@ bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icon
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-
-void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
-{
-    // Sustain old movements to ease mouse/keyboard play
-
-    float dist;
-
-    if ( NULL == pdevice ) return;
-
-    pdevice->latch_old = pdevice->latch;
-
-    pdevice->latch.x = pdevice->latch.x * pdevice->sustain + newx * pdevice->cover;
-    pdevice->latch.y = pdevice->latch.y * pdevice->sustain + newy * pdevice->cover;
-
-    // make sure that the latch never overflows
-    dist = pdevice->latch.x * pdevice->latch.x + pdevice->latch.y * pdevice->latch.y;
-    if ( dist > 1.0f )
-    {
-        float scale = 1.0f / SQRT( dist );
-
-        pdevice->latch.x *= scale;
-        pdevice->latch.y *= scale;
-    }
-}

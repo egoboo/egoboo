@@ -21,10 +21,10 @@
 /// @brief Implementation of the support functions for hash tables
 /// @details
 
-#include "hash.h"
+#include "../egolib/hash.h"
 
 // this include must be the absolute last include
-#include "egoboo_mem.h"
+#include "../egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -23,13 +23,13 @@
 
 #include "script_compile.h"
 
-#include "log.h"
+#include <egolib/log.h>
 
-#include "egoboo_vfs.h"
-#include "egoboo_setup.h"
-#include "egoboo_strutil.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_math.h"
+#include <egolib/vfs.h>
+#include <egolib/egoboo_setup.h>
+#include <egolib/strutil.h>
+#include <egolib/fileutil.h>
+#include <egolib/_math.h>
 #include "egoboo.h"
 
 #include "game.h"
@@ -535,7 +535,7 @@ const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 static size_t       surround_space( size_t position, char buffer[], size_t buffer_size, const size_t buffer_max );
 static size_t       insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max );
 static size_t       ai_goto_colon( size_t read, Uint8 buffer[], const size_t buffer_size );
-static egoboo_rv    get_code( size_t read, Uint8 buffer[], const size_t buffer_size );
+static egolib_rv    get_code( size_t read, Uint8 buffer[], const size_t buffer_size );
 static size_t       fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max );
 
 static size_t       load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript );
@@ -545,7 +545,7 @@ static void         emit_opcode( token_t * ptok, const BIT_FIELD highbits, scrip
 static void         parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscript );
 static Uint32       jump_goto( int index, int index_end, script_info_t *pscript );
 static void         parse_jumps( script_info_t *pscript );
-static egoboo_rv    ai_script_upload_default( script_info_t *pscript );
+static egolib_rv    ai_script_upload_default( script_info_t *pscript );
 
 static void load_ai_codes_vfs( const char* loadname );
 
@@ -1461,14 +1461,14 @@ size_t ai_goto_colon( size_t read, Uint8 buffer[], const size_t buffer_size )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv get_code( size_t read, Uint8 buffer[], const size_t buffer_size )
+egolib_rv get_code( size_t read, Uint8 buffer[], const size_t buffer_size )
 {
     /// @details ZZ@> This function gets code names and other goodies
 
     char cTmp;
     int iTmp, fields;
     STRING sTmp;
-    egoboo_rv retval;
+    egolib_rv retval;
 
     if ( NULL == buffer || 0 == buffer_size || read >= buffer_size )
     {
@@ -1539,7 +1539,7 @@ void load_ai_codes_vfs( const char* loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv ai_script_upload_default( script_info_t * pscript )
+egolib_rv ai_script_upload_default( script_info_t * pscript )
 {
     //@details ZF@> This loads the default AI script into a character profile ai
     //              It's not optimal since it duplicates the AI script data with memcpy
@@ -1558,7 +1558,7 @@ egoboo_rv ai_script_upload_default( script_info_t * pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript )
+egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript )
 {
     /// @details ZZ@> This function loads a script to memory
 

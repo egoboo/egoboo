@@ -23,17 +23,17 @@
 
 #include "mad.h"
 
-#include "log.h"
+#include <egolib/log.h>
 #include "script_compile.h"
 #include "graphic.h"
 #include "texture.h"
 #include "sound.h"
 
-#include "egoboo_setup.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
+#include <egolib/egoboo_setup.h>
+#include <egolib/fileutil.h>
+#include <egolib/strutil.h>
 
-#include "file_formats/cap_file.h"
+#include <egolib/file_formats/cap_file.h>
 
 #include "md2.inl"
 #include "particle.inl"

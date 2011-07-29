@@ -24,12 +24,12 @@
 #include "mpd_file.h"
 #include "../log.h"
 
-#include "../egoboo_endian.h"
-#include "../egoboo_fileutil.h"
-#include "../egoboo_strutil.h"
-#include "../egoboo.h"
+#include "../endian.h"
+#include "../fileutil.h"
+#include "../strutil.h"
+//#include "../egoboo.h"
 
-#include "../egoboo_math.inl"
+#include "../_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -44,12 +44,6 @@ static bool_t       mpd_mem_alloc( mpd_mem_t * pmem, mpd_info_t * pinfo );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-fvec3_t   map_twist_nrm[256];
-Uint32    map_twist_y[256];            // For surface normal of mesh
-Uint32    map_twist_x[256];
-fvec3_t   map_twist_vel[256];            // For sliding down steep hills
-Uint8     map_twist_flat[256];
 
 tile_definition_t tile_dict[MPD_FAN_TYPE_MAX];
 

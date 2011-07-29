@@ -20,10 +20,10 @@
 //********************************************************************************************
 
 #include "lighting.h"
-#include "bsp.h"
 
-#include "file_formats/mpd_file.h"
-#include "extensions/ogl_include.h"
+#include <egolib/bsp.h>
+#include <egolib/file_formats/mpd_file.h>
+#include <egolib/extensions/ogl_include.h>
 
 //--------------------------------------------------------------------------------------------
 

@@ -22,15 +22,16 @@
 /// @details A basic library for implementing user interfaces, based off of Casey Muratori's
 /// IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
 
-#include "ui.h"
-#include "graphic.h"
-#include "font_ttf.h"
-
-#include "extensions/ogl_debug.h"
-#include "extensions/SDL_extensions.h"
-
 #include <string.h>
 #include <SDL_opengl.h>
+
+#include "ui.h"
+
+#include <egolib/font_ttf.h>
+#include <egolib/extensions/ogl_debug.h>
+#include <egolib/extensions/SDL_extensions.h>
+
+#include "graphic.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

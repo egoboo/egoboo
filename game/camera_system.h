@@ -58,21 +58,21 @@ typedef void ( *renderer_ptr_t )( const camera_t *, const int render_list_index,
 
 bool_t    camera_system_is_started( void );
 
-egoboo_rv camera_system_begin( int camera_count );
-egoboo_rv camera_system_end( void );
-egoboo_rv camera_system_init( int camera_count );
+egolib_rv camera_system_begin( int camera_count );
+egolib_rv camera_system_end( void );
+egolib_rv camera_system_init( int camera_count );
 
-egoboo_rv camera_system_reset( struct s_ego_mpd * pmesh );
-egoboo_rv camera_system_move( struct s_ego_mpd * pmesh );
-egoboo_rv camera_system_reset_targets( struct s_ego_mpd * pmesh );
+egolib_rv camera_system_reset( struct s_ego_mpd * pmesh );
+egolib_rv camera_system_move( struct s_ego_mpd * pmesh );
+egolib_rv camera_system_reset_targets( struct s_ego_mpd * pmesh );
 
 camera_t          * camera_system_get_main( void );
 ext_camera_list_t * camera_system_get_list( void );
 
-egoboo_rv camera_system_render_all( renderer_ptr_t );
+egolib_rv camera_system_render_all( renderer_ptr_t );
 
-egoboo_rv camera_system_begin_camera( int index );
-egoboo_rv camera_system_end_camera( int index );
+egolib_rv camera_system_begin_camera( int index );
+egolib_rv camera_system_end_camera( int index );
 
 ext_camera_iterator_t * camera_list_iterator_begin( ext_camera_list_t * ptr );
 ext_camera_iterator_t * camera_list_iterator_next( ext_camera_iterator_t * );

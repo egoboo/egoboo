@@ -27,21 +27,21 @@
 #include "PrtList.h"
 
 #include "texture.h"
-#include "log.h"
+#include <egolib/log.h>
 #include "script_compile.h"
 #include "game.h"
 
-#include "egoboo_setup.h"
-#include "egoboo_strutil.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_vfs.h"
+#include <egolib/egoboo_setup.h>
+#include <egolib/strutil.h>
+#include <egolib/fileutil.h>
+#include <egolib/vfs.h>
+#include <egolib/bsp.inl>
 
 #include "mesh.inl"
-#include "bsp.inl"
 #include "particle.inl"
 
 // this include must be the absolute last include
-#include "egoboo_mem.h"
+#include <egolib/mem.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

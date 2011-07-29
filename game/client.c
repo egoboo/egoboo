@@ -24,21 +24,18 @@
 #include "network.h"
 #include "game.h"
 #include "player.h"
-#include "log.h"
+#include <egolib/log.h>
 #include "menu.h"
 
 #include "egoboo.h"
-#include "egoboo_setup.h"
-#include "egoboo_strutil.h"
+#include <egolib/egoboo_setup.h>
+#include <egolib/strutil.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // Global ClientState instance
-ClientState_t ClientState =
-{
-    NULL         /* gameHost */
-};
+ClientState_t ClientState = { BASE_CLIENT_STATE_INIT };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -48,7 +45,7 @@ void cl_frameStep()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egoboo_rv cl_talkToHost( net_instance_t * pnet )
+egolib_rv cl_talkToHost()
 {
     /// @details ZZ@> This function sends the latch packets to the host machine
 
@@ -56,11 +53,6 @@ egoboo_rv cl_talkToHost( net_instance_t * pnet )
     ego_packet_t ego_pkt;
 
     ego_packet_ctor( &ego_pkt );
-
-    if ( NULL == pnet )
-    {
-        return rv_error;
-    }
 
     // Let the players respawn
     if ( SDLKEYDOWN( SDLK_SPACE )
@@ -83,7 +75,7 @@ egoboo_rv cl_talkToHost( net_instance_t * pnet )
     }
 
     // Start talkin'
-    if ( net_on( pnet ) && !net_get_hostactive( pnet ) )
+    if ( egonet_on() && !egonet_get_hostactive() )
     {
         ego_packet_begin( &ego_pkt );
         ego_packet_addUint16( &ego_pkt, TO_HOST_LATCH );        // The message header
@@ -101,7 +93,7 @@ egoboo_rv cl_talkToHost( net_instance_t * pnet )
         }
 
         // Send it to the host
-        net_sendPacketToPeer( &ego_pkt, ClientState.gameHost );
+        egonet_sendPacketToPeer( &ego_pkt, ClientState.base.gameHost );
     }
 
     ego_packet_dtor( &ego_pkt );
@@ -110,19 +102,14 @@ egoboo_rv cl_talkToHost( net_instance_t * pnet )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv cl_joinGame( net_instance_t * pnet, const char* hostname )
+egolib_rv cl_joinGame( const char* hostname )
 {
     /// @details ZZ@> This function tries to join one of the sessions we found
 
     ENetAddress address;
     ENetEvent event;
 
-    if ( NULL == pnet )
-    {
-        return rv_error;
-    }
-
-    if ( net_on( pnet ) )
+    if ( egonet_on() )
     {
         ENetHost * phost;
         ENetPeer * pgame;
@@ -132,7 +119,7 @@ egoboo_rv cl_joinGame( net_instance_t * pnet, const char* hostname )
         /// @todo Should I limit client bandwidth here?
         phost = enet_host_create( NULL, 1, 0, 0 );
 
-        net_set_myHost( pnet, phost );
+        egonet_set_myHost( phost );
         if ( NULL == phost )
         {
             // can't create a network connection at all
@@ -149,17 +136,17 @@ egoboo_rv cl_joinGame( net_instance_t * pnet, const char* hostname )
         enet_address_set_host( &address, hostname );
         address.port = NET_EGOBOO_PORT;
 
-        pgame = enet_host_connect( net_get_myHost( pnet ), &address, NET_EGOBOO_NUM_CHANNELS );
+        pgame = enet_host_connect( (ENetHost *)egonet_get_myHost(), &address, NET_EGOBOO_NUM_CHANNELS );
 
-        ClientState.gameHost = pgame;
-        if ( NULL == ClientState.gameHost )
+        ClientState.base.gameHost = pgame;
+        if ( NULL == ClientState.base.gameHost )
         {
             log_info( "cl_joinGame: No available peers to create a connection!\n" );
             return rv_fail;
         }
 
         // Wait for up to 5 seconds for the connection attempt to succeed
-        if ( enet_host_service( net_get_myHost( pnet ), &event, 5000 ) > 0 &&
+        if ( enet_host_service( (ENetHost *)egonet_get_myHost(), &event, 5000 ) > 0 &&
              event.type == ENET_EVENT_TYPE_CONNECT )
         {
             log_info( "cl_joinGame: Connected to %s:%d\n", hostname, NET_EGOBOO_PORT );
@@ -176,7 +163,7 @@ egoboo_rv cl_joinGame( net_instance_t * pnet, const char* hostname )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv cl_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
+egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
 {
     Uint16 header;
     STRING filename;      // also used for reading various strings
@@ -193,7 +180,7 @@ egoboo_rv cl_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
 
     ego_packet_ctor( &ego_pkt );
 
-    if ( !net_on( pnet ) || NULL == enet_pkt ) return rv_error;
+    if ( !egonet_on() || NULL == enet_pkt ) return rv_error;
 
     // assume the best
     handled = btrue;
@@ -208,7 +195,7 @@ egoboo_rv cl_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
     {
         case TO_REMOTE_MODULE:
             log_info( "TO_REMOTE_MODULE\n" );
-            if ( !net_get_hostactive( pnet ) && !net_get_readytostart( pnet ) )
+            if ( !egonet_get_hostactive() && !egonet_get_readytostart() )
             {
                 enet_packet_readUint32( enet_pkt, &PMod->seed );
                 enet_packet_readString( enet_pkt,  filename, sizeof( filename ) );
@@ -230,12 +217,12 @@ egoboo_rv cl_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
                     pickedmodule_ready = btrue;
 
                     // Make ourselves ready
-                    net_set_readytostart( pnet, btrue );
+                    egonet_set_readytostart( btrue );
 
                     // Tell the host we're ready
                     ego_packet_begin( &ego_pkt );
                     ego_packet_addUint16( &ego_pkt, TO_HOST_MODULEOK );
-                    net_sendPacketToPeerGuaranteed( &ego_pkt, ClientState.gameHost );
+                    egonet_sendPacketToPeerGuaranteed( &ego_pkt, ClientState.base.gameHost );
                 }
                 else
                 {
@@ -243,21 +230,21 @@ egoboo_rv cl_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
                     pickedmodule_ready = bfalse;
 
                     // Halt the process
-                    net_set_readytostart( pnet, bfalse );
+                    egonet_set_readytostart( bfalse );
 
                     // Tell the host we're not ready
                     ego_packet_begin( &ego_pkt );
                     ego_packet_addUint16( &ego_pkt, TO_HOST_MODULEBAD );
-                    net_sendPacketToPeerGuaranteed( &ego_pkt, ClientState.gameHost );
+                    egonet_sendPacketToPeerGuaranteed( &ego_pkt, ClientState.base.gameHost );
                 }
             }
             break;
 
         case TO_REMOTE_START:
             log_info( "TO_REMOTE_START\n" );
-            if ( !net_get_hostactive( pnet ) )
+            if ( !egonet_get_hostactive() )
             {
-                net_set_waitingforplayers( pnet, bfalse );
+                egonet_set_waitingforclients( bfalse );
             }
             break;
 
@@ -283,7 +270,7 @@ egoboo_rv cl_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
 
         case TO_REMOTE_LATCH:
             log_info( "TO_REMOTE_LATCH\n" );
-            if ( !net_get_hostactive( pnet ) )
+            if ( !egonet_get_hostactive() )
             {
                 enet_packet_readUint32( enet_pkt, &stamp );
                 time = stamp & LAGAND;

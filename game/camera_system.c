@@ -29,11 +29,11 @@
 #include "player.h"
 #include "ChrList.h"
 
-#include "egoboo_setup.h"
+#include <egolib/egoboo_setup.h>
 
-#include "extensions/SDL_extensions.h"
+#include <egolib/extensions/SDL_extensions.h>
 
-#include "egoboo_math.inl"
+#include <egolib/_math.inl>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -77,8 +77,8 @@ struct s_ext_camera
 static ext_camera_t * ext_camera_ctor( ext_camera_t * ptr );
 static ext_camera_t * ext_camera_dtor( ext_camera_t * ptr );
 static ext_camera_t * ext_camera_reinit( ext_camera_t * ptr );
-static egoboo_rv ext_camera_begin( ext_camera_t * pext, GLint * mode );
-static egoboo_rv ext_camera_end( ext_camera_t * pext, GLint mode );
+static egolib_rv ext_camera_begin( ext_camera_t * pext, GLint * mode );
+static egolib_rv ext_camera_end( ext_camera_t * pext, GLint mode );
 static bool_t ext_camera_free( ext_camera_t * ptr );
 static bool_t ext_camera_update_projection( ext_camera_t * ptr );
 
@@ -110,10 +110,10 @@ static ext_camera_list_t    _camera_lst;
 // private funcitons
 //--------------------------------------------------------------------------------------------
 
-static egoboo_rv _camera_system_autoformat_cameras( int cameras );
-static egoboo_rv _camera_system_autoset_targets( void );
-static egoboo_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam );
-static egoboo_rv _camera_system_end_camera_ptr( ext_camera_t * pcam );
+static egolib_rv _camera_system_autoformat_cameras( int cameras );
+static egolib_rv _camera_system_autoset_targets( void );
+static egolib_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam );
+static egolib_rv _camera_system_end_camera_ptr( ext_camera_t * pcam );
 
 //--------------------------------------------------------------------------------------------
 // ext_camera_t implementation
@@ -265,7 +265,7 @@ bool_t camera_system_is_started()
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv camera_system_begin( int camera_count )
+egolib_rv camera_system_begin( int camera_count )
 {
     if ( !_camera_system_initialized )
     {
@@ -291,7 +291,7 @@ egoboo_rv camera_system_begin( int camera_count )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv camera_system_end()
+egolib_rv camera_system_end()
 {
     if ( _camera_system_initialized )
     {
@@ -305,7 +305,7 @@ egoboo_rv camera_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam )
+egolib_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam )
 {
     renderlist_mgr_t * rmgr_ptr = NULL;
     dolist_mgr_t     * dmgr_ptr = NULL;
@@ -357,7 +357,7 @@ egoboo_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv camera_system_begin_camera( int index )
+egolib_rv camera_system_begin_camera( int index )
 {
     if ( rv_success != camera_system_begin( -1 ) )
     {
@@ -373,7 +373,7 @@ egoboo_rv camera_system_begin_camera( int index )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv _camera_system_end_camera_ptr( ext_camera_t * pcam )
+egolib_rv _camera_system_end_camera_ptr( ext_camera_t * pcam )
 {
     renderlist_mgr_t * rmgr_ptr = NULL;
     dolist_mgr_t     * dmgr_ptr = NULL;
@@ -434,7 +434,7 @@ egoboo_rv _camera_system_end_camera_ptr( ext_camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv camera_system_end_camera( int index )
+egolib_rv camera_system_end_camera( int index )
 {
     // !do not try to start the camera system here!
     // An external function could try to deactivate a camera after
@@ -453,9 +453,9 @@ egoboo_rv camera_system_end_camera( int index )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv camera_system_init( int camera_count )
+egolib_rv camera_system_init( int camera_count )
 {
-    egoboo_rv tmp_retval;
+    egolib_rv tmp_retval;
 
     if ( !camera_system_is_started() )
     {
@@ -512,7 +512,7 @@ ext_camera_list_t * camera_system_get_list()
 // EXTERNAL FUNCTIONS
 //--------------------------------------------------------------------------------------------
 
-egoboo_rv camera_system_reset( ego_mpd_t * pmesh )
+egolib_rv camera_system_reset( ego_mpd_t * pmesh )
 {
     int cnt;
 
@@ -535,7 +535,7 @@ egoboo_rv camera_system_reset( ego_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv camera_system_move( ego_mpd_t * pmesh )
+egolib_rv camera_system_move( ego_mpd_t * pmesh )
 {
     int cnt;
 
@@ -558,7 +558,7 @@ egoboo_rv camera_system_move( ego_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv camera_system_reset_targets( ego_mpd_t * pmesh )
+egolib_rv camera_system_reset_targets( ego_mpd_t * pmesh )
 {
     int cnt;
 
@@ -581,7 +581,7 @@ egoboo_rv camera_system_reset_targets( ego_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv ext_camera_begin( ext_camera_t * pext, GLint * mode )
+egolib_rv ext_camera_begin( ext_camera_t * pext, GLint * mode )
 {
     /// how much bigger is mProjection_big than mProjection?
 
@@ -604,7 +604,7 @@ egoboo_rv ext_camera_begin( ext_camera_t * pext, GLint * mode )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv ext_camera_end( ext_camera_t * pext, GLint mode )
+egolib_rv ext_camera_end( ext_camera_t * pext, GLint mode )
 {
     if ( NULL == pext )
     {
@@ -632,12 +632,12 @@ egoboo_rv ext_camera_end( ext_camera_t * pext, GLint mode )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv camera_system_render_all( renderer_ptr_t prend )
+egolib_rv camera_system_render_all( renderer_ptr_t prend )
 {
     GLint mode;
     int cnt;
 
-    egoboo_rv retval = rv_error;
+    egolib_rv retval = rv_error;
     ext_camera_t * pext;
 
     camera_t * main_cam_ptr = PCamera;
@@ -707,7 +707,7 @@ camera_system_render_all_end:
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv _camera_system_autoformat_cameras( int cameras )
+egolib_rv _camera_system_autoformat_cameras( int cameras )
 {
     // 1/2 of border between panes in pixels
     const static int border = 1;
@@ -717,7 +717,7 @@ egoboo_rv _camera_system_autoformat_cameras( int cameras )
 
     ext_camera_t * pcam;
     int cam_count;
-    egoboo_rv retval;
+    egolib_rv retval;
 
     if ( !camera_system_is_started() )
     {
@@ -1001,7 +1001,7 @@ egoboo_rv _camera_system_autoformat_cameras( int cameras )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv _camera_system_autoset_targets()
+egolib_rv _camera_system_autoset_targets()
 {
     // spread the targets out over all the cameras
 

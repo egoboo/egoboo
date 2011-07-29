@@ -24,7 +24,7 @@
 #include "server.h"
 #include "network.h"
 #include "game.h"
-#include "log.h"
+#include <egolib/log.h>
 #include "player.h"
 
 //--------------------------------------------------------------------------------------------
@@ -35,12 +35,7 @@ static int lag  = 3;       // Lag tolerance
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-ServerState_t ServerState =
-{
-    ( Uint32 )( ~0 ),      /* last_frame */
-    bfalse,                /* am_host */
-    0                      /* player_count */
-};
+ServerState_t ServerState = SERVER_STATE_INIT;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -49,7 +44,7 @@ void sv_frameStep()
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv sv_talkToRemotes( net_instance_t * pnet )
+egolib_rv sv_talkToRemotes()
 {
     /// @details ZZ@> This function sends the character data to all the remote machines
 
@@ -60,10 +55,8 @@ egoboo_rv sv_talkToRemotes( net_instance_t * pnet )
 
     ego_packet_ctor( &ego_pkt );
 
-    if ( NULL == pnet ) return rv_error;
-
     // for games that must be in synch, make sure we use the "true update"
-    if ( net_on( pnet ) || !GProc->ups_timer.free_running )
+    if ( egonet_on() || !GProc->ups_timer.free_running )
     {
         update_counter = true_update;
     }
@@ -73,15 +66,15 @@ egoboo_rv sv_talkToRemotes( net_instance_t * pnet )
     }
 
     // make sure there is only one update per frame;
-    if ( update_wld == ServerState.last_frame )
+    if ( update_wld == ServerState.base.last_frame )
     {
         return rv_fail;
     }
-    ServerState.last_frame = update_wld;
+    ServerState.base.last_frame = update_wld;
 
-    if ( net_get_hostactive( pnet ) )
+    if ( egonet_get_hostactive() )
     {
-        if ( net_on( pnet ) )
+        if ( egonet_on() )
         {
             time = update_counter + lag;
 
@@ -104,7 +97,7 @@ egoboo_rv sv_talkToRemotes( net_instance_t * pnet )
             }
 
             // Send the packet
-            net_sendPacketToAllPlayers( &ego_pkt );
+            egonet_broadcastPacket( &ego_pkt );
         }
         else
         {
@@ -157,17 +150,15 @@ egoboo_rv sv_talkToRemotes( net_instance_t * pnet )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv sv_letPlayersJoin( net_instance_t * pnet )
+egolib_rv sv_letPlayersJoin()
 {
     /// @details ZZ@> This function finds all the players in the game
 
     ENetEvent event;
     STRING hostName;
 
-    if ( NULL == pnet ) return rv_error;
-
     // Check all pending events for players joining
-    while ( enet_host_service( net_get_myHost( pnet ), &event, 0 ) > 0 )
+    while ( enet_host_service( (ENetHost *)egonet_get_myHost(), &event, 0 ) > 0 )
     {
         switch ( event.type )
         {
@@ -181,9 +172,9 @@ egoboo_rv sv_letPlayersJoin( net_instance_t * pnet )
                 // save the player data here.
                 enet_address_get_host( &event.peer->address, hostName, 64 );
 
-                strncpy( ServerState.player_name[ServerState.player_count], hostName, 16 );
-                event.peer->data = &( ServerState.player_info[ServerState.player_count] );
-                ServerState.player_count++;
+                strncpy( ServerState.base.client_name[ServerState.base.client_count], hostName, 16 );
+                event.peer->data = &( ServerState.base.client_info[ServerState.base.client_count] );
+                ServerState.base.client_count++;
 
                 break;
 
@@ -212,15 +203,13 @@ egoboo_rv sv_letPlayersJoin( net_instance_t * pnet )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv sv_hostGame( net_instance_t * pnet )
+egolib_rv sv_hostGame()
 {
     /// @details ZZ@> This function tries to host a new session
 
     ENetAddress address;
 
-    if ( NULL == pnet ) return rv_error;
-
-    if ( net_on( pnet ) )
+    if ( egonet_on() )
     {
         ENetHost * phost;
 
@@ -231,7 +220,7 @@ egoboo_rv sv_hostGame( net_instance_t * pnet )
         log_info( "sv_hostGame: Creating game on port %d\n", NET_EGOBOO_PORT );
 
         phost = enet_host_create( &address, MAX_PLAYER, 0, 0 );
-        net_set_myHost( pnet, phost );
+        egonet_set_myHost( phost );
 
         if ( NULL == phost )
         {
@@ -241,10 +230,10 @@ egoboo_rv sv_hostGame( net_instance_t * pnet )
 
         // Try to create a host player
         //return create_player(btrue);
-        ServerState.am_host = btrue;
+        ServerState.base.am_host = btrue;
 
         // Moved from net_sayHello because there they cause a race issue
-        net_set_waitingforplayers( pnet, btrue );
+        egonet_set_waitingforclients( btrue );
         net_players_loaded = 0;
     }
 
@@ -253,7 +242,7 @@ egoboo_rv sv_hostGame( net_instance_t * pnet )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv sv_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
+egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
 {
     Uint16 header;
     PLA_REF player;
@@ -267,7 +256,7 @@ egoboo_rv sv_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
 
     ego_packet_ctor( &ego_pkt );
 
-    if ( !net_on( pnet ) || NULL == enet_pkt ) return rv_error;
+    if ( !egonet_on() || NULL == enet_pkt ) return rv_error;
 
     // assume the best
     handled = btrue;
@@ -282,19 +271,19 @@ egoboo_rv sv_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
     {
         case TO_HOST_MODULEOK:
             log_info( "TO_HOST_MODULEOK\n" );
-            if ( net_get_hostactive( pnet ) )
+            if ( egonet_get_hostactive() )
             {
                 net_players_ready++;
-                if ( net_players_ready >= ServerState.player_count )
+                if ( net_players_ready >= ServerState.base.client_count )
                 {
-                    net_set_readytostart( pnet, btrue );
+                    egonet_set_readytostart( btrue );
                 }
             }
             break;
 
         case TO_HOST_LATCH:
             log_info( "TO_HOST_LATCH\n" );
-            if ( net_get_hostactive( pnet ) )
+            if ( egonet_get_hostactive() )
             {
                 while ( enet_packet_remainingSize( enet_pkt ) > 0 )
                 {
@@ -333,23 +322,23 @@ egoboo_rv sv_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
 
         case TO_HOST_IM_LOADED:
             log_info( "TO_HOST_IMLOADED\n" );
-            if ( net_get_hostactive( pnet ) )
+            if ( egonet_get_hostactive() )
             {
                 net_players_loaded++;
-                if ( net_players_loaded == ServerState.player_count )
+                if ( net_players_loaded == ServerState.base.client_count )
                 {
                     // Let the games begin...
-                    net_set_waitingforplayers( pnet, bfalse );
+                    egonet_set_waitingforclients( bfalse );
                     ego_packet_begin( &ego_pkt );
                     ego_packet_addUint16( &ego_pkt, TO_REMOTE_START );
-                    net_sendPacketToAllPlayersGuaranteed( &ego_pkt );
+                    egonet_broadcastPacketGuaranteed( &ego_pkt );
                 }
             }
             break;
 
             //case TO_HOST_RTS:
             //    log_info( "TO_HOST_RTS\n" );
-            //    if ( net_get_hostactive( pnet ) )
+            //    if ( egonet_get_hostactive() )
             //    {
             //        whichorder = get_empty_order();
             //        if(whichorder < MAXORDER)
@@ -377,7 +366,7 @@ egoboo_rv sv_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt )
             //          }
             //          ego_packet_addUint32( &ego_pkt, what);
             //          ego_packet_addUint32( &ego_pkt, when);
-            //          net_sendPacketToAllPlayersGuaranteed( &ego_pkt );
+            //          egonet_broadcastPacketGuaranteed( &ego_pkt );
             //          }
             //    }
             //    break;

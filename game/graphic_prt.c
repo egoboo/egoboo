@@ -29,7 +29,7 @@
 #include "input.h"
 #include "lighting.h"
 
-#include "egoboo_setup.h"
+#include <egolib/egoboo_setup.h>
 #include "egoboo.h"
 
 #include "particle.inl"

@@ -27,10 +27,19 @@
 
 #include "../log.h"
 
-#include "../egoboo_fileutil.h"
-#include "../egoboo_strutil.h"
-#include "../egoboo_vfs.h"
+#include "../typedef.h"
+#include "../fileutil.h"
+#include "../strutil.h"
+#include "../vfs.h"
+#include "../platform.h"
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+// generic device list
+device_list_t     InputDevices;
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_load_vfs_3( const char* szFilename )
 {

@@ -21,10 +21,35 @@
 /// @brief Simple Egoboo renderer
 /// @details All sorts of stuff related to drawing the game
 
+#include <SDL_image.h>
+#include <assert.h>
+
 #include "graphic.h"
 #include "graphic_prt.h"
 #include "graphic_mad.h"
 #include "graphic_fan.h"
+
+#include <egolib/log.h>
+#include <egolib/clock.h>
+#include <egolib/throttle.h>
+#include <egolib/font_bmp.h>
+#include <egolib/font_ttf.h>
+#include <egolib/vfs.h>
+#include <egolib/egoboo_setup.h>
+#include <egolib/strutil.h>
+#include <egolib/fileutil.h>
+#include <egolib/frustum.h>
+
+#include <egolib/console.h>
+
+#if defined(USE_LUA_CONSOLE)
+#    include <egolib/lua_console.h>
+#endif
+
+#include <egolib/extensions/SDL_extensions.h>
+#include <egolib/extensions/SDL_GL_extensions.h>
+
+#include <egolib/file_formats/id_md2.h>
 
 #include "mad.h"
 #include "obj_BSP.h"
@@ -32,10 +57,8 @@
 #include "player.h"
 #include "collision.h"
 
-#include "log.h"
 #include "script.h"
 #include "camera_system.h"
-#include "id_md2.h"
 #include "input.h"
 #include "network.h"
 #include "passage.h"
@@ -44,36 +67,14 @@
 #include "game.h"
 #include "ui.h"
 #include "texture.h"
-#include "clock.h"
-#include "font_bmp.h"
-#include "font_ttf.h"
 #include "lighting.h"
-
-#if defined(USE_LUA_CONSOLE)
-#    include "lua_console.h"
-#else
-#    include "egoboo_console.h"
-#endif
-
-#include "egoboo_vfs.h"
-#include "egoboo_setup.h"
-#include "egoboo_strutil.h"
-#include "egoboo_fileutil.h"
-#include "egoboo_clock.h"
-#include "egoboo_frustum.h"
 #include "egoboo.h"
-
-#include "extensions/SDL_extensions.h"
-#include "extensions/SDL_GL_extensions.h"
 
 #include "char.inl"
 #include "particle.inl"
 #include "enchant.inl"
 #include "profile.inl"
 #include "mesh.inl"
-
-#include <SDL_image.h>
-#include <assert.h>
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -342,6 +343,8 @@ float time_render_scene_mesh_render_shadows = 0.0f;
 Uint32          game_frame_all   = 0;             ///< The total number of frames drawn so far
 Uint32          menu_frame_all   = 0;             ///< The total number of frames drawn so far
 
+int maxmessage = MAX_MESSAGE;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int GFX_WIDTH  = 800;
@@ -393,9 +396,9 @@ static bool_t  gfx_page_clear_requested = btrue;
 
 static float dynalight_keep = 0.9f;
 
-ego_timer_t gfx_update_timer;
+egolib_timer_t gfx_update_timer;
 
-static egoboo_clock_t gfx_clock = EGOBOO_CLOCK_INIT;
+static egolib_throttle_t gfx_throttle = EGOLIB_THROTTLE_INIT;
 
 static dynalist_t _dynalist = DYNALIST_INIT;
 
@@ -470,7 +473,7 @@ static gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmes
 static void   render_shadow( const CHR_REF character );
 static void   render_bad_shadow( const CHR_REF character );
 
-//static bool_t gfx_frustum_intersects_oct( const ego_frustum_t * pf, const oct_bb_t * poct );
+//static bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct );
 
 static gfx_rv gfx_make_dolist( dolist_t * pdolist, const camera_t * pcam );
 static gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam );
@@ -503,7 +506,7 @@ static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
 static gfx_rv gfx_make_renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst );
 static gfx_rv gfx_make_dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst );
 static projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr );
-static bool_t gfx_frustum_intersects_oct( const ego_frustum_t * pf, const oct_bb_t * poct );
+static bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1022,7 +1025,7 @@ bool_t oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, e
 //--------------------------------------------------------------------------------------------
 // SPECIAL FUNCTIONS
 //--------------------------------------------------------------------------------------------
-egoboo_rv gfx_error_add( const char * file, const char * function, int line, int id, const char * sz )
+egolib_rv gfx_error_add( const char * file, const char * function, int line, int id, const char * sz )
 {
     gfx_error_state_t * pstate;
 
@@ -2068,12 +2071,12 @@ float draw_debug( float y )
         y = _draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
         y = _draw_string_raw( 0, y, "~~FREEPRT %d", PrtList_count_free() );
         y = _draw_string_raw( 0, y, "~~FREECHR %d", ChrList_count_free() );
-        y = _draw_string_raw( 0, y, "~~MACHINE %d", net_local_machine( PNet ) );
+        y = _draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
         if ( PMod->exportvalid ) snprintf( text, SDL_arraysize( text ), "~~EXPORT: TRUE" );
         else                    snprintf( text, SDL_arraysize( text ), "~~EXPORT: FALSE" );
         y = _draw_string_raw( 0, y, text, PMod->exportvalid );
         y = _draw_string_raw( 0, y, "~~PASS %d/%d", ShopStack.count, PassageStack.count );
-        y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", net_get_player_count( PNet ) );
+        y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
         y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.part_gpip );
 
         // y = _draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
@@ -2114,12 +2117,12 @@ float draw_timer( float y )
 float draw_game_status( float y )
 {
 
-    if ( net_waitingforplayers( PNet ) )
+    if ( egonet_get_waitingforclients() )
     {
         y = _draw_string_raw( 0, y, "Waiting for players... " );
     }
 
-    if ( net_get_player_count( PNet ) > 0 )
+    if ( egonet_get_client_count() > 0 )
     {
         if ( local_stats.allpladead || PMod->respawnanytime )
         {
@@ -4225,22 +4228,22 @@ void gfx_update_fps_clock()
     }
 
     // make sure at least one tick has passed
-    if ( !ego_timer_throttle( &gfx_update_timer, 1 ) ) return;
+    if ( !egolib_timer_throttle( &gfx_update_timer, 1 ) ) return;
 
     // calculate the time since the from the last update
     if ( !single_frame_mode )
     {
         // update the graphics clock the normal way
-        clock_update( &gfx_clock );
+        egolib_throttle_update( &gfx_throttle );
     }
     else
     {
         // do a single-frame update
-        clock_update_diff( &gfx_clock, TICKS_PER_SEC / ( float )cfg.framelimit );
+        egolib_throttle_update_diff( &gfx_throttle, TICKS_PER_SEC / ( float )cfg.framelimit );
     }
 
     // measure the time change
-    gfx_clock_diff = gfx_clock.time_now - gfx_clock.time_lst;
+    gfx_clock_diff = gfx_throttle.time_now - gfx_throttle.time_lst;
 
     // update the game fps
     if ( process_running( PROC_PBASE( GProc ) ) )
@@ -5974,7 +5977,7 @@ void _flip_pages()
     //GL_DEBUG( glFlush )();
 
     // draw the console on top of everything
-    egoboo_console_draw_all();
+    egolib_console_draw_all();
 
     SDL_GL_SwapBuffers();
 
@@ -8044,7 +8047,7 @@ dolist_mgr_t * gfx_get_dolist_mgr()
 //--------------------------------------------------------------------------------------------
 void gfx_reset_timers()
 {
-    clock_reset( &gfx_clock );
+    egolib_throttle_reset( &gfx_throttle );
     gfx_clear_loops = 0;
 }
 
@@ -8061,7 +8064,7 @@ projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_frustum_intersects_oct( const ego_frustum_t * pf, const oct_bb_t * poct )
+bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct )
 {
     bool_t retval = bfalse;
     aabb_t aabb;
@@ -8692,7 +8695,7 @@ bool_t gfx_frustum_intersects_oct( const ego_frustum_t * pf, const oct_bb_t * po
 //    tile_count = pmesh->info.tiles_count;
 //    for ( fan = 0; fan < tile_count; fan++ )
 //    {
-//        inview = ego_frustum_intersects_ego_aabb( &(pcam->frustum), mm->tilelst[fan].bbox.mins.v, mm->tilelst[fan].bbox.maxs.v );
+//        inview = egolib_frustum_intersects_ego_aabb( &(pcam->frustum), mm->tilelst[fan].bbox.mins.v, mm->tilelst[fan].bbox.maxs.v );
 //
 //    }
 //

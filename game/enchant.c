@@ -27,9 +27,9 @@
 #include "camera_system.h"
 #include "game.h"
 #include "script_functions.h"
-#include "log.h"
+#include <egolib/log.h>
 
-#include "egoboo_fileutil.h"
+#include <egolib/fileutil.h>
 #include "egoboo.h"
 
 #include "char.inl"

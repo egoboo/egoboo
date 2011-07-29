@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-#include "../egoboo_typedef.h"
+#include "../typedef.h"
 #include "../IDSZ_map.h"
 
 #if defined(__cplusplus)
@@ -37,10 +37,11 @@ extern "C"
 // Module constants
 //--------------------------------------------------------------------------------------------
 
-#define RANKSIZE 12
-#define SUMMARYLINES 8
-#define SUMMARYSIZE  80
+#define RANKSIZE              12
+#define SUMMARYLINES           8
+#define SUMMARYSIZE           80
 #define MAX_MODULE           100                     ///< Number of modules
+#define RESPAWN_ANYTIME     0xFF                     ///< Code for respawnvalid...
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -91,7 +92,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
     int    module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer );
-    void   module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer );
+    bool_t module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer );
 
     mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod );
 

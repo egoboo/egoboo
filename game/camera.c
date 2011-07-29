@@ -28,11 +28,11 @@
 #include "network.h"
 #include "player.h"
 
-#include "egoboo_setup.h"
+#include <egolib/egoboo_setup.h>
 #include "egoboo.h"
 
-#include "file_formats/controls_file.h"
-#include "extensions/SDL_extensions.h"
+#include <egolib/file_formats/controls_file.h>
+#include <egolib/extensions/SDL_extensions.h>
 
 #include "char.inl"
 #include "mesh.inl"
@@ -238,9 +238,9 @@ void camera_gluPerspective( camera_t * pcam, float fovy_deg, float aspect_ratio,
     GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 
     // recalculate the frustum, too
-    ego_frustum_calculate( &( pcam->frustum ), pcam->mProjection.v, pcam->mView.v );
-    ego_frustum_calculate( &( pcam->frustum_big ), pcam->mProjection_big.v, pcam->mView.v );
-    ego_frustum_calculate( &( pcam->frustum_small ), pcam->mProjection_small.v, pcam->mView.v );
+    egolib_frustum_calculate( &( pcam->frustum ), pcam->mProjection.v, pcam->mView.v );
+    egolib_frustum_calculate( &( pcam->frustum_big ), pcam->mProjection_big.v, pcam->mView.v );
+    egolib_frustum_calculate( &( pcam->frustum_small ), pcam->mProjection_small.v, pcam->mView.v );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -280,9 +280,9 @@ void camera_gluLookAt( camera_t * pcam, float roll_deg )
     GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 
     // the view matrix was updated, so update the frustum
-    ego_frustum_calculate( &( pcam->frustum ), pcam->mProjection.v, pcam->mView.v );
-    ego_frustum_calculate( &( pcam->frustum_big ), pcam->mProjection_big.v, pcam->mView.v );
-    ego_frustum_calculate( &( pcam->frustum_small ), pcam->mProjection_small.v, pcam->mView.v );
+    egolib_frustum_calculate( &( pcam->frustum ), pcam->mProjection.v, pcam->mView.v );
+    egolib_frustum_calculate( &( pcam->frustum_big ), pcam->mProjection_big.v, pcam->mView.v );
+    egolib_frustum_calculate( &( pcam->frustum_small ), pcam->mProjection_small.v, pcam->mView.v );
 }
 
 //--------------------------------------------------------------------------------------------

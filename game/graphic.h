@@ -27,8 +27,8 @@
 
 #include "egoboo.h"
 
-#include "extensions/ogl_texture.h"
-#include "file_formats/module_file.h"
+#include <egolib/extensions/ogl_texture.h>
+#include <egolib/file_formats/module_file.h>
 
 #include <SDL.h>
 
@@ -105,6 +105,9 @@ typedef struct s_point_data point_data_t;
 /// the max number of render lists that can exist
 #define MAX_RENDER_LISTS 4
 
+///< the maximum number of on-screen messages
+#define MAX_MESSAGE         8
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -141,7 +144,7 @@ struct s_gfx_error_stack
 
 #define GFX_ERROR_STACK_INIT { 0, { GFX_ERROR_STATE_INIT } }
 
-egoboo_rv           gfx_error_add( const char * file, const char * function, int line, int id, const char * sz );
+egolib_rv           gfx_error_add( const char * file, const char * function, int line, int id, const char * sz );
 gfx_error_state_t * gfx_error_pop( void );
 void                gfx_error_clear( void );
 
@@ -398,7 +401,8 @@ extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///<
 extern float           lighttoenviroy[256];                                ///< Environment map
 //extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
-extern int    msgtimechange;
+extern int msgtimechange;
+extern int maxmessage;
 
 DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 

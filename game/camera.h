@@ -25,8 +25,8 @@
 
 #include "physics.h"
 
-#include "egoboo_math.h"
-#include "egoboo_frustum.h"
+#include <egolib/_math.h>
+#include <egolib/frustum.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -126,9 +126,9 @@ struct s_camera
     fmat_4x4_t mProjection_small;
 
     // the view frustum
-    ego_frustum_t frustum;
-    ego_frustum_t frustum_big;
-    ego_frustum_t frustum_small;
+    egolib_frustum_t frustum;
+    egolib_frustum_t frustum_big;
+    egolib_frustum_t frustum_small;
 
     // how do we calculate the motion
     Uint8  move_mode;               ///< what is the camera mode

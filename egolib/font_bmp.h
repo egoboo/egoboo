@@ -22,7 +22,7 @@
 /// @file font_bmp.h
 /// @details bitmapped font stuff
 
-#include "egoboo_typedef.h"
+#include "../egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -31,6 +31,12 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+    struct s_oglx_texture;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #define NUMFONTX            16          ///< Number of fonts in the bitmap
 #define NUMFONTY            6
 #define NUMFONT             (NUMFONTX*NUMFONTY)
@@ -51,7 +57,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
     void font_bmp_init( void );
-    void font_bmp_load_vfs( const char* szBitmap, const char* szSpacing );
+    void font_bmp_load_vfs( struct s_oglx_texture * tx_font, const char* szBitmap, const char* szSpacing );
     int  font_bmp_length_of_word( const char *szText );
 
 //--------------------------------------------------------------------------------------------

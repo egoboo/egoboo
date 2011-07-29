@@ -24,11 +24,14 @@
 #include "eve_file.h"
 #include "template.h"
 
-#include "../sound.h"
+#include "../strutil.h"
+#include "../fileutil.h"
+#include "../vfs.h"
 
-#include "../egoboo_strutil.h"
-#include "../egoboo_fileutil.h"
-#include "../egoboo_vfs.h"
+#include "../_math.inl"
+
+// includes for egoboo constants
+#include <game/sound.h>       // for INVALID_SOUND
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

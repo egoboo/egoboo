@@ -35,8 +35,6 @@
 #define MAX_TEXTURE        (MAX_CHR * 4)     ///< Maximum number of textures
 #define MAX_ICON           (MAX_TEXTURE + 4) ///< Maximum number of icons
 
-#define MAX_SKIN             4               ///< The maxumum number of skins per model. This must remain hard coded at 4 for the moment.
-
 /// profile pre-allocations
 #define MAX_PROFILE        256          ///< Maximum number of object profiles
 
@@ -98,7 +96,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // do the includes last so that the compile switches are always set
-#include "egoboo_platform.h"
-#include "egoboo_endian.h"
+#include <egolib/platform.h>
+#include <egolib/endian.h>
 
 #define EGOBOO_CONFIG_H

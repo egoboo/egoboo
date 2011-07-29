@@ -23,7 +23,7 @@
 /// @Sound handling using SDL_mixer
 
 #include "egoboo_typedef.h"
-#include "egoboo_math.h"
+#include <egolib/_math.h>
 
 #include <SDL_mixer.h>
 

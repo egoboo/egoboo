@@ -30,7 +30,7 @@
 
 #include "egoboo.h"
 
-#include "extensions/SDL_extensions.h"
+#include <egolib/extensions/SDL_extensions.h>
 
 #include "mesh.inl"
 

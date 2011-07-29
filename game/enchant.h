@@ -24,9 +24,9 @@
 
 #include "egoboo_object.h"
 
-#include "bsp.h"
+#include <egolib/bsp.h>
 
-#include "file_formats/eve_file.h"
+#include <egolib/file_formats/eve_file.h>
 
 //--------------------------------------------------------------------------------------------
 // external structs

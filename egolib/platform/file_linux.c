@@ -24,8 +24,8 @@
 #include "file_common.h"
 #include "log.h"
 
-#include "egoboo_strutil.h"
-#include "egoboo.h"
+#include "../egolib/strutil.h"
+//#include "egoboo.h"
 
 #include <unistd.h>
 #include <pwd.h>
@@ -36,7 +36,7 @@
 #include <sys/dir.h>
 
 // this include must be the absolute last include
-#include "egoboo_mem.h"
+#include "../egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

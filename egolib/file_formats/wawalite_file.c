@@ -21,18 +21,21 @@
 /// @brief Functions to read and write the Egoboo's wawalite.txt file
 /// @details
 
+#include <string.h>
+
 #include "wawalite_file.h"
+
 #include "pip_file.h"
+#include "cap_file.h"
 
 #include "../log.h"
+#include "../fileutil.h"
+#include "../strutil.h"
 
-#include "../egoboo_fileutil.h"
-#include "../egoboo_strutil.h"
+#include "../_math.inl"
 
-#include "../char.inl"
-#include "../egoboo_math.inl"
-
-#include <string.h>
+// includes for egoboo constants
+#include <game/sound.h>                 // for INVALID_SOUND
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -232,33 +235,8 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
         vfs_get_next_string( fileread, line, SDL_arraysize( line ) );
         strncpy( pweather->weather_name, strupr( line ), SDL_arraysize( pweather->weather_name ) );
 
-        //No weather?
-        if ( strcmp( pweather->weather_name, "NONE" ) == 0 )
-        {
-            pweather->part_gpip = -1;
-        }
-
-        else
-        {
-            STRING prt_file, prt_end_file;
-            bool_t success;
-
-            //prepeare the load paths
-            snprintf( prt_file, SDL_arraysize( prt_file ), "mp_data/weather_%s.txt", strlwr( line ) );
-            snprintf( prt_end_file, SDL_arraysize( prt_end_file ), "mp_data/weather_%s_finish.txt", strlwr( line ) );
-
-            //try to load the particle files, we need at least the first particle for weather to work
-            success = PipStack_load_one( prt_file, ( PIP_REF )PIP_WEATHER ) != MAX_PIP;
-            PipStack_load_one( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
-
-            //Unknown weather parsed
-            if ( !success )
-            {
-                log_warning( "Failed to load weather type from wawalite.txt: %s - (%s)\n", line, prt_file );
-                pweather->part_gpip = -1;
-                strncpy( pweather->weather_name, "NONE", SDL_arraysize( pweather->weather_name ) );
-            }
-        }
+        // convert the text in the calling function
+        pweather->part_gpip = -1;
     }
 
     pweather->over_water  = fget_next_bool( fileread );

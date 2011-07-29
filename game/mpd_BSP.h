@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-#include "bsp.h"
+#include <egolib/bsp.h>
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -63,7 +63,7 @@ bool_t      mpd_BSP_can_collide( BSP_leaf_t * pleaf );
 bool_t      mpd_BSP_is_visible( BSP_leaf_t * pleaf );
 
 int         mpd_BSP_collide_aabb( const mpd_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-int         mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const struct s_ego_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+int         mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const struct s_egolib_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -73,6 +73,6 @@ extern mpd_BSP_t mpd_BSP_root;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-egoboo_rv mpd_BSP_system_begin( struct s_ego_mpd * pmpd );
-egoboo_rv mpd_BSP_system_end( void );
+egolib_rv mpd_BSP_system_begin( struct s_ego_mpd * pmpd );
+egolib_rv mpd_BSP_system_end( void );
 bool_t mpd_BSP_system_started( void );

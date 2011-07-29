@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-#include "bsp.h"
+#include <egolib/bsp.h>
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -27,7 +27,7 @@
 
 struct s_chr;
 struct s_prt_bundle;
-struct s_ego_frustum;
+struct s_egolib_frustum;
 struct s_mpd_BSP;
 
 //--------------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth );
 bool_t obj_BSP_free( obj_BSP_t * pbsp );
 
 int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const struct s_ego_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const struct s_egolib_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

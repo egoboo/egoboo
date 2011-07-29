@@ -28,8 +28,8 @@
 
 /* Typedefs for various platforms */
 #include "egoboo_typedef.h"
-#include "egoboo_timer.h"
-#include "egoboo_clock.h"
+#include <egolib/timer.h>
+#include <egolib/clock.h>
 
 /// The following magic allows this include to work in multiple files
 #if defined(DECLARE_GLOBALS)
@@ -58,8 +58,6 @@ typedef struct s_ego_process ego_process_t;
 #define SPELLBOOK           127                     ///< The spellbook model
 
 /// Messaging stuff
-#define MAX_MESSAGE         8                       ///< Number of messages
-
 #define DAMAGERAISE         25                      ///< Tolerance for damage tiles
 
 /* SDL_GetTicks() always returns milli seconds */
@@ -132,7 +130,6 @@ EXTERN STRING          pickedmodule_write_path;         ///< The picked module's
 EXTERN bool_t          timeron        EQ( bfalse );        ///< Game timer displayed?
 EXTERN Uint32          timervalue     EQ( 0 );             ///< Timer time ( 50ths of a second )
 EXTERN bool_t          messageon      EQ( btrue );         ///< Messages?
-EXTERN int             maxmessage     EQ( MAX_MESSAGE );
 EXTERN int             wraptolerance  EQ( 80 );            ///< Status bar
 EXTERN bool_t          fpson          EQ( btrue );         ///< Show FPS?
 
@@ -169,7 +166,7 @@ EXTERN local_stats_t local_stats;
 
 //---------------------------------------------------------------------------------------------------------------------
 
-#include "egoboo_process.h"
+#include <egolib/process.h>
 
 /// a process that controls the master loop of the program
 struct s_ego_process
@@ -182,7 +179,7 @@ struct s_ego_process
     bool_t was_active;
     bool_t escape_requested, escape_latch;
 
-    ego_timer_t loop_timer;
+    egolib_timer_t loop_timer;
 
     bool_t free_running_latch_requested;
     bool_t free_running_latch;

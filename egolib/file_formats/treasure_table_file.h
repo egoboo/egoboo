@@ -21,7 +21,7 @@
 
 /// @file treasure_tables.h
 
-#include "../egoboo_typedef.h"
+#include "../typedef.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -64,8 +64,8 @@ extern "C"
 // PUBLIC FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    egoboo_rv init_random_treasure_tables_vfs( const char* filepath );
-    egoboo_rv get_random_treasure( char * buffer, size_t buffer_length );
+    egolib_rv init_random_treasure_tables_vfs( const char* filepath );
+    egolib_rv get_random_treasure( char * buffer, size_t buffer_length );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

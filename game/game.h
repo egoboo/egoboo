@@ -22,9 +22,9 @@
 #include "input.h"
 
 #include "egoboo_typedef.h"
-#include "egoboo_math.h"
-#include "egoboo_process.h"
-#include "egoboo_timer.h"
+#include <egolib/_math.h>
+#include <egolib/process.h>
+#include <egolib/timer.h>
 
 //--------------------------------------------------------------------------------------------
 // forward declaration of external structs
@@ -193,8 +193,8 @@ struct s_game_process
     int    menu_depth;
     bool_t escape_requested, escape_latch;
 
-    ego_timer_t fps_timer;
-    ego_timer_t ups_timer;
+    egolib_timer_t fps_timer;
+    egolib_timer_t ups_timer;
 };
 
 game_process_t * game_process_init( game_process_t * gproc );
@@ -299,7 +299,7 @@ struct s_water_instance
 };
 
 float     water_instance_get_water_level( water_instance_t * pinst );
-egoboo_rv water_instance_move( water_instance_t * pwater );
+egolib_rv water_instance_move( water_instance_t * pwater );
 bool_t    water_instance_make( water_instance_t * pinst, const struct s_wawalite_water * pdata );
 bool_t    water_instance_set_douse_level( water_instance_t * pinst, float level );
 
@@ -372,7 +372,7 @@ struct s_import_list
 #define IMPORT_LIST_INIT {0}
 
 bool_t    import_list_init( import_list_t * imp_lst );
-egoboo_rv import_list_from_players( import_list_t * imp_lst );
+egolib_rv import_list_from_players( import_list_t * imp_lst );
 
 //--------------------------------------------------------------------------------------------
 /// Data needed to specify a line-of-sight test
@@ -480,8 +480,8 @@ void   game_finish_module( void );
 bool_t game_begin_module( const char * modname, Uint32 seed );
 
 /// Exporting stuff
-egoboo_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool_t is_local );
-egoboo_rv export_all_players( bool_t require_local );
+egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool_t is_local );
+egolib_rv export_all_players( bool_t require_local );
 
 /// Messages
 void show_stat( int statindex );
@@ -557,7 +557,7 @@ bool_t attach_prt_to_platform( struct s_prt * pprt, struct s_chr * pplat );
 bool_t detach_character_from_platform( struct s_chr * pchr );
 bool_t detach_particle_from_platform( struct s_prt * pprt );
 
-egoboo_rv game_copy_imports( struct s_import_list * imp_lst );
+egolib_rv game_copy_imports( struct s_import_list * imp_lst );
 
 bool_t check_time( Uint32 check );
 void   game_update_timers( void );
@@ -565,5 +565,5 @@ void   game_update_timers( void );
 // wawalite functions
 struct s_wawalite_data * read_wawalite_vfs( void );
 bool_t write_wawalite_vfs( const struct s_wawalite_data * pdata );
-bool_t fix_wawalite( struct s_wawalite_data * pdata );
+bool_t wawalite_finalize( struct s_wawalite_data * pdata );
 void   upload_wawalite( void );

@@ -1,3 +1,3 @@
 #include "cartman_math.h"
 
-#include "egoboo_math.inl"
+#include "egolib_math.inl"

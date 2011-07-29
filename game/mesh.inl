@@ -22,7 +22,7 @@
 /// @file mesh.inl
 
 #include "mesh.h"
-#include "egoboo_math.h"
+#include <egolib/_math.h>
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS

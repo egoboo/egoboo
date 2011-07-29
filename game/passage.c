@@ -28,11 +28,11 @@
 #include "network.h"
 #include "player.h"
 
-#include "egoboo_fileutil.h"
-#include "egoboo_math.h"
+#include <egolib/fileutil.h>
+#include <egolib/_math.h>
 #include "egoboo.h"
 
-#include "file_formats/quest_file.h"
+#include <egolib/file_formats/quest_file.h>
 
 #include "char.inl"
 #include "mesh.inl"

@@ -23,7 +23,7 @@
 
 #include "id_md2.h"
 
-#include "../egoboo_vfs.h"
+#include "../vfs.h"
 
 #include <stdlib.h>
 

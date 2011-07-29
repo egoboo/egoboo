@@ -24,11 +24,11 @@
 
 #include "network.h"
 #include "profile.h"
-#include "IDSZ_map.h"
+#include <egolib/IDSZ_map.h>
 
-#include "egoboo_process.h"
+#include <egolib/process.h>
 #include "egoboo.h"
-#include "egoboo_timer.h"
+#include <egolib/timer.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ struct s_menu_process
     bool_t was_active;
     bool_t escape_requested, escape_latch;
 
-    ego_timer_t gui_timer;
+    egolib_timer_t gui_timer;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -133,13 +133,13 @@ struct s_LoadPlayer_list
     LoadPlayer_element_t lst[MAX_LOADPLAYER];
 };
 
-egoboo_rv              LoadPlayer_list_init( LoadPlayer_list_t * lst );
-egoboo_rv              LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foundfile );
+egolib_rv              LoadPlayer_list_init( LoadPlayer_list_t * lst );
+egolib_rv              LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foundfile );
 LoadPlayer_element_t * LoadPlayer_list_get_ptr( LoadPlayer_list_t * lst, int idx );
-egoboo_rv              LoadPlayer_list_dealloc( LoadPlayer_list_t * lst );
+egolib_rv              LoadPlayer_list_dealloc( LoadPlayer_list_t * lst );
 int                    LoadPlayer_list_get_free( LoadPlayer_list_t * lst );
-egoboo_rv              LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, bool_t initialize );
-egoboo_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
+egolib_rv              LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, bool_t initialize );
+egolib_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
 
 #define LOADPLAYER_LIST_INIT { 0 }
 #define VALID_LOADPLAYER_IDX(LST, IDX) ( ((IDX) >= 0) && ((IDX)<(LST).count) && ((IDX)<MAX_LOADPLAYER) )

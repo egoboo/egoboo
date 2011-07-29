@@ -30,9 +30,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_NetPlayerInfo;
-typedef struct s_NetPlayerInfo NetPlayerInfo_t;
-
 struct s_ServerState;
 typedef struct s_ServerState ServerState_t;
 
@@ -44,27 +41,18 @@ typedef struct s_ServerState ServerState_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// Network information on connected players
-struct s_NetPlayerInfo
-{
-    int playerSlot;
-};
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 /// A mockup of the struct that could be used to store the server state
 struct s_ServerState
 {
-    Uint32 last_frame;
-    bool_t am_host;
-
-    int     player_count;                             ///< How many we found
-    char    player_name[MAXNETPLAYER][NETNAMESIZE];   ///< Names of machines
-
-    NetPlayerInfo_t player_info[MAXNETPLAYER];
-
+    BaseServerState_t base;          ///< the base class of the server state
+    int               player_count;  ///< the actual number of players
 };
+
+#define SERVER_STATE_INIT \
+{ \
+    BASE_SERVER_STATE_INIT, /* BaseServerState_t base */ \
+    0                       /* int player_count       */ \
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -79,10 +67,10 @@ int  sv_init( void );
 void sv_shutDown( void );
 void sv_frameStep( void );
 
-egoboo_rv sv_talkToRemotes( net_instance_t * pnet );
-egoboo_rv sv_hostGame( net_instance_t * pnet );
-egoboo_rv sv_letPlayersJoin( net_instance_t * pnet );
-egoboo_rv sv_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt );
+egolib_rv sv_talkToRemotes();
+egolib_rv sv_hostGame();
+egolib_rv sv_letPlayersJoin();
+egolib_rv sv_handlePacket( enet_packet_t * enet_pkt );
 
 // More to come...
 // int  sv_beginSinglePlayer(...)

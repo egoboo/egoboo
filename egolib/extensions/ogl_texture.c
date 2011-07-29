@@ -28,10 +28,8 @@
 #include "ogl_debug.h"
 #include "SDL_GL_extensions.h"
 
-#include "../graphic.h"
-
 #include "../egoboo_setup.h"
-#include "../egoboo_strutil.h"
+#include "../strutil.h"
 
 #include <SDL_image.h>
 

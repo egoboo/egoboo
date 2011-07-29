@@ -21,25 +21,26 @@
 /// @brief Character model drawing code.
 /// @details
 
+#include <SDL_opengl.h>
+
 #include "graphic_mad.h"
 
+#include <egolib/log.h>
+#include <egolib/egoboo_setup.h>
+
+#include <egolib/file_formats/id_md2.h>
+
 #include "mad.h"
-#include "id_md2.h"
-#include "log.h"
 #include "camera_system.h"
 #include "game.h"
 #include "input.h"
 #include "texture.h"
 #include "lighting.h"
-
-#include "egoboo_setup.h"
 #include "egoboo.h"
 
 #include "profile.inl"
 #include "char.inl"
 #include "md2.inl"
-
-#include <SDL_opengl.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

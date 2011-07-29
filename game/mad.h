@@ -25,7 +25,7 @@
 
 #include "md2.h"
 
-#include "file_formats/id_md2.h"
+#include <egolib/file_formats/id_md2.h>
 
 #include <SDL_opengl.h>
 
@@ -205,7 +205,6 @@ void    MadStack_release_all( void );
 bool_t  MadStack_release_one( const MAD_REF imad );
 MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF object );
 
-int    action_which( char cTmp );
 void   load_action_names_vfs( const char* loadname );
 
 int    mad_get_action_ref( const MAD_REF imad, int action );
@@ -217,3 +216,11 @@ Uint32 mad_get_madfx( mad_t * pmad, int action );
 
 int    randomize_action( int action, int slot );
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+    int    action_which( char cTmp );
+#if defined(__cplusplus)
+}
+#endif

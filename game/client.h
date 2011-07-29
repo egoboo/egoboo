@@ -24,6 +24,7 @@
 /// this is totally not in use yet.
 
 #include "egoboo_typedef.h"
+
 #include "network.h"
 
 //--------------------------------------------------------------------------------------------
@@ -38,8 +39,7 @@ typedef struct s_ClientState ClientState_t;
 /// A mockup of an actual client state
 struct s_ClientState
 {
-    ENetPeer* gameHost;
-    ENetPeer* player_peers[MAX_PLAYER];
+    BaseClientState_t base;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -59,9 +59,10 @@ void cl_frameStep( void );
 // int  cl_connectToServer(...);
 // int  cl_loadModule(...);
 
-egoboo_rv cl_talkToHost( net_instance_t * pnet );
-egoboo_rv cl_joinGame( net_instance_t * pnet, const char *hostname );
-egoboo_rv cl_handlePacket( net_instance_t * pnet, enet_packet_t * enet_pkt );
+egolib_rv cl_talkToHost();
+egolib_rv cl_joinGame( const char *hostname );
+egolib_rv cl_handlePacket( enet_packet_t * enet_pkt );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

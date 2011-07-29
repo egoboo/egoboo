@@ -23,10 +23,10 @@
 
 #include "treasure_table_file.h"
 
-#include "../egoboo_fileutil.h"
-#include "../egoboo_strutil.h"
+#include "../fileutil.h"
+#include "../strutil.h"
 
-#include "../egoboo_math.inl"      //For randomization
+#include "../_math.inl"      //For randomization
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void load_one_treasure_table_vfs( vfs_FILE* fileread, treasure_table_t* new_tabl
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv init_random_treasure_tables_vfs( const char* filepath )
+egolib_rv init_random_treasure_tables_vfs( const char* filepath )
 {
     //ZF> This loads all the treasure tables from randomtreasure.txt
     vfs_FILE *fileread;
@@ -126,7 +126,7 @@ egoboo_rv init_random_treasure_tables_vfs( const char* filepath )
 }
 
 //--------------------------------------------------------------------------------------------
-egoboo_rv get_random_treasure( char * buffer, size_t buffer_length )
+egolib_rv get_random_treasure( char * buffer, size_t buffer_length )
 {
     //ZF> Gets the name for a treasure randomly selected from the specified treasure table
     //    This function effectively "converts" a table name into a random element from that table

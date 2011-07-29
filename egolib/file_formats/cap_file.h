@@ -22,7 +22,7 @@
 /// @file file_formats/cap_file.h
 /// @details routines for reading and writing the character profile file data.txt
 
-#include "../egoboo_typedef.h"
+#include "../typedef.h"
 #include "../IDSZ_map.h"
 
 #if defined(__cplusplus)
@@ -42,6 +42,16 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define MAXCAPNAMESIZE      32                      ///< Character class names
+
+#define MAX_SKIN             4               ///< The maxumum number of skins per model. This must remain hard coded at 4 for the moment.
+#define NO_SKIN_OVERRIDE    -1                      ///< For import
+#define NOHIDE              127                        ///< Don't hide
+
+/// Stats
+#define LOWSTAT             256                     ///< Worst...
+#define PERFECTSTAT         (60*256)                ///< Maximum stat without magic effects
+#define PERFECTBIG          (100*256)               ///< Perfect life or mana...
+#define HIGHSTAT            (100*256)               ///< Absolute max adding enchantments as well
 
 //Levels
 #define MAXBASELEVEL            6                 ///< Basic Levels 0-5

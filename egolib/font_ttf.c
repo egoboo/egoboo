@@ -22,22 +22,23 @@
 /// @details True-type font drawing functionality.  Uses Freetype 2 & OpenGL
 /// to do it's business.
 
-#include "font_ttf.h"
-#include "log.h"
+#include "../egolib/font_ttf.h"
+#include "../egolib/log.h"
 
 #include "extensions/ogl_include.h"
 #include "extensions/ogl_debug.h"
 #include "extensions/SDL_GL_extensions.h"
 
-#include "egoboo_typedef.h"
-#include "egoboo_strutil.h"
+#include "../egolib/typedef.h"
+#include "../egolib/strutil.h"
+#include "../egolib/platform.h"
 
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
 
 // this include must be the absolute last include
-#include "egoboo_mem.h"
+#include "../egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -182,7 +183,7 @@ int fnt_print_raw_SDL( TTF_Font *font, SDL_Color fnt_color, const char * szText,
     // if there is no external surface, there is no point
     if ( NULL == ppTmpSurface ) return -1;
 
-    // maks sure to delete the original surface
+    // make sure to delete the original surface
     if ( NULL != *ppTmpSurface )
     {
         SDL_FreeSurface( *ppTmpSurface );
@@ -405,17 +406,34 @@ int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText, SDL
         loc_ppTmpSurface = &loc_pSurface;
     }
 
-    if ( NULL == font ) return -1;
-
-    print_rv = fnt_print_raw_SDL( font->ttfFont, fnt_color, szText, loc_ppTmpSurface );
-    if ( print_rv < 0 ) return -1;
-
+    // assume the best
     rv = 0;
+
+    // does the font exist?
+    if ( NULL == font )
+    {
+        rv = -1;
+        goto fnt_print_raw_OGL_exit;
+    }
+
+    // did we create the SDL surface?
+    print_rv = fnt_print_raw_SDL( font->ttfFont, fnt_color, szText, loc_ppTmpSurface );
+    if ( print_rv < 0 ) 
+    {
+        rv = -1;
+        goto fnt_print_raw_OGL_exit;
+    }
+
+    // upload the surface
     if ( NULL != loc_ppTmpSurface && NULL != *loc_ppTmpSurface )
     {
         upload_rv = SDL_GL_uploadSurface( *loc_ppTmpSurface, font->texture, font->texCoords );
-        rv = -1;
+
+        // did we succeed?
+        rv = upload_rv ? 0 : -1;
     }
+
+fnt_print_raw_OGL_exit:
 
     // if the surface is not external, there is a surface for us to delete (unless something went wrong)
     if ( !sdl_surf_external && NULL != *loc_ppTmpSurface )
@@ -449,7 +467,8 @@ void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, int x, int y, const 
     int rv;
 
     bool_t sdl_surf_external;
-    SDL_Surface * loc_pTmpSurface = NULL, **loc_ppTmpSurface = NULL;
+    SDL_Surface * loc_pTmpSurface = NULL;
+    SDL_Surface  **loc_ppTmpSurface = NULL;
 
     if ( NULL != ppTmpSurface )
     {

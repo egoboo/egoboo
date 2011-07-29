@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-#include "egoboo_console.h"
+#include "../egolib/console.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -40,7 +40,7 @@ extern "C"
     lua_console_t    * lua_console_create( lua_console_t * pcon, SDL_Rect Con_rect );
     SDL_bool           lua_console_destroy( lua_console_t ** pcon );
 
-    egoboo_console_t * lua_console_get_base( lua_console_t * pcon );
+    egolib_console_t * lua_console_get_base( lua_console_t * pcon );
 
     SDL_Event * lua_console_handle_events( SDL_Event * evt );
 
