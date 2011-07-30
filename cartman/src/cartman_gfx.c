@@ -8,7 +8,7 @@
 
 #include "SDL_Pixel.h"
 
-#include <egolib.h>
+#include <egolib/egolib.h>
 
 #include <SDL_image.h>
 

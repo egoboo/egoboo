@@ -1,6 +1,6 @@
 #include "cartman_mpd.h"
 
-#include <egolib.h>
+#include <egolib/egolib.h>
 
 #include "cartman.h"
 #include "cartman_math.inl"

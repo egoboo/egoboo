@@ -7,7 +7,7 @@
 #include "cartman_gfx.h"
 #include "cartman_math.inl"
 
-#include <egolib.h>
+#include <egolib/egolib.h>
 
 #include <stdio.h>          // For printf and such
 #include <fcntl.h>          // For fast file i/o
