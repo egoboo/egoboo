@@ -4691,10 +4691,7 @@ bool_t game_module_stop( game_module_t * pinst )
 //--------------------------------------------------------------------------------------------
 wawalite_data_t * read_wawalite_vfs( /* const char *modname */ )
 {
-    int cnt, waterspeed_count, windspeed_count;
-
     wawalite_data_t * pdata;
-    wawalite_water_layer_t * ilayer;
 
     // if( INVALID_CSTR(modname) ) return NULL;
 
@@ -4704,15 +4701,53 @@ wawalite_data_t * read_wawalite_vfs( /* const char *modname */ )
     memcpy( &wawalite_data, pdata, sizeof( wawalite_data_t ) );
 
     // fix any out-of-bounds data
+    wawalite_limit( &wawalite_data );
+
+    // finish up any data that has to be calculated
     wawalite_finalize( &wawalite_data );
 
-    // limit some values
-    wawalite_data.damagetile.sound_index = CLIP( wawalite_data.damagetile.sound_index, INVALID_SOUND, MAX_WAVE );
+    return &wawalite_data;
+}
 
-    for ( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
+//--------------------------------------------------------------------------------------------
+bool_t wawalite_finalize( wawalite_data_t * pdata )
+{
+    /// @details BB@> coerce all parameters to in-bounds values
+
+    int cnt, waterspeed_count, windspeed_count;
+
+    wawalite_water_layer_t * ilayer;
+
+    if ( NULL == pdata ) return bfalse;
+
+
+    //No weather?
+    if ( 0 == strcmp( pdata->weather.weather_name, "NONE" ) )
     {
-        wawalite_data.water.layer[cnt].light_dir = CLIP( wawalite_data.water.layer[cnt].light_dir, 0, 63 );
-        wawalite_data.water.layer[cnt].light_add = CLIP( wawalite_data.water.layer[cnt].light_add, 0, 63 );
+        pdata->weather.part_gpip = -1;
+    }
+    else
+    {
+        STRING prt_file, prt_end_file, line;
+        bool_t success;
+
+        strncpy( line, pdata->weather.weather_name, SDL_arraysize( line ) );
+
+        //prepeare the load paths
+        snprintf( prt_file, SDL_arraysize( prt_file ), "mp_data/weather_%s.txt", strlwr( line ) );
+        snprintf( prt_end_file, SDL_arraysize( prt_end_file ), "mp_data/weather_%s_finish.txt", strlwr( line ) );
+
+        //try to load the particle files, we need at least the first particle for weather to work
+        success = PipStack_load_one( prt_file, ( PIP_REF )PIP_WEATHER ) != MAX_PIP;
+        PipStack_load_one( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
+
+        //Unknown weather parsed
+        if ( !success )
+        {
+            log_warning( "Failed to load weather type from wawalite.txt: %s - (%s)\n", line, prt_file );
+            pdata->weather.part_gpip = -1;
+            strncpy( pdata->weather.weather_name, "NONE", SDL_arraysize( pdata->weather.weather_name ) );
+        }
     }
 
     windspeed_count = 0;
@@ -4777,55 +4812,6 @@ wawalite_data_t * read_wawalite_vfs( /* const char *modname */ )
         windspeed.z /= ( float )windspeed_count;
     }
 
-    return &wawalite_data;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t wawalite_finalize( wawalite_data_t * pdata )
-{
-    /// @details BB@> coerce all parameters to in-bounds values
-
-    int cnt;
-
-    if ( NULL == pdata ) return bfalse;
-
-    // limit some values
-    pdata->damagetile.sound_index = CLIP( pdata->damagetile.sound_index, INVALID_SOUND, MAX_WAVE );
-
-    for ( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
-    {
-        pdata->water.layer[cnt].light_dir = CLIP( pdata->water.layer[cnt].light_dir, 0, 63 );
-        pdata->water.layer[cnt].light_add = CLIP( pdata->water.layer[cnt].light_add, 0, 63 );
-    }
-
-    //No weather?
-    if ( 0 == strcmp( pdata->weather.weather_name, "NONE" ) )
-    {
-        pdata->weather.part_gpip = -1;
-    }
-    else
-    {
-        STRING prt_file, prt_end_file, line;
-        bool_t success;
-
-        strncpy( line, pdata->weather.weather_name, SDL_arraysize( line ) );
-
-        //prepeare the load paths
-        snprintf( prt_file, SDL_arraysize( prt_file ), "mp_data/weather_%s.txt", strlwr( line ) );
-        snprintf( prt_end_file, SDL_arraysize( prt_end_file ), "mp_data/weather_%s_finish.txt", strlwr( line ) );
-
-        //try to load the particle files, we need at least the first particle for weather to work
-        success = PipStack_load_one( prt_file, ( PIP_REF )PIP_WEATHER ) != MAX_PIP;
-        PipStack_load_one( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
-
-        //Unknown weather parsed
-        if ( !success )
-        {
-            log_warning( "Failed to load weather type from wawalite.txt: %s - (%s)\n", line, prt_file );
-            pdata->weather.part_gpip = -1;
-            strncpy( pdata->weather.weather_name, "NONE", SDL_arraysize( pdata->weather.weather_name ) );
-        }
-    }
 
     return btrue;
 }

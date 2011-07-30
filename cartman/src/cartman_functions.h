@@ -25,6 +25,7 @@
 //--------------------------------------------------------------------------------------------
 
 struct s_cartman_mpd;
+struct s_select_lst;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -32,8 +33,6 @@ struct s_cartman_mpd;
 #define NEARLOW  0.0f //16.0f     // For autoweld
 #define NEARHI 128.0f //112.0f        //
 #define BARRIERHEIGHT 14.0f      //
-
-#define MAXSELECT 2560          // Max points that can be select_vertsed
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -52,22 +51,18 @@ void weld_2( struct s_cartman_mpd * pmesh, int x, int y );
 void weld_3( struct s_cartman_mpd * pmesh, int x, int y );
 void weld_cnt( struct s_cartman_mpd * pmesh, int x, int y, int cnt, Uint32 fan );
 
-// selection functions
-void mesh_select_weld( struct s_cartman_mpd * pmesh );
-void move_select( struct s_cartman_mpd * pmesh, float x, float y, float z );
-void mesh_select_set_z_no_bound( struct s_cartman_mpd * pmesh, float z );
-void mesh_select_jitter( struct s_cartman_mpd * pmesh );
-void select_verts_connected( struct s_cartman_mpd * pmesh );
+// functions taking a selection as an argument
+void mesh_select_weld( const struct s_select_lst * plst );
+void mesh_select_move( const struct s_select_lst * plst, float x, float y, float z );
+void mesh_select_set_z_no_bound( const struct s_select_lst * plst, float z );
+void mesh_select_jitter( const struct s_select_lst * plst );
+void mesh_select_verts_connected( const struct s_select_lst * plst );
 
-// vertex selection functions
-void select_clear();
-int  select_count();
-void select_add( int vert );
-void select_remove( int vert );
-bool_t select_has_vert( int vert );
-void select_add_rect( struct s_cartman_mpd * pmesh, float tlx, float tly, float brx, float bry, int mode );
-void select_remove_rect( struct s_cartman_mpd * pmesh, float tlx, float tly, float brx, float bry, int mode );
+// select_lst_t extensions
+struct s_select_lst * select_lst_add_rect( struct s_select_lst * plst, float tlx, float tly, float brx, float bry, int mode );
+struct s_select_lst * select_lst_remove_rect( struct s_select_lst * plst, float tlx, float tly, float brx, float bry, int mode );
 
+// mesh functions
 void mesh_set_tile( struct s_cartman_mpd * pmesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx );
 void move_mesh_z( struct s_cartman_mpd * pmesh, int z, Uint16 tiletype, Uint16 tileand );
 void move_vert( struct s_cartman_mpd * pmesh, int vert, float x, float y, float z );
@@ -77,7 +72,6 @@ void jitter_mesh( struct s_cartman_mpd * pmesh );
 void flatten_mesh( struct s_cartman_mpd * pmesh, int y0 );
 void clear_mesh( struct s_cartman_mpd * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type );
 void three_e_mesh( struct s_cartman_mpd * pmesh, Uint8 upper, Uint8 tx );
-
 bool_t fan_is_floor( struct s_cartman_mpd * pmesh, int x, int y );
 void   set_barrier_height( struct s_cartman_mpd * pmesh, int x, int y, int bits );
 void   fix_walls( struct s_cartman_mpd * pmesh );

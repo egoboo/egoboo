@@ -1,7 +1,27 @@
+//********************************************************************************************
+//*
+//*    This file is part of Cartman.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
 #include "cartman_functions.h"
 
 #include "cartman.h"
 #include "cartman_mpd.h"
+#include "cartman_select.h"
 
 #include "cartman_math.inl"
 
@@ -16,12 +36,6 @@ enum
     CORNER_BR,
     CORNER_COUNT
 };
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static int     numselect_verts = 0;
-static Uint32  select_verts[MAXSELECT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -124,66 +138,68 @@ void fix_corners( cartman_mpd_t * pmesh, int x, int y )
 //--------------------------------------------------------------------------------------------
 void weld_0( cartman_mpd_t * pmesh, int x, int y )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
+    select_lst_t loc_lst = SELECT_LST_INIT;
 
-    select_clear();
-    select_add( cartman_mpd_get_vertex( pmesh, x, y, 0 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x - 1, y, 1 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x, y - 1, 3 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x - 1, y - 1, 2 ) );
-    mesh_select_weld( pmesh );
-    select_clear();
+    select_lst_init(&loc_lst, pmesh);
+
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 0 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x - 1, y, 1 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y - 1, 3 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x - 1, y - 1, 2 ) );
+
+    mesh_select_weld( &loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
 void weld_1( cartman_mpd_t * pmesh, int x, int y )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
+    select_lst_t loc_lst = SELECT_LST_INIT;
 
-    select_clear();
-    select_add( cartman_mpd_get_vertex( pmesh, x, y, 1 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x + 1, y, 0 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x, y - 1, 2 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x + 1, y - 1, 3 ) );
-    mesh_select_weld( pmesh );
-    select_clear();
+    select_lst_init(&loc_lst, pmesh);
+
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 1 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x + 1, y, 0 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y - 1, 2 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x + 1, y - 1, 3 ) );
+
+    mesh_select_weld( &loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
 void weld_2( cartman_mpd_t * pmesh, int x, int y )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
+    select_lst_t loc_lst = SELECT_LST_INIT;
 
-    select_clear();
-    select_add( cartman_mpd_get_vertex( pmesh, x, y, 2 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x + 1, y, 3 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x, y + 1, 1 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x + 1, y + 1, 0 ) );
-    mesh_select_weld( pmesh );
-    select_clear();
+    select_lst_init(&loc_lst, pmesh);
+
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 2 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x + 1, y, 3 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y + 1, 1 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x + 1, y + 1, 0 ) );
+
+    mesh_select_weld( &loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
 void weld_3( cartman_mpd_t * pmesh, int x, int y )
 {
-    if ( NULL == pmesh ) pmesh = &mesh;
+    select_lst_t loc_lst = SELECT_LST_INIT;
 
-    select_clear();
-    select_add( cartman_mpd_get_vertex( pmesh, x, y, 3 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x - 1, y, 2 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x, y + 1, 0 ) );
-    select_add( cartman_mpd_get_vertex( pmesh, x - 1, y + 1, 1 ) );
-    mesh_select_weld( pmesh );
-    select_clear();
+    select_lst_init(&loc_lst, pmesh);
+
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 3 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x - 1, y, 2 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y + 1, 0 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x - 1, y + 1, 1 ) );
+
+    mesh_select_weld( &loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
 void weld_cnt( cartman_mpd_t * pmesh, int x, int y, int cnt, Uint32 fan )
 {
-    cartman_mpd_tile_t   * pfan   = NULL;
-    tile_definition_t    * pdef   = NULL;
-
-    if ( NULL == pmesh ) pmesh = &mesh;
+    cartman_mpd_tile_t   * pfan    = NULL;
+    tile_definition_t    * pdef    = NULL;
 
     if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
     pfan = pmesh->fan + fan;
@@ -196,123 +212,48 @@ void weld_cnt( cartman_mpd_t * pmesh, int x, int y, int cnt, Uint32 fan )
          pdef->u[cnt] * TILE_FSIZE  > NEARHI - 1.0f ||
          pdef->v[cnt] * TILE_FSIZE  > NEARHI - 1.0f )
     {
-        select_clear();
+        select_lst_t loc_lst = SELECT_LST_INIT;
 
-        select_add( cartman_mpd_get_vertex( pmesh, x, y, cnt ) );
+        select_lst_init(&loc_lst, pmesh);
+
+        // add the center point
+        select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, cnt ) );
 
         if ( pdef->u[cnt] * TILE_FSIZE < NEARLOW + 1 )
-            select_add( nearest_vertex( pmesh,  x - 1, y, NEARHI, pdef->v[cnt] * TILE_FSIZE ) );
+            select_lst_add( &loc_lst, nearest_vertex( loc_lst.pmesh,  x - 1, y, NEARHI, pdef->v[cnt] * TILE_FSIZE ) );
 
         if ( pdef->v[cnt] * TILE_FSIZE < NEARLOW + 1 )
-            select_add( nearest_vertex( pmesh,  x, y - 1, pdef->u[cnt] * TILE_FSIZE, NEARHI ) );
+            select_lst_add( &loc_lst, nearest_vertex( loc_lst.pmesh,  x, y - 1, pdef->u[cnt] * TILE_FSIZE, NEARHI ) );
 
         if ( pdef->u[cnt] * TILE_FSIZE > NEARHI - 1 )
-            select_add( nearest_vertex( pmesh,  x + 1, y, NEARLOW, pdef->v[cnt] * TILE_FSIZE ) );
+            select_lst_add( &loc_lst, nearest_vertex( loc_lst.pmesh,  x + 1, y, NEARLOW, pdef->v[cnt] * TILE_FSIZE ) );
 
         if ( pdef->v[cnt] * TILE_FSIZE > NEARHI - 1 )
-            select_add( nearest_vertex( pmesh,  x, y + 1, pdef->u[cnt] * TILE_FSIZE, NEARLOW ) );
+            select_lst_add( &loc_lst, nearest_vertex( loc_lst.pmesh,  x, y + 1, pdef->u[cnt] * TILE_FSIZE, NEARLOW ) );
 
-        mesh_select_weld( pmesh );
-
-        select_clear();
+        mesh_select_weld( &loc_lst );
     }
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void select_add( int vert )
-{
-    // ZZ> This function highlights a vertex
-    int cnt, found;
-
-    if ( vert < 0 || vert >= MPD_VERTICES_MAX ) return;
-
-    if ( numselect_verts >= MAXSELECT ) return;
-
-    found = bfalse;
-    for ( cnt = 0; cnt < numselect_verts; cnt++ )
-    {
-        if ( select_verts[cnt] == vert )
-        {
-            found = btrue;
-            break;
-        }
-    }
-
-    if ( !found )
-    {
-        select_verts[numselect_verts] = vert;
-        numselect_verts++;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void select_clear( void )
-{
-    // ZZ> This function unselects all vertices
-    numselect_verts = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-int select_has_vert( int vert )
-{
-    // ZZ> This function returns btrue if the vertex has been highlighted by user
-    int cnt;
-
-    for ( cnt = 0; cnt < numselect_verts; cnt++ )
-    {
-        if ( vert == select_verts[cnt] )
-        {
-            return btrue;
-        }
-    }
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-void select_remove( int vert )
-{
-    // ZZ> This function makes sure the vertex is not highlighted
-    int cnt;
-    bool_t stillgoing;
-
-    stillgoing = btrue;
-    for ( cnt = 0; cnt < numselect_verts; cnt++ )
-    {
-        if ( vert == select_verts[cnt] )
-        {
-            stillgoing = bfalse;
-            break;
-        }
-    }
-
-    if ( !stillgoing )
-    {
-        for ( /* nothing */; cnt < numselect_verts; cnt++ )
-        {
-            select_verts[cnt-1] = select_verts[cnt];
-        }
-        numselect_verts--;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-int select_count()
-{
-    return numselect_verts;
-}
-
-//--------------------------------------------------------------------------------------------
-void select_add_rect( cartman_mpd_t * pmesh, float tlx, float tly, float brx, float bry, int mode )
+select_lst_t * select_lst_add_rect( select_lst_t * plst, float tlx, float tly, float brx, float bry, int mode )
 {
     // ZZ> This function checks the rectangular selection
 
     Uint32 vert;
 
+    // aliases
+    cartman_mpd_t        * pmesh  = NULL;
     cartman_mpd_vertex_t * vlst   = NULL;
 
+    plst = select_lst_synch_mesh( plst, &mesh );
+    if( NULL == plst ) return plst;
+
+    pmesh = plst->pmesh;
     if ( NULL == pmesh ) pmesh = &mesh;
+
+    // get the vertex list
     vlst = pmesh->vrt;
 
     if ( tlx > brx )  { float tmp = tlx;  tlx = brx;  brx = tmp; }
@@ -329,7 +270,7 @@ void select_add_rect( cartman_mpd_t * pmesh, float tlx, float tly, float brx, fl
                  vlst[vert].y >= tly &&
                  vlst[vert].y <= bry )
             {
-                select_add( vert );
+                plst = select_lst_add( plst, vert );
             }
         }
     }
@@ -344,23 +285,33 @@ void select_add_rect( cartman_mpd_t * pmesh, float tlx, float tly, float brx, fl
                  vlst[vert].z >= tly &&
                  vlst[vert].z <= bry )
             {
-                select_add( vert );
+                plst = select_lst_add( plst, vert );
             }
         }
     }
+
+    return plst;
 }
 
 //--------------------------------------------------------------------------------------------
-void select_remove_rect( cartman_mpd_t * pmesh, float tlx, float tly, float brx, float bry, int mode )
+select_lst_t * select_lst_remove_rect( select_lst_t * plst, float tlx, float tly, float brx, float bry, int mode )
 {
     // ZZ> This function checks the rectangular selection, and removes any fans
     //     in the selection area
 
     Uint32 vert;
 
+    // aliases
+    cartman_mpd_t        * pmesh  = NULL;
     cartman_mpd_vertex_t * vlst   = NULL;
 
+    plst = select_lst_synch_mesh( plst, &mesh );
+    if( NULL == plst ) return plst;
+
+    pmesh = plst->pmesh;
     if ( NULL == pmesh ) pmesh = &mesh;
+
+    // get the vertex list
     vlst = pmesh->vrt;
 
     if ( tlx > brx )  { float tmp = tlx;  tlx = brx;  brx = tmp; }
@@ -377,7 +328,7 @@ void select_remove_rect( cartman_mpd_t * pmesh, float tlx, float tly, float brx,
                  vlst[vert].y >= tly &&
                  vlst[vert].y <= bry )
             {
-                select_remove( vert );
+                select_lst_remove( NULL, vert );
             }
         }
     }
@@ -392,10 +343,12 @@ void select_remove_rect( cartman_mpd_t * pmesh, float tlx, float tly, float brx,
                  vlst[vert].z >= tly &&
                  vlst[vert].z <= bry )
             {
-                select_remove( vert );
+                select_lst_remove( NULL, vert );
             }
         }
     }
+
+    return plst;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -457,19 +410,28 @@ int nearest_vertex( cartman_mpd_t * pmesh, int x, int y, float nearx, float near
 }
 
 //--------------------------------------------------------------------------------------------
-void move_select( cartman_mpd_t * pmesh, float x, float y, float z )
+void mesh_select_move( const select_lst_t * plst, float x, float y, float z )
 {
-    int ivrt, cnt, newx, newy, newz;
+    int ivrt, cnt;
+    float newx, newy, newz;
 
     // aliases
+    cartman_mpd_t * pmesh = NULL;
     cartman_mpd_vertex_t * vlst   = NULL;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
+    if( NULL == plst ) return;
+
+    // get the proper mesh
+    pmesh = plst->pmesh;
+    if( NULL == pmesh ) pmesh = &mesh;
+
+    // get an alias
     vlst = pmesh->vrt;
 
-    for ( cnt = 0; cnt < numselect_verts; cnt++ )
+    // limit the movement by the bounds of the mesh
+    for ( cnt = 0; cnt < plst->count; cnt++ )
     {
-        ivrt = select_verts[cnt];
+        ivrt = plst->which[cnt];
 
         newx = vlst[ivrt].x + x;
         newy = vlst[ivrt].y + y;
@@ -483,9 +445,10 @@ void move_select( cartman_mpd_t * pmesh, float x, float y, float z )
         if ( newz > pmesh->info.edgez ) z = pmesh->info.edgez - vlst[ivrt].z;
     }
 
-    for ( cnt = 0; cnt < numselect_verts; cnt++ )
+    // do the movement
+    for ( cnt = 0; cnt < plst->count; cnt++ )
     {
-        ivrt = select_verts[cnt];
+        ivrt = plst->which[cnt];
 
         newx = vlst[ivrt].x + x;
         newy = vlst[ivrt].y + y;
@@ -505,49 +468,82 @@ void move_select( cartman_mpd_t * pmesh, float x, float y, float z )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_set_z_no_bound( cartman_mpd_t * pmesh, float z )
+void mesh_select_set_z_no_bound( const select_lst_t * plst, float z )
 {
     int vert, cnt;
 
+    // aliases
+    cartman_mpd_t        * pmesh  = NULL;
+    cartman_mpd_vertex_t * vlst   = NULL;
+
+    if( NULL == plst ) return;
+
+    // get the mesh
+    pmesh = plst->pmesh;
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    for ( cnt = 0; cnt < numselect_verts; cnt++ )
+    // get vertex list alias
+    vlst = pmesh->vrt;
+
+    for ( cnt = 0; cnt < plst->count; cnt++ )
     {
-        vert = select_verts[cnt];
-        pmesh->vrt[vert].z = z;
+        vert = plst->which[cnt];
+        if( vert < 0 || vert > pmesh->info.vertex_count ) continue;
+
+        vlst[vert].z = z;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_jitter( cartman_mpd_t * pmesh )
+void mesh_select_jitter( const select_lst_t * plst )
 {
     int cnt;
     Uint32 vert;
 
+    // aliases
+    cartman_mpd_t        * pmesh  = NULL;
+
+    if( NULL == plst ) return;
+
+    // get the mesh
+    pmesh = plst->pmesh;
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    for ( cnt = 0; cnt < numselect_verts; cnt++ )
+    for ( cnt = 0; cnt < plst->count; cnt++ )
     {
-        vert = select_verts[cnt];
-        move_vert( pmesh,  vert, ( rand() % 3 ) - 1, ( rand() % 3 ) - 1, 0 );
+        vert = plst->which[cnt];
+
+        move_vert( plst->pmesh,  vert, ( rand() % 3 ) - 1, ( rand() % 3 ) - 1, 0 );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void select_verts_connected( cartman_mpd_t * pmesh )
+void mesh_select_verts_connected( const select_lst_t * plst )
 {
     int vert, cnt, tnc, mapx, mapy;
     int fan;
     Uint8 select_vertsfan;
 
+    // aliases
+    cartman_mpd_t        * pmesh  = NULL;
+    cartman_mpd_info_t   * pinfo  = NULL;
+    cartman_mpd_vertex_t * vlst   = NULL;
     cartman_mpd_tile_t   * pfan   = NULL;
     tile_definition_t    * pdef   = NULL;
 
+    if( NULL == plst ) plst = select_lst_default();
+
+    // get the mesh
+    pmesh = plst->pmesh;
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    for ( mapy = 0; mapy < pmesh->info.tiles_y; mapy++ )
+    // get vertex list alias
+    pinfo = &(pmesh->info);
+    vlst  = pmesh->vrt;
+
+    for ( mapy = 0; mapy < pinfo->tiles_y; mapy++ )
     {
-        for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
+        for ( mapx = 0; mapx < pinfo->tiles_x; mapx++ )
         {
             fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
 
@@ -559,28 +555,27 @@ void select_verts_connected( cartman_mpd_t * pmesh )
 
             select_vertsfan = bfalse;
 
-            vert = pfan->vrtstart;
-            for ( cnt = 0; cnt < pdef->numvertices; cnt++ )
+            for ( cnt = 0, vert = pfan->vrtstart; 
+                  cnt < pdef->numvertices; 
+                  cnt++, vert = vlst[vert].next )
             {
-                for ( tnc = 0; tnc < numselect_verts; tnc++ )
+                for ( tnc = 0; tnc < plst->count; tnc++ )
                 {
-                    if ( select_verts[tnc] == vert )
+                    if ( plst->which[tnc] == vert )
                     {
                         select_vertsfan = btrue;
                         break;
                     }
                 }
-
-                vert = pmesh->vrt[vert].next;
             }
 
             if ( select_vertsfan )
             {
-                vert = pfan->vrtstart;
-                for ( cnt = 0; cnt < pdef->numvertices; cnt++ )
+                for ( cnt = 0, vert = pfan->vrtstart; 
+                    cnt < pdef->numvertices; 
+                    cnt++, vert = vlst[vert].next )
                 {
-                    select_add( vert );
-                    vert = pmesh->vrt[vert].next;
+                    select_lst_add( plst, vert );
                 }
             }
         }
@@ -588,46 +583,53 @@ void select_verts_connected( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_weld( cartman_mpd_t * pmesh )
+void mesh_select_weld( const select_lst_t * plst )
 {
     // ZZ> This function welds the highlighted vertices
     int cnt, x, y, z, a;
     Uint32 vert;
 
+    // aliases
+    cartman_mpd_t        * pmesh  = NULL;
     cartman_mpd_vertex_t * vlst   = NULL;
 
+    if( NULL == plst ) return;
+
+    // get the mesh
+    pmesh = plst->pmesh;
     if ( NULL == pmesh ) pmesh = &mesh;
+
+    // get vertex list alias
     vlst = pmesh->vrt;
 
-    if ( numselect_verts > 1 )
+    if ( plst->count > 1 )
     {
         x = 0;
         y = 0;
         z = 0;
         a = 0;
 
-        for ( cnt = 0; cnt < numselect_verts; cnt++ )
+        for ( cnt = 0; cnt < plst->count; cnt++ )
         {
-            vert = select_verts[cnt];
+            vert = plst->which[cnt];
             x += vlst[vert].x;
             y += vlst[vert].y;
             z += vlst[vert].z;
             a += vlst[vert].a;
         }
         x += cnt >> 1;  y += cnt >> 1;
-        x = x / numselect_verts;
-        y = y / numselect_verts;
-        z = z / numselect_verts;
-        a = a / numselect_verts;
+        x = x / plst->count;
+        y = y / plst->count;
+        z = z / plst->count;
+        a = a / plst->count;
 
-        for ( cnt = 0; cnt < numselect_verts; cnt++ )
+        for ( cnt = 0; cnt < plst->count; cnt++ )
         {
-            vert = select_verts[cnt];
+            vert = plst->which[cnt];
             vlst[vert].x = x;
             vlst[vert].y = y;
             vlst[vert].z = z;
             vlst[vert].a = CLIP( a, 1, 255 );
-
         }
     }
 }
@@ -824,16 +826,26 @@ void jitter_mesh( cartman_mpd_t * pmesh )
     int mapx, mapy, fan, num, cnt;
     Uint32 vert;
 
-    cartman_mpd_tile_t   * pfan   = NULL;
-    cartman_mpd_vertex_t * vlst   = NULL;
+    select_lst_t loc_lst = SELECT_LST_INIT;
 
+    // aliases
+    cartman_mpd_vertex_t * vlst    = NULL;
+
+    // grab the correct mesh
     if ( NULL == pmesh ) pmesh = &mesh;
+
+    // get the alias
     vlst = pmesh->vrt;
+
+    // initialize the local selection
+    select_lst_init(&loc_lst, pmesh);
 
     for ( mapy = 0; mapy < pmesh->info.tiles_y; mapy++ )
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
+            cartman_mpd_tile_t   * pfan = NULL;
+
             fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
 
             if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
@@ -842,18 +854,21 @@ void jitter_mesh( cartman_mpd_t * pmesh )
             if ( pfan->type >= MPD_FAN_TYPE_MAX ) continue;
             num = tile_dict[pfan->type].numvertices;
 
-            vert = pfan->vrtstart;
-            for ( cnt = 0; cnt < num; cnt++ )
+            // clear the selection
+            select_lst_clear( &loc_lst );
+
+            // add all the tile vertices
+            for ( cnt = 0, vert = pfan->vrtstart; 
+                cnt < num; 
+                cnt++, vert = vlst[vert].next )
             {
-                select_clear();
-                select_add( vert );
-                //        srand(vlst[vert].mapx+vlst[vert].mapy+dunframe);
-                move_select( pmesh, ( rand()&7 ) - 3, ( rand()&7 ) - 3, ( rand()&63 ) - 32 );
-                vert = vlst[vert].next;
+                select_lst_add( &loc_lst, vert );
             }
+
+            // jitter the tile verts
+            mesh_select_move( &loc_lst, ( rand()&7 ) - 3, ( rand()&7 ) - 3, ( rand()&63 ) - 32 );
         }
     }
-    select_clear();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -900,7 +915,7 @@ void flatten_mesh( cartman_mpd_t * pmesh, int y0 )
         }
     }
 
-    select_clear();
+    select_lst_clear(NULL);
 }
 
 //--------------------------------------------------------------------------------------------

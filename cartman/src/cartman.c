@@ -1,3 +1,22 @@
+//********************************************************************************************
+//*
+//*    This file is part of Cartman.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
 #include "cartman.h"
 
 #include "cartman_mpd.h"
@@ -5,6 +24,8 @@
 #include "cartman_input.h"
 #include "cartman_gui.h"
 #include "cartman_gfx.h"
+#include "cartman_select.h"
+
 #include "cartman_math.inl"
 
 #include <egolib/egolib.h>
@@ -375,6 +396,7 @@ void load_basic_textures( const char *modname )
 bool_t load_module( const char *modname, cartman_mpd_t * pmesh )
 {
     STRING mod_path = EMPTY_CSTR;
+    wawalite_data_t * pdata;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -387,12 +409,18 @@ bool_t load_module( const char *modname, cartman_mpd_t * pmesh )
 
     //  show_name(mod_path);
     load_basic_textures( mod_path );
+
+    // read the mpd file from the module directory
     if ( NULL == cartman_mpd_load_vfs( /*mod_path,*/ pmesh ) )
     {
         cartman_create_mesh( pmesh );
     }
 
-    //read_wawalite( mod_path );
+    // read the wawalite file from the module directory
+    pdata = read_wawalite_file_vfs( "mp_data/wawalite.txt", NULL );
+
+    // make sure the values are in range
+    pdata = wawalite_limit( pdata );
 
     numlight = 0;
     addinglight = 0;
@@ -1042,10 +1070,10 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
         if ( pwin->id == mdata.rect_done )
         {
-            if ( select_count() > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
+            if ( select_lst_count(NULL) > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
                  !CART_KEYMOD( KMOD_LCTRL ) && !CART_KEYMOD( KMOD_RCTRL ) )
             {
-                select_clear();
+                select_lst_clear(NULL);
             }
 
             if ( CART_KEYMOD( KMOD_ALT ) || CART_KEYDOWN( SDLK_MODE ) )
@@ -1064,13 +1092,13 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
         if ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) )
         {
-            move_select( pwin->pmesh, mos.cx / zoom_hrz, 0, - mos.cy / zoom_vrt );
+            mesh_select_move( pwin->pmesh, mos.cx / zoom_hrz, 0, - mos.cy / zoom_vrt );
             bound_mouse();
         }
 
         if ( CART_KEYDOWN( SDLK_y ) )
         {
-            move_select( pwin->pmesh, 0, 0, -mos.cy / zoom_vrt );
+            mesh_select_move( pwin->pmesh, 0, 0, -mos.cy / zoom_vrt );
             bound_mouse();
         }
 
@@ -1402,10 +1430,10 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
 
         if ( pwin->id == mdata.rect_done )
         {
-            if ( select_count() > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
+            if ( select_lst_count(NULL) > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
                  !CART_KEYMOD( KMOD_LCTRL ) && !CART_KEYMOD( KMOD_RCTRL ) )
             {
-                select_clear();
+                select_lst_clear(NULL);
             }
             if ( CART_KEYMOD( KMOD_ALT ) || CART_KEYDOWN( SDLK_MODE ) )
             {
@@ -1423,7 +1451,7 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
 
         if ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) )
         {
-            move_select( pwin->pmesh, mos.cx / zoom_vrt, mos.cy / zoom_vrt, 0 );
+            mesh_select_move( pwin->pmesh, mos.cx / zoom_vrt, mos.cy / zoom_vrt, 0 );
             bound_mouse();
         }
 
@@ -1433,7 +1461,7 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
             fix_vertices( pwin->pmesh,  FLOOR( mdata.xpos / TILE_FSIZE ), FLOOR( mdata.ypos / TILE_FSIZE ) );
         }
 
-        if ( CART_KEYDOWN( SDLK_p ) || ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) && 0 == select_count() ) )
+        if ( CART_KEYDOWN( SDLK_p ) || ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) && 0 == select_lst_count(NULL) ) )
         {
             raise_mesh( mdata.pmesh, onscreen_vert, onscreen_count, mdata.xpos, mdata.ypos, brushamount, brushsize );
         }
@@ -1592,7 +1620,7 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_LEFTBRACKET ) || CART_KEYDOWN( SDLK_RIGHTBRACKET ) )
     {
-        select_verts_connected( pmesh );
+        mesh_select_verts_connected( NULL );
     }
     if ( CART_KEYDOWN( SDLK_8 ) )
     {
@@ -1601,8 +1629,8 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_j ) )
     {
-        if ( 0 == select_count() ) { jitter_mesh( pmesh ); }
-        else { mesh_select_jitter( pmesh ); }
+        if ( 0 == select_lst_count(NULL) ) { jitter_mesh( pmesh ); }
+        else { mesh_select_jitter( NULL ); }
         key.delay = KEYDELAY;
     }
 
@@ -1615,7 +1643,7 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_SPACE ) )
     {
-        mesh_select_weld( pmesh );
+        mesh_select_weld( NULL );
         key.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_INSERT ) )
@@ -1728,19 +1756,19 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_5 ) )
     {
-        mesh_select_set_z_no_bound( pmesh, -8000 * 4 );
+        mesh_select_set_z_no_bound( NULL, -8000 * 4 );
         key.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_6 ) )
     {
-        mesh_select_set_z_no_bound( pmesh, -127 * 4 );
+        mesh_select_set_z_no_bound( NULL, -127 * 4 );
         key.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_7 ) )
     {
-        mesh_select_set_z_no_bound( pmesh, 127 * 4 );
+        mesh_select_set_z_no_bound( NULL, 127 * 4 );
         key.delay = KEYDELAY;
     }
 
@@ -2431,13 +2459,13 @@ void cart_mouse_data_toggle_fx( int fxmask )
 //--------------------------------------------------------------------------------------------
 void cart_mouse_data_rect_select()
 {
-    select_add_rect( mdata.pmesh, mdata.rect_x0, mdata.rect_y0, mdata.rect_x1, mdata.rect_y1, mdata.win_mode );
+    select_lst_add_rect( NULL, mdata.rect_x0, mdata.rect_y0, mdata.rect_x1, mdata.rect_y1, mdata.win_mode );
 }
 
 //--------------------------------------------------------------------------------------------
 void cart_mouse_data_rect_unselect()
 {
-    select_add_rect( mdata.pmesh, mdata.rect_x0, mdata.rect_y0, mdata.rect_x1, mdata.rect_y1, mdata.win_mode );
+    select_lst_remove_rect( NULL, mdata.rect_x0, mdata.rect_y0, mdata.rect_x1, mdata.rect_y1, mdata.win_mode );
 }
 
 //--------------------------------------------------------------------------------------------

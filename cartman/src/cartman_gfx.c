@@ -1,3 +1,22 @@
+//********************************************************************************************
+//*
+//*    This file is part of Cartman.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
 #include "cartman_gfx.h"
 
 #include "cartman.h"
@@ -87,6 +106,8 @@ static int  gfx_init_ogl();
 
 void gfx_system_begin()
 {
+    STRING tmp;
+
     // set the graphics state
     gfx_init_SDL_graphics();
     gfx_init_ogl();
@@ -336,11 +357,8 @@ void draw_top_fan( window_t * pwin, int fan, float zoom_hrz )
     if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
     pfan = pwin->pmesh->fan + fan;
 
-    if ( pfan->type >= MPD_FAN_TYPE_MAX )
-    {
-        return;
-    }
-    pdef = tile_dict + pfan->type;
+    if ( pfan->type >= MPD_FAN_TYPE_MAX ) return;
+    pdef   = tile_dict + pfan->type;
     plines = tile_dict_lines + pfan->type;
 
     if ( 0 == pdef->numvertices || pdef->numvertices > MPD_FAN_VERTICES_MAX ) return;
@@ -393,15 +411,17 @@ void draw_top_fan( window_t * pwin, int fan, float zoom_hrz )
 
         if ( point_size > 0 )
         {
+            int select_rv;
             oglx_texture_t * tx_tmp;
 
-            if ( select_has_vert( vert ) )
+            select_rv = select_lst_find( NULL, vert );
+            if ( select_rv < 0 )
             {
-                tx_tmp = &tx_pointon;
+                tx_tmp = &tx_point;
             }
             else
             {
-                tx_tmp = &tx_point;
+                tx_tmp = &tx_pointon;
             }
 
             vpos[kX] = vlst[vert].x;
@@ -486,17 +506,19 @@ void draw_side_fan( window_t * pwin, int fan, float zoom_hrz, float zoom_vrt )
 
     for ( cnt = 0; cnt < pdef->numvertices; cnt++ )
     {
+        int select_rv;
         oglx_texture_t * tx_tmp = NULL;
 
         vert = faketoreal[cnt];
 
-        if ( select_has_vert( vert ) )
+        select_rv = select_lst_find( NULL, vert );
+        if ( select_rv < 0 )
         {
-            tx_tmp = &tx_pointon;
+            tx_tmp = &tx_point;
         }
         else
         {
-            tx_tmp = &tx_point;
+            tx_tmp = &tx_pointon;
         }
 
         vpos[kX] = vlst[vert].x;

@@ -157,6 +157,9 @@
 				RelativePath=".\cartman_mpd.c">
 			</File>
 			<File
+				RelativePath=".\cartman_select.c">
+			</File>
+			<File
 				RelativePath=".\standard.c">
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -196,6 +199,9 @@
 			</File>
 			<File
 				RelativePath=".\cartman_mpd.h">
+			</File>
+			<File
+				RelativePath=".\cartman_select.h">
 			</File>
 			<File
 				RelativePath=".\res\resource1_vs7.h">

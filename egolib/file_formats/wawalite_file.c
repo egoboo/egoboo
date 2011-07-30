@@ -323,7 +323,7 @@ wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t 
     if ( NULL == fileread )
     {
         log_warning( "Could not read file! (\"%s\")\n", newloadname );
-        return pdata;
+        return NULL;
     }
 
     //First figure out what version of wawalite this is, so that we know what data we
@@ -635,3 +635,22 @@ bool_t wawalite_damagetile_init( wawalite_damagetile_t * pdata )
     return btrue;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+wawalite_data_t *  wawalite_limit( wawalite_data_t * pdata )
+{
+    int cnt;
+
+   if ( NULL == pdata ) pdata = &_wawalite_file;
+
+    // limit some values
+    pdata->damagetile.sound_index = CLIP( pdata->damagetile.sound_index, INVALID_SOUND, MAX_WAVE );
+
+    for ( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
+    {
+        pdata->water.layer[cnt].light_dir = CLIP( pdata->water.layer[cnt].light_dir, 0, 63 );
+        pdata->water.layer[cnt].light_add = CLIP( pdata->water.layer[cnt].light_add, 0, 63 );
+    }
+
+    return pdata;
+}
