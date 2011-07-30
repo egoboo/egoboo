@@ -237,11 +237,15 @@ void weld_cnt( cartman_mpd_t * pmesh, int x, int y, int cnt, Uint32 fan )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_add_rect( select_lst_t * plst, float tlx, float tly, float brx, float bry, int mode )
+select_lst_t * select_lst_add_rect( select_lst_t * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode )
 {
     // ZZ> This function checks the rectangular selection
 
-    Uint32 vert;
+    Uint32 ivrt;
+    cartman_mpd_vertex_t * pvrt;
+
+    float xmin, ymin, zmin;
+    float xmax, ymax, zmax;
 
     // aliases
     cartman_mpd_t        * pmesh  = NULL;
@@ -250,42 +254,45 @@ select_lst_t * select_lst_add_rect( select_lst_t * plst, float tlx, float tly, f
     plst = select_lst_synch_mesh( plst, &mesh );
     if( NULL == plst ) return plst;
 
+    if ( NULL == plst->pmesh ) return plst;
     pmesh = plst->pmesh;
-    if ( NULL == pmesh ) pmesh = &mesh;
 
     // get the vertex list
     vlst = pmesh->vrt;
 
-    if ( tlx > brx )  { float tmp = tlx;  tlx = brx;  brx = tmp; }
-    if ( tly > bry )  { float tmp = tly;  tly = bry;  bry = tmp; }
+    // if the selection is empty, we're done
+    if( x0 == x1 || y0 == y1 || z0 == z1 ) return plst;
+
+    // make sure that the selection is ordered properly
+    if ( x0 < x1 ) { xmin = x0; xmax = x1; } else { xmin = x1; xmax = x0; };
+    if ( y0 < y1 ) { ymin = y0; ymax = y1; } else { ymin = y1; ymax = y0; };
+    if ( z0 < z1 ) { zmin = z0; zmax = z1; } else { zmin = z1; zmax = z0; };
 
     if ( mode == WINMODE_VERTEX )
     {
-        for ( vert = 0; vert < MPD_VERTICES_MAX; vert++ )
+        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MPD_VERTICES_MAX; ivrt++, pvrt++ )
         {
-            if ( VERTEXUNUSED == vlst[vert].a ) continue;
+            if ( VERTEXUNUSED == pvrt->a ) continue;
 
-            if ( vlst[vert].x >= tlx &&
-                 vlst[vert].x <= brx &&
-                 vlst[vert].y >= tly &&
-                 vlst[vert].y <= bry )
+            if ( pvrt->x >= xmin && pvrt->x <= xmax &&
+                 pvrt->y >= ymin && pvrt->y <= ymax &&
+                 pvrt->z >= zmin && pvrt->z <= zmax )
             {
-                plst = select_lst_add( plst, vert );
+                plst = select_lst_add( plst, ivrt );
             }
         }
     }
     else if ( mode == WINMODE_SIDE )
     {
-        for ( vert = 0; vert < MPD_VERTICES_MAX; vert++ )
+        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MPD_VERTICES_MAX; ivrt++, pvrt++ )
         {
-            if ( VERTEXUNUSED == vlst[vert].a ) continue;
+            if ( VERTEXUNUSED == pvrt->a ) continue;
 
-            if ( vlst[vert].x >= tlx &&
-                 vlst[vert].x <= brx &&
-                 vlst[vert].z >= tly &&
-                 vlst[vert].z <= bry )
+            if ( pvrt->x >= xmin && pvrt->x <= xmax &&
+                 pvrt->y >= ymin && pvrt->y <= ymax &&
+                 pvrt->z >= zmin && pvrt->z <= zmax )
             {
-                plst = select_lst_add( plst, vert );
+                plst = select_lst_add( plst, ivrt );
             }
         }
     }
@@ -294,12 +301,16 @@ select_lst_t * select_lst_add_rect( select_lst_t * plst, float tlx, float tly, f
 }
 
 //--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_remove_rect( select_lst_t * plst, float tlx, float tly, float brx, float bry, int mode )
+select_lst_t * select_lst_remove_rect( select_lst_t * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode )
 {
     // ZZ> This function checks the rectangular selection, and removes any fans
     //     in the selection area
 
-    Uint32 vert;
+    Uint32 ivrt;
+    cartman_mpd_vertex_t * pvrt;
+
+    float xmin, ymin, zmin;
+    float xmax, ymax, zmax;
 
     // aliases
     cartman_mpd_t        * pmesh  = NULL;
@@ -314,36 +325,39 @@ select_lst_t * select_lst_remove_rect( select_lst_t * plst, float tlx, float tly
     // get the vertex list
     vlst = pmesh->vrt;
 
-    if ( tlx > brx )  { float tmp = tlx;  tlx = brx;  brx = tmp; }
-    if ( tly > bry )  { float tmp = tly;  tly = bry;  bry = tmp; }
+    // if the selection is empty, we're done
+    if( x0 == x1 || y0 == y1 || z0 == z1 ) return plst;
+
+    // make sure that the selection is ordered properly
+    if ( x0 < x1 ) { xmin = x0; xmax = x1; } else { xmin = x1; xmax = x0; };
+    if ( y0 < y1 ) { ymin = y0; ymax = y1; } else { ymin = y1; ymax = y0; };
+    if ( z0 < z1 ) { zmin = z0; zmax = z1; } else { zmin = z1; zmax = z0; };
 
     if ( mode == WINMODE_VERTEX )
     {
-        for ( vert = 0; vert < MPD_VERTICES_MAX; vert++ )
+        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MPD_VERTICES_MAX; ivrt++, pvrt++ )
         {
-            if ( VERTEXUNUSED == vlst[vert].a ) continue;
+            if ( VERTEXUNUSED == pvrt->a ) continue;
 
-            if ( vlst[vert].x >= tlx &&
-                 vlst[vert].x <= brx &&
-                 vlst[vert].y >= tly &&
-                 vlst[vert].y <= bry )
+            if ( pvrt->x >= xmin && pvrt->x <= xmax &&
+                 pvrt->y >= ymin && pvrt->y <= ymax &&
+                 pvrt->z >= zmin && pvrt->z <= zmax )
             {
-                select_lst_remove( NULL, vert );
+                plst = select_lst_remove( plst, ivrt );
             }
         }
     }
     else if ( mode == WINMODE_SIDE )
     {
-        for ( vert = 0; vert < MPD_VERTICES_MAX; vert++ )
+        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MPD_VERTICES_MAX; ivrt++, pvrt++ )
         {
-            if ( VERTEXUNUSED == vlst[vert].a ) continue;
+            if ( VERTEXUNUSED == pvrt->a ) continue;
 
-            if ( vlst[vert].x >= tlx &&
-                 vlst[vert].x <= brx &&
-                 vlst[vert].z >= tly &&
-                 vlst[vert].z <= bry )
+            if ( pvrt->x >= xmin && pvrt->x <= xmax &&
+                 pvrt->y >= ymin && pvrt->y <= ymax &&
+                 pvrt->z >= zmin && pvrt->z <= zmax )
             {
-                select_lst_remove( NULL, vert );
+                plst = select_lst_remove( plst, ivrt );
             }
         }
     }
@@ -915,7 +929,6 @@ void flatten_mesh( cartman_mpd_t * pmesh, int y0 )
         }
     }
 
-    select_lst_clear(NULL);
 }
 
 //--------------------------------------------------------------------------------------------

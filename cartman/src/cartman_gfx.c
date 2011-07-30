@@ -23,6 +23,8 @@
 #include "cartman_mpd.h"
 #include "cartman_gui.h"
 #include "cartman_functions.h"
+#include "cartman_select.h"
+
 #include "cartman_math.inl"
 
 #include "SDL_Pixel.h"
@@ -106,8 +108,6 @@ static int  gfx_init_ogl();
 
 void gfx_system_begin()
 {
-    STRING tmp;
-
     // set the graphics state
     gfx_init_SDL_graphics();
     gfx_init_ogl();
@@ -330,7 +330,7 @@ void make_planmap( cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void draw_top_fan( window_t * pwin, int fan, float zoom_hrz )
+void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt )
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     A wireframe tile from a vertex connection window
@@ -346,16 +346,23 @@ void draw_top_fan( window_t * pwin, int fan, float zoom_hrz )
     cart_vec_t vpos;
 
     // aliases
+    cartman_mpd_t        * pmesh  = NULL;
     tile_definition_t    * pdef   = NULL;
     cartman_mpd_tile_t   * pfan   = NULL;
     cartman_mpd_vertex_t * vlst   = NULL;
     tile_line_data_t     * plines = NULL;
 
-    if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
-    vlst = pwin->pmesh->vrt;
+    plst = select_lst_synch_mesh( plst, &mesh );
+    if( NULL == plst ) return;
+
+    if ( NULL == plst->pmesh ) return;
+    pmesh = plst->pmesh;
+
+    // get aliases
+    vlst = pmesh->vrt;
 
     if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
-    pfan = pwin->pmesh->fan + fan;
+    pfan = pmesh->fan + fan;
 
     if ( pfan->type >= MPD_FAN_TYPE_MAX ) return;
     pdef   = tile_dict + pfan->type;
@@ -403,7 +410,7 @@ void draw_top_fan( window_t * pwin, int fan, float zoom_hrz )
 
         vert = faketoreal[cnt];
 
-        size = MAXPOINTSIZE * vlst[vert].z / ( float ) pwin->pmesh->info.edgez;
+        size = MAXPOINTSIZE * vlst[vert].z / ( float ) pmesh->info.edgez;
         if ( size < 0.0f ) size = 0.0f;
         if ( size > MAXPOINTSIZE ) size = MAXPOINTSIZE;
 
@@ -414,7 +421,7 @@ void draw_top_fan( window_t * pwin, int fan, float zoom_hrz )
             int select_rv;
             oglx_texture_t * tx_tmp;
 
-            select_rv = select_lst_find( NULL, vert );
+            select_rv = select_lst_find( plst, vert );
             if ( select_rv < 0 )
             {
                 tx_tmp = &tx_point;
@@ -434,7 +441,7 @@ void draw_top_fan( window_t * pwin, int fan, float zoom_hrz )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_side_fan( window_t * pwin, int fan, float zoom_hrz, float zoom_vrt )
+void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt )
 {
     // ZZ> This function draws the line drawing preview of the tile type...
     //     A wireframe tile from a vertex connection window ( Side view )
@@ -451,16 +458,23 @@ void draw_side_fan( window_t * pwin, int fan, float zoom_hrz, float zoom_vrt )
     float point_size;
 
     // aliases
+    cartman_mpd_t        * pmesh  = NULL;
     tile_definition_t    * pdef   = NULL;
     cartman_mpd_tile_t   * pfan   = NULL;
     cartman_mpd_vertex_t * vlst   = NULL;
     tile_line_data_t     * plines = NULL;
 
-    if ( NULL == pwin->pmesh ) pwin->pmesh = &mesh;
-    vlst = pwin->pmesh->vrt;
+    plst = select_lst_synch_mesh( plst, &mesh );
+    if( NULL == plst ) return;
+
+    if ( NULL == plst->pmesh ) return;
+    pmesh = plst->pmesh;
+
+    // get aliases
+    vlst = pmesh->vrt;
 
     if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
-    pfan = pwin->pmesh->fan + fan;
+    pfan = pmesh->fan + fan;
 
     if ( pfan->type >= MPD_FAN_TYPE_MAX ) return;
     pdef = tile_dict + pfan->type;
@@ -511,7 +525,7 @@ void draw_side_fan( window_t * pwin, int fan, float zoom_hrz, float zoom_vrt )
 
         vert = faketoreal[cnt];
 
-        select_rv = select_lst_find( NULL, vert );
+        select_rv = select_lst_find( plst, vert );
         if ( select_rv < 0 )
         {
             tx_tmp = &tx_point;
@@ -912,25 +926,47 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
 }
 
 //--------------------------------------------------------------------------------------------
-void ogl_draw_box( float x, float y, float w, float h, float color[] )
+void ogl_draw_box_xy( float x, float y, float w, float h, float color[] )
 {
     glPushAttrib( GL_ENABLE_BIT );
     {
         glDisable( GL_TEXTURE_2D );
 
+        glColor4fv( color );
+
         glBegin( GL_QUADS );
         {
-            glColor4fv( color );
-
-            glVertex2f( x,     y );
-            glVertex2f( x,     y + h );
-            glVertex2f( x + w, y + h );
-            glVertex2f( x + w, y );
+            glVertex3f( x,     y,     0.0f );
+            glVertex3f( x,     y + h, 0.0f );
+            glVertex3f( x + w, y + h, 0.0f );
+            glVertex3f( x + w, y,     0.0f );
         }
         glEnd();
     }
     glPopAttrib();
 };
+
+//--------------------------------------------------------------------------------------------
+void ogl_draw_box_xz( float x, float z, float w, float d, float color[] )
+{
+    glPushAttrib( GL_ENABLE_BIT );
+    {
+        glDisable( GL_TEXTURE_2D );
+
+        glColor4fv( color );
+
+        glBegin( GL_QUADS );
+        {
+            glVertex3f( x,     0.0f, z );
+            glVertex3f( x,     0.0f, z + d );
+            glVertex3f( x + w, 0.0f, z + d );
+            glVertex3f( x + w, 0.0f, z );
+        }
+        glEnd();
+    }
+    glPopAttrib();
+};
+
 
 //--------------------------------------------------------------------------------------------
 void ogl_beginFrame()

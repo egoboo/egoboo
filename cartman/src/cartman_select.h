@@ -68,3 +68,5 @@ select_lst_t * select_lst_remove( select_lst_t * , int vert );
 
 int select_lst_count( const select_lst_t * );
 int select_lst_find( const select_lst_t * , int vert );
+
+select_lst_t * select_lst_set_mesh( select_lst_t *, const struct s_cartman_mpd * );

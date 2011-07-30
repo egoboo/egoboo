@@ -42,7 +42,10 @@ select_lst_t * select_lst_init( select_lst_t * plst, const cartman_mpd_t * pmpd 
     // get proper mesh
     if( NULL == pmpd ) pmpd = &mesh;
 
+    // clear the list
     select_lst_clear( plst );
+
+    // attach the correct mesh
     plst->pmesh = pmpd;
 
     return plst;
@@ -56,7 +59,8 @@ select_lst_t * select_lst_clear( select_lst_t * plst )
     // get proper list
     if( NULL == plst ) plst = &_selection;
 
-    plst->count = 0;
+    plst->count    = 0;
+    plst->which[0] = CHAINEND;
 
     return plst;
 }
@@ -166,4 +170,18 @@ select_lst_t * select_lst_synch_mesh( select_lst_t * plst, const cartman_mpd_t *
 
     return plst;
 
+}
+
+//--------------------------------------------------------------------------------------------
+select_lst_t * select_lst_set_mesh( select_lst_t * plst, const cartman_mpd_t * pmesh )
+{
+    if( NULL == plst  ) plst = &_selection;
+    if( NULL == pmesh ) pmesh = &mesh;
+
+    if( plst->pmesh != pmesh )
+    {
+        select_lst_init( plst, pmesh );
+    }
+
+    return plst;
 }

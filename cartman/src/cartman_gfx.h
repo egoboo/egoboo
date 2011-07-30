@@ -28,6 +28,7 @@
 
 struct s_window;
 struct s_cartman_mpd;
+struct s_select_lst;
 struct s_Font;
 
 //--------------------------------------------------------------------------------------------
@@ -148,8 +149,8 @@ void make_hitemap( struct s_cartman_mpd * pmesh );
 void make_planmap( struct s_cartman_mpd * pmesh );
 
 // tile rendering routines
-void draw_top_fan( struct s_window * pwin, int fan, float zoom_hrz );
-void draw_side_fan( struct s_window * pwin, int fan, float zoom_hrz, float zoom_vrt );
+void draw_top_fan( struct s_select_lst * plst, int fan, float zoom_hrz, float zoom_vrt );
+void draw_side_fan( struct s_select_lst * plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_schematic( struct s_window * pwin, int fantype, int x, int y );
 void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool_t draw_tile, struct s_cartman_mpd * pmesh );
 void draw_tile_fx( float x, float y, Uint8 fx, float scale );
@@ -157,7 +158,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale );
 // ogl routines
 void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, float height );
 void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height );
-void ogl_draw_box( float x, float y, float w, float h, float color[] );
+void ogl_draw_box_xy( float x, float y, float w, float h, float color[] );
+void ogl_draw_box_xz( float x, float z, float w, float d, float color[] );
 void ogl_beginFrame();
 void ogl_endFrame();
 

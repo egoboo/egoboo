@@ -59,8 +59,8 @@ void mesh_select_jitter( const struct s_select_lst * plst );
 void mesh_select_verts_connected( const struct s_select_lst * plst );
 
 // select_lst_t extensions
-struct s_select_lst * select_lst_add_rect( struct s_select_lst * plst, float tlx, float tly, float brx, float bry, int mode );
-struct s_select_lst * select_lst_remove_rect( struct s_select_lst * plst, float tlx, float tly, float brx, float bry, int mode );
+struct s_select_lst * select_lst_add_rect( struct s_select_lst * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
+struct s_select_lst * select_lst_remove_rect( struct s_select_lst * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );
 
 // mesh functions
 void mesh_set_tile( struct s_cartman_mpd * pmesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx );
