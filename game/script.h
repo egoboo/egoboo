@@ -21,13 +21,12 @@
 
 #include "egoboo_typedef.h"
 
+#include "script_implementation.h"
+
 #include <egolib/clock.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-struct s_waypoint_list;
-typedef struct s_waypoint_list waypoint_list_t;
 
 struct s_script_info;
 typedef struct s_script_info script_info_t;
@@ -108,13 +107,6 @@ enum chr_alert_bits
     ALERTIF_NOTTAKENOUT = ALERTIF_NOTPUTAWAY
 };
 
-//--------------------------------------------------------------------------------------------
-// struct s_waypoint_list
-//--------------------------------------------------------------------------------------------
-
-#define MAXWAY              8                       ///< Waypoints
-#define WAYTHRESH           (GRID_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_FSIZE/2)
-
 // swig chokes on the definition below
 #if defined(SWIG)
 #   define STOR_BITS            4
@@ -125,23 +117,6 @@ enum chr_alert_bits
 #   define STOR_COUNT          (1 << STOR_BITS)        ///< Storage data (Used in SetXY)
 #   define STOR_AND            (STOR_COUNT - 1)        ///< Storage data bitmask
 #endif
-
-typedef float waypoint_t[3];
-
-struct s_waypoint_list
-{
-    int          tail;         ///< Which waypoint
-    int          head;         ///< Where to stick next
-    waypoint_t   pos[MAXWAY];  ///< Waypoint
-};
-
-bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp );
-bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y );
-bool_t waypoint_list_reset( waypoint_list_t * plst );
-bool_t waypoint_list_clear( waypoint_list_t * plst );
-bool_t waypoint_list_empty( waypoint_list_t * plst );
-bool_t waypoint_list_finished( waypoint_list_t * plst );
-bool_t waypoint_list_advance( waypoint_list_t * plst );
 
 //--------------------------------------------------------------------------------------------
 // struct s_script_info

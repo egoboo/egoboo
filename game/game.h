@@ -83,9 +83,6 @@ typedef struct s_import_element import_element_t;
 struct s_import_list;
 typedef struct s_import_list import_list_t;
 
-struct s_line_of_sight_info;
-typedef struct s_line_of_sight_info line_of_sight_info_t;
-
 struct s_pit_info;
 typedef struct s_pit_info pit_info_t;
 
@@ -374,21 +371,6 @@ struct s_import_list
 bool_t    import_list_init( import_list_t * imp_lst );
 egolib_rv import_list_from_players( import_list_t * imp_lst );
 
-//--------------------------------------------------------------------------------------------
-/// Data needed to specify a line-of-sight test
-struct s_line_of_sight_info
-{
-    float x0, y0, z0;
-    float x1, y1, z1;
-    Uint32 stopped_by;
-
-    CHR_REF collide_chr;
-    Uint32  collide_fx;
-    int     collide_x;
-    int     collide_y;
-};
-
-bool_t do_line_of_sight( line_of_sight_info_t * plos );
 
 //--------------------------------------------------------------------------------------------
 

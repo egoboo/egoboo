@@ -238,7 +238,7 @@ flexible_destination:
 }
 
 //------------------------------------------------------------------------------
-bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
+bool_t AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst )
 {
     //@details ZF@> Fills a waypoint list with sensible waypoints. It will return bfalse if it failed to add at least one waypoint.
     //              The function goes through all the AStar_nodes and finds out which one are critical. A critical node is one that
@@ -304,7 +304,7 @@ bool_t AStar_get_path( const int dst_x, const int dst_y, waypoint_list_t *plst )
             //Special exception for final waypoint, use raw integer
             if ( i == 0 )
             {
-                way_x = dst_x;
+                way_x = pos_x;
                 way_y = dst_y;
             }
             else

@@ -197,9 +197,6 @@ static void   do_game_hud( void );
 // place the object lists in the initial state
 void reset_all_object_lists( void );
 
-//line of sight calculations
-static bool_t collide_ray_with_mesh( line_of_sight_info_t * plos );
-static bool_t collide_ray_with_characters( line_of_sight_info_t * plos );
 
 // implementing wawalite data
 static bool_t upload_light_data( const wawalite_data_t * pdata );
@@ -1805,7 +1802,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
                 los_info.y1 = ptst->pos.y;
                 los_info.z1 = ptst->pos.z + MAX( 1, ptst->bump.height );
 
-                if ( do_line_of_sight( &los_info ) ) continue;
+                if ( line_of_sight_do( &los_info ) ) continue;
             }
 
             //Set the new best target found
@@ -4173,168 +4170,6 @@ void do_game_hud()
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool_t collide_ray_with_mesh( line_of_sight_info_t * plos )
-{
-    Uint32 fan_last;
-
-    int Dx, Dy;
-    int ix, ix_stt, ix_end;
-    int iy, iy_stt, iy_end;
-
-    int Dbig, Dsmall;
-    int ibig, ibig_stt, ibig_end;
-    int ismall, ismall_stt, ismall_end;
-    int dbig, dsmall;
-    int TwoDsmall, TwoDsmallMinusTwoDbig, TwoDsmallMinusDbig;
-
-    bool_t steep;
-
-    if ( NULL == plos ) return bfalse;
-
-    //is there any point of these calculations?
-    if ( EMPTY_BIT_FIELD == plos->stopped_by ) return bfalse;
-
-    ix_stt = FLOOR( plos->x0 / GRID_FSIZE );
-    ix_end = FLOOR( plos->x1 / GRID_FSIZE );
-
-    iy_stt = FLOOR( plos->y0 / GRID_FSIZE );
-    iy_end = FLOOR( plos->y1 / GRID_FSIZE );
-
-    Dx = plos->x1 - plos->x0;
-    Dy = plos->y1 - plos->y0;
-
-    steep = ( ABS( Dy ) >= ABS( Dx ) );
-
-    // determine which are the big and small values
-    if ( steep )
-    {
-        ibig_stt = iy_stt;
-        ibig_end = iy_end;
-
-        ismall_stt = ix_stt;
-        ismall_end = ix_end;
-    }
-    else
-    {
-        ibig_stt = ix_stt;
-        ibig_end = ix_end;
-
-        ismall_stt = iy_stt;
-        ismall_end = iy_end;
-    }
-
-    // set up the big loop variables
-    dbig = 1;
-    Dbig = ibig_end - ibig_stt;
-    if ( Dbig < 0 )
-    {
-        dbig = -1;
-        Dbig = -Dbig;
-        ibig_end--;
-    }
-    else
-    {
-        ibig_end++;
-    }
-
-    // set up the small loop variables
-    dsmall = 1;
-    Dsmall = ismall_end - ismall_stt;
-    if ( Dsmall < 0 )
-    {
-        dsmall = -1;
-        Dsmall = -Dsmall;
-    }
-
-    // pre-compute some common values
-    TwoDsmall             = 2 * Dsmall;
-    TwoDsmallMinusTwoDbig = TwoDsmall - 2 * Dbig;
-    TwoDsmallMinusDbig    = TwoDsmall - Dbig;
-
-    fan_last = INVALID_TILE;
-    for ( ibig = ibig_stt, ismall = ismall_stt;  ibig != ibig_end;  ibig += dbig )
-    {
-        Uint32 fan;
-
-        if ( steep )
-        {
-            ix = ismall;
-            iy = ibig;
-        }
-        else
-        {
-            ix = ibig;
-            iy = ismall;
-        }
-
-        // check to see if the "ray" collides with the mesh
-        fan = mesh_get_tile_int( PMesh, ix, iy );
-        if ( INVALID_TILE != fan && fan != fan_last )
-        {
-            Uint32 collide_fx = mesh_test_fx( PMesh, fan, plos->stopped_by );
-            // collide the ray with the mesh
-
-            if ( EMPTY_BIT_FIELD != collide_fx )
-            {
-                plos->collide_x  = ix;
-                plos->collide_y  = iy;
-                plos->collide_fx = collide_fx;
-
-                return btrue;
-            }
-
-            fan_last = fan;
-        }
-
-        // go to the next step
-        if ( TwoDsmallMinusDbig > 0 )
-        {
-            TwoDsmallMinusDbig += TwoDsmallMinusTwoDbig;
-            ismall             += dsmall;
-        }
-        else
-        {
-            TwoDsmallMinusDbig += TwoDsmall;
-        }
-    }
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t collide_ray_with_characters( line_of_sight_info_t * plos )
-{
-
-    if ( NULL == plos ) return bfalse;
-
-    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
-    {
-        // do line/character intersection
-    }
-    CHR_END_LOOP();
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t do_line_of_sight( line_of_sight_info_t * plos )
-{
-    bool_t mesh_hit = bfalse, chr_hit = bfalse;
-    mesh_hit = collide_ray_with_mesh( plos );
-
-    /*if ( mesh_hit )
-    {
-        plos->x1 = (plos->collide_x + 0.5f) * GRID_FSIZE;
-        plos->y1 = (plos->collide_y + 0.5f) * GRID_FSIZE;
-    }
-
-    chr_hit = collide_ray_with_characters( plos );
-    */
-
-    return mesh_hit || chr_hit;
-}
-
 //--------------------------------------------------------------------------------------------
 void game_reset_players()
 {

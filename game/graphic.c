@@ -4782,7 +4782,7 @@ int line_list_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float dst_x, const float dst_y, const float dst_z, const int duration )
+bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration )
 {
     int iline = line_list_get_free();
 
@@ -4794,7 +4794,7 @@ bool_t line_list_add( const float src_x, const float src_y, const float src_z, c
     line_list[iline].src.z = src_z;
 
     //Destination
-    line_list[iline].dst.x = dst_x;
+    line_list[iline].dst.x = pos_x;
     line_list[iline].dst.y = dst_y;
     line_list[iline].dst.z = dst_z;
 

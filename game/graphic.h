@@ -461,7 +461,7 @@ float  grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff,
 
 void line_list_init( void );
 //int  line_list_get_free( void );
-bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float dst_x, const float dst_y, const float dst_z, const int duration );
+bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration );
 
 void point_list_init( void );
 //int  point_list_get_free( void );

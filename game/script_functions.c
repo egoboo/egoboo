@@ -26,6 +26,7 @@
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
 #include "script_functions.h"
+#include "script_implementation.h"
 
 #include "mad.h"
 
@@ -481,51 +482,9 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
     // AddWaypoint( tmpx = "x position", tmpy = "y position" )
     /// @details ZZ@> This function tells the character where to move next
 
-#if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
-    cap_t * pcap;
-    fvec2_t pos;
-    fvec3_t nrm;
-    float   pressure;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    // init the vector with the desired position
-    pos.x = pstate->x;
-    pos.y = pstate->y;
-
-    // is this a safe position?
-    returncode = bfalse;
-
-    pcap = chr_get_pcap( pself->index );
-    if ( NULL != pcap )
-    {
-        if ( CAP_INFINITE_WEIGHT == pcap->weight || !mesh_hit_wall( PMesh, pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
-        {
-            // yes it is safe. add it.
-            returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
-        }
-        else
-        {
-            // no it is not safe. what to do? nothing, or add the current position?
-            //returncode = waypoint_list_push( &(pself->wp_lst), pchr->pos.x, pchr->pos.y );
-
-            log_warning( "scr_AddWaypoint() - failed to add a waypoint because object was \"inside\" a wall.\n"
-                         "\tcharacter %d (\"%s\", \"%s\")\n"
-                         "\tWaypoint index %d\n"
-                         "\tWaypoint location (in tiles) <%f,%f>\n"
-                         "\tWall normal <%1.4f,%1.4f>\n"
-                         "\tPressure %f\n",
-                         pself->index, pchr->Name, pcap->name,
-                         pself->wp_lst.head,
-                         pos.x / GRID_FSIZE, pos.y / GRID_FSIZE,
-                         nrm.x, nrm.y,
-                         SQRT( pressure ) / GRID_FSIZE );
-        }
-    }
-#else
-    SCRIPT_FUNCTION_BEGIN();
-    returncode = waypoint_list_push( &( pself->wp_lst ), pstate->x, pstate->y );
-#endif
+    returncode = AddWaypoint( &(pself->wp_lst), pself->index, pstate->x, pstate->y );
 
     if ( returncode )
     {
@@ -543,66 +502,19 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     /// @details ZF@> Ported the A* path finding algorithm by birdsey and heavily modified it
     // This function adds enough waypoints to get from one point to another
 
-    int src_ix, src_iy;
-    int dst_ix, dst_iy;
-    line_of_sight_info_t los_info;
-    bool_t straight_line;
+    bool_t used_astar;
 
     SCRIPT_FUNCTION_BEGIN();
 
     //Too soon since last try?
     if ( pself->astar_timer > update_wld ) return bfalse;
 
-    //Our current position
-    src_ix = ( int )pchr->pos.x / GRID_ISIZE;
-    src_iy = ( int )pchr->pos.y / GRID_ISIZE;
+    returncode = FindPath( &(pself->wp_lst), pchr, pstate->x, pstate->y, &used_astar );
 
-    //Destination position
-    dst_ix = pstate->x / GRID_ISIZE;
-    dst_iy = pstate->y / GRID_ISIZE;
-
-    //Always clear any old waypoints
-    waypoint_list_clear( &pself->wp_lst );
-
-    //Don't do need to do anything if there is no need to move
-    if ( src_ix == dst_ix && src_iy == dst_iy ) return bfalse;
-
-    returncode = bfalse;
-
-    //setup line of sight data for source
-    los_info.stopped_by = pchr->stoppedby;
-    los_info.x0 = pchr->pos.x;
-    los_info.y0 = pchr->pos.y;
-    los_info.z0 = 0;
-
-    //setup line of sight to target
-    los_info.x1 = pstate->x;
-    los_info.y1 = pstate->y;
-    los_info.z1 = 0;
-
-    // test for the simple case... a straight line
-    straight_line = !do_line_of_sight( &los_info );
-
-    if ( !straight_line )
+    if( used_astar )
     {
-#ifdef DEBUG_ASTAR
-        printf( "Finding a path from %d,%d to %d,%d: \n", src_ix, src_iy, dst_ix, dst_iy );
-#endif
-        //Try to find a path with the AStar algorithm
-        if ( AStar_find_path( PMesh, pchr->stoppedby, src_ix, src_iy, dst_ix, dst_iy ) )
-        {
-            returncode = AStar_get_path( pstate->x, pstate->y, &pself->wp_lst );
-        }
-
         // limit the rate of AStar calculations to be once every half second.
         pself->astar_timer = update_wld + ( ONESECOND / 2 );
-    }
-
-    //failed to find a path
-    if ( !returncode )
-    {
-        // just use a straight line path
-        waypoint_list_push( &pself->wp_lst, pstate->x, pstate->y );
     }
 
     //Make sure the waypoint list is updated
@@ -619,14 +531,21 @@ Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
     /// tmpdistance and tmpturn.  It acts like one of those Compass thing
     /// with the two little needle legs
 
-    TURN_T turn;
+    fvec2_t loc_pos;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    turn = TO_TURN( pstate->turn );
+    loc_pos.x = pstate->x;
+    loc_pos.y = pstate->y;
 
-    pstate->x -= turntocos[ turn ] * pstate->distance;
-    pstate->y -= turntosin[ turn ] * pstate->distance;
+    returncode = Compass( loc_pos.v, pstate->turn, pstate->distance );
+
+    // update the position
+    if( returncode )
+    {
+        pstate->x = loc_pos.x;
+        pstate->y = loc_pos.y;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -638,20 +557,24 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
     /// @details ZZ@> This function returns the cost of the desired skin upgrade, setting
     /// tmpx to the price
 
-    Uint16 sTmp = 0;
-    cap_t * pcap;
+    int value;
+    chr_t *ptarget;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = chr_get_pcap( pself->target );
+    SCRIPT_REQUIRE_TARGET( ptarget );
 
-    returncode = bfalse;
-    if ( NULL != pcap )
+    value = GetArmorPrice( ptarget, pstate->argument );
+
+    if( value > 0 )
     {
-        sTmp = pstate->argument % MAX_SKIN;
-
-        pstate->x = pcap->skincost[sTmp];
+        pstate->x  = value;
         returncode = btrue;
+    }
+    else
+    {
+        pstate->x  = 0;
+        returncode = bfalse;
     }
 
     SCRIPT_FUNCTION_END();
@@ -666,10 +589,7 @@ Uint8 scr_set_Time( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pstate->argument > -1 )
-    {
-        pself->timer = update_wld + pstate->argument;
-    }
+    pself->timer = UpdateTime( pself->timer, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7948,7 +7868,7 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * ps
             los.x1 = pweapon->pos.x;
             los.y1 = pweapon->pos.y;
             los.z1 = pweapon->pos.z;
-            if ( do_line_of_sight( &los ) ) continue;
+            if ( line_of_sight_do( &los ) ) continue;
 
             //found a valid weapon!
             best_target = iweapon;
@@ -7967,200 +7887,3 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * ps
     SCRIPT_FUNCTION_END();
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley )
-{
-    /// @details ZZ@> This function breaks the tiles of a passage if there is a character standing
-    ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
-
-    Uint32 endtile;
-    Uint32 fan;
-    bool_t       useful;
-    ego_tile_info_t * ptile = NULL;
-
-    if ( INVALID_PASSAGE( passage ) ) return bfalse;
-
-    // limit the start tile the the 256 tile images that we have
-    starttile = CLIP_TO_08BITS( starttile );
-
-    // same with the end tile
-    endtile   =  starttile + frames - 1;
-    endtile = CLIP( endtile, 0, 255 );
-
-    useful = bfalse;
-    CHR_BEGIN_LOOP_ACTIVE( character, pchr )
-    {
-        float lerp_z;
-
-        // nothing in packs
-        if ( IS_ATTACHED_CHR( pchr->ai.index ) ) continue;
-
-        // nothing flying
-        if ( 0 != pchr->flyheight ) continue;
-
-        lerp_z = ( pchr->pos.z - pchr->enviro.floor_level ) / DAMAGERAISE;
-        lerp_z = 1.0f - CLIP( lerp_z, 0.0f, 1.0f );
-
-        if ( pchr->phys.weight * lerp_z <= 20 ) continue;
-
-        fan = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
-
-        ptile = mesh_get_ptile( PMesh, fan );
-        if ( NULL != ptile )
-        {
-            Uint16 img      = ptile->img & TILE_LOWER_MASK;
-            Uint16 highbits = ptile->img & TILE_UPPER_MASK;
-
-            if ( img >= starttile && img < endtile )
-            {
-                if ( object_is_in_passage(( PASS_REF )passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
-                {
-                    // Remember where the hit occured.
-                    *ptilex = pchr->pos.x;
-                    *ptiley = pchr->pos.y;
-
-                    useful = btrue;
-
-                    // Change the tile image
-                    img++;
-                }
-            }
-
-            if ( img == endtile )
-            {
-                useful = mesh_add_fx( PMesh, fan, mesh_fx_or );
-
-                if ( become != 0 )
-                {
-                    img = become;
-                }
-            }
-
-            if ( ptile->img != ( img | highbits ) )
-            {
-                mesh_set_texture( PMesh, fan, img | highbits );
-            }
-        }
-    }
-    CHR_END_LOOP();
-
-    return useful;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint8 _append_end_text( chr_t * pchr, const int message_index, script_state_t * pstate )
-{
-    /// @details ZZ@> This function appends a message to the end-module text
-
-    size_t length;
-    CHR_REF ichr;
-    pro_t *ppro;
-    char * dst, * dst_end;
-
-    FUNCTION_BEGIN();
-
-    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, message_index ) ) return bfalse;
-    ppro = ProList_get_ptr( pchr->profile_ref );
-
-    ichr           = GET_REF_PCHR( pchr );
-    length = strlen( ppro->message[message_index] );
-
-    dst     = endtext + endtext_carat;
-    dst_end = endtext + MAXENDTEXT - 1;
-
-    expand_escape_codes( ichr, pstate, ppro->message[message_index], ppro->message[message_index] + length, dst, dst_end );
-    endtext_carat = strlen( endtext );
-
-    str_add_linebreaks( endtext, strlen( endtext ), 30 );
-
-    FUNCTION_END();
-}
-
-//--------------------------------------------------------------------------------------------
-Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 )
-{
-    /// @details ZZ@> This function finds the next tile in the passage, x0 and y0
-    ///    must be set first, and are set on a find.  Returns btrue or bfalse
-    ///    depending on if it finds one or not
-
-    int x, y;
-    Uint32 fan;
-    passage_t  * ppass = NULL;
-    ego_tile_info_t * ptile = NULL;
-
-    if ( INVALID_PASSAGE( passage ) ) return bfalse;
-    ppass = PassageStack_get_ptr( passage );
-
-    // Do the first row
-    x = x0 / GRID_ISIZE;
-    y = y0 / GRID_ISIZE;
-
-    if ( x < ppass->area.left )  x = ppass->area.left;
-    if ( y < ppass->area.top )  y = ppass->area.top;
-
-    if ( y < ppass->area.bottom )
-    {
-        for ( /*nothing*/; x <= ppass->area.right; x++ )
-        {
-            fan = mesh_get_tile_int( PMesh, x, y );
-
-            ptile = mesh_get_ptile( PMesh, fan );
-            if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
-            {
-                *px1 = ( x * GRID_ISIZE ) + 64;
-                *py1 = ( y * GRID_ISIZE ) + 64;
-                return btrue;
-            }
-        }
-        y++;
-    }
-
-    // Do all remaining rows
-    for ( /* nothing */; y <= ppass->area.bottom; y++ )
-    {
-        for ( x = ppass->area.left; x <= ppass->area.right; x++ )
-        {
-            fan = mesh_get_tile_int( PMesh, x, y );
-
-            ptile = mesh_get_ptile( PMesh, fan );
-            if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
-            {
-                *px1 = x * GRID_ISIZE + 64;
-                *py1 = y * GRID_ISIZE + 64;
-                return btrue;
-            }
-        }
-    }
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int message, script_state_t * pstate )
-{
-    /// @details ZZ@> This function sticks a message_offset in the display queue and sets its timer
-
-    int slot;
-    char * dst, * dst_end;
-    size_t length;
-    pro_t *ppro;
-
-    if ( !IS_VALID_MESSAGE_PRO( iprofile, message ) ) return bfalse;
-    ppro = ProList_get_ptr( iprofile );
-
-    slot = DisplayMsg_get_free();
-    DisplayMsg.ary[slot].time = cfg.message_duration;
-
-    length = strlen( ppro->message[message] );
-
-    dst     = DisplayMsg.ary[slot].textdisplay;
-    dst_end = DisplayMsg.ary[slot].textdisplay + MESSAGESIZE - 1;
-
-    expand_escape_codes( ichr, pstate, ppro->message[message], ppro->message[message] + length, dst, dst_end );
-
-    *dst_end = CSTR_END;
-
-    return btrue;
-}

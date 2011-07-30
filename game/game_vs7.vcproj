@@ -470,6 +470,12 @@
 			<File
 				RelativePath=".\script_functions.h">
 			</File>
+			<File
+				RelativePath=".\script_implementation.c">
+			</File>
+			<File
+				RelativePath=".\script_implementation.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="doxygen"
