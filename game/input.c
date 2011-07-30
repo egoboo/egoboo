@@ -39,6 +39,7 @@
 #include <egolib/egoboo_setup.h>
 
 #include <egolib/log.h>
+#include <egolib/scancode.h>
 #include <egolib/fileutil.h>
 #include <egolib/strutil.h>
 #include <egolib/_math.h>
@@ -79,7 +80,7 @@ void input_system_init_keyboard()
     // set up the keyboard
     BLANK_STRUCT( keyb )
 
-    init_scancodes();
+    scancode_begin();
 
     keyb.on         = btrue;
     keyb.state_size = 0;

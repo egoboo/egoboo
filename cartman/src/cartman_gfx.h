@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+#include "cartman_typedef.h"
+
 #include <egolib/egolib.h>
 
 #include "cartman_math.h"
@@ -158,8 +160,8 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale );
 // ogl routines
 void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, float height );
 void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, cart_vec_t vright, float width, float height );
-void ogl_draw_box_xy( float x, float y, float w, float h, float color[] );
-void ogl_draw_box_xz( float x, float z, float w, float d, float color[] );
+void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[] );
+void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[] );
 void ogl_beginFrame();
 void ogl_endFrame();
 

@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+#include "cartman_typedef.h"
+
 #include <egolib/egolib.h>
 
 //--------------------------------------------------------------------------------------------
@@ -66,7 +68,8 @@ mouse_t * mouse_ctor( mouse_t * );
 
 struct s_keyboard
 {
-    bool_t   on;                // Is the keyboard alive?
+    bool_t   on;                //< Is the keyboard alive?
+    bool_t   override;          //< has the console overridden the keyboard?
     int      count;
     int      delay;
 
@@ -100,8 +103,8 @@ extern keyboard_t   key;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define CART_KEYDOWN(k)       ( (!key.on || (k >= key.count) || (NULL == key.sdlbuffer)) ? bfalse : (0 != key.sdlbuffer[k]))     // Helper for gettin' em
-#define CART_KEYMOD(m)        ( key.on && (NULL != key.sdlbuffer) && (0 != (key.state & (m))) )
+#define CART_KEYDOWN(k)       ( (!key.on || key.override || (k >= key.count) || (NULL == key.sdlbuffer)) ? bfalse : (0 != key.sdlbuffer[k]))     // Helper for gettin' em
+#define CART_KEYMOD(m)        ( key.on && !key.override && (NULL != key.sdlbuffer) && (0 != (key.state & (m))) )
 #define CART_KEYDOWN_MOD(k,m) ( CART_KEYDOWN(k) && (0 != (key.state & (m))) )
 
 //--------------------------------------------------------------------------------------------

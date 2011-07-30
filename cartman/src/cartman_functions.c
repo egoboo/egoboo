@@ -569,8 +569,8 @@ void mesh_select_verts_connected( const select_lst_t * plst )
 
             select_vertsfan = bfalse;
 
-            for ( cnt = 0, vert = pfan->vrtstart; 
-                  cnt < pdef->numvertices; 
+            for ( cnt = 0, vert = pfan->vrtstart;
+                  cnt < pdef->numvertices;
                   cnt++, vert = vlst[vert].next )
             {
                 for ( tnc = 0; tnc < plst->count; tnc++ )
@@ -585,8 +585,8 @@ void mesh_select_verts_connected( const select_lst_t * plst )
 
             if ( select_vertsfan )
             {
-                for ( cnt = 0, vert = pfan->vrtstart; 
-                    cnt < pdef->numvertices; 
+                for ( cnt = 0, vert = pfan->vrtstart;
+                    cnt < pdef->numvertices;
                     cnt++, vert = vlst[vert].next )
                 {
                     select_lst_add( plst, vert );
@@ -872,8 +872,8 @@ void jitter_mesh( cartman_mpd_t * pmesh )
             select_lst_clear( &loc_lst );
 
             // add all the tile vertices
-            for ( cnt = 0, vert = pfan->vrtstart; 
-                cnt < num; 
+            for ( cnt = 0, vert = pfan->vrtstart;
+                cnt < num;
                 cnt++, vert = vlst[vert].next )
             {
                 select_lst_add( &loc_lst, vert );

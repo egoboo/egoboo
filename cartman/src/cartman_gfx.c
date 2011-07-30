@@ -926,7 +926,7 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
 }
 
 //--------------------------------------------------------------------------------------------
-void ogl_draw_box_xy( float x, float y, float w, float h, float color[] )
+void ogl_draw_box_xy( float x, float y, float z, float w, float h, float color[] )
 {
     glPushAttrib( GL_ENABLE_BIT );
     {
@@ -936,10 +936,10 @@ void ogl_draw_box_xy( float x, float y, float w, float h, float color[] )
 
         glBegin( GL_QUADS );
         {
-            glVertex3f( x,     y,     0.0f );
-            glVertex3f( x,     y + h, 0.0f );
-            glVertex3f( x + w, y + h, 0.0f );
-            glVertex3f( x + w, y,     0.0f );
+            glVertex3f( x,     y,     z );
+            glVertex3f( x,     y + h, z );
+            glVertex3f( x + w, y + h, z );
+            glVertex3f( x + w, y,     z );
         }
         glEnd();
     }
@@ -947,7 +947,7 @@ void ogl_draw_box_xy( float x, float y, float w, float h, float color[] )
 };
 
 //--------------------------------------------------------------------------------------------
-void ogl_draw_box_xz( float x, float z, float w, float d, float color[] )
+void ogl_draw_box_xz( float x, float y, float z, float w, float d, float color[] )
 {
     glPushAttrib( GL_ENABLE_BIT );
     {
@@ -957,16 +957,15 @@ void ogl_draw_box_xz( float x, float z, float w, float d, float color[] )
 
         glBegin( GL_QUADS );
         {
-            glVertex3f( x,     0.0f, z );
-            glVertex3f( x,     0.0f, z + d );
-            glVertex3f( x + w, 0.0f, z + d );
-            glVertex3f( x + w, 0.0f, z );
+            glVertex3f( x,     y, z );
+            glVertex3f( x,     y, z + d );
+            glVertex3f( x + w, y, z + d );
+            glVertex3f( x + w, y, z );
         }
         glEnd();
     }
     glPopAttrib();
 };
-
 
 //--------------------------------------------------------------------------------------------
 void ogl_beginFrame()

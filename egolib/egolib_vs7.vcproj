@@ -392,6 +392,9 @@
 			RelativePath=".\egolib.inl">
 		</File>
 		<File
+			RelativePath=".\egolib_config.h">
+		</File>
+		<File
 			RelativePath=".\endian.c">
 		</File>
 		<File
@@ -486,6 +489,12 @@
 		</File>
 		<File
 			RelativePath=".\process.h">
+		</File>
+		<File
+			RelativePath=".\scancode.c">
+		</File>
+		<File
+			RelativePath=".\scancode.h">
 		</File>
 		<File
 			RelativePath=".\state_machine.h">

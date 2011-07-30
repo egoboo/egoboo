@@ -78,7 +78,7 @@ void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue,
 
         amount = ( value - minvalue ) / ( float )( maxvalue - minvalue );
 
-        ogl_draw_box_xy( tlx, amount *( bry - tly ) + tly, brx - tlx + 1, 5, color );
+        ogl_draw_box_xy( tlx, amount *( bry - tly ) + tly, 0, brx - tlx + 1, 5, color );
     }
 
 }

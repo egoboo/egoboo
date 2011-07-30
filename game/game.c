@@ -197,7 +197,6 @@ static void   do_game_hud( void );
 // place the object lists in the initial state
 void reset_all_object_lists( void );
 
-
 // implementing wawalite data
 static bool_t upload_light_data( const wawalite_data_t * pdata );
 static bool_t upload_phys_data( const wawalite_physics_t * pdata );
@@ -4555,7 +4554,6 @@ bool_t wawalite_finalize( wawalite_data_t * pdata )
 
     if ( NULL == pdata ) return bfalse;
 
-
     //No weather?
     if ( 0 == strcmp( pdata->weather.weather_name, "NONE" ) )
     {
@@ -4646,7 +4644,6 @@ bool_t wawalite_finalize( wawalite_data_t * pdata )
         windspeed.y /= ( float )windspeed_count;
         windspeed.z /= ( float )windspeed_count;
     }
-
 
     return btrue;
 }

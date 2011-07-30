@@ -188,7 +188,6 @@ BIT_FIELD BIT_FIELD_clear_all_bits( BIT_FIELD val, BIT_FIELD bits )
     return new_val;
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits )
 {
@@ -321,7 +320,6 @@ bool_t waypoint_list_advance( waypoint_list_t * plst )
 
     return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 // line_of_sight_info_t
@@ -488,7 +486,6 @@ bool_t line_of_sight_with_characters( line_of_sight_info_t * plos )
     return bfalse;
 }
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y )
@@ -543,7 +540,6 @@ bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos
     returncode = waypoint_list_push( plst, pos_x, pos_y );
 #endif
 
-
     return returncode;
 }
 
@@ -559,7 +555,7 @@ bool_t FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y,
     line_of_sight_info_t los_info;
     bool_t straight_line;
     bool_t returncode = bfalse;
- 
+
     if ( NULL != used_astar_ptr )
     {
         *used_astar_ptr = bfalse;

@@ -25,6 +25,9 @@
 #include <SDL.h>
 
 // this include must be the absolute last include
+#include "egolib_config.h"
+
+// this include must be the absolute last include
 #include "../egolib/mem.h"
 
 #if defined(__cplusplus)

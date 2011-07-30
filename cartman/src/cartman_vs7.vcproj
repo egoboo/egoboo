@@ -183,6 +183,9 @@
 				RelativePath=".\cartman.h">
 			</File>
 			<File
+				RelativePath=".\cartman_config.h">
+			</File>
+			<File
 				RelativePath=".\cartman_functions.h">
 			</File>
 			<File
@@ -204,7 +207,7 @@
 				RelativePath=".\cartman_select.h">
 			</File>
 			<File
-				RelativePath=".\res\resource1_vs7.h">
+				RelativePath=".\cartman_typedef.h">
 			</File>
 		</Filter>
 		<Filter
@@ -273,6 +276,9 @@
 			</File>
 			<File
 				RelativePath="..\data\ref.png">
+			</File>
+			<File
+				RelativePath=".\res\resource1_vs7.h">
 			</File>
 			<File
 				RelativePath="..\data\slippy.pcx">

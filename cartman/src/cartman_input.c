@@ -27,8 +27,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-mouse_t      mos   = { btrue };
-keyboard_t   key = { btrue };
+mouse_t      mos = { btrue };
+keyboard_t   key = { btrue, bfalse };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -82,6 +82,16 @@ void check_input()
 
     while ( SDL_PollEvent( &evt ) )
     {
+        if ( NULL == egolib_console_handle_events( &evt ) )
+        {
+            key.override = btrue;
+            continue;
+        }
+        else
+        {
+            key.override = bfalse;
+        }
+
         switch ( evt.type )
         {
             case SDL_ACTIVEEVENT:

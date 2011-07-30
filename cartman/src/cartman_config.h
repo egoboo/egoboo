@@ -2,40 +2,35 @@
 
 //********************************************************************************************
 //*
-//*    This file is part of Cartman.
+//*    This file is part of Egoboo.
 //*
-//*    Cartman is free software: you can redistribute it and/or modify it
+//*    Egoboo is free software: you can redistribute it and/or modify it
 //*    under the terms of the GNU General Public License as published by
 //*    the Free Software Foundation, either version 3 of the License, or
 //*    (at your option) any later version.
 //*
-//*    Cartman is distributed in the hope that it will be useful, but
+//*    Egoboo is distributed in the hope that it will be useful, but
 //*    WITHOUT ANY WARRANTY; without even the implied warranty of
 //*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Cartman.  If not, see <http://www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
-#include "cartman_typedef.h"
+/// @file egoboo_config.h
+/// @brief Compile switches
 
-#include <egolib/egolib.h>
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// compliation flags
+
+#undef CARTMAN_DEBUG
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#ifndef HAS_BITS
-#    define HAS_BITS(A, B) ( 0 != ((A)&(B)) )
-#endif
+#include <egolib/egolib_config.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-typedef float cart_vec_t[3];
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-bool_t SDL_RectIntersect( SDL_Rect * src, SDL_Rect * dst, SDL_Rect * isect );
+#define CARTMAN_CONFIG_H

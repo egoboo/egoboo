@@ -69,8 +69,6 @@ static int do_ego_proc_run( ego_process_t * eproc, double frameDuration );
 
 static void memory_cleanUp( void );
 static int  ego_init_SDL( void );
-static void console_begin( void );
-static void console_end( void );
 
 static void object_systems_begin( void );
 static void object_systems_end( void );
@@ -101,8 +99,6 @@ static bool_t  screenshot_keyready  = btrue;
 
 static bool_t _sdl_atexit_registered    = bfalse;
 static bool_t _sdl_initialized_base     = bfalse;
-
-static void * _top_con = NULL;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -156,7 +152,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     init_mouse_cursor();
 
     // initialize the console
-    console_begin();
+    egolib_console_begin();
 
     // initialize network communication
     net_initialize();
@@ -391,7 +387,7 @@ int do_ego_proc_leaving( ego_process_t * eproc )
         // hopefully this will only happen once
         object_systems_end();
         clk_destroy( &_gclock );
-        console_end();
+        egolib_console_end();
         ui_end();
         gfx_system_end();
         setup_clear_base_vfs_paths();
@@ -636,49 +632,6 @@ void ego_init_SDL_base()
     }
 
     _sdl_initialized_base = btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-void console_begin()
-{
-    /// @details BB@> initialize the console. This must happen after the screen has been defines,
-    ///     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
-    ///     have no area...
-
-    SDL_Rect blah;
-
-    blah.x = 0;
-    blah.y = 0;
-    blah.w = sdl_scr.x;
-    blah.h = sdl_scr.y * 0.25f;
-
-#if defined(USE_LUA_CONSOLE)
-    _top_con = lua_console_create( NULL, blah );
-#else
-    // without a callback, this console just dumps the input and generates no output
-    _top_con = egolib_console_create( NULL, blah, NULL, NULL );
-#endif
-}
-
-//--------------------------------------------------------------------------------------------
-void console_end()
-{
-    /// @details BB@> de-initialize the top console
-
-#if defined(USE_LUA_CONSOLE)
-    {
-        lua_console_t * ptmp = ( lua_console_t* )_top_con;
-        lua_console_destroy( &ptmp );
-    }
-#else
-    // without a callback, this console just dumps the input and generates no output
-    {
-        egolib_console_t * ptmp = ( egolib_console_t* )_top_con;
-        egolib_console_destroy( &ptmp, SDL_TRUE );
-    }
-#endif
-
-    _top_con = NULL;
 }
 
 //--------------------------------------------------------------------------------------------

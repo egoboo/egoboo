@@ -300,7 +300,6 @@ extern "C"
     extern egolib_rv egonet_dispatchEvent( ENetEvent *event );
     extern egolib_rv egonet_handlePacket(  enet_packet_t * enet_pkt );
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

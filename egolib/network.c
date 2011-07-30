@@ -182,7 +182,6 @@ const ENetHost * egonet_get_myHost( void )
     return egonet_instance_get_myHost( &gnet );
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t egonet_set_hostactive( const bool_t val )
 {
@@ -1164,7 +1163,6 @@ BaseConnectionInfo_t * BaseConnectionInfo_dtor( BaseConnectionInfo_t * ptr )
 
     return ptr;
 }
-
 
 //--------------------------------------------------------------------------------------------
 // egonet_instance_t

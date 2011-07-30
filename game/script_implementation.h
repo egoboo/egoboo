@@ -52,7 +52,6 @@ typedef struct s_line_of_sight_info line_of_sight_info_t;
 #define MAXWAY              8                       ///< Waypoints
 #define WAYTHRESH           (GRID_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_FSIZE/2)
 
-
 typedef float waypoint_t[3];
 
 struct s_waypoint_list
@@ -87,7 +86,6 @@ struct s_line_of_sight_info
 bool_t line_of_sight_do( line_of_sight_info_t * plos );
 bool_t line_of_sight_with_mesh( line_of_sight_info_t * plos );
 bool_t line_of_sight_with_characters( line_of_sight_info_t * plos );
-
 
 //--------------------------------------------------------------------------------------------
 // wrap generic bitwise conversion macros
@@ -154,15 +152,15 @@ bool_t    BIT_FIELD_has_no_bits( BIT_FIELD val, BIT_FIELD test );
 bool_t    BIT_FIELD_missing_bits( BIT_FIELD val, BIT_FIELD test );
 
 /// @ingroup _bitwise_functions_
-/// @details set the given bit 
+/// @details set the given bit
 BIT_FIELD BIT_FIELD_set_one_bit( BIT_FIELD val, size_t which );
 
 /// @ingroup _bitwise_functions_
-/// @details clear the given bit 
+/// @details clear the given bit
 BIT_FIELD BIT_FIELD_clear_one_bit( BIT_FIELD val, size_t which );
 
 /// @ingroup _bitwise_functions_
-/// @details test the given bit 
+/// @details test the given bit
 bool_t    BIT_FIELD_test_one_bit( BIT_FIELD val, size_t which );
 
 /// @ingroup _bitwise_functions_
@@ -186,7 +184,6 @@ bool_t    BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits );
 /// @lua AddWaypoint( tmpx = "x position", tmpy = "y position" )
 bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y );
 
-
 /// @details ZF@> Ported the A* path finding algorithm by birdsey and heavily modified it
 /// This function adds enough waypoints to get from one point to another
 bool_t FindPath( waypoint_list_t * plst, struct s_chr * pchr, float dst_x, float dst_y, bool_t * used_astar_ptr );
@@ -198,7 +195,6 @@ bool_t FindPath( waypoint_list_t * plst, struct s_chr * pchr, float dst_x, float
 /// @lua Compass( tmpturn = "rotation", tmpdistance = "radius" )
 bool_t Compass( fvec2_base_t pos, int turn, float distance );
 
-
 /// @details ZZ@> This function returns the cost of the desired skin upgrade
 //
 /// @lua tmpx = GetTargetArmorPrice( tmpargument = "skin" )
@@ -209,7 +205,6 @@ int GetArmorPrice( struct s_chr * pchr, int skin );
 ///
 /// @lua selftimer = UpdateTime( selftimer = "time", tmpargument = "delay" )
 Uint32 UpdateTime( Uint32 time_val, int delay );
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

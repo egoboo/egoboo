@@ -418,7 +418,7 @@ int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText, SDL
 
     // did we create the SDL surface?
     print_rv = fnt_print_raw_SDL( font->ttfFont, fnt_color, szText, loc_ppTmpSurface );
-    if ( print_rv < 0 ) 
+    if ( print_rv < 0 )
     {
         rv = -1;
         goto fnt_print_raw_OGL_exit;

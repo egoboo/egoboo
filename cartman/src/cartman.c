@@ -634,7 +634,7 @@ void render_vertex_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
                 y_max = mdata.rect_y1;
                 if ( y_min > y_max ) SWAP( float, y_max, y_min );
 
-                ogl_draw_box_xy( x_min, y_min, x_max - x_min, y_max - y_min, color );
+                ogl_draw_box_xy( x_min, y_min, cam.z, x_max - x_min, y_max - y_min, color );
             }
         }
         cartman_end_ortho_camera();
@@ -704,7 +704,7 @@ void render_side_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
                 z_max = mdata.rect_z1;
                 if ( z_min > z_max ) SWAP( float, z_max, z_min );
 
-                ogl_draw_box_xz( x_min, z_min, x_max - x_min, z_max - z_min, color );
+                ogl_draw_box_xz( x_min, cam.y, z_min, x_max - x_min, z_max - z_min, color );
             }
         }
         cartman_end_ortho_camera();
@@ -1062,7 +1062,6 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
                 mdata.rect_y0 = mpos_y0;
                 mdata.rect_y1 = mpos_y1;
                 mdata.rect_z0 = mdata.rect_z1 = mpos_z;
-
 
             }
             else if ( pwin->id == mdata.rect_drag )
@@ -1988,7 +1987,7 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-#if defined(_DEBUG)
+#if defined(CARTMAN_DEBUG)
     // Tell which tile we're in
     fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, 226, NULL,
                       "X = %6.2f", debugx );
@@ -2107,7 +2106,7 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
                           "numwritten %d/%d", numwritten, numattempt );
     }
 
-#if defined(_DEBUG)
+#if defined(CARTMAN_DEBUG)
     fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, 0, NULL,
                       "<%f, %f>", mos.x, mos.y );
 #endif
@@ -2153,6 +2152,8 @@ void draw_main( cartman_mpd_t * pmesh )
     {
         mesh_calc_vrta( pmesh );
     }
+
+    egolib_console_draw_all();
 
     dunframe++;
     secframe++;
@@ -2242,6 +2243,9 @@ int main( int argcnt, char* argtext[] )
     cartman_init_SDL_base();
     gfx_system_begin();
 
+    // begin the console
+    egolib_console_begin();
+
     make_randie();                      // Random number table
 
     // Load the module
@@ -2258,7 +2262,7 @@ int main( int argcnt, char* argtext[] )
     dunframe   = 0;                     // Timer resets
     worldclock = 0;
     timclock   = 0;
-    while ( btrue )  // Main loop
+    for ( ;; )  // Main loop
     {
         if ( CART_KEYDOWN( SDLK_ESCAPE ) || CART_KEYDOWN( SDLK_F1 ) ) break;
 

@@ -371,7 +371,6 @@ struct s_import_list
 bool_t    import_list_init( import_list_t * imp_lst );
 egolib_rv import_list_from_players( import_list_t * imp_lst );
 
-
 //--------------------------------------------------------------------------------------------
 
 /// Pitty stuff

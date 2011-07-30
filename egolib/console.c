@@ -24,7 +24,7 @@
 #include "../egolib/console.inl"
 
 #include "../egolib/file_common.h"
-
+#include "../egolib/scancode.h"
 #include "../egolib/strutil.h"
 #include "../egolib/vfs.h"
 
@@ -45,8 +45,10 @@
 //--------------------------------------------------------------------------------------------
 egolib_console_t * egolib_console_top = NULL;
 
-Uint8  scancode_to_ascii[SDLK_LAST];
-Uint8  scancode_to_ascii_shift[SDLK_LAST];
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static void * _egolib_console_top = NULL;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -64,6 +66,54 @@ static void egolib_console_add_output( egolib_console_t * pcon, char * szNew );
 static void egolib_console_draw_begin( void );
 static void egolib_console_draw_end( void );
 static SDL_bool egolib_console_draw( egolib_console_t * pcon );
+
+//--------------------------------------------------------------------------------------------
+void egolib_console_begin()
+{
+    /// @details BB@> initialize the console. This must happen after the screen has been defines,
+    ///     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
+    ///     have no area...
+
+    SDL_Rect blah;
+
+    // autimatically shut down
+    atexit( egolib_console_end );
+
+    blah.x = 0;
+    blah.y = 0;
+    blah.w = sdl_scr.x;
+    blah.h = sdl_scr.y * 0.25f;
+
+    scancode_begin();
+
+#if defined(USE_LUA_CONSOLE)
+    _egolib_console_top = lua_console_create( NULL, blah );
+#else
+    // without a callback, this console just dumps the input and generates no output
+    _egolib_console_top = egolib_console_create( NULL, blah, NULL, NULL );
+#endif
+}
+
+//--------------------------------------------------------------------------------------------
+void egolib_console_end()
+{
+    /// @details BB@> de-initialize the top console
+
+#if defined(USE_LUA_CONSOLE)
+    {
+        lua_console_t * ptmp = ( lua_console_t* )_egolib_console_top;
+        lua_console_destroy( &ptmp );
+    }
+#else
+    // without a callback, this console just dumps the input and generates no output
+    {
+        egolib_console_t * ptmp = ( egolib_console_t* )_egolib_console_top;
+        egolib_console_destroy( &ptmp, SDL_TRUE );
+    }
+#endif
+
+    _egolib_console_top = NULL;
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -688,51 +738,4 @@ SDL_Event * egolib_console_handle_events( SDL_Event * pevt )
     }
 
     return pevt;
-}
-
-//--------------------------------------------------------------------------------------------
-void init_scancodes()
-{
-    /// @details BB@> initialize the scancode translation
-
-    int i;
-
-    // do the basic translation
-    for ( i = 0; i < SDLK_LAST; i++ )
-    {
-        // SDL uses ascii values for it's virtual scancodes
-        scancode_to_ascii[i] = i;
-        if ( i < 255 )
-        {
-            scancode_to_ascii_shift[i] = toupper( i );
-        }
-        else
-        {
-            scancode_to_ascii_shift[i] = scancode_to_ascii[i];
-        }
-    }
-
-    // fix the keymap
-    scancode_to_ascii_shift[SDLK_1]  = '!';
-    scancode_to_ascii_shift[SDLK_2]  = '@';
-    scancode_to_ascii_shift[SDLK_3]  = '#';
-    scancode_to_ascii_shift[SDLK_4]  = '$';
-    scancode_to_ascii_shift[SDLK_5]  = '%';
-    scancode_to_ascii_shift[SDLK_6]  = '^';
-    scancode_to_ascii_shift[SDLK_7]  = '&';
-    scancode_to_ascii_shift[SDLK_8]  = '*';
-    scancode_to_ascii_shift[SDLK_9]  = '(';
-    scancode_to_ascii_shift[SDLK_0]  = ')';
-
-    scancode_to_ascii_shift[SDLK_QUOTE]        = '\"';
-    scancode_to_ascii_shift[SDLK_SEMICOLON]    = ':';
-    scancode_to_ascii_shift[SDLK_PERIOD]       = '>';
-    scancode_to_ascii_shift[SDLK_COMMA]        = '<';
-    scancode_to_ascii_shift[SDLK_BACKQUOTE]    = '~';
-    scancode_to_ascii_shift[SDLK_MINUS]        = '_';
-    scancode_to_ascii_shift[SDLK_EQUALS]       = '+';
-    scancode_to_ascii_shift[SDLK_LEFTBRACKET]  = '{';
-    scancode_to_ascii_shift[SDLK_RIGHTBRACKET] = '}';
-    scancode_to_ascii_shift[SDLK_BACKSLASH]    = '|';
-    scancode_to_ascii_shift[SDLK_SLASH]        = '?';
 }

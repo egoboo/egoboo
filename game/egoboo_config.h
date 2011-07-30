@@ -48,11 +48,8 @@
 #undef  ENABLE_BODY_GRAB      ///< Enable the grabbing of bodies?
 #undef  TEST_NAN_RESULT       ///< Test the result of certain math operations
 
-#undef  USE_LUA_CONSOLE       ///< LUA support for the console
-
 #undef  RENDER_HMAP           ///< render the mesh's heightmap?
 #undef  DEBUG_MESH_NORMALS    ///< render the mesh normals
-#define LOG_TO_CONSOLE        ///< dump all log info to file and to the console. Only useful if your compiler generates console for program output. Otherwise the results will end up in a file called stdout.txt
 
 #undef  DEBUG_BSP             ///< Print debugging info about the BSP/octree state
 
@@ -77,13 +74,6 @@
 
 #undef  DEBUG_ASTAR          ///< Debug AStar pathfinding
 
-/// How much script debugging.
-///    0 -- debugging off ( requires defined(_DEBUG) )
-/// >= 1 -- Log the amount of script time that every object uses (requires defined(_DEBUG) and DEBUG_PROFILE)
-/// >= 2 -- Log the amount of time that every single script command uses (requires defined(_DEBUG) and DEBUG_PROFILE)
-/// >= 3 -- decompile every script (requires defined(_DEBUG))
-#define DEBUG_SCRIPT_LEVEL 0
-
 #undef  DRAW_CHR_BBOX        ///< display selected character bounding boxes
 #undef  DRAW_PRT_BBOX        ///< display selected particle bounding boxes
 #define DRAW_LISTS          ///< display any lines or points that have been added to various lists
@@ -96,7 +86,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // do the includes last so that the compile switches are always set
-#include <egolib/platform.h>
-#include <egolib/endian.h>
+
+#include <egolib/egolib_config.h>
 
 #define EGOBOO_CONFIG_H
