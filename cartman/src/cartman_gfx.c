@@ -353,7 +353,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
     tile_line_data_t     * plines = NULL;
 
     plst = select_lst_synch_mesh( plst, &mesh );
-    if( NULL == plst ) return;
+    if ( NULL == plst ) return;
 
     if ( NULL == plst->pmesh ) return;
     pmesh = plst->pmesh;
@@ -465,7 +465,7 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
     tile_line_data_t     * plines = NULL;
 
     plst = select_lst_synch_mesh( plst, &mesh );
-    if( NULL == plst ) return;
+    if ( NULL == plst ) return;
 
     if ( NULL == plst->pmesh ) return;
     pmesh = plst->pmesh;

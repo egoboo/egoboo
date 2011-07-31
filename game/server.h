@@ -49,10 +49,10 @@ struct s_ServerState
 };
 
 #define SERVER_STATE_INIT \
-{ \
-    BASE_SERVER_STATE_INIT, /* BaseServerState_t base */ \
-    0                       /* int player_count       */ \
-}
+    { \
+        BASE_SERVER_STATE_INIT, /* BaseServerState_t base */ \
+        0                       /* int player_count       */ \
+    }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

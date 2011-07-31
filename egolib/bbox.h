@@ -23,6 +23,8 @@
 /// @file bbox.h
 /// @brief A small "library" for dealing with various bounding boxes
 
+#include "../egolib/typedef.h"
+
 #include "../egolib/_math.h"
 
 #if defined(__cplusplus)

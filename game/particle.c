@@ -22,9 +22,6 @@
 
 #include "particle.inl"
 
-#include "PrtList.h"
-
-#include <egolib/log.h>
 #include "sound.h"
 #include "camera_system.h"
 #include "game.h"
@@ -33,14 +30,17 @@
 #include "mpd_functions.h"
 #include "mad.h"
 
+#include "mesh.inl"
+#include "enchant.inl"
+#include "profile.inl"
+#include "PrtList.inl"
+
+
+#include <egolib/log.h>
 #include <egolib/egoboo_setup.h>
 #include <egolib/fileutil.h>
 #include <egolib/strutil.h>
 #include "egoboo.h"
-
-#include "mesh.inl"
-#include "enchant.inl"
-#include "profile.inl"
 
 // this include must be the absolute last include
 #include <egolib/mem.h>

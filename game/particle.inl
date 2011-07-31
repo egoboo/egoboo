@@ -19,8 +19,7 @@
 //*
 //********************************************************************************************
 
-#include "PrtList.h"
-
+#include "PrtList.inl"
 #include "char.inl"
 
 #include <egolib/_math.inl>

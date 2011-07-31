@@ -22,11 +22,9 @@
 /// @details
 
 #include "char.inl"
-#include "ChrList.h"
 
 #include "mad.h"
 #include "player.h"
-#include <egolib/log.h>
 #include "script.h"
 #include "menu.h"
 #include "sound.h"
@@ -39,17 +37,18 @@
 #include "ui.h"
 #include "collision.h"                  //Only or detach_character_from_platform()
 #include "obj_BSP.h"
+#include "egoboo.h"
 
+#include "ChrList.inl"
+#include "mesh.inl"
+
+#include <egolib/log.h>
 #include <egolib/vfs.h>
 #include <egolib/egoboo_setup.h>
 #include <egolib/fileutil.h>
 #include <egolib/strutil.h>
-#include "egoboo.h"
-
 #include <egolib/file_formats/quest_file.h>
-
 #include <egolib/_math.inl>
-#include "mesh.inl"
 
 // this include must be the absolute last include
 #include <egolib/mem.h>

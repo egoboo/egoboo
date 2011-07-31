@@ -25,6 +25,7 @@
 ///          Mark Morely (through the now vanished tutorial at http://www.markmorley.com/opengl/frustumculling.html)
 
 #include "../egolib/typedef.h"
+
 #include "../egolib/_math.h"
 
 #if defined(__cplusplus)

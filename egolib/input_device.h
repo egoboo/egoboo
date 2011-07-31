@@ -23,6 +23,7 @@
 /// @details routines for reading and writing the file controls.txt and "scancode.txt"
 
 #include "../egolib/typedef.h"
+
 #include "../egolib/network.h"
 
 #if defined(__cplusplus)

@@ -136,7 +136,7 @@ egolib_rv cl_joinGame( const char* hostname )
         enet_address_set_host( &address, hostname );
         address.port = NET_EGOBOO_PORT;
 
-        pgame = enet_host_connect( (ENetHost *)egonet_get_myHost(), &address, NET_EGOBOO_NUM_CHANNELS );
+        pgame = enet_host_connect(( ENetHost * )egonet_get_myHost(), &address, NET_EGOBOO_NUM_CHANNELS );
 
         ClientState.base.gameHost = pgame;
         if ( NULL == ClientState.base.gameHost )
@@ -146,7 +146,7 @@ egolib_rv cl_joinGame( const char* hostname )
         }
 
         // Wait for up to 5 seconds for the connection attempt to succeed
-        if ( enet_host_service( (ENetHost *)egonet_get_myHost(), &event, 5000 ) > 0 &&
+        if ( enet_host_service(( ENetHost * )egonet_get_myHost(), &event, 5000 ) > 0 &&
              event.type == ENET_EVENT_TYPE_CONNECT )
         {
             log_info( "cl_joinGame: Connected to %s:%d\n", hostname, NET_EGOBOO_PORT );

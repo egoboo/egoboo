@@ -22,6 +22,8 @@
 /// @file bsp.h
 /// @details
 
+#include "../egolib/typedef.h"
+
 #include "../egolib/frustum.h"
 
 #if defined(__cplusplus)

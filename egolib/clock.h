@@ -25,10 +25,9 @@
 /// @details This implementation was adapted from Noel Lopis' article in
 ///   Game Programming Gems 4.
 
-#include <SDL_types.h>
-#include <time.h>
-
 #include "../egolib/typedef.h"
+
+#include <time.h>
 
 #if defined(__cplusplus)
 extern "C"

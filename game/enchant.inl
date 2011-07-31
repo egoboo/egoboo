@@ -21,8 +21,8 @@
 
 /// @file enchant.inl
 
-#include "EncList.h"
-#include "ChrList.h"
+#include "EncList.inl"
+#include "ChrList.inl"
 
 #include "char.inl"
 #include "profile.inl"

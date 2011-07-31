@@ -4548,7 +4548,7 @@ bool_t wawalite_finalize( wawalite_data_t * pdata )
 {
     /// @details BB@> coerce all parameters to in-bounds values
 
-    int cnt, waterspeed_count, windspeed_count;
+    int waterspeed_count, windspeed_count;
 
     wawalite_water_layer_t * ilayer;
 

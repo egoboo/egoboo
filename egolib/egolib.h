@@ -22,10 +22,11 @@
 /// @file egolib.h
 /// @brief all-in-one header file
 
+#include "../egolib/typedef.h"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#include "../egolib/typedef.h"
 #include "../egolib/clock.h"
 #include "../egolib/console.h"
 #include "../egolib/endian.h"
@@ -39,7 +40,6 @@
 #include "../egolib/timer.h"
 #include "../egolib/vfs.h"
 #include "../egolib/egoboo_setup.h"
-
 #include "../egolib/font_bmp.h"
 #include "../egolib/font_ttf.h"
 #include "../egolib/lua_console.h"
@@ -49,12 +49,18 @@
 #include "../egolib/log.h"
 #include "../egolib/hash.h"
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 #include "extensions/ogl_debug.h"
 #include "extensions/ogl_extensions.h"
 #include "extensions/ogl_include.h"
 #include "extensions/ogl_texture.h"
 #include "extensions/SDL_extensions.h"
 #include "extensions/SDL_GL_extensions.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 #include "file_formats/cap_file.h"
 #include "file_formats/configfile.h"
@@ -71,6 +77,9 @@
 #include "file_formats/template.h"
 #include "file_formats/treasure_table_file.h"
 #include "file_formats/wawalite_file.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 //!!! watch this one. if you are using the Fluid Studios memory manager,
 //!!! this must be the absolute last include file.

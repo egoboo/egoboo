@@ -65,32 +65,6 @@ static void   PrtList_prune_free();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t VALID_PRT_RANGE( const PRT_REF IPRT ) { return _VALID_PRT_RANGE( IPRT ); }
-bool_t DEFINED_PRT( const PRT_REF IPRT )     { return _DEFINED_PRT( IPRT );     }
-bool_t ALLOCATED_PRT( const PRT_REF IPRT )   { return _ALLOCATED_PRT( IPRT );   }
-bool_t ACTIVE_PRT( const PRT_REF IPRT )      { return _ACTIVE_PRT( IPRT );      }
-bool_t WAITING_PRT( const PRT_REF IPRT )     { return _WAITING_PRT( IPRT );     }
-bool_t TERMINATED_PRT( const PRT_REF IPRT )  { return _TERMINATED_PRT( IPRT );  }
-
-size_t  GET_INDEX_PPRT( const prt_t * PPRT )  { return _GET_INDEX_PPRT( PPRT );  }
-PRT_REF GET_REF_PPRT( const prt_t * PPRT )    { return _GET_REF_PPRT( PPRT );    }
-bool_t  DEFINED_PPRT( const prt_t * PPRT )    { return _DEFINED_PPRT( PPRT );    }
-bool_t  VALID_PRT_PTR( const prt_t * PPRT )   { return _VALID_PRT_PTR( PPRT );   }
-bool_t  ALLOCATED_PPRT( const prt_t * PPRT )  { return _ALLOCATED_PPRT( PPRT );  }
-bool_t  ACTIVE_PPRT( const prt_t * PPRT )     { return _ACTIVE_PPRT( PPRT );     }
-bool_t  TERMINATED_PPRT( const prt_t * PPRT ) { return _TERMINATED_PPRT( PPRT ); }
-
-bool_t INGAME_PRT_BASE( const PRT_REF IPRT )  { return _INGAME_PRT_BASE( IPRT );  }
-bool_t INGAME_PPRT_BASE( const prt_t * PPRT ) { return _INGAME_PPRT_BASE( PPRT ); }
-
-bool_t INGAME_PRT( const PRT_REF IPRT )       { return _INGAME_PRT( IPRT );  }
-bool_t INGAME_PPRT( const prt_t * PPRT )      { return _INGAME_PPRT( PPRT ); }
-
-bool_t DISPLAY_PRT( const PRT_REF IPRT )     { return _DISPLAY_PRT( IPRT ) ; }
-bool_t DISPLAY_PPRT( const prt_t * PPRT )    { return _DISPLAY_PPRT( PPRT ); }
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 IMPLEMENT_LIST( prt_t, PrtList, MAX_PRT );
 

@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+#include "../egolib/typedef.h"
+
 #include "../egolib/console.h"
 
 #if defined(__cplusplus)

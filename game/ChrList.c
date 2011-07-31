@@ -21,11 +21,12 @@
 /// @brief Implementation of the ChrList_* functions
 /// @details
 
-#include "ChrList.h"
-#include <egolib/log.h>
+#include "ChrList.inl"
+#include "char.inl"
+
 #include "egoboo_object.h"
 
-#include "char.inl"
+#include <egolib/log.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -57,29 +58,6 @@ static int    ChrList_get_used_list_index( const CHR_REF ichr );
 
 static void   ChrList_prune_used();
 static void   ChrList_prune_free();
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool_t VALID_CHR_RANGE( const CHR_REF ICHR ) { return _VALID_CHR_RANGE( ICHR ); }
-bool_t DEFINED_CHR( const CHR_REF ICHR )     { return _DEFINED_CHR( ICHR );     }
-bool_t ALLOCATED_CHR( const CHR_REF ICHR )   { return _ALLOCATED_CHR( ICHR );   }
-bool_t ACTIVE_CHR( const CHR_REF ICHR )      { return _ACTIVE_CHR( ICHR );      }
-bool_t WAITING_CHR( const CHR_REF ICHR )     { return _WAITING_CHR( ICHR );     }
-bool_t TERMINATED_CHR( const CHR_REF ICHR )  { return _TERMINATED_CHR( ICHR );  }
-
-size_t  GET_INDEX_PCHR( const chr_t * PCHR )  { return _GET_INDEX_PCHR( PCHR );  }
-CHR_REF GET_REF_PCHR( const chr_t * PCHR )    { return _GET_REF_PCHR( PCHR );    }
-bool_t  DEFINED_PCHR( const chr_t * PCHR )    { return _DEFINED_PCHR( PCHR );    }
-bool_t  VALID_CHR_PTR( const chr_t * PCHR )   { return _VALID_CHR_PTR( PCHR );   }
-bool_t  ALLOCATED_PCHR( const chr_t * PCHR )  { return _ALLOCATED_PCHR( PCHR );  }
-bool_t  ACTIVE_PCHR( const chr_t * PCHR )     { return _ACTIVE_PCHR( PCHR );     }
-bool_t  TERMINATED_PCHR( const chr_t * PCHR ) { return _TERMINATED_PCHR( PCHR ); }
-
-bool_t INGAME_CHR_BASE( const CHR_REF ICHR )  { return _INGAME_CHR_BASE( ICHR );  }
-bool_t INGAME_PCHR_BASE( const chr_t * PCHR )       { return _INGAME_PCHR_BASE( PCHR ); }
-
-bool_t INGAME_CHR( const CHR_REF ICHR )       { return _INGAME_CHR( ICHR );  }
-bool_t INGAME_PCHR( const chr_t * PCHR )            { return _INGAME_PCHR( PCHR ); }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -140,7 +140,7 @@ void weld_0( cartman_mpd_t * pmesh, int x, int y )
 {
     select_lst_t loc_lst = SELECT_LST_INIT;
 
-    select_lst_init(&loc_lst, pmesh);
+    select_lst_init( &loc_lst, pmesh );
 
     select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 0 ) );
     select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x - 1, y, 1 ) );
@@ -155,7 +155,7 @@ void weld_1( cartman_mpd_t * pmesh, int x, int y )
 {
     select_lst_t loc_lst = SELECT_LST_INIT;
 
-    select_lst_init(&loc_lst, pmesh);
+    select_lst_init( &loc_lst, pmesh );
 
     select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 1 ) );
     select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x + 1, y, 0 ) );
@@ -170,7 +170,7 @@ void weld_2( cartman_mpd_t * pmesh, int x, int y )
 {
     select_lst_t loc_lst = SELECT_LST_INIT;
 
-    select_lst_init(&loc_lst, pmesh);
+    select_lst_init( &loc_lst, pmesh );
 
     select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 2 ) );
     select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x + 1, y, 3 ) );
@@ -185,7 +185,7 @@ void weld_3( cartman_mpd_t * pmesh, int x, int y )
 {
     select_lst_t loc_lst = SELECT_LST_INIT;
 
-    select_lst_init(&loc_lst, pmesh);
+    select_lst_init( &loc_lst, pmesh );
 
     select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 3 ) );
     select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x - 1, y, 2 ) );
@@ -214,7 +214,7 @@ void weld_cnt( cartman_mpd_t * pmesh, int x, int y, int cnt, Uint32 fan )
     {
         select_lst_t loc_lst = SELECT_LST_INIT;
 
-        select_lst_init(&loc_lst, pmesh);
+        select_lst_init( &loc_lst, pmesh );
 
         // add the center point
         select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, cnt ) );
@@ -252,7 +252,7 @@ select_lst_t * select_lst_add_rect( select_lst_t * plst, float x0, float y0, flo
     cartman_mpd_vertex_t * vlst   = NULL;
 
     plst = select_lst_synch_mesh( plst, &mesh );
-    if( NULL == plst ) return plst;
+    if ( NULL == plst ) return plst;
 
     if ( NULL == plst->pmesh ) return plst;
     pmesh = plst->pmesh;
@@ -261,12 +261,15 @@ select_lst_t * select_lst_add_rect( select_lst_t * plst, float x0, float y0, flo
     vlst = pmesh->vrt;
 
     // if the selection is empty, we're done
-    if( x0 == x1 || y0 == y1 || z0 == z1 ) return plst;
+    if ( x0 == x1 || y0 == y1 || z0 == z1 ) return plst;
 
     // make sure that the selection is ordered properly
-    if ( x0 < x1 ) { xmin = x0; xmax = x1; } else { xmin = x1; xmax = x0; };
-    if ( y0 < y1 ) { ymin = y0; ymax = y1; } else { ymin = y1; ymax = y0; };
-    if ( z0 < z1 ) { zmin = z0; zmax = z1; } else { zmin = z1; zmax = z0; };
+    if ( x0 < x1 ) { xmin = x0; xmax = x1; }
+    else { xmin = x1; xmax = x0; };
+    if ( y0 < y1 ) { ymin = y0; ymax = y1; }
+    else { ymin = y1; ymax = y0; };
+    if ( z0 < z1 ) { zmin = z0; zmax = z1; }
+    else { zmin = z1; zmax = z0; };
 
     if ( mode == WINMODE_VERTEX )
     {
@@ -317,7 +320,7 @@ select_lst_t * select_lst_remove_rect( select_lst_t * plst, float x0, float y0, 
     cartman_mpd_vertex_t * vlst   = NULL;
 
     plst = select_lst_synch_mesh( plst, &mesh );
-    if( NULL == plst ) return plst;
+    if ( NULL == plst ) return plst;
 
     pmesh = plst->pmesh;
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -326,12 +329,15 @@ select_lst_t * select_lst_remove_rect( select_lst_t * plst, float x0, float y0, 
     vlst = pmesh->vrt;
 
     // if the selection is empty, we're done
-    if( x0 == x1 || y0 == y1 || z0 == z1 ) return plst;
+    if ( x0 == x1 || y0 == y1 || z0 == z1 ) return plst;
 
     // make sure that the selection is ordered properly
-    if ( x0 < x1 ) { xmin = x0; xmax = x1; } else { xmin = x1; xmax = x0; };
-    if ( y0 < y1 ) { ymin = y0; ymax = y1; } else { ymin = y1; ymax = y0; };
-    if ( z0 < z1 ) { zmin = z0; zmax = z1; } else { zmin = z1; zmax = z0; };
+    if ( x0 < x1 ) { xmin = x0; xmax = x1; }
+    else { xmin = x1; xmax = x0; };
+    if ( y0 < y1 ) { ymin = y0; ymax = y1; }
+    else { ymin = y1; ymax = y0; };
+    if ( z0 < z1 ) { zmin = z0; zmax = z1; }
+    else { zmin = z1; zmax = z0; };
 
     if ( mode == WINMODE_VERTEX )
     {
@@ -433,11 +439,11 @@ void mesh_select_move( const select_lst_t * plst, float x, float y, float z )
     cartman_mpd_t * pmesh = NULL;
     cartman_mpd_vertex_t * vlst   = NULL;
 
-    if( NULL == plst ) return;
+    if ( NULL == plst ) return;
 
     // get the proper mesh
     pmesh = plst->pmesh;
-    if( NULL == pmesh ) pmesh = &mesh;
+    if ( NULL == pmesh ) pmesh = &mesh;
 
     // get an alias
     vlst = pmesh->vrt;
@@ -490,7 +496,7 @@ void mesh_select_set_z_no_bound( const select_lst_t * plst, float z )
     cartman_mpd_t        * pmesh  = NULL;
     cartman_mpd_vertex_t * vlst   = NULL;
 
-    if( NULL == plst ) return;
+    if ( NULL == plst ) return;
 
     // get the mesh
     pmesh = plst->pmesh;
@@ -502,7 +508,7 @@ void mesh_select_set_z_no_bound( const select_lst_t * plst, float z )
     for ( cnt = 0; cnt < plst->count; cnt++ )
     {
         vert = plst->which[cnt];
-        if( vert < 0 || vert > pmesh->info.vertex_count ) continue;
+        if ( vert < 0 || vert > pmesh->info.vertex_count ) continue;
 
         vlst[vert].z = z;
     }
@@ -517,7 +523,7 @@ void mesh_select_jitter( const select_lst_t * plst )
     // aliases
     cartman_mpd_t        * pmesh  = NULL;
 
-    if( NULL == plst ) return;
+    if ( NULL == plst ) return;
 
     // get the mesh
     pmesh = plst->pmesh;
@@ -545,14 +551,14 @@ void mesh_select_verts_connected( const select_lst_t * plst )
     cartman_mpd_tile_t   * pfan   = NULL;
     tile_definition_t    * pdef   = NULL;
 
-    if( NULL == plst ) plst = select_lst_default();
+    if ( NULL == plst ) plst = select_lst_default();
 
     // get the mesh
     pmesh = plst->pmesh;
     if ( NULL == pmesh ) pmesh = &mesh;
 
     // get vertex list alias
-    pinfo = &(pmesh->info);
+    pinfo = &( pmesh->info );
     vlst  = pmesh->vrt;
 
     for ( mapy = 0; mapy < pinfo->tiles_y; mapy++ )
@@ -586,8 +592,8 @@ void mesh_select_verts_connected( const select_lst_t * plst )
             if ( select_vertsfan )
             {
                 for ( cnt = 0, vert = pfan->vrtstart;
-                    cnt < pdef->numvertices;
-                    cnt++, vert = vlst[vert].next )
+                      cnt < pdef->numvertices;
+                      cnt++, vert = vlst[vert].next )
                 {
                     select_lst_add( plst, vert );
                 }
@@ -607,7 +613,7 @@ void mesh_select_weld( const select_lst_t * plst )
     cartman_mpd_t        * pmesh  = NULL;
     cartman_mpd_vertex_t * vlst   = NULL;
 
-    if( NULL == plst ) return;
+    if ( NULL == plst ) return;
 
     // get the mesh
     pmesh = plst->pmesh;
@@ -852,7 +858,7 @@ void jitter_mesh( cartman_mpd_t * pmesh )
     vlst = pmesh->vrt;
 
     // initialize the local selection
-    select_lst_init(&loc_lst, pmesh);
+    select_lst_init( &loc_lst, pmesh );
 
     for ( mapy = 0; mapy < pmesh->info.tiles_y; mapy++ )
     {
@@ -873,8 +879,8 @@ void jitter_mesh( cartman_mpd_t * pmesh )
 
             // add all the tile vertices
             for ( cnt = 0, vert = pfan->vrtstart;
-                cnt < num;
-                cnt++, vert = vlst[vert].next )
+                  cnt < num;
+                  cnt++, vert = vlst[vert].next )
             {
                 select_lst_add( &loc_lst, vert );
             }

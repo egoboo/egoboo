@@ -27,12 +27,11 @@
 #include "graphic.h"
 #include "game.h"
 #include "player.h"
-#include "ChrList.h"
+
+#include "ChrList.inl"
 
 #include <egolib/egoboo_setup.h>
-
 #include <egolib/extensions/SDL_extensions.h>
-
 #include <egolib/_math.inl>
 
 //--------------------------------------------------------------------------------------------

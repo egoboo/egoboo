@@ -22,6 +22,8 @@
 /// @file egolib_console.h
 /// @A quake-console that can be used for anything.
 
+#include "../egolib/typedef.h"
+
 #include <SDL.h>
 
 #if defined(__cplusplus)

@@ -23,22 +23,21 @@
 
 #include "profile.inl"
 
-#include "ChrList.h"
-#include "PrtList.h"
-
 #include "texture.h"
-#include <egolib/log.h>
 #include "script_compile.h"
 #include "game.h"
 
+#include "ChrList.inl"
+#include "PrtList.inl"
+#include "mesh.inl"
+#include "particle.inl"
+
+#include <egolib/log.h>
 #include <egolib/egoboo_setup.h>
 #include <egolib/strutil.h>
 #include <egolib/fileutil.h>
 #include <egolib/vfs.h>
 #include <egolib/bsp.inl>
-
-#include "mesh.inl"
-#include "particle.inl"
 
 // this include must be the absolute last include
 #include <egolib/mem.h>

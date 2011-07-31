@@ -23,6 +23,7 @@
 /// @String manipulation functions.
 
 #include "../egolib/typedef.h"
+
 #include <string.h>
 #include <ctype.h>
 

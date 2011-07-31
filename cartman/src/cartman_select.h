@@ -50,11 +50,11 @@ struct s_select_lst
 };
 
 #define SELECT_LST_INIT \
-{\
-    NULL,        /* struct s_cartman_mpd * pmesh */ \
-    0,           /* int     count                */ \
-    { CHAINEND } /* Uint32  which[MAXSELECT]     */ \
-}
+    {\
+        NULL,        /* struct s_cartman_mpd * pmesh */ \
+        0,           /* int     count                */ \
+        { CHAINEND } /* Uint32  which[MAXSELECT]     */ \
+    }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

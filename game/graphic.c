@@ -28,6 +28,7 @@
 #include "graphic_prt.h"
 #include "graphic_mad.h"
 #include "graphic_fan.h"
+#include "server.h"
 
 #include <egolib/log.h>
 #include <egolib/clock.h>
@@ -2121,8 +2122,7 @@ float draw_game_status( float y )
     {
         y = _draw_string_raw( 0, y, "Waiting for players... " );
     }
-
-    if ( egonet_get_client_count() > 0 )
+    else if ( ServerState.player_count > 0 )
     {
         if ( local_stats.allpladead || PMod->respawnanytime )
         {
@@ -2140,7 +2140,10 @@ float draw_game_status( float y )
             y = _draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
         }
     }
-    else y = _draw_string_raw( 0, y, "ERROR: MISSING PLAYERS" );
+    else
+    {
+        y = _draw_string_raw( 0, y, "ERROR: MISSING PLAYERS" );
+    }
 
     return y;
 }

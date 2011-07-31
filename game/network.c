@@ -100,7 +100,7 @@ void net_sayHello()
 
     if ( !egonet_on() )
     {
-        egonet_set_waitingforclients(  bfalse );
+        egonet_set_waitingforclients( bfalse );
     }
     else if ( egonet_get_hostactive() )
     {
@@ -109,7 +109,7 @@ void net_sayHello()
         net_players_loaded++;
         if ( net_players_loaded >= ServerState.base.client_count )
         {
-            egonet_set_waitingforclients(  bfalse );
+            egonet_set_waitingforclients( bfalse );
         }
     }
     else

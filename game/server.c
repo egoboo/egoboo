@@ -158,7 +158,7 @@ egolib_rv sv_letPlayersJoin()
     STRING hostName;
 
     // Check all pending events for players joining
-    while ( enet_host_service( (ENetHost *)egonet_get_myHost(), &event, 0 ) > 0 )
+    while ( enet_host_service(( ENetHost * )egonet_get_myHost(), &event, 0 ) > 0 )
     {
         switch ( event.type )
         {

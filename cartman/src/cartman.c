@@ -613,7 +613,7 @@ void render_vertex_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
                     fan = cartman_mpd_get_fan( pwin->pmesh, mapx, mapy );
                     if ( fan >= 0 && fan < MPD_TILE_MAX )
                     {
-                        draw_top_fan( &(mdata.win_select), fan, zoom_hrz, zoom_vrt );
+                        draw_top_fan( &( mdata.win_select ), fan, zoom_hrz, zoom_vrt );
                     }
                 }
             }
@@ -684,7 +684,7 @@ void render_side_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
                     fan = cartman_mpd_get_fan( pwin->pmesh, mapx, mapy );
                     if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
 
-                    draw_side_fan( &(mdata.win_select), fan, zoom_hrz, zoom_vrt );
+                    draw_side_fan( &( mdata.win_select ), fan, zoom_hrz, zoom_vrt );
                 }
             }
 
@@ -1045,7 +1045,7 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
         mdata.win_fan_x  = FLOOR( mpix_x / TILE_FSIZE );
         mdata.win_fan_y  = -1;
 
-        select_lst_set_mesh( &(mdata.win_select), pwin->pmesh );
+        select_lst_set_mesh( &( mdata.win_select ), pwin->pmesh );
 
         debugx = mpos_x;
         debugy = mpos_z;
@@ -1083,10 +1083,10 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
         if ( pwin->id == mdata.rect_done )
         {
-            if ( select_lst_count(&(mdata.win_select)) > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
+            if ( select_lst_count( &( mdata.win_select ) ) > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
                  !CART_KEYMOD( KMOD_LCTRL ) && !CART_KEYMOD( KMOD_RCTRL ) )
             {
-                select_lst_clear(&(mdata.win_select));
+                select_lst_clear( &( mdata.win_select ) );
             }
 
             if ( CART_KEYMOD( KMOD_ALT ) || CART_KEYDOWN( SDLK_MODE ) )
@@ -1105,13 +1105,13 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
         if ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) )
         {
-            mesh_select_move( &(mdata.win_select), mos.cx / zoom_hrz, 0, - mos.cy / zoom_vrt );
+            mesh_select_move( &( mdata.win_select ), mos.cx / zoom_hrz, 0, - mos.cy / zoom_vrt );
             bound_mouse();
         }
 
         if ( CART_KEYDOWN( SDLK_y ) )
         {
-            mesh_select_move( &(mdata.win_select), 0, 0, -mos.cy / zoom_vrt );
+            mesh_select_move( &( mdata.win_select ), 0, 0, -mos.cy / zoom_vrt );
             bound_mouse();
         }
 
@@ -1207,7 +1207,7 @@ void cartman_check_mouse_tile( window_t * pwin, float zoom_hrz, float zoom_vrt )
         mdata.win_fan_x = FLOOR( mpos_x / TILE_FSIZE );
         mdata.win_fan_y = FLOOR( mpos_y / TILE_FSIZE );
 
-        select_lst_set_mesh( &(mdata.win_select), pwin->pmesh );
+        select_lst_set_mesh( &( mdata.win_select ), pwin->pmesh );
 
         debugx = mpos_x;
         debugy = mpos_y;
@@ -1319,7 +1319,7 @@ void cartman_check_mouse_fx( window_t * pwin, float zoom_hrz, float zoom_vrt )
         mdata.win_fan_x  = FLOOR( mpos_x / TILE_FSIZE );
         mdata.win_fan_y  = FLOOR( mpos_y / TILE_FSIZE );
 
-        select_lst_set_mesh( &(mdata.win_select), pwin->pmesh );
+        select_lst_set_mesh( &( mdata.win_select ), pwin->pmesh );
 
         debugx = mpos_x;
         debugy = mpos_y;
@@ -1420,7 +1420,7 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
         mdata.win_fan_x  = FLOOR( mpos_x / TILE_FSIZE );
         mdata.win_fan_y  = FLOOR( mpos_y / TILE_FSIZE );
 
-        select_lst_set_mesh( &(mdata.win_select), pwin->pmesh );
+        select_lst_set_mesh( &( mdata.win_select ), pwin->pmesh );
 
         debugx = mpos_x;
         debugy = mpos_y;
@@ -1457,10 +1457,10 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
 
         if ( pwin->id == mdata.rect_done )
         {
-            if ( select_lst_count(&(mdata.win_select)) > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
+            if ( select_lst_count( &( mdata.win_select ) ) > 0 && !CART_KEYMOD( KMOD_ALT ) && !CART_KEYDOWN( SDLK_MODE ) &&
                  !CART_KEYMOD( KMOD_LCTRL ) && !CART_KEYMOD( KMOD_RCTRL ) )
             {
-                select_lst_clear(&(mdata.win_select));
+                select_lst_clear( &( mdata.win_select ) );
             }
             if ( CART_KEYMOD( KMOD_ALT ) || CART_KEYDOWN( SDLK_MODE ) )
             {
@@ -1478,7 +1478,7 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
 
         if ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) )
         {
-            mesh_select_move( &(mdata.win_select), mos.cx / zoom_vrt, mos.cy / zoom_vrt, 0 );
+            mesh_select_move( &( mdata.win_select ), mos.cx / zoom_vrt, mos.cy / zoom_vrt, 0 );
             bound_mouse();
         }
 
@@ -1488,7 +1488,7 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
             fix_vertices( pwin->pmesh,  FLOOR( mdata.win_mpos_x / TILE_FSIZE ), FLOOR( mdata.win_mpos_y / TILE_FSIZE ) );
         }
 
-        if ( CART_KEYDOWN( SDLK_p ) || ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) && 0 == select_lst_count(&(mdata.win_select)) ) )
+        if ( CART_KEYDOWN( SDLK_p ) || ( MOUSE_PRESSED( SDL_BUTTON_RIGHT ) && 0 == select_lst_count( &( mdata.win_select ) ) ) )
         {
             raise_mesh( mdata.win_mesh, onscreen_vert, onscreen_count, mdata.win_mpos_x, mdata.win_mpos_y, brushamount, brushsize );
         }
@@ -1647,7 +1647,7 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_LEFTBRACKET ) || CART_KEYDOWN( SDLK_RIGHTBRACKET ) )
     {
-        mesh_select_verts_connected( &(mdata.win_select) );
+        mesh_select_verts_connected( &( mdata.win_select ) );
     }
     if ( CART_KEYDOWN( SDLK_8 ) )
     {
@@ -1656,8 +1656,8 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_j ) )
     {
-        if ( 0 == select_lst_count(&(mdata.win_select)) ) { jitter_mesh( pmesh ); }
-        else { mesh_select_jitter( &(mdata.win_select) ); }
+        if ( 0 == select_lst_count( &( mdata.win_select ) ) ) { jitter_mesh( pmesh ); }
+        else { mesh_select_jitter( &( mdata.win_select ) ); }
         key.delay = KEYDELAY;
     }
 
@@ -1670,7 +1670,7 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_SPACE ) )
     {
-        mesh_select_weld( &(mdata.win_select) );
+        mesh_select_weld( &( mdata.win_select ) );
         key.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_INSERT ) )
@@ -1783,19 +1783,19 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_5 ) )
     {
-        mesh_select_set_z_no_bound( &(mdata.win_select), -8000 * 4 );
+        mesh_select_set_z_no_bound( &( mdata.win_select ), -8000 * 4 );
         key.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_6 ) )
     {
-        mesh_select_set_z_no_bound( &(mdata.win_select), -127 * 4 );
+        mesh_select_set_z_no_bound( &( mdata.win_select ), -127 * 4 );
         key.delay = KEYDELAY;
     }
 
     if ( CART_KEYDOWN( SDLK_7 ) )
     {
-        mesh_select_set_z_no_bound( &(mdata.win_select), 127 * 4 );
+        mesh_select_set_z_no_bound( &( mdata.win_select ), 127 * 4 );
         key.delay = KEYDELAY;
     }
 
@@ -2491,13 +2491,13 @@ void cart_mouse_data_toggle_fx( int fxmask )
 //--------------------------------------------------------------------------------------------
 void cart_mouse_data_rect_select()
 {
-    select_lst_add_rect( &(mdata.win_select), mdata.rect_x0, mdata.rect_y0, mdata.rect_z0, mdata.rect_x1, mdata.rect_y1, mdata.rect_z1, mdata.win_mode );
+    select_lst_add_rect( &( mdata.win_select ), mdata.rect_x0, mdata.rect_y0, mdata.rect_z0, mdata.rect_x1, mdata.rect_y1, mdata.rect_z1, mdata.win_mode );
 }
 
 //--------------------------------------------------------------------------------------------
 void cart_mouse_data_rect_unselect()
 {
-    select_lst_remove_rect( &(mdata.win_select), mdata.rect_x0, mdata.rect_y0, mdata.rect_z0, mdata.rect_x1, mdata.rect_y1, mdata.rect_z1, mdata.win_mode );
+    select_lst_remove_rect( &( mdata.win_select ), mdata.rect_x0, mdata.rect_y0, mdata.rect_z0, mdata.rect_x1, mdata.rect_y1, mdata.rect_z1, mdata.win_mode );
 }
 
 //--------------------------------------------------------------------------------------------

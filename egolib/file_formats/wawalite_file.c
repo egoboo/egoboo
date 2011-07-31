@@ -641,7 +641,7 @@ wawalite_data_t *  wawalite_limit( wawalite_data_t * pdata )
 {
     int cnt;
 
-   if ( NULL == pdata ) pdata = &_wawalite_file;
+    if ( NULL == pdata ) pdata = &_wawalite_file;
 
     // limit some values
     pdata->damagetile.sound_index = CLIP( pdata->damagetile.sound_index, INVALID_SOUND, MAX_WAVE );

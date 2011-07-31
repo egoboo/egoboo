@@ -22,11 +22,12 @@
 /// @details
 
 #include "../egolib/log.h"
-#include "../egolib/system.h"
 
+#include "../egolib/file_common.h"
 #include "../egolib/strutil.h"
 #include "../egolib/egoboo_setup.h"
 #include "../egolib/platform.h"
+#include "../egolib/system.h"
 
 #include <stdlib.h>
 #include <stdarg.h>

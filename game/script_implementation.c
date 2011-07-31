@@ -28,10 +28,10 @@
 #include "script_implementation.h"
 
 #include "game.h"
-#include "ChrList.h"
 #include "AStar.h"
 #include "passage.h"
 
+#include "ChrList.inl"
 #include "mesh.inl"
 #include "profile.inl"
 
@@ -115,19 +115,19 @@ bool_t BIT_FIELD_has_all_bits( BIT_FIELD val, BIT_FIELD test )
 //--------------------------------------------------------------------------------------------
 bool_t BIT_FIELD_has_no_bits( BIT_FIELD val, BIT_FIELD test )
 {
-    return HAS_NO_BITS(val, test);
+    return HAS_NO_BITS( val, test );
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t BIT_FIELD_missing_bits( BIT_FIELD val, BIT_FIELD test )
 {
-    return HAS_SOME_BITS(val,test) && !HAS_ALL_BITS(val,test);
+    return HAS_SOME_BITS( val, test ) && !HAS_ALL_BITS( val, test );
 }
 
 //--------------------------------------------------------------------------------------------
 BIT_FIELD BIT_FIELD_set_one_bit( BIT_FIELD val, size_t which )
 {
-    const size_t bit_count = 8 * sizeof(BIT_FIELD);
+    const size_t bit_count = 8 * sizeof( BIT_FIELD );
 
     BIT_FIELD new_val = val;
 
@@ -142,7 +142,7 @@ BIT_FIELD BIT_FIELD_set_one_bit( BIT_FIELD val, size_t which )
 //--------------------------------------------------------------------------------------------
 BIT_FIELD BIT_FIELD_clear_one_bit( BIT_FIELD val, size_t which )
 {
-    const size_t bit_count = 8 * sizeof(BIT_FIELD);
+    const size_t bit_count = 8 * sizeof( BIT_FIELD );
 
     BIT_FIELD new_val = val;
 
@@ -157,7 +157,7 @@ BIT_FIELD BIT_FIELD_clear_one_bit( BIT_FIELD val, size_t which )
 //--------------------------------------------------------------------------------------------
 bool_t BIT_FIELD_test_one_bit( BIT_FIELD val, size_t which )
 {
-    const size_t bit_count = 8 * sizeof(BIT_FIELD);
+    const size_t bit_count = 8 * sizeof( BIT_FIELD );
 
     bool_t retval = bfalse;
 
@@ -495,7 +495,7 @@ bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos
 
     bool_t returncode;
 
-    if( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return bfalse;
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
     cap_t * pcap;
@@ -619,7 +619,7 @@ bool_t FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t Compass( fvec2_base_t pos, int turn, float distance )
+bool_t Compass( fvec2_base_t pos, int facing, float distance )
 {
     // Compass( tmpturn = "rotation", tmpdistance = "radius" )
 
@@ -627,9 +627,9 @@ bool_t Compass( fvec2_base_t pos, int turn, float distance )
     /// tmpdistance and tmpturn.  It acts like one of those Compass thing
     /// with the two little needle legs
 
-    TURN_T loc_turn;
+    TURN_T turn;
 
-    loc_turn = TO_TURN( turn );
+    turn = TO_TURN( facing );
 
     pos[XX] -= turntocos[ turn ] * distance;
     pos[YY] -= turntosin[ turn ] * distance;
@@ -647,7 +647,7 @@ int GetArmorPrice( chr_t * pchr, int skin )
     cap_t * pcap;
 
     pcap = pro_get_pcap( pchr->profile_ref );
-    if( NULL == pcap ) return -1;
+    if ( NULL == pcap ) return -1;
 
     skin %= MAX_SKIN;
 
@@ -663,7 +663,7 @@ Uint32 UpdateTime( Uint32 time_val, int delay )
 
     Uint32 new_time_val;
 
-    if( delay <= 0 )
+    if ( delay <= 0 )
     {
         new_time_val = time_val;
     }
@@ -768,7 +768,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message_index, script_state_t * 
 
     Uint8 returncode = btrue;
 
-    if( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
     if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, message_index ) ) return bfalse;
     ppro = ProList_get_ptr( pchr->profile_ref );

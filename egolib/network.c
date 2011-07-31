@@ -70,24 +70,24 @@ struct s_egonet_instance
 };
 
 #define EGONET_INSTANCE_INIT \
-{ \
-    bfalse,  /* bool_t initialized   */ \
-    bfalse,  /* bool_t  req_enet       */ \
-    bfalse,  /* bool_t  enet_on      */ \
-    bfalse,  /* bool_t  service_on    */ \
-    bfalse,  /* bool_t  hostactive   */ \
-    bfalse,  /* bool_t  readytostart */ \
-    bfalse,  /* bool_t  waitingforclients */ \
-    -1,      /* int     service */ \
-    0,       /* int     service_count */ \
-   { '\0' }, /* char    service_name[MAXSERVICE][NETNAMESIZE] */ \
-    -1,      /* int     session_count */ \
-   { '\0' }, /* char    session_name[MAXSESSION][NETNAMESIZE] */ \
-    -1,      /* int     local_machine */ \
-    NULL,    /* ENetHost          * myHost */ \
-    NULL,    /* BaseServerState_t * pserver */ \
-    NULL     /* BaseClientState_t * pclient */ \
-}
+    { \
+        bfalse,  /* bool_t initialized   */ \
+        bfalse,  /* bool_t  req_enet       */ \
+        bfalse,  /* bool_t  enet_on      */ \
+        bfalse,  /* bool_t  service_on    */ \
+        bfalse,  /* bool_t  hostactive   */ \
+        bfalse,  /* bool_t  readytostart */ \
+        bfalse,  /* bool_t  waitingforclients */ \
+        -1,      /* int     service */ \
+        0,       /* int     service_count */ \
+        { '\0' }, /* char    service_name[MAXSERVICE][NETNAMESIZE] */ \
+        -1,      /* int     session_count */ \
+        { '\0' }, /* char    session_name[MAXSESSION][NETNAMESIZE] */ \
+        -1,      /* int     local_machine */ \
+        NULL,    /* ENetHost          * myHost */ \
+        NULL,    /* BaseServerState_t * pserver */ \
+        NULL     /* BaseClientState_t * pclient */ \
+    }
 
 egonet_instance_t * egonet_instance_ctor( egonet_instance_t * pnet );
 egonet_instance_t * egonet_instance_dtor( egonet_instance_t * pnet );
@@ -113,7 +113,7 @@ FILE * globalnetworkerr = NULL;
 
 egonet_instance_t * egonet_get_instance()
 {
-    if( !gnet.initialized ) return NULL;
+    if ( !gnet.initialized ) return NULL;
 
     return &gnet;
 }
@@ -121,7 +121,7 @@ egonet_instance_t * egonet_get_instance()
 //--------------------------------------------------------------------------------------------
 const bool_t egonet_on()
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     return gnet.enet_on;
 }
@@ -129,7 +129,7 @@ const bool_t egonet_on()
 //--------------------------------------------------------------------------------------------
 const bool_t egonet_get_serviceon( void )
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     return egonet_instance_get_serviceon( &gnet );
 }
@@ -137,7 +137,7 @@ const bool_t egonet_get_serviceon( void )
 //--------------------------------------------------------------------------------------------
 const bool_t     egonet_get_hostactive( void )
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     return egonet_instance_get_hostactive( &gnet );
 }
@@ -145,7 +145,7 @@ const bool_t     egonet_get_hostactive( void )
 //--------------------------------------------------------------------------------------------
 const bool_t     egonet_get_readytostart( void )
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     return egonet_instance_get_readytostart( &gnet );
 }
@@ -153,7 +153,7 @@ const bool_t     egonet_get_readytostart( void )
 //--------------------------------------------------------------------------------------------
 const bool_t     egonet_get_waitingforclients( void )
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     return egonet_instance_get_waitingforclients( &gnet );
 }
@@ -161,7 +161,7 @@ const bool_t     egonet_get_waitingforclients( void )
 //--------------------------------------------------------------------------------------------
 const int        egonet_get_local_machine( void )
 {
-    if( !gnet.initialized ) return -1;
+    if ( !gnet.initialized ) return -1;
 
     return egonet_instance_get_local_machine( &gnet );
 }
@@ -169,7 +169,7 @@ const int        egonet_get_local_machine( void )
 //--------------------------------------------------------------------------------------------
 const int        egonet_get_client_count( void )
 {
-    if( !gnet.initialized ) return 0;
+    if ( !gnet.initialized ) return 0;
 
     return egonet_instance_get_client_count( &gnet );
 }
@@ -177,7 +177,7 @@ const int        egonet_get_client_count( void )
 //--------------------------------------------------------------------------------------------
 const ENetHost * egonet_get_myHost( void )
 {
-    if( !gnet.initialized ) return NULL;
+    if ( !gnet.initialized ) return NULL;
 
     return egonet_instance_get_myHost( &gnet );
 }
@@ -185,31 +185,31 @@ const ENetHost * egonet_get_myHost( void )
 //--------------------------------------------------------------------------------------------
 bool_t egonet_set_hostactive( const bool_t val )
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     return egonet_instance_set_hostactive( &gnet, val );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_set_waitingforclients(  const bool_t val )
+bool_t egonet_set_waitingforclients( const bool_t val )
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     return egonet_instance_set_waitingforclients( &gnet, val );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_set_readytostart(  const bool_t val )
+bool_t egonet_set_readytostart( const bool_t val )
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     return egonet_instance_set_readytostart( &gnet, val );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_set_myHost(  const ENetHost* phost )
+bool_t egonet_set_myHost( const ENetHost* phost )
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     return egonet_instance_set_myHost( &gnet, phost );
 }
@@ -218,9 +218,9 @@ bool_t egonet_set_myHost(  const ENetHost* phost )
 //--------------------------------------------------------------------------------------------
 void egonet_connect()
 {
-    if( !gnet.initialized ) return;
+    if ( !gnet.initialized ) return;
 
-    if( !gnet.req_enet )
+    if ( !gnet.req_enet )
     {
         // We're not doing networking this time...
         log_info( "egonet_connect: Networking not enabled.\n" );
@@ -249,14 +249,14 @@ void egonet_connect()
 //--------------------------------------------------------------------------------------------
 void egonet_disconnect()
 {
-    if( !gnet.initialized ) return;
+    if ( !gnet.initialized ) return;
 
-    if( !gnet.req_enet )
+    if ( !gnet.req_enet )
     {
         // We're not doing networking this time...
         log_info( "egonet_disconnect: Networking not enabled.\n" );
     }
-    else if( gnet.enet_on )
+    else if ( gnet.enet_on )
     {
         log_info( "egonet_disconnect: deinitializing enet... " );
 
@@ -273,7 +273,7 @@ void egonet_disconnect()
 //--------------------------------------------------------------------------------------------
 bool_t egonet_begin( bool_t req_enet )
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     // initialize the file transfer code
     netfile_initialize();
@@ -288,7 +288,7 @@ bool_t egonet_begin( bool_t req_enet )
 //--------------------------------------------------------------------------------------------
 bool_t egonet_end()
 {
-    if( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return bfalse;
 
     egonet_disconnect();
 
@@ -305,7 +305,7 @@ void egonet_initialize( BaseServerState_t * ps, BaseClientState_t * pc, size_t s
 {
     /// @details ZZ@> This starts up the network and logs whatever goes on
 
-    if( gnet.initialized ) return;
+    if ( gnet.initialized ) return;
 
     // register the shutdown command
     atexit( egonet_shutDown );
@@ -325,12 +325,12 @@ void egonet_initialize( BaseServerState_t * ps, BaseClientState_t * pc, size_t s
 //--------------------------------------------------------------------------------------------
 void egonet_shutDown()
 {
-    if( !gnet.initialized ) return;
+    if ( !gnet.initialized ) return;
 
     log_info( "egonet_shutDown: Turning off networking.\n" );
 
     // kill enet
-    if( gnet.enet_on )
+    if ( gnet.enet_on )
     {
         enet_deinitialize();
         gnet.enet_on = bfalse;
@@ -353,7 +353,7 @@ void egonet_close_session()
 
     /// @details ZZ@> This function gets the computer out of a network game
 
-    if( !gnet.initialized ) return;
+    if ( !gnet.initialized ) return;
 
     if ( gnet.enet_on )
     {
@@ -376,17 +376,17 @@ void egonet_close_session()
             {
                 switch ( event.type )
                 {
-                case ENET_EVENT_TYPE_RECEIVE:
-                    enet_packet_destroy( event.packet );
-                    break;
+                    case ENET_EVENT_TYPE_RECEIVE:
+                        enet_packet_destroy( event.packet );
+                        break;
 
-                case ENET_EVENT_TYPE_DISCONNECT:
-                    log_info( "egonet_close_session: Peer id %d disconnected gracefully.\n", event.peer->address.host );
-                    numPeers--;
-                    break;
+                    case ENET_EVENT_TYPE_DISCONNECT:
+                        log_info( "egonet_close_session: Peer id %d disconnected gracefully.\n", event.peer->address.host );
+                        numPeers--;
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
                 }
             }
 
@@ -421,42 +421,42 @@ void egonet_listen_for_packets()
         {
             switch ( event.type )
             {
-            case ENET_EVENT_TYPE_RECEIVE:
-                if ( !egonet_dispatchEvent( &event ) )
-                {
-                    log_warning( " %s(%d) - packet not handled\n", __FUNCTION__, __LINE__ );
-                }
-                enet_packet_destroy( event.packet );
-                break;
+                case ENET_EVENT_TYPE_RECEIVE:
+                    if ( !egonet_dispatchEvent( &event ) )
+                    {
+                        log_warning( " %s(%d) - packet not handled\n", __FUNCTION__, __LINE__ );
+                    }
+                    enet_packet_destroy( event.packet );
+                    break;
 
-            case ENET_EVENT_TYPE_CONNECT:
-                // don't allow anyone to connect during the game session
-                log_warning( "egonet_listen_for_packets: Client tried to connect during the game: %x:%u\n",
-                    event.peer->address.host, event.peer->address.port );
+                case ENET_EVENT_TYPE_CONNECT:
+                    // don't allow anyone to connect during the game session
+                    log_warning( "egonet_listen_for_packets: Client tried to connect during the game: %x:%u\n",
+                                 event.peer->address.host, event.peer->address.port );
 #if defined(ENET11)
-                enet_peer_disconnect( event.peer, 0 );
+                    enet_peer_disconnect( event.peer, 0 );
 #else
-                enet_peer_disconnect( event.peer );
+                    enet_peer_disconnect( event.peer );
 #endif
-                break;
+                    break;
 
-            case ENET_EVENT_TYPE_DISCONNECT:
+                case ENET_EVENT_TYPE_DISCONNECT:
 
-                // Is this a player disconnecting, or just a rejected connection
-                // from above?
-                if ( event.peer->data != 0 )
-                {
-                    BaseConnectionInfo_t *info = ( BaseConnectionInfo_t * )event.peer->data;
+                    // Is this a player disconnecting, or just a rejected connection
+                    // from above?
+                    if ( event.peer->data != 0 )
+                    {
+                        BaseConnectionInfo_t *info = ( BaseConnectionInfo_t * )event.peer->data;
 
-                    // uh oh, how do we handle losing a player?
-                    log_warning( "egonet_listen_for_packets: Player %d disconnected!\n",
-                        info->connection_slot );
-                }
-                break;
+                        // uh oh, how do we handle losing a player?
+                        log_warning( "egonet_listen_for_packets: Player %d disconnected!\n",
+                                     info->connection_slot );
+                    }
+                    break;
 
-            default:
-                log_warning( "%s(%d) - event %d not handled\n", __FUNCTION__, __LINE__, event.type );
-                break;
+                default:
+                    log_warning( "%s(%d) - event %d not handled\n", __FUNCTION__, __LINE__, event.type );
+                    break;
             }
         }
     }
@@ -1028,19 +1028,19 @@ bool_t enet_packet_readSint32( enet_packet_t * pkt, Sint32 * pval )
 //--------------------------------------------------------------------------------------------
 BaseServerState_t * BaseServerState_ctor( BaseServerState_t * ptr, size_t size )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
     BLANK_STRUCT_PTR( ptr );
 
-    if( 0 != size )
+    if ( 0 != size )
     {
         ptr->client_name = EGOBOO_NEW_ARY( STRING, size );
 
-        if( NULL != ptr->client_name )
+        if ( NULL != ptr->client_name )
         {
             ptr->client_info = EGOBOO_NEW_ARY( BaseConnectionInfo_t, size );
 
-            if( NULL == ptr->client_info )
+            if ( NULL == ptr->client_info )
             {
                 EGOBOO_DELETE_ARY( ptr->client_info );
             }
@@ -1048,7 +1048,7 @@ BaseServerState_t * BaseServerState_ctor( BaseServerState_t * ptr, size_t size )
             {
                 int cnt;
 
-                for( cnt = 0; cnt < size; cnt++ )
+                for ( cnt = 0; cnt < size; cnt++ )
                 {
                     BaseConnectionInfo_ctor( ptr->client_info + cnt );
                 }
@@ -1066,9 +1066,9 @@ BaseServerState_t * BaseServerState_ctor( BaseServerState_t * ptr, size_t size )
 //--------------------------------------------------------------------------------------------
 BaseServerState_t * BaseServerState_dtor( BaseServerState_t * ptr )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
-    if( NULL != ptr->client_name && NULL != ptr->client_info && 0 != ptr->client_size )
+    if ( NULL != ptr->client_name && NULL != ptr->client_info && 0 != ptr->client_size )
     {
         EGOBOO_DELETE_ARY( ptr->client_name );
         EGOBOO_DELETE_ARY( ptr->client_info );
@@ -1085,15 +1085,15 @@ int BaseServerState_count_connections( BaseServerState_t * ptr )
 {
     int cnt;
 
-    if( NULL == ptr ) return 0;
+    if ( NULL == ptr ) return 0;
 
     // count the valid connections
     ptr->client_count = 0;
-    if( NULL != ptr->client_info )
+    if ( NULL != ptr->client_info )
     {
-        for( cnt = 0; cnt < ptr->client_size; cnt++ )
+        for ( cnt = 0; cnt < ptr->client_size; cnt++ )
         {
-            if( -1 != ptr->client_info[cnt].connection_slot )
+            if ( -1 != ptr->client_info[cnt].connection_slot )
             {
                 ptr->client_count++;
             }
@@ -1107,16 +1107,16 @@ int BaseServerState_count_connections( BaseServerState_t * ptr )
 //--------------------------------------------------------------------------------------------
 BaseClientState_t * BaseClientState_ctor( BaseClientState_t * ptr, size_t peers )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
     BLANK_STRUCT_PTR( ptr );
 
     // allocate the peers
-    if( 0 != peers )
+    if ( 0 != peers )
     {
         ptr->peer_ary = EGOBOO_NEW_ARY( ENetPeer, peers );
 
-        if( NULL != ptr->peer_ary )
+        if ( NULL != ptr->peer_ary )
         {
             ptr->peer_cnt = peers;
         }
@@ -1126,13 +1126,13 @@ BaseClientState_t * BaseClientState_ctor( BaseClientState_t * ptr, size_t peers 
 }
 
 //--------------------------------------------------------------------------------------------
-BaseClientState_t * BaseClientState_dtor( BaseClientState_t * ptr)
+BaseClientState_t * BaseClientState_dtor( BaseClientState_t * ptr )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
-    if( NULL != ptr->peer_ary || 0 != ptr->peer_cnt )
+    if ( NULL != ptr->peer_ary || 0 != ptr->peer_cnt )
     {
-        EGOBOO_DELETE_ARY(ptr->peer_ary);
+        EGOBOO_DELETE_ARY( ptr->peer_ary );
         ptr->peer_cnt = 0;
     }
 
@@ -1145,7 +1145,7 @@ BaseClientState_t * BaseClientState_dtor( BaseClientState_t * ptr)
 //--------------------------------------------------------------------------------------------
 BaseConnectionInfo_t * BaseConnectionInfo_ctor( BaseConnectionInfo_t * ptr )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
     BLANK_STRUCT_PTR( ptr );
 
@@ -1157,7 +1157,7 @@ BaseConnectionInfo_t * BaseConnectionInfo_ctor( BaseConnectionInfo_t * ptr )
 //--------------------------------------------------------------------------------------------
 BaseConnectionInfo_t * BaseConnectionInfo_dtor( BaseConnectionInfo_t * ptr )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
     BLANK_STRUCT_PTR( ptr );
 
@@ -1173,7 +1173,7 @@ egonet_instance_t * egonet_instance_ctor( egonet_instance_t * pnet )
 
     BLANK_STRUCT_PTR( pnet )
 
-        gnet.local_machine  = 0;        // 0 is host, 1 is 1st remote, 2 is 2nd...
+    gnet.local_machine  = 0;        // 0 is host, 1 is 1st remote, 2 is 2nd...
 
     return pnet;
 }
@@ -1185,7 +1185,7 @@ egonet_instance_t * egonet_instance_dtor( egonet_instance_t * pnet )
 
     BLANK_STRUCT_PTR( pnet )
 
-        return pnet;
+    return pnet;
 }
 
 //--------------------------------------------------------------------------------------------

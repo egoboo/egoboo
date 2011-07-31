@@ -26,9 +26,7 @@
 /// exceptions would be the log file (?) or something similar.
 /// Currently, this basically just wraps PhysicsFS functions
 
-#include "../egolib/file_common.h"
-
-#include <SDL_types.h>
+#include "../egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

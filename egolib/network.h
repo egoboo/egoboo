@@ -111,9 +111,9 @@ extern "C"
     const ENetHost * egonet_instance_get_myHost( const egonet_instance_t * pnet );
 
     bool_t egonet_instance_set_hostactive( egonet_instance_t * pnet, const bool_t val );
-    bool_t egonet_instance_set_waitingforclients(  egonet_instance_t * pnet, const bool_t val );
-    bool_t egonet_instance_set_readytostart(  egonet_instance_t * pnet, const bool_t val );
-    bool_t egonet_instance_set_myHost(  egonet_instance_t * pnet, const ENetHost* phost );
+    bool_t egonet_instance_set_waitingforclients( egonet_instance_t * pnet, const bool_t val );
+    bool_t egonet_instance_set_readytostart( egonet_instance_t * pnet, const bool_t val );
+    bool_t egonet_instance_set_myHost( egonet_instance_t * pnet, const ENetHost* phost );
 
 //--------------------------------------------------------------------------------------------
 // BaseConnectionInfo_t
@@ -181,7 +181,7 @@ extern "C"
     }
 
     BaseClientState_t * BaseClientState_ctor( BaseClientState_t * ptr, size_t peers );
-    BaseClientState_t * BaseClientState_dtor( BaseClientState_t * ptr);
+    BaseClientState_t * BaseClientState_dtor( BaseClientState_t * ptr );
 
 //--------------------------------------------------------------------------------------------
 // time_latch_t
@@ -292,13 +292,13 @@ extern "C"
 
     // set values from the instance singleton
     bool_t egonet_set_hostactive( const bool_t val );
-    bool_t egonet_set_waitingforclients(  const bool_t val );
-    bool_t egonet_set_readytostart(  const bool_t val );
-    bool_t egonet_set_myHost(  const ENetHost* phost );
+    bool_t egonet_set_waitingforclients( const bool_t val );
+    bool_t egonet_set_readytostart( const bool_t val );
+    bool_t egonet_set_myHost( const ENetHost* phost );
 
 // functions that must be implemented externally
     extern egolib_rv egonet_dispatchEvent( ENetEvent *event );
-    extern egolib_rv egonet_handlePacket(  enet_packet_t * enet_pkt );
+    extern egolib_rv egonet_handlePacket( enet_packet_t * enet_pkt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -27,58 +27,6 @@
 #include "char.h"
 
 //--------------------------------------------------------------------------------------------
-// testing functions
-//--------------------------------------------------------------------------------------------
-
-bool_t VALID_CHR_RANGE( const CHR_REF ICHR );
-bool_t DEFINED_CHR( const CHR_REF ICHR );
-bool_t ALLOCATED_CHR( const CHR_REF ICHR );
-bool_t ACTIVE_CHR( const CHR_REF ICHR );
-bool_t WAITING_CHR( const CHR_REF ICHR );
-bool_t TERMINATED_CHR( const CHR_REF ICHR );
-
-size_t  GET_INDEX_PCHR( const chr_t * PCHR );
-CHR_REF GET_REF_PCHR( const chr_t * PCHR );
-bool_t  DEFINED_PCHR( const chr_t * PCHR );
-bool_t  VALID_CHR_PTR( const chr_t * PCHR );
-bool_t  ALLOCATED_PCHR( const chr_t * PCHR );
-bool_t  ACTIVE_PCHR( const chr_t * PCHR );
-bool_t  TERMINATED_PCHR( const chr_t * PCHR );
-
-bool_t INGAME_CHR_BASE( const CHR_REF ICHR );
-bool_t INGAME_PCHR_BASE( const chr_t * PCHR );
-
-bool_t INGAME_CHR( const CHR_REF ICHR );
-bool_t INGAME_PCHR( const chr_t * PCHR );
-
-//--------------------------------------------------------------------------------------------
-// testing macros
-//--------------------------------------------------------------------------------------------
-
-#define _VALID_CHR_RANGE( ICHR )    ( ((ICHR) < MAX_CHR) && ((ICHR) >= 0) )
-#define _DEFINED_CHR( ICHR )        ( _VALID_CHR_RANGE( ICHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define _ALLOCATED_CHR( ICHR )      ( _VALID_CHR_RANGE( ICHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define _ACTIVE_CHR( ICHR )         ( _VALID_CHR_RANGE( ICHR ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define _WAITING_CHR( ICHR )        ( _VALID_CHR_RANGE( ICHR ) && WAITING_PBASE   ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define _TERMINATED_CHR( ICHR )     ( _VALID_CHR_RANGE( ICHR ) && TERMINATED_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-
-#define _GET_INDEX_PCHR( PCHR )      ((NULL == (PCHR)) ? MAX_CHR : (size_t)GET_INDEX_POBJ( PCHR, MAX_CHR ))
-#define _GET_REF_PCHR( PCHR )        ((CHR_REF)_GET_INDEX_PCHR( PCHR ))
-#define _DEFINED_PCHR( PCHR )        ( _VALID_CHR_PTR( PCHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PCHR) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PCHR) ) )
-#define _VALID_CHR_PTR( PCHR )       ( (NULL != (PCHR)) && _VALID_CHR_RANGE( GET_REF_POBJ( PCHR, MAX_CHR) ) )
-#define _ALLOCATED_PCHR( PCHR )      ( _VALID_CHR_PTR( PCHR ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PCHR) ) )
-#define _ACTIVE_PCHR( PCHR )         ( _VALID_CHR_PTR( PCHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) )
-#define _TERMINATED_PCHR( PCHR )     ( _VALID_CHR_PTR( PCHR ) && TERMINATED_PBASE( POBJ_GET_PBASE(PCHR) ) )
-
-// Macros to determine whether the character is in the game or not.
-// If objects are being spawned, then any object that is just "defined" is treated as "in game"
-#define _INGAME_CHR_BASE(ICHR)       ( _VALID_CHR_RANGE( ICHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) && ON_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define _INGAME_PCHR_BASE(PCHR)      ( _VALID_CHR_PTR( PCHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) && ON_PBASE( POBJ_GET_PBASE(PCHR) ) )
-
-#define _INGAME_CHR(ICHR)            ( (ego_object_spawn_depth) > 0 ? _DEFINED_CHR(ICHR) : _INGAME_CHR_BASE(ICHR) )
-#define _INGAME_PCHR(PCHR)           ( (ego_object_spawn_depth) > 0 ? _DEFINED_PCHR(PCHR) : _INGAME_PCHR_BASE(PCHR) )
-
-//--------------------------------------------------------------------------------------------
 // looping macros
 //--------------------------------------------------------------------------------------------
 

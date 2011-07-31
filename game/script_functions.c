@@ -484,7 +484,7 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = AddWaypoint( &(pself->wp_lst), pself->index, pstate->x, pstate->y );
+    returncode = AddWaypoint( &( pself->wp_lst ), pself->index, pstate->x, pstate->y );
 
     if ( returncode )
     {
@@ -509,9 +509,9 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     //Too soon since last try?
     if ( pself->astar_timer > update_wld ) return bfalse;
 
-    returncode = FindPath( &(pself->wp_lst), pchr, pstate->x, pstate->y, &used_astar );
+    returncode = FindPath( &( pself->wp_lst ), pchr, pstate->x, pstate->y, &used_astar );
 
-    if( used_astar )
+    if ( used_astar )
     {
         // limit the rate of AStar calculations to be once every half second.
         pself->astar_timer = update_wld + ( ONESECOND / 2 );
@@ -541,7 +541,7 @@ Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
     returncode = Compass( loc_pos.v, pstate->turn, pstate->distance );
 
     // update the position
-    if( returncode )
+    if ( returncode )
     {
         pstate->x = loc_pos.x;
         pstate->y = loc_pos.y;
@@ -566,7 +566,7 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
 
     value = GetArmorPrice( ptarget, pstate->argument );
 
-    if( value > 0 )
+    if ( value > 0 )
     {
         pstate->x  = value;
         returncode = btrue;
