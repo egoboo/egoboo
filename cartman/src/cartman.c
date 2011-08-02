@@ -2,18 +2,18 @@
 //*
 //*    This file is part of Cartman.
 //*
-//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    Cartman is free software: you can redistribute it and/or modify it
 //*    under the terms of the GNU General Public License as published by
 //*    the Free Software Foundation, either version 3 of the License, or
 //*    (at your option) any later version.
 //*
-//*    Egoboo is distributed in the hope that it will be useful, but
+//*    Cartman is distributed in the hope that it will be useful, but
 //*    WITHOUT ANY WARRANTY; without even the implied warranty of
 //*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*    along with Cartman.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -496,11 +496,9 @@ void render_tile_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
         // force OpenGL to execute these commands
         glFlush();
 
-        //cnt = 0;
-        //while (cnt < numlight)
+        //for (cnt = 0; cnt < numlight; cnt++)
         //{
         //    draw_light(cnt, pwin);
-        //    cnt++;
         //}
     }
     glPopAttrib();
@@ -890,8 +888,7 @@ int vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert )
 
     // Point lights !!!BAD!!!
     newlevel = 0;
-    cnt = 0;
-    while ( cnt < numlight )
+    for ( cnt = 0; cnt < numlight; cnt++ )
     {
         disx = x - light_lst[cnt].x;
         disy = y - light_lst[cnt].y;
@@ -900,7 +897,6 @@ int vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert )
         {
             newlevel += (( light_lst[cnt].level * ( light_lst[cnt].radius - distance ) ) / light_lst[cnt].radius );
         }
-        cnt++;
     }
     newa += newlevel;
 
@@ -1527,10 +1523,10 @@ bool_t cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
         {
             window_t * pwin = window_lst + cnt;
 
-            cartman_check_mouse_tile( pwin, cartman_zoom_hrz, 1.0f / 16.0f );
-            cartman_check_mouse_vertex( pwin, cartman_zoom_hrz, 1.0f / 16.0f );
-            cartman_check_mouse_side( pwin, cartman_zoom_hrz, 1.0f / 16.0f );
-            cartman_check_mouse_fx( pwin, cartman_zoom_hrz, 1.0f / 16.0f );
+            cartman_check_mouse_tile( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
+            cartman_check_mouse_vertex( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
+            cartman_check_mouse_side( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
+            cartman_check_mouse_fx( pwin, cartman_zoom_hrz, cartman_zoom_vrt );
         }
     }
 

@@ -36,10 +36,10 @@ struct s_chr;
 //--------------------------------------------------------------------------------------------
 
 Uint8  _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int message, struct s_script_state * pstate );
-Uint8  _break_passage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley );
-Uint8  _find_grid_in_passage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 );
+Uint8  BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley );
+Uint8  FindTileInPassage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 );
 
-Uint8   _append_end_text( struct s_chr * pchr, const int message, struct s_script_state * pstate );
+Uint8   AddEndMessage( struct s_chr * pchr, const int message, struct s_script_state * pstate );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -184,10 +184,10 @@ Uint8 scr_set_WaterLevel( struct s_script_state * pstate, struct s_ai_state * ps
 Uint8 scr_EnchantTarget( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_EnchantChild( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_TeleportTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveExperienceToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetExperience( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_IncreaseAmmo( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_UnkurseTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveExperienceToTargetTeam( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetTeamExperience( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_Unarmed( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_RestockTargetAmmoIDAll( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_RestockTargetAmmoIDFirst( struct s_script_state * pstate, struct s_ai_state * pself );
@@ -283,12 +283,12 @@ Uint8 scr_SpawnAttachedFacedParticle( struct s_script_state * pstate, struct s_a
 Uint8 scr_StateIsOdd( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_set_TargetToDistantEnemy( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_Teleport( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveStrengthToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveWisdomToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveIntelligenceToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveDexterityToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveLifeToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveManaToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetStrength( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetWisdom( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetIntelligence( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetDexterity( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetLife( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetMana( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_ShowMap( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_ShowYouAreHere( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_ShowBlipXY( struct s_script_state * pstate, struct s_ai_state * pself );
@@ -385,7 +385,7 @@ Uint8 scr_set_TargetToPassageID( struct s_script_state * pstate, struct s_ai_sta
 Uint8 scr_MakeNameUnknown( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_SpawnExactParticleEndSpawn( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_SpawnPoofSpeedSpacingDamage( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveExperienceToGoodTeam( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_GoodTeamExperience( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_DoNothing( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_GrogTarget( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_DazeTarget( struct s_script_state * pstate, struct s_ai_state * pself );
@@ -423,8 +423,8 @@ Uint8 scr_set_SelectSpeech( struct s_script_state * pstate, struct s_ai_state * 
 Uint8 scr_OperatorIsMacintosh( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_ModuleHasIDSZ( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_MorphToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveManaFlowToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveManaReturnToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetManaFlow( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetManaReturn( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_set_Money( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_TargetCanSeeKurses( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_SpawnAttachedCharacter( struct s_script_state * pstate, struct s_ai_state * pself );
@@ -437,10 +437,10 @@ Uint8 scr_set_TargetAmmo( struct s_script_state * pstate, struct s_ai_state * ps
 Uint8 scr_EnableInvictus( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_DisableInvictus( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_TargetDamageSelf( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_SetTargetSize( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_set_TargetSize( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_DrawBillboard( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_set_TargetToBlahInPassage( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_TargetIsFacingSelf( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_LevelUp( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_GiveSkillToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_SetTargetToNearbyMeleeWeapon( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_add_TargetSkill( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_set_TargetToNearbyMeleeWeapon( struct s_script_state * pstate, struct s_ai_state * pself );

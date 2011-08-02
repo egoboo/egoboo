@@ -117,6 +117,7 @@ extern "C"
     static INLINE float   fvec3_length_abs( const fvec3_base_t SRC );
     static INLINE float   fvec3_dot_product( const fvec3_base_t LHS, const fvec3_base_t RHS );
     static INLINE float   fvec3_dist_abs( const fvec3_base_t LHS, const fvec3_base_t RHS );
+    static INLINE float   fvec3_dist_2( const fvec3_base_t LHS, const fvec3_base_t RHS );
     static INLINE float * fvec3_base_copy( fvec3_base_t DST, const fvec3_base_t SRC );
     static INLINE float * fvec3_scale( fvec3_base_t DST, const fvec3_base_t SRC, const float B );
     static INLINE float * fvec3_normalize( fvec3_base_t DST, const fvec3_base_t SRC );
@@ -1052,6 +1053,27 @@ static INLINE float fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B )
     if ( NULL == A || NULL == B ) return 0.0f;
 
     retval = ABS( A[kX] - B[kX] ) + ABS( A[kY] - B[kY] ) + ABS( A[kZ] - B[kZ] );
+
+    LOG_NAN( retval );
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE float fvec3_dist_2( const fvec3_base_t LHS, const fvec3_base_t RHS )
+{
+    float retval = 0.0f, ftmp;
+
+    if ( NULL == LHS || NULL == LHS ) return 0.0f;
+
+    ftmp = LHS[kX] - RHS[kX];
+    retval += ftmp * ftmp;
+
+    ftmp = LHS[kY] - RHS[kY];
+    retval += ftmp * ftmp;
+
+    ftmp = LHS[kZ] - RHS[kZ];
+    retval += ftmp * ftmp;
 
     LOG_NAN( retval );
 

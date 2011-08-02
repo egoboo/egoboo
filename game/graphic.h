@@ -44,26 +44,29 @@ struct s_oglx_texture_parameters;
 struct s_egoboo_config;
 struct s_Font;
 
+//--------------------------------------------------------------------------------------------
+// internal structs
+//--------------------------------------------------------------------------------------------
+
 struct s_renderlist;
-struct s_renderlist_ary;
-struct s_renderlist_mgr;
-
-struct s_dolist_data;
-struct s_dolist;
-struct s_dolist_ary;
-struct s_dolist_mgr;
-
-//--------------------------------------------------------------------------------------------
-// typedefs
-//--------------------------------------------------------------------------------------------
-
 typedef struct s_renderlist     renderlist_t;
+
+struct s_renderlist_ary;
 typedef struct s_renderlist_ary renderlist_ary_t;
+
+struct s_renderlist_mgr;
 typedef struct s_renderlist_mgr renderlist_mgr_t;
 
+struct s_dolist_data;
 typedef struct s_dolist_data dolist_data_t;
+
+struct s_dolist;
 typedef struct s_dolist      dolist_t;
+
+struct s_dolist_ary;
 typedef struct s_dolist_ary  dolist_ary_t;
+
+struct s_dolist_mgr;
 typedef struct s_dolist_mgr  dolist_mgr_t;
 
 struct s_gfx_error_state;
@@ -83,9 +86,6 @@ typedef struct s_msg msg_t;
 
 struct s_gfx_config;
 typedef struct s_gfx_config gfx_config_t;
-
-struct s_billboard_data;
-typedef struct s_billboard_data billboard_data_t;
 
 struct s_line_data;
 typedef struct s_line_data line_data_t;
@@ -107,6 +107,9 @@ typedef struct s_point_data point_data_t;
 
 ///< the maximum number of on-screen messages
 #define MAX_MESSAGE         8
+
+///< max number of blips on the minimap
+#define MAXBLIP        128                          ///<Max blips on the screen
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -276,58 +279,6 @@ bool_t gfx_download_from_config( gfx_config_t * pgfx, struct s_egoboo_config * p
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// Minimap stuff
-#define MAXBLIP        128                          ///<Max blips on the screen
-
-#define BILLBOARD_COUNT     (2 * MAX_CHR)
-#define INVALID_BILLBOARD   BILLBOARD_COUNT
-
-enum e_bb_opt
-{
-    bb_opt_none          = EMPTY_BIT_FIELD,
-    bb_opt_randomize_pos = ( 1 << 0 ),      // Randomize the position of the bb to witin 1 grid
-    bb_opt_randomize_vel = ( 1 << 1 ),      // Randomize the velocity of the bb. Enough to move it by 2 tiles within its lifetime.
-    bb_opt_fade          = ( 1 << 2 ),      // Make the billboard fade out
-    bb_opt_burn          = ( 1 << 3 ),      // Make the tint fully saturate over time.
-    bb_opt_all           = FULL_BIT_FIELD   // All of the above
-};
-
-/// Description of a generic bilboarded object.
-/// Any graphics that can be composited onto a SDL_surface can be used
-struct s_billboard_data
-{
-    bool_t    valid;        ///< has the billboard data been initialized?
-
-    Uint32    time;         ///< the time when the billboard will expire
-    TX_REF    tex_ref;      ///< our texture index
-    fvec3_t   pos;          ///< the position of the bottom-missle of the box
-
-    CHR_REF   ichr;         ///< the character we are attached to
-
-    GLXvector4f tint;       ///< a color to modulate the billboard's r,g,b, and a channels
-    GLXvector4f tint_add;   ///< the change in tint per update
-
-    GLXvector4f offset;     ///< an offset to the billboard's position in world coordinates
-    GLXvector4f offset_add; ///<
-
-    float       size;
-    float       size_add;
-};
-
-billboard_data_t * billboard_data_init( billboard_data_t * pbb );
-bool_t             billboard_data_free( billboard_data_t * pbb );
-bool_t             billboard_data_update( billboard_data_t * pbb );
-bool_t             billboard_data_printf_ttf( billboard_data_t * pbb, struct s_Font *font, SDL_Color color, const char * format, ... );
-
-void               BillboardList_init_all( void );
-void               BillboardList_update_all( void );
-void               BillboardList_free_all( void );
-size_t             BillboardList_get_free( Uint32 lifetime_secs );
-bool_t             BillboardList_free_one( size_t ibb );
-
-#define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < BILLBOARD_COUNT ) )
-#define VALID_BILLBOARD( IBB )       ( VALID_BILLBOARD_RANGE( IBB ) && BillboardList.lst[IBB].valid )
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // some lines to be drawn in the display
@@ -406,8 +357,6 @@ extern int maxmessage;
 
 DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
-DECLARE_LIST_EXTERN( billboard_data_t, BillboardList, BILLBOARD_COUNT );
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
@@ -441,7 +390,6 @@ void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_ma
 
 bool_t    render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond );
 bool_t    render_aabb( aabb_t * pbbox );
-gfx_rv    gfx_render_all_billboards( const struct s_camera * pcam );
 
 // the render engine callback
 void   gfx_render_world( const struct s_camera * pcam, const int render_list_index, const int dolist_index );

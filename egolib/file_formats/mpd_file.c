@@ -77,42 +77,42 @@ void tile_dictionary_load_vfs( const char * filename, tile_definition_t dict[], 
         return;
     }
 
-    numfantype = fget_next_int( fileread );
+    numfantype = vfs_get_next_int( fileread );
 
     for ( fantype = 0; fantype < numfantype; fantype++ )
     {
         bigfantype = fantype + dict_size / 2;  // Duplicate for 64x64 tiles
 
-        vertices = fget_next_int( fileread );
+        vertices = vfs_get_next_int( fileread );
         dict[fantype].numvertices = vertices;
         dict[bigfantype].numvertices = vertices;  // Dupe
 
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
-            itmp = fget_next_int( fileread );
+            itmp = vfs_get_next_int( fileread );
 
-            ftmp = fget_next_float( fileread );
+            ftmp = vfs_get_next_float( fileread );
             dict[fantype].u[cnt] = ftmp;
             dict[bigfantype].u[cnt] = ftmp;  // Dupe
 
-            ftmp = fget_next_float( fileread );
+            ftmp = vfs_get_next_float( fileread );
             dict[fantype].v[cnt] = ftmp;
             dict[bigfantype].v[cnt] = ftmp;  // Dupe
         }
 
-        numcommand = fget_next_int( fileread );
+        numcommand = vfs_get_next_int( fileread );
         dict[fantype].command_count = numcommand;
         dict[bigfantype].command_count = numcommand;  // Dupe
 
         for ( entry = 0, command = 0; command < numcommand; command++ )
         {
-            commandsize = fget_next_int( fileread );
+            commandsize = vfs_get_next_int( fileread );
             dict[fantype].command_entries[command] = commandsize;
             dict[bigfantype].command_entries[command] = commandsize;  // Dupe
 
             for ( cnt = 0; cnt < commandsize; cnt++ )
             {
-                itmp = fget_next_int( fileread );
+                itmp = vfs_get_next_int( fileread );
                 dict[fantype].command_verts[entry] = itmp;
                 dict[bigfantype].command_verts[entry] = itmp;  // Dupe
 

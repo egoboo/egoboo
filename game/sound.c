@@ -839,9 +839,9 @@ void sound_load_all_music_sounds_vfs()
     // Load the music data into memory
     for ( cnt = 0; cnt < MAXPLAYLISTLENGTH && !vfs_eof( playlist ); cnt++ )
     {
-        if ( goto_colon( NULL, playlist, btrue ) )
+        if ( goto_colon_vfs( NULL, playlist, btrue ) )
         {
-            fget_string( playlist, songname, SDL_arraysize( songname ) );
+            vfs_get_string( playlist, songname, SDL_arraysize( songname ) );
 
             snprintf( loadpath, SDL_arraysize( loadpath ), ( "mp_data/music/%s" ), songname );
             musictracksloaded[cnt] = Mix_LoadMUS( vfs_resolveReadFilename( loadpath ) );

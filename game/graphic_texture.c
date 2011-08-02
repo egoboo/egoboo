@@ -21,7 +21,7 @@
 /// @brief Implementation of code for controlling object texturing
 /// @details
 
-#include "texture.h"
+#include "graphic_texture.h"
 
 #include <egolib/fileutil.h>
 

@@ -152,9 +152,9 @@ bool_t link_build_vfs( const char * fname, Link_t list[] )
     if ( NULL == pfile ) return bfalse;
 
     i = 0;
-    while ( goto_colon( NULL, pfile, btrue ) && i < LINK_COUNT )
+    while ( goto_colon_vfs( NULL, pfile, btrue ) && i < LINK_COUNT )
     {
-        fget_string( pfile, list[i].modname, SDL_arraysize( list[i].modname ) );
+        vfs_get_string( pfile, list[i].modname, SDL_arraysize( list[i].modname ) );
         list[i].valid = btrue;
         i++;
     }

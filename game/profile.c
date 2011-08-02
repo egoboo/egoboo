@@ -23,7 +23,7 @@
 
 #include "profile.inl"
 
-#include "texture.h"
+#include "graphic_texture.h"
 #include "script_compile.h"
 #include "game.h"
 
@@ -641,10 +641,10 @@ void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject )
     {
         STRING line;
 
-        while ( goto_colon( NULL, fileread, btrue ) )
+        while ( goto_colon_vfs( NULL, fileread, btrue ) )
         {
             //Load one line
-            fget_string( fileread, line, SDL_arraysize( line ) );
+            vfs_get_string( fileread, line, SDL_arraysize( line ) );
             profile_add_one_message( pobject, line );
         }
 
@@ -709,7 +709,7 @@ int obj_read_slot_vfs( const char * tmploadname )
     if ( NULL == fileread ) return -1;
 
     // load the slot's slot no matter what
-    slot = fget_next_int( fileread );
+    slot = vfs_get_next_int( fileread );
 
     vfs_close( fileread );
 
@@ -1060,9 +1060,9 @@ bool_t chop_load_vfs( chop_data_t * pdata, const char *szLoadname, chop_definiti
 
     which_section = 0;
     section_count = 0;
-    while ( which_section < MAXSECTION && pdata->carat < CHOPDATACHUNK && goto_colon( NULL, fileread, btrue ) )
+    while ( which_section < MAXSECTION && pdata->carat < CHOPDATACHUNK && goto_colon_vfs( NULL, fileread, btrue ) )
     {
-        fget_string( fileread, tmp_buffer, SDL_arraysize( tmp_buffer ) );
+        vfs_get_string( fileread, tmp_buffer, SDL_arraysize( tmp_buffer ) );
 
         // convert all the '_' and junk in the string
         str_decode( tmp_buffer, SDL_arraysize( tmp_buffer ), tmp_buffer );

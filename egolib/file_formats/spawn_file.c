@@ -80,7 +80,7 @@ bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
     spawn_file_info_reinit( pinfo );
 
     // check for another entry, either the "#" or ":" delimiters
-    delim = goto_delimiter_list( pinfo->spawn_coment, fileread, "#:", btrue );
+    delim = goto_delimiter_list_vfs( pinfo->spawn_coment, fileread, "#:", btrue );
     if ( CSTR_END == delim ) return bfalse;
 
     retval = bfalse;
@@ -90,7 +90,7 @@ bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
 
         pinfo->do_spawn = btrue;
 
-        fget_string( fileread, pinfo->spawn_name, SDL_arraysize( pinfo->spawn_name ) );
+        vfs_get_string( fileread, pinfo->spawn_name, SDL_arraysize( pinfo->spawn_name ) );
         str_decode( pinfo->spawn_name, SDL_arraysize( pinfo->spawn_name ), pinfo->spawn_name );
 
         pinfo->pname = pinfo->spawn_name;
@@ -100,15 +100,15 @@ bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
             pinfo->pname = NULL;
         }
 
-        pinfo->slot = fget_int( fileread );
+        pinfo->slot = vfs_get_int( fileread );
 
-        pinfo->pos.x = fget_float( fileread ) * GRID_FSIZE;
-        pinfo->pos.y = fget_float( fileread ) * GRID_FSIZE;
-        pinfo->pos.z = fget_float( fileread ) * GRID_FSIZE;
+        pinfo->pos.x = vfs_get_float( fileread ) * GRID_FSIZE;
+        pinfo->pos.y = vfs_get_float( fileread ) * GRID_FSIZE;
+        pinfo->pos.z = vfs_get_float( fileread ) * GRID_FSIZE;
 
         pinfo->facing = FACE_NORTH;
         pinfo->attach = ATTACH_NONE;
-        cTmp = fget_first_letter( fileread );
+        cTmp = vfs_get_first_letter( fileread );
         if ( 'S' == toupper( cTmp ) )       pinfo->facing = FACE_SOUTH;
         else if ( 'E' == toupper( cTmp ) )  pinfo->facing = FACE_EAST;
         else if ( 'W' == toupper( cTmp ) )  pinfo->facing = FACE_WEST;
@@ -117,11 +117,11 @@ bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
         else if ( 'R' == toupper( cTmp ) )  pinfo->attach = ATTACH_RIGHT;
         else if ( 'I' == toupper( cTmp ) )  pinfo->attach = ATTACH_INVENTORY;
 
-        pinfo->money   = fget_int( fileread );
-        pinfo->skin    = fget_int( fileread );
-        pinfo->passage = fget_int( fileread );
-        pinfo->content = fget_int( fileread );
-        pinfo->level   = fget_int( fileread );
+        pinfo->money   = vfs_get_int( fileread );
+        pinfo->skin    = vfs_get_int( fileread );
+        pinfo->passage = vfs_get_int( fileread );
+        pinfo->content = vfs_get_int( fileread );
+        pinfo->level   = vfs_get_int( fileread );
 
         if ( pinfo->skin >= MAX_SKIN )
         {
@@ -129,11 +129,11 @@ bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
             pinfo->skin = irand % MAX_SKIN;     // Randomize skin?
         }
 
-        pinfo->stat = fget_bool( fileread );
+        pinfo->stat = vfs_get_bool( fileread );
 
-        fget_first_letter( fileread );   ///< BAD! Unused ghost value
+        vfs_get_first_letter( fileread );   ///< BAD! Unused ghost value
 
-        cTmp = fget_first_letter( fileread );
+        cTmp = vfs_get_first_letter( fileread );
         pinfo->team = ( cTmp - 'A' ) % TEAM_MAX;
     }
     else if ( '#' == delim )

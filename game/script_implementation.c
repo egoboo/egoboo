@@ -34,6 +34,7 @@
 #include "ChrList.inl"
 #include "mesh.inl"
 #include "profile.inl"
+#include "char.inl"
 
 #include <egolib/egoboo_setup.h>
 #include <egolib/strutil.h>
@@ -325,19 +326,19 @@ bool_t waypoint_list_advance( waypoint_list_t * plst )
 // line_of_sight_info_t
 //--------------------------------------------------------------------------------------------
 
-bool_t line_of_sight_do( line_of_sight_info_t * plos )
+bool_t line_of_sight_blocked( line_of_sight_info_t * plos )
 {
     bool_t mesh_hit = bfalse, chr_hit = bfalse;
+
     mesh_hit = line_of_sight_with_mesh( plos );
 
-    /*if ( mesh_hit )
-    {
-        plos->x1 = (plos->collide_x + 0.5f) * GRID_FSIZE;
-        plos->y1 = (plos->collide_y + 0.5f) * GRID_FSIZE;
-    }
+    //if ( mesh_hit )
+    //{
+    //    plos->x1 = (plos->collide_x + 0.5f) * GRID_FSIZE;
+    //    plos->y1 = (plos->collide_y + 0.5f) * GRID_FSIZE;
+    //}
 
-    chr_hit = line_of_sight_with_characters( plos );
-    */
+    //chr_hit = line_of_sight_with_characters( plos );
 
     return mesh_hit || chr_hit;
 }
@@ -589,7 +590,7 @@ bool_t FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y,
     los_info.z1 = 0;
 
     // test for the simple case... a straight line
-    straight_line = !line_of_sight_do( &los_info );
+    straight_line = !line_of_sight_blocked( &los_info );
 
     if ( !straight_line )
     {
@@ -631,8 +632,8 @@ bool_t Compass( fvec2_base_t pos, int facing, float distance )
 
     turn = TO_TURN( facing );
 
-    pos[XX] -= turntocos[ turn ] * distance;
-    pos[YY] -= turntosin[ turn ] * distance;
+    pos[kX] -= turntocos[ turn ] * distance;
+    pos[kY] -= turntosin[ turn ] * distance;
 
     return btrue;
 }
@@ -677,7 +678,7 @@ Uint32 UpdateTime( Uint32 time_val, int delay )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley )
+Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley )
 {
     /// @details ZZ@> This function breaks the tiles of a passage if there is a character standing
     ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
@@ -757,7 +758,7 @@ Uint8 _break_passage( int mesh_fx_or, int become, int frames, int starttile, con
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _append_end_text( chr_t * pchr, const int message_index, script_state_t * pstate )
+Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pstate )
 {
     /// @details ZZ@> This function appends a message to the end-module text
 
@@ -788,7 +789,7 @@ Uint8 _append_end_text( chr_t * pchr, const int message_index, script_state_t * 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 _find_grid_in_passage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 )
+Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 )
 {
     /// @details ZZ@> This function finds the next tile in the passage, x0 and y0
     ///    must be set first, and are set on a find.  Returns btrue or bfalse
@@ -872,4 +873,89 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
     *dst_end = CSTR_END;
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool_t find_ranged, bool_t use_line_of_sight )
+{
+    /// @details ZF@> This function searches the nearby vincinity for a melee weapon the character can use
+
+    CHR_REF ichr;
+    MAD_REF imad;
+    CHR_REF retval = ( CHR_REF )MAX_CHR;
+
+    CHR_REF best_target = ( CHR_REF ) MAX_CHR;
+    float   best_dist   = WIDE * WIDE;
+
+    line_of_sight_info_t los;
+
+    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
+    ichr = GET_INDEX_PCHR( pchr );
+
+    //get the model for this character
+    imad = chr_get_imad( ichr );
+
+    // set up the target
+    best_target = ( CHR_REF ) MAX_CHR;
+    best_dist   = SQR( max_distance );
+
+    //setup line of sight data
+    los.x0 = pchr->pos.x;
+    los.y0 = pchr->pos.y;
+    los.z0 = pchr->pos.z;
+    los.stopped_by = pchr->stoppedby;
+
+    CHR_BEGIN_LOOP_ACTIVE( iweapon, pweapon )
+    {
+        cap_t *pweapon_cap;
+        float dist;
+        fvec3_t diff;
+
+        //only do items on the ground
+        if ( INGAME_CHR( pweapon->attachedto ) || !pweapon->isitem ) continue;
+        pweapon_cap = chr_get_pcap( iweapon );
+
+        // only target those with a the given IDSZ
+        if ( !chr_has_idsz( iweapon, weap_idsz ) ) continue;
+
+        // ignore ranged weapons
+        if ( !find_ranged && pweapon_cap->isranged ) continue;
+
+        // see if the character can use this weapon (we assume everyone has a left grip here)
+        if ( ACTION_COUNT == mad_get_action_ref( imad, randomize_action( pweapon_cap->weaponaction, SLOT_LEFT ) ) ) continue;
+
+        // then check if a skill is needed
+        if ( pweapon_cap->needskillidtouse )
+        {
+            if ( !chr_get_skill( pchr, chr_get_idsz( iweapon, IDSZ_SKILL ) ) ) continue;
+        }
+
+        //check distance
+        fvec3_sub( diff.v, pchr->pos.v, pweapon->pos.v );
+        dist = fvec3_dot_product( diff.v, diff.v );
+        if ( dist < best_dist )
+        {
+            //finally, check line of sight. we only care for weapons we can see
+            los.x1 = pweapon->pos.x;
+            los.y1 = pweapon->pos.y;
+            los.z1 = pweapon->pos.z;
+
+            if ( !use_line_of_sight || !line_of_sight_blocked( &los ) )
+            {
+                //found a valid weapon!
+                best_target = iweapon;
+                best_dist = dist;
+            }
+        }
+    }
+    CHR_END_LOOP();
+
+    //Did we find anything?
+    retval = ( CHR_REF ) MAX_CHR;
+    if ( INGAME_CHR( best_target ) )
+    {
+        retval = best_target;
+    }
+
+    return retval;
 }

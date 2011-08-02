@@ -50,13 +50,13 @@ Uint8           maxformattypes;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-IDSZ fget_idsz( vfs_FILE* fileread )
+IDSZ vfs_get_idsz( vfs_FILE* fileread )
 {
     /// @details ZZ@> This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
 
     IDSZ idsz = IDSZ_NONE;
 
-    char cTmp = fget_first_letter( fileread );
+    char cTmp = vfs_get_first_letter( fileread );
     if ( '[' == cTmp )
     {
         long fpos;
@@ -93,7 +93,7 @@ IDSZ fget_idsz( vfs_FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fcopy_line( vfs_FILE * fileread, vfs_FILE * filewrite )
+bool_t copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
 {
     /// @details BB@> copy a line of arbitrary length, in chunks of length sizeof(linebuffer)
     /// @todo This should be moved to file_common.c
@@ -114,7 +114,7 @@ bool_t fcopy_line( vfs_FILE * fileread, vfs_FILE * filewrite )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t goto_delimiter( char * buffer, vfs_FILE* fileread, char delim, bool_t optional )
+bool_t goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool_t optional )
 {
     /// @details ZZ@> This function moves a file read pointer to the next delimiter char cTmp;
     /// BB@> buffer points to a 256 character buffer that will get the data between the newline and the delim
@@ -153,7 +153,7 @@ bool_t goto_delimiter( char * buffer, vfs_FILE* fileread, char delim, bool_t opt
 }
 
 //--------------------------------------------------------------------------------------------
-char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_list, bool_t optional )
+char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, bool_t optional )
 {
     /// @details ZZ@> This function moves a file read pointer to the next colon char cTmp;
     /// BB@> buffer points to a 256 character buffer that will get the data between the newline and the ':'
@@ -171,7 +171,7 @@ char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_
     // use a simpler function if it is easier
     if ( 1 == strlen( delim_list ) )
     {
-        bool_t rv = goto_delimiter( buffer, fileread, delim_list[0], optional );
+        bool_t rv = goto_delimiter_vfs( buffer, fileread, delim_list[0], optional );
         retval = rv ? delim_list[0] : retval;
     }
 
@@ -213,11 +213,11 @@ char goto_delimiter_list( char * buffer, vfs_FILE* fileread, const char * delim_
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t goto_colon( char * buffer, vfs_FILE* fileread, bool_t optional )
+bool_t goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool_t optional )
 {
-    /// @details BB@> the two functions goto_colon and goto_colon_yesno have been combined
+    /// @details BB@> the two functions goto_colon_vfs and goto_colon_yesno have been combined
 
-    return goto_delimiter( buffer, fileread, ':', optional );
+    return goto_delimiter_vfs( buffer, fileread, ':', optional );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optio
 {
     /// @details ZZ@> This function moves a file read pointer to the next colon char *pmem;
     /// BB@> buffer points to a 256 character buffer that will get the data between the newline and the ':'
-    ///    Also, the two functions goto_colon and goto_colon_yesno have been combined
+    ///    Also, the two functions goto_colon_vfs and goto_colon_yesno have been combined
 
     char cTmp;
     int    write;
@@ -262,11 +262,13 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optio
 }
 
 //--------------------------------------------------------------------------------------------
-char fget_first_letter( vfs_FILE* fileread )
+char vfs_get_first_letter( vfs_FILE* fileread )
 {
     /// @details ZZ@> This function returns the next non-whitespace character
     char cTmp;
+
     vfs_scanf( fileread, "%c", &cTmp );
+
     while ( isspace( cTmp ) )
     {
         vfs_scanf( fileread, "%c", &cTmp );
@@ -276,7 +278,7 @@ char fget_first_letter( vfs_FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_name( vfs_FILE* fileread,  char *szName, size_t max_len )
+bool_t vfs_get_name( vfs_FILE* fileread,  char *szName, size_t max_len )
 {
     /// @details ZZ@> This function loads a string of up to MAXCAPNAMESIZE characters, parsing
     ///    it for underscores.  The szName argument is rewritten with the null terminated
@@ -308,7 +310,7 @@ bool_t fget_name( vfs_FILE* fileread,  char *szName, size_t max_len )
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_int( vfs_FILE* filewrite, const char* text, int ival )
+void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival )
 {
     /// @details ZZ@> This function kinda mimics fprintf for integers
 
@@ -316,7 +318,7 @@ void fput_int( vfs_FILE* filewrite, const char* text, int ival )
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_float( vfs_FILE* filewrite, const char* text, float fval )
+void vfs_put_float( vfs_FILE* filewrite, const char* text, float fval )
 {
     /// @details ZZ@> This function kinda mimics fprintf for integers
 
@@ -324,7 +326,23 @@ void fput_float( vfs_FILE* filewrite, const char* text, float fval )
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_bool( vfs_FILE* filewrite, const char* text, bool_t truth )
+void vfs_put_ufp8( vfs_FILE* filewrite, const char* text, UFP8_T ival )
+{
+    /// @details ZZ@> This function kinda mimics fprintf for integers
+
+    vfs_printf( filewrite, "%s %f\n", text, FP8_TO_FLOAT( ival ) );
+}
+
+//--------------------------------------------------------------------------------------------
+void vfs_put_sfp8( vfs_FILE* filewrite, const char* text, SFP8_T ival )
+{
+    /// @details ZZ@> This function kinda mimics fprintf for integers
+
+    vfs_printf( filewrite, "%s %f\n", text, FP8_TO_FLOAT( ival ) );
+}
+
+//--------------------------------------------------------------------------------------------
+void vfs_put_bool( vfs_FILE* filewrite, const char* text, bool_t truth )
 {
     /// @details ZZ@> This function kinda mimics vfs_printf for the output of
     ///    btrue bfalse statements
@@ -335,7 +353,7 @@ void fput_bool( vfs_FILE* filewrite, const char* text, bool_t truth )
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype )
+void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype )
 {
     /// @details ZZ@> This function kinda mimics vfs_printf for the output of
     ///    SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
@@ -361,7 +379,7 @@ void fput_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype )
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_action( vfs_FILE* filewrite, const char* text, Uint8 action )
+void vfs_put_action( vfs_FILE* filewrite, const char* text, Uint8 action )
 {
     /// @details ZZ@> This function kinda mimics vfs_printf for the output of
     ///    SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
@@ -389,7 +407,7 @@ void fput_action( vfs_FILE* filewrite, const char* text, Uint8 action )
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
+void vfs_put_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
 {
     /// @details ZZ@> This function kinda mimics vfs_printf for the output of
     ///    MALE FEMALE OTHER statements
@@ -406,7 +424,7 @@ void fput_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_range_raw( vfs_FILE* filewrite, FRange val )
+void vfs_put_range_raw( vfs_FILE* filewrite, FRange val )
 {
     if ( val.from == val.to )
     {
@@ -433,20 +451,20 @@ void fput_range_raw( vfs_FILE* filewrite, FRange val )
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_range( vfs_FILE* filewrite, const char* text, FRange val )
+void vfs_put_range( vfs_FILE* filewrite, const char* text, FRange val )
 {
     /// @details ZZ@> This function mimics vfs_printf in spitting out
     ///    damage/stat pairs. Try to print out the least amount of text.
 
     vfs_printf( filewrite, "%s", text );
 
-    fput_range_raw( filewrite, val );
+    vfs_put_range_raw( filewrite, val );
 
     vfs_printf( filewrite, "\n", text );
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_pair( vfs_FILE* filewrite, const char* text, IPair val )
+void vfs_put_pair( vfs_FILE* filewrite, const char* text, IPair val )
 {
     /// @details ZZ@> This function mimics vfs_printf in spitting out
     ///    damage/stat pairs
@@ -460,7 +478,7 @@ void fput_pair( vfs_FILE* filewrite, const char* text, IPair val )
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usename )
+void vfs_put_string_under( vfs_FILE* filewrite, const char* text, const char* usename )
 {
     /// @details ZZ@> This function mimics vfs_printf in spitting out
     ///    a name with underscore spaces
@@ -491,14 +509,14 @@ void fput_string_under( vfs_FILE* filewrite, const char* text, const char* usena
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz )
+void vfs_put_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz )
 {
     vfs_printf( filewrite, "%s", text );
     vfs_printf( filewrite, "[%s]\n", undo_idsz( idsz ) );
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value )
+void vfs_put_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value )
 {
     /// @details ZZ@> This function mimics vfs_printf in spitting out
     ///    damage/stat pairs
@@ -507,7 +525,7 @@ void fput_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, float value )
+void vfs_put_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, float value )
 {
     /// @details ZF@> This function mimics vfs_printf in spitting out
     ///    damage/stat pairs for floating point values
@@ -516,14 +534,14 @@ void fput_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, flo
 }
 
 //--------------------------------------------------------------------------------------------
-void fput_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * str )
+void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * str )
 {
     /// @details ZF@> This function mimics vfs_printf in spitting out
     ///    damage/stat pairs for floating point values
 
     if ( !VALID_CSTR( str ) )
     {
-        fput_expansion( filewrite, text, idsz, 0 );
+        vfs_put_expansion( filewrite, text, idsz, 0 );
     }
     else
     {
@@ -533,7 +551,7 @@ void fput_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, co
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t fget_range( vfs_FILE* fileread, FRange * prange )
+bool_t vfs_get_range( vfs_FILE* fileread, FRange * prange )
 {
     /// @details ZZ@> This function reads a damage/stat range ( eg. 5-9 )
 
@@ -544,12 +562,12 @@ bool_t fget_range( vfs_FILE* fileread, FRange * prange )
     if ( NULL == fileread || vfs_error( fileread ) || vfs_eof( fileread ) ) return bfalse;
 
     // read the range
-    fFrom = fget_float( fileread );  // The first number
+    fFrom = vfs_get_float( fileread );  // The first number
     fTo   = fFrom;
 
     // The optional hyphen
     fpos = vfs_tell( fileread );
-    cTmp = fget_first_letter( fileread );
+    cTmp = vfs_get_first_letter( fileread );
 
     if ( '-' != cTmp )
     {
@@ -559,7 +577,7 @@ bool_t fget_range( vfs_FILE* fileread, FRange * prange )
     else
     {
         // The optional second number
-        fTo = fget_float( fileread );
+        fTo = vfs_get_float( fileread );
     }
 
     if ( NULL != prange )
@@ -572,24 +590,24 @@ bool_t fget_range( vfs_FILE* fileread, FRange * prange )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_next_range( vfs_FILE* fileread, FRange * prange )
+bool_t vfs_get_next_range( vfs_FILE* fileread, FRange * prange )
 {
     /// @details ZZ@> This function reads a damage/stat range ( eg. 5-9 )
 
-    goto_colon( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, bfalse );
 
-    return fget_range( fileread, prange );
+    return vfs_get_range( fileread, prange );
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t fget_pair( vfs_FILE* fileread, IPair * ppair )
+bool_t vfs_get_pair( vfs_FILE* fileread, IPair * ppair )
 {
     /// @details ZZ@> This function reads a damage/stat loc_pair ( eg. 5-9 )
 
     FRange loc_range;
 
-    if ( !fget_range( fileread, &loc_range ) ) return bfalse;
+    if ( !vfs_get_range( fileread, &loc_range ) ) return bfalse;
 
     if ( NULL != ppair )
     {
@@ -654,7 +672,7 @@ int vfs_get_version( vfs_FILE* fileread )
     while (( read = vfs_getc( fileread ) ) != ' ' );
 
     //Get the version number
-    result = fget_int( fileread );
+    result = vfs_get_int( fileread );
 
     // reset the file pointer
     vfs_seek( fileread, filepos );
@@ -741,7 +759,7 @@ int vfs_get_version( vfs_FILE* fileread )
 }*/
 
 //--------------------------------------------------------------------------------------------
-bool_t fput_version( vfs_FILE* filewrite, const int version )
+bool_t vfs_put_version( vfs_FILE* filewrite, const int version )
 {
     if ( vfs_error( filewrite ) ) return bfalse;
 
@@ -749,7 +767,7 @@ bool_t fput_version( vfs_FILE* filewrite, const int version )
 }
 
 //--------------------------------------------------------------------------------------------
-char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len )
+char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len )
 {
     /// @details BB@> copy data from one file to another until the delimiter delim has been found
     ///    could be used to merge a template file with data
@@ -783,7 +801,7 @@ char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite
         {
             if ( write > SDL_arraysize( temp_buffer ) - 2 )
             {
-                log_error( "copy_mem_to_delimiter() - temp_buffer overflow.\n" );
+                log_error( "copy_to_delimiter_mem() - temp_buffer overflow.\n" );
             }
 
             temp_buffer[write++] = cTmp;
@@ -809,15 +827,15 @@ char * copy_mem_to_delimiter( char * pmem, char * pmem_end, vfs_FILE * filewrite
 }
 
 //--------------------------------------------------------------------------------------------
-char fget_next_char( vfs_FILE * fileread )
+char vfs_get_next_char( vfs_FILE * fileread )
 {
-    goto_colon( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, bfalse );
 
-    return fget_first_letter( fileread );
+    return vfs_get_first_letter( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
-int fget_int( vfs_FILE * fileread )
+int vfs_get_int( vfs_FILE * fileread )
 {
     int iTmp = 0;
 
@@ -827,15 +845,51 @@ int fget_int( vfs_FILE * fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-int fget_next_int( vfs_FILE * fileread )
+UFP8_T vfs_get_ufp8( vfs_FILE* fileread )
 {
-    goto_colon( NULL, fileread, bfalse );
+    float fval = vfs_get_float( fileread );
 
-    return fget_int( fileread );
+    if ( fval < 0.0f )
+    {
+        log_warning( "%s - encountered a negative number\n", __FUNCTION__ );
+    }
+
+    return FLOAT_TO_FP8( fval );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_string( vfs_FILE * fileread, char * str, size_t str_len )
+SFP8_T vfs_get_sfp8( vfs_FILE* fileread )
+{
+    float fval = vfs_get_int( fileread );
+
+    return FLOAT_TO_FP8( fval );
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_get_next_int( vfs_FILE * fileread )
+{
+    goto_colon_vfs( NULL, fileread, bfalse );
+
+    return vfs_get_int( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+UFP8_T vfs_get_next_ufp8( vfs_FILE * fileread )
+{
+    goto_colon_vfs( NULL, fileread, bfalse );
+
+    return vfs_get_ufp8( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+SFP8_T vfs_get_next_sfp8( vfs_FILE * fileread )
+{
+    goto_colon_vfs( NULL, fileread, bfalse );
+
+    return vfs_get_sfp8( fileread );
+}
+//--------------------------------------------------------------------------------------------
+bool_t vfs_get_string( vfs_FILE * fileread, char * str, size_t str_len )
 {
     int fields;
     STRING format_str;
@@ -854,13 +908,13 @@ bool_t fget_string( vfs_FILE * fileread, char * str, size_t str_len )
 //--------------------------------------------------------------------------------------------
 bool_t vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len )
 {
-    goto_colon( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, bfalse );
 
-    return fget_string( fileread, str, str_len );
+    return vfs_get_string( fileread, str, str_len );
 }
 
 //--------------------------------------------------------------------------------------------
-float fget_float( vfs_FILE * fileread )
+float vfs_get_float( vfs_FILE * fileread )
 {
     float fTmp;
 
@@ -871,44 +925,44 @@ float fget_float( vfs_FILE * fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-float  fget_next_float( vfs_FILE * fileread )
+float  vfs_get_next_float( vfs_FILE * fileread )
 {
-    goto_colon( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, bfalse );
 
-    return fget_float( fileread );
+    return vfs_get_float( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_next_name( vfs_FILE * fileread, char * name, size_t name_len )
+bool_t vfs_get_next_name( vfs_FILE * fileread, char * name, size_t name_len )
 {
-    goto_colon( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, bfalse );
 
-    return fget_name( fileread, name, name_len );
+    return vfs_get_name( fileread, name, name_len );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_next_pair( vfs_FILE * fileread, IPair * ppair )
+bool_t vfs_get_next_pair( vfs_FILE * fileread, IPair * ppair )
 {
-    goto_colon( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, bfalse );
 
-    return fget_pair( fileread, ppair );
+    return vfs_get_pair( fileread, ppair );
 }
 
 //--------------------------------------------------------------------------------------------
-IDSZ fget_next_idsz( vfs_FILE * fileread )
+IDSZ vfs_get_next_idsz( vfs_FILE * fileread )
 {
-    goto_colon( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, bfalse );
 
-    return fget_idsz( fileread );
+    return vfs_get_idsz( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
-int fget_damage_type( vfs_FILE * fileread )
+int vfs_get_damage_type( vfs_FILE * fileread )
 {
     char cTmp;
     int type;
 
-    cTmp = fget_first_letter( fileread );
+    cTmp = vfs_get_first_letter( fileread );
 
     switch ( toupper( cTmp ) )
     {
@@ -928,27 +982,27 @@ int fget_damage_type( vfs_FILE * fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-int fget_next_damage_type( vfs_FILE * fileread )
+int vfs_get_next_damage_type( vfs_FILE * fileread )
 {
-    goto_colon( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, bfalse );
 
-    return fget_damage_type( fileread );
+    return vfs_get_damage_type( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_bool( vfs_FILE * fileread )
+bool_t vfs_get_bool( vfs_FILE * fileread )
 {
-    char cTmp = fget_first_letter( fileread );
+    char cTmp = vfs_get_first_letter( fileread );
 
     return ( 'T' == toupper( cTmp ) );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fget_next_bool( vfs_FILE * fileread )
+bool_t vfs_get_next_bool( vfs_FILE * fileread )
 {
-    goto_colon( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, bfalse );
 
-    return fget_bool( fileread );
+    return vfs_get_bool( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1049,12 +1103,12 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 fget_damage_modifier( vfs_FILE * fileread )
+Uint8 vfs_get_damage_modifier( vfs_FILE * fileread )
 {
     int  iTmp;
     char cTmp;
 
-    cTmp = fget_first_letter( fileread );
+    cTmp = vfs_get_first_letter( fileread );
 
     switch ( toupper( cTmp ) )
     {
@@ -1069,10 +1123,10 @@ Uint8 fget_damage_modifier( vfs_FILE * fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-float fget_damage_resist( vfs_FILE * fileread )
+float vfs_get_damage_resist( vfs_FILE * fileread )
 {
     //ugly hack to allow it to work with the old damage system assume that numbers below 4 are shifts
-    float resistance = fget_float( fileread );
+    float resistance = vfs_get_float( fileread );
     if ( resistance == 1 )   resistance = 0.50f;        //50% reduction, same as shift 1
     else if ( resistance == 2 )   resistance = 0.75f;   //75% reduction, same as shift 2
     else if ( resistance == 3 )   resistance = 0.90f;   //90% reduction, same as shift 3
@@ -1092,7 +1146,7 @@ int read_skin_vfs( const char *filename )
     if ( NULL != fileread )
     {
         //Read the contents
-        skin = fget_next_int( fileread );
+        skin = vfs_get_next_int( fileread );
         skin %= MAX_SKIN;
 
         vfs_close( fileread );

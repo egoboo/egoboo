@@ -1368,8 +1368,8 @@ bool_t mesh_interpolate_vertex( tile_mem_t * pmem, ego_tile_info_t * ptile, floa
     lc   = &( ptile->lcache );
 
     // determine a u,v coordinate for the vertex
-    u = ( pos[XX] - poct->mins[XX] ) / ( poct->maxs[XX] - poct->mins[XX] );
-    v = ( pos[YY] - poct->mins[YY] ) / ( poct->maxs[YY] - poct->mins[YY] );
+    u = ( pos[XX] - poct->mins[OCT_X] ) / ( poct->maxs[OCT_X] - poct->mins[OCT_X] );
+    v = ( pos[YY] - poct->mins[OCT_Y] ) / ( poct->maxs[OCT_Y] - poct->mins[OCT_Y] );
 
     // average the cached data on the 4 corners of the mesh
     weight_sum = 0.0f;

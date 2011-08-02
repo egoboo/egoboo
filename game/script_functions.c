@@ -32,12 +32,13 @@
 
 #include "link.h"
 #include "camera_system.h"
-#include "graphic.h"
 #include "input.h"
 #include "network.h"
 #include "game.h"
 #include "player.h"
 #include "menu.h"
+#include "graphic.h"
+#include "graphic_billboard.h"
 
 #include "passage.h"
 #include "AStar.h"
@@ -2736,7 +2737,7 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveExperienceToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetExperience( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveExperienceToTarget( tmpargument = "amount", tmpdistance = "type" )
     /// @details ZZ@> This function gives the target some experience, xptype from distance,
@@ -2782,7 +2783,7 @@ Uint8 scr_UnkurseTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveExperienceToTargetTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetTeamExperience( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveExperienceToTargetTeam( tmpargument = "amount", tmpdistance = "type" )
     /// @details ZZ@> This function gives experience to everyone on the target's team
@@ -4183,7 +4184,7 @@ Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _break_passage( pstate->y, pstate->x, pstate->distance, pstate->turn, ( PASS_REF )pstate->argument, &( pstate->x ), &( pstate->y ) );
+    returncode = BreakPassage( pstate->y, pstate->x, pstate->distance, pstate->turn, ( PASS_REF )pstate->argument, &( pstate->x ), &( pstate->y ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4546,7 +4547,7 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveStrengthToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetStrength( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveStrengthToTarget()
     // Permanently boost the target's strength
@@ -4569,7 +4570,7 @@ Uint8 scr_GiveStrengthToTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveWisdomToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetWisdom( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveWisdomToTarget()
     // Permanently boost the target's wisdom
@@ -4592,7 +4593,7 @@ Uint8 scr_GiveWisdomToTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveIntelligenceToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetIntelligence( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveIntelligenceToTarget()
     // Permanently boost the target's intelligence
@@ -4615,7 +4616,7 @@ Uint8 scr_GiveIntelligenceToTarget( script_state_t * pstate, ai_state_t * pself 
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveDexterityToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetDexterity( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveDexterityToTarget()
     // Permanently boost the target's dexterity
@@ -4638,7 +4639,7 @@ Uint8 scr_GiveDexterityToTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveLifeToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetLife( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveLifeToTarget()
     /// @details ZZ@> Permanently boost the target's life
@@ -4667,7 +4668,7 @@ Uint8 scr_GiveLifeToTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveManaToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetMana( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaToTarget()
     /// @details ZZ@> Permanently boost the target's mana
@@ -5698,7 +5699,7 @@ Uint8 scr_FindTileInPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _find_grid_in_passage( pstate->x, pstate->y, pstate->distance, ( PASS_REF )pstate->argument, &( pstate->x ), &( pstate->y ) );
+    returncode = FindTileInPassage( pstate->x, pstate->y, pstate->distance, ( PASS_REF )pstate->argument, &( pstate->x ), &( pstate->y ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6006,7 +6007,7 @@ Uint8 scr_AddEndMessage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = _append_end_text( pchr,  pstate->argument, pstate );
+    returncode = AddEndMessage( pchr,  pstate->argument, pstate );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6586,7 +6587,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveExperienceToGoodTeam( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_GoodTeamExperience( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveExperienceToGoodTeam(  tmpargument = "amount", tmpdistance = "type" )
     /// @details ZZ@> This function gives experience to everyone on the G Team
@@ -7468,7 +7469,7 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetManaFlow( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaFlowToTarget()
     /// @details ZF@> Permanently boost the target's mana flow
@@ -7491,7 +7492,7 @@ Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveManaReturnToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetManaReturn( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaReturnToTarget()
     /// @details ZF@> Permanently boost the target's mana return
@@ -7681,7 +7682,7 @@ Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SetTargetSize( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetSize( script_state_t * pstate, ai_state_t * pself )
 {
     // SetSize( tmpargument = "percent" )
     /// @details ZF@> This changes the AI target's size
@@ -7793,10 +7794,11 @@ Uint8 scr_LevelUp( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_GiveSkillToTarget( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveSkillToTarget( tmpargument = "skill_IDSZ", tmpdistance = "skill_level" )
     /// @details ZF@> This function permanently gives the target character a skill
+
     chr_t *ptarget;
     egolib_rv rv;
 
@@ -7812,72 +7814,15 @@ Uint8 scr_GiveSkillToTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 {
-    // FindWideWeapon()
-    /// @details ZF@> This function searches the nearby vincinity for a melee weapon the character can use
-    MAD_REF imad;
-    CHR_REF best_target = ( CHR_REF ) MAX_CHR;
-    float best_dist = WIDE * WIDE;
-    line_of_sight_info_t los;
+    CHR_REF best_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = bfalse;
+    best_target = FindWeapon( pchr, WIDE, MAKE_IDSZ( 'X', 'W', 'E', 'P' ), bfalse, btrue );
 
-    //get the model for this character
-    imad = chr_get_imad( pself->index );
-
-    //setup line of sight data
-    los.x0 = pchr->pos.x;
-    los.y0 = pchr->pos.y;
-    los.z0 = pchr->pos.z;
-    los.stopped_by = pchr->stoppedby;
-
-    CHR_BEGIN_LOOP_ACTIVE( iweapon, pweapon )
-    {
-        cap_t *pweapon_cap;
-        float dist;
-        fvec3_t diff;
-
-        //only do items on the ground
-        if ( INGAME_CHR( pweapon->attachedto ) || !pweapon->isitem ) continue;
-        pweapon_cap = chr_get_pcap( iweapon );
-
-        // only target those with a [XWEP] IDSZ
-        if ( !chr_has_idsz( iweapon, MAKE_IDSZ( 'X', 'W', 'E', 'P' ) ) ) continue;
-
-        //ignore ranged weapons
-        if ( pweapon_cap->isranged ) continue;
-
-        // see if the character can use this weapon (we assume everyone has a left grip here)
-        if ( ACTION_COUNT == mad_get_action_ref( imad, randomize_action( pweapon_cap->weaponaction, SLOT_LEFT ) ) ) continue;
-
-        // then check if a skill is needed
-        if ( pweapon_cap->needskillidtouse )
-        {
-            if ( !chr_get_skill( pchr, chr_get_idsz( iweapon, IDSZ_SKILL ) ) ) continue;
-        }
-
-        //check distance
-        fvec3_sub( diff.v, pchr->pos.v, pweapon->pos.v );
-        dist = fvec3_dot_product( diff.v, diff.v );
-        if ( dist < best_dist )
-        {
-            //finally, check line of sight. we only care for weapons we can see
-            los.x1 = pweapon->pos.x;
-            los.y1 = pweapon->pos.y;
-            los.z1 = pweapon->pos.z;
-            if ( line_of_sight_do( &los ) ) continue;
-
-            //found a valid weapon!
-            best_target = iweapon;
-            best_dist = dist;
-        }
-    }
-    CHR_END_LOOP();
-
-    //Did we find anything?
+    //Did we find anything good?
     if ( INGAME_CHR( best_target ) )
     {
         pself->target = best_target;
@@ -7886,4 +7831,3 @@ Uint8 scr_SetTargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * ps
 
     SCRIPT_FUNCTION_END();
 }
-

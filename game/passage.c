@@ -248,7 +248,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
         if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) ) continue;
 
         //Check if the object has the requirements
-        if ( !check_target( psrc, character, idsz, targeting_bits ) ) continue;
+        if ( !chr_check_target( psrc, character, idsz, targeting_bits ) ) continue;
 
         //Now check if it actually is inside the passage area
         if ( object_is_in_passage( passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )

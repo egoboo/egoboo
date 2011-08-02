@@ -35,7 +35,6 @@
 #include "profile.inl"
 #include "PrtList.inl"
 
-
 #include <egolib/log.h>
 #include <egolib/egoboo_setup.h>
 #include <egolib/fileutil.h>
@@ -366,10 +365,10 @@ prt_t * prt_config_do_init( prt_t * pprt )
         }
         else
         {
-            const int PERFECT_AIM = 45 * 256;   //45 dex is perfect aim
+            const int PERFECT_AIM = 45 * 256;   // 45 dex is perfect aim
 
             // Find a target
-            pprt->target_ref = prt_find_target( pdata->pos.x, pdata->pos.y, pdata->pos.z, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
+            pprt->target_ref = prt_find_target( pdata->pos.v, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
             if ( DEFINED_CHR( pprt->target_ref ) && !ppip->homing )
             {
                 /// @note ZF@> ?What does this do?!
@@ -469,9 +468,9 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->size_stt      = ppip->size_base;
     pprt->size_add      = ppip->size_add;
 
-    pprt->image_stt     = INT_TO_FP8( ppip->image_base );
+    pprt->image_stt     = UINT_TO_UFP8( ppip->image_base );
     pprt->image_add     = generate_irand_pair( ppip->image_add );
-    pprt->image_max     = INT_TO_FP8( ppip->numframes );
+    pprt->image_max     = UINT_TO_UFP8( ppip->numframes );
 
     // figure out the actual particle lifetime
     prt_lifetime        = ppip->end_time;
@@ -1576,10 +1575,10 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     fvec3_sub( vdiff.v, ptarget->pos.v, prt_get_pos_v_const( loc_pprt ) );
     vdiff.z += ptarget->bump.height * 0.5f;
 
-    min_length = ( 2 * 5 * 256 * ChrList.lst[loc_pprt->owner_ref].wisdom ) / PERFECTBIG;
+    min_length = 2 * 5 * 256 * ( ChrList.lst[loc_pprt->owner_ref].wisdom / ( float )PERFECTBIG );
 
     // make a little incertainty about the target
-    uncertainty = 256 - ( 256 * ChrList.lst[loc_pprt->owner_ref].intelligence ) / PERFECTBIG;
+    uncertainty = 256.0f * ( 1.0f - ChrList.lst[loc_pprt->owner_ref].intelligence  / ( float )PERFECTBIG );
 
     ival = RANDIE;
     vdither.x = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;

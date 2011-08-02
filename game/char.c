@@ -31,13 +31,15 @@
 #include "camera_system.h"
 #include "input.h"
 #include "passage.h"
-#include "graphic.h"
 #include "game.h"
-#include "texture.h"
+#include "graphic_texture.h"
 #include "ui.h"
 #include "collision.h"                  //Only or detach_character_from_platform()
 #include "obj_BSP.h"
 #include "egoboo.h"
+
+#include "graphic.h"
+#include "graphic_billboard.h"
 
 #include "ChrList.inl"
 #include "mesh.inl"
@@ -1552,7 +1554,7 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
     {
         // Flag the item as not put away
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->islocalplayer ) debug_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+        if ( pchr->islocalplayer ) debug_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
         return bfalse;
     }
 
@@ -1560,7 +1562,7 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
     if ( pitem_cap->istoobig )
     {
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->islocalplayer ) debug_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+        if ( pchr->islocalplayer ) debug_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
         return bfalse;
     }
 
@@ -1725,7 +1727,7 @@ bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, co
     {
         // Flag the last found_item as not removed
         SET_BIT( pitem->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-        if ( pholder->islocalplayer ) debug_printf( "%s won't go out!", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+        if ( pholder->islocalplayer ) debug_printf( "%s won't go out!", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
         return bfalse;
     }
 
@@ -2239,7 +2241,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
                 else
                 {
                     // (5 secs and green)
-                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_grn, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ), color_grn, default_tint, 5, bb_opt_fade );
                 }
             }
 
@@ -2256,7 +2258,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
                 else
                 {
                     // (5 secs and red)
-                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL ), color_red, default_tint, 5, bb_opt_fade );
+                    chr_make_text_billboard( ichr_b, chr_get_name( ichr_b, CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ), color_red, default_tint, 5, bb_opt_fade );
                 }
             }
         }
@@ -2621,7 +2623,7 @@ void do_level_up( const CHR_REF character )
             // The character is ready to advance...
             if ( VALID_PLA( pchr->is_which_player ) )
             {
-                debug_printf( "%s gained a level!!!", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+                debug_printf( "%s gained a level!!!", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
                 sound_play_chunk_full( g_wavelist[GSND_LEVELUP] );
             }
 
@@ -2703,8 +2705,8 @@ void give_experience( const CHR_REF character, int amount, xp_type xptype, bool_
 
     if ( !pchr->invictus || override_invictus )
     {
-        float intadd = ( FP8_TO_INT( pchr->intelligence ) - 10.0f ) / 200.0f;
-        float wisadd = ( FP8_TO_INT( pchr->wisdom )       - 10.0f ) / 400.0f;
+        float intadd = ( FP8_TO_FLOAT( pchr->intelligence ) - 10.0f ) / 200.0f;
+        float wisadd = ( FP8_TO_FLOAT( pchr->wisdom )       - 10.0f ) / 400.0f;
 
         // Figure out how much experience to give
         newamount = amount;
@@ -3698,7 +3700,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
 
                 //tmpstr = describe_wounds( pchr->life_max, pchr->life );
 
-                tmpstr = describe_value( actual_damage, INT_TO_FP8( 10 ), &rank );
+                tmpstr = describe_value( actual_damage, UINT_TO_UFP8( 10 ), &rank );
                 if ( rank < 4 )
                 {
                     tmpstr = describe_value( actual_damage, max_damage, &rank );
@@ -6184,7 +6186,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
         if ( pchr->show_stats || cfg.dev_mode )
         {
             // Tell the player that they can't use this iweapon
-            debug_printf( "%s can't use this item...", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
+            debug_printf( "%s can't use this item...", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
         }
         return bfalse;
     }
@@ -6263,7 +6265,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                 }
                 else
                 {
-                    float chr_dex = FP8_TO_INT( pchr->dexterity );
+                    float chr_dex = FP8_TO_FLOAT( pchr->dexterity );
 
                     chr_play_action( pchr, action, bfalse );
 
@@ -7900,14 +7902,34 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
 }
 
 //--------------------------------------------------------------------------------------------
-const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits )
+const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size )
 {
-    static STRING szName;
+    static STRING _default_buffer;
+
+    char   * loc_buffer      = NULL;
+    size_t   loc_buffer_size = 0;
+
+    if ( NULL == buffer )
+    {
+        loc_buffer      = _default_buffer;
+        loc_buffer_size = SDL_arraysize( _default_buffer );
+    }
+    else
+    {
+        loc_buffer      = buffer;
+        loc_buffer_size = buffer_size;
+    }
+
+    if ( 0 == loc_buffer_size )
+    {
+        _default_buffer[0] = CSTR_END;
+        return loc_buffer;
+    }
 
     if ( !DEFINED_CHR( ichr ) )
     {
         // the default name
-        strncpy( szName, "Unknown", SDL_arraysize( szName ) );
+        strncpy( loc_buffer, "Unknown", loc_buffer_size );
     }
     else
     {
@@ -7916,7 +7938,7 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits )
 
         if ( pchr->nameknown )
         {
-            snprintf( szName, SDL_arraysize( szName ), "%s", pchr->Name );
+            snprintf( loc_buffer, loc_buffer_size, "%s", pchr->Name );
         }
         else if ( NULL != pcap )
         {
@@ -7944,26 +7966,26 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits )
                     }
                 }
 
-                snprintf( szName, SDL_arraysize( szName ), "%s %s", article, pcap->classname );
+                snprintf( loc_buffer, loc_buffer_size, "%s %s", article, pcap->classname );
             }
             else
             {
-                snprintf( szName, SDL_arraysize( szName ), "%s", pcap->classname );
+                snprintf( loc_buffer, loc_buffer_size, "%s", pcap->classname );
             }
         }
         else
         {
-            strncpy( szName, "Invalid", SDL_arraysize( szName ) );
+            strncpy( loc_buffer, "Invalid", loc_buffer_size );
         }
     }
 
     if ( 0 != ( bits & CHRNAME_CAPITAL ) )
     {
         // capitalize the name ?
-        szName[0] = toupper( szName[0] );
+        loc_buffer[0] = toupper( loc_buffer[0] );
     }
 
-    return szName;
+    return loc_buffer;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9653,51 +9675,56 @@ egolib_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready )
 }
 
 //--------------------------------------------------------------------------------------------
-MAD_REF chr_get_imad( const CHR_REF ichr )
+bool_t chr_heal_mad( chr_t * pchr )
 {
-    chr_t * pchr;
-
-    if ( !DEFINED_CHR( ichr ) ) return ( MAD_REF )MAX_MAD;
-    pchr = ChrList_get_ptr( ichr );
-
     // try to repair a bad model if it exists
-    if ( !LOADED_MAD( pchr->inst.imad ) )
+
+    MAD_REF          imad_tmp = ( MAD_REF )MAX_MAD;
+    chr_instance_t * pinst    = NULL;
+
+    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
+    pinst = &( pchr->inst );
+
+    if ( LOADED_MAD( pinst->imad ) ) return btrue;
+
+    // get whatever mad index the profile says to use
+    imad_tmp = pro_get_imad( pchr->profile_ref );
+
+    // set the mad index to whatever the profile says, even if it is wrong,
+    // since we know that our current one is invalid
+    chr_instance_set_mad( pinst, imad_tmp );
+
+    // if we healed the mad index, make sure to recalculate the collision size
+    if ( LOADED_MAD( pinst->imad ) )
     {
-        MAD_REF imad_tmp = pro_get_imad( pchr->profile_ref );
-        if ( LOADED_MAD( imad_tmp ) )
-        {
-            if ( chr_instance_set_mad( &( pchr->inst ), imad_tmp ) )
-            {
-                chr_update_collision_size( pchr, btrue );
-            }
-        }
-        if ( !LOADED_MAD( pchr->inst.imad ) ) return ( MAD_REF )MAX_MAD;
+        chr_update_collision_size( pchr, btrue );
     }
 
-    return pchr->inst.imad;
+    return LOADED_MAD( pinst->imad );
+}
+
+//--------------------------------------------------------------------------------------------
+MAD_REF chr_get_imad( const CHR_REF ichr )
+{
+    chr_t * pchr   = NULL;
+    MAD_REF retval = ( MAD_REF )MAX_MAD;
+
+    pchr = ChrList_get_ptr( ichr );
+    if ( NULL == pchr ) return retval;
+
+    // heal the mad index if it is invalid
+    if ( chr_heal_mad( pchr ) )
+    {
+        retval = pchr->inst.imad;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 mad_t * chr_get_pmad( const CHR_REF ichr )
 {
-    chr_t * pchr;
-
-    if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList_get_ptr( ichr );
-
-    // try to repair a bad model if it exists
-    if ( !LOADED_MAD( pchr->inst.imad ) )
-    {
-        MAD_REF imad_tmp = pro_get_imad( pchr->profile_ref );
-        if ( LOADED_MAD( imad_tmp ) )
-        {
-            chr_instance_set_mad( &( pchr->inst ), imad_tmp );
-        }
-    }
-
-    if ( !LOADED_MAD( pchr->inst.imad ) ) return NULL;
-
-    return MadStack_get_ptr( pchr->inst.imad );
+    return MadStack_get_ptr( chr_get_imad( ichr ) );
 }
 
 //--------------------------------------------------------------------------------------------

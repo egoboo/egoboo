@@ -563,10 +563,10 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
                 case FENCHANTTARGET: returncode = scr_EnchantTarget( pstate, pself ); break;
                 case FENCHANTCHILD: returncode = scr_EnchantChild( pstate, pself ); break;
                 case FTELEPORTTARGET: returncode = scr_TeleportTarget( pstate, pself ); break;
-                case FGIVEEXPERIENCETOTARGET: returncode = scr_GiveExperienceToTarget( pstate, pself ); break;
+                case FGIVEEXPERIENCETOTARGET: returncode = scr_add_TargetExperience( pstate, pself ); break;
                 case FINCREASEAMMO: returncode = scr_IncreaseAmmo( pstate, pself ); break;
                 case FUNKURSETARGET: returncode = scr_UnkurseTarget( pstate, pself ); break;
-                case FGIVEEXPERIENCETOTARGETTEAM: returncode = scr_GiveExperienceToTargetTeam( pstate, pself ); break;
+                case FGIVEEXPERIENCETOTARGETTEAM: returncode = scr_add_TargetTeamExperience( pstate, pself ); break;
                 case FIFUNARMED: returncode = scr_Unarmed( pstate, pself ); break;
                 case FRESTOCKTARGETAMMOIDALL: returncode = scr_RestockTargetAmmoIDAll( pstate, pself ); break;
                 case FRESTOCKTARGETAMMOIDFIRST: returncode = scr_RestockTargetAmmoIDFirst( pstate, pself ); break;
@@ -662,12 +662,12 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
                 case FIFSTATEISODD: returncode = scr_StateIsOdd( pstate, pself ); break;
                 case FSETTARGETTODISTANTENEMY: returncode = scr_set_TargetToDistantEnemy( pstate, pself ); break;
                 case FTELEPORT: returncode = scr_Teleport( pstate, pself ); break;
-                case FGIVESTRENGTHTOTARGET: returncode = scr_GiveStrengthToTarget( pstate, pself ); break;
-                case FGIVEWISDOMTOTARGET: returncode = scr_GiveWisdomToTarget( pstate, pself ); break;
-                case FGIVEINTELLIGENCETOTARGET: returncode = scr_GiveIntelligenceToTarget( pstate, pself ); break;
-                case FGIVEDEXTERITYTOTARGET: returncode = scr_GiveDexterityToTarget( pstate, pself ); break;
-                case FGIVELIFETOTARGET: returncode = scr_GiveLifeToTarget( pstate, pself ); break;
-                case FGIVEMANATOTARGET: returncode = scr_GiveManaToTarget( pstate, pself ); break;
+                case FGIVESTRENGTHTOTARGET: returncode = scr_add_TargetStrength( pstate, pself ); break;
+                case FGIVEWISDOMTOTARGET: returncode = scr_add_TargetWisdom( pstate, pself ); break;
+                case FGIVEINTELLIGENCETOTARGET: returncode = scr_add_TargetIntelligence( pstate, pself ); break;
+                case FGIVEDEXTERITYTOTARGET: returncode = scr_add_TargetDexterity( pstate, pself ); break;
+                case FGIVELIFETOTARGET: returncode = scr_add_TargetLife( pstate, pself ); break;
+                case FGIVEMANATOTARGET: returncode = scr_add_TargetMana( pstate, pself ); break;
                 case FSHOWMAP: returncode = scr_ShowMap( pstate, pself ); break;
                 case FSHOWYOUAREHERE: returncode = scr_ShowYouAreHere( pstate, pself ); break;
                 case FSHOWBLIPXY: returncode = scr_ShowBlipXY( pstate, pself ); break;
@@ -764,7 +764,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
                 case FMAKENAMEUNKNOWN: returncode = scr_MakeNameUnknown( pstate, pself ); break;
                 case FSPAWNEXACTPARTICLEENDSPAWN: returncode = scr_SpawnExactParticleEndSpawn( pstate, pself ); break;
                 case FSPAWNPOOFSPEEDSPACINGDAMAGE: returncode = scr_SpawnPoofSpeedSpacingDamage( pstate, pself ); break;
-                case FGIVEEXPERIENCETOGOODTEAM: returncode = scr_GiveExperienceToGoodTeam( pstate, pself ); break;
+                case FGIVEEXPERIENCETOGOODTEAM: returncode = scr_add_GoodTeamExperience( pstate, pself ); break;
                 case FDONOTHING: returncode = scr_DoNothing( pstate, pself ); break;
                 case FGROGTARGET: returncode = scr_GrogTarget( pstate, pself ); break;
                 case FDAZETARGET: returncode = scr_DazeTarget( pstate, pself ); break;
@@ -805,8 +805,8 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
                 case FIFOPERATORISMACINTOSH: returncode = scr_OperatorIsMacintosh( pstate, pself ); break;
                 case FIFMODULEHASIDSZ:       returncode = scr_ModuleHasIDSZ( pstate, pself );       break;
                 case FMORPHTOTARGET:         returncode = scr_MorphToTarget( pstate, pself );       break;
-                case FGIVEMANAFLOWTOTARGET:  returncode = scr_GiveManaFlowToTarget( pstate, pself ); break;
-                case FGIVEMANARETURNTOTARGET:returncode = scr_GiveManaReturnToTarget( pstate, pself ); break;
+                case FGIVEMANAFLOWTOTARGET:  returncode = scr_add_TargetManaFlow( pstate, pself ); break;
+                case FGIVEMANARETURNTOTARGET:returncode = scr_add_TargetManaReturn( pstate, pself ); break;
                 case FSETMONEY:              returncode = scr_set_Money( pstate, pself );           break;
                 case FIFTARGETCANSEEKURSES:  returncode = scr_TargetCanSeeKurses( pstate, pself );  break;
                 case FSPAWNATTACHEDCHARACTER:returncode = scr_SpawnAttachedCharacter( pstate, pself ); break;
@@ -819,14 +819,14 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
                 case FENABLEINVICTUS:        returncode = scr_EnableInvictus( pstate, pself ); break;
                 case FDISABLEINVICTUS:       returncode = scr_DisableInvictus( pstate, pself ); break;
                 case FTARGETDAMAGESELF:      returncode = scr_TargetDamageSelf( pstate, pself ); break;
-                case FSETTARGETSIZE:         returncode = scr_SetTargetSize( pstate, pself ); break;
+                case FSETTARGETSIZE:         returncode = scr_set_TargetSize( pstate, pself ); break;
                 case FIFTARGETISFACINGSELF:  returncode = scr_TargetIsFacingSelf( pstate, pself ); break;
 
                 case FDRAWBILLBOARD:                 returncode = scr_DrawBillboard( pstate, pself ); break;
                 case FSETTARGETTOFIRSTBLAHINPASSAGE: returncode = scr_set_TargetToBlahInPassage( pstate, pself ); break;
                 case FIFLEVELUP:                     returncode = scr_LevelUp( pstate, pself ); break;
-                case FGIVESKILLTOTARGET:             returncode = scr_GiveSkillToTarget( pstate, pself ); break;
-                case FSETTARGETTONEARBYMELEEWEAPON:  returncode = scr_SetTargetToNearbyMeleeWeapon( pstate, pself ); break;
+                case FGIVESKILLTOTARGET:             returncode = scr_add_TargetSkill( pstate, pself ); break;
+                case FSETTARGETTONEARBYMELEEWEAPON:  returncode = scr_set_TargetToNearbyMeleeWeapon( pstate, pself ); break;
 
                     // if none of the above, skip the line and log an error
                 default:

@@ -2,18 +2,18 @@
 //*
 //*    This file is part of Cartman.
 //*
-//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    Cartman is free software: you can redistribute it and/or modify it
 //*    under the terms of the GNU General Public License as published by
 //*    the Free Software Foundation, either version 3 of the License, or
 //*    (at your option) any later version.
 //*
-//*    Egoboo is distributed in the hope that it will be useful, but
+//*    Cartman is distributed in the hope that it will be useful, but
 //*    WITHOUT ANY WARRANTY; without even the implied warranty of
 //*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*    along with Cartman.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -347,11 +347,9 @@ void cartman_mpd_make_fanstart( cartman_mpd_t * pmesh )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    cnt = 0;
-    while ( cnt < pmesh->info.tiles_y )
+    for ( cnt = 0; cnt < pmesh->info.tiles_y; cnt++ )
     {
         pmesh->fanstart[cnt] = pmesh->info.tiles_x * cnt;
-        cnt++;
     }
 }
 
@@ -363,11 +361,9 @@ void cartman_mpd_make_twist( cartman_mpd_t * pmesh )
     if ( NULL == pmesh ) pmesh = &mesh;
 
     numfan = pmesh->info.tiles_x * pmesh->info.tiles_y;
-    fan = 0;
-    while ( fan < numfan )
+    for ( fan = 0; fan < numfan; fan++ )
     {
         pmesh->fan[fan].twist = cartman_mpd_get_fan_twist( pmesh, fan );
-        fan++;
     }
 }
 
@@ -898,15 +894,11 @@ int cartman_mpd_get_vertex( cartman_mpd_t * pmesh, int x, int y, int num )
         if ( tile_dict[pmesh->fan[fan].type].numvertices > num )
         {
             vert = pmesh->fan[fan].vrtstart;
-            cnt = 0;
-            while ( cnt < num )
+
+            for ( cnt = 0; cnt < num; cnt++ )
             {
                 vert = pmesh->vrt[vert].next;
-                if ( vert == -1 )
-                {
-                    return vert;
-                }
-                cnt++;
+                if ( CHAINEND == vert ) break;
             }
         }
     }

@@ -26,7 +26,7 @@
 #include <egolib/log.h>
 #include "script_compile.h"
 #include "graphic.h"
-#include "texture.h"
+#include "graphic_texture.h"
 #include "sound.h"
 
 #include <egolib/egoboo_setup.h>
@@ -210,12 +210,12 @@ mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
     fileread = vfs_openRead( loadname );
     if ( NULL == fileread ) return pmad;
 
-    while ( goto_colon( NULL, fileread, btrue ) )
+    while ( goto_colon_vfs( NULL, fileread, btrue ) )
     {
-        fget_string( fileread, szOne, SDL_arraysize( szOne ) );
+        vfs_get_string( fileread, szOne, SDL_arraysize( szOne ) );
         actiona = action_which( szOne[0] );
 
-        fget_string( fileread, szTwo, SDL_arraysize( szTwo ) );
+        vfs_get_string( fileread, szTwo, SDL_arraysize( szTwo ) );
         actionb = action_which( szTwo[0] );
 
         action_copy_correct( pmad, actiona + 0, actionb + 0 );
@@ -698,7 +698,7 @@ void load_action_names_vfs( const char* loadname )
         comment[0] = CSTR_END;
 
         found = bfalse;
-        if ( goto_colon( NULL, fileread, bfalse ) )
+        if ( goto_colon_vfs( NULL, fileread, bfalse ) )
         {
             if ( vfs_scanf( fileread, " %c%c %s", &first, &second, &comment ) >= 2 )
             {

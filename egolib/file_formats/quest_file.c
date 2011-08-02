@@ -122,12 +122,12 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t quest_log[], size_t quest_log_len,
 
     // Load each IDSZ
     retval = rv_success;
-    while ( goto_colon( NULL, fileread, btrue ) )
+    while ( goto_colon_vfs( NULL, fileread, btrue ) )
     {
         egolib_rv rv;
 
-        IDSZ idsz = fget_idsz( fileread );
-        int  level = fget_int( fileread );
+        IDSZ idsz = vfs_get_idsz( fileread );
+        int  level = vfs_get_int( fileread );
 
         // Try to add a single quest to the map
         rv = idsz_map_add( quest_log, quest_log_len, idsz, level );

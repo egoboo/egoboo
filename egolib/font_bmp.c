@@ -115,12 +115,12 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
     stt_y = 0;
 
     // Uniform font height is at the top
-    yspacing = fget_next_int( fileread );
+    yspacing = vfs_get_next_int( fileread );
     fontoffset = yspacing;
-    for ( cnt = 0; cnt < NUMFONT && goto_colon( NULL, fileread, btrue ); cnt++ )
+    for ( cnt = 0; cnt < NUMFONT && goto_colon_vfs( NULL, fileread, btrue ); cnt++ )
     {
         vfs_scanf( fileread, "%c", &cTmp );
-        xspacing = fget_int( fileread );
+        xspacing = vfs_get_int( fileread );
         if ( asciitofont[( Uint8 )cTmp] == 255 ) asciitofont[( Uint8 )cTmp] = ( Uint8 ) cnt;
         if ( stt_x + xspacing + 1 > 255 )
         {

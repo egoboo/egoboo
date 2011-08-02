@@ -34,7 +34,7 @@
 #include "camera_system.h"
 #include "game.h"
 #include "input.h"
-#include "texture.h"
+#include "graphic_texture.h"
 #include "lighting.h"
 #include "egoboo.h"
 

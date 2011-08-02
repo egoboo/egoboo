@@ -31,7 +31,7 @@
 #include <egolib/log.h>
 #include "link.h"
 #include "game.h"
-#include "texture.h"
+#include "graphic_texture.h"
 #include <egolib/font_ttf.h>
 
 // To allow changing settings
@@ -1615,17 +1615,17 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
             // Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-                snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d/%d", MIN( FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from );
+                snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d/%d", MIN( UFP8_TO_UINT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from );
                 y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
-                y1 = ui_drawBar( x1, y1, FP8_TO_INT( pcap->life_spawn ), ( int )pcap->life_stat.val.from, pcap->life_color );
+                y1 = ui_drawBar( x1, y1, UFP8_TO_UINT( pcap->life_spawn ), ( int )pcap->life_stat.val.from, pcap->life_color );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
-                    snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d/%d", MIN( FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from );
+                    snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d/%d", MIN( UFP8_TO_UINT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from );
                     y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
-                    y1 = ui_drawBar( x1, y1, FP8_TO_INT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from, pcap->mana_color );
+                    y1 = ui_drawBar( x1, y1, UFP8_TO_UINT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from, pcap->mana_color );
                 }
             }
             else
@@ -5191,10 +5191,10 @@ void mnu_GameTip_load_global_vfs()
     // Load the data
     for ( cnt = 0; cnt < MENU_MAX_GAMETIPS && !vfs_eof( fileread ); cnt++ )
     {
-        if ( goto_colon( NULL, fileread, btrue ) )
+        if ( goto_colon_vfs( NULL, fileread, btrue ) )
         {
             //Read the line
-            fget_string( fileread, buffer, SDL_arraysize( buffer ) );
+            vfs_get_string( fileread, buffer, SDL_arraysize( buffer ) );
             strcpy( mnu_GameTip.hint[cnt], buffer );
 
             //Make it look nice
@@ -5230,10 +5230,10 @@ bool_t mnu_GameTip_load_local_vfs()
     // Load the data
     for ( cnt = 0; cnt < MENU_MAX_GAMETIPS && !vfs_eof( fileread ); cnt++ )
     {
-        if ( goto_colon( NULL, fileread, btrue ) )
+        if ( goto_colon_vfs( NULL, fileread, btrue ) )
         {
             //Read the line
-            fget_string( fileread, buffer, SDL_arraysize( buffer ) );
+            vfs_get_string( fileread, buffer, SDL_arraysize( buffer ) );
             strcpy( mnu_GameTip.local_hint[cnt], buffer );
 
             //Make it look nice

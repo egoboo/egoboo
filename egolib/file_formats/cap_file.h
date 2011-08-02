@@ -48,10 +48,10 @@ extern "C"
 #define NOHIDE              127                        ///< Don't hide
 
 /// Stats
-#define LOWSTAT             256                     ///< Worst...
-#define PERFECTSTAT         (60*256)                ///< Maximum stat without magic effects
-#define PERFECTBIG          (100*256)               ///< Perfect life or mana...
-#define HIGHSTAT            (100*256)               ///< Absolute max adding enchantments as well
+#define LOWSTAT             UINT_TO_UFP8(  1)     ///< Worst...
+#define PERFECTSTAT         UINT_TO_UFP8( 60)     ///< Maximum stat without magic effects
+#define PERFECTBIG          UINT_TO_UFP8(100)     ///< Perfect life or mana...
+#define HIGHSTAT            UINT_TO_UFP8(100)     ///< Absolute max adding enchantments as well
 
 //Levels
 #define MAXBASELEVEL            6                 ///< Basic Levels 0-5

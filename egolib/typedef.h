@@ -114,13 +114,21 @@ extern "C"
     typedef Uint32 UFP8_T;
     typedef Sint32 SFP8_T;
 
-#define UFP8_TO_UINT(V1)   ( ((unsigned)(V1)) >> 8 )                           ///< fast version of V1 / 256
-
+/// fast version of V1 / 256
+#define UFP8_TO_UINT(V1)   ( ((unsigned)(V1)) >> 8 )
+/// signed version of V1 / 256
 #define SFP8_TO_SINT(V1)   ( (V1) < 0 ? -((signed)UFP8_TO_UINT(-V1)) : (signed)UFP8_TO_UINT(V1) )
+
+/// fast version of V1 / 256
+#define UINT_TO_UFP8(V1)   ( ((unsigned)(V1)) << 8 )
+/// signed version of V1 / 256
+#define SINT_TO_SFP8(V1)   ( (V1) < 0 ? -((signed)UINT_TO_UFP8(-V1)) : (signed)UINT_TO_UFP8(V1) )
+
+/// version of V1 / 256.0f
 #define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100 )
+/// version of V1 * 256.0f
 #define FLOAT_TO_FP8(V1)   ( (Uint32)((V1) * (float)(0x0100) ) )
-#define FP8_TO_INT(V1)     ( (V1) >> 8 )                      ///< fast version of V1 / 256
-#define INT_TO_FP8(V1)     ( (V1) << 8 )                      ///< fast version of V1 * 256
+
 #define FP8_MUL(V1, V2)    ( ((V1)*(V2)) >> 8 )               ///< this may overflow if V1 or V2 have non-zero bits in their upper 8 bits
 #define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )               ///< this  will fail if V1 has bits in the upper 8 bits
 

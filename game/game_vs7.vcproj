@@ -233,6 +233,9 @@
 				RelativePath=".\graphic.c">
 			</File>
 			<File
+				RelativePath=".\graphic_billboard.c">
+			</File>
+			<File
 				RelativePath=".\graphic_fan.c">
 			</File>
 			<File
@@ -240,6 +243,9 @@
 			</File>
 			<File
 				RelativePath=".\graphic_prt.c">
+			</File>
+			<File
+				RelativePath=".\graphic_texture.c">
 			</File>
 			<File
 				RelativePath=".\lighting.c">
@@ -305,9 +311,6 @@
 				RelativePath=".\sound.c">
 			</File>
 			<File
-				RelativePath=".\texture.c">
-			</File>
-			<File
 				RelativePath=".\ui.c">
 			</File>
 		</Filter>
@@ -352,6 +355,9 @@
 				RelativePath=".\graphic.h">
 			</File>
 			<File
+				RelativePath=".\graphic_billboard.h">
+			</File>
+			<File
 				RelativePath=".\graphic_fan.h">
 			</File>
 			<File
@@ -359,6 +365,9 @@
 			</File>
 			<File
 				RelativePath=".\graphic_prt.h">
+			</File>
+			<File
+				RelativePath=".\graphic_texture.h">
 			</File>
 			<File
 				RelativePath=".\lighting.h">
@@ -416,9 +425,6 @@
 			</File>
 			<File
 				RelativePath=".\sound.h">
-			</File>
-			<File
-				RelativePath=".\texture.h">
 			</File>
 			<File
 				RelativePath=".\ui.h">

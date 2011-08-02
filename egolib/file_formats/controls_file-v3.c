@@ -124,7 +124,7 @@ bool_t input_settings_save_vfs_3( const char* szFilename )
     }
 
     //Add version number
-    fput_version( filewrite, 3 );
+    vfs_put_version( filewrite, 3 );
 
     // Just some information
     vfs_puts( "Controls\n", filewrite );

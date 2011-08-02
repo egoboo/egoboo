@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include "game.h"
+#include "graphic_billboard.h"
 
 #include <egolib/clock.h>
 #include <egolib/throttle.h>
@@ -73,7 +74,7 @@
 #include "network.h"
 #include "client.h"
 #include "server.h"
-#include "texture.h"
+#include "graphic_texture.h"
 #include "camera_system.h"
 #include "collision.h"
 #include "graphic_fan.h"
@@ -593,12 +594,12 @@ void activate_alliance_file_vfs()
     fileread = vfs_openRead( "mp_data/alliance.txt" );
     if ( fileread )
     {
-        while ( goto_colon( NULL, fileread, btrue ) )
+        while ( goto_colon_vfs( NULL, fileread, btrue ) )
         {
-            fget_string( fileread, szTemp, SDL_arraysize( szTemp ) );
+            vfs_get_string( fileread, szTemp, SDL_arraysize( szTemp ) );
             teama = ( szTemp[0] - 'A' ) % TEAM_MAX;
 
-            fget_string( fileread, szTemp, SDL_arraysize( szTemp ) );
+            vfs_get_string( fileread, szTemp, SDL_arraysize( szTemp ) );
             teamb = ( szTemp[0] - 'A' ) % TEAM_MAX;
             TeamStack.lst[teama].hatesteam[REF_TO_INT( teamb )] = bfalse;
         }
@@ -1565,7 +1566,7 @@ int game_process_run( game_process_t * gproc, double frameDuration )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
+CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing,
                          const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget )
 {
     /// @details ZF@> This is the new improved targeting system for particles. Also includes distance in the Z direction.
@@ -1605,15 +1606,12 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
 
         if ( target_friend || target_enemy )
         {
-            FACING_T angle = - facing + vec_to_facing( pchr->pos.x - pos_x , pchr->pos.y - pos_y );
+            FACING_T angle = - facing + vec_to_facing( pchr->pos.x - pos[kX] , pchr->pos.y - pos[kY] );
 
             // Only proceed if we are facing the target
             if ( angle < ppip->targetangle || angle > ( 0xFFFF - ppip->targetangle ) )
             {
-                float dist2 =
-                    POW( ABS( pchr->pos.x - pos_x ), 2 ) +
-                    POW( ABS( pchr->pos.y - pos_y ), 2 ) +
-                    POW( ABS( pchr->pos.z - pos_z ), 2 );
+                float dist2 = fvec3_dist_2( pchr->pos.v, pos );
 
                 if ( dist2 < longdist2 && dist2 <= max_dist2 )
                 {
@@ -1631,7 +1629,7 @@ CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits )
+bool_t chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
     bool_t retval = bfalse;
 
@@ -1786,7 +1784,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
         if ( !INGAME_CHR( ichr_test ) ) continue;
         ptst = ChrList_get_ptr( ichr_test );
 
-        if ( !check_target( psrc, ichr_test, idsz, targeting_bits ) ) continue;
+        if ( !chr_check_target( psrc, ichr_test, idsz, targeting_bits ) ) continue;
 
         fvec3_sub( diff.v, psrc->pos.v, ptst->pos.v );
         dist2 = fvec3_dot_product( diff.v, diff.v );
@@ -1801,7 +1799,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
                 los_info.y1 = ptst->pos.y;
                 los_info.z1 = ptst->pos.z + MAX( 1, ptst->bump.height );
 
-                if ( line_of_sight_do( &los_info ) ) continue;
+                if ( line_of_sight_blocked( &los_info ) ) continue;
             }
 
             //Set the new best target found
@@ -2420,7 +2418,7 @@ void show_stat( int statindex )
             pcap = pro_get_pcap( pchr->profile_ref );
 
             // Name
-            debug_printf( "=%s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL ) );
+            debug_printf( "=%s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
 
             // Level and gender and class
             gender[0] = 0;
@@ -2461,8 +2459,8 @@ void show_stat( int statindex )
             }
 
             // Stats
-            debug_printf( "~STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( pchr->strength ), FP8_TO_INT( pchr->wisdom ), 255 - pchr->defense );
-            debug_printf( "~INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( pchr->intelligence ), FP8_TO_INT( pchr->dexterity ), pchr->experience );
+            debug_printf( "~STR:~%2d~WIS:~%2d~DEF:~%d", SFP8_TO_SINT( pchr->strength ), SFP8_TO_SINT( pchr->wisdom ), 255 - pchr->defense );
+            debug_printf( "~INT:~%2d~DEX:~%2d~EXP:~%d", SFP8_TO_SINT( pchr->intelligence ), SFP8_TO_SINT( pchr->dexterity ), pchr->experience );
         }
     }
 }
@@ -2586,7 +2584,7 @@ void show_full_status( int statindex )
     cleanup_character_enchants( pchr );
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     debug_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
@@ -2626,7 +2624,7 @@ void show_magic_status( int statindex )
     cleanup_character_enchants( pchr );
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     debug_printf( "~See Invisible: %s~~See Kurses: %s",
@@ -3854,7 +3852,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 
                 case 'n' : // Name
                     {
-                        snprintf( szTmp, SDL_arraysize( szTmp ), "%s", chr_get_name( ichr, CHRNAME_ARTICLE ) );
+                        chr_get_name( ichr, CHRNAME_ARTICLE, szTmp, SDL_arraysize( szTmp ) );
                     }
                     break;
 
@@ -3872,7 +3870,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != pai )
                         {
-                            snprintf( szTmp, SDL_arraysize( szTmp ), "%s", chr_get_name( pai->target, CHRNAME_ARTICLE ) );
+                            chr_get_name( pai->target, CHRNAME_ARTICLE, szTmp, SDL_arraysize( szTmp ) );
                         }
                     }
                     break;
@@ -3881,7 +3879,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != pai )
                         {
-                            snprintf( szTmp, SDL_arraysize( szTmp ), "%s", chr_get_name( pai->owner, CHRNAME_ARTICLE ) );
+                            chr_get_name( pai->owner, CHRNAME_ARTICLE, szTmp, SDL_arraysize( szTmp ) );
                         }
                     }
                     break;
@@ -4923,11 +4921,11 @@ bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 
             if ( !can_grab )
             {
-                debug_printf( "%s was detected!!", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ) );
+                debug_printf( "%s was detected!!", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
             }
             else
             {
-                debug_printf( "%s stole %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL ), chr_get_name( iitem, CHRNAME_ARTICLE ) );
+                debug_printf( "%s stole %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), chr_get_name( iitem, CHRNAME_ARTICLE, NULL, 0 ) );
             }
         }
         else

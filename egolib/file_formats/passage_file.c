@@ -50,18 +50,18 @@ bool_t scan_passage_file( vfs_FILE * fileread, passage_t * ppass )
     passage_init( ppass );
 
     found = bfalse;
-    if ( goto_colon( NULL, fileread, btrue ) )
+    if ( goto_colon_vfs( NULL, fileread, btrue ) )
     {
-        ppass->area.left   = fget_int( fileread );
-        ppass->area.top    = fget_int( fileread );
-        ppass->area.right  = fget_int( fileread );
-        ppass->area.bottom = fget_int( fileread );
+        ppass->area.left   = vfs_get_int( fileread );
+        ppass->area.top    = vfs_get_int( fileread );
+        ppass->area.right  = vfs_get_int( fileread );
+        ppass->area.bottom = vfs_get_int( fileread );
 
-        ppass->open = fget_bool( fileread );
+        ppass->open = vfs_get_bool( fileread );
 
         ppass->mask = MPDFX_IMPASS | MPDFX_WALL;
-        if ( fget_bool( fileread ) ) ppass->mask = MPDFX_IMPASS;
-        if ( fget_bool( fileread ) ) ppass->mask = MPDFX_SLIPPY;
+        if ( vfs_get_bool( fileread ) ) ppass->mask = MPDFX_IMPASS;
+        if ( vfs_get_bool( fileread ) ) ppass->mask = MPDFX_SLIPPY;
 
         found = btrue;
     }

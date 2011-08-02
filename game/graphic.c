@@ -28,6 +28,8 @@
 #include "graphic_prt.h"
 #include "graphic_mad.h"
 #include "graphic_fan.h"
+#include "graphic_billboard.h"
+
 #include "server.h"
 
 #include <egolib/log.h>
@@ -67,7 +69,7 @@
 #include "script_compile.h"
 #include "game.h"
 #include "ui.h"
-#include "texture.h"
+#include "graphic_texture.h"
 #include "lighting.h"
 #include "egoboo.h"
 
@@ -296,8 +298,6 @@ struct s_cam_corner_info
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LIST( ACCESS_TYPE_NONE, billboard_data_t, BillboardList, BILLBOARD_COUNT );
-
 PROFILE_DECLARE( render_scene_init );
 PROFILE_DECLARE( render_scene_mesh );
 PROFILE_DECLARE( render_scene_solid );
@@ -428,7 +428,7 @@ static void init_bar_data( void );
 static void init_blip_data( void );
 static void init_map_data( void );
 
-static bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
+static bool_t billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
 static void   render_hud( void );
 static void   draw_inventory( void );
 
@@ -495,7 +495,6 @@ static gfx_rv render_world_background( const camera_t * pcam, const TX_REF textu
 static gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture );
 static float calc_light_rotation( int rotation, int normal );
 static float calc_light_global( int rotation, int normal, float lx, float ly, float lz );
-static void BillboardList_clear_data();
 
 static void gfx_disable_texturing();
 static void gfx_reshape_viewport( int w, int h );
@@ -512,7 +511,6 @@ static bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-IMPLEMENT_LIST( billboard_data_t, BillboardList, BILLBOARD_COUNT );
 IMPLEMENT_STATIC_ARY( DisplayMsgAry, MAX_MESSAGE );
 
 //--------------------------------------------------------------------------------------------
@@ -659,8 +657,10 @@ void gfx_system_begin()
     _dynalist.frame = -1;
     _dynalist.count = 0;
 
+    // begin the billboard system
+    billboard_system_begin();
+
     // initialize the gfx data dtructures
-    BillboardList_free_all();
     TxTexture_init_all();
 
     // initialize the profiling variables
@@ -731,7 +731,9 @@ void gfx_system_end()
     PROFILE_FREE( render_scene_mesh_drf_solid );
     PROFILE_FREE( render_scene_mesh_render_shadows );
 
-    BillboardList_free_all();
+    // end the billboard system
+    billboard_system_end();
+
     TxTexture_release_all();
 
     // de-initialize the renderlist manager
@@ -1702,8 +1704,8 @@ float draw_status( const CHR_REF character, float x, float y )
     char cTmp;
     char *readtext;
     STRING generictext;
-    int life, life_max;
-    int mana, mana_max;
+    int life_pips, life_pips_max;
+    int mana_pips, mana_pips_max;
 
     chr_t * pchr;
     cap_t * pcap;
@@ -1714,29 +1716,13 @@ float draw_status( const CHR_REF character, float x, float y )
     pcap = chr_get_pcap( character );
     if ( NULL == pcap ) return y;
 
-    life     = FP8_TO_INT( pchr->life );
-    life_max  = FP8_TO_INT( pchr->life_max );
-    mana     = FP8_TO_INT( pchr->mana );
-    mana_max  = FP8_TO_INT( pchr->mana_max );
-
-    // grab the character's display name
-    readtext = ( char * )chr_get_name( character, CHRNAME_CAPITAL );
+    life_pips      = SFP8_TO_SINT( pchr->life );
+    life_pips_max  = SFP8_TO_SINT( pchr->life_max );
+    mana_pips      = SFP8_TO_SINT( pchr->mana );
+    mana_pips_max  = SFP8_TO_SINT( pchr->mana_max );
 
     // make a short name for the actual display
-    for ( cnt = 0; cnt < 7; cnt++ )
-    {
-        cTmp = readtext[cnt];
-
-        if ( ' ' == cTmp || CSTR_END == cTmp )
-        {
-            generictext[cnt] = CSTR_END;
-            break;
-        }
-        else
-        {
-            generictext[cnt] = cTmp;
-        }
-    }
+    chr_get_name( character, CHRNAME_CAPITAL, generictext, 7 );
     generictext[7] = CSTR_END;
 
     // draw the name
@@ -1760,20 +1746,20 @@ float draw_status( const CHR_REF character, float x, float y )
     //Draw the small XP progress bar
     y = draw_character_xp_bar( character, x + 16, y );
 
-    // Draw the life bar
+    // Draw the life_pips bar
     if ( pchr->alive )
     {
-        y = draw_one_bar( pchr->life_color, x, y, life, life_max );
+        y = draw_one_bar( pchr->life_color, x, y, life_pips, life_pips_max );
     }
     else
     {
-        y = draw_one_bar( 0, x, y, 0, life_max );  // Draw a black bar
+        y = draw_one_bar( 0, x, y, 0, life_pips_max );  // Draw a black bar
     }
 
-    // Draw the mana bar
-    if ( mana_max > 0 )
+    // Draw the mana_pips bar
+    if ( mana_pips_max > 0 )
     {
-        y = draw_one_bar( pchr->mana_color, x, y, mana, mana_max );
+        y = draw_one_bar( pchr->mana_color, x, y, mana_pips, mana_pips_max );
     }
 
     return y;
@@ -3778,14 +3764,14 @@ void draw_inventory()
         edgex = sttx + width + 5 - 32;
 
         //calculate max carry weight
-        max_weight = 200 + FP8_TO_INT( pchr->strength ) * FP8_TO_INT( pchr->strength );
+        max_weight = 200 + FP8_TO_FLOAT( pchr->strength ) * FP8_TO_FLOAT( pchr->strength );
 
         //draw the backdrop
         ui_drawButton( 0, x, y, width, height, background_color );
         x += 5;
 
         //draw title
-        draw_wrap_string( chr_get_name( ichr, CHRNAME_CAPITAL ), x, y, x + width );
+        draw_wrap_string( chr_get_name( ichr, CHRNAME_CAPITAL, NULL, 0 ), x, y, x + width );
         y += 32;
 
         //draw each inventory icon
@@ -3862,7 +3848,7 @@ void gfx_render_world( const camera_t * pcam, const int render_list_index, const
     gfx_end_3d();
 
     // Render the billboards
-    gfx_render_all_billboards( pcam );
+    billboard_system_render_all( pcam );
 
     err_tmp = gfx_error_pop();
     if ( NULL != err_tmp )
@@ -4326,429 +4312,6 @@ void gfx_update_fps()
         stabilized_fps = stabilized_menu_fps;
     }
 
-}
-
-//--------------------------------------------------------------------------------------------
-// BILLBOARD DATA IMPLEMENTATION
-//--------------------------------------------------------------------------------------------
-billboard_data_t * billboard_data_init( billboard_data_t * pbb )
-{
-    if ( NULL == pbb ) return pbb;
-
-    BLANK_STRUCT_PTR( pbb )
-
-    pbb->tex_ref = INVALID_TX_TEXTURE;
-    pbb->ichr    = ( CHR_REF )MAX_CHR;
-
-    pbb->tint[RR] = pbb->tint[GG] = pbb->tint[BB] = pbb->tint[AA] = 1.0f;
-    pbb->size = 1.0f;
-
-    /*    pbb->tint_add[AA] -= 1.0f / 400.0f;
-
-        pbb->size_add -= 1.0f / 400.0f;
-
-        pbb->offset_add[ZZ] += 127 / 50.0f * 2.0f;
-    */
-    return pbb;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t billboard_data_free( billboard_data_t * pbb )
-{
-    if ( NULL == pbb || !pbb->valid ) return bfalse;
-
-    // free any allocated texture
-    TxTexture_free_one( pbb->tex_ref );
-
-    billboard_data_init( pbb );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t billboard_data_update( billboard_data_t * pbb )
-{
-    fvec3_t     vup, pos_new;
-    chr_t     * pchr;
-    float       height, offset;
-
-    if ( NULL == pbb || !pbb->valid ) return bfalse;
-
-    if ( !INGAME_CHR( pbb->ichr ) ) return bfalse;
-    pchr = ChrList_get_ptr( pbb->ichr );
-
-    // determine where the new position should be
-    chr_getMatUp( pchr, vup.v );
-
-    height = pchr->bump.height;
-    offset = MIN( pchr->bump.height * 0.5f, pchr->bump.size );
-
-    pos_new.x = pchr->pos.x + vup.x * ( height + offset );
-    pos_new.y = pchr->pos.y + vup.y * ( height + offset );
-    pos_new.z = pchr->pos.z + vup.z * ( height + offset );
-
-    // allow the billboards to be a bit bouncy
-    pbb->pos.x = pbb->pos.x * 0.5f + pos_new.x * 0.5f;
-    pbb->pos.y = pbb->pos.y * 0.5f + pos_new.y * 0.5f;
-    pbb->pos.z = pbb->pos.z * 0.5f + pos_new.z * 0.5f;
-
-    pbb->size += pbb->size_add;
-
-    pbb->tint[RR] += pbb->tint_add[RR];
-    pbb->tint[GG] += pbb->tint_add[GG];
-    pbb->tint[BB] += pbb->tint_add[BB];
-    pbb->tint[AA] += pbb->tint_add[AA];
-
-    pbb->offset[XX] += pbb->offset_add[XX];
-    pbb->offset[YY] += pbb->offset_add[YY];
-    pbb->offset[ZZ] += pbb->offset_add[ZZ];
-
-    // automatically kill a billboard that is no longer useful
-    if ( pbb->tint[AA] == 0.0f || pbb->size == 0.0f )
-    {
-        billboard_data_free( pbb );
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color color, const char * format, ... )
-{
-    va_list args;
-    int rv;
-    oglx_texture_t * ptex;
-
-    if ( NULL == pbb || !pbb->valid ) return bfalse;
-
-    // release any existing texture in case there is an error
-    ptex = TxTexture_get_valid_ptr( pbb->tex_ref );
-    oglx_texture_Release( ptex );
-
-    va_start( args, format );
-    rv = fnt_vprintf_OGL( font, color, format, args, &( ptex->surface ) );
-    va_end( args );
-
-    ptex->base_valid = bfalse;
-    oglx_grab_texture_state( GL_TEXTURE_2D, 0, ptex );
-
-    ptex->imgW  = ptex->surface->w;
-    ptex->imgH  = ptex->surface->h;
-    strncpy( ptex->name, "billboard text", SDL_arraysize( ptex->name ) );
-
-    return ( rv >= 0 );
-}
-
-//--------------------------------------------------------------------------------------------
-// BILLBOARD IMPLEMENTATION
-//--------------------------------------------------------------------------------------------
-void BillboardList_clear_data()
-{
-    /// @details BB@> reset the free billboard list.
-
-    int cnt;
-
-    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
-    {
-        BillboardList.free_ref[cnt] = cnt;
-    }
-    BillboardList.free_count = cnt;
-}
-
-//--------------------------------------------------------------------------------------------
-void BillboardList_init_all()
-{
-    BBOARD_REF cnt;
-
-    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
-    {
-        billboard_data_init( BillboardList_get_ptr( cnt ) );
-    }
-
-    BillboardList_clear_data();
-}
-
-//--------------------------------------------------------------------------------------------
-void BillboardList_update_all()
-{
-    BBOARD_REF cnt;
-    Uint32     ticks;
-
-    ticks = egoboo_get_ticks();
-
-    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
-    {
-        bool_t is_invalid;
-
-        billboard_data_t * pbb = BillboardList_get_ptr( cnt );
-
-        if ( !pbb->valid ) continue;
-
-        is_invalid = bfalse;
-        if ( ticks >= pbb->time || NULL == TxTexture_get_valid_ptr( pbb->tex_ref ) )
-        {
-            is_invalid = btrue;
-        }
-
-        if ( !INGAME_CHR( pbb->ichr ) || INGAME_CHR( ChrList.lst[pbb->ichr].attachedto ) )
-        {
-            is_invalid = btrue;
-        }
-
-        if ( is_invalid )
-        {
-            // the billboard has expired
-
-            // unlink it from the character
-            if ( INGAME_CHR( pbb->ichr ) )
-            {
-                ChrList.lst[pbb->ichr].ibillboard = INVALID_BILLBOARD;
-            }
-
-            // deallocate the billboard
-            BillboardList_free_one( REF_TO_INT( cnt ) );
-        }
-        else
-        {
-            billboard_data_update( BillboardList_get_ptr( cnt ) );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void BillboardList_free_all()
-{
-    BBOARD_REF cnt;
-
-    for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
-    {
-        if ( !BillboardList.lst[cnt].valid ) continue;
-
-        billboard_data_update( BillboardList_get_ptr( cnt ) );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-size_t BillboardList_get_free( Uint32 lifetime_secs )
-{
-    TX_REF             itex = ( TX_REF )INVALID_TX_TEXTURE;
-    size_t             ibb  = INVALID_BILLBOARD;
-    billboard_data_t * pbb  = NULL;
-
-    if ( BillboardList.free_count <= 0 ) return INVALID_BILLBOARD;
-
-    if ( 0 == lifetime_secs ) return INVALID_BILLBOARD;
-
-    itex = TxTexture_get_free(( TX_REF )INVALID_TX_TEXTURE );
-    if ( INVALID_TX_TEXTURE == itex ) return INVALID_BILLBOARD;
-
-    // grab the top index
-    BillboardList.free_count--;
-    BillboardList.update_guid++;
-
-    ibb = BillboardList.free_ref[BillboardList.free_count];
-
-    if ( VALID_BILLBOARD_RANGE( ibb ) )
-    {
-        pbb = BillboardList_get_ptr( ibb );
-
-        billboard_data_init( pbb );
-
-        pbb->tex_ref = itex;
-        pbb->time    = egoboo_get_ticks() + lifetime_secs * TICKS_PER_SEC;
-        pbb->valid   = btrue;
-    }
-    else
-    {
-        // the billboard allocation returned an ivaild value
-        // deallocate the texture
-        TxTexture_free_one( itex );
-
-        ibb = INVALID_BILLBOARD;
-    }
-
-    return ibb;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t BillboardList_free_one( size_t ibb )
-{
-    billboard_data_t * pbb;
-
-    if ( !VALID_BILLBOARD_RANGE( ibb ) ) return bfalse;
-    pbb = BillboardList_get_ptr( ibb );
-
-    billboard_data_free( pbb );
-
-#if defined(_DEBUG)
-    {
-        int cnt;
-        // determine whether this texture is already in the list of free textures
-        // that is an error
-        for ( cnt = 0; cnt < BillboardList.free_count; cnt++ )
-        {
-            if ( ibb == BillboardList.free_ref[cnt] ) return bfalse;
-        }
-    }
-#endif
-
-    if ( BillboardList.free_count >= BILLBOARD_COUNT )
-        return bfalse;
-
-    // do not put anything below TX_LAST back onto the SDL_free stack
-    BillboardList.free_ref[BillboardList.free_count] = ibb;
-
-    BillboardList.free_count++;
-    BillboardList.update_guid++;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool_t render_one_billboard( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt )
-{
-    int i;
-    GLvertex vtlist[4];
-    float x1, y1;
-    float w, h;
-    fvec3_t vec_up, vec_rgt;
-
-    oglx_texture_t     * ptex;
-    chr_t * pchr;
-
-    if ( NULL == pbb || !pbb->valid ) return bfalse;
-
-    if ( !INGAME_CHR( pbb->ichr ) ) return bfalse;
-    pchr = ChrList_get_ptr( pbb->ichr );
-
-    // do not display for objects that are mounted or being held
-    if ( IS_ATTACHED_CHR( pbb->ichr ) ) return bfalse;
-
-    ptex = TxTexture_get_valid_ptr( pbb->tex_ref );
-
-    oglx_texture_Bind( ptex );
-
-    w = oglx_texture_GetImageWidth( ptex );
-    h = oglx_texture_GetImageHeight( ptex );
-
-    x1 = w  / ( float ) oglx_texture_GetTextureWidth( ptex );
-    y1 = h  / ( float ) oglx_texture_GetTextureHeight( ptex );
-
-    // @todo this billboard stuff needs to be implemented as a OpenGL transform
-
-    // scale the camera vectors
-    fvec3_scale( vec_rgt.v, cam_rgt, w * scale * pbb->size );
-    fvec3_scale( vec_up.v, cam_up, h * scale * pbb->size );
-
-    // bottom left
-    vtlist[0].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( -vec_rgt.x - 0 * vec_up.x );
-    vtlist[0].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( -vec_rgt.y - 0 * vec_up.y );
-    vtlist[0].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( -vec_rgt.z - 0 * vec_up.z );
-    vtlist[0].tex[SS] = x1;
-    vtlist[0].tex[TT] = y1;
-
-    // top left
-    vtlist[1].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( -vec_rgt.x + 2 * vec_up.x );
-    vtlist[1].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( -vec_rgt.y + 2 * vec_up.y );
-    vtlist[1].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( -vec_rgt.z + 2 * vec_up.z );
-    vtlist[1].tex[SS] = x1;
-    vtlist[1].tex[TT] = 0;
-
-    // top right
-    vtlist[2].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( vec_rgt.x + 2 * vec_up.x );
-    vtlist[2].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( vec_rgt.y + 2 * vec_up.y );
-    vtlist[2].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( vec_rgt.z + 2 * vec_up.z );
-    vtlist[2].tex[SS] = 0;
-    vtlist[2].tex[TT] = 0;
-
-    // bottom right
-    vtlist[3].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( vec_rgt.x - 0 * vec_up.x );
-    vtlist[3].pos[YY] = pbb->offset[YY] + pbb->pos.y + ( vec_rgt.y - 0 * vec_up.y );
-    vtlist[3].pos[ZZ] = pbb->offset[ZZ] + pbb->pos.z + ( vec_rgt.z - 0 * vec_up.z );
-    vtlist[3].tex[SS] = 0;
-    vtlist[3].tex[TT] = y1;
-
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    {
-        // Go on and draw it
-        GL_DEBUG( glBegin )( GL_QUADS );
-        {
-            GL_DEBUG( glColor4fv )( pbb->tint );
-
-            for ( i = 0; i < 4; i++ )
-            {
-                GL_DEBUG( glTexCoord2fv )( vtlist[i].tex );
-                GL_DEBUG( glVertex3fv )( vtlist[i].pos );
-            }
-        }
-        GL_DEBUG_END();
-    }
-    ATTRIB_POP( __FUNCTION__ );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv gfx_render_all_billboards( const camera_t * pcam )
-{
-    BBOARD_REF cnt;
-
-    if ( NULL == pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
-        return gfx_error;
-    }
-
-    gfx_begin_3d( pcam );
-    {
-        fvec3_t cam_rgt, cam_up;
-
-        cam_rgt.x =  pcam->mView.CNV( 0, 0 );
-        cam_rgt.y =  pcam->mView.CNV( 1, 0 );
-        cam_rgt.z =  pcam->mView.CNV( 2, 0 );
-
-        cam_up.x    = -pcam->mView.CNV( 0, 1 );
-        cam_up.y    = -pcam->mView.CNV( 1, 1 );
-        cam_up.z    = -pcam->mView.CNV( 2, 1 );
-
-        ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
-        {
-            // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
-
-            // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );                // GL_ENABLE_BIT
-            GL_DEBUG( glDepthFunc )( GL_ALWAYS );                 // GL_DEPTH_BUFFER_BIT
-
-            // flat shading
-            GL_DEBUG( glShadeModel )( GL_FLAT );                                  // GL_LIGHTING_BIT
-
-            // draw draw front and back faces of polygons
-            oglx_end_culling();                                // GL_ENABLE_BIT
-
-            GL_DEBUG( glEnable )( GL_BLEND );                                     // GL_ENABLE_BIT
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );      // GL_COLOR_BUFFER_BIT
-
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                          // GL_COLOR_BUFFER_BIT
-
-            GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
-
-            for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
-            {
-                billboard_data_t * pbb = BillboardList_get_ptr( cnt );
-
-                if ( !pbb->valid ) continue;
-
-                render_one_billboard( pbb, 0.75f, cam_up.v, cam_rgt.v );
-            }
-        }
-        ATTRIB_POP( __FUNCTION__ );
-    }
-    gfx_end_3d();
-
-    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5365,7 +4928,7 @@ void init_all_graphics()
     init_map_data();
     font_bmp_init();
 
-    BillboardList_free_all();
+    billboard_system_init();
     TxTexture_init_all();
 
     // the mouse input_cursor was just erased. reload it.

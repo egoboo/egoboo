@@ -26,7 +26,7 @@
 #include "graphic.h"
 #include "camera_system.h"
 #include "game.h"
-#include "texture.h"
+#include "graphic_texture.h"
 
 #include "egoboo.h"
 

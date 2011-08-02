@@ -42,6 +42,8 @@ extern "C"
     void template_put_char( vfs_FILE* filetemp, vfs_FILE* filewrite, char cval );
     void template_put_int( vfs_FILE* filetemp, vfs_FILE* filewrite, int ival );
     void template_put_float( vfs_FILE* filetemp, vfs_FILE* filewrite, float fval );
+    void template_put_ufp8( vfs_FILE* filetemp, vfs_FILE* filewrite, UFP8_T ival );
+    void template_put_sfp8( vfs_FILE* filetemp, vfs_FILE* filewrite, SFP8_T ival );
     void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, bool_t truth );
     void template_put_damage_type( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 damagetype );
     void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action );

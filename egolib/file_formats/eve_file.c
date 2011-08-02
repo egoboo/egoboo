@@ -64,127 +64,127 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
     if ( NULL == fileread ) return NULL;
 
     // btrue/bfalse values
-    peve->retarget = fget_next_bool( fileread );
-    peve->override = fget_next_bool( fileread );
-    peve->remove_overridden = fget_next_bool( fileread );
-    peve->killtargetonend = fget_next_bool( fileread );
+    peve->retarget = vfs_get_next_bool( fileread );
+    peve->override = vfs_get_next_bool( fileread );
+    peve->remove_overridden = vfs_get_next_bool( fileread );
+    peve->killtargetonend = vfs_get_next_bool( fileread );
 
-    peve->poofonend = fget_next_bool( fileread );
+    peve->poofonend = vfs_get_next_bool( fileread );
 
     // More stuff
-    peve->lifetime   = fget_next_int( fileread );
-    peve->endmessage = fget_next_int( fileread );
+    peve->lifetime   = vfs_get_next_int( fileread );
+    peve->endmessage = vfs_get_next_int( fileread );
 
     // Drain stuff
-    peve->owner_mana    = fget_next_float( fileread ) * 256;
-    peve->target_mana   = fget_next_float( fileread ) * 256;
-    peve->endifcantpay  = fget_next_bool( fileread );
-    peve->owner_life    = fget_next_float( fileread ) * 256;
-    peve->target_life   = fget_next_float( fileread ) * 256;
+    peve->owner_mana    = vfs_get_next_sfp8( fileread );
+    peve->target_mana   = vfs_get_next_sfp8( fileread );
+    peve->endifcantpay  = vfs_get_next_bool( fileread );
+    peve->owner_life    = vfs_get_next_sfp8( fileread );
+    peve->target_life   = vfs_get_next_sfp8( fileread );
 
     // Specifics
-    peve->required_damagetype = fget_next_damage_type( fileread );
-    peve->require_damagetarget_damagetype = fget_next_damage_type( fileread );
-    peve->removedbyidsz   = fget_next_idsz( fileread );
+    peve->required_damagetype = vfs_get_next_damage_type( fileread );
+    peve->require_damagetarget_damagetype = vfs_get_next_damage_type( fileread );
+    peve->removedbyidsz   = vfs_get_next_idsz( fileread );
 
     // Now the set values
-    peve->setyesno[SETDAMAGETYPE] = fget_next_bool( fileread );
-    peve->setvalue[SETDAMAGETYPE] = fget_damage_type( fileread );
+    peve->setyesno[SETDAMAGETYPE] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETDAMAGETYPE] = vfs_get_damage_type( fileread );
 
-    peve->setyesno[SETNUMBEROFJUMPS] = fget_next_bool( fileread );
-    peve->setvalue[SETNUMBEROFJUMPS] = fget_int( fileread );
+    peve->setyesno[SETNUMBEROFJUMPS] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETNUMBEROFJUMPS] = vfs_get_int( fileread );
 
-    peve->setyesno[SETLIFEBARCOLOR] = fget_next_bool( fileread );
-    peve->setvalue[SETLIFEBARCOLOR] = fget_int( fileread );
+    peve->setyesno[SETLIFEBARCOLOR] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETLIFEBARCOLOR] = vfs_get_int( fileread );
 
-    peve->setyesno[SETMANABARCOLOR] = fget_next_bool( fileread );
-    peve->setvalue[SETMANABARCOLOR] = fget_int( fileread );
+    peve->setyesno[SETMANABARCOLOR] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETMANABARCOLOR] = vfs_get_int( fileread );
 
-    peve->setyesno[SETSLASHMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETSLASHMODIFIER] = fget_damage_modifier( fileread );
-    peve->addvalue[ADDSLASHRESIST]   = fget_damage_resist( fileread );
+    peve->setyesno[SETSLASHMODIFIER] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETSLASHMODIFIER] = vfs_get_damage_modifier( fileread );
+    peve->addvalue[ADDSLASHRESIST]   = vfs_get_damage_resist( fileread );
 
-    peve->setyesno[SETCRUSHMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETCRUSHMODIFIER] = fget_damage_modifier( fileread );
-    peve->addvalue[ADDCRUSHRESIST]   = fget_damage_resist( fileread );
+    peve->setyesno[SETCRUSHMODIFIER] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETCRUSHMODIFIER] = vfs_get_damage_modifier( fileread );
+    peve->addvalue[ADDCRUSHRESIST]   = vfs_get_damage_resist( fileread );
 
-    peve->setyesno[SETPOKEMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETPOKEMODIFIER] = fget_damage_modifier( fileread );
-    peve->addvalue[ADDPOKERESIST]   = fget_damage_resist( fileread );
+    peve->setyesno[SETPOKEMODIFIER] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETPOKEMODIFIER] = vfs_get_damage_modifier( fileread );
+    peve->addvalue[ADDPOKERESIST]   = vfs_get_damage_resist( fileread );
 
-    peve->setyesno[SETHOLYMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETHOLYMODIFIER] = fget_damage_modifier( fileread );
-    peve->addvalue[ADDHOLYRESIST]   = fget_damage_resist( fileread );
+    peve->setyesno[SETHOLYMODIFIER] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETHOLYMODIFIER] = vfs_get_damage_modifier( fileread );
+    peve->addvalue[ADDHOLYRESIST]   = vfs_get_damage_resist( fileread );
 
-    peve->setyesno[SETEVILMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETEVILMODIFIER] = fget_damage_modifier( fileread );
-    peve->addvalue[ADDEVILRESIST]   = fget_damage_resist( fileread );
+    peve->setyesno[SETEVILMODIFIER] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETEVILMODIFIER] = vfs_get_damage_modifier( fileread );
+    peve->addvalue[ADDEVILRESIST]   = vfs_get_damage_resist( fileread );
 
-    peve->setyesno[SETFIREMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETFIREMODIFIER] = fget_damage_modifier( fileread );
-    peve->addvalue[ADDFIRERESIST]   = fget_damage_resist( fileread );
+    peve->setyesno[SETFIREMODIFIER] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETFIREMODIFIER] = vfs_get_damage_modifier( fileread );
+    peve->addvalue[ADDFIRERESIST]   = vfs_get_damage_resist( fileread );
 
-    peve->setyesno[SETICEMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETICEMODIFIER] = fget_damage_modifier( fileread );
-    peve->addvalue[ADDICERESIST]   = fget_damage_resist( fileread );
+    peve->setyesno[SETICEMODIFIER] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETICEMODIFIER] = vfs_get_damage_modifier( fileread );
+    peve->addvalue[ADDICERESIST]   = vfs_get_damage_resist( fileread );
 
-    peve->setyesno[SETZAPMODIFIER] = fget_next_bool( fileread );
-    peve->setvalue[SETZAPMODIFIER] = fget_damage_modifier( fileread );
-    peve->addvalue[ADDZAPRESIST]   = fget_damage_resist( fileread );
+    peve->setyesno[SETZAPMODIFIER] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETZAPMODIFIER] = vfs_get_damage_modifier( fileread );
+    peve->addvalue[ADDZAPRESIST]   = vfs_get_damage_resist( fileread );
 
-    peve->setyesno[SETFLASHINGAND] = fget_next_bool( fileread );
-    peve->setvalue[SETFLASHINGAND] = fget_int( fileread );
+    peve->setyesno[SETFLASHINGAND] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETFLASHINGAND] = vfs_get_int( fileread );
 
-    peve->setyesno[SETLIGHTBLEND] = fget_next_bool( fileread );
-    peve->setvalue[SETLIGHTBLEND] = fget_int( fileread );
+    peve->setyesno[SETLIGHTBLEND] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETLIGHTBLEND] = vfs_get_int( fileread );
 
-    peve->setyesno[SETALPHABLEND] = fget_next_bool( fileread );
-    peve->setvalue[SETALPHABLEND] = fget_int( fileread );
+    peve->setyesno[SETALPHABLEND] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETALPHABLEND] = vfs_get_int( fileread );
 
-    peve->setyesno[SETSHEEN] = fget_next_bool( fileread );
-    peve->setvalue[SETSHEEN] = fget_int( fileread );
+    peve->setyesno[SETSHEEN] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETSHEEN] = vfs_get_int( fileread );
 
-    peve->setyesno[SETFLYTOHEIGHT] = fget_next_bool( fileread );
-    peve->setvalue[SETFLYTOHEIGHT] = fget_int( fileread );
+    peve->setyesno[SETFLYTOHEIGHT] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETFLYTOHEIGHT] = vfs_get_int( fileread );
 
-    peve->setyesno[SETWALKONWATER] = fget_next_bool( fileread );
-    peve->setvalue[SETWALKONWATER] = fget_bool( fileread );
+    peve->setyesno[SETWALKONWATER] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETWALKONWATER] = vfs_get_bool( fileread );
 
-    peve->setyesno[SETCANSEEINVISIBLE] = fget_next_bool( fileread );
-    peve->setvalue[SETCANSEEINVISIBLE] = fget_bool( fileread );
+    peve->setyesno[SETCANSEEINVISIBLE] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETCANSEEINVISIBLE] = vfs_get_bool( fileread );
 
-    peve->setyesno[SETMISSILETREATMENT] = fget_next_bool( fileread );
-    cTmp = fget_first_letter( fileread );
+    peve->setyesno[SETMISSILETREATMENT] = vfs_get_next_bool( fileread );
+    cTmp = vfs_get_first_letter( fileread );
     if ( 'R' == toupper( cTmp ) )       peve->setvalue[SETMISSILETREATMENT] = MISSILE_REFLECT;
     else if ( 'D' == toupper( cTmp ) )  peve->setvalue[SETMISSILETREATMENT] = MISSILE_DEFLECT;
     else                                peve->setvalue[SETMISSILETREATMENT] = MISSILE_NORMAL;
 
-    peve->setyesno[SETCOSTFOREACHMISSILE] = fget_next_bool( fileread );
-    peve->setvalue[SETCOSTFOREACHMISSILE] = fget_float( fileread );
+    peve->setyesno[SETCOSTFOREACHMISSILE] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETCOSTFOREACHMISSILE] = vfs_get_float( fileread );
 
-    peve->setyesno[SETMORPH] = fget_next_bool( fileread );
-    peve->setvalue[SETMORPH] = btrue;  // fget_bool( fileread );        //ZF> huh? why always channel and morph?
+    peve->setyesno[SETMORPH] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETMORPH] = btrue;  // vfs_get_bool( fileread );        //ZF> huh? why always channel and morph?
 
-    peve->setyesno[SETCHANNEL] = fget_next_bool( fileread );
-    peve->setvalue[SETCHANNEL] = btrue;  // fget_bool( fileread );
+    peve->setyesno[SETCHANNEL] = vfs_get_next_bool( fileread );
+    peve->setvalue[SETCHANNEL] = btrue;  // vfs_get_bool( fileread );
 
     // Now read in the add values
-    peve->addvalue[ADDJUMPPOWER]    = fget_next_float( fileread );
-    peve->addvalue[ADDBUMPDAMPEN]   = fget_next_float( fileread ) / 256.0f;    // Stored as 8.8-fixed, used as float
-    peve->addvalue[ADDBOUNCINESS]   = fget_next_float( fileread ) / 256.0f;    // Stored as 8.8-fixed, used as float
-    peve->addvalue[ADDDAMAGE]       = fget_next_float( fileread ) * 256.0f;    // Stored as float, used as 8.8-fixed
-    peve->addvalue[ADDSIZE]         = fget_next_float( fileread );             // Stored as float, used as float
-    peve->addvalue[ADDACCEL]        = fget_next_int( fileread )   / 80.0f;     // Stored as int, used as float
-    peve->addvalue[ADDRED]          = fget_next_int( fileread );
-    peve->addvalue[ADDGRN]          = fget_next_int( fileread );
-    peve->addvalue[ADDBLU]          = fget_next_int( fileread );
-    peve->addvalue[ADDDEFENSE]      = -fget_next_int( fileread );              // Defense is backwards
-    peve->addvalue[ADDMANA]         = fget_next_float( fileread ) * 256.0f;    // Stored as float, used as 8.8-fixed
-    peve->addvalue[ADDLIFE]         = fget_next_float( fileread ) * 256.0f;    // Stored as float, used as 8.8-fixed
-    peve->addvalue[ADDSTRENGTH]     = fget_next_float( fileread ) * 256.0f;    // Stored as float, used as 8.8-fixed
-    peve->addvalue[ADDWISDOM]       = fget_next_float( fileread ) * 256.0f;    // Stored as float, used as 8.8-fixed
-    peve->addvalue[ADDINTELLIGENCE] = fget_next_float( fileread ) * 256.0f;    // Stored as float, used as 8.8-fixed
-    peve->addvalue[ADDDEXTERITY]    = fget_next_float( fileread ) * 256.0f;    // Stored as float, used as 8.8-fixed
+    peve->addvalue[ADDJUMPPOWER]    = vfs_get_next_float( fileread );
+    peve->addvalue[ADDBUMPDAMPEN]   = vfs_get_next_int( fileread ) / 256.0f;    // Stored as 8.8-fixed, used as float
+    peve->addvalue[ADDBOUNCINESS]   = vfs_get_next_int( fileread ) / 256.0f;    // Stored as 8.8-fixed, used as float
+    peve->addvalue[ADDDAMAGE]       = vfs_get_next_sfp8( fileread );            // Stored as float, used as 8.8-fixed
+    peve->addvalue[ADDSIZE]         = vfs_get_next_float( fileread );           // Stored as float, used as float
+    peve->addvalue[ADDACCEL]        = vfs_get_next_int( fileread )   / 80.0f;   // Stored as int, used as float
+    peve->addvalue[ADDRED]          = vfs_get_next_int( fileread );
+    peve->addvalue[ADDGRN]          = vfs_get_next_int( fileread );
+    peve->addvalue[ADDBLU]          = vfs_get_next_int( fileread );
+    peve->addvalue[ADDDEFENSE]      = -vfs_get_next_int( fileread );    // Defense is backwards
+    peve->addvalue[ADDMANA]         = vfs_get_next_sfp8( fileread );    // Stored as float, used as 8.8-fixed
+    peve->addvalue[ADDLIFE]         = vfs_get_next_sfp8( fileread );    // Stored as float, used as 8.8-fixed
+    peve->addvalue[ADDSTRENGTH]     = vfs_get_next_sfp8( fileread );    // Stored as float, used as 8.8-fixed
+    peve->addvalue[ADDWISDOM]       = vfs_get_next_sfp8( fileread );    // Stored as float, used as 8.8-fixed
+    peve->addvalue[ADDINTELLIGENCE] = vfs_get_next_sfp8( fileread );    // Stored as float, used as 8.8-fixed
+    peve->addvalue[ADDDEXTERITY]    = vfs_get_next_sfp8( fileread );    // Stored as float, used as 8.8-fixed
 
     // Determine which entries are not important
     for ( cnt = 0; cnt < MAX_ENCHANT_ADD; cnt++ )
@@ -193,21 +193,21 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
     }
 
     // Read expansions
-    while ( goto_colon( NULL, fileread, btrue ) )
+    while ( goto_colon_vfs( NULL, fileread, btrue ) )
     {
-        idsz = fget_idsz( fileread );
+        idsz = vfs_get_idsz( fileread );
 
-        if ( idsz == MAKE_IDSZ( 'A', 'M', 'O', 'U' ) ) peve->contspawn_amount = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) ) peve->contspawn_lpip = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) ) peve->contspawn_delay = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'F', 'A', 'C', 'E' ) ) peve->contspawn_facingadd = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'E', 'N', 'D' ) ) peve->endsound_index = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'Y' ) ) peve->stayifnoowner = ( 0 != fget_int( fileread ) );
-        else if ( idsz == MAKE_IDSZ( 'O', 'V', 'E', 'R' ) ) peve->spawn_overlay = ( 0 != fget_int( fileread ) );
-        else if ( idsz == MAKE_IDSZ( 'D', 'E', 'A', 'D' ) ) peve->stayiftargetdead = ( 0 != fget_int( fileread ) );
+        if ( idsz == MAKE_IDSZ( 'A', 'M', 'O', 'U' ) ) peve->contspawn_amount = vfs_get_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) ) peve->contspawn_lpip = vfs_get_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'T', 'I', 'M', 'E' ) ) peve->contspawn_delay = vfs_get_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'F', 'A', 'C', 'E' ) ) peve->contspawn_facingadd = vfs_get_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'E', 'N', 'D' ) ) peve->endsound_index = vfs_get_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'Y' ) ) peve->stayifnoowner = ( 0 != vfs_get_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'O', 'V', 'E', 'R' ) ) peve->spawn_overlay = ( 0 != vfs_get_int( fileread ) );
+        else if ( idsz == MAKE_IDSZ( 'D', 'E', 'A', 'D' ) ) peve->stayiftargetdead = ( 0 != vfs_get_int( fileread ) );
 
-        else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) peve->seekurse = fget_int( fileread );
-        else if ( idsz == MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) peve->darkvision = fget_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) peve->seekurse = vfs_get_int( fileread );
+        else if ( idsz == MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) peve->darkvision = vfs_get_int( fileread );
     }
 
     // All done ( finally )
@@ -350,73 +350,73 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
 
     // Now read in the add values
     template_put_float( filetemp, filewrite, peve->addvalue[ADDJUMPPOWER] );
-    template_put_float( filetemp, filewrite, peve->addvalue[ADDBUMPDAMPEN] * 256.0f );
-    template_put_float( filetemp, filewrite, peve->addvalue[ADDBOUNCINESS] * 256.0f );
-    template_put_float( filetemp, filewrite, peve->addvalue[ADDDAMAGE] / 256.0f );
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDBUMPDAMPEN] * 256.0f );  // Used as float, stored as 8.8-fixed
+    template_put_float( filetemp, filewrite, peve->addvalue[ADDBOUNCINESS] * 256.0f );  // Used as float, stored as 8.8-fixed
+    template_put_sfp8( filetemp, filewrite, peve->addvalue[ADDDAMAGE] );                // Used as 8.8-fixed, stored as float
     template_put_float( filetemp, filewrite, peve->addvalue[ADDSIZE] );
     template_put_int( filetemp, filewrite, peve->addvalue[ADDACCEL] * 80.0f );
     template_put_int( filetemp, filewrite, peve->addvalue[ADDRED] );
     template_put_int( filetemp, filewrite, peve->addvalue[ADDGRN] );
     template_put_int( filetemp, filewrite, peve->addvalue[ADDBLU] );
-    template_put_int( filetemp, filewrite, -peve->addvalue[ADDDEFENSE] );  // Defense is backwards
-    template_put_float( filetemp, filewrite, peve->addvalue[ADDMANA] / 256.0f );
-    template_put_float( filetemp, filewrite, peve->addvalue[ADDLIFE] / 256.0f );
-    template_put_float( filetemp, filewrite, peve->addvalue[ADDSTRENGTH] / 256.0f );
-    template_put_float( filetemp, filewrite, peve->addvalue[ADDWISDOM] / 256.0f );
-    template_put_float( filetemp, filewrite, peve->addvalue[ADDINTELLIGENCE] / 256.0f );
-    template_put_float( filetemp, filewrite, peve->addvalue[ADDDEXTERITY] / 256.0f );
+    template_put_int( filetemp, filewrite, -peve->addvalue[ADDDEFENSE] );                // Defense is backwards
+    template_put_sfp8( filetemp, filewrite, peve->addvalue[ADDMANA] );                   // Used as 8.8-fixed, stored as float
+    template_put_sfp8( filetemp, filewrite, peve->addvalue[ADDLIFE] );                   // Used as 8.8-fixed, stored as float
+    template_put_sfp8( filetemp, filewrite, peve->addvalue[ADDSTRENGTH] );               // Used as 8.8-fixed, stored as float
+    template_put_sfp8( filetemp, filewrite, peve->addvalue[ADDWISDOM] );                 // Used as 8.8-fixed, stored as float
+    template_put_sfp8( filetemp, filewrite, peve->addvalue[ADDINTELLIGENCE] );           // Used as 8.8-fixed, stored as float
+    template_put_sfp8( filetemp, filewrite, peve->addvalue[ADDDEXTERITY] );              // Used as 8.8-fixed, stored as float
 
     // copy the template file to the next free output section
     template_seek_free( filetemp, filewrite );
 
     if ( peve->contspawn_amount > 0 )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'A', 'M', 'O', 'U' ), peve->contspawn_amount );
+        vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'A', 'M', 'O', 'U' ), peve->contspawn_amount );
     }
 
     if ( peve->contspawn_lpip > 0 )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'T', 'Y', 'P', 'E' ), peve->contspawn_lpip );
+        vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'T', 'Y', 'P', 'E' ), peve->contspawn_lpip );
     }
 
     if ( peve->contspawn_facingadd > 0 )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'T', 'I', 'M', 'E' ), peve->contspawn_facingadd );
+        vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'T', 'I', 'M', 'E' ), peve->contspawn_facingadd );
     }
 
     if ( peve->contspawn_delay > 0 )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'F', 'A', 'C', 'E' ), peve->contspawn_delay );
+        vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'F', 'A', 'C', 'E' ), peve->contspawn_delay );
     }
 
     if ( INVALID_SOUND != peve->endsound_index )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'E', 'N', 'D' ), peve->endsound_index );
+        vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'S', 'E', 'N', 'D' ), peve->endsound_index );
     }
 
     if ( peve->stayifnoowner )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'Y' ), 1 );
+        vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'Y' ), 1 );
     }
 
     if ( peve->spawn_overlay )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'O', 'V', 'E', 'R' ), peve->spawn_overlay );
+        vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'O', 'V', 'E', 'R' ), peve->spawn_overlay );
     }
 
     if ( peve->seekurse )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'C', 'K', 'U', 'R' ), peve->seekurse );
+        vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'C', 'K', 'U', 'R' ), peve->seekurse );
     }
 
     if ( peve->darkvision )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'A', 'R', 'K' ), peve->darkvision );
+        vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'D', 'A', 'R', 'K' ), peve->darkvision );
     }
 
     if ( peve->stayiftargetdead )
     {
-        fput_expansion( filewrite, "", MAKE_IDSZ( 'D', 'E', 'A', 'D' ), 1 );
+        vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'D', 'E', 'A', 'D' ), 1 );
     }
 
     // dump the rest of the template file

@@ -51,21 +51,21 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     if ( NULL == fileread ) return NULL;
 
     // Read basic data
-    fget_next_name( fileread, pmod->longname, sizeof( pmod->longname ) );
+    vfs_get_next_name( fileread, pmod->longname, sizeof( pmod->longname ) );
     vfs_get_next_string( fileread, pmod->reference, SDL_arraysize( pmod->reference ) );
-    pmod->unlockquest.id    = fget_next_idsz( fileread );
-    pmod->unlockquest.level = fget_int( fileread );
+    pmod->unlockquest.id    = vfs_get_next_idsz( fileread );
+    pmod->unlockquest.level = vfs_get_int( fileread );
 
-    pmod->importamount = fget_next_int( fileread );
-    pmod->allowexport  = fget_next_bool( fileread );
-    pmod->minplayers   = fget_next_int( fileread );
-    pmod->maxplayers   = fget_next_int( fileread );
+    pmod->importamount = vfs_get_next_int( fileread );
+    pmod->allowexport  = vfs_get_next_bool( fileread );
+    pmod->minplayers   = vfs_get_next_int( fileread );
+    pmod->maxplayers   = vfs_get_next_int( fileread );
 
-    cTmp = fget_next_char( fileread );
+    cTmp = vfs_get_next_char( fileread );
     if ( 'T' == toupper( cTmp ) )  pmod->respawnvalid = btrue;
     if ( 'A' == toupper( cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
 
-    fget_next_char( fileread );
+    vfs_get_next_char( fileread );
 
     vfs_get_next_string( fileread, pmod->rank, SDL_arraysize( pmod->rank ) );
     str_trim( pmod->rank );
@@ -96,15 +96,15 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     pmod->moduletype = FILTER_SIDE;
 
     // Read expansions
-    while ( goto_colon( NULL, fileread, btrue ) )
+    while ( goto_colon_vfs( NULL, fileread, btrue ) )
     {
-        IDSZ idsz = fget_idsz( fileread );
+        IDSZ idsz = vfs_get_idsz( fileread );
 
         // Read module type
         if ( idsz == MAKE_IDSZ( 'T', 'Y', 'P', 'E' ) )
         {
             // grab the expansion value
-            cTmp = fget_first_letter( fileread );
+            cTmp = vfs_get_first_letter( fileread );
 
             // parse the expansion value
             if ( 'M' == toupper( cTmp ) )  pmod->moduletype = FILTER_MAIN;
@@ -145,28 +145,28 @@ int module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, ch
     if ( NULL == fileread ) return bfalse;
 
     // Read basic data
-    goto_colon( NULL, fileread, bfalse );  // Name of module...  Doesn't matter
-    goto_colon( NULL, fileread, bfalse );  // Reference directory...
-    goto_colon( NULL, fileread, bfalse );  // Reference IDSZ...
-    goto_colon( NULL, fileread, bfalse );  // Import...
-    goto_colon( NULL, fileread, bfalse );  // Export...
-    goto_colon( NULL, fileread, bfalse );  // Min players...
-    goto_colon( NULL, fileread, bfalse );  // Max players...
-    goto_colon( NULL, fileread, bfalse );  // Respawn...
-    goto_colon( NULL, fileread, bfalse );  // BAD! NOT USED
-    goto_colon( NULL, fileread, bfalse );  // Rank...
+    goto_colon_vfs( NULL, fileread, bfalse );  // Name of module...  Doesn't matter
+    goto_colon_vfs( NULL, fileread, bfalse );  // Reference directory...
+    goto_colon_vfs( NULL, fileread, bfalse );  // Reference IDSZ...
+    goto_colon_vfs( NULL, fileread, bfalse );  // Import...
+    goto_colon_vfs( NULL, fileread, bfalse );  // Export...
+    goto_colon_vfs( NULL, fileread, bfalse );  // Min players...
+    goto_colon_vfs( NULL, fileread, bfalse );  // Max players...
+    goto_colon_vfs( NULL, fileread, bfalse );  // Respawn...
+    goto_colon_vfs( NULL, fileread, bfalse );  // BAD! NOT USED
+    goto_colon_vfs( NULL, fileread, bfalse );  // Rank...
 
     // Summary...
     for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
     {
-        goto_colon( NULL, fileread, bfalse );
+        goto_colon_vfs( NULL, fileread, bfalse );
     }
 
     // Now check expansions
     foundidsz = bfalse;
-    while ( goto_colon( NULL, fileread, btrue ) )
+    while ( goto_colon_vfs( NULL, fileread, btrue ) )
     {
-        newidsz = fget_idsz( fileread );
+        newidsz = vfs_get_idsz( fileread );
         if ( newidsz == idsz )
         {
             foundidsz = btrue;

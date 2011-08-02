@@ -151,7 +151,7 @@ enum e_order
 
 //--------------------------------------------------------------------------------------------
 
-/// The bitmasks used by the check_target() function which is used in various character search
+/// The bitmasks used by the chr_check_target() function which is used in various character search
 /// functions like chr_find_target() or find_object_in_passage()
 enum e_targeting_bits
 {
@@ -490,9 +490,9 @@ void   set_one_player_latch( const PLA_REF player );
 bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice );
 
 /// AI targeting
+bool_t  chr_check_target( struct s_chr * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits );
 CHR_REF chr_find_target( struct s_chr * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
-CHR_REF prt_find_target( float pos_x, float pos_y, float pos_z, FACING_T facing,
-                         const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget );
+CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget );
 
 /// object initialization
 void  free_all_objects( void );
@@ -508,8 +508,6 @@ bool_t game_choose_module( int imod, int seed );
 int    game_do_menu( struct s_menu_process * mproc );
 
 void expand_escape_codes( const CHR_REF ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );
-
-bool_t check_target( struct s_chr * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits );
 
 void attach_all_particles( void );
 

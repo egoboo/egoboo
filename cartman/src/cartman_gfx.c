@@ -2,18 +2,18 @@
 //*
 //*    This file is part of Cartman.
 //*
-//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    Cartman is free software: you can redistribute it and/or modify it
 //*    under the terms of the GNU General Public License as published by
 //*    the Free Software Foundation, either version 3 of the License, or
 //*    (at your option) any later version.
 //*
-//*    Egoboo is distributed in the hope that it will be useful, but
+//*    Cartman is distributed in the hope that it will be useful, but
 //*    WITHOUT ANY WARRANTY; without even the implied warranty of
 //*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*    along with Cartman.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
@@ -257,15 +257,11 @@ void make_hitemap( cartman_mpd_t * pmesh )
     bmphitemap = cartman_CreateSurface( pmesh->info.tiles_x << 2, pmesh->info.tiles_y << 2 );
     if ( NULL == bmphitemap ) return;
 
-    y = 16;
-    pixy = 0;
-    while ( pixy < ( pmesh->info.tiles_y << 2 ) )
+    for ( pixy = 0, y = 16; pixy < ( pmesh->info.tiles_y << 2 ); pixy++, y += 32 )
     {
-        x = 16;
-        pixx = 0;
-        while ( pixx < ( pmesh->info.tiles_x << 2 ) )
+        for ( pixx = 0, x = 16; pixx < ( pmesh->info.tiles_x << 2 ); pixx++, x += 32 )
         {
-            level = ( cartman_mpd_get_level( pmesh, x, y ) * 255 / pmesh->info.edgez );  // level is 0 to 255
+            level = ( cartman_mpd_get_level( pmesh, x, y ) * 255 ) / pmesh->info.edgez;  // level is 0 to 255
             if ( level > 252 ) level = 252;
 
             fan = cartman_mpd_get_fan( pmesh,  pixx >> 2, pixy );
@@ -278,11 +274,7 @@ void make_hitemap( cartman_mpd_t * pmesh )
             }
 
             SDL_PutPixel( bmphitemap, pixx, pixy, level );
-            x += 32;
-            pixx++;
         }
-        y += 32;
-        pixy++;
     }
 }
 
@@ -1300,13 +1292,9 @@ void get_small_tiles( SDL_Surface* bmpload )
     if ( step_x == 0 ) step_x = 1;
     if ( step_y == 0 ) step_y = 1;
 
-    y1 = 0;
-    y = 0;
-    while ( y < sz_y && y1 < 256 )
+    for ( y = 0, y1 = 0; y < sz_y && y1 < 256; y += step_y, y1 += 32 )
     {
-        x1 = 0;
-        x = 0;
-        while ( x < sz_x && x1 < 256 )
+        for ( x = 0, x1 = 0; x < sz_x && x1 < 256; x += step_x, x1 += 32 )
         {
             SDL_Rect src1 = { x, y, ( step_x - 1 ), ( step_y - 1 ) };
 
@@ -1319,11 +1307,7 @@ void get_small_tiles( SDL_Surface* bmpload )
             oglx_texture_Convert( tx_smalltile + numsmalltile, image, INVALID_KEY );
 
             numsmalltile++;
-            x += step_x;
-            x1 += 32;
         }
-        y += step_y;
-        y1 += 32;
     }
 }
 
@@ -1341,13 +1325,9 @@ void get_big_tiles( SDL_Surface* bmpload )
     if ( step_x == 0 ) step_x = 1;
     if ( step_y == 0 ) step_y = 1;
 
-    y1 = 0;
-    y = 0;
-    while ( y < sz_y )
+    for ( y = 0, y1 = 0; y < sz_y; y += step_y, y1 += 32 )
     {
-        x1 = 0;
-        x = 0;
-        while ( x < sz_x )
+        for ( x = 0, x1 = 0; x < sz_x; x += step_x, x1 += 32 )
         {
             int wid, hgt;
 
@@ -1374,11 +1354,7 @@ void get_big_tiles( SDL_Surface* bmpload )
             oglx_texture_Convert( tx_bigtile + numbigtile, image, INVALID_KEY );
 
             numbigtile++;
-            x += step_x;
-            x1 += 32;
         }
-        y += step_y;
-        y1 += 32;
     }
 }
 

@@ -24,7 +24,7 @@
 #include "graphic_prt.h"
 
 #include "game.h"
-#include "texture.h"
+#include "graphic_texture.h"
 #include "camera_system.h"
 #include "input.h"
 #include "lighting.h"
@@ -726,7 +726,7 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
 
     pinst->type = pprt->type;
 
-    pinst->image_ref = FP8_TO_INT( pprt->image + pprt->image_stt );
+    pinst->image_ref = UFP8_TO_UINT( pprt->image + pprt->image_stt );
 
     // set the position
     prt_get_pos( pprt, pinst->pos.v );

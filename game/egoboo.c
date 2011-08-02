@@ -51,7 +51,7 @@
 #include "game.h"
 #include "menu.h"
 #include "player.h"
-#include "texture.h"
+#include "graphic_texture.h"
 
 #include "char.inl"
 #include "particle.inl"

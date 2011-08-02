@@ -54,11 +54,11 @@ bool_t scantag_read_one( vfs_FILE *fileread )
 
     bool_t retval;
 
-    retval = goto_colon( NULL, fileread, btrue ) && ( scantag_count < MAXTAG );
+    retval = goto_colon_vfs( NULL, fileread, btrue ) && ( scantag_count < MAXTAG );
     if ( retval )
     {
-        fget_string( fileread, scantag[scantag_count].name, SDL_arraysize( scantag[scantag_count].name ) );
-        scantag[scantag_count].value = fget_int( fileread );
+        vfs_get_string( fileread, scantag[scantag_count].name, SDL_arraysize( scantag[scantag_count].name ) );
+        scantag[scantag_count].value = vfs_get_int( fileread );
         scantag_count++;
     }
 

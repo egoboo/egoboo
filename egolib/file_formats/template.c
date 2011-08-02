@@ -224,6 +224,24 @@ void template_put_float( vfs_FILE* filetemp, vfs_FILE* filewrite, float fval )
 }
 
 //--------------------------------------------------------------------------------------------
+void template_put_ufp8( vfs_FILE* filetemp, vfs_FILE* filewrite, UFP8_T ival )
+{
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    {
+        vfs_printf( filewrite, "%f", FP8_TO_FLOAT( ival ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void template_put_sfp8( vfs_FILE* filetemp, vfs_FILE* filewrite, SFP8_T ival )
+{
+    if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
+    {
+        vfs_printf( filewrite, "%f", FP8_TO_FLOAT( ival ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
 void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, bool_t truth )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
@@ -312,7 +330,7 @@ void template_put_range( vfs_FILE* filetemp, vfs_FILE* filewrite, FRange val )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {
-        fput_range_raw( filewrite, val );
+        vfs_put_range_raw( filewrite, val );
     }
 }
 

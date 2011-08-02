@@ -518,6 +518,7 @@ bool_t    chr_can_see_dark( const chr_t * pchr, const chr_t * pobj );
 bool_t    chr_can_see_invis( const chr_t * pchr, const chr_t * pobj );
 int       chr_get_price( const CHR_REF ichr );
 
+bool_t         chr_heal_mad( chr_t * pchr );
 MAD_REF        chr_get_imad( const CHR_REF ichr );
 struct s_mad * chr_get_pmad( const CHR_REF ichr );
 TX_REF         chr_get_icon_ref( const CHR_REF item );
@@ -555,7 +556,7 @@ void chr_set_sheen( chr_t * pchr, int sheen );
 void chr_set_alpha( chr_t * pchr, int alpha );
 void chr_set_light( chr_t * pchr, int light );
 
-const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits );
+const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size );
 const char * chr_get_dir_name( const CHR_REF ichr );
 int chr_get_skill( chr_t * pchr, IDSZ whichskill );
 

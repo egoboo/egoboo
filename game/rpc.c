@@ -23,7 +23,7 @@
 
 #include "rpc.h"
 
-#include "texture.h"
+#include "graphic_texture.h"
 #include "menu.h"
 
 #include <egolib/strutil.h>

@@ -24,17 +24,18 @@
 #include "collision.h"
 #include "obj_BSP.h"
 
-#include <egolib/log.h>
-#include <egolib/hash.h>
 #include "game.h"
-
-#include <egolib/extensions/SDL_extensions.h>
+#include "graphic_billboard.h"
 
 #include "char.inl"
 #include "particle.inl"
 #include "enchant.inl"
 #include "profile.inl"
 #include "physics.inl"
+
+#include <egolib/log.h>
+#include <egolib/hash.h>
+#include <egolib/extensions/SDL_extensions.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -3205,7 +3206,7 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
                 if ( pdata->ppip->intdamagebonus )
                 {
                     float percent;
-                    percent = (( FP8_TO_INT( powner->intelligence ) ) - 14 ) * 2;
+                    percent = ( FP8_TO_FLOAT( powner->intelligence ) - 14 ) * 2;
                     percent /= 100;
                     loc_damage.base *= 1.00f + percent;
                     loc_damage.rand *= 1.00f + percent;
@@ -3214,7 +3215,7 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
                 if ( pdata->ppip->wisdamagebonus )
                 {
                     float percent;
-                    percent = ( FP8_TO_INT( powner->wisdom ) - 14 ) * 2;
+                    percent = ( FP8_TO_FLOAT( powner->wisdom ) - 14 ) * 2;
                     percent /= 100;
                     loc_damage.base *= 1.00f + percent;
                     loc_damage.rand *= 1.00f + percent;
