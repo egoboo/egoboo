@@ -1742,12 +1742,12 @@ int doChoosePlayer( float deltaTime )
             ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
 
             // make sure we have the proper resources loaded
-            if ( !load_blips() )
+            if ( !gfx_load_blips() )
             {
                 log_warning( "Could not load blips!\n" );
             }
 
-            if ( !load_all_global_icons() )
+            if ( !gfx_system_load_all_global_icons() )
             {
                 log_warning( "Could not load all global icons!\n" );
             }
@@ -2328,7 +2328,7 @@ int doInputOptions( float deltaTime )
             tipText_set_position( menuFont, "Change input settings here.", 20 );
 
             // Load the global icons (keyboard, mouse, etc.)
-            if ( !load_all_global_icons() )
+            if ( !gfx_system_load_all_global_icons() )
             {
                 log_warning( "Could not load all global icons!\n" );
             }
@@ -4007,7 +4007,7 @@ int doVideoOptions( float deltaTime )
                 setup_write_vfs();
 
                 // Reload some of the graphics
-                load_graphics();
+                gfx_system_load_assets();
             }
             if ( menuChoice != 0 )
             {

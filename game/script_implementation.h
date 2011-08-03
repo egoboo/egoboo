@@ -221,6 +221,9 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
 /// @details ZF@> This function searches the nearby vincinity for a melee weapon the character can use
 CHR_REF FindWeapon( struct s_chr * pchr, float max_distance, IDSZ weap_idsz, bool_t find_ranged, bool_t use_line_of_sight );
 
+/// @details ZZ@> This function sets an object's lighting
+bool_t FlashObject( struct s_chr * pchr, Uint8 value );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

@@ -150,7 +150,7 @@ static void   cartman_check_input( const char *modname, cartman_mpd_t * pmesh );
 
 // loading
 static bool_t load_module( const char *modname, cartman_mpd_t * pmesh );
-static void load_basic_textures( const char *modname );
+static void gfx_system_load_basic_textures( const char *modname );
 static void cartman_create_mesh( cartman_mpd_t * pmesh );
 
 // saving
@@ -367,7 +367,7 @@ void make_onscreen( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_basic_textures( const char *modname )
+void gfx_system_load_basic_textures( const char *modname )
 {
     // ZZ> This function loads the standard textures for a module
     STRING newloadname;
@@ -410,7 +410,7 @@ bool_t load_module( const char *modname, cartman_mpd_t * pmesh )
     }
 
     //  show_name(mod_path);
-    load_basic_textures( mod_path );
+    gfx_system_load_basic_textures( mod_path );
 
     // read the mpd file from the module directory
     if ( NULL == cartman_mpd_load_vfs( /*mod_path,*/ pmesh ) )

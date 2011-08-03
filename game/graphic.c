@@ -89,12 +89,6 @@ typedef struct s_dynalight_registry dynalight_registry_t;
 struct s_dynalist;
 typedef struct s_dynalist dynalist_t;
 
-struct s_projection_bitmap;
-typedef struct s_projection_bitmap projection_bitmap_t;
-
-struct s_cam_corner_info;
-typedef struct s_cam_corner_info cam_corner_info_t;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -146,6 +140,7 @@ static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mpd_t * pmesh 
 static gfx_rv         renderlist_reset( renderlist_t * prlist );
 static gfx_rv         renderlist_insert( renderlist_t * prlist, const ego_grid_info_t * pgrid, const Uint32 index );
 static ego_mpd_t *    renderlist_get_pmesh( const renderlist_t * ptr );
+static gfx_rv         renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst );
 
 //--------------------------------------------------------------------------------------------
 // the renderlist manager
@@ -207,6 +202,7 @@ static gfx_rv     dolist_test_chr( dolist_t * pdolist, const chr_t * pchr );
 static gfx_rv     dolist_add_chr_raw( dolist_t * pdolist, chr_t * pchr );
 static gfx_rv     dolist_test_prt( dolist_t * pdolist, const prt_t * pprt );
 static gfx_rv     dolist_add_prt_raw( dolist_t * pdolist, prt_t * pprt );
+static gfx_rv     dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst );
 
 //--------------------------------------------------------------------------------------------
 // the dolist manager
@@ -267,35 +263,6 @@ static gfx_rv dynalist_init( dynalist_t * pdylist );
 static gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const camera_t * pcam );
 
 //--------------------------------------------------------------------------------------------
-
-#define PROJECTION_BITMAP_ROWS 128
-
-struct s_projection_bitmap
-{
-    int y_stt;
-    int row_cnt;
-
-    int row_stt[PROJECTION_BITMAP_ROWS];
-    int row_end[PROJECTION_BITMAP_ROWS];
-};
-
-//static projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr );
-
-//--------------------------------------------------------------------------------------------
-
-struct s_cam_corner_info
-{
-    float                   lowx;
-    float                   highx;
-    float                   lowy;
-    float                   highy;
-
-    float                   x[4];
-    float                   y[4];
-    int                     listlowtohighy[4];
-};
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 PROFILE_DECLARE( render_scene_init );
@@ -308,7 +275,7 @@ PROFILE_DECLARE( gfx_make_renderlist );
 PROFILE_DECLARE( gfx_make_dolist );
 PROFILE_DECLARE( do_grid_lighting );
 PROFILE_DECLARE( light_fans );
-PROFILE_DECLARE( update_all_chr_instance );
+PROFILE_DECLARE( gfx_update_all_chr_instance );
 PROFILE_DECLARE( update_all_prt_instance );
 
 PROFILE_DECLARE( render_scene_mesh_dolist_sort );
@@ -383,6 +350,8 @@ static oglx_video_parameters_t ogl_vparam;
 static SDL_bool _sdl_initialized_graphics = SDL_FALSE;
 static bool_t   _ogl_initialized          = bfalse;
 
+oglx_texture_t tx_cursor;
+
 static float sinlut[MAXLIGHTROTATION];
 static float coslut[MAXLIGHTROTATION];
 
@@ -412,7 +381,7 @@ static BSP_leaf_pary_t  _dolist_colst    = DYNAMIC_ARY_INIT_VALS;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void gfx_init_SDL_graphics( void );
+static void gfx_system_init_SDL_graphics( void );
 static void gfx_reset_timers( void );
 
 static void _flip_pages( void );
@@ -420,17 +389,6 @@ static void _debug_print( const char *text );
 static int  _debug_vprintf( const char *format, va_list args );
 static int  _va_draw_string( float x, float y, const char *format, va_list args );
 static int  _draw_string_raw( float x, float y, const char *format, ... );
-
-//static gfx_rv gfx_project_cam_view( const camera_t * pcam );
-
-//static void init_icon_data( void );
-static void init_bar_data( void );
-static void init_blip_data( void );
-static void init_map_data( void );
-
-static bool_t billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
-static void   render_hud( void );
-static void   draw_inventory( void );
 
 static void gfx_update_fps_clock( void );
 static void gfx_update_fps( void );
@@ -445,19 +403,11 @@ static void gfx_begin_2d( void );
 static void gfx_end_2d( void );
 
 static gfx_rv light_fans( renderlist_t * prlist );
-static gfx_rv render_water( renderlist_t * prlist );
-
-static void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, bool_t use_alpha );
-
-static gfx_rv update_one_chr_instance( struct s_chr * pchr );
-static gfx_rv update_all_chr_instance( void );
-
-static gfx_rv do_chr_flashing( dolist_t * pdolist );
 
 static void line_list_draw_all( const camera_t * pcam );
-static int line_list_get_free( void );
+static int  line_list_get_free( void );
 static void point_list_draw_all( const camera_t * pcam );
-static int point_list_get_free( void );
+static int  point_list_get_free( void );
 
 static gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, const camera_t * pcam );
 static gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist );
@@ -473,8 +423,10 @@ static gfx_rv render_scene( const camera_t * pcam, const int render_list_index, 
 static gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmesh, const Uint32 list[], const size_t list_size );
 static void   render_shadow( const CHR_REF character );
 static void   render_bad_shadow( const CHR_REF character );
-
-//static bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct );
+static gfx_rv render_water( renderlist_t * prlist );
+static void   render_shadow_sprite( float intensity, GLvertex v[] );
+static gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture );
+static gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture );
 
 static gfx_rv gfx_make_dolist( dolist_t * pdolist, const camera_t * pcam );
 static gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam );
@@ -482,31 +434,40 @@ static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam );
 
 static float draw_one_xp_bar( float x, float y, Uint8 ticks );
 static float draw_character_xp_bar( const CHR_REF character, float x, float y );
-static void draw_all_status();
-static void draw_map();
+static void  draw_all_status();
+static void  draw_map();
 static float draw_fps( float y );
 static float draw_help( float y );
 static float draw_debug( float y );
 static float draw_timer( float y );
 static float draw_game_status( float y );
 static float draw_messages( float y );
-static void render_shadow_sprite( float intensity, GLvertex v[] );
-static gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture );
-static gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture );
-static float calc_light_rotation( int rotation, int normal );
-static float calc_light_global( int rotation, int normal, float lx, float ly, float lz );
+static void  draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, bool_t use_alpha );
+static void  draw_hud( void );
+static void  draw_inventory( void );
 
 static void gfx_disable_texturing();
 static void gfx_reshape_viewport( int w, int h );
+
+static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
+static bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct );
+
+static gfx_rv update_one_chr_instance( struct s_chr * pchr );
+static gfx_rv gfx_update_all_chr_instance( void );
+static gfx_rv gfx_update_flashing( dolist_t * pdolist );
+
 static bool_t light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold );
 static gfx_rv light_fans_update_lcache( renderlist_t * prlist );
 static gfx_rv light_fans_update_clst( renderlist_t * prlist );
 static bool_t sum_global_lighting( lighting_vector_t lighting );
-static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
-static gfx_rv gfx_make_renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst );
-static gfx_rv gfx_make_dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst );
-static projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr );
-static bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct );
+static float calc_light_rotation( int rotation, int normal );
+static float calc_light_global( int rotation, int normal, float lx, float ly, float lz );
+
+//static void gfx_init_icon_data( void );
+static void   gfx_init_bar_data( void );
+static void   gfx_init_blip_data( void );
+static void   gfx_init_map_data( void );
+static gfx_rv gfx_reload_cursor();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -637,13 +598,933 @@ int _draw_string_raw( float x, float y, const char *format, ... )
 }
 
 //--------------------------------------------------------------------------------------------
-// MODULE INITIALIZATION
+// renderlist implementation
+//--------------------------------------------------------------------------------------------
+
+renderlist_t * renderlist_init( renderlist_t * plst, ego_mpd_t * pmesh )
+{
+    if ( NULL == plst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist initializer" );
+        return NULL;
+    }
+
+    BLANK_STRUCT_PTR( plst )
+
+    // init the 1st element of the array
+    plst->all[0] = INVALID_TILE;
+    plst->ref[0] = INVALID_TILE;
+    plst->sha[0] = INVALID_TILE;
+    plst->drf[0] = INVALID_TILE;
+    plst->ndr[0] = INVALID_TILE;
+    plst->wat[0] = INVALID_TILE;
+
+    plst->pmesh = pmesh;
+
+    return plst;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_reset( renderlist_t * plst )
+{
+    /// @details BB@> Clear old render lists
+
+    ego_mpd_t * pmesh;
+    ego_tile_info_t * tlist;
+    int cnt;
+
+    if ( NULL == plst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    pmesh = renderlist_get_pmesh( plst );
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist does not contain a mesh" );
+        return gfx_error;
+    }
+
+    // clear out the inrenderlist flag for the old mesh
+    tlist = pmesh->tmem.tile_list;
+
+    for ( cnt = 0; cnt < plst->all_count; cnt++ )
+    {
+        Uint32 fan = plst->all[cnt];
+        if ( fan < pmesh->info.tiles_count )
+        {
+            tlist[fan].inrenderlist       = bfalse;
+            tlist[fan].inrenderlist_frame = 0;
+        }
+    }
+
+    // re-initialize the renderlist
+    renderlist_init( plst, plst->pmesh );
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_insert( renderlist_t * plst, const ego_grid_info_t * pgrid, const Uint32 index )
+{
+    // Make sure it doesn't die ugly
+    if ( NULL == plst )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    // check for a valid tile
+    if ( NULL == pgrid || INVALID_TILE == index ) return gfx_fail;
+
+    // we can only accept so many tiles
+    if ( plst->all_count >= MAXMESHRENDER ) return gfx_fail;
+
+    // Put each tile in basic list
+    plst->all[plst->all_count] = index;
+    plst->all_count++;
+
+    // Put each tile in one other list, for shadows and relections
+    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_SHA ) )
+    {
+        plst->sha[plst->sha_count] = index;
+        plst->sha_count++;
+    }
+    else
+    {
+        plst->ref[plst->ref_count] = index;
+        plst->ref_count++;
+    }
+
+    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_DRAWREF ) )
+    {
+        plst->drf[plst->drf_count] = index;
+        plst->drf_count++;
+    }
+    else
+    {
+        plst->ndr[plst->ndr_count] = index;
+        plst->ndr_count++;
+    }
+
+    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_WATER ) )
+    {
+        plst->wat[plst->wat_count] = index;
+        plst->wat_count++;
+    }
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+ego_mpd_t * renderlist_get_pmesh( const renderlist_t * ptr )
+{
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return NULL;
+    }
+
+    return ptr->pmesh;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mpd_t * pmesh )
+{
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
+    }
+
+    ptr->pmesh = pmesh;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst )
+{
+    int j;
+    BSP_leaf_t * pleaf;
+    ego_mpd_t  * pmesh  = NULL;
+    gfx_rv       retval = gfx_error;
+
+    if ( NULL == prlist || NULL == pcolst )
+    {
+        return gfx_error;
+    }
+
+    if ( 0 == BSP_leaf_pary_get_size( pcolst ) || 0 == BSP_leaf_pary_get_top( pcolst ) )
+    {
+        return gfx_fail;
+    }
+
+    pmesh = renderlist_get_pmesh( prlist );
+    if ( NULL == pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist is not attached to a mesh" );
+        return gfx_error;
+    }
+
+    // assume the best
+    retval = gfx_success;
+
+    // transfer valid pcolst entries to the renderlist
+    for ( j = 0; j < pcolst->top; j++ )
+    {
+        pleaf = pcolst->ary[j];
+        if ( NULL == pleaf ) continue;
+
+        if ( BSP_LEAF_TILE == pleaf->data_type )
+        {
+            Uint32 ifan;
+            ego_tile_info_t * ptile;
+            ego_grid_info_t * pgrid;
+
+            // collided with a character
+            ifan = ( Uint32 )( pleaf->index );
+
+            ptile = mesh_get_ptile( pmesh, ifan );
+            if ( NULL == ptile ) continue;
+
+            pgrid = mesh_get_pgrid( pmesh, ifan );
+            if ( NULL == pgrid ) continue;
+
+            if ( gfx_error == gfx_capture_mesh_tile( ptile ) )
+            {
+                retval = gfx_error;
+                break;
+            }
+
+            if ( gfx_error == renderlist_insert( prlist, pgrid, ifan ) )
+            {
+                retval = gfx_error;
+                break;
+            }
+        }
+        else
+        {
+            // how did we get here?
+            log_warning( "%s-%s-%d- found non-tile in the mpd BSP\n", __FILE__, __FUNCTION__, __LINE__ );
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+// renderlist array implementation
+//--------------------------------------------------------------------------------------------
+renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist array" );
+        return NULL;
+    }
+
+    if ( ptr->started ) return ptr;
+
+    for ( cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
+    {
+        ptr->free_lst[cnt] = cnt;
+        renderlist_init( ptr->lst + cnt, NULL );
+    }
+    ptr->free_count = MAX_RENDER_LISTS;
+
+    ptr->started = btrue;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist array" );
+        return NULL;
+    }
+
+    if ( !ptr->started ) return ptr;
+
+    ptr->free_count = 0;
+    for ( cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
+    {
+        ptr->free_lst[cnt] = -1;
+        renderlist_init( ptr->lst + cnt, NULL );
+    }
+
+    ptr->started = bfalse;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+// renderlist manager implementation
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_mgr_begin( renderlist_mgr_t * pmgr )
+{
+    // valid pointer?
+    if ( NULL == pmgr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist manager" );
+        return gfx_error;
+    }
+
+    if ( pmgr->started ) return gfx_success;
+
+    renderlist_ary_begin( &( pmgr->ary ) );
+
+    pmgr->started = btrue;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_mgr_end( renderlist_mgr_t * pmgr )
+{
+    // valid pointer?
+    if ( NULL == pmgr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist manager" );
+        return gfx_error;
+    }
+
+    if ( !pmgr->started ) return gfx_success;
+
+    renderlist_ary_end( &( pmgr->ary ) );
+
+    // the manager is no longer running
+    pmgr->started = bfalse;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+int renderlist_mgr_get_free_index( renderlist_mgr_t * pmgr )
+{
+    int retval = -1;
+
+    // renderlist manager started?
+    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
+    {
+        return -1;
+    }
+
+    if ( pmgr->ary.free_count <= 0 ) return -1;
+
+    // resduce the count
+    pmgr->ary.free_count--;
+
+    // grab the index
+    retval = pmgr->ary.free_count;
+
+    // blank the free list
+    if ( retval >= 0 && retval < MAX_RENDER_LISTS )
+    {
+        pmgr->ary.free_lst[ retval ] = -1;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_mgr_free_one( renderlist_mgr_t * pmgr, int index )
+{
+    size_t cnt;
+    gfx_rv retval = gfx_error;
+
+    // renderlist manager started?
+    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
+    {
+        return gfx_error;
+    }
+
+    // valid index range?
+    if ( index < 0 || index >= MAX_RENDER_LISTS ) return gfx_error;
+
+    // is the index already freed?
+    for ( cnt = 0; cnt < pmgr->ary.free_count; cnt++ )
+    {
+        if ( index == pmgr->ary.free_lst[cnt] )
+        {
+            return gfx_fail;
+        }
+    }
+
+    // push it on the list
+    retval = gfx_fail;
+    if ( pmgr->ary.free_count < MAX_RENDER_LISTS )
+    {
+        pmgr->ary.free_lst[pmgr->ary.free_count] = index;
+        pmgr->ary.free_count++;
+        retval = gfx_success;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, int index )
+{
+    // renderlist manager started?
+    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
+    {
+        return NULL;
+    }
+
+    // valid index range?
+    if ( index < 0 || index >= MAX_RENDER_LISTS )
+    {
+        return NULL;
+    }
+
+    return pmgr->ary.lst + index;
+}
+
+//--------------------------------------------------------------------------------------------
+// dolist implementation
+//--------------------------------------------------------------------------------------------
+dolist_t * dolist_init( dolist_t * plist, const int index )
+{
+    if ( NULL == plist ) return NULL;
+
+    BLANK_STRUCT_PTR( plist )
+
+    obj_registry_entity_init( plist->lst + 0 );
+
+    // give the dolist a "name"
+    plist->index = index;
+
+    return plist;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_reset( dolist_t * plist, const int index )
+{
+    int cnt, entries;
+
+    if ( NULL == plist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( plist->index < 0 || plist->index >= MAX_DO_LISTS )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist index" );
+        return gfx_error;
+    }
+
+    // if there is nothing in the dolist, we are done
+    if ( 0 == plist->count )
+    {
+        return gfx_success;
+    }
+
+    entries = MIN( plist->count, DOLIST_SIZE );
+    for ( cnt = 0; cnt < entries; cnt++ )
+    {
+        obj_registry_entity_t * pent = plist->lst + cnt;
+
+        // tell all valid objects that they are removed from this dolist
+        if ( MAX_CHR == pent->ichr && VALID_PRT_RANGE( pent->iprt ) )
+        {
+            PrtList.lst[pent->iprt].inst.indolist = bfalse;
+        }
+        else if ( MAX_PRT == pent->iprt && VALID_CHR_RANGE( pent->ichr ) )
+        {
+            ChrList.lst[pent->ichr].inst.indolist = bfalse;
+        }
+    }
+    plist->count = 0;
+
+    // reset the dolist
+    dolist_init( plist, index );
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_test_chr( dolist_t * pdlist, const chr_t * pchr )
+{
+    if ( NULL == pdlist )
+    {
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        return gfx_fail;
+    }
+
+    if ( !INGAME_PCHR( pchr ) )
+    {
+        return gfx_fail;
+    }
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_add_chr_raw( dolist_t * pdlist, chr_t * pchr )
+{
+    /// ZZ@> This function puts a character in the list
+
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist pointer" );
+        return gfx_error;
+    }
+
+    if ( NULL == pchr )
+    {
+        return gfx_fail;
+    }
+
+    //// don't do anything if it's already in the list
+    //if ( pchr->inst.indolist[pdlist->index] )
+    //{
+    //    return gfx_success;
+    //}
+
+    // don't add if it is hidden
+    if ( pchr->is_hidden )
+    {
+        return gfx_fail;
+    }
+
+    // don't add if it's in another character's inventory
+    if ( INGAME_CHR( pchr->inwhich_inventory ) )
+    {
+        return gfx_fail;
+    }
+
+    // fix the dolist
+    pdlist->lst[pdlist->count].ichr = GET_REF_PCHR( pchr );
+    pdlist->lst[pdlist->count].iprt = ( PRT_REF )MAX_PRT;
+    pdlist->count++;
+
+    // fix the instance
+    pchr->inst.indolist = btrue;
+
+    // Add any weapons
+    dolist_add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_LEFT] ) );
+    dolist_add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_RIGHT] ) );
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_test_prt( dolist_t * pdlist, const prt_t * pprt )
+{
+    if ( NULL == pdlist )
+    {
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        return gfx_fail;
+    }
+
+    if ( !DISPLAY_PPRT( pprt ) )
+    {
+        return gfx_fail;
+    }
+
+    if ( pprt->is_hidden || 0 == pprt->size )
+    {
+        return gfx_fail;
+    }
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
+{
+    /// ZZ@> This function puts a character in the list
+
+    //if ( pprt->inst.indolist[pdlist->index] )
+    //{
+    //    return gfx_success;
+    //}
+
+    pdlist->lst[pdlist->count].ichr = ( CHR_REF )MAX_CHR;
+    pdlist->lst[pdlist->count].iprt = GET_REF_PPRT( pprt );
+    pdlist->count++;
+
+    pprt->inst.indolist = btrue;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
+{
+    BSP_leaf_t * pleaf;
+    int j;
+    gfx_rv retval;
+
+    if ( NULL == pdlist || NULL == pcolst )
+    {
+        return gfx_error;
+    }
+
+    if ( 0 == BSP_leaf_pary_get_size( pcolst ) || 0 == BSP_leaf_pary_get_top( pcolst ) )
+    {
+        return gfx_fail;
+    }
+
+    // assume the best
+    retval = gfx_success;
+
+    for ( j = 0; j < pcolst->top; j++ )
+    {
+        pleaf = pcolst->ary[j];
+        if ( NULL == pleaf ) continue;
+
+        if ( BSP_LEAF_CHR == pleaf->data_type )
+        {
+            CHR_REF ichr;
+            chr_t * pchr;
+
+            // collided with a character
+            ichr = ( CHR_REF )( pleaf->index );
+
+            // is it in the array?
+            if ( !VALID_CHR_RANGE( ichr ) ) continue;
+            pchr = ChrList_get_ptr( ichr );
+
+            // do some more obvious tests before testing the frustum
+            if ( dolist_test_chr( pdlist, pchr ) )
+            {
+                // Add the character
+                if ( gfx_error == dolist_add_chr_raw( pdlist, pchr ) )
+                {
+                    retval = gfx_error;
+                    break;
+                }
+            }
+        }
+        else if ( BSP_LEAF_PRT == pleaf->data_type )
+        {
+            PRT_REF iprt;
+            prt_t * pprt;
+
+            // collided with a particle
+            iprt = ( PRT_REF )( pleaf->index );
+
+            // is it in the array?
+            if ( !VALID_PRT_RANGE( iprt ) ) continue;
+            pprt = PrtList_get_ptr( iprt );
+
+            // do some more obvious tests before testing the frustum
+            if ( dolist_test_prt( pdlist, pprt ) )
+            {
+                // Add the particle
+                if ( gfx_error == dolist_add_prt_raw( pdlist, pprt ) )
+                {
+                    retval = gfx_error;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            // how did we get here?
+            log_warning( "%s-%s-%d- found unknown type in a dolist BSP\n", __FILE__, __FUNCTION__, __LINE__ );
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_sort( dolist_t * pdlist, const camera_t * pcam, const bool_t do_reflect )
+{
+    /// @details ZZ@> This function orders the dolist based on distance from camera,
+    ///    which is needed for reflections to properly clip themselves.
+    ///    Order from closest to farthest
+
+    Uint32    cnt;
+    fvec3_t   vcam;
+    size_t    count;
+
+    if ( NULL == pdlist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdlist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    if ( NULL == pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
+        return gfx_error;
+    }
+
+    mat_getCamForward( pcam->mView.v, vcam.v );
+
+    // Figure the distance of each
+    count = 0;
+    for ( cnt = 0; cnt < pdlist->count; cnt++ )
+    {
+        fvec3_t   vtmp;
+        float dist;
+
+        if ( MAX_PRT == pdlist->lst[cnt].iprt && VALID_CHR_RANGE( pdlist->lst[cnt].ichr ) )
+        {
+            CHR_REF ichr;
+            fvec3_t pos_tmp;
+
+            ichr = pdlist->lst[cnt].ichr;
+
+            if ( do_reflect )
+            {
+                mat_getTranslate( ChrList.lst[ichr].inst.ref.matrix.v, pos_tmp.v );
+            }
+            else
+            {
+                mat_getTranslate( ChrList.lst[ichr].inst.matrix.v, pos_tmp.v );
+            }
+
+            fvec3_sub( vtmp.v, pos_tmp.v, pcam->pos.v );
+        }
+        else if ( MAX_CHR == pdlist->lst[cnt].ichr && VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
+        {
+            PRT_REF iprt = pdlist->lst[cnt].iprt;
+
+            if ( do_reflect )
+            {
+                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.pos.v, pcam->pos.v );
+            }
+            else
+            {
+                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.ref_pos.v, pcam->pos.v );
+            }
+        }
+        else
+        {
+            continue;
+        }
+
+        dist = fvec3_dot_product( vtmp.v, vcam.v );
+        if ( dist > 0 )
+        {
+            pdlist->lst[count].ichr = pdlist->lst[cnt].ichr;
+            pdlist->lst[count].iprt = pdlist->lst[cnt].iprt;
+            pdlist->lst[count].dist = dist;
+            count++;
+        }
+    }
+    pdlist->count = count;
+
+    // use qsort to sort the list in-place
+    if ( pdlist->count > 1 )
+    {
+        qsort( pdlist->lst, pdlist->count, sizeof( obj_registry_entity_t ), obj_registry_entity_cmp );
+    }
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+// dolist array implementation
+//--------------------------------------------------------------------------------------------
+dolist_ary_t * dolist_ary_begin( dolist_ary_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist array" );
+        return NULL;
+    }
+
+    if ( ptr->started ) return ptr;
+
+    for ( cnt = 0; cnt < MAX_DO_LISTS; cnt++ )
+    {
+        ptr->free_lst[cnt] = cnt;
+        dolist_init( ptr->lst + cnt, cnt );
+    }
+    ptr->free_count = MAX_DO_LISTS;
+
+    ptr->started = btrue;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+dolist_ary_t * dolist_ary_end( dolist_ary_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist array" );
+        return NULL;
+    }
+
+    if ( !ptr->started ) return ptr;
+
+    ptr->free_count = 0;
+    for ( cnt = 0; cnt < MAX_DO_LISTS; cnt++ )
+    {
+        ptr->free_lst[cnt] = -1;
+        dolist_init( ptr->lst + cnt, cnt );
+    }
+
+    ptr->started = bfalse;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+// dolist manager implementation
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_mgr_begin( dolist_mgr_t * pmgr )
+{
+    // valid pointer?
+    if ( NULL == pmgr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist manager" );
+        return gfx_error;
+    }
+
+    if ( pmgr->started ) return gfx_success;
+
+    dolist_ary_begin( &( pmgr->ary ) );
+
+    pmgr->started = btrue;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_mgr_end( dolist_mgr_t * pmgr )
+{
+    // valid pointer?
+    if ( NULL == pmgr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist manager" );
+        return gfx_error;
+    }
+
+    if ( !pmgr->started ) return gfx_success;
+
+    dolist_ary_end( &( pmgr->ary ) );
+
+    // the manager is no longer running
+    pmgr->started = bfalse;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+int dolist_mgr_get_free_index( dolist_mgr_t * pmgr )
+{
+    int retval = -1;
+
+    // dolist manager started?
+    if ( gfx_success != dolist_mgr_begin( pmgr ) )
+    {
+        return -1;
+    }
+
+    if ( pmgr->ary.free_count <= 0 ) return -1;
+
+    // resduce the count
+    pmgr->ary.free_count--;
+
+    // grab the index
+    retval = pmgr->ary.free_count;
+
+    // blank the free list
+    if ( retval >= 0 && retval < MAX_DO_LISTS )
+    {
+        pmgr->ary.free_lst[ retval ] = -1;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv dolist_mgr_free_one( dolist_mgr_t * pmgr, int index )
+{
+    size_t cnt;
+    gfx_rv retval = gfx_error;
+
+    // dolist manager started?
+    if ( gfx_success != dolist_mgr_begin( pmgr ) )
+    {
+        return gfx_error;
+    }
+
+    // valid index range?
+    if ( index < 0 || index >= MAX_DO_LISTS ) return gfx_error;
+
+    // is the index already freed?
+    for ( cnt = 0; cnt < pmgr->ary.free_count; cnt++ )
+    {
+        if ( index == pmgr->ary.free_lst[cnt] )
+        {
+            return gfx_fail;
+        }
+    }
+
+    // push it on the list
+    retval = gfx_fail;
+    if ( pmgr->ary.free_count < MAX_DO_LISTS )
+    {
+        pmgr->ary.free_lst[pmgr->ary.free_count] = index;
+        pmgr->ary.free_count++;
+        retval = gfx_success;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index )
+{
+    // dolist manager started?
+    if ( gfx_success != dolist_mgr_begin( pmgr ) )
+    {
+        return NULL;
+    }
+
+    // valid index range?
+    if ( index < 0 || index >= MAX_DO_LISTS )
+    {
+        return NULL;
+    }
+
+    return pmgr->ary.lst + index;
+}
+
+//--------------------------------------------------------------------------------------------
+// gfx_system INITIALIZATION
 //--------------------------------------------------------------------------------------------
 void gfx_system_begin()
 {
     // set the graphics state
-    gfx_init_SDL_graphics();
-    ogl_init();
+    gfx_system_init_SDL_graphics();
+    gfx_system_init_OpenGL();
 
     // initialize the renderlist manager
     renderlist_mgr_begin( &_renderlist_mgr_data );
@@ -674,7 +1555,7 @@ void gfx_system_begin()
     PROFILE_INIT( gfx_make_dolist );
     PROFILE_INIT( do_grid_lighting );
     PROFILE_INIT( light_fans );
-    PROFILE_INIT( update_all_chr_instance );
+    PROFILE_INIT( gfx_update_all_chr_instance );
     PROFILE_INIT( update_all_prt_instance );
 
     PROFILE_INIT( render_scene_mesh_dolist_sort );
@@ -720,7 +1601,7 @@ void gfx_system_end()
     PROFILE_FREE( gfx_make_dolist );
     PROFILE_FREE( do_grid_lighting );
     PROFILE_FREE( light_fans );
-    PROFILE_FREE( update_all_chr_instance );
+    PROFILE_FREE( gfx_update_all_chr_instance );
     PROFILE_FREE( update_all_prt_instance );
 
     PROFILE_FREE( render_scene_mesh_dolist_sort );
@@ -758,9 +1639,9 @@ void gfx_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
-int ogl_init()
+int gfx_system_init_OpenGL()
 {
-    gfx_init_SDL_graphics();
+    gfx_system_init_SDL_graphics();
 
     // GL_DEBUG(glClear)) stuff
     GL_DEBUG( glClearColor )( 0.0f, 0.0f, 0.0f, 0.0f ); // Set the background black
@@ -804,7 +1685,7 @@ int ogl_init()
     GL_DEBUG( glClear )( GL_ACCUM_BUFFER_BIT );
 
     // Load the current graphical settings
-    // load_graphics();
+    // gfx_system_load_assets();
 
     _ogl_initialized = btrue;
 
@@ -812,7 +1693,7 @@ int ogl_init()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_init_SDL_graphics()
+void gfx_system_init_SDL_graphics()
 {
     if ( _sdl_initialized_graphics ) return;
 
@@ -905,7 +1786,79 @@ void gfx_init_SDL_graphics()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_set_virtual_screen( gfx_config_t * pgfx )
+void gfx_system_render_world( const camera_t * pcam, const int render_list_index, const int dolist_index )
+{
+    gfx_error_state_t * err_tmp;
+
+    gfx_error_clear();
+
+    gfx_begin_3d( pcam );
+    {
+        if ( gfx.draw_background )
+        {
+            // Render the background
+            // TX_WATER_LOW for waterlow.bmp
+            render_world_background( pcam, ( TX_REF )TX_WATER_LOW );
+        }
+
+        render_scene( pcam, render_list_index, dolist_index );
+
+        if ( gfx.draw_overlay )
+        {
+            // Foreground overlay
+            // TX_WATER_TOP is watertop.bmp
+            render_world_overlay( pcam, ( TX_REF )TX_WATER_TOP );
+        }
+
+        if ( pcam->motion_blur > 0 )
+        {
+            //Do motion blur
+            GL_DEBUG( glAccum )( GL_MULT, pcam->motion_blur );
+            GL_DEBUG( glAccum )( GL_ACCUM, 1.0f - pcam->motion_blur );
+            GL_DEBUG( glAccum )( GL_RETURN, 1.0f );
+        }
+    }
+    gfx_end_3d();
+
+    // Render the billboards
+    billboard_system_render_all( pcam );
+
+    err_tmp = gfx_error_pop();
+    if ( NULL != err_tmp )
+    {
+        printf( "**** Encountered graphics errors in frame %d ****\n\n", game_frame_all );
+        while ( NULL != err_tmp )
+        {
+            printf( "vvvv\n" );
+            printf(
+                "\tfile     == %s\n"
+                "\tline     == %d\n"
+                "\tfunction == %s\n"
+                "\tcode     == %d\n"
+                "\tstring   == %s\n",
+                err_tmp->file, err_tmp->line, err_tmp->function, err_tmp->type, err_tmp->string );
+            printf( "^^^^\n\n" );
+
+            err_tmp = gfx_error_pop();
+        }
+        printf( "****\n\n" );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void gfx_system_main()
+{
+    /// @details ZZ@> This function does all the drawing stuff
+
+    camera_system_render_all( gfx_system_render_world );
+
+    draw_hud();
+
+    gfx_request_flip_pages();
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t gfx_system_set_virtual_screen( gfx_config_t * pgfx )
 {
     float kx, ky;
 
@@ -941,133 +1894,258 @@ bool_t gfx_set_virtual_screen( gfx_config_t * pgfx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_download_from_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
+renderlist_mgr_t * gfx_system_get_renderlist_mgr()
 {
-    // call gfx_config_init(), even if the config data is invalid
-    if ( !gfx_config_init( pgfx ) ) return bfalse;
-
-    // if there is no config data, do not proceed
-    if ( NULL == pcfg ) return bfalse;
-
-    pgfx->antialiasing = pcfg->multisamples > 0;
-
-    pgfx->refon        = pcfg->reflect_allowed;
-    pgfx->reffadeor    = pcfg->reflect_fade ? 0 : 255;
-
-    pgfx->shaon        = pcfg->shadow_allowed;
-    pgfx->shasprite    = pcfg->shadow_sprite;
-
-    pgfx->shading      = pcfg->gouraud_req ? GL_SMOOTH : GL_FLAT;
-    pgfx->dither       = pcfg->use_dither;
-    pgfx->perspective  = pcfg->use_perspective;
-    pgfx->phongon      = pcfg->use_phong;
-
-    pgfx->draw_background = pcfg->background_allowed && water.background_req;
-    pgfx->draw_overlay    = pcfg->overlay_allowed && water.overlay_req;
-
-    pgfx->dynalist_max = CLIP( pcfg->dyna_count_req, 0, TOTAL_MAX_DYNA );
-
-    pgfx->draw_water_0 = !pgfx->draw_overlay && ( water.layer_count > 0 );
-    pgfx->clearson     = !pgfx->draw_background;
-    pgfx->draw_water_1 = !pgfx->draw_background && ( water.layer_count > 1 );
-
-    gfx_set_virtual_screen( pgfx );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t gfx_config_init( gfx_config_t * pgfx )
-{
-    if ( NULL == pgfx ) return bfalse;
-
-    pgfx->shading          = GL_SMOOTH;
-    pgfx->refon            = btrue;
-    pgfx->reffadeor        = 0;
-    pgfx->antialiasing     = bfalse;
-    pgfx->dither           = bfalse;
-    pgfx->perspective      = bfalse;
-    pgfx->phongon          = btrue;
-    pgfx->shaon            = btrue;
-    pgfx->shasprite        = btrue;
-
-    pgfx->clearson         = btrue;   // Do we clear every time?
-    pgfx->draw_background  = bfalse;   // Do we draw the background image?
-    pgfx->draw_overlay     = bfalse;   // Draw overlay?
-    pgfx->draw_water_0     = btrue;   // Do we draw water layer 1 (TX_WATER_LOW)
-    pgfx->draw_water_1     = btrue;   // Do we draw water layer 2 (TX_WATER_TOP)
-
-    pgfx->dynalist_max    = 8;
-
-    //gfx_calc_rotmesh();
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg )
-{
-    //// @details BB@> synch the texture parameters with the video mode
-
-    if ( NULL == ptex || NULL == pcfg ) return bfalse;
-
-    if ( ogl_caps.maxAnisotropy <= 1.0f )
+    if ( gfx_success != renderlist_mgr_begin( &_renderlist_mgr_data ) )
     {
-        ptex->userAnisotropy = 0.0f;
-        ptex->texturefilter  = ( TX_FILTERS )MIN( pcfg->texturefilter_req, TX_TRILINEAR_2 );
+        return NULL;
+    }
+
+    return &_renderlist_mgr_data;
+}
+
+//--------------------------------------------------------------------------------------------
+dolist_mgr_t * gfx_system_get_dolist_mgr()
+{
+    if ( gfx_success != dolist_mgr_begin( &_dolist_mgr_data ) )
+    {
+        return NULL;
+    }
+
+    return &_dolist_mgr_data;
+}
+
+//--------------------------------------------------------------------------------------------
+void gfx_system_load_assets()
+{
+    /// @details ZF@> This function loads all the graphics based on the game settings
+
+    GLenum quality;
+
+    // Check if the computer graphic driver supports anisotropic filtering
+
+    if ( !ogl_caps.anisotropic_supported )
+    {
+        if ( tex_params.texturefilter >= TX_ANISOTROPIC )
+        {
+            tex_params.texturefilter = TX_TRILINEAR_2;
+            log_warning( "Your graphics driver does not support anisotropic filtering.\n" );
+        }
+    }
+
+    // Enable prespective correction?
+    if ( gfx.perspective ) quality = GL_NICEST;
+    else quality = GL_FASTEST;
+    GL_DEBUG( glHint )( GL_PERSPECTIVE_CORRECTION_HINT, quality );
+
+    // Enable dithering?
+    if ( gfx.dither )
+    {
+        GL_DEBUG( glHint )( GL_GENERATE_MIPMAP_HINT, GL_NICEST );
+        GL_DEBUG( glEnable )( GL_DITHER );
     }
     else
     {
-        ptex->texturefilter  = ( TX_FILTERS )MIN( pcfg->texturefilter_req, TX_FILTER_COUNT );
-        ptex->userAnisotropy = ogl_caps.maxAnisotropy * MAX( 0, ( int )ptex->texturefilter - ( int )TX_TRILINEAR_2 );
+        GL_DEBUG( glHint )( GL_GENERATE_MIPMAP_HINT, GL_FASTEST );
+        GL_DEBUG( glDisable )( GL_DITHER );                          // ENABLE_BIT
     }
 
-    return btrue;
+    // Enable Gouraud shading? (Important!)
+    GL_DEBUG( glShadeModel )( gfx.shading );         // GL_LIGHTING_BIT
+
+    // Enable antialiasing?
+    if ( gfx.antialiasing )
+    {
+        GL_DEBUG( glEnable )( GL_MULTISAMPLE_ARB );
+
+        GL_DEBUG( glEnable )( GL_LINE_SMOOTH );
+        GL_DEBUG( glHint )( GL_LINE_SMOOTH_HINT,    GL_NICEST );
+
+        GL_DEBUG( glEnable )( GL_POINT_SMOOTH );
+        GL_DEBUG( glHint )( GL_POINT_SMOOTH_HINT,   GL_NICEST );
+
+        GL_DEBUG( glDisable )( GL_POLYGON_SMOOTH );
+        GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
+
+        // PLEASE do not turn this on unless you use
+        // GL_DEBUG(glEnable)(GL_BLEND);
+        // GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // before every single draw command
+        //
+        // GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
+        // GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+    }
+    else
+    {
+        GL_DEBUG( glDisable )( GL_MULTISAMPLE_ARB );
+        GL_DEBUG( glDisable )( GL_POINT_SMOOTH );
+        GL_DEBUG( glDisable )( GL_LINE_SMOOTH );
+        GL_DEBUG( glDisable )( GL_POLYGON_SMOOTH );
+    }
 }
 
 //--------------------------------------------------------------------------------------------
-// SPECIAL FUNCTIONS
-//--------------------------------------------------------------------------------------------
-egolib_rv gfx_error_add( const char * file, const char * function, int line, int id, const char * sz )
+void gfx_system_init_all_graphics()
 {
-    gfx_error_state_t * pstate;
+    gfx_init_bar_data();
+    gfx_init_blip_data();
+    gfx_init_map_data();
+    font_bmp_init();
 
-    // too many errors?
-    if ( gfx_error_stack.count >= GFX_ERROR_MAX ) return rv_fail;
+    billboard_system_init();
+    TxTexture_init_all();
 
-    // grab an error state
-    pstate = gfx_error_stack.lst + gfx_error_stack.count;
-    gfx_error_stack.count++;
+    // the mouse input_cursor was just erased. reload it.
+    gfx_init_mouse_cursor();
 
-    // where is the error
-    strncpy( pstate->file,     file,     SDL_arraysize( pstate->file ) );
-    strncpy( pstate->function, function, SDL_arraysize( pstate->function ) );
-    pstate->line = line;
+    PROFILE_RESET( render_scene_init );
+    PROFILE_RESET( render_scene_mesh );
+    PROFILE_RESET( render_scene_solid );
+    PROFILE_RESET( render_scene_water );
+    PROFILE_RESET( render_scene_trans );
 
-    // what is the error
-    pstate->type     = id;
-    strncpy( pstate->string, sz, SDL_arraysize( pstate->string ) );
+    PROFILE_RESET( gfx_make_renderlist );
+    PROFILE_RESET( gfx_make_dolist );
+    PROFILE_RESET( do_grid_lighting );
+    PROFILE_RESET( light_fans );
+    PROFILE_RESET( gfx_update_all_chr_instance );
+    PROFILE_RESET( update_all_prt_instance );
 
-    return rv_success;
+    PROFILE_RESET( render_scene_mesh_dolist_sort );
+    PROFILE_RESET( render_scene_mesh_ndr );
+    PROFILE_RESET( render_scene_mesh_drf_back );
+    PROFILE_RESET( render_scene_mesh_ref );
+    PROFILE_RESET( render_scene_mesh_ref_chr );
+    PROFILE_RESET( render_scene_mesh_drf_solid );
+    PROFILE_RESET( render_scene_mesh_render_shadows );
+
+    stabilized_game_fps        = TARGET_FPS;
+    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
+    stabilized_game_fps_weight = STABILIZED_COVER;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_error_state_t * gfx_error_pop()
+void gfx_system_release_all_graphics()
 {
-    gfx_error_state_t * retval;
+    gfx_init_bar_data();
+    gfx_init_blip_data();
+    gfx_init_map_data();
 
-    if ( 0 == gfx_error_stack.count || gfx_error_stack.count >= GFX_ERROR_MAX ) return NULL;
-
-    retval = gfx_error_stack.lst + gfx_error_stack.count;
-    gfx_error_stack.count--;
-
-    return retval;
+    BillboardList_free_all();
+    TxTexture_release_all();
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_error_clear()
+void gfx_system_delete_all_graphics()
 {
-    gfx_error_stack.count = 0;
+    gfx_init_bar_data();
+    gfx_init_blip_data();
+    gfx_init_map_data();
+
+    BillboardList_free_all();
+    TxTexture_delete_all();
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t gfx_system_load_all_global_icons()
+{
+    /// @details ZF@> Load all the global icons used in all modules
+
+    // Setup
+    bool_t result = bfalse;
+
+    // Now load every icon
+    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
+    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------
+void gfx_system_load_basic_textures()
+{
+    /// @details ZZ@> This function loads the standard textures for a module
+
+    // Particle sprites
+    TxTexture_load_one_vfs( "mp_data/particle_trans", ( TX_REF )TX_PARTICLE_TRANS, TRANSCOLOR );
+    prt_set_texture_params(( TX_REF )TX_PARTICLE_TRANS );
+
+    TxTexture_load_one_vfs( "mp_data/particle_light", ( TX_REF )TX_PARTICLE_LIGHT, INVALID_KEY );
+    prt_set_texture_params(( TX_REF )TX_PARTICLE_LIGHT );
+
+    // Module background tiles
+    TxTexture_load_one_vfs( "mp_data/tile0", ( TX_REF )TX_TILE_0, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/tile1", ( TX_REF )TX_TILE_1, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/tile2", ( TX_REF )TX_TILE_2, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/tile3", ( TX_REF )TX_TILE_3, TRANSCOLOR );
+
+    // Water textures
+    TxTexture_load_one_vfs( "mp_data/watertop", ( TX_REF )TX_WATER_TOP, TRANSCOLOR );
+    TxTexture_load_one_vfs( "mp_data/waterlow", ( TX_REF )TX_WATER_LOW, TRANSCOLOR );
+
+    // The phong map
+    TxTexture_load_one_vfs( "mp_data/phong", ( TX_REF )TX_PHONG, TRANSCOLOR );
+
+    PROFILE_RESET( render_scene_init );
+    PROFILE_RESET( render_scene_mesh );
+    PROFILE_RESET( render_scene_solid );
+    PROFILE_RESET( render_scene_water );
+    PROFILE_RESET( render_scene_trans );
+
+    PROFILE_RESET( gfx_make_renderlist );
+    PROFILE_RESET( gfx_make_dolist );
+    PROFILE_RESET( do_grid_lighting );
+    PROFILE_RESET( light_fans );
+    PROFILE_RESET( gfx_update_all_chr_instance );
+    PROFILE_RESET( update_all_prt_instance );
+
+    PROFILE_RESET( render_scene_mesh_dolist_sort );
+    PROFILE_RESET( render_scene_mesh_ndr );
+    PROFILE_RESET( render_scene_mesh_drf_back );
+    PROFILE_RESET( render_scene_mesh_ref );
+    PROFILE_RESET( render_scene_mesh_ref_chr );
+    PROFILE_RESET( render_scene_mesh_drf_solid );
+    PROFILE_RESET( render_scene_mesh_render_shadows );
+
+    stabilized_game_fps        = TARGET_FPS;
+    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
+    stabilized_game_fps_weight = STABILIZED_COVER;
+}
+
+//--------------------------------------------------------------------------------------------
+void gfx_system_make_enviro()
+{
+    /// @details ZZ@> This function sets up the environment mapping table
+    int cnt;
+    float x, y, z;
+
+    // Find the environment map positions
+    for ( cnt = 0; cnt < EGO_NORMAL_COUNT; cnt++ )
+    {
+        x = kMd2Normals[cnt][0];
+        y = kMd2Normals[cnt][1];
+        indextoenvirox[cnt] = ATAN2( y, x ) * INV_TWO_PI;
+    }
+
+    for ( cnt = 0; cnt < 256; cnt++ )
+    {
+        z = cnt / INV_FF;  // Z is between 0 and 1
+        lighttoenviroy[cnt] = z;
+    }
+}
+//--------------------------------------------------------------------------------------------
+void gfx_system_reload_all_textures()
+{
+    /// @details BB@> function is called when the graphics mode is changed or the program is
+    // restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
+
+    TxTitleImage_reload_all();
+    TxTexture_reload_all();
+
+    gfx_reload_cursor();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1700,9 +2778,6 @@ float draw_status( const CHR_REF character, float x, float y )
     /// @details ZZ@> This function shows a character's icon, status and inventory
     ///    The x,y coordinates are the top left point of the image to draw
 
-    int cnt;
-    char cTmp;
-    char *readtext;
     STRING generictext;
     int life_pips, life_pips_max;
     int mana_pips, mana_pips_max;
@@ -1967,7 +3042,7 @@ float draw_fps( float y )
             y = _draw_string_raw( 0, y, "init:total %2.4f", time_render_scene_init );
             y = _draw_string_raw( 0, y, "init:gfx_make_renderlist %2.4f, init:gfx_make_dolist %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
             y = _draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
-            y = _draw_string_raw( 0, y, "init:update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
+            y = _draw_string_raw( 0, y, "init:gfx_update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
             y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
 #        endif
 
@@ -2169,7 +3244,7 @@ float draw_messages( float y )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_hud()
+void draw_hud()
 {
     /// @details ZZ@> draw in-game heads up display
 
@@ -2205,9 +3280,237 @@ void render_hud()
 }
 
 //--------------------------------------------------------------------------------------------
+void draw_inventory()
+{
+    //ZF> This renders the open inventories of all local players
+    PLA_REF ipla;
+    player_t * ppla;
+    GLXvector4f background_color = { 0.66f, 0.0f, 0.0f, 0.95f };
+
+    CHR_REF ichr;
+    chr_t *pchr;
+
+    PLA_REF draw_list[MAX_LOCAL_PLAYERS];
+    size_t cnt, draw_list_length = 0;
+
+    float sttx, stty;
+    int width, height;
+
+    static int lerp_time[MAX_LOCAL_PLAYERS] = { 0 };
+
+    //don't draw inventories while menu is open
+    if ( GProc->mod_paused ) return;
+
+    //figure out what we have to draw
+    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    {
+        //valid player?
+        ppla = PlaStack_get_ptr( ipla );
+        if ( !ppla->valid ) continue;
+
+        //draw inventory?
+        if ( !ppla->draw_inventory ) continue;
+        ichr = ppla->index;
+
+        //valid character?
+        if ( !INGAME_CHR( ichr ) ) continue;
+        pchr = ChrList_get_ptr( ichr );
+
+        //don't draw inventories of network players
+        if ( !pchr->islocalplayer ) continue;
+
+        draw_list[draw_list_length++] = ipla;
+    }
+
+    //figure out size and position of the inventory
+    width = 180;
+    height = 140;
+
+    sttx = 0;
+    stty = GFX_HEIGHT / 2 - height / 2;
+    stty -= height * ( draw_list_length - 1 );
+    stty = MAX( 0, stty );
+
+    //now draw each inventory
+    for ( cnt = 0; cnt < draw_list_length; cnt++ )
+    {
+        size_t i;
+        STRING buffer;
+        int icon_count, item_count, weight_sum, max_weight;
+        float x, y, edgex;
+
+        //Figure out who this is
+        ipla = draw_list[cnt];
+        ppla = PlaStack_get_ptr( ipla );
+
+        ichr = ppla->index;
+        pchr = ChrList_get_ptr( ichr );
+
+        //handle inventories sliding into view
+        ppla->inventory_lerp = MIN( ppla->inventory_lerp, width );
+        if ( ppla->inventory_lerp > 0 && lerp_time[cnt] < SDL_GetTicks() )
+        {
+            lerp_time[cnt] = SDL_GetTicks() + 1;
+            ppla->inventory_lerp = MAX( 0, ppla->inventory_lerp - 16 );
+        }
+
+        //set initial positions
+        x = sttx - ppla->inventory_lerp;
+        y = stty;
+
+        //threshold to start a new row
+        edgex = sttx + width + 5 - 32;
+
+        //calculate max carry weight
+        max_weight = 200 + FP8_TO_FLOAT( pchr->strength ) * FP8_TO_FLOAT( pchr->strength );
+
+        //draw the backdrop
+        ui_drawButton( 0, x, y, width, height, background_color );
+        x += 5;
+
+        //draw title
+        draw_wrap_string( chr_get_name( ichr, CHRNAME_CAPITAL, NULL, 0 ), x, y, x + width );
+        y += 32;
+
+        //draw each inventory icon
+        weight_sum = 0;
+        icon_count = 0;
+        item_count = 0;
+        for ( i = 0; i < MAXINVENTORY; i++ )
+        {
+            CHR_REF item = pchr->inventory[i];
+
+            //calculate the sum of the weight of all items in inventory
+            if ( INGAME_CHR( item ) ) weight_sum += chr_get_pcap( item )->weight;
+
+            //draw icon
+            draw_one_character_icon( item, x, y, btrue, item_count == ppla->selected_item ? COLOR_WHITE : NOSPARKLE );
+            icon_count++;
+            item_count++;
+            x += 32 + 5;
+
+            //new row?
+            if ( x >= edgex || icon_count >= MAXINVENTORY / 2 )
+            {
+                x = sttx + 5 - ppla->inventory_lerp;
+                y += 32 + 5;
+                icon_count = 0;
+            }
+        }
+
+        //Draw weight
+        x = sttx + 5 - ppla->inventory_lerp;
+        y = stty + height - 42;
+        snprintf( buffer, SDL_arraysize( buffer ), "Weight: %d/%d", weight_sum, max_weight );
+        draw_wrap_string( buffer, x, y, sttx + width + 5 );
+
+        //prepare drawing the next inventory
+        stty += height + 10;
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_mouse_cursor()
+{
+    int     x, y;
+    ego_frect_t tx_rect, sc_rect;
+
+    if ( !mous.on )
+    {
+        SDL_ShowCursor( SDL_DISABLE );
+        return;
+    }
+
+    // Invalid texture?
+    if ( !oglx_texture_Valid( &tx_cursor ) )
+    {
+        SDL_ShowCursor( SDL_ENABLE );
+    }
+    else
+    {
+        // Hide the SDL mouse
+        SDL_ShowCursor( SDL_DISABLE );
+
+        x = ABS( mous.x );
+        y = ABS( mous.y );
+
+        tx_rect.xmin = 0;
+        tx_rect.xmax = ( float )tx_cursor.imgW / ( float )tx_cursor.base.width;
+        tx_rect.ymin = 0;
+        tx_rect.ymax = ( float )tx_cursor.imgH / ( float )tx_cursor.base.height;
+
+        sc_rect.xmin = x;
+        sc_rect.xmax = x + tx_cursor.imgW;
+        sc_rect.ymin = y;
+        sc_rect.ymax = y + tx_cursor.imgH;
+
+        draw_quad_2d( &tx_cursor, sc_rect, tx_rect, btrue );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool_t use_alpha )
+{
+    ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
+    {
+        GLboolean texture_1d_enabled, texture_2d_enabled;
+
+        texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
+        texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
+
+        if ( NULL == ptex || INVALID_GL_ID == ptex->base.binding )
+        {
+            GL_DEBUG( glDisable )( GL_TEXTURE_1D );                           // GL_ENABLE_BIT
+            GL_DEBUG( glDisable )( GL_TEXTURE_2D );                           // GL_ENABLE_BIT
+        }
+        else
+        {
+            GL_DEBUG( glEnable )( ptex->base.target );                        // GL_ENABLE_BIT
+            oglx_texture_Bind( ptex );
+        }
+
+        GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );                      // GL_CURRENT_BIT
+
+        if ( use_alpha )
+        {
+            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
+
+            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
+            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                      // GL_COLOR_BUFFER_BIT
+        }
+        else
+        {
+            GL_DEBUG( glDisable )( GL_BLEND );                                 // GL_ENABLE_BIT
+            GL_DEBUG( glDisable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
+        }
+
+        GL_DEBUG( glBegin )( GL_QUADS );
+        {
+            GL_DEBUG( glTexCoord2f )( tx_rect.xmin, tx_rect.ymax ); GL_DEBUG( glVertex2f )( scr_rect.xmin, scr_rect.ymax );
+            GL_DEBUG( glTexCoord2f )( tx_rect.xmax, tx_rect.ymax ); GL_DEBUG( glVertex2f )( scr_rect.xmax, scr_rect.ymax );
+            GL_DEBUG( glTexCoord2f )( tx_rect.xmax, tx_rect.ymin ); GL_DEBUG( glVertex2f )( scr_rect.xmax, scr_rect.ymin );
+            GL_DEBUG( glTexCoord2f )( tx_rect.xmin, tx_rect.ymin ); GL_DEBUG( glVertex2f )( scr_rect.xmin, scr_rect.ymin );
+        }
+        GL_DEBUG_END();
+
+        // fix the texture enabling
+        if ( texture_1d_enabled )
+        {
+            GL_DEBUG( glEnable )( GL_TEXTURE_1D );
+        }
+        else if ( texture_2d_enabled )
+        {
+            GL_DEBUG( glEnable )( GL_TEXTURE_2D );
+        }
+    }
+    ATTRIB_POP( __FUNCTION__ );
+}
+
+//--------------------------------------------------------------------------------------------
 // 3D RENDERER FUNCTIONS
 //--------------------------------------------------------------------------------------------
-
 void render_shadow_sprite( float intensity, GLvertex v[] )
 {
     int i;
@@ -2458,76 +3761,6 @@ void render_bad_shadow( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv update_one_chr_instance( chr_t * pchr )
-{
-    chr_instance_t * pinst;
-    gfx_rv retval;
-
-    if ( !ACTIVE_PCHR( pchr ) )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR( pchr ), "invalid character" );
-        return gfx_error;
-    }
-    pinst = &( pchr->inst );
-
-    // only update once per frame
-    if ( pinst->update_frame >= 0 && ( Uint32 )pinst->update_frame >= game_frame_all )
-    {
-        return gfx_success;
-    }
-
-    // make sure that the vertices are interpolated
-    retval = chr_instance_update_vertices( pinst, -1, -1, btrue );
-    if ( gfx_error == retval )
-    {
-        return gfx_error;
-    }
-
-    // do the basic lighting
-    chr_instance_update_lighting_base( pinst, pchr, bfalse );
-
-    // set the update_frame to the current frame
-    pinst->update_frame = game_frame_all;
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv update_all_chr_instance()
-{
-    CHR_REF cnt;
-    gfx_rv retval;
-    chr_t * pchr;
-    gfx_rv tmp_rv;
-
-    // assume the best
-    retval = gfx_success;
-
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        if ( !ALLOCATED_CHR( cnt ) ) continue;
-        pchr = ChrList_get_ptr( cnt );
-
-        if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
-
-        tmp_rv = update_one_chr_instance( pchr );
-
-        // deal with return values
-        if ( gfx_error == tmp_rv )
-        {
-            retval = gfx_error;
-        }
-        else if ( gfx_success == tmp_rv )
-        {
-            // the instance has changed, refresh the collision bound
-            chr_update_collision_size( pchr, btrue );
-        }
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmesh, const Uint32 list[], const size_t list_size )
 {
     Uint32 cnt;
@@ -2575,6 +3808,8 @@ gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmesh, cons
     return gfx_success;
 }
 
+//--------------------------------------------------------------------------------------------
+// render_scene FUNCTIONS
 //--------------------------------------------------------------------------------------------
 gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, const camera_t * pcam )
 {
@@ -2635,15 +3870,15 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
     }
     PROFILE_END( light_fans );
 
-    PROFILE_BEGIN( update_all_chr_instance );
+    PROFILE_BEGIN( gfx_update_all_chr_instance );
     {
         // make sure the characters are ready to draw
-        if ( gfx_error == update_all_chr_instance() )
+        if ( gfx_error == gfx_update_all_chr_instance() )
         {
             retval = gfx_error;
         }
     }
-    PROFILE_END( update_all_chr_instance );
+    PROFILE_END( gfx_update_all_chr_instance );
 
     PROFILE_BEGIN( update_all_prt_instance );
     {
@@ -2656,7 +3891,7 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
     PROFILE_END( update_all_prt_instance );
 
     // do the flashing for kursed objects
-    if ( gfx_error == do_chr_flashing( pdolist ) )
+    if ( gfx_error == gfx_update_flashing( pdolist ) )
     {
         retval = gfx_error;
     }
@@ -2665,7 +3900,7 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
     time_render_scene_init_dolist_make             = PROFILE_QUERY( gfx_make_dolist ) * TARGET_FPS;
     time_render_scene_init_do_grid_dynalight       = PROFILE_QUERY( do_grid_lighting ) * TARGET_FPS;
     time_render_scene_init_light_fans              = PROFILE_QUERY( light_fans ) * TARGET_FPS;
-    time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( update_all_chr_instance ) * TARGET_FPS;
+    time_render_scene_init_update_all_chr_instance = PROFILE_QUERY( gfx_update_all_chr_instance ) * TARGET_FPS;
     time_render_scene_init_update_all_prt_instance = PROFILE_QUERY( update_all_prt_instance ) * TARGET_FPS;
 
     return retval;
@@ -3682,409 +4917,185 @@ gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_inventory()
+gfx_rv render_water( renderlist_t * prlist )
 {
-    //ZF> This renders the open inventories of all local players
-    PLA_REF ipla;
-    player_t * ppla;
-    GLXvector4f background_color = { 0.66f, 0.0f, 0.0f, 0.95f };
+    /// @details ZZ@> This function draws all of the water fans
 
-    CHR_REF ichr;
-    chr_t *pchr;
-
-    PLA_REF draw_list[MAX_LOCAL_PLAYERS];
-    size_t cnt, draw_list_length = 0;
-
-    float sttx, stty;
-    int width, height;
-
-    static int lerp_time[MAX_LOCAL_PLAYERS] = { 0 };
-
-    //don't draw inventories while menu is open
-    if ( GProc->mod_paused ) return;
-
-    //figure out what we have to draw
-    for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
-    {
-        //valid player?
-        ppla = PlaStack_get_ptr( ipla );
-        if ( !ppla->valid ) continue;
-
-        //draw inventory?
-        if ( !ppla->draw_inventory ) continue;
-        ichr = ppla->index;
-
-        //valid character?
-        if ( !INGAME_CHR( ichr ) ) continue;
-        pchr = ChrList_get_ptr( ichr );
-
-        //don't draw inventories of network players
-        if ( !pchr->islocalplayer ) continue;
-
-        draw_list[draw_list_length++] = ipla;
-    }
-
-    //figure out size and position of the inventory
-    width = 180;
-    height = 140;
-
-    sttx = 0;
-    stty = GFX_HEIGHT / 2 - height / 2;
-    stty -= height * ( draw_list_length - 1 );
-    stty = MAX( 0, stty );
-
-    //now draw each inventory
-    for ( cnt = 0; cnt < draw_list_length; cnt++ )
-    {
-        size_t i;
-        STRING buffer;
-        int icon_count, item_count, weight_sum, max_weight;
-        float x, y, edgex;
-
-        //Figure out who this is
-        ipla = draw_list[cnt];
-        ppla = PlaStack_get_ptr( ipla );
-
-        ichr = ppla->index;
-        pchr = ChrList_get_ptr( ichr );
-
-        //handle inventories sliding into view
-        ppla->inventory_lerp = MIN( ppla->inventory_lerp, width );
-        if ( ppla->inventory_lerp > 0 && lerp_time[cnt] < SDL_GetTicks() )
-        {
-            lerp_time[cnt] = SDL_GetTicks() + 1;
-            ppla->inventory_lerp = MAX( 0, ppla->inventory_lerp - 16 );
-        }
-
-        //set initial positions
-        x = sttx - ppla->inventory_lerp;
-        y = stty;
-
-        //threshold to start a new row
-        edgex = sttx + width + 5 - 32;
-
-        //calculate max carry weight
-        max_weight = 200 + FP8_TO_FLOAT( pchr->strength ) * FP8_TO_FLOAT( pchr->strength );
-
-        //draw the backdrop
-        ui_drawButton( 0, x, y, width, height, background_color );
-        x += 5;
-
-        //draw title
-        draw_wrap_string( chr_get_name( ichr, CHRNAME_CAPITAL, NULL, 0 ), x, y, x + width );
-        y += 32;
-
-        //draw each inventory icon
-        weight_sum = 0;
-        icon_count = 0;
-        item_count = 0;
-        for ( i = 0; i < MAXINVENTORY; i++ )
-        {
-            CHR_REF item = pchr->inventory[i];
-
-            //calculate the sum of the weight of all items in inventory
-            if ( INGAME_CHR( item ) ) weight_sum += chr_get_pcap( item )->weight;
-
-            //draw icon
-            draw_one_character_icon( item, x, y, btrue, item_count == ppla->selected_item ? COLOR_WHITE : NOSPARKLE );
-            icon_count++;
-            item_count++;
-            x += 32 + 5;
-
-            //new row?
-            if ( x >= edgex || icon_count >= MAXINVENTORY / 2 )
-            {
-                x = sttx + 5 - ppla->inventory_lerp;
-                y += 32 + 5;
-                icon_count = 0;
-            }
-        }
-
-        //Draw weight
-        x = sttx + 5 - ppla->inventory_lerp;
-        y = stty + height - 42;
-        snprintf( buffer, SDL_arraysize( buffer ), "Weight: %d/%d", weight_sum, max_weight );
-        draw_wrap_string( buffer, x, y, sttx + width + 5 );
-
-        //prepare drawing the next inventory
-        stty += height + 10;
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_render_world( const camera_t * pcam, const int render_list_index, const int dolist_index )
-{
-    gfx_error_state_t * err_tmp;
-
-    gfx_error_clear();
-
-    gfx_begin_3d( pcam );
-    {
-        if ( gfx.draw_background )
-        {
-            // Render the background
-            // TX_WATER_LOW for waterlow.bmp
-            render_world_background( pcam, ( TX_REF )TX_WATER_LOW );
-        }
-
-        render_scene( pcam, render_list_index, dolist_index );
-
-        if ( gfx.draw_overlay )
-        {
-            // Foreground overlay
-            // TX_WATER_TOP is watertop.bmp
-            render_world_overlay( pcam, ( TX_REF )TX_WATER_TOP );
-        }
-
-        if ( pcam->motion_blur > 0 )
-        {
-            //Do motion blur
-            GL_DEBUG( glAccum )( GL_MULT, pcam->motion_blur );
-            GL_DEBUG( glAccum )( GL_ACCUM, 1.0f - pcam->motion_blur );
-            GL_DEBUG( glAccum )( GL_RETURN, 1.0f );
-        }
-    }
-    gfx_end_3d();
-
-    // Render the billboards
-    billboard_system_render_all( pcam );
-
-    err_tmp = gfx_error_pop();
-    if ( NULL != err_tmp )
-    {
-        printf( "**** Encountered graphics errors in frame %d ****\n\n", game_frame_all );
-        while ( NULL != err_tmp )
-        {
-            printf( "vvvv\n" );
-            printf(
-                "\tfile     == %s\n"
-                "\tline     == %d\n"
-                "\tfunction == %s\n"
-                "\tcode     == %d\n"
-                "\tstring   == %s\n",
-                err_tmp->file, err_tmp->line, err_tmp->function, err_tmp->type, err_tmp->string );
-            printf( "^^^^\n\n" );
-
-            err_tmp = gfx_error_pop();
-        }
-        printf( "****\n\n" );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_main()
-{
-    /// @details ZZ@> This function does all the drawing stuff
-
-    camera_system_render_all( gfx_render_world );
-
-    render_hud();
-
-    request_flip_pages();
-}
-
-//--------------------------------------------------------------------------------------------
-// UTILITY FUNCTIONS
-//--------------------------------------------------------------------------------------------
-bool_t dump_screenshot()
-{
-    /// @details BB@> dumps the current screen (GL context) to a new bitmap file
-    /// right now it dumps it to whatever the current directory is
-
-    // returns btrue if successful, bfalse otherwise
-
-    int i;
-    bool_t savefound = bfalse;
-    bool_t saved     = bfalse;
-    STRING szFilename, szResolvedFilename;
-
-    // find a valid file name
-    savefound = bfalse;
-    i = 0;
-    while ( !savefound && ( i < 100 ) )
-    {
-        snprintf( szFilename, SDL_arraysize( szFilename ), "ego%02d.bmp", i );
-
-        // lame way of checking if the file already exists...
-        savefound = !vfs_exists( szFilename );
-        if ( !savefound )
-        {
-            i++;
-        }
-    }
-
-    if ( !savefound ) return bfalse;
-
-    // convert the file path to the correct write path
-    strncpy( szResolvedFilename, vfs_resolveWriteFilename( szFilename ), SDL_arraysize( szFilename ) );
-
-    // if we are not using OpenGL, use SDL to dump the screen
-    if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL ) )
-    {
-        SDL_SaveBMP( sdl_scr.pscreen, szResolvedFilename );
-        return bfalse;
-    }
-
-    // we ARE using OpenGL
-    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_PIXEL_STORE_BIT ) ;
-    {
-        SDL_Surface *temp;
-
-        // create a SDL surface
-        temp = SDL_CreateRGBSurface( SDL_SWSURFACE, sdl_scr.x, sdl_scr.y, 24, sdl_r_mask, sdl_g_mask, sdl_b_mask, 0 );
-
-        if ( NULL == temp )
-        {
-            //Something went wrong
-            SDL_FreeSurface( temp );
-            return bfalse;
-        }
-
-        //Now lock the surface so that we can read it
-        if ( -1 != SDL_LockSurface( temp ) )
-        {
-            SDL_Rect rect;
-
-            memcpy( &rect, &( sdl_scr.pscreen->clip_rect ), sizeof( SDL_Rect ) );
-            if ( 0 == rect.w && 0 == rect.h )
-            {
-                rect.w = sdl_scr.x;
-                rect.h = sdl_scr.y;
-            }
-            if ( rect.w > 0 && rect.h > 0 )
-            {
-                int y;
-                Uint8 * pixels;
-
-                GL_DEBUG( glGetError )();
-
-                //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
-                //// stolen from SDL ;)
-                // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
-                // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
-
-                //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
-                //// it is not necesssaty to mess with the alignment
-                // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
-                // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
-
-                // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
-                // relative to the SDL Screen memory
-
-                // this is supposed to be a DirectX thing, so it needs to be tested out on glx
-                // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
-                pixels = ( Uint8 * )temp->pixels;
-                for ( y = rect.y; y < rect.y + rect.h; y++ )
-                {
-                    GL_DEBUG( glReadPixels )( rect.x, ( rect.h - y ) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels );
-                    pixels += temp->pitch;
-                }
-                EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG( glGetError )() );
-            }
-
-            SDL_UnlockSurface( temp );
-
-            // Save the file as a .bmp
-            saved = ( -1 != SDL_SaveBMP( temp, szResolvedFilename ) );
-        }
-
-        // free the SDL surface
-        SDL_FreeSurface( temp );
-        if ( saved )
-        {
-            // tell the user what we did
-            debug_printf( "Saved to %s", szFilename );
-        }
-    }
-    GL_DEBUG( glPopClientAttrib )();
-
-    return savefound && saved;
-}
-
-//--------------------------------------------------------------------------------------------
-void clear_messages()
-{
-    /// @details ZZ@> This function empties the message buffer
     int cnt;
+    gfx_rv retval;
 
-    cnt = 0;
-
-    while ( cnt < MAX_MESSAGE )
+    if ( NULL == prlist )
     {
-        DisplayMsg.ary[cnt].time = 0;
-        cnt++;
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        return gfx_error;
     }
+
+    // assume the best
+    retval = gfx_success;
+
+    // Bottom layer first
+    if ( gfx.draw_water_1 )
+    {
+        for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
+        {
+            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat[cnt], 1 ) )
+            {
+                retval = gfx_error;
+            }
+        }
+    }
+
+    // Top layer second
+    if ( gfx.draw_water_0 )
+    {
+        for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
+        {
+            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat[cnt], 0 ) )
+            {
+                retval = gfx_error;
+            }
+        }
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-float calc_light_rotation( int rotation, int normal )
+// gfx_config_t FUNCTIONS
+//--------------------------------------------------------------------------------------------
+bool_t gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, egoboo_config_t * pcfg )
 {
-    /// @details ZZ@> This function helps make_lighttable
-    fvec3_t   nrm, nrm2;
-    float sinrot, cosrot;
+    // call gfx_config_init(), even if the config data is invalid
+    if ( !gfx_config_init( pgfx ) ) return bfalse;
 
-    nrm.x = kMd2Normals[normal][0];
-    nrm.y = kMd2Normals[normal][1];
-    nrm.z = kMd2Normals[normal][2];
+    // if there is no config data, do not proceed
+    if ( NULL == pcfg ) return bfalse;
 
-    sinrot = sinlut[rotation];
-    cosrot = coslut[rotation];
+    pgfx->antialiasing = pcfg->multisamples > 0;
 
-    nrm2.x = cosrot * nrm.x + sinrot * nrm.y;
-    nrm2.y = cosrot * nrm.y - sinrot * nrm.x;
-    nrm2.z = nrm.z;
+    pgfx->refon        = pcfg->reflect_allowed;
+    pgfx->reffadeor    = pcfg->reflect_fade ? 0 : 255;
 
-    return ( nrm2.x < 0 ) ? 0 : ( nrm2.x * nrm2.x );
+    pgfx->shaon        = pcfg->shadow_allowed;
+    pgfx->shasprite    = pcfg->shadow_sprite;
+
+    pgfx->shading      = pcfg->gouraud_req ? GL_SMOOTH : GL_FLAT;
+    pgfx->dither       = pcfg->use_dither;
+    pgfx->perspective  = pcfg->use_perspective;
+    pgfx->phongon      = pcfg->use_phong;
+
+    pgfx->draw_background = pcfg->background_allowed && water.background_req;
+    pgfx->draw_overlay    = pcfg->overlay_allowed && water.overlay_req;
+
+    pgfx->dynalist_max = CLIP( pcfg->dyna_count_req, 0, TOTAL_MAX_DYNA );
+
+    pgfx->draw_water_0 = !pgfx->draw_overlay && ( water.layer_count > 0 );
+    pgfx->clearson     = !pgfx->draw_background;
+    pgfx->draw_water_1 = !pgfx->draw_background && ( water.layer_count > 1 );
+
+    gfx_system_set_virtual_screen( pgfx );
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-float calc_light_global( int rotation, int normal, float lx, float ly, float lz )
+bool_t gfx_config_init( gfx_config_t * pgfx )
 {
-    /// @details ZZ@> This function helps make_lighttable
-    float fTmp;
-    fvec3_t   nrm, nrm2;
-    float sinrot, cosrot;
+    if ( NULL == pgfx ) return bfalse;
 
-    nrm.x = kMd2Normals[normal][0];
-    nrm.y = kMd2Normals[normal][1];
-    nrm.z = kMd2Normals[normal][2];
+    pgfx->shading          = GL_SMOOTH;
+    pgfx->refon            = btrue;
+    pgfx->reffadeor        = 0;
+    pgfx->antialiasing     = bfalse;
+    pgfx->dither           = bfalse;
+    pgfx->perspective      = bfalse;
+    pgfx->phongon          = btrue;
+    pgfx->shaon            = btrue;
+    pgfx->shasprite        = btrue;
 
-    sinrot = sinlut[rotation];
-    cosrot = coslut[rotation];
+    pgfx->clearson         = btrue;   // Do we clear every time?
+    pgfx->draw_background  = bfalse;   // Do we draw the background image?
+    pgfx->draw_overlay     = bfalse;   // Draw overlay?
+    pgfx->draw_water_0     = btrue;   // Do we draw water layer 1 (TX_WATER_LOW)
+    pgfx->draw_water_1     = btrue;   // Do we draw water layer 2 (TX_WATER_TOP)
 
-    nrm2.x = cosrot * nrm.x + sinrot * nrm.y;
-    nrm2.y = cosrot * nrm.y - sinrot * nrm.x;
-    nrm2.z = nrm.z;
+    pgfx->dynalist_max    = 8;
 
-    fTmp = nrm2.x * lx + nrm2.y * ly + nrm2.z * lz;
-    if ( fTmp < 0 ) fTmp = 0;
+    //gfx_calc_rotmesh();
 
-    return fTmp * fTmp;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void make_enviro( void )
+// oglx_texture_parameters_t FUNCTIONS
+//--------------------------------------------------------------------------------------------
+bool_t oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg )
 {
-    /// @details ZZ@> This function sets up the environment mapping table
-    int cnt;
-    float x, y, z;
+    //// @details BB@> synch the texture parameters with the video mode
 
-    // Find the environment map positions
-    for ( cnt = 0; cnt < EGO_NORMAL_COUNT; cnt++ )
+    if ( NULL == ptex || NULL == pcfg ) return bfalse;
+
+    if ( ogl_caps.maxAnisotropy <= 1.0f )
     {
-        x = kMd2Normals[cnt][0];
-        y = kMd2Normals[cnt][1];
-        indextoenvirox[cnt] = ATAN2( y, x ) * INV_TWO_PI;
+        ptex->userAnisotropy = 0.0f;
+        ptex->texturefilter  = ( TX_FILTERS )MIN( pcfg->texturefilter_req, TX_TRILINEAR_2 );
+    }
+    else
+    {
+        ptex->texturefilter  = ( TX_FILTERS )MIN( pcfg->texturefilter_req, TX_FILTER_COUNT );
+        ptex->userAnisotropy = ogl_caps.maxAnisotropy * MAX( 0, ( int )ptex->texturefilter - ( int )TX_TRILINEAR_2 );
     }
 
-    for ( cnt = 0; cnt < 256; cnt++ )
-    {
-        z = cnt / INV_FF;  // Z is between 0 and 1
-        lighttoenviroy[cnt] = z;
-    }
+    return btrue;
 }
 
+//--------------------------------------------------------------------------------------------
+// gfx_error FUNCTIONS
+//--------------------------------------------------------------------------------------------
+egolib_rv gfx_error_add( const char * file, const char * function, int line, int id, const char * sz )
+{
+    gfx_error_state_t * pstate;
+
+    // too many errors?
+    if ( gfx_error_stack.count >= GFX_ERROR_MAX ) return rv_fail;
+
+    // grab an error state
+    pstate = gfx_error_stack.lst + gfx_error_stack.count;
+    gfx_error_stack.count++;
+
+    // where is the error
+    strncpy( pstate->file,     file,     SDL_arraysize( pstate->file ) );
+    strncpy( pstate->function, function, SDL_arraysize( pstate->function ) );
+    pstate->line = line;
+
+    // what is the error
+    pstate->type     = id;
+    strncpy( pstate->string, sz, SDL_arraysize( pstate->string ) );
+
+    return rv_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_error_state_t * gfx_error_pop()
+{
+    gfx_error_state_t * retval;
+
+    if ( 0 == gfx_error_stack.count || gfx_error_stack.count >= GFX_ERROR_MAX ) return NULL;
+
+    retval = gfx_error_stack.lst + gfx_error_stack.count;
+    gfx_error_stack.count--;
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+void gfx_error_clear()
+{
+    gfx_error_stack.count = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+// grid_lighting FUNCTIONS
 //--------------------------------------------------------------------------------------------
 float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff )
 {
@@ -4802,11 +5813,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
 }
 
 //--------------------------------------------------------------------------------------------
-// GRAPHICS OPTIMIZATIONS
-//--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
-// object registry entity implementation
+// obj_registry_entity_t IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
 obj_registry_entity_t * obj_registry_entity_init( obj_registry_entity_t * ptr )
@@ -4849,6 +5856,7 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright )
 }
 
 //--------------------------------------------------------------------------------------------
+// DisplayMsg IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 int DisplayMsg_get_free()
 {
@@ -4867,7 +5875,7 @@ int DisplayMsg_get_free()
 // ASSET INITIALIZATION
 //--------------------------------------------------------------------------------------------
 
-void init_bar_data()
+void gfx_init_bar_data()
 {
     Uint8 cnt;
 
@@ -4888,7 +5896,7 @@ void init_bar_data()
 }
 
 //--------------------------------------------------------------------------------------------
-void init_blip_data()
+void gfx_init_blip_data()
 {
     int cnt;
 
@@ -4906,7 +5914,7 @@ void init_blip_data()
 }
 
 //--------------------------------------------------------------------------------------------
-void init_map_data()
+void gfx_init_map_data()
 {
     /// @details ZZ@> This function releases all the map images
 
@@ -4921,81 +5929,17 @@ void init_map_data()
 }
 
 //--------------------------------------------------------------------------------------------
-void init_all_graphics()
-{
-    init_bar_data();
-    init_blip_data();
-    init_map_data();
-    font_bmp_init();
-
-    billboard_system_init();
-    TxTexture_init_all();
-
-    // the mouse input_cursor was just erased. reload it.
-    init_mouse_cursor();
-
-    PROFILE_RESET( render_scene_init );
-    PROFILE_RESET( render_scene_mesh );
-    PROFILE_RESET( render_scene_solid );
-    PROFILE_RESET( render_scene_water );
-    PROFILE_RESET( render_scene_trans );
-
-    PROFILE_RESET( gfx_make_renderlist );
-    PROFILE_RESET( gfx_make_dolist );
-    PROFILE_RESET( do_grid_lighting );
-    PROFILE_RESET( light_fans );
-    PROFILE_RESET( update_all_chr_instance );
-    PROFILE_RESET( update_all_prt_instance );
-
-    PROFILE_RESET( render_scene_mesh_dolist_sort );
-    PROFILE_RESET( render_scene_mesh_ndr );
-    PROFILE_RESET( render_scene_mesh_drf_back );
-    PROFILE_RESET( render_scene_mesh_ref );
-    PROFILE_RESET( render_scene_mesh_ref_chr );
-    PROFILE_RESET( render_scene_mesh_drf_solid );
-    PROFILE_RESET( render_scene_mesh_render_shadows );
-
-    stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
-    stabilized_game_fps_weight = STABILIZED_COVER;
-}
-
-//--------------------------------------------------------------------------------------------
-void release_all_graphics()
-{
-    init_bar_data();
-    init_blip_data();
-    init_map_data();
-
-    BillboardList_free_all();
-    TxTexture_release_all();
-}
-
-//--------------------------------------------------------------------------------------------
-void delete_all_graphics()
-{
-    init_bar_data();
-    init_blip_data();
-    init_map_data();
-
-    BillboardList_free_all();
-    TxTexture_delete_all();
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t init_mouse_cursor()
+bool_t gfx_init_mouse_cursor()
 {
     /// @details ZF@> Load the mouse input_cursor
-    TX_REF retval;
-    bool_t success;
 
-    retval = TxTexture_load_one_vfs( "mp_data/cursor", ( TX_REF )TX_CURSOR, TRANSCOLOR );
+    Uint32 txid = INVALID_GL_ID;
+    bool_t success = btrue;
 
-    // is the texture valid?
-    success = btrue;
-    if ( INVALID_GL_ID == retval )
+    txid = ego_texture_load_vfs( &tx_cursor, "mp_data/cursor", TRANSCOLOR );
+    if ( INVALID_GL_ID == txid )
     {
-        log_warning( "Could not load mouse input_cursor (basicdat" SLASH_STR "input_cursor.png)\n" );
+        log_warning( "Could not load mouse cursor (basicdat" SLASH_STR "cursor.png)\n" );
         success = bfalse;
     }
 
@@ -5003,120 +5947,7 @@ bool_t init_mouse_cursor()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_mouse_cursor()
-{
-    int     x, y;
-    ego_frect_t tx_rect, sc_rect;
-
-    oglx_texture_t * tex_ptr;
-
-    if ( !mous.on )
-    {
-        SDL_ShowCursor( SDL_DISABLE );
-        return;
-    }
-
-    // grab the cursor texture
-    tex_ptr = TxTexture_get_valid_ptr(( TX_REF )TX_CURSOR );
-
-    // Invalid texture?
-    if ( !oglx_texture_Valid( tex_ptr ) )
-    {
-        SDL_ShowCursor( SDL_ENABLE );
-    }
-    else
-    {
-        // Hide the SDL mouse
-        SDL_ShowCursor( SDL_DISABLE );
-
-        x = ABS( mous.x );
-        y = ABS( mous.y );
-
-        tx_rect.xmin = 0;
-        tx_rect.xmax = ( float )tex_ptr->imgW / ( float )tex_ptr->base.width;
-        tx_rect.ymin = 0;
-        tx_rect.ymax = ( float )tex_ptr->imgH / ( float )tex_ptr->base.height;
-
-        sc_rect.xmin = x;
-        sc_rect.xmax = x + tex_ptr->imgW;
-        sc_rect.ymin = y;
-        sc_rect.ymax = y + tex_ptr->imgH;
-
-        draw_quad_2d( tex_ptr, sc_rect, tx_rect, btrue );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t load_all_global_icons()
-{
-    /// @details ZF@> Load all the global icons used in all modules
-
-    // Setup
-    bool_t result = bfalse;
-
-    // Now load every icon
-    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
-
-    return result;
-}
-
-//--------------------------------------------------------------------------------------------
-void load_basic_textures()
-{
-    /// @details ZZ@> This function loads the standard textures for a module
-
-    // Particle sprites
-    TxTexture_load_one_vfs( "mp_data/particle_trans", ( TX_REF )TX_PARTICLE_TRANS, TRANSCOLOR );
-    prt_set_texture_params(( TX_REF )TX_PARTICLE_TRANS );
-
-    TxTexture_load_one_vfs( "mp_data/particle_light", ( TX_REF )TX_PARTICLE_LIGHT, INVALID_KEY );
-    prt_set_texture_params(( TX_REF )TX_PARTICLE_LIGHT );
-
-    // Module background tiles
-    TxTexture_load_one_vfs( "mp_data/tile0", ( TX_REF )TX_TILE_0, TRANSCOLOR );
-    TxTexture_load_one_vfs( "mp_data/tile1", ( TX_REF )TX_TILE_1, TRANSCOLOR );
-    TxTexture_load_one_vfs( "mp_data/tile2", ( TX_REF )TX_TILE_2, TRANSCOLOR );
-    TxTexture_load_one_vfs( "mp_data/tile3", ( TX_REF )TX_TILE_3, TRANSCOLOR );
-
-    // Water textures
-    TxTexture_load_one_vfs( "mp_data/watertop", ( TX_REF )TX_WATER_TOP, TRANSCOLOR );
-    TxTexture_load_one_vfs( "mp_data/waterlow", ( TX_REF )TX_WATER_LOW, TRANSCOLOR );
-
-    // The phong map
-    TxTexture_load_one_vfs( "mp_data/phong", ( TX_REF )TX_PHONG, TRANSCOLOR );
-
-    PROFILE_RESET( render_scene_init );
-    PROFILE_RESET( render_scene_mesh );
-    PROFILE_RESET( render_scene_solid );
-    PROFILE_RESET( render_scene_water );
-    PROFILE_RESET( render_scene_trans );
-
-    PROFILE_RESET( gfx_make_renderlist );
-    PROFILE_RESET( gfx_make_dolist );
-    PROFILE_RESET( do_grid_lighting );
-    PROFILE_RESET( light_fans );
-    PROFILE_RESET( update_all_chr_instance );
-    PROFILE_RESET( update_all_prt_instance );
-
-    PROFILE_RESET( render_scene_mesh_dolist_sort );
-    PROFILE_RESET( render_scene_mesh_ndr );
-    PROFILE_RESET( render_scene_mesh_drf_back );
-    PROFILE_RESET( render_scene_mesh_ref );
-    PROFILE_RESET( render_scene_mesh_ref_chr );
-    PROFILE_RESET( render_scene_mesh_drf_solid );
-    PROFILE_RESET( render_scene_mesh_render_shadows );
-
-    stabilized_game_fps        = TARGET_FPS;
-    stabilized_game_fps_sum    = STABILIZED_COVER * TARGET_FPS;
-    stabilized_game_fps_weight = STABILIZED_COVER;
-}
-
-//--------------------------------------------------------------------------------------------
-void load_bars()
+void gfx_load_bars()
 {
     /// @details ZZ@> This function loads the status bar bitmap
 
@@ -5125,18 +5956,18 @@ void load_bars()
     pname = "mp_data/bars";
     if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( pname, ( TX_REF )TX_BARS, TRANSCOLOR ) )
     {
-        log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
+        log_warning( "gfx_load_bars() - Cannot load file! (\"%s\")\n", pname );
     }
 
     pname = "mp_data/xpbar";
     if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( pname, ( TX_REF )TX_XP_BAR, TRANSCOLOR ) )
     {
-        log_warning( "load_bars() - Cannot load file! (\"%s\")\n", pname );
+        log_warning( "gfx_load_bars() - Cannot load file! (\"%s\")\n", pname );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void load_map()
+void gfx_load_map()
 {
     /// @details ZZ@> This function loads the map bitmap
 
@@ -5152,7 +5983,7 @@ void load_map()
     szMap = "mp_data/plan";
     if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( szMap, ( TX_REF )TX_MAP, INVALID_KEY ) )
     {
-        log_debug( "load_map() - Cannot load file! (\"%s\")\n", szMap );
+        log_debug( "gfx_load_map() - Cannot load file! (\"%s\")\n", szMap );
     }
     else
     {
@@ -5161,7 +5992,7 @@ void load_map()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t load_blips()
+bool_t gfx_load_blips()
 {
     /// ZZ@> This function loads the blip bitmaps
     if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( "mp_data/blip", ( TX_REF )TX_BLIP, INVALID_KEY ) )
@@ -5174,157 +6005,26 @@ bool_t load_blips()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_graphics()
+gfx_rv gfx_reload_cursor()
 {
-    /// @details ZF@> This function loads all the graphics based on the game settings
-
-    GLenum quality;
-
-    // Check if the computer graphic driver supports anisotropic filtering
-
-    if ( !ogl_caps.anisotropic_supported )
-    {
-        if ( tex_params.texturefilter >= TX_ANISOTROPIC )
-        {
-            tex_params.texturefilter = TX_TRILINEAR_2;
-            log_warning( "Your graphics driver does not support anisotropic filtering.\n" );
-        }
-    }
-
-    // Enable prespective correction?
-    if ( gfx.perspective ) quality = GL_NICEST;
-    else quality = GL_FASTEST;
-    GL_DEBUG( glHint )( GL_PERSPECTIVE_CORRECTION_HINT, quality );
-
-    // Enable dithering?
-    if ( gfx.dither )
-    {
-        GL_DEBUG( glHint )( GL_GENERATE_MIPMAP_HINT, GL_NICEST );
-        GL_DEBUG( glEnable )( GL_DITHER );
-    }
-    else
-    {
-        GL_DEBUG( glHint )( GL_GENERATE_MIPMAP_HINT, GL_FASTEST );
-        GL_DEBUG( glDisable )( GL_DITHER );                          // ENABLE_BIT
-    }
-
-    // Enable Gouraud shading? (Important!)
-    GL_DEBUG( glShadeModel )( gfx.shading );         // GL_LIGHTING_BIT
-
-    // Enable antialiasing?
-    if ( gfx.antialiasing )
-    {
-        GL_DEBUG( glEnable )( GL_MULTISAMPLE_ARB );
-
-        GL_DEBUG( glEnable )( GL_LINE_SMOOTH );
-        GL_DEBUG( glHint )( GL_LINE_SMOOTH_HINT,    GL_NICEST );
-
-        GL_DEBUG( glEnable )( GL_POINT_SMOOTH );
-        GL_DEBUG( glHint )( GL_POINT_SMOOTH_HINT,   GL_NICEST );
-
-        GL_DEBUG( glDisable )( GL_POLYGON_SMOOTH );
-        GL_DEBUG( glHint )( GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
-
-        // PLEASE do not turn this on unless you use
-        // GL_DEBUG(glEnable)(GL_BLEND);
-        // GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        // before every single draw command
-        //
-        // GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
-        // GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-    }
-    else
-    {
-        GL_DEBUG( glDisable )( GL_MULTISAMPLE_ARB );
-        GL_DEBUG( glDisable )( GL_POINT_SMOOTH );
-        GL_DEBUG( glDisable )( GL_LINE_SMOOTH );
-        GL_DEBUG( glDisable )( GL_POLYGON_SMOOTH );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-gfx_rv do_chr_flashing( dolist_t * pdolist )
-{
+    bool_t tx_valid;
     gfx_rv retval;
-    Uint32 i;
 
-    if ( NULL == pdolist )
+    tx_valid = oglx_texture_Valid( &tx_cursor );
+
+    if ( !tx_valid )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
-        return gfx_error;
+        log_warning( "Invalid mouse cursor.\n" );
+        retval = gfx_error;
     }
-
-    if ( pdolist->count >= DOLIST_SIZE )
+    else
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
-        return gfx_error;
-    }
+        GLuint convert_rv = oglx_texture_Convert( &tx_cursor, tx_cursor.surface, INVALID_KEY );
 
-    retval = gfx_success;
-    for ( i = 0; i < pdolist->count; i++ )
-    {
-        float tmp_seekurse_level;
-
-        CHR_REF ichr = pdolist->lst[i].ichr;
-        if ( !VALID_CHR_RANGE( ichr ) ) continue;
-
-        // Do flashing
-        if ( DONTFLASH != ChrList.lst[ichr].flashand )
-        {
-            if ( HAS_NO_BITS( game_frame_all, ChrList.lst[ichr].flashand ) )
-            {
-                if ( gfx_error == flash_character( ichr, 255 ) )
-                {
-                    retval = gfx_error;
-                }
-            }
-        }
-
-        // Do blacking
-        // having one holy player in your party will cause the effect, BUT
-        // having some non-holy players will dilute it
-        tmp_seekurse_level = MIN( local_stats.seekurse_level, 1.0f );
-        if (( local_stats.seekurse_level > 0.0f ) && ChrList.lst[ichr].iskursed && 1.0f != tmp_seekurse_level )
-        {
-            if ( HAS_NO_BITS( game_frame_all, SEEKURSEAND ) )
-            {
-                if ( gfx_error == flash_character( ichr, 255.0f *( 1.0f - tmp_seekurse_level ) ) )
-                {
-                    retval = gfx_error;
-                }
-            }
-        }
+        retval = ( INVALID_GL_ID == convert_rv ) ? gfx_fail : gfx_success;
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv flash_character( const CHR_REF character, Uint8 value )
-{
-    /// @details ZZ@> This function sets a character's lighting
-
-    size_t     cnt;
-    float      flash_val = value * INV_FF;
-    GLvertex * pv;
-
-    chr_instance_t * pinst = chr_get_pinstance( character );
-    if ( NULL == pinst ) return gfx_error;
-
-    // flash the ambient color
-    pinst->color_amb = flash_val;
-
-    // flash the directional lighting
-    pinst->color_amb = flash_val;
-    for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
-    {
-        pv = pinst->vrt_lst + cnt;
-
-        pv->color_dir = flash_val;
-    }
-
-    return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5460,13 +6160,13 @@ void gfx_reshape_viewport( int w, int h )
 }
 
 //--------------------------------------------------------------------------------------------
-void request_clear_screen()
+void gfx_request_clear_screen()
 {
     gfx_page_clear_requested = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void do_clear_screen()
+void gfx_do_clear_screen()
 {
     bool_t game_needs_clear, menu_needs_clear;
 
@@ -5502,7 +6202,7 @@ void do_clear_screen()
 }
 
 //--------------------------------------------------------------------------------------------
-void do_flip_pages()
+void gfx_do_flip_pages()
 {
     bool_t try_flip;
 
@@ -5526,13 +6226,13 @@ void do_flip_pages()
 }
 
 //--------------------------------------------------------------------------------------------
-void request_flip_pages()
+void gfx_request_flip_pages()
 {
     gfx_page_flip_requested = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t flip_pages_requested()
+bool_t gfx_flip_pages_requested()
 {
     return gfx_page_flip_requested;
 }
@@ -6378,116 +7078,6 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_water( renderlist_t * prlist )
-{
-    /// @details ZZ@> This function draws all of the water fans
-
-    int cnt;
-    gfx_rv retval;
-
-    if ( NULL == prlist )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
-        return gfx_error;
-    }
-
-    // assume the best
-    retval = gfx_success;
-
-    // Bottom layer first
-    if ( gfx.draw_water_1 )
-    {
-        for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
-        {
-            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat[cnt], 1 ) )
-            {
-                retval = gfx_error;
-            }
-        }
-    }
-
-    // Top layer second
-    if ( gfx.draw_water_0 )
-    {
-        for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
-        {
-            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat[cnt], 0 ) )
-            {
-                retval = gfx_error;
-            }
-        }
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_reload_all_textures()
-{
-    TxTitleImage_reload_all();
-    TxTexture_reload_all();
-}
-
-//--------------------------------------------------------------------------------------------
-void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool_t use_alpha )
-{
-    ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
-    {
-        GLboolean texture_1d_enabled, texture_2d_enabled;
-
-        texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-        texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
-        if ( NULL == ptex || INVALID_GL_ID == ptex->base.binding )
-        {
-            GL_DEBUG( glDisable )( GL_TEXTURE_1D );                           // GL_ENABLE_BIT
-            GL_DEBUG( glDisable )( GL_TEXTURE_2D );                           // GL_ENABLE_BIT
-        }
-        else
-        {
-            GL_DEBUG( glEnable )( ptex->base.target );                        // GL_ENABLE_BIT
-            oglx_texture_Bind( ptex );
-        }
-
-        GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );                      // GL_CURRENT_BIT
-
-        if ( use_alpha )
-        {
-            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
-
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                      // GL_COLOR_BUFFER_BIT
-        }
-        else
-        {
-            GL_DEBUG( glDisable )( GL_BLEND );                                 // GL_ENABLE_BIT
-            GL_DEBUG( glDisable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
-        }
-
-        GL_DEBUG( glBegin )( GL_QUADS );
-        {
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmin, tx_rect.ymax ); GL_DEBUG( glVertex2f )( scr_rect.xmin, scr_rect.ymax );
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmax, tx_rect.ymax ); GL_DEBUG( glVertex2f )( scr_rect.xmax, scr_rect.ymax );
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmax, tx_rect.ymin ); GL_DEBUG( glVertex2f )( scr_rect.xmax, scr_rect.ymin );
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmin, tx_rect.ymin ); GL_DEBUG( glVertex2f )( scr_rect.xmin, scr_rect.ymin );
-        }
-        GL_DEBUG_END();
-
-        // fix the texture enabling
-        if ( texture_1d_enabled )
-        {
-            GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-        }
-        else if ( texture_2d_enabled )
-        {
-            GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-        }
-    }
-    ATTRIB_POP( __FUNCTION__ );
-}
-
-//--------------------------------------------------------------------------------------------
 gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile )
 {
     if ( NULL == ptile )
@@ -6518,77 +7108,6 @@ gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile )
     ptile->inrenderlist_frame = game_frame_all;
 
     return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst )
-{
-    int j;
-    BSP_leaf_t * pleaf;
-    ego_mpd_t  * pmesh  = NULL;
-    gfx_rv       retval = gfx_error;
-
-    if ( NULL == prlist || NULL == pcolst )
-    {
-        return gfx_error;
-    }
-
-    if ( 0 == BSP_leaf_pary_get_size( pcolst ) || 0 == BSP_leaf_pary_get_top( pcolst ) )
-    {
-        return gfx_fail;
-    }
-
-    pmesh = renderlist_get_pmesh( prlist );
-    if ( NULL == pmesh )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist is not attached to a mesh" );
-        return gfx_error;
-    }
-
-    // assume the best
-    retval = gfx_success;
-
-    // transfer valid pcolst entries to the renderlist
-    for ( j = 0; j < pcolst->top; j++ )
-    {
-        pleaf = pcolst->ary[j];
-        if ( NULL == pleaf ) continue;
-
-        if ( BSP_LEAF_TILE == pleaf->data_type )
-        {
-            Uint32 ifan;
-            ego_tile_info_t * ptile;
-            ego_grid_info_t * pgrid;
-
-            // collided with a character
-            ifan = ( Uint32 )( pleaf->index );
-
-            ptile = mesh_get_ptile( pmesh, ifan );
-            if ( NULL == ptile ) continue;
-
-            pgrid = mesh_get_pgrid( pmesh, ifan );
-            if ( NULL == pgrid ) continue;
-
-            if ( gfx_error == gfx_capture_mesh_tile( ptile ) )
-            {
-                retval = gfx_error;
-                break;
-            }
-
-            if ( gfx_error == renderlist_insert( prlist, pgrid, ifan ) )
-            {
-                retval = gfx_error;
-                break;
-            }
-        }
-        else
-        {
-            // how did we get here?
-            log_warning( "%s-%s-%d- found non-tile in the mpd BSP\n", __FILE__, __FUNCTION__, __LINE__ );
-        }
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6646,7 +7165,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
     mpd_BSP_collide_frustum( &( mpd_BSP_root ), &( pcam->frustum_big ), NULL, &_renderlist_colst );
 
     // transfer valid _renderlist_colst entries to the dolist
-    if ( gfx_error == gfx_make_renderlist_add_colst( prlist, &_renderlist_colst ) )
+    if ( gfx_error == renderlist_add_colst( prlist, &_renderlist_colst ) )
     {
         retval = gfx_error;
         goto gfx_make_renderlist_exit;
@@ -6658,586 +7177,6 @@ gfx_make_renderlist_exit:
     if ( local_allocation )
     {
         BSP_leaf_pary_dtor( &_renderlist_colst );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-// renderlist implementation
-//--------------------------------------------------------------------------------------------
-
-renderlist_t * renderlist_init( renderlist_t * plst, ego_mpd_t * pmesh )
-{
-    if ( NULL == plst )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist initializer" );
-        return NULL;
-    }
-
-    BLANK_STRUCT_PTR( plst )
-
-    // init the 1st element of the array
-    plst->all[0] = INVALID_TILE;
-    plst->ref[0] = INVALID_TILE;
-    plst->sha[0] = INVALID_TILE;
-    plst->drf[0] = INVALID_TILE;
-    plst->ndr[0] = INVALID_TILE;
-    plst->wat[0] = INVALID_TILE;
-
-    plst->pmesh = pmesh;
-
-    return plst;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv renderlist_reset( renderlist_t * plst )
-{
-    /// @details BB@> Clear old render lists
-
-    ego_mpd_t * pmesh;
-    ego_tile_info_t * tlist;
-    int cnt;
-
-    if ( NULL == plst )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
-        return gfx_error;
-    }
-
-    pmesh = renderlist_get_pmesh( plst );
-    if ( NULL == pmesh )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist does not contain a mesh" );
-        return gfx_error;
-    }
-
-    // clear out the inrenderlist flag for the old mesh
-    tlist = pmesh->tmem.tile_list;
-
-    for ( cnt = 0; cnt < plst->all_count; cnt++ )
-    {
-        Uint32 fan = plst->all[cnt];
-        if ( fan < pmesh->info.tiles_count )
-        {
-            tlist[fan].inrenderlist       = bfalse;
-            tlist[fan].inrenderlist_frame = 0;
-        }
-    }
-
-    // re-initialize the renderlist
-    renderlist_init( plst, plst->pmesh );
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv renderlist_insert( renderlist_t * plst, const ego_grid_info_t * pgrid, const Uint32 index )
-{
-    // Make sure it doesn't die ugly
-    if ( NULL == plst )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
-        return gfx_error;
-    }
-
-    // check for a valid tile
-    if ( NULL == pgrid || INVALID_TILE == index ) return gfx_fail;
-
-    // we can only accept so many tiles
-    if ( plst->all_count >= MAXMESHRENDER ) return gfx_fail;
-
-    // Put each tile in basic list
-    plst->all[plst->all_count] = index;
-    plst->all_count++;
-
-    // Put each tile in one other list, for shadows and relections
-    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_SHA ) )
-    {
-        plst->sha[plst->sha_count] = index;
-        plst->sha_count++;
-    }
-    else
-    {
-        plst->ref[plst->ref_count] = index;
-        plst->ref_count++;
-    }
-
-    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_DRAWREF ) )
-    {
-        plst->drf[plst->drf_count] = index;
-        plst->drf_count++;
-    }
-    else
-    {
-        plst->ndr[plst->ndr_count] = index;
-        plst->ndr_count++;
-    }
-
-    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_WATER ) )
-    {
-        plst->wat[plst->wat_count] = index;
-        plst->wat_count++;
-    }
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-ego_mpd_t * renderlist_get_pmesh( const renderlist_t * ptr )
-{
-    if ( NULL == ptr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
-        return NULL;
-    }
-
-    return ptr->pmesh;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mpd_t * pmesh )
-{
-    if ( NULL == ptr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
-        return gfx_error;
-    }
-
-    ptr->pmesh = pmesh;
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-// renderlist array implementation
-//--------------------------------------------------------------------------------------------
-renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr )
-{
-    int cnt;
-
-    if ( NULL == ptr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist array" );
-        return NULL;
-    }
-
-    if ( ptr->started ) return ptr;
-
-    for ( cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
-    {
-        ptr->free_lst[cnt] = cnt;
-        renderlist_init( ptr->lst + cnt, NULL );
-    }
-    ptr->free_count = MAX_RENDER_LISTS;
-
-    ptr->started = btrue;
-
-    return ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr )
-{
-    int cnt;
-
-    if ( NULL == ptr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist array" );
-        return NULL;
-    }
-
-    if ( !ptr->started ) return ptr;
-
-    ptr->free_count = 0;
-    for ( cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
-    {
-        ptr->free_lst[cnt] = -1;
-        renderlist_init( ptr->lst + cnt, NULL );
-    }
-
-    ptr->started = bfalse;
-
-    return ptr;
-}
-
-//--------------------------------------------------------------------------------------------
-// renderlist manager implementation
-//--------------------------------------------------------------------------------------------
-gfx_rv renderlist_mgr_begin( renderlist_mgr_t * pmgr )
-{
-    // valid pointer?
-    if ( NULL == pmgr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist manager" );
-        return gfx_error;
-    }
-
-    if ( pmgr->started ) return gfx_success;
-
-    renderlist_ary_begin( &( pmgr->ary ) );
-
-    pmgr->started = btrue;
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv renderlist_mgr_end( renderlist_mgr_t * pmgr )
-{
-    // valid pointer?
-    if ( NULL == pmgr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist manager" );
-        return gfx_error;
-    }
-
-    if ( !pmgr->started ) return gfx_success;
-
-    renderlist_ary_end( &( pmgr->ary ) );
-
-    // the manager is no longer running
-    pmgr->started = bfalse;
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-int renderlist_mgr_get_free_index( renderlist_mgr_t * pmgr )
-{
-    int retval = -1;
-
-    // renderlist manager started?
-    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
-    {
-        return -1;
-    }
-
-    if ( pmgr->ary.free_count <= 0 ) return -1;
-
-    // resduce the count
-    pmgr->ary.free_count--;
-
-    // grab the index
-    retval = pmgr->ary.free_count;
-
-    // blank the free list
-    if ( retval >= 0 && retval < MAX_RENDER_LISTS )
-    {
-        pmgr->ary.free_lst[ retval ] = -1;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv renderlist_mgr_free_one( renderlist_mgr_t * pmgr, int index )
-{
-    size_t cnt;
-    gfx_rv retval = gfx_error;
-
-    // renderlist manager started?
-    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
-    {
-        return gfx_error;
-    }
-
-    // valid index range?
-    if ( index < 0 || index >= MAX_RENDER_LISTS ) return gfx_error;
-
-    // is the index already freed?
-    for ( cnt = 0; cnt < pmgr->ary.free_count; cnt++ )
-    {
-        if ( index == pmgr->ary.free_lst[cnt] )
-        {
-            return gfx_fail;
-        }
-    }
-
-    // push it on the list
-    retval = gfx_fail;
-    if ( pmgr->ary.free_count < MAX_RENDER_LISTS )
-    {
-        pmgr->ary.free_lst[pmgr->ary.free_count] = index;
-        pmgr->ary.free_count++;
-        retval = gfx_success;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, int index )
-{
-    // renderlist manager started?
-    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
-    {
-        return NULL;
-    }
-
-    // valid index range?
-    if ( index < 0 || index >= MAX_RENDER_LISTS )
-    {
-        return NULL;
-    }
-
-    return pmgr->ary.lst + index;
-}
-
-//--------------------------------------------------------------------------------------------
-// dolist implementation
-//--------------------------------------------------------------------------------------------
-dolist_t * dolist_init( dolist_t * plist, const int index )
-{
-    if ( NULL == plist ) return NULL;
-
-    BLANK_STRUCT_PTR( plist )
-
-    obj_registry_entity_init( plist->lst + 0 );
-
-    // give the dolist a "name"
-    plist->index = index;
-
-    return plist;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv dolist_reset( dolist_t * plist, const int index )
-{
-    int cnt, entries;
-
-    if ( NULL == plist )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
-        return gfx_error;
-    }
-
-    if ( plist->index < 0 || plist->index >= MAX_DO_LISTS )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist index" );
-        return gfx_error;
-    }
-
-    // if there is nothing in the dolist, we are done
-    if ( 0 == plist->count )
-    {
-        return gfx_success;
-    }
-
-    entries = MIN( plist->count, DOLIST_SIZE );
-    for ( cnt = 0; cnt < entries; cnt++ )
-    {
-        obj_registry_entity_t * pent = plist->lst + cnt;
-
-        // tell all valid objects that they are removed from this dolist
-        if ( MAX_CHR == pent->ichr && VALID_PRT_RANGE( pent->iprt ) )
-        {
-            PrtList.lst[pent->iprt].inst.indolist = bfalse;
-        }
-        else if ( MAX_PRT == pent->iprt && VALID_CHR_RANGE( pent->ichr ) )
-        {
-            ChrList.lst[pent->ichr].inst.indolist = bfalse;
-        }
-    }
-    plist->count = 0;
-
-    // reset the dolist
-    dolist_init( plist, index );
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv dolist_test_chr( dolist_t * pdlist, const chr_t * pchr )
-{
-    if ( NULL == pdlist )
-    {
-        return gfx_error;
-    }
-
-    if ( pdlist->count >= DOLIST_SIZE )
-    {
-        return gfx_fail;
-    }
-
-    if ( !INGAME_PCHR( pchr ) )
-    {
-        return gfx_fail;
-    }
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv dolist_add_chr_raw( dolist_t * pdlist, chr_t * pchr )
-{
-    /// ZZ@> This function puts a character in the list
-
-    if ( NULL == pdlist )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist pointer" );
-        return gfx_error;
-    }
-
-    if ( NULL == pchr )
-    {
-        return gfx_fail;
-    }
-
-    //// don't do anything if it's already in the list
-    //if ( pchr->inst.indolist[pdlist->index] )
-    //{
-    //    return gfx_success;
-    //}
-
-    // don't add if it is hidden
-    if ( pchr->is_hidden )
-    {
-        return gfx_fail;
-    }
-
-    // don't add if it's in another character's inventory
-    if ( INGAME_CHR( pchr->inwhich_inventory ) )
-    {
-        return gfx_fail;
-    }
-
-    // fix the dolist
-    pdlist->lst[pdlist->count].ichr = GET_REF_PCHR( pchr );
-    pdlist->lst[pdlist->count].iprt = ( PRT_REF )MAX_PRT;
-    pdlist->count++;
-
-    // fix the instance
-    pchr->inst.indolist = btrue;
-
-    // Add any weapons
-    dolist_add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_LEFT] ) );
-    dolist_add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_RIGHT] ) );
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv dolist_test_prt( dolist_t * pdlist, const prt_t * pprt )
-{
-    if ( NULL == pdlist )
-    {
-        return gfx_error;
-    }
-
-    if ( pdlist->count >= DOLIST_SIZE )
-    {
-        return gfx_fail;
-    }
-
-    if ( !DISPLAY_PPRT( pprt ) )
-    {
-        return gfx_fail;
-    }
-
-    if ( pprt->is_hidden || 0 == pprt->size )
-    {
-        return gfx_fail;
-    }
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
-{
-    /// ZZ@> This function puts a character in the list
-
-    //if ( pprt->inst.indolist[pdlist->index] )
-    //{
-    //    return gfx_success;
-    //}
-
-    pdlist->lst[pdlist->count].ichr = ( CHR_REF )MAX_CHR;
-    pdlist->lst[pdlist->count].iprt = GET_REF_PPRT( pprt );
-    pdlist->count++;
-
-    pprt->inst.indolist = btrue;
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
-{
-    BSP_leaf_t * pleaf;
-    int j;
-    gfx_rv retval;
-
-    if ( NULL == pdlist || NULL == pcolst )
-    {
-        return gfx_error;
-    }
-
-    if ( 0 == BSP_leaf_pary_get_size( pcolst ) || 0 == BSP_leaf_pary_get_top( pcolst ) )
-    {
-        return gfx_fail;
-    }
-
-    // assume the best
-    retval = gfx_success;
-
-    for ( j = 0; j < pcolst->top; j++ )
-    {
-        pleaf = pcolst->ary[j];
-        if ( NULL == pleaf ) continue;
-
-        if ( BSP_LEAF_CHR == pleaf->data_type )
-        {
-            CHR_REF ichr;
-            chr_t * pchr;
-
-            // collided with a character
-            ichr = ( CHR_REF )( pleaf->index );
-
-            // is it in the array?
-            if ( !VALID_CHR_RANGE( ichr ) ) continue;
-            pchr = ChrList_get_ptr( ichr );
-
-            // do some more obvious tests before testing the frustum
-            if ( dolist_test_chr( pdlist, pchr ) )
-            {
-                // Add the character
-                if ( gfx_error == dolist_add_chr_raw( pdlist, pchr ) )
-                {
-                    retval = gfx_error;
-                    break;
-                }
-            }
-        }
-        else if ( BSP_LEAF_PRT == pleaf->data_type )
-        {
-            PRT_REF iprt;
-            prt_t * pprt;
-
-            // collided with a particle
-            iprt = ( PRT_REF )( pleaf->index );
-
-            // is it in the array?
-            if ( !VALID_PRT_RANGE( iprt ) ) continue;
-            pprt = PrtList_get_ptr( iprt );
-
-            // do some more obvious tests before testing the frustum
-            if ( dolist_test_prt( pdlist, pprt ) )
-            {
-                // Add the particle
-                if ( gfx_error == dolist_add_prt_raw( pdlist, pprt ) )
-                {
-                    retval = gfx_error;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            // how did we get here?
-            log_warning( "%s-%s-%d- found unknown type in a dolist BSP\n", __FILE__, __FUNCTION__, __LINE__ );
-        }
     }
 
     return retval;
@@ -7287,7 +7226,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, const camera_t * pcam )
     obj_BSP_collide_frustum( &chr_BSP_root, &( pcam->frustum ), chr_BSP_is_visible, &_dolist_colst );
 
     // transfer valid _dolist_colst entries to the dolist
-    if ( gfx_error == gfx_make_dolist_add_colst( pdlist, &_dolist_colst ) )
+    if ( gfx_error == dolist_add_colst( pdlist, &_dolist_colst ) )
     {
         retval = gfx_error;
         goto gfx_make_dolist_exit;
@@ -7298,7 +7237,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, const camera_t * pcam )
     obj_BSP_collide_frustum( &prt_BSP_root, &( pcam->frustum ), prt_BSP_is_visible, &_dolist_colst );
 
     // transfer valid _dolist_colst entries to the dolist
-    if ( gfx_error == gfx_make_dolist_add_colst( pdlist, &_dolist_colst ) )
+    if ( gfx_error == dolist_add_colst( pdlist, &_dolist_colst ) )
     {
         retval = gfx_error;
         goto gfx_make_dolist_exit;
@@ -7316,317 +7255,189 @@ gfx_make_dolist_exit:
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_sort( dolist_t * pdlist, const camera_t * pcam, const bool_t do_reflect )
+// UTILITY FUNCTIONS
+//--------------------------------------------------------------------------------------------
+bool_t dump_screenshot()
 {
-    /// @details ZZ@> This function orders the dolist based on distance from camera,
-    ///    which is needed for reflections to properly clip themselves.
-    ///    Order from closest to farthest
+    /// @details BB@> dumps the current screen (GL context) to a new bitmap file
+    /// right now it dumps it to whatever the current directory is
 
-    Uint32    cnt;
-    fvec3_t   vcam;
-    size_t    count;
+    // returns btrue if successful, bfalse otherwise
 
-    if ( NULL == pdlist )
+    int i;
+    bool_t savefound = bfalse;
+    bool_t saved     = bfalse;
+    STRING szFilename, szResolvedFilename;
+
+    // find a valid file name
+    savefound = bfalse;
+    i = 0;
+    while ( !savefound && ( i < 100 ) )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
-        return gfx_error;
-    }
+        snprintf( szFilename, SDL_arraysize( szFilename ), "ego%02d.bmp", i );
 
-    if ( pdlist->count >= DOLIST_SIZE )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
-        return gfx_error;
-    }
-
-    if ( NULL == pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
-        return gfx_error;
-    }
-
-    mat_getCamForward( pcam->mView.v, vcam.v );
-
-    // Figure the distance of each
-    count = 0;
-    for ( cnt = 0; cnt < pdlist->count; cnt++ )
-    {
-        fvec3_t   vtmp;
-        float dist;
-
-        if ( MAX_PRT == pdlist->lst[cnt].iprt && VALID_CHR_RANGE( pdlist->lst[cnt].ichr ) )
+        // lame way of checking if the file already exists...
+        savefound = !vfs_exists( szFilename );
+        if ( !savefound )
         {
-            CHR_REF ichr;
-            fvec3_t pos_tmp;
-
-            ichr = pdlist->lst[cnt].ichr;
-
-            if ( do_reflect )
-            {
-                mat_getTranslate( ChrList.lst[ichr].inst.ref.matrix.v, pos_tmp.v );
-            }
-            else
-            {
-                mat_getTranslate( ChrList.lst[ichr].inst.matrix.v, pos_tmp.v );
-            }
-
-            fvec3_sub( vtmp.v, pos_tmp.v, pcam->pos.v );
-        }
-        else if ( MAX_CHR == pdlist->lst[cnt].ichr && VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
-        {
-            PRT_REF iprt = pdlist->lst[cnt].iprt;
-
-            if ( do_reflect )
-            {
-                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.pos.v, pcam->pos.v );
-            }
-            else
-            {
-                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.ref_pos.v, pcam->pos.v );
-            }
-        }
-        else
-        {
-            continue;
-        }
-
-        dist = fvec3_dot_product( vtmp.v, vcam.v );
-        if ( dist > 0 )
-        {
-            pdlist->lst[count].ichr = pdlist->lst[cnt].ichr;
-            pdlist->lst[count].iprt = pdlist->lst[cnt].iprt;
-            pdlist->lst[count].dist = dist;
-            count++;
+            i++;
         }
     }
-    pdlist->count = count;
 
-    // use qsort to sort the list in-place
-    if ( pdlist->count > 1 )
+    if ( !savefound ) return bfalse;
+
+    // convert the file path to the correct write path
+    strncpy( szResolvedFilename, vfs_resolveWriteFilename( szFilename ), SDL_arraysize( szFilename ) );
+
+    // if we are not using OpenGL, use SDL to dump the screen
+    if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL ) )
     {
-        qsort( pdlist->lst, pdlist->count, sizeof( obj_registry_entity_t ), obj_registry_entity_cmp );
+        SDL_SaveBMP( sdl_scr.pscreen, szResolvedFilename );
+        return bfalse;
     }
 
-    return gfx_success;
+    // we ARE using OpenGL
+    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_PIXEL_STORE_BIT ) ;
+    {
+        SDL_Surface *temp;
+
+        // create a SDL surface
+        temp = SDL_CreateRGBSurface( SDL_SWSURFACE, sdl_scr.x, sdl_scr.y, 24, sdl_r_mask, sdl_g_mask, sdl_b_mask, 0 );
+
+        if ( NULL == temp )
+        {
+            //Something went wrong
+            SDL_FreeSurface( temp );
+            return bfalse;
+        }
+
+        //Now lock the surface so that we can read it
+        if ( -1 != SDL_LockSurface( temp ) )
+        {
+            SDL_Rect rect;
+
+            memcpy( &rect, &( sdl_scr.pscreen->clip_rect ), sizeof( SDL_Rect ) );
+            if ( 0 == rect.w && 0 == rect.h )
+            {
+                rect.w = sdl_scr.x;
+                rect.h = sdl_scr.y;
+            }
+            if ( rect.w > 0 && rect.h > 0 )
+            {
+                int y;
+                Uint8 * pixels;
+
+                GL_DEBUG( glGetError )();
+
+                //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
+                //// stolen from SDL ;)
+                // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
+                // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+
+                //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
+                //// it is not necesssaty to mess with the alignment
+                // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
+                // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
+
+                // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
+                // relative to the SDL Screen memory
+
+                // this is supposed to be a DirectX thing, so it needs to be tested out on glx
+                // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
+                pixels = ( Uint8 * )temp->pixels;
+                for ( y = rect.y; y < rect.y + rect.h; y++ )
+                {
+                    GL_DEBUG( glReadPixels )( rect.x, ( rect.h - y ) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels );
+                    pixels += temp->pitch;
+                }
+                EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG( glGetError )() );
+            }
+
+            SDL_UnlockSurface( temp );
+
+            // Save the file as a .bmp
+            saved = ( -1 != SDL_SaveBMP( temp, szResolvedFilename ) );
+        }
+
+        // free the SDL surface
+        SDL_FreeSurface( temp );
+        if ( saved )
+        {
+            // tell the user what we did
+            debug_printf( "Saved to %s", szFilename );
+        }
+    }
+    GL_DEBUG( glPopClientAttrib )();
+
+    return savefound && saved;
 }
 
 //--------------------------------------------------------------------------------------------
-// dolist array implementation
-//--------------------------------------------------------------------------------------------
-dolist_ary_t * dolist_ary_begin( dolist_ary_t * ptr )
+void clear_messages()
 {
+    /// @details ZZ@> This function empties the message buffer
     int cnt;
 
-    if ( NULL == ptr )
+    cnt = 0;
+
+    while ( cnt < MAX_MESSAGE )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist array" );
-        return NULL;
+        DisplayMsg.ary[cnt].time = 0;
+        cnt++;
     }
-
-    if ( ptr->started ) return ptr;
-
-    for ( cnt = 0; cnt < MAX_DO_LISTS; cnt++ )
-    {
-        ptr->free_lst[cnt] = cnt;
-        dolist_init( ptr->lst + cnt, cnt );
-    }
-    ptr->free_count = MAX_DO_LISTS;
-
-    ptr->started = btrue;
-
-    return ptr;
 }
 
 //--------------------------------------------------------------------------------------------
-dolist_ary_t * dolist_ary_end( dolist_ary_t * ptr )
+float calc_light_rotation( int rotation, int normal )
 {
-    int cnt;
+    /// @details ZZ@> This function helps make_lighttable
+    fvec3_t   nrm, nrm2;
+    float sinrot, cosrot;
 
-    if ( NULL == ptr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist array" );
-        return NULL;
-    }
+    nrm.x = kMd2Normals[normal][0];
+    nrm.y = kMd2Normals[normal][1];
+    nrm.z = kMd2Normals[normal][2];
 
-    if ( !ptr->started ) return ptr;
+    sinrot = sinlut[rotation];
+    cosrot = coslut[rotation];
 
-    ptr->free_count = 0;
-    for ( cnt = 0; cnt < MAX_DO_LISTS; cnt++ )
-    {
-        ptr->free_lst[cnt] = -1;
-        dolist_init( ptr->lst + cnt, cnt );
-    }
+    nrm2.x = cosrot * nrm.x + sinrot * nrm.y;
+    nrm2.y = cosrot * nrm.y - sinrot * nrm.x;
+    nrm2.z = nrm.z;
 
-    ptr->started = bfalse;
-
-    return ptr;
+    return ( nrm2.x < 0 ) ? 0 : ( nrm2.x * nrm2.x );
 }
 
 //--------------------------------------------------------------------------------------------
-// dolist manager implementation
-//--------------------------------------------------------------------------------------------
-gfx_rv dolist_mgr_begin( dolist_mgr_t * pmgr )
+float calc_light_global( int rotation, int normal, float lx, float ly, float lz )
 {
-    // valid pointer?
-    if ( NULL == pmgr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist manager" );
-        return gfx_error;
-    }
+    /// @details ZZ@> This function helps make_lighttable
+    float fTmp;
+    fvec3_t   nrm, nrm2;
+    float sinrot, cosrot;
 
-    if ( pmgr->started ) return gfx_success;
+    nrm.x = kMd2Normals[normal][0];
+    nrm.y = kMd2Normals[normal][1];
+    nrm.z = kMd2Normals[normal][2];
 
-    dolist_ary_begin( &( pmgr->ary ) );
+    sinrot = sinlut[rotation];
+    cosrot = coslut[rotation];
 
-    pmgr->started = btrue;
+    nrm2.x = cosrot * nrm.x + sinrot * nrm.y;
+    nrm2.y = cosrot * nrm.y - sinrot * nrm.x;
+    nrm2.z = nrm.z;
 
-    return gfx_success;
+    fTmp = nrm2.x * lx + nrm2.y * ly + nrm2.z * lz;
+    if ( fTmp < 0 ) fTmp = 0;
+
+    return fTmp * fTmp;
 }
 
-//--------------------------------------------------------------------------------------------
-gfx_rv dolist_mgr_end( dolist_mgr_t * pmgr )
-{
-    // valid pointer?
-    if ( NULL == pmgr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist manager" );
-        return gfx_error;
-    }
-
-    if ( !pmgr->started ) return gfx_success;
-
-    dolist_ary_end( &( pmgr->ary ) );
-
-    // the manager is no longer running
-    pmgr->started = bfalse;
-
-    return gfx_success;
-}
-
-//--------------------------------------------------------------------------------------------
-int dolist_mgr_get_free_index( dolist_mgr_t * pmgr )
-{
-    int retval = -1;
-
-    // dolist manager started?
-    if ( gfx_success != dolist_mgr_begin( pmgr ) )
-    {
-        return -1;
-    }
-
-    if ( pmgr->ary.free_count <= 0 ) return -1;
-
-    // resduce the count
-    pmgr->ary.free_count--;
-
-    // grab the index
-    retval = pmgr->ary.free_count;
-
-    // blank the free list
-    if ( retval >= 0 && retval < MAX_DO_LISTS )
-    {
-        pmgr->ary.free_lst[ retval ] = -1;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv dolist_mgr_free_one( dolist_mgr_t * pmgr, int index )
-{
-    size_t cnt;
-    gfx_rv retval = gfx_error;
-
-    // dolist manager started?
-    if ( gfx_success != dolist_mgr_begin( pmgr ) )
-    {
-        return gfx_error;
-    }
-
-    // valid index range?
-    if ( index < 0 || index >= MAX_DO_LISTS ) return gfx_error;
-
-    // is the index already freed?
-    for ( cnt = 0; cnt < pmgr->ary.free_count; cnt++ )
-    {
-        if ( index == pmgr->ary.free_lst[cnt] )
-        {
-            return gfx_fail;
-        }
-    }
-
-    // push it on the list
-    retval = gfx_fail;
-    if ( pmgr->ary.free_count < MAX_DO_LISTS )
-    {
-        pmgr->ary.free_lst[pmgr->ary.free_count] = index;
-        pmgr->ary.free_count++;
-        retval = gfx_success;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index )
-{
-    // dolist manager started?
-    if ( gfx_success != dolist_mgr_begin( pmgr ) )
-    {
-        return NULL;
-    }
-
-    // valid index range?
-    if ( index < 0 || index >= MAX_DO_LISTS )
-    {
-        return NULL;
-    }
-
-    return pmgr->ary.lst + index;
-}
-
-//--------------------------------------------------------------------------------------------
-// gfx manager management
-//--------------------------------------------------------------------------------------------
-
-renderlist_mgr_t * gfx_get_renderlist_mgr()
-{
-    if ( gfx_success != renderlist_mgr_begin( &_renderlist_mgr_data ) )
-    {
-        return NULL;
-    }
-
-    return &_renderlist_mgr_data;
-}
-
-//--------------------------------------------------------------------------------------------
-dolist_mgr_t * gfx_get_dolist_mgr()
-{
-    if ( gfx_success != dolist_mgr_begin( &_dolist_mgr_data ) )
-    {
-        return NULL;
-    }
-
-    return &_dolist_mgr_data;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void gfx_reset_timers()
 {
     egolib_throttle_reset( &gfx_throttle );
     gfx_clear_loops = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr )
-{
-    if ( NULL == ptr ) return ptr;
-
-    ptr->y_stt   = 0;
-    ptr->row_cnt = 0;
-
-    return ptr;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7647,8 +7458,219 @@ bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t *
 }
 
 //--------------------------------------------------------------------------------------------
+gfx_rv gfx_update_flashing( dolist_t * pdolist )
+{
+    gfx_rv retval;
+    Uint32 i;
+
+    if ( NULL == pdolist )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        return gfx_error;
+    }
+
+    if ( pdolist->count >= DOLIST_SIZE )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
+        return gfx_error;
+    }
+
+    retval = gfx_success;
+    for ( i = 0; i < pdolist->count; i++ )
+    {
+        float tmp_seekurse_level;
+
+        chr_t          * pchr;
+        chr_instance_t * pinst;
+
+        CHR_REF ichr = pdolist->lst[i].ichr;
+
+        pchr = ChrList_get_ptr( ichr );
+        if ( !DEFINED_PCHR( pchr ) ) continue;
+
+        pinst = &( pchr->inst );
+
+        // Do flashing
+        if ( DONTFLASH != pchr->flashand )
+        {
+            if ( HAS_NO_BITS( game_frame_all, pchr->flashand ) )
+            {
+                if ( gfx_error == chr_instance_flash( pinst, 255 ) )
+                {
+                    retval = gfx_error;
+                }
+            }
+        }
+
+        // Do blacking
+        // having one holy player in your party will cause the effect, BUT
+        // having some non-holy players will dilute it
+        tmp_seekurse_level = MIN( local_stats.seekurse_level, 1.0f );
+        if (( local_stats.seekurse_level > 0.0f ) && pchr->iskursed && 1.0f != tmp_seekurse_level )
+        {
+            if ( HAS_NO_BITS( game_frame_all, SEEKURSEAND ) )
+            {
+                if ( gfx_error == chr_instance_flash( pinst, 255.0f *( 1.0f - tmp_seekurse_level ) ) )
+                {
+                    retval = gfx_error;
+                }
+            }
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv gfx_update_all_chr_instance()
+{
+    CHR_REF cnt;
+    gfx_rv retval;
+    chr_t * pchr;
+    gfx_rv tmp_rv;
+
+    // assume the best
+    retval = gfx_success;
+
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        if ( !ALLOCATED_CHR( cnt ) ) continue;
+        pchr = ChrList_get_ptr( cnt );
+
+        if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
+
+        tmp_rv = update_one_chr_instance( pchr );
+
+        // deal with return values
+        if ( gfx_error == tmp_rv )
+        {
+            retval = gfx_error;
+        }
+        else if ( gfx_success == tmp_rv )
+        {
+            // the instance has changed, refresh the collision bound
+            chr_update_collision_size( pchr, btrue );
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+// chr_instance_t FUNCTIONS
+//--------------------------------------------------------------------------------------------
+gfx_rv update_one_chr_instance( chr_t * pchr )
+{
+    chr_instance_t * pinst;
+    gfx_rv retval;
+
+    if ( !ACTIVE_PCHR( pchr ) )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, GET_INDEX_PCHR( pchr ), "invalid character" );
+        return gfx_error;
+    }
+    pinst = &( pchr->inst );
+
+    // only update once per frame
+    if ( pinst->update_frame >= 0 && ( Uint32 )pinst->update_frame >= game_frame_all )
+    {
+        return gfx_success;
+    }
+
+    // make sure that the vertices are interpolated
+    retval = chr_instance_update_vertices( pinst, -1, -1, btrue );
+    if ( gfx_error == retval )
+    {
+        return gfx_error;
+    }
+
+    // do the basic lighting
+    chr_instance_update_lighting_base( pinst, pchr, bfalse );
+
+    // set the update_frame to the current frame
+    pinst->update_frame = game_frame_all;
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
+{
+    /// @details ZZ@> This function sets a character's lighting
+
+    size_t     cnt;
+    float      flash_val = value * INV_FF;
+    GLvertex * pv;
+
+    if ( NULL == pinst ) return gfx_error;
+
+    // flash the ambient color
+    pinst->color_amb = flash_val;
+
+    // flash the directional lighting
+    pinst->color_amb = flash_val;
+    for ( cnt = 0; cnt < pinst->vrt_count; cnt++ )
+    {
+        pv = pinst->vrt_lst + cnt;
+
+        pv->color_dir = flash_val;
+    }
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
 // OBSOLETE
 //--------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------
+// projection_bitmap_t
+//--------------------------------------------------------------------------------------------
+
+//struct s_projection_bitmap;
+//typedef struct s_projection_bitmap projection_bitmap_t;
+
+//#define PROJECTION_BITMAP_ROWS 128
+
+//struct s_projection_bitmap
+//{
+//    int y_stt;
+//    int row_cnt;
+//
+//    int row_stt[PROJECTION_BITMAP_ROWS];
+//    int row_end[PROJECTION_BITMAP_ROWS];
+//};
+
+//static projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr );
+
+//projection_bitmap_t * projection_bitmap_ctor( projection_bitmap_t * ptr )
+//{
+//    if ( NULL == ptr ) return ptr;
+//
+//    ptr->y_stt   = 0;
+//    ptr->row_cnt = 0;
+//
+//    return ptr;
+//}
+
+//--------------------------------------------------------------------------------------------
+// cam_corner_info_t
+//--------------------------------------------------------------------------------------------
+
+//struct s_cam_corner_info;
+//typedef struct s_cam_corner_info cam_corner_info_t;
+
+//struct s_cam_corner_info
+//{
+//    float                   lowx;
+//    float                   highx;
+//    float                   lowy;
+//    float                   highy;
+//
+//    float                   x[4];
+//    float                   y[4];
+//    int                     listlowtohighy[4];
+//};
 
 //void gfx_calc_rotmesh()
 //{
@@ -8294,3 +8316,4 @@ bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t *
 //gfx_make_renderlist_exit:
 //    return retval;
 //}
+

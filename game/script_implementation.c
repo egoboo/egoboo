@@ -30,6 +30,7 @@
 #include "game.h"
 #include "AStar.h"
 #include "passage.h"
+#include "graphic.h"
 
 #include "ChrList.inl"
 #include "mesh.inl"
@@ -959,3 +960,18 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool_t fin
 
     return retval;
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t FlashObject( chr_t * pchr, Uint8 value )
+{
+    /// @details ZZ@> This function sets a character's lighting
+
+    gfx_rv flash_rv;
+
+    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
+
+    flash_rv = chr_instance_flash( &( pchr->inst ), value );
+
+    return gfx_success == flash_rv;
+}
+

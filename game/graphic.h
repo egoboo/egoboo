@@ -273,8 +273,8 @@ struct s_gfx_config
 };
 
 bool_t gfx_config_init( gfx_config_t * pgfx );
-bool_t gfx_set_virtual_screen( gfx_config_t * pgfx );
-bool_t gfx_download_from_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
+bool_t gfx_system_set_virtual_screen( gfx_config_t * pgfx );
+bool_t gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -363,19 +363,30 @@ DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
 void   gfx_system_begin( void );
 void   gfx_system_end( void );
+int    gfx_system_init_OpenGL( void );
+void   gfx_system_main( void );
+void   gfx_system_reload_all_textures( void );
+void   gfx_system_make_enviro( void );
+void   gfx_system_init_all_graphics( void );
+void   gfx_system_release_all_graphics( void );
+void   gfx_system_delete_all_graphics( void );
+void   gfx_system_load_assets( void );
+bool_t gfx_system_load_all_global_icons( void );
+void   gfx_system_load_basic_textures( void );
+renderlist_mgr_t * gfx_system_get_renderlist_mgr( void );
+dolist_mgr_t * gfx_system_get_dolist_mgr( void );
 
-int    ogl_init( void );
-void   gfx_main( void );
+// the render engine callback
+void   gfx_system_render_world( const struct s_camera * pcam, const int render_list_index, const int dolist_index );
+
 void   gfx_begin_3d( const struct s_camera * pcam );
 void   gfx_end_3d( void );
-bool_t oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
-void   gfx_reload_all_textures( void );
 
-void   request_clear_screen( void );
-void   do_clear_screen( void );
-bool_t flip_pages_requested( void );
-void   request_flip_pages( void );
-void   do_flip_pages( void );
+void   gfx_request_clear_screen( void );
+void   gfx_do_clear_screen( void );
+bool_t gfx_flip_pages_requested( void );
+void   gfx_request_flip_pages( void );
+void   gfx_do_flip_pages( void );
 
 float draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
 void  draw_one_font( oglx_texture_t * ptex, int fonttype, float x, float y );
@@ -391,10 +402,6 @@ void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_ma
 bool_t    render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond );
 bool_t    render_aabb( aabb_t * pbbox );
 
-// the render engine callback
-void   gfx_render_world( const struct s_camera * pcam, const int render_list_index, const int dolist_index );
-
-void   make_enviro( void );
 void   clear_messages( void );
 bool_t dump_screenshot( void );
 
@@ -415,36 +422,29 @@ void point_list_init( void );
 //int  point_list_get_free( void );
 bool_t point_list_add( const float x, const float y, const float z, const int duration );
 
-void init_all_graphics( void );
-void release_all_graphics( void );
-void delete_all_graphics( void );
-
 void release_all_profile_textures( void );
 
-void   load_graphics( void );
-bool_t load_blips( void );
-void   load_bars( void );
-void   load_map( void );
-bool_t load_all_global_icons( void );
-void   load_basic_textures( void );
+bool_t gfx_load_blips( void );
+void   gfx_load_bars( void );
+void   gfx_load_map( void );
 
 float  get_ambient_level( void );
 
-bool_t init_mouse_cursor( void );
+bool_t gfx_init_mouse_cursor( void );
 void   draw_mouse_cursor( void );
 
-gfx_rv flash_character( const CHR_REF character, Uint8 value );
+gfx_rv chr_instance_flash( struct s_chr_instance * pinst, Uint8 value );
 
 //void gfx_calc_rotmesh( void );
 
-renderlist_mgr_t * gfx_get_renderlist_mgr( void );
 int            renderlist_mgr_get_free_index( renderlist_mgr_t * ptr );
 gfx_rv         renderlist_mgr_free_one( renderlist_mgr_t * ptr, int index );
 renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, int index );
 
-dolist_mgr_t * gfx_get_dolist_mgr( void );
 int        dolist_mgr_get_free_index( dolist_mgr_t * ptr );
 gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, int index );
 dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index );
 
 gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mpd_t * pmesh );
+
+bool_t oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );

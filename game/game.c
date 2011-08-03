@@ -1115,7 +1115,7 @@ int game_do_menu( menu_process_t * mproc )
     {
         loc_frameDuration += mproc->base.frameDuration;
 
-        if ( flip_pages_requested() )
+        if ( gfx_flip_pages_requested() )
         {
             // someone else (and that means the game) has drawn a frame
             // so we just need to draw the menu over that frame
@@ -1137,7 +1137,7 @@ int game_do_menu( menu_process_t * mproc )
         {
             menuResult = doMenu( loc_frameDuration );
             draw_mouse_cursor();
-            request_flip_pages();
+            gfx_request_flip_pages();
         }
         ui_endFrame();
 
@@ -1173,7 +1173,7 @@ int game_process_do_begin( game_process_t * gproc )
 
     // do some graphics initialization
     //make_lightdirectionlookup();
-    make_enviro();
+    gfx_system_make_enviro();
 
     // try to start a new module
     if ( !game_begin_module( pickedmodule_path, ( Uint32 )~0 ) )
@@ -1407,7 +1407,7 @@ int game_process_do_running( game_process_t * gproc )
     {
         PROFILE_BEGIN( gfx_loop );
         {
-            gfx_main();
+            gfx_system_main();
 
             msgtimechange++;
         }
@@ -3195,12 +3195,12 @@ void game_load_global_assets()
     // load a bunch of assets that are used in the module
 
     // Load all the global icons
-    if ( !load_all_global_icons() )
+    if ( !gfx_system_load_all_global_icons() )
     {
         log_warning( "Could not load all global icons!\n" );
     }
-    load_blips();
-    load_bars();
+    gfx_load_blips();
+    gfx_load_bars();
     font_bmp_load_vfs( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ), "mp_data/font", "mp_data/font.txt" );
 }
 
@@ -3216,8 +3216,8 @@ void game_load_module_assets( const char *modname )
         log_warning( "wawalite.txt not loaded for %s.\n", modname );
     }
 
-    load_basic_textures();
-    load_map();
+    gfx_system_load_basic_textures();
+    gfx_load_map();
 
     upload_wawalite();
 }
@@ -3524,7 +3524,7 @@ void game_release_module_data()
     free_all_objects();
 
     // deal with dynamically allocated game assets
-    release_all_graphics();
+    gfx_system_release_all_graphics();
     release_all_profiles();
 
     // deal with the mesh
@@ -4153,7 +4153,7 @@ void do_game_hud()
 {
     int y = 0;
 
-    if ( flip_pages_requested() && cfg.dev_mode )
+    if ( gfx_flip_pages_requested() && cfg.dev_mode )
     {
         GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
         if ( fpson )

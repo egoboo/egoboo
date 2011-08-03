@@ -177,7 +177,7 @@ bool_t ui_handle_SDL_Event( SDL_Event *evt )
 
                 // set the ui's virtual screen size based on the graphic system's
                 // configuration
-                gfx_set_virtual_screen( &gfx );
+                gfx_system_set_virtual_screen( &gfx );
             }
             break;
 

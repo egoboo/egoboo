@@ -337,7 +337,7 @@ bool_t input_handle_SDL_Event( SDL_Event * pevt )
                 // the application has recovered from being minimized
                 // the textures need to be reloaded into OpenGL memory
 
-                gfx_reload_all_textures();
+                gfx_system_reload_all_textures();
             }
             else if ( SDL_APPMOUSEFOCUS == pevt->active.type )
             {

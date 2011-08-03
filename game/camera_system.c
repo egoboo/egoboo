@@ -171,7 +171,7 @@ bool_t ext_camera_free( ext_camera_t * ptr )
     if ( !ptr->on ) return btrue;
 
     // free any locked renderlist
-    rmgr_ptr = gfx_get_renderlist_mgr();
+    rmgr_ptr = gfx_system_get_renderlist_mgr();
     if ( -1 != ptr->render_list )
     {
         renderlist_mgr_free_one( rmgr_ptr, ptr->render_list );
@@ -179,7 +179,7 @@ bool_t ext_camera_free( ext_camera_t * ptr )
     }
 
     // free any locked dolist
-    dmgr_ptr = gfx_get_dolist_mgr();
+    dmgr_ptr = gfx_system_get_dolist_mgr();
     if ( -1 != ptr->do_list )
     {
         dolist_mgr_free_one( dmgr_ptr, ptr->render_list );
@@ -321,13 +321,13 @@ egolib_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam )
     pcam = ext_camera_reinit( pcam );
     if ( NULL == pcam ) return rv_error;
 
-    rmgr_ptr = gfx_get_renderlist_mgr();
+    rmgr_ptr = gfx_system_get_renderlist_mgr();
     if ( NULL == rmgr_ptr )
     {
         return rv_error;
     }
 
-    dmgr_ptr = gfx_get_dolist_mgr();
+    dmgr_ptr = gfx_system_get_dolist_mgr();
     if ( NULL == dmgr_ptr )
     {
         return rv_error;
@@ -394,7 +394,7 @@ egolib_rv _camera_system_end_camera_ptr( ext_camera_t * pcam )
 
     // get a pointer to the renderlist manager
     // do this after testing whether the camera is on
-    rmgr_ptr = gfx_get_renderlist_mgr();
+    rmgr_ptr = gfx_system_get_renderlist_mgr();
     if ( NULL == rmgr_ptr )
     {
         return rv_fail;
@@ -402,7 +402,7 @@ egolib_rv _camera_system_end_camera_ptr( ext_camera_t * pcam )
 
     // get a pointer to the dolist manager
     // do this after testing whether the camera is on
-    dmgr_ptr = gfx_get_dolist_mgr();
+    dmgr_ptr = gfx_system_get_dolist_mgr();
     if ( NULL == dmgr_ptr )
     {
         return rv_error;

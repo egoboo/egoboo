@@ -2878,9 +2878,13 @@ Uint8 scr_FlashTarget( script_state_t * pstate, ai_state_t * pself )
     // FlashTarget()
     /// @details ZZ@> This function makes the target flash
 
+    chr_t * pself_target;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    flash_character( pself->target, 255 );
+    SCRIPT_REQUIRE_TARGET( pself_target );
+
+    FlashObject( pself_target, 255 );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3375,9 +3379,13 @@ Uint8 scr_BlackTarget( script_state_t * pstate, ai_state_t * pself )
     // BlackTarget()
     /// @details ZZ@>  The opposite of FlashTarget, causing the target to turn black
 
+    chr_t * pself_target;
+
     SCRIPT_FUNCTION_BEGIN();
 
-    flash_character( pself->target, 0 );
+    SCRIPT_REQUIRE_TARGET( pself_target );
+
+    FlashObject( pself_target, 0 );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6084,7 +6092,7 @@ Uint8 scr_FlashVariable( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    flash_character( pself->index, pstate->argument );
+    FlashObject( pchr, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }

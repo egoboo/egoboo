@@ -100,7 +100,7 @@ int GFX_HEIGHT = 600;
 
 static void get_small_tiles( SDL_Surface* bmpload );
 static void get_big_tiles( SDL_Surface* bmpload );
-static void gfx_init_SDL_graphics();
+static void gfx_system_init_SDL_graphics();
 static int  gfx_init_ogl();
 
 //--------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ static int  gfx_init_ogl();
 void gfx_system_begin()
 {
     // set the graphics state
-    gfx_init_SDL_graphics();
+    gfx_system_init_SDL_graphics();
     gfx_init_ogl();
 
     theSurface = SDL_GetVideoSurface();
@@ -1381,7 +1381,7 @@ SDL_Surface * cartman_CreateSurface( int w, int h )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void gfx_init_SDL_graphics()
+void gfx_system_init_SDL_graphics()
 {
     if ( _sdl_initialized_graphics ) return;
 
@@ -1476,7 +1476,7 @@ void gfx_init_SDL_graphics()
 //--------------------------------------------------------------------------------------------
 int gfx_init_ogl()
 {
-    gfx_init_SDL_graphics();
+    gfx_system_init_SDL_graphics();
 
     // GL_DEBUG(glClear)) stuff
     GL_DEBUG( glClearColor )( 0.0f, 0.0f, 0.0f, 0.0f ); // Set the background black
@@ -1520,7 +1520,7 @@ int gfx_init_ogl()
     GL_DEBUG( glClear )( GL_ACCUM_BUFFER_BIT );
 
     // Load the current graphical settings
-    // load_graphics();
+    // gfx_system_load_assets();
 
     _ogl_initialized = btrue;
 

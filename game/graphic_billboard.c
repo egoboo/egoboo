@@ -468,13 +468,8 @@ gfx_rv billboard_system_render_all( const camera_t * pcam )
     {
         fvec3_t cam_rgt, cam_up;
 
-        cam_rgt.x =  pcam->mView.CNV( 0, 0 );
-        cam_rgt.y =  pcam->mView.CNV( 1, 0 );
-        cam_rgt.z =  pcam->mView.CNV( 2, 0 );
-
-        cam_up.x    = -pcam->mView.CNV( 0, 1 );
-        cam_up.y    = -pcam->mView.CNV( 1, 1 );
-        cam_up.z    = -pcam->mView.CNV( 2, 1 );
+        mat_getCamRight( pcam->mView.v, cam_rgt.v );
+        mat_getCamUp( pcam->mView.v, cam_up.v );
 
         ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
         {

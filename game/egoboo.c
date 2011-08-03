@@ -135,7 +135,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     gfx_system_begin();
 
     // synchronize the config values with the various game subsystems
-    // do this after the ego_init_SDL() and ogl_init() in case the config values are clamped
+    // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
     // to valid values
     config_download( &cfg );
 
@@ -149,7 +149,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     input_settings_load_vfs( "/controls.txt", -1 );
 
     //Ready the mouse input_cursor
-    init_mouse_cursor();
+    gfx_init_mouse_cursor();
 
     // initialize the console
     egolib_console_begin();
@@ -168,12 +168,12 @@ int do_ego_proc_begin( ego_process_t * eproc )
     object_systems_begin();
     game_module_init( PMod );
     mesh_ctor( PMesh );
-    init_all_graphics();
+    gfx_system_init_all_graphics();
     profile_system_begin();
 
     // setup the menu system's gui
     ui_begin( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 24 );
-    font_bmp_load_vfs( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ), "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after init_all_graphics()
+    font_bmp_load_vfs( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ), "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after gfx_system_init_all_graphics()
 
     // clear out the import and remote directories
     vfs_empty_temp_directories();
@@ -488,7 +488,7 @@ int SDL_main( int argc, char **argv )
 #endif
 
     // run the processes
-    request_clear_screen();
+    gfx_request_clear_screen();
     while ( !EProc->base.killme && !EProc->base.terminated )
     {
         if ( !egolib_timer_throttle( &( EProc->loop_timer ), 100.0f ) )
@@ -500,12 +500,12 @@ int SDL_main( int argc, char **argv )
         {
 
             // clear the screen if needed
-            do_clear_screen();
+            gfx_do_clear_screen();
 
             do_ego_proc_running( EProc );
 
             // flip the graphics page if need be
-            do_flip_pages();
+            gfx_do_flip_pages();
 
             // let the OS breathe. It may delay as long as 10ms
             if ( !EProc->loop_timer.free_running && update_lag < 3 )
@@ -544,7 +544,7 @@ void memory_cleanUp( void )
     setup_end();
 
     // delete all the graphics allocated by SDL and OpenGL
-    delete_all_graphics();
+    gfx_system_delete_all_graphics();
 
     // make sure that the current control configuration is written
     input_settings_save_vfs( "controls.txt", -1 );
@@ -742,7 +742,7 @@ bool_t config_download( egoboo_config_t * pcfg )
     sound_system_download_from_config( &snd, pcfg );
 
     // renderer options
-    gfx_download_from_config( &gfx, pcfg );
+    gfx_config_download_from_egoboo_config( &gfx, pcfg );
 
     // texture options
     oglx_texture_parameters_download_gfx( &tex_params, pcfg );
