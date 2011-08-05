@@ -26,6 +26,7 @@
 #include <SDL_opengl.h>
 
 #include "ui.h"
+#include "menu.h"
 
 #include <egolib/font_ttf.h>
 #include <egolib/extensions/ogl_debug.h>
@@ -480,8 +481,8 @@ float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float v
             vh = vheight;
         }
 
-        tx = ( float ) oglx_texture_GetImageWidth( img )  / ( float ) oglx_texture_GetTextureWidth( img );
-        ty = ( float ) oglx_texture_GetImageHeight( img ) / ( float ) oglx_texture_GetTextureHeight( img );
+        tx = ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_getTextureWidth( img );
+        ty = ( float ) oglx_texture_getImageHeight( img ) / ( float ) oglx_texture_getTextureHeight( img );
 
         // convert the virtual coordinates to screen coordinates
         ui_virtual_to_screen( vx, vy, &x1, &y1 );
@@ -940,7 +941,7 @@ float ui_drawIcon( const TX_REF icontype, float vx, float vy, Uint8 sparkle, Uin
     ui_virtual_to_screen( vx + icon_size, vy + icon_size, &x2, &y2 );
 
     //Draw the icon
-    y1 = draw_one_icon( icontype, x1, y1, sparkle, delta_update, MIN( x2 - x1, y2 - y1 ) );
+    y1 = draw_icon_texture( TxMenu_get_valid_ptr( icontype ), x1, y1, sparkle, delta_update, MIN( x2 - x1, y2 - y1 ) );
 
     // convert back to virtual
     ui_screen_to_virtual( x1, y1, &vx, &vy );

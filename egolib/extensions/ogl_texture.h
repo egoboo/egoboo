@@ -48,6 +48,8 @@ extern "C"
     struct s_oglx_texture;
     typedef struct s_oglx_texture oglx_texture_t;
 
+    typedef GLfloat oglx_frect_t[4];
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -88,21 +90,22 @@ extern "C"
         SDL_bool      has_alpha;       ///< the alpha for the texture
     };
 
-    GLuint  oglx_texture_Convert( oglx_texture_t *texture, SDL_Surface * pimage, Uint32 key );
-    GLuint  oglx_texture_Load( oglx_texture_t *texture, const char *filename, Uint32 key );
-    GLuint  oglx_texture_GetTextureID( oglx_texture_t *texture );
-    GLsizei oglx_texture_GetImageHeight( oglx_texture_t *texture );
-    GLsizei oglx_texture_GetImageWidth( oglx_texture_t *texture );
-    GLsizei oglx_texture_GetTextureWidth( oglx_texture_t *texture );
-    GLsizei oglx_texture_GetTextureHeight( oglx_texture_t *texture );
-    void    oglx_texture_SetAlpha( oglx_texture_t *texture, GLfloat alpha );
-    GLfloat oglx_texture_GetAlpha( oglx_texture_t *texture );
-    void    oglx_texture_Release( oglx_texture_t *texture );
-
-    void    oglx_texture_Bind( oglx_texture_t * texture );
-
     oglx_texture_t * oglx_texture_ctor( oglx_texture_t * texture );
     void             oglx_texture_dtor( oglx_texture_t * texture );
+
+    GLuint  oglx_texture_Convert( oglx_texture_t *texture, SDL_Surface * pimage, Uint32 key );
+    GLuint  oglx_texture_Load( oglx_texture_t *texture, const char *filename, Uint32 key );
+    void    oglx_texture_Release( oglx_texture_t *texture );
+    void    oglx_texture_Bind( oglx_texture_t * texture );
+
+    GLuint    oglx_texture_getTextureID( const oglx_texture_t *texture );
+    GLsizei   oglx_texture_getImageHeight( const oglx_texture_t *texture );
+    GLsizei   oglx_texture_getImageWidth( const oglx_texture_t *texture );
+    GLsizei   oglx_texture_getTextureWidth( const oglx_texture_t *texture );
+    GLsizei   oglx_texture_getTextureHeight( const oglx_texture_t *texture );
+    void      oglx_texture_setAlpha( oglx_texture_t *texture, GLfloat alpha );
+    GLfloat   oglx_texture_getAlpha( const oglx_texture_t *texture );
+    GLboolean oglx_texture_getSize( const oglx_texture_t *texture, oglx_frect_t tx_rect, oglx_frect_t img_rect );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

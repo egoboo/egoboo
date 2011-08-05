@@ -24,11 +24,15 @@
 
 #include "network.h"
 #include "profile.h"
-#include <egolib/IDSZ_map.h>
-
-#include <egolib/process.h>
 #include "egoboo.h"
+
+#include <egolib/IDSZ_map.h>
+#include <egolib/process.h>
 #include <egolib/timer.h>
+
+#include <egolib/extensions/ogl_texture.h>
+
+#include <egolib/file_formats/module_file.h>        // for MAX_MODULE
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -52,19 +56,27 @@ typedef struct s_LoadPlayer_list LoadPlayer_list_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// a process that controls the menu system
-struct s_menu_process
+enum e_menu_textures
 {
-    process_t base;
-
-    bool_t was_active;
-    bool_t escape_requested, escape_latch;
-
-    egolib_timer_t gui_timer;
+    TX_MENU_FONT_BMP,
+    TX_MENU_ICON_NULL,
+    TX_MENU_ICON_KEYB,
+    TX_MENU_ICON_MOUS,
+    TX_MENU_ICON_JOYA,
+    TX_MENU_ICON_JOYB,
+    TX_MENU_CURSOR,
+    TX_MENU_LAST_SPECIAL
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+#define TX_MENU_COUNT (TX_MENU_LAST_SPECIAL + MAX_MODULE)
+
+enum e_menu_retvals
+{
+    MENU_SELECT   =  1,
+    MENU_NOTHING  =  0,
+    MENU_END      = -1,
+    MENU_QUIT     = -2
+};
 
 /// All the possible Egoboo menus.  yay!
 enum e_which_menu
@@ -93,18 +105,27 @@ enum e_which_menu
 // this typedef must be after the enum definition of gcc has a fit
 typedef enum e_which_menu which_menu_t;
 
-enum e_menu_retvals
+/// the maxumum number of player items that can be loaded
+#define MAX_LOADPLAYER     100
+
+//--------------------------------------------------------------------------------------------
+// menu_process
+//--------------------------------------------------------------------------------------------
+
+/// a process that controls the menu system
+struct s_menu_process
 {
-    MENU_SELECT   =  1,
-    MENU_NOTHING  =  0,
-    MENU_END      = -1,
-    MENU_QUIT     = -2
+    process_t base;
+
+    bool_t was_active;
+    bool_t escape_requested, escape_latch;
+
+    egolib_timer_t gui_timer;
 };
 
 //--------------------------------------------------------------------------------------------
+// LoadPlayer_element
 //--------------------------------------------------------------------------------------------
-// Input player control
-#define MAX_LOADPLAYER     100
 
 /// data for caching the which players may be loaded
 struct s_LoadPlayer_element
@@ -127,6 +148,8 @@ bool_t LoadPlayer_element_dealloc( LoadPlayer_element_t * );
 bool_t LoadPlayer_element_init( LoadPlayer_element_t * );
 
 //--------------------------------------------------------------------------------------------
+// LoadPlayer_list
+//--------------------------------------------------------------------------------------------
 struct s_LoadPlayer_list
 {
     int                  count;
@@ -145,14 +168,27 @@ egolib_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
 #define VALID_LOADPLAYER_IDX(LST, IDX) ( ((IDX) >= 0) && ((IDX)<(LST).count) && ((IDX)<MAX_LOADPLAYER) )
 
 //--------------------------------------------------------------------------------------------
+// "public" TxMenu functions
 //--------------------------------------------------------------------------------------------
+
+oglx_texture_t * TxMenu_get_valid_ptr( const TX_REF itex );
+void             TxMenu_reload_all( void );
+TX_REF TxMenu_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 extern bool_t mnu_draw_background;
 
 extern menu_process_t * MProc;
 
 extern bool_t module_list_valid;
 
+/// the default menu font
 extern struct s_Font *menuFont;
+
+/// declare special arrays of textures
+DECLARE_LIST_EXTERN( oglx_texture_t, TxMenu, TX_MENU_COUNT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -170,8 +206,8 @@ void   mnu_end_menu( void );
 int    mnu_get_menu_depth( void );
 
 // "public" implmentation of the TxTitleImage array
-void   TxTitleImage_reload_all( void );
-TX_REF TxTitleImage_load_one_vfs( const char *szLoadName );
+//void   TxTitleImage_reload_all( void );
+//TX_REF TxTitleImage_load_one_vfs( const char *szLoadName );
 
 extern bool_t start_new_player;
 
@@ -192,5 +228,8 @@ menu_process_t     * menu_process_init( menu_process_t * mproc );
 
 // "public" reset of the autoformatting
 void autoformat_init( struct s_gfx_config * pgfx );
+
+bool_t mnu_load_cursor( void );
+bool_t mnu_load_all_global_icons( void );
 
 #define egoboo_Menu_h

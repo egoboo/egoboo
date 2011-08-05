@@ -439,33 +439,86 @@ GLuint oglx_texture_Load( oglx_texture_t *ptex, const char *filename, Uint32 key
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint  oglx_texture_GetTextureID( oglx_texture_t *texture )
+GLuint  oglx_texture_getTextureID( const oglx_texture_t *texture )
 {
     return !VALID_TEXTURE( texture ) ? INVALID_GL_ID : texture->base.binding;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei  oglx_texture_GetImageHeight( oglx_texture_t *texture )
+GLsizei  oglx_texture_getImageHeight( const oglx_texture_t *texture )
 {
     return !VALID_TEXTURE( texture ) ? 0 : texture->imgH;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei  oglx_texture_GetImageWidth( oglx_texture_t *texture )
+GLsizei  oglx_texture_getImageWidth( const oglx_texture_t *texture )
 {
     return !VALID_TEXTURE( texture ) ? 0 : texture->imgW;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei  oglx_texture_GetTextureWidth( oglx_texture_t *texture )
+GLsizei  oglx_texture_getTextureWidth( const oglx_texture_t *texture )
 {
     return !VALID_TEXTURE( texture ) ? 0 : texture->base.width;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei  oglx_texture_GetTextureHeight( oglx_texture_t *texture )
+GLsizei  oglx_texture_getTextureHeight( const oglx_texture_t *texture )
 {
     return !VALID_TEXTURE( texture ) ? 0 : texture->base.height;
+}
+
+//--------------------------------------------------------------------------------------------
+GLboolean oglx_texture_getSize( const oglx_texture_t * ptex, oglx_frect_t tx_rect, oglx_frect_t img_rect )
+{
+    GLboolean retval = GL_FALSE;
+
+    if ( NULL == ptex )
+    {
+        if ( NULL != tx_rect )
+        {
+            memset( tx_rect, 0, sizeof( *tx_rect ) );
+            retval = GL_TRUE;
+        }
+
+        if ( NULL != img_rect )
+        {
+            memset( img_rect, 0, sizeof( *img_rect ) );
+            retval = GL_TRUE;
+        }
+    }
+    else
+    {
+        if ( NULL != tx_rect )
+        {
+            // calculate the texture rectangle
+            tx_rect[0] = 0.0f;
+            tx_rect[1] = 0.0f;
+            tx_rect[2] = ( 0 == ptex->base.width )  ? 1.0f : ( GLfloat ) ptex->imgW / ( GLfloat )ptex->base.width;
+            tx_rect[3] = ( 0 == ptex->base.height ) ? 1.0f : ( GLfloat ) ptex->imgH / ( GLfloat )ptex->base.height;
+
+            // clamp the values
+            if ( tx_rect[2] > 1.0f ) tx_rect[2] = 1.0f;
+            if ( tx_rect[2] < 0.0f ) tx_rect[2] = 0.0f;
+
+            if ( tx_rect[3] > 1.0f ) tx_rect[3] = 1.0f;
+            if ( tx_rect[3] < 0.0f ) tx_rect[3] = 0.0f;
+
+            retval = GL_TRUE;
+        }
+
+        if ( NULL != img_rect )
+        {
+            img_rect[0] = 0.0f;
+            img_rect[1] = 0.0f;
+            img_rect[2] = ( GLfloat ) ptex->imgW;
+            img_rect[3] = ( GLfloat ) ptex->imgH;
+
+            retval = GL_TRUE;
+        }
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

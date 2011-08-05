@@ -66,7 +66,7 @@ ego_rpc_base_t * ego_rpc_base_dtor( ego_rpc_base_t * prpc );
 //--------------------------------------------------------------------------------------------
 
 /// a "remote procedure call" structure for handling calls to TxTexture_load_one_vfs()
-/// and TxTitleImage_load_one_vfs()
+/// and TxMenu_load_one_vfs()
 
 struct s_tx_request
 {
@@ -86,7 +86,7 @@ tx_request_t * tx_request_ctor( tx_request_t * preq, int type );
 tx_request_t * tx_request_dtor( tx_request_t * preq );
 
 tx_request_t * ego_rpc_load_TxTexture( const char *filename, int itex_src, Uint32 key );
-tx_request_t * ego_rpc_load_TxTitleImage( const char *filename );
+tx_request_t * ego_rpc_load_TxMenu( const char *filename );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

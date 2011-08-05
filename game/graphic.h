@@ -371,8 +371,8 @@ void   gfx_system_init_all_graphics( void );
 void   gfx_system_release_all_graphics( void );
 void   gfx_system_delete_all_graphics( void );
 void   gfx_system_load_assets( void );
-bool_t gfx_system_load_all_global_icons( void );
 void   gfx_system_load_basic_textures( void );
+
 renderlist_mgr_t * gfx_system_get_renderlist_mgr( void );
 dolist_mgr_t * gfx_system_get_dolist_mgr( void );
 
@@ -388,7 +388,9 @@ bool_t gfx_flip_pages_requested( void );
 void   gfx_request_flip_pages( void );
 void   gfx_do_flip_pages( void );
 
-float draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
+float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size );
+float draw_menu_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
+float draw_game_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
 void  draw_one_font( oglx_texture_t * ptex, int fonttype, float x, float y );
 void  draw_map_texture( float x, float y );
 float draw_one_bar( Uint8 bartype, float x, float y, int ticks, int maxticks );
@@ -430,7 +432,6 @@ void   gfx_load_map( void );
 
 float  get_ambient_level( void );
 
-bool_t gfx_init_mouse_cursor( void );
 void   draw_mouse_cursor( void );
 
 gfx_rv chr_instance_flash( struct s_chr_instance * pinst, Uint8 value );

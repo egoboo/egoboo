@@ -35,7 +35,7 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, oglx_texture_t, TxTexture, TX_TEXTURE_COUNT 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void TxTexture_clear_data();
+static void TxTexture_reset_freelist();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -43,15 +43,16 @@ static void TxTexture_clear_data();
 IMPLEMENT_LIST( oglx_texture_t, TxTexture, TX_TEXTURE_COUNT );
 
 //--------------------------------------------------------------------------------------------
+// TxTexture implementation
 //--------------------------------------------------------------------------------------------
-void TxTexture_clear_data()
+void TxTexture_reset_freelist()
 {
-    /// @details BB@> reset the free texture list. Start at TX_LAST so that the global textures/icons are
+    /// @details BB@> reset the free texture list. Start at TX_SPECIAL_LAST so that the global textures/icons are
     ///     can't be allocated by mistake
 
     int cnt, tnc;
 
-    for ( cnt = TX_LAST, tnc = 0; cnt < TX_TEXTURE_COUNT; cnt++, tnc++ )
+    for ( cnt = TX_SPECIAL_LAST, tnc = 0; cnt < TX_TEXTURE_COUNT; cnt++, tnc++ )
     {
         TxTexture.free_ref[tnc] = cnt;
     }
@@ -70,7 +71,7 @@ void TxTexture_init_all()
         oglx_texture_ctor( TxTexture.lst + cnt );
     }
 
-    TxTexture_clear_data();
+    TxTexture_reset_freelist();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -85,7 +86,7 @@ void TxTexture_release_all()
         oglx_texture_Release( TxTexture.lst + cnt );
     }
 
-    TxTexture_clear_data();
+    TxTexture_reset_freelist();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -100,7 +101,7 @@ void TxTexture_delete_all()
         oglx_texture_dtor( TxTexture.lst + cnt );
     }
 
-    TxTexture_clear_data();
+    TxTexture_reset_freelist();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -127,7 +128,7 @@ TX_REF TxTexture_get_free( const TX_REF itex )
 {
     TX_REF retval = ( TX_REF )INVALID_TX_TEXTURE;
 
-    if ( itex >= 0 && itex < TX_LAST )
+    if ( itex >= 0 && itex < TX_SPECIAL_LAST )
     {
         retval = itex;
         oglx_texture_Release( TxTexture.lst + itex );
@@ -196,8 +197,8 @@ bool_t TxTexture_free_one( const TX_REF itex )
     if ( TxTexture.free_count >= TX_TEXTURE_COUNT )
         return bfalse;
 
-    // do not put anything below TX_LAST back onto the SDL_free stack
-    if ( itex >= TX_LAST )
+    // do not put anything below TX_SPECIAL_LAST back onto the free stack
+    if ( itex >= TX_SPECIAL_LAST )
     {
         TxTexture.free_ref[TxTexture.free_count] = REF_TO_INT( itex );
 

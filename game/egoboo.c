@@ -148,9 +148,6 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // load input
     input_settings_load_vfs( "/controls.txt", -1 );
 
-    //Ready the mouse input_cursor
-    gfx_init_mouse_cursor();
-
     // initialize the console
     egolib_console_begin();
 
@@ -171,9 +168,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
     gfx_system_init_all_graphics();
     profile_system_begin();
 
-    // setup the menu system's gui
+    // setup the system gui
     ui_begin( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 24 );
-    font_bmp_load_vfs( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ), "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after gfx_system_init_all_graphics()
 
     // clear out the import and remote directories
     vfs_empty_temp_directories();

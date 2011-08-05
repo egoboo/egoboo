@@ -350,8 +350,6 @@ static oglx_video_parameters_t ogl_vparam;
 static SDL_bool _sdl_initialized_graphics = SDL_FALSE;
 static bool_t   _ogl_initialized          = bfalse;
 
-oglx_texture_t tx_cursor;
-
 static float sinlut[MAXLIGHTROTATION];
 static float coslut[MAXLIGHTROTATION];
 
@@ -467,7 +465,6 @@ static float calc_light_global( int rotation, int normal, float lx, float ly, fl
 static void   gfx_init_bar_data( void );
 static void   gfx_init_blip_data( void );
 static void   gfx_init_map_data( void );
-static gfx_rv gfx_reload_cursor();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -529,7 +526,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
     STRING szText;
     Uint8 cTmp;
 
-    oglx_texture_t * tx_ptr = TxTexture_get_valid_ptr(( TX_REF )TX_FONT );
+    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )TX_MENU_FONT_BMP );
     if ( NULL == tx_ptr ) return y;
 
     if ( vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
@@ -1995,9 +1992,6 @@ void gfx_system_init_all_graphics()
     billboard_system_init();
     TxTexture_init_all();
 
-    // the mouse input_cursor was just erased. reload it.
-    gfx_init_mouse_cursor();
-
     PROFILE_RESET( render_scene_init );
     PROFILE_RESET( render_scene_mesh );
     PROFILE_RESET( render_scene_solid );
@@ -2044,24 +2038,6 @@ void gfx_system_delete_all_graphics()
 
     BillboardList_free_all();
     TxTexture_delete_all();
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t gfx_system_load_all_global_icons()
-{
-    /// @details ZF@> Load all the global icons used in all modules
-
-    // Setup
-    bool_t result = bfalse;
-
-    // Now load every icon
-    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/nullicon", ( TX_REF )ICON_NULL, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/keybicon", ( TX_REF )ICON_KEYB, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/mousicon", ( TX_REF )ICON_MOUS, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/joyaicon", ( TX_REF )ICON_JOYA, INVALID_KEY );
-    result = INVALID_TX_TEXTURE != TxTexture_load_one_vfs( "mp_data/joybicon", ( TX_REF )ICON_JOYB, INVALID_KEY );
-
-    return result;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2142,10 +2118,9 @@ void gfx_system_reload_all_textures()
     /// @details BB@> function is called when the graphics mode is changed or the program is
     // restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
-    TxTitleImage_reload_all();
+    //TxTitleImage_reload_all();
     TxTexture_reload_all();
-
-    gfx_reload_cursor();
+    TxMenu_reload_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2189,10 +2164,10 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map
     {
         oglx_texture_t * ptex = TxTexture_get_valid_ptr(( TX_REF )TX_BLIP );
 
-        tx_rect.xmin = ( float )bliprect[color].left   / ( float )oglx_texture_GetTextureWidth( ptex );
-        tx_rect.xmax = ( float )bliprect[color].right  / ( float )oglx_texture_GetTextureWidth( ptex );
-        tx_rect.ymin = ( float )bliprect[color].top    / ( float )oglx_texture_GetTextureHeight( ptex );
-        tx_rect.ymax = ( float )bliprect[color].bottom / ( float )oglx_texture_GetTextureHeight( ptex );
+        tx_rect.xmin = ( float )bliprect[color].left   / ( float )oglx_texture_getTextureWidth( ptex );
+        tx_rect.xmax = ( float )bliprect[color].right  / ( float )oglx_texture_getTextureWidth( ptex );
+        tx_rect.ymin = ( float )bliprect[color].top    / ( float )oglx_texture_getTextureHeight( ptex );
+        tx_rect.ymax = ( float )bliprect[color].bottom / ( float )oglx_texture_getTextureHeight( ptex );
 
         width  = sizeFactor * ( bliprect[color].right  - bliprect[color].left );
         height = sizeFactor * ( bliprect[color].bottom - bliprect[color].top );
@@ -2207,15 +2182,10 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map
 }
 
 //--------------------------------------------------------------------------------------------
-float draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
+float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
 {
-    /// @details ZZ@> This function draws an icon
-
     float       width, height;
     ego_frect_t tx_rect, sc_rect;
-    oglx_texture_t * ptex = NULL;
-
-    ptex = TxTexture_get_valid_ptr( icontype );
 
     if ( NULL == ptex )
     {
@@ -2279,6 +2249,20 @@ float draw_one_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_colo
     }
 
     return y + height;
+}
+
+//--------------------------------------------------------------------------------------------
+float draw_game_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
+{
+    /// @details ZZ@> This function draws an icon
+
+    return draw_icon_texture( TxTexture_get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
+}
+
+//--------------------------------------------------------------------------------------------
+float draw_menu_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
+{
+    return draw_icon_texture( TxMenu_get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2638,7 +2622,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
     Uint8 newword = btrue;
     int cnt = 1;
 
-    oglx_texture_t * tx_ptr = TxTexture_get_valid_ptr(( TX_REF )TX_FONT );
+    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )TX_MENU_FONT_BMP );
     if ( NULL == tx_ptr ) return y;
 
     gfx_begin_text();
@@ -2726,7 +2710,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_
 
     // draw the icon
     if ( draw_sparkle == NOSPARKLE ) draw_sparkle = ( NULL == pitem ) ? NOSPARKLE : pitem->sparkle;
-    draw_one_icon( icon_ref, x, y, draw_sparkle, update_wld, -1 );
+    draw_game_icon( icon_ref, x, y, draw_sparkle, update_wld, -1 );
 
     // draw the ammo, if requested
     if ( draw_ammo && ( NULL != pitem ) )
@@ -3414,7 +3398,7 @@ void draw_inventory()
 void draw_mouse_cursor()
 {
     int     x, y;
-    ego_frect_t tx_rect, sc_rect;
+    oglx_texture_t * pcursor;
 
     if ( !mous.on )
     {
@@ -3422,30 +3406,39 @@ void draw_mouse_cursor()
         return;
     }
 
+    pcursor = TxMenu_get_valid_ptr( TX_MENU_CURSOR );
+
     // Invalid texture?
-    if ( !oglx_texture_Valid( &tx_cursor ) )
+    if ( NULL == pcursor )
     {
         SDL_ShowCursor( SDL_ENABLE );
     }
     else
     {
+        oglx_frect_t tx_tmp, sc_tmp;
+
         // Hide the SDL mouse
         SDL_ShowCursor( SDL_DISABLE );
 
         x = ABS( mous.x );
         y = ABS( mous.y );
 
-        tx_rect.xmin = 0;
-        tx_rect.xmax = ( float )tx_cursor.imgW / ( float )tx_cursor.base.width;
-        tx_rect.ymin = 0;
-        tx_rect.ymax = ( float )tx_cursor.imgH / ( float )tx_cursor.base.height;
+        if ( oglx_texture_getSize( pcursor, tx_tmp, sc_tmp ) )
+        {
+            ego_frect_t tx_rect, sc_rect;
 
-        sc_rect.xmin = x;
-        sc_rect.xmax = x + tx_cursor.imgW;
-        sc_rect.ymin = y;
-        sc_rect.ymax = y + tx_cursor.imgH;
+            tx_rect.xmin = tx_tmp[0];
+            tx_rect.ymin = tx_tmp[1];
+            tx_rect.xmax = tx_tmp[2];
+            tx_rect.ymax = tx_tmp[3];
 
-        draw_quad_2d( &tx_cursor, sc_rect, tx_rect, btrue );
+            sc_rect.xmin = x + sc_tmp[0];
+            sc_rect.ymin = y + sc_tmp[1];
+            sc_rect.xmax = x + sc_tmp[2];
+            sc_rect.ymax = y + sc_tmp[3];
+
+            draw_quad_2d( pcursor, sc_rect, tx_rect, btrue );
+        }
     }
 }
 
@@ -5929,24 +5922,6 @@ void gfx_init_map_data()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_init_mouse_cursor()
-{
-    /// @details ZF@> Load the mouse input_cursor
-
-    Uint32 txid = INVALID_GL_ID;
-    bool_t success = btrue;
-
-    txid = ego_texture_load_vfs( &tx_cursor, "mp_data/cursor", TRANSCOLOR );
-    if ( INVALID_GL_ID == txid )
-    {
-        log_warning( "Could not load mouse cursor (basicdat" SLASH_STR "cursor.png)\n" );
-        success = bfalse;
-    }
-
-    return success;
-}
-
-//--------------------------------------------------------------------------------------------
 void gfx_load_bars()
 {
     /// @details ZZ@> This function loads the status bar bitmap
@@ -6002,29 +5977,6 @@ bool_t gfx_load_blips()
     }
 
     return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-gfx_rv gfx_reload_cursor()
-{
-    bool_t tx_valid;
-    gfx_rv retval;
-
-    tx_valid = oglx_texture_Valid( &tx_cursor );
-
-    if ( !tx_valid )
-    {
-        log_warning( "Invalid mouse cursor.\n" );
-        retval = gfx_error;
-    }
-    else
-    {
-        GLuint convert_rv = oglx_texture_Convert( &tx_cursor, tx_cursor.surface, INVALID_KEY );
-
-        retval = ( INVALID_GL_ID == convert_rv ) ? gfx_fail : gfx_success;
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6629,9 +6581,9 @@ bool_t sum_global_lighting( lighting_vector_t lighting )
 //--------------------------------------------------------------------------------------------
 void draw_cursor()
 {
-    /// ZZ@> This function implements a mouse input_cursor
+    /// ZZ@> This function implements a mouse cursor
 
-    oglx_texture_t * tx_ptr = TxTexture_get_valid_ptr(( TX_REF )TX_FONT );
+    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )TX_MENU_FONT_BMP );
 
     if ( input_cursor.x < 6 )  input_cursor.x = 6;
     if ( input_cursor.x > sdl_scr.x - 16 )  input_cursor.x = sdl_scr.x - 16;

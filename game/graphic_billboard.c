@@ -306,7 +306,7 @@ bool_t BillboardList_free_one( size_t ibb )
     if ( BillboardList.free_count >= BILLBOARD_COUNT )
         return bfalse;
 
-    // do not put anything below TX_LAST back onto the SDL_free stack
+    // do not put anything below TX_SPECIAL_LAST back onto the SDL_free stack
     BillboardList.free_ref[BillboardList.free_count] = ibb;
 
     BillboardList.free_count++;
@@ -393,11 +393,11 @@ bool_t billboard_system_render_one( billboard_data_t * pbb, float scale, const f
 
     oglx_texture_Bind( ptex );
 
-    w = oglx_texture_GetImageWidth( ptex );
-    h = oglx_texture_GetImageHeight( ptex );
+    w = oglx_texture_getImageWidth( ptex );
+    h = oglx_texture_getImageHeight( ptex );
 
-    x1 = w  / ( float ) oglx_texture_GetTextureWidth( ptex );
-    y1 = h  / ( float ) oglx_texture_GetTextureHeight( ptex );
+    x1 = w  / ( float ) oglx_texture_getTextureWidth( ptex );
+    y1 = h  / ( float ) oglx_texture_getTextureHeight( ptex );
 
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 

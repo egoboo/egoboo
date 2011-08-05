@@ -3195,13 +3195,9 @@ void game_load_global_assets()
     // load a bunch of assets that are used in the module
 
     // Load all the global icons
-    if ( !gfx_system_load_all_global_icons() )
-    {
-        log_warning( "Could not load all global icons!\n" );
-    }
     gfx_load_blips();
     gfx_load_bars();
-    font_bmp_load_vfs( TxTexture_get_valid_ptr(( TX_REF )TX_FONT ), "mp_data/font", "mp_data/font.txt" );
+    font_bmp_load_vfs( TxMenu_get_valid_ptr(( TX_REF )TX_MENU_FONT_BMP ), "mp_data/font", "mp_data/font.txt" );
 }
 
 //--------------------------------------------------------------------------------------------

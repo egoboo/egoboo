@@ -40,17 +40,11 @@ enum e_global_tx_type
     TX_WATER_TOP,
     TX_WATER_LOW,
     TX_PHONG,
-    TX_FONT,
     TX_BARS,
     TX_BLIP,
     TX_MAP,
     TX_XP_BAR,
-    ICON_NULL,
-    ICON_KEYB,
-    ICON_MOUS,
-    ICON_JOYA,
-    ICON_JOYB,
-    TX_LAST
+    TX_SPECIAL_LAST
 };
 
 //--------------------------------------------------------------------------------------------

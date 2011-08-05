@@ -366,8 +366,8 @@ gfx_rv render_water_fan( const ego_mpd_t * pmesh, const Uint32 itile, const Uint
 
     ptex = TxTexture_get_valid_ptr( texture );
 
-    x1 = ( float ) oglx_texture_GetTextureWidth( ptex ) / ( float ) oglx_texture_GetImageWidth( ptex );
-    y1 = ( float ) oglx_texture_GetTextureHeight( ptex ) / ( float ) oglx_texture_GetImageHeight( ptex );
+    x1 = ( float ) oglx_texture_getTextureWidth( ptex ) / ( float ) oglx_texture_getImageWidth( ptex );
+    y1 = ( float ) oglx_texture_getTextureHeight( ptex ) / ( float ) oglx_texture_getImageHeight( ptex );
 
     for ( cnt = 0; cnt < 4; cnt ++ )
     {

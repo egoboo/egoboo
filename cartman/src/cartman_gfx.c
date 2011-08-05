@@ -610,8 +610,8 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool_
     min_s = dst;
     min_t = dst;
 
-    max_s = -dst + ( float ) oglx_texture_GetImageWidth( tx_tile )  / ( float ) oglx_texture_GetTextureWidth( tx_tile );
-    max_t = -dst + ( float ) oglx_texture_GetImageHeight( tx_tile )  / ( float ) oglx_texture_GetTextureHeight( tx_tile );
+    max_s = -dst + ( float ) oglx_texture_getImageWidth( tx_tile )  / ( float ) oglx_texture_getTextureWidth( tx_tile );
+    max_t = -dst + ( float ) oglx_texture_getImageHeight( tx_tile )  / ( float ) oglx_texture_getTextureHeight( tx_tile );
 
     // set the texture coordinates
     loc_vrt[0].s = min_s;
@@ -817,15 +817,15 @@ void ogl_draw_sprite_2d( oglx_texture_t * img, float x, float y, float width, fl
     {
         if ( width == 0 || height == 0 )
         {
-            w = oglx_texture_GetTextureWidth( img );
-            h = oglx_texture_GetTextureHeight( img );
+            w = oglx_texture_getTextureWidth( img );
+            h = oglx_texture_getTextureHeight( img );
         }
 
         min_s = dst;
         min_t = dst;
 
-        max_s = -dst + ( float ) oglx_texture_GetImageWidth( img )  / ( float ) oglx_texture_GetTextureWidth( img );
-        max_t = -dst + ( float ) oglx_texture_GetImageHeight( img )  / ( float ) oglx_texture_GetTextureHeight( img );
+        max_s = -dst + ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_getTextureWidth( img );
+        max_t = -dst + ( float ) oglx_texture_getImageHeight( img )  / ( float ) oglx_texture_getTextureHeight( img );
     }
     else
     {
@@ -867,15 +867,15 @@ void ogl_draw_sprite_3d( oglx_texture_t * img, cart_vec_t pos, cart_vec_t vup, c
     {
         if ( width == 0 || height == 0 )
         {
-            w = oglx_texture_GetTextureWidth( img );
-            h = oglx_texture_GetTextureHeight( img );
+            w = oglx_texture_getTextureWidth( img );
+            h = oglx_texture_getTextureHeight( img );
         }
 
         min_s = dst;
         min_t = dst;
 
-        max_s = -dst + ( float ) oglx_texture_GetImageWidth( img )  / ( float ) oglx_texture_GetTextureWidth( img );
-        max_t = -dst + ( float ) oglx_texture_GetImageHeight( img )  / ( float ) oglx_texture_GetTextureHeight( img );
+        max_s = -dst + ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_getTextureWidth( img );
+        max_t = -dst + ( float ) oglx_texture_getImageHeight( img )  / ( float ) oglx_texture_getTextureHeight( img );
     }
     else
     {

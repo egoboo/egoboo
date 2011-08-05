@@ -319,8 +319,8 @@ bool_t TxReqList_timestep()
             break;
 
         case 2:
-            // TxTitleImage_load_one_vfs()
-            preq->index = TxTitleImage_load_one_vfs( preq->filename );
+            // TxMenu_load_one_vfs()
+            preq->index = TxMenu_load_one_vfs( preq->filename, preq->itex_src, preq->key );
             preq->ego_rpc_base.finished = btrue;
             retval = btrue;
             break;
@@ -359,14 +359,14 @@ tx_request_t * ego_rpc_load_TxTexture( const char *filename, int itex_src, Uint3
 }
 
 //--------------------------------------------------------------------------------------------
-tx_request_t * ego_rpc_load_TxTitleImage( const char *filename )
+tx_request_t * ego_rpc_load_TxMenu( const char *filename )
 {
     /// @details BB@> request that the main thread loads the texture
 
     tx_request_t * preq;
     size_t index;
 
-    // find a free request for TxTitleImage (type 2)
+    // find a free request for TxMenu (type 2)
     index = TxReqList_get_free( 2 );
 
     preq = TxReqList_get_ptr( index );
