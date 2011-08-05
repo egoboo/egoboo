@@ -426,9 +426,10 @@ bool_t point_list_add( const float x, const float y, const float z, const int du
 
 void release_all_profile_textures( void );
 
-bool_t gfx_load_blips( void );
-void   gfx_load_bars( void );
-void   gfx_load_map( void );
+gfx_rv gfx_load_blips( void );
+gfx_rv gfx_load_bars( void );
+gfx_rv gfx_load_map( void );
+gfx_rv gfx_load_icons( void );
 
 float  get_ambient_level( void );
 

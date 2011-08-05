@@ -526,7 +526,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
     STRING szText;
     Uint8 cTmp;
 
-    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )TX_MENU_FONT_BMP );
+    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )MENU_FONT_BMP );
     if ( NULL == tx_ptr ) return y;
 
     if ( vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
@@ -2622,7 +2622,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
     Uint8 newword = btrue;
     int cnt = 1;
 
-    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )TX_MENU_FONT_BMP );
+    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )MENU_FONT_BMP );
     if ( NULL == tx_ptr ) return y;
 
     gfx_begin_text();
@@ -2706,7 +2706,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_
     chr_t * pitem = !INGAME_CHR( item ) ? NULL : ChrList_get_ptr( item );
 
     // grab the icon reference
-    icon_ref = chr_get_icon_ref( item );
+    icon_ref = chr_get_txtexture_icon_ref( item );
 
     // draw the icon
     if ( draw_sparkle == NOSPARKLE ) draw_sparkle = ( NULL == pitem ) ? NOSPARKLE : pitem->sparkle;
@@ -3406,7 +3406,7 @@ void draw_mouse_cursor()
         return;
     }
 
-    pcursor = TxMenu_get_valid_ptr( TX_MENU_CURSOR );
+    pcursor = TxMenu_get_valid_ptr( MENU_CURSOR );
 
     // Invalid texture?
     if ( NULL == pcursor )
@@ -5315,7 +5315,6 @@ void gfx_update_fps()
     {
         stabilized_fps = stabilized_menu_fps;
     }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5922,61 +5921,100 @@ void gfx_init_map_data()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_load_bars()
+gfx_rv gfx_load_bars()
 {
     /// @details ZZ@> This function loads the status bar bitmap
 
-    const char * pname;
+    const char * pname = EMPTY_CSTR;
+    TX_REF load_rv = INVALID_GL_ID;
+    gfx_rv retval  = gfx_success;
 
     pname = "mp_data/bars";
-    if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( pname, ( TX_REF )TX_BARS, TRANSCOLOR ) )
+    load_rv = TxTexture_load_one_vfs( pname, ( TX_REF )TX_BARS, TRANSCOLOR );
+    if ( INVALID_TX_TEXTURE == load_rv )
     {
-        log_warning( "gfx_load_bars() - Cannot load file! (\"%s\")\n", pname );
+        log_warning( "%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname );
+        retval = gfx_fail;
     }
 
     pname = "mp_data/xpbar";
-    if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( pname, ( TX_REF )TX_XP_BAR, TRANSCOLOR ) )
+    load_rv = TxTexture_load_one_vfs( pname, ( TX_REF )TX_XP_BAR, TRANSCOLOR );
+    if ( INVALID_TX_TEXTURE == load_rv )
     {
-        log_warning( "gfx_load_bars() - Cannot load file! (\"%s\")\n", pname );
+        log_warning( "%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname );
+        retval = gfx_fail;
     }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_load_map()
+gfx_rv gfx_load_map()
 {
     /// @details ZZ@> This function loads the map bitmap
 
-    const char* szMap;
+    const char* szMap = "mp_data/plan";
+    TX_REF load_rv = INVALID_GL_ID;
+    gfx_rv retval  = gfx_success;
 
     // Turn it all off
-    mapvalid = bfalse;
-    mapon = bfalse;
+    mapon        = bfalse;
     youarehereon = bfalse;
-    blip_count = 0;
+    blip_count   = 0;
 
     // Load the images
-    szMap = "mp_data/plan";
-    if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( szMap, ( TX_REF )TX_MAP, INVALID_KEY ) )
+    load_rv = TxTexture_load_one_vfs( szMap, ( TX_REF )TX_MAP, INVALID_KEY );
+    if ( INVALID_TX_TEXTURE == load_rv )
     {
-        log_debug( "gfx_load_map() - Cannot load file! (\"%s\")\n", szMap );
+        log_debug( "%s - Cannot load file! (\"%s\")\n", __FUNCTION__, szMap );
+        retval   = gfx_fail;
+        mapvalid = bfalse;
     }
     else
     {
+        retval   = gfx_success;
         mapvalid = btrue;
     }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_load_blips()
+gfx_rv gfx_load_blips()
 {
     /// ZZ@> This function loads the blip bitmaps
-    if ( INVALID_TX_TEXTURE == TxTexture_load_one_vfs( "mp_data/blip", ( TX_REF )TX_BLIP, INVALID_KEY ) )
+
+    const char * pname = EMPTY_CSTR;
+    TX_REF load_rv = INVALID_GL_ID;
+    gfx_rv retval  = gfx_success;
+
+    pname = "mp_data/blip";
+    load_rv = TxTexture_load_one_vfs( pname, ( TX_REF )TX_BLIP, INVALID_KEY );
+    if ( INVALID_TX_TEXTURE == load_rv )
     {
-        log_warning( "Blip bitmap not loaded! (\"mp_data/blip\")\n" );
-        return bfalse;
+        log_warning( "%s - Blip bitmap not loaded! (\"%s\")\n", __FUNCTION__, pname );
+        retval = gfx_fail;
     }
 
-    return btrue;
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv gfx_load_icons()
+{
+    const char * pname = EMPTY_CSTR;
+    TX_REF load_rv = INVALID_GL_ID;
+    gfx_rv retval  = gfx_success;
+
+    pname = "mp_data/nullicon";
+    load_rv = TxTexture_load_one_vfs( pname, ( TX_REF )TX_ICON_NULL, INVALID_KEY );
+    if ( INVALID_TX_TEXTURE == load_rv )
+    {
+        log_warning( "%s - cannot load \"empty hand\" icon! (\"%s\")\n", __FUNCTION__, pname );
+        retval = gfx_fail;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6583,7 +6621,7 @@ void draw_cursor()
 {
     /// ZZ@> This function implements a mouse cursor
 
-    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )TX_MENU_FONT_BMP );
+    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )MENU_FONT_BMP );
 
     if ( input_cursor.x < 6 )  input_cursor.x = 6;
     if ( input_cursor.x > sdl_scr.x - 16 )  input_cursor.x = sdl_scr.x - 16;

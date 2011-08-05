@@ -58,17 +58,17 @@ typedef struct s_LoadPlayer_list LoadPlayer_list_t;
 
 enum e_menu_textures
 {
-    TX_MENU_FONT_BMP,
-    TX_MENU_ICON_NULL,
-    TX_MENU_ICON_KEYB,
-    TX_MENU_ICON_MOUS,
-    TX_MENU_ICON_JOYA,
-    TX_MENU_ICON_JOYB,
-    TX_MENU_CURSOR,
-    TX_MENU_LAST_SPECIAL
+    MENU_FONT_BMP,
+    MENU_ICON_NULL,
+    MENU_ICON_KEYB,
+    MENU_ICON_MOUS,
+    MENU_ICON_JOYA,
+    MENU_ICON_JOYB,
+    MENU_CURSOR,
+    MENU_LAST_SPECIAL
 };
 
-#define TX_MENU_COUNT (TX_MENU_LAST_SPECIAL + MAX_MODULE)
+#define MENU_COUNT (MENU_LAST_SPECIAL + MAX_MODULE)
 
 enum e_menu_retvals
 {
@@ -188,7 +188,7 @@ extern bool_t module_list_valid;
 extern struct s_Font *menuFont;
 
 /// declare special arrays of textures
-DECLARE_LIST_EXTERN( oglx_texture_t, TxMenu, TX_MENU_COUNT );
+DECLARE_LIST_EXTERN( oglx_texture_t, TxMenu, MENU_COUNT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

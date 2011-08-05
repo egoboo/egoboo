@@ -219,9 +219,9 @@ static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
 static void game_setup_module( const char *smallname );
 static void game_reset_module_data();
 
-static void game_load_all_assets( const char *modname );
-static void game_load_global_assets();
-static void game_load_module_assets( const char *modname );
+static void      game_load_all_assets( const char *modname );
+static egolib_rv game_load_global_assets();
+static void      game_load_module_assets( const char *modname );
 
 static void load_all_profiles_import();
 static void import_dir_profiles_vfs( const char * dirname );
@@ -3190,14 +3190,35 @@ void game_reset_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_load_global_assets()
+egolib_rv game_load_global_assets()
 {
     // load a bunch of assets that are used in the module
 
-    // Load all the global icons
-    gfx_load_blips();
-    gfx_load_bars();
-    font_bmp_load_vfs( TxMenu_get_valid_ptr(( TX_REF )TX_MENU_FONT_BMP ), "mp_data/font", "mp_data/font.txt" );
+    egolib_rv retval = rv_success;
+    gfx_rv load_rv = gfx_success;
+
+    load_rv = gfx_load_blips();
+    switch ( load_rv )
+    {
+        case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
+        case gfx_error:  retval = rv_error; break;
+    }
+
+    load_rv = gfx_load_bars();
+    switch ( load_rv )
+    {
+        case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
+        case gfx_error:  retval = rv_error; break;
+    }
+
+    load_rv = gfx_load_icons();
+    switch ( load_rv )
+    {
+        case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
+        case gfx_error:  retval = rv_error; break;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

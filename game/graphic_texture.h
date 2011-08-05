@@ -44,6 +44,7 @@ enum e_global_tx_type
     TX_BLIP,
     TX_MAP,
     TX_XP_BAR,
+    TX_ICON_NULL,
     TX_SPECIAL_LAST
 };
 

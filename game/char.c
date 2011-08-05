@@ -8263,13 +8263,13 @@ const char* describe_wounds( float max, float current )
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF chr_get_icon_ref( const CHR_REF item )
+TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 {
     /// @details BB@> Get the index to the icon texture (in TxTexture) that is supposed to be used with this object.
     ///               If none can be found, return the index to the texture of the null icon.
 
     size_t iskin;
-    TX_REF icon_ref = ( TX_REF )TX_MENU_ICON_NULL;
+    TX_REF icon_ref = ( TX_REF )TX_ICON_NULL;
     bool_t is_spell_fx, is_book, draw_book;
 
     cap_t * pitem_cap;

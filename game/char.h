@@ -521,7 +521,7 @@ int       chr_get_price( const CHR_REF ichr );
 bool_t         chr_heal_mad( chr_t * pchr );
 MAD_REF        chr_get_imad( const CHR_REF ichr );
 struct s_mad * chr_get_pmad( const CHR_REF ichr );
-TX_REF         chr_get_icon_ref( const CHR_REF item );
+TX_REF         chr_get_txtexture_icon_ref( const CHR_REF item );
 
 bool_t chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 
