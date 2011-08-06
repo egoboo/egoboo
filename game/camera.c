@@ -857,8 +857,6 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
 
             int turn_z_diff = 0;
 
-            turn_z_diff += CAM_TURN_KEY;
-
             // rotation
             if ( input_device_control_active( pdevice,  CONTROL_CAMERA_LEFT ) )
             {

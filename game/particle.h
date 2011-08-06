@@ -161,15 +161,16 @@ struct s_prt
     SFP8_T            size_add;              ///< Change in size (8.8 fixed point)
 
     // which image
-    UFP8_T            image;                 ///< Which image (8.8 fixed point)
-    Uint16            image_add;             ///< Animation rate
-    Uint16            image_max;             ///< End of image loop
-    Uint16            image_stt;             ///< Start of image loop
+    UFP8_T            image_stt;             ///< Start of image loop (8.8 fixed point)
+    UFP8_T            image_off;             ///< Which image (8.8 fixed point)
+    UFP8_T            image_add;             ///< Image offset animation rate (8.8 fixed point)
+    UFP8_T            image_max;             ///< Maximum image offset (8.8 fixed point)
 
     // lifetime stuff
     bool_t            is_eternal;            ///< Does the particle ever time-out?
-    size_t            lifetime;              ///< Total particle lifetime in updates
+    size_t            lifetime_total;        ///< Total particle lifetime in updates
     size_t            lifetime_remaining;    ///< How many updates does the particle have left?
+    size_t            frames_total;          ///< Total number of particle frames
     size_t            frames_remaining;      ///< How many frames does the particle have left?
     int               contspawn_timer;       ///< Time until spawn
 

@@ -143,9 +143,10 @@ prt_t * prt_ctor( prt_t * pprt )
     base_ptr->frame_count = 0;
 
     // "no lifetime" = "eternal"
-    pprt->lifetime           = ( size_t )( ~0 );
-    pprt->lifetime_remaining = pprt->lifetime;
-    pprt->frames_remaining   = ( size_t )( ~0 );
+    pprt->lifetime_total     = ( size_t )( ~0 );
+    pprt->lifetime_remaining = pprt->lifetime_total;
+    pprt->frames_total       = ( size_t )( ~0 );
+    pprt->frames_remaining   = pprt->frames_total;
 
     pprt->pip_ref      = MAX_PIP;
     pprt->profile_ref  = MAX_PROFILE;
@@ -268,6 +269,8 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#define INFINITE_UPDATES ((size_t)(~0))
+
 prt_t * prt_config_do_init( prt_t * pprt )
 {
     PRT_REF            iprt;
@@ -278,10 +281,11 @@ prt_t * prt_config_do_init( prt_t * pprt )
     fvec3_t vel;
     float   tvel;
     int     offsetfacing = 0, newrand;
-    int     prt_lifetime;
     fvec3_t tmp_pos;
     TURN_T  turn;
     float   loc_spdlimit;
+    int     prt_life_frames_updates, prt_anim_frames_updates;
+    bool_t  prt_life_infinite, prt_anim_infinite;
 
     FACING_T loc_facing;
     CHR_REF loc_chr_origin;
@@ -471,45 +475,82 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->image_stt     = UINT_TO_UFP8( ppip->image_base );
     pprt->image_add     = generate_irand_pair( ppip->image_add );
     pprt->image_max     = UINT_TO_UFP8( ppip->numframes );
-
-    // figure out the actual particle lifetime
-    prt_lifetime        = ppip->end_time;
-    if ( ppip->end_lastframe && 0 != pprt->image_add )
+  
+    // a particle can EITHER end_lastframe or end_time.
+    // if it ends after the last frame, end_time tells you the number of cycles through
+    // the animation
+    prt_anim_frames_updates  = 0;
+    prt_anim_infinite = bfalse;
+    if ( ppip->end_lastframe )
     {
-        if ( ppip->end_time <= 0 )
+        if( 0 == pprt->image_add )
         {
-            // Part time is set to 1 cycle
-            int frames = ( pprt->image_max / pprt->image_add ) - 1;
-            prt_lifetime = frames;
+            prt_anim_frames_updates = INFINITE_UPDATES;
+            prt_anim_infinite = btrue;
         }
         else
         {
-            // Part time is used to give number of cycles
-            int frames = (( pprt->image_max / pprt->image_add ) - 1 );
-            prt_lifetime = ppip->end_time * frames;
+            prt_anim_frames_updates = CEIL( (float)pprt->image_max / (float)pprt->image_add ) - 1;
+
+            if ( ppip->end_time > 0 )
+            {
+                // Part time is used to give number of cycles
+                prt_anim_frames_updates *= ppip->end_time;
+            }
         }
     }
-
-    // "no lifetime" = "eternal"
-    if ( prt_lifetime <= 0 )
+    else
     {
-        pprt->lifetime           = ( size_t )( ~0 );
-        pprt->lifetime_remaining = pprt->lifetime;
-        pprt->is_eternal         = btrue;
+        // no end to the frames
+        prt_anim_frames_updates  = INFINITE_UPDATES;
+        prt_anim_infinite = btrue;
+    }
+    prt_anim_frames_updates = MAX( 1, prt_anim_frames_updates );
+
+    // estimate the number of frames
+    prt_life_frames_updates  = 0;
+    prt_life_infinite = bfalse;
+    if( ppip->end_lastframe )
+    {
+        // for end last frame, the lifetime is given by the 
+        prt_life_frames_updates  = prt_anim_frames_updates;
+        prt_life_infinite = prt_anim_infinite;
+    }
+    else if( ppip->end_time <= 0 )
+    {
+        // zero or negative lifetime == infinite lifetime
+        prt_life_frames_updates = INFINITE_UPDATES;
+        prt_life_infinite = btrue;
+    }
+    else
+    {
+        prt_life_frames_updates = ppip->end_time;
+    }
+    prt_life_frames_updates = MAX( 1, prt_life_frames_updates );
+
+    // set lifetime counter
+    if ( prt_life_infinite )
+    {
+        pprt->lifetime_total = ( size_t )( ~0 );
+        pprt->is_eternal     = btrue;
     }
     else
     {
         // the lifetime is really supposed tp be in terms of frames, but
         // to keep the number of updates stable, the frames could lag.
-        // sooo... we just rescale the prt_lifetime so that it will work with the
+        // sooo... we just rescale the prt_life_frames_updates so that it will work with the
         // updates and cross our fingers
-        pprt->lifetime           = CEIL(( float ) prt_lifetime * ( float )TARGET_UPS / ( float )TARGET_FPS );
-        pprt->lifetime_remaining = pprt->lifetime;
+        pprt->lifetime_total     = CEIL(( float ) prt_life_frames_updates * ( float )TARGET_UPS / ( float )TARGET_FPS );
     }
+    // make the particle exists for AT LEAST one update
+    pprt->lifetime_total     = MAX( 1, pprt->lifetime_total );
+    pprt->lifetime_remaining = pprt->lifetime_total;
 
+    // set the frame counters
     // make the particle display AT LEAST one frame, regardless of how many updates
     // it has or when someone requests for it to terminate
-    pprt->frames_remaining = MAX( 1, prt_lifetime );
+    pprt->frames_total       = MAX( 1, prt_anim_frames_updates );
+    pprt->lifetime_remaining = pprt->lifetime_total;
 
     // Damage stuff
     range_to_pair( ppip->damage, &( pprt->damage ) );
@@ -2738,7 +2779,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
         if ( !loc_pprt->is_eternal )
         {
             // how many 32 update cycles will this particle live through?
-            int cycles = loc_pprt->lifetime / 32;
+            int cycles = loc_pprt->lifetime_total / 32;
 
             if ( cycles > 1 )
             {
@@ -2931,13 +2972,52 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
 
     prt_t             * loc_pprt;
     pip_t             * loc_ppip;
+    bool_t              image_overflow;
+    Uint16              image_overflow_amount;
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 
-    loc_pprt->image = loc_pprt->image + loc_pprt->image_add;
-    if ( loc_pprt->image >= loc_pprt->image_max ) loc_pprt->image = 0;
+    image_overflow = bfalse;
+    if ( loc_pprt->image_off >= loc_pprt->image_max )
+    {
+        // how did the image get here?
+        image_overflow = btrue;
+
+        // cast the unsigned integers to a larger type to make sure there are no overflows
+        image_overflow_amount = ((signed)loc_pprt->image_off) + ((signed)loc_pprt->image_add) - ((signed)loc_pprt->image_max);
+    }
+    else
+    {
+        // the image is in the correct range
+        if( (loc_pprt->image_max - loc_pprt->image_off) > loc_pprt->image_add )
+        {
+            // the image will not overflow this update
+            loc_pprt->image_off = loc_pprt->image_off + loc_pprt->image_add;
+        }
+        else
+        {
+            image_overflow = btrue;
+            image_overflow_amount = ((signed)loc_pprt->image_off) + ((signed)loc_pprt->image_add) - ((signed)loc_pprt->image_max);
+        }
+    }
+
+    // what do you do about an image overflow?
+    if( image_overflow )
+    {
+        if( loc_ppip->end_lastframe && loc_ppip->end_time > 0 )
+        {
+            // the animation is looped. set the value to image_overflow_amount
+            // so that we get the exact number of image updates called for
+            loc_pprt->image_off  = image_overflow_amount;
+        }
+        else
+        {
+            // freeze it at the last frame
+            loc_pprt->image_off = MAX(0, (signed)loc_pprt->image_max - 1);
+        }
+    }
 
     // rotate the particle
     loc_pprt->rotate += loc_pprt->rotate_add;
@@ -2956,6 +3036,13 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
 
     // spin the particle
     loc_pprt->facing += loc_ppip->facingadd;
+
+    // frames_remaining refers to the number of animation updates, not the
+    // number of frames displayed
+    if ( prt_bdl.prt_ptr->frames_remaining > 0 ) 
+    {
+        prt_bdl.prt_ptr->frames_remaining--;
+    }
 
     return pbdl_prt;
 }

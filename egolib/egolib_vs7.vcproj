@@ -509,6 +509,12 @@
 			RelativePath=".\system.h">
 		</File>
 		<File
+			RelativePath=".\threads.c">
+		</File>
+		<File
+			RelativePath=".\threads.h">
+		</File>
+		<File
 			RelativePath=".\throttle.c">
 		</File>
 		<File

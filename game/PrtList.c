@@ -314,8 +314,8 @@ PRT_REF PrtList_allocate( const bool_t force )
             PRT_REF found           = ( PRT_REF )MAX_PRT;
             size_t  min_life        = ( size_t )( ~0 );
             PRT_REF min_life_idx    = ( PRT_REF )MAX_PRT;
-            size_t  min_display     = ( size_t )( ~0 );
-            PRT_REF min_display_idx = ( PRT_REF )MAX_PRT;
+            size_t  min_anim     = ( size_t )( ~0 );
+            PRT_REF min_anim_idx = ( PRT_REF )MAX_PRT;
 
             // Gotta find one, so go through the list and replace a unimportant one
             for ( iprt = 0; iprt < maxparticles; iprt++ )
@@ -349,13 +349,13 @@ PRT_REF PrtList_allocate( const bool_t force )
 
                     size_t min_time  = MIN( pprt->lifetime_remaining, pprt->frames_remaining );
 
-                    if ( min_time < MAX( min_life, min_display ) )
+                    if ( min_time < MAX( min_life, min_anim ) )
                     {
                         min_life     = pprt->lifetime_remaining;
                         min_life_idx = iprt;
 
-                        min_display     = pprt->frames_remaining;
-                        min_display_idx = iprt;
+                        min_anim     = pprt->frames_remaining;
+                        min_anim_idx = iprt;
                     }
                 }
                 else if ( !was_forced )
@@ -368,10 +368,10 @@ PRT_REF PrtList_allocate( const bool_t force )
                         min_life_idx = iprt;
                     }
 
-                    if ( pprt->frames_remaining < min_display )
+                    if ( pprt->frames_remaining < min_anim )
                     {
-                        min_display     = pprt->frames_remaining;
-                        min_display_idx = iprt;
+                        min_anim     = pprt->frames_remaining;
+                        min_anim_idx = iprt;
                     }
                 }
             }
@@ -381,10 +381,10 @@ PRT_REF PrtList_allocate( const bool_t force )
                 // found a "bad" particle
                 iprt = found;
             }
-            else if ( VALID_PRT_RANGE( min_display_idx ) )
+            else if ( VALID_PRT_RANGE( min_anim_idx ) )
             {
                 // found a "terminated" particle
-                iprt = min_display_idx;
+                iprt = min_anim_idx;
             }
             else if ( VALID_PRT_RANGE( min_life_idx ) )
             {

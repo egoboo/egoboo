@@ -670,7 +670,6 @@ gfx_rv update_all_prt_instance( const camera_t * pcam )
 
         // only do frame counting for particles that are fully activated!
         prt_bdl.prt_ptr->obj_base.frame_count++;
-        if ( prt_bdl.prt_ptr->frames_remaining > 0 ) prt_bdl.prt_ptr->frames_remaining--;
 
         if ( !prt_bdl.prt_ptr->inst.indolist )
         {
@@ -728,7 +727,7 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
 
     pinst->type = pprt->type;
 
-    pinst->image_ref = UFP8_TO_UINT( pprt->image + pprt->image_stt );
+    pinst->image_ref = UFP8_TO_UINT( pprt->image_off + pprt->image_stt );
 
     // set the position
     prt_get_pos( pprt, pinst->pos.v );
