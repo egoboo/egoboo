@@ -21,6 +21,14 @@
 /// @brief Implementation of character functions
 /// @details
 
+#include <egolib/log.h>
+#include <egolib/vfs.h>
+#include <egolib/egoboo_setup.h>
+#include <egolib/fileutil.h>
+#include <egolib/strutil.h>
+#include <egolib/file_formats/quest_file.h>
+#include <egolib/_math.inl>
+
 #include "char.inl"
 
 #include "mad.h"
@@ -32,25 +40,16 @@
 #include "input.h"
 #include "passage.h"
 #include "game.h"
-#include "graphic_texture.h"
 #include "ui.h"
 #include "collision.h"                  //Only or detach_character_from_platform()
 #include "obj_BSP.h"
-#include "egoboo.h"
-
 #include "graphic.h"
 #include "graphic_billboard.h"
+#include "graphic_texture.h"
+#include "egoboo.h"
 
 #include "ChrList.inl"
 #include "mesh.inl"
-
-#include <egolib/log.h>
-#include <egolib/vfs.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/fileutil.h>
-#include <egolib/strutil.h>
-#include <egolib/file_formats/quest_file.h>
-#include <egolib/_math.inl>
 
 // this include must be the absolute last include
 #include <egolib/mem.h>

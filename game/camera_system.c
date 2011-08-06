@@ -21,7 +21,12 @@
 /// @brief
 /// @details
 
+#include <egolib/egoboo_setup.h>
+#include <egolib/extensions/SDL_extensions.h>
+#include <egolib/_math.inl>
+
 #include "camera_system.h"
+
 #include "network.h"
 #include "mesh.h"
 #include "graphic.h"
@@ -29,10 +34,6 @@
 #include "player.h"
 
 #include "ChrList.inl"
-
-#include <egolib/egoboo_setup.h>
-#include <egolib/extensions/SDL_extensions.h>
-#include <egolib/_math.inl>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

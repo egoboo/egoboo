@@ -24,10 +24,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#define DECLARE_GLOBALS
-
-#include "egoboo.h"
-
 #include <egolib/log.h>
 #include <egolib/system.h>
 #include <egolib/font_bmp.h>
@@ -43,6 +39,8 @@
 #include <egolib/extensions/SDL_extensions.h>
 #include <egolib/clock.h>
 
+#define DECLARE_GLOBALS
+
 #include "graphic.h"
 #include "network.h"
 #include "sound.h"
@@ -52,6 +50,7 @@
 #include "menu.h"
 #include "player.h"
 #include "graphic_texture.h"
+#include "egoboo.h"
 
 #include "char.inl"
 #include "particle.inl"

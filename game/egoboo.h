@@ -28,6 +28,7 @@
 
 /* Typedefs for various platforms */
 #include "egoboo_typedef.h"
+
 #include <egolib/timer.h>
 #include <egolib/clock.h>
 

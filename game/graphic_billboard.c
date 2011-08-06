@@ -21,6 +21,9 @@
 /// @brief
 /// @details
 
+#include <egolib/font_ttf.h>
+#include <egolib/_math.inl>
+
 #include "graphic_billboard.h"
 
 #include "graphic_texture.h"
@@ -28,9 +31,6 @@
 
 #include "char.inl"
 #include "particle.inl"
-
-#include <egolib/font_ttf.h>
-#include <egolib/_math.inl>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

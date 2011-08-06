@@ -21,8 +21,9 @@
   $Id: SDL_GetPixel.cpp,v 1.1 2002/08/21 22:14:00 arakon Exp $
 */
 
-#include "SDL_Pixel.h"
 #include <string.h>
+
+#include "SDL_Pixel.h"
 
 /*
  * This function sets the specified pixel on a surface. Sanity checks are

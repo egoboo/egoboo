@@ -23,10 +23,10 @@
 /// @brief Base implementation of the OpenGL extensions
 /// @details
 
+#include <math.h>
+
 #include "ogl_include.h"
 #include "ogl_debug.h"
-
-#include <math.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

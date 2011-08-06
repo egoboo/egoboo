@@ -26,11 +26,11 @@
 /// @brief Base definitions of the extensions to OpenGL
 /// @details
 
+#include <assert.h>
+
 #include <SDL_opengl.h>
 
 #include "../file_common.h"
-
-#include <assert.h>
 
 #if defined(__cplusplus)
 extern "C"

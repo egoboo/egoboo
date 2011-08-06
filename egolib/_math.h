@@ -22,10 +22,10 @@
 /// @file egolib_math.h
 /// @details The name's pretty self explanatory, doncha think?
 
-#include "../egolib/typedef.h"
-
 #include <math.h>
 #include <float.h>
+
+#include "../egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

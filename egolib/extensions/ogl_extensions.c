@@ -23,11 +23,11 @@
 /// @brief Implementation of extended functions and variables for OpenGL
 /// @details
 
-#include "ogl_extensions.h"
-#include "ogl_debug.h"
-
 #include <math.h>
 #include <string.h>
+
+#include "ogl_extensions.h"
+#include "ogl_debug.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

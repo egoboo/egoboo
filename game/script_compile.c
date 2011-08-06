@@ -21,18 +21,17 @@
 /// @brief Implementation of the script compiler
 /// @details
 
-#include "script_compile.h"
-
 #include <egolib/log.h>
-
 #include <egolib/vfs.h>
 #include <egolib/egoboo_setup.h>
 #include <egolib/strutil.h>
 #include <egolib/fileutil.h>
 #include <egolib/_math.h>
-#include "egoboo.h"
+
+#include "script_compile.h"
 
 #include "game.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------

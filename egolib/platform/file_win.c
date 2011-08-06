@@ -27,17 +27,15 @@
 #include <shlwapi.h>
 
 #include "../file_common.h"
-
 #include "../log.h"
-
 #include "../strutil.h"
 #include "../platform.h"
-//#include "../egoboo.h"
 
 // this include must be the absolute last include
 #include "../mem.h"
 
 #define HAS_ATTRIBS(ATTRIBS,VAR) ((INVALID_FILE_ATTRIBUTES != (VAR)) && ( (ATTRIBS) == ( (VAR) & (ATTRIBS) ) ))
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

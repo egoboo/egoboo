@@ -21,11 +21,10 @@
 /// @brief Implementation of code for controlling object texturing
 /// @details
 
-#include "graphic_texture.h"
-
 #include <egolib/fileutil.h>
-
 #include <egolib/_math.inl>
+
+#include "graphic_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

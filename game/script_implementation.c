@@ -25,6 +25,10 @@
 /// The current code is about 3/4 of the way toward this goal.
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
+#include <egolib/egoboo_setup.h>
+#include <egolib/strutil.h>
+#include <egolib/_math.inl>
+
 #include "script_implementation.h"
 
 #include "game.h"
@@ -36,10 +40,6 @@
 #include "mesh.inl"
 #include "profile.inl"
 #include "char.inl"
-
-#include <egolib/egoboo_setup.h>
-#include <egolib/strutil.h>
-#include <egolib/_math.inl>
 
 //--------------------------------------------------------------------------------------------
 // wrap generic bitwise conversion macros

@@ -21,6 +21,12 @@
 /// @brief Implementation of the Egoboo virtual file system
 /// @details
 
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+#include <physfs.h>
+
 #include "../egolib/vfs.h"
 
 #include "../egolib/file_common.h"
@@ -30,11 +36,6 @@
 #include "../egolib/endian.h"
 #include "../egolib/fileutil.h"
 #include "../egolib/platform.h"
-
-#include <physfs.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
 
 // this include must be the absolute last include
 #include "../egolib/mem.h"

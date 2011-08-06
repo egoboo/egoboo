@@ -26,7 +26,6 @@
 /// @note You will routinely include "md2.inl" in all *.inl files or *.c/*.cpp files, instead of "md2.h"
 
 #include "md2.h"
-#include <egolib/file_formats/id_md2.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

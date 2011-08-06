@@ -22,8 +22,9 @@
 /// @file EncList.h
 /// @brief Routines for enchant list management
 
-#include "egoboo_object.h"
+#include "egoboo_typedef.h"
 
+#include "egoboo_object.h"
 #include "enchant.h"
 
 //--------------------------------------------------------------------------------------------

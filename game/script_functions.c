@@ -25,11 +25,18 @@
 /// The current code is about 3/4 of the way toward this goal.
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
+#include <egolib/log.h>
+#include <egolib/_math.h>
+#include <egolib/strutil.h>
+#include <egolib/egoboo_setup.h>
+#include <egolib/file_formats/spawn_file.h>
+#include <egolib/file_formats/quest_file.h>
+#include <egolib/_math.inl>
+
 #include "script_functions.h"
 #include "script_implementation.h"
 
 #include "mad.h"
-
 #include "link.h"
 #include "camera_system.h"
 #include "input.h"
@@ -39,24 +46,14 @@
 #include "menu.h"
 #include "graphic.h"
 #include "graphic_billboard.h"
-
 #include "passage.h"
 #include "AStar.h"
-
-#include <egolib/log.h>
-#include <egolib/_math.h>
-#include <egolib/strutil.h>
-#include <egolib/egoboo_setup.h>
-
-#include <egolib/file_formats/spawn_file.h>
-#include <egolib/file_formats/quest_file.h>
 
 #include "profile.inl"
 #include "enchant.inl"
 #include "char.inl"
 #include "particle.inl"
 #include "mesh.inl"
-#include <egolib/_math.inl>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

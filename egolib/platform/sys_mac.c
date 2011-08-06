@@ -21,10 +21,10 @@
 /// @brief Implementation of mac system-dependent functions
 /// @details
 
-#include "System.h"
-
-#include "file_common.h" /* for NULL */
 #include <sys/time.h>
+
+#include "system.h"
+#include "file_common.h" /* for NULL */
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

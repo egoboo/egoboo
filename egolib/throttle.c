@@ -21,10 +21,10 @@
 /// @brief Implementation of a clock "class" using SDL_GetTicks()
 /// @details
 
+#include <SDL.h>
+
 #include "../egolib/throttle.h"
 #include "../egolib/_math.h"
-
-#include <SDL.h>
 
 //--------------------------------------------------------------------------------------------
 bool_t egolib_throttle_reset( egolib_throttle_t * pthrottle )

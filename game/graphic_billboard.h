@@ -19,12 +19,14 @@
 //*
 //********************************************************************************************
 
-#include "graphic.h"
+#include <SDL.h>
 
 #include <egolib/_math.h>
 #include <egolib/extensions/ogl_include.h>
 
-#include <SDL.h>
+#include "egoboo_typedef.h"
+
+#include "graphic.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs

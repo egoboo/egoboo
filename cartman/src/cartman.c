@@ -17,6 +17,13 @@
 //*
 //********************************************************************************************
 
+#include <stdio.h>          // For printf and such
+#include <fcntl.h>          // For fast file i/o
+#include <math.h>
+#include <assert.h>
+
+#include <egolib/egolib.h>
+
 #include "cartman.h"
 
 #include "cartman_mpd.h"
@@ -28,12 +35,6 @@
 
 #include "cartman_math.inl"
 
-#include <egolib/egolib.h>
-
-#include <stdio.h>          // For printf and such
-#include <fcntl.h>          // For fast file i/o
-#include <math.h>
-#include <assert.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

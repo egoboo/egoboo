@@ -22,6 +22,10 @@
 /// @details True-type font drawing functionality.  Uses Freetype 2 & OpenGL
 /// to do it's business.
 
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
+
 #include "../egolib/font_ttf.h"
 #include "../egolib/log.h"
 
@@ -32,10 +36,6 @@
 #include "../egolib/typedef.h"
 #include "../egolib/strutil.h"
 #include "../egolib/platform.h"
-
-#include <stdlib.h>
-#include <stddef.h>
-#include <string.h>
 
 // this include must be the absolute last include
 #include "../egolib/mem.h"

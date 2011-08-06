@@ -21,13 +21,12 @@
 /// @brief Clock & timer implementation
 /// @details This implementation was adapted from Noel Lopis' article in Game Programming Gems 4.
 
-#include "../egolib/clock.h"
-
-#include "../egolib/system.h"
-#include "../egolib/log.h"
-
 #include <stddef.h>
 #include <stdlib.h>
+
+#include "../egolib/clock.h"
+#include "../egolib/system.h"
+#include "../egolib/log.h"
 
 // this include must be the absolute last include
 #include "../egolib/mem.h"

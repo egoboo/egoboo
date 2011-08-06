@@ -21,11 +21,12 @@
 /// @brief This code is not currently in use.
 /// @details
 
-#include "server.h"
-#include "network.h"
+#include "network_server.h"
+
 #include "game.h"
-#include <egolib/log.h>
 #include "player.h"
+
+#include <egolib/log.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

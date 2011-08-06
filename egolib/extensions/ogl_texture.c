@@ -24,14 +24,14 @@
 /// @details Basic loading and managing OpenGL textures.
 ///   Uses SDL_image to load .tif, .png, .bmp, .dib, .xpm, and other formats into OpenGL texures
 
+#include <SDL_image.h>
+
 #include "ogl_texture.h"
 #include "ogl_debug.h"
 #include "SDL_GL_extensions.h"
 
 #include "../egoboo_setup.h"
 #include "../strutil.h"
-
-#include <SDL_image.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

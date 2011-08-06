@@ -6,10 +6,10 @@ LGPL (c) A. Schiffler
 
 */
 
-#include <SDL.h>
-
 #include <stdlib.h>
 #include <string.h>
+
+#include <SDL.h>
 
 #include "SDL_rotozoom.h"
 

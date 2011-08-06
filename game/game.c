@@ -21,15 +21,12 @@
 /// @brief The code for controlling the game
 /// @details
 
-#include <SDL_image.h>
-
 #include <time.h>
 #include <assert.h>
 #include <float.h>
 #include <string.h>
 
-#include "game.h"
-#include "graphic_billboard.h"
+#include <SDL_image.h>
 
 #include <egolib/clock.h>
 #include <egolib/throttle.h>
@@ -60,6 +57,8 @@
 #   include <egolib/lua_console.h>
 #endif
 
+#include "game.h"
+#include "graphic_billboard.h"
 #include "mad.h"
 #include "player.h"
 #include "link.h"
@@ -71,9 +70,8 @@
 #include "passage.h"
 #include "input.h"
 #include "menu.h"
-#include "network.h"
-#include "client.h"
-#include "server.h"
+#include "network_client.h"
+#include "network_server.h"
 #include "graphic_texture.h"
 #include "camera_system.h"
 #include "collision.h"

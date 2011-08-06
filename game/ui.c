@@ -23,15 +23,16 @@
 /// IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
 
 #include <string.h>
-#include <SDL_opengl.h>
 
-#include "ui.h"
-#include "menu.h"
+#include <SDL_opengl.h>
 
 #include <egolib/font_ttf.h>
 #include <egolib/extensions/ogl_debug.h>
 #include <egolib/extensions/SDL_extensions.h>
 
+#include "ui.h"
+
+#include "menu.h"
 #include "graphic.h"
 
 //--------------------------------------------------------------------------------------------

@@ -11,6 +11,8 @@ LGPL (c) A. Schiffler
 
 #include <math.h>
 
+#include <SDL.h>
+
 /* Set up for C function definitions, even when using C++ */
 #ifdef __cplusplus
 extern "C"
@@ -21,7 +23,6 @@ extern "C"
 #define M_PI  3.141592654
 #endif
 
-#include <SDL.h>
 
     /* ---- Defines */
 

@@ -22,11 +22,13 @@
 /// @file enchant.h
 /// @details Decleares some stuff used for handling enchants
 
-#include "egoboo_object.h"
+#include "egoboo_typedef.h"
 
 #include <egolib/bsp.h>
-
 #include <egolib/file_formats/eve_file.h>
+
+#include "egoboo_object.h"
+
 
 //--------------------------------------------------------------------------------------------
 // external structs

@@ -21,9 +21,9 @@
 /// @brief Implementation of Egoboo "object" control routines
 /// @details
 
-#include "egoboo_object.h"
-
 #include <egolib/strutil.h>
+
+#include "egoboo_object.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

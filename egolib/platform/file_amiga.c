@@ -21,20 +21,19 @@
 /// @brief Implementation of the Amiga system-dependent filesystem functions
 /// @details
 
-#include "file_common.h"
-#include "log.h"
-
-#include "../egolib/strutil.h"
-//#include "egoboo.h"
-
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
-//#include <glob.h>
-#include "glob.h"
 #include <sys/types.h>
 #include <sys/stat.h>
-//#include <sys/dir.h>
+
+#include "../egolib/file_common.h"
+#include "../egoliblog.h"
+#include "../egolib/strutil.h"
+
+#include "glob.h"
+
+// must be included last
 #include "../egolib/mem.h"
 
 #define PATH_MAX 256

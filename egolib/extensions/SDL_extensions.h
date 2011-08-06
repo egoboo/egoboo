@@ -26,11 +26,11 @@
 /// @brief Definitions for generic extensions to SDL
 /// @details
 
+#include <assert.h>
+
 #include <SDL.h>
 
 #include "../file_common.h"
-
-#include <assert.h>
 
 #if defined(__cplusplus)
 extern "C"

@@ -21,12 +21,12 @@
 /// @brief The implementation of the Remote Procedure Calls
 /// @details
 
+#include <egolib/strutil.h>
+
 #include "rpc.h"
 
 #include "graphic_texture.h"
 #include "menu.h"
-
-#include <egolib/strutil.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

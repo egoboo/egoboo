@@ -20,16 +20,16 @@
 /// @file client.c
 /// @brief This code is not currently in use.
 
-#include "client.h"
-#include "network.h"
-#include "game.h"
-#include "player.h"
 #include <egolib/log.h>
-#include "menu.h"
-
-#include "egoboo.h"
 #include <egolib/egoboo_setup.h>
 #include <egolib/strutil.h>
+
+#include "network_client.h"
+
+#include "game.h"
+#include "player.h"
+#include "menu.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

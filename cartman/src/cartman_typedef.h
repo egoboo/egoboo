@@ -22,6 +22,7 @@
 /// @file cartman_typedef.h
 /// @details base type definitions and config options
 
+#include <egolib/typedef.h>
+
 #include "cartman_config.h"
 
-#include <egolib/typedef.h>

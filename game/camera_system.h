@@ -21,6 +21,8 @@
 
 /// @file camera.h
 
+#include "egoboo_typedef.h"
+
 #include "camera.h"
 #include "input.h"
 

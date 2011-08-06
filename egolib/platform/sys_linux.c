@@ -21,12 +21,13 @@
 /// @brief System Dependent Functions
 /// @details Unix/GNU/Linux/*nix - specific code
 
+#include <unistd.h>      //For message box in linux
+#include <sys/time.h>
+
 #include "log.h"
 #include "system.h"
 
-#include <unistd.h>      //For message box in linux
 #include "file_common.h" /* for NULL */
-#include <sys/time.h>
 
 //--------------------------------------------------------------------------------------------
 //Different methods of displaying messages in Linux

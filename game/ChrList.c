@@ -21,12 +21,12 @@
 /// @brief Implementation of the ChrList_* functions
 /// @details
 
-#include "ChrList.inl"
-#include "char.inl"
+#include <egolib/log.h>
 
 #include "egoboo_object.h"
 
-#include <egolib/log.h>
+#include "ChrList.inl"
+#include "char.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

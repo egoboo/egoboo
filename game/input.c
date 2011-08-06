@@ -21,20 +21,11 @@
 /// @brief Keyboard, mouse, and joystick handling code.
 /// @details
 
-#include "input.h"
-
 #if defined(USE_LUA_CONSOLE)
 #    include <egolib/lua_console.h>
 #else
 #    include <egolib/console.h>
 #endif
-
-#include "ui.h"
-#include "network.h"
-#include "menu.h"
-#include "graphic.h"
-#include "camera_system.h"
-#include "egoboo.h"
 
 #include <egolib/egoboo_setup.h>
 
@@ -46,6 +37,16 @@
 
 #include <egolib/file_formats/controls_file.h>
 #include <egolib/extensions/SDL_extensions.h>
+
+
+#include "input.h"
+
+#include "ui.h"
+#include "network.h"
+#include "menu.h"
+#include "graphic.h"
+#include "camera_system.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

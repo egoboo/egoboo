@@ -23,12 +23,12 @@
 /// @brief Implementation of the debugging extensions for OpenGL
 /// @details
 
+#include <assert.h>
+#include <memory.h>
+
 #include "ogl_debug.h"
 
 #include "../file_common.h"
-
-#include <assert.h>
-#include <memory.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

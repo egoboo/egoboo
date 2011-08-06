@@ -21,6 +21,11 @@
 /// @brief Implementation of code for implementing a Quake-like console in Egoboo
 /// @details
 
+#include <string.h>
+
+#include <SDL.h>
+#include <SDL_opengl.h>
+
 #include "../egolib/console.inl"
 
 #include "../egolib/file_common.h"
@@ -33,10 +38,6 @@
 #include "extensions/SDL_extensions.h"
 
 #include "../egolib/_math.inl"
-
-#include <string.h>
-#include <SDL.h>
-#include <SDL_opengl.h>
 
 // this include must be the absolute last include
 #include "../egolib/mem.h"

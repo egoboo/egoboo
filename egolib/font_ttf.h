@@ -23,11 +23,11 @@
 /// @details True-type font drawing functionality.  Uses the SDL_ttf module
 /// to do it's business. This depends on Freetype 2 & OpenGL.
 
-#include "../egolib/typedef.h"
-
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_opengl.h>
+
+#include "../egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

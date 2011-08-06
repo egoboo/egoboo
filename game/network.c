@@ -24,16 +24,16 @@
 
 #include <stdarg.h>
 
-#include "network.h"
-#include "server.h"
-#include "client.h"
-
 #include <egolib/file_common.h>
 #include <egolib/log.h>
 #include <egolib/strutil.h>
 #include <egolib/vfs.h>
 #include <egolib/egoboo_setup.h>
 #include <egolib/file_formats/module_file.h>
+
+#include "network.h"
+#include "network_server.h"
+#include "network_client.h"
 
 #include "input.h"
 #include "game.h"

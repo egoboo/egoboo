@@ -205,9 +205,6 @@
 				RelativePath=".\ChrList.c">
 			</File>
 			<File
-				RelativePath=".\client.c">
-			</File>
-			<File
 				RelativePath=".\collision.c">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -275,6 +272,12 @@
 				RelativePath=".\network.c">
 			</File>
 			<File
+				RelativePath=".\network_client.c">
+			</File>
+			<File
+				RelativePath=".\network_server.c">
+			</File>
+			<File
 				RelativePath=".\obj_BSP.c">
 			</File>
 			<File
@@ -305,9 +308,6 @@
 				RelativePath=".\rpc.c">
 			</File>
 			<File
-				RelativePath=".\server.c">
-			</File>
-			<File
 				RelativePath=".\sound.c">
 			</File>
 			<File
@@ -332,9 +332,6 @@
 			</File>
 			<File
 				RelativePath=".\ChrList.h">
-			</File>
-			<File
-				RelativePath=".\client.h">
 			</File>
 			<File
 				RelativePath=".\collision.h">
@@ -397,6 +394,12 @@
 				RelativePath=".\network.h">
 			</File>
 			<File
+				RelativePath=".\network_client.h">
+			</File>
+			<File
+				RelativePath=".\network_server.h">
+			</File>
+			<File
 				RelativePath=".\obj_BSP.h">
 			</File>
 			<File
@@ -419,9 +422,6 @@
 			</File>
 			<File
 				RelativePath=".\rpc.h">
-			</File>
-			<File
-				RelativePath=".\server.h">
 			</File>
 			<File
 				RelativePath=".\sound.h">

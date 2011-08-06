@@ -22,6 +22,8 @@
 /// @file char.inl
 /// @note You will routinely include "char.inl" in all *.inl files or *.c/*.cpp files, instead of "char.h"
 
+#include <egolib/_math.inl>
+
 #include "char.h"
 
 /// @note include "profile.inl" here.
@@ -29,8 +31,6 @@
 #include "profile.inl"
 #include "enchant.inl"
 #include "particle.inl"
-
-#include <egolib/_math.inl>
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARARIONS

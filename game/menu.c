@@ -21,39 +21,34 @@
 /// @brief Implements the main menu tree, using the code in Ui.*
 /// @details
 
-#include "menu.h"
-
-#include "mad.h"
-#include "player.h"
-#include "game.h"
-
-#include "ui.h"
 #include <egolib/log.h>
-#include "link.h"
-#include "game.h"
-#include "graphic_texture.h"
 #include <egolib/font_ttf.h>
-
-// To allow changing settings
-#include "sound.h"
-#include "input.h"
-#include "camera_system.h"
-#include "graphic.h"
-
 #include <egolib/_math.h>
 #include <egolib/vfs.h>
-#include "egoboo_typedef.h"
 #include <egolib/fileutil.h>
 #include <egolib/egoboo_setup.h>
 #include <egolib/strutil.h>
-
-#include "egoboo.h"
-
+#include <egolib/font_bmp.h>
 #include <egolib/file_formats/quest_file.h>
 #include <egolib/file_formats/controls_file.h>
 #include <egolib/file_formats/scancode_file.h>
 #include <egolib/file_formats/module_file.h>
 #include <egolib/extensions/SDL_extensions.h>
+
+#include "menu.h"
+
+#include "mad.h"
+#include "player.h"
+#include "game.h"
+#include "ui.h"
+#include "link.h"
+#include "game.h"
+#include "graphic_texture.h"
+#include "sound.h"
+#include "input.h"
+#include "camera_system.h"
+#include "graphic.h"
+#include "egoboo.h"
 
 #include "particle.inl"
 #include "char.inl"
@@ -5982,7 +5977,7 @@ bool_t SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplaye
 IMPLEMENT_LIST( oglx_texture_t, TxMenu, MENU_COUNT );
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_reset_freelist( bool_t all_data )
+void TxMenu_reset_freelist()
 {
     /// @details BB@> reset the free texture list. Start at MENU_LAST_SPECIAL so that the global textures/icons are
     ///     can't be allocated by mistake

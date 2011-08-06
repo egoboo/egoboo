@@ -21,19 +21,18 @@
 /// @brief The files for handling Egoboo's internal model definitions
 /// @details
 
+#include <egolib/log.h>
+#include <egolib/egoboo_setup.h>
+#include <egolib/fileutil.h>
+#include <egolib/strutil.h>
+#include <egolib/file_formats/cap_file.h>
+
 #include "mad.h"
 
-#include <egolib/log.h>
 #include "script_compile.h"
 #include "graphic.h"
 #include "graphic_texture.h"
 #include "sound.h"
-
-#include <egolib/egoboo_setup.h>
-#include <egolib/fileutil.h>
-#include <egolib/strutil.h>
-
-#include <egolib/file_formats/cap_file.h>
 
 #include "md2.inl"
 #include "particle.inl"

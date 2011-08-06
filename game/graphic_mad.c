@@ -23,12 +23,12 @@
 
 #include <SDL_opengl.h>
 
-#include "graphic_mad.h"
-
 #include <egolib/log.h>
 #include <egolib/egoboo_setup.h>
-
+#include <egolib/bbox.inl>
 #include <egolib/file_formats/id_md2.h>
+
+#include "graphic_mad.h"
 
 #include "mad.h"
 #include "camera_system.h"

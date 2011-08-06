@@ -22,17 +22,17 @@
 /// @file menu.h
 /// @details Implements the main menu tree, using the code in Ui.*.
 
-#include "network.h"
-#include "profile.h"
-#include "egoboo.h"
-
 #include <egolib/IDSZ_map.h>
 #include <egolib/process.h>
 #include <egolib/timer.h>
-
 #include <egolib/extensions/ogl_texture.h>
-
 #include <egolib/file_formats/module_file.h>        // for MAX_MODULE
+
+#include "egoboo_typedef.h"
+
+#include "network.h"
+#include "profile.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

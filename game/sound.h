@@ -22,10 +22,11 @@
 /// @file sound.h
 /// @Sound handling using SDL_mixer
 
-#include "egoboo_typedef.h"
+#include <SDL_mixer.h>
+
 #include <egolib/_math.h>
 
-#include <SDL_mixer.h>
+#include "egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

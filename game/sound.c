@@ -24,14 +24,14 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
-#include "sound.h"
-
 #include <egolib/vfs.h>
 #include <egolib/fileutil.h>
 #include <egolib/egoboo_setup.h>
 #include <egolib/strutil.h>
 #include <egolib/_math.inl>
 #include <egolib/log.h>
+
+#include "sound.h"
 
 #include "camera_system.h"
 #include "game.h"

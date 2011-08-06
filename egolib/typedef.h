@@ -22,6 +22,8 @@
 /// @file egolib_typedef.h
 /// @details some basic types that are used throughout the game code.
 
+#include <assert.h>
+
 #include <SDL.h>
 
 // this include must be the absolute last include
@@ -59,7 +61,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // portable definition of assert. the c++ version can be activated below.
 
-#include <assert.h>
 #define C_EGOBOO_ASSERT(X) assert(X)
 
 //--------------------------------------------------------------------------------------------

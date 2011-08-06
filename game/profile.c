@@ -21,6 +21,13 @@
 /// @brief Implementation of functions for controlling and accessing object profiles
 /// @details
 
+#include <egolib/log.h>
+#include <egolib/egoboo_setup.h>
+#include <egolib/strutil.h>
+#include <egolib/fileutil.h>
+#include <egolib/vfs.h>
+#include <egolib/bsp.inl>
+
 #include "profile.inl"
 
 #include "graphic_texture.h"
@@ -31,13 +38,6 @@
 #include "PrtList.inl"
 #include "mesh.inl"
 #include "particle.inl"
-
-#include <egolib/log.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/strutil.h>
-#include <egolib/fileutil.h>
-#include <egolib/vfs.h>
-#include <egolib/bsp.inl>
 
 // this include must be the absolute last include
 #include <egolib/mem.h>

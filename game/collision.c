@@ -21,6 +21,10 @@
 /// @brief The code that handles collisions between in-game objects
 /// @details
 
+#include <egolib/log.h>
+#include <egolib/hash.h>
+#include <egolib/extensions/SDL_extensions.h>
+
 #include "collision.h"
 #include "obj_BSP.h"
 
@@ -32,10 +36,6 @@
 #include "enchant.inl"
 #include "profile.inl"
 #include "physics.inl"
-
-#include <egolib/log.h>
-#include <egolib/hash.h>
-#include <egolib/extensions/SDL_extensions.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

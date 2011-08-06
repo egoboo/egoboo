@@ -28,13 +28,15 @@
 #include "camera_system.h"
 #include "input.h"
 #include "lighting.h"
-
-#include <egolib/egoboo_setup.h>
 #include "egoboo.h"
 
 #include "particle.inl"
 #include "char.inl"
 #include "profile.inl"
+
+#include <egolib/egoboo_setup.h>
+#include <egolib/bbox.inl>
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

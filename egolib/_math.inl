@@ -23,14 +23,14 @@
 /// @brief
 /// @details Almost all of the math functions are intended to be inlined for maximum speed
 
+#include <float.h>
+
 #include "../egolib/_math.h"
 #include "../egolib/platform.h"
 #include "log.h"
 
 #include "extensions/ogl_include.h"
 #include "extensions/ogl_debug.h"
-
-#include <float.h>
 
 //--------------------------------------------------------------------------------------------
 // MACROS

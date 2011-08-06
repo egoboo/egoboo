@@ -19,18 +19,17 @@
 //*
 //********************************************************************************************
 
+#include <SDL.h>
+
+#include <egolib/extensions/ogl_texture.h>
+#include <egolib/file_formats/module_file.h>
+
 #include "egoboo_typedef.h"
 
 #include "mesh.h"
 #include "mad.h"
 #include "camera_system.h"
-
 #include "egoboo.h"
-
-#include <egolib/extensions/ogl_texture.h>
-#include <egolib/file_formats/module_file.h>
-
-#include <SDL.h>
 
 //--------------------------------------------------------------------------------------------
 // external structs

@@ -21,12 +21,6 @@
 /// @brief Implementation of the linux system-dependent filesystem functions
 /// @details
 
-#include "file_common.h"
-#include "log.h"
-
-#include "../egolib/strutil.h"
-//#include "egoboo.h"
-
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
@@ -34,6 +28,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/dir.h>
+
+#include "../egolib/file_common.h"
+#include "../egolib/log.h"
+#include "../egolib/strutil.h"
 
 // this include must be the absolute last include
 #include "../egolib/mem.h"

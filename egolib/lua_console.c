@@ -21,6 +21,8 @@
 /// @brief Quale-like console running running Lua behing Egoboo
 /// @details
 
+#include <string.h>
+
 #if defined(__cplusplus)
 extern "C"
 {
@@ -34,13 +36,11 @@ extern "C"
 }
 #endif
 
+#include "../egolib/typedef.h"
 #include "../egolib/lua_console.h"
 #include "../egolib/file_common.h"
 
 #include "../egolib/console.inl"
-#include "../egolib/typedef.h"
-
-#include <string.h>
 
 #include "../egolib/mem.h"
 

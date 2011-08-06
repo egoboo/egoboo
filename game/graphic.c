@@ -21,16 +21,9 @@
 /// @brief Simple Egoboo renderer
 /// @details All sorts of stuff related to drawing the game
 
-#include <SDL_image.h>
 #include <assert.h>
 
-#include "graphic.h"
-#include "graphic_prt.h"
-#include "graphic_mad.h"
-#include "graphic_fan.h"
-#include "graphic_billboard.h"
-
-#include "server.h"
+#include <SDL_image.h>
 
 #include <egolib/log.h>
 #include <egolib/clock.h>
@@ -42,34 +35,36 @@
 #include <egolib/strutil.h>
 #include <egolib/fileutil.h>
 #include <egolib/frustum.h>
+#include <egolib/extensions/SDL_extensions.h>
+#include <egolib/extensions/SDL_GL_extensions.h>
+#include <egolib/file_formats/id_md2.h>
 
 #include <egolib/console.h>
-
 #if defined(USE_LUA_CONSOLE)
 #    include <egolib/lua_console.h>
 #endif
 
-#include <egolib/extensions/SDL_extensions.h>
-#include <egolib/extensions/SDL_GL_extensions.h>
+#include "graphic.h"
+#include "graphic_prt.h"
+#include "graphic_mad.h"
+#include "graphic_fan.h"
+#include "graphic_billboard.h"
+#include "graphic_texture.h"
 
-#include <egolib/file_formats/id_md2.h>
-
+#include "network_server.h"
 #include "mad.h"
 #include "obj_BSP.h"
 #include "mpd_BSP.h"
 #include "player.h"
 #include "collision.h"
-
 #include "script.h"
 #include "camera_system.h"
 #include "input.h"
-#include "network.h"
 #include "passage.h"
 #include "menu.h"
 #include "script_compile.h"
 #include "game.h"
 #include "ui.h"
-#include "graphic_texture.h"
 #include "lighting.h"
 #include "egoboo.h"
 

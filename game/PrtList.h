@@ -22,6 +22,8 @@
 /// @file PrtList.h
 /// @brief Routines for particle list management
 
+#include "egoboo_typedef.h"
+
 #include "egoboo_object.h"
 
 #include "particle.h"
