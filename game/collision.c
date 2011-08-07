@@ -2150,6 +2150,7 @@ float estimate_chr_prt_normal( const chr_t * pchr, const prt_t * pprt, fvec3_bas
 
     return dot;
 }
+
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_chr_collision_pressure_normal( const chr_t * pchr_a, const chr_t * pchr_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin )
 {

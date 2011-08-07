@@ -2107,6 +2107,7 @@ void gfx_system_make_enviro()
         lighttoenviroy[cnt] = z;
     }
 }
+
 //--------------------------------------------------------------------------------------------
 void gfx_system_reload_all_textures()
 {

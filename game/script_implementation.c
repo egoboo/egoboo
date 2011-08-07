@@ -170,6 +170,7 @@ bool_t BIT_FIELD_test_one_bit( BIT_FIELD val, size_t which )
 
     return retval;
 }
+
 //--------------------------------------------------------------------------------------------
 BIT_FIELD BIT_FIELD_set_all_bits( BIT_FIELD val, BIT_FIELD bits )
 {

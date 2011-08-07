@@ -888,6 +888,7 @@ SFP8_T vfs_get_next_sfp8( vfs_FILE * fileread )
 
     return vfs_get_sfp8( fileread );
 }
+
 //--------------------------------------------------------------------------------------------
 bool_t vfs_get_string( vfs_FILE * fileread, char * str, size_t str_len )
 {

@@ -669,6 +669,7 @@ bool_t BSP_branch_unlink_all( BSP_branch_t * B )
 
     return retval;
 }
+
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_unlink_parent( BSP_branch_t * B )
 {

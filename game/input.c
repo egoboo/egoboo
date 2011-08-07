@@ -546,6 +546,7 @@ bool_t input_device_is_enabled( input_device_t *pdevice )
 
     return retval;
 }
+
 //--------------------------------------------------------------------------------------------
 bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontrol )
 {

@@ -727,7 +727,7 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
 
     pinst->type = pprt->type;
 
-    pinst->image_ref = UFP8_TO_UINT( pprt->image_off + pprt->image_stt );
+    pinst->image_ref = UFP8_TO_UINT( pprt->image_stt + pprt->image_off );
 
     // set the position
     prt_get_pos( pprt, pinst->pos.v );

@@ -659,6 +659,7 @@ bool_t ego_packet_addString( ego_packet_t * ptr, const char *string )
 
     return btrue;
 }
+
 //--------------------------------------------------------------------------------------------
 bool_t egonet_broadcastPacket( ego_packet_t * ptr )
 {

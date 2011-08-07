@@ -224,6 +224,7 @@ float phys_get_depth( const oct_vec_t * podepth, const fvec3_base_t nrm )
 
     return depth;
 }
+
 //--------------------------------------------------------------------------------------------
 bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_base_t nrm, float * depth )
 {
