@@ -40,7 +40,7 @@ extern "C"
         ego_state_finish        ///< The final destruction of the machine. Should be run once.
     };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
     typedef enum e_ego_states ego_state_t;
 
 //--------------------------------------------------------------------------------------------

@@ -347,7 +347,7 @@ bool_t fs_ensureUserFile( const char * relative_filename, bool_t required )
     str_convert_slash_sys( path_str, SDL_arraysize( path_str ) );
 
     found = fs_fileExists( path_str );
-    if ( !found )
+    if ( 0 == found )
     {
         STRING src_path_str;
 
@@ -361,7 +361,7 @@ bool_t fs_ensureUserFile( const char * relative_filename, bool_t required )
     }
 
     // if it still doesn't exist, we have problems
-    if ( !found && required )
+    if ( (0 == found) && required )
     {
         log_error( "Cannot find the file \"%s\".\n", relative_filename );
     }

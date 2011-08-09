@@ -86,7 +86,7 @@ enum e_matrix_cache_type
     MAT_WEAPON    = ( 1 << 1 )
 };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
 typedef enum e_matrix_cache_type matrix_cache_type_t;
 
 /// the data necessary to cache the last values required to create the character matrix

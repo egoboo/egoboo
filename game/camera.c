@@ -814,7 +814,7 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
         int ijoy = type - INPUT_DEVICE_JOY;
 
         // figure out which joystick this is
-        joystick_data_t *pjoy = JoyList + ijoy;
+        joystick_data_t *pjoy = joy_lst + ijoy;
 
         // Autocamera
         if ( autoturn_camera )

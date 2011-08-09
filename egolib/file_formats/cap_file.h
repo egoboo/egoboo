@@ -108,7 +108,7 @@ extern "C"
         XP_DIRECT     = 255                         ///< No modification
     };
 
-    // this typedef must be after the enum definition of gcc has a fit
+    // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_xp_type xp_type;
 
 /// BB@> enumerated "speech" soun
@@ -153,7 +153,7 @@ extern "C"
         SLOT_COUNT
     };
 
-    // this typedef must be after the enum definition of gcc has a fit
+    // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_slots slot_t;
 
 /// The possible extended slots that an object might be equipped in
@@ -167,7 +167,7 @@ extern "C"
         INVEN_COUNT
     };
 
-    // this typedef must be after the enum definition of gcc has a fit
+    // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_inventory inventory_t;
 
 /// What gender a character can be spawned with

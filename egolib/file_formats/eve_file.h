@@ -84,7 +84,7 @@ extern "C"
 
     };
 
-    // this typedef must be after the enum definition of gcc has a fit
+    // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_enchant_set enum_enchant_set;
 
 //--------------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ extern "C"
 
     };
 
-    // this typedef must be after the enum definition of gcc has a fit
+    // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_enchant_add enum_enchant_add;
 
 //--------------------------------------------------------------------------------------------

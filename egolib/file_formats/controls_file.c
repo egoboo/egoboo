@@ -47,7 +47,7 @@ void export_control( vfs_FILE * filewrite, const char * text, int device, contro
     }
     else
     {
-        snprintf( write, SDL_arraysize( write ), "%s : %s\n", text, scantag_get_string( device, pcontrol->tag, pcontrol->is_key ) );
+        snprintf( write, SDL_arraysize( write ), "%s : %s\n", text, scantag_get_string( device, pcontrol, NULL, 0 ) );
     }
 
     vfs_puts( write, filewrite );

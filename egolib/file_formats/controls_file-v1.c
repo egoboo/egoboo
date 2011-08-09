@@ -44,7 +44,7 @@ bool_t input_settings_load_vfs_1( const char* szFilename )
 
     input_device_t * pdevice = NULL;
     vfs_FILE* fileread = NULL;
-    char currenttag[TAGSIZE] = EMPTY_CSTR;
+    TAG_STRING currenttag = EMPTY_CSTR;
 
     // clear out all existing control data
     for ( cnt = 0; cnt < MAX_LOCAL_PLAYERS; cnt++ )
@@ -67,11 +67,9 @@ bool_t input_settings_load_vfs_1( const char* szFilename )
     pdevice = InputDevices.lst + idevice;
     for ( i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++ )
     {
-        if ( vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) ) )
+        if ( vfs_get_next_line( fileread, currenttag, SDL_arraysize( currenttag ) ) )
         {
-            pdevice->control[i].loaded = btrue;
-            pdevice->control[i].tag    = scantag_get_value( currenttag );
-            pdevice->control[i].is_key = ( 'K' == currenttag[0] );
+            scantag_parse_control( currenttag, pdevice->control + i );
         }
     };
     pdevice->device_type = idevice;
@@ -82,11 +80,9 @@ bool_t input_settings_load_vfs_1( const char* szFilename )
     pdevice = InputDevices.lst + idevice;
     for ( i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++ )
     {
-        if ( vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) ) )
+        if ( vfs_get_next_line( fileread, currenttag, SDL_arraysize( currenttag ) ) )
         {
-            pdevice->control[i].loaded = btrue;
-            pdevice->control[i].tag    = scantag_get_value( currenttag );
-            pdevice->control[i].is_key = ( 'K' == currenttag[0] );
+            scantag_parse_control( currenttag, pdevice->control + i );
         }
     };
     pdevice->device_type = idevice;
@@ -99,11 +95,9 @@ bool_t input_settings_load_vfs_1( const char* szFilename )
         pdevice = InputDevices.lst + idevice;
         for ( i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++ )
         {
-            if ( vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) ) )
+            if ( vfs_get_next_line( fileread, currenttag, SDL_arraysize( currenttag ) ) )
             {
-                pdevice->control[i].loaded = btrue;
-                pdevice->control[i].tag    = scantag_get_value( currenttag );
-                pdevice->control[i].is_key = ( 'K' == currenttag[0] );
+                scantag_parse_control( currenttag, pdevice->control + i );
             }
         };
         pdevice->device_type = idevice;

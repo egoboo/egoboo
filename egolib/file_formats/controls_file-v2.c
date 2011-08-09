@@ -39,7 +39,7 @@ bool_t input_settings_load_vfs_2( const char* szFilename )
 {
     /// @details ZZ@> This function reads the controls.txt file, version 2
 
-    char currenttag[TAGSIZE] = EMPTY_CSTR;
+    TAG_STRING currenttag = EMPTY_CSTR;
     int idevice, icontrol;
     input_device_t * pdevice;
     vfs_FILE* fileread = NULL;
@@ -82,11 +82,9 @@ bool_t input_settings_load_vfs_2( const char* szFilename )
         //Read each input control button
         for ( icontrol = CONTROL_BEGIN; icontrol < count; icontrol++ )
         {
-            if ( vfs_get_next_string( fileread, currenttag, SDL_arraysize( currenttag ) ) )
+            if ( vfs_get_next_line( fileread, currenttag, SDL_arraysize( currenttag ) ) )
             {
-                pdevice->control[icontrol].loaded = btrue;
-                pdevice->control[icontrol].tag    = scantag_get_value( currenttag );
-                pdevice->control[icontrol].is_key = ( 'K' == currenttag[0] );
+                scantag_parse_control( currenttag, pdevice->control + icontrol );
             }
         }
 

@@ -37,6 +37,9 @@ extern "C"
     struct s_control;
     typedef struct s_control control_t;
 
+    struct s_control_tag;
+    typedef struct s_control_tag control_tag_t;
+
     struct s_input_device;
     typedef struct s_input_device input_device_t;
 
@@ -128,7 +131,7 @@ extern "C"
         INPUT_DEVICE_END   = INPUT_DEVICE_MOUSE + MAX_JOYSTICK
     };
 
-    // this typedef must be after the enum definition of gcc has a fit
+    // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_input_device INPUT_DEVICE;
 
     /// All the possible game actions that can be triggered from an input device
@@ -165,20 +168,28 @@ extern "C"
         CONTROL_END       = CONTROL_RIGHT
     };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
     typedef enum e_input_controls CONTROL_BUTTON;
+
+#define MAXCONTROLTAGS 4
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+    struct s_control_tag
+    {
+        char   device;
+        Uint32 value;
+    };
 
 /// the basic definition of a single control
     struct s_control
     {
         bool_t loaded;
 
-        Uint32 tag;
-        Uint32 tag_mods;
-        bool_t is_key;
+        int           tag_count;
+        control_tag_t tag_lst[MAXCONTROLTAGS];
+        Uint32        tag_mods;
     };
 
 //--------------------------------------------------------------------------------------------

@@ -23,14 +23,14 @@
 
 #include "../egolib/fileutil.h"
 
-#include "extensions/ogl_texture.h"
 #include "../egolib/log.h"
-
-#include "file_formats/cap_file.h"
-
-#include "../egolib/egoboo_setup.h"
 #include "../egolib/strutil.h"
 #include "../egolib/platform.h"
+#include "../egolib/egoboo_setup.h"
+
+#include "../egolib/extensions/ogl_texture.h"
+#include "../egolib/file_formats/cap_file.h"
+
 
 #include "../egolib/_math.inl"
 
@@ -912,6 +912,49 @@ bool_t vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len )
     goto_colon_vfs( NULL, fileread, bfalse );
 
     return vfs_get_string( fileread, str, str_len );
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len )
+{
+    char * gets_rv;
+    bool_t found;
+
+    if ( NULL == str || 0 == str_len ) return bfalse;
+
+    gets_rv = vfs_gets( str, str_len, fileread );
+
+    found = bfalse;
+    if(gets_rv == str)
+    {
+        int cnt;
+        found = btrue;
+
+        // make sure the string terminates as egoboo expects
+        for( cnt = 0; cnt < str_len; cnt++ )
+        {
+            if( ASCII_LINEFEED_CHAR == str[cnt] || C_FORMFEED_CHAR == str[cnt] || C_NEW_LINE_CHAR == str[cnt] )
+            {
+                str[cnt] = CSTR_END;
+                break;
+            }
+        }
+        if( str_len > 0 )
+        {
+            str[str_len-1] = CSTR_END;
+        }
+    }
+
+    return found;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t vfs_get_next_line( vfs_FILE * fileread, char * str, size_t str_len )
+{
+    goto_colon_vfs( NULL, fileread, bfalse );
+
+    return vfs_get_line( fileread, str, str_len );
 }
 
 //--------------------------------------------------------------------------------------------

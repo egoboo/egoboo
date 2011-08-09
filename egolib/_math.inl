@@ -1581,9 +1581,9 @@ static INLINE bool_t mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vr
     if ( NULL == mat || NULL == vright ) return bfalse;
 
     // for the camera
-    vright[kX] = mat[MAT_IDX( 0, 0 )];
-    vright[kY] = mat[MAT_IDX( 1, 0 )];
-    vright[kZ] = mat[MAT_IDX( 2, 0 )];
+    vright[kX] = -mat[MAT_IDX( 0, 0 )];
+    vright[kY] = -mat[MAT_IDX( 1, 0 )];
+    vright[kZ] = -mat[MAT_IDX( 2, 0 )];
 
     return btrue;
 }

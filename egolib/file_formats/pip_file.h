@@ -95,7 +95,7 @@ extern "C"
         ORIENTATION_H        ///< horizontal, like a plate
     };
 
-    // this typedef must be after the enum definition of gcc has a fit
+    // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_prt_orientations prt_ori_t;
 
 // The special damage effects for particles
@@ -119,7 +119,7 @@ extern "C"
         prt_u = 0xFFFF     ///< particle is of unknown orientation
     };
 
-    // this typedef must be after the enum definition of gcc has a fit
+    // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_particle_direction particle_direction_t;
 
 //--------------------------------------------------------------------------------------------

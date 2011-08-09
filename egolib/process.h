@@ -53,7 +53,7 @@ extern "C"
         proc_finish   = ego_state_finish
     };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
     typedef enum e_process_states process_state_t;
 
 //--------------------------------------------------------------------------------------------

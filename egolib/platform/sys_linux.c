@@ -40,7 +40,7 @@ enum e_dialog
     DIALOG_PROGRAM_BEGIN = ZENITY
 };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
 typedef enum e_dialog dialog_t;
 
 //--------------------------------------------------------------------------------------------

@@ -58,7 +58,7 @@ enum e_config_bool
     config_false = ( !config_true )
 };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
 typedef enum e_config_bool config_bool_t;
 #endif
 

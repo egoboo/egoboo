@@ -135,6 +135,7 @@ extern "C"
     IDSZ   vfs_get_next_idsz( vfs_FILE * fileread );
     bool_t vfs_get_next_bool( vfs_FILE * fileread );
     bool_t vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len );
+    bool_t vfs_get_next_line( vfs_FILE * fileread, char * str, size_t str_len );
 
     char   vfs_get_first_letter( vfs_FILE* fileread );
     Sint32 vfs_get_int( vfs_FILE* fileread );
@@ -149,6 +150,7 @@ extern "C"
     float  vfs_get_damage_resist( vfs_FILE * fileread );
     bool_t vfs_get_name( vfs_FILE* fileread,  char *szName, size_t max_len );
     bool_t vfs_get_string( vfs_FILE * fileread, char * str, size_t str_len );
+    bool_t vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len );
     bool_t vfs_get_range( vfs_FILE* fileread, FRange * prange );
     bool_t vfs_get_pair( vfs_FILE* fileread, IPair * ppair );
 

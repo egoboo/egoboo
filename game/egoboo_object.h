@@ -53,7 +53,7 @@ enum e_ego_object_state
     ego_object_terminated                       ///< The object is fully "deleted" and should now be on the free-store
 };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
 typedef enum e_ego_object_state ego_object_state_t;
 
 //--------------------------------------------------------------------------------------------

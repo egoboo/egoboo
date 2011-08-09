@@ -32,6 +32,11 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+    struct s_control;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
     struct s_scantag;
     typedef struct s_scantag scantag_t;
 
@@ -42,28 +47,31 @@ extern "C"
 #define MAXTAG              256                     ///< Number of tags in scancode.txt
 #define TAGSIZE              32                     ///< Size of each tag
 
+typedef char TAG_STRING[TAGSIZE];
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// A mapping between the state of an input device and an internal game latch
     struct s_scantag
     {
-        char   name[TAGSIZE];             ///< Scancode names
-        Uint32 value;                     ///< Scancode values
+        TAG_STRING name;             ///< tag name
+        Uint32     value;            ///< tag value
     };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+    void         scantag_read_all_vfs( const char *szFilename );
 
-    extern int       scantag_count;
-    extern scantag_t scantag[MAXTAG];
+    size_t       scantag_get_count();
+    int          scantag_find_index( const char *string );
+    scantag_t *  scantag_get_tag( int index );
+    bool_t       scantag_get_value( int index, Uint32 * pvalue );
+    const char * scantag_get_name( int index );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    void        scantag_read_all_vfs( const char *szFilename );
-    int         scantag_get_value( const char *string );
-    const char* scantag_get_string( int device, Uint32 tag, bool_t is_key );
+    const char       * scantag_get_string( int device, struct s_control * pcontrol, char * buffer, size_t buffer_size  );
+    struct s_control * scantag_parse_control( char * tag_string, struct s_control * pcontrol );
+    Uint32             scancode_get_kmod( Uint32 scancode );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

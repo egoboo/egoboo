@@ -466,13 +466,10 @@ gfx_rv billboard_system_render_all( const camera_t * pcam )
 
     gfx_begin_3d( pcam );
     {
-        fvec3_t cam_rgt, cam_up;
-
-        mat_getCamRight( pcam->mView.v, cam_rgt.v );
-        mat_getCamUp( pcam->mView.v, cam_up.v );
-
         ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
         {
+            billboard_data_t * pbb;
+
             // don't write into the depth buffer (disable glDepthMask for transparent objects)
             GL_DEBUG( glDepthMask )( GL_FALSE );                   // GL_DEPTH_BUFFER_BIT
 
@@ -496,11 +493,10 @@ gfx_rv billboard_system_render_all( const camera_t * pcam )
 
             for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
             {
-                billboard_data_t * pbb = BillboardList_get_ptr( cnt );
+                pbb = BillboardList_get_ptr( cnt );
+                if ( NULL == pbb || !pbb->valid ) continue;
 
-                if ( !pbb->valid ) continue;
-
-                billboard_system_render_one( pbb, 0.75f, cam_up.v, cam_rgt.v );
+                billboard_system_render_one( pbb, 0.75f, pcam->vup.v, pcam->vrt.v );
             }
         }
         ATTRIB_POP( __FUNCTION__ );

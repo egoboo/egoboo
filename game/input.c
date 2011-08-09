@@ -52,10 +52,10 @@
 //--------------------------------------------------------------------------------------------
 
 // Raw input devices
-mouse_data_t           mous = MOUSE_INIT;
-keyboard_data_t        keyb = KEYBOARD_INIT;
-joystick_data_t JoyList[MAX_JOYSTICK];
-input_cursor_t          input_cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
+mouse_data_t    mous = MOUSE_INIT;
+keyboard_data_t keyb = KEYBOARD_INIT;
+joystick_data_t joy_lst[MAX_JOYSTICK];
+input_cursor_t  input_cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -106,12 +106,12 @@ void input_system_init_joysticks()
 
     for ( i = 0; i < MAX_JOYSTICK; i++ )
     {
-        BLANK_STRUCT( JoyList[i] );
+        BLANK_STRUCT( joy_lst[i] );
 
         if ( i < SDL_NumJoysticks() )
         {
-            JoyList[i].sdl_ptr = SDL_JoystickOpen( i );
-            JoyList[i].on      = ( NULL != JoyList[i].sdl_ptr );
+            joy_lst[i].sdl_ptr = SDL_JoystickOpen( i );
+            joy_lst[i].on      = ( NULL != joy_lst[i].sdl_ptr );
         }
     }
 }
@@ -191,9 +191,9 @@ void input_read_joystick( int which )
     int i, button_count, x, y;
     joystick_data_t * pjoy;
 
-    if ( !JoyList[which].on ) return;
+    if ( !joy_lst[which].on ) return;
 
-    pjoy = JoyList + which;
+    pjoy = joy_lst + which;
 
     // get the raw values
     x = SDL_JoystickGetAxis( pjoy->sdl_ptr, 0 );
@@ -512,7 +512,7 @@ BIT_FIELD input_device_get_buttonmask( input_device_t *pdevice )
     {
         int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
 
-        buttonmask = JoyList[ijoy].b;
+        buttonmask = joy_lst[ijoy].b;
     }
 
     return buttonmask;
@@ -541,7 +541,7 @@ bool_t input_device_is_enabled( input_device_t *pdevice )
     {
         int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
 
-        retval = JoyList[ijoy].on;
+        retval = joy_lst[ijoy].on;
     }
 
     return retval;
@@ -554,6 +554,7 @@ bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icon
 
     bool_t      retval = bfalse;
     control_t   * pcontrol;
+    int           cnt, tag_count;
 
     // make sure the idevice is valid
     if ( NULL == pdevice ) return bfalse;
@@ -562,15 +563,33 @@ bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icon
     // if no control information was loaded, it can't be pressed
     if ( !pcontrol->loaded ) return bfalse;
 
-    if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type || pcontrol->is_key )
+    // how many tags does this control have?
+    tag_count = MIN(pcontrol->tag_count, MAXCONTROLTAGS);
+
+    retval = btrue;
+    for( cnt = 0; cnt < tag_count; cnt++ )
     {
-        retval = SDLKEYDOWN( pcontrol->tag );
-    }
-    else
-    {
-        retval = ( input_device_get_buttonmask( pdevice ) == pcontrol->tag );
+        control_tag_t * ctag = pcontrol->tag_lst + cnt;
+
+        if( 'K' == ctag->device )
+        {
+            if( !SDLKEYDOWN( ctag->value ) )
+            {
+                retval = bfalse;
+                break;
+            }
+        }
+        else
+        {
+            BIT_FIELD bmask = input_device_get_buttonmask( pdevice );
+
+            if( !HAS_ALL_BITS( bmask, ctag->value ) )
+            {
+                retval = bfalse;
+                break;
+            }
+        }
     }
 
     return retval;
 }
-

@@ -143,7 +143,7 @@ struct s_joystick_data
 
 extern mouse_data_t    mous;
 extern keyboard_data_t keyb;
-extern joystick_data_t JoyList[MAX_JOYSTICK];
+extern joystick_data_t joy_lst[MAX_JOYSTICK];
 
 extern input_cursor_t input_cursor;
 

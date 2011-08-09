@@ -71,7 +71,7 @@ extern "C"
         TX_FILTER_COUNT
     };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
     typedef enum e_tx_filters TX_FILTERS;
 
 //--------------------------------------------------------------------------------------------

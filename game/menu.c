@@ -78,6 +78,11 @@ typedef struct s_SelectedPlayer_element SelectedPlayer_element_t;
 struct s_SelectedPlayer_list;
 typedef struct s_SelectedPlayer_list SelectedPlayer_list_t;
 
+#define SCANTAG_KEYDOWN(VAL)          (((VAL) < SDLK_NUMLOCK) && SDLKEYDOWN( VAL ))
+#define SCANTAG_KEYMODDOWN(VAL)       (((VAL) < SDLK_LAST) && SDLKEYDOWN( VAL ))
+#define SCANTAG_MOUSBUTTON(VAL)       ((0 != (VAL)) && (mous.b == (VAL)) )
+#define SCANTAG_JOYBUTTON(PJOY, VAL)  ((NULL != (PJOY)) && (0 != (VAL)) && ((PJOY)->b == (VAL)) )
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -2382,6 +2387,108 @@ int doOptions( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
+int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
+{
+    // get a key/button combo for the given device
+
+    control_t * pcontrol = NULL;
+    scantag_t * ptag     = NULL;
+    int         tag_idx  = -1;
+    size_t      max_tag  = 0;
+
+    // handle several special conditions for resetting waitingforinput 
+    if ( SDLKEYDOWN( SDLK_ESCAPE ) )
+    {
+        waitingforinput = -1;
+    }
+    else if( NULL == pdevice )
+    {
+        waitingforinput = -1;
+    }
+    else if ( waitingforinput < 0 )
+    {
+         waitingforinput = -1;
+    }
+    else if ( waitingforinput >= CONTROL_COMMAND_COUNT )
+    {
+         waitingforinput = -1;
+    }
+
+    // exit if there is a dumb value
+    if( waitingforinput < 0 ) return waitingforinput;
+
+    // grab the control
+    pcontrol = pdevice->control + waitingforinput;
+
+    // clear out all the old control data
+    pcontrol->loaded    = bfalse;
+    pcontrol->tag_count = 0;
+    pcontrol->tag_mods  = 0;
+
+    // how many scantags are there?      
+    max_tag = scantag_get_count();
+
+    // make sure to update the input
+    input_read_all_devices();
+
+    if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
+    {
+        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
+
+        for ( tag_idx = 0; tag_idx < max_tag && pcontrol->tag_count < MAXCONTROLTAGS; tag_idx++ )
+        {
+            ptag = scantag_get_tag( tag_idx );
+            if( NULL == ptag ) continue;
+
+            if ( SCANTAG_JOYBUTTON( joy_lst + ijoy, ptag->value ) )
+            {
+                pcontrol->loaded = btrue;
+                pcontrol->tag_lst[pcontrol->tag_count].device = 'J';
+                pcontrol->tag_lst[pcontrol->tag_count].value  = ptag->value;
+                pcontrol->tag_count++;
+            }
+        }
+    }
+    else if( INPUT_DEVICE_MOUSE  == pdevice->device_type )
+    {
+        for ( tag_idx = 0; tag_idx < max_tag && pcontrol->tag_count < MAXCONTROLTAGS; tag_idx++ )
+        {
+            ptag = scantag_get_tag( tag_idx );
+            if( NULL == ptag ) continue;
+
+            if ( SCANTAG_MOUSBUTTON(ptag->value) )
+            {
+                pcontrol->loaded = btrue;
+                pcontrol->tag_lst[pcontrol->tag_count].device = 'J';
+                pcontrol->tag_lst[pcontrol->tag_count].value  = ptag->value;
+                pcontrol->tag_count++;
+            }
+        }
+    }
+
+    // grab any key combinations
+    for ( tag_idx = 0; tag_idx < max_tag && pcontrol->tag_count < MAXCONTROLTAGS; tag_idx++ )
+    {
+        ptag = scantag_get_tag( tag_idx );
+        if( NULL == ptag ) continue;
+
+        // find any keydown, including system keys and keymods
+        if ( SCANTAG_KEYMODDOWN(ptag->value) )
+        {
+            pcontrol->loaded = btrue;
+            pcontrol->tag_lst[pcontrol->tag_count].device = 'K';
+            pcontrol->tag_lst[pcontrol->tag_count].value  = ptag->value;
+            pcontrol->tag_count++;
+
+            // add in any tag keymods
+            pcontrol->tag_mods |= scancode_get_kmod( ptag->value );
+        }
+    }
+
+    return waitingforinput;
+}
+
+//--------------------------------------------------------------------------------------------
 int doInputOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -2390,13 +2497,22 @@ int doInputOptions( float deltaTime )
     static bool_t device_found = btrue;
     static bool_t update_input_type;
 
-    static STRING inputOptionsButtons[CONTROL_COMMAND_COUNT + 3];
+    enum extra_input_strings
+    {
+        string_device = CONTROL_COMMAND_COUNT,
+        string_player,
+        string_save,
+        string_count
+    };
+
+    static STRING button_text[string_count];
 
     Sint8  result = 0;
     static Uint8 player = 0;
 
     Uint32              i;
-    input_device_t      * pdevice;
+    input_device_t      * pdevice = NULL;
+    control_t           * pcontrol = NULL;
 
     pdevice = NULL;
     if ( player < MAX_LOCAL_PLAYERS )
@@ -2423,13 +2539,13 @@ int doInputOptions( float deltaTime )
             }
 
             //Prepare all buttons
-            for ( i = 0; i < CONTROL_COMMAND_COUNT; i++ )
+            for ( i = 0; i < string_device; i++ )
             {
-                inputOptionsButtons[i][0] = CSTR_END;
+                button_text[i][0] = CSTR_END;
             }
-            strncpy( inputOptionsButtons[i++], translate_input_type_to_string( InputDevices.lst[player].device_type ), sizeof( STRING ) );
-            strncpy( inputOptionsButtons[i++], "Player 1", sizeof( STRING ) );
-            strncpy( inputOptionsButtons[i++], "Save Settings", sizeof( STRING ) );
+            strncpy( button_text[string_device], translate_input_type_to_string( InputDevices.lst[player].device_type ), sizeof( STRING ) );
+            strncpy( button_text[string_player], "Player 1", sizeof( STRING ) );
+            strncpy( button_text[string_save],   "Save Settings", sizeof( STRING ) );
 
             tipText_set_position( menuFont, "Change input settings here.", 20 );
 
@@ -2458,233 +2574,133 @@ int doInputOptions( float deltaTime )
             {
                 update_input_type = bfalse;
                 device_found = input_device_is_enabled( pdevice );
-                snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof( STRING ), "%s", translate_input_type_to_string( pdevice->device_type ) );
+                snprintf( button_text[string_device], sizeof( STRING ), "%s", translate_input_type_to_string( pdevice->device_type ) );
             }
 
-            // Someone pressed abort
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) waitingforinput = -1;
-
-            // Are we waiting for input?
-            if ( -1 != waitingforinput )
-            {
-
-                // Grab the key/button input from the selected device
-                if ( NULL == pdevice )
-                {
-                    waitingforinput = -1;
-                }
-                else
-                {
-                    control_t * pcontrol;
-                    int         tag;
-
-                    // grab the control
-                    pcontrol = pdevice->control + waitingforinput;
-
-                    // let the control know it is not valid
-                    pcontrol->loaded = bfalse;
-
-                    // make sure to update the input
-                    input_read_all_devices();
-
-                    if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
-                    {
-                        int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
-                        if ( ijoy < MAX_JOYSTICK )
-                        {
-                            for ( tag = 0; tag < scantag_count; tag++ )
-                            {
-                                if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == JoyList[ijoy].b )
-                                {
-                                    pcontrol->loaded = btrue;
-                                    pcontrol->tag    = scantag[tag].value;
-                                    pcontrol->is_key = bfalse;
-                                    waitingforinput = -1;
-                                }
-                            }
-
-                            for ( tag = 0; tag < scantag_count; tag++ )
-                            {
-                                if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
-                                {
-                                    pcontrol->loaded = btrue;
-                                    pcontrol->tag    = scantag[tag].value;
-                                    pcontrol->is_key = btrue;
-                                    waitingforinput = -1;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        switch ( pdevice->device_type )
-                        {
-                            case INPUT_DEVICE_KEYBOARD:
-                                {
-                                    for ( tag = 0; tag < scantag_count; tag++ )
-                                    {
-                                        if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
-                                        {
-                                            pcontrol->loaded = btrue;
-                                            pcontrol->tag    = scantag[tag].value;
-                                            pcontrol->is_key = btrue;
-                                            waitingforinput = -1;
-                                        }
-                                    }
-                                }
-                                break;
-
-                            case INPUT_DEVICE_MOUSE:
-                                {
-                                    for ( tag = 0; tag < scantag_count; tag++ )
-                                    {
-                                        if ( 0 != scantag[tag].value && ( Uint32 )scantag[tag].value == mous.b )
-                                        {
-                                            pcontrol->loaded = btrue;
-                                            pcontrol->tag    = scantag[tag].value;
-                                            pcontrol->is_key = bfalse;
-                                            waitingforinput = -1;
-                                        }
-                                    }
-
-                                    for ( tag = 0; tag < scantag_count; tag++ )
-                                    {
-                                        if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
-                                        {
-                                            pcontrol->loaded = btrue;
-                                            pcontrol->tag    = scantag[tag].value;
-                                            pcontrol->is_key = btrue;
-                                            waitingforinput = -1;
-                                        }
-                                    }
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
-
+            // Handle waiting for input
+            waitingforinput = doInputOptions_get_input( waitingforinput, pdevice );
+            
             //Draw the buttons
             if ( NULL != pdevice && -1 == waitingforinput )
             {
                 // update the control names
-                for ( i = CONTROL_BEGIN; i <= CONTROL_END; i++ )
+                for ( i = 0; i < string_device; i++ )
                 {
-                    const char * tag = scantag_get_string( pdevice->device_type, pdevice->control[i].tag, pdevice->control[i].is_key );
+                    pcontrol = pdevice->control + i;
 
-                    strncpy( inputOptionsButtons[i], tag, sizeof( STRING ) );
+                    scantag_get_string( pdevice->device_type, pcontrol, button_text[i], SDL_arraysize(button_text[i])  );
                 }
-                for ( /* nothing */; i <= CONTROL_END ; i++ )
-                {
-                    inputOptionsButtons[i][0] = CSTR_END;
-                }
+                //for ( /* nothing */; i < string_device; i++ )
+                //{
+                //    button_text[i][0] = CSTR_END;
+                //}
             }
 
             // Left hand
             ui_drawTextBox( menuFont, "LEFT HAND", buttonLeft, GFX_HEIGHT - 470, 0, 0, 20 );
-            if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT_USE][0] )
+            if ( CSTR_END != button_text[CONTROL_LEFT_USE][0] )
             {
                 ui_drawTextBox( menuFont, "Use:", buttonLeft, GFX_HEIGHT - 440, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 1, inputOptionsButtons[CONTROL_LEFT_USE], menuFont, buttonLeft + 100, GFX_HEIGHT - 440, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 1, button_text[CONTROL_LEFT_USE], menuFont, buttonLeft + 100, GFX_HEIGHT - 440, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_USE;
-                    strncpy( inputOptionsButtons[CONTROL_LEFT_USE], "...", sizeof( STRING ) );
+                    strncpy( button_text[CONTROL_LEFT_USE], "...", sizeof( STRING ) );
                 }
             }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT_GET][0] )
+            if ( CSTR_END != button_text[CONTROL_LEFT_GET][0] )
             {
                 ui_drawTextBox( menuFont, "Get/Drop:", buttonLeft, GFX_HEIGHT - 410, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 2, inputOptionsButtons[CONTROL_LEFT_GET], menuFont, buttonLeft + 100, GFX_HEIGHT - 410, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 2, button_text[CONTROL_LEFT_GET], menuFont, buttonLeft + 100, GFX_HEIGHT - 410, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_GET;
-                    strncpy( inputOptionsButtons[CONTROL_LEFT_GET], "...", sizeof( STRING ) );
+                    strncpy( button_text[CONTROL_LEFT_GET], "...", sizeof( STRING ) );
                 }
             }
 
             // Right hand
             ui_drawTextBox( menuFont, "RIGHT HAND", buttonLeft + 300, GFX_HEIGHT - 470, 0, 0, 20 );
-            if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT_USE][0] )
+            if ( CSTR_END != button_text[CONTROL_RIGHT_USE][0] )
             {
                 ui_drawTextBox( menuFont, "Use:", buttonLeft + 300, GFX_HEIGHT - 440, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 4, inputOptionsButtons[CONTROL_RIGHT_USE], menuFont, buttonLeft + 400, GFX_HEIGHT - 440, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 4, button_text[CONTROL_RIGHT_USE], menuFont, buttonLeft + 400, GFX_HEIGHT - 440, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_USE;
-                    strncpy( inputOptionsButtons[CONTROL_RIGHT_USE], "...", sizeof( STRING ) );
+                    strncpy( button_text[CONTROL_RIGHT_USE], "...", sizeof( STRING ) );
                 }
             }
-            if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT_GET][0] )
+            if ( CSTR_END != button_text[CONTROL_RIGHT_GET][0] )
             {
                 ui_drawTextBox( menuFont, "Get/Drop:", buttonLeft + 300, GFX_HEIGHT - 410, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 5, inputOptionsButtons[CONTROL_RIGHT_GET], menuFont, buttonLeft + 400, GFX_HEIGHT - 410, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 5, button_text[CONTROL_RIGHT_GET], menuFont, buttonLeft + 400, GFX_HEIGHT - 410, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_GET;
-                    strncpy( inputOptionsButtons[CONTROL_RIGHT_GET], "...", sizeof( STRING ) );
+                    strncpy( button_text[CONTROL_RIGHT_GET], "...", sizeof( STRING ) );
                 }
             }
 
             // Controls
             ui_drawTextBox( menuFont, "CONTROLS", buttonLeft, GFX_HEIGHT - 350, 0, 0, 20 );
-            if ( CSTR_END != inputOptionsButtons[CONTROL_JUMP][0] )
+            if ( CSTR_END != button_text[CONTROL_JUMP][0] )
             {
                 ui_drawTextBox( menuFont, "Jump:", buttonLeft, GFX_HEIGHT - 320, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 7, inputOptionsButtons[CONTROL_JUMP], menuFont, buttonLeft + 100, GFX_HEIGHT - 320, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 7, button_text[CONTROL_JUMP], menuFont, buttonLeft + 100, GFX_HEIGHT - 320, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_JUMP;
-                    strncpy( inputOptionsButtons[CONTROL_JUMP], "...", sizeof( STRING ) );
+                    strncpy( button_text[CONTROL_JUMP], "...", sizeof( STRING ) );
                 }
             }
 
             ui_drawTextBox( menuFont, "Sneak:", buttonLeft, GFX_HEIGHT - 290, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_SNEAK], menuFont, buttonLeft + 100, GFX_HEIGHT - 290, 140, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 8, button_text[CONTROL_SNEAK], menuFont, buttonLeft + 100, GFX_HEIGHT - 290, 140, 30 ) )
             {
                 waitingforinput = CONTROL_SNEAK;
-                strncpy( inputOptionsButtons[CONTROL_SNEAK], "...", sizeof( STRING ) );
+                strncpy( button_text[CONTROL_SNEAK], "...", sizeof( STRING ) );
             }
 
             ui_drawTextBox( menuFont, "Inventory:", buttonLeft, GFX_HEIGHT - 260, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 3, inputOptionsButtons[CONTROL_INVENTORY], menuFont, buttonLeft + 100, GFX_HEIGHT - 260, 140, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 3, button_text[CONTROL_INVENTORY], menuFont, buttonLeft + 100, GFX_HEIGHT - 260, 140, 30 ) )
             {
                 waitingforinput = CONTROL_INVENTORY;
-                strncpy( inputOptionsButtons[CONTROL_INVENTORY], "...", sizeof( STRING ) );
+                strncpy( button_text[CONTROL_INVENTORY], "...", sizeof( STRING ) );
             }
 
             //Only keyboard has the UP, DOWN, LEFT and RIGHT buttons
             if ( pdevice->device_type == INPUT_DEVICE_KEYBOARD )
             {
-                if ( CSTR_END != inputOptionsButtons[CONTROL_UP][0] )
+                if ( CSTR_END != button_text[CONTROL_UP][0] )
                 {
                     ui_drawTextBox( menuFont, "Up:", buttonLeft, GFX_HEIGHT - 230, 0, 0, 20 );
-                    if ( BUTTON_UP == ui_doButton( 9, inputOptionsButtons[CONTROL_UP], menuFont, buttonLeft + 100, GFX_HEIGHT - 230, 140, 30 ) )
+                    if ( BUTTON_UP == ui_doButton( 9, button_text[CONTROL_UP], menuFont, buttonLeft + 100, GFX_HEIGHT - 230, 140, 30 ) )
                     {
                         waitingforinput = CONTROL_UP;
-                        strncpy( inputOptionsButtons[CONTROL_UP], "...", sizeof( STRING ) );
+                        strncpy( button_text[CONTROL_UP], "...", sizeof( STRING ) );
                     }
                 }
-                if ( CSTR_END != inputOptionsButtons[CONTROL_DOWN][0] )
+                if ( CSTR_END != button_text[CONTROL_DOWN][0] )
                 {
                     ui_drawTextBox( menuFont, "Down:", buttonLeft, GFX_HEIGHT - 200, 0, 0, 20 );
-                    if ( BUTTON_UP == ui_doButton( 10, inputOptionsButtons[CONTROL_DOWN], menuFont, buttonLeft + 100, GFX_HEIGHT - 200, 140, 30 ) )
+                    if ( BUTTON_UP == ui_doButton( 10, button_text[CONTROL_DOWN], menuFont, buttonLeft + 100, GFX_HEIGHT - 200, 140, 30 ) )
                     {
                         waitingforinput = CONTROL_DOWN;
-                        strncpy( inputOptionsButtons[CONTROL_DOWN], "...", sizeof( STRING ) );
+                        strncpy( button_text[CONTROL_DOWN], "...", sizeof( STRING ) );
                     }
                 }
-                if ( CSTR_END != inputOptionsButtons[CONTROL_LEFT][0] )
+                if ( CSTR_END != button_text[CONTROL_LEFT][0] )
                 {
                     ui_drawTextBox( menuFont, "Left:", buttonLeft, GFX_HEIGHT - 170, 0, 0, 20 );
-                    if ( BUTTON_UP == ui_doButton( 11, inputOptionsButtons[CONTROL_LEFT], menuFont, buttonLeft + 100, GFX_HEIGHT - 170, 140, 30 ) )
+                    if ( BUTTON_UP == ui_doButton( 11, button_text[CONTROL_LEFT], menuFont, buttonLeft + 100, GFX_HEIGHT - 170, 140, 30 ) )
                     {
                         waitingforinput = CONTROL_LEFT;
-                        strncpy( inputOptionsButtons[CONTROL_LEFT], "...", sizeof( STRING ) );
+                        strncpy( button_text[CONTROL_LEFT], "...", sizeof( STRING ) );
                     }
                 }
-                if ( CSTR_END != inputOptionsButtons[CONTROL_RIGHT][0] )
+                if ( CSTR_END != button_text[CONTROL_RIGHT][0] )
                 {
                     ui_drawTextBox( menuFont, "Right:", buttonLeft, GFX_HEIGHT - 140, 0, 0, 20 );
-                    if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_RIGHT], menuFont, buttonLeft + 100, GFX_HEIGHT - 140, 140, 30 ) )
+                    if ( BUTTON_UP == ui_doButton( 12, button_text[CONTROL_RIGHT], menuFont, buttonLeft + 100, GFX_HEIGHT - 140, 140, 30 ) )
                     {
                         waitingforinput = CONTROL_RIGHT;
-                        strncpy( inputOptionsButtons[CONTROL_RIGHT], "...", sizeof( STRING ) );
+                        strncpy( button_text[CONTROL_RIGHT], "...", sizeof( STRING ) );
                     }
                 }
             }
@@ -2695,47 +2711,47 @@ int doInputOptions( float deltaTime )
             {
                 // single button camera control
                 ui_drawTextBox( menuFont, "Camera:", buttonLeft + 300, GFX_HEIGHT - 290, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 13, inputOptionsButtons[CONTROL_CAMERA], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 13, button_text[CONTROL_CAMERA], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA], "...", sizeof( STRING ) );
+                    strncpy( button_text[CONTROL_CAMERA], "...", sizeof( STRING ) );
                 }
             }
 
             else
             {
                 ui_drawTextBox( menuFont, "Zoom In:", buttonLeft + 300, GFX_HEIGHT - 290, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 14, inputOptionsButtons[CONTROL_CAMERA_IN], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 14, button_text[CONTROL_CAMERA_IN], menuFont, buttonLeft + 450, GFX_HEIGHT - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_IN;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA_IN], "...", sizeof( STRING ) );
+                    strncpy( button_text[CONTROL_CAMERA_IN], "...", sizeof( STRING ) );
                 }
 
                 ui_drawTextBox( menuFont, "Zoom Out:", buttonLeft + 300, GFX_HEIGHT - 260, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 15, inputOptionsButtons[CONTROL_CAMERA_OUT], menuFont, buttonLeft + 450, GFX_HEIGHT - 260, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 15, button_text[CONTROL_CAMERA_OUT], menuFont, buttonLeft + 450, GFX_HEIGHT - 260, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_OUT;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA_OUT], "...", sizeof( STRING ) );
+                    strncpy( button_text[CONTROL_CAMERA_OUT], "...", sizeof( STRING ) );
                 }
 
                 ui_drawTextBox( menuFont, "Rotate Left:", buttonLeft + 300, GFX_HEIGHT - 230, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 16, inputOptionsButtons[CONTROL_CAMERA_LEFT], menuFont, buttonLeft + 450, GFX_HEIGHT - 230, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 16, button_text[CONTROL_CAMERA_LEFT], menuFont, buttonLeft + 450, GFX_HEIGHT - 230, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_LEFT;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA_LEFT], "...", sizeof( STRING ) );
+                    strncpy( button_text[CONTROL_CAMERA_LEFT], "...", sizeof( STRING ) );
                 }
 
                 ui_drawTextBox( menuFont, "Rotate Right:", buttonLeft + 300, GFX_HEIGHT - 200, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 17, inputOptionsButtons[CONTROL_CAMERA_RIGHT], menuFont, buttonLeft + 450, GFX_HEIGHT - 200, 140, 30 ) )
+                if ( BUTTON_UP == ui_doButton( 17, button_text[CONTROL_CAMERA_RIGHT], menuFont, buttonLeft + 450, GFX_HEIGHT - 200, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_RIGHT;
-                    strncpy( inputOptionsButtons[CONTROL_CAMERA_RIGHT], "...", sizeof( STRING ) );
+                    strncpy( button_text[CONTROL_CAMERA_RIGHT], "...", sizeof( STRING ) );
                 }
             }
 
             // The select controller button
             ui_drawTextBox( menuFont, "INPUT DEVICE:", buttonLeft + 300, 55, 0, 0, 20 );
-            if ( BUTTON_UP ==  ui_doImageButtonWithText( 18, TxMenu_get_valid_ptr(( TX_REF )( MENU_ICON_KEYB + pdevice->device_type ) ), inputOptionsButtons[CONTROL_COMMAND_COUNT+0], menuFont, buttonLeft + 450, 50, 200, 40 ) )
+            if ( BUTTON_UP ==  ui_doImageButtonWithText( 18, TxMenu_get_valid_ptr(( TX_REF )( MENU_ICON_KEYB + pdevice->device_type ) ), button_text[string_device], menuFont, buttonLeft + 450, 50, 200, 40 ) )
             {
                 // switch to next controller type
                 int old_device_type = pdevice->device_type;
@@ -2765,17 +2781,17 @@ int doInputOptions( float deltaTime )
 
             // The select player button
             ui_drawTextBox( menuFont, "SELECT PLAYER:", buttonLeft, 55, 0, 0, 20 );
-            if ( BUTTON_UP ==  ui_doButton( 19, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], menuFont, buttonLeft + 150, 50, 100, 30 ) )
+            if ( BUTTON_UP ==  ui_doButton( 19, button_text[string_player], menuFont, buttonLeft + 150, 50, 100, 30 ) )
             {
                 player++;
                 player %= MAX_LOCAL_PLAYERS;
 
-                snprintf( inputOptionsButtons[CONTROL_COMMAND_COUNT+1], sizeof( STRING ), "Player %i", player + 1 );
+                snprintf( button_text[string_player], sizeof( STRING ), "Player %i", player + 1 );
                 update_input_type = btrue;
             }
 
             // Save settings button
-            if ( BUTTON_UP == ui_doButton( 20, inputOptionsButtons[CONTROL_COMMAND_COUNT+2], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 20, button_text[string_save], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 // save settings and go back
                 player = 0;

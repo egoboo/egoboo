@@ -165,7 +165,7 @@ enum e_turn_modes
     TURNMODE_COUNT
 };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
 typedef enum e_turn_modes TURN_MODE;
 
 /// The vertex offsets for the various grips
@@ -181,7 +181,7 @@ enum e_grip_offset
     GRIP_ONLY      =               GRIP_LEFT
 };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
 typedef enum e_grip_offset grip_offset_t;
 
 /// Bits used to control options for the chr_get_name() function

@@ -2136,7 +2136,7 @@ void set_one_player_latch( const PLA_REF ipla )
 
         //Figure out which joystick we are using
         joystick_data_t *joystick;
-        joystick = JoyList + ( pdevice->device_type - MAX_JOYSTICK );
+        joystick = joy_lst + ( pdevice->device_type - MAX_JOYSTICK );
 
         if ( fast_camera_turn || !input_device_control_active( pdevice, CONTROL_CAMERA ) )
         {

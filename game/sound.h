@@ -70,7 +70,7 @@ enum e_global_sounds
     GSND_COUNT
 };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
 typedef enum e_global_sounds GSND_GLOBAL;
 
 /// what type of music data is used by mix_ptr_t
@@ -81,7 +81,7 @@ enum e_mix_type
     MIX_SND
 };
 
-// this typedef must be after the enum definition of gcc has a fit
+// this typedef must be after the enum definition or gcc has a fit
 typedef enum e_mix_type mix_type_t;
 
 //--------------------------------------------------------------------------------------------
