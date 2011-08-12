@@ -38,7 +38,6 @@
 #include <egolib/file_formats/controls_file.h>
 #include <egolib/extensions/SDL_extensions.h>
 
-
 #include "input.h"
 
 #include "ui.h"
@@ -554,42 +553,45 @@ bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icon
 
     bool_t      retval = bfalse;
     control_t   * pcontrol;
-    int           cnt, tag_count;
+    int           cnt, key_count;
 
     // make sure the idevice is valid
     if ( NULL == pdevice ) return bfalse;
-    pcontrol = pdevice->control + icontrol;
+    pcontrol = pdevice->control_lst + icontrol;
 
     // if no control information was loaded, it can't be pressed
     if ( !pcontrol->loaded ) return bfalse;
 
-    // how many tags does this control have?
-    tag_count = MIN(pcontrol->tag_count, MAXCONTROLTAGS);
-
+    // assume the best
     retval = btrue;
-    for( cnt = 0; cnt < tag_count; cnt++ )
+
+    // test for bits
+    if ( 0 != pcontrol->tag_bits )
     {
-        control_tag_t * ctag = pcontrol->tag_lst + cnt;
+        BIT_FIELD bmask = input_device_get_buttonmask( pdevice );
 
-        if( 'K' == ctag->device )
+        if ( !HAS_ALL_BITS( bmask, pcontrol->tag_bits ) )
         {
-            if( !SDLKEYDOWN( ctag->value ) )
-            {
-                retval = bfalse;
-                break;
-            }
-        }
-        else
-        {
-            BIT_FIELD bmask = input_device_get_buttonmask( pdevice );
-
-            if( !HAS_ALL_BITS( bmask, ctag->value ) )
-            {
-                retval = bfalse;
-                break;
-            }
+            retval = bfalse;
+            goto input_device_control_active_done;
         }
     }
+
+    // how many tags does this control have?
+    key_count = MIN( pcontrol->tag_key_count, MAXCONTROLKEYS );
+
+    for ( cnt = 0; cnt < key_count; cnt++ )
+    {
+        Uint32 keycode = pcontrol->tag_key_lst[cnt];
+
+        if ( !SDLKEYDOWN( keycode ) )
+        {
+            retval = bfalse;
+            goto input_device_control_active_done;
+        }
+    }
+
+input_device_control_active_done:
 
     return retval;
 }

@@ -171,26 +171,26 @@ extern "C"
 // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_input_controls CONTROL_BUTTON;
 
-#define MAXCONTROLTAGS 4
+#define MAXCONTROLKEYS 4
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-    struct s_control_tag
-    {
-        char   device;
-        Uint32 value;
-    };
 
 /// the basic definition of a single control
     struct s_control
     {
         bool_t loaded;
 
-        int           tag_count;
-        control_tag_t tag_lst[MAXCONTROLTAGS];
-        Uint32        tag_mods;
+        // device bits for non-keyboard entry
+        Uint32 tag_bits;
+
+        // list of keystrokes
+        int    tag_key_count;
+        Uint32 tag_key_lst[MAXCONTROLKEYS];
+        Uint32 tag_key_mods;
     };
+
+    control_t * control_init( control_t * );
 
 //--------------------------------------------------------------------------------------------
 /// The mapping between the hardware inputs and the in-game inputs
@@ -204,12 +204,12 @@ extern "C"
         latch_t                 latch_old;                          ///< For sustain
 
         int                     device_type;                        ///< Device type - mouse, keyboard, etc.
-        control_t               control[CONTROL_COMMAND_COUNT];     ///< Key mappings
+        control_t               control_lst[CONTROL_COMMAND_COUNT]; ///< Key mappings
     };
 
     input_device_t * input_device_ctor( input_device_t * pdevice );
-    void      input_device_init( input_device_t * pdevice, int type );
-    void      input_device_add_latch( input_device_t * pdevice, float newx, float newy );
+    void             input_device_init( input_device_t * pdevice, int type );
+    void             input_device_add_latch( input_device_t * pdevice, float newx, float newy );
 
 // special functions that must be implemented by the user
     extern BIT_FIELD input_device_get_buttonmask( input_device_t *pdevice );
@@ -234,6 +234,9 @@ extern "C"
 
     int         translate_string_to_input_type( const char *string );
     const char* translate_input_type_to_string( const int type );
+
+    char        get_device_char_from_device_type( Uint32 device_type );
+    Uint32      get_device_type_from_device_char( char tag_type );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

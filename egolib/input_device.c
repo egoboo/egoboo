@@ -97,10 +97,26 @@ const char* translate_input_type_to_string( const int type )
 }
 
 //--------------------------------------------------------------------------------------------
+// control_t
+//--------------------------------------------------------------------------------------------
+
+control_t * control_init( control_t * pcontrol )
+{
+    if ( NULL == pcontrol ) return pcontrol;
+
+    // clear out all the data
+    BLANK_STRUCT_PTR( pcontrol );
+
+    return pcontrol;
+}
+
+//--------------------------------------------------------------------------------------------
 // input_device_t
 //--------------------------------------------------------------------------------------------
 input_device_t * input_device_ctor( input_device_t * pdevice )
 {
+    int cnt;
+
     if ( NULL == pdevice ) return NULL;
 
     // clear out all the data, including all
@@ -108,6 +124,11 @@ input_device_t * input_device_ctor( input_device_t * pdevice )
     BLANK_STRUCT_PTR( pdevice )
 
     pdevice->device_type = INPUT_DEVICE_UNKNOWN;
+
+    for ( cnt = 0; cnt < CONTROL_COMMAND_COUNT; cnt++ )
+    {
+        control_init( pdevice->control_lst + cnt );
+    }
 
     return pdevice;
 }
@@ -161,4 +182,47 @@ void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
         pdevice->latch.x *= scale;
         pdevice->latch.y *= scale;
     }
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+char get_device_char_from_device_type( Uint32 device_type )
+{
+    char retval = '?';
+
+    if( INPUT_DEVICE_KEYBOARD == device_type )
+    {
+        retval = 'K';
+    }
+    else if ( INPUT_DEVICE_MOUSE == device_type )
+    {
+        retval = 'M';
+    }
+    else if ( device_type >= INPUT_DEVICE_JOY && device_type < INPUT_DEVICE_END )
+    {
+        retval = 'J';
+    }
+    else
+    {
+        retval = '?';
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 get_device_type_from_device_char( char tag_type )
+{
+    Uint32 retval = INPUT_DEVICE_UNKNOWN;
+
+    switch ( tag_type )
+    {
+        case 'K': retval = INPUT_DEVICE_KEYBOARD; break;
+        case 'M': retval = INPUT_DEVICE_MOUSE;    break;
+        case 'J': retval = INPUT_DEVICE_JOY;      break;
+
+        default: retval = INPUT_DEVICE_UNKNOWN; break;
+    }
+
+    return retval;
 }

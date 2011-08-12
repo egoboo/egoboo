@@ -2396,36 +2396,34 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     int         tag_idx  = -1;
     size_t      max_tag  = 0;
 
-    // handle several special conditions for resetting waitingforinput 
+    // handle several special conditions for resetting waitingforinput
     if ( SDLKEYDOWN( SDLK_ESCAPE ) )
     {
         waitingforinput = -1;
     }
-    else if( NULL == pdevice )
+    else if ( NULL == pdevice )
     {
         waitingforinput = -1;
     }
     else if ( waitingforinput < 0 )
     {
-         waitingforinput = -1;
+        waitingforinput = -1;
     }
     else if ( waitingforinput >= CONTROL_COMMAND_COUNT )
     {
-         waitingforinput = -1;
+        waitingforinput = -1;
     }
 
     // exit if there is a dumb value
-    if( waitingforinput < 0 ) return waitingforinput;
+    if ( waitingforinput < 0 ) return waitingforinput;
 
     // grab the control
-    pcontrol = pdevice->control + waitingforinput;
+    pcontrol = pdevice->control_lst + waitingforinput;
 
     // clear out all the old control data
-    pcontrol->loaded    = bfalse;
-    pcontrol->tag_count = 0;
-    pcontrol->tag_mods  = 0;
+    control_init( pcontrol );
 
-    // how many scantags are there?      
+    // how many scantags are there?
     max_tag = scantag_get_count();
 
     // make sure to update the input
@@ -2435,53 +2433,48 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     {
         int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
 
-        for ( tag_idx = 0; tag_idx < max_tag && pcontrol->tag_count < MAXCONTROLTAGS; tag_idx++ )
+        for ( tag_idx = 0; tag_idx < max_tag; tag_idx++ )
         {
             ptag = scantag_get_tag( tag_idx );
-            if( NULL == ptag ) continue;
+            if ( NULL == ptag ) continue;
 
             if ( SCANTAG_JOYBUTTON( joy_lst + ijoy, ptag->value ) )
             {
                 pcontrol->loaded = btrue;
-                pcontrol->tag_lst[pcontrol->tag_count].device = 'J';
-                pcontrol->tag_lst[pcontrol->tag_count].value  = ptag->value;
-                pcontrol->tag_count++;
+                pcontrol->tag_bits |= ptag->value;
             }
         }
     }
-    else if( INPUT_DEVICE_MOUSE  == pdevice->device_type )
+    else if ( INPUT_DEVICE_MOUSE  == pdevice->device_type )
     {
-        for ( tag_idx = 0; tag_idx < max_tag && pcontrol->tag_count < MAXCONTROLTAGS; tag_idx++ )
+        for ( tag_idx = 0; tag_idx < max_tag; tag_idx++ )
         {
             ptag = scantag_get_tag( tag_idx );
-            if( NULL == ptag ) continue;
+            if ( NULL == ptag ) continue;
 
-            if ( SCANTAG_MOUSBUTTON(ptag->value) )
+            if ( SCANTAG_MOUSBUTTON( ptag->value ) )
             {
                 pcontrol->loaded = btrue;
-                pcontrol->tag_lst[pcontrol->tag_count].device = 'J';
-                pcontrol->tag_lst[pcontrol->tag_count].value  = ptag->value;
-                pcontrol->tag_count++;
+                pcontrol->tag_bits |= ptag->value;
             }
         }
     }
 
     // grab any key combinations
-    for ( tag_idx = 0; tag_idx < max_tag && pcontrol->tag_count < MAXCONTROLTAGS; tag_idx++ )
+    for ( tag_idx = 0; tag_idx < max_tag && pcontrol->tag_key_count < MAXCONTROLKEYS; tag_idx++ )
     {
         ptag = scantag_get_tag( tag_idx );
-        if( NULL == ptag ) continue;
+        if ( NULL == ptag ) continue;
 
         // find any keydown, including system keys and keymods
-        if ( SCANTAG_KEYMODDOWN(ptag->value) )
+        if ( SCANTAG_KEYMODDOWN( ptag->value ) )
         {
             pcontrol->loaded = btrue;
-            pcontrol->tag_lst[pcontrol->tag_count].device = 'K';
-            pcontrol->tag_lst[pcontrol->tag_count].value  = ptag->value;
-            pcontrol->tag_count++;
+            pcontrol->tag_key_lst[pcontrol->tag_key_count] = ptag->value;
+            pcontrol->tag_key_count++;
 
             // add in any tag keymods
-            pcontrol->tag_mods |= scancode_get_kmod( ptag->value );
+            pcontrol->tag_key_mods |= scancode_get_kmod( ptag->value );
         }
     }
 
@@ -2579,16 +2572,16 @@ int doInputOptions( float deltaTime )
 
             // Handle waiting for input
             waitingforinput = doInputOptions_get_input( waitingforinput, pdevice );
-            
+
             //Draw the buttons
             if ( NULL != pdevice && -1 == waitingforinput )
             {
                 // update the control names
                 for ( i = 0; i < string_device; i++ )
                 {
-                    pcontrol = pdevice->control + i;
+                    pcontrol = pdevice->control_lst + i;
 
-                    scantag_get_string( pdevice->device_type, pcontrol, button_text[i], SDL_arraysize(button_text[i])  );
+                    scantag_get_string( pdevice->device_type, pcontrol, button_text[i], SDL_arraysize( button_text[i] ) );
                 }
                 //for ( /* nothing */; i < string_device; i++ )
                 //{

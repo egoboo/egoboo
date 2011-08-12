@@ -61,7 +61,7 @@ struct s_egolib_thread
 //--------------------------------------------------------------------------------------------
 egolib_thread_t * egolib_thread_ctor( egolib_thread_t * pthread )
 {
-    if( NULL == pthread ) return pthread;
+    if ( NULL == pthread ) return pthread;
 
     BLANK_STRUCT_PTR( pthread );
 
@@ -71,7 +71,7 @@ egolib_thread_t * egolib_thread_ctor( egolib_thread_t * pthread )
 //--------------------------------------------------------------------------------------------
 egolib_thread_t * egolib_thread_dtor( egolib_thread_t * pthread )
 {
-    if( NULL == pthread ) return pthread;
+    if ( NULL == pthread ) return pthread;
 
     // we cannot leave a running thread going
     egolib_thread_kill( pthread );
@@ -88,9 +88,9 @@ egolib_thread_t * egolib_thread_dtor( egolib_thread_t * pthread )
 
 egolib_thread_t * egolib_thread_start( egolib_thread_t * pthread, SDL_thread_callback_t pcallback, void * pchild )
 {
-    if( NULL == pthread ) return pthread;
+    if ( NULL == pthread ) return pthread;
 
-    if( egolib_thread_running( pthread ) )
+    if ( egolib_thread_running( pthread ) )
     {
         log_warning( "%s - tried to start a running thread.\n", __FUNCTION__ );
         return pthread;
@@ -116,9 +116,9 @@ egolib_thread_t * egolib_thread_start( egolib_thread_t * pthread, SDL_thread_cal
     pthread->retval = 0;
 
     // Get SDL to start a thread. From THIS instant on, a new thread could be running.
-    pthread->thread_ptr = SDL_CreateThread(pcallback, pthread);
+    pthread->thread_ptr = SDL_CreateThread( pcallback, pthread );
 
-    if( NULL == pthread->thread_ptr )
+    if ( NULL == pthread->thread_ptr )
     {
         // the thread failed, so clear the useless assignments we made before
         pthread->callback_ptr = NULL;
@@ -137,14 +137,14 @@ bool_t egolib_thread_req_end( egolib_thread_t * pthread )
     bool_t       retval = bfalse;
     SDL_mutex  * mut    = NULL;
 
-    if( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return bfalse;
 
     mut = SDL_CreateMutex();
-    if( NULL == mut )
+    if ( NULL == mut )
     {
         log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
     }
-    else if( -1 == SDL_mutexP(mut) )
+    else if ( -1 == SDL_mutexP( mut ) )
     {
         log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
     }
@@ -153,12 +153,12 @@ bool_t egolib_thread_req_end( egolib_thread_t * pthread )
         locked = btrue;
     }
 
-    retval = (0 == pthread->req_end);
+    retval = ( 0 == pthread->req_end );
     pthread->req_quit = 1;
 
-    if( NULL != mut && locked )
+    if ( NULL != mut && locked )
     {
-        if( -1 == SDL_mutexV(mut) )
+        if ( -1 == SDL_mutexV( mut ) )
         {
             log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
         }
@@ -174,14 +174,14 @@ bool_t egolib_thread_req_quit( egolib_thread_t * pthread )
     bool_t       retval = bfalse;
     SDL_mutex  * mut    = NULL;
 
-    if( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return bfalse;
 
     mut = SDL_CreateMutex();
-    if( NULL == mut )
+    if ( NULL == mut )
     {
         log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
     }
-    else if( -1 == SDL_mutexP(mut) )
+    else if ( -1 == SDL_mutexP( mut ) )
     {
         log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
     }
@@ -190,12 +190,12 @@ bool_t egolib_thread_req_quit( egolib_thread_t * pthread )
         locked = btrue;
     }
 
-    retval = (0 == pthread->req_quit);
+    retval = ( 0 == pthread->req_quit );
     pthread->req_quit = 1;
 
-    if( NULL != mut && locked )
+    if ( NULL != mut && locked )
     {
-        if( -1 == SDL_mutexV(mut) )
+        if ( -1 == SDL_mutexV( mut ) )
         {
             log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
         }
@@ -207,7 +207,7 @@ bool_t egolib_thread_req_quit( egolib_thread_t * pthread )
 //--------------------------------------------------------------------------------------------
 bool_t egolib_thread_kill( egolib_thread_t * pthread )
 {
-    if( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return bfalse;
 
     SDL_KillThread( pthread->thread_ptr );
     pthread->thread_ptr   = NULL;
@@ -225,14 +225,14 @@ bool_t egolib_thread_check_started( const egolib_thread_t * pthread )
     bool_t       retval = bfalse;
     SDL_mutex  * mut    = NULL;
 
-    if( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return bfalse;
 
     mut = SDL_CreateMutex();
-    if( NULL == mut )
+    if ( NULL == mut )
     {
         log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
     }
-    else if( -1 == SDL_mutexP(mut) )
+    else if ( -1 == SDL_mutexP( mut ) )
     {
         log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
     }
@@ -241,11 +241,11 @@ bool_t egolib_thread_check_started( const egolib_thread_t * pthread )
         locked = btrue;
     }
 
-    retval = (1 == pthread->started);
+    retval = ( 1 == pthread->started );
 
-    if( NULL != mut && locked )
+    if ( NULL != mut && locked )
     {
-        if( -1 == SDL_mutexV(mut) )
+        if ( -1 == SDL_mutexV( mut ) )
         {
             log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
         }
@@ -261,14 +261,14 @@ bool_t egolib_thread_check_done( const egolib_thread_t * pthread )
     bool_t       retval = bfalse;
     SDL_mutex  * mut    = NULL;
 
-    if( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return bfalse;
 
     mut = SDL_CreateMutex();
-    if( NULL == mut )
+    if ( NULL == mut )
     {
         log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
     }
-    else if( -1 == SDL_mutexP(mut) )
+    else if ( -1 == SDL_mutexP( mut ) )
     {
         log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
     }
@@ -277,11 +277,11 @@ bool_t egolib_thread_check_done( const egolib_thread_t * pthread )
         locked = btrue;
     }
 
-    retval = (1 == pthread->done);
+    retval = ( 1 == pthread->done );
 
-    if( NULL != mut && locked )
+    if ( NULL != mut && locked )
     {
-        if( -1 == SDL_mutexV(mut) )
+        if ( -1 == SDL_mutexV( mut ) )
         {
             log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
         }
@@ -297,14 +297,14 @@ bool_t egolib_thread_check_error( const egolib_thread_t * pthread )
     bool_t       retval = bfalse;
     SDL_mutex  * mut    = NULL;
 
-    if( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return bfalse;
 
     mut = SDL_CreateMutex();
-    if( NULL == mut )
+    if ( NULL == mut )
     {
         log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
     }
-    else if( -1 == SDL_mutexP(mut) )
+    else if ( -1 == SDL_mutexP( mut ) )
     {
         log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
     }
@@ -313,11 +313,11 @@ bool_t egolib_thread_check_error( const egolib_thread_t * pthread )
         locked = btrue;
     }
 
-    retval = (1 == pthread->error);
+    retval = ( 1 == pthread->error );
 
-    if( NULL != mut && locked )
+    if ( NULL != mut && locked )
     {
-        if( -1 == SDL_mutexV(mut) )
+        if ( -1 == SDL_mutexV( mut ) )
         {
             log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
         }
@@ -333,14 +333,14 @@ const SDL_Thread * egolib_thread_get_thread_ptr( const egolib_thread_t * pthread
     SDL_Thread * retval = NULL;
     SDL_mutex  * mut    = NULL;
 
-    if( NULL == pthread ) return NULL;
+    if ( NULL == pthread ) return NULL;
 
     mut = SDL_CreateMutex();
-    if( NULL == mut )
+    if ( NULL == mut )
     {
         log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
     }
-    else if( -1 == SDL_mutexP(mut) )
+    else if ( -1 == SDL_mutexP( mut ) )
     {
         log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
     }
@@ -351,9 +351,9 @@ const SDL_Thread * egolib_thread_get_thread_ptr( const egolib_thread_t * pthread
 
     retval = pthread->thread_ptr;
 
-    if( NULL != mut && locked )
+    if ( NULL != mut && locked )
     {
-        if( -1 == SDL_mutexV(mut) )
+        if ( -1 == SDL_mutexV( mut ) )
         {
             log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
         }
@@ -369,14 +369,14 @@ bool_t egolib_thread_running( const egolib_thread_t * pthread )
     bool_t      locked = bfalse;
     SDL_mutex * mut;
 
-    if( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return bfalse;
 
     mut = SDL_CreateMutex();
-    if( NULL == mut )
+    if ( NULL == mut )
     {
         log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
     }
-    else if( -1 == SDL_mutexP(mut) )
+    else if ( -1 == SDL_mutexP( mut ) )
     {
         log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
     }
@@ -385,12 +385,12 @@ bool_t egolib_thread_running( const egolib_thread_t * pthread )
         locked = btrue;
     }
 
-    if( NULL == pthread->thread_ptr || NULL == pthread->callback_ptr )
+    if ( NULL == pthread->thread_ptr || NULL == pthread->callback_ptr )
     {
         // the thread data is incomplete, so it can't really be running
         running = bfalse;
     }
-    else if( 1 == pthread->started && 0 == pthread->done )
+    else if ( 1 == pthread->started && 0 == pthread->done )
     {
         // the thread is definitely running
         running = btrue;
@@ -401,9 +401,9 @@ bool_t egolib_thread_running( const egolib_thread_t * pthread )
         running = bfalse;
     }
 
-    if( NULL != mut && locked )
+    if ( NULL != mut && locked )
     {
-        if( -1 == SDL_mutexV(mut) )
+        if ( -1 == SDL_mutexV( mut ) )
         {
             log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
         }
@@ -417,10 +417,10 @@ bool_t egolib_thread_running( const egolib_thread_t * pthread )
 //--------------------------------------------------------------------------------------------
 egolib_thread_data_t * egolib_thread_data_ctor( egolib_thread_data_t * pdata )
 {
-    if( NULL == pdata ) return pdata;
+    if ( NULL == pdata ) return pdata;
 
     // is the thread data already initialized?
-    if( EGOLIB_THREAD_DATA_ID == pdata->initialized )
+    if ( EGOLIB_THREAD_DATA_ID == pdata->initialized )
     {
         pdata = egolib_thread_data_dtor( pdata );
     }
@@ -428,23 +428,23 @@ egolib_thread_data_t * egolib_thread_data_ctor( egolib_thread_data_t * pdata )
     BLANK_STRUCT_PTR( pdata );
 
     pdata->initialized = EGOLIB_THREAD_DATA_ID;
-    
+
     return pdata;
 }
 
 //--------------------------------------------------------------------------------------------
 egolib_thread_data_t * egolib_thread_data_dtor( egolib_thread_data_t * pdata )
 {
-    if( NULL == pdata ) return pdata;
+    if ( NULL == pdata ) return pdata;
 
     // is the thread data already initialized?
     // if not, do nothing in case of a wild pointer
-    if( EGOLIB_THREAD_DATA_ID != pdata->initialized ) return pdata;
+    if ( EGOLIB_THREAD_DATA_ID != pdata->initialized ) return pdata;
     {
         pdata = egolib_thread_data_dtor( pdata );
     }
 
     BLANK_STRUCT_PTR( pdata );
-   
+
     return pdata;
 }

@@ -31,7 +31,6 @@
 #include "../egolib/extensions/ogl_texture.h"
 #include "../egolib/file_formats/cap_file.h"
 
-
 #include "../egolib/_math.inl"
 
 // includes for egoboo constants
@@ -914,7 +913,6 @@ bool_t vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len )
     return vfs_get_string( fileread, str, str_len );
 }
 
-
 //--------------------------------------------------------------------------------------------
 bool_t vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len )
 {
@@ -926,21 +924,21 @@ bool_t vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len )
     gets_rv = vfs_gets( str, str_len, fileread );
 
     found = bfalse;
-    if(gets_rv == str)
+    if ( gets_rv == str )
     {
         int cnt;
         found = btrue;
 
         // make sure the string terminates as egoboo expects
-        for( cnt = 0; cnt < str_len; cnt++ )
+        for ( cnt = 0; cnt < str_len; cnt++ )
         {
-            if( ASCII_LINEFEED_CHAR == str[cnt] || C_FORMFEED_CHAR == str[cnt] || C_NEW_LINE_CHAR == str[cnt] )
+            if ( ASCII_LINEFEED_CHAR == str[cnt] || C_FORMFEED_CHAR == str[cnt] || C_NEW_LINE_CHAR == str[cnt] )
             {
                 str[cnt] = CSTR_END;
                 break;
             }
         }
-        if( str_len > 0 )
+        if ( str_len > 0 )
         {
             str[str_len-1] = CSTR_END;
         }

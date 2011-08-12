@@ -23,7 +23,6 @@ extern "C"
 #define M_PI  3.141592654
 #endif
 
-
     /* ---- Defines */
 
 #define SMOOTHING_OFF    0

@@ -475,7 +475,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->image_stt     = UINT_TO_UFP8( ppip->image_base );
     pprt->image_add     = generate_irand_pair( ppip->image_add );
     pprt->image_max     = UINT_TO_UFP8( ppip->numframes );
-  
+
     // a particle can EITHER end_lastframe or end_time.
     // if it ends after the last frame, end_time tells you the number of cycles through
     // the animation
@@ -483,14 +483,14 @@ prt_t * prt_config_do_init( prt_t * pprt )
     prt_anim_infinite = bfalse;
     if ( ppip->end_lastframe )
     {
-        if( 0 == pprt->image_add )
+        if ( 0 == pprt->image_add )
         {
             prt_anim_frames_updates = INFINITE_UPDATES;
             prt_anim_infinite = btrue;
         }
         else
         {
-            prt_anim_frames_updates = CEIL( (float)pprt->image_max / (float)pprt->image_add ) - 1;
+            prt_anim_frames_updates = CEIL(( float )pprt->image_max / ( float )pprt->image_add ) - 1;
 
             if ( ppip->end_time > 0 )
             {
@@ -510,13 +510,13 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // estimate the number of frames
     prt_life_frames_updates  = 0;
     prt_life_infinite = bfalse;
-    if( ppip->end_lastframe )
+    if ( ppip->end_lastframe )
     {
-        // for end last frame, the lifetime is given by the 
+        // for end last frame, the lifetime is given by the
         prt_life_frames_updates  = prt_anim_frames_updates;
         prt_life_infinite = prt_anim_infinite;
     }
-    else if( ppip->end_time <= 0 )
+    else if ( ppip->end_time <= 0 )
     {
         // zero or negative lifetime == infinite lifetime
         prt_life_frames_updates = INFINITE_UPDATES;
@@ -1401,7 +1401,7 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
     loc_pphys   = &( loc_pprt->phys );
 
     // if the particle is a homing-type particle, ignore friction
-    if( loc_ppip->homing ) return pbdl_prt;
+    if ( loc_ppip->homing ) return pbdl_prt;
 
     // Light isn't affected by fluid velocity
     if ( SPRITE_LIGHT == loc_pprt->type ) return pbdl_prt;
@@ -1536,7 +1536,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
     fric.z = fric_floor.z + penviro->acc.z;
 
     //---- limit the friction to whatever is horizontal to the mesh
-    if ( ABS(vup.z) > 0.9999f )
+    if ( ABS( vup.z ) > 0.9999f )
     {
         floor_acc.z = 0.0f;
         fric.z      = 0.0f;
@@ -1702,10 +1702,10 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
     fvec3_self_clear( z_motion_acc.v );
 
     // in higher gravity environments, buoyancy is larger
-    tmp_buoyancy = loc_pprt->buoyancy * gravity/STANDARD_GRAVITY;
+    tmp_buoyancy = loc_pprt->buoyancy * gravity / STANDARD_GRAVITY;
 
     // handle bouyancy near the ground
-    if( loc_zlerp >= 1.0f )
+    if ( loc_zlerp >= 1.0f )
     {
         loc_buoyancy = tmp_buoyancy;
     }
@@ -1717,14 +1717,14 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
     {
         // Do particle buoyancy. This is kinda BS the way it is calculated
         loc_buoyancy = 0.0f;
-        if( tmp_buoyancy + gravity < 0.0f )
+        if ( tmp_buoyancy + gravity < 0.0f )
         {
             // the particle cannot hold itself up
 
             // loc_zacc = ( tmp_buoyancy + gravity ) * loc_zlerp;
             loc_buoyancy = tmp_buoyancy * loc_zlerp;
         }
-        else 
+        else
         {
             // the particle is floating, make the normal force cancel gravity, only
 
@@ -3001,12 +3001,12 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
         image_overflow = btrue;
 
         // cast the unsigned integers to a larger type to make sure there are no overflows
-        image_overflow_amount = ((signed)loc_pprt->image_off) + ((signed)loc_pprt->image_add) - ((signed)loc_pprt->image_max);
+        image_overflow_amount = (( signed )loc_pprt->image_off ) + (( signed )loc_pprt->image_add ) - (( signed )loc_pprt->image_max );
     }
     else
     {
         // the image is in the correct range
-        if( (loc_pprt->image_max - loc_pprt->image_off) > loc_pprt->image_add )
+        if (( loc_pprt->image_max - loc_pprt->image_off ) > loc_pprt->image_add )
         {
             // the image will not overflow this update
             loc_pprt->image_off = loc_pprt->image_off + loc_pprt->image_add;
@@ -3014,14 +3014,14 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
         else
         {
             image_overflow = btrue;
-            image_overflow_amount = ((signed)loc_pprt->image_off) + ((signed)loc_pprt->image_add) - ((signed)loc_pprt->image_max);
+            image_overflow_amount = (( signed )loc_pprt->image_off ) + (( signed )loc_pprt->image_add ) - (( signed )loc_pprt->image_max );
         }
     }
 
     // what do you do about an image overflow?
-    if( image_overflow )
+    if ( image_overflow )
     {
-        if( loc_ppip->end_lastframe && loc_ppip->end_time > 0 )
+        if ( loc_ppip->end_lastframe && loc_ppip->end_time > 0 )
         {
             // the animation is looped. set the value to image_overflow_amount
             // so that we get the exact number of image updates called for
@@ -3030,7 +3030,7 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
         else
         {
             // freeze it at the last frame
-            loc_pprt->image_off = MAX(0, (signed)loc_pprt->image_max - 1);
+            loc_pprt->image_off = MAX( 0, ( signed )loc_pprt->image_max - 1 );
         }
     }
 
@@ -3054,13 +3054,13 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
 
     // frames_remaining refers to the number of animation updates, not the
     // number of frames displayed
-    if ( loc_pprt->frames_remaining > 0 ) 
+    if ( loc_pprt->frames_remaining > 0 )
     {
         loc_pprt->frames_remaining--;
     }
 
     // the animation has terminated
-    if( loc_ppip->end_lastframe && 0 == loc_pprt->frames_remaining )
+    if ( loc_ppip->end_lastframe && 0 == loc_pprt->frames_remaining )
     {
         end_one_particle_in_game( pbdl_prt->prt_ref );
     }
@@ -3109,13 +3109,13 @@ prt_bundle_t * prt_update_timers( prt_bundle_t * pbdl_prt )
     loc_pprt = pbdl_prt->prt_ptr;
 
     // down the remaining lifetime of the particle
-    if ( loc_pprt->lifetime_remaining > 0 ) 
+    if ( loc_pprt->lifetime_remaining > 0 )
     {
         loc_pprt->lifetime_remaining--;
     }
 
     // down the continuous spawn timer
-    if ( loc_pprt->contspawn_timer > 0 ) 
+    if ( loc_pprt->contspawn_timer > 0 )
     {
         loc_pprt->contspawn_timer--;
     }

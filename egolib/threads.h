@@ -34,7 +34,7 @@ struct s_egolib_thread_data;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-typedef int (*SDL_thread_callback_t)(void *);
+typedef int ( *SDL_thread_callback_t )( void * );
 
 //--------------------------------------------------------------------------------------------
 // declaration of egolib_thread_t
@@ -65,7 +65,7 @@ const SDL_Thread * egolib_thread_get_thread_ptr( const egolib_thread_t * );
 // declaration of egolib_thread_data_t
 //--------------------------------------------------------------------------------------------
 
-/// a structure that can be "inherited" by any data segment that can be worked on 
+/// a structure that can be "inherited" by any data segment that can be worked on
 /// via a worker thread
 struct s_egolib_thread_data
 {

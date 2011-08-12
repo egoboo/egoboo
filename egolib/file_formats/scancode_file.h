@@ -47,7 +47,7 @@ extern "C"
 #define MAXTAG              256                     ///< Number of tags in scancode.txt
 #define TAGSIZE              32                     ///< Size of each tag
 
-typedef char TAG_STRING[TAGSIZE];
+    typedef char TAG_STRING[TAGSIZE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -69,8 +69,9 @@ typedef char TAG_STRING[TAGSIZE];
     bool_t       scantag_get_value( int index, Uint32 * pvalue );
     const char * scantag_get_name( int index );
 
-    const char       * scantag_get_string( int device, struct s_control * pcontrol, char * buffer, size_t buffer_size  );
+    const char       * scantag_get_string( int device, struct s_control * pcontrol, char * buffer, size_t buffer_size );
     struct s_control * scantag_parse_control( char * tag_string, struct s_control * pcontrol );
+
     Uint32             scancode_get_kmod( Uint32 scancode );
 
 //--------------------------------------------------------------------------------------------

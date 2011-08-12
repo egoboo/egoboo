@@ -253,12 +253,12 @@ extern "C"
 
 #    if !defined(MAKE_IDSZ)
 #       define MAKE_IDSZ(C0,C1,C2,C3) \
-        ((IDSZ)( \
-            ((((C0)-'A')&0x1F) << 15) |       \
-            ((((C1)-'A')&0x1F) << 10) |       \
-            ((((C2)-'A')&0x1F) <<  5) |       \
-            ((((C3)-'A')&0x1F) <<  0)         \
-         ))
+    ((IDSZ)( \
+             ((((C0)-'A')&0x1F) << 15) |       \
+             ((((C1)-'A')&0x1F) << 10) |       \
+             ((((C2)-'A')&0x1F) <<  5) |       \
+             ((((C3)-'A')&0x1F) <<  0)         \
+           ))
 #    endif
 
 #   define IDSZ_NONE            MAKE_IDSZ('N','O','N','E')       ///< [NONE]
