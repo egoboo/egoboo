@@ -2393,8 +2393,11 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
 
     control_t * pcontrol = NULL;
     scantag_t * ptag     = NULL;
+
+    int         cnt;
     int         tag_idx  = -1;
     size_t      max_tag  = 0;
+    size_t      tag_count = 0;
 
     // handle several special conditions for resetting waitingforinput
     if ( SDLKEYDOWN( SDLK_ESCAPE ) )
@@ -2442,6 +2445,9 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
             {
                 pcontrol->loaded = btrue;
                 pcontrol->tag_bits |= ptag->value;
+
+                // count the valid tags
+                tag_count++;
             }
         }
     }
@@ -2456,26 +2462,36 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
             {
                 pcontrol->loaded = btrue;
                 pcontrol->tag_bits |= ptag->value;
+
+                // count the valid tags
+                tag_count++;
             }
         }
     }
 
     // grab any key combinations
-    for ( tag_idx = 0; tag_idx < max_tag && pcontrol->tag_key_count < MAXCONTROLKEYS; tag_idx++ )
+    for( cnt = 0; cnt < SDLK_LAST && pcontrol->tag_key_count < MAXCONTROLKEYS; cnt++ )
     {
-        ptag = scantag_get_tag( tag_idx );
-        if ( NULL == ptag ) continue;
+        if ( !SCANTAG_KEYMODDOWN( cnt ) ) continue;
 
-        // find any keydown, including system keys and keymods
-        if ( SCANTAG_KEYMODDOWN( ptag->value ) )
-        {
-            pcontrol->loaded = btrue;
-            pcontrol->tag_key_lst[pcontrol->tag_key_count] = ptag->value;
-            pcontrol->tag_key_count++;
+        ptag = scantag_find_value( NULL, 'K', cnt );
+        if( NULL == ptag ) continue;
 
-            // add in any tag keymods
-            pcontrol->tag_key_mods |= scancode_get_kmod( ptag->value );
-        }
+        pcontrol->loaded = btrue;
+        pcontrol->tag_key_lst[pcontrol->tag_key_count] = ptag->value;
+        pcontrol->tag_key_count++;
+
+        // add in any tag keymods
+        pcontrol->tag_key_mods |= scancode_get_kmod( ptag->value );
+
+        // count the valid tags
+        tag_count++;
+    }
+
+    // are we done?
+    if( tag_count > 0 )
+    {
+        waitingforinput = -1;
     }
 
     return waitingforinput;

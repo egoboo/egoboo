@@ -43,9 +43,6 @@ static bool_t scantag_matches_device( scantag_t * ptag, int device_type );
 
 static const char * scantag_tok( const char * tag_string );
 
-static scantag_t * scantag_find_bits( scantag_t * ptag_src, char device_char, Uint32 tag_bits );
-static scantag_t * scantag_find_value( scantag_t * ptag_src, char device_char, Uint32 tag_value );
-
 //--------------------------------------------------------------------------------------------
 // Tag Reading
 //--------------------------------------------------------------------------------------------
