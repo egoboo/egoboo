@@ -4260,7 +4260,7 @@ int doShowResults( float deltaTime )
 
                     /// @note ZF@> : this doesnt work as I intended, fnt_get_TextSize() does not take line breaks into account
                     /// @note BB@> : fixed by changing the function to fnt_getTextBoxSize()
-                    fnt_getTextBoxSize( menuFont, game_tip, &text_w, &text_h );
+                    fnt_getTextBoxSize( menuFont, 10, game_tip, &text_w, &text_h );
                     ui_drawTextBox( menuFont, game_tip, ( GFX_WIDTH / 2 ) - ( text_w / 2 ), GFX_HEIGHT - 110, 0, 0, 10 );
                 }
 
