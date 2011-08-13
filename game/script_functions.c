@@ -101,7 +101,8 @@
 /// @ingroup _bitwise_functions_
 Uint8 scr_set_AlertBit( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Sets the bit in the 32-bit integer self.alert indexed by pstate->argument
+    /// @author BB
+    /// @details Sets the bit in the 32-bit integer self.alert indexed by pstate->argument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -120,7 +121,8 @@ Uint8 scr_set_AlertBit( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_ClearAlertBit( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Clears the bit in the 32-bit integer self.alert indexed by pstate->argument
+    /// @author BB
+    /// @details Clears the bit in the 32-bit integer self.alert indexed by pstate->argument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -139,7 +141,8 @@ Uint8 scr_ClearAlertBit( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_TestAlertBit( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Tests to see if the the bit in the 32-bit integer self.alert indexed by pstate->argument is non-zero
+    /// @author BB
+    /// @details Tests to see if the the bit in the 32-bit integer self.alert indexed by pstate->argument is non-zero
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -157,7 +160,8 @@ Uint8 scr_TestAlertBit( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_set_Alert( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Sets one or more bits of the self.alert variable given by the bitmask in tmpargument
+    /// @author BB
+    /// @details Sets one or more bits of the self.alert variable given by the bitmask in tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -171,7 +175,8 @@ Uint8 scr_set_Alert( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_ClearAlert( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Clears one or more bits of the self.alert variable given by the bitmask in tmpargument
+    /// @author BB
+    /// @details Clears one or more bits of the self.alert variable given by the bitmask in tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -185,7 +190,8 @@ Uint8 scr_ClearAlert( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_TestAlert( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Tests one or more bits of the self.alert variable given by the bitmask in tmpargument
+    /// @author BB
+    /// @details Tests one or more bits of the self.alert variable given by the bitmask in tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -199,7 +205,8 @@ Uint8 scr_TestAlert( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Sets the bit in the 32-bit tmpx variable with the offset given in tmpy
+    /// @author BB
+    /// @details Sets the bit in the 32-bit tmpx variable with the offset given in tmpy
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -218,7 +225,8 @@ Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Clears the bit in the 32-bit tmpx variable with the offset given in tmpy
+    /// @author BB
+    /// @details Clears the bit in the 32-bit tmpx variable with the offset given in tmpy
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -237,7 +245,8 @@ Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_TestBit( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Tests the bit in the 32-bit tmpx variable with the offset given in tmpy
+    /// @author BB
+    /// @details Tests the bit in the 32-bit tmpx variable with the offset given in tmpy
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -255,7 +264,8 @@ Uint8 scr_TestBit( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_set_Bits( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Adds the bits in the 32-bit tmpx based on the bitmask in tmpy
+    /// @author BB
+    /// @details Adds the bits in the 32-bit tmpx based on the bitmask in tmpy
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -269,7 +279,8 @@ Uint8 scr_set_Bits( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Clears the bits in the 32-bit tmpx based on the bitmask in tmpy
+    /// @author BB
+    /// @details Clears the bits in the 32-bit tmpx based on the bitmask in tmpy
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -283,7 +294,8 @@ Uint8 scr_ClearBits( script_state_t * pstate, ai_state_t * pself )
 /// @ingroup _bitwise_functions_
 Uint8 scr_TestBits( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details BB@> Tests the bits in the 32-bit tmpx based on the bitmask in tmpy
+    /// @author BB
+    /// @details Tests the bits in the 32-bit tmpx based on the bitmask in tmpy
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -297,7 +309,8 @@ Uint8 scr_TestBits( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Spawned( script_state_t * pstate, ai_state_t * pself )
 {
     // IfSpawned()
-    /// @details ZZ@> This function proceeds if the character was spawned this update
+    /// @author ZZ
+    /// @details This function proceeds if the character was spawned this update
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -311,7 +324,8 @@ Uint8 scr_Spawned( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TimeOut( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTimeOut()
-    /// @details ZZ@> This function proceeds if the character's aitime is 0.  Use
+    /// @author ZZ
+    /// @details This function proceeds if the character's aitime is 0.  Use
     /// in conjunction with set_Time
 
     SCRIPT_FUNCTION_BEGIN();
@@ -326,7 +340,8 @@ Uint8 scr_TimeOut( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AtWaypoint( script_state_t * pstate, ai_state_t * pself )
 {
     // IfAtWaypoint()
-    /// @details ZZ@> This function proceeds if the character reached its waypoint this
+    /// @author ZZ
+    /// @details This function proceeds if the character reached its waypoint this
     /// update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -341,7 +356,8 @@ Uint8 scr_AtWaypoint( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AtLastWaypoint( script_state_t * pstate, ai_state_t * pself )
 {
     // IfAtLastWaypoint()
-    /// @details ZZ@> This function proceeds if the character reached its last waypoint this
+    /// @author ZZ
+    /// @details This function proceeds if the character reached its last waypoint this
     /// update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -356,7 +372,8 @@ Uint8 scr_AtLastWaypoint( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Attacked( script_state_t * pstate, ai_state_t * pself )
 {
     // IfAttacked()
-    /// @details ZZ@> This function proceeds if the character ( an item ) was put in its
+    /// @author ZZ
+    /// @details This function proceeds if the character ( an item ) was put in its
     /// owner's pocket this update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -371,7 +388,8 @@ Uint8 scr_Attacked( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Bumped( script_state_t * pstate, ai_state_t * pself )
 {
     // IfBumped()
-    /// @details ZZ@> This function proceeds if the character was bumped by another character
+    /// @author ZZ
+    /// @details This function proceeds if the character was bumped by another character
     /// this update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -386,7 +404,8 @@ Uint8 scr_Bumped( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Ordered( script_state_t * pstate, ai_state_t * pself )
 {
     // IfOrdered()
-    /// @details ZZ@> This function proceeds if the character got an order from another
+    /// @author ZZ
+    /// @details This function proceeds if the character got an order from another
     /// character on its team this update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -401,7 +420,8 @@ Uint8 scr_Ordered( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_CalledForHelp( script_state_t * pstate, ai_state_t * pself )
 {
     // IfCalledForHelp()
-    /// @details ZZ@> This function proceeds if one of the character's teammates was nearly
+    /// @author ZZ
+    /// @details This function proceeds if one of the character's teammates was nearly
     /// killed this update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -416,7 +436,8 @@ Uint8 scr_CalledForHelp( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_Content( script_state_t * pstate, ai_state_t * pself )
 {
     // SetContent( tmpargument )
-    /// @details ZZ@> This function sets the content variable.  Used in conjunction with
+    /// @author ZZ
+    /// @details This function sets the content variable.  Used in conjunction with
     /// GetContent.  Content is preserved from update to update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -431,7 +452,8 @@ Uint8 scr_set_Content( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Killed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfKilled()
-    /// @details ZZ@> This function proceeds if the character was killed this update
+    /// @author ZZ
+    /// @details This function proceeds if the character was killed this update
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -445,7 +467,8 @@ Uint8 scr_Killed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetKilled()
-    /// @details ZZ@> This function proceeds if the character's target from last update was
+    /// @author ZZ
+    /// @details This function proceeds if the character's target from last update was
     /// killed during this update
 
     chr_t * pself_target;
@@ -464,7 +487,8 @@ Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
 {
     // ClearWaypoints()
-    /// @details ZZ@> This function is used to move a character around.  Do this before
+    /// @author ZZ
+    /// @details This function is used to move a character around.  Do this before
     /// AddWaypoint
 
     SCRIPT_FUNCTION_BEGIN();
@@ -478,7 +502,8 @@ Uint8 scr_ClearWaypoints( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 {
     // AddWaypoint( tmpx = "x position", tmpy = "y position" )
-    /// @details ZZ@> This function tells the character where to move next
+    /// @author ZZ
+    /// @details This function tells the character where to move next
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -497,8 +522,9 @@ Uint8 scr_AddWaypoint( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
 {
     // FindPath
-    /// @details ZF@> Ported the A* path finding algorithm by birdsey and heavily modified it
-    // This function adds enough waypoints to get from one point to another
+    /// @author ZF
+    /// @details Ported the A* path finding algorithm by birdsey and heavily modified it
+    /// This function adds enough waypoints to get from one point to another
 
     bool_t used_astar;
 
@@ -525,7 +551,8 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
 {
     // Compass( tmpturn = "rotation", tmpdistance = "radius" )
-    /// @details ZZ@> This function modifies tmpx and tmpy, depending on the setting of
+    /// @author ZZ
+    /// @details This function modifies tmpx and tmpy, depending on the setting of
     /// tmpdistance and tmpturn.  It acts like one of those Compass thing
     /// with the two little needle legs
 
@@ -552,7 +579,8 @@ Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpx = GetTargetArmorPrice( tmpargument = "skin" )
-    /// @details ZZ@> This function returns the cost of the desired skin upgrade, setting
+    /// @author ZZ
+    /// @details This function returns the cost of the desired skin upgrade, setting
     /// tmpx to the price
 
     int value;
@@ -582,7 +610,8 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_Time( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTime( tmpargument = "time" )
-    /// @details ZZ@> This function sets the character's ai timer.  50 clicks per second.
+    /// @author ZZ
+    /// @details This function sets the character's ai timer.  50 clicks per second.
     /// Used in conjunction with IfTimeOut
 
     SCRIPT_FUNCTION_BEGIN();
@@ -596,7 +625,8 @@ Uint8 scr_set_Time( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_Content( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetContent()
-    /// @details ZZ@> This function sets tmpargument to the character's content variable.
+    /// @author ZZ
+    /// @details This function sets tmpargument to the character's content variable.
     /// Used in conjunction with set_Content, or as a NOP to space out an Else
 
     SCRIPT_FUNCTION_BEGIN();
@@ -611,7 +641,8 @@ Uint8 scr_get_Content( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // JoinTargetTeam()
-    /// @details ZZ@> This function lets a character join a different team.  Used
+    /// @author ZZ
+    /// @details This function lets a character join a different team.  Used
     /// mostly for pets
 
     chr_t * pself_target;
@@ -634,7 +665,8 @@ Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToNearbyEnemy()
-    /// @details ZZ@> This function sets the target to a nearby enemy, failing if there are none
+    /// @author ZZ
+    /// @details This function sets the target to a nearby enemy, failing if there are none
 
     CHR_REF ichr;
 
@@ -658,7 +690,8 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToTargetLeftHand()
-    /// @details ZZ@> This function sets the target to the item in the target's left hand,
+    /// @author ZZ
+    /// @details This function sets the target to the item in the target's left hand,
     /// failing if the target has no left hand item
 
     CHR_REF ichr;
@@ -683,7 +716,8 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
 Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToTargetRightHand()
-    /// @details ZZ@> This function sets the target to the item in the target's right hand,
+    /// @author ZZ
+    /// @details This function sets the target to the item in the target's right hand,
     /// failing if the target has no right hand item
 
     CHR_REF ichr;
@@ -708,7 +742,8 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
 Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToWhoeverAttacked()
-    /// @details ZZ@> This function sets the target to whoever attacked the character last, failing for damage tiles
+    /// @author ZZ
+    /// @details This function sets the target to whoever attacked the character last, failing for damage tiles
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -728,7 +763,8 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pse
 Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToWhoeverBumped()
-    /// @details ZZ@> This function sets the target to whoever bumped the character last. It never fails
+    /// @author ZZ
+    /// @details This function sets the target to whoever bumped the character last. It never fails
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -748,7 +784,8 @@ Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself
 Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToWhoeverCalledForHelp()
-    /// @details ZZ@> This function sets the target to whoever called for help last.
+    /// @author ZZ
+    /// @details This function sets the target to whoever called for help last.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -777,7 +814,8 @@ Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t 
 Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToOldTarget()
-    /// @details ZZ@> This function sets the target to the target from last update, used to
+    /// @author ZZ
+    /// @details This function sets the target to the target from last update, used to
     /// undo other set_Target functions
 
     SCRIPT_FUNCTION_BEGIN();
@@ -798,7 +836,8 @@ Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TurnModeToVelocity( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTurnModeToVelocity()
-    /// @details ZZ@> This function sets the character's movement mode to the default
+    /// @author ZZ
+    /// @details This function sets the character's movement mode to the default
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -811,7 +850,8 @@ Uint8 scr_set_TurnModeToVelocity( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TurnModeToWatch( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTurnModeToWatch()
-    /// @details ZZ@> This function makes the character look at its next waypoint, usually
+    /// @author ZZ
+    /// @details This function makes the character look at its next waypoint, usually
     /// used with close waypoints or the Stop function
 
     SCRIPT_FUNCTION_BEGIN();
@@ -825,7 +865,8 @@ Uint8 scr_set_TurnModeToWatch( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TurnModeToSpin( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTurnModeToSpin()
-    /// @details ZZ@> This function makes the character spin around in a circle, usually
+    /// @author ZZ
+    /// @details This function makes the character spin around in a circle, usually
     /// used for magical items and such
 
     SCRIPT_FUNCTION_BEGIN();
@@ -839,7 +880,8 @@ Uint8 scr_set_TurnModeToSpin( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 {
     // SetBumpHeight( tmpargument = "height" )
-    /// @details ZZ@> This function makes the character taller or shorter, usually used when
+    /// @author ZZ
+    /// @details This function makes the character taller or shorter, usually used when
     /// the character dies
 
     SCRIPT_FUNCTION_BEGIN();
@@ -853,7 +895,8 @@ Uint8 scr_set_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasID( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetHasID( tmpargument = "idsz" )
-    /// @details ZZ@> This function proceeds if the target has either a parent or type IDSZ
+    /// @author ZZ
+    /// @details This function proceeds if the target has either a parent or type IDSZ
     /// matching tmpargument.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -867,7 +910,8 @@ Uint8 scr_TargetHasID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetHasItemID( tmpargument = "idsz" )
-    /// @details ZZ@> This function proceeds if the target has a matching item in his/her
+    /// @author ZZ
+    /// @details This function proceeds if the target has a matching item in his/her
     /// pockets or hands.
 
     CHR_REF item;
@@ -885,7 +929,8 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetHoldingItemID( tmpargument = "idsz" )
-    /// @details ZZ@> This function proceeds if the target has a matching item in his/her
+    /// @author ZZ
+    /// @details This function proceeds if the target has a matching item in his/her
     /// hands.  It also sets tmpargument to the proper latch button to press
     /// to use that item
 
@@ -904,7 +949,8 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetHasSkillID( tmpargument = "skill idsz" )
-    /// @details ZZ@> This function proceeds if ID matches tmpargument
+    /// @author ZZ
+    /// @details This function proceeds if ID matches tmpargument
 
     chr_t *pself_target;
 
@@ -921,7 +967,8 @@ Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
 {
     // Else
-    /// @details ZZ@> This function fails if the last function was more indented
+    /// @author ZZ
+    /// @details This function fails if the last function was more indented
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -934,7 +981,8 @@ Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
 {
     // Run()
-    /// @details ZZ@> This function sets the character's maximum acceleration to its
+    /// @author ZZ
+    /// @details This function sets the character's maximum acceleration to its
     /// actual maximum
 
     SCRIPT_FUNCTION_BEGIN();
@@ -948,7 +996,8 @@ Uint8 scr_Run( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
 {
     // Walk()
-    /// @details ZZ@> This function sets the character's maximum acceleration to 66%
+    /// @author ZZ
+    /// @details This function sets the character's maximum acceleration to 66%
     /// of its actual maximum
 
     SCRIPT_FUNCTION_BEGIN();
@@ -965,7 +1014,8 @@ Uint8 scr_Walk( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 {
     // Sneak()
-    /// @details ZZ@> This function sets the character's maximum acceleration to 33%
+    /// @author ZZ
+    /// @details This function sets the character's maximum acceleration to 33%
     /// of its actual maximum
 
     SCRIPT_FUNCTION_BEGIN();
@@ -982,7 +1032,8 @@ Uint8 scr_Sneak( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
 {
     // DoAction( tmpargument = "action" )
-    /// @details ZZ@> This function makes the character do a given action if it isn't doing
+    /// @author ZZ
+    /// @details This function makes the character do a given action if it isn't doing
     /// anything better.  Fails if the action is invalid or if the character is doing
     /// something else already
 
@@ -1005,7 +1056,8 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
 {
     // KeepAction()
-    /// @details ZZ@> This function makes the character's animation stop on its last frame
+    /// @author ZZ
+    /// @details This function makes the character's animation stop on its last frame
     /// and stay there.  Usually used for dropped items
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1019,7 +1071,8 @@ Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_IssueOrder( script_state_t * pstate, ai_state_t * pself )
 {
     // IssueOrder( tmpargument = "order"  )
-    /// @details ZZ@> This function tells all of the character's teammates to do something,
+    /// @author ZZ
+    /// @details This function tells all of the character's teammates to do something,
     /// though each teammate needs to interpret the order using IfOrdered in
     /// its own script.
 
@@ -1034,7 +1087,8 @@ Uint8 scr_IssueOrder( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
 {
     // DropWeapons()
-    /// @details ZZ@> This function drops the character's in-hand items.  It will also
+    /// @author ZZ
+    /// @details This function drops the character's in-hand items.  It will also
     /// buck the rider if the character is a mount
 
     CHR_REF ichr;
@@ -1083,7 +1137,8 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
 {
     // TargetDoAction( tmpargument = "action" )
-    /// @details ZZ@> The function makes the target start a new action, if it is valid for the model
+    /// @author ZZ
+    /// @details The function makes the target start a new action, if it is valid for the model
     /// It will fail if the action is invalid or if the target is doing
     /// something else already
 
@@ -1113,7 +1168,8 @@ Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // OpenPassage( tmpargument = "passage" )
 
-    /// @details ZZ@> This function opens the passage specified by tmpargument, failing if the
+    /// @author ZZ
+    /// @details This function opens the passage specified by tmpargument, failing if the
     /// passage was already open.
     /// Passage areas are defined in passage.txt and set in spawn.txt for the given character
 
@@ -1128,7 +1184,8 @@ Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
 {
     // ClosePassage( tmpargument = "passage" )
-    /// @details ZZ@> This function closes the passage specified by tmpargument, proceeding
+    /// @author ZZ
+    /// @details This function closes the passage specified by tmpargument, proceeding
     /// if the passage isn't blocked.  Crushable characters within the passage
     /// are crushed.
 
@@ -1143,7 +1200,8 @@ Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
 {
     // IfPassageOpen( tmpargument = "passage" )
-    /// @details ZZ@> This function proceeds if the given passage is valid and open to movement
+    /// @author ZZ
+    /// @details This function proceeds if the given passage is valid and open to movement
     /// Used mostly by door characters to tell them when to run their open animation.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1163,7 +1221,8 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_GoPoof( script_state_t * pstate, ai_state_t * pself )
 {
     // GoPoof()
-    /// @details ZZ@> This function flags the character to be removed from the game entirely.
+    /// @author ZZ
+    /// @details This function flags the character to be removed from the game entirely.
     /// This doesn't work on players
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1182,7 +1241,8 @@ Uint8 scr_GoPoof( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
 {
     // CostTargetItemID( tmpargument = "idsz" )
-    /// @details ZZ@> This function proceeds if the target has a matching item, and poofs
+    /// @author ZZ
+    /// @details This function proceeds if the target has a matching item, and poofs
     /// that item.
     /// For one use keys and such
 
@@ -1256,7 +1316,8 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
 {
     // DoActionOverride( tmpargument = "action" )
-    /// @details ZZ@> This function makes the character do a given action no matter what
+    /// @author ZZ
+    /// @details This function makes the character do a given action no matter what
     /// It will fail if the action is invalid
 
     int action;
@@ -1278,7 +1339,8 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Healed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHealed()
-    /// @details ZZ@> This function proceeds if the character was healed by a healing particle
+    /// @author ZZ
+    /// @details This function proceeds if the character was healed by a healing particle
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1292,7 +1354,8 @@ Uint8 scr_Healed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SendPlayerMessage( script_state_t * pstate, ai_state_t * pself )
 {
     // SendPlayerMessage( tmpargument = "message number" )
-    /// @details ZZ@> This function sends a message to the players
+    /// @author ZZ
+    /// @details This function sends a message to the players
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1305,7 +1368,8 @@ Uint8 scr_SendPlayerMessage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
 {
     // CallForHelp()
-    /// @details ZZ@> This function calls all of the character's teammates for help.  The
+    /// @author ZZ
+    /// @details This function calls all of the character's teammates for help.  The
     /// teammates must use IfCalledForHelp in their scripts
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1319,7 +1383,8 @@ Uint8 scr_CallForHelp( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 {
     // AddIDSZ( tmpargument = "idsz" )
-    /// @details ZZ@> This function slaps an expansion IDSZ onto the menu.txt file.
+    /// @author ZZ
+    /// @details This function slaps an expansion IDSZ onto the menu.txt file.
     /// Used to show completion of special quests for a given module
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1337,7 +1402,8 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_State( script_state_t * pstate, ai_state_t * pself )
 {
     // SetState( tmpargument = "state" )
-    /// @details ZZ@> This function sets the character's state.
+    /// @author ZZ
+    /// @details This function sets the character's state.
     /// VERY IMPORTANT. State is preserved from update to update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1352,7 +1418,8 @@ Uint8 scr_set_State( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_State( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetState()
-    /// @details ZZ@> This function reads the character's state variable
+    /// @author ZZ
+    /// @details This function reads the character's state variable
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1365,7 +1432,8 @@ Uint8 scr_get_State( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_StateIs( script_state_t * pstate, ai_state_t * pself )
 {
     // IfStateIs( tmpargument = "state" )
-    /// @details ZZ@> This function proceeds if the character's state equals tmpargument
+    /// @author ZZ
+    /// @details This function proceeds if the character's state equals tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1378,7 +1446,8 @@ Uint8 scr_StateIs( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetCanOpenStuff()
-    /// @details ZZ@> This function proceeds if the target can open stuff ( set in data.txt )
+    /// @author ZZ
+    /// @details This function proceeds if the target can open stuff ( set in data.txt )
     /// Used by chests and buttons and such so only "smart" creatures can operate
     /// them
 
@@ -1413,7 +1482,8 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Grabbed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfGrabbed()
-    /// @details ZZ@> This function proceeds if the character was grabbed (picked up) this update.
+    /// @author ZZ
+    /// @details This function proceeds if the character was grabbed (picked up) this update.
     /// Used mostly by item characters
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1427,7 +1497,8 @@ Uint8 scr_Grabbed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Dropped( script_state_t * pstate, ai_state_t * pself )
 {
     // IfDropped()
-    /// @details ZZ@> This function proceeds if the character was dropped this update.
+    /// @author ZZ
+    /// @details This function proceeds if the character was dropped this update.
     /// Used mostly by item characters
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1441,7 +1512,8 @@ Uint8 scr_Dropped( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToWhoeverIsHolding()
-    /// @details ZZ@> This function sets the target to the character's holder or mount,
+    /// @author ZZ
+    /// @details This function sets the target to the character's holder or mount,
     /// failing if the character has no mount or holder
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1462,7 +1534,8 @@ Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t * pstate, ai_state_t * ps
 Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // DamageTarget( tmpargument = "damage" )
-    /// @details ZZ@> This function applies little bit of love to the character's target.
+    /// @author ZZ
+    /// @details This function applies little bit of love to the character's target.
     /// The amount is set in tmpargument
 
     IPair tmp_damage;
@@ -1481,7 +1554,8 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_XIsLessThanY( script_state_t * pstate, ai_state_t * pself )
 {
     // IfXIsLessThanY( tmpx, tmpy )
-    /// @details ZZ@> This function proceeds if tmpx is less than tmpy.
+    /// @author ZZ
+    /// @details This function proceeds if tmpx is less than tmpy.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1494,7 +1568,8 @@ Uint8 scr_XIsLessThanY( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_WeatherTime( script_state_t * pstate, ai_state_t * pself )
 {
     // SetWeatherTime( tmpargument = "time" )
-    /// @details ZZ@> This function can be used to slow down or speed up or stop rain and
+    /// @author ZZ
+    /// @details This function can be used to slow down or speed up or stop rain and
     /// other weather effects
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1510,7 +1585,8 @@ Uint8 scr_set_WeatherTime( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetBumpHeight()
-    /// @details ZZ@> This function sets tmpargument to the character's height
+    /// @author ZZ
+    /// @details This function sets tmpargument to the character's height
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1523,7 +1599,8 @@ Uint8 scr_get_BumpHeight( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Reaffirmed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfReaffirmed()
-    /// @details ZZ@> This function proceeds if the character was damaged by its reaffirm
+    /// @author ZZ
+    /// @details This function proceeds if the character was damaged by its reaffirm
     /// damage type.  Used to relight the torch.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1537,7 +1614,8 @@ Uint8 scr_Reaffirmed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
 {
     // UnkeepAction()
-    /// @details ZZ@> This function is the opposite of KeepAction. It makes the current animation resume.
+    /// @author ZZ
+    /// @details This function is the opposite of KeepAction. It makes the current animation resume.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1550,7 +1628,8 @@ Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsOnOtherTeam()
-    /// @details ZZ@> This function proceeds if the target is on another team
+    /// @author ZZ
+    /// @details This function proceeds if the target is on another team
 
     chr_t * pself_target;
 
@@ -1567,7 +1646,8 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsOnHatedTeam()
-    /// @details ZZ@> This function proceeds if the target is on an enemy team
+    /// @author ZZ
+    /// @details This function proceeds if the target is on an enemy team
 
     chr_t * pself_target;
 
@@ -1584,7 +1664,8 @@ Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PressLatchButton( script_state_t * pstate, ai_state_t * pself )
 {
     // PressLatchButton( tmpargument = "latch bits" )
-    /// @details ZZ@> This function sets the character latch buttons
+    /// @author ZZ
+    /// @details This function sets the character latch buttons
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1597,7 +1678,8 @@ Uint8 scr_PressLatchButton( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToTargetOfLeader()
-    /// @details ZZ@> This function sets the character's target to the target of its leader,
+    /// @author ZZ
+    /// @details This function sets the character's target to the target of its leader,
     /// or it fails with no change if the leader is dead
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1636,7 +1718,8 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
 Uint8 scr_LeaderKilled( script_state_t * pstate, ai_state_t * pself )
 {
     // IfLeaderKilled()
-    /// @details ZZ@> This function proceeds if the team's leader died this update
+    /// @author ZZ
+    /// @details This function proceeds if the team's leader died this update
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1649,7 +1732,8 @@ Uint8 scr_LeaderKilled( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_BecomeLeader( script_state_t * pstate, ai_state_t * pself )
 {
     // BecomeLeader()
-    /// @details ZZ@> This function makes the character the leader of the team
+    /// @author ZZ
+    /// @details This function makes the character the leader of the team
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1663,7 +1747,8 @@ Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeTargetArmor( tmpargument = "armor" )
 
-    /// @details ZZ@> This function sets the target's armor type and returns the old type
+    /// @author ZZ
+    /// @details This function sets the target's armor type and returns the old type
     /// as tmpargument and the new type as tmpx
 
     int iTmp;
@@ -1685,7 +1770,8 @@ Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveMoneyToTarget( tmpargument = "money" )
-    /// @details ZZ@> This function increases the target's money, while decreasing the
+    /// @author ZZ
+    /// @details This function increases the target's money, while decreasing the
     /// character's own money.  tmpargument is set to the amount transferred
 
     int tTmp;
@@ -1715,7 +1801,8 @@ Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DropKeys( script_state_t * pstate, ai_state_t * pself )
 {
     // DropKeys()
-    /// @details ZZ@> This function drops all of the keys in the character's inventory.
+    /// @author ZZ
+    /// @details This function drops all of the keys in the character's inventory.
     /// This does NOT drop keys in the character's hands.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1729,7 +1816,8 @@ Uint8 scr_DropKeys( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 {
     // IfLeaderIsAlive()
-    /// @details ZZ@> This function proceeds if the team has a leader
+    /// @author ZZ
+    /// @details This function proceeds if the team has a leader
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1742,7 +1830,8 @@ Uint8 scr_LeaderIsAlive( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsOldTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsOldTarget()
-    /// @details ZZ@> This function proceeds if the target is the same as it was last update
+    /// @author ZZ
+    /// @details This function proceeds if the target is the same as it was last update
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1755,7 +1844,8 @@ Uint8 scr_TargetIsOldTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToLeader()
-    /// @details ZZ@> This function sets the target to the leader, proceeding if their is
+    /// @author ZZ
+    /// @details This function sets the target to the leader, proceeding if their is
     /// a valid leader for the character's team
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1780,7 +1870,8 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnCharacter( tmpx = "x", tmpy = "y", tmpturn = "turn", tmpdistance = "speed" )
 
-    /// @details ZZ@> This function spawns a character of the same type as the spawner.
+    /// @author ZZ
+    /// @details This function spawns a character of the same type as the spawner.
     /// This function spawns a character, failing if x,y is invalid
     /// This is horribly complicated to use, so see ANIMATE.OBJ for an example
     /// tmpx and tmpy give the coodinates, tmpturn gives the new character's
@@ -1824,7 +1915,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
             pchild->vel.x += turntocos[ turn ] * pstate->distance;
             pchild->vel.y += turntosin[ turn ] * pstate->distance;
 
-            pchild->iskursed = pchr->iskursed;  /// @details BB@> inherit this from your spawner
+            pchild->iskursed = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
             pchild->ai.owner   = pself->owner;
 
@@ -1840,7 +1931,8 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_RespawnCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // RespawnCharacter()
-    /// @details ZZ@> This function respawns the character at its starting location.
+    /// @author ZZ
+    /// @details This function respawns the character at its starting location.
     /// Often used with the Clean functions
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1854,7 +1946,8 @@ Uint8 scr_RespawnCharacter( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeTile( tmpargument = "tile type")
-    /// @details ZZ@> This function changes the tile under the character to the new tile type,
+    /// @author ZZ
+    /// @details This function changes the tile under the character to the new tile type,
     /// which is highly module dependent
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1868,7 +1961,8 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Used( script_state_t * pstate, ai_state_t * pself )
 {
     // IfUsed()
-    /// @details ZZ@> This function proceeds if the character was used by its holder or rider.
+    /// @author ZZ
+    /// @details This function proceeds if the character was used by its holder or rider.
     /// Character's cannot be used if their reload time is greater than 0
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1882,7 +1976,8 @@ Uint8 scr_Used( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DropMoney( script_state_t * pstate, ai_state_t * pself )
 {
     // DropMoney( tmpargument = "money" )
-    /// @details ZZ@> This function drops a certain amount of money, if the character has that
+    /// @author ZZ
+    /// @details This function drops a certain amount of money, if the character has that
     /// much
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1896,7 +1991,8 @@ Uint8 scr_DropMoney( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_OldTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // SetOldTarget()
-    /// @details ZZ@> This function sets the old target to the current target.  To allow
+    /// @author ZZ
+    /// @details This function sets the old target to the current target.  To allow
     /// greater manipulations of the target
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1910,7 +2006,8 @@ Uint8 scr_set_OldTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
 {
     // DetachFromHolder()
-    /// @details ZZ@> This function drops the character or makes it get off its mount
+    /// @author ZZ
+    /// @details This function drops the character or makes it get off its mount
     /// Can be used to make slippery weapons, or to make certain characters
     /// incapable of wielding certain weapons. "A troll can't grab a torch"
 
@@ -1932,7 +2029,8 @@ Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetHasVulnerabilityID( tmpargument = "vulnerability idsz" )
-    /// @details ZZ@> This function proceeds if the target is vulnerable to the given IDSZ.
+    /// @author ZZ
+    /// @details This function proceeds if the target is vulnerable to the given IDSZ.
 
     cap_t * pcap;
 
@@ -1953,7 +2051,8 @@ Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself 
 Uint8 scr_CleanUp( script_state_t * pstate, ai_state_t * pself )
 {
     // CleanUp()
-    /// @details ZZ@> This function tells all the dead characters on the team to clean
+    /// @author ZZ
+    /// @details This function tells all the dead characters on the team to clean
     /// themselves up.  Usually done by the boss creature every second or so
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1967,7 +2066,8 @@ Uint8 scr_CleanUp( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_CleanedUp( script_state_t * pstate, ai_state_t * pself )
 {
     // IfCleanedUp()
-    /// @details ZZ@> This function proceeds if the character is dead and if the boss told it
+    /// @author ZZ
+    /// @details This function proceeds if the character is dead and if the boss told it
     /// to clean itself up
 
     SCRIPT_FUNCTION_BEGIN();
@@ -1981,7 +2081,8 @@ Uint8 scr_CleanedUp( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
 {
     // IfSitting()
-    /// @details ZZ@> This function proceeds if the character is riding a mount
+    /// @author ZZ
+    /// @details This function proceeds if the character is riding a mount
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1994,7 +2095,8 @@ Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsHurt()
-    /// @details ZZ@> This function passes only if the target is hurt and alive
+    /// @author ZZ
+    /// @details This function passes only if the target is hurt and alive
 
     chr_t * pself_target;
 
@@ -2012,7 +2114,8 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsAPlayer()
-    /// @details ZZ@> This function proceeds if the target is controlled by a human ( may not be local )
+    /// @author ZZ
+    /// @details This function proceeds if the target is controlled by a human ( may not be local )
 
     chr_t * pself_target;
 
@@ -2029,7 +2132,8 @@ Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
 {
     // PlaySound( tmpargument = "sound" )
-    /// @details ZZ@> This function plays one of the character's sounds.
+    /// @author ZZ
+    /// @details This function plays one of the character's sounds.
     /// The sound fades out depending on its distance from the viewer
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2046,7 +2150,8 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnParticle(tmpargument = "particle", tmpdistance = "character vertex", tmpx = "offset x", tmpy = "offset y" )
-    /// @details ZZ@> This function spawns a particle, offset from the character's location
+    /// @author ZZ
+    /// @details This function spawns a particle, offset from the character's location
 
     PRT_REF iprt;
     CHR_REF ichr;
@@ -2105,7 +2210,8 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsAlive()
-    /// @details ZZ@> This function proceeds if the target is alive
+    /// @author ZZ
+    /// @details This function proceeds if the target is alive
 
     chr_t * pself_target;
 
@@ -2122,7 +2228,8 @@ Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Stop( script_state_t * pstate, ai_state_t * pself )
 {
     // Stop()
-    /// @details ZZ@> This function sets the character's maximum acceleration to 0.  Used
+    /// @author ZZ
+    /// @details This function sets the character's maximum acceleration to 0.  Used
     /// along with Walk and Run and Sneak
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2137,7 +2244,8 @@ Uint8 scr_Stop( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DisaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // DisaffirmCharacter()
-    /// @details ZZ@> This function removes all the attached particles from a character
+    /// @author ZZ
+    /// @details This function removes all the attached particles from a character
     /// ( stuck arrows, flames, etc )
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2151,7 +2259,8 @@ Uint8 scr_DisaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ReaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // ReaffirmCharacter()
-    /// @details ZZ@> This function makes sure it has all of its reaffirmation particles
+    /// @author ZZ
+    /// @details This function makes sure it has all of its reaffirmation particles
     /// attached to it. Used to make the torch light again
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2165,7 +2274,8 @@ Uint8 scr_ReaffirmCharacter( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsSelf( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsSelf()
-    /// @details ZZ@> This function proceeds if the character is targeting itself
+    /// @author ZZ
+    /// @details This function proceeds if the character is targeting itself
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2178,7 +2288,8 @@ Uint8 scr_TargetIsSelf( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsMale()
-    /// @details ZZ@> This function proceeds only if the target is male
+    /// @author ZZ
+    /// @details This function proceeds only if the target is male
 
     chr_t * pself_target;
 
@@ -2195,7 +2306,8 @@ Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsFemale()
-    /// @details ZZ@> This function proceeds if the target is female
+    /// @author ZZ
+    /// @details This function proceeds if the target is female
 
     chr_t * pself_target;
 
@@ -2212,7 +2324,8 @@ Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToSelf( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToSelf()
-    /// @details ZZ@> This function sets the target to the character itself
+    /// @author ZZ
+    /// @details This function sets the target to the character itself
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2225,7 +2338,8 @@ Uint8 scr_set_TargetToSelf( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToRider()
-    /// @details ZZ@> This function sets the target to whoever is riding the character (left/only grip),
+    /// @author ZZ
+    /// @details This function sets the target to whoever is riding the character (left/only grip),
     /// failing if there is no rider
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2246,7 +2360,8 @@ Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_AttackTurn( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpturn = GetAttackTurn()
-    /// @details ZZ@> This function sets tmpturn to the direction from which the last attack
+    /// @author ZZ
+    /// @details This function sets tmpturn to the direction from which the last attack
     /// came. Not particularly useful in most cases, but it could be.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2260,7 +2375,8 @@ Uint8 scr_get_AttackTurn( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_DamageType( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetDamageType()
-    /// @details ZZ@> This function sets tmpargument to the damage type of the last attack that
+    /// @author ZZ
+    /// @details This function sets tmpargument to the damage type of the last attack that
     /// hit the character
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2274,7 +2390,8 @@ Uint8 scr_get_DamageType( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
 {
     // BecomeSpell()
-    /// @details ZZ@> This function turns a spellbook character into a spell based on its
+    /// @author ZZ
+    /// @details This function turns a spellbook character into a spell based on its
     /// content.
     /// TOO COMPLICATED TO EXPLAIN.  SHOULDN'T EVER BE NEEDED BY YOU.
 
@@ -2311,7 +2428,8 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 {
     // BecomeSpellbook()
     //
-    /// @details ZZ@> This function turns a spell character into a spellbook and sets the content accordingly.
+    /// @author ZZ
+    /// @details This function turns a spell character into a spellbook and sets the content accordingly.
     /// TOO COMPLICATED TO EXPLAIN. Just copy the spells that already exist, and don't change
     /// them too much
 
@@ -2357,7 +2475,8 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
 {
     // IfScoredAHit()
-    /// @details ZZ@> This function proceeds if the character damaged another character this
+    /// @author ZZ
+    /// @details This function proceeds if the character damaged another character this
     /// update. If it's a held character it also sets the target to whoever was hit
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2382,7 +2501,8 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Disaffirmed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfDisaffirmed()
-    /// @details ZZ@> This function proceeds if the character was disaffirmed.
+    /// @author ZZ
+    /// @details This function proceeds if the character was disaffirmed.
     /// This doesn't seem useful anymore.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2396,7 +2516,8 @@ Uint8 scr_Disaffirmed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpx,tmpy,tmpargument = TranslateOrder()
-    /// @details ZZ@> This function translates a packed order into understandable values.
+    /// @author ZZ
+    /// @details This function translates a packed order into understandable values.
     /// See CreateOrder for more.  This function sets tmpx, tmpy, tmpargument,
     /// and sets the target ( if valid )
 
@@ -2426,7 +2547,8 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToWhoeverWasHit()
-    /// @details ZZ@> This function sets the target to whoever was hit by the character last
+    /// @author ZZ
+    /// @details This function sets the target to whoever was hit by the character last
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2446,7 +2568,8 @@ Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself
 Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToWideEnemy()
-    /// @details ZZ@> This function sets the target to an enemy in the vicinity around the
+    /// @author ZZ
+    /// @details This function sets the target to an enemy in the vicinity around the
     /// character, failing if there are none
 
     CHR_REF ichr;
@@ -2470,7 +2593,8 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Changed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfChanged()
-    /// @details ZZ@> This function proceeds if the character was polymorphed.
+    /// @author ZZ
+    /// @details This function proceeds if the character was polymorphed.
     /// Needed for morph spells and such
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2484,7 +2608,8 @@ Uint8 scr_Changed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_InWater( script_state_t * pstate, ai_state_t * pself )
 {
     // IfInWater()
-    /// @details ZZ@> This function proceeds if the character has just entered into some water
+    /// @author ZZ
+    /// @details This function proceeds if the character has just entered into some water
     /// this update ( and the water is really water, not fog or another effect )
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2498,7 +2623,8 @@ Uint8 scr_InWater( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Bored( script_state_t * pstate, ai_state_t * pself )
 {
     // IfBored()
-    /// @details ZZ@> This function proceeds if the character has been standing idle too long
+    /// @author ZZ
+    /// @details This function proceeds if the character has been standing idle too long
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2511,7 +2637,8 @@ Uint8 scr_Bored( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TooMuchBaggage( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTooMuchBaggage()
-    /// @details ZZ@> This function proceeds if the character tries to put an item in his/her
+    /// @author ZZ
+    /// @details This function proceeds if the character tries to put an item in his/her
     /// pockets, but the character already has 6 items in the inventory.
     /// Used to tell the players what's going on.
 
@@ -2526,7 +2653,8 @@ Uint8 scr_TooMuchBaggage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
 {
     // IfGrogged()
-    /// @details ZZ@> This function proceeds if the character has been grogged ( a type of
+    /// @author ZZ
+    /// @details This function proceeds if the character has been grogged ( a type of
     /// confusion ) this update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2540,7 +2668,8 @@ Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfDazed()
-    /// @details ZZ@> This function proceeds if the character has been dazed ( a type of
+    /// @author ZZ
+    /// @details This function proceeds if the character has been dazed ( a type of
     /// confusion ) this update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2554,7 +2683,8 @@ Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetHasSpecialID( tmpargument = "special idsz" )
-    /// @details ZZ@> This function proceeds if the character has a special IDSZ ( in data.txt )
+    /// @author ZZ
+    /// @details This function proceeds if the character has a special IDSZ ( in data.txt )
 
     cap_t * pcap;
 
@@ -2575,7 +2705,8 @@ Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
 {
     // PressTargetLatchButton( tmpargument = "latch bits" )
-    /// @details ZZ@> This function mimics joystick button presses for the target.
+    /// @author ZZ
+    /// @details This function mimics joystick button presses for the target.
     /// For making items force their own usage and such
 
     chr_t * pself_target;
@@ -2593,7 +2724,8 @@ Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
 {
     // IfInvisible()
-    /// @details ZZ@> This function proceeds if the character is invisible
+    /// @author ZZ
+    /// @details This function proceeds if the character is invisible
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2606,7 +2738,8 @@ Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ArmorIs( script_state_t * pstate, ai_state_t * pself )
 {
     // IfArmorIs( tmpargument = "skin" )
-    /// @details ZZ@> This function proceeds if the character's skin type equals tmpargument
+    /// @author ZZ
+    /// @details This function proceeds if the character's skin type equals tmpargument
 
     int tTmp;
 
@@ -2622,7 +2755,8 @@ Uint8 scr_ArmorIs( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetTargetGrogTime()
-    /// @details ZZ@> This function sets tmpargument to the number of updates before the
+    /// @author ZZ
+    /// @details This function sets tmpargument to the number of updates before the
     /// character is ungrogged, proceeding if the number is greater than 0
 
     chr_t * pself_target;
@@ -2642,7 +2776,8 @@ Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetTargetDazeTime()
-    /// @details ZZ@> This function sets tmpargument to the number of updates before the
+    /// @author ZZ
+    /// @details This function sets tmpargument to the number of updates before the
     /// character is undazed, proceeding if the number is greater than 0
 
     chr_t * pself_target;
@@ -2662,7 +2797,8 @@ Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
 {
     // SetDamageType( tmpargument = "damage type" )
-    /// @details ZZ@> This function lets a weapon change the type of damage it inflicts
+    /// @author ZZ
+    /// @details This function lets a weapon change the type of damage it inflicts
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2675,7 +2811,8 @@ Uint8 scr_set_DamageType( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // SetWaterLevel( tmpargument = "level" )
-    /// @details ZZ@> This function raises or lowers the water in the module
+    /// @author ZZ
+    /// @details This function raises or lowers the water in the module
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2688,7 +2825,8 @@ Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // EnchantTarget()
-    /// @details ZZ@> This function enchants the target with the enchantment given
+    /// @author ZZ
+    /// @details This function enchants the target with the enchantment given
     /// in enchant.txt. Make sure you use set_OwnerToTarget before doing this.
 
     ENC_REF iTmp;
@@ -2705,7 +2843,8 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
 {
     // EnchantChild()
-    /// @details ZZ@> This function can be used with SpawnCharacter to enchant the
+    /// @author ZZ
+    /// @details This function can be used with SpawnCharacter to enchant the
     /// newly spawned character with the enchantment
     /// given in enchant.txt. Make sure you use set_OwnerToTarget before doing this.
 
@@ -2723,7 +2862,8 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // TeleportTarget( tmpx = "x", tmpy = "y" )
-    /// @details ZZ@> This function teleports the target to the X, Y location, failing if the
+    /// @author ZZ
+    /// @details This function teleports the target to the X, Y location, failing if the
     /// location is off the map or blocked
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2737,7 +2877,8 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_add_TargetExperience( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveExperienceToTarget( tmpargument = "amount", tmpdistance = "type" )
-    /// @details ZZ@> This function gives the target some experience, xptype from distance,
+    /// @author ZZ
+    /// @details This function gives the target some experience, xptype from distance,
     /// amount from argument.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2751,7 +2892,8 @@ Uint8 scr_add_TargetExperience( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_IncreaseAmmo( script_state_t * pstate, ai_state_t * pself )
 {
     // IncreaseAmmo()
-    /// @details ZZ@> This function increases the character's ammo by 1
+    /// @author ZZ
+    /// @details This function increases the character's ammo by 1
 
     SCRIPT_FUNCTION_BEGIN();
     if ( pchr->ammo < pchr->ammomax )
@@ -2766,7 +2908,8 @@ Uint8 scr_IncreaseAmmo( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_UnkurseTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // UnkurseTarget()
-    /// @details ZZ@> This function unkurses the target
+    /// @author ZZ
+    /// @details This function unkurses the target
 
     chr_t * pself_target;
 
@@ -2783,7 +2926,8 @@ Uint8 scr_UnkurseTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_add_TargetTeamExperience( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveExperienceToTargetTeam( tmpargument = "amount", tmpdistance = "type" )
-    /// @details ZZ@> This function gives experience to everyone on the target's team
+    /// @author ZZ
+    /// @details This function gives experience to everyone on the target's team
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2796,7 +2940,8 @@ Uint8 scr_add_TargetTeamExperience( script_state_t * pstate, ai_state_t * pself 
 Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfUnarmed()
-    /// @details ZZ@> This function proceeds if the character is holding no items in hand.
+    /// @author ZZ
+    /// @details This function proceeds if the character is holding no items in hand.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2809,7 +2954,8 @@ Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
 {
     // RestockTargetAmmoIDAll( tmpargument = "idsz" )
-    /// @details ZZ@> This function restocks the ammo of every item the character is holding,
+    /// @author ZZ
+    /// @details This function restocks the ammo of every item the character is holding,
     /// if the item matches the ID given ( parent or child type )
 
     CHR_REF ichr;
@@ -2844,7 +2990,8 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself )
 {
     // RestockTargetAmmoIDFirst( tmpargument = "idsz" )
-    /// @details ZZ@> This function restocks the ammo of the first item the character is holding,
+    /// @author ZZ
+    /// @details This function restocks the ammo of the first item the character is holding,
     /// if the item matches the ID given ( parent or child type )
 
     int     iTmp;
@@ -2873,7 +3020,8 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
 Uint8 scr_FlashTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // FlashTarget()
-    /// @details ZZ@> This function makes the target flash
+    /// @author ZZ
+    /// @details This function makes the target flash
 
     chr_t * pself_target;
 
@@ -2890,7 +3038,8 @@ Uint8 scr_FlashTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
 {
     // SetRedShift( tmpargument = "red darkening" )
-    /// @details ZZ@> This function sets the character's red shift ( 0 - 3 ), higher values
+    /// @author ZZ
+    /// @details This function sets the character's red shift ( 0 - 3 ), higher values
     /// making the character less red and darker
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2904,7 +3053,8 @@ Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
 {
     // SetGreenShift( tmpargument = "green darkening" )
-    /// @details ZZ@> This function sets the character's green shift ( 0 - 3 ), higher values
+    /// @author ZZ
+    /// @details This function sets the character's green shift ( 0 - 3 ), higher values
     /// making the character less red and darker
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2918,7 +3068,8 @@ Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
 {
     // SetBlueShift( tmpargument = "blue darkening" )
-    /// @details ZZ@> This function sets the character's blue shift ( 0 - 3 ), higher values
+    /// @author ZZ
+    /// @details This function sets the character's blue shift ( 0 - 3 ), higher values
     /// making the character less red and darker
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2932,7 +3083,8 @@ Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
 {
     // SetLight( tmpargument = "lighness" )
-    /// @details ZZ@> This function alters the character's transparency ( 0 - 254 )
+    /// @author ZZ
+    /// @details This function alters the character's transparency ( 0 - 254 )
     /// 255 = no transparency
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2946,7 +3098,8 @@ Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
 {
     // SetAlpha( tmpargument = "alpha" )
-    /// @details ZZ@> This function alters the character's transparency ( 0 - 255 )
+    /// @author ZZ
+    /// @details This function alters the character's transparency ( 0 - 255 )
     /// 255 = no transparency
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2960,7 +3113,8 @@ Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHitFromBehind()
-    /// @details ZZ@> This function proceeds if the last attack to the character came from behind
+    /// @author ZZ
+    /// @details This function proceeds if the last attack to the character came from behind
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2975,7 +3129,8 @@ Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHitFromFront()
-    /// @details ZZ@> This function proceeds if the last attack to the character came
+    /// @author ZZ
+    /// @details This function proceeds if the last attack to the character came
     /// from the front
 
     SCRIPT_FUNCTION_BEGIN();
@@ -2991,7 +3146,8 @@ Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHitFromLeft()
-    /// @details ZZ@> This function proceeds if the last attack to the character came
+    /// @author ZZ
+    /// @details This function proceeds if the last attack to the character came
     /// from the left
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3007,7 +3163,8 @@ Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHitFromRight()
-    /// @details ZZ@> This function proceeds if the last attack to the character came
+    /// @author ZZ
+    /// @details This function proceeds if the last attack to the character came
     /// from the right
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3023,7 +3180,8 @@ Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsOnSameTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsOnSameTeam()
-    /// @details ZZ@> This function proceeds if the target is on the character's team
+    /// @author ZZ
+    /// @details This function proceeds if the target is on the character's team
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3038,7 +3196,8 @@ Uint8 scr_TargetIsOnSameTeam( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // KillTarget()
-    /// @details ZZ@> This function kills the target
+    /// @author ZZ
+    /// @details This function kills the target
 
     CHR_REF ichr;
 
@@ -3061,7 +3220,8 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 {
     // UndoEnchant()
-    /// @details ZZ@> This function removes the last enchantment spawned by the character,
+    /// @author ZZ
+    /// @details This function removes the last enchantment spawned by the character,
     /// proceeding if an enchantment was removed
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3083,7 +3243,8 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetWaterLevel()
-    /// @details ZZ@> This function sets tmpargument to the current douse level for the water * 10.
+    /// @author ZZ
+    /// @details This function sets tmpargument to the current douse level for the water * 10.
     /// A waterlevel in wawalight of 85 would set tmpargument to 850
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3097,7 +3258,8 @@ Uint8 scr_get_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
 {
     // CostTargetMana( tmpargument = "amount" )
-    /// @details ZZ@> This function costs the target a specific amount of mana, proceeding
+    /// @author ZZ
+    /// @details This function costs the target a specific amount of mana, proceeding
     /// if the target was able to pay the price.  The amounts are 8.8 fixed point
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3111,7 +3273,8 @@ Uint8 scr_CostTargetMana( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasAnyID( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetHasAnyID( tmpargument = "idsz" )
-    /// @details ZZ@> This function proceeds if the target has any IDSZ that matches the given one
+    /// @author ZZ
+    /// @details This function proceeds if the target has any IDSZ that matches the given one
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3124,7 +3287,8 @@ Uint8 scr_TargetHasAnyID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_BumpSize( script_state_t * pstate, ai_state_t * pself )
 {
     // SetBumpSize( tmpargument = "size" )
-    /// @details ZZ@> This function sets the how wide the character is
+    /// @author ZZ
+    /// @details This function sets the how wide the character is
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3137,7 +3301,8 @@ Uint8 scr_set_BumpSize( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_NotDropped( script_state_t * pstate, ai_state_t * pself )
 {
     // IfNotDropped()
-    /// @details ZZ@> This function proceeds if the character is kursed and another character
+    /// @author ZZ
+    /// @details This function proceeds if the character is kursed and another character
     /// was holding it and tried to drop it
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3151,7 +3316,8 @@ Uint8 scr_NotDropped( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_YIsLessThanX( script_state_t * pstate, ai_state_t * pself )
 {
     // IfYIsLessThanX()
-    /// @details ZZ@> This function proceeds if tmpy is less than tmpx
+    /// @author ZZ
+    /// @details This function proceeds if tmpy is less than tmpx
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3164,7 +3330,8 @@ Uint8 scr_YIsLessThanX( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
 {
     // SetFlyHeight( tmpargument = "height" )
-    /// @details ZZ@> This function makes the character fly ( or fall to ground if 0 )
+    /// @author ZZ
+    /// @details This function makes the character fly ( or fall to ground if 0 )
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3177,7 +3344,8 @@ Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Blocked( script_state_t * pstate, ai_state_t * pself )
 {
     // IfBlocked()
-    /// @details ZZ@> This function proceeds if the character blocked the attack of another
+    /// @author ZZ
+    /// @details This function proceeds if the character blocked the attack of another
     /// character this update
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3191,7 +3359,8 @@ Uint8 scr_Blocked( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsDefending()
-    /// @details ZZ@> This function proceeds if the target is holding up a shield or similar
+    /// @author ZZ
+    /// @details This function proceeds if the target is holding up a shield or similar
     /// defense
 
     chr_t * pself_target;
@@ -3209,7 +3378,8 @@ Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsAttacking()
-    /// @details ZZ@> This function proceeds if the target is doing an attack action
+    /// @author ZZ
+    /// @details This function proceeds if the target is doing an attack action
 
     chr_t * pself_target;
 
@@ -3306,7 +3476,8 @@ Uint8 scr_StateIs7( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ContentIs( script_state_t * pstate, ai_state_t * pself )
 {
     // IfContentIs( tmpargument = "test" )
-    /// @details ZZ@> This function proceeds if the content matches tmpargument
+    /// @author ZZ
+    /// @details This function proceeds if the content matches tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3319,7 +3490,8 @@ Uint8 scr_ContentIs( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TurnModeToWatchTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTurnModeToWatchTarget()
-    /// @details ZZ@> This function makes the character face its target, no matter what
+    /// @author ZZ
+    /// @details This function makes the character face its target, no matter what
     /// direction it is moving in.  Undo this with set_TurnModeToVelocity
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3333,7 +3505,8 @@ Uint8 scr_set_TurnModeToWatchTarget( script_state_t * pstate, ai_state_t * pself
 Uint8 scr_StateIsNot( script_state_t * pstate, ai_state_t * pself )
 {
     // IfStateIsNot( tmpargument = "test" )
-    /// @details ZZ@> This function proceeds if the character's state does not equal tmpargument
+    /// @author ZZ
+    /// @details This function proceeds if the character's state does not equal tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3358,7 +3531,8 @@ Uint8 scr_XIsEqualToY( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DebugMessage( script_state_t * pstate, ai_state_t * pself )
 {
     // DebugMessage()
-    /// @details ZZ@> This function spits out some useful numbers
+    /// @author ZZ
+    /// @details This function spits out some useful numbers
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3374,7 +3548,8 @@ Uint8 scr_DebugMessage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_BlackTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // BlackTarget()
-    /// @details ZZ@>  The opposite of FlashTarget, causing the target to turn black
+    /// @author ZZ
+    /// @details  The opposite of FlashTarget, causing the target to turn black
 
     chr_t * pself_target;
 
@@ -3391,7 +3566,8 @@ Uint8 scr_BlackTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
 {
     // SendMessageNear( tmpargument = "message" )
-    /// @details ZZ@> This function sends a message if the camera is in the nearby area
+    /// @author ZZ
+    /// @details This function sends a message if the camera is in the nearby area
 
     int iTmp, min_distance;
     ext_camera_list_t * plst;
@@ -3431,7 +3607,8 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HitGround( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHitGround()
-    /// @details ZZ@> This function proceeds if a character hit the ground this update.
+    /// @author ZZ
+    /// @details This function proceeds if a character hit the ground this update.
     /// Used to determine when to play the sound for a dropped item
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3445,7 +3622,8 @@ Uint8 scr_HitGround( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_NameIsKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // IfNameIsKnown()
-    /// @details ZZ@> This function proceeds if the character's name is known
+    /// @author ZZ
+    /// @details This function proceeds if the character's name is known
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3458,7 +3636,8 @@ Uint8 scr_NameIsKnown( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // IfUsageIsKnown()
-    /// @details ZZ@> This function proceeds if the character's usage is known
+    /// @author ZZ
+    /// @details This function proceeds if the character's usage is known
 
     cap_t * pcap;
 
@@ -3479,7 +3658,8 @@ Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHoldingItemID( tmpargument = "idsz" )
-    /// @details ZZ@> This function proceeds if the character is holding a specified item
+    /// @author ZZ
+    /// @details This function proceeds if the character is holding a specified item
     /// in hand, setting tmpargument to the latch button to press to use it
 
     CHR_REF item;
@@ -3497,7 +3677,8 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHoldingRangedWeapon()
-    /// @details ZZ@> This function passes if the character is holding a ranged weapon, returning
+    /// @author ZZ
+    /// @details This function passes if the character is holding a ranged weapon, returning
     /// the latch to press to use it.  This also checks ammo/ammoknown.
 
     CHR_REF ichr;
@@ -3547,7 +3728,8 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHoldingMeleeWeapon()
-    /// @details ZZ@> This function proceeds if the character is holding a specified item
+    /// @author ZZ
+    /// @details This function proceeds if the character is holding a specified item
     /// in hand, setting tmpargument to the latch button to press to use it
 
     CHR_REF ichr;
@@ -3599,7 +3781,8 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHoldingShield()
-    /// @details ZZ@> This function proceeds if the character is holding a specified item
+    /// @author ZZ
+    /// @details This function proceeds if the character is holding a specified item
     /// in hand, setting tmpargument to the latch button to press to use it. The button will need to be held down.
 
     CHR_REF ichr;
@@ -3648,7 +3831,8 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Kursed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfKursed()
-    /// @details ZZ@> This function proceeds if the character is kursed
+    /// @author ZZ
+    /// @details This function proceeds if the character is kursed
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3661,7 +3845,8 @@ Uint8 scr_Kursed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsKursed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsKursed()
-    /// @details ZZ@> This function proceeds if the target is kursed
+    /// @author ZZ
+    /// @details This function proceeds if the target is kursed
 
     chr_t * pself_target;
 
@@ -3678,7 +3863,8 @@ Uint8 scr_TargetIsKursed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsDressedUp()
-    /// @details ZZ@> This function proceeds if the target is dressed in fancy clothes
+    /// @author ZZ
+    /// @details This function proceeds if the target is dressed in fancy clothes
 
     cap_t * pcap;
 
@@ -3699,7 +3885,8 @@ Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 {
     // IfOverWater()
-    /// @details ZZ@> This function proceeds if the character is on a water tile
+    /// @author ZZ
+    /// @details This function proceeds if the character is on a water tile
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3712,7 +3899,8 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Thrown( script_state_t * pstate, ai_state_t * pself )
 {
     // IfThrown()
-    /// @details ZZ@> This function proceeds if the character was thrown this update.
+    /// @author ZZ
+    /// @details This function proceeds if the character was thrown this update.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3725,7 +3913,8 @@ Uint8 scr_Thrown( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_MakeNameKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeNameKnown()
-    /// @details ZZ@> This function makes the name of the character known, for identifying
+    /// @author ZZ
+    /// @details This function makes the name of the character known, for identifying
     /// weapons and spells and such
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3740,7 +3929,8 @@ Uint8 scr_MakeNameKnown( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_MakeUsageKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeUsageKnown()
-    /// @details ZZ@> This function makes the usage known for this type of object
+    /// @author ZZ
+    /// @details This function makes the usage known for this type of object
     /// For XP gains from using an unknown potion or such
 
     cap_t * pcap;
@@ -3763,7 +3953,8 @@ Uint8 scr_MakeUsageKnown( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
 {
     // StopTargetMovement()
-    /// @details ZZ@> This function makes the target stop moving temporarily
+    /// @author ZZ
+    /// @details This function makes the target stop moving temporarily
     /// Sets the target's x and y velocities to 0, and
     /// sets the z velocity to 0 if the character is moving upwards.
     /// This is a special function for the IronBall object
@@ -3785,7 +3976,8 @@ Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_XY( script_state_t * pstate, ai_state_t * pself )
 {
     // SetXY( tmpargument = "index", tmpx = "x", tmpy = "y" )
-    /// @details ZZ@> This function sets one of the 8 permanent storage variable slots
+    /// @author ZZ
+    /// @details This function sets one of the 8 permanent storage variable slots
     /// ( each of which holds an x,y pair )
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3800,7 +3992,8 @@ Uint8 scr_set_XY( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_XY( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpx,tmpy = GetXY( tmpargument = "index" )
-    /// @details ZZ@> This function reads one of the 8 permanent storage variable slots,
+    /// @author ZZ
+    /// @details This function reads one of the 8 permanent storage variable slots,
     /// setting tmpx and tmpy accordingly
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3815,7 +4008,8 @@ Uint8 scr_get_XY( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AddXY( script_state_t * pstate, ai_state_t * pself )
 {
     // AddXY( tmpargument = "index", tmpx = "x", tmpy = "y" )
-    /// @details ZZ@> This function alters the contents of one of the 8 permanent storage
+    /// @author ZZ
+    /// @details This function alters the contents of one of the 8 permanent storage
     /// slots
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3830,7 +4024,8 @@ Uint8 scr_AddXY( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_MakeAmmoKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeAmmoKnown()
-    /// @details ZZ@> This function makes the character's ammo known ( for items )
+    /// @author ZZ
+    /// @details This function makes the character's ammo known ( for items )
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3843,7 +4038,8 @@ Uint8 scr_MakeAmmoKnown( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnAttachedParticle( tmpargument = "particle", tmpdistance = "vertex" )
-    /// @details ZZ@> This function spawns a particle attached to the character
+    /// @author ZZ
+    /// @details This function spawns a particle attached to the character
 
     CHR_REF ichr, iholder;
     PRT_REF iprt;
@@ -3868,7 +4064,8 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnExactParticle( tmpargument = "particle", tmpx = "x", tmpy = "y", tmpdistance = "z" )
-    /// @details ZZ@> This function spawns a particle at a specific x, y, z position
+    /// @author ZZ
+    /// @details This function spawns a particle at a specific x, y, z position
 
     PRT_REF iprt;
     CHR_REF ichr;
@@ -3899,7 +4096,8 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // AccelerateTarget( tmpx = "acc x", tmpy = "acc y" )
-    /// @details ZZ@> This function changes the x and y speeds of the target
+    /// @author ZZ
+    /// @details This function changes the x and y speeds of the target
 
     chr_t * pself_target;
 
@@ -3917,7 +4115,8 @@ Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_distanceIsMoreThanTurn( script_state_t * pstate, ai_state_t * pself )
 {
     // IfdistanceIsMoreThanTurn()
-    /// @details ZZ@> This function proceeds tmpdistance is greater than tmpturn
+    /// @author ZZ
+    /// @details This function proceeds tmpdistance is greater than tmpturn
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3930,7 +4129,8 @@ Uint8 scr_distanceIsMoreThanTurn( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Crushed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfCrushed()
-    /// @details ZZ@> This function proceeds if the character was crushed in a passage this
+    /// @author ZZ
+    /// @details This function proceeds if the character was crushed in a passage this
     /// update.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3944,7 +4144,8 @@ Uint8 scr_Crushed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_MakeCrushValid( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeCrushValid()
-    /// @details ZZ@> This function makes a character able to be crushed by closing doors
+    /// @author ZZ
+    /// @details This function makes a character able to be crushed by closing doors
     /// and such
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3958,7 +4159,8 @@ Uint8 scr_MakeCrushValid( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToLowestTarget()
-    /// @details ZZ@> This function sets the target to the absolute bottom character.
+    /// @author ZZ
+    /// @details This function sets the target to the absolute bottom character.
     /// The holder of the target, or the holder of the holder of the target, or
     /// the holder of the holder of ther holder of the target, etc.   This function never fails
 
@@ -3984,7 +4186,8 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
 Uint8 scr_NotPutAway( script_state_t * pstate, ai_state_t * pself )
 {
     // IfNotPutAway()
-    /// @details ZZ@> This function proceeds if the character couldn't be put into another
+    /// @author ZZ
+    /// @details This function proceeds if the character couldn't be put into another
     /// character's pockets for some reason.
     /// It might be kursed or too big or something
 
@@ -3999,7 +4202,8 @@ Uint8 scr_NotPutAway( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TakenOut( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTakenOut()
-    /// @details ZZ@> This function proceeds if the character is equiped in another's inventory,
+    /// @author ZZ
+    /// @details This function proceeds if the character is equiped in another's inventory,
     /// and the holder tried to unequip it ( take it out of pack ), but the
     /// item was kursed and didn't cooperate
 
@@ -4014,7 +4218,8 @@ Uint8 scr_TakenOut( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AmmoOut( script_state_t * pstate, ai_state_t * pself )
 {
     // IfAmmoOut()
-    /// @details ZZ@> This function proceeds if the character itself has no ammo left.
+    /// @author ZZ
+    /// @details This function proceeds if the character itself has no ammo left.
     /// This is for crossbows and such, not archers.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4029,7 +4234,8 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 {
     // PlaySoundLooped( tmpargument = "sound", tmpdistance = "frequency" )
 
-    /// @details ZZ@> This function starts playing a continuous sound
+    /// @author ZZ
+    /// @details This function starts playing a continuous sound
 
     Mix_Chunk * new_chunk;
 
@@ -4068,7 +4274,8 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
 {
     // StopSound( tmpargument = "sound" )
-    /// @details ZZ@> This function stops the playing of a continuous sound!
+    /// @author ZZ
+    /// @details This function stops the playing of a continuous sound!
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4081,7 +4288,8 @@ Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
 {
     // HealSelf()
-    /// @details ZZ@> This function gives life back to the character.
+    /// @author ZZ
+    /// @details This function gives life back to the character.
     /// Values given as 8.8 fixed point
     /// This does NOT remove [HEAL] enchants ( poisons )
     /// This does not set the ALERTIF_HEALED alert
@@ -4097,7 +4305,8 @@ Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Equip( script_state_t * pstate, ai_state_t * pself )
 {
     // Equip()
-    /// @details ZZ@> This function flags the character as being equipped.
+    /// @author ZZ
+    /// @details This function flags the character as being equipped.
     /// This is used by equipment items when they are placed in the inventory
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4111,7 +4320,8 @@ Uint8 scr_Equip( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetHasItemIDEquipped( tmpargument = "item idsz" )
-    /// @details ZZ@> This function proceeds if the target already wearing a matching item
+    /// @author ZZ
+    /// @details This function proceeds if the target already wearing a matching item
 
     CHR_REF item;
 
@@ -4128,7 +4338,8 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_OwnerToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // SetOwnerToTarget()
-    /// @details ZZ@> This function must be called before enchanting anything.
+    /// @author ZZ
+    /// @details This function must be called before enchanting anything.
     /// The owner is the character that pays the sustain costs and such for the enchantment
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4142,7 +4353,8 @@ Uint8 scr_set_OwnerToTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToOwner()
-    /// @details ZZ@> This function sets the target to whoever was previously declared as the
+    /// @author ZZ
+    /// @details This function sets the target to whoever was previously declared as the
     /// owner.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4163,7 +4375,8 @@ Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
 {
     // SetFrame( tmpargument = "frame" )
-    /// @details ZZ@> This function sets the current .MD2 frame for the character.  Values are * 4
+    /// @author ZZ
+    /// @details This function sets the current .MD2 frame for the character.  Values are * 4
 
     int    frame_along = 0;
     Uint16 ilip        = 0;
@@ -4182,7 +4395,8 @@ Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // BreakPassage( tmpargument = "passage", tmpturn = "tile type", tmpdistance = "number of frames", tmpx = "borken tile", tmpy = "tile fx bits" )
 
-    /// @details ZZ@> This function makes the tiles fall away ( turns into damage terrain )
+    /// @author ZZ
+    /// @details This function makes the tiles fall away ( turns into damage terrain )
     /// This function causes the tiles of a passage to increment if stepped on.
     /// tmpx and tmpy are both set to the location of whoever broke the tile if
     /// the function passed.
@@ -4198,7 +4412,8 @@ Uint8 scr_BreakPassage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_ReloadTime( script_state_t * pstate, ai_state_t * pself )
 {
     // SetReloadTime( tmpargument = "time" )
-    /// @details ZZ@> This function stops a character from being used for a while.  Used
+    /// @author ZZ
+    /// @details This function stops a character from being used for a while.  Used
     /// by weapons to slow down their attack rate.  50 clicks per second.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4213,7 +4428,8 @@ Uint8 scr_set_ReloadTime( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToWideBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
-    /// @details ZZ@> This function sets the target to a character that matches the description,
+    /// @author ZZ
+    /// @details This function sets the target to a character that matches the description,
     /// and who is located in the general vicinity of the character
 
     CHR_REF ichr;
@@ -4240,7 +4456,8 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // PoofTarget()
-    /// @details ZZ@> This function removes the target from the game, failing if the
+    /// @author ZZ
+    /// @details This function removes the target from the game, failing if the
     /// target is a player
 
     chr_t * pself_target;
@@ -4275,7 +4492,8 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
 {
     // ChildDoActionOverride( tmpargument = action )
 
-    /// @details ZZ@> This function lets a character set the action of the last character
+    /// @author ZZ
+    /// @details This function lets a character set the action of the last character
     /// it spawned.  It also sets the current frame to the first frame of the
     /// action ( no interpolation from last frame ). If the cation is not valid for the model,
     /// the function will fail
@@ -4304,7 +4522,8 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SpawnPoof( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnPoof
-    /// @details ZZ@> This function makes a lovely little poof at the character's location.
+    /// @author ZZ
+    /// @details This function makes a lovely little poof at the character's location.
     /// The poof form and particle types are set in data.txt
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4318,7 +4537,8 @@ Uint8 scr_SpawnPoof( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 {
     // SetSpeedPercent( tmpargument = "percent" )
-    /// @details ZZ@> This function acts like Run or Walk, except it allows the explicit
+    /// @author ZZ
+    /// @details This function acts like Run or Walk, except it allows the explicit
     /// setting of the speed
 
     float fvalue;
@@ -4350,7 +4570,8 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
 {
     // SetChildState( tmpargument = "state" )
-    /// @details ZZ@> This function lets a character set the state of the last character it
+    /// @author ZZ
+    /// @details This function lets a character set the state of the last character it
     /// spawned
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4367,7 +4588,8 @@ Uint8 scr_set_ChildState( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnAttachedSizedParticle( tmpargument = "particle", tmpdistance = "vertex", tmpturn = "size" )
-    /// @details ZZ@> This function spawns a particle of the specific size attached to the
+    /// @author ZZ
+    /// @details This function spawns a particle of the specific size attached to the
     /// character. For spell charging effects
 
     PRT_REF iprt;
@@ -4397,7 +4619,8 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
 Uint8 scr_ChangeArmor( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeArmor( tmpargument = "time" )
-    /// @details ZZ@> This function changes the character's armor.
+    /// @author ZZ
+    /// @details This function changes the character's armor.
     /// Sets tmpargument as the old type and tmpx as the new type
 
     int iTmp;
@@ -4416,7 +4639,8 @@ Uint8 scr_ChangeArmor( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ShowTimer( script_state_t * pstate, ai_state_t * pself )
 {
     // ShowTimer( tmpargument = "time" )
-    /// @details ZZ@> This function sets the value displayed by the module timer.
+    /// @author ZZ
+    /// @details This function sets the value displayed by the module timer.
     /// For races and such.  50 clicks per second
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4431,7 +4655,8 @@ Uint8 scr_ShowTimer( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // IfFacingTarget()
-    /// @details ZZ@> This function proceeds if the character is more or less facing its
+    /// @author ZZ
+    /// @details This function proceeds if the character is more or less facing its
     /// target
 
     FACING_T sTmp = 0;
@@ -4452,7 +4677,8 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
 {
     // PlaySoundVolume( argument = "sound", distance = "volume" )
-    /// @details ZZ@> This function sets the volume of a sound and plays it
+    /// @author ZZ
+    /// @details This function sets the volume of a sound and plays it
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4478,7 +4704,8 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
 {
     // SpawnAttachedFacedParticle(  tmpargument = "particle", tmpdistance = "vertex", tmpturn = "turn" )
 
-    /// @details ZZ@> This function spawns a particle attached to the character, facing the
+    /// @author ZZ
+    /// @details This function spawns a particle attached to the character, facing the
     /// same direction given by tmpturn
 
     PRT_REF iprt;
@@ -4503,7 +4730,8 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
 Uint8 scr_StateIsOdd( script_state_t * pstate, ai_state_t * pself )
 {
     // IfStateIsOdd()
-    /// @details ZZ@> This function proceeds if the character's state is 1, 3, 5, 7, etc.
+    /// @author ZZ
+    /// @details This function proceeds if the character's state is 1, 3, 5, 7, etc.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4516,7 +4744,8 @@ Uint8 scr_StateIsOdd( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToDistantEnemy( tmpdistance = "distance" )
-    /// @details ZZ@> This function finds a character within a certain distance of the
+    /// @author ZZ
+    /// @details This function finds a character within a certain distance of the
     /// character, failing if there are none
 
     CHR_REF ichr;
@@ -4541,7 +4770,8 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
 Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
 {
     // Teleport( tmpx = "x", tmpy = "y" )
-    /// @details ZZ@> This function teleports the character to a new location, failing if
+    /// @author ZZ
+    /// @details This function teleports the character to a new location, failing if
     /// the location is blocked or off the map
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4647,7 +4877,8 @@ Uint8 scr_add_TargetDexterity( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_add_TargetLife( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveLifeToTarget()
-    /// @details ZZ@> Permanently boost the target's life
+    /// @author ZZ
+    /// @details Permanently boost the target's life
 
     int iTmp;
     chr_t * pself_target;
@@ -4676,7 +4907,8 @@ Uint8 scr_add_TargetLife( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_add_TargetMana( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaToTarget()
-    /// @details ZZ@> Permanently boost the target's mana
+    /// @author ZZ
+    /// @details Permanently boost the target's mana
 
     int iTmp;
     chr_t * pself_target;
@@ -4705,7 +4937,8 @@ Uint8 scr_add_TargetMana( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ShowMap( script_state_t * pstate, ai_state_t * pself )
 {
     // ShowMap()
-    /// @details ZZ@> This function shows the module's map.
+    /// @author ZZ
+    /// @details This function shows the module's map.
     /// Fails if map already visible
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4720,7 +4953,8 @@ Uint8 scr_ShowMap( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ShowYouAreHere( script_state_t * pstate, ai_state_t * pself )
 {
     // ShowYouAreHere()
-    /// @details ZZ@> This function shows the blinking white blip on the map that represents the
+    /// @author ZZ
+    /// @details This function shows the blinking white blip on the map that represents the
     /// camera location
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4735,7 +4969,8 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
 {
     // ShowBlipXY( tmpx = "x", tmpy = "y", tmpargument = "color" )
 
-    /// @details ZZ@> This function draws a blip on the map, and must be done each update
+    /// @author ZZ
+    /// @details This function draws a blip on the map, and must be done each update
     SCRIPT_FUNCTION_BEGIN();
 
     // Add a blip
@@ -4760,7 +4995,8 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // HealTarget( tmpargument = "amount" )
-    /// @details ZZ@> This function gives some life back to the target.
+    /// @author ZZ
+    /// @details This function gives some life back to the target.
     /// Values are 8.8 fixed point. Any enchantments that are removed by [HEAL], like poison, go away
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4779,7 +5015,8 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // PumpTarget( tmpargument = "amount" )
-    /// @details ZZ@> This function gives some mana back to the target.
+    /// @author ZZ
+    /// @details This function gives some mana back to the target.
     /// Values are 8.8 fixed point
 
     int iTmp;
@@ -4803,7 +5040,8 @@ Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_CostAmmo( script_state_t * pstate, ai_state_t * pself )
 {
     // CostAmmo()
-    /// @details ZZ@> This function costs the character 1 point of ammo
+    /// @author ZZ
+    /// @details This function costs the character 1 point of ammo
 
     SCRIPT_FUNCTION_BEGIN();
     if ( pchr->ammo > 0 )
@@ -4818,7 +5056,8 @@ Uint8 scr_CostAmmo( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeSimilarNamesKnown()
-    /// @details ZZ@> This function makes the names of similar objects known.
+    /// @author ZZ
+    /// @details This function makes the names of similar objects known.
     /// Checks all 6 IDSZ types to make sure they match.
 
     int tTmp;
@@ -4861,7 +5100,8 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
 {
     // SpawnAttachedHolderParticle( tmpargument = "particle", tmpdistance = "vertex" )
 
-    /// @details ZZ@> This function spawns a particle attached to the character's holder, or to the character if no holder
+    /// @author ZZ
+    /// @details This function spawns a particle attached to the character's holder, or to the character if no holder
 
     PRT_REF iprt;
     CHR_REF ichr;
@@ -4886,7 +5126,8 @@ Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetReloadTime( tmpargument = "time" )
 
-    /// @details ZZ@> This function sets the target's reload time
+    /// @author ZZ
+    /// @details This function sets the target's reload time
     /// This function stops the target from attacking for a while.
 
     chr_t * pself_target;
@@ -4911,7 +5152,8 @@ Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // SetFogLevel( tmpargument = "level" )
-    /// @details ZZ@> This function sets the level of the module's fog.
+    /// @author ZZ
+    /// @details This function sets the level of the module's fog.
     /// Values are * 10
     /// !!BAD!! DOESN'T WORK !!BAD!!
 
@@ -4932,7 +5174,8 @@ Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_FogLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetFogLevel()
-    /// @details ZZ@> This function sets tmpargument to the level of the module's fog.
+    /// @author ZZ
+    /// @details This function sets tmpargument to the level of the module's fog.
     /// Values are * 10
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4945,7 +5188,8 @@ Uint8 scr_get_FogLevel( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_FogTAD( script_state_t * pstate, ai_state_t * pself )
 {
-    /// @details ZZ@> This function sets the color of the module's fog.
+    /// @author ZZ
+    /// @details This function sets the color of the module's fog.
     /// TAD stands for <turn, argument, distance> == <red, green, blue>.
     /// Makes sense, huh?
     /// !!BAD!! DOESN'T WORK !!BAD!!
@@ -4964,7 +5208,8 @@ Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // SetFogBottomLevel( tmpargument = "level" )
 
-    /// @details ZZ@> This function sets the level of the module's fog.
+    /// @author ZZ
+    /// @details This function sets the level of the module's fog.
     /// Values are * 10
 
     float fTmp;
@@ -4985,7 +5230,8 @@ Uint8 scr_get_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetFogBottomLevel()
 
-    /// @details ZZ@> This function sets tmpargument to the level of the module's fog.
+    /// @author ZZ
+    /// @details This function sets tmpargument to the level of the module's fog.
     /// Values are * 10
 
     SCRIPT_FUNCTION_BEGIN();
@@ -4999,7 +5245,8 @@ Uint8 scr_get_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
 {
     // CorrectActionForHand( tmpargument = "action" )
-    /// @details ZZ@> This function changes tmpargument according to which hand the character
+    /// @author ZZ
+    /// @details This function changes tmpargument according to which hand the character
     /// is held in It turns ZA into ZA, ZB, ZC, or ZD.
     /// USAGE:  wizards casting spells
 
@@ -5025,7 +5272,8 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsMounted()
-    /// @details ZZ@> This function proceeds if the target is riding a mount
+    /// @author ZZ
+    /// @details This function proceeds if the target is riding a mount
 
     CHR_REF ichr;
     chr_t * pself_target;
@@ -5049,7 +5297,8 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SparkleIcon( script_state_t * pstate, ai_state_t * pself )
 {
     // SparkleIcon( tmpargument = "color" )
-    /// @details ZZ@> This function starts little sparklies going around the character's icon
+    /// @author ZZ
+    /// @details This function starts little sparklies going around the character's icon
 
     SCRIPT_FUNCTION_BEGIN();
     if ( pstate->argument < COLOR_MAX )
@@ -5071,7 +5320,8 @@ Uint8 scr_SparkleIcon( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_UnsparkleIcon( script_state_t * pstate, ai_state_t * pself )
 {
     // UnsparkleIcon()
-    /// @details ZZ@> This function stops little sparklies going around the character's icon
+    /// @author ZZ
+    /// @details This function stops little sparklies going around the character's icon
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5084,7 +5334,8 @@ Uint8 scr_UnsparkleIcon( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetTileXY( tmpx = "x", tmpy = "y" )
-    /// @details ZZ@> This function sets tmpargument to the tile type at the specified
+    /// @author ZZ
+    /// @details This function sets tmpargument to the tile type at the specified
     /// coordinates
 
     Uint32 iTmp;
@@ -5109,7 +5360,8 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 {
     // scr_set_TileXY( tmpargument = "tile type", tmpx = "x", tmpy = "y" )
-    /// @details ZZ@> This function changes the tile type at the specified coordinates
+    /// @author ZZ
+    /// @details This function changes the tile type at the specified coordinates
 
     Uint32 iTmp;
 
@@ -5125,7 +5377,8 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_ShadowSize( script_state_t * pstate, ai_state_t * pself )
 {
     // SetShadowSize( tmpargument = "size" )
-    /// @details ZZ@> This function makes the character's shadow bigger or smaller
+    /// @author ZZ
+    /// @details This function makes the character's shadow bigger or smaller
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5139,7 +5392,8 @@ Uint8 scr_set_ShadowSize( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // OrderTarget( tmpargument = "order" )
-    /// @details ZZ@> This function issues an order to the given target
+    /// @author ZZ
+    /// @details This function issues an order to the given target
     /// Be careful in using this, always checking IDSZ first
 
     chr_t * pself_target;
@@ -5164,7 +5418,8 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToWhoeverIsInPassage()
-    /// @details ZZ@> This function sets the target to whoever is blocking the given passage
+    /// @author ZZ
+    /// @details This function sets the target to whoever is blocking the given passage
     /// This function lets passage rectangles be used as event triggers
 
     CHR_REF ichr;
@@ -5189,7 +5444,8 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 Uint8 scr_CharacterWasABook( script_state_t * pstate, ai_state_t * pself )
 {
     // IfCharacterWasABook()
-    /// @details ZZ@> This function proceeds if the base model is the same as the current
+    /// @author ZZ
+    /// @details This function proceeds if the base model is the same as the current
     /// model or if the base model is SPELLBOOK
     /// USAGE: USED BY THE MORPH SPELL. Not much use elsewhere
 
@@ -5205,7 +5461,8 @@ Uint8 scr_CharacterWasABook( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
 {
     // SetEnchantBoostValues( tmpargument = "owner mana regen", tmpdistance = "owner life regen", tmpx = "target mana regen", tmpy = "target life regen" )
-    /// @details ZZ@> This function sets the mana and life drains for the last enchantment
+    /// @author ZZ
+    /// @details This function sets the mana and life drains for the last enchantment
     /// spawned by this character.
     /// Values are 8.8 fixed point
 
@@ -5233,7 +5490,8 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnCharacterXYZ( tmpx = "x", tmpy = "y", tmpdistance = "z", tmpturn = "turn" )
-    /// @details ZZ@> This function spawns a character of the same type at a specific location, failing if x,y,z is invalid
+    /// @author ZZ
+    /// @details This function spawns a character of the same type at a specific location, failing if x,y,z is invalid
 
     fvec3_t   pos;
     CHR_REF ichr;
@@ -5268,7 +5526,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         {
             pself->child = ichr;
 
-            pchild->iskursed   = pchr->iskursed;  /// @details BB@> inherit this from your spawner
+            pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
             pchild->ai.owner   = pself->owner;
 
@@ -5284,7 +5542,8 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnCharacterXYZ( tmpargument = "slot", tmpx = "x", tmpy = "y", tmpdistance = "z", tmpturn = "turn" )
-    /// @details ZZ@> This function spawns a character at a specific location, using a
+    /// @author ZZ
+    /// @details This function spawns a character at a specific location, using a
     /// specific model type, failing if x,y,z is invalid
     /// DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
     /// AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE.
@@ -5324,7 +5583,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         {
             pself->child = ichr;
 
-            pchild->iskursed   = pchr->iskursed;  /// @details BB@> inherit this from your spawner
+            pchild->iskursed   = pchr->iskursed;  /// @note BB@> inherit this from your spawner
             pchild->ai.passage = pself->passage;
             pchild->ai.owner   = pself->owner;
 
@@ -5341,7 +5600,8 @@ Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
 {
     // ChangeTargetClass( tmpargument = "slot" )
 
-    /// @details ZZ@> This function changes the target character's model slot.
+    /// @author ZZ
+    /// @details This function changes the target character's model slot.
     /// DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS, AS THE MODEL SLOTS MAY VARY FROM
     /// MODULE TO MODULE.
     /// USAGE: This is intended as a way to incorporate more player classes into the game.
@@ -5357,7 +5617,8 @@ Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
 {
     // PlayFullSound( tmpargument = "sound", tmpdistance = "frequency" )
-    /// @details ZZ@> This function plays one of the character's sounds .
+    /// @author ZZ
+    /// @details This function plays one of the character's sounds .
     /// The sound will be heard at full volume by all players (Victory music)
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5374,7 +5635,8 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnExactChaseParticle( tmpargument = "particle", tmpx = "x", tmpy = "y", tmpdistance = "z" )
-    /// @details ZZ@> This function spawns a particle at a specific x, y, z position,
+    /// @author ZZ
+    /// @details This function spawns a particle at a specific x, y, z position,
     /// that will home in on the character's target
 
     PRT_REF iprt;
@@ -5413,7 +5675,8 @@ Uint8 scr_CreateOrder( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = CreateOrder( tmpx = "value1", tmpy = "value2", tmpargument = "order" )
 
-    /// @details ZZ@> This function compresses tmpx, tmpy, tmpargument ( 0 - 15 ), and the
+    /// @author ZZ
+    /// @details This function compresses tmpx, tmpy, tmpargument ( 0 - 15 ), and the
     /// character's target into tmpargument.  This new tmpargument can then
     /// be issued as an order to teammates.  TranslateOrder will undo the
     /// compression
@@ -5435,7 +5698,8 @@ Uint8 scr_CreateOrder( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_OrderSpecialID( script_state_t * pstate, ai_state_t * pself )
 {
     // OrderSpecialID( tmpargument = "compressed order", tmpdistance = "idsz" )
-    /// @details ZZ@> This function orders all characters with the given special IDSZ.
+    /// @author ZZ
+    /// @details This function orders all characters with the given special IDSZ.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5448,7 +5712,8 @@ Uint8 scr_OrderSpecialID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
 {
     // UnkurseTargetInventory()
-    /// @details ZZ@> This function unkurses all items held and in the pockets of the target
+    /// @author ZZ
+    /// @details This function unkurses all items held and in the pockets of the target
 
     CHR_REF ichr;
     chr_t * pself_target;
@@ -5482,7 +5747,8 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsSneaking()
-    /// @details ZZ@> This function proceeds if the target is doing ACTION_WA or ACTION_DA
+    /// @author ZZ
+    /// @details This function proceeds if the target is doing ACTION_WA or ACTION_DA
 
     chr_t * pself_target;
 
@@ -5499,7 +5765,8 @@ Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DropItems( script_state_t * pstate, ai_state_t * pself )
 {
     // DropItems()
-    /// @details ZZ@> This function drops all of the items the character is holding
+    /// @author ZZ
+    /// @details This function drops all of the items the character is holding
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5512,7 +5779,8 @@ Uint8 scr_DropItems( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // RespawnTarget()
-    /// @details ZZ@> This function respawns the target at its current location
+    /// @author ZZ
+    /// @details This function respawns the target at its current location
 
     chr_t * pself_target;
     fvec3_t save_pos;
@@ -5531,7 +5799,8 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
 {
     // TargetDoActionSetFrame( tmpargument = "action" )
-    /// @details ZZ@> This function starts the target doing the given action, and also sets
+    /// @author ZZ
+    /// @details This function starts the target doing the given action, and also sets
     /// the starting frame to the first of the animation ( so there is no
     /// interpolation 'cause it looks awful in some circumstances )
     /// It will fail if the action is invalid
@@ -5562,7 +5831,8 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetCanSeeInvisible()
-    /// @details ZZ@> This function proceeds if the target can see invisible
+    /// @author ZZ
+    /// @details This function proceeds if the target can see invisible
 
     chr_t * pself_target;
 
@@ -5580,7 +5850,8 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
 {
     // SetTargetToNearestBlahID( tmpargument = "idsz", tmpdistance = "blah bits" )
 
-    /// @details ZZ@> This function finds the NEAREST ( exact ) character that fits the given
+    /// @author ZZ
+    /// @details This function finds the NEAREST ( exact ) character that fits the given
     /// parameters, failing if it finds none
 
     CHR_REF ichr;
@@ -5606,7 +5877,8 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
 Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToNearestEnemy()
-    /// @details ZZ@> This function finds the NEAREST ( exact ) enemy, failing if it finds none
+    /// @author ZZ
+    /// @details This function finds the NEAREST ( exact ) enemy, failing if it finds none
 
     CHR_REF ichr;
 
@@ -5630,7 +5902,8 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
 Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToNearestFriend()
-    /// @details ZZ@> This function finds the NEAREST ( exact ) friend, failing if it finds none
+    /// @author ZZ
+    /// @details This function finds the NEAREST ( exact ) friend, failing if it finds none
 
     CHR_REF ichr;
 
@@ -5655,7 +5928,8 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
 {
     // SetTargetToNearestLifeform()
 
-    /// @details ZZ@> This function finds the NEAREST ( exact ) friend or enemy, failing if it
+    /// @author ZZ
+    /// @details This function finds the NEAREST ( exact ) friend or enemy, failing if it
     /// finds none
 
     CHR_REF ichr;
@@ -5681,7 +5955,8 @@ Uint8 scr_FlashPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // FlashPassage( tmpargument = "passage", tmpdistance = "color" )
 
-    /// @details ZZ@> This function makes the given passage light or dark.
+    /// @author ZZ
+    /// @details This function makes the given passage light or dark.
     /// Usage: For debug purposes
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5696,7 +5971,8 @@ Uint8 scr_FindTileInPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpx, tmpy = FindTileInPassage( tmpargument = "passage", tmpdistance = "tile type", tmpx, tmpy )
 
-    /// @details ZZ@> This function finds all tiles of the specified type that lie within the
+    /// @author ZZ
+    /// @details This function finds all tiles of the specified type that lie within the
     /// given passage.  Call multiple times to find multiple tiles.  tmpx and
     /// tmpy will be set to the middle of the found tile if one is found, or
     /// both will be set to 0 if no tile is found.
@@ -5713,7 +5989,8 @@ Uint8 scr_FindTileInPassage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHeldInLeftHand()
-    /// @details ZZ@> This function passes if another character is holding the character in its
+    /// @author ZZ
+    /// @details This function passes if another character is holding the character in its
     /// left hand.
     /// Usage: Used mostly by enchants that target the item of the other hand
 
@@ -5735,7 +6012,8 @@ Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_NotAnItem( script_state_t * pstate, ai_state_t * pself )
 {
     // NotAnItem()
-    /// @details ZZ@> This function makes the character a non-item character.
+    /// @author ZZ
+    /// @details This function makes the character a non-item character.
     /// Usage: Used for spells that summon creatures
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5749,7 +6027,8 @@ Uint8 scr_NotAnItem( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
 {
     // SetChildAmmo( tmpargument = "none" )
-    /// @details ZZ@> This function sets the ammo of the last character spawned by this character
+    /// @author ZZ
+    /// @details This function sets the ammo of the last character spawned by this character
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5762,7 +6041,8 @@ Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HitVulnerable( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHitVulnerable()
-    /// @details ZZ@> This function proceeds if the character was hit by a weapon of its
+    /// @author ZZ
+    /// @details This function proceeds if the character was hit by a weapon of its
     /// vulnerability IDSZ.
     /// For example, a werewolf gets hit by a [SILV] bullet.
 
@@ -5777,7 +6057,8 @@ Uint8 scr_HitVulnerable( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsFlying( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsFlying()
-    /// @details ZZ@> This function proceeds if the character target is flying
+    /// @author ZZ
+    /// @details This function proceeds if the character target is flying
 
     chr_t * pself_target;
 
@@ -5794,7 +6075,8 @@ Uint8 scr_TargetIsFlying( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // IdentifyTarget()
-    /// @details ZZ@> This function reveals the target's name, ammo, and usage
+    /// @author ZZ
+    /// @details This function reveals the target's name, ammo, and usage
     /// Proceeds if the target was unknown
 
     cap_t * pcap;
@@ -5824,7 +6106,8 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_BeatModule( script_state_t * pstate, ai_state_t * pself )
 {
     // BeatModule()
-    /// @details ZZ@> This function displays the Module Ended message
+    /// @author ZZ
+    /// @details This function displays the Module Ended message
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5837,7 +6120,8 @@ Uint8 scr_BeatModule( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_EndModule( script_state_t * pstate, ai_state_t * pself )
 {
     // EndModule()
-    /// @details ZZ@> This function presses the Escape key
+    /// @author ZZ
+    /// @details This function presses the Escape key
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5851,7 +6135,8 @@ Uint8 scr_EndModule( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DisableExport( script_state_t * pstate, ai_state_t * pself )
 {
     // DisableExport()
-    /// @details ZZ@> This function turns export off
+    /// @author ZZ
+    /// @details This function turns export off
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5864,7 +6149,8 @@ Uint8 scr_DisableExport( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
 {
     // EnableExport()
-    /// @details ZZ@> This function turns export on
+    /// @author ZZ
+    /// @details This function turns export on
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5877,7 +6163,8 @@ Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_TargetState( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetTargetState()
-    /// @details ZZ@> This function sets tmpargument to the state of the target
+    /// @author ZZ
+    /// @details This function sets tmpargument to the state of the target
 
     chr_t * pself_target;
 
@@ -5906,7 +6193,8 @@ Uint8 scr_Equipped( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DropTargetMoney( script_state_t * pstate, ai_state_t * pself )
 {
     // DropTargetMoney( tmpargument = "amount" )
-    /// @details ZZ@> This function drops some of the target's money
+    /// @author ZZ
+    /// @details This function drops some of the target's money
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5936,7 +6224,8 @@ Uint8 scr_get_TargetContent( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DropTargetKeys( script_state_t * pstate, ai_state_t * pself )
 {
     // DropTargetKeys()
-    /// @details ZZ@> This function makes the Target drops keys in inventory (Not inhand)
+    /// @author ZZ
+    /// @details This function makes the Target drops keys in inventory (Not inhand)
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5949,7 +6238,8 @@ Uint8 scr_DropTargetKeys( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_JoinTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // JoinTeam( tmpargument = "team" )
-    /// @details ZZ@> This makes the character itself join a specified team (A = 0, B = 1, 23 = Z, etc.)
+    /// @author ZZ
+    /// @details This makes the character itself join a specified team (A = 0, B = 1, 23 = Z, etc.)
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5962,7 +6252,8 @@ Uint8 scr_JoinTeam( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetJoinTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // TargetJoinTeam( tmpargument = "team" )
-    /// @details ZZ@> This makes the Target join a Team specified in tmpargument (A = 0, 25 = Z, etc.)
+    /// @author ZZ
+    /// @details This makes the Target join a Team specified in tmpargument (A = 0, 25 = Z, etc.)
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5975,7 +6266,8 @@ Uint8 scr_TargetJoinTeam( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // ClearMusicPassage( tmpargument = "passage" )
-    /// @details ZZ@> This clears the music for a specified passage
+    /// @author ZZ
+    /// @details This clears the music for a specified passage
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5994,7 +6286,8 @@ Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_ClearEndMessage( script_state_t * pstate, ai_state_t * pself )
 {
     // ClearEndMessage()
-    /// @details ZZ@> This function empties the end-module text buffer
+    /// @author ZZ
+    /// @details This function empties the end-module text buffer
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6008,7 +6301,8 @@ Uint8 scr_ClearEndMessage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AddEndMessage( script_state_t * pstate, ai_state_t * pself )
 {
     // AddEndMessage( tmpargument = "message" )
-    /// @details ZZ@> This function appends a message to the end-module text buffer
+    /// @author ZZ
+    /// @details This function appends a message to the end-module text buffer
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6021,7 +6315,8 @@ Uint8 scr_AddEndMessage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PlayMusic( script_state_t * pstate, ai_state_t * pself )
 {
     // PlayMusic( tmpargument = "song number", tmpdistance = "fade time (msec)" )
-    /// @details ZZ@> This function begins playing a new track of music
+    /// @author ZZ
+    /// @details This function begins playing a new track of music
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6038,7 +6333,8 @@ Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // SetMusicPassage( tmpargument = "passage", tmpturn = "type", tmpdistance = "repetitions" )
 
-    /// @details ZZ@> This function makes the given passage play music if a player enters it
+    /// @author ZZ
+    /// @details This function makes the given passage play music if a player enters it
     /// tmpargument is the passage to set and tmpdistance is the music track to play.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6058,7 +6354,8 @@ Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_MakeCrushInvalid( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeCrushInvalid()
-    /// @details ZZ@> This function makes doors unable to close on this object
+    /// @author ZZ
+    /// @details This function makes doors unable to close on this object
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6071,7 +6368,8 @@ Uint8 scr_MakeCrushInvalid( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_StopMusic( script_state_t * pstate, ai_state_t * pself )
 {
     // StopMusic()
-    /// @details ZZ@> This function stops the interactive music
+    /// @author ZZ
+    /// @details This function stops the interactive music
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6085,7 +6383,8 @@ Uint8 scr_FlashVariable( script_state_t * pstate, ai_state_t * pself )
 {
     // FlashVariable( tmpargument = "amount" )
 
-    /// @details ZZ@> This function makes the character flash according to tmpargument
+    /// @author ZZ
+    /// @details This function makes the character flash according to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6098,7 +6397,8 @@ Uint8 scr_FlashVariable( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AccelerateUp( script_state_t * pstate, ai_state_t * pself )
 {
     // AccelerateUp( tmpargument = "acc z" )
-    /// @details ZZ@> This function makes the character accelerate up and down
+    /// @author ZZ
+    /// @details This function makes the character accelerate up and down
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6111,7 +6411,8 @@ Uint8 scr_AccelerateUp( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_FlashVariableHeight( script_state_t * pstate, ai_state_t * pself )
 {
     // FlashVariableHeight( tmpturn = "intensity bottom", tmpx = "bottom", tmpdistance = "intensity top", tmpy = "top" )
-    /// @details ZZ@> This function makes the character flash, feet one color, head another.
+    /// @author ZZ
+    /// @details This function makes the character flash, feet one color, head another.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6124,7 +6425,8 @@ Uint8 scr_FlashVariableHeight( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_DamageTime( script_state_t * pstate, ai_state_t * pself )
 {
     // SetDamageTime( tmpargument = "time" )
-    /// @details ZZ@> This function makes the character invincible for a little while
+    /// @author ZZ
+    /// @details This function makes the character invincible for a little while
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6217,7 +6519,8 @@ Uint8 scr_StateIs15( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsAMount()
-    /// @details ZZ@> This function passes if the Target is a mountable character
+    /// @author ZZ
+    /// @details This function passes if the Target is a mountable character
 
     chr_t * pself_target;
 
@@ -6234,7 +6537,8 @@ Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsAPlatform( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsAPlatform()
-    /// @details ZZ@> This function passes if the Target is a platform character
+    /// @author ZZ
+    /// @details This function passes if the Target is a platform character
 
     chr_t * pself_target;
 
@@ -6251,7 +6555,8 @@ Uint8 scr_TargetIsAPlatform( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AddStat( script_state_t * pstate, ai_state_t * pself )
 {
     // AddStat()
-    /// @details ZZ@> This function turns on an NPC's status display
+    /// @author ZZ
+    /// @details This function turns on an NPC's status display
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6267,7 +6572,8 @@ Uint8 scr_AddStat( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // DisenchantTarget()
-    /// @details ZZ@> This function removes all enchantments on the Target character, proceeding
+    /// @author ZZ
+    /// @details This function removes all enchantments on the Target character, proceeding
     /// if there were any, failing if not
 
     chr_t * pself_target;
@@ -6287,7 +6593,8 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
 {
     // DisenchantAll()
-    /// @details ZZ@> This function removes all enchantments in the game
+    /// @author ZZ
+    /// @details This function removes all enchantments in the game
 
     ENC_REF iTmp;
 
@@ -6305,7 +6612,8 @@ Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself )
 {
     // SetVolumeNearestTeammate( tmpargument = "sound", tmpdistance = "distance" )
-    /// @details ZZ@> This function lets insects buzz correctly.  The closest Team member
+    /// @author ZZ
+    /// @details This function lets insects buzz correctly.  The closest Team member
     /// is used to determine the overall sound level.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6344,7 +6652,8 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
 Uint8 scr_AddShopPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // AddShopPassage( tmpargument = "passage" )
-    /// @details ZZ@> This function makes a passage behave as a shop area, as long as the
+    /// @author ZZ
+    /// @details This function makes a passage behave as a shop area, as long as the
     /// character is alive.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6359,7 +6668,8 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpx, tmpy = TargetPayForArmor( tmpargument = "skin" )
 
-    /// @details ZZ@> This function costs the Target the appropriate amount of money for the
+    /// @author ZZ
+    /// @details This function costs the Target the appropriate amount of money for the
     /// given armor type.  Passes if the character has enough, and fails if not.
     /// Does trade-in bonus automatically.  tmpy is always set to cost of requested
     /// skin tmpx is set to amount needed after trade-in ( 0 for pass ).
@@ -6407,7 +6717,8 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_JoinEvilTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // JoinEvilTeam()
-    /// @details ZZ@> This function adds the character to the evil Team.
+    /// @author ZZ
+    /// @details This function adds the character to the evil Team.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6420,7 +6731,8 @@ Uint8 scr_JoinEvilTeam( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_JoinNullTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // JoinNullTeam()
-    /// @details ZZ@> This function adds the character to the null Team.
+    /// @author ZZ
+    /// @details This function adds the character to the null Team.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6433,7 +6745,8 @@ Uint8 scr_JoinNullTeam( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_JoinGoodTeam( script_state_t * pstate, ai_state_t * pself )
 {
     // JoinGoodTeam()
-    /// @details ZZ@> This function adds the character to the good Team.
+    /// @author ZZ
+    /// @details This function adds the character to the good Team.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6446,7 +6759,8 @@ Uint8 scr_JoinGoodTeam( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PitsKill( script_state_t * pstate, ai_state_t * pself )
 {
     // PitsKill()
-    /// @details ZZ@> This function activates pit deaths for when characters fall below a
+    /// @author ZZ
+    /// @details This function activates pit deaths for when characters fall below a
     /// certain altitude.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6460,7 +6774,8 @@ Uint8 scr_PitsKill( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToPassageID( tmpargument = "passage", tmpdistance = "idsz" )
-    /// @details ZZ@> This function finds a character who is both in the passage and who has
+    /// @author ZZ
+    /// @details This function finds a character who is both in the passage and who has
     /// an item with the given IDSZ
 
     CHR_REF ichr;
@@ -6485,7 +6800,8 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_MakeNameUnknown( script_state_t * pstate, ai_state_t * pself )
 {
     // MakeNameUnknown()
-    /// @details ZZ@> This function makes the name of an item/character unknown.
+    /// @author ZZ
+    /// @details This function makes the name of an item/character unknown.
     /// Usage: Use if you have subspawning of creatures from a book.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6500,7 +6816,8 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
 {
     // SpawnExactParticleEndSpawn( tmpargument = "particle", tmpturn = "state", tmpx = "x", tmpy = "y", tmpdistance = "z" )
 
-    /// @details ZZ@> This function spawns a particle at a specific x, y, z position.
+    /// @author ZZ
+    /// @details This function spawns a particle at a specific x, y, z position.
     /// When the particle ends, a character is spawned at its final location.
     /// The character is the same type of whatever spawned the particle.
 
@@ -6540,7 +6857,8 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 {
     // SpawnPoofSpeedSpacingDamage( tmpx = "xy speed", tmpy = "xy spacing", tmpargument = "damage" )
 
-    /// @details ZZ@> This function makes a lovely little poof at the character's location,
+    /// @author ZZ
+    /// @details This function makes a lovely little poof at the character's location,
     /// adjusting the xy speed and spacing and the base damage first
     /// Temporarily adjust the values for the particle type
 
@@ -6595,7 +6913,8 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 Uint8 scr_add_GoodTeamExperience( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveExperienceToGoodTeam(  tmpargument = "amount", tmpdistance = "type" )
-    /// @details ZZ@> This function gives experience to everyone on the G Team
+    /// @author ZZ
+    /// @details This function gives experience to everyone on the G Team
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6608,7 +6927,8 @@ Uint8 scr_add_GoodTeamExperience( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DoNothing( script_state_t * pstate, ai_state_t * pself )
 {
     // DoNothing()
-    /// @details ZF@> This function does nothing
+    /// @author ZF
+    /// @details This function does nothing
     /// Use this for debugging or in combination with a Else function
 
     return btrue;
@@ -6618,7 +6938,8 @@ Uint8 scr_DoNothing( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // GrogTarget( tmpargument = "amount" )
-    /// @details ZF@> This function grogs the Target for a duration equal to tmpargument
+    /// @author ZF
+    /// @details This function grogs the Target for a duration equal to tmpargument
 
     cap_t * pcap;
     chr_t * pself_target;
@@ -6643,7 +6964,8 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // DazeTarget( tmpargument = "amount" )
-    /// @details ZF@> This function dazes the Target for a duration equal to tmpargument
+    /// @author ZF
+    /// @details This function dazes the Target for a duration equal to tmpargument
 
     cap_t * pcap;
     chr_t * pself_target;
@@ -6669,7 +6991,8 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 {
     // EnableRespawn()
-    /// @details ZF@> This function turns respawn with JUMP button on
+    /// @author ZF
+    /// @details This function turns respawn with JUMP button on
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6682,7 +7005,8 @@ Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 {
     // DisableRespawn()
-    /// @details ZF@> This function turns respawn with JUMP button off
+    /// @author ZF
+    /// @details This function turns respawn with JUMP button off
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6695,7 +7019,8 @@ Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 {
     // IfHolderBlocked()
-    /// @details ZF@> This function passes if the holder blocked an attack
+    /// @author ZF
+    /// @details This function passes if the holder blocked an attack
 
     CHR_REF iattached;
 
@@ -6737,7 +7062,8 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetHasNotFullMana()
-    /// @details ZF@> This function passes only if the Target is not at max mana and alive
+    /// @author ZF
+    /// @details This function passes only if the Target is not at max mana and alive
 
     chr_t * pself_target;
 
@@ -6757,7 +7083,8 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 {
     // EnableListenSkill()
-    /// @details ZF@> This function increases range from which sound can be heard by 33%
+    /// @author ZF
+    /// @details This function increases range from which sound can be heard by 33%
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6771,7 +7098,8 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToLastItemUsed()
-    /// @details ZF@> This sets the Target to the last item the character used
+    /// @author ZF
+    /// @details This sets the Target to the last item the character used
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6791,7 +7119,8 @@ Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself 
 Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 {
     // FollowLink( tmpargument = "index of next module name" )
-    /// @details BB@> Skips to the next module!
+    /// @author BB
+    /// @details Skips to the next module!
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6810,7 +7139,8 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
 {
     // IfOperatorIsLinux()
-    /// @details ZF@> Proceeds if running on linux
+    /// @author ZF
+    /// @details Proceeds if running on linux
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6827,7 +7157,8 @@ Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsAWeapon()
-    /// @details ZF@> Proceeds if the AI Target Is a melee or ranged weapon
+    /// @author ZF
+    /// @details Proceeds if the AI Target Is a melee or ranged weapon
 
     cap_t * pcap;
 
@@ -6847,7 +7178,8 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 {
     // IfSomeoneIsStealing()
-    /// @details ZF@> This function passes if someone stealed from it's shop
+    /// @author ZF
+    /// @details This function passes if someone stealed from it's shop
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6860,7 +7192,8 @@ Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsASpell()
-    /// @details ZF@> roceeds if the AI Target has any particle with the [IDAM] or [WDAM] expansion
+    /// @author ZF
+    /// @details roceeds if the AI Target has any particle with the [IDAM] or [WDAM] expansion
 
     int iTmp;
 
@@ -6886,7 +7219,8 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 {
     // IfBackstabbed()
-    /// @details ZF@> Proceeds if HitFromBehind, target has [STAB] skill and damage dealt is physical
+    /// @author ZF
+    /// @details Proceeds if HitFromBehind, target has [STAB] skill and damage dealt is physical
     /// automatically fails if attacker has a code of conduct
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6918,7 +7252,8 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpargument = GetTargetDamageType()
-    /// @details ZF@> This function gets the last type of damage for the Target
+    /// @author ZF
+    /// @details This function gets the last type of damage for the Target
 
     chr_t * pself_target;
 
@@ -6935,7 +7270,8 @@ Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 {
     // AddQuest( tmpargument = "quest idsz" )
-    /// @details ZF@> This function adds a quest idsz set in tmpargument into the targets quest.txt to 0
+    /// @author ZF
+    /// @details This function adds a quest idsz set in tmpargument into the targets quest.txt to 0
 
     egolib_rv result = rv_fail;
     chr_t * pself_target;
@@ -6962,7 +7298,8 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 {
     // BeatQuestAllPlayers()
-    /// @details ZF@> This function marks a IDSZ in the targets quest.txt as beaten
+    /// @author ZF
+    /// @details This function marks a IDSZ in the targets quest.txt as beaten
     ///               returns true if at least one quest got marked as beaten.
 
     PLA_REF ipla;
@@ -6993,7 +7330,8 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 {
     // tmpdistance = IfTargetHasQuest( tmpargument = "quest idsz )
-    /// @details ZF@> This function proceeds if the Target has the unfinIshed quest specified in tmpargument
+    /// @author ZF
+    /// @details This function proceeds if the Target has the unfinIshed quest specified in tmpargument
     /// and sets tmpdistance to the Quest Level of the specified quest.
 
     int     quest_level = QUEST_NONE;
@@ -7028,7 +7366,8 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 {
     // SetQuestLevel( tmpargument = "idsz", distance = "adjustment" )
-    /// @details ZF@> This function modifies the quest level for a specific quest IDSZ
+    /// @author ZF
+    /// @details This function modifies the quest level for a specific quest IDSZ
     /// tmpargument specifies quest idsz (tmpargument) and the adjustment (tmpdistance, which may be negative)
 
     chr_t * pself_target;
@@ -7057,7 +7396,8 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 {
     // AddQuestAllPlayers( tmpargument = "quest idsz" )
-    /// @details ZF@> This function adds a quest idsz set in tmpargument into all local player's quest logs
+    /// @author ZF
+    /// @details This function adds a quest idsz set in tmpargument into all local player's quest logs
     /// The quest level Is set to tmpdistance if the level Is not already higher
 
     PLA_REF ipla;
@@ -7088,7 +7428,8 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 {
     // AddBlipAllEnemies()
-    /// @details ZF@> show all enemies on the minimap who match the IDSZ given in tmpargument
+    /// @author ZF
+    /// @details show all enemies on the minimap who match the IDSZ given in tmpargument
     /// it show only the enemies of the AI Target
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7111,7 +7452,8 @@ Uint8 scr_AddBlipAllEnemies( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 {
     // PitsFall( tmpx = "teleprt x", tmpy = "teleprt y", tmpdistance = "teleprt z" )
-    /// @details ZF@> This function activates pit teleportation.
+    /// @author ZF
+    /// @details This function activates pit teleportation.
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7134,7 +7476,8 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsOwner()
-    /// @details ZF@> This function proceeds only if the Target is the character's owner
+    /// @author ZF
+    /// @details This function proceeds only if the Target is the character's owner
 
     chr_t * pself_target;
 
@@ -7152,7 +7495,8 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 {
     // SpawnAttachedCharacter( tmpargument = "profile", tmpx = "x", tmpy = "y", tmpdistance = "z" )
 
-    /// @details ZF@> This function spawns a character defined in tmpargument to the characters AI target using
+    /// @author ZF
+    /// @details This function spawns a character defined in tmpargument to the characters AI target using
     /// the slot specified in tmpdistance (LEFT, RIGHT or INVENTORY). Fails if the inventory or
     /// grip specified is full or already in use.
     /// DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
@@ -7259,7 +7603,8 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToChild()
-    /// @details ZF@> This function sets the target to the character it spawned last (also called it's "child")
+    /// @author ZF
+    /// @details This function sets the target to the character it spawned last (also called it's "child")
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7279,7 +7624,8 @@ Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_DamageThreshold( script_state_t * pstate, ai_state_t * pself )
 {
     // SetDamageThreshold()
-    /// @details ZF@> This sets the damage treshold for this character. Damage below the threshold is ignored
+    /// @author ZF
+    /// @details This sets the damage treshold for this character. Damage below the threshold is ignored
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7292,7 +7638,8 @@ Uint8 scr_set_DamageThreshold( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 {
     // End()
-    /// @details ZZ@> This Is the last function in a script
+    /// @author ZZ
+    /// @details This Is the last function in a script
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7306,7 +7653,8 @@ Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TakePicture( script_state_t * pstate, ai_state_t * pself )
 {
     // TakePicture()
-    /// @details ZF@> This function proceeds only if the screenshot was successful
+    /// @author ZF
+    /// @details This function proceeds only if the screenshot was successful
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7319,7 +7667,8 @@ Uint8 scr_TakePicture( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
 {
     // SetSpeech( tmpargument = "sound" )
-    /// @details ZZ@> This function sets all of the RTS speech registers to tmpargument
+    /// @author ZZ
+    /// @details This function sets all of the RTS speech registers to tmpargument
 
     Uint16 sTmp = 0;
 
@@ -7337,7 +7686,8 @@ Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_MoveSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // SetMoveSpeech( tmpargument = "sound" )
-    /// @details ZZ@> This function sets the RTS move speech register to tmpargument
+    /// @author ZZ
+    /// @details This function sets the RTS move speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7350,7 +7700,8 @@ Uint8 scr_set_MoveSpeech( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_SecondMoveSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // SetSecondMoveSpeech( tmpargument = "sound" )
-    /// @details ZZ@> This function sets the RTS movealt speech register to tmpargument
+    /// @author ZZ
+    /// @details This function sets the RTS movealt speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7363,7 +7714,8 @@ Uint8 scr_set_SecondMoveSpeech( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_AttackSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // SetAttacksSpeech( tmpargument = "sound" )
-    /// @details ZZ@> This function sets the RTS attack speech register to tmpargument
+    /// @author ZZ
+    /// @details This function sets the RTS attack speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7376,7 +7728,8 @@ Uint8 scr_set_AttackSpeech( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // SetAssistSpeech( tmpargument = "sound" )
-    /// @details ZZ@> This function sets the RTS assist speech register to tmpargument
+    /// @author ZZ
+    /// @details This function sets the RTS assist speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7389,7 +7742,8 @@ Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTerrainSpeech( tmpargument = "sound" )
-    /// @details ZZ@> This function sets the RTS terrain speech register to tmpargument
+    /// @author ZZ
+    /// @details This function sets the RTS terrain speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7402,7 +7756,8 @@ Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
 {
     // SetSelectSpeech( tmpargument = "sound" )
-    /// @details ZZ@> This function sets the RTS select speech register to tmpargument
+    /// @author ZZ
+    /// @details This function sets the RTS select speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7415,7 +7770,8 @@ Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 {
     // IfOperatorIsMacintosh()
-    /// @details ZF@> Proceeds if the current running OS is mac
+    /// @author ZF
+    /// @details Proceeds if the current running OS is mac
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7433,7 +7789,8 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 {
     // IfModuleHasIDSZ( tmpargument = "message number with module name", tmpdistance = "idsz" )
 
-    /// @details ZF@> Proceeds if the specified module has the required IDSZ specified in tmpdistance
+    /// @author ZF
+    /// @details Proceeds if the specified module has the required IDSZ specified in tmpdistance
     /// The module folder name to be checked is a string from message.txt
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7450,7 +7807,8 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // MorphToTarget()
-    /// @details ZF@> This morphs the character into the target
+    /// @author ZF
+    /// @details This morphs the character into the target
     /// Also set size and keeps the previous AI type
 
     chr_t * pself_target;
@@ -7477,7 +7835,8 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_add_TargetManaFlow( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaFlowToTarget()
-    /// @details ZF@> Permanently boost the target's mana flow
+    /// @author ZF
+    /// @details Permanently boost the target's mana flow
 
     int iTmp;
     chr_t * pself_target;
@@ -7500,7 +7859,8 @@ Uint8 scr_add_TargetManaFlow( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_add_TargetManaReturn( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveManaReturnToTarget()
-    /// @details ZF@> Permanently boost the target's mana return
+    /// @author ZF
+    /// @details Permanently boost the target's mana return
 
     int iTmp;
     chr_t * pself_target;
@@ -7523,7 +7883,8 @@ Uint8 scr_add_TargetManaReturn( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 {
     // SetMoney()
-    /// @details ZF@> Permanently sets the money for the character to tmpargument
+    /// @author ZF
+    /// @details Permanently sets the money for the character to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7536,7 +7897,8 @@ Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetCanSeeKurses()
-    /// @details ZF@> Proceeds if the target can see kursed stuff.
+    /// @author ZF
+    /// @details Proceeds if the target can see kursed stuff.
 
     chr_t * pself_target;
 
@@ -7553,7 +7915,8 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 {
     // DispelEnchantID( tmpargument = "idsz" )
-    /// @details ZF@> This function removes all enchants from the target who match the specified RemovedByIDSZ
+    /// @author ZF
+    /// @details This function removes all enchants from the target who match the specified RemovedByIDSZ
 
     chr_t * pself_target;
 
@@ -7575,7 +7938,8 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
 {
     // KurseTarget()
-    /// @details ZF@> This makes the target kursed
+    /// @author ZF
+    /// @details This makes the target kursed
 
     chr_t * pself_target;
 
@@ -7597,7 +7961,8 @@ Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
 {
     // SetChildContent( tmpargument = "content" )
-    /// @details ZF@> This function lets a character set the content of the last character it
+    /// @author ZF
+    /// @details This function lets a character set the content of the last character it
     /// spawned last
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7611,7 +7976,8 @@ Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
 {
     // AccelerateTargetUp( tmpargument = "acc z" )
-    /// @details ZF@> This function makes the target accelerate up and down
+    /// @author ZF
+    /// @details This function makes the target accelerate up and down
 
     chr_t * pself_target;
 
@@ -7628,7 +7994,8 @@ Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetAmmo( tmpargument = "ammo" )
-    /// @details ZF@> This function sets the ammo of the character's current AI target
+    /// @author ZF
+    /// @details This function sets the ammo of the character's current AI target
 
     chr_t * pself_target;
 
@@ -7645,7 +8012,8 @@ Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_EnableInvictus( script_state_t * pstate, ai_state_t * pself )
 {
     // EnableInvictus()
-    /// @details ZF@> This function makes the character invulerable
+    /// @author ZF
+    /// @details This function makes the character invulerable
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7658,7 +8026,8 @@ Uint8 scr_EnableInvictus( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DisableInvictus( script_state_t * pstate, ai_state_t * pself )
 {
     // DisableInvictus()
-    /// @details ZF@> This function makes the character not invulerable
+    /// @author ZF
+    /// @details This function makes the character not invulerable
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7671,7 +8040,8 @@ Uint8 scr_DisableInvictus( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
 {
     // TargetDamageSelf( tmpargument = "damage" )
-    /// @details ZF@> This function applies little bit of hate from the character's target to
+    /// @author ZF
+    /// @details This function applies little bit of hate from the character's target to
     /// the character itself. The amount is set in tmpargument
 
     IPair tmp_damage;
@@ -7690,7 +8060,8 @@ Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetSize( script_state_t * pstate, ai_state_t * pself )
 {
     // SetSize( tmpargument = "percent" )
-    /// @details ZF@> This changes the AI target's size
+    /// @author ZF
+    /// @details This changes the AI target's size
 
     chr_t * pself_target;
 
@@ -7708,7 +8079,8 @@ Uint8 scr_set_TargetSize( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 {
     // DrawBillboard( tmpargument = "message", tmpdistance = "duration", tmpturn = "color" )
-    /// @details ZF@> This function draws one of those billboards above the character
+    /// @author ZF
+    /// @details This function draws one of those billboards above the character
 
     SDL_Color text_color = {0xFF, 0xFF, 0xFF, 0xFF};
     GLfloat *do_tint;
@@ -7746,7 +8118,8 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself )
 {
     // SetTargetToBlahInPassage()
-    /// @details ZF@> This function sets the target to whatever object with the specified bits
+    /// @author ZF
+    /// @details This function sets the target to whatever object with the specified bits
     /// in tmpdistance is blocking the given passage. This function lets passage rectangles be used as event triggers
 
     CHR_REF ichr;
@@ -7771,7 +8144,8 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
 Uint8 scr_TargetIsFacingSelf( script_state_t * pstate, ai_state_t * pself )
 {
     // IfTargetIsFacingSelf()
-    /// @details ZF@> This function proceeds if the target is more or less facing the character
+    /// @author ZF
+    /// @details This function proceeds if the target is more or less facing the character
     FACING_T sTmp = 0;
     chr_t *  pself_target;
 
@@ -7790,7 +8164,8 @@ Uint8 scr_TargetIsFacingSelf( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_LevelUp( script_state_t * pstate, ai_state_t * pself )
 {
     // IfLevelUp()
-    /// @details ZF@> This function proceeds if the character gained a new level this update
+    /// @author ZF
+    /// @details This function proceeds if the character gained a new level this update
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = HAS_SOME_BITS( pself->alert, ALERTIF_LEVELUP );
@@ -7802,7 +8177,8 @@ Uint8 scr_LevelUp( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself )
 {
     // GiveSkillToTarget( tmpargument = "skill_IDSZ", tmpdistance = "skill_level" )
-    /// @details ZF@> This function permanently gives the target character a skill
+    /// @author ZF
+    /// @details This function permanently gives the target character a skill
 
     chr_t *ptarget;
     egolib_rv rv;

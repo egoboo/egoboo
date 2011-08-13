@@ -37,7 +37,8 @@
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_load_vfs_1( const char* szFilename )
 {
-    /// @details ZZ@> This function reads the settings.txt file, version 3
+    /// @author ZZ
+    /// @details This function reads the settings.txt file, version 3
 
     int i, cnt;
     INPUT_DEVICE idevice;
@@ -113,7 +114,8 @@ bool_t input_settings_load_vfs_1( const char* szFilename )
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_save_vfs_1( const char* szFilename )
 {
-    /// @details ZF@> This function saves all current game settings to "controls.txt"
+    /// @author ZF
+    /// @details This function saves all current game settings to "controls.txt"
 
     STRING write;
     INPUT_DEVICE idevice;

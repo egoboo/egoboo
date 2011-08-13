@@ -268,7 +268,8 @@ bool_t sdl_audio_initialize()
 //--------------------------------------------------------------------------------------------
 bool_t sdl_mixer_initialize()
 {
-    /// @details ZF@> This intitializes the SDL_mixer services
+    /// @author ZF
+    /// @details This intitializes the SDL_mixer services
 
     if ( !mixeron && ( snd.musicvalid || snd.soundvalid ) )
     {
@@ -621,7 +622,8 @@ int get_current_song_playing()
 //--------------------------------------------------------------------------------------------
 int sound_play_chunk_looped( const fvec3_base_t snd_pos, const Mix_Chunk * pchunk, const int loops, const CHR_REF owner )
 {
-    /// ZF@> This function plays a specified sound and returns which channel it's using
+    /// @author ZF
+    /// @details This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND_CHANNEL;
 
     fvec3_t cam_pos, cam_center, diff;
@@ -668,7 +670,8 @@ int sound_play_chunk_looped( const fvec3_base_t snd_pos, const Mix_Chunk * pchun
 //--------------------------------------------------------------------------------------------
 int sound_play_chunk_full( Mix_Chunk * pchunk )
 {
-    /// ZF@> This function plays a specified sound at full possible volume and returns which channel it's using
+    /// @author ZF
+    /// @details This function plays a specified sound at full possible volume and returns which channel it's using
     int channel = INVALID_SOUND_CHANNEL;
 
     if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND_CHANNEL;
@@ -688,7 +691,8 @@ int sound_play_chunk_full( Mix_Chunk * pchunk )
 //--------------------------------------------------------------------------------------------
 void sound_stop_channel( int whichchannel )
 {
-    /// @details ZF@> Stops a sound effect playing in the specified channel
+    /// @author ZF
+    /// @details Stops a sound effect playing in the specified channel
     if ( mixeron && snd.soundvalid )
     {
         Mix_HaltChannel( whichchannel );
@@ -700,7 +704,8 @@ void sound_stop_channel( int whichchannel )
 //--------------------------------------------------------------------------------------------
 void sound_play_song( int songnumber, Uint16 fadetime, int loops )
 {
-    /// @details ZF@> This functions plays a specified track loaded into memory
+    /// @author ZF
+    /// @details This functions plays a specified track loaded into memory
     if ( !snd.musicvalid || !mixeron ) return;
 
     if ( songplaying != songnumber )
@@ -767,7 +772,8 @@ void sound_finish_song( Uint16 fadetime )
 //--------------------------------------------------------------------------------------------
 void sound_stop_song()
 {
-    /// ZF@> This function sets music track to pause
+    /// @author ZF
+    /// @details This function sets music track to pause
     if ( mixeron && snd.musicvalid )
     {
         Mix_HaltMusic();
@@ -777,7 +783,8 @@ void sound_stop_song()
 //--------------------------------------------------------------------------------------------
 void sound_load_global_waves_vfs()
 {
-    /// @details ZZ@> This function loads the global waves
+    /// @author ZZ
+    /// @details This function loads the global waves
 
     STRING wavename;
     int cnt;
@@ -819,7 +826,8 @@ void sound_load_global_waves_vfs()
 //--------------------------------------------------------------------------------------------
 void sound_load_all_music_sounds_vfs()
 {
-    /// ZF@> This function loads all of the music sounds
+    /// @author ZF
+    /// @details This function loads all of the music sounds
     STRING loadpath;
     STRING songname;
     vfs_FILE *playlist;
@@ -875,7 +883,8 @@ void sound_load_all_music_sounds_vfs()
 //--------------------------------------------------------------------------------------------
 void   LoopedList_init()
 {
-    /// @details BB@> setup the looped sound list
+    /// @author BB
+    /// @details setup the looped sound list
     LOOP_REF cnt;
     size_t tnc;
 
@@ -900,7 +909,8 @@ void   LoopedList_init()
 //--------------------------------------------------------------------------------------------
 bool_t LoopedList_validate()
 {
-    /// @details BB@> do the free and used indices have valid values?
+    /// @author BB
+    /// @details do the free and used indices have valid values?
 
     bool_t retval;
 
@@ -918,7 +928,8 @@ bool_t LoopedList_validate()
 //--------------------------------------------------------------------------------------------
 bool_t LoopedList_free_one( size_t index )
 {
-    /// @details BB@> free a looped sound only if it is actually being used
+    /// @author BB
+    /// @details free a looped sound only if it is actually being used
     int   cnt;
     LOOP_REF ref;
 
@@ -978,7 +989,8 @@ size_t LoopedList_get_free()
 //--------------------------------------------------------------------------------------------
 void LoopedList_clear()
 {
-    /// @details BB@> shut off all the looped sounds
+    /// @author BB
+    /// @details shut off all the looped sounds
 
     LOOP_REF cnt;
 
@@ -1001,7 +1013,8 @@ void LoopedList_clear()
 //--------------------------------------------------------------------------------------------
 size_t LoopedList_add( const Mix_Chunk * sound, int channel, const CHR_REF  ichr )
 {
-    /// @details BB@> add a looped sound to the list
+    /// @author BB
+    /// @details add a looped sound to the list
 
     size_t index;
 
@@ -1027,7 +1040,8 @@ size_t LoopedList_add( const Mix_Chunk * sound, int channel, const CHR_REF  ichr
 //--------------------------------------------------------------------------------------------
 bool_t LoopedList_remove( int channel )
 {
-    /// @details BB@> remove a looped sound from the used list
+    /// @author BB
+    /// @details remove a looped sound from the used list
 
     int cnt;
     bool_t retval;
@@ -1105,7 +1119,8 @@ void looped_update_all_sound()
 //--------------------------------------------------------------------------------------------
 bool_t looped_stop_object_sounds( const CHR_REF  ichr )
 {
-    /// @details BB@> free any looped sound(s) being made by a certain character
+    /// @author BB
+    /// @details free any looped sound(s) being made by a certain character
     int freed;
     int cnt;
     bool_t found;
@@ -1154,8 +1169,9 @@ bool_t looped_stop_object_sounds( const CHR_REF  ichr )
 
 int _calculate_volume( const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, float const fov_rad )
 {
-    /// @details BB@> This calculates the volume a sound should have depending on
-    //  the distance from the camera
+    /// @author BB
+    /// @details This calculates the volume a sound should have depending on
+    ///  the distance from the camera
 
     float lookat_dist2, diff_dist2;
     int volume;
@@ -1171,7 +1187,7 @@ int _calculate_volume( const fvec3_base_t cam_pos, const fvec3_base_t cam_center
     // adjust for the listen skill
     if ( local_stats.listening_level ) diff_dist2 *= 0.66f * 0.66f;
 
-    if( 0.0f == render_radius2 + diff_dist2 )
+    if ( 0.0f == render_radius2 + diff_dist2 )
     {
         volume = 255;
     }
@@ -1179,10 +1195,10 @@ int _calculate_volume( const fvec3_base_t cam_pos, const fvec3_base_t cam_center
     {
         volume  = 255 * render_radius2 / ( render_radius2 + diff_dist2 );
     }
-    
+
     volume  = ( volume * snd.soundvolume ) / 100;
 
-    return CLIP(volume, 0, 255);
+    return CLIP( volume, 0, 255 );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1314,7 +1330,8 @@ bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t ca
 //--------------------------------------------------------------------------------------------
 bool_t _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float pan )
 {
-    /// @details BB@> This updates the stereo image of a looped sound
+    /// @author BB
+    /// @details This updates the stereo image of a looped sound
 
     int       volume;
 

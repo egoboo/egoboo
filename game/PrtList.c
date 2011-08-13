@@ -220,7 +220,8 @@ void PrtList_update_used()
 //--------------------------------------------------------------------------------------------
 bool_t PrtList_free_one( const PRT_REF iprt )
 {
-    /// @details ZZ@> This function sticks a particle back on the free particle stack
+    /// @author ZZ
+    /// @details This function sticks a particle back on the free particle stack
     ///
     /// @note Tying ALLOCATED_PRT() and POBJ_TERMINATE() to PrtList_free_one()
     /// should be enough to ensure that no particle is freed more than once
@@ -270,7 +271,8 @@ bool_t PrtList_free_one( const PRT_REF iprt )
 //--------------------------------------------------------------------------------------------
 size_t PrtList_get_free()
 {
-    /// @details ZZ@> This function returns the next free particle or MAX_PRT if there are none
+    /// @author ZZ
+    /// @details This function returns the next free particle or MAX_PRT if there are none
 
     size_t retval = MAX_PRT;
 
@@ -298,7 +300,8 @@ size_t PrtList_get_free()
 //--------------------------------------------------------------------------------------------
 PRT_REF PrtList_allocate( const bool_t force )
 {
-    /// @details ZZ@> This function gets an unused particle.  If all particles are in use
+    /// @author ZZ
+    /// @details This function gets an unused particle.  If all particles are in use
     ///    and force is set, it grabs the first unimportant one.  The iprt
     ///    index is the return value
 
@@ -439,7 +442,8 @@ PRT_REF PrtList_allocate( const bool_t force )
 //--------------------------------------------------------------------------------------------
 void PrtList_free_all()
 {
-    /// @details ZZ@> This function resets the particle allocation lists
+    /// @author ZZ
+    /// @details This function resets the particle allocation lists
 
     PRT_REF cnt;
 
@@ -711,7 +715,8 @@ int PrtList_count_free()
 //--------------------------------------------------------------------------------------------
 void PrtList_reset_all()
 {
-    /// @details ZZ@> This resets all particle data and reads in the coin and water particles
+    /// @author ZZ
+    /// @details This resets all particle data and reads in the coin and water particles
 
     const char *loadpath;
 

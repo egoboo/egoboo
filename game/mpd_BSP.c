@@ -95,8 +95,9 @@ egolib_rv  mpd_BSP_system_end()
 //--------------------------------------------------------------------------------------------
 mpd_BSP_t * mpd_BSP_ctor( mpd_BSP_t * pbsp, const ego_mpd_t * pmesh )
 {
-    /// @details BB@> Create a new BSP tree for the mesh.
-    //     These parameters duplicate the max resolution of the old system.
+    /// @author BB
+    /// @details Create a new BSP tree for the mesh.
+    ///     These parameters duplicate the max resolution of the old system.
 
     int grids_x, grids_y;
     float x_min, x_max, y_min, y_max, bsp_size;
@@ -217,8 +218,9 @@ bool_t mpd_BSP_fill( mpd_BSP_t * pbsp, const ego_mpd_t * pmpd )
 //--------------------------------------------------------------------------------------------
 int mpd_BSP_collide_aabb( const mpd_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
-    //      Return the number of collisions found.
+    /// @author BB
+    /// @details fill the collision list with references to tiles that the object volume may overlap.
+    ///      Return the number of collisions found.
 
     if ( NULL == pbsp || NULL == paabb || NULL == colst ) return 0;
 
@@ -228,8 +230,9 @@ int mpd_BSP_collide_aabb( const mpd_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf
 //--------------------------------------------------------------------------------------------
 int mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
-    //      Return the number of collisions found.
+    /// @author BB
+    /// @details fill the collision list with references to tiles that the object volume may overlap.
+    ///      Return the number of collisions found.
 
     if ( NULL == pbsp || NULL == pfrust || NULL == colst ) return 0;
 
@@ -239,7 +242,8 @@ int mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const egolib_frustum_t * pf
 //--------------------------------------------------------------------------------------------
 bool_t mpd_BSP_insert( mpd_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
 {
-    /// @details BB@> insert a character's BSP_leaf_t into the BSP_tree_t
+    /// @author BB
+    /// @details insert a character's BSP_leaf_t into the BSP_tree_t
 
     bool_t       retval;
     BSP_leaf_t * pleaf;
@@ -279,7 +283,8 @@ bool_t mpd_BSP_insert( mpd_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
 //--------------------------------------------------------------------------------------------
 bool_t mpd_BSP_can_collide( BSP_leaf_t * pleaf )
 {
-    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    /// @author BB
+    /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
     ///               can be added to a collision list
 
     ego_tile_info_t * ptile;
@@ -299,7 +304,8 @@ bool_t mpd_BSP_can_collide( BSP_leaf_t * pleaf )
 //--------------------------------------------------------------------------------------------
 bool_t mpd_BSP_is_visible( BSP_leaf_t * pleaf )
 {
-    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    /// @author BB
+    /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
     ///               can be added to a collision list
 
     ego_tile_info_t * ptile;

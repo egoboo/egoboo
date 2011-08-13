@@ -69,8 +69,9 @@ void netfile_initialize()
 //--------------------------------------------------------------------------------------------
 void netfile_copyToAllPlayers( const char *source, const char *dest )
 {
-    /// @details JF@> This function queues up files to send to all the hosts.
-    ///    @todo Deal with having to send to up to MAX_PLAYER players...
+    /// @author JF
+    /// @details This function queues up files to send to all the hosts.
+    /// @todo Deal with having to send to up to MAX_PLAYER players...
 
     NetFileTransfer *state;
     ENetHost * MyHost = egonet_get_myHost();
@@ -106,7 +107,8 @@ void netfile_copyToPeer( const char *source, const char *dest, ENetPeer *peer )
 {
     NetFileTransfer *state;
 
-    /// @details JF@> New function merely queues up a new file to be sent
+    /// @author JF
+    /// @details New function merely queues up a new file to be sent
 
     // If this is the host, just copy the file locally
     if ( egonet_get_hostactive() )
@@ -151,7 +153,8 @@ void netfile_copyToPeer( const char *source, const char *dest, ENetPeer *peer )
 //--------------------------------------------------------------------------------------------
 void netfile_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
 {
-    /// @details ZZ@> This function copies all files in a directory
+    /// @author ZZ
+    /// @details This function copies all files in a directory
 
     vfs_search_context_t * ctxt;
     const char *searchResult;
@@ -199,7 +202,8 @@ void netfile_copyDirectoryToAllPlayers( const char *dirname, const char *todirna
 //--------------------------------------------------------------------------------------------
 void netfile_copyDirectoryToPeer( const char *dirname, const char *todirname, ENetPeer * peer )
 {
-    /// @details ZZ@> This function copies all files in a directory
+    /// @author ZZ
+    /// @details This function copies all files in a directory
 
     vfs_search_context_t * ctxt;
     const char *searchResult;
@@ -644,7 +648,8 @@ egolib_rv netfile_handleEvent( ENetEvent * event )
 //--------------------------------------------------------------------------------------------
 void netfile_copyToPeerOld_vfs( BaseClientState_t * pc, const char *source, const char *dest, ENetPeer *peer )
 {
-    /// @details ZZ@> This function copies a file on the remote to the host computer.
+    /// @author ZZ
+    /// @details This function copies a file on the remote to the host computer.
     ///    Packets are sent in chunks of COPYSIZE bytes.  The max file size
     ///    that can be sent is 2 Megs ( TOTALSIZE ).
 
@@ -740,7 +745,8 @@ void netfile_copyToPeerOld_vfs( BaseClientState_t * pc, const char *source, cons
 //--------------------------------------------------------------------------------------------
 void netfile_copyToAllPlayersOld_vfs( const char *source, const char *dest )
 {
-    /// @details ZZ@> This function copies a file on the host to every remote computer.
+    /// @author ZZ
+    /// @details This function copies a file on the host to every remote computer.
     ///    Packets are sent in chunks of COPYSIZE bytes.  The max file size
     ///    that can be sent is 2 Megs ( TOTALSIZE ).
 

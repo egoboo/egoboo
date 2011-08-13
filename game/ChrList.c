@@ -211,7 +211,8 @@ void ChrList_update_used()
 //--------------------------------------------------------------------------------------------
 bool_t ChrList_free_one( const CHR_REF ichr )
 {
-    /// @details ZZ@> This function sticks a character back on the free enchant stack
+    /// @author ZZ
+    /// @details This function sticks a character back on the free enchant stack
     ///
     /// @note Tying ALLOCATED_CHR() and POBJ_TERMINATE() to ChrList_free_one()
     /// should be enough to ensure that no character is freed more than once
@@ -265,7 +266,8 @@ bool_t ChrList_free_one( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 size_t ChrList_get_free()
 {
-    /// @details ZZ@> This function returns the next free character or MAX_CHR if there are none
+    /// @author ZZ
+    /// @details This function returns the next free character or MAX_CHR if there are none
 
     size_t retval = MAX_CHR;
 
@@ -619,7 +621,8 @@ bool_t ChrList_add_termination( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 bool_t ChrList_request_terminate( const CHR_REF ichr )
 {
-    /// @details BB@> Mark this character for deletion
+    /// @author BB
+    /// @details Mark this character for deletion
 
     chr_t * pchr = ChrList_get_ptr( ichr );
 

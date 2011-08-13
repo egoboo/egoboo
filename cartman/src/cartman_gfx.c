@@ -1498,7 +1498,7 @@ int gfx_init_ogl()
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
-    // backface culling
+    /// backface culling
     // oglx_begin_culling( GL_BACK, GL_CW );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
     // disable OpenGL lighting

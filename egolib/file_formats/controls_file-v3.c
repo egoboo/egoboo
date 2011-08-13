@@ -43,7 +43,8 @@ device_list_t     InputDevices;
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_load_vfs_3( const char* szFilename )
 {
-    /// @details ZZ@> This function reads the controls.txt file, version 3
+    /// @author ZZ
+    /// @details This function reads the controls.txt file, version 3
 
     TAG_STRING currenttag = EMPTY_CSTR;
     int idevice, icontrol, iactual;
@@ -111,7 +112,8 @@ bool_t input_settings_load_vfs_3( const char* szFilename )
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_save_vfs_3( const char* szFilename )
 {
-    /// @details ZF@> This function saves all current game settings to "controls.txt"
+    /// @author ZF
+    /// @details This function saves all current game settings to "controls.txt"
 
     input_device_t * pdevice;
     vfs_FILE* filewrite;

@@ -213,7 +213,8 @@ void _vfs_exit()
 //--------------------------------------------------------------------------------------------
 const char* vfs_getVersion()
 {
-    /// @details ZF@>  returns the current version of the PhysFS library which was used for compiling the binary
+    /// @author ZF
+    /// @details  returns the current version of the PhysFS library which was used for compiling the binary
     PHYSFS_Version version;
     static STRING buffer = EMPTY_CSTR;
 
@@ -664,7 +665,8 @@ vfs_FILE * vfs_openRead( const char * filename )
 //--------------------------------------------------------------------------------------------
 int _vfs_ensure_write_directory( const char * filename, bool_t is_directory )
 {
-    /// @details BB@>
+    /// @author BB
+    /// @details
 
     int           retval;
     VFS_PATH      temp_dirname = EMPTY_CSTR;
@@ -749,7 +751,8 @@ vfs_FILE * vfs_openWrite( const char * filename )
 //--------------------------------------------------------------------------------------------
 bool_t _vfs_ensure_destination_file( const char * filename )
 {
-    /// @details BB@> make sure that a copy of filename from the read path exists in
+    /// @author BB
+    /// @details make sure that a copy of filename from the read path exists in
     ///     the write directory, but do not overwrite any existing file
 
     VFS_PATH      local_filename = EMPTY_CSTR;
@@ -1841,7 +1844,8 @@ int vfs_removeDirectoryAndContents( const char * dirname, int recursive )
 //--------------------------------------------------------------------------------------------
 static bool_t _vfs_copyFile( const char *source, const char *dest )
 {
-    /// @details ZZ@> This function copies a file on the local machine
+    /// @author ZZ
+    /// @details This function copies a file on the local machine
     PHYSFS_File *sourcef = NULL, *destf = NULL;
     char         buf[4096] = EMPTY_CSTR;
     int          bytes_read;
@@ -1926,7 +1930,8 @@ int vfs_copyFile( const char *source, const char *dest )
 //--------------------------------------------------------------------------------------------
 int vfs_copyDirectory( const char *sourceDir, const char *destDir )
 {
-    /// @details ZZ@> This function copies all files in a directory
+    /// @author ZZ
+    /// @details This function copies all files in a directory
     VFS_PATH srcPath = EMPTY_CSTR, destPath = EMPTY_CSTR;
     const char *fileName;
 
@@ -2245,7 +2250,8 @@ void _vfs_translate_error( vfs_FILE * pfile )
 //--------------------------------------------------------------------------------------------
 const char * vfs_getError()
 {
-    /// @details ZF@> Returns the last error the PHYSFS system reported.
+    /// @author ZF
+    /// @details Returns the last error the PHYSFS system reported.
 
     static char errors[1024];
     const char * physfs_error, * file_error;
@@ -2274,7 +2280,8 @@ const char * vfs_getError()
 //--------------------------------------------------------------------------------------------
 int vfs_add_mount_point( const char * root_path, const char * relative_path, const char * mount_point, int append )
 {
-    /// @details BB@> a wrapper for PHYSFS_mount
+    /// @author BB
+    /// @details a wrapper for PHYSFS_mount
 
     int retval = -1;
     const char * loc_dirname;
@@ -2325,7 +2332,8 @@ int vfs_add_mount_point( const char * root_path, const char * relative_path, con
 //--------------------------------------------------------------------------------------------
 int vfs_remove_mount_point( const char * mount_point )
 {
-    /// @details BB@> Remove every single search path related to the given mount point.
+    /// @author BB
+    /// @details Remove every single search path related to the given mount point.
 
     int retval, cnt;
 
@@ -2373,7 +2381,8 @@ const char * vfs_search_context_get_current( vfs_search_context_t * ctxt )
 //--------------------------------------------------------------------------------------------
 int _vfs_mount_info_search( const char * some_path )
 {
-    /// @details BB@> check to see if the given path is actually relative to a registered
+    /// @author BB
+    /// @details check to see if the given path is actually relative to a registered
     ///               virtual mount point
 
     int cnt, retval = VFS_FALSE;

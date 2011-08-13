@@ -49,7 +49,9 @@ static void AStar_reset( void );
 //------------------------------------------------------------------------------
 AStar_Node_t* AStar_get_next_node()
 {
-    //@details ZF@> This function finds and returns the next cheapest open node
+    /// @author ZF
+    /// @details This function finds and returns the next cheapest open node
+
     int i, best_node = -1;
 
     for ( i = 0; i < node_list_length; i++ )
@@ -65,7 +67,9 @@ AStar_Node_t* AStar_get_next_node()
 //------------------------------------------------------------------------------
 AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, float weight, bool_t closed )
 {
-    //@details ZF@> Adds one new node to the end of the node list
+    /// @author ZF
+    /// @details Adds one new node to the end of the node list
+
     if ( node_list_length >= MAX_ASTAR_NODES ) return NULL;
 
     //add the node
@@ -83,7 +87,9 @@ AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, fl
 //------------------------------------------------------------------------------
 void AStar_reset()
 {
-    //@details ZF@> Reset AStar memory. This doesn't actually clear anything to make it work as fast as possible
+    /// @author ZF
+    /// @details Reset AStar memory. This doesn't actually clear anything to make it work as fast as possible
+
     node_list_length = 0;
     final_node = NULL;
     start_node = NULL;
@@ -92,8 +98,10 @@ void AStar_reset()
 //------------------------------------------------------------------------------
 bool_t AStar_find_path( ego_mpd_t *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy )
 {
-    //@details ZF@> Explores up to MAX_ASTAR_NODES number of nodes to find a path between the source coordinates and destination coordinates.
+    /// @author ZF
+    /// @details Explores up to MAX_ASTAR_NODES number of nodes to find a path between the source coordinates and destination coordinates.
     //              The result is stored in a node list and can be accessed through AStar_get_path(). Returns bfalse if no path was found.
+
     int j, k, cnt;
     bool_t done;
     int deadend_count;
@@ -263,10 +271,12 @@ flexible_destination:
 //------------------------------------------------------------------------------
 bool_t AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst )
 {
-    //@details ZF@> Fills a waypoint list with sensible waypoints. It will return bfalse if it failed to add at least one waypoint.
+    /// @author ZF
+    /// @details Fills a waypoint list with sensible waypoints. It will return bfalse if it failed to add at least one waypoint.
     //              The function goes through all the AStar_nodes and finds out which one are critical. A critical node is one that
     //              creates a corner. The function automatically prunes away all non-critical nodes. The final waypoint will always be
     //              the destination coordinates.
+
     int i;
     size_t path_length, waypoint_num;
     //bool_t diagonal_movement = bfalse;

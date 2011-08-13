@@ -117,28 +117,32 @@ int fs_fileIsDirectory( const char *filename )
 //--------------------------------------------------------------------------------------------
 int fs_createDirectory( const char *dirname )
 {
-    /// @details ZZ@> This function makes a new directory
+    /// @author ZZ
+    /// @details This function makes a new directory
     return mkdir( dirname, 0755 );
 }
 
 //--------------------------------------------------------------------------------------------
 int fs_removeDirectory( const char *dirname )
 {
-    /// @details ZZ@> This function removes a directory
+    /// @author ZZ
+    /// @details This function removes a directory
     return rmdir( dirname );
 }
 
 //--------------------------------------------------------------------------------------------
 void fs_deleteFile( const char *filename )
 {
-    /// @details ZZ@> This function deletes a file
+    /// @author ZZ
+    /// @details This function deletes a file
     unlink( filename );
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t fs_copyFile( const char *source, const char *dest )
 {
-    /// @details ZZ@> This function copies a file on the local machine
+    /// @author ZZ
+    /// @details This function copies a file on the local machine
 
     FILE *sourcef;
     FILE *destf;

@@ -166,7 +166,8 @@ IDSZ_node_t* idsz_map_iterate( const IDSZ_node_t idsz_map[], const size_t idsz_m
 //--------------------------------------------------------------------------------------------
 egolib_rv idsz_map_copy( const IDSZ_node_t map_src[], const size_t src_len, IDSZ_node_t map_dst[] )
 {
-    ///@details ZF@> This function copies one set of IDSZ map to another IDSZ map (exact)
+    /// @author ZF
+    /// @details This function copies one set of IDSZ map to another IDSZ map (exact)
 
     if ( map_src == NULL || map_dst == NULL || 0 == src_len ) return rv_error;
 

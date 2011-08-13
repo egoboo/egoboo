@@ -211,7 +211,8 @@ void EncList_update_used()
 //--------------------------------------------------------------------------------------------
 bool_t EncList_free_one( const ENC_REF ienc )
 {
-    /// @details ZZ@> This function sticks a enchant back on the free enchant stack
+    /// @author ZZ
+    /// @details This function sticks a enchant back on the free enchant stack
     ///
     /// @note Tying ALLOCATED_ENC() and POBJ_TERMINATE() to EncList_free_one()
     /// should be enough to ensure that no enchant is freed more than once
@@ -265,7 +266,8 @@ bool_t EncList_free_one( const ENC_REF ienc )
 //--------------------------------------------------------------------------------------------
 size_t EncList_get_free()
 {
-    /// @details ZZ@> This function returns the next free enchant or MAX_ENC if there are none
+    /// @author ZZ
+    /// @details This function returns the next free enchant or MAX_ENC if there are none
 
     size_t retval = MAX_ENC;
 

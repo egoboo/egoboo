@@ -1081,7 +1081,8 @@ static int cmp_mod_ref_mult = 1;
 
 int cmp_mod_ref( const void * vref1, const void * vref2 )
 {
-    /// @details BB@> Sort MOD REF values based on the rank of the module that they point to.
+    /// @author BB
+    /// @details Sort MOD REF values based on the rank of the module that they point to.
     ///               Trap all stupid values.
 
     MOD_REF * pref1 = ( MOD_REF * )vref1;
@@ -2471,12 +2472,12 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     }
 
     // grab any key combinations
-    for( cnt = 0; cnt < SDLK_LAST && pcontrol->tag_key_count < MAXCONTROLKEYS; cnt++ )
+    for ( cnt = 0; cnt < SDLK_LAST && pcontrol->tag_key_count < MAXCONTROLKEYS; cnt++ )
     {
         if ( !SCANTAG_KEYMODDOWN( cnt ) ) continue;
 
         ptag = scantag_find_value( NULL, 'K', cnt );
-        if( NULL == ptag ) continue;
+        if ( NULL == ptag ) continue;
 
         pcontrol->loaded = btrue;
         pcontrol->tag_key_lst[pcontrol->tag_key_count] = ptag->value;
@@ -2490,7 +2491,7 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     }
 
     // are we done?
-    if( tag_count > 0 )
+    if ( tag_count > 0 )
     {
         waitingforinput = -1;
     }
@@ -3392,7 +3393,8 @@ int doAudioOptions( float deltaTime )
 //--------------------------------------------------------------------------------------------
 bool_t doVideoOptions_coerce_aspect_ratio( int width, int height, float * pratio, STRING * psz_ratio )
 {
-    /// @details BB@> coerce the aspect ratio of the screen to some standard size
+    /// @author BB
+    /// @details coerce the aspect ratio of the screen to some standard size
 
     float req_aspect_ratio;
 
@@ -4189,7 +4191,7 @@ int doShowResults( float deltaTime )
     static int     menuState = MM_Begin;
     static int     count;
     static char    buffer[1024] = EMPTY_CSTR;
-    static STRING  game_tip;  
+    static STRING  game_tip;
 
     int menuResult = 0;
 
@@ -4216,15 +4218,15 @@ int doShowResults( float deltaTime )
                 {
                     const char * hint_ptr = NULL;
 
-                    if( 0 == mnu_Tips_local.count )
+                    if ( 0 == mnu_Tips_local.count )
                     {
-                        mnu_Tips_local_load_vfs(&mnu_Tips_local);
+                        mnu_Tips_local_load_vfs( &mnu_Tips_local );
                     }
 
                     hint_ptr = mnu_Tips_get_hint( &mnu_Tips_global, &mnu_Tips_local );
-                    if( VALID_CSTR(hint_ptr) )
+                    if ( VALID_CSTR( hint_ptr ) )
                     {
-                        strncpy( game_tip, hint_ptr, SDL_arraysize(game_tip) );
+                        strncpy( game_tip, hint_ptr, SDL_arraysize( game_tip ) );
                         str_add_linebreaks( game_tip, SDL_arraysize( game_tip ), 50 );
                     }
                 }
@@ -4865,7 +4867,8 @@ void copyrightText_set_position( Font * font, const char * text, int spacing )
 //--------------------------------------------------------------------------------------------
 void mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst )
 {
-    /// @details ZZ@> This function loads the title image for each module.  Modules without a
+    /// @author ZZ
+    /// @details This function loads the title image for each module.  Modules without a
     ///     title are marked as invalid
 
     MOD_REF imod;
@@ -4906,7 +4909,8 @@ void mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst )
 //--------------------------------------------------------------------------------------------
 TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const TX_REF default_ref )
 {
-    /// @details BB@> This function gets the proper icon for a an object profile.
+    /// @author BB
+    /// @details This function gets the proper icon for a an object profile.
     //
     //     In the character preview section of the menu system, we do not load
     //     entire profiles, just the character definition file ("data.txt")
@@ -4956,7 +4960,8 @@ TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const TX_REF default_ref )
 //--------------------------------------------------------------------------------------------
 int mnu_get_mod_number( const char *szModName )
 {
-    /// @details ZZ@> This function returns -1 if the module does not exist locally, the module
+    /// @author ZZ
+    /// @details This function returns -1 if the module does not exist locally, the module
     ///    index otherwise
 
     MOD_REF modnum;
@@ -5031,7 +5036,8 @@ bool_t mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnu
 //--------------------------------------------------------------------------------------------
 bool_t mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModName )
 {
-    /// @details ZZ@> This function tests to see if a module can be entered by
+    /// @author ZZ
+    /// @details This function tests to see if a module can be entered by
     ///    the players
 
     bool_t retval;
@@ -5208,12 +5214,13 @@ void mnu_ModList_release_images()
 //--------------------------------------------------------------------------------------------
 bool_t mnu_Tips_global_load_vfs( GameTips_t * pglobal )
 {
-    /// ZF@> This function loads all of the game hints and tips
+    /// @author ZF
+    /// @details This function loads all of the game hints and tips
     STRING buffer;
     vfs_FILE *fileread;
     Uint8 cnt;
 
-    if( NULL == pglobal ) return bfalse;
+    if ( NULL == pglobal ) return bfalse;
 
     // reset the count
     pglobal->count = 0;
@@ -5252,8 +5259,9 @@ bool_t mnu_Tips_global_load_vfs( GameTips_t * pglobal )
 //--------------------------------------------------------------------------------------------
 bool_t mnu_Tips_local_load_vfs( GameTips_t * plocal )
 {
-    /// ZF@> This function loads all module specific hints and tips. If this fails, the game will
-    //       default to the global hints and tips instead
+    /// @author ZF
+    /// @details This function loads all module specific hints and tips. If this fails, the game will
+    ///       default to the global hints and tips instead
 
     STRING buffer;
     vfs_FILE *fileread;
@@ -5295,22 +5303,22 @@ const char * mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal )
     const char * retval = "Don't die...\n";
     int          randval = 0;
 
-    bool_t valid_global = (NULL != pglobal) && (0 != pglobal->count );
-    bool_t valid_local  = (NULL != plocal)  && (0 != plocal->count  );
+    bool_t valid_global = ( NULL != pglobal ) && ( 0 != pglobal->count );
+    bool_t valid_local  = ( NULL != plocal )  && ( 0 != plocal->count );
 
     randval = rand();
 
-    if( !valid_global && !valid_local )
+    if ( !valid_global && !valid_local )
     {
         // no hints loaded, use the default hint
     }
-    else if( valid_global && !valid_local )
+    else if ( valid_global && !valid_local )
     {
         // only global hints
         int randval_global = randval % pglobal->count;
         retval = pglobal->hint[randval_global];
     }
-    else if( !valid_global && valid_local )
+    else if ( !valid_global && valid_local )
     {
         // only local hints
         int randval_local = randval % plocal->count;
@@ -5319,9 +5327,9 @@ const char * mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal )
     else
     {
         // both hints
-        int randval_total = randval % ( pglobal->count + plocal->count);
+        int randval_total = randval % ( pglobal->count + plocal->count );
 
-        if( randval_total < pglobal->count )
+        if ( randval_total < pglobal->count )
         {
             retval = pglobal->hint[randval_total];
         }
@@ -5600,7 +5608,8 @@ egolib_rv LoadPlayer_list_dealloc( LoadPlayer_list_t * lst )
 //--------------------------------------------------------------------------------------------
 egolib_rv LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, bool_t initialize )
 {
-    /// @details ZZ@> This function figures out which players may be imported, and loads basic
+    /// @author ZZ
+    /// @details This function figures out which players may be imported, and loads basic
     ///     data for each
 
     vfs_search_context_t * ctxt;
@@ -5959,7 +5968,8 @@ IMPLEMENT_LIST( oglx_texture_t, TxMenu, MENU_COUNT );
 //--------------------------------------------------------------------------------------------
 void TxMenu_reset_freelist()
 {
-    /// @details BB@> reset the free texture list. Start at MENU_LAST_SPECIAL so that the global textures/icons are
+    /// @author BB
+    /// @details reset the free texture list. Start at MENU_LAST_SPECIAL so that the global textures/icons are
     ///     can't be allocated by mistake
 
     int cnt, tnc;
@@ -5974,7 +5984,8 @@ void TxMenu_reset_freelist()
 //--------------------------------------------------------------------------------------------
 void TxMenu_ctor()
 {
-    /// @details ZZ@> This function clears out all of the textures
+    /// @author ZZ
+    /// @details This function clears out all of the textures
 
     TX_REF cnt;
 
@@ -5997,7 +6008,8 @@ void TxMenu_release_one( const TX_REF index )
 //--------------------------------------------------------------------------------------------
 void TxMenu_dtor()
 {
-    /// @details ZZ@> This function clears out all of the textures
+    /// @author ZZ
+    /// @details This function clears out all of the textures
 
     TX_REF cnt;
 
@@ -6012,7 +6024,8 @@ void TxMenu_dtor()
 //--------------------------------------------------------------------------------------------
 void TxMenu_init_all()
 {
-    /// @details ZZ@> This function clears out all of the textures
+    /// @author ZZ
+    /// @details This function clears out all of the textures
 
     TX_REF cnt;
 
@@ -6027,7 +6040,8 @@ void TxMenu_init_all()
 //--------------------------------------------------------------------------------------------
 void TxMenu_release_all()
 {
-    /// @details ZZ@> This function releases all of the textures
+    /// @author ZZ
+    /// @details This function releases all of the textures
 
     TX_REF cnt;
 
@@ -6042,7 +6056,8 @@ void TxMenu_release_all()
 //--------------------------------------------------------------------------------------------
 void TxMenu_delete_all()
 {
-    /// @details ZZ@> This function clears out all of the textures
+    /// @author ZZ
+    /// @details This function clears out all of the textures
 
     TX_REF cnt;
 
@@ -6057,7 +6072,8 @@ void TxMenu_delete_all()
 //--------------------------------------------------------------------------------------------
 void TxMenu_reload_all()
 {
-    /// @details ZZ@> This function re-loads all the current textures back into
+    /// @author ZZ
+    /// @details This function re-loads all the current textures back into
     ///               OpenGL texture memory using the cached SDL surfaces
 
     TX_REF cnt;
@@ -6162,7 +6178,8 @@ bool_t TxMenu_free_one( const TX_REF itex )
 //--------------------------------------------------------------------------------------------
 TX_REF TxMenu_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 key )
 {
-    /// @details BB@> load a texture into TxMenu.
+    /// @author BB
+    /// @details load a texture into TxMenu.
     ///     If INVALID_TX_TEXTURE == itex, then we just get the next free index
 
     TX_REF retval;
@@ -6201,7 +6218,8 @@ oglx_texture_t * TxMenu_get_valid_ptr( const TX_REF itex )
 //--------------------------------------------------------------------------------------------
 bool_t mnu_load_cursor()
 {
-    /// @details ZF@> Load the mouse cursor
+    /// @author ZF
+    /// @details Load the mouse cursor
 
     TX_REF load_rv = INVALID_GL_ID;
     bool_t success = btrue;
@@ -6220,7 +6238,8 @@ bool_t mnu_load_cursor()
 //--------------------------------------------------------------------------------------------
 bool_t mnu_load_all_global_icons()
 {
-    /// @details ZF@> Load all the global icons used in all modules
+    /// @author ZF
+    /// @details Load all the global icons used in all modules
 
     // Setup
     TX_REF load_rv;
@@ -6350,7 +6369,8 @@ bool_t mnu_load_all_global_icons()
 ////--------------------------------------------------------------------------------------------
 //void TxTitleImage_ctor()
 //{
-//    /// @details ZZ@> This function clears out all of the textures
+//    /// @author ZZ
+/// @details This function clears out all of the textures
 //
 //    TX_REF cnt;
 //
@@ -6373,7 +6393,8 @@ bool_t mnu_load_all_global_icons()
 ////--------------------------------------------------------------------------------------------
 //void TxTitleImage_release_all()
 //{
-//    /// @details ZZ@> This function releases all of the textures
+//    /// @author ZZ
+/// @details This function releases all of the textures
 //
 //    TX_REF cnt;
 //
@@ -6388,7 +6409,8 @@ bool_t mnu_load_all_global_icons()
 ////--------------------------------------------------------------------------------------------
 //void TxTitleImage_dtor()
 //{
-//    /// @details ZZ@> This function clears out all of the textures
+//    /// @author ZZ
+/// @details This function clears out all of the textures
 //
 //    TX_REF cnt;
 //
@@ -6403,7 +6425,8 @@ bool_t mnu_load_all_global_icons()
 ////--------------------------------------------------------------------------------------------
 //TX_REF TxTitleImage_load_one_vfs( const char *szLoadName )
 //{
-//    /// @details ZZ@> This function loads a title in the specified image slot, forcing it into
+//    /// @author ZZ
+/// @details This function loads a title in the specified image slot, forcing it into
 //    ///    system memory.  Returns btrue if it worked
 //
 //    TX_REF itex;
@@ -6428,7 +6451,8 @@ bool_t mnu_load_all_global_icons()
 ////--------------------------------------------------------------------------------------------
 //void TxTitleImage_reload_all()
 //{
-//    /// @details ZZ@> This function re-loads all the current textures back into
+//    /// @author ZZ
+/// @details This function re-loads all the current textures back into
 //    ///               OpenGL texture memory using the cached SDL surfaces
 //
 //    TX_REF cnt;

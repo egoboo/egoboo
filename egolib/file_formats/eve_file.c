@@ -49,7 +49,8 @@ eve_t * eve_init( eve_t * peve )
 //--------------------------------------------------------------------------------------------
 eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
 {
-    /// @details ZZ@> This function loads the enchantment associated with an object
+    /// @author ZZ
+    /// @details This function loads the enchantment associated with an object
 
     int cnt;
     vfs_FILE* fileread;
@@ -222,7 +223,8 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
 //--------------------------------------------------------------------------------------------
 bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateName, eve_t * peve )
 {
-    /// @details ZZ@> This function loads the enchantment associated with an object
+    /// @author ZZ
+    /// @details This function loads the enchantment associated with an object
     vfs_FILE* filewrite, * filetemp;
 
     if ( NULL == peve ) return bfalse;

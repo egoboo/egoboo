@@ -234,7 +234,8 @@ void MD2_Model_delete_vector( MD2_Model_t * v, int n )
 //--------------------------------------------------------------------------------------------
 void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float scale_z )
 {
-    /// @details BB@> scale every vertex in the md2 by the given amount
+    /// @author BB
+    /// @details scale every vertex in the md2 by the given amount
 
     int cnt, tnc;
     int num_frames, num_verts;

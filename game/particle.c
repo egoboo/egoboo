@@ -121,7 +121,8 @@ bool_t prt_free( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_ctor( prt_t * pprt )
 {
-    /// BB@> Set all particle parameters to safe values.
+    /// @author BB
+    /// @details Set all particle parameters to safe values.
     ///      @details The c equivalent of the particle prt::new() function.
 
     obj_data_t save_base;
@@ -191,7 +192,8 @@ prt_t * prt_dtor( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 void prt_play_sound( const PRT_REF particle, Sint8 sound )
 {
-    /// ZZ@> This function plays a sound effect for a particle
+    /// @author ZZ
+    /// @details This function plays a sound effect for a particle
 
     prt_t * pprt;
 
@@ -231,7 +233,8 @@ PRT_REF end_one_particle_now( const PRT_REF particle )
 //--------------------------------------------------------------------------------------------
 PRT_REF end_one_particle_in_game( const PRT_REF particle )
 {
-    /// @details ZZ@> this function causes the game to end a particle
+    /// @author ZZ
+    /// @details this function causes the game to end a particle
     ///               and mark it as a ghost.
 
     CHR_REF child;
@@ -970,7 +973,8 @@ prt_t * prt_config_active( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_deinit( prt_t * pprt )
 {
-    /// @details BB@> deinitialize the character data
+    /// @author BB
+    /// @details deinitialize the character data
 
     obj_data_t * base_ptr;
 
@@ -1007,7 +1011,8 @@ PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_R
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget )
 {
-    /// @details ZZ@> This function spawns a new particle.
+    /// @author ZZ
+    /// @details This function spawns a new particle.
     ///               Returns the index of that particle or MAX_PRT on a failure.
 
     PIP_REF ipip;
@@ -1152,7 +1157,8 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
 //--------------------------------------------------------------------------------------------
 BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
 {
-    /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
+    /// @author ZZ
+    /// @details This function returns nonzero if the particle hit a wall that the
     ///    particle is not allowed to cross
 
     BIT_FIELD  retval;
@@ -1186,7 +1192,8 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
 //--------------------------------------------------------------------------------------------
 BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t * pdata )
 {
-    /// @details ZZ@> This function returns nonzero if the particle hit a wall that the
+    /// @author ZZ
+    /// @details This function returns nonzero if the particle hit a wall that the
     ///    particle is not allowed to cross
 
     BIT_FIELD retval;
@@ -1221,7 +1228,8 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
 //--------------------------------------------------------------------------------------------
 void update_all_particles()
 {
-    /// @details BB@> main loop for updating particles. Do not use the
+    /// @author BB
+    /// @details main loop for updating particles. Do not use the
     ///               PRT_BEGIN_LOOP_* macro.
     ///               Converted all the update functions to the prt_run_config() paradigm.
 
@@ -1265,7 +1273,8 @@ void prt_set_level( prt_t * pprt, const float level )
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
 {
-    /// @details BB@> A helper function that gets all of the information about the particle's
+    /// @author BB
+    /// @details A helper function that gets all of the information about the particle's
     ///               environment (like friction, etc.) that will be necessary for the other
     ///               move_one_particle_*() functions to work
 
@@ -1380,7 +1389,8 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
 {
-    /// @details BB@> A helper function that computes particle friction with the floor
+    /// @author BB
+    /// @details A helper function that computes particle friction with the floor
     ///
     /// @note this is pretty much ripped from the character version of this function and may
     ///       contain some features that are not necessary for any particles that are actually in game.
@@ -1466,7 +1476,8 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
 {
-    /// @details BB@> A helper function that computes particle friction with the floor
+    /// @author BB
+    /// @details A helper function that computes particle friction with the floor
     ///
     /// @note this is pretty much ripped from the character version of this function and may
     ///       contain some features that are not necessary for any particles that are actually in game.
@@ -1672,7 +1683,8 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
 {
-    /// @details BB@> A helper function that does gravitational acceleration and buoyancy
+    /// @author BB
+    /// @details A helper function that does gravitational acceleration and buoyancy
 
     float loc_zlerp, tmp_buoyancy, loc_buoyancy;
     //float loc_zacc;
@@ -1694,7 +1706,7 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
     ///            to move forward in a straight line without being dragged down into the dust!
     /// @note BB@> however, the fireball particle is light, and without gravity it will never bounce on the
     ///            ground as it is supposed to
-    //  @note ZF@> I will try to fix this by adding a new  no_gravity expansion for particles
+    /// @note ZF@> I will try to fix this by adding a new  no_gravity expansion for particles
     if ( loc_pprt->no_gravity || /* loc_pprt->type == SPRITE_LIGHT || */ loc_pprt->is_homing || INGAME_CHR( loc_pprt->attachedto_ref ) ) return pbdl_prt;
 
     loc_zlerp = CLIP( penviro->zlerp, 0.0f, 1.0f );
@@ -1769,7 +1781,8 @@ prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_prt )
 {
-    /// @details BB@> A helper function that figures out the next valid position of the particle.
+    /// @author BB
+    /// @details A helper function that figures out the next valid position of the particle.
     ///               Collisions with the mesh are included in this step.
 
     float loc_level;
@@ -1867,7 +1880,8 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
 {
-    /// @details BB@> A helper function that figures out the next valid position of the particle.
+    /// @author BB
+    /// @details A helper function that figures out the next valid position of the particle.
     ///               Collisions with the mesh are included in this step.
 
     float ftmp, loc_level;
@@ -2144,7 +2158,8 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 bool_t move_one_particle( prt_bundle_t * pbdl_prt )
 {
-    /// @details BB@> The master function for controlling a particle's motion
+    /// @author BB
+    /// @details The master function for controlling a particle's motion
 
     prt_t             * loc_pprt;
     prt_environment_t * penviro;
@@ -2198,7 +2213,8 @@ bool_t move_one_particle( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 void move_all_particles( void )
 {
-    /// @details ZZ@> This is the particle physics function
+    /// @author ZZ
+    /// @details This is the particle physics function
 
     prt_stoppedby_tests = 0;
 
@@ -2218,7 +2234,8 @@ void move_all_particles( void )
 //--------------------------------------------------------------------------------------------
 void particle_system_begin()
 {
-    /// @details ZZ@> This function sets up particle data
+    /// @author ZZ
+    /// @details This function sets up particle data
 
     // Reset the allocation table
     PrtList_init();
@@ -2237,7 +2254,8 @@ void particle_system_end()
 //--------------------------------------------------------------------------------------------
 int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
 {
-    /// @details ZZ@> This function is for catching characters on fire and such
+    /// @author ZZ
+    /// @details This function is for catching characters on fire and such
 
     int      cnt, bs_count;
     float    x, y, z;
@@ -2434,7 +2452,8 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
 //--------------------------------------------------------------------------------------------
 bool_t prt_is_over_water( const PRT_REF iprt )
 {
-    /// ZZ@> This function returns btrue if the particle is over a water tile
+    /// @author ZZ
+    /// @details This function returns btrue if the particle is over a water tile
     Uint32 fan;
 
     if ( !ALLOCATED_PRT( iprt ) ) return bfalse;
@@ -2465,7 +2484,8 @@ PIP_REF PipStack_get_free()
 //--------------------------------------------------------------------------------------------
 PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
 {
-    /// @details ZZ@> This function loads a particle template, returning MAX_PIP if the file wasn't
+    /// @author ZZ
+    /// @details This function loads a particle template, returning MAX_PIP if the file wasn't
     ///    found
 
     PIP_REF ipip;
@@ -2582,7 +2602,8 @@ bool_t PipStack_release_one( const PIP_REF ipip )
 //--------------------------------------------------------------------------------------------
 bool_t prt_request_terminate( prt_t * pprt )
 {
-    /// @details BB@> Tell the game to get rid of this object and treat it
+    /// @author BB
+    /// @details Tell the game to get rid of this object and treat it
     ///               as if it was already dead
     ///
     /// @note PrtList_request_terminate() will force the game to
@@ -3126,7 +3147,8 @@ prt_bundle_t * prt_update_timers( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
 {
-    /// @details BB@> update everything about a particle that does not depend on collisions
+    /// @author BB
+    /// @details update everything about a particle that does not depend on collisions
     ///               or interactions with characters
 
     obj_data_t * base_ptr;
@@ -3202,7 +3224,8 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
 {
-    /// @details BB@> handle the case where the particle is still being diaplayed, but is no longer
+    /// @author BB
+    /// @details handle the case where the particle is still being diaplayed, but is no longer
     ///               in the game
 
     bool_t prt_visible;

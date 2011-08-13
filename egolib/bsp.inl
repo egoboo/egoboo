@@ -40,7 +40,8 @@ static INLINE bool_t BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const a
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr )
 {
-    /// @details BB@> Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
+    /// @author BB
+    /// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
     ///               than lhs_ptr, just check the lowest common dimensions.
 
     size_t cnt, min_dim;
@@ -72,7 +73,8 @@ static INLINE bool_t BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_ptr,
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr )
 {
-    /// @details BB@> Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
+    /// @author BB
+    /// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
     ///               than lhs_ptr, just check the lowest common dimensions.
 
     size_t cnt, min_dim;
@@ -105,7 +107,8 @@ static INLINE bool_t BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, con
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
-    /// @details BB@> Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
+    /// @author BB
+    /// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
     ///               than lhs_ptr, just check the lowest common dimensions.
 
     size_t cnt, min_dim;
@@ -137,7 +140,8 @@ static INLINE bool_t BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, con
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
-    /// @details BB@> Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
+    /// @author BB
+    /// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
     ///               than lhs_ptr, just check the lowest common dimensions.
 
     size_t cnt, min_dim;

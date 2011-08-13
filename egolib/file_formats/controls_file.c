@@ -56,7 +56,8 @@ void export_control( vfs_FILE * filewrite, const char * text, int device, contro
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_load_vfs( const char *szFilename, int required_version )
 {
-    /// @details ZZ@> This function reads the controls.txt file
+    /// @author ZZ
+    /// @details This function reads the controls.txt file
     int file_version;
     vfs_FILE* fileread = NULL;
     bool_t retval = bfalse;
@@ -118,7 +119,8 @@ bool_t input_settings_load_vfs( const char *szFilename, int required_version )
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_save_vfs( const char* szFilename, int version )
 {
-    /// @details BB@> Write the controls.txt file using the correct version
+    /// @author BB
+    /// @details Write the controls.txt file using the correct version
 
     bool_t retval = bfalse;
 

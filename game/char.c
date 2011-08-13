@@ -235,7 +235,8 @@ bool_t chr_free( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_ctor( chr_t * pchr )
 {
-    /// @details BB@> initialize the character data to safe values
+    /// @author BB
+    /// @details initialize the character data to safe values
 
     int cnt;
     obj_data_t save_base;
@@ -321,7 +322,7 @@ chr_t * chr_ctor( chr_t * pchr )
     // I think we have to set the dismount timer, otherwise objects that
     // are spawned by chests will behave strangely...
     // nope this did not fix it
-    // ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
+    /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
     pchr->dismount_timer  = 0;
     pchr->dismount_object = ( CHR_REF )MAX_CHR;
 
@@ -391,7 +392,8 @@ chr_t * chr_dtor( chr_t * pchr )
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
                                   Uint8 valuehigh, Sint16 high )
 {
-    /// @details ZZ@> This function sets a character's lighting depending on vertex height...
+    /// @author ZZ
+    /// @details This function sets a character's lighting depending on vertex height...
     ///    Can make feet dark and head light...
 
     Uint32 cnt;
@@ -461,7 +463,8 @@ void chr_set_enviro_grid_level( chr_t * pchr, float level )
 //--------------------------------------------------------------------------------------------
 bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst )
 {
-    /// BB@> do a deep copy on the character's enviro data
+    /// @author BB
+    /// @details do a deep copy on the character's enviro data
 
     chr_environment_t * psrc, * pdst;
 
@@ -486,7 +489,8 @@ bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst )
 //--------------------------------------------------------------------------------------------
 void keep_weapons_with_holders()
 {
-    /// @details ZZ@> This function keeps weapons near their holders
+    /// @author ZZ
+    /// @details This function keeps weapons near their holders
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
@@ -574,7 +578,8 @@ void keep_weapons_with_holders()
 //--------------------------------------------------------------------------------------------
 void make_one_character_matrix( const CHR_REF ichr )
 {
-    /// @details ZZ@> This function sets one character's matrix
+    /// @author ZZ
+    /// @details This function sets one character's matrix
 
     chr_t * pchr;
     chr_instance_t * pinst;
@@ -674,7 +679,8 @@ void chr_log_script_time( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 void free_one_character_in_game( const CHR_REF character )
 {
-    /// @details ZZ@> This function sticks a character back on the free character stack
+    /// @author ZZ
+    /// @details This function sticks a character back on the free character stack
     ///
     /// @note This should only be called by cleanup_all_characters() or free_inventory_in_game()
 
@@ -757,7 +763,8 @@ void free_one_character_in_game( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void free_inventory_in_game( const CHR_REF character )
 {
-    /// @details ZZ@> This function frees every item in the character's inventory
+    /// @author ZZ
+    /// @details This function frees every item in the character's inventory
     ///
     /// @note this should only be called by cleanup_all_characters()
     int i;
@@ -780,7 +787,8 @@ void free_inventory_in_game( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int vertex_offset )
 {
-    /// @details ZZ@> This function sets one particle's position to be attached to a character.
+    /// @author ZZ
+    /// @details This function sets one particle's position to be attached to a character.
     ///    It will kill the particle if the character is no longer around
 
     int     vertex;
@@ -872,7 +880,8 @@ place_particle_at_vertex_fail:
 //--------------------------------------------------------------------------------------------
 void update_all_character_matrices()
 {
-    /// @details ZZ@> This function makes all of the character's matrices
+    /// @author ZZ
+    /// @details This function makes all of the character's matrices
 
     // just call chr_update_matrix on every character
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
@@ -885,7 +894,8 @@ void update_all_character_matrices()
 //--------------------------------------------------------------------------------------------
 void free_all_chraracters()
 {
-    /// @details ZZ@> This function resets the character allocation list
+    /// @author ZZ
+    /// @details This function resets the character allocation list
 
     // free all the characters
     ChrList_free_all();
@@ -980,7 +990,8 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
 //--------------------------------------------------------------------------------------------
 BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
 {
-    /// @details ZZ@> This function returns nonzero if the character hit a wall that the
+    /// @author ZZ
+    /// @details This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
 
     BIT_FIELD    retval;
@@ -1022,7 +1033,8 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
 //--------------------------------------------------------------------------------------------
 BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t * pdata )
 {
-    /// @details ZZ@> This function returns nonzero if the character hit a wall that the
+    /// @author ZZ
+    /// @details This function returns nonzero if the character hit a wall that the
     ///    character is not allowed to cross
 
     BIT_FIELD retval;
@@ -1064,7 +1076,8 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
 //--------------------------------------------------------------------------------------------
 bool_t chr_is_over_water( chr_t *pchr )
 {
-    /// @details ZF@> This function returns true if the character is over a water tile
+    /// @author ZF
+    /// @details This function returns true if the character is over a water tile
 
     if ( !DEFINED_PCHR( pchr ) ) return bfalse;
 
@@ -1076,7 +1089,8 @@ bool_t chr_is_over_water( chr_t *pchr )
 //--------------------------------------------------------------------------------------------
 void reset_character_accel( const CHR_REF character )
 {
-    /// @details ZZ@> This function fixes a character's max acceleration
+    /// @author ZZ
+    /// @details This function fixes a character's max acceleration
 
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
@@ -1132,7 +1146,8 @@ void reset_character_accel( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop )
 {
-    /// @details ZZ@> This function drops an item
+    /// @author ZZ
+    /// @details This function drops an item
 
     CHR_REF mount;
     Uint16  hand;
@@ -1318,7 +1333,8 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
 //--------------------------------------------------------------------------------------------
 void reset_character_alpha( const CHR_REF character )
 {
-    /// @details ZZ@> This function fixes an item's transparency
+    /// @author ZZ
+    /// @details This function fixes an item's transparency
 
     CHR_REF mount;
     chr_t * pchr, * pmount;
@@ -1385,7 +1401,8 @@ void reset_character_alpha( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount, grip_offset_t grip_off )
 {
-    /// @details ZZ@> This function attaches one character/item to another ( the holder/mount )
+    /// @author ZZ
+    /// @details This function attaches one character/item to another ( the holder/mount )
     ///    at a certain vertex offset ( grip_off )
     ///   - This function is called as a part of spawning a module, so the item or the holder may not
     ///     be fully instantiated
@@ -1510,7 +1527,8 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
 //--------------------------------------------------------------------------------------------
 bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool_t ignorekurse )
 {
-    /// @details ZF@> This adds a new item into the specified inventory slot. Fails if there already is an item there.
+    /// @author ZF
+    /// @details This adds a new item into the specified inventory slot. Fails if there already is an item there.
     ///               If the specified inventory slot is MAXINVENTORY, it will find the first free inventory slot.
 
     CHR_REF stack;
@@ -1640,7 +1658,8 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
 //--------------------------------------------------------------------------------------------
 bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool_t ignorekurse )
 {
-    /// @details ZF@> This function swaps items between the specified inventory slot and the specified grip
+    /// @author ZF
+    /// @details This function swaps items between the specified inventory slot and the specified grip
     ///               If MAXINVENTORY is specified by inventory_slot, the function will swap with the first item found
     ///               in the inventory
 
@@ -1702,7 +1721,8 @@ bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot
 //--------------------------------------------------------------------------------------------
 bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, const bool_t ignorekurse )
 {
-    /// @details ZF@> This function removes the item specified in the inventory slot from the
+    /// @author ZF
+    /// @details This function removes the item specified in the inventory slot from the
     ///               character's inventory. Note that you still have to handle it falling out
 
     CHR_REF item;
@@ -1740,7 +1760,8 @@ bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, co
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
 {
-    /// @details ZZ@> This function looks in the character's pack for an item similar
+    /// @author ZZ
+    /// @details This function looks in the character's pack for an item similar
     ///    to the one given.  If it finds one, it returns the similar item's
     ///    index number, otherwise it returns MAX_CHR.
 
@@ -1799,7 +1820,8 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void drop_keys( const CHR_REF character )
 {
-    /// @details ZZ@> This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
+    /// @author ZZ
+    /// @details This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
     ///    inventory ( Not hands ).
 
     chr_t  * pchr;
@@ -1873,7 +1895,8 @@ void drop_keys( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 bool_t drop_all_items( const CHR_REF character )
 {
-    /// @details ZZ@> This function drops all of a character's items
+    /// @author ZZ
+    /// @details This function drops all of a character's items
 
     FACING_T direction;
     TURN_T   turn;
@@ -1982,7 +2005,8 @@ int grab_data_cmp( const void * pleft, const void * pright )
 //--------------------------------------------------------------------------------------------
 bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_t grab_people )
 {
-    /// @details ZZ@> This function makes the character pick up an item if there's one around
+    /// @author ZZ
+    /// @details This function makes the character pick up an item if there's one around
 
     const SDL_Color color_red = {0xFF, 0x7F, 0x7F, 0xFF};
     const SDL_Color color_grn = {0x7F, 0xFF, 0x7F, 0xFF};
@@ -2301,7 +2325,8 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
 //--------------------------------------------------------------------------------------------
 void character_swipe( const CHR_REF ichr, slot_t slot )
 {
-    /// @details ZZ@> This function spawns an attack particle
+    /// @author ZZ
+    /// @details This function spawns an attack particle
 
     CHR_REF iweapon, ithrown, iholder;
     chr_t * pchr, * pweapon;
@@ -2492,7 +2517,8 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 //--------------------------------------------------------------------------------------------
 void drop_money( const CHR_REF character, int money )
 {
-    /// @details ZZ@> This function drops some of a character's money
+    /// @author ZZ
+    /// @details This function drops some of a character's money
 
     int vals[PIP_MONEY_COUNT] = {1, 5, 25, 100, 200, 500, 1000, 2000};
     int pips[PIP_MONEY_COUNT] =
@@ -2547,7 +2573,8 @@ void drop_money( const CHR_REF character, int money )
 //--------------------------------------------------------------------------------------------
 void call_for_help( const CHR_REF character )
 {
-    /// @details ZZ@> This function issues a call for help to all allies
+    /// @author ZZ
+    /// @details This function issues a call for help to all allies
 
     TEAM_REF team;
 
@@ -2569,7 +2596,8 @@ void call_for_help( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 bool_t setup_xp_table( const CAP_REF icap )
 {
-    /// @details ZF@> This calculates the xp needed to reach next level and stores it in an array for later use
+    /// @author ZF
+    /// @details This calculates the xp needed to reach next level and stores it in an array for later use
 
     Uint8 level;
     cap_t * pcap;
@@ -2591,7 +2619,8 @@ bool_t setup_xp_table( const CAP_REF icap )
 //--------------------------------------------------------------------------------------------
 void do_level_up( const CHR_REF character )
 {
-    /// @details BB@> level gains are done here, but only once a second
+    /// @author BB
+    /// @details level gains are done here, but only once a second
 
     Uint8 curlevel;
     int number;
@@ -2686,7 +2715,8 @@ void do_level_up( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void give_experience( const CHR_REF character, int amount, xp_type xptype, bool_t override_invictus )
 {
-    /// @details ZZ@> This function gives a character experience
+    /// @author ZZ
+    /// @details This function gives a character experience
 
     float newamount;
 
@@ -2728,7 +2758,8 @@ void give_experience( const CHR_REF character, int amount, xp_type xptype, bool_
 //--------------------------------------------------------------------------------------------
 void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype )
 {
-    /// @details ZZ@> This function gives every character on a team experience
+    /// @author ZZ
+    /// @details This function gives every character on a team experience
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
@@ -2743,9 +2774,10 @@ void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype )
 //--------------------------------------------------------------------------------------------
 chr_t * resize_one_character( chr_t * pchr )
 {
-    /// @details ZZ@> This function makes the characters get bigger or smaller, depending
+    /// @author ZZ
+    /// @details This function makes the characters get bigger or smaller, depending
     ///    on their fat_goto and fat_goto_time. Spellbooks do not resize
-    ///    BB@> assume that this will only be called from inside chr_config_do_active(),
+    /// @note BB@> assume that this will only be called from inside chr_config_do_active(),
     ///         so pchr is just right to be used here
 
     CHR_REF ichr;
@@ -2813,7 +2845,8 @@ chr_t * resize_one_character( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character )
 {
-    /// @details ZZ@> This function makes the naming.txt file for the character
+    /// @author ZZ
+    /// @details This function makes the naming.txt file for the character
 
     player_t *ppla;
     egolib_rv rv;
@@ -2830,7 +2863,8 @@ bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF cha
 //--------------------------------------------------------------------------------------------
 //void resize_all_characters()
 //{
-//    /// @details ZZ@> This function makes the characters get bigger or smaller, depending
+//    /// @author ZZ
+/// @details This function makes the characters get bigger or smaller, depending
 //    ///    on their fat_goto and fat_goto_time. Spellbooks do not resize
 //
 //    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
@@ -2843,7 +2877,8 @@ bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF cha
 //--------------------------------------------------------------------------------------------
 bool_t export_one_character_name_vfs( const char *szSaveName, const CHR_REF character )
 {
-    /// @details ZZ@> This function makes the naming.txt file for the character
+    /// @author ZZ
+    /// @details This function makes the naming.txt file for the character
 
     if ( !INGAME_CHR( character ) ) return bfalse;
 
@@ -2853,7 +2888,8 @@ bool_t export_one_character_name_vfs( const char *szSaveName, const CHR_REF char
 //--------------------------------------------------------------------------------------------
 bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
 {
-    /// @details BB@> prepare a character profile for exporting, by uploading some special values into the
+    /// @author BB
+    /// @details prepare a character profile for exporting, by uploading some special values into the
     ///     cap. Just so that there is no confusion when you export multiple items of the same type,
     ///     DO NOT pass the pointer returned by chr_get_pcap(). Instead, use a custom cap_t declared on the stack,
     ///     or something similar
@@ -2974,7 +3010,8 @@ bool_t chr_upload_cap( chr_t * pchr, cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 {
-    /// @details BB@> grab all of the data from the data.txt file
+    /// @author BB
+    /// @details grab all of the data from the data.txt file
 
     int iTmp, tnc;
 
@@ -3124,7 +3161,8 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 bool_t export_one_character_profile_vfs( const char *szSaveName, const CHR_REF character )
 {
-    /// @details ZZ@> This function creates a data.txt file for the given character.
+    /// @author ZZ
+    /// @details This function creates a data.txt file for the given character.
     ///    it is assumed that all enchantments have been done away with
 
     chr_t * pchr;
@@ -3151,7 +3189,8 @@ bool_t export_one_character_profile_vfs( const char *szSaveName, const CHR_REF c
 //--------------------------------------------------------------------------------------------
 bool_t export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character )
 {
-    /// @details ZZ@> This function creates a skin.txt file for the given character.
+    /// @author ZZ
+    /// @details This function creates a skin.txt file for the given character.
 
     vfs_FILE* filewrite;
 
@@ -3170,7 +3209,8 @@ bool_t export_one_character_skin_vfs( const char *szSaveName, const CHR_REF char
 //--------------------------------------------------------------------------------------------
 CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t required )
 {
-    /// @details ZZ@> This function fills a character profile with data from data.txt, returning
+    /// @author ZZ
+    /// @details This function fills a character profile with data from data.txt, returning
     /// the icap slot that the profile was stuck into.  It may cause the program
     /// to abort if bad things happen.
 
@@ -3252,7 +3292,8 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t r
 //--------------------------------------------------------------------------------------------
 bool_t heal_character( const CHR_REF character, const CHR_REF healer, int amount, bool_t ignore_invictus )
 {
-    /// @details ZF@> This function gives some pure life points to the target, ignoring any resistances and so forth
+    /// @author ZF
+    /// @details This function gives some pure life points to the target, ignoring any resistances and so forth
     chr_t * pchr, *pchr_h;
 
     //Setup the healed character
@@ -3281,7 +3322,8 @@ bool_t heal_character( const CHR_REF character, const CHR_REF healer, int amount
 //--------------------------------------------------------------------------------------------
 void cleanup_one_character( chr_t * pchr )
 {
-    /// @details BB@> Everything necessary to disconnect one character from the game
+    /// @author BB
+    /// @details Everything necessary to disconnect one character from the game
 
     CHR_REF  ichr, itmp;
     SHOP_REF ishop;
@@ -3371,7 +3413,8 @@ void cleanup_one_character( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool_t ignore_invictus )
 {
-    /// @details BB@> Handle a character death. Set various states, disconnect it from the world, etc.
+    /// @author BB
+    /// @details Handle a character death. Set various states, disconnect it from the world, etc.
 
     chr_t * pchr;
     cap_t * pcap;
@@ -3497,7 +3540,8 @@ int damage_character( const CHR_REF character, const FACING_T direction,
                       const IPair  damage, const Uint8 damagetype, const TEAM_REF team,
                       const CHR_REF attacker, const BIT_FIELD effects, const bool_t ignore_invictus )
 {
-    /// @details ZZ@> This function calculates and applies damage to a character.  It also
+    /// @author ZZ
+    /// @details This function calculates and applies damage to a character.  It also
     ///    sets alerts and begins actions.  Blocking and frame invincibility
     ///    are done here too.  Direction is ATK_FRONT if the attack is coming head on,
     ///    ATK_RIGHT if from the right, ATK_BEHIND if from the back, ATK_LEFT if from the
@@ -3776,7 +3820,8 @@ int damage_character( const CHR_REF character, const FACING_T direction,
 //--------------------------------------------------------------------------------------------
 void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool_t healing )
 {
-    //@details ZF@> This function should be used whenever a character gets attacked or healed. The function
+    /// @author ZF
+    /// @details This function should be used whenever a character gets attacked or healed. The function
     // handles if the attacker is a held item (so that the holder becomes the attacker). The function also
     // updates alerts, timers, etc. This function can trigger character cries like "That tickles!" or "Be careful!"
     CHR_REF actual_attacker = attacker;
@@ -3817,7 +3862,8 @@ void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool_t healing )
 //--------------------------------------------------------------------------------------------
 void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker )
 {
-    /// @details ZF@> Spawn a defend particle
+    /// @author ZF
+    /// @details Spawn a defend particle
     if ( 0 != pchr->damage_timer ) return;
 
     spawn_one_particle_global( pchr->pos.v, pchr->ori.facing_z, PIP_DEFEND, 0 );
@@ -3830,7 +3876,8 @@ void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker )
 //--------------------------------------------------------------------------------------------
 void spawn_poof( const CHR_REF character, const PRO_REF profile )
 {
-    /// @details ZZ@> This function spawns a character poof
+    /// @author ZZ
+    /// @details This function spawns a character poof
 
     FACING_T facing_z;
     CHR_REF  origin;
@@ -4049,8 +4096,10 @@ chr_t * chr_config_do_init( chr_t * pchr )
         }
     }
 
-    /// ZF@> override the shopitem flag if the item is known to be valuable
-    /// BB@> this prevents (essentially) all books from being able to be burned
+    /// @author ZF
+    /// @details override the shopitem flag if the item is known to be valuable
+    /// @author BB
+    /// @details this prevents (essentially) all books from being able to be burned
     //if ( pcap->isvaluable )
     //{
     //    pchr->isshopitem = btrue;
@@ -4467,7 +4516,8 @@ chr_t * chr_run_config( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_ctor( chr_t * pchr )
 {
-    /// @details BB@> initialize the character data to safe values
+    /// @author BB
+    /// @details initialize the character data to safe values
 
     obj_data_t * pbase;
 
@@ -4538,7 +4588,8 @@ chr_t * chr_config_active( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_deinit( chr_t * pchr )
 {
-    /// @details BB@> deinitialize the character data
+    /// @author BB
+    /// @details deinitialize the character data
 
     obj_data_t * pbase;
 
@@ -4558,7 +4609,8 @@ chr_t * chr_config_deinit( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_dtor( chr_t * pchr )
 {
-    /// @details BB@> deinitialize the character data
+    /// @author BB
+    /// @details deinitialize the character data
 
     obj_data_t * pbase;
 
@@ -4577,7 +4629,8 @@ chr_t * chr_config_dtor( chr_t * pchr )
 CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team,
                              const Uint8 skin, const FACING_T facing, const char *name, const CHR_REF override )
 {
-    /// @details ZZ@> This function spawns a character and returns the character's index number
+    /// @author ZZ
+    /// @details This function spawns a character and returns the character's index number
     ///               if it worked, MAX_CHR otherwise
 
     CHR_REF   ichr;
@@ -4657,7 +4710,8 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
 //--------------------------------------------------------------------------------------------
 void respawn_character( const CHR_REF character )
 {
-    /// @details ZZ@> This function respawns a character
+    /// @author ZZ
+    /// @details This function respawns a character
 
     int old_attached_prt_count, new_attached_prt_count;
 
@@ -4808,7 +4862,8 @@ int chr_change_skin( const CHR_REF character, int skin )
 //--------------------------------------------------------------------------------------------
 int change_armor( const CHR_REF character, int skin )
 {
-    /// @details ZZ@> This function changes the armor of the character
+    /// @author ZZ
+    /// @details This function changes the armor of the character
 
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
@@ -4910,7 +4965,8 @@ int change_armor( const CHR_REF character, int skin )
 //--------------------------------------------------------------------------------------------
 void change_character_full( const CHR_REF ichr, const PRO_REF profile, Uint8 skin, Uint8 leavewhich )
 {
-    /// @details ZF@> This function polymorphs a character permanently so that it can be exported properly
+    /// @author ZF
+    /// @details This function polymorphs a character permanently so that it can be exported properly
     /// A character turned into a frog with this function will also export as a frog!
 
     MAD_REF imad_old, imad_new;
@@ -5002,7 +5058,8 @@ bool_t set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_of
 //--------------------------------------------------------------------------------------------
 void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin, Uint8 leavewhich )
 {
-    /// @details ZZ@> This function polymorphs a character, changing stats, dropping weapons
+    /// @author ZZ
+    /// @details This function polymorphs a character, changing stats, dropping weapons
 
     int tnc;
     CHR_REF item_ref, item;
@@ -5259,7 +5316,10 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
 
     // Reaffirm them particles...
     pchr->reaffirm_damagetype = pcap_new->attachedprt_reaffirm_damagetype;
-    //reaffirm_attached_particles( ichr );              /// @note ZF@> so that books dont burn when dropped
+
+    /// @note ZF@> so that books dont burn when dropped
+    //reaffirm_attached_particles( ichr );
+
     new_attached_prt_count = number_of_attached_particles( ichr );
 
     ai_state_set_changed( &( pchr->ai ) );
@@ -5270,7 +5330,8 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
 //--------------------------------------------------------------------------------------------
 bool_t cost_mana( const CHR_REF character, int amount, const CHR_REF killer )
 {
-    /// @details ZZ@> This function takes mana from a character ( or gives mana ),
+    /// @author ZZ
+    /// @details This function takes mana from a character ( or gives mana ),
     ///    and returns btrue if the character had enough to pay, or bfalse
     ///    otherwise. This can kill a character in hard mode.
 
@@ -5392,7 +5453,8 @@ void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const b
 //--------------------------------------------------------------------------------------------
 void switch_team( const CHR_REF character, const TEAM_REF team )
 {
-    /// @details ZZ@> This function makes a character join another team...
+    /// @author ZZ
+    /// @details This function makes a character join another team...
 
     CHR_REF tmp_ref;
     chr_t * pchr;
@@ -5428,7 +5490,8 @@ void switch_team( const CHR_REF character, const TEAM_REF team )
 //--------------------------------------------------------------------------------------------
 void issue_clean( const CHR_REF character )
 {
-    /// @details ZZ@> This function issues a clean up order to all teammates
+    /// @author ZZ
+    /// @details This function issues a clean up order to all teammates
 
     TEAM_REF team;
 
@@ -5453,7 +5516,8 @@ void issue_clean( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 int restock_ammo( const CHR_REF character, IDSZ idsz )
 {
-    /// @details ZZ@> This function restocks the characters ammo, if it needs ammo and if
+    /// @author ZZ
+    /// @details This function restocks the characters ammo, if it needs ammo and if
     ///    either its parent or type idsz match the given idsz.  This
     ///    function returns the amount of ammo given.
 
@@ -5480,7 +5544,8 @@ int restock_ammo( const CHR_REF character, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 int chr_get_skill( chr_t *pchr, IDSZ whichskill )
 {
-    /// @details ZF@> This returns the skill level for the specified skill or 0 if the character doesn't
+    /// @author ZF
+    /// @details This returns the skill level for the specified skill or 0 if the character doesn't
     ///                  have the skill. Also checks the skill IDSZ.
     IDSZ_node_t *pskill;
 
@@ -5530,7 +5595,8 @@ int chr_get_skill( chr_t *pchr, IDSZ whichskill )
 //--------------------------------------------------------------------------------------------
 bool_t update_chr_darkvision( const CHR_REF character )
 {
-    /// @detalis BB@> as an offset to negative status effects like things like poisoning, a
+    /// @author BB
+    /// @details as an offset to negative status effects like things like poisoning, a
     ///               character gains darkvision ability the more they are "poisoned".
     ///               True poisoning can be removed by [HEAL] and tints the character green
 
@@ -5584,7 +5650,8 @@ bool_t update_chr_darkvision( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void update_all_characters()
 {
-    /// @details ZZ@> This function updates stats and such for every character
+    /// @author ZZ
+    /// @details This function updates stats and such for every character
 
     CHR_REF ichr;
 
@@ -5805,7 +5872,8 @@ void move_one_character_get_environment( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void move_one_character_do_floor_friction( chr_t * pchr )
 {
-    /// @details BB@> Friction is complicated when you want to have sliding characters :P
+    /// @author BB
+    /// @details Friction is complicated when you want to have sliding characters :P
 
     float temp_friction_xy;
     fvec3_t   vup, floor_acc, fric, fric_floor;
@@ -6331,7 +6399,8 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 //--------------------------------------------------------------------------------------------
 bool_t chr_do_latch_button( chr_t * pchr )
 {
-    /// @details BB@> Character latches for generalized buttons
+    /// @author BB
+    /// @details Character latches for generalized buttons
 
     CHR_REF ichr;
     ai_state_t * pai;
@@ -6742,7 +6811,8 @@ bool_t move_one_character_integrate_motion_attached( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 bool_t move_one_character_integrate_motion( chr_t * pchr )
 {
-    /// @details BB@> Figure out the next position of the character.
+    /// @author BB
+    /// @details Figure out the next position of the character.
     ///    Include collisions with the mesh in this step.
 
     CHR_REF  ichr;
@@ -7151,7 +7221,8 @@ bool_t chr_handle_madfx( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 int cmp_chr_anim_data( void const * vp_lhs, void const * vp_rhs )
 {
-    /// @details BB@> Sort MOD REF values based on the rank of the module that they point to.
+    /// @author BB
+    /// @details Sort MOD REF values based on the rank of the module that they point to.
     ///               Trap all stupid values.
 
     chr_anim_data_t * plhs = ( chr_anim_data_t * )vp_lhs;
@@ -7183,9 +7254,11 @@ int cmp_chr_anim_data( void const * vp_lhs, void const * vp_rhs )
 //--------------------------------------------------------------------------------------------
 float set_character_animation_rate( chr_t * pchr )
 {
-    /// @details ZZ@> Get running, walking, sneaking, or dancing, from speed
+    /// @author ZZ
+    /// @details Get running, walking, sneaking, or dancing, from speed
     ///
-    /// BB@> added automatic calculation of variable animation rates for movement animations
+    /// @author BB
+    /// @details added automatic calculation of variable animation rates for movement animations
 
     float  speed;
     bool_t can_be_interrupted;
@@ -7597,7 +7670,8 @@ void move_one_character( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void move_all_characters( void )
 {
-    /// @details ZZ@> This function handles character physics
+    /// @author ZZ
+    /// @details This function handles character physics
 
     chr_stoppedby_tests = 0;
 
@@ -7788,7 +7862,8 @@ void init_slot_idsz()
 //--------------------------------------------------------------------------------------------
 BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
 {
-    /// @details BB@> Attach a basic billboard to a character. You set the billboard texture
+    /// @author BB
+    /// @details Attach a basic billboard to a character. You set the billboard texture
     ///     at any time after this. Returns the index of the billboard or INVALID_BILLBOARD
     ///     if the allocation fails.
     ///
@@ -8027,14 +8102,16 @@ const char * chr_get_dir_name( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 egolib_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 {
-    ///< @detalis BB@> use this function to update the pchr->chr_max_cv and  pchr->chr_min_cv with
-    ///<       values that reflect the best possible collision volume
-    ///<
-    ///< @note This function takes quite a bit of time, so it must only be called when the
-    ///< vertices change because of an animation or because the matrix changes.
-    ///<
-    ///< @todo it might be possible to cache the src[] array used in this function.
-    ///< if the matrix changes, then you would not need to recalculate this data...
+    /// @author BB
+    ///
+    /// @details use this function to update the pchr->chr_max_cv and  pchr->chr_min_cv with
+    ///       values that reflect the best possible collision volume
+    ///
+    /// @note This function takes quite a bit of time, so it must only be called when the
+    /// vertices change because of an animation or because the matrix changes.
+    ///
+    /// @todo it might be possible to cache the src[] array used in this function.
+    /// if the matrix changes, then you would not need to recalculate this data...
 
     int       vcount;   // the actual number of vertices, in case the object is square
     fvec4_t   src[16];  // for the upper and lower octagon points
@@ -8150,7 +8227,8 @@ egolib_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix )
 //--------------------------------------------------------------------------------------------
 const char* describe_value( float value, float maxval, int * rank_ptr )
 {
-    /// @details ZF@> This converts a stat number into a more descriptive word
+    /// @author ZF
+    /// @details This converts a stat number into a more descriptive word
 
     static STRING retval;
 
@@ -8190,7 +8268,8 @@ const char* describe_value( float value, float maxval, int * rank_ptr )
 //--------------------------------------------------------------------------------------------
 const char* describe_damage( float value, float maxval, int * rank_ptr )
 {
-    /// @details ZF@> This converts a damage value into a more descriptive word
+    /// @author ZF
+    /// @details This converts a damage value into a more descriptive word
 
     static STRING retval;
 
@@ -8226,7 +8305,8 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
 //--------------------------------------------------------------------------------------------
 const char* describe_wounds( float max, float current )
 {
-    /// @details ZF@> This tells us how badly someone is injured
+    /// @author ZF
+    /// @details This tells us how badly someone is injured
 
     static STRING retval;
     float fval;
@@ -8264,7 +8344,8 @@ const char* describe_wounds( float max, float current )
 //--------------------------------------------------------------------------------------------
 TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 {
-    /// @details BB@> Get the index to the icon texture (in TxTexture) that is supposed to be used with this object.
+    /// @author BB
+    /// @details Get the index to the icon texture (in TxTexture) that is supposed to be used with this object.
     ///               If none can be found, return the index to the texture of the null icon.
 
     size_t iskin;
@@ -8320,7 +8401,8 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 //--------------------------------------------------------------------------------------------
 void CapStack_init_all()
 {
-    /// @details BB@> initialize every character profile in the game
+    /// @author BB
+    /// @details initialize every character profile in the game
 
     CAP_REF cnt;
 
@@ -8333,7 +8415,8 @@ void CapStack_init_all()
 //--------------------------------------------------------------------------------------------
 void CapStack_release_all()
 {
-    /// @details BB@> release every character profile in the game
+    /// @author BB
+    /// @details release every character profile in the game
 
     CAP_REF cnt;
 
@@ -8346,7 +8429,8 @@ void CapStack_release_all()
 //--------------------------------------------------------------------------------------------
 bool_t CapStack_release_one( const CAP_REF icap )
 {
-    /// @details BB@> release any allocated data and return all values to safe values
+    /// @author BB
+    /// @details release any allocated data and return all values to safe values
 
     cap_t * pcap;
 
@@ -8366,7 +8450,8 @@ bool_t CapStack_release_one( const CAP_REF icap )
 //--------------------------------------------------------------------------------------------
 void reset_teams()
 {
-    /// @details ZZ@> This function makes everyone hate everyone else
+    /// @author ZZ
+    /// @details This function makes everyone hate everyone else
 
     TEAM_REF teama, teamb;
 
@@ -8398,7 +8483,8 @@ void reset_teams()
 //--------------------------------------------------------------------------------------------
 bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z )
 {
-    /// @details BB@> Determine whether the character can be teleported to the specified location
+    /// @author BB
+    /// @details Determine whether the character can be teleported to the specified location
     ///               and do it, if possible. Success returns btrue, failure returns bfalse;
 
     chr_t  * pchr;
@@ -8455,7 +8541,8 @@ bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T fac
 //--------------------------------------------------------------------------------------------
 bool_t chr_request_terminate( chr_t * pchr )
 {
-    /// @details BB@> Mark this character for deletion
+    /// @author BB
+    /// @details Mark this character for deletion
 
     if ( NULL == pchr || !ALLOCATED_PCHR( pchr ) || TERMINATED_PCHR( pchr ) )
     {
@@ -8470,7 +8557,8 @@ bool_t chr_request_terminate( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_update_hide( chr_t * pchr )
 {
-    /// @details BB@> Update the hide state of the character. Should be called every time that
+    /// @author BB
+    /// @details Update the hide state of the character. Should be called every time that
     ///               the state variable in an ai_state_t structure is updated
 
     Sint8 hide;
@@ -8497,7 +8585,8 @@ chr_t * chr_update_hide( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 bool_t chr_matrix_valid( const chr_t * pchr )
 {
-    /// @details BB@> Determine whether the character has a valid matrix
+    /// @author BB
+    /// @details Determine whether the character has a valid matrix
 
     if ( !DEFINED_PCHR( pchr ) ) return bfalse;
 
@@ -8509,7 +8598,8 @@ bool_t chr_matrix_valid( const chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset )
 {
-    /// @details BB@> Fill the grip_verts[] array from the mount's data.
+    /// @author BB
+    /// @details Fill the grip_verts[] array from the mount's data.
     ///     Return the number of vertices found.
 
     Uint32  i;
@@ -8564,7 +8654,8 @@ int get_grip_verts( Uint16 grip_verts[], const CHR_REF imount, int vrt_offset )
 //--------------------------------------------------------------------------------------------
 bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 {
-    /// @details BB@> grab the matrix cache data for a given character and put it into mc_tmp.
+    /// @author BB
+    /// @details grab the matrix cache data for a given character and put it into mc_tmp.
 
     bool_t handled;
     CHR_REF itarget, ichr;
@@ -8653,7 +8744,8 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 //--------------------------------------------------------------------------------------------
 int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t dst_point[] )
 {
-    /// @details ZZ@> a helper function for apply_one_weapon_matrix()
+    /// @author ZZ
+    /// @details a helper function for apply_one_weapon_matrix()
 
     int cnt, point_count;
 
@@ -8707,7 +8799,8 @@ int convert_grip_to_local_points( chr_t * pholder, Uint16 grip_verts[], fvec4_t 
 //--------------------------------------------------------------------------------------------
 int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], fvec4_t   dst_point[] )
 {
-    /// @details ZZ@> a helper function for apply_one_weapon_matrix()
+    /// @author ZZ
+    /// @details a helper function for apply_one_weapon_matrix()
 
     chr_t *   pholder;
     int       point_count;
@@ -8730,7 +8823,8 @@ int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], f
 //--------------------------------------------------------------------------------------------
 bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 {
-    /// @details ZZ@> Request that the data in the matrix cache be used to create a "character matrix".
+    /// @author ZZ
+    /// @details Request that the data in the matrix cache be used to create a "character matrix".
     ///               i.e. a matrix that is not being held by anything.
 
     fvec4_t   nupoint[GRIP_VERTS];
@@ -8791,7 +8885,8 @@ bool_t apply_one_weapon_matrix( chr_t * pweap, matrix_cache_t * mc_tmp )
 //--------------------------------------------------------------------------------------------
 bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 {
-    /// @details ZZ@> Request that the matrix cache data be used to create a "weapon matrix".
+    /// @author ZZ
+    /// @details Request that the matrix cache data be used to create a "weapon matrix".
     ///               i.e. a matrix that is attached to a specific grip.
 
     if ( NULL == mc_tmp ) return bfalse;
@@ -8830,7 +8925,8 @@ bool_t apply_one_character_matrix( chr_t * pchr, matrix_cache_t * mc_tmp )
 //--------------------------------------------------------------------------------------------
 bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 {
-    /// @detalis BB@> request that the info in the matrix cache mc_tmp, be used to
+    /// @author BB
+    /// @details request that the info in the matrix cache mc_tmp, be used to
     ///               make a matrix for the character pchr.
 
     bool_t applied = bfalse;
@@ -8890,7 +8986,8 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 //--------------------------------------------------------------------------------------------
 int cmp_matrix_cache( const void * vlhs, const void * vrhs )
 {
-    /// @details BB@> check for differences between the data pointed to
+    /// @author BB
+    /// @details check for differences between the data pointed to
     ///     by vlhs and vrhs, assuming that they point to matrix_cache_t data.
     ///
     ///    The function is implemented this way so that in pronciple
@@ -9000,7 +9097,8 @@ cmp_matrix_cache_end:
 //--------------------------------------------------------------------------------------------
 egolib_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc )
 {
-    /// @details BB@> determine whether a matrix cache has become invalid and needs to be updated
+    /// @author BB
+    /// @details determine whether a matrix cache has become invalid and needs to be updated
 
     matrix_cache_t local_mc;
     bool_t needs_cache_update;
@@ -9021,7 +9119,8 @@ egolib_rv matrix_cache_needs_update( chr_t * pchr, matrix_cache_t * pmc )
 //--------------------------------------------------------------------------------------------
 egolib_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
 {
-    /// @details BB@> Do everything necessary to set the current matrix for this character.
+    /// @author BB
+    /// @details Do everything necessary to set the current matrix for this character.
     ///     This might include recursively going down the list of this character's mounts, etc.
     ///
     ///     Return btrue if a new matrix is applied to the character, bfalse otherwise.
@@ -9098,7 +9197,8 @@ egolib_rv chr_update_matrix( chr_t * pchr, bool_t update_size )
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )
 {
-    /// @details BB@> check the pack a matching item
+    /// @author BB
+    /// @details check the pack a matching item
 
     bool_t matches_equipped;
     CHR_REF result;
@@ -9127,7 +9227,8 @@ CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz )
 {
-    /// @details BB@> check the character's hands for a matching item
+    /// @author BB
+    /// @details check the character's hands for a matching item
 
     bool_t found;
     CHR_REF item, tmp_item;
@@ -9169,7 +9270,8 @@ CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )
 {
-    /// @detalis BB@> is ichr holding an item matching idsz, or is such an item in his pack?
+    /// @author BB
+    /// @details is ichr holding an item matching idsz, or is such an item in his pack?
     ///               return the index of the found item, or MAX_CHR if not found. Also return
     ///               the previous pack item in *pack_last, or MAX_CHR if it was not in a pack.
 
@@ -9202,7 +9304,8 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )
 //--------------------------------------------------------------------------------------------
 bool_t chr_can_see_invis( const chr_t * pchr, const chr_t * pobj )
 {
-    /// @detalis BB@> can ichr see iobj?
+    /// @author BB
+    /// @details can ichr see iobj?
 
     int     alpha;
 
@@ -9224,7 +9327,8 @@ bool_t chr_can_see_invis( const chr_t * pchr, const chr_t * pobj )
 //--------------------------------------------------------------------------------------------
 bool_t chr_can_see_dark( const chr_t * pchr, const chr_t * pobj )
 {
-    /// @detalis BB@> can ichr see iobj?
+    /// @author BB
+    /// @details can ichr see iobj?
 
     cap_t * pcap;
 
@@ -9256,7 +9360,8 @@ bool_t chr_can_see_dark( const chr_t * pchr, const chr_t * pobj )
 //--------------------------------------------------------------------------------------------
 bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
 {
-    /// @detalis BB@> can ichr see iobj?
+    /// @author BB
+    /// @details can ichr see iobj?
 
     chr_t * pchr, * pobj;
 
@@ -9277,7 +9382,8 @@ bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
 //--------------------------------------------------------------------------------------------
 int chr_get_price( const CHR_REF ichr )
 {
-    /// @detalis BB@> determine the correct price for an item
+    /// @author BB
+    /// @details determine the correct price for an item
 
     CAP_REF icap;
     Uint16  iskin;
@@ -9402,7 +9508,8 @@ void chr_set_light( chr_t * pchr, int light )
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item )
 {
-    /// @details BB@> Find the lowest attachment for a given object.
+    /// @author BB
+    /// @details Find the lowest attachment for a given object.
     ///               This was basically taken from the script function scr_set_TargetToLowestTarget()
     ///
     ///               You should be able to find the holder of a weapon by specifying non_item == btrue
@@ -9638,7 +9745,7 @@ egolib_rv chr_increment_frame( chr_t * pchr )
     retval = ( egolib_rv )chr_instance_increment_frame( &( pchr->inst ), pmad, imount, mount_action );
     if ( rv_success != retval ) return retval;
 
-    // BB@> this did not work as expected...
+    /// @note BB@> this did not work as expected...
     // set keep if needed
     //if ( needs_keep )
     //{
@@ -9803,7 +9910,8 @@ chr_t * chr_set_ai_state( chr_t * pchr, int state )
 //--------------------------------------------------------------------------------------------
 bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin, fvec3_base_t grip_up, const bool_t shift_origin )
 {
-    /// @details BB@> use a standard size for the grip
+    /// @author BB
+    /// @details use a standard size for the grip
 
     // take the character size from the adventurer model
     const float default_chr_height = 88.0f;

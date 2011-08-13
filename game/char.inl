@@ -95,7 +95,8 @@ static INLINE bool_t        chr_get_pos( const chr_t * pchr, fvec3_base_t pos );
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz )
 {
-    /// @details BB@> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
+    /// @author BB
+    /// @details check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
     ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
 
     cap_t * pcap;
@@ -113,7 +114,8 @@ static INLINE bool_t cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t cap_has_idsz( const CAP_REF icap, IDSZ idsz )
 {
-    /// @detalis BB@> does idsz match any of the stored values in pcap->idsz[]?
+    /// @author BB
+    /// @details does idsz match any of the stored values in pcap->idsz[]?
     ///               Matches anything if not picky (idsz == IDSZ_NONE)
 
     int     cnt;
@@ -168,7 +170,8 @@ static INLINE chr_t  * team_get_pleader( const TEAM_REF iteam )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
 {
-    /// @details BB@> a wrapper function for access to the hatesteam data
+    /// @author BB
+    /// @details a wrapper function for access to the hatesteam data
 
     if ( ipredator_team >= TEAM_MAX || iprey_team >= TEAM_MAX ) return bfalse;
 
@@ -377,7 +380,8 @@ static INLINE IDSZ chr_get_idsz( const CHR_REF ichr, int type )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t chr_has_idsz( const CHR_REF ichr, IDSZ idsz )
 {
-    /// @detalis BB@> a wrapper for cap_has_idsz
+    /// @author BB
+    /// @details a wrapper for cap_has_idsz
 
     CAP_REF icap = chr_get_icap( ichr );
 
@@ -387,7 +391,8 @@ static INLINE bool_t chr_has_idsz( const CHR_REF ichr, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t chr_is_type_idsz( const CHR_REF item, IDSZ test_idsz )
 {
-    /// @details BB@> check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
+    /// @author BB
+    /// @details check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
     ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
 
     CAP_REF icap;
@@ -400,7 +405,8 @@ static INLINE bool_t chr_is_type_idsz( const CHR_REF item, IDSZ test_idsz )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
 {
-    /// @detalis BB@> is item vulnerable to the type in profile test_profile?
+    /// @author BB
+    /// @details is item vulnerable to the type in profile test_profile?
 
     IDSZ vulnie;
 
@@ -420,7 +426,8 @@ static INLINE bool_t chr_has_vulnie( const CHR_REF item, const PRO_REF test_prof
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_base_t vup )
 {
-    /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
+    /// @author BB
+    /// @details MAKE SURE the value it calculated relative to a valid matrix
 
     bool_t rv;
 
@@ -452,7 +459,8 @@ static INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_base_t vup )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_base_t vright )
 {
-    /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
+    /// @author BB
+    /// @details MAKE SURE the value it calculated relative to a valid matrix
 
     bool_t rv;
 
@@ -484,7 +492,8 @@ static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_base_t vright )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_base_t vfwd )
 {
-    /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
+    /// @author BB
+    /// @details MAKE SURE the value it calculated relative to a valid matrix
 
     bool_t rv;
 
@@ -516,7 +525,8 @@ static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_base_t vfwd )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_base_t vtrans )
 {
-    /// @details BB@> MAKE SURE the value it calculated relative to a valid matrix
+    /// @author BB
+    /// @details MAKE SURE the value it calculated relative to a valid matrix
 
     bool_t rv;
 
@@ -547,7 +557,8 @@ static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_base_t vtrans )
 //--------------------------------------------------------------------------------------------
 static INLINE void chr_update_size( chr_t * pchr )
 {
-    /// @details BB@> Convert the base size values to the size values that are used in the game
+    /// @author BB
+    /// @details Convert the base size values to the size values that are used in the game
 
     if ( !ALLOCATED_PCHR( pchr ) ) return;
 
@@ -562,7 +573,8 @@ static INLINE void chr_update_size( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 static INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
 {
-    /// @details BB@> initalize the character size info
+    /// @author BB
+    /// @details initalize the character size info
 
     if ( !ALLOCATED_PCHR( pchr ) || !LOADED_PCAP( pcap ) ) return;
 
@@ -584,7 +596,8 @@ static INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 static INLINE void chr_set_size( chr_t * pchr, float size )
 {
-    /// @details BB@> scale the entire character so that the size matches the given value
+    /// @author BB
+    /// @details scale the entire character so that the size matches the given value
 
     float ratio;
 
@@ -603,7 +616,8 @@ static INLINE void chr_set_size( chr_t * pchr, float size )
 //--------------------------------------------------------------------------------------------
 static INLINE void chr_set_width( chr_t * pchr, float width )
 {
-    /// @details BB@> update the base character "width". This also modifies the shadow size
+    /// @author BB
+    /// @details update the base character "width". This also modifies the shadow size
 
     float ratio;
 
@@ -622,7 +636,8 @@ static INLINE void chr_set_width( chr_t * pchr, float width )
 //--------------------------------------------------------------------------------------------
 static INLINE void chr_set_shadow( chr_t * pchr, float width )
 {
-    /// @details BB@> update the base shadow size
+    /// @author BB
+    /// @details update the base shadow size
 
     if ( !DEFINED_PCHR( pchr ) ) return;
 
@@ -634,7 +649,8 @@ static INLINE void chr_set_shadow( chr_t * pchr, float width )
 //--------------------------------------------------------------------------------------------
 static INLINE void chr_set_fat( chr_t * pchr, float fat )
 {
-    /// @details BB@> update all the character size info by specifying the fat value
+    /// @author BB
+    /// @details update all the character size info by specifying the fat value
 
     if ( !DEFINED_PCHR( pchr ) ) return;
 
@@ -646,7 +662,8 @@ static INLINE void chr_set_fat( chr_t * pchr, float fat )
 //--------------------------------------------------------------------------------------------
 static INLINE void chr_set_height( chr_t * pchr, float height )
 {
-    /// @details BB@> update the base character height
+    /// @author BB
+    /// @details update the base character height
 
     if ( !DEFINED_PCHR( pchr ) ) return;
 

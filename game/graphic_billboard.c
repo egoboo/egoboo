@@ -319,7 +319,8 @@ bool_t BillboardList_free_one( size_t ibb )
 
 void BillboardList_clear_data()
 {
-    /// @details BB@> reset the free billboard list.
+    /// @author BB
+    /// @details reset the free billboard list.
 
     int cnt;
 

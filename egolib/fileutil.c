@@ -51,7 +51,8 @@ Uint8           maxformattypes;
 //--------------------------------------------------------------------------------------------
 IDSZ vfs_get_idsz( vfs_FILE* fileread )
 {
-    /// @details ZZ@> This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
+    /// @author ZZ
+    /// @details This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
 
     IDSZ idsz = IDSZ_NONE;
 
@@ -94,7 +95,8 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
 //--------------------------------------------------------------------------------------------
 bool_t copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
 {
-    /// @details BB@> copy a line of arbitrary length, in chunks of length sizeof(linebuffer)
+    /// @author BB
+    /// @details copy a line of arbitrary length, in chunks of length sizeof(linebuffer)
     /// @todo This should be moved to file_common.c
 
     char linebuffer[64];
@@ -115,8 +117,10 @@ bool_t copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
 //--------------------------------------------------------------------------------------------
 bool_t goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool_t optional )
 {
-    /// @details ZZ@> This function moves a file read pointer to the next delimiter char cTmp;
-    /// BB@> buffer points to a 256 character buffer that will get the data between the newline and the delim
+    /// @author ZZ
+    /// @details This function moves a file read pointer to the next delimiter char cTmp;
+    /// @author BB
+    /// @details buffer points to a 256 character buffer that will get the data between the newline and the delim
 
     int cTmp, write;
 
@@ -154,8 +158,10 @@ bool_t goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool_t
 //--------------------------------------------------------------------------------------------
 char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, bool_t optional )
 {
-    /// @details ZZ@> This function moves a file read pointer to the next colon char cTmp;
-    /// BB@> buffer points to a 256 character buffer that will get the data between the newline and the ':'
+    /// @author ZZ
+    /// @details This function moves a file read pointer to the next colon char cTmp;
+    /// @author BB
+    /// @details buffer points to a 256 character buffer that will get the data between the newline and the ':'
     ///
     ///    returns the delimiter that was found, or CSTR_END if no delimiter found
 
@@ -214,7 +220,8 @@ char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * de
 //--------------------------------------------------------------------------------------------
 bool_t goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool_t optional )
 {
-    /// @details BB@> the two functions goto_colon_vfs and goto_colon_yesno have been combined
+    /// @author BB
+    /// @details the two functions goto_colon_vfs and goto_colon_yesno have been combined
 
     return goto_delimiter_vfs( buffer, fileread, ':', optional );
 }
@@ -222,8 +229,10 @@ bool_t goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool_t optional )
 //--------------------------------------------------------------------------------------------
 char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optional )
 {
-    /// @details ZZ@> This function moves a file read pointer to the next colon char *pmem;
-    /// BB@> buffer points to a 256 character buffer that will get the data between the newline and the ':'
+    /// @author ZZ
+    /// @details This function moves a file read pointer to the next colon char *pmem;
+    /// @author BB
+    /// @details buffer points to a 256 character buffer that will get the data between the newline and the ':'
     ///    Also, the two functions goto_colon_vfs and goto_colon_yesno have been combined
 
     char cTmp;
@@ -263,7 +272,8 @@ char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optio
 //--------------------------------------------------------------------------------------------
 char vfs_get_first_letter( vfs_FILE* fileread )
 {
-    /// @details ZZ@> This function returns the next non-whitespace character
+    /// @author ZZ
+    /// @details This function returns the next non-whitespace character
     char cTmp;
 
     vfs_scanf( fileread, "%c", &cTmp );
@@ -279,7 +289,8 @@ char vfs_get_first_letter( vfs_FILE* fileread )
 //--------------------------------------------------------------------------------------------
 bool_t vfs_get_name( vfs_FILE* fileread,  char *szName, size_t max_len )
 {
-    /// @details ZZ@> This function loads a string of up to MAXCAPNAMESIZE characters, parsing
+    /// @author ZZ
+    /// @details This function loads a string of up to MAXCAPNAMESIZE characters, parsing
     ///    it for underscores.  The szName argument is rewritten with the null terminated
     ///    string
 
@@ -311,7 +322,8 @@ bool_t vfs_get_name( vfs_FILE* fileread,  char *szName, size_t max_len )
 //--------------------------------------------------------------------------------------------
 void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival )
 {
-    /// @details ZZ@> This function kinda mimics fprintf for integers
+    /// @author ZZ
+    /// @details This function kinda mimics fprintf for integers
 
     vfs_printf( filewrite, "%s %d\n", text, ival );
 }
@@ -319,7 +331,8 @@ void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival )
 //--------------------------------------------------------------------------------------------
 void vfs_put_float( vfs_FILE* filewrite, const char* text, float fval )
 {
-    /// @details ZZ@> This function kinda mimics fprintf for integers
+    /// @author ZZ
+    /// @details This function kinda mimics fprintf for integers
 
     vfs_printf( filewrite, "%s %f\n", text, fval );
 }
@@ -327,7 +340,8 @@ void vfs_put_float( vfs_FILE* filewrite, const char* text, float fval )
 //--------------------------------------------------------------------------------------------
 void vfs_put_ufp8( vfs_FILE* filewrite, const char* text, UFP8_T ival )
 {
-    /// @details ZZ@> This function kinda mimics fprintf for integers
+    /// @author ZZ
+    /// @details This function kinda mimics fprintf for integers
 
     vfs_printf( filewrite, "%s %f\n", text, FP8_TO_FLOAT( ival ) );
 }
@@ -335,7 +349,8 @@ void vfs_put_ufp8( vfs_FILE* filewrite, const char* text, UFP8_T ival )
 //--------------------------------------------------------------------------------------------
 void vfs_put_sfp8( vfs_FILE* filewrite, const char* text, SFP8_T ival )
 {
-    /// @details ZZ@> This function kinda mimics fprintf for integers
+    /// @author ZZ
+    /// @details This function kinda mimics fprintf for integers
 
     vfs_printf( filewrite, "%s %f\n", text, FP8_TO_FLOAT( ival ) );
 }
@@ -343,7 +358,8 @@ void vfs_put_sfp8( vfs_FILE* filewrite, const char* text, SFP8_T ival )
 //--------------------------------------------------------------------------------------------
 void vfs_put_bool( vfs_FILE* filewrite, const char* text, bool_t truth )
 {
-    /// @details ZZ@> This function kinda mimics vfs_printf for the output of
+    /// @author ZZ
+    /// @details This function kinda mimics vfs_printf for the output of
     ///    btrue bfalse statements
 
     vfs_printf( filewrite, "%s", text );
@@ -354,7 +370,8 @@ void vfs_put_bool( vfs_FILE* filewrite, const char* text, bool_t truth )
 //--------------------------------------------------------------------------------------------
 void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype )
 {
-    /// @details ZZ@> This function kinda mimics vfs_printf for the output of
+    /// @author ZZ
+    /// @details This function kinda mimics vfs_printf for the output of
     ///    SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
 
     vfs_printf( filewrite, "%s", text );
@@ -380,7 +397,8 @@ void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetyp
 //--------------------------------------------------------------------------------------------
 void vfs_put_action( vfs_FILE* filewrite, const char* text, Uint8 action )
 {
-    /// @details ZZ@> This function kinda mimics vfs_printf for the output of
+    /// @author ZZ
+    /// @details This function kinda mimics vfs_printf for the output of
     ///    SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
 
     vfs_printf( filewrite, "%s", text );
@@ -408,7 +426,8 @@ void vfs_put_action( vfs_FILE* filewrite, const char* text, Uint8 action )
 //--------------------------------------------------------------------------------------------
 void vfs_put_gender( vfs_FILE* filewrite, const char* text, Uint8 gender )
 {
-    /// @details ZZ@> This function kinda mimics vfs_printf for the output of
+    /// @author ZZ
+    /// @details This function kinda mimics vfs_printf for the output of
     ///    MALE FEMALE OTHER statements
 
     vfs_printf( filewrite, "%s", text );
@@ -452,7 +471,8 @@ void vfs_put_range_raw( vfs_FILE* filewrite, FRange val )
 //--------------------------------------------------------------------------------------------
 void vfs_put_range( vfs_FILE* filewrite, const char* text, FRange val )
 {
-    /// @details ZZ@> This function mimics vfs_printf in spitting out
+    /// @author ZZ
+    /// @details This function mimics vfs_printf in spitting out
     ///    damage/stat pairs. Try to print out the least amount of text.
 
     vfs_printf( filewrite, "%s", text );
@@ -465,7 +485,8 @@ void vfs_put_range( vfs_FILE* filewrite, const char* text, FRange val )
 //--------------------------------------------------------------------------------------------
 void vfs_put_pair( vfs_FILE* filewrite, const char* text, IPair val )
 {
-    /// @details ZZ@> This function mimics vfs_printf in spitting out
+    /// @author ZZ
+    /// @details This function mimics vfs_printf in spitting out
     ///    damage/stat pairs
 
     FRange loc_range;
@@ -479,7 +500,8 @@ void vfs_put_pair( vfs_FILE* filewrite, const char* text, IPair val )
 //--------------------------------------------------------------------------------------------
 void vfs_put_string_under( vfs_FILE* filewrite, const char* text, const char* usename )
 {
-    /// @details ZZ@> This function mimics vfs_printf in spitting out
+    /// @author ZZ
+    /// @details This function mimics vfs_printf in spitting out
     ///    a name with underscore spaces
 
     char cTmp;
@@ -517,7 +539,8 @@ void vfs_put_idsz( vfs_FILE* filewrite, const char* text, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 void vfs_put_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int value )
 {
-    /// @details ZZ@> This function mimics vfs_printf in spitting out
+    /// @author ZZ
+    /// @details This function mimics vfs_printf in spitting out
     ///    damage/stat pairs
 
     vfs_printf( filewrite, "%s: [%s] %d\n", text, undo_idsz( idsz ), value );
@@ -526,7 +549,8 @@ void vfs_put_expansion( vfs_FILE* filewrite, const char* text, IDSZ idsz, int va
 //--------------------------------------------------------------------------------------------
 void vfs_put_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, float value )
 {
-    /// @details ZF@> This function mimics vfs_printf in spitting out
+    /// @author ZF
+    /// @details This function mimics vfs_printf in spitting out
     ///    damage/stat pairs for floating point values
 
     vfs_printf( filewrite, "%s: [%s] %4.2f\n", text, undo_idsz( idsz ), value );
@@ -535,7 +559,8 @@ void vfs_put_expansion_float( vfs_FILE* filewrite, const char* text, IDSZ idsz, 
 //--------------------------------------------------------------------------------------------
 void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz, const char * str )
 {
-    /// @details ZF@> This function mimics vfs_printf in spitting out
+    /// @author ZF
+    /// @details This function mimics vfs_printf in spitting out
     ///    damage/stat pairs for floating point values
 
     if ( !VALID_CSTR( str ) )
@@ -552,7 +577,8 @@ void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz,
 //--------------------------------------------------------------------------------------------
 bool_t vfs_get_range( vfs_FILE* fileread, FRange * prange )
 {
-    /// @details ZZ@> This function reads a damage/stat range ( eg. 5-9 )
+    /// @author ZZ
+    /// @details This function reads a damage/stat range ( eg. 5-9 )
 
     char  cTmp;
     float fFrom, fTo;
@@ -591,7 +617,8 @@ bool_t vfs_get_range( vfs_FILE* fileread, FRange * prange )
 //--------------------------------------------------------------------------------------------
 bool_t vfs_get_next_range( vfs_FILE* fileread, FRange * prange )
 {
-    /// @details ZZ@> This function reads a damage/stat range ( eg. 5-9 )
+    /// @author ZZ
+    /// @details This function reads a damage/stat range ( eg. 5-9 )
 
     goto_colon_vfs( NULL, fileread, bfalse );
 
@@ -602,7 +629,8 @@ bool_t vfs_get_next_range( vfs_FILE* fileread, FRange * prange )
 //--------------------------------------------------------------------------------------------
 bool_t vfs_get_pair( vfs_FILE* fileread, IPair * ppair )
 {
-    /// @details ZZ@> This function reads a damage/stat loc_pair ( eg. 5-9 )
+    /// @author ZZ
+    /// @details This function reads a damage/stat loc_pair ( eg. 5-9 )
 
     FRange loc_range;
 
@@ -621,7 +649,8 @@ bool_t vfs_get_pair( vfs_FILE* fileread, IPair * ppair )
 //--------------------------------------------------------------------------------------------
 void make_newloadname( const char *modname, const char *appendname,  char *newloadname )
 {
-    /// @details ZZ@> This function takes some names and puts 'em together
+    /// @author ZZ
+    /// @details This function takes some names and puts 'em together
     int cnt, tnc;
     char ctmp;
 
@@ -651,7 +680,8 @@ void make_newloadname( const char *modname, const char *appendname,  char *newlo
 //--------------------------------------------------------------------------------------------
 int vfs_get_version( vfs_FILE* fileread )
 {
-    //@details ZF@> This gets the version number of the file which is preceeded by a $ symbol
+    /// @author ZF
+    /// @details This gets the version number of the file which is preceeded by a $ symbol
     //              and must be in the first line of the file.
     long filepos;
     int result;
@@ -681,7 +711,8 @@ int vfs_get_version( vfs_FILE* fileread )
 
 /*int vfs_get_version( vfs_FILE* fileread )
 {
-    /// @details BB@> scanr the file for a "// file_version blah" flag
+    /// @author BB
+    /// @details scanr the file for a "// file_version blah" flag
     long filepos;
     int  ch;
     bool_t newline, iscomment;
@@ -768,7 +799,8 @@ bool_t vfs_put_version( vfs_FILE* filewrite, const int version )
 //--------------------------------------------------------------------------------------------
 char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len )
 {
-    /// @details BB@> copy data from one file to another until the delimiter delim has been found
+    /// @author BB
+    /// @details copy data from one file to another until the delimiter delim has been found
     ///    could be used to merge a template file with data
 
     int write;
@@ -1051,7 +1083,8 @@ bool_t vfs_get_next_bool( vfs_FILE * fileread )
 //--------------------------------------------------------------------------------------------
 void GLSetup_SupportedFormats()
 {
-    /// @details ZF@> This need only to be once
+    /// @author ZF
+    /// @details This need only to be once
 
     Uint8 type = 0;
 
@@ -1180,7 +1213,8 @@ float vfs_get_damage_resist( vfs_FILE * fileread )
 //--------------------------------------------------------------------------------------------
 int read_skin_vfs( const char *filename )
 {
-    /// @details ZZ@> This function reads the skin.txt file...
+    /// @author ZZ
+    /// @details This function reads the skin.txt file...
     vfs_FILE*   fileread;
     int skin = NO_SKIN_OVERRIDE;
 

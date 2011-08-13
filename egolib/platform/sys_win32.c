@@ -59,7 +59,8 @@ double sys_getTime()
 //--------------------------------------------------------------------------------------------
 void sys_popup( const char * popup_title, const char * warning, const char * format, va_list args )
 {
-    /// @details ZF@> Windows users get a proper error message popup box
+    /// @author ZF
+    /// @details Windows users get a proper error message popup box
 
     STRING message, buffer;
 

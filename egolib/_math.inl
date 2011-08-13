@@ -239,7 +239,8 @@ static INLINE void facing_to_vec( const FACING_T facing, float * dx, float * dy 
 //--------------------------------------------------------------------------------------------
 static INLINE int terp_dir( const FACING_T majordir, const FACING_T minordir, const int weight )
 {
-    /// @details ZZ@> This function returns a direction between the major and minor ones, closer
+    /// @author ZZ
+    /// @details This function returns a direction between the major and minor ones, closer
     ///    to the major.
 
     int diff;
@@ -264,7 +265,8 @@ static INLINE int terp_dir( const FACING_T majordir, const FACING_T minordir, co
 //--------------------------------------------------------------------------------------------
 static INLINE void getadd( const int min, const int value, const int max, int* valuetoadd )
 {
-    /// @details ZZ@> This function figures out what value to add should be in order
+    /// @author ZZ
+    /// @details This function figures out what value to add should be in order
     ///    to not overflow the min and max bounds
 
     int newvalue;
@@ -289,7 +291,8 @@ static INLINE void getadd( const int min, const int value, const int max, int* v
 //--------------------------------------------------------------------------------------------
 static INLINE void fgetadd( const float min, const float value, const float max, float* valuetoadd )
 {
-    /// @details ZZ@> This function figures out what value to add should be in order
+    /// @author ZZ
+    /// @details This function figures out what value to add should be in order
     ///    to not overflow the min and max bounds
 
     float newvalue;
@@ -316,7 +319,8 @@ static INLINE void fgetadd( const float min, const float value, const float max,
 //--------------------------------------------------------------------------------------------
 static INLINE int generate_irand_pair( const IPair num )
 {
-    /// @details ZZ@> This function generates a random number
+    /// @author ZZ
+    /// @details This function generates a random number
 
     int tmp;
     int irand = RANDIE;
@@ -333,7 +337,8 @@ static INLINE int generate_irand_pair( const IPair num )
 //--------------------------------------------------------------------------------------------
 static INLINE int generate_irand_range( const FRange num )
 {
-    /// @details ZZ@> This function generates a random number
+    /// @author ZZ
+    /// @details This function generates a random number
 
     IPair loc_pair;
 
@@ -345,7 +350,8 @@ static INLINE int generate_irand_range( const FRange num )
 //--------------------------------------------------------------------------------------------
 static INLINE int generate_randmask( const int base, const int mask )
 {
-    /// @details ZZ@> This function generates a random number
+    /// @author ZZ
+    /// @details This function generates a random number
     int tmp;
     int irand = RANDIE;
 
@@ -955,7 +961,8 @@ static INLINE float * fvec3_cross_product( fvec3_base_t DST, const fvec3_base_t 
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec3_decompose( const fvec3_base_t A, const fvec3_base_t vnrm, fvec3_base_t vpara, fvec3_base_t vperp )
 {
-    /// BB@> the normal (vnrm) is assumed to be normalized. Try to get this as optimized as possible.
+    /// @author BB
+    /// @details the normal (vnrm) is assumed to be normalized. Try to get this as optimized as possible.
 
     float dot;
 
@@ -1331,7 +1338,8 @@ static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed( fmat_4x4_b
 //--------------------------------------------------------------------------------------------
 static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed( fmat_4x4_base_t DST, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z )
 {
-    /// @details BB@> Transpose the SpaceFixed representation and invert the angles to get the BodyFixed representation
+    /// @author BB
+    /// @details Transpose the SpaceFixed representation and invert the angles to get the BodyFixed representation
 
     float cx = turntocos[turn_x & TRIG_TABLE_MASK];
     float sx = turntosin[turn_x & TRIG_TABLE_MASK];
@@ -1420,8 +1428,9 @@ static INLINE float * mat_View( fmat_4x4_base_t DST,
 //   viewing direction,
 //   in radians
 {
-    /// @details MN@> This probably should be replaced by a call to gluLookAt(),
-    ///               don't see why we need to make our own...
+    /// @author MN
+    /// @details This probably should be replaced by a call to gluLookAt(),
+    ///          don't see why we need to make our own...
 
     fvec3_t up, right, view_dir, temp;
 
@@ -1468,8 +1477,9 @@ static INLINE float * mat_Projection(
     const float fov,           // vertical field of view angle, in radians
     const float ar )           // aspect ratio
 {
-    /// @details MN@> Again, there is a gl function for this, glFrustum or gluPerspective...
-    ///               does this account for viewport ratio?
+    /// @author MN
+    /// @details Again, there is a gl function for this, glFrustum or gluPerspective...
+    ///          does this account for viewport ratio?
 
     float inv_h = 1 / TAN( fov * 0.5f );
     float inv_w = inv_h / ar;
@@ -1493,8 +1503,9 @@ static INLINE float * mat_Projection_orig(
     const float far_plane,      // distance to far clipping plane
     const float fov )           // field of view angle, in radians
 {
-    /// @details MN@> Again, there is a gl function for this, glFrustum or gluPerspective...
-    ///               does this account for viewport ratio?
+    /// @author MN
+    /// @details Again, there is a gl function for this, glFrustum or gluPerspective...
+    ///          does this account for viewport ratio?
 
     float c = COS( fov * 0.5f );
     float s = SIN( fov * 0.5f );
@@ -1617,10 +1628,11 @@ static INLINE float * mat_getTranslate_v( const fmat_4x4_base_t mat )
 //--------------------------------------------------------------------------------------------
 static INLINE void  mat_TransformVertices( const fmat_4x4_base_t Matrix, const fvec4_t pSourceV[], fvec4_t pDestV[], const Uint32 NumVertor )
 {
-    /// @details  GS@> This is just a MulVectorMatrix for now. The W division and screen size multiplication
+    /// @author GS
+    /// @details This is just a MulVectorMatrix for now. The W division and screen size multiplication
     ///                must be done afterward.
-    ///
-    /// BB@> the matrix transformation for OpenGL vertices. Some minor optimizations.
+    /// @author BB
+    /// @details the matrix transformation for OpenGL vertices. Some minor optimizations.
     ///      The value pSourceV->w is assumed to be constant for all of the elements of pSourceV
 
     Uint32    cnt;

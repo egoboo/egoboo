@@ -33,7 +33,8 @@ Uint8  scancode_to_ascii_shift[SDLK_LAST];
 //--------------------------------------------------------------------------------------------
 void scancode_begin()
 {
-    /// @details BB@> initialize the scancode translation
+    /// @author BB
+    /// @details initialize the scancode translation
 
     int i;
 

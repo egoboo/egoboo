@@ -154,7 +154,8 @@ tile_mem_t * tile_mem_dtor( tile_mem_t * pmem )
 //--------------------------------------------------------------------------------------------
 ego_mpd_t * mesh_ctor( ego_mpd_t * pmesh )
 {
-    /// @details BB@> initialize the ego_mpd_t structure
+    /// @author BB
+    /// @details initialize the ego_mpd_t structure
 
     if ( NULL != pmesh )
     {
@@ -251,7 +252,8 @@ void mesh_init_tile_offset( ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 bool_t mesh_remove_ambient( ego_mpd_t * pmesh )
 {
-    /// @details BB@> remove extra ambient light in the lightmap
+    /// @author BB
+    /// @details remove extra ambient light in the lightmap
 
     Uint32 cnt;
     UFP8_T min_vrt_a = 255;
@@ -687,7 +689,8 @@ bool_t tile_mem_free( tile_mem_t * pmem )
 //--------------------------------------------------------------------------------------------
 void grid_make_fanstart( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
 {
-    /// @details ZZ@> This function builds a look up table to ease calculating the
+    /// @author ZZ
+    /// @details This function builds a look up table to ease calculating the
     ///    fan number given an x,y pair
 
     int cnt;
@@ -756,7 +759,8 @@ void mesh_make_vrtstart( ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 void mesh_make_twist()
 {
-    /// @details ZZ@> This function precomputes surface normals and steep hill acceleration for
+    /// @author ZZ
+    /// @details This function precomputes surface normals and steep hill acceleration for
     ///    the mesh
 
     Uint16 cnt;
@@ -804,7 +808,8 @@ void mesh_make_twist()
 //--------------------------------------------------------------------------------------------
 bool_t mesh_make_bbox( ego_mpd_t * pmesh )
 {
-    /// @details BB@> set the bounding box for each tile, and for the entire mesh
+    /// @author BB
+    /// @details set the bounding box for each tile, and for the entire mesh
 
     size_t mesh_vrt;
     int tile_vrt;
@@ -882,7 +887,8 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 bool_t mesh_make_normals( ego_mpd_t * pmesh )
 {
-    /// @details BB@> this function calculates a set of normals for the 4 corners
+    /// @author BB
+    /// @details this function calculates a set of normals for the 4 corners
     ///               of a given tile. It is supposed to generate smooth normals for
     ///               most tiles, but where there is a creas (i.e. between the floor and
     ///               a wall) the normals should not be smoothed.
@@ -1418,7 +1424,8 @@ float grid_get_mix( float u0, float u, float v0, float v )
 //--------------------------------------------------------------------------------------------
 BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, mesh_wall_data_t * pdata )
 {
-    /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
+    /// @author BB
+    /// @details an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 
     mesh_wall_data_t loc_data;
 
@@ -1671,7 +1678,8 @@ float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radiu
 //--------------------------------------------------------------------------------------------
 fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius, float center_pressure, const BIT_FIELD bits )
 {
-    /// @details BB@> determine the shortest "way out", but creating an array of "pressures"
+    /// @author BB
+    /// @details determine the shortest "way out", but creating an array of "pressures"
     /// with each element representing the pressure when the object is moved in different directions
     /// by 1/2 a tile.
 
@@ -1753,7 +1761,8 @@ fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius,
 //--------------------------------------------------------------------------------------------
 BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * pdata )
 {
-    /// @details BB@> an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
+    /// @author BB
+    /// @details an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
 
     BIT_FIELD loc_pass;
     Uint32 itile, pass;

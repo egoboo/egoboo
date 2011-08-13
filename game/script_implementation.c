@@ -241,7 +241,8 @@ bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp )
 //--------------------------------------------------------------------------------------------
 bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y )
 {
-    /// @details BB@> Add a waypoint to the waypoint list
+    /// @author BB
+    /// @details Add a waypoint to the waypoint list
 
     if ( NULL == plst ) return bfalse;
 
@@ -260,7 +261,8 @@ bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y )
 //--------------------------------------------------------------------------------------------
 bool_t waypoint_list_reset( waypoint_list_t * plst )
 {
-    /// @details BB@> reset the waypoint list to the beginning
+    /// @author BB
+    /// @details reset the waypoint list to the beginning
 
     if ( NULL == plst ) return bfalse;
 
@@ -272,7 +274,8 @@ bool_t waypoint_list_reset( waypoint_list_t * plst )
 //--------------------------------------------------------------------------------------------
 bool_t waypoint_list_clear( waypoint_list_t * plst )
 {
-    /// @details BB@> Clear out all waypoints
+    /// @author BB
+    /// @details Clear out all waypoints
 
     if ( NULL == plst ) return bfalse;
 
@@ -494,7 +497,8 @@ bool_t line_of_sight_with_characters( line_of_sight_info_t * plos )
 bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y )
 {
     // AddWaypoint( tmpx = "x position", tmpy = "y position" )
-    /// @details ZZ@> This function tells the character where to move next
+    /// @author ZZ
+    /// @details This function tells the character where to move next
 
     bool_t returncode;
 
@@ -550,8 +554,9 @@ bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos
 bool_t FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y, bool_t * used_astar_ptr )
 {
     // FindPath
-    /// @details ZF@> Ported the A* path finding algorithm by birdsey and heavily modified it
-    // This function adds enough waypoints to get from one point to another
+    /// @author ZF
+    /// @details Ported the A* path finding algorithm by birdsey and heavily modified it
+    /// This function adds enough waypoints to get from one point to another
 
     int src_ix, src_iy;
     int dst_ix, dst_iy;
@@ -626,7 +631,8 @@ bool_t Compass( fvec2_base_t pos, int facing, float distance )
 {
     // Compass( tmpturn = "rotation", tmpdistance = "radius" )
 
-    /// @details ZZ@> This function modifies tmpx and tmpy, depending on the setting of
+    /// @author ZZ
+    /// @details This function modifies tmpx and tmpy, depending on the setting of
     /// tmpdistance and tmpturn.  It acts like one of those Compass thing
     /// with the two little needle legs
 
@@ -644,7 +650,8 @@ bool_t Compass( fvec2_base_t pos, int facing, float distance )
 int GetArmorPrice( chr_t * pchr, int skin )
 {
     // tmpx = GetTargetArmorPrice( tmpargument = "skin" )
-    /// @details ZZ@> This function returns the cost of the desired skin upgrade, setting
+    /// @author ZZ
+    /// @details This function returns the cost of the desired skin upgrade, setting
     /// tmpx to the price
 
     cap_t * pcap;
@@ -661,7 +668,8 @@ int GetArmorPrice( chr_t * pchr, int skin )
 Uint32 UpdateTime( Uint32 time_val, int delay )
 {
     // UpdateTime( tmpargument = "time" )
-    /// @details ZZ@> This function sets the character's ai timer.  50 clicks per second.
+    /// @author ZZ
+    /// @details This function sets the character's ai timer.  50 clicks per second.
     /// Used in conjunction with IfTimeOut
 
     Uint32 new_time_val;
@@ -682,7 +690,8 @@ Uint32 UpdateTime( Uint32 time_val, int delay )
 //--------------------------------------------------------------------------------------------
 Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley )
 {
-    /// @details ZZ@> This function breaks the tiles of a passage if there is a character standing
+    /// @author ZZ
+    /// @details This function breaks the tiles of a passage if there is a character standing
     ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
 
     Uint32 endtile;
@@ -762,7 +771,8 @@ Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const
 //--------------------------------------------------------------------------------------------
 Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pstate )
 {
-    /// @details ZZ@> This function appends a message to the end-module text
+    /// @author ZZ
+    /// @details This function appends a message to the end-module text
 
     size_t length;
     CHR_REF ichr;
@@ -793,7 +803,8 @@ Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pst
 //--------------------------------------------------------------------------------------------
 Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 )
 {
-    /// @details ZZ@> This function finds the next tile in the passage, x0 and y0
+    /// @author ZZ
+    /// @details This function finds the next tile in the passage, x0 and y0
     ///    must be set first, and are set on a find.  Returns btrue or bfalse
     ///    depending on if it finds one or not
 
@@ -852,7 +863,8 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
 //--------------------------------------------------------------------------------------------
 Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int message, script_state_t * pstate )
 {
-    /// @details ZZ@> This function sticks a message_offset in the display queue and sets its timer
+    /// @author ZZ
+    /// @details This function sticks a message_offset in the display queue and sets its timer
 
     int slot;
     char * dst, * dst_end;
@@ -880,7 +892,8 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
 //--------------------------------------------------------------------------------------------
 CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool_t find_ranged, bool_t use_line_of_sight )
 {
-    /// @details ZF@> This function searches the nearby vincinity for a melee weapon the character can use
+    /// @author ZF
+    /// @details This function searches the nearby vincinity for a melee weapon the character can use
 
     CHR_REF ichr;
     MAD_REF imad;
@@ -965,7 +978,8 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool_t fin
 //--------------------------------------------------------------------------------------------
 bool_t FlashObject( chr_t * pchr, Uint8 value )
 {
-    /// @details ZZ@> This function sets a character's lighting
+    /// @author ZZ
+    /// @details This function sets a character's lighting
 
     gfx_rv flash_rv;
 

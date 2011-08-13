@@ -89,7 +89,8 @@ static link_stack_entry_t link_stack[LINK_STACK_MAX];
 //--------------------------------------------------------------------------------------------
 bool_t link_follow_modname( const char * modname, bool_t push_current_module )
 {
-    /// @details BB@> This causes the game to follow a link, given the module name
+    /// @author BB
+    /// @details This causes the game to follow a link, given the module name
 
     bool_t retval;
     int old_link_stack_count = link_stack_count;

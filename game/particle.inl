@@ -132,7 +132,8 @@ static INLINE bool_t prt_set_size( prt_t * pprt, int size )
 //--------------------------------------------------------------------------------------------
 static INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
 {
-    /// BB@> A helper function for determining the owner of a paricle
+    /// @author BB
+    /// @details A helper function for determining the owner of a paricle
     ///
     ///      @details There could be a possibility that a particle exists that was spawned by
     ///      another particle, but has lost contact with its original spawner. For instance
@@ -201,7 +202,8 @@ static INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
 //--------------------------------------------------------------------------------------------
 static INLINE float prt_get_scale( prt_t * pprt )
 {
-    /// @details BB@> get the scale factor between the "graphical size" of the particle and the actual
+    /// @author BB
+    /// @details get the scale factor between the "graphical size" of the particle and the actual
     ///               display size
 
     float scale = 0.25f;

@@ -90,7 +90,9 @@ void input_system_init_keyboard()
 //--------------------------------------------------------------------------------------------
 void input_system_init_mouse()
 {
-    /// @details BB@> set up the mouse
+    /// @author BB
+    /// @details set up the mouse
+
     BLANK_STRUCT( mous )
     mous.on      = btrue;
     mous.sense   = 12; //24;
@@ -99,7 +101,8 @@ void input_system_init_mouse()
 //--------------------------------------------------------------------------------------------
 void input_system_init_joysticks()
 {
-    /// @details BB@> init the joysticks
+    /// @author BB
+    /// @details init the joysticks
 
     int i;
 
@@ -130,7 +133,8 @@ void input_system_init_devices()
 //--------------------------------------------------------------------------------------------
 void input_system_init()
 {
-    /// @details BB@> initialize the inputs
+    /// @author BB
+    /// @details initialize the inputs
 
     log_info( "Intializing SDL Joystick... " );
     if ( SDL_InitSubSystem( SDL_INIT_JOYSTICK ) < 0 )
@@ -433,7 +437,8 @@ bool_t input_handle_SDL_Event( SDL_Event * pevt )
 //--------------------------------------------------------------------------------------------
 void input_read_all_devices()
 {
-    /// @details ZZ@> This function gets all the current player input states
+    /// @author ZZ
+    /// @details This function gets all the current player input states
 
     SDL_Event evt;
 
@@ -520,7 +525,8 @@ BIT_FIELD input_device_get_buttonmask( input_device_t *pdevice )
 //--------------------------------------------------------------------------------------------
 bool_t input_device_is_enabled( input_device_t *pdevice )
 {
-    //@details ZF@> This determines if the specified input device is enabled or not
+    /// @author ZF
+    /// @details This determines if the specified input device is enabled or not
 
     // assume the worst
     bool_t retval = bfalse;
@@ -549,7 +555,8 @@ bool_t input_device_is_enabled( input_device_t *pdevice )
 //--------------------------------------------------------------------------------------------
 bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontrol )
 {
-    /// @details ZZ@> This function returns btrue if the given icontrol is pressed...
+    /// @author ZZ
+    /// @details This function returns btrue if the given icontrol is pressed...
 
     bool_t      retval = bfalse;
     control_t   * pcontrol;

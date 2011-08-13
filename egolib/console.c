@@ -71,7 +71,8 @@ static SDL_bool egolib_console_draw( egolib_console_t * pcon );
 //--------------------------------------------------------------------------------------------
 void egolib_console_begin()
 {
-    /// @details BB@> initialize the console. This must happen after the screen has been defines,
+    /// @author BB
+    /// @details initialize the console. This must happen after the screen has been defines,
     ///     otherwise sdl_scr.x == sdl_scr.y == 0 and the screen will be defined to
     ///     have no area...
 
@@ -98,7 +99,8 @@ void egolib_console_begin()
 //--------------------------------------------------------------------------------------------
 void egolib_console_end()
 {
-    /// @details BB@> de-initialize the top console
+    /// @author BB
+    /// @details de-initialize the top console
 
 #if defined(USE_LUA_CONSOLE)
     {

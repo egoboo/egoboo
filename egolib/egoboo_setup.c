@@ -216,7 +216,8 @@ bool_t setup_end()
 //--------------------------------------------------------------------------------------------
 bool_t setup_read_vfs()
 {
-    /// @details BB@> read the setup file
+    /// @author BB
+    /// @details read the setup file
 
     if ( !setup_begin() ) return bfalse;
 
@@ -234,7 +235,8 @@ bool_t setup_read_vfs()
 //--------------------------------------------------------------------------------------------
 bool_t setup_write_vfs()
 {
-    /// @details BB@> save the current setup file
+    /// @author BB
+    /// @details save the current setup file
 
     ConfigFile_retval retval  = ConfigFile_fail;
     bool_t            success = bfalse;
@@ -260,7 +262,8 @@ bool_t setup_write_vfs()
 //--------------------------------------------------------------------------------------------
 bool_t setup_download( egoboo_config_t * pcfg )
 {
-    /// @details BB@> download the ConfigFile_t keys into game variables
+    /// @author BB
+    /// @details download the ConfigFile_t keys into game variables
     ///     use default values to fill in any missing keys
 
     const char *lCurSectionName;
@@ -456,7 +459,8 @@ bool_t setup_download( egoboo_config_t * pcfg )
 //--------------------------------------------------------------------------------------------
 bool_t setup_upload( egoboo_config_t * pcfg )
 {
-    /// @details BB@> upload game variables into the ConfigFile_t keys
+    /// @author BB
+    /// @details upload game variables into the ConfigFile_t keys
 
     const char  *lCurSectionName;
     if ( NULL == _lpConfigSetup || NULL == pcfg ) return bfalse;
@@ -668,7 +672,8 @@ bool_t config_synch( egoboo_config_t * pcfg )
 //--------------------------------------------------------------------------------------------
 void setup_init_base_vfs_paths()
 {
-    /// @details BB@> set the basic mount points used by the main program
+    /// @author BB
+    /// @details set the basic mount points used by the main program
 
     //---- tell the vfs to add the basic search paths
     vfs_set_base_search_paths();
@@ -700,7 +705,8 @@ void setup_init_base_vfs_paths()
 //--------------------------------------------------------------------------------------------
 void setup_clear_base_vfs_paths()
 {
-    /// @details BB@> clear out the basic mount points
+    /// @author BB
+    /// @details clear out the basic mount points
 
     vfs_remove_mount_point( "mp_data" );
     vfs_remove_mount_point( "mp_modules" );
@@ -712,7 +718,8 @@ void setup_clear_base_vfs_paths()
 //--------------------------------------------------------------------------------------------
 bool_t setup_init_module_vfs_paths( const char * mod_path )
 {
-    /// @details BB@> set up the virtual mount points for the module's data
+    /// @author BB
+    /// @details set up the virtual mount points for the module's data
     ///               and objects
 
     const char * path_seperator_1, * path_seperator_2;
@@ -787,7 +794,8 @@ bool_t setup_init_module_vfs_paths( const char * mod_path )
 //--------------------------------------------------------------------------------------------
 void setup_clear_module_vfs_paths()
 {
-    /// @details BB@> clear out the all mount points
+    /// @author BB
+    /// @details clear out the all mount points
 
     // clear out the basic mount points
     setup_clear_base_vfs_paths();

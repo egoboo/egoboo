@@ -392,7 +392,8 @@ CHashList_t * CHashList_dtor( CHashList_t * pchlst )
 //--------------------------------------------------------------------------------------------
 CHashList_t * CHashList_get_Instance( int size )
 {
-    /// @details BB@> allows access to a "private" CHashList singleton object. This will automatically
+    /// @author BB
+    /// @details allows access to a "private" CHashList singleton object. This will automatically
     ///               initialze the _Colist_singleton and (almost) prevent anything from messing up
     ///               the initialization.
 
@@ -484,7 +485,8 @@ bool_t CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_a
 //--------------------------------------------------------------------------------------------
 bool_t get_chr_mass( chr_t * pchr, float * wt )
 {
-    /// @details BB@> calculate a "mass" for an object, taking into account possible infinite masses.
+    /// @author BB
+    /// @details calculate a "mass" for an object, taking into account possible infinite masses.
 
     float loc_wta;
 
@@ -512,7 +514,8 @@ bool_t get_chr_mass( chr_t * pchr, float * wt )
 //--------------------------------------------------------------------------------------------
 bool_t get_prt_mass( prt_t * pprt, chr_t * pchr, float * wt )
 {
-    /// @details BB@> calculate a "mass" for each object, taking into account possible infinite masses.
+    /// @author BB
+    /// @details calculate a "mass" for each object, taking into account possible infinite masses.
 
     float loc_wprt;
 
@@ -1146,7 +1149,8 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
 //--------------------------------------------------------------------------------------------
 bool_t fill_bumplists()
 {
-    /// @details BB@> Fill in the obj_BSP_t for this frame
+    /// @author BB
+    /// @details Fill in the obj_BSP_t for this frame
     ///
     /// @note do not use obj_BSP_clear every frame, because the number of pre-allocated nodes can be quite large.
     /// Instead, just remove the nodes from the tree, fill the tree, and then prune any empty branches/leaves
@@ -1423,7 +1427,8 @@ bool_t do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
 //--------------------------------------------------------------------------------------------
 void bump_all_objects()
 {
-    /// @details ZZ@> This function sets handles characters hitting other characters or particles
+    /// @author ZZ
+    /// @details This function sets handles characters hitting other characters or particles
 
     CHashList_t * pchlst;
     size_t        co_node_count;
@@ -1493,7 +1498,8 @@ void bump_all_objects()
 //--------------------------------------------------------------------------------------------
 bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
 {
-    /// @details BB@> Detect all character and particle interactions with platforms, then attach them.
+    /// @author BB
+    /// @details Detect all character and particle interactions with platforms, then attach them.
     ///
     /// @note it is important to only attach the character to a platform once, so its
     ///  weight does not get applied to multiple platforms
@@ -1607,7 +1613,8 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
 //--------------------------------------------------------------------------------------------
 bool_t bump_all_mounts( CoNode_ary_t * pcn_ary )
 {
-    /// @details BB@> Detect all character interactions with mounts, then attach them.
+    /// @author BB
+    /// @details Detect all character interactions with mounts, then attach them.
 
     int        cnt;
     CoNode_t * d;
@@ -1631,7 +1638,8 @@ bool_t bump_all_mounts( CoNode_ary_t * pcn_ary )
 //--------------------------------------------------------------------------------------------
 bool_t bump_all_collisions( CoNode_ary_t * pcn_ary )
 {
-    /// @details BB@> Detect all character-character and character-particle collsions (with exclusions
+    /// @author BB
+    /// @details Detect all character-character and character-particle collsions (with exclusions
     ///               for the mounts and platforms found in the previous steps)
 
     int        cnt;
@@ -2713,7 +2721,8 @@ bool_t do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t *
 //--------------------------------------------------------------------------------------------
 bool_t do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
 {
-    /// @details BB@> handle the particle interaction with a platform it is not attached "on".
+    /// @author BB
+    /// @details handle the particle interaction with a platform it is not attached "on".
     ///               @note gravity is not handled here
 
     bool_t plat_collision = bfalse;
@@ -2952,7 +2961,9 @@ bool_t do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 {
-    /// @details BB@> make the character and particle recoil from the collision
+    /// @author BB
+    /// @details make the character and particle recoil from the collision
+
     float chr_mass = 0.0f, prt_mass;
     float chr_recoil, prt_recoil;
 
@@ -3472,7 +3483,8 @@ bool_t do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_pr
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_prt_collision( CoNode_t * d )
 {
-    /// @details BB@> this funciton goes through all of the steps to handle character-particle
+    /// @author BB
+    /// @details this funciton goes through all of the steps to handle character-particle
     ///               interactions. A basic interaction has been detected. This needs to be refined
     ///               and then handled. The function returns bfalse if the basic interaction was wrong
     ///               or if the interaction had no effect.

@@ -46,7 +46,8 @@ IMPLEMENT_LIST( oglx_texture_t, TxTexture, TX_TEXTURE_COUNT );
 //--------------------------------------------------------------------------------------------
 void TxTexture_reset_freelist()
 {
-    /// @details BB@> reset the free texture list. Start at TX_SPECIAL_LAST so that the global textures/icons are
+    /// @author BB
+    /// @details reset the free texture list. Start at TX_SPECIAL_LAST so that the global textures/icons are
     ///     can't be allocated by mistake
 
     int cnt, tnc;
@@ -61,7 +62,8 @@ void TxTexture_reset_freelist()
 //--------------------------------------------------------------------------------------------
 void TxTexture_init_all()
 {
-    /// @details ZZ@> This function clears out all of the textures
+    /// @author ZZ
+    /// @details This function clears out all of the textures
 
     TX_REF cnt;
 
@@ -76,7 +78,8 @@ void TxTexture_init_all()
 //--------------------------------------------------------------------------------------------
 void TxTexture_release_all()
 {
-    /// @details ZZ@> This function releases all of the textures
+    /// @author ZZ
+    /// @details This function releases all of the textures
 
     TX_REF cnt;
 
@@ -91,7 +94,8 @@ void TxTexture_release_all()
 //--------------------------------------------------------------------------------------------
 void TxTexture_delete_all()
 {
-    /// @details ZZ@> This function clears out all of the textures
+    /// @author ZZ
+    /// @details This function clears out all of the textures
 
     TX_REF cnt;
 
@@ -106,7 +110,8 @@ void TxTexture_delete_all()
 //--------------------------------------------------------------------------------------------
 void TxTexture_reload_all()
 {
-    /// @details ZZ@> This function re-loads all the current textures back into
+    /// @author ZZ
+    /// @details This function re-loads all the current textures back into
     ///               OpenGL texture memory using the cached SDL surfaces
 
     TX_REF cnt;
@@ -211,7 +216,8 @@ bool_t TxTexture_free_one( const TX_REF itex )
 //--------------------------------------------------------------------------------------------
 TX_REF TxTexture_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 key )
 {
-    /// @details BB@> load a texture into TxTexture.
+    /// @author BB
+    /// @details load a texture into TxTexture.
     ///     If INVALID_TX_TEXTURE == itex, then we just get the next free index
 
     TX_REF retval;

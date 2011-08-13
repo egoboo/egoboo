@@ -101,7 +101,8 @@ egolib_rv quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export )
 //--------------------------------------------------------------------------------------------
 egolib_rv quest_log_download_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, const char* player_directory )
 {
-    /// @details ZF@> Reads a quest.txt for a player and turns it into a data structure
+    /// @author ZF
+    /// @details Reads a quest.txt for a player and turns it into a data structure
     ///               we can use. If the file isn't found, the quest log will be initialized as empty.
 
     egolib_rv retval = rv_success;
@@ -156,7 +157,8 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t quest_log[], size_t quest_log_len,
 //--------------------------------------------------------------------------------------------
 egolib_rv quest_log_upload_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, const char *player_directory )
 {
-    /// @details ZF@> This exports quest_log data into a quest.txt file
+    /// @author ZF
+    /// @details This exports quest_log data into a quest.txt file
     vfs_FILE *filewrite;
     int iterator;
     IDSZ_node_t *pquest;
@@ -194,9 +196,10 @@ egolib_rv quest_log_upload_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, c
 //--------------------------------------------------------------------------------------------
 int quest_log_set_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int level )
 {
-    ///@details    ZF@> This function will set the quest level for the specified quest
-    ///            and return the new quest_level. It will return QUEST_NONE if the quest was
-    ///            not found.
+    /// @author ZF
+    /// @details This function will set the quest level for the specified quest
+    ///          and return the new quest_level. It will return QUEST_NONE if the quest was
+    ///          not found.
 
     IDSZ_node_t *pquest = NULL;
 
@@ -213,9 +216,10 @@ int quest_log_set_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ ids
 //--------------------------------------------------------------------------------------------
 int quest_log_adjust_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int adjustment )
 {
-    ///@details    ZF@> This function will modify the quest level for the specified quest with adjustment
-    ///            and return the new quest_level total. It will return QUEST_NONE if the quest was
-    ///            not found or if it was already beaten.
+    /// @author ZF
+    /// @details This function will modify the quest level for the specified quest with adjustment
+    ///          and return the new quest_level total. It will return QUEST_NONE if the quest was
+    ///          not found or if it was already beaten.
 
     int          src_level = QUEST_NONE;
     int          dst_level = QUEST_NONE;
@@ -253,8 +257,9 @@ int quest_log_adjust_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ 
 //--------------------------------------------------------------------------------------------
 int quest_log_get_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz )
 {
-    ///@details ZF@> Returns the quest level for the specified quest IDSZ.
-    ///                 It will return QUEST_NONE if the quest was not found or if the quest was beaten.
+    /// @author ZF
+    /// @details Returns the quest level for the specified quest IDSZ.
+    ///          It will return QUEST_NONE if the quest was not found or if the quest was beaten.
 
     IDSZ_node_t *pquest;
     pquest = idsz_map_get( quest_log, quest_log_len, idsz );
@@ -265,8 +270,9 @@ int quest_log_get_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ ids
 //--------------------------------------------------------------------------------------------
 egolib_rv quest_log_add( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int level )
 {
-    ///@details ZF@> This adds a new quest to the quest log. If the quest is already in there, the higher quest
-    ///                 level of either the old and new one will be kept.
+    /// @author ZF
+    /// @details This adds a new quest to the quest log. If the quest is already in there, the higher quest
+    ///          level of either the old and new one will be kept.
 
     return idsz_map_add( quest_log, quest_log_len, idsz, level );
 }

@@ -571,7 +571,8 @@ egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const o
 //--------------------------------------------------------------------------------------------
 bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
 {
-    /// @details BB@> A test to determine whether two "fast moving" objects are interacting within a frame.
+    /// @author BB
+    /// @details A test to determine whether two "fast moving" objects are interacting within a frame.
     ///               Designed to determine whether a bullet particle will interact with character.
 
     oct_bb_t src1, src2;
@@ -891,7 +892,8 @@ egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, c
 //--------------------------------------------------------------------------------------------
 bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
 {
-    /// @details BB@> A test to determine whether two "fast moving" objects are interacting within a frame.
+    /// @author BB
+    /// @details A test to determine whether two "fast moving" objects are interacting within a frame.
     ///               Designed to determine whether a bullet particle will interact with character.
 
     oct_bb_t src1, src2;
@@ -987,7 +989,8 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
 //--------------------------------------------------------------------------------------------
 bool_t phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst )
 {
-    /// @details BB@> use the velocity of an object and its oct_bb_t to determine the
+    /// @author BB
+    /// @details use the velocity of an object and its oct_bb_t to determine the
     ///               amount of territory that an object will cover in the range [tmin,tmax].
     ///               One update equals [tmin,tmax] == [0,1].
 
@@ -1043,7 +1046,8 @@ bool_t phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const 
 //--------------------------------------------------------------------------------------------
 bool_t phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst )
 {
-    /// @details BB@> use the object velocity to figure out where the volume that the character will
+    /// @author BB
+    /// @details use the object velocity to figure out where the volume that the character will
     ///               occupy during this update. Use the loser chr_max_cv and include extra height if
     ///               it is a platform.
 
@@ -1064,7 +1068,8 @@ bool_t phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst
 //--------------------------------------------------------------------------------------------
 bool_t phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst )
 {
-    /// @details BB@> use the object velocity to figure out where the volume that the particle will
+    /// @author BB
+    /// @details use the object velocity to figure out where the volume that the particle will
     ///               occupy during this update
 
     oct_bb_t tmp_oct1, tmp_oct2;

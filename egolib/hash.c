@@ -160,7 +160,8 @@ hash_list_t * hash_list_dtor( hash_list_t * lst )
 //--------------------------------------------------------------------------------------------
 size_t hash_list_count_nodes( hash_list_t *plst )
 {
-    /// @details BB@> count the total number of nodes in the hash list
+    /// @author BB
+    /// @details count the total number of nodes in the hash list
 
     int    i;
     size_t count = 0;
@@ -307,7 +308,8 @@ bool_t hash_list_alloc( hash_list_t * lst, int size )
 //--------------------------------------------------------------------------------------------
 bool_t hash_list_renew( hash_list_t * lst )
 {
-    /// @details BB@> renew the CoNode_t hash table.
+    /// @author BB
+    /// @details renew the CoNode_t hash table.
     ///
     /// Since we are filling this list with pre-allocated CoNode_t's,
     /// there is no need to delete any of the existing pchlst->sublist elements

@@ -35,7 +35,8 @@
 //--------------------------------------------------------------------------------------------
 mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 {
-    /// @details BB@> this function actually reads in the module data
+    /// @author BB
+    /// @details this function actually reads in the module data
 
     vfs_FILE * fileread;
     int cnt;
@@ -127,7 +128,8 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 //--------------------------------------------------------------------------------------------
 int module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer )
 {
-    /// @details ZZ@> This function returns btrue if the named module has the required IDSZ
+    /// @author ZZ
+    /// @details This function returns btrue if the named module has the required IDSZ
 
     vfs_FILE *fileread;
     STRING newloadname;
@@ -198,7 +200,8 @@ int module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, ch
 //--------------------------------------------------------------------------------------------
 bool_t module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer )
 {
-    /// @details ZZ@> This function appends an IDSZ to the module's menu.txt file
+    /// @author ZZ
+    /// @details This function appends an IDSZ to the module's menu.txt file
 
     vfs_FILE *filewrite;
     bool_t retval = bfalse;

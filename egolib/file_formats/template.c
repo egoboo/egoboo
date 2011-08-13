@@ -44,7 +44,8 @@ static void   template_copy_to_eof( vfs_FILE * tempfile, vfs_FILE * outfile );
 //--------------------------------------------------------------------------------------------
 char * template_dump_buffer( vfs_FILE * outfile, char * buffer_beg, char * buffer_end, char * pcarat )
 {
-    /// @details BB@> copy any buffer characters to the output file
+    /// @author BB
+    /// @details copy any buffer characters to the output file
 
     char * ptmp;
 

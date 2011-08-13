@@ -29,7 +29,8 @@
 //--------------------------------------------------------------------------------------------
 void str_trim( char *pStr )
 {
-    /// @details ZZ@> str_trim remove all space and tabs in the beginning and at the end of the string
+    /// @author ZZ
+    /// @details str_trim remove all space and tabs in the beginning and at the end of the string
 
     Sint32 DebPos = 0, EndPos = 0, CurPos = 0;
 
@@ -74,7 +75,8 @@ void str_trim( char *pStr )
 //--------------------------------------------------------------------------------------------
 char * str_decode( char *strout, size_t insize, const char * strin )
 {
-    /// @details BB@> str_decode converts a string from "storage mode" to an actual string
+    /// @author BB
+    /// @details str_decode converts a string from "storage mode" to an actual string
 
     char *pin = ( char * )strin, *pout = strout, *plast = pout + insize;
 
@@ -96,7 +98,8 @@ char * str_decode( char *strout, size_t insize, const char * strin )
 //--------------------------------------------------------------------------------------------
 char * str_encode( char *strout, size_t insize, const char * strin )
 {
-    /// @details BB@> str_encode converts an actual string to "storage mode"
+    /// @author BB
+    /// @details str_encode converts an actual string to "storage mode"
 
     char chrlast = 0;
     char *pin = ( char * )strin, *pout = strout, *plast = pout + insize;
@@ -148,7 +151,8 @@ char * str_encode( char *strout, size_t insize, const char * strin )
 //--------------------------------------------------------------------------------------------
 char * str_clean_path( char * str, size_t size )
 {
-    /// @details BB@> remove any accidentally doubled slash characters from the stream
+    /// @author BB
+    /// @details remove any accidentally doubled slash characters from the stream
 
     char *psrc, *psrc_end, *pdst, *pdst_end;
 
@@ -188,7 +192,8 @@ char * str_clean_path( char * str, size_t size )
 //--------------------------------------------------------------------------------------------
 char * str_convert_slash_net( char * str, size_t size )
 {
-    /// @details BB@> converts the slashes in a string to those appropriate for the Net
+    /// @author BB
+    /// @details converts the slashes in a string to those appropriate for the Net
 
     char * psrc, *psrc_end, *pdst, *pdst_end;
 
@@ -216,7 +221,8 @@ char * str_convert_slash_net( char * str, size_t size )
 //--------------------------------------------------------------------------------------------
 char * str_convert_slash_sys( char * str, size_t size )
 {
-    /// @details BB@> converts the slashes in a string to those appropriate this system
+    /// @author BB
+    /// @details converts the slashes in a string to those appropriate this system
 
     char * psrc, *psrc_end, *pdst, *pdst_end;
 
@@ -244,7 +250,8 @@ char * str_convert_slash_sys( char * str, size_t size )
 //--------------------------------------------------------------------------------------------
 char * str_append_slash_net( char * str, size_t size )
 {
-    /// @details BB@> appends a network-type slash to a string, if it does not already have one
+    /// @author BB
+    /// @details appends a network-type slash to a string, if it does not already have one
 
     size_t len;
 
@@ -262,7 +269,8 @@ char * str_append_slash_net( char * str, size_t size )
 //--------------------------------------------------------------------------------------------
 char * str_append_slash( char * str, size_t size )
 {
-    /// @details BB@> appends this system's slash to a string, if it does not already have one
+    /// @author BB
+    /// @details appends this system's slash to a string, if it does not already have one
 
     size_t len;
 
@@ -280,7 +288,8 @@ char * str_append_slash( char * str, size_t size )
 //--------------------------------------------------------------------------------------------
 char * str_encode_path( const char *szName )
 {
-    /// @details ZF@> This turns a szName name into a proper filepath for loading and saving files
+    /// @author ZF
+    /// @details This turns a szName name into a proper filepath for loading and saving files
     ///   also turns all letter to lower case in case of case sensitive OS.
 
     static STRING szPathname;

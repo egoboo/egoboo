@@ -58,7 +58,8 @@ IMPLEMENT_LIST( tx_request_t, TxReqList, MAX_TX_TEXTURE_REQ );
 //--------------------------------------------------------------------------------------------
 ego_rpc_base_t * ego_rpc_base_ctor( ego_rpc_base_t * prpc, int data_type, void * data )
 {
-    /// @details BB@> construct the somple rpc data element
+    /// @author BB
+    /// @details construct the somple rpc data element
 
     if ( ego_rpc_valid( prpc ) ) return NULL;
 
@@ -76,7 +77,8 @@ ego_rpc_base_t * ego_rpc_base_ctor( ego_rpc_base_t * prpc, int data_type, void *
 //--------------------------------------------------------------------------------------------
 ego_rpc_base_t * ego_rpc_base_dtor( ego_rpc_base_t * prpc )
 {
-    /// @details BB@> deconstruct the somple rpc data element
+    /// @author BB
+    /// @details deconstruct the somple rpc data element
 
     if ( NULL == prpc ) return NULL;
     if ( !ego_rpc_valid( prpc ) ) return prpc;
@@ -126,7 +128,8 @@ tx_request_t * tx_request_dtor( tx_request_t * preq )
 //--------------------------------------------------------------------------------------------
 bool_t ego_rpc_system_begin()
 {
-    /// @details BB@> initialize all the rpc arrays here
+    /// @author BB
+    /// @details initialize all the rpc arrays here
 
     if ( _rpc_system_initialized ) return btrue;
 
@@ -140,7 +143,8 @@ bool_t ego_rpc_system_begin()
 //--------------------------------------------------------------------------------------------
 void ego_rpc_system_end()
 {
-    /// @details BB@> de-initialize all the rpc arrays here
+    /// @author BB
+    /// @details de-initialize all the rpc arrays here
 
     if ( !_rpc_system_initialized ) return;
 
@@ -152,7 +156,8 @@ void ego_rpc_system_end()
 //--------------------------------------------------------------------------------------------
 bool_t ego_rpc_system_timestep()
 {
-    /// @details BB@> step through a single request of each type
+    /// @author BB
+    /// @details step through a single request of each type
 
     if ( !ego_rpc_system_begin() ) return bfalse;
 
@@ -223,7 +228,8 @@ void TxReqList_dtor()
 //--------------------------------------------------------------------------------------------
 size_t TxReqList_get_free( int type )
 {
-    /// @details ZZ@> This function returns the next free index or MAX_TX_TEXTURE_REQ if there are none
+    /// @author ZZ
+    /// @details This function returns the next free index or MAX_TX_TEXTURE_REQ if there are none
 
     size_t retval = MAX_TX_TEXTURE_REQ;
 
@@ -246,7 +252,8 @@ size_t TxReqList_get_free( int type )
 //--------------------------------------------------------------------------------------------
 bool_t TxReqList_free_one( int ireq )
 {
-    /// @details ZZ@>
+    /// @author ZZ
+    /// @details
 
     bool_t         retval;
     tx_request_t * preq;
@@ -287,7 +294,8 @@ bool_t TxReqList_free_one( int ireq )
 //--------------------------------------------------------------------------------------------
 bool_t TxReqList_timestep()
 {
-    /// @details BB@> TxReqList_timestep() is called by the main thread.
+    /// @author BB
+    /// @details TxReqList_timestep() is called by the main thread.
     ///               Requests are submitted by worker threads
 
     // take off the back of the list
@@ -339,7 +347,8 @@ bool_t TxReqList_timestep()
 //--------------------------------------------------------------------------------------------
 tx_request_t * ego_rpc_load_TxTexture( const char *filename, int itex_src, Uint32 key )
 {
-    /// @details BB@> request that the main thread loads the texture
+    /// @author BB
+    /// @details request that the main thread loads the texture
 
     tx_request_t * preq;
     size_t index;
@@ -361,7 +370,8 @@ tx_request_t * ego_rpc_load_TxTexture( const char *filename, int itex_src, Uint3
 //--------------------------------------------------------------------------------------------
 tx_request_t * ego_rpc_load_TxMenu( const char *filename )
 {
-    /// @details BB@> request that the main thread loads the texture
+    /// @author BB
+    /// @details request that the main thread loads the texture
 
     tx_request_t * preq;
     size_t index;

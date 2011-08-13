@@ -34,7 +34,8 @@
 //--------------------------------------------------------------------------------------------
 int translate_string_to_input_type( const char *string )
 {
-    /// @details ZF@> This function turns a string into a input type (mouse, keyboard, joystick, etc.)
+    /// @author ZF
+    /// @details This function turns a string into a input type (mouse, keyboard, joystick, etc.)
 
     int retval = INPUT_DEVICE_UNKNOWN;
 
@@ -71,7 +72,8 @@ int translate_string_to_input_type( const char *string )
 //--------------------------------------------------------------------------------------------
 const char* translate_input_type_to_string( const int type )
 {
-    /// @details ZF@> This function turns a input type into a string
+    /// @author ZF
+    /// @details This function turns a input type into a string
 
     static STRING retval;
 
@@ -190,7 +192,7 @@ char get_device_char_from_device_type( Uint32 device_type )
 {
     char retval = '?';
 
-    if( INPUT_DEVICE_KEYBOARD == device_type )
+    if ( INPUT_DEVICE_KEYBOARD == device_type )
     {
         retval = 'K';
     }

@@ -76,7 +76,8 @@ pip_t * pip_init( pip_t * ppip )
 //--------------------------------------------------------------------------------------------
 pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
 {
-    /// @details ZZ@> This function loads a particle template, returning bfalse if the file wasn't
+    /// @author ZZ
+    /// @details This function loads a particle template, returning bfalse if the file wasn't
     ///    found
 
     vfs_FILE* fileread;

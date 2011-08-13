@@ -27,7 +27,8 @@
 //--------------------------------------------------------------------------------------------
 bool_t egolib_timer_throttle( egolib_timer_t * ptimer, float rate )
 {
-    /// BB@> return btrue if the process should proceed, bfalse, otherwise
+    /// @author BB
+    /// @details return btrue if the process should proceed, bfalse, otherwise
 
     int ticks;
 

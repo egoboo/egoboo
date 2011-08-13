@@ -126,7 +126,8 @@ void scripting_system_end()
 //--------------------------------------------------------------------------------------------
 void scr_run_chr_script( const CHR_REF character )
 {
-    /// @details ZZ@> This function lets one character do AI stuff
+    /// @author ZZ
+    /// @details This function lets one character do AI stuff
 
     script_state_t   my_state;
     chr_t          * pchr;
@@ -392,7 +393,8 @@ bool_t scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_inf
 //--------------------------------------------------------------------------------------------
 Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_t * pscript )
 {
-    /// @details BB@> This is about half-way to what is needed for Lua integration
+    /// @author BB
+    /// @details This is about half-way to what is needed for Lua integration
 
     // Mask out the indentation
     Uint32 valuecode = pscript->data[pscript->position] & VALUE_BITS;
@@ -848,7 +850,8 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
 //--------------------------------------------------------------------------------------------
 void scr_set_operand( script_state_t * pstate, Uint8 variable )
 {
-    /// @details ZZ@> This function sets one of the tmp* values for scripted AI
+    /// @author ZZ
+    /// @details This function sets one of the tmp* values for scripted AI
     switch ( variable )
     {
         case VARTMPX:
@@ -880,7 +883,8 @@ void scr_set_operand( script_state_t * pstate, Uint8 variable )
 //--------------------------------------------------------------------------------------------
 void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t * pscript )
 {
-    /// @details ZZ@> This function does the scripted arithmetic in OPERATOR, OPERAND pscriptrs
+    /// @author ZZ
+    /// @details This function does the scripted arithmetic in OPERATOR, OPERAND pscriptrs
 
     const char * varname, * op;
 
@@ -1577,7 +1581,8 @@ bool_t ai_state_ensure_wp( ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 void set_alerts( const CHR_REF character )
 {
-    /// @details ZZ@> This function polls some alert conditions
+    /// @author ZZ
+    /// @details This function polls some alert conditions
 
     chr_t      * pchr;
     ai_state_t * pai;
@@ -1641,7 +1646,8 @@ void set_alerts( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void issue_order( const CHR_REF character, Uint32 value )
 {
-    /// @details ZZ@> This function issues an value for help to all teammates
+    /// @author ZZ
+    /// @details This function issues an value for help to all teammates
 
     CHR_REF cnt;
     int     counter;
@@ -1661,7 +1667,8 @@ void issue_order( const CHR_REF character, Uint32 value )
 //--------------------------------------------------------------------------------------------
 void issue_special_order( Uint32 value, IDSZ idsz )
 {
-    /// @details ZZ@> This function issues an order to all characters with the a matching special IDSZ
+    /// @author ZZ
+    /// @details This function issues an order to all characters with the a matching special IDSZ
 
     CHR_REF cnt;
     int     counter;
@@ -1761,7 +1768,8 @@ bool_t ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
 //--------------------------------------------------------------------------------------------
 bool_t ai_state_set_changed( ai_state_t * pai )
 {
-    /// @details BB@> do something tricky here
+    /// @author BB
+    /// @details do something tricky here
 
     bool_t retval = bfalse;
 
@@ -1785,7 +1793,8 @@ bool_t ai_state_set_changed( ai_state_t * pai )
 //--------------------------------------------------------------------------------------------
 bool_t ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 {
-    /// @details BB@> bumping into a chest can initiate whole loads of update messages.
+    /// @author BB
+    /// @details bumping into a chest can initiate whole loads of update messages.
     ///     Try to throttle the rate that new "bump" messages can be passed to the ai
 
     if ( NULL == pself ) return bfalse;

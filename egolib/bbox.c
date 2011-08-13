@@ -76,7 +76,8 @@ bool_t aabb_copy( aabb_t * pdst, const aabb_t * psrc )
 //--------------------------------------------------------------------------------------------
 bool_t aabb_self_clear( aabb_t * psrc )
 {
-    /// @details BB@> Return this bounding box to an empty state.
+    /// @author BB
+    /// @details Return this bounding box to an empty state.
 
     Uint32 cnt;
 
@@ -147,7 +148,8 @@ bool_t aabb_from_oct_bb( aabb_t * dst, const oct_bb_t * src )
 //--------------------------------------------------------------------------------------------
 bool_t aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
-    /// @details BB@> Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
+    /// @author BB
+    /// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
     ///               than lhs_ptr, just check the lowest common dimensions.
 
     size_t cnt;
@@ -196,7 +198,8 @@ bool_t aabb_self_union( aabb_t * pdst, const aabb_t * psrc )
 //--------------------------------------------------------------------------------------------
 bool_t aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
-    /// @details BB@> Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
+    /// @author BB
+    /// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
     ///               than lhs_ptr, just check the lowest common dimensions.
 
     size_t cnt;
@@ -479,8 +482,9 @@ OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 )
 //--------------------------------------------------------------------------------------------
 bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 {
-    /// @details BB@> determine which of the 16 possible intersection points are within both
-    //     square and diamond bounding volumes
+    /// @author BB
+    /// @details determine which of the 16 possible intersection points are within both
+    ///     square and diamond bounding volumes
 
     bool_t invalid;
     int cnt, tnc, count;
@@ -738,8 +742,9 @@ bool_t CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * p
 //--------------------------------------------------------------------------------------------
 bool_t CVolume_refine( CVolume_t * pcv )
 {
-    /// @details BB@> determine which of the 16 possible intersection points are within both
-    //     square and diamond bounding volumes
+    /// @author BB
+    /// @details determine which of the 16 possible intersection points are within both
+    ///     square and diamond bounding volumes
 
     if ( NULL == pcv ) return bfalse;
 
@@ -772,7 +777,8 @@ static int cv_point_data_cmp( const void * pleft, const void * pright )
 //--------------------------------------------------------------------------------------------
 int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
 {
-    /// @details BB@> convert the corners of the level 1 bounding box to a point cloud
+    /// @author BB
+    /// @details convert the corners of the level 1 bounding box to a point cloud
     ///      set pos[].w to zero for now, that the transform does not
     ///      shift the points while transforming them
     ///
@@ -1033,7 +1039,8 @@ int oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t   pos[], size_t pos_count )
 //--------------------------------------------------------------------------------------------
 void points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_count )
 {
-    /// @details BB@> convert the new point cloud into a level 1 bounding box using a fvec4_t
+    /// @author BB
+    /// @details convert the new point cloud into a level 1 bounding box using a fvec4_t
     ///               array as the source
 
     Uint32 cnt, tnc;
@@ -1072,7 +1079,8 @@ void points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_co
 //--------------------------------------------------------------------------------------------
 egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb )
 {
-    /// @details BB@> convert a level 1 bumper to an "equivalent" level 0 bumper
+    /// @author BB
+    /// @details convert a level 1 bumper to an "equivalent" level 0 bumper
 
     float val1, val2, val3, val4;
 

@@ -81,7 +81,8 @@ bool_t camera_reset_projection( camera_t * pcam, float fov_deg, float ar )
 //--------------------------------------------------------------------------------------------
 camera_t * camera_ctor( camera_t * pcam )
 {
-    /// @detalis BB@> initialize the camera structure
+    /// @author BB
+    /// @details initialize the camera structure
 
     BLANK_STRUCT_PTR( pcam )
 
@@ -129,7 +130,8 @@ camera_t * camera_ctor( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void dump_matrix( const fmat_4x4_base_t a )
 {
-    /// @detalis ZZ@> dump a text representation of a 4x4 matrix to stdout
+    /// @author ZZ
+    /// @details dump a text representation of a 4x4 matrix to stdout
 
     int i, j;
 
@@ -151,7 +153,8 @@ void dump_matrix( const fmat_4x4_base_t a )
 //--------------------------------------------------------------------------------------------
 void camera_update_position( camera_t * pcam )
 {
-    /// @details ZZ@> This function makes the camera turn to face the character
+    /// @author ZZ
+    /// @details This function makes the camera turn to face the character
 
     TURN_T turnsin;
     fvec3_t pos_new;
@@ -345,7 +348,8 @@ void camera_update_effects( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void camera_make_matrix( camera_t * pcam )
 {
-    /// @details ZZ@> This function sets pcam->mView to the camera's location and rotation
+    /// @author ZZ
+    /// @details This function sets pcam->mView to the camera's location and rotation
 
     camera_gluLookAt( pcam, pcam->roll );
 
@@ -363,7 +367,8 @@ void camera_make_matrix( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void camera_update_zoom( camera_t * pcam )
 {
-    /// @details ZZ@> This function makes the camera look downwards as it is raised up
+    /// @author ZZ
+    /// @details This function makes the camera look downwards as it is raised up
 
     float percentmin, percentmax;
 
@@ -678,7 +683,8 @@ void camera_update_track( camera_t * pcam, const ego_mpd_t * pmesh, CHR_REF trac
 //--------------------------------------------------------------------------------------------
 size_t camera_create_track_list( CHR_REF track_list[], const size_t track_list_max_size )
 {
-    /// @details ZZ@> Create a default list of obhects that are tracked
+    /// @author ZZ
+    /// @details Create a default list of obhects that are tracked
 
     PLA_REF ipla;
 
@@ -708,7 +714,8 @@ size_t camera_create_track_list( CHR_REF track_list[], const size_t track_list_m
 //--------------------------------------------------------------------------------------------
 void camera_move( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
-    /// @details ZZ@> This function moves the camera
+    /// @author ZZ
+    /// @details This function moves the camera
 
     PLA_REF ipla;
 
@@ -769,7 +776,8 @@ void camera_move( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_
 //--------------------------------------------------------------------------------------------
 void camera_read_input( camera_t *pcam, input_device_t *pdevice )
 {
-    // @details ZF@> Read camera control input for one specific player controller
+    /// @author ZF
+    /// @details Read camera control input for one specific player controller
 
     int type;
     bool_t autoturn_camera;
@@ -890,7 +898,8 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
 //--------------------------------------------------------------------------------------------
 void camera_reset( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
-    /// @details ZZ@> This function makes sure the camera starts in a suitable position
+    /// @author ZZ
+    /// @details This function makes sure the camera starts in a suitable position
 
     // constant values
     pcam->swing        = 0;
@@ -931,9 +940,10 @@ void camera_reset( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track
 //--------------------------------------------------------------------------------------------
 bool_t camera_reset_target( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
-    // @details BB@> Force the camera to focus in on the players. Should be called any time there is
-    //               a "change of scene". With the new velocity-tracking of the camera, this would include
-    //               things like character respawns, adding new players, etc.
+    /// @author BB
+    /// @details Force the camera to focus in on the players. Should be called any time there is
+    ///          a "change of scene". With the new velocity-tracking of the camera, this would include
+    ///          things like character respawns, adding new players, etc.
 
     int turn_mode_save, move_mode_save;
 

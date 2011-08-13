@@ -240,7 +240,8 @@ static void bump_all_update_counters();
 //--------------------------------------------------------------------------------------------
 egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool_t is_local )
 {
-    /// @details ZZ@> This function exports a character
+    /// @author ZZ
+    /// @details This function exports a character
 
     cap_t * pcap;
     pro_t * pobj;
@@ -353,7 +354,8 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
 //--------------------------------------------------------------------------------------------
 egolib_rv export_all_players( bool_t require_local )
 {
-    /// @details ZZ@> This function saves all the local players in the
+    /// @author ZZ
+    /// @details This function saves all the local players in the
     ///    PLAYERS directory
 
     egolib_rv export_chr_rv;
@@ -448,7 +450,8 @@ egolib_rv export_all_players( bool_t require_local )
 //--------------------------------------------------------------------------------------------
 void log_madused_vfs( const char *savename )
 {
-    /// @details ZZ@> This is a debug function for checking model loads
+    /// @author ZZ
+    /// @details This is a debug function for checking model loads
 
     vfs_FILE* hFileWrite;
     PRO_REF cnt;
@@ -479,7 +482,8 @@ void log_madused_vfs( const char *savename )
 //--------------------------------------------------------------------------------------------
 void statlist_add( const CHR_REF character )
 {
-    /// @details ZZ@> This function adds a status display to the do list
+    /// @author ZZ
+    /// @details This function adds a status display to the do list
 
     chr_t * pchr;
 
@@ -498,7 +502,8 @@ void statlist_add( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void statlist_move_to_top( const CHR_REF character )
 {
-    /// @details ZZ@> This function puts the character on top of the StatusList
+    /// @author ZZ
+    /// @details This function puts the character on top of the StatusList
 
     int cnt, oldloc;
     status_list_element_t tmp;
@@ -534,7 +539,8 @@ void statlist_move_to_top( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void statlist_sort()
 {
-    /// @details ZZ@> This function puts all of the local players on top of the StatusList
+    /// @author ZZ
+    /// @details This function puts all of the local players on top of the StatusList
 
     PLA_REF ipla;
 
@@ -550,7 +556,8 @@ void statlist_sort()
 //--------------------------------------------------------------------------------------------
 egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_along, int ilip )
 {
-    /// @details ZZ@> This function sets the frame for a character explicitly...  This is used to
+    /// @author ZZ
+    /// @details This function sets the frame for a character explicitly...  This is used to
     ///    rotate Tank turrets
 
     chr_t * pchr;
@@ -583,7 +590,8 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
 //--------------------------------------------------------------------------------------------
 void activate_alliance_file_vfs()
 {
-    /// @details ZZ@> This function reads the alliance file
+    /// @author ZZ
+    /// @details This function reads the alliance file
     STRING szTemp;
     TEAM_REF teama, teamb;
     vfs_FILE *fileread;
@@ -653,7 +661,8 @@ void bump_all_update_counters()
 //--------------------------------------------------------------------------------------------
 void initialize_all_objects()
 {
-    /// @details BB@> begin the code for updating in-game objects
+    /// @author BB
+    /// @details begin the code for updating in-game objects
 
     // update all object timers etc.
     update_all_objects();
@@ -665,7 +674,8 @@ void initialize_all_objects()
 //--------------------------------------------------------------------------------------------
 void finalize_all_objects()
 {
-    /// @details BB@> end the code for updating in-game objects
+    /// @author BB
+    /// @details end the code for updating in-game objects
 
     // update the object's update counter for every active object
     bump_all_update_counters();
@@ -677,7 +687,8 @@ void finalize_all_objects()
 //--------------------------------------------------------------------------------------------
 int update_game()
 {
-    /// @details ZZ@> This function does several iterations of character movements and such
+    /// @author ZZ
+    /// @details This function does several iterations of character movements and such
     ///    to keep the game in sync.
 
     int tnc, numdead, numalive;
@@ -945,7 +956,8 @@ int update_game()
 //--------------------------------------------------------------------------------------------
 void game_update_timers()
 {
-    /// @details ZZ@> This function updates the game timers
+    /// @author ZZ
+    /// @details This function updates the game timers
 
     int    clock_diff;
     bool_t free_running = bfalse;
@@ -1028,7 +1040,8 @@ void game_update_timers()
 //--------------------------------------------------------------------------------------------
 void game_update_ups()
 {
-    /// @details ZZ@> This function updates the game timers
+    /// @author ZZ
+    /// @details This function updates the game timers
 
     // at fold = 0.60f, it will take approximately 9 updates for the
     // weight of the first value to be reduced to 1%
@@ -1057,7 +1070,8 @@ void game_update_ups()
 //--------------------------------------------------------------------------------------------
 void game_reset_timers()
 {
-    /// @details ZZ@> This function resets the timers...
+    /// @author ZZ
+    /// @details This function resets the timers...
 
     // reset the synchronization
     clock_wld = 0;
@@ -1102,7 +1116,8 @@ void game_reset_timers()
 //--------------------------------------------------------------------------------------------
 int game_do_menu( menu_process_t * mproc )
 {
-    /// @details BB@> do menus
+    /// @author BB
+    /// @details do menus
 
     static double loc_frameDuration = 0.0f;
 
@@ -1567,7 +1582,8 @@ int game_process_run( game_process_t * gproc, double frameDuration )
 CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing,
                          const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget )
 {
-    /// @details ZF@> This is the new improved targeting system for particles. Also includes distance in the Z direction.
+    /// @author ZF
+    /// @details This is the new improved targeting system for particles. Also includes distance in the Z direction.
 
     const float max_dist2 = WIDE * WIDE;
 
@@ -1723,7 +1739,8 @@ bool_t chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
-    /// @details ZF@> This is the new improved AI targeting system. Also includes distance in the Z direction.
+    /// @author ZF
+    /// @details This is the new improved AI targeting system. Also includes distance in the Z direction.
     ///     If max_dist is 0 then it searches without a max limit.
 
     line_of_sight_info_t los_info;
@@ -1874,7 +1891,8 @@ void do_damage_tiles()
 //--------------------------------------------------------------------------------------------
 void update_pits()
 {
-    /// @details ZZ@> This function kills any character in a deep pit...
+    /// @author ZZ
+    /// @details This function kills any character in a deep pit...
 
     if ( pits.kill || pits.teleport )
     {
@@ -1959,7 +1977,8 @@ void update_pits()
 //--------------------------------------------------------------------------------------------
 void do_weather_spawn_particles()
 {
-    /// @details ZZ@> This function drops snowflakes or rain or whatever, also swings the camera
+    /// @author ZZ
+    /// @details This function drops snowflakes or rain or whatever, also swings the camera
 
     int    cnt;
     bool_t foundone;
@@ -2035,7 +2054,8 @@ void do_weather_spawn_particles()
 //--------------------------------------------------------------------------------------------
 void set_one_player_latch( const PLA_REF ipla )
 {
-    /// @details ZZ@> This function converts input readings to latch settings, so players can
+    /// @author ZZ
+    /// @details This function converts input readings to latch settings, so players can
     ///    move around
 
     TURN_T turnsin;
@@ -2270,7 +2290,8 @@ void set_local_latches( void )
 //--------------------------------------------------------------------------------------------
 void check_stats()
 {
-    /// @details ZZ@> This function lets the players check character stats
+    /// @author ZZ
+    /// @details This function lets the players check character stats
 
     static int stat_check_timer = 0;
     static int stat_check_delay = 0;
@@ -2398,7 +2419,8 @@ void check_stats()
 //--------------------------------------------------------------------------------------------
 void show_stat( int statindex )
 {
-    /// @details ZZ@> This function shows the more specific stats for a character
+    /// @author ZZ
+    /// @details This function shows the more specific stats for a character
 
     CHR_REF character;
     int     level;
@@ -2466,7 +2488,8 @@ void show_stat( int statindex )
 //--------------------------------------------------------------------------------------------
 void show_armor( int statindex )
 {
-    /// @details ZF@> This function shows detailed armor information for the character
+    /// @author ZF
+    /// @details This function shows detailed armor information for the character
 
     STRING tmps;
     CHR_REF ichr;
@@ -2522,7 +2545,8 @@ void show_armor( int statindex )
 //--------------------------------------------------------------------------------------------
 bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
 {
-    /// @details ZF@> Get a character's life and mana regeneration, considering all sources
+    /// @author ZF
+    /// @details Get a character's life and mana regeneration, considering all sources
 
     int local_liferegen, local_manaregen;
     CHR_REF ichr;
@@ -2560,7 +2584,8 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
 //--------------------------------------------------------------------------------------------
 void show_full_status( int statindex )
 {
-    /// @details ZF@> This function shows detailed armor information for the character including magic
+    /// @author ZF
+    /// @details This function shows detailed armor information for the character including magic
 
     CHR_REF character;
     int manaregen, liferegen;
@@ -2605,7 +2630,8 @@ void show_full_status( int statindex )
 //--------------------------------------------------------------------------------------------
 void show_magic_status( int statindex )
 {
-    /// @details ZF@> Displays special enchantment effects for the character
+    /// @author ZF
+    /// @details Displays special enchantment effects for the character
 
     CHR_REF character;
     const char * missile_str;
@@ -2649,7 +2675,8 @@ void show_magic_status( int statindex )
 //--------------------------------------------------------------------------------------------
 void tilt_characters_to_terrain()
 {
-    /// @details ZZ@> This function sets all of the character's starting tilt values
+    /// @author ZZ
+    /// @details This function sets all of the character's starting tilt values
 
     Uint8 twist;
 
@@ -2731,7 +2758,8 @@ void load_all_profiles_import()
 //--------------------------------------------------------------------------------------------
 void game_load_profile_ai()
 {
-    /// @details ZF@> load the AI for each profile, done last so that all reserved slot numbers are already set
+    /// @author ZF
+    /// @details load the AI for each profile, done last so that all reserved slot numbers are already set
     /// since AI scripts can dynamically load new objects if they require it
     PRO_REF ipro;
     STRING loadname;
@@ -2756,7 +2784,8 @@ void game_load_profile_ai()
 //--------------------------------------------------------------------------------------------
 void game_load_module_profiles( const char *modname )
 {
-    /// @details BB@> Search for .obj directories in the module directory and load them
+    /// @author BB
+    /// @details Search for .obj directories in the module directory and load them
 
     vfs_search_context_t * ctxt;
     const char *filehandle;
@@ -2791,7 +2820,8 @@ void game_load_global_profiles()
 //--------------------------------------------------------------------------------------------
 void game_load_all_profiles( const char *modname )
 {
-    /// @details ZZ@> This function loads a module's local objects and overrides the global ones already loaded
+    /// @author ZZ
+    /// @details This function loads a module's local objects and overrides the global ones already loaded
 
     // ensure that the script parser exists
     parser_state_t * ps = script_compiler_get_state();
@@ -2911,7 +2941,8 @@ void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
 //--------------------------------------------------------------------------------------------
 bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 {
-    /// @details BB@> Try to load a global object named int psp_info->spawn_coment into
+    /// @author BB
+    /// @details Try to load a global object named int psp_info->spawn_coment into
     ///               slot psp_info->slot
 
     STRING filename;
@@ -3026,7 +3057,8 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 //--------------------------------------------------------------------------------------------
 void activate_spawn_file_vfs()
 {
-    /// @details ZZ@> This function sets up character data, loaded from "SPAWN.TXT"
+    /// @author ZZ
+    /// @details This function sets up character data, loaded from "SPAWN.TXT"
 
     const char          *newloadname;
     vfs_FILE            *fileread;
@@ -3248,7 +3280,8 @@ void game_load_all_assets( const char *modname )
 //--------------------------------------------------------------------------------------------
 void game_setup_module( const char *smallname )
 {
-    /// @details ZZ@> This runst the setup functions for a module
+    /// @author ZZ
+    /// @details This runst the setup functions for a module
 
     STRING modname;
 
@@ -3271,7 +3304,8 @@ void game_setup_module( const char *smallname )
 //--------------------------------------------------------------------------------------------
 bool_t game_load_module_data( const char *smallname )
 {
-    /// @details ZZ@> This function loads a module
+    /// @author ZZ
+    /// @details This function loads a module
 
     egolib_rv mpd_BSP_retval;
     STRING modname;
@@ -3333,7 +3367,8 @@ game_load_module_data_fail:
 //--------------------------------------------------------------------------------------------
 void disaffirm_attached_particles( const CHR_REF character )
 {
-    /// @details ZZ@> This function makes sure a character has no attached particles
+    /// @author ZZ
+    /// @details This function makes sure a character has no attached particles
 
     PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
     {
@@ -3354,7 +3389,8 @@ void disaffirm_attached_particles( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 int number_of_attached_particles( const CHR_REF character )
 {
-    /// @details ZZ@> This function returns the number of particles attached to the given character
+    /// @author ZZ
+    /// @details This function returns the number of particles attached to the given character
 
     int     cnt = 0;
 
@@ -3373,7 +3409,8 @@ int number_of_attached_particles( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 int reaffirm_attached_particles( const CHR_REF character )
 {
-    /// @details ZZ@> This function makes sure a character has all of it's particles
+    /// @author ZZ
+    /// @details This function makes sure a character has all of it's particles
 
     int     number_added, number_attached;
     int     amount, attempts;
@@ -3418,7 +3455,8 @@ int reaffirm_attached_particles( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void game_quit_module()
 {
-    /// @details BB@> all of the de-initialization code after the module actually ends
+    /// @author BB
+    /// @details all of the de-initialization code after the module actually ends
 
     // stop the module
     game_module_stop( PMod );
@@ -3448,7 +3486,8 @@ void game_quit_module()
 //--------------------------------------------------------------------------------------------
 bool_t game_begin_module( const char * modname, Uint32 seed )
 {
-    /// @details BB@> all of the initialization code before the module actually starts
+    /// @author BB
+    /// @details all of the initialization code before the module actually starts
 
     if ((( Uint32 )( ~0 ) ) == seed ) seed = time( NULL );
 
@@ -3502,7 +3541,8 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 //--------------------------------------------------------------------------------------------
 bool_t game_update_imports()
 {
-    /// @details BB@> This function saves all the players to the players dir
+    /// @author BB
+    /// @details This function saves all the players to the players dir
     ///    and also copies them into the imports dir to prepare for the next module
 
     // save the players and their inventories to their original directory
@@ -3527,7 +3567,8 @@ bool_t game_update_imports()
 //--------------------------------------------------------------------------------------------
 void game_release_module_data()
 {
-    /// @details ZZ@> This function frees up memory used by the module
+    /// @author ZZ
+    /// @details This function frees up memory used by the module
 
     ego_mpd_t * ptmp;
 
@@ -3587,7 +3628,8 @@ bool_t attach_one_particle( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 void attach_all_particles()
 {
-    /// @details ZZ@> This function attaches particles to their characters so everything gets
+    /// @author ZZ
+    /// @details This function attaches particles to their characters so everything gets
     ///    drawn right
 
     PRT_BEGIN_LOOP_DISPLAY( cnt, prt_bdl )
@@ -3600,7 +3642,8 @@ void attach_all_particles()
 //--------------------------------------------------------------------------------------------
 bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice )
 {
-    /// @details ZZ@> This function adds a player, returning bfalse if it fails, btrue otherwise
+    /// @author ZZ
+    /// @details This function adds a player, returning bfalse if it fails, btrue otherwise
 
     player_t * ppla = NULL;
     chr_t    * pchr = NULL;
@@ -3645,7 +3688,8 @@ bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t
 //--------------------------------------------------------------------------------------------
 void let_all_characters_think()
 {
-    /// @details ZZ@> This function funst the ai scripts for all eligible objects
+    /// @author ZZ
+    /// @details This function funst the ai scripts for all eligible objects
 
     static Uint32 last_update = ( Uint32 )( ~0 );
 
@@ -3735,7 +3779,8 @@ void game_finish_module()
 //--------------------------------------------------------------------------------------------
 void free_all_objects( void )
 {
-    /// @details BB@> free every instance of the three object types used in the game.
+    /// @author BB
+    /// @details free every instance of the three object types used in the game.
 
     PrtList_free_all();
     EncList_free_all();
@@ -3774,7 +3819,8 @@ camera_t * set_PCamera( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 {
-    /// @details ZZ@> This function returns the height of a point within a mesh fan, precise
+    /// @author ZZ
+    /// @details This function returns the height of a point within a mesh fan, precise
     ///    If waterwalk is nonzero and the fan is watery, then the level returned is the
     ///    level of the water.
 
@@ -3798,7 +3844,8 @@ float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 //--------------------------------------------------------------------------------------------
 void reset_end_text()
 {
-    /// @details ZZ@> This function resets the end-module text
+    /// @author ZZ
+    /// @details This function resets the end-module text
 
     endtext_carat = snprintf( endtext, SDL_arraysize( endtext ), "The game has ended..." );
 
@@ -4185,7 +4232,8 @@ void do_game_hud()
 //--------------------------------------------------------------------------------------------
 void game_reset_players()
 {
-    /// @details ZZ@> This function clears the player list data
+    /// @author ZZ
+    /// @details This function clears the player list data
 
     // Reset the local data stuff
     local_stats.allpladead = bfalse;
@@ -4438,7 +4486,8 @@ bool_t upload_camera_data( const wawalite_camera_t * pdata )
 //--------------------------------------------------------------------------------------------
 void upload_wawalite()
 {
-    /// @details ZZ@> This function sets up water and lighting for the module
+    /// @author ZZ
+    /// @details This function sets up water and lighting for the module
 
     wawalite_data_t * pdata = &wawalite_data;
 
@@ -4505,7 +4554,8 @@ bool_t game_module_reset( game_module_t * pinst, const Uint32 seed )
 //--------------------------------------------------------------------------------------------
 bool_t game_module_start( game_module_t * pinst )
 {
-    /// @details BB@> Let the module go
+    /// @author BB
+    /// @details Let the module go
 
     if ( NULL == pinst ) return bfalse;
 
@@ -4523,7 +4573,8 @@ bool_t game_module_start( game_module_t * pinst )
 //--------------------------------------------------------------------------------------------
 bool_t game_module_stop( game_module_t * pinst )
 {
-    /// @details BB@> stop the module
+    /// @author BB
+    /// @details stop the module
 
     if ( NULL == pinst ) return bfalse;
 
@@ -4559,7 +4610,8 @@ wawalite_data_t * read_wawalite_vfs( /* const char *modname */ )
 //--------------------------------------------------------------------------------------------
 bool_t wawalite_finalize( wawalite_data_t * pdata )
 {
-    /// @details BB@> coerce all parameters to in-bounds values
+    /// @author BB
+    /// @details coerce all parameters to in-bounds values
 
     int waterspeed_count, windspeed_count;
 
@@ -4664,7 +4716,8 @@ bool_t wawalite_finalize( wawalite_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool_t write_wawalite_vfs( const wawalite_data_t * pdata )
 {
-    /// @details BB@> Prepare and write the wawalite file
+    /// @author BB
+    /// @details Prepare and write the wawalite file
 
     if ( NULL == pdata ) return bfalse;
 
@@ -4991,7 +5044,8 @@ float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, oct_bb_t
 //--------------------------------------------------------------------------------------------
 float get_mesh_max_vertex_2( ego_mpd_t * pmesh, chr_t * pchr )
 {
-    /// @details BB@> the object does not overlap a single grid corner. Check the 4 corners of the collision volume
+    /// @author BB
+    /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
 
     int corner;
     int ix_off[4] = {1, 1, 0, 0};
@@ -5111,7 +5165,8 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void disenchant_character( const CHR_REF cnt )
 {
-    /// @details ZZ@> This function removes all enchantments from a character
+    /// @author ZZ
+    /// @details This function removes all enchantments from a character
 
     chr_t * pchr;
     size_t ienc_count;
@@ -5146,7 +5201,8 @@ void cleanup_character_enchants( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 {
-    /// @details BB@> attach a character to a platform
+    /// @author BB
+    /// @details attach a character to a platform
     ///
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
@@ -5208,7 +5264,8 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 //--------------------------------------------------------------------------------------------
 bool_t detach_character_from_platform( chr_t * pchr )
 {
-    /// @details BB@> attach a character to a platform
+    /// @author BB
+    /// @details attach a character to a platform
     ///
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
@@ -5262,7 +5319,8 @@ bool_t detach_character_from_platform( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 {
-    /// @details BB@> attach a particle to a platform
+    /// @author BB
+    /// @details attach a particle to a platform
 
     pip_t   * pprt_pip;
 
@@ -5290,7 +5348,8 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 //--------------------------------------------------------------------------------------------
 bool_t detach_particle_from_platform( prt_t * pprt )
 {
-    /// @details BB@> attach a particle to a platform
+    /// @author BB
+    /// @details attach a particle to a platform
 
     prt_bundle_t bdl_prt;
 
@@ -5496,7 +5555,8 @@ bool_t check_time( Uint32 check )
 //--------------------------------------------------------------------------------------------
 bool_t water_instance_make( water_instance_t * pinst, const wawalite_water_t * pdata )
 {
-    /// @details ZZ@> This function sets up water movements
+    /// @author ZZ
+    /// @details This function sets up water movements
 
     int layer, frame, point, cnt;
     float temp;
@@ -5602,7 +5662,8 @@ bool_t upload_water_data( water_instance_t * pinst, const wawalite_water_t * pda
 //--------------------------------------------------------------------------------------------
 egolib_rv water_instance_move( water_instance_t * pwater )
 {
-    /// @details ZZ@> This function animates the water overlays
+    /// @author ZZ
+    /// @details This function animates the water overlays
 
     int layer;
 

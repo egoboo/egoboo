@@ -227,7 +227,8 @@ ConfigFileValuePtr_t ConfigFile_createValue( ConfigFilePtr_t f, ConfigFileSectio
 //--------------------------------------------------------------------------------------------
 char * ConfigFileString_create( size_t len )
 {
-    /// @details BB@> must use malloc/calloc instead of new, since we have to accommodate realoc()
+    /// @author BB
+    /// @details must use malloc/calloc instead of new, since we have to accommodate realoc()
 
     char * ptmp;
 
@@ -240,7 +241,8 @@ char * ConfigFileString_create( size_t len )
 //--------------------------------------------------------------------------------------------
 ConfigFile_retval ConfigFileString_destroy( char ** ptmp )
 {
-    /// @details BB@> must use free instead of delete, since we have to accommodate realoc()
+    /// @author BB
+    /// @details must use free instead of delete, since we have to accommodate realoc()
 
     ConfigFile_retval retval;
 

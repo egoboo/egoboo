@@ -109,7 +109,8 @@ int ShopStack_get_free()
 //--------------------------------------------------------------------------------------------
 bool_t open_passage( const PASS_REF passage )
 {
-    /// @details ZZ@> This function makes a passage passable
+    /// @author ZZ
+    /// @details This function makes a passage passable
 
     int x, y;
     Uint32 fan;
@@ -140,7 +141,8 @@ bool_t open_passage( const PASS_REF passage )
 //--------------------------------------------------------------------------------------------
 void flash_passage( const PASS_REF passage, Uint8 color )
 {
-    /// @details ZZ@> This function makes a passage flash white
+    /// @author ZZ
+    /// @details This function makes a passage flash white
 
     int x, y, cnt;
     Uint32 fan;
@@ -175,7 +177,8 @@ void flash_passage( const PASS_REF passage, Uint8 color )
 //--------------------------------------------------------------------------------------------
 bool_t point_is_in_passage( const PASS_REF passage, float xpos, float ypos )
 {
-    /// @details ZF@> This return btrue if the specified X and Y coordinates are within the passage
+    /// @author ZF
+    /// @details This return btrue if the specified X and Y coordinates are within the passage
 
     passage_t * ppass;
     frect_t tmp_rect;
@@ -195,7 +198,8 @@ bool_t point_is_in_passage( const PASS_REF passage, float xpos, float ypos )
 //--------------------------------------------------------------------------------------------
 bool_t object_is_in_passage( const PASS_REF passage, float xpos, float ypos, float radius )
 {
-    /// @details ZF@> This return btrue if the specified X and Y coordinates are within the passage
+    /// @author ZF
+    /// @details This return btrue if the specified X and Y coordinates are within the passage
     ///     radius is how much offset we allow outside the passage
 
     passage_t * ppass;
@@ -217,7 +221,8 @@ bool_t object_is_in_passage( const PASS_REF passage, float xpos, float ypos, flo
 //--------------------------------------------------------------------------------------------
 CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item )
 {
-    /// @details ZZ@> This function returns MAX_CHR if there is no character in the passage,
+    /// @author ZZ
+    /// @details This function returns MAX_CHR if there is no character in the passage,
     ///    otherwise the index of the first character found is returned...
     ///    Can also look for characters with a specific quest or item in his or her inventory
     ///    Finds living ones, then items and corpses
@@ -296,7 +301,8 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
 //--------------------------------------------------------------------------------------------
 void check_passage_music()
 {
-    /// @details ZF@> This function checks all passages if there is a player in it, if it is, it plays a specified
+    /// @author ZF
+    /// @details This function checks all passages if there is a player in it, if it is, it plays a specified
     /// song set in by the AI script functions
 
     CHR_REF character = ( CHR_REF )MAX_CHR;
@@ -339,7 +345,8 @@ void check_passage_music()
 //--------------------------------------------------------------------------------------------
 bool_t close_passage( const PASS_REF passage )
 {
-    /// @details ZZ@> This function makes a passage impassable, and returns btrue if it isn't blocked
+    /// @author ZZ
+    /// @details This function makes a passage impassable, and returns btrue if it isn't blocked
     int x, y;
     Uint32 fan, cnt;
     passage_t * ppass;
@@ -414,7 +421,8 @@ bool_t close_passage( const PASS_REF passage )
 //--------------------------------------------------------------------------------------------
 void clear_all_passages()
 {
-    /// @details ZZ@> This function clears the passage list ( for doors )
+    /// @author ZZ
+    /// @details This function clears the passage list ( for doors )
 
     PassageStack_free_all();
     ShopStack_free_all();
@@ -423,7 +431,8 @@ void clear_all_passages()
 //--------------------------------------------------------------------------------------------
 void add_shop_passage( const CHR_REF owner, const PASS_REF passage )
 {
-    /// @details ZZ@> This function creates a shop passage
+    /// @author ZZ
+    /// @details This function creates a shop passage
 
     SHOP_REF ishop;
     CHR_REF  ichr;
@@ -462,7 +471,8 @@ void add_shop_passage( const CHR_REF owner, const PASS_REF passage )
 //--------------------------------------------------------------------------------------------
 void add_passage( passage_t * pdata )
 {
-    /// @details ZZ@> This function creates a passage area
+    /// @author ZZ
+    /// @details This function creates a passage area
 
     PASS_REF    ipass;
     passage_t * ppass;
@@ -494,7 +504,8 @@ void add_passage( passage_t * pdata )
 //--------------------------------------------------------------------------------------------
 void activate_passages_file_vfs()
 {
-    /// @details ZZ@> This function reads the passage file
+    /// @author ZZ
+    /// @details This function reads the passage file
     passage_t  tmp_passage;
     vfs_FILE  *fileread;
 
@@ -516,7 +527,8 @@ void activate_passages_file_vfs()
 //--------------------------------------------------------------------------------------------
 CHR_REF shop_get_owner( int ix, int iy )
 {
-    /// ZZ@> This function returns the owner of a item in a shop
+    /// @author ZZ
+    /// @details This function returns the owner of a item in a shop
 
     SHOP_REF cnt;
     CHR_REF  owner = ( CHR_REF )SHOP_NOOWNER;

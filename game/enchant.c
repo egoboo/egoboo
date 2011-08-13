@@ -219,7 +219,8 @@ bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 //--------------------------------------------------------------------------------------------
 bool_t remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
 {
-    /// @details ZF@> This function removes all enchants with the character that has the specified
+    /// @author ZF
+    /// @details This function removes all enchants with the character that has the specified
     ///               IDSZ. If idsz [NONE] is specified, all enchants will be removed. Return btrue
     ///               if at least one enchant was removed.
 
@@ -262,7 +263,8 @@ bool_t remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
 //--------------------------------------------------------------------------------------------
 bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 {
-    /// @details ZZ@> This function removes a specific enchantment and adds it to the unused list
+    /// @author ZZ
+    /// @details This function removes a specific enchantment and adds it to the unused list
 
     int iwave;
     int add_type, set_type;
@@ -419,7 +421,8 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 //--------------------------------------------------------------------------------------------
 ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
 {
-    /// @details ZZ@> This function returns MAX_ENC if the enchantment's target has no conflicting
+    /// @author ZZ
+    /// @details This function returns MAX_ENC if the enchantment's target has no conflicting
     ///    set values in its other enchantments.  Otherwise it returns the ienc
     ///    of the conflicting enchantment
 
@@ -463,7 +466,8 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
 //--------------------------------------------------------------------------------------------
 void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
 {
-    /// @details ZZ@> This function sets and saves one of the character's stats
+    /// @author ZZ
+    /// @details This function sets and saves one of the character's stats
 
     ENC_REF conflict;
     CHR_REF character;
@@ -642,7 +646,8 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
 //--------------------------------------------------------------------------------------------
 void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
 {
-    /// @details ZZ@> This function does cumulative modification to character stats
+    /// @author ZZ
+    /// @details This function does cumulative modification to character stats
 
     int valuetoadd, newvalue;
     float fvaluetoadd, fnewvalue;
@@ -1018,8 +1023,9 @@ enc_t * enc_config_do_init( enc_t * penc )
 //--------------------------------------------------------------------------------------------
 enc_t * enc_config_do_active( enc_t * penc )
 {
-    /// @details ZZ@> This function allows enchantments to update, spawn particles,
-    //  do drains, stat boosts and despawn.
+    /// @author ZZ
+    /// @details This function allows enchantments to update, spawn particles,
+    ///  do drains, stat boosts and despawn.
 
     ENC_REF  ienc;
     CHR_REF  owner, target;
@@ -1442,7 +1448,8 @@ enc_t * enc_config_active( enc_t * penc )
 //--------------------------------------------------------------------------------------------
 enc_t * enc_config_deinit( enc_t * penc )
 {
-    /// @details BB@> deinitialize the character data
+    /// @author BB
+    /// @details deinitialize the character data
 
     obj_data_t * pbase;
 
@@ -1477,7 +1484,8 @@ enc_t * enc_config_dtor( enc_t * penc )
 //--------------------------------------------------------------------------------------------
 ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional )
 {
-    /// @details ZZ@> This function enchants a target, returning the enchantment index or MAX_ENC
+    /// @author ZZ
+    /// @details This function enchants a target, returning the enchantment index or MAX_ENC
     ///    if failed
 
     ENC_REF enc_ref;
@@ -1623,7 +1631,8 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 //--------------------------------------------------------------------------------------------
 EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF ieve )
 {
-    /// @details ZZ@> This function loads an enchantment profile into the EveStack
+    /// @author ZZ
+    /// @details This function loads an enchantment profile into the EveStack
 
     EVE_REF retval = ( EVE_REF )MAX_EVE;
 
@@ -1646,7 +1655,8 @@ EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF ieve )
 //--------------------------------------------------------------------------------------------
 void enc_remove_set( const ENC_REF ienc, int value_idx )
 {
-    /// @details ZZ@> This function unsets a set value
+    /// @author ZZ
+    /// @details This function unsets a set value
     CHR_REF character;
     enc_t * penc;
     chr_t * ptarget;
@@ -1765,7 +1775,8 @@ void enc_remove_set( const ENC_REF ienc, int value_idx )
 //--------------------------------------------------------------------------------------------
 void enc_remove_add( const ENC_REF ienc, int value_idx )
 {
-    /// @details ZZ@> This function undoes cumulative modification to character stats
+    /// @author ZZ
+    /// @details This function undoes cumulative modification to character stats
 
     float fvaluetoadd;
     int valuetoadd;
@@ -1968,7 +1979,8 @@ void update_all_enchants()
 //--------------------------------------------------------------------------------------------
 ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
 {
-    /// @details BB@> remove all the dead enchants from the enchant list
+    /// @author BB
+    /// @details remove all the dead enchants from the enchant list
     ///     and report back the first non-dead enchant in the list.
 
     bool_t enc_used[MAX_ENC];
@@ -2036,7 +2048,8 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
 //--------------------------------------------------------------------------------------------
 void cleanup_all_enchants()
 {
-    /// @details ZZ@> this function scans all the enchants and removes any dead ones.
+    /// @author ZZ
+    /// @details this function scans all the enchants and removes any dead ones.
     ///               this happens only once a loop
 
     ENC_BEGIN_LOOP_ACTIVE( ienc, penc )

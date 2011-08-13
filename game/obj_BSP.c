@@ -43,7 +43,8 @@ obj_BSP_t prt_BSP_root = OBJ_BSP_INIT_VALS;
 //--------------------------------------------------------------------------------------------
 void obj_BSP_system_begin( mpd_BSP_t * pBSP )
 {
-    /// @details BB@> initialize the obj_BSP list and load up some intialization files
+    /// @author BB
+    /// @details initialize the obj_BSP list and load up some intialization files
     ///     necessary for the the obj_BSP loading code to work
 
     if ( _obj_BSP_system_initialized )
@@ -62,7 +63,8 @@ void obj_BSP_system_begin( mpd_BSP_t * pBSP )
 //--------------------------------------------------------------------------------------------
 void obj_BSP_system_end()
 {
-    /// @details BB@> initialize the obj_BSP list and load up some intialization files
+    /// @author BB
+    /// @details initialize the obj_BSP list and load up some intialization files
     ///     necessary for the the obj_BSP loading code to work
 
     if ( _obj_BSP_system_initialized )
@@ -105,8 +107,9 @@ bool_t obj_BSP_free( obj_BSP_t * pbsp )
 //--------------------------------------------------------------------------------------------
 bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mpd_BSP_t * pmesh_bsp )
 {
-    /// @details BB@> Create a new BSP tree for game objects.
-    //     These parameters duplicate the max resolution of the old system.
+    /// @author BB
+    /// @details Create a new BSP tree for game objects.
+    ///     These parameters duplicate the max resolution of the old system.
 
     int          cnt;
     int          mesh_dim, min_dim;
@@ -199,7 +202,8 @@ bool_t obj_BSP_dtor( obj_BSP_t * pbsp )
 //--------------------------------------------------------------------------------------------
 bool_t chr_BSP_insert( chr_t * pchr )
 {
-    /// @details BB@> insert a character's BSP_leaf_t into the BSP_tree_t
+    /// @author BB
+    /// @details insert a character's BSP_leaf_t into the BSP_tree_t
 
     bool_t       retval;
     BSP_leaf_t * pleaf;
@@ -250,7 +254,8 @@ bool_t chr_BSP_insert( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
 {
-    /// @details BB@> insert a particle's BSP_leaf_t into the BSP_tree_t
+    /// @author BB
+    /// @details insert a particle's BSP_leaf_t into the BSP_tree_t
 
     bool_t       retval;
     BSP_leaf_t * pleaf;
@@ -373,8 +378,9 @@ bool_t prt_BSP_fill()
 //--------------------------------------------------------------------------------------------
 int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
-    //      Return the number of collisions found.
+    /// @author BB
+    /// @details fill the collision list with references to tiles that the object volume may overlap.
+    ///      Return the number of collisions found.
 
     if ( NULL == pbsp || NULL == paabb || NULL == colst ) return 0;
 
@@ -385,8 +391,9 @@ int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf
 //--------------------------------------------------------------------------------------------
 int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> fill the collision list with references to tiles that the object volume may overlap.
-    //      Return the number of collisions found.
+    /// @author BB
+    /// @details fill the collision list with references to tiles that the object volume may overlap.
+    ///      Return the number of collisions found.
 
     if ( NULL == pbsp || NULL == pfrust || NULL == colst ) return 0;
 
@@ -398,7 +405,8 @@ int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const egolib_frustum_t * pf
 //--------------------------------------------------------------------------------------------
 bool_t chr_BSP_can_collide( BSP_leaf_t * pchr_leaf )
 {
-    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    /// @author BB
+    /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
     ///               can be added to a collision list
 
     chr_t * pchr;
@@ -451,7 +459,8 @@ bool_t chr_BSP_can_collide( BSP_leaf_t * pchr_leaf )
 //--------------------------------------------------------------------------------------------
 bool_t prt_BSP_can_collide( BSP_leaf_t * pprt_leaf )
 {
-    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    /// @author BB
+    /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
     ///               can be added to a collision list
 
     prt_t * pprt;
@@ -512,7 +521,8 @@ bool_t prt_BSP_can_collide( BSP_leaf_t * pprt_leaf )
 //--------------------------------------------------------------------------------------------
 bool_t chr_BSP_is_visible( BSP_leaf_t * pchr_leaf )
 {
-    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    /// @author BB
+    /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
     ///               can be added to a collision list
 
     chr_t * pchr;
@@ -538,7 +548,8 @@ bool_t chr_BSP_is_visible( BSP_leaf_t * pchr_leaf )
 //--------------------------------------------------------------------------------------------
 bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
 {
-    /// @details BB@> a test function passed to BSP_*_collide_* functions to determine whether a leaf
+    /// @author BB
+    /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
     ///               can be added to a collision list
 
     prt_t * pprt;
@@ -619,7 +630,8 @@ bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
 ////--------------------------------------------------------------------------------------------
 //bool_t obj_BSP_collide_branch( BSP_branch_t * pbranch, oct_bb_t * pvbranch, oct_bb_t * pvobj, int_ary_t * colst )
 //{
-//    /// @details BB@> Recursively search the BSP tree for collisions with the pvobj
+//    /// @author BB
+/// @details Recursively search the BSP tree for collisions with the pvobj
 //    //      Return bfalse if we need to break out of the recursive search for any reson.
 //
 //    Uint32 i;
@@ -700,7 +712,8 @@ bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
 ////--------------------------------------------------------------------------------------------
 //bool_t obj_BSP_collide_nodes( BSP_leaf_t leaf_lst[], oct_bb_t * pvobj, int_ary_t * colst )
 //{
-//    /// @details BB@> check for collisions with the given node list
+//    /// @author BB
+//    /// @details check for collisions with the given node list
 //
 //    BSP_leaf_t * pleaf;
 //    oct_bb_t    int_ov, * pnodevol;

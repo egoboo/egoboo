@@ -47,7 +47,8 @@ void cl_frameStep()
 //--------------------------------------------------------------------------------------------
 egolib_rv cl_talkToHost()
 {
-    /// @details ZZ@> This function sends the latch packets to the host machine
+    /// @author ZZ
+    /// @details This function sends the latch packets to the host machine
 
     PLA_REF player;
     ego_packet_t ego_pkt;
@@ -104,7 +105,8 @@ egolib_rv cl_talkToHost()
 //--------------------------------------------------------------------------------------------
 egolib_rv cl_joinGame( const char* hostname )
 {
-    /// @details ZZ@> This function tries to join one of the sessions we found
+    /// @author ZZ
+    /// @details This function tries to join one of the sessions we found
 
     ENetAddress address;
     ENetEvent event;

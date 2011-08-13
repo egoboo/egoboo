@@ -301,7 +301,8 @@ bool_t egonet_end()
 //--------------------------------------------------------------------------------------------
 void egonet_initialize( BaseServerState_t * ps, BaseClientState_t * pc, size_t size, bool_t req_enet )
 {
-    /// @details ZZ@> This starts up the network and logs whatever goes on
+    /// @author ZZ
+    /// @details This starts up the network and logs whatever goes on
 
     if ( gnet.initialized ) return;
 
@@ -349,7 +350,8 @@ void egonet_close_session()
     size_t i, numPeers;
     ENetEvent event;
 
-    /// @details ZZ@> This function gets the computer out of a network game
+    /// @author ZZ
+    /// @details This function gets the computer out of a network game
 
     if ( !gnet.initialized ) return;
 
@@ -407,7 +409,8 @@ void egonet_close_session()
 //--------------------------------------------------------------------------------------------
 void egonet_listen_for_packets()
 {
-    /// @details ZZ@> This function reads any new messages and sets the player latch and matrix needed
+    /// @author ZZ
+    /// @details This function reads any new messages and sets the player latch and matrix needed
     ///    lists...
 
     ENetEvent event;
@@ -463,7 +466,8 @@ void egonet_listen_for_packets()
 //--------------------------------------------------------------------------------------------
 void egonet_turn_on_service( int service )
 {
-    /// ZZ@> This function turns on a network service ( IPX, TCP, serial, modem )
+    /// @author ZZ
+    /// @details This function turns on a network service ( IPX, TCP, serial, modem )
 }
 
 //--------------------------------------------------------------------------------------------
@@ -509,7 +513,8 @@ ego_packet_t * ego_packet_dtor( ego_packet_t * ptr )
 //--------------------------------------------------------------------------------------------
 bool_t ego_packet_begin( ego_packet_t * ptr )
 {
-    /// @details ZZ@> This function starts building a network packet
+    /// @author ZZ
+    /// @details This function starts building a network packet
 
     if ( NULL == ptr ) return bfalse;
 
@@ -522,7 +527,8 @@ bool_t ego_packet_begin( ego_packet_t * ptr )
 //--------------------------------------------------------------------------------------------
 bool_t ego_packet_addUint8( ego_packet_t * ptr, Uint8 uc )
 {
-    /// @details ZZ@> This function appends an Uint8 to the packet
+    /// @author ZZ
+    /// @details This function appends an Uint8 to the packet
 
     Uint8 * ucp;
 
@@ -540,7 +546,8 @@ bool_t ego_packet_addUint8( ego_packet_t * ptr, Uint8 uc )
 //--------------------------------------------------------------------------------------------
 bool_t ego_packet_addSint8( ego_packet_t * ptr, Sint8 sc )
 {
-    /// @details ZZ@> This function appends a Sint8 to the packet
+    /// @author ZZ
+    /// @details This function appends a Sint8 to the packet
 
     Sint8 * scp;
 
@@ -558,7 +565,8 @@ bool_t ego_packet_addSint8( ego_packet_t * ptr, Sint8 sc )
 //--------------------------------------------------------------------------------------------
 bool_t ego_packet_addUint16( ego_packet_t * ptr, Uint16 us )
 {
-    /// @details ZZ@> This function appends an Uint16 to the packet
+    /// @author ZZ
+    /// @details This function appends an Uint16 to the packet
 
     Uint16 * usp;
 
@@ -576,7 +584,8 @@ bool_t ego_packet_addUint16( ego_packet_t * ptr, Uint16 us )
 //--------------------------------------------------------------------------------------------
 bool_t ego_packet_addSint16( ego_packet_t * ptr, Sint16 ss )
 {
-    /// @details ZZ@> This function appends a Sint16 to the packet
+    /// @author ZZ
+    /// @details This function appends a Sint16 to the packet
 
     Sint16* ssp;
 
@@ -594,7 +603,8 @@ bool_t ego_packet_addSint16( ego_packet_t * ptr, Sint16 ss )
 //--------------------------------------------------------------------------------------------
 bool_t ego_packet_addUint32( ego_packet_t * ptr, Uint32 ui )
 {
-    /// @details ZZ@> This function appends an Uint32 to the packet
+    /// @author ZZ
+    /// @details This function appends an Uint32 to the packet
 
     Uint32* uip;
 
@@ -612,7 +622,8 @@ bool_t ego_packet_addUint32( ego_packet_t * ptr, Uint32 ui )
 //--------------------------------------------------------------------------------------------
 bool_t ego_packet_addSint32( ego_packet_t * ptr, Sint32 si )
 {
-    /// @details ZZ@> This function appends a Sint32 to the packet
+    /// @author ZZ
+    /// @details This function appends a Sint32 to the packet
 
     Sint32 * sip;
 
@@ -630,7 +641,8 @@ bool_t ego_packet_addSint32( ego_packet_t * ptr, Sint32 si )
 //--------------------------------------------------------------------------------------------
 bool_t ego_packet_addString( ego_packet_t * ptr, const char *string )
 {
-    /// @details ZZ@> This function appends a null terminated string to the packet
+    /// @author ZZ
+    /// @details This function appends a null terminated string to the packet
 
     char * dst_ptr, * dst_end;
     const char * src_ptr;
@@ -663,7 +675,8 @@ bool_t ego_packet_addString( ego_packet_t * ptr, const char *string )
 //--------------------------------------------------------------------------------------------
 bool_t egonet_broadcastPacket( ego_packet_t * ptr )
 {
-    /// @details ZZ@> This function sends a packet to all the players
+    /// @author ZZ
+    /// @details This function sends a packet to all the players
 
     ENetPacket *packet;
 
@@ -683,7 +696,8 @@ bool_t egonet_broadcastPacket( ego_packet_t * ptr )
 //--------------------------------------------------------------------------------------------
 bool_t egonet_broadcastPacketGuaranteed( ego_packet_t * ptr )
 {
-    /// @details ZZ@> This function sends a packet to all the players
+    /// @author ZZ
+    /// @details This function sends a packet to all the players
 
     ENetPacket *packet;
 
@@ -703,7 +717,8 @@ bool_t egonet_broadcastPacketGuaranteed( ego_packet_t * ptr )
 //--------------------------------------------------------------------------------------------
 bool_t egonet_sendPacketToOneClientGuaranteed( ego_packet_t * ptr, int player )
 {
-    /// @details ZZ@> This function sends a packet to one of the players
+    /// @author ZZ
+    /// @details This function sends a packet to one of the players
 
     ENetPacket *packet;
     int enet_retval;
@@ -728,7 +743,8 @@ bool_t egonet_sendPacketToOneClientGuaranteed( ego_packet_t * ptr, int player )
 //--------------------------------------------------------------------------------------------
 bool_t egonet_sendPacketToPeer( ego_packet_t * ptr, ENetPeer *peer )
 {
-    /// @details JF@> This function sends a packet to a given peer
+    /// @author JF
+    /// @details This function sends a packet to a given peer
 
     int enet_retval;
     ENetPacket *packet;
@@ -750,7 +766,8 @@ bool_t egonet_sendPacketToPeer( ego_packet_t * ptr, ENetPeer *peer )
 //--------------------------------------------------------------------------------------------
 bool_t egonet_sendPacketToPeerGuaranteed( ego_packet_t * ptr, ENetPeer *peer )
 {
-    /// @details JF@> This funciton sends a packet to a given peer, with guaranteed delivery
+    /// @author JF
+    /// @details This funciton sends a packet to a given peer, with guaranteed delivery
 
     int enet_retval;
     ENetPacket *packet;
@@ -819,7 +836,8 @@ bool_t enet_packet_doneReading( enet_packet_t * pkt )
 //--------------------------------------------------------------------------------------------
 size_t enet_packet_remainingSize( enet_packet_t * pkt )
 {
-    /// @details ZZ@> This function tells if there's still data left in the packet
+    /// @author ZZ
+    /// @details This function tells if there's still data left in the packet
 
     if ( NULL == pkt ) return 0;
 
@@ -829,7 +847,8 @@ size_t enet_packet_remainingSize( enet_packet_t * pkt )
 //--------------------------------------------------------------------------------------------
 bool_t enet_packet_readString( enet_packet_t * pkt, char *buffer, size_t maxLen )
 {
-    /// @details ZZ@> This function reads a null terminated buffer from the packet
+    /// @author ZZ
+    /// @details This function reads a null terminated buffer from the packet
 
     size_t buffer_size;
 
@@ -890,7 +909,8 @@ bool_t enet_packet_readString( enet_packet_t * pkt, char *buffer, size_t maxLen 
 //--------------------------------------------------------------------------------------------
 bool_t enet_packet_readUint8( enet_packet_t * pkt, Uint8 * pval )
 {
-    /// @details ZZ@> This function reads an Uint8 from the packet
+    /// @author ZZ
+    /// @details This function reads an Uint8 from the packet
 
     // valid packet?
     if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
@@ -913,7 +933,8 @@ bool_t enet_packet_readUint8( enet_packet_t * pkt, Uint8 * pval )
 //--------------------------------------------------------------------------------------------
 bool_t enet_packet_readSint8( enet_packet_t * pkt, Sint8 * pval )
 {
-    /// @details ZZ@> This function reads a Sint8 from the packet
+    /// @author ZZ
+    /// @details This function reads a Sint8 from the packet
 
     // valid packet?
     if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
@@ -936,7 +957,8 @@ bool_t enet_packet_readSint8( enet_packet_t * pkt, Sint8 * pval )
 //--------------------------------------------------------------------------------------------
 bool_t enet_packet_readUint16( enet_packet_t * pkt, Uint16 * pval )
 {
-    /// @details ZZ@> This function reads an Uint16 from the packet
+    /// @author ZZ
+    /// @details This function reads an Uint16 from the packet
 
     // valid packet?
     if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
@@ -959,7 +981,8 @@ bool_t enet_packet_readUint16( enet_packet_t * pkt, Uint16 * pval )
 //--------------------------------------------------------------------------------------------
 bool_t enet_packet_readSint16( enet_packet_t * pkt, Sint16 * pval )
 {
-    /// @details ZZ@> This function reads a Sint16 from the packet
+    /// @author ZZ
+    /// @details This function reads a Sint16 from the packet
 
     // valid packet?
     if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
@@ -982,7 +1005,8 @@ bool_t enet_packet_readSint16( enet_packet_t * pkt, Sint16 * pval )
 //--------------------------------------------------------------------------------------------
 bool_t enet_packet_readUint32( enet_packet_t * pkt, Uint32 * pval )
 {
-    /// @details ZZ@> This function reads an Uint32 from the packet
+    /// @author ZZ
+    /// @details This function reads an Uint32 from the packet
 
     // valid packet?
     if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
@@ -1004,7 +1028,8 @@ bool_t enet_packet_readUint32( enet_packet_t * pkt, Uint32 * pval )
 //--------------------------------------------------------------------------------------------
 bool_t enet_packet_readSint32( enet_packet_t * pkt, Sint32 * pval )
 {
-    /// @details ZZ@> This function reads a Sint32 from the packet
+    /// @author ZZ
+    /// @details This function reads a Sint32 from the packet
 
     // valid packet?
     if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;

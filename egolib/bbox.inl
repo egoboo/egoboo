@@ -311,7 +311,8 @@ static INLINE bool_t oct_bb_empty_index( const oct_bb_t * pbb, int index )
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst, int index )
 {
-    /// @details BB@> find the union of two oct_bb_t
+    /// @author BB
+    /// @details find the union of two oct_bb_t
 
     bool_t src1_empty, src2_empty;
 
@@ -349,7 +350,8 @@ static INLINE egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index )
 {
-    /// @details BB@> find the intersection of two oct_bb_t
+    /// @author BB
+    /// @details find the intersection of two oct_bb_t
 
     bool_t src1_empty, src2_empty;
 
@@ -377,7 +379,8 @@ static INLINE egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index )
 {
-    /// @details BB@> find the union of two oct_bb_t
+    /// @author BB
+    /// @details find the union of two oct_bb_t
 
     bool_t src_empty;
 
@@ -404,7 +407,8 @@ static INLINE egolib_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_self_intersection_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index )
 {
-    /// @details BB@> find the intersection of two oct_bb_t
+    /// @author BB
+    /// @details find the intersection of two oct_bb_t
 
     bool_t src_empty;
 
@@ -431,7 +435,8 @@ static INLINE egolib_rv oct_bb_self_intersection_index( oct_bb_t * pdst, const o
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst )
 {
-    /// @details BB@> find the union of two oct_bb_t
+    /// @author BB
+    /// @details find the union of two oct_bb_t
 
     bool_t src1_null, src2_null;
     int cnt;
@@ -468,7 +473,8 @@ static INLINE egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * 
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst )
 {
-    /// @details BB@> find the intersection of two oct_bb_t
+    /// @author BB
+    /// @details find the intersection of two oct_bb_t
 
     bool_t src1_empty, src2_empty;
     int cnt;
@@ -497,7 +503,8 @@ static INLINE egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_b
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psrc )
 {
-    /// @details BB@> find the union of two oct_bb_t
+    /// @author BB
+    /// @details find the union of two oct_bb_t
 
     bool_t src_null;
     int cnt;
@@ -525,7 +532,8 @@ static INLINE egolib_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psr
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_t * psrc )
 {
-    /// @details BB@> find the intersection of two oct_bb_t
+    /// @author BB
+    /// @details find the intersection of two oct_bb_t
 
     bool_t src_empty;
     int cnt;
@@ -552,7 +560,8 @@ static INLINE egolib_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_add_fvec3( const oct_bb_t * psrc, const fvec3_base_t vec, oct_bb_t * pdst )
 {
-    /// @details BB@> shift the bounding box by the vector vec
+    /// @author BB
+    /// @details shift the bounding box by the vector vec
 
     if ( NULL == pdst ) return rv_error;
 
@@ -586,7 +595,8 @@ static INLINE egolib_rv oct_bb_add_fvec3( const oct_bb_t * psrc, const fvec3_bas
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_self_add_fvec3( oct_bb_t * pdst, const fvec3_base_t vec )
 {
-    /// @details BB@> shift the bounding box by the vector vec
+    /// @author BB
+    /// @details shift the bounding box by the vector vec
 
     if ( NULL == pdst ) return rv_error;
 
@@ -613,7 +623,8 @@ static INLINE egolib_rv oct_bb_self_add_fvec3( oct_bb_t * pdst, const fvec3_base
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t ovec, oct_bb_t * pdst )
 {
-    /// @details BB@> shift the bounding box by the vector ovec
+    /// @author BB
+    /// @details shift the bounding box by the vector ovec
 
     int cnt;
 
@@ -640,7 +651,8 @@ static INLINE egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t 
 //--------------------------------------------------------------------------------------------
 static INLINE egolib_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_t ovec )
 {
-    /// @details BB@> shift the bounding box by the vector ovec
+    /// @author BB
+    /// @details shift the bounding box by the vector ovec
 
     int cnt;
 

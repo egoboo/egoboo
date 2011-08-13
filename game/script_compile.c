@@ -567,7 +567,8 @@ IMPLEMENT_STATIC_ARY( OpListAry, MAX_OPCODE );
 
 parser_state_t *  script_compiler_init()
 {
-    /// @details BB@> initalize the sctipt compiling module
+    /// @author BB
+    /// @details initalize the sctipt compiling module
 
     load_ai_codes_vfs( "mp_data/aicodes.txt" );
 
@@ -620,7 +621,8 @@ bool_t script_compiler_clear_error( parser_state_t * ps )
 //--------------------------------------------------------------------------------------------
 size_t insert_space( size_t position, char buffer[], size_t buffer_length, const size_t buffer_max )
 {
-    /// @details ZZ@> This function adds a space into the load line if there isn't one there already
+    /// @author ZZ
+    /// @details This function adds a space into the load line if there isn't one there already
 
     char cTmp, cSwap;
 
@@ -666,7 +668,8 @@ size_t insert_space( size_t position, char buffer[], size_t buffer_length, const
 //--------------------------------------------------------------------------------------------
 size_t load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript )
 {
-    /// @details ZZ@> This function loads a line into the line buffer
+    /// @author ZZ
+    /// @details This function loads a line into the line buffer
 
     int stillgoing, foundtext;
     char cTmp;
@@ -834,7 +837,8 @@ size_t surround_space( size_t position, char buffer[], size_t buffer_size, const
 //--------------------------------------------------------------------------------------------
 int get_indentation( parser_state_t * ps, script_info_t *pscript )
 {
-    /// @details ZZ@> This function returns the number of starting spaces in a line
+    /// @author ZZ
+    /// @details This function returns the number of starting spaces in a line
 
     int cnt;
     char cTmp;
@@ -866,7 +870,8 @@ int get_indentation( parser_state_t * ps, script_info_t *pscript )
 //--------------------------------------------------------------------------------------------
 size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max )
 {
-    /// @details ZZ@> This function puts spaces around operators to seperate words better
+    /// @author ZZ
+    /// @details This function puts spaces around operators to seperate words better
 
     size_t cnt;
     char   cTmp;
@@ -902,7 +907,8 @@ size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max
 //--------------------------------------------------------------------------------------------
 size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, size_t read )
 {
-    /// @details ZZ@> This function tells what code is being indexed by read, it
+    /// @author ZZ
+    /// @details This function tells what code is being indexed by read, it
     ///    will return the next spot to read from and stick the code number
     ///    in ptok->iIndex
 
@@ -1215,7 +1221,8 @@ void emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscri
 //--------------------------------------------------------------------------------------------
 void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscript )
 {
-    //@details ZF@> This parses an AI script line by line
+    /// @author ZF
+    /// @details This parses an AI script line by line
 
     size_t read;
     Uint32 highbits;
@@ -1362,7 +1369,8 @@ void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscrip
 //--------------------------------------------------------------------------------------------
 Uint32 jump_goto( int index, int index_end, script_info_t *pscript )
 {
-    /// @details ZZ@> This function figures out where to jump to on a fail based on the
+    /// @author ZZ
+    /// @details This function figures out where to jump to on a fail based on the
     ///    starting location and the following code.  The starting location
     ///    should always be a function code with indentation
 
@@ -1403,7 +1411,8 @@ Uint32 jump_goto( int index, int index_end, script_info_t *pscript )
 //--------------------------------------------------------------------------------------------
 void parse_jumps( script_info_t *pscript )
 {
-    /// @details ZZ@> This function sets up the fail jumps for the down and dirty code
+    /// @author ZZ
+    /// @details This function sets up the fail jumps for the down and dirty code
 
     Uint32 index, index_end;
     Uint32 value, iTmp;
@@ -1439,7 +1448,8 @@ void parse_jumps( script_info_t *pscript )
 //--------------------------------------------------------------------------------------------
 size_t ai_goto_colon( size_t read, Uint8 buffer[], const size_t buffer_size )
 {
-    /// @details ZZ@> This function goes to spot after the next colon
+    /// @author ZZ
+    /// @details This function goes to spot after the next colon
 
     char cTmp;
 
@@ -1462,7 +1472,8 @@ size_t ai_goto_colon( size_t read, Uint8 buffer[], const size_t buffer_size )
 //--------------------------------------------------------------------------------------------
 egolib_rv get_code( size_t read, Uint8 buffer[], const size_t buffer_size )
 {
-    /// @details ZZ@> This function gets code names and other goodies
+    /// @author ZZ
+    /// @details This function gets code names and other goodies
 
     char cTmp;
     int iTmp, fields;
@@ -1503,7 +1514,8 @@ egolib_rv get_code( size_t read, Uint8 buffer[], const size_t buffer_size )
 //--------------------------------------------------------------------------------------------
 void load_ai_codes_vfs( const char* loadname )
 {
-    /// @details ZZ@> This function loads all of the function and variable names
+    /// @author ZZ
+    /// @details This function loads all of the function and variable names
 
     vfs_FILE* fileread;
     size_t read;
@@ -1540,8 +1552,10 @@ void load_ai_codes_vfs( const char* loadname )
 //--------------------------------------------------------------------------------------------
 egolib_rv ai_script_upload_default( script_info_t * pscript )
 {
-    //@details ZF@> This loads the default AI script into a character profile ai
+    /// @author ZF
+    /// @details This loads the default AI script into a character profile ai
     //              It's not optimal since it duplicates the AI script data with memcpy
+
     if ( pscript == NULL ) return rv_error;
 
     strncpy( pscript->name, default_ai_script.name, sizeof( STRING ) );
@@ -1559,7 +1573,8 @@ egolib_rv ai_script_upload_default( script_info_t * pscript )
 //--------------------------------------------------------------------------------------------
 egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript )
 {
-    /// @details ZZ@> This function loads a script to memory
+    /// @author ZZ
+    /// @details This function loads a script to memory
 
     vfs_FILE* fileread;
     size_t file_size;
@@ -2353,7 +2368,8 @@ DEFINE_FUNCTION( FIFNOTPUTAWAY,    IfNotTakenOut    )
 //--------------------------------------------------------------------------------------------
 // int load_parsed_line( parser_state_t * ps, size_t read )
 // {
-//   /// @details ZZ@> This function loads a line into the line buffer
+//   /// @author ZZ
+//   /// @details This function loads a line into the line buffer
 //
 //   char cTmp;
 
@@ -2375,7 +2391,8 @@ DEFINE_FUNCTION( FIFNOTPUTAWAY,    IfNotTakenOut    )
 //--------------------------------------------------------------------------------------------
 // void parse_null_terminate_comments()
 // {
-//   /// @details ZZ@> This function removes comments and endline codes, replacing
+//   /// @author ZZ
+//   /// @details This function removes comments and endline codes, replacing
 //   ///    them with a 0
 //
 //   size_t read, write;

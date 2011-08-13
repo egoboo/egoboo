@@ -471,7 +471,8 @@ IMPLEMENT_STATIC_ARY( DisplayMsgAry, MAX_MESSAGE );
 //--------------------------------------------------------------------------------------------
 void _debug_print( const char *text )
 {
-    /// @details ZZ@> This function sticks a message in the display queue and sets its timer
+    /// @author ZZ
+    /// @details This function sticks a message in the display queue and sets its timer
 
     int          slot;
     const char * src;
@@ -577,7 +578,8 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
 //--------------------------------------------------------------------------------------------
 int _draw_string_raw( float x, float y, const char *format, ... )
 {
-    /// @details BB@> the same as draw string, but it does not use the gfx_begin_2d() ... gfx_end_2d()
+    /// @author BB
+    /// @details the same as draw string, but it does not use the gfx_begin_2d() ... gfx_end_2d()
     ///    bookends.
 
     va_list args;
@@ -619,7 +621,8 @@ renderlist_t * renderlist_init( renderlist_t * plst, ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 gfx_rv renderlist_reset( renderlist_t * plst )
 {
-    /// @details BB@> Clear old render lists
+    /// @author BB
+    /// @details Clear old render lists
 
     ego_mpd_t * pmesh;
     ego_tile_info_t * tlist;
@@ -1068,7 +1071,8 @@ gfx_rv dolist_test_chr( dolist_t * pdlist, const chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 gfx_rv dolist_add_chr_raw( dolist_t * pdlist, chr_t * pchr )
 {
-    /// ZZ@> This function puts a character in the list
+    /// @author ZZ
+    /// @details This function puts a character in the list
 
     if ( NULL == pdlist )
     {
@@ -1143,7 +1147,8 @@ gfx_rv dolist_test_prt( dolist_t * pdlist, const prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
 {
-    /// ZZ@> This function puts a character in the list
+    /// @author ZZ
+    /// @details This function puts a character in the list
 
     //if ( pprt->inst.indolist[pdlist->index] )
     //{
@@ -1243,7 +1248,8 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
 //--------------------------------------------------------------------------------------------
 gfx_rv dolist_sort( dolist_t * pdlist, const camera_t * pcam, const bool_t do_reflect )
 {
-    /// @details ZZ@> This function orders the dolist based on distance from camera,
+    /// @author ZZ
+    /// @details This function orders the dolist based on distance from camera,
     ///    which is needed for reflections to properly clip themselves.
     ///    Order from closest to farthest
 
@@ -1655,7 +1661,8 @@ int gfx_system_init_OpenGL()
     GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );
 
     /// @todo Including backface culling here prevents the mesh from getting rendered
-    // backface culling
+    /// backface culling
+
     // oglx_begin_culling( GL_BACK, GL_CW );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
     // disable OpenGL lighting
@@ -1840,7 +1847,8 @@ void gfx_system_render_world( const camera_t * pcam, const int render_list_index
 //--------------------------------------------------------------------------------------------
 void gfx_system_main()
 {
-    /// @details ZZ@> This function does all the drawing stuff
+    /// @author ZZ
+    /// @details This function does all the drawing stuff
 
     camera_system_render_all( gfx_system_render_world );
 
@@ -1910,7 +1918,8 @@ dolist_mgr_t * gfx_system_get_dolist_mgr()
 //--------------------------------------------------------------------------------------------
 void gfx_system_load_assets()
 {
-    /// @details ZF@> This function loads all the graphics based on the game settings
+    /// @author ZF
+    /// @details This function loads all the graphics based on the game settings
 
     GLenum quality;
 
@@ -2038,7 +2047,8 @@ void gfx_system_delete_all_graphics()
 //--------------------------------------------------------------------------------------------
 void gfx_system_load_basic_textures()
 {
-    /// @details ZZ@> This function loads the standard textures for a module
+    /// @author ZZ
+    /// @details This function loads the standard textures for a module
 
     // Particle sprites
     TxTexture_load_one_vfs( "mp_data/particle_trans", ( TX_REF )TX_PARTICLE_TRANS, TRANSCOLOR );
@@ -2089,7 +2099,8 @@ void gfx_system_load_basic_textures()
 //--------------------------------------------------------------------------------------------
 void gfx_system_make_enviro()
 {
-    /// @details ZZ@> This function sets up the environment mapping table
+    /// @author ZZ
+    /// @details This function sets up the environment mapping table
     int cnt;
     float x, y, z;
 
@@ -2111,8 +2122,9 @@ void gfx_system_make_enviro()
 //--------------------------------------------------------------------------------------------
 void gfx_system_reload_all_textures()
 {
-    /// @details BB@> function is called when the graphics mode is changed or the program is
-    // restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
+    /// @author BB
+    /// @details function is called when the graphics mode is changed or the program is
+    /// restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
     //TxTitleImage_reload_all();
     TxTexture_reload_all();
@@ -2137,7 +2149,8 @@ int debug_printf( const char *format, ... )
 //--------------------------------------------------------------------------------------------
 void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map )
 {
-    /// @details ZZ@> This function draws a single blip
+    /// @author ZZ
+    /// @details This function draws a single blip
     ego_frect_t tx_rect, sc_rect;
 
     float width, height;
@@ -2250,7 +2263,8 @@ float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_
 //--------------------------------------------------------------------------------------------
 float draw_game_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
 {
-    /// @details ZZ@> This function draws an icon
+    /// @author ZZ
+    /// @details This function draws an icon
 
     return draw_icon_texture( TxTexture_get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
 }
@@ -2264,8 +2278,10 @@ float draw_menu_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_col
 //--------------------------------------------------------------------------------------------
 void draw_one_font( oglx_texture_t * ptex, int fonttype, float x_stt, float y_stt )
 {
-    /// @details ZZ@> This function draws a letter or number
-    /// GAC@> Very nasty version for starters.  Lots of room for improvement.
+    /// @author GAC
+    /// @details Very nasty version for starters.  Lots of room for improvement.
+    /// @author ZZ
+    /// @details This function draws a letter or number
 
     GLfloat dx, dy, border;
 
@@ -2297,7 +2313,8 @@ void draw_one_font( oglx_texture_t * ptex, int fonttype, float x_stt, float y_st
 //--------------------------------------------------------------------------------------------
 void draw_map_texture( float x, float y )
 {
-    /// @details ZZ@> This function draws the map
+    /// @author ZZ
+    /// @details This function draws the map
 
     ego_frect_t sc_rect, tx_rect;
 
@@ -2320,7 +2337,8 @@ void draw_map_texture( float x, float y )
 //--------------------------------------------------------------------------------------------
 float draw_one_xp_bar( float x, float y, Uint8 ticks )
 {
-    /// @details ZF@> This function draws a xp bar and returns the y position for the next one
+    /// @author ZF
+    /// @details This function draws a xp bar and returns the y position for the next one
 
     int width, height;
     Uint8 cnt;
@@ -2391,7 +2409,8 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
 //--------------------------------------------------------------------------------------------
 float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxticks )
 {
-    /// @details ZZ@> This function draws a bar and returns the y position for the next one
+    /// @author ZZ
+    /// @details This function draws a bar and returns the y position for the next one
 
     const float scale = 1.0f;
 
@@ -2587,7 +2606,8 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
 //--------------------------------------------------------------------------------------------
 float draw_string( float x, float y, const char *format, ... )
 {
-    /// @details ZZ@> This function spits a line of null terminated text onto the backbuffer
+    /// @author ZZ
+    /// @details This function spits a line of null terminated text onto the backbuffer
     ///
     /// details BB@> Uses gfx_begin_2d() ... gfx_end_2d() so that the function can basically be called from anywhere
     ///    The way they are currently implemented, this breaks the icon drawing in draw_status() if
@@ -2609,7 +2629,8 @@ float draw_string( float x, float y, const char *format, ... )
 //--------------------------------------------------------------------------------------------
 float draw_wrap_string( const char *szText, float x, float y, int maxx )
 {
-    /// @details ZZ@> This function spits a line of null terminated text onto the backbuffer,
+    /// @author ZZ
+    /// @details This function spits a line of null terminated text onto the backbuffer,
     ///    wrapping over the right side and returning the new y value
 
     int stt_x = x;
@@ -2693,7 +2714,8 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
 //--------------------------------------------------------------------------------------------
 void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_ammo, Uint8 draw_sparkle )
 {
-    /// @details BB@> Draw an icon for the given item at the position <x,y>.
+    /// @author BB
+    /// @details Draw an icon for the given item at the position <x,y>.
     ///     If the object is invalid, draw the null icon instead of failing
     ///     If NOSPARKLE is specified the default item sparkle will be used (default behaviour)
 
@@ -2755,7 +2777,8 @@ float draw_character_xp_bar( const CHR_REF character, float x, float y )
 //--------------------------------------------------------------------------------------------
 float draw_status( const CHR_REF character, float x, float y )
 {
-    /// @details ZZ@> This function shows a character's icon, status and inventory
+    /// @author ZZ
+    /// @details This function shows a character's icon, status and inventory
     ///    The x,y coordinates are the top left point of the image to draw
 
     STRING generictext;
@@ -3226,7 +3249,8 @@ float draw_messages( float y )
 //--------------------------------------------------------------------------------------------
 void draw_hud()
 {
-    /// @details ZZ@> draw in-game heads up display
+    /// @author ZZ
+    /// @details draw in-game heads up display
 
     int y;
 
@@ -3522,7 +3546,8 @@ void render_shadow_sprite( float intensity, GLvertex v[] )
 //--------------------------------------------------------------------------------------------
 void render_shadow( const CHR_REF character )
 {
-    /// @details ZZ@> This function draws a NIFTY shadow
+    /// @author ZZ
+    /// @details This function draws a NIFTY shadow
 
     GLvertex v[4];
 
@@ -3657,7 +3682,8 @@ void render_shadow( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void render_bad_shadow( const CHR_REF character )
 {
-    /// @details ZZ@> This function draws a sprite shadow
+    /// @author ZZ
+    /// @details This function draws a sprite shadow
 
     GLvertex v[4];
 
@@ -3898,7 +3924,8 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
 //--------------------------------------------------------------------------------------------
 gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist )
 {
-    /// @details BB@> draw all tiles that do not reflect characters
+    /// @author BB
+    /// @details draw all tiles that do not reflect characters
 
     gfx_rv retval;
 
@@ -3946,7 +3973,8 @@ gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist
 //--------------------------------------------------------------------------------------------
 gfx_rv render_scene_mesh_drf_back( const camera_t * pcam, const renderlist_t * prlist )
 {
-    /// @details BB@> draw the reflective tiles, but turn off the depth buffer
+    /// @author BB
+    /// @details draw the reflective tiles, but turn off the depth buffer
     ///               this blanks out any background that might've been drawn
 
     gfx_rv retval;
@@ -3994,7 +4022,8 @@ gfx_rv render_scene_mesh_drf_back( const camera_t * pcam, const renderlist_t * p
 //--------------------------------------------------------------------------------------------
 gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist, const dolist_t * pdolist )
 {
-    /// @details BB@> Render all reflected objects
+    /// @author BB
+    /// @details Render all reflected objects
 
     int cnt;
     gfx_rv retval;
@@ -4107,7 +4136,8 @@ gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist
 gfx_rv render_scene_mesh_ref_chr( const camera_t * pcam, const renderlist_t * prlist )
 {
     /// @brief   BB@> Render the shadow floors ( let everything show through )
-    /// @details BB@> turn on the depth mask, so that no objects under the floor will show through
+    /// @author BB
+    /// @details turn on the depth mask, so that no objects under the floor will show through
     ///               this assumes that the floor is not partially transparent...
 
     gfx_rv retval;
@@ -4197,7 +4227,8 @@ gfx_rv render_scene_mesh_drf_solid( const camera_t * pcam, const renderlist_t * 
 //--------------------------------------------------------------------------------------------
 gfx_rv render_scene_mesh_render_shadows( const camera_t * pcam, const dolist_t * pdolist )
 {
-    /// @details BB@> Render the shadows
+    /// @author BB
+    /// @details Render the shadows
 
     size_t cnt;
     int    tnc;
@@ -4263,7 +4294,8 @@ gfx_rv render_scene_mesh_render_shadows( const camera_t * pcam, const dolist_t *
 //--------------------------------------------------------------------------------------------
 gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, const dolist_t * pdolist )
 {
-    /// @details BB@> draw the mesh and any reflected objects
+    /// @author BB
+    /// @details draw the mesh and any reflected objects
 
     gfx_rv retval;
 
@@ -4425,7 +4457,8 @@ gfx_rv render_scene_solid( const camera_t * pcam, dolist_t * pdolist )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_scene_trans( const camera_t * pcam, dolist_t * pdolist )
 {
-    /// @details BB@> draw transparent objects
+    /// @author BB
+    /// @details draw transparent objects
 
     int cnt;
     gfx_rv retval;
@@ -4484,7 +4517,8 @@ gfx_rv render_scene_trans( const camera_t * pcam, dolist_t * pdolist )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_scene( const camera_t * pcam, const int render_list_index, const int dolist_index )
 {
-    /// @details ZZ@> This function draws 3D objects
+    /// @author ZZ
+    /// @details This function draws 3D objects
 
     gfx_rv retval;
     renderlist_t * prlist = NULL;
@@ -4616,7 +4650,8 @@ gfx_rv render_scene( const camera_t * pcam, const int render_list_index, const i
 //--------------------------------------------------------------------------------------------
 gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture )
 {
-    /// @details ZZ@> This function draws the large background
+    /// @author ZZ
+    /// @details This function draws the large background
     GLvertex vtlist[4];
     int i;
     float z0, Qx, Qy;
@@ -4788,7 +4823,8 @@ gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture )
 {
-    /// @details ZZ@> This function draws the large foreground
+    /// @author ZZ
+    /// @details This function draws the large foreground
 
     float alpha, ftmp;
     fvec3_t   vforw_wind, vforw_cam;
@@ -4908,7 +4944,8 @@ gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_water( renderlist_t * prlist )
 {
-    /// @details ZZ@> This function draws all of the water fans
+    /// @author ZZ
+    /// @details This function draws all of the water fans
 
     int cnt;
     gfx_rv retval;
@@ -5020,7 +5057,8 @@ bool_t gfx_config_init( gfx_config_t * pgfx )
 //--------------------------------------------------------------------------------------------
 bool_t oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg )
 {
-    //// @details BB@> synch the texture parameters with the video mode
+    /// @author BB
+    /// @details synch the texture parameters with the video mode
 
     if ( NULL == ptex || NULL == pcfg ) return bfalse;
 
@@ -5199,7 +5237,8 @@ bool_t grid_lighting_interpolate( const ego_mpd_t * pmesh, lighting_cache_t * ds
 //--------------------------------------------------------------------------------------------
 void gfx_update_fps_clock()
 {
-    /// @details ZZ@> This function updates the graphics timers
+    /// @author ZZ
+    /// @details This function updates the graphics timers
 
     int gfx_clock_diff;
 
@@ -5377,7 +5416,8 @@ bool_t line_list_add( const float src_x, const float src_y, const float src_z, c
 //--------------------------------------------------------------------------------------------
 void line_list_draw_all( const camera_t * pcam )
 {
-    /// @details BB@> draw some lines for debugging purposes
+    /// @author BB
+    /// @details draw some lines for debugging purposes
 
     int cnt, ticks;
 
@@ -5507,7 +5547,8 @@ int point_list_get_free()
 //--------------------------------------------------------------------------------------------
 void point_list_draw_all( const camera_t * pcam )
 {
-    /// @details BB@> draw some points for debugging purposes
+    /// @author BB
+    /// @details draw some points for debugging purposes
 
     int cnt, ticks;
 
@@ -5848,7 +5889,8 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright )
 //--------------------------------------------------------------------------------------------
 int DisplayMsg_get_free()
 {
-    /// ZZ@> This function finds the best message to use
+    /// @author ZZ
+    /// @details This function finds the best message to use
     /// Pick the first one
 
     int tnc = DisplayMsg.count;
@@ -5904,7 +5946,8 @@ void gfx_init_blip_data()
 //--------------------------------------------------------------------------------------------
 void gfx_init_map_data()
 {
-    /// @details ZZ@> This function releases all the map images
+    /// @author ZZ
+    /// @details This function releases all the map images
 
     // Set up the rectangles
     maprect.left   = 0;
@@ -5919,7 +5962,8 @@ void gfx_init_map_data()
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_load_bars()
 {
-    /// @details ZZ@> This function loads the status bar bitmap
+    /// @author ZZ
+    /// @details This function loads the status bar bitmap
 
     const char * pname = EMPTY_CSTR;
     TX_REF load_rv = INVALID_GL_ID;
@@ -5947,7 +5991,8 @@ gfx_rv gfx_load_bars()
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_load_map()
 {
-    /// @details ZZ@> This function loads the map bitmap
+    /// @author ZZ
+    /// @details This function loads the map bitmap
 
     const char* szMap = "mp_data/plan";
     TX_REF load_rv = INVALID_GL_ID;
@@ -5978,7 +6023,8 @@ gfx_rv gfx_load_map()
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_load_blips()
 {
-    /// ZZ@> This function loads the blip bitmaps
+    /// @author ZZ
+    /// @details This function loads the blip bitmaps
 
     const char * pname = EMPTY_CSTR;
     TX_REF load_rv = INVALID_GL_ID;
@@ -6423,7 +6469,8 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
 //--------------------------------------------------------------------------------------------
 gfx_rv light_fans_update_clst( renderlist_t * prlist )
 {
-    /// @details BB@> update the tile's color list, if needed
+    /// @author BB
+    /// @details update the tile's color list, if needed
 
     gfx_rv retval;
     int numvertices;
@@ -6546,7 +6593,8 @@ gfx_rv light_fans( renderlist_t * prlist )
 //--------------------------------------------------------------------------------------------
 float get_ambient_level()
 {
-    /// @details BB@> get the actual global ambient level
+    /// @author BB
+    /// @details get the actual global ambient level
 
     float glob_amb, min_amb;
 
@@ -6585,7 +6633,8 @@ float get_ambient_level()
 //--------------------------------------------------------------------------------------------
 bool_t sum_global_lighting( lighting_vector_t lighting )
 {
-    /// @details BB@> do ambient lighting. if the module is inside, the ambient lighting
+    /// @author BB
+    /// @details do ambient lighting. if the module is inside, the ambient lighting
     /// is reduced by up to a factor of 8. It is still kept just high enough
     /// so that ordnary objects will not be made invisible. This was breaking some of the AIs
 
@@ -6615,7 +6664,8 @@ bool_t sum_global_lighting( lighting_vector_t lighting )
 //--------------------------------------------------------------------------------------------
 void draw_cursor()
 {
-    /// ZZ@> This function implements a mouse cursor
+    /// @author ZZ
+    /// @details This function implements a mouse cursor
 
     oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )MENU_FONT_BMP );
 
@@ -6652,7 +6702,8 @@ gfx_rv dynalist_init( dynalist_t * pdylist )
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam )
 {
-    /// @details ZZ@> This function figures out which particles are visible, and it sets up dynamic
+    /// @author ZZ
+    /// @details This function figures out which particles are visible, and it sets up dynamic
     ///    lighting
 
     size_t   tnc;
@@ -6751,7 +6802,8 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const camera_t * pcam )
 {
-    /// @details ZZ@> Do all tile lighting, dynamic and global
+    /// @author ZZ
+    /// @details Do all tile lighting, dynamic and global
 
     size_t cnt;
     Uint32 fan;
@@ -7171,7 +7223,8 @@ gfx_make_renderlist_exit:
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_make_dolist( dolist_t * pdlist, const camera_t * pcam )
 {
-    /// @details ZZ@> This function finds the characters that need to be drawn and puts them in the list
+    /// @author ZZ
+    /// @details This function finds the characters that need to be drawn and puts them in the list
 
     gfx_rv retval;
     bool_t local_allocation;
@@ -7245,7 +7298,8 @@ gfx_make_dolist_exit:
 //--------------------------------------------------------------------------------------------
 bool_t dump_screenshot()
 {
-    /// @details BB@> dumps the current screen (GL context) to a new bitmap file
+    /// @author BB
+    /// @details dumps the current screen (GL context) to a new bitmap file
     /// right now it dumps it to whatever the current directory is
 
     // returns btrue if successful, bfalse otherwise
@@ -7361,7 +7415,8 @@ bool_t dump_screenshot()
 //--------------------------------------------------------------------------------------------
 void clear_messages()
 {
-    /// @details ZZ@> This function empties the message buffer
+    /// @author ZZ
+    /// @details This function empties the message buffer
     int cnt;
 
     cnt = 0;
@@ -7376,7 +7431,8 @@ void clear_messages()
 //--------------------------------------------------------------------------------------------
 float calc_light_rotation( int rotation, int normal )
 {
-    /// @details ZZ@> This function helps make_lighttable
+    /// @author ZZ
+    /// @details This function helps make_lighttable
     fvec3_t   nrm, nrm2;
     float sinrot, cosrot;
 
@@ -7397,7 +7453,8 @@ float calc_light_rotation( int rotation, int normal )
 //--------------------------------------------------------------------------------------------
 float calc_light_global( int rotation, int normal, float lx, float ly, float lz )
 {
-    /// @details ZZ@> This function helps make_lighttable
+    /// @author ZZ
+    /// @details This function helps make_lighttable
     float fTmp;
     fvec3_t   nrm, nrm2;
     float sinrot, cosrot;
@@ -7582,7 +7639,8 @@ gfx_rv update_one_chr_instance( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 {
-    /// @details ZZ@> This function sets a character's lighting
+    /// @author ZZ
+    /// @details This function sets a character's lighting
 
     size_t     cnt;
     float      flash_val = value * INV_FF;
@@ -7807,7 +7865,8 @@ gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 //--------------------------------------------------------------------------------------------
 //gfx_rv gfx_project_cam_view( const camera_t * pcam, cam_corner_info_t * pinfo )
 //{
-//    /// @details ZZ@> This function figures out where the corners of the view area
+//    /// @author ZZ
+/// @details This function figures out where the corners of the view area
 //    ///    go when projected onto the plane of the PMesh.  Used later for
 //    ///    determining which mesh fans need to be rendered
 //
@@ -8207,7 +8266,8 @@ gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 //--------------------------------------------------------------------------------------------
 //gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
 //{
-//    /// @details ZZ@> This function figures out which mesh fans to draw
+//    /// @author ZZ
+/// @details This function figures out which mesh fans to draw
 //
 //    int cnt, grid_x, grid_y;
 //    int row;

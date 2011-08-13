@@ -57,7 +57,8 @@ void fs_init( const char * root_dir )
 //--------------------------------------------------------------------------------------------
 void fs_removeDirectoryAndContents( const char *dirname, int recursive )
 {
-    /// @details ZZ@> This function deletes all files in a directory,
+    /// @author ZZ
+    /// @details This function deletes all files in a directory,
     ///    and the directory itself
 
     char filePath[MAX_PATH] = EMPTY_CSTR;
@@ -98,7 +99,8 @@ void fs_removeDirectoryAndContents( const char *dirname, int recursive )
 //--------------------------------------------------------------------------------------------
 void fs_copyDirectory( const char *sourceDir, const char *destDir )
 {
-    /// @details ZZ@> This function copies all files in a directory
+    /// @author ZZ
+    /// @details This function copies all files in a directory
     char srcPath[MAX_PATH] = EMPTY_CSTR, destPath[MAX_PATH] = EMPTY_CSTR;
 
     const char *fileName;
@@ -332,7 +334,8 @@ FILE * fs_openConfigDirectoryFile( const char * relative_pathname, const char * 
 //--------------------------------------------------------------------------------------------
 bool_t fs_ensureUserFile( const char * relative_filename, bool_t required )
 {
-    /// @details BB@> if the file does not exist in the user data directory, it is copied from the
+    /// @author BB
+    /// @details if the file does not exist in the user data directory, it is copied from the
     /// data directory. Pass this function a system-dependent pathneme, relative the the root of the
     /// data directory.
     ///

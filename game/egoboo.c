@@ -458,7 +458,8 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 //--------------------------------------------------------------------------------------------
 int SDL_main( int argc, char **argv )
 {
-    /// @details ZZ@> This is where the program starts and all the high level stuff happens
+    /// @author ZZ
+    /// @details This is where the program starts and all the high level stuff happens
 
     int result = 0;
 
@@ -524,7 +525,8 @@ int SDL_main( int argc, char **argv )
 //--------------------------------------------------------------------------------------------
 void memory_cleanUp( void )
 {
-    /// @details ZF@> This function releases all loaded things in memory and cleans up everything properly
+    /// @author ZF
+    /// @details This function releases all loaded things in memory and cleans up everything properly
 
     log_info( "memory_cleanUp() - Attempting to clean up loaded things in memory... " );
 
@@ -632,7 +634,8 @@ void ego_init_SDL_base()
 //--------------------------------------------------------------------------------------------
 void object_systems_begin( void )
 {
-    /// @details BB@> initialize all the object systems
+    /// @author BB
+    /// @details initialize all the object systems
 
     particle_system_begin();
     enchant_system_begin();
@@ -643,7 +646,8 @@ void object_systems_begin( void )
 //--------------------------------------------------------------------------------------------
 void object_systems_end( void )
 {
-    /// @details BB@> quit all the object systems
+    /// @author BB
+    /// @details quit all the object systems
 
     particle_system_end();
     enchant_system_end();
@@ -654,7 +658,8 @@ void object_systems_end( void )
 //--------------------------------------------------------------------------------------------
 void _quit_game( ego_process_t * pgame )
 {
-    /// @details ZZ@> This function exits the game entirely
+    /// @author ZZ
+    /// @details This function exits the game entirely
 
     if ( process_running( PROC_PBASE( pgame ) ) )
     {

@@ -291,7 +291,8 @@ bool_t BSP_aabb_empty( const BSP_aabb_t * psrc )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_aabb_self_clear( BSP_aabb_t * psrc )
 {
-    /// @details BB@> Return this bounding box to an empty state.
+    /// @author BB
+    /// @details Return this bounding box to an empty state.
 
     Uint32 cnt;
 
@@ -314,7 +315,8 @@ bool_t BSP_aabb_self_clear( BSP_aabb_t * psrc )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, const oct_bb_t * psrc )
 {
-    /// @details BB@> do an automatic conversion from an oct_bb_t to a BSP_aabb_t
+    /// @author BB
+    /// @details do an automatic conversion from an oct_bb_t to a BSP_aabb_t
 
     Uint32 cnt;
 
@@ -920,7 +922,8 @@ bool_t BSP_branch_free_nodes( BSP_branch_t * B, bool_t recursive )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_prune( BSP_tree_t * t, BSP_branch_t * B, bool_t recursive )
 {
-    /// @details BB@> remove all leaves with no children. Do a depth first recursive search for efficiency
+    /// @author BB
+    /// @details remove all leaves with no children. Do a depth first recursive search for efficiency
 
     size_t i;
     bool_t   retval;
@@ -1164,8 +1167,9 @@ BSP_branch_empty_exit:
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> Recursively search the BSP tree for collisions with the paabb
-    //      Return bfalse if we need to break out of the recursive search for any reason.
+    /// @author BB
+    /// @details Recursively search the BSP tree for collisions with the paabb
+    ///      Return bfalse if we need to break out of the recursive search for any reason.
 
     geometry_rv geom_children, geom_nodes, geom_unsorted;
     bool_t retval, BSP_retval;
@@ -1318,8 +1322,9 @@ bool_t BSP_branch_collide_aabb( const BSP_branch_t * pbranch, const aabb_t * paa
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_collide_frustum( const BSP_branch_t * pbranch, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> Recursively search the BSP tree for collisions with the paabb
-    //      Return bfalse if we need to break out of the recursive search for any reason.
+    /// @author BB
+    /// @details Recursively search the BSP tree for collisions with the paabb
+    ///      Return bfalse if we need to break out of the recursive search for any reason.
 
     geometry_rv geom_children, geom_nodes, geom_unsorted;
     bool_t retval, BSP_retval;
@@ -1576,7 +1581,8 @@ int BSP_branch_insert_leaf_rec_1( BSP_tree_t * ptree, BSP_branch_t * pbranch, BS
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_insert_leaf_rec( BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth )
 {
-    /// @details BB@> recursively insert a leaf in a tree of BSP_branch_t*. Get new branches using the
+    /// @author BB
+    /// @details recursively insert a leaf in a tree of BSP_branch_t*. Get new branches using the
     ///              BSP_tree_get_free() function to allocate any new branches that are needed.
 
     bool_t handled = bfalse;
@@ -1891,7 +1897,8 @@ bool_t BSP_tree_clear_rec( BSP_tree_t * t )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_tree_prune( BSP_tree_t * t )
 {
-    /// @details BB@> remove all leaves with no children.lst or nodes.lst.
+    /// @author BB
+    /// @details remove all leaves with no children.lst or nodes.lst.
 
     int cnt;
 
@@ -2020,7 +2027,8 @@ bool_t BSP_tree_insert_leaf( BSP_tree_t * ptree, BSP_leaf_t * pleaf )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt )
 {
-    /// @details BB@> an optimized version of iterating through the t->branch_used list
+    /// @author BB
+    /// @details an optimized version of iterating through the t->branch_used list
     ///                and then calling BSP_branch_prune() on the empty branch. In the old method,
     ///                the t->branch_used list was searched twice to find each empty branch. This
     ///                function does it only once.
@@ -2082,8 +2090,9 @@ bool_t BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt )
 //--------------------------------------------------------------------------------------------
 int BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> fill the collision list with references to objects that the aabb may overlap.
-    //      Return the number of collisions found.
+    /// @author BB
+    /// @details fill the collision list with references to objects that the aabb may overlap.
+    ///      Return the number of collisions found.
 
     if ( NULL == tree || NULL == paabb ) return 0;
 
@@ -2101,8 +2110,9 @@ int BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_le
 //--------------------------------------------------------------------------------------------
 int BSP_tree_collide_frustum( const BSP_tree_t * tree, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> fill the collision list with references to objects that the frustum may overlap.
-    //      Return the number of collisions found.
+    /// @author BB
+    /// @details fill the collision list with references to objects that the frustum may overlap.
+    ///      Return the number of collisions found.
 
     if ( NULL == tree || NULL == pfrust ) return 0;
 
@@ -2180,7 +2190,8 @@ BSP_leaf_list_t * BSP_leaf_list_clear( BSP_leaf_list_t * LL )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_leaf_list_push_front( BSP_leaf_list_t * LL, BSP_leaf_t * n )
 {
-    /// @details BB@> Insert a leaf in the list, making sure there are no duplicates.
+    /// @author BB
+    /// @details Insert a leaf in the list, making sure there are no duplicates.
     ///               Duplicates will cause loops in the list and make it impossible to
     ///               traverse properly.
 
@@ -2252,7 +2263,8 @@ bool_t BSP_leaf_list_push_front( BSP_leaf_list_t * LL, BSP_leaf_t * n )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_leaf_list_reset( BSP_leaf_list_t * LL )
 {
-    /// @details BB@> Clear out the leaf list.
+    /// @author BB
+    /// @details Clear out the leaf list.
 
     size_t       cnt;
     BSP_leaf_t * ptmp;
@@ -2324,7 +2336,8 @@ BSP_leaf_t * BSP_leaf_list_pop_front( BSP_leaf_list_t * LL )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_leaf_list_collide_aabb( const BSP_leaf_list_t * LL, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> check for collisions with the given node list
+    /// @author BB
+    /// @details check for collisions with the given node list
 
     size_t       cnt;
     BSP_leaf_t * pleaf;
@@ -2403,7 +2416,8 @@ bool_t BSP_leaf_list_collide_aabb( const BSP_leaf_list_t * LL, const aabb_t * pa
 //--------------------------------------------------------------------------------------------
 bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    /// @details BB@> check for collisions with the given node list
+    /// @author BB
+    /// @details check for collisions with the given node list
 
     size_t       cnt;
     BSP_leaf_t * pleaf;
@@ -2684,7 +2698,8 @@ bool_t BSP_branch_list_collide_frustum( const BSP_branch_list_t * BL, const egol
 ////--------------------------------------------------------------------------------------------
 //bool_t BSP_tree_init_0( BSP_tree_t * t )
 //{
-//    /// @details BB@> reset the tree to the "empty" state. Assume we do not own the nodes.lst or children.lst.
+//    /// @author BB
+/// @details reset the tree to the "empty" state. Assume we do not own the nodes.lst or children.lst.
 //
 //    size_t i;
 //    BSP_branch_t * pbranch;

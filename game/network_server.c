@@ -47,7 +47,8 @@ void sv_frameStep()
 //--------------------------------------------------------------------------------------------
 egolib_rv sv_talkToRemotes()
 {
-    /// @details ZZ@> This function sends the character data to all the remote machines
+    /// @author ZZ
+    /// @details This function sends the character data to all the remote machines
 
     PLA_REF player;
     int time;
@@ -153,7 +154,8 @@ egolib_rv sv_talkToRemotes()
 //--------------------------------------------------------------------------------------------
 egolib_rv sv_letPlayersJoin()
 {
-    /// @details ZZ@> This function finds all the players in the game
+    /// @author ZZ
+    /// @details This function finds all the players in the game
 
     ENetEvent event;
     STRING hostName;
@@ -206,7 +208,8 @@ egolib_rv sv_letPlayersJoin()
 //--------------------------------------------------------------------------------------------
 egolib_rv sv_hostGame()
 {
-    /// @details ZZ@> This function tries to host a new session
+    /// @author ZZ
+    /// @details This function tries to host a new session
 
     ENetAddress address;
 

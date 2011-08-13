@@ -96,7 +96,8 @@ Uint32 nexttimestamp;                          // Expected timestamp
 
 void net_sayHello()
 {
-    /// @details ZZ@> This function lets everyone know we're here
+    /// @author ZZ
+    /// @details This function lets everyone know we're here
 
     if ( !egonet_on() )
     {
@@ -129,7 +130,8 @@ void net_sayHello()
 //--------------------------------------------------------------------------------------------
 void net_unbuffer_player_latches()
 {
-    /// @details ZZ@> This function sets character latches based on player input to the host
+    /// @author ZZ
+    /// @details This function sets character latches based on player input to the host
 
     PLA_REF ipla;
     CHR_REF character;
@@ -290,7 +292,8 @@ void net_unbuffer_player_latches()
 //--------------------------------------------------------------------------------------------
 void net_initialize()
 {
-    /// @details ZZ@> This starts up the network and logs whatever goes on
+    /// @author ZZ
+    /// @details This starts up the network and logs whatever goes on
 
     egonet_initialize( &( ServerState.base ), &( ClientState.base ), MAX_PLAYER, cfg.network_allowed );
 }
@@ -319,7 +322,8 @@ void net_shutDown()
 void find_open_sessions()
 {
     /*PORT
-    /// @details ZZ@> This function finds some open games to join
+    /// @author ZZ
+    /// @details This function finds some open games to join
 
     DPSESSIONDESC2      sessionDesc;
     HRESULT             hr;
@@ -339,13 +343,15 @@ void find_open_sessions()
 //--------------------------------------------------------------------------------------------
 void stop_players_from_joining()
 {
-    /// @details ZZ@> This function stops players from joining a game
+    /// @author ZZ
+    /// @details This function stops players from joining a game
 }
 
 //--------------------------------------------------------------------------------------------
 void net_send_message()
 {
-    /// @details ZZ@> sends the message in the keyboard buffer to all other players
+    /// @author ZZ
+    /// @details sends the message in the keyboard buffer to all other players
 
     if ( keyb.chat_mode || !keyb.chat_done ) return;
 

@@ -351,7 +351,8 @@ bool_t lighting_cache_interpolate( lighting_cache_t * dst, const lighting_cache_
 //--------------------------------------------------------------------------------------------
 float lighting_cache_test( const lighting_cache_t * src[], const float u, const float v, float * low_delta, float * hgh_delta )
 {
-    /// @details BB@> estimate the maximum change in the lighting at this point from the
+    /// @author BB
+    /// @details estimate the maximum change in the lighting at this point from the
     ///               measured delta values
 
     float delta, wt_sum;
@@ -565,7 +566,8 @@ float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_base_t 
 //--------------------------------------------------------------------------------------------
 float dyna_lighting_intensity( const dynalight_t * pdyna, const fvec3_base_t diff )
 {
-    /// @details BB@> In the Aaron's lighting, the falloff function was
+    /// @author BB
+    /// @details In the Aaron's lighting, the falloff function was
     ///                  light = (255 - r^2 / falloff) / 255.0f
     ///              this has a definite max radius for the light, rmax = sqrt(falloff*255),
     ///              which was good because we could have a definite range for a given light
@@ -578,7 +580,7 @@ float dyna_lighting_intensity( const dynalight_t * pdyna, const fvec3_base_t dif
     ///              this has the advantage that it forms a bell-shaped curve that approaches 0 smoothly
     ///              at r = -1 and r = 1. The lowest order term will always be quadratic in r, just like
     ///              Aaron's function. To eliminate terms like r^4 and higher order even terms, you can
-    //               various f(n,r) with different n's. But combining terms with larger and larger
+    ///              various f(n,r) with different n's. But combining terms with larger and larger
     ///              n means that the left-over terms that make the function approach zero smoothly
     ///              will have higher and higher powers of r (more expensive) and the cutoff will
     ///              be sharper and sharper (which is against the whole point of this type of function).

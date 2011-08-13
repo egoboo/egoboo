@@ -69,7 +69,8 @@ void animate_all_tiles( ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
 {
-    /// BB@> animate a given tile
+    /// @author BB
+    /// @details animate a given tile
 
     Uint16 basetile, image;
     Uint16 base_and, frame_and, frame_add;
@@ -118,7 +119,8 @@ bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_fan( const ego_mpd_t * pmesh, const Uint32 itile )
 {
-    /// @details ZZ@> This function draws a mesh itile
+    /// @author ZZ
+    /// @details This function draws a mesh itile
     /// Optimized to use gl*Pointer() and glArrayElement() for vertex presentation
 
     int    cnt, tnc, entry, vertex;
@@ -216,7 +218,8 @@ gfx_rv render_fan( const ego_mpd_t * pmesh, const Uint32 itile )
 //--------------------------------------------------------------------------------------------
 gfx_rv  render_hmap_fan( const ego_mpd_t * pmesh, const Uint32 itile )
 {
-    /// @details ZZ@> This function draws a mesh itile
+    /// @author ZZ
+    /// @details This function draws a mesh itile
     GLvertex v[4];
 
     int cnt, vertex;
@@ -251,7 +254,8 @@ gfx_rv  render_hmap_fan( const ego_mpd_t * pmesh, const Uint32 itile )
         return gfx_error;
     }
 
-    /// @details BB@> the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
+    /// @author BB
+    /// @details the water info is for TILES, not for vertices, so ignore all vertex info and just draw the water
     ///     tile where it's supposed to go
 
     ix = itile % pmesh->info.tiles_x;
@@ -309,7 +313,8 @@ gfx_rv  render_hmap_fan( const ego_mpd_t * pmesh, const Uint32 itile )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_water_fan( const ego_mpd_t * pmesh, const Uint32 itile, const Uint8 layer )
 {
-    /// @details ZZ@> This function draws a water itile
+    /// @author ZZ
+    /// @details This function draws a water itile
 
     GLvertex v[4];
 
@@ -514,7 +519,8 @@ gfx_rv render_water_fan( const ego_mpd_t * pmesh, const Uint32 itile, const Uint
 //--------------------------------------------------------------------------------------------
 void animate_tiles()
 {
-    /// ZZ@> This function changes the animated tile frame
+    /// @author ZZ
+    /// @details This function changes the animated tile frame
 
     int cnt, tnc;
     animtile_instance_t * patile;

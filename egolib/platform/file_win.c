@@ -61,7 +61,8 @@ static char win32_configPath[MAX_PATH]   = EMPTY_CSTR;
 //--------------------------------------------------------------------------------------------
 void sys_fs_init( const char * root_dir )
 {
-    /// @details JF@> This function determines the temporary, import,
+    /// @author JF
+    /// @details This function determines the temporary, import,
     /// game data and save paths
 
     DWORD attrib;
@@ -185,7 +186,8 @@ int fs_removeDirectory( const char *dirname )
 //--------------------------------------------------------------------------------------------
 void fs_deleteFile( const char *filename )
 {
-    /// @details ZZ@> This function deletes a file
+    /// @author ZZ
+    /// @details This function deletes a file
 
     if ( VALID_CSTR( filename ) )
     {

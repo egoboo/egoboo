@@ -845,7 +845,8 @@ bool_t ui_widgetSetMask( ui_Widget_t * pw, const BIT_FIELD mbits )
 //--------------------------------------------------------------------------------------------
 void ui_virtual_to_screen( float vx, float vy, float * rx, float * ry )
 {
-    /// @details BB@> convert "virtual" screen positions into "real" space
+    /// @author BB
+    /// @details convert "virtual" screen positions into "real" space
 
     *rx = ui_context.aw * vx + ui_context.bw;
     *ry = ui_context.ah * vy + ui_context.bh;
@@ -854,7 +855,8 @@ void ui_virtual_to_screen( float vx, float vy, float * rx, float * ry )
 //--------------------------------------------------------------------------------------------
 void ui_screen_to_virtual( float rx, float ry, float *vx, float *vy )
 {
-    /// @details BB@> convert "real" mouse positions into "virtual" space
+    /// @author BB
+    /// @details convert "real" mouse positions into "virtual" space
 
     *vx = ui_context.iaw * rx + ui_context.ibw;
     *vy = ui_context.iah * ry + ui_context.ibh;
@@ -863,7 +865,8 @@ void ui_screen_to_virtual( float rx, float ry, float *vx, float *vy )
 //--------------------------------------------------------------------------------------------
 void ui_set_virtual_screen( float vw, float vh, float ww, float wh )
 {
-    /// @details BB@> set up the ui's virtual screen
+    /// @author BB
+    /// @details set up the ui's virtual screen
 
     float k;
     Font * old_defaultFont;

@@ -43,7 +43,8 @@ Uint8     asciitofont[256];           // Conversion table
 //--------------------------------------------------------------------------------------------
 void font_bmp_init()
 {
-    /// @details BB@> fill in default values
+    /// @author BB
+    /// @details fill in default values
 
     Uint16 i, ix, iy, cnt;
     float dx, dy;
@@ -73,7 +74,8 @@ void font_bmp_init()
 //--------------------------------------------------------------------------------------------
 void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const char* szSpacing )
 {
-    /// @details ZZ@> This function loads the font bitmap and sets up the coordinates
+    /// @author ZZ
+    /// @details This function loads the font bitmap and sets up the coordinates
     ///    of each font on that bitmap...  Bitmap must have 16x6 fonts
 
     int cnt, y, xsize, ysize, xdiv, ydiv;
@@ -145,7 +147,8 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
 //--------------------------------------------------------------------------------------------
 int font_bmp_length_of_word( const char *szText )
 {
-    /// @details ZZ@> This function returns the number of pixels the
+    /// @author ZZ
+    /// @details This function returns the number of pixels the
     ///    next word will take on screen in the x direction
 
     // Count all preceeding spaces

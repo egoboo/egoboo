@@ -101,7 +101,8 @@ static INLINE bool_t mesh_grid_is_valid( const ego_mpd_t * pmpd, Uint32 id )
 //--------------------------------------------------------------------------------------------
 static INLINE float mesh_get_level( const ego_mpd_t * pmesh, float x, float y )
 {
-    /// @details ZZ@> This function returns the height of a point within a mesh fan, precisely
+    /// @author ZZ
+    /// @details This function returns the height of a point within a mesh fan, precisely
 
     Uint32 tile;
     int ix, iy;

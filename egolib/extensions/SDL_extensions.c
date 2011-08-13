@@ -280,7 +280,8 @@ void SDLX_download_sdl_video_flags( Uint32 iflags, SDLX_sdl_video_flags_t * pfla
 //--------------------------------------------------------------------------------------------
 void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
 {
-    /// @details BB@> make a report
+    /// @author BB
+    /// @details make a report
 
     if ( NULL == v ) return;
 
@@ -326,7 +327,8 @@ void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
 //--------------------------------------------------------------------------------------------
 void SDLX_synch_video_parameters( SDL_Surface * ret, SDLX_video_parameters_t * v )
 {
-    /// @details BB@> synch values
+    /// @author BB
+    /// @details synch values
 
     if ( NULL == ret || NULL == v ) return;
 
@@ -646,7 +648,8 @@ void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
 //--------------------------------------------------------------------------------------------
 SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool has_valid_mode, SDL_bool make_report )
 {
-    /// @details BB@> let SDL try to set a new video mode.
+    /// @author BB
+    /// @details let SDL try to set a new video mode.
 
     SDLX_video_parameters_t   param_old, param_new;
     SDLX_video_parameters_t * retval = NULL;

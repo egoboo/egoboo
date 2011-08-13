@@ -135,7 +135,8 @@ int cmp_prt_registry_entity( const void * vlhs, const void * vrhs )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_prt_solid( const PRT_REF iprt )
 {
-    /// @details BB@> Render the solid version of the particle
+    /// @author BB
+    /// @details Render the solid version of the particle
 
     GLvertex vtlist[4];
     int i;
@@ -207,7 +208,8 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_prt_trans( const PRT_REF iprt )
 {
-    /// @details BB@> do all kinds of transparent sprites next
+    /// @author BB
+    /// @details do all kinds of transparent sprites next
 
     GLvertex vtlist[4];
     int i;
@@ -340,7 +342,8 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
 
 gfx_rv render_one_prt_ref( const PRT_REF iprt )
 {
-    /// @details BB@> render one particle
+    /// @author BB
+    /// @details render one particle
 
     GLvertex vtlist[4];
     int startalpha;
@@ -567,7 +570,8 @@ void render_all_prt_bbox()
 //--------------------------------------------------------------------------------------------
 void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset )
 {
-    /// @details BB@> a function that will draw some of the vertices of the given character.
+    /// @author BB
+    /// @details a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
 
     Uint32 vrt;
@@ -1187,7 +1191,8 @@ static void   render_all_prt_trans( const camera_t * pcam, const prt_registry_en
 //--------------------------------------------------------------------------------------------
 void render_all_particles( camera_t * pcam )
 {
-    /// @details ZZ@> This function draws the sprites for particle systems
+    /// @author ZZ
+    /// @details This function draws the sprites for particle systems
 
     prt_registry_entity_t reg[MAX_PRT];
     size_t numparticle;
@@ -1251,7 +1256,8 @@ size_t render_all_prt_begin( const camera_t * pcam,  prt_registry_entity_t reg[]
 //--------------------------------------------------------------------------------------------
 void render_all_prt_solid( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle )
 {
-    /// @details BB@> do solid sprites first
+    /// @author BB
+    /// @details do solid sprites first
 
     size_t cnt;
     PRT_REF prt;
@@ -1273,7 +1279,8 @@ void render_all_prt_solid( const camera_t * pcam, const prt_registry_entity_t re
 //--------------------------------------------------------------------------------------------
 void render_all_prt_trans( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle )
 {
-    /// @details BB@> do all kinds of transparent sprites next
+    /// @author BB
+    /// @details do all kinds of transparent sprites next
 
     int cnt;
 
@@ -1302,7 +1309,8 @@ static void   render_prt_ref( const camera_t * pcam );
 //--------------------------------------------------------------------------------------------
 void render_prt_ref( const camera_t * pcam )
 {
-    /// @details ZZ@> This function draws sprites reflected in the floor
+    /// @author ZZ
+    /// @details This function draws sprites reflected in the floor
 
     prt_registry_entity_t reg[MAX_PRT];
     size_t numparticle;

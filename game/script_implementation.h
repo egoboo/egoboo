@@ -179,53 +179,64 @@ bool_t    BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits );
 // wrapped script functions
 //--------------------------------------------------------------------------------------------
 
-/// @details ZZ@> This function tells the character where to move next
+/// @author ZZ
+/// @details This function tells the character where to move next
 ///
 /// @lua AddWaypoint( tmpx = "x position", tmpy = "y position" )
 bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y );
 
-/// @details ZF@> Ported the A* path finding algorithm by birdsey and heavily modified it
+/// @author ZF
+/// @details Ported the A* path finding algorithm by birdsey and heavily modified it
 /// This function adds enough waypoints to get from one point to another
 bool_t FindPath( waypoint_list_t * plst, struct s_chr * pchr, float dst_x, float dst_y, bool_t * used_astar_ptr );
 
-/// @details ZZ@> This function modifies tmpx and tmpy, depending on the setting of
+/// @author ZZ
+/// @details This function modifies tmpx and tmpy, depending on the setting of
 /// tmpdistance and tmpturn.  It acts like one of those Compass thing
 /// with the two little needle legs
 ///
 /// @lua Compass( tmpturn = "rotation", tmpdistance = "radius" )
 bool_t Compass( fvec2_base_t pos, int facing, float distance );
 
-/// @details ZZ@> This function returns the cost of the desired skin upgrade
+/// @author ZZ
+/// @details This function returns the cost of the desired skin upgrade
 //
 /// @lua tmpx = GetTargetArmorPrice( tmpargument = "skin" )
 int GetArmorPrice( struct s_chr * pchr, int skin );
 
-/// @details ZZ@> This function sets the character's ai timer.  50 clicks per second.
+/// @author ZZ
+/// @details This function sets the character's ai timer.  50 clicks per second.
 /// Used in conjunction with IfTimeOut
 ///
 /// @lua selftimer = UpdateTime( selftimer = "time", tmpargument = "delay" )
 Uint32 UpdateTime( Uint32 time_val, int delay );
 
-/// @details ZZ@> This function breaks the tiles of a passage if there is a character standing
+/// @author ZZ
+/// @details This function breaks the tiles of a passage if there is a character standing
 ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
 Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley );
 
-/// @details ZZ@> This function appends a message to the end-module text
+/// @author ZZ
+/// @details This function appends a message to the end-module text
 Uint8 AddEndMessage( struct s_chr * pchr, const int message_index, struct s_script_state * pstate );
 
-/// @details ZZ@> This function finds the next tile in the passage, x0 and y0
+/// @author ZZ
+/// @details This function finds the next tile in the passage, x0 and y0
 ///    must be set first, and are set on a find.  Returns btrue or bfalse
 ///    depending on if it finds one or not
 Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 );
 
-/// @details ZF@> This function searches the nearby vincinity for a melee weapon the character can use
+/// @author ZF
+/// @details This function searches the nearby vincinity for a melee weapon the character can use
 CHR_REF FindWeapon( struct s_chr * pchr, float max_distance, IDSZ weap_idsz, bool_t find_ranged, bool_t use_line_of_sight );
 
-/// @details ZZ@> This function sets an object's lighting
+/// @author ZZ
+/// @details This function sets an object's lighting
 bool_t FlashObject( struct s_chr * pchr, Uint8 value );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// @details ZZ@> This function sticks a message_offset in the display queue and sets its timer
+/// @author ZZ
+/// @details This function sticks a message_offset in the display queue and sets its timer
 Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int message, struct s_script_state * pstate );

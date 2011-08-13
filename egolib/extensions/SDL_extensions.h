@@ -205,7 +205,7 @@ extern "C"
     SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool has_valid_mode, SDL_bool make_report );
 
 /// Determine the minimum changes to the current pixel format to accomodate the requested format
-// Mostly used to add an alpha channel to a SDL_Surface
+/// Mostly used to add an alpha channel to a SDL_Surface
     SDL_bool SDLX_ExpandFormat( SDL_PixelFormat * pformat );
 
 /// Set the FILE that SDL_extensions will use to dump debugging information.

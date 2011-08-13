@@ -48,14 +48,16 @@ static const char * scantag_tok( const char * tag_string );
 //--------------------------------------------------------------------------------------------
 void scantag_reset()
 {
-    /// @details ZZ@> This function resets the tags
+    /// @author ZZ
+    /// @details This function resets the tags
     scantag_count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t scantag_read_one( vfs_FILE *fileread )
 {
-    /// @details ZZ@> This function finds the next tag, returning btrue if it found one
+    /// @author ZZ
+    /// @details This function finds the next tag, returning btrue if it found one
 
     bool_t retval;
 
@@ -73,7 +75,8 @@ bool_t scantag_read_one( vfs_FILE *fileread )
 //--------------------------------------------------------------------------------------------
 void scantag_read_all_vfs( const char *szFilename )
 {
-    /// @details ZZ@> This function reads the scancode.txt file
+    /// @author ZZ
+    /// @details This function reads the scancode.txt file
     vfs_FILE* fileread;
     int cnt;
 
@@ -107,7 +110,8 @@ void scantag_read_all_vfs( const char *szFilename )
 //--------------------------------------------------------------------------------------------
 const char * scantag_tok( const char * tag_string )
 {
-    /// @details BB@> scan through a tag string, finding all valid tags. This will allow multiple
+    /// @author BB
+    /// @details scan through a tag string, finding all valid tags. This will allow multiple
     ///               keys, buttons, and keymods per command
 
     static char scantag_delimiters[] = " ,|+&\t\n";
@@ -234,7 +238,8 @@ control_t * scantag_parse_control( char * tag_string, control_t * pcontrol )
 //--------------------------------------------------------------------------------------------
 int scantag_find_index( const char *string )
 {
-    /// @details ZZ@> Find the index of the scantag that matches the given string.
+    /// @author ZZ
+    /// @details Find the index of the scantag that matches the given string.
     ///    It will return -1 if there are no matches.
 
     int cnt, retval;
@@ -424,7 +429,8 @@ char * buffer_append_str( char * buffer_ptr, const char * buffer_end, const char
 //--------------------------------------------------------------------------------------------
 const char * scantag_get_string( int device_type, control_t * pcontrol, char * buffer, size_t buffer_size )
 {
-    /// @details ZF@> This translates a input pcontrol->tag value to a string
+    /// @author ZF
+    /// @details This translates a input pcontrol->tag value to a string
 
     static STRING tmp_buffer = EMPTY_CSTR;
 
@@ -467,7 +473,7 @@ const char * scantag_get_string( int device_type, control_t * pcontrol, char * b
     loc_buffer_stt[0] = CSTR_END;
 
     // check for a NULL control
-    if ( NULL == pcontrol ) 
+    if ( NULL == pcontrol )
     {
         // place the default value
         goto scantag_get_string_end;
@@ -572,7 +578,7 @@ const char * scantag_get_string( int device_type, control_t * pcontrol, char * b
 
 scantag_get_string_end:
 
-    if( 0 == tag_count )
+    if ( 0 == tag_count )
     {
         strncpy( loc_buffer_stt, "N/A", loc_buffer_size_remaining );
     }

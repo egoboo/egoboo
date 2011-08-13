@@ -41,7 +41,8 @@ passage_t * passage_init( passage_t * ppass )
 //--------------------------------------------------------------------------------------------
 bool_t scan_passage_file( vfs_FILE * fileread, passage_t * ppass )
 {
-    /// @details ZZ@> This function reads the passage file
+    /// @author ZZ
+    /// @details This function reads the passage file
 
     bool_t found;
 

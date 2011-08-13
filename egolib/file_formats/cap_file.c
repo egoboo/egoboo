@@ -41,7 +41,8 @@ extern int    action_which( char cTmp );
 //--------------------------------------------------------------------------------------------
 cap_t * cap_init( cap_t * pcap )
 {
-    /// @details BB@> initialize the character profile data to safe values
+    /// @author BB
+    /// @details initialize the character profile data to safe values
 
     int cnt;
 
@@ -87,7 +88,8 @@ cap_t * cap_init( cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 {
-    /// @details ZZ@> This function fills a character profile with data from data.txt, returning
+    /// @author ZZ
+    /// @details This function fills a character profile with data from data.txt, returning
     ///     the icap slot that the profile was stuck into.  It may cause the program
     ///     to abort if bad things happen.
 
@@ -460,7 +462,8 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateName, cap_t * pcap )
 {
-    /// @details BB@> export one cap_t struct to a "data.txt" file
+    /// @author BB
+    /// @details export one cap_t struct to a "data.txt" file
     ///     converted to using the template file
 
     vfs_FILE* filewrite, * filetemp;

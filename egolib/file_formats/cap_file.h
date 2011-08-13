@@ -111,7 +111,8 @@ extern "C"
     // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_xp_type xp_type;
 
-/// BB@> enumerated "speech" soun
+/// @author BB
+/// @details enumerated "speech" sounds
 /// @details We COULD ge the scripts to classify which
 /// sound to use for the "ouch", the "too much baggage", etc.
 /// also some left-over sounds from the RTS days, but they might be useful if an NPC

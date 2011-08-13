@@ -85,7 +85,8 @@ static matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache );
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_mad_enviro( const camera_t * pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
-    /// @details ZZ@> This function draws an environment mapped model
+    /// @author ZZ
+    /// @details This function draws an environment mapped model
 
     GLint matrix_mode[1];
     Uint16 cnt;
@@ -297,7 +298,8 @@ else
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_mad_tex( const camera_t * pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
-    /// @details ZZ@> This function draws a model
+    /// @author ZZ
+    /// @details This function draws a model
 
     GLint matrix_mode[1];
 
@@ -510,7 +512,8 @@ gfx_rv render_one_mad_tex( const camera_t * pcam, const CHR_REF character, GLXve
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_mad( const camera_t * pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
-    /// @details ZZ@> This function picks the actual function to use
+    /// @author ZZ
+    /// @details This function picks the actual function to use
 
     chr_t * pchr;
     gfx_rv retval;
@@ -560,7 +563,8 @@ gfx_rv render_one_mad( const camera_t * pcam, const CHR_REF character, GLXvector
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_mad_ref( const camera_t * pcam, const CHR_REF ichr )
 {
-    /// @details ZZ@> This function draws characters reflected in the floor
+    /// @author ZZ
+    /// @details This function draws characters reflected in the floor
 
     chr_t * pchr;
     chr_instance_t * pinst;
@@ -651,7 +655,8 @@ gfx_rv render_one_mad_ref( const camera_t * pcam, const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 gfx_rv render_one_mad_trans( const camera_t * pcam, const CHR_REF ichr )
 {
-    /// @details ZZ@> This function dispatches the rendering of transparent characters
+    /// @author ZZ
+    /// @details This function dispatches the rendering of transparent characters
     ///               to the correct function. (this does not handle characer reflection)
 
     chr_t * pchr;
@@ -847,7 +852,8 @@ void draw_chr_bbox( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void draw_chr_verts( chr_t * pchr, int vrt_offset, int verts )
 {
-    /// @details BB@> a function that will draw some of the vertices of the given character.
+    /// @author BB
+    /// @details a function that will draw some of the vertices of the given character.
     ///     The original idea was to use this to debug the grip for attached items.
 
     GLint matrix_mode[1];
@@ -1073,7 +1079,8 @@ void draw_chr_grips( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bool_t force )
 {
-    /// @details BB@> determine the basic per-vertex lighting
+    /// @author BB
+    /// @details determine the basic per-vertex lighting
 
     const int frame_skip = 1 << 2;
     const int frame_mask = frame_skip - 1;
@@ -1222,10 +1229,11 @@ gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool_t *verts_match, bool_t *frames_match )
 {
-    /// @details BB@> determine whether some specific vertices of an instance need to be updated
-    //                gfx_error   means that the function was passed invalid values
-    //                gfx_fail    means that the instance does not need to be updated
-    //                gfx_success means that the instance should be updated
+    /// @author BB
+    /// @details determine whether some specific vertices of an instance need to be updated
+    ///                gfx_error   means that the function was passed invalid values
+    ///                gfx_fail    means that the instance does not need to be updated
+    ///                gfx_success means that the instance should be updated
 
     bool_t local_verts_match, flips_match, local_frames_match;
 
@@ -1800,7 +1808,8 @@ gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t actio
 //--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_increment_action( chr_instance_t * pinst )
 {
-    /// @details BB@> This function starts the next action for a character
+    /// @author BB
+    /// @details This function starts the next action for a character
 
     gfx_rv retval;
 
@@ -1837,7 +1846,8 @@ gfx_rv chr_instance_increment_action( chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action )
 {
-    /// @details BB@> all the code necessary to move on to the next frame of the animation
+    /// @author BB
+    /// @details all the code necessary to move on to the next frame of the animation
 
     int frame_lst, frame_nxt;
 
@@ -1910,7 +1920,8 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
 //--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t action_ready )
 {
-    /// @details ZZ@> This function starts a generic action for a character
+    /// @author ZZ
+    /// @details This function starts a generic action for a character
     mad_t * pmad;
 
     if ( NULL == pinst )
@@ -1934,7 +1945,8 @@ gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t acti
 //--------------------------------------------------------------------------------------------
 void chr_instance_clear_cache( chr_instance_t * pinst )
 {
-    /// @details BB@> force chr_instance_update_vertices() recalculate the vertices the next time
+    /// @author BB
+    /// @details force chr_instance_update_vertices() recalculate the vertices the next time
     ///     the function is called
 
     vlst_cache_init( &( pinst->save ) );
@@ -2049,7 +2061,8 @@ gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size )
 //--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
 {
-    /// @details BB@> try to set the model used by the character instance.
+    /// @author BB
+    /// @details try to set the model used by the character instance.
     ///     If this fails, it leaves the old data. Just to be safe it
     ///     would be best to check whether the old modes is valid, and
     ///     if not, the data chould be set to safe values...
@@ -2538,7 +2551,8 @@ gfx_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
 {
-    /// @details BB@> clear out the matrix cache data
+    /// @author BB
+    /// @details clear out the matrix cache data
 
     int cnt;
 
@@ -2590,7 +2604,8 @@ gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
 //--------------------------------------------------------------------------------------------
 bool_t chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float grid_level )
 {
-    /// @detalis BB@> Generate the extra data needed to display a reflection for this character
+    /// @author BB
+    /// @details Generate the extra data needed to display a reflection for this character
 
     if ( NULL == pinst ) return bfalse;
 

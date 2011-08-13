@@ -133,7 +133,8 @@ void MadStack_reinit()
 //--------------------------------------------------------------------------------------------
 int action_number( const char * cFrameName )
 {
-    /// @details ZZ@> This function returns the number of the action in cFrameName, or
+    /// @author ZZ
+    /// @details This function returns the number of the action in cFrameName, or
     ///    it returns NOACTION if it could not find a match
 
     int cnt;
@@ -159,7 +160,8 @@ int action_number( const char * cFrameName )
 //--------------------------------------------------------------------------------------------
 mad_t * action_copy_correct( mad_t * pmad, int actiona, int actionb )
 {
-    /// @details ZZ@> This function makes sure both actions are valid if either of them
+    /// @author ZZ
+    /// @details This function makes sure both actions are valid if either of them
     ///    are valid.  It will copy start and ends to mirror the valid action.
 
     if ( NULL == pmad ) return pmad;
@@ -197,7 +199,8 @@ mad_t * action_copy_correct( mad_t * pmad, int actiona, int actionb )
 //--------------------------------------------------------------------------------------------
 mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
 {
-    /// @details ZZ@> This function copies a model's actions
+    /// @author ZZ
+    /// @details This function copies a model's actions
 
     vfs_FILE *fileread;
     int actiona, actionb;
@@ -231,7 +234,8 @@ mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
 //--------------------------------------------------------------------------------------------
 int action_which( char cTmp )
 {
-    /// @details ZZ@> This function changes a letter into an action code
+    /// @author ZZ
+    /// @details This function changes a letter into an action code
     int action;
 
     switch ( toupper( cTmp ) )
@@ -260,7 +264,8 @@ int action_which( char cTmp )
 //--------------------------------------------------------------------------------------------
 int mad_get_action( mad_t * pmad, int action )
 {
-    /// @detaills BB@> translate the action that was given into a valid action for the model
+    /// @author BB
+    /// @details translate the action that was given into a valid action for the model
     ///
     /// returns ACTION_COUNT on a complete failure, or the default ACTION_DA if it exists
 
@@ -342,7 +347,8 @@ Uint32 mad_get_madfx( mad_t * pmad, int action )
 //--------------------------------------------------------------------------------------------
 mad_t *  mad_get_walk_frame( mad_t * pmad, int lip, int action )
 {
-    /// @details ZZ@> This helps make walking look right
+    /// @author ZZ
+    /// @details This helps make walking look right
     int frame = 0;
     int action_count;
     int action_stt, action_end;
@@ -388,7 +394,8 @@ mad_t *  mad_get_walk_frame( mad_t * pmad, int lip, int action )
 //--------------------------------------------------------------------------------------------
 mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
 {
-    /// @details ZZ@> This function figures out the IFrame invulnerability, and Attack, Grab, and
+    /// @author ZZ
+    /// @details This function figures out the IFrame invulnerability, and Attack, Grab, and
     ///               Drop timings
     ///
     ///          BB@> made a bit more sturdy parser that is not going to confuse strings like "LCRA"
@@ -601,7 +608,8 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
 //--------------------------------------------------------------------------------------------
 mad_t * mad_make_framelip( mad_t * pmad, int action )
 {
-    /// @details ZZ@> This helps make walking look right
+    /// @author ZZ
+    /// @details This helps make walking look right
 
     int action_stt, action_end, action_count;
     int framelip, frame;
@@ -651,7 +659,8 @@ mad_t * mad_make_framelip( mad_t * pmad, int action )
 //--------------------------------------------------------------------------------------------
 mad_t * mad_make_equally_lit( mad_t * pmad )
 {
-    /// @details ZZ@> This function makes ultra low poly models look better
+    /// @author ZZ
+    /// @details This function makes ultra low poly models look better
 
     int cnt, vert;
     MD2_Model_t * md2;
@@ -680,7 +689,8 @@ mad_t * mad_make_equally_lit( mad_t * pmad )
 //--------------------------------------------------------------------------------------------
 void load_action_names_vfs( const char* loadname )
 {
-    /// @details ZZ@> This function loads all of the 2 letter action names
+    /// @author ZZ
+    /// @details This function loads all of the 2 letter action names
 
     vfs_FILE* fileread;
     int cnt;
@@ -761,7 +771,8 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad 
     {
         strncpy( szModelName, vfs_resolveReadFilename( newloadname ), SDL_arraysize( szModelName ) );
 
-        /// @details BB@> Egoboo md2 models were designed with 1 tile = 32x32 units, but internally Egoboo uses
+        /// @author BB
+        /// @details Egoboo md2 models were designed with 1 tile = 32x32 units, but internally Egoboo uses
         ///      1 tile = 128x128 units. Previously, this was handled by sprinkling a bunch of
         ///      commands that multiplied various quantities by 4 or by 4.125 throughout the code.
         ///      It was very counterintuitive, and caused me no end of headaches...  Of course the
@@ -976,7 +987,8 @@ mad_t * mad_reconstruct( mad_t * pmad )
 //--------------------------------------------------------------------------------------------
 mad_t * mad_ctor( mad_t * pmad )
 {
-    /// @details BB@> initialize the data to safe values
+    /// @author BB
+    /// @details initialize the data to safe values
 
     int action;
 
@@ -999,7 +1011,8 @@ mad_t * mad_ctor( mad_t * pmad )
 //--------------------------------------------------------------------------------------------
 mad_t * mad_dtor( mad_t * pmad )
 {
-    /// @details BB@> deinitialize the character data
+    /// @author BB
+    /// @details deinitialize the character data
 
     if ( !LOADED_PMAD( pmad ) ) return NULL;
 
@@ -1056,7 +1069,8 @@ bool_t MadStack_release_one( const MAD_REF imad )
 //--------------------------------------------------------------------------------------------
 int randomize_action( int action, int slot )
 {
-    /// @details BB@> this function actually determines whether the action fillows the
+    /// @author BB
+    /// @details this function actually determines whether the action fillows the
     ///               pattern of ACTION_?A, ACTION_?B, ACTION_?C, ACTION_?D, with
     ///               A and B being for the left hand, and C and D being for the right hand
 
@@ -1128,7 +1142,8 @@ int randomize_action( int action, int slot )
 //--------------------------------------------------------------------------------------------
 int mad_get_action_ref( const MAD_REF imad, int action )
 {
-    /// @detaills BB@> translate the action that was given into a valid action for the model
+    /// @author BB
+    /// @details translate the action that was given into a valid action for the model
     ///
     /// returns ACTION_COUNT on a complete failure, or the default ACTION_DA if it exists
 
@@ -1160,7 +1175,8 @@ void mad_make_equally_lit_ref( const MAD_REF imad )
 
 //Uint16 test_frame_name( char letter )
 //{
-//    /// @details ZZ@> This function returns btrue if the 4th, 5th, 6th, or 7th letters
+//    /// @author ZZ
+/// @details This function returns btrue if the 4th, 5th, 6th, or 7th letters
 //    ///    of the frame name matches the input argument
 //
 //    if ( letter   == cFrameName[4] ) return btrue;
@@ -1177,7 +1193,8 @@ void mad_make_equally_lit_ref( const MAD_REF imad )
 //--------------------------------------------------------------------------------------------
 //void md2_fix_normals( const MAD_REF imad )
 //{
-//    /// @details ZZ@> This function helps light not flicker so much
+//    /// @author ZZ
+/// @details This function helps light not flicker so much
 //    int cnt, tnc;
 //    int indexofcurrent, indexofnext, indexofnextnext, indexofnextnextnext;
 //    int indexofnextnextnextnext;
@@ -1238,7 +1255,8 @@ void mad_make_equally_lit_ref( const MAD_REF imad )
 //--------------------------------------------------------------------------------------------
 //void md2_get_transvertices( const MAD_REF imad )
 //{
-//    /// @details ZZ@> This function gets the number of vertices to transform for a model...
+//    /// @author ZZ
+/// @details This function gets the number of vertices to transform for a model...
 //    //    That means every one except the grip ( unconnected ) vertices
 //
 //    // if (imad == 0)
@@ -1255,7 +1273,8 @@ void mad_make_equally_lit_ref( const MAD_REF imad )
 ////--------------------------------------------------------------------------------------------
 //int vertexconnected( md2_ogl_commandlist_t * pclist, int vertex )
 //{
-//    /// @details ZZ@> This function returns 1 if the model vertex is connected, 0 otherwise
+//    /// @author ZZ
+/// @details This function returns 1 if the model vertex is connected, 0 otherwise
 //    int cnt, tnc, entry;
 //
 //    entry = 0;
@@ -1281,7 +1300,8 @@ void mad_make_equally_lit_ref( const MAD_REF imad )
 ////--------------------------------------------------------------------------------------------
 //int action_frame()
 //{
-//    /// @details ZZ@> This function returns the frame number in the third and fourth characters
+//    /// @author ZZ
+/// @details This function returns the frame number in the third and fourth characters
 //    ///    of cFrameName
 //
 //    int number;
