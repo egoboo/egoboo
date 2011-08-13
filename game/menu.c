@@ -173,10 +173,6 @@ struct s_GameTips
     //These are loaded only once
     Uint8  count;                         //< Number of global tips loaded
     STRING hint[MENU_MAX_GAMETIPS];       //< The global hints/tips
-
-    //These are loaded for every module
-    Uint8  local_count;                   //< Number of module specific tips loaded
-    STRING local_hint[MENU_MAX_GAMETIPS]; //< Module specific hints and tips
 };
 
 //--------------------------------------------------------------------------------------------
@@ -238,7 +234,8 @@ static int buttonTop = 0;
 
 static menu_process_t    _mproc;
 
-static GameTips_t mnu_GameTip = { 0 };
+static GameTips_t mnu_Tips_global = { 0 };
+static GameTips_t mnu_Tips_local  = { 0 };
 
 static mnu_SlidyButtonState_t mnu_SlidyButtonState = { NULL };
 
@@ -301,8 +298,9 @@ static int menu_process_do_running( menu_process_t * mproc );
 static int menu_process_do_leaving( menu_process_t * mproc );
 
 // the hint system
-static void   mnu_GameTip_load_global_vfs( void );
-static bool_t mnu_GameTip_load_local_vfs( void );
+static bool_t       mnu_Tips_global_load_vfs( GameTips_t * );
+static bool_t       mnu_Tips_local_load_vfs( GameTips_t * );
+static const char * mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal );
 
 // "private" module utility
 static void   mnu_load_all_module_info( void );
@@ -689,7 +687,7 @@ bool_t menu_system_init()
     }
 
     // Load game hints
-    mnu_GameTip_load_global_vfs();
+    mnu_Tips_global_load_vfs( &mnu_Tips_global );
 
     return retval;
 }
@@ -725,6 +723,9 @@ int menu_system_begin()
         atexit( menu_system_atexit );
         _menu_system_atexit_registered = btrue;
     }
+
+    // Should be okay to randomize the seed here
+    srand( time( NULL ) );
 
     menu_system_ctor();
 
@@ -4187,8 +4188,8 @@ int doShowResults( float deltaTime )
     static Font   *font;
     static int     menuState = MM_Begin;
     static int     count;
-    static char*   game_hint;
     static char    buffer[1024] = EMPTY_CSTR;
+    static STRING  game_tip;  
 
     int menuResult = 0;
 
@@ -4210,14 +4211,22 @@ int doShowResults( float deltaTime )
                 }
 
                 // Randomize the next game hint, but only if not in hard mode
-                game_hint = CSTR_END;
+                game_tip[0] = CSTR_END;
                 if ( cfg.difficulty <= GAME_NORMAL )
                 {
-                    // Should be okay to randomize the seed here, the random seed isnt standarized or
-                    // used elsewhere before the module is loaded.
-                    srand( time( NULL ) );
-                    if ( mnu_GameTip_load_local_vfs() )   game_hint = mnu_GameTip.local_hint[rand() % mnu_GameTip.local_count];
-                    else if ( mnu_GameTip.count > 0 )     game_hint = mnu_GameTip.hint[rand() % mnu_GameTip.count];
+                    const char * hint_ptr = NULL;
+
+                    if( 0 == mnu_Tips_local.count )
+                    {
+                        mnu_Tips_local_load_vfs(&mnu_Tips_local);
+                    }
+
+                    hint_ptr = mnu_Tips_get_hint( &mnu_Tips_global, &mnu_Tips_local );
+                    if( VALID_CSTR(hint_ptr) )
+                    {
+                        strncpy( game_tip, hint_ptr, SDL_arraysize(game_tip) );
+                        str_add_linebreaks( game_tip, SDL_arraysize( game_tip ), 50 );
+                    }
                 }
             }
             // pass through
@@ -4244,13 +4253,15 @@ int doShowResults( float deltaTime )
                 ui_drawTextBox( font, "Loading module...", ( GFX_WIDTH / 2 ) - text_w / 2, GFX_HEIGHT - 200, 0, 0, 20 );
 
                 // Draw the game tip
-                if ( VALID_CSTR( game_hint ) )
+                if ( VALID_CSTR( game_tip ) )
                 {
                     fnt_getTextSize( menuFont, "GAME TIP", &text_w, &text_h );
                     ui_drawTextBox( font, "GAME TIP", ( GFX_WIDTH / 2 ) - ( text_w / 2 ), GFX_HEIGHT - 150, 0, 0, 20 );
 
-                    fnt_getTextSize( menuFont, game_hint, &text_w, &text_h );       /// @todo ZF@> : this doesnt work as I intended, fnt_get_TextSize() does not take line breaks into account
-                    ui_drawTextBox( menuFont, game_hint, ( GFX_WIDTH / 2 ) - ( text_w / 2 ), GFX_HEIGHT - 110, 0, 0, 10 );
+                    /// @note ZF@> : this doesnt work as I intended, fnt_get_TextSize() does not take line breaks into account
+                    /// @note BB@> : fixed by changing the function to fnt_getTextBoxSize()
+                    fnt_getTextBoxSize( menuFont, game_tip, &text_w, &text_h );
+                    ui_drawTextBox( menuFont, game_tip, ( GFX_WIDTH / 2 ) - ( text_w / 2 ), GFX_HEIGHT - 110, 0, 0, 10 );
                 }
 
                 // keep track of the iterations through this section for a timer
@@ -5193,129 +5204,26 @@ void mnu_ModList_release_images()
 }
 
 //--------------------------------------------------------------------------------------------
-// Functions for implementing the TxTitleImage array of textures
+// Implementation of the GameTips_t system
 //--------------------------------------------------------------------------------------------
-//void TxTitleImage_clear_data()
-//{
-//    TxTitleImage.count = 0;
-//}
-//
-////--------------------------------------------------------------------------------------------
-//void TxTitleImage_ctor()
-//{
-//    /// @details ZZ@> This function clears out all of the textures
-//
-//    TX_REF cnt;
-//
-//    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
-//    {
-//        oglx_texture_ctor( TxTitleImage.lst + cnt );
-//    }
-//
-//    TxTitleImage_clear_data();
-//}
-//
-////--------------------------------------------------------------------------------------------
-//void TxTitleImage_release_one( const TX_REF index )
-//{
-//    if ( index < 0 || index >= MAX_MODULE ) return;
-//
-//    oglx_texture_Release( TxTitleImage.lst + index );
-//}
-//
-////--------------------------------------------------------------------------------------------
-//void TxTitleImage_release_all()
-//{
-//    /// @details ZZ@> This function releases all of the textures
-//
-//    TX_REF cnt;
-//
-//    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
-//    {
-//        TxTitleImage_release_one( cnt );
-//    }
-//
-//    TxTitleImage_clear_data();
-//}
-//
-////--------------------------------------------------------------------------------------------
-//void TxTitleImage_dtor()
-//{
-//    /// @details ZZ@> This function clears out all of the textures
-//
-//    TX_REF cnt;
-//
-//    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
-//    {
-//        oglx_texture_dtor( TxTitleImage.lst + cnt );
-//    }
-//
-//    TxTitleImage_clear_data();
-//}
-//
-////--------------------------------------------------------------------------------------------
-//TX_REF TxTitleImage_load_one_vfs( const char *szLoadName )
-//{
-//    /// @details ZZ@> This function loads a title in the specified image slot, forcing it into
-//    ///    system memory.  Returns btrue if it worked
-//
-//    TX_REF itex;
-//
-//    if ( INVALID_CSTR( szLoadName ) ) return ( TX_REF )INVALID_TITLE_TEXTURE;
-//
-//    if ( TxTitleImage.count >= TITLE_TEXTURE_COUNT ) return ( TX_REF )INVALID_TITLE_TEXTURE;
-//
-//    itex  = ( TX_REF )TxTitleImage.count;
-//    if ( INVALID_GL_ID != ego_texture_load_vfs( TxTitleImage_get_ptr( itex ), szLoadName, INVALID_KEY ) )
-//    {
-//        TxTitleImage.count++;
-//    }
-//    else
-//    {
-//        itex = ( TX_REF )INVALID_TITLE_TEXTURE;
-//    }
-//
-//    return itex;
-//}
-//
-////--------------------------------------------------------------------------------------------
-//void TxTitleImage_reload_all()
-//{
-//    /// @details ZZ@> This function re-loads all the current textures back into
-//    ///               OpenGL texture memory using the cached SDL surfaces
-//
-//    TX_REF cnt;
-//
-//    for ( cnt = 0; cnt < TX_TEXTURE_COUNT; cnt++ )
-//    {
-//        oglx_texture_t * ptex = TxTitleImage.lst + cnt;
-//
-//        if ( oglx_texture_Valid( ptex ) )
-//        {
-//            oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
-//        }
-//    }
-//}
-//
-////--------------------------------------------------------------------------------------------
-// Implementation of the mnu_GameTip system
-//--------------------------------------------------------------------------------------------
-void mnu_GameTip_load_global_vfs()
+bool_t mnu_Tips_global_load_vfs( GameTips_t * pglobal )
 {
     /// ZF@> This function loads all of the game hints and tips
     STRING buffer;
     vfs_FILE *fileread;
     Uint8 cnt;
 
+    if( NULL == pglobal ) return bfalse;
+
     // reset the count
-    mnu_GameTip.count = 0;
+    pglobal->count = 0;
 
     // Open the file with all the tips
     fileread = vfs_openRead( "mp_data/gametips.txt" );
     if ( NULL == fileread )
     {
         log_warning( "Could not load the game tips and hints. (\"mp_data/gametips.txt\")\n" );
-        return;
+        return bfalse;
     }
 
     // Load the data
@@ -5325,22 +5233,24 @@ void mnu_GameTip_load_global_vfs()
         {
             //Read the line
             vfs_get_string( fileread, buffer, SDL_arraysize( buffer ) );
-            strcpy( mnu_GameTip.hint[cnt], buffer );
+            strcpy( pglobal->hint[cnt], buffer );
 
             //Make it look nice
-            str_decode( mnu_GameTip.hint[cnt], SDL_arraysize( mnu_GameTip.hint[cnt] ), mnu_GameTip.hint[cnt] );
-            //str_add_linebreaks( mnu_GameTip.hint[cnt], SDL_arraysize( mnu_GameTip.hint[cnt] ), 50 );
+            str_decode( pglobal->hint[cnt], SDL_arraysize( pglobal->hint[cnt] ), pglobal->hint[cnt] );
+            //str_add_linebreaks( pglobal->hint[cnt], SDL_arraysize( pglobal->hint[cnt] ), 50 );
 
             //Keep track of how many we have total
-            mnu_GameTip.count++;
+            pglobal->count++;
         }
     }
 
     vfs_close( fileread );
+
+    return pglobal->count > 0;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_GameTip_load_local_vfs()
+bool_t mnu_Tips_local_load_vfs( GameTips_t * plocal )
 {
     /// ZF@> This function loads all module specific hints and tips. If this fails, the game will
     //       default to the global hints and tips instead
@@ -5350,7 +5260,7 @@ bool_t mnu_GameTip_load_local_vfs()
     Uint8 cnt;
 
     // reset the count
-    mnu_GameTip.local_count = 0;
+    plocal->count = 0;
 
     // Open all the tips
     snprintf( buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", pickedmodule_name );
@@ -5364,20 +5274,64 @@ bool_t mnu_GameTip_load_local_vfs()
         {
             //Read the line
             vfs_get_string( fileread, buffer, SDL_arraysize( buffer ) );
-            strcpy( mnu_GameTip.local_hint[cnt], buffer );
+            strcpy( plocal->hint[cnt], buffer );
 
             //Make it look nice
-            str_decode( mnu_GameTip.local_hint[cnt], SDL_arraysize( mnu_GameTip.local_hint[cnt] ), mnu_GameTip.local_hint[cnt] );
-            //str_add_linebreaks( mnu_GameTip.local_hint[cnt], SDL_arraysize( mnu_GameTip.local_hint[cnt] ), 50 );
+            str_decode( plocal->hint[cnt], SDL_arraysize( plocal->hint[cnt] ), plocal->hint[cnt] );
 
             //Keep track of how many we have total
-            mnu_GameTip.local_count++;
+            plocal->count++;
         }
     }
 
     vfs_close( fileread );
 
-    return mnu_GameTip.local_count > 0;
+    return plocal->count > 0;
+}
+
+//--------------------------------------------------------------------------------------------
+const char * mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal )
+{
+    const char * retval = "Don't die...\n";
+    int          randval = 0;
+
+    bool_t valid_global = (NULL != pglobal) && (0 != pglobal->count );
+    bool_t valid_local  = (NULL != plocal)  && (0 != plocal->count  );
+
+    randval = rand();
+
+    if( !valid_global && !valid_local )
+    {
+        // no hints loaded, use the default hint
+    }
+    else if( valid_global && !valid_local )
+    {
+        // only global hints
+        int randval_global = randval % pglobal->count;
+        retval = pglobal->hint[randval_global];
+    }
+    else if( !valid_global && valid_local )
+    {
+        // only local hints
+        int randval_local = randval % plocal->count;
+        retval = plocal->hint[randval_local];
+    }
+    else
+    {
+        // both hints
+        int randval_total = randval % ( pglobal->count + plocal->count);
+
+        if( randval_total < pglobal->count )
+        {
+            retval = pglobal->hint[randval_total];
+        }
+        else
+        {
+            retval = plocal->hint[randval_total - pglobal->count];
+        }
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6384,3 +6338,108 @@ bool_t mnu_load_all_global_icons()
 
     return retval;
 }*/
+
+//--------------------------------------------------------------------------------------------
+// Functions for implementing the TxTitleImage array of textures
+//--------------------------------------------------------------------------------------------
+//void TxTitleImage_clear_data()
+//{
+//    TxTitleImage.count = 0;
+//}
+//
+////--------------------------------------------------------------------------------------------
+//void TxTitleImage_ctor()
+//{
+//    /// @details ZZ@> This function clears out all of the textures
+//
+//    TX_REF cnt;
+//
+//    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
+//    {
+//        oglx_texture_ctor( TxTitleImage.lst + cnt );
+//    }
+//
+//    TxTitleImage_clear_data();
+//}
+//
+////--------------------------------------------------------------------------------------------
+//void TxTitleImage_release_one( const TX_REF index )
+//{
+//    if ( index < 0 || index >= MAX_MODULE ) return;
+//
+//    oglx_texture_Release( TxTitleImage.lst + index );
+//}
+//
+////--------------------------------------------------------------------------------------------
+//void TxTitleImage_release_all()
+//{
+//    /// @details ZZ@> This function releases all of the textures
+//
+//    TX_REF cnt;
+//
+//    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
+//    {
+//        TxTitleImage_release_one( cnt );
+//    }
+//
+//    TxTitleImage_clear_data();
+//}
+//
+////--------------------------------------------------------------------------------------------
+//void TxTitleImage_dtor()
+//{
+//    /// @details ZZ@> This function clears out all of the textures
+//
+//    TX_REF cnt;
+//
+//    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
+//    {
+//        oglx_texture_dtor( TxTitleImage.lst + cnt );
+//    }
+//
+//    TxTitleImage_clear_data();
+//}
+//
+////--------------------------------------------------------------------------------------------
+//TX_REF TxTitleImage_load_one_vfs( const char *szLoadName )
+//{
+//    /// @details ZZ@> This function loads a title in the specified image slot, forcing it into
+//    ///    system memory.  Returns btrue if it worked
+//
+//    TX_REF itex;
+//
+//    if ( INVALID_CSTR( szLoadName ) ) return ( TX_REF )INVALID_TITLE_TEXTURE;
+//
+//    if ( TxTitleImage.count >= TITLE_TEXTURE_COUNT ) return ( TX_REF )INVALID_TITLE_TEXTURE;
+//
+//    itex  = ( TX_REF )TxTitleImage.count;
+//    if ( INVALID_GL_ID != ego_texture_load_vfs( TxTitleImage_get_ptr( itex ), szLoadName, INVALID_KEY ) )
+//    {
+//        TxTitleImage.count++;
+//    }
+//    else
+//    {
+//        itex = ( TX_REF )INVALID_TITLE_TEXTURE;
+//    }
+//
+//    return itex;
+//}
+//
+////--------------------------------------------------------------------------------------------
+//void TxTitleImage_reload_all()
+//{
+//    /// @details ZZ@> This function re-loads all the current textures back into
+//    ///               OpenGL texture memory using the cached SDL surfaces
+//
+//    TX_REF cnt;
+//
+//    for ( cnt = 0; cnt < TX_TEXTURE_COUNT; cnt++ )
+//    {
+//        oglx_texture_t * ptex = TxTitleImage.lst + cnt;
+//
+//        if ( oglx_texture_Valid( ptex ) )
+//        {
+//            oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
+//        }
+//    }
+//}
