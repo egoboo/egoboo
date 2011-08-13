@@ -62,39 +62,37 @@ enum e_camera_turn_mode
     CAM_TURN_GOOD = 255
 };
 
-#define CAM_TRACK_X_AREA_LOW     100
-#define CAM_TRACK_X_AREA_HIGH    180
-#define CAM_TRACK_Y_AREA_MINLOW  320
-#define CAM_TRACK_Y_AREA_MAXLOW  460
-#define CAM_TRACK_Y_AREA_MINHIGH 460
-#define CAM_TRACK_Y_AREA_MAXHIGH 600
+//#define CAM_TRACK_X_AREA_LOW     100
+//#define CAM_TRACK_X_AREA_HIGH    180
+//#define CAM_TRACK_Y_AREA_MINLOW  320
+//#define CAM_TRACK_Y_AREA_MAXLOW  460
+//#define CAM_TRACK_Y_AREA_MINHIGH 460
+//#define CAM_TRACK_Y_AREA_MAXHIGH 600
 
 #define CAM_FOV                             60          ///< Field of view
-#define CAM_TURN_JOY              (3.0f * 5.0f)         ///< Joystick camera rotation
+#define CAM_TURN_JOY                        64         ///< Joystick camera rotation
 #define CAM_TURN_KEY               CAM_TURN_JOY         ///< Keyboard camera rotation
 #define CAM_TURN_TIME                       16          ///< Smooth turn
-#define CAM_TRACK_FAR                     1200          ///< For outside modules...
-#define CAM_TRACK_EDGE                     800          ///< Camtrack bounds
+//#define CAM_TRACK_FAR                     1200          ///< For outside modules...
+//#define CAM_TRACK_EDGE                     800          ///< Camtrack bounds
 
-// Multi cam (uses macro to switch between old and new camera
-#define ZOOM_FACTOR                              0.5f
+/// Multi cam uses macro to switch between old and new camera
+#define CAM_ZOOM_FACTOR                              0.5f
 
 #if !defined(OLD_CAMERA_MODE)
-#    define CAM_ZOOM_MIN                         (800 * ZOOM_FACTOR)         ///< Camera distance
-#    define CAM_ZOOM_MAX                         (700 * ZOOM_FACTOR)
-#    define CAM_ZADD_MIN                         (800 * ZOOM_FACTOR)         ///< Camera height
-#    define CAM_ZADD_MAX                         (2750 * ZOOM_FACTOR)
-#    define CAM_UPDOWN_MIN                       (0.24f*PI)    ///< Camera updown angle
-#    define CAM_UPDOWN_MAX                       (0.10f*PI)
-#    define CAM_ZADD_AVG                         (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX))
-#    define CAM_ZOOM_AVG                         (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX))
+#    define CAM_ZOOM_MIN                         (800 * CAM_ZOOM_FACTOR)         ///< Camera distance
+#    define CAM_ZOOM_MAX                         (700 * CAM_ZOOM_FACTOR)
+#    define CAM_ZADD_MIN                         (800 * CAM_ZOOM_FACTOR)         ///< Camera height
+#    define CAM_ZADD_MAX                         (2750 * CAM_ZOOM_FACTOR)
+//#    define CAM_UPDOWN_MIN                       (0.24f * PI)                  ///< Camera updown angle
+//#    define CAM_UPDOWN_MAX                       (0.10f * PI)
 #else
-#    define CAM_ZOOM_MIN                         (500 * ZOOM_FACTOR)         ///< Camera distance
-#    define CAM_ZOOM_MAX                         (600 * ZOOM_FACTOR)
-#    define CAM_ZADD_MIN                         (800 * ZOOM_FACTOR)         ///< Camera height
-#    define CAM_ZADD_MAX                         (1500 * ZOOM_FACTOR)  ///< 1000
-#    define CAM_UPDOWN_MIN                       (0.24f*PI)    ///< Camera updown angle
-#    define CAM_UPDOWN_MAX                       (0.18f*PI)// (0.15f*PI) ///< (0.18f*PI)
+#    define CAM_ZOOM_MIN                         (500 * CAM_ZOOM_FACTOR)         ///< Camera distance
+#    define CAM_ZOOM_MAX                         (600 * CAM_ZOOM_FACTOR)
+#    define CAM_ZADD_MIN                         (800 * CAM_ZOOM_FACTOR)         ///< Camera height
+#    define CAM_ZADD_MAX                         (1500 * CAM_ZOOM_FACTOR)        // 1000
+//#    define CAM_UPDOWN_MIN                       (0.24f * PI)                  ///< Camera updown angle
+//#    define CAM_UPDOWN_MAX                       (0.18f * PI)                  // (0.15f*PI) // (0.18f*PI)
 #endif
 
 #define CAM_ZADD_AVG                         (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX))
@@ -167,8 +165,8 @@ struct s_camera
     fvec3_t       vrt;                 ///< the camera right vector
 
     // effects
-    float         motion_blur;      ///< Blurry effect
-    int           swing;                   ///< Camera swingin'
+    float         motion_blur;         ///< Blurry effect
+    int           swing;               ///< Camera swingin'
     int           swing_rate;
     float         swing_amp;
     float         roll;
