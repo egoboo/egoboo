@@ -99,10 +99,10 @@ static bool_t sdl_audio_initialize( void );
 static bool_t sdl_mixer_initialize( void );
 static void   sdl_mixer_quit( void );
 
-static int    _calculate_volume( const fvec3_base_t diff, const float fov_rad );
-static bool_t _update_stereo_channel( int channel, const fvec3_base_t diff, const float pan );
+static int    _calculate_volume( const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float fov_rad );
+static bool_t _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float pan );
 static bool_t _update_channel_volume( int channel, const int volume, const float pan );
-static bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t diff, float * pan_ptr );
+static bool_t _calculate_average_camera_stereo( const fvec3_base_t snd_pos, fvec3_base_t cam_pos, fvec3_base_t cam_center, fvec3_base_t diff, float * pan_ptr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -619,12 +619,12 @@ int get_current_song_playing()
 //--------------------------------------------------------------------------------------------
 // chunk stuff
 //--------------------------------------------------------------------------------------------
-int sound_play_chunk_looped( const fvec3_base_t pos, const Mix_Chunk * pchunk, const int loops, const CHR_REF owner )
+int sound_play_chunk_looped( const fvec3_base_t snd_pos, const Mix_Chunk * pchunk, const int loops, const CHR_REF owner )
 {
     /// ZF@> This function plays a specified sound and returns which channel it's using
     int channel = INVALID_SOUND_CHANNEL;
 
-    fvec3_t diff;
+    fvec3_t cam_pos, cam_center, diff;
     float pan;
     int volume;
 
@@ -634,9 +634,9 @@ int sound_play_chunk_looped( const fvec3_base_t pos, const Mix_Chunk * pchunk, c
     if ( !process_running( PROC_PBASE( GProc ) ) )  return INVALID_SOUND_CHANNEL;
 
     // measure the distance in tiles
-    _calculate_average_camera_stereo( pos, diff.v, &pan );
+    _calculate_average_camera_stereo( snd_pos, cam_pos.v, cam_center.v, diff.v, &pan );
 
-    volume = _calculate_volume( diff.v, DEG_TO_RAD( CAM_FOV ) );
+    volume = _calculate_volume( cam_pos.v, cam_center.v, diff.v, DEG_TO_RAD( CAM_FOV ) );
 
     // play the sound
     if ( volume > 0 )
@@ -1065,7 +1065,6 @@ void looped_update_all_sound()
 
     for ( cnt = 0; cnt < LoopedList.used_count; cnt++ )
     {
-        fvec3_t   diff;
         size_t    index;
         LOOP_REF   ref;
         looped_sound_data_t * plooped;
@@ -1081,21 +1080,24 @@ void looped_update_all_sound()
         if ( !INGAME_CHR( plooped->object ) )
         {
             // not a valid object
-            fvec3_t   diff_tmp = VECT3( 0, 0, 0 );
+            fvec3_t   diff_tmp   = VECT3( 0, 0, 0 );
+            fvec3_t   cam_pos_tmp = VECT3( 0, 0, 0 );
+            fvec3_t   cam_center_tmp = VECT3( 0, 0, 0 );
 
-            _update_stereo_channel( plooped->channel, diff_tmp.v, 0.0f );
+            _update_stereo_channel( plooped->channel, cam_pos_tmp.v, cam_center_tmp.v, diff_tmp.v, 0.0f );
         }
         else
         {
             float pan;
+            fvec3_t cam_pos, cam_center, diff;
 
             // make the sound stick to the object
 
             // get the stereo parameters for multiple cameras (yuck!)
-            _calculate_average_camera_stereo( ChrList.lst[plooped->object].pos.v, diff.v, &pan );
+            _calculate_average_camera_stereo( ChrList.lst[plooped->object].pos.v, cam_pos.v, cam_center.v, diff.v, &pan );
 
             // update the stereo channels
-            _update_stereo_channel( plooped->channel, diff.v, pan );
+            _update_stereo_channel( plooped->channel, cam_pos.v, cam_center.v, diff.v, pan );
         }
     }
 }
@@ -1150,27 +1152,37 @@ bool_t looped_stop_object_sounds( const CHR_REF  ichr )
 // helper functions
 //--------------------------------------------------------------------------------------------
 
-int _calculate_volume( const fvec3_base_t diff, float const fov_rad )
+int _calculate_volume( const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, float const fov_rad )
 {
     /// @details BB@> This calculates the volume a sound should have depending on
     //  the distance from the camera
 
-    float dist2;
+    float lookat_dist2, diff_dist2;
     int volume;
-    float render_size, tan_val;
+    float render_radius2, tan_val;
 
     // approximate the radius of the area that the camera sees
-    dist2 = diff[kX] * diff[kX] + diff[kY] * diff[kY] + diff[kZ] * diff[kZ];
+    lookat_dist2 = fvec3_dist_2( cam_center, cam_pos ); // * fvec3_length_2( eye_vec );
+    diff_dist2   = fvec3_length_2( diff );
+
     tan_val = TAN( fov_rad * 0.5f );
-    render_size = PI * dist2 * tan_val * tan_val;
+    render_radius2 = lookat_dist2 * tan_val * tan_val;
 
     // adjust for the listen skill
-    if ( local_stats.listening_level ) dist2 *= 0.66f * 0.66f;
+    if ( local_stats.listening_level ) diff_dist2 *= 0.66f * 0.66f;
 
-    volume  = 255 * render_size / ( render_size + dist2 );
+    if( 0.0f == render_radius2 + diff_dist2 )
+    {
+        volume = 255;
+    }
+    else
+    {
+        volume  = 255 * render_radius2 / ( render_radius2 + diff_dist2 );
+    }
+    
     volume  = ( volume * snd.soundvolume ) / 100;
 
-    return volume;
+    return CLIP(volume, 0, 255);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1181,7 +1193,7 @@ bool_t _update_channel_volume( int channel, const int volume, const float pan )
     int leftvol, rightvol;
 
     // determine the angle away from "forward"
-    loc_volume *= ( 2.0f + cos( loc_pan ) ) / 3.0f;
+    loc_volume *= ( 2.0f + COS( loc_pan ) ) / 3.0f;
 
     // determine the angle from the left ear
     loc_pan += 1.5f * PI;
@@ -1203,7 +1215,7 @@ bool_t _update_channel_volume( int channel, const int volume, const float pan )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t diff, float * pan_ptr )
+bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t cam_pos, fvec3_base_t cam_center, fvec3_base_t diff, float * pan_ptr )
 {
     int cam_count;
     fvec2_t pan_diff;
@@ -1213,6 +1225,8 @@ bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t di
     if ( NULL == pos ) return bfalse;
 
     // initialize the values
+    fvec3_self_clear( cam_pos );
+    fvec3_self_clear( cam_center );
     fvec3_self_clear( diff );
     fvec2_self_clear( pan_diff.v );
 
@@ -1236,6 +1250,10 @@ bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t di
 
         // sum up the differences
         fvec3_self_sum( diff, tmp_diff.v );
+
+        // sum up the center positions
+        fvec3_self_sum( cam_pos, pcam->pos.v );
+        fvec3_self_sum( cam_center, pcam->center.v );
 
         // if pan is required...
         if ( NULL != pan_ptr )
@@ -1280,6 +1298,8 @@ bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t di
     if ( cam_count > 1 )
     {
         fvec3_self_scale( diff, 1.0f / cam_count );
+        fvec3_self_scale( cam_pos, 1.0f / cam_count );
+        fvec3_self_scale( cam_center, 1.0f / cam_count );
     }
 
     // find the net direction
@@ -1292,7 +1312,7 @@ bool_t _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t di
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t _update_stereo_channel( int channel, const fvec3_base_t diff, const float pan )
+bool_t _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float pan )
 {
     /// @details BB@> This updates the stereo image of a looped sound
 
@@ -1300,7 +1320,7 @@ bool_t _update_stereo_channel( int channel, const fvec3_base_t diff, const float
 
     if ( INVALID_SOUND_CHANNEL == channel ) return bfalse;
 
-    volume = _calculate_volume( diff, DEG_TO_RAD( CAM_FOV ) );
+    volume = _calculate_volume( cam_pos, cam_center, diff, DEG_TO_RAD( CAM_FOV ) );
 
     return _update_channel_volume( channel, volume, pan );
 }
