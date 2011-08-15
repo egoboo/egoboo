@@ -59,9 +59,9 @@ static int  fnt_print_raw_SDL( TTF_Font *font, SDL_Color fnt_color, const char *
 static int  fnt_drawText_raw_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, const char *text, SDL_Surface * pDstSurface, SDL_Surface ** ppTmpSurface );
 static void fnt_streamText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, int spacing, const char *text );
 
-static int  fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText, SDL_Surface ** ppTmpSurface );
-static void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, int x, int y, const char *text, SDL_Surface ** ppTmpSurface );
-static void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, int x, int y, int spacing, const char *text, SDL_Surface ** ppTmpSurface );
+static int  fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, const char * szText, SDL_Surface ** ppTmpSurface );
+static void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, const char *text, SDL_Surface ** ppTmpSurface );
+static void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, int spacing, const char *text, SDL_Surface ** ppTmpSurface );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -225,6 +225,7 @@ int fnt_drawText_raw_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, con
     SDL_Surface * loc_pSrcSurface = NULL;
     SDL_Surface **loc_ppSrcSurface = NULL;
 
+    // handle optional ppTmpSurface
     if ( NULL != ppSrcSurface )
     {
         sdl_surf_external = btrue;
@@ -277,6 +278,7 @@ void fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_S
 
     if ( NULL == pDstSurface ) return;
 
+    // handle optional ppTmpSurface
     if ( NULL != ppTmpSurface )
     {
         sdl_surf_external = btrue;
@@ -388,14 +390,32 @@ void fnt_streamText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, int
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText, SDL_Surface ** ppTmpSurface )
+int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, const char * szText, SDL_Surface ** ppTmpSurface )
 {
     int rv, print_rv, upload_rv;
 
-    bool_t       sdl_surf_external;
-    SDL_Surface *loc_pSurface = NULL;
-    SDL_Surface **loc_ppTmpSurface = NULL;
+    bool_t  gl_id_external;
+    GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
+    bool_t        sdl_surf_external;
+    SDL_Surface  *loc_pSurface      = NULL;
+    SDL_Surface **loc_ppTmpSurface  = NULL;
+
+    // handle the tex_coords
+    if ( NULL == tex_coords ) 
+    {
+        tex_coords = loc_tex_coords;
+    }
+
+    // handle optional tex_id
+    gl_id_external = btrue;
+    if( INVALID_GL_ID == tex_id )
+    {
+        gl_id_external = bfalse;
+        glGenTextures( 1, &tex_id );
+    }
+
+    // handle optional ppTmpSurface
     if ( NULL != ppTmpSurface )
     {
         sdl_surf_external = btrue;
@@ -428,13 +448,19 @@ int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, const char * szText, SDL
     // upload the surface
     if ( NULL != loc_ppTmpSurface && NULL != *loc_ppTmpSurface )
     {
-        upload_rv = SDL_GL_uploadSurface( *loc_ppTmpSurface, font->texture, font->texCoords );
+        upload_rv = SDL_GL_uploadSurface( *loc_ppTmpSurface, tex_id, tex_coords );
 
         // did we succeed?
         rv = upload_rv ? 0 : -1;
     }
 
 fnt_print_raw_OGL_exit:
+
+    if( !gl_id_external && INVALID_GL_ID != tex_id )
+    {
+        glDeleteTextures( 1, &tex_id );
+        tex_id = INVALID_GL_ID;
+    }
 
     // if the surface is not external, there is a surface for us to delete (unless something went wrong)
     if ( !sdl_surf_external && NULL != *loc_ppTmpSurface )
@@ -448,29 +474,72 @@ fnt_print_raw_OGL_exit:
 }
 
 //--------------------------------------------------------------------------------------------
-int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, const char *format, va_list args, SDL_Surface ** ppTmpSurface )
+int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, const char *format, va_list args, SDL_Surface ** ppTmpSurface )
 {
     int rv, vsnprintf_rv;
     STRING szText = EMPTY_CSTR;
+
+    bool_t  gl_id_external;
+    GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+    // handle the tex_coords
+    if ( NULL == tex_coords ) 
+    {
+        tex_coords = loc_tex_coords;
+    }
+
+    // handle optional tex_id
+    gl_id_external = btrue;
+    if( INVALID_GL_ID == tex_id )
+    {
+        gl_id_external = bfalse;
+        glGenTextures( 1, &tex_id );
+    }
 
     // evaluate the variable args
     vsnprintf_rv = vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args );
     if ( vsnprintf_rv < 0 ) return -1;
 
-    rv = fnt_print_raw_OGL( font, fnt_color, szText, ppTmpSurface );
+    rv = fnt_print_raw_OGL( font, fnt_color, tex_id, tex_coords, szText, ppTmpSurface );
+
+fnt_vprintf_OGL_exit:
+
+    if( !gl_id_external && INVALID_GL_ID != tex_id )
+    {
+        glDeleteTextures( 1, &tex_id );
+        tex_id = INVALID_GL_ID;
+    }
 
     return rv;
 }
 
 //--------------------------------------------------------------------------------------------
-void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, int x, int y, const char *text, SDL_Surface ** ppTmpSurface )
+void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, const char *text, SDL_Surface ** ppTmpSurface )
 {
     int rv;
+
+    bool_t  gl_id_external;
+    GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     bool_t sdl_surf_external;
     SDL_Surface * loc_pTmpSurface = NULL;
     SDL_Surface  **loc_ppTmpSurface = NULL;
 
+    // handle the tex_coords
+    if ( NULL == tex_coords ) 
+    {
+        tex_coords = loc_tex_coords;
+    }
+
+    // handle optional tex_id
+    gl_id_external = btrue;
+    if( INVALID_GL_ID == tex_id )
+    {
+        gl_id_external = bfalse;
+        glGenTextures( 1, &tex_id );
+    }
+
+    // handle optional ppTmpSurface
     if ( NULL != ppTmpSurface )
     {
         sdl_surf_external = btrue;
@@ -482,27 +551,41 @@ void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, int x, int y, const 
         loc_ppTmpSurface = &loc_pTmpSurface;
     }
 
-    rv = fnt_print_raw_OGL( font, fnt_color, text, loc_ppTmpSurface );
+    // alocate a texture, if necessary
+    gl_id_external = btrue;
+    if( INVALID_GL_ID == tex_id )
+    {
+        gl_id_external = bfalse;
+        glGenTextures( 1, &tex_id );
+    }
+
+    rv = fnt_print_raw_OGL( font, fnt_color, tex_id, tex_coords, text, loc_ppTmpSurface );
     if ( rv < 0 ) goto fnt_drawText_raw_finish;
 
     // And draw the darn thing
     GL_DEBUG( glBegin )( GL_QUADS );
     {
-        GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[1] );
+        GL_DEBUG( glTexCoord2f )( tex_coords[0], tex_coords[1] );
         GL_DEBUG( glVertex2f )( x, y );
 
-        GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[1] );
+        GL_DEBUG( glTexCoord2f )( tex_coords[2], tex_coords[1] );
         GL_DEBUG( glVertex2f )( x + ( *loc_ppTmpSurface )->w, y );
 
-        GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[3] );
+        GL_DEBUG( glTexCoord2f )( tex_coords[2], tex_coords[3] );
         GL_DEBUG( glVertex2f )( x + ( *loc_ppTmpSurface )->w, y + ( *loc_ppTmpSurface )->h );
 
-        GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[3] );
+        GL_DEBUG( glTexCoord2f )( tex_coords[0], tex_coords[3] );
         GL_DEBUG( glVertex2f )( x, y + ( *loc_ppTmpSurface )->h );
     }
     GL_DEBUG_END();
 
 fnt_drawText_raw_finish:
+
+    if( !gl_id_external && INVALID_GL_ID != tex_id )
+    {
+        glDeleteTextures( 1, &tex_id );
+        tex_id = INVALID_GL_ID;
+    }
 
     if ( !sdl_surf_external && NULL != *loc_ppTmpSurface )
     {
@@ -513,15 +596,33 @@ fnt_drawText_raw_finish:
 }
 
 //--------------------------------------------------------------------------------------------
-void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, ... )
+void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, ... )
 {
     va_list args;
     int rv;
+
+    bool_t  gl_id_external;
+    GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     bool_t       sdl_surf_external;
     SDL_Surface * loc_pTmpSurface = NULL;
     SDL_Surface **loc_ppTmpSurface = NULL;
 
+    // handle the tex_coords
+    if ( NULL == tex_coords ) 
+    {
+        tex_coords = loc_tex_coords;
+    }
+
+    // handle optional tex_id
+    gl_id_external = btrue;
+    if( INVALID_GL_ID == tex_id )
+    {
+        gl_id_external = bfalse;
+        glGenTextures( 1, &tex_id );
+    }
+
+    // handle optional ppTmpSurface
     if ( NULL != ppTmpSurface )
     {
         sdl_surf_external = btrue;
@@ -534,7 +635,7 @@ void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, int x, int y, SDL_Surfac
     }
 
     va_start( args, format );
-    rv = fnt_vprintf_OGL( font, fnt_color, format, args, loc_ppTmpSurface );
+    rv = fnt_vprintf_OGL( font, fnt_color, tex_id, tex_coords, format, args, loc_ppTmpSurface );
     va_end( args );
 
     if ( rv <= 0 )
@@ -542,19 +643,27 @@ void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, int x, int y, SDL_Surfac
         // And draw the darn thing
         GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[1] );
+            GL_DEBUG( glTexCoord2f )( tex_coords[0], tex_coords[1] );
             GL_DEBUG( glVertex2f )( x, y );
 
-            GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[1] );
+            GL_DEBUG( glTexCoord2f )( tex_coords[2], tex_coords[1] );
             GL_DEBUG( glVertex2f )( x + ( *loc_ppTmpSurface )->w, y );
 
-            GL_DEBUG( glTexCoord2f )( font->texCoords[2], font->texCoords[3] );
+            GL_DEBUG( glTexCoord2f )( tex_coords[2], tex_coords[3] );
             GL_DEBUG( glVertex2f )( x + ( *loc_ppTmpSurface )->w, y + ( *loc_ppTmpSurface )->h );
 
-            GL_DEBUG( glTexCoord2f )( font->texCoords[0], font->texCoords[3] );
+            GL_DEBUG( glTexCoord2f )( tex_coords[0], tex_coords[3] );
             GL_DEBUG( glVertex2f )( x, y + ( *loc_ppTmpSurface )->h );
         }
         GL_DEBUG_END();
+    }
+
+fnt_drawText_OGL_exit:
+
+    if( !gl_id_external && INVALID_GL_ID != tex_id )
+    {
+        glDeleteTextures( 1, &tex_id );
+        tex_id = INVALID_GL_ID;
     }
 
     if ( !sdl_surf_external && NULL != *loc_ppTmpSurface )
@@ -584,6 +693,9 @@ void fnt_drawTextBox_OGL( Font *font, SDL_Color fnt_color, int x, int y, int wid
     int rv;
     char text[4096] = EMPTY_CSTR;
 
+    GLuint  tex_id = INVALID_GL_ID;
+    GLfloat tex_coords[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
     va_start( args, format );
     rv = vsnprintf( text, SDL_arraysize( text ), format, args );
     va_end( args );
@@ -591,15 +703,19 @@ void fnt_drawTextBox_OGL( Font *font, SDL_Color fnt_color, int x, int y, int wid
     // some problem printing the text
     if ( rv >= 0 )
     {
-        fnt_streamText_OGL( font, fnt_color, x, y, spacing, text, ppTmpSurface );
+        fnt_streamText_OGL( font, fnt_color, tex_id, tex_coords, x, y, spacing, text, ppTmpSurface );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, int x, int y, int spacing, const char *text, SDL_Surface ** ppTmpSurface )
+void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, int spacing, const char *text, SDL_Surface ** ppTmpSurface )
 {
     size_t len;
     char *buffer, *line;
+
+    bool_t  gl_id_external;
+    GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    GLfloat tmp_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     bool_t       sdl_surf_external;
     SDL_Surface * loc_pTmpSurface = NULL;
@@ -610,6 +726,21 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, int x, int y, int spa
     // If text is empty, there's nothing to draw
     if ( NULL == text || '\0' == text[0] ) return;
 
+    // handle the tex_coords
+    if ( NULL == tex_coords ) 
+    {
+        tex_coords = loc_tex_coords;
+    }
+
+    // handle optional tex_id
+    gl_id_external = btrue;
+    if( INVALID_GL_ID == tex_id )
+    {
+        gl_id_external = bfalse;
+        glGenTextures( 1, &tex_id );
+    }
+
+    // handle optional ppTmpSurface
     if ( NULL != ppTmpSurface )
     {
         sdl_surf_external = btrue;
@@ -628,11 +759,28 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, int x, int y, int spa
 
     for ( line = strtok( buffer, "\n" ); NULL != line; line = strtok( NULL, "\n" ) )
     {
-        fnt_drawText_raw_OGL( font, fnt_color, x, y, line, loc_ppTmpSurface );
+        fnt_drawText_raw_OGL( font, fnt_color, tex_id, tmp_tex_coords, x, y, line, loc_ppTmpSurface );
+
+        if( NULL != tex_coords )
+        {
+            if( tex_coords[0] > tmp_tex_coords[0] ) tex_coords[0] = tmp_tex_coords[0];
+            if( tex_coords[1] > tmp_tex_coords[1] ) tex_coords[1] = tmp_tex_coords[1];
+            if( tex_coords[2] < tmp_tex_coords[2] ) tex_coords[2] = tmp_tex_coords[2];
+            if( tex_coords[3] < tmp_tex_coords[3] ) tex_coords[3] = tmp_tex_coords[3];
+        }
+
         y += spacing;
     }
 
+fnt_streamText_OGL_exit:
+
     EGOBOO_DELETE_ARY( buffer );
+
+    if( !gl_id_external && INVALID_GL_ID != tex_id )
+    {
+        glDeleteTextures( 1, &tex_id );
+        tex_id = INVALID_GL_ID;
+    }
 
     if ( !sdl_surf_external && NULL != *loc_ppTmpSurface )
     {

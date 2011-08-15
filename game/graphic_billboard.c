@@ -137,8 +137,10 @@ bool_t billboard_data_update( billboard_data_t * pbb )
 bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color color, const char * format, ... )
 {
     va_list args;
+
     int rv;
     oglx_texture_t * ptex;
+    GLfloat loc_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
@@ -147,7 +149,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     oglx_texture_Release( ptex );
 
     va_start( args, format );
-    rv = fnt_vprintf_OGL( font, color, format, args, &( ptex->surface ) );
+    rv = fnt_vprintf_OGL( font, color, ptex->base.binding, loc_coords, format, args, &( ptex->surface ) );
     va_end( args );
 
     ptex->base_valid = bfalse;
@@ -196,7 +198,7 @@ void BillboardList_update_all()
         if ( !pbb->valid ) continue;
 
         is_invalid = bfalse;
-        if ( ticks >= pbb->time || NULL == TxTexture_get_valid_ptr( pbb->tex_ref ) )
+        if ( (ticks >= pbb->time) || (NULL == TxTexture_get_valid_ptr( pbb->tex_ref )) )
         {
             is_invalid = btrue;
         }
@@ -388,7 +390,7 @@ bool_t billboard_system_render_one( billboard_data_t * pbb, float scale, const f
     pchr = ChrList_get_ptr( pbb->ichr );
 
     // do not display for objects that are mounted or being held
-    if ( IS_ATTACHED_CHR( pbb->ichr ) ) return bfalse;
+    if ( IS_ATTACHED_CHR_RAW( pbb->ichr ) ) return bfalse;
 
     ptex = TxTexture_get_valid_ptr( pbb->tex_ref );
 

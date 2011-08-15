@@ -685,6 +685,56 @@ void finalize_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
+void blah_billboard()
+{
+    const SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
+    const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
+
+    billboard_data_t * pbb;
+    bool_t needs_new;
+    Uint32 current_time;
+
+    current_time = egoboo_get_ticks();
+
+    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
+    {
+        if( MAX_CHR != ChrList.lst[ichr].attachedto ) continue;
+
+        needs_new = bfalse;
+
+        if( !VALID_BILLBOARD_RANGE(pchr->ibillboard) )
+        {
+            needs_new = btrue;
+        }
+        //else
+        //{
+        //    pbb = BillboardList_get_ptr(pchr->ibillboard);
+        //    if( NULL == pbb )
+        //    {
+        //        needs_new = btrue;
+        //    }
+        //    else if ( current_time >= pbb->time )
+        //    {
+        //        needs_new = btrue;
+        //    }
+
+        //    BillboardList_free_one( pchr->ibillboard );
+        //    pchr->ibillboard = BILLBOARD_COUNT;
+        //}
+
+        if( needs_new )
+        {
+            const char * pname = chr_get_name(ichr, 0, NULL, 0);
+
+            chr_make_text_billboard( ichr, pname, color_blu, default_tint, 50, bb_opt_fade );
+
+            pname = chr_get_name(ichr, 0, NULL, 0);
+        }
+    }
+    CHR_END_LOOP()
+}
+
+//--------------------------------------------------------------------------------------------
 int update_game()
 {
     /// @author ZZ
@@ -886,6 +936,7 @@ int update_game()
                 {
                     let_all_characters_think();           // sets the non-player latches
                     net_unbuffer_player_latches();            // sets the player latches
+                    blah_billboard();
                 }
                 //---- end the code object I/O
 
