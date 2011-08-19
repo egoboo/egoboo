@@ -35,7 +35,7 @@
 #include "../_math.inl"
 
 // includes for egoboo constants
-#include <game/sound.h>                 // for INVALID_SOUND
+#include "../../game/sound.h"                 // for INVALID_SOUND
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

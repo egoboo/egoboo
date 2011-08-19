@@ -24,7 +24,7 @@
 #include <SDL.h>
 #include <SDL_thread.h>
 
-#include <egolib/log.h>
+#include "../egolib/log.h"
 
 #include "threads.h"
 

@@ -22,6 +22,6 @@
 /// @file egoboo_typedef.h
 /// @details base type definitions and config options
 
-#include <egolib/typedef.h>
+#include "../egolib/typedef.h"
 
 #include "egoboo_config.h"

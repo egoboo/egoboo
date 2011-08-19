@@ -36,7 +36,7 @@
 static FILE * _ogl_include_stderr = NULL;
 
 //--------------------------------------------------------------------------------------------
-GLboolean handle_opengl_error()
+GLboolean handle_opengl_error( void )
 {
     GLboolean error = GL_TRUE;
 

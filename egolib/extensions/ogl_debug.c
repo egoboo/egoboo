@@ -46,7 +46,7 @@ const char * next_file = "BAD FILE";
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void handle_gl_error()
+void handle_gl_error( void )
 {
     GLint err = glGetError();
     if ( GL_NO_ERROR != err )
@@ -57,7 +57,7 @@ void handle_gl_error()
 }
 
 //--------------------------------------------------------------------------------------------
-void print_gl_command()
+void print_gl_command( void )
 {
     fprintf( LOCAL_STDERR, "%s (\"%s\" - %d)\n", next_cmd, next_file, next_line );
 }

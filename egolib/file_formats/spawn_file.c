@@ -31,7 +31,7 @@
 #include "../_math.inl"
 
 // includes for egoboo constants
-#include <game/char.h>       // for TEAM_* constants
+#include "../../game/char.h"       // for TEAM_* constants
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

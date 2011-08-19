@@ -109,7 +109,7 @@ FILE * globalnetworkerr = NULL;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-egonet_instance_t * egonet_get_instance()
+egonet_instance_t * egonet_get_instance( void )
 {
     if ( !gnet.initialized ) return NULL;
 
@@ -117,7 +117,7 @@ egonet_instance_t * egonet_get_instance()
 }
 
 //--------------------------------------------------------------------------------------------
-const bool_t egonet_on()
+const bool_t egonet_on( void )
 {
     if ( !gnet.initialized ) return bfalse;
 
@@ -214,7 +214,7 @@ bool_t egonet_set_myHost( const ENetHost* phost )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void egonet_connect()
+void egonet_connect( void )
 {
     if ( !gnet.initialized ) return;
 
@@ -245,7 +245,7 @@ void egonet_connect()
 }
 
 //--------------------------------------------------------------------------------------------
-void egonet_disconnect()
+void egonet_disconnect( void )
 {
     if ( !gnet.initialized ) return;
 
@@ -284,7 +284,7 @@ bool_t egonet_begin( bool_t req_enet )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_end()
+bool_t egonet_end( void )
 {
     if ( !gnet.initialized ) return bfalse;
 
@@ -322,7 +322,7 @@ void egonet_initialize( BaseServerState_t * ps, BaseClientState_t * pc, size_t s
 }
 
 //--------------------------------------------------------------------------------------------
-void egonet_shutDown()
+void egonet_shutDown( void )
 {
     if ( !gnet.initialized ) return;
 
@@ -345,7 +345,7 @@ void egonet_shutDown()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void egonet_close_session()
+void egonet_close_session( void )
 {
     size_t i, numPeers;
     ENetEvent event;
@@ -367,7 +367,7 @@ void egonet_close_session()
 #if defined(ENET11)
                 enet_peer_disconnect( &gnet.myHost->peers[i], 0 );
 #else
-                enet_peer_disconnect( &gnet.myHost->peers[i] );
+                enet_peer_disconnect( &gnet.myHost->peers[i], 0 );
 #endif
             }
 
@@ -407,7 +407,7 @@ void egonet_close_session()
 }
 
 //--------------------------------------------------------------------------------------------
-void egonet_listen_for_packets()
+void egonet_listen_for_packets( void )
 {
     /// @author ZZ
     /// @details This function reads any new messages and sets the player latch and matrix needed
@@ -437,7 +437,7 @@ void egonet_listen_for_packets()
 #if defined(ENET11)
                     enet_peer_disconnect( event.peer, 0 );
 #else
-                    enet_peer_disconnect( event.peer );
+                    enet_peer_disconnect( event.peer, 0 );
 #endif
                     break;
 

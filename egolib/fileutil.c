@@ -34,7 +34,7 @@
 #include "../egolib/_math.inl"
 
 // includes for egoboo constants
-#include <game/mad.h>                     // for ACTION_* constants
+#include "../game/mad.h"                    // for ACTION_* constants
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1081,7 +1081,7 @@ bool_t vfs_get_next_bool( vfs_FILE * fileread )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void GLSetup_SupportedFormats()
+void GLSetup_SupportedFormats( void )
 {
     /// @author ZF
     /// @details This need only to be once

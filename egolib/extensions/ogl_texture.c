@@ -119,7 +119,7 @@ void ErrorImage_bind( GLenum target, GLuint id )
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint ErrorImage_get_binding()
+GLuint ErrorImage_get_binding( void )
 {
     // make sure the error texture exists
     if ( !ErrorImage_defined ) ErrorImage_create();

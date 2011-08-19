@@ -257,7 +257,7 @@ int  netfile_pendingTransfers()
 }
 
 //--------------------------------------------------------------------------------------------
-void netfile_updateTransfers()
+void netfile_updateTransfers( void )
 {
     NetFileTransfer *state;
     ENetPacket *packet;

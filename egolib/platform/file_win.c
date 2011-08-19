@@ -130,25 +130,25 @@ void sys_fs_init( const char * root_dir )
 }
 
 //--------------------------------------------------------------------------------------------
-const char *fs_getBinaryDirectory()
+const char *fs_getBinaryDirectory( void )
 {
     return win32_binaryPath;
 }
 
 //--------------------------------------------------------------------------------------------
-const char *fs_getDataDirectory()
+const char *fs_getDataDirectory( void )
 {
     return win32_dataPath;
 }
 
 //--------------------------------------------------------------------------------------------
-const char *fs_getUserDirectory()
+const char *fs_getUserDirectory( void )
 {
     return win32_userDataPath;
 }
 
 //--------------------------------------------------------------------------------------------
-const char *fs_getConfigDirectory()
+const char *fs_getConfigDirectory( void )
 {
     return win32_configPath;
 }

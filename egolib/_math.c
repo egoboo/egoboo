@@ -48,7 +48,7 @@ void make_turntosin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void make_randie()
+void make_randie( void )
 {
     /// @author ZZ
     /// @details This function makes the random number table

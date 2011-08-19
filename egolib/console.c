@@ -69,7 +69,7 @@ static void egolib_console_draw_end( void );
 static SDL_bool egolib_console_draw( egolib_console_t * pcon );
 
 //--------------------------------------------------------------------------------------------
-void egolib_console_begin()
+void egolib_console_begin( void )
 {
     /// @author BB
     /// @details initialize the console. This must happen after the screen has been defines,
@@ -97,7 +97,7 @@ void egolib_console_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-void egolib_console_end()
+void egolib_console_end( void )
 {
     /// @author BB
     /// @details de-initialize the top console
@@ -313,7 +313,7 @@ SDL_bool egolib_console_destroy( egolib_console_t ** pcon, SDL_bool do_free )
 }
 
 //--------------------------------------------------------------------------------------------
-void egolib_console_draw_begin()
+void egolib_console_draw_begin( void )
 {
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
     GL_DEBUG( glPushAttrib )( GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_VIEWPORT_BIT );
@@ -348,7 +348,7 @@ void egolib_console_draw_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-void egolib_console_draw_end()
+void egolib_console_draw_end( void )
 {
     // Restore the GL_PROJECTION matrix
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
@@ -476,7 +476,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
 }
 
 //--------------------------------------------------------------------------------------------
-void egolib_console_draw_all()
+void egolib_console_draw_all( void )
 {
     egolib_console_t * pcon = egolib_console_top;
 

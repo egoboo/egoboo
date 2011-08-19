@@ -70,7 +70,7 @@ static int fnt_atexit_registered = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int fnt_init()
+int fnt_init( void )
 {
     /// @author BB
     /// @details Make sure the TTF library was initialized

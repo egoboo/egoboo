@@ -46,10 +46,11 @@ static const char * scantag_tok( const char * tag_string );
 //--------------------------------------------------------------------------------------------
 // Tag Reading
 //--------------------------------------------------------------------------------------------
-void scantag_reset()
+void scantag_reset( void )
 {
     /// @author ZZ
     /// @details This function resets the tags
+
     scantag_count = 0;
 }
 
@@ -262,7 +263,7 @@ int scantag_find_index( const char *string )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t scantag_get_count()
+size_t scantag_get_count( void )
 {
     return scantag_count;
 }

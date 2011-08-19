@@ -205,13 +205,13 @@ void vfs_init( const char * root_dir )
 }
 
 //--------------------------------------------------------------------------------------------
-void _vfs_exit()
+void _vfs_exit( void )
 {
     PHYSFS_deinit();
 }
 
 //--------------------------------------------------------------------------------------------
-const char* vfs_getVersion()
+const char* vfs_getVersion( void )
 {
     /// @author ZF
     /// @details  returns the current version of the PhysFS library which was used for compiling the binary
@@ -500,7 +500,7 @@ const char * _vfs_potential_mount_point( const char * some_path, const char ** p
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_listSearchPaths()
+void vfs_listSearchPaths( void )
 {
     //JJ> Lists all search paths that PhysFS uses (for debug use)
 
@@ -2126,7 +2126,7 @@ char * vfs_gets( char * buffer, int buffer_size, vfs_FILE * pfile )
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_empty_temp_directories()
+void vfs_empty_temp_directories( void )
 {
     BAIL_IF_NOT_INIT();
 
@@ -2248,7 +2248,7 @@ void _vfs_translate_error( vfs_FILE * pfile )
 }
 
 //--------------------------------------------------------------------------------------------
-const char * vfs_getError()
+const char * vfs_getError( void )
 {
     /// @author ZF
     /// @details Returns the last error the PHYSFS system reported.
@@ -2615,7 +2615,7 @@ bool_t _vfs_mount_info_remove( int cnt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void vfs_set_base_search_paths()
+void vfs_set_base_search_paths( void )
 {
     BAIL_IF_NOT_INIT();
 

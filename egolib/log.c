@@ -76,7 +76,7 @@ void log_init( const char * logname )
 }
 
 //--------------------------------------------------------------------------------------------
-void log_shutdown()
+void log_shutdown( void )
 {
     if ( NULL != logFile )
     {
@@ -162,7 +162,7 @@ void log_error( const char *format, ... )
 }
 
 //--------------------------------------------------------------------------------------------
-FILE * log_get_file()
+FILE * log_get_file( void )
 {
     return logFile;
 }

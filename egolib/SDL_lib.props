@@ -1,17 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <IncludePath>$(SDL_INCLUDE);$(SDL_TTF_INCLUDE);$(SDL_IMAGE_INCLUDE);$(SDL_MIXER_INCLUDE);$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <PropertyGroup>
-    <LibraryPath>$(SDL_LIB);$(SDL_TTF_LIB);$(SDL_IMAGE_LIB);$(SDL_MIXER_LIB);$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
   <ItemDefinitionGroup>
-    <Link>
-      <AdditionalDependencies>$(SDL_NAME).lib;$(SDL_NAME)main.lib;$(SDL_TTF_NAME).lib;$(SDL_IMAGE_NAME).lib;$(SDL_MIXER_NAME).lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>

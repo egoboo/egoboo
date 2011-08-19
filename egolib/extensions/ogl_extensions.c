@@ -41,7 +41,7 @@ static FILE * _oglx_stdout = NULL;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void oglx_report_caps()
+void oglx_report_caps( void )
 {
     oglx_Get_Screen_Info( &ogl_caps );
 
@@ -277,7 +277,7 @@ void oglx_begin_culling( GLenum face, GLenum mode )
 }
 
 //--------------------------------------------------------------------------------------------
-void oglx_end_culling()
+void oglx_end_culling( void )
 {
     GL_DEBUG( glDisable )( GL_CULL_FACE );  // GL_ENABLE_BIT
 }

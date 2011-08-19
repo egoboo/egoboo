@@ -73,7 +73,7 @@ static double clk_guessFrameDuration( ClockState_t * cs );
 //--------------------------------------------------------------------------------------------
 static clock_source_ptr_t _clock_timeSource = NULL;
 
-static clock_source_ptr_t clock_getTimeSource()
+static clock_source_ptr_t clock_getTimeSource( void )
 {
     if ( NULL == _clock_timeSource )
     {
@@ -94,7 +94,7 @@ void clk_setTimeSource( clock_source_ptr_t tsrc )
 }
 
 //--------------------------------------------------------------------------------------------
-void clk_init()
+void clk_init( void )
 {
     log_info( "Initializing clock services...\n" );
 
@@ -102,7 +102,7 @@ void clk_init()
 }
 
 //--------------------------------------------------------------------------------------------
-void clk_shutdown()
+void clk_shutdown( void )
 {
     _clock_timeSource = NULL;
 }
@@ -326,7 +326,7 @@ float clk_getFrameRate( ClockState_t * cs )
 }
 
 //--------------------------------------------------------------------------------------------
-EGO_TIME getCurrentTime()
+EGO_TIME getCurrentTime( void )
 {
     time_t rawtime = time( NULL );
     EGO_TIME timeinfo = localtime( &rawtime );

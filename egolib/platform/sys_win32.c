@@ -33,7 +33,7 @@ double win32_secondsPerTick = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void sys_initialize()
+void sys_initialize( void )
 {
     LARGE_INTEGER frequency;
     LONGLONG f;
@@ -48,7 +48,7 @@ void sys_initialize()
 }
 
 //--------------------------------------------------------------------------------------------
-double sys_getTime()
+double sys_getTime( void )
 {
     LARGE_INTEGER time;
 

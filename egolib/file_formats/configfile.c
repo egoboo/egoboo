@@ -127,7 +127,7 @@ static size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileVal
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ConfigFilePtr_t ConfigFile_create()
+ConfigFilePtr_t ConfigFile_create( void )
 {
     ConfigFilePtr_t ptmp = NULL;
 
@@ -283,7 +283,7 @@ char * ConfigFileString_resize( char * str, size_t new_len )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ConfigFileValuePtr_t ConfigFileValue_create()
+ConfigFileValuePtr_t ConfigFileValue_create( void )
 {
     ConfigFileValuePtr_t ptmp;
 
@@ -307,7 +307,7 @@ ConfigFile_retval ConfigFileValue_destroy( ConfigFileValuePtr_t * ptmp )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ConfigFileSectionPtr_t ConfigFileSection_create()
+ConfigFileSectionPtr_t ConfigFileSection_create( void )
 {
     ConfigFileSectionPtr_t ptmp;
 

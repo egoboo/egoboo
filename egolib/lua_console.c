@@ -83,7 +83,7 @@ void shutdown_lua( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void initialize_lua()
+void initialize_lua( void )
 {
     if ( NULL != global_L ) return;
 

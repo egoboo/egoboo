@@ -165,7 +165,7 @@ struct s_ego_grid_info
 ego_grid_info_t * ego_grid_info_ctor( ego_grid_info_t * ptr );
 ego_grid_info_t * ego_grid_info_dtor( ego_grid_info_t * ptr );
 ego_grid_info_t * ego_grid_info_free( ego_grid_info_t * ptr );
-ego_grid_info_t * ego_grid_info_create();
+ego_grid_info_t * ego_grid_info_create( void );
 ego_grid_info_t * ego_grid_info_destroy( ego_grid_info_t * ptr );
 
 ego_grid_info_t * ego_grid_info_ctor_ary( ego_grid_info_t * ptr, size_t count );

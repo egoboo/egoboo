@@ -33,8 +33,8 @@
 #include "../egolib/_math.inl"
 
 // includes for egoboo constants
-#include <game/camera.h>            // for CAM_TURN_*
-#include <game/graphic.h>           // for MAX_MESSAGE
+#include "../game/camera.h"            // for CAM_TURN_*
+#include "../game/graphic.h"           // for MAX_MESSAGE
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ void egoboo_config_init( egoboo_config_t * pcfg )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t setup_begin()
+bool_t setup_begin( void )
 {
     if ( _setup_started ) return btrue;
 
@@ -208,13 +208,13 @@ bool_t setup_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_end()
+bool_t setup_end( void )
 {
     return ConfigFile_succeed == ConfigFile_destroy( &_lpConfigSetup );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_read_vfs()
+bool_t setup_read_vfs( void )
 {
     /// @author BB
     /// @details read the setup file
@@ -233,7 +233,7 @@ bool_t setup_read_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_write_vfs()
+bool_t setup_write_vfs( void )
 {
     /// @author BB
     /// @details save the current setup file
@@ -670,7 +670,7 @@ bool_t config_synch( egoboo_config_t * pcfg )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void setup_init_base_vfs_paths()
+void setup_init_base_vfs_paths( void )
 {
     /// @author BB
     /// @details set the basic mount points used by the main program
@@ -703,7 +703,7 @@ void setup_init_base_vfs_paths()
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_clear_base_vfs_paths()
+void setup_clear_base_vfs_paths( void )
 {
     /// @author BB
     /// @details clear out the basic mount points
@@ -792,7 +792,7 @@ bool_t setup_init_module_vfs_paths( const char * mod_path )
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_clear_module_vfs_paths()
+void setup_clear_module_vfs_paths( void )
 {
     /// @author BB
     /// @details clear out the all mount points

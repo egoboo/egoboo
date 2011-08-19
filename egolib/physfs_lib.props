@@ -5,13 +5,5 @@
   <PropertyGroup>
     <IncludePath>$(PHYSFS_INCLUDE);$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <PropertyGroup>
-    <LibraryPath>$(PHYSFS_LIB);$(LibraryPath)</LibraryPath>
-  </PropertyGroup>
-  <ItemDefinitionGroup>
-    <Link>
-      <AdditionalDependencies>$(PHYSFS_NAME)_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

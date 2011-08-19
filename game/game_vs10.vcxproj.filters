@@ -18,66 +18,6 @@
     <Filter Include="Game Inline">
       <UniqueIdentifier>{88939e8d-df88-4e25-b172-f4a616046801}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SDL extensions">
-      <UniqueIdentifier>{d02a387d-56c3-4a1e-80ad-cc90ca1b8ba5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="OpenGL extensions">
-      <UniqueIdentifier>{199a31a0-8698-4676-b46c-c26032a8cb36}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="File System">
-      <UniqueIdentifier>{45131a99-0866-47cd-967c-8ba268aebfbd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats">
-      <UniqueIdentifier>{24fcbd1a-7a2e-42f3-a35b-dcb9b77e83ee}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\tris.md2">
-      <UniqueIdentifier>{3a13f9e9-4e07-4aa4-9518-0ebc36b18369}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\level.mpd">
-      <UniqueIdentifier>{c4a544bc-9e9a-43e1-8159-8620f573b043}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\menu.txt">
-      <UniqueIdentifier>{8d24f8b2-f516-48b6-ad87-535be0186878}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\naming.txt">
-      <UniqueIdentifier>{0519d0ca-39f9-4a5d-b3e7-98d200d34eba}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\data.txt">
-      <UniqueIdentifier>{56917479-2aaa-42c2-ba49-65fd0667d6d1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\enchant.txt">
-      <UniqueIdentifier>{0e4815cd-e05e-447b-b126-2508c9d57a28}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\partX.txt">
-      <UniqueIdentifier>{de1c9103-9287-4e4c-b18b-0c03395e85cb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\passage.txt">
-      <UniqueIdentifier>{7a782a97-69b0-44a4-ae12-fbb11d7232b3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\controls.txt">
-      <UniqueIdentifier>{a2c4c775-aadb-4a8f-8ff8-0714afcdfe5f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\quest.txt">
-      <UniqueIdentifier>{91af4fa3-355e-44e3-b777-499d203945ca}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\template">
-      <UniqueIdentifier>{7ef26d1c-2d66-4b95-8890-70ca5e4946f8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\settings.txt">
-      <UniqueIdentifier>{69eecb9d-6323-410d-bc2a-961c5b7d4840}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\wawalite.txt">
-      <UniqueIdentifier>{b0bda32a-6115-40c5-b925-10a0e82d4d5d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\spawn.txt">
-      <UniqueIdentifier>{efa8b7cd-79fd-4943-90a0-03e264a3da78}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\scancode.txt">
-      <UniqueIdentifier>{680668e8-6e05-410f-9d27-a94be72d95e0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="file formats\treasure_table">
-      <UniqueIdentifier>{ac6715e8-0499-4b36-bc63-f24bfd3774da}</UniqueIdentifier>
-    </Filter>
     <Filter Include="scripting system">
       <UniqueIdentifier>{e06cfe0e-9dce-44b8-98dd-3ef5b6ed32e3}</UniqueIdentifier>
     </Filter>
@@ -87,75 +27,21 @@
     <Filter Include="Resource Files">
       <UniqueIdentifier>{21e1d90e-17bb-419c-9491-d8cd31278e71}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core Inline">
-      <UniqueIdentifier>{d83f8e10-8efc-43a6-bf03-897a1af1d9aa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Platform Dependent">
-      <UniqueIdentifier>{fd3678d3-97be-4044-ba88-f4a5d52f6f59}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bbox.c">
-      <Filter>Core Source</Filter>
+    <ClCompile Include="script.c">
+      <Filter>scripting system</Filter>
     </ClCompile>
-    <ClCompile Include="bsp.c">
-      <Filter>Core Source</Filter>
+    <ClCompile Include="script_compile.c">
+      <Filter>scripting system</Filter>
     </ClCompile>
-    <ClCompile Include="clock.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_clock.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_console.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_endian.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_fileutil.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_frustum.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_math.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_object.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_process.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_setup.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_strutil.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_timer.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_typedef.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="font_bmp.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="font_ttf.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="geometry.c">
-      <Filter>Core Source</Filter>
-    </ClCompile>
-    <ClCompile Include="hash.c">
-      <Filter>Core Source</Filter>
+    <ClCompile Include="script_functions.c">
+      <Filter>scripting system</Filter>
     </ClCompile>
     <ClCompile Include="input.c">
       <Filter>Core Source</Filter>
     </ClCompile>
-    <ClCompile Include="log.c">
+    <ClCompile Include="egoboo_object.c">
       <Filter>Core Source</Filter>
     </ClCompile>
     <ClCompile Include="AStar.c">
@@ -171,9 +57,6 @@
       <Filter>Game Source</Filter>
     </ClCompile>
     <ClCompile Include="ChrList.c">
-      <Filter>Game Source</Filter>
-    </ClCompile>
-    <ClCompile Include="client.c">
       <Filter>Game Source</Filter>
     </ClCompile>
     <ClCompile Include="collision.c">
@@ -194,6 +77,9 @@
     <ClCompile Include="graphic.c">
       <Filter>Game Source</Filter>
     </ClCompile>
+    <ClCompile Include="graphic_billboard.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
     <ClCompile Include="graphic_fan.c">
       <Filter>Game Source</Filter>
     </ClCompile>
@@ -203,7 +89,7 @@
     <ClCompile Include="graphic_prt.c">
       <Filter>Game Source</Filter>
     </ClCompile>
-    <ClCompile Include="IDSZ_map.c">
+    <ClCompile Include="graphic_texture.c">
       <Filter>Game Source</Filter>
     </ClCompile>
     <ClCompile Include="lighting.c">
@@ -233,6 +119,12 @@
     <ClCompile Include="network.c">
       <Filter>Game Source</Filter>
     </ClCompile>
+    <ClCompile Include="network_client.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="network_server.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
     <ClCompile Include="obj_BSP.c">
       <Filter>Game Source</Filter>
     </ClCompile>
@@ -257,198 +149,39 @@
     <ClCompile Include="rpc.c">
       <Filter>Game Source</Filter>
     </ClCompile>
-    <ClCompile Include="server.c">
-      <Filter>Game Source</Filter>
-    </ClCompile>
     <ClCompile Include="sound.c">
-      <Filter>Game Source</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.c">
       <Filter>Game Source</Filter>
     </ClCompile>
     <ClCompile Include="ui.c">
       <Filter>Game Source</Filter>
     </ClCompile>
-    <ClCompile Include="extensions\SDL_extensions.c">
-      <Filter>SDL extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="extensions\SDL_GL_extensions.c">
-      <Filter>SDL extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="extensions\ogl_debug.c">
-      <Filter>OpenGL extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="extensions\ogl_extensions.c">
-      <Filter>OpenGL extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="extensions\ogl_include.c">
-      <Filter>OpenGL extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="extensions\ogl_texture.c">
-      <Filter>OpenGL extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="egoboo_vfs.c">
-      <Filter>File System</Filter>
-    </ClCompile>
-    <ClCompile Include="file_common.c">
-      <Filter>File System</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\id_md2.c">
-      <Filter>file formats\tris.md2</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\mpd_file.c">
-      <Filter>file formats\level.mpd</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\module_file.c">
-      <Filter>file formats\menu.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\cap_file.c">
-      <Filter>file formats\data.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\eve_file.c">
-      <Filter>file formats\enchant.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\pip_file.c">
-      <Filter>file formats\partX.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\passage_file.c">
-      <Filter>file formats\passage.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\controls_file-v1.c">
-      <Filter>file formats\controls.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\controls_file-v2.c">
-      <Filter>file formats\controls.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\controls_file-v3.c">
-      <Filter>file formats\controls.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\controls_file.c">
-      <Filter>file formats\controls.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\quest_file.c">
-      <Filter>file formats\quest.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\template.c">
-      <Filter>file formats\template</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\configfile.c">
-      <Filter>file formats\settings.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\wawalite_file.c">
-      <Filter>file formats\wawalite.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\spawn_file.c">
-      <Filter>file formats\spawn.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\scancode_file.c">
-      <Filter>file formats\scancode.txt</Filter>
-    </ClCompile>
-    <ClCompile Include="file_formats\treasure_table_file.c">
-      <Filter>file formats\treasure_table</Filter>
-    </ClCompile>
-    <ClCompile Include="script.c">
+    <ClCompile Include="script_implementation.c">
       <Filter>scripting system</Filter>
-    </ClCompile>
-    <ClCompile Include="script_compile.c">
-      <Filter>scripting system</Filter>
-    </ClCompile>
-    <ClCompile Include="script_functions.c">
-      <Filter>scripting system</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\file_linux.c">
-      <Filter>Platform Dependent</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\file_win.c">
-      <Filter>Platform Dependent</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\sys_linux.c">
-      <Filter>Platform Dependent</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\sys_mac.c">
-      <Filter>Platform Dependent</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\sys_win32.c">
-      <Filter>Platform Dependent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bbox.h">
-      <Filter>Core Headers</Filter>
+    <ClInclude Include="script.h">
+      <Filter>scripting system</Filter>
     </ClInclude>
-    <ClInclude Include="bsp.h">
-      <Filter>Core Headers</Filter>
+    <ClInclude Include="script_compile.h">
+      <Filter>scripting system</Filter>
     </ClInclude>
-    <ClInclude Include="clock.h">
-      <Filter>Core Headers</Filter>
+    <ClInclude Include="script_functions.h">
+      <Filter>scripting system</Filter>
     </ClInclude>
-    <ClInclude Include="egoboo_clock.h">
+    <ClInclude Include="egoboo_doxygen.h">
+      <Filter>doxygen</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
       <Filter>Core Headers</Filter>
     </ClInclude>
     <ClInclude Include="egoboo_config.h">
       <Filter>Core Headers</Filter>
     </ClInclude>
-    <ClInclude Include="egoboo_console.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_endian.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_fileutil.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_frustum.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_math.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_mem.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
     <ClInclude Include="egoboo_object.h">
       <Filter>Core Headers</Filter>
     </ClInclude>
-    <ClInclude Include="egoboo_platform.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_process.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_setup.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_state_machine.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_strutil.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_timer.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
     <ClInclude Include="egoboo_typedef.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="font_bmp.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="font_ttf.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="geometry.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="hash.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="input.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="log.h">
-      <Filter>Core Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="system.h">
       <Filter>Core Headers</Filter>
     </ClInclude>
     <ClInclude Include="AStar.h">
@@ -464,9 +197,6 @@
       <Filter>Game Headers</Filter>
     </ClInclude>
     <ClInclude Include="ChrList.h">
-      <Filter>Game Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="client.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
     <ClInclude Include="collision.h">
@@ -487,6 +217,9 @@
     <ClInclude Include="graphic.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
+    <ClInclude Include="graphic_billboard.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
     <ClInclude Include="graphic_fan.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
@@ -496,7 +229,7 @@
     <ClInclude Include="graphic_prt.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
-    <ClInclude Include="IDSZ_map.h">
+    <ClInclude Include="graphic_texture.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
     <ClInclude Include="lighting.h">
@@ -508,7 +241,7 @@
     <ClInclude Include="mad.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Md2.h">
+    <ClInclude Include="md2.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
     <ClInclude Include="menu.h">
@@ -524,6 +257,12 @@
       <Filter>Game Headers</Filter>
     </ClInclude>
     <ClInclude Include="network.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="network_client.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="network_server.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
     <ClInclude Include="obj_BSP.h">
@@ -550,117 +289,42 @@
     <ClInclude Include="rpc.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
-    <ClInclude Include="server.h">
-      <Filter>Game Headers</Filter>
-    </ClInclude>
     <ClInclude Include="sound.h">
-      <Filter>Game Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
     <ClInclude Include="ui.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
-    <ClInclude Include="extensions\SDL_extensions.h">
-      <Filter>SDL extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="extensions\SDL_GL_extensions.h">
-      <Filter>SDL extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="extensions\ogl_debug.h">
-      <Filter>OpenGL extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="extensions\ogl_extensions.h">
-      <Filter>OpenGL extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="extensions\ogl_include.h">
-      <Filter>OpenGL extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="extensions\ogl_texture.h">
-      <Filter>OpenGL extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_vfs.h">
-      <Filter>File System</Filter>
-    </ClInclude>
-    <ClInclude Include="file_common.h">
-      <Filter>File System</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\id_md2.h">
-      <Filter>file formats\tris.md2</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\mpd_file.h">
-      <Filter>file formats\level.mpd</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\module_file.h">
-      <Filter>file formats\menu.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\cap_file.h">
-      <Filter>file formats\data.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\eve_file.h">
-      <Filter>file formats\enchant.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\pip_file.h">
-      <Filter>file formats\partX.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\passage_file.h">
-      <Filter>file formats\passage.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\controls_file-v1.h">
-      <Filter>file formats\controls.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\controls_file-v2.h">
-      <Filter>file formats\controls.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\controls_file-v3.h">
-      <Filter>file formats\controls.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\controls_file.h">
-      <Filter>file formats\controls.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\quest_file.h">
-      <Filter>file formats\quest.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\template.h">
-      <Filter>file formats\template</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\configfile.h">
-      <Filter>file formats\settings.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\wawalite_file.h">
-      <Filter>file formats\wawalite.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\spawn_file.h">
-      <Filter>file formats\spawn.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\scancode_file.h">
-      <Filter>file formats\scancode.txt</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\treasure_table_file.h">
-      <Filter>file formats\treasure_table</Filter>
-    </ClInclude>
-    <ClInclude Include="script.h">
+    <ClInclude Include="script_implementation.h">
       <Filter>scripting system</Filter>
-    </ClInclude>
-    <ClInclude Include="script_compile.h">
-      <Filter>scripting system</Filter>
-    </ClInclude>
-    <ClInclude Include="script_functions.h">
-      <Filter>scripting system</Filter>
-    </ClInclude>
-    <ClInclude Include="egoboo_doxygen.h">
-      <Filter>doxygen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\res\egoboo.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\egoboo3.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\old-egoboo.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="PrtList.inl">
+      <Filter>Game Inline</Filter>
+    </None>
     <None Include="char.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="ChrList.inl">
       <Filter>Game Inline</Filter>
     </None>
     <None Include="enchant.inl">
       <Filter>Game Inline</Filter>
     </None>
-    <None Include="Md2.inl">
+    <None Include="EncList.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="md2.inl">
       <Filter>Game Inline</Filter>
     </None>
     <None Include="mesh.inl">
@@ -674,30 +338,6 @@
     </None>
     <None Include="profile.inl">
       <Filter>Game Inline</Filter>
-    </None>
-    <None Include="file_formats\id_normals.inl">
-      <Filter>file formats\tris.md2</Filter>
-    </None>
-    <None Include="..\res\egoboo.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\egoboo3.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\res\old-egoboo.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="bbox.inl">
-      <Filter>Core Inline</Filter>
-    </None>
-    <None Include="bsp.inl">
-      <Filter>Core Inline</Filter>
-    </None>
-    <None Include="egoboo_console.inl">
-      <Filter>Core Inline</Filter>
-    </None>
-    <None Include="egoboo_math.inl">
-      <Filter>Core Inline</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
