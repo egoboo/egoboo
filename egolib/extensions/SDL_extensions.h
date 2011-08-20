@@ -28,7 +28,7 @@
 
 #include <assert.h>
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #include "../file_common.h"
 

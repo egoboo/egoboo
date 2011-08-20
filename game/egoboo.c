@@ -21,8 +21,8 @@
 /// @brief Code for the main program process
 /// @details
 
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 
 #include <egolib/log.h>
 #include <egolib/system.h>

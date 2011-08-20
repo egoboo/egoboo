@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-#include <SDL_endian.h>
+#include <SDL/SDL_endian.h>
 
 #if defined(_APPLE_)
 #    include <Endian.h>

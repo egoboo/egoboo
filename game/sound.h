@@ -22,7 +22,7 @@
 /// @file sound.h
 /// @Sound handling using SDL_mixer
 
-#include <SDL_mixer.h>
+#include <SDL/SDL_mixer.h>
 
 #include <egolib/_math.h>
 

@@ -29,7 +29,7 @@ extern "C"
 {
 #endif
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #ifdef __cplusplus
 }

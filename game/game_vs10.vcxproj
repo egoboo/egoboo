@@ -36,14 +36,16 @@
     <Import Project="physfs.props" />
     <Import Project="enet.props" />
     <Import Project="lua.props" />
+    <Import Project="libraries.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="SDL_app_d.props" />
     <Import Project="OpenGL_app.props" />
-    <Import Project="physfs_d.props" />
-    <Import Project="enet_d.props" />
-    <Import Project="lua_d.props" />
+    <Import Project="physfs.props" />
+    <Import Project="enet.props" />
+    <Import Project="lua.props" />
+    <Import Project="libraries.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>

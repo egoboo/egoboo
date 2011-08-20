@@ -21,7 +21,7 @@
 
 /// @file mad.h
 
-#include <SDL_opengl.h>
+#include <SDL/SDL_opengl.h>
 
 #include "egoboo_typedef.h"
 

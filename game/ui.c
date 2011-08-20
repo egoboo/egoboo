@@ -24,7 +24,7 @@
 
 #include <string.h>
 
-#include <SDL_opengl.h>
+#include <SDL/SDL_opengl.h>
 
 #include <egolib/font_ttf.h>
 #include <egolib/extensions/ogl_debug.h>

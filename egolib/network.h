@@ -59,6 +59,19 @@ extern "C"
     typedef struct s_BaseClientState BaseClientState_t;
 
 //--------------------------------------------------------------------------------------------
+// Fixing some API changes in Enet
+//--------------------------------------------------------------------------------------------
+
+#if !defined(ENET_VERSION) || (ENET_VERSION < ENET_VERSION_CREATE(1,3,0))
+#   define ENET_HOST_CREATE(address, peerCount, incomingBandwidth, outgoingBandwidth) enet_host_create(address, peerCount, incomingBandwidth, outgoingBandwidth)
+#   define ENET_HOST_CONNECT(host, address, channelCount )                            enet_host_connect(host, address, channelCount )
+#else 
+    // use defaults for the new parameters
+#   define ENET_HOST_CREATE(address, peerCount, incomingBandwidth, outgoingBandwidth) enet_host_create(address, peerCount, 0, incomingBandwidth, outgoingBandwidth)
+#   define ENET_HOST_CONNECT(host, address, channelCount)                             enet_host_connect(host, address, channelCount, 0)
+#endif
+
+//--------------------------------------------------------------------------------------------
 // Network constants
 //--------------------------------------------------------------------------------------------
 

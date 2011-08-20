@@ -28,7 +28,7 @@
 
 #include <assert.h>
 
-#include <SDL_opengl.h>
+#include <SDL/SDL_opengl.h>
 
 #include "../file_common.h"
 

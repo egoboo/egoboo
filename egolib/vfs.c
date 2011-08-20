@@ -25,7 +25,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include <physfs.h>
+#include <physfs/physfs.h>
 
 #include "../egolib/vfs.h"
 

@@ -22,7 +22,7 @@
 /// @file input.h
 /// @details Keyboard, mouse, and joystick handling code.
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #include <egolib/input_device.h>
 

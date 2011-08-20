@@ -3,17 +3,17 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SDL_INCLUDE);$(SDL_TTF_INCLUDE);$(SDL_IMAGE_INCLUDE);$(SDL_MIXER_INCLUDE);$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup>
-    <LibraryPath>$(SDL_LIB);$(SDL_TTF_LIB);$(SDL_IMAGE_LIB);$(SDL_MIXER_LIB);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
       <AdditionalDependencies>$(SDL_NAME)_d.lib;$(SDL_NAME)main_d.lib;$(SDL_TTF_NAME)_d.lib;$(SDL_IMAGE_NAME)_d.lib;$(SDL_MIXER_NAME)_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />

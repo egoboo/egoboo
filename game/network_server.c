@@ -223,7 +223,7 @@ egolib_rv sv_hostGame()
 
         log_info( "sv_hostGame: Creating game on port %d\n", NET_EGOBOO_PORT );
 
-        phost = enet_host_create( &address, MAX_PLAYER, 0, 0 );
+        phost = ENET_HOST_CREATE( &address, MAX_PLAYER, 0, 0 );
         egonet_set_myHost( phost );
 
         if ( NULL == phost )

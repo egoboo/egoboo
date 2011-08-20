@@ -119,7 +119,7 @@ egolib_rv cl_joinGame( const char* hostname )
         log_info( "cl_joinGame: Creating client network connection... " );
         // Create my host thingamabober
         /// @todo Should I limit client bandwidth here?
-        phost = enet_host_create( NULL, 1, 0, 0 );
+        phost = ENET_HOST_CREATE( NULL, 1, 0, 0 );
 
         egonet_set_myHost( phost );
         if ( NULL == phost )
@@ -138,9 +138,9 @@ egolib_rv cl_joinGame( const char* hostname )
         enet_address_set_host( &address, hostname );
         address.port = NET_EGOBOO_PORT;
 
-        pgame = enet_host_connect(( ENetHost * )egonet_get_myHost(), &address, NET_EGOBOO_NUM_CHANNELS );
-
+        pgame = ENET_HOST_CONNECT(( ENetHost * )egonet_get_myHost(), &address, NET_EGOBOO_NUM_CHANNELS );
         ClientState.base.gameHost = pgame;
+
         if ( NULL == ClientState.base.gameHost )
         {
             log_info( "cl_joinGame: No available peers to create a connection!\n" );

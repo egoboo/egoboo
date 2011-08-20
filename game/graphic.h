@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #include <egolib/extensions/ogl_texture.h>
 #include <egolib/file_formats/module_file.h>

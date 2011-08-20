@@ -21,7 +21,7 @@
 /// @brief Character model drawing code.
 /// @details
 
-#include <SDL_opengl.h>
+#include <SDL/SDL_opengl.h>
 
 #include <egolib/log.h>
 #include <egolib/egoboo_setup.h>

@@ -23,7 +23,7 @@
 /// @brief Implementation of generic extensions to SDL
 /// @details
 
-#include <SDL_opengl.h>
+#include <SDL/SDL_opengl.h>
 
 #include "SDL_extensions.h"
 
