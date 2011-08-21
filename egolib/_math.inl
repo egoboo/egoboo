@@ -163,7 +163,7 @@ extern "C"
 #endif
 
 //--------------------------------------------------------------------------------------------
-// IEEE 32-BIT FLOSTING POINT NUMBER FUNCTIONS
+// IEEE 32-BIT FLOATING POINT NUMBER FUNCTIONS
 //--------------------------------------------------------------------------------------------
 static INLINE Uint32 float32_to_uint32( float f )
 {
@@ -190,7 +190,7 @@ static INLINE bool_t ieee32_infinite( float f )
 {
     Uint32 u = float32_to_uint32( f );
 
-    return ( 0 == ( u & IEEE32_FRACTION ) && IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) );
+    return ( 0 == ( u & IEEE32_FRACTION ) && IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) ) ? btrue : bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ static INLINE bool_t ieee32_nan( float f )
 {
     Uint32 u = float32_to_uint32( f );
 
-    return ( 0 != ( u&IEEE32_FRACTION ) && IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) );
+    return ( 0 != ( u&IEEE32_FRACTION ) && IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) ) ? btrue : bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ static INLINE bool_t ieee32_bad( float f )
 {
     Uint32 u = float32_to_uint32( f );
 
-    return ( IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) );
+    return ( IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) ) ? btrue : bfalse;
 }
 
 //--------------------------------------------------------------------------------------------

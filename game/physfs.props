@@ -10,7 +10,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>$(PHYSFS_NAME)_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
