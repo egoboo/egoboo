@@ -34,7 +34,7 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, oglx_texture_t, TxTexture, TX_TEXTURE_COUNT 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void TxTexture_reset_freelist();
+static void TxTexture_reset_freelist( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ IMPLEMENT_LIST( oglx_texture_t, TxTexture, TX_TEXTURE_COUNT );
 //--------------------------------------------------------------------------------------------
 // TxTexture implementation
 //--------------------------------------------------------------------------------------------
-void TxTexture_reset_freelist()
+void TxTexture_reset_freelist( void )
 {
     /// @author BB
     /// @details reset the free texture list. Start at TX_SPECIAL_LAST so that the global textures/icons are
@@ -60,7 +60,7 @@ void TxTexture_reset_freelist()
 }
 
 //--------------------------------------------------------------------------------------------
-void TxTexture_init_all()
+void TxTexture_init_all( void )
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -76,7 +76,7 @@ void TxTexture_init_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void TxTexture_release_all()
+void TxTexture_release_all( void )
 {
     /// @author ZZ
     /// @details This function releases all of the textures
@@ -92,7 +92,7 @@ void TxTexture_release_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void TxTexture_delete_all()
+void TxTexture_delete_all( void )
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -108,7 +108,7 @@ void TxTexture_delete_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void TxTexture_reload_all()
+void TxTexture_reload_all( void )
 {
     /// @author ZZ
     /// @details This function re-loads all the current textures back into

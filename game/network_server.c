@@ -40,12 +40,12 @@ ServerState_t ServerState = SERVER_STATE_INIT;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void sv_frameStep()
+void sv_frameStep( void )
 {
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv sv_talkToRemotes()
+egolib_rv sv_talkToRemotes( void )
 {
     /// @author ZZ
     /// @details This function sends the character data to all the remote machines
@@ -152,7 +152,7 @@ egolib_rv sv_talkToRemotes()
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv sv_letPlayersJoin()
+egolib_rv sv_letPlayersJoin( void )
 {
     /// @author ZZ
     /// @details This function finds all the players in the game
@@ -206,7 +206,7 @@ egolib_rv sv_letPlayersJoin()
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv sv_hostGame()
+egolib_rv sv_hostGame( void )
 {
     /// @author ZZ
     /// @details This function tries to host a new session

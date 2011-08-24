@@ -75,7 +75,7 @@ static bool_t input_handle_chat( SDL_Event * pevt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void input_system_init_keyboard()
+void input_system_init_keyboard( void )
 {
     // set up the keyboard
     BLANK_STRUCT( keyb )
@@ -88,7 +88,7 @@ void input_system_init_keyboard()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_system_init_mouse()
+void input_system_init_mouse( void )
 {
     /// @author BB
     /// @details set up the mouse
@@ -99,7 +99,7 @@ void input_system_init_mouse()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_system_init_joysticks()
+void input_system_init_joysticks( void )
 {
     /// @author BB
     /// @details init the joysticks
@@ -119,7 +119,7 @@ void input_system_init_joysticks()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_system_init_devices()
+void input_system_init_devices( void )
 {
     int cnt;
 
@@ -131,7 +131,7 @@ void input_system_init_devices()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_system_init()
+void input_system_init( void )
 {
     /// @author BB
     /// @details initialize the inputs
@@ -154,7 +154,7 @@ void input_system_init()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void input_read_mouse()
+void input_read_mouse( void )
 {
     int x, y, b;
 
@@ -182,7 +182,7 @@ void input_read_mouse()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_read_keyboard()
+void input_read_keyboard( void )
 {
     keyb.state_ptr = SDL_GetKeyState( &( keyb.state_size ) );
 }
@@ -234,7 +234,7 @@ void input_read_joystick( int which )
 }
 
 //--------------------------------------------------------------------------------------------
-void input_read_joysticks()
+void input_read_joysticks( void )
 {
     int cnt;
 
@@ -435,7 +435,7 @@ bool_t input_handle_SDL_Event( SDL_Event * pevt )
 }
 
 //--------------------------------------------------------------------------------------------
-void input_read_all_devices()
+void input_read_all_devices( void )
 {
     /// @author ZZ
     /// @details This function gets all the current player input states
@@ -469,7 +469,7 @@ void input_read_all_devices()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void input_cursor_reset()
+void input_cursor_reset( void )
 {
     input_cursor.pressed       = bfalse;
     input_cursor.clicked       = bfalse;
@@ -479,14 +479,14 @@ void input_cursor_reset()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_cursor_finish_wheel_event()
+void input_cursor_finish_wheel_event( void )
 {
     input_cursor.wheel_event   = bfalse;
     input_cursor.z             = 0;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_cursor_wheel_event_pending()
+bool_t input_cursor_wheel_event_pending( void )
 {
     if ( input_cursor.wheel_event && 0 == input_cursor.z )
     {

@@ -67,5 +67,5 @@ bool_t ChrList_add_activation( const CHR_REF ichr );
 bool_t ChrList_add_termination( const CHR_REF ichr );
 bool_t ChrList_request_terminate( const CHR_REF ichr );
 
-int ChrList_count_free();
-int ChrList_count_used();
+int ChrList_count_free( void );
+int ChrList_count_used( void );

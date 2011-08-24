@@ -67,9 +67,9 @@ int  sv_init( void );
 void sv_shutDown( void );
 void sv_frameStep( void );
 
-egolib_rv sv_talkToRemotes();
-egolib_rv sv_hostGame();
-egolib_rv sv_letPlayersJoin();
+egolib_rv sv_talkToRemotes( void );
+egolib_rv sv_hostGame( void );
+egolib_rv sv_letPlayersJoin( void );
 egolib_rv sv_handlePacket( enet_packet_t * enet_pkt );
 
 // More to come...

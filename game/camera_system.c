@@ -259,7 +259,7 @@ bool_t ext_camera_get_screen( ext_camera_t * pext, ego_frect_t * prect )
 // INITIALIZATION
 //--------------------------------------------------------------------------------------------
 
-bool_t camera_system_is_started()
+bool_t camera_system_is_started( void )
 {
     return _camera_system_initialized;
 }
@@ -291,7 +291,7 @@ egolib_rv camera_system_begin( int camera_count )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv camera_system_end()
+egolib_rv camera_system_end( void )
 {
     if ( _camera_system_initialized )
     {
@@ -479,7 +479,7 @@ egolib_rv camera_system_init( int camera_count )
 }
 
 //--------------------------------------------------------------------------------------------
-camera_t * camera_system_get_main()
+camera_t * camera_system_get_main( void )
 {
     int cnt;
     camera_t * retval = NULL;
@@ -501,7 +501,7 @@ camera_t * camera_system_get_main()
 }
 
 //--------------------------------------------------------------------------------------------
-ext_camera_list_t * camera_system_get_list()
+ext_camera_list_t * camera_system_get_list( void )
 {
     if ( !camera_system_is_started() ) return NULL;
 
@@ -1001,7 +1001,7 @@ egolib_rv _camera_system_autoformat_cameras( int cameras )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv _camera_system_autoset_targets()
+egolib_rv _camera_system_autoset_targets( void )
 {
     // spread the targets out over all the cameras
 

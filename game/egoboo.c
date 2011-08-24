@@ -576,7 +576,7 @@ void memory_cleanUp( void )
 }
 
 //--------------------------------------------------------------------------------------------
-int ego_init_SDL()
+int ego_init_SDL( void )
 {
     ego_init_SDL_base();
     input_system_init();
@@ -585,7 +585,7 @@ int ego_init_SDL()
 }
 
 //--------------------------------------------------------------------------------------------
-void ego_init_SDL_base()
+void ego_init_SDL_base( void )
 {
     if ( _sdl_initialized_base ) return;
 

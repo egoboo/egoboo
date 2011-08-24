@@ -63,7 +63,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
     void         scantag_read_all_vfs( const char *szFilename );
 
-    size_t       scantag_get_count();
+    size_t       scantag_get_count( void );
     int          scantag_find_index( const char *string );
     scantag_t *  scantag_get_tag( int index );
     bool_t       scantag_get_value( int index, Uint32 * pvalue );

@@ -565,7 +565,7 @@ IMPLEMENT_STATIC_ARY( OpListAry, MAX_OPCODE );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-parser_state_t *  script_compiler_init()
+parser_state_t *  script_compiler_init( void )
 {
     /// @author BB
     /// @details initalize the sctipt compiling module
@@ -585,7 +585,7 @@ parser_state_t *  script_compiler_init()
 }
 
 //--------------------------------------------------------------------------------------------
-parser_state_t * script_compiler_get_state()
+parser_state_t * script_compiler_get_state( void )
 {
     // get a valid singleton
 

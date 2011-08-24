@@ -67,14 +67,14 @@ IMPLEMENT_STACK( eve_t, EveStack, MAX_EVE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void enchant_system_begin()
+void enchant_system_begin( void )
 {
     EncList_init();
     EveStack_init_all();
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_system_end()
+void enchant_system_end( void )
 {
     EveStack_release_all();
     EncList_dtor();
@@ -1921,7 +1921,7 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void EveStack_init_all()
+void EveStack_init_all( void )
 {
     EVE_REF cnt;
 
@@ -1932,7 +1932,7 @@ void EveStack_init_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void EveStack_release_all()
+void EveStack_release_all( void )
 {
     EVE_REF cnt;
 
@@ -1958,7 +1958,7 @@ bool_t EveStack_release_one( const EVE_REF ieve )
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_enchants()
+void update_all_enchants( void )
 {
     ENC_REF ienc;
 
@@ -2046,7 +2046,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_all_enchants()
+void cleanup_all_enchants( void )
 {
     /// @author ZZ
     /// @details this function scans all the enchants and removes any dead ones.
@@ -2121,7 +2121,7 @@ void cleanup_all_enchants()
 }
 
 //--------------------------------------------------------------------------------------------
-void bump_all_enchants_update_counters()
+void bump_all_enchants_update_counters( void )
 {
     ENC_REF cnt;
 

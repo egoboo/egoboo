@@ -89,6 +89,10 @@ extern "C"
     // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_bool bool_t;
 
+#	if !defined(BOOL_T)
+#		define BOOL_T(VAL) ((VAL) ? btrue : bfalse)
+#	endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -168,11 +172,11 @@ extern "C"
 #    endif
 
 #    if !defined(BIT_TO_BOOL)
-#       define BIT_TO_BOOL(XX)       ((1 == (XX)) ? btrue : bfalse )
+#       define BIT_TO_BOOL(XX)       BOOL_T(1 == (XX))
 #    endif
 
 #    if !defined(HAS_SOME_BITS)
-#       define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
+#       define HAS_SOME_BITS(XX,YY) BOOL_T(0 != ((XX)&(YY)))
 #    endif
 
 #    if !defined(HAS_ALL_BITS)

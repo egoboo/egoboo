@@ -86,7 +86,7 @@ static prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt );
 static bool_t prt_update_pos( prt_t * pprt );
 static bool_t prt_update_safe( prt_t * pprt, bool_t force );
 static bool_t prt_update_safe_raw( prt_t * pprt );
-static PIP_REF PipStack_get_free();
+static PIP_REF PipStack_get_free( void );
 static bool_t move_one_particle( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_prt );
@@ -1226,7 +1226,7 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_particles()
+void update_all_particles( void )
 {
     /// @author BB
     /// @details main loop for updating particles. Do not use the
@@ -2232,7 +2232,7 @@ void move_all_particles( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void particle_system_begin()
+void particle_system_begin( void )
 {
     /// @author ZZ
     /// @details This function sets up particle data
@@ -2244,7 +2244,7 @@ void particle_system_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-void particle_system_end()
+void particle_system_end( void )
 {
     PipStack_release_all();
 
@@ -2468,7 +2468,7 @@ bool_t prt_is_over_water( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-PIP_REF PipStack_get_free()
+PIP_REF PipStack_get_free( void )
 {
     PIP_REF retval = ( PIP_REF )MAX_PIP;
 
@@ -2521,7 +2521,7 @@ PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void PipStack_init_all()
+void PipStack_init_all( void )
 {
     PIP_REF cnt;
 
@@ -2535,7 +2535,7 @@ void PipStack_init_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void PipStack_release_all()
+void PipStack_release_all( void )
 {
     PIP_REF cnt;
     int tnc;
@@ -2679,7 +2679,7 @@ int prt_do_end_spawn( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_all_particles()
+void cleanup_all_particles( void )
 {
     PRT_REF iprt;
 
@@ -2711,7 +2711,7 @@ void cleanup_all_particles()
 }
 
 //--------------------------------------------------------------------------------------------
-void bump_all_particles_update_counters()
+void bump_all_particles_update_counters( void )
 {
     PRT_REF cnt;
 

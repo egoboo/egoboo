@@ -61,7 +61,7 @@ void obj_BSP_system_begin( mpd_BSP_t * pBSP )
 }
 
 //--------------------------------------------------------------------------------------------
-void obj_BSP_system_end()
+void obj_BSP_system_end( void )
 {
     /// @author BB
     /// @details initialize the obj_BSP list and load up some intialization files
@@ -299,7 +299,7 @@ bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_BSP_clear()
+bool_t chr_BSP_clear( void )
 {
     CHR_REF ichr;
 
@@ -317,7 +317,7 @@ bool_t chr_BSP_clear()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_BSP_clear()
+bool_t prt_BSP_clear( void )
 {
     PRT_REF iprt;
 
@@ -335,7 +335,7 @@ bool_t prt_BSP_clear()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_BSP_fill()
+bool_t chr_BSP_fill( void )
 {
     // insert the characters
     chr_BSP_root.count = 0;
@@ -356,7 +356,7 @@ bool_t chr_BSP_fill()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_BSP_fill()
+bool_t prt_BSP_fill( void )
 {
     // insert the particles
     prt_BSP_root.count = 0;

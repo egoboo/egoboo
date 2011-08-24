@@ -59,7 +59,7 @@ static void netfile_copyToPeerOld_vfs( BaseClientState_t * pc, const char *sourc
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void netfile_initialize()
+void netfile_initialize( void )
 {
     BLANK_ARY( netfile_transferStates )
     BLANK_STRUCT( netfile_receiveState )
@@ -251,7 +251,7 @@ void netfile_copyDirectoryToPeer( const char *dirname, const char *todirname, EN
 }
 
 //--------------------------------------------------------------------------------------------
-int  netfile_pendingTransfers()
+int  netfile_pendingTransfers( void )
 {
     return netfile_numTransfers;
 }

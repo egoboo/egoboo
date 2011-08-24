@@ -40,10 +40,10 @@ extern "C"
     extern const Uint32 sdl_g_mask;        ///< the mask to pick out green data from SDL's current pixel format
     extern const Uint32 sdl_r_mask;        ///< the mask to pick out red   data from SDL's current pixel format
 
-    extern const Uint32 sdl_a_shift;        ///< bits to shift the alpha data of SDL's current pixel format
-    extern const Uint32 sdl_b_shift;        ///< bits to shift the blue  data of SDL's current pixel format
-    extern const Uint32 sdl_g_shift;        ///< bits to shift the green data of SDL's current pixel format
-    extern const Uint32 sdl_r_shift;        ///< bits to shift the red   data of SDL's current pixel format
+    extern const Uint8 sdl_a_shift;        ///< bits to shift the alpha data of SDL's current pixel format
+    extern const Uint8 sdl_b_shift;        ///< bits to shift the blue  data of SDL's current pixel format
+    extern const Uint8 sdl_g_shift;        ///< bits to shift the green data of SDL's current pixel format
+    extern const Uint8 sdl_r_shift;        ///< bits to shift the red   data of SDL's current pixel format
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

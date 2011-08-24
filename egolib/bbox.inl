@@ -295,7 +295,7 @@ static INLINE egolib_rv oct_bb_validate_index( oct_bb_t * pobb, int index )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t oct_bb_empty_index_raw( const oct_bb_t * pbb, int index )
 {
-    return pbb->mins[index] >= pbb->maxs[index];
+    return BOOL_T(pbb->mins[index] >= pbb->maxs[index]);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -320,8 +320,8 @@ static INLINE egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    src1_empty = ( NULL == psrc1 );
-    src2_empty = ( NULL == psrc2 );
+    src1_empty = BOOL_T( NULL == psrc1 );
+    src2_empty = BOOL_T( NULL == psrc2 );
 
     if ( src1_empty && src2_empty )
     {
@@ -359,8 +359,8 @@ static INLINE egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    src1_empty = ( NULL == psrc1 || psrc1->empty );
-    src2_empty = ( NULL == psrc2 || psrc2->empty );
+    src1_empty = BOOL_T( NULL == psrc1 || psrc1->empty );
+    src2_empty = BOOL_T( NULL == psrc2 || psrc2->empty );
 
     if ( src1_empty && src2_empty )
     {
@@ -388,7 +388,7 @@ static INLINE egolib_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    src_empty = ( NULL == psrc );
+    src_empty = BOOL_T( NULL == psrc );
 
     if ( src_empty )
     {
@@ -416,7 +416,7 @@ static INLINE egolib_rv oct_bb_self_intersection_index( oct_bb_t * pdst, const o
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    src_empty = ( NULL == psrc || psrc->empty );
+    src_empty = BOOL_T( NULL == psrc || psrc->empty );
 
     if ( src_empty )
     {
@@ -443,8 +443,8 @@ static INLINE egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * 
 
     if ( NULL == pdst ) return rv_error;
 
-    src1_null = ( NULL == psrc1 );
-    src2_null = ( NULL == psrc2 );
+    src1_null = BOOL_T( NULL == psrc1 );
+    src2_null = BOOL_T( NULL == psrc2 );
 
     if ( src1_null && src2_null )
     {
@@ -481,8 +481,8 @@ static INLINE egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_b
 
     if ( NULL == pdst ) return rv_error;
 
-    src1_empty = ( NULL == psrc1 || psrc1->empty );
-    src2_empty = ( NULL == psrc2 || psrc2->empty );
+    src1_empty = BOOL_T( NULL == psrc1 || psrc1->empty );
+    src2_empty = BOOL_T( NULL == psrc2 || psrc2->empty );
 
     if ( src1_empty && src2_empty )
     {
@@ -511,7 +511,7 @@ static INLINE egolib_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psr
 
     if ( NULL == pdst ) return rv_error;
 
-    src_null = ( NULL == psrc );
+    src_null = BOOL_T( NULL == psrc );
 
     if ( src_null )
     {
@@ -540,7 +540,7 @@ static INLINE egolib_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_
 
     if ( NULL == pdst ) return rv_error;
 
-    src_empty = ( NULL == psrc || psrc->empty );
+    src_empty = BOOL_T( NULL == psrc || psrc->empty );
 
     if ( src_empty )
     {

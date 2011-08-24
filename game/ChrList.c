@@ -56,8 +56,8 @@ static bool_t ChrList_remove_used( const CHR_REF ichr );
 static bool_t ChrList_remove_used_index( const int index );
 static int    ChrList_get_used_list_index( const CHR_REF ichr );
 
-static void   ChrList_prune_used();
-static void   ChrList_prune_free();
+static void   ChrList_prune_used( void );
+static void   ChrList_prune_free( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ IMPLEMENT_LIST( chr_t, ChrList, MAX_CHR );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void ChrList_init()
+void ChrList_init( void )
 {
     int cnt;
 
@@ -95,7 +95,7 @@ void ChrList_init()
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_dtor()
+void ChrList_dtor( void )
 {
     CHR_REF cnt;
 
@@ -114,7 +114,7 @@ void ChrList_dtor()
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_prune_used()
+void ChrList_prune_used( void )
 {
     // prune the used list
 
@@ -140,7 +140,7 @@ void ChrList_prune_used()
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_prune_free()
+void ChrList_prune_free( void )
 {
     // prune the free list
 
@@ -166,7 +166,7 @@ void ChrList_prune_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_update_used()
+void ChrList_update_used( void )
 {
     size_t cnt;
     CHR_REF ichr;
@@ -264,7 +264,7 @@ bool_t ChrList_free_one( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t ChrList_get_free()
+size_t ChrList_get_free( void )
 {
     /// @author ZZ
     /// @details This function returns the next free character or MAX_CHR if there are none
@@ -292,7 +292,7 @@ size_t ChrList_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_free_all()
+void ChrList_free_all( void )
 {
     CHR_REF cnt;
 
@@ -544,7 +544,7 @@ CHR_REF ChrList_allocate( const CHR_REF override )
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_cleanup()
+void ChrList_cleanup( void )
 {
     int     cnt;
     chr_t * pchr;
@@ -630,13 +630,13 @@ bool_t ChrList_request_terminate( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-int ChrList_count_free()
+int ChrList_count_free( void )
 {
     return ChrList.free_count;
 }
 
 //--------------------------------------------------------------------------------------------
-int ChrList_count_used()
+int ChrList_count_used( void )
 {
     return ChrList.used_count; // MAX_CHR - ChrList.free_count;
 }

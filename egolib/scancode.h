@@ -33,8 +33,9 @@ extern "C"
 // EXTERNAL VARIABLES
 //--------------------------------------------------------------------------------------------
 
-    extern Uint8  scancode_to_ascii[SDLK_LAST];
-    extern Uint8  scancode_to_ascii_shift[SDLK_LAST];
+	// the fgetc(), toupper() and other character-related functions return int values...
+    extern int  scancode_to_ascii[SDLK_LAST];
+    extern int  scancode_to_ascii_shift[SDLK_LAST];
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES

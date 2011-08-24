@@ -190,14 +190,14 @@ IMPLEMENT_STACK( team_t, TeamStack, TEAM_MAX );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void character_system_begin()
+void character_system_begin( void )
 {
     ChrList_init();
     CapStack_init_all();
 }
 
 //--------------------------------------------------------------------------------------------
-void character_system_end()
+void character_system_end( void )
 {
     CapStack_release_all();
     ChrList_dtor();
@@ -487,7 +487,7 @@ bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst )
 }
 
 //--------------------------------------------------------------------------------------------
-void keep_weapons_with_holders()
+void keep_weapons_with_holders( void )
 {
     /// @author ZZ
     /// @details This function keeps weapons near their holders
@@ -878,7 +878,7 @@ place_particle_at_vertex_fail:
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_character_matrices()
+void update_all_character_matrices( void )
 {
     /// @author ZZ
     /// @details This function makes all of the character's matrices
@@ -892,7 +892,7 @@ void update_all_character_matrices()
 }
 
 //--------------------------------------------------------------------------------------------
-void free_all_chraracters()
+void free_all_chraracters( void )
 {
     /// @author ZZ
     /// @details This function resets the character allocation list
@@ -1961,7 +1961,7 @@ bool_t drop_all_items( const CHR_REF character )
         chr_set_floor_level( pitem, pchr->enviro.floor_level );
 
         //drop out evenly in all directions
-        direction += diradd;
+        direction = (int)direction + diradd;
     }
 
     return btrue;
@@ -2547,7 +2547,7 @@ void drop_money( const CHR_REF character, int money )
         int count;
 
         // remove the money from inventory
-        pchr->money -= money;
+        pchr->money = (int)pchr->money - money;
 
         // make the particles emit from "waist high"
         loc_pos.z += ( pchr->chr_min_cv.maxs[OCT_Z] + pchr->chr_min_cv.mins[OCT_Z] ) * 0.5f;
@@ -2857,7 +2857,7 @@ bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF cha
     if ( ppla == NULL ) return bfalse;
 
     rv = quest_log_upload_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), szSaveName );
-    return rv_success == rv ? btrue : bfalse;
+    return BOOL_T(rv_success == rv);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5648,7 +5648,7 @@ bool_t update_chr_darkvision( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_characters()
+void update_all_characters( void )
 {
     /// @author ZZ
     /// @details This function updates stats and such for every character
@@ -6052,7 +6052,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
             ppla = PlaStack_get_ptr( ipla );
 
             // determine whether the character is sneaking
-            sneak_mode_active = ( dv2 < 1.0f / 9.0f );
+            sneak_mode_active = BOOL_T( dv2 < 1.0f / 9.0f );
 
             pchr->enviro.new_v.x = maxspeed * dvx / dv;
             pchr->enviro.new_v.y = maxspeed * dvy / dv;
@@ -6120,12 +6120,12 @@ void move_one_character_do_voluntary( chr_t * pchr )
                         if ( VALID_PLA( pchr->is_which_player ) )
                         {
                             // Players turn quickly
-                            pchr->ori.facing_z += terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 2 );
+                            pchr->ori.facing_z = (int)pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 2 );
                         }
                         else
                         {
                             // AI turn slowly
-                            pchr->ori.facing_z += terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
+                            pchr->ori.facing_z = (int)pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
                         }
                     }
                 }
@@ -6136,7 +6136,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
                 {
                     if (( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
                     {
-                        pchr->ori.facing_z += terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
+                        pchr->ori.facing_z = (int)pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
                     }
                 }
                 break;
@@ -6146,7 +6146,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
                 {
                     if ( ichr != pchr->ai.target )
                     {
-                        pchr->ori.facing_z += terp_dir( pchr->ori.facing_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ), 8 );
+                        pchr->ori.facing_z = (int)pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ), 8 );
                     }
                 }
                 break;
@@ -6211,7 +6211,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 
     // see if the character can play this action
     action       = mad_get_action_ref( imad, hand_action );
-    action_valid = ( ACTION_COUNT != action );
+    action_valid = BOOL_T( ACTION_COUNT != action );
 
     // Can it do it?
     allowedtoattack = btrue;
@@ -6369,7 +6369,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                         else if ( ACTION_IS_TYPE( action, F ) ) base_reload_time += 60;     //Flinged  (Unused)
 
                         //it is possible to have so high dex to eliminate all reload time
-                        if ( base_reload_time > 0 ) pweapon->reload_timer += base_reload_time;
+                        if ( base_reload_time > 0 ) pweapon->reload_timer = (int)pweapon->reload_timer + base_reload_time;
                     }
                 }
 
@@ -7693,7 +7693,7 @@ void move_all_characters( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_all_characters()
+void cleanup_all_characters( void )
 {
     CHR_REF cnt;
 
@@ -7721,7 +7721,7 @@ void cleanup_all_characters()
 }
 
 //--------------------------------------------------------------------------------------------
-void bump_all_characters_update_counters()
+void bump_all_characters_update_counters( void )
 {
     CHR_REF cnt;
 
@@ -7851,7 +7851,7 @@ slot_t grip_offset_to_slot( grip_offset_t grip_off )
 }
 
 //--------------------------------------------------------------------------------------------
-void init_slot_idsz()
+void init_slot_idsz( void )
 {
     inventory_idsz[INVEN_PACK]  = IDSZ_NONE;
     inventory_idsz[INVEN_NECK]  = MAKE_IDSZ( 'N', 'E', 'C', 'K' );
@@ -8399,7 +8399,7 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void CapStack_init_all()
+void CapStack_init_all( void )
 {
     /// @author BB
     /// @details initialize every character profile in the game
@@ -8413,7 +8413,7 @@ void CapStack_init_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void CapStack_release_all()
+void CapStack_release_all( void )
 {
     /// @author BB
     /// @details release every character profile in the game
@@ -8448,7 +8448,7 @@ bool_t CapStack_release_one( const CAP_REF icap )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_teams()
+void reset_teams( void )
 {
     /// @author ZZ
     /// @details This function makes everyone hate everyone else

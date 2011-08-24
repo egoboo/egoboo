@@ -144,7 +144,7 @@ Mix_Chunk * g_wavelist[GSND_COUNT];
 //--------------------------------------------------------------------------------------------
 
 static bool_t sound_system_config_init( snd_config_t * psnd );
-static void music_stack_init();
+static void music_stack_init( void );
 static bool_t music_stack_push( Mix_Music * mus, int song );
 
 //--------------------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ bool_t music_stack_pop( Mix_Music ** mus, int * song )
 }
 
 //--------------------------------------------------------------------------------------------
-void music_stack_init()
+void music_stack_init( void )
 {
     // push on the default music value
     music_stack_push( musictracksloaded[0], 0 );
@@ -238,7 +238,7 @@ void music_stack_init()
 //--------------------------------------------------------------------------------------------
 // SDL
 //--------------------------------------------------------------------------------------------
-bool_t sdl_audio_initialize()
+bool_t sdl_audio_initialize( void )
 {
     bool_t retval = btrue;
 
@@ -266,7 +266,7 @@ bool_t sdl_audio_initialize()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t sdl_mixer_initialize()
+bool_t sdl_mixer_initialize( void )
 {
     /// @author ZF
     /// @details This intitializes the SDL_mixer services
@@ -314,7 +314,7 @@ void sdl_mixer_quit( void )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // This function enables the use of SDL_Audio and SDL_Mixer functions, returns btrue if success
-bool_t sound_system_initialize()
+bool_t sound_system_initialize( void )
 {
     bool_t retval = bfalse;
     if ( sdl_audio_initialize() )
@@ -331,7 +331,7 @@ bool_t sound_system_initialize()
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_system_restart()
+void sound_system_restart( void )
 {
     //if ( mixeron )
     {
@@ -577,7 +577,7 @@ int sound_play_mix( fvec3_base_t pos, mix_ptr_t * pptr )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_fade_all()
+void sound_fade_all( void )
 {
     if ( mixeron )
     {
@@ -595,7 +595,7 @@ void fade_in_music( Mix_Music * music )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_finish_sound()
+void sound_finish_sound( void )
 {
     Mix_FadeOutChannel( -1, 500 );     // Stop all in-game sounds that are playing
     sound_finish_song( 500 );          // Fade out the existing song and pop the music stack
@@ -611,7 +611,7 @@ void sound_free_chunk( Mix_Chunk * pchunk )
 }
 
 //--------------------------------------------------------------------------------------------
-int get_current_song_playing()
+int get_current_song_playing( void )
 {
     //ZF> This gives read access to the private variable 'songplaying'
     return songplaying;
@@ -770,7 +770,7 @@ void sound_finish_song( Uint16 fadetime )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_stop_song()
+void sound_stop_song( void )
 {
     /// @author ZF
     /// @details This function sets music track to pause
@@ -781,7 +781,7 @@ void sound_stop_song()
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_load_global_waves_vfs()
+void sound_load_global_waves_vfs( void )
 {
     /// @author ZZ
     /// @details This function loads the global waves
@@ -824,7 +824,7 @@ void sound_load_global_waves_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_load_all_music_sounds_vfs()
+void sound_load_all_music_sounds_vfs( void )
 {
     /// @author ZF
     /// @details This function loads all of the music sounds
@@ -881,7 +881,7 @@ void sound_load_all_music_sounds_vfs()
 //--------------------------------------------------------------------------------------------
 // LoopedList
 //--------------------------------------------------------------------------------------------
-void   LoopedList_init()
+void   LoopedList_init( void )
 {
     /// @author BB
     /// @details setup the looped sound list
@@ -907,7 +907,7 @@ void   LoopedList_init()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t LoopedList_validate()
+bool_t LoopedList_validate( void )
 {
     /// @author BB
     /// @details do the free and used indices have valid values?
@@ -966,7 +966,7 @@ bool_t LoopedList_free_one( size_t index )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t LoopedList_get_free()
+size_t LoopedList_get_free( void )
 {
     size_t index;
 
@@ -987,7 +987,7 @@ size_t LoopedList_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void LoopedList_clear()
+void LoopedList_clear( void )
 {
     /// @author BB
     /// @details shut off all the looped sounds
@@ -1073,7 +1073,7 @@ bool_t LoopedList_remove( int channel )
 //--------------------------------------------------------------------------------------------
 // looped
 //--------------------------------------------------------------------------------------------
-void looped_update_all_sound()
+void looped_update_all_sound( void )
 {
     int cnt;
 

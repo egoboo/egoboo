@@ -108,9 +108,9 @@ bool_t BillboardList_free_one( size_t ibb );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool_t billboard_system_begin();
-bool_t billboard_system_end();
-bool_t billboard_system_init();
+bool_t billboard_system_begin( void );
+bool_t billboard_system_end( void );
+bool_t billboard_system_init( void );
 
 bool_t billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
 gfx_rv billboard_system_render_all( const struct s_camera * pcam );

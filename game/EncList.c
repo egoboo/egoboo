@@ -56,8 +56,8 @@ static bool_t EncList_remove_used( const ENC_REF ienc );
 static bool_t EncList_remove_used_index( const int index );
 static int    EncList_get_used_list_index( const ENC_REF ienc );
 
-static void   EncList_prune_used();
-static void   EncList_prune_free();
+static void   EncList_prune_used( void );
+static void   EncList_prune_free( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ IMPLEMENT_LIST( enc_t, EncList, MAX_ENC );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void EncList_init()
+void EncList_init( void )
 {
     int cnt;
 
@@ -94,7 +94,7 @@ void EncList_init()
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_dtor()
+void EncList_dtor( void )
 {
     ENC_REF cnt;
 
@@ -113,7 +113,7 @@ void EncList_dtor()
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_prune_used()
+void EncList_prune_used( void )
 {
     // prune the used list
 
@@ -139,7 +139,7 @@ void EncList_prune_used()
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_prune_free()
+void EncList_prune_free( void )
 {
     // prune the free list
 
@@ -165,7 +165,7 @@ void EncList_prune_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_update_used()
+void EncList_update_used( void )
 {
     size_t cnt;
     ENC_REF ienc;
@@ -264,7 +264,7 @@ bool_t EncList_free_one( const ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t EncList_get_free()
+size_t EncList_get_free( void )
 {
     /// @author ZZ
     /// @details This function returns the next free enchant or MAX_ENC if there are none
@@ -292,7 +292,7 @@ size_t EncList_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_free_all()
+void EncList_free_all( void )
 {
     ENC_REF cnt;
 
@@ -544,7 +544,7 @@ ENC_REF EncList_allocate( const ENC_REF override )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_cleanup()
+void EncList_cleanup( void )
 {
     int     cnt;
     enc_t * penc;

@@ -77,13 +77,13 @@ IMPLEMENT_STACK( mad_t, MadStack, MAX_MAD );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void model_system_begin()
+void model_system_begin( void )
 {
     MadStack_ctor();
 }
 
 //--------------------------------------------------------------------------------------------
-void model_system_end()
+void model_system_end( void )
 {
     MadStack_dtor();
 }
@@ -91,7 +91,7 @@ void model_system_end()
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void MadStack_ctor()
+void MadStack_ctor( void )
 {
     MAD_REF cnt;
 
@@ -102,7 +102,7 @@ void MadStack_ctor()
 }
 
 //--------------------------------------------------------------------------------------------
-void MadStack_dtor()
+void MadStack_dtor( void )
 {
     MAD_REF cnt;
 
@@ -113,7 +113,7 @@ void MadStack_dtor()
 }
 
 //--------------------------------------------------------------------------------------------
-void MadStack_reinit()
+void MadStack_reinit( void )
 {
     MAD_REF cnt;
 
@@ -1029,7 +1029,7 @@ mad_t * mad_dtor( mad_t * pmad )
 }
 
 //--------------------------------------------------------------------------------------------
-void MadStack_reconstruct_all()
+void MadStack_reconstruct_all( void )
 {
     MAD_REF cnt;
 
@@ -1040,7 +1040,7 @@ void MadStack_reconstruct_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void MadStack_release_all()
+void MadStack_release_all( void )
 {
     MAD_REF cnt;
 

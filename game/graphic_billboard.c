@@ -41,7 +41,7 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, billboard_data_t, BillboardList, BILLBOARD_C
 // private functions
 //--------------------------------------------------------------------------------------------
 
-static void BillboardList_clear_data();
+static void BillboardList_clear_data( void );
 
 //--------------------------------------------------------------------------------------------
 // private variables
@@ -169,7 +169,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
 IMPLEMENT_LIST( billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
 //--------------------------------------------------------------------------------------------
-void BillboardList_init_all()
+void BillboardList_init_all( void )
 {
     BBOARD_REF cnt;
 
@@ -182,7 +182,7 @@ void BillboardList_init_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void BillboardList_update_all()
+void BillboardList_update_all( void )
 {
     BBOARD_REF cnt;
     Uint32     ticks;
@@ -229,7 +229,7 @@ void BillboardList_update_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void BillboardList_free_all()
+void BillboardList_free_all( void )
 {
     BBOARD_REF cnt;
 
@@ -319,7 +319,7 @@ bool_t BillboardList_free_one( size_t ibb )
 
 //--------------------------------------------------------------------------------------------
 
-void BillboardList_clear_data()
+void BillboardList_clear_data( void )
 {
     /// @author BB
     /// @details reset the free billboard list.
@@ -336,7 +336,7 @@ void BillboardList_clear_data()
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool_t billboard_system_begin()
+bool_t billboard_system_begin( void )
 {
     if ( !_billboard_system_started )
     {
@@ -350,7 +350,7 @@ bool_t billboard_system_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t billboard_system_end()
+bool_t billboard_system_end( void )
 {
     if ( _billboard_system_started )
     {
@@ -364,7 +364,7 @@ bool_t billboard_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t billboard_system_init()
+bool_t billboard_system_init( void )
 {
     billboard_system_end();
     billboard_system_begin();

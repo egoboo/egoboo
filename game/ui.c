@@ -118,7 +118,7 @@ int ui_begin( const char *default_font, int default_font_size )
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_end()
+void ui_end( void )
 {
     // clear out the default font
     if ( NULL != ui_context.defaultFont )
@@ -134,7 +134,7 @@ void ui_end()
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_Reset()
+void ui_Reset( void )
 {
     ui_context.active = ui_context.hot = UI_Nothing;
 }
@@ -233,7 +233,7 @@ void ui_beginFrame( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_endFrame()
+void ui_endFrame( void )
 {
     // Restore the GL_PROJECTION matrix
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
@@ -325,7 +325,7 @@ void ui_setWidgethot( ui_Widget_t * pw )
 }
 
 //--------------------------------------------------------------------------------------------
-Font* ui_getFont()
+Font* ui_getFont( void )
 {
     return ( NULL != ui_context.activeFont ) ? ui_context.activeFont : ui_context.defaultFont;
 }

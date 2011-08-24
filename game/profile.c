@@ -77,7 +77,7 @@ IMPLEMENT_LIST( pro_t, ProList, MAX_PROFILE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void init_all_profiles()
+void init_all_profiles( void )
 {
     /// @author ZZ
     /// @details This function initializes all of the model profiles
@@ -102,7 +102,7 @@ void init_all_profiles()
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_profiles()
+void release_all_profiles( void )
 {
     /// @author ZZ
     /// @details This function clears out all of the model data
@@ -121,7 +121,7 @@ void release_all_profiles()
 }
 
 //--------------------------------------------------------------------------------------------
-void profile_system_begin()
+void profile_system_begin( void )
 {
     /// @author BB
     /// @details initialize the profile list and load up some intialization files
@@ -164,7 +164,7 @@ void profile_system_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-void profile_system_end()
+void profile_system_end( void )
 {
     /// @author BB
     /// @details initialize the profile list and load up some intialization files
@@ -320,7 +320,7 @@ bool_t ProList_push_free( const PRO_REF iobj )
 //--------------------------------------------------------------------------------------------
 // The "public" ProList management functions
 //--------------------------------------------------------------------------------------------
-void ProList_init()
+void ProList_init( void )
 {
     /// @author BB
     /// @details initialize all the objects and the object free list.
@@ -431,7 +431,7 @@ bool_t release_one_profile_textures( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_profile_textures()
+void release_all_profile_textures( void )
 {
     PRO_REF cnt;
 
@@ -489,7 +489,7 @@ bool_t release_one_pro( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_pro()
+void release_all_pro( void )
 {
     /// @author BB
     /// @details release the allocated data for all objects
@@ -503,7 +503,7 @@ void release_all_pro()
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_pro_data()
+void release_all_pro_data( void )
 {
     /// @author BB
     /// @details release the allocated data for all objects
@@ -691,7 +691,7 @@ bool_t release_one_local_pips( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_local_pips()
+void release_all_local_pips( void )
 {
     // clear out the local pips
 
@@ -908,7 +908,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_messages()
+void reset_messages( void )
 {
     /// @author ZZ
     /// @details This makes messages safe to use

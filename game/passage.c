@@ -45,10 +45,10 @@ INSTANTIATE_STACK( ACCESS_TYPE_NONE, shop_t,    ShopStack, MAX_SHOP );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static int ShopStack_get_free();
-static void ShopStack_free_all();
-static int PasageStack_get_free();
-static void PassageStack_free_all();
+static int ShopStack_get_free( void );
+static void ShopStack_free_all( void );
+static int PasageStack_get_free( void );
+static void PassageStack_free_all( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -58,13 +58,13 @@ IMPLEMENT_STACK( shop_t,    ShopStack, MAX_SHOP );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void PassageStack_free_all()
+void PassageStack_free_all( void )
 {
     PassageStack.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
-int PasageStack_get_free()
+int PasageStack_get_free( void )
 {
     int ipass = ( PASS_REF ) MAX_PASS;
 
@@ -79,7 +79,7 @@ int PasageStack_get_free()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ShopStack_free_all()
+void ShopStack_free_all( void )
 {
     SHOP_REF cnt;
 
@@ -92,7 +92,7 @@ void ShopStack_free_all()
 }
 
 //--------------------------------------------------------------------------------------------
-int ShopStack_get_free()
+int ShopStack_get_free( void )
 {
     int ishop = ( PASS_REF ) MAX_PASS;
 
@@ -299,7 +299,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
 }
 
 //--------------------------------------------------------------------------------------------
-void check_passage_music()
+void check_passage_music( void )
 {
     /// @author ZF
     /// @details This function checks all passages if there is a player in it, if it is, it plays a specified
@@ -419,7 +419,7 @@ bool_t close_passage( const PASS_REF passage )
 }
 
 //--------------------------------------------------------------------------------------------
-void clear_all_passages()
+void clear_all_passages( void )
 {
     /// @author ZZ
     /// @details This function clears the passage list ( for doors )
@@ -502,7 +502,7 @@ void add_passage( passage_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_passages_file_vfs()
+void activate_passages_file_vfs( void )
 {
     /// @author ZZ
     /// @details This function reads the passage file

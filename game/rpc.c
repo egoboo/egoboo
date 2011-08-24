@@ -126,7 +126,7 @@ tx_request_t * tx_request_dtor( tx_request_t * preq )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t ego_rpc_system_begin()
+bool_t ego_rpc_system_begin( void )
 {
     /// @author BB
     /// @details initialize all the rpc arrays here
@@ -141,7 +141,7 @@ bool_t ego_rpc_system_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-void ego_rpc_system_end()
+void ego_rpc_system_end( void )
 {
     /// @author BB
     /// @details de-initialize all the rpc arrays here
@@ -154,7 +154,7 @@ void ego_rpc_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ego_rpc_system_timestep()
+bool_t ego_rpc_system_timestep( void )
 {
     /// @author BB
     /// @details step through a single request of each type
@@ -165,14 +165,14 @@ bool_t ego_rpc_system_timestep()
 }
 
 //--------------------------------------------------------------------------------------------
-int ego_rpc_system_get_guid()
+int ego_rpc_system_get_guid( void )
 {
     return ++_rpc_system_guid;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void TxReqList_ctor()
+void TxReqList_ctor( void )
 {
     TREQ_REF cnt;
 
@@ -206,7 +206,7 @@ void TxReqList_ctor()
 }
 
 //--------------------------------------------------------------------------------------------
-void TxReqList_dtor()
+void TxReqList_dtor( void )
 {
     TREQ_REF cnt;
 
@@ -292,7 +292,7 @@ bool_t TxReqList_free_one( int ireq )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t TxReqList_timestep()
+bool_t TxReqList_timestep( void )
 {
     /// @author BB
     /// @details TxReqList_timestep() is called by the main thread.

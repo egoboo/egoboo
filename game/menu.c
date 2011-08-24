@@ -320,7 +320,7 @@ static egolib_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPla
 static egolib_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
 //static egolib_rv mnu_copy_local_imports( import_list_t * imp_lst );
 
-static void mnu_ModList_release_images();
+static void mnu_ModList_release_images( void );
 static void mnu_module_init( mnu_module_t * pmod );
 
 static int doShowEndgame( float deltaTime );
@@ -384,7 +384,7 @@ bool_t mnu_stack_push( which_menu_t menu )
 }
 
 //--------------------------------------------------------------------------------------------
-which_menu_t mnu_stack_pop()
+which_menu_t mnu_stack_pop( void )
 {
     if ( mnu_stack_index < 0 )
     {
@@ -403,7 +403,7 @@ which_menu_t mnu_stack_pop()
 }
 
 //--------------------------------------------------------------------------------------------
-which_menu_t mnu_stack_peek()
+which_menu_t mnu_stack_peek( void )
 {
     which_menu_t return_menu = emnu_Main;
 
@@ -416,7 +416,7 @@ which_menu_t mnu_stack_peek()
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_stack_clear()
+void mnu_stack_clear( void )
 {
     mnu_stack_index = 0;
     mnu_stack[0] = emnu_Main;
@@ -602,13 +602,13 @@ static bool_t menu_system_init( void );
 static bool_t menu_system_deinit( void );
 
 //--------------------------------------------------------------------------------------------
-void menu_system_atexit()
+void menu_system_atexit( void )
 {
     menu_system_dtor();
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t menu_system_ctor()
+bool_t menu_system_ctor( void )
 {
     if ( !_menu_system_constructed )
     {
@@ -625,7 +625,7 @@ bool_t menu_system_ctor()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t menu_system_dtor()
+bool_t menu_system_dtor( void )
 {
     if ( _menu_system_constructed )
     {
@@ -649,7 +649,7 @@ bool_t menu_system_dtor()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t menu_system_init()
+bool_t menu_system_init( void )
 {
     bool_t retval = btrue;
 
@@ -693,7 +693,7 @@ bool_t menu_system_init()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t menu_system_deinit()
+bool_t menu_system_deinit( void )
 {
 
     // release the font
@@ -710,7 +710,7 @@ bool_t menu_system_deinit()
 }
 
 //--------------------------------------------------------------------------------------------
-int menu_system_begin()
+int menu_system_begin( void )
 {
     // initializes the menu system
     //
@@ -735,7 +735,7 @@ int menu_system_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-void menu_system_end()
+void menu_system_end( void )
 {
     // deinitializes the menu system
 
@@ -756,13 +756,13 @@ bool_t mnu_begin_menu( which_menu_t which )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_end_menu()
+void mnu_end_menu( void )
 {
     mnu_whichMenu = mnu_stack_pop();
 }
 
 //--------------------------------------------------------------------------------------------
-int mnu_get_menu_depth()
+int mnu_get_menu_depth( void )
 {
     return mnu_stack_index;
 }
@@ -4779,7 +4779,7 @@ void autoformat_init( gfx_config_t * pgfx )
 }
 
 //--------------------------------------------------------------------------------------------
-void autoformat_init_slidy_buttons()
+void autoformat_init_slidy_buttons( void )
 {
     // Figure out where to draw the buttons
     buttonLeft = 40;
@@ -4787,7 +4787,7 @@ void autoformat_init_slidy_buttons()
 }
 
 //--------------------------------------------------------------------------------------------
-void autoformat_init_tip_text()
+void autoformat_init_tip_text( void )
 {
     // set the text
     tipText = NULL;
@@ -4800,7 +4800,7 @@ void autoformat_init_tip_text()
 }
 
 //--------------------------------------------------------------------------------------------
-void autoformat_init_copyright_text()
+void autoformat_init_copyright_text( void )
 {
     // set the text
     copyrightText = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
@@ -5066,7 +5066,7 @@ void mnu_module_init( mnu_module_t * pmod )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_load_all_module_info()
+void mnu_load_all_module_info( void )
 {
     vfs_search_context_t * ctxt;
 
@@ -5171,7 +5171,7 @@ const char * mnu_ModList_get_name( int imod )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_ModList_release_all()
+void mnu_ModList_release_all( void )
 {
     MOD_REF cnt;
 
@@ -5190,7 +5190,7 @@ void mnu_ModList_release_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_ModList_release_images()
+void mnu_ModList_release_images( void )
 {
     MOD_REF cnt;
     int tnc;
@@ -5368,7 +5368,7 @@ void mnu_SlidyButton_update_all( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_SlidyButton_draw_all()
+void mnu_SlidyButton_draw_all( void )
 {
     int i;
 
@@ -5966,7 +5966,7 @@ bool_t SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplaye
 IMPLEMENT_LIST( oglx_texture_t, TxMenu, MENU_COUNT );
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_reset_freelist()
+void TxMenu_reset_freelist( void )
 {
     /// @author BB
     /// @details reset the free texture list. Start at MENU_LAST_SPECIAL so that the global textures/icons are
@@ -5982,7 +5982,7 @@ void TxMenu_reset_freelist()
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_ctor()
+void TxMenu_ctor( void )
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -6006,7 +6006,7 @@ void TxMenu_release_one( const TX_REF index )
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_dtor()
+void TxMenu_dtor( void )
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -6022,7 +6022,7 @@ void TxMenu_dtor()
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_init_all()
+void TxMenu_init_all( void )
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -6038,7 +6038,7 @@ void TxMenu_init_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_release_all()
+void TxMenu_release_all( void )
 {
     /// @author ZZ
     /// @details This function releases all of the textures
@@ -6054,7 +6054,7 @@ void TxMenu_release_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_delete_all()
+void TxMenu_delete_all( void )
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -6070,7 +6070,7 @@ void TxMenu_delete_all()
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_reload_all()
+void TxMenu_reload_all( void )
 {
     /// @author ZZ
     /// @details This function re-loads all the current textures back into
@@ -6216,7 +6216,7 @@ oglx_texture_t * TxMenu_get_valid_ptr( const TX_REF itex )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t mnu_load_cursor()
+bool_t mnu_load_cursor( void )
 {
     /// @author ZF
     /// @details Load the mouse cursor
@@ -6236,7 +6236,7 @@ bool_t mnu_load_cursor()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_load_all_global_icons()
+bool_t mnu_load_all_global_icons( void )
 {
     /// @author ZF
     /// @details Load all the global icons used in all modules

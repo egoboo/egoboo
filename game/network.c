@@ -94,7 +94,7 @@ Uint32 nexttimestamp;                          // Expected timestamp
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void net_sayHello()
+void net_sayHello( void )
 {
     /// @author ZZ
     /// @details This function lets everyone know we're here
@@ -128,7 +128,7 @@ void net_sayHello()
 }
 
 //--------------------------------------------------------------------------------------------
-void net_unbuffer_player_latches()
+void net_unbuffer_player_latches( void )
 {
     /// @author ZZ
     /// @details This function sets character latches based on player input to the host
@@ -290,7 +290,7 @@ void net_unbuffer_player_latches()
 }
 
 //--------------------------------------------------------------------------------------------
-void net_initialize()
+void net_initialize( void )
 {
     /// @author ZZ
     /// @details This starts up the network and logs whatever goes on
@@ -299,19 +299,19 @@ void net_initialize()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t net_begin()
+bool_t net_begin( void )
 {
     return egonet_begin( cfg.network_allowed );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t net_end()
+bool_t net_end( void )
 {
     return egonet_end();
 }
 
 //--------------------------------------------------------------------------------------------
-void net_shutDown()
+void net_shutDown( void )
 {
     log_info( "net_shutDown: Turning off networking.\n" );
 
@@ -319,7 +319,7 @@ void net_shutDown()
 }
 
 //--------------------------------------------------------------------------------------------
-void find_open_sessions()
+void find_open_sessions( void )
 {
     /*PORT
     /// @author ZZ
@@ -341,14 +341,14 @@ void find_open_sessions()
 }
 
 //--------------------------------------------------------------------------------------------
-void stop_players_from_joining()
+void stop_players_from_joining( void )
 {
     /// @author ZZ
     /// @details This function stops players from joining a game
 }
 
 //--------------------------------------------------------------------------------------------
-void net_send_message()
+void net_send_message( void )
 {
     /// @author ZZ
     /// @details sends the message in the keyboard buffer to all other players
@@ -380,7 +380,7 @@ player_t* chr_get_ppla( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void net_count_players()
+void net_count_players( void )
 {
     //int cnt;
     PLA_REF ipla;

@@ -448,7 +448,6 @@ const char * scantag_get_string( int device_type, control_t * pcontrol, char * b
     char * tag_name = NULL;
 
     int cnt;
-    bool_t found_tag_type = bfalse;
     scantag_t * ptag = NULL;
 
     if ( NULL == buffer || 0 == buffer_size )

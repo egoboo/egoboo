@@ -546,7 +546,7 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void render_all_prt_attachment()
+void render_all_prt_attachment( void )
 {
     GL_DEBUG( glDisable )( GL_BLEND );
 
@@ -558,7 +558,7 @@ void render_all_prt_attachment()
 }
 
 //--------------------------------------------------------------------------------------------
-void render_all_prt_bbox()
+void render_all_prt_bbox( void )
 {
     PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {

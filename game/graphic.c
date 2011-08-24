@@ -427,8 +427,8 @@ static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam );
 
 static float draw_one_xp_bar( float x, float y, Uint8 ticks );
 static float draw_character_xp_bar( const CHR_REF character, float x, float y );
-static void  draw_all_status();
-static void  draw_map();
+static void  draw_all_status( void );
+static void  draw_map( void );
 static float draw_fps( float y );
 static float draw_help( float y );
 static float draw_debug( float y );
@@ -439,7 +439,7 @@ static void  draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, co
 static void  draw_hud( void );
 static void  draw_inventory( void );
 
-static void gfx_disable_texturing();
+static void gfx_disable_texturing( void );
 static void gfx_reshape_viewport( int w, int h );
 
 static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
@@ -1518,7 +1518,7 @@ dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index )
 //--------------------------------------------------------------------------------------------
 // gfx_system INITIALIZATION
 //--------------------------------------------------------------------------------------------
-void gfx_system_begin()
+void gfx_system_begin( void )
 {
     // set the graphics state
     gfx_system_init_SDL_graphics();
@@ -1586,7 +1586,7 @@ void gfx_system_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_end()
+void gfx_system_end( void )
 {
     // initialize the profiling variables
     PROFILE_FREE( render_scene_init );
@@ -1637,7 +1637,7 @@ void gfx_system_end()
 }
 
 //--------------------------------------------------------------------------------------------
-int gfx_system_init_OpenGL()
+int gfx_system_init_OpenGL( void )
 {
     gfx_system_init_SDL_graphics();
 
@@ -1692,7 +1692,7 @@ int gfx_system_init_OpenGL()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_init_SDL_graphics()
+void gfx_system_init_SDL_graphics( void )
 {
     if ( _sdl_initialized_graphics ) return;
 
@@ -1845,7 +1845,7 @@ void gfx_system_render_world( const camera_t * pcam, const int render_list_index
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_main()
+void gfx_system_main( void )
 {
     /// @author ZZ
     /// @details This function does all the drawing stuff
@@ -1894,7 +1894,7 @@ bool_t gfx_system_set_virtual_screen( gfx_config_t * pgfx )
 }
 
 //--------------------------------------------------------------------------------------------
-renderlist_mgr_t * gfx_system_get_renderlist_mgr()
+renderlist_mgr_t * gfx_system_get_renderlist_mgr( void )
 {
     if ( gfx_success != renderlist_mgr_begin( &_renderlist_mgr_data ) )
     {
@@ -1905,7 +1905,7 @@ renderlist_mgr_t * gfx_system_get_renderlist_mgr()
 }
 
 //--------------------------------------------------------------------------------------------
-dolist_mgr_t * gfx_system_get_dolist_mgr()
+dolist_mgr_t * gfx_system_get_dolist_mgr( void )
 {
     if ( gfx_success != dolist_mgr_begin( &_dolist_mgr_data ) )
     {
@@ -1916,7 +1916,7 @@ dolist_mgr_t * gfx_system_get_dolist_mgr()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_load_assets()
+void gfx_system_load_assets( void )
 {
     /// @author ZF
     /// @details This function loads all the graphics based on the game settings
@@ -1986,7 +1986,7 @@ void gfx_system_load_assets()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_init_all_graphics()
+void gfx_system_init_all_graphics( void )
 {
     gfx_init_bar_data();
     gfx_init_blip_data();
@@ -2023,7 +2023,7 @@ void gfx_system_init_all_graphics()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_release_all_graphics()
+void gfx_system_release_all_graphics( void )
 {
     gfx_init_bar_data();
     gfx_init_blip_data();
@@ -2034,7 +2034,7 @@ void gfx_system_release_all_graphics()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_delete_all_graphics()
+void gfx_system_delete_all_graphics( void )
 {
     gfx_init_bar_data();
     gfx_init_blip_data();
@@ -2045,7 +2045,7 @@ void gfx_system_delete_all_graphics()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_load_basic_textures()
+void gfx_system_load_basic_textures( void )
 {
     /// @author ZZ
     /// @details This function loads the standard textures for a module
@@ -2097,7 +2097,7 @@ void gfx_system_load_basic_textures()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_make_enviro()
+void gfx_system_make_enviro( void )
 {
     /// @author ZZ
     /// @details This function sets up the environment mapping table
@@ -2120,7 +2120,7 @@ void gfx_system_make_enviro()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_reload_all_textures()
+void gfx_system_reload_all_textures( void )
 {
     /// @author BB
     /// @details function is called when the graphics mode is changed or the program is
@@ -2844,7 +2844,7 @@ float draw_status( const CHR_REF character, float x, float y )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_all_status()
+void draw_all_status( void )
 {
     int cnt, tnc;
     int y;
@@ -2883,7 +2883,7 @@ void draw_all_status()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_map()
+void draw_map( void )
 {
     size_t cnt;
 
@@ -3247,7 +3247,7 @@ float draw_messages( float y )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_hud()
+void draw_hud( void )
 {
     /// @author ZZ
     /// @details draw in-game heads up display
@@ -3284,7 +3284,7 @@ void draw_hud()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_inventory()
+void draw_inventory( void )
 {
     //ZF> This renders the open inventories of all local players
     PLA_REF ipla;
@@ -3415,7 +3415,7 @@ void draw_inventory()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_mouse_cursor()
+void draw_mouse_cursor( void )
 {
     int     x, y;
     oglx_texture_t * pcursor;
@@ -5103,7 +5103,7 @@ egolib_rv gfx_error_add( const char * file, const char * function, int line, int
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_error_state_t * gfx_error_pop()
+gfx_error_state_t * gfx_error_pop( void )
 {
     gfx_error_state_t * retval;
 
@@ -5116,7 +5116,7 @@ gfx_error_state_t * gfx_error_pop()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_error_clear()
+void gfx_error_clear( void )
 {
     gfx_error_stack.count = 0;
 }
@@ -5235,7 +5235,7 @@ bool_t grid_lighting_interpolate( const ego_mpd_t * pmesh, lighting_cache_t * ds
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void gfx_update_fps_clock()
+void gfx_update_fps_clock( void )
 {
     /// @author ZZ
     /// @details This function updates the graphics timers
@@ -5287,7 +5287,7 @@ void gfx_update_fps_clock()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_update_fps()
+void gfx_update_fps( void )
 {
     // at fold = 0.60f, it will take approximately 9 updates for the
     // weight of the first value to be reduced to 1%
@@ -5355,7 +5355,7 @@ void gfx_update_fps()
 //--------------------------------------------------------------------------------------------
 // LINE IMPLENTATION
 //--------------------------------------------------------------------------------------------
-void line_list_init()
+void line_list_init( void )
 {
     /// @details  BB@> initialize the list so that no lines are valid
 
@@ -5368,7 +5368,7 @@ void line_list_init()
 }
 
 //--------------------------------------------------------------------------------------------
-int line_list_get_free()
+int line_list_get_free( void )
 {
     /// @details  BB@> get the 1st free line
 
@@ -5493,7 +5493,7 @@ void line_list_draw_all( const camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 // POINT IMPLENTATION
 //--------------------------------------------------------------------------------------------
-void point_list_init()
+void point_list_init( void )
 {
     /// @details  BB@> initialize the list so that no points are valid
 
@@ -5529,7 +5529,7 @@ bool_t point_list_add( const float x, const float y, const float z, const int du
 }
 
 //--------------------------------------------------------------------------------------------
-int point_list_get_free()
+int point_list_get_free( void )
 {
     int cnt;
 
@@ -5887,7 +5887,7 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright )
 //--------------------------------------------------------------------------------------------
 // DisplayMsg IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-int DisplayMsg_get_free()
+int DisplayMsg_get_free( void )
 {
     /// @author ZZ
     /// @details This function finds the best message to use
@@ -5905,7 +5905,7 @@ int DisplayMsg_get_free()
 // ASSET INITIALIZATION
 //--------------------------------------------------------------------------------------------
 
-void gfx_init_bar_data()
+void gfx_init_bar_data( void )
 {
     Uint8 cnt;
 
@@ -5926,7 +5926,7 @@ void gfx_init_bar_data()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_init_blip_data()
+void gfx_init_blip_data( void )
 {
     int cnt;
 
@@ -5944,7 +5944,7 @@ void gfx_init_blip_data()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_init_map_data()
+void gfx_init_map_data( void )
 {
     /// @author ZZ
     /// @details This function releases all the map images
@@ -5960,7 +5960,7 @@ void gfx_init_map_data()
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_bars()
+gfx_rv gfx_load_bars( void )
 {
     /// @author ZZ
     /// @details This function loads the status bar bitmap
@@ -5989,7 +5989,7 @@ gfx_rv gfx_load_bars()
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_map()
+gfx_rv gfx_load_map( void )
 {
     /// @author ZZ
     /// @details This function loads the map bitmap
@@ -6021,7 +6021,7 @@ gfx_rv gfx_load_map()
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_blips()
+gfx_rv gfx_load_blips( void )
 {
     /// @author ZZ
     /// @details This function loads the blip bitmaps
@@ -6042,7 +6042,7 @@ gfx_rv gfx_load_blips()
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_icons()
+gfx_rv gfx_load_icons( void )
 {
     const char * pname = EMPTY_CSTR;
     TX_REF load_rv = INVALID_GL_ID;
@@ -6062,7 +6062,7 @@ gfx_rv gfx_load_icons()
 //--------------------------------------------------------------------------------------------
 // MODE CONTROL
 //--------------------------------------------------------------------------------------------
-void gfx_begin_text()
+void gfx_begin_text( void )
 {
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
     GL_DEBUG( glPushAttrib )( GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
@@ -6086,14 +6086,14 @@ void gfx_begin_text()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_end_text()
+void gfx_end_text( void )
 {
     // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function
     GL_DEBUG( glPopAttrib )();
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_enable_texturing()
+void gfx_enable_texturing( void )
 {
     if ( !GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D ) )
     {
@@ -6102,7 +6102,7 @@ void gfx_enable_texturing()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_disable_texturing()
+void gfx_disable_texturing( void )
 {
     if ( GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D ) )
     {
@@ -6125,7 +6125,7 @@ void gfx_begin_3d( const camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_end_3d()
+void gfx_end_3d( void )
 {
     // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
@@ -6192,13 +6192,13 @@ void gfx_reshape_viewport( int w, int h )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_request_clear_screen()
+void gfx_request_clear_screen( void )
 {
     gfx_page_clear_requested = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_do_clear_screen()
+void gfx_do_clear_screen( void )
 {
     bool_t game_needs_clear, menu_needs_clear;
 
@@ -6234,7 +6234,7 @@ void gfx_do_clear_screen()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_do_flip_pages()
+void gfx_do_flip_pages( void )
 {
     bool_t try_flip;
 
@@ -6258,19 +6258,19 @@ void gfx_do_flip_pages()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_request_flip_pages()
+void gfx_request_flip_pages( void )
 {
     gfx_page_flip_requested = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_flip_pages_requested()
+bool_t gfx_flip_pages_requested( void )
 {
     return gfx_page_flip_requested;
 }
 
 //--------------------------------------------------------------------------------------------
-void _flip_pages()
+void _flip_pages( void )
 {
     //GL_DEBUG( glFlush )();
 
@@ -6591,7 +6591,7 @@ gfx_rv light_fans( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-float get_ambient_level()
+float get_ambient_level( void )
 {
     /// @author BB
     /// @details get the actual global ambient level
@@ -6662,7 +6662,7 @@ bool_t sum_global_lighting( lighting_vector_t lighting )
 //--------------------------------------------------------------------------------------------
 // SEMI OBSOLETE FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void draw_cursor()
+void draw_cursor( void )
 {
     /// @author ZZ
     /// @details This function implements a mouse cursor
@@ -7296,7 +7296,7 @@ gfx_make_dolist_exit:
 //--------------------------------------------------------------------------------------------
 // UTILITY FUNCTIONS
 //--------------------------------------------------------------------------------------------
-bool_t dump_screenshot()
+bool_t dump_screenshot( void )
 {
     /// @author BB
     /// @details dumps the current screen (GL context) to a new bitmap file
@@ -7413,7 +7413,7 @@ bool_t dump_screenshot()
 }
 
 //--------------------------------------------------------------------------------------------
-void clear_messages()
+void clear_messages( void )
 {
     /// @author ZZ
     /// @details This function empties the message buffer
@@ -7477,7 +7477,7 @@ float calc_light_global( int rotation, int normal, float lx, float ly, float lz 
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_reset_timers()
+void gfx_reset_timers( void )
 {
     egolib_throttle_reset( &gfx_throttle );
     gfx_clear_loops = 0;
@@ -7565,7 +7565,7 @@ gfx_rv gfx_update_flashing( dolist_t * pdolist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_update_all_chr_instance()
+gfx_rv gfx_update_all_chr_instance( void )
 {
     CHR_REF cnt;
     gfx_rv retval;

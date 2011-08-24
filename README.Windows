@@ -77,17 +77,17 @@ To get egoboo to compile, link, and run you will need to download the developmen
 
 The bulk of the dependencies are related to the Simple Direct-media Layer (SDL), which what allows egoboo to run on multiple platforms. You can get the various SDL modules via the internet at the following locations:
 
-	- SDL devel package (http://www.libsdl.org/)
-	- SDL mixer devel package (http://www.libsdl.org/projects/SDL_mixer/)
-	- SDL ttf devel package (http://www.libsdl.org/projects/SDL_ttf/)
-	- SDL image devel package (http://www.libsdl.org/projects/SDL_image/)
+	- SDL devel package (http://www.libsdl.org)
+	- SDL mixer devel package (http://www.libsdl.org/projects/SDL_mixer)
+	- SDL ttf devel package (http://www.libsdl.org/projects/SDL_ttf)
+	- SDL image devel package (http://www.libsdl.org/projects/SDL_image)
 
 As Birdsey stated above, it might be a good idea to get the source-code for these libraries. There are cases where you might run into all kinds of problems with the default libraries, for instance, a common problem is that your compiler might assume a different memory alignment than the compiler that supplied the binaries you are using. If something like this were to happen, the best way to fix it is to build your own versions of the libraries and egoboo using the same compiler and the same settings.
 
 The source for the other dependencies can be found at the following locations:
 
 	- Lua support >= version 5.0 (http://www.lua.org/download.html)
-	- PhysicsFS   >= version 2.0 (http://icculus.org/physfs/)
+	- PhysicsFS   >= version 2.0 (http://icculus.org/physfs)
 	- ENet        >= version 1.2 (http://enet.bespin.org)
 
 no binaries are available at this time and these libraries wil have to be built. Make sure that the library versions that you download fit the requirements listed above.

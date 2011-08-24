@@ -44,10 +44,10 @@ static FILE * _SDL_GL_stdout = NULL;
 // will have to be changed to reflect that
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
 
-const Uint32 sdl_a_shift = 24;
-const Uint32 sdl_b_shift = 16;
-const Uint32 sdl_g_shift =  8;
-const Uint32 sdl_r_shift =  0;
+const Uint8 sdl_a_shift = 24;
+const Uint8 sdl_b_shift = 16;
+const Uint8 sdl_g_shift =  8;
+const Uint8 sdl_r_shift =  0;
 
 const Uint32 sdl_a_mask = ( Uint32 )( 0xFF << 24 );
 const Uint32 sdl_b_mask = ( Uint32 )( 0xFF << 16 );
@@ -56,10 +56,10 @@ const Uint32 sdl_r_mask = ( Uint32 )( 0xFF <<  0 );
 
 #else
 
-const Uint32 sdl_a_shift = 0;
-const Uint32 sdl_b_shift = 8;
-const Uint32 sdl_g_shift = 16;
-const Uint32 sdl_r_shift = 24;
+const Uint8 sdl_a_shift = 0;
+const Uint8 sdl_b_shift = 8;
+const Uint8 sdl_g_shift = 16;
+const Uint8 sdl_r_shift = 24;
 
 const Uint32 sdl_a_mask = ( Uint32 )( 0xFF <<  0 );
 const Uint32 sdl_b_mask = ( Uint32 )( 0xFF <<  8 );

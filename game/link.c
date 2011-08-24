@@ -163,7 +163,7 @@ bool_t link_build_vfs( const char * fname, Link_t list[] )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t link_pop_module()
+bool_t link_pop_module( void )
 {
     bool_t retval;
     link_stack_entry_t * pentry;
@@ -214,7 +214,7 @@ bool_t link_pop_module()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t link_push_module()
+bool_t link_push_module( void )
 {
     bool_t retval;
     link_stack_entry_t * pentry;

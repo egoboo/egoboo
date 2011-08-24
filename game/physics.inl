@@ -158,7 +158,7 @@ static INLINE bool_t test_interaction_close_2( const oct_bb_t * cv_a, const fvec
     depth = MIN( cv_b->maxs[OCT_Z] + ob[OCT_Z], cv_a->maxs[OCT_Z] + oa[OCT_Z] ) -
             MAX( cv_b->mins[OCT_Z] + ob[OCT_Z], cv_a->mins[OCT_Z] + oa[OCT_Z] );
 
-    return test_platform ? ( depth > -PLATTOLERANCE ) : ( depth > 0.0f );
+    return BOOL_T(test_platform ? ( depth > -PLATTOLERANCE ) : ( depth > 0.0f ));
 }
 
 //--------------------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ static INLINE bool_t test_interaction_2( const oct_bb_t * cv_a, const fvec3_base
     depth = MIN( cv_b->maxs[OCT_Z] + ob[OCT_Z], cv_a->maxs[OCT_Z] + oa[OCT_Z] ) -
             MAX( cv_b->mins[OCT_Z] + ob[OCT_Z], cv_a->mins[OCT_Z] + oa[OCT_Z] );
 
-    return ( 0 != test_platform ) ? ( depth > -PLATTOLERANCE ) : ( depth > 0.0f );
+    return BOOL_T(( 0 != test_platform ) ? ( depth > -PLATTOLERANCE ) : ( depth > 0.0f ));
 }
 
 //--------------------------------------------------------------------------------------------

@@ -215,25 +215,25 @@ static bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info );
 static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
 
 static void game_setup_module( const char *smallname );
-static void game_reset_module_data();
+static void game_reset_module_data( void );
 
 static void      game_load_all_assets( const char *modname );
-static egolib_rv game_load_global_assets();
+static egolib_rv game_load_global_assets( void );
 static void      game_load_module_assets( const char *modname );
 
-static void load_all_profiles_import();
+static void load_all_profiles_import( void );
 static void import_dir_profiles_vfs( const char * dirname );
-static void game_load_global_profiles();
+static void game_load_global_profiles( void );
 static void game_load_module_profiles( const char *modname );
 
-static void initialize_all_objects();
-static void finalize_all_objects();
+static void initialize_all_objects( void );
+static void finalize_all_objects( void );
 
-static void update_used_lists();
-static void update_all_objects();
-static void move_all_objects();
-static void cleanup_all_objects();
-static void bump_all_update_counters();
+static void update_used_lists( void );
+static void update_all_objects( void );
+static void move_all_objects( void );
+static void cleanup_all_objects( void );
+static void bump_all_update_counters( void );
 
 //--------------------------------------------------------------------------------------------
 // Random Things
@@ -537,7 +537,7 @@ void statlist_move_to_top( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void statlist_sort()
+void statlist_sort( void )
 {
     /// @author ZZ
     /// @details This function puts all of the local players on top of the StatusList
@@ -588,7 +588,7 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_alliance_file_vfs()
+void activate_alliance_file_vfs( void )
 {
     /// @author ZZ
     /// @details This function reads the alliance file
@@ -615,7 +615,7 @@ void activate_alliance_file_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-void update_used_lists()
+void update_used_lists( void )
 {
     ChrList_update_used();
     PrtList_update_used();
@@ -623,7 +623,7 @@ void update_used_lists()
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_objects()
+void update_all_objects( void )
 {
     chr_stoppedby_tests = prt_stoppedby_tests = 0;
     chr_pressure_tests  = prt_pressure_tests  = 0;
@@ -634,7 +634,7 @@ void update_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void move_all_objects()
+void move_all_objects( void )
 {
     mesh_mpdfx_tests = 0;
 
@@ -643,7 +643,7 @@ void move_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_all_objects()
+void cleanup_all_objects( void )
 {
     cleanup_all_characters();
     cleanup_all_particles();
@@ -651,7 +651,7 @@ void cleanup_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void bump_all_update_counters()
+void bump_all_update_counters( void )
 {
     bump_all_characters_update_counters();
     //bump_all_particles_update_counters();
@@ -659,7 +659,7 @@ void bump_all_update_counters()
 }
 
 //--------------------------------------------------------------------------------------------
-void initialize_all_objects()
+void initialize_all_objects( void )
 {
     /// @author BB
     /// @details begin the code for updating in-game objects
@@ -672,7 +672,7 @@ void initialize_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void finalize_all_objects()
+void finalize_all_objects( void )
 {
     /// @author BB
     /// @details end the code for updating in-game objects
@@ -685,7 +685,7 @@ void finalize_all_objects()
 }
 
 //--------------------------------------------------------------------------------------------
-void blah_billboard()
+void blah_billboard( void )
 {
     const SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
     const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
@@ -735,7 +735,7 @@ void blah_billboard()
 }
 
 //--------------------------------------------------------------------------------------------
-int update_game()
+int update_game( void )
 {
     /// @author ZZ
     /// @details This function does several iterations of character movements and such
@@ -1005,7 +1005,7 @@ int update_game()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_update_timers()
+void game_update_timers( void )
 {
     /// @author ZZ
     /// @details This function updates the game timers
@@ -1089,7 +1089,7 @@ void game_update_timers()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_update_ups()
+void game_update_ups( void )
 {
     /// @author ZZ
     /// @details This function updates the game timers
@@ -1119,7 +1119,7 @@ void game_update_ups()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_reset_timers()
+void game_reset_timers( void )
 {
     /// @author ZZ
     /// @details This function resets the timers...
@@ -1881,7 +1881,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
 }
 
 //--------------------------------------------------------------------------------------------
-void do_damage_tiles()
+void do_damage_tiles( void )
 {
     // do the damage tile stuff
 
@@ -1940,7 +1940,7 @@ void do_damage_tiles()
 }
 
 //--------------------------------------------------------------------------------------------
-void update_pits()
+void update_pits( void )
 {
     /// @author ZZ
     /// @details This function kills any character in a deep pit...
@@ -2026,7 +2026,7 @@ void update_pits()
 }
 
 //--------------------------------------------------------------------------------------------
-void do_weather_spawn_particles()
+void do_weather_spawn_particles( void )
 {
     /// @author ZZ
     /// @details This function drops snowflakes or rain or whatever, also swings the camera
@@ -2339,7 +2339,7 @@ void set_local_latches( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void check_stats()
+void check_stats( void )
 {
     /// @author ZZ
     /// @details This function lets the players check character stats
@@ -2724,7 +2724,7 @@ void show_magic_status( int statindex )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void tilt_characters_to_terrain()
+void tilt_characters_to_terrain( void )
 {
     /// @author ZZ
     /// @details This function sets all of the character's starting tilt values
@@ -2783,7 +2783,7 @@ void import_dir_profiles_vfs( const char * dirname )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_profiles_import()
+void load_all_profiles_import( void )
 {
     int cnt;
 
@@ -2807,7 +2807,7 @@ void load_all_profiles_import()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_load_profile_ai()
+void game_load_profile_ai( void )
 {
     /// @author ZF
     /// @details load the AI for each profile, done last so that all reserved slot numbers are already set
@@ -2859,7 +2859,7 @@ void game_load_module_profiles( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-void game_load_global_profiles()
+void game_load_global_profiles( void )
 {
     // load all special objects
     load_one_profile_vfs( "mp_data/globalobjects/book.obj", SPELLBOOK );
@@ -3106,7 +3106,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_spawn_file_vfs()
+void activate_spawn_file_vfs( void )
 {
     /// @author ZZ
     /// @details This function sets up character data, loaded from "SPAWN.TXT"
@@ -3254,7 +3254,7 @@ void activate_spawn_file_vfs()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_reset_module_data()
+void game_reset_module_data( void )
 {
     // reset all
     log_info( "Resetting module data\n" );
@@ -3271,7 +3271,7 @@ void game_reset_module_data()
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv game_load_global_assets()
+egolib_rv game_load_global_assets( void )
 {
     // load a bunch of assets that are used in the module
 
@@ -3504,7 +3504,7 @@ int reaffirm_attached_particles( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void game_quit_module()
+void game_quit_module( void )
 {
     /// @author BB
     /// @details all of the de-initialization code after the module actually ends
@@ -3590,7 +3590,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_update_imports()
+bool_t game_update_imports( void )
 {
     /// @author BB
     /// @details This function saves all the players to the players dir
@@ -3616,7 +3616,7 @@ bool_t game_update_imports()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_release_module_data()
+void game_release_module_data( void )
 {
     /// @author ZZ
     /// @details This function frees up memory used by the module
@@ -3677,7 +3677,7 @@ bool_t attach_one_particle( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-void attach_all_particles()
+void attach_all_particles( void )
 {
     /// @author ZZ
     /// @details This function attaches particles to their characters so everything gets
@@ -3737,7 +3737,7 @@ bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t
 }
 
 //--------------------------------------------------------------------------------------------
-void let_all_characters_think()
+void let_all_characters_think( void )
 {
     /// @author ZZ
     /// @details This function funst the ai scripts for all eligible objects
@@ -3815,7 +3815,7 @@ void game_end_menu( menu_process_t * mproc )
 }
 
 //--------------------------------------------------------------------------------------------
-void game_finish_module()
+void game_finish_module( void )
 {
     // export all the local and remote characters
     game_update_imports();
@@ -3893,7 +3893,7 @@ float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_end_text()
+void reset_end_text( void )
 {
     /// @author ZZ
     /// @details This function resets the end-module text
@@ -4262,7 +4262,7 @@ game_process_t * game_process_init( game_process_t * gproc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void do_game_hud()
+void do_game_hud( void )
 {
     int y = 0;
 
@@ -4281,7 +4281,7 @@ void do_game_hud()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void game_reset_players()
+void game_reset_players( void )
 {
     /// @author ZZ
     /// @details This function clears the player list data
@@ -4535,7 +4535,7 @@ bool_t upload_camera_data( const wawalite_camera_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-void upload_wawalite()
+void upload_wawalite( void )
 {
     /// @author ZZ
     /// @details This function sets up water and lighting for the module
@@ -4638,7 +4638,7 @@ bool_t game_module_stop( game_module_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite_vfs( /* const char *modname */ )
+wawalite_data_t * read_wawalite_vfs(  void /* const char *modname */ )
 {
     wawalite_data_t * pdata;
 

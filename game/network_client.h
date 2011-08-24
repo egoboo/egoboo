@@ -59,7 +59,7 @@ void cl_frameStep( void );
 // int  cl_connectToServer(...);
 // int  cl_loadModule(...);
 
-egolib_rv cl_talkToHost();
+egolib_rv cl_talkToHost( void );
 egolib_rv cl_joinGame( const char *hostname );
 egolib_rv cl_handlePacket( enet_packet_t * enet_pkt );
 

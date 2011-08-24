@@ -703,7 +703,7 @@ static INLINE bool_t chr_get_pos( const chr_t * pchr, fvec3_base_t pos )
 
     copy_retval = fvec3_base_copy( pos, pchr->pos.v );
 
-    return ( NULL != copy_retval ) ? btrue : bfalse;
+    return BOOL_T( NULL != copy_retval );
 }
 
 //--------------------------------------------------------------------------------------------

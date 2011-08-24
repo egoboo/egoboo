@@ -757,7 +757,7 @@ void mesh_make_vrtstart( ego_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_make_twist()
+void mesh_make_twist( void )
 {
     /// @author ZZ
     /// @details This function precomputes surface normals and steep hill acceleration for
@@ -2147,7 +2147,7 @@ ego_grid_info_t * ego_grid_info_free( ego_grid_info_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_grid_info_t * ego_grid_info_create()
+ego_grid_info_t * ego_grid_info_create( void )
 {
     ego_grid_info_t * retval = NULL;
 

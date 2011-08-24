@@ -82,23 +82,23 @@ static INLINE bool_t INGAME_PCHR( const chr_t * PCHR );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static INLINE bool_t VALID_CHR_RANGE( const CHR_REF ICHR ) { return _VALID_CHR_RANGE( ICHR ); }
-static INLINE bool_t DEFINED_CHR( const CHR_REF ICHR )     { return _DEFINED_CHR( ICHR );     }
-static INLINE bool_t ALLOCATED_CHR( const CHR_REF ICHR )   { return _ALLOCATED_CHR( ICHR );   }
-static INLINE bool_t ACTIVE_CHR( const CHR_REF ICHR )      { return _ACTIVE_CHR( ICHR );      }
-static INLINE bool_t WAITING_CHR( const CHR_REF ICHR )     { return _WAITING_CHR( ICHR );     }
-static INLINE bool_t TERMINATED_CHR( const CHR_REF ICHR )  { return _TERMINATED_CHR( ICHR );  }
+static INLINE bool_t VALID_CHR_RANGE( const CHR_REF ICHR ) { return BOOL_T(_VALID_CHR_RANGE( ICHR )); }
+static INLINE bool_t DEFINED_CHR( const CHR_REF ICHR )     { return BOOL_T(_DEFINED_CHR( ICHR ));     }
+static INLINE bool_t ALLOCATED_CHR( const CHR_REF ICHR )   { return BOOL_T(_ALLOCATED_CHR( ICHR ));   }
+static INLINE bool_t ACTIVE_CHR( const CHR_REF ICHR )      { return BOOL_T(_ACTIVE_CHR( ICHR ));      }
+static INLINE bool_t WAITING_CHR( const CHR_REF ICHR )     { return BOOL_T(_WAITING_CHR( ICHR ));     }
+static INLINE bool_t TERMINATED_CHR( const CHR_REF ICHR )  { return BOOL_T(_TERMINATED_CHR( ICHR ));  }
 
 static INLINE size_t  GET_INDEX_PCHR( const chr_t * PCHR )  { return _GET_INDEX_PCHR( PCHR );  }
 static INLINE CHR_REF GET_REF_PCHR( const chr_t * PCHR )    { return _GET_REF_PCHR( PCHR );    }
-static INLINE bool_t  DEFINED_PCHR( const chr_t * PCHR )    { return _DEFINED_PCHR( PCHR );    }
-static INLINE bool_t  VALID_CHR_PTR( const chr_t * PCHR )   { return _VALID_CHR_PTR( PCHR );   }
-static INLINE bool_t  ALLOCATED_PCHR( const chr_t * PCHR )  { return _ALLOCATED_PCHR( PCHR );  }
-static INLINE bool_t  ACTIVE_PCHR( const chr_t * PCHR )     { return _ACTIVE_PCHR( PCHR );     }
-static INLINE bool_t  TERMINATED_PCHR( const chr_t * PCHR ) { return _TERMINATED_PCHR( PCHR ); }
+static INLINE bool_t  DEFINED_PCHR( const chr_t * PCHR )    { return BOOL_T(_DEFINED_PCHR( PCHR ));    }
+static INLINE bool_t  VALID_CHR_PTR( const chr_t * PCHR )   { return BOOL_T(_VALID_CHR_PTR( PCHR ));   }
+static INLINE bool_t  ALLOCATED_PCHR( const chr_t * PCHR )  { return BOOL_T(_ALLOCATED_PCHR( PCHR ));  }
+static INLINE bool_t  ACTIVE_PCHR( const chr_t * PCHR )     { return BOOL_T(_ACTIVE_PCHR( PCHR ));     }
+static INLINE bool_t  TERMINATED_PCHR( const chr_t * PCHR ) { return BOOL_T(_TERMINATED_PCHR( PCHR )); }
 
-static INLINE bool_t INGAME_CHR_BASE( const CHR_REF ICHR )  { return _INGAME_CHR_BASE( ICHR );  }
-static INLINE bool_t INGAME_PCHR_BASE( const chr_t * PCHR )       { return _INGAME_PCHR_BASE( PCHR ); }
+static INLINE bool_t INGAME_CHR_BASE( const CHR_REF ICHR )  { return BOOL_T(_INGAME_CHR_BASE( ICHR ));  }
+static INLINE bool_t INGAME_PCHR_BASE( const chr_t * PCHR ) { return BOOL_T(_INGAME_PCHR_BASE( PCHR )); }
 
-static INLINE bool_t INGAME_CHR( const CHR_REF ICHR )       { return _INGAME_CHR( ICHR );  }
-static INLINE bool_t INGAME_PCHR( const chr_t * PCHR )      { return _INGAME_PCHR( PCHR ); }
+static INLINE bool_t INGAME_CHR( const CHR_REF ICHR )       { return BOOL_T(_INGAME_CHR( ICHR ));  }
+static INLINE bool_t INGAME_PCHR( const chr_t * PCHR )      { return BOOL_T(_INGAME_PCHR( PCHR )); }

@@ -517,7 +517,7 @@ gfx_rv render_water_fan( const ego_mpd_t * pmesh, const Uint32 itile, const Uint
 }
 
 //--------------------------------------------------------------------------------------------
-void animate_tiles()
+void animate_tiles( void )
 {
     /// @author ZZ
     /// @details This function changes the animated tile frame

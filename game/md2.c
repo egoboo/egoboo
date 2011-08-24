@@ -96,7 +96,7 @@ void MD2_GLCommand_dtor( MD2_GLCommand_t * m )
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_GLCommand_t * MD2_GLCommand_create()
+MD2_GLCommand_t * MD2_GLCommand_create( void )
 {
     MD2_GLCommand_t * m;
 
@@ -193,7 +193,7 @@ MD2_Model_t * MD2_Model_dtor( MD2_Model_t * m )
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_Model_t * MD2_Model_create()
+MD2_Model_t * MD2_Model_create( void )
 {
     MD2_Model_t * m = EGOBOO_NEW( MD2_Model_t );
 

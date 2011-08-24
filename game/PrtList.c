@@ -61,8 +61,8 @@ static bool_t PrtList_remove_used( const PRT_REF iprt );
 static bool_t PrtList_remove_used_index( const int index );
 static int    PrtList_get_used_list_index( const PRT_REF iprt );
 
-static void   PrtList_prune_used();
-static void   PrtList_prune_free();
+static void   PrtList_prune_used( void );
+static void   PrtList_prune_free( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ IMPLEMENT_LIST( prt_t, PrtList, MAX_PRT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void PrtList_init()
+void PrtList_init( void )
 {
     int cnt;
 
@@ -105,7 +105,7 @@ void PrtList_init()
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_dtor()
+void PrtList_dtor( void )
 {
     PRT_REF cnt;
 
@@ -124,7 +124,7 @@ void PrtList_dtor()
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_prune_used()
+void PrtList_prune_used( void )
 {
     // prune the used list
 
@@ -150,7 +150,7 @@ void PrtList_prune_used()
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_prune_free()
+void PrtList_prune_free( void )
 {
     // prune the free list
 
@@ -176,7 +176,7 @@ void PrtList_prune_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_update_used()
+void PrtList_update_used( void )
 {
     PRT_REF iprt;
 
@@ -269,7 +269,7 @@ bool_t PrtList_free_one( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t PrtList_get_free()
+size_t PrtList_get_free( void )
 {
     /// @author ZZ
     /// @details This function returns the next free particle or MAX_PRT if there are none
@@ -440,7 +440,7 @@ PRT_REF PrtList_allocate( const bool_t force )
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_free_all()
+void PrtList_free_all( void )
 {
     /// @author ZZ
     /// @details This function resets the particle allocation lists
@@ -632,7 +632,7 @@ bool_t PrtList_remove_used( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_cleanup()
+void PrtList_cleanup( void )
 {
     size_t  cnt;
     prt_t * pprt;
@@ -707,13 +707,13 @@ bool_t PrtList_add_termination( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-int PrtList_count_free()
+int PrtList_count_free( void )
 {
     return PrtList.free_count;
 }
 
 //--------------------------------------------------------------------------------------------
-void PrtList_reset_all()
+void PrtList_reset_all( void )
 {
     /// @author ZZ
     /// @details This resets all particle data and reads in the coin and water particles

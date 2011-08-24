@@ -1086,7 +1086,7 @@ size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        int retval = PHYSFS_read( pfile->ptr.p, buffer, size, count );
+        PHYSFS_sint64 retval = PHYSFS_read( pfile->ptr.p, buffer, size, count );
 
         if ( retval < 0 ) { error = btrue; pfile->flags |= VFS_ERROR; }
 

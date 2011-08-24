@@ -70,7 +70,7 @@ static bool_t ai_state_free( ai_state_t * pself );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void scripting_system_begin()
+void scripting_system_begin( void )
 {
     if ( !_scripting_system_initialized )
     {
@@ -89,7 +89,7 @@ void scripting_system_begin()
 }
 
 //--------------------------------------------------------------------------------------------
-void scripting_system_end()
+void scripting_system_end( void )
 {
     if ( _scripting_system_initialized )
     {

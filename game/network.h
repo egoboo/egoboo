@@ -80,10 +80,10 @@ extern int     net_players_loaded;
 //--------------------------------------------------------------------------------------------
 // Networking functions
 //--------------------------------------------------------------------------------------------
-void net_initialize();
+void net_initialize( void );
 void net_shutDown( void );
-bool_t net_begin();
-bool_t net_end();
+bool_t net_begin( void );
+bool_t net_end( void );
 
 void net_unbuffer_player_latches( void );
 
@@ -94,6 +94,6 @@ void find_open_sessions( void );
 void stop_players_from_joining( void );
 void turn_on_service( int service );
 
-void net_count_players();
+void net_count_players( void );
 
 int create_player( int host );

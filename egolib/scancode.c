@@ -21,13 +21,15 @@
 /// @brief
 /// @details
 
+#include <stdio.h>
+
 #include "../egolib/scancode.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-Uint8  scancode_to_ascii[SDLK_LAST];
-Uint8  scancode_to_ascii_shift[SDLK_LAST];
+int  scancode_to_ascii[SDLK_LAST];
+int  scancode_to_ascii_shift[SDLK_LAST];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -36,21 +38,27 @@ void scancode_begin( void )
     /// @author BB
     /// @details initialize the scancode translation
 
-    int i;
+    int src, dst;
 
     // do the basic translation
-    for ( i = 0; i < SDLK_LAST; i++ )
+    for ( src = 0; src < SDLK_LAST; src++ )
     {
-        // SDL uses ascii values for it's virtual scancodes
-        scancode_to_ascii[i] = i;
-        if ( i < 255 )
+        // SDL uses ASCII values for it's virtual scancodes
+        scancode_to_ascii[src] = src;
+
+		// find the shifted value using toupper()
+		dst = src;
+        if ( src < 255 )
         {
-            scancode_to_ascii_shift[i] = toupper( i );
+			dst = toupper( src );
+
+			if( dst > 255 )
+			{
+				fprintf( stderr, "%s - toupper() returned an out of range value \'%c\' -> %d\n", src, dst ); 
+			}
         }
-        else
-        {
-            scancode_to_ascii_shift[i] = scancode_to_ascii[i];
-        }
+
+		scancode_to_ascii_shift[src] = dst;
     }
 
     // fix the keymap

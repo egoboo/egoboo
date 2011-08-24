@@ -47,7 +47,7 @@ static bool_t mpd_BSP_insert( mpd_BSP_t * pbsp, ego_tile_info_t * ptile, int ind
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_system_started()
+bool_t mpd_BSP_system_started( void )
 {
     return _mpd_BSP_system_initialized;
 }
@@ -79,7 +79,7 @@ egolib_rv mpd_BSP_system_begin( ego_mpd_t * pmpd )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv  mpd_BSP_system_end()
+egolib_rv  mpd_BSP_system_end( void )
 {
     if ( _mpd_BSP_system_initialized )
     {
