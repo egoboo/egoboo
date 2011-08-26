@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectName)-Debug"
-			IntermediateDirectory="$(ProjectName)-Debug"
+			OutputDirectory="$(ProjectName)_vs9-Debug"
+			IntermediateDirectory="$(ProjectName)_vs9-Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -110,8 +110,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectName)-Release"
-			IntermediateDirectory="$(ProjectName)-Release"
+			OutputDirectory="$(ProjectName)_vs9-Release"
+			IntermediateDirectory="$(ProjectName)_vs9-Release"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -208,6 +208,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
+			RelativePathToProject=".\egolib\egolib_vs9.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter

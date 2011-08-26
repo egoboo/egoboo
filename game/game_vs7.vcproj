@@ -151,6 +151,9 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
+			Name="egolib"/>
 	</References>
 	<Files>
 		<Filter

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="8.00"
 	Name="egolib"
 	ProjectGUID="{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -17,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ProjectName)_vs9-Debug"
-			IntermediateDirectory="$(ProjectName)_vs9-Debug"
+			OutputDirectory="$(ProjectName)_vs8-Debug"
+			IntermediateDirectory="$(ProjectName)_vs8-Debug"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
@@ -83,8 +82,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ProjectName)_vs9-Release"
-			IntermediateDirectory="$(ProjectName)_vs9-Release"
+			OutputDirectory="$(ProjectName)_vs8-Release"
+			IntermediateDirectory="$(ProjectName)_vs8-Release"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
