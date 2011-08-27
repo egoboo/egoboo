@@ -1,41 +1,72 @@
-# note if you change the prefix also update egoboo.sh
-PREFIX	:= ${HOME}/.local
+# Do not run this file. Run the Makefile in the parent directory, instead
 
-EGO_SRC  := \
-	camera.c char.c client.c clock.c egoboo_console.c egoboo_endian.c \
-	egoboo_fileutil.c egoboo_math.c egoboo_setup.c egoboo_strutil.c \
-	egoboo_typedef.c egoboo_vfs.c enchant.c file_common.c \
-	font_bmp.c font_ttf.c game.c graphic.c graphic_fan.c \
-	graphic_mad.c graphic_prt.c input.c link.c log.c \
-	mad.c md2.c menu.c mesh.c network.c particle.c \
-	passage.c profile.c quest.c script.c script_compile.c \
-	script_functions.c server.c sound.c texture.c ui.c 
+EGOLIB_TARGET = lib$(PROJ_NAME).la
 
-EGO_LUA         := ego_wrap.c egoboo_console.c lua_console.c
-EGO_PLATFORM    := platform/file_linux.c platform/sys_linux.c
-EGO_FILE_FORMAT := $(wildcard ./file_formats/*.c)
-EGO_EXTENSIONS  := $(wildcard ./extensions/*.c)
+#---------------------
+# the source files
 
-EGO_OBJ  := ${EGO_SRC:.c=.o} ${EGO_FILE_FORMAT:.c=.o} ${EGO_EXTENSIONS:.c=.o} ${EGO_PLATFORM:.c=.o} ${EGO_LUA:.c=.o}
+EGOLIB_SRC         := $(wildcard ./*.c)
+EGOLIB_PLATFORM    := $(wildcard ./file_formats/*_linux.c)
+EGOLIB_FILE_FORMAT := $(wildcard ./file_formats/*.c)
+EGOLIB_EXTENSIONS  := $(wildcard ./extensions/*.c)
+EGOLIB_LUA         := $(wildcard ./lua/*.c)
+
+EGOLIB_OBJ := ${EGOLIB_SRC:.c=.o} ${EGOLIB_FILE_FORMAT:.c=.o} ${EGOLIB_EXTENSIONS:.c=.o} ${EGOLIB_PLATFORM:.c=.o} ${EGOLIB_LUA:.c=.o}
+
+#---------------------
+# the SDL configuration
 
 SDL_CONF  := sdl-config
 SDLCONF_I := $(shell ${SDL_CONF} --cflags)
-SDLCONF_L := $(shell ${SDL_CONF} --libs)
+
+#---------------------
+# the compiler options
 
 CC      := gcc
-OPT     := -Os -Wall -DPREFIX=\"${PREFIX}\"
-INC     := -I. -I.. -I../enet/include -I/usr/include/lua5.1 ${SDLCONF_I} -I./extensions -I./file_formats -I./platform
-CFLAGS  := ${OPT} ${INC} -DUSE_LUA_CONSOLE
-LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lphysfs -llua5.1
+INC     := -I. -I.. ${SDLCONF_I} -I./extensions -I./file_formats -I./platform -I./lua
+
+# use different options if the environmental variable PREFIX is defined
+ifdef ($(PREFIX),"")
+	OPT := -Os -Wall
+else
+	OPT := -Os -Wall -DPREFIX=\"${PREFIX}\" -D_NIX_PREFIX
+endif
+
+CFLAGS  := ${OPT} ${INC}
+
+#------------------------------------
+# definitions of the libtool commands
+
+define compile_rule
+        libtool --mode=compile \
+        $(CC) $(CFLAGS) $(CPPFLAGS) -c $<
+endef
+
+define link_rule
+        libtool --mode=link \
+        $(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+endef
+
+#------------------------------------
+# definitions of the target projects
 
 .PHONY: all clean
 
-EGO_BIN := egoboo-2.x
+%.lo: %.c
+        $(call compile_rule)
 
-all: ${EGO_BIN}
+${EGOLIB_TARGET}: $(EGOLIB_OBJ)
+        $(call link_rule)
 
-${EGO_BIN}: ${EGO_OBJ} ${ENET_OBJ}
-	${CC} -o $@ $^ ${LDFLAGS}
+install/%.la: %.la
+        libtool --mode=install \
+        install -c $(notdir $@) $(libdir)/$(notdir $@)
+
+install: $(addprefix install/,$(LIBS))
+        libtool --mode=finish $(libdir)
+
+all: ${EGOLIB_TARGET}
 
 clean:
-	rm -f ${ENET_OBJ} ${EGO_OBJ} ${EGO_BIN}
+	rm -f ${ENET_OBJ} ${EGOLIB_OBJ} ${EGOLIB_TARGET}
+
