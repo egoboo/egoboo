@@ -54,7 +54,7 @@ void scancode_begin( void )
 
 			if( dst > 255 )
 			{
-				fprintf( stderr, "%s - toupper() returned an out of range value \'%c\' -> %d\n", src, dst ); 
+				fprintf( stderr, "%s - toupper() returned an out of range value \'%c\' -> %d\n", __FUNCTION__, src, dst ); 
 			}
         }
 

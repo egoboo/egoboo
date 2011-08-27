@@ -136,20 +136,40 @@ static size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileVal
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE char fget_char ( FILE * pf )
+static INLINE ConfigFile_retval ConfigFile_fgetc ( FILE * pf, char * pch )
 {
+    ConfigFile_retval retval;
 	int lc;
+    char ch;
 	
 	lc = fgetc( pf );
 
+    if( EOF == lc )
+    {
+        ch = 0;
+        retval = ConfigFile_fail;
+    }
 #if defined(_DEBUG)
-	if( ((unsigned int)lc) > 0xFF )
+	else if( ((unsigned int)lc) > 0xFF )
 	{
-		printf( "%s - fgetc() returned a non-char value", __FUNCTION__ );
+		printf( "%s - fgetc() returned a non-char value, 0x%x\n", __FUNCTION__, lc );
+
+        ch = 0;
+        retval = ConfigFile_fail;
 	}
 #endif
+    else
+    {
+        ch = lc & 0xFF;
+        retval = ConfigFile_succeed;
+    }
 
-	return lc & 0xFF;
+    if( NULL != pch )
+    {
+        *pch = ch;
+    }
+
+	return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -384,15 +404,24 @@ void ConfigFileString_Encode( char * str )
 ConfigFile_retval ConfigFile_PassOverCommentary( ConfigFilePtr_t pConfigFile )
 {
     char ch;
+    ConfigFile_retval retval;
 
-    ch = fget_char( pConfigFile->f );
-
-    while ( C_CARRIAGE_RETURN_CHAR != ch && ASCII_LINEFEED_CHAR != ch && !feof( pConfigFile->f ) )
+    if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
     {
-        ch = fget_char( pConfigFile->f );
+        return ConfigFile_fail;
     }
 
-    return ConfigFile_fail;
+    retval = ConfigFile_succeed;
+    while ( C_CARRIAGE_RETURN_CHAR != ch && ASCII_LINEFEED_CHAR != ch && !feof( pConfigFile->f ) )
+    {
+        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        {
+            retval = ConfigFile_fail;
+            break;
+        }
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -407,7 +436,11 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
     size_t lLengthName = 0;
     char ch;
 
-    ch = fget_char( pConfigFile->f );
+    if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
+    {
+        return 0;
+    }
+
     memset( pSection->SectionName, 0, sizeof( pSection->SectionName ) );
 
     while ( '}' != ch && 0 == feof( pConfigFile->f ) )
@@ -417,8 +450,14 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
             pSection->SectionName[lLengthName] = ch;
         }
 
-        lLengthName++;
-        ch = fget_char( pConfigFile->f );
+        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        {
+            break;
+        }
+        else
+        {
+            lLengthName++;
+        }
     }
     if ( feof( pConfigFile->f ) )
     {
@@ -440,7 +479,11 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
     size_t lLengthName = 0;
     char ch;
 
-    ch = fget_char( pConfigFile->f );
+    if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
+    {
+        return 0;
+    }
+
     memset( szValue->KeyName, 0, sizeof( szValue->KeyName ) );
 
     while ( ']' != ch && 0 == feof( pConfigFile->f ) )
@@ -450,8 +493,14 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
             szValue->KeyName[lLengthName] = ch;
         }
 
-        lLengthName++;
-        ch = fget_char( pConfigFile->f );
+        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        {
+            break;
+        }
+        else
+        {
+            lLengthName++;
+        }
     }
     if ( feof( pConfigFile->f ) )
     {
@@ -478,9 +527,12 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
 
     memset( lTempStr, 0, sizeof( lTempStr ) );
 
-    while ( 0 == lEndScan )
+    while ( 0 == lEndScan && !feof( pConfigFile->f ) )
     {
-        ch = fget_char( pConfigFile->f );
+        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        {
+            break;
+        }
 
         switch ( lState )
         {
@@ -570,9 +622,12 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
 
     memset( lTempStr, 0, sizeof( lTempStr ) );
 
-    while ( 0 == lEndScan )
+    while ( 0 == lEndScan && !feof( pConfigFile->f ) )
     {
-        ch = fget_char( pConfigFile->f );
+        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        {
+            break;
+        }
 
         switch ( lState )
         {
@@ -706,7 +761,10 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
     // load all values in memory
     while ( 0 == lError && !feof( pConfigFile->f ) )
     {
-        ch = fget_char( pConfigFile->f );
+        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        {
+            break;
+        }
 
         switch ( lState )
         {

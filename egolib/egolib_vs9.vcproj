@@ -108,7 +108,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
+				InlineFunctionExpansion="2"
 				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories=".;.."
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CONSOLE"
 				RuntimeLibrary="2"
