@@ -409,7 +409,7 @@ int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat *
 
     // handle optional tex_id
     gl_id_external = btrue;
-    if( INVALID_GL_ID == tex_id )
+    if ( INVALID_GL_ID == tex_id )
     {
         gl_id_external = bfalse;
         glGenTextures( 1, &tex_id );
@@ -456,7 +456,7 @@ int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat *
 
 fnt_print_raw_OGL_exit:
 
-    if( !gl_id_external && INVALID_GL_ID != tex_id )
+    if ( !gl_id_external && INVALID_GL_ID != tex_id )
     {
         glDeleteTextures( 1, &tex_id );
         tex_id = INVALID_GL_ID;
@@ -490,7 +490,7 @@ int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * t
 
     // handle optional tex_id
     gl_id_external = btrue;
-    if( INVALID_GL_ID == tex_id )
+    if ( INVALID_GL_ID == tex_id )
     {
         gl_id_external = bfalse;
         glGenTextures( 1, &tex_id );
@@ -504,7 +504,7 @@ int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * t
 
 fnt_vprintf_OGL_exit:
 
-    if( !gl_id_external && INVALID_GL_ID != tex_id )
+    if ( !gl_id_external && INVALID_GL_ID != tex_id )
     {
         glDeleteTextures( 1, &tex_id );
         tex_id = INVALID_GL_ID;
@@ -533,7 +533,7 @@ void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLflo
 
     // handle optional tex_id
     gl_id_external = btrue;
-    if( INVALID_GL_ID == tex_id )
+    if ( INVALID_GL_ID == tex_id )
     {
         gl_id_external = bfalse;
         glGenTextures( 1, &tex_id );
@@ -553,7 +553,7 @@ void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLflo
 
     // alocate a texture, if necessary
     gl_id_external = btrue;
-    if( INVALID_GL_ID == tex_id )
+    if ( INVALID_GL_ID == tex_id )
     {
         gl_id_external = bfalse;
         glGenTextures( 1, &tex_id );
@@ -581,7 +581,7 @@ void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLflo
 
 fnt_drawText_raw_finish:
 
-    if( !gl_id_external && INVALID_GL_ID != tex_id )
+    if ( !gl_id_external && INVALID_GL_ID != tex_id )
     {
         glDeleteTextures( 1, &tex_id );
         tex_id = INVALID_GL_ID;
@@ -616,7 +616,7 @@ void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat *
 
     // handle optional tex_id
     gl_id_external = btrue;
-    if( INVALID_GL_ID == tex_id )
+    if ( INVALID_GL_ID == tex_id )
     {
         gl_id_external = bfalse;
         glGenTextures( 1, &tex_id );
@@ -660,7 +660,7 @@ void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat *
 
 fnt_drawText_OGL_exit:
 
-    if( !gl_id_external && INVALID_GL_ID != tex_id )
+    if ( !gl_id_external && INVALID_GL_ID != tex_id )
     {
         glDeleteTextures( 1, &tex_id );
         tex_id = INVALID_GL_ID;
@@ -734,7 +734,7 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloa
 
     // handle optional tex_id
     gl_id_external = btrue;
-    if( INVALID_GL_ID == tex_id )
+    if ( INVALID_GL_ID == tex_id )
     {
         gl_id_external = bfalse;
         glGenTextures( 1, &tex_id );
@@ -761,12 +761,12 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloa
     {
         fnt_drawText_raw_OGL( font, fnt_color, tex_id, tmp_tex_coords, x, y, line, loc_ppTmpSurface );
 
-        if( NULL != tex_coords )
+        if ( NULL != tex_coords )
         {
-            if( tex_coords[0] > tmp_tex_coords[0] ) tex_coords[0] = tmp_tex_coords[0];
-            if( tex_coords[1] > tmp_tex_coords[1] ) tex_coords[1] = tmp_tex_coords[1];
-            if( tex_coords[2] < tmp_tex_coords[2] ) tex_coords[2] = tmp_tex_coords[2];
-            if( tex_coords[3] < tmp_tex_coords[3] ) tex_coords[3] = tmp_tex_coords[3];
+            if ( tex_coords[0] > tmp_tex_coords[0] ) tex_coords[0] = tmp_tex_coords[0];
+            if ( tex_coords[1] > tmp_tex_coords[1] ) tex_coords[1] = tmp_tex_coords[1];
+            if ( tex_coords[2] < tmp_tex_coords[2] ) tex_coords[2] = tmp_tex_coords[2];
+            if ( tex_coords[3] < tmp_tex_coords[3] ) tex_coords[3] = tmp_tex_coords[3];
         }
 
         y += spacing;
@@ -776,7 +776,7 @@ fnt_streamText_OGL_exit:
 
     EGOBOO_DELETE_ARY( buffer );
 
-    if( !gl_id_external && INVALID_GL_ID != tex_id )
+    if ( !gl_id_external && INVALID_GL_ID != tex_id )
     {
         glDeleteTextures( 1, &tex_id );
         tex_id = INVALID_GL_ID;

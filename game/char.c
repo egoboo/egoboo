@@ -1961,7 +1961,7 @@ bool_t drop_all_items( const CHR_REF character )
         chr_set_floor_level( pitem, pchr->enviro.floor_level );
 
         //drop out evenly in all directions
-        direction = (int)direction + diradd;
+        direction = ( int )direction + diradd;
     }
 
     return btrue;
@@ -2547,7 +2547,7 @@ void drop_money( const CHR_REF character, int money )
         int count;
 
         // remove the money from inventory
-        pchr->money = (int)pchr->money - money;
+        pchr->money = ( int )pchr->money - money;
 
         // make the particles emit from "waist high"
         loc_pos.z += ( pchr->chr_min_cv.maxs[OCT_Z] + pchr->chr_min_cv.mins[OCT_Z] ) * 0.5f;
@@ -2857,7 +2857,7 @@ bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF cha
     if ( ppla == NULL ) return bfalse;
 
     rv = quest_log_upload_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), szSaveName );
-    return BOOL_T(rv_success == rv);
+    return BOOL_T( rv_success == rv );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6120,12 +6120,12 @@ void move_one_character_do_voluntary( chr_t * pchr )
                         if ( VALID_PLA( pchr->is_which_player ) )
                         {
                             // Players turn quickly
-                            pchr->ori.facing_z = (int)pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 2 );
+                            pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 2 );
                         }
                         else
                         {
                             // AI turn slowly
-                            pchr->ori.facing_z = (int)pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
+                            pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
                         }
                     }
                 }
@@ -6136,7 +6136,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
                 {
                     if (( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
                     {
-                        pchr->ori.facing_z = (int)pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
+                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( dvx , dvy ), 8 );
                     }
                 }
                 break;
@@ -6146,7 +6146,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
                 {
                     if ( ichr != pchr->ai.target )
                     {
-                        pchr->ori.facing_z = (int)pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ), 8 );
+                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ), 8 );
                     }
                 }
                 break;
@@ -6369,7 +6369,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                         else if ( ACTION_IS_TYPE( action, F ) ) base_reload_time += 60;     //Flinged  (Unused)
 
                         //it is possible to have so high dex to eliminate all reload time
-                        if ( base_reload_time > 0 ) pweapon->reload_timer = (int)pweapon->reload_timer + base_reload_time;
+                        if ( base_reload_time > 0 ) pweapon->reload_timer = ( int )pweapon->reload_timer + base_reload_time;
                     }
                 }
 
@@ -8028,7 +8028,7 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buff
                 }
                 else
                 {
-                    lTmp = toupper( (unsigned)pcap->classname[0] );
+                    lTmp = toupper(( unsigned )pcap->classname[0] );
 
                     if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                     {
@@ -8056,7 +8056,7 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buff
     if ( 0 != ( bits & CHRNAME_CAPITAL ) )
     {
         // capitalize the name ?
-        loc_buffer[0] = toupper( (unsigned)loc_buffer[0] );
+        loc_buffer[0] = toupper(( unsigned )loc_buffer[0] );
     }
 
     return loc_buffer;

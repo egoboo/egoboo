@@ -695,11 +695,11 @@ void blah_billboard( void )
 
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
-        if( MAX_CHR != ChrList.lst[ichr].attachedto ) continue;
+        if ( MAX_CHR != ChrList.lst[ichr].attachedto ) continue;
 
         needs_new = bfalse;
 
-        if( !VALID_BILLBOARD_RANGE(pchr->ibillboard) )
+        if ( !VALID_BILLBOARD_RANGE( pchr->ibillboard ) )
         {
             needs_new = btrue;
         }
@@ -719,13 +719,13 @@ void blah_billboard( void )
         //    pchr->ibillboard = BILLBOARD_COUNT;
         //}
 
-        if( needs_new )
+        if ( needs_new )
         {
-            const char * pname = chr_get_name(ichr, 0, NULL, 0);
+            const char * pname = chr_get_name( ichr, 0, NULL, 0 );
 
             chr_make_text_billboard( ichr, pname, color_blu, default_tint, 50, bb_opt_fade );
 
-            pname = chr_get_name(ichr, 0, NULL, 0);
+            pname = chr_get_name( ichr, 0, NULL, 0 );
         }
     }
     CHR_END_LOOP()
@@ -4182,7 +4182,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
             }
 
             // make the line capitalized if necessary
-            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = toupper( (unsigned)(*ebuffer) );
+            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = toupper(( unsigned )( *ebuffer ) );
 
             // Copy the generated text
             while ( CSTR_END != *ebuffer && ebuffer < ebuffer_end && dst < dst_end )
@@ -4635,7 +4635,7 @@ bool_t game_module_stop( game_module_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-wawalite_data_t * read_wawalite_vfs(  void /* const char *modname */ )
+wawalite_data_t * read_wawalite_vfs( void /* const char *modname */ )
 {
     wawalite_data_t * pdata;
 

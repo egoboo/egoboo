@@ -81,23 +81,23 @@ static INLINE bool_t INGAME_PENC( const enc_t * PENC );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t VALID_ENC_RANGE( const ENC_REF IENC ) { return BOOL_T(_VALID_ENC_RANGE( IENC )); }
-static INLINE bool_t DEFINED_ENC( const ENC_REF IENC )     { return BOOL_T(_DEFINED_ENC( IENC ));     }
-static INLINE bool_t ALLOCATED_ENC( const ENC_REF IENC )   { return BOOL_T(_ALLOCATED_ENC( IENC ));   }
-static INLINE bool_t ACTIVE_ENC( const ENC_REF IENC )      { return BOOL_T(_ACTIVE_ENC( IENC ));      }
-static INLINE bool_t WAITING_ENC( const ENC_REF IENC )     { return BOOL_T(_WAITING_ENC( IENC ));     }
-static INLINE bool_t TERMINATED_ENC( const ENC_REF IENC )  { return BOOL_T(_TERMINATED_ENC( IENC ));  }
+static INLINE bool_t VALID_ENC_RANGE( const ENC_REF IENC ) { return BOOL_T( _VALID_ENC_RANGE( IENC ) ); }
+static INLINE bool_t DEFINED_ENC( const ENC_REF IENC )     { return BOOL_T( _DEFINED_ENC( IENC ) );     }
+static INLINE bool_t ALLOCATED_ENC( const ENC_REF IENC )   { return BOOL_T( _ALLOCATED_ENC( IENC ) );   }
+static INLINE bool_t ACTIVE_ENC( const ENC_REF IENC )      { return BOOL_T( _ACTIVE_ENC( IENC ) );      }
+static INLINE bool_t WAITING_ENC( const ENC_REF IENC )     { return BOOL_T( _WAITING_ENC( IENC ) );     }
+static INLINE bool_t TERMINATED_ENC( const ENC_REF IENC )  { return BOOL_T( _TERMINATED_ENC( IENC ) );  }
 
 static INLINE size_t  GET_INDEX_PENC( const enc_t * PENC )  { return _GET_INDEX_PENC( PENC );  }
 static INLINE ENC_REF GET_REF_PENC( const enc_t * PENC )    { return _GET_REF_PENC( PENC );    }
-static INLINE bool_t  DEFINED_PENC( const enc_t * PENC )    { return BOOL_T(_DEFINED_PENC( PENC ));    }
-static INLINE bool_t  VALID_ENC_PTR( const enc_t * PENC )   { return BOOL_T(_VALID_ENC_PTR( PENC ));   }
-static INLINE bool_t  ALLOCATED_PENC( const enc_t * PENC )  { return BOOL_T(_ALLOCATED_PENC( PENC ));  }
-static INLINE bool_t  ACTIVE_PENC( const enc_t * PENC )     { return BOOL_T(_ACTIVE_PENC( PENC ));     }
-static INLINE bool_t  TERMINATED_PENC( const enc_t * PENC ) { return BOOL_T(_TERMINATED_PENC( PENC )); }
+static INLINE bool_t  DEFINED_PENC( const enc_t * PENC )    { return BOOL_T( _DEFINED_PENC( PENC ) );    }
+static INLINE bool_t  VALID_ENC_PTR( const enc_t * PENC )   { return BOOL_T( _VALID_ENC_PTR( PENC ) );   }
+static INLINE bool_t  ALLOCATED_PENC( const enc_t * PENC )  { return BOOL_T( _ALLOCATED_PENC( PENC ) );  }
+static INLINE bool_t  ACTIVE_PENC( const enc_t * PENC )     { return BOOL_T( _ACTIVE_PENC( PENC ) );     }
+static INLINE bool_t  TERMINATED_PENC( const enc_t * PENC ) { return BOOL_T( _TERMINATED_PENC( PENC ) ); }
 
-static INLINE bool_t INGAME_ENC_BASE( const ENC_REF IENC )  { return BOOL_T(_INGAME_ENC_BASE( IENC ));  }
-static INLINE bool_t INGAME_PENC_BASE( const enc_t * PENC ) { return BOOL_T(_INGAME_PENC_BASE( PENC )); }
+static INLINE bool_t INGAME_ENC_BASE( const ENC_REF IENC )  { return BOOL_T( _INGAME_ENC_BASE( IENC ) );  }
+static INLINE bool_t INGAME_PENC_BASE( const enc_t * PENC ) { return BOOL_T( _INGAME_PENC_BASE( PENC ) ); }
 
-static INLINE bool_t INGAME_ENC( const ENC_REF IENC )       { return BOOL_T(_INGAME_ENC( IENC ));  }
-static INLINE bool_t INGAME_PENC( const enc_t * PENC )      { return BOOL_T(_INGAME_PENC( PENC )); }
+static INLINE bool_t INGAME_ENC( const ENC_REF IENC )       { return BOOL_T( _INGAME_ENC( IENC ) );  }
+static INLINE bool_t INGAME_PENC( const enc_t * PENC )      { return BOOL_T( _INGAME_PENC( PENC ) ); }

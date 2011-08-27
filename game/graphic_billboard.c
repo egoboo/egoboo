@@ -198,7 +198,7 @@ void BillboardList_update_all( void )
         if ( !pbb->valid ) continue;
 
         is_invalid = bfalse;
-        if ( (ticks >= pbb->time) || (NULL == TxTexture_get_valid_ptr( pbb->tex_ref )) )
+        if (( ticks >= pbb->time ) || ( NULL == TxTexture_get_valid_ptr( pbb->tex_ref ) ) )
         {
             is_invalid = btrue;
         }

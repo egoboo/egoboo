@@ -63,8 +63,8 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     pmod->maxplayers   = vfs_get_next_int( fileread );
 
     cTmp = vfs_get_next_char( fileread );
-    if ( 'T' == toupper( (unsigned)cTmp ) )  pmod->respawnvalid = btrue;
-    if ( 'A' == toupper( (unsigned)cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
+    if ( 'T' == toupper(( unsigned )cTmp ) )  pmod->respawnvalid = btrue;
+    if ( 'A' == toupper(( unsigned )cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
 
     vfs_get_next_char( fileread );
 
@@ -76,7 +76,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     {
         pmod->rank[0] = CSTR_END;
     }
-    else if ( 'U' == toupper( (unsigned)pmod->rank[0] ) )
+    else if ( 'U' == toupper(( unsigned )pmod->rank[0] ) )
     {
         pmod->rank[0] = CSTR_END;
     }
@@ -108,11 +108,11 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
             cTmp = vfs_get_first_letter( fileread );
 
             // parse the expansion value
-            if ( 'M' == toupper( (unsigned)cTmp ) )  pmod->moduletype = FILTER_MAIN;
-            else if ( 'S' == toupper( (unsigned)cTmp ) )  pmod->moduletype = FILTER_SIDE;
-            else if ( 'T' == toupper( (unsigned)cTmp ) )  pmod->moduletype = FILTER_TOWN;
-            else if ( 'F' == toupper( (unsigned)cTmp ) )  pmod->moduletype = FILTER_FUN;
-            else if ( 'S' == toupper( (unsigned)cTmp ) )  pmod->moduletype = FILTER_STARTER;
+            if ( 'M' == toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_MAIN;
+            else if ( 'S' == toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_SIDE;
+            else if ( 'T' == toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_TOWN;
+            else if ( 'F' == toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_FUN;
+            else if ( 'S' == toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_STARTER;
         }
         else if ( idsz == MAKE_IDSZ( 'B', 'E', 'A', 'T' ) )
         {

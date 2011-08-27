@@ -238,7 +238,7 @@ int action_which( char cTmp )
     /// @details This function changes a letter into an action code
     int action;
 
-    switch ( toupper( (unsigned)cTmp ) )
+    switch ( toupper(( unsigned )cTmp ) )
     {
         case 'D': action = ACTION_DA; break;
         case 'U': action = ACTION_UA; break;
@@ -448,14 +448,14 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
     // skip over whitespace
     ptmp     = cFrameName;
     ptmp_end = cFrameName + 16;
-    for ( /* nothing */; ptmp < ptmp_end && isspace( (unsigned)(*ptmp) ); ptmp++ ) {};
+    for ( /* nothing */; ptmp < ptmp_end && isspace(( unsigned )( *ptmp ) ); ptmp++ ) {};
 
     // copy non-numerical text
     paction     = name_action;
     paction_end = name_action + 16;
-    for ( /* nothing */; ptmp < ptmp_end && paction < paction_end && !isspace( (unsigned)(*ptmp) ); ptmp++, paction++ )
+    for ( /* nothing */; ptmp < ptmp_end && paction < paction_end && !isspace(( unsigned )( *ptmp ) ); ptmp++, paction++ )
     {
-        if ( isdigit( (unsigned)(*ptmp) ) ) break;
+        if ( isdigit(( unsigned )( *ptmp ) ) ) break;
         *paction = *ptmp;
     }
     if ( paction < paction_end ) *paction = CSTR_END;

@@ -67,8 +67,8 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
 
         for ( i = 0; i < 4; i++ )
         {
-            cTmp = toupper( (unsigned)vfs_getc( fileread ) );
-            if ( !isalpha( (unsigned)cTmp ) && !isdigit( (unsigned)cTmp ) && ( '_' != cTmp ) ) break;
+            cTmp = toupper(( unsigned )vfs_getc( fileread ) );
+            if ( !isalpha(( unsigned )cTmp ) && !isdigit(( unsigned )cTmp ) && ( '_' != cTmp ) ) break;
 
             idsz_str[i] = cTmp;
         }
@@ -278,7 +278,7 @@ char vfs_get_first_letter( vfs_FILE* fileread )
 
     vfs_scanf( fileread, "%c", &cTmp );
 
-    while ( isspace( (unsigned)cTmp ) )
+    while ( isspace(( unsigned )cTmp ) )
     {
         vfs_scanf( fileread, "%c", &cTmp );
     }
@@ -1038,7 +1038,7 @@ int vfs_get_damage_type( vfs_FILE * fileread )
 
     cTmp = vfs_get_first_letter( fileread );
 
-    switch ( toupper( (unsigned)cTmp ) )
+    switch ( toupper(( unsigned )cTmp ) )
     {
         case 'S': type = DAMAGE_SLASH; break;
         case 'C': type = DAMAGE_CRUSH; break;
@@ -1068,7 +1068,7 @@ bool_t vfs_get_bool( vfs_FILE * fileread )
 {
     char cTmp = vfs_get_first_letter( fileread );
 
-    return ( 'T' == toupper( (unsigned)cTmp ) );
+    return ( 'T' == toupper(( unsigned )cTmp ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1185,7 +1185,7 @@ Uint8 vfs_get_damage_modifier( vfs_FILE * fileread )
 
     cTmp = vfs_get_first_letter( fileread );
 
-    switch ( toupper( (unsigned)cTmp ) )
+    switch ( toupper(( unsigned )cTmp ) )
     {
         case 'T': iTmp = DAMAGEINVERT;      break;
         case 'C': iTmp = DAMAGECHARGE;      break;

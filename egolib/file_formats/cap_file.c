@@ -139,9 +139,9 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
     // Gender
     cTmp = vfs_get_next_char( fileread );
-    if ( 'F' == toupper( (unsigned)cTmp ) )  pcap->gender = GENDER_FEMALE;
-    else if ( 'M' == toupper( (unsigned)cTmp ) )  pcap->gender = GENDER_MALE;
-    else if ( 'R' == toupper( (unsigned)cTmp ) )  pcap->gender = GENDER_RANDOM;
+    if ( 'F' == toupper(( unsigned )cTmp ) )  pcap->gender = GENDER_FEMALE;
+    else if ( 'M' == toupper(( unsigned )cTmp ) )  pcap->gender = GENDER_MALE;
+    else if ( 'R' == toupper(( unsigned )cTmp ) )  pcap->gender = GENDER_RANDOM;
     else                              pcap->gender = GENDER_OTHER;
 
     // Read in the icap stats
@@ -239,7 +239,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
         for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
-            cTmp = toupper( (unsigned)vfs_get_first_letter( fileread ) );
+            cTmp = toupper(( unsigned )vfs_get_first_letter( fileread ) );
             switch ( cTmp )
             {
                 case 'T': pcap->damage_modifier[damagetype][cnt] |= DAMAGEINVERT;   break;
@@ -320,8 +320,8 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
     // Blud
     cTmp = vfs_get_next_char( fileread );
-    if ( 'T' == toupper( (unsigned)cTmp ) )  pcap->blud_valid = btrue;
-    else if ( 'U' == toupper( (unsigned)cTmp ) )  pcap->blud_valid = ULTRABLUDY;
+    if ( 'T' == toupper(( unsigned )cTmp ) )  pcap->blud_valid = btrue;
+    else if ( 'U' == toupper(( unsigned )cTmp ) )  pcap->blud_valid = ULTRABLUDY;
     else                              pcap->blud_valid = bfalse;
 
     pcap->blud_lpip = vfs_get_next_int( fileread );

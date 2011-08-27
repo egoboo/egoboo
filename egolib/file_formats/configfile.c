@@ -136,27 +136,27 @@ static size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileVal
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE ConfigFile_retval ConfigFile_fgetc ( FILE * pf, char * pch )
+static INLINE ConfigFile_retval ConfigFile_fgetc( FILE * pf, char * pch )
 {
     ConfigFile_retval retval;
-	int lc;
+    int lc;
     char ch;
-	
-	lc = fgetc( pf );
 
-    if( EOF == lc )
+    lc = fgetc( pf );
+
+    if ( EOF == lc )
     {
         ch = 0;
         retval = ConfigFile_fail;
     }
 #if defined(_DEBUG)
-	else if( ((unsigned int)lc) > 0xFF )
-	{
-		printf( "%s - fgetc() returned a non-char value, 0x%x\n", __FUNCTION__, lc );
+    else if ((( unsigned int )lc ) > 0xFF )
+    {
+        printf( "%s - fgetc() returned a non-char value, 0x%x\n", __FUNCTION__, lc );
 
         ch = 0;
         retval = ConfigFile_fail;
-	}
+    }
 #endif
     else
     {
@@ -164,12 +164,12 @@ static INLINE ConfigFile_retval ConfigFile_fgetc ( FILE * pf, char * pch )
         retval = ConfigFile_succeed;
     }
 
-    if( NULL != pch )
+    if ( NULL != pch )
     {
         *pch = ch;
     }
 
-	return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -406,7 +406,7 @@ ConfigFile_retval ConfigFile_PassOverCommentary( ConfigFilePtr_t pConfigFile )
     char ch;
     ConfigFile_retval retval;
 
-    if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
+    if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
     {
         return ConfigFile_fail;
     }
@@ -414,7 +414,7 @@ ConfigFile_retval ConfigFile_PassOverCommentary( ConfigFilePtr_t pConfigFile )
     retval = ConfigFile_succeed;
     while ( C_CARRIAGE_RETURN_CHAR != ch && ASCII_LINEFEED_CHAR != ch && !feof( pConfigFile->f ) )
     {
-        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
         {
             retval = ConfigFile_fail;
             break;
@@ -436,7 +436,7 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
     size_t lLengthName = 0;
     char ch;
 
-    if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
+    if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
     {
         return 0;
     }
@@ -450,7 +450,7 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
             pSection->SectionName[lLengthName] = ch;
         }
 
-        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
         {
             break;
         }
@@ -479,7 +479,7 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
     size_t lLengthName = 0;
     char ch;
 
-    if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
+    if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
     {
         return 0;
     }
@@ -493,7 +493,7 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
             szValue->KeyName[lLengthName] = ch;
         }
 
-        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
         {
             break;
         }
@@ -529,7 +529,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
 
     while ( 0 == lEndScan && !feof( pConfigFile->f ) )
     {
-        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
         {
             break;
         }
@@ -624,7 +624,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
 
     while ( 0 == lEndScan && !feof( pConfigFile->f ) )
     {
-        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
         {
             break;
         }
@@ -761,7 +761,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
     // load all values in memory
     while ( 0 == lError && !feof( pConfigFile->f ) )
     {
-        if( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
+        if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
         {
             break;
         }

@@ -89,26 +89,26 @@ static INLINE bool_t DISPLAY_PPRT( const prt_t * PPRT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t VALID_PRT_RANGE( const PRT_REF IPRT ) { return BOOL_T(_VALID_PRT_RANGE( IPRT )); }
-static INLINE bool_t DEFINED_PRT( const PRT_REF IPRT )     { return BOOL_T(_DEFINED_PRT( IPRT ));     }
-static INLINE bool_t ALLOCATED_PRT( const PRT_REF IPRT )   { return BOOL_T(_ALLOCATED_PRT( IPRT ));   }
-static INLINE bool_t ACTIVE_PRT( const PRT_REF IPRT )      { return BOOL_T(_ACTIVE_PRT( IPRT ));      }
-static INLINE bool_t WAITING_PRT( const PRT_REF IPRT )     { return BOOL_T(_WAITING_PRT( IPRT ));     }
-static INLINE bool_t TERMINATED_PRT( const PRT_REF IPRT )  { return BOOL_T(_TERMINATED_PRT( IPRT ));  }
+static INLINE bool_t VALID_PRT_RANGE( const PRT_REF IPRT ) { return BOOL_T( _VALID_PRT_RANGE( IPRT ) ); }
+static INLINE bool_t DEFINED_PRT( const PRT_REF IPRT )     { return BOOL_T( _DEFINED_PRT( IPRT ) );     }
+static INLINE bool_t ALLOCATED_PRT( const PRT_REF IPRT )   { return BOOL_T( _ALLOCATED_PRT( IPRT ) );   }
+static INLINE bool_t ACTIVE_PRT( const PRT_REF IPRT )      { return BOOL_T( _ACTIVE_PRT( IPRT ) );      }
+static INLINE bool_t WAITING_PRT( const PRT_REF IPRT )     { return BOOL_T( _WAITING_PRT( IPRT ) );     }
+static INLINE bool_t TERMINATED_PRT( const PRT_REF IPRT )  { return BOOL_T( _TERMINATED_PRT( IPRT ) );  }
 
 static INLINE size_t  GET_INDEX_PPRT( const prt_t * PPRT )  { return _GET_INDEX_PPRT( PPRT );  }
 static INLINE PRT_REF GET_REF_PPRT( const prt_t * PPRT )    { return _GET_REF_PPRT( PPRT );    }
-static INLINE bool_t  DEFINED_PPRT( const prt_t * PPRT )    { return BOOL_T(_DEFINED_PPRT( PPRT ));    }
-static INLINE bool_t  VALID_PRT_PTR( const prt_t * PPRT )   { return BOOL_T(_VALID_PRT_PTR( PPRT ));   }
-static INLINE bool_t  ALLOCATED_PPRT( const prt_t * PPRT )  { return BOOL_T(_ALLOCATED_PPRT( PPRT ));  }
-static INLINE bool_t  ACTIVE_PPRT( const prt_t * PPRT )     { return BOOL_T(_ACTIVE_PPRT( PPRT ));     }
-static INLINE bool_t  TERMINATED_PPRT( const prt_t * PPRT ) { return BOOL_T(_TERMINATED_PPRT( PPRT )); }
+static INLINE bool_t  DEFINED_PPRT( const prt_t * PPRT )    { return BOOL_T( _DEFINED_PPRT( PPRT ) );    }
+static INLINE bool_t  VALID_PRT_PTR( const prt_t * PPRT )   { return BOOL_T( _VALID_PRT_PTR( PPRT ) );   }
+static INLINE bool_t  ALLOCATED_PPRT( const prt_t * PPRT )  { return BOOL_T( _ALLOCATED_PPRT( PPRT ) );  }
+static INLINE bool_t  ACTIVE_PPRT( const prt_t * PPRT )     { return BOOL_T( _ACTIVE_PPRT( PPRT ) );     }
+static INLINE bool_t  TERMINATED_PPRT( const prt_t * PPRT ) { return BOOL_T( _TERMINATED_PPRT( PPRT ) ); }
 
-static INLINE bool_t INGAME_PRT_BASE( const PRT_REF IPRT )  { return BOOL_T(_INGAME_PRT_BASE( IPRT ));  }
-static INLINE bool_t INGAME_PPRT_BASE( const prt_t * PPRT ) { return BOOL_T(_INGAME_PPRT_BASE( PPRT )); }
+static INLINE bool_t INGAME_PRT_BASE( const PRT_REF IPRT )  { return BOOL_T( _INGAME_PRT_BASE( IPRT ) );  }
+static INLINE bool_t INGAME_PPRT_BASE( const prt_t * PPRT ) { return BOOL_T( _INGAME_PPRT_BASE( PPRT ) ); }
 
-static INLINE bool_t INGAME_PRT( const PRT_REF IPRT )       { return BOOL_T(_INGAME_PRT( IPRT ));  }
-static INLINE bool_t INGAME_PPRT( const prt_t * PPRT )      { return BOOL_T(_INGAME_PPRT( PPRT )); }
+static INLINE bool_t INGAME_PRT( const PRT_REF IPRT )       { return BOOL_T( _INGAME_PRT( IPRT ) );  }
+static INLINE bool_t INGAME_PPRT( const prt_t * PPRT )      { return BOOL_T( _INGAME_PPRT( PPRT ) ); }
 
-static INLINE bool_t DISPLAY_PRT( const PRT_REF IPRT )     { return BOOL_T(_DISPLAY_PRT( IPRT )); }
-static INLINE bool_t DISPLAY_PPRT( const prt_t * PPRT )    { return BOOL_T(_DISPLAY_PPRT( PPRT )); }
+static INLINE bool_t DISPLAY_PRT( const PRT_REF IPRT )     { return BOOL_T( _DISPLAY_PRT( IPRT ) ); }
+static INLINE bool_t DISPLAY_PPRT( const prt_t * PPRT )    { return BOOL_T( _DISPLAY_PPRT( PPRT ) ); }

@@ -110,13 +110,13 @@ bool_t spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
         pinfo->facing = FACE_NORTH;
         pinfo->attach = ATTACH_NONE;
         cTmp = vfs_get_first_letter( fileread );
-        if ( 'S' == toupper( (unsigned)cTmp ) )       pinfo->facing = FACE_SOUTH;
-        else if ( 'E' == toupper( (unsigned)cTmp ) )  pinfo->facing = FACE_EAST;
-        else if ( 'W' == toupper( (unsigned)cTmp ) )  pinfo->facing = FACE_WEST;
-        else if ( '?' == toupper( (unsigned)cTmp ) )  pinfo->facing = FACE_RANDOM;
-        else if ( 'L' == toupper( (unsigned)cTmp ) )  pinfo->attach = ATTACH_LEFT;
-        else if ( 'R' == toupper( (unsigned)cTmp ) )  pinfo->attach = ATTACH_RIGHT;
-        else if ( 'I' == toupper( (unsigned)cTmp ) )  pinfo->attach = ATTACH_INVENTORY;
+        if ( 'S' == toupper(( unsigned )cTmp ) )       pinfo->facing = FACE_SOUTH;
+        else if ( 'E' == toupper(( unsigned )cTmp ) )  pinfo->facing = FACE_EAST;
+        else if ( 'W' == toupper(( unsigned )cTmp ) )  pinfo->facing = FACE_WEST;
+        else if ( '?' == toupper(( unsigned )cTmp ) )  pinfo->facing = FACE_RANDOM;
+        else if ( 'L' == toupper(( unsigned )cTmp ) )  pinfo->attach = ATTACH_LEFT;
+        else if ( 'R' == toupper(( unsigned )cTmp ) )  pinfo->attach = ATTACH_RIGHT;
+        else if ( 'I' == toupper(( unsigned )cTmp ) )  pinfo->attach = ATTACH_INVENTORY;
 
         pinfo->money   = vfs_get_int( fileread );
         pinfo->skin    = vfs_get_int( fileread );

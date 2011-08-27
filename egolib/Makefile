@@ -19,14 +19,14 @@ SDLCONF_C := $(shell ${SDL_CONF} --cflags)
 #---------------------
 # the compiler options
 
-CC	:= gcc
-INC	:= -I. -I.. -I./extensions -I./file_formats -I./platform
+CC	:= gcc-3
+INC	:= -I. -I./extensions -I./file_formats -I./platform
 
 # use different options if the environmental variable PREFIX is defined
 ifdef ($(PREFIX),"")
-	OPT := -Os -Wall
+	OPT := -D_NO_PREFIX
 else
-	OPT := -Os -Wall -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
+	OPT := -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
 endif
 
 CFLAGS  := ${SDLCONF_C} ${OPT} ${INC}
@@ -35,7 +35,7 @@ CFLAGS  := ${SDLCONF_C} ${OPT} ${INC}
 # definitions of the libtool commands
 
 define compile_rule
-	libtool --mode=compile \
+	libtool --mode=compile --tag=CC \
 	$(CC) $(CFLAGS) -c $<
 endef
 

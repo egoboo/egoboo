@@ -295,7 +295,7 @@ static INLINE egolib_rv oct_bb_validate_index( oct_bb_t * pobb, int index )
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t oct_bb_empty_index_raw( const oct_bb_t * pbb, int index )
 {
-    return BOOL_T(pbb->mins[index] >= pbb->maxs[index]);
+    return BOOL_T( pbb->mins[index] >= pbb->maxs[index] );
 }
 
 //--------------------------------------------------------------------------------------------

@@ -41,7 +41,7 @@ void str_trim( char *pStr )
 
     // look for the first character in string
     DebPos = 0;
-    while ( isspace( (unsigned)pStr[DebPos] ) && CSTR_END != pStr[DebPos] )
+    while ( isspace(( unsigned )pStr[DebPos] ) && CSTR_END != pStr[DebPos] )
     {
         DebPos++;
     }
@@ -50,7 +50,7 @@ void str_trim( char *pStr )
     CurPos = DebPos;
     while ( pStr[CurPos] != 0 )
     {
-        if ( !isspace( (unsigned)pStr[CurPos] ) )
+        if ( !isspace(( unsigned )pStr[CurPos] ) )
         {
             EndPos = CurPos;
         }
@@ -107,9 +107,9 @@ char * str_encode( char *strout, size_t insize, const char * strin )
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
     while ( pout < plast && CSTR_END != *pin )
     {
-        if ( !isspace( (unsigned)(*pin) ) && isprint( (unsigned)(*pin) ) )
+        if ( !isspace(( unsigned )( *pin ) ) && isprint(( unsigned )( *pin ) ) )
         {
-            chrlast = *pout = tolower( (unsigned)(*pin) );
+            chrlast = *pout = tolower(( unsigned )( *pin ) );
             pin++;
             pout++;
         }
@@ -125,7 +125,7 @@ char * str_encode( char *strout, size_t insize, const char * strin )
             pin++;
             pout++;
         }
-        else if ( isspace( (unsigned)(*pin) ) )
+        else if ( isspace(( unsigned )( *pin ) ) )
         {
             chrlast = *pout = '_';
             pin++;
@@ -305,9 +305,9 @@ char * str_encode_path( const char *szName )
     ppath_end = szPathname + SDL_arraysize( szPathname ) - 5;
     while ( CSTR_END != *pname && pname < pname_end && ppath < ppath_end )
     {
-        letter = tolower( (unsigned)(*pname) );
+        letter = tolower(( unsigned )( *pname ) );
 
-        if ( isspace( (unsigned)letter ) || !( isalpha( (unsigned)letter ) || isdigit( (unsigned)letter ) ) ) letter = '_';
+        if ( isspace(( unsigned )letter ) || !( isalpha(( unsigned )letter ) || isdigit(( unsigned )letter ) ) ) letter = '_';
 
         *ppath = letter;
 
@@ -386,7 +386,7 @@ char* strupr( char * str )
     {
         while ( CSTR_END != *str )
         {
-            *str = toupper( (unsigned)(*str) );
+            *str = toupper(( unsigned )( *str ) );
             str++;
         }
     }
@@ -400,7 +400,7 @@ char* strlwr( char * str )
     {
         while ( CSTR_END != *str )
         {
-            *str = tolower( (unsigned)(*str) );
+            *str = tolower(( unsigned )( *str ) );
             str++;
         }
     }

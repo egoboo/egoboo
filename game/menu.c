@@ -1707,7 +1707,7 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
             // fix class name capitalization
-            pcap->classname[0] = toupper( (unsigned)pcap->classname[0] );
+            pcap->classname[0] = toupper(( unsigned )pcap->classname[0] );
 
             //Character level and class
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );

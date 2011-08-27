@@ -21,15 +21,15 @@ EGOLIB_L      := -L$../$(EGOLIB_DIR) -l$(EGOLIB_TARGET)
 #---------------------
 # the compiler options
 
-CC      := gcc
-INC     := -I. -I..
-LDFLAGS := ${SDLCONF_L} ${EGOLIB_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lGL -lGLU -lphysfs -lenet
+CC      := gcc-3
+INC     := -I.
+LDFLAGS := ${SDLCONF_L} ${EGOLIB_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -lGL -lGLU
 
 # use different options if the environmental variable PREFIX is defined
 ifdef ($(PREFIX),"")
-	OPT := -Os -Wall
+	OPT := -D_NO_PREFIX
 else
-	OPT := -Os -Wall -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
+	OPT := -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
 endif
 
 CFLAGS  := ${OPT} ${SDLCONF_C}

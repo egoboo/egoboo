@@ -89,9 +89,9 @@ extern "C"
     // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_bool bool_t;
 
-#	if !defined(BOOL_T)
-#		define BOOL_T(VAL) ((VAL) ? btrue : bfalse)
-#	endif
+#   if !defined(BOOL_T)
+#       define BOOL_T(VAL) ((VAL) ? btrue : bfalse)
+#   endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
