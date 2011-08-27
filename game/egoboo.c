@@ -21,25 +21,26 @@
 /// @brief Code for the main program process
 /// @details
 
+#define DECLARE_GLOBALS
+#include "egoboo.h"
+
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
-#include <egolib/log.h>
-#include <egolib/system.h>
-#include <egolib/font_bmp.h>
-#include <egolib/fileutil.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/vfs.h>
-#include <egolib/console.h>
-#include <egolib/strutil.h>
+#include "../egolib/log.h"
+#include "../egolib/system.h"
+#include "../egolib/font_bmp.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/vfs.h"
+#include "../egolib/console.h"
+#include "../egolib/strutil.h"
 
-#include <egolib/file_formats/scancode_file.h>
-#include <egolib/file_formats/controls_file.h>
-#include <egolib/file_formats/treasure_table_file.h>
-#include <egolib/extensions/SDL_extensions.h>
-#include <egolib/clock.h>
-
-#define DECLARE_GLOBALS
+#include "../egolib/file_formats/scancode_file.h"
+#include "../egolib/file_formats/controls_file.h"
+#include "../egolib/file_formats/treasure_table_file.h"
+#include "../egolib/extensions/SDL_extensions.h"
+#include "../egolib/clock.h"
 
 #include "graphic.h"
 #include "network.h"
@@ -50,7 +51,6 @@
 #include "menu.h"
 #include "player.h"
 #include "graphic_texture.h"
-#include "egoboo.h"
 
 #include "char.inl"
 #include "particle.inl"

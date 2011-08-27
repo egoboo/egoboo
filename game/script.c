@@ -21,16 +21,17 @@
 /// @brief Implements the game's scripting language.
 /// @details
 
-#include <assert.h>
-
-#include <egolib/log.h>
-#include <egolib/vfs.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/strutil.h>
-#include <egolib/_math.h>
-
+#include "script.h"
 #include "script_compile.h"
 #include "script_functions.h"
+
+#include <assert.h>
+
+#include "../egolib/log.h"
+#include "../egolib/vfs.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/strutil.h"
+#include "../egolib/_math.h"
 
 #include "mad.h"
 #include "camera_system.h"

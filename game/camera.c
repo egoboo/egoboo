@@ -21,11 +21,11 @@
 /// @brief Various functions related to how the game camera works.
 /// @details
 
-#include <egolib/egoboo_setup.h>
-#include <egolib/file_formats/controls_file.h>
-#include <egolib/extensions/SDL_extensions.h>
-
 #include "camera.h"
+
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/file_formats/controls_file.h"
+#include "../egolib/extensions/SDL_extensions.h"
 
 #include "input.h"
 #include "graphic.h"

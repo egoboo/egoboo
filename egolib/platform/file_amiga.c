@@ -33,7 +33,7 @@
 
 #include "glob.h"
 
-// must be included last
+// this include must be the absolute last include
 #include "../egolib/mem.h"
 
 #define PATH_MAX 256

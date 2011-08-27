@@ -22,18 +22,18 @@
 /// @details Shuttles bits across the network, using Enet.  Networked play doesn't
 /// really work at the moment.
 
-#include <stdarg.h>
-
-#include <egolib/file_common.h>
-#include <egolib/log.h>
-#include <egolib/strutil.h>
-#include <egolib/vfs.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/file_formats/module_file.h>
-
 #include "network.h"
 #include "network_server.h"
 #include "network_client.h"
+
+#include <stdarg.h>
+
+#include "../egolib/file_common.h"
+#include "../egolib/log.h"
+#include "../egolib/strutil.h"
+#include "../egolib/vfs.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/file_formats/module_file.h"
 
 #include "input.h"
 #include "game.h"
@@ -44,7 +44,7 @@
 #include "char.inl"
 
 // this include must be the absolute last include
-#include <egolib/mem.h>
+#include "../egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

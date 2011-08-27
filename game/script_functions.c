@@ -25,16 +25,16 @@
 /// The current code is about 3/4 of the way toward this goal.
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
-#include <egolib/log.h>
-#include <egolib/_math.h>
-#include <egolib/strutil.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/file_formats/spawn_file.h>
-#include <egolib/file_formats/quest_file.h>
-#include <egolib/_math.inl>
-
 #include "script_functions.h"
 #include "script_implementation.h"
+
+#include "../egolib/log.h"
+#include "../egolib/_math.h"
+#include "../egolib/strutil.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/file_formats/spawn_file.h"
+#include "../egolib/file_formats/quest_file.h"
+#include "../egolib/_math.inl"
 
 #include "mad.h"
 #include "link.h"

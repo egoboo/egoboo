@@ -21,9 +21,9 @@
 
 /// @file mesh.inl
 
-#include <egolib/_math.h>
-
 #include "mesh.h"
+
+#include "../egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS

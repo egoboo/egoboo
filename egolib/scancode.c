@@ -50,11 +50,11 @@ void scancode_begin( void )
 		dst = src;
         if ( src < 255 )
         {
-			dst = toupper( src );
+			dst = toupper( (unsigned)src );
 
 			if( dst > 255 )
 			{
-				fprintf( stderr, "%s - toupper() returned an out of range value \'%c\' -> %d\n", __FUNCTION__, src, dst ); 
+				fprintf( stderr, "%s - toupper() returned an out of range value \'%c\' -> %d\n", __FUNCTION__, src, dst );
 			}
         }
 

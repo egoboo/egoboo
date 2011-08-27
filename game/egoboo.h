@@ -29,8 +29,8 @@
 /* Typedefs for various platforms */
 #include "egoboo_typedef.h"
 
-#include <egolib/timer.h>
-#include <egolib/clock.h>
+#include "../egolib/timer.h"
+#include "../egolib/clock.h"
 
 /// The following magic allows this include to work in multiple files
 #if defined(DECLARE_GLOBALS)
@@ -167,7 +167,7 @@ EXTERN local_stats_t local_stats;
 
 //---------------------------------------------------------------------------------------------------------------------
 
-#include <egolib/process.h>
+#include "../egolib/process.h"
 
 /// a process that controls the master loop of the program
 struct s_ego_process

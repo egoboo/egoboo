@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-#include <egolib/file_formats/pip_file.h>
-#include <egolib/_math.h>
-
 #include "egoboo_typedef.h"
+
+#include "../egolib/file_formats/pip_file.h"
+#include "../egolib/_math.h"
 
 #include "graphic.h"
 

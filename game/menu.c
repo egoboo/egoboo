@@ -21,21 +21,21 @@
 /// @brief Implements the main menu tree, using the code in Ui.*
 /// @details
 
-#include <egolib/log.h>
-#include <egolib/font_ttf.h>
-#include <egolib/_math.h>
-#include <egolib/vfs.h>
-#include <egolib/fileutil.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/strutil.h>
-#include <egolib/font_bmp.h>
-#include <egolib/file_formats/quest_file.h>
-#include <egolib/file_formats/controls_file.h>
-#include <egolib/file_formats/scancode_file.h>
-#include <egolib/file_formats/module_file.h>
-#include <egolib/extensions/SDL_extensions.h>
-
 #include "menu.h"
+
+#include "../egolib/log.h"
+#include "../egolib/font_ttf.h"
+#include "../egolib/_math.h"
+#include "../egolib/vfs.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/strutil.h"
+#include "../egolib/font_bmp.h"
+#include "../egolib/file_formats/quest_file.h"
+#include "../egolib/file_formats/controls_file.h"
+#include "../egolib/file_formats/scancode_file.h"
+#include "../egolib/file_formats/module_file.h"
+#include "../egolib/extensions/SDL_extensions.h"
 
 #include "mad.h"
 #include "player.h"
@@ -43,11 +43,11 @@
 #include "ui.h"
 #include "link.h"
 #include "game.h"
-#include "graphic_texture.h"
 #include "sound.h"
 #include "input.h"
 #include "camera_system.h"
 #include "graphic.h"
+#include "graphic_texture.h"
 #include "egoboo.h"
 
 #include "particle.inl"
@@ -1707,7 +1707,7 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
             // fix class name capitalization
-            pcap->classname[0] = toupper( pcap->classname[0] );
+            pcap->classname[0] = toupper( (unsigned)pcap->classname[0] );
 
             //Character level and class
             GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
@@ -6221,7 +6221,7 @@ bool_t mnu_load_cursor( void )
     /// @author ZF
     /// @details Load the mouse cursor
 
-    TX_REF load_rv = INVALID_GL_ID;
+    TX_REF load_rv = INVALID_TX_TEXTURE;
     bool_t success = btrue;
 
     load_rv = TxMenu_load_one_vfs( "mp_data/cursor", MENU_CURSOR, TRANSCOLOR );

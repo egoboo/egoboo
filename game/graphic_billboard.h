@@ -19,12 +19,12 @@
 //*
 //********************************************************************************************
 
+#include "egoboo_typedef.h"
+
 #include <SDL/SDL.h>
 
-#include <egolib/_math.h>
-#include <egolib/extensions/ogl_include.h>
-
-#include "egoboo_typedef.h"
+#include "../egolib/_math.h"
+#include "../egolib/extensions/ogl_include.h"
 
 #include "graphic.h"
 

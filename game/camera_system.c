@@ -21,11 +21,11 @@
 /// @brief
 /// @details
 
-#include <egolib/egoboo_setup.h>
-#include <egolib/extensions/SDL_extensions.h>
-#include <egolib/_math.inl>
-
 #include "camera_system.h"
+
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/extensions/SDL_extensions.h"
+#include "../egolib/_math.inl"
 
 #include "network.h"
 #include "mesh.h"
@@ -710,7 +710,7 @@ camera_system_render_all_end:
 egolib_rv _camera_system_autoformat_cameras( int cameras )
 {
     // 1/2 of border between panes in pixels
-    const static int border = 1;
+    static const int border = 1;
 
     float  aspect_ratio;
     bool_t widescreen;

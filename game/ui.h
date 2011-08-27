@@ -23,11 +23,11 @@
 /// @details A basic library for implementing user interfaces, based off of Casey Muratori's
 /// IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
 
+#include "egoboo_typedef.h"
+
 #include <SDL/SDL.h>
 
-#include <egolib/extensions/ogl_texture.h>
-
-#include "egoboo_typedef.h"
+#include "../egolib/extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs

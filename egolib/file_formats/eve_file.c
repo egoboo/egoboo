@@ -156,9 +156,9 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
 
     peve->setyesno[SETMISSILETREATMENT] = vfs_get_next_bool( fileread );
     cTmp = vfs_get_first_letter( fileread );
-    if ( 'R' == toupper( cTmp ) )       peve->setvalue[SETMISSILETREATMENT] = MISSILE_REFLECT;
-    else if ( 'D' == toupper( cTmp ) )  peve->setvalue[SETMISSILETREATMENT] = MISSILE_DEFLECT;
-    else                                peve->setvalue[SETMISSILETREATMENT] = MISSILE_NORMAL;
+    if ( 'R' == toupper( (unsigned)cTmp ) )       peve->setvalue[SETMISSILETREATMENT] = MISSILE_REFLECT;
+    else if ( 'D' == toupper( (unsigned)cTmp ) )  peve->setvalue[SETMISSILETREATMENT] = MISSILE_DEFLECT;
+    else                                          peve->setvalue[SETMISSILETREATMENT] = MISSILE_NORMAL;
 
     peve->setyesno[SETCOSTFOREACHMISSILE] = vfs_get_next_bool( fileread );
     peve->setvalue[SETCOSTFOREACHMISSILE] = vfs_get_float( fileread );

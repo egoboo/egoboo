@@ -19,12 +19,12 @@
 //*
 //********************************************************************************************
 
+#include "egoboo_typedef.h"
+
 #include <SDL/SDL.h>
 
-#include <egolib/extensions/ogl_texture.h>
-#include <egolib/file_formats/module_file.h>
-
-#include "egoboo_typedef.h"
+#include "../egolib/extensions/ogl_texture.h"
+#include "../egolib/file_formats/module_file.h"
 
 #include "mesh.h"
 #include "mad.h"

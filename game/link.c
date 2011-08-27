@@ -21,12 +21,12 @@
 /// @brief Manages in-game links connecting modules
 /// @details
 
-#include <egolib/log.h>
-#include <egolib/fileutil.h>
-#include <egolib/strutil.h>
-#include <egolib/file_formats/module_file.h>
-
 #include "link.h"
+
+#include "../egolib/log.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/strutil.h"
+#include "../egolib/file_formats/module_file.h"
 
 #include "camera_system.h"
 #include "menu.h"

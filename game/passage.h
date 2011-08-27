@@ -22,9 +22,9 @@
 /// @file passage.h
 /// @Passages and doors and whatnot.  Things that impede your progress!
 
-#include <egolib/file_formats/passage_file.h>
-
 #include "egoboo_typedef.h"
+
+#include "../egolib/file_formats/passage_file.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

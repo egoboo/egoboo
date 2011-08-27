@@ -21,17 +21,17 @@
 /// @brief Sound code in Egoboo is implemented using SDL_mixer.
 /// @details
 
+#include "sound.h"
+
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
 
-#include <egolib/vfs.h>
-#include <egolib/fileutil.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/strutil.h>
-#include <egolib/_math.inl>
-#include <egolib/log.h>
-
-#include "sound.h"
+#include "../egolib/vfs.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/strutil.h"
+#include "../egolib/_math.inl"
+#include "../egolib/log.h"
 
 #include "camera_system.h"
 #include "game.h"

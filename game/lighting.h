@@ -21,9 +21,9 @@
 
 /// @file lighting.h
 
-#include <egolib/_math.h>
-
 #include "egoboo_typedef.h"
+
+#include "../egolib/_math.h"
 
 #include "physics.h"
 

@@ -23,8 +23,8 @@
 
 #include "egoboo_typedef.h"
 
-#include <egolib/_math.h>
-#include <egolib/frustum.h>
+#include "../egolib/_math.h"
+#include "../egolib/frustum.h"
 
 #include "physics.h"
 

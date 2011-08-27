@@ -21,10 +21,10 @@
 /// @brief handles enchantments attached to objects
 /// @details
 
-#include <egolib/log.h>
-#include <egolib/fileutil.h>
-
 #include "enchant.inl"
+
+#include "../egolib/log.h"
+#include "../egolib/fileutil.h"
 
 #include "sound.h"
 #include "camera_system.h"

@@ -40,9 +40,9 @@
 /// flag set to bfalse. Setting break_out to btrue will make the function faster in the case that there is no collision,
 /// but it will leave some of the "depth vector" uncalculated, which might leave it with uninitialized data.
 
-#include <egolib/bbox.inl>
-
 #include "physics.h"
+
+#include "../egolib/bbox.inl"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS

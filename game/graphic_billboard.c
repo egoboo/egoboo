@@ -21,12 +21,12 @@
 /// @brief
 /// @details
 
-#include <egolib/font_ttf.h>
-#include <egolib/_math.inl>
-
 #include "graphic_billboard.h"
-
 #include "graphic_texture.h"
+
+#include "../egolib/font_ttf.h"
+#include "../egolib/_math.inl"
+
 #include "camera.h"
 
 #include "char.inl"

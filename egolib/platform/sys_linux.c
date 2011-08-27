@@ -24,10 +24,9 @@
 #include <unistd.h>      //For message box in linux
 #include <sys/time.h>
 
-#include "log.h"
-#include "system.h"
-
-#include "file_common.h" /* for NULL */
+#include "../log.h"
+#include "../system.h"
+#include "../file_common.h" /* for NULL */
 
 //--------------------------------------------------------------------------------------------
 //Different methods of displaying messages in Linux

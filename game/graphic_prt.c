@@ -34,8 +34,8 @@
 #include "char.inl"
 #include "profile.inl"
 
-#include <egolib/egoboo_setup.h>
-#include <egolib/bbox.inl>
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/bbox.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

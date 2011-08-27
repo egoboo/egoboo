@@ -21,14 +21,14 @@
 /// @brief Implementation of the script compiler
 /// @details
 
-#include <egolib/log.h>
-#include <egolib/vfs.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/strutil.h>
-#include <egolib/fileutil.h>
-#include <egolib/_math.h>
-
 #include "script_compile.h"
+
+#include "../egolib/log.h"
+#include "../egolib/vfs.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/strutil.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/_math.h"
 
 #include "game.h"
 #include "egoboo.h"
@@ -632,7 +632,7 @@ size_t insert_space( size_t position, char buffer[], size_t buffer_length, const
         return MIN( buffer_length, buffer_max );
     }
 
-    if ( !isspace( buffer[position] ) )
+    if ( !isspace( (unsigned)buffer[position] ) )
     {
         // we are definitely going to add one character to the length
         buffer_length++;
@@ -715,7 +715,7 @@ size_t load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript )
             cTmp = ' ';
         }
 
-        if ( !isspace( cTmp ) )
+        if ( !isspace( (unsigned)cTmp ) )
         {
             break;
         }
@@ -759,20 +759,20 @@ size_t load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript )
                 // convert tab characters to the '~' symbol
                 cTmp = '~';
             }
-            else if ( isspace( cTmp ) || iscntrl( cTmp ) )
+            else if ( isspace( (unsigned)cTmp ) || iscntrl( (unsigned)cTmp ) )
             {
                 // all whitespace and control characters are converted to '_'
                 cTmp = '_';
             }
         }
-        else if ( iscntrl( cTmp ) )
+        else if ( iscntrl( (unsigned)cTmp ) )
         {
             // Convert control characters to whitespace
             cTmp = ' ';
         }
 
         // convert whitespace characters to
-        if ( !isspace( cTmp ) || inside_string )
+        if ( !isspace( (unsigned)cTmp ) || inside_string )
         {
             foundtext = btrue;
 
@@ -845,7 +845,7 @@ int get_indentation( parser_state_t * ps, script_info_t *pscript )
 
     cnt = 0;
     cTmp = ps->line_buffer[cnt];
-    while ( isspace( cTmp ) )
+    while ( isspace( (unsigned)cTmp ) )
     {
         cnt++;
         cTmp = ps->line_buffer[cnt];
@@ -939,7 +939,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
 
     // Skip any initial spaces
     cTmp = ps->line_buffer[read];
-    while ( isspace( cTmp ) && read < ps->line_buffer_count )
+    while ( isspace( (unsigned)cTmp ) && read < ps->line_buffer_count )
     {
         read++;
         cTmp = ps->line_buffer[read];
@@ -992,7 +992,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
         ptok->szWord_length = 0;
         ptok->szWord[0] = CSTR_END;
 
-        while ( !isspace( cTmp ) && CSTR_END != cTmp && ptok->szWord_length < szWord_length_max && read < ps->line_buffer_count )
+        while ( !isspace( (unsigned)cTmp ) && CSTR_END != cTmp && ptok->szWord_length < szWord_length_max && read < ps->line_buffer_count )
         {
             ptok->szWord[ptok->szWord_length] = cTmp;
             ptok->szWord_length++;
@@ -1011,7 +1011,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
     ptok->szWord[szWord_length_max-1] = CSTR_END;
 
     // Check for numeric constant
-    if ( !parsed && ( 0 != isdigit( ptok->szWord[0] ) ) )
+    if ( !parsed && ( 0 != isdigit( (unsigned)ptok->szWord[0] ) ) )
     {
         sscanf( ptok->szWord, "%d", &ptok->iValue );
         ptok->cType  = 'C';
@@ -1490,7 +1490,7 @@ egolib_rv get_code( size_t read, Uint8 buffer[], const size_t buffer_size )
     if ( 3 == fields )
     {
         strncpy( OpList.ary[OpList.count].cName, sTmp, SDL_arraysize( OpList.ary[OpList.count].cName ) );
-        OpList.ary[OpList.count].cType  = toupper( cTmp );
+        OpList.ary[OpList.count].cType  = toupper( (unsigned)cTmp );
         OpList.ary[OpList.count].iValue = iTmp;
 
         // use rv_success to signal a correct opcode

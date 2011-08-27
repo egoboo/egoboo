@@ -22,21 +22,21 @@
 /// @brief Raw MD2 loader
 /// @details Raw model loader for ID Software's MD2 file format
 
-#include <egolib/log.h>
-#include <egolib/endian.h>
-#include <egolib/_math.inl>
-#include <egolib/bbox.inl>
-
 #include "md2.inl"
 
+#include "../egolib/log.h"
+#include "../egolib/endian.h"
+#include "../egolib/_math.inl"
+#include "../egolib/bbox.inl"
+
 // this include must be the absolute last include
-#include <egolib/mem.h>
+#include "../egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 float kMd2Normals[EGO_NORMAL_COUNT][3] =
 {
-#include <egolib/file_formats/id_normals.inl>
+#include "../egolib/file_formats/id_normals.inl"
     , {0, 0, 0}                     ///< the "equal light" normal
 };
 

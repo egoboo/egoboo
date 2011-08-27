@@ -21,6 +21,8 @@
 /// @brief Quale-like console running running Lua behing Egoboo
 /// @details
 
+#include "lua_console.h"
+
 #include <string.h>
 
 #if defined(__cplusplus)
@@ -28,21 +30,21 @@ extern "C"
 {
 #endif
 
-#    include <lua50/lua.h>
-#    include <lua50/lauxlib.h>
-#    include <lua50/lualib.h>
+#    include <lua.h>
+#    include <lauxlib.h>
+#    include <lualib.h>
 
 #if defined(__cplusplus)
 }
 #endif
 
-#include "../egolib/typedef.h"
-#include "../egolib/lua_console.h"
-#include "../egolib/file_common.h"
+#include "../typedef.h"
+#include "../file_common.h"
 
-#include "../egolib/console.inl"
+#include "../console.inl"
 
-#include "../egolib/mem.h"
+// this include must be the absolute last include
+#include "../mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

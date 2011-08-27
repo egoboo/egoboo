@@ -21,15 +21,15 @@
 /// @brief Implementation of character functions
 /// @details
 
-#include <egolib/log.h>
-#include <egolib/vfs.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/fileutil.h>
-#include <egolib/strutil.h>
-#include <egolib/file_formats/quest_file.h>
-#include <egolib/_math.inl>
-
 #include "char.inl"
+
+#include "../egolib/log.h"
+#include "../egolib/vfs.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/strutil.h"
+#include "../egolib/file_formats/quest_file.h"
+#include "../egolib/_math.inl"
 
 #include "mad.h"
 #include "player.h"
@@ -52,7 +52,7 @@
 #include "mesh.inl"
 
 // this include must be the absolute last include
-#include <egolib/mem.h>
+#include "../egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -8028,7 +8028,7 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buff
                 }
                 else
                 {
-                    lTmp = toupper( pcap->classname[0] );
+                    lTmp = toupper( (unsigned)pcap->classname[0] );
 
                     if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                     {
@@ -8056,7 +8056,7 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buff
     if ( 0 != ( bits & CHRNAME_CAPITAL ) )
     {
         // capitalize the name ?
-        loc_buffer[0] = toupper( loc_buffer[0] );
+        loc_buffer[0] = toupper( (unsigned)loc_buffer[0] );
     }
 
     return loc_buffer;

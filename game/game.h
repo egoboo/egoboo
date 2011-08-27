@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-#include <egolib/_math.h>
-#include <egolib/process.h>
-#include <egolib/timer.h>
-
 #include "egoboo_typedef.h"
+
+#include "../egolib/_math.h"
+#include "../egolib/process.h"
+#include "../egolib/timer.h"
 
 #include "input.h"
 

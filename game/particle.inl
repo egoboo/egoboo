@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-#include <egolib/_math.inl>
-#include <egolib/bbox.inl>
-
 #include "particle.h"
+
+#include "../egolib/_math.inl"
+#include "../egolib/bbox.inl"
 
 #include "PrtList.inl"
 #include "char.inl"

@@ -402,7 +402,7 @@ int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat *
     SDL_Surface **loc_ppTmpSurface  = NULL;
 
     // handle the tex_coords
-    if ( NULL == tex_coords ) 
+    if ( NULL == tex_coords )
     {
         tex_coords = loc_tex_coords;
     }
@@ -483,7 +483,7 @@ int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * t
     GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     // handle the tex_coords
-    if ( NULL == tex_coords ) 
+    if ( NULL == tex_coords )
     {
         tex_coords = loc_tex_coords;
     }
@@ -526,7 +526,7 @@ void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLflo
     SDL_Surface  **loc_ppTmpSurface = NULL;
 
     // handle the tex_coords
-    if ( NULL == tex_coords ) 
+    if ( NULL == tex_coords )
     {
         tex_coords = loc_tex_coords;
     }
@@ -609,7 +609,7 @@ void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat *
     SDL_Surface **loc_ppTmpSurface = NULL;
 
     // handle the tex_coords
-    if ( NULL == tex_coords ) 
+    if ( NULL == tex_coords )
     {
         tex_coords = loc_tex_coords;
     }
@@ -727,7 +727,7 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloa
     if ( NULL == text || '\0' == text[0] ) return;
 
     // handle the tex_coords
-    if ( NULL == tex_coords ) 
+    if ( NULL == tex_coords )
     {
         tex_coords = loc_tex_coords;
     }

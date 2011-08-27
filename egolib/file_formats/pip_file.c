@@ -106,9 +106,9 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     ppip->force = vfs_get_next_bool( fileread );
 
     cTmp = vfs_get_next_char( fileread );
-    if ( 'L' == toupper( cTmp ) )  ppip->type = SPRITE_LIGHT;
-    else if ( 'S' == toupper( cTmp ) )  ppip->type = SPRITE_SOLID;
-    else if ( 'T' == toupper( cTmp ) )  ppip->type = SPRITE_ALPHA;
+    if ( 'L' == toupper( (unsigned)cTmp ) )  ppip->type = SPRITE_LIGHT;
+    else if ( 'S' == toupper( (unsigned)cTmp ) )  ppip->type = SPRITE_SOLID;
+    else if ( 'T' == toupper( (unsigned)cTmp ) )  ppip->type = SPRITE_ALPHA;
 
     ppip->image_base = vfs_get_next_int( fileread );
     ppip->numframes = vfs_get_next_int( fileread );
@@ -146,8 +146,8 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
 
     // Lighting data
     cTmp = vfs_get_next_char( fileread );
-    if ( 'T' == toupper( cTmp ) ) ppip->dynalight.mode = DYNA_MODE_ON;
-    else if ( 'L' == toupper( cTmp ) ) ppip->dynalight.mode = DYNA_MODE_LOCAL;
+    if ( 'T' == toupper( (unsigned)cTmp ) ) ppip->dynalight.mode = DYNA_MODE_ON;
+    else if ( 'L' == toupper( (unsigned)cTmp ) ) ppip->dynalight.mode = DYNA_MODE_LOCAL;
     else                             ppip->dynalight.mode = DYNA_MODE_OFF;
 
     ppip->dynalight.level   = vfs_get_next_float( fileread );
@@ -244,7 +244,7 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
         else if ( idsz == MAKE_IDSZ( 'O', 'R', 'N', 'T' ) )
         {
             char cTmp = vfs_get_first_letter( fileread );
-            switch ( toupper( cTmp ) )
+            switch ( toupper( (unsigned)cTmp ) )
             {
                 case 'X': ppip->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
                 case 'Y': ppip->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis

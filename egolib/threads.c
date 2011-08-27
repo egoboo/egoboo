@@ -142,11 +142,11 @@ bool_t egolib_thread_req_end( egolib_thread_t * pthread )
     mut = SDL_CreateMutex();
     if ( NULL == mut )
     {
-        log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not create a mutex.\n", __FUNCTION__ );
     }
     else if ( -1 == SDL_mutexP( mut ) )
     {
-        log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not lock a mutex.\n", __FUNCTION__ );
     }
     else
     {
@@ -160,7 +160,7 @@ bool_t egolib_thread_req_end( egolib_thread_t * pthread )
     {
         if ( -1 == SDL_mutexV( mut ) )
         {
-            log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
+            log_warning( "%s - could not unlock a mutex.\n", __FUNCTION__ );
         }
     }
 
@@ -179,11 +179,11 @@ bool_t egolib_thread_req_quit( egolib_thread_t * pthread )
     mut = SDL_CreateMutex();
     if ( NULL == mut )
     {
-        log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not create a mutex.\n", __FUNCTION__ );
     }
     else if ( -1 == SDL_mutexP( mut ) )
     {
-        log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not lock a mutex.\n", __FUNCTION__ );
     }
     else
     {
@@ -197,7 +197,7 @@ bool_t egolib_thread_req_quit( egolib_thread_t * pthread )
     {
         if ( -1 == SDL_mutexV( mut ) )
         {
-            log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
+            log_warning( "%s - could not unlock a mutex.\n", __FUNCTION__ );
         }
     }
 
@@ -230,11 +230,11 @@ bool_t egolib_thread_check_started( const egolib_thread_t * pthread )
     mut = SDL_CreateMutex();
     if ( NULL == mut )
     {
-        log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not create a mutex.\n", __FUNCTION__ );
     }
     else if ( -1 == SDL_mutexP( mut ) )
     {
-        log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not lock a mutex.\n", __FUNCTION__ );
     }
     else
     {
@@ -247,7 +247,7 @@ bool_t egolib_thread_check_started( const egolib_thread_t * pthread )
     {
         if ( -1 == SDL_mutexV( mut ) )
         {
-            log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
+            log_warning( "%s - could not unlock a mutex.\n", __FUNCTION__ );
         }
     }
 
@@ -266,11 +266,11 @@ bool_t egolib_thread_check_done( const egolib_thread_t * pthread )
     mut = SDL_CreateMutex();
     if ( NULL == mut )
     {
-        log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not create a mutex.\n", __FUNCTION__ );
     }
     else if ( -1 == SDL_mutexP( mut ) )
     {
-        log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not lock a mutex.\n", __FUNCTION__ );
     }
     else
     {
@@ -283,7 +283,7 @@ bool_t egolib_thread_check_done( const egolib_thread_t * pthread )
     {
         if ( -1 == SDL_mutexV( mut ) )
         {
-            log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
+            log_warning( "%s - could not unlock a mutex.\n", __FUNCTION__ );
         }
     }
 
@@ -302,11 +302,11 @@ bool_t egolib_thread_check_error( const egolib_thread_t * pthread )
     mut = SDL_CreateMutex();
     if ( NULL == mut )
     {
-        log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not create a mutex.\n", __FUNCTION__ );
     }
     else if ( -1 == SDL_mutexP( mut ) )
     {
-        log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not lock a mutex.\n", __FUNCTION__ );
     }
     else
     {
@@ -319,7 +319,7 @@ bool_t egolib_thread_check_error( const egolib_thread_t * pthread )
     {
         if ( -1 == SDL_mutexV( mut ) )
         {
-            log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
+            log_warning( "%s - could not unlock a mutex.\n", __FUNCTION__ );
         }
     }
 
@@ -338,11 +338,11 @@ const SDL_Thread * egolib_thread_get_thread_ptr( const egolib_thread_t * pthread
     mut = SDL_CreateMutex();
     if ( NULL == mut )
     {
-        log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not create a mutex.\n", __FUNCTION__ );
     }
     else if ( -1 == SDL_mutexP( mut ) )
     {
-        log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not lock a mutex.\n", __FUNCTION__ );
     }
     else
     {
@@ -355,7 +355,7 @@ const SDL_Thread * egolib_thread_get_thread_ptr( const egolib_thread_t * pthread
     {
         if ( -1 == SDL_mutexV( mut ) )
         {
-            log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
+            log_warning( "%s - could not unlock a mutex.\n", __FUNCTION__ );
         }
     }
 
@@ -374,11 +374,11 @@ bool_t egolib_thread_running( const egolib_thread_t * pthread )
     mut = SDL_CreateMutex();
     if ( NULL == mut )
     {
-        log_warning( "%s - could not create a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not create a mutex.\n", __FUNCTION__ );
     }
     else if ( -1 == SDL_mutexP( mut ) )
     {
-        log_warning( "%s - could not lock a mutex.\n" __FUNCTION__ );
+        log_warning( "%s - could not lock a mutex.\n", __FUNCTION__ );
     }
     else
     {
@@ -405,7 +405,7 @@ bool_t egolib_thread_running( const egolib_thread_t * pthread )
     {
         if ( -1 == SDL_mutexV( mut ) )
         {
-            log_warning( "%s - could not unlock a mutex.\n" __FUNCTION__ );
+            log_warning( "%s - could not unlock a mutex.\n", __FUNCTION__ );
         }
     }
 

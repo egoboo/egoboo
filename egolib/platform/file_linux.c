@@ -29,12 +29,12 @@
 #include <sys/stat.h>
 #include <sys/dir.h>
 
-#include "../egolib/file_common.h"
-#include "../egolib/log.h"
-#include "../egolib/strutil.h"
+#include "../file_common.h"
+#include "../log.h"
+#include "../strutil.h"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "../mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

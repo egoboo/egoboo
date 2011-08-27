@@ -24,8 +24,8 @@
 
 #include "egoboo_typedef.h"
 
-#include <egolib/bsp.h>
-#include <egolib/file_formats/eve_file.h>
+#include "../egolib/bsp.h"
+#include "../egolib/file_formats/eve_file.h"
 
 #include "egoboo_object.h"
 

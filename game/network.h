@@ -22,10 +22,10 @@
 /// @file network.h
 /// @brief Skeleton for Egoboo networking
 
-#include <egolib/network.h>
-#include <egolib/network_file.h>
-
 #include "egoboo_typedef.h"
+
+#include "../egolib/network.h"
+#include "../egolib/network_file.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -24,7 +24,7 @@
 #include "EncList.h"
 #include "egoboo_object.h"
 
-#include <egolib/log.h>
+#include "../egolib/log.h"
 
 #include "enchant.inl"
 

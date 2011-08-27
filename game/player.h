@@ -21,9 +21,9 @@
 
 /// @file player.h
 
-#include <egolib/IDSZ_map.h>
-
 #include "egoboo_typedef.h"
+
+#include "../egolib/IDSZ_map.h"
 
 #include "network.h"
 #include "input.h"

@@ -21,11 +21,12 @@
 /// @brief Implementation of functions for the mpd BSP
 /// @details
 
-#include <egolib/frustum.h>
-#include <egolib/_math.inl>
-#include <egolib/bbox.inl>
-
 #include "mpd_BSP.h"
+
+#include "../egolib/frustum.h"
+#include "../egolib/_math.inl"
+#include "../egolib/bbox.inl"
+
 #include "obj_BSP.h"
 
 #include "mesh.inl"

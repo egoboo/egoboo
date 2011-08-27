@@ -23,21 +23,21 @@
 
 #include "mesh.inl"
 
-#include "graphic.h"
+#include "../egolib/log.h"
+#include "../egolib/endian.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/strutil.h"
+#include "../egolib/_math.h"
+
+#include "../egolib/_math.inl"
+#include "../egolib/bbox.inl"
+
 #include "mpd_functions.h"
+#include "graphic.h"
 #include "egoboo.h"
 
-#include <egolib/log.h>
-#include <egolib/endian.h>
-#include <egolib/fileutil.h>
-#include <egolib/strutil.h>
-#include <egolib/_math.h>
-
-#include <egolib/_math.inl>
-#include <egolib/bbox.inl>
-
 // this include must be the absolute last include
-#include <egolib/mem.h>
+#include "../egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

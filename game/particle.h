@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-#include <egolib/bsp.h>
-#include <egolib/file_formats/pip_file.h>
-
 #include "egoboo_typedef.h"
+
+#include "../egolib/bsp.h"
+#include "../egolib/file_formats/pip_file.h"
 
 #include "egoboo_object.h"
 #include "graphic_prt.h"

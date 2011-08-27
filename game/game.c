@@ -21,6 +21,8 @@
 /// @brief The code for controlling the game
 /// @details
 
+#include "game.h"
+
 #include <time.h>
 #include <assert.h>
 #include <float.h>
@@ -28,59 +30,55 @@
 
 #include <SDL/SDL_image.h>
 
-#include <egolib/clock.h>
-#include <egolib/throttle.h>
-#include <egolib/vfs.h>
-#include <egolib/endian.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/strutil.h>
-#include <egolib/fileutil.h>
-#include <egolib/vfs.h>
-#include <egolib/font_bmp.h>
-#include <egolib/font_ttf.h>
-#include <egolib/log.h>
-#include <egolib/system.h>
+#include "../egolib/clock.h"
+#include "../egolib/throttle.h"
+#include "../egolib/vfs.h"
+#include "../egolib/endian.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/strutil.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/vfs.h"
+#include "../egolib/font_bmp.h"
+#include "../egolib/font_ttf.h"
+#include "../egolib/log.h"
+#include "../egolib/system.h"
 
-#include <egolib/file_formats/controls_file.h>
-#include <egolib/file_formats/scancode_file.h>
-#include <egolib/file_formats/treasure_table_file.h>
-#include <egolib/file_formats/wawalite_file.h>
-#include <egolib/file_formats/spawn_file.h>
-#include <egolib/file_formats/quest_file.h>
-#include <egolib/file_formats/id_md2.h>
+#include "../egolib/file_formats/controls_file.h"
+#include "../egolib/file_formats/scancode_file.h"
+#include "../egolib/file_formats/treasure_table_file.h"
+#include "../egolib/file_formats/wawalite_file.h"
+#include "../egolib/file_formats/spawn_file.h"
+#include "../egolib/file_formats/quest_file.h"
+#include "../egolib/file_formats/id_md2.h"
 
-#include <egolib/extensions/SDL_extensions.h>
+#include "../egolib/extensions/SDL_extensions.h"
 
-#include <egolib/console.h>
+#include "../egolib/console.h"
 
 #if defined(USE_LUA_CONSOLE)
-#   include <egolib/lua_console.h>
+#   include "../egolib/lua/lua_console.h"
 #endif
 
-#include "game.h"
-#include "graphic_billboard.h"
 #include "mad.h"
 #include "player.h"
 #include "link.h"
 #include "ui.h"
-
-#include "script.h"
 #include "sound.h"
 #include "graphic.h"
+#include "graphic_fan.h"
+#include "graphic_texture.h"
+#include "graphic_billboard.h"
 #include "passage.h"
 #include "input.h"
 #include "menu.h"
 #include "network_client.h"
 #include "network_server.h"
-#include "graphic_texture.h"
 #include "camera_system.h"
 #include "collision.h"
-#include "graphic_fan.h"
 #include "obj_BSP.h"
 #include "mpd_BSP.h"
-
-#include "script_compile.h"
 #include "script.h"
+#include "script_compile.h"
 #include "egoboo.h"
 
 #include "char.inl"
@@ -690,7 +688,6 @@ void blah_billboard( void )
     const SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
     const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
 
-    billboard_data_t * pbb;
     bool_t needs_new;
     Uint32 current_time;
 
@@ -4185,7 +4182,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
             }
 
             // make the line capitalized if necessary
-            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = toupper( *ebuffer );
+            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = toupper( (unsigned)(*ebuffer) );
 
             // Copy the generated text
             while ( CSTR_END != *ebuffer && ebuffer < ebuffer_end && dst < dst_end )

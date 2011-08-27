@@ -41,7 +41,9 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
     struct s_oglx_video_parameters;
-    typedef struct s_oglx_video_parameters oglx_video_parameters_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
     struct s_SDLX_sdl_video_flags;
     typedef struct s_SDLX_sdl_video_flags SDLX_sdl_video_flags_t;

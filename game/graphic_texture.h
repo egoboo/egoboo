@@ -21,9 +21,9 @@
 
 /// @file graphic_texture.h
 
-#include <egolib/extensions/ogl_texture.h>
-
 #include "egoboo_typedef.h"
+
+#include "../egolib/extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

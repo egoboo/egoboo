@@ -21,7 +21,7 @@
 
 /// @file physics.h
 
-#include <egolib/bbox.h>
+#include "../egolib/bbox.h"
 
 #include "egoboo_typedef.h"
 

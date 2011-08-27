@@ -30,7 +30,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
     struct s_camera_options;
-    typedef struct s_camera_options camera_options_t;
 
     struct s_egoboo_config;
     typedef struct s_egoboo_config egoboo_config_t;

@@ -21,12 +21,11 @@
 
 #include "egoboo_typedef.h"
 
-#include <egolib/file_formats/mpd_file.h>
+#include "../egolib/file_formats/mpd_file.h"
+#include "../egolib/bsp.h"
+#include "../egolib/extensions/ogl_include.h"
 
 #include "lighting.h"
-
-#include <egolib/bsp.h>
-#include <egolib/extensions/ogl_include.h>
 
 //--------------------------------------------------------------------------------------------
 

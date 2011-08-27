@@ -25,11 +25,10 @@
 
 #include "egoboo_typedef.h"
 
-#include <egolib/bsp.h>
-#include <egolib/file_formats/cap_file.h>
+#include "../egolib/bsp.h"
+#include "../egolib/file_formats/cap_file.h"
 
 #include "egoboo_object.h"
-
 #include "graphic.h"
 #include "graphic_mad.h"
 #include "sound.h"

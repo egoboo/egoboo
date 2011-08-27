@@ -21,13 +21,13 @@
 /// @brief The files for handling Egoboo's internal model definitions
 /// @details
 
-#include <egolib/log.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/fileutil.h>
-#include <egolib/strutil.h>
-#include <egolib/file_formats/cap_file.h>
-
 #include "mad.h"
+
+#include "../egolib/log.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/strutil.h"
+#include "../egolib/file_formats/cap_file.h"
 
 #include "script_compile.h"
 #include "graphic.h"
@@ -238,7 +238,7 @@ int action_which( char cTmp )
     /// @details This function changes a letter into an action code
     int action;
 
-    switch ( toupper( cTmp ) )
+    switch ( toupper( (unsigned)cTmp ) )
     {
         case 'D': action = ACTION_DA; break;
         case 'U': action = ACTION_UA; break;
@@ -448,14 +448,14 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
     // skip over whitespace
     ptmp     = cFrameName;
     ptmp_end = cFrameName + 16;
-    for ( /* nothing */; ptmp < ptmp_end && isspace( *ptmp ); ptmp++ ) {};
+    for ( /* nothing */; ptmp < ptmp_end && isspace( (unsigned)(*ptmp) ); ptmp++ ) {};
 
     // copy non-numerical text
     paction     = name_action;
     paction_end = name_action + 16;
-    for ( /* nothing */; ptmp < ptmp_end && paction < paction_end && !isspace( *ptmp ); ptmp++, paction++ )
+    for ( /* nothing */; ptmp < ptmp_end && paction < paction_end && !isspace( (unsigned)(*ptmp) ); ptmp++, paction++ )
     {
-        if ( isdigit( *ptmp ) ) break;
+        if ( isdigit( (unsigned)(*ptmp) ) ) break;
         *paction = *ptmp;
     }
     if ( paction < paction_end ) *paction = CSTR_END;

@@ -21,35 +21,36 @@
 /// @brief Simple Egoboo renderer
 /// @details All sorts of stuff related to drawing the game
 
-#include <assert.h>
-
-#include <SDL/SDL_image.h>
-
-#include <egolib/log.h>
-#include <egolib/clock.h>
-#include <egolib/throttle.h>
-#include <egolib/font_bmp.h>
-#include <egolib/font_ttf.h>
-#include <egolib/vfs.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/strutil.h>
-#include <egolib/fileutil.h>
-#include <egolib/frustum.h>
-#include <egolib/extensions/SDL_extensions.h>
-#include <egolib/extensions/SDL_GL_extensions.h>
-#include <egolib/file_formats/id_md2.h>
-
-#include <egolib/console.h>
-#if defined(USE_LUA_CONSOLE)
-#    include <egolib/lua_console.h>
-#endif
-
 #include "graphic.h"
 #include "graphic_prt.h"
 #include "graphic_mad.h"
 #include "graphic_fan.h"
 #include "graphic_billboard.h"
 #include "graphic_texture.h"
+
+#include <assert.h>
+
+#include <SDL/SDL_image.h>
+
+#include "../egolib/log.h"
+#include "../egolib/clock.h"
+#include "../egolib/throttle.h"
+#include "../egolib/font_bmp.h"
+#include "../egolib/font_ttf.h"
+#include "../egolib/vfs.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/strutil.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/frustum.h"
+#include "../egolib/extensions/SDL_extensions.h"
+#include "../egolib/extensions/SDL_GL_extensions.h"
+#include "../egolib/file_formats/id_md2.h"
+
+#include "../egolib/console.h"
+
+#if defined(USE_LUA_CONSOLE)
+#    include "../egolib/lua/lua_console.h"
+#endif
 
 #include "network_server.h"
 #include "mad.h"
@@ -5966,7 +5967,7 @@ gfx_rv gfx_load_bars( void )
     /// @details This function loads the status bar bitmap
 
     const char * pname = EMPTY_CSTR;
-    TX_REF load_rv = INVALID_GL_ID;
+    TX_REF load_rv = INVALID_TX_TEXTURE;
     gfx_rv retval  = gfx_success;
 
     pname = "mp_data/bars";
@@ -5995,7 +5996,7 @@ gfx_rv gfx_load_map( void )
     /// @details This function loads the map bitmap
 
     const char* szMap = "mp_data/plan";
-    TX_REF load_rv = INVALID_GL_ID;
+    TX_REF load_rv = INVALID_TX_TEXTURE;
     gfx_rv retval  = gfx_success;
 
     // Turn it all off
@@ -6027,7 +6028,7 @@ gfx_rv gfx_load_blips( void )
     /// @details This function loads the blip bitmaps
 
     const char * pname = EMPTY_CSTR;
-    TX_REF load_rv = INVALID_GL_ID;
+    TX_REF load_rv = INVALID_TX_TEXTURE;
     gfx_rv retval  = gfx_success;
 
     pname = "mp_data/blip";
@@ -6045,7 +6046,7 @@ gfx_rv gfx_load_blips( void )
 gfx_rv gfx_load_icons( void )
 {
     const char * pname = EMPTY_CSTR;
-    TX_REF load_rv = INVALID_GL_ID;
+    TX_REF load_rv = INVALID_TX_TEXTURE;
     gfx_rv retval  = gfx_success;
 
     pname = "mp_data/nullicon";

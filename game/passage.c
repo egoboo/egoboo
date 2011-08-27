@@ -20,11 +20,11 @@
 /// @file passage.c
 /// @brief Passages and doors and whatnot.  Things that impede your progress!
 
-#include <egolib/fileutil.h>
-#include <egolib/_math.h>
-#include <egolib/file_formats/quest_file.h>
-
 #include "passage.h"
+
+#include "../egolib/fileutil.h"
+#include "../egolib/_math.h"
+#include "../egolib/file_formats/quest_file.h"
 
 #include "script.h"
 #include "sound.h"

@@ -2,14 +2,14 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="Cartman_SDL_GL" />
+		<Option title="cartman" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="nix-gcc-debug">
 				<Option platforms="Unix;" />
 				<Option output="bin\cartman-nix-gcc-debug" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\nix-gcc-debug\" />
+				<Option object_output="nix-gcc-debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -22,7 +22,7 @@
 			<Target title="nix-gcc-release">
 				<Option platforms="Unix;" />
 				<Option output="bin\cartman-nix-gcc-release" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\nix-gcc-release\" />
+				<Option object_output="nix-gcc-release\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -36,7 +36,7 @@
 			<Target title="cygwin-gcc-debug">
 				<Option platforms="Windows;" />
 				<Option output="bin\cartman-cygwin-gcc-debug" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\cygwin-gcc-debug\" />
+				<Option object_output="cygwin-gcc-debug\" />
 				<Option type="1" />
 				<Option compiler="cygwin" />
 				<Compiler>
@@ -83,7 +83,7 @@
 			<Target title="cygwin-gcc-release">
 				<Option platforms="Windows;" />
 				<Option output="bin\cartman-cygwin-gcc-release" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\cygwin-gcc-release\" />
+				<Option object_output="cygwin-gcc-release\" />
 				<Option type="1" />
 				<Option compiler="cygwin" />
 				<Compiler>
@@ -113,10 +113,10 @@
 					<Add directory="C:\SDKs\SDL_ttf\lib" />
 				</Linker>
 			</Target>
-			<Target title="win32-msvc10-debug">
+			<Target title="win32-vc2010-debug">
 				<Option platforms="Windows;" />
-				<Option output="bin\cartman-win32-msvc10-debug" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\win32-msvc10-debug\" />
+				<Option output="bin\cartman-win32-vc2010-debug" prefix_auto="1" extension_auto="1" />
+				<Option object_output="win32-vc2010-debug\" />
 				<Option type="1" />
 				<Option compiler="microsoft_visual_c_2010" />
 				<Compiler>
@@ -160,10 +160,10 @@
 					<Add directory="C:\SDKs\SDL_ttf\lib" />
 				</Linker>
 			</Target>
-			<Target title="win32-msvc10-release">
+			<Target title="win32-vc2010-release">
 				<Option platforms="Windows;" />
-				<Option output="bin\cartman-win32-msvc10-release" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\win32-msvc10-release\" />
+				<Option output="bin\cartman-win32-vc2010-release" prefix_auto="1" extension_auto="1" />
+				<Option object_output="win32-vc2010-release\" />
 				<Option type="1" />
 				<Option compiler="microsoft_visual_c_2010" />
 				<Compiler>

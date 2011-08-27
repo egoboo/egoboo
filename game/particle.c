@@ -20,12 +20,12 @@
 /// @file particle.c
 /// @brief Manages particle systems.
 
-#include <egolib/log.h>
-#include <egolib/egoboo_setup.h>
-#include <egolib/fileutil.h>
-#include <egolib/strutil.h>
-
 #include "particle.inl"
+
+#include "../egolib/log.h"
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/fileutil.h"
+#include "../egolib/strutil.h"
 
 #include "sound.h"
 #include "camera_system.h"
@@ -42,7 +42,7 @@
 #include "PrtList.inl"
 
 // this include must be the absolute last include
-#include <egolib/mem.h>
+#include "../egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -21,11 +21,11 @@
 /// @brief World mesh drawing.
 /// @details
 
-#include <egolib/extensions/SDL_extensions.h>
-
+#include "graphic.h"
 #include "graphic_fan.h"
 
-#include "graphic.h"
+#include "../egolib/extensions/SDL_extensions.h"
+
 #include "camera_system.h"
 #include "game.h"
 #include "graphic_texture.h"

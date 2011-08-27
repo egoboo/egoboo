@@ -22,9 +22,9 @@
 /// @file char.inl
 /// @note You will routinely include "char.inl" in all *.inl files or *.c/*.cpp files, instead of "char.h"
 
-#include <egolib/_math.inl>
-
 #include "char.h"
+
+#include "../egolib/_math.inl"
 
 /// @note include "profile.inl" here.
 ///  Do not include "char.inl" in "profile.inl", otherwise there is a bootstrapping problem.

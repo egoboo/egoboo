@@ -21,9 +21,9 @@
 /// @brief Code for controlling the character and mesh lighting
 /// @details
 
-#include <egolib/_math.inl>
-
 #include "lighting.h"
+
+#include "../egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

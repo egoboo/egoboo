@@ -21,10 +21,10 @@
 
 #include "egoboo_typedef.h"
 
-#include "graphic.h"
+#include "../egolib/_math.h"
+#include "../egolib/file_formats/cap_file.h"
 
-#include <egolib/_math.h>
-#include <egolib/file_formats/cap_file.h>
+#include "graphic.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

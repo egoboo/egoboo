@@ -21,7 +21,7 @@
 /// @brief The implementation of the Remote Procedure Calls
 /// @details
 
-#include <egolib/strutil.h>
+#include "../egolib/strutil.h"
 
 #include "rpc.h"
 

@@ -25,11 +25,11 @@
 /// The current code is about 3/4 of the way toward this goal.
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
-#include <egolib/egoboo_setup.h>
-#include <egolib/strutil.h>
-#include <egolib/_math.inl>
-
 #include "script_implementation.h"
+
+#include "../egolib/egoboo_setup.h"
+#include "../egolib/strutil.h"
+#include "../egolib/_math.inl"
 
 #include "game.h"
 #include "AStar.h"
@@ -133,6 +133,7 @@ BIT_FIELD BIT_FIELD_set_one_bit( BIT_FIELD val, size_t which )
 
     BIT_FIELD new_val = val;
 
+    new_val = 0;
     if ( which >= 0 && which < bit_count )
     {
         new_val = SET_BIT( new_val, 1 << which );
