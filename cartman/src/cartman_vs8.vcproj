@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib SHFolder.lib Shell32.lib SDL_d.lib SDLmain_d.lib opengl32.lib glu32.lib ws2_32.lib SDL_ttf_d.lib SDL_image_d.lib physfs_static_d.lib Winmm.lib"
+				AdditionalDependencies="SDL.lib SDLmain.lib SDL_ttf.lib SDL_mixer.lib SDL_image.lib lua5.1.lib physfs.lib opengl32.lib glu32.lib enet.lib shlwapi.lib SHFolder.lib Shell32.lib ws2_32.lib Advapi32.lib User32.lib Winmm.lib"
 				OutputFile="$(OutDir)/cartman.exe"
 				LinkIncremental="2"
 				IgnoreAllDefaultLibraries="false"
@@ -154,7 +154,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib SHFolder.lib Shell32.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib ws2_32.lib SDL_ttf.lib SDL_mixer.lib SDL_image.lib physfs_static.lib Winmm.lib"
+				AdditionalDependencies="SDL.lib SDLmain.lib SDL_ttf.lib SDL_mixer.lib SDL_image.lib lua5.1.lib physfs.lib opengl32.lib glu32.lib enet.lib shlwapi.lib SHFolder.lib Shell32.lib ws2_32.lib Advapi32.lib User32.lib Winmm.lib"
 				OutputFile="$(OutDir)/cartman.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -330,7 +330,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cartman_vs7.rc"
+				RelativePath=".\cartman_vs8.rc"
 				>
 			</File>
 			<File
@@ -394,7 +394,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\resource1_vs7.h"
+				RelativePath=".\res\resource1_vs8.h"
 				>
 			</File>
 			<File
