@@ -626,11 +626,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\lua_console.c"
+			RelativePath=".\lua\lua_console.c"
 			>
 		</File>
 		<File
-			RelativePath=".\lua_console.h"
+			RelativePath=".\lua\lua_console.h"
 			>
 		</File>
 		<File

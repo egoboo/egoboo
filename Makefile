@@ -14,22 +14,22 @@ PROJ_NAME := egoboo-2.x
 
 .PHONY: all clean
 
-all: enet egoboo
+all: egolib egoboo
 
 clean:
-	make -C ./enet clean
+	make -C ./egolib clean
 	make -C ./game clean
 
-./enet/lib/libenet.a:
-	make -C ./enet all
+./egolib/lib/libegoboo.a:
+	make -C ./egolib all
 
-enet:   ./enet/lib/libenet.a
+egolib:   ./egolib/lib/libegoboo.a
 
-egoboo: enet
+egoboo: egolib
 	make -C ./game all PREFIX=$(PREFIX) PROJ_NAME=$(PROJ_NAME)
 	
-egoboo_lua: enet
-	make -F Makefile.lua -C game all PREFIX=$(PREFIX) PROJ_NAME=$(PROJ_NAME)
+egoboo_lua: egolib
+	make -F Makefile.lua -C ./game all PREFIX=$(PREFIX) PROJ_NAME=$(PROJ_NAME)
 
 install: egoboo
 

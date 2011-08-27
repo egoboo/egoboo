@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -35,7 +35,7 @@
     <Import Project="OpenGL_app.props" />
     <Import Project="physfs.props" />
     <Import Project="enet.props" />
-    <Import Project="lua.props" />
+    <Import Project="lua\lua.props" />
     <Import Project="libraries.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
@@ -43,7 +43,7 @@
     <Import Project="libraries.props" />
     <Import Project="physfs.props" />
     <Import Project="enet.props" />
-    <Import Project="lua.props" />
+    <Import Project="lua\lua.props" />
     <Import Project="OpenGL_app.props" />
     <Import Project="SDL_app_d.props" />
   </ImportGroup>
