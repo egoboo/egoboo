@@ -91,7 +91,7 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
     const char *session = getenv( "DESKTOP_SESSION" );
 
     //Ready the message
-    snprintf( message, SDL_arraysize( message ), warning );
+    strncpy( message, warning, SDL_arraysize( message ) );
     vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
     strcat( message, buffer );
     strcat( message, "\n Press OK to exit." );

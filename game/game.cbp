@@ -9,7 +9,7 @@
 			<Target title="nix-gcc-debug">
 				<Option platforms="Unix;" />
 				<Option output="egoboo-nix-gcc-debug" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="nix-gcc-debug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -18,36 +18,36 @@
 					<Add option="-Wfatal-errors" />
 					<Add option="-Wall" />
 					<Add option="-g" />
+					<Add option="`sdl-config --cflags`" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
 					<Add option="-D_NIX_PREFIX" />
-					<Add directory="\usr\include\SDL" />
-					<Add directory="\usr\include\lua50" />
-					<Add directory="\usr\include" />
-					<Add directory="\usr\home\include" />
+					<Add directory="/usr/include" />
+					<Add directory="/usr/include/lua5.1" />
+					<Add directory="/usr/local/include" />
+					<Add directory="/usr/local/include/lua5.1" />
 				</Compiler>
 				<Linker>
-					<Add library="libSDL" />
-					<Add library="libSDLmain" />
-					<Add library="libSDL_ttf" />
-					<Add library="libSDL_image" />
-					<Add library="libSDL_mixer" />
-					<Add library="libGL" />
-					<Add library="libGLU" />
-					<Add library="liblua50" />
-					<Add library="liblualib50" />
-					<Add library="libenet_d" />
-					<Add library="libphysfs" />
-					<Add directory="..\enet\lib" />
-					<Add directory="\usr\lib" />
-					<Add directory="\usr\local\lib" />
+					<Add option="`sdl-config --libs`" />
+					<Add library="../egolib/libegolib-nix-gcc-debug.a" />
+					<Add library="SDL_ttf" />
+					<Add library="SDL_image" />
+					<Add library="SDL_mixer" />
+					<Add library="GL" />
+					<Add library="GLU" />
+					<Add library="lua50" />
+					<Add library="lualib50" />
+					<Add library="enet" />
+					<Add library="physfs" />
+					<Add directory="/usr/lib" />
+					<Add directory="/usr/local/lib" />
 				</Linker>
 			</Target>
 			<Target title="nix-gcc-release">
 				<Option platforms="Unix;" />
 				<Option output="egoboo-nix-gcc-release" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="nix-gcc-release" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -56,36 +56,36 @@
 					<Add option="-O3" />
 					<Add option="-Wmain" />
 					<Add option="-Wall" />
+					<Add option="`sdl-config --cflags`" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
 					<Add option="-D_NIX_PREFIX" />
-					<Add directory="\usr\include\SDL" />
-					<Add directory="\usr\include\lua50" />
-					<Add directory="\usr\include" />
-					<Add directory="\usr\home\include" />
+					<Add directory="/usr/include" />
+					<Add directory="/usr/include/lua5.1" />
+					<Add directory="/usr/local/include" />
+					<Add directory="/usr/local/include/lua5.1" />
 				</Compiler>
 				<Linker>
-					<Add library="liblua50" />
-					<Add library="liblualib50" />
-					<Add library="libSDL" />
-					<Add library="libSDLmain" />
-					<Add library="libSDL_ttf" />
-					<Add library="libSDL_image" />
-					<Add library="libSDL_mixer" />
-					<Add library="libGL" />
-					<Add library="libGLU" />
-					<Add library="libenet" />
-					<Add library="libphysfs" />
-					<Add directory="..\enet\lib" />
-					<Add directory="\usr\lib" />
-					<Add directory="\usr\local\lib" />
+					<Add option="`sdl-config --libs`" />
+					<Add library="../egolib/libegolib-nix-gcc-release.a" />
+					<Add library="SDL_ttf" />
+					<Add library="SDL_image" />
+					<Add library="SDL_mixer" />
+					<Add library="GL" />
+					<Add library="GLU" />
+					<Add library="lua50" />
+					<Add library="lualib50" />
+					<Add library="enet" />
+					<Add library="physfs" />
+					<Add directory="/usr/lib" />
+					<Add directory="/usr/local/lib" />
 				</Linker>
 			</Target>
 			<Target title="osx-unknown-debug">
 				<Option platforms="Mac;" />
 				<Option output="egoboo-osx-unknown-debug" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="osx-unknown-debug" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -97,10 +97,10 @@
 					<Add option="-O0" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_CONSOLE" />
-					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="$(SolutionDir)/enet/include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="$(SolutionDir)/enet/include" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
@@ -110,7 +110,7 @@
 			<Target title="osx-unknown-release">
 				<Option platforms="Mac;" />
 				<Option output="egoboo-osx-unknown-release" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="osx-unknown-release" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -121,16 +121,16 @@
 					<Add option="-W" />
 					<Add option="-Wall" />
 					<Add option="-DNDEBUG" />
-					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="$(SolutionDir)/enet/include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="$(SolutionDir)/enet/include" />
 				</ResourceCompiler>
 			</Target>
 			<Target title="win32-vc2003-debug">
 				<Option platforms="Windows;" />
 				<Option output="egoboo-win32-vc2003-debug" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="win32-vc2005-debug" />
 				<Option type="1" />
 				<Option compiler="msvctk" />
@@ -153,7 +153,7 @@
 					<Add directory="%LibraryInstallDir%include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\res" />
+					<Add directory="$(SolutionDir)/res" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -176,7 +176,7 @@
 			<Target title="win32-vc2003-release">
 				<Option platforms="Windows;" />
 				<Option output="egoboo-win32-vc2003-release" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="win32-vc2003-release" />
 				<Option type="0" />
 				<Option compiler="msvctk" />
@@ -199,7 +199,7 @@
 					<Add directory="%LibraryInstallDir%include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\res" />
+					<Add directory="$(SolutionDir)/res" />
 				</ResourceCompiler>
 				<Linker>
 					<Add library="SDLmain" />
@@ -218,7 +218,7 @@
 			<Target title="win32-vc2008-debug">
 				<Option platforms="Windows;" />
 				<Option output="egoboo-win32-vc2008-debug" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="win32-vc2008-debug" />
 				<Option type="1" />
 				<Option compiler="msvc8" />
@@ -241,7 +241,7 @@
 					<Add directory="%LibraryInstallDir%include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\res" />
+					<Add directory="$(SolutionDir)/res" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -264,7 +264,7 @@
 			<Target title="win32-vc2008-release">
 				<Option platforms="Windows;" />
 				<Option output="egoboo-win32-vc2008-release" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="win32-vc2008-release" />
 				<Option type="0" />
 				<Option compiler="msvc8" />
@@ -287,7 +287,7 @@
 					<Add directory="%LibraryInstallDir%include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\res" />
+					<Add directory="$(SolutionDir)/res" />
 				</ResourceCompiler>
 				<Linker>
 					<Add library="SDLmain" />
@@ -306,7 +306,7 @@
 			<Target title="win32-vc2010-debug">
 				<Option platforms="Windows;" />
 				<Option output="egoboo-win32-vc2010-debug" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="win32-vc2010-debug" />
 				<Option type="1" />
 				<Option compiler="microsoft_visual_c_2010" />
@@ -329,7 +329,7 @@
 					<Add directory="%LibraryInstallDir%include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\res" />
+					<Add directory="$(SolutionDir)/res" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -352,7 +352,7 @@
 			<Target title="win32-vc2010-release">
 				<Option platforms="Windows;" />
 				<Option output="egoboo-win32-vc2010-release" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="win32-vc2010-release" />
 				<Option type="0" />
 				<Option compiler="microsoft_visual_c_2010" />
@@ -375,7 +375,7 @@
 					<Add directory="%LibraryInstallDir%include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\res" />
+					<Add directory="$(SolutionDir)/res" />
 				</ResourceCompiler>
 				<Linker>
 					<Add library="SDLmain" />
@@ -394,7 +394,7 @@
 			<Target title="cygwin-gcc-debug">
 				<Option platforms="Windows;" />
 				<Option output="egoboo-cygwin-gcc-debug" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="cygwin-gcc-debug" />
 				<Option type="0" />
 				<Option compiler="cygwin" />
@@ -408,12 +408,12 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
-					<Add directory="\usr\include" />
-					<Add directory="\usr\home\include" />
+					<Add directory="/usr/include" />
+					<Add directory="/usr/home/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
-					<Add library="..\egolib\libegolib-cygwin-gcc-debug.a" />
+					<Add library="../egolib/libegolib-cygwin-gcc-debug.a" />
 					<Add library="libenet" />
 					<Add library="physfs" />
 					<Add library="SDL_image" />
@@ -423,14 +423,14 @@
 					<Add library="GL" />
 					<Add library="SDL" />
 					<Add library="SDLmain" />
-					<Add directory="\usr\lib" />
-					<Add directory="\usr\local\lib" />
+					<Add directory="/usr/lib" />
+					<Add directory="/usr/local/lib" />
 				</Linker>
 			</Target>
 			<Target title="cygwin-gcc-release">
 				<Option platforms="Windows;" />
 				<Option output="egoboo-cygwin-gcc-release" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="..\..\install" />
+				<Option working_dir="../../install" />
 				<Option object_output="cygwin-gcc-release" />
 				<Option type="0" />
 				<Option compiler="cygwin" />
@@ -442,8 +442,8 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
-					<Add directory="\usr\include" />
-					<Add directory="\usr\home\include" />
+					<Add directory="/usr/include" />
+					<Add directory="/usr/home/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -456,9 +456,9 @@
 					<Add library="glu32" />
 					<Add library="libenet" />
 					<Add library="physfs" />
-					<Add library="..\egolib\libegolib-cygwin-gcc-release.a" />
-					<Add directory="\usr\lib" />
-					<Add directory="\usr\local\lib" />
+					<Add library="../egolib/libegolib-cygwin-gcc-release.a" />
+					<Add directory="/usr/lib" />
+					<Add directory="/usr/local/lib" />
 				</Linker>
 			</Target>
 		</Build>

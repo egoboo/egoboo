@@ -30,7 +30,7 @@
 
 #include <assert.h>
 
-#include <SDL/SDL_image.h>
+#include <SDL_image.h>
 
 #include "../egolib/log.h"
 #include "../egolib/clock.h"

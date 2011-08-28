@@ -24,8 +24,8 @@
 #define DECLARE_GLOBALS
 #include "egoboo.h"
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 
 #include "../egolib/log.h"
 #include "../egolib/system.h"

@@ -24,7 +24,7 @@
 
 #include <assert.h>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 // this include must be the absolute last include
 #include "egolib_config.h"

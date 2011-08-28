@@ -26,7 +26,7 @@
 /// @brief Definitions for extended functions and variables for OpenGL
 /// @details
 
-#include <SDL/SDL_opengl.h>
+#include <SDL_opengl.h>
 
 #include "../file_common.h"
 

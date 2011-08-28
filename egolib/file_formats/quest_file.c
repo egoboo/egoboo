@@ -99,7 +99,7 @@ egolib_rv quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_log_download_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, const char* player_directory )
+egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len, const char* player_directory )
 {
     /// @author ZF
     /// @details Reads a quest.txt for a player and turns it into a data structure
@@ -155,7 +155,7 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t quest_log[], size_t quest_log_len,
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_log_upload_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, const char *player_directory )
+egolib_rv quest_log_upload_vfs( IDSZ_node_t * quest_log, size_t quest_log_len, const char *player_directory )
 {
     /// @author ZF
     /// @details This exports quest_log data into a quest.txt file
@@ -194,7 +194,7 @@ egolib_rv quest_log_upload_vfs( IDSZ_node_t quest_log[], size_t quest_log_len, c
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_log_set_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int level )
+int quest_log_set_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int level )
 {
     /// @author ZF
     /// @details This function will set the quest level for the specified quest
@@ -214,7 +214,7 @@ int quest_log_set_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ ids
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_log_adjust_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int adjustment )
+int quest_log_adjust_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int adjustment )
 {
     /// @author ZF
     /// @details This function will modify the quest level for the specified quest with adjustment
@@ -255,7 +255,7 @@ int quest_log_adjust_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ 
 }
 
 //--------------------------------------------------------------------------------------------
-int quest_log_get_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz )
+int quest_log_get_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz )
 {
     /// @author ZF
     /// @details Returns the quest level for the specified quest IDSZ.
@@ -268,7 +268,7 @@ int quest_log_get_level( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ ids
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_log_add( IDSZ_node_t quest_log[], size_t quest_log_len, IDSZ idsz, int level )
+egolib_rv quest_log_add( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int level )
 {
     /// @author ZF
     /// @details This adds a new quest to the quest log. If the quest is already in there, the higher quest

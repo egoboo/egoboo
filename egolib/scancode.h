@@ -22,7 +22,7 @@
 /// @file scancode.h
 /// @details translation of SDL scancodes to keys
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #if defined(__cplusplus)
 extern "C"

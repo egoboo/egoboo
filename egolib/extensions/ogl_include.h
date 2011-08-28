@@ -28,7 +28,7 @@
 
 #include <assert.h>
 
-#include <SDL/SDL_opengl.h>
+#include <SDL_opengl.h>
 
 #include "../file_common.h"
 
@@ -109,7 +109,7 @@ extern "C"
     void oglx_ViewMatrix( GLXmatrix view,
                           const GLXvector3f from,      ///< @var camera location
                           const GLXvector3f at,        ///< @var camera look-at target
-                          const GLXvector3f world_up,  ///< @var world’s up, usually 0, 0, 1
+                          const GLXvector3f world_up,  ///< @var worldâ€™s up, usually 0, 0, 1
                           const GLfloat roll );        ///< @var clockwise roll around viewing direction, in radians
 
     void oglx_ProjectionMatrix( GLXmatrix proj,

@@ -23,7 +23,7 @@
 /// @brief System-dependent global parameters.
 ///   @todo  some of this stuff is compiler dependent, rather than system dependent.
 
-#include <SDL/SDL.h>  ///< use the basic SDL platform definitions
+#include <SDL.h>  ///< use the basic SDL platform definitions
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

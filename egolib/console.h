@@ -24,7 +24,7 @@
 
 #include "../egolib/typedef.h"
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #if defined(__cplusplus)
 extern "C"

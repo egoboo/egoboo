@@ -21,7 +21,7 @@
 
 #include "egoboo_typedef.h"
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "../egolib/_math.h"
 #include "../egolib/extensions/ogl_include.h"

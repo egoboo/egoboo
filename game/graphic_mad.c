@@ -24,7 +24,7 @@
 #include "graphic_mad.h"
 #include "graphic_texture.h"
 
-#include <SDL/SDL_opengl.h>
+#include <SDL_opengl.h>
 
 #include "../egolib/log.h"
 #include "../egolib/egoboo_setup.h"

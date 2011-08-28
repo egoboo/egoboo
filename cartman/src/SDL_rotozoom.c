@@ -9,7 +9,7 @@ LGPL (c) A. Schiffler
 #include <stdlib.h>
 #include <string.h>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "SDL_rotozoom.h"
 
