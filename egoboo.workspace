@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="egoboo workspace">
-		<Project filename="../../svn/sf_egoboo/branches/2.8.x/game/game.cbp" active="1">
-			<Depends filename="../../svn/sf_egoboo/branches/2.8.x/egolib/egolib.cbp" />
+		<Project filename="game/game.cbp" active="1">
+			<Depends filename="egolib/egolib.cbp" />
 		</Project>
-		<Project filename="../../svn/sf_egoboo/branches/2.8.x/egolib/egolib.cbp" />
-		<Project filename="../../svn/sf_egoboo/branches/2.8.x/cartman/src/cartman.cbp">
-			<Depends filename="../../svn/sf_egoboo/branches/2.8.x/egolib/egolib.cbp" />
+		<Project filename="egolib/egolib.cbp" />
+		<Project filename="cartman/src/cartman.cbp">
+			<Depends filename="egolib/egolib.cbp" />
 		</Project>
 	</Workspace>
 </CodeBlocks_workspace_file>
