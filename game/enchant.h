@@ -24,7 +24,6 @@
 
 #include "egoboo_typedef.h"
 
-#include "../egolib/bsp.h"
 #include "../egolib/file_formats/eve_file.h"
 
 #include "egoboo_object.h"
@@ -108,8 +107,6 @@ struct s_enc
 
     bool_t  addyesno[MAX_ENCHANT_ADD];  ///< Was the value adjusted
     float   addsave[MAX_ENCHANT_ADD];   ///< The adjustment
-
-    BSP_leaf_t        bsp_leaf;         ///< BSP info for this object
 };
 
 enc_t * enc_ctor( enc_t * penc );

@@ -25,6 +25,7 @@
 #include "egoboo_typedef.h"
 
 #include "../egolib/state_machine.h"
+#include "../egolib/bsp.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -82,9 +83,14 @@ struct s_ego_object_base
     size_t         frame_count;   ///< How many frames have been rendered?
 
     unsigned       update_guid;   ///< a value that lets you know if an object bookmark is in synch with the object list
+
+    // the bsp leaf for this object
+    // move to here so that is is not destroyed in the destructor
+    // of the inherited object
+    BSP_leaf_t        bsp_leaf;
 };
 
-obj_data_t * ego_object_ctor( obj_data_t * pbase );
+obj_data_t * ego_object_ctor( obj_data_t * pbase, void * child_data, int child_type, size_t child_index );
 obj_data_t * ego_object_dtor( obj_data_t * pbase );
 
 //--------------------------------------------------------------------------------------------
@@ -204,6 +210,11 @@ obj_data_t * ego_object_dtor( obj_data_t * pbase );
 
 /// Grab a pointer to the obj_data_t of an object that "inherits" this data
 #define POBJ_GET_PBASE( POBJ )   ( &((POBJ)->obj_base) )
+
+/// Grab a pointer to the BSP_leaf_t of an object that "inherits" this data
+#define POBJ_GET_PLEAF( POBJ )   ( (NULL == (POBJ)) ? NULL : &((POBJ)->obj_base.bsp_leaf) )
+/// Grab a pointer to the BSP_leaf_t of an object that "inherits" this data
+#define OBJ_GET_LEAF( POBJ )   ( (OBJ).obj_base.bsp_leaf )
 
 /// Grab the index value of object that "inherits" from obj_data_t
 #define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  ( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ) ? FAIL_VALUE : (POBJ)->obj_base.index )

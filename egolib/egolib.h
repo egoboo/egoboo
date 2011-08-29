@@ -42,7 +42,6 @@
 #include "../egolib/egoboo_setup.h"
 #include "../egolib/font_bmp.h"
 #include "../egolib/font_ttf.h"
-#include "../egolib/lua_console.h"
 #include "../egolib/system.h"
 #include "../egolib/clock.h"
 #include "../egolib/file_common.h"
@@ -77,6 +76,13 @@
 #include "file_formats/template.h"
 #include "file_formats/treasure_table_file.h"
 #include "file_formats/wawalite_file.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(USE_LUA_CONSOLE)
+#   include "lua/lua_console.h"
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

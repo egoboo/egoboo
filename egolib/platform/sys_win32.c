@@ -22,6 +22,7 @@
 /// @details Win32 - specific code
 
 #include <windows.h>
+#include <stdarg.h>
 
 #include "../system.h"
 #include "../log.h"

@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "../egolib/font_ttf.h"
 #include "../egolib/log.h"

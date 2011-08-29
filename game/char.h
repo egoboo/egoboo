@@ -25,7 +25,6 @@
 
 #include "egoboo_typedef.h"
 
-#include "../egolib/bsp.h"
 #include "../egolib/file_formats/cap_file.h"
 
 #include "egoboo_object.h"
@@ -491,7 +490,6 @@ struct s_chr
     // data for doing the physics in bump_all_objects()
     phys_data_t       phys;
     chr_environment_t enviro;
-    BSP_leaf_t        bsp_leaf;
 
     int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
     CHR_REF           dismount_object;               ///< the object that you were dismounting from

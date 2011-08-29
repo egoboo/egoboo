@@ -2026,8 +2026,7 @@ ego_tile_info_t * ego_tile_info_free( ego_tile_info_t * ptr )
     if ( NULL == ptr ) return ptr;
 
     // delete any dynamically allocaed data
-    BSP_leaf_dtor( &( ptr->bsp_leaf ) );
-
+    
     return ptr;
 }
 

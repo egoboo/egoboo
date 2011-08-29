@@ -224,7 +224,6 @@ bool_t chr_free( chr_t * pchr )
     LoopedList_remove( pchr->loopedsound_channel );
 
     chr_instance_dtor( &( pchr->inst ) );
-    BSP_leaf_dtor( &( pchr->bsp_leaf ) );
     ai_state_dtor( &( pchr->ai ) );
 
     EGOBOO_ASSERT( NULL == pchr->inst.vrt_lst );
@@ -362,9 +361,6 @@ chr_t * chr_ctor( chr_t * pchr )
 
     // intialize the ai_state
     ai_state_ctor( &( pchr->ai ) );
-
-    // initialize the bsp node for this character
-    BSP_leaf_ctor( &( pchr->bsp_leaf ), pchr, BSP_LEAF_CHR, GET_INDEX_PCHR( pchr ) );
 
     // initialize the physics
     phys_data_ctor( &( pchr->phys ) );

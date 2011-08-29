@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file lua_console.c
-/// @brief Quale-like console running running Lua behing Egoboo
+/// @brief Quale-like console running Lua behind Egoboo
 /// @details
 
 #include "lua_console.h"
@@ -66,7 +66,6 @@ static lua_State     * global_L = NULL;
 //--------------------------------------------------------------------------------------------
 // this is the hook for connecting a Lua state to the Egoboo data
 int luaopen_ego( lua_State* L );
-//extern void luaopen_ego( lua_State* L );
 
 static SDL_bool lua_console_run( egolib_console_t * pcon, void * data );
 

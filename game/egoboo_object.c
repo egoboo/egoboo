@@ -33,7 +33,7 @@ Uint32 ego_object_guid = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-obj_data_t * ego_object_ctor( obj_data_t * pbase )
+obj_data_t * ego_object_ctor( obj_data_t * pbase, void * child_data, int child_type, size_t child_index )
 {
     if ( NULL == pbase ) return pbase;
 
@@ -41,6 +41,9 @@ obj_data_t * ego_object_ctor( obj_data_t * pbase )
 
     pbase->_name[0] = CSTR_END;
     pbase->state    = ego_object_invalid;
+
+    // initialize the bsp node for this character
+    BSP_leaf_ctor( &( pbase->bsp_leaf ), child_data, child_type, child_index );
 
     return pbase;
 }
@@ -54,6 +57,9 @@ obj_data_t * ego_object_dtor( obj_data_t * pbase )
 
     pbase->_name[0] = CSTR_END;
     pbase->state    = ego_object_invalid;
+
+    // initialize the bsp node for this character
+    BSP_leaf_dtor( &( pbase->bsp_leaf ) );
 
     return pbase;
 }

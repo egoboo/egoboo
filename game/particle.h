@@ -21,7 +21,6 @@
 
 #include "egoboo_typedef.h"
 
-#include "../egolib/bsp.h"
 #include "../egolib/file_formats/pip_file.h"
 
 #include "egoboo_object.h"
@@ -211,8 +210,6 @@ struct s_prt
     fvec3_t        safe_pos;                  ///< the last "safe" position
     Uint32         safe_time;                 ///< the last "safe" time
     Uint32         safe_grid;                 ///< the last "safe" grid
-
-    BSP_leaf_t        bsp_leaf;               ///< BSP info for this object
 };
 
 prt_t * prt_ctor( prt_t * pprt );

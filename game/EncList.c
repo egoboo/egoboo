@@ -87,7 +87,7 @@ void EncList_init( void )
         BLANK_STRUCT_PTR( penc )
 
         // enchant "initializer"
-        ego_object_ctor( POBJ_GET_PBASE( penc ) );
+        ego_object_ctor( POBJ_GET_PBASE( penc ), penc, BSP_LEAF_ENC, GET_INDEX_PENC( penc ) );
 
         EncList_add_free( ienc );
     }

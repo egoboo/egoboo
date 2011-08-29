@@ -60,8 +60,15 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 // portable definition of assert. the c++ version can be activated below.
+// make assert into a warning if _DEBUG is not defined
 
+void non_fatal_assert( int val, const char * format, ... );
+
+#if defined(_DEBUG)
 #   define C_EGOBOO_ASSERT(X) assert(X)
+#else
+#   define C_EGOBOO_ASSERT(X) non_fatal_assert( X, "%s - failed an assert \"%s\"\n", __FUNCTION__, #X )
+#endif
 
 //--------------------------------------------------------------------------------------------
 // a replacement for memset()

@@ -21,6 +21,7 @@
 /// @brief Implementation of mac system-dependent functions
 /// @details
 
+#include <stdarg.h>
 #include <sys/time.h>
 
 #include "system.h"

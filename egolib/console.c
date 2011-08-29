@@ -22,6 +22,7 @@
 /// @details
 
 #include <string.h>
+#include <stdarg.h>
 
 #include <SDL.h>
 #include <SDL_opengl.h>

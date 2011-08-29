@@ -89,7 +89,7 @@ void ChrList_init( void )
         BLANK_STRUCT_PTR( pchr )
 
         // character "initializer"
-        ego_object_ctor( POBJ_GET_PBASE( pchr ) );
+        ego_object_ctor( POBJ_GET_PBASE( pchr ), pchr, BSP_LEAF_CHR, GET_INDEX_PCHR( pchr ) );
 
         ChrList_add_free( ichr );
     }

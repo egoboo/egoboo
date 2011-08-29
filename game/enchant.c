@@ -124,7 +124,7 @@ enc_t * enc_ctor( enc_t * penc )
     penc->nextenchant_ref  = ( ENC_REF )MAX_ENC;
 
     // initialize the bsp node for this character
-    BSP_leaf_ctor( &( penc->bsp_leaf ), penc, BSP_LEAF_ENC, GET_INDEX_PENC( penc ) );
+    BSP_leaf_ctor( POBJ_GET_PLEAF( penc ), penc, BSP_LEAF_ENC, GET_INDEX_PENC( penc ) );
 
     // we are done constructing. move on to initializing.
     pbase->state = ego_object_initializing;

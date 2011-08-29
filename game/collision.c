@@ -1001,11 +1001,15 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
 
     PRT_BEGIN_LOOP_ACTIVE( iprt, bdl )
     {
+        BSP_leaf_t * pleaf;
         oct_bb_t   tmp_oct;
         bool_t     can_reaffirm, needs_bump;
 
+        pleaf = POBJ_GET_PLEAF(bdl.prt_ptr);
+        if( NULL == pleaf ) continue;
+
         // if the particle is in the BSP, then it has already had it's chance to collide
-        if ( bdl.prt_ptr->bsp_leaf.inserted ) continue;
+        if ( pleaf->inserted ) continue;
 
         // does the particle potentially reaffirm a character?
         can_reaffirm = BOOL_T(( bdl.prt_ptr->damagetype < DAMAGE_COUNT ) && ( 0 != reaffirmation_list[bdl.prt_ptr->damagetype] ) );

@@ -113,7 +113,6 @@ bool_t prt_free( prt_t * pprt )
     if ( TERMINATED_PPRT( pprt ) ) return btrue;
 
     // deallocate any dynamic data
-    BSP_leaf_dtor( &( pprt->bsp_leaf ) );
 
     return btrue;
 }
@@ -163,7 +162,7 @@ prt_t * prt_ctor( prt_t * pprt )
     pprt->targetplatform_ref     = ( CHR_REF )MAX_CHR;
 
     // initialize the bsp node for this particle
-    BSP_leaf_ctor( &( pprt->bsp_leaf ), pprt, BSP_LEAF_PRT, GET_INDEX_PPRT( pprt ) );
+    BSP_leaf_ctor( POBJ_GET_PLEAF( pprt ), pprt, BSP_LEAF_PRT, GET_INDEX_PPRT( pprt ) );
 
     // initialize the physics
     phys_data_ctor( &( pprt->phys ) );

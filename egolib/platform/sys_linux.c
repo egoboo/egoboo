@@ -21,7 +21,8 @@
 /// @brief System Dependent Functions
 /// @details Unix/GNU/Linux/*nix - specific code
 
-#include <unistd.h>      //For message box in linux
+#include <unistd.h>      // For message box in linux
+#include <stdarg.h>
 #include <sys/time.h>
 
 #include "../log.h"

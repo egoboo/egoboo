@@ -96,7 +96,7 @@ void PrtList_init( void )
         BLANK_STRUCT_PTR( pprt )
 
         // particle "initializer"
-        ego_object_ctor( POBJ_GET_PBASE( pprt ) );
+        ego_object_ctor( POBJ_GET_PBASE( pprt ), pprt, BSP_LEAF_PRT, GET_INDEX_PPRT( pprt ) );
 
         PrtList_add_free( iprt );
     }

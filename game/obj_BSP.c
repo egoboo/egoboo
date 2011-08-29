@@ -217,7 +217,7 @@ bool_t chr_BSP_insert( chr_t * pchr )
     if ( pchr->is_hidden ) return bfalse;
 
     // heal the leaf if it needs it
-    pleaf = &( pchr->bsp_leaf );
+    pleaf = POBJ_GET_PLEAF( pchr );
     if ( pchr != ( chr_t * )( pleaf->data ) )
     {
         // some kind of error. re-initialize the data.
@@ -273,7 +273,7 @@ bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
     if ( !INGAME_PPRT_BASE( loc_pprt ) || loc_pprt->is_hidden || loc_pprt->is_ghost ) return bfalse;
 
     // heal the leaf if necessary
-    pleaf = &( loc_pprt->bsp_leaf );
+    pleaf = POBJ_GET_PLEAF( loc_pprt );
     if ( loc_pprt != ( prt_t * )( pleaf->data ) )
     {
         // some kind of error. re-initialize the data.
@@ -310,7 +310,7 @@ bool_t chr_BSP_clear( void )
     // unlink all used character nodes
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        BSP_leaf_unlink( &( ChrList.lst[ichr].bsp_leaf ) );
+        BSP_leaf_unlink( POBJ_GET_PLEAF( ChrList.lst + ichr ) );
     }
 
     return btrue;
@@ -328,7 +328,7 @@ bool_t prt_BSP_clear( void )
     // unlink all used particle nodes
     for ( iprt = 0; iprt < MAX_PRT; iprt++ )
     {
-        BSP_leaf_unlink( &( PrtList.lst[iprt].bsp_leaf ) );
+        BSP_leaf_unlink( POBJ_GET_PLEAF( PrtList.lst + iprt ) );
     }
 
     return btrue;
