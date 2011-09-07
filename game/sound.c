@@ -53,6 +53,11 @@ typedef struct s_music_stack_element music_stack_element_t;
 
 #define LOOPED_COUNT 256
 
+#define INVALID_LOOPED_IDX LOOPED_COUNT
+#define INVALID_LOOPED_REF (( LOOP_REF )INVALID_LOOPED_IDX)
+
+#define VALID_LOOPED_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<LOOPED_COUNT) )
+
 #define MUSIC_STACK_COUNT 20
 
 //--------------------------------------------------------------------------------------------
@@ -86,8 +91,9 @@ INSTANTIATE_LIST_STATIC( looped_sound_data_t, LoopedList, LOOPED_COUNT );
 
 static void   LoopedList_init( void );
 static void   LoopedList_clear( void );
+
 static bool_t LoopedList_free_one( size_t index );
-static size_t LoopedList_get_free( void );
+static size_t LoopedList_get_free_ref( void );
 
 static bool_t LoopedList_validate( void );
 static size_t LoopedList_add( const Mix_Chunk * sound, int loops, const CHR_REF  object );
@@ -895,10 +901,10 @@ void   LoopedList_init( void )
 
         LoopedList.lst[cnt].channel = INVALID_SOUND_CHANNEL;
         LoopedList.lst[cnt].chunk   = NULL;
-        LoopedList.lst[cnt].object  = ( CHR_REF )MAX_CHR;
+        LoopedList.lst[cnt].object  = INVALID_CHR_REF;
 
         tnc = REF_TO_INT( cnt );
-        LoopedList.used_ref[tnc] = LOOPED_COUNT;
+        LoopedList.used_ref[tnc] = INVALID_LOOPED_IDX;
         LoopedList.free_ref[tnc] = tnc;
     }
 
@@ -950,38 +956,121 @@ bool_t LoopedList_free_one( size_t index )
     LoopedList.used_count--;
     LoopedList.update_guid++;
 
-    // push the value onto the free stack
-    LoopedList.free_ref[LoopedList.free_count] = index;
-
-    LoopedList.free_count++;
-    LoopedList.update_guid++;
+    LoopedList_push_free( index );
 
     // clear out the data
     ref = ( LOOP_REF )index;
     LoopedList.lst[ref].channel = INVALID_SOUND_CHANNEL;
     LoopedList.lst[ref].chunk   = NULL;
-    LoopedList.lst[ref].object  = ( CHR_REF )MAX_CHR;
+    LoopedList.lst[ref].object  = INVALID_CHR_REF;
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-size_t LoopedList_get_free( void )
+size_t LoopedList_pop_free( const int idx )
+{
+    size_t index = INVALID_LOOPED_IDX;
+    size_t loops = 0;
+
+    while ( LoopedList.free_count > 0 )
+    {
+        LoopedList.free_count--;
+        LoopedList.update_guid++;
+
+        index = LoopedList.free_ref[LoopedList.free_count];
+        if ( VALID_LOOPED_RANGE( index ) )
+        {
+            break;
+        }
+
+        loops++;
+    }
+
+    if ( loops > 0 )
+    {
+        log_warning( "%s - there is something wrong with the free stack. %d loops.\n", __FUNCTION__, loops );
+    }
+
+    return index;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t LoopedList_push_free( const REF_T index )
+{
+    if ( LoopedList.free_count >= LOOPED_COUNT ) return bfalse;
+
+    LoopedList.free_ref[LoopedList.free_count] = index;
+
+    LoopedList.free_count++;
+    LoopedList.update_guid++;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t LoopedList_push_used( const REF_T index )
+{
+    if ( LoopedList.used_count >= LOOPED_COUNT ) return bfalse;
+
+    LoopedList.used_ref[LoopedList.used_count] = index;
+
+    LoopedList.used_count++;
+    LoopedList.update_guid++;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+size_t LoopedList_pop_used( const int idx )
+{
+    size_t index = INVALID_LOOPED_IDX;
+    size_t loops = 0;
+
+    while ( LoopedList.used_count > 0 )
+    {
+        LoopedList.used_count--;
+        LoopedList.update_guid++;
+
+        index = LoopedList.used_ref[LoopedList.used_count];
+        if ( VALID_LOOPED_RANGE( index ) )
+        {
+            break;
+        }
+
+        loops++;
+    }
+
+    if ( loops > 0 )
+    {
+        log_warning( "%s - there is something wrong with the used stack. %d loops.\n", __FUNCTION__, loops );
+    }
+
+    return index;
+}
+
+//--------------------------------------------------------------------------------------------
+size_t LoopedList_get_free_ref( void )
 {
     size_t index;
 
     if ( !LoopedList_validate() ) return bfalse;
 
-    LoopedList.free_count--;
-    LoopedList.update_guid++;
+    // try to get a free value
+    index = LoopedList_pop_free( -1 );
 
-    index = LoopedList.free_ref[LoopedList.free_count];
+    // if the index is an error value, return an error value
+    if ( !VALID_LOOPED_RANGE( index ) ) return index;
 
-    // push the value onto the used stack
-    LoopedList.used_ref[LoopedList.used_count] = index;
+    // try to push the value onto the used stack
+    if ( !LoopedList_push_used( index ) )
+    {
+        // put it back on the free stack
+        LoopedList_push_free( index );
 
-    LoopedList.used_count++;
-    LoopedList.update_guid++;
+        // return an error value
+        index = INVALID_LOOPED_IDX;
+    }
 
     return index;
 }
@@ -1003,7 +1092,7 @@ void LoopedList_clear( void )
             // clear out the data
             LoopedList.lst[cnt].channel = INVALID_SOUND_CHANNEL;
             LoopedList.lst[cnt].chunk   = NULL;
-            LoopedList.lst[cnt].object  = ( CHR_REF )MAX_CHR;
+            LoopedList.lst[cnt].object  = INVALID_CHR_REF;
         }
     }
 
@@ -1018,13 +1107,23 @@ size_t LoopedList_add( const Mix_Chunk * sound, int channel, const CHR_REF  ichr
 
     size_t index;
 
-    if ( NULL == sound || INVALID_SOUND_CHANNEL == channel || !INGAME_CHR( ichr ) ) return LOOPED_COUNT;
+    if ( NULL == sound || INVALID_SOUND_CHANNEL == channel || !INGAME_CHR( ichr ) )
+    {
+        return INVALID_LOOPED_IDX;
+    }
 
-    if ( LoopedList.used_count >= LOOPED_COUNT ) return LOOPED_COUNT;
-    if ( !LoopedList_validate() ) return LOOPED_COUNT;
+    if ( LoopedList.used_count >= LOOPED_COUNT )
+    {
+        return INVALID_LOOPED_IDX;
+    }
 
-    index = LoopedList_get_free();
-    if ( index != LOOPED_COUNT )
+    if ( !LoopedList_validate() )
+    {
+        return INVALID_LOOPED_IDX;
+    }
+
+    index = LoopedList_get_free_ref();
+    if ( VALID_LOOPED_RANGE( index ) )
     {
         // set up the LoopedList entry at the empty index
         LOOP_REF ref = ( LOOP_REF )index;
@@ -1055,7 +1154,7 @@ bool_t LoopedList_remove( int channel )
     {
         size_t index = LoopedList.used_ref[cnt];
 
-        if ( index != LOOPED_COUNT )
+        if ( VALID_LOOPED_RANGE( index ) )
         {
             LOOP_REF ref = ( LOOP_REF ) index;
 
@@ -1084,7 +1183,7 @@ void looped_update_all_sound( void )
         looped_sound_data_t * plooped;
 
         index = LoopedList.used_ref[cnt];
-        if ( index < 0 || index >= LOOPED_COUNT ) continue;
+        if ( !VALID_LOOPED_RANGE( index ) ) continue;
 
         ref = ( LOOP_REF )index;
 
@@ -1141,7 +1240,7 @@ bool_t looped_stop_object_sounds( const CHR_REF  ichr )
             LOOP_REF ref;
 
             size_t index = LoopedList.used_ref[cnt];
-            if ( index < 0 || index >= LOOPED_COUNT ) continue;
+            if ( !VALID_LOOPED_RANGE( index ) ) continue;
 
             ref = ( LOOP_REF )index;
 

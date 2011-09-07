@@ -66,7 +66,7 @@ void PassageStack_free_all( void )
 //--------------------------------------------------------------------------------------------
 int PasageStack_get_free( void )
 {
-    int ipass = ( PASS_REF ) MAX_PASS;
+    int ipass = MAX_PASS;
 
     if ( PassageStack.count < MAX_PASS )
     {
@@ -94,7 +94,7 @@ void ShopStack_free_all( void )
 //--------------------------------------------------------------------------------------------
 int ShopStack_get_free( void )
 {
-    int ishop = ( PASS_REF ) MAX_PASS;
+    int ishop = INVALID_PASS_REF;
 
     if ( ShopStack.count < MAX_PASS )
     {
@@ -232,15 +232,15 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
     chr_t *psrc;
 
     // Skip if the one who is looking doesn't exist
-    if ( !INGAME_CHR( isrc ) ) return ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( isrc ) ) return INVALID_CHR_REF;
     psrc = ChrList_get_ptr( isrc );
 
     // Skip invalid passages
-    if ( INVALID_PASSAGE( passage ) ) return ( CHR_REF )MAX_CHR;
+    if ( INVALID_PASSAGE( passage ) ) return INVALID_CHR_REF;
     ppass = PassageStack_get_ptr( passage );
 
     // Look at each character
-    foundother = ( CHR_REF )MAX_CHR;
+    foundother = INVALID_CHR_REF;
     for ( character = 0; character < MAX_CHR; character++ )
     {
         chr_t * pchr;
@@ -305,7 +305,7 @@ void check_passage_music( void )
     /// @details This function checks all passages if there is a player in it, if it is, it plays a specified
     /// song set in by the AI script functions
 
-    CHR_REF character = ( CHR_REF )MAX_CHR;
+    CHR_REF character = INVALID_CHR_REF;
     PASS_REF passage;
 
     // Check every music passage

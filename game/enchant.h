@@ -52,7 +52,8 @@ typedef struct s_enc enc_t;
 #define ENC_LEAVE_NONE               2
 
 #define MAX_EVE                 MAX_PROFILE    ///< One enchant type per model
-#define MAX_ENC                 200            ///< Number of enchantments
+
+#define INVALID_EVE_REF ((EVE_REF)MAX_EVE)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

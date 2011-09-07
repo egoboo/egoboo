@@ -30,11 +30,81 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+static INLINE bool_t BSP_leaf_valid( BSP_leaf_t * L );
+
+static INLINE bool_t BSP_aabb_empty( const BSP_aabb_t * psrc );
+static INLINE bool_t BSP_aabb_invalidate( BSP_aabb_t * psrc );
+static INLINE bool_t BSP_aabb_self_clear( BSP_aabb_t * psrc );
+
 static INLINE bool_t BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr );
 static INLINE bool_t BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr );
 
 static INLINE bool_t BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
 static INLINE bool_t BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t BSP_leaf_valid( BSP_leaf_t * L )
+{
+    if ( NULL == L ) return bfalse;
+
+    if ( NULL == L->data ) return bfalse;
+    if ( L->data_type < 0 ) return bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t BSP_aabb_empty( const BSP_aabb_t * psrc )
+{
+    Uint32 cnt;
+
+    if ( NULL == psrc || 0 == psrc->dim  || !psrc->valid ) return btrue;
+
+    for ( cnt = 0; cnt < psrc->dim; cnt++ )
+    {
+        if ( psrc->maxs.ary[cnt] <= psrc->mins.ary[cnt] )
+            return btrue;
+    }
+
+    return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t BSP_aabb_invalidate( BSP_aabb_t * psrc )
+{
+    if ( NULL == psrc ) return bfalse;
+
+    // set it to valid
+    psrc->valid = bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+static INLINE bool_t BSP_aabb_self_clear( BSP_aabb_t * psrc )
+{
+    /// @author BB
+    /// @details Return this bounding box to an empty state.
+
+    Uint32 cnt;
+
+    if ( NULL == psrc ) return bfalse;
+
+    if ( psrc->dim <= 0 || NULL == psrc->mins.ary || NULL == psrc->mids.ary || NULL == psrc->maxs.ary )
+    {
+        BSP_aabb_invalidate( psrc );
+        return bfalse;
+    }
+
+    for ( cnt = 0; cnt < psrc->dim; cnt++ )
+    {
+        psrc->mins.ary[cnt] = psrc->mids.ary[cnt] = psrc->maxs.ary[cnt] = 0.0f;
+    }
+
+    return btrue;
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

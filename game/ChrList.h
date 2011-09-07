@@ -49,15 +49,14 @@ extern int chr_loop_depth;
 // Function prototypes
 //--------------------------------------------------------------------------------------------
 
-void    ChrList_init( void );
+void    ChrList_ctor( void );
 void    ChrList_dtor( void );
+void    ChrList_reinit( void );
 
 CHR_REF ChrList_allocate( const CHR_REF override );
 
 bool_t  ChrList_free_one( const CHR_REF ichr );
 void    ChrList_free_all( void );
-
-bool_t  ChrList_add_used( const CHR_REF ichr );
 
 void    ChrList_update_used( void );
 

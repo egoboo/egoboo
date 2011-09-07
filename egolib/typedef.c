@@ -174,13 +174,12 @@ void floats_to_pair( float vmin, float vmax, IPair * ppair )
     range_to_pair( range_tmp, ppair );
 }
 
-
 //--------------------------------------------------------------------------------------------
 void va_non_fatal_assert( const char *format, va_list args )
 {
     static char buffer[1024];
 
-    vsnprintf( buffer, SDL_arraysize(buffer), format, args );
+    vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
 
     fputs( buffer, stderr );
 }
@@ -192,7 +191,7 @@ void non_fatal_assert( int val, const char * format, ... )
 
     va_start( args, format );
 
-    if( !val )
+    if ( !val )
     {
         va_non_fatal_assert( format, args );
     }

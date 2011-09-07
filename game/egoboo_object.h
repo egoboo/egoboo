@@ -212,16 +212,16 @@ obj_data_t * ego_object_dtor( obj_data_t * pbase );
 #define POBJ_GET_PBASE( POBJ )   ( &((POBJ)->obj_base) )
 
 /// Grab a pointer to the BSP_leaf_t of an object that "inherits" this data
-#define POBJ_GET_PLEAF( POBJ )   ( (NULL == (POBJ)) ? NULL : &((POBJ)->obj_base.bsp_leaf) )
+#define POBJ_GET_PLEAF( POBJ )   LAMBDA( NULL == (POBJ), NULL, &((POBJ)->obj_base.bsp_leaf) )
 /// Grab a pointer to the BSP_leaf_t of an object that "inherits" this data
 #define OBJ_GET_LEAF( POBJ )   ( (OBJ).obj_base.bsp_leaf )
 
 /// Grab the index value of object that "inherits" from obj_data_t
-#define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  ( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ) ? FAIL_VALUE : (POBJ)->obj_base.index )
+#define GET_INDEX_POBJ( POBJ, FAIL_VALUE )  LAMBDA( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ), FAIL_VALUE, (POBJ)->obj_base.index )
 #define GET_REF_POBJ( POBJ, FAIL_VALUE )    ((REF_T)GET_INDEX_POBJ( POBJ, FAIL_VALUE ))
 
 /// Grab the state of object that "inherits" from obj_data_t
-#define GET_STATE_POBJ( POBJ )  ( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ) ? ego_object_invalid : (POBJ)->obj_base.index )
+#define GET_STATE_POBJ( POBJ )  LAMBDA( !ALLOCATED_PBASE( POBJ_GET_PBASE( POBJ ) ), ego_object_invalid, (POBJ)->obj_base.index )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

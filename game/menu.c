@@ -245,7 +245,7 @@ static SelectedPlayer_list_t mnu_SelectedList = SELECTED_PLAYER_LIST_INIT;
 // declaration of public variables
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_LIST( ACCESS_TYPE_NONE, oglx_texture_t, TxMenu, MENU_LAST_SPECIAL );
+INSTANTIATE_LIST( ACCESS_TYPE_NONE, oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
 
 INSTANTIATE_STACK_STATIC( mnu_module_t, mnu_ModList, MAX_MODULE );
 //INSTANTIATE_STACK_STATIC( oglx_texture_t, TxTitleImage, TITLE_TEXTURE_COUNT ); // OpenGL title image surfaces
@@ -348,18 +348,16 @@ static int doMainMenu( float deltaTime );
 
 static int cmp_mod_ref( const void * vref1, const void * vref2 );
 
-// declaration of TxMenu functions not used outside this module
-static void   TxMenu_init_all( void );
-static void   TxMenu_delete_all( void );
-static TX_REF TxMenu_get_free( const TX_REF itex );
-static bool_t TxMenu_free_one( const TX_REF  itex );
+// declaration of mnu_TxList functions not used outside this module
+static void   mnu_TxList_init_all( void );
+static void   mnu_TxList_delete_all( void );
+static TX_REF mnu_TxList_get_free( const TX_REF itex );
+static bool_t mnu_TxList_free_one( const TX_REF  itex );
 
-// implementation of "private" TxMenu functions
-static void   TxMenu_reset_freelist( void );
-static void   TxMenu_release_one( const TX_REF index );
-static void   TxMenu_ctor( void );
-static void   TxMenu_release_all( void );
-static void   TxMenu_dtor( void );
+// implementation of "private" mnu_TxList functions
+static void   mnu_TxList_reset_freelist( void );
+static void   mnu_TxList_release_one( const TX_REF index );
+static void   mnu_TxList_release_all( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -615,8 +613,8 @@ bool_t menu_system_ctor( void )
         // construct the TxTitleImage array
         //TxTitleImage_ctor();
 
-        // construct the TxMenu array
-        TxMenu_ctor();
+        // construct the mnu_TxList array
+        mnu_TxList_ctor();
 
         _menu_system_constructed = btrue;
     }
@@ -639,8 +637,8 @@ bool_t menu_system_dtor( void )
         // destruct the TxTitleImage array
         //TxTitleImage_dtor();
 
-        // destruct the TxMenu array
-        TxMenu_dtor();
+        // destruct the mnu_TxList array
+        mnu_TxList_dtor();
 
         _menu_system_constructed = bfalse;
     }
@@ -654,7 +652,7 @@ bool_t menu_system_init( void )
     bool_t retval = btrue;
 
     // load the bitmapped font
-    font_bmp_load_vfs( TxMenu_get_valid_ptr(( TX_REF )MENU_FONT_BMP ), "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after gfx_system_init_all_graphics()
+    font_bmp_load_vfs( mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP ), "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after gfx_system_init_all_graphics()
 
     // load the ttf font
     menuFont = ui_loadFont( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 18 );
@@ -1357,7 +1355,7 @@ int doChooseModule( float deltaTime )
                     // fix the menu images in case one or more of them are undefined
                     MOD_REF          loc_imod   = validModules[i];
                     TX_REF           tex_offset = mnu_ModList.lst[loc_imod].tex_index;
-                    oglx_texture_t * ptex       = TxMenu_get_ptr( tex_offset );
+                    oglx_texture_t * ptex       = mnu_TxList_get_ptr( tex_offset );
 
                     GLfloat * img_tint = normal_tint;
 
@@ -1644,7 +1642,7 @@ bool_t doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, C
 
             // load the icon of the skin
             snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer_ptr->dir, i, chooseplayer_ptr->skin_ref );
-            chooseplayer_ptr->tx_ref = TxTexture_load_one_vfs( szFilename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+            chooseplayer_ptr->tx_ref = TxList_load_one_vfs( szFilename, INVALID_TX_REF, INVALID_KEY );
 
             // load the chop info from "naming.txt"
             snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/naming.txt", loadplayer_ptr->dir, i );
@@ -1795,7 +1793,7 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
 
                         //draw the icon for this item
                         icon_ref = mnu_get_txtexture_ref( icap, chooseplayer_ptr->tx_ref );
-                        ui_drawImage( 0, TxTexture_get_valid_ptr( icon_ref ), x1, y1, icon_hgt, icon_hgt, NULL );
+                        ui_drawImage( 0, TxList_get_valid_ptr( icon_ref ), x1, y1, icon_hgt, icon_hgt, NULL );
 
                         if ( icap == SLOT_LEFT + 1 )
                         {
@@ -1933,7 +1931,7 @@ int doChoosePlayer( float deltaTime )
                 //character icon
                 if ( pchar != NULL )
                 {
-                    TX_REF device_icon = MENU_ICON_NULL;
+                    TX_REF device_icon = MENU_TX_ICON_NULL;
 
                     ui_drawButton( UI_Nothing, buttonLeft + 2 *( butt_wid + butt_spc ), y1, butt_hgt, butt_hgt, NULL );
                     ui_drawIcon( pchar->tx_ref, buttonLeft + 2 *( butt_wid + butt_spc ) + icon_vert_centering, y1 + icon_vert_centering, i, sparkle_counter );
@@ -1944,23 +1942,23 @@ int doChoosePlayer( float deltaTime )
 
                         if ( INPUT_DEVICE_KEYBOARD == device_type )
                         {
-                            device_icon = MENU_ICON_KEYB;
+                            device_icon = MENU_TX_ICON_KEYB;
                         }
                         else if ( INPUT_DEVICE_MOUSE == device_type )
                         {
-                            device_icon = MENU_ICON_MOUS;
+                            device_icon = MENU_TX_ICON_MOUS;
                         }
                         else if ( IS_VALID_JOYSTICK( device_type ) )
                         {
                             int ijoy = device_type - ( int )INPUT_DEVICE_JOY;
 
                             // alternate the joystick icons in case we have a lot of them
-                            device_icon = ( 0 == ( ijoy & 1 ) ) ? MENU_ICON_JOYA : MENU_ICON_JOYB;
+                            device_icon = ( 0 == ( ijoy & 1 ) ) ? MENU_TX_ICON_JOYA : MENU_TX_ICON_JOYB;
                         }
                         else
                         {
                             // out of range value
-                            device_icon = MENU_ICON_NULL;
+                            device_icon = MENU_TX_ICON_NULL;
                         }
 
                         ui_drawButton( UI_Nothing, buttonLeft + 2 *( butt_wid + butt_spc ) + butt_spc, y1, butt_hgt, butt_hgt, NULL );
@@ -2055,13 +2053,13 @@ int doChooseCharacter( float deltaTime )
     switch ( menuState )
     {
         case MM_Begin:
-            TxTexture_free_one(( TX_REF )TX_BARS );
+            TxList_free_one(( TX_REF )TX_BARS );
             last_player = selectedPlayers[currentSelectingPlayer];
             new_player = btrue;
 
             ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
 
-            TxTexture_load_one_vfs( "mp_data/bars", ( TX_REF )TX_BARS, INVALID_KEY );
+            TxList_load_one_vfs( "mp_data/bars", ( TX_REF )TX_BARS, INVALID_KEY );
 
             mnu_SlidyButton_init( 1.0f, button_text );
 
@@ -2146,7 +2144,7 @@ int doChooseCharacter( float deltaTime )
                 splayer        = SelectedPlayer_list_index_from_loadplayer( &mnu_SelectedList,  lplayer );
 
                 // do the character button
-                mnu_widgetList[m].img  = TxTexture_get_valid_ptr( loadplayer_ptr->tx_ref );
+                mnu_widgetList[m].img  = TxList_get_valid_ptr( loadplayer_ptr->tx_ref );
                 mnu_widgetList[m].text = loadplayer_ptr->name;
                 if ( INVALID_PLAYER != splayer )
                 {
@@ -2240,7 +2238,7 @@ int doChooseCharacter( float deltaTime )
             doChooseCharacter_show_stats( NULL, 1, 0, 0, 0, 0 );
 
             oglx_texture_Release( &background );
-            TxTexture_free_one(( TX_REF )TX_BARS );
+            TxList_free_one(( TX_REF )TX_BARS );
 
             menuState = MM_Begin;
             result = -1;
@@ -2762,7 +2760,7 @@ int doInputOptions( float deltaTime )
 
             // The select controller button
             ui_drawTextBox( menuFont, "INPUT DEVICE:", buttonLeft + 300, 55, 0, 0, 20 );
-            if ( BUTTON_UP ==  ui_doImageButtonWithText( 18, TxMenu_get_valid_ptr(( TX_REF )( MENU_ICON_KEYB + pdevice->device_type ) ), button_text[string_device], menuFont, buttonLeft + 450, 50, 200, 40 ) )
+            if ( BUTTON_UP ==  ui_doImageButtonWithText( 18, mnu_TxList_get_valid_ptr(( TX_REF )( MENU_TX_ICON_KEYB + pdevice->device_type ) ), button_text[string_device], menuFont, buttonLeft + 450, 50, 200, 40 ) )
             {
                 // switch to next controller type
                 int old_device_type = pdevice->device_type;
@@ -5077,7 +5075,7 @@ void mnu_load_all_module_info( void )
     mnu_ModList_release_all();
 
     // reset the texture cache
-    TxMenu_release_all();
+    mnu_TxList_release_all();
 
     // Search for all .mod directories and load the module info
     ctxt = vfs_findFirst( "mp_modules", "mod", VFS_SEARCH_DIR );
@@ -5105,7 +5103,7 @@ void mnu_load_all_module_info( void )
             // load title image
             // @note just because we can't load the title image DOES NOT mean that we ignore the module
             snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/title", pmod->vfs_path );
-            pmod->tex_index = TxMenu_load_one_vfs( loadname, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+            pmod->tex_index = mnu_TxList_load_one_vfs( loadname, INVALID_TX_REF, INVALID_KEY );
 
             // Save the user data directory version of the module path.
             // @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
@@ -5132,7 +5130,7 @@ void mnu_release_one_module( const MOD_REF imod )
     if ( !VALID_MOD( imod ) ) return;
     pmod = mnu_ModList_get_ptr( imod );
 
-    TxMenu_release_one( pmod->tex_index );
+    mnu_TxList_release_one( pmod->tex_index );
     pmod->tex_index = INVALID_TITLE_TEXTURE;
 }
 
@@ -5201,7 +5199,7 @@ void mnu_ModList_release_images( void )
         if ( !mnu_ModList.lst[cnt].loaded ) continue;
         tnc = REF_TO_INT( cnt );
 
-        TxMenu_release_one( mnu_ModList.lst[cnt].tex_index );
+        mnu_TxList_release_one( mnu_ModList.lst[cnt].tex_index );
         mnu_ModList.lst[cnt].tex_index = INVALID_TITLE_TEXTURE;
     }
 
@@ -5411,8 +5409,8 @@ bool_t ChoosePlayer_init( ChoosePlayer_element_t * ptr )
 
     BLANK_STRUCT_PTR( ptr )
 
-    ptr->cap_ref  = MAX_CAP;
-    ptr->tx_ref   = INVALID_TX_TEXTURE;
+    ptr->cap_ref  = INVALID_CAP_REF;
+    ptr->tx_ref   = INVALID_MENU_TX_REF;
     ptr->skin_ref = NO_SKIN_OVERRIDE;
 
     chop_definition_init( &( ptr->chop ) );
@@ -5429,13 +5427,13 @@ bool_t ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr )
     {
         CapStack_release_one( ptr->cap_ref );
     }
-    ptr->cap_ref = MAX_CAP;
+    ptr->cap_ref = INVALID_CAP_REF;
 
-    if ( INVALID_TX_TEXTURE != ptr->tx_ref )
+    if ( VALID_TX_RANGE( ptr->tx_ref ) )
     {
-        TxTexture_free_one( ptr->tx_ref );
+        TxList_free_one( ptr->tx_ref );
     }
-    ptr->tx_ref = INVALID_TX_TEXTURE;
+    ptr->tx_ref = INVALID_MENU_TX_REF;
 
     return btrue;
 }
@@ -5490,7 +5488,7 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     STRING  filename;
     int     slot;
 
-    CAP_REF  icap = MAX_CAP;
+    CAP_REF  icap = INVALID_CAP_REF;
     cap_t  * pcap = NULL;
 
     LoadPlayer_element_t * ptr = NULL;
@@ -5544,7 +5542,7 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
 
     // load in just the one icon
     snprintf( filename, SDL_arraysize( filename ), "%s/icon%d", foundfile, ptr->skin_ref );
-    ptr->tx_ref = TxTexture_load_one_vfs( filename, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+    ptr->tx_ref = TxList_load_one_vfs( filename, INVALID_TX_REF, INVALID_KEY );
 
     // load the quest info from "quest.txt" so we can determine the valid modules
     snprintf( ptr->dir, SDL_arraysize( ptr->dir ), "%s", str_convert_slash_net(( char* )foundfile, strlen( foundfile ) ) );
@@ -5715,14 +5713,14 @@ bool_t LoadPlayer_element_dealloc( LoadPlayer_element_t * ptr )
     {
         CapStack_release_one( ptr->cap_ref );
     }
-    ptr->cap_ref = MAX_CAP;
+    ptr->cap_ref = INVALID_CAP_REF;
 
     // release the texture
-    if ( INVALID_TX_TEXTURE != ptr->tx_ref )
+    if ( VALID_TX_RANGE( ptr->tx_ref ) )
     {
-        TxTexture_free_one( ptr->tx_ref );
+        TxList_free_one( ptr->tx_ref );
     }
-    ptr->tx_ref = INVALID_TX_TEXTURE;
+    ptr->tx_ref = INVALID_MENU_TX_REF;
 
     return btrue;
 }
@@ -5735,8 +5733,8 @@ bool_t LoadPlayer_element_init( LoadPlayer_element_t * ptr )
     BLANK_STRUCT_PTR( ptr )
 
     // set the non-zero, non-null values
-    ptr->cap_ref = MAX_CAP;
-    ptr->tx_ref = INVALID_TX_TEXTURE;
+    ptr->cap_ref = INVALID_CAP_REF;
+    ptr->tx_ref = INVALID_MENU_TX_REF;
 
     idsz_map_init( ptr->quest_log, MAX_IDSZ_MAP_SIZE );
     chop_definition_init( &( ptr->chop ) );
@@ -5960,117 +5958,118 @@ bool_t SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplaye
 }
 
 //--------------------------------------------------------------------------------------------
-// TxMenu IMPLEMENTATION
+// mnu_TxList IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
-IMPLEMENT_LIST( oglx_texture_t, TxMenu, MENU_COUNT );
+IMPLEMENT_LIST( oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_reset_freelist( void )
+void mnu_TxList_reset_freelist( void )
 {
     /// @author BB
-    /// @details reset the free texture list. Start at MENU_LAST_SPECIAL so that the global textures/icons are
+    /// @details reset the free texture list. Start at MENU_TX_LAST_SPECIAL so that the global textures/icons are
     ///     can't be allocated by mistake
 
     int cnt, tnc;
 
-    for ( cnt = MENU_LAST_SPECIAL, tnc = 0; cnt < MENU_COUNT; cnt++, tnc++ )
+    for ( cnt = MENU_TX_LAST_SPECIAL, tnc = 0; cnt < MENU_TX_COUNT; cnt++, tnc++ )
     {
-        TxMenu.free_ref[tnc] = cnt;
+        mnu_TxList.free_ref[tnc] = cnt;
     }
-    TxMenu.free_count = tnc;
+    mnu_TxList.free_count = tnc;
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_ctor( void )
+void mnu_TxList_ctor( void )
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
 
     TX_REF cnt;
 
-    for ( cnt = 0; cnt < MENU_COUNT; cnt++ )
+    for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
     {
-        oglx_texture_ctor( TxMenu.lst + cnt );
+        oglx_texture_ctor( mnu_TxList.lst + cnt );
     }
 
-    TxMenu_reset_freelist();
+    mnu_TxList_reset_freelist();
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_release_one( const TX_REF index )
+void mnu_TxList_release_one( const TX_REF index )
 {
-    if ( index < 0 || index >= MENU_COUNT ) return;
+    oglx_texture_t * ptr = mnu_TxList_get_ptr( index );
+    if ( NULL == ptr ) return;
 
-    oglx_texture_Release( TxMenu.lst + index );
+    oglx_texture_Release( ptr );
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_dtor( void )
-{
-    /// @author ZZ
-    /// @details This function clears out all of the textures
-
-    TX_REF cnt;
-
-    for ( cnt = 0; cnt < MENU_COUNT; cnt++ )
-    {
-        oglx_texture_dtor( TxMenu.lst + cnt );
-    }
-
-    TxMenu_reset_freelist();
-}
-
-//--------------------------------------------------------------------------------------------
-void TxMenu_init_all( void )
+void mnu_TxList_dtor( void )
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
 
     TX_REF cnt;
 
-    for ( cnt = 0; cnt < MENU_COUNT; cnt++ )
+    for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
     {
-        oglx_texture_ctor( TxMenu.lst + cnt );
+        oglx_texture_dtor( mnu_TxList.lst + cnt );
     }
 
-    TxMenu_reset_freelist();
+    mnu_TxList_reset_freelist();
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_release_all( void )
+void mnu_TxList_init_all( void )
+{
+    /// @author ZZ
+    /// @details This function clears out all of the textures
+
+    TX_REF cnt;
+
+    for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
+    {
+        oglx_texture_ctor( mnu_TxList.lst + cnt );
+    }
+
+    mnu_TxList_reset_freelist();
+}
+
+//--------------------------------------------------------------------------------------------
+void mnu_TxList_release_all( void )
 {
     /// @author ZZ
     /// @details This function releases all of the textures
 
     TX_REF cnt;
 
-    for ( cnt = MENU_LAST_SPECIAL; cnt < MENU_COUNT; cnt++ )
+    for ( cnt = MENU_TX_LAST_SPECIAL; cnt < MENU_TX_COUNT; cnt++ )
     {
-        oglx_texture_Release( TxMenu.lst + cnt );
+        oglx_texture_Release( mnu_TxList.lst + cnt );
     }
 
-    TxMenu_reset_freelist();
+    mnu_TxList_reset_freelist();
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_delete_all( void )
+void mnu_TxList_delete_all( void )
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
 
     TX_REF cnt;
 
-    for ( cnt = MENU_LAST_SPECIAL; cnt < MENU_COUNT; cnt++ )
+    for ( cnt = MENU_TX_LAST_SPECIAL; cnt < MENU_TX_COUNT; cnt++ )
     {
-        oglx_texture_dtor( TxMenu.lst + cnt );
+        oglx_texture_dtor( mnu_TxList.lst + cnt );
     }
 
-    TxMenu_reset_freelist();
+    mnu_TxList_reset_freelist();
 }
 
 //--------------------------------------------------------------------------------------------
-void TxMenu_reload_all( void )
+void mnu_TxList_reload_all( void )
 {
     /// @author ZZ
     /// @details This function re-loads all the current textures back into
@@ -6078,9 +6077,9 @@ void TxMenu_reload_all( void )
 
     TX_REF cnt;
 
-    for ( cnt = 0; cnt < MENU_COUNT; cnt++ )
+    for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
     {
-        oglx_texture_t * ptex = TxMenu.lst + cnt;
+        oglx_texture_t * ptex = mnu_TxList.lst + cnt;
 
         if ( oglx_texture_Valid( ptex ) )
         {
@@ -6090,27 +6089,27 @@ void TxMenu_reload_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF TxMenu_get_free( const TX_REF itex )
+TX_REF mnu_TxList_get_free( const TX_REF itex )
 {
-    TX_REF retval = ( TX_REF )INVALID_TX_TEXTURE;
+    TX_REF retval = INVALID_MENU_TX_REF;
 
-    if ( itex >= 0 && itex < MENU_LAST_SPECIAL )
+    if ( itex >= 0 && itex < MENU_TX_LAST_SPECIAL )
     {
         retval = itex;
-        oglx_texture_Release( TxMenu.lst + itex );
+        oglx_texture_Release( mnu_TxList.lst + itex );
     }
-    else if ( itex < 0 || itex >= MENU_COUNT )
+    else if ( !VALID_MENU_TX_RANGE( itex ) )
     {
-        if ( TxMenu.free_count > 0 )
+        if ( mnu_TxList.free_count > 0 )
         {
-            TxMenu.free_count--;
-            TxMenu.update_guid++;
+            mnu_TxList.free_count--;
+            mnu_TxList.update_guid++;
 
-            retval = TxMenu.free_ref[TxMenu.free_count];
+            retval = mnu_TxList.free_ref[mnu_TxList.free_count];
         }
         else
         {
-            retval = ( TX_REF )INVALID_TX_TEXTURE;
+            retval = INVALID_MENU_TX_REF;
         }
     }
     else
@@ -6118,19 +6117,19 @@ TX_REF TxMenu_get_free( const TX_REF itex )
         int i;
 
         // grab the specified index
-        oglx_texture_Release( TxMenu.lst + ( TX_REF )itex );
+        oglx_texture_Release( mnu_TxList.lst + ( TX_REF )itex );
 
         // if this index is on the free stack, remove it
-        for ( i = 0; i < TxMenu.free_count; i++ )
+        for ( i = 0; i < mnu_TxList.free_count; i++ )
         {
-            if ( TxMenu.free_ref[i] == itex )
+            if ( mnu_TxList.free_ref[i] == itex )
             {
-                if ( TxMenu.free_count > 0 )
+                if ( mnu_TxList.free_count > 0 )
                 {
-                    TxMenu.free_count--;
-                    TxMenu.update_guid++;
+                    mnu_TxList.free_count--;
+                    mnu_TxList.update_guid++;
 
-                    SWAP( size_t, TxMenu.free_ref[i], TxMenu.free_ref[TxMenu.free_count] );
+                    SWAP( size_t, mnu_TxList.free_ref[i], mnu_TxList.free_ref[mnu_TxList.free_count] );
                 }
                 break;
             }
@@ -6141,60 +6140,60 @@ TX_REF TxMenu_get_free( const TX_REF itex )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t TxMenu_free_one( const TX_REF itex )
+bool_t mnu_TxList_free_one( const TX_REF itex )
 {
-    if ( itex < 0 || itex >= MENU_COUNT ) return bfalse;
+    if ( !VALID_MENU_TX_RANGE( itex ) ) return bfalse;
 
     // release the texture
-    oglx_texture_Release( TxMenu.lst + itex );
+    oglx_texture_Release( mnu_TxList.lst + itex );
 
 #if defined(_DEBUG)
     {
         int cnt;
         // determine whether this texture is already in the list of free textures
         // that is an error
-        for ( cnt = 0; cnt < TxMenu.free_count; cnt++ )
+        for ( cnt = 0; cnt < mnu_TxList.free_count; cnt++ )
         {
-            if ( itex == TxMenu.free_ref[cnt] ) return bfalse;
+            if ( itex == mnu_TxList.free_ref[cnt] ) return bfalse;
         }
     }
 #endif
 
-    if ( TxMenu.free_count >= MENU_COUNT )
+    if ( mnu_TxList.free_count >= MENU_TX_COUNT )
         return bfalse;
 
-    // do not put anything below MENU_LAST_SPECIAL back onto the free stack
-    if ( itex >= MENU_LAST_SPECIAL )
+    // do not put anything below MENU_TX_LAST_SPECIAL back onto the free stack
+    if ( itex >= MENU_TX_LAST_SPECIAL )
     {
-        TxMenu.free_ref[TxMenu.free_count] = REF_TO_INT( itex );
+        mnu_TxList.free_ref[mnu_TxList.free_count] = REF_TO_INT( itex );
 
-        TxMenu.free_count++;
-        TxMenu.update_guid++;
+        mnu_TxList.free_count++;
+        mnu_TxList.update_guid++;
     }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF TxMenu_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 key )
+TX_REF mnu_TxList_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 key )
 {
     /// @author BB
-    /// @details load a texture into TxMenu.
-    ///     If INVALID_TX_TEXTURE == itex, then we just get the next free index
+    /// @details load a texture into mnu_TxList.
+    ///     If !VALID_TX_RANGE(itex_src), then we just get the next free index
 
     TX_REF retval;
 
     // get a texture index.
-    retval = TxMenu_get_free( itex_src );
+    retval = mnu_TxList_get_free( itex_src );
 
     // handle an error
-    if ( retval >= 0 && retval < MENU_COUNT )
+    if ( VALID_MENU_TX_RANGE( retval ) )
     {
-        Uint32 txid = ego_texture_load_vfs( TxMenu.lst + retval, filename, key );
+        Uint32 txid = ego_texture_load_vfs( mnu_TxList.lst + retval, filename, key );
         if ( INVALID_GL_ID == txid )
         {
-            TxMenu_free_one( retval );
-            retval = INVALID_TX_TEXTURE;
+            mnu_TxList_free_one( retval );
+            retval = INVALID_MENU_TX_REF;
         }
     }
 
@@ -6202,9 +6201,9 @@ TX_REF TxMenu_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 
 }
 
 //--------------------------------------------------------------------------------------------
-oglx_texture_t * TxMenu_get_valid_ptr( const TX_REF itex )
+oglx_texture_t * mnu_TxList_get_valid_ptr( const TX_REF itex )
 {
-    oglx_texture_t * ptex = TxMenu_get_ptr( itex );
+    oglx_texture_t * ptex = mnu_TxList_get_ptr( itex );
 
     if ( !oglx_texture_Valid( ptex ) )
     {
@@ -6221,18 +6220,11 @@ bool_t mnu_load_cursor( void )
     /// @author ZF
     /// @details Load the mouse cursor
 
-    TX_REF load_rv = INVALID_TX_TEXTURE;
-    bool_t success = btrue;
+    TX_REF load_rv = INVALID_MENU_TX_REF;
 
-    load_rv = TxMenu_load_one_vfs( "mp_data/cursor", MENU_CURSOR, TRANSCOLOR );
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/cursor", MENU_TX_CURSOR, TRANSCOLOR );
 
-    success = btrue;
-    if ( INVALID_GL_ID == load_rv )
-    {
-        success = bfalse;
-    }
-
-    return success;
+    return VALID_MENU_TX_RANGE( load_rv ) ? btrue : bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6246,20 +6238,20 @@ bool_t mnu_load_all_global_icons( void )
     bool_t result = gfx_success;
 
     // Now load every icon
-    load_rv = TxMenu_load_one_vfs( "mp_data/nullicon", ( TX_REF )MENU_ICON_NULL, INVALID_KEY );
-    result = ( INVALID_TX_TEXTURE == load_rv ) ? bfalse : result;
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/nullicon", ( TX_REF )MENU_TX_ICON_NULL, INVALID_KEY );
+    result = !VALID_MENU_TX_RANGE( load_rv ) ? bfalse : result;
 
-    load_rv = TxMenu_load_one_vfs( "mp_data/keybicon", ( TX_REF )MENU_ICON_KEYB, INVALID_KEY );
-    result = ( INVALID_TX_TEXTURE == load_rv ) ? bfalse : result;
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/keybicon", ( TX_REF )MENU_TX_ICON_KEYB, INVALID_KEY );
+    result = !VALID_MENU_TX_RANGE( load_rv ) ? bfalse : result;
 
-    load_rv = TxMenu_load_one_vfs( "mp_data/mousicon", ( TX_REF )MENU_ICON_MOUS, INVALID_KEY );
-    result = ( INVALID_TX_TEXTURE == load_rv ) ? bfalse : result;
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/mousicon", ( TX_REF )MENU_TX_ICON_MOUS, INVALID_KEY );
+    result = !VALID_MENU_TX_RANGE( load_rv ) ? bfalse : result;
 
-    load_rv = TxMenu_load_one_vfs( "mp_data/joyaicon", ( TX_REF )MENU_ICON_JOYA, INVALID_KEY );
-    result = ( INVALID_TX_TEXTURE == load_rv ) ? bfalse : result;
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/joyaicon", ( TX_REF )MENU_TX_ICON_JOYA, INVALID_KEY );
+    result = !VALID_MENU_TX_RANGE( load_rv ) ? bfalse : result;
 
-    load_rv = TxMenu_load_one_vfs( "mp_data/joybicon", ( TX_REF )MENU_ICON_JOYB, INVALID_KEY );
-    result = ( INVALID_TX_TEXTURE == load_rv ) ? bfalse : result;
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/joybicon", ( TX_REF )MENU_TX_ICON_JOYB, INVALID_KEY );
+    result = !VALID_MENU_TX_RANGE( load_rv ) ? bfalse : result;
 
     return result;
 }
@@ -6357,113 +6349,3 @@ bool_t mnu_load_all_global_icons( void )
 
     return retval;
 }*/
-
-//--------------------------------------------------------------------------------------------
-// Functions for implementing the TxTitleImage array of textures
-//--------------------------------------------------------------------------------------------
-//void TxTitleImage_clear_data()
-//{
-//    TxTitleImage.count = 0;
-//}
-//
-////--------------------------------------------------------------------------------------------
-//void TxTitleImage_ctor()
-//{
-//    /// @author ZZ
-/// @details This function clears out all of the textures
-//
-//    TX_REF cnt;
-//
-//    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
-//    {
-//        oglx_texture_ctor( TxTitleImage.lst + cnt );
-//    }
-//
-//    TxTitleImage_clear_data();
-//}
-//
-////--------------------------------------------------------------------------------------------
-//void TxTitleImage_release_one( const TX_REF index )
-//{
-//    if ( index < 0 || index >= MAX_MODULE ) return;
-//
-//    oglx_texture_Release( TxTitleImage.lst + index );
-//}
-//
-////--------------------------------------------------------------------------------------------
-//void TxTitleImage_release_all()
-//{
-//    /// @author ZZ
-/// @details This function releases all of the textures
-//
-//    TX_REF cnt;
-//
-//    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
-//    {
-//        TxTitleImage_release_one( cnt );
-//    }
-//
-//    TxTitleImage_clear_data();
-//}
-//
-////--------------------------------------------------------------------------------------------
-//void TxTitleImage_dtor()
-//{
-//    /// @author ZZ
-/// @details This function clears out all of the textures
-//
-//    TX_REF cnt;
-//
-//    for ( cnt = 0; cnt < MAX_MODULE; cnt++ )
-//    {
-//        oglx_texture_dtor( TxTitleImage.lst + cnt );
-//    }
-//
-//    TxTitleImage_clear_data();
-//}
-//
-////--------------------------------------------------------------------------------------------
-//TX_REF TxTitleImage_load_one_vfs( const char *szLoadName )
-//{
-//    /// @author ZZ
-/// @details This function loads a title in the specified image slot, forcing it into
-//    ///    system memory.  Returns btrue if it worked
-//
-//    TX_REF itex;
-//
-//    if ( INVALID_CSTR( szLoadName ) ) return ( TX_REF )INVALID_TITLE_TEXTURE;
-//
-//    if ( TxTitleImage.count >= TITLE_TEXTURE_COUNT ) return ( TX_REF )INVALID_TITLE_TEXTURE;
-//
-//    itex  = ( TX_REF )TxTitleImage.count;
-//    if ( INVALID_GL_ID != ego_texture_load_vfs( TxTitleImage_get_ptr( itex ), szLoadName, INVALID_KEY ) )
-//    {
-//        TxTitleImage.count++;
-//    }
-//    else
-//    {
-//        itex = ( TX_REF )INVALID_TITLE_TEXTURE;
-//    }
-//
-//    return itex;
-//}
-//
-////--------------------------------------------------------------------------------------------
-//void TxTitleImage_reload_all()
-//{
-//    /// @author ZZ
-/// @details This function re-loads all the current textures back into
-//    ///               OpenGL texture memory using the cached SDL surfaces
-//
-//    TX_REF cnt;
-//
-//    for ( cnt = 0; cnt < TX_TEXTURE_COUNT; cnt++ )
-//    {
-//        oglx_texture_t * ptex = TxTitleImage.lst + cnt;
-//
-//        if ( oglx_texture_Valid( ptex ) )
-//        {
-//            oglx_texture_Convert( ptex, ptex->surface, INVALID_KEY );
-//        }
-//    }
-//}

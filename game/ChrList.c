@@ -45,20 +45,22 @@ static CHR_REF chr_activation_list[MAX_CHR];
 int chr_loop_depth = 0;
 
 //--------------------------------------------------------------------------------------------
+// private ChrList_t functions
 //--------------------------------------------------------------------------------------------
 
-static size_t  ChrList_get_free( void );
-static int     ChrList_get_free_list_index( const CHR_REF ichr );
-static bool_t ChrList_add_free( const CHR_REF ichr );
-//static bool_t ChrList_remove_free( const CHR_REF ichr );
-static bool_t ChrList_remove_free_index( const int index );
+static void    ChrList_clear( void );
+static void    ChrList_init( void );
+static void    ChrList_deinit( void );
 
-static bool_t ChrList_remove_used( const CHR_REF ichr );
-static bool_t ChrList_remove_used_index( const int index );
-static int    ChrList_get_used_list_index( const CHR_REF ichr );
+static bool_t ChrList_add_free_ref( const CHR_REF ichr );
+static bool_t ChrList_remove_free_ref( const CHR_REF ichr );
+static bool_t ChrList_remove_free_idx( const int index );
 
-static void   ChrList_prune_used( void );
-static void   ChrList_prune_free( void );
+static bool_t ChrList_remove_used_ref( const CHR_REF ichr );
+static bool_t ChrList_remove_used_idx( const int index );
+
+static void   ChrList_prune_used_list( void );
+static void   ChrList_prune_free_list( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -67,31 +69,27 @@ IMPLEMENT_LIST( chr_t, ChrList, MAX_CHR );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-void ChrList_init( void )
+void ChrList_ctor( void )
 {
-    int cnt;
+    CHR_REF cnt;
+    chr_t * pchr;
 
-    ChrList.free_count = 0;
-    ChrList.used_count = 0;
+    // initialize the list
+    ChrList_init();
+
+    // construct the sub-objects
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        ChrList.free_ref[cnt] = MAX_CHR;
-        ChrList.used_ref[cnt] = MAX_CHR;
-    }
-
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        CHR_REF ichr = ( MAX_CHR - 1 ) - cnt;
-        chr_t * pchr = ChrList_get_ptr( ichr );
+        pchr = ChrList.lst + cnt;
 
         // blank out all the data, including the obj_base data
         BLANK_STRUCT_PTR( pchr )
 
-        // character "initializer"
-        ego_object_ctor( POBJ_GET_PBASE( pchr ), pchr, BSP_LEAF_CHR, GET_INDEX_PCHR( pchr ) );
+        // initialize the particle's character
+        ego_object_ctor( POBJ_GET_PBASE( pchr ), pchr, BSP_LEAF_CHR, cnt );
 
-        ChrList_add_free( ichr );
+        // initialize character
+        chr_ctor( pchr );
     }
 }
 
@@ -99,23 +97,84 @@ void ChrList_init( void )
 void ChrList_dtor( void )
 {
     CHR_REF cnt;
+    chr_t * pchr;
 
+    // construct the sub-objects
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        pchr = ChrList.lst + cnt;
+
+        // destruct the object
+        chr_dtor( pchr );
+
+        // destruct the parent
+        ego_object_dtor( POBJ_GET_PBASE( pchr ) );
+    }
+
+    // initialize particle
+    ChrList_init();
+}
+
+//--------------------------------------------------------------------------------------------
+void ChrList_clear( void )
+{
+    CHR_REF cnt;
+
+    // clear out the list
+    ChrList.free_count = 0;
+    ChrList.used_count = 0;
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        // blank out the list
+        ChrList.free_ref[cnt] = INVALID_CHR_IDX;
+        ChrList.used_ref[cnt] = INVALID_CHR_IDX;
+
+        // let the particle data know that it is not in a list
+        ChrList.lst[cnt].obj_base.in_free_list = bfalse;
+        ChrList.lst[cnt].obj_base.in_used_list = bfalse;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void ChrList_init( void )
+{
+    int cnt;
+
+    ChrList_clear();
+
+    // place all the characters on the free list
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    {
+        CHR_REF ichr = ( MAX_CHR - 1 ) - cnt;
+
+        ChrList_add_free_ref( ichr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void ChrList_deinit( void )
+{
+    CHR_REF cnt;
+
+    // request that the sub-objects deconstruct themselves
     for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         chr_config_deconstruct( ChrList_get_ptr( cnt ), 100 );
     }
 
-    ChrList.free_count = 0;
-    ChrList.used_count = 0;
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        ChrList.free_ref[cnt] = MAX_CHR;
-        ChrList.used_ref[cnt] = MAX_CHR;
-    }
+    // initialize the list
+    ChrList_init();
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_prune_used( void )
+void ChrList_reinit( void )
+{
+    ChrList_deinit();
+    ChrList_init();
+}
+
+//--------------------------------------------------------------------------------------------
+void ChrList_prune_used_list( void )
 {
     // prune the used list
 
@@ -130,18 +189,18 @@ void ChrList_prune_used( void )
 
         if ( !VALID_CHR_RANGE( ichr ) || !DEFINED_CHR( ichr ) )
         {
-            removed = ChrList_remove_used_index( cnt );
+            removed = ChrList_remove_used_idx( cnt );
         }
 
         if ( removed && !ChrList.lst[ichr].obj_base.in_free_list )
         {
-            ChrList_add_free( ichr );
+            ChrList_add_free_ref( ichr );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_prune_free( void )
+void ChrList_prune_free_list( void )
 {
     // prune the free list
 
@@ -156,12 +215,12 @@ void ChrList_prune_free( void )
 
         if ( VALID_CHR_RANGE( ichr ) && INGAME_CHR_BASE( ichr ) )
         {
-            removed = ChrList_remove_free_index( cnt );
+            removed = ChrList_remove_free_idx( cnt );
         }
 
         if ( removed && !ChrList.lst[ichr].obj_base.in_free_list )
         {
-            ChrList_add_used( ichr );
+            ChrList_push_used( ichr );
         }
     }
 }
@@ -172,8 +231,8 @@ void ChrList_update_used( void )
     size_t cnt;
     CHR_REF ichr;
 
-    ChrList_prune_used();
-    ChrList_prune_free();
+    ChrList_prune_used_list();
+    ChrList_prune_free_list();
 
     // go through the character list to see if there are any dangling characters
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
@@ -184,14 +243,14 @@ void ChrList_update_used( void )
         {
             if ( !ChrList.lst[ichr].obj_base.in_used_list )
             {
-                ChrList_add_used( ichr );
+                ChrList_push_used( ichr );
             }
         }
         else if ( !DEFINED_CHR( ichr ) )
         {
             if ( !ChrList.lst[ichr].obj_base.in_free_list )
             {
-                ChrList_add_free( ichr );
+                ChrList_add_free_ref( ichr );
             }
         }
     }
@@ -199,13 +258,13 @@ void ChrList_update_used( void )
     // blank out the unused elements of the used list
     for ( cnt = ChrList.used_count; cnt < MAX_CHR; cnt++ )
     {
-        ChrList.used_ref[cnt] = MAX_CHR;
+        ChrList.used_ref[cnt] = INVALID_CHR_IDX;
     }
 
     // blank out the unused elements of the free list
     for ( cnt = ChrList.free_count; cnt < MAX_CHR; cnt++ )
     {
-        ChrList.free_ref[cnt] = MAX_CHR;
+        ChrList.free_ref[cnt] = INVALID_CHR_IDX;
     }
 }
 
@@ -244,7 +303,7 @@ bool_t ChrList_free_one( const CHR_REF ichr )
 
         if ( pbase->in_used_list )
         {
-            ChrList_remove_used( ichr );
+            ChrList_remove_used_ref( ichr );
         }
 
         if ( pbase->in_free_list )
@@ -253,7 +312,7 @@ bool_t ChrList_free_one( const CHR_REF ichr )
         }
         else
         {
-            retval = ChrList_add_free( ichr );
+            retval = ChrList_add_free_ref( ichr );
         }
 
         // character "destructor"
@@ -265,14 +324,15 @@ bool_t ChrList_free_one( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t ChrList_get_free( void )
+size_t ChrList_pop_free( const int idx )
 {
     /// @author ZZ
     /// @details This function returns the next free character or MAX_CHR if there are none
 
-    size_t retval = MAX_CHR;
+    size_t retval = INVALID_CHR_REF;
+    size_t loops  = 0;
 
-    if ( ChrList.free_count > 0 )
+    while ( ChrList.free_count > 0 )
     {
         ChrList.free_count--;
         ChrList.update_guid++;
@@ -280,13 +340,21 @@ size_t ChrList_get_free( void )
         retval = ChrList.free_ref[ChrList.free_count];
 
         // completely remove it from the free list
-        ChrList.free_ref[ChrList.free_count] = MAX_CHR;
+        ChrList.free_ref[ChrList.free_count] = INVALID_CHR_IDX;
 
         if ( VALID_CHR_RANGE( retval ) )
         {
             // let the object know it is not in the free list any more
             ChrList.lst[retval].obj_base.in_free_list = bfalse;
+            break;
         }
+
+        loops++;
+    }
+
+    if ( loops > 0 )
+    {
+        log_warning( "%s - there is something wrong with the free stack. %d loops.\n", __FUNCTION__, loops );
     }
 
     return retval;
@@ -304,7 +372,7 @@ void ChrList_free_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-int ChrList_get_free_list_index( const CHR_REF ichr )
+int ChrList_find_free_ref( const CHR_REF ichr )
 {
     int retval = -1, cnt;
 
@@ -324,14 +392,14 @@ int ChrList_get_free_list_index( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_add_free( const CHR_REF ichr )
+bool_t ChrList_add_free_ref( const CHR_REF ichr )
 {
     bool_t retval;
 
     if ( !VALID_CHR_RANGE( ichr ) ) return bfalse;
 
 #if defined(_DEBUG) && defined(DEBUG_CHR_LIST)
-    if ( ChrList_get_free_list_index( ichr ) > 0 )
+    if ( ChrList_find_free_ref( ichr ) > 0 )
     {
         return bfalse;
     }
@@ -356,7 +424,7 @@ bool_t ChrList_add_free( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_free_index( const int index )
+bool_t ChrList_remove_free_idx( const int index )
 {
     CHR_REF ichr;
 
@@ -366,7 +434,7 @@ bool_t ChrList_remove_free_index( const int index )
     ichr = ChrList.free_ref[index];
 
     // blank out the index in the list
-    ChrList.free_ref[index] = MAX_CHR;
+    ChrList.free_ref[index] = INVALID_CHR_IDX;
 
     if ( VALID_CHR_RANGE( ichr ) )
     {
@@ -388,7 +456,7 @@ bool_t ChrList_remove_free_index( const int index )
 }
 
 //--------------------------------------------------------------------------------------------
-int ChrList_get_used_list_index( const CHR_REF ichr )
+int ChrList_find_used_ref( const CHR_REF ichr )
 {
     int retval = -1, cnt;
 
@@ -408,14 +476,14 @@ int ChrList_get_used_list_index( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_add_used( const CHR_REF ichr )
+bool_t ChrList_push_used( const CHR_REF ichr )
 {
     bool_t retval;
 
     if ( !VALID_CHR_RANGE( ichr ) ) return bfalse;
 
 #if defined(_DEBUG) && defined(DEBUG_CHR_LIST)
-    if ( ChrList_get_used_list_index( ichr ) > 0 )
+    if ( ChrList_find_used_ref( ichr ) > 0 )
     {
         return bfalse;
     }
@@ -440,7 +508,7 @@ bool_t ChrList_add_used( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_used_index( const int index )
+bool_t ChrList_remove_used_idx( const int index )
 {
     CHR_REF ichr;
 
@@ -450,7 +518,7 @@ bool_t ChrList_remove_used_index( const int index )
     ichr = ChrList.used_ref[index];
 
     // blank out the index in the list
-    ChrList.used_ref[index] = MAX_CHR;
+    ChrList.used_ref[index] = INVALID_CHR_IDX;
 
     if ( VALID_CHR_RANGE( ichr ) )
     {
@@ -472,29 +540,29 @@ bool_t ChrList_remove_used_index( const int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ChrList_remove_used( const CHR_REF ichr )
+bool_t ChrList_remove_used_ref( const CHR_REF ichr )
 {
     // find the object in the used list
-    int index = ChrList_get_used_list_index( ichr );
+    int index = ChrList_find_used_ref( ichr );
 
-    return ChrList_remove_used_index( index );
+    return ChrList_remove_used_idx( index );
 }
 
 //--------------------------------------------------------------------------------------------
 CHR_REF ChrList_allocate( const CHR_REF override )
 {
-    CHR_REF ichr = ( CHR_REF )MAX_CHR;
+    CHR_REF ichr = INVALID_CHR_REF;
 
     if ( VALID_CHR_RANGE( override ) )
     {
-        ichr = ChrList_get_free();
+        ichr = ChrList_pop_free( -1 );
         if ( override != ichr )
         {
-            int override_index = ChrList_get_free_list_index( override );
+            int override_index = ChrList_find_free_ref( override );
 
             if ( override_index < 0 || override_index >= ChrList.free_count )
             {
-                ichr = ( CHR_REF )MAX_CHR;
+                ichr = INVALID_CHR_REF;
             }
             else
             {
@@ -509,15 +577,15 @@ CHR_REF ChrList_allocate( const CHR_REF override )
             }
         }
 
-        if ( MAX_CHR == ichr )
+        if ( INVALID_CHR_REF == ichr )
         {
             log_warning( "ChrList_allocate() - failed to override a character? character %d already spawned? \n", REF_TO_INT( override ) );
         }
     }
     else
     {
-        ichr = ChrList_get_free();
-        if ( MAX_CHR == ichr )
+        ichr = ChrList_pop_free( -1 );
+        if ( INVALID_CHR_REF == ichr )
         {
             log_warning( "ChrList_allocate() - failed to allocate a new character\n" );
         }
@@ -642,12 +710,11 @@ int ChrList_count_used( void )
     return ChrList.used_count; // MAX_CHR - ChrList.free_count;
 }
 
-////--------------------------------------------------------------------------------------------
-//bool_t ChrList_remove_free( const CHR_REF ichr )
-//{
-//    // find the object in the free list
-//    int index = ChrList_get_free_list_index( ichr );
-//
-//    return ChrList_remove_free_index( index );
-//}
-//
+//--------------------------------------------------------------------------------------------
+bool_t ChrList_remove_free_ref( const CHR_REF ichr )
+{
+    // find the object in the free list
+    int index = ChrList_find_free_ref( ichr );
+
+    return ChrList_remove_free_idx( index );
+}

@@ -438,11 +438,11 @@ gfx_rv chr_instance_flash( struct s_chr_instance * pinst, Uint8 value );
 
 //void gfx_calc_rotmesh( void );
 
-int            renderlist_mgr_get_free_index( renderlist_mgr_t * ptr );
+int            renderlist_mgr_get_free_idx( renderlist_mgr_t * ptr );
 gfx_rv         renderlist_mgr_free_one( renderlist_mgr_t * ptr, int index );
 renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, int index );
 
-int        dolist_mgr_get_free_index( dolist_mgr_t * ptr );
+int        dolist_mgr_get_free_idx( dolist_mgr_t * ptr );
 gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, int index );
 dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index );
 

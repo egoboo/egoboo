@@ -45,12 +45,13 @@
 #include "../egolib/extensions/SDL_extensions.h"
 #include "../egolib/extensions/SDL_GL_extensions.h"
 #include "../egolib/file_formats/id_md2.h"
-
 #include "../egolib/console.h"
 
 #if defined(USE_LUA_CONSOLE)
 #    include "../egolib/lua/lua_console.h"
 #endif
+
+#include "../egolib/bsp.inl"
 
 #include "network_server.h"
 #include "mad.h"
@@ -523,7 +524,7 @@ int _va_draw_string( float x, float y, const char *format, va_list args )
     STRING szText;
     Uint8 cTmp;
 
-    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )MENU_FONT_BMP );
+    oglx_texture_t * tx_ptr = mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
     if ( NULL == tx_ptr ) return y;
 
     if ( vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
@@ -743,16 +744,29 @@ gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mpd_t * pmesh )
 gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst )
 {
     int j;
+    size_t       colst_size, colst_top;
     BSP_leaf_t * pleaf;
     ego_mpd_t  * pmesh  = NULL;
     gfx_rv       retval = gfx_error;
 
-    if ( NULL == prlist || NULL == pcolst )
+    if ( NULL == prlist )
     {
         return gfx_error;
     }
 
-    if ( 0 == BSP_leaf_pary_get_size( pcolst ) || 0 == BSP_leaf_pary_get_top( pcolst ) )
+    if ( NULL == pcolst )
+    {
+        return gfx_error;
+    }
+
+    colst_size = BSP_leaf_pary_get_size( pcolst );
+    if ( 0 == colst_size )
+    {
+        return gfx_error;
+    }
+
+    colst_top  = BSP_leaf_pary_get_top( pcolst );
+    if ( 0 == colst_top )
     {
         return gfx_fail;
     }
@@ -768,10 +782,11 @@ gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcol
     retval = gfx_success;
 
     // transfer valid pcolst entries to the renderlist
-    for ( j = 0; j < pcolst->top; j++ )
+    for ( j = 0; j < colst_top; j++ )
     {
         pleaf = pcolst->ary[j];
-        if ( NULL == pleaf ) continue;
+
+        if ( !BSP_leaf_valid( pleaf ) ) continue;
 
         if ( BSP_LEAF_TILE == pleaf->data_type )
         {
@@ -904,7 +919,7 @@ gfx_rv renderlist_mgr_end( renderlist_mgr_t * pmgr )
 }
 
 //--------------------------------------------------------------------------------------------
-int renderlist_mgr_get_free_index( renderlist_mgr_t * pmgr )
+int renderlist_mgr_get_free_idx( renderlist_mgr_t * pmgr )
 {
     int retval = -1;
 
@@ -1031,11 +1046,11 @@ gfx_rv dolist_reset( dolist_t * plist, const int index )
         obj_registry_entity_t * pent = plist->lst + cnt;
 
         // tell all valid objects that they are removed from this dolist
-        if ( MAX_CHR == pent->ichr && VALID_PRT_RANGE( pent->iprt ) )
+        if ( INVALID_CHR_REF == pent->ichr && VALID_PRT_RANGE( pent->iprt ) )
         {
             PrtList.lst[pent->iprt].inst.indolist = bfalse;
         }
-        else if ( MAX_PRT == pent->iprt && VALID_CHR_RANGE( pent->ichr ) )
+        else if ( INVALID_PRT_REF == pent->iprt && VALID_CHR_RANGE( pent->ichr ) )
         {
             ChrList.lst[pent->ichr].inst.indolist = bfalse;
         }
@@ -1106,7 +1121,7 @@ gfx_rv dolist_add_chr_raw( dolist_t * pdlist, chr_t * pchr )
 
     // fix the dolist
     pdlist->lst[pdlist->count].ichr = GET_REF_PCHR( pchr );
-    pdlist->lst[pdlist->count].iprt = ( PRT_REF )MAX_PRT;
+    pdlist->lst[pdlist->count].iprt = INVALID_PRT_REF;
     pdlist->count++;
 
     // fix the instance
@@ -1156,7 +1171,7 @@ gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
     //    return gfx_success;
     //}
 
-    pdlist->lst[pdlist->count].ichr = ( CHR_REF )MAX_CHR;
+    pdlist->lst[pdlist->count].ichr = INVALID_CHR_REF;
     pdlist->lst[pdlist->count].iprt = GET_REF_PPRT( pprt );
     pdlist->count++;
 
@@ -1169,15 +1184,28 @@ gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
 gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
 {
     BSP_leaf_t * pleaf;
+    size_t colst_size, colst_top;
     int j;
     gfx_rv retval;
 
-    if ( NULL == pdlist || NULL == pcolst )
+    if ( NULL == pdlist )
     {
         return gfx_error;
     }
 
-    if ( 0 == BSP_leaf_pary_get_size( pcolst ) || 0 == BSP_leaf_pary_get_top( pcolst ) )
+    if ( NULL == pcolst )
+    {
+        return gfx_error;
+    }
+
+    colst_size = BSP_leaf_pary_get_size( pcolst );
+    if ( 0 == colst_size )
+    {
+        return gfx_error;
+    }
+
+    colst_top  = BSP_leaf_pary_get_top( pcolst );
+    if ( 0 == colst_top )
     {
         return gfx_fail;
     }
@@ -1185,10 +1213,11 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
     // assume the best
     retval = gfx_success;
 
-    for ( j = 0; j < pcolst->top; j++ )
+    for ( j = 0; j < colst_top; j++ )
     {
         pleaf = pcolst->ary[j];
-        if ( NULL == pleaf ) continue;
+
+        if ( !BSP_leaf_valid( pleaf ) ) continue;
 
         if ( BSP_LEAF_CHR == pleaf->data_type )
         {
@@ -1285,7 +1314,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, const camera_t * pcam, const bool_t do_re
         fvec3_t   vtmp;
         float dist;
 
-        if ( MAX_PRT == pdlist->lst[cnt].iprt && VALID_CHR_RANGE( pdlist->lst[cnt].ichr ) )
+        if ( INVALID_PRT_REF == pdlist->lst[cnt].iprt && VALID_CHR_RANGE( pdlist->lst[cnt].ichr ) )
         {
             CHR_REF ichr;
             fvec3_t pos_tmp;
@@ -1303,7 +1332,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, const camera_t * pcam, const bool_t do_re
 
             fvec3_sub( vtmp.v, pos_tmp.v, pcam->pos.v );
         }
-        else if ( MAX_CHR == pdlist->lst[cnt].ichr && VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
+        else if ( INVALID_CHR_REF == pdlist->lst[cnt].ichr && VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
         {
             PRT_REF iprt = pdlist->lst[cnt].iprt;
 
@@ -1435,7 +1464,7 @@ gfx_rv dolist_mgr_end( dolist_mgr_t * pmgr )
 }
 
 //--------------------------------------------------------------------------------------------
-int dolist_mgr_get_free_index( dolist_mgr_t * pmgr )
+int dolist_mgr_get_free_idx( dolist_mgr_t * pmgr )
 {
     int retval = -1;
 
@@ -1541,7 +1570,7 @@ void gfx_system_begin( void )
     billboard_system_begin();
 
     // initialize the gfx data dtructures
-    TxTexture_init_all();
+    TxList_init_all();
 
     // initialize the profiling variables
     PROFILE_INIT( render_scene_init );
@@ -1614,7 +1643,7 @@ void gfx_system_end( void )
     // end the billboard system
     billboard_system_end();
 
-    TxTexture_release_all();
+    TxList_release_all();
 
     // de-initialize the renderlist manager
     renderlist_mgr_end( &_renderlist_mgr_data );
@@ -1995,7 +2024,7 @@ void gfx_system_init_all_graphics( void )
     font_bmp_init();
 
     billboard_system_init();
-    TxTexture_init_all();
+    TxList_init_all();
 
     PROFILE_RESET( render_scene_init );
     PROFILE_RESET( render_scene_mesh );
@@ -2031,7 +2060,7 @@ void gfx_system_release_all_graphics( void )
     gfx_init_map_data();
 
     BillboardList_free_all();
-    TxTexture_release_all();
+    TxList_release_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2042,7 +2071,7 @@ void gfx_system_delete_all_graphics( void )
     gfx_init_map_data();
 
     BillboardList_free_all();
-    TxTexture_delete_all();
+    TxList_delete_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2052,24 +2081,24 @@ void gfx_system_load_basic_textures( void )
     /// @details This function loads the standard textures for a module
 
     // Particle sprites
-    TxTexture_load_one_vfs( "mp_data/particle_trans", ( TX_REF )TX_PARTICLE_TRANS, TRANSCOLOR );
+    TxList_load_one_vfs( "mp_data/particle_trans", ( TX_REF )TX_PARTICLE_TRANS, TRANSCOLOR );
     prt_set_texture_params(( TX_REF )TX_PARTICLE_TRANS );
 
-    TxTexture_load_one_vfs( "mp_data/particle_light", ( TX_REF )TX_PARTICLE_LIGHT, INVALID_KEY );
+    TxList_load_one_vfs( "mp_data/particle_light", ( TX_REF )TX_PARTICLE_LIGHT, INVALID_KEY );
     prt_set_texture_params(( TX_REF )TX_PARTICLE_LIGHT );
 
     // Module background tiles
-    TxTexture_load_one_vfs( "mp_data/tile0", ( TX_REF )TX_TILE_0, TRANSCOLOR );
-    TxTexture_load_one_vfs( "mp_data/tile1", ( TX_REF )TX_TILE_1, TRANSCOLOR );
-    TxTexture_load_one_vfs( "mp_data/tile2", ( TX_REF )TX_TILE_2, TRANSCOLOR );
-    TxTexture_load_one_vfs( "mp_data/tile3", ( TX_REF )TX_TILE_3, TRANSCOLOR );
+    TxList_load_one_vfs( "mp_data/tile0", ( TX_REF )TX_TILE_0, TRANSCOLOR );
+    TxList_load_one_vfs( "mp_data/tile1", ( TX_REF )TX_TILE_1, TRANSCOLOR );
+    TxList_load_one_vfs( "mp_data/tile2", ( TX_REF )TX_TILE_2, TRANSCOLOR );
+    TxList_load_one_vfs( "mp_data/tile3", ( TX_REF )TX_TILE_3, TRANSCOLOR );
 
     // Water textures
-    TxTexture_load_one_vfs( "mp_data/watertop", ( TX_REF )TX_WATER_TOP, TRANSCOLOR );
-    TxTexture_load_one_vfs( "mp_data/waterlow", ( TX_REF )TX_WATER_LOW, TRANSCOLOR );
+    TxList_load_one_vfs( "mp_data/watertop", ( TX_REF )TX_WATER_TOP, TRANSCOLOR );
+    TxList_load_one_vfs( "mp_data/waterlow", ( TX_REF )TX_WATER_LOW, TRANSCOLOR );
 
     // The phong map
-    TxTexture_load_one_vfs( "mp_data/phong", ( TX_REF )TX_PHONG, TRANSCOLOR );
+    TxList_load_one_vfs( "mp_data/phong", ( TX_REF )TX_PHONG, TRANSCOLOR );
 
     PROFILE_RESET( render_scene_init );
     PROFILE_RESET( render_scene_mesh );
@@ -2128,8 +2157,8 @@ void gfx_system_reload_all_textures( void )
     /// restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
     //TxTitleImage_reload_all();
-    TxTexture_reload_all();
-    TxMenu_reload_all();
+    TxList_reload_all();
+    mnu_TxList_reload_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2172,7 +2201,7 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map
     //Now draw it
     if ( loc_x > 0.0f && loc_y > 0.0f )
     {
-        oglx_texture_t * ptex = TxTexture_get_valid_ptr(( TX_REF )TX_BLIP );
+        oglx_texture_t * ptex = TxList_get_valid_ptr(( TX_REF )TX_BLIP );
 
         tx_rect.xmin = ( float )bliprect[color].left   / ( float )oglx_texture_getTextureWidth( ptex );
         tx_rect.xmax = ( float )bliprect[color].right  / ( float )oglx_texture_getTextureWidth( ptex );
@@ -2267,13 +2296,13 @@ float draw_game_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_col
     /// @author ZZ
     /// @details This function draws an icon
 
-    return draw_icon_texture( TxTexture_get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
+    return draw_icon_texture( TxList_get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
 }
 
 //--------------------------------------------------------------------------------------------
 float draw_menu_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size )
 {
-    return draw_icon_texture( TxMenu_get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
+    return draw_icon_texture( mnu_TxList_get_valid_ptr( icontype ), x, y, sparkle_color, sparkle_timer, size );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2319,7 +2348,7 @@ void draw_map_texture( float x, float y )
 
     ego_frect_t sc_rect, tx_rect;
 
-    oglx_texture_t * ptex = TxTexture_get_valid_ptr(( TX_REF )TX_MAP );
+    oglx_texture_t * ptex = TxList_get_valid_ptr(( TX_REF )TX_MAP );
     if ( NULL == ptex ) return;
 
     sc_rect.xmin = x;
@@ -2365,7 +2394,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( TxTexture_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
+    draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
 
     x += width;
 
@@ -2385,7 +2414,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( TxTexture_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
+        draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
     }
 
     //---- Draw the remaining empty ones
@@ -2401,7 +2430,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( TxTexture_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
+        draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
     }
 
     return y + height;
@@ -2436,7 +2465,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
     if ( ticks       > total_ticks ) ticks = total_ticks;
 
     // grab a pointer to the bar texture
-    tx_ptr = TxTexture_get_valid_ptr(( TX_REF )TX_BARS );
+    tx_ptr = TxList_get_valid_ptr(( TX_REF )TX_BARS );
 
     // allow the bitmap to be scaled to arbitrary size
     tx_width   = 128.0f;
@@ -2640,7 +2669,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
     Uint8 newword = btrue;
     int cnt = 1;
 
-    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )MENU_FONT_BMP );
+    oglx_texture_t * tx_ptr = mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
     if ( NULL == tx_ptr ) return y;
 
     gfx_begin_text();
@@ -3427,7 +3456,7 @@ void draw_mouse_cursor( void )
         return;
     }
 
-    pcursor = TxMenu_get_valid_ptr( MENU_CURSOR );
+    pcursor = mnu_TxList_get_valid_ptr( MENU_TX_CURSOR );
 
     // Invalid texture?
     if ( NULL == pcursor )
@@ -3619,7 +3648,7 @@ void render_shadow( const CHR_REF character )
 
     // Choose texture.
     itex = TX_PARTICLE_LIGHT;
-    oglx_texture_Bind( TxTexture_get_valid_ptr( itex ) );
+    oglx_texture_Bind( TxList_get_valid_ptr( itex ) );
 
     itex_style = prt_get_texture_style( itex );
     if ( itex_style < 0 ) itex_style = 0;
@@ -3756,7 +3785,7 @@ void render_bad_shadow( const CHR_REF character )
 
     // Choose texture and matrix
     itex = TX_PARTICLE_LIGHT;
-    oglx_texture_Bind( TxTexture_get_valid_ptr( itex ) );
+    oglx_texture_Bind( TxList_get_valid_ptr( itex ) );
 
     itex_style = prt_get_texture_style( itex );
     if ( itex_style < 0 ) itex_style = 0;
@@ -3812,7 +3841,7 @@ gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmesh, cons
         for ( tx = TX_TILE_0; tx <= TX_TILE_3; tx++ )
         {
             meshlasttexture = tx;
-            oglx_texture_Bind( TxTexture_get_valid_ptr( tx ) );
+            oglx_texture_Bind( TxList_get_valid_ptr( tx ) );
 
             for ( cnt = 0; cnt < list_size; cnt++ )
             {
@@ -4072,7 +4101,7 @@ gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist
 
         for ( cnt = (( int )pdolist->count ) - 1; cnt >= 0; cnt-- )
         {
-            if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
+            if ( INVALID_PRT_REF == pdolist->lst[cnt].iprt && INVALID_CHR_REF != pdolist->lst[cnt].ichr )
             {
                 CHR_REF ichr;
                 Uint32 itile;
@@ -4099,7 +4128,7 @@ gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist
                     }
                 }
             }
-            else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
+            else if ( INVALID_CHR_REF == pdolist->lst[cnt].ichr && INVALID_PRT_REF != pdolist->lst[cnt].iprt )
             {
                 Uint32 itile;
                 PRT_REF iprt;
@@ -4431,14 +4460,14 @@ gfx_rv render_scene_solid( const camera_t * pcam, dolist_t * pdolist )
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                 // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );             // GL_COLOR_BUFFER_BIT
 
-            if ( MAX_PRT == pdolist->lst[cnt].iprt && VALID_CHR_RANGE( pdolist->lst[cnt].ichr ) )
+            if ( INVALID_PRT_REF == pdolist->lst[cnt].iprt && VALID_CHR_RANGE( pdolist->lst[cnt].ichr ) )
             {
                 if ( gfx_error == render_one_mad_solid( pcam, pdolist->lst[cnt].ichr ) )
                 {
                     retval = gfx_error;
                 }
             }
-            else if ( MAX_CHR == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
+            else if ( INVALID_CHR_REF == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
             {
                 // draw draw front and back faces of polygons
                 oglx_end_culling();              // GL_ENABLE_BIT
@@ -4493,14 +4522,14 @@ gfx_rv render_scene_trans( const camera_t * pcam, dolist_t * pdolist )
         // Now render all transparent and light objects
         for ( cnt = (( int )pdolist->count ) - 1; cnt >= 0; cnt-- )
         {
-            if ( MAX_PRT == pdolist->lst[cnt].iprt && MAX_CHR != pdolist->lst[cnt].ichr )
+            if ( INVALID_PRT_REF == pdolist->lst[cnt].iprt && INVALID_CHR_REF != pdolist->lst[cnt].ichr )
             {
                 if ( gfx_error == render_one_mad_trans( pcam, pdolist->lst[cnt].ichr ) )
                 {
                     retval = gfx_error;
                 }
             }
-            else if ( MAX_CHR == pdolist->lst[cnt].ichr && MAX_PRT != pdolist->lst[cnt].iprt )
+            else if ( INVALID_CHR_REF == pdolist->lst[cnt].ichr && INVALID_PRT_REF != pdolist->lst[cnt].iprt )
             {
                 // this is a particle
                 if ( gfx_error == render_one_prt_trans( pdolist->lst[cnt].iprt ) )
@@ -4746,7 +4775,7 @@ gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture )
         intens = CLIP( intens, 0.0f, 1.0f );
     }
 
-    ptex = TxTexture_get_valid_ptr( texture );
+    ptex = TxList_get_valid_ptr( texture );
 
     oglx_texture_Bind( ptex );
 
@@ -4897,7 +4926,7 @@ gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture )
         vtlist[3].tex[SS] = ilayer->tx.x;
         vtlist[3].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
 
-        ptex = TxTexture_get_valid_ptr( texture );
+        ptex = TxList_get_valid_ptr( texture );
 
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT | GL_HINT_BIT );
         {
@@ -5852,8 +5881,8 @@ obj_registry_entity_t * obj_registry_entity_init( obj_registry_entity_t * ptr )
 
     BLANK_STRUCT_PTR( ptr )
 
-    ptr->ichr = MAX_CHR;
-    ptr->iprt = MAX_PRT;
+    ptr->ichr = INVALID_CHR_REF;
+    ptr->iprt = INVALID_PRT_REF;
 
     return ptr;
 }
@@ -5967,20 +5996,20 @@ gfx_rv gfx_load_bars( void )
     /// @details This function loads the status bar bitmap
 
     const char * pname = EMPTY_CSTR;
-    TX_REF load_rv = INVALID_TX_TEXTURE;
+    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval  = gfx_success;
 
     pname = "mp_data/bars";
-    load_rv = TxTexture_load_one_vfs( pname, ( TX_REF )TX_BARS, TRANSCOLOR );
-    if ( INVALID_TX_TEXTURE == load_rv )
+    load_rv = TxList_load_one_vfs( pname, ( TX_REF )TX_BARS, TRANSCOLOR );
+    if ( !VALID_TX_RANGE( load_rv ) )
     {
         log_warning( "%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname );
         retval = gfx_fail;
     }
 
     pname = "mp_data/xpbar";
-    load_rv = TxTexture_load_one_vfs( pname, ( TX_REF )TX_XP_BAR, TRANSCOLOR );
-    if ( INVALID_TX_TEXTURE == load_rv )
+    load_rv = TxList_load_one_vfs( pname, ( TX_REF )TX_XP_BAR, TRANSCOLOR );
+    if ( !VALID_TX_RANGE( load_rv ) )
     {
         log_warning( "%s - Cannot load file! (\"%s\")\n", __FUNCTION__, pname );
         retval = gfx_fail;
@@ -5996,7 +6025,7 @@ gfx_rv gfx_load_map( void )
     /// @details This function loads the map bitmap
 
     const char* szMap = "mp_data/plan";
-    TX_REF load_rv = INVALID_TX_TEXTURE;
+    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval  = gfx_success;
 
     // Turn it all off
@@ -6005,8 +6034,8 @@ gfx_rv gfx_load_map( void )
     blip_count   = 0;
 
     // Load the images
-    load_rv = TxTexture_load_one_vfs( szMap, ( TX_REF )TX_MAP, INVALID_KEY );
-    if ( INVALID_TX_TEXTURE == load_rv )
+    load_rv = TxList_load_one_vfs( szMap, ( TX_REF )TX_MAP, INVALID_KEY );
+    if ( !VALID_TX_RANGE( load_rv ) )
     {
         log_debug( "%s - Cannot load file! (\"%s\")\n", __FUNCTION__, szMap );
         retval   = gfx_fail;
@@ -6028,12 +6057,12 @@ gfx_rv gfx_load_blips( void )
     /// @details This function loads the blip bitmaps
 
     const char * pname = EMPTY_CSTR;
-    TX_REF load_rv = INVALID_TX_TEXTURE;
+    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval  = gfx_success;
 
     pname = "mp_data/blip";
-    load_rv = TxTexture_load_one_vfs( pname, ( TX_REF )TX_BLIP, INVALID_KEY );
-    if ( INVALID_TX_TEXTURE == load_rv )
+    load_rv = TxList_load_one_vfs( pname, ( TX_REF )TX_BLIP, INVALID_KEY );
+    if ( !VALID_TX_RANGE( load_rv ) )
     {
         log_warning( "%s - Blip bitmap not loaded! (\"%s\")\n", __FUNCTION__, pname );
         retval = gfx_fail;
@@ -6046,12 +6075,12 @@ gfx_rv gfx_load_blips( void )
 gfx_rv gfx_load_icons( void )
 {
     const char * pname = EMPTY_CSTR;
-    TX_REF load_rv = INVALID_TX_TEXTURE;
+    TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval  = gfx_success;
 
     pname = "mp_data/nullicon";
-    load_rv = TxTexture_load_one_vfs( pname, ( TX_REF )TX_ICON_NULL, INVALID_KEY );
-    if ( INVALID_TX_TEXTURE == load_rv )
+    load_rv = TxList_load_one_vfs( pname, ( TX_REF )TX_ICON_NULL, INVALID_KEY );
+    if ( !VALID_TX_RANGE( load_rv ) )
     {
         log_warning( "%s - cannot load \"empty hand\" icon! (\"%s\")\n", __FUNCTION__, pname );
         retval = gfx_fail;
@@ -6668,7 +6697,7 @@ void draw_cursor( void )
     /// @author ZZ
     /// @details This function implements a mouse cursor
 
-    oglx_texture_t * tx_ptr = TxMenu_get_valid_ptr(( TX_REF )MENU_FONT_BMP );
+    oglx_texture_t * tx_ptr = mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
 
     if ( input_cursor.x < 6 )  input_cursor.x = 6;
     if ( input_cursor.x > sdl_scr.x - 16 )  input_cursor.x = sdl_scr.x - 16;

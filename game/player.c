@@ -59,10 +59,10 @@ CHR_REF PlaStack_get_ichr( const PLA_REF iplayer )
 {
     player_t * pplayer;
 
-    if ( iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid ) return ( CHR_REF )MAX_CHR;
+    if ( iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid ) return INVALID_CHR_REF;
     pplayer = PlaStack_get_ptr( iplayer );
 
-    if ( !INGAME_CHR( pplayer->index ) ) return ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( pplayer->index ) ) return INVALID_CHR_REF;
 
     return pplayer->index;
 }
@@ -109,7 +109,7 @@ void pla_reinit( player_t * ppla )
 
     //reset data
     BLANK_STRUCT_PTR( ppla )
-    ppla->index  = ( CHR_REF )MAX_CHR;
+    ppla->index  = INVALID_CHR_REF;
 
     // initialize the latches
     latch_init( &( ppla->local_latch ) );
@@ -126,7 +126,7 @@ void pla_reinit( player_t * ppla )
 
     BLANK_STRUCT_PTR( ppla )
 
-    ppla->index       = ( CHR_REF )MAX_CHR;
+    ppla->index       = INVALID_CHR_REF;
 
     // initialize the device
     input_device_init( &( ppla->device ) );

@@ -59,10 +59,14 @@ extern "C"
     typedef struct s_range FRange;
 
 //--------------------------------------------------------------------------------------------
+// place the definition of the lambda operator in a macro
+#define LAMBDA(AA,BB,CC) ((AA) ? (BB) : (CC))
+
+//--------------------------------------------------------------------------------------------
 // portable definition of assert. the c++ version can be activated below.
 // make assert into a warning if _DEBUG is not defined
 
-void non_fatal_assert( int val, const char * format, ... );
+    void non_fatal_assert( int val, const char * format, ... );
 
 #if defined(_DEBUG)
 #   define C_EGOBOO_ASSERT(X) assert(X)
@@ -97,7 +101,11 @@ void non_fatal_assert( int val, const char * format, ... );
     typedef enum e_bool bool_t;
 
 #   if !defined(BOOL_T)
-#       define BOOL_T(VAL) ((VAL) ? btrue : bfalse)
+#       if defined(__cplusplus)
+#           define BOOL_T(VAL) LAMBDA(VAL, btrue, bfalse)
+#       else
+#           define BOOL_T(VAL) (VAL)
+#       endif
 #   endif
 
 //--------------------------------------------------------------------------------------------
@@ -123,12 +131,12 @@ void non_fatal_assert( int val, const char * format, ... );
     /// fast version of V1 / 256
 #   define UFP8_TO_UINT(V1)   ( ((unsigned)(V1)) >> 8 )
     /// signed version of V1 / 256
-#   define SFP8_TO_SINT(V1)   ( (V1) < 0 ? -((signed)UFP8_TO_UINT(-V1)) : (signed)UFP8_TO_UINT(V1) )
+#   define SFP8_TO_SINT(V1)   LAMBDA( (V1) < 0, -((signed)UFP8_TO_UINT(-V1)), (signed)UFP8_TO_UINT(V1) )
 
     /// fast version of V1 / 256
 #   define UINT_TO_UFP8(V1)   ( ((unsigned)(V1)) << 8 )
     /// signed version of V1 / 256
-#   define SINT_TO_SFP8(V1)   ( (V1) < 0 ? -((signed)UINT_TO_UFP8(-V1)) : (signed)UINT_TO_UFP8(V1) )
+#   define SINT_TO_SFP8(V1)   LAMBDA( (V1) < 0, -((signed)UINT_TO_UFP8(-V1)), (signed)UINT_TO_UFP8(V1) )
 
     /// version of V1 / 256.0f
 #   define FP8_TO_FLOAT(V1)   ( (float)(V1) * INV_0100 )
@@ -175,7 +183,7 @@ void non_fatal_assert( int val, const char * format, ... );
 #    endif
 
 #    if !defined(BOOL_TO_BIT)
-#       define BOOL_TO_BIT(XX)       ((XX) ? 1 : 0 )
+#       define BOOL_TO_BIT(XX)       LAMBDA(XX, 1, 0 )
 #    endif
 
 #    if !defined(BIT_TO_BOOL)
@@ -351,9 +359,12 @@ void non_fatal_assert( int val, const char * format, ... );
         C_DECLARE_T_ARY(TYPE, lst, COUNT);    \
     }
 
-#   define C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)   \
-    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);         \
-    TYPE * NAME##_get_ptr( size_t );                  \
+#   define C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT) \
+    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);          \
+    void   NAME##_ctor( void );                     \
+    void   NAME##_dtor( void );                     \
+    bool_t NAME##_push_used( const REF_T );         \
+    TYPE * NAME##_get_ptr( const size_t );          \
     extern struct s_c_list__##TYPE__##NAME NAME
 
 #   define C_INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT) \
@@ -363,8 +374,13 @@ void non_fatal_assert( int val, const char * format, ... );
 #   define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) \
     ACCESS struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
-#   define C_IMPLEMENT_LIST(TYPE, NAME, COUNT)  \
-    TYPE * NAME##_get_ptr( size_t index )   { return (index >= COUNT) ? NULL : NAME.lst + index; }
+#   define C_IMPLEMENT_LIST(TYPE, NAME, COUNT)          \
+    static int     NAME##_find_free_ref( const REF_T ); \
+    static bool_t  NAME##_push_free( const REF_T );     \
+    static size_t  NAME##_pop_free( const int );        \
+    static int     NAME##_find_used_ref( const REF_T ); \
+    static size_t  NAME##_pop_used( const int );        \
+    TYPE * NAME##_get_ptr( const size_t index )   { return (index >= COUNT) ? NULL : NAME.lst + index; }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -433,7 +449,20 @@ void non_fatal_assert( int val, const char * format, ... );
     ELEM_T * ARY_T##_pop_back( ARY_T##_t * pary )              { if( NULL == pary || pary->top < 1 ) return NULL; --pary->top; return &(pary->ary[pary->top]); } \
     bool_t   ARY_T##_push_back( ARY_T##_t * pary, ELEM_T val ) { bool_t retval = bfalse; if( NULL == pary ) return bfalse; if (pary->top >= 0 && (size_t)pary->top < pary->alloc) { pary->ary[pary->top] = val; pary->top++; retval = btrue; } return retval; }
 
-#   define DYNAMIC_ARY_INVALID(ARY) ( (NULL == (ARY)) || (0 == (ARY)->alloc) || ((ARY)->top < 0) || ((size_t)(ARY)->top >= (ARY)->alloc) )
+#   define DYNAMIC_ARY_INVALID_RAW(PARY) ( (0 == (PARY)->alloc) || ((PARY)->top < 0) || ((size_t)(PARY)->top >= (PARY)->alloc) )
+#   define DYNAMIC_ARY_INVALID(PARY) ( (NULL == (PARY)) || DYNAMIC_ARY_INVALID_RAW(PARY) )
+
+#   define DYNAMIC_ARY_VALID_RAW(PARY) ( ((PARY)->alloc > 0) && ((PARY)->top >= 0) && ((size_t)(PARY)->top < (PARY)->alloc) )
+#   define DYNAMIC_ARY_VALID(PARY) ( (NULL != (PARY)) && DYNAMIC_ARY_VALID_RAW(PARY) )
+
+// a NULL, invalid, or empty list are all "empty"
+#   define DYNAMIC_ARY_HAS_ELEMENTS_RAW(PARY) ( ((PARY)->alloc > 0) && ((PARY)->top > 0) && (((size_t)(PARY)->top) < (PARY)->alloc) )
+#   define DYNAMIC_ARY_HAS_ELEMENTS(PARY) ( (NULL != (PARY)) && DYNAMIC_ARY_HAS_ELEMENTS_RAW(PARY) )
+
+// only valid lists can be full
+// avoid subtraction from unsigned values
+#   define DYNAMIC_ARY_CAN_ADD_ELEMENTS_RAW(PARY) ( ((PARY)->alloc > 0) && ((PARY)->top >= 0) && (((size_t)(PARY)->top) + 1 < (PARY)->alloc) )
+#   define DYNAMIC_ARY_CAN_ADD_ELEMENTS(PARY) ( (NULL != (PARY)) && DYNAMIC_ARY_CAN_ADD_ELEMENTS_RAW(PARY) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

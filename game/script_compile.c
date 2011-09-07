@@ -1069,7 +1069,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
             strncpy( obj_name, str + 1, SDL_arraysize( obj_name ) );
 
             // Invalid profile as default
-            ptok->iValue = MAX_PROFILE;
+            ptok->iValue = INVALID_PRO_REF;
 
             // Convert reference to slot number
             for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )

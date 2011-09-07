@@ -52,10 +52,10 @@ static INLINE PIP_REF prt_get_ipip( const PRT_REF iprt )
 {
     prt_t * pprt;
 
-    if ( !DEFINED_PRT( iprt ) ) return ( PIP_REF )MAX_PIP;
+    if ( !DEFINED_PRT( iprt ) ) return INVALID_PIP_REF;
     pprt = PrtList_get_ptr( iprt );
 
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return ( PIP_REF )MAX_PIP;
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return INVALID_PIP_REF;
 
     return pprt->pip_ref;
 }
@@ -147,14 +147,14 @@ static INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
     ///      @note this function should be completely trivial for anything other than
     ///       namage particles created by an explosion
 
-    CHR_REF iowner = ( CHR_REF )MAX_CHR;
+    CHR_REF iowner = INVALID_CHR_REF;
 
     prt_t * pprt;
 
     // be careful because this can be recursive
-    if ( depth > ( int )maxparticles - ( int )PrtList.free_count ) return ( CHR_REF )MAX_CHR;
+    if ( depth > ( int )maxparticles - ( int )PrtList.free_count ) return INVALID_CHR_REF;
 
-    if ( !DEFINED_PRT( iprt ) ) return ( CHR_REF )MAX_CHR;
+    if ( !DEFINED_PRT( iprt ) ) return INVALID_CHR_REF;
     pprt = PrtList_get_ptr( iprt );
 
     if ( DEFINED_CHR( pprt->owner_ref ) )
@@ -169,7 +169,7 @@ static INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
         if ( !ALLOCATED_PRT( pprt->parent_ref ) )
         {
             // make sure that a non valid parent_ref is marked as non-valid
-            pprt->parent_ref = MAX_PRT;
+            pprt->parent_ref = INVALID_PRT_REF;
             pprt->parent_guid = 0xFFFFFFFF;
         }
         else
@@ -190,7 +190,7 @@ static INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
             {
                 // the parent particle doesn't exist anymore
                 // fix the reference
-                pprt->parent_ref = MAX_PRT;
+                pprt->parent_ref = INVALID_PRT_REF;
                 pprt->parent_guid = 0xFFFFFFFF;
             }
         }
@@ -227,10 +227,10 @@ static INLINE prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle )
 {
     if ( NULL == pbundle ) return NULL;
 
-    pbundle->prt_ref = ( PRT_REF ) MAX_PRT;
+    pbundle->prt_ref = INVALID_PRT_REF;
     pbundle->prt_ptr = NULL;
 
-    pbundle->pip_ref = ( PIP_REF ) MAX_PIP;
+    pbundle->pip_ref = INVALID_PIP_REF;
     pbundle->pip_ptr = NULL;
 
     return pbundle;
@@ -251,7 +251,7 @@ static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
     }
     else
     {
-        pbundle->prt_ref = MAX_PRT;
+        pbundle->prt_ref = INVALID_PRT_REF;
         pbundle->prt_ptr = NULL;
     }
 
@@ -266,7 +266,7 @@ static INLINE prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
     }
     else
     {
-        pbundle->pip_ref = ( PIP_REF ) MAX_PIP;
+        pbundle->pip_ref = INVALID_PIP_REF;
         pbundle->pip_ptr = NULL;
     }
 

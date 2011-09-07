@@ -58,8 +58,8 @@ billboard_data_t * billboard_data_init( billboard_data_t * pbb )
 
     BLANK_STRUCT_PTR( pbb )
 
-    pbb->tex_ref = INVALID_TX_TEXTURE;
-    pbb->ichr    = ( CHR_REF )MAX_CHR;
+    pbb->tex_ref = INVALID_TX_REF;
+    pbb->ichr    = INVALID_CHR_REF;
 
     pbb->tint[RR] = pbb->tint[GG] = pbb->tint[BB] = pbb->tint[AA] = 1.0f;
     pbb->size = 1.0f;
@@ -79,7 +79,7 @@ bool_t billboard_data_free( billboard_data_t * pbb )
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     // free any allocated texture
-    TxTexture_free_one( pbb->tex_ref );
+    TxList_free_one( pbb->tex_ref );
 
     billboard_data_init( pbb );
 
@@ -145,7 +145,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     if ( NULL == pbb || !pbb->valid ) return bfalse;
 
     // release any existing texture in case there is an error
-    ptex = TxTexture_get_valid_ptr( pbb->tex_ref );
+    ptex = TxList_get_valid_ptr( pbb->tex_ref );
     oglx_texture_Release( ptex );
 
     va_start( args, format );
@@ -198,7 +198,7 @@ void BillboardList_update_all( void )
         if ( !pbb->valid ) continue;
 
         is_invalid = bfalse;
-        if (( ticks >= pbb->time ) || ( NULL == TxTexture_get_valid_ptr( pbb->tex_ref ) ) )
+        if (( ticks >= pbb->time ) || ( NULL == TxList_get_valid_ptr( pbb->tex_ref ) ) )
         {
             is_invalid = btrue;
         }
@@ -215,7 +215,7 @@ void BillboardList_update_all( void )
             // unlink it from the character
             if ( INGAME_CHR( pbb->ichr ) )
             {
-                ChrList.lst[pbb->ichr].ibillboard = INVALID_BILLBOARD;
+                ChrList.lst[pbb->ichr].ibillboard = INVALID_BILLBOARD_REF;
             }
 
             // deallocate the billboard
@@ -242,24 +242,40 @@ void BillboardList_free_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t BillboardList_get_free( Uint32 lifetime_secs )
+size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
 {
-    TX_REF             itex = ( TX_REF )INVALID_TX_TEXTURE;
-    size_t             ibb  = INVALID_BILLBOARD;
-    billboard_data_t * pbb  = NULL;
+    TX_REF             itex  = INVALID_TX_REF;
+    billboard_data_t * pbb   = NULL;
+    size_t             ibb   = INVALID_BILLBOARD_IDX;
+    size_t             loops = 0;
 
-    if ( BillboardList.free_count <= 0 ) return INVALID_BILLBOARD;
+    if ( BillboardList.free_count <= 0 ) return INVALID_BILLBOARD_IDX;
 
-    if ( 0 == lifetime_secs ) return INVALID_BILLBOARD;
+    if ( 0 == lifetime_secs ) return INVALID_BILLBOARD_IDX;
 
-    itex = TxTexture_get_free(( TX_REF )INVALID_TX_TEXTURE );
-    if ( INVALID_TX_TEXTURE == itex ) return INVALID_BILLBOARD;
+    itex = TxList_get_free( INVALID_TX_REF );
+    if ( !VALID_TX_RANGE( itex ) ) return INVALID_BILLBOARD_IDX;
 
-    // grab the top index
-    BillboardList.free_count--;
-    BillboardList.update_guid++;
+    while ( BillboardList.free_count > 0 )
+    {
+        // grab the top index
+        BillboardList.free_count--;
+        BillboardList.update_guid++;
 
-    ibb = BillboardList.free_ref[BillboardList.free_count];
+        ibb = BillboardList.free_ref[BillboardList.free_count];
+
+        if ( VALID_BILLBOARD_RANGE( ibb ) )
+        {
+            break;
+        }
+
+        loops++;
+    }
+
+    if ( loops > 0 )
+    {
+        log_warning( "%s - there is something wrong with the free stack. %d loops.\n", __FUNCTION__, loops );
+    }
 
     if ( VALID_BILLBOARD_RANGE( ibb ) )
     {
@@ -275,9 +291,9 @@ size_t BillboardList_get_free( Uint32 lifetime_secs )
     {
         // the billboard allocation returned an ivaild value
         // deallocate the texture
-        TxTexture_free_one( itex );
+        TxList_free_one( itex );
 
-        ibb = INVALID_BILLBOARD;
+        ibb = INVALID_BILLBOARD_IDX;
     }
 
     return ibb;
@@ -324,13 +340,14 @@ void BillboardList_clear_data( void )
     /// @author BB
     /// @details reset the free billboard list.
 
-    int cnt;
+    BBOARD_REF cnt;
 
     for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
     {
-        BillboardList.free_ref[cnt] = cnt;
+        BillboardList.free_ref[cnt] = REF_TO_INT( cnt );
     }
-    BillboardList.free_count = cnt;
+
+    BillboardList.free_count = BILLBOARD_COUNT;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -392,7 +409,7 @@ bool_t billboard_system_render_one( billboard_data_t * pbb, float scale, const f
     // do not display for objects that are mounted or being held
     if ( IS_ATTACHED_CHR_RAW( pbb->ichr ) ) return bfalse;
 
-    ptex = TxTexture_get_valid_ptr( pbb->tex_ref );
+    ptex = TxList_get_valid_ptr( pbb->tex_ref );
 
     oglx_texture_Bind( ptex );
 

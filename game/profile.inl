@@ -48,10 +48,10 @@ static INLINE CAP_REF pro_get_icap( const PRO_REF iobj )
 {
     pro_t * pobj;
 
-    if ( !LOADED_PRO( iobj ) ) return ( CAP_REF )MAX_CAP;
-    pobj = ProList_get_ptr( iobj );
+    if ( !LOADED_PRO( iobj ) ) return INVALID_CAP_REF;
+    pobj = ProList.lst + iobj;
 
-    return LOADED_CAP( pobj->icap ) ? pobj->icap : ( CAP_REF )MAX_CAP;
+    return LOADED_CAP( pobj->icap ) ? pobj->icap : INVALID_CAP_REF;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -59,10 +59,10 @@ static INLINE MAD_REF pro_get_imad( const PRO_REF iobj )
 {
     pro_t * pobj;
 
-    if ( !LOADED_PRO( iobj ) ) return ( MAD_REF )MAX_MAD;
-    pobj = ProList_get_ptr( iobj );
+    if ( !LOADED_PRO( iobj ) ) return INVALID_MAD_REF;
+    pobj = ProList.lst + iobj;
 
-    return LOADED_MAD( pobj->imad ) ? pobj->imad : ( MAD_REF )MAX_MAD;
+    return LOADED_MAD( pobj->imad ) ? pobj->imad : INVALID_MAD_REF;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -70,10 +70,10 @@ static INLINE EVE_REF pro_get_ieve( const PRO_REF iobj )
 {
     pro_t * pobj;
 
-    if ( !LOADED_PRO( iobj ) ) return ( EVE_REF )MAX_EVE;
-    pobj = ProList_get_ptr( iobj );
+    if ( !LOADED_PRO( iobj ) ) return INVALID_EVE_REF;
+    pobj = ProList.lst + iobj;
 
-    return LOADED_EVE( pobj->ieve ) ? pobj->ieve : ( EVE_REF )MAX_EVE;
+    return LOADED_EVE( pobj->ieve ) ? pobj->ieve : INVALID_EVE_REF;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ static INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int pip_index )
     pro_t * pobj;
     PIP_REF found_pip, global_pip;
 
-    found_pip = ( PIP_REF )MAX_PIP;
+    found_pip = INVALID_PIP_REF;
 
     if ( !LOADED_PRO( iobj ) )
     {
@@ -96,7 +96,7 @@ static INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int pip_index )
     else
     {
         // this pip is relative to a certain object
-        pobj = ProList_get_ptr( iobj );
+        pobj = ProList.lst + iobj;
 
         // find the local pip if it exists
         if ( pip_index < MAX_PIP_PER_PROFILE )
@@ -127,7 +127,7 @@ static INLINE cap_t * pro_get_pcap( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList_get_ptr( iobj );
+    pobj = ProList.lst + iobj;
 
     if ( !LOADED_CAP( pobj->icap ) ) return NULL;
 
@@ -140,7 +140,7 @@ static INLINE mad_t * pro_get_pmad( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList_get_ptr( iobj );
+    pobj = ProList.lst + iobj;
 
     if ( !LOADED_MAD( pobj->imad ) ) return NULL;
 
@@ -153,7 +153,7 @@ static INLINE eve_t * pro_get_peve( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList_get_ptr( iobj );
+    pobj = ProList.lst + iobj;
 
     if ( !LOADED_EVE( pobj->ieve ) ) return NULL;
 
@@ -181,10 +181,10 @@ static INLINE pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index )
     }
 
     // this pip is relative to a certain object
-    pobj = ProList_get_ptr( iobj );
+    pobj = ProList.lst + iobj;
 
     // find the local pip if it exists
-    local_pip = ( PIP_REF )MAX_PIP;
+    local_pip = INVALID_PIP_REF;
     if ( pip_index < MAX_PIP_PER_PROFILE )
     {
         local_pip = pobj->prtpip[pip_index];
@@ -201,7 +201,7 @@ static INLINE Mix_Chunk * pro_get_chunk( const PRO_REF iobj, int index )
     if ( !VALID_SND( index ) ) return NULL;
 
     if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList_get_ptr( iobj );
+    pobj = ProList.lst + iobj;
 
     return pobj->wavelist[index];
 }

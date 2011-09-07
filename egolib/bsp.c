@@ -113,7 +113,7 @@ bool_t _generate_BSP_aabb_child( BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst
     {
         float maxval, minval;
 
-        tnc = (( signed )psrc->dim ) - 1 - cnt;
+        tnc = psrc->dim - 1 - cnt;
 
         if ( 0 == ( index & ( 1 << tnc ) ) )
         {
@@ -208,7 +208,7 @@ BSP_aabb_t * BSP_aabb_ctor( BSP_aabb_t * pbb, size_t dim )
     if ( NULL == pbb ) return NULL;
 
     // initialize the memory
-    BLANK_STRUCT_PTR( pbb )
+    BLANK_STRUCT_PTR( pbb );
 
     // allocate memory and clear it
     BSP_aabb_alloc( pbb, dim );
@@ -225,7 +225,7 @@ BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb )
     pbb = BSP_aabb_dealloc( pbb );
 
     // wipe it
-    BLANK_STRUCT_PTR( pbb )
+    BLANK_STRUCT_PTR( pbb );
 
     return pbb;
 }
@@ -270,46 +270,6 @@ BSP_aabb_t * BSP_aabb_dealloc( BSP_aabb_t * pbb )
     pbb->valid = bfalse;
 
     return pbb;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_empty( const BSP_aabb_t * psrc )
-{
-    Uint32 cnt;
-
-    if ( NULL == psrc || 0 == psrc->dim  || !psrc->valid ) return btrue;
-
-    for ( cnt = 0; cnt < psrc->dim; cnt++ )
-    {
-        if ( psrc->maxs.ary[cnt] <= psrc->mins.ary[cnt] )
-            return btrue;
-    }
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_self_clear( BSP_aabb_t * psrc )
-{
-    /// @author BB
-    /// @details Return this bounding box to an empty state.
-
-    Uint32 cnt;
-
-    if ( NULL == psrc ) return bfalse;
-
-    if ( psrc->dim <= 0 || NULL == psrc->mins.ary || NULL == psrc->mids.ary || NULL == psrc->maxs.ary )
-    {
-        BSP_aabb_invalidate( psrc );
-        return bfalse;
-    }
-
-    for ( cnt = 0; cnt < psrc->dim; cnt++ )
-    {
-        psrc->mins.ary[cnt] = psrc->mids.ary[cnt] = psrc->maxs.ary[cnt] = 0.0f;
-    }
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -401,17 +361,6 @@ bool_t BSP_aabb_validate( BSP_aabb_t * psrc )
     }
 
     return psrc->valid;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t BSP_aabb_invalidate( BSP_aabb_t * psrc )
-{
-    if ( NULL == psrc ) return bfalse;
-
-    // set it to valid
-    psrc->valid = bfalse;
-
-    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -527,7 +476,7 @@ BSP_leaf_t * BSP_leaf_dtor( BSP_leaf_t * L )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BSP_leaf_unlink( BSP_leaf_t * L )
+bool_t BSP_leaf_remove_link( BSP_leaf_t * L )
 {
     bool_t retval;
 
@@ -560,7 +509,7 @@ bool_t BSP_leaf_clear( BSP_leaf_t * L )
     L->data_type = BSP_LEAF_NONE;
     L->data      = NULL;
 
-    BSP_leaf_unlink( L );
+    BSP_leaf_remove_link( L );
 
     return btrue;
 }
@@ -589,7 +538,7 @@ BSP_branch_t * BSP_branch_ctor( BSP_branch_t * B, size_t dim )
 {
     if ( NULL == B ) return B;
 
-    BLANK_STRUCT_PTR( B )
+    BLANK_STRUCT_PTR( B );
 
     BSP_branch_alloc( B, dim );
 
@@ -603,7 +552,7 @@ BSP_branch_t * BSP_branch_dtor( BSP_branch_t * B )
 
     BSP_branch_dealloc( B );
 
-    BLANK_STRUCT_PTR( B )
+    BLANK_STRUCT_PTR( B );
 
     return B;
 }
@@ -977,7 +926,7 @@ bool_t BSP_branch_prune( BSP_tree_t * t, BSP_branch_t * B, bool_t recursive )
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    size_t       cnt, colst_size;
+    size_t       cnt, colst_size, lost_nodes;
     BSP_leaf_t * ptmp;
 
     const BSP_leaf_list_t * nodes_ptr;
@@ -989,6 +938,8 @@ bool_t BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t *
 
     colst_size = BSP_leaf_pary_get_size( colst );
 
+    lost_nodes = 0;
+
     if ( NULL != ptest )
     {
         // add any valid nodes in the nodes.lst
@@ -996,7 +947,10 @@ bool_t BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t *
         {
             if (( *ptest )( ptmp ) )
             {
-                if ( !BSP_leaf_pary_push_back( colst, ptmp ) ) break;
+                if ( !BSP_leaf_pary_push_back( colst, ptmp ) )
+                {
+                    lost_nodes++;
+                }
             }
         }
     }
@@ -1005,8 +959,17 @@ bool_t BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t *
         // add any nodes in the nodes.lst
         for ( cnt = 0, ptmp = nodes_ptr->lst; NULL != ptmp && cnt < nodes_ptr->count; ptmp = ptmp->next, cnt++ )
         {
-            if ( !BSP_leaf_pary_push_back( colst, ptmp ) ) break;
+            if ( !BSP_leaf_pary_push_back( colst, ptmp ) )
+            {
+                lost_nodes++;
+            }
         }
+    }
+
+    // warn the user if any nodes were rejected
+    if ( lost_nodes > 0 )
+    {
+        log_warning( "%s - %d nodes not added.\n", __FUNCTION__, lost_nodes );
     }
 
     return ( BSP_leaf_pary_get_top( colst ) < colst_size );
@@ -1015,7 +978,7 @@ bool_t BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t *
 //--------------------------------------------------------------------------------------------
 bool_t BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
-    size_t       cnt, colst_size;
+    size_t       cnt, colst_size, lost_nodes;
     BSP_leaf_t * ptmp;
     const BSP_leaf_list_t * unsorted_ptr;
 
@@ -1026,6 +989,8 @@ bool_t BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_
 
     colst_size = BSP_leaf_pary_get_size( colst );
 
+    lost_nodes = 0;
+
     if ( NULL != ptest )
     {
         // add any valid unsorted in the unsorted.lst
@@ -1033,7 +998,10 @@ bool_t BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_
         {
             if (( *ptest )( ptmp ) )
             {
-                if ( !BSP_leaf_pary_push_back( colst, ptmp ) ) break;
+                if ( !BSP_leaf_pary_push_back( colst, ptmp ) )
+                {
+                    lost_nodes++;
+                }
             }
         }
     }
@@ -1042,8 +1010,17 @@ bool_t BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_
         // add any unsorted in the unsorted.lst
         for ( cnt = 0, ptmp = unsorted_ptr->lst; NULL != ptmp && cnt < unsorted_ptr->count; ptmp = ptmp->next, cnt++ )
         {
-            if ( !BSP_leaf_pary_push_back( colst, ptmp ) ) break;
+            if ( !BSP_leaf_pary_push_back( colst, ptmp ) )
+            {
+                lost_nodes++;
+            }
         }
+    }
+
+    // warn the user if any nodes were rejected
+    if ( lost_nodes > 0 )
+    {
+        log_warning( "%s - %d nodes not added.\n", __FUNCTION__, lost_nodes );
     }
 
     return ( BSP_leaf_pary_get_top( colst ) < colst_size );
@@ -2088,7 +2065,7 @@ bool_t BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt )
 }
 
 //--------------------------------------------------------------------------------------------
-int BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+size_t BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
     /// @author BB
     /// @details fill the collision list with references to objects that the aabb may overlap.
@@ -2096,7 +2073,7 @@ int BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_le
 
     if ( NULL == tree || NULL == paabb ) return 0;
 
-    if ( NULL == colst || 0 == colst->alloc ) return 0;
+    if ( DYNAMIC_ARY_INVALID( colst ) ) return 0;
 
     // collide with any "infinite" nodes
     BSP_leaf_list_collide_aabb( &( tree->infinite ), paabb, ptest, colst );
@@ -2104,11 +2081,11 @@ int BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_le
     // collide with the rest of the tree
     BSP_branch_collide_aabb( tree->finite, paabb, ptest, colst );
 
-    return colst->top;
+    return BSP_leaf_pary_get_top( colst );
 }
 
 //--------------------------------------------------------------------------------------------
-int BSP_tree_collide_frustum( const BSP_tree_t * tree, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+size_t BSP_tree_collide_frustum( const BSP_tree_t * tree, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
     /// @author BB
     /// @details fill the collision list with references to objects that the frustum may overlap.
@@ -2116,7 +2093,7 @@ int BSP_tree_collide_frustum( const BSP_tree_t * tree, const egolib_frustum_t * 
 
     if ( NULL == tree || NULL == pfrust ) return 0;
 
-    if ( NULL == colst || 0 == colst->alloc ) return 0;
+    if ( DYNAMIC_ARY_INVALID( colst ) ) return 0;
 
     // collide with any "infinite" nodes
     BSP_leaf_list_collide_frustum( &( tree->infinite ), pfrust, ptest, colst );
@@ -2124,7 +2101,7 @@ int BSP_tree_collide_frustum( const BSP_tree_t * tree, const egolib_frustum_t * 
     // collide with the rest of the tree
     BSP_branch_collide_frustum( tree->finite, pfrust, ptest, colst );
 
-    return colst->top;
+    return BSP_leaf_pary_get_top( colst );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2339,7 +2316,7 @@ bool_t BSP_leaf_list_collide_aabb( const BSP_leaf_list_t * LL, const aabb_t * pa
     /// @author BB
     /// @details check for collisions with the given node list
 
-    size_t       cnt;
+    size_t       cnt, lost_nodes;
     BSP_leaf_t * pleaf;
     bool_t       retval;
 
@@ -2364,47 +2341,94 @@ bool_t BSP_leaf_list_collide_aabb( const BSP_leaf_list_t * LL, const aabb_t * pa
     //    return bfalse;
     //}
 
-    // scan through every leaf
-    for ( cnt = 0, pleaf = LL->lst;
-          cnt < LL->count && NULL != pleaf;
-          cnt++, pleaf = pleaf->next )
+    lost_nodes = 0;
+
+    if ( NULL != ptest )
     {
-        bool_t do_insert;
-        geometry_rv  geometry_test;
-        ego_aabb_t * pleaf_bb = &( pleaf->bbox );
-
-        // make sure the leaf is valid
-        EGOBOO_ASSERT( pleaf->data_type > -1 );
-
-        // make sure the leaf is inserted
-        if ( !pleaf->inserted )
+        // scan through every leaf
+        for ( cnt = 0, pleaf = LL->lst;
+              cnt < LL->count && NULL != pleaf;
+              cnt++, pleaf = pleaf->next )
         {
-            // hmmm.... what to do?
-            log_warning( "BSP_leaf_list_collide_aabb() - a node in a leaf list is claiming to not be inserted\n" );
-        }
+            bool_t do_insert;
+            geometry_rv  geometry_test;
+            ego_aabb_t * pleaf_bb = &( pleaf->bbox );
 
-        // test the geometry
-        geometry_test = aabb_intersects_aabb( paabb, &( pleaf_bb->data ) );
+            // make sure the leaf is valid
+            EGOBOO_ASSERT( pleaf->data_type > -1 );
 
-        // determine what action to take
-        do_insert = bfalse;
-        if ( geometry_test > geometry_outside )
-        {
-            if ( NULL == ptest )
+            // make sure the leaf is inserted
+            if ( !pleaf->inserted )
             {
-                do_insert = btrue;
+                // hmmm.... what to do?
+                log_warning( "BSP_leaf_list_collide_aabb() - a node in a leaf list is claiming to not be inserted\n" );
             }
-            else
+
+            // test the geometry
+            geometry_test = aabb_intersects_aabb( paabb, &( pleaf_bb->data ) );
+
+            // determine what action to take
+            do_insert = bfalse;
+            if ( geometry_test > geometry_outside )
             {
                 // we have a possible intersection
                 do_insert = ( *ptest )( pleaf );
             }
-        }
 
-        if ( do_insert )
-        {
-            if ( !BSP_leaf_pary_push_back( colst, pleaf ) ) break;
+            if ( do_insert )
+            {
+                if ( !BSP_leaf_pary_push_back( colst, pleaf ) )
+                {
+                    lost_nodes++;
+                }
+            }
         }
+    }
+    else
+    {
+        // scan through every leaf
+        for ( cnt = 0, pleaf = LL->lst;
+              cnt < LL->count && NULL != pleaf;
+              cnt++, pleaf = pleaf->next )
+        {
+            bool_t do_insert;
+            geometry_rv  geometry_test;
+            ego_aabb_t * pleaf_bb = &( pleaf->bbox );
+
+            // make sure the leaf is valid
+            EGOBOO_ASSERT( pleaf->data_type > -1 );
+
+            // make sure the leaf is inserted
+            if ( !pleaf->inserted )
+            {
+                // hmmm.... what to do?
+                log_warning( "BSP_leaf_list_collide_aabb() - a node in a leaf list is claiming to not be inserted\n" );
+            }
+
+            // test the geometry
+            geometry_test = aabb_intersects_aabb( paabb, &( pleaf_bb->data ) );
+
+            // determine what action to take
+            do_insert = bfalse;
+            if ( geometry_test > geometry_outside )
+            {
+                do_insert = btrue;
+            }
+
+            if ( do_insert )
+            {
+                if ( !BSP_leaf_pary_push_back( colst, pleaf ) )
+                {
+                    lost_nodes++;
+                }
+            }
+        }
+    }
+
+    // warn the user if any nodes were rejected
+    if ( lost_nodes > 0 )
+    {
+        log_warning( "%s - %d nodes not added.\n", __FUNCTION__, lost_nodes );
     }
 
     // return false if we maxed out the colist
@@ -2419,7 +2443,7 @@ bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const egolib_f
     /// @author BB
     /// @details check for collisions with the given node list
 
-    size_t       cnt;
+    size_t       cnt, lost_nodes;
     BSP_leaf_t * pleaf;
     bool_t       retval;
 
@@ -2443,6 +2467,8 @@ bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const egolib_f
     //{
     //    return bfalse;
     //}
+
+    lost_nodes = 0;
 
     // scan through every leaf
     for ( cnt = 0, pleaf = LL->lst;
@@ -2483,8 +2509,17 @@ bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const egolib_f
 
         if ( do_insert )
         {
-            if ( !BSP_leaf_pary_push_back( colst, pleaf ) ) break;
+            if ( !BSP_leaf_pary_push_back( colst, pleaf ) )
+            {
+                lost_nodes++;
+            }
         }
+    }
+
+    // warn the user if any nodes were rejected
+    if ( lost_nodes > 0 )
+    {
+        log_warning( "%s - %d nodes not added.\n", __FUNCTION__, lost_nodes );
     }
 
     // return false if we maxed out the colist

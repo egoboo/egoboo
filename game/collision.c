@@ -244,12 +244,12 @@ CoNode_t * CoNode_ctor( CoNode_t * n )
     BLANK_STRUCT_PTR( n )
 
     // the "colliding" objects
-    n->chra = ( CHR_REF )MAX_CHR;
-    n->prta = MAX_PRT;
+    n->chra = INVALID_CHR_REF;
+    n->prta = INVALID_PRT_REF;
 
     // the "collided with" objects
-    n->chrb  = ( CHR_REF )MAX_CHR;
-    n->prtb  = MAX_PRT;
+    n->chrb  = INVALID_CHR_REF;
+    n->prtb  = INVALID_PRT_REF;
     n->tileb = MPD_FANOFF;
 
     // intialize the time
@@ -1005,8 +1005,8 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
         oct_bb_t   tmp_oct;
         bool_t     can_reaffirm, needs_bump;
 
-        pleaf = POBJ_GET_PLEAF(bdl.prt_ptr);
-        if( NULL == pleaf ) continue;
+        pleaf = POBJ_GET_PLEAF( bdl.prt_ptr );
+        if ( NULL == pleaf ) continue;
 
         // if the particle is in the BSP, then it has already had it's chance to collide
         if ( pleaf->inserted ) continue;
@@ -1037,7 +1037,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
             int          j;
             CoNode_t     tmp_codata;
             BIT_FIELD    test_platform;
-            CHR_REF      ichr_a = MAX_CHR;
+            CHR_REF      ichr_a = INVALID_CHR_REF;
             BSP_leaf_t * pleaf = NULL;
             bool_t       do_insert = bfalse;
 
@@ -1522,17 +1522,17 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         d = pcn_ary->ary + cnt;
 
         // only look at character-platform or particle-platform interactions interactions
-        if ( MAX_PRT != d->prta && MAX_PRT != d->prtb ) continue;
+        if ( INVALID_PRT_REF != d->prta && INVALID_PRT_REF != d->prtb ) continue;
 
-        if ( MAX_CHR != d->chra && MAX_CHR != d->chrb )
+        if ( INVALID_CHR_REF != d->chra && INVALID_CHR_REF != d->chrb )
         {
             do_chr_platform_detection( d->chra, d->chrb );
         }
-        else if ( MAX_CHR != d->chra && MAX_PRT != d->prtb )
+        else if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
         {
             do_prt_platform_detection( d->chra, d->prtb );
         }
-        if ( MAX_PRT != d->prta && MAX_CHR != d->chrb )
+        if ( INVALID_PRT_REF != d->prta && INVALID_CHR_REF != d->chrb )
         {
             do_prt_platform_detection( d->chrb, d->prta );
         }
@@ -1548,9 +1548,9 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
         d = pcn_ary->ary + cnt;
 
         // only look at character-character interactions
-        //if ( MAX_PRT != d->prta && MAX_PRT != d->prtb ) continue;
+        //if ( INVALID_PRT_REF != d->prta && INVALID_PRT_REF != d->prtb ) continue;
 
-        if ( MAX_CHR != d->chra && MAX_CHR != d->chrb )
+        if ( INVALID_CHR_REF != d->chra && INVALID_CHR_REF != d->chrb )
         {
             if ( INGAME_CHR( d->chra ) && INGAME_CHR( d->chrb ) )
             {
@@ -1565,7 +1565,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
 
             }
         }
-        else if ( MAX_CHR != d->chra && MAX_PRT != d->prtb )
+        else if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
         {
             if ( INGAME_CHR( d->chra ) && INGAME_PRT( d->prtb ) )
             {
@@ -1575,7 +1575,7 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
                 }
             }
         }
-        else if ( MAX_CHR != d->chrb && MAX_PRT != d->prta )
+        else if ( INVALID_CHR_REF != d->chrb && INVALID_PRT_REF != d->prta )
         {
             if ( INGAME_CHR( d->chrb ) && INGAME_PRT( d->prta ) )
             {
@@ -1590,10 +1590,10 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
     //---- remove any bad platforms
 
     // attach_prt_to_platform() erases targetplatform_ref, so any character with
-    // (MAX_CHR != targetplatform_ref) must not be connected to a platform at all
+    // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
-        if ( MAX_CHR != pchr->onwhichplatform_ref && pchr->onwhichplatform_update < update_wld )
+        if ( INVALID_CHR_REF != pchr->onwhichplatform_ref && pchr->onwhichplatform_update < update_wld )
         {
             detach_character_from_platform( pchr );
         }
@@ -1601,10 +1601,10 @@ bool_t bump_all_platforms( CoNode_ary_t * pcn_ary )
     CHR_END_LOOP();
 
     // attach_prt_to_platform() erases targetplatform_ref, so any particle with
-    // (MAX_CHR != targetplatform_ref) must not be connected to a platform at all
+    // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
     PRT_BEGIN_LOOP_DISPLAY( iprt, bdl_prt )
     {
-        if ( MAX_CHR != bdl_prt.prt_ptr->onwhichplatform_ref && bdl_prt.prt_ptr->onwhichplatform_update < update_wld )
+        if ( INVALID_CHR_REF != bdl_prt.prt_ptr->onwhichplatform_ref && bdl_prt.prt_ptr->onwhichplatform_update < update_wld )
         {
             detach_particle_from_platform( bdl_prt.prt_ptr );
         }
@@ -1631,7 +1631,7 @@ bool_t bump_all_mounts( CoNode_ary_t * pcn_ary )
         d = pcn_ary->ary + cnt;
 
         // only look at character-character interactions
-        if ( MAX_CHR == d->chra || MAX_CHR == d->chrb ) continue;
+        if ( INVALID_CHR_REF == d->chra || INVALID_CHR_REF == d->chrb ) continue;
 
         bump_one_mount( d->chra, d->chrb );
     }
@@ -2196,7 +2196,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
     oct_vec_t odepth;
     bool_t    collision = bfalse, bump = bfalse, valid_normal = bfalse;
 
-    if ( NULL == d || MAX_PRT != d->prtb ) return bfalse;
+    if ( NULL == d || INVALID_PRT_REF != d->prtb ) return bfalse;
     ichr_a = d->chra;
     ichr_b = d->chrb;
 
@@ -2274,15 +2274,15 @@ bool_t do_chr_chr_collision( CoNode_t * d )
 
     // seriously reduce the interaction_strength with mounts
     // this thould allow characters to mount certain mounts a lot easier
-    if (( pchr_a->ismount && MAX_CHR == pchr_a->holdingwhich[SLOT_LEFT] && !pchr_b->ismount ) ||
-        ( pchr_b->ismount && MAX_CHR == pchr_b->holdingwhich[SLOT_LEFT] && !pchr_a->ismount ) )
+    if (( pchr_a->ismount && INVALID_CHR_REF == pchr_a->holdingwhich[SLOT_LEFT] && !pchr_b->ismount ) ||
+        ( pchr_b->ismount && INVALID_CHR_REF == pchr_b->holdingwhich[SLOT_LEFT] && !pchr_a->ismount ) )
     {
         interaction_strength *= 0.25;
     }
 
     // reduce the interaction strength with platforms
     // that are overlapping with the platform you are actually on
-    if ( pchr_b->canuseplatforms && pchr_a->platform && MAX_CHR != pchr_b->onwhichplatform_ref && ichr_a != pchr_b->onwhichplatform_ref )
+    if ( pchr_b->canuseplatforms && pchr_a->platform && INVALID_CHR_REF != pchr_b->onwhichplatform_ref && ichr_a != pchr_b->onwhichplatform_ref )
     {
         float lerp_z = ( pchr_b->pos.z - ( pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1.0f, 1.0f );
@@ -2297,7 +2297,7 @@ bool_t do_chr_chr_collision( CoNode_t * d )
         }
     }
 
-    if ( pchr_a->canuseplatforms && pchr_b->platform && MAX_CHR != pchr_a->onwhichplatform_ref && ichr_b != pchr_a->onwhichplatform_ref )
+    if ( pchr_a->canuseplatforms && pchr_b->platform && INVALID_CHR_REF != pchr_a->onwhichplatform_ref && ichr_b != pchr_a->onwhichplatform_ref )
     {
         float lerp_z = ( pchr_a->pos.z - ( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1, 1 );
@@ -2896,7 +2896,7 @@ bool_t do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
 
                 // Figure out if we are really using a shield or if it is just a invictus frame
                 using_shield = bfalse;
-                item         = MAX_CHR;
+                item         = INVALID_CHR_REF;
 
                 // Check right hand for a shield
                 if ( !using_shield )
@@ -3090,7 +3090,7 @@ bool_t do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
     }
 
     // apply the impulse to the particle velocity
-    if ( MAX_CHR == pdata->pprt->attachedto_ref )
+    if ( INVALID_CHR_REF == pdata->pprt->attachedto_ref )
     {
         fvec3_t tmp_impulse;
 
@@ -3129,7 +3129,7 @@ bool_t do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     // Check all enchants to see if they are removed
     ienc_now = pdata->pchr->firstenchant;
     ienc_count = 0;
-    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -3507,12 +3507,12 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     // valid node?
     if ( NULL == d ) return bfalse;
 
-    if ( MAX_CHR != d->chra && MAX_PRT != d->prtb )
+    if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
     {
         // character was first
         intialized = do_chr_prt_collision_init( d->chra, d->prtb, &cn_data );
     }
-    else if ( MAX_CHR != d->chrb && MAX_PRT != d->prta )
+    else if ( INVALID_CHR_REF != d->chrb && INVALID_PRT_REF != d->prta )
     {
         // particle was first
         intialized = do_chr_prt_collision_init( d->chrb, d->prta, &cn_data );
@@ -3535,7 +3535,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     if ( INGAME_CHR( cn_data.pchr->inwhich_inventory ) ) return bfalse;
 
     // if the particle is attached to this character, ignore a "collision"
-    if ( MAX_CHR != cn_data.pprt->attachedto_ref && cn_data.ichr == cn_data.pprt->attachedto_ref )
+    if ( INVALID_CHR_REF != cn_data.pprt->attachedto_ref && cn_data.ichr == cn_data.pprt->attachedto_ref )
     {
         return bfalse;
     }

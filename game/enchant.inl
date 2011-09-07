@@ -49,10 +49,10 @@ CHR_REF enc_get_iowner( const ENC_REF ienc )
 {
     enc_t * penc;
 
-    if ( !DEFINED_ENC( ienc ) ) return ( CHR_REF )MAX_CHR;
+    if ( !DEFINED_ENC( ienc ) ) return INVALID_CHR_REF;
     penc = EncList_get_ptr( ienc );
 
-    if ( !INGAME_CHR( penc->owner_ref ) ) return ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( penc->owner_ref ) ) return INVALID_CHR_REF;
 
     return penc->owner_ref;
 }
@@ -75,10 +75,10 @@ EVE_REF enc_get_ieve( const ENC_REF ienc )
 {
     enc_t * penc;
 
-    if ( !DEFINED_ENC( ienc ) ) return ( EVE_REF )MAX_EVE;
+    if ( !DEFINED_ENC( ienc ) ) return INVALID_EVE_REF;
     penc = EncList_get_ptr( ienc );
 
-    if ( !LOADED_EVE( penc->eve_ref ) ) return ( EVE_REF )MAX_EVE;
+    if ( !LOADED_EVE( penc->eve_ref ) ) return INVALID_EVE_REF;
 
     return penc->eve_ref;
 }
@@ -101,10 +101,10 @@ PRO_REF  enc_get_ipro( const ENC_REF ienc )
 {
     enc_t * penc;
 
-    if ( !DEFINED_ENC( ienc ) ) return ( PRO_REF )MAX_PROFILE;
+    if ( !DEFINED_ENC( ienc ) ) return INVALID_PRO_REF;
     penc = EncList_get_ptr( ienc );
 
-    if ( !LOADED_PRO( penc->profile_ref ) ) return ( PRO_REF )MAX_PROFILE;
+    if ( !LOADED_PRO( penc->profile_ref ) ) return INVALID_PRO_REF;
 
     return penc->profile_ref;
 }

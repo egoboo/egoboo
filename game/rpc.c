@@ -22,6 +22,7 @@
 /// @details
 
 #include "../egolib/strutil.h"
+#include "../egolib/log.h"
 
 #include "rpc.h"
 
@@ -30,11 +31,16 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define MAX_TX_TEXTURE_REQ 100
+#define MAX_TX_REQ 100
+
+#define INVALID_TX_REQ_IDX MAX_TX_REQ
+#define INVALID_TX_REQ_REF ((TX_REF)INVALID_TX_REQ_IDX)
+
+#define VALID_TX_REQ_RANGE(VAL) ( ((VAL)>=0) && ((VAL) < MAX_TX_REQ) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INSTANTIATE_LIST_STATIC( tx_request_t, TxReqList, MAX_TX_TEXTURE_REQ );
+INSTANTIATE_LIST_STATIC( tx_request_t, TxReqList, MAX_TX_REQ );
 
 static bool_t _rpc_system_initialized = bfalse;
 static int    _rpc_system_guid;
@@ -44,7 +50,7 @@ static int    _rpc_system_guid;
 static void   TxReqList_ctor( void );
 static void   TxReqList_dtor( void );
 static bool_t TxReqList_timestep( void );
-static size_t TxReqList_get_free( int type );
+static size_t TxReqList_get_free_ref( int type );
 static bool_t TxReqList_free_one( int index );
 
 static int ego_rpc_system_get_guid( void );
@@ -52,7 +58,7 @@ static int ego_rpc_system_get_guid( void );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-IMPLEMENT_LIST( tx_request_t, TxReqList, MAX_TX_TEXTURE_REQ );
+IMPLEMENT_LIST( tx_request_t, TxReqList, MAX_TX_REQ );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -97,7 +103,7 @@ tx_request_t * tx_request_ctor( tx_request_t * preq, int type )
     if ( NULL == ego_rpc_base_ctor( &( preq->ego_rpc_base ), type, preq ) ) return NULL;
 
     preq->filename[0] = CSTR_END;
-    preq->index       = ( TX_REF )INVALID_TX_TEXTURE;
+    preq->index       = INVALID_TX_REF;
     preq->key         = ( Uint32 )( ~0 );
 
     return preq;
@@ -180,11 +186,11 @@ void TxReqList_ctor( void )
     TxReqList.used_count = 0;
     for ( cnt = 0; cnt < MAX_ENC; cnt++ )
     {
-        TxReqList.free_ref[cnt] = MAX_TX_TEXTURE_REQ;
-        TxReqList.used_ref[cnt] = MAX_TX_TEXTURE_REQ;
+        TxReqList.free_ref[cnt] = INVALID_TX_REQ_IDX;
+        TxReqList.used_ref[cnt] = INVALID_TX_REQ_IDX;
     }
 
-    for ( cnt = 0; cnt < MAX_TX_TEXTURE_REQ; cnt++ )
+    for ( cnt = 0; cnt < MAX_TX_REQ; cnt++ )
     {
         tx_request_t * preq = TxReqList.lst + cnt;
 
@@ -210,7 +216,7 @@ void TxReqList_dtor( void )
 {
     TREQ_REF cnt;
 
-    for ( cnt = 0; cnt < MAX_TX_TEXTURE_REQ; cnt++ )
+    for ( cnt = 0; cnt < MAX_TX_REQ; cnt++ )
     {
         // character "constructor"
         tx_request_dtor( TxReqList.lst + cnt );
@@ -220,28 +226,41 @@ void TxReqList_dtor( void )
     TxReqList.used_count = 0;
     for ( cnt = 0; cnt < MAX_ENC; cnt++ )
     {
-        TxReqList.free_ref[cnt] = MAX_TX_TEXTURE_REQ;
-        TxReqList.used_ref[cnt] = MAX_TX_TEXTURE_REQ;
+        TxReqList.free_ref[cnt] = INVALID_TX_REQ_IDX;
+        TxReqList.used_ref[cnt] = INVALID_TX_REQ_IDX;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-size_t TxReqList_get_free( int type )
+size_t TxReqList_get_free_ref( int type )
 {
     /// @author ZZ
-    /// @details This function returns the next free index or MAX_TX_TEXTURE_REQ if there are none
+    /// @details This function returns the next free index or INVALID_TX_REQ_IDX if there are none
 
-    size_t retval = MAX_TX_TEXTURE_REQ;
+    size_t retval = INVALID_TX_REQ_IDX;
+    size_t loops  = 0;
 
-    if ( TxReqList.free_count > 0 )
+    while ( TxReqList.free_count > 0 )
     {
         TxReqList.free_count--;
         TxReqList.update_guid++;
 
         retval = TxReqList.free_ref[TxReqList.free_count];
+
+        if ( VALID_TX_REQ_RANGE( retval ) )
+        {
+            break;
+        }
+
+        loops++;
     }
 
-    if ( retval >= 0 && retval < MAX_TX_TEXTURE_REQ )
+    if ( loops > 0 )
+    {
+        log_warning( "%s - there is something wrong with the free stack. %d loops.\n", __FUNCTION__, loops );
+    }
+
+    if ( VALID_TX_REQ_RANGE( retval ) )
     {
         tx_request_ctor( TxReqList.lst + retval, type );
     }
@@ -278,7 +297,7 @@ bool_t TxReqList_free_one( int ireq )
 
     // push it on the free stack
     retval = bfalse;
-    if ( TxReqList.free_count < MAX_TX_TEXTURE_REQ )
+    if ( TxReqList.free_count < MAX_TX_REQ )
     {
         TxReqList.free_ref[TxReqList.free_count] = ireq;
 
@@ -320,15 +339,15 @@ bool_t TxReqList_timestep( void )
     switch ( preq->ego_rpc_base.data_type )
     {
         case 1:
-            // TxTexture_load_one_vfs()
-            preq->index = TxTexture_load_one_vfs( preq->filename, preq->itex_src, preq->key );
+            // TxList_load_one_vfs()
+            preq->index = TxList_load_one_vfs( preq->filename, preq->itex_src, preq->key );
             preq->ego_rpc_base.finished = btrue;
             retval = btrue;
             break;
 
         case 2:
-            // TxMenu_load_one_vfs()
-            preq->index = TxMenu_load_one_vfs( preq->filename, preq->itex_src, preq->key );
+            // mnu_TxList_load_one_vfs()
+            preq->index = mnu_TxList_load_one_vfs( preq->filename, preq->itex_src, preq->key );
             preq->ego_rpc_base.finished = btrue;
             retval = btrue;
             break;
@@ -345,7 +364,7 @@ bool_t TxReqList_timestep( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-tx_request_t * ego_rpc_load_TxTexture( const char *filename, int itex_src, Uint32 key )
+tx_request_t * ego_rpc_load_TxList( const char *filename, int itex_src, Uint32 key )
 {
     /// @author BB
     /// @details request that the main thread loads the texture
@@ -353,8 +372,8 @@ tx_request_t * ego_rpc_load_TxTexture( const char *filename, int itex_src, Uint3
     tx_request_t * preq;
     size_t index;
 
-    // find a free request for TxTexture (type 1)
-    index = TxReqList_get_free( 1 );
+    // find a free request for TxList (type 1)
+    index = TxReqList_get_free_ref( 1 );
 
     preq = TxReqList_get_ptr( index );
     if ( NULL == preq ) return NULL;
@@ -368,7 +387,7 @@ tx_request_t * ego_rpc_load_TxTexture( const char *filename, int itex_src, Uint3
 }
 
 //--------------------------------------------------------------------------------------------
-tx_request_t * ego_rpc_load_TxMenu( const char *filename )
+tx_request_t * ego_rpc_load_mnu_TxList( const char *filename )
 {
     /// @author BB
     /// @details request that the main thread loads the texture
@@ -376,8 +395,8 @@ tx_request_t * ego_rpc_load_TxMenu( const char *filename )
     tx_request_t * preq;
     size_t index;
 
-    // find a free request for TxMenu (type 2)
-    index = TxReqList_get_free( 2 );
+    // find a free request for mnu_TxList (type 2)
+    index = TxReqList_get_free_ref( 2 );
 
     preq = TxReqList_get_ptr( index );
     if ( NULL == preq ) return NULL;

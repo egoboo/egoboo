@@ -59,7 +59,7 @@ PROFILE_DECLARE( script_function )
 static int    _script_function_calls[SCRIPT_FUNCTIONS_COUNT];
 static double _script_function_times[SCRIPT_FUNCTIONS_COUNT];
 
-static PRO_REF script_error_model = ( PRO_REF ) MAX_PROFILE;
+static PRO_REF script_error_model = INVALID_PRO_REF;
 static const char * script_error_classname = "UNKNOWN";
 
 static bool_t _scripting_system_initialized = bfalse;
@@ -1714,16 +1714,16 @@ ai_state_t * ai_state_reconstruct( ai_state_t * pself )
     // set everything to safe values
     BLANK_STRUCT_PTR( pself )
 
-    pself->index      = ( CHR_REF )MAX_CHR;
-    pself->target     = ( CHR_REF )MAX_CHR;
-    pself->owner      = ( CHR_REF )MAX_CHR;
-    pself->child      = ( CHR_REF )MAX_CHR;
-    pself->target_old = ( CHR_REF )MAX_CHR;
+    pself->index      = INVALID_CHR_REF;
+    pself->target     = INVALID_CHR_REF;
+    pself->owner      = INVALID_CHR_REF;
+    pself->child      = INVALID_CHR_REF;
+    pself->target_old = INVALID_CHR_REF;
     pself->poof_time  = -1;
 
-    pself->bumplast   = ( CHR_REF )MAX_CHR;
-    pself->attacklast = ( CHR_REF )MAX_CHR;
-    pself->hitlast    = ( CHR_REF )MAX_CHR;
+    pself->bumplast   = INVALID_CHR_REF;
+    pself->attacklast = INVALID_CHR_REF;
+    pself->hitlast    = INVALID_CHR_REF;
 
     return pself;
 }
@@ -1827,7 +1827,7 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj
 
     // a character cannot be spawned without a valid profile
     if ( !LOADED_PRO( iobj ) ) return;
-    ppro = ProList_get_ptr( iobj );
+    ppro = ProList.lst + iobj;
 
     // a character cannot be spawned without a valid cap
     pcap = pro_get_pcap( iobj );

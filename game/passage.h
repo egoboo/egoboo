@@ -46,13 +46,20 @@ typedef struct s_shop shop_t;
 #define SHOP_NOOWNER 0xFFFF        ///< Shop has no owner
 #define SHOP_STOLEN  0xFFFF        ///< Someone stole a item
 
+#define INVALID_SHOP_REF ((SHOP_REF) MAX_SHOP)
+#define INVALID_PASS_REF ((PASS_REF) MAX_PASS)
+
 /// The pre-defined orders for communicating with shopkeepers
 enum e_shop_orders
 {
     SHOP_BUY       = 0,
     SHOP_SELL,
     SHOP_NOAFFORD,
-    SHOP_THEFT
+    SHOP_THEFT,
+    SHOP_ENTER,
+    SHOP_EXIT,
+
+    SHOP_LAST
 };
 
 //--------------------------------------------------------------------------------------------

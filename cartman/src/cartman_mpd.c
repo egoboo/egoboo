@@ -757,7 +757,7 @@ int cartman_mpd_add_fan_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan 
         log_warning( "%s - tried to add invalid fan_idx type %d\n", __FUNCTION__, fan_type );
     }
 
-    // get teh tile definition
+    // get the tile definition
     pdef = tile_dict + fan_type;
 
     // check the vertex count

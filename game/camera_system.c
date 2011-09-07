@@ -133,7 +133,7 @@ ext_camera_t * ext_camera_ctor( ext_camera_t * ptr )
     // invalidate the targets the camera is tracking
     for ( tnc = 0; tnc < MAX_LOCAL_PLAYERS; tnc++ )
     {
-        ptr->targets.who[tnc] = MAX_CHR;
+        ptr->targets.who[tnc] = INVALID_CHR_REF;
     }
 
     // set the renderlist and dolist links to invalid values
@@ -341,14 +341,14 @@ egolib_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam )
     pcam->screen.ymax = sdl_scr.y;
 
     // lock a renderlist for this camera
-    pcam->render_list = renderlist_mgr_get_free_index( rmgr_ptr );
+    pcam->render_list = renderlist_mgr_get_free_idx( rmgr_ptr );
 
     // connect the renderlist to a mesh
     rlst_ptr = renderlist_mgr_get_ptr( rmgr_ptr, pcam->render_list );
     renderlist_attach_mesh( rlst_ptr, PMesh );
 
     // lock a dolist for this camera
-    pcam->do_list = dolist_mgr_get_free_index( dmgr_ptr );
+    pcam->do_list = dolist_mgr_get_free_idx( dmgr_ptr );
 
     // turn the camera on
     pcam->on = btrue;

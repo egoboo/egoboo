@@ -192,7 +192,7 @@ IMPLEMENT_STACK( team_t, TeamStack, TEAM_MAX );
 //--------------------------------------------------------------------------------------------
 void character_system_begin( void )
 {
-    ChrList_init();
+    ChrList_ctor();
     CapStack_init_all();
 }
 
@@ -272,7 +272,7 @@ chr_t * chr_ctor( chr_t * pchr )
     pbase->frame_count = 0;
 
     // IMPORTANT!!!
-    pchr->ibillboard = INVALID_BILLBOARD;
+    pchr->ibillboard = INVALID_BILLBOARD_REF;
     pchr->sparkle = NOSPARKLE;
     pchr->loopedsound_channel = INVALID_SOUND_CHANNEL;
 
@@ -283,8 +283,8 @@ chr_t * chr_ctor( chr_t * pchr )
     pchr->careful_timer = CAREFULTIME;
 
     // Enchant stuff
-    pchr->firstenchant = ( ENC_REF ) MAX_ENC;
-    pchr->undoenchant = ( ENC_REF ) MAX_ENC;
+    pchr->firstenchant = INVALID_ENC_REF;
+    pchr->undoenchant  = INVALID_ENC_REF;
     pchr->missiletreatment = MISSILE_NORMAL;
 
     // Character stuff
@@ -295,20 +295,20 @@ chr_t * chr_ctor( chr_t * pchr )
     pchr->jump_timer = JUMPDELAY;
 
     // Grip info
-    pchr->attachedto = ( CHR_REF )MAX_CHR;
+    pchr->attachedto = INVALID_CHR_REF;
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
-        pchr->holdingwhich[cnt] = ( CHR_REF )MAX_CHR;
+        pchr->holdingwhich[cnt] = INVALID_CHR_REF;
     }
 
     // pack/inventory info
     for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
     {
-        pchr->equipment[cnt] = ( CHR_REF )MAX_CHR;
+        pchr->equipment[cnt] = INVALID_CHR_REF;
     }
     for ( cnt = 0; cnt < MAXNUMINPACK; cnt++ )
     {
-        pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
+        pchr->inventory[cnt] = INVALID_CHR_REF;
     }
 
     // Set up position
@@ -323,36 +323,36 @@ chr_t * chr_ctor( chr_t * pchr )
     // nope this did not fix it
     /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
     pchr->dismount_timer  = 0;
-    pchr->dismount_object = ( CHR_REF )MAX_CHR;
+    pchr->dismount_object = INVALID_CHR_REF;
 
     // set all of the integer references to invalid values
-    pchr->firstenchant = ( ENC_REF ) MAX_ENC;
-    pchr->undoenchant  = ( ENC_REF ) MAX_ENC;
+    pchr->firstenchant = INVALID_ENC_REF;
+    pchr->undoenchant  = INVALID_ENC_REF;
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
-        pchr->holdingwhich[cnt] = ( CHR_REF )MAX_CHR;
+        pchr->holdingwhich[cnt] = INVALID_CHR_REF;
     }
 
     //clear inventory
-    pchr->inwhich_inventory = ( CHR_REF )MAX_CHR;
+    pchr->inwhich_inventory = INVALID_CHR_REF;
     for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
     {
-        pchr->equipment[cnt] = ( CHR_REF )MAX_CHR;
+        pchr->equipment[cnt] = INVALID_CHR_REF;
     }
     for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
     {
-        pchr->inventory[cnt] = ( CHR_REF )MAX_CHR;
+        pchr->inventory[cnt] = INVALID_CHR_REF;
     }
 
-    pchr->onwhichplatform_ref    = ( CHR_REF )MAX_CHR;
+    pchr->onwhichplatform_ref    = INVALID_CHR_REF;
     pchr->onwhichplatform_update = 0;
-    pchr->targetplatform_ref     = ( CHR_REF )MAX_CHR;
+    pchr->targetplatform_ref     = INVALID_CHR_REF;
 
     // all movements valid
     pchr->movement_bits   = ( unsigned )( ~0 );
 
     // not a player
-    pchr->is_which_player = MAX_PLAYER;
+    pchr->is_which_player = INVALID_PLAYER_REF;
 
     //---- call the constructors of the "has a" classes
 
@@ -551,7 +551,7 @@ void keep_weapons_with_holders( void )
         }
         else
         {
-            pchr->attachedto = ( CHR_REF )MAX_CHR;
+            pchr->attachedto = INVALID_CHR_REF;
 
             // Keep inventory with iattached
             if ( !INGAME_CHR( pchr->inwhich_inventory ) )
@@ -776,7 +776,7 @@ void free_inventory_in_game( const CHR_REF character )
     // set the inventory to the "empty" state
     for ( i = 0; i < MAXINVENTORY; i++ )
     {
-        ChrList.lst[character].inventory[i] = ( CHR_REF )MAX_CHR;
+        ChrList.lst[character].inventory[i] = INVALID_CHR_REF;
     }
 }
 
@@ -1102,7 +1102,7 @@ void reset_character_accel( const CHR_REF character )
     // Okay, remove all acceleration enchants
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1127,7 +1127,7 @@ void reset_character_accel( const CHR_REF character )
     // Put the acceleration enchants back on
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1174,12 +1174,12 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     hand = pchr->inwhich_slot;
 
     // Rip 'em apart
-    pchr->attachedto = ( CHR_REF )MAX_CHR;
+    pchr->attachedto = INVALID_CHR_REF;
     if ( pmount->holdingwhich[SLOT_LEFT] == character )
-        pmount->holdingwhich[SLOT_LEFT] = ( CHR_REF )MAX_CHR;
+        pmount->holdingwhich[SLOT_LEFT] = INVALID_CHR_REF;
 
     if ( pmount->holdingwhich[SLOT_RIGHT] == character )
-        pmount->holdingwhich[SLOT_RIGHT] = ( CHR_REF )MAX_CHR;
+        pmount->holdingwhich[SLOT_RIGHT] = INVALID_CHR_REF;
 
     if ( pchr->alive )
     {
@@ -1265,7 +1265,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
         // Okay, reset transparency
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1286,7 +1286,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
         // apply the blend enchants
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
@@ -1355,7 +1355,7 @@ void reset_character_alpha( const CHR_REF character )
         // Okay, reset transparency
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1375,7 +1375,7 @@ void reset_character_alpha( const CHR_REF character )
 
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
 
@@ -1635,7 +1635,7 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
         UNSET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
 
         //now put the item into the inventory
-        pitem->attachedto = ( CHR_REF )MAX_CHR;
+        pitem->attachedto = INVALID_CHR_REF;
         pitem->inwhich_inventory = ichr;
         pchr->inventory[inventory_slot] = item;
 
@@ -1747,8 +1747,8 @@ bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, co
     }
 
     //no longer in an inventory
-    pitem->inwhich_inventory = ( CHR_REF ) MAX_CHR;
-    pholder->inventory[inventory_slot] = ( CHR_REF ) MAX_CHR;
+    pitem->inwhich_inventory = INVALID_CHR_REF;
+    pholder->inventory[inventory_slot] = INVALID_CHR_REF;
 
     return btrue;
 }
@@ -1769,7 +1769,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
     cap_t * pitem_cap;
 
     found  = bfalse;
-    istack = ( CHR_REF )MAX_CHR;
+    istack = INVALID_CHR_REF;
 
     if ( !INGAME_CHR( item ) ) return istack;
     pitem = ChrList_get_ptr( item );
@@ -2081,7 +2081,7 @@ bool_t character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool_
         if ( INGAME_CHR( pchr_c->inwhich_inventory ) ) continue;
 
         // disarm not allowed yet
-        if ( MAX_CHR != pchr_c->attachedto ) continue;
+        if ( INVALID_CHR_REF != pchr_c->attachedto ) continue;
 
         // do not pick up your mount
         if ( pchr_c->holdingwhich[SLOT_LEFT] == ichr_a ||
@@ -2343,7 +2343,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     iweapon = pchr->holdingwhich[slot];
 
     // See if it's an unarmed attack...
-    if ( MAX_CHR == iweapon )
+    if ( INVALID_CHR_REF == iweapon )
     {
         unarmed_attack   = btrue;
         iweapon          = ichr;
@@ -2388,7 +2388,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        ithrown = spawn_one_character( pchr->pos.v, pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, ( CHR_REF )MAX_CHR );
+        ithrown = spawn_one_character( pchr->pos.v, pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF );
         if ( DEFINED_CHR( ithrown ) )
         {
             chr_t * pthrown = ChrList_get_ptr( ithrown );
@@ -2440,7 +2440,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                iparticle = spawn_one_particle( pweapon->pos.v, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_lpip, iholder, spawn_vrt_offset, chr_get_iteam( iholder ), iweapon, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                iparticle = spawn_one_particle( pweapon->pos.v, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_lpip, iholder, spawn_vrt_offset, chr_get_iteam( iholder ), iweapon, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
                 if ( DEFINED_PRT( iparticle ) )
                 {
@@ -2475,7 +2475,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     else
                     {
                         // NOT ATTACHED
-                        pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
+                        pprt->attachedto_ref = INVALID_CHR_REF;
 
                         // Don't spawn in walls
                         if ( EMPTY_BIT_FIELD != prt_test_wall( pprt, tmp_pos.v, NULL ) )
@@ -3210,7 +3210,7 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t r
     /// the icap slot that the profile was stuck into.  It may cause the program
     /// to abort if bad things happen.
 
-    CAP_REF  icap = ( CAP_REF )MAX_CAP;
+    CAP_REF  icap = INVALID_CAP_REF;
     cap_t * pcap;
     STRING  szLoadName;
 
@@ -3235,7 +3235,7 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t r
             log_debug( "CapStack_load_one() - Not able to open file \"%s\"\n", szLoadName );
         }
 
-        return ( CAP_REF )MAX_CAP;
+        return INVALID_CAP_REF;
     }
 
     pcap = CapStack_get_ptr( icap );
@@ -3255,7 +3255,7 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t r
         else
         {
             // Stop, we don't want to override it
-            return ( CAP_REF )MAX_CAP;
+            return INVALID_CAP_REF;
         }
 
         // If loading over an existing model is allowed (?how?) then make sure to release the old one
@@ -3264,7 +3264,7 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t r
 
     if ( NULL == load_one_cap_file_vfs( tmploadname, pcap ) )
     {
-        return ( CAP_REF )MAX_CAP;
+        return INVALID_CAP_REF;
     }
 
     // do the rest of the levels not listed in data.txt
@@ -3386,7 +3386,7 @@ void cleanup_one_character( chr_t * pchr )
         // remove all invalid enchants
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -3692,7 +3692,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
                     if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && DAMAGE_IS_PHYSICAL( damagetype ) ) )
                     {
                         spawn_one_particle( pchr->pos.v, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_lpip,
-                                            ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, character, ( PRT_REF )MAX_PRT, 0, ( CHR_REF )MAX_CHR );
+                                            INVALID_CHR_REF, GRIP_LAST, pchr->team, character, INVALID_PRT_REF, 0, INVALID_CHR_REF );
                     }
                 }
 
@@ -3701,7 +3701,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
                 {
                     if ( team == TEAM_DAMAGE )
                     {
-                        pchr->ai.attacklast = ( CHR_REF )MAX_CHR;
+                        pchr->ai.attacklast = INVALID_CHR_REF;
                     }
                     else
                     {
@@ -3788,7 +3788,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
         // Isssue an alert
         if ( team == TEAM_DAMAGE )
         {
-            pchr->ai.attacklast = ( CHR_REF )MAX_CHR;
+            pchr->ai.attacklast = INVALID_CHR_REF;
         }
 
         /// @test spawn a fly-away heal indicator?
@@ -3893,7 +3893,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profile )
     for ( cnt = 0; cnt < pcap->gopoofprt_amount; cnt++ )
     {
         spawn_one_particle( pchr->pos_old.v, facing_z, profile, pcap->gopoofprt_lpip,
-                            ( CHR_REF )MAX_CHR, GRIP_LAST, pchr->team, origin, ( PRT_REF )MAX_PRT, cnt, ( CHR_REF )MAX_CHR );
+                            INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt, INVALID_CHR_REF );
 
         facing_z += pcap->gopoofprt_facingadd;
     }
@@ -4067,7 +4067,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     for ( tnc = 0; tnc < pcap->attachedprt_amount; tnc++ )
     {
         spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip,
-                            ichr, GRIP_LAST + tnc, pchr->team, ichr, ( PRT_REF )MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
+                            ichr, GRIP_LAST + tnc, pchr->team, ichr, INVALID_PRT_REF, tnc, INVALID_CHR_REF );
     }
 
     // is the object part of a shop's inventory?
@@ -4226,7 +4226,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
 
     if ( 0 == pchr->dismount_timer )
     {
-        pchr->dismount_object = ( CHR_REF )MAX_CHR;
+        pchr->dismount_object = INVALID_CHR_REF;
     }
 
     // Down that ol' damage timer
@@ -4371,7 +4371,7 @@ chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
     EGOBOO_ASSERT( pbase->state == ego_object_active );
     if ( pbase->state == ego_object_active )
     {
-        ChrList_add_used( GET_INDEX_PCHR( pchr ) );
+        ChrList_push_used( GET_INDEX_PCHR( pchr ) );
     }
 
     return pchr;
@@ -4640,7 +4640,7 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
     if ( profile >= MAX_PROFILE )
     {
         log_warning( "spawn_one_character() - profile value too large %d out of %d\n", REF_TO_INT( profile ), MAX_PROFILE );
-        return ( CHR_REF )MAX_CHR;
+        return INVALID_CHR_REF;
     }
 
     if ( !LOADED_PRO( profile ) )
@@ -4649,14 +4649,14 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
         {
             log_warning( "spawn_one_character() - trying to spawn using invalid profile %d\n", REF_TO_INT( profile ) );
         }
-        return ( CHR_REF )MAX_CHR;
+        return INVALID_CHR_REF;
     }
     ppro = ProList_get_ptr( profile );
 
     if ( !LOADED_CAP( ppro->icap ) )
     {
         log_debug( "spawn_one_character() - invalid character profile %d\n", ppro->icap );
-        return ( CHR_REF )MAX_CHR;
+        return INVALID_CHR_REF;
     }
     pcap = CapStack_get_ptr( ppro->icap );
 
@@ -4668,7 +4668,7 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
     if ( !DEFINED_CHR( ichr ) )
     {
         log_warning( "spawn_one_character() - failed to spawn character (invalid index number %d?)\n", REF_TO_INT( ichr ) );
-        return ( CHR_REF )MAX_CHR;
+        return INVALID_CHR_REF;
     }
     pchr = ChrList_get_ptr( ichr );
 
@@ -4797,7 +4797,7 @@ int chr_change_skin( const CHR_REF character, int skin )
     pro_t * ppro;
     mad_t * pmad;
     chr_instance_t * pinst;
-    TX_REF new_texture = TX_WATER_TOP;
+    TX_REF new_texture = ( TX_REF )TX_WATER_TOP;
 
     if ( !INGAME_CHR( character ) ) return 0;
     pchr  = ChrList_get_ptr( character );
@@ -4877,7 +4877,7 @@ int change_armor( const CHR_REF character, int skin )
     // Remove armor enchantments
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -4919,7 +4919,7 @@ int change_armor( const CHR_REF character, int skin )
     /// I don't care at this point !!!BAD!!!
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         PRO_REF ipro = enc_get_ipro( ienc_now );
 
@@ -5128,14 +5128,14 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
     if ( leavewhich == ENC_LEAVE_FIRST )
     {
         // Remove all enchantments except top one
-        if ( MAX_ENC != pchr->firstenchant )
+        if ( INVALID_ENC_REF != pchr->firstenchant )
         {
             ENC_REF ienc_now, ienc_nxt;
             size_t  ienc_count;
 
             ienc_now = EncList.lst[pchr->firstenchant].nextenchant_ref;
             ienc_count = 0;
-            while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+            while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
                 ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -5614,7 +5614,7 @@ bool_t update_chr_darkvision( const CHR_REF character )
     // clean up the enchant list before doing anything
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
         peve = enc_get_peve( ienc_now );
@@ -7868,19 +7868,19 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
 
     chr_t * pchr;
 
-    if ( !INGAME_CHR( ichr ) ) return ( BBOARD_REF )INVALID_BILLBOARD;
+    if ( !INGAME_CHR( ichr ) ) return INVALID_BILLBOARD_REF;
     pchr = ChrList_get_ptr( ichr );
 
-    if ( INVALID_BILLBOARD != pchr->ibillboard )
+    if ( INVALID_BILLBOARD_REF != pchr->ibillboard )
     {
         BillboardList_free_one( REF_TO_INT( pchr->ibillboard ) );
-        pchr->ibillboard = INVALID_BILLBOARD;
+        pchr->ibillboard = INVALID_BILLBOARD_REF;
     }
 
-    pchr->ibillboard = BillboardList_get_free( lifetime_secs );
+    pchr->ibillboard = BillboardList_get_free_ref( lifetime_secs );
 
     // attachr the billboard to the character
-    if ( INVALID_BILLBOARD != pchr->ibillboard )
+    if ( INVALID_BILLBOARD_REF != pchr->ibillboard )
     {
         billboard_data_t * pbb = BillboardList_get_ptr( pchr->ibillboard );
 
@@ -7897,14 +7897,14 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
     billboard_data_t * pbb;
     int                rv;
 
-    BBOARD_REF ibb = ( BBOARD_REF )INVALID_BILLBOARD;
+    BBOARD_REF ibb = INVALID_BILLBOARD_REF;
 
     if ( !INGAME_CHR( ichr ) ) return NULL;
     pchr = ChrList_get_ptr( ichr );
 
     // create a new billboard or override the old billboard
     ibb = chr_add_billboard( ichr, lifetime_secs );
-    if ( INVALID_BILLBOARD == ibb ) return NULL;
+    if ( INVALID_BILLBOARD_REF == ibb ) return NULL;
 
     pbb = BillboardList_get_ptr( pchr->ibillboard );
     if ( NULL == pbb ) return pbb;
@@ -7913,7 +7913,7 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
 
     if ( rv < 0 )
     {
-        pchr->ibillboard = INVALID_BILLBOARD;
+        pchr->ibillboard = INVALID_BILLBOARD_REF;
         BillboardList_free_one( REF_TO_INT( ibb ) );
         pbb = NULL;
     }
@@ -8341,7 +8341,7 @@ const char* describe_wounds( float max, float current )
 TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 {
     /// @author BB
-    /// @details Get the index to the icon texture (in TxTexture) that is supposed to be used with this object.
+    /// @details Get the index to the icon texture (in TxList) that is supposed to be used with this object.
     ///               If none can be found, return the index to the texture of the null icon.
 
     size_t iskin;
@@ -8364,7 +8364,7 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
     // what do we need to draw?
     is_spell_fx = ( NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type );     // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
     is_book     = ( SPELLBOOK == pitem->profile_ref );
-    draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && MAX_CHR != pitem->attachedto )*/ ) && ( bookicon_count > 0 ); //>ZF> uncommented a part because this caused a icon bug when you were morphed and mounted
+    draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && INVALID_CHR_REF != pitem->attachedto )*/ ) && ( bookicon_count > 0 ); //>ZF> uncommented a part because this caused a icon bug when you were morphed and mounted
 
     if ( !draw_book )
     {
@@ -8661,7 +8661,7 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
     ichr = GET_REF_PCHR( pchr );
 
     handled = bfalse;
-    itarget = ( CHR_REF )MAX_CHR;
+    itarget = INVALID_CHR_REF;
 
     // initialize xome parameters in case we fail
     mc_tmp->valid     = bfalse;
@@ -9200,10 +9200,10 @@ CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )
     CHR_REF result;
     chr_t * pchr;
 
-    if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( ichr ) ) return INVALID_CHR_REF;
     pchr = ChrList_get_ptr( ichr );
 
-    result = ( CHR_REF )MAX_CHR;
+    result = INVALID_CHR_REF;
 
     PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
     {
@@ -9230,10 +9230,10 @@ CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz )
     CHR_REF item, tmp_item;
     chr_t * pchr;
 
-    if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( ichr ) ) return INVALID_CHR_REF;
     pchr = ChrList_get_ptr( ichr );
 
-    item = ( CHR_REF )MAX_CHR;
+    item = INVALID_CHR_REF;
     found = bfalse;
 
     if ( !found )
@@ -9275,11 +9275,11 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped )
     CHR_REF item;
     chr_t * pchr;
 
-    if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( ichr ) ) return INVALID_CHR_REF;
     pchr = ChrList_get_ptr( ichr );
 
     // Check the pack
-    item       = ( CHR_REF )MAX_CHR;
+    item       = INVALID_CHR_REF;
     found      = bfalse;
 
     if ( !found )
@@ -9516,7 +9516,7 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item )
     int cnt;
     CHR_REF original_object, object, object_next;
 
-    if ( !INGAME_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( ichr ) ) return INVALID_CHR_REF;
 
     original_object = object = ichr;
     for ( cnt = 0, object = ichr; cnt < MAX_CHR; cnt++ )
@@ -9708,7 +9708,7 @@ egolib_rv chr_increment_frame( chr_t * pchr )
 
     if ( !INGAME_CHR( imount ) )
     {
-        imount = ( CHR_REF )MAX_CHR;
+        imount = INVALID_CHR_REF;
         mount_action = ACTION_DA;
     }
     else
@@ -9781,7 +9781,7 @@ bool_t chr_heal_mad( chr_t * pchr )
 {
     // try to repair a bad model if it exists
 
-    MAD_REF          imad_tmp = ( MAD_REF )MAX_MAD;
+    MAD_REF          imad_tmp = INVALID_MAD_REF;
     chr_instance_t * pinst    = NULL;
 
     if ( !DEFINED_PCHR( pchr ) ) return bfalse;
@@ -9809,7 +9809,7 @@ bool_t chr_heal_mad( chr_t * pchr )
 MAD_REF chr_get_imad( const CHR_REF ichr )
 {
     chr_t * pchr   = NULL;
-    MAD_REF retval = ( MAD_REF )MAX_MAD;
+    MAD_REF retval = INVALID_MAD_REF;
 
     pchr = ChrList_get_ptr( ichr );
     if ( NULL == pchr ) return retval;

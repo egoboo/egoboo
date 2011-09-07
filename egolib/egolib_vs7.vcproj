@@ -460,6 +460,9 @@
 			RelativePath=".\input_device.h">
 		</File>
 		<File
+			RelativePath=".\list_code.inl">
+		</File>
+		<File
 			RelativePath=".\log.c">
 		</File>
 		<File

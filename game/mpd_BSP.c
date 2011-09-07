@@ -244,7 +244,7 @@ int mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const egolib_frustum_t * pf
 bool_t mpd_BSP_insert( mpd_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
 {
     /// @author BB
-    /// @details insert a character's BSP_leaf_t into the BSP_tree_t
+    /// @details insert a tile's BSP_leaf_t into the BSP_tree_t
 
     bool_t       retval;
     BSP_leaf_t * pleaf;

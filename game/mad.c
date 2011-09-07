@@ -743,7 +743,7 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad 
     mad_t * pmad;
     STRING  newloadname;
 
-    if ( !VALID_MAD_RANGE( imad ) ) return ( MAD_REF )MAX_MAD;
+    if ( !VALID_MAD_RANGE( imad ) ) return INVALID_MAD_REF;
     pmad = MadStack_get_ptr( imad );
 
     // clear out the mad

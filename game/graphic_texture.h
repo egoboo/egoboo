@@ -54,20 +54,24 @@ enum e_global_tx_type
 /// or the rgb components of the transparent color in a 24-bit image.
 /// Ignored in a 32 bit image.
 
-#define TX_TEXTURE_COUNT   (2*(MAX_TEXTURE + MAX_ICON))
-#define INVALID_TX_TEXTURE TX_TEXTURE_COUNT
+#define TX_COUNT   (2*(MAX_TEXTURE + MAX_ICON))
+
+#define INVALID_TX_IDX TX_COUNT
+#define INVALID_TX_REF ((TX_REF)INVALID_TX_IDX)
+
+#define VALID_TX_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<TX_COUNT) )
 
 /// declare special arrays of textures
-DECLARE_LIST_EXTERN( oglx_texture_t, TxTexture, TX_TEXTURE_COUNT );
+DECLARE_LIST_EXTERN( oglx_texture_t, TxList, TX_COUNT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void             TxTexture_init_all( void );
-void             TxTexture_delete_all( void );
-void             TxTexture_release_all( void );
-TX_REF           TxTexture_get_free( const TX_REF itex );
-bool_t           TxTexture_free_one( const TX_REF  itex );
-TX_REF           TxTexture_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
-oglx_texture_t * TxTexture_get_valid_ptr( const TX_REF itex );
+void             TxList_init_all( void );
+void             TxList_delete_all( void );
+void             TxList_release_all( void );
+TX_REF           TxList_get_free( const TX_REF itex );
+bool_t           TxList_free_one( const TX_REF  itex );
+TX_REF           TxList_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
+oglx_texture_t * TxList_get_valid_ptr( const TX_REF itex );
 
-void             TxTexture_reload_all( void );
+void             TxList_reload_all( void );

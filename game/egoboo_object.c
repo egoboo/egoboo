@@ -41,6 +41,7 @@ obj_data_t * ego_object_ctor( obj_data_t * pbase, void * child_data, int child_t
 
     pbase->_name[0] = CSTR_END;
     pbase->state    = ego_object_invalid;
+    pbase->index    = child_index;
 
     // initialize the bsp node for this character
     BSP_leaf_ctor( &( pbase->bsp_leaf ), child_data, child_type, child_index );

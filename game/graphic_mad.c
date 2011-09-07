@@ -130,7 +130,7 @@ gfx_rv render_one_mad_enviro( const camera_t * pcam, const CHR_REF character, GL
     ptex = NULL;
     if ( HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
-        ptex = TxTexture_get_valid_ptr(( TX_REF )TX_PHONG );
+        ptex = TxList_get_valid_ptr(( TX_REF )TX_PHONG );
     }
 
     if ( !GL_DEBUG( glIsEnabled )( GL_BLEND ) )
@@ -140,7 +140,7 @@ gfx_rv render_one_mad_enviro( const camera_t * pcam, const CHR_REF character, GL
 
     if ( NULL == ptex )
     {
-        ptex = TxTexture_get_valid_ptr( pinst->texture );
+        ptex = TxList_get_valid_ptr( pinst->texture );
     }
 
     uoffset = pinst->uoffset - pcam->turn_z_one;
@@ -343,7 +343,7 @@ gfx_rv render_one_mad_tex( const camera_t * pcam, const CHR_REF character, GLXve
     pmd2 = pmad->md2_ptr;
 
     // To make life easier
-    ptex = TxTexture_get_valid_ptr( pinst->texture );
+    ptex = TxList_get_valid_ptr( pinst->texture );
 
     uoffset = pinst->uoffset * INV_FFFF;
     voffset = pinst->voffset * INV_FFFF;
@@ -1983,7 +1983,7 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
     BLANK_STRUCT_PTR( pinst )
 
     // model parameters
-    pinst->imad = MAX_MAD;
+    pinst->imad = INVALID_MAD_REF;
     pinst->vrt_count = 0;
 
     // set the initial cache parameters
@@ -2561,7 +2561,7 @@ matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache )
     BLANK_STRUCT_PTR( mcache )
 
     mcache->type_bits = MAT_UNKNOWN;
-    mcache->grip_chr  = ( CHR_REF )MAX_CHR;
+    mcache->grip_chr  = INVALID_CHR_REF;
     for ( cnt = 0; cnt < GRIP_VERTS; cnt++ )
     {
         mcache->grip_verts[cnt] = 0xFFFF;
@@ -2586,7 +2586,7 @@ gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
     }
 
     // grab the texture
-    ptex = TxTexture_get_valid_ptr( itex );
+    ptex = TxList_get_valid_ptr( itex );
 
     // get the transparency info from the texture
     pinst->skin_has_transparency = bfalse;

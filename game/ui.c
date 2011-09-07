@@ -631,7 +631,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float vx
         text_y = (( y2 - y1 ) - text_h ) / 2 + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText_OGL( font, ui_text_color, INVALID_GL_ID, NULL, text_x, text_y, NULL, text );
+        fnt_drawText_OGL_immediate( font, ui_text_color, text_x, text_y, text );
     }
 
     return result;
@@ -690,7 +690,7 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture_t *img, const
         text_y = (( y2 - y1 ) - text_h ) / 2         + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText_OGL( font, ui_text_color, INVALID_GL_ID, NULL, text_x, text_y, NULL, text );
+        fnt_drawText_OGL_immediate( font, ui_text_color, text_x, text_y, text );
     }
 
     return result;
@@ -944,7 +944,7 @@ float ui_drawIcon( const TX_REF icontype, float vx, float vy, Uint8 sparkle, Uin
     ui_virtual_to_screen( vx + icon_size, vy + icon_size, &x2, &y2 );
 
     //Draw the icon
-    y1 = draw_icon_texture( TxMenu_get_valid_ptr( icontype ), x1, y1, sparkle, delta_update, MIN( x2 - x1, y2 - y1 ) );
+    y1 = draw_icon_texture( mnu_TxList_get_valid_ptr( icontype ), x1, y1, sparkle, delta_update, MIN( x2 - x1, y2 - y1 ) );
 
     // convert back to virtual
     ui_screen_to_virtual( x1, y1, &vx, &vy );

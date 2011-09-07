@@ -81,7 +81,7 @@ void prt_set_texture_params( const TX_REF itex )
     index = prt_get_texture_style( itex );
     if ( index < 0 ) return;
 
-    ptex = TxTexture_get_valid_ptr( itex );
+    ptex = TxList_get_valid_ptr( itex );
     if ( NULL == ptex ) return;
 
     ptex_w[index] = ptex->imgW;
@@ -186,7 +186,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
         GL_DEBUG( glEnable )( GL_ALPHA_TEST );        // GL_ENABLE_BIT
         GL_DEBUG( glAlphaFunc )( GL_EQUAL, 1.0f );       // GL_COLOR_BUFFER_BIT
 
-        oglx_texture_Bind( TxTexture_get_valid_ptr(( TX_REF )TX_PARTICLE_TRANS ) );
+        oglx_texture_Bind( TxList_get_valid_ptr(( TX_REF )TX_PARTICLE_TRANS ) );
 
         GL_DEBUG( glColor4f )( pinst->fintens, pinst->fintens, pinst->fintens, 1.0f );  // GL_CURRENT_BIT
 
@@ -263,7 +263,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             particle_color[AA] = 1.0f;
 
             pinst->texture_ref = TX_PARTICLE_TRANS;
-            oglx_texture_Bind( TxTexture_get_valid_ptr( pinst->texture_ref ) );
+            oglx_texture_Bind( TxList_get_valid_ptr( pinst->texture_ref ) );
 
             draw_particle = btrue;
         }
@@ -283,7 +283,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             particle_color[AA] = 1.0f;
 
             pinst->texture_ref = TX_PARTICLE_LIGHT;
-            oglx_texture_Bind( TxTexture_get_valid_ptr( pinst->texture_ref ) );
+            oglx_texture_Bind( TxList_get_valid_ptr( pinst->texture_ref ) );
 
             draw_particle = ( intens > 0.0f );
         }
@@ -304,7 +304,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             particle_color[AA] = pinst->falpha;
 
             pinst->texture_ref = TX_PARTICLE_TRANS;
-            oglx_texture_Bind( TxTexture_get_valid_ptr( pinst->texture_ref ) );
+            oglx_texture_Bind( TxList_get_valid_ptr( pinst->texture_ref ) );
 
             draw_particle = ( pinst->falpha > 0.0f );
         }
@@ -407,7 +407,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 particle_color[AA] = 1.0f;
 
                 pinst->texture_ref = TX_PARTICLE_LIGHT;
-                oglx_texture_Bind( TxTexture_get_valid_ptr( pinst->texture_ref ) );
+                oglx_texture_Bind( TxList_get_valid_ptr( pinst->texture_ref ) );
 
                 draw_particle = intens > 0.0f;
             }
@@ -434,7 +434,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
                 particle_color[AA] = alpha;
 
                 pinst->texture_ref = TX_PARTICLE_TRANS;
-                oglx_texture_Bind( TxTexture_get_valid_ptr( pinst->texture_ref ) );
+                oglx_texture_Bind( TxList_get_valid_ptr( pinst->texture_ref ) );
 
                 draw_particle = alpha > 0.0f;
             }

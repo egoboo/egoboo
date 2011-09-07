@@ -146,10 +146,10 @@ static INLINE CHR_REF team_get_ileader( const TEAM_REF iteam )
 {
     CHR_REF ichr;
 
-    if ( iteam >= TEAM_MAX ) return ( CHR_REF )MAX_CHR;
+    if ( iteam >= TEAM_MAX ) return INVALID_CHR_REF;
 
     ichr = TeamStack.lst[iteam].leader;
-    if ( !DEFINED_CHR( ichr ) ) return ( CHR_REF )MAX_CHR;
+    if ( !DEFINED_CHR( ichr ) ) return INVALID_CHR_REF;
 
     return ichr;
 }
@@ -184,10 +184,10 @@ static INLINE PRO_REF chr_get_ipro( const CHR_REF ichr )
 {
     chr_t * pchr;
 
-    if ( !DEFINED_CHR( ichr ) ) return ( PRO_REF )MAX_PROFILE;
+    if ( !DEFINED_CHR( ichr ) ) return INVALID_PRO_REF;
     pchr = ChrList_get_ptr( ichr );
 
-    if ( !LOADED_PRO( pchr->profile_ref ) ) return ( PRO_REF )MAX_PROFILE;
+    if ( !LOADED_PRO( pchr->profile_ref ) ) return INVALID_PRO_REF;
 
     return pchr->profile_ref;
 }
@@ -197,7 +197,7 @@ static INLINE CAP_REF chr_get_icap( const CHR_REF ichr )
 {
     chr_t * pchr;
 
-    if ( !DEFINED_CHR( ichr ) ) return ( CAP_REF )MAX_CAP;
+    if ( !DEFINED_CHR( ichr ) ) return INVALID_CAP_REF;
     pchr = ChrList_get_ptr( ichr );
 
     return pro_get_icap( pchr->profile_ref );
@@ -208,7 +208,7 @@ static INLINE EVE_REF chr_get_ieve( const CHR_REF ichr )
 {
     chr_t * pchr;
 
-    if ( !DEFINED_CHR( ichr ) ) return ( EVE_REF )MAX_EVE;
+    if ( !DEFINED_CHR( ichr ) ) return INVALID_EVE_REF;
     pchr = ChrList_get_ptr( ichr );
 
     return pro_get_ieve( pchr->profile_ref );
@@ -219,7 +219,7 @@ static INLINE PIP_REF chr_get_ipip( const CHR_REF ichr, int ipip )
 {
     chr_t * pchr;
 
-    if ( !DEFINED_CHR( ichr ) ) return ( PIP_REF )MAX_PIP;
+    if ( !DEFINED_CHR( ichr ) ) return INVALID_PIP_REF;
     pchr = ChrList_get_ptr( ichr );
 
     return pro_get_ipip( pchr->profile_ref, ipip );

@@ -142,19 +142,19 @@ extern "C"
 // fastest and most cross-platform solution
 
 #if !defined(ABS)
-#    define ABS(X)  (((X) > 0) ? (X) : -(X))
+#    define ABS(X)  LAMBDA((X) > 0, X, -(X) )
 #endif
 
 #if !defined(SGN)
-#    define SGN(X)  ((0 == (X)) ? 0 : (((X) > 0) ? 1 : -1) )
+#    define SGN(X)  LAMBDA( 0 == (X), 0, LAMBDA( (X) > 0, 1, -1) )
 #endif
 
 #if !defined(MIN)
-#    define MIN(x, y)  (((x) > (y)) ? (y) : (x))
+#    define MIN(x, y)  LAMBDA((x) > (y), y, x )
 #endif
 
 #if !defined(MAX)
-#    define MAX(x, y)  (((x) > (y)) ? (x) : (y))
+#    define MAX(x, y)  LAMBDA((x) > (y), x, y )
 #endif
 
 #if !defined(SQR)

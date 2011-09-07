@@ -68,6 +68,8 @@ extern "C"
     extern void    fnt_drawTextBox_OGL( Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, SDL_Surface ** ppTmpSurface, const char *format, ... );
     extern void    fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, ... );
 
+    extern void    fnt_drawText_OGL_immediate( Font *font, SDL_Color fnt_color, int x, int y, const char *format, ... );
+
 /// handle variable arguments
     extern int fnt_vprintf_SDL( TTF_Font *font, SDL_Color fnt_color, const char *format, va_list args, SDL_Surface ** ppTmpSurface );
     extern int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, const char *format, va_list args, SDL_Surface ** ppTmpSurface );

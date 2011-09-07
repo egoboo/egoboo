@@ -36,7 +36,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t           meshnotexture   = bfalse;
-TX_REF           meshlasttexture = ( TX_REF )INVALID_TX_TEXTURE;
+TX_REF           meshlasttexture = INVALID_TX_REF;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -368,7 +368,7 @@ gfx_rv render_water_fan( const ego_mpd_t * pmesh, const Uint32 itile, const Uint
     vertices = tile_dict[type].numvertices;            // Number of vertices
     commands = tile_dict[type].command_count;          // Number of commands
 
-    ptex = TxTexture_get_valid_ptr( texture );
+    ptex = TxList_get_valid_ptr( texture );
 
     x1 = ( float ) oglx_texture_getTextureWidth( ptex ) / ( float ) oglx_texture_getImageWidth( ptex );
     y1 = ( float ) oglx_texture_getTextureHeight( ptex ) / ( float ) oglx_texture_getImageHeight( ptex );

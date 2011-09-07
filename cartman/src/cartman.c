@@ -1985,45 +1985,45 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 
 #if defined(CARTMAN_DEBUG)
     // Tell which tile we're in
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, 226, NULL,
-                      "X = %6.2f", debugx );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, 234, NULL,
-                      "Y = %6.2f", debugy );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 226,
+                                "X = %6.2f", debugx );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 234,
+                                "Y = %6.2f", debugy );
 #endif
 
     // Tell user what keys are important
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 120, NULL,
-                      "O = Overlay (Water)" );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 112, NULL,
-                      "R = Reflective" );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 104, NULL,
-                      "D = Draw Reflection" );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 96, NULL,
-                      "A = Animated" );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 88, NULL,
-                      "B = Barrier (Slit)" );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 80, NULL,
-                      "I = Impassable (Wall)" );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 72, NULL,
-                      "H = Hurt" );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 64, NULL,
-                      "S = Slippy" );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 120,
+                                "O = Overlay (Water)" );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 112,
+                                "R = Reflective" );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 104,
+                                "D = Draw Reflection" );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 96,
+                                "A = Animated" );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 88,
+                                "B = Barrier (Slit)" );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 80,
+                                "I = Impassable (Wall)" );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 72,
+                                "H = Hurt" );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 64,
+                                "S = Slippy" );
 
     // Vertices left
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 56, NULL,
-                      "Vertices %d", pmesh->vrt_free );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 56,
+                                "Vertices %d", pmesh->vrt_free );
 
     // Misc data
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 40, NULL,
-                      "Ambient   %d", ambi );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 32, NULL,
-                      "Ambicut   %d", ambicut );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 24, NULL,
-                      "Direct    %d", direct );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 16, NULL,
-                      "Brush amount %d", brushamount );
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, sdl_scr.y - 8, NULL,
-                      "Brush size   %d", brushsize );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 40,
+                                "Ambient   %d", ambi );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 32,
+                                "Ambicut   %d", ambicut );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 24,
+                                "Direct    %d", direct );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 16,
+                                "Brush amount %d", brushamount );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, sdl_scr.y - 8,
+                                "Brush size   %d", brushsize );
 
     // Cursor
     //if (mos.x >= 0 && mos.x < sdl_scr.x && mos.y >= 0 && mos.y < sdl_scr.y)
@@ -2076,19 +2076,21 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
             tile += add;
         }
 
-        fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, 32, NULL,
-                          "Tile 0x%02x 0x%02x", mdata.upper, mdata.tx );
-        fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, 40, NULL,
-                          "Eats %d verts", tile_dict[mdata.type].numvertices );
+        fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 32,
+                                    "Tile 0x%02x 0x%02x", mdata.upper, mdata.tx );
+
+        fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 40,
+                                    "Eats %d verts", tile_dict[mdata.type].numvertices );
+
         if ( mdata.type >= ( MPD_FAN_TYPE_MAX >> 1 ) )
         {
-            fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, 56, NULL,
-                              "63x63 Tile" );
+            fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 56,
+                                        "63x63 Tile" );
         }
         else
         {
-            fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, 56, NULL,
-                              "31x31 Tile" );
+            fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 56,
+                                        "31x31 Tile" );
         }
         draw_schematic( NULL, mdata.type, 0, 64 );
     }
@@ -2098,13 +2100,13 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 
     if ( numattempt > 0 )
     {
-        fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, 0, NULL,
-                          "numwritten %d/%d", numwritten, numattempt );
+        fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 0,
+                                    "numwritten %d/%d", numwritten, numattempt );
     }
 
 #if defined(CARTMAN_DEBUG)
-    fnt_drawText_OGL( gfx_font_ptr, cart_white, 0, 0, NULL,
-                      "<%f, %f>", mos.x, mos.y );
+    fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 0,
+                                "<%f, %f>", mos.x, mos.y );
 #endif
 
 }

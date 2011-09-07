@@ -32,27 +32,36 @@
 //--------------------------------------------------------------------------------------------
 
 #define _VALID_CHR_RANGE( ICHR )    ( ((ICHR) < MAX_CHR) && ((ICHR) >= 0) )
-#define _DEFINED_CHR( ICHR )        ( _VALID_CHR_RANGE( ICHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define _ALLOCATED_CHR( ICHR )      ( _VALID_CHR_RANGE( ICHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define _ACTIVE_CHR( ICHR )         ( _VALID_CHR_RANGE( ICHR ) && ACTIVE_PBASE    ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define _WAITING_CHR( ICHR )        ( _VALID_CHR_RANGE( ICHR ) && WAITING_PBASE   ( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define _TERMINATED_CHR( ICHR )     ( _VALID_CHR_RANGE( ICHR ) && TERMINATED_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
+#define _DEFINED_CHR( ICHR )        ( _VALID_CHR_RANGE( ICHR ) && _DEFINED_PCHR_RAW   ( ChrList.lst + (ICHR)) )
+#define _ALLOCATED_CHR( ICHR )      ( _VALID_CHR_RANGE( ICHR ) && _ALLOCATED_PCHR_RAW ( ChrList.lst + (ICHR)) )
+#define _ACTIVE_CHR( ICHR )         ( _VALID_CHR_RANGE( ICHR ) && _ACTIVE_PCHR_RAW    ( ChrList.lst + (ICHR)) )
+#define _WAITING_CHR( ICHR )        ( _VALID_CHR_RANGE( ICHR ) && _WAITING_PCHR_RAW   ( ChrList.lst + (ICHR)) )
+#define _TERMINATED_CHR( ICHR )     ( _VALID_CHR_RANGE( ICHR ) && _TERMINATED_PCHR_RAW( ChrList.lst + (ICHR)) )
 
-#define _GET_INDEX_PCHR( PCHR )      ((NULL == (PCHR)) ? MAX_CHR : (size_t)GET_INDEX_POBJ( PCHR, MAX_CHR ))
+#define _GET_INDEX_PCHR( PCHR )      LAMBDA((NULL == (PCHR)),  MAX_CHR, (size_t)GET_INDEX_POBJ( PCHR, MAX_CHR ))
 #define _GET_REF_PCHR( PCHR )        ((CHR_REF)_GET_INDEX_PCHR( PCHR ))
-#define _DEFINED_PCHR( PCHR )        ( _VALID_CHR_PTR( PCHR ) && ALLOCATED_PBASE ( POBJ_GET_PBASE(PCHR) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PCHR) ) )
 #define _VALID_CHR_PTR( PCHR )       ( (NULL != (PCHR)) && _VALID_CHR_RANGE( GET_REF_POBJ( PCHR, MAX_CHR) ) )
-#define _ALLOCATED_PCHR( PCHR )      ( _VALID_CHR_PTR( PCHR ) && ALLOCATED_PBASE( POBJ_GET_PBASE(PCHR) ) )
-#define _ACTIVE_PCHR( PCHR )         ( _VALID_CHR_PTR( PCHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) )
-#define _TERMINATED_PCHR( PCHR )     ( _VALID_CHR_PTR( PCHR ) && TERMINATED_PBASE( POBJ_GET_PBASE(PCHR) ) )
+#define _DEFINED_PCHR( PCHR )        ( _VALID_CHR_PTR( PCHR ) && _DEFINED_PCHR_RAW   ( PCHR ) )
+#define _ALLOCATED_PCHR( PCHR )      ( _VALID_CHR_PTR( PCHR ) && _ALLOCATED_PCHR_RAW ( PCHR ) )
+#define _ACTIVE_PCHR( PCHR )         ( _VALID_CHR_PTR( PCHR ) && _ACTIVE_PCHR_RAW    ( PCHR ) )
+#define _WAITING_PCHR( PCHR )        ( _VALID_CHR_PTR( PCHR ) && _WAITING_PCHR_RAW   ( PCHR ) )
+#define _TERMINATED_PCHR( PCHR )     ( _VALID_CHR_PTR( PCHR ) && _TERMINATED_PCHR_RAW( PCHR ) )
 
 // Macros to determine whether the character is in the game or not.
 // If objects are being spawned, then any object that is just "defined" is treated as "in game"
-#define _INGAME_CHR_BASE(ICHR)       ( _VALID_CHR_RANGE( ICHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) && ON_PBASE( POBJ_GET_PBASE(ChrList.lst + (ICHR)) ) )
-#define _INGAME_PCHR_BASE(PCHR)      ( _VALID_CHR_PTR( PCHR ) && ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) && ON_PBASE( POBJ_GET_PBASE(PCHR) ) )
+#define _INGAME_CHR_BASE(ICHR)       ( _VALID_CHR_RANGE( ICHR ) && _INGAME_PCHR_BASE_RAW( ChrList.lst + (ICHR) ) )
+#define _INGAME_PCHR_BASE(PCHR)      ( _VALID_CHR_PTR( PCHR ) && _INGAME_PCHR_BASE_RAW( PCHR ) )
 
-#define _INGAME_CHR(ICHR)            ( (ego_object_spawn_depth) > 0 ? _DEFINED_CHR(ICHR) : _INGAME_CHR_BASE(ICHR) )
-#define _INGAME_PCHR(PCHR)           ( (ego_object_spawn_depth) > 0 ? _DEFINED_PCHR(PCHR) : _INGAME_PCHR_BASE(PCHR) )
+#define _INGAME_CHR(ICHR)            LAMBDA( ego_object_spawn_depth > 0, _DEFINED_CHR(ICHR), _INGAME_CHR_BASE(ICHR) )
+#define _INGAME_PCHR(PCHR)           LAMBDA( ego_object_spawn_depth > 0, _DEFINED_PCHR(PCHR), _INGAME_PCHR_BASE(PCHR) )
+
+// macros without range checking
+#define _INGAME_PCHR_BASE_RAW(PCHR)      ( ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) && ON_PBASE( POBJ_GET_PBASE(PCHR) ) )
+#define _DEFINED_PCHR_RAW( PCHR )        ( ALLOCATED_PBASE ( POBJ_GET_PBASE(PCHR) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PCHR) ) )
+#define _ALLOCATED_PCHR_RAW( PCHR )      ALLOCATED_PBASE( POBJ_GET_PBASE(PCHR) )
+#define _ACTIVE_PCHR_RAW( PCHR )         ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) )
+#define _WAITING_PCHR_RAW( PCHR )        WAITING_PBASE   ( POBJ_GET_PBASE(PCHR) )
+#define _TERMINATED_PCHR_RAW( PCHR )     TERMINATED_PBASE( POBJ_GET_PBASE(PCHR) )
 
 //--------------------------------------------------------------------------------------------
 // testing functions

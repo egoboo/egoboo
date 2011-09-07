@@ -111,7 +111,7 @@ struct s_matrix_cache
 
     //---- MAT_WEAPON data
 
-    CHR_REF grip_chr;                   ///< !=MAX_CHR if character is a held weapon
+    CHR_REF grip_chr;                   ///< != INVALID_CHR_REF if character is a held weapon
     slot_t  grip_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
     Uint16  grip_verts[GRIP_VERTS];     ///< Vertices which describe the weapon grip
     fvec3_t grip_scale;

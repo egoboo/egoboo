@@ -54,15 +54,14 @@ extern int    prt_loop_depth;
 // Function prototypes
 //--------------------------------------------------------------------------------------------
 
-void    PrtList_init( void );
+void    PrtList_ctor( void );
 void    PrtList_dtor( void );
+void    PrtList_reinit( void );
 
 PRT_REF PrtList_allocate( const bool_t force );
 
 bool_t  PrtList_free_one( const PRT_REF iprt );
 void    PrtList_free_all( void );
-
-bool_t  PrtList_add_used( const PRT_REF iprt );
 
 void    PrtList_update_used( void );
 

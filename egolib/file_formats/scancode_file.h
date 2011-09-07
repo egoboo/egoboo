@@ -77,7 +77,6 @@ extern "C"
     scantag_t * scantag_find_bits( scantag_t * ptag_src, char device_char, Uint32 tag_bits );
     scantag_t * scantag_find_value( scantag_t * ptag_src, char device_char, Uint32 tag_value );
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

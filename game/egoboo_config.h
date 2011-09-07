@@ -27,21 +27,34 @@
 // compliation flags
 
 // object pre-allocations
-#define MAX_CHR             512             ///< Maximum number of characters
-#define MAX_ENC             200             ///< Maximum number of enchantments
-#define MAX_PRT             2048             ///< Maximum number of particles
+#define MAX_CHR             512            ///< Maximum number of characters
+#define MAX_ENC             200            ///< Maximum number of enchantments
+#define MAX_PRT             2048           ///< Maximum number of particles
 #define TOTAL_MAX_DYNA      64             ///< Maximum number of dynamic lights
 
 #define MAX_TEXTURE        (MAX_CHR * 4)     ///< Maximum number of textures
 #define MAX_ICON           (MAX_TEXTURE + 4) ///< Maximum number of icons
 
 /// profile pre-allocations
-#define MAX_PROFILE        256          ///< Maximum number of object profiles
+#define MAX_PROFILE         256          ///< Maximum number of object profiles
 
 /// per-object pre-allocations
 #define MAX_WAVE             30        ///< Maximum number of *.wav/*.ogg per object
 #define MAX_PIP_PER_PROFILE  13        ///< Maximum number of part*.txt per object
 #define MAX_PIP             (MAX_PROFILE * MAX_PIP_PER_PROFILE)
+
+// special values
+#define INVALID_CHR_IDX         MAX_CHR
+#define INVALID_ENC_IDX         MAX_ENC
+#define INVALID_PRT_IDX         MAX_PRT
+#define INVALID_PRO_IDX         MAX_PROFILE
+#define INVALID_PIP_IDX         MAX_PIP
+
+#define INVALID_CHR_REF         (( CHR_REF ) INVALID_CHR_IDX)
+#define INVALID_ENC_REF         (( ENC_REF ) INVALID_ENC_IDX)
+#define INVALID_PRT_REF         (( PRT_REF ) INVALID_PRT_IDX)
+#define INVALID_PRO_REF         (( PRO_REF ) INVALID_PRO_IDX)
+#define INVALID_PIP_REF         (( PIP_REF ) INVALID_PIP_IDX)
 
 // Some macro switches
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style
@@ -81,7 +94,7 @@
 #define MAD_CULL_RIGHT       ///< helps to define which faces are clipped when rendering character models
 #define MPD_CULL_RIGHT       ///< helps to define which faces are clipped when rendering the mesh
 
-#define EGOBOO_THROTTLED     ///< are the inner loops of the game throttled?
+#undef EGOBOO_THROTTLED     ///< are the inner loops of the game throttled?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

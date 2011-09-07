@@ -898,9 +898,9 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool_t fin
 
     CHR_REF ichr;
     MAD_REF imad;
-    CHR_REF retval = ( CHR_REF )MAX_CHR;
+    CHR_REF retval = INVALID_CHR_REF;
 
-    CHR_REF best_target = ( CHR_REF ) MAX_CHR;
+    CHR_REF best_target = INVALID_CHR_REF;
     float   best_dist   = WIDE * WIDE;
 
     line_of_sight_info_t los;
@@ -912,7 +912,7 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool_t fin
     imad = chr_get_imad( ichr );
 
     // set up the target
-    best_target = ( CHR_REF ) MAX_CHR;
+    best_target = INVALID_CHR_REF;
     best_dist   = SQR( max_distance );
 
     //setup line of sight data
@@ -967,7 +967,7 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool_t fin
     CHR_END_LOOP();
 
     //Did we find anything?
-    retval = ( CHR_REF ) MAX_CHR;
+    retval = INVALID_CHR_REF;
     if ( INGAME_CHR( best_target ) )
     {
         retval = best_target;

@@ -693,7 +693,7 @@ size_t camera_create_track_list( CHR_REF track_list[], const size_t track_list_m
     if ( NULL == track_list || 0 == track_list_max_size ) return 0;
 
     // blank out the list
-    track_list[0] = MAX_CHR;
+    track_list[0] = INVALID_CHR_REF;
     track_count = 0;
 
     // scan the PlaStack for objects the camera can track

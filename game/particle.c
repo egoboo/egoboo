@@ -148,18 +148,18 @@ prt_t * prt_ctor( prt_t * pprt )
     pprt->frames_total       = ( size_t )( ~0 );
     pprt->frames_remaining   = pprt->frames_total;
 
-    pprt->pip_ref      = MAX_PIP;
-    pprt->profile_ref  = MAX_PROFILE;
+    pprt->pip_ref      = INVALID_PIP_REF;
+    pprt->profile_ref  = INVALID_PRO_REF;
 
-    pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
-    pprt->owner_ref      = ( CHR_REF )MAX_CHR;
-    pprt->target_ref     = ( CHR_REF )MAX_CHR;
-    pprt->parent_ref     = MAX_PRT;
+    pprt->attachedto_ref = INVALID_CHR_REF;
+    pprt->owner_ref      = INVALID_CHR_REF;
+    pprt->target_ref     = INVALID_CHR_REF;
+    pprt->parent_ref     = INVALID_PRT_REF;
     pprt->parent_guid    = 0xFFFFFFFF;
 
-    pprt->onwhichplatform_ref    = ( CHR_REF )MAX_CHR;
+    pprt->onwhichplatform_ref    = INVALID_CHR_REF;
     pprt->onwhichplatform_update = 0;
-    pprt->targetplatform_ref     = ( CHR_REF )MAX_CHR;
+    pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // initialize the bsp node for this particle
     BSP_leaf_ctor( POBJ_GET_PLEAF( pprt ), pprt, BSP_LEAF_PRT, GET_INDEX_PPRT( pprt ) );
@@ -218,12 +218,12 @@ PRT_REF end_one_particle_now( const PRT_REF particle )
 
     PRT_REF retval;
 
-    if ( !ALLOCATED_PRT( particle ) ) return ( PRT_REF )MAX_PRT;
+    if ( !ALLOCATED_PRT( particle ) ) return INVALID_PRT_REF;
 
     retval = particle;
     if ( PrtList_request_terminate( particle ) )
     {
-        retval = ( PRT_REF )MAX_PRT;
+        retval = INVALID_PRT_REF;
     }
 
     return retval;
@@ -250,7 +250,7 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
 
         if ( SPAWNNOCHARACTER != pprt->endspawn_characterstate )
         {
-            child = spawn_one_character( prt_get_pos_v_const( pprt ), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, ( CHR_REF )MAX_CHR );
+            child = spawn_one_character( prt_get_pos_v_const( pprt ), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF );
             if ( DEFINED_CHR( child ) )
             {
                 chr_t * pchild = ChrList_get_ptr( child );
@@ -348,7 +348,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         }
     }
 
-    // Set character attachments ( pdata->chr_attach==MAX_CHR means none )
+    // Set character attachments ( pdata->chr_attach == INVALID_CHR_REF means none )
     pprt->attachedto_ref     = pdata->chr_attach;
     pprt->attachedto_vrt_off = pdata->vrt_offset;
 
@@ -646,7 +646,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                pdata->iprofile, LOADED_PRO( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
 #endif
 
-    if ( MAX_CHR != pprt->attachedto_ref )
+    if ( INVALID_CHR_REF != pprt->attachedto_ref )
     {
         prt_bundle_t prt_bdl;
 
@@ -765,7 +765,7 @@ prt_t * prt_config_activate( prt_t * pprt, int max_iterations )
     EGOBOO_ASSERT( base_ptr->state == ego_object_active );
     if ( base_ptr->state == ego_object_active )
     {
-        PrtList_add_used( GET_INDEX_PPRT( pprt ) );
+        PrtList_push_used( GET_INDEX_PPRT( pprt ) );
     }
 
     return pprt;
@@ -1029,7 +1029,7 @@ PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_R
                    REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
                    REF_TO_INT( iprofile ), LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
 
-        return ( PRT_REF )MAX_PRT;
+        return INVALID_PRT_REF;
     }
     ppip = PipStack_get_ptr( ipip );
 
@@ -1046,7 +1046,7 @@ PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_R
                    iprofile, LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
 #endif
 
-        return ( PRT_REF )MAX_PRT;
+        return INVALID_PRT_REF;
     }
     pprt = PrtList_get_ptr( iprt );
 
@@ -1807,7 +1807,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     prt_get_pos( loc_pprt, tmp_pos.v );
 
     // only deal with attached particles
-    if ( MAX_CHR == loc_pprt->attachedto_ref ) return pbdl_prt;
+    if ( INVALID_CHR_REF == loc_pprt->attachedto_ref ) return pbdl_prt;
 
     touch_a_floor = bfalse;
     hit_a_wall  = bfalse;
@@ -1907,7 +1907,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     prt_get_pos( loc_pprt, tmp_pos.v );
 
     // no point in doing this if the particle thinks it's attached
-    if ( MAX_CHR != loc_pprt->attachedto_ref )
+    if ( INVALID_CHR_REF != loc_pprt->attachedto_ref )
     {
         return move_one_particle_integrate_motion_attached( pbdl_prt );
     }
@@ -2237,8 +2237,7 @@ void particle_system_begin( void )
     /// @details This function sets up particle data
 
     // Reset the allocation table
-    PrtList_init();
-
+    PrtList_ctor();
     PipStack_init_all();
 }
 
@@ -2246,7 +2245,6 @@ void particle_system_begin( void )
 void particle_system_end( void )
 {
     PipStack_release_all();
-
     PrtList_dtor();
 }
 
@@ -2303,7 +2301,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
         // Spawn new enchantments
         if ( ppip->spawnenchant )
         {
-            spawn_one_enchant( pprt->owner_ref, character, ( CHR_REF )MAX_CHR, ( ENC_REF )MAX_ENC, pprt->profile_ref );
+            spawn_one_enchant( pprt->owner_ref, character, INVALID_CHR_REF, INVALID_ENC_REF, pprt->profile_ref );
         }
 
         // Spawn particles - this has been modded to maximize the visual effect
@@ -2373,7 +2371,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
                            ABS( z - pchr->inst.vrt_lst[vertices-cnt-1].pos[ZZ] );
 
                     vertex_distance[cnt] = dist;
-                    vertex_occupied[cnt] = MAX_PRT;
+                    vertex_occupied[cnt] = INVALID_PRT_REF;
                 }
 
                 // determine if some of the vertex sites are already occupied
@@ -2400,7 +2398,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
 
                     for ( cnt = 0; cnt < vertices; cnt++ )
                     {
-                        if ( vertex_occupied[cnt] != MAX_PRT )
+                        if ( INVALID_PRT_REF != vertex_occupied[cnt] )
                             continue;
 
                         if ( vertex_distance[cnt] < bestdistance )
@@ -2469,7 +2467,7 @@ bool_t prt_is_over_water( const PRT_REF iprt )
 //--------------------------------------------------------------------------------------------
 PIP_REF PipStack_get_free( void )
 {
-    PIP_REF retval = ( PIP_REF )MAX_PIP;
+    PIP_REF retval = INVALID_PIP_REF;
 
     if ( PipStack.count < MAX_PIP )
     {
@@ -2490,7 +2488,7 @@ PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
     PIP_REF ipip;
     pip_t * ppip;
 
-    ipip = ( PIP_REF ) MAX_PIP;
+    ipip = INVALID_PIP_REF;
     if ( VALID_PIP_RANGE( pip_override ) )
     {
         PipStack_release_one( pip_override );
@@ -2503,13 +2501,13 @@ PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
 
     if ( !VALID_PIP_RANGE( ipip ) )
     {
-        return ( PIP_REF )MAX_PIP;
+        return INVALID_PIP_REF;
     }
     ppip = PipStack_get_ptr( ipip );
 
     if ( NULL == load_one_pip_file_vfs( szLoadName, ppip ) )
     {
-        return ( PIP_REF )MAX_PIP;
+        return INVALID_PIP_REF;
     }
 
     ppip->end_sound = CLIP( ppip->end_sound, INVALID_SOUND, MAX_WAVE );
@@ -2655,10 +2653,10 @@ int prt_do_end_spawn( const PRT_REF iprt )
         for ( tnc = 0; tnc < pprt->endspawn_amount; tnc++ )
         {
             // we have determined the absolute pip reference when the particle was spawned
-            // so, set the profile reference to (PRO_REF)MAX_PROFILE, so that the
+            // so, set the profile reference to INVALID_PRO_REF, so that the
             // value of pprt->endspawn_lpip will be used directly
             PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old.v, facing, pprt->profile_ref, pprt->endspawn_lpip,
-                                  ( CHR_REF )MAX_CHR, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
+                                  INVALID_CHR_REF, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
 
             if ( DEFINED_PRT( spawned_prt ) )
             {
@@ -2768,10 +2766,10 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
 
     // find out who is holding the owner of this object
     iholder = chr_get_lowest_attachment( ichr, btrue );
-    if ( MAX_CHR == iholder ) iholder = ichr;
+    if ( INVALID_CHR_REF == iholder ) iholder = ichr;
 
     // do nothing if you are attached to your owner
-    if (( MAX_CHR != loc_pprt->owner_ref ) && ( iholder == loc_pprt->owner_ref || ichr == loc_pprt->owner_ref ) ) return pbdl_prt;
+    if (( INVALID_CHR_REF != loc_pprt->owner_ref ) && ( iholder == loc_pprt->owner_ref || ichr == loc_pprt->owner_ref ) ) return pbdl_prt;
 
     //---- only do damage in certain cases:
 
@@ -2877,7 +2875,7 @@ int prt_do_contspawn( prt_bundle_t * pbdl_prt )
     for ( tnc = 0; tnc < loc_ppip->contspawn_amount; tnc++ )
     {
         PRT_REF prt_child = spawn_one_particle( prt_get_pos_v_const( loc_pprt ), facing, loc_pprt->profile_ref, loc_ppip->contspawn_lpip,
-                                                ( CHR_REF )MAX_CHR, GRIP_LAST, loc_pprt->team, loc_pprt->owner_ref, pbdl_prt->prt_ref, tnc, loc_pprt->target_ref );
+                                                INVALID_CHR_REF, GRIP_LAST, loc_pprt->team, loc_pprt->owner_ref, pbdl_prt->prt_ref, tnc, loc_pprt->target_ref );
 
         if ( DEFINED_PRT( prt_child ) )
         {
@@ -2945,7 +2943,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
         int     global_pip_index = -1;
         fvec3_t vtmp            = VECT3( pbdl_prt->prt_ptr->pos.x, pbdl_prt->prt_ptr->pos.y, water.surface_level );
 
-        if ( MAX_CHR == pbdl_prt->prt_ptr->owner_ref && ( PIP_SPLASH == pbdl_prt->prt_ptr->pip_ref || PIP_RIPPLE == pbdl_prt->prt_ptr->pip_ref ) )
+        if ( INVALID_CHR_REF == pbdl_prt->prt_ptr->owner_ref && ( PIP_SPLASH == pbdl_prt->prt_ptr->pip_ref || PIP_RIPPLE == pbdl_prt->prt_ptr->pip_ref ) )
         {
             /* do not spawn anything for a splash or a ripple */
             spawn_valid = bfalse;
@@ -3172,7 +3170,7 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
     // clear out the attachment if the character doesn't exist at all
     if ( !DEFINED_CHR( loc_pprt->attachedto_ref ) )
     {
-        loc_pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
+        loc_pprt->attachedto_ref = INVALID_CHR_REF;
     }
 
     // figure out where the particle is on the mesh and update the particle states
@@ -3255,7 +3253,7 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
     // clear out the attachment if the character doesn't exist at all
     if ( !DEFINED_CHR( loc_pprt->attachedto_ref ) )
     {
-        loc_pprt->attachedto_ref = ( CHR_REF )MAX_CHR;
+        loc_pprt->attachedto_ref = INVALID_CHR_REF;
     }
 
     // determine whether the pbdl_prt->prt_ref is hidden

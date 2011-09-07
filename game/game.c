@@ -695,7 +695,7 @@ void blah_billboard( void )
 
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
-        if ( MAX_CHR != ChrList.lst[ichr].attachedto ) continue;
+        if ( INVALID_CHR_REF != ChrList.lst[ichr].attachedto ) continue;
 
         needs_new = bfalse;
 
@@ -773,7 +773,7 @@ int update_game( void )
         ichr = PlaStack.lst[ipla].index;
         if ( !INGAME_CHR( ichr ) )
         {
-            PlaStack.lst[ipla].index = ( CHR_REF )MAX_CHR;
+            PlaStack.lst[ipla].index = INVALID_CHR_REF;
             PlaStack.lst[ipla].valid = bfalse;
             continue;
         }
@@ -1637,10 +1637,10 @@ CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing,
 
     pip_t * ppip;
 
-    CHR_REF besttarget = ( CHR_REF )MAX_CHR;
+    CHR_REF besttarget = INVALID_CHR_REF;
     float  longdist2 = max_dist2;
 
-    if ( !LOADED_PIP( particletype ) ) return ( CHR_REF )MAX_CHR;
+    if ( !LOADED_PIP( particletype ) ) return INVALID_CHR_REF;
     ppip = PipStack_get_ptr( particletype );
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
@@ -1794,13 +1794,13 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
     line_of_sight_info_t los_info;
 
     Uint16 cnt;
-    CHR_REF best_target = ( CHR_REF )MAX_CHR;
+    CHR_REF best_target = INVALID_CHR_REF;
     float  best_dist2, max_dist2;
 
     size_t search_list_size = 0;
     CHR_REF search_list[MAX_CHR];
 
-    if ( !ACTIVE_PCHR( psrc ) ) return ( CHR_REF )MAX_CHR;
+    if ( !ACTIVE_PCHR( psrc ) ) return INVALID_CHR_REF;
 
     max_dist2 = max_dist * max_dist;
 
@@ -1835,7 +1835,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
     los_info.z0         = psrc->pos.z + psrc->bump.height;
     los_info.stopped_by = psrc->stoppedby;
 
-    best_target = ( CHR_REF )MAX_CHR;
+    best_target = INVALID_CHR_REF;
     best_dist2  = max_dist2;
     for ( cnt = 0; cnt < search_list_size; cnt++ )
     {
@@ -1852,7 +1852,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
         fvec3_sub( diff.v, psrc->pos.v, ptst->pos.v );
         dist2 = fvec3_dot_product( diff.v, diff.v );
 
-        if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( MAX_CHR == best_target || dist2 < best_dist2 ) )
+        if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
         {
             //Invictus chars do not need a line of sight
             if ( !psrc->invictus )
@@ -1872,7 +1872,7 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
     }
 
     // make sure the target is valid
-    if ( !INGAME_CHR( best_target ) ) best_target = ( CHR_REF )MAX_CHR;
+    if ( !INGAME_CHR( best_target ) ) best_target = INVALID_CHR_REF;
 
     return best_target;
 }
@@ -1924,7 +1924,7 @@ void do_damage_tiles( void )
         if ( 0 == pchr->damage_timer )
         {
             int actual_damage;
-            actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.damagetype, ( TEAM_REF )TEAM_DAMAGE, ( CHR_REF )MAX_CHR, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+            actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.damagetype, ( TEAM_REF )TEAM_DAMAGE, INVALID_CHR_REF, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
             pchr->damage_timer = DAMAGETILETIME;
 
             if (( actual_damage > 0 ) && ( -1 != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
@@ -1973,7 +1973,7 @@ void update_pits( void )
                 if ( pits.kill && pchr->pos.z < PITDEPTH )
                 {
                     // Got one!
-                    kill_character( ichr, ( CHR_REF )MAX_CHR, bfalse );
+                    kill_character( ichr, INVALID_CHR_REF, bfalse );
                     pchr->vel.x = 0;
                     pchr->vel.y = 0;
 
@@ -1993,7 +1993,7 @@ void update_pits( void )
                     if ( !teleported )
                     {
                         // Kill it instead
-                        kill_character( ichr, ( CHR_REF )MAX_CHR, bfalse );
+                        kill_character( ichr, INVALID_CHR_REF, bfalse );
                     }
                     else
                     {
@@ -2129,7 +2129,7 @@ void set_one_player_latch( const PLA_REF ipla )
     //No need to continue if device is not enabled
     if ( !input_device_is_enabled( pdevice ) ) return;
 
-    // get teh camera list
+    // get the camera list
     plst = camera_system_get_list();
 
     // find the camera that is pointing at this character
@@ -3028,7 +3028,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
-    new_object = spawn_one_character( psp_info->pos.v, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, ( CHR_REF )MAX_CHR );
+    new_object = spawn_one_character( psp_info->pos.v, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF );
     if ( !DEFINED_CHR( new_object ) ) return bfalse;
 
     pobject = ChrList_get_ptr( new_object );
@@ -3131,7 +3131,7 @@ void activate_spawn_file_vfs( void )
     }
     else
     {
-        CHR_REF parent = ( CHR_REF )MAX_CHR;
+        CHR_REF parent = INVALID_CHR_REF;
         size_t i;
 
         // Mark each slot as free with the string termination character
@@ -3201,7 +3201,7 @@ void activate_spawn_file_vfs( void )
             }
 
             //If all slots are reserved, spit out a warning
-            if ( sp_dynamic->slot == MAX_PROFILE ) log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", sp_dynamic->spawn_coment, MAX_PROFILE );
+            if ( sp_dynamic->slot == INVALID_PRO_REF ) log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", sp_dynamic->spawn_coment, INVALID_PRO_REF );
         }
 
         //Now spawn each object in order
@@ -3481,7 +3481,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, ( PRT_REF )MAX_PRT, number_attached, ( CHR_REF )MAX_CHR );
+        particle = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached, INVALID_CHR_REF );
         if ( DEFINED_PRT( particle ) )
         {
             prt_t * pprt = PrtList_get_ptr( particle );
@@ -3838,9 +3838,9 @@ void free_all_objects( void )
 //--------------------------------------------------------------------------------------------
 void reset_all_object_lists( void )
 {
-    PrtList_init();
-    ChrList_init();
-    EncList_init();
+    PrtList_reinit();
+    ChrList_reinit();
+    EncList_reinit();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4684,7 +4684,7 @@ bool_t wawalite_finalize( wawalite_data_t * pdata )
         snprintf( prt_end_file, SDL_arraysize( prt_end_file ), "mp_data/weather_%s_finish.txt", strlwr( line ) );
 
         //try to load the particle files, we need at least the first particle for weather to work
-        success = PipStack_load_one( prt_file, ( PIP_REF )PIP_WEATHER ) != MAX_PIP;
+        success = INVALID_PIP_REF != PipStack_load_one( prt_file, ( PIP_REF )PIP_WEATHER );
         PipStack_load_one( prt_end_file, ( PIP_REF )PIP_WEATHER_FINISH );
 
         //Unknown weather parsed
@@ -5223,7 +5223,7 @@ void disenchant_character( const CHR_REF cnt )
     pchr = ChrList_get_ptr( cnt );
 
     ienc_count = 0;
-    while (( MAX_ENC != pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
+    while (( INVALID_ENC_REF != pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
     {
         // do not let disenchant_character() get stuck in an infinite loop if there is an error
         if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )
@@ -5272,7 +5272,7 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     // do the attachment
     pchr->onwhichplatform_ref    = GET_REF_PCHR( pplat );
     pchr->onwhichplatform_update = update_wld;
-    pchr->targetplatform_ref     = ( CHR_REF )MAX_CHR;
+    pchr->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
     pchr->enviro.level     = MAX( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_min_cv.maxs[OCT_Z] );
@@ -5340,9 +5340,9 @@ bool_t detach_character_from_platform( chr_t * pchr )
     }
 
     // undo the attachment
-    pchr->onwhichplatform_ref    = ( CHR_REF ) MAX_CHR;
+    pchr->onwhichplatform_ref    = INVALID_CHR_REF;
     pchr->onwhichplatform_update = 0;
-    pchr->targetplatform_ref     = ( CHR_REF ) MAX_CHR;
+    pchr->targetplatform_ref     = INVALID_CHR_REF;
     pchr->targetplatform_level   = -1e32;
 
     // adjust the platform weight, if necessary
@@ -5385,7 +5385,7 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     // do the attachment
     pprt->onwhichplatform_ref    = GET_REF_PCHR( pplat );
     pprt->onwhichplatform_update = update_wld;
-    pprt->targetplatform_ref     = ( CHR_REF )MAX_CHR;
+    pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
     prt_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_min_cv.maxs[OCT_Z] ) );
@@ -5411,9 +5411,9 @@ bool_t detach_particle_from_platform( prt_t * pprt )
     if ( INGAME_CHR( pprt->onwhichplatform_ref ) ) return bfalse;
 
     // undo the attachment
-    pprt->onwhichplatform_ref    = ( CHR_REF ) MAX_CHR;
+    pprt->onwhichplatform_ref    = INVALID_CHR_REF;
     pprt->onwhichplatform_update = 0;
-    pprt->targetplatform_ref     = ( CHR_REF ) MAX_CHR;
+    pprt->targetplatform_ref     = INVALID_CHR_REF;
     pprt->targetplatform_level   = -1e32;
 
     // get the correct particle environment
@@ -5431,7 +5431,7 @@ bool_t import_element_init( import_element_t * ptr )
     BLANK_STRUCT_PTR( ptr )
 
     // all non-zero, non-null values
-    ptr->player = MAX_PLAYER;
+    ptr->player = INVALID_PLAYER_REF;
     ptr->slot   = -1;
 
     return btrue;

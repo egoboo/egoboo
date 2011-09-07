@@ -597,9 +597,8 @@ fnt_drawText_raw_finish:
 }
 
 //--------------------------------------------------------------------------------------------
-void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, ... )
+void fnt_drawText_OGL_va( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, va_list args )
 {
-    va_list args;
     int rv;
 
     bool_t  gl_id_external;
@@ -635,9 +634,7 @@ void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat *
         loc_ppTmpSurface = &loc_pTmpSurface;
     }
 
-    va_start( args, format );
     rv = fnt_vprintf_OGL( font, fnt_color, tex_id, tex_coords, format, args, loc_ppTmpSurface );
-    va_end( args );
 
     if ( rv <= 0 )
     {
@@ -659,7 +656,7 @@ void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat *
         GL_DEBUG_END();
     }
 
-fnt_drawText_OGL_exit:
+fnt_drawText_OGL_va_exit:
 
     if ( !gl_id_external && INVALID_GL_ID != tex_id )
     {
@@ -673,6 +670,26 @@ fnt_drawText_OGL_exit:
         SDL_FreeSurface( *loc_ppTmpSurface );
         *loc_ppTmpSurface = NULL;
     }
+}
+
+//--------------------------------------------------------------------------------------------
+void fnt_drawText_OGL_immediate( Font *font, SDL_Color fnt_color, int x, int y, const char *format, ... )
+{
+    va_list args;
+
+    va_start( args, format );
+    fnt_drawText_OGL_va( font, fnt_color, INVALID_GL_ID, NULL, x, y, NULL, format, args );
+    va_end( args );
+}
+
+//--------------------------------------------------------------------------------------------
+void fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, ... )
+{
+    va_list args;
+
+    va_start( args, format );
+    fnt_drawText_OGL_va( font, fnt_color, tex_id, tex_coords, x, y, ppTmpSurface, format, args );
+    va_end( args );
 }
 
 //--------------------------------------------------------------------------------------------

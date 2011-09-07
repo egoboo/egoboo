@@ -87,7 +87,7 @@ typedef enum e_mix_type mix_type_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define sound_play_chunk( pos, pchunk ) sound_play_chunk_looped( pos, pchunk, 0, (CHR_REF)MAX_CHR )
+#define sound_play_chunk( pos, pchunk ) sound_play_chunk_looped( pos, pchunk, 0, INVALID_CHR_REF )
 
 #define VALID_SND( ISND )       ( ( ISND >= 0 ) && ( ISND < MAX_WAVE ) )
 

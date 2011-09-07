@@ -158,12 +158,16 @@ const char * pro_create_chop( const PRO_REF profile_ref );
 bool_t       pro_load_chop_vfs( const PRO_REF profile_ref, const char *szLoadname );
 
 void    ProList_init( void );
-size_t  ProList_get_free( const PRO_REF override_ref );
+size_t  ProList_get_free_ref( const PRO_REF override_ref );
 bool_t  ProList_free_one( const PRO_REF object_ref );
 
+// utility macros
 #define VALID_PRO_RANGE( IPRO ) ( ((IPRO) >= 0) && ((IPRO) < MAX_PROFILE) )
-#define LOADED_PRO( IPRO )       ( VALID_PRO_RANGE( IPRO ) && ProList.lst[IPRO].loaded )
+#define LOADED_PRO( IPRO )       ( VALID_PRO_RANGE( IPRO ) && LOADED_PRO_RAW( IPRO ) )
 #define IS_VALID_MESSAGE_PRO( IPRO, MESSAGE ) ( LOADED_PRO(IPRO) && MESSAGE > 0 && MESSAGE < ProList.lst[IPRO].message_count )
+
+// utility macros without range checking
+#define LOADED_PRO_RAW( IPRO )   ( ProList.lst[IPRO].loaded )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

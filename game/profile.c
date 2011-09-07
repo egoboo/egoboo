@@ -66,10 +66,6 @@ static bool_t release_one_pro_data( const PRO_REF iobj );
 static bool_t release_one_profile_textures( const PRO_REF iobj );
 static bool_t pro_init( pro_t * pobj );
 
-static bool_t ProList_push_free( const PRO_REF iobj );
-static size_t ProList_pop_free( int idx );
-static int ProList_search_free( const PRO_REF iobj );
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -96,7 +92,7 @@ void init_all_profiles( void )
     // fix the book icon list
     for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
     {
-        bookicon_ref[tnc] = INVALID_TX_TEXTURE;
+        bookicon_ref[tnc] = INVALID_TX_REF;
     }
     bookicon_count = 0;
 }
@@ -201,13 +197,13 @@ bool_t pro_init( pro_t * pobj )
     //---- reset everything to safe values
     BLANK_STRUCT_PTR( pobj )
 
-    pobj->icap = ( CAP_REF ) MAX_CAP;
-    pobj->imad = ( MAD_REF ) MAX_MAD;
-    pobj->ieve = ( EVE_REF ) MAX_EVE;
+    pobj->icap = INVALID_CAP_REF;
+    pobj->imad = INVALID_MAD_REF;
+    pobj->ieve = INVALID_EVE_REF;
 
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
-        pobj->prtpip[cnt] = ( PIP_REF ) MAX_PIP;
+        pobj->prtpip[cnt] = INVALID_PIP_REF;
     }
 
     chop_definition_init( &( pobj->chop ) );
@@ -219,8 +215,8 @@ bool_t pro_init( pro_t * pobj )
     // clear out the textures
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        pobj->tex_ref[cnt] = INVALID_TX_TEXTURE;
-        pobj->ico_ref[cnt] = INVALID_TX_TEXTURE;
+        pobj->tex_ref[cnt] = INVALID_TX_REF;
+        pobj->ico_ref[cnt] = INVALID_TX_REF;
     }
 
     return btrue;
@@ -229,7 +225,7 @@ bool_t pro_init( pro_t * pobj )
 //--------------------------------------------------------------------------------------------
 // The "private" ProList management functions
 //--------------------------------------------------------------------------------------------
-int ProList_search_free( const PRO_REF iobj )
+int ProList_find_free_ref( const PRO_REF iobj )
 {
     /// @author BB
     /// @details if an object of index iobj exists on the free list, return the free list index
@@ -253,36 +249,48 @@ int ProList_search_free( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t ProList_pop_free( int idx )
+size_t ProList_pop_free( const int index )
 {
     /// @author BB
     /// @details pop off whatever object exists at the free list index idx
 
-    size_t retval;
+    size_t retval = INVALID_PRO_REF;
+    size_t loops  = 0;
 
-    if ( idx >= 0 && idx < ProList.free_count )
+    if ( index >= 0 && index < ProList.free_count )
     {
-        // move the index idx to the top
-        int idx_top, idx_bottom;
+        // the user has specified a valid index in the free stack
+        // that they want to use. make that happen.
 
-        idx_bottom = idx;
-        idx_top    = ProList.free_count - 1;
+        // from the conditions, ProList.free_count must be greater than 1
+        size_t itop = ProList.free_count - 1;
 
-        // make sure this is a valid case
-        if ( idx_top > idx_bottom && idx_top > 1 )
-        {
-            SWAP( size_t, ProList.free_ref[idx_top], ProList.free_ref[idx_bottom] );
-        }
+        // move the desired index to the top of the stack
+        SWAP( size_t, ProList.free_ref[index], ProList.free_ref[itop] );
     }
 
-    // just pop off the top index
-    retval = MAX_PROFILE;
-    if ( ProList.free_count > 0 )
+    // do the normal "pop" operation
+    while ( ProList.free_count > 0 )
     {
         ProList.free_count--;
         ProList.update_guid++;
 
         retval = ProList.free_ref[ProList.free_count];
+
+        // completely remove it from the free list
+        ProList.free_ref[ProList.free_count] = INVALID_PRO_REF;
+
+        if ( VALID_PRO_RANGE( retval ) )
+        {
+            break;
+        }
+
+        loops++;
+    }
+
+    if ( loops > 0 )
+    {
+        log_warning( "%s - there is something wrong with the free stack. %d loops.\n", __FUNCTION__, loops );
     }
 
     return retval;
@@ -299,7 +307,7 @@ bool_t ProList_push_free( const PRO_REF iobj )
 #if defined(_DEBUG)
     // determine whether this character is already in the list of free objects
     // that is an error
-    if ( -1 != ProList_search_free( iobj ) ) return bfalse;
+    if ( -1 != ProList_find_free_ref( iobj ) ) return bfalse;
 #endif
 
     // push it on the free stack
@@ -318,6 +326,107 @@ bool_t ProList_push_free( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
+int ProList_find_used_ref( const PRO_REF iobj )
+{
+    /// @author BB
+    /// @details if an object of index iobj exists on the used list, return the used list index
+    ///     otherwise return -1
+
+    int cnt, retval;
+
+    // determine whether this character is already in the list of used textures
+    // that is an error
+    retval = -1;
+    for ( cnt = 0; cnt < ProList.used_count; cnt++ )
+    {
+        if ( iobj == ProList.used_ref[cnt] )
+        {
+            retval = cnt;
+            break;
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+size_t ProList_pop_used( const int index )
+{
+    /// @author BB
+    /// @details pop off whatever object exists at the used list index idx
+
+    size_t retval = INVALID_PRO_REF;
+    size_t loops  = 0;
+
+    if ( index >= 0 && index < ProList.used_count )
+    {
+        // the user has specified a valid index in the used stack
+        // that they want to use. make that happen.
+
+        // from the conditions, ProList.used_count must be greater than 1
+        size_t itop = ProList.used_count - 1;
+
+        // move the desired index to the top of the stack
+        SWAP( size_t, ProList.used_ref[index], ProList.used_ref[itop] );
+    }
+
+    // do the normal "pop" operation
+    while ( ProList.used_count > 0 )
+    {
+        ProList.used_count--;
+        ProList.update_guid++;
+
+        retval = ProList.used_ref[ProList.used_count];
+
+        // completely remove it from the used list
+        ProList.used_ref[ProList.used_count] = INVALID_PRO_REF;
+
+        if ( VALID_PRO_RANGE( retval ) )
+        {
+            break;
+        }
+
+        loops++;
+    }
+
+    if ( loops > 0 )
+    {
+        log_warning( "%s - there is something wrong with the used stack. %d loops.\n", __FUNCTION__, loops );
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ProList_push_used( const PRO_REF iobj )
+{
+    /// @author BB
+    /// @details push an object onto the used stack
+
+    bool_t retval;
+
+#if defined(_DEBUG)
+    // determine whether this character is already in the list of used objects
+    // that is an error
+    if ( -1 != ProList_find_used_ref( iobj ) ) return bfalse;
+#endif
+
+    // push it on the used stack
+    retval = bfalse;
+    if ( ProList.used_count < MAX_PROFILE )
+    {
+        ProList.used_ref[ProList.used_count] = REF_TO_INT( iobj );
+
+        ProList.used_count++;
+        ProList.update_guid++;
+
+        retval = btrue;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
 // The "public" ProList management functions
 //--------------------------------------------------------------------------------------------
 void ProList_init( void )
@@ -327,25 +436,29 @@ void ProList_init( void )
     ///     call before ever using the object list.
 
     PRO_REF cnt;
+    pro_t * pobj;
 
     ProList.free_count = 0;
     for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
+        pobj = ProList.lst + cnt;
+
         // make sure we don't get a stupid warning
-        ProList.lst[cnt].loaded = bfalse;
-        pro_init( ProList_get_ptr( cnt ) );
+        pobj->loaded = bfalse;
+
+        pro_init( pobj );
 
         ProList_push_free( cnt );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-size_t ProList_get_free( const PRO_REF override )
+size_t ProList_get_free_ref( const PRO_REF override )
 {
     /// @author ZZ
-    /// @details This function returns the next free character or MAX_PROFILE if there are none
+    /// @details This function returns the next free character or INVALID_PRO_REF if there are none
 
-    size_t retval = MAX_PROFILE;
+    size_t retval = INVALID_PRO_REF;
 
     if ( VALID_PRO_RANGE( override ) )
     {
@@ -359,7 +472,7 @@ size_t ProList_get_free( const PRO_REF override )
         }
 
         // grab the specified index
-        free_idx = ProList_search_free( override );
+        free_idx = ProList_find_free_ref( override );
         retval   = ProList_pop_free( free_idx );
     }
     else
@@ -381,7 +494,7 @@ bool_t ProList_free_one( const PRO_REF iobj )
 
     // object "destructor"
     // inilializes an object to safe values
-    pro_init( ProList_get_ptr( iobj ) );
+    pro_init( ProList.lst + iobj );
 
     return ProList_push_free( iobj );
 }
@@ -396,7 +509,7 @@ bool_t release_one_profile_textures( const PRO_REF iobj )
     pro_t  * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return bfalse;
-    pobj = ProList_get_ptr( iobj );
+    pobj = ProList.lst + iobj;
 
     for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
     {
@@ -405,16 +518,16 @@ bool_t release_one_profile_textures( const PRO_REF iobj )
         itex = pobj->tex_ref[tnc];
         if ( itex > TX_SPECIAL_LAST )
         {
-            TxTexture_free_one( itex );
+            TxList_free_one( itex );
         }
-        pobj->tex_ref[tnc] = INVALID_TX_TEXTURE;
+        pobj->tex_ref[tnc] = INVALID_TX_REF;
 
         itex = pobj->ico_ref[tnc] ;
         if ( itex > TX_SPECIAL_LAST )
         {
-            TxTexture_free_one( itex );
+            TxList_free_one( itex );
         }
-        pobj->ico_ref[tnc] = INVALID_TX_TEXTURE;
+        pobj->ico_ref[tnc] = INVALID_TX_REF;
     }
 
     // reset the bookicon stuff if this object is a book
@@ -422,7 +535,7 @@ bool_t release_one_profile_textures( const PRO_REF iobj )
     {
         for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
         {
-            bookicon_ref[tnc] = INVALID_TX_TEXTURE;
+            bookicon_ref[tnc] = INVALID_TX_REF;
         }
         bookicon_count = 0;
     }
@@ -448,7 +561,7 @@ bool_t release_one_pro_data( const PRO_REF iobj )
     pro_t * pobj;
 
     if ( !LOADED_PRO( iobj ) ) return bfalse;
-    pobj = ProList_get_ptr( iobj );
+    pobj = ProList.lst + iobj;
 
     // free all sounds
     for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
@@ -470,8 +583,8 @@ bool_t release_one_pro( const PRO_REF iobj )
 
     if ( !VALID_PRO_RANGE( iobj ) ) return bfalse;
 
-    if ( !LOADED_PRO( iobj ) ) return btrue;
-    pobj = ProList_get_ptr( iobj );
+    if ( !LOADED_PRO_RAW( iobj ) ) return btrue;
+    pobj = ProList.lst + iobj;
 
     // release all of the sub-profiles
     CapStack_release_one( pobj->icap );
@@ -530,33 +643,33 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     pro_t * pobj;
 
     if ( !VALID_PRO_RANGE( object ) ) return 0;
-    pobj = ProList_get_ptr( object );
+    pobj = ProList.lst + object;
 
     // Load the skins and icons
     max_skin    = max_icon    = -1;
-    min_skin_tx = min_icon_tx = INVALID_TX_TEXTURE;
+    min_skin_tx = min_icon_tx = INVALID_TX_REF;
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s/tris%d", tmploadname, cnt );
 
-        pobj->tex_ref[cnt] = TxTexture_load_one_vfs( newloadname, ( TX_REF )INVALID_TX_TEXTURE, TRANSCOLOR );
-        if ( INVALID_TX_TEXTURE != pobj->tex_ref[cnt] )
+        pobj->tex_ref[cnt] = TxList_load_one_vfs( newloadname, INVALID_TX_REF, TRANSCOLOR );
+        if ( VALID_TX_RANGE( pobj->tex_ref[cnt] ) )
         {
             max_skin = cnt;
-            if ( INVALID_TX_TEXTURE == min_skin_tx )
+            if ( !VALID_TX_RANGE( min_skin_tx ) )
             {
                 min_skin_tx = pobj->tex_ref[cnt];
             }
         }
 
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%d", tmploadname, cnt );
-        pobj->ico_ref[cnt] = TxTexture_load_one_vfs( newloadname, ( TX_REF )INVALID_TX_TEXTURE, INVALID_KEY );
+        pobj->ico_ref[cnt] = TxList_load_one_vfs( newloadname, INVALID_TX_REF, INVALID_KEY );
 
-        if ( INVALID_TX_TEXTURE != pobj->ico_ref[cnt] )
+        if ( VALID_TX_RANGE( pobj->ico_ref[cnt] ) )
         {
             max_icon = cnt;
 
-            if ( INVALID_TX_TEXTURE == min_icon_tx )
+            if ( !VALID_TX_RANGE( min_icon_tx ) )
             {
                 min_icon_tx = pobj->ico_ref[cnt];
             }
@@ -588,12 +701,12 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     iicon = min_icon_tx;
     for ( cnt = 0; cnt <= max_tex; cnt++ )
     {
-        if ( INVALID_TX_TEXTURE != pobj->tex_ref[cnt] && iskin != pobj->tex_ref[cnt] )
+        if ( VALID_TX_RANGE( pobj->tex_ref[cnt] ) && iskin != pobj->tex_ref[cnt] )
         {
             iskin = pobj->tex_ref[cnt];
         }
 
-        if ( INVALID_TX_TEXTURE != pobj->ico_ref[cnt] && iicon != pobj->ico_ref[cnt] )
+        if ( VALID_TX_RANGE( pobj->ico_ref[cnt] ) && iicon != pobj->ico_ref[cnt] )
         {
             iicon = pobj->ico_ref[cnt];
         }
@@ -678,13 +791,13 @@ bool_t release_one_local_pips( const PRO_REF iobj )
 
     if ( !VALID_PRO_RANGE( iobj ) ) return bfalse;
 
-    if ( !LOADED_PRO( iobj ) ) return btrue;
-    pobj = ProList_get_ptr( iobj );
+    if ( !LOADED_PRO_RAW( iobj ) ) return btrue;
+    pobj = ProList.lst + iobj;
 
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
         PipStack_release_one( pobj->prtpip[cnt] );
-        pobj->prtpip[cnt] = ( PIP_REF ) MAX_PIP;
+        pobj->prtpip[cnt] = INVALID_PIP_REF;
     }
 
     return btrue;
@@ -696,19 +809,20 @@ void release_all_local_pips( void )
     // clear out the local pips
 
     PRO_REF object;
+    pro_t * pobj;
+
     int cnt;
 
     for ( object = 0; object < MAX_PROFILE; object++ )
     {
-        pro_t * pobj;
+        pobj = ProList.lst + object;
 
-        if ( !ProList.lst[object].loaded ) continue;
-        pobj = ProList_get_ptr( object );
+        if ( !pobj->loaded ) continue;
 
         for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
         {
             PipStack_release_one( pobj->prtpip[cnt] );
-            pobj->prtpip[cnt] = ( PIP_REF ) MAX_PIP;
+            pobj->prtpip[cnt] = INVALID_PIP_REF;
         }
     }
 }
@@ -825,7 +939,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     // without permission
     if ( LOADED_PRO( iobj ) )
     {
-        pro_t * pobj_tmp = ProList_get_ptr( iobj );
+        pro_t * pobj_tmp = ProList.lst + iobj;
 
         // Make sure global objects don't load over existing models
         if ( required && SPELLBOOK == iobj )
@@ -844,7 +958,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     }
 
     // allocate/reallocate this slot
-    iobj = ProList_get_free( iobj );
+    iobj = ProList_get_free_ref( iobj );
     if ( !VALID_PRO_RANGE( iobj ) )
     {
         log_warning( "load_one_profile_vfs() - Cannot allocate object %d (\"%s\")\n", REF_TO_INT( iobj ), tmploadname );
@@ -852,7 +966,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     }
 
     // grab a pointer to the object
-    pobj  = ProList_get_ptr( iobj );
+    pobj  = ProList.lst + iobj;
 
     // load the character profile
     pobj->icap = CapStack_load_one( tmploadname, islot, bfalse );
@@ -875,7 +989,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s/part%d.txt", tmploadname, cnt );
 
         // Make sure it's referenced properly
-        pobj->prtpip[cnt] = PipStack_load_one( newloadname, ( PIP_REF )MAX_PIP );
+        pobj->prtpip[cnt] = PipStack_load_one( newloadname, INVALID_PIP_REF );
     }
 
     pobj->skins = load_profile_skins_vfs( tmploadname, iobj );
@@ -942,7 +1056,7 @@ const char * pro_create_chop( const PRO_REF iprofile )
     strncpy( buffer, "*NONE*", SDL_arraysize( buffer ) );
 
     if ( !LOADED_PRO( iprofile ) ) return buffer;
-    ppro = ProList_get_ptr( iprofile );
+    ppro = ProList.lst + iprofile;
 
     if ( !LOADED_CAP( ppro->icap ) ) return buffer;
     pcap = CapStack_get_ptr( ppro->icap );
@@ -973,7 +1087,7 @@ bool_t pro_load_chop_vfs( const PRO_REF iprofile, const char *szLoadname )
     pro_t * ppro;
 
     if ( !VALID_PRO_RANGE( iprofile ) ) return bfalse;
-    ppro = ProList_get_ptr( iprofile );
+    ppro = ProList.lst + iprofile;
 
     // clear out any current definition
     chop_definition_init( &( ppro->chop ) );

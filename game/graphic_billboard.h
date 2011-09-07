@@ -47,7 +47,9 @@ typedef struct s_billboard_data billboard_data_t;
 //--------------------------------------------------------------------------------------------
 
 #define BILLBOARD_COUNT     (2 * MAX_CHR)
-#define INVALID_BILLBOARD   BILLBOARD_COUNT
+
+#define INVALID_BILLBOARD_IDX   BILLBOARD_COUNT
+#define INVALID_BILLBOARD_REF   (( BBOARD_REF )INVALID_BILLBOARD_IDX)
 
 enum e_bb_opt
 {
@@ -102,7 +104,7 @@ DECLARE_LIST_EXTERN( billboard_data_t, BillboardList, BILLBOARD_COUNT );
 void   BillboardList_init_all( void );
 void   BillboardList_update_all( void );
 void   BillboardList_free_all( void );
-size_t BillboardList_get_free( Uint32 lifetime_secs );
+size_t BillboardList_get_free_ref( Uint32 lifetime_secs );
 bool_t BillboardList_free_one( size_t ibb );
 
 //--------------------------------------------------------------------------------------------

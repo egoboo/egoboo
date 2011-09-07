@@ -310,7 +310,7 @@ bool_t chr_BSP_clear( void )
     // unlink all used character nodes
     for ( ichr = 0; ichr < MAX_CHR; ichr++ )
     {
-        BSP_leaf_unlink( POBJ_GET_PLEAF( ChrList.lst + ichr ) );
+        BSP_leaf_remove_link( POBJ_GET_PLEAF( ChrList.lst + ichr ) );
     }
 
     return btrue;
@@ -326,9 +326,9 @@ bool_t prt_BSP_clear( void )
     prt_BSP_root.count = 0;
 
     // unlink all used particle nodes
-    for ( iprt = 0; iprt < MAX_PRT; iprt++ )
+    for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
-        BSP_leaf_unlink( POBJ_GET_PLEAF( PrtList.lst + iprt ) );
+        BSP_leaf_remove_link( POBJ_GET_PLEAF( PrtList.lst + iprt ) );
     }
 
     return btrue;
@@ -343,8 +343,8 @@ bool_t chr_BSP_fill( void )
     {
         // reset a couple of things here
         pchr->holdingweight        = 0;
-        pchr->onwhichplatform_ref  = ( CHR_REF )MAX_CHR;
-        pchr->targetplatform_ref   = ( CHR_REF )MAX_CHR;
+        pchr->onwhichplatform_ref  = INVALID_CHR_REF;
+        pchr->targetplatform_ref   = INVALID_CHR_REF;
         pchr->targetplatform_level = -1e32;
 
         // try to insert the character
@@ -363,8 +363,8 @@ bool_t prt_BSP_fill( void )
     PRT_BEGIN_LOOP_ACTIVE( iprt, prt_bdl )
     {
         // reset a couple of things here
-        prt_bdl.prt_ptr->onwhichplatform_ref  = ( CHR_REF )MAX_CHR;
-        prt_bdl.prt_ptr->targetplatform_ref   = ( CHR_REF )MAX_CHR;
+        prt_bdl.prt_ptr->onwhichplatform_ref  = INVALID_CHR_REF;
+        prt_bdl.prt_ptr->targetplatform_ref   = INVALID_CHR_REF;
         prt_bdl.prt_ptr->targetplatform_level = -1e32;
 
         // try to insert the particle
@@ -438,7 +438,7 @@ bool_t chr_BSP_can_collide( BSP_leaf_t * pchr_leaf )
     can_be_reaffirmed = ( pchr->reaffirm_damagetype < DAMAGE_COUNT );
     can_grab_money    = pchr->cangrabmoney;
     can_use_platforms = pchr->canuseplatforms;
-    can_collide       = ( 0 != pchr->bump_stt.size ) && ( MAX_CHR == pchr->attachedto );
+    can_collide       = ( 0 != pchr->bump_stt.size ) && ( INVALID_CHR_REF == pchr->attachedto );
 
     // conditions for normal chr-chr interaction
     // platform tests are done elsewhere

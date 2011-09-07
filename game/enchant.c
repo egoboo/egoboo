@@ -69,7 +69,7 @@ IMPLEMENT_STACK( eve_t, EveStack, MAX_EVE );
 //--------------------------------------------------------------------------------------------
 void enchant_system_begin( void )
 {
-    EncList_init();
+    EncList_ctor();
     EveStack_init_all();
 }
 
@@ -112,19 +112,16 @@ enc_t * enc_ctor( enc_t * penc )
     pbase->update_count = 0;
     pbase->frame_count = 0;
 
-    penc->profile_ref      = ( PRO_REF )MAX_PROFILE;
-    penc->eve_ref          = ( EVE_REF )MAX_EVE;
+    penc->profile_ref      = INVALID_PRO_REF;
+    penc->eve_ref          = INVALID_EVE_REF;
 
-    penc->target_ref       = ( CHR_REF )MAX_CHR;
-    penc->owner_ref        = ( CHR_REF )MAX_CHR;
-    penc->spawner_ref      = ( CHR_REF )MAX_CHR;
-    penc->spawnermodel_ref = ( PRO_REF )MAX_PROFILE;
-    penc->overlay_ref      = ( CHR_REF )MAX_CHR;
+    penc->target_ref       = INVALID_CHR_REF;
+    penc->owner_ref        = INVALID_CHR_REF;
+    penc->spawner_ref      = INVALID_CHR_REF;
+    penc->spawnermodel_ref = INVALID_PRO_REF;
+    penc->overlay_ref      = INVALID_CHR_REF;
 
-    penc->nextenchant_ref  = ( ENC_REF )MAX_ENC;
-
-    // initialize the bsp node for this character
-    BSP_leaf_ctor( POBJ_GET_PLEAF( penc ), penc, BSP_LEAF_ENC, GET_INDEX_PENC( penc ) );
+    penc->nextenchant_ref  = INVALID_ENC_REF;
 
     // we are done constructing. move on to initializing.
     pbase->state = ego_object_initializing;
@@ -163,7 +160,7 @@ bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 
         if ( ienc == pspawner->undoenchant )
         {
-            pspawner->undoenchant = ( ENC_REF ) MAX_ENC;
+            pspawner->undoenchant = INVALID_ENC_REF;
         }
     }
 
@@ -187,7 +184,7 @@ bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             // Search until we find it
             ienc_last = ienc_now = ptarget->firstenchant;
             ienc_count = 0;
-            while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+            while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
                 ienc_last = ienc_now;
                 ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
@@ -241,7 +238,7 @@ bool_t remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
     // Check all enchants to see if they are removed
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -278,7 +275,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     penc = EncList_get_ptr( ienc );
     peve = enc_get_peve( ienc );
 
-    target_ref = MAX_CHR;
+    target_ref = INVALID_CHR_REF;
     target_ptr = NULL;
     if ( DEFINED_CHR( penc->target_ref ) )
     {
@@ -286,7 +283,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
         target_ptr = ChrList_get_ptr( penc->target_ref );
     }
 
-    spawner_ref = MAX_CHR;
+    spawner_ref = INVALID_CHR_REF;
     spawner_ptr = NULL;
     if ( DEFINED_CHR( penc->spawner_ref ) )
     {
@@ -294,7 +291,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
         spawner_ptr = ChrList_get_ptr( penc->spawner_ref );
     }
 
-    overlay_ref = MAX_CHR;
+    overlay_ref = INVALID_CHR_REF;
     overlay_ptr = NULL;
     if ( DEFINED_CHR( penc->overlay_ref ) )
     {
@@ -310,7 +307,7 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
         // Make the spawner unable to undo the enchantment
         if ( spawner_ptr->undoenchant == ienc )
         {
-            spawner_ptr->undoenchant = ( ENC_REF ) MAX_ENC;
+            spawner_ptr->undoenchant = INVALID_ENC_REF;
         }
     }
 
@@ -339,14 +336,14 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     unlink_enchant( ienc, enc_parent );
 
     // Kill overlay too...
-    if ( MAX_CHR != overlay_ref )
+    if ( INVALID_CHR_REF != overlay_ref )
     {
         if ( NULL != overlay_ptr )
         {
             switch_team( overlay_ref, overlay_ptr->team_base );
         }
 
-        kill_character( overlay_ref, ( CHR_REF )MAX_CHR, btrue );
+        kill_character( overlay_ref, INVALID_CHR_REF, btrue );
     }
 
     // nothing above this demends on having a valid enchant profile
@@ -405,14 +402,14 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     // recursive call to this function through cleanup_one_character()
     // @note all of the values in the penc are now invalid. we have to use previously evaluated
     // values of target_ref and penc to kill the target (if necessary)
-    if ( NULL != peve && peve->killtargetonend && MAX_CHR != target_ref )
+    if ( NULL != peve && peve->killtargetonend && INVALID_CHR_REF != target_ref )
     {
         if ( NULL != target_ptr )
         {
             switch_team( target_ref, target_ptr->team_base );
         }
 
-        kill_character( target_ref, ( CHR_REF )MAX_CHR, btrue );
+        kill_character( target_ref, INVALID_CHR_REF, btrue );
     }
 
     return btrue;
@@ -432,12 +429,12 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
 
-    if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return ( ENC_REF )MAX_ENC;
+    if ( value_idx < 0 || value_idx >= MAX_ENCHANT_SET ) return INVALID_ENC_REF;
 
-    if ( !INGAME_ENC( ienc ) ) return ( ENC_REF )MAX_ENC;
+    if ( !INGAME_ENC( ienc ) ) return INVALID_ENC_REF;
 
     character = EncList.lst[ienc].target_ref;
-    if ( !INGAME_CHR( character ) ) return ( ENC_REF )MAX_ENC;
+    if ( !INGAME_CHR( character ) ) return INVALID_ENC_REF;
     pchr = ChrList_get_ptr( character );
 
     // cleanup the enchant list
@@ -446,7 +443,7 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
     // scan the enchant list
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -487,7 +484,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
     if ( peve->setyesno[value_idx] )
     {
         conflict = enc_value_filled( ienc, value_idx );
-        if ( peve->override || MAX_ENC == conflict )
+        if ( peve->override || INVALID_ENC_REF == conflict )
         {
             // Check for multiple enchantments
             if ( DEFINED_ENC( conflict ) )
@@ -902,7 +899,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     // does the target exist?
     if ( !DEFINED_CHR( pdata->target_ref ) )
     {
-        penc->target_ref   = ( CHR_REF )MAX_CHR;
+        penc->target_ref   = INVALID_CHR_REF;
         ptarget            = NULL;
     }
     else
@@ -916,7 +913,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     // does the owner exist?
     if ( !DEFINED_CHR( pdata->owner_ref ) )
     {
-        penc->owner_ref = ( CHR_REF )MAX_CHR;
+        penc->owner_ref = INVALID_CHR_REF;
     }
     else
     {
@@ -928,8 +925,8 @@ enc_t * enc_config_do_init( enc_t * penc )
     // does the spawner exist?
     if ( !DEFINED_CHR( pdata->spawner_ref ) )
     {
-        penc->spawner_ref      = ( CHR_REF )MAX_CHR;
-        penc->spawnermodel_ref = ( PRO_REF )MAX_PROFILE;
+        penc->spawner_ref      = INVALID_CHR_REF;
+        penc->spawnermodel_ref = INVALID_PRO_REF;
     }
     else
     {
@@ -971,7 +968,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     // Create an overlay character?
     if ( peve->spawn_overlay && NULL != ptarget )
     {
-        overlay = spawn_one_character( ptarget->pos.v, pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, ( CHR_REF )MAX_CHR );
+        overlay = spawn_one_character( ptarget->pos.v, pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, INVALID_CHR_REF );
         if ( DEFINED_CHR( overlay ) )
         {
             chr_t * povl;
@@ -1056,7 +1053,7 @@ enc_t * enc_config_do_active( enc_t * penc )
         for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
         {
             spawn_one_particle( ptarget->pos.v, facing, penc->profile_ref, peve->contspawn_lpip,
-                                ( CHR_REF )MAX_CHR, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, ( PRT_REF )MAX_PRT, tnc, ( CHR_REF )MAX_CHR );
+                                INVALID_CHR_REF, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, INVALID_PRT_REF, tnc, INVALID_CHR_REF );
 
             facing += peve->contspawn_facingadd;
         }
@@ -1244,7 +1241,7 @@ enc_t * enc_config_activate( enc_t * penc, int max_iterations )
     EGOBOO_ASSERT( pbase->state == ego_object_active );
     if ( pbase->state == ego_object_active )
     {
-        EncList_add_used( GET_INDEX_PENC( penc ) );
+        EncList_push_used( GET_INDEX_PENC( penc ) );
     }
 
     return penc;
@@ -1503,12 +1500,12 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     if ( !DEFINED_CHR( loc_target ) )
     {
         log_warning( "spawn_one_enchant() - failed because the target does not exist.\n" );
-        return ( ENC_REF )MAX_ENC;
+        return INVALID_ENC_REF;
     }
     ptarget = ChrList_get_ptr( loc_target );
 
     // you should be able to enchant dead stuff to raise the dead...
-    // if( !ptarget->alive ) return (ENC_REF)MAX_ENC;
+    // if( !ptarget->alive ) return INVALID_ENC_REF;
 
     if ( LOADED_PRO( modeloptional ) )
     {
@@ -1523,7 +1520,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
         if ( !LOADED_PRO( loc_profile ) )
         {
             log_warning( "spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", ChrList.lst[spawner].obj_base._name, REF_TO_INT( spawner ) );
-            return ( ENC_REF )MAX_ENC;
+            return INVALID_ENC_REF;
         }
     }
 
@@ -1532,7 +1529,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     {
         log_warning( "spawn_one_enchant() - the object \"%s\"(%d) does not have an enchant profile.\n", ProList.lst[loc_profile].name, REF_TO_INT( loc_profile ) );
 
-        return ( ENC_REF )MAX_ENC;
+        return INVALID_ENC_REF;
     }
     peve = EveStack_get_ptr( eve_ref );
 
@@ -1543,7 +1540,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     if ( !peve->stayifnoowner && ( !INGAME_CHR( owner ) || !ChrList.lst[owner].alive ) )
     {
         log_warning( "spawn_one_enchant() - failed because the required enchant owner cannot be found.\n" );
-        return ( ENC_REF )MAX_ENC;
+        return INVALID_ENC_REF;
     }
 
     // do retargeting, if necessary
@@ -1564,7 +1561,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
         else
         {
             // No weapons to pick, should it pick itself???
-            loc_target = ( CHR_REF )MAX_CHR;
+            loc_target = INVALID_CHR_REF;
         }
     }
 
@@ -1572,7 +1569,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     if ( !DEFINED_PCHR( ptarget ) || !ptarget->alive )
     {
         log_warning( "spawn_one_enchant() - failed because the target is not alive.\n" );
-        return ( ENC_REF )MAX_ENC;
+        return INVALID_ENC_REF;
     }
     ptarget = ChrList_get_ptr( loc_target );
 
@@ -1583,7 +1580,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
              HAS_SOME_BITS( ptarget->damage_modifier[peve->required_damagetype], DAMAGEINVICTUS ) )
         {
             log_debug( "spawn_one_enchant() - failed because the target is immune to the enchant.\n" );
-            return ( ENC_REF )MAX_ENC;
+            return INVALID_ENC_REF;
         }
     }
 
@@ -1593,7 +1590,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
         if ( ptarget->damagetarget_damagetype != peve->require_damagetarget_damagetype )
         {
             log_warning( "spawn_one_enchant() - failed because the target not have the right damagetarget_damagetype.\n" );
-            return ( ENC_REF )MAX_ENC;
+            return INVALID_ENC_REF;
         }
     }
 
@@ -1603,7 +1600,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     if ( !ALLOCATED_ENC( enc_ref ) )
     {
         log_warning( "spawn_one_enchant() - could not allocate an enchant.\n" );
-        return ( ENC_REF )MAX_ENC;
+        return INVALID_ENC_REF;
     }
     penc = EncList_get_ptr( enc_ref );
 
@@ -1634,7 +1631,7 @@ EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF ieve )
     /// @author ZZ
     /// @details This function loads an enchantment profile into the EveStack
 
-    EVE_REF retval = ( EVE_REF )MAX_EVE;
+    EVE_REF retval = INVALID_EVE_REF;
 
     if ( VALID_EVE_RANGE( ieve ) )
     {
@@ -1996,23 +1993,23 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     BLANK_ARY( enc_used )
 
     // scan the list of enchants
-    ienc_nxt            = ( ENC_REF ) MAX_ENC;
+    ienc_nxt            = INVALID_ENC_REF;
     first_valid_enchant = ienc_now = ienc;
     ienc_count = 0;
-    while (( MAX_ENC != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
         // coerce the list of enchants to a valid value
         if ( !VALID_ENC_RANGE( ienc_nxt ) )
         {
-            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref = MAX_ENC;
+            ienc_nxt = EncList.lst[ienc_now].nextenchant_ref = INVALID_ENC_REF;
         }
 
         // fix any loops in the enchant list
         if ( enc_used[ienc_nxt] )
         {
-            EncList.lst[ienc_now].nextenchant_ref = MAX_ENC;
+            EncList.lst[ienc_now].nextenchant_ref = INVALID_ENC_REF;
             break;
         }
 
@@ -2030,7 +2027,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
             enc_used[ienc_now] = btrue;
 
             // keep track of the first valid enchant
-            if ( MAX_ENC == first_valid_enchant )
+            if ( INVALID_ENC_REF == first_valid_enchant )
             {
                 first_valid_enchant = ienc_now;
             }

@@ -79,7 +79,8 @@ typedef struct s_chr chr_t;
 #define MAXMONEY        9999                        ///< Maximum money
 #define SHOP_IDENTIFY   200                         ///< Maximum value for identifying shop items
 
-#define MAX_CAP    MAX_PROFILE
+#define MAX_CAP         MAX_PROFILE
+#define INVALID_CAP_REF ((CAP_REF) MAX_CAP)
 
 #define CHR_INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
 #define CHR_MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
@@ -325,9 +326,9 @@ struct s_chr
     Uint16         ammo;
 
     // equipment and inventory
-    CHR_REF        holdingwhich[SLOT_COUNT]; ///< !=MAX_CHR if character is holding something
-    CHR_REF        equipment[INVEN_COUNT];   ///< !=MAX_CHR if character has equipped something
-    CHR_REF        inventory[MAXNUMINPACK];  ///< !=MAX_CHR if character has something in the inventory
+    CHR_REF        holdingwhich[SLOT_COUNT]; ///< != INVALID_CHR_REF if character is holding something
+    CHR_REF        equipment[INVEN_COUNT];   ///< != INVALID_CHR_REF if character has equipped something
+    CHR_REF        inventory[MAXNUMINPACK];  ///< != INVALID_CHR_REF if character has something in the inventory
 
     // team stuff
     TEAM_REF       team;            ///< Character's team
@@ -350,9 +351,9 @@ struct s_chr
     Uint8          jumpready;                     ///< For standing on a platform character
 
     // attachments
-    CHR_REF        attachedto;                    ///< !=MAX_CHR if character is a held weapon
+    CHR_REF        attachedto;                    ///< != INVALID_CHR_REF if character is a held weapon
     slot_t         inwhich_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
-    CHR_REF        inwhich_inventory;             ///< !=MAX_CHR if character is inside an inventory
+    CHR_REF        inwhich_inventory;             ///< != INVALID_CHR_REF if character is inside an inventory
 
     // platform stuff
     bool_t         platform;                      ///< Can it be stood on
@@ -580,7 +581,7 @@ DECLARE_STACK_EXTERN( cap_t,  CapStack,  MAX_PROFILE );
 #define LOADED_PCAP( PCAP )       ( (NULL != (PCAP)) && (PCAP)->loaded )
 
 #define IS_ATTACHED_CHR_RAW(ICHR) ( (DEFINED_CHR(ChrList.lst[ICHR].attachedto) || DEFINED_CHR(ChrList.lst[ICHR].inwhich_inventory)) )
-#define IS_ATTACHED_CHR(ICHR) ( !DEFINED_CHR(ICHR) ? bfalse : IS_ATTACHED_CHR_RAW(ICHR) )
+#define IS_ATTACHED_CHR(ICHR) LAMBDA( !DEFINED_CHR(ICHR), bfalse, IS_ATTACHED_CHR_RAW(ICHR) )
 
 // counters for debugging wall collisions
 extern int chr_stoppedby_tests;

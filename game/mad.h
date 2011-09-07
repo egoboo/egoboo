@@ -42,6 +42,7 @@ typedef struct s_mad mad_t;
 //--------------------------------------------------------------------------------------------
 
 #define MAX_MAD         MAX_PROFILE
+#define INVALID_MAD_REF ((MAD_REF) MAX_MAD)
 
 /// Model tags
 enum

@@ -106,13 +106,9 @@ extern "C"
     BSP_aabb_t * BSP_aabb_alloc( BSP_aabb_t * pbb, size_t dim );
     BSP_aabb_t * BSP_aabb_dealloc( BSP_aabb_t * pbb );
 
-    bool_t       BSP_aabb_empty( const BSP_aabb_t * pbb );
-    bool_t       BSP_aabb_self_clear( BSP_aabb_t * pbb );
-
     bool_t       BSP_aabb_from_oct_bb( BSP_aabb_t * pdst, const oct_bb_t * psrc );
 
     bool_t       BSP_aabb_validate( BSP_aabb_t * pbb );
-    bool_t       BSP_aabb_invalidate( BSP_aabb_t * pbb );
     bool_t       BSP_aabb_copy( BSP_aabb_t * pdst, const BSP_aabb_t * psrc );
 
     bool_t       BSP_aabb_self_union( BSP_aabb_t * pdst, const BSP_aabb_t * psrc );
@@ -136,7 +132,7 @@ extern "C"
     BSP_leaf_t * BSP_leaf_ctor( BSP_leaf_t * L, void * data, int type, int index );
     BSP_leaf_t * BSP_leaf_dtor( BSP_leaf_t * L );
     bool_t       BSP_leaf_clear( BSP_leaf_t * L );
-    bool_t       BSP_leaf_unlink( BSP_leaf_t * L );
+    bool_t       BSP_leaf_remove_link( BSP_leaf_t * L );
     bool_t       BSP_leaf_copy( BSP_leaf_t * L_dst, const BSP_leaf_t * L_src );
 
 // OBSOLETE
@@ -284,8 +280,8 @@ extern "C"
     bool_t         BSP_tree_insert_leaf( BSP_tree_t * ptree, BSP_leaf_t * pleaf );
     bool_t         BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt );
 
-    int            BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-    int            BSP_tree_collide_frustum( const BSP_tree_t * tree, const struct s_egolib_frustum * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+    size_t         BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+    size_t         BSP_tree_collide_frustum( const BSP_tree_t * tree, const struct s_egolib_frustum * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
 // OBSOLETE
 //BSP_tree_t * BSP_tree_create( size_t count );

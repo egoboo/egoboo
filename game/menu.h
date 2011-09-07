@@ -58,17 +58,23 @@ typedef struct s_LoadPlayer_list LoadPlayer_list_t;
 
 enum e_menu_textures
 {
-    MENU_FONT_BMP,
-    MENU_ICON_NULL,
-    MENU_ICON_KEYB,
-    MENU_ICON_MOUS,
-    MENU_ICON_JOYA,
-    MENU_ICON_JOYB,
-    MENU_CURSOR,
-    MENU_LAST_SPECIAL
+    MENU_TX_FONT_BMP,
+    MENU_TX_ICON_NULL,
+    MENU_TX_ICON_KEYB,
+    MENU_TX_ICON_MOUS,
+    MENU_TX_ICON_JOYA,
+    MENU_TX_ICON_JOYB,
+    MENU_TX_CURSOR,
+    MENU_TX_LAST_SPECIAL
 };
 
-#define MENU_COUNT (MENU_LAST_SPECIAL + MAX_MODULE)
+#define MENU_TX_COUNT (MENU_TX_LAST_SPECIAL + MAX_MODULE)
+
+#define INVALID_MENU_TX_IDX MENU_TX_COUNT
+#define INVALID_MENU_TX_REF ((TX_REF)INVALID_MENU_TX_IDX)
+
+#define VALID_MENU_TX_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<MENU_TX_COUNT) )
+
 
 enum e_menu_retvals
 {
@@ -168,12 +174,12 @@ egolib_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
 #define VALID_LOADPLAYER_IDX(LST, IDX) ( ((IDX) >= 0) && ((IDX)<(LST).count) && ((IDX)<MAX_LOADPLAYER) )
 
 //--------------------------------------------------------------------------------------------
-// "public" TxMenu functions
+// "public" mnu_TxList functions
 //--------------------------------------------------------------------------------------------
 
-oglx_texture_t * TxMenu_get_valid_ptr( const TX_REF itex );
-void             TxMenu_reload_all( void );
-TX_REF TxMenu_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
+oglx_texture_t * mnu_TxList_get_valid_ptr( const TX_REF itex );
+void             mnu_TxList_reload_all( void );
+TX_REF mnu_TxList_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -188,7 +194,7 @@ extern bool_t module_list_valid;
 extern struct s_Font *menuFont;
 
 /// declare special arrays of textures
-DECLARE_LIST_EXTERN( oglx_texture_t, TxMenu, MENU_COUNT );
+DECLARE_LIST_EXTERN( oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
