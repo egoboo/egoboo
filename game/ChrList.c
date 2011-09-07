@@ -332,6 +332,18 @@ size_t ChrList_pop_free( const int idx )
     size_t retval = INVALID_CHR_REF;
     size_t loops  = 0;
 
+    if ( idx >= 0 && idx < ChrList.free_count )
+    {
+        // the user has specified a valid index in the free stack
+        // that they want to use. make that happen.
+
+        // from the conditions, ChrList.free_count must be greater than 1
+        size_t itop = ChrList.free_count - 1;
+
+        // move the desired index to the top of the stack
+        SWAP( size_t, ChrList.free_ref[idx], ChrList.free_ref[itop] );
+    }
+
     while ( ChrList.free_count > 0 )
     {
         ChrList.free_count--;
@@ -458,6 +470,10 @@ bool_t ChrList_remove_free_idx( const int index )
 //--------------------------------------------------------------------------------------------
 int ChrList_find_used_ref( const CHR_REF ichr )
 {
+    /// @author BB
+    /// @details if an object of index iobj exists on the used list, return the used list index
+    ///     otherwise return -1
+
     int retval = -1, cnt;
 
     if ( !VALID_CHR_RANGE( ichr ) ) return retval;
@@ -494,7 +510,7 @@ bool_t ChrList_push_used( const CHR_REF ichr )
     retval = bfalse;
     if ( ChrList.used_count < MAX_CHR )
     {
-        ChrList.used_ref[ChrList.used_count] = ichr;
+        ChrList.used_ref[ChrList.used_count] = REF_TO_INT( ichr );
 
         ChrList.used_count++;
         ChrList.update_guid++;

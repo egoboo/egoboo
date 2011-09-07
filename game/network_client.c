@@ -62,16 +62,12 @@ egolib_rv cl_talkToHost( void )
          && cfg.difficulty < GAME_HARD
          && !keyb.chat_mode )
     {
-        player = 0;
-
-        while ( player < MAX_PLAYER )
+        for ( player = 0; player < MAX_PLAYER; player++ )
         {
             if ( PlaStack.lst[player].valid && PlaStack.lst[player].pdevice != NULL )
             {
                 SET_BIT( PlaStack.lst[player].local_latch.b, LATCHBUTTON_RESPAWN );  // Press the respawn button...
             }
-
-            player++;
         }
     }
 

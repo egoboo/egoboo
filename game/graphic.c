@@ -6471,7 +6471,7 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
         {
             // is someone else did not request an update, do we need an one?
             gfx_rv light_fans_rv = light_fans_throttle_update( pmesh, ptile, fan, delta_threshold );
-            ptile->request_lcache_update = (gfx_success == light_fans_rv);
+            ptile->request_lcache_update = ( gfx_success == light_fans_rv );
         }
 
         // if there's no need for an update, go to the next tile
@@ -7450,12 +7450,9 @@ void clear_messages( void )
     /// @details This function empties the message buffer
     int cnt;
 
-    cnt = 0;
-
-    while ( cnt < MAX_MESSAGE )
+    for ( cnt = 0; cnt < MAX_MESSAGE; cnt++ )
     {
         DisplayMsg.ary[cnt].time = 0;
-        cnt++;
     }
 }
 

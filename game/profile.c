@@ -278,7 +278,7 @@ size_t ProList_pop_free( const int index )
         retval = ProList.free_ref[ProList.free_count];
 
         // completely remove it from the free list
-        ProList.free_ref[ProList.free_count] = INVALID_PRO_REF;
+        ProList.free_ref[ProList.free_count] = INVALID_PRO_IDX;
 
         if ( VALID_PRO_RANGE( retval ) )
         {

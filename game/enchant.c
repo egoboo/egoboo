@@ -184,7 +184,7 @@ bool_t unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             // Search until we find it
             ienc_last = ienc_now = ptarget->firstenchant;
             ienc_count = 0;
-            while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+            while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
                 ienc_last = ienc_now;
                 ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
@@ -238,7 +238,7 @@ bool_t remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
     // Check all enchants to see if they are removed
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt  = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -443,7 +443,7 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
     // scan the enchant list
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1996,7 +1996,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     ienc_nxt            = INVALID_ENC_REF;
     first_valid_enchant = ienc_now = ienc;
     ienc_count = 0;
-    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 

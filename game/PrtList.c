@@ -333,6 +333,18 @@ size_t PrtList_pop_free( const int idx )
     size_t retval = INVALID_PRT_REF;
     size_t loops  = 0;
 
+    if ( idx >= 0 && idx < PrtList.free_count )
+    {
+        // the user has specified a valid index in the free stack
+        // that they want to use. make that happen.
+
+        // from the conditions, PrtList.free_count must be greater than 1
+        size_t itop = PrtList.free_count - 1;
+
+        // move the desired index to the top of the stack
+        SWAP( size_t, PrtList.free_ref[idx], PrtList.free_ref[itop] );
+    }
+
     // shed any values that are greater than maxparticles
     while ( PrtList.free_count > 0 )
     {
@@ -342,7 +354,7 @@ size_t PrtList_pop_free( const int idx )
         retval = PrtList.free_ref[PrtList.free_count];
 
         // completely remove it from the free list
-        PrtList.free_ref[PrtList.free_count] = INVALID_PRT_REF;
+        PrtList.free_ref[PrtList.free_count] = INVALID_PRT_IDX;
 
         if ( VALID_PRT_RANGE( retval ) )
         {
@@ -606,11 +618,15 @@ bool_t PrtList_remove_free_idx( const int index )
 //--------------------------------------------------------------------------------------------
 int PrtList_find_used_ref( const PRT_REF iprt )
 {
+    /// @author BB
+    /// @details if an object of index iobj exists on the used list, return the used list index
+    ///     otherwise return -1
+
     int retval = -1, cnt;
 
     if ( !VALID_PRT_RANGE( iprt ) ) return retval;
 
-    for ( cnt = 0; cnt < MAX_PRT; cnt++ )
+    for ( cnt = 0; cnt < PrtList.used_count; cnt++ )
     {
         if ( iprt == PrtList.used_ref[cnt] )
         {
@@ -642,7 +658,7 @@ bool_t PrtList_push_used( const PRT_REF iprt )
     retval = bfalse;
     if ( PrtList.used_count < maxparticles )
     {
-        PrtList.used_ref[PrtList.used_count] = iprt;
+        PrtList.used_ref[PrtList.used_count] = REF_TO_INT( iprt );
 
         PrtList.used_count++;
         PrtList.update_guid++;

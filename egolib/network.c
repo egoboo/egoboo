@@ -1293,7 +1293,7 @@ bool_t egonet_instance_set_myHost( egonet_instance_t * pnet, const ENetHost* val
 {
     if ( NULL == pnet || !pnet->initialized ) return bfalse;
 
-    pnet->myHost = (ENetHost*)val;
+    pnet->myHost = ( ENetHost* )val;
 
     return btrue;
 }

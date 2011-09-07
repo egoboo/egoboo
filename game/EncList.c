@@ -332,6 +332,18 @@ size_t EncList_pop_free( const int idx )
     size_t retval = MAX_ENC;
     size_t loops  = 0;
 
+    if ( idx >= 0 && idx < EncList.free_count )
+    {
+        // the user has specified a valid index in the free stack
+        // that they want to use. make that happen.
+
+        // from the conditions, EncList.free_count must be greater than 1
+        size_t itop = EncList.free_count - 1;
+
+        // move the desired index to the top of the stack
+        SWAP( size_t, EncList.free_ref[idx], EncList.free_ref[itop] );
+    }
+
     while ( EncList.free_count > 0 )
     {
         EncList.free_count--;
@@ -340,7 +352,7 @@ size_t EncList_pop_free( const int idx )
         retval = EncList.free_ref[EncList.free_count];
 
         // completely remove it from the free list
-        EncList.free_ref[EncList.free_count] = INVALID_ENC_REF;
+        EncList.free_ref[EncList.free_count] = INVALID_ENC_IDX;
 
         if ( VALID_ENC_RANGE( retval ) )
         {
@@ -458,6 +470,10 @@ bool_t EncList_remove_free_idx( const int index )
 //--------------------------------------------------------------------------------------------
 int EncList_find_used_ref( const ENC_REF ienc )
 {
+    /// @author BB
+    /// @details if an object of index iobj exists on the used list, return the used list index
+    ///     otherwise return -1
+
     int retval = -1, cnt;
 
     if ( !VALID_ENC_RANGE( ienc ) ) return retval;

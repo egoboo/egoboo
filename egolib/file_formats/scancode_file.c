@@ -397,7 +397,7 @@ char * buffer_append_str( char * buffer_ptr, const char * buffer_end, const char
     if ( NULL == buffer_ptr || NULL == buffer_end ) return NULL;
 
     // is the buffer empty?
-    if ( buffer_ptr >= buffer_end ) return (char *)buffer_end;
+    if ( buffer_ptr >= buffer_end ) return ( char * )buffer_end;
 
     // is there any string to append?
     if ( !VALID_CSTR( str_new ) ) return buffer_ptr;
@@ -411,7 +411,7 @@ char * buffer_append_str( char * buffer_ptr, const char * buffer_end, const char
     // if there is enough room left, stick it on the end of the string
     if ( buffer_ptr + str_new_len >= buffer_end )
     {
-        buffer_ptr = (char *)buffer_end;
+        buffer_ptr = ( char * )buffer_end;
     }
     else
     {

@@ -3070,7 +3070,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             local_index = -1;
             for ( tnc = 0; tnc < ImportList.count; tnc++ )
             {
-                if ( pobject->profile_ref <= import_data.max_slot && pobject->profile_ref < MAX_PROFILE )
+                if ( pobject->profile_ref <= import_data.max_slot && VALID_PRO_RANGE( pobject->profile_ref ) )
                 {
                     int islot = REF_TO_INT( pobject->profile_ref );
 
@@ -5223,7 +5223,7 @@ void disenchant_character( const CHR_REF cnt )
     pchr = ChrList_get_ptr( cnt );
 
     ienc_count = 0;
-    while (( INVALID_ENC_REF != pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
     {
         // do not let disenchant_character() get stuck in an infinite loop if there is an error
         if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )

@@ -1102,7 +1102,7 @@ void reset_character_accel( const CHR_REF character )
     // Okay, remove all acceleration enchants
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1127,7 +1127,7 @@ void reset_character_accel( const CHR_REF character )
     // Put the acceleration enchants back on
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1265,7 +1265,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
         // Okay, reset transparency
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1286,7 +1286,7 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
         // apply the blend enchants
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
@@ -1355,7 +1355,7 @@ void reset_character_alpha( const CHR_REF character )
         // Okay, reset transparency
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1375,7 +1375,7 @@ void reset_character_alpha( const CHR_REF character )
 
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
 
@@ -1693,14 +1693,14 @@ bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot
     if ( INGAME_CHR( inventory_item ) )
     {
         inventory_rv = inventory_remove_item( ichr, inventory_slot, ignorekurse );
-        if( inventory_rv ) success = btrue;
+        if ( inventory_rv ) success = btrue;
     }
 
     //put in the new item
     if ( INGAME_CHR( item ) )
     {
         inventory_rv = inventory_add_item( ichr, item, inventory_slot, ignorekurse );
-        if( inventory_rv ) success = btrue;
+        if ( inventory_rv ) success = btrue;
     }
 
     //now put the inventory item into the character's hand
@@ -3389,7 +3389,7 @@ void cleanup_one_character( chr_t * pchr )
         // remove all invalid enchants
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -4880,7 +4880,7 @@ int change_armor( const CHR_REF character, int skin )
     // Remove armor enchantments
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -4922,7 +4922,7 @@ int change_armor( const CHR_REF character, int skin )
     /// I don't care at this point !!!BAD!!!
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         PRO_REF ipro = enc_get_ipro( ienc_now );
 
@@ -5138,7 +5138,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
 
             ienc_now = EncList.lst[pchr->firstenchant].nextenchant_ref;
             ienc_count = 0;
-            while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+            while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
                 ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -5617,7 +5617,7 @@ bool_t update_chr_darkvision( const CHR_REF character )
     // clean up the enchant list before doing anything
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while (( INVALID_ENC_REF != ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
         peve = enc_get_peve( ienc_now );

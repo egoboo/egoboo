@@ -75,7 +75,6 @@ enum e_menu_textures
 
 #define VALID_MENU_TX_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<MENU_TX_COUNT) )
 
-
 enum e_menu_retvals
 {
     MENU_SELECT   =  1,

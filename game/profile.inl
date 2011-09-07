@@ -84,7 +84,7 @@ static INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int pip_index )
 
     found_pip = INVALID_PIP_REF;
 
-    if ( !LOADED_PRO( iobj ) )
+    if ( !VALID_PRO_RANGE( iobj ) )
     {
         // check for a global pip
         global_pip = (( pip_index < 0 ) || ( pip_index > MAX_PIP ) ) ? MAX_PIP : ( PIP_REF )pip_index;
@@ -93,15 +93,19 @@ static INLINE PIP_REF pro_get_ipip( const PRO_REF iobj, int pip_index )
             found_pip = global_pip;
         }
     }
-    else
+    else if ( LOADED_PRO( iobj ) && pip_index < MAX_PIP_PER_PROFILE )
     {
+        // this is a local pip
+        PIP_REF itmp;
+
         // this pip is relative to a certain object
         pobj = ProList.lst + iobj;
 
-        // find the local pip if it exists
-        if ( pip_index < MAX_PIP_PER_PROFILE )
+        // grab the local pip
+        itmp = pobj->prtpip[pip_index];
+        if ( VALID_PIP_RANGE( itmp ) )
         {
-            found_pip = pobj->prtpip[pip_index];
+            found_pip = itmp;
         }
     }
 

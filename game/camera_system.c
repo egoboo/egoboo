@@ -1195,7 +1195,7 @@ int camera_list_find_target_index( ext_camera_list_t * plst, const CHR_REF itarg
     if ( NULL == plst || !VALID_CHR_RANGE( itarget ) ) return -1;
 
     retval = -1;
-    for ( cnt = 0; cnt < MAX_CAMERAS && -1 == retval; cnt++ )
+    for ( cnt = 0; cnt < MAX_CAMERAS; cnt++ )
     {
         pext = plst->lst + cnt;
 
