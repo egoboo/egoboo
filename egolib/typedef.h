@@ -91,14 +91,21 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
 
-    enum e_bool
-    {
-        btrue  = ( 1 == 1 ),
-        bfalse = ( !btrue )
-    };
+#   if defined(__cplusplus)
+#       error __cplusplus is defined and this file only supports compilation in C. Comment this out at your own risk.
+#       define btrue  true    
+#       define bfalse false
+        typedef bool bool_t;
+#else
+        enum e_bool
+        {
+            btrue  = ( 1 == 1 ),
+            bfalse = ( !btrue )
+        };
 
-    // this typedef must be after the enum definition or gcc has a fit
-    typedef enum e_bool bool_t;
+        // this typedef must be after the enum definition or gcc has a fit
+        typedef enum e_bool bool_t;
+#endif
 
 #   if !defined(BOOL_T)
 #       if defined(__cplusplus)

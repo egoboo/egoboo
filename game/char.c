@@ -1662,6 +1662,7 @@ bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot
     CHR_REF item, inventory_item;
     chr_t *pchr;
     bool_t success = bfalse;
+    bool_t inventory_rv;
 
     //valid character?
     if ( !INGAME_CHR( ichr ) ) return bfalse;
@@ -1691,13 +1692,15 @@ bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot
     //remove existing item
     if ( INGAME_CHR( inventory_item ) )
     {
-        success |= inventory_remove_item( ichr, inventory_slot, ignorekurse );
+        inventory_rv = inventory_remove_item( ichr, inventory_slot, ignorekurse );
+        if( inventory_rv ) success = btrue;
     }
 
     //put in the new item
     if ( INGAME_CHR( item ) )
     {
-        success |= inventory_add_item( ichr, item, inventory_slot, ignorekurse );
+        inventory_rv = inventory_add_item( ichr, item, inventory_slot, ignorekurse );
+        if( inventory_rv ) success = btrue;
     }
 
     //now put the inventory item into the character's hand

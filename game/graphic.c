@@ -451,7 +451,7 @@ static gfx_rv update_one_chr_instance( struct s_chr * pchr );
 static gfx_rv gfx_update_all_chr_instance( void );
 static gfx_rv gfx_update_flashing( dolist_t * pdolist );
 
-static bool_t light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold );
+static gfx_rv light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold );
 static gfx_rv light_fans_update_lcache( renderlist_t * prlist );
 static gfx_rv light_fans_update_clst( renderlist_t * prlist );
 static bool_t sum_global_lighting( lighting_vector_t lighting );
@@ -6340,7 +6340,7 @@ void _flip_pages( void )
 //--------------------------------------------------------------------------------------------
 // LIGHTING FUNCTIONS
 //--------------------------------------------------------------------------------------------
-bool_t light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold )
+gfx_rv light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold )
 {
     grid_mem_t * pgmem = NULL;
     bool_t       retval = bfalse;
@@ -6381,7 +6381,7 @@ bool_t light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, i
     retval = btrue;
 #endif
 
-    return retval;
+    return retval ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6470,7 +6470,8 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
         if ( !ptile->request_lcache_update )
         {
             // is someone else did not request an update, do we need an one?
-            ptile->request_lcache_update = light_fans_throttle_update( pmesh, ptile, fan, delta_threshold );
+            gfx_rv light_fans_rv = light_fans_throttle_update( pmesh, ptile, fan, delta_threshold );
+            ptile->request_lcache_update = (gfx_success == light_fans_rv);
         }
 
         // if there's no need for an update, go to the next tile

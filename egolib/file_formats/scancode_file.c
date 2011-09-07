@@ -41,7 +41,7 @@ static bool_t scantag_read_one( vfs_FILE *fileread );
 static bool_t scantag_matches_control( scantag_t * ptag, control_t * pcontrol );
 static bool_t scantag_matches_device( scantag_t * ptag, int device_type );
 
-static const char * scantag_tok( const char * tag_string );
+static const char * scantag_tok( char * tag_string );
 
 //--------------------------------------------------------------------------------------------
 // Tag Reading
@@ -109,7 +109,7 @@ void scantag_read_all_vfs( const char *szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-const char * scantag_tok( const char * tag_string )
+const char * scantag_tok( char * tag_string )
 {
     /// @author BB
     /// @details scan through a tag string, finding all valid tags. This will allow multiple
@@ -117,9 +117,9 @@ const char * scantag_tok( const char * tag_string )
 
     static char scantag_delimiters[] = " ,|+&\t\n";
 
-    const char * token = NULL;
     const char * name  = NULL;
-    int          index = -1;
+    char * token = NULL;
+    int    index = -1;
 
     // get the next token
     token = strtok( tag_string, scantag_delimiters );
@@ -171,8 +171,8 @@ Uint32 scancode_get_kmod( Uint32 scancode )
 control_t * scantag_parse_control( char * tag_string, control_t * pcontrol )
 {
     int    tag_index = -1;
-    char * tag_token = NULL;
-    char * tag_name  = NULL;
+    const char * tag_token = NULL;
+    const char * tag_name  = NULL;
     Uint32 tag_value = 0;
 
     if ( NULL == pcontrol ) return pcontrol;
@@ -397,7 +397,7 @@ char * buffer_append_str( char * buffer_ptr, const char * buffer_end, const char
     if ( NULL == buffer_ptr || NULL == buffer_end ) return NULL;
 
     // is the buffer empty?
-    if ( buffer_ptr >= buffer_end ) return buffer_end;
+    if ( buffer_ptr >= buffer_end ) return (char *)buffer_end;
 
     // is there any string to append?
     if ( !VALID_CSTR( str_new ) ) return buffer_ptr;
@@ -411,7 +411,7 @@ char * buffer_append_str( char * buffer_ptr, const char * buffer_end, const char
     // if there is enough room left, stick it on the end of the string
     if ( buffer_ptr + str_new_len >= buffer_end )
     {
-        buffer_ptr = buffer_end;
+        buffer_ptr = (char *)buffer_end;
     }
     else
     {

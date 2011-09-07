@@ -219,7 +219,9 @@ int    randomize_action( int action, int slot );
 extern "C"
 {
 #endif
+
     int    action_which( char cTmp );
+
 #if defined(__cplusplus)
 }
 #endif

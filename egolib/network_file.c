@@ -74,7 +74,7 @@ void netfile_copyToAllPlayers( const char *source, const char *dest )
     /// @todo Deal with having to send to up to MAX_PLAYER players...
 
     NetFileTransfer *state;
-    ENetHost * MyHost = egonet_get_myHost();
+    const ENetHost * MyHost = egonet_get_myHost();
 
     if ( netfile_numTransfers < NET_MAX_FILE_TRANSFERS )
     {
@@ -718,7 +718,7 @@ void netfile_copyToPeerOld_vfs( BaseClientState_t * pc, const char *source, cons
                         {
                             // Send off the packet
                             egonet_sendPacketToPeerGuaranteed( &ego_pkt, peer );
-                            enet_host_flush( egonet_get_myHost() );
+                            enet_host_flush( (ENetHost*)egonet_get_myHost() );
 
                             // Start on the next 4K
                             packet_size = 0;
@@ -804,7 +804,7 @@ void netfile_copyToAllPlayersOld_vfs( const char *source, const char *dest )
                         {
                             // Send off the packet
                             egonet_broadcastPacketGuaranteed( &ego_pkt );
-                            enet_host_flush( egonet_get_myHost() );
+                            enet_host_flush( (ENetHost*)egonet_get_myHost() );
 
                             // Start on the next 4K
                             packet_size = 0;
