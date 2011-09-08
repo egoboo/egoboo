@@ -162,21 +162,16 @@
 				<Option compiler="cygwin" />
 				<Option createDefFile="1" />
 				<Compiler>
-					<Add option="-Wmain" />
-					<Add option="-Wextra" />
-					<Add option="-Wall" />
-					<Add option="-pg" />
-					<Add option="-g" />
-					<Add option="`sdl-config --cflags`" />
+					<Add option="`sh /usr/local/bin/sdl-config --cflags`" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_LIB" />
 					<Add option="-D_CONSOLE" />
-					<Add directory="%LibraryInstallDir%include" />
-					<Add directory="%LibraryInstallDir%include\SDL" />
+					<Add directory="\usr\include" />
+					<Add directory="\usr\local\include" />
 				</Compiler>
 				<Linker>
-					<Add option="-pg -lgmon" />
-					<Add directory="%LibraryInstallDir%lib" />
+					<Add directory="\usr\lib" />
+					<Add directory="\usr\local\lib" />
 				</Linker>
 			</Target>
 			<Target title="cygwin-gcc-release">
@@ -192,16 +187,17 @@
 					<Add option="-Wfatal-errors" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
-					<Add option="`sdl-config --cflags`" />
+					<Add option="`sh /usr/local/bin/sdl-config --cflags`" />
 					<Add option="-DWIN32" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_LIB" />
 					<Add option="-D_CONSOLE" />
-					<Add directory="%LibraryInstallDir%include" />
-					<Add directory="%LibraryInstallDir%include\SDL" />
+					<Add directory="\usr\include" />
+					<Add directory="\usr\local\include" />
 				</Compiler>
 				<Linker>
-					<Add directory="%LibraryInstallDir%lib" />
+					<Add directory="\usr\lib" />
+					<Add directory="\usr\local\lib" />
 				</Linker>
 			</Target>
 			<Target title="nix-gcc-debug">

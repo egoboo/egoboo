@@ -23,6 +23,7 @@
 /// @details some basic types that are used throughout the game code.
 
 #include <assert.h>
+#include <ctype.h>
 
 #include <SDL.h>
 

@@ -400,9 +400,8 @@
 					<Add option="-Wall" />
 					<Add option="-pg" />
 					<Add option="-g" />
-					<Add option="`sdl-config --cflags`" />
+					<Add option="`sh /usr/local/bin/sdl-config --cflags`" />
 					<Add option="-D_DEBUG" />
-					<Add option="-D_WINDOWS" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
 					<Add directory="\usr\include" />
@@ -410,7 +409,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
-					<Add option="`sdl-config --libs`" />
+					<Add option="`sh /usr/local/bin/sdl-config --libs`" />
 					<Add library="..\egolib\libegolib-cygwin-gcc-release.a" />
 					<Add library="libenet" />
 					<Add library="physfs" />
@@ -433,9 +432,8 @@
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-Wmain" />
-					<Add option="`sdl-config --cflags`" />
+					<Add option="`sh /usr/local/bin/sdl-config --cflags`" />
 					<Add option="-DNDEBUG" />
-					<Add option="-D_WINDOWS" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
 					<Add directory="\usr\include" />
@@ -443,7 +441,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="`sdl-config --libs`" />
+					<Add option="`sh /usr/local/bin/sdl-config --libs`" />
 					<Add library="..\egolib\libegolib-cygwin-gcc-debug.a" />
 					<Add library="libenet" />
 					<Add library="physfs" />

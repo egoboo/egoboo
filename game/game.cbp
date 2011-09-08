@@ -396,29 +396,22 @@
 				</Linker>
 			</Target>
 			<Target title="cygwin-gcc-debug">
-				<Option platforms="Windows;" />
+				<Option platforms="Windows;Unix;" />
 				<Option output="egoboo-cygwin-gcc-debug" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="..\..\install" />
 				<Option object_output="cygwin-gcc-debug" />
 				<Option type="0" />
 				<Option compiler="cygwin" />
 				<Compiler>
-					<Add option="-Wmain" />
-					<Add option="-Wextra" />
-					<Add option="-Wall" />
-					<Add option="-pg" />
-					<Add option="-g" />
-					<Add option="`sdl-config --cflags`" />
+					<Add option="`sh /usr/local/bin/sdl-config --cflags`" />
 					<Add option="-D_DEBUG" />
-					<Add option="-D_WINDOWS" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
 					<Add directory="\usr\include" />
 					<Add directory="\usr\home\include" />
 				</Compiler>
 				<Linker>
-					<Add option="-pg -lgmon" />
-					<Add option="`sdl-config --libs`" />
+					<Add option="`sh /usr/local/bin/sdl-config --libs`" />
 					<Add library="..\egolib\libegolib-cygwin-gcc-release.a" />
 					<Add library="libenet" />
 					<Add library="physfs" />
@@ -432,7 +425,7 @@
 				</Linker>
 			</Target>
 			<Target title="cygwin-gcc-release">
-				<Option platforms="Windows;" />
+				<Option platforms="Windows;Unix;" />
 				<Option output="egoboo-cygwin-gcc-release" prefix_auto="0" extension_auto="1" />
 				<Option working_dir="..\..\install" />
 				<Option object_output="cygwin-gcc-release" />
@@ -442,9 +435,8 @@
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-Wmain" />
-					<Add option="`sdl-config --cflags`" />
+					<Add option="`sh /usr/local/bin/sdl-config --cflags`" />
 					<Add option="-DNDEBUG" />
-					<Add option="-D_WINDOWS" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
 					<Add directory="\usr\include" />
@@ -452,7 +444,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="`sdl-config --libs`" />
+					<Add option="`sh /usr/local/bin/sdl-config --libs`" />
 					<Add library="..\egolib\libegolib-cygwin-gcc-debug.a" />
 					<Add library="libenet" />
 					<Add library="physfs" />
