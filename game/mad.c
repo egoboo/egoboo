@@ -29,9 +29,9 @@
 #include "../egolib/strutil.h"
 #include "../egolib/file_formats/cap_file.h"
 
-#include "script_compile.h"
 #include "graphic.h"
 #include "graphic_texture.h"
+#include "script_compile.h"
 #include "sound.h"
 
 #include "md2.inl"

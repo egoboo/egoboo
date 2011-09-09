@@ -31,6 +31,7 @@
 #include "../egolib/_math.h"
 
 #include "game.h"
+#include "renderer_2d.h"
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -1123,11 +1124,11 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
             bool_t message_found = bfalse;
 
             // see if this message is already loaded, no need to load it twice into memory
-            if ( ppro->message )
+            if ( NULL != ppro->message_ary )
             {
                 for ( tnc = ppro->message_count; tnc >= 0; tnc-- )
                 {
-                    if ( 0 == strcmp( ppro->message[tnc], str ) )
+                    if ( 0 == strcmp( ppro->message_ary[tnc], str ) )
                     {
                         ptok->iValue = tnc;
                         message_found = btrue;

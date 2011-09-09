@@ -39,6 +39,7 @@
 #include "game.h"
 #include "menu.h"
 #include "player.h"
+#include "renderer_2d.h"
 #include "egoboo.h"
 
 #include "char.inl"
@@ -494,7 +495,7 @@ egolib_rv egonet_handlePacket( enet_packet_t * enet_pkt )
         case TO_ANY_TEXT:
             log_info( "TO_ANY_TEXT\n" );
             enet_packet_readString( enet_pkt, filename, sizeof( filename ) );
-            debug_printf( filename );
+            DisplayMsg_printf( filename );
             break;
 
         default:

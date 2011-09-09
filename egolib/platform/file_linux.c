@@ -27,7 +27,7 @@
 #include <glob.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/dir.h>
+#include <linux/limits.h>
 
 #include "../file_common.h"
 #include "../log.h"

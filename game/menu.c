@@ -40,14 +40,14 @@
 #include "mad.h"
 #include "player.h"
 #include "game.h"
+#include "graphic_texture.h"
+#include "renderer_2d.h"
 #include "ui.h"
 #include "link.h"
 #include "game.h"
 #include "sound.h"
 #include "input.h"
 #include "camera_system.h"
-#include "graphic.h"
-#include "graphic_texture.h"
 #include "egoboo.h"
 
 #include "particle.inl"
@@ -2897,14 +2897,14 @@ int doGameOptions( float deltaTime )
             }
             sz_buttons[0] = Cdifficulty;
 
-            maxmessage = CLIP( maxmessage, 4, MAX_MESSAGE );
-            if ( 0 == maxmessage )
+            DisplayMsg_count = CLIP( DisplayMsg_count, EGO_MESSAGE_STD, EGO_MESSAGE_MAX );
+            if ( 0 == DisplayMsg_count )
             {
                 snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "None" );          // Set to default
             }
             else
             {
-                snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "%i", maxmessage );
+                snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "%i", DisplayMsg_count );
             }
             sz_buttons[1] = Cmaxmessage;
 
@@ -2998,8 +2998,8 @@ int doGameOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 2, sz_buttons[1], menuFont, buttonLeft + 515, 50, 75, 30 ) )
             {
                 cfg.message_count_req++;
-                if ( cfg.message_count_req > MAX_MESSAGE ) cfg.message_count_req = 0;
-                if ( cfg.message_count_req < 4 && cfg.message_count_req != 0 ) cfg.message_count_req = 4;
+                if ( cfg.message_count_req > EGO_MESSAGE_MAX ) cfg.message_count_req = 0;
+                if ( cfg.message_count_req < EGO_MESSAGE_STD && cfg.message_count_req != 0 ) cfg.message_count_req = EGO_MESSAGE_STD;
 
                 if ( 0 == cfg.message_count_req )
                 {

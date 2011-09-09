@@ -22,9 +22,10 @@
 /// @details
 
 #include "graphic_prt.h"
+#include "graphic_texture.h"
+#include "renderer_3d.h"
 
 #include "game.h"
-#include "graphic_texture.h"
 #include "camera_system.h"
 #include "input.h"
 #include "lighting.h"

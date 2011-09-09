@@ -31,6 +31,7 @@
 #include "../egolib/bsp.inl"
 
 #include "graphic_texture.h"
+#include "renderer_2d.h"
 #include "script_compile.h"
 #include "game.h"
 
@@ -147,7 +148,7 @@ void profile_system_begin( void )
     load_action_names_vfs( "mp_data/actions.txt" );
 
     // necessary for properly reading the "message.txt"
-    reset_messages();
+    DisplayMsg_reset();
 
     // necessary for reading "naming.txt" properly
     chop_data_init( &chop_mem );
@@ -192,7 +193,7 @@ bool_t pro_init( pro_t * pobj )
     }
 
     //Free any dynamically allocated memory
-    if ( pobj->message ) free( pobj->message );
+    if ( NULL != pobj->message_ary ) free( pobj->message_ary );
 
     //---- reset everything to safe values
     BLANK_STRUCT_PTR( pobj )
@@ -718,7 +719,7 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     return max_tex + 1;
 }
 
-void profile_add_one_message( pro_t *pobject, const EGO_MESSAGE add_message )
+void profile_add_one_message( pro_t *pobject, const ego_message_t add_message )
 {
     /// @author ZF
     /// @details This adds one string to the list of messages associated with a profile. The function will
@@ -729,31 +730,31 @@ void profile_add_one_message( pro_t *pobject, const EGO_MESSAGE add_message )
     if ( pobject == NULL ) return;
 
     //Is this the first message that is added? Then we need to allocate an dynamic array!
-    if ( !pobject->message )
+    if ( NULL == pobject->message_ary )
     {
         pobject->message_count = 0;
         pobject->message_length = 10;
-        pobject->message = ( EGO_MESSAGE * ) malloc( pobject->message_length * sizeof( EGO_MESSAGE ) );
+        pobject->message_ary = ( ego_message_t * ) malloc( pobject->message_length * sizeof( ego_message_t ) );
     }
 
     //Do we need to increase the size of the array?
     if ( pobject->message_count + 1 >= pobject->message_length )
     {
         pobject->message_length += 10;
-        pobject->message = ( EGO_MESSAGE* ) realloc( pobject->message, pobject->message_length * sizeof( EGO_MESSAGE ) );
+        pobject->message_ary = ( ego_message_t* ) realloc( pobject->message_ary, pobject->message_length * sizeof( ego_message_t ) );
     }
 
     length = strlen( add_message );
-    //if( length >= MESSAGESIZE ) log_warning("Trying to add message for %s - message is too long: \"%s\", length is %d while max is %d\n", pobject->name, add_message, length, MESSAGESIZE);
+    //if( length >= EGO_MESSAGE_SIZE ) log_warning("Trying to add message for %s - message is too long: \"%s\", length is %d while max is %d\n", pobject->name, add_message, length, EGO_MESSAGE_SIZE);
 
     //replace underscore with whitespace
     for ( cnt = 0; cnt < length; cnt++ )
     {
-        pobject->message[pobject->message_count][cnt] = ( add_message[cnt] == '_' ) ? ' ' : add_message[cnt];
+        pobject->message_ary[pobject->message_count][cnt] = ( add_message[cnt] == '_' ) ? ' ' : add_message[cnt];
     }
 
     //Make sure it is null terminated
-    pobject->message[pobject->message_count][length] = CSTR_END;
+    pobject->message_ary[pobject->message_count][length] = CSTR_END;
 
     //Keep track of number of messages in array
     pobject->message_count++;
@@ -1019,23 +1020,6 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     pobj->loaded = btrue;
 
     return islot;
-}
-
-//--------------------------------------------------------------------------------------------
-void reset_messages( void )
-{
-    /// @author ZZ
-    /// @details This makes messages safe to use
-
-    int cnt;
-
-    msgtimechange = 0;
-    DisplayMsg.count = 0;
-
-    for ( cnt = 0; cnt < MAX_MESSAGE; cnt++ )
-    {
-        DisplayMsg.ary[cnt].time = 0;
-    }
 }
 
 //--------------------------------------------------------------------------------------------

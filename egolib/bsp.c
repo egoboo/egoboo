@@ -80,8 +80,8 @@ static int BSP_branch_insert_leaf_rec_1( BSP_tree_t * ptree, BSP_branch_t * pbra
 
 static bool_t BSP_leaf_list_collide_aabb( const BSP_leaf_list_t * LL, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 static bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-static BSP_leaf_t * BSP_leaf_create( void * data, int type, int index );
-static bool_t BSP_leaf_destroy( BSP_leaf_t ** ppleaf );
+//static BSP_leaf_t * BSP_leaf_create( void * data, int type, int index );
+//static bool_t BSP_leaf_destroy( BSP_leaf_t ** ppleaf );
 
 //--------------------------------------------------------------------------------------------
 // Generic BSP functions

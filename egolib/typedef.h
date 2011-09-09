@@ -297,10 +297,12 @@ extern "C"
     typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
-// EGO_MESSAGE
-#   define MESSAGESIZE      90
+// ego_message_t
 
-    typedef char EGO_MESSAGE[MESSAGESIZE];
+    /// the maximum length egoboo messages
+#   define EGO_MESSAGE_SIZE      90
+
+    typedef char ego_message_t[EGO_MESSAGE_SIZE];
 
 //--------------------------------------------------------------------------------------------
 
@@ -388,7 +390,7 @@ extern "C"
     static size_t  NAME##_pop_free( const int );        \
     static int     NAME##_find_used_ref( const REF_T ); \
     static size_t  NAME##_pop_used( const int );        \
-    TYPE * NAME##_get_ptr( const size_t index )   { return (index >= COUNT) ? NULL : NAME.lst + index; }
+    TYPE * NAME##_get_ptr( const size_t index )   { return LAMBDA(index >= COUNT, NULL, NAME.lst + index); }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

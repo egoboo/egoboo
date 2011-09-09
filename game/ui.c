@@ -33,6 +33,7 @@
 
 #include "menu.h"
 #include "graphic.h"
+#include "renderer_2d.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -459,14 +460,9 @@ float ui_drawButton( ui_id_t id, float vx, float vy, float vwidth, float vheight
 //--------------------------------------------------------------------------------------------
 float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight, GLXvector4f image_tint )
 {
-    GLXvector4f tmp_tint = {1, 1, 1, 1};
+    ego_frect_t scr_rect, tx_rect;
 
     float vw, vh;
-    float tx, ty;
-    float x1, x2, y1, y2;
-
-    // handle optional parameters
-    if ( NULL == image_tint ) image_tint = tmp_tint;
 
     if ( img )
     {
@@ -480,27 +476,17 @@ float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float v
             vw = vwidth;
             vh = vheight;
         }
-
-        tx = ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_getTextureWidth( img );
-        ty = ( float ) oglx_texture_getImageHeight( img ) / ( float ) oglx_texture_getTextureHeight( img );
+        tx_rect.xmin = 0.0f;
+        tx_rect.ymin = 0.0f;
+        tx_rect.xmax = ( float ) oglx_texture_getImageWidth( img )  / ( float ) oglx_texture_getTextureWidth( img );
+        tx_rect.ymax = ( float ) oglx_texture_getImageHeight( img ) / ( float ) oglx_texture_getTextureHeight( img );
 
         // convert the virtual coordinates to screen coordinates
-        ui_virtual_to_screen( vx, vy, &x1, &y1 );
-        ui_virtual_to_screen( vx + vw, vy + vh, &x2, &y2 );
+        ui_virtual_to_screen( vx, vy, &(scr_rect.xmin), &(scr_rect.ymin) );
+        ui_virtual_to_screen( vx + vw, vy + vh, &(scr_rect.xmax), &(scr_rect.ymax) );
 
         // Draw the image
-        oglx_texture_Bind( img );
-
-        GL_DEBUG( glColor4fv )( image_tint );
-
-        GL_DEBUG( glBegin )( GL_QUADS );
-        {
-            GL_DEBUG( glTexCoord2f )( 0,  0 );  GL_DEBUG( glVertex2f )( x1, y1 );
-            GL_DEBUG( glTexCoord2f )( tx,  0 );  GL_DEBUG( glVertex2f )( x2, y1 );
-            GL_DEBUG( glTexCoord2f )( tx, ty );  GL_DEBUG( glVertex2f )( x2, y2 );
-            GL_DEBUG( glTexCoord2f )( 0, ty );  GL_DEBUG( glVertex2f )( x1, y2 );
-        }
-        GL_DEBUG_END();
+        draw_quad_2d( img, scr_rect, tx_rect, btrue, image_tint );
     }
 
     return vy + vheight;

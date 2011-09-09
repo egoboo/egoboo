@@ -51,11 +51,6 @@ static int  netfile_sent = 0;                            // For network copy
 static int  netfile_expected = 0;                        // For network copy
 static int  netfile_playerrespond = 0;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static void netfile_copyToAllPlayersOld_vfs( const char *source, const char *dest );
-static void netfile_copyToPeerOld_vfs( BaseClientState_t * pc, const char *source, const char *dest, ENetPeer *peer );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -646,184 +641,191 @@ egolib_rv netfile_handleEvent( ENetEvent * event )
 //--------------------------------------------------------------------------------------------
 // OBSOLETE?
 //--------------------------------------------------------------------------------------------
-void netfile_copyToPeerOld_vfs( BaseClientState_t * pc, const char *source, const char *dest, ENetPeer *peer )
-{
-    /// @author ZZ
-    /// @details This function copies a file on the remote to the host computer.
-    ///    Packets are sent in chunks of COPYSIZE bytes.  The max file size
-    ///    that can be sent is 2 Megs ( TOTALSIZE ).
-
-    vfs_FILE* fileread;
-    int packet_size, packet_start;
-    int filesize;
-    int fileisdir;
-    char cTmp;
-    ego_packet_t ego_pkt;
-
-    ego_packet_ctor( &ego_pkt );
-
-    log_info( "netfile_copyToPeer: " );
-    fileisdir = vfs_isDirectory( source );
-    if ( egonet_get_hostactive() )
-    {
-        // Simulate a network transfer
-        if ( fileisdir )
-        {
-            log_info( "Creating local directory %s\n", dest );
-            vfs_mkdir( dest );
-        }
-        else
-        {
-            log_info( "Copying local file %s --> %s\n", source, dest );
-            vfs_copyFile( source, dest );
-        }
-    }
-    else
-    {
-        if ( fileisdir )
-        {
-            log_info( "Creating directory on host: %s\n", dest );
-            ego_packet_begin( &ego_pkt );
-            ego_packet_addUint16( &ego_pkt, NETFILE_TO_HOST_DIR );
-            ego_packet_addString( &ego_pkt, dest );
-//     egonet_broadcastPacketGuaranteed( &ego_pkt );
-            egonet_sendPacketToPeer( &ego_pkt, pc->gameHost );
-        }
-        else
-        {
-            log_info( "Copying local file to host file: %s --> %s\n", source, dest );
-            fileread = vfs_openReadB( source );
-            if ( fileread )
-            {
-                filesize = vfs_fileLength( fileread );
-                vfs_seek( fileread, 0 );
-                if ( filesize > 0 && filesize < TOTALSIZE )
-                {
-                    netfile_sent++;
-                    packet_size = 0;
-                    packet_start = 0;
-                    ego_packet_begin( &ego_pkt );
-                    ego_packet_addUint16( &ego_pkt, NETFILE_TO_HOST_FILE );
-                    ego_packet_addString( &ego_pkt, dest );
-                    ego_packet_addUint32( &ego_pkt, filesize );
-                    ego_packet_addUint32( &ego_pkt, packet_start );
-
-                    while ( packet_start < filesize )
-                    {
-                        vfs_scanf( fileread, "%c", &cTmp );
-                        ego_packet_addUint8( &ego_pkt, cTmp );
-                        packet_size++;
-                        packet_start++;
-                        if ( packet_size >= COPYSIZE )
-                        {
-                            // Send off the packet
-                            egonet_sendPacketToPeerGuaranteed( &ego_pkt, peer );
-                            enet_host_flush(( ENetHost* )egonet_get_myHost() );
-
-                            // Start on the next 4K
-                            packet_size = 0;
-                            ego_packet_begin( &ego_pkt );
-                            ego_packet_addUint16( &ego_pkt, NETFILE_TO_HOST_FILE );
-                            ego_packet_addString( &ego_pkt, dest );
-                            ego_packet_addUint32( &ego_pkt, filesize );
-                            ego_packet_addUint32( &ego_pkt, packet_start );
-                        }
-                    }
-
-                    // Send off the packet
-                    egonet_sendPacketToPeerGuaranteed( &ego_pkt, peer );
-                }
-
-                vfs_close( fileread );
-            }
-        }
-    }
-
-    ego_packet_dtor( &ego_pkt );
-}
-
+//
+//static void netfile_copyToAllPlayersOld_vfs( const char *source, const char *dest );
+//static void netfile_copyToPeerOld_vfs( BaseClientState_t * pc, const char *source, const char *dest, ENetPeer *peer );
+//
 //--------------------------------------------------------------------------------------------
-void netfile_copyToAllPlayersOld_vfs( const char *source, const char *dest )
-{
-    /// @author ZZ
-    /// @details This function copies a file on the host to every remote computer.
-    ///    Packets are sent in chunks of COPYSIZE bytes.  The max file size
-    ///    that can be sent is 2 Megs ( TOTALSIZE ).
-
-    vfs_FILE* fileread;
-    int packet_size, packet_start;
-    int filesize;
-    int fileisdir;
-    char cTmp;
-    ego_packet_t ego_pkt;
-
-    ego_packet_ctor( &ego_pkt );
-
-    log_info( "netfile_copyToAllPlayers: %s, %s\n", source, dest );
-    if ( egonet_on() && egonet_get_hostactive() )
-    {
-        fileisdir = vfs_isDirectory( source );
-        if ( fileisdir )
-        {
-            ego_packet_begin( &ego_pkt );
-            ego_packet_addUint16( &ego_pkt, NETFILE_TO_REMOTE_DIR );
-            ego_packet_addString( &ego_pkt, dest );
-            egonet_broadcastPacketGuaranteed( &ego_pkt );
-        }
-        else
-        {
-            fileread = vfs_openReadB( source );
-            if ( fileread )
-            {
-                filesize = vfs_fileLength( fileread );
-                vfs_seek( fileread, 0 );
-                if ( filesize > 0 && filesize < TOTALSIZE )
-                {
-                    packet_size = 0;
-                    packet_start = 0;
-                    netfile_sent++;
-
-                    ego_packet_begin( &ego_pkt );
-                    ego_packet_addUint16( &ego_pkt, NETFILE_TO_REMOTE_FILE );
-                    ego_packet_addString( &ego_pkt, dest );
-                    ego_packet_addUint32( &ego_pkt, filesize );
-                    ego_packet_addUint32( &ego_pkt, packet_start );
-
-                    while ( packet_start < filesize )
-                    {
-                        // This will probably work...
-                        // vfs_read((egonet_packet.buffer + egonet_packet.head), COPYSIZE, 1, fileread);
-
-                        // But I'll leave it alone for now
-                        vfs_scanf( fileread, "%c", &cTmp );
-
-                        ego_packet_addUint8( &ego_pkt, cTmp );
-                        packet_size++;
-                        packet_start++;
-                        if ( packet_size >= COPYSIZE )
-                        {
-                            // Send off the packet
-                            egonet_broadcastPacketGuaranteed( &ego_pkt );
-                            enet_host_flush(( ENetHost* )egonet_get_myHost() );
-
-                            // Start on the next 4K
-                            packet_size = 0;
-                            ego_packet_begin( &ego_pkt );
-                            ego_packet_addUint16( &ego_pkt, NETFILE_TO_REMOTE_FILE );
-                            ego_packet_addString( &ego_pkt, dest );
-                            ego_packet_addUint32( &ego_pkt, filesize );
-                            ego_packet_addUint32( &ego_pkt, packet_start );
-                        }
-                    }
-
-                    // Send off the packet
-                    egonet_broadcastPacketGuaranteed( &ego_pkt );
-                }
-
-                vfs_close( fileread );
-            }
-        }
-    }
-
-    ego_packet_dtor( &ego_pkt );
-}
+//--------------------------------------------------------------------------------------------
+//
+//void netfile_copyToPeerOld_vfs( BaseClientState_t * pc, const char *source, const char *dest, ENetPeer *peer )
+//{
+//    /// @author ZZ
+//    /// @details This function copies a file on the remote to the host computer.
+//    ///    Packets are sent in chunks of COPYSIZE bytes.  The max file size
+//    ///    that can be sent is 2 Megs ( TOTALSIZE ).
+//
+//    vfs_FILE* fileread;
+//    int packet_size, packet_start;
+//    int filesize;
+//    int fileisdir;
+//    char cTmp;
+//    ego_packet_t ego_pkt;
+//
+//    ego_packet_ctor( &ego_pkt );
+//
+//    log_info( "netfile_copyToPeer: " );
+//    fileisdir = vfs_isDirectory( source );
+//    if ( egonet_get_hostactive() )
+//    {
+//        // Simulate a network transfer
+//        if ( fileisdir )
+//        {
+//            log_info( "Creating local directory %s\n", dest );
+//            vfs_mkdir( dest );
+//        }
+//        else
+//        {
+//            log_info( "Copying local file %s --> %s\n", source, dest );
+//            vfs_copyFile( source, dest );
+//        }
+//    }
+//    else
+//    {
+//        if ( fileisdir )
+//        {
+//            log_info( "Creating directory on host: %s\n", dest );
+//            ego_packet_begin( &ego_pkt );
+//            ego_packet_addUint16( &ego_pkt, NETFILE_TO_HOST_DIR );
+//            ego_packet_addString( &ego_pkt, dest );
+////     egonet_broadcastPacketGuaranteed( &ego_pkt );
+//            egonet_sendPacketToPeer( &ego_pkt, pc->gameHost );
+//        }
+//        else
+//        {
+//            log_info( "Copying local file to host file: %s --> %s\n", source, dest );
+//            fileread = vfs_openReadB( source );
+//            if ( fileread )
+//            {
+//                filesize = vfs_fileLength( fileread );
+//                vfs_seek( fileread, 0 );
+//                if ( filesize > 0 && filesize < TOTALSIZE )
+//                {
+//                    netfile_sent++;
+//                    packet_size = 0;
+//                    packet_start = 0;
+//                    ego_packet_begin( &ego_pkt );
+//                    ego_packet_addUint16( &ego_pkt, NETFILE_TO_HOST_FILE );
+//                    ego_packet_addString( &ego_pkt, dest );
+//                    ego_packet_addUint32( &ego_pkt, filesize );
+//                    ego_packet_addUint32( &ego_pkt, packet_start );
+//
+//                    while ( packet_start < filesize )
+//                    {
+//                        vfs_scanf( fileread, "%c", &cTmp );
+//                        ego_packet_addUint8( &ego_pkt, cTmp );
+//                        packet_size++;
+//                        packet_start++;
+//                        if ( packet_size >= COPYSIZE )
+//                        {
+//                            // Send off the packet
+//                            egonet_sendPacketToPeerGuaranteed( &ego_pkt, peer );
+//                            enet_host_flush(( ENetHost* )egonet_get_myHost() );
+//
+//                            // Start on the next 4K
+//                            packet_size = 0;
+//                            ego_packet_begin( &ego_pkt );
+//                            ego_packet_addUint16( &ego_pkt, NETFILE_TO_HOST_FILE );
+//                            ego_packet_addString( &ego_pkt, dest );
+//                            ego_packet_addUint32( &ego_pkt, filesize );
+//                            ego_packet_addUint32( &ego_pkt, packet_start );
+//                        }
+//                    }
+//
+//                    // Send off the packet
+//                    egonet_sendPacketToPeerGuaranteed( &ego_pkt, peer );
+//                }
+//
+//                vfs_close( fileread );
+//            }
+//        }
+//    }
+//
+//    ego_packet_dtor( &ego_pkt );
+//}
+//
+//--------------------------------------------------------------------------------------------
+//void netfile_copyToAllPlayersOld_vfs( const char *source, const char *dest )
+//{
+//    /// @author ZZ
+//    /// @details This function copies a file on the host to every remote computer.
+//    ///    Packets are sent in chunks of COPYSIZE bytes.  The max file size
+//    ///    that can be sent is 2 Megs ( TOTALSIZE ).
+//
+//    vfs_FILE* fileread;
+//    int packet_size, packet_start;
+//    int filesize;
+//    int fileisdir;
+//    char cTmp;
+//    ego_packet_t ego_pkt;
+//
+//    ego_packet_ctor( &ego_pkt );
+//
+//    log_info( "netfile_copyToAllPlayers: %s, %s\n", source, dest );
+//    if ( egonet_on() && egonet_get_hostactive() )
+//    {
+//        fileisdir = vfs_isDirectory( source );
+//        if ( fileisdir )
+//        {
+//            ego_packet_begin( &ego_pkt );
+//            ego_packet_addUint16( &ego_pkt, NETFILE_TO_REMOTE_DIR );
+//            ego_packet_addString( &ego_pkt, dest );
+//            egonet_broadcastPacketGuaranteed( &ego_pkt );
+//        }
+//        else
+//        {
+//            fileread = vfs_openReadB( source );
+//            if ( fileread )
+//            {
+//                filesize = vfs_fileLength( fileread );
+//                vfs_seek( fileread, 0 );
+//                if ( filesize > 0 && filesize < TOTALSIZE )
+//                {
+//                    packet_size = 0;
+//                    packet_start = 0;
+//                    netfile_sent++;
+//
+//                    ego_packet_begin( &ego_pkt );
+//                    ego_packet_addUint16( &ego_pkt, NETFILE_TO_REMOTE_FILE );
+//                    ego_packet_addString( &ego_pkt, dest );
+//                    ego_packet_addUint32( &ego_pkt, filesize );
+//                    ego_packet_addUint32( &ego_pkt, packet_start );
+//
+//                    while ( packet_start < filesize )
+//                    {
+//                        // This will probably work...
+//                        // vfs_read((egonet_packet.buffer + egonet_packet.head), COPYSIZE, 1, fileread);
+//
+//                        // But I'll leave it alone for now
+//                        vfs_scanf( fileread, "%c", &cTmp );
+//
+//                        ego_packet_addUint8( &ego_pkt, cTmp );
+//                        packet_size++;
+//                        packet_start++;
+//                        if ( packet_size >= COPYSIZE )
+//                        {
+//                            // Send off the packet
+//                            egonet_broadcastPacketGuaranteed( &ego_pkt );
+//                            enet_host_flush(( ENetHost* )egonet_get_myHost() );
+//
+//                            // Start on the next 4K
+//                            packet_size = 0;
+//                            ego_packet_begin( &ego_pkt );
+//                            ego_packet_addUint16( &ego_pkt, NETFILE_TO_REMOTE_FILE );
+//                            ego_packet_addString( &ego_pkt, dest );
+//                            ego_packet_addUint32( &ego_pkt, filesize );
+//                            ego_packet_addUint32( &ego_pkt, packet_start );
+//                        }
+//                    }
+//
+//                    // Send off the packet
+//                    egonet_broadcastPacketGuaranteed( &ego_pkt );
+//                }
+//
+//                vfs_close( fileread );
+//            }
+//        }
+//    }
+//
+//    ego_packet_dtor( &ego_pkt );
+//}

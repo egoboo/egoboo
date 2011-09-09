@@ -464,13 +464,6 @@ void egonet_listen_for_packets( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void egonet_turn_on_service( int service )
-{
-    /// @author ZZ
-    /// @details This function turns on a network service ( IPX, TCP, serial, modem )
-}
-
-//--------------------------------------------------------------------------------------------
 // time_latch_t
 //--------------------------------------------------------------------------------------------
 void tlatch_ary_init( time_latch_t ary[], size_t len )
@@ -1307,3 +1300,14 @@ bool_t egonet_instance_set_readytostart( egonet_instance_t * pnet, const bool_t 
 
     return btrue;
 }
+
+
+//--------------------------------------------------------------------------------------------
+// OBSOLETE
+//--------------------------------------------------------------------------------------------
+//void egonet_turn_on_service( int service )
+//{
+//    /// @author ZZ
+//    /// @details This function turns on a network service ( IPX, TCP, serial, modem )
+//    /// @note BB@> this function has no purpose with Enet, which only communicates over TCP
+//}

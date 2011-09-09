@@ -34,7 +34,7 @@
 
 // includes for egoboo constants
 #include "../game/camera.h"            // for CAM_TURN_*
-#include "../game/graphic.h"           // for MAX_MESSAGE
+#include "../game/renderer_2d.h"       // for EGO_MESSAGE_MAX
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ void egoboo_config_init( egoboo_config_t * pcfg )
     // {GAME}
     pcfg->message_count_req     = 6;
     pcfg->message_duration      = 50;               // Time to keep the message alive
-    pcfg->show_stats         = btrue;            // Draw the status bars?
+    pcfg->show_stats            = btrue;            // Draw the status bars?
     pcfg->feedback              = FEEDBACK_TEXT;    // What feedback does the player want
     pcfg->difficulty            = GAME_NORMAL;      // What is the current game difficulty
     pcfg->autoturncamera        = CAM_TURN_GOOD;    // Type of camera control...
@@ -609,7 +609,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     }
 
     // Max number of messages displayed
-    SetKey_int( "MAX_TEXT_MESSAGE", !pcfg->messageon_req ? 0 : CLIP( pcfg->message_count_req, 1, MAX_MESSAGE ) );
+    SetKey_int( "MAX_TEXT_MESSAGE", !pcfg->messageon_req ? 0 : CLIP( pcfg->message_count_req, EGO_MESSAGE_MIN, EGO_MESSAGE_MAX ) );
 
     // Max number of messages displayed
     SetKey_int( "MESSAGE_DURATION", pcfg->message_duration );

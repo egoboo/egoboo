@@ -27,6 +27,8 @@
 #include "graphic_fan.h"
 #include "graphic_billboard.h"
 #include "graphic_texture.h"
+#include "renderer_2d.h"
+#include "renderer_3d.h"
 
 #include <assert.h>
 
@@ -308,8 +310,6 @@ float time_render_scene_mesh_render_shadows = 0.0f;
 Uint32          game_frame_all   = 0;             ///< The total number of frames drawn so far
 Uint32          menu_frame_all   = 0;             ///< The total number of frames drawn so far
 
-int maxmessage = MAX_MESSAGE;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int GFX_WIDTH  = 800;
@@ -329,17 +329,10 @@ float   blip_x[MAXBLIP];
 float   blip_y[MAXBLIP];
 Uint8   blip_c[MAXBLIP];
 
-int     msgtimechange = 0;
-
-INSTANTIATE_STATIC_ARY( DisplayMsgAry, DisplayMsg );
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 static gfx_error_stack_t gfx_error_stack = GFX_ERROR_STACK_INIT;
-
-static line_data_t  line_list[LINE_COUNT];
-static point_data_t point_list[POINT_COUNT];
 
 static SDLX_video_parameters_t sdl_vparam;
 static oglx_video_parameters_t ogl_vparam;
@@ -380,29 +373,11 @@ static void gfx_system_init_SDL_graphics( void );
 static void gfx_reset_timers( void );
 
 static void _flip_pages( void );
-static void _debug_print( const char *text );
-static int  _debug_vprintf( const char *format, va_list args );
-static int  _va_draw_string( float x, float y, const char *format, va_list args );
-static int  _draw_string_raw( float x, float y, const char *format, ... );
 
 static void gfx_update_fps_clock( void );
 static void gfx_update_fps( void );
 
-static void gfx_begin_text( void );
-static void gfx_end_text( void );
-
-static void gfx_enable_texturing( void );
-//static void gfx_disable_texturing( void );
-
-static void gfx_begin_2d( void );
-static void gfx_end_2d( void );
-
 static gfx_rv light_fans( renderlist_t * prlist );
-
-static void line_list_draw_all( const camera_t * pcam );
-static int  line_list_get_free( void );
-static void point_list_draw_all( const camera_t * pcam );
-static int  point_list_get_free( void );
 
 static gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, const camera_t * pcam );
 static gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist );
@@ -436,13 +411,8 @@ static float draw_help( float y );
 static float draw_debug( float y );
 static float draw_timer( float y );
 static float draw_game_status( float y );
-static float draw_messages( float y );
-static void  draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, bool_t use_alpha );
 static void  draw_hud( void );
 static void  draw_inventory( void );
-
-static void gfx_disable_texturing( void );
-static void gfx_reshape_viewport( int w, int h );
 
 static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
 static bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct );
@@ -462,136 +432,6 @@ static float calc_light_global( int rotation, int normal, float lx, float ly, fl
 static void   gfx_init_bar_data( void );
 static void   gfx_init_blip_data( void );
 static void   gfx_init_map_data( void );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-IMPLEMENT_STATIC_ARY( DisplayMsgAry, MAX_MESSAGE );
-
-//--------------------------------------------------------------------------------------------
-// MODULE "PRIVATE" FUNCTIONS
-//--------------------------------------------------------------------------------------------
-void _debug_print( const char *text )
-{
-    /// @author ZZ
-    /// @details This function sticks a message in the display queue and sets its timer
-
-    int          slot;
-    const char * src;
-    char       * dst, * dst_end;
-    msg_t      * pmsg;
-
-    if ( INVALID_CSTR( text ) ) return;
-
-    // Get a "free" message
-    slot = DisplayMsg_get_free();
-    pmsg = DisplayMsgAry_get_ptr( &DisplayMsg, slot );
-
-    // Copy the message
-    for ( src = text, dst = pmsg->textdisplay, dst_end = dst + MESSAGESIZE;
-          CSTR_END != *src && dst < dst_end;
-          src++, dst++ )
-    {
-        *dst = *src;
-    }
-    if ( dst < dst_end ) *dst = CSTR_END;
-
-    // Set the time
-    pmsg->time = cfg.message_duration;
-}
-
-//--------------------------------------------------------------------------------------------
-int _debug_vprintf( const char *format, va_list args )
-{
-    int retval = 0;
-
-    if ( VALID_CSTR( format ) )
-    {
-        STRING szTmp;
-
-        retval = vsnprintf( szTmp, SDL_arraysize( szTmp ), format, args );
-        _debug_print( szTmp );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-int _va_draw_string( float x, float y, const char *format, va_list args )
-{
-    int cnt = 1;
-    int x_stt;
-    STRING szText;
-    Uint8 cTmp;
-
-    oglx_texture_t * tx_ptr = mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
-    if ( NULL == tx_ptr ) return y;
-
-    if ( vsnprintf( szText, SDL_arraysize( szText ) - 1, format, args ) <= 0 )
-    {
-        return y;
-    }
-
-    gfx_begin_text();
-    {
-        x_stt = x;
-        cnt = 0;
-        cTmp = szText[cnt];
-        while ( CSTR_END != cTmp )
-        {
-            Uint8 iTmp;
-
-            // Convert ASCII to our own little font
-            if ( '~' == cTmp )
-            {
-                // Use squiggle for tab
-                x = ( FLOOR(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
-            }
-            else if ( C_NEW_LINE_CHAR == cTmp )
-            {
-                x  = x_stt;
-                y += fontyspacing;
-            }
-            else if ( isspace( cTmp ) )
-            {
-                // other whitespace
-                iTmp = asciitofont[cTmp];
-                x += fontxspacing[iTmp] / 2;
-            }
-            else
-            {
-                // Normal letter
-                iTmp = asciitofont[cTmp];
-                draw_one_font( tx_ptr, iTmp, x, y );
-                x += fontxspacing[iTmp];
-            }
-
-            cnt++;
-            cTmp = szText[cnt];
-        }
-    }
-    gfx_end_text();
-
-    y += fontyspacing;
-
-    return y;
-}
-
-//--------------------------------------------------------------------------------------------
-int _draw_string_raw( float x, float y, const char *format, ... )
-{
-    /// @author BB
-    /// @details the same as draw string, but it does not use the gfx_begin_2d() ... gfx_end_2d()
-    ///    bookends.
-
-    va_list args;
-
-    va_start( args, format );
-    y = _va_draw_string( x, y, format, args );
-    va_end( args );
-
-    return y;
-}
 
 //--------------------------------------------------------------------------------------------
 // renderlist implementation
@@ -2164,19 +2004,6 @@ void gfx_system_reload_all_textures( void )
 //--------------------------------------------------------------------------------------------
 // 2D RENDERER FUNCTIONS
 //--------------------------------------------------------------------------------------------
-int debug_printf( const char *format, ... )
-{
-    va_list args;
-    int retval;
-
-    va_start( args, format );
-    retval = _debug_vprintf( format, args );
-    va_end( args );
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
 void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map )
 {
     /// @author ZZ
@@ -2216,7 +2043,7 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map
         sc_rect.ymin = loc_y - ( height / 2 );
         sc_rect.ymax = loc_y + ( height / 2 );
 
-        draw_quad_2d( ptex, sc_rect, tx_rect, btrue );
+        draw_quad_2d( ptex, sc_rect, tx_rect, btrue, NULL );
     }
 }
 
@@ -2261,7 +2088,7 @@ float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( ptex, sc_rect, tx_rect, bfalse );
+    draw_quad_2d( ptex, sc_rect, tx_rect, bfalse, NULL );
 
     if ( NOSPARKLE != sparkle_color )
     {
@@ -2306,41 +2133,6 @@ float draw_menu_icon( const TX_REF icontype, float x, float y, Uint8 sparkle_col
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_one_font( oglx_texture_t * ptex, int fonttype, float x_stt, float y_stt )
-{
-    /// @author GAC
-    /// @details Very nasty version for starters.  Lots of room for improvement.
-    /// @author ZZ
-    /// @details This function draws a letter or number
-
-    GLfloat dx, dy, border;
-
-    ego_frect_t tx_rect, sc_rect;
-
-    sc_rect.xmin  = x_stt;
-    sc_rect.xmax  = x_stt + fontrect[fonttype].w;
-    sc_rect.ymin  = y_stt + fontoffset - fontrect[fonttype].h;
-    sc_rect.ymax  = y_stt + fontoffset;
-
-    dx = 2.0f / 512.0f;
-    dy = 1.0f / 256.0f;
-    border = 1.0f / 512.0f;
-
-    tx_rect.xmin = fontrect[fonttype].x * dx;
-    tx_rect.xmax = tx_rect.xmin + fontrect[fonttype].w * dx;
-    tx_rect.ymin = fontrect[fonttype].y * dy;
-    tx_rect.ymax = tx_rect.ymin + fontrect[fonttype].h * dy;
-
-    // shrink the texture size slightly
-    tx_rect.xmin += border;
-    tx_rect.xmax -= border;
-    tx_rect.ymin += border;
-    tx_rect.ymax -= border;
-
-    draw_quad_2d( ptex, sc_rect, tx_rect, btrue );
-}
-
-//--------------------------------------------------------------------------------------------
 void draw_map_texture( float x, float y )
 {
     /// @author ZZ
@@ -2361,7 +2153,7 @@ void draw_map_texture( float x, float y )
     tx_rect.ymin = 0;
     tx_rect.ymax = ( float )ptex->imgH / ( float )ptex->base.height;
 
-    draw_quad_2d( ptex, sc_rect, tx_rect, bfalse );
+    draw_quad_2d( ptex, sc_rect, tx_rect, bfalse, NULL );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2394,7 +2186,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
+    draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue, NULL );
 
     x += width;
 
@@ -2414,7 +2206,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
+        draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue, NULL );
     }
 
     //---- Draw the remaining empty ones
@@ -2430,7 +2222,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue );
+        draw_quad_2d( TxList_get_valid_ptr(( TX_REF )TX_XP_BAR ), sc_rect, tx_rect, btrue, NULL );
     }
 
     return y + height;
@@ -2499,7 +2291,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
     sc_rect.ymin = y;
     sc_rect.ymax = y + height;
 
-    draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue );
+    draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue, NULL );
 
     // make the new left-hand margin after the tab
     x_left = x_stt + width;
@@ -2523,7 +2315,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue );
+        draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue, NULL );
 
         y += height;
         ticks -= NUMTICK;
@@ -2549,7 +2341,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue );
+        draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue, NULL );
 
         // move to the right after drawing the full ticks
         x += width;
@@ -2570,7 +2362,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue );
+        draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue, NULL );
 
         y += height;
         ticks = 0;
@@ -2598,7 +2390,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue );
+        draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue, NULL );
 
         y += height;
         total_ticks -= NUMTICK;
@@ -2625,120 +2417,12 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
         sc_rect.ymin = y;
         sc_rect.ymax = y + height;
 
-        draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue );
+        draw_quad_2d( tx_ptr, sc_rect, tx_rect, btrue, NULL );
 
         y += height;
     }
 
     return y;
-}
-
-//--------------------------------------------------------------------------------------------
-float draw_string( float x, float y, const char *format, ... )
-{
-    /// @author ZZ
-    /// @details This function spits a line of null terminated text onto the backbuffer
-    ///
-    /// details BB@> Uses gfx_begin_2d() ... gfx_end_2d() so that the function can basically be called from anywhere
-    ///    The way they are currently implemented, this breaks the icon drawing in draw_status() if
-    ///    you use draw_string() and then draw_icon(). Use _draw_string_raw(), instead.
-
-    va_list args;
-
-    gfx_begin_2d();
-    {
-        va_start( args, format );
-        y = _va_draw_string( x, y, format, args );
-        va_end( args );
-    }
-    gfx_end_2d();
-
-    return y;
-}
-
-//--------------------------------------------------------------------------------------------
-float draw_wrap_string( const char *szText, float x, float y, int maxx )
-{
-    /// @author ZZ
-    /// @details This function spits a line of null terminated text onto the backbuffer,
-    ///    wrapping over the right side and returning the new y value
-
-    int stt_x = x;
-    Uint8 cTmp = szText[0];
-    int newy = y + fontyspacing;
-    Uint8 newword = btrue;
-    int cnt = 1;
-
-    oglx_texture_t * tx_ptr = mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
-    if ( NULL == tx_ptr ) return y;
-
-    gfx_begin_text();
-
-    maxx = maxx + stt_x;
-
-    while ( CSTR_END != cTmp )
-    {
-        // Check each new word for wrapping
-        if ( newword )
-        {
-            int endx = x + font_bmp_length_of_word( szText + cnt - 1 );
-
-            newword = bfalse;
-            if ( endx > maxx )
-            {
-                // Wrap the end and cut off spaces and tabs
-                x = stt_x + fontyspacing;
-                y += fontyspacing;
-                newy += fontyspacing;
-
-                while ( ' ' == cTmp || '~' == cTmp )
-                {
-                    cTmp = szText[cnt];
-                    cnt++;
-                }
-            }
-        }
-        else
-        {
-            Uint8 iTmp;
-
-            if ( '~' == cTmp )
-            {
-                // Use squiggle for tab
-                x = ( FLOOR(( float )x / ( float )TABADD ) + 1.0f ) * TABADD;
-            }
-            else if ( C_NEW_LINE_CHAR == cTmp )
-            {
-                x = stt_x;
-                y += fontyspacing;
-                newy += fontyspacing;
-            }
-            else if ( isspace( cTmp ) )
-            {
-                // other whitespace
-                iTmp = asciitofont[cTmp];
-                x += fontxspacing[iTmp] / 2;
-            }
-            else
-            {
-                // Normal letter
-                iTmp = asciitofont[cTmp];
-                draw_one_font( tx_ptr, iTmp, x, y );
-                x += fontxspacing[iTmp];
-            }
-
-            cTmp = szText[cnt];
-            cnt++;
-
-            if ( '~' == cTmp || C_NEW_LINE_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || isspace( cTmp ) )
-            {
-                newword = btrue;
-            }
-        }
-    }
-
-    gfx_end_text();
-    return newy;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2770,7 +2454,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_
             if (( NULL != pitem_cap && !pitem_cap->isstackable ) || pitem->ammo > 1 )
             {
                 // Show amount of ammo left
-                _draw_string_raw( x, y - 8, "%2d", pitem->ammo );
+                draw_string_raw( x, y - 8, "%2d", pitem->ammo );
             }
         }
     }
@@ -2834,10 +2518,10 @@ float draw_status( const CHR_REF character, float x, float y )
     generictext[7] = CSTR_END;
 
     // draw the name
-    y = _draw_string_raw( x + 8, y, generictext );
+    y = draw_string_raw( x + 8, y, generictext );
 
     // draw the character's money
-    y = _draw_string_raw( x + 8, y, "$%4d", pchr->money ) + 8;
+    y = draw_string_raw( x + 8, y, "$%4d", pchr->money ) + 8;
 
     // draw the character's main icon
     draw_one_character_icon( character, x + 40, y, bfalse, NOSPARKLE );
@@ -3024,31 +2708,31 @@ float draw_fps( float y )
 
     if ( outofsync )
     {
-        y = _draw_string_raw( 0, y, "OUT OF SYNC" );
+        y = draw_string_raw( 0, y, "OUT OF SYNC" );
     }
 
     if ( script_compiler_error( ps ) )
     {
-        y = _draw_string_raw( 0, y, "SCRIPT ERROR ( see \"/debug/log.txt\" )" );
+        y = draw_string_raw( 0, y, "SCRIPT ERROR ( see \"/debug/log.txt\" )" );
     }
 
     if ( fpson )
     {
-        y = _draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_game_ups, update_lag );
+        y = draw_string_raw( 0, y, "%2.3f FPS, %2.3f UPS, Update lag = %d", stabilized_game_fps, stabilized_game_ups, update_lag );
 
         //Extra debug info
         if ( cfg.dev_mode )
         {
 
 #    if defined(DEBUG_BSP)
-            y = _draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", chr_BSP_root.count, MAX_CHR - ChrList_count_free(), prt_BSP_root.count, maxparticles - PrtList_count_free() );
-            y = _draw_string_raw( 0, y, "BSP infinite %d", chr_BSP_root.tree.infinite.count + prt_BSP_root.tree.infinite.count );
-            y = _draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
-            //y = _draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
+            y = draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%d", chr_BSP_root.count, MAX_CHR - ChrList_count_free(), prt_BSP_root.count, maxparticles - PrtList_count_free() );
+            y = draw_string_raw( 0, y, "BSP infinite %d", chr_BSP_root.tree.infinite.count + prt_BSP_root.tree.infinite.count );
+            y = draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
+            //y = draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );
 #    endif
 
 #if defined(DEBUG_RENDERLIST)
-            y = _draw_string_raw( 0, y, "Renderlist tiles %d/%d", renderlist.all_count, PMesh->info.tiles_count );
+            y = draw_string_raw( 0, y, "Renderlist tiles %d/%d", renderlist.all_count, PMesh->info.tiles_count );
 #endif
 
 #if defined(_DEBUG)
@@ -3056,27 +2740,27 @@ float draw_fps( float y )
 #    if defined(DEBUG_PROFILE_DISPLAY) && defined(_DEBUG)
 
 #        if defined(DEBUG_PROFILE_RENDER) && defined(_DEBUG)
-            y = _draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
-            y = _draw_string_raw( 0, y, "gfx:total %2.4f, render:total %2.4f", est_render_time, time_draw_scene );
-            y = _draw_string_raw( 0, y, "render:init %2.4f,  render:mesh %2.4f", time_render_scene_init, time_render_scene_mesh );
-            y = _draw_string_raw( 0, y, "render:solid %2.4f, render:water %2.4f", time_render_scene_solid, time_render_scene_water );
-            y = _draw_string_raw( 0, y, "render:trans %2.4f", time_render_scene_trans );
+            y = draw_string_raw( 0, y, "estimated max FPS %2.3f UPS %4.2f GFX %4.2f", est_max_fps, est_max_ups, est_max_gfx );
+            y = draw_string_raw( 0, y, "gfx:total %2.4f, render:total %2.4f", est_render_time, time_draw_scene );
+            y = draw_string_raw( 0, y, "render:init %2.4f,  render:mesh %2.4f", time_render_scene_init, time_render_scene_mesh );
+            y = draw_string_raw( 0, y, "render:solid %2.4f, render:water %2.4f", time_render_scene_solid, time_render_scene_water );
+            y = draw_string_raw( 0, y, "render:trans %2.4f", time_render_scene_trans );
 #        endif
 
 #        if defined(DEBUG_PROFILE_MESH) && defined(_DEBUG)
-            y = _draw_string_raw( 0, y, "mesh:total %2.4f", time_render_scene_mesh );
-            y = _draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
-            y = _draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
-            y = _draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
-            y = _draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
+            y = draw_string_raw( 0, y, "mesh:total %2.4f", time_render_scene_mesh );
+            y = draw_string_raw( 0, y, "mesh:dolist_sort %2.4f, mesh:ndr %2.4f", time_render_scene_mesh_dolist_sort , time_render_scene_mesh_ndr );
+            y = draw_string_raw( 0, y, "mesh:drf_back %2.4f, mesh:ref %2.4f", time_render_scene_mesh_drf_back, time_render_scene_mesh_ref );
+            y = draw_string_raw( 0, y, "mesh:ref_chr %2.4f, mesh:drf_solid %2.4f", time_render_scene_mesh_ref_chr, time_render_scene_mesh_drf_solid );
+            y = draw_string_raw( 0, y, "mesh:render_shadows %2.4f", time_render_scene_mesh_render_shadows );
 #        endif
 
 #        if defined(DEBUG_PROFILE_INIT) && defined(_DEBUG)
-            y = _draw_string_raw( 0, y, "init:total %2.4f", time_render_scene_init );
-            y = _draw_string_raw( 0, y, "init:gfx_make_renderlist %2.4f, init:gfx_make_dolist %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
-            y = _draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
-            y = _draw_string_raw( 0, y, "init:gfx_update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
-            y = _draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
+            y = draw_string_raw( 0, y, "init:total %2.4f", time_render_scene_init );
+            y = draw_string_raw( 0, y, "init:gfx_make_renderlist %2.4f, init:gfx_make_dolist %2.4f", time_render_scene_init_renderlist_make, time_render_scene_init_dolist_make );
+            y = draw_string_raw( 0, y, "init:do_grid_lighting %2.4f, init:light_fans %2.4f", time_render_scene_init_do_grid_dynalight, time_render_scene_init_light_fans );
+            y = draw_string_raw( 0, y, "init:gfx_update_all_chr_instance %2.4f", time_render_scene_init_update_all_chr_instance );
+            y = draw_string_raw( 0, y, "init:update_all_prt_instance %2.4f", time_render_scene_init_update_all_prt_instance );
 #        endif
 
 #    endif
@@ -3093,33 +2777,33 @@ float draw_help( float y )
     if ( SDLKEYDOWN( SDLK_F1 ) )
     {
         // In-Game help
-        y = _draw_string_raw( 0, y, "!!!MOUSE HELP!!!" );
-        y = _draw_string_raw( 0, y, "~~Go to input settings to change" );
-        y = _draw_string_raw( 0, y, "Default settings" );
-        y = _draw_string_raw( 0, y, "~~Left Click to use an item" );
-        y = _draw_string_raw( 0, y, "~~Left and Right Click to grab" );
-        y = _draw_string_raw( 0, y, "~~Middle Click to jump" );
-        y = _draw_string_raw( 0, y, "~~A and S keys do stuff" );
-        y = _draw_string_raw( 0, y, "~~Right Drag to move camera" );
+        y = draw_string_raw( 0, y, "!!!MOUSE HELP!!!" );
+        y = draw_string_raw( 0, y, "~~Go to input settings to change" );
+        y = draw_string_raw( 0, y, "Default settings" );
+        y = draw_string_raw( 0, y, "~~Left Click to use an item" );
+        y = draw_string_raw( 0, y, "~~Left and Right Click to grab" );
+        y = draw_string_raw( 0, y, "~~Middle Click to jump" );
+        y = draw_string_raw( 0, y, "~~A and S keys do stuff" );
+        y = draw_string_raw( 0, y, "~~Right Drag to move camera" );
     }
     if ( SDLKEYDOWN( SDLK_F2 ) )
     {
         // In-Game help
-        y = _draw_string_raw( 0, y, "!!!JOYSTICK HELP!!!" );
-        y = _draw_string_raw( 0, y, "~~Go to input settings to change." );
-        y = _draw_string_raw( 0, y, "~~Hit the buttons" );
-        y = _draw_string_raw( 0, y, "~~You'll figure it out" );
+        y = draw_string_raw( 0, y, "!!!JOYSTICK HELP!!!" );
+        y = draw_string_raw( 0, y, "~~Go to input settings to change." );
+        y = draw_string_raw( 0, y, "~~Hit the buttons" );
+        y = draw_string_raw( 0, y, "~~You'll figure it out" );
     }
     if ( SDLKEYDOWN( SDLK_F3 ) )
     {
         // In-Game help
-        y = _draw_string_raw( 0, y, "!!!KEYBOARD HELP!!!" );
-        y = _draw_string_raw( 0, y, "~~Go to input settings to change." );
-        y = _draw_string_raw( 0, y, "Default settings" );
-        y = _draw_string_raw( 0, y, "~~TGB control left hand" );
-        y = _draw_string_raw( 0, y, "~~YHN control right hand" );
-        y = _draw_string_raw( 0, y, "~~Keypad to move and jump" );
-        y = _draw_string_raw( 0, y, "~~Number keys for stats" );
+        y = draw_string_raw( 0, y, "!!!KEYBOARD HELP!!!" );
+        y = draw_string_raw( 0, y, "~~Go to input settings to change." );
+        y = draw_string_raw( 0, y, "Default settings" );
+        y = draw_string_raw( 0, y, "~~TGB control left hand" );
+        y = draw_string_raw( 0, y, "~~YHN control right hand" );
+        y = draw_string_raw( 0, y, "~~Keypad to move and jump" );
+        y = draw_string_raw( 0, y, "~~Number keys for stats" );
     }
 
     return y;
@@ -3136,11 +2820,11 @@ float draw_debug( float y )
         PLA_REF ipla;
 
         // Debug information
-        y = _draw_string_raw( 0, y, "!!!DEBUG MODE-5!!!" );
-        y = _draw_string_raw( 0, y, "~~CAM %f %f %f", PCamera->pos.x, PCamera->pos.y, PCamera->pos.z );
+        y = draw_string_raw( 0, y, "!!!DEBUG MODE-5!!!" );
+        y = draw_string_raw( 0, y, "~~CAM %f %f %f", PCamera->pos.x, PCamera->pos.y, PCamera->pos.z );
         ipla = ( PLA_REF )0;
         ichr = PlaStack.lst[ipla].index;
-        y = _draw_string_raw( 0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
+        y = draw_string_raw( 0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
                               ChrList.lst[ichr].damage_resistance[DAMAGE_SLASH],
                               ChrList.lst[ichr].damage_resistance[DAMAGE_CRUSH],
                               ChrList.lst[ichr].damage_resistance[DAMAGE_POKE ],
@@ -3151,11 +2835,11 @@ float draw_debug( float y )
                               ChrList.lst[ichr].damage_resistance[DAMAGE_ZAP  ] );
 
         ichr = PlaStack.lst[ipla].index;
-        y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_FSIZE, ChrList.lst[ichr].pos.y / GRID_FSIZE );
+        y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_FSIZE, ChrList.lst[ichr].pos.y / GRID_FSIZE );
 
         ipla = ( PLA_REF )1;
         ichr = PlaStack.lst[ipla].index;
-        y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_FSIZE, ChrList.lst[ichr].pos.y / GRID_FSIZE );
+        y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_FSIZE, ChrList.lst[ichr].pos.y / GRID_FSIZE );
     }
 
     if ( SDLKEYDOWN( SDLK_F6 ) )
@@ -3163,30 +2847,30 @@ float draw_debug( float y )
         // More debug information
         STRING text;
 
-        y = _draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
-        y = _draw_string_raw( 0, y, "~~FREEPRT %d", PrtList_count_free() );
-        y = _draw_string_raw( 0, y, "~~FREECHR %d", ChrList_count_free() );
-        y = _draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
+        y = draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
+        y = draw_string_raw( 0, y, "~~FREEPRT %d", PrtList_count_free() );
+        y = draw_string_raw( 0, y, "~~FREECHR %d", ChrList_count_free() );
+        y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
         if ( PMod->exportvalid ) snprintf( text, SDL_arraysize( text ), "~~EXPORT: TRUE" );
         else                    snprintf( text, SDL_arraysize( text ), "~~EXPORT: FALSE" );
-        y = _draw_string_raw( 0, y, text, PMod->exportvalid );
-        y = _draw_string_raw( 0, y, "~~PASS %d/%d", ShopStack.count, PassageStack.count );
-        y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
-        y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.part_gpip );
+        y = draw_string_raw( 0, y, text, PMod->exportvalid );
+        y = draw_string_raw( 0, y, "~~PASS %d/%d", ShopStack.count, PassageStack.count );
+        y = draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
+        y = draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.part_gpip );
 
-        // y = _draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
+        // y = draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
     }
 
     if ( SDLKEYDOWN( SDLK_F7 ) )
     {
         // White debug mode
-        y = _draw_string_raw( 0, y, "!!!DEBUG MODE-7!!!" );
-        y = _draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 0 ), PCamera->mView.CNV( 1, 0 ), PCamera->mView.CNV( 2, 0 ), PCamera->mView.CNV( 3, 0 ) );
-        y = _draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 1 ), PCamera->mView.CNV( 1, 1 ), PCamera->mView.CNV( 2, 1 ), PCamera->mView.CNV( 3, 1 ) );
-        y = _draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 2 ), PCamera->mView.CNV( 1, 2 ), PCamera->mView.CNV( 2, 2 ), PCamera->mView.CNV( 3, 2 ) );
-        y = _draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 3 ), PCamera->mView.CNV( 1, 3 ), PCamera->mView.CNV( 2, 3 ), PCamera->mView.CNV( 3, 3 ) );
-        y = _draw_string_raw( 0, y, "CAM center <%f, %f>", PCamera->center.x, PCamera->center.y );
-        y = _draw_string_raw( 0, y, "CAM turn %d %d", PCamera->turn_mode, PCamera->turn_time );
+        y = draw_string_raw( 0, y, "!!!DEBUG MODE-7!!!" );
+        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 0 ), PCamera->mView.CNV( 1, 0 ), PCamera->mView.CNV( 2, 0 ), PCamera->mView.CNV( 3, 0 ) );
+        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 1 ), PCamera->mView.CNV( 1, 1 ), PCamera->mView.CNV( 2, 1 ), PCamera->mView.CNV( 3, 1 ) );
+        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 2 ), PCamera->mView.CNV( 1, 2 ), PCamera->mView.CNV( 2, 2 ), PCamera->mView.CNV( 3, 2 ) );
+        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 3 ), PCamera->mView.CNV( 1, 3 ), PCamera->mView.CNV( 2, 3 ), PCamera->mView.CNV( 3, 3 ) );
+        y = draw_string_raw( 0, y, "CAM center <%f, %f>", PCamera->center.x, PCamera->center.y );
+        y = draw_string_raw( 0, y, "CAM turn %d %d", PCamera->turn_mode, PCamera->turn_time );
     }
 
     return y;
@@ -3202,7 +2886,7 @@ float draw_timer( float y )
         fifties = ( timervalue % 50 ) << 1;
         seconds = (( timervalue / 50 ) % 60 );
         minutes = ( timervalue / 3000 );
-        y = _draw_string_raw( 0, y, "=%d:%02d:%02d=", minutes, seconds, fifties );
+        y = draw_string_raw( 0, y, "=%d:%02d:%02d=", minutes, seconds, fifties );
     }
 
     return y;
@@ -3214,7 +2898,7 @@ float draw_game_status( float y )
 
     if ( egonet_get_waitingforclients() )
     {
-        y = _draw_string_raw( 0, y, "Waiting for players... " );
+        y = draw_string_raw( 0, y, "Waiting for players... " );
     }
     else if ( ServerState.player_count > 0 )
     {
@@ -3222,55 +2906,21 @@ float draw_game_status( float y )
         {
             if ( PMod->respawnvalid && cfg.difficulty < GAME_HARD )
             {
-                y = _draw_string_raw( 0, y, "PRESS SPACE TO RESPAWN" );
+                y = draw_string_raw( 0, y, "PRESS SPACE TO RESPAWN" );
             }
             else
             {
-                y = _draw_string_raw( 0, y, "PRESS ESCAPE TO QUIT" );
+                y = draw_string_raw( 0, y, "PRESS ESCAPE TO QUIT" );
             }
         }
         else if ( PMod->beat )
         {
-            y = _draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
+            y = draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
         }
     }
     else
     {
-        y = _draw_string_raw( 0, y, "ERROR: MISSING PLAYERS" );
-    }
-
-    return y;
-}
-
-//--------------------------------------------------------------------------------------------
-float draw_messages( float y )
-{
-    int cnt, tnc;
-
-    // Messages
-    if ( messageon )
-    {
-        // Display the messages
-        tnc = DisplayMsg.count;
-        for ( cnt = 0; cnt < maxmessage; cnt++ )
-        {
-            if ( DisplayMsg.ary[tnc].time > 0 )
-            {
-                y = draw_wrap_string( DisplayMsg.ary[tnc].textdisplay, 0, y, sdl_scr.x - wraptolerance );
-                if ( DisplayMsg.ary[tnc].time > msgtimechange )
-                {
-                    DisplayMsg.ary[tnc].time -= msgtimechange;
-                }
-                else
-                {
-                    DisplayMsg.ary[tnc].time = 0;
-                }
-            }
-
-            tnc = ( tnc + 1 ) % maxmessage;
-        }
-
-        msgtimechange = 0;
+        y = draw_string_raw( 0, y, "ERROR: MISSING PLAYERS" );
     }
 
     return y;
@@ -3308,7 +2958,7 @@ void draw_hud( void )
             y = draw_wrap_string( buffer, 0, y, sdl_scr.x - wraptolerance );
         }
 
-        y = draw_messages( y );
+        y = DisplayMsg_draw_all( y );
     }
     gfx_end_2d();
 }
@@ -3487,68 +3137,9 @@ void draw_mouse_cursor( void )
             sc_rect.xmax = x + sc_tmp[2];
             sc_rect.ymax = y + sc_tmp[3];
 
-            draw_quad_2d( pcursor, sc_rect, tx_rect, btrue );
+            draw_quad_2d( pcursor, sc_rect, tx_rect, btrue, NULL );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------
-void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool_t use_alpha )
-{
-    ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
-    {
-        GLboolean texture_1d_enabled, texture_2d_enabled;
-
-        texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-        texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
-        if ( NULL == ptex || INVALID_GL_ID == ptex->base.binding )
-        {
-            GL_DEBUG( glDisable )( GL_TEXTURE_1D );                           // GL_ENABLE_BIT
-            GL_DEBUG( glDisable )( GL_TEXTURE_2D );                           // GL_ENABLE_BIT
-        }
-        else
-        {
-            GL_DEBUG( glEnable )( ptex->base.target );                        // GL_ENABLE_BIT
-            oglx_texture_Bind( ptex );
-        }
-
-        GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );                      // GL_CURRENT_BIT
-
-        if ( use_alpha )
-        {
-            GL_DEBUG( glEnable )( GL_BLEND );                                 // GL_ENABLE_BIT
-            GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
-
-            GL_DEBUG( glEnable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
-            GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                      // GL_COLOR_BUFFER_BIT
-        }
-        else
-        {
-            GL_DEBUG( glDisable )( GL_BLEND );                                 // GL_ENABLE_BIT
-            GL_DEBUG( glDisable )( GL_ALPHA_TEST );                            // GL_ENABLE_BIT
-        }
-
-        GL_DEBUG( glBegin )( GL_QUADS );
-        {
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmin, tx_rect.ymax ); GL_DEBUG( glVertex2f )( scr_rect.xmin, scr_rect.ymax );
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmax, tx_rect.ymax ); GL_DEBUG( glVertex2f )( scr_rect.xmax, scr_rect.ymax );
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmax, tx_rect.ymin ); GL_DEBUG( glVertex2f )( scr_rect.xmax, scr_rect.ymin );
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmin, tx_rect.ymin ); GL_DEBUG( glVertex2f )( scr_rect.xmin, scr_rect.ymin );
-        }
-        GL_DEBUG_END();
-
-        // fix the texture enabling
-        if ( texture_1d_enabled )
-        {
-            GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-        }
-        else if ( texture_2d_enabled )
-        {
-            GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-        }
-    }
-    ATTRIB_POP( __FUNCTION__ );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5382,494 +4973,7 @@ void gfx_update_fps( void )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-// LINE IMPLENTATION
-//--------------------------------------------------------------------------------------------
-void line_list_init( void )
-{
-    /// @details  BB@> initialize the list so that no lines are valid
 
-    int cnt;
-
-    for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
-    {
-        line_list[cnt].time = -1;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-int line_list_get_free( void )
-{
-    /// @details  BB@> get the 1st free line
-
-    int cnt;
-
-    for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
-    {
-        if ( line_list[cnt].time < 0 )
-        {
-            break;
-        }
-    }
-
-    return cnt < LINE_COUNT ? cnt : -1;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration )
-{
-    int iline = line_list_get_free();
-
-    if ( iline == LINE_COUNT ) return bfalse;
-
-    //Source
-    line_list[iline].src.x = src_x;
-    line_list[iline].src.y = src_y;
-    line_list[iline].src.z = src_z;
-
-    //Destination
-    line_list[iline].dst.x = pos_x;
-    line_list[iline].dst.y = dst_y;
-    line_list[iline].dst.z = dst_z;
-
-    //White color
-    line_list[iline].color.r = 1.00f;
-    line_list[iline].color.g = 1.00f;
-    line_list[iline].color.b = 1.00f;
-    line_list[iline].color.a = 0.50f;
-
-    line_list[iline].time = egoboo_get_ticks() + duration;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-void line_list_draw_all( const camera_t * pcam )
-{
-    /// @author BB
-    /// @details draw some lines for debugging purposes
-
-    int cnt, ticks;
-
-    GLboolean texture_1d_enabled, texture_2d_enabled;
-
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
-    // disable the texturing so all the points will be white,
-    // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
-
-    gfx_begin_3d( pcam );
-    {
-        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
-        {
-            // flat shading
-            GL_DEBUG( glShadeModel )( GL_FLAT );     // GL_LIGHTING_BIT
-
-            // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
-
-            // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
-
-            // draw draw front and back faces of polygons
-            oglx_end_culling();   // GL_ENABLE_BIT
-
-            GL_DEBUG( glDisable )( GL_BLEND );       // GL_ENABLE_BIT
-
-            // we do not want texture mapped lines
-            GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
-
-            ticks = egoboo_get_ticks();
-
-            for ( cnt = 0; cnt < LINE_COUNT; cnt++ )
-            {
-                if ( line_list[cnt].time < 0 ) continue;
-
-                if ( line_list[cnt].time < ticks )
-                {
-                    line_list[cnt].time = -1;
-                    continue;
-                }
-
-                GL_DEBUG( glColor4fv )( line_list[cnt].color.v );       // GL_CURRENT_BIT
-                GL_DEBUG( glBegin )( GL_LINES );
-                {
-                    GL_DEBUG( glVertex3fv )( line_list[cnt].src.v );
-                    GL_DEBUG( glVertex3fv )( line_list[cnt].dst.v );
-                }
-                GL_DEBUG_END();
-            }
-        }
-        ATTRIB_POP( __FUNCTION__ );
-    }
-    gfx_end_3d();
-
-    // fix the texture enabling
-    if ( texture_1d_enabled )
-    {
-        GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-    }
-    else if ( texture_2d_enabled )
-    {
-        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------
-// POINT IMPLENTATION
-//--------------------------------------------------------------------------------------------
-void point_list_init( void )
-{
-    /// @details  BB@> initialize the list so that no points are valid
-
-    int cnt;
-
-    for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
-    {
-        point_list[cnt].time = -1;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t point_list_add( const float x, const float y, const float z, const int duration )
-{
-    int ipoint = point_list_get_free();
-
-    if ( ipoint == POINT_COUNT ) return bfalse;
-
-    //position
-    point_list[ipoint].src.x = x;
-    point_list[ipoint].src.y = y;
-    point_list[ipoint].src.z = z;
-
-    //Red color
-    point_list[ipoint].color.r = 1.00f;
-    point_list[ipoint].color.g = 0.00f;
-    point_list[ipoint].color.b = 0.00f;
-    point_list[ipoint].color.a = 0.50f;
-
-    point_list[ipoint].time = egoboo_get_ticks() + duration;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-int point_list_get_free( void )
-{
-    int cnt;
-
-    for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
-    {
-        if ( point_list[cnt].time < 0 )
-        {
-            break;
-        }
-    }
-
-    return cnt < POINT_COUNT ? cnt : -1;
-}
-
-//--------------------------------------------------------------------------------------------
-void point_list_draw_all( const camera_t * pcam )
-{
-    /// @author BB
-    /// @details draw some points for debugging purposes
-
-    int cnt, ticks;
-
-    GLboolean texture_1d_enabled, texture_2d_enabled;
-
-    texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
-    texture_2d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D );
-
-    // disable the texturing so all the points will be white,
-    // not the texture color of the last vertex we drawn
-    if ( texture_1d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_1D );
-    if ( texture_2d_enabled ) GL_DEBUG( glDisable )( GL_TEXTURE_2D );
-
-    gfx_begin_3d( pcam );
-    {
-        ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
-        {
-            // flat shading
-            GL_DEBUG( glShadeModel )( GL_FLAT );     // GL_LIGHTING_BIT
-
-            // don't write into the depth buffer (disable glDepthMask for transparent objects)
-            GL_DEBUG( glDepthMask )( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
-
-            // do not draw hidden surfaces
-            GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
-            GL_DEBUG( glDepthFunc )( GL_LEQUAL );    // GL_DEPTH_BUFFER_BIT
-
-            // draw draw front and back faces of polygons
-            oglx_end_culling();   // GL_ENABLE_BIT
-
-            GL_DEBUG( glDisable )( GL_BLEND );       // GL_ENABLE_BIT
-
-            // we do not want texture mapped points
-            GL_DEBUG( glDisable )( GL_TEXTURE_2D );  // GL_ENABLE_BIT
-
-            ticks = egoboo_get_ticks();
-
-            for ( cnt = 0; cnt < POINT_COUNT; cnt++ )
-            {
-                if ( point_list[cnt].time < 0 ) continue;
-
-                if ( point_list[cnt].time < ticks )
-                {
-                    point_list[cnt].time = -1;
-                    continue;
-                }
-
-                GL_DEBUG( glColor4fv )( point_list[cnt].color.v );       // GL_CURRENT_BIT
-                GL_DEBUG( glBegin )( GL_POINTS );
-                {
-                    GL_DEBUG( glVertex3fv )( point_list[cnt].src.v );
-                }
-                GL_DEBUG_END();
-            }
-        }
-        ATTRIB_POP( __FUNCTION__ );
-    }
-    gfx_end_3d();
-
-    // fix the texture enabling
-    if ( texture_1d_enabled )
-    {
-        GL_DEBUG( glEnable )( GL_TEXTURE_1D );
-    }
-    else if ( texture_2d_enabled )
-    {
-        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-// AXIS BOUNDING BOX IMPLEMENTATION(S)
-//--------------------------------------------------------------------------------------------
-bool_t render_aabb( aabb_t * pbbox )
-{
-    GLXvector3f * pmin, * pmax;
-    GLint matrix_mode[1];
-
-    if ( NULL == pbbox ) return bfalse;
-
-    // save the matrix mode
-    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
-
-    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-    {
-        pmin = &( pbbox->mins );
-        pmax = &( pbbox->maxs );
-
-        // !!!! there must be an optimized way of doing this !!!!
-
-        GL_DEBUG( glBegin )( GL_QUADS );
-        {
-            // Front Face
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-
-            // Back Face
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-
-            // Top Face
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-
-            // Bottom Face
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-
-            // Right face
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmax )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-
-            // Left Face
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmin )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmin )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmax )[ZZ] );
-            GL_DEBUG( glVertex3f )(( *pmin )[XX], ( *pmax )[YY], ( *pmin )[ZZ] );
-        }
-        GL_DEBUG_END();
-    }
-    // Restore the GL_MODELVIEW matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    // restore the matrix mode
-    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
-{
-    bool_t retval = bfalse;
-
-    if ( NULL == bb ) return bfalse;
-
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
-    {
-        // don't write into the depth buffer (disable glDepthMask for transparent objects)
-        GL_DEBUG( glDepthMask )( GL_FALSE );
-
-        // do not draw hidden surfaces
-        GL_DEBUG( glEnable )( GL_DEPTH_TEST );      // GL_ENABLE_BIT
-        GL_DEBUG( glDepthFunc )( GL_LEQUAL );
-
-        // fix the poorly chosen normals...
-        // draw draw front and back faces of polygons
-        oglx_end_culling();                 // GL_ENABLE_BIT
-
-        // make them transparent
-        GL_DEBUG( glEnable )( GL_BLEND );
-        GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-        // choose a "white" texture
-        oglx_texture_Bind( NULL );
-
-        //------------------------------------------------
-        // DIAGONAL BBOX
-        if ( draw_diamond )
-        {
-            float p1_x, p1_y;
-            float p2_x, p2_y;
-
-            GL_DEBUG( glColor4f )( 0.5f, 1.0f, 1.0f, 0.1f );
-
-            p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
-            p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
-            p2_x = 0.5f * ( bb->maxs[OCT_XY] - bb->mins[OCT_YX] );
-            p2_y = 0.5f * ( bb->maxs[OCT_XY] + bb->mins[OCT_YX] );
-
-            GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->maxs[OCT_Z] );
-            GL_DEBUG_END();
-
-            p1_x = 0.5f * ( bb->maxs[OCT_XY] - bb->mins[OCT_YX] );
-            p1_y = 0.5f * ( bb->maxs[OCT_XY] + bb->mins[OCT_YX] );
-            p2_x = 0.5f * ( bb->mins[OCT_XY] - bb->mins[OCT_YX] );
-            p2_y = 0.5f * ( bb->mins[OCT_XY] + bb->mins[OCT_YX] );
-
-            GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->maxs[OCT_Z] );
-            GL_DEBUG_END();
-
-            p1_x = 0.5f * ( bb->mins[OCT_XY] - bb->mins[OCT_YX] );
-            p1_y = 0.5f * ( bb->mins[OCT_XY] + bb->mins[OCT_YX] );
-            p2_x = 0.5f * ( bb->mins[OCT_XY] - bb->maxs[OCT_YX] );
-            p2_y = 0.5f * ( bb->mins[OCT_XY] + bb->maxs[OCT_YX] );
-
-            GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->maxs[OCT_Z] );
-            GL_DEBUG_END();
-
-            p1_x = 0.5f * ( bb->mins[OCT_XY] - bb->maxs[OCT_YX] );
-            p1_y = 0.5f * ( bb->mins[OCT_XY] + bb->maxs[OCT_YX] );
-            p2_x = 0.5f * ( bb->maxs[OCT_XY] - bb->maxs[OCT_YX] );
-            p2_y = 0.5f * ( bb->maxs[OCT_XY] + bb->maxs[OCT_YX] );
-
-            GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p2_x, p2_y, bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->maxs[OCT_Z] );
-            GL_DEBUG_END();
-
-            retval = btrue;
-        }
-
-        //------------------------------------------------
-        // SQUARE BBOX
-        if ( draw_square )
-        {
-            GL_DEBUG( glColor4f )( 1.0f, 0.5f, 1.0f, 0.1f );
-
-            // XZ FACE, min Y
-            GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG_END();
-
-            // YZ FACE, min X
-            GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG_END();
-
-            // XZ FACE, max Y
-            GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG_END();
-
-            // YZ FACE, max X
-            GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG_END();
-
-            // XY FACE, min Z
-            GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->mins[OCT_Z] );
-            GL_DEBUG_END();
-
-            // XY FACE, max Z
-            GL_DEBUG( glBegin )( GL_QUADS );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->mins[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->maxs[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
-            GL_DEBUG_END();
-
-            retval = btrue;
-        }
-
-    }
-    ATTRIB_POP( __FUNCTION__ );
-
-    return retval;
-}
 
 //--------------------------------------------------------------------------------------------
 // obj_registry_entity_t IMPLEMENTATION
@@ -5912,23 +5016,6 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright )
     }
 
     return rv;
-}
-
-//--------------------------------------------------------------------------------------------
-// DisplayMsg IMPLEMENTATION
-//--------------------------------------------------------------------------------------------
-int DisplayMsg_get_free( void )
-{
-    /// @author ZZ
-    /// @details This function finds the best message to use
-    /// Pick the first one
-
-    int tnc = DisplayMsg.count;
-
-    DisplayMsg.count++;
-    DisplayMsg.count %= maxmessage;
-
-    return tnc;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6092,134 +5179,6 @@ gfx_rv gfx_load_icons( void )
 //--------------------------------------------------------------------------------------------
 // MODE CONTROL
 //--------------------------------------------------------------------------------------------
-void gfx_begin_text( void )
-{
-    // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
-    GL_DEBUG( glPushAttrib )( GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
-
-    GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-
-    // do not display the completely transparent portion
-    GL_DEBUG( glEnable )( GL_ALPHA_TEST );                               // GL_ENABLE_BIT
-    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                            // GL_COLOR_BUFFER_BIT
-
-    GL_DEBUG( glEnable )( GL_BLEND );                                    // GL_COLOR_BUFFER_BIT
-    GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
-
-    // don't worry about hidden surfaces
-    GL_DEBUG( glDisable )( GL_DEPTH_TEST );                              // GL_ENABLE_BIT
-
-    // draw draw front and back faces of polygons
-    oglx_end_culling();                               // GL_ENABLE_BIT
-
-    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );                                // GL_CURRENT_BIT
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_end_text( void )
-{
-    // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function
-    GL_DEBUG( glPopAttrib )();
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_enable_texturing( void )
-{
-    if ( !GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D ) )
-    {
-        GL_DEBUG( glEnable )( GL_TEXTURE_2D );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_disable_texturing( void )
-{
-    if ( GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D ) )
-    {
-        GL_DEBUG( glDisable )( GL_TEXTURE_2D );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_begin_3d( const camera_t * pcam )
-{
-    // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glLoadMatrixf )( pcam->mProjection.v );
-
-    // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glLoadMatrixf )( pcam->mView.v );
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_end_3d( void )
-{
-    // Restore the GL_MODELVIEW matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    // Restore the GL_PROJECTION matrix
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPopMatrix )();
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_begin_2d( void )
-{
-
-    ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_SCISSOR_BIT );
-
-    // Reset the Projection Matrix
-    // Set up an orthogonal projection
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glLoadIdentity )();
-    GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
-
-    // Reset the Modelview Matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glLoadIdentity )();
-
-    // remove any scissor test
-    GL_DEBUG( glDisable )( GL_SCISSOR_TEST );
-
-    // don't worry about hidden surfaces
-    GL_DEBUG( glDisable )( GL_DEPTH_TEST );
-
-    // stop culling backward facing polygons
-    oglx_end_culling();                            // GL_ENABLE_BIT
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_end_2d( void )
-{
-    // get the old modelview matrix
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPopMatrix )();
-
-    // get the old projection matrix
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPopMatrix )();
-
-    // ATTRIB_POP()
-    // - restores the culling mode
-    // - restores the culling depth-testing mode
-    // - restores the SCISSOR mode
-    ATTRIB_POP( __FUNCTION__ );
-
-    // leave the MatrixMode in GL_MODELVIEW
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-}
-
-//--------------------------------------------------------------------------------------------
-void gfx_reshape_viewport( int w, int h )
-{
-    GL_DEBUG( glViewport )( 0, 0, w, h );
-}
 
 //--------------------------------------------------------------------------------------------
 void gfx_request_clear_screen( void )
@@ -6331,7 +5290,7 @@ void _flip_pages( void )
         // take the screenshot NOW, since we have just updated the screen buffer
         if ( !dump_screenshot() )
         {
-            debug_printf( "Error writing screenshot!" );    // send a failure message to the screen
+            DisplayMsg_printf( "Error writing screenshot!" );    // send a failure message to the screen
             log_warning( "Error writing screenshot\n" );    // Log the error in log.txt
         }
     }
@@ -7326,137 +6285,7 @@ gfx_make_dolist_exit:
 
 //--------------------------------------------------------------------------------------------
 // UTILITY FUNCTIONS
-//--------------------------------------------------------------------------------------------
-bool_t dump_screenshot( void )
-{
-    /// @author BB
-    /// @details dumps the current screen (GL context) to a new bitmap file
-    /// right now it dumps it to whatever the current directory is
 
-    // returns btrue if successful, bfalse otherwise
-
-    int i;
-    bool_t savefound = bfalse;
-    bool_t saved     = bfalse;
-    STRING szFilename, szResolvedFilename;
-
-    // find a valid file name
-    savefound = bfalse;
-    i = 0;
-    while ( !savefound && ( i < 100 ) )
-    {
-        snprintf( szFilename, SDL_arraysize( szFilename ), "ego%02d.bmp", i );
-
-        // lame way of checking if the file already exists...
-        savefound = !vfs_exists( szFilename );
-        if ( !savefound )
-        {
-            i++;
-        }
-    }
-
-    if ( !savefound ) return bfalse;
-
-    // convert the file path to the correct write path
-    strncpy( szResolvedFilename, vfs_resolveWriteFilename( szFilename ), SDL_arraysize( szFilename ) );
-
-    // if we are not using OpenGL, use SDL to dump the screen
-    if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL ) )
-    {
-        SDL_SaveBMP( sdl_scr.pscreen, szResolvedFilename );
-        return bfalse;
-    }
-
-    // we ARE using OpenGL
-    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_PIXEL_STORE_BIT ) ;
-    {
-        SDL_Surface *temp;
-
-        // create a SDL surface
-        temp = SDL_CreateRGBSurface( SDL_SWSURFACE, sdl_scr.x, sdl_scr.y, 24, sdl_r_mask, sdl_g_mask, sdl_b_mask, 0 );
-
-        if ( NULL == temp )
-        {
-            //Something went wrong
-            SDL_FreeSurface( temp );
-            return bfalse;
-        }
-
-        //Now lock the surface so that we can read it
-        if ( -1 != SDL_LockSurface( temp ) )
-        {
-            SDL_Rect rect;
-
-            memcpy( &rect, &( sdl_scr.pscreen->clip_rect ), sizeof( SDL_Rect ) );
-            if ( 0 == rect.w && 0 == rect.h )
-            {
-                rect.w = sdl_scr.x;
-                rect.h = sdl_scr.y;
-            }
-            if ( rect.w > 0 && rect.h > 0 )
-            {
-                int y;
-                Uint8 * pixels;
-
-                GL_DEBUG( glGetError )();
-
-                //// use the allocated screen to tell OpenGL about the row length (including the lapse) in pixels
-                //// stolen from SDL ;)
-                // GL_DEBUG(glPixelStorei)(GL_UNPACK_ROW_LENGTH, temp->pitch / temp->format->BytesPerPixel );
-                // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
-
-                //// since we have specified the row actual length and will give a pointer to the actual pixel buffer,
-                //// it is not necesssaty to mess with the alignment
-                // GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1 );
-                // EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG(glGetError)() );
-
-                // ARGH! Must copy the pixels row-by-row, since the OpenGL video memory is flipped vertically
-                // relative to the SDL Screen memory
-
-                // this is supposed to be a DirectX thing, so it needs to be tested out on glx
-                // there should probably be [SCREENSHOT_INVERT] and [SCREENSHOT_VALID] keys in setup.txt
-                pixels = ( Uint8 * )temp->pixels;
-                for ( y = rect.y; y < rect.y + rect.h; y++ )
-                {
-                    GL_DEBUG( glReadPixels )( rect.x, ( rect.h - y ) - 1, rect.w, 1, GL_RGB, GL_UNSIGNED_BYTE, pixels );
-                    pixels += temp->pitch;
-                }
-                EGOBOO_ASSERT( GL_NO_ERROR == GL_DEBUG( glGetError )() );
-            }
-
-            SDL_UnlockSurface( temp );
-
-            // Save the file as a .bmp
-            saved = ( -1 != SDL_SaveBMP( temp, szResolvedFilename ) );
-        }
-
-        // free the SDL surface
-        SDL_FreeSurface( temp );
-        if ( saved )
-        {
-            // tell the user what we did
-            debug_printf( "Saved to %s", szFilename );
-        }
-    }
-    GL_DEBUG( glPopClientAttrib )();
-
-    return savefound && saved;
-}
-
-//--------------------------------------------------------------------------------------------
-void clear_messages( void )
-{
-    /// @author ZZ
-    /// @details This function empties the message buffer
-    int cnt;
-
-    for ( cnt = 0; cnt < MAX_MESSAGE; cnt++ )
-    {
-        DisplayMsg.ary[cnt].time = 0;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 float calc_light_rotation( int rotation, int normal )
 {
     /// @author ZZ

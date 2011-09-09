@@ -34,7 +34,7 @@
 #include "game.h"
 #include "AStar.h"
 #include "passage.h"
-#include "graphic.h"
+#include "renderer_2d.h"
 
 #include "ChrList.inl"
 #include "mesh.inl"
@@ -531,12 +531,13 @@ bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos
             // no it is not safe. what to do? nothing, or add the current position?
             //returncode = waypoint_list_push( plst, pchr->loc_pos.x, pchr->loc_pos.y );
 
-            log_warning( "scr_AddWaypoint() - failed to add a waypoint because object was \"inside\" a wall.\n"
+            log_warning( "%s - failed to add a waypoint because object was \"inside\" a wall.\n"
                          "\tcharacter %d (\"%s\", \"%s\")\n"
                          "\tWaypoint index %d\n"
                          "\tWaypoint location (in tiles) <%f,%f>\n"
                          "\tWall normal <%1.4f,%1.4f>\n"
                          "\tPressure %f\n",
+                         __FUNCTION__,
                          ichr, pchr->Name, pcap->name,
                          plst->head,
                          loc_pos.x / GRID_FSIZE, loc_pos.y / GRID_FSIZE,
@@ -788,12 +789,12 @@ Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pst
     ppro = ProList_get_ptr( pchr->profile_ref );
 
     ichr           = GET_REF_PCHR( pchr );
-    length = strlen( ppro->message[message_index] );
+    length = strlen( ppro->message_ary[message_index] );
 
     dst     = endtext + endtext_carat;
     dst_end = endtext + MAXENDTEXT - 1;
 
-    expand_escape_codes( ichr, pstate, ppro->message[message_index], ppro->message[message_index] + length, dst, dst_end );
+    expand_escape_codes( ichr, pstate, ppro->message_ary[message_index], ppro->message_ary[message_index] + length, dst, dst_end );
     endtext_carat = strlen( endtext );
 
     str_add_linebreaks( endtext, strlen( endtext ), 30 );
@@ -878,12 +879,12 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
     slot = DisplayMsg_get_free();
     DisplayMsg.ary[slot].time = cfg.message_duration;
 
-    length = strlen( ppro->message[message] );
+    length = strlen( ppro->message_ary[message] );
 
     dst     = DisplayMsg.ary[slot].textdisplay;
-    dst_end = DisplayMsg.ary[slot].textdisplay + MESSAGESIZE - 1;
+    dst_end = DisplayMsg.ary[slot].textdisplay + EGO_MESSAGE_SIZE - 1;
 
-    expand_escape_codes( ichr, pstate, ppro->message[message], ppro->message[message] + length, dst, dst_end );
+    expand_escape_codes( ichr, pstate, ppro->message_ary[message], ppro->message_ary[message] + length, dst, dst_end );
 
     *dst_end = CSTR_END;
 

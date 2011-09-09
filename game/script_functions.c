@@ -44,8 +44,8 @@
 #include "game.h"
 #include "player.h"
 #include "menu.h"
-#include "graphic.h"
 #include "graphic_billboard.h"
+#include "renderer_2d.h"
 #include "passage.h"
 #include "AStar.h"
 
@@ -3536,10 +3536,10 @@ Uint8 scr_DebugMessage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    debug_printf( "aistate %d, aicontent %d, target %d", pself->state, pself->content, REF_TO_INT( pself->target ) );
-    debug_printf( "tmpx %d, tmpy %d", pstate->x, pstate->y );
-    debug_printf( "tmpdistance %d, tmpturn %d", pstate->distance, pstate->turn );
-    debug_printf( "tmpargument %d, selfturn %d", pstate->argument, pchr->ori.facing_z );
+    DisplayMsg_printf( "aistate %d, aicontent %d, target %d", pself->state, pself->content, REF_TO_INT( pself->target ) );
+    DisplayMsg_printf( "tmpx %d, tmpy %d", pstate->x, pstate->y );
+    DisplayMsg_printf( "tmpdistance %d, tmpturn %d", pstate->distance, pstate->turn );
+    DisplayMsg_printf( "tmpargument %d, selfturn %d", pstate->argument, pchr->ori.facing_z );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7126,10 +7126,10 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 
     if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
 
-    returncode = link_follow_modname( ppro->message[pstate->argument], btrue );
+    returncode = link_follow_modname( ppro->message_ary[pstate->argument], btrue );
     if ( !returncode )
     {
-        debug_printf( "That's too scary for %s", pchr->Name );
+        DisplayMsg_printf( "That's too scary for %s", pchr->Name );
     }
 
     SCRIPT_FUNCTION_END();
@@ -7798,7 +7798,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     ///use message.txt to send the module name
     if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return bfalse;
 
-    returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, ppro->message[pstate->argument] );
+    returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, ppro->message_ary[pstate->argument] );
 
     SCRIPT_FUNCTION_END();
 }
@@ -8109,7 +8109,7 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
         case COLOR_BLUE:    do_tint = tint_blue;    break;
     }
 
-    returncode = NULL != chr_make_text_billboard( pself->index, ppro->message[pstate->argument], text_color, do_tint, pstate->distance, bb_opt_fade );
+    returncode = NULL != chr_make_text_billboard( pself->index, ppro->message_ary[pstate->argument], text_color, do_tint, pstate->distance, bb_opt_fade );
 
     SCRIPT_FUNCTION_END();
 }

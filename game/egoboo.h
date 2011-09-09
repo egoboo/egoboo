@@ -130,7 +130,6 @@ EXTERN STRING          pickedmodule_write_path;         ///< The picked module's
 //HUD
 EXTERN bool_t          timeron        EQ( bfalse );        ///< Game timer displayed?
 EXTERN Uint32          timervalue     EQ( 0 );             ///< Timer time ( 50ths of a second )
-EXTERN bool_t          messageon      EQ( btrue );         ///< Messages?
 EXTERN int             wraptolerance  EQ( 80 );            ///< Status bar
 EXTERN bool_t          fpson          EQ( btrue );         ///< Show FPS?
 

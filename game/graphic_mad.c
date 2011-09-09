@@ -36,6 +36,7 @@
 #include "game.h"
 #include "input.h"
 #include "lighting.h"
+#include "renderer_3d.h"
 #include "egoboo.h"
 
 #include "profile.inl"

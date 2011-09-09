@@ -42,7 +42,6 @@
 #include "../egolib/extensions/SDL_extensions.h"
 #include "../egolib/clock.h"
 
-#include "graphic.h"
 #include "network.h"
 #include "sound.h"
 #include "ui.h"
@@ -50,7 +49,9 @@
 #include "game.h"
 #include "menu.h"
 #include "player.h"
+#include "graphic.h"
 #include "graphic_texture.h"
+#include "renderer_2d.h"
 
 #include "char.inl"
 #include "particle.inl"
@@ -721,8 +722,8 @@ bool_t config_download( egoboo_config_t * pcfg )
     fpson = pcfg->fps_allowed;
 
     // message display
-    maxmessage    = CLIP( pcfg->message_count_req, 1, MAX_MESSAGE );
-    messageon     = pcfg->message_count_req > 0;
+    DisplayMsg_count    = CLIP( pcfg->message_count_req, EGO_MESSAGE_MIN, EGO_MESSAGE_MAX );
+    DisplayMsg_on     = pcfg->message_count_req > 0;
     wraptolerance = pcfg->show_stats ? 90 : 32;
 
     // Get the particle limit
@@ -762,8 +763,8 @@ bool_t config_upload( egoboo_config_t * pcfg )
     pcfg->particle_count_req = CLIP( maxparticles, 0, MAX_PRT );
 
     // messages
-    pcfg->messageon_req     = messageon;
-    pcfg->message_count_req = !messageon ? 0 : MAX( 1, MAX_MESSAGE );
+    pcfg->messageon_req     = DisplayMsg_on;
+    pcfg->message_count_req = !DisplayMsg_on ? 0 : MAX( EGO_MESSAGE_MIN, DisplayMsg_count );
 
     // convert the config values to a setup file
     return setup_upload( pcfg );

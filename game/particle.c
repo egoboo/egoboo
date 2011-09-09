@@ -34,6 +34,7 @@
 #include "obj_BSP.h"
 #include "mpd_functions.h"
 #include "mad.h"
+#include "renderer_3d.h"
 #include "egoboo.h"
 
 #include "mesh.inl"

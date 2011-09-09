@@ -135,9 +135,9 @@ extern "C"
     bool_t       BSP_leaf_remove_link( BSP_leaf_t * L );
     bool_t       BSP_leaf_copy( BSP_leaf_t * L_dst, const BSP_leaf_t * L_src );
 
-// OBSOLETE
-//BSP_leaf_t * BSP_leaf_create( void * data, int type, int index );
-//bool_t       BSP_leaf_destroy( BSP_leaf_t ** pL );
+// ?OBSOLETE?
+    BSP_leaf_t * BSP_leaf_create( void * data, int type, int index );
+    bool_t       BSP_leaf_destroy( BSP_leaf_t ** pL );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

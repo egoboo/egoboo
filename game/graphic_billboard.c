@@ -23,6 +23,7 @@
 
 #include "graphic_billboard.h"
 #include "graphic_texture.h"
+#include "renderer_3d.h"
 
 #include "../egolib/font_ttf.h"
 #include "../egolib/_math.inl"

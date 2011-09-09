@@ -68,6 +68,7 @@
 #include "graphic_fan.h"
 #include "graphic_texture.h"
 #include "graphic_billboard.h"
+#include "renderer_2d.h"
 #include "passage.h"
 #include "input.h"
 #include "menu.h"
@@ -1470,7 +1471,7 @@ int game_process_do_running( game_process_t * gproc )
         {
             gfx_system_main();
 
-            msgtimechange++;
+            DisplayMsg_timechange++;
         }
         PROFILE_END2( gfx_loop );
 
@@ -2486,7 +2487,7 @@ void show_stat( int statindex )
             pcap = pro_get_pcap( pchr->profile_ref );
 
             // Name
-            debug_printf( "=%s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
+            DisplayMsg_printf( "=%s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
 
             // Level and gender and class
             gender[0] = 0;
@@ -2506,29 +2507,29 @@ void show_stat( int statindex )
                 itmp = level % 10;
                 if ( 1 == itmp )
                 {
-                    debug_printf( "~%dst level %s%s", level, gender_str, pcap->classname );
+                    DisplayMsg_printf( "~%dst level %s%s", level, gender_str, pcap->classname );
                 }
                 else if ( 2 == itmp )
                 {
-                    debug_printf( "~%dnd level %s%s", level, gender_str, pcap->classname );
+                    DisplayMsg_printf( "~%dnd level %s%s", level, gender_str, pcap->classname );
                 }
                 else if ( 3 == itmp )
                 {
-                    debug_printf( "~%drd level %s%s", level, gender_str, pcap->classname );
+                    DisplayMsg_printf( "~%drd level %s%s", level, gender_str, pcap->classname );
                 }
                 else
                 {
-                    debug_printf( "~%dth level %s%s", level, gender_str, pcap->classname );
+                    DisplayMsg_printf( "~%dth level %s%s", level, gender_str, pcap->classname );
                 }
             }
             else
             {
-                debug_printf( "~Dead %s", pcap->classname );
+                DisplayMsg_printf( "~Dead %s", pcap->classname );
             }
 
             // Stats
-            debug_printf( "~STR:~%2d~WIS:~%2d~DEF:~%d", SFP8_TO_SINT( pchr->strength ), SFP8_TO_SINT( pchr->wisdom ), 255 - pchr->defense );
-            debug_printf( "~INT:~%2d~DEX:~%2d~EXP:~%d", SFP8_TO_SINT( pchr->intelligence ), SFP8_TO_SINT( pchr->dexterity ), pchr->experience );
+            DisplayMsg_printf( "~STR:~%2d~WIS:~%2d~DEF:~%d", SFP8_TO_SINT( pchr->strength ), SFP8_TO_SINT( pchr->wisdom ), 255 - pchr->defense );
+            DisplayMsg_printf( "~INT:~%2d~DEX:~%2d~EXP:~%d", SFP8_TO_SINT( pchr->intelligence ), SFP8_TO_SINT( pchr->dexterity ), pchr->experience );
         }
     }
 }
@@ -2559,22 +2560,22 @@ void show_armor( int statindex )
     if ( NULL == pcap ) return;
 
     // Armor Name
-    debug_printf( "=%s=", pcap->skinname[skinlevel] );
+    DisplayMsg_printf( "=%s=", pcap->skinname[skinlevel] );
 
     // Armor Stats
-    debug_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
+    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
                   pcap->damage_resistance[DAMAGE_SLASH][skinlevel]*100,
                   pcap->damage_resistance[DAMAGE_CRUSH][skinlevel]*100,
                   pcap->damage_resistance[DAMAGE_POKE ][skinlevel]*100 );
 
-    debug_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
+    DisplayMsg_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
                   pcap->damage_resistance[DAMAGE_HOLY][skinlevel]*100,
                   pcap->damage_resistance[DAMAGE_EVIL][skinlevel]*100,
                   pcap->damage_resistance[DAMAGE_FIRE][skinlevel]*100,
                   pcap->damage_resistance[DAMAGE_ICE ][skinlevel]*100,
                   pcap->damage_resistance[DAMAGE_ZAP ][skinlevel]*100 );
 
-    debug_printf( "~Type: %s", ( pcap->skindressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
+    DisplayMsg_printf( "~Type: %s", ( pcap->skindressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
 
     // jumps
     tmps[0] = CSTR_END;
@@ -2587,7 +2588,7 @@ void show_armor( int statindex )
         default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%i)", pchr->jumpnumberreset ); break;
     };
 
-    debug_printf( "~Speed:~%3.0f~Jump Skill:~%s", pchr->maxaccel_reset*80, tmps );
+    DisplayMsg_printf( "~Speed:~%3.0f~Jump Skill:~%s", pchr->maxaccel_reset*80, tmps );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2655,15 +2656,15 @@ void show_full_status( int statindex )
     cleanup_character_enchants( pchr );
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
-    debug_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
+    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
                   pchr->damage_resistance[DAMAGE_SLASH]*100,
                   pchr->damage_resistance[DAMAGE_CRUSH]*100,
                   pchr->damage_resistance[DAMAGE_POKE ]*100 );
 
-    debug_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
+    DisplayMsg_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
                   pchr->damage_resistance[DAMAGE_HOLY]*100,
                   pchr->damage_resistance[DAMAGE_EVIL]*100,
                   pchr->damage_resistance[DAMAGE_FIRE]*100,
@@ -2672,7 +2673,7 @@ void show_full_status( int statindex )
 
     get_chr_regeneration( pchr, &liferegen, &manaregen );
 
-    debug_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", FP8_TO_FLOAT( manaregen ), FP8_TO_FLOAT( liferegen ) );
+    DisplayMsg_printf( "Mana Regen:~%4.2f Life Regen:~%4.2f", FP8_TO_FLOAT( manaregen ), FP8_TO_FLOAT( liferegen ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2696,14 +2697,14 @@ void show_magic_status( int statindex )
     cleanup_character_enchants( pchr );
 
     // Enchanted?
-    debug_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Enchantment status
-    debug_printf( "~See Invisible: %s~~See Kurses: %s",
+    DisplayMsg_printf( "~See Invisible: %s~~See Kurses: %s",
                   pchr->see_invisible_level ? "Yes" : "No",
                   pchr->see_kurse_level ? "Yes" : "No" );
 
-    debug_printf( "~Channel Life: %s~~Waterwalking: %s",
+    DisplayMsg_printf( "~Channel Life: %s~~Waterwalking: %s",
                   pchr->canchannel ? "Yes" : "No",
                   pchr->waterwalk ? "Yes" : "No" );
 
@@ -2716,7 +2717,7 @@ void show_magic_status( int statindex )
         case MISSILE_NORMAL : missile_str = "None";    break;
     }
 
-    debug_printf( "~Flying: %s~~Missile Protection: %s", ( pchr->flyheight > 0 ) ? "Yes" : "No", missile_str );
+    DisplayMsg_printf( "~Flying: %s~~Missile Protection: %s", ( pchr->flyheight > 0 ) ? "Yes" : "No", missile_str );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3238,7 +3239,7 @@ void activate_spawn_file_vfs( void )
         vfs_close( fileread );
     }
 
-    clear_messages();
+    DisplayMsg_clear();
 
     // Make sure local players are displayed first
     statlist_sort();
@@ -3260,7 +3261,7 @@ void game_reset_module_data( void )
     reset_teams();
     release_all_profiles();
     free_all_objects();
-    reset_messages();
+    DisplayMsg_reset();
     chop_data_init( &chop_mem );
     game_reset_players();
 
@@ -4940,16 +4941,16 @@ bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
         {
             if( can_pay )
             {
-                debug_printf( "%s bought %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
+                DisplayMsg_printf( "%s bought %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
             }
             else
             {
-                debug_printf( "%s can't afford %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
+                DisplayMsg_printf( "%s can't afford %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
             }
         }
         else
         {
-            debug_printf( "%s picked up %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
+            DisplayMsg_printf( "%s picked up %s", chr_get_name( ipicker, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL), chr_get_name( iitem, CHRNAME_ARTICLE ) );
         }
     }*/
 
@@ -5037,11 +5038,11 @@ bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 
             if ( !can_grab )
             {
-                debug_printf( "%s was detected!!", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+                DisplayMsg_printf( "%s was detected!!", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
             }
             else
             {
-                debug_printf( "%s stole %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), chr_get_name( iitem, CHRNAME_ARTICLE, NULL, 0 ) );
+                DisplayMsg_printf( "%s stole %s", chr_get_name( ichr, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), chr_get_name( iitem, CHRNAME_ARTICLE, NULL, 0 ) );
             }
         }
         else

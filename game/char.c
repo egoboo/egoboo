@@ -34,6 +34,10 @@
 #include "mad.h"
 #include "player.h"
 #include "script.h"
+#include "graphic_billboard.h"
+#include "graphic_texture.h"
+#include "renderer_2d.h"
+#include "renderer_3d.h"
 #include "menu.h"
 #include "sound.h"
 #include "camera_system.h"
@@ -43,9 +47,6 @@
 #include "ui.h"
 #include "collision.h"                  //Only or detach_character_from_platform()
 #include "obj_BSP.h"
-#include "graphic.h"
-#include "graphic_billboard.h"
-#include "graphic_texture.h"
 #include "egoboo.h"
 
 #include "ChrList.inl"
@@ -1567,7 +1568,7 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
     {
         // Flag the item as not put away
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->islocalplayer ) debug_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+        if ( pchr->islocalplayer ) DisplayMsg_printf( "%s is sticky...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
         return bfalse;
     }
 
@@ -1575,7 +1576,7 @@ bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 invento
     if ( pitem_cap->istoobig )
     {
         SET_BIT( pitem->ai.alert, ALERTIF_NOTPUTAWAY );
-        if ( pchr->islocalplayer ) debug_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+        if ( pchr->islocalplayer ) DisplayMsg_printf( "%s is too big to be put away...", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
         return bfalse;
     }
 
@@ -1745,7 +1746,7 @@ bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, co
     {
         // Flag the last found_item as not removed
         SET_BIT( pitem->ai.alert, ALERTIF_NOTTAKENOUT );  // Same as ALERTIF_NOTPUTAWAY
-        if ( pholder->islocalplayer ) debug_printf( "%s won't go out!", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+        if ( pholder->islocalplayer ) DisplayMsg_printf( "%s won't go out!", chr_get_name( item, CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
         return bfalse;
     }
 
@@ -2650,7 +2651,7 @@ void do_level_up( const CHR_REF character )
             // The character is ready to advance...
             if ( VALID_PLA( pchr->is_which_player ) )
             {
-                debug_printf( "%s gained a level!!!", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
+                DisplayMsg_printf( "%s gained a level!!!", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
                 sound_play_chunk_full( g_wavelist[GSND_LEVELUP] );
             }
 
@@ -6252,7 +6253,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
         if ( pchr->show_stats || cfg.dev_mode )
         {
             // Tell the player that they can't use this iweapon
-            debug_printf( "%s can't use this item...", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
+            DisplayMsg_printf( "%s can't use this item...", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
         }
         return bfalse;
     }

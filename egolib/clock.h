@@ -112,7 +112,7 @@ extern "C"
 
     void clk_init( void );                                 ///< Init the clock module
     void clk_shutdown( void );                             ///< Shut down the clock module
-//void clk_setTimeSource( clock_source_ptr_t tsrc );   ///< Specify where the clock gets its time values from
+    void clk_setTimeSource( clock_source_ptr_t tsrc );   ///< Specify where the clock gets its time values from
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

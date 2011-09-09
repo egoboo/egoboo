@@ -308,6 +308,12 @@
 				RelativePath=".\PrtList.c">
 			</File>
 			<File
+				RelativePath=".\renderer_2d.c">
+			</File>
+			<File
+				RelativePath=".\renderer_3d.c">
+			</File>
+			<File
 				RelativePath=".\rpc.c">
 			</File>
 			<File
@@ -422,6 +428,12 @@
 			</File>
 			<File
 				RelativePath=".\PrtList.h">
+			</File>
+			<File
+				RelativePath=".\renderer_2d.h">
+			</File>
+			<File
+				RelativePath=".\renderer_3d.h">
 			</File>
 			<File
 				RelativePath=".\rpc.h">

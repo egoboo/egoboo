@@ -80,17 +80,8 @@ typedef struct s_obj_registry_entity obj_registry_entity_t;
 struct s_GLvertex;
 typedef struct s_GLvertex GLvertex;
 
-struct s_msg;
-typedef struct s_msg msg_t;
-
 struct s_gfx_config;
 typedef struct s_gfx_config gfx_config_t;
-
-struct s_line_data;
-typedef struct s_line_data line_data_t;
-
-struct s_point_data;
-typedef struct s_point_data point_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -104,10 +95,7 @@ typedef struct s_point_data point_data_t;
 /// the max number of render lists that can exist
 #define MAX_RENDER_LISTS 4
 
-///< the maximum number of on-screen messages
-#define MAX_MESSAGE         8
-
-///< max number of blips on the minimap
+/// max number of blips on the minimap
 #define MAXBLIP        128                          ///<Max blips on the screen
 
 //--------------------------------------------------------------------------------------------
@@ -216,33 +204,6 @@ obj_registry_entity_t * obj_registry_entity_init( obj_registry_entity_t * ptr );
 int                     obj_registry_entity_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// OPENGL VERTEX
-struct s_GLvertex
-{
-    GLfloat pos[4];
-    GLfloat nrm[3];
-    GLfloat env[2];
-    GLfloat tex[2];
-
-    GLfloat col[4];      ///< generic per-vertex lighting
-    GLint   color_dir;   ///< "optimized" per-vertex directional lighting
-};
-
-//--------------------------------------------------------------------------------------------
-// Display messages
-
-/// A display messages
-struct s_msg
-{
-    int             time;                            ///< The time for this message
-    EGO_MESSAGE     textdisplay;                     ///< The displayed text
-};
-
-DECLARE_STATIC_ARY_TYPE( DisplayMsgAry, msg_t, MAX_MESSAGE );
-
-//--------------------------------------------------------------------------------------------
 // encapsulation of all graphics options
 struct s_gfx_config
 {
@@ -274,34 +235,6 @@ struct s_gfx_config
 bool_t gfx_config_init( gfx_config_t * pgfx );
 bool_t gfx_system_set_virtual_screen( gfx_config_t * pgfx );
 bool_t gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// some lines to be drawn in the display
-
-#define LINE_COUNT 100
-
-struct s_line_data
-{
-    fvec3_t   dst;
-    fvec4_t   src, color;
-    int time;
-};
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// some points to be drawn in the display
-
-#define POINT_COUNT 100
-
-struct s_point_data
-{
-    fvec4_t   src, color;
-    int time;
-};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -351,11 +284,6 @@ extern float           indextoenvirox[EGO_NORMAL_COUNT];                    ///<
 extern float           lighttoenviroy[256];                                ///< Environment map
 //extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
-extern int msgtimechange;
-extern int maxmessage;
-
-DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
@@ -378,9 +306,6 @@ dolist_mgr_t * gfx_system_get_dolist_mgr( void );
 // the render engine callback
 void   gfx_system_render_world( const struct s_camera * pcam, const int render_list_index, const int dolist_index );
 
-void   gfx_begin_3d( const struct s_camera * pcam );
-void   gfx_end_3d( void );
-
 void   gfx_request_clear_screen( void );
 void   gfx_do_clear_screen( void );
 bool_t gfx_flip_pages_requested( void );
@@ -390,38 +315,18 @@ void   gfx_do_flip_pages( void );
 float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size );
 float draw_menu_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
 float draw_game_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
-void  draw_one_font( oglx_texture_t * ptex, int fonttype, float x, float y );
 void  draw_map_texture( float x, float y );
 float draw_one_bar( Uint8 bartype, float x, float y, int ticks, int maxticks );
-float draw_string( float x, float y, const char *format, ... );
-float draw_wrap_string( const char *szText, float x, float y, int maxx );
 float draw_status( const CHR_REF character, float x, float y );
 void  draw_one_character_icon( const CHR_REF item, float x, float y, bool_t draw_ammo, Uint8 sparkle_override );
 void  draw_cursor( void );
 void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_map );
 
-bool_t    render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond );
-bool_t    render_aabb( aabb_t * pbbox );
-
-void   clear_messages( void );
-bool_t dump_screenshot( void );
-
 //void   make_lightdirectionlookup( void );
-
-int  DisplayMsg_get_free( void );
-
-int debug_printf( const char *format, ... );
 
 bool_t grid_lighting_interpolate( const ego_mpd_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos );
 float  grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
 
-void line_list_init( void );
-//int  line_list_get_free( void );
-bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration );
-
-void point_list_init( void );
-//int  point_list_get_free( void );
-bool_t point_list_add( const float x, const float y, const float z, const int duration );
 
 void release_all_profile_textures( void );
 

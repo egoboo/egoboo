@@ -34,11 +34,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void clk_setTimeSource( clock_source_ptr_t tsrc );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 /// The description of a single clock
 struct s_ClockState
 {
@@ -77,7 +72,7 @@ static clock_source_ptr_t clock_getTimeSource( void )
 {
     if ( NULL == _clock_timeSource )
     {
-        _clock_timeSource = sys_getTime;
+        clk_setTimeSource( sys_getTime );
     }
 
     return _clock_timeSource;
