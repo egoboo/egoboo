@@ -45,6 +45,9 @@ typedef struct s_grid_mem grid_mem_t;
 struct s_tile_mem;
 typedef struct s_tile_mem tile_mem_t;
 
+struct s_mpdfx_lists;
+typedef struct s_mpdfx_lists mpdfx_lists_t;
+
 struct s_ego_mpd_info;
 typedef struct s_ego_mpd_info ego_mpd_info_t;
 
@@ -211,8 +214,43 @@ struct s_tile_mem
     GLXvector2f   * tlst;                              ///< the texture coordinate list
     GLXvector3f   * nlst;                              ///< the normal list
     GLXvector3f   * clst;                              ///< the color list (for lighting the mesh)
-
 };
+
+//--------------------------------------------------------------------------------------------
+
+struct s_mpdfx_lists
+{
+    bool_t   dirty;
+
+    size_t   sha_count;
+    size_t * sha_list;
+
+    size_t   drf_count;
+    size_t * drf_list;
+
+    size_t   anm_count;
+    size_t * anm_list;
+
+    size_t   wat_count;
+    size_t * wat_list;
+
+    size_t   wal_count;
+    size_t * wal_list;
+
+    size_t   imp_count;
+    size_t * imp_list;
+
+    size_t   dam_count;
+    size_t * dam_list;
+
+    size_t   slp_count;
+    size_t * slp_list;
+};
+
+mpdfx_lists_t * mpdfx_lists_ctor(mpdfx_lists_t * );
+mpdfx_lists_t * mpdfx_lists_dtor(mpdfx_lists_t * );
+
+bool_t mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool_t force  );
 
 //--------------------------------------------------------------------------------------------
 
@@ -234,8 +272,7 @@ struct s_ego_mpd
     ego_mpd_info_t  info;
     tile_mem_t      tmem;
     grid_mem_t      gmem;
-
-    fvec2_t         tileoff[MPD_TILE_TYPE_MAX];     ///< Tile texture offset
+    mpdfx_lists_t   fxlists;
 };
 
 //--------------------------------------------------------------------------------------------

@@ -199,6 +199,8 @@ static INLINE Uint32 mesh_get_tile_int( const ego_mpd_t * pmesh, int grid_x,  in
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, const BIT_FIELD flags )
 {
+    bool_t retval;
+
     // test for mesh
     if ( NULL == pmesh ) return bfalse;
 
@@ -207,12 +209,21 @@ static INLINE bool_t mesh_clear_fx( ego_mpd_t * pmesh, Uint32 itile, const BIT_F
     if ( itile > pmesh->info.tiles_count ) return bfalse;
 
     mesh_mpdfx_tests++;
-    return ego_grid_info_sub_pass_fx( pmesh->gmem.grid_list + itile, flags );
+    retval = ego_grid_info_sub_pass_fx( pmesh->gmem.grid_list + itile, flags );
+
+    if( retval )
+    {
+        pmesh->fxlists.dirty = btrue;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 static INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, const BIT_FIELD flags )
 {
+    bool_t retval;
+
     // test for mesh
     if ( NULL == pmesh ) return bfalse;
 
@@ -222,7 +233,14 @@ static INLINE bool_t mesh_add_fx( ego_mpd_t * pmesh, Uint32 itile, const BIT_FIE
 
     // succeed only of something actually changed
     mesh_mpdfx_tests++;
-    return ego_grid_info_add_pass_fx( pmesh->gmem.grid_list + itile, flags );
+    retval = ego_grid_info_add_pass_fx( pmesh->gmem.grid_list + itile, flags );
+
+    if( retval )
+    {
+        pmesh->fxlists.dirty = btrue;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -230,6 +248,9 @@ static INLINE Uint32 mesh_test_fx( const ego_mpd_t * pmesh, Uint32 itile, const 
 {
     // test for mesh
     if ( NULL == pmesh ) return 0;
+
+    // test for a trivial value of flags
+    if( EMPTY_BIT_FIELD == flags ) return 0;
 
     // test for invalid tile
     mesh_bound_tests++;

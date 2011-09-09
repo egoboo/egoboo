@@ -42,23 +42,25 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // mesh initialization - not accessible by scripts
-static void   mesh_init_tile_offset( ego_mpd_t * pmesh );
 static void   mesh_make_vrtstart( ego_mpd_t * pmesh );
 
 static grid_mem_t *  grid_mem_ctor( grid_mem_t * pmem );
 static grid_mem_t *  grid_mem_dtor( grid_mem_t * pmem );
-static bool_t        grid_mem_alloc( grid_mem_t * pmem, ego_mpd_info_t * pinfo );
+static bool_t        grid_mem_alloc( grid_mem_t * pmem, const ego_mpd_info_t * pinfo );
 static bool_t        grid_mem_free( grid_mem_t * pmem );
-static void          grid_make_fanstart( grid_mem_t * pmesh, ego_mpd_info_t * pinfo );
+static void          grid_make_fanstart( grid_mem_t * pmesh, const ego_mpd_info_t * pinfo );
 
 static tile_mem_t *    tile_mem_ctor( tile_mem_t * pmem );
 static tile_mem_t *    tile_mem_dtor( tile_mem_t * pmem );
 static bool_t          tile_mem_free( tile_mem_t * pmem );
-static bool_t          tile_mem_alloc( tile_mem_t * pmem, ego_mpd_info_t * pinfo );
+static bool_t          tile_mem_alloc( tile_mem_t * pmem, const ego_mpd_info_t * pinfo );
 
 static ego_mpd_info_t * mesh_info_ctor( ego_mpd_info_t * pinfo );
 static ego_mpd_info_t * mesh_info_dtor( ego_mpd_info_t * pinfo );
 static void             mesh_info_init( ego_mpd_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y );
+
+static bool_t mpdfx_lists_alloc( mpdfx_lists_t * plst, const ego_mpd_info_t * pinfo );
+static bool_t mpdfx_lists_free( mpdfx_lists_t * plst );
 
 // some twist/normal functions
 static bool_t mesh_make_normals( ego_mpd_t * pmesh );
@@ -75,6 +77,12 @@ static bool_t mesh_make_texture( ego_mpd_t * pmesh );
 static ego_mpd_t * mesh_finalize( ego_mpd_t * pmesh );
 static bool_t mesh_test_one_corner( ego_mpd_t * pmesh, GLXvector3f pos, float * pdelta );
 static bool_t mesh_light_one_corner( const ego_mpd_t * pmesh, ego_tile_info_t * ptile, const bool_t reflective, const fvec3_base_t pos, fvec3_base_t nrm, float * plight );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static fvec2_t   tile_offset[MPD_TILE_TYPE_MAX];
+static void      init_tile_offset( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -157,15 +165,16 @@ ego_mpd_t * mesh_ctor( ego_mpd_t * pmesh )
     /// @author BB
     /// @details initialize the ego_mpd_t structure
 
+    init_tile_offset();
+
     if ( NULL != pmesh )
     {
         BLANK_STRUCT_PTR( pmesh )
 
-        mesh_init_tile_offset( pmesh );
-
         tile_mem_ctor( &( pmesh->tmem ) );
         grid_mem_ctor( &( pmesh->gmem ) );
         mesh_info_ctor( &( pmesh->info ) );
+        mpdfx_lists_ctor( &( pmesh->fxlists ) );
     }
 
     // global initialization
@@ -208,6 +217,7 @@ ego_mpd_t * mesh_ctor_1( ego_mpd_t * pmesh, int tiles_x, int tiles_y )
     // allocate the mesh memory
     tile_mem_alloc( &( pmesh->tmem ), &( pmesh->info ) );
     grid_mem_alloc( &( pmesh->gmem ), &( pmesh->info ) );
+    mpdfx_lists_alloc( &( pmesh->fxlists ), &( pmesh->info ) );
 
     return pmesh;
 }
@@ -237,15 +247,15 @@ bool_t mesh_destroy( ego_mpd_t ** ppmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_init_tile_offset( ego_mpd_t * pmesh )
+void init_tile_offset()
 {
     int cnt;
 
     // Fix the tile offsets for the mesh textures
     for ( cnt = 0; cnt < MPD_TILE_TYPE_MAX; cnt++ )
     {
-        pmesh->tileoff[cnt].x = (( cnt >> 0 ) & 7 ) / 8.0f;
-        pmesh->tileoff[cnt].y = (( cnt >> 3 ) & 7 ) / 8.0f;
+        tile_offset[cnt].x = (( cnt >> 0 ) & 7 ) / 8.0f;
+        tile_offset[cnt].y = (( cnt >> 3 ) & 7 ) / 8.0f;
     }
 }
 
@@ -342,11 +352,12 @@ bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint32 tile )
     image = TILE_GET_LOWER_BITS( ptile->img );
     type  = ptile->type & 0x3F;
 
-    offu  = pmesh->tileoff[image].x;          // Texture offsets
-    offv  = pmesh->tileoff[image].y;
+    // Texture offsets
+    offu  = tile_offset[image].x;          
+    offv  = tile_offset[image].y;
 
-    mesh_vrt = ptile->vrtstart;    // Number of vertices
-    vertices = tile_dict[type].numvertices;      // Number of vertices
+    mesh_vrt = ptile->vrtstart;
+    vertices = tile_dict[type].numvertices;
     for ( tile_vrt = 0; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
     {
         ptmem->tlst[mesh_vrt][SS] = tile_dict[type].u[tile_vrt] + offu;
@@ -399,6 +410,7 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
 
     tile_mem_t * ptmem_dst;
     grid_mem_t * pgmem_dst;
+    mpdfx_lists_t * plists_dst;
     ego_mpd_info_t * pinfo_dst;
     bool_t allocated_dst;
 
@@ -408,9 +420,10 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
 
     // clear out all data in the destination mesh
     if ( NULL == mesh_renew( pmesh_dst ) ) return bfalse;
-    ptmem_dst = &( pmesh_dst->tmem );
-    pgmem_dst = &( pmesh_dst->gmem );
-    pinfo_dst = &( pmesh_dst->info );
+    ptmem_dst  = &( pmesh_dst->tmem );
+    pgmem_dst  = &( pmesh_dst->gmem );
+    plists_dst = &( pmesh_dst->fxlists );
+    pinfo_dst  = &( pmesh_dst->info );
 
     // set up the destination mesh from the source mesh
     mesh_info_init( pinfo_dst, pinfo_src->vertcount, pinfo_src->tiles_x, pinfo_src->tiles_y );
@@ -419,6 +432,9 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
     if ( !allocated_dst ) return bfalse;
 
     allocated_dst = grid_mem_alloc( pgmem_dst, pinfo_dst );
+    if ( !allocated_dst ) return bfalse;
+
+    allocated_dst = mpdfx_lists_alloc( plists_dst, pinfo_dst );
     if ( !allocated_dst ) return bfalse;
 
     // copy all the per-tile info
@@ -474,6 +490,9 @@ bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
         pgrid_dst->a = pvrt_src->a;
         pgrid_dst->l = 0.0f;
     }
+
+    // synchronize the lists
+    mpdfx_lists_synch( plists_dst, pgmem_dst, btrue );
 
     return btrue;
 }
@@ -547,7 +566,7 @@ grid_mem_t * grid_mem_dtor( grid_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t grid_mem_alloc( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
+bool_t grid_mem_alloc( grid_mem_t * pgmem, const ego_mpd_info_t * pinfo )
 {
 
     if ( NULL == pgmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
@@ -622,7 +641,7 @@ bool_t grid_mem_free( grid_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t tile_mem_alloc( tile_mem_t * pmem, ego_mpd_info_t * pinfo )
+bool_t tile_mem_alloc( tile_mem_t * pmem, const ego_mpd_info_t * pinfo )
 {
 
     if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
@@ -687,7 +706,7 @@ bool_t tile_mem_free( tile_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-void grid_make_fanstart( grid_mem_t * pgmem, ego_mpd_info_t * pinfo )
+void grid_make_fanstart( grid_mem_t * pgmem, const ego_mpd_info_t * pinfo )
 {
     /// @author ZZ
     /// @details This function builds a look up table to ease calculating the
@@ -2230,6 +2249,176 @@ bool_t mesh_update_water_level( ego_mpd_t * pmesh )
     // AT THE MOMENT, this is not done and the increased bounding height due to water is handled elsewhere
 
     if ( NULL == pmesh ) return bfalse;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+mpdfx_lists_t * mpdfx_lists_ctor( mpdfx_lists_t * plst )
+{
+    if ( NULL == plst ) return plst;
+
+    BLANK_STRUCT_PTR( plst )
+
+    return plst;
+}
+
+//--------------------------------------------------------------------------------------------
+mpdfx_lists_t * mpdfx_lists_dtor( mpdfx_lists_t * plst )
+{
+    if ( NULL == plst ) return NULL;
+
+    mpdfx_lists_free( plst );
+
+    BLANK_STRUCT_PTR( plst )
+
+    return plst;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mpdfx_lists_alloc( mpdfx_lists_t * plst, const ego_mpd_info_t * pinfo )
+{
+
+    if ( NULL == plst || NULL == pinfo || 0 == pinfo->tiles_count ) return bfalse;
+
+    // free any memory already allocated
+    if ( !mpdfx_lists_free( plst ) ) return bfalse;
+
+    plst->sha_count = 0;
+    plst->sha_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
+    if ( NULL == plst->sha_list ) goto mesh_mem_alloc_fail;
+
+    plst->drf_count = 0;
+    plst->drf_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
+    if ( NULL == plst->drf_list ) goto mesh_mem_alloc_fail;
+
+    plst->anm_count = 0;
+    plst->anm_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
+    if ( NULL == plst->anm_list ) goto mesh_mem_alloc_fail;
+
+    plst->wat_count = 0;
+    plst->wat_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
+    if ( NULL == plst->wat_list ) goto mesh_mem_alloc_fail;
+
+    plst->wal_count = 0;
+    plst->wal_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
+    if ( NULL == plst->wal_list ) goto mesh_mem_alloc_fail;
+
+    plst->imp_count = 0;
+    plst->imp_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
+    if ( NULL == plst->imp_list ) goto mesh_mem_alloc_fail;
+
+    plst->dam_count = 0;
+    plst->dam_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
+    if ( NULL == plst->dam_list ) goto mesh_mem_alloc_fail;
+
+    plst->slp_count = 0;
+    plst->slp_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
+    if ( NULL == plst->slp_list ) goto mesh_mem_alloc_fail;
+
+    // the list needs to be resynched
+    plst->dirty = btrue;
+
+    return btrue;
+
+mesh_mem_alloc_fail:
+
+    mpdfx_lists_free( plst );
+
+    log_error( "%s - cannot allocate mpdfx_lists_t for this mesh!\n", __FUNCTION__ );
+
+    return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mpdfx_lists_free( mpdfx_lists_t * plst )
+{
+    if ( NULL == plst ) return bfalse;
+
+    // free the memory
+    EGOBOO_DELETE_ARY( plst->sha_list );
+    EGOBOO_DELETE_ARY( plst->drf_list );
+    EGOBOO_DELETE_ARY( plst->anm_list );
+    EGOBOO_DELETE_ARY( plst->wat_list );
+    EGOBOO_DELETE_ARY( plst->wal_list );
+    EGOBOO_DELETE_ARY( plst->imp_list );
+    EGOBOO_DELETE_ARY( plst->dam_list );
+    EGOBOO_DELETE_ARY( plst->slp_list );
+
+    BLANK_STRUCT_PTR( plst );
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool_t force )
+{
+    size_t count, i;
+    GRID_FX_BITS fx;
+
+    if ( NULL == plst || NULL == pgmem ) return bfalse;
+
+    count =  pgmem->grid_count;
+    if( 0 == count ) return btrue;
+
+    // don't re-calculate unless it is necessary
+    if( !force && !plst->dirty ) return btrue;
+
+    for( i=0; i<count; i++ )
+    {
+        fx = ego_grid_info_get_all_fx( pgmem->grid_list + i );
+
+        if( HAS_NO_BITS(fx,MPDFX_SHA) )
+        {
+            plst->sha_list[plst->sha_count] = i;
+            plst->sha_count++;
+        }
+
+        if( HAS_ALL_BITS(fx, MPDFX_DRAWREF) )
+        {
+            plst->drf_list[plst->drf_count] = i;
+            plst->drf_count++;
+        }
+
+        if( HAS_ALL_BITS(fx, MPDFX_ANIM) )
+        {
+            plst->anm_list[plst->anm_count] = i;
+            plst->anm_count++;
+        }
+
+        if( HAS_ALL_BITS(fx, MPDFX_WATER) )
+        {
+            plst->wat_list[plst->wat_count] = i;
+            plst->wat_count++;
+        }
+
+        if( HAS_ALL_BITS(fx, MPDFX_WALL) )
+        {
+            plst->wal_list[plst->wal_count] = i;
+            plst->wal_count++;
+        }
+
+        if( HAS_ALL_BITS(fx, MPDFX_IMPASS) )
+        {
+            plst->imp_list[plst->imp_count] = i;
+            plst->imp_count++;
+        }
+
+        if( HAS_ALL_BITS(fx, MPDFX_DAMAGE) )
+        {
+            plst->dam_list[plst->dam_count] = i;
+            plst->dam_count++;
+        }
+
+        if( HAS_ALL_BITS(fx, MPDFX_SLIPPY) )
+        {
+            plst->slp_list[plst->slp_count] = i;
+            plst->slp_count++;
+        }
+    }
+
+    plst->dirty = bfalse;
 
     return btrue;
 }

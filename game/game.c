@@ -889,6 +889,10 @@ int update_game( void )
                 srand( PMod->randsave );
                 PMod->randsave = rand();
 
+                // keep the mpdfx lists up-to-date. No calculation is done unless one
+                // of the mpdfx values was changed during the last update
+                mpdfx_lists_synch( &(PMesh->fxlists), &(PMesh->gmem), bfalse );
+
                 // read the input values
                 input_read_all_devices();
 

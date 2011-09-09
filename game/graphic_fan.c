@@ -47,8 +47,8 @@ static bool_t animate_tile( ego_mpd_t * pmesh, Uint32 itile );
 //--------------------------------------------------------------------------------------------
 void animate_all_tiles( ego_mpd_t * pmesh )
 {
-    Uint32 cnt;
-    Uint32 tile_count;
+    Uint32 cnt, itile;
+    Uint32 tile_count, anim_count;
     bool_t small_tile_update, big_tile_update;
 
     if ( NULL == pmesh ) return;
@@ -59,11 +59,17 @@ void animate_all_tiles( ego_mpd_t * pmesh )
     // if there are no updates, do nothing
     if ( !small_tile_update && !big_tile_update ) return;
 
-    // scan through all the tiles
-    tile_count = pmesh->info.tiles_count;
-    for ( cnt = 0; cnt < tile_count; cnt++ )
+    tile_count = pmesh->tmem.tile_count;
+    anim_count = pmesh->fxlists.anm_count;
+
+    // scan through all the animated tiles
+    for( cnt = 0; cnt < anim_count; cnt++ )
     {
-        animate_tile( pmesh, cnt );
+        // get the offset
+        itile = pmesh->fxlists.anm_list[cnt];
+        if( itile >= tile_count ) continue;
+
+        animate_tile( pmesh, itile );
     }
 }
 
