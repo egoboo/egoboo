@@ -45,29 +45,39 @@ static bool_t       mpd_mem_alloc( mpd_mem_t * pmem, mpd_info_t * pinfo );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-tile_definition_t tile_dict[MPD_FAN_TYPE_MAX];
+tile_dictionary_t tile_dict = TILE_DICTIONARY_INIT;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void tile_dictionary_load_vfs( const char * filename, tile_definition_t dict[], size_t dict_size )
+bool_t tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size )
 {
     /// @author ZZ
     /// @details This function loads fan types for the terrain
 
+    const int   tile_pix_sml = 32;
+    const int   tile_pix_big = tile_pix_sml * 2;
+    const float texture_offset = 0.5f;
+
     Uint32 cnt, entry, vertices, commandsize;
-    int numfantype, fantype, bigfantype;
-    int numcommand, command;
+    int fantype_count, fantype_offset, fantype;
+    int command_count, command;
+    int definition_count;
     int itmp;
     float ftmp;
     vfs_FILE* fileread;
+    tile_definition_t * pdef_sml, * pdef_big;
 
-    if ( !VALID_CSTR( filename ) || NULL == dict || dict_size < 2 ) return;
+    if ( NULL == pdict ) return bfalse;
 
-    // Initialize all mesh types to 0
-    for ( entry = 0; entry < dict_size; entry++ )
+    // "delete" the old list
+    BLANK_STRUCT_PTR( pdict );
+
+    if ( !VALID_CSTR( filename ) ) return bfalse;
+
+    // handle default parameters
+    if ( max_dict_size < 0 )
     {
-        dict[entry].numvertices = 0;
-        dict[entry].command_count = 0;
+        max_dict_size = MPD_FAN_TYPE_MAX;
     }
 
     // Open the file and go to it
@@ -75,47 +85,73 @@ void tile_dictionary_load_vfs( const char * filename, tile_definition_t dict[], 
     if ( NULL == fileread )
     {
         log_error( "Cannot load the tile definitions \"%s\".\n", filename );
-        return;
+        return bfalse;
     }
 
-    numfantype = vfs_get_next_int( fileread );
+    fantype_count    = vfs_get_next_int( fileread );
+    fantype_offset   = 2 * POW( 2.0f, FLOOR( LOG( fantype_count ) / LOG( 2.0f ) ) );
+    definition_count = 2 * fantype_offset;
 
-    for ( fantype = 0; fantype < numfantype; fantype++ )
+    if ( definition_count > MPD_FAN_TYPE_MAX )
     {
-        bigfantype = fantype + dict_size / 2;  // Duplicate for 64x64 tiles
+        log_error( "%s - tile dictionary has too many tile definitions (%d/%d).\n", __FUNCTION__, definition_count, MPD_FAN_TYPE_MAX );
+        goto tile_dictionary_load_vfs_fail;
+    }
+    else if ( definition_count > max_dict_size )
+    {
+        log_warning( "%s - the number of tile difinitions has exceeded the requested number (%d/%d).\n", __FUNCTION__, definition_count, max_dict_size );
+        goto tile_dictionary_load_vfs_fail;
+    }
+
+    pdict->offset    = fantype_offset;
+    pdict->def_count = definition_count;
+
+    for ( fantype = 0; fantype < fantype_count; fantype++ )
+    {
+        pdef_sml = pdict->def_lst + fantype;
+        pdef_big = pdict->def_lst + fantype + fantype_offset;
 
         vertices = vfs_get_next_int( fileread );
-        dict[fantype].numvertices = vertices;
-        dict[bigfantype].numvertices = vertices;  // Dupe
+
+        pdef_sml->numvertices = vertices;
+        pdef_big->numvertices = vertices;  // Dupe
 
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
             itmp = vfs_get_next_int( fileread );
+            pdef_sml->ref[cnt]    = itmp;
+            pdef_sml->grid_ix[cnt] = itmp & 3;
+            pdef_sml->grid_iy[cnt] = ( itmp >> 2 ) & 3;
 
             ftmp = vfs_get_next_float( fileread );
-            dict[fantype].u[cnt] = ftmp;
-            dict[bigfantype].u[cnt] = ftmp;  // Dupe
+            pdef_sml->u[cnt] = ftmp;
 
             ftmp = vfs_get_next_float( fileread );
-            dict[fantype].v[cnt] = ftmp;
-            dict[bigfantype].v[cnt] = ftmp;  // Dupe
+            pdef_sml->v[cnt] = ftmp;
+
+            // Dupe
+            pdef_big->ref[cnt]    = pdef_sml->ref[cnt];
+            pdef_big->grid_ix[cnt] = pdef_sml->grid_ix[cnt];
+            pdef_big->grid_iy[cnt] = pdef_sml->grid_iy[cnt];
+            pdef_big->u[cnt]      = pdef_sml->u[cnt];    
+            pdef_big->v[cnt]      = pdef_sml->v[cnt];
         }
 
-        numcommand = vfs_get_next_int( fileread );
-        dict[fantype].command_count = numcommand;
-        dict[bigfantype].command_count = numcommand;  // Dupe
+        command_count = vfs_get_next_int( fileread );
+        pdef_sml->command_count = command_count;
+        pdef_big->command_count = command_count;  // Dupe
 
-        for ( entry = 0, command = 0; command < numcommand; command++ )
+        for ( entry = 0, command = 0; command < command_count; command++ )
         {
             commandsize = vfs_get_next_int( fileread );
-            dict[fantype].command_entries[command] = commandsize;
-            dict[bigfantype].command_entries[command] = commandsize;  // Dupe
+            pdef_sml->command_entries[command] = commandsize;
+            pdef_big->command_entries[command] = commandsize;  // Dupe
 
             for ( cnt = 0; cnt < commandsize; cnt++ )
             {
                 itmp = vfs_get_next_int( fileread );
-                dict[fantype].command_verts[entry] = itmp;
-                dict[bigfantype].command_verts[entry] = itmp;  // Dupe
+                pdef_sml->command_verts[entry] = itmp;
+                pdef_big->command_verts[entry] = itmp;  // Dupe
 
                 entry++;
             }
@@ -125,24 +161,29 @@ void tile_dictionary_load_vfs( const char * filename, tile_definition_t dict[], 
     vfs_close( fileread );
 
     // Correct all of them silly texture positions for seamless tiling
-    for ( entry = 0; entry < dict_size / 2; entry++ )
+    for ( entry = 0; entry < fantype_count; entry++ )
     {
-        for ( cnt = 0; cnt < dict[entry].numvertices; cnt++ )
+        pdef_sml = pdict->def_lst + entry;
+        pdef_big = pdict->def_lst + entry + fantype_offset;
+        for ( cnt = 0; cnt < pdef_sml->numvertices; cnt++ )
         {
-            dict[entry].u[cnt] = (( 0.6f / 32 ) + ( dict[entry].u[cnt] * 30.8f / 32 ) ) / 8;
-            dict[entry].v[cnt] = (( 0.6f / 32 ) + ( dict[entry].v[cnt] * 30.8f / 32 ) ) / 8;
+            pdef_sml->u[cnt] = ( texture_offset + pdef_sml->u[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
+            pdef_sml->v[cnt] = ( texture_offset + pdef_sml->v[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
+
+            pdef_big->u[cnt] = ( texture_offset + pdef_big->u[cnt] * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
+            pdef_big->v[cnt] = ( texture_offset + pdef_big->v[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_big;
         }
     }
 
-    // Do for big tiles too
-    for ( /* nothing */; entry < dict_size; entry++ )
-    {
-        for ( cnt = 0; cnt < dict[entry].numvertices; cnt++ )
-        {
-            dict[entry].u[cnt] = (( 0.6f / 64 ) + ( dict[entry].u[cnt] * 62.8f / 64 ) ) / 4;
-            dict[entry].v[cnt] = (( 0.6f / 64 ) + ( dict[entry].v[cnt] * 62.8f / 64 ) ) / 4;
-        }
-    }
+    pdict->loaded = btrue;
+
+    return btrue;
+
+tile_dictionary_load_vfs_fail:
+
+    BLANK_STRUCT_PTR( pdict );
+
+    return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -217,7 +258,7 @@ bool_t mpd_init( mpd_t * pmesh, mpd_info_t * pinfo )
     }
 
     // check the total number of vertices
-    if ( loc_info.vertcount >= MPD_VERTICES_MAX )
+    if ( loc_info.vertcount > MPD_VERTICES_MAX )
     {
         log_warning( "%s - invalid mpd size. too many vertices, %d.\n", __FUNCTION__ , loc_info.vertcount );
     }
@@ -551,7 +592,6 @@ mpd_t * mpd_save( const char * savename, mpd_t * pmesh )
     {
         mpd_vertex_t * pvert = pmem->vlst + cnt;
 
-        // cartman scales the z-axis based off of a 4 bit fixed precision number
         endian_fwrite_uint08( filewrite, pvert->a );
     }
 

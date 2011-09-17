@@ -48,6 +48,9 @@ extern "C"
     struct s_tile_definition;
     typedef struct s_tile_definition tile_definition_t;
 
+    struct s_tile_dictionary;
+    typedef struct s_tile_dictionary tile_dictionary_t;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -102,6 +105,9 @@ extern "C"
         MPDFX_SLIPPY          = ( 1 << 7 )   ///< Egoboo v1.0: "7 Ice or normal"
         ///< aicodes.txt : FXSLIPPY
     };
+
+#   define VALID_MPD_TILE_RANGE(VAL)   ( ((size_t)(VAL)) < MPD_TILE_MAX )
+#   define VALID_MPD_VERTEX_RANGE(VAL) ( ((size_t)(VAL)) < MPD_VERTICES_MAX )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -161,8 +167,12 @@ extern "C"
     struct s_tile_definition
     {
         Uint8           numvertices;                        ///< Number of vertices
-        float           u[MPD_FAN_VERTICES_MAX];            ///< Vertex texture posi
-        float           v[MPD_FAN_VERTICES_MAX];
+        int             ref[MPD_FAN_VERTICES_MAX];          ///< encoded "position" of the vertex
+        int             grid_ix[MPD_FAN_VERTICES_MAX];      ///< decoded x-index
+        int             grid_iy[MPD_FAN_VERTICES_MAX];      ///< decoded y-index
+
+        float           u[MPD_FAN_VERTICES_MAX];            ///< "horizontal" texture position
+        float           v[MPD_FAN_VERTICES_MAX];            ///< "vertical" texture position
 
         Uint8           command_count;                      ///< Number of commands
         Uint8           command_entries[MPD_FAN_MAX];       ///< Entries in each command
@@ -170,9 +180,21 @@ extern "C"
     };
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-    extern tile_definition_t tile_dict[MPD_FAN_TYPE_MAX];
+    /// A a dictionary of tile types
+    struct s_tile_dictionary
+    {
+        bool_t            loaded;
+        size_t            offset;
+
+        size_t            def_count;
+        tile_definition_t def_lst[MPD_FAN_TYPE_MAX];
+    };
+
+#   define TILE_DICTIONARY_INIT { bfalse, 0, 0 }
+#   define TILE_DICT_PTR( DICT, IDX ) LAMBDA( !(DICT).loaded || ((IDX) < 0) || ((IDX) > (DICT).def_count), NULL, (DICT).def_lst + (IDX) )
+
+    bool_t tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -187,7 +209,10 @@ extern "C"
     bool_t       mpd_free( mpd_t * pmesh );
     bool_t       mpd_init( mpd_t * pmesh, mpd_info_t * pinfo );
 
-    void tile_dictionary_load_vfs( const char * filename, tile_definition_t dict[], size_t dict_size );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+    extern tile_dictionary_t tile_dict;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
