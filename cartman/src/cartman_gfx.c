@@ -579,8 +579,8 @@ void draw_schematic( window_t * pwin, int fantype, int x, int y )
                 stt = plines->start[cnt];
                 end = plines->end[cnt];
 
-                glVertex2f(GRID_TO_POS( pdef->grid_ix[stt] ) + x, GRID_TO_POS( pdef->grid_iy[stt] ) + y );
-                glVertex2f(GRID_TO_POS( pdef->grid_ix[end] ) + x, GRID_TO_POS( pdef->grid_iy[end] ) + y );
+                glVertex2f( GRID_TO_POS( pdef->grid_ix[stt] ) + x, GRID_TO_POS( pdef->grid_iy[stt] ) + y );
+                glVertex2f( GRID_TO_POS( pdef->grid_ix[end] ) + x, GRID_TO_POS( pdef->grid_iy[end] ) + y );
             }
         }
         glEnd();

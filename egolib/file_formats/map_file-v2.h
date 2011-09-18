@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 /// @file file_formats/map_file-v2.h
-/// @brief Load and save version 2 ("MapB") files 
+/// @brief Load and save version 2 ("MapB") files
 /// @details
 
 #include <stdio.h>

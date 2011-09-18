@@ -271,7 +271,6 @@ map_t * map_load( const char *loadname, map_t * pmesh )
 
     Uint32     * tmp_bitmap = NULL;
 
-
     // if there is no mesh struct, fail
     if ( NULL == pmesh ) return pmesh;
     pinfo = &( pmesh->info );
@@ -293,21 +292,21 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     // read the file version
     endian_fread_uint32( fileread, &ui32_tmp );
 
-    map_version = GET_MAP_VERSION_NUMBER(ui32_tmp);
-    if( map_version < 0 )
+    map_version = GET_MAP_VERSION_NUMBER( ui32_tmp );
+    if ( map_version < 0 )
     {
         log_warning( "%s - unknown map type!!\n", __FUNCTION__ );
         goto map_load_fail;
     }
     else if ( map_version > CURRENT_MAP_VERSION_NUMBER )
     {
-        log_warning( "%s - file version is too recent or invalid. Not all features will be supported %d/%d.\n", __FUNCTION__, map_version, CURRENT_MAP_VERSION_NUMBER );        
+        log_warning( "%s - file version is too recent or invalid. Not all features will be supported %d/%d.\n", __FUNCTION__, map_version, CURRENT_MAP_VERSION_NUMBER );
         test_limits = btrue;
     }
 
     // read the rest of the "header"
     endian_fread_uint32( fileread, &ui32_tmp );
-    if( test_limits && (ui32_tmp >= MAP_VERTICES_MAX) )
+    if ( test_limits && ( ui32_tmp >= MAP_VERTICES_MAX ) )
     {
         log_warning( "%s - unknown version and out of range vertex count (%d/%d)!!\n", __FUNCTION__, ui32_tmp, MAP_VERTICES_MAX );
         goto map_load_fail;
@@ -315,7 +314,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     loc_info.vertcount = ui32_tmp;
 
     endian_fread_uint32( fileread, &ui32_tmp );
-    if( test_limits && (ui32_tmp >= MAP_TILEY_MAX) )
+    if ( test_limits && ( ui32_tmp >= MAP_TILEY_MAX ) )
     {
         log_warning( "%s - unknown version and mesh too large in the x direction (%d/%d)!!\n", __FUNCTION__, ui32_tmp, MAP_TILEY_MAX );
         goto map_load_fail;
@@ -323,7 +322,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     loc_info.tiles_x = ui32_tmp;
 
     endian_fread_uint32( fileread, &ui32_tmp );
-    if( test_limits && (ui32_tmp >= MAP_TILEY_MAX) )
+    if ( test_limits && ( ui32_tmp >= MAP_TILEY_MAX ) )
     {
         log_warning( "%s - unknown version and mesh too large in the y direction (%d/%d)!!\n", __FUNCTION__, ui32_tmp, MAP_TILEY_MAX );
         goto map_load_fail;
@@ -332,7 +331,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
 
     // how many tiles are we asking for?
     tiles_count = loc_info.tiles_x * loc_info.tiles_y;
-    if( test_limits && (tiles_count >= MAP_TILE_MAX) )
+    if ( test_limits && ( tiles_count >= MAP_TILE_MAX ) )
     {
         log_warning( "%s - unknown version and mesh is too large (%d/%d)!!\n", __FUNCTION__, tiles_count, MAP_TILE_MAX );
         goto map_load_fail;
@@ -349,13 +348,13 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     tiles_count = pinfo->tiles_x * pinfo->tiles_y;
 
     // version 1 data is required
-    if( map_version > 0 )
+    if ( map_version > 0 )
     {
         pmesh = map_read_v1( fileread, pmesh );
     }
 
     // version 2 data is optional-ish
-    if( map_version > 1 )
+    if ( map_version > 1 )
     {
         pmesh = map_read_v2( fileread, pmesh );
     }
@@ -365,7 +364,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     }
 
     // version 3 data is optional-ish
-    if( map_version > 2 )
+    if ( map_version > 2 )
     {
         pmesh = map_read_v3( fileread, pmesh );
     }
@@ -376,7 +375,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     }
 
     // version 4 data is completely optional
-    if( map_version > 3 )
+    if ( map_version > 3 )
     {
         pmesh = map_read_v4( fileread, pmesh );
     }
@@ -437,22 +436,22 @@ map_t * map_save( const char * savename, map_t * pmesh )
     // write the tiles in the y direction
     endian_fwrite_uint32( filewrite, pinfo->tiles_y );
 
-    if( map_version > 0 )
+    if ( map_version > 0 )
     {
         map_write_v1( filewrite, pmesh );
     }
 
-    if( map_version > 1 )
+    if ( map_version > 1 )
     {
         map_write_v2( filewrite, pmesh );
     }
 
-    if( map_version > 2 )
+    if ( map_version > 2 )
     {
         map_write_v3( filewrite, pmesh );
     }
 
-    if( map_version > 3 )
+    if ( map_version > 3 )
     {
         map_write_v4( filewrite, pmesh );
     }

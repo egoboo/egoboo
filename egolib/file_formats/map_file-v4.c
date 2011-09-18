@@ -75,7 +75,7 @@ map_t * map_write_v4( FILE * filewrite, map_t * pmesh )
 
     if ( NULL == filewrite ) return pmesh;
 
-    if( NULL == pmesh ) return pmesh;
+    if ( NULL == pmesh ) return pmesh;
     pmem  = &( pmesh->mem );
 
     // a valid number of vertices?

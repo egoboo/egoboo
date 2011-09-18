@@ -92,8 +92,8 @@ map_t * map_write_v1( FILE * filewrite, map_t * pmesh )
     {
         ptile = pmem->tile_list + itile;
 
-        ui32_tmp  = CLIP_TO_16BITS( ptile->img  ) <<  0;
-        ui32_tmp |= CLIP_TO_08BITS( ptile->fx   ) << 16;
+        ui32_tmp  = CLIP_TO_16BITS( ptile->img ) <<  0;
+        ui32_tmp |= CLIP_TO_08BITS( ptile->fx ) << 16;
         ui32_tmp |= CLIP_TO_08BITS( ptile->type ) << 24;
 
         endian_fwrite_uint32( filewrite, ui32_tmp );

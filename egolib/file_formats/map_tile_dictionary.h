@@ -48,7 +48,7 @@ extern "C"
 #   define MAP_FAN_MAX               4                          ///< Draw up to 4 fans
 #   define MAP_FAN_ENTRIES_MAX       32                         ///< Fansquare command list size
 #   define MAP_FAN_SIZE_MAX          32                         ///< Max trigs in each command
-    
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

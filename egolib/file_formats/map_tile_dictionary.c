@@ -120,7 +120,7 @@ bool_t tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdic
             pdef_big->ref[cnt]    = pdef_sml->ref[cnt];
             pdef_big->grid_ix[cnt] = pdef_sml->grid_ix[cnt];
             pdef_big->grid_iy[cnt] = pdef_sml->grid_iy[cnt];
-            pdef_big->u[cnt]      = pdef_sml->u[cnt];    
+            pdef_big->u[cnt]      = pdef_sml->u[cnt];
             pdef_big->v[cnt]      = pdef_sml->v[cnt];
         }
 

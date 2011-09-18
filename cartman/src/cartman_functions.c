@@ -37,7 +37,6 @@ enum
     CORNER_COUNT
 };
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -217,7 +216,6 @@ void weld_BR( cartman_mpd_t * pmesh, int mapx, int mapy )
     mesh_select_weld( &loc_lst );
 }
 
-
 //--------------------------------------------------------------------------------------------
 void weld_BL( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
@@ -333,8 +331,8 @@ bool_t interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int 
         vert_lst = ext_verts;
     }
 
-    is_edge_x = (0 == grid_ix) || (3 == grid_ix);
-    is_edge_y = (0 == grid_iy) || (3 == grid_iy);
+    is_edge_x = ( 0 == grid_ix ) || ( 3 == grid_ix );
+    is_edge_y = ( 0 == grid_iy ) || ( 3 == grid_iy );
 
     // is the vertex a corner? All corners should exist.
     if ( is_edge_x && is_edge_y )
@@ -349,42 +347,42 @@ bool_t interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int 
     if ( is_edge_x )
     {
         cartman_mpd_vertex_t * pvrt_min = NULL;
-        cartman_mpd_vertex_t * pvrt_max = NULL; 
+        cartman_mpd_vertex_t * pvrt_max = NULL;
 
         int grid_min = -1, grid_max = -1;
 
-        // get the vertices next to the unknown one on this edge 
+        // get the vertices next to the unknown one on this edge
         for ( cnt = 0; cnt < 4; cnt++ )
         {
             idx = grid_ix | ( cnt << 2 );
             ivrt = vert_lst[idx];
 
-            if( ivrt < 0 ) continue;
+            if ( ivrt < 0 ) continue;
 
             pvrt = CART_MPD_VERTEX_PTR( pmesh, ivrt );
             if ( NULL == pvrt || VERTEXUNUSED == pvrt->a ) continue;
 
-            if( (cnt < grid_iy) && ( ( -1 == grid_min) || (cnt > grid_min) ) )
+            if (( cnt < grid_iy ) && (( -1 == grid_min ) || ( cnt > grid_min ) ) )
             {
                 grid_min = cnt;
                 pvrt_min = pvrt;
             }
 
-            if( (cnt > grid_iy) && ( ( -1 == grid_max ) || (cnt < grid_max) ) )
+            if (( cnt > grid_iy ) && (( -1 == grid_max ) || ( cnt < grid_max ) ) )
             {
                 grid_max = cnt;
                 pvrt_max = pvrt;
             }
         }
 
-        if( NULL == pvrt_min || NULL == pvrt_max ||
-            -1 == grid_min || -1 == grid_max )
+        if ( NULL == pvrt_min || NULL == pvrt_max ||
+             -1 == grid_min || -1 == grid_max )
         {
             retval = bfalse;
         }
         else
         {
-            float fmax = (float)(grid_iy - grid_min) / (float)(grid_max - grid_min);
+            float fmax = ( float )( grid_iy - grid_min ) / ( float )( grid_max - grid_min );
             float fmin = 1.0f - fmax;
 
             vec[kX] = fmax * pvrt_max->x + fmin * pvrt_min->x;
@@ -397,42 +395,42 @@ bool_t interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int 
     else if ( is_edge_y )
     {
         cartman_mpd_vertex_t * pvrt_min = NULL;
-        cartman_mpd_vertex_t * pvrt_max = NULL; 
+        cartman_mpd_vertex_t * pvrt_max = NULL;
 
         int grid_min = -1, grid_max = -1;
 
-        // get the vertices next to the unknown one on this edge 
+        // get the vertices next to the unknown one on this edge
         for ( cnt = 0; cnt < 4; cnt++ )
         {
             idx = cnt | ( grid_iy << 2 );
             ivrt = vert_lst[idx];
 
-            if( ivrt < 0 ) continue;
+            if ( ivrt < 0 ) continue;
 
             pvrt = CART_MPD_VERTEX_PTR( pmesh, ivrt );
             if ( NULL == pvrt || VERTEXUNUSED == pvrt->a ) continue;
 
-            if( (cnt < grid_ix) && ( ( -1 == grid_min) || (cnt > grid_min) ) )
+            if (( cnt < grid_ix ) && (( -1 == grid_min ) || ( cnt > grid_min ) ) )
             {
                 grid_min = cnt;
                 pvrt_min = pvrt;
             }
 
-            if( (cnt > grid_ix) && ( ( -1 == grid_max ) || (cnt < grid_max) ) )
+            if (( cnt > grid_ix ) && (( -1 == grid_max ) || ( cnt < grid_max ) ) )
             {
                 grid_max = cnt;
                 pvrt_max = pvrt;
             }
         }
 
-        if( NULL == pvrt_min || NULL == pvrt_max ||
-            -1 == grid_min || -1 == grid_max )
+        if ( NULL == pvrt_min || NULL == pvrt_max ||
+             -1 == grid_min || -1 == grid_max )
         {
             retval = bfalse;
         }
         else
         {
-            float fmax = (float)(grid_ix - grid_min) / (float)(grid_max - grid_min);
+            float fmax = ( float )( grid_ix - grid_min ) / ( float )( grid_max - grid_min );
             float fmin = 1.0f - fmax;
 
             vec[kX] = fmax * pvrt_max->x + fmin * pvrt_min->x;
@@ -1483,7 +1481,7 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
 
     // fan is defined?
     pdef = TILE_DICT_PTR( tile_dict, pfan->type );
-    if( NULL == pdef || 0 == pdef->numvertices ) return;
+    if ( NULL == pdef || 0 == pdef->numvertices ) return;
     vert_count = pdef->numvertices;
 
     // must not be a floor
@@ -1529,16 +1527,16 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
         vsum = 0.0f;
         wsum = 0.0f;
 
-        if( !noedges )
+        if ( !noedges )
         {
             if ( !floor_mx )
             {
-                weight = (float)(pdef->grid_iy[cnt]) / 3.0f;
-                ftmp   = weight * corner_hgt[CORNER_BL] + (1.0f - weight) * corner_hgt[CORNER_TL];
+                weight = ( float )( pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp   = weight * corner_hgt[CORNER_BL] + ( 1.0f - weight ) * corner_hgt[CORNER_TL];
                 ftmp  -= min_hgt;
 
-                weight = (float)(3 - pdef->grid_ix[cnt]) / 3.0f;
-                ftmp *= BARRIER_FUNC(weight);
+                weight = ( float )( 3 - pdef->grid_ix[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
                 wsum += weight;
@@ -1546,12 +1544,12 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
 
             if ( !floor_px )
             {
-                weight = (float)(pdef->grid_iy[cnt]) / 3.0f;
-                ftmp   = weight * corner_hgt[CORNER_BR] + (1.0f - weight) * corner_hgt[CORNER_TR];
+                weight = ( float )( pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp   = weight * corner_hgt[CORNER_BR] + ( 1.0f - weight ) * corner_hgt[CORNER_TR];
                 ftmp  -= min_hgt;
 
-                weight = (float)(pdef->grid_ix[cnt]) / 3.0f;
-                ftmp *= BARRIER_FUNC(weight);
+                weight = ( float )( pdef->grid_ix[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
                 wsum += weight;
@@ -1559,12 +1557,12 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
 
             if ( !floor_my )
             {
-                weight = (float)(3 - pdef->grid_ix[cnt]) / 3.0f;
-                ftmp   = weight * corner_hgt[CORNER_TL] + (1.0f - weight) * corner_hgt[CORNER_TR];
+                weight = ( float )( 3 - pdef->grid_ix[cnt] ) / 3.0f;
+                ftmp   = weight * corner_hgt[CORNER_TL] + ( 1.0f - weight ) * corner_hgt[CORNER_TR];
                 ftmp  -= min_hgt;
 
-                weight = (float)(3 - pdef->grid_iy[cnt]) / 3.0f;
-                ftmp *= BARRIER_FUNC(weight);
+                weight = ( float )( 3 - pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
                 wsum += weight;
@@ -1572,26 +1570,26 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
 
             if ( !floor_py )
             {
-                weight = (float)(pdef->grid_ix[cnt]) / 3.0f;
-                ftmp   = weight * corner_hgt[CORNER_BR] + (1.0f - weight) * corner_hgt[CORNER_BL];
+                weight = ( float )( pdef->grid_ix[cnt] ) / 3.0f;
+                ftmp   = weight * corner_hgt[CORNER_BR] + ( 1.0f - weight ) * corner_hgt[CORNER_BL];
                 ftmp  -= min_hgt;
 
-                weight = (float)(pdef->grid_iy[cnt]) / 3.0f;
-                ftmp *= BARRIER_FUNC(weight);
+                weight = ( float )( pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
                 wsum += weight;
             }
         }
 
-        if( !nocorners )
+        if ( !nocorners )
         {
             if ( !floor_pxpy )
             {
                 ftmp = corner_hgt[CORNER_BR] - min_hgt;
 
-                weight = (float)MAX( pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
-                ftmp *= BARRIER_FUNC(weight);
+                weight = ( float )MAX( pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
                 wsum += weight;
@@ -1601,8 +1599,8 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
             {
                 ftmp = corner_hgt[CORNER_TR] - min_hgt;
 
-                weight = (float)MIN( pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
-                ftmp *= BARRIER_FUNC(weight);
+                weight = ( float )MIN( pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
                 wsum += weight;
@@ -1612,26 +1610,26 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
             {
                 ftmp = corner_hgt[CORNER_BL] - min_hgt;
 
-                weight = (float)MIN( 3 - pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
-                ftmp *= BARRIER_FUNC(weight);
+                weight = ( float )MIN( 3 - pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
-                wsum += weight;        
+                wsum += weight;
             }
 
             if ( !floor_mxmy )
             {
                 ftmp = corner_hgt[CORNER_TL] - min_hgt;
 
-                weight = (float)MIN( 3 - pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
-                ftmp *= BARRIER_FUNC(weight);
+                weight = ( float )MIN( 3 - pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
-                wsum += weight;        
+                wsum += weight;
             }
         }
 
-        if( 0.0f == wsum )
+        if ( 0.0f == wsum )
         {
             vsum = vlst[vert].z - min_hgt;
             wsum = 1.0f;
@@ -1643,7 +1641,7 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
         //if (bestprox > pmesh->info.edgez) bestprox = pmesh->info.edgez;
         //if (bestprox < 0) bestprox = 0;
 
-        if( wsum > 0.0f )
+        if ( wsum > 0.0f )
         {
             ftmp = vsum / wsum;
         }

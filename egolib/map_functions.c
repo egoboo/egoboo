@@ -80,17 +80,17 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
     tile_info_t * tlst = NULL;
 
     // does the mesh exist?
-    if( NULL == pmesh ) return pmesh;
+    if ( NULL == pmesh ) return pmesh;
     tlst = pmesh->mem.tile_list;
 
     // are there tiles?
-    if( 0 == pmesh->mem.tile_count || NULL == pmesh->mem.tile_list ) return pmesh;
+    if ( 0 == pmesh->mem.tile_count || NULL == pmesh->mem.tile_list ) return pmesh;
 
     step_x = 1;
     step_y = pmesh->info.tiles_y;
-    for( mapy = 0, tile_y = 0; mapy < pmesh->info.tiles_y; mapy++, tile_y += step_y )
+    for ( mapy = 0, tile_y = 0; mapy < pmesh->info.tiles_y; mapy++, tile_y += step_y )
     {
-        for( mapx = 0, tile_x = 0; mapx < pmesh->info.tiles_x; mapx++, tile_x += step_x )
+        for ( mapx = 0, tile_x = 0; mapx < pmesh->info.tiles_x; mapx++, tile_x += step_x )
         {
             int itile_mx, itile_px, itile_my, itile_py;
             float hgt_mx, hgt_px, hgt_my, hgt_py;
@@ -98,7 +98,7 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
             itile = tile_x + tile_y;
 
             itile_mx = LAMBDA( mapx <= 0, -1, itile - step_x );
-            if( itile_mx < 0 )
+            if ( itile_mx < 0 )
             {
                 hgt_mx = TILE_FSIZE;
             }
@@ -108,7 +108,7 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
             }
 
             itile_px = LAMBDA( mapx >= pmesh->info.tiles_x - 1, -1, itile + step_x );
-            if( itile_px < 0 )
+            if ( itile_px < 0 )
             {
                 hgt_px = TILE_FSIZE;
             }
@@ -118,7 +118,7 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
             }
 
             itile_my = LAMBDA( mapy <= 0, -1, itile - step_y );
-            if( itile_my < 0 )
+            if ( itile_my < 0 )
             {
                 hgt_my = TILE_FSIZE;
             }
@@ -128,7 +128,7 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
             }
 
             itile_py = LAMBDA( mapy >= pmesh->info.tiles_y - 1, -1, itile + step_y );
-            if( itile_py < 0 )
+            if ( itile_py < 0 )
             {
                 hgt_py = TILE_FSIZE;
             }
@@ -138,7 +138,7 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
             }
 
             // calculate the twist of this tile
-            tlst[itile].twist = cartman_calc_twist( (hgt_px - hgt_mx) / 8, (hgt_py - hgt_my) / 8 );
+            tlst[itile].twist = cartman_calc_twist(( hgt_px - hgt_mx ) / 8, ( hgt_py - hgt_my ) / 8 );
         }
     }
 
@@ -161,17 +161,17 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     tile_info_t * tlst = NULL;
 
     // does the mesh exist?
-    if( NULL == pmesh ) return pmesh;
+    if ( NULL == pmesh ) return pmesh;
     tlst = pmesh->mem.tile_list;
 
     // are there tiles?
-    if( 0 == pmesh->mem.tile_count || NULL == pmesh->mem.tile_list ) return pmesh;
+    if ( 0 == pmesh->mem.tile_count || NULL == pmesh->mem.tile_list ) return pmesh;
 
     step_x = 1;
     step_y = pmesh->info.tiles_y;
-    for( mapy = 0, tile_y = 0; mapy < pmesh->info.tiles_y; mapy++, tile_y += step_y )
+    for ( mapy = 0, tile_y = 0; mapy < pmesh->info.tiles_y; mapy++, tile_y += step_y )
     {
-        for( mapx = 0, tile_x = 0; mapx < pmesh->info.tiles_x; mapx++, tile_x += step_x )
+        for ( mapx = 0, tile_x = 0; mapx < pmesh->info.tiles_x; mapx++, tile_x += step_x )
         {
             int   itile, wall_count;
             int cnt, dx, dy;
@@ -180,21 +180,21 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
             itile = tile_x + tile_y;
 
-            if( HAS_NO_BITS( tlst[itile].fx, MAPFX_WALL | MAPFX_IMPASS ) )
+            if ( HAS_NO_BITS( tlst[itile].fx, MAPFX_WALL | MAPFX_IMPASS ) )
             {
                 // this tile is NOT a wall. Just alternate between type 1 and 2 in a checkerboard
-                tlst[itile].type = ((tile_x & 1) + (tile_y & 1)) & 1;
+                tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) ) & 1;
                 continue;
             }
 
             // get the heights of the surrounding tiles
             wall_count = 0;
-            for( cnt = 0, dy = -1; dy < 2; dy++ )
+            for ( cnt = 0, dy = -1; dy < 2; dy++ )
             {
-                for( dx = -1; dx < 2; dx++, cnt++ )
+                for ( dx = -1; dx < 2; dx++, cnt++ )
                 {
-                    if( mapx + dx < 0 || mapx + dx >= pmesh->info.tiles_x ||
-                        mapy + dy < 0 || mapy + dy >= pmesh->info.tiles_y )
+                    if ( mapx + dx < 0 || mapx + dx >= pmesh->info.tiles_x ||
+                         mapy + dy < 0 || mapy + dy >= pmesh->info.tiles_y )
                     {
                         itile = -1;
                     }
@@ -203,7 +203,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                         itile = itile + dx * step_x + dy * step_y;
                     }
 
-                    if( itile < 0 )
+                    if ( itile < 0 )
                     {
                         tile_hgt[cnt] = TILE_FSIZE;
                     }
@@ -212,38 +212,38 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                         tile_hgt[cnt] = LAMBDA( HAS_SOME_BITS( tlst[itile].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
                     }
 
-                    if( tile_hgt[cnt] > 0.0f ) wall_count++;
+                    if ( tile_hgt[cnt] > 0.0f ) wall_count++;
                 }
             }
 
-            if( 9 == wall_count )
+            if ( 9 == wall_count )
             {
-                // this tile is a wall surrounded by walls. 
+                // this tile is a wall surrounded by walls.
                 // Just alternate between type 1 and 2 in a checkerboard, but opposite to the floors
-                tlst[itile].type = ((tile_x & 1) + (tile_y & 1) + 1) & 1;
+                tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) + 1 ) & 1;
                 continue;
             }
 
             // set the north edge
-            if( tile_hgt[1] > 0.0f )
+            if ( tile_hgt[1] > 0.0f )
             {
                 vrt_hgt[1] = vrt_hgt[2] = TILE_FSIZE;
             }
 
             // set the west edge
-            if( tile_hgt[3] > 0.0f )
+            if ( tile_hgt[3] > 0.0f )
             {
                 vrt_hgt[4] = vrt_hgt[8] = TILE_FSIZE;
             }
 
             // set the west edge
-            if( tile_hgt[5] > 0.0f )
+            if ( tile_hgt[5] > 0.0f )
             {
                 vrt_hgt[7] = vrt_hgt[11] = TILE_FSIZE;
             }
 
             // set the south edge
-            if( tile_hgt[7] > 0.0f )
+            if ( tile_hgt[7] > 0.0f )
             {
                 vrt_hgt[13] = vrt_hgt[14] = TILE_FSIZE;
             }
@@ -258,12 +258,12 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
                 else
                 {
-                    if( tile_hgt[1] > 0.0f )
+                    if ( tile_hgt[1] > 0.0f )
                     {
                         hsum += TILE_FSIZE;
                         hwgt += 1.0f;
                     }
-                    if( tile_hgt[3] > 0.0f )
+                    if ( tile_hgt[3] > 0.0f )
                     {
                         hsum += TILE_FSIZE;
                         hwgt += 1.0f;
@@ -283,12 +283,12 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
                 else
                 {
-                    if( tile_hgt[1] > 0.0f )
+                    if ( tile_hgt[1] > 0.0f )
                     {
                         hsum += TILE_FSIZE;
                         hwgt += 1.0f;
                     }
-                    if( tile_hgt[5] > 0.0f )
+                    if ( tile_hgt[5] > 0.0f )
                     {
                         hsum += TILE_FSIZE;
                         hwgt += 1.0f;
@@ -308,12 +308,12 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
                 else
                 {
-                    if( tile_hgt[3] > 0.0f )
+                    if ( tile_hgt[3] > 0.0f )
                     {
                         hsum += TILE_FSIZE;
                         hwgt += 1.0f;
                     }
-                    if( tile_hgt[7] > 0.0f )
+                    if ( tile_hgt[7] > 0.0f )
                     {
                         hsum += TILE_FSIZE;
                         hwgt += 1.0f;
@@ -333,12 +333,12 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 }
                 else
                 {
-                    if( tile_hgt[5] > 0.0f )
+                    if ( tile_hgt[5] > 0.0f )
                     {
                         hsum += TILE_FSIZE;
                         hwgt += 1.0f;
                     }
-                    if( tile_hgt[7] > 0.0f )
+                    if ( tile_hgt[7] > 0.0f )
                     {
                         hsum += TILE_FSIZE;
                         hwgt += 1.0f;
@@ -350,58 +350,58 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
             // check the west edge
             west_flat = bfalse;
-            if( vrt_hgt[12] == vrt_hgt[8] == vrt_hgt[4] == vrt_hgt[0] )
+            if ( vrt_hgt[12] == vrt_hgt[8] == vrt_hgt[4] == vrt_hgt[0] )
             {
                 west_flat = btrue;
             }
-            else if( vrt_hgt[12] != vrt_hgt[0] )
+            else if ( vrt_hgt[12] != vrt_hgt[0] )
             {
                 west_flat = btrue;
             }
 
             // check the north edge
             north_flat = bfalse;
-            if( vrt_hgt[0] == vrt_hgt[1] == vrt_hgt[2] == vrt_hgt[3] )
+            if ( vrt_hgt[0] == vrt_hgt[1] == vrt_hgt[2] == vrt_hgt[3] )
             {
                 north_flat = btrue;
             }
-            else if( vrt_hgt[0] != vrt_hgt[3] )
+            else if ( vrt_hgt[0] != vrt_hgt[3] )
             {
                 north_flat = btrue;
             }
 
             // check the east edge
             east_flat = bfalse;
-            if( vrt_hgt[3] == vrt_hgt[7] == vrt_hgt[11] == vrt_hgt[15] )
+            if ( vrt_hgt[3] == vrt_hgt[7] == vrt_hgt[11] == vrt_hgt[15] )
             {
                 east_flat = btrue;
             }
-            else if( vrt_hgt[3] != vrt_hgt[15] )
+            else if ( vrt_hgt[3] != vrt_hgt[15] )
             {
                 east_flat = btrue;
             }
 
             // check the south edge
             south_flat = bfalse;
-            if( vrt_hgt[15] == vrt_hgt[14] == vrt_hgt[13] == vrt_hgt[12] )
+            if ( vrt_hgt[15] == vrt_hgt[14] == vrt_hgt[13] == vrt_hgt[12] )
             {
                 south_flat = btrue;
             }
-            else if( vrt_hgt[15] != vrt_hgt[12] )
+            else if ( vrt_hgt[15] != vrt_hgt[12] )
             {
                 south_flat = btrue;
             }
 
-            wall_flags = LAMBDA(west_flat,   0, 1 << 0);
-            wall_flags |= LAMBDA(north_flat, 0, 1 << 1);
-            wall_flags |= LAMBDA(east_flat,  0, 1 << 2);
-            wall_flags |= LAMBDA(south_flat, 0, 1 << 3);
+            wall_flags = LAMBDA( west_flat,   0, 1 << 0 );
+            wall_flags |= LAMBDA( north_flat, 0, 1 << 1 );
+            wall_flags |= LAMBDA( east_flat,  0, 1 << 2 );
+            wall_flags |= LAMBDA( south_flat, 0, 1 << 3 );
 
             // use the wall flags to get the type
             type = 0;
-            switch( wall_flags )
+            switch ( wall_flags )
             {
-                // listed by complexity
+                    // listed by complexity
                 case  0: type =  5; break; // pillar/cross
                 case  5: type =  8; break; // E-W wall/arch
                 case 10: type =  9; break; // N-S wall/arch
@@ -427,7 +427,6 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
 
     return pmesh;
 }
-
 
 //--------------------------------------------------------------------------------------------
 map_t * map_generate_vertex_data( map_t * pmesh )

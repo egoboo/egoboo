@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 /// @file file_formats/map_file-v4.h
-/// @brief Load and save version 4 ("MapD") files 
+/// @brief Load and save version 4 ("MapD") files
 /// @details
 
 #include <stdio.h>
