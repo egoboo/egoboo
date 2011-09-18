@@ -653,7 +653,7 @@ chr_t * chr_config_activate( chr_t * pchr, int max_iterations );
 chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations );
 chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations );
 
-bool_t  chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj );
+bool_t  chr_can_see_object( const chr_t * pchr, const chr_t * pobj );
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item );
 
 void drop_money( const CHR_REF character, int money );

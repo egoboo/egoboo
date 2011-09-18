@@ -164,7 +164,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // make sure that a bunch of stuff gets initialized properly
     object_systems_begin();
     game_module_init( PMod );
-    mesh_ctor( PMesh );
+    ego_mesh_ctor( PMesh );
     gfx_system_init_all_graphics();
     profile_system_begin();
 

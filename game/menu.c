@@ -877,7 +877,7 @@ int doMainMenu( float deltaTime )
             // Do normal run
             // Background
 
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
 
             if ( mnu_draw_background )
             {
@@ -1287,7 +1287,7 @@ int doChooseModule( float deltaTime )
                 }
 
                 // Draw the background
-                GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+                GL_DEBUG( glColor4fv )( white_vec );
                 x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
                 y = GFX_HEIGHT - background.imgH;
 
@@ -1395,7 +1395,7 @@ int doChooseModule( float deltaTime )
 
                     mod_file_t * pmod = &( mnu_ModList.lst[ext_module].base );
 
-                    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+                    GL_DEBUG( glColor4fv )( white_vec );
 
                     name_string = "Unnamed";
                     if ( CSTR_END != pmod->longname[0] )
@@ -1467,7 +1467,7 @@ int doChooseModule( float deltaTime )
                 {
                     bool_t click_button;
 
-                    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+                    GL_DEBUG( glColor4fv )( white_vec );
                     ui_drawTextBox( menuFont, "Module Filter:", moduleMenuOffsetX + 257, moduleMenuOffsetY - 27, 0, 0, 20 );
 
                     // unly display the filter name
@@ -1509,7 +1509,7 @@ int doChooseModule( float deltaTime )
                 }
 
                 // the tool-tip text
-                GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+                GL_DEBUG( glColor4fv )( white_vec );
                 ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
             }
             break;
@@ -1708,17 +1708,17 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
             pcap->classname[0] = toupper(( unsigned )pcap->classname[0] );
 
             //Character level and class
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
             y1 = ui_drawTextBox( NULL, loadplayer_ptr->name, x1, y1, 0, 0, text_hgt );
             y1 += section_spacing;
 
             //Character level and class
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
             snprintf( temp_string, SDL_arraysize( temp_string ), "A level %d %s", pcap->level_override + 1, pcap->classname );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
             // Armor
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
             snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
             y1 += section_spacing;
@@ -1915,7 +1915,7 @@ int doChoosePlayer( float deltaTime )
                 }
 
                 // reset the base color each time
-                GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+                GL_DEBUG( glColor4fv )( white_vec );
 
                 snprintf( text, SDL_arraysize( text ), "Player %i", i + 1 );
                 ui_drawTextBox( menuFont, text, buttonLeft + butt_spc, y1 + text_vert_centering, 0, 0, icon_hgt );
@@ -2308,7 +2308,7 @@ int doOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
 
             if ( mnu_draw_background )
             {
@@ -2576,7 +2576,7 @@ int doInputOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
 
             //Detect if input is availible and update the input type button accordingly
             if ( update_input_type )
@@ -2949,7 +2949,7 @@ int doGameOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
 
             if ( mnu_draw_background )
             {
@@ -3231,7 +3231,7 @@ int doAudioOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
 
             if ( mnu_draw_background )
             {
@@ -3755,7 +3755,7 @@ int doVideoOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
 
             if ( mnu_draw_background )
             {
@@ -4240,7 +4240,7 @@ int doShowResults( float deltaTime )
                 int text_h, text_w;
                 ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );
 
-                GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+                GL_DEBUG( glColor4fv )( white_vec );
 
                 // the module name
                 ui_drawTextBox( font, mnu_ModList.lst[( MOD_REF )selectedModule].base.longname, 50, 80, 291, 230, 20 );
@@ -4348,7 +4348,7 @@ int doGamePaused( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
 
             // Buttons
             for ( cnt = 0; cnt < 4; cnt ++ )
@@ -4455,7 +4455,7 @@ int doShowEndgame( float deltaTime )
             break;
 
         case MM_Running:
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
 
             // Buttons
             for ( cnt = 0; cnt < 1; cnt ++ )

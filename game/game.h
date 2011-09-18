@@ -31,7 +31,7 @@
 // forward declaration of external structs
 //--------------------------------------------------------------------------------------------
 
-struct s_ego_mpd;
+struct s_ego_mesh;
 struct s_camera;
 struct s_script_state;
 struct s_mod_file;
@@ -414,7 +414,7 @@ bool_t status_list_update_cameras( status_list_t * plst );
 
 // various global pointers
 extern game_process_t       * GProc;
-extern struct s_ego_mpd     * PMesh;
+extern struct s_ego_mesh     * PMesh;
 extern struct s_camera      * PCamera;
 extern struct s_game_module * PMod;
 
@@ -499,10 +499,10 @@ CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing, const PIP_REF ipip, 
 void  free_all_objects( void );
 
 /// Data
-struct s_ego_mpd * set_PMesh( struct s_ego_mpd * pmpd );
+struct s_ego_mesh * set_PMesh( struct s_ego_mesh * pmpd );
 struct s_camera  * set_PCamera( struct s_camera * pcam );
 
-float get_mesh_level( struct s_ego_mpd * pmesh, float x, float y, bool_t waterwalk );
+float get_mesh_level( struct s_ego_mesh * pmesh, float x, float y, bool_t waterwalk );
 
 bool_t game_choose_module( int imod, int seed );
 
@@ -523,7 +523,7 @@ bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
 bool_t get_chr_regeneration( struct s_chr * pchr, int *pliferegen, int * pmanaregen );
 
-float get_chr_level( struct s_ego_mpd * pmesh, struct s_chr * pchr );
+float get_chr_level( struct s_ego_mesh * pmesh, struct s_chr * pchr );
 
 void disenchant_character( const CHR_REF ichr );
 

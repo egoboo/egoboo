@@ -82,16 +82,16 @@
 			IntermediateDirectory="$(ProjectName)_vs7-Release"
 			ConfigurationType="1"
 			CharacterSet="2"
-			WholeProgramOptimization="FALSE">
+			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
 				GlobalOptimizations="FALSE"
-				InlineFunctionExpansion="0"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="FALSE"
 				FavorSizeOrSpeed="1"
-				OmitFramePointers="FALSE"
-				EnableFiberSafeOptimizations="FALSE"
+				OmitFramePointers="TRUE"
+				EnableFiberSafeOptimizations="TRUE"
 				WholeProgramOptimization="FALSE"
 				OptimizeForProcessor="3"
 				OptimizeForWindowsApplication="TRUE"
@@ -206,6 +206,13 @@
 			</File>
 			<File
 				RelativePath=".\ChrList.c">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						GeneratePreprocessedFile="0"
+						KeepComments="FALSE"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\collision.c">
@@ -266,10 +273,10 @@
 				RelativePath=".\mesh.c">
 			</File>
 			<File
-				RelativePath=".\mpd_BSP.c">
+				RelativePath=".\mesh_BSP.c">
 			</File>
 			<File
-				RelativePath=".\mpd_functions.c">
+				RelativePath=".\mesh_functions.c">
 			</File>
 			<File
 				RelativePath=".\network.c">
@@ -394,10 +401,10 @@
 				RelativePath=".\mesh.h">
 			</File>
 			<File
-				RelativePath=".\mpd_BSP.h">
+				RelativePath=".\mesh_BSP.h">
 			</File>
 			<File
-				RelativePath=".\mpd_functions.h">
+				RelativePath=".\mesh_functions.h">
 			</File>
 			<File
 				RelativePath=".\network.h">

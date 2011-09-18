@@ -80,6 +80,12 @@ extern bool_t DisplayMsg_on;             ///< Messages?
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+extern const GLXvector4f white_vec;
+extern const GLXvector4f black_vec;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 // mode control
 void gfx_begin_2d( void );
 void gfx_end_2d( void );
@@ -99,7 +105,7 @@ int   draw_string_raw( float x, float y, const char *format, ... );
 int   DisplayMsg_printf( const char *format, ... );
 
 // graphics primitive functions
-void   draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool_t use_alpha, const GLXvector4f quad_tint  );
+void   draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool_t use_alpha, const GLXvector4f quad_tint );
 bool_t dump_screenshot( void );
 
 //--------------------------------------------------------------------------------------------

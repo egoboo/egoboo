@@ -23,6 +23,7 @@
 
 #include "graphic_billboard.h"
 #include "graphic_texture.h"
+#include "renderer_2d.h"
 #include "renderer_3d.h"
 
 #include "../egolib/font_ttf.h"
@@ -487,7 +488,7 @@ gfx_rv billboard_system_render_all( const camera_t * pcam )
 
     gfx_begin_3d( pcam );
     {
-        ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+        ATTRIB_PUSH( __FUNCTION__, GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
         {
             billboard_data_t * pbb;
 
@@ -510,7 +511,7 @@ gfx_rv billboard_system_render_all( const camera_t * pcam )
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                          // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
+            GL_DEBUG( glColor4fv )( white_vec );                                  // GL_CURRENT_BIT
 
             for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
             {

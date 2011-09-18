@@ -67,7 +67,7 @@
 #include "file_formats/eve_file.h"
 #include "file_formats/id_md2.h"
 #include "file_formats/module_file.h"
-#include "file_formats/mpd_file.h"
+#include "file_formats/map_file.h"
 #include "file_formats/passage_file.h"
 #include "file_formats/pip_file.h"
 #include "file_formats/quest_file.h"

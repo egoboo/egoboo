@@ -19,62 +19,30 @@
 //*
 //********************************************************************************************
 
-#include "egoboo_typedef.h"
+/// @file map_functions.h
+/// @brief Definitions for mpd functionality ported from cartman and EgoMap
+///
+/// @details
 
-#include "../egolib/bsp.h"
-
-//--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
-
-struct s_ego_mpd;
-struct s_frustum;
-
-//--------------------------------------------------------------------------------------------
-// internal structs
-//--------------------------------------------------------------------------------------------
-
-struct s_mpd_BSP;
-typedef struct s_mpd_BSP mpd_BSP_t;
+#include "../egolib/map_functions.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// the BSP structure housing the mesh
-struct s_mpd_BSP
-{
-    size_t         count;
-    oct_bb_t       volume;
-    BSP_tree_t     tree;
-};
-
-#define MPD_BSP_INIT \
-    {\
-        0,                 /* count  */ \
-        OCT_BB_INIT_VALS,  /* volume */ \
-        BSP_TREE_INIT_VALS /* tree   */ \
-    }
-
-mpd_BSP_t * mpd_BSP_ctor( mpd_BSP_t * pbsp, const struct s_ego_mpd * pmesh );
-mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * pbsp );
-bool_t      mpd_BSP_alloc( mpd_BSP_t * pbsp );
-bool_t      mpd_BSP_free( mpd_BSP_t * pbsp );
-bool_t      mpd_BSP_fill( mpd_BSP_t * pbsp, const struct s_ego_mpd * pmpd );
-
-bool_t      mpd_BSP_can_collide( BSP_leaf_t * pleaf );
-bool_t      mpd_BSP_is_visible( BSP_leaf_t * pleaf );
-
-int         mpd_BSP_collide_aabb( const mpd_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-int         mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const struct s_egolib_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+struct s_ego_mesh;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern mpd_BSP_t mpd_BSP_root;
+#define CARTMAN_SLOPE             50                        ///< increments for terrain slope
+
+//--------------------------------------------------------------------------------------------
+// Translated Cartman functions
+//--------------------------------------------------------------------------------------------
+
+Uint8 cartman_get_fan_twist( const struct s_ego_mesh * pmesh, Uint32 tile );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-egolib_rv mpd_BSP_system_begin( struct s_ego_mpd * pmpd );
-egolib_rv mpd_BSP_system_end( void );
-bool_t mpd_BSP_system_started( void );
+#define _map_functions_h

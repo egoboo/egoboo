@@ -1952,7 +1952,7 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = mesh_set_texture( PMesh, pchr->onwhichgrid, pstate->argument );
+    returncode = ego_mesh_set_texture( PMesh, pchr->onwhichgrid, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5344,9 +5344,9 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    iTmp = mesh_get_grid( PMesh, pstate->x, pstate->y );
+    iTmp = ego_mesh_get_grid( PMesh, pstate->x, pstate->y );
 
-    ptile = mesh_get_ptile( PMesh, iTmp );
+    ptile = ego_mesh_get_ptile( PMesh, iTmp );
     if ( NULL != ptile )
     {
         returncode = btrue;
@@ -5367,8 +5367,8 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp       = mesh_get_grid( PMesh, pstate->x, pstate->y );
-    returncode = mesh_set_texture( PMesh, iTmp, pstate->argument );
+    iTmp       = ego_mesh_get_grid( PMesh, pstate->x, pstate->y );
+    returncode = ego_mesh_set_texture( PMesh, iTmp, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }

@@ -182,7 +182,7 @@ void load_img( void );
 void get_tiles( SDL_Surface* bmpload );
 
 // misc
-oglx_texture_t * tiny_tile_at( struct s_cartman_mpd * pmesh, int x, int y );
+oglx_texture_t * tiny_tile_at( struct s_cartman_mpd * pmesh, int mapx, int mapy );
 oglx_texture_t * tile_at( struct s_cartman_mpd * pmesh, int fan );
 
 // initialization

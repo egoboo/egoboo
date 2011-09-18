@@ -26,7 +26,7 @@
 
 #include "cartman.h"
 
-#include "cartman_mpd.h"
+#include "cartman_map.h"
 #include "cartman_functions.h"
 #include "cartman_input.h"
 #include "cartman_gui.h"
@@ -185,7 +185,7 @@ static void onscreen_add_fan( cartman_mpd_t * pmesh, Uint32 fan );
 static void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt );
 
 // cartman versions of these functions
-static int cartman_get_vertex( cartman_mpd_t * pmesh, int x, int y, int num );
+static int cartman_get_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, int num );
 
 // light functions
 static void add_light( int x, int y, int radius, int level );
@@ -289,18 +289,18 @@ void draw_cursor_in_window( window_t * pwin )
 }
 
 //--------------------------------------------------------------------------------------------
-int cartman_get_vertex( cartman_mpd_t * pmesh, int x, int y, int num )
+int cartman_get_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, int num )
 {
     int vert;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    vert = cartman_mpd_get_vertex( pmesh,  x, y, num );
+    vert = cartman_mpd_get_ivrt_xy( pmesh,  mapx, mapy, num );
 
     if ( vert == -1 )
     {
         return vert;
-        printf( "BAD GET_VERTEX NUMBER(2nd), %d at %d, %d...\n", num, x, y );
+        printf( "BAD GET_VERTEX NUMBER(2nd), %d at %d, %d...\n", num, mapx, mapy );
         exit( -1 );
     }
 
@@ -313,23 +313,33 @@ void onscreen_add_fan( cartman_mpd_t * pmesh, Uint32 fan )
     // ZZ> This function flags a fan's points as being "onscreen"
     int cnt;
     Uint32 vert, fan_type, vert_count;
+    cartman_mpd_tile_t * pfan;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    fan_type    = pmesh->fan[fan].type;
-    vert_count  = tile_dict[fan_type].numvertices;
+    pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if ( NULL == pfan ) return;
 
-    for ( cnt = 0, vert = pmesh->fan[fan].vrtstart;
+    fan_type    = pfan->type;
+    vert_count  = tile_dict.def_lst[fan_type].numvertices;
+
+    for ( cnt = 0, vert = pfan->vrtstart;
           cnt < vert_count && CHAINEND != vert;
           cnt++, vert = pmesh->vrt[vert].next )
     {
-        if ( vert >= MPD_VERTICES_MAX ) break;
-        if ( onscreen_count >= MAXPOINTS ) break;
+        if ( !CART_VALID_VERTEX_RANGE( vert ) ) break;
 
         if ( VERTEXUNUSED == pmesh->vrt[vert].a ) continue;
 
-        onscreen_vert[onscreen_count] = vert;
-        onscreen_count++;
+        if ( onscreen_count < MAXPOINTS )
+        {
+            onscreen_vert[onscreen_count] = vert;
+            onscreen_count++;
+        }
+        else
+        {
+            break;
+        }
     }
 }
 
@@ -358,8 +368,8 @@ void make_onscreen( cartman_mpd_t * pmesh )
         {
             if ( mapx < 0 || mapx >= pmesh->info.tiles_x ) continue;
 
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
+            fan = cartman_mpd_get_ifan( pmesh, mapx, mapy );
+            if ( !VALID_MPD_TILE_RANGE( fan ) ) continue;
 
             onscreen_add_fan( pmesh, fan );
         }
@@ -470,16 +480,10 @@ void render_tile_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
                     if ( mapx < 0 || mapx >= pwin->pmesh->info.tiles_x ) continue;
                     x = mapx * TILE_ISIZE;
 
-                    fan     = cartman_mpd_get_fan( pwin->pmesh, mapx, mapy );
+                    fan     = cartman_mpd_get_ifan( pwin->pmesh, mapx, mapy );
 
                     tx_tile = NULL;
-                    if ( fan >= 0 && fan < MPD_TILE_MAX )
-                    {
-                        tx_tile = tile_at( pwin->pmesh, fan );
-                    }
-
-                    tx_tile = NULL;
-                    if ( fan >= 0 && fan < MPD_TILE_MAX )
+                    if ( VALID_MPD_TILE_RANGE( fan ) )
                     {
                         tx_tile = tile_at( pwin->pmesh, fan );
                     }
@@ -548,10 +552,10 @@ void render_fx_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
                     if ( mapx < 0 || mapx >= pwin->pmesh->info.tiles_x ) continue;
                     x = mapx * TILE_ISIZE;
 
-                    fan     = cartman_mpd_get_fan( pwin->pmesh, mapx, mapy );
+                    fan = cartman_mpd_get_ifan( pwin->pmesh, mapx, mapy );
 
                     tx_tile = NULL;
-                    if ( fan >= 0 && fan < MPD_TILE_MAX )
+                    if ( VALID_MPD_TILE_RANGE( fan ) )
                     {
                         tx_tile = tile_at( pwin->pmesh, fan );
                     }
@@ -608,8 +612,9 @@ void render_vertex_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
                 {
                     if ( mapx < 0 || mapx >= pwin->pmesh->info.tiles_x ) continue;
 
-                    fan = cartman_mpd_get_fan( pwin->pmesh, mapx, mapy );
-                    if ( fan >= 0 && fan < MPD_TILE_MAX )
+                    fan = cartman_mpd_get_ifan( pwin->pmesh, mapx, mapy );
+
+                    if ( VALID_MPD_TILE_RANGE( fan ) )
                     {
                         draw_top_fan( &( mdata.win_select ), fan, zoom_hrz, zoom_vrt );
                     }
@@ -663,7 +668,7 @@ void render_side_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
         glEnable( GL_SCISSOR_TEST );
         glScissor( pwin->x, sdl_scr.y - ( pwin->y + pwin->surfacey ), pwin->surfacex, pwin->surfacey );
 
-        cartman_begin_ortho_camera_vrt( pwin, &cam, zoom_hrz, zoom_vrt / 3.0f );
+        cartman_begin_ortho_camera_vrt( pwin, &cam, zoom_hrz, zoom_vrt * 2.0f );
         {
             mapxstt = FLOOR(( cam.x - cam.w * 0.5f ) / TILE_FSIZE ) - 1.0f;
             mapystt = FLOOR(( cam.y - cam.h * 0.5f ) / TILE_FSIZE ) - 1.0f;
@@ -679,8 +684,8 @@ void render_side_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
                 {
                     if ( mapx < 0 || mapx >= pwin->pmesh->info.tiles_x ) continue;
 
-                    fan = cartman_mpd_get_fan( pwin->pmesh, mapx, mapy );
-                    if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
+                    fan = cartman_mpd_get_ifan( pwin->pmesh, mapx, mapy );
+                    if ( !VALID_MPD_TILE_RANGE( fan ) ) continue;
 
                     draw_side_fan( &( mdata.win_select ), fan, zoom_hrz, zoom_vrt );
                 }
@@ -866,7 +871,7 @@ int vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( CHAINEND == vert || vert >= MPD_VERTICES_MAX ) return ~0;
+    if ( CHAINEND == vert || !CART_VALID_VERTEX_RANGE( vert ) ) return ~0;
 
     if ( VERTEXUNUSED == pmesh->vrt[vert].a ) return ~0;
 
@@ -921,20 +926,23 @@ int vertex_calc_vrta( cartman_mpd_t * pmesh, Uint32 vert )
 void fan_calc_vrta( cartman_mpd_t * pmesh, int fan )
 {
     int num, cnt;
-    Uint8 type;
     Uint32 vert;
+
+    tile_definition_t * pdef;
+    cartman_mpd_tile_t * pfan;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
+    pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if ( NULL == pfan ) return;
 
-    type = pmesh->fan[fan].type;
-    if ( type >= MPD_FAN_TYPE_MAX ) return;
+    pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    if ( NULL == pdef ) return;
 
-    num = tile_dict[type].numvertices;
+    num = pdef->numvertices;
     if ( 0 == num ) return;
 
-    for ( cnt = 0, vert = pmesh->fan[fan].vrtstart;
+    for ( cnt = 0, vert = pfan->vrtstart;
           cnt < num && CHAINEND != vert;
           cnt++, vert = pmesh->vrt[vert].next )
     {
@@ -954,7 +962,7 @@ void mesh_calc_vrta( cartman_mpd_t * pmesh )
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
+            fan = cartman_mpd_get_ifan( pmesh, mapx, mapy );
 
             fan_calc_vrta( pmesh, fan );
         }
@@ -1113,7 +1121,7 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
         if ( CART_KEYDOWN( SDLK_u ) )
         {
-            if ( mdata.type >= ( MPD_FAN_TYPE_MAX >> 1 ) )
+            if ( mdata.type >= tile_dict.offset )
             {
                 move_mesh_z( mdata.win_mesh, -mos.cy / zoom_vrt, mdata.tx, 0xC0 );
             }
@@ -1209,8 +1217,8 @@ void cartman_check_mouse_tile( window_t * pwin, float zoom_hrz, float zoom_vrt )
         debugy = mpos_y;
 
         // update mdata.win_fan only if the tile is valid
-        fan_tmp = cartman_mpd_get_fan( pwin->pmesh, mdata.win_fan_x, mdata.win_fan_y );
-        if ( -1 != fan_tmp && fan_tmp < MPD_TILE_MAX ) mdata.win_fan = fan_tmp;
+        fan_tmp = cartman_mpd_get_ifan( pwin->pmesh, mdata.win_fan_x, mdata.win_fan_y );
+        if ( VALID_MPD_TILE_RANGE( fan_tmp ) ) mdata.win_fan = fan_tmp;
 
         if ( MOUSE_PRESSED( SDL_BUTTON_LEFT ) )
         {
@@ -1222,7 +1230,7 @@ void cartman_check_mouse_tile( window_t * pwin, float zoom_hrz, float zoom_vrt )
             // force an update of mdata.win_fan
             mdata.win_fan = fan_tmp;
 
-            if ( mdata.win_fan >= 0 && mdata.win_fan < MPD_TILE_MAX )
+            if ( VALID_MPD_TILE_RANGE( mdata.win_fan ) )
             {
                 mdata.type  = pwin->pmesh->fan[mdata.win_fan].type;
                 mdata.tx    = TILE_GET_LOWER_BITS( pwin->pmesh->fan[mdata.win_fan].tx_bits );
@@ -1231,8 +1239,8 @@ void cartman_check_mouse_tile( window_t * pwin, float zoom_hrz, float zoom_vrt )
             else
             {
                 mdata.type  = 0;
-                mdata.tx    = TILE_GET_LOWER_BITS( MPD_FANOFF );
-                mdata.upper = TILE_GET_UPPER_BITS( MPD_FANOFF );
+                mdata.tx    = TILE_GET_LOWER_BITS( MAP_FANOFF );
+                mdata.upper = TILE_GET_UPPER_BITS( MAP_FANOFF );
             }
         }
 
@@ -1320,8 +1328,8 @@ void cartman_check_mouse_fx( window_t * pwin, float zoom_hrz, float zoom_vrt )
         debugx = mpos_x;
         debugy = mpos_y;
 
-        fan_tmp = cartman_mpd_get_fan( pwin->pmesh, mdata.win_fan_x, mdata.win_fan_y );
-        if ( -1 != fan_tmp && fan_tmp < MPD_TILE_MAX ) mdata.win_fan = fan_tmp;
+        fan_tmp = cartman_mpd_get_ifan( pwin->pmesh, mdata.win_fan_x, mdata.win_fan_y );
+        if ( VALID_MPD_TILE_RANGE( fan_tmp ) ) mdata.win_fan = fan_tmp;
 
         if ( MOUSE_PRESSED( SDL_BUTTON_LEFT ) )
         {
@@ -1339,13 +1347,13 @@ void cartman_check_mouse_fx( window_t * pwin, float zoom_hrz, float zoom_vrt )
         {
             mdata.win_fan = fan_tmp;
 
-            if ( mdata.win_fan >= 0 && mdata.win_fan < MPD_TILE_MAX )
+            if ( VALID_MPD_TILE_RANGE( mdata.win_fan ) )
             {
                 mdata.fx = pwin->pmesh->fan[mdata.win_fan].fx;
             }
             else
             {
-                mdata.fx = MPDFX_WALL | MPDFX_IMPASS;
+                mdata.fx = MAPFX_WALL | MAPFX_IMPASS;
             }
         }
     }
@@ -1480,7 +1488,7 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
 
         if ( CART_KEYDOWN( SDLK_f ) )
         {
-            //    fix_corners(mdata.win_mpos_x>>7, mdata.win_mpos_y>>7);
+            //    weld_corner_verts(mdata.win_mpos_x>>7, mdata.win_mpos_y>>7);
             fix_vertices( pwin->pmesh,  FLOOR( mdata.win_mpos_x / TILE_FSIZE ), FLOOR( mdata.win_mpos_y / TILE_FSIZE ) );
         }
 
@@ -1556,49 +1564,49 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     // Hurt
     if ( CART_KEYDOWN( SDLK_h ) )
     {
-        cart_mouse_data_toggle_fx( MPDFX_DAMAGE );
+        cart_mouse_data_toggle_fx( MAPFX_DAMAGE );
         key.delay = KEYDELAY;
     }
     // Impassable
     if ( CART_KEYDOWN( SDLK_i ) )
     {
-        cart_mouse_data_toggle_fx( MPDFX_IMPASS );
+        cart_mouse_data_toggle_fx( MAPFX_IMPASS );
         key.delay = KEYDELAY;
     }
     // Barrier
     if ( CART_KEYDOWN( SDLK_b ) )
     {
-        cart_mouse_data_toggle_fx( MPDFX_WALL );
+        cart_mouse_data_toggle_fx( MAPFX_WALL );
         key.delay = KEYDELAY;
     }
     // Overlay
     if ( CART_KEYDOWN( SDLK_o ) )
     {
-        cart_mouse_data_toggle_fx( MPDFX_WATER );
+        cart_mouse_data_toggle_fx( MAPFX_WATER );
         key.delay = KEYDELAY;
     }
     // Reflective
     if ( CART_KEYDOWN( SDLK_r ) )
     {
-        cart_mouse_data_toggle_fx( MPDFX_SHA );
+        cart_mouse_data_toggle_fx( MAPFX_SHA );
         key.delay = KEYDELAY;
     }
     // Draw reflections
     if ( CART_KEYDOWN( SDLK_d ) )
     {
-        cart_mouse_data_toggle_fx( MPDFX_DRAWREF );
+        cart_mouse_data_toggle_fx( MAPFX_DRAWREF );
         key.delay = KEYDELAY;
     }
     // Animated
     if ( CART_KEYDOWN( SDLK_a ) )
     {
-        cart_mouse_data_toggle_fx( MPDFX_ANIM );
+        cart_mouse_data_toggle_fx( MAPFX_ANIM );
         key.delay = KEYDELAY;
     }
     // Slippy
     if ( CART_KEYDOWN( SDLK_s ) )
     {
-        cart_mouse_data_toggle_fx( MPDFX_SLIPPY );
+        cart_mouse_data_toggle_fx( MAPFX_SLIPPY );
         key.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_g ) )
@@ -1608,7 +1616,7 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_z ) )
     {
-        if ( mdata.win_fan >= 0 || mdata.win_fan < MPD_TILE_MAX )
+        if ( VALID_MPD_TILE_RANGE( mdata.win_fan ) )
         {
             Uint16 tx_bits = pmesh->fan[mdata.win_fan].tx_bits;
             cart_mouse_data_mesh_set_tile( tx_bits );
@@ -1618,12 +1626,12 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 
     if ( CART_KEYDOWN( SDLK_x ) )
     {
-        if ( mdata.win_fan >= 0 || mdata.win_fan < MPD_TILE_MAX )
+        if ( VALID_MPD_TILE_RANGE( mdata.win_fan ) )
         {
             Uint8  type    = pmesh->fan[mdata.win_fan].type;
             Uint16 tx_bits = pmesh->fan[mdata.win_fan].tx_bits;
 
-            if ( type >= ( MPD_FAN_TYPE_MAX >> 1 ) )
+            if ( type >= tile_dict.offset )
             {
                 trim_mesh_tile( pmesh, tx_bits, 0xC0 );
             }
@@ -1671,19 +1679,19 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
     }
     if ( CART_KEYDOWN( SDLK_INSERT ) )
     {
-        mdata.type = ( mdata.type - 1 ) % MPD_FAN_TYPE_MAX;
+        mdata.type = ( mdata.type - 1 ) % tile_dict.def_count;
         while ( 0 == tile_dict_lines[mdata.type].count )
         {
-            mdata.type = ( mdata.type - 1 ) % MPD_FAN_TYPE_MAX;
+            mdata.type = ( mdata.type - 1 ) % tile_dict.def_count;
         }
         key.delay = KEYDELAY;
     }
     if ( CART_KEYDOWN( SDLK_DELETE ) )
     {
-        mdata.type = ( mdata.type + 1 ) % MPD_FAN_TYPE_MAX;
+        mdata.type = ( mdata.type + 1 ) % tile_dict.def_count;
         while ( 0 == tile_dict_lines[mdata.type].count )
         {
-            mdata.type = ( mdata.type + 1 ) % MPD_FAN_TYPE_MAX;
+            mdata.type = ( mdata.type + 1 ) % tile_dict.def_count;
         }
         key.delay = KEYDELAY;
     }
@@ -2064,7 +2072,7 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
         x = 0;
         for ( cnt = 0; cnt < todo; cnt++ )
         {
-            if ( mdata.type >= ( MPD_FAN_TYPE_MAX >> 1 ) )
+            if ( mdata.type >= tile_dict.offset )
             {
                 ogl_draw_sprite_2d( tx_bigtile + tile, x, 0, SMALLXY, SMALLXY );
             }
@@ -2080,9 +2088,9 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
                                     "Tile 0x%02x 0x%02x", mdata.upper, mdata.tx );
 
         fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 40,
-                                    "Eats %d verts", tile_dict[mdata.type].numvertices );
+                                    "Eats %d verts", tile_dict.def_lst[mdata.type].numvertices );
 
-        if ( mdata.type >= ( MPD_FAN_TYPE_MAX >> 1 ) )
+        if ( mdata.type >= tile_dict.offset )
         {
             fnt_drawText_OGL_immediate( gfx_font_ptr, cart_white, 0, 56,
                                         "63x63 Tile" );
@@ -2330,19 +2338,19 @@ void cartman_create_mesh( cartman_mpd_t * pmesh )
     int mapx, mapy, fan;
     int x, y;
 
-    cartman_mpd_create_info_t mpd_info;
+    cartman_mpd_create_info_t map_info;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
     printf( "Mesh file not found, so creating a new one...\n" );
 
     printf( "Number of tiles in X direction ( 32-512 ):  " );
-    scanf( "%d", &( mpd_info.tiles_x ) );
+    scanf( "%d", &( map_info.tiles_x ) );
 
     printf( "Number of tiles in Y direction ( 32-512 ):  " );
-    scanf( "%d", &( mpd_info.tiles_y ) );
+    scanf( "%d", &( map_info.tiles_y ) );
 
-    cartman_mpd_create( pmesh, mpd_info.tiles_x, mpd_info.tiles_y );
+    cartman_mpd_create( pmesh, map_info.tiles_x, map_info.tiles_y );
 
     fan = 0;
     for ( mapy = 0; mapy < pmesh->info.tiles_y; mapy++ )
@@ -2351,7 +2359,7 @@ void cartman_create_mesh( cartman_mpd_t * pmesh )
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
             x = mapx * TILE_ISIZE;
-            if ( !cartman_mpd_add_fan( pmesh, fan, x, y ) )
+            if ( !cartman_mpd_add_ifan( pmesh, fan, x, y ) )
             {
                 printf( "NOT ENOUGH VERTICES!!!\n\n" );
                 exit( -1 );
@@ -2436,7 +2444,7 @@ cart_mouse_data_t * cart_mouse_data_ctor( cart_mouse_data_t * ptr )
     ptr->win_fan_x = -1;
     ptr->win_fan_y = -1;
 
-    ptr->fx = MPDFX_SHA;
+    ptr->fx = MAPFX_SHA;
 
     ptr->rect_drag = -1;
     ptr->rect_done = -1;
@@ -2504,15 +2512,18 @@ void cart_mouse_data_mesh_replace_fx()
     Uint8  type;
     Uint16 tx_bits;
 
-    if ( mdata.win_fan < 0 || mdata.win_fan >= MPD_TILE_MAX ) return;
+    tile_definition_t * pdef = NULL;
 
+    if ( !VALID_MPD_TILE_RANGE( mdata.win_fan ) ) return;
     type = mdata.win_mesh->fan[mdata.win_fan].type;
-    if ( type >= MPD_FAN_TYPE_MAX ) return;
+
+    pdef = TILE_DICT_PTR( tile_dict, type );
+    if ( NULL == pdef ) return;
 
     tx_bits = mdata.win_mesh->fan[mdata.win_fan].tx_bits;
     if ( TILE_IS_FANOFF( tx_bits ) ) return;
 
-    if ( type >= ( MPD_FAN_TYPE_MAX >> 1 ) )
+    if ( type >= tile_dict.offset )
     {
         mesh_replace_fx( mdata.win_mesh, tx_bits, 0xC0, mdata.fx );
     }

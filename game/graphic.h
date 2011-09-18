@@ -324,9 +324,8 @@ void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool_t mini_ma
 
 //void   make_lightdirectionlookup( void );
 
-bool_t grid_lighting_interpolate( const ego_mpd_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos );
-float  grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
-
+bool_t grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos );
+float  grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
 
 void release_all_profile_textures( void );
 
@@ -351,6 +350,6 @@ int        dolist_mgr_get_free_idx( dolist_mgr_t * ptr );
 gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, int index );
 dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index );
 
-gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mpd_t * pmesh );
+gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh );
 
 bool_t oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );

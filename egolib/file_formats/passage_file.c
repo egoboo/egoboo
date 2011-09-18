@@ -22,7 +22,7 @@
 /// @details
 
 #include "passage_file.h"
-#include "mpd_file.h"
+#include "map_file.h"
 
 #include "../fileutil.h"
 
@@ -60,9 +60,9 @@ bool_t scan_passage_file( vfs_FILE * fileread, passage_t * ppass )
 
         ppass->open = vfs_get_bool( fileread );
 
-        ppass->mask = MPDFX_IMPASS | MPDFX_WALL;
-        if ( vfs_get_bool( fileread ) ) ppass->mask = MPDFX_IMPASS;
-        if ( vfs_get_bool( fileread ) ) ppass->mask = MPDFX_SLIPPY;
+        ppass->mask = MAPFX_IMPASS | MAPFX_WALL;
+        if ( vfs_get_bool( fileread ) ) ppass->mask = MAPFX_IMPASS;
+        if ( vfs_get_bool( fileread ) ) ppass->mask = MAPFX_SLIPPY;
 
         found = btrue;
     }

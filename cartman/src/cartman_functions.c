@@ -20,7 +20,7 @@
 #include "cartman_functions.h"
 
 #include "cartman.h"
-#include "cartman_mpd.h"
+#include "cartman_map.h"
 #include "cartman_select.h"
 
 #include "cartman_math.inl"
@@ -32,10 +32,21 @@ enum
 {
     CORNER_TL,
     CORNER_TR,
-    CORNER_BL,
     CORNER_BR,
+    CORNER_BL,
     CORNER_COUNT
 };
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static void weld_TL( cartman_mpd_t * pmesh, int mapx, int mapy );
+static void weld_TR( cartman_mpd_t * pmesh, int mapx, int mapy );
+static void weld_BR( cartman_mpd_t * pmesh, int mapx, int mapy );
+static void weld_BL( cartman_mpd_t * pmesh, int mapx, int mapy );
+
+static void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_definition_t * pdef, int cnt, int mapx, int mapy );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -59,43 +70,73 @@ float dist_from_border( cartman_mpd_t * pmesh, float x, float y )
 }
 
 //--------------------------------------------------------------------------------------------
-int dist_from_edge( cartman_mpd_t * pmesh, int x, int y )
+int dist_from_edge( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( x > ( pmesh->info.tiles_x >> 1 ) )
-        x = pmesh->info.tiles_x - x - 1;
-    if ( y > ( pmesh->info.tiles_y >> 1 ) )
-        y = pmesh->info.tiles_y - y - 1;
+    if ( mapx > ( pmesh->info.tiles_x >> 1 ) )
+        mapx = pmesh->info.tiles_x - mapx - 1;
+    if ( mapy > ( pmesh->info.tiles_y >> 1 ) )
+        mapy = pmesh->info.tiles_y - mapy - 1;
 
-    if ( x < y )
-        return x;
+    if ( mapx < mapy )
+        return mapx;
 
-    return y;
+    return mapy;
 }
 
 //--------------------------------------------------------------------------------------------
-void fix_mesh( cartman_mpd_t * pmesh )
+void fix_corners( cartman_mpd_t * pmesh )
 {
     // ZZ> This function corrects corners across entire mesh
+
     int mapx, mapy;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
+    // weld the corners in a checkerboard pattern
+    for ( mapy = 0; mapy < pmesh->info.tiles_y; mapy += 2 )
+    {
+        for ( mapx = mapy & 1; mapx < pmesh->info.tiles_x; mapx += 2 )
+        {
+            weld_corner_verts( pmesh, mapx, mapy );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void fix_edges( cartman_mpd_t * pmesh )
+{
+    // ZZ> This function seals the tile edges across the entire mesh
+
+    int mapx, mapy;
+
+    if ( NULL == pmesh ) pmesh = &mesh;
+
+    // weld the edges of all tiles
     for ( mapy = 0; mapy < pmesh->info.tiles_y; mapy++ )
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            //      fix_corners( pmesh, pmesh, mapx, mapy);
             fix_vertices( pmesh, mapx, mapy );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void fix_vertices( cartman_mpd_t * pmesh, int x, int y )
+void fix_mesh( cartman_mpd_t * pmesh )
 {
-    int fan;
+    // ZZ> This function corrects corners across entire mesh
+
+    if ( NULL == pmesh ) pmesh = &mesh;
+
+    fix_corners( pmesh );
+    fix_edges( pmesh );
+}
+
+//--------------------------------------------------------------------------------------------
+void fix_vertices( cartman_mpd_t * pmesh, int mapx, int mapy )
+{
     int cnt;
 
     cartman_mpd_tile_t   * pfan   = NULL;
@@ -103,136 +144,486 @@ void fix_vertices( cartman_mpd_t * pmesh, int x, int y )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    fix_corners( pmesh,  x, y );
+    pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+    if ( NULL == pfan ) return;
 
-    fan = cartman_mpd_get_fan( pmesh, x, y );
-
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
-    pfan = pmesh->fan + fan;
-
-    if ( pfan->type >= MPD_FAN_TYPE_MAX ) return;
-    pdef = tile_dict + pfan->type;
+    pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    if ( NULL == pdef ) return;
 
     for ( cnt = 4; cnt < pdef->numvertices; cnt++ )
     {
-        weld_cnt( pmesh,  x, y, cnt, fan );
+        weld_edge_verts( pmesh, pfan, pdef, cnt, mapx, mapy );
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void fix_corners( cartman_mpd_t * pmesh, int x, int y )
+void weld_corner_verts( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     int fan;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    fan = cartman_mpd_get_fan( pmesh, x, y );
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
+    fan = cartman_mpd_get_ifan( pmesh, mapx, mapy );
+    if ( !VALID_MPD_TILE_RANGE( fan ) ) return;
 
-    weld_0( pmesh, x, y );
-    weld_1( pmesh, x, y );
-    weld_2( pmesh, x, y );
-    weld_3( pmesh, x, y );
+    weld_TL( pmesh, mapx, mapy );
+    weld_TR( pmesh, mapx, mapy );
+    weld_BL( pmesh, mapx, mapy );
+    weld_BR( pmesh, mapx, mapy );
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_0( cartman_mpd_t * pmesh, int x, int y )
+void weld_TL( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     select_lst_t loc_lst = SELECT_LST_INIT;
 
     select_lst_init( &loc_lst, pmesh );
 
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 0 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x - 1, y, 1 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y - 1, 3 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x - 1, y - 1, 2 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx, mapy, CORNER_TL ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx - 1, mapy, CORNER_TR ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx - 1, mapy - 1, CORNER_BR ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx, mapy - 1, CORNER_BL ) );
 
     mesh_select_weld( &loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_1( cartman_mpd_t * pmesh, int x, int y )
+void weld_TR( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     select_lst_t loc_lst = SELECT_LST_INIT;
 
     select_lst_init( &loc_lst, pmesh );
 
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 1 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x + 1, y, 0 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y - 1, 2 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x + 1, y - 1, 3 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx, mapy, CORNER_TR ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx, mapy - 1, CORNER_BR ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx + 1, mapy - 1, CORNER_BL ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx + 1, mapy, CORNER_TL ) );
 
     mesh_select_weld( &loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_2( cartman_mpd_t * pmesh, int x, int y )
+void weld_BR( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     select_lst_t loc_lst = SELECT_LST_INIT;
 
     select_lst_init( &loc_lst, pmesh );
 
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 2 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x + 1, y, 3 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y + 1, 1 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x + 1, y + 1, 0 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx, mapy, CORNER_BR ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx + 1, mapy, CORNER_BL ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx + 1, mapy + 1, CORNER_TL ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx, mapy + 1, CORNER_TR ) );
 
     mesh_select_weld( &loc_lst );
 }
 
+
 //--------------------------------------------------------------------------------------------
-void weld_3( cartman_mpd_t * pmesh, int x, int y )
+void weld_BL( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     select_lst_t loc_lst = SELECT_LST_INIT;
 
     select_lst_init( &loc_lst, pmesh );
 
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, 3 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x - 1, y, 2 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y + 1, 0 ) );
-    select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x - 1, y + 1, 1 ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx, mapy, CORNER_BL ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx, mapy + 1, CORNER_TL ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx - 1, mapy + 1, CORNER_TR ) );
+    select_lst_add( &loc_lst, cartman_mpd_get_ivrt_xy( loc_lst.pmesh, mapx - 1, mapy, CORNER_BR ) );
 
     mesh_select_weld( &loc_lst );
 }
 
 //--------------------------------------------------------------------------------------------
-void weld_cnt( cartman_mpd_t * pmesh, int x, int y, int cnt, Uint32 fan )
+int get_fan_vertex_by_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int grid_ix, int grid_iy, int ext_verts[] )
 {
-    cartman_mpd_tile_t   * pfan    = NULL;
-    tile_definition_t    * pdef    = NULL;
+    int cnt, ivrt, idx, gx, gy;
 
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
-    pfan = pmesh->fan + fan;
+    int loc_verts[16];
+    int * vert_lst = NULL;
 
-    if ( pfan->type >= MPD_FAN_TYPE_MAX ) return;
-    pdef = tile_dict + pfan->type;
+    tile_definition_t    * pdef;
+    cartman_mpd_vertex_t * pvrt;
 
-    if ( pdef->u[cnt] * TILE_FSIZE  < NEARLOW + 1.0f ||
-         pdef->v[cnt] * TILE_FSIZE  < NEARLOW + 1.0f ||
-         pdef->u[cnt] * TILE_FSIZE  > NEARHI - 1.0f ||
-         pdef->v[cnt] * TILE_FSIZE  > NEARHI - 1.0f )
+    // catch bad parameters
+    if ( NULL == pmesh || NULL == pfan ) return -1;
+    if ( grid_ix < 0 || grid_ix >= 4 ) return -1;
+    if ( grid_iy < 0 || grid_iy >= 4 ) return -1;
+
+    // get the tile definition
+    pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    if ( NULL == pdef ) return -1;
+
+    // handle optional parameters
+    vert_lst = ( NULL != ext_verts ) ? ext_verts : loc_verts;
+
+    // blank out the vert_lst[] array
+    for ( cnt = 0; cnt < 16; cnt++ )
     {
+        vert_lst[cnt] = -1;
+    }
+
+    // store the vertices in the vrt_lst[]
+    for ( cnt = 0, ivrt = pfan->vrtstart; cnt < pdef->numvertices && CHAINEND != ivrt; cnt++, ivrt = pmesh->vrt[ivrt].next )
+    {
+        // find the array index for this vertex
+        gx = pdef->grid_ix[cnt];
+        gy = pdef->grid_iy[cnt];
+        idx = gx | ( gy << 2 );
+
+        // get a pointer to the vertex data
+        pvrt = CART_MPD_VERTEX_PTR( pmesh, ivrt );
+
+        // blank out any bad data
+        if ( NULL == pvrt || VERTEXUNUSED == pvrt->a )
+        {
+            ivrt = -1;
+        }
+
+        // store the vertex in an array
+        vert_lst[idx] = ivrt;
+    }
+
+    // grab the vertex number from the vert_lst[]
+    idx = grid_ix | ( grid_iy << 2 );
+    return vert_lst[idx];
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int grid_ix, int grid_iy, fvec3_base_t vec, int ext_verts[] )
+{
+    // set the coordinates of the given vertex to the interpolated position along the edge of the fan
+
+    int loc_verts[16];
+    int * vert_lst = NULL;
+
+    bool_t retval, is_edge_x, is_edge_y;
+    int cnt, ivrt, idx;
+
+    float   vweight = 0.0f;
+    fvec3_t vsum    = ZERO_VECT3;
+
+    cartman_mpd_vertex_t * pvrt;
+
+    // if we were not passed ext_verts, no one has pre-calculated the
+    // array of vertices for this tile, yet.
+    if ( NULL == ext_verts )
+    {
+        // we choose local storage for the vertices
+        vert_lst = loc_verts;
+
+        // try to find the given vertex
+        ivrt = get_fan_vertex_by_coord( pmesh, pfan, grid_ix, grid_iy, vert_lst );
+
+        // grab a pointer to the actual vertex
+        pvrt = CART_MPD_VERTEX_PTR( pmesh, ivrt );
+
+        // if it exists, we are done
+        if ( NULL != pvrt )
+        {
+            vec[kX] = pvrt->x;
+            vec[kY] = pvrt->y;
+            vec[kZ] = pvrt->z;
+
+            return btrue;
+        }
+    }
+    else
+    {
+        // use the pre-calculated vertex list
+        vert_lst = ext_verts;
+    }
+
+    is_edge_x = (0 == grid_ix) || (3 == grid_ix);
+    is_edge_y = (0 == grid_iy) || (3 == grid_iy);
+
+    // is the vertex a corner? All corners should exist.
+    if ( is_edge_x && is_edge_y )
+    {
+        log_warning( "%s - something is wrong with the vertices.\n", __FUNCTION__ );
+        return bfalse;
+    }
+
+    // assume the worst
+    retval = bfalse;
+
+    if ( is_edge_x )
+    {
+        cartman_mpd_vertex_t * pvrt_min = NULL;
+        cartman_mpd_vertex_t * pvrt_max = NULL; 
+
+        int grid_min = -1, grid_max = -1;
+
+        // get the vertices next to the unknown one on this edge 
+        for ( cnt = 0; cnt < 4; cnt++ )
+        {
+            idx = grid_ix | ( cnt << 2 );
+            ivrt = vert_lst[idx];
+
+            if( ivrt < 0 ) continue;
+
+            pvrt = CART_MPD_VERTEX_PTR( pmesh, ivrt );
+            if ( NULL == pvrt || VERTEXUNUSED == pvrt->a ) continue;
+
+            if( (cnt < grid_iy) && ( ( -1 == grid_min) || (cnt > grid_min) ) )
+            {
+                grid_min = cnt;
+                pvrt_min = pvrt;
+            }
+
+            if( (cnt > grid_iy) && ( ( -1 == grid_max ) || (cnt < grid_max) ) )
+            {
+                grid_max = cnt;
+                pvrt_max = pvrt;
+            }
+        }
+
+        if( NULL == pvrt_min || NULL == pvrt_max ||
+            -1 == grid_min || -1 == grid_max )
+        {
+            retval = bfalse;
+        }
+        else
+        {
+            float fmax = (float)(grid_iy - grid_min) / (float)(grid_max - grid_min);
+            float fmin = 1.0f - fmax;
+
+            vec[kX] = fmax * pvrt_max->x + fmin * pvrt_min->x;
+            vec[kY] = fmax * pvrt_max->y + fmin * pvrt_min->y;
+            vec[kZ] = fmax * pvrt_max->z + fmin * pvrt_min->z;
+
+            retval = btrue;
+        }
+    }
+    else if ( is_edge_y )
+    {
+        cartman_mpd_vertex_t * pvrt_min = NULL;
+        cartman_mpd_vertex_t * pvrt_max = NULL; 
+
+        int grid_min = -1, grid_max = -1;
+
+        // get the vertices next to the unknown one on this edge 
+        for ( cnt = 0; cnt < 4; cnt++ )
+        {
+            idx = cnt | ( grid_iy << 2 );
+            ivrt = vert_lst[idx];
+
+            if( ivrt < 0 ) continue;
+
+            pvrt = CART_MPD_VERTEX_PTR( pmesh, ivrt );
+            if ( NULL == pvrt || VERTEXUNUSED == pvrt->a ) continue;
+
+            if( (cnt < grid_ix) && ( ( -1 == grid_min) || (cnt > grid_min) ) )
+            {
+                grid_min = cnt;
+                pvrt_min = pvrt;
+            }
+
+            if( (cnt > grid_ix) && ( ( -1 == grid_max ) || (cnt < grid_max) ) )
+            {
+                grid_max = cnt;
+                pvrt_max = pvrt;
+            }
+        }
+
+        if( NULL == pvrt_min || NULL == pvrt_max ||
+            -1 == grid_min || -1 == grid_max )
+        {
+            retval = bfalse;
+        }
+        else
+        {
+            float fmax = (float)(grid_ix - grid_min) / (float)(grid_max - grid_min);
+            float fmin = 1.0f - fmax;
+
+            vec[kX] = fmax * pvrt_max->x + fmin * pvrt_min->x;
+            vec[kY] = fmax * pvrt_max->y + fmin * pvrt_min->y;
+            vec[kZ] = fmax * pvrt_max->z + fmin * pvrt_min->z;
+
+            retval = btrue;
+        }
+    }
+    else
+    {
+        // interpolate using all known points
+        int gx, gy;
+
+        for ( idx = 0; idx < 16; idx++ )
+        {
+            gx = idx & 3;
+            gy = ( idx >> 2 ) & 3;
+
+            ivrt = vert_lst[idx];
+            pvrt = CART_MPD_VERTEX_PTR( pmesh, ivrt );
+            if ( NULL != pvrt && VERTEXUNUSED != pvrt->a )
+            {
+                float weight = exp( - SQR( gx - grid_ix ) - SQR( gy - grid_iy ) );
+
+                vsum.x += pvrt->x * weight;
+                vsum.y += pvrt->y * weight;
+                vsum.z += pvrt->z * weight;
+                vweight += weight;
+            }
+        }
+
+        if ( vweight <= 0.0f )
+        {
+            retval = bfalse;
+        }
+        else
+        {
+            vec[kX] = vsum.x / vweight;
+            vec[kY] = vsum.y / vweight;
+            vec[kZ] = vsum.z / vweight;
+
+            retval = btrue;
+        }
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int select_lst_add_fan_vertex( select_lst_t * plst, int mapx, int mapy, int grid_ix, int grid_iy, int fake_vert )
+{
+    int vert_lst[16];
+
+    fvec3_t vtmp;
+
+    int ivrt;
+
+    cartman_mpd_tile_t   * pfan = NULL;
+    cartman_mpd_vertex_t * pvrt = NULL;
+
+    pfan = cartman_mpd_get_pfan( plst->pmesh, mapx, mapy );
+    if ( NULL == pfan ) return -1;
+
+    ivrt = get_fan_vertex_by_coord( plst->pmesh, pfan, grid_ix, grid_iy, vert_lst );
+    if ( ivrt < 0 )
+    {
+        ivrt = fake_vert;
+
+        pvrt = CART_MPD_VERTEX_PTR( plst->pmesh, ivrt );
+        if ( NULL != pvrt )
+        {
+            if ( interpolate_coord( plst->pmesh, pfan, grid_ix, grid_iy, vtmp.v, vert_lst ) )
+            {
+                pvrt->x = vtmp.x;
+                pvrt->y = vtmp.y;
+                pvrt->z = vtmp.z;
+            }
+        }
+    }
+
+    // make sure that the vertex exists
+    if ( NULL == pvrt )
+    {
+        pvrt = CART_MPD_VERTEX_PTR( plst->pmesh, ivrt );
+        if ( NULL == pvrt )
+        {
+            ivrt = -1;
+        }
+    }
+
+    // select_lst_add() only adds valid verts, so don't worry about a bad value in ivrt
+    select_lst_add( plst, ivrt );
+
+    return ivrt;
+}
+
+//--------------------------------------------------------------------------------------------
+void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_definition_t * pdef, int cnt, int mapx, int mapy )
+{
+    int fake_edge_count = 0;
+    int fake_edge_verts[8 + 1];
+
+    int    grid_ix, grid_iy;
+    bool_t is_edge_x, is_edge_y;
+    int    allocate_rv;
+
+    if ( NULL == pmesh || NULL == pfan || NULL == pdef ) return;
+
+    // allocate some fake edge verts just in case
+    allocate_rv = cartman_mpd_allocate_vertex_list( pmesh, fake_edge_verts, SDL_arraysize( fake_edge_verts ), 8 );
+    if ( allocate_rv < 0 ) return;
+
+    // alias for the grid location
+    grid_ix = pdef->grid_ix[cnt];
+    grid_iy = pdef->grid_iy[cnt];
+
+    // is this an edge?
+    is_edge_x = ( 0 == grid_ix ) || ( 3 == grid_ix );
+    is_edge_y = ( 0 == grid_iy ) || ( 3 == grid_iy );
+
+    if ( is_edge_x || is_edge_y )
+    {
+        int added_vert;
         select_lst_t loc_lst = SELECT_LST_INIT;
 
         select_lst_init( &loc_lst, pmesh );
 
-        // add the center point
-        select_lst_add( &loc_lst, cartman_mpd_get_vertex( loc_lst.pmesh, x, y, cnt ) );
+        // add the point on this fan
+        pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+        if ( NULL != pfan )
+        {
+            int ivrt;
+            cartman_mpd_vertex_t * pvrt;
 
-        if ( pdef->u[cnt] * TILE_FSIZE < NEARLOW + 1 )
-            select_lst_add( &loc_lst, nearest_vertex( loc_lst.pmesh,  x - 1, y, NEARHI, pdef->v[cnt] * TILE_FSIZE ) );
+            pvrt = cartman_mpd_get_pvrt_idx( pmesh, pfan, cnt, &ivrt );
+            if ( NULL != pvrt )
+            {
+                select_lst_add( &loc_lst, ivrt );
+            }
+        }
 
-        if ( pdef->v[cnt] * TILE_FSIZE < NEARLOW + 1 )
-            select_lst_add( &loc_lst, nearest_vertex( loc_lst.pmesh,  x, y - 1, pdef->u[cnt] * TILE_FSIZE, NEARHI ) );
+        if ( 0 == grid_ix )
+        {
+            added_vert = select_lst_add_fan_vertex( &loc_lst, mapx - 1, mapy, 3 - grid_ix, grid_iy, fake_edge_verts[fake_edge_count] );
 
-        if ( pdef->u[cnt] * TILE_FSIZE > NEARHI - 1 )
-            select_lst_add( &loc_lst, nearest_vertex( loc_lst.pmesh,  x + 1, y, NEARLOW, pdef->v[cnt] * TILE_FSIZE ) );
+            // did the function use the "fake" vertex?
+            if ( added_vert == fake_edge_verts[fake_edge_count] )
+            {
+                fake_edge_count++;
+            }
+        }
 
-        if ( pdef->v[cnt] * TILE_FSIZE > NEARHI - 1 )
-            select_lst_add( &loc_lst, nearest_vertex( loc_lst.pmesh,  x, y + 1, pdef->u[cnt] * TILE_FSIZE, NEARLOW ) );
+        if ( 3 == grid_ix )
+        {
+            added_vert = select_lst_add_fan_vertex( &loc_lst, mapx + 1, mapy, 3 - grid_ix, grid_iy, fake_edge_verts[fake_edge_count] );
+
+            // did the function use the "fake" vertex?
+            if ( added_vert == fake_edge_verts[fake_edge_count] )
+            {
+                fake_edge_count++;
+            }
+        }
+
+        if ( 0 == grid_iy )
+        {
+            added_vert = select_lst_add_fan_vertex( &loc_lst, mapx, mapy - 1, grid_ix, 3 - grid_iy, fake_edge_verts[fake_edge_count] );
+
+            // did the function use the "fake" vertex?
+            if ( added_vert == fake_edge_verts[fake_edge_count] )
+            {
+                fake_edge_count++;
+            }
+        }
+
+        if ( 3 == grid_iy )
+        {
+            added_vert = select_lst_add_fan_vertex( &loc_lst, mapx, mapy + 1, grid_ix, 3 - grid_iy, fake_edge_verts[fake_edge_count] );
+
+            // did the function use the "fake" vertex?
+            if ( added_vert == fake_edge_verts[fake_edge_count] )
+            {
+                fake_edge_count++;
+            }
+        }
 
         mesh_select_weld( &loc_lst );
     }
+
+    // free all allocated vertices
+    cartman_mpd_free_vertex_list( pmesh, fake_edge_verts, SDL_arraysize( fake_edge_verts ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -273,7 +664,7 @@ select_lst_t * select_lst_add_rect( select_lst_t * plst, float x0, float y0, flo
 
     if ( mode == WINMODE_VERTEX )
     {
-        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MPD_VERTICES_MAX; ivrt++, pvrt++ )
+        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MAP_VERTICES_MAX; ivrt++, pvrt++ )
         {
             if ( VERTEXUNUSED == pvrt->a ) continue;
 
@@ -287,7 +678,7 @@ select_lst_t * select_lst_add_rect( select_lst_t * plst, float x0, float y0, flo
     }
     else if ( mode == WINMODE_SIDE )
     {
-        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MPD_VERTICES_MAX; ivrt++, pvrt++ )
+        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MAP_VERTICES_MAX; ivrt++, pvrt++ )
         {
             if ( VERTEXUNUSED == pvrt->a ) continue;
 
@@ -341,7 +732,7 @@ select_lst_t * select_lst_remove_rect( select_lst_t * plst, float x0, float y0, 
 
     if ( mode == WINMODE_VERTEX )
     {
-        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MPD_VERTICES_MAX; ivrt++, pvrt++ )
+        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MAP_VERTICES_MAX; ivrt++, pvrt++ )
         {
             if ( VERTEXUNUSED == pvrt->a ) continue;
 
@@ -355,7 +746,7 @@ select_lst_t * select_lst_remove_rect( select_lst_t * plst, float x0, float y0, 
     }
     else if ( mode == WINMODE_SIDE )
     {
-        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MPD_VERTICES_MAX; ivrt++, pvrt++ )
+        for ( ivrt = 0, pvrt = vlst + 0; ivrt < MAP_VERTICES_MAX; ivrt++, pvrt++ )
         {
             if ( VERTEXUNUSED == pvrt->a ) continue;
 
@@ -373,13 +764,14 @@ select_lst_t * select_lst_remove_rect( select_lst_t * plst, float x0, float y0, 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int nearest_vertex( cartman_mpd_t * pmesh, int x, int y, float nearx, float neary )
+int nearest_edge_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, float nearx, float neary )
 {
     // ZZ> This function gets a vertex number or -1
     int ivrt, bestvert, cnt;
-    int fan;
     int num;
-    float prox, proxx, proxy, bestprox;
+
+    float grid_fx, grid_fy;
+    float prox_x, prox_y, dist_abs, bestprox;
 
     // aliases
     cartman_mpd_tile_t   * pfan   = NULL;
@@ -389,40 +781,45 @@ int nearest_vertex( cartman_mpd_t * pmesh, int x, int y, float nearx, float near
     if ( NULL == pmesh ) pmesh = &mesh;
     vlst = pmesh->vrt;
 
-    fan = cartman_mpd_get_fan( pmesh, x, y );
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return -1;
-    pfan = pmesh->fan + fan;
+    pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+    if ( NULL == pfan ) return -1;
 
-    if ( pfan->type >= MPD_FAN_TYPE_MAX ) return -1;
-    pdef = tile_dict + pfan->type;
+    pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    if ( NULL == pdef ) return -1;
+
+    // assume the worst
+    bestvert = -1;
 
     num = pdef->numvertices;
-
-    bestvert = -1;
     if ( num > 4 )
     {
         ivrt = pfan->vrtstart;
 
         // skip over the 4 corner vertices
-        for ( cnt = 0; cnt < 4; cnt++ )
+        for ( cnt = 0; cnt < 4 && CHAINEND != ivrt; cnt++ )
         {
             ivrt = vlst[ivrt].next;
         }
 
         bestprox = 9000;
-        for ( cnt = 4; cnt < num; cnt++ )
+        for ( cnt = 4; cnt < num && CHAINEND != ivrt; cnt++ )
         {
-            proxx = pdef->u[cnt] * TILE_FSIZE - nearx;
-            proxy = pdef->v[cnt] * TILE_FSIZE - neary;
-            prox = ABS( proxx ) + ABS( proxy );
+            // where is this point in the "grid"?
+            grid_fx = GRID_TO_POS( pdef->grid_ix[cnt] );
+            grid_fy = GRID_TO_POS( pdef->grid_iy[cnt] );
 
-            if ( prox < bestprox )
+            prox_x = grid_fx - nearx;
+            prox_y = grid_fy - neary;
+            dist_abs = ABS( prox_x ) + ABS( prox_y );
+
+            if ( dist_abs < bestprox )
             {
                 bestvert = ivrt;
-                bestprox = prox;
+                bestprox = dist_abs;
             }
 
             ivrt = vlst[ivrt].next;
+            if ( CHAINEND == ivrt ) break;
         }
     }
 
@@ -541,7 +938,6 @@ void mesh_select_jitter( const select_lst_t * plst )
 void mesh_select_verts_connected( const select_lst_t * plst )
 {
     int vert, cnt, tnc, mapx, mapy;
-    int fan;
     Uint8 select_vertsfan;
 
     // aliases
@@ -565,13 +961,11 @@ void mesh_select_verts_connected( const select_lst_t * plst )
     {
         for ( mapx = 0; mapx < pinfo->tiles_x; mapx++ )
         {
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
+            pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+            if ( NULL == pfan ) continue;
 
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-            pfan = pmesh->fan + fan;
-
-            if ( pfan->type >= MPD_FAN_TYPE_MAX ) continue;
-            pdef = tile_dict + pfan->type;
+            pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+            if ( NULL == pdef ) continue;
 
             select_vertsfan = bfalse;
 
@@ -606,7 +1000,10 @@ void mesh_select_verts_connected( const select_lst_t * plst )
 void mesh_select_weld( const select_lst_t * plst )
 {
     // ZZ> This function welds the highlighted vertices
-    int cnt, x, y, z, a;
+
+    int cnt;
+    float sum_x, sum_y, sum_z, sum_a;
+    float avg_x, avg_y, avg_z, avg_a;
     Uint32 vert;
 
     // aliases
@@ -624,32 +1021,46 @@ void mesh_select_weld( const select_lst_t * plst )
 
     if ( plst->count > 1 )
     {
-        x = 0;
-        y = 0;
-        z = 0;
-        a = 0;
+        sum_x = 0.0f;
+        sum_y = 0.0f;
+        sum_z = 0.0f;
+        sum_a = 0.0f;
 
         for ( cnt = 0; cnt < plst->count; cnt++ )
         {
             vert = plst->which[cnt];
-            x += vlst[vert].x;
-            y += vlst[vert].y;
-            z += vlst[vert].z;
-            a += vlst[vert].a;
+            if ( CHAINEND == vert ) break;
+
+            sum_x += vlst[vert].x;
+            sum_y += vlst[vert].y;
+            sum_z += vlst[vert].z;
+            sum_a += vlst[vert].a;
         }
-        x += cnt >> 1;  y += cnt >> 1;
-        x = x / plst->count;
-        y = y / plst->count;
-        z = z / plst->count;
-        a = a / plst->count;
+
+        if ( plst->count > 1 )
+        {
+            avg_x = sum_x / plst->count;
+            avg_y = sum_y / plst->count;
+            avg_z = sum_z / plst->count;
+            avg_a = sum_a / plst->count;
+        }
+        else
+        {
+            avg_x = sum_x;
+            avg_y = sum_y;
+            avg_z = sum_z;
+            avg_a = sum_a;
+        }
 
         for ( cnt = 0; cnt < plst->count; cnt++ )
         {
             vert = plst->which[cnt];
-            vlst[vert].x = x;
-            vlst[vert].y = y;
-            vlst[vert].z = z;
-            vlst[vert].a = CLIP( a, 1, 255 );
+            if ( CHAINEND == vert ) break;
+
+            vlst[vert].x = avg_x;
+            vlst[vert].y = avg_y;
+            vlst[vert].z = avg_z;
+            vlst[vert].a = CLIP( avg_a, 1, 255 );
         }
     }
 }
@@ -658,7 +1069,7 @@ void mesh_select_weld( const select_lst_t * plst )
 void mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 upper, Uint16 presser, Uint8 tx )
 {
     // ZZ> This function sets one tile type to another
-    int fan;
+
     int mapx, mapy;
 
     cartman_mpd_tile_t   * pfan   = NULL;
@@ -669,10 +1080,8 @@ void mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 upper, Uint16
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
-
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-            pfan = pmesh->fan + fan;
+            pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+            if ( NULL == pfan ) continue;
 
             if ( TILE_IS_FANOFF( pfan->tx_bits ) ) continue;
 
@@ -712,7 +1121,6 @@ void mesh_set_tile( cartman_mpd_t * pmesh, Uint16 tiletoset, Uint8 upper, Uint16
 void move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uint16 tileand )
 {
     int vert, cnt, newz, mapx, mapy;
-    int fan;
 
     cartman_mpd_tile_t   * pfan   = NULL;
     tile_definition_t    * pdef   = NULL;
@@ -725,13 +1133,11 @@ void move_mesh_z( cartman_mpd_t * pmesh, int z, Uint16 tiletype, Uint16 tileand 
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
+            pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+            if ( NULL == pfan ) continue;
 
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-            pfan = pmesh->fan + fan;
-
-            if ( pfan->type >= MPD_FAN_TYPE_MAX ) continue;
-            pdef = tile_dict + pfan->type;
+            pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+            if ( NULL == pdef ) continue;
 
             if ( tiletype == ( pfan->tx_bits&tileand ) )
             {
@@ -791,7 +1197,7 @@ void raise_mesh( cartman_mpd_t * pmesh, Uint32 point_lst[], size_t point_cnt, fl
     for ( cnt = 0; cnt < point_cnt; cnt++ )
     {
         vert = point_lst[cnt];
-        if ( vert >= MPD_VERTICES_MAX ) break;
+        if ( !CART_VALID_VERTEX_RANGE( vert ) ) break;
 
         disx = vlst[vert].x - x;
         disy = vlst[vert].y - y;
@@ -808,7 +1214,7 @@ void raise_mesh( cartman_mpd_t * pmesh, Uint32 point_lst[], size_t point_cnt, fl
 //--------------------------------------------------------------------------------------------
 void level_vrtz( cartman_mpd_t * pmesh )
 {
-    int mapx, mapy, fan, cnt;
+    int mapx, mapy, cnt;
     Uint32 vert;
 
     cartman_mpd_tile_t   * pfan   = NULL;
@@ -822,13 +1228,11 @@ void level_vrtz( cartman_mpd_t * pmesh )
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
+            pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+            if ( NULL == pfan ) continue;
 
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-            pfan = pmesh->fan + fan;
-
-            if ( pfan->type >= MPD_FAN_TYPE_MAX ) continue;
-            pdef = tile_dict + pfan->type;
+            pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+            if ( NULL == pdef ) continue;
 
             vert = pfan->vrtstart;
             for ( cnt = 0; cnt < pdef->numvertices; cnt++ )
@@ -843,13 +1247,15 @@ void level_vrtz( cartman_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 void jitter_mesh( cartman_mpd_t * pmesh )
 {
-    int mapx, mapy, fan, num, cnt;
+    int mapx, mapy, num, cnt;
     Uint32 vert;
 
     select_lst_t loc_lst = SELECT_LST_INIT;
 
     // aliases
-    cartman_mpd_vertex_t * vlst    = NULL;
+    cartman_mpd_vertex_t * vlst = NULL;
+    tile_definition_t    * pdef = NULL;
+    cartman_mpd_tile_t   * pfan = NULL;
 
     // grab the correct mesh
     if ( NULL == pmesh ) pmesh = &mesh;
@@ -864,15 +1270,13 @@ void jitter_mesh( cartman_mpd_t * pmesh )
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            cartman_mpd_tile_t   * pfan = NULL;
+            pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+            if ( NULL == pfan ) continue;
 
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
+            pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+            if ( NULL == pdef ) continue;
 
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-            pfan = pmesh->fan + fan;
-
-            if ( pfan->type >= MPD_FAN_TYPE_MAX ) continue;
-            num = tile_dict[pfan->type].numvertices;
+            num = pdef->numvertices;
 
             // clear the selection
             select_lst_clear( &loc_lst );
@@ -894,12 +1298,13 @@ void jitter_mesh( cartman_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 void flatten_mesh( cartman_mpd_t * pmesh, int y0 )
 {
-    int mapx, mapy, fan, num, cnt;
+    int mapx, mapy, num, cnt;
     Uint32 vert;
     int height;
 
-    cartman_mpd_tile_t   * pfan   = NULL;
-    cartman_mpd_vertex_t * vlst   = NULL;
+    cartman_mpd_tile_t   * pfan = NULL;
+    cartman_mpd_vertex_t * vlst = NULL;
+    tile_definition_t    * pdef = NULL;
 
     if ( NULL == pmesh ) pmesh = &mesh;
     vlst = pmesh->vrt;
@@ -912,13 +1317,13 @@ void flatten_mesh( cartman_mpd_t * pmesh, int y0 )
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
+            pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+            if ( NULL == pfan ) continue;
 
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-            pfan = pmesh->fan + fan;
+            pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+            if ( NULL == pdef ) continue;
 
-            if ( pfan->type >= MPD_FAN_TYPE_MAX ) continue;
-            num = tile_dict[pfan->type].numvertices;
+            num = pdef->numvertices;
 
             vert = pfan->vrtstart;
             for ( cnt = 0; cnt < num; cnt++ )
@@ -941,7 +1346,6 @@ void flatten_mesh( cartman_mpd_t * pmesh, int y0 )
 void clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type )
 {
     int mapx, mapy;
-    int fan;
     int loc_type = type;
 
     cartman_mpd_tile_t   * pfan   = NULL;
@@ -957,12 +1361,10 @@ void clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, U
             {
                 int tx_bits;
 
-                fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
+                pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+                if ( NULL == pfan ) continue;
 
-                if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-                pfan = pmesh->fan + fan;
-
-                cartman_mpd_remove_fan( pmesh, fan );
+                cartman_mpd_remove_pfan( pmesh, pfan );
 
                 tx_bits = TILE_SET_UPPER_BITS( upper );
                 switch ( presser )
@@ -990,7 +1392,7 @@ void clear_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, U
                 if ( loc_type == 32 || loc_type == 33 ) loc_type = 32 + ( rand() & 1 );
                 pfan->type = loc_type;
 
-                cartman_mpd_add_fan( pmesh, fan, mapx * TILE_ISIZE, mapy * TILE_ISIZE );
+                cartman_mpd_add_pfan( pmesh, pfan, mapx * TILE_ISIZE, mapy * TILE_ISIZE );
             }
         }
     }
@@ -1002,7 +1404,6 @@ void three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
     // ZZ> Replace all 3F tiles with 3E tiles...
 
     int mapx, mapy;
-    int fan;
 
     cartman_mpd_tile_t   * pfan   = NULL;
 
@@ -1017,10 +1418,8 @@ void three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
-
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-            pfan = pmesh->fan + fan;
+            pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+            if ( NULL == pfan ) continue;
 
             if ( 0x3F == pfan->tx_bits )
             {
@@ -1031,24 +1430,42 @@ void three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fan_is_floor( cartman_mpd_t * pmesh, int x, int y )
+bool_t fan_is_floor( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
-    int fan;
+    cartman_mpd_tile_t * pfan;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    fan = cartman_mpd_get_fan( pmesh, x, y );
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return bfalse;
+    pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+    if ( NULL == pfan ) return bfalse;
 
-    return !HAS_BITS( pmesh->fan[fan].fx, ( MPDFX_WALL | MPDFX_IMPASS ) );
+    return !HAS_BITS( pfan->fx, ( MAPFX_WALL | MAPFX_IMPASS ) );
 }
 
 //--------------------------------------------------------------------------------------------
-void set_barrier_height( cartman_mpd_t * pmesh, int x, int y, int bits )
+bool_t fan_is_wall( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
-    Uint32 fantype, fan, vert, vert_count;
-    int cnt, noedges;
-    float bestprox, prox, tprox, max_height, min_height;
+    cartman_mpd_tile_t * pfan;
+
+    if ( NULL == pmesh ) pmesh = &mesh;
+
+    pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+    if ( NULL == pfan ) return btrue;
+
+    return HAS_BITS( pfan->fx, ( MAPFX_WALL | MAPFX_IMPASS ) );
+}
+
+//--------------------------------------------------------------------------------------------
+#define BARRIER_FUNC(XX) ( 1.0f - (1.0f - (XX)) * (1.0f - (XX)) * (1.0f - (XX)) )
+
+void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
+{
+    Uint32 vert, vert_count;
+    int cnt;
+    bool_t noedges, nocorners;
+    float bestprox, prox, tprox, max_hgt, min_hgt;
+
+    float corner_hgt[4];
 
     bool_t floor_mx, floor_px, floor_my, floor_py;
     bool_t floor_mxmy, floor_mxpy, floor_pxmy, floor_pxpy;
@@ -1060,119 +1477,183 @@ void set_barrier_height( cartman_mpd_t * pmesh, int x, int y, int bits )
     if ( NULL == pmesh ) pmesh = &mesh;
     vlst = pmesh->vrt;
 
-    fan = cartman_mpd_get_fan( pmesh, x, y );
-
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
-    pfan = pmesh->fan + fan;
-
-    // bust be a MPDFX_WALL
-    if ( !HAS_BITS( pfan->fx, bits ) ) return;
-
-    floor_mx   = fan_is_floor( pmesh,  x - 1, y );
-    floor_px   = fan_is_floor( pmesh,  x + 1, y );
-    floor_my   = fan_is_floor( pmesh,  x, y - 1 );
-    floor_py   = fan_is_floor( pmesh,  x, y + 1 );
-    noedges = !( floor_mx || floor_px || floor_my || floor_py );
-
-    floor_mxmy = fan_is_floor( pmesh,  x - 1, y - 1 );
-    floor_mxpy = fan_is_floor( pmesh,  x - 1, y + 1 );
-    floor_pxmy = fan_is_floor( pmesh,  x + 1, y - 1 );
-    floor_pxpy = fan_is_floor( pmesh,  x + 1, y + 1 );
-
-    // valid fantype?
-    fantype = pfan->type;
-    if ( fantype >= MPD_FAN_TYPE_MAX ) return;
+    // does the fan exist?
+    pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+    if ( NULL == pfan ) return;
 
     // fan is defined?
-    pdef = tile_dict + fantype;
-    if ( 0 == pdef->numvertices ) return;
-
+    pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    if( NULL == pdef || 0 == pdef->numvertices ) return;
     vert_count = pdef->numvertices;
 
-    vert       = pfan->vrtstart;
+    // must not be a floor
+    if ( fan_is_floor( pmesh,  mapx, mapy ) ) return;
 
-    min_height = vlst[vert].z;
-    max_height = vlst[vert].z;
-    vert       = vlst[vert].next;
-    for ( cnt = 1; cnt < vert_count; cnt++ )
+    // find other walls around this tile
+    floor_mx = fan_is_floor( pmesh,  mapx - 1, mapy );
+    floor_px = fan_is_floor( pmesh,  mapx + 1, mapy );
+    floor_my = fan_is_floor( pmesh,  mapx, mapy - 1 );
+    floor_py = fan_is_floor( pmesh,  mapx, mapy + 1 );
+    noedges  = !floor_mx && !floor_px && !floor_my && !floor_py;
+
+    floor_mxmy = fan_is_floor( pmesh,  mapx - 1, mapy - 1 );
+    floor_mxpy = fan_is_floor( pmesh,  mapx - 1, mapy + 1 );
+    floor_pxmy = fan_is_floor( pmesh,  mapx + 1, mapy - 1 );
+    floor_pxpy = fan_is_floor( pmesh,  mapx + 1, mapy + 1 );
+    nocorners = !floor_mxmy && !floor_mxpy && !floor_pxmy && !floor_pxpy;
+
+    // if it is completely surrounded by walls, there's nothing to do
+    if ( noedges && nocorners ) return;
+
+    // initialize the min/max values
+    vert       = pfan->vrtstart;
+    corner_hgt[0] = vlst[vert].z;
+    min_hgt = corner_hgt[0];
+    max_hgt = corner_hgt[0];
+    vert = vlst[vert].next;
+
+    // iterate through the corners
+    for ( cnt = 1; cnt < 4 && CHAINEND != vert; vert = vlst[vert].next, cnt++ )
     {
-        min_height = MIN( min_height, vlst[vert].z );
-        max_height = MAX( max_height, vlst[vert].z );
-        vert       = vlst[vert].next;
+        corner_hgt[cnt] = vlst[vert].z;
+        min_hgt = MIN( min_hgt, corner_hgt[cnt] );
+        max_hgt = MAX( max_hgt, corner_hgt[cnt] );
     }
 
-    vert = pfan->vrtstart;
-    for ( cnt = 0; cnt < vert_count; cnt++ )
+    // correct all vertices
+    for ( cnt = 0, vert = pfan->vrtstart; cnt < vert_count && CHAINEND != vert; cnt++, vert = vlst[vert].next )
     {
-        float ftmp;
+        float ftmp, weight;
+        float vsum, wsum;
 
-        bestprox = NEARHI; // 2.0f / 3.0f * (NEARHI - NEARLOW);
-        if ( floor_px )
+        vsum = 0.0f;
+        wsum = 0.0f;
+
+        if( !noedges )
         {
-            prox = NEARHI - ( int )( pdef->u[cnt] * TILE_FSIZE );
-            if ( prox < bestprox ) bestprox = prox;
-        }
-        if ( floor_py )
-        {
-            prox = NEARHI - ( int )( pdef->v[cnt] * TILE_FSIZE );
-            if ( prox < bestprox ) bestprox = prox;
-        }
-        if ( floor_mx )
-        {
-            prox = ( int )( pdef->u[cnt] * TILE_FSIZE ) - NEARLOW;
-            if ( prox < bestprox ) bestprox = prox;
-        }
-        if ( floor_my )
-        {
-            prox = ( int )( pdef->v[cnt] * TILE_FSIZE ) - NEARLOW;
-            if ( prox < bestprox ) bestprox = prox;
+            if ( !floor_mx )
+            {
+                weight = (float)(pdef->grid_iy[cnt]) / 3.0f;
+                ftmp   = weight * corner_hgt[CORNER_BL] + (1.0f - weight) * corner_hgt[CORNER_TL];
+                ftmp  -= min_hgt;
+
+                weight = (float)(3 - pdef->grid_ix[cnt]) / 3.0f;
+                ftmp *= BARRIER_FUNC(weight);
+
+                vsum += weight * ftmp;
+                wsum += weight;
+            }
+
+            if ( !floor_px )
+            {
+                weight = (float)(pdef->grid_iy[cnt]) / 3.0f;
+                ftmp   = weight * corner_hgt[CORNER_BR] + (1.0f - weight) * corner_hgt[CORNER_TR];
+                ftmp  -= min_hgt;
+
+                weight = (float)(pdef->grid_ix[cnt]) / 3.0f;
+                ftmp *= BARRIER_FUNC(weight);
+
+                vsum += weight * ftmp;
+                wsum += weight;
+            }
+
+            if ( !floor_my )
+            {
+                weight = (float)(3 - pdef->grid_ix[cnt]) / 3.0f;
+                ftmp   = weight * corner_hgt[CORNER_TL] + (1.0f - weight) * corner_hgt[CORNER_TR];
+                ftmp  -= min_hgt;
+
+                weight = (float)(3 - pdef->grid_iy[cnt]) / 3.0f;
+                ftmp *= BARRIER_FUNC(weight);
+
+                vsum += weight * ftmp;
+                wsum += weight;
+            }
+
+            if ( !floor_py )
+            {
+                weight = (float)(pdef->grid_ix[cnt]) / 3.0f;
+                ftmp   = weight * corner_hgt[CORNER_BR] + (1.0f - weight) * corner_hgt[CORNER_BL];
+                ftmp  -= min_hgt;
+
+                weight = (float)(pdef->grid_iy[cnt]) / 3.0f;
+                ftmp *= BARRIER_FUNC(weight);
+
+                vsum += weight * ftmp;
+                wsum += weight;
+            }
         }
 
-        if ( noedges )
+        if( !nocorners )
         {
-            // Surrounded by walls on all 4 sides, but it may be a corner piece
-            if ( floor_pxpy )
+            if ( !floor_pxpy )
             {
-                prox  = NEARHI - ( int )( pdef->u[cnt] * TILE_FSIZE );
-                tprox = NEARHI - ( int )( pdef->v[cnt] * TILE_FSIZE );
-                if ( tprox > prox ) prox = tprox;
-                if ( prox < bestprox ) bestprox = prox;
+                ftmp = corner_hgt[CORNER_BR] - min_hgt;
+
+                weight = (float)MAX( pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC(weight);
+
+                vsum += weight * ftmp;
+                wsum += weight;
             }
-            if ( floor_pxmy )
+
+            if ( !floor_pxmy )
             {
-                prox = NEARHI - ( int )( pdef->u[cnt] * TILE_FSIZE );
-                tprox = ( int )( pdef->v[cnt] * TILE_FSIZE ) - NEARLOW;
-                if ( tprox > prox ) prox = tprox;
-                if ( prox < bestprox ) bestprox = prox;
+                ftmp = corner_hgt[CORNER_TR] - min_hgt;
+
+                weight = (float)MIN( pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC(weight);
+
+                vsum += weight * ftmp;
+                wsum += weight;
             }
-            if ( floor_mxpy )
+
+            if ( !floor_mxpy )
             {
-                prox = ( int )( pdef->u[cnt] * TILE_FSIZE ) - NEARLOW;
-                tprox = NEARHI - ( int )( pdef->v[cnt] * TILE_FSIZE );
-                if ( tprox > prox ) prox = tprox;
-                if ( prox < bestprox ) bestprox = prox;
+                ftmp = corner_hgt[CORNER_BL] - min_hgt;
+
+                weight = (float)MIN( 3 - pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC(weight);
+
+                vsum += weight * ftmp;
+                wsum += weight;        
             }
-            if ( floor_mxmy )
+
+            if ( !floor_mxmy )
             {
-                prox =  pdef->u[cnt] * TILE_FSIZE - NEARLOW;
-                tprox =  pdef->v[cnt] * TILE_FSIZE - NEARLOW;
-                if ( tprox > prox ) prox = tprox;
-                if ( prox < bestprox ) bestprox = prox;
+                ftmp = corner_hgt[CORNER_TL] - min_hgt;
+
+                weight = (float)MIN( 3 - pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
+                ftmp *= BARRIER_FUNC(weight);
+
+                vsum += weight * ftmp;
+                wsum += weight;        
             }
         }
+
+        if( 0.0f == wsum )
+        {
+            vsum = vlst[vert].z - min_hgt;
+            wsum = 1.0f;
+        }
+
         //scale = window_lst[mdata.window_id].surfacey - (mdata.rect_y0);
         //bestprox = bestprox * scale * BARRIERHEIGHT / window_lst[mdata.window_id].surfacey;
 
         //if (bestprox > pmesh->info.edgez) bestprox = pmesh->info.edgez;
         //if (bestprox < 0) bestprox = 0;
 
-        ftmp = bestprox / TILE_ISIZE;
-        ftmp = 1.0f - ftmp;
-        ftmp *= ftmp * ftmp;
-        ftmp = 1.0f - ftmp;
+        if( wsum > 0.0f )
+        {
+            ftmp = vsum / wsum;
+        }
+        else
+        {
+            ftmp = 0.0f;
+        }
 
-        vlst[vert].z = ftmp * ( max_height - min_height ) + min_height;
-        vert = vlst[vert].next;
+        // interpolate a value
+        vlst[vert].z = ftmp + min_hgt;
     }
 }
 
@@ -1183,11 +1664,15 @@ void fix_walls( cartman_mpd_t * pmesh )
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
+    // make sure the corners are correct
+    fix_corners( pmesh );
+
+    // adjust the wall-icity of all non-corner vertices
     for ( mapy = 0; mapy < pmesh->info.tiles_y; mapy++ )
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            set_barrier_height( pmesh,  mapx, mapy, MPDFX_WALL | MPDFX_IMPASS );
+            set_barrier_height( pmesh, mapx, mapy );
         }
     }
 }
@@ -1196,7 +1681,7 @@ void fix_walls( cartman_mpd_t * pmesh )
 void impass_edges( cartman_mpd_t * pmesh, int amount )
 {
     int mapx, mapy;
-    int fan;
+    cartman_mpd_tile_t * pfan;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1206,11 +1691,10 @@ void impass_edges( cartman_mpd_t * pmesh, int amount )
         {
             if ( dist_from_edge( pmesh,  mapx, mapy ) < amount )
             {
-                fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
-                if ( fan >= 0 && fan < MPD_TILE_MAX )
-                {
-                    pmesh->fan[fan].fx |= MPDFX_IMPASS;
-                }
+                pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+                if ( NULL == pfan ) continue;
+
+                pfan->fx |= MAPFX_IMPASS;
             }
         }
     }
@@ -1234,10 +1718,8 @@ void mesh_replace_fx( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask, Uin
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            int fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
-
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-            pfan = pmesh->fan + fan;
+            pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+            if ( NULL == pfan ) continue;
 
             if ( fx_bits == ( pfan->tx_bits&fx_mask ) )
             {
@@ -1252,20 +1734,17 @@ void mesh_replace_fx( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask, Uin
 Uint8 tile_is_different( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits, Uint16 fx_mask )
 {
     // ZZ> bfalse if of same set, btrue if different
-    int fan;
 
     cartman_mpd_tile_t   * pfan   = NULL;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
-
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return bfalse;
-    pfan = pmesh->fan + fan;
+    pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+    if ( NULL == pfan ) return bfalse;
 
     if ( fx_mask == 0xC0 )
     {
-        if ( pfan->tx_bits >= ( MPDFX_WALL | MPDFX_IMPASS ) )
+        if ( pfan->tx_bits >= ( MAPFX_WALL | MAPFX_IMPASS ) )
         {
             return bfalse;
         }
@@ -1461,7 +1940,7 @@ Uint16 wall_code( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits )
 void trim_mesh_tile( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask )
 {
     // ZZ> This function trims walls and floors and tops automagically
-    int fan;
+
     int mapx, mapy, code;
 
     cartman_mpd_tile_t   * pfan   = NULL;
@@ -1474,10 +1953,8 @@ void trim_mesh_tile( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask )
     {
         for ( mapx = 0; mapx < pmesh->info.tiles_x; mapx++ )
         {
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
-
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-            pfan = pmesh->fan + fan;
+            pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+            if ( NULL == pfan ) continue;
 
             if ( fx_bits == ( pfan->tx_bits&fx_mask ) )
             {
@@ -1512,8 +1989,8 @@ void mesh_replace_tile( cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan,
     if ( NULL == pmesh ) pmesh = &mesh;
     vlst = pmesh->vrt;
 
-    if ( _onfan < 0 || _onfan >= MPD_TILE_MAX ) return;
-    pfan = pmesh->fan + _onfan;
+    pfan = CART_MPD_FAN_PTR( pmesh, _onfan );
+    if ( NULL == pfan ) return;
 
     if ( !tx_only )
     {
@@ -1531,18 +2008,19 @@ void mesh_replace_tile( cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan,
             pos[CORNER_TR][kZ] = vlst[vert].z;
 
             vert = vlst[vert].next;
-            pos[CORNER_BL][kX] = vlst[vert].x;
-            pos[CORNER_BL][kY] = vlst[vert].y;
-            pos[CORNER_BL][kZ] = vlst[vert].z;
-
-            vert = vlst[vert].next;
             pos[CORNER_BR][kX] = vlst[vert].x;
             pos[CORNER_BR][kY] = vlst[vert].y;
             pos[CORNER_BR][kZ] = vlst[vert].z;
+
+            vert = vlst[vert].next;
+            pos[CORNER_BL][kX] = vlst[vert].x;
+            pos[CORNER_BL][kY] = vlst[vert].y;
+            pos[CORNER_BL][kZ] = vlst[vert].z;
         }
-        cartman_mpd_remove_fan( pmesh, _onfan );
+        cartman_mpd_remove_ifan( pmesh, _onfan );
     }
 
+    // set the texture info
     tx_bits = TILE_SET_UPPER_BITS( _upper );
     switch ( _presser )
     {
@@ -1567,9 +2045,10 @@ void mesh_replace_tile( cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan,
     if ( !tx_only )
     {
         pfan->type = _type;
-        cartman_mpd_add_fan( pmesh, _onfan, _xfan * TILE_ISIZE, _yfan * TILE_ISIZE );
+        cartman_mpd_add_ifan( pmesh, _onfan, _xfan * TILE_ISIZE, _yfan * TILE_ISIZE );
         pfan->fx = _fx;
-        if ( !at_floor_level )
+
+        if ( 0 /*!at_floor_level*/ )
         {
             // Return corner positions
             vert = pfan->vrtstart;
@@ -1583,14 +2062,14 @@ void mesh_replace_tile( cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan,
             vlst[vert].z = pos[CORNER_TR][kZ];
 
             vert = vlst[vert].next;
-            vlst[vert].x = pos[CORNER_BL][kX];
-            vlst[vert].y = pos[CORNER_BL][kY];
-            vlst[vert].z = pos[CORNER_BL][kZ];
-
-            vert = vlst[vert].next;
             vlst[vert].x = pos[CORNER_BR][kX];
             vlst[vert].y = pos[CORNER_BR][kY];
             vlst[vert].z = pos[CORNER_BR][kZ];
+
+            vert = vlst[vert].next;
+            vlst[vert].x = pos[CORNER_BL][kX];
+            vlst[vert].y = pos[CORNER_BL][kY];
+            vlst[vert].z = pos[CORNER_BL][kZ];
         }
     }
 }
@@ -1598,9 +2077,12 @@ void mesh_replace_tile( cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan,
 //--------------------------------------------------------------------------------------------
 void mesh_set_fx( cartman_mpd_t * pmesh, int fan, Uint8 fx )
 {
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
+    cartman_mpd_tile_t * pfan;
 
     if ( NULL == pmesh ) pmesh = &mesh;
+
+    pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if ( NULL == pfan ) return;
 
     pmesh->fan[fan].fx = fx;
 }
@@ -1608,11 +2090,11 @@ void mesh_set_fx( cartman_mpd_t * pmesh, int fan, Uint8 fx )
 //--------------------------------------------------------------------------------------------
 void mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz )
 {
-    int fan;
     Uint32 vert;
     int mapx, mapy, cnt;
 
-    cartman_mpd_tile_t   * pfan   = NULL;
+    cartman_mpd_tile_t * pfan   = NULL;
+    tile_definition_t  * pdef    = NULL;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1622,13 +2104,13 @@ void mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz )
         {
             int count;
 
-            fan = cartman_mpd_get_fan( pmesh, mapx, mapy );
+            pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+            if ( NULL == pfan ) continue;
 
-            if ( fan < 0 || fan >= MPD_TILE_MAX ) continue;
-            pfan = pmesh->fan + fan;
+            pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+            if ( NULL == pdef ) continue;
 
-            if ( pfan->type >= MPD_FAN_TYPE_MAX ) continue;
-            count = tile_dict[pfan->type].numvertices;
+            count = pdef->numvertices;
 
             for ( cnt = 0, vert = pfan->vrtstart;
                   cnt < count && CHAINEND != vert;

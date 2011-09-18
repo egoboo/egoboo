@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file mpd_BSP.c
+/// @file map_BSP.c
 /// @brief Implementation of functions for the mpd BSP
 /// @details
 
-#include "mpd_BSP.h"
+#include "mesh_BSP.h"
 
 #include "../egolib/frustum.h"
 #include "../egolib/_math.inl"
@@ -39,27 +39,27 @@ static bool_t _mpd_BSP_system_initialized = bfalse;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-mpd_BSP_t mpd_BSP_root = MPD_BSP_INIT;
+mesh_BSP_t mesh_BSP_root = MAP_BSP_INIT;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t mpd_BSP_insert( mpd_BSP_t * pbsp, ego_tile_info_t * ptile, int index );
+static bool_t mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_system_started( void )
+bool_t mesh_BSP_system_started( void )
 {
     return _mpd_BSP_system_initialized;
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv mpd_BSP_system_begin( ego_mpd_t * pmpd )
+egolib_rv mesh_BSP_system_begin( ego_mesh_t * pmpd )
 {
     // if he system is already started, do a reboot
     if ( _mpd_BSP_system_initialized )
     {
-        if ( rv_error == mpd_BSP_system_end() )
+        if ( rv_error == mesh_BSP_system_end() )
         {
             return rv_error;
         }
@@ -68,10 +68,10 @@ egolib_rv mpd_BSP_system_begin( ego_mpd_t * pmpd )
     // start the system using the given mesh
     if ( NULL != pmpd )
     {
-        mpd_BSP_t * rv;
+        mesh_BSP_t * rv;
 
         // initialize the mesh's BSP structure with the mesh tiles
-        rv = mpd_BSP_ctor( &mpd_BSP_root, pmpd );
+        rv = mesh_BSP_ctor( &mesh_BSP_root, pmpd );
 
         _mpd_BSP_system_initialized = ( NULL != rv );
     }
@@ -80,11 +80,11 @@ egolib_rv mpd_BSP_system_begin( ego_mpd_t * pmpd )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv  mpd_BSP_system_end( void )
+egolib_rv  mesh_BSP_system_end( void )
 {
     if ( _mpd_BSP_system_initialized )
     {
-        mpd_BSP_dtor( &mpd_BSP_root );
+        mesh_BSP_dtor( &mesh_BSP_root );
     }
 
     _mpd_BSP_system_initialized = bfalse;
@@ -94,7 +94,7 @@ egolib_rv  mpd_BSP_system_end( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mpd_BSP_t * mpd_BSP_ctor( mpd_BSP_t * pbsp, const ego_mpd_t * pmesh )
+mesh_BSP_t * mesh_BSP_ctor( mesh_BSP_t * pbsp, const ego_mesh_t * pmesh )
 {
     /// @author BB
     /// @details Create a new BSP tree for the mesh.
@@ -140,13 +140,13 @@ mpd_BSP_t * mpd_BSP_ctor( mpd_BSP_t * pbsp, const ego_mpd_t * pmesh )
     oct_bb_ctor( &( pbsp->volume ) );
 
     // do any additional allocation
-    mpd_BSP_alloc( pbsp );
+    mesh_BSP_alloc( pbsp );
 
     return pbsp;
 }
 
 //--------------------------------------------------------------------------------------------
-mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * pbsp )
+mesh_BSP_t * mesh_BSP_dtor( mesh_BSP_t * pbsp )
 {
     if ( NULL == pbsp ) return NULL;
 
@@ -154,7 +154,7 @@ mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * pbsp )
     BSP_tree_dtor( &( pbsp->tree ) );
 
     // free any other allocated memory
-    mpd_BSP_free( pbsp );
+    mesh_BSP_free( pbsp );
 
     BLANK_STRUCT_PTR( pbsp )
 
@@ -162,7 +162,7 @@ mpd_BSP_t * mpd_BSP_dtor( mpd_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_alloc( mpd_BSP_t * pbsp )
+bool_t mesh_BSP_alloc( mesh_BSP_t * pbsp )
 {
     if ( NULL == pbsp ) return bfalse;
 
@@ -173,7 +173,7 @@ bool_t mpd_BSP_alloc( mpd_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_free( mpd_BSP_t * pbsp )
+bool_t mesh_BSP_free( mesh_BSP_t * pbsp )
 {
     if ( NULL == pbsp ) return bfalse;
 
@@ -183,7 +183,7 @@ bool_t mpd_BSP_free( mpd_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_fill( mpd_BSP_t * pbsp, const ego_mpd_t * pmpd )
+bool_t mesh_BSP_fill( mesh_BSP_t * pbsp, const ego_mesh_t * pmpd )
 {
     int cnt;
 
@@ -206,7 +206,7 @@ bool_t mpd_BSP_fill( mpd_BSP_t * pbsp, const ego_mpd_t * pmpd )
     for ( cnt = 0, ptile = tlist; cnt < tcount; cnt++, ptile++ )
     {
         // try to insert the BSP
-        if ( mpd_BSP_insert( pbsp, ptile, cnt ) )
+        if ( mesh_BSP_insert( pbsp, ptile, cnt ) )
         {
             // add this tile's volume to the bsp's volume
             oct_bb_self_union( &( pbsp->volume ), &( ptile->oct ) );
@@ -217,7 +217,7 @@ bool_t mpd_BSP_fill( mpd_BSP_t * pbsp, const ego_mpd_t * pmpd )
 }
 
 //--------------------------------------------------------------------------------------------
-int mpd_BSP_collide_aabb( const mpd_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+int mesh_BSP_collide_aabb( const mesh_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
     /// @author BB
     /// @details fill the collision list with references to tiles that the object volume may overlap.
@@ -229,7 +229,7 @@ int mpd_BSP_collide_aabb( const mpd_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf
 }
 
 //--------------------------------------------------------------------------------------------
-int mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+int mesh_BSP_collide_frustum( const mesh_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
 {
     /// @author BB
     /// @details fill the collision list with references to tiles that the object volume may overlap.
@@ -241,7 +241,7 @@ int mpd_BSP_collide_frustum( const mpd_BSP_t * pbsp, const egolib_frustum_t * pf
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_insert( mpd_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
+bool_t mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
 {
     /// @author BB
     /// @details insert a tile's BSP_leaf_t into the BSP_tree_t
@@ -282,7 +282,7 @@ bool_t mpd_BSP_insert( mpd_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_can_collide( BSP_leaf_t * pleaf )
+bool_t mesh_BSP_can_collide( BSP_leaf_t * pleaf )
 {
     /// @author BB
     /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
@@ -303,7 +303,7 @@ bool_t mpd_BSP_can_collide( BSP_leaf_t * pleaf )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mpd_BSP_is_visible( BSP_leaf_t * pleaf )
+bool_t mesh_BSP_is_visible( BSP_leaf_t * pleaf )
 {
     /// @author BB
     /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf

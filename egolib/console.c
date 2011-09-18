@@ -652,7 +652,7 @@ SDL_Event * egolib_console_handle_events( SDL_Event * pevt )
 
                 if ( pcon->save_count > 0 )
                 {
-                    strncpy( pcon->buffer, egolib_console_get_saved(pcon), SDL_arraysize( pcon->buffer ) );
+                    strncpy( pcon->buffer, egolib_console_get_saved( pcon ), SDL_arraysize( pcon->buffer ) );
                     pcon->buffer_carat = strlen( pcon->buffer );
                     pcon->buffer_carat = (( int )pcon->buffer_carat ) - 1;
                 }
@@ -677,7 +677,7 @@ SDL_Event * egolib_console_handle_events( SDL_Event * pevt )
 
                 if ( pcon->save_count > 0 )
                 {
-                    strncpy( pcon->buffer, egolib_console_get_saved(pcon), EGOBOO_CONSOLE_LENGTH - 1 );
+                    strncpy( pcon->buffer, egolib_console_get_saved( pcon ), EGOBOO_CONSOLE_LENGTH - 1 );
                     pcon->buffer_carat = strlen( pcon->buffer );
                     pcon->buffer_carat = (( int )pcon->buffer_carat ) - 1;
                 }

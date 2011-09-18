@@ -32,7 +32,7 @@
 #include "game.h"
 #include "mesh.h"
 #include "obj_BSP.h"
-#include "mpd_functions.h"
+#include "mesh_functions.h"
 #include "mad.h"
 #include "renderer_3d.h"
 #include "egoboo.h"
@@ -1093,8 +1093,8 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     if ( !LOADED_PIP( pprt->pip_ref ) ) return retval;
     ppip = PipStack_get_ptr( pprt->pip_ref );
 
-    stoppedby = MPDFX_IMPASS;
-    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
+    stoppedby = MAPFX_IMPASS;
+    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
 
     // deal with the optional parameters
     loc_test_pos = ( NULL == test_pos ) ? prt_get_pos_v_const( pprt ) : test_pos;
@@ -1104,7 +1104,7 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_get_pressure( PMesh, loc_test_pos, 0.0f, stoppedby );
+        retval = ego_mesh_get_pressure( PMesh, loc_test_pos, 0.0f, stoppedby );
     }
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
@@ -1127,8 +1127,8 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
     if ( !LOADED_PIP( pprt->pip_ref ) ) return retval;
     ppip = PipStack_get_ptr( pprt->pip_ref );
 
-    stoppedby = MPDFX_IMPASS;
-    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
+    stoppedby = MAPFX_IMPASS;
+    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
 
     // deal with the optional parameters
     loc_test_pos = ( NULL == test_pos ) ? prt_get_pos_v_const( pprt ) : test_pos;
@@ -1136,7 +1136,7 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
 
     // calculate the radius based on whether the particle is on camera
     radius = 0.0f;
-    ptile = mesh_get_ptile( PMesh, pprt->onwhichgrid );
+    ptile = ego_mesh_get_ptile( PMesh, pprt->onwhichgrid );
     if ( NULL != ptile && ptile->inrenderlist )
     {
         radius = pprt->bump_real.size;
@@ -1146,7 +1146,7 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_get_diff( PMesh, loc_test_pos, radius, center_pressure, stoppedby );
+        retval = ego_mesh_get_diff( PMesh, loc_test_pos, radius, center_pressure, stoppedby );
     }
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
@@ -1170,8 +1170,8 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
     if ( !LOADED_PIP( pprt->pip_ref ) ) return EMPTY_BIT_FIELD;
     ppip = PipStack_get_ptr( pprt->pip_ref );
 
-    stoppedby = MPDFX_IMPASS;
-    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
+    stoppedby = MAPFX_IMPASS;
+    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
 
     // deal with the optional parameters
     if ( NULL == test_pos ) test_pos = prt_get_pos_v_const( pprt );
@@ -1181,7 +1181,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_hit_wall( PMesh, test_pos, 0.0f, stoppedby, nrm, pressure, pdata );
+        retval = ego_mesh_hit_wall( PMesh, test_pos, 0.0f, stoppedby, nrm, pressure, pdata );
     }
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
@@ -1205,8 +1205,8 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return EMPTY_BIT_FIELD;
     ppip = PipStack_get_ptr( pprt->pip_ref );
 
-    stoppedby = MPDFX_IMPASS;
-    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MPDFX_WALL );
+    stoppedby = MAPFX_IMPASS;
+    if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
 
     // handle optional parameters
     if ( NULL == test_pos ) test_pos = prt_get_pos_v_const( pprt );
@@ -1217,7 +1217,7 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_test_wall( PMesh, test_pos, 0.0f, stoppedby, pdata );
+        retval = ego_mesh_test_wall( PMesh, test_pos, 0.0f, stoppedby, pdata );
     }
     prt_stoppedby_tests += mesh_mpdfx_tests;
     prt_pressure_tests += mesh_pressure_tests;
@@ -1289,7 +1289,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
     penviro  = &( loc_pprt->enviro );
 
     //---- character "floor" level
-    penviro->floor_level = mesh_get_level( PMesh, loc_pprt->pos.x, loc_pprt->pos.y );
+    penviro->floor_level = ego_mesh_get_level( PMesh, loc_pprt->pos.x, loc_pprt->pos.y );
     penviro->level       = penviro->floor_level;
 
     //---- The actual level of the characer.
@@ -1315,11 +1315,11 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
         itile = loc_pprt->onwhichgrid;
     }
 
-    penviro->twist = mesh_get_twist( PMesh, itile );
+    penviro->twist = ego_mesh_get_twist( PMesh, itile );
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water.is_water && penviro->inwater;
-    penviro->is_slippy = !penviro->is_watery && ( 0 != mesh_test_fx( PMesh, loc_pprt->onwhichgrid, MPDFX_SLIPPY ) );
+    penviro->is_slippy = !penviro->is_watery && ( 0 != ego_mesh_test_fx( PMesh, loc_pprt->onwhichgrid, MAPFX_SLIPPY ) );
 
     //---- traction
     penviro->traction = 1.0f;
@@ -1346,7 +1346,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
             penviro->traction /= hillslide * ( 1.0f - penviro->zlerp ) + 1.0f * penviro->zlerp;
         }
     }
-    else if ( mesh_grid_is_valid( PMesh, loc_pprt->onwhichgrid ) )
+    else if ( ego_mesh_grid_is_valid( PMesh, loc_pprt->onwhichgrid ) )
     {
         penviro->traction = ABS( map_twist_nrm[penviro->twist].z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
@@ -1374,7 +1374,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
     {
         // Make the characters slide
         float temp_friction_xy = noslipfriction;
-        if ( mesh_grid_is_valid( PMesh, loc_pprt->onwhichgrid ) && penviro->is_slippy )
+        if ( ego_mesh_grid_is_valid( PMesh, loc_pprt->onwhichgrid ) && penviro->is_slippy )
         {
             // It's slippy all right...
             temp_friction_xy = slippyfriction;
@@ -2456,10 +2456,10 @@ bool_t prt_is_over_water( const PRT_REF iprt )
 
     if ( !ALLOCATED_PRT( iprt ) ) return bfalse;
 
-    fan = mesh_get_grid( PMesh, PrtList.lst[iprt].pos.x, PrtList.lst[iprt].pos.y );
-    if ( mesh_grid_is_valid( PMesh, fan ) )
+    fan = ego_mesh_get_grid( PMesh, PrtList.lst[iprt].pos.x, PrtList.lst[iprt].pos.y );
+    if ( ego_mesh_grid_is_valid( PMesh, fan ) )
     {
-        if ( 0 != mesh_test_fx( PMesh, fan, MPDFX_WATER ) )  return btrue;
+        if ( 0 != ego_mesh_test_fx( PMesh, fan, MAPFX_WATER ) )  return btrue;
     }
 
     return bfalse;
@@ -2921,7 +2921,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
     loc_ppip = pbdl_prt->pip_ptr;
     penviro  = &( loc_pprt->enviro );
 
-    inwater = ( pbdl_prt->prt_ptr->pos.z < water.surface_level ) && ( 0 != mesh_test_fx( PMesh, pbdl_prt->prt_ptr->onwhichgrid, MPDFX_WATER ) );
+    inwater = ( pbdl_prt->prt_ptr->pos.z < water.surface_level ) && ( 0 != ego_mesh_test_fx( PMesh, pbdl_prt->prt_ptr->onwhichgrid, MAPFX_WATER ) );
 
     if ( inwater && water.is_water && pbdl_prt->pip_ptr->end_water )
     {
@@ -3345,7 +3345,7 @@ bool_t prt_update_safe_raw( prt_t * pprt )
         pprt->safe_valid = btrue;
         prt_get_pos( pprt, pprt->safe_pos.v );
         pprt->safe_time  = update_wld;
-        pprt->safe_grid  = mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
+        pprt->safe_grid  = ego_mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
 
         retval = btrue;
     }
@@ -3368,7 +3368,7 @@ bool_t prt_update_safe( prt_t * pprt, bool_t force )
     }
     else
     {
-        new_grid = mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
+        new_grid = ego_mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
 
         if ( INVALID_TILE == new_grid )
         {
@@ -3398,8 +3398,8 @@ bool_t prt_update_pos( prt_t * pprt )
 {
     if ( !ALLOCATED_PPRT( pprt ) ) return bfalse;
 
-    pprt->onwhichgrid  = mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
-    pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
+    pprt->onwhichgrid  = ego_mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
+    pprt->onwhichblock = ego_mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
 
     // update whether the current character position is safe
     prt_update_safe( pprt, bfalse );

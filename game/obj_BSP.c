@@ -23,7 +23,7 @@
 
 #include "obj_BSP.h"
 
-#include "mpd_BSP.h"
+#include "mesh_BSP.h"
 
 #include "char.inl"
 #include "particle.inl"
@@ -41,7 +41,7 @@ obj_BSP_t prt_BSP_root = OBJ_BSP_INIT_VALS;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void obj_BSP_system_begin( mpd_BSP_t * pBSP )
+void obj_BSP_system_begin( mesh_BSP_t * pBSP )
 {
     /// @author BB
     /// @details initialize the obj_BSP list and load up some intialization files
@@ -105,7 +105,7 @@ bool_t obj_BSP_free( obj_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mpd_BSP_t * pmesh_bsp )
+bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp )
 {
     /// @author BB
     /// @details Create a new BSP tree for game objects.

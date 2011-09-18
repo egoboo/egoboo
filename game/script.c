@@ -216,9 +216,14 @@ void scr_run_chr_script( const CHR_REF character )
     }
 
     // Reset the target if it can't be seen
-    if (( pself->target != pself->index ) && !chr_can_see_object( character, pself->target ) )
+    if ( pself->target != pself->index )
     {
-        pself->target = pself->index;
+        chr_t * ptarget = ChrList_get_ptr( pself->target );
+
+        if ( !chr_can_see_object( pchr, ptarget ) )
+        {
+            pself->target = pself->index;
+        }
     }
 
     // reset the script state

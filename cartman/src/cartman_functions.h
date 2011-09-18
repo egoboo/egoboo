@@ -30,31 +30,33 @@
 //--------------------------------------------------------------------------------------------
 
 struct s_cartman_mpd;
+struct s_cartman_mpd_tile;
+struct s_tile_definition;
+
 struct s_select_lst;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define NEARLOW  0.0f //16.0f     // For autoweld
-#define NEARHI 128.0f //112.0f        //
+// For autoweld
+#define NEAR_TOLERANCE 1.0f
+#define NEAR_LOW       (0.0f + NEAR_TOLERANCE)
+#define NEAR_HGH       (TILE_FSIZE - NEAR_TOLERANCE)
+
 #define BARRIERHEIGHT 14.0f      //
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 float dist_from_border( struct s_cartman_mpd * pmesh, float x, float y );
-int dist_from_edge( struct s_cartman_mpd * pmesh, int x, int y );
-int nearest_vertex( struct s_cartman_mpd * pmesh, int x, int y, float nearx, float neary );
+int dist_from_edge( struct s_cartman_mpd * pmesh, int mapx, int mapy );
+int nearest_edge_vertex( struct s_cartman_mpd * pmesh, int mapx, int mapy, float nearx, float neary );
 
 void fix_mesh( struct s_cartman_mpd * pmesh );
-void fix_vertices( struct s_cartman_mpd * pmesh, int x, int y );
-void fix_corners( struct s_cartman_mpd * pmesh, int x, int y );
-
-void weld_0( struct s_cartman_mpd * pmesh, int x, int y );
-void weld_1( struct s_cartman_mpd * pmesh, int x, int y );
-void weld_2( struct s_cartman_mpd * pmesh, int x, int y );
-void weld_3( struct s_cartman_mpd * pmesh, int x, int y );
-void weld_cnt( struct s_cartman_mpd * pmesh, int x, int y, int cnt, Uint32 fan );
+void fix_corners( struct s_cartman_mpd * pmesh );
+void fix_edges( struct s_cartman_mpd * pmesh );
+void fix_vertices( struct s_cartman_mpd * pmesh, int mapx, int mapy );
+void weld_corner_verts( struct s_cartman_mpd * pmesh, int mapx, int mapy );
 
 // functions taking a selection as an argument
 void mesh_select_weld( const struct s_select_lst * plst );
@@ -77,8 +79,9 @@ void jitter_mesh( struct s_cartman_mpd * pmesh );
 void flatten_mesh( struct s_cartman_mpd * pmesh, int y0 );
 void clear_mesh( struct s_cartman_mpd * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type );
 void three_e_mesh( struct s_cartman_mpd * pmesh, Uint8 upper, Uint8 tx );
-bool_t fan_is_floor( struct s_cartman_mpd * pmesh, int x, int y );
-void   set_barrier_height( struct s_cartman_mpd * pmesh, int x, int y, int bits );
+bool_t fan_is_floor( struct s_cartman_mpd * pmesh, int mapx, int mapy );
+bool_t fan_is_wall( struct s_cartman_mpd * pmesh, int mapx, int mapy );
+void   set_barrier_height( struct s_cartman_mpd * pmesh, int mapx, int mapy );
 void   fix_walls( struct s_cartman_mpd * pmesh );
 void   impass_edges( struct s_cartman_mpd * pmesh, int amount );
 
@@ -89,6 +92,6 @@ void mesh_move( struct s_cartman_mpd * pmesh, float dx, float dy, float dz );
 
 // indecipherable legacy code
 Uint8  tile_is_different( struct s_cartman_mpd * pmesh, int fan_x, int fan_y, Uint16 fx_bits, Uint16 fx_mask );
-Uint16 trim_code( struct s_cartman_mpd * pmesh, int x, int y, Uint16 fx_bits );
-Uint16 wall_code( struct s_cartman_mpd * pmesh, int x, int y, Uint16 fx_bits );
+Uint16 trim_code( struct s_cartman_mpd * pmesh, int mapx, int mapy, Uint16 fx_bits );
+Uint16 wall_code( struct s_cartman_mpd * pmesh, int mapx, int mapy, Uint16 fx_bits );
 void   trim_mesh_tile( struct s_cartman_mpd * pmesh, Uint16 fx_bits, Uint16 fx_mask );

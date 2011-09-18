@@ -51,7 +51,6 @@ static int  netfile_sent = 0;                            // For network copy
 static int  netfile_expected = 0;                        // For network copy
 static int  netfile_playerrespond = 0;
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void netfile_initialize( void )

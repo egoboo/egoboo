@@ -77,7 +77,7 @@
 #include "camera_system.h"
 #include "collision.h"
 #include "obj_BSP.h"
-#include "mpd_BSP.h"
+#include "mesh_BSP.h"
 #include "script.h"
 #include "script_compile.h"
 #include "egoboo.h"
@@ -91,7 +91,7 @@
 
 //--------------------------------------------------------------------------------------------
 
-static ego_mpd_t         _mesh[2];
+static ego_mesh_t         _mesh[2];
 
 static game_process_t    _gproc;
 static game_module_t     _gmod;
@@ -120,7 +120,7 @@ size_t endtext_carat = 0;
 // Status displays
 status_list_t StatusList = STATUS_LIST_INIT;
 
-ego_mpd_t         * PMesh   = _mesh + 0;
+ego_mesh_t         * PMesh   = _mesh + 0;
 game_module_t     * PMod    = &_gmod;
 game_process_t    * GProc   = &_gproc;
 camera_t          * PCamera = NULL;
@@ -205,9 +205,9 @@ static bool_t upload_camera_data( const wawalite_camera_t * pdata );
 bool_t upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
 
 // misc
-static float get_mesh_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y, bool_t waterwalk );
-static float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool_t waterwalk );
-static float get_mesh_max_vertex_2( ego_mpd_t * pmesh, chr_t * pchr );
+static float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, bool_t waterwalk );
+static float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool_t waterwalk );
+static float get_mesh_max_vertex_2( ego_mesh_t * pmesh, chr_t * pchr );
 
 static bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info );
 static bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info );
@@ -891,7 +891,7 @@ int update_game( void )
 
                 // keep the mpdfx lists up-to-date. No calculation is done unless one
                 // of the mpdfx values was changed during the last update
-                mpdfx_lists_synch( &(PMesh->fxlists), &(PMesh->gmem), bfalse );
+                mpdfx_lists_synch( &( PMesh->fxlists ), &( PMesh->gmem ), bfalse );
 
                 // read the input values
                 input_read_all_devices();
@@ -1311,7 +1311,7 @@ int game_process_do_begin( game_process_t * gproc )
     est_update_game_time  = 1.0f / TARGET_UPS;
     est_max_game_ups      = TARGET_UPS;
 
-    obj_BSP_system_begin( &mpd_BSP_root );
+    obj_BSP_system_begin( &mesh_BSP_root );
 
     return 1;
 }
@@ -1729,7 +1729,7 @@ bool_t chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const
     if ( ptst->alive == HAS_SOME_BITS( targeting_bits, TARGET_DEAD ) ) return bfalse;
 
     // Don't target invisible stuff, unless we can actually see them
-    if ( !chr_can_see_object( GET_REF_PCHR( psrc ), ichr_test ) ) return bfalse;
+    if ( !chr_can_see_object( psrc, ptst ) ) return bfalse;
 
     //Need specific skill? ([NONE] always passes)
     if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst, idsz ) ) return bfalse;
@@ -1901,8 +1901,8 @@ void do_damage_tiles( void )
         if ( INGAME_CHR( pchr->inwhich_inventory ) ) continue;
 
         // are we on a damage tile?
-        if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
-        if ( 0 == mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_DAMAGE ) ) continue;
+        if ( !ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
+        if ( 0 == ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_DAMAGE ) ) continue;
 
         // are we low enough?
         if ( pchr->pos.z > pchr->enviro.floor_level + DAMAGERAISE ) continue;
@@ -2568,16 +2568,16 @@ void show_armor( int statindex )
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
-                  pcap->damage_resistance[DAMAGE_SLASH][skinlevel]*100,
-                  pcap->damage_resistance[DAMAGE_CRUSH][skinlevel]*100,
-                  pcap->damage_resistance[DAMAGE_POKE ][skinlevel]*100 );
+                       pcap->damage_resistance[DAMAGE_SLASH][skinlevel]*100,
+                       pcap->damage_resistance[DAMAGE_CRUSH][skinlevel]*100,
+                       pcap->damage_resistance[DAMAGE_POKE ][skinlevel]*100 );
 
     DisplayMsg_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
-                  pcap->damage_resistance[DAMAGE_HOLY][skinlevel]*100,
-                  pcap->damage_resistance[DAMAGE_EVIL][skinlevel]*100,
-                  pcap->damage_resistance[DAMAGE_FIRE][skinlevel]*100,
-                  pcap->damage_resistance[DAMAGE_ICE ][skinlevel]*100,
-                  pcap->damage_resistance[DAMAGE_ZAP ][skinlevel]*100 );
+                       pcap->damage_resistance[DAMAGE_HOLY][skinlevel]*100,
+                       pcap->damage_resistance[DAMAGE_EVIL][skinlevel]*100,
+                       pcap->damage_resistance[DAMAGE_FIRE][skinlevel]*100,
+                       pcap->damage_resistance[DAMAGE_ICE ][skinlevel]*100,
+                       pcap->damage_resistance[DAMAGE_ZAP ][skinlevel]*100 );
 
     DisplayMsg_printf( "~Type: %s", ( pcap->skindressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
 
@@ -2664,16 +2664,16 @@ void show_full_status( int statindex )
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
-                  pchr->damage_resistance[DAMAGE_SLASH]*100,
-                  pchr->damage_resistance[DAMAGE_CRUSH]*100,
-                  pchr->damage_resistance[DAMAGE_POKE ]*100 );
+                       pchr->damage_resistance[DAMAGE_SLASH]*100,
+                       pchr->damage_resistance[DAMAGE_CRUSH]*100,
+                       pchr->damage_resistance[DAMAGE_POKE ]*100 );
 
     DisplayMsg_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
-                  pchr->damage_resistance[DAMAGE_HOLY]*100,
-                  pchr->damage_resistance[DAMAGE_EVIL]*100,
-                  pchr->damage_resistance[DAMAGE_FIRE]*100,
-                  pchr->damage_resistance[DAMAGE_ICE ]*100,
-                  pchr->damage_resistance[DAMAGE_ZAP ]*100 );
+                       pchr->damage_resistance[DAMAGE_HOLY]*100,
+                       pchr->damage_resistance[DAMAGE_EVIL]*100,
+                       pchr->damage_resistance[DAMAGE_FIRE]*100,
+                       pchr->damage_resistance[DAMAGE_ICE ]*100,
+                       pchr->damage_resistance[DAMAGE_ZAP ]*100 );
 
     get_chr_regeneration( pchr, &liferegen, &manaregen );
 
@@ -2705,12 +2705,12 @@ void show_magic_status( int statindex )
 
     // Enchantment status
     DisplayMsg_printf( "~See Invisible: %s~~See Kurses: %s",
-                  pchr->see_invisible_level ? "Yes" : "No",
-                  pchr->see_kurse_level ? "Yes" : "No" );
+                       pchr->see_invisible_level ? "Yes" : "No",
+                       pchr->see_kurse_level ? "Yes" : "No" );
 
     DisplayMsg_printf( "~Channel Life: %s~~Waterwalking: %s",
-                  pchr->canchannel ? "Yes" : "No",
-                  pchr->waterwalk ? "Yes" : "No" );
+                       pchr->canchannel ? "Yes" : "No",
+                       pchr->waterwalk ? "Yes" : "No" );
 
     switch ( pchr->missiletreatment )
     {
@@ -2739,7 +2739,7 @@ void tilt_characters_to_terrain( void )
 
         if ( pchr->stickybutt )
         {
-            twist = mesh_get_twist( PMesh, pchr->onwhichgrid );
+            twist = ego_mesh_get_twist( PMesh, pchr->onwhichgrid );
             pchr->ori.map_facing_y = map_twist_y[twist];
             pchr->ori.map_facing_x = map_twist_x[twist];
         }
@@ -3360,9 +3360,9 @@ bool_t game_load_module_data( const char *smallname )
     /// @author ZZ
     /// @details This function loads a module
 
-    egolib_rv mpd_BSP_retval;
+    egolib_rv mesh_BSP_retval;
     STRING modname;
-    ego_mpd_t * pmesh_rv;
+    ego_mesh_t * pmesh_rv;
 
     // ensure that the script parser exists
     parser_state_t * ps = script_compiler_get_state();
@@ -3385,7 +3385,7 @@ bool_t game_load_module_data( const char *smallname )
     // load all module objects
     game_load_all_profiles( modname );
 
-    pmesh_rv = mesh_load( modname, PMesh );
+    pmesh_rv = ego_mesh_load( modname, PMesh );
     if ( NULL == pmesh_rv )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
@@ -3395,16 +3395,16 @@ bool_t game_load_module_data( const char *smallname )
         goto game_load_module_data_fail;
     }
 
-    // start the mpd_BSP_system
-    mpd_BSP_retval = mpd_BSP_system_begin( pmesh_rv );
-    if ( rv_error == mpd_BSP_retval )
+    // start the mesh_BSP_system
+    mesh_BSP_retval = mesh_BSP_system_begin( pmesh_rv );
+    if ( rv_error == mesh_BSP_retval )
     {
         goto game_load_module_data_fail;
     }
-    else if ( rv_success == mpd_BSP_retval )
+    else if ( rv_success == mesh_BSP_retval )
     {
-        // if it is started, populate the mpd_BSP
-        mpd_BSP_fill( &mpd_BSP_root, pmesh_rv );
+        // if it is started, populate the map_BSP
+        mesh_BSP_fill( &mesh_BSP_root, pmesh_rv );
     }
 
     return btrue;
@@ -3623,7 +3623,7 @@ void game_release_module_data( void )
     /// @author ZZ
     /// @details This function frees up memory used by the module
 
-    ego_mpd_t * ptmp;
+    ego_mesh_t * ptmp;
 
     // Disable ESP
     local_stats.sense_enemies_idsz = IDSZ_NONE;
@@ -3641,12 +3641,12 @@ void game_release_module_data( void )
 
     // delete the mesh data
     ptmp = PMesh;
-    mesh_destroy( &ptmp );
+    ego_mesh_destroy( &ptmp );
 
     // delete the mesh BSP data
-    mpd_BSP_system_end();
+    mesh_BSP_system_end();
 
-    // restore the original statically allocated ego_mpd_t header
+    // restore the original statically allocated ego_mesh_t header
     PMesh = _mesh + 0;
 }
 
@@ -3850,9 +3850,9 @@ void reset_all_object_lists( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mpd_t * set_PMesh( ego_mpd_t * pmpd )
+ego_mesh_t * set_PMesh( ego_mesh_t * pmpd )
 {
-    ego_mpd_t * pmpd_old = PMesh;
+    ego_mesh_t * pmpd_old = PMesh;
 
     PMesh = pmpd;
 
@@ -3870,7 +3870,7 @@ camera_t * set_PCamera( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
+float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool_t waterwalk )
 {
     /// @author ZZ
     /// @details This function returns the height of a point within a mesh fan, precise
@@ -3879,13 +3879,13 @@ float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 
     float zdone;
 
-    zdone = mesh_get_level( pmesh, x, y );
+    zdone = ego_mesh_get_level( pmesh, x, y );
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = mesh_get_grid( pmesh, x, y );
+        int tile = ego_mesh_get_grid( pmesh, x, y );
 
-        if ( 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
+        if ( 0 != ego_mesh_test_fx( pmesh, tile, MAPFX_WATER ) )
         {
             zdone = water.surface_level;
         }
@@ -4270,7 +4270,8 @@ void do_game_hud( void )
 
     if ( gfx_flip_pages_requested() && cfg.dev_mode )
     {
-        GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+        GL_DEBUG( glColor4fv )( white_vec );
+
         if ( fpson )
         {
             y = draw_string( 0, y, "%2.3f FPS, %2.3f UPS", stabilized_fps, stabilized_game_ups );
@@ -4994,7 +4995,7 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
             detection = generate_irand_pair( tmp_rand );
 
             can_steal = btrue;
-            if ( chr_can_see_object( iowner, ithief ) || detection <= 5 || ( detection - ( pthief->dexterity >> 7 ) + ( powner->wisdom >> 7 ) ) > 50 )
+            if ( chr_can_see_object( powner, pthief ) || detection <= 5 || ( detection - ( pthief->dexterity >> 7 ) + ( powner->wisdom >> 7 ) ) > 50 )
             {
                 ai_add_order( &( powner->ai ), SHOP_STOLEN, SHOP_THEFT );
                 powner->ai.target = ithief;
@@ -5011,7 +5012,7 @@ bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 {
     bool_t can_grab;
     bool_t is_invis, can_steal;
-    chr_t * pchr, * pitem;
+    chr_t * pchr, * pitem, *pkeeper;
     int ix, iy;
     CHR_REF shop_keeper;
 
@@ -5028,10 +5029,12 @@ bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 
     // check if we are doing this inside a shop
     shop_keeper = shop_get_owner( ix, iy );
-    if ( INGAME_CHR( shop_keeper ) )
+    pkeeper = ChrList_get_ptr( shop_keeper );
+    if ( INGAME_PCHR( pkeeper ) )
     {
+
         // check for a stealthy pickup
-        is_invis  = !chr_can_see_object( shop_keeper, ichr );
+        is_invis  = !chr_can_see_object( pkeeper, pchr );
 
         // pets are automatically stealthy
         can_steal = is_invis || pchr->isitem;
@@ -5059,15 +5062,15 @@ bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y, bool_t waterwalk )
+float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, bool_t waterwalk )
 {
-    float zdone = mesh_get_max_vertex_0( pmesh, grid_x, grid_y );
+    float zdone = ego_mesh_get_max_vertex_0( pmesh, grid_x, grid_y );
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = mesh_get_grid( pmesh, grid_x, grid_y );
+        int tile = ego_mesh_get_grid( pmesh, grid_x, grid_y );
 
-        if ( 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
+        if ( 0 != ego_mesh_test_fx( pmesh, tile, MAPFX_WATER ) )
         {
             zdone = water.surface_level;
         }
@@ -5077,15 +5080,15 @@ float get_mesh_max_vertex_0( ego_mpd_t * pmesh, int grid_x, int grid_y, bool_t w
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool_t waterwalk )
+float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool_t waterwalk )
 {
-    float zdone = mesh_get_max_vertex_1( pmesh, grid_x, grid_y, pbump->mins[OCT_X], pbump->mins[OCT_Y], pbump->maxs[OCT_X], pbump->maxs[OCT_Y] );
+    float zdone = ego_mesh_get_max_vertex_1( pmesh, grid_x, grid_y, pbump->mins[OCT_X], pbump->mins[OCT_Y], pbump->maxs[OCT_X], pbump->maxs[OCT_Y] );
 
     if ( waterwalk && water.surface_level > zdone && water.is_water )
     {
-        int tile = mesh_get_grid( pmesh, grid_x, grid_y );
+        int tile = ego_mesh_get_grid( pmesh, grid_x, grid_y );
 
-        if ( 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
+        if ( 0 != ego_mesh_test_fx( pmesh, tile, MAPFX_WATER ) )
         {
             zdone = water.surface_level;
         }
@@ -5095,7 +5098,7 @@ float get_mesh_max_vertex_1( ego_mpd_t * pmesh, int grid_x, int grid_y, oct_bb_t
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_2( ego_mpd_t * pmesh, chr_t * pchr )
+float get_mesh_max_vertex_2( ego_mesh_t * pmesh, chr_t * pchr )
 {
     /// @author BB
     /// @details the object does not overlap a single grid corner. Check the 4 corners of the collision volume
@@ -5125,7 +5128,7 @@ float get_mesh_max_vertex_2( ego_mpd_t * pmesh, chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
+float get_chr_level( ego_mesh_t * pmesh, chr_t * pchr )
 {
     float zmax;
     int ix, ixmax, ixmin;
@@ -5180,7 +5183,7 @@ float get_chr_level( ego_mpd_t * pmesh, chr_t * pchr )
             ftmp = -grid_x + grid_y;
             if ( ftmp < bump.mins[OCT_YX] || ftmp > bump.maxs[OCT_YX] ) continue;
 
-            itile = mesh_get_tile_int( pmesh, ix, iy );
+            itile = ego_mesh_get_tile_int( pmesh, ix, iy );
             if ( INVALID_TILE == itile ) continue;
 
             grid_vert_x[grid_vert_count] = ix;
@@ -5761,7 +5764,7 @@ bool_t water_instance_set_douse_level( water_instance_t * pinst, float level )
         pinst->layer[ilayer].z += dlevel;
     }
 
-    mesh_update_water_level( PMesh );
+    ego_mesh_update_water_level( PMesh );
 
     return btrue;
 }

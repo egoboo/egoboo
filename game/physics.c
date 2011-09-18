@@ -1103,8 +1103,8 @@ breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr )
     bc->pos.y  = ( FLOOR( pchr->pos.y / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
     bc->pos.z  = pchr->pos.z;
 
-    bc->grid   = mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
-    bc->valid  = ( 0 == mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );
+    bc->grid   = ego_mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
+    bc->valid  = ( 0 == ego_mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );
 
     bc->id = breadcrumb_guid++;
 
@@ -1127,8 +1127,8 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     ppip = prt_get_ppip( GET_REF_PPRT( pprt ) );
     if ( NULL == ppip ) return bc;
 
-    bits = MPDFX_IMPASS;
-    if ( 0 != ppip->bump_money ) SET_BIT( bits, MPDFX_WALL );
+    bits = MAPFX_IMPASS;
+    if ( 0 != ppip->bump_money ) SET_BIT( bits, MAPFX_WALL );
 
     bc->bits   = bits;
     bc->radius = pprt->bump_real.size;
@@ -1137,8 +1137,8 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     bc->pos.x  = ( FLOOR( bc->pos.x / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
     bc->pos.y  = ( FLOOR( bc->pos.y / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
 
-    bc->grid   = mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
-    bc->valid  = ( 0 == mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );
+    bc->grid   = ego_mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
+    bc->valid  = ( 0 == ego_mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );
 
     bc->id = breadcrumb_guid++;
 
@@ -1225,7 +1225,7 @@ void breadcrumb_list_validate( breadcrumb_list_t * lst )
         }
         else
         {
-            if ( 0 != mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) )
+            if ( 0 != ego_mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) )
             {
                 bc->valid = bfalse;
                 invalid_cnt++;

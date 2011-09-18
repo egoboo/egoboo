@@ -23,6 +23,7 @@
 
 #include "graphic_prt.h"
 #include "graphic_texture.h"
+#include "renderer_2d.h"
 #include "renderer_3d.h"
 
 #include "game.h"
@@ -1171,7 +1172,8 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
 
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
+
             render_oct_bb( &loc_bb, btrue, btrue );
         }
         GL_DEBUG( glEnable )( GL_TEXTURE_2D );

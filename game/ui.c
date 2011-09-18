@@ -482,8 +482,8 @@ float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float v
         tx_rect.ymax = ( float ) oglx_texture_getImageHeight( img ) / ( float ) oglx_texture_getTextureHeight( img );
 
         // convert the virtual coordinates to screen coordinates
-        ui_virtual_to_screen( vx, vy, &(scr_rect.xmin), &(scr_rect.ymin) );
-        ui_virtual_to_screen( vx + vw, vy + vh, &(scr_rect.xmax), &(scr_rect.ymax) );
+        ui_virtual_to_screen( vx, vy, &( scr_rect.xmin ), &( scr_rect.ymin ) );
+        ui_virtual_to_screen( vx + vw, vy + vh, &( scr_rect.xmax ), &( scr_rect.ymax ) );
 
         // Draw the image
         draw_quad_2d( img, scr_rect, tx_rect, btrue, image_tint );

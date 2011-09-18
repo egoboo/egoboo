@@ -445,10 +445,10 @@ bool_t line_of_sight_with_mesh( line_of_sight_info_t * plos )
         }
 
         // check to see if the "ray" collides with the mesh
-        fan = mesh_get_tile_int( PMesh, ix, iy );
+        fan = ego_mesh_get_tile_int( PMesh, ix, iy );
         if ( INVALID_TILE != fan && fan != fan_last )
         {
-            Uint32 collide_fx = mesh_test_fx( PMesh, fan, plos->stopped_by );
+            Uint32 collide_fx = ego_mesh_test_fx( PMesh, fan, plos->stopped_by );
             // collide the ray with the mesh
 
             if ( EMPTY_BIT_FIELD != collide_fx )
@@ -521,7 +521,7 @@ bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos
     pcap = chr_get_pcap( ichr );
     if ( NULL != pcap )
     {
-        if ( CAP_INFINITE_WEIGHT == pcap->weight || !mesh_hit_wall( PMesh, loc_pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
+        if ( CAP_INFINITE_WEIGHT == pcap->weight || !ego_mesh_hit_wall( PMesh, loc_pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
         {
             // yes it is safe. add it.
             returncode = waypoint_list_push( plst, pos_x, pos_y );
@@ -726,9 +726,9 @@ Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const
 
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
-        fan = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
+        fan = ego_mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
 
-        ptile = mesh_get_ptile( PMesh, fan );
+        ptile = ego_mesh_get_ptile( PMesh, fan );
         if ( NULL != ptile )
         {
             Uint16 img      = ptile->img & TILE_LOWER_MASK;
@@ -751,7 +751,7 @@ Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const
 
             if ( img == endtile )
             {
-                useful = mesh_add_fx( PMesh, fan, mesh_fx_or );
+                useful = ego_mesh_add_fx( PMesh, fan, mesh_fx_or );
 
                 if ( become != 0 )
                 {
@@ -761,7 +761,7 @@ Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const
 
             if ( ptile->img != ( img | highbits ) )
             {
-                mesh_set_texture( PMesh, fan, img | highbits );
+                ego_mesh_set_texture( PMesh, fan, img | highbits );
             }
         }
     }
@@ -829,9 +829,9 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
     {
         for ( /*nothing*/; x <= ppass->area.right; x++ )
         {
-            fan = mesh_get_tile_int( PMesh, x, y );
+            fan = ego_mesh_get_tile_int( PMesh, x, y );
 
-            ptile = mesh_get_ptile( PMesh, fan );
+            ptile = ego_mesh_get_ptile( PMesh, fan );
             if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
             {
                 *px1 = ( x * GRID_ISIZE ) + 64;
@@ -847,9 +847,9 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
     {
         for ( x = ppass->area.left; x <= ppass->area.right; x++ )
         {
-            fan = mesh_get_tile_int( PMesh, x, y );
+            fan = ego_mesh_get_tile_int( PMesh, x, y );
 
-            ptile = mesh_get_ptile( PMesh, fan );
+            ptile = ego_mesh_get_ptile( PMesh, fan );
             if ( NULL != ptile && tiletype == ( ptile->img & TILE_LOWER_MASK ) )
             {
                 *px1 = x * GRID_ISIZE + 64;

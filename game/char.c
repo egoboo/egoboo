@@ -925,7 +925,7 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        ego_tile_info_t * ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+        ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
 
         if ( NULL != ptile && ptile->inrenderlist )
         {
@@ -937,7 +937,7 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_get_pressure( PMesh, test_pos, radius, pchr->stoppedby );
+        retval = ego_mesh_get_pressure( PMesh, test_pos, radius, pchr->stoppedby );
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
@@ -964,7 +964,7 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        ego_tile_info_t * ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+        ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
 
         if ( NULL != ptile && ptile->inrenderlist )
         {
@@ -976,7 +976,7 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_get_diff( PMesh, loc_test_pos, radius, center_pressure, pchr->stoppedby );
+        retval = ego_mesh_get_diff( PMesh, loc_test_pos, radius, center_pressure, pchr->stoppedby );
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
@@ -1007,7 +1007,7 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        ego_tile_info_t * ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+        ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
 
         if ( NULL != ptile && ptile->inrenderlist )
         {
@@ -1019,7 +1019,7 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_hit_wall( PMesh, loc_test_pos, radius, pchr->stoppedby, nrm, pressure, pdata );
+        retval = ego_mesh_hit_wall( PMesh, loc_test_pos, radius, pchr->stoppedby, nrm, pressure, pdata );
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests  += mesh_pressure_tests;
@@ -1046,7 +1046,7 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
     radius = 0.0f;
     if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
     {
-        ego_tile_info_t * ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+        ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
 
         if ( NULL != ptile && ptile->inrenderlist )
         {
@@ -1062,7 +1062,7 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
     mesh_bound_tests = 0;
     mesh_pressure_tests = 0;
     {
-        retval = mesh_test_wall( PMesh, loc_test_pos, radius, pchr->stoppedby, pdata );
+        retval = ego_mesh_test_wall( PMesh, loc_test_pos, radius, pchr->stoppedby, pdata );
     }
     chr_stoppedby_tests += mesh_mpdfx_tests;
     chr_pressure_tests += mesh_pressure_tests;
@@ -1078,9 +1078,9 @@ bool_t chr_is_over_water( chr_t *pchr )
 
     if ( !DEFINED_PCHR( pchr ) ) return bfalse;
 
-    if ( !water.is_water || !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return bfalse;
+    if ( !water.is_water || !ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) return bfalse;
 
-    return 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER );
+    return 0 != ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_WATER );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4148,7 +4148,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
     water_level = water_instance_get_water_level( &water );
 
     // do the character interaction with water
-    if ( !pchr->is_hidden && pchr->pos.z < water_level && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) ) )
+    if ( !pchr->is_hidden && pchr->pos.z < water_level && ( 0 != ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_WATER ) ) )
     {
         // do splash and ripple
         if ( !pchr->enviro.inwater )
@@ -5723,7 +5723,7 @@ void move_one_character_get_environment( chr_t * pchr )
     }
 
     //---- The flying height of the character, the maximum of tile level, platform level and water level
-    if ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_WATER ) )
+    if ( 0 != ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_WATER ) )
     {
         penviro->fly_level = MAX( penviro->level, water.surface_level );
     }
@@ -5740,11 +5740,11 @@ void move_one_character_get_environment( chr_t * pchr )
     penviro->grounded = (( 0 == pchr->flyheight ) && ( penviro->zlerp < 0.25f ) );
 
     //---- the "twist" of the floor
-    penviro->grid_twist = mesh_get_twist( PMesh, pchr->onwhichgrid );
+    penviro->grid_twist = ego_mesh_get_twist( PMesh, pchr->onwhichgrid );
 
     // the "watery-ness" of whatever water might be here
     penviro->is_watery = water.is_water && penviro->inwater;
-    penviro->is_slippy = !penviro->is_watery && ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_SLIPPY ) );
+    penviro->is_slippy = !penviro->is_watery && ( 0 != ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_SLIPPY ) );
 
     //---- traction
     penviro->traction = 1.0f;
@@ -5771,7 +5771,7 @@ void move_one_character_get_environment( chr_t * pchr )
             penviro->traction /= 4.00f * hillslide * ( 1.0f - penviro->zlerp ) + 1.0f * penviro->zlerp;
         }
     }
-    else if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
+    else if ( ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) )
     {
         penviro->traction = ABS( map_twist_nrm[penviro->grid_twist].z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
@@ -5808,7 +5808,7 @@ void move_one_character_get_environment( chr_t * pchr )
     {
         // Make the characters slide
         float temp_friction_xy = noslipfriction;
-        if ( mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) && penviro->is_slippy )
+        if ( ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) && penviro->is_slippy )
         {
             // It's slippy all right...
             temp_friction_xy = slippyfriction;
@@ -6613,7 +6613,7 @@ bool_t chr_update_safe_raw( chr_t * pchr )
         pchr->safe_valid = btrue;
         chr_get_pos( pchr, pchr->safe_pos.v );
         pchr->safe_time  = update_wld;
-        pchr->safe_grid  = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
+        pchr->safe_grid  = ego_mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
 
         retval = btrue;
     }
@@ -6636,7 +6636,7 @@ bool_t chr_update_safe( chr_t * pchr, bool_t force )
     }
     else
     {
-        new_grid = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
+        new_grid = ego_mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
 
         if ( INVALID_TILE == new_grid )
         {
@@ -6756,7 +6756,7 @@ bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force )
     }
     else
     {
-        new_grid = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
+        new_grid = ego_mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
 
         if ( INVALID_TILE == new_grid )
         {
@@ -6969,7 +6969,7 @@ bool_t move_one_character_integrate_motion( chr_t * pchr )
                     }
                 }
 
-                // try to get a normal from the mesh_get_diff() function
+                // try to get a normal from the ego_mesh_get_diff() function
                 if ( !found_nrm )
                 {
                     fvec2_t tmp_diff;
@@ -9358,20 +9358,17 @@ bool_t chr_can_see_dark( const chr_t * pchr, const chr_t * pobj )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_can_see_object( const CHR_REF ichr, const CHR_REF iobj )
+bool_t chr_can_see_object( const chr_t * pchr, const chr_t * pobj )
 {
     /// @author BB
     /// @details can ichr see iobj?
 
-    chr_t * pchr, * pobj;
-
     bool_t too_dark, too_invis;
 
-    if ( !INGAME_CHR( ichr ) ) return bfalse;
-    pchr = ChrList_get_ptr( ichr );
-
-    if ( !INGAME_CHR( iobj ) ) return bfalse;
-    pobj = ChrList_get_ptr( iobj );
+    if ( !INGAME_PCHR( pchr ) || !INGAME_PCHR( pobj ) )
+    {
+        return bfalse;
+    }
 
     too_dark  = !chr_can_see_dark( pchr, pobj );
     too_invis = !chr_can_see_invis( pchr, pobj );
@@ -9839,8 +9836,8 @@ bool_t chr_update_pos( chr_t * pchr )
 {
     if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
 
-    pchr->onwhichgrid   = mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
-    pchr->onwhichblock  = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
+    pchr->onwhichgrid   = ego_mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
+    pchr->onwhichblock  = ego_mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 
     // update whether the current character position is safe
     chr_update_safe( pchr, bfalse );

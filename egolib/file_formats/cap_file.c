@@ -22,7 +22,7 @@
 /// @details
 
 #include "cap_file.h"
-#include "mpd_file.h"
+#include "map_file.h"
 
 #include "template.h"
 
@@ -77,7 +77,7 @@ cap_t * cap_init( cap_t * pcap )
     pcap->mana_spawn = PERFECTBIG;
 
     // More stuff I forgot
-    pcap->stoppedby  = MPDFX_IMPASS;
+    pcap->stoppedby  = MAPFX_IMPASS;
 
     // Skills
     idsz_map_init( pcap->skills, SDL_arraysize( pcap->skills ) );

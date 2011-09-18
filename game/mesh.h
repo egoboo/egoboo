@@ -21,7 +21,7 @@
 
 #include "egoboo_typedef.h"
 
-#include "../egolib/file_formats/mpd_file.h"
+#include "../egolib/file_formats/map_file.h"
 #include "../egolib/bsp.h"
 #include "../egolib/extensions/ogl_include.h"
 
@@ -30,8 +30,8 @@
 //--------------------------------------------------------------------------------------------
 
 // struct for holding the mpd data
-struct s_ego_mpd;
-typedef struct s_ego_mpd ego_mpd_t;
+struct s_ego_mesh;
+typedef struct s_ego_mesh ego_mesh_t;
 
 struct s_ego_tile_info;
 typedef struct s_ego_tile_info ego_tile_info_t;
@@ -48,8 +48,8 @@ typedef struct s_tile_mem tile_mem_t;
 struct s_mpdfx_lists;
 typedef struct s_mpdfx_lists mpdfx_lists_t;
 
-struct s_ego_mpd_info;
-typedef struct s_ego_mpd_info ego_mpd_info_t;
+struct s_ego_mesh_info;
+typedef struct s_ego_mesh_info ego_mesh_info_t;
 
 struct s_mesh_wall_data;
 typedef struct s_mesh_wall_data mesh_wall_data_t;
@@ -67,7 +67,7 @@ typedef struct s_mesh_wall_data mesh_wall_data_t;
 #define BLOCK_FSIZE     ((float)BLOCK_ISIZE)
 #define BLOCK_MASK      (BLOCK_ISIZE - 1)
 
-#define GRID_BLOCKY_MAX             (( MPD_TILEY_MAX >> (BLOCK_BITS-GRID_BITS) )+1)  ///< max blocks in the y direction
+#define GRID_BLOCKY_MAX             (( MAP_TILEY_MAX >> (BLOCK_BITS-GRID_BITS) )+1)  ///< max blocks in the y direction
 
 #define INVALID_BLOCK ((Uint32)(~0))
 #define INVALID_TILE  ((Uint32)(~0))
@@ -88,7 +88,7 @@ typedef struct s_mesh_wall_data mesh_wall_data_t;
 #define TILE_GET_UPPER_BITS(XX)         (( TILE_UPPER_MASK & (XX) ) >> TILE_UPPER_SHIFT )
 #define TILE_SET_UPPER_BITS(XX)         (( (XX) << TILE_UPPER_SHIFT ) & TILE_UPPER_MASK )
 
-#define TILE_IS_FANOFF(XX)              ( MPD_FANOFF == (XX).img )
+#define TILE_IS_FANOFF(XX)              ( MAP_FANOFF == (XX).img )
 
 #define TILE_HAS_INVALID_IMAGE(XX)      HAS_SOME_BITS( TILE_UPPER_MASK, (XX).img )
 
@@ -247,15 +247,15 @@ struct s_mpdfx_lists
     size_t * slp_list;
 };
 
-mpdfx_lists_t * mpdfx_lists_ctor(mpdfx_lists_t * );
-mpdfx_lists_t * mpdfx_lists_dtor(mpdfx_lists_t * );
+mpdfx_lists_t * mpdfx_lists_ctor( mpdfx_lists_t * );
+mpdfx_lists_t * mpdfx_lists_dtor( mpdfx_lists_t * );
 
-bool_t mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool_t force  );
+bool_t mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool_t force );
 
 //--------------------------------------------------------------------------------------------
 
-/// The generic parameters describing an ego_mpd
-struct s_ego_mpd_info
+/// The generic parameters describing an ego_mesh
+struct s_ego_mesh_info
 {
     size_t          vertcount;                         ///< For malloc
 
@@ -267,9 +267,9 @@ struct s_ego_mpd_info
 //--------------------------------------------------------------------------------------------
 
 /// Egoboo's representation of the .mpd mesh file
-struct s_ego_mpd
+struct s_ego_mesh
 {
-    ego_mpd_info_t  info;
+    ego_mesh_info_t  info;
     tile_mem_t      tmem;
     grid_mem_t      gmem;
     mpdfx_lists_t   fxlists;
@@ -284,7 +284,7 @@ struct s_mesh_wall_data
     int   ix_min, ix_max, iy_min, iy_max;
     float fx_min, fx_max, fy_min, fy_max;
 
-    ego_mpd_info_t  * pinfo;
+    ego_mesh_info_t  * pinfo;
     ego_tile_info_t * tlist;
     ego_grid_info_t * glist;
 };
@@ -303,34 +303,34 @@ extern int mesh_pressure_tests;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mpd_t * mesh_create( ego_mpd_t * pmesh, int tiles_x, int tiles_y );
-bool_t      mesh_destroy( ego_mpd_t ** pmesh );
+ego_mesh_t * ego_mesh_create( ego_mesh_t * pmesh, int tiles_x, int tiles_y );
+bool_t      ego_mesh_destroy( ego_mesh_t ** pmesh );
 
-ego_mpd_t * mesh_ctor( ego_mpd_t * pmesh );
-ego_mpd_t * mesh_dtor( ego_mpd_t * pmesh );
-ego_mpd_t * mesh_renew( ego_mpd_t * pmesh );
+ego_mesh_t * ego_mesh_ctor( ego_mesh_t * pmesh );
+ego_mesh_t * ego_mesh_dtor( ego_mesh_t * pmesh );
+ego_mesh_t * ego_mesh_renew( ego_mesh_t * pmesh );
 
 /// loading/saving
-ego_mpd_t * mesh_load( const char *modname, ego_mpd_t * pmesh );
+ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * pmesh );
 
-void   mesh_make_twist( void );
+void   ego_mesh_make_twist( void );
 
-bool_t mesh_test_corners( ego_mpd_t * pmesh, ego_tile_info_t * ptile, float threshold );
-float  mesh_light_corners( ego_mpd_t * pmesh, ego_tile_info_t * ptile, bool_t reflective, float mesh_lighting_keep );
-bool_t mesh_interpolate_vertex( tile_mem_t * pmem, ego_tile_info_t * ptile, float pos[], float * plight );
+bool_t ego_mesh_test_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, float threshold );
+float  ego_mesh_light_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, bool_t reflective, float mesh_lighting_keep );
+bool_t ego_mesh_interpolate_vertex( tile_mem_t * pmem, ego_tile_info_t * ptile, float pos[], float * plight );
 
-bool_t grid_light_one_corner( const ego_mpd_t * pmesh, int fan, float height, float nrm[], float * plight );
+bool_t grid_light_one_corner( const ego_mesh_t * pmesh, int fan, float height, float nrm[], float * plight );
 
-BIT_FIELD mesh_hit_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * private_data );
-BIT_FIELD mesh_test_wall( const ego_mpd_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, mesh_wall_data_t * private_data );
+BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * private_data );
+BIT_FIELD ego_mesh_test_wall( const ego_mesh_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, mesh_wall_data_t * private_data );
 
-float mesh_get_max_vertex_0( const ego_mpd_t * pmesh, int grid_x, int grid_y );
-float mesh_get_max_vertex_1( const ego_mpd_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );
+float ego_mesh_get_max_vertex_0( const ego_mesh_t * pmesh, int grid_x, int grid_y );
+float ego_mesh_get_max_vertex_1( const ego_mesh_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );
 
-bool_t mesh_set_texture( ego_mpd_t * pmesh, Uint16 tile, Uint16 image );
-bool_t mesh_update_texture( ego_mpd_t * pmesh, Uint32 tile );
+bool_t ego_mesh_set_texture( ego_mesh_t * pmesh, Uint16 tile, Uint16 image );
+bool_t ego_mesh_update_texture( ego_mesh_t * pmesh, Uint32 tile );
 
-fvec2_t mesh_get_diff( const ego_mpd_t * pmesh, const float pos[], float radius, float center_pressure, const BIT_FIELD bits );
-float mesh_get_pressure( const ego_mpd_t * pmesh, const float pos[], float radius, const BIT_FIELD bits );
+fvec2_t ego_mesh_get_diff( const ego_mesh_t * pmesh, const float pos[], float radius, float center_pressure, const BIT_FIELD bits );
+float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const float pos[], float radius, const BIT_FIELD bits );
 
-bool_t mesh_update_water_level( ego_mpd_t * pmesh );
+bool_t ego_mesh_update_water_level( ego_mesh_t * pmesh );

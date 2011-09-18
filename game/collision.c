@@ -249,7 +249,7 @@ CoNode_t * CoNode_ctor( CoNode_t * n )
     // the "collided with" objects
     n->chrb  = INVALID_CHR_REF;
     n->prtb  = INVALID_PRT_REF;
-    n->tileb = MPD_FANOFF;
+    n->tileb = MAP_FANOFF;
 
     // intialize the time
     n->tmin = n->tmax = -1.0f;
@@ -281,7 +281,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
     {
         BB = REF_TO_INT( coll->prtb );
     }
-    else if ( MPD_FANOFF != coll->tileb )
+    else if ( MAP_FANOFF != coll->tileb )
     {
         BB = coll->tileb;
     }
@@ -819,7 +819,7 @@ bool_t fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashN
     int              cnt;
     int              reaffirmation_count;
     int              reaffirmation_list[DAMAGE_COUNT];
-    ego_mpd_info_t * mi;
+    ego_mesh_info_t * mi;
     aabb_t           tmp_aabb;
 
     if ( NULL == pchlst || NULL == cn_lst || NULL == hn_lst ) return bfalse;

@@ -41,7 +41,7 @@
 
 static void camera_update_position( camera_t * pcam );
 static void camera_update_center( camera_t * pcam );
-static void camera_update_track( camera_t * pcam, const ego_mpd_t * pmesh, CHR_REF track_list[], const size_t track_list_size );
+static void camera_update_track( camera_t * pcam, const ego_mesh_t * pmesh, CHR_REF track_list[], const size_t track_list_size );
 //static void camera_update_zoom( camera_t * pcam, float height );
 
 static size_t camera_create_track_list( CHR_REF track_list[], const size_t track_list_max_size );
@@ -481,7 +481,7 @@ void camera_update_center( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_update_track( camera_t * pcam, const ego_mpd_t * pmesh, CHR_REF track_list[], const size_t track_list_size )
+void camera_update_track( camera_t * pcam, const ego_mesh_t * pmesh, CHR_REF track_list[], const size_t track_list_size )
 {
     fvec3_t new_track;
     float new_track_level;
@@ -529,7 +529,7 @@ void camera_update_track( camera_t * pcam, const ego_mpd_t * pmesh, CHR_REF trac
             pcam->turn_z_add -= CAM_TURN_KEY;
         }
 
-        pcam->track_pos.z = 128 + mesh_get_level( pmesh, pcam->track_pos.x, pcam->track_pos.y );
+        pcam->track_pos.z = 128 + ego_mesh_get_level( pmesh, pcam->track_pos.x, pcam->track_pos.y );
     }
     else if ( CAM_RESET == pcam->move_mode )
     {
@@ -712,7 +712,7 @@ size_t camera_create_track_list( CHR_REF track_list[], const size_t track_list_m
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_move( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
+void camera_move( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
     /// @author ZZ
     /// @details This function moves the camera
@@ -896,7 +896,7 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_reset( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
+void camera_reset( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
     /// @author ZZ
     /// @details This function makes sure the camera starts in a suitable position
@@ -938,7 +938,7 @@ void camera_reset( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t camera_reset_target( camera_t * pcam, const ego_mpd_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
+bool_t camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
     /// @author BB
     /// @details Force the camera to focus in on the players. Should be called any time there is

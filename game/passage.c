@@ -129,8 +129,8 @@ bool_t open_passage( const PASS_REF passage )
         {
             for ( x = ppass->area.left; x <= ppass->area.right; x++ )
             {
-                fan = mesh_get_tile_int( PMesh, x, y );
-                mesh_clear_fx( PMesh, fan, MPDFX_WALL | MPDFX_IMPASS );
+                fan = ego_mesh_get_tile_int( PMesh, x, y );
+                ego_mesh_clear_fx( PMesh, fan, MAPFX_WALL | MAPFX_IMPASS );
             }
         }
     }
@@ -156,9 +156,9 @@ void flash_passage( const PASS_REF passage, Uint8 color )
     {
         for ( x = ppass->area.left; x <= ppass->area.right; x++ )
         {
-            fan = mesh_get_tile_int( PMesh, x, y );
+            fan = ego_mesh_get_tile_int( PMesh, x, y );
 
-            ptile = mesh_get_ptile( PMesh, fan );
+            ptile = ego_mesh_get_ptile( PMesh, fan );
             if ( NULL == ptile ) continue;
 
             for ( cnt = 0; cnt < 4; cnt++ )
@@ -362,7 +362,7 @@ bool_t close_passage( const PASS_REF passage )
     if ( EMPTY_BIT_FIELD == ppass->mask ) return btrue;
 
     // check to see if a wall can close
-    if ( 0 != HAS_SOME_BITS( ppass->mask, MPDFX_IMPASS | MPDFX_WALL ) )
+    if ( 0 != HAS_SOME_BITS( ppass->mask, MAPFX_IMPASS | MAPFX_WALL ) )
     {
         size_t  numcrushed = 0;
         CHR_REF crushedcharacters[MAX_CHR];
@@ -410,8 +410,8 @@ bool_t close_passage( const PASS_REF passage )
     {
         for ( x = ppass->area.left; x <= ppass->area.right; x++ )
         {
-            fan = mesh_get_tile_int( PMesh, x, y );
-            mesh_add_fx( PMesh, fan, ppass->mask );
+            fan = ego_mesh_get_tile_int( PMesh, x, y );
+            ego_mesh_add_fx( PMesh, fan, ppass->mask );
         }
     }
 

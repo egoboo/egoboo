@@ -156,7 +156,7 @@ bool_t         breadcrumb_list_full( const breadcrumb_list_t *  lst );
 extern float   hillslide;                   ///< Extra downhill force
 extern float   airfriction;                 ///< 0.9868 is approximately real world air friction
 extern float   waterfriction;               ///< Water resistance
-extern float   slippyfriction;              ///< Friction on tiles that are marked with MPDFX_SLIPPY
+extern float   slippyfriction;              ///< Friction on tiles that are marked with MAPFX_SLIPPY
 extern float   noslipfriction;              ///< Friction on normal tiles
 extern float   gravity;                     ///< Gravitational accel
 extern float   platstick;                   ///< Friction between characters and platforms

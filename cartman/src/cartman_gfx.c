@@ -24,7 +24,7 @@
 #include "cartman_gfx.h"
 
 #include "cartman.h"
-#include "cartman_mpd.h"
+#include "cartman_map.h"
 #include "cartman_gui.h"
 #include "cartman_functions.h"
 #include "cartman_select.h"
@@ -137,38 +137,40 @@ SDL_Color MAKE_SDLCOLOR( Uint8 BB, Uint8 RR, Uint8 GG )
 }
 
 //--------------------------------------------------------------------------------------------
-oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int x, int y )
+oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     Uint16 tx_bits, basetile;
     Uint8 fantype, fx;
-    int fan;
 
-    if ( NULL == pmesh ) pmesh = &mesh;
-
-    if ( x < 0 || x >= pmesh->info.tiles_x || y < 0 || y >= pmesh->info.tiles_y )
-    {
-        return NULL;
-    }
+    cartman_mpd_tile_t * pfan;
 
     tx_bits = 0;
     fantype = 0;
     fx = 0;
-    fan = cartman_mpd_get_fan( pmesh, x, y );
-    if ( fan >= 0 && fan < MPD_TILE_MAX )
+
+    if ( NULL == pmesh ) pmesh = &mesh;
+
+    if ( mapx < 0 || mapx >= pmesh->info.tiles_x || mapy < 0 || mapy >= pmesh->info.tiles_y )
     {
-        if ( TILE_IS_FANOFF( pmesh->fan[fan].tx_bits ) )
-        {
-            return NULL;
-        }
-        tx_bits = pmesh->fan[fan].tx_bits;
-        fantype = pmesh->fan[fan].type;
-        fx      = pmesh->fan[fan].fx;
+        return NULL;
     }
 
-    if ( HAS_BITS( fx, MPDFX_ANIM ) )
+    pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
+    if ( NULL == pfan ) return NULL;
+
+    if ( TILE_IS_FANOFF( pfan->tx_bits ) )
+    {
+        return NULL;
+    }
+
+    tx_bits = pfan->tx_bits;
+    fantype = pfan->type;
+    fx      = pfan->fx;
+
+    if ( HAS_BITS( fx, MAPFX_ANIM ) )
     {
         animtileframeadd = ( timclock >> 3 ) & 3;
-        if ( fantype >= ( MPD_FAN_TYPE_MAX >> 1 ) )
+        if ( fantype >= tile_dict.offset )
         {
             // Big tiles
             basetile = tx_bits & biganimtilebaseand;// Animation set
@@ -187,7 +189,7 @@ oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int x, int y )
     // remove any of the upper bit information
     tx_bits &= 0xFF;
 
-    if ( fantype >= ( MPD_FAN_TYPE_MAX >> 1 ) )
+    if ( fantype >= tile_dict.offset )
     {
         return tx_bigtile + tx_bits;
     }
@@ -200,55 +202,63 @@ oglx_texture_t * tiny_tile_at( cartman_mpd_t * pmesh, int x, int y )
 //--------------------------------------------------------------------------------------------
 oglx_texture_t *tile_at( cartman_mpd_t * pmesh, int fan )
 {
-    Uint16 tx_bits, basetile;
-    Uint8 fantype, fx;
+    int    img;
+    Uint16 img_base;
+    Uint8  type, fx;
+
+    cartman_mpd_tile_t   * pfan   = NULL;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( fan == -1 || TILE_IS_FANOFF( pmesh->fan[fan].tx_bits ) )
+    pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if ( NULL == pfan ) return NULL;
+
+    if ( TILE_IS_FANOFF( pfan->tx_bits ) )
     {
         return NULL;
     }
 
-    tx_bits = pmesh->fan[fan].tx_bits;
-    fantype = pmesh->fan[fan].type;
-    fx = pmesh->fan[fan].fx;
-    if ( HAS_BITS( fx, MPDFX_ANIM ) )
+    img = TILE_GET_LOWER_BITS( pfan->tx_bits );
+    type = pfan->type;
+    fx = pfan->fx;
+
+    if ( HAS_BITS( fx, MAPFX_ANIM ) )
     {
         animtileframeadd = ( timclock >> 3 ) & 3;
-        if ( fantype >= ( MPD_FAN_TYPE_MAX >> 1 ) )
+        if ( type >= tile_dict.offset )
         {
             // Big tiles
-            basetile = tx_bits & biganimtilebaseand;// Animation set
-            tx_bits += ( animtileframeadd << 1 );   // Animated tx_bits
-            tx_bits = ( tx_bits & biganimtileframeand ) + basetile;
+            img_base = img & biganimtilebaseand;// Animation set
+            img += ( animtileframeadd << 1 );   // Animated img
+            img = ( img & biganimtileframeand ) + img_base;
         }
         else
         {
             // Small tiles
-            basetile = tx_bits & animtilebaseand;  // Animation set
-            tx_bits += animtileframeadd;           // Animated tx_bits
-            tx_bits = ( tx_bits & animtileframeand ) + basetile;
+            img_base = img & animtilebaseand;  // Animation set
+            img += animtileframeadd;           // Animated img
+            img = ( img & animtileframeand ) + img_base;
         }
     }
 
     // remove any of the upper bit information
-    tx_bits &= 0xFF;
+    img &= 0xFF;
 
-    if ( fantype >= ( MPD_FAN_TYPE_MAX >> 1 ) )
+    if ( type >= tile_dict.offset )
     {
-        return tx_bigtile + tx_bits;
+        return tx_bigtile + img;
     }
     else
     {
-        return tx_smalltile + tx_bits;
+        return tx_smalltile + img;
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void make_hitemap( cartman_mpd_t * pmesh )
 {
-    int x, y, pixx, pixy, level, fan;
+    int x, y, pixx, pixy, level;
+    cartman_mpd_tile_t * pfan;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -264,14 +274,12 @@ void make_hitemap( cartman_mpd_t * pmesh )
             level = ( cartman_mpd_get_level( pmesh, x, y ) * 255 ) / pmesh->info.edgez;  // level is 0 to 255
             if ( level > 252 ) level = 252;
 
-            fan = cartman_mpd_get_fan( pmesh,  pixx >> 2, pixy );
-            if ( fan >= 0 && fan < MPD_TILE_MAX )
-            {
-                if ( HAS_BITS( pmesh->fan[fan].fx, MPDFX_WALL ) ) level = 253;  // Wall
-                if ( HAS_BITS( pmesh->fan[fan].fx, MPDFX_IMPASS ) ) level = 254;   // Impass
-                if ( HAS_BITS( pmesh->fan[fan].fx, MPDFX_WALL ) &&
-                     HAS_BITS( pmesh->fan[fan].fx, MPDFX_IMPASS ) ) level = 255;   // Both
-            }
+            pfan = cartman_mpd_get_pfan( pmesh, pixx >> 2, pixy >> 2 );
+            if ( NULL == pfan ) continue;
+
+            if ( HAS_BITS( pfan->fx, MAPFX_WALL ) ) level = 253;  // Wall
+            if ( HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 254;   // Impass
+            if ( HAS_BITS( pfan->fx, MAPFX_WALL ) && HAS_BITS( pfan->fx, MAPFX_IMPASS ) ) level = 255;   // Both
 
             SDL_PutPixel( bmphitemap, pixx, pixy, level );
         }
@@ -327,7 +335,7 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
     // ZZ> This function draws the line drawing preview of the tile type...
     //     A wireframe tile from a vertex connection window
 
-    static Uint32 faketoreal[MPD_FAN_VERTICES_MAX];
+    static Uint32 faketoreal[MAP_FAN_VERTICES_MAX];
 
     int cnt, stt, end, vert;
     float color[4];
@@ -349,21 +357,20 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
 
     if ( NULL == plst->pmesh ) return;
     pmesh = plst->pmesh;
+    vlst  = pmesh->vrt;
 
-    // get aliases
-    vlst = pmesh->vrt;
+    pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if ( NULL == pfan ) return;
 
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
-    pfan = pmesh->fan + fan;
+    pdef   = TILE_DICT_PTR( tile_dict, pfan->type );
+    if ( NULL == pdef ) return;
 
-    if ( pfan->type >= MPD_FAN_TYPE_MAX ) return;
-    pdef   = tile_dict + pfan->type;
     plines = tile_dict_lines + pfan->type;
 
-    if ( 0 == pdef->numvertices || pdef->numvertices > MPD_FAN_VERTICES_MAX ) return;
+    if ( 0 == pdef->numvertices || pdef->numvertices > MAP_FAN_VERTICES_MAX ) return;
 
     OGL_MAKE_COLOR_4( color, 32, 16, 16, 31 );
-    if ( pfan->type >= MPD_FAN_TYPE_MAX / 2 )
+    if ( pfan->type >= tile_dict.offset )
     {
         OGL_MAKE_COLOR_4( color, 32, 31, 16, 16 );
     }
@@ -438,7 +445,7 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
     // ZZ> This function draws the line drawing preview of the tile type...
     //     A wireframe tile from a vertex connection window ( Side view )
 
-    static Uint32 faketoreal[MPD_FAN_VERTICES_MAX];
+    static Uint32 faketoreal[MAP_FAN_VERTICES_MAX];
 
     cart_vec_t vup    = { 0, 0, 1};
     cart_vec_t vright = { 1, 0, 0};
@@ -465,15 +472,16 @@ void draw_side_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt
     // get aliases
     vlst = pmesh->vrt;
 
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
-    pfan = pmesh->fan + fan;
+    pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if ( NULL == pfan ) return;
 
-    if ( pfan->type >= MPD_FAN_TYPE_MAX ) return;
-    pdef = tile_dict + pfan->type;
+    pdef = TILE_DICT_PTR( tile_dict, pfan->type );
+    if ( NULL == pdef ) return;
+
     plines = tile_dict_lines + pfan->type;
 
     OGL_MAKE_COLOR_4( color, 32, 16, 16, 31 );
-    if ( pfan->type >= MPD_FAN_TYPE_MAX / 2 )
+    if ( pfan->type >= tile_dict.offset )
     {
         OGL_MAKE_COLOR_4( color, 32, 31, 16, 16 );
     }
@@ -548,12 +556,13 @@ void draw_schematic( window_t * pwin, int fantype, int x, int y )
     tile_line_data_t     * plines = NULL;
     tile_definition_t    * pdef   = NULL;
 
-    if ( fantype < 0 || fantype >= MPD_FAN_TYPE_MAX ) return;
+    pdef   = TILE_DICT_PTR( tile_dict, fantype );
+    if ( NULL == pdef ) return;
+
     plines = tile_dict_lines + fantype;
-    pdef   = tile_dict + fantype;
 
     OGL_MAKE_COLOR_4( color, 32, 16, 16, 31 );
-    if ( fantype >= MPD_FAN_TYPE_MAX / 2 )
+    if ( fantype >= tile_dict.offset )
     {
         OGL_MAKE_COLOR_4( color, 32, 31, 16, 16 );
     };
@@ -570,8 +579,8 @@ void draw_schematic( window_t * pwin, int fantype, int x, int y )
                 stt = plines->start[cnt];
                 end = plines->end[cnt];
 
-                glVertex2f( pdef->u[stt] * TILE_FSIZE + x, pdef->v[stt] * TILE_FSIZE + y );
-                glVertex2f( pdef->u[end] * TILE_FSIZE + x, pdef->v[end] * TILE_FSIZE + y );
+                glVertex2f(GRID_TO_POS( pdef->grid_ix[stt] ) + x, GRID_TO_POS( pdef->grid_iy[stt] ) + y );
+                glVertex2f(GRID_TO_POS( pdef->grid_ix[end] ) + x, GRID_TO_POS( pdef->grid_iy[end] ) + y );
             }
         }
         glEnd();
@@ -597,8 +606,8 @@ void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool_
     if ( NULL == pmesh ) pmesh = &mesh;
     vlst = pmesh->vrt;
 
-    if ( fan < 0 || fan >= MPD_TILE_MAX ) return;
-    pfan = pmesh->fan + fan;
+    pfan = CART_MPD_FAN_PTR( pmesh, fan );
+    if ( NULL == pfan ) return;
 
     // don't draw FANOFF
     if ( TILE_IS_FANOFF( pfan->tx_bits ) ) return;
@@ -707,7 +716,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     float w1, h1;
 
     // water is whole tile
-    if ( HAS_BITS( fx, MPDFX_WATER ) )
+    if ( HAS_BITS( fx, MAPFX_WATER ) )
     {
         x1 = x;
         y1 = y;
@@ -718,7 +727,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     }
 
     // "reflectable tile" is upper left
-    if ( !HAS_BITS( fx, MPDFX_SHA ) )
+    if ( !HAS_BITS( fx, MAPFX_SHA ) )
     {
         x1 = x;
         y1 = y;
@@ -729,7 +738,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     }
 
     // "reflects characters" is upper right
-    if ( HAS_BITS( fx, MPDFX_DRAWREF ) )
+    if ( HAS_BITS( fx, MAPFX_DRAWREF ) )
     {
         x1 = x + foff_0;
         y1 = y;
@@ -741,7 +750,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     }
 
     // "animated tile" is lower left
-    if ( HAS_BITS( fx, MPDFX_ANIM ) )
+    if ( HAS_BITS( fx, MAPFX_ANIM ) )
     {
         x1 = x;
         y1 = y + foff_0;
@@ -756,7 +765,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
     x1 = x + foff_0;
     y1 = y + foff_0;
 
-    if ( HAS_BITS( fx, MPDFX_WALL ) )
+    if ( HAS_BITS( fx, MAPFX_WALL ) )
     {
         float x2 = x1;
         float y2 = y1;
@@ -767,7 +776,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         ogl_draw_sprite_2d( &tx_wall, x2, y2, w1, h1 );
     }
 
-    if ( HAS_BITS( fx, MPDFX_IMPASS ) )
+    if ( HAS_BITS( fx, MAPFX_IMPASS ) )
     {
         float x2 = x1 + foff_1;
         float y2 = y1;
@@ -778,7 +787,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         ogl_draw_sprite_2d( &tx_impass, x2, y2, w1, h1 );
     }
 
-    if ( HAS_BITS( fx, MPDFX_DAMAGE ) )
+    if ( HAS_BITS( fx, MAPFX_DAMAGE ) )
     {
         float x2 = x1;
         float y2 = y1 + foff_1;
@@ -789,7 +798,7 @@ void draw_tile_fx( float x, float y, Uint8 fx, float scale )
         ogl_draw_sprite_2d( &tx_damage, x2, y2, w1, h1 );
     }
 
-    if ( HAS_BITS( fx, MPDFX_SLIPPY ) )
+    if ( HAS_BITS( fx, MAPFX_SLIPPY ) )
     {
         float x2 = x1 + foff_1;
         float y2 = y1 + foff_1;
@@ -1292,9 +1301,9 @@ void get_small_tiles( SDL_Surface* bmpload )
     if ( step_x == 0 ) step_x = 1;
     if ( step_y == 0 ) step_y = 1;
 
-    for ( y = 0, y1 = 0; y < sz_y && y1 < 256; y += step_y, y1 += 32 )
+    for ( y = 0, y1 = 0; y < sz_y && y1 < 256; y += step_y, y1 += SMALLXY )
     {
-        for ( x = 0, x1 = 0; x < sz_x && x1 < 256; x += step_x, x1 += 32 )
+        for ( x = 0, x1 = 0; x < sz_x && x1 < 256; x += step_x, x1 += SMALLXY )
         {
             SDL_Rect src1 = { x, y, ( step_x - 1 ), ( step_y - 1 ) };
 
@@ -1325,9 +1334,9 @@ void get_big_tiles( SDL_Surface* bmpload )
     if ( step_x == 0 ) step_x = 1;
     if ( step_y == 0 ) step_y = 1;
 
-    for ( y = 0, y1 = 0; y < sz_y; y += step_y, y1 += 32 )
+    for ( y = 0, y1 = 0; y < sz_y; y += step_y, y1 += SMALLXY )
     {
-        for ( x = 0, x1 = 0; x < sz_x; x += step_x, x1 += 32 )
+        for ( x = 0, x1 = 0; x < sz_x; x += step_x, x1 += SMALLXY )
         {
             int wid, hgt;
 

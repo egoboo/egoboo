@@ -19,32 +19,53 @@
 //*
 //********************************************************************************************
 
-/// @file mpd_functions.h
+/// @file map_functions.h
 /// @brief Definitions for mpd functionality ported from cartman and EgoMap
 ///
 /// @details
 
-#include "egoboo_typedef.h"
+#include "typedef.h"
+
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_ego_mpd;
+    struct s_map;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define CARTMAN_FIXNUM            4.125f ///< 4.150f        ///< Magic number
-#define CARTMAN_SLOPE             50                        ///< increments for terrain slope
+#   define CARTMAN_FIXNUM            4.125f ///< 4.150f        ///< Magic number
+#   define CARTMAN_SLOPE             50                        ///< increments for terrain slope
 
 //--------------------------------------------------------------------------------------------
 // generic functions
 //--------------------------------------------------------------------------------------------
 
-bool_t twist_to_normal( Uint8 twist, float v[], float slide );
+    bool_t twist_to_normal( Uint8 twist, float v[], float slide );
+
+    struct s_map * map_generate_tile_twist_data( struct s_map * pmesh );
+    struct s_map * map_generate_fan_type_data( struct s_map * pmesh );
+    struct s_map * map_generate_vertex_data( struct s_map * pmesh );
 
 //--------------------------------------------------------------------------------------------
 // Cartman functions
 //--------------------------------------------------------------------------------------------
 
-Uint8 cartman_get_fan_twist( const struct s_ego_mpd * pmesh, Uint32 tile );
+    Uint8  cartman_calc_twist( int dx, int dy );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _map_functions_h

@@ -512,7 +512,7 @@ ext_camera_list_t * camera_system_get_list( void )
 // EXTERNAL FUNCTIONS
 //--------------------------------------------------------------------------------------------
 
-egolib_rv camera_system_reset( ego_mpd_t * pmesh )
+egolib_rv camera_system_reset( ego_mesh_t * pmesh )
 {
     int cnt;
 
@@ -535,7 +535,7 @@ egolib_rv camera_system_reset( ego_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv camera_system_move( ego_mpd_t * pmesh )
+egolib_rv camera_system_move( ego_mesh_t * pmesh )
 {
     int cnt;
 
@@ -558,7 +558,7 @@ egolib_rv camera_system_move( ego_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv camera_system_reset_targets( ego_mpd_t * pmesh )
+egolib_rv camera_system_reset_targets( ego_mesh_t * pmesh )
 {
     int cnt;
 

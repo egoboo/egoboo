@@ -21,41 +21,60 @@
 
 #include "egoboo_typedef.h"
 
-#include "graphic.h"
+#include "../egolib/bsp.h"
 
 //--------------------------------------------------------------------------------------------
+// external structs
 //--------------------------------------------------------------------------------------------
 
 struct s_ego_mesh;
-struct s_camera;
-struct s_renderlist;
+struct s_frustum;
+
+//--------------------------------------------------------------------------------------------
+// internal structs
+//--------------------------------------------------------------------------------------------
+
+struct s_mpd_BSP;
+typedef struct s_mpd_BSP mesh_BSP_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if defined(MAP_CULL_RIGHT)
-// this worked with the old camera
-#    define MAP_REF_CULL   GL_CCW
-#    define MAP_NRM_CULL   GL_CW
-#else
-// they had to be reversed with the new camera
-#    define MAP_REF_CULL   GL_CW
-#    define MAP_NRM_CULL   GL_CCW
-#endif
+// the BSP structure housing the mesh
+struct s_mpd_BSP
+{
+    size_t         count;
+    oct_bb_t       volume;
+    BSP_tree_t     tree;
+};
+
+#define MAP_BSP_INIT \
+    {\
+        0,                 /* count  */ \
+        OCT_BB_INIT_VALS,  /* volume */ \
+        BSP_TREE_INIT_VALS /* tree   */ \
+    }
+
+mesh_BSP_t * mesh_BSP_ctor( mesh_BSP_t * pbsp, const struct s_ego_mesh * pmesh );
+mesh_BSP_t * mesh_BSP_dtor( mesh_BSP_t * pbsp );
+bool_t       mesh_BSP_alloc( mesh_BSP_t * pbsp );
+bool_t       mesh_BSP_free( mesh_BSP_t * pbsp );
+bool_t       mesh_BSP_fill( mesh_BSP_t * pbsp, const struct s_ego_mesh * pmpd );
+
+bool_t       mesh_BSP_can_collide( BSP_leaf_t * pleaf );
+bool_t       mesh_BSP_is_visible( BSP_leaf_t * pleaf );
+
+int          mesh_BSP_collide_aabb( const mesh_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+int          mesh_BSP_collide_frustum( const mesh_BSP_t * pbsp, const struct s_egolib_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// JF - Added so that the video mode might be determined outside of the graphics code
-extern bool_t          meshnotexture;
-extern TX_REF          meshlasttexture;             ///< Last texture used
+extern mesh_BSP_t mesh_BSP_root;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void animate_all_tiles( struct s_ego_mesh * pmesh );
 
-gfx_rv render_fan( const struct s_ego_mesh * pmesh, const Uint32 fan );
-gfx_rv render_hmap_fan( const struct s_ego_mesh * pmesh, const Uint32 itile );
-gfx_rv render_water_fan( const struct s_ego_mesh * pmesh, const Uint32 fan, const Uint8 layer );
-
-void animate_tiles( void );
+egolib_rv mesh_BSP_system_begin( struct s_ego_mesh * pmpd );
+egolib_rv mesh_BSP_system_end( void );
+bool_t    mesh_BSP_system_started( void );

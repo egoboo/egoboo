@@ -23,6 +23,8 @@
 
 #include "graphic_mad.h"
 #include "graphic_texture.h"
+#include "renderer_2d.h"
+#include "renderer_3d.h"
 
 #include <SDL_opengl.h>
 
@@ -36,7 +38,6 @@
 #include "game.h"
 #include "input.h"
 #include "lighting.h"
-#include "renderer_3d.h"
 #include "egoboo.h"
 
 #include "profile.inl"
@@ -833,7 +834,7 @@ void draw_chr_bbox( chr_t * pchr )
 
             oct_bb_add_fvec3( &( pchr->slot_cv[SLOT_LEFT] ), pchr->pos.v, &bb );
 
-            GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+            GL_DEBUG( glColor4fv )( white_vec );
             render_oct_bb( &bb, btrue, btrue );
         }
         GL_DEBUG( glEnable )( GL_TEXTURE_2D );
@@ -994,7 +995,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
         GL_DEBUG_END();
     }
 
-    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+    GL_DEBUG( glColor4fv )( white_vec );
 }
 
 //--------------------------------------------------------------------------------------------

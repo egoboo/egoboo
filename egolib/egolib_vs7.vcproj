@@ -60,14 +60,14 @@
 			IntermediateDirectory="$(ProjectName)_vs7-Release"
 			ConfigurationType="4"
 			CharacterSet="2"
-			WholeProgramOptimization="FALSE">
+			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="4"
 				GlobalOptimizations="TRUE"
-				InlineFunctionExpansion="0"
+				InlineFunctionExpansion="2"
 				FavorSizeOrSpeed="1"
-				OmitFramePointers="FALSE"
+				OmitFramePointers="TRUE"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="3"
 				OptimizeForWindowsApplication="TRUE"
@@ -163,16 +163,46 @@
 				RelativePath=".\file_formats\id_normals.inl">
 			</File>
 			<File
+				RelativePath=".\file_formats\map_file-v1.c">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_file-v1.h">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_file-v2.c">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_file-v2.h">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_file-v3.c">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_file-v3.h">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_file-v4.c">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_file-v4.h">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_file.c">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_file.h">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_tile_dictionary.c">
+			</File>
+			<File
+				RelativePath=".\file_formats\map_tile_dictionary.h">
+			</File>
+			<File
 				RelativePath=".\file_formats\module_file.c">
 			</File>
 			<File
 				RelativePath=".\file_formats\module_file.h">
-			</File>
-			<File
-				RelativePath=".\file_formats\mpd_file.c">
-			</File>
-			<File
-				RelativePath=".\file_formats\mpd_file.h">
 			</File>
 			<File
 				RelativePath=".\file_formats\passage_file.c">
@@ -473,6 +503,12 @@
 		</File>
 		<File
 			RelativePath=".\lua\lua_console.h">
+		</File>
+		<File
+			RelativePath=".\map_functions.c">
+		</File>
+		<File
+			RelativePath=".\map_functions.h">
 		</File>
 		<File
 			RelativePath=".\mem.h">

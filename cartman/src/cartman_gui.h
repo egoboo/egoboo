@@ -22,7 +22,7 @@
 #include <egolib/egolib.h>
 
 #include "cartman_typedef.h"
-#include "cartman_mpd.h"
+#include "cartman_map.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -103,5 +103,5 @@ extern SDL_Surface * bmpcursor;         // Cursor image
 void do_cursor();
 void draw_slider( int tlx, int tly, int brx, int bry, int* pvalue, int minvalue, int maxvalue );
 void show_name( const char *newloadname, SDL_Color fnt_color );
-void load_window( window_t * pwin, int id, char *loadname, int x, int y, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh );
+void load_window( window_t * pwin, int id, char *loadname, int mapx, int mapy, int bx, int by, int sx, int sy, Uint16 mode, cartman_mpd_t * pmesh );
 window_t * find_window( int x, int y );

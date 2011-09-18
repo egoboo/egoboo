@@ -19,7 +19,7 @@
 
 #include "cartman_select.h"
 
-#include "cartman_mpd.h"
+#include "cartman_map.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -75,6 +75,9 @@ select_lst_t * select_lst_add( select_lst_t * plst, int vert )
     // get proper list
     if ( NULL == plst ) plst = &_selection;
 
+    // do not add out of range vertices
+    if ( !CART_VALID_VERTEX_RANGE( vert ) ) return plst;
+
     // is it in the list?
     find_rv = select_lst_find( plst, vert );
     if ( find_rv < 0 )
@@ -83,7 +86,7 @@ select_lst_t * select_lst_add( select_lst_t * plst, int vert )
         plst->which[plst->count] = vert;
         plst->count++;
 
-        if ( plst->count < MPD_VERTICES_MAX )
+        if ( plst->count < MAP_VERTICES_MAX )
         {
             plst->which[plst->count] = CHAINEND;
         }
@@ -136,7 +139,7 @@ int select_lst_find( const select_lst_t * plst, int vert )
     if ( NULL == plst ) plst = &_selection;
 
     // a valid range?
-    if ( vert < 0 || vert >= MPD_VERTICES_MAX ) return -1;
+    if ( !CART_VALID_VERTEX_RANGE( vert ) ) return -1;
 
     rv = -1;
     for ( cnt = 0; cnt < plst->count; cnt++ )

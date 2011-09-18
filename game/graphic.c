@@ -44,21 +44,23 @@
 #include "../egolib/strutil.h"
 #include "../egolib/fileutil.h"
 #include "../egolib/frustum.h"
-#include "../egolib/extensions/SDL_extensions.h"
-#include "../egolib/extensions/SDL_GL_extensions.h"
-#include "../egolib/file_formats/id_md2.h"
-#include "../egolib/console.h"
 
+#include "../egolib/console.h"
 #if defined(USE_LUA_CONSOLE)
 #    include "../egolib/lua/lua_console.h"
 #endif
+
+#include "../egolib/extensions/SDL_extensions.h"
+#include "../egolib/extensions/SDL_GL_extensions.h"
+#include "../egolib/file_formats/id_md2.h"
+#include "../egolib/file_formats/map_tile_dictionary.h"
 
 #include "../egolib/bsp.inl"
 
 #include "network_server.h"
 #include "mad.h"
 #include "obj_BSP.h"
-#include "mpd_BSP.h"
+#include "mesh_BSP.h"
 #include "player.h"
 #include "collision.h"
 #include "script.h"
@@ -115,10 +117,10 @@ struct s_dynalight_registry
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// Which tiles are to be drawn, arranged by MPDFX_* bits
+/// Which tiles are to be drawn, arranged by MAPFX_* bits
 struct s_renderlist
 {
-    ego_mpd_t * pmesh;
+    ego_mesh_t * pmesh;
 
     int     all_count;                               ///< Number to render, total
     int     ref_count;                               ///< ..., is reflected in the floor
@@ -135,10 +137,10 @@ struct s_renderlist
     Uint32  wat[MAXMESHRENDER];                      ///< ..., draws a water tile
 };
 
-static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mpd_t * pmesh );
+static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mesh_t * pmesh );
 static gfx_rv         renderlist_reset( renderlist_t * prlist );
 static gfx_rv         renderlist_insert( renderlist_t * prlist, const ego_grid_info_t * pgrid, const Uint32 index );
-static ego_mpd_t *    renderlist_get_pmesh( const renderlist_t * ptr );
+static ego_mesh_t *    renderlist_get_pmesh( const renderlist_t * ptr );
 static gfx_rv         renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst );
 
 //--------------------------------------------------------------------------------------------
@@ -390,7 +392,7 @@ static gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prl
 static gfx_rv render_scene_solid( const camera_t * pcam, dolist_t * pdolist );
 static gfx_rv render_scene_trans( const camera_t * pcam, dolist_t * pdolist );
 static gfx_rv render_scene( const camera_t * pcam, const int render_list_index, const int dolist_index );
-static gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmesh, const Uint32 list[], const size_t list_size );
+static gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mesh_t * pmesh, const Uint32 list[], const size_t list_size );
 static void   render_shadow( const CHR_REF character );
 static void   render_bad_shadow( const CHR_REF character );
 static gfx_rv render_water( renderlist_t * prlist );
@@ -421,7 +423,7 @@ static gfx_rv update_one_chr_instance( struct s_chr * pchr );
 static gfx_rv gfx_update_all_chr_instance( void );
 static gfx_rv gfx_update_flashing( dolist_t * pdolist );
 
-static gfx_rv light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold );
+static gfx_rv light_fans_throttle_update( ego_mesh_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold );
 static gfx_rv light_fans_update_lcache( renderlist_t * prlist );
 static gfx_rv light_fans_update_clst( renderlist_t * prlist );
 static bool_t sum_global_lighting( lighting_vector_t lighting );
@@ -437,7 +439,7 @@ static void   gfx_init_map_data( void );
 // renderlist implementation
 //--------------------------------------------------------------------------------------------
 
-renderlist_t * renderlist_init( renderlist_t * plst, ego_mpd_t * pmesh )
+renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh )
 {
     if ( NULL == plst )
     {
@@ -466,7 +468,7 @@ gfx_rv renderlist_reset( renderlist_t * plst )
     /// @author BB
     /// @details Clear old render lists
 
-    ego_mpd_t * pmesh;
+    ego_mesh_t * pmesh;
     ego_tile_info_t * tlist;
     int cnt;
 
@@ -523,7 +525,7 @@ gfx_rv renderlist_insert( renderlist_t * plst, const ego_grid_info_t * pgrid, co
     plst->all_count++;
 
     // Put each tile in one other list, for shadows and relections
-    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_SHA ) )
+    if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_SHA ) )
     {
         plst->sha[plst->sha_count] = index;
         plst->sha_count++;
@@ -534,7 +536,7 @@ gfx_rv renderlist_insert( renderlist_t * plst, const ego_grid_info_t * pgrid, co
         plst->ref_count++;
     }
 
-    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_DRAWREF ) )
+    if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_DRAWREF ) )
     {
         plst->drf[plst->drf_count] = index;
         plst->drf_count++;
@@ -545,7 +547,7 @@ gfx_rv renderlist_insert( renderlist_t * plst, const ego_grid_info_t * pgrid, co
         plst->ndr_count++;
     }
 
-    if ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_WATER ) )
+    if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_WATER ) )
     {
         plst->wat[plst->wat_count] = index;
         plst->wat_count++;
@@ -555,7 +557,7 @@ gfx_rv renderlist_insert( renderlist_t * plst, const ego_grid_info_t * pgrid, co
 }
 
 //--------------------------------------------------------------------------------------------
-ego_mpd_t * renderlist_get_pmesh( const renderlist_t * ptr )
+ego_mesh_t * renderlist_get_pmesh( const renderlist_t * ptr )
 {
     if ( NULL == ptr )
     {
@@ -567,7 +569,7 @@ ego_mpd_t * renderlist_get_pmesh( const renderlist_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mpd_t * pmesh )
+gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh )
 {
     if ( NULL == ptr )
     {
@@ -586,7 +588,7 @@ gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcol
     int j;
     size_t       colst_size, colst_top;
     BSP_leaf_t * pleaf;
-    ego_mpd_t  * pmesh  = NULL;
+    ego_mesh_t  * pmesh  = NULL;
     gfx_rv       retval = gfx_error;
 
     if ( NULL == prlist )
@@ -637,10 +639,10 @@ gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcol
             // collided with a character
             ifan = ( Uint32 )( pleaf->index );
 
-            ptile = mesh_get_ptile( pmesh, ifan );
+            ptile = ego_mesh_get_ptile( pmesh, ifan );
             if ( NULL == ptile ) continue;
 
-            pgrid = mesh_get_pgrid( pmesh, ifan );
+            pgrid = ego_mesh_get_pgrid( pmesh, ifan );
             if ( NULL == pgrid ) continue;
 
             if ( gfx_error == gfx_capture_mesh_tile( ptile ) )
@@ -2169,7 +2171,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     ticks = MIN( ticks, NUMTICK );
 
     gfx_enable_texturing();               // Enable texture mapping
-    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );
+    GL_DEBUG( glColor4fv )( white_vec );
 
     //---- Draw the tab (always colored)
 
@@ -2610,7 +2612,7 @@ void draw_map( void )
         GL_DEBUG( glEnable )( GL_BLEND );                               // GL_COLOR_BUFFER_BIT
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-        GL_DEBUG( glColor4f )( 1.0f, 1.0f, 1.0f, 1.0f );
+        GL_DEBUG( glColor4fv )( white_vec );
         draw_map_texture( 0, sdl_scr.y - MAPSIZE );
 
         GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
@@ -2825,14 +2827,14 @@ float draw_debug( float y )
         ipla = ( PLA_REF )0;
         ichr = PlaStack.lst[ipla].index;
         y = draw_string_raw( 0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
-                              ChrList.lst[ichr].damage_resistance[DAMAGE_SLASH],
-                              ChrList.lst[ichr].damage_resistance[DAMAGE_CRUSH],
-                              ChrList.lst[ichr].damage_resistance[DAMAGE_POKE ],
-                              ChrList.lst[ichr].damage_resistance[DAMAGE_HOLY ],
-                              ChrList.lst[ichr].damage_resistance[DAMAGE_EVIL ],
-                              ChrList.lst[ichr].damage_resistance[DAMAGE_FIRE ],
-                              ChrList.lst[ichr].damage_resistance[DAMAGE_ICE  ],
-                              ChrList.lst[ichr].damage_resistance[DAMAGE_ZAP  ] );
+                             ChrList.lst[ichr].damage_resistance[DAMAGE_SLASH],
+                             ChrList.lst[ichr].damage_resistance[DAMAGE_CRUSH],
+                             ChrList.lst[ichr].damage_resistance[DAMAGE_POKE ],
+                             ChrList.lst[ichr].damage_resistance[DAMAGE_HOLY ],
+                             ChrList.lst[ichr].damage_resistance[DAMAGE_EVIL ],
+                             ChrList.lst[ichr].damage_resistance[DAMAGE_FIRE ],
+                             ChrList.lst[ichr].damage_resistance[DAMAGE_ICE  ],
+                             ChrList.lst[ichr].damage_resistance[DAMAGE_ZAP  ] );
 
         ichr = PlaStack.lst[ipla].index;
         y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_FSIZE, ChrList.lst[ichr].pos.y / GRID_FSIZE );
@@ -3188,7 +3190,7 @@ void render_shadow( const CHR_REF character )
     if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
 
     // no shadow if off the mesh
-    ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+    ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
     if ( NULL == ptile ) return;
 
     // no shadow if invalid tile image
@@ -3202,7 +3204,7 @@ void render_shadow( const CHR_REF character )
     if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
-    if ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_DRAWREF ) )
+    if ( 0 != ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_DRAWREF ) )
     {
         alpha *= 0.1f;
     }
@@ -3322,7 +3324,7 @@ void render_bad_shadow( const CHR_REF character )
     if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
 
     // no shadow if off the mesh
-    ptile = mesh_get_ptile( PMesh, pchr->onwhichgrid );
+    ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
     if ( NULL == ptile ) return;
 
     // no shadow if invalid tile image
@@ -3336,7 +3338,7 @@ void render_bad_shadow( const CHR_REF character )
     if ( pchr->inst.light <= INVISIBLE || pchr->inst.alpha <= INVISIBLE ) return;
 
     // much reduced shadow if on a reflective tile
-    if ( 0 != mesh_test_fx( PMesh, pchr->onwhichgrid, MPDFX_DRAWREF ) )
+    if ( 0 != ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_DRAWREF ) )
     {
         alpha *= 0.1f;
     }
@@ -3397,7 +3399,7 @@ void render_bad_shadow( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmesh, const Uint32 list[], const size_t list_size )
+gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mesh_t * pmesh, const Uint32 list[], const size_t list_size )
 {
     Uint32 cnt;
     TX_REF tx;
@@ -3450,7 +3452,7 @@ gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mpd_t * pmesh, cons
 gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, const camera_t * pcam )
 {
     gfx_rv retval;
-    ego_mpd_t * pmesh;
+    ego_mesh_t * pmesh;
 
     // assume the best;
     retval = gfx_success;
@@ -3649,7 +3651,7 @@ gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist
     int cnt;
     gfx_rv retval;
 
-    ego_mpd_t * pmesh;
+    ego_mesh_t * pmesh;
 
     if ( NULL == prlist )
     {
@@ -3699,7 +3701,7 @@ gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist
 
                 // cull backward facing polygons
                 // use couter-clockwise orientation to determine backfaces
-                oglx_begin_culling( GL_BACK, MPD_REF_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
+                oglx_begin_culling( GL_BACK, MAP_REF_CULL );            // GL_ENABLE_BIT | GL_POLYGON_BIT
 
                 // allow transparent objects
                 GL_DEBUG( glEnable )( GL_BLEND );                 // GL_ENABLE_BIT
@@ -3709,9 +3711,9 @@ gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist
                 ichr  = pdolist->lst[cnt].ichr;
                 itile = ChrList.lst[ichr].onwhichgrid;
 
-                if ( mesh_grid_is_valid( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
-                    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
+                    GL_DEBUG( glColor4fv )( white_vec );          // GL_CURRENT_BIT
 
                     if ( gfx_error == render_one_mad_ref( pcam, ichr ) )
                     {
@@ -3736,9 +3738,9 @@ gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist
                 iprt = pdolist->lst[cnt].iprt;
                 itile = PrtList.lst[iprt].onwhichgrid;
 
-                if ( mesh_grid_is_valid( pmesh, itile ) && ( 0 != mesh_test_fx( pmesh, itile, MPDFX_DRAWREF ) ) )
+                if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
-                    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );          // GL_CURRENT_BIT
+                    GL_DEBUG( glColor4fv )( white_vec );          // GL_CURRENT_BIT
 
                     if ( gfx_error == render_one_prt_ref( iprt ) )
                     {
@@ -4281,7 +4283,7 @@ gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture )
     float xmag, Cx_0, Cx_1;
     float ymag, Cy_0, Cy_1;
 
-    ego_mpd_info_t * pinfo;
+    ego_mesh_info_t * pinfo;
     grid_mem_t     * pgmem;
     oglx_texture_t   * ptex;
     water_instance_layer_t * ilayer;
@@ -4745,7 +4747,7 @@ void gfx_error_clear( void )
 //--------------------------------------------------------------------------------------------
 // grid_lighting FUNCTIONS
 //--------------------------------------------------------------------------------------------
-float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff )
+float grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff )
 {
     int ix, iy, cnt;
     Uint32 fan[4];
@@ -4764,16 +4766,16 @@ float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, 
     ix = FLOOR( pos[XX] / GRID_FSIZE );
     iy = FLOOR( pos[YY] / GRID_FSIZE );
 
-    fan[0] = mesh_get_tile_int( pmesh, ix,     iy );
-    fan[1] = mesh_get_tile_int( pmesh, ix + 1, iy );
-    fan[2] = mesh_get_tile_int( pmesh, ix,     iy + 1 );
-    fan[3] = mesh_get_tile_int( pmesh, ix + 1, iy + 1 );
+    fan[0] = ego_mesh_get_tile_int( pmesh, ix,     iy );
+    fan[1] = ego_mesh_get_tile_int( pmesh, ix + 1, iy );
+    fan[2] = ego_mesh_get_tile_int( pmesh, ix,     iy + 1 );
+    fan[3] = ego_mesh_get_tile_int( pmesh, ix + 1, iy + 1 );
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
         cache_list[cnt] = NULL;
 
-        pgrid = mesh_get_pgrid( pmesh, fan[cnt] );
+        pgrid = ego_mesh_get_pgrid( pmesh, fan[cnt] );
         if ( NULL == pgrid )
         {
             cache_list[cnt] = NULL;
@@ -4791,7 +4793,7 @@ float grid_lighting_test( ego_mpd_t * pmesh, GLXvector3f pos, float * low_diff, 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t grid_lighting_interpolate( const ego_mpd_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos )
+bool_t grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos )
 {
     int ix, iy, cnt;
     Uint32 fan[4];
@@ -4828,14 +4830,14 @@ bool_t grid_lighting_interpolate( const ego_mpd_t * pmesh, lighting_cache_t * ds
     iy = FLOOR( tpos.y );
 
     // find the tile id for the surrounding tiles
-    fan[0] = mesh_get_tile_int( pmesh, ix,     iy );
-    fan[1] = mesh_get_tile_int( pmesh, ix + 1, iy );
-    fan[2] = mesh_get_tile_int( pmesh, ix,     iy + 1 );
-    fan[3] = mesh_get_tile_int( pmesh, ix + 1, iy + 1 );
+    fan[0] = ego_mesh_get_tile_int( pmesh, ix,     iy );
+    fan[1] = ego_mesh_get_tile_int( pmesh, ix + 1, iy );
+    fan[2] = ego_mesh_get_tile_int( pmesh, ix,     iy + 1 );
+    fan[3] = ego_mesh_get_tile_int( pmesh, ix + 1, iy + 1 );
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-        pgrid = mesh_get_pgrid( pmesh, fan[cnt] );
+        pgrid = ego_mesh_get_pgrid( pmesh, fan[cnt] );
 
         if ( NULL == pgrid )
         {
@@ -4972,8 +4974,6 @@ void gfx_update_fps( void )
         stabilized_fps = stabilized_menu_fps;
     }
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 // obj_registry_entity_t IMPLEMENTATION
@@ -5299,7 +5299,7 @@ void _flip_pages( void )
 //--------------------------------------------------------------------------------------------
 // LIGHTING FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold )
+gfx_rv light_fans_throttle_update( ego_mesh_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold )
 {
     grid_mem_t * pgmem = NULL;
     bool_t       retval = bfalse;
@@ -5320,7 +5320,7 @@ gfx_rv light_fans_throttle_update( ego_mpd_t * pmesh, ego_tile_info_t * ptile, i
 #if defined(CLIP_LIGHT_FANS) && !defined(CLIP_ALL_LIGHT_FANS)
 
     // visible fans based on the update "need"
-    retval = mesh_test_corners( pmesh, ptile, threshold );
+    retval = ego_mesh_test_corners( pmesh, ptile, threshold );
 
     // update every 4 fans even if there is no need
     if ( !retval )
@@ -5362,7 +5362,7 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
     /// which means that the threshold could be set as low as 1/64 = 0.015625.
     const float delta_threshold = 0.05f;
 
-    ego_mpd_t      * pmesh;
+    ego_mesh_t      * pmesh;
     tile_mem_t     * ptmem;
     grid_mem_t     * pgmem;
 
@@ -5408,12 +5408,12 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
         fan = prlist->all[entry];
 
         // grab a pointer to the tile
-        ptile = mesh_get_ptile( pmesh, fan );
+        ptile = ego_mesh_get_ptile( pmesh, fan );
         if ( NULL == ptile ) continue;
 
         // Test to see whether the lcache was already updated
         // - ptile->lcache_frame < 0 means that the cache value is invalid.
-        // - ptile->lcache_frame is updated inside mesh_light_corners()
+        // - ptile->lcache_frame is updated inside ego_mesh_light_corners()
 #if defined(CLIP_LIGHT_FANS)
         // clip the updated on each individual tile
         if ( ptile->lcache_frame >= 0 && ( Uint32 )ptile->lcache_frame + frame_skip >= game_frame_all )
@@ -5437,18 +5437,18 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
         if ( !ptile->request_lcache_update ) continue;
 
         // is the tile reflective?
-        pgrid = mesh_get_pgrid( pmesh, fan );
-        reflective = ( 0 != ego_grid_info_test_all_fx( pgrid, MPDFX_DRAWREF ) );
+        pgrid = ego_mesh_get_pgrid( pmesh, fan );
+        reflective = ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_DRAWREF ) );
 
         // light the corners of this tile
-        delta = mesh_light_corners( prlist->pmesh, ptile, reflective, local_mesh_lighting_keep );
+        delta = ego_mesh_light_corners( prlist->pmesh, ptile, reflective, local_mesh_lighting_keep );
 
 #if defined(CLIP_LIGHT_FANS)
         // use the actual maximum change in the intensity at a tile corner to
         // signal whether we need to calculate the next stage
         ptile->request_clst_update = ( delta > delta_threshold );
 #else
-        // make sure that mesh_light_corners() did not return an "error value"
+        // make sure that ego_mesh_light_corners() did not return an "error value"
         ptile->request_clst_update = ( delta > 0.0f );
 #endif
     }
@@ -5469,9 +5469,10 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
     int    entry;
     Uint32 fan;
 
-    ego_tile_info_t * ptile = NULL;
-    ego_mpd_t       * pmesh = NULL;
-    tile_mem_t      * ptmem = NULL;
+    ego_tile_info_t   * ptile = NULL;
+    ego_mesh_t         * pmesh = NULL;
+    tile_mem_t        * ptmem = NULL;
+    tile_definition_t * pdef  = NULL;
 
     if ( NULL == prlist )
     {
@@ -5499,7 +5500,7 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
         if ( INVALID_TILE == fan ) continue;
 
         // valid tile?
-        ptile = mesh_get_ptile( pmesh, fan );
+        ptile = ego_mesh_get_ptile( pmesh, fan );
         if ( NULL == ptile )
         {
             retval = gfx_fail;
@@ -5518,9 +5519,10 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
             continue;
         }
 
-        if ( ptile->type < MPD_FAN_TYPE_MAX )
+        pdef = TILE_DICT_PTR( tile_dict, ptile->type );
+        if ( NULL != pdef )
         {
-            numvertices = tile_dict[ptile->type].numvertices;
+            numvertices = pdef->numvertices;
         }
         else
         {
@@ -5546,7 +5548,7 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
             ppos = ptmem->plst + vertex;
 
             light = 0;
-            was_calculated = mesh_interpolate_vertex( ptmem, ptile, *ppos, &light );
+            was_calculated = ego_mesh_interpolate_vertex( ptmem, ptile, *ppos, &light );
             if ( !was_calculated ) continue;
 
             ( *pcol )[RR] = ( *pcol )[GG] = ( *pcol )[BB] = INV_FF * CLIP( light, 0.0f, 255.0f );
@@ -5801,7 +5803,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
     int ix, iy;
     float x0, y0, local_keep;
     bool_t needs_dynalight;
-    ego_mpd_t * pmesh;
+    ego_mesh_t * pmesh;
 
     lighting_vector_t global_lighting;
 
@@ -5810,7 +5812,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
 
     ego_frect_t mesh_bound, light_bound;
 
-    ego_mpd_info_t  * pinfo;
+    ego_mesh_info_t  * pinfo;
     grid_mem_t      * pgmem;
     tile_mem_t      * ptmem;
     oct_bb_t        * poct;
@@ -6004,7 +6006,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
         fan = prlist->all[entry];
 
         // a valid tile?
-        pgrid = mesh_get_pgrid( pmesh, fan );
+        pgrid = ego_mesh_get_pgrid( pmesh, fan );
         if ( NULL == pgrid ) continue;
 
         // do not update this more than once a frame
@@ -6190,7 +6192,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
 
     // get the tiles in the center of the view
     _renderlist_colst.top = 0;
-    mpd_BSP_collide_frustum( &( mpd_BSP_root ), &( pcam->frustum_big ), NULL, &_renderlist_colst );
+    mesh_BSP_collide_frustum( &( mesh_BSP_root ), &( pcam->frustum_big ), NULL, &_renderlist_colst );
 
     // transfer valid _renderlist_colst entries to the dolist
     if ( gfx_error == renderlist_add_colst( prlist, &_renderlist_colst ) )
@@ -6437,7 +6439,7 @@ gfx_rv gfx_update_all_chr_instance( void )
         if ( !ALLOCATED_CHR( cnt ) ) continue;
         pchr = ChrList_get_ptr( cnt );
 
-        if ( !mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
+        if ( !ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
 
         tmp_rv = update_one_chr_instance( pchr );
 
@@ -6918,7 +6920,7 @@ gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 //    int corner_x[4], corner_y[4];
 //    int corner_stt, corner_end;
 //
-//    ego_mpd_t       * pmesh;
+//    ego_mesh_t       * pmesh;
 //
 //    if ( NULL == prlist )
 //    {
@@ -7133,7 +7135,7 @@ gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 //    cam_corner_info_t   corner;
 //    projection_bitmap_t proj;
 //
-//    ego_mpd_t * pmesh = NULL;
+//    ego_mesh_t * pmesh = NULL;
 //
 //
 //    // Make sure there is a renderlist
@@ -7202,13 +7204,13 @@ gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 //        {
 //            cnt = pmesh->gmem.tilestart[grid_y] + grid_x;
 //
-//            if ( gfx_error == gfx_capture_mesh_tile( mesh_get_ptile( pmesh, cnt ) ) )
+//            if ( gfx_error == gfx_capture_mesh_tile( ego_mesh_get_ptile( pmesh, cnt ) ) )
 //            {
 //                retval = gfx_error;
 //                goto gfx_make_renderlist_exit;
 //            }
 //
-//            if ( gfx_error == renderlist_insert( prlist, mesh_get_pgrid( pmesh, cnt ), cnt ) )
+//            if ( gfx_error == renderlist_insert( prlist, ego_mesh_get_pgrid( pmesh, cnt ), cnt ) )
 //            {
 //                retval = gfx_error;
 //                goto gfx_make_renderlist_exit;

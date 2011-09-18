@@ -34,7 +34,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_ego_mpd;
+struct s_ego_mesh;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -64,9 +64,9 @@ egolib_rv camera_system_begin( int camera_count );
 egolib_rv camera_system_end( void );
 egolib_rv camera_system_init( int camera_count );
 
-egolib_rv camera_system_reset( struct s_ego_mpd * pmesh );
-egolib_rv camera_system_move( struct s_ego_mpd * pmesh );
-egolib_rv camera_system_reset_targets( struct s_ego_mpd * pmesh );
+egolib_rv camera_system_reset( struct s_ego_mesh * pmesh );
+egolib_rv camera_system_move( struct s_ego_mesh * pmesh );
+egolib_rv camera_system_reset_targets( struct s_ego_mesh * pmesh );
 
 camera_t          * camera_system_get_main( void );
 ext_camera_list_t * camera_system_get_list( void );

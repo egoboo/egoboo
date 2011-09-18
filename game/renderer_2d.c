@@ -33,12 +33,6 @@
 #include "../egolib/extensions/SDL_GL_extensions.h"
 
 //--------------------------------------------------------------------------------------------
-// INTERNAL VARIABLES
-//--------------------------------------------------------------------------------------------
-
-static const GLXvector4f white_vec = {1.0f, 1.0f, 1.0f, 1.0f};
-
-//--------------------------------------------------------------------------------------------
 // EXTERNAL VARIABLES
 //--------------------------------------------------------------------------------------------
 
@@ -47,6 +41,9 @@ INSTANTIATE_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 int    DisplayMsg_timechange = 0;
 int    DisplayMsg_count    = EGO_MESSAGE_MAX;
 bool_t DisplayMsg_on    = btrue;
+
+const GLXvector4f white_vec = {1.0f, 1.0f, 1.0f, 1.0f};
+const GLXvector4f black_vec = {0.0f, 0.0f, 0.0f, 1.0f};
 
 //--------------------------------------------------------------------------------------------
 // PRIVATE FUNCTIONS
@@ -133,7 +130,6 @@ int draw_string_raw( float x, float y, const char *format, ... )
     return y;
 }
 
-
 //--------------------------------------------------------------------------------------------
 // DisplayMsg IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
@@ -170,7 +166,6 @@ void DisplayMsg_reset( void )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 int DisplayMsg_get_free( void )
 {
@@ -185,7 +180,6 @@ int DisplayMsg_get_free( void )
 
     return tnc;
 }
-
 
 //--------------------------------------------------------------------------------------------
 int DisplayMsg_printf( const char *format, ... )
@@ -230,7 +224,6 @@ void DisplayMsg_print( const char *text )
     pmsg->time = cfg.message_duration;
 }
 
-
 //--------------------------------------------------------------------------------------------
 int DisplayMsg_vprintf( const char *format, va_list args )
 {
@@ -246,8 +239,6 @@ int DisplayMsg_vprintf( const char *format, va_list args )
 
     return retval;
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 float DisplayMsg_draw_all( float y )
@@ -282,7 +273,6 @@ float DisplayMsg_draw_all( float y )
 
     return y;
 }
-
 
 //--------------------------------------------------------------------------------------------
 // MODE CONTROL
@@ -356,7 +346,7 @@ void gfx_begin_text( void )
     // draw draw front and back faces of polygons
     oglx_end_culling();                               // GL_ENABLE_BIT
 
-    GL_DEBUG( glColor4f )( 1, 1, 1, 1 );                                // GL_CURRENT_BIT
+    GL_DEBUG( glColor4fv )( white_vec );                                // GL_CURRENT_BIT
 }
 
 //--------------------------------------------------------------------------------------------
@@ -389,7 +379,6 @@ void gfx_reshape_viewport( int w, int h )
 {
     GL_DEBUG( glViewport )( 0, 0, w, h );
 }
-
 
 //--------------------------------------------------------------------------------------------
 // PRIMATVES

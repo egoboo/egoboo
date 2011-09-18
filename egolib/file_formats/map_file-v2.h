@@ -19,43 +19,33 @@
 //*
 //********************************************************************************************
 
-#include "egoboo_typedef.h"
+/// @file file_formats/map_file-v2.h
+/// @brief Load and save version 2 ("MapB") files 
+/// @details
 
-#include "graphic.h"
+#include <stdio.h>
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+#include "map_file.h"
 
-struct s_ego_mesh;
-struct s_camera;
-struct s_renderlist;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(MAP_CULL_RIGHT)
-// this worked with the old camera
-#    define MAP_REF_CULL   GL_CCW
-#    define MAP_NRM_CULL   GL_CW
-#else
-// they had to be reversed with the new camera
-#    define MAP_REF_CULL   GL_CW
-#    define MAP_NRM_CULL   GL_CCW
+#if defined(__cplusplus)
+extern "C"
+{
 #endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// JF - Added so that the video mode might be determined outside of the graphics code
-extern bool_t          meshnotexture;
-extern TX_REF          meshlasttexture;             ///< Last texture used
+    map_t * map_read_v2( FILE * fileread, map_t * pmesh );
+    map_t * map_write_v2( FILE * filewrite, map_t * pmesh );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void animate_all_tiles( struct s_ego_mesh * pmesh );
 
-gfx_rv render_fan( const struct s_ego_mesh * pmesh, const Uint32 fan );
-gfx_rv render_hmap_fan( const struct s_ego_mesh * pmesh, const Uint32 itile );
-gfx_rv render_water_fan( const struct s_ego_mesh * pmesh, const Uint32 fan, const Uint8 layer );
+#if defined(__cplusplus)
+}
+#endif
 
-void animate_tiles( void );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define _file_formats_mpd_file_v2_h

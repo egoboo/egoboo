@@ -92,7 +92,7 @@
 #define DRAW_LISTS          ///< display any lines or points that have been added to various lists
 
 #define MAD_CULL_RIGHT       ///< helps to define which faces are clipped when rendering character models
-#define MPD_CULL_RIGHT       ///< helps to define which faces are clipped when rendering the mesh
+#define MAP_CULL_RIGHT       ///< helps to define which faces are clipped when rendering the mesh
 
 #undef EGOBOO_THROTTLED     ///< are the inner loops of the game throttled?
 
