@@ -21,7 +21,8 @@
 /// @brief Implementation of mac system-dependent functions
 /// @details
 
-#include <stdarg.h>
+#import <AppKit/NSAlert.h>
+#import <Foundation/NSString.h>
 #include <sys/time.h>
 
 #include "system.h"
@@ -51,5 +52,31 @@ double sys_getTime()
 //--------------------------------------------------------------------------------------------
 void sys_popup( const char * popup_title, const char * warning, const char * format, va_list args )
 {
-    /// the system popup is not supported on osx at this time.
+    /// @author PF5
+    /// @details Show error message to Mac users instead of just closing for no reason
+    
+    //NSStringify the strings
+    NSString * warningString = [[NSString alloc] initWithCString:warning];
+    NSString * formatString = [[NSString alloc] initWithCString:format];
+    
+    //Ready the message
+    NSString * formattedString = [[NSString alloc] initWithFormat:formatString arguments:args];
+    NSString * message = [warningString stringByAppendingString:formattedString];
+    
+    // Setup the alert
+    NSAlert * alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSInformationalAlertStyle];
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:message];
+    
+    // Run the alert
+    [alert runModal];
+    
+    // Cleanup
+    [alert release];
+    [message release];
+    [warningString release];
+    [formatString release];
+    [formattedString release];
+    
 }
