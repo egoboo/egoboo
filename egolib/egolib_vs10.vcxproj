@@ -32,11 +32,17 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="libraries.props" />
     <Import Project="multithreaded_dll.props" />
+    <Import Project="SDL_libraries.props" />
+    <Import Project="PhysicsFS_libraries.props" />
+    <Import Project="Lua_libraries.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="libraries.props" />
     <Import Project="multithreaded_debug_dll.props" />
+    <Import Project="SDL_libraries.props" />
+    <Import Project="PhysicsFS_libraries.props" />
+    <Import Project="Lua_libraries.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -56,7 +62,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>CompileAsC</CompileAs>
       <PrecompiledHeaderFile>
@@ -71,11 +77,14 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <UndefinePreprocessorDefinitions>__cplusplus;</UndefinePreprocessorDefinitions>
+      <DisableSpecificWarnings>4820</DisableSpecificWarnings>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
       <TargetMachine>MachineX86</TargetMachine>
       <Verbose>false</Verbose>
+      <SubSystem>
+      </SubSystem>
     </Lib>
     <Xdcmake>
       <DocumentLibraryDependencies>true</DocumentLibraryDependencies>
@@ -89,7 +98,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsC</CompileAs>
       <PrecompiledHeaderFile>
@@ -145,8 +154,13 @@
     <ClCompile Include="file_formats\controls_file.c" />
     <ClCompile Include="file_formats\eve_file.c" />
     <ClCompile Include="file_formats\id_md2.c" />
+    <ClCompile Include="file_formats\map_file-v1.c" />
+    <ClCompile Include="file_formats\map_file-v2.c" />
+    <ClCompile Include="file_formats\map_file-v3.c" />
+    <ClCompile Include="file_formats\map_file-v4.c" />
+    <ClCompile Include="file_formats\map_file.c" />
+    <ClCompile Include="file_formats\map_tile_dictionary.c" />
     <ClCompile Include="file_formats\module_file.c" />
-    <ClCompile Include="file_formats\mpd_file.c" />
     <ClCompile Include="file_formats\passage_file.c" />
     <ClCompile Include="file_formats\pip_file.c" />
     <ClCompile Include="file_formats\quest_file.c" />
@@ -178,10 +192,6 @@
     </ClCompile>
     <ClCompile Include="platform\file_win.c" />
     <ClCompile Include="platform\sys_linux.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="platform\sys_mac.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -221,8 +231,13 @@
     <ClInclude Include="file_formats\controls_file.h" />
     <ClInclude Include="file_formats\eve_file.h" />
     <ClInclude Include="file_formats\id_md2.h" />
+    <ClInclude Include="file_formats\map_file-v1.h" />
+    <ClInclude Include="file_formats\map_file-v2.h" />
+    <ClInclude Include="file_formats\map_file-v3.h" />
+    <ClInclude Include="file_formats\map_file-v4.h" />
+    <ClInclude Include="file_formats\map_file.h" />
+    <ClInclude Include="file_formats\map_tile_dictionary.h" />
     <ClInclude Include="file_formats\module_file.h" />
-    <ClInclude Include="file_formats\mpd_file.h" />
     <ClInclude Include="file_formats\passage_file.h" />
     <ClInclude Include="file_formats\pip_file.h" />
     <ClInclude Include="file_formats\quest_file.h" />
@@ -289,6 +304,18 @@
     <None Include="console.inl" />
     <None Include="egolib.inl" />
     <None Include="file_formats\id_normals.inl" />
+    <None Include="platform\file_mac.m">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="platform\NSFileManager+DirectoryLocations.m">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="platform\sys_mac.m">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </None>
     <None Include="_math.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -110,12 +110,6 @@
     <ClCompile Include="mesh.c">
       <Filter>Game Source</Filter>
     </ClCompile>
-    <ClCompile Include="mpd_BSP.c">
-      <Filter>Game Source</Filter>
-    </ClCompile>
-    <ClCompile Include="mpd_functions.c">
-      <Filter>Game Source</Filter>
-    </ClCompile>
     <ClCompile Include="network.c">
       <Filter>Game Source</Filter>
     </ClCompile>
@@ -157,6 +151,18 @@
     </ClCompile>
     <ClCompile Include="script_implementation.c">
       <Filter>scripting system</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer_2d.c">
+      <Filter>Core Source</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer_3d.c">
+      <Filter>Core Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh_BSP.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh_functions.c">
+      <Filter>Game Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -250,12 +256,6 @@
     <ClInclude Include="mesh.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
-    <ClInclude Include="mpd_BSP.h">
-      <Filter>Game Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="mpd_functions.h">
-      <Filter>Game Headers</Filter>
-    </ClInclude>
     <ClInclude Include="network.h">
       <Filter>Game Headers</Filter>
     </ClInclude>
@@ -297,6 +297,18 @@
     </ClInclude>
     <ClInclude Include="script_implementation.h">
       <Filter>scripting system</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh_BSP.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh_functions.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer_3d.h">
+      <Filter>Core Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer_2d.h">
+      <Filter>Core Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

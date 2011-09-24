@@ -80,10 +80,10 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BrowseInformation>true</BrowseInformation>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <CompileAs>CompileAsC</CompileAs>
-      <DisableSpecificWarnings>4127;4239;4130;4505;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4820%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ShowIncludes>false</ShowIncludes>
       <FloatingPointExceptions>true</FloatingPointExceptions>
       <PrecompiledHeaderFile>
@@ -103,7 +103,7 @@
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
@@ -137,10 +137,10 @@
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <BrowseInformation>true</BrowseInformation>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsC</CompileAs>
-      <DisableSpecificWarnings>4820;4668;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4820;4668;4255;4738;4710;4711;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ShowIncludes>false</ShowIncludes>
       <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <PrecompiledHeaderFile>
@@ -197,8 +197,8 @@
     <ClCompile Include="md2.c" />
     <ClCompile Include="menu.c" />
     <ClCompile Include="mesh.c" />
-    <ClCompile Include="mpd_BSP.c" />
-    <ClCompile Include="mpd_functions.c" />
+    <ClCompile Include="mesh_BSP.c" />
+    <ClCompile Include="mesh_functions.c" />
     <ClCompile Include="network.c" />
     <ClCompile Include="network_client.c" />
     <ClCompile Include="network_server.c" />
@@ -209,6 +209,8 @@
     <ClCompile Include="player.c" />
     <ClCompile Include="profile.c" />
     <ClCompile Include="PrtList.c" />
+    <ClCompile Include="renderer_2d.c" />
+    <ClCompile Include="renderer_3d.c" />
     <ClCompile Include="rpc.c" />
     <ClCompile Include="script.c" />
     <ClCompile Include="script_compile.c" />
@@ -244,8 +246,8 @@
     <ClInclude Include="md2.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="mesh.h" />
-    <ClInclude Include="mpd_BSP.h" />
-    <ClInclude Include="mpd_functions.h" />
+    <ClInclude Include="mesh_BSP.h" />
+    <ClInclude Include="mesh_functions.h" />
     <ClInclude Include="network.h" />
     <ClInclude Include="network_client.h" />
     <ClInclude Include="network_server.h" />
@@ -256,6 +258,8 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="profile.h" />
     <ClInclude Include="PrtList.h" />
+    <ClInclude Include="renderer_2d.h" />
+    <ClInclude Include="renderer_3d.h" />
     <ClInclude Include="rpc.h" />
     <ClInclude Include="script.h" />
     <ClInclude Include="script_compile.h" />

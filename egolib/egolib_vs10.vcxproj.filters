@@ -66,9 +66,6 @@
     <ClCompile Include="file_formats\module_file.c">
       <Filter>file_formats</Filter>
     </ClCompile>
-    <ClCompile Include="file_formats\mpd_file.c">
-      <Filter>file_formats</Filter>
-    </ClCompile>
     <ClCompile Include="file_formats\passage_file.c">
       <Filter>file_formats</Filter>
     </ClCompile>
@@ -109,9 +106,6 @@
       <Filter>platform</Filter>
     </ClCompile>
     <ClCompile Include="platform\sys_linux.c">
-      <Filter>platform</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\sys_mac.c">
       <Filter>platform</Filter>
     </ClCompile>
     <ClCompile Include="_math.c">
@@ -201,6 +195,24 @@
     <ClCompile Include="vfs.c">
       <Filter>source files</Filter>
     </ClCompile>
+    <ClCompile Include="file_formats\map_file.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\map_file-v1.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\map_file-v2.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\map_file-v3.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\map_file-v4.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
+    <ClCompile Include="file_formats\map_tile_dictionary.c">
+      <Filter>file_formats</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\SDL_GL_extensions.h">
@@ -249,9 +261,6 @@
       <Filter>file_formats</Filter>
     </ClInclude>
     <ClInclude Include="file_formats\module_file.h">
-      <Filter>file_formats</Filter>
-    </ClInclude>
-    <ClInclude Include="file_formats\mpd_file.h">
       <Filter>file_formats</Filter>
     </ClInclude>
     <ClInclude Include="file_formats\passage_file.h">
@@ -389,6 +398,24 @@
     <ClInclude Include="vfs.h">
       <Filter>header files</Filter>
     </ClInclude>
+    <ClInclude Include="file_formats\map_file.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\map_file-v1.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\map_file-v2.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\map_file-v3.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\map_file-v4.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
+    <ClInclude Include="file_formats\map_tile_dictionary.h">
+      <Filter>file_formats</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="file_formats\id_normals.inl">
@@ -408,6 +435,15 @@
     </None>
     <None Include="egolib.inl">
       <Filter>inline</Filter>
+    </None>
+    <None Include="platform\file_mac.m">
+      <Filter>platform</Filter>
+    </None>
+    <None Include="platform\NSFileManager+DirectoryLocations.m">
+      <Filter>platform</Filter>
+    </None>
+    <None Include="platform\sys_mac.m">
+      <Filter>platform</Filter>
     </None>
   </ItemGroup>
 </Project>
