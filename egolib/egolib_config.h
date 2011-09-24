@@ -26,6 +26,8 @@
 //--------------------------------------------------------------------------------------------
 // compliation flags
 
+#undef __cplusplus			  ///< only compile C
+
 #undef  USE_LUA_CONSOLE       ///< LUA support for the console
 
 #define LOG_TO_CONSOLE        ///< dump all log info to file and to the console. Only useful if your compiler generates console for program output. Otherwise the results will end up in a file called stdout.txt

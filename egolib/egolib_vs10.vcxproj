@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -70,6 +70,7 @@
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
+      <UndefinePreprocessorDefinitions>__cplusplus;</UndefinePreprocessorDefinitions>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
@@ -108,7 +109,7 @@
       <CompileAsManaged>false</CompileAsManaged>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions>_DEBUG;__cplusplus;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <StringPooling>false</StringPooling>
     </ClCompile>
     <Lib>
@@ -164,6 +165,7 @@
     <ClCompile Include="input_device.c" />
     <ClCompile Include="log.c" />
     <ClCompile Include="lua\lua_console.c" />
+    <ClCompile Include="map_functions.c" />
     <ClCompile Include="network.c" />
     <ClCompile Include="network_file.c" />
     <ClCompile Include="platform\file_amiga.c">
@@ -239,6 +241,7 @@
     <ClInclude Include="input_device.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="lua\lua_console.h" />
+    <ClInclude Include="map_functions.h" />
     <ClInclude Include="mem.h" />
     <ClInclude Include="network.h" />
     <ClInclude Include="network_file.h" />
@@ -256,7 +259,10 @@
     <ClInclude Include="throttle.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="typedef.h" />
-    <ClInclude Include="typedef_cpp.h" />
+    <ClInclude Include="typedef_cpp.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="vfs.h" />
     <ClInclude Include="_math.h" />
   </ItemGroup>

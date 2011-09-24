@@ -10,36 +10,17 @@
     <Filter Include="extensions">
       <UniqueIdentifier>{9ee0c819-9153-4fc0-a5c0-daff3cbb6c8a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="inline">
+      <UniqueIdentifier>{701bd0f3-d242-40dd-b88c-88a3275dcfed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="header files">
+      <UniqueIdentifier>{a101d3d2-7683-4e16-922a-5f200fee2a68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source files">
+      <UniqueIdentifier>{186c3fa2-a2d8-4321-b2c1-b80d1aeb0304}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="_math.c" />
-    <ClCompile Include="bbox.c" />
-    <ClCompile Include="bsp.c" />
-    <ClCompile Include="clock.c" />
-    <ClCompile Include="console.c" />
-    <ClCompile Include="egoboo_setup.c" />
-    <ClCompile Include="endian.c" />
-    <ClCompile Include="file_common.c" />
-    <ClCompile Include="fileutil.c" />
-    <ClCompile Include="font_bmp.c" />
-    <ClCompile Include="font_ttf.c" />
-    <ClCompile Include="frustum.c" />
-    <ClCompile Include="geometry.c" />
-    <ClCompile Include="hash.c" />
-    <ClCompile Include="IDSZ_map.c" />
-    <ClCompile Include="input_device.c" />
-    <ClCompile Include="log.c" />
-    <ClCompile Include="lua_console.c" />
-    <ClCompile Include="network.c" />
-    <ClCompile Include="network_file.c" />
-    <ClCompile Include="process.c" />
-    <ClCompile Include="scancode.c" />
-    <ClCompile Include="strutil.c" />
-    <ClCompile Include="threads.c" />
-    <ClCompile Include="throttle.c" />
-    <ClCompile Include="timer.c" />
-    <ClCompile Include="typedef.c" />
-    <ClCompile Include="vfs.c" />
     <ClCompile Include="extensions\ogl_debug.c">
       <Filter>extensions</Filter>
     </ClCompile>
@@ -133,43 +114,95 @@
     <ClCompile Include="platform\sys_mac.c">
       <Filter>platform</Filter>
     </ClCompile>
+    <ClCompile Include="_math.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="process.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="bbox.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="bsp.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="clock.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="console.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_setup.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="endian.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="file_common.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="fileutil.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="font_bmp.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="font_ttf.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="frustum.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="geometry.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="hash.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="IDSZ_map.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="input_device.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="log.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\lua_console.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="map_functions.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="network.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="network_file.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="scancode.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="strutil.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="threads.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="throttle.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="timer.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="typedef.c">
+      <Filter>source files</Filter>
+    </ClCompile>
+    <ClCompile Include="vfs.c">
+      <Filter>source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="vfs.h" />
-    <ClInclude Include="_math.h" />
-    <ClInclude Include="bbox.h" />
-    <ClInclude Include="bsp.h" />
-    <ClInclude Include="clock.h" />
-    <ClInclude Include="console.h" />
-    <ClInclude Include="egoboo_setup.h" />
-    <ClInclude Include="egolib.h" />
-    <ClInclude Include="egolib_config.h" />
-    <ClInclude Include="endian.h" />
-    <ClInclude Include="file_common.h" />
-    <ClInclude Include="fileutil.h" />
-    <ClInclude Include="font_bmp.h" />
-    <ClInclude Include="font_ttf.h" />
-    <ClInclude Include="frustum.h" />
-    <ClInclude Include="geometry.h" />
-    <ClInclude Include="hash.h" />
-    <ClInclude Include="IDSZ_map.h" />
-    <ClInclude Include="input_device.h" />
-    <ClInclude Include="log.h" />
-    <ClInclude Include="lua_console.h" />
-    <ClInclude Include="mem.h" />
-    <ClInclude Include="network.h" />
-    <ClInclude Include="network_file.h" />
-    <ClInclude Include="platform.h" />
-    <ClInclude Include="process.h" />
-    <ClInclude Include="scancode.h" />
-    <ClInclude Include="state_machine.h" />
-    <ClInclude Include="strutil.h" />
-    <ClInclude Include="system.h" />
-    <ClInclude Include="threads.h" />
-    <ClInclude Include="throttle.h" />
-    <ClInclude Include="timer.h" />
-    <ClInclude Include="typedef.h" />
-    <ClInclude Include="typedef_cpp.h" />
     <ClInclude Include="extensions\SDL_GL_extensions.h">
       <Filter>extensions</Filter>
     </ClInclude>
@@ -248,15 +281,133 @@
     <ClInclude Include="platform\NSFileManager+DirectoryLocations.h">
       <Filter>platform</Filter>
     </ClInclude>
+    <ClInclude Include="bbox.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="bsp.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="_math.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="clock.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="console.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_setup.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="egolib_config.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="egolib.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="file_common.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="fileutil.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="font_bmp.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="IDSZ_map.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="input_device.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="font_ttf.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="endian.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="map_functions.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\lua_console.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="hash.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="frustum.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="network_file.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="network.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="mem.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="process.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="scancode.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="state_machine.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="strutil.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="system.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="threads.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="throttle.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="typedef.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="typedef_cpp.h">
+      <Filter>header files</Filter>
+    </ClInclude>
+    <ClInclude Include="vfs.h">
+      <Filter>header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="_math.inl" />
-    <None Include="bbox.inl" />
-    <None Include="bsp.inl" />
-    <None Include="console.inl" />
-    <None Include="egolib.inl" />
     <None Include="file_formats\id_normals.inl">
       <Filter>file_formats</Filter>
+    </None>
+    <None Include="bbox.inl">
+      <Filter>inline</Filter>
+    </None>
+    <None Include="_math.inl">
+      <Filter>inline</Filter>
+    </None>
+    <None Include="bsp.inl">
+      <Filter>inline</Filter>
+    </None>
+    <None Include="console.inl">
+      <Filter>inline</Filter>
+    </None>
+    <None Include="egolib.inl">
+      <Filter>inline</Filter>
     </None>
   </ItemGroup>
 </Project>

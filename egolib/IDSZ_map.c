@@ -18,7 +18,8 @@
 //********************************************************************************************
 
 /// @file IDSZ_map.c
-/// @brief
+/// @brief The IDSZ Map is a hash map structure for the tiny IDSZ strings that are used in egoboo.
+///		   IDSZ are tiny 4 character strings enclosed by brackets. For exmaple: [IDSZ]
 
 #include "../egolib/IDSZ_map.h"
 #include "../egolib/log.h"
