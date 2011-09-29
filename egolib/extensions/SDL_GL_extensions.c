@@ -322,7 +322,7 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     pformat = screen->format;
     memcpy( &tmpformat, screen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
 
-    if( ogl_caps.alpha_bits > 0 )
+    //if( ogl_caps.alpha_bits > 0 )
     {
         // convert the local_surface to a 32-bit pixel format
         tmpformat.Amask  = sdl_a_mask;
@@ -345,29 +345,29 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
         tmpformat.BitsPerPixel  = 32;
         tmpformat.BytesPerPixel = 4;
     }
-    else
-    {
-        // convert the local_surface to a 32-bit pixel format without alpha
-        tmpformat.Amask  = 0;
-        tmpformat.Ashift = sdl_a_shift;
-        tmpformat.Aloss  = 8;
+    //else
+    //{
+    //    // convert the local_surface to a 32-bit pixel format without alpha
+    //    tmpformat.Amask  = 0;
+    //    tmpformat.Ashift = sdl_a_shift;
+    //    tmpformat.Aloss  = 8;
 
-        tmpformat.Bmask  = sdl_b_mask;
-        tmpformat.Bshift = sdl_a_shift;
-        tmpformat.Bloss  = 0;
+    //    tmpformat.Bmask  = sdl_b_mask;
+    //    tmpformat.Bshift = sdl_a_shift;
+    //    tmpformat.Bloss  = 0;
 
-        tmpformat.Gmask  = sdl_g_mask;
-        tmpformat.Gshift = sdl_g_shift;
-        tmpformat.Gloss  = 0;
+    //    tmpformat.Gmask  = sdl_g_mask;
+    //    tmpformat.Gshift = sdl_g_shift;
+    //    tmpformat.Gloss  = 0;
 
-        tmpformat.Rmask  = sdl_r_mask;
-        tmpformat.Rshift = sdl_r_shift;
-        tmpformat.Rloss = 0;
+    //    tmpformat.Rmask  = sdl_r_mask;
+    //    tmpformat.Rshift = sdl_r_shift;
+    //    tmpformat.Rloss = 0;
 
-        // make the pixel size match the screen format
-        tmpformat.BitsPerPixel  = 32;
-        tmpformat.BytesPerPixel = 4;
-    }
+    //    // make the pixel size match the screen format
+    //    tmpformat.BitsPerPixel  = 32;
+    //    tmpformat.BytesPerPixel = 4;
+    //}
 
     {
         SDL_Surface * tmp;
