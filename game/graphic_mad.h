@@ -231,7 +231,7 @@ struct s_chr_instance
 chr_instance_t * chr_instance_ctor( chr_instance_t * pinst );
 chr_instance_t * chr_instance_dtor( chr_instance_t * pinst );
 
-gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin );
+gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const int skin );
 gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad );
 
 gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t need_matrix );

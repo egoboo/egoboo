@@ -218,6 +218,7 @@ bool_t map_mem_alloc( map_mem_t * pmem, map_info_t * pinfo )
     {
         map_mem_free( pmem );
         log_error( "map_mem_alloc() - reduce the maximum number of vertices! (Check MAP_VERTICES_MAX)\n" );
+
         return bfalse;
     }
     pmem->vcount = pinfo->vertcount;
@@ -228,6 +229,7 @@ bool_t map_mem_alloc( map_mem_t * pmem, map_info_t * pinfo )
     {
         map_mem_free( pmem );
         log_error( "map_mem_alloc() - not enough memory to allocate the tile info\n" );
+
         return bfalse;
     }
     pmem->tile_count = tile_count;
@@ -292,8 +294,11 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     // read the file version
     endian_fread_uint32( fileread, &ui32_tmp );
 
+    // this number is backwards for our purpose
+    ui32_tmp = SDL_Swap32( ui32_tmp );
+
     map_version = GET_MAP_VERSION_NUMBER( ui32_tmp );
-    if ( map_version < 0 )
+    if ( map_version <= 0 )
     {
         log_warning( "%s - unknown map type!!\n", __FUNCTION__ );
         goto map_load_fail;
@@ -343,9 +348,6 @@ map_t * map_load( const char *loadname, map_t * pmesh )
         log_warning( "%s - could not initialize the map!!\n", __FUNCTION__ );
         goto map_load_fail;
     }
-
-    // calculate the actual number of tiles in the file
-    tiles_count = pinfo->tiles_x * pinfo->tiles_y;
 
     // version 1 data is required
     if ( map_version > 0 )

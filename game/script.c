@@ -1633,7 +1633,7 @@ void set_alerts( const CHR_REF character )
                 SET_BIT( pai->alert, ALERTIF_ATLASTWAYPOINT );
             }
 
-            //ZF> override reset here for AStar to work
+            /// @note ZF@> override reset here for AStar to work
             // !!!!restart the waypoint list, do not clear them!!!!
             //waypoint_list_reset( &( pscript->wp_lst ) );
             waypoint_list_clear( &( pai->wp_lst ) );

@@ -178,6 +178,15 @@ enum e_color
     COLOR_MAX
 };
 
+
+// the map file only supports 256 texture images
+#define MESH_IMG_COUNT 256
+
+#define VALID_MESH_TX_RANGE(VAL) ( ((VAL)>=0) && ((VAL)<MESH_IMG_COUNT) )
+
+//#define CALC_OFFSET_X(IMG) ((( (IMG) >> 0 ) & 7 ) / 8.0f)
+//#define CALC_OFFSET_Y(IMG) ((( (IMG) >> 3 ) & 7 ) / 8.0f)
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -300,7 +309,7 @@ void   gfx_system_delete_all_graphics( void );
 void   gfx_system_load_assets( void );
 void   gfx_system_load_basic_textures( void );
 
-renderlist_mgr_t * gfx_system_get_renderlist_mgr( void );
+renderlist_mgr_t * gfx_system_get_renderlist_mgr( const struct s_camera * pcam );
 dolist_mgr_t * gfx_system_get_dolist_mgr( void );
 
 // the render engine callback
@@ -351,5 +360,9 @@ gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, int index );
 dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index );
 
 gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh );
+gfx_rv renderlist_attach_camera( renderlist_t * ptr, const struct s_camera * pcam );
 
 bool_t oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
+
+struct s_oglx_texture * gfx_get_mesh_tx_sml( int which );
+struct s_oglx_texture * gfx_get_mesh_tx_big( int which );

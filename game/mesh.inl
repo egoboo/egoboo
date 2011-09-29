@@ -61,8 +61,8 @@ static INLINE bool_t       ego_grid_info_set_pass_fx( ego_grid_info_t *, const G
 
 static INLINE bool_t ego_mesh_tile_has_bits( const ego_mesh_t * pmesh, const int ix, const int iy, const BIT_FIELD bits )
 {
-    int itile;
-    Uint8 fx;
+    int          itile;
+    GRID_FX_BITS fx;
 
     //figure out which tile we are on
     itile = ego_mesh_get_tile_int( pmesh, ix, iy );

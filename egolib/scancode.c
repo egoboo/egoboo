@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 #include "../egolib/scancode.h"
+#include "../egolib/strutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -46,15 +47,15 @@ void scancode_begin( void )
         // SDL uses ASCII values for it's virtual scancodes
         scancode_to_ascii[src] = src;
 
-        // find the shifted value using toupper()
+        // find the shifted value using char_toupper()
         dst = src;
         if ( src < 255 )
         {
-            dst = toupper(( unsigned )src );
+            dst = char_toupper(( unsigned )src );
 
             if ( dst > 255 )
             {
-                fprintf( stderr, "%s - toupper() returned an out of range value \'%c\' -> %d\n", __FUNCTION__, src, dst );
+                fprintf( stderr, "%s - char_toupper() returned an out of range value \'%c\' -> %d\n", __FUNCTION__, src, dst );
             }
         }
 

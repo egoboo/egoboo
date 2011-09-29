@@ -36,14 +36,15 @@ tile_dictionary_t tile_dict = TILE_DICTIONARY_INIT;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+static tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 bool_t tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size )
 {
     /// @author ZZ
     /// @details This function loads fan types for the terrain
-
-    const int   tile_pix_sml = 32;
-    const int   tile_pix_big = tile_pix_sml * 2;
-    const float texture_offset = 0.5f;
 
     Uint32 cnt, entry, vertices, commandsize;
     int fantype_count, fantype_offset, fantype;
@@ -147,22 +148,9 @@ bool_t tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdic
 
     vfs_close( fileread );
 
-    // Correct all of them silly texture positions for seamless tiling
-    for ( entry = 0; entry < fantype_count; entry++ )
-    {
-        pdef_sml = pdict->def_lst + entry;
-        pdef_big = pdict->def_lst + entry + fantype_offset;
-        for ( cnt = 0; cnt < pdef_sml->numvertices; cnt++ )
-        {
-            pdef_sml->u[cnt] = ( texture_offset + pdef_sml->u[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
-            pdef_sml->v[cnt] = ( texture_offset + pdef_sml->v[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
-
-            pdef_big->u[cnt] = ( texture_offset + pdef_big->u[cnt] * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
-            pdef_big->v[cnt] = ( texture_offset + pdef_big->v[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_big;
-        }
-    }
-
     pdict->loaded = btrue;
+
+    pdict = tile_dictionary_finalize( pdict );
 
     return btrue;
 
@@ -171,4 +159,39 @@ tile_dictionary_load_vfs_fail:
     BLANK_STRUCT_PTR( pdict );
 
     return bfalse;
+}
+
+
+//--------------------------------------------------------------------------------------------
+tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict )
+{
+    const int   tile_pix_sml = 32;
+    const int   tile_pix_big = tile_pix_sml * 2;
+    const float texture_offset = 0.5f;
+
+    Uint32 entry, cnt;
+    int fantype_offset, vertex_count;
+    tile_definition_t * pdef_sml, * pdef_big;
+
+    if( NULL == pdict ) return pdict;
+
+    // Correct all of them silly texture positions for seamless tiling
+    fantype_offset = pdict->offset;
+    for ( entry = 0; entry < fantype_offset; entry++ )
+    {
+        pdef_sml = pdict->def_lst + entry;
+        pdef_big = pdict->def_lst + entry + fantype_offset;
+
+        vertex_count = pdef_sml->numvertices;
+        for ( cnt = 0; cnt < vertex_count; cnt++ )
+        {
+            pdef_sml->u[cnt] = ( texture_offset + pdef_sml->u[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
+            pdef_sml->v[cnt] = ( texture_offset + pdef_sml->v[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
+
+            pdef_big->u[cnt] = ( texture_offset + pdef_big->u[cnt] * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
+            pdef_big->v[cnt] = ( texture_offset + pdef_big->v[cnt] * ( tile_pix_big - 2.0f * texture_offset ) ) / tile_pix_big;
+        }
+    }
+
+    return pdict;
 }

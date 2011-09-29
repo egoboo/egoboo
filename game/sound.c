@@ -142,7 +142,7 @@ snd_config_t snd;
 // music
 bool_t      musicinmemory = bfalse;
 Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];
-Sint8       songplaying   = INVALID_SOUND;
+int         songplaying   = INVALID_SOUND;
 
 Mix_Chunk * g_wavelist[GSND_COUNT];
 
@@ -619,7 +619,9 @@ void sound_free_chunk( Mix_Chunk * pchunk )
 //--------------------------------------------------------------------------------------------
 int get_current_song_playing( void )
 {
-    //ZF> This gives read access to the private variable 'songplaying'
+	/// @author ZF
+    /// @details This gives read access to the private variable 'songplaying'
+
     return songplaying;
 }
 

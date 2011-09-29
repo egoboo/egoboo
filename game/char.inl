@@ -71,11 +71,11 @@ static INLINE IDSZ chr_get_idsz( const CHR_REF ichr, int type );
 
 static INLINE void chr_update_size( chr_t * pchr );
 static INLINE void chr_init_size( chr_t * pchr, cap_t * pcap );
-static INLINE void chr_set_size( chr_t * pchr, float size );
-static INLINE void chr_set_width( chr_t * pchr, float width );
-static INLINE void chr_set_shadow( chr_t * pchr, float width );
-static INLINE void chr_set_height( chr_t * pchr, float height );
-static INLINE void chr_set_fat( chr_t * pchr, float fat );
+static INLINE void chr_set_size( chr_t * pchr, const float size );
+static INLINE void chr_set_width( chr_t * pchr, const float width );
+static INLINE void chr_set_shadow( chr_t * pchr, const float width );
+static INLINE void chr_set_height( chr_t * pchr, const float height );
+static INLINE void chr_set_fat( chr_t * pchr, const float fat );
 
 static INLINE bool_t chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
 static INLINE bool_t chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
@@ -594,7 +594,7 @@ static INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE void chr_set_size( chr_t * pchr, float size )
+static INLINE void chr_set_size( chr_t * pchr, const float size )
 {
     /// @author BB
     /// @details scale the entire character so that the size matches the given value
@@ -614,7 +614,7 @@ static INLINE void chr_set_size( chr_t * pchr, float size )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE void chr_set_width( chr_t * pchr, float width )
+static INLINE void chr_set_width( chr_t * pchr, const float width )
 {
     /// @author BB
     /// @details update the base character "width". This also modifies the shadow size
@@ -634,7 +634,7 @@ static INLINE void chr_set_width( chr_t * pchr, float width )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE void chr_set_shadow( chr_t * pchr, float width )
+static INLINE void chr_set_shadow( chr_t * pchr, const float width )
 {
     /// @author BB
     /// @details update the base shadow size
@@ -647,7 +647,7 @@ static INLINE void chr_set_shadow( chr_t * pchr, float width )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE void chr_set_fat( chr_t * pchr, float fat )
+static INLINE void chr_set_fat( chr_t * pchr, const float fat )
 {
     /// @author BB
     /// @details update all the character size info by specifying the fat value
@@ -660,16 +660,14 @@ static INLINE void chr_set_fat( chr_t * pchr, float fat )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE void chr_set_height( chr_t * pchr, float height )
+static INLINE void chr_set_height( chr_t * pchr, const float height )
 {
     /// @author BB
     /// @details update the base character height
 
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    if ( height < 0 ) height = 0;
-
-    pchr->bump_save.height = height;
+    pchr->bump_save.height = MAX(height, 0.0f);
 
     chr_update_size( pchr );
 }

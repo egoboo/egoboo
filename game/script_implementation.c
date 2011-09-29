@@ -649,7 +649,7 @@ bool_t Compass( fvec2_base_t pos, int facing, float distance )
 }
 
 //--------------------------------------------------------------------------------------------
-int GetArmorPrice( chr_t * pchr, int skin )
+int GetArmorPrice( chr_t * pchr, const int skin )
 {
     // tmpx = GetTargetArmorPrice( tmpargument = "skin" )
     /// @author ZZ
@@ -657,13 +657,14 @@ int GetArmorPrice( chr_t * pchr, int skin )
     /// tmpx to the price
 
     cap_t * pcap;
+	int loc_skin = 0;
 
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return -1;
 
-    skin %= MAX_SKIN;
+    loc_skin = skin % MAX_SKIN;
 
-    return pcap->skincost[skin];
+    return pcap->skin_info.cost[loc_skin];
 }
 
 //--------------------------------------------------------------------------------------------
@@ -690,7 +691,7 @@ Uint32 UpdateTime( Uint32 time_val, int delay )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley )
+Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const int starttile, const PASS_REF passage, int *ptilex, int *ptiley )
 {
     /// @author ZZ
     /// @details This function breaks the tiles of a passage if there is a character standing
@@ -700,14 +701,15 @@ Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const
     Uint32 fan;
     bool_t       useful;
     ego_tile_info_t * ptile = NULL;
+	int loc_starttile;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
 
     // limit the start tile the the 256 tile images that we have
-    starttile = CLIP_TO_08BITS( starttile );
+    loc_starttile = CLIP_TO_08BITS( starttile );
 
     // same with the end tile
-    endtile   =  starttile + frames - 1;
+    endtile   =  loc_starttile + frames - 1;
     endtile = CLIP( endtile, 0, 255 );
 
     useful = bfalse;
@@ -734,7 +736,7 @@ Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const
             Uint16 img      = ptile->img & TILE_LOWER_MASK;
             Uint16 highbits = ptile->img & TILE_UPPER_MASK;
 
-            if ( img >= starttile && img < endtile )
+            if ( img >= loc_starttile && img < endtile )
             {
                 if ( object_is_in_passage(( PASS_REF )passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
                 {

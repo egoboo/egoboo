@@ -170,7 +170,7 @@ void oglx_texture_dtor( oglx_texture_t * ptex )
     // actually delete the OpenGL texture data
     if ( VALID_BINDING( ptex->base.binding ) )
     {
-        GL_DEBUG( glDeleteTextures )( 1, &ptex->base.binding );
+        GL_DEBUG( glDeleteTextures )( 1, &(ptex->base.binding) );
         ptex->base.binding = INVALID_GL_ID;
     }
 
@@ -538,6 +538,7 @@ void  oglx_texture_Release( oglx_texture_t *texture )
 
     // try to get rid of any stored texture data for this texture
     GL_DEBUG( glDeleteTextures )( 1, &( texture->base.binding ) );
+    texture->base.binding = INVALID_GL_ID;
 
     if ( !ErrorImage_defined ) ErrorImage_create();
 
@@ -552,12 +553,12 @@ void  oglx_texture_Release( oglx_texture_t *texture )
     texture->imgH = texture->base.height = ErrorImage_height;
     strncpy( texture->name, "ErrorImage", sizeof( texture->name ) );
 
-    // set the image to be repeat in s and t
-    texture->base.wrap_s = GL_REPEAT;
-    texture->base.wrap_t = GL_REPEAT;
+    // set the image to be clamp in s and t
+    texture->base.wrap_s = GL_CLAMP;
+    texture->base.wrap_t = GL_CLAMP;
 
-    //// use the following command to grab every possible texture attribute in OpenGL v1.4 for
-    //// this texture. Useful for debugging
+    // use the following command to grab every possible texture attribute in OpenGL v1.4 for
+    // this texture. Useful for debugging
     //oglx_grab_texture_state( GL_TEXTURE_2D, 0, texture );
 }
 

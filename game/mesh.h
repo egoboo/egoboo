@@ -28,6 +28,14 @@
 #include "lighting.h"
 
 //--------------------------------------------------------------------------------------------
+// external types
+//--------------------------------------------------------------------------------------------
+
+struct s_oglx_texture;
+
+//--------------------------------------------------------------------------------------------
+// internal types
+//--------------------------------------------------------------------------------------------
 
 // struct for holding the mpd data
 struct s_ego_mesh;
@@ -147,7 +155,7 @@ ego_tile_info_t * ego_tile_info_destroy_ary( ego_tile_info_t * ary, size_t count
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-typedef Uint8 GRID_FX_BITS;
+typedef BIT_FIELD GRID_FX_BITS;
 
 /// The data describing an Egoboo grid
 struct s_ego_grid_info
@@ -292,8 +300,8 @@ struct s_mesh_wall_data
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 extern fvec3_t   map_twist_nrm[256];
-extern Uint32    map_twist_y[256];              ///< For surface normal of mesh
-extern Uint32    map_twist_x[256];
+extern FACING_T  map_twist_facing_y[256];              ///< For surface normal of mesh
+extern FACING_T  map_twist_facing_x[256];
 extern fvec3_t   map_twist_vel[256];            ///< For sliding down steep hills
 extern Uint8     map_twist_flat[256];
 
@@ -301,10 +309,15 @@ extern int mesh_mpdfx_tests;
 extern int mesh_bound_tests;
 extern int mesh_pressure_tests;
 
+// variables to optimize calls to bind the textures
+bool_t  mesh_tx_none;           ///< use blank textures?
+TX_REF  mesh_tx_image;          ///< Last texture used
+Uint8   mesh_tx_size;           ///< what size texture?
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 ego_mesh_t * ego_mesh_create( ego_mesh_t * pmesh, int tiles_x, int tiles_y );
-bool_t      ego_mesh_destroy( ego_mesh_t ** pmesh );
+bool_t       ego_mesh_destroy( ego_mesh_t ** pmesh );
 
 ego_mesh_t * ego_mesh_ctor( ego_mesh_t * pmesh );
 ego_mesh_t * ego_mesh_dtor( ego_mesh_t * pmesh );
@@ -327,10 +340,13 @@ BIT_FIELD ego_mesh_test_wall( const ego_mesh_t * pmesh, const float pos[], const
 float ego_mesh_get_max_vertex_0( const ego_mesh_t * pmesh, int grid_x, int grid_y );
 float ego_mesh_get_max_vertex_1( const ego_mesh_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );
 
-bool_t ego_mesh_set_texture( ego_mesh_t * pmesh, Uint16 tile, Uint16 image );
+bool_t ego_mesh_set_texture( ego_mesh_t * pmesh, Uint32 tile, Uint16 image );
 bool_t ego_mesh_update_texture( ego_mesh_t * pmesh, Uint32 tile );
 
 fvec2_t ego_mesh_get_diff( const ego_mesh_t * pmesh, const float pos[], float radius, float center_pressure, const BIT_FIELD bits );
 float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const float pos[], float radius, const BIT_FIELD bits );
 
 bool_t ego_mesh_update_water_level( ego_mesh_t * pmesh );
+
+void mesh_texture_invalidate( void );
+struct s_oglx_texture * mesh_texture_bind( const ego_tile_info_t * ptile );

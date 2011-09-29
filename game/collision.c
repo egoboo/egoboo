@@ -2726,7 +2726,7 @@ bool_t do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
 {
     /// @author BB
     /// @details handle the particle interaction with a platform it is not attached "on".
-    ///               @note gravity is not handled here
+    /// @note gravity is not handled here
 
     bool_t plat_collision = bfalse;
     bool_t z_collide, was_z_collide;
@@ -3435,7 +3435,7 @@ bool_t do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
 
             if ( pcollector->cangrabmoney && pcollector->alive && 0 == pcollector->damage_timer && pcollector->money < MAXMONEY )
             {
-                pcollector->money += pdata->ppip->bump_money;
+                pcollector->money = pcollector->money + pdata->ppip->bump_money;
                 pcollector->money = CLIP( pcollector->money, 0, MAXMONEY );
 
                 // the coin disappears when you pick it up

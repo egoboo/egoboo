@@ -1300,7 +1300,7 @@ void tile_dict_lines_add( int fantype, int start, int end )
     if ( fantype < 0 || fantype >= MAP_FAN_TYPE_MAX ) return;
     plines = tile_dict_lines + fantype;
 
-    if ( plines->count >= MAP_FAN_TYPE_MAX ) return;
+    if ( plines->count >= tile_dict.def_count ) return;
 
     // Make sure line isn't already in list
     for ( cnt = 0; cnt < plines->count; cnt++ )

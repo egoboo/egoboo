@@ -149,7 +149,7 @@ static egolib_rv chr_invalidate_child_instances( chr_t * pchr );
 
 static void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool_t healing );
 
-static void chr_set_enviro_grid_level( chr_t * pchr, float level );
+static void chr_set_enviro_grid_level( chr_t * pchr, const float level );
 static void chr_log_script_time( const CHR_REF ichr );
 
 static bool_t chr_download_cap( chr_t * pchr, cap_t * pcap );
@@ -158,7 +158,7 @@ static bool_t chr_get_environment( chr_t * pchr );
 
 static chr_t * chr_config_do_init( chr_t * pchr );
 static chr_t * chr_config_do_active( chr_t * pchr );
-static int chr_change_skin( const CHR_REF character, int skin );
+static int chr_change_skin( const CHR_REF character, const SKIN_T skin );
 static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool_t permanent );
 
 static bool_t chr_update_pos( chr_t * pchr );
@@ -313,8 +313,8 @@ chr_t * chr_ctor( chr_t * pchr )
     }
 
     // Set up position
-    pchr->ori.map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    pchr->ori.map_facing_x = MAP_TURN_OFFSET;
+    pchr->ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
+    pchr->ori.map_twist_facing_x = MAP_TURN_OFFSET;
 
     // start the character out in the "dance" animation
     chr_start_anim( pchr, ACTION_DA, btrue, btrue );
@@ -322,8 +322,7 @@ chr_t * chr_ctor( chr_t * pchr )
     // I think we have to set the dismount timer, otherwise objects that
     // are spawned by chests will behave strangely...
     // nope this did not fix it
-    /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
-    pchr->dismount_timer  = 0;
+    pchr->dismount_timer  = 0;                        /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
     pchr->dismount_object = INVALID_CHR_REF;
 
     // set all of the integer references to invalid values
@@ -445,7 +444,7 @@ egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint1
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_enviro_grid_level( chr_t * pchr, float level )
+void chr_set_enviro_grid_level( chr_t * pchr, const float level )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
@@ -613,8 +612,8 @@ void make_one_character_matrix( const CHR_REF ichr )
                 pinst->matrix.v,
                 pchr->fat, pchr->fat, pchr->fat,
                 TO_TURN( pchr->ori.facing_z ),
-                TO_TURN( pchr->ori.map_facing_x - MAP_TURN_OFFSET ),
-                TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
+                TO_TURN( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET ),
+                TO_TURN( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET ),
                 pchr->pos.x, pchr->pos.y, pchr->pos.z );
         }
         else
@@ -623,8 +622,8 @@ void make_one_character_matrix( const CHR_REF ichr )
                 pinst->matrix.v,
                 pchr->fat, pchr->fat, pchr->fat,
                 TO_TURN( pchr->ori.facing_z ),
-                TO_TURN( pchr->ori.map_facing_x - MAP_TURN_OFFSET ),
-                TO_TURN( pchr->ori.map_facing_y - MAP_TURN_OFFSET ),
+                TO_TURN( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET ),
+                TO_TURN( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET ),
                 pchr->pos.x, pchr->pos.y, pchr->pos.z );
         }
 
@@ -636,8 +635,8 @@ void make_one_character_matrix( const CHR_REF ichr )
         pinst->matrix_cache.self_scale.y = pchr->fat;
         pinst->matrix_cache.self_scale.z = pchr->fat;
 
-        pinst->matrix_cache.rotate.x = CLIP_TO_16BITS( pchr->ori.map_facing_x - MAP_TURN_OFFSET );
-        pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->ori.map_facing_y - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate.x = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+        pinst->matrix_cache.rotate.y = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
         pinst->matrix_cache.rotate.z = pchr->ori.facing_z;
 
         chr_get_pos( pchr, pinst->matrix_cache.pos.v );
@@ -764,6 +763,7 @@ void free_inventory_in_game( const CHR_REF character )
     /// @details This function frees every item in the character's inventory
     ///
     /// @note this should only be called by cleanup_all_characters()
+
     int i;
 
     if ( !DEFINED_CHR( character ) ) return;
@@ -1119,7 +1119,7 @@ void reset_character_accel( const CHR_REF character )
     pcap = chr_get_pcap( character );
     if ( NULL != pcap )
     {
-        pchr->maxaccel = pchr->maxaccel_reset = pcap->maxaccel[pchr->skin];
+        pchr->maxaccel = pchr->maxaccel_reset = pcap->skin_info.maxaccel[pchr->skin];
     }
 
     // cleanup the enchant list
@@ -1305,8 +1305,8 @@ bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, 
     }
 
     // Set twist
-    pchr->ori.map_facing_y = MAP_TURN_OFFSET;
-    pchr->ori.map_facing_x = MAP_TURN_OFFSET;
+    pchr->ori.map_twist_facing_y = MAP_TURN_OFFSET;
+    pchr->ori.map_twist_facing_x = MAP_TURN_OFFSET;
 
     // turn off keeping, unless the object is dead
     if ( !pchr->alive )
@@ -1719,7 +1719,7 @@ bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, const bool_t ignorekurse )
+bool_t inventory_remove_item( const CHR_REF ichr, const size_t inventory_slot, const bool_t ignorekurse )
 {
     /// @author ZF
     /// @details This function removes the item specified in the inventory slot from the
@@ -2334,10 +2334,10 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
     PRT_REF iparticle;
 
-    int   spawn_vrt_offset;
-    Uint8 action;
+    int    spawn_vrt_offset;
+    int    action;
     TURN_T turn;
-    float velocity;
+    float  velocity;
 
     bool_t unarmed_attack;
 
@@ -3054,7 +3054,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->gender = pcap->gender;
     if ( pchr->gender == GENDER_RANDOM )
     {
-        pchr->gender = generate_randmask( 0, 1 );
+        pchr->gender = (Uint8)generate_randmask( 0, 1 );
     }
 
     // Life and Mana
@@ -3073,15 +3073,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->dexterity = generate_irand_range( pcap->dexterity_stat.val );
 
     // Skin
-    pchr->skin = 0;
-    if ( NO_SKIN_OVERRIDE != pcap->spelleffect_type )
-    {
-        pchr->skin = pcap->spelleffect_type % MAX_SKIN;
-    }
-    else if ( NO_SKIN_OVERRIDE != pcap->skin_override )
-    {
-        pchr->skin = pcap->skin_override % MAX_SKIN;
-    }
+    pchr->skin = cap_get_skin( pcap );
 
     // Damage
     pchr->defense = pcap->defense[pchr->skin];
@@ -3111,7 +3103,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Other junk
     pchr->flyheight   = pcap->flyheight;
-    pchr->maxaccel    = pchr->maxaccel_reset = pcap->maxaccel[pchr->skin];
+    pchr->maxaccel    = pchr->maxaccel_reset = pcap->skin_info.maxaccel[pchr->skin];
     pchr->alpha_base  = pcap->alpha;
     pchr->light_base  = pcap->light;
     pchr->flashand    = pcap->flashand;
@@ -3224,7 +3216,8 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t r
     }
     else
     {
-        icap = pro_get_slot_vfs( tmploadname, MAX_PROFILE );
+		int itmp = pro_get_slot_vfs( tmploadname, MAX_PROFILE );
+        icap = VALID_CAP_RANGE(itmp) ? itmp : MAX_CAP;
     }
 
     if ( !VALID_CAP_RANGE( icap ) )
@@ -3262,7 +3255,9 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t r
             return INVALID_CAP_REF;
         }
 
-        // If loading over an existing model is allowed (?how?) then make sure to release the old one
+		// @note this is currently disabled because the abve if-then-else returns every time
+        // What do we do if loading over an existing model?
+		// Is it allowed? If so, then make sure to release the old one!
         CapStack_release_one( icap );
     }
 
@@ -3613,7 +3608,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
     {
         // Only if actually in the water
         if ( pchr->pos.z <= water.surface_level )
-            actual_damage = actual_damage << 1;     //@note: ZF> Is double damage too much?
+            actual_damage = actual_damage << 1;     /// @note ZF> Is double damage too much?
     }
 
     // Allow actual_damage to be dealt to mana (mana shield spell)
@@ -3988,12 +3983,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     }
 
     // Skin
-    if ( NO_SKIN_OVERRIDE != pcap->skin_override )
-    {
-        // override the value passed into the function from spawn.txt
-        // with the value from the expansion in data.txt
-        pchr->spawn_data.skin = pchr->skin;
-    }
+	pchr->spawn_data.skin = cap_get_skin( pcap );
     if ( pchr->spawn_data.skin >= ProList.lst[pchr->spawn_data.profile].skins )
     {
         // place this here so that the random number generator advances
@@ -4007,14 +3997,18 @@ chr_t * chr_config_do_init( chr_t * pchr )
             pchr->spawn_data.skin = irand % ProList.lst[pchr->spawn_data.profile].skins;
         }
     }
-    pchr->skin = pchr->spawn_data.skin;
+
+
+	pchr->skin = 0;
+	if( pchr->spawn_data.skin >= 0 )
+	{
+		pchr->skin = pchr->spawn_data.skin % MAX_SKIN;
+	}
 
     // fix the pchr->spawn_data.skin-related parameters, in case there was some funny business with overriding
     // the pchr->spawn_data.skin from the data.txt file
-    if ( pchr->spawn_data.skin != pchr->skin )
+    // if ( pchr->spawn_data.skin != pchr->skin )
     {
-        pchr->skin = pchr->spawn_data.skin;
-
         pchr->defense = pcap->defense[pchr->skin];
         for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
         {
@@ -4022,7 +4016,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
             pchr->damage_resistance[tnc] = pcap->damage_resistance[tnc][pchr->skin];
         }
 
-        chr_set_maxaccel( pchr, pcap->maxaccel[pchr->skin] );
+        chr_set_maxaccel( pchr, pcap->skin_info.maxaccel[pchr->skin] );
     }
 
     // override the default behavior for an "easy" game
@@ -4627,7 +4621,7 @@ chr_t * chr_config_dtor( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team,
-                             const Uint8 skin, const FACING_T facing, const char *name, const CHR_REF override )
+                             const int skin, const FACING_T facing, const char *name, const CHR_REF override )
 {
     /// @author ZZ
     /// @details This function spawns a character and returns the character's index number
@@ -4740,8 +4734,8 @@ void respawn_character( const CHR_REF character )
     pchr->vel.z = 0;
     pchr->team = pchr->team_base;
     pchr->canbecrushed = bfalse;
-    pchr->ori.map_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    pchr->ori.map_facing_x = MAP_TURN_OFFSET;
+    pchr->ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
+    pchr->ori.map_twist_facing_x = MAP_TURN_OFFSET;
     if ( TEAM_NOLEADER == TeamStack.lst[pchr->team].leader )  TeamStack.lst[pchr->team].leader = character;
     if ( !pchr->invictus )  TeamStack.lst[pchr->team_base].morale++;
 
@@ -4795,13 +4789,14 @@ void respawn_character( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-int chr_change_skin( const CHR_REF character, int skin )
+int chr_change_skin( const CHR_REF character, const SKIN_T skin )
 {
     chr_t * pchr;
     pro_t * ppro;
     mad_t * pmad;
     chr_instance_t * pinst;
     TX_REF new_texture = ( TX_REF )TX_WATER_TOP;
+	SKIN_T loc_skin = skin;
 
     if ( !INGAME_CHR( character ) ) return 0;
     pchr  = ChrList_get_ptr( character );
@@ -4838,17 +4833,17 @@ int chr_change_skin( const CHR_REF character, int skin )
             ppro->skins = 1;
             ppro->tex_ref[0] = TX_WATER_TOP;
 
-            skin  = 0;
+            loc_skin  = 0;
             new_texture = TX_WATER_TOP;
         }
         else
         {
-            if ( skin > ppro->skins )
+            if ( loc_skin > ppro->skins )
             {
-                skin = 0;
+                loc_skin = 0;
             }
 
-            new_texture = ppro->tex_ref[skin];
+            new_texture = ppro->tex_ref[loc_skin];
         }
 
         pchr->skin = skin;
@@ -4860,13 +4855,14 @@ int chr_change_skin( const CHR_REF character, int skin )
 }
 
 //--------------------------------------------------------------------------------------------
-int change_armor( const CHR_REF character, int skin )
+int change_armor( const CHR_REF character, const SKIN_T skin )
 {
     /// @author ZZ
     /// @details This function changes the armor of the character
 
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
+	int     loc_skin = skin;
 
     int     iTmp;
     cap_t * pcap;
@@ -4901,19 +4897,19 @@ int change_armor( const CHR_REF character, int skin )
 
     // Change the skin
     pcap = chr_get_pcap( character );
-    skin = chr_change_skin( character, skin );
+    loc_skin = chr_change_skin( character, loc_skin );
 
     // Change stats associated with skin
-    pchr->defense = pcap->defense[skin];
+    pchr->defense = pcap->defense[loc_skin];
 
     for ( iTmp = 0; iTmp < DAMAGE_COUNT; iTmp++ )
     {
-        pchr->damage_modifier[iTmp] = pcap->damage_modifier[iTmp][skin];
-        pchr->damage_resistance[iTmp] = pcap->damage_resistance[iTmp][skin];
+        pchr->damage_modifier[iTmp] = pcap->damage_modifier[iTmp][loc_skin];
+        pchr->damage_resistance[iTmp] = pcap->damage_resistance[iTmp][loc_skin];
     }
 
     // set the character's maximum acceleration
-    chr_set_maxaccel( pchr, pcap->maxaccel[skin] );
+    chr_set_maxaccel( pchr, pcap->skin_info.maxaccel[loc_skin] );
 
     // cleanup the enchant list
     cleanup_character_enchants( pchr );
@@ -4959,11 +4955,11 @@ int change_armor( const CHR_REF character, int skin )
     }
     if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
-    return skin;
+    return loc_skin;
 }
 
 //--------------------------------------------------------------------------------------------
-void change_character_full( const CHR_REF ichr, const PRO_REF profile, Uint8 skin, Uint8 leavewhich )
+void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int skin, const Uint8 leavewhich )
 {
     /// @author ZF
     /// @details This function polymorphs a character permanently so that it can be exported properly
@@ -5056,7 +5052,7 @@ bool_t set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 vrt_of
 }
 
 //--------------------------------------------------------------------------------------------
-void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin, Uint8 leavewhich )
+void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int skin, const Uint8 leavewhich )
 {
     /// @author ZZ
     /// @details This function polymorphs a character, changing stats, dropping weapons
@@ -5206,10 +5202,10 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, Uint8 skin
     pchr->see_invisible_level = pcap_new->see_invisible_level;
 
     /// @note BB@> changing this could be disasterous, in case you can't un-morph youself???
-    /// pchr->canusearcane          = pcap_new->canusearcane;
     /// @note ZF@> No, we want this, I have specifically scripted morph books to handle unmorphing
     /// even if you cannot cast arcane spells. Some morph spells specifically morph the player
     /// into a fighter or a tech user, but as a balancing factor prevents other spellcasting.
+    // pchr->canusearcane          = pcap_new->canusearcane;
 
     // Character size and bumping
     // set the character size so that the new model is the same size as the old model
@@ -6376,7 +6372,7 @@ bool_t chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
                 // let everyone know what we did
                 pchr->ai.lastitemused = iweapon;
 
-                //ZF> why should there any reason the weapon should NOT be alerted when it is used?
+                /// @note ZF@> why should there any reason the weapon should NOT be alerted when it is used?
 //                if ( iweapon == ichr || HAS_NO_BITS( action, MADFX_ACTLEFT | MADFX_ACTRIGHT ) )
                 {
                     SET_BIT( pweapon->ai.alert, ALERTIF_USED );
@@ -6672,8 +6668,8 @@ bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
     // valid position at spawn-time. For instance, if a suit of armor is
     // spawned in a closed hallway, don't complain.
 
-    //ZF> I fixed a bug that caused this boolean variable always to be true.
-    // by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt, I've tried a hotfix here instead
+    /// @note ZF@> I fixed a bug that caused this boolean variable always to be true.
+    /// by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt, I've tried a hotfix here instead
     if ( HAS_SOME_BITS( ALERTIF_SPAWNED, pchr->ai.alert ) )
     {
         fvec3_base_copy( pos_v, chr_get_pos_v_const( pchr ) );
@@ -7362,7 +7358,7 @@ float set_character_animation_rate( chr_t * pchr )
         // no specific walk animation exists
         anim_info[CHR_MOVEMENT_SNEAK].allowed = bfalse;
 
-        //ZF> small fix here, if there is no sneak animation, try to default to normal walk with reduced animation speed
+        /// @note ZF@> small fix here, if there is no sneak animation, try to default to normal walk with reduced animation speed
         if ( HAS_SOME_BITS( pchr->movement_bits, CHR_MOVEMENT_BITS_SNEAK ) )
         {
             anim_info[CHR_MOVEMENT_WALK].allowed = btrue;
@@ -7661,8 +7657,8 @@ void move_one_character( chr_t * pchr )
 
         if ( fnew > 0 )
         {
-            pchr->ori.map_facing_x = pchr->ori.map_facing_x * fkeep + map_twist_x[pchr->enviro.grid_twist] * fnew;
-            pchr->ori.map_facing_y = pchr->ori.map_facing_y * fkeep + map_twist_y[pchr->enviro.grid_twist] * fnew;
+            pchr->ori.map_twist_facing_x = pchr->ori.map_twist_facing_x * fkeep + map_twist_facing_x[pchr->enviro.grid_twist] * fnew;
+            pchr->ori.map_twist_facing_y = pchr->ori.map_twist_facing_y * fkeep + map_twist_facing_y[pchr->enviro.grid_twist] * fnew;
         }
     }
 }
@@ -7737,7 +7733,7 @@ void bump_all_characters_update_counters( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t is_invictus_direction( FACING_T direction, const CHR_REF character, Uint16 effects )
+bool_t is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects )
 {
     FACING_T left, right;
 
@@ -7881,7 +7877,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
         pchr->ibillboard = INVALID_BILLBOARD_REF;
     }
 
-    pchr->ibillboard = BillboardList_get_free_ref( lifetime_secs );
+    pchr->ibillboard = (BBOARD_REF)BillboardList_get_free_ref( lifetime_secs );
 
     // attachr the billboard to the character
     if ( INVALID_BILLBOARD_REF != pchr->ibillboard )
@@ -8028,7 +8024,7 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buff
                 }
                 else
                 {
-                    lTmp = toupper(( unsigned )pcap->classname[0] );
+                    lTmp = char_toupper(( unsigned )pcap->classname[0] );
 
                     if ( 'A' == lTmp || 'E' == lTmp || 'I' == lTmp || 'O' == lTmp || 'U' == lTmp )
                     {
@@ -8056,7 +8052,7 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buff
     if ( 0 != ( bits & CHRNAME_CAPITAL ) )
     {
         // capitalize the name ?
-        loc_buffer[0] = toupper(( unsigned )loc_buffer[0] );
+        loc_buffer[0] = char_toupper(( unsigned )loc_buffer[0] );
     }
 
     return loc_buffer;
@@ -8366,9 +8362,9 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
     if ( NULL == pitem_cap ) return icon_ref;
 
     // what do we need to draw?
-    is_spell_fx = ( NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type );     // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
+    is_spell_fx = ( pitem_cap->spelleffect_type >= 0 );     // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
     is_book     = ( SPELLBOOK == pitem->profile_ref );
-    draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && INVALID_CHR_REF != pitem->attachedto )*/ ) && ( bookicon_count > 0 ); //>ZF> uncommented a part because this caused a icon bug when you were morphed and mounted
+    draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && INVALID_CHR_REF != pitem->attachedto )*/ ) && ( bookicon_count > 0 ); /// ZF@> uncommented a part because this caused a icon bug when you were morphed and mounted
 
     if ( !draw_book )
     {
@@ -8378,17 +8374,7 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
     }
     else if ( draw_book )
     {
-        iskin = 0;
-
-        if ( NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type )
-        {
-            iskin = pitem_cap->spelleffect_type;
-        }
-        else if ( NO_SKIN_OVERRIDE != pitem_cap->skin_override )
-        {
-            iskin = pitem_cap->skin_override;
-        }
-
+        iskin = cap_get_skin( pitem_cap );
         iskin = CLIP( iskin, 0, bookicon_count );
 
         icon_ref = bookicon_ref[ iskin ];
@@ -8728,8 +8714,8 @@ bool_t chr_get_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
             mc_tmp->valid   = btrue;
             SET_BIT( mc_tmp->type_bits, MAT_CHARACTER );  // add in the MAT_CHARACTER-type data for the object we are "connected to"
 
-            mc_tmp->rotate.x = CLIP_TO_16BITS( ptarget->ori.map_facing_x - MAP_TURN_OFFSET );
-            mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->ori.map_facing_y - MAP_TURN_OFFSET );
+            mc_tmp->rotate.x = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+            mc_tmp->rotate.y = CLIP_TO_16BITS( ptarget->ori.map_twist_facing_y - MAP_TURN_OFFSET );
             mc_tmp->rotate.z = ptarget->ori.facing_z;
 
             chr_get_pos( ptarget, mc_tmp->pos.v );
@@ -8960,8 +8946,8 @@ bool_t apply_matrix_cache( chr_t * pchr, matrix_cache_t * mc_tmp )
 
                 mcache->grip_scale = mcache->self_scale;
 
-                mcache->rotate.x = CLIP_TO_16BITS( pchr->ori.map_facing_x - MAP_TURN_OFFSET );
-                mcache->rotate.y = CLIP_TO_16BITS( pchr->ori.map_facing_y - MAP_TURN_OFFSET );
+                mcache->rotate.x = CLIP_TO_16BITS( pchr->ori.map_twist_facing_x - MAP_TURN_OFFSET );
+                mcache->rotate.y = CLIP_TO_16BITS( pchr->ori.map_twist_facing_y - MAP_TURN_OFFSET );
                 mcache->rotate.z = pchr->ori.facing_z;
 
                 chr_get_pos( pchr, mcache->pos.v );
@@ -9407,7 +9393,7 @@ int chr_get_price( const CHR_REF ichr )
     if ( !LOADED_CAP( icap ) ) return 0;
     pcap = CapStack_get_ptr( icap );
 
-    price = ( float ) pcap->skincost[iskin];
+    price = ( float ) pcap->skin_info.cost[iskin];
 
     // Items spawned in shops are more valuable
     if ( !pchr->isshopitem ) price *= 0.5f;
@@ -9429,7 +9415,7 @@ int chr_get_price( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_floor_level( chr_t * pchr, float level )
+void chr_set_floor_level( chr_t * pchr, const float level )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
@@ -9440,47 +9426,47 @@ void chr_set_floor_level( chr_t * pchr, float level )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_redshift( chr_t * pchr, int rs )
+void chr_set_redshift( chr_t * pchr, const int rs )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    pchr->inst.redshift = rs;
+    pchr->inst.redshift = CLIP(rs, 0, 9);
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_grnshift( chr_t * pchr, int gs )
+void chr_set_grnshift( chr_t * pchr, const int gs )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    pchr->inst.grnshift = gs;
+    pchr->inst.grnshift = CLIP(gs, 0, 9);
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_blushift( chr_t * pchr, int bs )
+void chr_set_blushift( chr_t * pchr, const int bs )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    pchr->inst.blushift = bs;
+    pchr->inst.blushift = CLIP(bs, 0, 9);
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_sheen( chr_t * pchr, int sheen )
+void chr_set_sheen( chr_t * pchr, const int sheen )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    pchr->inst.sheen = sheen;
+    pchr->inst.sheen = CLIP(sheen, 0, 255);
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_alpha( chr_t * pchr, int alpha )
+void chr_set_alpha( chr_t * pchr, const int alpha )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
@@ -9490,7 +9476,7 @@ void chr_set_alpha( chr_t * pchr, int alpha )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_light( chr_t * pchr, int light )
+void chr_set_light( chr_t * pchr, const int light )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 

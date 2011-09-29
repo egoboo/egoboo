@@ -191,7 +191,7 @@ void PrtList_prune_used_list( void )
     {
         bool_t removed = bfalse;
 
-        iprt = PrtList.used_ref[cnt];
+        iprt = (PRT_REF)PrtList.used_ref[cnt];
 
         if ( !VALID_PRT_RANGE( iprt ) || !DEFINED_PRT( iprt ) )
         {
@@ -217,7 +217,7 @@ void PrtList_prune_free_list( void )
     {
         bool_t removed = bfalse;
 
-        iprt = PrtList.free_ref[cnt];
+        iprt = (PRT_REF)PrtList.free_ref[cnt];
 
         if ( VALID_PRT_RANGE( iprt ) && INGAME_PRT_BASE( iprt ) )
         {
@@ -235,6 +235,7 @@ void PrtList_prune_free_list( void )
 void PrtList_update_used( void )
 {
     PRT_REF iprt;
+	int cnt;
 
     PrtList_prune_used_list();
     PrtList_prune_free_list();
@@ -261,15 +262,15 @@ void PrtList_update_used( void )
     }
 
     // blank out the unused elements of the used list
-    for ( iprt = PrtList.used_count; iprt < MAX_PRT; iprt++ )
+    for ( cnt = PrtList.used_count; cnt < MAX_PRT; cnt++ )
     {
-        PrtList.used_ref[iprt] = INVALID_PRT_IDX;
+        PrtList.used_ref[cnt] = INVALID_PRT_IDX;
     }
 
     // blank out the unused elements of the free list
-    for ( iprt = PrtList.free_count; iprt < MAX_PRT; iprt++ )
+    for ( cnt = PrtList.free_count; cnt < MAX_PRT; cnt++ )
     {
-        PrtList.free_ref[iprt] = INVALID_PRT_IDX;
+        PrtList.free_ref[cnt] = INVALID_PRT_IDX;
     }
 }
 
@@ -484,11 +485,11 @@ PRT_REF PrtList_allocate( const bool_t force )
         if ( PrtList.free_count > ( maxparticles / 4 ) )
         {
             // Just grab the next one
-            iprt = PrtList_pop_free( -1 );
+            iprt = (PRT_REF)PrtList_pop_free( -1 );
         }
         else if ( force )
         {
-            iprt = PrtList_pop_free( -1 );
+            iprt = (PRT_REF)PrtList_pop_free( -1 );
         }
     }
 
@@ -591,7 +592,7 @@ bool_t PrtList_remove_free_idx( const int index )
     // was it found?
     if ( index < 0 || index >= PrtList.free_count ) return bfalse;
 
-    iprt = PrtList.free_ref[index];
+    iprt = (PRT_REF)PrtList.free_ref[index];
 
     // blank out the index in the list
     PrtList.free_ref[index] = INVALID_PRT_IDX;
@@ -679,7 +680,7 @@ bool_t PrtList_remove_used_idx( const int index )
     // was it found?
     if ( index < 0 || index >= PrtList.used_count ) return bfalse;
 
-    iprt = PrtList.used_ref[index];
+    iprt = (PRT_REF)PrtList.used_ref[index];
 
     // blank out the index in the list
     PrtList.used_ref[index] = INVALID_PRT_IDX;

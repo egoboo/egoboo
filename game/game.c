@@ -1983,8 +1983,8 @@ void update_pits( void )
                     pchr->vel.y = 0;
 
                     /// @note ZF@> Disabled, the pitfall sound was intended for pits.teleport only
-                    /// Play sound effect
-                    /// sound_play_chunk( pchr->pos, g_wavelist[GSND_PITFALL] );
+                    // Play sound effect
+                    // sound_play_chunk( pchr->pos, g_wavelist[GSND_PITFALL] );
                 }
 
                 // Do we teleport it?
@@ -2266,7 +2266,7 @@ void set_one_player_latch( const PLA_REF ipla )
     //inventory mode
     else if ( ppla->inventory_cooldown < update_wld )
     {
-        int new_selected = ppla->selected_item;
+        int new_selected = ppla->inventory_slot;
         chr_t *pchr = ChrList_get_ptr( ppla->index );
 
         //dirty hack here... mouse seems to be inverted in inventory mode?
@@ -2283,10 +2283,10 @@ void set_one_player_latch( const PLA_REF ipla )
         else if ( joy_pos.y > 0 )  new_selected += MAXINVENTORY / 2;
 
         //clip to a valid value
-        if ( ppla->selected_item != new_selected )
+        if ( ppla->inventory_slot != new_selected )
         {
             ppla->inventory_cooldown = update_wld + 10;
-            ppla->selected_item = CLIP( new_selected, 0, MAXINVENTORY - 1 );
+            ppla->inventory_slot = CLIP( new_selected, 0, MAXINVENTORY - 1 );
         }
 
         //handle item control
@@ -2296,7 +2296,7 @@ void set_one_player_latch( const PLA_REF ipla )
             if ( input_device_control_active( pdevice, CONTROL_LEFT_GET ) )
             {
                 //put it away and swap with any existing item
-                inventory_swap_item( ppla->index, ppla->selected_item, SLOT_LEFT, bfalse );
+                inventory_swap_item( ppla->index, ppla->inventory_slot, SLOT_LEFT, bfalse );
 
                 // Make it take a little time
                 chr_play_action( pchr, ACTION_MG, bfalse );
@@ -2306,8 +2306,8 @@ void set_one_player_latch( const PLA_REF ipla )
             //handle RIGHT hand control
             if ( input_device_control_active( pdevice, CONTROL_RIGHT_GET ) )
             {
-                //put it away and swap with any existing item
-                inventory_swap_item( ppla->index, ppla->selected_item, SLOT_RIGHT, bfalse );
+                // put it away and swap with any existing item
+                inventory_swap_item( ppla->index, ppla->inventory_slot, SLOT_RIGHT, bfalse );
 
                 // Make it take a little time
                 chr_play_action( pchr, ACTION_MG, bfalse );
@@ -2547,7 +2547,7 @@ void show_armor( int statindex )
     STRING tmps;
     CHR_REF ichr;
 
-    Uint8  skinlevel;
+    SKIN_T  skinlevel;
 
     cap_t * pcap;
     chr_t * pchr;
@@ -2564,7 +2564,7 @@ void show_armor( int statindex )
     if ( NULL == pcap ) return;
 
     // Armor Name
-    DisplayMsg_printf( "=%s=", pcap->skinname[skinlevel] );
+    DisplayMsg_printf( "=%s=", pcap->skin_info.name[skinlevel] );
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
@@ -2579,7 +2579,7 @@ void show_armor( int statindex )
                        pcap->damage_resistance[DAMAGE_ICE ][skinlevel]*100,
                        pcap->damage_resistance[DAMAGE_ZAP ][skinlevel]*100 );
 
-    DisplayMsg_printf( "~Type: %s", ( pcap->skindressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
+    DisplayMsg_printf( "~Type: %s", ( pcap->skin_info.dressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
 
     // jumps
     tmps[0] = CSTR_END;
@@ -2644,7 +2644,7 @@ void show_full_status( int statindex )
     int manaregen, liferegen;
     cap_t * pcap;
     chr_t * pchr;
-    Uint8  skinlevel;
+    SKIN_T  skinlevel;
 
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
     character = StatusList.lst[statindex].who;
@@ -2740,13 +2740,13 @@ void tilt_characters_to_terrain( void )
         if ( pchr->stickybutt )
         {
             twist = ego_mesh_get_twist( PMesh, pchr->onwhichgrid );
-            pchr->ori.map_facing_y = map_twist_y[twist];
-            pchr->ori.map_facing_x = map_twist_x[twist];
+            pchr->ori.map_twist_facing_y = map_twist_facing_y[twist];
+            pchr->ori.map_twist_facing_x = map_twist_facing_x[twist];
         }
         else
         {
-            pchr->ori.map_facing_y = MAP_TURN_OFFSET;
-            pchr->ori.map_facing_x = MAP_TURN_OFFSET;
+            pchr->ori.map_twist_facing_y = MAP_TURN_OFFSET;
+            pchr->ori.map_twist_facing_x = MAP_TURN_OFFSET;
         }
     }
     CHR_END_LOOP();
@@ -2908,7 +2908,7 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     pparent = NULL;
     if ( INGAME_CHR( pinfo->parent ) ) pparent = ChrList_get_ptr( pinfo->parent );
 
-    pchr->money += pinfo->money;
+    pchr->money = pchr->money + pinfo->money;
     if ( pchr->money > MAXMONEY )  pchr->money = MAXMONEY;
     if ( pchr->money < 0 )  pchr->money = 0;
 
@@ -2969,7 +2969,9 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
 
 void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
 {
-    //ZF> This turns a spawn comment line into an actual folder name we can use to load something with
+	/// @author ZF
+    /// @details This turns a spawn comment line into an actual folder name we can use to load something with
+
     if ( NULL == psp_info ) return;
 
     // trim any excess spaces off the psp_info->spawn_coment
@@ -3004,7 +3006,7 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     if ( NULL == psp_info || psp_info->slot < 0 ) return bfalse;
 
     //Is it already loaded?
-    ipro = psp_info->slot;
+    ipro = (PRO_REF)psp_info->slot;
     if ( LOADED_PRO( ipro ) ) return bfalse;
 
     // do the loading
@@ -3542,7 +3544,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     /// @author BB
     /// @details all of the initialization code before the module actually starts
 
-    if ((( Uint32 )( ~0 ) ) == seed ) seed = time( NULL );
+    if ((( Uint32 )( ~0 ) ) == seed ) seed = (Uint32)time( NULL );
 
     // make sure the old game has been quit
     game_quit_module();
@@ -4016,8 +4018,8 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != ptarget )
                         {
-                            ebuffer = chr_get_pcap( pai->target )->skinname[( *src )-'0'];
-                            ebuffer_end = ebuffer + SDL_arraysize( chr_get_pcap( pai->target )->skinname[( *src )-'0'] );
+                            ebuffer = chr_get_pcap( pai->target )->skin_info.name[( *src )-'0'];
+                            ebuffer_end = ebuffer + SDL_arraysize( chr_get_pcap( pai->target )->skin_info.name[( *src )-'0'] );
                         }
                     }
                     break;
@@ -4187,7 +4189,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
             }
 
             // make the line capitalized if necessary
-            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = toupper(( unsigned )( *ebuffer ) );
+            if ( 0 == cnt && NULL != ebuffer )  *ebuffer = char_toupper(( unsigned )( *ebuffer ) );
 
             // Copy the generated text
             while ( CSTR_END != *ebuffer && ebuffer < ebuffer_end && dst < dst_end )
@@ -4220,7 +4222,7 @@ bool_t game_choose_module( int imod, int seed )
 {
     bool_t retval;
 
-    if ( seed < 0 ) seed = time( NULL );
+    if ( seed < 0 ) seed = (int)time( NULL );
 
     if ( NULL == PMod ) PMod = &_gmod;
 
@@ -4321,7 +4323,7 @@ bool_t upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wa
     // set the frame
     for ( layer = 0; layer < layer_count; layer++ )
     {
-        inst[layer].frame = generate_randmask( 0 , WATERFRAMEAND );
+        inst[layer].frame = (Uint16)generate_randmask( 0 , WATERFRAMEAND );
     }
 
     if ( NULL != data )
@@ -4867,10 +4869,10 @@ bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
             }
             else
             {
-                pdropper->money += price;
+                pdropper->money  = pdropper->money + price;
                 pdropper->money  = CLIP( pdropper->money, 0, MAXMONEY );
 
-                powner->money -= price;
+                powner->money  = powner->money - price;
                 powner->money  = CLIP( powner->money, 0, MAXMONEY );
 
                 ai_add_order( &( powner->ai ), ( Uint32 ) price, SHOP_BUY );
@@ -4919,10 +4921,10 @@ bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
                 // Okay to sell
                 ai_add_order( &( powner->ai ), ( Uint32 ) price, SHOP_SELL );
 
-                ppicker->money -= price;
+                ppicker->money  = ppicker->money - price;
                 ppicker->money  = CLIP( ppicker->money, 0, MAXMONEY );
 
-                powner->money  += price;
+                powner->money   = powner->money + price;
                 powner->money   = CLIP( powner->money, 0, MAXMONEY );
 
                 can_grab = btrue;
@@ -4938,8 +4940,8 @@ bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
         }
     }
 
-    /// print some feedback messages
-    /// @note: some of these are handled in scripts, so they could be disabled
+    /// @note some of these are handled in scripts, so they could be disabled
+    // print some feedback messages
     /*if( can_grab )
     {
         if( in_shop )
@@ -4989,7 +4991,7 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
         if ( INGAME_CHR( iowner ) )
         {
             IPair  tmp_rand = {1, 100};
-            Uint8  detection;
+            int  detection;
             chr_t * powner = ChrList_get_ptr( iowner );
 
             detection = generate_irand_pair( tmp_rand );
@@ -5585,8 +5587,10 @@ egolib_rv import_list_from_players( import_list_t * imp_lst )
 //--------------------------------------------------------------------------------------------
 bool_t check_time( Uint32 check )
 {
-    //ZF> Returns btrue if and only if all time and date specifications determined by the e_time parameter is true. This
-    //    could indicate time of the day, a specific holiday season etc.
+	/// @author ZF
+    /// @details Returns btrue if and only if all time and date specifications determined by the e_time parameter is true. This
+    ///    could indicate time of the day, a specific holiday season etc.
+
     switch ( check )
     {
             //Halloween between 31th october and the 1st of november
@@ -5649,8 +5653,8 @@ bool_t water_instance_make( water_instance_t * pinst, const wawalite_water_t * p
             spek = temp * pdata->spek_level;
         }
 
-        // [claforte] Probably need to replace this with a
-        //           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
+        /// @note claforte@> Probably need to replace this with a
+        ///           GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
         if ( GL_FLAT == gfx.shading )
             pinst->spek[cnt] = 0;
         else

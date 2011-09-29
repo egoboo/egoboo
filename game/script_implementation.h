@@ -202,7 +202,7 @@ bool_t Compass( fvec2_base_t pos, int facing, float distance );
 /// @details This function returns the cost of the desired skin upgrade
 //
 /// @lua tmpx = GetTargetArmorPrice( tmpargument = "skin" )
-int GetArmorPrice( struct s_chr * pchr, int skin );
+int GetArmorPrice( struct s_chr * pchr, const int skin );
 
 /// @author ZZ
 /// @details This function sets the character's ai timer.  50 clicks per second.
@@ -214,7 +214,7 @@ Uint32 UpdateTime( Uint32 time_val, int delay );
 /// @author ZZ
 /// @details This function breaks the tiles of a passage if there is a character standing
 ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
-Uint8 BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley );
+Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const int starttile, const PASS_REF passage, int *ptilex, int *ptiley );
 
 /// @author ZZ
 /// @details This function appends a message to the end-module text

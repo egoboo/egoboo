@@ -38,7 +38,7 @@ void make_turntosin( void )
     /// @details This function makes the lookup table for chrturn...
 
     int cnt;
-    float ftmp = TWO_PI / ( float )TRIG_TABLE_SIZE;
+    const float ftmp = TWO_PI / ( float )TRIG_TABLE_SIZE;
 
     for ( cnt = 0; cnt < TRIG_TABLE_SIZE; cnt++ )
     {

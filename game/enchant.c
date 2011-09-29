@@ -398,10 +398,10 @@ bool_t remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 
     EncList_free_one( ienc );
 
+    /// @note all of the values in the penc are now invalid. we have to use previously evaluated
+    /// values of target_ref and penc to kill the target (if necessary)
     // save this until the enchant is completely dead, since kill character can generate a
     // recursive call to this function through cleanup_one_character()
-    // @note all of the values in the penc are now invalid. we have to use previously evaluated
-    // values of target_ref and penc to kill the target (if necessary)
     if ( NULL != peve && peve->killtargetonend && INVALID_CHR_REF != target_ref )
     {
         if ( NULL != target_ptr )
@@ -679,28 +679,28 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDJUMPPOWER:
             fnewvalue = ptarget->jump_power;
             fvaluetoadd = peve->addvalue[value_idx];
-            fgetadd( 0.0f, fnewvalue, 30.0f, &fvaluetoadd );
+            getadd_flt( 0.0f, fnewvalue, 30.0f, &fvaluetoadd );
             ptarget->jump_power += fvaluetoadd;
             break;
 
         case ADDBUMPDAMPEN:
             fnewvalue = ptarget->phys.bumpdampen;
             fvaluetoadd = peve->addvalue[value_idx];
-            fgetadd( 0.0f, fnewvalue, 1.0f, &fvaluetoadd );
+            getadd_flt( 0.0f, fnewvalue, 1.0f, &fvaluetoadd );
             ptarget->phys.bumpdampen += fvaluetoadd;
             break;
 
         case ADDBOUNCINESS:
             fnewvalue = ptarget->phys.dampen;
             fvaluetoadd = peve->addvalue[value_idx];
-            fgetadd( 0.0f, fnewvalue, 0.95f, &fvaluetoadd );
+            getadd_flt( 0.0f, fnewvalue, 0.95f, &fvaluetoadd );
             ptarget->phys.dampen += fvaluetoadd;
             break;
 
         case ADDDAMAGE:
             newvalue = ptarget->damage_boost;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 0, newvalue, 4096, &valuetoadd );
+            getadd_int( 0, newvalue, 4096, &valuetoadd );
             ptarget->damage_boost += valuetoadd;
             fvaluetoadd = valuetoadd;
             break;
@@ -708,7 +708,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDSIZE:
             fnewvalue = ptarget->fat_goto;
             fvaluetoadd = peve->addvalue[value_idx];
-            fgetadd( 0.5f, fnewvalue, 2.0f, &fvaluetoadd );
+            getadd_flt( 0.5f, fnewvalue, 2.0f, &fvaluetoadd );
             ptarget->fat_goto += fvaluetoadd;
             ptarget->fat_goto_time = SIZETIME;
             break;
@@ -716,14 +716,14 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDACCEL:
             fnewvalue = ptarget->maxaccel_reset;
             fvaluetoadd = peve->addvalue[value_idx];
-            fgetadd( 0.0f, fnewvalue, 1.50f, &fvaluetoadd );
+            getadd_flt( 0.0f, fnewvalue, 1.50f, &fvaluetoadd );
             chr_set_maxaccel( ptarget, ptarget->maxaccel_reset + fvaluetoadd );
             break;
 
         case ADDRED:
             newvalue = ptarget->inst.redshift;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 0, newvalue, 6, &valuetoadd );
+            getadd_int( 0, newvalue, 6, &valuetoadd );
             chr_set_redshift( ptarget, ptarget->inst.redshift + valuetoadd );
             fvaluetoadd = valuetoadd;
             break;
@@ -731,7 +731,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDGRN:
             newvalue = ptarget->inst.grnshift;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 0, newvalue, 6, &valuetoadd );
+            getadd_int( 0, newvalue, 6, &valuetoadd );
             chr_set_grnshift( ptarget, ptarget->inst.grnshift + valuetoadd );
             fvaluetoadd = valuetoadd;
             break;
@@ -739,7 +739,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDBLU:
             newvalue = ptarget->inst.blushift;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 0, newvalue, 6, &valuetoadd );
+            getadd_int( 0, newvalue, 6, &valuetoadd );
             chr_set_blushift( ptarget, ptarget->inst.blushift + valuetoadd );
             fvaluetoadd = valuetoadd;
             break;
@@ -747,17 +747,17 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDDEFENSE:
             newvalue = ptarget->defense;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 55, newvalue, 255, &valuetoadd );  // Don't fix again!  //ZF> why limit min to 55?
-            ptarget->defense += valuetoadd;
+            getadd_int( 55, newvalue, 255, &valuetoadd );  // Don't fix again! /// @note ZF@> why limit min to 55?
+            ptarget->defense = ptarget->defense + valuetoadd;
             fvaluetoadd = valuetoadd;
             break;
 
         case ADDMANA:
             newvalue = ptarget->mana_max;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 0, newvalue, PERFECTBIG, &valuetoadd );
+            getadd_int( 0, newvalue, PERFECTBIG, &valuetoadd );
             ptarget->mana_max += valuetoadd;
-            //ptarget->mana    += valuetoadd;                       //ZF> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
+            //ptarget->mana    += valuetoadd;                       /// @note ZF@> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
             ptarget->mana = CLIP( ptarget->mana, 0, ptarget->mana_max );
             fvaluetoadd = valuetoadd;
             break;
@@ -765,9 +765,9 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDLIFE:
             newvalue = ptarget->life_max;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
+            getadd_int( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
             ptarget->life_max += valuetoadd;
-            //ptarget->life += valuetoadd;                        //ZF> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
+            //ptarget->life += valuetoadd;                        /// @note ZF@> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
             ptarget->life = CLIP( ptarget->life, 1, ptarget->life_max );
             fvaluetoadd = valuetoadd;
             break;
@@ -775,7 +775,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDSTRENGTH:
             newvalue = ptarget->strength;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
+            getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
             ptarget->strength += valuetoadd;
             fvaluetoadd = valuetoadd;
             break;
@@ -783,7 +783,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDWISDOM:
             newvalue = ptarget->wisdom;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
+            getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
             ptarget->wisdom += valuetoadd;
             fvaluetoadd = valuetoadd;
             break;
@@ -791,7 +791,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDINTELLIGENCE:
             newvalue = ptarget->intelligence;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
+            getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
             ptarget->intelligence += valuetoadd;
             fvaluetoadd = valuetoadd;
             break;
@@ -799,7 +799,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         case ADDDEXTERITY:
             newvalue = ptarget->dexterity;
             valuetoadd = peve->addvalue[value_idx];
-            getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
+            getadd_int( 0, newvalue, HIGHSTAT, &valuetoadd );
             ptarget->dexterity += valuetoadd;
             fvaluetoadd = valuetoadd;
             break;
@@ -1841,8 +1841,12 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
                 break;
 
             case ADDDEFENSE:
-                valuetoadd = penc->addsave[value_idx];
-                ptarget->defense -= valuetoadd;
+				{
+					int def_val;
+					valuetoadd = penc->addsave[value_idx];
+					def_val = ptarget->defense - valuetoadd;
+					ptarget->defense = MAX(0, def_val);
+				}
                 break;
 
             case ADDMANA:

@@ -35,15 +35,6 @@ struct s_chr;
 // helper functions
 //--------------------------------------------------------------------------------------------
 
-Uint8  _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int message, struct s_script_state * pstate );
-Uint8  BreakPassage( int mesh_fx_or, int become, int frames, int starttile, const PASS_REF passage, int *ptilex, int *ptiley );
-Uint8  FindTileInPassage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 );
-
-Uint8   AddEndMessage( struct s_chr * pchr, const int message, struct s_script_state * pstate );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 Uint8 scr_set_AlertBit( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_ClearAlertBit( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_TestAlertBit( struct s_script_state * pstate, struct s_ai_state * pself );

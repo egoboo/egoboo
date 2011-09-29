@@ -82,7 +82,7 @@ egolib_rv cl_talkToHost( void )
             // Find the local players
             if ( PlaStack.lst[player].valid && PlaStack.lst[player].pdevice != NULL )
             {
-                ego_packet_addUint8( &ego_pkt, REF_TO_INT( player ) );                         // The player index
+                ego_packet_addUint16( &ego_pkt, REF_TO_INT( player ) );                         // The player index
                 ego_packet_addUint32( &ego_pkt, PlaStack.lst[player].local_latch.b );             // Player button states
                 ego_packet_addSint16( &ego_pkt, PlaStack.lst[player].local_latch.x*SHORTLATCH );  // Player motion
                 ego_packet_addSint16( &ego_pkt, PlaStack.lst[player].local_latch.y*SHORTLATCH );  // Player motion

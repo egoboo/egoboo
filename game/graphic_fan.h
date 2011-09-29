@@ -45,13 +45,6 @@ struct s_renderlist;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-// JF - Added so that the video mode might be determined outside of the graphics code
-extern bool_t          meshnotexture;
-extern TX_REF          meshlasttexture;             ///< Last texture used
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 void animate_all_tiles( struct s_ego_mesh * pmesh );
 
 gfx_rv render_fan( const struct s_ego_mesh * pmesh, const Uint32 fan );

@@ -286,11 +286,17 @@ bool_t input_handle_chat( SDL_Event * pevt )
     {
         if ( is_shift )
         {
-            net_chat.buffer[net_chat.buffer_count++] = scancode_to_ascii_shift[pevt->key.keysym.sym];
+			if( (unsigned)scancode_to_ascii_shift[pevt->key.keysym.sym] < 0xFF )
+			{
+				net_chat.buffer[net_chat.buffer_count++] = (char)scancode_to_ascii_shift[pevt->key.keysym.sym];
+			}
         }
         else
         {
-            net_chat.buffer[net_chat.buffer_count++] = scancode_to_ascii[pevt->key.keysym.sym];
+			if( (unsigned)scancode_to_ascii[pevt->key.keysym.sym] < 0xFF )
+			{
+				net_chat.buffer[net_chat.buffer_count++] = (char)scancode_to_ascii[pevt->key.keysym.sym];
+			}
         }
         net_chat.buffer[net_chat.buffer_count] = CSTR_END;
     }

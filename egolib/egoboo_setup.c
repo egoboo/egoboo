@@ -219,17 +219,23 @@ bool_t setup_read_vfs( void )
     /// @author BB
     /// @details read the setup file
 
+	bool_t retval;
+
     if ( !setup_begin() ) return bfalse;
 
     //Did something go wrong?
-    if ( NULL == _lpConfigSetup )
-    {
-        log_error( "Could not load setup settings: \"%s\"\n", _config_filename );
-        return bfalse;
-    }
+	retval = (NULL != _lpConfigSetup);
 
-    log_info( "Loaded setup file - \"%s\".\n", _config_filename );
-    return btrue;
+	if( retval )
+	{
+		log_info( "Loaded setup file - \"%s\".\n", _config_filename );
+	}
+	else
+	{
+        log_error( "Could not load setup settings: \"%s\"\n", _config_filename );
+	}
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -341,13 +347,13 @@ bool_t setup_download( egoboo_config_t * pcfg )
     // Do we do texture filtering?
     GetKey_string( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
     pcfg->texturefilter_req =  cfg_default.texturefilter_req;
-    if ( 'U' == toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_UNFILTERED;
-    if ( 'L' == toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_LINEAR;
-    if ( 'M' == toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_MIPMAP;
-    if ( 'B' == toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_BILINEAR;
-    if ( 'T' == toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_TRILINEAR_1;
-    if ( '2' == toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_TRILINEAR_2;
-    if ( 'A' == toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_ANISOTROPIC;
+    if ( 'U' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_UNFILTERED;
+    if ( 'L' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_LINEAR;
+    if ( 'M' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_MIPMAP;
+    if ( 'B' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_BILINEAR;
+    if ( 'T' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_TRILINEAR_1;
+    if ( '2' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_TRILINEAR_2;
+    if ( 'A' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->texturefilter_req = TX_ANISOTROPIC;
 
     // Max number of lights
     GetKey_int( "MAX_DYNAMIC_LIGHTS", pcfg->dyna_count_req, cfg_default.dyna_count_req );
@@ -398,9 +404,9 @@ bool_t setup_download( egoboo_config_t * pcfg )
     // Which difficulty mode do we use?
     GetKey_string( "DIFFICULTY_MODE", lTempStr, 24, "NORMAL" );
     pcfg->difficulty = cfg_default.difficulty;
-    if ( 'E' == toupper(( unsigned )lTempStr[0] ) )  pcfg->difficulty = GAME_EASY;
-    if ( 'N' == toupper(( unsigned )lTempStr[0] ) )  pcfg->difficulty = GAME_NORMAL;
-    if ( 'H' == toupper(( unsigned )lTempStr[0] ) )  pcfg->difficulty = GAME_HARD;
+    if ( 'E' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->difficulty = GAME_EASY;
+    if ( 'N' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->difficulty = GAME_NORMAL;
+    if ( 'H' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->difficulty = GAME_HARD;
 
     //Feedback
     GetKey_int( "FEEDBACK", lTempInt, cfg_default.feedback );
@@ -409,9 +415,9 @@ bool_t setup_download( egoboo_config_t * pcfg )
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
     pcfg->autoturncamera = cfg_default.autoturncamera;
-    if ( 'G' == toupper(( unsigned )lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_GOOD;
-    else if ( 'T' == toupper(( unsigned )lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_AUTO;
-    else if ( 'F' == toupper(( unsigned )lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_NONE;
+    if ( 'G' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_GOOD;
+    else if ( 'T' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_AUTO;
+    else if ( 'F' == char_toupper(( unsigned )lTempStr[0] ) )  pcfg->autoturncamera = CAM_TURN_NONE;
 
     // Max number of messages displayed
     GetKey_int( "MAX_TEXT_MESSAGE", pcfg->message_count_req, cfg_default.message_count_req );

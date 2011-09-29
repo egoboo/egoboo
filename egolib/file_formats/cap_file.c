@@ -139,9 +139,9 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
     // Gender
     cTmp = vfs_get_next_char( fileread );
-    if ( 'F' == toupper(( unsigned )cTmp ) )  pcap->gender = GENDER_FEMALE;
-    else if ( 'M' == toupper(( unsigned )cTmp ) )  pcap->gender = GENDER_MALE;
-    else if ( 'R' == toupper(( unsigned )cTmp ) )  pcap->gender = GENDER_RANDOM;
+    if ( 'F' == char_toupper(( unsigned )cTmp ) )  pcap->gender = GENDER_FEMALE;
+    else if ( 'M' == char_toupper(( unsigned )cTmp ) )  pcap->gender = GENDER_MALE;
+    else if ( 'R' == char_toupper(( unsigned )cTmp ) )  pcap->gender = GENDER_RANDOM;
     else                              pcap->gender = GENDER_OTHER;
 
     // Read in the icap stats
@@ -239,7 +239,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
         for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
-            cTmp = toupper(( unsigned )vfs_get_first_letter( fileread ) );
+            cTmp = char_toupper(( unsigned )vfs_get_first_letter( fileread ) );
             switch ( cTmp )
             {
                 case 'T': pcap->damage_modifier[damagetype][cnt] |= DAMAGEINVERT;   break;
@@ -256,7 +256,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     goto_colon_vfs( NULL, fileread, bfalse );
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        pcap->maxaccel[cnt] = vfs_get_float( fileread ) / 80.0f;
+        pcap->skin_info.maxaccel[cnt] = vfs_get_float( fileread ) / 80.0f;
     }
 
     // Experience and level data
@@ -316,12 +316,12 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     // GoPoof
     pcap->gopoofprt_amount    = vfs_get_next_int( fileread );
     pcap->gopoofprt_facingadd = vfs_get_next_int( fileread );
-    pcap->gopoofprt_lpip       = vfs_get_next_int( fileread );
+    pcap->gopoofprt_lpip      = vfs_get_next_int( fileread );
 
     // Blud
     cTmp = vfs_get_next_char( fileread );
-    if ( 'T' == toupper(( unsigned )cTmp ) )  pcap->blud_valid = btrue;
-    else if ( 'U' == toupper(( unsigned )cTmp ) )  pcap->blud_valid = ULTRABLUDY;
+    if ( 'T' == char_toupper(( unsigned )cTmp ) )  pcap->blud_valid = btrue;
+    else if ( 'U' == char_toupper(( unsigned )cTmp ) )  pcap->blud_valid = ULTRABLUDY;
     else                              pcap->blud_valid = bfalse;
 
     pcap->blud_lpip = vfs_get_next_int( fileread );
@@ -338,12 +338,12 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        vfs_get_next_name( fileread, pcap->skinname[cnt], sizeof( pcap->skinname[cnt] ) );
+        vfs_get_next_name( fileread, pcap->skin_info.name[cnt], sizeof( pcap->skin_info.name[cnt] ) );
     }
 
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        pcap->skincost[cnt] = vfs_get_next_int( fileread );
+        pcap->skin_info.cost[cnt] = vfs_get_next_int( fileread );
     }
 
     pcap->str_bonus = vfs_get_next_float( fileread );          //ZF> Deprecated, but keep here for backwards compatability
@@ -378,7 +378,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     {
         idsz = vfs_get_idsz( fileread );
 
-        if ( idsz == MAKE_IDSZ( 'D', 'R', 'E', 'S' ) ) SET_BIT( pcap->skindressy, 1 << vfs_get_int( fileread ) );
+        if ( idsz == MAKE_IDSZ( 'D', 'R', 'E', 'S' ) ) SET_BIT( pcap->skin_info.dressy, 1 << vfs_get_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'G', 'O', 'L', 'D' ) ) pcap->money = vfs_get_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'U', 'K' ) ) pcap->resistbumpspawn = ( 0 != ( 1 - vfs_get_int( fileread ) ) );
         else if ( idsz == MAKE_IDSZ( 'P', 'A', 'C', 'K' ) ) pcap->istoobig = !( 0 != vfs_get_int( fileread ) );
@@ -390,7 +390,11 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'S', 'Q', 'U', 'A' ) ) pcap->bump_sizebig = pcap->bump_size * 2;
         else if ( idsz == MAKE_IDSZ( 'I', 'C', 'O', 'N' ) ) pcap->draw_icon = ( 0 != vfs_get_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'S', 'H', 'A', 'D' ) ) pcap->forceshadow = ( 0 != vfs_get_int( fileread ) );
-        else if ( idsz == MAKE_IDSZ( 'S', 'K', 'I', 'N' ) ) pcap->skin_override = vfs_get_int( fileread ) % MAX_SKIN;
+        else if ( idsz == MAKE_IDSZ( 'S', 'K', 'I', 'N' ) ) 
+		{
+			int iTmp = vfs_get_int( fileread );
+			pcap->skin_override = (iTmp < 0) ? -1 : (iTmp % MAX_SKIN);
+		}
         else if ( idsz == MAKE_IDSZ( 'C', 'O', 'N', 'T' ) ) pcap->content_override = vfs_get_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'T' ) ) pcap->state_override = vfs_get_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'L', 'E', 'V', 'L' ) ) pcap->level_override = vfs_get_int( fileread );
@@ -399,7 +403,11 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'V', 'A', 'L', 'U' ) ) pcap->isvaluable = vfs_get_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'L', 'I', 'F', 'E' ) ) pcap->life_spawn = 0xff * vfs_get_float( fileread );
         else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->mana_spawn = 0xff * vfs_get_float( fileread );
-        else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) ) pcap->spelleffect_type = vfs_get_int( fileread ) % MAX_SKIN;
+        else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) )
+		{
+			int iTmp = vfs_get_int( fileread );
+			pcap->spelleffect_type = (iTmp < 0) ? -1 : (iTmp % MAX_SKIN);
+		}
         else if ( idsz == MAKE_IDSZ( 'F', 'A', 'S', 'T' ) ) pcap->attack_fast = ( 0 != vfs_get_int( fileread ) );
 
         //Damage bonuses from stats
@@ -602,10 +610,10 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
         }
     }
 
-    template_put_float( filetemp, filewrite, pcap->maxaccel[0]*80 );
-    template_put_float( filetemp, filewrite, pcap->maxaccel[1]*80 );
-    template_put_float( filetemp, filewrite, pcap->maxaccel[2]*80 );
-    template_put_float( filetemp, filewrite, pcap->maxaccel[3]*80 );
+    template_put_float( filetemp, filewrite, pcap->skin_info.maxaccel[0]*80 );
+    template_put_float( filetemp, filewrite, pcap->skin_info.maxaccel[1]*80 );
+    template_put_float( filetemp, filewrite, pcap->skin_info.maxaccel[2]*80 );
+    template_put_float( filetemp, filewrite, pcap->skin_info.maxaccel[3]*80 );
 
     // Experience and level data
     template_put_int( filetemp, filewrite, pcap->experience_forlevel[1] );
@@ -680,14 +688,14 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     template_put_float( filetemp, filewrite, FP8_TO_FLOAT( pcap->manacost ) );     // and shouldnt be used. Use scripts instead.
     template_put_int( filetemp, filewrite, pcap->life_return );
     template_put_int( filetemp, filewrite, pcap->stoppedby );
-    template_put_string_under( filetemp, filewrite, pcap->skinname[0] );
-    template_put_string_under( filetemp, filewrite, pcap->skinname[1] );
-    template_put_string_under( filetemp, filewrite, pcap->skinname[2] );
-    template_put_string_under( filetemp, filewrite, pcap->skinname[3] );
-    template_put_int( filetemp, filewrite, pcap->skincost[0] );
-    template_put_int( filetemp, filewrite, pcap->skincost[1] );
-    template_put_int( filetemp, filewrite, pcap->skincost[2] );
-    template_put_int( filetemp, filewrite, pcap->skincost[3] );
+    template_put_string_under( filetemp, filewrite, pcap->skin_info.name[0] );
+    template_put_string_under( filetemp, filewrite, pcap->skin_info.name[1] );
+    template_put_string_under( filetemp, filewrite, pcap->skin_info.name[2] );
+    template_put_string_under( filetemp, filewrite, pcap->skin_info.name[3] );
+    template_put_int( filetemp, filewrite, pcap->skin_info.cost[0] );
+    template_put_int( filetemp, filewrite, pcap->skin_info.cost[1] );
+    template_put_int( filetemp, filewrite, pcap->skin_info.cost[2] );
+    template_put_int( filetemp, filewrite, pcap->skin_info.cost[3] );
     template_put_float( filetemp, filewrite, pcap->str_bonus );
 
     // Another memory lapse
@@ -707,16 +715,16 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     template_seek_free( filetemp, filewrite );
 
     // Expansions
-    if ( pcap->skindressy&1 )
+    if ( pcap->skin_info.dressy&1 )
         vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 0 );
 
-    if ( pcap->skindressy&2 )
+    if ( pcap->skin_info.dressy&2 )
         vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 1 );
 
-    if ( pcap->skindressy&4 )
+    if ( pcap->skin_info.dressy&4 )
         vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 2 );
 
-    if ( pcap->skindressy&8 )
+    if ( pcap->skin_info.dressy&8 )
         vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 3 );
 
     if ( pcap->resistbumpspawn )
@@ -824,4 +832,25 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     template_close_vfs( filetemp );
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+SKIN_T cap_get_skin( cap_t * pcap )
+{
+	SKIN_T retval = MAX_SKIN;
+
+	if( NULL == pcap ) return MAX_SKIN;
+
+    retval = 0;
+    if ( NO_SKIN_OVERRIDE != pcap->spelleffect_type )
+    {
+        retval = pcap->spelleffect_type % MAX_SKIN;
+    }
+    else if ( NO_SKIN_OVERRIDE != pcap->skin_override )
+    {
+        retval = pcap->skin_override % MAX_SKIN;
+    }
+
+	return retval;
 }

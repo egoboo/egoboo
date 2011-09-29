@@ -354,7 +354,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->attachedto_vrt_off = pdata->vrt_offset;
 
     // Correct loc_facing
-    loc_facing += ppip->facing_pair.base;
+    loc_facing = loc_facing + ppip->facing_pair.base;
 
     // Targeting...
     vel.z = 0;
@@ -437,7 +437,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         // Correct loc_facing for randomness
         offsetfacing = generate_irand_pair( ppip->facing_pair ) - ( ppip->facing_pair.base + ppip->facing_pair.rand / 2 );
     }
-    loc_facing += offsetfacing;
+    loc_facing   = loc_facing + offsetfacing;
     pprt->facing = loc_facing;
 
     // this is actually pointing in the opposite direction?
@@ -469,7 +469,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->type          = ppip->type;
 
     // Image data
-    pprt->rotate        = generate_irand_pair( ppip->rotate_pair );
+    pprt->rotate        = (FACING_T)generate_irand_pair( ppip->rotate_pair );
     pprt->rotate_add    = ppip->rotate_add;
 
     pprt->size_stt      = ppip->size_base;
@@ -2468,7 +2468,7 @@ bool_t prt_is_over_water( const PRT_REF iprt )
 //--------------------------------------------------------------------------------------------
 PIP_REF PipStack_get_free( void )
 {
-    PIP_REF retval = INVALID_PIP_REF;
+    int retval = INVALID_PIP_REF;
 
     if ( PipStack.count < MAX_PIP )
     {
@@ -2476,7 +2476,7 @@ PIP_REF PipStack_get_free( void )
         PipStack.count++;
     }
 
-    return retval;
+    return CLIP(retval, 0, MAX_PIP);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2755,8 +2755,8 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     update_count = update_wld + loc_pprt->obj_base.guid;
     if ( 0 != ( update_count & 31 ) ) return pbdl_prt;
 
+    /// @note ZF@> This is already checked in prt_update_ingame()
     // do nothing if the particle is hidden
-    // ZF> This is already checked in prt_update_ingame()
     //if ( loc_pprt->is_hidden ) return;
 
     // we must be attached to something
@@ -2882,17 +2882,17 @@ int prt_do_contspawn( prt_bundle_t * pbdl_prt )
         {
             // Inherit velocities from the particle we were spawned from, but only if it wasn't attached to something
 
-            // ZF> I have disabled this at the moment. This is what caused the erratic particle movement for the Adventurer Torch
-            // BB> taking out the test works, though  I should have checked vs. loc_pprt->attached_ref, anyway,
-            //     since we already specified that the particle is not attached in the function call :P
+            /// @note ZF@> I have disabled this at the moment. This is what caused the erratic particle movement for the Adventurer Torch
+            /// @note BB@> taking out the test works, though  I should have checked vs. loc_pprt->attached_ref, anyway,
+            ///            since we already specified that the particle is not attached in the function call :P
+            /// @note ZF@> I have again disabled this. Is this really needed? It wasn't implemented before and causes
+            ///            many, many, many issues with all particles around the game.
             //if( !ACTIVE_CHR( loc_pprt->attachedto_ref ) )
             /*{
                 PrtList.lst[prt_child].vel.x += loc_pprt->vel.x;
                 PrtList.lst[prt_child].vel.y += loc_pprt->vel.y;
                 PrtList.lst[prt_child].vel.z += loc_pprt->vel.z;
             }*/
-            // ZF> I have again disabled this. Is this really needed? It wasn't implemented before and causes
-            //     many, many, many issues with all particles around the game.
 
             //Keep count of how many were actually spawned
             spawn_count++;

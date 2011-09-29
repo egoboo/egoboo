@@ -122,7 +122,7 @@ struct s_ChoosePlayer_element
 {
     CAP_REF           cap_ref;  ///< the character profile reference from "data.txt"
     TX_REF            tx_ref;   ///< the index of the icon texture
-    int               skin_ref; ///< the index of the object skin from "skin.txt"
+    SKIN_T            skin_ref; ///< the index of the object skin from "skin.txt"
     chop_definition_t chop;     ///< the chop data from "naming.txt". put this here so we can generate a name without loading an entire profile
 };
 
@@ -723,7 +723,7 @@ int menu_system_begin( void )
     }
 
     // Should be okay to randomize the seed here
-    srand( time( NULL ) );
+    srand( (unsigned int)time( NULL ) );
 
     menu_system_ctor();
 
@@ -1637,8 +1637,7 @@ bool_t doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, C
             chooseplayer_ptr->cap_ref = cap_ref;
 
             // get the skin info
-            chooseplayer_ptr->skin_ref = cap_ptr->skin_override % MAX_SKIN;
-            chooseplayer_ptr->skin_ref = CLIP( chooseplayer_ptr->skin_ref, 0, MAX_SKIN - 1 );
+			chooseplayer_ptr->skin_ref = cap_get_skin(cap_ptr);
 
             // load the icon of the skin
             snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer_ptr->dir, i, chooseplayer_ptr->skin_ref );
@@ -1698,14 +1697,14 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
 
         if ( LOADED_CAP( icap ) )
         {
-            STRING temp_string;
+            STRING  temp_string;
             cap_t * pcap = CapStack_get_ptr( icap );
-            Uint8 skin = MAX( pcap->skin_override, 0 );
+            SKIN_T  skin = cap_get_skin( pcap );
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
             // fix class name capitalization
-            pcap->classname[0] = toupper(( unsigned )pcap->classname[0] );
+            pcap->classname[0] = char_toupper(( unsigned )pcap->classname[0] );
 
             //Character level and class
             GL_DEBUG( glColor4fv )( white_vec );
@@ -1719,7 +1718,9 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
 
             // Armor
             GL_DEBUG( glColor4fv )( white_vec );
-            snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s", pcap->skinname[skin], HAS_SOME_BITS( pcap->skindressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
+            snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s", 
+				skin < MAX_SKIN ? pcap->skin_info.name[skin] : "UNKNOWN", 
+				HAS_SOME_BITS( pcap->skin_info.dressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
             y1 += section_spacing;
 
@@ -4533,7 +4534,7 @@ int doShowEndgame( float deltaTime )
                     pickedmodule_index = -1;
                     process_kill( PROC_PBASE( GProc ) );
 
-                    //ZF> Reload all players since their quest logs may have changed and new modules unlocked
+                    /// @note ZF@> Reload all players since their quest logs may have changed and new modules unlocked
                     LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", btrue );
                 }
 
@@ -4924,7 +4925,7 @@ TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const TX_REF default_ref )
     pitem_cap = CapStack_get_ptr( icap );
 
     // what do we need to draw?
-    is_spell_fx = ( NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type );
+    is_spell_fx = ( pitem_cap->spelleffect_type >= 0  );
     is_book     = ( SPELLBOOK == icap );
     draw_book   = ( is_book || is_spell_fx ) && ( bookicon_count > 0 );
 
@@ -4934,16 +4935,7 @@ TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const TX_REF default_ref )
     }
     else if ( draw_book )
     {
-        int iskin = 0;
-
-        if ( NO_SKIN_OVERRIDE != pitem_cap->spelleffect_type )
-        {
-            iskin = pitem_cap->spelleffect_type;
-        }
-        else if ( NO_SKIN_OVERRIDE != pitem_cap->skin_override )
-        {
-            iskin = pitem_cap->skin_override;
-        }
+        SKIN_T iskin = cap_get_skin( pitem_cap );
 
         iskin = CLIP( iskin, 0, bookicon_count );
 
@@ -5100,14 +5092,14 @@ void mnu_load_all_module_info( void )
             // save the module path
             strncpy( pmod->vfs_path, vfs_ModPath, SDL_arraysize( pmod->vfs_path ) );
 
+            /// @note just because we can't load the title image DOES NOT mean that we ignore the module
             // load title image
-            // @note just because we can't load the title image DOES NOT mean that we ignore the module
             snprintf( loadname, SDL_arraysize( loadname ), "%s/gamedat/title", pmod->vfs_path );
             pmod->tex_index = mnu_TxList_load_one_vfs( loadname, INVALID_TX_REF, INVALID_KEY );
 
-            // Save the user data directory version of the module path.
-            // @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
+            /// @note This is kinda a cheat since we know that the virtual paths all begin with "mp_" at the moment.
             // If that changes, this line must be changed as well.
+            // Save the user data directory version of the module path.
             snprintf( pmod->dest_path, SDL_arraysize( pmod->dest_path ), "/%s", vfs_ModPath + 3 );
 
             // same problem as above
@@ -5411,7 +5403,7 @@ bool_t ChoosePlayer_init( ChoosePlayer_element_t * ptr )
 
     ptr->cap_ref  = INVALID_CAP_REF;
     ptr->tx_ref   = INVALID_MENU_TX_REF;
-    ptr->skin_ref = NO_SKIN_OVERRIDE;
+    ptr->skin_ref = MAX_SKIN;
 
     chop_definition_init( &( ptr->chop ) );
 
@@ -5533,8 +5525,7 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     //ptr->skin_ref = read_skin_vfs( filename );
 
     // get the skin from the [SKIN] expansion in the character profile
-    ptr->skin_ref = pcap->skin_override % MAX_SKIN;
-    ptr->skin_ref = CLIP( ptr->skin_ref, 0, MAX_SKIN - 1 );
+	ptr->skin_ref = cap_get_skin( pcap );
 
     // don't load in the md2 at this time
     //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
@@ -6105,7 +6096,7 @@ TX_REF mnu_TxList_get_free( const TX_REF itex )
             mnu_TxList.free_count--;
             mnu_TxList.update_guid++;
 
-            retval = mnu_TxList.free_ref[mnu_TxList.free_count];
+            retval = (TX_REF)mnu_TxList.free_ref[mnu_TxList.free_count];
         }
         else
         {

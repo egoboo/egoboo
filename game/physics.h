@@ -66,8 +66,8 @@ enum
 struct s_orientation
 {
     FACING_T       facing_z;                        ///< Character's z-rotation 0 to 0xFFFF
-    FACING_T       map_facing_y;                    ///< Character's y-rotation 0 to 0xFFFF
-    FACING_T       map_facing_x;                    ///< Character's x-rotation 0 to 0xFFFF
+    FACING_T       map_twist_facing_y;                    ///< Character's y-rotation 0 to 0xFFFF
+    FACING_T       map_twist_facing_x;                    ///< Character's x-rotation 0 to 0xFFFF
 };
 
 //--------------------------------------------------------------------------------------------

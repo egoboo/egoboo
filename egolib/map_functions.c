@@ -23,6 +23,7 @@
 
 #include "map_functions.h"
 
+#include "log.h"
 #include "file_formats/map_file.h"
 
 //--------------------------------------------------------------------------------------------
@@ -145,20 +146,105 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
     return pmesh;
 }
 
+
+//--------------------------------------------------------------------------------------------
+int map_get_itile( map_t * pmesh, int mapx, int mapy )
+{
+    int itile = -1;
+
+    if( NULL == pmesh )
+    {
+        itile = -1;
+    }
+    else if ( mapx < 0 || mapx >= pmesh->info.tiles_x || mapy < 0 || mapy >= pmesh->info.tiles_y )
+    {
+        itile = -1;
+    }
+    else
+    {
+        itile = mapx + pmesh->info.tiles_x * mapy;
+    }
+
+    return itile;
+}
+
+//--------------------------------------------------------------------------------------------
+int map_get_fx_itile( map_t * pmesh, int itile )
+{
+    Uint8 WALL_BITS = MAPFX_WALL | MAPFX_IMPASS;
+    Uint8 tile_fx = 0;
+
+    if( NULL == pmesh )
+    {
+        tile_fx = WALL_BITS;
+    }
+    else if ( 0 == pmesh->mem.tile_count || NULL == pmesh->mem.tile_list )
+    {
+        tile_fx = WALL_BITS;
+    }
+    else if( itile <0 || itile >= pmesh->mem.tile_count )
+    {
+        tile_fx = WALL_BITS;
+    }
+    else
+    {
+        tile_fx = pmesh->mem.tile_list[itile].fx;
+    }
+
+    return tile_fx;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t map_has_some_fx_itile( map_t * pmesh, int itile, Uint8 test_fx )
+{
+    Uint8 tile_fx;
+
+    tile_fx = map_get_fx_itile( pmesh, itile );
+
+    return HAS_SOME_BITS( tile_fx, test_fx );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t map_has_some_fx_pos( map_t * pmesh, int mapx, int mapy, Uint8 test_fx )
+{
+    return map_has_some_fx_itile( pmesh, map_get_itile( pmesh, mapx, mapy ), test_fx );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t map_has_no_fx_itile( map_t * pmesh, int itile, Uint8 test_fx )
+{
+    Uint8 tile_fx;
+
+    tile_fx = map_get_fx_itile( pmesh, itile );
+
+    return HAS_NO_BITS( tile_fx, test_fx );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t map_has_no_fx_pos( map_t * pmesh, int mapx, int mapy, Uint8 test_fx )
+{
+    return map_has_no_fx_itile( pmesh, map_get_itile( pmesh, mapx, mapy ), test_fx );
+}
+
 //--------------------------------------------------------------------------------------------
 map_t * map_generate_fan_type_data( map_t * pmesh )
 {
     /// @author BB
     /// @details generates vertex data for all tiles from the bitmap
 
-    size_t   mapx, mapy;
+    size_t   mapx, mapy, itile;
     size_t   tile_x, tile_y;
     int      step_x, step_y;
     bool_t   west_flat, north_flat, south_flat, east_flat;
     Uint32   wall_flags;
+    int      tile_type;
     Uint8    type;
+    Uint32   WALL_BITS = MAPFX_WALL | MAPFX_IMPASS;
+    Uint8 *  ary = NULL;
 
     tile_info_t * tlst = NULL;
+
+    enum { FLOOR = 'F', WALL = 'W', ROCK = 'R' };
 
     // does the mesh exist?
     if ( NULL == pmesh ) return pmesh;
@@ -167,263 +253,500 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     // are there tiles?
     if ( 0 == pmesh->mem.tile_count || NULL == pmesh->mem.tile_list ) return pmesh;
 
+    // allocate a temp array
+    ary = EGOBOO_NEW_ARY(Uint8, pmesh->mem.tile_count);
+    if( NULL == ary ) 
+    {
+        log_warning( "%s - coul not allocate a temporary array.\n", __FUNCTION__ );
+        return pmesh;
+    }
+
+    // set up some loop variables
     step_x = 1;
     step_y = pmesh->info.tiles_y;
+
+    // label all transition tiles
     for ( mapy = 0, tile_y = 0; mapy < pmesh->info.tiles_y; mapy++, tile_y += step_y )
     {
         for ( mapx = 0, tile_x = 0; mapx < pmesh->info.tiles_x; mapx++, tile_x += step_x )
         {
-            int   itile, wall_count;
-            int cnt, dx, dy;
-            float tile_hgt[9];
-            float vrt_hgt[16];
+            int wall_count, cnt;
+            int dx, dy;
+            int tmpx, tmpy;
 
             itile = tile_x + tile_y;
 
-            if ( HAS_NO_BITS( tlst[itile].fx, MAPFX_WALL | MAPFX_IMPASS ) )
+            wall_count = 0;
+            for ( cnt = 0, dy = -1; dy < 2; dy++ )
             {
-                // this tile is NOT a wall. Just alternate between type 1 and 2 in a checkerboard
+                tmpy = mapy + dy;
+                for ( dx = -1; dx < 2; dx++, cnt++ )
+                {
+                    tmpx = mapx + dx;
+
+                    if( map_has_some_fx_pos( pmesh, tmpx, tmpy, WALL_BITS ) )
+                    {
+                        wall_count++;
+                    }
+                }
+            }
+
+            if( 0 == wall_count )
+            {
+                tile_type = FLOOR;
+            }
+            else if( 9 == wall_count )
+            {
+                tile_type = ROCK;
+            }
+            else
+            {
+                tile_type = WALL;
+            }
+
+            ary[itile] = tile_type;
+        }
+    }
+
+    for ( mapy = 0, tile_y = 0; mapy < pmesh->info.tiles_y; mapy++, tile_y += step_y )
+    {
+        for ( mapx = 0, tile_x = 0; mapx < pmesh->info.tiles_x; mapx++, tile_x += step_x )
+        {
+            // the z positions of the tile's edge vertices starting from <mapx,mapy-1> and moving around clockwise
+            float zpos[8];
+
+            int cnt, jtile;
+            bool_t is_column;
+
+
+            // de-initialize the positions of the "vertices"
+            for( cnt = 0; cnt<8; cnt++ )
+            {
+                zpos[cnt] = -1.0f;
+            }
+
+            itile = tile_x + tile_y;
+
+            // default floor type is a 0 or 1
+            if( FLOOR == ary[itile] )
+            {
                 tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) ) & 1;
                 continue;
             }
 
-            // get the heights of the surrounding tiles
-            wall_count = 0;
-            for ( cnt = 0, dy = -1; dy < 2; dy++ )
+            // default rock type is a 0 or 1
+            if( ROCK == ary[itile] )
             {
-                for ( dx = -1; dx < 2; dx++, cnt++ )
-                {
-                    if ( mapx + dx < 0 || mapx + dx >= pmesh->info.tiles_x ||
-                         mapy + dy < 0 || mapy + dy >= pmesh->info.tiles_y )
-                    {
-                        itile = -1;
-                    }
-                    else
-                    {
-                        itile = itile + dx * step_x + dy * step_y;
-                    }
-
-                    if ( itile < 0 )
-                    {
-                        tile_hgt[cnt] = TILE_FSIZE;
-                    }
-                    else
-                    {
-                        tile_hgt[cnt] = LAMBDA( HAS_SOME_BITS( tlst[itile].fx, MAPFX_WALL | MAPFX_IMPASS ), TILE_FSIZE, 0.0f );
-                    }
-
-                    if ( tile_hgt[cnt] > 0.0f ) wall_count++;
-                }
-            }
-
-            if ( 9 == wall_count )
-            {
-                // this tile is a wall surrounded by walls.
-                // Just alternate between type 1 and 2 in a checkerboard, but opposite to the floors
-                tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) + 1 ) & 1;
+                tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) + 1) & 1;
                 continue;
             }
 
-            // set the north edge
-            if ( tile_hgt[1] > 0.0f )
-            {
-                vrt_hgt[1] = vrt_hgt[2] = TILE_FSIZE;
-            }
+            // this must be a "wall" tile
+            // check the neighboring tiles to set the corner positions
 
-            // set the west edge
-            if ( tile_hgt[3] > 0.0f )
+            jtile = map_get_itile( pmesh, mapx, mapy-1 );
+            if( jtile > 0 )
             {
-                vrt_hgt[4] = vrt_hgt[8] = TILE_FSIZE;
-            }
-
-            // set the west edge
-            if ( tile_hgt[5] > 0.0f )
-            {
-                vrt_hgt[7] = vrt_hgt[11] = TILE_FSIZE;
-            }
-
-            // set the south edge
-            if ( tile_hgt[7] > 0.0f )
-            {
-                vrt_hgt[13] = vrt_hgt[14] = TILE_FSIZE;
-            }
-
-            // set the northwest corner
-            {
-                float hsum = 0.0f, hwgt = 0.0f;
-                if ( tile_hgt[0] > 0.0f )
+                if( FLOOR == ary[jtile] )
                 {
-                    hsum += TILE_FSIZE;
-                    hwgt += 1.0f;
+                    zpos[7] = zpos[0] = zpos[1] = 0.0f;
                 }
-                else
+                else if( ROCK == ary[jtile] )
                 {
-                    if ( tile_hgt[1] > 0.0f )
-                    {
-                        hsum += TILE_FSIZE;
-                        hwgt += 1.0f;
-                    }
-                    if ( tile_hgt[3] > 0.0f )
-                    {
-                        hsum += TILE_FSIZE;
-                        hwgt += 1.0f;
-                    }
+                    zpos[7] = zpos[0] = zpos[1] = TILE_FSIZE;
                 }
-
-                vrt_hgt[0] = hsum / hwgt;
             }
 
-            // set the northeast corner
+            jtile = map_get_itile( pmesh, mapx+1, mapy );
+            if( jtile > 0 )
             {
-                float hsum = 0.0f, hwgt = 0.0f;
-                if ( tile_hgt[2] > 0.0f )
+                if( FLOOR == ary[jtile] )
                 {
-                    hsum += TILE_FSIZE;
-                    hwgt += 1.0f;
+                    zpos[1] = zpos[2] = zpos[3] = 0.0f;
                 }
-                else
+                else if( ROCK == ary[jtile] )
                 {
-                    if ( tile_hgt[1] > 0.0f )
-                    {
-                        hsum += TILE_FSIZE;
-                        hwgt += 1.0f;
-                    }
-                    if ( tile_hgt[5] > 0.0f )
-                    {
-                        hsum += TILE_FSIZE;
-                        hwgt += 1.0f;
-                    }
+                    zpos[1] = zpos[2] = zpos[3] = TILE_FSIZE;
                 }
-
-                vrt_hgt[3] = hsum / hwgt;
             }
 
-            // set the southwest corner
+            jtile = map_get_itile( pmesh, mapx, mapy+1 );
+            if( jtile > 0 )
             {
-                float hsum = 0.0f, hwgt = 0.0f;
-                if ( tile_hgt[6] > 0.0f )
+                if( FLOOR == ary[jtile] )
                 {
-                    hsum += TILE_FSIZE;
-                    hwgt += 1.0f;
+                    zpos[3] = zpos[4] = zpos[5] = 0.0f;
                 }
-                else
+                else if( ROCK == ary[jtile] )
                 {
-                    if ( tile_hgt[3] > 0.0f )
+                    zpos[3] = zpos[4] = zpos[5] = TILE_FSIZE;
+                }
+            }
+
+            jtile = map_get_itile( pmesh, mapx-1, mapy );
+            if( jtile > 0 )
+            {
+                if( FLOOR == ary[jtile] )
+                {
+                    zpos[5] = zpos[6] = zpos[7] = 0.0f;
+                }
+                else if( ROCK == ary[jtile] )
+                {
+                    zpos[5] = zpos[6] = zpos[7] = TILE_FSIZE;
+                }
+            }
+
+            if( zpos[1] < 0.0f )
+            {
+                jtile = map_get_itile( pmesh, mapx+1, mapy-1 );
+                if( jtile > 0 )
+                {
+                    if( FLOOR == ary[jtile] )
                     {
-                        hsum += TILE_FSIZE;
-                        hwgt += 1.0f;
+                        zpos[1] = 0.0f;
                     }
-                    if ( tile_hgt[7] > 0.0f )
+                    else if( ROCK == ary[jtile] )
                     {
-                        hsum += TILE_FSIZE;
-                        hwgt += 1.0f;
+                        zpos[1] = TILE_FSIZE;
                     }
                 }
-
-                vrt_hgt[12] = hsum / hwgt;
             }
 
-            // set the southwest corner
+            if( zpos[3] < 0.0f )
             {
-                float hsum = 0.0f, hwgt = 0.0f;
-                if ( tile_hgt[0] > 0.0f )
+                jtile = map_get_itile( pmesh, mapx+1, mapy+1 );
+                if( jtile > 0 )
                 {
-                    hsum += TILE_FSIZE;
-                    hwgt += 1.0f;
-                }
-                else
-                {
-                    if ( tile_hgt[5] > 0.0f )
+                    if( FLOOR == ary[jtile] )
                     {
-                        hsum += TILE_FSIZE;
-                        hwgt += 1.0f;
+                        zpos[3] = 0.0f;
                     }
-                    if ( tile_hgt[7] > 0.0f )
+                    else if( ROCK == ary[jtile] )
                     {
-                        hsum += TILE_FSIZE;
-                        hwgt += 1.0f;
+                        zpos[3] = TILE_FSIZE;
                     }
                 }
-
-                vrt_hgt[15] = hsum / hwgt;
             }
 
-            // check the west edge
-            west_flat = bfalse;
-            if ( vrt_hgt[12] == vrt_hgt[8] == vrt_hgt[4] == vrt_hgt[0] )
+            if( zpos[5] < 0.0f )
             {
-                west_flat = btrue;
-            }
-            else if ( vrt_hgt[12] != vrt_hgt[0] )
-            {
-                west_flat = btrue;
-            }
-
-            // check the north edge
-            north_flat = bfalse;
-            if ( vrt_hgt[0] == vrt_hgt[1] == vrt_hgt[2] == vrt_hgt[3] )
-            {
-                north_flat = btrue;
-            }
-            else if ( vrt_hgt[0] != vrt_hgt[3] )
-            {
-                north_flat = btrue;
+                jtile = map_get_itile( pmesh, mapx-1, mapy+1 );
+                if( jtile > 0 )
+                {
+                    if( FLOOR == ary[jtile] )
+                    {
+                        zpos[5] = 0.0f;
+                    }
+                    else if( ROCK == ary[jtile] )
+                    {
+                        zpos[5] = TILE_FSIZE;
+                    }
+                }
             }
 
-            // check the east edge
-            east_flat = bfalse;
-            if ( vrt_hgt[3] == vrt_hgt[7] == vrt_hgt[11] == vrt_hgt[15] )
+            if( zpos[7] < 0.0f )
             {
-                east_flat = btrue;
-            }
-            else if ( vrt_hgt[3] != vrt_hgt[15] )
-            {
-                east_flat = btrue;
-            }
-
-            // check the south edge
-            south_flat = bfalse;
-            if ( vrt_hgt[15] == vrt_hgt[14] == vrt_hgt[13] == vrt_hgt[12] )
-            {
-                south_flat = btrue;
-            }
-            else if ( vrt_hgt[15] != vrt_hgt[12] )
-            {
-                south_flat = btrue;
+                jtile = map_get_itile( pmesh, mapx-1, mapy+1 );
+                if( jtile > 0 )
+                {
+                    if( FLOOR == ary[jtile] )
+                    {
+                        zpos[7] = 0.0f;
+                    }
+                    else if( ROCK == ary[jtile] )
+                    {
+                        zpos[7] = TILE_FSIZE;
+                    }
+                }
             }
 
-            wall_flags = LAMBDA( west_flat,   0, 1 << 0 );
-            wall_flags |= LAMBDA( north_flat, 0, 1 << 1 );
-            wall_flags |= LAMBDA( east_flat,  0, 1 << 2 );
-            wall_flags |= LAMBDA( south_flat, 0, 1 << 3 );
+            // if any corners are still undefined, make them the 
+            // height of this tile
+            if( zpos[1] < 0.0f ) zpos[1] = TILE_FSIZE;
+            if( zpos[3] < 0.0f ) zpos[3] = TILE_FSIZE;
+            if( zpos[5] < 0.0f ) zpos[5] = TILE_FSIZE;
+            if( zpos[7] < 0.0f ) zpos[7] = TILE_FSIZE;
 
-            // use the wall flags to get the type
-            type = 0;
-            switch ( wall_flags )
+            // estimate the center positions
+            if( zpos[0] < 0.0f ) zpos[0] = 0.5f * (zpos[7] + zpos[1]);
+            if( zpos[2] < 0.0f ) zpos[2] = 0.5f * (zpos[1] + zpos[3]);
+            if( zpos[4] < 0.0f ) zpos[4] = 0.5f * (zpos[3] + zpos[5]);
+            if( zpos[6] < 0.0f ) zpos[6] = 0.5f * (zpos[5] + zpos[7]);
+
+            // override the center positions for known tiles
+            is_column = bfalse;
+            if( zpos[1] == zpos[3] == zpos[5] == zpos[7] )
             {
-                    // listed by complexity
-                case  0: type =  5; break; // pillar/cross
-                case  5: type =  8; break; // E-W wall/arch
-                case 10: type =  9; break; // N-S wall/arch
-                case  1: type = 12; break; // wall to the W
-                case  2: type = 13; break; // wall to the N
-                case  4: type = 14; break; // wall to the E
-                case  8: type = 15; break; // wall to the S
-                case  3: type = 17; break; // NW corner
-                case  6: type = 18; break; // NE corner
-                case  9: type = 16; break; // SW corner
-                case 12: type = 19; break; // SE corner
-                case  7: type = 22; break; // WNE T-junction
-                case 11: type = 21; break; // SWN T-junction
-                case 13: type = 20; break; // ESW T-junction
-                case 14: type = 23; break; // NES T-junction
-                case 15: type =  5; break; // arches
+                is_column = btrue;
             }
-
-            // calculate the twist of this tile
-            tlst[itile].type = type;
         }
     }
+
+    //// find the corner heights
+    //for ( mapy = 0, tile_y = 0; mapy < pmesh->info.tiles_y; mapy++, tile_y += step_y )
+    //{
+    //    for ( mapx = 0, tile_x = 0; mapx < pmesh->info.tiles_x; mapx++, tile_x += step_x )
+    //    {
+    //        tmpx = mapx;
+    //        tmpy = mapy - 1;
+    //        if( tmpx < 0 || tmpx >= pmesh->info.tiles_x || tmpy < 0 || tmpy >= pmesh->info.tiles_y )
+    //        {
+    //            jtile = -1;
+    //        }
+    //        else
+    //        {
+    //            jtile = tmpx * step_x + tmpy * step_y;
+    //        }
+
+    //        if( jtile >=0 && jtile < pmesh->mem.tile_count )
+    //        {
+    //            if( HAS_NO_BITS( tlst[jtile].fx, WALL_BITS ) )
+    //            {
+    //                ary[itile] = WALL;
+    //            }
+    //        }
+
+
+    //    }
+    //}
+    //        int   itile, wall_count;
+    //        int cnt, dx, dy;
+    //        float tile_hgt[9];
+    //        float vrt_hgt[16];
+
+
+    //        if ( HAS_NO_BITS( tlst[itile].fx, WALL_BITS ) )
+    //        {
+    //            // this tile is NOT a wall. Just alternate between type 1 and 2 in a checkerboard
+    //            tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) ) & 1;
+    //            continue;
+    //        }
+
+    //        // get the heights of the surrounding tiles
+    //        wall_count = 0;
+    //        for ( cnt = 0, dy = -1; dy < 2; dy++ )
+    //        {
+    //            for ( dx = -1; dx < 2; dx++, cnt++ )
+    //            {
+    //                if ( mapx + dx < 0 || mapx + dx >= pmesh->info.tiles_x ||
+    //                     mapy + dy < 0 || mapy + dy >= pmesh->info.tiles_y )
+    //                {
+    //                    itile = -1;
+    //                }
+    //                else
+    //                {
+    //                    itile = itile + dx * step_x + dy * step_y;
+    //                }
+
+    //                if ( itile < 0 )
+    //                {
+    //                    tile_hgt[cnt] = TILE_FSIZE;
+    //                }
+    //                else
+    //                {
+    //                    tile_hgt[cnt] = LAMBDA( HAS_SOME_BITS( tlst[itile].fx, WALL_BITS ), TILE_FSIZE, 0.0f );
+    //                }
+
+    //                if ( tile_hgt[cnt] > 0.0f ) wall_count++;
+    //            }
+    //        }
+
+    //        if ( 9 == wall_count )
+    //        {
+    //            // this tile is a wall surrounded by walls.
+    //            // Just alternate between type 1 and 2 in a checkerboard, but opposite to the floors
+    //            tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) + 1 ) & 1;
+    //            continue;
+    //        }
+
+    //        // set the north edge
+    //        vrt_hgt[1] = vrt_hgt[2] = LAMBDA( tile_hgt[1] > 0.0f, TILE_FSIZE, 0.0f );
+
+    //        // set the west edge
+    //        vrt_hgt[4] = vrt_hgt[8] = LAMBDA( tile_hgt[3] > 0.0f, TILE_FSIZE, 0.0f );
+
+    //        // set the west edge
+    //        vrt_hgt[7] = vrt_hgt[11] = LAMBDA( tile_hgt[5] > 0.0f, TILE_FSIZE, 0.0f );
+
+    //        // set the south edge
+    //        vrt_hgt[13] = vrt_hgt[14] = LAMBDA( tile_hgt[7] > 0.0f, TILE_FSIZE, 0.0f );
+
+    //        // set the northwest corner
+    //        {
+    //            float hsum = 0.0f, hwgt = 0.0f;
+    //            if ( tile_hgt[0] > 0.0f )
+    //            {
+    //                hsum += TILE_FSIZE;
+    //                hwgt += 1.0f;
+    //            }
+    //            else
+    //            {
+    //                if ( tile_hgt[1] > 0.0f )
+    //                {
+    //                    hsum += TILE_FSIZE;
+    //                    hwgt += 1.0f;
+    //                }
+    //                if ( tile_hgt[3] > 0.0f )
+    //                {
+    //                    hsum += TILE_FSIZE;
+    //                    hwgt += 1.0f;
+    //                }
+    //            }
+
+    //            vrt_hgt[0] = hsum / hwgt;
+    //        }
+
+    //        // set the northeast corner
+    //        {
+    //            float hsum = 0.0f, hwgt = 0.0f;
+    //            if ( tile_hgt[2] > 0.0f )
+    //            {
+    //                hsum += TILE_FSIZE;
+    //                hwgt += 1.0f;
+    //            }
+    //            else
+    //            {
+    //                if ( tile_hgt[1] > 0.0f )
+    //                {
+    //                    hsum += TILE_FSIZE;
+    //                    hwgt += 1.0f;
+    //                }
+    //                if ( tile_hgt[5] > 0.0f )
+    //                {
+    //                    hsum += TILE_FSIZE;
+    //                    hwgt += 1.0f;
+    //                }
+    //            }
+
+    //            vrt_hgt[3] = hsum / hwgt;
+    //        }
+
+    //        // set the southwest corner
+    //        {
+    //            float hsum = 0.0f, hwgt = 0.0f;
+    //            if ( tile_hgt[6] > 0.0f )
+    //            {
+    //                hsum += TILE_FSIZE;
+    //                hwgt += 1.0f;
+    //            }
+    //            else
+    //            {
+    //                if ( tile_hgt[3] > 0.0f )
+    //                {
+    //                    hsum += TILE_FSIZE;
+    //                    hwgt += 1.0f;
+    //                }
+    //                if ( tile_hgt[7] > 0.0f )
+    //                {
+    //                    hsum += TILE_FSIZE;
+    //                    hwgt += 1.0f;
+    //                }
+    //            }
+
+    //            vrt_hgt[12] = hsum / hwgt;
+    //        }
+
+    //        // set the southwest corner
+    //        {
+    //            float hsum = 0.0f, hwgt = 0.0f;
+    //            if ( tile_hgt[0] > 0.0f )
+    //            {
+    //                hsum += TILE_FSIZE;
+    //                hwgt += 1.0f;
+    //            }
+    //            else
+    //            {
+    //                if ( tile_hgt[5] > 0.0f )
+    //                {
+    //                    hsum += TILE_FSIZE;
+    //                    hwgt += 1.0f;
+    //                }
+    //                if ( tile_hgt[7] > 0.0f )
+    //                {
+    //                    hsum += TILE_FSIZE;
+    //                    hwgt += 1.0f;
+    //                }
+    //            }
+
+    //            vrt_hgt[15] = hsum / hwgt;
+    //        }
+
+    //        // check the west edge
+    //        west_flat = bfalse;
+    //        if ( vrt_hgt[12] == vrt_hgt[8] == vrt_hgt[4] == vrt_hgt[0] )
+    //        {
+    //            west_flat = btrue;
+    //        }
+    //        else if ( MAX(vrt_hgt[12],vrt_hgt[0]) - MIN(vrt_hgt[12],vrt_hgt[0]) >= 0.99f * TILE_FSIZE  )
+    //        {
+    //            west_flat = btrue;
+    //        }
+
+    //        // check the north edge
+    //        north_flat = bfalse;
+    //        if ( vrt_hgt[0] == vrt_hgt[1] == vrt_hgt[2] == vrt_hgt[3] )
+    //        {
+    //            north_flat = btrue;
+    //        }
+    //        else if ( MAX(vrt_hgt[0],vrt_hgt[3]) - MIN(vrt_hgt[0],vrt_hgt[3]) >= 0.99f * TILE_FSIZE )
+    //        {
+    //            north_flat = btrue;
+    //        }
+
+    //        // check the east edge
+    //        east_flat = bfalse;
+    //        if ( vrt_hgt[3] == vrt_hgt[7] == vrt_hgt[11] == vrt_hgt[15] )
+    //        {
+    //            east_flat = btrue;
+    //        }
+    //        else if ( MAX(vrt_hgt[3],vrt_hgt[15]) - MIN(vrt_hgt[3],vrt_hgt[15]) >= 0.99f * TILE_FSIZE )
+    //        {
+    //            east_flat = btrue;
+    //        }
+
+    //        // check the south edge
+    //        south_flat = bfalse;
+    //        if ( vrt_hgt[15] == vrt_hgt[14] == vrt_hgt[13] == vrt_hgt[12] )
+    //        {
+    //            south_flat = btrue;
+    //        }
+    //        else if ( MAX(vrt_hgt[15],vrt_hgt[12]) - MIN(vrt_hgt[15],vrt_hgt[12]) >= 0.99f * TILE_FSIZE )
+    //        {
+    //            south_flat = btrue;
+    //        }
+
+    //        wall_flags = LAMBDA( west_flat,   0, 1 << 0 );
+    //        wall_flags |= LAMBDA( north_flat, 0, 1 << 1 );
+    //        wall_flags |= LAMBDA( east_flat,  0, 1 << 2 );
+    //        wall_flags |= LAMBDA( south_flat, 0, 1 << 3 );
+
+    //        // use the wall flags to get the type
+    //        type = 0;
+    //        switch ( wall_flags )
+    //        {
+    //                // listed by complexity
+    //            case  0: type =  5; break; // pillar/cross
+    //            case  5: type =  8; break; // E-W wall/arch
+    //            case 10: type =  9; break; // N-S wall/arch
+    //            case  1: type = 12; break; // wall to the W
+    //            case  2: type = 13; break; // wall to the N
+    //            case  4: type = 14; break; // wall to the E
+    //            case  8: type = 15; break; // wall to the S
+    //            case  3: type = 17; break; // NW corner
+    //            case  6: type = 18; break; // NE corner
+    //            case  9: type = 16; break; // SW corner
+    //            case 12: type = 19; break; // SE corner
+    //            case  7: type = 22; break; // WNE T-junction
+    //            case 11: type = 21; break; // SWN T-junction
+    //            case 13: type = 20; break; // ESW T-junction
+    //            case 14: type = 23; break; // NES T-junction
+    //            case 15: type =  5; break; // arches
+    //        }
+
+    //        // calculate the twist of this tile
+    //        tlst[itile].type = type;
+    //    }
+    //}
 
     return pmesh;
 }

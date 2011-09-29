@@ -55,9 +55,11 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
     /// @details This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
 
     IDSZ idsz = IDSZ_NONE;
+	char cTmp;
+	int  iTmp;
 
-    char cTmp = vfs_get_first_letter( fileread );
-    if ( '[' == cTmp )
+    iTmp = vfs_get_first_letter( fileread );
+    if ( '[' == iTmp )
     {
         long fpos;
         int  i;
@@ -67,7 +69,11 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
 
         for ( i = 0; i < 4; i++ )
         {
-            cTmp = toupper(( unsigned )vfs_getc( fileread ) );
+			iTmp = vfs_getc( fileread );
+			if( (unsigned)iTmp > 0xFF ) 
+                break;
+
+            cTmp = char_toupper( iTmp );
             if ( !isalpha(( unsigned )cTmp ) && !isdigit(( unsigned )cTmp ) && ( '_' != cTmp ) ) break;
 
             idsz_str[i] = cTmp;
@@ -81,8 +87,8 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
         {
             idsz = MAKE_IDSZ( idsz_str[0], idsz_str[1], idsz_str[2], idsz_str[3] );
 
-            cTmp = vfs_getc( fileread );
-            if ( ']' != cTmp )
+            iTmp = vfs_getc( fileread );
+            if ( ']' != iTmp )
             {
                 log_warning( "Problem reading IDSZ in \"%s\"\n", parse_filename );
             }
@@ -118,55 +124,56 @@ bool_t copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
 bool_t goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool_t optional )
 {
     /// @author ZZ
-    /// @details This function moves a file read pointer to the next delimiter char cTmp;
+    /// @details This function moves a file read pointer to the next delimiter char iTmp;
     /// @author BB
     /// @details buffer points to a 256 character buffer that will get the data between the newline and the delim
 
-    int cTmp, write;
+    int iTmp, write;
 
     if ( vfs_eof( fileread )  || vfs_error( fileread ) ) return bfalse;
 
     write = 0;
     if ( NULL != buffer ) buffer[0] = CSTR_END;
-    cTmp = vfs_getc( fileread );
+
+    iTmp = vfs_getc( fileread );
     while ( !vfs_eof( fileread ) && !vfs_error( fileread ) )
     {
-        if ( delim == cTmp ) break;
+        if ( (unsigned)iTmp > 0xFF || delim == iTmp ) break;
 
-        if ( ASCII_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp || CSTR_END == cTmp )
+        if ( ASCII_LINEFEED_CHAR ==  iTmp || C_CARRIAGE_RETURN_CHAR ==  iTmp || CSTR_END == iTmp )
         {
             write = 0;
         }
         else
         {
-            if ( NULL != buffer ) buffer[write++] = cTmp;
+            if ( NULL != buffer ) buffer[write++] = (char)iTmp;
         }
 
-        cTmp = vfs_getc( fileread );
+        iTmp = vfs_getc( fileread );
     }
     if ( NULL != buffer ) buffer[write] = CSTR_END;
 
-    if ( !optional && delim != cTmp )
+    if ( !optional && delim != iTmp )
     {
         // not enough colons in file!
         log_error( "There are not enough %c's in file! (%s)\n", delim, parse_filename );
     }
 
-    return ( delim == cTmp );
+    return ( delim == iTmp );
 }
 
 //--------------------------------------------------------------------------------------------
 char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, bool_t optional )
 {
     /// @author ZZ
-    /// @details This function moves a file read pointer to the next colon char cTmp;
+    /// @details This function moves a file read pointer to the next colon char iTmp;
     /// @author BB
     /// @details buffer points to a 256 character buffer that will get the data between the newline and the ':'
     ///
     ///    returns the delimiter that was found, or CSTR_END if no delimiter found
 
     char   retval = CSTR_END;
-    int    cTmp, write;
+    int    iTmp, write;
     bool_t is_delim;
 
     if ( INVALID_CSTR( delim_list ) ) return bfalse;
@@ -184,27 +191,29 @@ char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * de
 
     is_delim = bfalse;
     write    = 0;
-    cTmp = vfs_getc( fileread );
+    iTmp = vfs_getc( fileread );
     while ( !vfs_eof( fileread ) && !vfs_error( fileread ) )
     {
-        is_delim = ( NULL != strchr( delim_list, cTmp ) );
+		if( (unsigned)iTmp > 0xFF ) break;
+
+        is_delim = ( NULL != strchr( delim_list, iTmp ) );
 
         if ( is_delim )
         {
-            retval = cTmp;
+            retval = (char)iTmp;
             break;
         }
 
-        if ( ASCII_LINEFEED_CHAR ==  cTmp || C_CARRIAGE_RETURN_CHAR ==  cTmp || CSTR_END == cTmp )
+        if ( ASCII_LINEFEED_CHAR ==  iTmp || C_CARRIAGE_RETURN_CHAR ==  iTmp || CSTR_END == iTmp )
         {
             write = 0;
         }
         else
         {
-            if ( NULL != buffer ) buffer[write++] = cTmp;
+            if ( NULL != buffer ) buffer[write++] = (char)iTmp;
         }
 
-        cTmp = vfs_getc( fileread );
+        iTmp = vfs_getc( fileread );
     }
     if ( NULL != buffer ) buffer[write] = CSTR_END;
 
@@ -682,25 +691,25 @@ int vfs_get_version( vfs_FILE* fileread )
 {
     /// @author ZF
     /// @details This gets the version number of the file which is preceeded by a $ symbol
-    //              and must be in the first line of the file.
+    ///          and must be in the first line of the file.
+
     long filepos;
     int result;
-    char read;
 
-    //Stop here if file can't be read
+    // Stop here if file can't be read
     if ( vfs_error( fileread ) ) return 0;
 
-    //Remember where we were
+    // Remember where we were
     filepos = vfs_tell( fileread );
 
     //Begin at the beginning
     vfs_seek( fileread, 0 );
 
-    //Make sure the first line is actually the version tag
-    if ( vfs_getc( fileread ) != '$' ) return 0;
-    while (( read = vfs_getc( fileread ) ) != ' ' );
+    // Make sure the first line is actually the version tag
+    if ( '$' != vfs_getc( fileread ) ) return 0;
+    while ( !vfs_eof(fileread) && !isspace( (unsigned)vfs_getc( fileread ) ) );
 
-    //Get the version number
+    // Get the version number
     result = vfs_get_int( fileread );
 
     // reset the file pointer
@@ -1038,7 +1047,7 @@ int vfs_get_damage_type( vfs_FILE * fileread )
 
     cTmp = vfs_get_first_letter( fileread );
 
-    switch ( toupper(( unsigned )cTmp ) )
+    switch ( char_toupper(( unsigned )cTmp ) )
     {
         case 'S': type = DAMAGE_SLASH; break;
         case 'C': type = DAMAGE_CRUSH; break;
@@ -1068,7 +1077,7 @@ bool_t vfs_get_bool( vfs_FILE * fileread )
 {
     char cTmp = vfs_get_first_letter( fileread );
 
-    return ( 'T' == toupper(( unsigned )cTmp ) );
+    return ( 'T' == char_toupper(( unsigned )cTmp ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1180,12 +1189,12 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
 //--------------------------------------------------------------------------------------------
 Uint8 vfs_get_damage_modifier( vfs_FILE * fileread )
 {
-    int  iTmp;
-    char cTmp;
+    Uint8  iTmp;
+    char   cTmp;
 
     cTmp = vfs_get_first_letter( fileread );
 
-    switch ( toupper(( unsigned )cTmp ) )
+    switch ( char_toupper(( unsigned )cTmp ) )
     {
         case 'T': iTmp = DAMAGEINVERT;      break;
         case 'C': iTmp = DAMAGECHARGE;      break;

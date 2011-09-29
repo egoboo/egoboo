@@ -132,7 +132,7 @@ extern snd_config_t snd;
 extern Mix_Chunk * g_wavelist[GSND_COUNT];      ///< All sounds loaded into memory
 
 extern bool_t      musicinmemory;                          ///< Is the music loaded in memory?
-extern Sint8       songplaying;                            ///< Current song that is playing
+extern int         songplaying;                            ///< Current song that is playing
 extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   ///< This is a specific music file loaded into memory
 
 //--------------------------------------------------------------------------------------------

@@ -137,7 +137,9 @@ void fnt_freeFont( Font *font )
     if ( font )
     {
         TTF_CloseFont( font->ttfFont );
-        GL_DEBUG( glDeleteTextures )( 1, &font->texture );
+        GL_DEBUG( glDeleteTextures )( 1, &(font->texture) );
+        font->texture = INVALID_GL_ID;
+
         EGOBOO_DELETE( font );
     }
 }

@@ -31,11 +31,19 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="physfs.props" />
+    <Import Project="enet.props" />
+    <Import Project="libraries.props" />
+    <Import Project="OpenGL_app.props" />
+    <Import Project="SDL_app.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+    <Import Project="libraries.props" />
+    <Import Project="physfs.props" />
+    <Import Project="enet.props" />
+    <Import Project="OpenGL_app.props" />
+    <Import Project="SDL_app_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -46,6 +54,10 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -65,7 +77,7 @@
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;SDL_d.lib;SDLmain_d.lib;opengl32.lib;glu32.lib;ws2_32.lib;SDL_ttf_d.lib;SDL_image_d.lib;physfs_static_d.lib;Winmm.lib;egolib-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)cartman.exe</OutputFile>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -77,6 +89,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -92,7 +105,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;SDL.lib;SDLmain.lib;opengl32.lib;glu32.lib;ws2_32.lib;SDL_ttf.lib;SDL_mixer.lib;SDL_image.lib;physfs_static.lib;Winmm.lib;egolib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)cartman.exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
@@ -102,6 +115,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -110,19 +124,20 @@
     <ClCompile Include="cartman_gfx.c" />
     <ClCompile Include="cartman_gui.c" />
     <ClCompile Include="cartman_input.c" />
+    <ClCompile Include="cartman_map.c" />
     <ClCompile Include="cartman_math.c" />
-    <ClCompile Include="cartman_mpd.c" />
+    <ClCompile Include="cartman_select.c" />
+    <ClCompile Include="SDL_GetPixel.c" />
+    <ClCompile Include="SDL_PutPixel.c" />
+    <ClCompile Include="SDL_rotozoom.c" />
     <ClCompile Include="standard.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="SDL_GetPixel.c" />
-    <ClCompile Include="SDL_PutPixel.c" />
-    <ClCompile Include="SDL_rotozoom.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cartman_math.inl" />
-    <None Include="res\anim.pcx" />
+    <None Include="res\cartman_vs10.rc" />
+    <None Include="res\cartman.ico" />
     <None Include="..\data\anim.pcx" />
     <None Include="..\data\anim.png" />
     <None Include="..\data\backdrop.pcx" />
@@ -133,7 +148,6 @@
     <None Include="..\data\drawref.pcx" />
     <None Include="..\data\drawref.png" />
     <None Include="..\data\egomap_icon.bmp" />
-    <None Include="res\egomap_icon.ico" />
     <None Include="..\data\impass.pcx" />
     <None Include="..\data\impass.png" />
     <None Include="..\data\pc8x8.fon" />
@@ -154,18 +168,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cartman.h" />
+    <ClInclude Include="cartman_config.h" />
     <ClInclude Include="cartman_functions.h" />
     <ClInclude Include="cartman_gfx.h" />
     <ClInclude Include="cartman_gui.h" />
     <ClInclude Include="cartman_input.h" />
+    <ClInclude Include="cartman_map.h" />
     <ClInclude Include="cartman_math.h" />
-    <ClInclude Include="cartman_mpd.h" />
-    <ClInclude Include="res\resource1_vs9.h" />
+    <ClInclude Include="cartman_select.h" />
+    <ClInclude Include="cartman_typedef.h" />
+    <ClInclude Include="res\resource1_vs10.h" />
     <ClInclude Include="SDL_Pixel.h" />
     <ClInclude Include="SDL_rotozoom.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="res\cartman_vs9.rc" />
+    <ProjectReference Include="..\..\egolib\egolib_vs10.vcxproj">
+      <Project>{0f32dd35-a264-4906-8fc9-2d0fe0613230}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

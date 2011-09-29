@@ -53,7 +53,7 @@ map_t * map_read_v3( FILE * fileread, map_t * pmesh )
     vert_count = pmem->vcount;
 
     // Load vertex x data
-    for ( ivert = 0; ivert < pmem->vcount; ivert++ )
+    for ( ivert = 0; ivert < vert_count; ivert++ )
     {
         pvert = pmem->vlst + ivert;
 
@@ -70,6 +70,16 @@ map_t * map_read_v3( FILE * fileread, map_t * pmesh )
         endian_fread_ieee32( fileread, &ieee32_tmp );
 
         pvert->pos.y = ieee32_tmp;
+    }
+
+    // Load vertex z data
+    for ( ivert = 0; ivert < vert_count; ivert++ )
+    {
+        pvert = pmem->vlst + ivert;
+
+        endian_fread_ieee32( fileread, &ieee32_tmp );
+
+        pvert->pos.z = ieee32_tmp / 16.0f;
     }
 
     return pmesh;

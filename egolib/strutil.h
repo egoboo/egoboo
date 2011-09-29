@@ -37,11 +37,27 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// end-of-string character. assume standard null terminated string
-#define CSTR_END '\0'
-#define EMPTY_CSTR { CSTR_END }
+#   define CSTR_END '\0'
+#   define EMPTY_CSTR { CSTR_END }
 
-#define VALID_CSTR(PSTR)   ((NULL!=PSTR) && (CSTR_END != PSTR[0]))
-#define INVALID_CSTR(PSTR) ((NULL==PSTR) || (CSTR_END == PSTR[0]))
+#   define VALID_CSTR(PSTR)   ((NULL!=PSTR) && (CSTR_END != PSTR[0]))
+#   define INVALID_CSTR(PSTR) ((NULL==PSTR) || (CSTR_END == PSTR[0]))
+
+#if defined(toupper)
+	// toupper is implemented as a macro
+#	define char_toupper(VAL) ( ((unsigned)(VAL) > 0xFF) ? 0xFF : (char)toupper((unsigned)VAL) )
+#else
+	// toupper is implemented as a function. likely it takes an int argument and returns an int
+	static INLINE char char_toupper(int val) { unsigned retval = toupper(val); return (retval > 0xFF) ? 0xFF : retval; }
+#endif
+
+#if defined(tolower)
+	// tolower is implemented as a macro
+#	define char_tolower(VAL) ( ((unsigned)(VAL) > 0xFF) ? 0xFF : (char)tolower((unsigned)VAL) )
+#else
+	// tolower is implemented as a function. likely it takes an int argument and returns an int
+	static INLINE char char_tolower(int val) { unsigned retval = tolower(val); return (retval > 0xFF) ? 0xFF : retval; }
+#endif
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES
@@ -76,5 +92,5 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define _egolib_strutil_h_
+#   define _egolib_strutil_h_
 

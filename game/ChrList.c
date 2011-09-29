@@ -185,7 +185,7 @@ void ChrList_prune_used_list( void )
     {
         bool_t removed = bfalse;
 
-        ichr = ChrList.used_ref[cnt];
+        ichr = (CHR_REF)ChrList.used_ref[cnt];
 
         if ( !VALID_CHR_RANGE( ichr ) || !DEFINED_CHR( ichr ) )
         {
@@ -211,7 +211,7 @@ void ChrList_prune_free_list( void )
     {
         bool_t removed = bfalse;
 
-        ichr = ChrList.free_ref[cnt];
+        ichr = (CHR_REF)ChrList.free_ref[cnt];
 
         if ( VALID_CHR_RANGE( ichr ) && INGAME_CHR_BASE( ichr ) )
         {
@@ -443,7 +443,7 @@ bool_t ChrList_remove_free_idx( const int index )
     // was it found?
     if ( index < 0 || index >= ChrList.free_count ) return bfalse;
 
-    ichr = ChrList.free_ref[index];
+    ichr = (CHR_REF)ChrList.free_ref[index];
 
     // blank out the index in the list
     ChrList.free_ref[index] = INVALID_CHR_IDX;
@@ -531,7 +531,7 @@ bool_t ChrList_remove_used_idx( const int index )
     // was it found?
     if ( index < 0 || index >= ChrList.used_count ) return bfalse;
 
-    ichr = ChrList.used_ref[index];
+    ichr = (CHR_REF)ChrList.used_ref[index];
 
     // blank out the index in the list
     ChrList.used_ref[index] = INVALID_CHR_IDX;
@@ -571,7 +571,7 @@ CHR_REF ChrList_allocate( const CHR_REF override )
 
     if ( VALID_CHR_RANGE( override ) )
     {
-        ichr = ChrList_pop_free( -1 );
+        ichr = (CHR_REF)ChrList_pop_free( -1 );
         if ( override != ichr )
         {
             int override_index = ChrList_find_free_ref( override );
@@ -600,7 +600,7 @@ CHR_REF ChrList_allocate( const CHR_REF override )
     }
     else
     {
-        ichr = ChrList_pop_free( -1 );
+        ichr = (CHR_REF)ChrList_pop_free( -1 );
         if ( INVALID_CHR_REF == ichr )
         {
             log_warning( "ChrList_allocate() - failed to allocate a new character\n" );

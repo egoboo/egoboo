@@ -49,7 +49,7 @@ extern "C"
         ATTACH_RIGHT
     };
 
-#define FACE_RANDOM  generate_randmask(0, 0xFFFF)
+#define FACE_RANDOM  ((FACING_T)generate_randmask(0, 0xFFFF))
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -64,7 +64,11 @@ extern "C"
         char      *pname;
         int        slot;
         fvec3_t    pos;
-        int        passage, content, money, level, skin;
+        int        passage;
+		int        content;
+		int        money;
+		int        level;
+		int        skin;
         bool_t     stat;
         TEAM_REF   team;
         FACING_T   facing;

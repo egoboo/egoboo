@@ -139,7 +139,7 @@ struct s_LoadPlayer_element
     STRING dir;               ///< the object's full path
 
     CAP_REF cap_ref;          ///< the character profile index
-    int     skin_ref;         ///< the index of the object's skin
+    SKIN_T  skin_ref;         ///< the index of the object's skin
     TX_REF  tx_ref;           ///< the index of the texture
 
     IDSZ_node_t       quest_log[MAX_IDSZ_MAP_SIZE]; ///< all the quests this player has

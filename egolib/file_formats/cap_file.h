@@ -39,28 +39,32 @@ extern "C"
     struct s_cap;
     typedef struct s_cap cap_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#define MAXCAPNAMESIZE      32                      ///< Character class names
+	struct s_skin_info;
+	typedef struct s_skin_info skin_info_t;
 
-#define MAX_SKIN             4               ///< The maxumum number of skins per model. This must remain hard coded at 4 for the moment.
-#define NO_SKIN_OVERRIDE    -1                      ///< For import
-#define NOHIDE              127                        ///< Don't hide
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+#   define MAXCAPNAMESIZE      32                      ///< Character class names
+
+#   define MAX_SKIN             4               ///< The maxumum number of skins per model. This must remain hard coded at 4 for the moment.
+#   define NO_SKIN_OVERRIDE    -1                      ///< For import
+#   define NOHIDE              127                        ///< Don't hide
 
 /// Stats
-#define LOWSTAT             UINT_TO_UFP8(  1)     ///< Worst...
-#define PERFECTSTAT         UINT_TO_UFP8( 60)     ///< Maximum stat without magic effects
-#define PERFECTBIG          UINT_TO_UFP8(100)     ///< Perfect life or mana...
-#define HIGHSTAT            UINT_TO_UFP8(100)     ///< Absolute max adding enchantments as well
+#   define LOWSTAT             UINT_TO_UFP8(  1)     ///< Worst...
+#   define PERFECTSTAT         UINT_TO_UFP8( 60)     ///< Maximum stat without magic effects
+#   define PERFECTBIG          UINT_TO_UFP8(100)     ///< Perfect life or mana...
+#   define HIGHSTAT            UINT_TO_UFP8(100)     ///< Absolute max adding enchantments as well
 
 //Levels
-#define MAXBASELEVEL            6                 ///< Basic Levels 0-5
-#define MAXLEVEL               20                 ///< Absolute max level
+#   define MAXBASELEVEL            6                 ///< Basic Levels 0-5
+#   define MAXLEVEL               20                 ///< Absolute max level
 
-#define GRIP_VERTS             4
+#   define GRIP_VERTS             4
 
-#define CAP_INFINITE_WEIGHT   0xFF
-#define CAP_MAX_WEIGHT        0xFE
+#   define CAP_INFINITE_WEIGHT   0xFF
+#   define CAP_MAX_WEIGHT        0xFE
 
 /// The various ID strings that every character has
     enum e_idsz_type
@@ -90,7 +94,7 @@ extern "C"
         DAMAGE_NONE      = 255
     };
 
-#define DAMAGE_IS_PHYSICAL( TYPE )  (TYPE < DAMAGE_HOLY)    //Damage types slash, crush or poke are physical
+#   define DAMAGE_IS_PHYSICAL( TYPE )  (TYPE < DAMAGE_HOLY)    //Damage types slash, crush or poke are physical
 
 /// A list of the possible special experience types
     enum e_xp_type
@@ -181,13 +185,15 @@ extern "C"
         GENDER_COUNT
     };
 
-#define ULTRABLUDY           2          ///< This makes any damage draw blud
+#   define ULTRABLUDY           2          ///< This makes any damage draw blud
 
 //Damage shifts
-#define DAMAGEINVICTUS      (1 << 5)                      ///< 00x00000 Invictus to this type of damage
-#define DAMAGEMANA          (1 << 4)                      ///< 000x0000 Deals damage to mana
-#define DAMAGECHARGE        (1 << 3)                       ///< 0000x000 Converts damage to mana
-#define DAMAGEINVERT        (1 << 2)                       ///< 00000x00 Makes damage heal
+#   define DAMAGEINVICTUS      (1 << 5)                      ///< 00x00000 Invictus to this type of damage
+#   define DAMAGEMANA          (1 << 4)                      ///< 000x0000 Deals damage to mana
+#   define DAMAGECHARGE        (1 << 3)                       ///< 0000x000 Converts damage to mana
+#   define DAMAGEINVERT        (1 << 2)                       ///< 00000x00 Makes damage heal
+
+	typedef Uint16 SKIN_T;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -198,6 +204,14 @@ extern "C"
         FRange val;
         FRange perlevel;
     };
+
+	struct s_skin_info
+	{
+        char   name[MAX_SKIN][MAXCAPNAMESIZE];   ///< Skin name
+        Uint16 cost[MAX_SKIN];                   ///< Store prices
+        float  maxaccel[MAX_SKIN];               ///< Acceleration for each skin
+        Uint8  dressy;                           ///< Bits to tell whether the skins are "dressy"
+	};
 
 //--------------------------------------------------------------------------------------------
 
@@ -211,10 +225,7 @@ extern "C"
         char         classname[MAXCAPNAMESIZE];            ///< Class name
 
         // skins
-        char         skinname[MAX_SKIN][MAXCAPNAMESIZE];   ///< Skin name
-        Uint16       skincost[MAX_SKIN];                   ///< Store prices
-        float        maxaccel[MAX_SKIN];                   ///< Acceleration for each skin
-        Uint8        skindressy;                           ///< Bits to tell whether the skins are "dressy"
+        skin_info_t  skin_info;
 
         // overrides
         int          skin_override;                  ///< -1 or 0-3.. For import
@@ -225,8 +236,8 @@ extern "C"
         IDSZ         idsz[IDSZ_COUNT];              ///< ID strings
 
         // inventory
-        Uint8        ammomax;                       ///< Ammo stuff
-        Uint8        ammo;
+        Uint16       ammomax;                       ///< Ammo stuff
+        Uint16       ammo;
         Sint16       money;                         ///< Money
 
         // characer stats
@@ -316,7 +327,7 @@ extern "C"
         float        experience_rate[XP_COUNT];
 
         // sound
-        Sint8        sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
+        int          sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
 
         // flags
         bool_t       isequipment;                    ///< Behave in silly ways
@@ -383,6 +394,8 @@ extern "C"
 
     cap_t * cap_init( cap_t * pcap );
 
+	SKIN_T cap_get_skin( cap_t * pcap );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -393,4 +406,4 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define _file_formats_cap_file_h
+#   define _file_formats_cap_file_h

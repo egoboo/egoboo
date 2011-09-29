@@ -310,124 +310,91 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\data\anim.pcx"
-				>
+				RelativePath=".\res\cartman_vs8.rc">
 			</File>
 			<File
-				RelativePath="..\data\anim.png"
-				>
+				RelativePath="..\data\cartman.ico">
 			</File>
 			<File
-				RelativePath="..\data\backdrop.pcx"
-				>
+				RelativePath="..\data\anim.pcx">
 			</File>
 			<File
-				RelativePath="..\data\backdrop.png"
-				>
+				RelativePath="..\data\anim.png">
 			</File>
 			<File
-				RelativePath="..\data\bestpal.pcx"
-				>
+				RelativePath="..\data\backdrop.pcx">
 			</File>
 			<File
-				RelativePath=".\cartman_vs8.rc"
-				>
+				RelativePath="..\data\backdrop.png">
 			</File>
 			<File
-				RelativePath="..\data\damage.pcx"
-				>
+				RelativePath="..\data\bestpal.pcx">
 			</File>
 			<File
-				RelativePath="..\data\damage.png"
-				>
+				RelativePath="..\data\damage.pcx">
 			</File>
 			<File
-				RelativePath="..\data\drawref.pcx"
-				>
+				RelativePath="..\data\damage.png">
 			</File>
 			<File
-				RelativePath="..\data\drawref.png"
-				>
+				RelativePath="..\data\drawref.pcx">
 			</File>
 			<File
-				RelativePath="..\data\egomap_icon.bmp"
-				>
+				RelativePath="..\data\drawref.png">
 			</File>
 			<File
-				RelativePath="..\data\egomap_icon.ico"
-				>
+				RelativePath="..\data\egomap_icon.bmp">
 			</File>
 			<File
-				RelativePath="..\data\impass.pcx"
-				>
+				RelativePath="..\data\impass.pcx">
 			</File>
 			<File
-				RelativePath="..\data\impass.png"
-				>
+				RelativePath="..\data\impass.png">
 			</File>
 			<File
-				RelativePath="..\data\pc8x8.fon"
-				>
+				RelativePath="..\data\pc8x8.fon">
 			</File>
 			<File
-				RelativePath="..\data\point.pcx"
-				>
+				RelativePath="..\data\point.pcx">
 			</File>
 			<File
-				RelativePath="..\data\point.png"
-				>
+				RelativePath="..\data\point.png">
 			</File>
 			<File
-				RelativePath="..\data\pointon.pcx"
-				>
+				RelativePath="..\data\pointon.pcx">
 			</File>
 			<File
-				RelativePath="..\data\pointon.png"
-				>
+				RelativePath="..\data\pointon.png">
 			</File>
 			<File
-				RelativePath="..\data\ref.pcx"
-				>
+				RelativePath="..\data\ref.pcx">
 			</File>
 			<File
-				RelativePath="..\data\ref.png"
-				>
+				RelativePath="..\data\ref.png">
 			</File>
 			<File
-				RelativePath=".\res\resource1_vs8.h"
-				>
+				RelativePath="..\data\slippy.pcx">
 			</File>
 			<File
-				RelativePath="..\data\slippy.pcx"
-				>
+				RelativePath="..\data\slippy.png">
 			</File>
 			<File
-				RelativePath="..\data\slippy.png"
-				>
+				RelativePath="..\data\slit.pcx">
 			</File>
 			<File
-				RelativePath="..\data\slit.pcx"
-				>
+				RelativePath="..\data\slit.png">
 			</File>
 			<File
-				RelativePath="..\data\slit.png"
-				>
+				RelativePath="..\data\water.pcx">
 			</File>
 			<File
-				RelativePath="..\data\water.pcx"
-				>
+				RelativePath="..\data\water.png">
 			</File>
 			<File
-				RelativePath="..\data\water.png"
-				>
+				RelativePath="..\data\window.pcx">
 			</File>
 			<File
-				RelativePath="..\data\window.pcx"
-				>
-			</File>
-			<File
-				RelativePath="..\data\window.png"
-				>
+				RelativePath="..\data\window.png">
 			</File>
 		</Filter>
 		<Filter

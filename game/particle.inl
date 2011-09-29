@@ -144,8 +144,8 @@ static INLINE CHR_REF prt_get_iowner( const PRT_REF iprt, int depth )
     ///      spawn particles just keeping track of the spawner (whether particle or character)
     ///      and working backward to any potential owner using this function. ;)
     ///
-    ///      @note this function should be completely trivial for anything other than
-    ///       namage particles created by an explosion
+    /// @note this function should be completely trivial for anything other than
+    ///       damage particles created by an explosion
 
     CHR_REF iowner = INVALID_CHR_REF;
 

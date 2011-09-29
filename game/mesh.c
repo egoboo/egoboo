@@ -28,12 +28,14 @@
 #include "../egolib/fileutil.h"
 #include "../egolib/strutil.h"
 #include "../egolib/file_formats/map_tile_dictionary.h"
+#include "../egolib/extensions/SDL_extensions.h"
 
 #include "../egolib/_math.inl"
 #include "../egolib/bbox.inl"
 
 #include "mesh_functions.h"
 #include "graphic.h"
+#include "graphic_texture.h"
 #include "egoboo.h"
 
 // this include must be the absolute last include
@@ -78,11 +80,7 @@ static ego_mesh_t * ego_mesh_finalize( ego_mesh_t * pmesh );
 static bool_t ego_mesh_test_one_corner( ego_mesh_t * pmesh, GLXvector3f pos, float * pdelta );
 static bool_t ego_mesh_light_one_corner( const ego_mesh_t * pmesh, ego_tile_info_t * ptile, const bool_t reflective, const fvec3_base_t pos, fvec3_base_t nrm, float * plight );
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static fvec2_t   tile_offset[MAP_TILE_TYPE_MAX];
-static void      init_tile_offset( void );
+static oglx_texture_t * ego_mesh_get_texture( Uint8 image, Uint8 size );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -93,10 +91,15 @@ int mesh_bound_tests = 0;
 int mesh_pressure_tests = 0;
 
 fvec3_t   map_twist_nrm[256];
-Uint32    map_twist_y[256];            // For surface normal of mesh
-Uint32    map_twist_x[256];
+FACING_T  map_twist_facing_y[256];            // For surface normal of mesh
+FACING_T  map_twist_facing_x[256];
 fvec3_t   map_twist_vel[256];            // For sliding down steep hills
 Uint8     map_twist_flat[256];
+
+// variables to optimize calls to bind the textures
+bool_t    mesh_tx_none   = bfalse;
+TX_REF    mesh_tx_image  = MESH_IMG_COUNT;
+Uint8     mesh_tx_size   = 0xFF;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -159,13 +162,80 @@ tile_mem_t * tile_mem_dtor( tile_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
+oglx_texture_t * ego_mesh_get_texture( Uint8 image, Uint8 size )
+{
+    oglx_texture_t * tx_ptr = NULL;
+
+    if( 0 == size )
+    {
+        tx_ptr = gfx_get_mesh_tx_sml( image );
+    }
+    else if ( 1 == size )
+    {
+        tx_ptr = gfx_get_mesh_tx_big( image );
+    }
+
+    return tx_ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+void mesh_texture_invalidate( void )
+{
+    mesh_tx_image = MESH_IMG_COUNT;
+    mesh_tx_size  = 0xFF;
+}
+
+//--------------------------------------------------------------------------------------------
+oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile )
+{
+    Uint8  tx_image, tx_size;
+    oglx_texture_t  * tx_ptr = NULL;
+    bool_t needs_bind = bfalse;
+
+    // bind a NULL texture if we are in that mode
+    if( mesh_tx_none )
+    {
+        tx_ptr = NULL;
+        needs_bind = btrue;
+        
+        mesh_texture_invalidate();
+    }
+    else if( NULL == ptile )
+    {
+        tx_ptr = NULL;
+        needs_bind = btrue;
+        
+        mesh_texture_invalidate();
+    }
+    else
+    {
+        tx_image = TILE_GET_LOWER_BITS( ptile->img );
+        tx_size  = (ptile->type < tile_dict.offset) ? 0 : 1;
+
+        if( (mesh_tx_image != tx_image) || (mesh_tx_size != tx_size) )
+        {
+            tx_ptr = ego_mesh_get_texture( tx_image, tx_size );
+            needs_bind = btrue;
+
+            mesh_tx_image = tx_image;
+            mesh_tx_size  = tx_size; 
+        }
+    }
+
+    if( needs_bind )
+    {
+        oglx_texture_Bind( tx_ptr );
+    }
+
+    return tx_ptr;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 ego_mesh_t * ego_mesh_ctor( ego_mesh_t * pmesh )
 {
     /// @author BB
     /// @details initialize the ego_mesh_t structure
-
-    init_tile_offset();
 
     if ( NULL != pmesh )
     {
@@ -247,19 +317,6 @@ bool_t ego_mesh_destroy( ego_mesh_t ** ppmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void init_tile_offset()
-{
-    int cnt;
-
-    // Fix the tile offsets for the mesh textures
-    for ( cnt = 0; cnt < MAP_TILE_TYPE_MAX; cnt++ )
-    {
-        tile_offset[cnt].x = (( cnt >> 0 ) & 7 ) / 8.0f;
-        tile_offset[cnt].y = (( cnt >> 3 ) & 7 ) / 8.0f;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 bool_t ego_mesh_remove_ambient( ego_mesh_t * pmesh )
 {
     /// @author BB
@@ -277,7 +334,7 @@ bool_t ego_mesh_remove_ambient( ego_mesh_t * pmesh )
 
     for ( cnt = 0; cnt < pmesh->info.tiles_count; cnt++ )
     {
-        pmesh->gmem.grid_list[cnt].a -= min_vrt_a;
+        pmesh->gmem.grid_list[cnt].a = pmesh->gmem.grid_list[cnt].a - min_vrt_a;
     }
 
     return btrue;
@@ -307,7 +364,7 @@ bool_t ego_mesh_recalc_twist( ego_mesh_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ego_mesh_set_texture( ego_mesh_t * pmesh, Uint16 tile, Uint16 image )
+bool_t ego_mesh_set_texture( ego_mesh_t * pmesh, Uint32 tile, Uint16 image )
 {
     ego_tile_info_t * ptile;
     Uint16 tile_value, tile_upper, tile_lower;
@@ -333,7 +390,6 @@ bool_t ego_mesh_update_texture( ego_mesh_t * pmesh, Uint32 tile )
     size_t mesh_vrt;
     int    tile_vrt;
     Uint16 vertices;
-    float  offu, offv;
     Uint16 image;
     Uint8  type;
 
@@ -356,16 +412,12 @@ bool_t ego_mesh_update_texture( ego_mesh_t * pmesh, Uint32 tile )
     pdef = TILE_DICT_PTR( tile_dict, type );
     if ( NULL == pdef ) return bfalse;
 
-    // Texture offsets
-    offu  = tile_offset[image].x;
-    offv  = tile_offset[image].y;
-
     mesh_vrt = ptile->vrtstart;
     vertices = pdef->numvertices;
     for ( tile_vrt = 0; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
     {
-        ptmem->tlst[mesh_vrt][SS] = pdef->u[tile_vrt] + offu;
-        ptmem->tlst[mesh_vrt][TT] = pdef->v[tile_vrt] + offv;
+        ptmem->tlst[mesh_vrt][SS] = pdef->u[tile_vrt];
+        ptmem->tlst[mesh_vrt][TT] = pdef->v[tile_vrt];
     }
 
     return btrue;
@@ -400,6 +452,8 @@ ego_mesh_t * ego_mesh_finalize( ego_mesh_t * pmesh )
     ego_mesh_make_normals( pmesh );
     ego_mesh_make_bbox( pmesh );
     ego_mesh_make_texture( pmesh );
+
+    // create some lists to make searching the mesh tiles easier
     mpdfx_lists_synch( &( pmesh->fxlists ), &( pmesh->gmem ), btrue );
 
     return pmesh;
@@ -621,6 +675,7 @@ grid_mem_alloc_fail:
 
     grid_mem_free( pgmem );
     log_error( "grid_mem_alloc() - reduce the maximum number of vertices! (Check MAP_VERTICES_MAX)\n" );
+
     return bfalse;
 }
 
@@ -683,6 +738,7 @@ mesh_mem_alloc_fail:
 
     tile_mem_free( pmem );
     log_error( "tile_mem_alloc() - reduce the maximum number of vertices! (Check MAP_VERTICES_MAX)\n" );
+
     return bfalse;
 }
 
@@ -788,10 +844,9 @@ void ego_mesh_make_twist( void )
     /// @details This function precomputes surface normals and steep hill acceleration for
     ///    the mesh
 
-    Uint16 cnt;
-
-    float     gdot;
-    fvec3_t   grav = ZERO_VECT3;
+    int     cnt;
+    float   gdot;
+    fvec3_t grav = ZERO_VECT3;
 
     grav.z = gravity;
 
@@ -805,8 +860,8 @@ void ego_mesh_make_twist( void )
 
         map_twist_nrm[cnt] = nrm;
 
-        map_twist_x[cnt] = ( Uint16 )( - vec_to_facing( nrm.z, nrm.y ) );
-        map_twist_y[cnt] = vec_to_facing( nrm.z, nrm.x );
+        map_twist_facing_x[cnt] = ( FACING_T )( - vec_to_facing( nrm.z, nrm.y ) );
+        map_twist_facing_y[cnt] = vec_to_facing( nrm.z, nrm.x );
 
         // this is about 5 degrees off of vertical
         map_twist_flat[cnt] = bfalse;

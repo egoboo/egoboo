@@ -945,7 +945,7 @@ bool_t camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const CHR
     ///          a "change of scene". With the new velocity-tracking of the camera, this would include
     ///          things like character respawns, adding new players, etc.
 
-    int turn_mode_save, move_mode_save;
+    Uint8 turn_mode_save, move_mode_save;
 
     if ( NULL == pcam ) return bfalse;
 

@@ -1491,7 +1491,7 @@ egolib_rv get_code( size_t read, Uint8 buffer[], const size_t buffer_size )
     if ( 3 == fields )
     {
         strncpy( OpList.ary[OpList.count].cName, sTmp, SDL_arraysize( OpList.ary[OpList.count].cName ) );
-        OpList.ary[OpList.count].cType  = toupper(( unsigned )cTmp );
+        OpList.ary[OpList.count].cType  = char_toupper(( unsigned )cTmp );
         OpList.ary[OpList.count].iValue = iTmp;
 
         // use rv_success to signal a correct opcode

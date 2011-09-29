@@ -117,30 +117,41 @@ struct s_dynalight_registry
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_renderlist_element
+{
+    Uint32 index;             ///< which tile    
+    float  distance;          ///< how far it is
+};
+typedef struct s_renderlist_element renderlist_element_t;
+
+struct s_renderlist_lst
+{
+    int                  count;               ///< how many in the list
+    renderlist_element_t lst[MAXMESHRENDER];  ///< the list
+};
+typedef struct s_renderlist_lst renderlist_lst_t;
+
+gfx_rv renderlist_lst_reset( renderlist_lst_t * );
+gfx_rv renderlist_lst_push( renderlist_lst_t *, Uint32 index, float distance );
+
 /// Which tiles are to be drawn, arranged by MAPFX_* bits
 struct s_renderlist
 {
-    ego_mesh_t * pmesh;
+    const ego_mesh_t * pmesh;
+    const camera_t   * pcam;
 
-    int     all_count;                               ///< Number to render, total
-    int     ref_count;                               ///< ..., is reflected in the floor
-    int     sha_count;                               ///< ..., is not reflected in the floor
-    int     drf_count;                               ///< ..., draws character reflections
-    int     ndr_count;                               ///< ..., draws no character reflections
-    int     wat_count;                               ///< ..., draws no character reflections
-
-    Uint32  all[MAXMESHRENDER];                      ///< List of which to render, total
-    Uint32  ref[MAXMESHRENDER];                      ///< ..., is reflected in the floor
-    Uint32  sha[MAXMESHRENDER];                      ///< ..., is not reflected in the floor
-    Uint32  drf[MAXMESHRENDER];                      ///< ..., draws character reflections
-    Uint32  ndr[MAXMESHRENDER];                      ///< ..., draws no character reflections
-    Uint32  wat[MAXMESHRENDER];                      ///< ..., draws a water tile
+    renderlist_lst_t  all;     ///< List of which to render, total
+    renderlist_lst_t  ref;     ///< ..., is reflected in the floor
+    renderlist_lst_t  sha;     ///< ..., is not reflected in the floor
+    renderlist_lst_t  drf;     ///< ..., draws character reflections
+    renderlist_lst_t  ndr;     ///< ..., draws no character reflections
+    renderlist_lst_t  wat;     ///< ..., draws a water tile
 };
 
-static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mesh_t * pmesh );
+static renderlist_t * renderlist_init( renderlist_t * prlist, const ego_mesh_t * pmesh, const camera_t * pcam );
 static gfx_rv         renderlist_reset( renderlist_t * prlist );
-static gfx_rv         renderlist_insert( renderlist_t * prlist, const ego_grid_info_t * pgrid, const Uint32 index );
-static ego_mesh_t *    renderlist_get_pmesh( const renderlist_t * ptr );
+static gfx_rv         renderlist_insert( renderlist_t * prlist, const Uint32 index );
+static ego_mesh_t *   renderlist_get_pmesh( const renderlist_t * ptr );
 static gfx_rv         renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst );
 
 //--------------------------------------------------------------------------------------------
@@ -243,10 +254,11 @@ struct s_dolist_mgr
         DOLIST_ARY_INIT_VALS /* dolist_ary_t ary     */ \
     }
 
-static gfx_rv     dolist_mgr_begin( dolist_mgr_t * pmgr );
-static gfx_rv     dolist_mgr_end( dolist_mgr_t * pmgr );
+static gfx_rv dolist_mgr_begin( dolist_mgr_t * pmgr );
+static gfx_rv dolist_mgr_end( dolist_mgr_t * pmgr );
 
 //--------------------------------------------------------------------------------------------
+// dynalist
 //--------------------------------------------------------------------------------------------
 
 /// The active dynamic lights
@@ -262,6 +274,29 @@ struct s_dynalist
 
 static gfx_rv dynalist_init( dynalist_t * pdylist );
 static gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const camera_t * pcam );
+
+//--------------------------------------------------------------------------------------------
+// special functions and data related to tiled texture "optimization"
+//--------------------------------------------------------------------------------------------
+
+/// has this system been initialized?
+static bool_t _gfx_system_mesh_textures_initialized = bfalse;
+
+// the "small" textures
+static oglx_texture_t mesh_tx_sml[MESH_IMG_COUNT];
+static int mesh_tx_sml_cnt = 0;
+
+// the "large" textures
+static oglx_texture_t mesh_tx_big[MESH_IMG_COUNT];
+static int mesh_tx_big_cnt = 0;
+
+// actually break up a texture
+static int  gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_lst, size_t tx_lst_cnt, int minification );
+static void gfx_decimate_all_mesh_textures();
+
+// control the state of the textures
+static void gfx_system_begin_decimated_textures();
+static void gfx_system_end_decimated_textures();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -392,7 +427,7 @@ static gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prl
 static gfx_rv render_scene_solid( const camera_t * pcam, dolist_t * pdolist );
 static gfx_rv render_scene_trans( const camera_t * pcam, dolist_t * pdolist );
 static gfx_rv render_scene( const camera_t * pcam, const int render_list_index, const int dolist_index );
-static gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mesh_t * pmesh, const Uint32 list[], const size_t list_size );
+static gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * rlst );
 static void   render_shadow( const CHR_REF character );
 static void   render_bad_shadow( const CHR_REF character );
 static gfx_rv render_water( renderlist_t * prlist );
@@ -435,11 +470,44 @@ static void   gfx_init_bar_data( void );
 static void   gfx_init_blip_data( void );
 static void   gfx_init_map_data( void );
 
+static SDL_Surface * gfx_create_SDL_Surface( int w, int h );
+
+//--------------------------------------------------------------------------------------------
+// renderlist_ary implementation
+//--------------------------------------------------------------------------------------------
+
+gfx_rv renderlist_lst_reset( renderlist_lst_t * ary )
+{
+    if( NULL == ary ) return gfx_error;
+
+    ary->count = 0;
+    ary->lst[0].index = INVALID_TILE;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_lst_push( renderlist_lst_t * ary, Uint32 index, float distance )
+{
+    if( NULL == ary ) return gfx_error;
+
+    if( ary->count >= MAXMESHRENDER ) return gfx_fail;
+
+    if( ary->count < 0 ) ary->count = 0;
+
+    ary->lst[ary->count].index    = index;
+    ary->lst[ary->count].distance = distance;
+
+    ary->count++;
+
+    return gfx_success;
+}
+
 //--------------------------------------------------------------------------------------------
 // renderlist implementation
 //--------------------------------------------------------------------------------------------
 
-renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh )
+renderlist_t * renderlist_init( renderlist_t * plst, const ego_mesh_t * pmesh, const camera_t * pcam )
 {
     if ( NULL == plst )
     {
@@ -450,14 +518,15 @@ renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh )
     BLANK_STRUCT_PTR( plst )
 
     // init the 1st element of the array
-    plst->all[0] = INVALID_TILE;
-    plst->ref[0] = INVALID_TILE;
-    plst->sha[0] = INVALID_TILE;
-    plst->drf[0] = INVALID_TILE;
-    plst->ndr[0] = INVALID_TILE;
-    plst->wat[0] = INVALID_TILE;
+    renderlist_lst_reset( &(plst->all) );
+    renderlist_lst_reset( &(plst->ref) );
+    renderlist_lst_reset( &(plst->sha) );
+    renderlist_lst_reset( &(plst->drf) );
+    renderlist_lst_reset( &(plst->ndr) );
+    renderlist_lst_reset( &(plst->wat) );
 
     plst->pmesh = pmesh;
+    plst->pcam  = pcam;
 
     return plst;
 }
@@ -474,7 +543,7 @@ gfx_rv renderlist_reset( renderlist_t * plst )
 
     if ( NULL == plst )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -488,9 +557,9 @@ gfx_rv renderlist_reset( renderlist_t * plst )
     // clear out the inrenderlist flag for the old mesh
     tlist = pmesh->tmem.tile_list;
 
-    for ( cnt = 0; cnt < plst->all_count; cnt++ )
+    for ( cnt = 0; cnt < plst->all.count; cnt++ )
     {
-        Uint32 fan = plst->all[cnt];
+        Uint32 fan = plst->all.lst[cnt].index;
         if ( fan < pmesh->info.tiles_count )
         {
             tlist[fan].inrenderlist       = bfalse;
@@ -499,58 +568,85 @@ gfx_rv renderlist_reset( renderlist_t * plst )
     }
 
     // re-initialize the renderlist
-    renderlist_init( plst, plst->pmesh );
+    renderlist_init( plst, plst->pmesh, plst->pcam );
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_insert( renderlist_t * plst, const ego_grid_info_t * pgrid, const Uint32 index )
+gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index )
 {
+    // aliases
+    ego_mesh_t      * pmesh = NULL;
+    ego_grid_info_t * pgrid = NULL;
+    float distance;
+
     // Make sure it doesn't die ugly
     if ( NULL == plst )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
+        return gfx_error;
+    }
+
+    if ( NULL == plst->pmesh )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist not connected to a mesh" );
+        return gfx_error;
+    }
+    pmesh = plst->pmesh;
+
+    if ( NULL == plst->pcam )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist not connected to a camera" );
         return gfx_error;
     }
 
     // check for a valid tile
-    if ( NULL == pgrid || INVALID_TILE == index ) return gfx_fail;
+    if ( NULL == pmesh->gmem.grid_list || 0 == pmesh->gmem.grid_count || index >= pmesh->gmem.grid_count ) 
+    {
+        return gfx_fail;
+    }
+    pgrid = pmesh->gmem.grid_list + index;
 
     // we can only accept so many tiles
-    if ( plst->all_count >= MAXMESHRENDER ) return gfx_fail;
+    if ( plst->all.count >= MAXMESHRENDER ) return gfx_fail;
+
+    {
+        int ix, iy;
+        float dx, dy;
+
+        ix = index % pmesh->info.tiles_x;
+        iy = index / pmesh->info.tiles_x;
+        dx = (ix + TILE_FSIZE * 0.5f) - plst->pcam->center.x;
+        dy = (iy + TILE_FSIZE * 0.5f) - plst->pcam->center.y;
+        distance = dx* dx + dy * dy;
+    }
 
     // Put each tile in basic list
-    plst->all[plst->all_count] = index;
-    plst->all_count++;
+    renderlist_lst_push( &(plst->all), index, distance );
 
     // Put each tile in one other list, for shadows and relections
     if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_SHA ) )
     {
-        plst->sha[plst->sha_count] = index;
-        plst->sha_count++;
+        renderlist_lst_push( &(plst->sha), index, distance );
     }
     else
     {
-        plst->ref[plst->ref_count] = index;
-        plst->ref_count++;
+        renderlist_lst_push( &(plst->ref), index, distance );
     }
 
     if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_DRAWREF ) )
     {
-        plst->drf[plst->drf_count] = index;
-        plst->drf_count++;
+        renderlist_lst_push( &(plst->drf), index, distance );
     }
     else
     {
-        plst->ndr[plst->ndr_count] = index;
-        plst->ndr_count++;
+        renderlist_lst_push( &(plst->ndr), index, distance );
     }
 
     if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_WATER ) )
     {
-        plst->wat[plst->wat_count] = index;
-        plst->wat_count++;
+        renderlist_lst_push( &(plst->wat), index, distance );
     }
 
     return gfx_success;
@@ -561,7 +657,7 @@ ego_mesh_t * renderlist_get_pmesh( const renderlist_t * ptr )
 {
     if ( NULL == ptr )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return NULL;
     }
 
@@ -573,11 +669,25 @@ gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh )
 {
     if ( NULL == ptr )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
     ptr->pmesh = pmesh;
+
+    return gfx_success;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv renderlist_attach_camera( renderlist_t * ptr, const struct s_camera * pcam )
+{
+    if ( NULL == ptr )
+    {
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
+        return gfx_error;
+    }
+
+    ptr->pcam = pcam;
 
     return gfx_success;
 }
@@ -651,7 +761,7 @@ gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcol
                 break;
             }
 
-            if ( gfx_error == renderlist_insert( prlist, pgrid, ifan ) )
+            if ( gfx_error == renderlist_insert( prlist, ifan ) )
             {
                 retval = gfx_error;
                 break;
@@ -685,7 +795,7 @@ renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr )
     for ( cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
     {
         ptr->free_lst[cnt] = cnt;
-        renderlist_init( ptr->lst + cnt, NULL );
+        renderlist_init( ptr->lst + cnt, NULL, NULL );
     }
     ptr->free_count = MAX_RENDER_LISTS;
 
@@ -711,7 +821,7 @@ renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr )
     for ( cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
     {
         ptr->free_lst[cnt] = -1;
-        renderlist_init( ptr->lst + cnt, NULL );
+        renderlist_init( ptr->lst + cnt, NULL, NULL );
     }
 
     ptr->started = bfalse;
@@ -1414,6 +1524,9 @@ void gfx_system_begin( void )
     // initialize the gfx data dtructures
     TxList_init_all();
 
+    // initialize the decimated texture arrays
+    gfx_system_begin_decimated_textures();
+
     // initialize the profiling variables
     PROFILE_INIT( render_scene_init );
     PROFILE_INIT( render_scene_mesh );
@@ -1485,6 +1598,10 @@ void gfx_system_end( void )
     // end the billboard system
     billboard_system_end();
 
+    // clear the decimated texture arrays
+    gfx_system_end_decimated_textures();
+
+    // release all textures
     TxList_release_all();
 
     // de-initialize the renderlist manager
@@ -1766,7 +1883,7 @@ bool_t gfx_system_set_virtual_screen( gfx_config_t * pgfx )
 }
 
 //--------------------------------------------------------------------------------------------
-renderlist_mgr_t * gfx_system_get_renderlist_mgr( void )
+renderlist_mgr_t * gfx_system_get_renderlist_mgr( const camera_t * pcam )
 {
     if ( gfx_success != renderlist_mgr_begin( &_renderlist_mgr_data ) )
     {
@@ -1941,6 +2058,8 @@ void gfx_system_load_basic_textures( void )
 
     // The phong map
     TxList_load_one_vfs( "mp_data/phong", ( TX_REF )TX_PHONG, TRANSCOLOR );
+
+    gfx_decimate_all_mesh_textures();
 
     PROFILE_RESET( render_scene_init );
     PROFILE_RESET( render_scene_mesh );
@@ -2484,7 +2603,7 @@ float draw_character_xp_bar( const CHR_REF character, float x, float y )
         float fraction = ( float )MAX( pchr->experience - xplastlevel, 0 ) / ( float )MAX( xpneed - xplastlevel, 1 );
         int   numticks = fraction * NUMTICK;
 
-        y = draw_one_xp_bar( x, y, numticks );
+        y = draw_one_xp_bar( x, y, CLIP(numticks, 0, 255) );
     }
 
     return y;
@@ -2734,7 +2853,7 @@ float draw_fps( float y )
 #    endif
 
 #if defined(DEBUG_RENDERLIST)
-            y = draw_string_raw( 0, y, "Renderlist tiles %d/%d", renderlist.all_count, PMesh->info.tiles_count );
+            y = draw_string_raw( 0, y, "Renderlist tiles %d/%d", renderlist.all.count, PMesh->info.tiles_count );
 #endif
 
 #if defined(_DEBUG)
@@ -2968,7 +3087,9 @@ void draw_hud( void )
 //--------------------------------------------------------------------------------------------
 void draw_inventory( void )
 {
-    //ZF> This renders the open inventories of all local players
+	/// @author ZF
+    /// @details This renders the open inventories of all local players
+
     PLA_REF ipla;
     player_t * ppla;
     GLXvector4f background_color = { 0.66f, 0.0f, 0.0f, 0.95f };
@@ -3070,7 +3191,7 @@ void draw_inventory( void )
             if ( INGAME_CHR( item ) ) weight_sum += chr_get_pcap( item )->weight;
 
             //draw icon
-            draw_one_character_icon( item, x, y, btrue, item_count == ppla->selected_item ? COLOR_WHITE : NOSPARKLE );
+            draw_one_character_icon( item, x, y, btrue, (item_count == ppla->inventory_slot) ? COLOR_WHITE : NOSPARKLE );
             icon_count++;
             item_count++;
             x += 32 + 5;
@@ -3399,10 +3520,79 @@ void render_bad_shadow( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mesh_t * pmesh, const Uint32 list[], const size_t list_size )
+struct s_by_element
+{
+    float  dist;
+    Uint32 tile;
+    Uint32 texture;
+};
+typedef struct s_by_element by_element_t;
+
+int by_element_cmp(const void *lhs, const void *rhs)
+{
+    int retval = 0;
+    by_element_t * loc_lhs = (by_element_t *)lhs;
+    by_element_t * loc_rhs = (by_element_t *)rhs;
+
+    if( NULL == loc_lhs && NULL == loc_rhs )
+    {
+        retval = 0;
+    }
+    else if( NULL == loc_lhs && NULL != loc_rhs )
+    {
+        retval = 1;
+    }
+    else if( NULL != loc_lhs && NULL == loc_rhs )
+    {
+        retval = -1;
+    }
+    else
+    {
+        retval = loc_lhs->texture - loc_rhs->texture;
+        if( 0 == retval )
+        {
+            float ftmp = loc_lhs->dist - loc_rhs->dist;
+
+            if( ftmp < 0.0f )
+            {
+                retval = -1;
+            }
+            else if( ftmp > 0.0f )
+            {
+                retval = 1;
+            }
+        }
+    }
+
+    return retval;
+}
+
+struct s_by_list
+{
+    size_t       count;
+    by_element_t lst[MAXMESHRENDER];
+};
+typedef struct s_by_list by_list_t;
+
+by_list_t * by_list_qsort( by_list_t * lst )
+{
+    if( NULL == lst ) return lst;
+
+    qsort( lst->lst, lst->count, sizeof(lst->lst[0]), by_element_cmp );
+
+    return lst;
+}
+
+//--------------------------------------------------------------------------------------------
+gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * rlst )
 {
     Uint32 cnt;
-    TX_REF tx;
+    gfx_rv render_rv;
+
+    size_t                  tcnt;
+    const ego_tile_info_t * tlst;
+
+    by_list_t lst_vals = {0}; 
 
     if ( NULL == pmesh ) pmesh = PMesh;
     if ( NULL == pmesh )
@@ -3410,38 +3600,61 @@ gfx_rv render_fans_by_list( const camera_t * pcam, const ego_mesh_t * pmesh, con
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid mesh" );
         return gfx_error;
     }
+    tcnt = pmesh->tmem.tile_count;
+    tlst = pmesh->tmem.tile_list;
 
-    if ( NULL == list )
+    if ( NULL == rlst )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL tile list" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL tile rlst" );
         return gfx_error;
     }
 
-    if ( 0 == list_size ) return gfx_success;
+    if ( 0 == rlst->count ) return gfx_success;
 
-    if ( meshnotexture )
+    // insert the rlst values into lst_vals
+    lst_vals.count = rlst->count;
+    for( cnt = 0; cnt<rlst->count; cnt++ )
     {
-        meshlasttexture = ( Uint16 )( ~0 );
-        oglx_texture_Bind( NULL );
+        lst_vals.lst[cnt].tile = rlst->lst[cnt].index;
+        lst_vals.lst[cnt].dist = rlst->lst[cnt].distance;
 
-        for ( cnt = 0; cnt < list_size; cnt++ )
+        if( rlst->lst[cnt].index >= tcnt )
         {
-            render_fan( pmesh, list[cnt] );
+            lst_vals.lst[cnt].texture = (Uint32)(~0);
         }
-    }
-    else
-    {
-        for ( tx = TX_TILE_0; tx <= TX_TILE_3; tx++ )
+        else
         {
-            meshlasttexture = tx;
-            oglx_texture_Bind( TxList_get_valid_ptr( tx ) );
+            int img = ~0;
+            const ego_tile_info_t * ptile = tlst + rlst->lst[cnt].index;
 
-            for ( cnt = 0; cnt < list_size; cnt++ )
+            img =  TILE_GET_LOWER_BITS( ptile->img );
+            if( ptile->type >= tile_dict.offset )
             {
-                render_fan( pmesh, list[cnt] );
+                img += MESH_IMG_COUNT;
             }
+
+            lst_vals.lst[cnt].texture = img;
         }
     }
+
+    by_list_qsort( &lst_vals );
+
+    // restart the mesh texture code
+    mesh_texture_invalidate();
+
+    for ( cnt = 0; cnt < rlst->count; cnt++ )
+    {
+        Uint32 tmp_itile = lst_vals.lst[cnt].tile;
+
+        render_rv = render_fan( pmesh, tmp_itile );
+        if( cfg.dev_mode && gfx_error == render_rv )
+        {
+            log_warning( "%s - error rendering tile %d.\n", tmp_itile );
+        }
+    }
+
+    // let the mesh texture code know that someone else is in control now
+    mesh_texture_invalidate();
 
     return gfx_success;
 }
@@ -3554,7 +3767,7 @@ gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist
 
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -3583,7 +3796,7 @@ gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( pcam, prlist->pmesh, prlist->ndr, prlist->ndr_count ) )
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, &(prlist->ndr) ) )
         {
             retval = gfx_error;
         }
@@ -3604,7 +3817,7 @@ gfx_rv render_scene_mesh_drf_back( const camera_t * pcam, const renderlist_t * p
 
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -3632,7 +3845,7 @@ gfx_rv render_scene_mesh_drf_back( const camera_t * pcam, const renderlist_t * p
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( pcam, prlist->pmesh, prlist->drf, prlist->drf_count ) )
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, &(prlist->drf) ) )
         {
             retval = gfx_error;
         }
@@ -3655,7 +3868,7 @@ gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist
 
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -3767,7 +3980,7 @@ gfx_rv render_scene_mesh_ref_chr( const camera_t * pcam, const renderlist_t * pr
 
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -3790,7 +4003,7 @@ gfx_rv render_scene_mesh_ref_chr( const camera_t * pcam, const renderlist_t * pr
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( pcam, prlist->pmesh, prlist->drf, prlist->drf_count ) )
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, &(prlist->drf) ) )
         {
             retval = gfx_error;
         }
@@ -3809,7 +4022,7 @@ gfx_rv render_scene_mesh_drf_solid( const camera_t * pcam, const renderlist_t * 
 
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -3837,7 +4050,7 @@ gfx_rv render_scene_mesh_drf_solid( const camera_t * pcam, const renderlist_t * 
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );          // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( pcam, prlist->pmesh, prlist->drf, prlist->drf_count ) )
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, &(prlist->drf) ) )
         {
             retval = gfx_error;
         }
@@ -3924,7 +4137,7 @@ gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, co
 
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -3994,11 +4207,17 @@ gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, co
 
 #if defined(RENDER_HMAP) && defined(_DEBUG)
 
+    // restart the mesh texture code
+    mesh_texture_invalidate();
+
     // render the heighmap
-    for ( cnt = 0; cnt < prlist->all_count; cnt++ )
+    for ( cnt = 0; cnt < prlist->all.count; cnt++ )
     {
         render_hmap_fan( pmesh, prlist->all[cnt] );
     }
+
+    // let the mesh texture code know that someone else is in control now
+    mesh_texture_invalidate();
 
 #endif
 
@@ -4575,19 +4794,22 @@ gfx_rv render_water( renderlist_t * prlist )
 
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
     // assume the best
     retval = gfx_success;
 
+    // restart the mesh texture code
+    mesh_texture_invalidate();
+
     // Bottom layer first
     if ( gfx.draw_water_1 )
     {
-        for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
+        for ( cnt = 0; cnt < prlist->wat.count; cnt++ )
         {
-            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat[cnt], 1 ) )
+            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat.lst[cnt].index, 1 ) )
             {
                 retval = gfx_error;
             }
@@ -4597,14 +4819,18 @@ gfx_rv render_water( renderlist_t * prlist )
     // Top layer second
     if ( gfx.draw_water_0 )
     {
-        for ( cnt = 0; cnt < prlist->wat_count; cnt++ )
+        for ( cnt = 0; cnt < prlist->wat.count; cnt++ )
         {
-            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat[cnt], 0 ) )
+            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat.lst[cnt].index, 0 ) )
             {
                 retval = gfx_error;
             }
         }
     }
+
+
+    // let the mesh texture code know that someone else is in control now
+    mesh_texture_invalidate();
 
     return retval;
 }
@@ -5368,7 +5594,7 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
 
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -5396,7 +5622,7 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
 #endif
 
     // cache the grid lighting
-    for ( entry = 0; entry < prlist->all_count; entry++ )
+    for ( entry = 0; entry < prlist->all.count; entry++ )
     {
         bool_t reflective;
         int fan;
@@ -5405,7 +5631,7 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
         ego_grid_info_t * pgrid;
 
         // which tile?
-        fan = prlist->all[entry];
+        fan = prlist->all.lst[entry].index;
 
         // grab a pointer to the tile
         ptile = ego_mesh_get_ptile( pmesh, fan );
@@ -5476,7 +5702,7 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
 
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -5494,9 +5720,9 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
     retval = gfx_success;
 
     // use the grid to light the tiles
-    for ( entry = 0; entry < prlist->all_count; entry++ )
+    for ( entry = 0; entry < prlist->all.count; entry++ )
     {
-        fan = prlist->all[entry];
+        fan = prlist->all.lst[entry].index;
         if ( INVALID_TILE == fan ) continue;
 
         // valid tile?
@@ -5821,7 +6047,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
 
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -5847,9 +6073,9 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
     mesh_bound.xmax = 0;
     mesh_bound.ymin = pgmem->edge_y;
     mesh_bound.ymax = 0;
-    for ( entry = 0; entry < prlist->all_count; entry++ )
+    for ( entry = 0; entry < prlist->all.count; entry++ )
     {
-        fan = prlist->all[entry];
+        fan = prlist->all.lst[entry].index;
         if ( fan >= pinfo->tiles_count ) continue;
 
         poct = &( ptmem->tile_list[fan].oct );
@@ -5993,7 +6219,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
     local_keep = POW( dynalight_keep, 4 );
 
     // Add to base light level in normal mode
-    for ( entry = 0; entry < prlist->all_count; entry++ )
+    for ( entry = 0; entry < prlist->all.count; entry++ )
     {
         bool_t resist_lighting_calculation = btrue;
 
@@ -6003,7 +6229,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
         lighting_cache_t   cache_new;
 
         // grab each grid box in the "frustum"
-        fan = prlist->all[entry];
+        fan = prlist->all.lst[entry].index;
 
         // a valid tile?
         pgrid = ego_mesh_get_pgrid( pmesh, fan );
@@ -6149,7 +6375,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
     // Make sure there is a renderlist
     if ( NULL == prlist )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
         return gfx_error;
     }
 
@@ -6457,6 +6683,199 @@ gfx_rv gfx_update_all_chr_instance( void )
 
     return retval;
 }
+
+//--------------------------------------------------------------------------------------------
+// Tiled texture "optimizations"
+//--------------------------------------------------------------------------------------------
+void gfx_system_begin_decimated_textures()
+{
+    if( !_gfx_system_mesh_textures_initialized )
+    {
+        int cnt;
+
+        for( cnt = 0; cnt<MESH_IMG_COUNT; cnt++ )
+        {
+            oglx_texture_ctor( mesh_tx_sml + cnt );
+            oglx_texture_ctor( mesh_tx_big + cnt );
+        }
+        mesh_tx_sml_cnt = 0;
+        mesh_tx_big_cnt = 0;
+
+        _gfx_system_mesh_textures_initialized = btrue;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void gfx_system_end_decimated_textures()
+{
+    if( _gfx_system_mesh_textures_initialized )
+    {
+        int cnt;
+
+        for( cnt = 0; cnt<MESH_IMG_COUNT; cnt++ )
+        {
+            oglx_texture_dtor( mesh_tx_sml + cnt );
+            oglx_texture_dtor( mesh_tx_big + cnt );
+        }
+        mesh_tx_sml_cnt = 0;
+        mesh_tx_big_cnt = 0;
+
+        _gfx_system_mesh_textures_initialized = bfalse;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+oglx_texture_t * gfx_get_mesh_tx_sml( int which )
+{
+    if( !_gfx_system_mesh_textures_initialized ) return NULL;
+
+    if( which < 0 || which >= mesh_tx_sml_cnt || which >= MESH_IMG_COUNT ) return NULL;
+
+    return mesh_tx_sml + which;
+}
+
+//--------------------------------------------------------------------------------------------
+oglx_texture_t * gfx_get_mesh_tx_big( int which )
+{
+    if( !_gfx_system_mesh_textures_initialized ) return NULL;
+
+    if( which < 0 || which >= mesh_tx_big_cnt || which >= MESH_IMG_COUNT ) return NULL;
+
+    return mesh_tx_big + which;
+}
+
+//--------------------------------------------------------------------------------------------
+SDL_Surface * gfx_create_SDL_Surface( int w, int h )
+{
+    SDL_PixelFormat   tmpformat;
+
+    if ( NULL == sdl_scr.pscreen ) return NULL;
+
+    // expand the screen format to support alpha
+    memcpy( &tmpformat, sdl_scr.pscreen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
+    SDLX_ExpandFormat( &tmpformat );
+
+    return SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
+}
+
+//--------------------------------------------------------------------------------------------
+int gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_lst, size_t tx_lst_cnt, int minification )
+{
+    static const int sub_textures = 8;
+
+    float step_fx, step_fy;
+    float fx, fy;
+    int   ix, iy, cnt, blit_rv;
+
+    SDL_Surface * src_img = NULL;
+    int src_img_w, src_img_h;
+    SDL_Rect src_img_rect;
+
+    oglx_texture_t * dst_tx = NULL;
+    SDL_Surface    * dst_img = NULL;
+
+    if( NULL == src_tx )
+    {
+        // the source image doesn't exist, so punt
+        goto gfx_decimate_one_mesh_texture_error;
+    }
+
+    // make an alias for the texture's SDL_Surface
+    src_img = src_tx->surface;
+    if( NULL == src_img )
+    {
+        goto gfx_decimate_one_mesh_texture_error;
+    }
+
+    // grab parameters from the mesh
+    src_img_w = src_img->w;
+    src_img_h = src_img->h;
+
+    // how large a step every time through the mesh?
+    step_fx = (float)src_img_w / (float)sub_textures;
+    step_fy = (float)src_img_h / (float)sub_textures;
+
+    src_img_rect.w = CEIL(step_fx * minification);
+    src_img_rect.w = MAX(1, src_img_rect.w);
+    src_img_rect.h = CEIL(step_fy * minification);
+    src_img_rect.h = MAX(1, src_img_rect.h);
+
+    // scan across the src_img
+    for ( iy = 0, fy = 0.0f; iy < sub_textures; iy++, fy += step_fy )
+    {
+        src_img_rect.y = FLOOR(fy);
+
+        for ( ix = 0, fx = 0.0f; ix < sub_textures; ix++, fx += step_fx )
+        {
+            src_img_rect.x = FLOOR(fx);
+
+            // grab the destination texture
+            dst_tx =  tx_lst + tx_lst_cnt;
+            
+            // prepare the destination texture
+            oglx_texture_ctor( dst_tx );
+
+            // create a blank destination SDL_Surface
+            dst_img = gfx_create_SDL_Surface( src_img_rect.w, src_img_rect.h );
+            SDL_FillRect( dst_img, NULL, SDL_MapRGBA( dst_img->format, 0xFF, 0, 0, 0xFF ) );
+
+            // blit the source region into the destination bitmap 
+            blit_rv = SDL_BlitSurface( src_img, &src_img_rect, dst_img, NULL );
+
+            // upload the SDL_Surface into OpenGL
+            oglx_texture_Convert( dst_tx, dst_img, INVALID_KEY );
+
+            // count the number of textures we're using
+            tx_lst_cnt++;
+        }
+    }
+
+    return tx_lst_cnt;
+
+gfx_decimate_one_mesh_texture_error:
+
+    // the source texture doesn't exist. Just blank out the destination textures
+    for( cnt = 0; cnt < sub_textures*sub_textures; cnt++ )
+    {
+        oglx_texture_ctor( tx_lst + tx_lst_cnt );
+        tx_lst_cnt++;
+    }
+
+    return tx_lst_cnt;
+}
+
+
+//--------------------------------------------------------------------------------------------
+void gfx_decimate_all_mesh_textures()
+{
+    // decimate the tile textures and store them in 
+
+    int cnt;
+    oglx_texture_t * ptx;
+
+    // release any existing textures
+    gfx_system_end_decimated_textures();
+    gfx_system_begin_decimated_textures();
+
+    // do the "small" textures
+    mesh_tx_sml_cnt = 0;
+    for( cnt = 0; cnt < 4; cnt++ )
+    {
+        ptx = TxList_get_valid_ptr( TX_TILE_0 + cnt );
+
+        mesh_tx_sml_cnt = gfx_decimate_one_mesh_texture( ptx, mesh_tx_sml, mesh_tx_sml_cnt, 1 );
+    }
+
+    // do the "big" textures
+    mesh_tx_big_cnt = 0;
+    for( cnt = 0; cnt < 4; cnt++ )
+    {
+        ptx = TxList_get_valid_ptr( TX_TILE_0 + cnt );
+
+        mesh_tx_big_cnt = gfx_decimate_one_mesh_texture( ptx, mesh_tx_big, mesh_tx_big_cnt, 2 );
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------
 // chr_instance_t FUNCTIONS
@@ -6924,7 +7343,7 @@ gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 //
 //    if ( NULL == prlist )
 //    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
 //
 //        return gfx_error;
 //    }
@@ -7141,7 +7560,7 @@ gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 //    // Make sure there is a renderlist
 //    if ( NULL == prlist )
 //    {
-//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist" );
+//        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
 //        return gfx_error;
 //    }
 //
@@ -7200,7 +7619,7 @@ gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 //    grid_y = CLIP( grid_y, 0, pmesh->info.tiles_y - 1 );
 //    for ( row = 0; row < proj.row_cnt; row++, grid_y++ )
 //    {
-//        for ( grid_x = proj.row_stt[row]; grid_x <= proj.row_end[row] && prlist->all_count < MAXMESHRENDER; grid_x++ )
+//        for ( grid_x = proj.row_stt[row]; grid_x <= proj.row_end[row] && prlist->all.count < MAXMESHRENDER; grid_x++ )
 //        {
 //            cnt = pmesh->gmem.tilestart[grid_y] + grid_x;
 //
@@ -7221,4 +7640,3 @@ gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 //gfx_make_renderlist_exit:
 //    return retval;
 //}
-

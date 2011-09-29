@@ -22,7 +22,7 @@
 /// @file physics.inl
 /// @details Put all the functions that need to be fast in this file
 ///
-/// @notes
+/// @note
 /// The test functions are designed to detect an interaction with the "least possible" computation.
 /// Don't spoil the optimization by calling a test_interaction* function and then a get_depth* function
 ///

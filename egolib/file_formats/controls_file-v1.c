@@ -60,6 +60,7 @@ bool_t input_settings_load_vfs_1( const char* szFilename )
     if ( NULL == fileread )
     {
         log_error( "Could not load input settings (%s)!\n", szFilename );
+
         return bfalse;
     }
 

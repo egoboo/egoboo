@@ -63,8 +63,8 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     pmod->maxplayers   = vfs_get_next_int( fileread );
 
     cTmp = vfs_get_next_char( fileread );
-    if ( 'T' == toupper(( unsigned )cTmp ) )  pmod->respawnvalid = btrue;
-    if ( 'A' == toupper(( unsigned )cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
+    if ( 'T' == char_toupper(( unsigned )cTmp ) )  pmod->respawnvalid = btrue;
+    if ( 'A' == char_toupper(( unsigned )cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
 
     vfs_get_next_char( fileread );
 
@@ -76,7 +76,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     {
         pmod->rank[0] = CSTR_END;
     }
-    else if ( 'U' == toupper(( unsigned )pmod->rank[0] ) )
+    else if ( 'U' == char_toupper(( unsigned )pmod->rank[0] ) )
     {
         pmod->rank[0] = CSTR_END;
     }
@@ -108,11 +108,11 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
             cTmp = vfs_get_first_letter( fileread );
 
             // parse the expansion value
-            if ( 'M' == toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_MAIN;
-            else if ( 'S' == toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_SIDE;
-            else if ( 'T' == toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_TOWN;
-            else if ( 'F' == toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_FUN;
-            else if ( 'S' == toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_STARTER;
+            if ( 'M' == char_toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_MAIN;
+            else if ( 'S' == char_toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_SIDE;
+            else if ( 'T' == char_toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_TOWN;
+            else if ( 'F' == char_toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_FUN;
+            else if ( 'S' == char_toupper(( unsigned )cTmp ) )  pmod->moduletype = FILTER_STARTER;
         }
         else if ( idsz == MAKE_IDSZ( 'B', 'E', 'A', 'T' ) )
         {
@@ -126,7 +126,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 }
 
 //--------------------------------------------------------------------------------------------
-int module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer )
+bool_t module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer )
 {
     /// @author ZZ
     /// @details This function returns btrue if the named module has the required IDSZ
@@ -134,7 +134,7 @@ int module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, ch
     vfs_FILE *fileread;
     STRING newloadname;
     Uint32 newidsz;
-    int foundidsz;
+    bool_t foundidsz;
     int cnt;
 
     if ( idsz == IDSZ_NONE ) return btrue;

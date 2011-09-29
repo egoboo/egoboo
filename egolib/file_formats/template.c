@@ -69,15 +69,17 @@ char * template_dump_buffer( vfs_FILE * outfile, char * buffer_beg, char * buffe
 bool_t template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
 {
     bool_t       found;
-    char         cTmp;
+    int          iTmp;
     char const * pmark = marker_str;
 
     found = bfalse;
     pmark = marker_str;
     while ( !vfs_eof( tempfile ) )
     {
-        cTmp = vfs_getc( tempfile );
-        if ( cTmp == *pmark )
+        iTmp = vfs_getc( tempfile );
+		if( (unsigned)iTmp > 0xFF ) break;
+
+        if ( iTmp == *pmark )
         {
             pmark++;
             if ( CSTR_END == *pmark )
@@ -99,7 +101,7 @@ bool_t template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
 bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const char * marker_str )
 {
     bool_t       found;
-    char         cTmp;
+    int          iTmp;
     char const * pmark = marker_str;
 
     // the buffer only has to be longer than marker_str, which should
@@ -117,10 +119,12 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
     pcarat = buffer;
     while ( !vfs_eof( tempfile ) )
     {
-        cTmp = vfs_getc( tempfile );
-        if ( cTmp == *pmark )
+        iTmp = vfs_getc( tempfile );
+		if( (unsigned)iTmp > 0xFF ) break;
+
+        if ( iTmp == *pmark )
         {
-            *pcarat++ = cTmp;
+            *pcarat++ = iTmp;
             pmark++;
             if ( CSTR_END == *pmark )
             {
@@ -144,7 +148,7 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
             // copy any stored values to the output file
             pcarat = template_dump_buffer( outfile, buffer, buffer_end, pcarat );
 
-            vfs_putc( cTmp, outfile );
+            vfs_putc( iTmp, outfile );
         }
     }
 
@@ -164,10 +168,14 @@ void template_copy_to_eof( vfs_FILE * tempfile, vfs_FILE * outfile )
     if ( vfs_eof( tempfile ) ) return;
 
     ctmp = vfs_getc( tempfile );
+	if( (unsigned)ctmp > 0xFF ) return;
+
     while ( !vfs_eof( tempfile ) )
     {
         vfs_putc( ctmp, outfile );
+
         ctmp = vfs_getc( tempfile );
+		if( (unsigned)ctmp > 0xFF ) break;
     }
 }
 

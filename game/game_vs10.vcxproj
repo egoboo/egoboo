@@ -31,11 +31,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="OpenGL_app.props" />
     <Import Project="physfs.props" />
     <Import Project="enet.props" />
     <Import Project="lua\lua.props" />
     <Import Project="libraries.props" />
+    <Import Project="OpenGL_app.props" />
     <Import Project="SDL_app.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">

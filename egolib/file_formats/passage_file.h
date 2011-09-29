@@ -50,7 +50,7 @@ extern "C"
     {
         // Passage positions
         irect_t area;
-        Sint8   music;                ///< Music track appointed to the specific passage
+        int     music;                ///< Music track appointed to the specific passage
         Uint8   mask;                 ///< Is it IMPASSABLE, SLIPPERY or whatever
         bool_t  open;                 ///< Is the passage open?
     };

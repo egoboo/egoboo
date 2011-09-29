@@ -52,7 +52,7 @@ struct s_player
     input_device_t          *pdevice;
 
     // inventory stuff
-    CHR_REF                 selected_item;
+    Uint8                   inventory_slot;
     bool_t                  draw_inventory;
     Uint32                  inventory_cooldown;
     int                     inventory_lerp;

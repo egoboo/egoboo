@@ -934,7 +934,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     }
 
     // convert the slot to a profile reference
-    iobj = islot;
+    iobj = (PRO_REF)islot;
 
     // throw an error code if we are trying to load over an existing profile
     // without permission
@@ -959,7 +959,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     }
 
     // allocate/reallocate this slot
-    iobj = ProList_get_free_ref( iobj );
+    iobj = (PRO_REF)ProList_get_free_ref( iobj );
     if ( !VALID_PRO_RANGE( iobj ) )
     {
         log_warning( "load_one_profile_vfs() - Cannot allocate object %d (\"%s\")\n", REF_TO_INT( iobj ), tmploadname );

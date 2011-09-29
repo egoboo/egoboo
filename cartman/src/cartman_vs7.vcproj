@@ -218,6 +218,9 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 			<File
+				RelativePath=".\res\cartman_vs7.rc">
+			</File>
+			<File
 				RelativePath="..\data\anim.pcx">
 			</File>
 			<File
@@ -231,9 +234,6 @@
 			</File>
 			<File
 				RelativePath="..\data\bestpal.pcx">
-			</File>
-			<File
-				RelativePath=".\cartman_vs7.rc">
 			</File>
 			<File
 				RelativePath="..\data\damage.pcx">
@@ -279,9 +279,6 @@
 			</File>
 			<File
 				RelativePath="..\data\ref.png">
-			</File>
-			<File
-				RelativePath=".\res\resource1_vs7.h">
 			</File>
 			<File
 				RelativePath="..\data\slippy.pcx">

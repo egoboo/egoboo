@@ -38,11 +38,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool_t meshnotexture   = bfalse;
-TX_REF meshlasttexture = INVALID_TX_REF;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 static bool_t animate_tile( ego_mesh_t * pmesh, Uint32 itile );
 
 //--------------------------------------------------------------------------------------------
@@ -103,7 +98,7 @@ bool_t animate_tile( ego_mesh_t * pmesh, Uint32 itile )
     type  = ptile->type;                       // Command type ( index to points in itile )
 
     // Animate the tiles
-    if ( type >= ( MAP_FAN_TYPE_MAX >> 1 ) )
+    if ( type >= tile_dict.offset )
     {
         // Big tiles
         base_and  = animtile[1].base_and;     // Animation set
@@ -135,11 +130,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     int    cnt, tnc, entry, vertex;
     Uint16 commands, vertices;
 
-    Uint16 image;
-    Uint8  type;
-    int    texture;
     tile_definition_t * pdef;
-
     const tile_mem_t      * ptmem;
     const ego_tile_info_t * ptile;
 
@@ -162,31 +153,37 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
     // do not render the itile if the image image is invalid
     if ( TILE_IS_FANOFF( *ptile ) )  return gfx_success;
 
-    image = TILE_GET_LOWER_BITS( ptile->img ); // Tile image
-    texture  = (( image >> 6 ) & 3 ) + TX_TILE_0; // 64 tiles in each 256x256 texture
-    if ( !meshnotexture && texture != meshlasttexture ) return gfx_success;
-
-    type = ptile->type;                              // Fan type ( index to points in itile )
-    pdef = TILE_DICT_PTR( tile_dict, type );
+    pdef = TILE_DICT_PTR( tile_dict, ptile->type );
     if ( NULL == pdef ) return gfx_fail;
 
-    vertices = pdef->numvertices;      // Number of vertices
-    commands = pdef->command_count;    // Number of commands
+    // bind the correct texture
+    mesh_texture_bind( ptile );
 
-    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_VERTEX_ARRAY_BIT );
+    GL_DEBUG( glPushClientAttrib )( GL_CLIENT_VERTEX_ARRAY_BIT | GL_LIGHTING_BIT );
     {
         // per-vertex coloring
-        GL_DEBUG( glShadeModel )( GL_SMOOTH );  // GL_LIGHTING_BIT
+        GL_DEBUG( glShadeModel )( gfx.shading );  // GL_LIGHTING_BIT
 
-        // [claforte] Put this in an initialization function.
+        /// @note claforte@> Put this in an initialization function.
         GL_DEBUG( glEnableClientState )( GL_VERTEX_ARRAY );
         GL_DEBUG( glVertexPointer )( 3, GL_FLOAT, 0, ptmem->plst + ptile->vrtstart );
 
         GL_DEBUG( glEnableClientState )( GL_TEXTURE_COORD_ARRAY );
         GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem->tlst + ptile->vrtstart );
 
-        GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
-        GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem->clst + ptile->vrtstart );
+        if( GL_FLAT != gfx.shading )
+        {
+            GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
+            GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem->clst + ptile->vrtstart );
+        }
+        else
+        {
+            GL_DEBUG( glDisableClientState )( GL_COLOR_ARRAY );
+        }
+
+        // grab some model info
+        vertices = pdef->numvertices;
+        commands = pdef->command_count;
 
         // Render each command
         entry = 0;
@@ -483,12 +480,11 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         }
     }
 
-    // Change texture if need be
-    if ( meshlasttexture != texture )
-    {
-        oglx_texture_Bind( ptex );
-        meshlasttexture = texture;
-    }
+    // tell the mesh texture code that someone else is controlling the texture
+    mesh_texture_invalidate();
+
+    // set the texture
+    oglx_texture_Bind( ptex );
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
     {

@@ -141,7 +141,7 @@ typedef struct s_chr chr_t;
 #define DAMAGETILETIME      32                            ///< Invincibility time
 #define DAMAGETIME          32                            ///< Invincibility time
 #define DEFENDTIME          24                            ///< Invincibility time
-#define BORETIME            generate_randmask( 255, 511 ) ///< IfBored timer
+#define BORETIME            ((Uint16)generate_randmask( 255, 511 )) ///< IfBored timer
 #define CAREFULTIME         50                            ///< Friendly fire timer
 #define SIZETIME            100                           ///< Time it takes to resize a character
 
@@ -277,7 +277,7 @@ struct s_chr_spawn_data
     fvec3_t     pos;
     PRO_REF     profile;
     TEAM_REF    team;
-    Uint8       skin;
+    int         skin;
     FACING_T    facing;
     STRING      name;
     CHR_REF     override;
@@ -322,7 +322,7 @@ struct s_chr
     Uint8          experiencelevel; ///< Experience Level
 
     Sint16         money;            ///< Money
-    Uint8          ammomax;          ///< Ammo stuff
+    Uint16         ammomax;          ///< Ammo stuff
     Uint16         ammo;
 
     // equipment and inventory
@@ -374,7 +374,7 @@ struct s_chr
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
 
     // sound stuff
-    Sint8          sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
+    int            sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
     int            loopedsound_channel;           ///< Which sound channel it is looping on, -1 is none.
 
     // missle handling
@@ -429,7 +429,7 @@ struct s_chr
 
     // model info
     bool_t         is_overlay;                    ///< Is this an overlay? Track aitarget...
-    Uint16         skin;                          ///< Character's skin
+    SKIN_T         skin;                          ///< Character's skin
     PRO_REF        profile_ref;                      ///< Character's profile
     PRO_REF        basemodel_ref;                     ///< The true form
     Uint8          alpha_base;
@@ -442,7 +442,7 @@ struct s_chr
     int           see_invisible_level;
     IDSZ_node_t   skills[MAX_IDSZ_MAP_SIZE];
 
-    /// collision info
+    // collision info
 
     /// @note - to make it easier for things to "hit" one another (like a damage particle from
     ///        a torch hitting a grub bug), Aaron sometimes made the bumper size much different
@@ -546,13 +546,13 @@ bool_t  chr_set_pos( chr_t * pchr, const fvec3_base_t pos );
 bool_t chr_set_maxaccel( chr_t * pchr, float new_val );
 bool_t character_is_attacking( chr_t * pchr );
 
-void chr_set_floor_level( chr_t * pchr, float level );
-void chr_set_redshift( chr_t * pchr, int rs );
-void chr_set_grnshift( chr_t * pchr, int gs );
-void chr_set_blushift( chr_t * pchr, int bs );
-void chr_set_sheen( chr_t * pchr, int sheen );
-void chr_set_alpha( chr_t * pchr, int alpha );
-void chr_set_light( chr_t * pchr, int light );
+void chr_set_floor_level( chr_t * pchr, const float level );
+void chr_set_redshift( chr_t * pchr, const int rs );
+void chr_set_grnshift( chr_t * pchr, const int gs );
+void chr_set_blushift( chr_t * pchr, const int bs );
+void chr_set_sheen( chr_t * pchr, const int sheen );
+void chr_set_alpha( chr_t * pchr, const int alpha );
+void chr_set_light( chr_t * pchr, const int light );
 
 const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size );
 const char * chr_get_dir_name( const CHR_REF ichr );
@@ -613,11 +613,11 @@ void move_one_character_get_environment( chr_t * pchr );
 BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
 BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], struct s_mesh_wall_data * pdata );
 
-CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team, const Uint8 skin, const FACING_T facing, const char *name, const CHR_REF override );
+CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team, const int skin, const FACING_T facing, const char *name, const CHR_REF override );
 void    respawn_character( const CHR_REF character );
 
 // inventory functions
-bool_t inventory_remove_item( const CHR_REF ichr, const Uint8 inventory_slot, const bool_t ignorekurse );
+bool_t inventory_remove_item( const CHR_REF ichr, const size_t inventory_slot, const bool_t ignorekurse );
 bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool_t ignorekurse );
 bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool_t ignorekurse );
 
@@ -676,9 +676,9 @@ void free_inventory_in_game( const CHR_REF character );
 void do_level_up( const CHR_REF character );
 bool_t setup_xp_table( const CHR_REF character );
 
-int     change_armor( const CHR_REF character, int skin );
-void    change_character( const CHR_REF cnt, const PRO_REF profile, Uint8 skin, Uint8 leavewhich );
-void    change_character_full( const CHR_REF ichr, const PRO_REF profile, Uint8 skin, Uint8 leavewhich );
+int     change_armor( const CHR_REF character, const SKIN_T skin );
+void    change_character( const CHR_REF cnt, const PRO_REF profile, const int skin, const Uint8 leavewhich );
+void    change_character_full( const CHR_REF ichr, const PRO_REF profile, const int skin, const Uint8 leavewhich );
 bool_t  cost_mana( const CHR_REF character, int amount, const CHR_REF killer );
 void    switch_team( const CHR_REF character, const TEAM_REF team );
 void    issue_clean( const CHR_REF character );
@@ -692,7 +692,7 @@ bool_t  character_grab_stuff( const CHR_REF chara, grip_offset_t grip, bool_t pe
 //--------------------------------------------------------------------------------------------
 // generic helper functions
 
-bool_t is_invictus_direction( FACING_T direction, const CHR_REF character, Uint16 effects );
+bool_t is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects );
 void   init_slot_idsz( void );
 
 grip_offset_t slot_to_grip_offset( slot_t slot );

@@ -80,13 +80,13 @@ extern "C"
     static INLINE int terp_dir( const FACING_T majordir, const FACING_T minordir, const int weight );
 
 // limiting functions
-    static INLINE void getadd( const int min, const int value, const int max, int* valuetoadd );
-    static INLINE void fgetadd( const float min, const float value, const float max, float* valuetoadd );
+    static INLINE void getadd_int( const int min, const int value, const int max, int* valuetoadd );
+    static INLINE void getadd_flt( const float min, const float value, const float max, float* valuetoadd );
 
 // random functions
     static INLINE int generate_irand_pair( const IPair num );
     static INLINE int generate_irand_range( const FRange num );
-    static INLINE int generate_randmask( const int base, const int mask );
+    static INLINE int generate_randmask( const int base, const Uint32 mask );
 
 // vector functions
     static INLINE bool_t  fvec2_valid( const fvec2_base_t A );
@@ -263,7 +263,7 @@ static INLINE int terp_dir( const FACING_T majordir, const FACING_T minordir, co
 //--------------------------------------------------------------------------------------------
 // LIMITING FUNCTIONS
 //--------------------------------------------------------------------------------------------
-static INLINE void getadd( const int min, const int value, const int max, int* valuetoadd )
+static INLINE void getadd_int( const int min, const int value, const int max, int* valuetoadd )
 {
     /// @author ZZ
     /// @details This function figures out what value to add should be in order
@@ -289,13 +289,13 @@ static INLINE void getadd( const int min, const int value, const int max, int* v
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE void fgetadd( const float min, const float value, const float max, float* valuetoadd )
+static INLINE void getadd_flt( const float min, const float value, const float max, float* valuetoadd )
 {
     /// @author ZZ
     /// @details This function figures out what value to add should be in order
     ///    to not overflow the min and max bounds
 
-    float newvalue;
+    register float newvalue;
 
     newvalue = value + ( *valuetoadd );
     if ( newvalue < min )
@@ -348,18 +348,16 @@ static INLINE int generate_irand_range( const FRange num )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE int generate_randmask( const int base, const int mask )
+static INLINE int generate_randmask( const int base, const Uint32 mask )
 {
     /// @author ZZ
     /// @details This function generates a random number
+
     int tmp;
     int irand = RANDIE;
 
     tmp = base;
-    if ( mask > 0 )
-    {
-        tmp += irand & mask;
-    }
+    tmp += irand & mask;
 
     return tmp;
 }
@@ -440,7 +438,7 @@ static INLINE float fvec2_length_abs( const fvec2_base_t A )
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec2_length_2( const fvec2_base_t A )
 {
-    float A2;
+    register float A2;
 
     if ( NULL == A ) return 0.0f;
 
@@ -452,7 +450,7 @@ static INLINE float fvec2_length_2( const fvec2_base_t A )
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec2_length( const fvec2_base_t A )
 {
-    float A2;
+    register float A2;
 
     if ( NULL == A ) return 0.0f;
 
@@ -688,7 +686,7 @@ static INLINE bool_t fvec3_self_sum( fvec3_base_t A, const fvec3_base_t B )
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec3_length_abs( const fvec3_base_t A )
 {
-    float retval;
+    register float retval;
 
     if ( NULL == A ) return 0.0f;
 
@@ -708,7 +706,7 @@ static INLINE float fvec3_length_abs( const fvec3_base_t A )
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec3_length_2( const fvec3_base_t A )
 {
-    float A2;
+    register float A2;
 
     if ( NULL == A ) return 0.0f;
 
@@ -722,7 +720,7 @@ static INLINE float fvec3_length_2( const fvec3_base_t A )
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec3_length( const fvec3_base_t A )
 {
-    float A2;
+    register float A2;
 
     if ( NULL == A ) return 0.0f;
 
@@ -877,7 +875,7 @@ static INLINE float * fvec3_normalize( fvec3_base_t DST, const fvec3_base_t SRC 
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec3_self_normalize( fvec3_base_t A )
 {
-    float len = -1.0f;
+    register float len = -1.0f;
 
     if ( NULL == A ) return len;
 
@@ -904,7 +902,7 @@ static INLINE float fvec3_self_normalize( fvec3_base_t A )
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec3_self_normalize_to( fvec3_base_t vec, const float B )
 {
-    float len = -1.0f;
+    register float len = -1.0f;
 
     if ( NULL == vec ) return len;
 
@@ -964,7 +962,7 @@ static INLINE float fvec3_decompose( const fvec3_base_t A, const fvec3_base_t vn
     /// @author BB
     /// @details the normal (vnrm) is assumed to be normalized. Try to get this as optimized as possible.
 
-    float dot;
+    register float dot;
 
     // error trapping
     if ( NULL == A || NULL == vnrm ) return 0.0f;
@@ -1055,7 +1053,7 @@ static INLINE float fvec3_decompose( const fvec3_base_t A, const fvec3_base_t vn
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B )
 {
-    float retval;
+    register float retval;
 
     if ( NULL == A || NULL == B ) return 0.0f;
 
@@ -1069,7 +1067,7 @@ static INLINE float fvec3_dist_abs( const fvec3_base_t A, const fvec3_base_t B )
 //--------------------------------------------------------------------------------------------
 static INLINE float fvec3_dist_2( const fvec3_base_t LHS, const fvec3_base_t RHS )
 {
-    float retval = 0.0f, ftmp;
+    register float retval = 0.0f, ftmp;
 
     if ( NULL == LHS || NULL == LHS ) return 0.0f;
 
@@ -1090,7 +1088,7 @@ static INLINE float fvec3_dist_2( const fvec3_base_t LHS, const fvec3_base_t RHS
 //--------------------------------------------------------------------------------------------
 static INLINE float   fvec3_dot_product( const fvec3_base_t A, const fvec3_base_t B )
 {
-    float retval;
+    register float retval;
 
     if ( NULL == A || NULL == B ) return 0.0f;
 

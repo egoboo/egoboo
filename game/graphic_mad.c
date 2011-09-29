@@ -2085,6 +2085,7 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     if ( pmad->md2_ptr == NULL )
     {
         log_error( "Invalid pmad instance spawn. (Slot number %i)\n", imad );
+
         return gfx_fail;
     }
 
@@ -2167,12 +2168,13 @@ gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 skin )
+gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const int skin )
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
     pro_t * pobj;
     cap_t * pcap;
+	SKIN_T  loc_skin;
 
     if ( NULL == pinst )
     {
@@ -2193,8 +2195,14 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, Uint8 
 
     pcap = pro_get_pcap( profile );
 
+	loc_skin = 0;
+	if( skin >= 0 )
+	{
+		loc_skin = skin % MAX_SKIN;
+	}
+
     // lighting parameters
-    chr_instance_set_texture( pinst, pobj->tex_ref[skin] );
+    chr_instance_set_texture( pinst, pobj->tex_ref[loc_skin] );
     pinst->enviro    = pcap->enviro;
     pinst->alpha     = pcap->alpha;
     pinst->light     = pcap->light;

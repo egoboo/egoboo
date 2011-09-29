@@ -50,7 +50,7 @@
 				OutputFile="$(OutDir)/Egoboo2x.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				IgnoreDefaultLibraryNames=""
+				IgnoreDefaultLibraryNames="MSVCRT"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
 				SubSystem="1"
