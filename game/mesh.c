@@ -61,8 +61,11 @@ static ego_mesh_info_t * ego_mesh_info_ctor( ego_mesh_info_t * pinfo );
 static ego_mesh_info_t * ego_mesh_info_dtor( ego_mesh_info_t * pinfo );
 static void             ego_mesh_info_init( ego_mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y );
 
+
 static bool_t mpdfx_lists_alloc( mpdfx_lists_t * plst, const ego_mesh_info_t * pinfo );
-static bool_t mpdfx_lists_free( mpdfx_lists_t * plst );
+static bool_t mpdfx_lists_dealloc( mpdfx_lists_t * plst );
+static bool_t mpdfx_lists_reset( mpdfx_lists_t * plst );
+static int    mpdfx_lists_push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t value );
 
 // some twist/normal functions
 static bool_t ego_mesh_make_normals( ego_mesh_t * pmesh );
@@ -2320,11 +2323,101 @@ bool_t ego_mesh_update_water_level( ego_mesh_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+mpdfx_list_ary_t * mpdfx_list_ary_ctor( mpdfx_list_ary_t * ptr )
+{
+    if( NULL == ptr ) return ptr;
+
+    BLANK_STRUCT_PTR( ptr );
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+mpdfx_list_ary_t * mpdfx_list_ary_dtor( mpdfx_list_ary_t * ptr )
+{
+    if( NULL == ptr ) return ptr;
+
+    mpdfx_list_ary_dealloc( ptr );
+
+    BLANK_STRUCT_PTR( ptr );
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+mpdfx_list_ary_t * mpdfx_list_ary_alloc( mpdfx_list_ary_t * ptr, size_t count )
+{
+    if( NULL == ptr ) return ptr;
+
+    mpdfx_list_ary_dealloc( ptr );
+
+    if( 0 == count ) return ptr;
+
+    ptr->lst = EGOBOO_NEW_ARY( size_t, count );
+    ptr->cnt = ( NULL == ptr->lst ) ? 0 : count;
+    ptr->idx = 0;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+mpdfx_list_ary_t * mpdfx_list_ary_dealloc( mpdfx_list_ary_t * ptr )
+{
+    if( NULL == ptr ) return ptr;
+
+    if( 0 == ptr->cnt ) return ptr;
+
+    EGOBOO_DELETE_ARY( ptr->lst );
+    ptr->cnt = 0;
+    ptr->idx = 0;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+mpdfx_list_ary_t * mpdfx_list_ary_reset( mpdfx_list_ary_t * ptr )
+{
+    if( NULL == ptr ) return ptr;
+
+    ptr->idx = 0;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mpdfx_list_ary_push( mpdfx_list_ary_t * ptr, size_t value )
+{
+    bool_t retval = bfalse;
+
+    if( NULL == ptr ) return bfalse;
+
+    retval = bfalse;
+    if( ptr->idx < ptr->cnt )
+    {
+        ptr->lst[ptr->idx] = value;
+        ptr->idx++;
+        retval = btrue;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 mpdfx_lists_t * mpdfx_lists_ctor( mpdfx_lists_t * plst )
 {
     if ( NULL == plst ) return plst;
 
-    BLANK_STRUCT_PTR( plst )
+    BLANK_STRUCT_PTR( plst );
+
+    mpdfx_list_ary_ctor( &(plst->sha) );
+    mpdfx_list_ary_ctor( &(plst->drf) );
+    mpdfx_list_ary_ctor( &(plst->anm) );
+    mpdfx_list_ary_ctor( &(plst->wat) );
+    mpdfx_list_ary_ctor( &(plst->wal) );
+    mpdfx_list_ary_ctor( &(plst->imp) );
+    mpdfx_list_ary_ctor( &(plst->dam) );
+    mpdfx_list_ary_ctor( &(plst->slp) );
 
     return plst;
 }
@@ -2334,7 +2427,16 @@ mpdfx_lists_t * mpdfx_lists_dtor( mpdfx_lists_t * plst )
 {
     if ( NULL == plst ) return NULL;
 
-    mpdfx_lists_free( plst );
+    mpdfx_lists_dealloc( plst );
+
+    mpdfx_list_ary_dtor( &(plst->sha) );
+    mpdfx_list_ary_dtor( &(plst->drf) );
+    mpdfx_list_ary_dtor( &(plst->anm) );
+    mpdfx_list_ary_dtor( &(plst->wat) );
+    mpdfx_list_ary_dtor( &(plst->wal) );
+    mpdfx_list_ary_dtor( &(plst->imp) );
+    mpdfx_list_ary_dtor( &(plst->dam) );
+    mpdfx_list_ary_dtor( &(plst->slp) );
 
     BLANK_STRUCT_PTR( plst )
 
@@ -2344,43 +2446,36 @@ mpdfx_lists_t * mpdfx_lists_dtor( mpdfx_lists_t * plst )
 //--------------------------------------------------------------------------------------------
 bool_t mpdfx_lists_alloc( mpdfx_lists_t * plst, const ego_mesh_info_t * pinfo )
 {
-
-    if ( NULL == plst || NULL == pinfo || 0 == pinfo->tiles_count ) return bfalse;
+    if ( NULL == plst || NULL == pinfo ) return bfalse;
 
     // free any memory already allocated
-    if ( !mpdfx_lists_free( plst ) ) return bfalse;
+    if ( !mpdfx_lists_dealloc( plst ) ) return bfalse;
 
-    plst->sha_count = 0;
-    plst->sha_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
-    if ( NULL == plst->sha_list ) goto mesh_mem_alloc_fail;
+    if( 0 == pinfo->tiles_count ) return btrue;
 
-    plst->drf_count = 0;
-    plst->drf_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
-    if ( NULL == plst->drf_list ) goto mesh_mem_alloc_fail;
+    mpdfx_list_ary_alloc( &(plst->sha), pinfo->tiles_count );
+    if ( NULL == plst->sha.lst ) goto mesh_mem_alloc_fail;
 
-    plst->anm_count = 0;
-    plst->anm_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
-    if ( NULL == plst->anm_list ) goto mesh_mem_alloc_fail;
+    mpdfx_list_ary_alloc( &(plst->drf), pinfo->tiles_count );
+    if ( NULL == plst->drf.lst ) goto mesh_mem_alloc_fail;
 
-    plst->wat_count = 0;
-    plst->wat_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
-    if ( NULL == plst->wat_list ) goto mesh_mem_alloc_fail;
+    mpdfx_list_ary_alloc( &(plst->anm), pinfo->tiles_count );
+    if ( NULL == plst->anm.lst ) goto mesh_mem_alloc_fail;
 
-    plst->wal_count = 0;
-    plst->wal_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
-    if ( NULL == plst->wal_list ) goto mesh_mem_alloc_fail;
+    mpdfx_list_ary_alloc( &(plst->wat), pinfo->tiles_count );
+    if ( NULL == plst->wat.lst ) goto mesh_mem_alloc_fail;
 
-    plst->imp_count = 0;
-    plst->imp_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
-    if ( NULL == plst->imp_list ) goto mesh_mem_alloc_fail;
+    mpdfx_list_ary_alloc( &(plst->wal), pinfo->tiles_count );
+    if ( NULL == plst->wal.lst ) goto mesh_mem_alloc_fail;
 
-    plst->dam_count = 0;
-    plst->dam_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
-    if ( NULL == plst->dam_list ) goto mesh_mem_alloc_fail;
+    mpdfx_list_ary_alloc( &(plst->imp), pinfo->tiles_count );
+    if ( NULL == plst->imp.lst ) goto mesh_mem_alloc_fail;
 
-    plst->slp_count = 0;
-    plst->slp_list = EGOBOO_NEW_ARY( size_t, pinfo->tiles_count );
-    if ( NULL == plst->slp_list ) goto mesh_mem_alloc_fail;
+    mpdfx_list_ary_alloc( &(plst->dam), pinfo->tiles_count );
+    if ( NULL == plst->dam.lst ) goto mesh_mem_alloc_fail;
+
+    mpdfx_list_ary_alloc( &(plst->slp), pinfo->tiles_count );
+    if ( NULL == plst->slp.lst ) goto mesh_mem_alloc_fail;
 
     // the list needs to be resynched
     plst->dirty = btrue;
@@ -2389,7 +2484,7 @@ bool_t mpdfx_lists_alloc( mpdfx_lists_t * plst, const ego_mesh_info_t * pinfo )
 
 mesh_mem_alloc_fail:
 
-    mpdfx_lists_free( plst );
+    mpdfx_lists_dealloc( plst );
 
     log_error( "%s - cannot allocate mpdfx_lists_t for this mesh!\n", __FUNCTION__ );
 
@@ -2397,23 +2492,122 @@ mesh_mem_alloc_fail:
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mpdfx_lists_free( mpdfx_lists_t * plst )
+bool_t mpdfx_lists_dealloc( mpdfx_lists_t * plst )
 {
     if ( NULL == plst ) return bfalse;
 
     // free the memory
-    EGOBOO_DELETE_ARY( plst->sha_list );
-    EGOBOO_DELETE_ARY( plst->drf_list );
-    EGOBOO_DELETE_ARY( plst->anm_list );
-    EGOBOO_DELETE_ARY( plst->wat_list );
-    EGOBOO_DELETE_ARY( plst->wal_list );
-    EGOBOO_DELETE_ARY( plst->imp_list );
-    EGOBOO_DELETE_ARY( plst->dam_list );
-    EGOBOO_DELETE_ARY( plst->slp_list );
+    mpdfx_list_ary_dealloc( &(plst->sha) );
+    mpdfx_list_ary_dealloc( &(plst->drf) );
+    mpdfx_list_ary_dealloc( &(plst->anm) );
+    mpdfx_list_ary_dealloc( &(plst->wat) );
+    mpdfx_list_ary_dealloc( &(plst->wal) );
+    mpdfx_list_ary_dealloc( &(plst->imp) );
+    mpdfx_list_ary_dealloc( &(plst->dam) );
+    mpdfx_list_ary_dealloc( &(plst->slp) );
 
-    BLANK_STRUCT_PTR( plst );
+    // no memory, so nothing can be stored and nothing can be dirty
+    plst->dirty = bfalse;
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t mpdfx_lists_reset( mpdfx_lists_t * plst )
+{
+   if ( NULL == plst ) return bfalse;
+
+    // free the memory
+    mpdfx_list_ary_reset( &(plst->sha) );
+    mpdfx_list_ary_reset( &(plst->drf) );
+    mpdfx_list_ary_reset( &(plst->anm) );
+    mpdfx_list_ary_reset( &(plst->wat) );
+    mpdfx_list_ary_reset( &(plst->wal) );
+    mpdfx_list_ary_reset( &(plst->imp) );
+    mpdfx_list_ary_reset( &(plst->dam) );
+    mpdfx_list_ary_reset( &(plst->slp) );
+
+    // everything has been reset. force it to recalculate
+    plst->dirty = btrue;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+int mpdfx_lists_push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t value )
+{
+    int retval = 0;
+
+   if ( NULL == plst ) return bfalse;
+
+   if( 0 == fx_bits ) return btrue;
+
+   if ( HAS_NO_BITS( fx_bits, MAPFX_SHA ) )
+   {
+       if( mpdfx_list_ary_push( &(plst->sha), value ) )
+       {
+           retval++;
+       }
+
+   }
+
+   if ( HAS_ALL_BITS( fx_bits, MAPFX_DRAWREF ) )
+   {
+       if( mpdfx_list_ary_push( &(plst->drf), value ) )
+       {
+           retval++;
+       }
+   }
+
+   if ( HAS_ALL_BITS( fx_bits, MAPFX_ANIM ) )
+   {
+       if( mpdfx_list_ary_push( &(plst->anm), value ) )
+       {
+           retval++;
+       }
+   }
+
+   if ( HAS_ALL_BITS( fx_bits, MAPFX_WATER ) )
+   {
+       if( mpdfx_list_ary_push( &(plst->wat), value ) )
+       {
+           retval++;
+       }
+   }
+
+   if ( HAS_ALL_BITS( fx_bits, MAPFX_WALL ) )
+   {
+       if( mpdfx_list_ary_push( &(plst->wal), value ) )
+       {
+           retval++;
+       }
+   }
+
+   if ( HAS_ALL_BITS( fx_bits, MAPFX_IMPASS ) )
+   {
+       if( mpdfx_list_ary_push( &(plst->imp), value ) )
+       {
+           retval++;
+       }
+   }
+
+   if ( HAS_ALL_BITS( fx_bits, MAPFX_DAMAGE ) )
+   {
+       if( mpdfx_list_ary_push( &(plst->dam), value ) )
+       {
+           retval++;
+       }
+   }
+
+   if ( HAS_ALL_BITS( fx_bits, MAPFX_SLIPPY ) )
+   {
+       if( mpdfx_list_ary_push( &(plst->slp), value ) )
+       {
+           retval++;
+       }
+   }
+
+   return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2431,68 +2625,16 @@ bool_t mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool_t
     if ( !force && !plst->dirty ) return btrue;
 
     // !!reset the counts!!
-    plst->sha_count = 0;
-    plst->drf_count = 0;
-    plst->anm_count = 0;
-    plst->wat_count = 0;
-    plst->wal_count = 0;
-    plst->imp_count = 0;
-    plst->dam_count = 0;
-    plst->slp_count = 0;
+    mpdfx_lists_reset( plst );
 
     for ( i = 0; i < count; i++ )
     {
         fx = ego_grid_info_get_all_fx( pgmem->grid_list + i );
 
-        if ( HAS_NO_BITS( fx, MAPFX_SHA ) )
-        {
-            plst->sha_list[plst->sha_count] = i;
-            plst->sha_count++;
-        }
-
-        if ( HAS_ALL_BITS( fx, MAPFX_DRAWREF ) )
-        {
-            plst->drf_list[plst->drf_count] = i;
-            plst->drf_count++;
-        }
-
-        if ( HAS_ALL_BITS( fx, MAPFX_ANIM ) )
-        {
-            plst->anm_list[plst->anm_count] = i;
-            plst->anm_count++;
-        }
-
-        if ( HAS_ALL_BITS( fx, MAPFX_WATER ) )
-        {
-            plst->wat_list[plst->wat_count] = i;
-            plst->wat_count++;
-        }
-
-        if ( HAS_ALL_BITS( fx, MAPFX_WALL ) )
-        {
-            plst->wal_list[plst->wal_count] = i;
-            plst->wal_count++;
-        }
-
-        if ( HAS_ALL_BITS( fx, MAPFX_IMPASS ) )
-        {
-            plst->imp_list[plst->imp_count] = i;
-            plst->imp_count++;
-        }
-
-        if ( HAS_ALL_BITS( fx, MAPFX_DAMAGE ) )
-        {
-            plst->dam_list[plst->dam_count] = i;
-            plst->dam_count++;
-        }
-
-        if ( HAS_ALL_BITS( fx, MAPFX_SLIPPY ) )
-        {
-            plst->slp_list[plst->slp_count] = i;
-            plst->slp_count++;
-        }
+        mpdfx_lists_push( plst, fx, i );
     }
 
+    // we're done calculating
     plst->dirty = bfalse;
 
     return btrue;

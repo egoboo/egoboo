@@ -53,6 +53,9 @@ typedef struct s_grid_mem grid_mem_t;
 struct s_tile_mem;
 typedef struct s_tile_mem tile_mem_t;
 
+struct s_mpdfx_list_ary;
+typedef struct s_mpdfx_list_ary mpdfx_list_ary_t;
+
 struct s_mpdfx_lists;
 typedef struct s_mpdfx_lists mpdfx_lists_t;
 
@@ -226,33 +229,34 @@ struct s_tile_mem
 
 //--------------------------------------------------------------------------------------------
 
+struct s_mpdfx_list_ary
+{
+    size_t   cnt;
+
+    size_t   idx;
+    size_t * lst;
+};
+
+mpdfx_list_ary_t * mpdfx_list_ary_ctor( mpdfx_list_ary_t * ptr );
+mpdfx_list_ary_t * mpdfx_list_ary_dtor( mpdfx_list_ary_t * ptr );
+mpdfx_list_ary_t * mpdfx_list_ary_alloc( mpdfx_list_ary_t * ptr, size_t count );
+mpdfx_list_ary_t * mpdfx_list_ary_dealloc( mpdfx_list_ary_t * ptr );
+mpdfx_list_ary_t * mpdfx_list_ary_reset( mpdfx_list_ary_t * ptr );
+bool_t mpdfx_list_ary_push( mpdfx_list_ary_t * ptr, size_t value );
+
+//--------------------------------------------------------------------------------------------
 struct s_mpdfx_lists
 {
     bool_t   dirty;
 
-    size_t   sha_count;
-    size_t * sha_list;
-
-    size_t   drf_count;
-    size_t * drf_list;
-
-    size_t   anm_count;
-    size_t * anm_list;
-
-    size_t   wat_count;
-    size_t * wat_list;
-
-    size_t   wal_count;
-    size_t * wal_list;
-
-    size_t   imp_count;
-    size_t * imp_list;
-
-    size_t   dam_count;
-    size_t * dam_list;
-
-    size_t   slp_count;
-    size_t * slp_list;
+    mpdfx_list_ary_t sha;
+    mpdfx_list_ary_t drf;
+    mpdfx_list_ary_t anm;
+    mpdfx_list_ary_t wat;
+    mpdfx_list_ary_t wal;
+    mpdfx_list_ary_t imp;
+    mpdfx_list_ary_t dam;
+    mpdfx_list_ary_t slp;
 };
 
 mpdfx_lists_t * mpdfx_lists_ctor( mpdfx_lists_t * );

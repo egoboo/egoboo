@@ -57,13 +57,13 @@ void animate_all_tiles( ego_mesh_t * pmesh )
     if ( !small_tile_update && !big_tile_update ) return;
 
     tile_count = pmesh->tmem.tile_count;
-    anim_count = pmesh->fxlists.anm_count;
+    anim_count = pmesh->fxlists.anm.idx;
 
     // scan through all the animated tiles
     for ( cnt = 0; cnt < anim_count; cnt++ )
     {
         // get the offset
-        itile = pmesh->fxlists.anm_list[cnt];
+        itile = pmesh->fxlists.anm.lst[cnt];
         if ( itile >= tile_count ) continue;
 
         animate_tile( pmesh, itile );
