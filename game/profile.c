@@ -727,7 +727,7 @@ void profile_add_one_message( pro_t *pobject, const ego_message_t add_message )
 
     size_t cnt, length;
 
-    if ( pobject == NULL ) return;
+    if ( NULL == pobject ) return;
 
     //Is this the first message that is added? Then we need to allocate an dynamic array!
     if ( NULL == pobject->message_ary )

@@ -1922,7 +1922,7 @@ int doChoosePlayer( float deltaTime )
                 ui_drawTextBox( menuFont, text, buttonLeft + butt_spc, y1 + text_vert_centering, 0, 0, icon_hgt );
 
                 // character button
-                if ( BUTTON_UP == ui_doButton( 10 + i, pchar == NULL ? "Click to select" : pchar->name, NULL, buttonLeft + butt_wid + butt_spc, y1, butt_wid, butt_hgt ) )
+                if ( BUTTON_UP == ui_doButton( 10 + i, ( NULL == pchar ) ? "Click to select" : pchar->name, NULL, buttonLeft + butt_wid + butt_spc, y1, butt_wid, butt_hgt ) )
                 {
                     currentSelectingPlayer = i;
                     menuState = MM_Entering;

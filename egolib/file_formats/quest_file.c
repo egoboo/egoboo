@@ -109,7 +109,7 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len,
     vfs_FILE *fileread;
     STRING newloadname;
 
-    if ( quest_log == NULL ) return rv_error;
+    if ( NULL == quest_log ) return rv_error;
 
     // blank out the existing map
     idsz_map_init( quest_log, quest_log_len );
@@ -163,7 +163,7 @@ egolib_rv quest_log_upload_vfs( IDSZ_node_t * quest_log, size_t quest_log_len, c
     int iterator;
     IDSZ_node_t *pquest;
 
-    if ( quest_log == NULL ) return rv_error;
+    if ( NULL == quest_log ) return rv_error;
 
     // Write a new quest file with all the quests
     filewrite = vfs_openWrite( player_directory );
@@ -205,7 +205,7 @@ int quest_log_set_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ ids
 
     // find the quest
     pquest = idsz_map_get( quest_log, quest_log_len, idsz );
-    if ( pquest == NULL ) return QUEST_NONE;
+    if ( NULL == pquest ) return QUEST_NONE;
 
     // make a copy of the quest's level
     pquest->level = level;
@@ -227,7 +227,7 @@ int quest_log_adjust_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ 
 
     // find the quest
     pquest = idsz_map_get( quest_log, quest_log_len, idsz );
-    if ( pquest == NULL ) return QUEST_NONE;
+    if ( NULL == pquest ) return QUEST_NONE;
 
     // make a copy of the quest's level
     src_level = pquest->level;
@@ -262,8 +262,10 @@ int quest_log_get_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ ids
     ///          It will return QUEST_NONE if the quest was not found or if the quest was beaten.
 
     IDSZ_node_t *pquest;
+
     pquest = idsz_map_get( quest_log, quest_log_len, idsz );
-    if ( pquest == NULL ) return QUEST_NONE;
+    if ( NULL == pquest ) return QUEST_NONE;
+
     return pquest->level;
 }
 

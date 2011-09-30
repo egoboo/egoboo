@@ -783,7 +783,7 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
     bool_t autoturn_camera;
 
     //Don't do network players
-    if ( pdevice == NULL ) return;
+    if ( NULL == pdevice ) return;
     type = pdevice->device_type;
 
     //If the device isn't enabled there is no point in continuing

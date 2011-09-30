@@ -2430,6 +2430,16 @@ bool_t mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool_t
     // don't re-calculate unless it is necessary
     if ( !force && !plst->dirty ) return btrue;
 
+    // !!reset the counts!!
+    plst->sha_count = 0;
+    plst->drf_count = 0;
+    plst->anm_count = 0;
+    plst->wat_count = 0;
+    plst->wal_count = 0;
+    plst->imp_count = 0;
+    plst->dam_count = 0;
+    plst->slp_count = 0;
+
     for ( i = 0; i < count; i++ )
     {
         fx = ego_grid_info_get_all_fx( pgmem->grid_list + i );

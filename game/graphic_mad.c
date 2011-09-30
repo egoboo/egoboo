@@ -2082,7 +2082,7 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     if ( !LOADED_MAD( imad ) ) return gfx_fail;
     pmad = MadStack_get_ptr( imad );
 
-    if ( pmad->md2_ptr == NULL )
+    if ( NULL == pmad->md2_ptr )
     {
         log_error( "Invalid pmad instance spawn. (Slot number %i)\n", imad );
 

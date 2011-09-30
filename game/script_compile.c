@@ -1557,7 +1557,7 @@ egolib_rv ai_script_upload_default( script_info_t * pscript )
     /// @details This loads the default AI script into a character profile ai
     //              It's not optimal since it duplicates the AI script data with memcpy
 
-    if ( pscript == NULL ) return rv_error;
+    if ( NULL == pscript ) return rv_error;
 
     strncpy( pscript->name, default_ai_script.name, sizeof( STRING ) );
     memcpy( pscript->data, default_ai_script.data, sizeof( pscript->data ) );
@@ -1581,7 +1581,7 @@ egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *
     size_t file_size;
 
     //Handle default AI
-    if ( pscript == NULL ) pscript = &( default_ai_script );
+    if ( NULL == pscript ) pscript = &( default_ai_script );
 
     ps->line_count = 0;
     fileread = vfs_openRead( loadname );

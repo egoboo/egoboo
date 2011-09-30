@@ -2129,7 +2129,7 @@ void set_one_player_latch( const PLA_REF ipla )
 
     // is the device a local device or an internet device?
     pdevice = ppla->pdevice;
-    if ( pdevice == NULL ) return;
+    if ( NULL == pdevice ) return;
 
     //No need to continue if device is not enabled
     if ( !input_device_is_enabled( pdevice ) ) return;

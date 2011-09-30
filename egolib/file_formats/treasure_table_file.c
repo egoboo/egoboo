@@ -45,7 +45,7 @@ void add_object_to_table( treasure_table_t table[], const char *name )
     //ZF> Adds a new treasure object to the specified treasure table
 
     //Avoid null pointers
-    if ( table == NULL ) return;
+    if ( NULL == table ) return;
 
     //Make sure there is enough size to add one more
     if ( table->size + 1 >= TREASURE_TABLE_SIZE )
@@ -66,7 +66,7 @@ void load_one_treasure_table_vfs( vfs_FILE* fileread, treasure_table_t* new_tabl
     new_table->size = 0;
 
     //Invalid file
-    if ( fileread == NULL ) return;
+    if ( NULL == fileread ) return;
 
     //Keep adding objects into the table until we encounter a :END
     while ( goto_colon_vfs( NULL, fileread, bfalse ) )

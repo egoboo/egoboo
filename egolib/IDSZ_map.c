@@ -170,7 +170,7 @@ egolib_rv idsz_map_copy( const IDSZ_node_t map_src[], const size_t src_len, IDSZ
     /// @author ZF
     /// @details This function copies one set of IDSZ map to another IDSZ map (exact)
 
-    if ( map_src == NULL || map_dst == NULL || 0 == src_len ) return rv_error;
+    if ( NULL == map_src || NULL == map_dst || 0 == src_len ) return rv_error;
 
     // memcpy() is probably a lot more efficient than copying each element individually
     memmove( map_dst, map_src, sizeof( IDSZ_node_t ) * src_len );

@@ -2854,7 +2854,7 @@ bool_t export_one_character_quest_vfs( const char *szSaveName, const CHR_REF cha
     if ( !INGAME_CHR( character ) ) return bfalse;
 
     ppla = chr_get_ppla( character );
-    if ( ppla == NULL ) return bfalse;
+    if ( NULL == ppla ) return bfalse;
 
     rv = quest_log_upload_vfs( ppla->quest_log, SDL_arraysize( ppla->quest_log ), szSaveName );
     return BOOL_T( rv_success == rv );

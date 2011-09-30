@@ -310,7 +310,7 @@ bool_t AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst )
         current_node = node_path[i];
 
         //the first node should be safe
-        if ( safe_waypoint == NULL ) safe_waypoint = current_node;
+        if ( NULL == safe_waypoint ) safe_waypoint = current_node;
 
         //is there a change in direction?
         change_direction = ( last_waypoint->ix != current_node->ix && last_waypoint->iy != current_node->iy );
