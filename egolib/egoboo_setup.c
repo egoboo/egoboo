@@ -104,7 +104,7 @@ extern "C"
 #endif
 /// download the data from the egoboo_config_t data structure to program
 /// @note this function must be implemented by the user
-    extern bool_t config_download( egoboo_config_t * pcfg );
+    extern bool_t config_download( egoboo_config_t * pcfg, bool_t synch_from_file );
 
 /// convert program settings to an egoboo_config_t data structure
 /// @note this function must be implemented by the user
@@ -659,9 +659,9 @@ bool_t setup_upload( egoboo_config_t * pcfg )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t config_synch( egoboo_config_t * pcfg )
+bool_t config_synch( egoboo_config_t * pcfg, bool_t synch_from_file )
 {
-    if ( !config_download( pcfg ) )
+    if ( !config_download( pcfg, synch_from_file ) )
     {
         return bfalse;
     }

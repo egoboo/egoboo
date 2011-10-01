@@ -154,7 +154,7 @@ extern "C"
     bool_t setup_upload( egoboo_config_t * pcfg );
 
     /// ensure that the program, egoboo_config_t data structure, and "setup.txt" all agree
-    bool_t config_synch( egoboo_config_t * pcfg );
+    bool_t config_synch( egoboo_config_t * pcfg, bool_t synch_from_file );
 
     /// set the basic search paths used by the egoboo virtual file system
     void setup_init_base_vfs_paths( void );

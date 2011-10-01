@@ -2787,15 +2787,18 @@ void draw_map( void )
             PLA_REF iplayer;
             for ( iplayer = 0; iplayer < MAX_PLAYER; iplayer++ )
             {
+				 CHR_REF ichr;
+
+			    // Only valid players
                 if ( !PlaStack.lst[iplayer].valid ) continue;
 
-                if ( NULL == PlaStack.lst[iplayer].pdevice )
+				// Dont do networked players
+				if ( NULL == PlaStack.lst[iplayer].pdevice ) continue;
+
+                ichr = PlaStack.lst[iplayer].index;
+                if ( INGAME_CHR( ichr ) && ChrList.lst[ichr].alive )
                 {
-                    CHR_REF ichr = PlaStack.lst[iplayer].index;
-                    if ( INGAME_CHR( ichr ) && ChrList.lst[ichr].alive )
-                    {
-                        draw_blip( 0.75f, COLOR_WHITE, ChrList.lst[ichr].pos.x, ChrList.lst[ichr].pos.y, btrue );
-                    }
+                    draw_blip( 0.75f, COLOR_WHITE, ChrList.lst[ichr].pos.x, ChrList.lst[ichr].pos.y, btrue );
                 }
             }
         }

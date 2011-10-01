@@ -53,7 +53,7 @@ typedef struct s_ego_process ego_process_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define VERSION "2.8.2 (Beta)"                            ///< Version of the game
+#define VERSION "2.9.0"                             ///< Version of the game
 
 #define NOSPARKLE           255                     ///< Dont sparkle icons
 #define SPELLBOOK           127                     ///< The spellbook model

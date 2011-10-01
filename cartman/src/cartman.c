@@ -2243,7 +2243,7 @@ int main( int argcnt, char* argtext[] )
     {
         log_error( "Cannot load the setup file \"%s\".\n", fname );
     }
-    config_download( &cfg );
+    config_download( &cfg, btrue );
 
     // initialize the SDL elements
     cartman_init_SDL_base();

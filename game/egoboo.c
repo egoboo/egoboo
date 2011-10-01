@@ -84,7 +84,7 @@ static ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char *
 extern "C"
 {
 #endif
-    extern bool_t config_download( egoboo_config_t * pcfg );
+    extern bool_t config_download( egoboo_config_t * pcfg, bool_t synch_from_file );
     extern bool_t config_upload( egoboo_config_t * pcfg );
 #if defined(__cplusplus)
 }
@@ -128,7 +128,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     setup_read_vfs();
 
     // download the "setup.txt" values into the cfg struct
-    config_download( &cfg );
+    config_download( &cfg, btrue );
 
     // do basic system initialization
     ego_init_SDL();
@@ -137,7 +137,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // synchronize the config values with the various game subsystems
     // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
     // to valid values
-    config_download( &cfg );
+    config_download( &cfg, btrue );
 
     log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL );
     GLSetup_SupportedFormats();
@@ -535,7 +535,7 @@ void memory_cleanUp( void )
     _quit_game( EProc );
 
     // synchronize the config values with the various game subsystems
-    config_synch( &cfg );
+    config_synch( &cfg, btrue );
 
     // quit the setup system, making sure that the setup file is written
     setup_write_vfs();
@@ -707,13 +707,17 @@ Uint32 egoboo_get_ticks( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t config_download( egoboo_config_t * pcfg )
+bool_t config_download( egoboo_config_t * pcfg, bool_t synch_from_file )
 {
     int tmp_maxparticles;
     bool_t rv;
 
-    rv = setup_download( pcfg );
-    if ( !rv ) return bfalse;
+	// synchronize settings from a pre-loaded setup.txt? (this will load setup.txt into *pcfg)
+	if( synch_from_file )
+	{
+		rv = setup_download( pcfg );
+		if ( !rv ) return bfalse;
+	}
 
     // status display
     StatusList.on = pcfg->show_stats;
@@ -723,7 +727,7 @@ bool_t config_download( egoboo_config_t * pcfg )
 
     // message display
     DisplayMsg_count    = CLIP( pcfg->message_count_req, EGO_MESSAGE_MIN, EGO_MESSAGE_MAX );
-    DisplayMsg_on     = pcfg->message_count_req > 0;
+    DisplayMsg_on       = pcfg->message_count_req > 0;
     wraptolerance = pcfg->show_stats ? 90 : 32;
 
     // Get the particle limit

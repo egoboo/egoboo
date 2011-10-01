@@ -57,7 +57,7 @@ extern "C"
     bool_t egolib_throttle_update_1( egolib_throttle_t * pclock, int granularity );
     bool_t egolib_throttle_update_diff( egolib_throttle_t * pclock, int diff );
 
-#define EGOLIB_THROTTLE_INIT { -1 }
+#define EGOLIB_THROTTLE_INIT { -1, 0, 0, 0, 0 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -2898,14 +2898,14 @@ int doGameOptions( float deltaTime )
             }
             sz_buttons[0] = Cdifficulty;
 
-            DisplayMsg_count = CLIP( DisplayMsg_count, EGO_MESSAGE_STD, EGO_MESSAGE_MAX );
-            if ( 0 == DisplayMsg_count )
+            cfg.message_count_req = CLIP( cfg.message_count_req, 0, EGO_MESSAGE_MAX );
+            if ( 0 == cfg.message_count_req )
             {
                 snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "None" );          // Set to default
             }
             else
             {
-                snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "%i", DisplayMsg_count );
+                snprintf( Cmaxmessage, SDL_arraysize( Cmaxmessage ), "%i", cfg.message_count_req );
             }
             sz_buttons[1] = Cmaxmessage;
 
@@ -3108,8 +3108,8 @@ int doGameOptions( float deltaTime )
             // Save settings
             if ( BUTTON_UP == ui_doButton( 7, sz_buttons[6], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
-                // synchronize the config values with the various game subsystems
-                config_synch( &cfg );
+				//apply changes
+				config_synch(&cfg, bfalse);
 
                 // save the setup file
                 setup_write_vfs();
@@ -3335,8 +3335,8 @@ int doAudioOptions( float deltaTime )
             //Save settings
             if ( BUTTON_UP == ui_doButton( 9, sz_buttons[8], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
-                // synchronize the config values with the various game subsystems
-                config_synch( &cfg );
+				//apply changes
+				config_synch(&cfg, bfalse);
 
                 // save the setup file
                 setup_write_vfs();
@@ -4133,9 +4133,9 @@ int doVideoOptions( float deltaTime )
             {
                 menuChoice = 1;
 
-                // synchronize the config values with the various game subsystems
-                config_synch( &cfg );
-
+				//apply changes
+				config_synch(&cfg, bfalse);
+				
                 // save the setup file
                 setup_write_vfs();
 

@@ -3566,7 +3566,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     game_setup_module( modname );
 
     // make sure the per-module configuration settings are correct
-    config_synch( &cfg );
+    config_synch( &cfg, btrue );
 
     // initialize the game objects
     initialize_all_objects();
