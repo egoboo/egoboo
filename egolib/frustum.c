@@ -205,6 +205,16 @@ egolib_rv egolib_frustum_calculate( egolib_frustum_t * pf, const float proj[], c
 //--------------------------------------------------------------------------------------------
 geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust, const ego_aabb_t * paabb )
 {
+    /// @author BB
+    /// @details determine the geometric relationship between the given frustum and axis-aligned bounding box
+    ///
+    /// @notes the return values deal with the aabb being inside the frustum or not
+    ///
+    /// geometry_error     - obvious
+    /// geometry_outside   - the aabb is outside the frustum 
+    /// geometry_intersect - the aabb and the frustum partially overlap
+    /// geometry_inside    - the aabb is completely inside the frustum
+
     geometry_rv retval = geometry_error;
     geometry_rv intersect_rv;
     bool_t finished;
@@ -222,23 +232,27 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
             case geometry_error:
                 // an error occured in this function
                 retval = geometry_error;
-                finished = btrue;
                 break;
 
             case geometry_outside:
+                // the camera being outside the bounding volume means nothing by itself
                 /* do nothing */
                 break;
 
             case geometry_intersect:
+                // this is not emitted by point_intersects_aabb() at this time
+                // merge with the next case
+
             case geometry_inside:
-                // the camera is inside the bounding box
-                // just say that the frustum intersects the box
+                // The camera is inside the bounding box, so it must intersect with it.
+                // As a speedup, don't try to further refine this answer.
                 retval = geometry_intersect;
                 finished = btrue;
                 break;
         }
     }
 
+    // ... this calculation takes too much time ...
     //if ( !finished )
     //{
     //    intersect_rv = sphere_intersects_sphere( &( pfrust->sphere ), &( paabb->sphere ) );
@@ -267,36 +281,41 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
 
     if ( !finished )
     {
-        retval = cone_intersects_sphere( &( pfrust->cone ), &( paabb->sphere ) );
-        finished = btrue;
+        intersect_rv = cone_intersects_sphere( &( pfrust->cone ), &( paabb->sphere ) );
 
-        //switch ( intersect_rv )
-        //{
-        //    case geometry_error:
-        //        // an error occured in this function
-        //        retval = geometry_error;
-        //        finished = btrue;
-        //        break;
+        switch ( intersect_rv )
+        {
+            case geometry_error:
+                // an error occured in this function
+                retval = geometry_error;
+                break;
 
-        //    case geometry_outside:
-        //        // the cone representing the camera frustum does not intersect the sphere surrounding the aabb
-        //        retval = geometry_outside;
-        //        finished = btrue;
-        //        break;
+            case geometry_outside:
+                // the cone representing the camera frustum does not intersect the sphere surrounding the aabb
+                // since the cone is bigger than the frustum, we are done
+                retval = geometry_outside;
+                finished = btrue;
+                break;
 
-        //    case geometry_intersect:
-        //    case geometry_inside:
-        //        /* do nothing */
-        //        break;
-        //}
+            case geometry_intersect:
+                retval = geometry_intersect;
+                finished = btrue;
+                break;
+                
+            case geometry_inside:
+                retval = geometry_inside;
+                finished = btrue;
+                break;
+        }
     }
 
-    //if ( !finished )
-    //{
-    //    // do the complete calculation
-    //    retval = frustum_intersects_aabb( pfrust->data, paabb->data.mins, paabb->data.maxs );
-    //    finished = btrue;
-    //}
+    if ( !finished )
+    {
+        // do the complete calculation. whatever it returns is what it is.
+        // do not check the front and back of the frustum
+        retval = frustum_intersects_aabb( pfrust->data, paabb->data.mins, paabb->data.maxs, bfalse );
+        finished = btrue;
+    }
 
     return retval;
 }

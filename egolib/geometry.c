@@ -165,6 +165,8 @@ geometry_rv plane_intersects_aabb_max( const plane_base_t plane, const fvec3_bas
     int   j;
     float dist, tmp;
 
+    geometry_rv retval = geometry_error;
+
     // find the point-plane distance for the most-positive points of the aabb
     dist = 0.0f;
     for ( j = 0; j < 3; j++ )
@@ -174,7 +176,20 @@ geometry_rv plane_intersects_aabb_max( const plane_base_t plane, const fvec3_bas
     }
     dist += plane[3];
 
-    return ( dist > 0.0f ) ? geometry_inside : geometry_outside;
+    if( dist > 0.0f  )
+    {
+        retval = geometry_inside;
+    }
+    else if ( dist < 0.0f  )
+    {
+        retval = geometry_outside;
+    }
+    else
+    {
+        retval = geometry_intersect;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -182,6 +197,8 @@ geometry_rv plane_intersects_aabb_min( const plane_base_t plane, const fvec3_bas
 {
     int   j;
     float dist, tmp;
+
+    geometry_rv retval = geometry_error;
 
     // find the point-plane distance for the most-negative points of the aabb
     dist = 0.0f;
@@ -192,7 +209,20 @@ geometry_rv plane_intersects_aabb_min( const plane_base_t plane, const fvec3_bas
     }
     dist += plane[3];
 
-    return ( dist > 0.0f ) ? geometry_inside : geometry_outside;
+    if( dist > 0.0f  )
+    {
+        retval = geometry_inside;
+    }
+    else if ( dist < 0.0f  )
+    {
+        retval = geometry_outside;
+    }
+    else
+    {
+        retval = geometry_intersect;
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -291,11 +321,11 @@ bool_t three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, co
 //--------------------------------------------------------------------------------------------
 // frustum functions
 //--------------------------------------------------------------------------------------------
-geometry_rv frustum_intersects_point( const frustum_base_t planes, const fvec3_base_t pos )
+geometry_rv frustum_intersects_point( const frustum_base_t planes, const fvec3_base_t pos, const bool_t do_ends )
 {
     // if the distance to the plane is negative for any plane, the point is outside the frustum
 
-    int i;
+    int i, i_stt, i_end;
     bool_t inside;
 
     // error trap
@@ -304,8 +334,20 @@ geometry_rv frustum_intersects_point( const frustum_base_t planes, const fvec3_b
     // assume the worst
     inside = btrue;
 
+    // handle optional parameters
+    if( do_ends )
+    {
+        i_stt = 0;
+        i_end = FRUST_PLANE_END;
+    }
+    else
+    {
+        i_stt = 0;
+        i_end = FRUST_SIDES_END;
+    }
+
     // scan through the frustum's planes
-    for ( i = 0; i < FRUST_PLANE_COUNT; i++ )
+    for ( i = i_stt; i <= i_end; i++ )
     {
         if ( plane_point_distance( planes[i], pos ) <= 0.0f )
         {
@@ -318,11 +360,11 @@ geometry_rv frustum_intersects_point( const frustum_base_t planes, const fvec3_b
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv frustum_intersects_sphere( const frustum_base_t planes, const fvec3_base_t pos, const float radius )
+geometry_rv frustum_intersects_sphere( const frustum_base_t planes, const fvec3_base_t pos, const float radius, const bool_t do_ends )
 {
     // if the sphere is outside one plane farther than its radius, it is outside the frustum
 
-    int i;
+    int i, i_stt, i_end;
 
     geometry_rv retval;
 
@@ -332,14 +374,26 @@ geometry_rv frustum_intersects_sphere( const frustum_base_t planes, const fvec3_
     // reduce lhs to a simpler function if possible
     if ( radius <= 0.0f )
     {
-        return frustum_intersects_point( planes, pos );
+        return frustum_intersects_point( planes, pos, do_ends );
     }
 
     // assume inside
     retval = geometry_inside;
 
+    // handle optional parameters
+    if( do_ends )
+    {
+        i_stt = 0;
+        i_end = FRUST_PLANE_END;
+    }
+    else
+    {
+        i_stt = 0;
+        i_end = FRUST_SIDES_END;
+    }
+
     // scan each plane
-    for ( i = 0; i < FRUST_PLANE_COUNT; i++ )
+    for ( i = i_stt; i <= i_end; i++ )
     {
         float dist = plane_point_distance( planes[i], pos );
 
@@ -362,9 +416,10 @@ geometry_rv frustum_intersects_sphere( const frustum_base_t planes, const fvec3_
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv frustum_intersects_cube( const frustum_base_t planes, const fvec3_base_t pos, const float size )
+geometry_rv frustum_intersects_cube( const frustum_base_t planes, const fvec3_base_t pos, const float size, const bool_t do_ends )
 {
-    int          i, j;
+    int          i, i_stt, i_end;
+    int          j;
     geometry_rv     retval;
     fvec3_base_t vmin, vmax;
 
@@ -373,7 +428,19 @@ geometry_rv frustum_intersects_cube( const frustum_base_t planes, const fvec3_ba
     // assume that it is inside
     retval = geometry_inside;
 
-    for ( i = 0; i < FRUST_PLANE_COUNT; i++ )
+    // handle optional parameters
+    if( do_ends )
+    {
+        i_stt = 0;
+        i_end = FRUST_PLANE_END;
+    }
+    else
+    {
+        i_stt = 0;
+        i_end = FRUST_SIDES_END;
+    }
+
+    for ( i = i_stt; i <= i_end; i++ )
     {
         const plane_base_t * plane = planes + i;
 
@@ -410,9 +477,21 @@ geometry_rv frustum_intersects_cube( const frustum_base_t planes, const fvec3_ba
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv frustum_intersects_aabb( const frustum_base_t planes, const fvec3_base_t mins, const fvec3_base_t maxs )
+geometry_rv frustum_intersects_aabb( const frustum_base_t planes, const fvec3_base_t mins, const fvec3_base_t maxs, const bool_t do_ends )
 {
-    int      i;
+    /// @author BB
+    ///
+    /// @details  A complete test for frustum and axis-aligned bounding box tests. This is not potimized
+    ///           and requires a bunch of floating point operations, so try to avoid it.
+    ///
+    /// @notes 
+    /// the return values deal with the aabb being inside the frustum or not
+    /// geometry_error     - obvious
+    /// geometry_outside   - the aabb is outside the frustum 
+    /// geometry_intersect - the aabb and the frustum partially overlap
+    /// geometry_inside    - the aabb is completely inside the frustum
+
+    int      i, i_stt, i_end;
     geometry_rv retval;
 
     if ( NULL == planes || NULL == mins || NULL == maxs ) return geometry_error;
@@ -420,8 +499,20 @@ geometry_rv frustum_intersects_aabb( const frustum_base_t planes, const fvec3_ba
     // assume that it is inside
     retval = geometry_inside;
 
+    // handle optional parameters
+    if( do_ends )
+    {
+        i_stt = 0;
+        i_end = FRUST_PLANE_END;
+    }
+    else
+    {
+        i_stt = 0;
+        i_end = FRUST_SIDES_END;
+    }
+
     // scan through the planes until something happens
-    for ( i = 0; i < FRUST_PLANE_COUNT; i++ )
+    for ( i = i_stt; i <= i_end; i++ )
     {
         if ( geometry_outside == plane_intersects_aabb_max( planes[i], mins, maxs ) )
         {
@@ -441,8 +532,9 @@ geometry_rv frustum_intersects_aabb( const frustum_base_t planes, const fvec3_ba
     {
         // If we are in geometry_intersect mode, we only need to check for
         // the geometry_outside condition.
+
         // This eliminates a geometry_inside == retval test in every iteration of the loop
-        for ( /* nothing */ ; i < FRUST_PLANE_COUNT; i++ )
+        for ( /* nothing */ ; i <= i_end; i++ )
         {
             if ( geometry_outside == plane_intersects_aabb_max( planes[i], mins, maxs ) )
             {
@@ -564,7 +656,7 @@ geometry_rv cone_intersects_point( const cone_t * K, const fvec3_base_t P )
             //test2 = para_dist_2 - dist_2 * (1.0f - K->sin_2);
 
             // alternate test 2 for being inside:
-            // the cosine of the of the angle between the point and the axis must be greater than the given sine
+            // the cosine of the of the angle between the point and the axis must be greater than the given cosine
             // sqrt( para_dist_2 / dist_2 ) > sqrt( K->cos_2 )
             // para_dist_2 > dist_2 * K->cos_2
             test3 = para_dist_2 - dist_2 * K->cos_2;
@@ -591,9 +683,20 @@ geometry_rv cone_intersects_point( const cone_t * K, const fvec3_base_t P )
 //--------------------------------------------------------------------------------------------
 geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 {
-    // an approximation to the complete sphere-cone test.
-    // currently, the spherical region around the origin of the cone has no special test and
-    // a small volume behind the origin of the cone is not being culled.
+    /// @author BB
+    ///
+    /// @details  An approximation to the complete sphere-cone test.
+    ///
+    /// @notes 
+    /// Tests to remove some volume between the foreward and rear versions of the cone are not implemented,
+    /// so this will over-estimate the cone volume. The smaller the opening angle, the worse the overestimation
+    /// will be
+    ///
+    /// the return values deal with the sphere being inside the cone or not
+    /// geometry_error     - obvious
+    /// geometry_outside   - the aabb is outside the frustum 
+    /// geometry_intersect - the aabb and the frustum partially overlap
+    /// geometry_inside    - the aabb is completely inside the frustum
 
     geometry_rv retval = geometry_error;
     bool_t done;
@@ -608,7 +711,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
     }
 
     // cones with bad data are not useful
-    if ( K->sin_2 < 0.0f || K->cos_2 > 1.0f )
+    if ( K->sin_2 <= 0.0f || K->sin_2 > 1.0f || K->cos_2 >= 1.0f )
     {
         return geometry_error;
     }
@@ -635,10 +738,10 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
         cone_t  K_new;
 
         // Shift the origin by the offset in the positive sense.
-        // If the center of the sphere is inside this cone, it must be competely inside the original cone
         memcpy( &K_new, K, sizeof( K_new ) );
         fvec3_add( K_new.origin.v, K->origin.v, offset_vec.v );
 
+        // If the center of the sphere is inside this cone, it must be competely inside the original cone
         switch ( cone_intersects_point( &K_new, S->origin.v ) )
         {
             case geometry_error:
@@ -646,16 +749,14 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
                 done = btrue;
                 break;
 
-            case geometry_outside:
+            case geometry_outside: // the center of the sphere is outside the foreward cone
                 /* do nothing */
                 break;
 
-            case geometry_intersect:
-                retval = geometry_intersect;
-                done = btrue;
-                break;
-
-            case geometry_inside:
+            case geometry_intersect: // the origin of the cone is exactly on the foreward cone
+            case geometry_inside:    // the origin of the sphere is inside the foreward cone
+                
+                // the sphere is completely inside the original cone
                 retval = geometry_inside;
                 done = btrue;
                 break;
@@ -668,11 +769,11 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
         cone_t  K_new;
 
         // Shift the origin by the offset in the negative sense.
-        // If the center of the sphere is inside this cone, it must be intersecting the original cone.
-        // Since it failed the other cone test it must, in fact, be merely intersecting the cone.
         memcpy( &K_new, K, sizeof( K_new ) );
         fvec3_sub( K_new.origin.v, K->origin.v, offset_vec.v );
 
+        // If the center of the sphere is inside this cone, it must be intersecting the original cone.
+        // Since it failed test with the foreward cone, it must be merely intersecting the cone.
         switch ( cone_intersects_point( &K_new, S->origin.v ) )
         {
             case geometry_error:

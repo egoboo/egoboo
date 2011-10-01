@@ -452,7 +452,9 @@ static void  draw_hud( void );
 static void  draw_inventory( void );
 
 static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
-static bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct );
+static bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct, const bool_t do_ends );
+
+static void gfx_reload_decimated_textures( void );
 
 static gfx_rv update_one_chr_instance( struct s_chr * pchr );
 static gfx_rv gfx_update_all_chr_instance( void );
@@ -471,6 +473,23 @@ static void   gfx_init_blip_data( void );
 static void   gfx_init_map_data( void );
 
 static SDL_Surface * gfx_create_SDL_Surface( int w, int h );
+
+//--------------------------------------------------------------------------------------------
+// Utility functions
+//--------------------------------------------------------------------------------------------
+SDL_Surface * gfx_create_SDL_Surface( int w, int h )
+{
+    SDL_PixelFormat   tmpformat;
+
+    if ( NULL == sdl_scr.pscreen ) return NULL;
+
+    // expand the screen format to support alpha
+    memcpy( &tmpformat, sdl_scr.pscreen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
+    SDLX_ExpandFormat( &tmpformat );
+
+    return SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
+}
+
 
 //--------------------------------------------------------------------------------------------
 // renderlist_ary implementation
@@ -2117,9 +2136,9 @@ void gfx_system_reload_all_textures( void )
     /// @details function is called when the graphics mode is changed or the program is
     /// restored from a minimized state. Otherwise, all OpenGL bitmaps return to a random state.
 
-    //TxTitleImage_reload_all();
     TxList_reload_all();
     mnu_TxList_reload_all();
+    gfx_reload_decimated_textures();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2785,6 +2804,7 @@ void draw_map( void )
         if ( youarehereon && ( update_wld & 8 ) )
         {
             PLA_REF iplayer;
+
             for ( iplayer = 0; iplayer < MAX_PLAYER; iplayer++ )
             {
 				 CHR_REF ichr;
@@ -5286,7 +5306,7 @@ void gfx_init_blip_data( void )
     }
 
     youarehereon = bfalse;
-    blip_count      = 0;
+    blip_count   = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6572,7 +6592,7 @@ void gfx_reset_timers( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct )
+bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct, const bool_t do_ends )
 {
     bool_t retval = bfalse;
     aabb_t aabb;
@@ -6582,7 +6602,10 @@ bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t *
     retval = bfalse;
     if ( aabb_from_oct_bb( &aabb, poct ) )
     {
-        retval = ( frustum_intersects_aabb( pf->data, aabb.mins, aabb.maxs ) > geometry_outside );
+        // ignore the ends of the frustum for a little bit of a speed-up
+        geometry_rv frustum_rv = frustum_intersects_aabb( pf->data, aabb.mins, aabb.maxs, do_ends );
+
+        retval = (  frustum_rv > geometry_outside );
     }
 
     return retval;
@@ -6728,6 +6751,7 @@ void gfx_system_end_decimated_textures()
 }
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 oglx_texture_t * gfx_get_mesh_tx_sml( int which )
 {
     if( !_gfx_system_mesh_textures_initialized ) return NULL;
@@ -6745,20 +6769,6 @@ oglx_texture_t * gfx_get_mesh_tx_big( int which )
     if( which < 0 || which >= mesh_tx_big_cnt || which >= MESH_IMG_COUNT ) return NULL;
 
     return mesh_tx_big + which;
-}
-
-//--------------------------------------------------------------------------------------------
-SDL_Surface * gfx_create_SDL_Surface( int w, int h )
-{
-    SDL_PixelFormat   tmpformat;
-
-    if ( NULL == sdl_scr.pscreen ) return NULL;
-
-    // expand the screen format to support alpha
-    memcpy( &tmpformat, sdl_scr.pscreen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
-    SDLX_ExpandFormat( &tmpformat );
-
-    return SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6876,6 +6886,38 @@ void gfx_decimate_all_mesh_textures()
         ptx = TxList_get_valid_ptr( TX_TILE_0 + cnt );
 
         mesh_tx_big_cnt = gfx_decimate_one_mesh_texture( ptx, mesh_tx_big, mesh_tx_big_cnt, 2 );
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void gfx_reload_decimated_textures( void )
+{
+    /// @author BB
+    /// @details This function re-loads all the current textures back into
+    ///               OpenGL texture memory using the cached SDL surfaces
+
+    TX_REF cnt;
+    size_t count;
+
+    if( !_gfx_system_mesh_textures_initialized ) return;
+
+    count = MIN(MESH_IMG_COUNT, mesh_tx_sml_cnt);
+    for ( cnt = 0; cnt < count; cnt++ )
+    {
+        if ( oglx_texture_Valid( mesh_tx_sml + cnt ) )
+        {
+            oglx_texture_Convert( mesh_tx_sml + cnt, mesh_tx_sml[cnt].surface, INVALID_KEY );
+        }
+    }
+
+    count = MIN(MESH_IMG_COUNT, mesh_tx_big_cnt);
+    for ( cnt = 0; cnt < count; cnt++ )
+    {
+        if ( oglx_texture_Valid( mesh_tx_big + cnt ) )
+        {
+            oglx_texture_Convert( mesh_tx_big + cnt, mesh_tx_big[cnt].surface, INVALID_KEY );
+        }
     }
 }
 

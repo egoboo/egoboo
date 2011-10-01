@@ -2443,7 +2443,7 @@ bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const egolib_f
     /// @author BB
     /// @details check for collisions with the given node list
 
-    size_t       cnt, lost_nodes;
+    size_t       cnt, colst_size, lost_nodes;
     BSP_leaf_t * pleaf;
     bool_t       retval;
 
@@ -2453,21 +2453,20 @@ bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const egolib_f
     // if the list is empty, there is nothing to do
     if ( EMPTY_BSP_LEAF_LIST( LL ) ) return btrue;
 
-    // NOTE: this has already been tested in the parent function
-    //// we already have the bounding box of all the leafs
-    //if ( !egolib_frustum_intersects_ego_aabb( pfrust, &(LL->bbox) ) )
-    //{
-    //    return bfalse;
-    //}
+    // we already have the bounding box of all the leafs
+    if ( !egolib_frustum_intersects_ego_aabb( pfrust, &(LL->bbox) ) )
+    {
+        return bfalse; 
+    }
 
-    // NOTE: this is already tested by DYNAMIC_ARY_INVALID( colst )
-    //// if there is no more room in the colist, return bfalse
-    //colst_size = BSP_leaf_pary_get_size( colst );
-    //if ( 0 == colst_size || BSP_leaf_pary_get_top( colst ) >= colst_size )
-    //{
-    //    return bfalse;
-    //}
+    // if there is no more room in the colist, return bfalse
+    colst_size = BSP_leaf_pary_get_size( colst );
+    if ( 0 == colst_size || BSP_leaf_pary_get_top( colst ) >= colst_size )
+    {
+        return bfalse;
+    }
 
+    // assume the best
     lost_nodes = 0;
 
     // scan through every leaf

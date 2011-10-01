@@ -110,7 +110,7 @@ void TxList_delete_all( void )
 //--------------------------------------------------------------------------------------------
 void TxList_reload_all( void )
 {
-    /// @author ZZ
+    /// @author BB
     /// @details This function re-loads all the current textures back into
     ///               OpenGL texture memory using the cached SDL surfaces
 

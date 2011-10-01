@@ -139,7 +139,11 @@ extern "C"
         FRUST_PLANE_TOP,
         FRUST_PLANE_BACK,
         FRUST_PLANE_FRONT,
-        FRUST_PLANE_COUNT
+        FRUST_PLANE_COUNT,
+
+        // some aliases
+        FRUST_PLANE_END   = FRUST_PLANE_FRONT,
+        FRUST_SIDES_END   = FRUST_PLANE_TOP
     };
 
     typedef plane_base_t frustum_base_t[FRUST_PLANE_COUNT];
@@ -159,10 +163,10 @@ extern "C"
     geometry_rv cone_intersects_point( const cone_t * lhs, const fvec3_base_t rhs );
     geometry_rv cone_intersects_sphere( const cone_t * lhs, const sphere_t * rhs );
 
-    geometry_rv frustum_intersects_point( const frustum_base_t pf, const fvec3_base_t pos );
-    geometry_rv frustum_intersects_sphere( const frustum_base_t pf, const fvec3_base_t pos, const float radius );
-    geometry_rv frustum_intersects_cube( const frustum_base_t pf, const fvec3_base_t pos, const float size );
-    geometry_rv frustum_intersects_aabb( const frustum_base_t pf, const fvec3_base_t corner1, const fvec3_base_t corner2 );
+    geometry_rv frustum_intersects_point( const frustum_base_t pf, const fvec3_base_t pos, const bool_t do_ends );
+    geometry_rv frustum_intersects_sphere( const frustum_base_t pf, const fvec3_base_t pos, const float radius, const bool_t do_ends );
+    geometry_rv frustum_intersects_cube( const frustum_base_t pf, const fvec3_base_t pos, const float size, const bool_t do_ends );
+    geometry_rv frustum_intersects_aabb( const frustum_base_t pf, const fvec3_base_t corner1, const fvec3_base_t corner2, const bool_t do_ends );
 
 //--------------------------------------------------------------------------------------------
 // misc routines
