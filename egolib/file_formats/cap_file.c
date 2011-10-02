@@ -842,7 +842,6 @@ SKIN_T cap_get_skin( cap_t * pcap )
 
 	if( NULL == pcap ) return MAX_SKIN;
 
-    retval = 0;
     if ( NO_SKIN_OVERRIDE != pcap->spelleffect_type )
     {
         retval = pcap->spelleffect_type % MAX_SKIN;

@@ -3983,7 +3983,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     }
 
     // Skin
-	pchr->spawn_data.skin = cap_get_skin( pcap );
+	//pchr->spawn_data.skin = cap_get_skin( pcap );
     if ( pchr->spawn_data.skin >= ProList.lst[pchr->spawn_data.profile].skins )
     {
         // place this here so that the random number generator advances
