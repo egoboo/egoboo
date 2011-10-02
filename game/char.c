@@ -3918,13 +3918,16 @@ chr_t * chr_config_do_init( chr_t * pchr )
     int      tnc, iteam, kursechance;
 
     cap_t * pcap;
+    pro_t * ppro;
+    chr_spawn_data_t * spawn_ptr;
     fvec3_t pos_tmp;
 
     if ( NULL == pchr ) return NULL;
     ichr = GET_INDEX_PCHR( pchr );
+    spawn_ptr = &(pchr->spawn_data);
 
     // get the character profile pointer
-    pcap = pro_get_pcap( pchr->spawn_data.profile );
+    pcap = pro_get_pcap( spawn_ptr->profile );
     if ( NULL == pcap )
     {
         log_debug( "chr_config_do_init() - cannot initialize character.\n" );
@@ -3933,19 +3936,28 @@ chr_t * chr_config_do_init( chr_t * pchr )
     }
 
     // get the character profile index
-    icap = pro_get_icap( pchr->spawn_data.profile );
+    icap = pro_get_icap( spawn_ptr->profile );
+
+    // get a pointer to the character profile
+    ppro = ProList_get_ptr( spawn_ptr->profile );
+    if ( NULL == ppro )
+    {
+        log_debug( "chr_config_do_init() - cannot initialize character.\n" );
+
+        return NULL;
+    }
 
     // turn the character on here. you can't fail to spawn after this point.
     POBJ_ACTIVATE( pchr, pcap->name );
 
-    // make a copy of the data in pchr->spawn_data.pos
-    pos_tmp = pchr->spawn_data.pos;
+    // make a copy of the data in spawn_ptr->pos
+    pos_tmp = spawn_ptr->pos;
 
-    // download all the values from the character pchr->spawn_data.profile
+    // download all the values from the character spawn_ptr->profile
     chr_download_cap( pchr, pcap );
 
-    // Make sure the pchr->spawn_data.team is valid
-    loc_team = pchr->spawn_data.team;
+    // Make sure the spawn_ptr->team is valid
+    loc_team = spawn_ptr->team;
     iteam = REF_TO_INT( loc_team );
     iteam = CLIP( iteam, 0, TEAM_MAX );
     loc_team = ( TEAM_REF )iteam;
@@ -3954,8 +3966,8 @@ chr_t * chr_config_do_init( chr_t * pchr )
     pchr->missilehandler = ichr;
 
     // Set up model stuff
-    pchr->profile_ref   = pchr->spawn_data.profile;
-    pchr->basemodel_ref = pchr->spawn_data.profile;
+    pchr->profile_ref   = spawn_ptr->profile;
+    pchr->basemodel_ref = spawn_ptr->profile;
 
     // Kurse state
     if ( pcap->isitem )
@@ -3982,32 +3994,42 @@ chr_t * chr_config_do_init( chr_t * pchr )
         TeamStack.lst[loc_team].leader = ichr;
     }
 
-    // Skin
-	//pchr->spawn_data.skin = cap_get_skin( pcap );
-    if ( pchr->spawn_data.skin >= ProList.lst[pchr->spawn_data.profile].skins )
+    // Heal the spawn_data.skin, if needed
+    if ( spawn_ptr->skin < 0 )
     {
+        pchr->skin = cap_get_skin( pcap );
+    }
+    else if( spawn_ptr->skin >= MAX_SKIN )
+    {
+        // This is a "random" skin.
+        // Force it to some specific value so it will go back to the same skin every respawn
+
         // place this here so that the random number generator advances
-        // no matter the state of ProList.lst[pchr->spawn_data.profile].skins... Eases
-        // possible synch problems with other systems?
+        // no matter the state of ProList.lst[spawn_ptr->profile].skins... 
+        // Eases possible synch problems with other systems?
         int irand = RANDIE;
 
-        pchr->spawn_data.skin = 0;
-        if ( 0 != ProList.lst[pchr->spawn_data.profile].skins )
+        spawn_ptr->skin = 0;
+        if ( NULL != ppro && 0 != ppro->skins )
         {
-            pchr->spawn_data.skin = irand % ProList.lst[pchr->spawn_data.profile].skins;
+            spawn_ptr->skin = irand % ppro->skins;
         }
     }
 
+    // actually set the character skin
+    if( spawn_ptr->skin >= 0 && spawn_ptr->skin <= ppro->skins )
+    {
+        pchr->skin = spawn_ptr->skin;
+    }
+    else
+    {
+        pchr->skin = cap_get_skin( pcap );
+    }
 
-	pchr->skin = 0;
-	if( pchr->spawn_data.skin >= 0 )
-	{
-		pchr->skin = pchr->spawn_data.skin % MAX_SKIN;
-	}
 
-    // fix the pchr->spawn_data.skin-related parameters, in case there was some funny business with overriding
-    // the pchr->spawn_data.skin from the data.txt file
-    // if ( pchr->spawn_data.skin != pchr->skin )
+    // fix the spawn_ptr->skin-related parameters, in case there was some funny business with overriding
+    // the spawn_ptr->skin from the data.txt file
+    // if ( spawn_ptr->skin != pchr->skin )
     {
         pchr->defense = pcap->defense[pchr->skin];
         for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
@@ -4038,23 +4060,23 @@ chr_t * chr_config_do_init( chr_t * pchr )
     pchr->pos_stt  = pos_tmp;
     pchr->pos_old  = pos_tmp;
 
-    pchr->ori.facing_z     = pchr->spawn_data.facing;
+    pchr->ori.facing_z     = spawn_ptr->facing;
     pchr->ori_old.facing_z = pchr->ori.facing_z;
 
     // Name the character
-    if ( CSTR_END == pchr->spawn_data.name[0] )
+    if ( CSTR_END == spawn_ptr->name[0] )
     {
-        // Generate a random pchr->spawn_data.name
-        snprintf( pchr->Name, SDL_arraysize( pchr->Name ), "%s", pro_create_chop( pchr->spawn_data.profile ) );
+        // Generate a random spawn_ptr->name
+        snprintf( pchr->Name, SDL_arraysize( pchr->Name ), "%s", pro_create_chop( spawn_ptr->profile ) );
     }
     else
     {
-        // A pchr->spawn_data.name has been given
+        // A spawn_ptr->name has been given
         tnc = 0;
 
         while ( tnc < MAXCAPNAMESIZE - 1 )
         {
-            pchr->Name[tnc] = pchr->spawn_data.name[tnc];
+            pchr->Name[tnc] = spawn_ptr->name[tnc];
             tnc++;
         }
 
@@ -4100,7 +4122,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     //}
 
     // initalize the character instance
-    chr_instance_spawn( &( pchr->inst ), pchr->spawn_data.profile, pchr->spawn_data.skin );
+    chr_instance_spawn( &( pchr->inst ), spawn_ptr->profile, spawn_ptr->skin );
     chr_update_matrix( pchr, btrue );
 
     // determine whether the object is hidden

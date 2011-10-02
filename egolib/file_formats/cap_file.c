@@ -392,8 +392,9 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'S', 'H', 'A', 'D' ) ) pcap->forceshadow = ( 0 != vfs_get_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'S', 'K', 'I', 'N' ) ) 
 		{
+            // ??? ZF, what is the valus of this integer for a random skin ???
 			int iTmp = vfs_get_int( fileread );
-			pcap->skin_override = (iTmp < 0) ? -1 : (iTmp % MAX_SKIN);
+			pcap->skin_override = (iTmp < 0) ? -1 : iTmp;
 		}
         else if ( idsz == MAKE_IDSZ( 'C', 'O', 'N', 'T' ) ) pcap->content_override = vfs_get_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'T' ) ) pcap->state_override = vfs_get_int( fileread );
