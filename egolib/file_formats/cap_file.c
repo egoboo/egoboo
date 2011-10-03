@@ -392,9 +392,15 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'S', 'H', 'A', 'D' ) ) pcap->forceshadow = ( 0 != vfs_get_int( fileread ) );
         else if ( idsz == MAKE_IDSZ( 'S', 'K', 'I', 'N' ) ) 
 		{
-            // ??? ZF, what is the valus of this integer for a random skin ???
-			int iTmp = vfs_get_int( fileread );
-			pcap->skin_override = (iTmp < 0) ? -1 : iTmp;
+            /// @note BB@> This is the skin value of a saved character.
+            ///            It should(!) correspond to a valid skin for this object,
+            ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or MAX_SKIN)
+
+            int iTmp = vfs_get_int( fileread );
+
+            iTmp = (iTmp < 0) ? NO_SKIN_OVERRIDE : iTmp;
+            iTmp = (iTmp > MAX_SKIN) ? MAX_SKIN : iTmp;
+            pcap->skin_override = iTmp;
 		}
         else if ( idsz == MAKE_IDSZ( 'C', 'O', 'N', 'T' ) ) pcap->content_override = vfs_get_int( fileread );
         else if ( idsz == MAKE_IDSZ( 'S', 'T', 'A', 'T' ) ) pcap->state_override = vfs_get_int( fileread );
@@ -406,8 +412,15 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         else if ( idsz == MAKE_IDSZ( 'M', 'A', 'N', 'A' ) ) pcap->mana_spawn = 0xff * vfs_get_float( fileread );
         else if ( idsz == MAKE_IDSZ( 'B', 'O', 'O', 'K' ) )
 		{
-			int iTmp = vfs_get_int( fileread );
-			pcap->spelleffect_type = (iTmp < 0) ? -1 : (iTmp % MAX_SKIN);
+            /// @note BB@> This is the skin value of a saved character.
+            ///            It should(!) correspond to a valid skin for this object,
+            ///            but possibly it could have one of two special values (NO_SKIN_OVERRIDE or MAX_SKIN)
+
+            int iTmp = vfs_get_int( fileread );
+
+            iTmp = (iTmp < 0) ? NO_SKIN_OVERRIDE : iTmp;
+            iTmp = (iTmp > MAX_SKIN) ? MAX_SKIN : iTmp;
+            pcap->spelleffect_type = iTmp;
 		}
         else if ( idsz == MAKE_IDSZ( 'F', 'A', 'S', 'T' ) ) pcap->attack_fast = ( 0 != vfs_get_int( fileread ) );
 
@@ -764,7 +777,7 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     if ( -1 != pcap->isvaluable )
         vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'V', 'A', 'L', 'U' ), pcap->isvaluable );
 
-    if ( NO_SKIN_OVERRIDE != pcap->spelleffect_type )
+    if ( pcap->spelleffect_type >= 0 )
         vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), pcap->spelleffect_type );
 
     if ( pcap->attack_fast )
@@ -837,19 +850,37 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-SKIN_T cap_get_skin( cap_t * pcap )
+SKIN_T cap_get_skin_overide( cap_t * pcap )
 {
+    /// @details values of spelleffect_type or skin_override less than zero mean that the values are not valid.
+    ///          values >= mean that the value is random.
+
 	SKIN_T retval = MAX_SKIN;
+    int    irnd   = RANDIE;
 
 	if( NULL == pcap ) return MAX_SKIN;
 
-    if ( NO_SKIN_OVERRIDE != pcap->spelleffect_type )
+    if ( pcap->spelleffect_type >= 0 )
     {
-        retval = pcap->spelleffect_type % MAX_SKIN;
+        if( pcap->spelleffect_type >= MAX_SKIN )
+        {
+            retval = irnd % MAX_SKIN;
+        }
+        else
+        {
+            retval = pcap->spelleffect_type % MAX_SKIN;
+        }
     }
-    else if ( NO_SKIN_OVERRIDE != pcap->skin_override )
+    else if ( pcap->skin_override >= 0 )
     {
-        retval = pcap->skin_override % MAX_SKIN;
+        if( pcap->skin_override >= MAX_SKIN )
+        {
+            retval = irnd  % MAX_SKIN;
+        }
+        else
+        {
+            retval = pcap->skin_override % MAX_SKIN;
+        }
     }
 
 	return retval;

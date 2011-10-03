@@ -3073,7 +3073,12 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->dexterity = generate_irand_range( pcap->dexterity_stat.val );
 
     // Skin
-    pchr->skin = cap_get_skin( pcap );
+    pchr->skin = cap_get_skin_overide( pcap );
+    if( pchr->skin >= MAX_SKIN )
+    {
+        int irnd = RANDIE;
+        pchr->skin = irnd % MAX_SKIN;
+    }
 
     // Damage
     pchr->defense = pcap->defense[pchr->skin];
@@ -3994,42 +3999,33 @@ chr_t * chr_config_do_init( chr_t * pchr )
         TeamStack.lst[loc_team].leader = ichr;
     }
 
-    // Heal the spawn_data.skin, if needed
+    // Heal the spawn_ptr->skin, if needed
     if ( spawn_ptr->skin < 0 )
     {
-        pchr->skin = cap_get_skin( pcap );
+        spawn_ptr->skin = cap_get_skin_overide( pcap );
     }
-    else if( spawn_ptr->skin >= MAX_SKIN )
+
+    // cap_get_skin_overide() can return NO_SKIN_OVERIDE or MAX_SKIN, so we need to check
+    // for the "random skin marker" even if that function is called
+    if( spawn_ptr->skin >= MAX_SKIN )
     {
         // This is a "random" skin.
         // Force it to some specific value so it will go back to the same skin every respawn
+        // We are now ensuring that there are skin graphics for all skins up to MAX_SKIN, so there
+        // is no need to count the skin graphics loaded into the profile.
+        // Limiting the available skins to ones that had unique graphics may have been a mistake since
+        // the skin-dependent properties in data.txt may exist even if there are no unique graphics.
 
-        // place this here so that the random number generator advances
-        // no matter the state of ProList.lst[spawn_ptr->profile].skins... 
-        // Eases possible synch problems with other systems?
         int irand = RANDIE;
 
-        spawn_ptr->skin = 0;
-        if ( NULL != ppro && 0 != ppro->skins )
-        {
-            spawn_ptr->skin = irand % ppro->skins;
-        }
+        spawn_ptr->skin = irand % MAX_SKIN;
     }
 
     // actually set the character skin
-    if( spawn_ptr->skin >= 0 && spawn_ptr->skin <= ppro->skins )
-    {
-        pchr->skin = spawn_ptr->skin;
-    }
-    else
-    {
-        pchr->skin = cap_get_skin( pcap );
-    }
-
+    pchr->skin = CLIP(spawn_ptr->skin, 0, MAX_SKIN-1);
 
     // fix the spawn_ptr->skin-related parameters, in case there was some funny business with overriding
     // the spawn_ptr->skin from the data.txt file
-    // if ( spawn_ptr->skin != pchr->skin )
     {
         pchr->defense = pcap->defense[pchr->skin];
         for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
@@ -4847,24 +4843,39 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
     }
     else
     {
-        new_texture = ( TX_REF )TX_WATER_TOP;
-
         // do the best we can to change the skin
-        if ( NULL == ppro || 0 == ppro->skins )
-        {
-            ppro->skins = 1;
-            ppro->tex_ref[0] = TX_WATER_TOP;
 
-            loc_skin  = 0;
-            new_texture = TX_WATER_TOP;
+        // all skin numbers are technically valid
+        if( loc_skin < 0 )
+        {
+            loc_skin = 0;
+        }
+        else 
+        {
+            loc_skin %= MAX_SKIN;
+        }
+
+        // assume we cannot find a texture
+        new_texture = TX_WATER_TOP;
+
+
+        if ( NULL == ppro )
+        {
+            // should never happen
+            /* do nothing */
+        }
+        else if ( 0 == ppro->skin_gfx_cnt )
+        {
+            // should never happen if the profile loading is working
+
+            // fix the tex_ref and ico_ref
+            ppro->skin_gfx_cnt = 1;
+            ppro->tex_ref[0] = TX_WATER_TOP;
+            ppro->ico_ref[0] = TX_ICON_NULL;
         }
         else
         {
-            if ( loc_skin > ppro->skins )
-            {
-                loc_skin = 0;
-            }
-
+            // the normal thing to happen
             new_texture = ppro->tex_ref[loc_skin];
         }
 
@@ -8396,10 +8407,19 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
     }
     else if ( draw_book )
     {
-        iskin = cap_get_skin( pitem_cap );
-        iskin = CLIP( iskin, 0, bookicon_count );
+        iskin = cap_get_skin_overide( pitem_cap );
 
-        icon_ref = bookicon_ref[ iskin ];
+        if( iskin < 0 || iskin >= MAX_SKIN )
+        {
+            // no book info
+            iskin = pitem->skin;
+            icon_ref = pitem_pro->ico_ref[iskin];
+        }
+        else
+        {
+            iskin = CLIP( iskin, 0, bookicon_count );
+            icon_ref = bookicon_ref[ iskin ];
+        }
     }
 
     return icon_ref;

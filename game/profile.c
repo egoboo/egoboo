@@ -634,7 +634,7 @@ void release_all_pro_data( void )
 //--------------------------------------------------------------------------------------------
 int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
 {
-    TX_REF min_skin_tx, min_icon_tx;
+    TX_REF min_skin_tx, min_icon_tx, tmp_tx;
     int    max_skin, max_icon, max_tex;
     TX_REF iskin, iicon;
     int    cnt;
@@ -646,68 +646,87 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     if ( !VALID_PRO_RANGE( object ) ) return 0;
     pobj = ProList.lst + object;
 
+    // blank out any existing values
+    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
+    {
+        pobj->tex_ref[cnt] = INVALID_TX_REF;
+        pobj->ico_ref[cnt] = INVALID_TX_REF;
+    }
+
     // Load the skins and icons
     max_skin    = max_icon    = -1;
     min_skin_tx = min_icon_tx = INVALID_TX_REF;
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
+        // do the texture
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s/tris%d", tmploadname, cnt );
 
-        pobj->tex_ref[cnt] = TxList_load_one_vfs( newloadname, INVALID_TX_REF, TRANSCOLOR );
-        if ( VALID_TX_RANGE( pobj->tex_ref[cnt] ) )
+        tmp_tx = TxList_load_one_vfs( newloadname, INVALID_TX_REF, TRANSCOLOR );
+        if ( VALID_TX_RANGE( tmp_tx ) )
         {
+            pobj->tex_ref[cnt] = tmp_tx;
             max_skin = cnt;
+
             if ( !VALID_TX_RANGE( min_skin_tx ) )
             {
-                min_skin_tx = pobj->tex_ref[cnt];
+                min_skin_tx = tmp_tx;
             }
         }
 
+        // do the icon
         snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%d", tmploadname, cnt );
-        pobj->ico_ref[cnt] = TxList_load_one_vfs( newloadname, INVALID_TX_REF, INVALID_KEY );
 
-        if ( VALID_TX_RANGE( pobj->ico_ref[cnt] ) )
+        tmp_tx = TxList_load_one_vfs( newloadname, INVALID_TX_REF, INVALID_KEY );
+        if ( VALID_TX_RANGE( tmp_tx ) )
         {
+            pobj->ico_ref[cnt] = tmp_tx;
             max_icon = cnt;
 
             if ( !VALID_TX_RANGE( min_icon_tx ) )
             {
-                min_icon_tx = pobj->ico_ref[cnt];
+                min_icon_tx = tmp_tx;
             }
 
             if ( SPELLBOOK == object )
             {
                 if ( bookicon_count < MAX_SKIN )
                 {
-                    bookicon_ref[bookicon_count] = pobj->ico_ref[cnt];
+                    bookicon_ref[bookicon_count] = tmp_tx;
                     bookicon_count++;
                 }
             }
         }
     }
 
+    // If we didn't get a skin, set it to the water texture
     if ( max_skin < 0 )
     {
-        // If we didn't get a skin, set it to the water texture
         max_skin = 0;
-        pobj->tex_ref[max_skin] = TX_WATER_TOP;
-
+        pobj->tex_ref[max_skin] = TX_WATER_TOP;       
         log_debug( "Object is missing a skin (%s)!\n", tmploadname );
+    }
+
+    // If we didn't get a icon, set it to the NULL icon
+    if( max_icon < 0 )
+    {
+        max_icon = 0;
+        pobj->tex_ref[max_icon] = TX_ICON_NULL;       
+        log_debug( "Object is missing an icon (%s)!\n", tmploadname );
     }
 
     max_tex = MAX( max_skin, max_icon );
 
-    // fill in any missing textures
+    // fill in all missing skin graphics up to MAX_SKIN
     iskin = min_skin_tx;
     iicon = min_icon_tx;
-    for ( cnt = 0; cnt <= max_tex; cnt++ )
+    for ( cnt = 0; cnt <= MAX_SKIN; cnt++ )
     {
-        if ( VALID_TX_RANGE( pobj->tex_ref[cnt] ) && iskin != pobj->tex_ref[cnt] )
+        if ( VALID_TX_RANGE( pobj->tex_ref[cnt] ) )
         {
             iskin = pobj->tex_ref[cnt];
         }
 
-        if ( VALID_TX_RANGE( pobj->ico_ref[cnt] ) && iicon != pobj->ico_ref[cnt] )
+        if ( VALID_TX_RANGE( pobj->ico_ref[cnt] ) )
         {
             iicon = pobj->ico_ref[cnt];
         }
@@ -719,6 +738,7 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     return max_tex + 1;
 }
 
+//--------------------------------------------------------------------------------------------
 void profile_add_one_message( pro_t *pobject, const ego_message_t add_message )
 {
     /// @author ZF
@@ -993,7 +1013,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
         pobj->prtpip[cnt] = PipStack_load_one( newloadname, INVALID_PIP_REF );
     }
 
-    pobj->skins = load_profile_skins_vfs( tmploadname, iobj );
+    pobj->skin_gfx_cnt = load_profile_skins_vfs( tmploadname, iobj );
 
     // Load the waves for this iobj
     for ( cnt = 0; cnt < MAX_WAVE; cnt++ )

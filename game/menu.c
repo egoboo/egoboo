@@ -1637,7 +1637,7 @@ bool_t doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, C
             chooseplayer_ptr->cap_ref = cap_ref;
 
             // get the skin info
-			chooseplayer_ptr->skin_ref = cap_get_skin(cap_ptr);
+			chooseplayer_ptr->skin_ref = cap_get_skin_overide(cap_ptr);
 
             // load the icon of the skin
             snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer_ptr->dir, i, chooseplayer_ptr->skin_ref );
@@ -1699,7 +1699,7 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
         {
             STRING  temp_string;
             cap_t * pcap = CapStack_get_ptr( icap );
-            SKIN_T  skin = cap_get_skin( pcap );
+            SKIN_T  skin = cap_get_skin_overide( pcap );
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
@@ -4935,7 +4935,7 @@ TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const TX_REF default_ref )
     }
     else if ( draw_book )
     {
-        SKIN_T iskin = cap_get_skin( pitem_cap );
+        SKIN_T iskin = cap_get_skin_overide( pitem_cap );
 
         iskin = CLIP( iskin, 0, bookicon_count );
 
@@ -5525,7 +5525,7 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     //ptr->skin_ref = read_skin_vfs( filename );
 
     // get the skin from the [SKIN] expansion in the character profile
-	ptr->skin_ref = cap_get_skin( pcap );
+	ptr->skin_ref = cap_get_skin_overide( pcap );
 
     // don't load in the md2 at this time
     //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );

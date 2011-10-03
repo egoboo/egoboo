@@ -131,9 +131,9 @@ struct s_object_profile
     PIP_REF prtpip[MAX_PIP_PER_PROFILE];      ///< Local particles
 
     // the profile skins
-    size_t  skins;                            ///< Number of skins
-    TX_REF  tex_ref[MAX_SKIN];                ///< references to the icon textures
-    TX_REF  ico_ref[MAX_SKIN];                ///< references to the skin textures
+    size_t  skin_gfx_cnt;                     ///< Number of loaded skin graphics
+    TX_REF  tex_ref[MAX_SKIN];                ///< References to the icon textures
+    TX_REF  ico_ref[MAX_SKIN];                ///< References to the skin textures
 
     // the profile message info
     ego_message_t * message_ary;              ///< Dynamic array of messages
