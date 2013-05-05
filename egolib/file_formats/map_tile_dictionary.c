@@ -161,7 +161,6 @@ tile_dictionary_load_vfs_fail:
     return bfalse;
 }
 
-
 //--------------------------------------------------------------------------------------------
 tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict )
 {
@@ -173,7 +172,7 @@ tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict )
     int fantype_offset, vertex_count;
     tile_definition_t * pdef_sml, * pdef_big;
 
-    if( NULL == pdict ) return pdict;
+    if ( NULL == pdict ) return pdict;
 
     // Correct all of them silly texture positions for seamless tiling
     fantype_offset = pdict->offset;

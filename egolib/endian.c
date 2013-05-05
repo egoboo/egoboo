@@ -281,4 +281,3 @@ size_t endian_fwrite_sint08( FILE* filewrite, Sint8  val )
 
     return fwrite( &val_tmp, sizeof( val ), 1, filewrite );
 }
-

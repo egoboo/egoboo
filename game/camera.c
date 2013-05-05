@@ -495,36 +495,36 @@ void camera_update_track( camera_t * pcam, const ego_mesh_t * pmesh, CHR_REF tra
     if ( CAM_FREE == pcam->move_mode )
     {
         // the keypad control the camera
-        if ( SDLKEYDOWN( SDLK_KP8 ) )
+        if ( SDL_KEYDOWN( keyb, SDLK_KP8 ) )
         {
             pcam->track_pos.x -= pcam->mView.CNV( 0, 1 ) * 50;
             pcam->track_pos.y -= pcam->mView.CNV( 1, 1 ) * 50;
         }
 
-        if ( SDLKEYDOWN( SDLK_KP2 ) )
+        if ( SDL_KEYDOWN( keyb, SDLK_KP2 ) )
         {
             pcam->track_pos.x += pcam->mView.CNV( 0, 1 ) * 50;
             pcam->track_pos.y += pcam->mView.CNV( 1, 1 ) * 50;
         }
 
-        if ( SDLKEYDOWN( SDLK_KP4 ) )
+        if ( SDL_KEYDOWN( keyb, SDLK_KP4 ) )
         {
             pcam->track_pos.x += pcam->mView.CNV( 0, 0 ) * 50;
             pcam->track_pos.y += pcam->mView.CNV( 1, 0 ) * 50;
         }
 
-        if ( SDLKEYDOWN( SDLK_KP6 ) )
+        if ( SDL_KEYDOWN( keyb, SDLK_KP6 ) )
         {
             pcam->track_pos.x -= pcam->mView.CNV( 0, 0 ) * 10;
             pcam->track_pos.y -= pcam->mView.CNV( 1, 0 ) * 10;
         }
 
-        if ( SDLKEYDOWN( SDLK_KP7 ) )
+        if ( SDL_KEYDOWN( keyb, SDLK_KP7 ) )
         {
             pcam->turn_z_add += CAM_TURN_KEY;
         }
 
-        if ( SDLKEYDOWN( SDLK_KP9 ) )
+        if ( SDL_KEYDOWN( keyb, SDLK_KP9 ) )
         {
             pcam->turn_z_add -= CAM_TURN_KEY;
         }

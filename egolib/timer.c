@@ -25,7 +25,22 @@
 #include "../egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
-bool_t egolib_timer_throttle( egolib_timer_t * ptimer, float rate )
+//--------------------------------------------------------------------------------------------
+egolib_timer_t * egolib_timer__init( egolib_timer_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    ptr->free_running = bfalse;
+    ptr->ticks_lst = 0;
+    ptr->ticks_now = 0;
+    ptr->ticks_next = 0;
+    ptr->ticks_diff = 0;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t egolib_timer__throttle( egolib_timer_t * ptimer, float rate )
 {
     /// @author BB
     /// @details return btrue if the process should proceed, bfalse, otherwise
@@ -44,13 +59,13 @@ bool_t egolib_timer_throttle( egolib_timer_t * ptimer, float rate )
     if ( !ptimer->free_running && ( ticks <= ptimer->ticks_next ) ) return bfalse;
 
     // set the next update
-    timer_reset( ptimer, ticks, rate );
+    egolib_timer__reset( ptimer, ticks, rate );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t timer_reset( egolib_timer_t * ptimer, int ticks, float rate )
+bool_t egolib_timer__reset( egolib_timer_t * ptimer, int ticks, float rate )
 {
     if ( NULL == ptimer ) return bfalse;
 

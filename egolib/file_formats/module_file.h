@@ -89,6 +89,8 @@ extern "C"
         bool_t          beaten;                         ///< The module has been marked with the [BEAT] eapansion
     };
 
+    mod_file_t * mod_file__init( mod_file_t * );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
     bool_t module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer );
@@ -101,6 +103,7 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

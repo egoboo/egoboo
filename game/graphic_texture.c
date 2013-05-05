@@ -144,7 +144,7 @@ TX_REF TxList_get_free( const TX_REF itex )
             TxList.free_count--;
             TxList.update_guid++;
 
-            retval = (TX_REF)TxList.free_ref[TxList.free_count];
+            retval = ( TX_REF )TxList.free_ref[TxList.free_count];
         }
         else
         {

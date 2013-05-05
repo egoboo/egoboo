@@ -1657,6 +1657,7 @@ void print_token( token_t * ptok )
         printf( "\tToken.szWord  == \"%s\"\n", szWord );
     }
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -1685,6 +1686,7 @@ void print_line( parser_state_t * ps )
 
     printf( "\", length == %d\n", ps->line_buffer_count );
 }
+
 #endif
 
 /** Preparation for eliminating aicodes.txt except for introducing aliases

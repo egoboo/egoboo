@@ -227,7 +227,7 @@ void scr_run_chr_script( const CHR_REF character )
     }
 
     // reset the script state
-    BLANK_STRUCT( my_state )
+    script_state__init( &my_state )
 
     // reset the ai
     pself->terminate = bfalse;
@@ -1853,4 +1853,20 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj
 
     pself->order_counter = rank;
     pself->order_value   = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+script_state_t * script_state__init( script_state_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    ptr->x = 0;
+    ptr->y = 0;
+    ptr->turn = 0;
+    ptr->distance = 0;
+    ptr->argument = 0;
+    ptr->operationsum = 0;
+
+    return ptr;
 }

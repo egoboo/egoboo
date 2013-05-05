@@ -170,7 +170,7 @@ void oglx_texture_dtor( oglx_texture_t * ptex )
     // actually delete the OpenGL texture data
     if ( VALID_BINDING( ptex->base.binding ) )
     {
-        GL_DEBUG( glDeleteTextures )( 1, &(ptex->base.binding) );
+        GL_DEBUG( glDeleteTextures )( 1, &( ptex->base.binding ) );
         ptex->base.binding = INVALID_GL_ID;
     }
 

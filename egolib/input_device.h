@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/controls_file.h
+/// @file input_device.h
 /// @details routines for reading and writing the file controls.txt and "scancode.txt"
 
 #include "../egolib/typedef.h"
@@ -243,6 +243,7 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

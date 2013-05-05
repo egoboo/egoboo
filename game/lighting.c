@@ -564,7 +564,7 @@ float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_base_t 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float dyna_lighting_intensity( const dynalight_t * pdyna, const fvec3_base_t diff )
+float dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_base_t diff )
 {
     /// @author BB
     /// @details In the Aaron's lighting, the falloff function was
@@ -619,7 +619,7 @@ float dyna_lighting_intensity( const dynalight_t * pdyna, const fvec3_base_t dif
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t sum_dyna_lighting( const dynalight_t * pdyna, lighting_vector_t lighting, const fvec3_base_t nrm )
+bool_t sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_base_t nrm )
 {
     fvec3_base_t local_nrm;
 
@@ -651,3 +651,16 @@ bool_t sum_dyna_lighting( const dynalight_t * pdyna, lighting_vector_t lighting,
     return btrue;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+dynalight_data_t * dynalight_data__init( dynalight_data_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    ptr->distance = 1000.0f;
+    ptr->falloff  = 255.0f;
+    ptr->level    = 0.0f;
+    fvec3_self_clear( ptr->pos.v );
+
+    return ptr;
+}

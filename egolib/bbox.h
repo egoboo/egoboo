@@ -19,7 +19,6 @@
 //*
 //********************************************************************************************
 
-///
 /// @file bbox.h
 /// @brief A small "library" for dealing with various bounding boxes
 
@@ -180,6 +179,7 @@ extern "C"
         oct_bb_t oct;
     };
 
+    OVolume_t * OVolume__ctor( OVolume_t * );
     OVolume_t OVolume_merge( const OVolume_t * pv1, const OVolume_t * pv2 );
     OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 );
 //bool_t    OVolume_draw( OVolume_t * cv, bool_t draw_square, bool_t draw_diamond );
@@ -203,8 +203,9 @@ extern "C"
         OVolume_Tree_t * tree;
     };
 
-    bool_t CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * pvb );
-    bool_t CVolume_refine( CVolume_t * pcv );
+    CVolume_t * CVolume__blank( CVolume_t * );
+    bool_t CVolume_ctor( CVolume_t * , const OVolume_t * pva, const OVolume_t * pvb );
+    bool_t CVolume_refine( CVolume_t * );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -222,6 +223,7 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

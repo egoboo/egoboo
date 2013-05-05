@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_strutil.h
+/// @file strutil.h
 /// @String manipulation functions.
 
 #include <string.h>
@@ -44,19 +44,19 @@ extern "C"
 #   define INVALID_CSTR(PSTR) ((NULL==PSTR) || (CSTR_END == PSTR[0]))
 
 #if defined(toupper)
-	// toupper is implemented as a macro
-#	define char_toupper(VAL) ( ((unsigned)(VAL) > 0xFF) ? 0xFF : (char)toupper((unsigned)VAL) )
+    // toupper is implemented as a macro
+#   define char_toupper(VAL) ( ((unsigned)(VAL) > 0xFF) ? 0xFF : (char)toupper((unsigned)VAL) )
 #else
-	// toupper is implemented as a function. likely it takes an int argument and returns an int
-	static INLINE char char_toupper(int val) { unsigned retval = toupper(val); return (retval > 0xFF) ? 0xFF : retval; }
+    // toupper is implemented as a function. likely it takes an int argument and returns an int
+    static INLINE char char_toupper( int val ) { unsigned retval = toupper( val ); return ( retval > 0xFF ) ? 0xFF : retval; }
 #endif
 
 #if defined(tolower)
-	// tolower is implemented as a macro
-#	define char_tolower(VAL) ( ((unsigned)(VAL) > 0xFF) ? 0xFF : (char)tolower((unsigned)VAL) )
+    // tolower is implemented as a macro
+#   define char_tolower(VAL) ( ((unsigned)(VAL) > 0xFF) ? 0xFF : (char)tolower((unsigned)VAL) )
 #else
-	// tolower is implemented as a function. likely it takes an int argument and returns an int
-	static INLINE char char_tolower(int val) { unsigned retval = tolower(val); return (retval > 0xFF) ? 0xFF : retval; }
+    // tolower is implemented as a function. likely it takes an int argument and returns an int
+    static INLINE char char_tolower( int val ) { unsigned retval = tolower( val ); return ( retval > 0xFF ) ? 0xFF : retval; }
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -87,10 +87,10 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #   define _egolib_strutil_h_
-

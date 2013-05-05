@@ -211,6 +211,7 @@ extern "C"
     extern bool_t config_upload( egoboo_config_t * pcfg );
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

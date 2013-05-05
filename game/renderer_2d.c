@@ -710,3 +710,4 @@ bool_t dump_screenshot( void )
     return savefound && saved;
 }
 
+

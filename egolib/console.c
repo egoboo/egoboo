@@ -729,17 +729,17 @@ SDL_Event * egolib_console_handle_events( SDL_Event * pevt )
         {
             if ( is_shift )
             {
-				if( (unsigned)scancode_to_ascii_shift[vkey] <= 0xFF )
-				{
-					pcon->buffer[pcon->buffer_carat++] = (char)scancode_to_ascii_shift[vkey];
-				}
+                if (( unsigned )scancode_to_ascii_shift[vkey] <= 0xFF )
+                {
+                    pcon->buffer[pcon->buffer_carat++] = ( char )scancode_to_ascii_shift[vkey];
+                }
             }
             else
             {
-				if( (unsigned)scancode_to_ascii[vkey] <= 0xFF )
-				{
-					pcon->buffer[pcon->buffer_carat++] = (char)scancode_to_ascii[vkey];
-				}
+                if (( unsigned )scancode_to_ascii[vkey] <= 0xFF )
+                {
+                    pcon->buffer[pcon->buffer_carat++] = ( char )scancode_to_ascii[vkey];
+                }
             }
             pcon->buffer[pcon->buffer_carat] = CSTR_END;
 

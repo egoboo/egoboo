@@ -80,6 +80,8 @@ struct UiContext
     float iaw, iah, ibw, ibh;
 };
 
+struct UiContext * UiContext__init( struct UiContext * );
+
 static struct UiContext ui_context;
 
 //--------------------------------------------------------------------------------------------
@@ -105,9 +107,7 @@ int ui_begin( const char *default_font, int default_font_size )
     // initialize the font handler
     fnt_init();
 
-    BLANK_STRUCT( ui_context )
-
-    ui_context.active = ui_context.hot = UI_Nothing;
+    UiContext__init( &ui_context );
 
     ui_context.defaultFontSize = default_font_size;
     strncpy( ui_context.defaultFontName, default_font, SDL_arraysize( ui_context.defaultFontName ) );
@@ -130,7 +130,7 @@ void ui_end( void )
     // clear out the active font
     ui_context.activeFont = NULL;
 
-    BLANK_STRUCT( ui_context )
+    UiContext__init( &ui_context );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -936,4 +936,39 @@ float ui_drawIcon( const TX_REF icontype, float vx, float vy, Uint8 sparkle, Uin
     ui_screen_to_virtual( x1, y1, &vx, &vy );
 
     return vy;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+struct UiContext * UiContext__init( struct UiContext * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    // Tracking control focus stuff
+    ptr->active = UI_Nothing;
+    ptr->hot = UI_Nothing;
+
+    // Basic mouse state
+    ptr->mouseX = ptr->mouseY = 0.0f;
+    ptr->mouseReleased = 0;
+    ptr->mousePressed = 0;
+
+    ptr->defaultFontName[0] = '\0';
+    ptr->defaultFontSize = 12;
+    ptr->defaultFont = NULL;
+    ptr->activeFont = NULL;
+
+    // virtual window
+    ptr->vw = ptr->ww = GFX_WIDTH;
+    ptr->vh = ptr->wh = GFX_HEIGHT;
+
+    // define the forward transform
+    ptr->aw = ptr->ah = 1.0f;
+    ptr->bw = ptr->bh = 0.0f;
+
+    // define the inverse transform
+    ptr->iaw = ptr->iah = 1.0f;
+    ptr->ibw = ptr->ibh = 0.0f;
+
+    return ptr;
 }

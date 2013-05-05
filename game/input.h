@@ -85,6 +85,8 @@ struct s_mouse_data
     Uint32                  b;               ///< Button masks
 };
 
+mouse_data_t * mouse_data__init( mouse_data_t * ptr );
+
 #define MOUSE_INIT \
     {\
         bfalse,    /* on */         \
@@ -119,7 +121,9 @@ struct s_keyboard_data
         NULL,     /* state_ptr */    \
     }
 
-#define SDLKEYDOWN(k) ( !keyb.chat_mode &&  (NULL != keyb.state_ptr) &&  ((k) < keyb.state_size) && ( 0 != keyb.state_ptr[k] ) )
+keyboard_data_t * keyboard_data__init( keyboard_data_t * ptr );
+
+#define SDL_KEYDOWN(KEYB,k) ( !KEYB.chat_mode &&  (NULL != KEYB.state_ptr) &&  ((k) < KEYB.state_size) && ( 0 != KEYB.state_ptr[k] ) )
 
 //--------------------------------------------------------------------------------------------
 // JOYSTICK
@@ -137,6 +141,8 @@ struct s_joystick_data
 
     SDL_Joystick * sdl_ptr;
 };
+
+joystick_data_t * joystick_data__init( joystick_data_t * );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

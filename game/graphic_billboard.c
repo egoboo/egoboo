@@ -528,3 +528,4 @@ gfx_rv billboard_system_render_all( const camera_t * pcam )
     return gfx_success;
 }
 
+

@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_frustum.h
+/// @file frustum.h
 /// @brief integrating the basic frustum object into Egoboo algorithms
 
 #include "../egolib/typedef.h"
@@ -104,6 +104,7 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

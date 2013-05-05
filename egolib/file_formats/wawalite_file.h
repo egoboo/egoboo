@@ -149,7 +149,7 @@ extern "C"
     struct s_wawalite_weather
     {
         bool_t  over_water;
-        int     timer_reset;
+        int     egolib_timer__reset;
         int     part_gpip;           ///< Which particle to spawn?
         STRING  weather_name;
     };
@@ -229,6 +229,7 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

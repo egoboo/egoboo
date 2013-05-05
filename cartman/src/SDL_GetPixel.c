@@ -230,4 +230,3 @@ void SDL_LowerGetPixel( SDL_Surface *dst, Sint16 x, Sint16 y, Uint32 * rgb )
             }
     }
 }
-

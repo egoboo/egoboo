@@ -88,6 +88,7 @@ extern "C"
     extern bool_t config_upload( egoboo_config_t * pcfg );
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -241,7 +242,7 @@ int do_ego_proc_running( ego_process_t * eproc )
     }
 
     // Test the panic button
-    if ( SDLKEYDOWN( SDLK_q ) && SDLKEYDOWN( SDLK_LCTRL ) )
+    if ( SDL_KEYDOWN( keyb, SDLK_q ) && SDL_KEYDOWN( keyb, SDLK_LCTRL ) )
     {
         // terminate the program
         process_kill( PROC_PBASE( eproc ) );
@@ -249,11 +250,11 @@ int do_ego_proc_running( ego_process_t * eproc )
 
     if ( cfg.dev_mode )
     {
-        if ( !SDLKEYDOWN( SDLK_F10 ) )
+        if ( !SDL_KEYDOWN( keyb, SDLK_F10 ) )
         {
             single_frame_keyready = btrue;
         }
-        else if ( single_frame_keyready && SDLKEYDOWN( SDLK_F10 ) )
+        else if ( single_frame_keyready && SDL_KEYDOWN( keyb, SDLK_F10 ) )
         {
             if ( !single_frame_mode )
             {
@@ -269,17 +270,17 @@ int do_ego_proc_running( ego_process_t * eproc )
     }
 
     // Check for screenshots
-    if ( !SDLKEYDOWN( SDLK_F11 ) )
+    if ( !SDL_KEYDOWN( keyb, SDLK_F11 ) )
     {
         screenshot_keyready = btrue;
     }
-    else if ( screenshot_keyready && SDLKEYDOWN( SDLK_F11 ) )
+    else if ( screenshot_keyready && SDL_KEYDOWN( keyb, SDLK_F11 ) )
     {
         screenshot_keyready = bfalse;
         screenshot_requested = btrue;
     }
 
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F9 ) && NULL != PMod && PMod->active )
+    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F9 ) && NULL != PMod && PMod->active )
     {
         // super secret "I win" button
         //PMod->beat        = btrue;
@@ -321,7 +322,7 @@ int do_ego_proc_running( ego_process_t * eproc )
     // toggle the free-running mode on the process timers
     if ( cfg.dev_mode )
     {
-        bool_t free_running_keydown = SDLKEYDOWN( SDLK_f ) && SDLKEYDOWN( SDLK_LCTRL );
+        bool_t free_running_keydown = SDL_KEYDOWN( keyb, SDLK_f ) && SDL_KEYDOWN( keyb, SDLK_LCTRL );
         if ( free_running_keydown )
         {
             eproc->free_running_latch_requested = btrue;
@@ -712,12 +713,12 @@ bool_t config_download( egoboo_config_t * pcfg, bool_t synch_from_file )
     int tmp_maxparticles;
     bool_t rv;
 
-	// synchronize settings from a pre-loaded setup.txt? (this will load setup.txt into *pcfg)
-	if( synch_from_file )
-	{
-		rv = setup_download( pcfg );
-		if ( !rv ) return bfalse;
-	}
+    // synchronize settings from a pre-loaded setup.txt? (this will load setup.txt into *pcfg)
+    if ( synch_from_file )
+    {
+        rv = setup_download( pcfg );
+        if ( !rv ) return bfalse;
+    }
 
     // status display
     StatusList.on = pcfg->show_stats;

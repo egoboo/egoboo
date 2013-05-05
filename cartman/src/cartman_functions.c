@@ -2119,4 +2119,3 @@ void mesh_move( cartman_mpd_t * pmesh, float dx, float dy, float dz )
         }
     }
 }
-

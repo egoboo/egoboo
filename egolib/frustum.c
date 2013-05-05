@@ -211,7 +211,7 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
     /// @notes the return values deal with the aabb being inside the frustum or not
     ///
     /// geometry_error     - obvious
-    /// geometry_outside   - the aabb is outside the frustum 
+    /// geometry_outside   - the aabb is outside the frustum
     /// geometry_intersect - the aabb and the frustum partially overlap
     /// geometry_inside    - the aabb is completely inside the frustum
 
@@ -301,7 +301,7 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
                 retval = geometry_intersect;
                 finished = btrue;
                 break;
-                
+
             case geometry_inside:
                 retval = geometry_inside;
                 finished = btrue;

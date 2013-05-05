@@ -657,7 +657,7 @@ int GetArmorPrice( chr_t * pchr, const int skin )
     /// tmpx to the price
 
     cap_t * pcap;
-	int loc_skin = 0;
+    int loc_skin = 0;
 
     pcap = pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return -1;
@@ -701,7 +701,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     Uint32 fan;
     bool_t       useful;
     ego_tile_info_t * ptile = NULL;
-	int loc_starttile;
+    int loc_starttile;
 
     if ( INVALID_PASSAGE( passage ) ) return bfalse;
 
@@ -993,4 +993,5 @@ bool_t FlashObject( chr_t * pchr, Uint8 value )
 
     return gfx_success == flash_rv;
 }
+
 

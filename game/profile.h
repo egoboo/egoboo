@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+/// @file profile.h
+
 #include "egoboo_typedef.h"
 
 #include "../egolib/file_formats/cap_file.h"

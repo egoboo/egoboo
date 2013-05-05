@@ -78,11 +78,11 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // a replacement for memset()
 #    if !defined(BLANK_STRUCT)
-#       define BLANK_STRUCT(XX)  memset( &(XX), 0, sizeof(XX) );
+#       define BLANK_STRUCT(XX)  /* memset( &(XX), 0, sizeof(XX) ); */
 #    endif
 
 #    if !defined(BLANK_STRUCT_PTR)
-#       define BLANK_STRUCT_PTR(XX)  memset( XX, 0, sizeof( *(XX) ) );
+#       define BLANK_STRUCT_PTR(XX)  /* memset( XX, 0, sizeof( *(XX) ) ); */
 #    endif
 
 #    if !defined(BLANK_ARY)
@@ -549,6 +549,7 @@ extern "C"
     C_DECLARE_REF( SHOP_REF );
     C_DECLARE_REF( PRO_REF );
     C_DECLARE_REF( TX_REF );
+    C_DECLARE_REF( MNU_TX_REF );
     C_DECLARE_REF( BBOARD_REF );
     C_DECLARE_REF( LOOP_REF );
     C_DECLARE_REF( MOD_REF );

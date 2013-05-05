@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+/// @file mesh.h
+
 #include "egoboo_typedef.h"
 
 #include "../egolib/file_formats/map_file.h"

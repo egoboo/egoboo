@@ -119,7 +119,7 @@ struct s_dynalight_registry
 
 struct s_renderlist_element
 {
-    Uint32 index;             ///< which tile    
+    Uint32 index;             ///< which tile
     float  distance;          ///< how far it is
 };
 typedef struct s_renderlist_element renderlist_element_t;
@@ -267,7 +267,7 @@ struct s_dynalist
     int         frame;                    ///< the last frame in shich the list was updated
 
     size_t      count;                    ///< the count
-    dynalight_t lst[TOTAL_MAX_DYNA];      ///< the list
+    dynalight_data_t lst[TOTAL_MAX_DYNA];      ///< the list
 };
 
 #define DYNALIST_INIT { -1 /* frame */, 0 /* count */ }
@@ -490,14 +490,13 @@ SDL_Surface * gfx_create_SDL_Surface( int w, int h )
     return SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
 }
 
-
 //--------------------------------------------------------------------------------------------
 // renderlist_ary implementation
 //--------------------------------------------------------------------------------------------
 
 gfx_rv renderlist_lst_reset( renderlist_lst_t * ary )
 {
-    if( NULL == ary ) return gfx_error;
+    if ( NULL == ary ) return gfx_error;
 
     ary->count = 0;
     ary->lst[0].index = INVALID_TILE;
@@ -508,11 +507,11 @@ gfx_rv renderlist_lst_reset( renderlist_lst_t * ary )
 //--------------------------------------------------------------------------------------------
 gfx_rv renderlist_lst_push( renderlist_lst_t * ary, Uint32 index, float distance )
 {
-    if( NULL == ary ) return gfx_error;
+    if ( NULL == ary ) return gfx_error;
 
-    if( ary->count >= MAXMESHRENDER ) return gfx_fail;
+    if ( ary->count >= MAXMESHRENDER ) return gfx_fail;
 
-    if( ary->count < 0 ) ary->count = 0;
+    if ( ary->count < 0 ) ary->count = 0;
 
     ary->lst[ary->count].index    = index;
     ary->lst[ary->count].distance = distance;
@@ -537,12 +536,12 @@ renderlist_t * renderlist_init( renderlist_t * plst, const ego_mesh_t * pmesh, c
     BLANK_STRUCT_PTR( plst )
 
     // init the 1st element of the array
-    renderlist_lst_reset( &(plst->all) );
-    renderlist_lst_reset( &(plst->ref) );
-    renderlist_lst_reset( &(plst->sha) );
-    renderlist_lst_reset( &(plst->drf) );
-    renderlist_lst_reset( &(plst->ndr) );
-    renderlist_lst_reset( &(plst->wat) );
+    renderlist_lst_reset( &( plst->all ) );
+    renderlist_lst_reset( &( plst->ref ) );
+    renderlist_lst_reset( &( plst->sha ) );
+    renderlist_lst_reset( &( plst->drf ) );
+    renderlist_lst_reset( &( plst->ndr ) );
+    renderlist_lst_reset( &( plst->wat ) );
 
     plst->pmesh = pmesh;
     plst->pcam  = pcam;
@@ -621,7 +620,7 @@ gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index )
     }
 
     // check for a valid tile
-    if ( NULL == pmesh->gmem.grid_list || 0 == pmesh->gmem.grid_count || index >= pmesh->gmem.grid_count ) 
+    if ( NULL == pmesh->gmem.grid_list || 0 == pmesh->gmem.grid_count || index >= pmesh->gmem.grid_count )
     {
         return gfx_fail;
     }
@@ -636,36 +635,36 @@ gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index )
 
         ix = index % pmesh->info.tiles_x;
         iy = index / pmesh->info.tiles_x;
-        dx = (ix + TILE_FSIZE * 0.5f) - plst->pcam->center.x;
-        dy = (iy + TILE_FSIZE * 0.5f) - plst->pcam->center.y;
-        distance = dx* dx + dy * dy;
+        dx = ( ix + TILE_FSIZE * 0.5f ) - plst->pcam->center.x;
+        dy = ( iy + TILE_FSIZE * 0.5f ) - plst->pcam->center.y;
+        distance = dx * dx + dy * dy;
     }
 
     // Put each tile in basic list
-    renderlist_lst_push( &(plst->all), index, distance );
+    renderlist_lst_push( &( plst->all ), index, distance );
 
     // Put each tile in one other list, for shadows and relections
     if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_SHA ) )
     {
-        renderlist_lst_push( &(plst->sha), index, distance );
+        renderlist_lst_push( &( plst->sha ), index, distance );
     }
     else
     {
-        renderlist_lst_push( &(plst->ref), index, distance );
+        renderlist_lst_push( &( plst->ref ), index, distance );
     }
 
     if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_DRAWREF ) )
     {
-        renderlist_lst_push( &(plst->drf), index, distance );
+        renderlist_lst_push( &( plst->drf ), index, distance );
     }
     else
     {
-        renderlist_lst_push( &(plst->ndr), index, distance );
+        renderlist_lst_push( &( plst->ndr ), index, distance );
     }
 
     if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_WATER ) )
     {
-        renderlist_lst_push( &(plst->wat), index, distance );
+        renderlist_lst_push( &( plst->wat ), index, distance );
     }
 
     return gfx_success;
@@ -1586,7 +1585,7 @@ void gfx_system_begin( void )
         log_error( "%s-%s-%d - Could not allocate renderlist collision list", __FILE__, __FUNCTION__, __LINE__ );
     }
 
-    BLANK_STRUCT( gfx_update_timer )
+    egolib_timer__init( &gfx_update_timer )
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2622,7 +2621,7 @@ float draw_character_xp_bar( const CHR_REF character, float x, float y )
         float fraction = ( float )MAX( pchr->experience - xplastlevel, 0 ) / ( float )MAX( xpneed - xplastlevel, 1 );
         int   numticks = fraction * NUMTICK;
 
-        y = draw_one_xp_bar( x, y, CLIP(numticks, 0, 255) );
+        y = draw_one_xp_bar( x, y, CLIP( numticks, 0, 255 ) );
     }
 
     return y;
@@ -2807,13 +2806,13 @@ void draw_map( void )
 
             for ( iplayer = 0; iplayer < MAX_PLAYER; iplayer++ )
             {
-				 CHR_REF ichr;
+                CHR_REF ichr;
 
-			    // Only valid players
+                // Only valid players
                 if ( !PlaStack.lst[iplayer].valid ) continue;
 
-				// Dont do networked players
-				if ( NULL == PlaStack.lst[iplayer].pdevice ) continue;
+                // Dont do networked players
+                if ( NULL == PlaStack.lst[iplayer].pdevice ) continue;
 
                 ichr = PlaStack.lst[iplayer].index;
                 if ( INGAME_CHR( ichr ) && ChrList.lst[ichr].alive )
@@ -2918,7 +2917,7 @@ float draw_fps( float y )
 //--------------------------------------------------------------------------------------------
 float draw_help( float y )
 {
-    if ( SDLKEYDOWN( SDLK_F1 ) )
+    if ( SDL_KEYDOWN( keyb, SDLK_F1 ) )
     {
         // In-Game help
         y = draw_string_raw( 0, y, "!!!MOUSE HELP!!!" );
@@ -2930,7 +2929,7 @@ float draw_help( float y )
         y = draw_string_raw( 0, y, "~~A and S keys do stuff" );
         y = draw_string_raw( 0, y, "~~Right Drag to move camera" );
     }
-    if ( SDLKEYDOWN( SDLK_F2 ) )
+    if ( SDL_KEYDOWN( keyb, SDLK_F2 ) )
     {
         // In-Game help
         y = draw_string_raw( 0, y, "!!!JOYSTICK HELP!!!" );
@@ -2938,7 +2937,7 @@ float draw_help( float y )
         y = draw_string_raw( 0, y, "~~Hit the buttons" );
         y = draw_string_raw( 0, y, "~~You'll figure it out" );
     }
-    if ( SDLKEYDOWN( SDLK_F3 ) )
+    if ( SDL_KEYDOWN( keyb, SDLK_F3 ) )
     {
         // In-Game help
         y = draw_string_raw( 0, y, "!!!KEYBOARD HELP!!!" );
@@ -2958,7 +2957,7 @@ float draw_debug( float y )
 {
     if ( !cfg.dev_mode ) return y;
 
-    if ( SDLKEYDOWN( SDLK_F5 ) )
+    if ( SDL_KEYDOWN( keyb, SDLK_F5 ) )
     {
         CHR_REF ichr;
         PLA_REF ipla;
@@ -2986,7 +2985,7 @@ float draw_debug( float y )
         y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_FSIZE, ChrList.lst[ichr].pos.y / GRID_FSIZE );
     }
 
-    if ( SDLKEYDOWN( SDLK_F6 ) )
+    if ( SDL_KEYDOWN( keyb, SDLK_F6 ) )
     {
         // More debug information
         STRING text;
@@ -3005,7 +3004,7 @@ float draw_debug( float y )
         // y = draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
     }
 
-    if ( SDLKEYDOWN( SDLK_F7 ) )
+    if ( SDL_KEYDOWN( keyb, SDLK_F7 ) )
     {
         // White debug mode
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-7!!!" );
@@ -3110,7 +3109,7 @@ void draw_hud( void )
 //--------------------------------------------------------------------------------------------
 void draw_inventory( void )
 {
-	/// @author ZF
+    /// @author ZF
     /// @details This renders the open inventories of all local players
 
     PLA_REF ipla;
@@ -3214,7 +3213,7 @@ void draw_inventory( void )
             if ( INGAME_CHR( item ) ) weight_sum += chr_get_pcap( item )->weight;
 
             //draw icon
-            draw_one_character_icon( item, x, y, btrue, (item_count == ppla->inventory_slot) ? COLOR_WHITE : NOSPARKLE );
+            draw_one_character_icon( item, x, y, btrue, ( item_count == ppla->inventory_slot ) ? COLOR_WHITE : NOSPARKLE );
             icon_count++;
             item_count++;
             x += 32 + 5;
@@ -3551,36 +3550,36 @@ struct s_by_element
 };
 typedef struct s_by_element by_element_t;
 
-int by_element_cmp(const void *lhs, const void *rhs)
+int by_element_cmp( const void *lhs, const void *rhs )
 {
     int retval = 0;
-    by_element_t * loc_lhs = (by_element_t *)lhs;
-    by_element_t * loc_rhs = (by_element_t *)rhs;
+    by_element_t * loc_lhs = ( by_element_t * )lhs;
+    by_element_t * loc_rhs = ( by_element_t * )rhs;
 
-    if( NULL == loc_lhs && NULL == loc_rhs )
+    if ( NULL == loc_lhs && NULL == loc_rhs )
     {
         retval = 0;
     }
-    else if( NULL == loc_lhs && NULL != loc_rhs )
+    else if ( NULL == loc_lhs && NULL != loc_rhs )
     {
         retval = 1;
     }
-    else if( NULL != loc_lhs && NULL == loc_rhs )
+    else if ( NULL != loc_lhs && NULL == loc_rhs )
     {
         retval = -1;
     }
     else
     {
         retval = loc_lhs->texture - loc_rhs->texture;
-        if( 0 == retval )
+        if ( 0 == retval )
         {
             float ftmp = loc_lhs->dist - loc_rhs->dist;
 
-            if( ftmp < 0.0f )
+            if ( ftmp < 0.0f )
             {
                 retval = -1;
             }
-            else if( ftmp > 0.0f )
+            else if ( ftmp > 0.0f )
             {
                 retval = 1;
             }
@@ -3599,9 +3598,9 @@ typedef struct s_by_list by_list_t;
 
 by_list_t * by_list_qsort( by_list_t * lst )
 {
-    if( NULL == lst ) return lst;
+    if ( NULL == lst ) return lst;
 
-    qsort( lst->lst, lst->count, sizeof(lst->lst[0]), by_element_cmp );
+    qsort( lst->lst, lst->count, sizeof( lst->lst[0] ), by_element_cmp );
 
     return lst;
 }
@@ -3615,7 +3614,7 @@ gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * r
     size_t                  tcnt;
     const ego_tile_info_t * tlst;
 
-    by_list_t lst_vals = {0}; 
+    by_list_t lst_vals = {0};
 
     if ( NULL == pmesh ) pmesh = PMesh;
     if ( NULL == pmesh )
@@ -3636,14 +3635,14 @@ gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * r
 
     // insert the rlst values into lst_vals
     lst_vals.count = rlst->count;
-    for( cnt = 0; cnt<rlst->count; cnt++ )
+    for ( cnt = 0; cnt < rlst->count; cnt++ )
     {
         lst_vals.lst[cnt].tile = rlst->lst[cnt].index;
         lst_vals.lst[cnt].dist = rlst->lst[cnt].distance;
 
-        if( rlst->lst[cnt].index >= tcnt )
+        if ( rlst->lst[cnt].index >= tcnt )
         {
-            lst_vals.lst[cnt].texture = (Uint32)(~0);
+            lst_vals.lst[cnt].texture = ( Uint32 )( ~0 );
         }
         else
         {
@@ -3651,7 +3650,7 @@ gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * r
             const ego_tile_info_t * ptile = tlst + rlst->lst[cnt].index;
 
             img =  TILE_GET_LOWER_BITS( ptile->img );
-            if( ptile->type >= tile_dict.offset )
+            if ( ptile->type >= tile_dict.offset )
             {
                 img += MESH_IMG_COUNT;
             }
@@ -3670,7 +3669,7 @@ gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * r
         Uint32 tmp_itile = lst_vals.lst[cnt].tile;
 
         render_rv = render_fan( pmesh, tmp_itile );
-        if( cfg.dev_mode && gfx_error == render_rv )
+        if ( cfg.dev_mode && gfx_error == render_rv )
         {
             log_warning( "%s - error rendering tile %d.\n", tmp_itile );
         }
@@ -3819,7 +3818,7 @@ gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, &(prlist->ndr) ) )
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, &( prlist->ndr ) ) )
         {
             retval = gfx_error;
         }
@@ -3868,7 +3867,7 @@ gfx_rv render_scene_mesh_drf_back( const camera_t * pcam, const renderlist_t * p
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, &(prlist->drf) ) )
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, &( prlist->drf ) ) )
         {
             retval = gfx_error;
         }
@@ -4026,7 +4025,7 @@ gfx_rv render_scene_mesh_ref_chr( const camera_t * pcam, const renderlist_t * pr
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, &(prlist->drf) ) )
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, &( prlist->drf ) ) )
         {
             retval = gfx_error;
         }
@@ -4073,7 +4072,7 @@ gfx_rv render_scene_mesh_drf_solid( const camera_t * pcam, const renderlist_t * 
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );          // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, &(prlist->drf) ) )
+        if ( gfx_error == render_fans_by_list( prlist->pmesh, &( prlist->drf ) ) )
         {
             retval = gfx_error;
         }
@@ -4850,7 +4849,6 @@ gfx_rv render_water( renderlist_t * prlist )
             }
         }
     }
-
 
     // let the mesh texture code know that someone else is in control now
     mesh_texture_invalidate();
@@ -5951,10 +5949,10 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam )
     fvec3_t  vdist;
 
     float         distance   = 0.0f;
-    dynalight_t * plight     = NULL;
+    dynalight_data_t * plight     = NULL;
 
     float         distance_max = 0.0f;
-    dynalight_t * plight_max   = NULL;
+    dynalight_data_t * plight_max   = NULL;
 
     // make sure we have a dynalist
     if ( NULL == pdylist )
@@ -6066,7 +6064,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
     tile_mem_t      * ptmem;
     oct_bb_t        * poct;
 
-    dynalight_t fake_dynalight;
+    dynalight_data_t fake_dynalight;
 
     if ( NULL == prlist )
     {
@@ -6123,7 +6121,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
     needs_dynalight = bfalse;
 
     // assume no "extra help" for systems with only flat lighting
-    BLANK_STRUCT( fake_dynalight )
+    dynalight_data__init( &fake_dynalight )
 
     // initialize the light_bound
     light_bound.xmin = pgmem->edge_x;
@@ -6139,7 +6137,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
             float radius;
             ego_frect_t ftmp;
 
-            dynalight_t * pdyna = pdylist->lst + cnt;
+            dynalight_data_t * pdyna = pdylist->lst + cnt;
 
             if ( pdyna->falloff <= 0.0f || 0.0f == pdyna->level ) continue;
 
@@ -6177,7 +6175,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
         float dyna_weight_sum = 0.0f;
 
         fvec3_t       diff;
-        dynalight_t * pdyna;
+        dynalight_data_t * pdyna;
 
         // evaluate all the lights at the camera position
         for ( cnt = 0; cnt < pdylist->count; cnt++ )
@@ -6308,7 +6306,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
                     for ( cnt = 0; cnt < reg_count; cnt++ )
                     {
                         fvec3_t       nrm;
-                        dynalight_t * pdyna;
+                        dynalight_data_t * pdyna;
 
                         // does this dynamic light intersects this grid?
                         if ( fgrid_rect.xmin > reg[cnt].bound.xmax || fgrid_rect.xmax < reg[cnt].bound.xmin ) continue;
@@ -6605,7 +6603,7 @@ bool_t gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t *
         // ignore the ends of the frustum for a little bit of a speed-up
         geometry_rv frustum_rv = frustum_intersects_aabb( pf->data, aabb.mins, aabb.maxs, do_ends );
 
-        retval = (  frustum_rv > geometry_outside );
+        retval = ( frustum_rv > geometry_outside );
     }
 
     return retval;
@@ -6715,11 +6713,11 @@ gfx_rv gfx_update_all_chr_instance( void )
 //--------------------------------------------------------------------------------------------
 void gfx_system_begin_decimated_textures()
 {
-    if( !_gfx_system_mesh_textures_initialized )
+    if ( !_gfx_system_mesh_textures_initialized )
     {
         int cnt;
 
-        for( cnt = 0; cnt<MESH_IMG_COUNT; cnt++ )
+        for ( cnt = 0; cnt < MESH_IMG_COUNT; cnt++ )
         {
             oglx_texture_ctor( mesh_tx_sml + cnt );
             oglx_texture_ctor( mesh_tx_big + cnt );
@@ -6734,11 +6732,11 @@ void gfx_system_begin_decimated_textures()
 //--------------------------------------------------------------------------------------------
 void gfx_system_end_decimated_textures()
 {
-    if( _gfx_system_mesh_textures_initialized )
+    if ( _gfx_system_mesh_textures_initialized )
     {
         int cnt;
 
-        for( cnt = 0; cnt<MESH_IMG_COUNT; cnt++ )
+        for ( cnt = 0; cnt < MESH_IMG_COUNT; cnt++ )
         {
             oglx_texture_dtor( mesh_tx_sml + cnt );
             oglx_texture_dtor( mesh_tx_big + cnt );
@@ -6754,9 +6752,9 @@ void gfx_system_end_decimated_textures()
 //--------------------------------------------------------------------------------------------
 oglx_texture_t * gfx_get_mesh_tx_sml( int which )
 {
-    if( !_gfx_system_mesh_textures_initialized ) return NULL;
+    if ( !_gfx_system_mesh_textures_initialized ) return NULL;
 
-    if( which < 0 || which >= mesh_tx_sml_cnt || which >= MESH_IMG_COUNT ) return NULL;
+    if ( which < 0 || which >= mesh_tx_sml_cnt || which >= MESH_IMG_COUNT ) return NULL;
 
     return mesh_tx_sml + which;
 }
@@ -6764,9 +6762,9 @@ oglx_texture_t * gfx_get_mesh_tx_sml( int which )
 //--------------------------------------------------------------------------------------------
 oglx_texture_t * gfx_get_mesh_tx_big( int which )
 {
-    if( !_gfx_system_mesh_textures_initialized ) return NULL;
+    if ( !_gfx_system_mesh_textures_initialized ) return NULL;
 
-    if( which < 0 || which >= mesh_tx_big_cnt || which >= MESH_IMG_COUNT ) return NULL;
+    if ( which < 0 || which >= mesh_tx_big_cnt || which >= MESH_IMG_COUNT ) return NULL;
 
     return mesh_tx_big + which;
 }
@@ -6787,7 +6785,7 @@ int gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_
     oglx_texture_t * dst_tx = NULL;
     SDL_Surface    * dst_img = NULL;
 
-    if( NULL == src_tx )
+    if ( NULL == src_tx )
     {
         // the source image doesn't exist, so punt
         goto gfx_decimate_one_mesh_texture_error;
@@ -6795,7 +6793,7 @@ int gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_
 
     // make an alias for the texture's SDL_Surface
     src_img = src_tx->surface;
-    if( NULL == src_img )
+    if ( NULL == src_img )
     {
         goto gfx_decimate_one_mesh_texture_error;
     }
@@ -6805,26 +6803,26 @@ int gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_
     src_img_h = src_img->h;
 
     // how large a step every time through the mesh?
-    step_fx = (float)src_img_w / (float)sub_textures;
-    step_fy = (float)src_img_h / (float)sub_textures;
+    step_fx = ( float )src_img_w / ( float )sub_textures;
+    step_fy = ( float )src_img_h / ( float )sub_textures;
 
-    src_img_rect.w = CEIL(step_fx * minification);
-    src_img_rect.w = MAX(1, src_img_rect.w);
-    src_img_rect.h = CEIL(step_fy * minification);
-    src_img_rect.h = MAX(1, src_img_rect.h);
+    src_img_rect.w = CEIL( step_fx * minification );
+    src_img_rect.w = MAX( 1, src_img_rect.w );
+    src_img_rect.h = CEIL( step_fy * minification );
+    src_img_rect.h = MAX( 1, src_img_rect.h );
 
     // scan across the src_img
     for ( iy = 0, fy = 0.0f; iy < sub_textures; iy++, fy += step_fy )
     {
-        src_img_rect.y = FLOOR(fy);
+        src_img_rect.y = FLOOR( fy );
 
         for ( ix = 0, fx = 0.0f; ix < sub_textures; ix++, fx += step_fx )
         {
-            src_img_rect.x = FLOOR(fx);
+            src_img_rect.x = FLOOR( fx );
 
             // grab the destination texture
             dst_tx =  tx_lst + tx_lst_cnt;
-            
+
             // prepare the destination texture
             oglx_texture_ctor( dst_tx );
 
@@ -6832,7 +6830,7 @@ int gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_
             dst_img = gfx_create_SDL_Surface( src_img_rect.w, src_img_rect.h );
             SDL_FillRect( dst_img, NULL, SDL_MapRGBA( dst_img->format, 0xFF, 0, 0, 0xFF ) );
 
-            // blit the source region into the destination bitmap 
+            // blit the source region into the destination bitmap
             blit_rv = SDL_BlitSurface( src_img, &src_img_rect, dst_img, NULL );
 
             // upload the SDL_Surface into OpenGL
@@ -6848,7 +6846,7 @@ int gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_
 gfx_decimate_one_mesh_texture_error:
 
     // the source texture doesn't exist. Just blank out the destination textures
-    for( cnt = 0; cnt < sub_textures*sub_textures; cnt++ )
+    for ( cnt = 0; cnt < sub_textures*sub_textures; cnt++ )
     {
         oglx_texture_ctor( tx_lst + tx_lst_cnt );
         tx_lst_cnt++;
@@ -6857,11 +6855,10 @@ gfx_decimate_one_mesh_texture_error:
     return tx_lst_cnt;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void gfx_decimate_all_mesh_textures()
 {
-    // decimate the tile textures and store them in 
+    // decimate the tile textures and store them in
 
     int cnt;
     oglx_texture_t * ptx;
@@ -6872,7 +6869,7 @@ void gfx_decimate_all_mesh_textures()
 
     // do the "small" textures
     mesh_tx_sml_cnt = 0;
-    for( cnt = 0; cnt < 4; cnt++ )
+    for ( cnt = 0; cnt < 4; cnt++ )
     {
         ptx = TxList_get_valid_ptr( TX_TILE_0 + cnt );
 
@@ -6881,14 +6878,13 @@ void gfx_decimate_all_mesh_textures()
 
     // do the "big" textures
     mesh_tx_big_cnt = 0;
-    for( cnt = 0; cnt < 4; cnt++ )
+    for ( cnt = 0; cnt < 4; cnt++ )
     {
         ptx = TxList_get_valid_ptr( TX_TILE_0 + cnt );
 
         mesh_tx_big_cnt = gfx_decimate_one_mesh_texture( ptx, mesh_tx_big, mesh_tx_big_cnt, 2 );
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void gfx_reload_decimated_textures( void )
@@ -6900,9 +6896,9 @@ void gfx_reload_decimated_textures( void )
     TX_REF cnt;
     size_t count;
 
-    if( !_gfx_system_mesh_textures_initialized ) return;
+    if ( !_gfx_system_mesh_textures_initialized ) return;
 
-    count = MIN(MESH_IMG_COUNT, mesh_tx_sml_cnt);
+    count = MIN( MESH_IMG_COUNT, mesh_tx_sml_cnt );
     for ( cnt = 0; cnt < count; cnt++ )
     {
         if ( oglx_texture_Valid( mesh_tx_sml + cnt ) )
@@ -6911,7 +6907,7 @@ void gfx_reload_decimated_textures( void )
         }
     }
 
-    count = MIN(MESH_IMG_COUNT, mesh_tx_big_cnt);
+    count = MIN( MESH_IMG_COUNT, mesh_tx_big_cnt );
     for ( cnt = 0; cnt < count; cnt++ )
     {
         if ( oglx_texture_Valid( mesh_tx_big + cnt ) )
@@ -6920,7 +6916,6 @@ void gfx_reload_decimated_textures( void )
         }
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 // chr_instance_t FUNCTIONS

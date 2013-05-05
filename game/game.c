@@ -832,7 +832,7 @@ int update_game( void )
 
         if ( !pchr->alive )
         {
-            if ( cfg.difficulty < GAME_HARD && local_stats.allpladead && SDLKEYDOWN( SDLK_SPACE ) && PMod->respawnvalid && 0 == local_stats.revivetimer )
+            if ( cfg.difficulty < GAME_HARD && local_stats.allpladead && SDL_KEYDOWN( keyb, SDLK_SPACE ) && PMod->respawnvalid && 0 == local_stats.revivetimer )
             {
                 respawn_character( ichr );
                 pchr->experience *= EXPKEEP;        // Apply xp Penality
@@ -2363,7 +2363,7 @@ void check_stats( void )
         return;
 
     // Show map cheat
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN( SDLK_LSHIFT ) && mapvalid )
+    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_m ) && SDL_KEYDOWN( keyb, SDLK_LSHIFT ) && mapvalid )
     {
         mapon = !mapon;
         youarehereon = btrue;
@@ -2371,13 +2371,13 @@ void check_stats( void )
     }
 
     // XP CHEAT
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_x ) )
+    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_x ) )
     {
         PLA_REF docheat = ( PLA_REF )MAX_PLAYER;
-        if ( SDLKEYDOWN( SDLK_1 ) )  docheat = 0;
-        else if ( SDLKEYDOWN( SDLK_2 ) )  docheat = 1;
-        else if ( SDLKEYDOWN( SDLK_3 ) )  docheat = 2;
-        else if ( SDLKEYDOWN( SDLK_4 ) )  docheat = 3;
+        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  docheat = 0;
+        else if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  docheat = 1;
+        else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
+        else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
         if ( INGAME_CHR( PlaStack.lst[docheat].index ) )
@@ -2394,14 +2394,14 @@ void check_stats( void )
     }
 
     // LIFE CHEAT
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_z ) )
+    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_z ) )
     {
         PLA_REF docheat = ( PLA_REF )MAX_PLAYER;
 
-        if ( SDLKEYDOWN( SDLK_1 ) )  docheat = 0;
-        else if ( SDLKEYDOWN( SDLK_2 ) )  docheat = 1;
-        else if ( SDLKEYDOWN( SDLK_3 ) )  docheat = 2;
-        else if ( SDLKEYDOWN( SDLK_4 ) )  docheat = 3;
+        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  docheat = 0;
+        else if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  docheat = 1;
+        else if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  docheat = 2;
+        else if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  docheat = 3;
 
         //Apply the cheat if valid
         if ( INGAME_CHR( PlaStack.lst[docheat].index ) )
@@ -2417,55 +2417,55 @@ void check_stats( void )
     }
 
     // Display armor stats?
-    if ( SDLKEYDOWN( SDLK_LSHIFT ) )
+    if ( SDL_KEYDOWN( keyb, SDLK_LSHIFT ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) )  { show_armor( 0 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_2 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_3 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_4 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_5 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_6 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_7 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_8 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  { show_armor( 0 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_5 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_6 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_7 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_8 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
     }
 
     // Display enchantment stats?
-    else if ( SDLKEYDOWN( SDLK_LCTRL ) )
+    else if ( SDL_KEYDOWN( keyb, SDLK_LCTRL ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
     }
 
     // Display character special powers?
-    else if ( SDLKEYDOWN( SDLK_LALT ) )
+    else if ( SDL_KEYDOWN( keyb, SDLK_LALT ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
     }
 
     // Display character stats?
     else
     {
-        if ( SDLKEYDOWN( SDLK_1 ) )  { show_stat( 0 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_2 ) )  { show_stat( 1 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_3 ) )  { show_stat( 2 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_4 ) )  { show_stat( 3 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_5 ) )  { show_stat( 4 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_6 ) )  { show_stat( 5 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_7 ) )  { show_stat( 6 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_1 ) )  { show_stat( 0 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_2 ) )  { show_stat( 1 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_3 ) )  { show_stat( 2 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_4 ) )  { show_stat( 3 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_5 ) )  { show_stat( 4 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_6 ) )  { show_stat( 5 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_7 ) )  { show_stat( 6 ); stat_check_delay = 1000; }
+        if ( SDL_KEYDOWN( keyb, SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
     }
 }
 
@@ -2969,7 +2969,7 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
 
 void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
 {
-	/// @author ZF
+    /// @author ZF
     /// @details This turns a spawn comment line into an actual folder name we can use to load something with
 
     if ( NULL == psp_info ) return;
@@ -3006,7 +3006,7 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     if ( NULL == psp_info || psp_info->slot < 0 ) return bfalse;
 
     //Is it already loaded?
-    ipro = (PRO_REF)psp_info->slot;
+    ipro = ( PRO_REF )psp_info->slot;
     if ( LOADED_PRO( ipro ) ) return bfalse;
 
     // do the loading
@@ -3544,7 +3544,7 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     /// @author BB
     /// @details all of the initialization code before the module actually starts
 
-    if ((( Uint32 )( ~0 ) ) == seed ) seed = (Uint32)time( NULL );
+    if ((( Uint32 )( ~0 ) ) == seed ) seed = ( Uint32 )time( NULL );
 
     // make sure the old game has been quit
     game_quit_module();
@@ -4222,7 +4222,7 @@ bool_t game_choose_module( int imod, int seed )
 {
     bool_t retval;
 
-    if ( seed < 0 ) seed = (int)time( NULL );
+    if ( seed < 0 ) seed = ( int )time( NULL );
 
     if ( NULL == PMod ) PMod = &_gmod;
 
@@ -4323,7 +4323,7 @@ bool_t upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wa
     // set the frame
     for ( layer = 0; layer < layer_count; layer++ )
     {
-        inst[layer].frame = (Uint16)generate_randmask( 0 , WATERFRAMEAND );
+        inst[layer].frame = ( Uint16 )generate_randmask( 0 , WATERFRAMEAND );
     }
 
     if ( NULL != data )
@@ -5587,7 +5587,7 @@ egolib_rv import_list_from_players( import_list_t * imp_lst )
 //--------------------------------------------------------------------------------------------
 bool_t check_time( Uint32 check )
 {
-	/// @author ZF
+    /// @author ZF
     /// @details Returns btrue if and only if all time and date specifications determined by the e_time parameter is true. This
     ///    could indicate time of the day, a specific holiday season etc.
 

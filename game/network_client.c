@@ -56,7 +56,7 @@ egolib_rv cl_talkToHost( void )
     ego_packet_ctor( &ego_pkt );
 
     // Let the players respawn
-    if ( SDLKEYDOWN( SDLK_SPACE )
+    if ( SDL_KEYDOWN( keyb, SDLK_SPACE )
          && ( local_stats.allpladead || PMod->respawnanytime )
          && PMod->respawnvalid
          && cfg.difficulty < GAME_HARD

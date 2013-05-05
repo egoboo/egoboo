@@ -39,9 +39,8 @@ extern "C"
     struct s_cap;
     typedef struct s_cap cap_t;
 
-	struct s_skin_info;
-	typedef struct s_skin_info skin_info_t;
-
+    struct s_skin_info;
+    typedef struct s_skin_info skin_info_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -193,7 +192,7 @@ extern "C"
 #   define DAMAGECHARGE        (1 << 3)                       ///< 0000x000 Converts damage to mana
 #   define DAMAGEINVERT        (1 << 2)                       ///< 00000x00 Makes damage heal
 
-	typedef Uint16 SKIN_T;
+    typedef Uint16 SKIN_T;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -205,13 +204,13 @@ extern "C"
         FRange perlevel;
     };
 
-	struct s_skin_info
-	{
+    struct s_skin_info
+    {
         char   name[MAX_SKIN][MAXCAPNAMESIZE];   ///< Skin name
         Uint16 cost[MAX_SKIN];                   ///< Store prices
         float  maxaccel[MAX_SKIN];               ///< Acceleration for each skin
         Uint8  dressy;                           ///< Bits to tell whether the skins are "dressy"
-	};
+    };
 
 //--------------------------------------------------------------------------------------------
 
@@ -394,13 +393,14 @@ extern "C"
 
     cap_t * cap_init( cap_t * pcap );
 
-	SKIN_T cap_get_skin_overide( cap_t * pcap );
+    SKIN_T cap_get_skin_overide( cap_t * pcap );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

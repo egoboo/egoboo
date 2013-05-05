@@ -25,4 +25,3 @@
 #include <egolib/typedef.h>
 
 #include "cartman_config.h"
-

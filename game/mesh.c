@@ -61,7 +61,6 @@ static ego_mesh_info_t * ego_mesh_info_ctor( ego_mesh_info_t * pinfo );
 static ego_mesh_info_t * ego_mesh_info_dtor( ego_mesh_info_t * pinfo );
 static void             ego_mesh_info_init( ego_mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y );
 
-
 static bool_t mpdfx_lists_alloc( mpdfx_lists_t * plst, const ego_mesh_info_t * pinfo );
 static bool_t mpdfx_lists_dealloc( mpdfx_lists_t * plst );
 static bool_t mpdfx_lists_reset( mpdfx_lists_t * plst );
@@ -169,7 +168,7 @@ oglx_texture_t * ego_mesh_get_texture( Uint8 image, Uint8 size )
 {
     oglx_texture_t * tx_ptr = NULL;
 
-    if( 0 == size )
+    if ( 0 == size )
     {
         tx_ptr = gfx_get_mesh_tx_sml( image );
     }
@@ -196,36 +195,36 @@ oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile )
     bool_t needs_bind = bfalse;
 
     // bind a NULL texture if we are in that mode
-    if( mesh_tx_none )
+    if ( mesh_tx_none )
     {
         tx_ptr = NULL;
         needs_bind = btrue;
-        
+
         mesh_texture_invalidate();
     }
-    else if( NULL == ptile )
+    else if ( NULL == ptile )
     {
         tx_ptr = NULL;
         needs_bind = btrue;
-        
+
         mesh_texture_invalidate();
     }
     else
     {
         tx_image = TILE_GET_LOWER_BITS( ptile->img );
-        tx_size  = (ptile->type < tile_dict.offset) ? 0 : 1;
+        tx_size  = ( ptile->type < tile_dict.offset ) ? 0 : 1;
 
-        if( (mesh_tx_image != tx_image) || (mesh_tx_size != tx_size) )
+        if (( mesh_tx_image != tx_image ) || ( mesh_tx_size != tx_size ) )
         {
             tx_ptr = ego_mesh_get_texture( tx_image, tx_size );
             needs_bind = btrue;
 
             mesh_tx_image = tx_image;
-            mesh_tx_size  = tx_size; 
+            mesh_tx_size  = tx_size;
         }
     }
 
-    if( needs_bind )
+    if ( needs_bind )
     {
         oglx_texture_Bind( tx_ptr );
     }
@@ -2325,7 +2324,7 @@ bool_t ego_mesh_update_water_level( ego_mesh_t * pmesh )
 //--------------------------------------------------------------------------------------------
 mpdfx_list_ary_t * mpdfx_list_ary_ctor( mpdfx_list_ary_t * ptr )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
     BLANK_STRUCT_PTR( ptr );
 
@@ -2335,7 +2334,7 @@ mpdfx_list_ary_t * mpdfx_list_ary_ctor( mpdfx_list_ary_t * ptr )
 //--------------------------------------------------------------------------------------------
 mpdfx_list_ary_t * mpdfx_list_ary_dtor( mpdfx_list_ary_t * ptr )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
     mpdfx_list_ary_dealloc( ptr );
 
@@ -2347,11 +2346,11 @@ mpdfx_list_ary_t * mpdfx_list_ary_dtor( mpdfx_list_ary_t * ptr )
 //--------------------------------------------------------------------------------------------
 mpdfx_list_ary_t * mpdfx_list_ary_alloc( mpdfx_list_ary_t * ptr, size_t count )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
     mpdfx_list_ary_dealloc( ptr );
 
-    if( 0 == count ) return ptr;
+    if ( 0 == count ) return ptr;
 
     ptr->lst = EGOBOO_NEW_ARY( size_t, count );
     ptr->cnt = ( NULL == ptr->lst ) ? 0 : count;
@@ -2363,9 +2362,9 @@ mpdfx_list_ary_t * mpdfx_list_ary_alloc( mpdfx_list_ary_t * ptr, size_t count )
 //--------------------------------------------------------------------------------------------
 mpdfx_list_ary_t * mpdfx_list_ary_dealloc( mpdfx_list_ary_t * ptr )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
-    if( 0 == ptr->cnt ) return ptr;
+    if ( 0 == ptr->cnt ) return ptr;
 
     EGOBOO_DELETE_ARY( ptr->lst );
     ptr->cnt = 0;
@@ -2377,7 +2376,7 @@ mpdfx_list_ary_t * mpdfx_list_ary_dealloc( mpdfx_list_ary_t * ptr )
 //--------------------------------------------------------------------------------------------
 mpdfx_list_ary_t * mpdfx_list_ary_reset( mpdfx_list_ary_t * ptr )
 {
-    if( NULL == ptr ) return ptr;
+    if ( NULL == ptr ) return ptr;
 
     ptr->idx = 0;
 
@@ -2389,10 +2388,10 @@ bool_t mpdfx_list_ary_push( mpdfx_list_ary_t * ptr, size_t value )
 {
     bool_t retval = bfalse;
 
-    if( NULL == ptr ) return bfalse;
+    if ( NULL == ptr ) return bfalse;
 
     retval = bfalse;
-    if( ptr->idx < ptr->cnt )
+    if ( ptr->idx < ptr->cnt )
     {
         ptr->lst[ptr->idx] = value;
         ptr->idx++;
@@ -2410,14 +2409,14 @@ mpdfx_lists_t * mpdfx_lists_ctor( mpdfx_lists_t * plst )
 
     BLANK_STRUCT_PTR( plst );
 
-    mpdfx_list_ary_ctor( &(plst->sha) );
-    mpdfx_list_ary_ctor( &(plst->drf) );
-    mpdfx_list_ary_ctor( &(plst->anm) );
-    mpdfx_list_ary_ctor( &(plst->wat) );
-    mpdfx_list_ary_ctor( &(plst->wal) );
-    mpdfx_list_ary_ctor( &(plst->imp) );
-    mpdfx_list_ary_ctor( &(plst->dam) );
-    mpdfx_list_ary_ctor( &(plst->slp) );
+    mpdfx_list_ary_ctor( &( plst->sha ) );
+    mpdfx_list_ary_ctor( &( plst->drf ) );
+    mpdfx_list_ary_ctor( &( plst->anm ) );
+    mpdfx_list_ary_ctor( &( plst->wat ) );
+    mpdfx_list_ary_ctor( &( plst->wal ) );
+    mpdfx_list_ary_ctor( &( plst->imp ) );
+    mpdfx_list_ary_ctor( &( plst->dam ) );
+    mpdfx_list_ary_ctor( &( plst->slp ) );
 
     return plst;
 }
@@ -2429,14 +2428,14 @@ mpdfx_lists_t * mpdfx_lists_dtor( mpdfx_lists_t * plst )
 
     mpdfx_lists_dealloc( plst );
 
-    mpdfx_list_ary_dtor( &(plst->sha) );
-    mpdfx_list_ary_dtor( &(plst->drf) );
-    mpdfx_list_ary_dtor( &(plst->anm) );
-    mpdfx_list_ary_dtor( &(plst->wat) );
-    mpdfx_list_ary_dtor( &(plst->wal) );
-    mpdfx_list_ary_dtor( &(plst->imp) );
-    mpdfx_list_ary_dtor( &(plst->dam) );
-    mpdfx_list_ary_dtor( &(plst->slp) );
+    mpdfx_list_ary_dtor( &( plst->sha ) );
+    mpdfx_list_ary_dtor( &( plst->drf ) );
+    mpdfx_list_ary_dtor( &( plst->anm ) );
+    mpdfx_list_ary_dtor( &( plst->wat ) );
+    mpdfx_list_ary_dtor( &( plst->wal ) );
+    mpdfx_list_ary_dtor( &( plst->imp ) );
+    mpdfx_list_ary_dtor( &( plst->dam ) );
+    mpdfx_list_ary_dtor( &( plst->slp ) );
 
     BLANK_STRUCT_PTR( plst )
 
@@ -2451,30 +2450,30 @@ bool_t mpdfx_lists_alloc( mpdfx_lists_t * plst, const ego_mesh_info_t * pinfo )
     // free any memory already allocated
     if ( !mpdfx_lists_dealloc( plst ) ) return bfalse;
 
-    if( 0 == pinfo->tiles_count ) return btrue;
+    if ( 0 == pinfo->tiles_count ) return btrue;
 
-    mpdfx_list_ary_alloc( &(plst->sha), pinfo->tiles_count );
+    mpdfx_list_ary_alloc( &( plst->sha ), pinfo->tiles_count );
     if ( NULL == plst->sha.lst ) goto mesh_mem_alloc_fail;
 
-    mpdfx_list_ary_alloc( &(plst->drf), pinfo->tiles_count );
+    mpdfx_list_ary_alloc( &( plst->drf ), pinfo->tiles_count );
     if ( NULL == plst->drf.lst ) goto mesh_mem_alloc_fail;
 
-    mpdfx_list_ary_alloc( &(plst->anm), pinfo->tiles_count );
+    mpdfx_list_ary_alloc( &( plst->anm ), pinfo->tiles_count );
     if ( NULL == plst->anm.lst ) goto mesh_mem_alloc_fail;
 
-    mpdfx_list_ary_alloc( &(plst->wat), pinfo->tiles_count );
+    mpdfx_list_ary_alloc( &( plst->wat ), pinfo->tiles_count );
     if ( NULL == plst->wat.lst ) goto mesh_mem_alloc_fail;
 
-    mpdfx_list_ary_alloc( &(plst->wal), pinfo->tiles_count );
+    mpdfx_list_ary_alloc( &( plst->wal ), pinfo->tiles_count );
     if ( NULL == plst->wal.lst ) goto mesh_mem_alloc_fail;
 
-    mpdfx_list_ary_alloc( &(plst->imp), pinfo->tiles_count );
+    mpdfx_list_ary_alloc( &( plst->imp ), pinfo->tiles_count );
     if ( NULL == plst->imp.lst ) goto mesh_mem_alloc_fail;
 
-    mpdfx_list_ary_alloc( &(plst->dam), pinfo->tiles_count );
+    mpdfx_list_ary_alloc( &( plst->dam ), pinfo->tiles_count );
     if ( NULL == plst->dam.lst ) goto mesh_mem_alloc_fail;
 
-    mpdfx_list_ary_alloc( &(plst->slp), pinfo->tiles_count );
+    mpdfx_list_ary_alloc( &( plst->slp ), pinfo->tiles_count );
     if ( NULL == plst->slp.lst ) goto mesh_mem_alloc_fail;
 
     // the list needs to be resynched
@@ -2497,14 +2496,14 @@ bool_t mpdfx_lists_dealloc( mpdfx_lists_t * plst )
     if ( NULL == plst ) return bfalse;
 
     // free the memory
-    mpdfx_list_ary_dealloc( &(plst->sha) );
-    mpdfx_list_ary_dealloc( &(plst->drf) );
-    mpdfx_list_ary_dealloc( &(plst->anm) );
-    mpdfx_list_ary_dealloc( &(plst->wat) );
-    mpdfx_list_ary_dealloc( &(plst->wal) );
-    mpdfx_list_ary_dealloc( &(plst->imp) );
-    mpdfx_list_ary_dealloc( &(plst->dam) );
-    mpdfx_list_ary_dealloc( &(plst->slp) );
+    mpdfx_list_ary_dealloc( &( plst->sha ) );
+    mpdfx_list_ary_dealloc( &( plst->drf ) );
+    mpdfx_list_ary_dealloc( &( plst->anm ) );
+    mpdfx_list_ary_dealloc( &( plst->wat ) );
+    mpdfx_list_ary_dealloc( &( plst->wal ) );
+    mpdfx_list_ary_dealloc( &( plst->imp ) );
+    mpdfx_list_ary_dealloc( &( plst->dam ) );
+    mpdfx_list_ary_dealloc( &( plst->slp ) );
 
     // no memory, so nothing can be stored and nothing can be dirty
     plst->dirty = bfalse;
@@ -2515,17 +2514,17 @@ bool_t mpdfx_lists_dealloc( mpdfx_lists_t * plst )
 //--------------------------------------------------------------------------------------------
 bool_t mpdfx_lists_reset( mpdfx_lists_t * plst )
 {
-   if ( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return bfalse;
 
     // free the memory
-    mpdfx_list_ary_reset( &(plst->sha) );
-    mpdfx_list_ary_reset( &(plst->drf) );
-    mpdfx_list_ary_reset( &(plst->anm) );
-    mpdfx_list_ary_reset( &(plst->wat) );
-    mpdfx_list_ary_reset( &(plst->wal) );
-    mpdfx_list_ary_reset( &(plst->imp) );
-    mpdfx_list_ary_reset( &(plst->dam) );
-    mpdfx_list_ary_reset( &(plst->slp) );
+    mpdfx_list_ary_reset( &( plst->sha ) );
+    mpdfx_list_ary_reset( &( plst->drf ) );
+    mpdfx_list_ary_reset( &( plst->anm ) );
+    mpdfx_list_ary_reset( &( plst->wat ) );
+    mpdfx_list_ary_reset( &( plst->wal ) );
+    mpdfx_list_ary_reset( &( plst->imp ) );
+    mpdfx_list_ary_reset( &( plst->dam ) );
+    mpdfx_list_ary_reset( &( plst->slp ) );
 
     // everything has been reset. force it to recalculate
     plst->dirty = btrue;
@@ -2538,76 +2537,76 @@ int mpdfx_lists_push( mpdfx_lists_t * plst, GRID_FX_BITS fx_bits, size_t value )
 {
     int retval = 0;
 
-   if ( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return bfalse;
 
-   if( 0 == fx_bits ) return btrue;
+    if ( 0 == fx_bits ) return btrue;
 
-   if ( HAS_NO_BITS( fx_bits, MAPFX_SHA ) )
-   {
-       if( mpdfx_list_ary_push( &(plst->sha), value ) )
-       {
-           retval++;
-       }
+    if ( HAS_NO_BITS( fx_bits, MAPFX_SHA ) )
+    {
+        if ( mpdfx_list_ary_push( &( plst->sha ), value ) )
+        {
+            retval++;
+        }
 
-   }
+    }
 
-   if ( HAS_ALL_BITS( fx_bits, MAPFX_DRAWREF ) )
-   {
-       if( mpdfx_list_ary_push( &(plst->drf), value ) )
-       {
-           retval++;
-       }
-   }
+    if ( HAS_ALL_BITS( fx_bits, MAPFX_DRAWREF ) )
+    {
+        if ( mpdfx_list_ary_push( &( plst->drf ), value ) )
+        {
+            retval++;
+        }
+    }
 
-   if ( HAS_ALL_BITS( fx_bits, MAPFX_ANIM ) )
-   {
-       if( mpdfx_list_ary_push( &(plst->anm), value ) )
-       {
-           retval++;
-       }
-   }
+    if ( HAS_ALL_BITS( fx_bits, MAPFX_ANIM ) )
+    {
+        if ( mpdfx_list_ary_push( &( plst->anm ), value ) )
+        {
+            retval++;
+        }
+    }
 
-   if ( HAS_ALL_BITS( fx_bits, MAPFX_WATER ) )
-   {
-       if( mpdfx_list_ary_push( &(plst->wat), value ) )
-       {
-           retval++;
-       }
-   }
+    if ( HAS_ALL_BITS( fx_bits, MAPFX_WATER ) )
+    {
+        if ( mpdfx_list_ary_push( &( plst->wat ), value ) )
+        {
+            retval++;
+        }
+    }
 
-   if ( HAS_ALL_BITS( fx_bits, MAPFX_WALL ) )
-   {
-       if( mpdfx_list_ary_push( &(plst->wal), value ) )
-       {
-           retval++;
-       }
-   }
+    if ( HAS_ALL_BITS( fx_bits, MAPFX_WALL ) )
+    {
+        if ( mpdfx_list_ary_push( &( plst->wal ), value ) )
+        {
+            retval++;
+        }
+    }
 
-   if ( HAS_ALL_BITS( fx_bits, MAPFX_IMPASS ) )
-   {
-       if( mpdfx_list_ary_push( &(plst->imp), value ) )
-       {
-           retval++;
-       }
-   }
+    if ( HAS_ALL_BITS( fx_bits, MAPFX_IMPASS ) )
+    {
+        if ( mpdfx_list_ary_push( &( plst->imp ), value ) )
+        {
+            retval++;
+        }
+    }
 
-   if ( HAS_ALL_BITS( fx_bits, MAPFX_DAMAGE ) )
-   {
-       if( mpdfx_list_ary_push( &(plst->dam), value ) )
-       {
-           retval++;
-       }
-   }
+    if ( HAS_ALL_BITS( fx_bits, MAPFX_DAMAGE ) )
+    {
+        if ( mpdfx_list_ary_push( &( plst->dam ), value ) )
+        {
+            retval++;
+        }
+    }
 
-   if ( HAS_ALL_BITS( fx_bits, MAPFX_SLIPPY ) )
-   {
-       if( mpdfx_list_ary_push( &(plst->slp), value ) )
-       {
-           retval++;
-       }
-   }
+    if ( HAS_ALL_BITS( fx_bits, MAPFX_SLIPPY ) )
+    {
+        if ( mpdfx_list_ary_push( &( plst->slp ), value ) )
+        {
+            retval++;
+        }
+    }
 
-   return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

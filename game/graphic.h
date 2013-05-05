@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+/// @file graphic.h
+
 #include "egoboo_typedef.h"
 
 #include <SDL.h>
@@ -177,7 +179,6 @@ enum e_color
     COLOR_PURPLE,
     COLOR_MAX
 };
-
 
 // the map file only supports 256 texture images
 #define MESH_IMG_COUNT 256

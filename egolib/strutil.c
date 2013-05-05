@@ -406,4 +406,5 @@ char* strlwr( char * str )
     }
     return ret;
 }
+
 #endif

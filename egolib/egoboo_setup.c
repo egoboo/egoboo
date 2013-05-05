@@ -93,7 +93,7 @@ egoboo_config_t  cfg;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void egoboo_config_init( egoboo_config_t * pcfg );
+static void egoboo_config__init( egoboo_config_t * pcfg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -112,14 +112,13 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void egoboo_config_init( egoboo_config_t * pcfg )
+void egoboo_config__init( egoboo_config_t * pcfg )
 {
-    BLANK_STRUCT( cfg_default );
-
     // {GRAPHIC}
     pcfg->fullscreen_req        = bfalse;        // Start in fullscreen?
     pcfg->scrd_req              = 24;                 // Screen bit depth
@@ -153,15 +152,7 @@ void egoboo_config_init( egoboo_config_t * pcfg )
     pcfg->sound_channel_count   = 16;               // Max number of sounds playing at the same time
     pcfg->sound_buffer_size     = 2048;             // Buffer chunk size
     pcfg->sound_highquality     = bfalse;           // High quality sounds
-    pcfg->sound_footfall            = btrue;            // Play footstep sounds
-
-    // {GAME}
-    pcfg->message_count_req     = 6;
-    pcfg->message_duration      = 50;               // Time to keep the message alive
-    pcfg->show_stats            = btrue;            // Draw the status bars?
-    pcfg->feedback              = FEEDBACK_TEXT;    // What feedback does the player want
-    pcfg->difficulty            = GAME_NORMAL;      // What is the current game difficulty
-    pcfg->autoturncamera        = CAM_TURN_GOOD;    // Type of camera control...
+    pcfg->sound_footfall        = btrue;            // Play footstep sounds
 
     // {NETWORK}
     pcfg->network_allowed       = bfalse;            // Try to connect?
@@ -169,10 +160,18 @@ void egoboo_config_init( egoboo_config_t * pcfg )
     strncpy( pcfg->network_hostname,    "no host",      SDL_arraysize( pcfg->network_hostname ) );                            // Name for hosting session
     strncpy( pcfg->network_messagename, "little Raoul", SDL_arraysize( pcfg->network_messagename ) );                      // Name for messages
 
+    // {GAME}
+    pcfg->message_count_req     = 6;
+    pcfg->message_duration      = 50;               // Time to keep the message alive
+    pcfg->show_stats            = btrue;            // Draw the status bars?
+    pcfg->autoturncamera        = CAM_TURN_GOOD;    // Type of camera control...
+    pcfg->feedback              = FEEDBACK_TEXT;    // What feedback does the player want
+    pcfg->difficulty            = GAME_NORMAL;      // What is the current game difficulty
+
     // {DEBUG}
     pcfg->fps_allowed       = btrue;             // FPS displayed?
-    pcfg->grab_mouse        = btrue;
     pcfg->hide_mouse        = btrue;
+    pcfg->grab_mouse        = btrue;
     pcfg->dev_mode          = bfalse;
     pcfg->sdl_image_allowed = btrue;    // Allow advanced SDL_Image functions?
 
@@ -187,7 +186,7 @@ bool_t setup_begin( void )
     if ( _setup_started ) return btrue;
 
     // set the default Egoboo values
-    egoboo_config_init( &cfg_default );
+    egoboo_config__init( &cfg_default );
 
     // Read the local setup.txt
     if ( fs_ensureUserFile( "setup.txt", btrue ) )
@@ -219,21 +218,21 @@ bool_t setup_read_vfs( void )
     /// @author BB
     /// @details read the setup file
 
-	bool_t retval;
+    bool_t retval;
 
     if ( !setup_begin() ) return bfalse;
 
     //Did something go wrong?
-	retval = (NULL != _lpConfigSetup);
+    retval = ( NULL != _lpConfigSetup );
 
-	if( retval )
-	{
-		log_info( "Loaded setup file - \"%s\".\n", _config_filename );
-	}
-	else
-	{
+    if ( retval )
+    {
+        log_info( "Loaded setup file - \"%s\".\n", _config_filename );
+    }
+    else
+    {
         log_error( "Could not load setup settings: \"%s\"\n", _config_filename );
-	}
+    }
 
     return retval;
 }

@@ -340,15 +340,28 @@ bool_t aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 //    return ary;
 //}
 //
-////--------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+OVolume_t * OVolume__ctor( OVolume_t * pv )
+{
+    if ( NULL == pv ) return pv;
+
+    pv->lod = -1;
+    pv->needs_shape = btrue;
+    pv->needs_position = btrue;
+    oct_bb_ctor( &( pv->oct ) );
+
+    return pv;
+}
+
 //--------------------------------------------------------------------------------------------
 OVolume_t OVolume_merge( const OVolume_t * pv1, const OVolume_t * pv2 )
 {
     OVolume_t rv;
 
     // construct the OVolume
-    BLANK_STRUCT( rv )
-    rv.lod = -1;
+    OVolume__ctor( &rv );
 
     if ( NULL == pv1 && NULL == pv2 )
     {
@@ -394,8 +407,7 @@ OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 )
     OVolume_t rv;
 
     // construct the OVolume
-    BLANK_STRUCT( rv )
-    rv.lod = -1;
+    OVolume__ctor( &rv );
 
     if ( NULL == pv1 || NULL == pv2 )
     {
@@ -711,12 +723,16 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 bool_t CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * pvb )
 {
     bool_t retval;
     CVolume_t cv;
 
     if ( pva->lod < 0 || pvb->lod < 0 ) return bfalse;
+
+    //---- reset the OVolume
+    OVolume__ctor( &( pcv->ov ) );
 
     //---- do the preliminary collision test ----
 
@@ -1203,4 +1219,3 @@ egolib_rv oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oc
 
     return oct_bb_validate( pdst );
 }
-

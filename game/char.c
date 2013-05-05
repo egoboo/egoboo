@@ -923,7 +923,7 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
 
     // calculate the radius based on whether the character is on camera
     radius = 0.0f;
-    if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
+    if ( cfg.dev_mode && !SDL_KEYDOWN( keyb, SDLK_F8 ) )
     {
         ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
 
@@ -962,7 +962,7 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
 
     // calculate the radius based on whether the character is on camera
     radius = 0.0f;
-    if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
+    if ( cfg.dev_mode && !SDL_KEYDOWN( keyb, SDLK_F8 ) )
     {
         ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
 
@@ -1005,7 +1005,7 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
 
     // calculate the radius based on whether the character is on camera
     radius = 0.0f;
-    if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
+    if ( cfg.dev_mode && !SDL_KEYDOWN( keyb, SDLK_F8 ) )
     {
         ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
 
@@ -1044,7 +1044,7 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
 
     // calculate the radius based on whether the character is on camera
     radius = 0.0f;
-    if ( cfg.dev_mode && !SDLKEYDOWN( SDLK_F8 ) )
+    if ( cfg.dev_mode && !SDL_KEYDOWN( keyb, SDLK_F8 ) )
     {
         ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
 
@@ -3054,7 +3054,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
     pchr->gender = pcap->gender;
     if ( pchr->gender == GENDER_RANDOM )
     {
-        pchr->gender = (Uint8)generate_randmask( 0, 1 );
+        pchr->gender = ( Uint8 )generate_randmask( 0, 1 );
     }
 
     // Life and Mana
@@ -3074,7 +3074,7 @@ bool_t chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Skin
     pchr->skin = cap_get_skin_overide( pcap );
-    if( pchr->skin >= MAX_SKIN )
+    if ( pchr->skin >= MAX_SKIN )
     {
         int irnd = RANDIE;
         pchr->skin = irnd % MAX_SKIN;
@@ -3221,8 +3221,8 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t r
     }
     else
     {
-		int itmp = pro_get_slot_vfs( tmploadname, MAX_PROFILE );
-        icap = VALID_CAP_RANGE(itmp) ? itmp : MAX_CAP;
+        int itmp = pro_get_slot_vfs( tmploadname, MAX_PROFILE );
+        icap = VALID_CAP_RANGE( itmp ) ? itmp : MAX_CAP;
     }
 
     if ( !VALID_CAP_RANGE( icap ) )
@@ -3260,9 +3260,9 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool_t r
             return INVALID_CAP_REF;
         }
 
-		// @note this is currently disabled because the abve if-then-else returns every time
+        // @note this is currently disabled because the abve if-then-else returns every time
         // What do we do if loading over an existing model?
-		// Is it allowed? If so, then make sure to release the old one!
+        // Is it allowed? If so, then make sure to release the old one!
         CapStack_release_one( icap );
     }
 
@@ -3929,7 +3929,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
 
     if ( NULL == pchr ) return NULL;
     ichr = GET_INDEX_PCHR( pchr );
-    spawn_ptr = &(pchr->spawn_data);
+    spawn_ptr = &( pchr->spawn_data );
 
     // get the character profile pointer
     pcap = pro_get_pcap( spawn_ptr->profile );
@@ -4007,7 +4007,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
 
     // cap_get_skin_overide() can return NO_SKIN_OVERIDE or MAX_SKIN, so we need to check
     // for the "random skin marker" even if that function is called
-    if( spawn_ptr->skin >= MAX_SKIN )
+    if ( spawn_ptr->skin >= MAX_SKIN )
     {
         // This is a "random" skin.
         // Force it to some specific value so it will go back to the same skin every respawn
@@ -4022,7 +4022,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     }
 
     // actually set the character skin
-    pchr->skin = CLIP(spawn_ptr->skin, 0, MAX_SKIN-1);
+    pchr->skin = CLIP( spawn_ptr->skin, 0, MAX_SKIN - 1 );
 
     // fix the spawn_ptr->skin-related parameters, in case there was some funny business with overriding
     // the spawn_ptr->skin from the data.txt file
@@ -4814,7 +4814,7 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
     mad_t * pmad;
     chr_instance_t * pinst;
     TX_REF new_texture = ( TX_REF )TX_WATER_TOP;
-	SKIN_T loc_skin = skin;
+    SKIN_T loc_skin = skin;
 
     if ( !INGAME_CHR( character ) ) return 0;
     pchr  = ChrList_get_ptr( character );
@@ -4846,18 +4846,17 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
         // do the best we can to change the skin
 
         // all skin numbers are technically valid
-        if( loc_skin < 0 )
+        if ( loc_skin < 0 )
         {
             loc_skin = 0;
         }
-        else 
+        else
         {
             loc_skin %= MAX_SKIN;
         }
 
         // assume we cannot find a texture
         new_texture = TX_WATER_TOP;
-
 
         if ( NULL == ppro )
         {
@@ -4895,7 +4894,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
 
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
-	int     loc_skin = skin;
+    int     loc_skin = skin;
 
     int     iTmp;
     cap_t * pcap;
@@ -7910,7 +7909,7 @@ BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs )
         pchr->ibillboard = INVALID_BILLBOARD_REF;
     }
 
-    pchr->ibillboard = (BBOARD_REF)BillboardList_get_free_ref( lifetime_secs );
+    pchr->ibillboard = ( BBOARD_REF )BillboardList_get_free_ref( lifetime_secs );
 
     // attachr the billboard to the character
     if ( INVALID_BILLBOARD_REF != pchr->ibillboard )
@@ -8409,7 +8408,7 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
     {
         iskin = cap_get_skin_overide( pitem_cap );
 
-        if( iskin < 0 || iskin >= MAX_SKIN )
+        if ( iskin < 0 || iskin >= MAX_SKIN )
         {
             // no book info
             iskin = pitem->skin;
@@ -9472,7 +9471,7 @@ void chr_set_redshift( chr_t * pchr, const int rs )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    pchr->inst.redshift = CLIP(rs, 0, 9);
+    pchr->inst.redshift = CLIP( rs, 0, 9 );
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
@@ -9482,7 +9481,7 @@ void chr_set_grnshift( chr_t * pchr, const int gs )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    pchr->inst.grnshift = CLIP(gs, 0, 9);
+    pchr->inst.grnshift = CLIP( gs, 0, 9 );
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
@@ -9492,7 +9491,7 @@ void chr_set_blushift( chr_t * pchr, const int bs )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    pchr->inst.blushift = CLIP(bs, 0, 9);
+    pchr->inst.blushift = CLIP( bs, 0, 9 );
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }
@@ -9502,7 +9501,7 @@ void chr_set_sheen( chr_t * pchr, const int sheen )
 {
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    pchr->inst.sheen = CLIP(sheen, 0, 255);
+    pchr->inst.sheen = CLIP( sheen, 0, 255 );
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, bfalse );
 }

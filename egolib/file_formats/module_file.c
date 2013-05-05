@@ -33,6 +33,37 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+mod_file_t * mod_file__init( mod_file_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr ) return ptr;
+
+    strncpy( ptr->rank, "*", sizeof( ptr->rank ) );
+    strncpy( ptr->longname, "*UNKNOWN*", sizeof( ptr->longname ) );
+    ptr->reference[0] = CSTR_END;
+    ptr->importamount = 1;
+    ptr->allowexport = bfalse;
+    ptr->minplayers = 0;
+    ptr->maxplayers = 0;
+    ptr->monstersonly = bfalse;
+    ptr->respawnvalid = bfalse;
+
+    ptr->numlines = 0;
+    for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
+    {
+        ptr->summary[SUMMARYLINES][0] = '_';
+        ptr->summary[SUMMARYLINES][1] = CSTR_END;
+    }
+
+    IDSZ_node__init( &( ptr->unlockquest ) );
+    ptr->moduletype = FILTER_OFF;
+    ptr->beaten = bfalse;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
 mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 {
     /// @author BB

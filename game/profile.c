@@ -702,15 +702,15 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     if ( max_skin < 0 )
     {
         max_skin = 0;
-        pobj->tex_ref[max_skin] = TX_WATER_TOP;       
+        pobj->tex_ref[max_skin] = TX_WATER_TOP;
         log_debug( "Object is missing a skin (%s)!\n", tmploadname );
     }
 
     // If we didn't get a icon, set it to the NULL icon
-    if( max_icon < 0 )
+    if ( max_icon < 0 )
     {
         max_icon = 0;
-        pobj->tex_ref[max_icon] = TX_ICON_NULL;       
+        pobj->tex_ref[max_icon] = TX_ICON_NULL;
         log_debug( "Object is missing an icon (%s)!\n", tmploadname );
     }
 
@@ -954,7 +954,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     }
 
     // convert the slot to a profile reference
-    iobj = (PRO_REF)islot;
+    iobj = ( PRO_REF )islot;
 
     // throw an error code if we are trying to load over an existing profile
     // without permission
@@ -979,7 +979,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     }
 
     // allocate/reallocate this slot
-    iobj = (PRO_REF)ProList_get_free_ref( iobj );
+    iobj = ( PRO_REF )ProList_get_free_ref( iobj );
     if ( !VALID_PRO_RANGE( iobj ) )
     {
         log_warning( "load_one_profile_vfs() - Cannot allocate object %d (\"%s\")\n", REF_TO_INT( iobj ), tmploadname );

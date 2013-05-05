@@ -36,8 +36,8 @@ typedef struct s_lighting_cache_base lighting_cache_base_t;
 struct s_lighting_cache;
 typedef struct s_lighting_cache lighting_cache_t;
 
-struct s_dynalight;
-typedef struct s_dynalight dynalight_t;
+struct s_dynalight_data;
+typedef struct s_dynalight_data dynalight_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -94,13 +94,15 @@ bool_t             lighting_cache_blend( lighting_cache_t * cache, lighting_cach
 #define TOTAL_MAX_DYNA                    64          // Absolute max number of dynamic lights
 
 /// A definition of a single in-game dynamic light
-struct s_dynalight
+struct s_dynalight_data
 {
     float   distance;      ///< The distance from the center of the camera view
     fvec3_t pos;           ///< Light position
     float   level;         ///< Light intensity
     float   falloff;       ///< Light radius
 };
+
+dynalight_data_t * dynalight_data__init( dynalight_data_t * );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -114,5 +116,5 @@ float lighting_cache_test( const lighting_cache_t * src[], const float u, const 
 
 float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_base_t nrm, const float z, const aabb_t bbox, float * light_amb, float * light_dir );
 
-bool_t sum_dyna_lighting( const dynalight_t * pdyna, lighting_vector_t lighting, const fvec3_base_t nrm );
-float  dyna_lighting_intensity( const dynalight_t * pdyna, const fvec3_base_t diff );
+bool_t sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_base_t nrm );
+float  dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_base_t diff );

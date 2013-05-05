@@ -288,4 +288,3 @@ keyboard_t * keyboard_ctor( keyboard_t * ptr )
 
     return ptr;
 }
-

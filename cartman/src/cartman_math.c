@@ -46,4 +46,3 @@ bool_t SDL_RectIntersect( SDL_Rect * src, SDL_Rect * dst, SDL_Rect * isect )
 
     return btrue;
 }
-

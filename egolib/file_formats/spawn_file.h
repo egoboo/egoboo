@@ -65,10 +65,10 @@ extern "C"
         int        slot;
         fvec3_t    pos;
         int        passage;
-		int        content;
-		int        money;
-		int        level;
-		int        skin;
+        int        content;
+        int        money;
+        int        level;
+        int        skin;
         bool_t     stat;
         TEAM_REF   team;
         FACING_T   facing;
@@ -88,6 +88,7 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

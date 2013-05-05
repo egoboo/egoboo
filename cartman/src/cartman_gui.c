@@ -141,4 +141,3 @@ window_t * find_window( int x, int y )
 
     return retval;
 }
-

@@ -176,11 +176,11 @@ geometry_rv plane_intersects_aabb_max( const plane_base_t plane, const fvec3_bas
     }
     dist += plane[3];
 
-    if( dist > 0.0f  )
+    if ( dist > 0.0f )
     {
         retval = geometry_inside;
     }
-    else if ( dist < 0.0f  )
+    else if ( dist < 0.0f )
     {
         retval = geometry_outside;
     }
@@ -209,11 +209,11 @@ geometry_rv plane_intersects_aabb_min( const plane_base_t plane, const fvec3_bas
     }
     dist += plane[3];
 
-    if( dist > 0.0f  )
+    if ( dist > 0.0f )
     {
         retval = geometry_inside;
     }
-    else if ( dist < 0.0f  )
+    else if ( dist < 0.0f )
     {
         retval = geometry_outside;
     }
@@ -335,7 +335,7 @@ geometry_rv frustum_intersects_point( const frustum_base_t planes, const fvec3_b
     inside = btrue;
 
     // handle optional parameters
-    if( do_ends )
+    if ( do_ends )
     {
         i_stt = 0;
         i_end = FRUST_PLANE_END;
@@ -381,7 +381,7 @@ geometry_rv frustum_intersects_sphere( const frustum_base_t planes, const fvec3_
     retval = geometry_inside;
 
     // handle optional parameters
-    if( do_ends )
+    if ( do_ends )
     {
         i_stt = 0;
         i_end = FRUST_PLANE_END;
@@ -429,7 +429,7 @@ geometry_rv frustum_intersects_cube( const frustum_base_t planes, const fvec3_ba
     retval = geometry_inside;
 
     // handle optional parameters
-    if( do_ends )
+    if ( do_ends )
     {
         i_stt = 0;
         i_end = FRUST_PLANE_END;
@@ -484,10 +484,10 @@ geometry_rv frustum_intersects_aabb( const frustum_base_t planes, const fvec3_ba
     /// @details  A complete test for frustum and axis-aligned bounding box tests. This is not potimized
     ///           and requires a bunch of floating point operations, so try to avoid it.
     ///
-    /// @notes 
+    /// @notes
     /// the return values deal with the aabb being inside the frustum or not
     /// geometry_error     - obvious
-    /// geometry_outside   - the aabb is outside the frustum 
+    /// geometry_outside   - the aabb is outside the frustum
     /// geometry_intersect - the aabb and the frustum partially overlap
     /// geometry_inside    - the aabb is completely inside the frustum
 
@@ -500,7 +500,7 @@ geometry_rv frustum_intersects_aabb( const frustum_base_t planes, const fvec3_ba
     retval = geometry_inside;
 
     // handle optional parameters
-    if( do_ends )
+    if ( do_ends )
     {
         i_stt = 0;
         i_end = FRUST_PLANE_END;
@@ -687,14 +687,14 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
     ///
     /// @details  An approximation to the complete sphere-cone test.
     ///
-    /// @notes 
+    /// @notes
     /// Tests to remove some volume between the foreward and rear versions of the cone are not implemented,
     /// so this will over-estimate the cone volume. The smaller the opening angle, the worse the overestimation
     /// will be
     ///
     /// the return values deal with the sphere being inside the cone or not
     /// geometry_error     - obvious
-    /// geometry_outside   - the aabb is outside the frustum 
+    /// geometry_outside   - the aabb is outside the frustum
     /// geometry_intersect - the aabb and the frustum partially overlap
     /// geometry_inside    - the aabb is completely inside the frustum
 
@@ -755,7 +755,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 
             case geometry_intersect: // the origin of the cone is exactly on the foreward cone
             case geometry_inside:    // the origin of the sphere is inside the foreward cone
-                
+
                 // the sphere is completely inside the original cone
                 retval = geometry_inside;
                 done = btrue;

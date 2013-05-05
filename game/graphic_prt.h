@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+/// @file graphic_prt.h
+
 #include "egoboo_typedef.h"
 
 #include "../egolib/file_formats/pip_file.h"

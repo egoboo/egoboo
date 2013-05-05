@@ -77,7 +77,7 @@ bool_t template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
     while ( !vfs_eof( tempfile ) )
     {
         iTmp = vfs_getc( tempfile );
-		if( (unsigned)iTmp > 0xFF ) break;
+        if (( unsigned )iTmp > 0xFF ) break;
 
         if ( iTmp == *pmark )
         {
@@ -120,7 +120,7 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
     while ( !vfs_eof( tempfile ) )
     {
         iTmp = vfs_getc( tempfile );
-		if( (unsigned)iTmp > 0xFF ) break;
+        if (( unsigned )iTmp > 0xFF ) break;
 
         if ( iTmp == *pmark )
         {
@@ -168,14 +168,14 @@ void template_copy_to_eof( vfs_FILE * tempfile, vfs_FILE * outfile )
     if ( vfs_eof( tempfile ) ) return;
 
     ctmp = vfs_getc( tempfile );
-	if( (unsigned)ctmp > 0xFF ) return;
+    if (( unsigned )ctmp > 0xFF ) return;
 
     while ( !vfs_eof( tempfile ) )
     {
         vfs_putc( ctmp, outfile );
 
         ctmp = vfs_getc( tempfile );
-		if( (unsigned)ctmp > 0xFF ) break;
+        if (( unsigned )ctmp > 0xFF ) break;
     }
 }
 

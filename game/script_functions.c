@@ -1773,7 +1773,7 @@ Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function increases the target's money, while decreasing the
     /// character's own money.  tmpargument is set to the amount transferred
-	/// @note BB@> I would like to use getadd_int() here, but it is not really suited to two variables
+    /// @note BB@> I would like to use getadd_int() here, but it is not really suited to two variables
 
     int tTmp, iTmp;
     chr_t * pself_target;
@@ -1782,31 +1782,31 @@ Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-	//squash out-or-range values
-	pchr->money = CLIP(pchr->money, 0, MAXMONEY); 
-	pself_target->money = CLIP(pself_target->money, 0, MAXMONEY); 
+    //squash out-or-range values
+    pchr->money = CLIP( pchr->money, 0, MAXMONEY );
+    pself_target->money = CLIP( pself_target->money, 0, MAXMONEY );
 
-	// limit the range of the character's money
+    // limit the range of the character's money
     iTmp = pchr->money - pstate->argument;
-	iTmp = CLIP(iTmp, 0, MAXMONEY);
-	
-	// limit the range of the target's money
-	tTmp = pself_target->money + pstate->argument;
-	tTmp = CLIP(tTmp, 0, MAXMONEY);
+    iTmp = CLIP( iTmp, 0, MAXMONEY );
 
-	// recover the possible transfer values
-	iTmp = iTmp + pstate->argument;
-	tTmp = tTmp - pstate->argument;
+    // limit the range of the target's money
+    tTmp = pself_target->money + pstate->argument;
+    tTmp = CLIP( tTmp, 0, MAXMONEY );
 
-	// limit the transfer values
-	if( pstate->argument < 0)
-	{
-		pstate->argument = MAX(iTmp, tTmp);
-	}
-	else
-	{
-		pstate->argument = MIN(iTmp, tTmp);
-	}
+    // recover the possible transfer values
+    iTmp = iTmp + pstate->argument;
+    tTmp = tTmp - pstate->argument;
+
+    // limit the transfer values
+    if ( pstate->argument < 0 )
+    {
+        pstate->argument = MAX( iTmp, tTmp );
+    }
+    else
+    {
+        pstate->argument = MIN( iTmp, tTmp );
+    }
 
     pchr->money         = pchr->money + pstate->argument;
     pself_target->money = pself_target->money + pstate->argument;
@@ -2434,8 +2434,8 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     pcap = chr_get_pcap( pself->index );
     if ( NULL != pcap )
     {
-        iskin = (iskin < 0 ) ? NO_SKIN_OVERRIDE : iskin;
-        iskin = (iskin > MAX_SKIN ) ? MAX_SKIN : iskin;
+        iskin = ( iskin < 0 ) ? NO_SKIN_OVERRIDE : iskin;
+        iskin = ( iskin > MAX_SKIN ) ? MAX_SKIN : iskin;
 
         pcap->spelleffect_type = iskin;
     }
@@ -2455,17 +2455,17 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 
     PRO_REF  old_profile;
     mad_t * pmad;
-	cap_t * pcap;
+    cap_t * pcap;
     int iskin;
 
     SCRIPT_FUNCTION_BEGIN();
 
-	pcap = chr_get_pcap( pself->index );
-	if( NULL == pcap ) return bfalse;
+    pcap = chr_get_pcap( pself->index );
+    if ( NULL == pcap ) return bfalse;
 
     // Figure out what this spellbook looks like
-	iskin = pcap->spelleffect_type;
-	if( iskin < 0 ) iskin = 0;
+    iskin = pcap->spelleffect_type;
+    if ( iskin < 0 ) iskin = 0;
 
     // convert the spell effect to a spellbook
     old_profile = pchr->profile_ref;
@@ -3359,7 +3359,7 @@ Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->flyheight = MAX(0, pstate->argument);
+    pchr->flyheight = MAX( 0, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5161,7 +5161,7 @@ Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
 
     if ( pstate->argument > 0 )
     {
-        pself_target->reload_timer = CLIP(pstate->argument, 0, 0xFFFF);
+        pself_target->reload_timer = CLIP( pstate->argument, 0, 0xFFFF );
     }
     else
     {
@@ -5219,9 +5219,9 @@ Uint8 scr_set_FogTAD( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fog.red = CLIP(pstate->turn, 0, 0xFF);
-    fog.grn = CLIP(pstate->argument, 0, 0xFF);
-    fog.blu = CLIP(pstate->distance, 0, 0xFF);
+    fog.red = CLIP( pstate->turn, 0, 0xFF );
+    fog.grn = CLIP( pstate->argument, 0, 0xFF );
+    fog.blu = CLIP( pstate->distance, 0, 0xFF );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5863,7 +5863,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = (pself_target->see_invisible_level > 0);
+    returncode = ( pself_target->see_invisible_level > 0 );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6055,7 +6055,7 @@ Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ChrList.lst[pself->child].ammo = CLIP(pstate->argument, 0, 0xFFFF);
+    ChrList.lst[pself->child].ammo = CLIP( pstate->argument, 0, 0xFFFF );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6453,7 +6453,7 @@ Uint8 scr_set_DamageTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->damage_timer = CLIP(pstate->argument, 0, 0xFFFF);
+    pchr->damage_timer = CLIP( pstate->argument, 0, 0xFFFF );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6727,7 +6727,7 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
     {
         // Pay for it.  Cost may be negative after refund.
         pself_target->money = pself_target->money - iTmp;
-		pself_target->money = CLIP(pself_target->money, 0, MAXMONEY); 
+        pself_target->money = CLIP( pself_target->money, 0, MAXMONEY );
 
         pstate->x = 0;
         returncode = btrue;
@@ -6976,8 +6976,8 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( NULL != pcap && pcap->canbegrogged )
     {
-		int timer_val = pself_target->grog_timer + pstate->argument;
-        pself_target->grog_timer = MAX(0, timer_val);
+        int timer_val = pself_target->grog_timer + pstate->argument;
+        pself_target->grog_timer = MAX( 0, timer_val );
         returncode = btrue;
     }
 
@@ -7004,8 +7004,8 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( NULL != pcap && ( pcap->canbedazed || pself->index == pself->target ) )
     {
-		int timer_val = pself_target->daze_timer + pstate->argument;
-        pself_target->daze_timer = MAX(0, timer_val);
+        int timer_val = pself_target->daze_timer + pstate->argument;
+        pself_target->daze_timer = MAX( 0, timer_val );
 
         returncode = btrue;
     }
@@ -7114,12 +7114,12 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	{
-		mad_t * pmad = chr_get_pmad( pself->index );
+    {
+        mad_t * pmad = chr_get_pmad( pself->index );
 
-		log_warning( "Depacrated script function used: EnableListenSkill! (%s)\n", 
-			(NULL == pmad) ? "UNKNOWN" : pmad->name );
-	}
+        log_warning( "Depacrated script function used: EnableListenSkill! (%s)\n",
+                     ( NULL == pmad ) ? "UNKNOWN" : pmad->name );
+    }
 
     returncode = bfalse;
 
@@ -7938,7 +7938,7 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = (pself_target->see_kurse_level > 0);
+    returncode = ( pself_target->see_kurse_level > 0 );
 
     SCRIPT_FUNCTION_END();
 }

@@ -469,7 +469,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->type          = ppip->type;
 
     // Image data
-    pprt->rotate        = (FACING_T)generate_irand_pair( ppip->rotate_pair );
+    pprt->rotate        = ( FACING_T )generate_irand_pair( ppip->rotate_pair );
     pprt->rotate_add    = ppip->rotate_add;
 
     pprt->size_stt      = ppip->size_base;
@@ -2476,7 +2476,7 @@ PIP_REF PipStack_get_free( void )
         PipStack.count++;
     }
 
-    return CLIP(retval, 0, MAX_PIP);
+    return CLIP( retval, 0, MAX_PIP );
 }
 
 //--------------------------------------------------------------------------------------------

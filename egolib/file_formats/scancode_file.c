@@ -630,4 +630,3 @@ scantag_get_string_end:
 //
 //    return matches;
 //}
-//

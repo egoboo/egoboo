@@ -441,7 +441,7 @@ void add_shop_passage( const CHR_REF owner, const PASS_REF passage )
 
     if ( !INGAME_CHR( owner ) || !ChrList.lst[owner].alive ) return;
 
-    ishop = (SHOP_REF)ShopStack_get_free();
+    ishop = ( SHOP_REF )ShopStack_get_free();
     if ( !VALID_SHOP( ishop ) ) return;
 
     // The passage exists...
@@ -479,7 +479,7 @@ void add_passage( passage_t * pdata )
 
     if ( NULL == pdata ) return;
 
-    ipass = (PASS_REF)PasageStack_get_free();
+    ipass = ( PASS_REF )PasageStack_get_free();
 
     if ( ipass >= MAX_PASS ) return;
     ppass = PassageStack_get_ptr( ipass );

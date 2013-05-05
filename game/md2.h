@@ -67,7 +67,6 @@ struct s_ego_md2_vertex
     fvec3_t pos;
     fvec3_t nrm;
     int     normal;  ///< index to id-normal array
-
 };
 
 //--------------------------------------------------------------------------------------------
@@ -146,7 +145,6 @@ struct s_ego_md2_model
     MD2_Triangle_t  *m_triangles;
     MD2_Frame_t     *m_frames;
     MD2_GLCommand_t *m_commands;
-
 };
 
 // CTORS

@@ -30,6 +30,8 @@ struct s_NetFileTransfer
     ENetPeer *target;
 };
 
+NetFileTransfer * NetFileTransfer__ctor( NetFileTransfer * );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -55,8 +57,14 @@ static int  netfile_playerrespond = 0;
 //--------------------------------------------------------------------------------------------
 void netfile_initialize( void )
 {
-    BLANK_ARY( netfile_transferStates )
-    BLANK_STRUCT( netfile_receiveState )
+    int cnt;
+
+    for ( cnt = 0; cnt < NET_MAX_FILE_TRANSFERS; cnt++ )
+    {
+        NetFileTransfer__ctor( netfile_transferStates + cnt );
+    };
+
+    NetFileTransfer__ctor( &netfile_receiveState );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -635,6 +643,20 @@ egolib_rv netfile_handleEvent( ENetEvent * event )
     ego_packet_dtor( &ego_pkt );
 
     return handled ? rv_success : rv_fail;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+NetFileTransfer * NetFileTransfer__ctor( NetFileTransfer * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    ptr->sourceName[0] = CSTR_END;
+    ptr->destName[0] = CSTR_END;
+    ptr->target = NULL;
+
+    return ptr;
 }
 
 //--------------------------------------------------------------------------------------------

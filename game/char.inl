@@ -667,7 +667,7 @@ static INLINE void chr_set_height( chr_t * pchr, const float height )
 
     if ( !DEFINED_PCHR( pchr ) ) return;
 
-    pchr->bump_save.height = MAX(height, 0.0f);
+    pchr->bump_save.height = MAX( height, 0.0f );
 
     chr_update_size( pchr );
 }

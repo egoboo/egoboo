@@ -104,6 +104,18 @@ struct s_chr_prt_collsion_data
     bool_t  prt_damages_chr;
 };
 
+#define  CHR_PRT_COLLSION_DATA_INIT  \
+    {\
+        INVALID_CHR_REF, /* CHR_REF ichr */ \
+        NULL,            /* chr_t * pchr */ \
+        NULL,            /* cap_t * pcap */ \
+        INVALID_PRT_REF, /* PRT_REF iprt */ \
+        NULL,            /* prt_t * pprt */ \
+        NULL             /* pip_t * ppip */ \
+    }
+
+chr_prt_collsion_data_t * chr_prt_collsion_data__init( chr_prt_collsion_data_t * );
+
 //--------------------------------------------------------------------------------------------
 
 /// one element of the data for partitioning character and particle positions
@@ -3500,7 +3512,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     bool_t prt_deflected;
     bool_t prt_can_hit_chr;
 
-    chr_prt_collsion_data_t cn_data;
+    chr_prt_collsion_data_t cn_data = CHR_PRT_COLLSION_DATA_INIT;
     bool_t intialized;
 
     // valid node?
@@ -3522,7 +3534,7 @@ bool_t do_chr_prt_collision( CoNode_t * d )
         intialized = bfalse;
 
         // in here to keep the compiler from complaining
-        BLANK_STRUCT( cn_data )
+        chr_prt_collsion_data__init( &cn_data );
     }
 
     if ( !intialized ) return bfalse;
@@ -3665,6 +3677,61 @@ bool_t do_chr_prt_collision( CoNode_t * d )
     }
 
     return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+chr_prt_collsion_data_t * chr_prt_collsion_data__init( chr_prt_collsion_data_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    //---- invalidate the object parameters
+    ptr->ichr = INVALID_CHR_REF;
+    ptr->pchr = NULL;
+    ptr->pcap = NULL;
+
+    ptr->iprt = INVALID_PRT_REF;
+    ptr->pprt = NULL;
+    ptr->ppip = NULL;
+
+    //---- collision parameters
+
+    // true collisions
+    ptr->int_min = 0;
+    ptr->depth_min = 0.0f;
+
+    // hit-box collisions
+    ptr->int_max = 0;
+    ptr->depth_max = 0.0f;
+
+    // platform interactions
+    //ptr->int_plat = bfalse;
+    //ptr->plat_lerp = 0.0f;
+
+    // basic parameters
+    ptr->is_impact    = bfalse;
+    ptr->is_pressure  = bfalse;
+    ptr->is_collision = bfalse;
+    ptr->dot = 0.0f;
+    ptr->nrm.x = ptr->nrm.y = 0.0f; ptr->nrm.z = 1.0f;
+
+    //---- collision modifications
+    ptr->mana_paid = bfalse;
+    ptr->max_damage = ptr->actual_damage = 0;
+    fvec3_self_clear( ptr->vdiff.v );
+    fvec3_self_clear( ptr->vdiff_para.v );
+    fvec3_self_clear( ptr->vdiff_perp.v );
+    ptr->block_factor = 0.0f;
+
+    //---- collision reaction
+    fvec3_self_clear( ptr->vimpulse.v );
+    fvec3_self_clear( ptr->pimpulse.v );
+    ptr->terminate_particle = bfalse;
+    ptr->prt_bumps_chr = bfalse;
+    ptr->prt_damages_chr = bfalse;
+
+    return ptr;
 }
 
 //bool_t do_chr_prt_collision_get_depth_base( CoNode_t * d, oct_bb_t * pcv_a, fvec3_base_t vel_a, oct_bb_t * pcv_b, fvec3_base_t vel_b, float exponent, fvec3_base_t nrm, float *depth )

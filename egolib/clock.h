@@ -19,7 +19,6 @@
 //*
 //********************************************************************************************
 
-///
 /// @file clock.h
 /// @brief Clock & timer functionality.
 /// @details This implementation was adapted from Noel Lopis' article in
@@ -119,6 +118,7 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

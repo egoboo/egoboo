@@ -396,7 +396,7 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     {
         SDL_Surface * tmp = SDL_CreateRGBSurface( SDL_SWSURFACE, tx_w, tx_h, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
 
-        SDL_BlitSurface( local_surface, &(local_surface->clip_rect), tmp, NULL );
+        SDL_BlitSurface( local_surface, &( local_surface->clip_rect ), tmp, NULL );
         if ( local_surface != surface ) SDL_FreeSurface( local_surface );
         local_surface = tmp;
     };
@@ -436,4 +436,3 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
 
     return binding;
 }
-

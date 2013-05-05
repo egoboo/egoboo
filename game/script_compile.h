@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+/// @file script_compile.h
+
 #include "egoboo_typedef.h"
 #include "script.h"
 #include "profile.h"

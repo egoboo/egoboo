@@ -146,13 +146,12 @@ map_t * map_generate_tile_twist_data( map_t * pmesh )
     return pmesh;
 }
 
-
 //--------------------------------------------------------------------------------------------
 int map_get_itile( map_t * pmesh, int mapx, int mapy )
 {
     int itile = -1;
 
-    if( NULL == pmesh )
+    if ( NULL == pmesh )
     {
         itile = -1;
     }
@@ -174,7 +173,7 @@ int map_get_fx_itile( map_t * pmesh, int itile )
     Uint8 WALL_BITS = MAPFX_WALL | MAPFX_IMPASS;
     Uint8 tile_fx = 0;
 
-    if( NULL == pmesh )
+    if ( NULL == pmesh )
     {
         tile_fx = WALL_BITS;
     }
@@ -182,7 +181,7 @@ int map_get_fx_itile( map_t * pmesh, int itile )
     {
         tile_fx = WALL_BITS;
     }
-    else if( itile <0 || itile >= pmesh->mem.tile_count )
+    else if ( itile < 0 || itile >= pmesh->mem.tile_count )
     {
         tile_fx = WALL_BITS;
     }
@@ -254,8 +253,8 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     if ( 0 == pmesh->mem.tile_count || NULL == pmesh->mem.tile_list ) return pmesh;
 
     // allocate a temp array
-    ary = EGOBOO_NEW_ARY(Uint8, pmesh->mem.tile_count);
-    if( NULL == ary ) 
+    ary = EGOBOO_NEW_ARY( Uint8, pmesh->mem.tile_count );
+    if ( NULL == ary )
     {
         log_warning( "%s - coul not allocate a temporary array.\n", __FUNCTION__ );
         return pmesh;
@@ -284,18 +283,18 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
                 {
                     tmpx = mapx + dx;
 
-                    if( map_has_some_fx_pos( pmesh, tmpx, tmpy, WALL_BITS ) )
+                    if ( map_has_some_fx_pos( pmesh, tmpx, tmpy, WALL_BITS ) )
                     {
                         wall_count++;
                     }
                 }
             }
 
-            if( 0 == wall_count )
+            if ( 0 == wall_count )
             {
                 tile_type = FLOOR;
             }
-            else if( 9 == wall_count )
+            else if ( 9 == wall_count )
             {
                 tile_type = ROCK;
             }
@@ -318,9 +317,8 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
             int cnt, jtile;
             bool_t is_column;
 
-
             // de-initialize the positions of the "vertices"
-            for( cnt = 0; cnt<8; cnt++ )
+            for ( cnt = 0; cnt < 8; cnt++ )
             {
                 zpos[cnt] = -1.0f;
             }
@@ -328,154 +326,154 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
             itile = tile_x + tile_y;
 
             // default floor type is a 0 or 1
-            if( FLOOR == ary[itile] )
+            if ( FLOOR == ary[itile] )
             {
                 tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) ) & 1;
                 continue;
             }
 
             // default rock type is a 0 or 1
-            if( ROCK == ary[itile] )
+            if ( ROCK == ary[itile] )
             {
-                tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) + 1) & 1;
+                tlst[itile].type = (( tile_x & 1 ) + ( tile_y & 1 ) + 1 ) & 1;
                 continue;
             }
 
             // this must be a "wall" tile
             // check the neighboring tiles to set the corner positions
 
-            jtile = map_get_itile( pmesh, mapx, mapy-1 );
-            if( jtile > 0 )
+            jtile = map_get_itile( pmesh, mapx, mapy - 1 );
+            if ( jtile > 0 )
             {
-                if( FLOOR == ary[jtile] )
+                if ( FLOOR == ary[jtile] )
                 {
                     zpos[7] = zpos[0] = zpos[1] = 0.0f;
                 }
-                else if( ROCK == ary[jtile] )
+                else if ( ROCK == ary[jtile] )
                 {
                     zpos[7] = zpos[0] = zpos[1] = TILE_FSIZE;
                 }
             }
 
-            jtile = map_get_itile( pmesh, mapx+1, mapy );
-            if( jtile > 0 )
+            jtile = map_get_itile( pmesh, mapx + 1, mapy );
+            if ( jtile > 0 )
             {
-                if( FLOOR == ary[jtile] )
+                if ( FLOOR == ary[jtile] )
                 {
                     zpos[1] = zpos[2] = zpos[3] = 0.0f;
                 }
-                else if( ROCK == ary[jtile] )
+                else if ( ROCK == ary[jtile] )
                 {
                     zpos[1] = zpos[2] = zpos[3] = TILE_FSIZE;
                 }
             }
 
-            jtile = map_get_itile( pmesh, mapx, mapy+1 );
-            if( jtile > 0 )
+            jtile = map_get_itile( pmesh, mapx, mapy + 1 );
+            if ( jtile > 0 )
             {
-                if( FLOOR == ary[jtile] )
+                if ( FLOOR == ary[jtile] )
                 {
                     zpos[3] = zpos[4] = zpos[5] = 0.0f;
                 }
-                else if( ROCK == ary[jtile] )
+                else if ( ROCK == ary[jtile] )
                 {
                     zpos[3] = zpos[4] = zpos[5] = TILE_FSIZE;
                 }
             }
 
-            jtile = map_get_itile( pmesh, mapx-1, mapy );
-            if( jtile > 0 )
+            jtile = map_get_itile( pmesh, mapx - 1, mapy );
+            if ( jtile > 0 )
             {
-                if( FLOOR == ary[jtile] )
+                if ( FLOOR == ary[jtile] )
                 {
                     zpos[5] = zpos[6] = zpos[7] = 0.0f;
                 }
-                else if( ROCK == ary[jtile] )
+                else if ( ROCK == ary[jtile] )
                 {
                     zpos[5] = zpos[6] = zpos[7] = TILE_FSIZE;
                 }
             }
 
-            if( zpos[1] < 0.0f )
+            if ( zpos[1] < 0.0f )
             {
-                jtile = map_get_itile( pmesh, mapx+1, mapy-1 );
-                if( jtile > 0 )
+                jtile = map_get_itile( pmesh, mapx + 1, mapy - 1 );
+                if ( jtile > 0 )
                 {
-                    if( FLOOR == ary[jtile] )
+                    if ( FLOOR == ary[jtile] )
                     {
                         zpos[1] = 0.0f;
                     }
-                    else if( ROCK == ary[jtile] )
+                    else if ( ROCK == ary[jtile] )
                     {
                         zpos[1] = TILE_FSIZE;
                     }
                 }
             }
 
-            if( zpos[3] < 0.0f )
+            if ( zpos[3] < 0.0f )
             {
-                jtile = map_get_itile( pmesh, mapx+1, mapy+1 );
-                if( jtile > 0 )
+                jtile = map_get_itile( pmesh, mapx + 1, mapy + 1 );
+                if ( jtile > 0 )
                 {
-                    if( FLOOR == ary[jtile] )
+                    if ( FLOOR == ary[jtile] )
                     {
                         zpos[3] = 0.0f;
                     }
-                    else if( ROCK == ary[jtile] )
+                    else if ( ROCK == ary[jtile] )
                     {
                         zpos[3] = TILE_FSIZE;
                     }
                 }
             }
 
-            if( zpos[5] < 0.0f )
+            if ( zpos[5] < 0.0f )
             {
-                jtile = map_get_itile( pmesh, mapx-1, mapy+1 );
-                if( jtile > 0 )
+                jtile = map_get_itile( pmesh, mapx - 1, mapy + 1 );
+                if ( jtile > 0 )
                 {
-                    if( FLOOR == ary[jtile] )
+                    if ( FLOOR == ary[jtile] )
                     {
                         zpos[5] = 0.0f;
                     }
-                    else if( ROCK == ary[jtile] )
+                    else if ( ROCK == ary[jtile] )
                     {
                         zpos[5] = TILE_FSIZE;
                     }
                 }
             }
 
-            if( zpos[7] < 0.0f )
+            if ( zpos[7] < 0.0f )
             {
-                jtile = map_get_itile( pmesh, mapx-1, mapy+1 );
-                if( jtile > 0 )
+                jtile = map_get_itile( pmesh, mapx - 1, mapy + 1 );
+                if ( jtile > 0 )
                 {
-                    if( FLOOR == ary[jtile] )
+                    if ( FLOOR == ary[jtile] )
                     {
                         zpos[7] = 0.0f;
                     }
-                    else if( ROCK == ary[jtile] )
+                    else if ( ROCK == ary[jtile] )
                     {
                         zpos[7] = TILE_FSIZE;
                     }
                 }
             }
 
-            // if any corners are still undefined, make them the 
+            // if any corners are still undefined, make them the
             // height of this tile
-            if( zpos[1] < 0.0f ) zpos[1] = TILE_FSIZE;
-            if( zpos[3] < 0.0f ) zpos[3] = TILE_FSIZE;
-            if( zpos[5] < 0.0f ) zpos[5] = TILE_FSIZE;
-            if( zpos[7] < 0.0f ) zpos[7] = TILE_FSIZE;
+            if ( zpos[1] < 0.0f ) zpos[1] = TILE_FSIZE;
+            if ( zpos[3] < 0.0f ) zpos[3] = TILE_FSIZE;
+            if ( zpos[5] < 0.0f ) zpos[5] = TILE_FSIZE;
+            if ( zpos[7] < 0.0f ) zpos[7] = TILE_FSIZE;
 
             // estimate the center positions
-            if( zpos[0] < 0.0f ) zpos[0] = 0.5f * (zpos[7] + zpos[1]);
-            if( zpos[2] < 0.0f ) zpos[2] = 0.5f * (zpos[1] + zpos[3]);
-            if( zpos[4] < 0.0f ) zpos[4] = 0.5f * (zpos[3] + zpos[5]);
-            if( zpos[6] < 0.0f ) zpos[6] = 0.5f * (zpos[5] + zpos[7]);
+            if ( zpos[0] < 0.0f ) zpos[0] = 0.5f * ( zpos[7] + zpos[1] );
+            if ( zpos[2] < 0.0f ) zpos[2] = 0.5f * ( zpos[1] + zpos[3] );
+            if ( zpos[4] < 0.0f ) zpos[4] = 0.5f * ( zpos[3] + zpos[5] );
+            if ( zpos[6] < 0.0f ) zpos[6] = 0.5f * ( zpos[5] + zpos[7] );
 
             // override the center positions for known tiles
             is_column = bfalse;
-            if( zpos[1] == zpos[3] == zpos[5] == zpos[7] )
+            if ( zpos[1] == zpos[3] == zpos[5] == zpos[7] )
             {
                 is_column = btrue;
             }
@@ -506,14 +504,12 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //            }
     //        }
 
-
     //    }
     //}
     //        int   itile, wall_count;
     //        int cnt, dx, dy;
     //        float tile_hgt[9];
     //        float vrt_hgt[16];
-
 
     //        if ( HAS_NO_BITS( tlst[itile].fx, WALL_BITS ) )
     //        {

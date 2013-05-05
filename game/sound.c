@@ -70,6 +70,7 @@ struct s_looped_sound_data
     const Mix_Chunk * chunk;
     CHR_REF           object;
 };
+looped_sound_data_t * looped_sound_data__init( looped_sound_data_t * );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -619,7 +620,7 @@ void sound_free_chunk( Mix_Chunk * pchunk )
 //--------------------------------------------------------------------------------------------
 int get_current_song_playing( void )
 {
-	/// @author ZF
+    /// @author ZF
     /// @details This gives read access to the private variable 'songplaying'
 
     return songplaying;
@@ -899,11 +900,7 @@ void   LoopedList_init( void )
     for ( cnt = 0; cnt < LOOPED_COUNT; cnt++ )
     {
         // clear out all of the data
-        BLANK_STRUCT( LoopedList.lst[cnt] );
-
-        LoopedList.lst[cnt].channel = INVALID_SOUND_CHANNEL;
-        LoopedList.lst[cnt].chunk   = NULL;
-        LoopedList.lst[cnt].object  = INVALID_CHR_REF;
+        looped_sound_data__init( LoopedList.lst + cnt );
 
         tnc = REF_TO_INT( cnt );
         LoopedList.used_ref[tnc] = INVALID_LOOPED_IDX;
@@ -1441,4 +1438,17 @@ bool_t _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fv
     volume = _calculate_volume( cam_pos, cam_center, diff, DEG_TO_RAD( CAM_FOV ) );
 
     return _update_channel_volume( channel, volume, pan );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+looped_sound_data_t * looped_sound_data__init( looped_sound_data_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    ptr->channel = INVALID_SOUND_CHANNEL;
+    ptr->chunk   = NULL;
+    ptr->object  = INVALID_CHR_REF;
+
+    return ptr;
 }

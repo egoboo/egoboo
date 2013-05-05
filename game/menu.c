@@ -78,8 +78,8 @@ typedef struct s_SelectedPlayer_element SelectedPlayer_element_t;
 struct s_SelectedPlayer_list;
 typedef struct s_SelectedPlayer_list SelectedPlayer_list_t;
 
-#define SCANTAG_KEYDOWN(VAL)          (((VAL) < SDLK_NUMLOCK) && SDLKEYDOWN( VAL ))
-#define SCANTAG_KEYMODDOWN(VAL)       (((VAL) < SDLK_LAST) && SDLKEYDOWN( VAL ))
+#define SCANTAG_KEYDOWN(VAL)          (((VAL) < SDLK_NUMLOCK) && SDL_KEYDOWN(keyb, VAL ))
+#define SCANTAG_KEYMODDOWN(VAL)       (((VAL) < SDLK_LAST) && SDL_KEYDOWN(keyb, VAL ))
 #define SCANTAG_MOUSBUTTON(VAL)       ((0 != (VAL)) && (mous.b == (VAL)) )
 #define SCANTAG_JOYBUTTON(PJOY, VAL)  ((NULL != (PJOY)) && (0 != (VAL)) && ((PJOY)->b == (VAL)) )
 
@@ -149,16 +149,18 @@ static ChoosePlayer_list_t * ChoosePlayer_list_dealloc( ChoosePlayer_list_t * );
 /// the module data that the menu system needs
 struct s_mnu_module
 {
-    EGO_PROFILE_STUFF                           ///< the "base class" of a profile obbject
+    EGO_PROFILE_STUFF                           ///< the "base class" of a profile object
 
     mod_file_t base;                            ///< the data for the "base class" of the module
 
     // extended data
-    TX_REF tex_index;                           ///< the index of the module's tile image
+    MNU_TX_REF tex_index;                           ///< the index of the module's tile image
 
     STRING vfs_path;                            ///< the virtual pathname of the module
     STRING dest_path;                           ///< the path that module data can be written into
 };
+
+mnu_module_t * mnu_module__init( mnu_module_t * );
 
 #define VALID_MOD_RANGE( IMOD ) ( ((IMOD) >= 0) && ((IMOD) < MAX_MODULE) )
 #define VALID_MOD( IMOD )       ( VALID_MOD_RANGE( IMOD ) && IMOD < mnu_ModList.count && mnu_ModList.lst[IMOD].loaded )
@@ -250,6 +252,9 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
 INSTANTIATE_STACK_STATIC( mnu_module_t, mnu_ModList, MAX_MODULE );
 //INSTANTIATE_STACK_STATIC( oglx_texture_t, TxTitleImage, TITLE_TEXTURE_COUNT ); // OpenGL title image surfaces
 
+#define INVALID_MOD_IDX MAX_MODULE
+#define INVALID_MOD_REF ((MOD_REF)INVALID_MOD_IDX)
+
 menu_process_t * MProc             = &_mproc;
 bool_t           start_new_player  = bfalse;
 bool_t           module_list_valid = bfalse;
@@ -278,7 +283,7 @@ static void mnu_SlidyButton_draw_all( void );
 
 // implementation of "private" TxTitleImage functions
 //static void TxTitleImage_clear_data( void );
-//static void TxTitleImage_release_one( const TX_REF index );
+//static void TxTitleImage_release_one( const MNU_TX_REF index );
 //static void TxTitleImage_ctor( void );
 //static void TxTitleImage_release_all( void );
 //static void TxTitleImage_dtor( void );
@@ -306,7 +311,7 @@ static const char * mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal
 static void   mnu_load_all_module_info( void );
 
 // "private" asset function
-static TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const TX_REF default_ref );
+static MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_ref );
 
 // implementation of the autoformatting
 static void autoformat_init_slidy_buttons( void );
@@ -351,12 +356,12 @@ static int cmp_mod_ref( const void * vref1, const void * vref2 );
 // declaration of mnu_TxList functions not used outside this module
 static void   mnu_TxList_init_all( void );
 static void   mnu_TxList_delete_all( void );
-static TX_REF mnu_TxList_get_free( const TX_REF itex );
-static bool_t mnu_TxList_free_one( const TX_REF  itex );
+static MNU_TX_REF mnu_TxList_get_free( const MNU_TX_REF itex );
+static bool_t mnu_TxList_free_one( const MNU_TX_REF  itex );
 
 // implementation of "private" mnu_TxList functions
 static void   mnu_TxList_reset_freelist( void );
-static void   mnu_TxList_release_one( const TX_REF index );
+static void   mnu_TxList_release_one( const MNU_TX_REF index );
 static void   mnu_TxList_release_all( void );
 
 //--------------------------------------------------------------------------------------------
@@ -652,7 +657,7 @@ bool_t menu_system_init( void )
     bool_t retval = btrue;
 
     // load the bitmapped font
-    font_bmp_load_vfs( mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP ), "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after gfx_system_init_all_graphics()
+    font_bmp_load_vfs( mnu_TxList_get_valid_ptr(( MNU_TX_REF )MENU_TX_FONT_BMP ), "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after gfx_system_init_all_graphics()
 
     // load the ttf font
     menuFont = ui_loadFont( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 18 );
@@ -723,7 +728,7 @@ int menu_system_begin( void )
     }
 
     // Should be okay to randomize the seed here
-    srand( (unsigned int)time( NULL ) );
+    srand(( unsigned int )time( NULL ) );
 
     menu_system_ctor();
 
@@ -904,7 +909,7 @@ int doMainMenu( float deltaTime )
                 // go to options menu
                 menuChoice = 3;
             }
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 4, sz_buttons[3], NULL, buttonLeft, buttonTop + 35 * 3, 200, 30 ) )
+            if ( SDL_KEYDOWN( keyb, SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 4, sz_buttons[3], NULL, buttonLeft, buttonTop + 35 * 3, 200, 30 ) )
             {
                 // quit game
                 menuChoice = 4;
@@ -1024,7 +1029,7 @@ int doSinglePlayerMenu( float deltaTime )
             {
                 menuChoice = 2;
             }
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 3, sz_buttons[2], NULL, buttonLeft, buttonTop + 35 * 2, 200, 30 ) )
+            if ( SDL_KEYDOWN( keyb, SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 3, sz_buttons[2], NULL, buttonLeft, buttonTop + 35 * 2, 200, 30 ) )
             {
                 menuChoice = 3;     //back
             }
@@ -1186,7 +1191,7 @@ int doChooseModule( float deltaTime )
             validModules_count = 0;
             for ( i = 0; i < MAX_MODULE; i++ )
             {
-                BLANK_STRUCT( validModules[i] );
+                validModules[i] = INVALID_MOD_REF;
             }
 
             // Figure out at what offset we want to draw the module menu.
@@ -1222,7 +1227,7 @@ int doChooseModule( float deltaTime )
                 if ( start_new_player && 0 == mnu_ModList.lst[imod].base.importamount )
                 {
                     // starter module
-                    validModules[validModules_count] = REF_TO_INT( imod );
+                    validModules[validModules_count] = imod;
                     validModules_count++;
                 }
                 else
@@ -1233,7 +1238,7 @@ int doChooseModule( float deltaTime )
                     if ( mnu_SelectedList.count > mnu_ModList.lst[imod].base.maxplayers ) continue;
 
                     // regular module
-                    validModules[validModules_count] = REF_TO_INT( imod );
+                    validModules[validModules_count] = imod;
                     validModules_count++;
                 }
             }
@@ -1312,7 +1317,7 @@ int doChooseModule( float deltaTime )
                 }
 
                 //Allow arrow keys to scroll as well
-                if ( SDLKEYDOWN( SDLK_RIGHT ) )
+                if ( SDL_KEYDOWN( keyb, SDLK_RIGHT ) )
                 {
                     if ( 0 == keycooldown )
                     {
@@ -1320,7 +1325,7 @@ int doChooseModule( float deltaTime )
                         keycooldown = 5;
                     }
                 }
-                else if ( SDLKEYDOWN( SDLK_LEFT ) )
+                else if ( SDL_KEYDOWN( keyb, SDLK_LEFT ) )
                 {
                     if ( 0 == keycooldown )
                     {
@@ -1353,28 +1358,43 @@ int doChooseModule( float deltaTime )
                 for ( i = startIndex; i < MIN( startIndex + 3, validModules_count ); i++ )
                 {
                     // fix the menu images in case one or more of them are undefined
-                    MOD_REF          loc_imod   = validModules[i];
-                    TX_REF           tex_offset = mnu_ModList.lst[loc_imod].tex_index;
-                    oglx_texture_t * ptex       = mnu_TxList_get_ptr( tex_offset );
+                    MOD_REF          loc_imod;
+                    mnu_module_t    *loc_pmod;
+                    MNU_TX_REF           tex_offset;
+                    oglx_texture_t * ptex;
+                    GLfloat        * img_tint = normal_tint;
 
-                    GLfloat * img_tint = normal_tint;
+                    loc_imod   = validModules[i];
+                    if ( !VALID_MOD_RANGE( loc_imod ) ) continue;
 
-                    //only do modules that are valid
+                    loc_pmod = mnu_ModList.lst + loc_imod;
+                    tex_offset = loc_pmod->tex_index;
+                    ptex       = mnu_TxList_get_ptr( tex_offset );
+
+                    // only do modules that are valid
                     if ( i >= 0 && i <= validModules_count )
                     {
-                        if ( mnu_ModList.lst[loc_imod].base.beaten )
+                        if ( loc_pmod->base.beaten )
                         {
                             img_tint = beat_tint;
                         }
 
                         if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138, img_tint ) )
                         {
-                            int_module = i;
-                            ext_module = /*(( int_module < 0 ) || ( int_module > validModules_count ) ) ? -1 :*/ validModules[int_module];
+                            if ( VALID_MOD_RANGE( validModules[int_module] ) )
+                            {
+                                int_module = i;
+                                ext_module = REF_TO_INT( validModules[int_module] );
+                            }
+                            else
+                            {
+                                int_module = -1;
+                                ext_module = -1;
+                            }
                         }
 
                         //Draw a text over the image explaining what it means
-                        if ( mnu_ModList.lst[loc_imod].base.beaten )
+                        if ( loc_pmod->base.beaten )
                         {
                             ui_drawTextBox( NULL, "BEATEN", moduleMenuOffsetX + x + 32, moduleMenuOffsetY + y + 64, 64, 30, 20 );
                         }
@@ -1447,14 +1467,14 @@ int doChooseModule( float deltaTime )
                 // And draw the next & back buttons
                 if ( ext_module > -1 )
                 {
-                    if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 377, moduleMenuOffsetY + 173, 200, 30 ) )
+                    if ( SDL_KEYDOWN( keyb, SDLK_RETURN ) || BUTTON_UP == ui_doButton( 53, "Select Module", NULL, moduleMenuOffsetX + 377, moduleMenuOffsetY + 173, 200, 30 ) )
                     {
                         // go to the next menu with this module selected
                         menuState = MM_Leaving;
                     }
                 }
 
-                if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 377, moduleMenuOffsetY + 208, 200, 30 ) )
+                if ( SDL_KEYDOWN( keyb, SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 54, "Back", NULL, moduleMenuOffsetX + 377, moduleMenuOffsetY + 208, 200, 30 ) )
                 {
                     // Signal doMenu to go back to the previous menu
                     int_module = -1;
@@ -1637,7 +1657,7 @@ bool_t doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, C
             chooseplayer_ptr->cap_ref = cap_ref;
 
             // get the skin info
-			chooseplayer_ptr->skin_ref = cap_get_skin_overide(cap_ptr);
+            chooseplayer_ptr->skin_ref = cap_get_skin_overide( cap_ptr );
 
             // load the icon of the skin
             snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer_ptr->dir, i, chooseplayer_ptr->skin_ref );
@@ -1718,9 +1738,9 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
 
             // Armor
             GL_DEBUG( glColor4fv )( white_vec );
-            snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s", 
-				skin < MAX_SKIN ? pcap->skin_info.name[skin] : "UNKNOWN", 
-				HAS_SOME_BITS( pcap->skin_info.dressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
+            snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s",
+                      skin < MAX_SKIN ? pcap->skin_info.name[skin] : "UNKNOWN",
+                      HAS_SOME_BITS( pcap->skin_info.dressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
             y1 += section_spacing;
 
@@ -1785,7 +1805,7 @@ bool_t doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int 
                     icap = chooseplayer_ptr->cap_ref;
                     if ( LOADED_CAP( icap ) )
                     {
-                        TX_REF  icon_ref;
+                        MNU_TX_REF  icon_ref;
                         cap_t * loc_pcap = CapStack_get_ptr( icap );
 
                         STRING itemname;
@@ -1932,7 +1952,7 @@ int doChoosePlayer( float deltaTime )
                 //character icon
                 if ( pchar != NULL )
                 {
-                    TX_REF device_icon = MENU_TX_ICON_NULL;
+                    MNU_TX_REF device_icon = MENU_TX_ICON_NULL;
 
                     ui_drawButton( UI_Nothing, buttonLeft + 2 *( butt_wid + butt_spc ), y1, butt_hgt, butt_hgt, NULL );
                     ui_drawIcon( pchar->tx_ref, buttonLeft + 2 *( butt_wid + butt_spc ) + icon_vert_centering, y1 + icon_vert_centering, i, sparkle_counter );
@@ -1971,14 +1991,14 @@ int doChoosePlayer( float deltaTime )
             // Continue
             if ( mnu_SelectedList.count > 0 )
             {
-                if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
+                if ( SDL_KEYDOWN( keyb, SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
                 {
                     menuState = MM_Leaving;
                 }
             }
 
             // Back
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
+            if ( SDL_KEYDOWN( keyb, SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
             {
                 SelectedPlayer_list_init( &mnu_SelectedList );
                 menuState = MM_Leaving;
@@ -2179,7 +2199,7 @@ int doChooseCharacter( float deltaTime )
             // Select character
             if ( last_player != -1 )
             {
-                if ( SDLKEYDOWN( SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
+                if ( SDL_KEYDOWN( keyb, SDLK_RETURN ) || BUTTON_UP == ui_doButton( 100, button_text[0], NULL, buttonLeft, buttonTop, 200, 30 ) )
                 {
                     //Remove previous selected from the selected list
                     if ( selectedPlayers[currentSelectingPlayer] != -1 )
@@ -2193,7 +2213,7 @@ int doChooseCharacter( float deltaTime )
             }
 
             // I am not playing!
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
+            if ( SDL_KEYDOWN( keyb, SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 101, button_text[1], NULL, buttonLeft, buttonTop + 35, 200, 30 ) )
             {
                 //Unselect any player that might have been selected
                 if ( selectedPlayers[currentSelectingPlayer] != -1 )
@@ -2340,7 +2360,7 @@ int doOptions( float deltaTime )
                 // video options
                 menuChoice = 3;
             }
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 5, sz_buttons[4], NULL, buttonLeft, buttonTop + 35 * 4, 200, 30 ) )
+            if ( SDL_KEYDOWN( keyb, SDLK_ESCAPE ) || BUTTON_UP == ui_doButton( 5, sz_buttons[4], NULL, buttonLeft, buttonTop + 35 * 4, 200, 30 ) )
             {
                 // back to main menu
                 menuChoice = 4;
@@ -2401,7 +2421,7 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     size_t      tag_count = 0;
 
     // handle several special conditions for resetting waitingforinput
-    if ( SDLKEYDOWN( SDLK_ESCAPE ) )
+    if ( SDL_KEYDOWN( keyb, SDLK_ESCAPE ) )
     {
         waitingforinput = -1;
     }
@@ -2761,7 +2781,7 @@ int doInputOptions( float deltaTime )
 
             // The select controller button
             ui_drawTextBox( menuFont, "INPUT DEVICE:", buttonLeft + 300, 55, 0, 0, 20 );
-            if ( BUTTON_UP ==  ui_doImageButtonWithText( 18, mnu_TxList_get_valid_ptr(( TX_REF )( MENU_TX_ICON_KEYB + pdevice->device_type ) ), button_text[string_device], menuFont, buttonLeft + 450, 50, 200, 40 ) )
+            if ( BUTTON_UP ==  ui_doImageButtonWithText( 18, mnu_TxList_get_valid_ptr(( MNU_TX_REF )( MENU_TX_ICON_KEYB + pdevice->device_type ) ), button_text[string_device], menuFont, buttonLeft + 450, 50, 200, 40 ) )
             {
                 // switch to next controller type
                 int old_device_type = pdevice->device_type;
@@ -3108,8 +3128,8 @@ int doGameOptions( float deltaTime )
             // Save settings
             if ( BUTTON_UP == ui_doButton( 7, sz_buttons[6], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
-				//apply changes
-				config_synch(&cfg, bfalse);
+                //apply changes
+                config_synch( &cfg, bfalse );
 
                 // save the setup file
                 setup_write_vfs();
@@ -3335,8 +3355,8 @@ int doAudioOptions( float deltaTime )
             //Save settings
             if ( BUTTON_UP == ui_doButton( 9, sz_buttons[8], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
-				//apply changes
-				config_synch(&cfg, bfalse);
+                //apply changes
+                config_synch( &cfg, bfalse );
 
                 // save the setup file
                 setup_write_vfs();
@@ -4133,9 +4153,9 @@ int doVideoOptions( float deltaTime )
             {
                 menuChoice = 1;
 
-				//apply changes
-				config_synch(&cfg, bfalse);
-				
+                //apply changes
+                config_synch( &cfg, bfalse );
+
                 // save the setup file
                 setup_write_vfs();
 
@@ -4362,7 +4382,7 @@ int doGamePaused( float deltaTime )
             }
 
             // Quick return to game
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) ) menuChoice = 3;
+            if ( SDL_KEYDOWN( keyb, SDLK_ESCAPE ) ) menuChoice = 3;
 
             if ( menuChoice != 0 )
             {
@@ -4470,7 +4490,7 @@ int doShowEndgame( float deltaTime )
             }
 
             // escape also kills this menu
-            if ( SDLKEYDOWN( SDLK_ESCAPE ) )
+            if ( SDL_KEYDOWN( keyb, SDLK_ESCAPE ) )
             {
                 menuChoice = 1;
                 menuState = MM_Leaving;
@@ -4906,7 +4926,7 @@ void mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst )
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const TX_REF default_ref )
+MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_ref )
 {
     /// @author BB
     /// @details This function gets the proper icon for a an object profile.
@@ -4916,7 +4936,7 @@ TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const TX_REF default_ref )
     //     and one icon. Sometimes, though the item is actually a spell effect which means
     //     that we need to display the book icon.
 
-    TX_REF icon_ref = ( TX_REF )TX_ICON_NULL;
+    MNU_TX_REF icon_ref = ( MNU_TX_REF )TX_ICON_NULL;
     bool_t is_spell_fx, is_book, draw_book;
 
     cap_t * pitem_cap;
@@ -4925,7 +4945,7 @@ TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const TX_REF default_ref )
     pitem_cap = CapStack_get_ptr( icap );
 
     // what do we need to draw?
-    is_spell_fx = ( pitem_cap->spelleffect_type >= 0  );
+    is_spell_fx = ( pitem_cap->spelleffect_type >= 0 );
     is_book     = ( SPELLBOOK == icap );
     draw_book   = ( is_book || is_spell_fx ) && ( bookicon_count > 0 );
 
@@ -5131,7 +5151,7 @@ void mnu_release_one_module( const MOD_REF imod )
 //--------------------------------------------------------------------------------------------
 mod_file_t * mnu_ModList_get_base( int imod )
 {
-    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
+    if ( !VALID_MOD_RANGE( imod ) ) return NULL;
 
     return &( mnu_ModList.lst[( MOD_REF )imod].base );
 }
@@ -5139,7 +5159,7 @@ mod_file_t * mnu_ModList_get_base( int imod )
 //--------------------------------------------------------------------------------------------
 const char * mnu_ModList_get_vfs_path( int imod )
 {
-    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
+    if ( !VALID_MOD_RANGE( imod ) ) return NULL;
 
     return mnu_ModList.lst[( MOD_REF )imod].vfs_path;
 }
@@ -5147,7 +5167,7 @@ const char * mnu_ModList_get_vfs_path( int imod )
 //--------------------------------------------------------------------------------------------
 const char * mnu_ModList_get_dest_path( int imod )
 {
-    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
+    if ( !VALID_MOD_RANGE( imod ) ) return NULL;
 
     return mnu_ModList.lst[( MOD_REF )imod].dest_path;
 }
@@ -5155,7 +5175,7 @@ const char * mnu_ModList_get_dest_path( int imod )
 //--------------------------------------------------------------------------------------------
 const char * mnu_ModList_get_name( int imod )
 {
-    if ( imod < 0 || imod >= MAX_MODULE ) return NULL;
+    if ( !VALID_MOD_RANGE( imod ) ) return NULL;
 
     return mnu_ModList.lst[( MOD_REF )imod].name;
 }
@@ -5173,7 +5193,7 @@ void mnu_ModList_release_all( void )
             mnu_release_one_module( cnt );
         }
 
-        BLANK_STRUCT( mnu_ModList.lst[cnt] );
+        mod_file__init( mnu_ModList.lst + cnt );
     }
 
     mnu_ModList.count = 0;
@@ -5402,7 +5422,7 @@ bool_t ChoosePlayer_init( ChoosePlayer_element_t * ptr )
     BLANK_STRUCT_PTR( ptr )
 
     ptr->cap_ref  = INVALID_CAP_REF;
-    ptr->tx_ref   = INVALID_MENU_TX_REF;
+    ptr->tx_ref   = INVALID_MNU_TX_REF;
     ptr->skin_ref = MAX_SKIN;
 
     chop_definition_init( &( ptr->chop ) );
@@ -5425,7 +5445,7 @@ bool_t ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr )
     {
         TxList_free_one( ptr->tx_ref );
     }
-    ptr->tx_ref = INVALID_MENU_TX_REF;
+    ptr->tx_ref = INVALID_MNU_TX_REF;
 
     return btrue;
 }
@@ -5525,7 +5545,7 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     //ptr->skin_ref = read_skin_vfs( filename );
 
     // get the skin from the [SKIN] expansion in the character profile
-	ptr->skin_ref = cap_get_skin_overide( pcap );
+    ptr->skin_ref = cap_get_skin_overide( pcap );
 
     // don't load in the md2 at this time
     //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
@@ -5711,7 +5731,7 @@ bool_t LoadPlayer_element_dealloc( LoadPlayer_element_t * ptr )
     {
         TxList_free_one( ptr->tx_ref );
     }
-    ptr->tx_ref = INVALID_MENU_TX_REF;
+    ptr->tx_ref = INVALID_TX_REF;
 
     return btrue;
 }
@@ -5725,7 +5745,7 @@ bool_t LoadPlayer_element_init( LoadPlayer_element_t * ptr )
 
     // set the non-zero, non-null values
     ptr->cap_ref = INVALID_CAP_REF;
-    ptr->tx_ref = INVALID_MENU_TX_REF;
+    ptr->tx_ref = INVALID_MNU_TX_REF;
 
     idsz_map_init( ptr->quest_log, MAX_IDSZ_MAP_SIZE );
     chop_definition_init( &( ptr->chop ) );
@@ -5976,7 +5996,7 @@ void mnu_TxList_ctor( void )
     /// @author ZZ
     /// @details This function clears out all of the textures
 
-    TX_REF cnt;
+    MNU_TX_REF cnt;
 
     for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
     {
@@ -5987,7 +6007,7 @@ void mnu_TxList_ctor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_TxList_release_one( const TX_REF index )
+void mnu_TxList_release_one( const MNU_TX_REF index )
 {
     oglx_texture_t * ptr = mnu_TxList_get_ptr( index );
     if ( NULL == ptr ) return;
@@ -6001,7 +6021,7 @@ void mnu_TxList_dtor( void )
     /// @author ZZ
     /// @details This function clears out all of the textures
 
-    TX_REF cnt;
+    MNU_TX_REF cnt;
 
     for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
     {
@@ -6017,7 +6037,7 @@ void mnu_TxList_init_all( void )
     /// @author ZZ
     /// @details This function clears out all of the textures
 
-    TX_REF cnt;
+    MNU_TX_REF cnt;
 
     for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
     {
@@ -6033,7 +6053,7 @@ void mnu_TxList_release_all( void )
     /// @author ZZ
     /// @details This function releases all of the textures
 
-    TX_REF cnt;
+    MNU_TX_REF cnt;
 
     for ( cnt = MENU_TX_LAST_SPECIAL; cnt < MENU_TX_COUNT; cnt++ )
     {
@@ -6049,7 +6069,7 @@ void mnu_TxList_delete_all( void )
     /// @author ZZ
     /// @details This function clears out all of the textures
 
-    TX_REF cnt;
+    MNU_TX_REF cnt;
 
     for ( cnt = MENU_TX_LAST_SPECIAL; cnt < MENU_TX_COUNT; cnt++ )
     {
@@ -6066,7 +6086,7 @@ void mnu_TxList_reload_all( void )
     /// @details This function re-loads all the current textures back into
     ///               OpenGL texture memory using the cached SDL surfaces
 
-    TX_REF cnt;
+    MNU_TX_REF cnt;
 
     for ( cnt = 0; cnt < MENU_TX_COUNT; cnt++ )
     {
@@ -6080,9 +6100,9 @@ void mnu_TxList_reload_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF mnu_TxList_get_free( const TX_REF itex )
+MNU_TX_REF mnu_TxList_get_free( const MNU_TX_REF itex )
 {
-    TX_REF retval = INVALID_MENU_TX_REF;
+    MNU_TX_REF retval = INVALID_MNU_TX_REF;
 
     if ( itex >= 0 && itex < MENU_TX_LAST_SPECIAL )
     {
@@ -6096,11 +6116,11 @@ TX_REF mnu_TxList_get_free( const TX_REF itex )
             mnu_TxList.free_count--;
             mnu_TxList.update_guid++;
 
-            retval = (TX_REF)mnu_TxList.free_ref[mnu_TxList.free_count];
+            retval = ( MNU_TX_REF )mnu_TxList.free_ref[mnu_TxList.free_count];
         }
         else
         {
-            retval = INVALID_MENU_TX_REF;
+            retval = INVALID_MNU_TX_REF;
         }
     }
     else
@@ -6108,7 +6128,7 @@ TX_REF mnu_TxList_get_free( const TX_REF itex )
         int i;
 
         // grab the specified index
-        oglx_texture_Release( mnu_TxList.lst + ( TX_REF )itex );
+        oglx_texture_Release( mnu_TxList.lst + ( MNU_TX_REF )itex );
 
         // if this index is on the free stack, remove it
         for ( i = 0; i < mnu_TxList.free_count; i++ )
@@ -6131,7 +6151,7 @@ TX_REF mnu_TxList_get_free( const TX_REF itex )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mnu_TxList_free_one( const TX_REF itex )
+bool_t mnu_TxList_free_one( const MNU_TX_REF itex )
 {
     if ( !VALID_MENU_TX_RANGE( itex ) ) return bfalse;
 
@@ -6166,13 +6186,13 @@ bool_t mnu_TxList_free_one( const TX_REF itex )
 }
 
 //--------------------------------------------------------------------------------------------
-TX_REF mnu_TxList_load_one_vfs( const char *filename, const TX_REF itex_src, Uint32 key )
+MNU_TX_REF mnu_TxList_load_one_vfs( const char *filename, const MNU_TX_REF itex_src, Uint32 key )
 {
     /// @author BB
     /// @details load a texture into mnu_TxList.
     ///     If !VALID_TX_RANGE(itex_src), then we just get the next free index
 
-    TX_REF retval;
+    MNU_TX_REF retval;
 
     // get a texture index.
     retval = mnu_TxList_get_free( itex_src );
@@ -6184,7 +6204,7 @@ TX_REF mnu_TxList_load_one_vfs( const char *filename, const TX_REF itex_src, Uin
         if ( INVALID_GL_ID == txid )
         {
             mnu_TxList_free_one( retval );
-            retval = INVALID_MENU_TX_REF;
+            retval = INVALID_MNU_TX_REF;
         }
     }
 
@@ -6192,7 +6212,7 @@ TX_REF mnu_TxList_load_one_vfs( const char *filename, const TX_REF itex_src, Uin
 }
 
 //--------------------------------------------------------------------------------------------
-oglx_texture_t * mnu_TxList_get_valid_ptr( const TX_REF itex )
+oglx_texture_t * mnu_TxList_get_valid_ptr( const MNU_TX_REF itex )
 {
     oglx_texture_t * ptex = mnu_TxList_get_ptr( itex );
 
@@ -6211,7 +6231,7 @@ bool_t mnu_load_cursor( void )
     /// @author ZF
     /// @details Load the mouse cursor
 
-    TX_REF load_rv = INVALID_MENU_TX_REF;
+    MNU_TX_REF load_rv = INVALID_MNU_TX_REF;
 
     load_rv = mnu_TxList_load_one_vfs( "mp_data/cursor", MENU_TX_CURSOR, TRANSCOLOR );
 
@@ -6225,26 +6245,48 @@ bool_t mnu_load_all_global_icons( void )
     /// @details Load all the global icons used in all modules
 
     // Setup
-    TX_REF load_rv;
+    MNU_TX_REF load_rv;
     bool_t result = gfx_success;
 
     // Now load every icon
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/nullicon", ( TX_REF )MENU_TX_ICON_NULL, INVALID_KEY );
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/nullicon", ( MNU_TX_REF )MENU_TX_ICON_NULL, INVALID_KEY );
     result = !VALID_MENU_TX_RANGE( load_rv ) ? bfalse : result;
 
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/keybicon", ( TX_REF )MENU_TX_ICON_KEYB, INVALID_KEY );
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/keybicon", ( MNU_TX_REF )MENU_TX_ICON_KEYB, INVALID_KEY );
     result = !VALID_MENU_TX_RANGE( load_rv ) ? bfalse : result;
 
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/mousicon", ( TX_REF )MENU_TX_ICON_MOUS, INVALID_KEY );
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/mousicon", ( MNU_TX_REF )MENU_TX_ICON_MOUS, INVALID_KEY );
     result = !VALID_MENU_TX_RANGE( load_rv ) ? bfalse : result;
 
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/joyaicon", ( TX_REF )MENU_TX_ICON_JOYA, INVALID_KEY );
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/joyaicon", ( MNU_TX_REF )MENU_TX_ICON_JOYA, INVALID_KEY );
     result = !VALID_MENU_TX_RANGE( load_rv ) ? bfalse : result;
 
-    load_rv = mnu_TxList_load_one_vfs( "mp_data/joybicon", ( TX_REF )MENU_TX_ICON_JOYB, INVALID_KEY );
+    load_rv = mnu_TxList_load_one_vfs( "mp_data/joybicon", ( MNU_TX_REF )MENU_TX_ICON_JOYB, INVALID_KEY );
     result = !VALID_MENU_TX_RANGE( load_rv ) ? bfalse : result;
 
     return result;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+mnu_module_t * mnu_module__init( mnu_module_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    ptr->request_count = 0;
+    ptr->create_count = 0;
+    ptr->loaded = bfalse;
+    ptr->name[0] = CSTR_END;
+
+    mod_file__init( &( ptr->base ) );
+
+    // extended data
+    ptr->tex_index = INVALID_TX_REF;
+    ptr->vfs_path[0] = CSTR_END;
+    ptr->dest_path[0] = CSTR_END;
+
+    return ptr;
 }
 
 //--------------------------------------------------------------------------------------------

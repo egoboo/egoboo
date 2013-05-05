@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_timer.c
+/// @file timer.h
 /// @brief Definitions of a timer "class" using SDL_GetTicks()
 /// @details
 
@@ -55,14 +55,16 @@ extern "C"
         int     ticks_diff;
     };
 
-    bool_t egolib_timer_throttle( egolib_timer_t * timer, float rate );
-    bool_t timer_reset( egolib_timer_t * timer, int ticks, float rate );
+    egolib_timer_t * egolib_timer__init( egolib_timer_t * );
+    bool_t egolib_timer__throttle( egolib_timer_t * timer, float rate );
+    bool_t egolib_timer__reset( egolib_timer_t * timer, int ticks, float rate );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

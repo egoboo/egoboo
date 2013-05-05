@@ -172,7 +172,7 @@ bool_t ext_camera_free( ext_camera_t * ptr )
     if ( !ptr->on ) return btrue;
 
     // free any locked renderlist
-    rmgr_ptr = gfx_system_get_renderlist_mgr( &(ptr->which) );
+    rmgr_ptr = gfx_system_get_renderlist_mgr( &( ptr->which ) );
     if ( -1 != ptr->render_list )
     {
         renderlist_mgr_free_one( rmgr_ptr, ptr->render_list );
@@ -322,7 +322,7 @@ egolib_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam )
     pcam = ext_camera_reinit( pcam );
     if ( NULL == pcam ) return rv_error;
 
-    rmgr_ptr = gfx_system_get_renderlist_mgr( &(pcam->which) );
+    rmgr_ptr = gfx_system_get_renderlist_mgr( &( pcam->which ) );
     if ( NULL == rmgr_ptr )
     {
         return rv_error;
@@ -346,7 +346,7 @@ egolib_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam )
     // connect the renderlist to a mesh
     rlst_ptr = renderlist_mgr_get_ptr( rmgr_ptr, pcam->render_list );
     renderlist_attach_mesh( rlst_ptr, PMesh );
-    renderlist_attach_camera( rlst_ptr, &(pcam->which) );
+    renderlist_attach_camera( rlst_ptr, &( pcam->which ) );
 
     // lock a dolist for this camera
     pcam->do_list = dolist_mgr_get_free_idx( dmgr_ptr );
@@ -396,7 +396,7 @@ egolib_rv _camera_system_end_camera_ptr( ext_camera_t * pcam )
 
     // get a pointer to the renderlist manager
     // do this after testing whether the camera is on
-    rmgr_ptr = gfx_system_get_renderlist_mgr( &(pcam->which) );
+    rmgr_ptr = gfx_system_get_renderlist_mgr( &( pcam->which ) );
     if ( NULL == rmgr_ptr )
     {
         return rv_fail;

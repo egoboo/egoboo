@@ -2454,9 +2454,9 @@ bool_t BSP_leaf_list_collide_frustum( const BSP_leaf_list_t * LL, const egolib_f
     if ( EMPTY_BSP_LEAF_LIST( LL ) ) return btrue;
 
     // we already have the bounding box of all the leafs
-    if ( !egolib_frustum_intersects_ego_aabb( pfrust, &(LL->bbox) ) )
+    if ( !egolib_frustum_intersects_ego_aabb( pfrust, &( LL->bbox ) ) )
     {
-        return bfalse; 
+        return bfalse;
     }
 
     // if there is no more room in the colist, return bfalse
@@ -2923,4 +2923,3 @@ bool_t BSP_branch_list_collide_frustum( const BSP_branch_list_t * BL, const egol
 //
 //    return btrue;
 //}
-//

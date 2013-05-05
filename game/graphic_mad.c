@@ -290,11 +290,13 @@ if(fogon && pinst->light==255)
         }
     }
 }
+
 else
 {
     for (cnt = 0; cnt < pmad->transvertices; cnt++)
         pinst->vrt_lst[cnt].specular = 0;
 }
+
 */
 
 //--------------------------------------------------------------------------------------------
@@ -826,7 +828,7 @@ void draw_chr_bbox( chr_t * pchr )
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) && pchr->ismount )
+    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F7 ) && pchr->ismount )
     {
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {
@@ -841,7 +843,7 @@ void draw_chr_bbox( chr_t * pchr )
     }
 
     //// the grips and vertrices of all objects
-    //if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F6 ) )
+    //if ( cfg.dev_mode && SDL_KEYDOWN(keyb, SDLK_F6 ) )
     //{
     //    draw_chr_attached_grip( pchr );
 
@@ -2174,7 +2176,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
 
     pro_t * pobj;
     cap_t * pcap;
-	SKIN_T  loc_skin;
+    SKIN_T  loc_skin;
 
     if ( NULL == pinst )
     {
@@ -2195,11 +2197,11 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
 
     pcap = pro_get_pcap( profile );
 
-	loc_skin = 0;
-	if( skin >= 0 )
-	{
-		loc_skin = skin % MAX_SKIN;
-	}
+    loc_skin = 0;
+    if ( skin >= 0 )
+    {
+        loc_skin = skin % MAX_SKIN;
+    }
 
     // lighting parameters
     chr_instance_set_texture( pinst, pobj->tex_ref[loc_skin] );
@@ -2754,4 +2756,5 @@ void chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FI
         }
     }
 }
+
 

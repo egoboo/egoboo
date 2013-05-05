@@ -171,7 +171,7 @@ gfx_rv render_fan( const ego_mesh_t * pmesh, const Uint32 itile )
         GL_DEBUG( glEnableClientState )( GL_TEXTURE_COORD_ARRAY );
         GL_DEBUG( glTexCoordPointer )( 2, GL_FLOAT, 0, ptmem->tlst + ptile->vrtstart );
 
-        if( GL_FLAT != gfx.shading )
+        if ( GL_FLAT != gfx.shading )
         {
             GL_DEBUG( glEnableClientState )( GL_COLOR_ARRAY );
             GL_DEBUG( glColorPointer )( 3, GL_FLOAT, 0, ptmem->clst + ptile->vrtstart );

@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+/// @file script.h
+
 #include "egoboo_typedef.h"
 
 #include "script_implementation.h"
@@ -211,6 +213,8 @@ struct s_script_state
     int     argument;
     int     operationsum;
 };
+
+script_state_t * script_state__init( script_state_t * );
 
 //--------------------------------------------------------------------------------------------
 // FUNCTION PROTOTYPES

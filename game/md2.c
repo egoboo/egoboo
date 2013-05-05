@@ -540,3 +540,4 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
     return model;
 }
 
+

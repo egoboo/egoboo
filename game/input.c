@@ -76,13 +76,13 @@ static bool_t input_handle_chat( SDL_Event * pevt );
 void input_system_init_keyboard( void )
 {
     // set up the keyboard
-    BLANK_STRUCT( keyb )
+    keyboard_data__init( &keyb );
 
+    // keyboard data
     scancode_begin();
 
+    // turn the keyboard on
     keyb.on         = btrue;
-    keyb.state_size = 0;
-    keyb.state_ptr  = NULL;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -91,9 +91,9 @@ void input_system_init_mouse( void )
     /// @author BB
     /// @details set up the mouse
 
-    BLANK_STRUCT( mous )
-    mous.on      = btrue;
-    mous.sense   = 12; //24;
+    mouse_data__init( &mous );
+
+    mous.on = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void input_system_init_joysticks( void )
 
     for ( i = 0; i < MAX_JOYSTICK; i++ )
     {
-        BLANK_STRUCT( joy_lst[i] );
+        joystick_data_init( joy_lst + i );
 
         if ( i < SDL_NumJoysticks() )
         {
@@ -286,17 +286,17 @@ bool_t input_handle_chat( SDL_Event * pevt )
     {
         if ( is_shift )
         {
-			if( (unsigned)scancode_to_ascii_shift[pevt->key.keysym.sym] < 0xFF )
-			{
-				net_chat.buffer[net_chat.buffer_count++] = (char)scancode_to_ascii_shift[pevt->key.keysym.sym];
-			}
+            if (( unsigned )scancode_to_ascii_shift[pevt->key.keysym.sym] < 0xFF )
+            {
+                net_chat.buffer[net_chat.buffer_count++] = ( char )scancode_to_ascii_shift[pevt->key.keysym.sym];
+            }
         }
         else
         {
-			if( (unsigned)scancode_to_ascii[pevt->key.keysym.sym] < 0xFF )
-			{
-				net_chat.buffer[net_chat.buffer_count++] = (char)scancode_to_ascii[pevt->key.keysym.sym];
-			}
+            if (( unsigned )scancode_to_ascii[pevt->key.keysym.sym] < 0xFF )
+            {
+                net_chat.buffer[net_chat.buffer_count++] = ( char )scancode_to_ascii[pevt->key.keysym.sym];
+            }
         }
         net_chat.buffer[net_chat.buffer_count] = CSTR_END;
     }
@@ -595,7 +595,7 @@ bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icon
     {
         Uint32 keycode = pcontrol->tag_key_lst[cnt];
 
-        if ( !SDLKEYDOWN( keycode ) )
+        if ( !SDL_KEYDOWN( keyb, keycode ) )
         {
             retval = bfalse;
             goto input_device_control_active_done;
@@ -605,4 +605,60 @@ bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icon
 input_device_control_active_done:
 
     return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+mouse_data_t * mouse_data__init( mouse_data_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr ) return ptr;
+
+    ptr->on = btrue;
+    ptr->sense = 12;
+    ptr->x = ptr->y = 0.0f;
+    ptr->b = 0;
+
+    for ( cnt = 0; cnt < 4; cnt++ )
+    {
+        ptr->button[cht] = 0;
+    }
+
+    return ptr;
+
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+keyboard_data_t * keyboard_data__init( keyboard_data_t * ptr )
+{
+    if ( NULL == ptr ) return ptr;
+
+    // defaults
+    ptr->on         = bfalse;
+    ptr->chat_mode  = bfalse;
+    ptr->chat_done  = bfalse;
+    ptr->state_size = 0;
+    ptr->state_ptr  = NULL;
+
+    return ptr;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+joystick_data_t * joystick_data__init( joystick_data_t * ptr )
+{
+    int cnt;
+
+    if ( NULL == ptr ) return NULL;
+
+    ptr->on = bfalse;
+    ptr->x = ptr->y = 0.0f;
+    ptr->b = 0;
+    ptr->sdl_ptr = NULL;
+
+    for ( cnt = 0; cnt < JOYBUTTON; cnt++ ) ptr->button[i] = 0;
+
+    return ptr;
 }

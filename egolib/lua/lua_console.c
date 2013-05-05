@@ -36,6 +36,7 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 #include "../typedef.h"

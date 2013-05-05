@@ -240,7 +240,7 @@ wawalite_weather_t * read_wawalite_weather( vfs_FILE * fileread, wawalite_data_t
     }
 
     pweather->over_water  = vfs_get_next_bool( fileread );
-    pweather->timer_reset = vfs_get_next_int( fileread );
+    pweather->egolib_timer__reset = vfs_get_next_int( fileread );
 
     return pweather;
 }
@@ -465,7 +465,7 @@ bool_t write_wawalite_weather( vfs_FILE * filewrite, const wawalite_weather_t * 
     // weather data
     vfs_printf( filewrite, "Weather particle effect ( NONE, LAVA, RAIN or SNOW ): %s", pweather->weather_name );
     vfs_put_bool( filewrite, "Weather particles only over water ( TRUE or FALSE )  :", pweather->over_water );
-    vfs_put_int( filewrite,  "Weather particle spawn rate ( 0 to 100, 0 is none )  :", pweather->timer_reset );
+    vfs_put_int( filewrite,  "Weather particle spawn rate ( 0 to 100, 0 is none )  :", pweather->egolib_timer__reset );
 
     return btrue;
 }
@@ -589,7 +589,7 @@ bool_t wawalite_weather_init( wawalite_weather_t * pdata )
 
     BLANK_STRUCT_PTR( pdata )
 
-    pdata->timer_reset = 10;
+    pdata->egolib_timer__reset = 10;
 
     return btrue;
 }

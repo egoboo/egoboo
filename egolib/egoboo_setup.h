@@ -19,6 +19,8 @@
 //*
 //********************************************************************************************
 
+/// @file egoboo_setup.h
+
 #include "../egolib/typedef.h"
 
 #if defined(__cplusplus)
@@ -112,11 +114,11 @@ extern "C"
         Uint16                  message_duration;        ///< Time to keep the message alive
         bool_t                  show_stats;              ///< Draw the status bars?
         Uint8                   autoturncamera;          ///< Type of camera control...
-        bool_t                  fps_allowed;             ///< FPS displayed?
         FEEDBACK_TYPE           feedback;                ///< Feedback type
         Uint8                   difficulty;              ///< What is the current game difficulty
 
         // {DEBUG}
+        bool_t                  fps_allowed;             ///< FPS displayed?
         bool_t                  hide_mouse;
         bool_t                  grab_mouse;
         bool_t                  dev_mode;
@@ -173,6 +175,7 @@ extern "C"
 
 #if defined(__cplusplus)
 }
+
 #endif
 
 //--------------------------------------------------------------------------------------------

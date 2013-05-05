@@ -19,14 +19,12 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo_config.h
+/// @file egolib_config.h
 /// @brief Compile switches
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // compliation flags
-
-#undef __cplusplus			  ///< only compile C
 
 #undef  USE_LUA_CONSOLE       ///< LUA support for the console
 
@@ -46,4 +44,6 @@
 #include "../egolib/platform.h"
 #include "../egolib/endian.h"
 
-#define EGOBOO_CONFIG_H
+//--------------------------------------------------------------------------------------------
+
+#define _egolib__config_h_

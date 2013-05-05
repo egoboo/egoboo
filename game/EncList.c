@@ -184,7 +184,7 @@ void EncList_prune_used_list( void )
     {
         bool_t removed = bfalse;
 
-        ienc = (ENC_REF)EncList.used_ref[cnt];
+        ienc = ( ENC_REF )EncList.used_ref[cnt];
 
         if ( !VALID_ENC_RANGE( ienc ) || !DEFINED_ENC( ienc ) )
         {
@@ -210,7 +210,7 @@ void EncList_prune_free_list( void )
     {
         bool_t removed = bfalse;
 
-        ienc = (ENC_REF)EncList.free_ref[cnt];
+        ienc = ( ENC_REF )EncList.free_ref[cnt];
 
         if ( VALID_ENC_RANGE( ienc ) && INGAME_ENC_BASE( ienc ) )
         {
@@ -443,7 +443,7 @@ bool_t EncList_remove_free_idx( const int index )
     // was it found?
     if ( index < 0 || index >= EncList.free_count ) return bfalse;
 
-    ienc = (ENC_REF)EncList.free_ref[index];
+    ienc = ( ENC_REF )EncList.free_ref[index];
 
     // blank out the index in the list
     EncList.free_ref[index] = INVALID_ENC_IDX;
@@ -571,7 +571,7 @@ ENC_REF EncList_allocate( const ENC_REF override )
 
     if ( VALID_ENC_RANGE( override ) )
     {
-        ienc = (ENC_REF)EncList_pop_free( -1 );
+        ienc = ( ENC_REF )EncList_pop_free( -1 );
         if ( override != ienc )
         {
             int override_index = EncList_find_free_ref( override );
@@ -600,7 +600,7 @@ ENC_REF EncList_allocate( const ENC_REF override )
     }
     else
     {
-        ienc = (ENC_REF)EncList_pop_free( -1 );
+        ienc = ( ENC_REF )EncList_pop_free( -1 );
         if ( INVALID_ENC_REF == ienc )
         {
             log_warning( "EncList_allocate() - failed to allocate a new enchant\n" );

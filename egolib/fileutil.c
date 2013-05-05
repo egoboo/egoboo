@@ -55,8 +55,8 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
     /// @details This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
 
     IDSZ idsz = IDSZ_NONE;
-	char cTmp;
-	int  iTmp;
+    char cTmp;
+    int  iTmp;
 
     iTmp = vfs_get_first_letter( fileread );
     if ( '[' == iTmp )
@@ -69,8 +69,8 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
 
         for ( i = 0; i < 4; i++ )
         {
-			iTmp = vfs_getc( fileread );
-			if( (unsigned)iTmp > 0xFF ) 
+            iTmp = vfs_getc( fileread );
+            if (( unsigned )iTmp > 0xFF )
                 break;
 
             cTmp = char_toupper( iTmp );
@@ -138,7 +138,7 @@ bool_t goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool_t
     iTmp = vfs_getc( fileread );
     while ( !vfs_eof( fileread ) && !vfs_error( fileread ) )
     {
-        if ( (unsigned)iTmp > 0xFF || delim == iTmp ) break;
+        if (( unsigned )iTmp > 0xFF || delim == iTmp ) break;
 
         if ( ASCII_LINEFEED_CHAR ==  iTmp || C_CARRIAGE_RETURN_CHAR ==  iTmp || CSTR_END == iTmp )
         {
@@ -146,7 +146,7 @@ bool_t goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool_t
         }
         else
         {
-            if ( NULL != buffer ) buffer[write++] = (char)iTmp;
+            if ( NULL != buffer ) buffer[write++] = ( char )iTmp;
         }
 
         iTmp = vfs_getc( fileread );
@@ -194,13 +194,13 @@ char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * de
     iTmp = vfs_getc( fileread );
     while ( !vfs_eof( fileread ) && !vfs_error( fileread ) )
     {
-		if( (unsigned)iTmp > 0xFF ) break;
+        if (( unsigned )iTmp > 0xFF ) break;
 
         is_delim = ( NULL != strchr( delim_list, iTmp ) );
 
         if ( is_delim )
         {
-            retval = (char)iTmp;
+            retval = ( char )iTmp;
             break;
         }
 
@@ -210,7 +210,7 @@ char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * de
         }
         else
         {
-            if ( NULL != buffer ) buffer[write++] = (char)iTmp;
+            if ( NULL != buffer ) buffer[write++] = ( char )iTmp;
         }
 
         iTmp = vfs_getc( fileread );
@@ -707,7 +707,7 @@ int vfs_get_version( vfs_FILE* fileread )
 
     // Make sure the first line is actually the version tag
     if ( '$' != vfs_getc( fileread ) ) return 0;
-    while ( !vfs_eof(fileread) && !isspace( (unsigned)vfs_getc( fileread ) ) );
+    while ( !vfs_eof( fileread ) && !isspace(( unsigned )vfs_getc( fileread ) ) );
 
     // Get the version number
     result = vfs_get_int( fileread );

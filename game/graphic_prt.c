@@ -1150,7 +1150,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
     if ( !DISPLAY_PPRT( loc_pprt ) ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
-    if (( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) ) || single_frame_mode )
+    if (( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F7 ) ) || single_frame_mode )
     {
         oct_bb_t loc_bb, tmp_bb, exp_bb;
 
@@ -1385,4 +1385,5 @@ void render_all_prt_ref( const camera_t * pcam, const prt_registry_entity_t reg[
     }
     gfx_end_3d();
 }
+
 

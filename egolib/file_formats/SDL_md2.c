@@ -485,3 +485,4 @@ SDL_bool SDL_md2_frame_free( SDL_md2_frame_t * pdata, size_t fcount )
     return SDL_TRUE;
 }
 
+
