@@ -45,13 +45,13 @@
 /// The state of the network code used in old-egoboo
 struct s_egonet_instance
 {
-    bool_t  initialized;             ///< the singleton has been initialized
-    bool_t  req_enet;                  ///< Try to connect?
-    bool_t  enet_on;                 ///< enet is active
-    bool_t  service_on;               ///< Do I need to free the interface?
-    bool_t  hostactive;              ///< Hosting?
-    bool_t  readytostart;            ///< Ready to hit the Start Game button?
-    bool_t  waitingforclients;       ///< Has everyone talked to the host?
+    C_BOOLEAN  initialized;             ///< the singleton has been initialized
+    C_BOOLEAN  req_enet;                  ///< Try to connect?
+    C_BOOLEAN  enet_on;                 ///< enet is active
+    C_BOOLEAN  service_on;               ///< Do I need to free the interface?
+    C_BOOLEAN  hostactive;              ///< Hosting?
+    C_BOOLEAN  readytostart;            ///< Ready to hit the Start Game button?
+    C_BOOLEAN  waitingforclients;       ///< Has everyone talked to the host?
 
     int     service;                                  ///< Which service is being used?
     int     service_count;                            ///< How many we found
@@ -69,13 +69,13 @@ struct s_egonet_instance
 
 #define EGONET_INSTANCE_INIT \
     { \
-        bfalse,  /* bool_t initialized   */ \
-        bfalse,  /* bool_t  req_enet       */ \
-        bfalse,  /* bool_t  enet_on      */ \
-        bfalse,  /* bool_t  service_on    */ \
-        bfalse,  /* bool_t  hostactive   */ \
-        bfalse,  /* bool_t  readytostart */ \
-        bfalse,  /* bool_t  waitingforclients */ \
+        C_FALSE,  /* C_BOOLEAN initialized   */ \
+        C_FALSE,  /* C_BOOLEAN  req_enet       */ \
+        C_FALSE,  /* C_BOOLEAN  enet_on      */ \
+        C_FALSE,  /* C_BOOLEAN  service_on    */ \
+        C_FALSE,  /* C_BOOLEAN  hostactive   */ \
+        C_FALSE,  /* C_BOOLEAN  readytostart */ \
+        C_FALSE,  /* C_BOOLEAN  waitingforclients */ \
         -1,      /* int     service */ \
         0,       /* int     service_count */ \
         { '\0' }, /* char    service_name[MAXSERVICE][NETNAMESIZE] */ \
@@ -117,41 +117,41 @@ egonet_instance_t * egonet_get_instance( void )
 }
 
 //--------------------------------------------------------------------------------------------
-const bool_t egonet_on( void )
+const C_BOOLEAN egonet_on( void )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     return gnet.enet_on;
 }
 
 //--------------------------------------------------------------------------------------------
-const bool_t egonet_get_serviceon( void )
+const C_BOOLEAN egonet_get_serviceon( void )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     return egonet_instance_get_serviceon( &gnet );
 }
 
 //--------------------------------------------------------------------------------------------
-const bool_t     egonet_get_hostactive( void )
+const C_BOOLEAN     egonet_get_hostactive( void )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     return egonet_instance_get_hostactive( &gnet );
 }
 
 //--------------------------------------------------------------------------------------------
-const bool_t     egonet_get_readytostart( void )
+const C_BOOLEAN     egonet_get_readytostart( void )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     return egonet_instance_get_readytostart( &gnet );
 }
 
 //--------------------------------------------------------------------------------------------
-const bool_t     egonet_get_waitingforclients( void )
+const C_BOOLEAN     egonet_get_waitingforclients( void )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     return egonet_instance_get_waitingforclients( &gnet );
 }
@@ -181,33 +181,33 @@ const ENetHost * egonet_get_myHost( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_set_hostactive( const bool_t val )
+C_BOOLEAN egonet_set_hostactive( const C_BOOLEAN val )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     return egonet_instance_set_hostactive( &gnet, val );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_set_waitingforclients( const bool_t val )
+C_BOOLEAN egonet_set_waitingforclients( const C_BOOLEAN val )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     return egonet_instance_set_waitingforclients( &gnet, val );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_set_readytostart( const bool_t val )
+C_BOOLEAN egonet_set_readytostart( const C_BOOLEAN val )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     return egonet_instance_set_readytostart( &gnet, val );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_set_myHost( const ENetHost* phost )
+C_BOOLEAN egonet_set_myHost( const ENetHost* phost )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     return egonet_instance_set_myHost( &gnet, phost );
 }
@@ -230,15 +230,15 @@ void egonet_connect( void )
         if ( 0 != enet_initialize() )
         {
             log_info( "Failure!\n" );
-            gnet.enet_on       = bfalse;
-            gnet.service_on    = bfalse;
+            gnet.enet_on       = C_FALSE;
+            gnet.service_on    = C_FALSE;
             gnet.service_count = 0;
         }
         else
         {
             log_info( "Success!\n" );
-            gnet.enet_on       = btrue;
-            gnet.service_on    = btrue;
+            gnet.enet_on       = C_TRUE;
+            gnet.service_on    = C_TRUE;
             gnet.service_count = 1;
         }
     }
@@ -260,8 +260,8 @@ void egonet_disconnect( void )
 
         enet_deinitialize();
 
-        gnet.enet_on = bfalse;
-        gnet.service_on    = bfalse;
+        gnet.enet_on = C_FALSE;
+        gnet.service_on    = C_FALSE;
         gnet.service_count = 0;
 
         log_info( "Finished!\n" );
@@ -269,9 +269,9 @@ void egonet_disconnect( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_begin( bool_t req_enet )
+C_BOOLEAN egonet_begin( C_BOOLEAN req_enet )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     // initialize the file transfer code
     netfile_initialize();
@@ -284,13 +284,13 @@ bool_t egonet_begin( bool_t req_enet )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_end( void )
+C_BOOLEAN egonet_end( void )
 {
-    if ( !gnet.initialized ) return bfalse;
+    if ( !gnet.initialized ) return C_FALSE;
 
     egonet_disconnect();
 
-    gnet.req_enet    = bfalse;
+    gnet.req_enet    = C_FALSE;
 
     // clear the file transfer code
     netfile_initialize();
@@ -299,7 +299,7 @@ bool_t egonet_end( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void egonet_initialize( BaseServerState_t * ps, BaseClientState_t * pc, size_t size, bool_t req_enet )
+void egonet_initialize( BaseServerState_t * ps, BaseClientState_t * pc, size_t size, C_BOOLEAN req_enet )
 {
     /// @author ZZ
     /// @details This starts up the network and logs whatever goes on
@@ -316,7 +316,7 @@ void egonet_initialize( BaseServerState_t * ps, BaseClientState_t * pc, size_t s
     gnet.pclient = BaseClientState_ctor( pc, size );
     gnet.pserver = BaseServerState_ctor( ps, size );
 
-    gnet.initialized = btrue;
+    gnet.initialized = C_TRUE;
 
     egonet_begin( req_enet );
 }
@@ -332,7 +332,7 @@ void egonet_shutDown( void )
     if ( gnet.enet_on )
     {
         enet_deinitialize();
-        gnet.enet_on = bfalse;
+        gnet.enet_on = C_FALSE;
     }
 
     // dealloc all allocated data
@@ -504,28 +504,28 @@ ego_packet_t * ego_packet_dtor( ego_packet_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ego_packet_begin( ego_packet_t * ptr )
+C_BOOLEAN ego_packet_begin( ego_packet_t * ptr )
 {
     /// @author ZZ
     /// @details This function starts building a network packet
 
-    if ( NULL == ptr ) return bfalse;
+    if ( NULL == ptr ) return C_FALSE;
 
     ptr->head = 0;
     ptr->size = 0;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ego_packet_addUint8( ego_packet_t * ptr, Uint8 uc )
+C_BOOLEAN ego_packet_addUint8( ego_packet_t * ptr, Uint8 uc )
 {
     /// @author ZZ
     /// @details This function appends an Uint8 to the packet
 
     Uint8 * ucp;
 
-    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return bfalse;
+    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return C_FALSE;
 
     ucp = ( Uint8* )( ptr->buffer + ptr->head );
     *ucp = uc;
@@ -533,18 +533,18 @@ bool_t ego_packet_addUint8( ego_packet_t * ptr, Uint8 uc )
     ptr->head += sizeof( uc );
     ptr->size += sizeof( uc );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ego_packet_addSint8( ego_packet_t * ptr, Sint8 sc )
+C_BOOLEAN ego_packet_addSint8( ego_packet_t * ptr, Sint8 sc )
 {
     /// @author ZZ
     /// @details This function appends a Sint8 to the packet
 
     Sint8 * scp;
 
-    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return bfalse;
+    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return C_FALSE;
 
     scp = ( Sint8* )( ptr->buffer + ptr->head );
     *scp = sc;
@@ -552,18 +552,18 @@ bool_t ego_packet_addSint8( ego_packet_t * ptr, Sint8 sc )
     ptr->head += sizeof( sc );
     ptr->size += sizeof( sc );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ego_packet_addUint16( ego_packet_t * ptr, Uint16 us )
+C_BOOLEAN ego_packet_addUint16( ego_packet_t * ptr, Uint16 us )
 {
     /// @author ZZ
     /// @details This function appends an Uint16 to the packet
 
     Uint16 * usp;
 
-    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return bfalse;
+    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return C_FALSE;
 
     usp = ( Uint16* )( ptr->buffer + ptr->head );
     *usp = ENET_HOST_TO_NET_16( us );
@@ -571,18 +571,18 @@ bool_t ego_packet_addUint16( ego_packet_t * ptr, Uint16 us )
     ptr->head += sizeof( us );
     ptr->size += sizeof( us );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ego_packet_addSint16( ego_packet_t * ptr, Sint16 ss )
+C_BOOLEAN ego_packet_addSint16( ego_packet_t * ptr, Sint16 ss )
 {
     /// @author ZZ
     /// @details This function appends a Sint16 to the packet
 
     Sint16* ssp;
 
-    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return bfalse;
+    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return C_FALSE;
 
     ssp = ( Sint16* )( ptr->buffer + ptr->head );
     *ssp = ENET_HOST_TO_NET_16( ss );
@@ -590,18 +590,18 @@ bool_t ego_packet_addSint16( ego_packet_t * ptr, Sint16 ss )
     ptr->head += sizeof( ss );
     ptr->size += sizeof( ss );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ego_packet_addUint32( ego_packet_t * ptr, Uint32 ui )
+C_BOOLEAN ego_packet_addUint32( ego_packet_t * ptr, Uint32 ui )
 {
     /// @author ZZ
     /// @details This function appends an Uint32 to the packet
 
     Uint32* uip;
 
-    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return bfalse;
+    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return C_FALSE;
 
     uip = ( Uint32* )( ptr->buffer + ptr->head );
     *uip = ENET_HOST_TO_NET_32( ui );
@@ -609,18 +609,18 @@ bool_t ego_packet_addUint32( ego_packet_t * ptr, Uint32 ui )
     ptr->head += sizeof( ui );
     ptr->size += sizeof( ui );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ego_packet_addSint32( ego_packet_t * ptr, Sint32 si )
+C_BOOLEAN ego_packet_addSint32( ego_packet_t * ptr, Sint32 si )
 {
     /// @author ZZ
     /// @details This function appends a Sint32 to the packet
 
     Sint32 * sip;
 
-    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return bfalse;
+    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return C_FALSE;
 
     sip = ( Sint32 * )( ptr->buffer + ptr->head );
     *sip = ENET_HOST_TO_NET_32( si );
@@ -628,11 +628,11 @@ bool_t ego_packet_addSint32( ego_packet_t * ptr, Sint32 si )
     ptr->head += sizeof( si );
     ptr->size += sizeof( si );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ego_packet_addString( ego_packet_t * ptr, const char *string )
+C_BOOLEAN ego_packet_addString( ego_packet_t * ptr, const char *string )
 {
     /// @author ZZ
     /// @details This function appends a null terminated string to the packet
@@ -641,7 +641,7 @@ bool_t ego_packet_addString( ego_packet_t * ptr, const char *string )
     const char * src_ptr;
     size_t buffer_size;
 
-    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return bfalse;
+    if ( NULL == ptr || ptr->size >= sizeof( ptr->buffer ) ) return C_FALSE;
 
     // how big is the packet buffer?
     buffer_size = SDL_arraysize( ptr->buffer );
@@ -662,11 +662,11 @@ bool_t ego_packet_addString( ego_packet_t * ptr, const char *string )
         ptr->size += sizeof( char );
     }
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_broadcastPacket( ego_packet_t * ptr )
+C_BOOLEAN egonet_broadcastPacket( ego_packet_t * ptr )
 {
     /// @author ZZ
     /// @details This function sends a packet to all the players
@@ -674,7 +674,7 @@ bool_t egonet_broadcastPacket( ego_packet_t * ptr )
     ENetPacket *packet;
 
     // valid data?
-    if ( NULL == ptr || 0 == ptr->size ) return bfalse;
+    if ( NULL == ptr || 0 == ptr->size ) return C_FALSE;
 
     packet = enet_packet_create( ptr->buffer, ptr->size, 0 );
 
@@ -683,11 +683,11 @@ bool_t egonet_broadcastPacket( ego_packet_t * ptr )
         enet_host_broadcast( gnet.myHost, NET_UNRELIABLE_CHANNEL, packet );
     }
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_broadcastPacketGuaranteed( ego_packet_t * ptr )
+C_BOOLEAN egonet_broadcastPacketGuaranteed( ego_packet_t * ptr )
 {
     /// @author ZZ
     /// @details This function sends a packet to all the players
@@ -695,7 +695,7 @@ bool_t egonet_broadcastPacketGuaranteed( ego_packet_t * ptr )
     ENetPacket *packet;
 
     // valid data?
-    if ( NULL == ptr || 0 == ptr->size ) return bfalse;
+    if ( NULL == ptr || 0 == ptr->size ) return C_FALSE;
 
     packet = enet_packet_create( ptr->buffer, ptr->size, ENET_PACKET_FLAG_RELIABLE );
 
@@ -704,11 +704,11 @@ bool_t egonet_broadcastPacketGuaranteed( ego_packet_t * ptr )
         enet_host_broadcast( gnet.myHost, NET_GUARANTEED_CHANNEL, packet );
     }
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_sendPacketToOneClientGuaranteed( ego_packet_t * ptr, int player )
+C_BOOLEAN egonet_sendPacketToOneClientGuaranteed( ego_packet_t * ptr, int player )
 {
     /// @author ZZ
     /// @details This function sends a packet to one of the players
@@ -717,10 +717,10 @@ bool_t egonet_sendPacketToOneClientGuaranteed( ego_packet_t * ptr, int player )
     int enet_retval;
 
     // valid data?
-    if ( NULL == ptr || 0 == ptr->size ) return bfalse;
+    if ( NULL == ptr || 0 == ptr->size ) return C_FALSE;
 
     // valid player?
-    if ( player >= gnet.pserver->client_count ) return bfalse;
+    if ( player >= gnet.pserver->client_count ) return C_FALSE;
 
     packet = enet_packet_create( ptr->buffer, ptr->size, ENET_PACKET_FLAG_RELIABLE );
 
@@ -734,7 +734,7 @@ bool_t egonet_sendPacketToOneClientGuaranteed( ego_packet_t * ptr, int player )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_sendPacketToPeer( ego_packet_t * ptr, ENetPeer *peer )
+C_BOOLEAN egonet_sendPacketToPeer( ego_packet_t * ptr, ENetPeer *peer )
 {
     /// @author JF
     /// @details This function sends a packet to a given peer
@@ -743,7 +743,7 @@ bool_t egonet_sendPacketToPeer( ego_packet_t * ptr, ENetPeer *peer )
     ENetPacket *packet;
 
     // valid data?
-    if ( NULL == ptr || 0 == ptr->size ) return bfalse;
+    if ( NULL == ptr || 0 == ptr->size ) return C_FALSE;
 
     packet = enet_packet_create( ptr->buffer, ptr->size, ENET_PACKET_FLAG_RELIABLE );
 
@@ -757,7 +757,7 @@ bool_t egonet_sendPacketToPeer( ego_packet_t * ptr, ENetPeer *peer )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_sendPacketToPeerGuaranteed( ego_packet_t * ptr, ENetPeer *peer )
+C_BOOLEAN egonet_sendPacketToPeerGuaranteed( ego_packet_t * ptr, ENetPeer *peer )
 {
     /// @author JF
     /// @details This funciton sends a packet to a given peer, with guaranteed delivery
@@ -766,7 +766,7 @@ bool_t egonet_sendPacketToPeerGuaranteed( ego_packet_t * ptr, ENetPeer *peer )
     ENetPacket *packet;
 
     // valid data?
-    if ( NULL == ptr || 0 == ptr->size ) return bfalse;
+    if ( NULL == ptr || 0 == ptr->size ) return C_FALSE;
 
     packet = enet_packet_create( ptr->buffer, ptr->size, 0 );
 
@@ -805,9 +805,9 @@ enet_packet_t * enet_packet_dtor( enet_packet_t * pkt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enet_packet_startReading( enet_packet_t * pkt, ENetPacket *packet )
+C_BOOLEAN enet_packet_startReading( enet_packet_t * pkt, ENetPacket *packet )
 {
-    if ( NULL == pkt ) return bfalse;
+    if ( NULL == pkt ) return C_FALSE;
 
     pkt->ptr = packet;
     pkt->read_location = 0;
@@ -816,9 +816,9 @@ bool_t enet_packet_startReading( enet_packet_t * pkt, ENetPacket *packet )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enet_packet_doneReading( enet_packet_t * pkt )
+C_BOOLEAN enet_packet_doneReading( enet_packet_t * pkt )
 {
-    if ( NULL == pkt ) return bfalse;
+    if ( NULL == pkt ) return C_FALSE;
 
     pkt->ptr = NULL;
     pkt->read_location = 0;
@@ -838,7 +838,7 @@ size_t enet_packet_remainingSize( enet_packet_t * pkt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enet_packet_readString( enet_packet_t * pkt, char *buffer, size_t maxLen )
+C_BOOLEAN enet_packet_readString( enet_packet_t * pkt, char *buffer, size_t maxLen )
 {
     /// @author ZZ
     /// @details This function reads a null terminated buffer from the packet
@@ -846,10 +846,10 @@ bool_t enet_packet_readString( enet_packet_t * pkt, char *buffer, size_t maxLen 
     size_t buffer_size;
 
     // valid packet?
-    if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
+    if ( NULL == pkt || NULL == pkt->ptr ) return C_FALSE;
 
     // read past the end?
-    if ( pkt->read_location >= pkt->ptr->dataLength ) return bfalse;
+    if ( pkt->read_location >= pkt->ptr->dataLength ) return C_FALSE;
 
     // how big is the packet buffer?
     buffer_size = pkt->ptr->dataLength;
@@ -896,20 +896,20 @@ bool_t enet_packet_readString( enet_packet_t * pkt, char *buffer, size_t maxLen 
         }
     }
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enet_packet_readUint8( enet_packet_t * pkt, Uint8 * pval )
+C_BOOLEAN enet_packet_readUint8( enet_packet_t * pkt, Uint8 * pval )
 {
     /// @author ZZ
     /// @details This function reads an Uint8 from the packet
 
     // valid packet?
-    if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
+    if ( NULL == pkt || NULL == pkt->ptr ) return C_FALSE;
 
     // read past the end?
-    if ( pkt->read_location >= pkt->ptr->dataLength ) return bfalse;
+    if ( pkt->read_location >= pkt->ptr->dataLength ) return C_FALSE;
 
     if ( NULL != pval )
     {
@@ -920,20 +920,20 @@ bool_t enet_packet_readUint8( enet_packet_t * pkt, Uint8 * pval )
 
     pkt->read_location += sizeof( *pval );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enet_packet_readSint8( enet_packet_t * pkt, Sint8 * pval )
+C_BOOLEAN enet_packet_readSint8( enet_packet_t * pkt, Sint8 * pval )
 {
     /// @author ZZ
     /// @details This function reads a Sint8 from the packet
 
     // valid packet?
-    if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
+    if ( NULL == pkt || NULL == pkt->ptr ) return C_FALSE;
 
     // read past the end?
-    if ( pkt->read_location >= pkt->ptr->dataLength ) return bfalse;
+    if ( pkt->read_location >= pkt->ptr->dataLength ) return C_FALSE;
 
     if ( NULL != pval )
     {
@@ -944,20 +944,20 @@ bool_t enet_packet_readSint8( enet_packet_t * pkt, Sint8 * pval )
 
     pkt->read_location += sizeof( *pval );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enet_packet_readUint16( enet_packet_t * pkt, Uint16 * pval )
+C_BOOLEAN enet_packet_readUint16( enet_packet_t * pkt, Uint16 * pval )
 {
     /// @author ZZ
     /// @details This function reads an Uint16 from the packet
 
     // valid packet?
-    if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
+    if ( NULL == pkt || NULL == pkt->ptr ) return C_FALSE;
 
     // read past the end?
-    if ( pkt->read_location >= pkt->ptr->dataLength ) return bfalse;
+    if ( pkt->read_location >= pkt->ptr->dataLength ) return C_FALSE;
 
     if ( NULL != pval )
     {
@@ -968,20 +968,20 @@ bool_t enet_packet_readUint16( enet_packet_t * pkt, Uint16 * pval )
 
     pkt->read_location += sizeof( *pval );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enet_packet_readSint16( enet_packet_t * pkt, Sint16 * pval )
+C_BOOLEAN enet_packet_readSint16( enet_packet_t * pkt, Sint16 * pval )
 {
     /// @author ZZ
     /// @details This function reads a Sint16 from the packet
 
     // valid packet?
-    if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
+    if ( NULL == pkt || NULL == pkt->ptr ) return C_FALSE;
 
     // read past the end?
-    if ( pkt->read_location >= pkt->ptr->dataLength ) return bfalse;
+    if ( pkt->read_location >= pkt->ptr->dataLength ) return C_FALSE;
 
     if ( NULL != pval )
     {
@@ -992,20 +992,20 @@ bool_t enet_packet_readSint16( enet_packet_t * pkt, Sint16 * pval )
 
     pkt->read_location += sizeof( *pval );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enet_packet_readUint32( enet_packet_t * pkt, Uint32 * pval )
+C_BOOLEAN enet_packet_readUint32( enet_packet_t * pkt, Uint32 * pval )
 {
     /// @author ZZ
     /// @details This function reads an Uint32 from the packet
 
     // valid packet?
-    if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
+    if ( NULL == pkt || NULL == pkt->ptr ) return C_FALSE;
 
     // read past the end?
-    if ( pkt->read_location >= pkt->ptr->dataLength ) return bfalse;
+    if ( pkt->read_location >= pkt->ptr->dataLength ) return C_FALSE;
 
     if ( NULL != pval )
     {
@@ -1015,20 +1015,20 @@ bool_t enet_packet_readUint32( enet_packet_t * pkt, Uint32 * pval )
 
     pkt->read_location += sizeof( *pval );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t enet_packet_readSint32( enet_packet_t * pkt, Sint32 * pval )
+C_BOOLEAN enet_packet_readSint32( enet_packet_t * pkt, Sint32 * pval )
 {
     /// @author ZZ
     /// @details This function reads a Sint32 from the packet
 
     // valid packet?
-    if ( NULL == pkt || NULL == pkt->ptr ) return bfalse;
+    if ( NULL == pkt || NULL == pkt->ptr ) return C_FALSE;
 
     // read past the end?
-    if ( pkt->read_location >= pkt->ptr->dataLength ) return bfalse;
+    if ( pkt->read_location >= pkt->ptr->dataLength ) return C_FALSE;
 
     if ( NULL != pval )
     {
@@ -1038,7 +1038,7 @@ bool_t enet_packet_readSint32( enet_packet_t * pkt, Sint32 * pval )
 
     pkt->read_location += sizeof( *pval );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1206,33 +1206,33 @@ egonet_instance_t * egonet_instance_dtor( egonet_instance_t * pnet )
 }
 
 //--------------------------------------------------------------------------------------------
-const bool_t egonet_instance_get_serviceon( const egonet_instance_t * pnet )
+const C_BOOLEAN egonet_instance_get_serviceon( const egonet_instance_t * pnet )
 {
-    if ( NULL == pnet || !pnet->initialized ) return bfalse;
+    if ( NULL == pnet || !pnet->initialized ) return C_FALSE;
 
     return pnet->service_on;
 }
 
 //--------------------------------------------------------------------------------------------
-const bool_t egonet_instance_get_hostactive( const egonet_instance_t * pnet )
+const C_BOOLEAN egonet_instance_get_hostactive( const egonet_instance_t * pnet )
 {
-    if ( NULL == pnet || !pnet->initialized ) return bfalse;
+    if ( NULL == pnet || !pnet->initialized ) return C_FALSE;
 
     return pnet->hostactive;
 }
 
 //--------------------------------------------------------------------------------------------
-const bool_t egonet_instance_get_readytostart( const egonet_instance_t * pnet )
+const C_BOOLEAN egonet_instance_get_readytostart( const egonet_instance_t * pnet )
 {
-    if ( NULL == pnet || !pnet->initialized ) return bfalse;
+    if ( NULL == pnet || !pnet->initialized ) return C_FALSE;
 
     return pnet->readytostart;
 }
 
 //--------------------------------------------------------------------------------------------
-const bool_t egonet_instance_get_waitingforclients( const egonet_instance_t * pnet )
+const C_BOOLEAN egonet_instance_get_waitingforclients( const egonet_instance_t * pnet )
 {
-    if ( NULL == pnet || !pnet->initialized ) return bfalse;
+    if ( NULL == pnet || !pnet->initialized ) return C_FALSE;
 
     return pnet->waitingforclients;
 }
@@ -1262,43 +1262,43 @@ const int egonet_instance_get_client_count( const egonet_instance_t * pnet )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_instance_set_hostactive( egonet_instance_t * pnet, const bool_t val )
+C_BOOLEAN egonet_instance_set_hostactive( egonet_instance_t * pnet, const C_BOOLEAN val )
 {
-    if ( NULL == pnet || !pnet->initialized ) return bfalse;
+    if ( NULL == pnet || !pnet->initialized ) return C_FALSE;
 
     pnet->hostactive = val;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_instance_set_waitingforclients( egonet_instance_t * pnet, const bool_t val )
+C_BOOLEAN egonet_instance_set_waitingforclients( egonet_instance_t * pnet, const C_BOOLEAN val )
 {
-    if ( NULL == pnet || !pnet->initialized ) return bfalse;
+    if ( NULL == pnet || !pnet->initialized ) return C_FALSE;
 
     pnet->waitingforclients = val;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_instance_set_myHost( egonet_instance_t * pnet, const ENetHost* val )
+C_BOOLEAN egonet_instance_set_myHost( egonet_instance_t * pnet, const ENetHost* val )
 {
-    if ( NULL == pnet || !pnet->initialized ) return bfalse;
+    if ( NULL == pnet || !pnet->initialized ) return C_FALSE;
 
     pnet->myHost = ( ENetHost* )val;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egonet_instance_set_readytostart( egonet_instance_t * pnet, const bool_t val )
+C_BOOLEAN egonet_instance_set_readytostart( egonet_instance_t * pnet, const C_BOOLEAN val )
 {
-    if ( NULL == pnet ) return bfalse;
+    if ( NULL == pnet ) return C_FALSE;
 
     pnet->readytostart = val;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------

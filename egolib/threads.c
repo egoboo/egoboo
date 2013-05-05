@@ -131,13 +131,13 @@ egolib_thread_t * egolib_thread_start( egolib_thread_t * pthread, SDL_thread_cal
 //--------------------------------------------------------------------------------------------
 // egolib_thread_t control
 //--------------------------------------------------------------------------------------------
-bool_t egolib_thread_req_end( egolib_thread_t * pthread )
+C_BOOLEAN egolib_thread_req_end( egolib_thread_t * pthread )
 {
-    bool_t       locked = bfalse;
-    bool_t       retval = bfalse;
+    C_BOOLEAN       locked = C_FALSE;
+    C_BOOLEAN       retval = C_FALSE;
     SDL_mutex  * mut    = NULL;
 
-    if ( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return C_FALSE;
 
     mut = SDL_CreateMutex();
     if ( NULL == mut )
@@ -150,7 +150,7 @@ bool_t egolib_thread_req_end( egolib_thread_t * pthread )
     }
     else
     {
-        locked = btrue;
+        locked = C_TRUE;
     }
 
     retval = ( 0 == pthread->req_end );
@@ -168,13 +168,13 @@ bool_t egolib_thread_req_end( egolib_thread_t * pthread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egolib_thread_req_quit( egolib_thread_t * pthread )
+C_BOOLEAN egolib_thread_req_quit( egolib_thread_t * pthread )
 {
-    bool_t       locked = bfalse;
-    bool_t       retval = bfalse;
+    C_BOOLEAN       locked = C_FALSE;
+    C_BOOLEAN       retval = C_FALSE;
     SDL_mutex  * mut    = NULL;
 
-    if ( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return C_FALSE;
 
     mut = SDL_CreateMutex();
     if ( NULL == mut )
@@ -187,7 +187,7 @@ bool_t egolib_thread_req_quit( egolib_thread_t * pthread )
     }
     else
     {
-        locked = btrue;
+        locked = C_TRUE;
     }
 
     retval = ( 0 == pthread->req_quit );
@@ -205,27 +205,27 @@ bool_t egolib_thread_req_quit( egolib_thread_t * pthread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egolib_thread_kill( egolib_thread_t * pthread )
+C_BOOLEAN egolib_thread_kill( egolib_thread_t * pthread )
 {
-    if ( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return C_FALSE;
 
     SDL_KillThread( pthread->thread_ptr );
     pthread->thread_ptr   = NULL;
     pthread->callback_ptr = NULL;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
 // egolib_thread_t accessors
 //--------------------------------------------------------------------------------------------
-bool_t egolib_thread_check_started( const egolib_thread_t * pthread )
+C_BOOLEAN egolib_thread_check_started( const egolib_thread_t * pthread )
 {
-    bool_t       locked = bfalse;
-    bool_t       retval = bfalse;
+    C_BOOLEAN       locked = C_FALSE;
+    C_BOOLEAN       retval = C_FALSE;
     SDL_mutex  * mut    = NULL;
 
-    if ( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return C_FALSE;
 
     mut = SDL_CreateMutex();
     if ( NULL == mut )
@@ -238,7 +238,7 @@ bool_t egolib_thread_check_started( const egolib_thread_t * pthread )
     }
     else
     {
-        locked = btrue;
+        locked = C_TRUE;
     }
 
     retval = ( 1 == pthread->started );
@@ -255,13 +255,13 @@ bool_t egolib_thread_check_started( const egolib_thread_t * pthread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egolib_thread_check_done( const egolib_thread_t * pthread )
+C_BOOLEAN egolib_thread_check_done( const egolib_thread_t * pthread )
 {
-    bool_t       locked = bfalse;
-    bool_t       retval = bfalse;
+    C_BOOLEAN       locked = C_FALSE;
+    C_BOOLEAN       retval = C_FALSE;
     SDL_mutex  * mut    = NULL;
 
-    if ( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return C_FALSE;
 
     mut = SDL_CreateMutex();
     if ( NULL == mut )
@@ -274,7 +274,7 @@ bool_t egolib_thread_check_done( const egolib_thread_t * pthread )
     }
     else
     {
-        locked = btrue;
+        locked = C_TRUE;
     }
 
     retval = ( 1 == pthread->done );
@@ -291,13 +291,13 @@ bool_t egolib_thread_check_done( const egolib_thread_t * pthread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egolib_thread_check_error( const egolib_thread_t * pthread )
+C_BOOLEAN egolib_thread_check_error( const egolib_thread_t * pthread )
 {
-    bool_t       locked = bfalse;
-    bool_t       retval = bfalse;
+    C_BOOLEAN       locked = C_FALSE;
+    C_BOOLEAN       retval = C_FALSE;
     SDL_mutex  * mut    = NULL;
 
-    if ( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return C_FALSE;
 
     mut = SDL_CreateMutex();
     if ( NULL == mut )
@@ -310,7 +310,7 @@ bool_t egolib_thread_check_error( const egolib_thread_t * pthread )
     }
     else
     {
-        locked = btrue;
+        locked = C_TRUE;
     }
 
     retval = ( 1 == pthread->error );
@@ -329,7 +329,7 @@ bool_t egolib_thread_check_error( const egolib_thread_t * pthread )
 //--------------------------------------------------------------------------------------------
 const SDL_Thread * egolib_thread_get_thread_ptr( const egolib_thread_t * pthread )
 {
-    bool_t       locked = bfalse;
+    C_BOOLEAN       locked = C_FALSE;
     SDL_Thread * retval = NULL;
     SDL_mutex  * mut    = NULL;
 
@@ -346,7 +346,7 @@ const SDL_Thread * egolib_thread_get_thread_ptr( const egolib_thread_t * pthread
     }
     else
     {
-        locked = btrue;
+        locked = C_TRUE;
     }
 
     retval = pthread->thread_ptr;
@@ -363,13 +363,13 @@ const SDL_Thread * egolib_thread_get_thread_ptr( const egolib_thread_t * pthread
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t egolib_thread_running( const egolib_thread_t * pthread )
+C_BOOLEAN egolib_thread_running( const egolib_thread_t * pthread )
 {
-    bool_t      running = bfalse;
-    bool_t      locked = bfalse;
+    C_BOOLEAN      running = C_FALSE;
+    C_BOOLEAN      locked = C_FALSE;
     SDL_mutex * mut;
 
-    if ( NULL == pthread ) return bfalse;
+    if ( NULL == pthread ) return C_FALSE;
 
     mut = SDL_CreateMutex();
     if ( NULL == mut )
@@ -382,23 +382,23 @@ bool_t egolib_thread_running( const egolib_thread_t * pthread )
     }
     else
     {
-        locked = btrue;
+        locked = C_TRUE;
     }
 
     if ( NULL == pthread->thread_ptr || NULL == pthread->callback_ptr )
     {
         // the thread data is incomplete, so it can't really be running
-        running = bfalse;
+        running = C_FALSE;
     }
     else if ( 1 == pthread->started && 0 == pthread->done )
     {
         // the thread is definitely running
-        running = btrue;
+        running = C_TRUE;
     }
     else
     {
         // in all other cases, the thread should not be running
-        running = bfalse;
+        running = C_FALSE;
     }
 
     if ( NULL != mut && locked )

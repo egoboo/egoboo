@@ -73,20 +73,20 @@ extern "C"
     /// A a dictionary of tile types
     struct s_tile_dictionary
     {
-        bool_t            loaded;
+        C_BOOLEAN            loaded;
         size_t            offset;
 
         size_t            def_count;
         tile_definition_t def_lst[MAP_FAN_TYPE_MAX];
     };
 
-#   define TILE_DICTIONARY_INIT { bfalse, 0, 0 }
+#   define TILE_DICTIONARY_INIT { C_FALSE, 0, 0 }
 #   define TILE_DICT_PTR( DICT, IDX ) LAMBDA( !(DICT).loaded || ((IDX) < 0) || ((IDX) > (DICT).def_count), NULL, (DICT).def_lst + (IDX) )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    bool_t tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size );
+    C_BOOLEAN tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

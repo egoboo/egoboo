@@ -75,7 +75,7 @@ extern float DisplayMsg_draw_all( float y );
 
 extern int    DisplayMsg_timechange;     ///< how much time has elapsed for messages
 extern int    DisplayMsg_count;          ///< maximum number of displayed messages
-extern bool_t DisplayMsg_on;             ///< Messages?
+extern ego_bool DisplayMsg_on;             ///< Messages?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -105,8 +105,8 @@ int   draw_string_raw( float x, float y, const char *format, ... );
 int   DisplayMsg_printf( const char *format, ... );
 
 // graphics primitive functions
-void   draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool_t use_alpha, const GLXvector4f quad_tint );
-bool_t dump_screenshot( void );
+void   draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const ego_bool use_alpha, const GLXvector4f quad_tint );
+ego_bool dump_screenshot( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

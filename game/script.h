@@ -145,8 +145,8 @@ struct s_ai_state
 {
     // some script states
     Sint32         poof_time;
-    bool_t         changed;
-    bool_t         terminate;
+    ego_bool         changed;
+    ego_bool         terminate;
 
     // who are we related to?
     CHR_REF        index;         ///< what is the index value of this character
@@ -179,7 +179,7 @@ struct s_ai_state
     Uint16         order_counter;         ///< The rank of the character on the order chain
 
     // waypoints
-    bool_t          wp_valid;            ///< is the current waypoint valid?
+    ego_bool          wp_valid;            ///< is the current waypoint valid?
     waypoint_t      wp;                  ///< current waypoint
     waypoint_list_t wp_lst;              ///< Stored waypoints
     Uint32          astar_timer;         ///< Throttle on astar pathfinding
@@ -191,11 +191,11 @@ struct s_ai_state
 ai_state_t * ai_state_ctor( ai_state_t * pself );
 ai_state_t * ai_state_dtor( ai_state_t * pself );
 ai_state_t * ai_state_reconstruct( ai_state_t * pself );
-bool_t       ai_state_set_bumplast( ai_state_t * pself, const CHR_REF  ichr );
-bool_t       ai_state_get_wp( ai_state_t * pself );
-bool_t       ai_state_ensure_wp( ai_state_t * pself );
-bool_t       ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
-bool_t       ai_state_set_changed( ai_state_t * pai );
+ego_bool       ai_state_set_bumplast( ai_state_t * pself, const CHR_REF  ichr );
+ego_bool       ai_state_get_wp( ai_state_t * pself );
+ego_bool       ai_state_ensure_wp( ai_state_t * pself );
+ego_bool       ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
+ego_bool       ai_state_set_changed( ai_state_t * pai );
 void         ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank );
 
 //--------------------------------------------------------------------------------------------

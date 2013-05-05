@@ -21,17 +21,17 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t SDL_RectIntersect( SDL_Rect * src, SDL_Rect * dst, SDL_Rect * isect )
+ego_bool SDL_RectIntersect( SDL_Rect * src, SDL_Rect * dst, SDL_Rect * isect )
 {
     Sint16 xmin, xmax, ymin, ymax;
 
     // should not happen
-    if ( NULL == src && NULL == dst ) return bfalse;
+    if ( NULL == src && NULL == dst ) return ego_false;
 
     // null cases
-    if ( NULL == isect ) return bfalse;
-    if ( NULL == src ) { *isect = *dst; return btrue; }
-    if ( NULL == dst ) { *isect = *src; return btrue; }
+    if ( NULL == isect ) return ego_false;
+    if ( NULL == src ) { *isect = *dst; return ego_true; }
+    if ( NULL == dst ) { *isect = *src; return ego_true; }
 
     xmin = MAX( src->x, dst->x );
     xmax = MIN( src->x + src->w, dst->x + dst->w );
@@ -44,5 +44,5 @@ bool_t SDL_RectIntersect( SDL_Rect * src, SDL_Rect * dst, SDL_Rect * isect )
     isect->y = ymin;
     isect->h = MAX( 0, ymax - ymin );
 
-    return btrue;
+    return ego_true;
 }

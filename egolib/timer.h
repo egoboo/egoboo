@@ -47,7 +47,7 @@ extern "C"
 /// a method for throttling processes using SDL_GetTicks()
     struct s_egolib_timer
     {
-        bool_t  free_running;
+        C_BOOLEAN  free_running;
 
         int     ticks_lst;
         int     ticks_now;
@@ -56,8 +56,8 @@ extern "C"
     };
 
     egolib_timer_t * egolib_timer__init( egolib_timer_t * );
-    bool_t egolib_timer__throttle( egolib_timer_t * timer, float rate );
-    bool_t egolib_timer__reset( egolib_timer_t * timer, int ticks, float rate );
+    C_BOOLEAN egolib_timer__throttle( egolib_timer_t * timer, float rate );
+    C_BOOLEAN egolib_timer__reset( egolib_timer_t * timer, int ticks, float rate );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

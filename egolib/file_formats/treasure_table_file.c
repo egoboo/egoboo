@@ -69,7 +69,7 @@ void load_one_treasure_table_vfs( vfs_FILE* fileread, treasure_table_t* new_tabl
     if ( NULL == fileread ) return;
 
     //Keep adding objects into the table until we encounter a :END
-    while ( goto_colon_vfs( NULL, fileread, bfalse ) )
+    while ( goto_colon_vfs( NULL, fileread, C_FALSE ) )
     {
         STRING szTemp;
         vfs_get_string( fileread, szTemp, SDL_arraysize( szTemp ) );
@@ -99,7 +99,7 @@ egolib_rv init_random_treasure_tables_vfs( const char* filepath )
 
     //Load each treasure table
     num_table = 0;
-    while ( goto_colon_vfs( NULL, fileread, btrue ) )
+    while ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
     {
         //Load the name of this table
         STRING szTemp;
@@ -135,7 +135,7 @@ egolib_rv get_random_treasure( char * buffer, size_t buffer_length )
     size_t i;
     int treasure_index;
 
-    bool_t found = bfalse;
+    C_BOOLEAN found = C_FALSE;
     STRING tmp_buffer;
 
     // Trap invalid strings
@@ -145,7 +145,7 @@ egolib_rv get_random_treasure( char * buffer, size_t buffer_length )
     strncpy( tmp_buffer, buffer, SDL_arraysize( tmp_buffer ) );
 
     // Iterate through every treasure table until we find the one we want
-    found = bfalse;
+    found = C_FALSE;
     for ( i = 0; i < MAX_TABLES; i++ )
     {
         //Continue looking until we find the correct table
@@ -160,13 +160,13 @@ egolib_rv get_random_treasure( char * buffer, size_t buffer_length )
         //See if it is an actual random object or a reference to a different random table
         if ( '%' != tmp_buffer[0] )
         {
-            found = btrue;
+            found = C_TRUE;
         }
         else
         {
             if ( rv_success == get_random_treasure( tmp_buffer, buffer_length ) )
             {
-                found = btrue;
+                found = C_TRUE;
             }
         }
     }

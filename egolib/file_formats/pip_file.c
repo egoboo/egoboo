@@ -66,7 +66,7 @@ pip_t * pip_init( pip_t * ppip )
     ppip->end_sound_wall  = INVALID_SOUND;
     ppip->damfx           = DAMFX_TURN;
 
-    ppip->allowpush = btrue;
+    ppip->allowpush = C_TRUE;
 
     ppip->orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
     ppip->type        = SPRITE_SOLID;
@@ -78,7 +78,7 @@ pip_t * pip_init( pip_t * ppip )
 pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
 {
     /// @author ZZ
-    /// @details This function loads a particle template, returning bfalse if the file wasn't
+    /// @details This function loads a particle template, returning C_FALSE if the file wasn't
     ///    found
 
     vfs_FILE* fileread;
@@ -95,7 +95,7 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
 
     // set up the EGO_PROFILE_STUFF
     strncpy( ppip->name, szLoadName, SDL_arraysize( ppip->name ) );
-    ppip->loaded = btrue;
+    ppip->loaded = C_TRUE;
 
     // read the 1 line comment at the top of the file
     vfs_gets( ppip->comment, SDL_arraysize( ppip->comment ) - 1, fileread );
@@ -211,7 +211,7 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     ppip->homingaccel    = vfs_get_next_float( fileread );
     ppip->rotatetoface   = vfs_get_next_bool( fileread );
 
-    goto_colon_vfs( NULL, fileread, bfalse );  // !!Respawn on hit is unused
+    goto_colon_vfs( NULL, fileread, C_FALSE );  // !!Respawn on hit is unused
 
     ppip->manadrain         = vfs_get_next_ufp8( fileread );
     ppip->lifedrain         = vfs_get_next_ufp8( fileread );
@@ -223,7 +223,7 @@ pip_t * load_one_pip_file_vfs( const char *szLoadName, pip_t * ppip )
     if ( ppip->homing )  ppip->damfx = DAMFX_NONE;
 
     // Read expansions
-    while ( goto_colon_vfs( NULL, fileread, btrue ) )
+    while ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
     {
         idsz = vfs_get_idsz( fileread );
 

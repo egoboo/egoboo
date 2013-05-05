@@ -32,7 +32,7 @@ float            light_nrm[3] = {0.0f, 0.0f, 0.0f};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool_t lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_base_t vec, const int dir );
+static ego_bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_base_t vec, const int dir );
 
 static float  lighting_evaluate_cache_base( const lighting_cache_base_t * lvec, const fvec3_base_t nrm, float * amb );
 
@@ -127,7 +127,7 @@ lighting_cache_base_t * lighting_cache_base_init( lighting_cache_base_t * cache 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t lighting_cache_base_max_light( lighting_cache_base_t * cache )
+ego_bool lighting_cache_base_max_light( lighting_cache_base_t * cache )
 {
     int cnt;
     float max_light;
@@ -141,16 +141,16 @@ bool_t lighting_cache_base_max_light( lighting_cache_base_t * cache )
 
     cache->max_light = max_light;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t lighting_cache_base_blend( lighting_cache_base_t * cold, const lighting_cache_base_t * cnew, float keep )
+ego_bool lighting_cache_base_blend( lighting_cache_base_t * cold, const lighting_cache_base_t * cnew, float keep )
 {
     int tnc;
     float max_delta;
 
-    if ( NULL == cold || NULL == cnew ) return bfalse;
+    if ( NULL == cold || NULL == cnew ) return ego_false;
 
     // blend this in with the existing lighting
     if ( 1.0f == keep )
@@ -185,7 +185,7 @@ bool_t lighting_cache_base_blend( lighting_cache_base_t * cold, const lighting_c
 
     cold->max_delta = max_delta;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -204,9 +204,9 @@ lighting_cache_t * lighting_cache_init( lighting_cache_t * cache )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t lighting_cache_max_light( lighting_cache_t * cache )
+ego_bool lighting_cache_max_light( lighting_cache_t * cache )
 {
-    if ( NULL == cache ) return bfalse;
+    if ( NULL == cache ) return ego_false;
 
     // determine the lighting extents
     lighting_cache_base_max_light( &( cache->low ) );
@@ -215,13 +215,13 @@ bool_t lighting_cache_max_light( lighting_cache_t * cache )
     // set the maximum direct light
     cache->max_light = MAX( cache->low.max_light, cache->hgh.max_light );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, float keep )
+ego_bool lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, float keep )
 {
-    if ( NULL == cache || NULL == cnew ) return bfalse;
+    if ( NULL == cache || NULL == cnew ) return ego_false;
 
     // find deltas
     lighting_cache_base_blend( &( cache->low ), ( &cnew->low ), keep );
@@ -230,25 +230,25 @@ bool_t lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, 
     // find the absolute maximum delta
     cache->max_delta = MAX( cache->low.max_delta, cache->hgh.max_delta );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * src, const fmat_4x4_base_t mat )
+ego_bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * src, const fmat_4x4_base_t mat )
 {
     fvec3_t   fwd, right, up;
 
-    if ( NULL == src ) return bfalse;
+    if ( NULL == src ) return ego_false;
 
     // blank the destination lighting
-    if ( NULL == lighting_cache_init( dst ) ) return bfalse;
+    if ( NULL == lighting_cache_init( dst ) ) return ego_false;
 
     // do the ambient
     dst->low.lighting[LVEC_AMB] = src->low.lighting[LVEC_AMB];
     dst->hgh.lighting[LVEC_AMB] = src->hgh.lighting[LVEC_AMB];
 
-    if ( src->max_light == 0.0f ) return btrue;
+    if ( src->max_light == 0.0f ) return ego_true;
 
     // grab the character directions
     mat_getChrForward( mat, fwd.v );          // along body-fixed +y-axis
@@ -267,19 +267,19 @@ bool_t lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * 
     // determine the lighting extents
     lighting_cache_max_light( dst );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t lighting_cache_interpolate( lighting_cache_t * dst, const lighting_cache_t * src[], const float u, const float v )
+ego_bool lighting_cache_interpolate( lighting_cache_t * dst, const lighting_cache_t * src[], const float u, const float v )
 {
     int   tnc;
     float wt_sum;
     float loc_u, loc_v;
 
-    if ( NULL == src ) return bfalse;
+    if ( NULL == src ) return ego_false;
 
-    if ( NULL == lighting_cache_init( dst ) ) return bfalse;
+    if ( NULL == lighting_cache_init( dst ) ) return ego_false;
 
     loc_u = CLIP( u, 0.0f, 1.0f );
     loc_v = CLIP( v, 0.0f, 1.0f );
@@ -427,12 +427,12 @@ float lighting_cache_test( const lighting_cache_t * src[], const float u, const 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_base_t vec, const int dir )
+ego_bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_base_t vec, const int dir )
 {
-    if ( NULL == src || NULL == dst || NULL == vec ) return bfalse;
+    if ( NULL == src || NULL == dst || NULL == vec ) return ego_false;
 
     if ( dir < 0 || dir > 4 || 0 != ( dir&1 ) )
-        return bfalse;
+        return ego_false;
 
     if ( vec[kX] > 0 )
     {
@@ -485,7 +485,7 @@ bool_t lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * sr
         dst->hgh.lighting[dir+1] -= vec[kZ] * src->hgh.lighting[LVEC_PZ];
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -610,7 +610,7 @@ float dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_base_
     rho_sqr  = diff[kX] * diff[kX] + diff[kY] * diff[kY];
     y2       = rho_sqr * 2.0f / 765.0f / pdyna->falloff;
 
-    if ( y2 > 1.0f ) return bfalse;
+    if ( y2 > 1.0f ) return ego_false;
 
     level = 1.0f - 0.5f * y2 * ( 3.0f - y2 * y2 );
     level *= pdyna->level;
@@ -619,16 +619,16 @@ float dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_base_
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_base_t nrm )
+ego_bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_base_t nrm )
 {
     fvec3_base_t local_nrm;
 
     float rad_sqr, level;
 
-    if ( NULL == pdyna || NULL == lighting || NULL == nrm ) return bfalse;
+    if ( NULL == pdyna || NULL == lighting || NULL == nrm ) return ego_false;
 
     level = 255 * dyna_lighting_intensity( pdyna, nrm );
-    if ( 0.0f == level ) return btrue;
+    if ( 0.0f == level ) return ego_true;
 
     // allow negative lighting, or blind spots will not work properly
     rad_sqr = nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY] + nrm[kZ] * nrm[kZ];
@@ -648,7 +648,7 @@ bool_t sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t ligh
     // sum the lighting
     lighting_vector_sum( lighting, local_nrm, level, 0.0f );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -66,7 +66,7 @@ extern "C"
     size_t       scantag_get_count( void );
     int          scantag_find_index( const char *string );
     scantag_t *  scantag_get_tag( int index );
-    bool_t       scantag_get_value( int index, Uint32 * pvalue );
+    C_BOOLEAN       scantag_get_value( int index, Uint32 * pvalue );
     const char * scantag_get_name( int index );
 
     const char       * scantag_get_string( int device, struct s_control * pcontrol, char * buffer, size_t buffer_size );

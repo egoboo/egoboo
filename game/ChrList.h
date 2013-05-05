@@ -55,16 +55,16 @@ void    ChrList_reinit( void );
 
 CHR_REF ChrList_allocate( const CHR_REF override );
 
-bool_t  ChrList_free_one( const CHR_REF ichr );
+ego_bool  ChrList_free_one( const CHR_REF ichr );
 void    ChrList_free_all( void );
 
 void    ChrList_update_used( void );
 
 void    ChrList_cleanup( void );
 
-bool_t ChrList_add_activation( const CHR_REF ichr );
-bool_t ChrList_add_termination( const CHR_REF ichr );
-bool_t ChrList_request_terminate( const CHR_REF ichr );
+ego_bool ChrList_add_activation( const CHR_REF ichr );
+ego_bool ChrList_add_termination( const CHR_REF ichr );
+ego_bool ChrList_request_terminate( const CHR_REF ichr );
 
 int ChrList_count_free( void );
 int ChrList_count_used( void );

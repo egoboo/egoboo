@@ -162,7 +162,7 @@ int fs_fileIsDirectory( const char *filename )
     // Returns 1 if this filename is a directory
     DWORD fileAttrs;
 
-    if ( INVALID_CSTR( filename ) ) return bfalse;
+    if ( INVALID_CSTR( filename ) ) return C_FALSE;
 
     fileAttrs = GetFileAttributes( filename );
 
@@ -199,11 +199,11 @@ void fs_deleteFile( const char *filename )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fs_copyFile( const char *source, const char *dest )
+C_BOOLEAN fs_copyFile( const char *source, const char *dest )
 {
-    if ( INVALID_CSTR( source ) || INVALID_CSTR( dest ) ) return bfalse;
+    if ( INVALID_CSTR( source ) || INVALID_CSTR( dest ) ) return C_FALSE;
 
-    return ( TRUE == CopyFile( source, dest, bfalse ) );
+    return ( TRUE == CopyFile( source, dest, C_FALSE ) );
 }
 
 //--------------------------------------------------------------------------------------------

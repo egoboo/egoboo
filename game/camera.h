@@ -24,8 +24,8 @@
 #include "egoboo_typedef.h"
 
 #include "../egolib/_math.h"
-#include "../egolib/frustum.h"
 
+#include "frustum.h"
 #include "physics.h"
 
 //--------------------------------------------------------------------------------------------
@@ -188,10 +188,10 @@ void   camera_make_matrix( camera_t * pcam );
 
 void   camera_move( camera_t * pcam, const struct s_ego_mesh * pmesh, const CHR_REF track_list[], const size_t track_list_size );
 void   camera_reset( camera_t * pcam, const struct s_ego_mesh * pmesh, const CHR_REF track_list[], const size_t track_list_size );
-bool_t camera_reset_target( camera_t * pcam, const struct s_ego_mesh * pmesh, const CHR_REF track_list[], const size_t track_list_size );
+ego_bool camera_reset_target( camera_t * pcam, const struct s_ego_mesh * pmesh, const CHR_REF track_list[], const size_t track_list_size );
 
-bool_t camera_reset_view( camera_t * pcam );
-bool_t camera_reset_projection( camera_t * pcam , float fov_deg, float ar );
+ego_bool camera_reset_view( camera_t * pcam );
+ego_bool camera_reset_projection( camera_t * pcam , float fov_deg, float ar );
 
 void camera_gluPerspective( camera_t * pcam, float fovy_deg, float aspect_ratio, float frustum_near, float frustum_far );
 void camera_gluLookAt( camera_t * pcam, float roll_deg );

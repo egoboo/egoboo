@@ -95,10 +95,10 @@ typedef enum e_matrix_cache_type matrix_cache_type_t;
 struct s_matrix_cache
 {
     // is the cache data valid?
-    bool_t valid;
+    ego_bool valid;
 
     // is the matrix data valid?
-    bool_t matrix_valid;
+    ego_bool matrix_valid;
 
     // how was the matrix made?
     int type_bits;
@@ -130,7 +130,7 @@ struct s_matrix_cache
 struct s_chr_reflection_cache
 {
     fmat_4x4_t matrix;
-    bool_t     matrix_valid;
+    ego_bool     matrix_valid;
     Uint8      alpha;
     Uint8      light;
     Uint8      sheen;
@@ -146,7 +146,7 @@ struct s_chr_reflection_cache
 /// the data to determine whether re-calculation of vlst is necessary
 struct s_vlst_cache
 {
-    bool_t valid;             ///< do we know whether this cache is valid or not?
+    ego_bool valid;             ///< do we know whether this cache is valid or not?
 
     float  flip;              ///< the in-betweening  the last time the animation was updated
     Uint16 frame_nxt;         ///< the initial frame  the last time the animation was updated
@@ -175,9 +175,9 @@ struct s_chr_instance
     Uint8          alpha;                 ///< 255 = Solid, 0 = Invisible
     Uint8          light;                 ///< 1 = Light, 0 = Normal
     Uint8          sheen;                 ///< 0-15, how shiny it is
-    bool_t         enviro;                ///< Environment map?
-    bool_t         dont_cull_backfaces;   ///< Do we cull backfaces for this character or not?
-    bool_t         skin_has_transparency; ///< The object skin has partial transparency
+    ego_bool         enviro;                ///< Environment map?
+    ego_bool         dont_cull_backfaces;   ///< Do we cull backfaces for this character or not?
+    ego_bool         skin_has_transparency; ///< The object skin has partial transparency
 
     // color info
     Uint8          redshift;        ///< Color channel shifting
@@ -200,10 +200,10 @@ struct s_chr_instance
     float          rate;
 
     // action info
-    bool_t         action_ready;                   ///< Ready to play a new one
+    ego_bool         action_ready;                   ///< Ready to play a new one
     int            action_which;                   ///< Character's action
-    bool_t         action_keep;                    ///< Keep the action playing
-    bool_t         action_loop;                    ///< Loop it too
+    ego_bool         action_keep;                    ///< Keep the action playing
+    ego_bool         action_loop;                    ///< Loop it too
     int            action_next;                    ///< Character's action to play next
 
     // lighting info
@@ -219,7 +219,7 @@ struct s_chr_instance
     oct_bb_t       bbox;                           ///< the bounding box for this frame
 
     // graphical optimizations
-    bool_t                 indolist;               ///< Has it been added yet?
+    ego_bool                 indolist;               ///< Has it been added yet?
     vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
     chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
 
@@ -236,28 +236,28 @@ chr_instance_t * chr_instance_dtor( chr_instance_t * pinst );
 gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const int skin );
 gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad );
 
-gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool_t need_matrix );
+gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, ego_bool need_matrix );
 
 gfx_rv chr_instance_update_bbox( chr_instance_t * pinst );
-gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool_t force );
+gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, ego_bool force );
 gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count );
 
-gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action );
-gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool_t action_ready, bool_t override_action );
-gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool_t action_ready, bool_t override_action );
+gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, ego_bool action_ready, ego_bool override_action );
+gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, ego_bool action_ready, ego_bool override_action );
+gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, ego_bool action_ready, ego_bool override_action );
 
 gfx_rv chr_instance_increment_action( chr_instance_t * pinst );
 gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action );
-gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool_t actionready );
+gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, ego_bool actionready );
 
 gfx_rv    chr_instance_remove_interpolation( chr_instance_t * pinst );
 BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst );
 
 gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, const MAD_REF mad_override );
 
-gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool_t val );
-gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool_t val );
-gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool_t val );
+gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, ego_bool val );
+gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, ego_bool val );
+gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, ego_bool val );
 gfx_rv chr_instance_set_action_next( chr_instance_t * pinst, int val );
 
 gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex );
@@ -268,9 +268,9 @@ MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst );
 float  chr_instance_get_remaining_flip( chr_instance_t * pinst );
 gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst );
 gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip );
-void   chr_instance_update_lighting_base( chr_instance_t * pinst, struct s_chr * pchr, bool_t force );
+void   chr_instance_update_lighting_base( chr_instance_t * pinst, struct s_chr * pchr, ego_bool force );
 void   chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits );
-bool_t chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
+ego_bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

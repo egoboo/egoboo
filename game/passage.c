@@ -107,7 +107,7 @@ int ShopStack_get_free( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t open_passage( const PASS_REF passage )
+ego_bool open_passage( const PASS_REF passage )
 {
     /// @author ZZ
     /// @details This function makes a passage passable
@@ -116,15 +116,15 @@ bool_t open_passage( const PASS_REF passage )
     Uint32 fan;
     passage_t * ppass;
 
-    if ( INVALID_PASSAGE( passage ) ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return ego_false;
     ppass = PassageStack_get_ptr( passage );
 
     //no need to do this if it already is open
-    if ( ppass->open ) return btrue;
+    if ( ppass->open ) return ego_true;
 
     if ( ppass->area.top <= ppass->area.bottom )
     {
-        ppass->open = btrue;
+        ppass->open = C_TRUE;
         for ( y = ppass->area.top; y <= ppass->area.bottom; y++ )
         {
             for ( x = ppass->area.left; x <= ppass->area.right; x++ )
@@ -135,7 +135,7 @@ bool_t open_passage( const PASS_REF passage )
         }
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ void flash_passage( const PASS_REF passage, Uint8 color )
                 ptile->lcache[cnt]       = color;
 
                 // force the lighting code to update
-                ptile->request_clst_update = btrue;
+                ptile->request_clst_update = ego_true;
                 ptile->clst_frame        = -1;
             }
         }
@@ -175,15 +175,15 @@ void flash_passage( const PASS_REF passage, Uint8 color )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t point_is_in_passage( const PASS_REF passage, float xpos, float ypos )
+ego_bool point_is_in_passage( const PASS_REF passage, float xpos, float ypos )
 {
     /// @author ZF
-    /// @details This return btrue if the specified X and Y coordinates are within the passage
+    /// @details This return ego_true if the specified X and Y coordinates are within the passage
 
     passage_t * ppass;
     frect_t tmp_rect;
 
-    if ( INVALID_PASSAGE( passage ) ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return ego_false;
     ppass = PassageStack_get_ptr( passage );
 
     // Passage area
@@ -196,16 +196,16 @@ bool_t point_is_in_passage( const PASS_REF passage, float xpos, float ypos )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t object_is_in_passage( const PASS_REF passage, float xpos, float ypos, float radius )
+ego_bool object_is_in_passage( const PASS_REF passage, float xpos, float ypos, float radius )
 {
     /// @author ZF
-    /// @details This return btrue if the specified X and Y coordinates are within the passage
+    /// @details This return ego_true if the specified X and Y coordinates are within the passage
     ///     radius is how much offset we allow outside the passage
 
     passage_t * ppass;
     frect_t tmp_rect;
 
-    if ( INVALID_PASSAGE( passage ) ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return ego_false;
     ppass = PassageStack_get_ptr( passage );
 
     // Passage area
@@ -343,23 +343,23 @@ void check_passage_music( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t close_passage( const PASS_REF passage )
+ego_bool close_passage( const PASS_REF passage )
 {
     /// @author ZZ
-    /// @details This function makes a passage impassable, and returns btrue if it isn't blocked
+    /// @details This function makes a passage impassable, and returns ego_true if it isn't blocked
     int x, y;
     Uint32 fan, cnt;
     passage_t * ppass;
     CHR_REF character;
 
-    if ( INVALID_PASSAGE( passage ) ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return ego_false;
     ppass = PassageStack_get_ptr( passage );
 
     //is it already closed?
-    if ( !ppass->open ) return btrue;
+    if ( !ppass->open ) return ego_true;
 
     // don't compute all of this for nothing
-    if ( EMPTY_BIT_FIELD == ppass->mask ) return btrue;
+    if ( EMPTY_BIT_FIELD == ppass->mask ) return ego_true;
 
     // check to see if a wall can close
     if ( 0 != HAS_SOME_BITS( ppass->mask, MAPFX_IMPASS | MAPFX_WALL ) )
@@ -385,7 +385,7 @@ bool_t close_passage( const PASS_REF passage )
                     if ( !pchr->canbecrushed || ( pchr->alive && pchr->openstuff ) )
                     {
                         // Someone is blocking who can open stuff, stop here
-                        return bfalse;
+                        return ego_false;
                     }
                     else
                     {
@@ -405,7 +405,7 @@ bool_t close_passage( const PASS_REF passage )
     }
 
     // Close it off
-    ppass->open = bfalse;
+    ppass->open = C_FALSE;
     for ( y = ppass->area.top; y <= ppass->area.bottom; y++ )
     {
         for ( x = ppass->area.left; x <= ppass->area.right; x++ )
@@ -415,7 +415,7 @@ bool_t close_passage( const PASS_REF passage )
         }
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -460,9 +460,9 @@ void add_shop_passage( const CHR_REF owner, const PASS_REF passage )
         {
             if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
             {
-                pchr->isshopitem = btrue;               // Full value
-                pchr->iskursed   = bfalse;              // Shop items are never kursed
-                pchr->nameknown  = btrue;
+                pchr->isshopitem = ego_true;               // Full value
+                pchr->iskursed   = ego_false;              // Shop items are never kursed
+                pchr->nameknown  = ego_true;
             }
         }
     }
@@ -492,7 +492,7 @@ void add_passage( passage_t * pdata )
 
     ppass->mask          = pdata->mask;
     ppass->music         = pdata->music;
-    ppass->open          = btrue;
+    ppass->open          = C_TRUE;
 
     // Is it closed? (default is open)
     if ( !pdata->open )

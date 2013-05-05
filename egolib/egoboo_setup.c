@@ -79,7 +79,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t _setup_started = bfalse;
+static C_BOOLEAN _setup_started = C_FALSE;
 static STRING _config_filename = EMPTY_CSTR;
 static ConfigFilePtr_t _lpConfigSetup = NULL;
 
@@ -104,11 +104,11 @@ extern "C"
 #endif
 /// download the data from the egoboo_config_t data structure to program
 /// @note this function must be implemented by the user
-    extern bool_t config_download( egoboo_config_t * pcfg, bool_t synch_from_file );
+    extern C_BOOLEAN config_download( egoboo_config_t * pcfg, C_BOOLEAN synch_from_file );
 
 /// convert program settings to an egoboo_config_t data structure
 /// @note this function must be implemented by the user
-    extern bool_t config_upload( egoboo_config_t * pcfg );
+    extern C_BOOLEAN config_upload( egoboo_config_t * pcfg );
 
 #if defined(__cplusplus)
 }
@@ -120,24 +120,24 @@ extern "C"
 void egoboo_config__init( egoboo_config_t * pcfg )
 {
     // {GRAPHIC}
-    pcfg->fullscreen_req        = bfalse;        // Start in fullscreen?
+    pcfg->fullscreen_req        = C_FALSE;        // Start in fullscreen?
     pcfg->scrd_req              = 24;                 // Screen bit depth
     pcfg->scrz_req              = 8;                // Screen z-buffer depth ( 8 unsupported )
     pcfg->scrx_req              = 640;               // Screen X size
     pcfg->scry_req              = 480;               // Screen Y size
-    pcfg->use_perspective       = bfalse;      // Perspective correct textures?
-    pcfg->use_dither            = bfalse;           // Dithering?
-    pcfg->reflect_fade          = btrue;            // 255 = Don't fade reflections
-    pcfg->reflect_allowed       = bfalse;            // Reflections?
-    pcfg->reflect_prt           = bfalse;         // Reflect particles?
-    pcfg->shadow_allowed        = bfalse;            // Shadows?
-    pcfg->shadow_sprite         = bfalse;        // Shadow sprites?
-    pcfg->use_phong             = btrue;              // Do phong overlay?
-    pcfg->twolayerwater_allowed = btrue;      // Two layer water?
-    pcfg->overlay_allowed       = bfalse;               // Allow large overlay?
-    pcfg->background_allowed    = bfalse;            // Allow large background?
-    pcfg->fog_allowed           = btrue;
-    pcfg->gouraud_req           = btrue;              // Gouraud shading?
+    pcfg->use_perspective       = C_FALSE;      // Perspective correct textures?
+    pcfg->use_dither            = C_FALSE;           // Dithering?
+    pcfg->reflect_fade          = C_TRUE;            // 255 = Don't fade reflections
+    pcfg->reflect_allowed       = C_FALSE;            // Reflections?
+    pcfg->reflect_prt           = C_FALSE;         // Reflect particles?
+    pcfg->shadow_allowed        = C_FALSE;            // Shadows?
+    pcfg->shadow_sprite         = C_FALSE;        // Shadow sprites?
+    pcfg->use_phong             = C_TRUE;              // Do phong overlay?
+    pcfg->twolayerwater_allowed = C_TRUE;      // Two layer water?
+    pcfg->overlay_allowed       = C_FALSE;               // Allow large overlay?
+    pcfg->background_allowed    = C_FALSE;            // Allow large background?
+    pcfg->fog_allowed           = C_TRUE;
+    pcfg->gouraud_req           = C_TRUE;              // Gouraud shading?
     pcfg->multisamples          = 0;                  // Antialiasing?
     pcfg->texturefilter_req     = TX_UNFILTERED;      // Texture filtering?
     pcfg->dyna_count_req        = 12;                 // Max number of lights to draw
@@ -145,17 +145,17 @@ void egoboo_config__init( egoboo_config_t * pcfg )
     pcfg->particle_count_req    = 512;                              // max number of particles
 
     // {SOUND}
-    pcfg->sound_allowed         = bfalse;
-    pcfg->music_allowed         = bfalse;
+    pcfg->sound_allowed         = C_FALSE;
+    pcfg->music_allowed         = C_FALSE;
     pcfg->music_volume          = 50;               // The sound volume of music
     pcfg->sound_volume          = 75;               // Volume of sounds played
     pcfg->sound_channel_count   = 16;               // Max number of sounds playing at the same time
     pcfg->sound_buffer_size     = 2048;             // Buffer chunk size
-    pcfg->sound_highquality     = bfalse;           // High quality sounds
-    pcfg->sound_footfall        = btrue;            // Play footstep sounds
+    pcfg->sound_highquality     = C_FALSE;           // High quality sounds
+    pcfg->sound_footfall        = C_TRUE;            // Play footstep sounds
 
     // {NETWORK}
-    pcfg->network_allowed       = bfalse;            // Try to connect?
+    pcfg->network_allowed       = C_FALSE;            // Try to connect?
     pcfg->network_lag           = 2;                             // Lag tolerance
     strncpy( pcfg->network_hostname,    "no host",      SDL_arraysize( pcfg->network_hostname ) );                            // Name for hosting session
     strncpy( pcfg->network_messagename, "little Raoul", SDL_arraysize( pcfg->network_messagename ) );                      // Name for messages
@@ -163,17 +163,17 @@ void egoboo_config__init( egoboo_config_t * pcfg )
     // {GAME}
     pcfg->message_count_req     = 6;
     pcfg->message_duration      = 50;               // Time to keep the message alive
-    pcfg->show_stats            = btrue;            // Draw the status bars?
+    pcfg->show_stats            = C_TRUE;            // Draw the status bars?
     pcfg->autoturncamera        = CAM_TURN_GOOD;    // Type of camera control...
     pcfg->feedback              = FEEDBACK_TEXT;    // What feedback does the player want
     pcfg->difficulty            = GAME_NORMAL;      // What is the current game difficulty
 
     // {DEBUG}
-    pcfg->fps_allowed       = btrue;             // FPS displayed?
-    pcfg->hide_mouse        = btrue;
-    pcfg->grab_mouse        = btrue;
-    pcfg->dev_mode          = bfalse;
-    pcfg->sdl_image_allowed = btrue;    // Allow advanced SDL_Image functions?
+    pcfg->fps_allowed       = C_TRUE;             // FPS displayed?
+    pcfg->hide_mouse        = C_TRUE;
+    pcfg->grab_mouse        = C_TRUE;
+    pcfg->dev_mode          = C_FALSE;
+    pcfg->sdl_image_allowed = C_TRUE;    // Allow advanced SDL_Image functions?
 
     // other values
     pcfg->messageon_req     = ( pcfg->message_count_req > 0 );  // make it consistent with the default
@@ -181,46 +181,46 @@ void egoboo_config__init( egoboo_config_t * pcfg )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t setup_begin( void )
+C_BOOLEAN setup_begin( void )
 {
-    if ( _setup_started ) return btrue;
+    if ( _setup_started ) return C_TRUE;
 
     // set the default Egoboo values
     egoboo_config__init( &cfg_default );
 
     // Read the local setup.txt
-    if ( fs_ensureUserFile( "setup.txt", btrue ) )
+    if ( fs_ensureUserFile( "setup.txt", C_TRUE ) )
     {
         snprintf( _config_filename, SDL_arraysize( _config_filename ), "%s" SLASH_STR "setup.txt", fs_getUserDirectory() );
 
         // do NOT force the file to open in a read directory if it doesn't exist. this will cause a failure in
         // linux if the directory is read-only
-        _lpConfigSetup = ConfigFile_Load( _config_filename, bfalse );
+        _lpConfigSetup = ConfigFile_Load( _config_filename, C_FALSE );
     }
 
     if ( NULL != _lpConfigSetup )
     {
-        _setup_started = btrue;
+        _setup_started = C_TRUE;
     }
 
     return _setup_started;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_end( void )
+C_BOOLEAN setup_end( void )
 {
     return ConfigFile_succeed == ConfigFile_destroy( &_lpConfigSetup );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_read_vfs( void )
+C_BOOLEAN setup_read_vfs( void )
 {
     /// @author BB
     /// @details read the setup file
 
-    bool_t retval;
+    C_BOOLEAN retval;
 
-    if ( !setup_begin() ) return bfalse;
+    if ( !setup_begin() ) return C_FALSE;
 
     //Did something go wrong?
     retval = ( NULL != _lpConfigSetup );
@@ -238,34 +238,34 @@ bool_t setup_read_vfs( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_write_vfs( void )
+C_BOOLEAN setup_write_vfs( void )
 {
     /// @author BB
     /// @details save the current setup file
 
     ConfigFile_retval retval  = ConfigFile_fail;
-    bool_t            success = bfalse;
+    C_BOOLEAN            success = C_FALSE;
 
-    if ( !setup_begin() ) return bfalse;
+    if ( !setup_begin() ) return C_FALSE;
 
     retval = ConfigFile_SaveAs( _lpConfigSetup, _config_filename );
 
-    success = bfalse;
+    success = C_FALSE;
     if ( ConfigFile_succeed != retval )
     {
-        success = bfalse;
+        success = C_FALSE;
         log_warning( "Failed to save setup.txt!\n" );
     }
     else
     {
-        success = btrue;
+        success = C_TRUE;
     }
 
     return success;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_download( egoboo_config_t * pcfg )
+C_BOOLEAN setup_download( egoboo_config_t * pcfg )
 {
     /// @author BB
     /// @details download the ConfigFile_t keys into game variables
@@ -276,7 +276,7 @@ bool_t setup_download( egoboo_config_t * pcfg )
     Sint32 lTempInt;
     STRING lTempStr;
 
-    if ( NULL == _lpConfigSetup || NULL == pcfg ) return bfalse;
+    if ( NULL == _lpConfigSetup || NULL == pcfg ) return C_FALSE;
 
     //*********************************************
     //* GRAPHIC Section
@@ -458,17 +458,17 @@ bool_t setup_download( egoboo_config_t * pcfg )
     // Show status bars? (Life, mana, character icons, etc.)
     GetKey_bool( "STATUS_BAR", pcfg->show_stats, cfg_default.show_stats );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_upload( egoboo_config_t * pcfg )
+C_BOOLEAN setup_upload( egoboo_config_t * pcfg )
 {
     /// @author BB
     /// @details upload game variables into the ConfigFile_t keys
 
     const char  *lCurSectionName;
-    if ( NULL == _lpConfigSetup || NULL == pcfg ) return bfalse;
+    if ( NULL == _lpConfigSetup || NULL == pcfg ) return C_FALSE;
 
     //*********************************************
     //* GRAPHIC Section
@@ -606,11 +606,11 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Camera control mode
     switch ( pcfg->autoturncamera )
     {
-        case CAM_TURN_NONE:  SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
+        case CAM_TURN_NONE:  SetKey_bool( "AUTOTURN_CAMERA", C_FALSE ); break;
         case CAM_TURN_GOOD:  SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
 
         default:
-        case CAM_TURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", btrue );  break;
+        case CAM_TURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", C_TRUE );  break;
     }
 
     // Max number of messages displayed
@@ -653,24 +653,24 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Show status bars? (Life, mana, character icons, etc.)
     SetKey_bool( "STATUS_BAR", pcfg->show_stats );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t config_synch( egoboo_config_t * pcfg, bool_t synch_from_file )
+C_BOOLEAN config_synch( egoboo_config_t * pcfg, C_BOOLEAN synch_from_file )
 {
     if ( !config_download( pcfg, synch_from_file ) )
     {
-        return bfalse;
+        return C_FALSE;
     }
 
     if ( !config_upload( pcfg ) )
     {
-        return bfalse;
+        return C_FALSE;
     }
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -721,7 +721,7 @@ void setup_clear_base_vfs_paths( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t setup_init_module_vfs_paths( const char * mod_path )
+C_BOOLEAN setup_init_module_vfs_paths( const char * mod_path )
 {
     /// @author BB
     /// @details set up the virtual mount points for the module's data
@@ -733,7 +733,7 @@ bool_t setup_init_module_vfs_paths( const char * mod_path )
 
     STRING tmpDir;
 
-    if ( INVALID_CSTR( mod_path ) ) return bfalse;
+    if ( INVALID_CSTR( mod_path ) ) return C_FALSE;
 
     // revert to the program's basic mount points
     setup_clear_module_vfs_paths();
@@ -793,7 +793,7 @@ bool_t setup_init_module_vfs_paths( const char * mod_path )
     // put the global globalparticles data after the module gamedat data
     vfs_add_mount_point( fs_getDataDirectory(), "basicdat" SLASH_STR "globalparticles", "mp_data", 1 );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -49,7 +49,7 @@ static void BillboardList_clear_data( void );
 // private variables
 //--------------------------------------------------------------------------------------------
 
-static bool_t _billboard_system_started = bfalse;
+static ego_bool _billboard_system_started = ego_false;
 
 //--------------------------------------------------------------------------------------------
 // billboard_data_t IMPLEMENTATION
@@ -76,28 +76,28 @@ billboard_data_t * billboard_data_init( billboard_data_t * pbb )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t billboard_data_free( billboard_data_t * pbb )
+ego_bool billboard_data_free( billboard_data_t * pbb )
 {
-    if ( NULL == pbb || !pbb->valid ) return bfalse;
+    if ( NULL == pbb || !pbb->valid ) return ego_false;
 
     // free any allocated texture
     TxList_free_one( pbb->tex_ref );
 
     billboard_data_init( pbb );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t billboard_data_update( billboard_data_t * pbb )
+ego_bool billboard_data_update( billboard_data_t * pbb )
 {
     fvec3_t     vup, pos_new;
     chr_t     * pchr;
     float       height, offset;
 
-    if ( NULL == pbb || !pbb->valid ) return bfalse;
+    if ( NULL == pbb || !pbb->valid ) return ego_false;
 
-    if ( !INGAME_CHR( pbb->ichr ) ) return bfalse;
+    if ( !INGAME_CHR( pbb->ichr ) ) return ego_false;
     pchr = ChrList_get_ptr( pbb->ichr );
 
     // determine where the new position should be
@@ -132,11 +132,11 @@ bool_t billboard_data_update( billboard_data_t * pbb )
         billboard_data_free( pbb );
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color color, const char * format, ... )
+ego_bool billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color color, const char * format, ... )
 {
     va_list args;
 
@@ -144,7 +144,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     oglx_texture_t * ptex;
     GLfloat loc_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-    if ( NULL == pbb || !pbb->valid ) return bfalse;
+    if ( NULL == pbb || !pbb->valid ) return ego_false;
 
     // release any existing texture in case there is an error
     ptex = TxList_get_valid_ptr( pbb->tex_ref );
@@ -154,7 +154,7 @@ bool_t billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color 
     rv = fnt_vprintf_OGL( font, color, ptex->base.binding, loc_coords, format, args, &( ptex->surface ) );
     va_end( args );
 
-    ptex->base_valid = bfalse;
+    ptex->base_valid = ego_false;
     oglx_grab_texture_state( GL_TEXTURE_2D, 0, ptex );
 
     ptex->imgW  = ptex->surface->w;
@@ -193,21 +193,21 @@ void BillboardList_update_all( void )
 
     for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
     {
-        bool_t is_invalid;
+        ego_bool is_invalid;
 
         billboard_data_t * pbb = BillboardList_get_ptr( cnt );
 
         if ( !pbb->valid ) continue;
 
-        is_invalid = bfalse;
+        is_invalid = ego_false;
         if (( ticks >= pbb->time ) || ( NULL == TxList_get_valid_ptr( pbb->tex_ref ) ) )
         {
-            is_invalid = btrue;
+            is_invalid = ego_true;
         }
 
         if ( !INGAME_CHR( pbb->ichr ) || INGAME_CHR( ChrList.lst[pbb->ichr].attachedto ) )
         {
-            is_invalid = btrue;
+            is_invalid = ego_true;
         }
 
         if ( is_invalid )
@@ -287,7 +287,7 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
 
         pbb->tex_ref = itex;
         pbb->time    = egoboo_get_ticks() + lifetime_secs * TICKS_PER_SEC;
-        pbb->valid   = btrue;
+        pbb->valid   = ego_true;
     }
     else
     {
@@ -302,11 +302,11 @@ size_t BillboardList_get_free_ref( Uint32 lifetime_secs )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BillboardList_free_one( size_t ibb )
+ego_bool BillboardList_free_one( size_t ibb )
 {
     billboard_data_t * pbb;
 
-    if ( !VALID_BILLBOARD_RANGE( ibb ) ) return bfalse;
+    if ( !VALID_BILLBOARD_RANGE( ibb ) ) return ego_false;
     pbb = BillboardList_get_ptr( ibb );
 
     billboard_data_free( pbb );
@@ -318,13 +318,13 @@ bool_t BillboardList_free_one( size_t ibb )
         // that is an error
         for ( cnt = 0; cnt < BillboardList.free_count; cnt++ )
         {
-            if ( ibb == BillboardList.free_ref[cnt] ) return bfalse;
+            if ( ibb == BillboardList.free_ref[cnt] ) return ego_false;
         }
     }
 #endif
 
     if ( BillboardList.free_count >= BILLBOARD_COUNT )
-        return bfalse;
+        return ego_false;
 
     // do not put anything below TX_SPECIAL_LAST back onto the SDL_free stack
     BillboardList.free_ref[BillboardList.free_count] = ibb;
@@ -332,7 +332,7 @@ bool_t BillboardList_free_one( size_t ibb )
     BillboardList.free_count++;
     BillboardList.update_guid++;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -355,27 +355,27 @@ void BillboardList_clear_data( void )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool_t billboard_system_begin( void )
+ego_bool billboard_system_begin( void )
 {
     if ( !_billboard_system_started )
     {
 
         BillboardList_init_all();
 
-        _billboard_system_started = btrue;
+        _billboard_system_started = ego_true;
     }
 
     return _billboard_system_started;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t billboard_system_end( void )
+ego_bool billboard_system_end( void )
 {
     if ( _billboard_system_started )
     {
         BillboardList_free_all();
 
-        _billboard_system_started = bfalse;
+        _billboard_system_started = ego_false;
     }
 
     return !_billboard_system_started;
@@ -383,16 +383,16 @@ bool_t billboard_system_end( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t billboard_system_init( void )
+ego_bool billboard_system_init( void )
 {
     billboard_system_end();
     billboard_system_begin();
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt )
+ego_bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt )
 {
     int i;
     GLvertex vtlist[4];
@@ -403,13 +403,13 @@ bool_t billboard_system_render_one( billboard_data_t * pbb, float scale, const f
     oglx_texture_t     * ptex;
     chr_t * pchr;
 
-    if ( NULL == pbb || !pbb->valid ) return bfalse;
+    if ( NULL == pbb || !pbb->valid ) return ego_false;
 
-    if ( !INGAME_CHR( pbb->ichr ) ) return bfalse;
+    if ( !INGAME_CHR( pbb->ichr ) ) return ego_false;
     pchr = ChrList_get_ptr( pbb->ichr );
 
     // do not display for objects that are mounted or being held
-    if ( IS_ATTACHED_CHR_RAW( pbb->ichr ) ) return bfalse;
+    if ( IS_ATTACHED_CHR_RAW( pbb->ichr ) ) return ego_false;
 
     ptex = TxList_get_valid_ptr( pbb->tex_ref );
 
@@ -472,7 +472,7 @@ bool_t billboard_system_render_one( billboard_data_t * pbb, float scale, const f
     }
     ATTRIB_POP( __FUNCTION__ );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------

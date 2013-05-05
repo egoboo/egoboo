@@ -21,11 +21,11 @@
 /// @brief
 /// @details
 
-#include "../egolib/geometry.h"
-
-#include "../egolib/frustum.h"
+#include "geometry.h"
 
 #include "../egolib/_math.inl"
+
+#include "frustum.h"
 
 //--------------------------------------------------------------------------------------------
 // internal functions
@@ -37,13 +37,13 @@ static geometry_rv plane_intersects_aabb_max( const plane_base_t plane, const fv
 //--------------------------------------------------------------------------------------------
 // plane base
 //--------------------------------------------------------------------------------------------
-bool_t plane_base_normalize( plane_base_t * plane )
+ego_bool plane_base_normalize( plane_base_t * plane )
 {
     // the vector < (*plane)[kX], (*plane)[kY], (*plane)[kZ] > is the normal to the plane.
     // Convert it to a unit normal vector, which makes (*plane)[kW] the distance to the origin.
     float magnitude2;
 
-    if ( NULL == plane ) return bfalse;
+    if ( NULL == plane ) return ego_false;
 
     magnitude2 = fvec3_length_2(( *plane ) );
 
@@ -58,7 +58,7 @@ bool_t plane_base_normalize( plane_base_t * plane )
         fvec4_self_scale(( *plane ), 1.0f / magniude );
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -118,14 +118,14 @@ geometry_rv aabb_intersects_aabb( const aabb_t * lhs, const aabb_t * rhs )
     const int dimensions = 3;
 
     int         cnt;
-    bool_t      not_inside = bfalse;
+    ego_bool      not_inside = ego_false;
     geometry_rv retval     = geometry_error;
 
     if ( NULL == lhs || NULL == rhs ) return geometry_error;
 
     // assume rhs is inside lhs
     retval     = geometry_inside;
-    not_inside = bfalse;
+    not_inside = ego_false;
 
     // scan all the coordinates
     for ( cnt = 0; cnt < dimensions; cnt++ )
@@ -133,13 +133,13 @@ geometry_rv aabb_intersects_aabb( const aabb_t * lhs, const aabb_t * rhs )
         if ( rhs->mins[cnt] > lhs->maxs[cnt] )
         {
             retval = geometry_outside;
-            not_inside = btrue;
+            not_inside = ego_true;
             break;
         }
         else if ( rhs->maxs[cnt] < lhs->mins[cnt] )
         {
             retval = geometry_outside;
-            not_inside = btrue;
+            not_inside = ego_true;
             break;
         }
         else if ( !not_inside )
@@ -149,7 +149,7 @@ geometry_rv aabb_intersects_aabb( const aabb_t * lhs, const aabb_t * rhs )
             {
                 // one of the sides is hanging over the edge
                 retval = geometry_intersect;
-                not_inside = btrue;
+                not_inside = ego_true;
             }
         }
     }
@@ -248,19 +248,19 @@ plane_intersects_aabb_done:
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const plane_base_t p0, const plane_base_t p1 )
+ego_bool two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const plane_base_t p0, const plane_base_t p1 )
 {
-    bool_t retval = bfalse;
+    ego_bool retval = ego_false;
 
-    if ( NULL == dst_pos || NULL == dst_dir ) return bfalse;
-    if ( NULL == p0 || NULL == p1 ) return bfalse;
+    if ( NULL == dst_pos || NULL == dst_dir ) return ego_false;
+    if ( NULL == p0 || NULL == p1 ) return ego_false;
 
     // the direction of the intersection is given by the cross product of the normals
     fvec3_cross_product( dst_dir, p0, p1 );
 
     if ( fvec3_self_normalize( dst_dir ) < 0.0f )
     {
-        retval = bfalse;
+        retval = ego_false;
         fvec3_self_clear( dst_pos );
     }
     else
@@ -269,21 +269,21 @@ bool_t two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const
         dst_pos[kY] = ( p0[kW] * p1[kX] - p0[kX] * p1[kW] ) / dst_dir[kZ];
         dst_pos[kZ] = 0.0f;
 
-        retval = btrue;
+        retval = ego_true;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 )
+ego_bool three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 )
 {
     float det;
     float tmp;
 
-    if ( NULL == dst_pos ) return bfalse;
+    if ( NULL == dst_pos ) return ego_false;
 
-    if ( NULL == p0 || NULL == p1 || NULL == p2 ) return bfalse;
+    if ( NULL == p0 || NULL == p1 || NULL == p2 ) return ego_false;
 
     // the determinant of the matrix
     det =
@@ -292,7 +292,7 @@ bool_t three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, co
         p0[kZ] * ( p1[kX] * p2[kY] - p2[kX] * p1[kY] );
 
     // check for system that is too close to being degenerate
-    if ( ABS( det ) < 1e-6 ) return bfalse;
+    if ( ABS( det ) < 1e-6 ) return ego_false;
 
     // the x component
     tmp =
@@ -315,24 +315,24 @@ bool_t three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, co
         p2[kW] * ( p0[kY] * p1[kX] - p0[kX] * p1[kY] );
     dst_pos[kZ] = tmp / det;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
 // frustum functions
 //--------------------------------------------------------------------------------------------
-geometry_rv frustum_intersects_point( const frustum_base_t planes, const fvec3_base_t pos, const bool_t do_ends )
+geometry_rv frustum_intersects_point( const frustum_base_t planes, const fvec3_base_t pos, const ego_bool do_ends )
 {
     // if the distance to the plane is negative for any plane, the point is outside the frustum
 
     int i, i_stt, i_end;
-    bool_t inside;
+    ego_bool inside;
 
     // error trap
     if ( NULL == planes || NULL == pos ) return geometry_error;
 
     // assume the worst
-    inside = btrue;
+    inside = ego_true;
 
     // handle optional parameters
     if ( do_ends )
@@ -351,7 +351,7 @@ geometry_rv frustum_intersects_point( const frustum_base_t planes, const fvec3_b
     {
         if ( plane_point_distance( planes[i], pos ) <= 0.0f )
         {
-            inside = bfalse;
+            inside = ego_false;
             break;
         }
     }
@@ -360,7 +360,7 @@ geometry_rv frustum_intersects_point( const frustum_base_t planes, const fvec3_b
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv frustum_intersects_sphere( const frustum_base_t planes, const fvec3_base_t pos, const float radius, const bool_t do_ends )
+geometry_rv frustum_intersects_sphere( const frustum_base_t planes, const fvec3_base_t pos, const float radius, const ego_bool do_ends )
 {
     // if the sphere is outside one plane farther than its radius, it is outside the frustum
 
@@ -416,7 +416,7 @@ geometry_rv frustum_intersects_sphere( const frustum_base_t planes, const fvec3_
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv frustum_intersects_cube( const frustum_base_t planes, const fvec3_base_t pos, const float size, const bool_t do_ends )
+geometry_rv frustum_intersects_cube( const frustum_base_t planes, const fvec3_base_t pos, const float size, const ego_bool do_ends )
 {
     int          i, i_stt, i_end;
     int          j;
@@ -477,7 +477,7 @@ geometry_rv frustum_intersects_cube( const frustum_base_t planes, const fvec3_ba
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv frustum_intersects_aabb( const frustum_base_t planes, const fvec3_base_t mins, const fvec3_base_t maxs, const bool_t do_ends )
+geometry_rv frustum_intersects_aabb( const frustum_base_t planes, const fvec3_base_t mins, const fvec3_base_t maxs, const ego_bool do_ends )
 {
     /// @author BB
     ///
@@ -699,7 +699,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
     /// geometry_inside    - the aabb is completely inside the frustum
 
     geometry_rv retval = geometry_error;
-    bool_t done;
+    ego_bool done;
 
     float offset_length;
     fvec3_t offset_vec;
@@ -729,7 +729,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 
     // assume the worst
     retval = geometry_error;
-    done   = bfalse;
+    done   = ego_false;
 
     // being instide the forward cone means that the sphere is
     // completely inside the original cone
@@ -746,7 +746,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
         {
             case geometry_error:
                 retval = geometry_error;
-                done = btrue;
+                done = ego_true;
                 break;
 
             case geometry_outside: // the center of the sphere is outside the foreward cone
@@ -758,7 +758,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 
                 // the sphere is completely inside the original cone
                 retval = geometry_inside;
-                done = btrue;
+                done = ego_true;
                 break;
         }
     }
@@ -778,18 +778,18 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
         {
             case geometry_error:
                 retval = geometry_error;
-                done = btrue;
+                done = ego_true;
                 break;
 
             case geometry_outside:
                 retval = geometry_outside;
-                done = btrue;
+                done = ego_true;
                 break;
 
             case geometry_intersect:
             case geometry_inside:
                 retval = geometry_intersect;
-                done = btrue;
+                done = ego_true;
                 break;
         }
     }
@@ -799,12 +799,12 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t sphere_self_clear( sphere_t * ptr )
+ego_bool sphere_self_clear( sphere_t * ptr )
 {
-    if ( NULL == ptr ) return bfalse;
+    if ( NULL == ptr ) return ego_false;
 
     fvec3_self_clear( ptr->origin.v );
     ptr->radius = -1.0f;
 
-    return btrue;
+    return ego_true;
 }

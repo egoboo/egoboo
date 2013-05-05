@@ -122,8 +122,8 @@ struct s_menu_process
 {
     process_t base;
 
-    bool_t was_active;
-    bool_t escape_requested, escape_latch;
+    ego_bool was_active;
+    ego_bool escape_requested, escape_latch;
 
     egolib_timer_t gui_timer;
 };
@@ -149,8 +149,8 @@ struct s_LoadPlayer_element
 LoadPlayer_element_t * LoadPlayer_element_ctor( LoadPlayer_element_t * );
 LoadPlayer_element_t * LoadPlayer_element_dtor( LoadPlayer_element_t * );
 
-bool_t LoadPlayer_element_dealloc( LoadPlayer_element_t * );
-bool_t LoadPlayer_element_init( LoadPlayer_element_t * );
+ego_bool LoadPlayer_element_dealloc( LoadPlayer_element_t * );
+ego_bool LoadPlayer_element_init( LoadPlayer_element_t * );
 
 //--------------------------------------------------------------------------------------------
 // LoadPlayer_list
@@ -166,7 +166,7 @@ egolib_rv              LoadPlayer_list_import_one( LoadPlayer_list_t * lst, cons
 LoadPlayer_element_t * LoadPlayer_list_get_ptr( LoadPlayer_list_t * lst, int idx );
 egolib_rv              LoadPlayer_list_dealloc( LoadPlayer_list_t * lst );
 int                    LoadPlayer_list_get_free( LoadPlayer_list_t * lst );
-egolib_rv              LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, bool_t initialize );
+egolib_rv              LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, ego_bool initialize );
 egolib_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
 
 #define LOADPLAYER_LIST_INIT { 0 }
@@ -183,11 +183,11 @@ TX_REF mnu_TxList_load_one_vfs( const char *filename, const TX_REF  itex_src, Ui
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern bool_t mnu_draw_background;
+extern ego_bool mnu_draw_background;
 
 extern menu_process_t * MProc;
 
-extern bool_t module_list_valid;
+extern ego_bool module_list_valid;
 
 /// the default menu font
 extern struct s_Font *menuFont;
@@ -206,7 +206,7 @@ void menu_system_end( void );
 int doMenu( float deltaTime );
 
 // code to start and stop menus
-bool_t mnu_begin_menu( which_menu_t which );
+ego_bool mnu_begin_menu( which_menu_t which );
 void   mnu_end_menu( void );
 int    mnu_get_menu_depth( void );
 
@@ -214,7 +214,7 @@ int    mnu_get_menu_depth( void );
 //void   TxTitleImage_reload_all( void );
 //TX_REF TxTitleImage_load_one_vfs( const char *szLoadName );
 
-extern bool_t start_new_player;
+extern ego_bool start_new_player;
 
 // "public" implementation of mnu_ModList
 struct s_mod_file * mnu_ModList_get_base( int imod );
@@ -224,8 +224,8 @@ const char *        mnu_ModList_get_name( int imod );
 
 // "public" module utilities
 int    mnu_get_mod_number( const char *szModName );
-bool_t mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModName );
-bool_t mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumber, size_t buffer_len, char * buffer );
+ego_bool mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModName );
+ego_bool mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumber, size_t buffer_len, char * buffer );
 
 // "public" menu process hooks
 int                  menu_process_run( menu_process_t * mproc, double frameDuration );
@@ -234,7 +234,7 @@ menu_process_t     * menu_process_init( menu_process_t * mproc );
 // "public" reset of the autoformatting
 void autoformat_init( struct s_gfx_config * pgfx );
 
-bool_t mnu_load_cursor( void );
-bool_t mnu_load_all_global_icons( void );
+ego_bool mnu_load_cursor( void );
+ego_bool mnu_load_all_global_icons( void );
 
 #define egoboo_Menu_h

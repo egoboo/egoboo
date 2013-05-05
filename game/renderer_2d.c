@@ -40,7 +40,7 @@ INSTANTIATE_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
 int    DisplayMsg_timechange = 0;
 int    DisplayMsg_count    = EGO_MESSAGE_MAX;
-bool_t DisplayMsg_on    = btrue;
+ego_bool DisplayMsg_on    = ego_true;
 
 const GLXvector4f white_vec = {1.0f, 1.0f, 1.0f, 1.0f};
 const GLXvector4f black_vec = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -383,7 +383,7 @@ void gfx_reshape_viewport( int w, int h )
 //--------------------------------------------------------------------------------------------
 // PRIMATVES
 //--------------------------------------------------------------------------------------------
-void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool_t use_alpha, const GLXvector4f quad_tint )
+void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const ego_bool use_alpha, const GLXvector4f quad_tint )
 {
     const GLfloat * tint = NULL;
 
@@ -480,7 +480,7 @@ void draw_one_font( oglx_texture_t * ptex, int fonttype, float x_stt, float y_st
     tx_rect.ymin += border;
     tx_rect.ymax -= border;
 
-    draw_quad_2d( ptex, sc_rect, tx_rect, btrue, NULL );
+    draw_quad_2d( ptex, sc_rect, tx_rect, ego_true, NULL );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -516,7 +516,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
     int stt_x = x;
     Uint8 cTmp = szText[0];
     int newy = y + fontyspacing;
-    Uint8 newword = btrue;
+    Uint8 newword = ego_true;
     int cnt = 1;
 
     oglx_texture_t * tx_ptr = mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
@@ -533,7 +533,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
         {
             int endx = x + font_bmp_length_of_word( szText + cnt - 1 );
 
-            newword = bfalse;
+            newword = ego_false;
             if ( endx > maxx )
             {
                 // Wrap the end and cut off spaces and tabs
@@ -582,7 +582,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
 
             if ( '~' == cTmp || C_NEW_LINE_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || isspace( cTmp ) )
             {
-                newword = btrue;
+                newword = ego_true;
             }
         }
     }
@@ -594,21 +594,21 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
 //--------------------------------------------------------------------------------------------
 // UTILITY FUNCTIONS
 //--------------------------------------------------------------------------------------------
-bool_t dump_screenshot( void )
+ego_bool dump_screenshot( void )
 {
     /// @author BB
     /// @details dumps the current screen (GL context) to a new bitmap file
     /// right now it dumps it to whatever the current directory is
 
-    // returns btrue if successful, bfalse otherwise
+    // returns ego_true if successful, ego_false otherwise
 
     int i;
-    bool_t savefound = bfalse;
-    bool_t saved     = bfalse;
+    ego_bool savefound = ego_false;
+    ego_bool saved     = ego_false;
     STRING szFilename, szResolvedFilename;
 
     // find a valid file name
-    savefound = bfalse;
+    savefound = ego_false;
     i = 0;
     while ( !savefound && ( i < 100 ) )
     {
@@ -622,7 +622,7 @@ bool_t dump_screenshot( void )
         }
     }
 
-    if ( !savefound ) return bfalse;
+    if ( !savefound ) return ego_false;
 
     // convert the file path to the correct write path
     strncpy( szResolvedFilename, vfs_resolveWriteFilename( szFilename ), SDL_arraysize( szFilename ) );
@@ -631,7 +631,7 @@ bool_t dump_screenshot( void )
     if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL ) )
     {
         SDL_SaveBMP( sdl_scr.pscreen, szResolvedFilename );
-        return bfalse;
+        return ego_false;
     }
 
     // we ARE using OpenGL
@@ -646,7 +646,7 @@ bool_t dump_screenshot( void )
         {
             //Something went wrong
             SDL_FreeSurface( temp );
-            return bfalse;
+            return ego_false;
         }
 
         //Now lock the surface so that we can read it

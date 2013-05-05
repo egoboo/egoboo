@@ -225,7 +225,7 @@ enum e_team_types
 /// The description of a single team
 struct s_team
 {
-    bool_t   hatesteam[TEAM_MAX];    ///< Don't damage allies...
+    ego_bool   hatesteam[TEAM_MAX];    ///< Don't damage allies...
     Uint16   morale;                 ///< Number of characters on team
     CHR_REF  leader;                 ///< The leader of the team
     CHR_REF  sissy;                  ///< Whoever called for help last
@@ -253,15 +253,15 @@ struct s_chr_environment
     fvec3_t floor_speed;
 
     // friction stuff
-    bool_t is_slipping;
-    bool_t is_slippy,    is_watery;
+    ego_bool is_slipping;
+    ego_bool is_slippy,    is_watery;
     float  air_friction, ice_friction;
     float  fluid_friction_hrz, fluid_friction_vrt;
     float  traction, friction_hrz;
 
     // misc states
-    bool_t inwater;
-    bool_t grounded;              ///< standing on something?
+    ego_bool inwater;
+    ego_bool grounded;              ///< standing on something?
 
     // various motion parameters
     fvec3_t  new_v;
@@ -356,8 +356,8 @@ struct s_chr
     CHR_REF        inwhich_inventory;             ///< != INVALID_CHR_REF if character is inside an inventory
 
     // platform stuff
-    bool_t         platform;                      ///< Can it be stood on
-    bool_t         canuseplatforms;               ///< Can use platforms?
+    ego_bool         platform;                      ///< Can it be stood on
+    ego_bool         canuseplatforms;               ///< Can use platforms?
     int            holdingweight;                 ///< For weighted buttons
     float          targetplatform_level;          ///< What is the height of the target platform?
     CHR_REF        targetplatform_ref;            ///< Am I trying to attach to a platform?
@@ -383,27 +383,27 @@ struct s_chr
     CHR_REF        missilehandler;                ///< Who pays the bill for each one...
 
     // "variable" properties
-    bool_t         is_hidden;
-    bool_t         alive;                         ///< Is it alive?
-    bool_t         waskilled;                     ///< Fix for network
-    PLA_REF        is_which_player;               ///< btrue = player
-    bool_t         islocalplayer;                 ///< btrue = local player
-    bool_t         invictus;                      ///< Totally invincible?
-    bool_t         iskursed;                      ///< Can't be dropped?
-    bool_t         nameknown;                     ///< Is the name known?
-    bool_t         ammoknown;                     ///< Is the ammo known?
-    bool_t         hitready;                      ///< Was it just dropped?
-    bool_t         isequipped;                    ///< For boots and rings and stuff
+    ego_bool         is_hidden;
+    ego_bool         alive;                         ///< Is it alive?
+    ego_bool         waskilled;                     ///< Fix for network
+    PLA_REF        is_which_player;               ///< ego_true = player
+    ego_bool         islocalplayer;                 ///< ego_true = local player
+    ego_bool         invictus;                      ///< Totally invincible?
+    ego_bool         iskursed;                      ///< Can't be dropped?
+    ego_bool         nameknown;                     ///< Is the name known?
+    ego_bool         ammoknown;                     ///< Is the ammo known?
+    ego_bool         hitready;                      ///< Was it just dropped?
+    ego_bool         isequipped;                    ///< For boots and rings and stuff
 
     // "constant" properties
-    bool_t         isitem;                        ///< Is it grabbable?
-    bool_t         cangrabmoney;                  ///< Picks up coins?
-    bool_t         openstuff;                     ///< Can it open chests/doors?
-    bool_t         stickybutt;                    ///< Rests on floor
-    bool_t         isshopitem;                    ///< Spawned in a shop?
-    bool_t         ismount;                       ///< Can you ride it?
-    bool_t         canbecrushed;                  ///< Crush in a door?
-    bool_t         canchannel;                    ///< Can it convert life to mana?
+    ego_bool         isitem;                        ///< Is it grabbable?
+    ego_bool         cangrabmoney;                  ///< Picks up coins?
+    ego_bool         openstuff;                     ///< Can it open chests/doors?
+    ego_bool         stickybutt;                    ///< Rests on floor
+    ego_bool         isshopitem;                    ///< Spawned in a shop?
+    ego_bool         ismount;                       ///< Can you ride it?
+    ego_bool         canbecrushed;                  ///< Crush in a door?
+    ego_bool         canchannel;                    ///< Can it convert life to mana?
     Sint16         manacost;                      ///< Mana cost to use
 
     // misc timers
@@ -416,10 +416,10 @@ struct s_chr
 
     // graphica info
     Uint8          flashand;        ///< 1,3,7,15,31 = Flash, 255 = Don't
-    bool_t         transferblend;   ///< Give transparency to weapons?
-    bool_t         draw_icon;       ///< Show the icon?
+    ego_bool         transferblend;   ///< Give transparency to weapons?
+    ego_bool         draw_icon;       ///< Show the icon?
     Uint8          sparkle;         ///< Sparkle color or 0 for off
-    bool_t         show_stats;      ///< Display stats?
+    ego_bool         show_stats;      ///< Display stats?
     SFP8_T         uoffvel;         ///< Moving texture speed (8.8 fixed point)
     SFP8_T         voffvel;          ///< Moving texture speed (8.8 fixed point)
     float          shadow_size_stt;  ///< Initial shadow size
@@ -428,7 +428,7 @@ struct s_chr
     BBOARD_REF     ibillboard;       ///< The attached billboard
 
     // model info
-    bool_t         is_overlay;                    ///< Is this an overlay? Track aitarget...
+    ego_bool         is_overlay;                    ///< Is this an overlay? Track aitarget...
     SKIN_T         skin;                          ///< Character's skin
     PRO_REF        profile_ref;                      ///< Character's profile
     PRO_REF        basemodel_ref;                     ///< The true form
@@ -477,7 +477,7 @@ struct s_chr
     CHR_REF        bumplist_next;                 ///< Next character on fanblock
 
     // movement properties
-    bool_t         waterwalk;                     ///< Always above watersurfacelevel?
+    ego_bool         waterwalk;                     ///< Always above watersurfacelevel?
     TURN_MODE      turnmode;                      ///< Turning mode
 
     BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
@@ -495,7 +495,7 @@ struct s_chr
     int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
     CHR_REF           dismount_object;               ///< the object that you were dismounting from
 
-    bool_t         safe_valid;                    ///< is the last "safe" position valid?
+    ego_bool         safe_valid;                    ///< is the last "safe" position valid?
     fvec3_t        safe_pos;                      ///< the last "safe" position
     Uint32         safe_time;                     ///< the last "safe" time
     Uint32         safe_grid;                     ///< the last "safe" grid
@@ -505,46 +505,46 @@ struct s_chr
 
 chr_t * chr_ctor( chr_t * pchr );
 chr_t * chr_dtor( chr_t * pchr );
-bool_t  chr_request_terminate( chr_t * pchr );
+ego_bool  chr_request_terminate( chr_t * pchr );
 
-bool_t    chr_matrix_valid( const chr_t * pchr );
-egolib_rv chr_update_matrix( chr_t * pchr, bool_t update_size );
+ego_bool    chr_matrix_valid( const chr_t * pchr );
+egolib_rv chr_update_matrix( chr_t * pchr, ego_bool update_size );
 
 chr_t *   chr_update_hide( chr_t * pchr );
-egolib_rv chr_update_collision_size( chr_t * pchr, bool_t update_matrix );
-bool_t    chr_can_see_dark( const chr_t * pchr, const chr_t * pobj );
-bool_t    chr_can_see_invis( const chr_t * pchr, const chr_t * pobj );
+egolib_rv chr_update_collision_size( chr_t * pchr, ego_bool update_matrix );
+ego_bool    chr_can_see_dark( const chr_t * pchr, const chr_t * pobj );
+ego_bool    chr_can_see_invis( const chr_t * pchr, const chr_t * pobj );
 int       chr_get_price( const CHR_REF ichr );
 
-bool_t         chr_heal_mad( chr_t * pchr );
+ego_bool         chr_heal_mad( chr_t * pchr );
 MAD_REF        chr_get_imad( const CHR_REF ichr );
 struct s_mad * chr_get_pmad( const CHR_REF ichr );
 TX_REF         chr_get_txtexture_icon_ref( const CHR_REF item );
 
-bool_t chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
+ego_bool chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 
-bool_t chr_is_over_water( chr_t *pchr );
+ego_bool chr_is_over_water( chr_t *pchr );
 
 Uint32 chr_get_framefx( chr_t * pchr );
 
 egolib_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
 
-egolib_rv chr_set_action( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
-egolib_rv chr_start_anim( chr_t * pchr, int action, bool_t action_ready, bool_t override_action );
-egolib_rv chr_set_anim( chr_t * pchr, int action, int frame, bool_t action_ready, bool_t override_action );
+egolib_rv chr_set_action( chr_t * pchr, int action, ego_bool action_ready, ego_bool override_action );
+egolib_rv chr_start_anim( chr_t * pchr, int action, ego_bool action_ready, ego_bool override_action );
+egolib_rv chr_set_anim( chr_t * pchr, int action, int frame, ego_bool action_ready, ego_bool override_action );
 egolib_rv chr_increment_action( chr_t * pchr );
 egolib_rv chr_increment_frame( chr_t * pchr );
-egolib_rv chr_play_action( chr_t * pchr, int action, bool_t action_ready );
-bool_t chr_update_breadcrumb_raw( chr_t * pchr );
-bool_t chr_update_breadcrumb( chr_t * pchr, bool_t force );
-bool_t chr_update_safe_raw( chr_t * pchr );
-bool_t chr_update_safe( chr_t * pchr, bool_t force );
-bool_t chr_get_safe( chr_t * pchr, fvec3_base_t pos );
+egolib_rv chr_play_action( chr_t * pchr, int action, ego_bool action_ready );
+ego_bool chr_update_breadcrumb_raw( chr_t * pchr );
+ego_bool chr_update_breadcrumb( chr_t * pchr, ego_bool force );
+ego_bool chr_update_safe_raw( chr_t * pchr );
+ego_bool chr_update_safe( chr_t * pchr, ego_bool force );
+ego_bool chr_get_safe( chr_t * pchr, fvec3_base_t pos );
 
-bool_t  chr_set_pos( chr_t * pchr, const fvec3_base_t pos );
+ego_bool  chr_set_pos( chr_t * pchr, const fvec3_base_t pos );
 
-bool_t chr_set_maxaccel( chr_t * pchr, float new_val );
-bool_t character_is_attacking( chr_t * pchr );
+ego_bool chr_set_maxaccel( chr_t * pchr, float new_val );
+ego_bool character_is_attacking( chr_t * pchr );
 
 void chr_set_floor_level( chr_t * pchr, const float level );
 void chr_set_redshift( chr_t * pchr, const int rs );
@@ -581,7 +581,7 @@ DECLARE_STACK_EXTERN( cap_t,  CapStack,  MAX_PROFILE );
 #define LOADED_PCAP( PCAP )       ( (NULL != (PCAP)) && (PCAP)->loaded )
 
 #define IS_ATTACHED_CHR_RAW(ICHR) ( (DEFINED_CHR(ChrList.lst[ICHR].attachedto) || DEFINED_CHR(ChrList.lst[ICHR].inwhich_inventory)) )
-#define IS_ATTACHED_CHR(ICHR) LAMBDA( !DEFINED_CHR(ICHR), bfalse, IS_ATTACHED_CHR_RAW(ICHR) )
+#define IS_ATTACHED_CHR(ICHR) LAMBDA( !DEFINED_CHR(ICHR), ego_false, IS_ATTACHED_CHR_RAW(ICHR) )
 
 // counters for debugging wall collisions
 extern int chr_stoppedby_tests;
@@ -617,33 +617,33 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
 void    respawn_character( const CHR_REF character );
 
 // inventory functions
-bool_t inventory_remove_item( const CHR_REF ichr, const size_t inventory_slot, const bool_t ignorekurse );
-bool_t inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const bool_t ignorekurse );
-bool_t inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const bool_t ignorekurse );
+ego_bool inventory_remove_item( const CHR_REF ichr, const size_t inventory_slot, const ego_bool ignorekurse );
+ego_bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory_slot, const ego_bool ignorekurse );
+ego_bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t grip_off, const ego_bool ignorekurse );
 
 // save character functions
-bool_t  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character );
-bool_t  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
-bool_t  export_one_character_profile_vfs( const char *szSaveName, const CHR_REF character );
-bool_t  export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character );
-CAP_REF CapStack_load_one( const char *szLoadName, int slot_override, bool_t required );
+ego_bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character );
+ego_bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
+ego_bool  export_one_character_profile_vfs( const char *szSaveName, const CHR_REF character );
+ego_bool  export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character );
+CAP_REF CapStack_load_one( const char *szLoadName, int slot_override, ego_bool required );
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
-bool_t chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z );
+ego_bool chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z );
 
-CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped );
+CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, ego_bool equipped );
 CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
-CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool_t equipped );
+CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, ego_bool equipped );
 
-bool_t chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
+ego_bool chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
 
-bool_t chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_vec, fvec3_base_t grip_up_vec, const bool_t shift_origin );
+ego_bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_vec, fvec3_base_t grip_up_vec, const ego_bool shift_origin );
 
 // CapStack functions
 void CapStack_init_all( void );
 void CapStack_release_all( void );
-bool_t CapStack_release_one( const CAP_REF icap );
+ego_bool CapStack_release_one( const CAP_REF icap );
 
 // character state machine functions
 chr_t * chr_run_config( chr_t * pchr );
@@ -653,46 +653,46 @@ chr_t * chr_config_activate( chr_t * pchr, int max_iterations );
 chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations );
 chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations );
 
-bool_t  chr_can_see_object( const chr_t * pchr, const chr_t * pobj );
-CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool_t non_item );
+ego_bool  chr_can_see_object( const chr_t * pchr, const chr_t * pobj );
+CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, ego_bool non_item );
 
 void drop_money( const CHR_REF character, int money );
 void call_for_help( const CHR_REF character );
-void give_experience( const CHR_REF character, int amount, xp_type xptype, bool_t override_invictus );
+void give_experience( const CHR_REF character, int amount, xp_type xptype, ego_bool override_invictus );
 void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype );
 int  damage_character( const CHR_REF character, const FACING_T direction,
                        const IPair damage, const Uint8 damagetype, const TEAM_REF team,
-                       const CHR_REF attacker, const BIT_FIELD effects, const bool_t ignore_invictus );
-void kill_character( const CHR_REF character, const CHR_REF killer, bool_t ignore_invictus );
-bool_t heal_character( const CHR_REF character, const CHR_REF healer, int amount, bool_t ignore_invictus );
+                       const CHR_REF attacker, const BIT_FIELD effects, const ego_bool ignore_invictus );
+void kill_character( const CHR_REF character, const CHR_REF killer, ego_bool ignore_invictus );
+ego_bool heal_character( const CHR_REF character, const CHR_REF healer, int amount, ego_bool ignore_invictus );
 void spawn_poof( const CHR_REF character, const PRO_REF profile );
 void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker );
 
-bool_t detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop );
+ego_bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop );
 
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low, Uint8 valuehigh, Sint16 high );
 
 void free_inventory_in_game( const CHR_REF character );
 void do_level_up( const CHR_REF character );
-bool_t setup_xp_table( const CHR_REF character );
+ego_bool setup_xp_table( const CHR_REF character );
 
 int     change_armor( const CHR_REF character, const SKIN_T skin );
 void    change_character( const CHR_REF cnt, const PRO_REF profile, const int skin, const Uint8 leavewhich );
 void    change_character_full( const CHR_REF ichr, const PRO_REF profile, const int skin, const Uint8 leavewhich );
-bool_t  cost_mana( const CHR_REF character, int amount, const CHR_REF killer );
+ego_bool  cost_mana( const CHR_REF character, int amount, const CHR_REF killer );
 void    switch_team( const CHR_REF character, const TEAM_REF team );
 void    issue_clean( const CHR_REF character );
 int     restock_ammo( const CHR_REF character, IDSZ idsz );
 egolib_rv attach_character_to_mount( const CHR_REF character, const CHR_REF mount, grip_offset_t grip_off );
 
 void    drop_keys( const CHR_REF character );
-bool_t  drop_all_items( const CHR_REF character );
-bool_t  character_grab_stuff( const CHR_REF chara, grip_offset_t grip, bool_t people );
+ego_bool  drop_all_items( const CHR_REF character );
+ego_bool  character_grab_stuff( const CHR_REF chara, grip_offset_t grip, ego_bool people );
 
 //--------------------------------------------------------------------------------------------
 // generic helper functions
 
-bool_t is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects );
+ego_bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects );
 void   init_slot_idsz( void );
 
 grip_offset_t slot_to_grip_offset( slot_t slot );

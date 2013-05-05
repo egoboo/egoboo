@@ -70,7 +70,7 @@ void             TxList_init_all( void );
 void             TxList_delete_all( void );
 void             TxList_release_all( void );
 TX_REF           TxList_get_free( const TX_REF itex );
-bool_t           TxList_free_one( const TX_REF  itex );
+ego_bool           TxList_free_one( const TX_REF  itex );
 TX_REF           TxList_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
 oglx_texture_t * TxList_get_valid_ptr( const TX_REF itex );
 

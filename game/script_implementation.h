@@ -61,13 +61,13 @@ struct s_waypoint_list
     waypoint_t   pos[MAXWAY];  ///< Waypoint
 };
 
-bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp );
-bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y );
-bool_t waypoint_list_reset( waypoint_list_t * plst );
-bool_t waypoint_list_clear( waypoint_list_t * plst );
-bool_t waypoint_list_empty( waypoint_list_t * plst );
-bool_t waypoint_list_finished( waypoint_list_t * plst );
-bool_t waypoint_list_advance( waypoint_list_t * plst );
+ego_bool waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp );
+ego_bool waypoint_list_push( waypoint_list_t * plst, int x, int y );
+ego_bool waypoint_list_reset( waypoint_list_t * plst );
+ego_bool waypoint_list_clear( waypoint_list_t * plst );
+ego_bool waypoint_list_empty( waypoint_list_t * plst );
+ego_bool waypoint_list_finished( waypoint_list_t * plst );
+ego_bool waypoint_list_advance( waypoint_list_t * plst );
 
 //--------------------------------------------------------------------------------------------
 /// Data needed to specify a line-of-sight test
@@ -83,21 +83,21 @@ struct s_line_of_sight_info
     int     collide_y;
 };
 
-bool_t line_of_sight_blocked( line_of_sight_info_t * plos );
-bool_t line_of_sight_with_mesh( line_of_sight_info_t * plos );
-bool_t line_of_sight_with_characters( line_of_sight_info_t * plos );
+ego_bool line_of_sight_blocked( line_of_sight_info_t * plos );
+ego_bool line_of_sight_with_mesh( line_of_sight_info_t * plos );
+ego_bool line_of_sight_with_characters( line_of_sight_info_t * plos );
 
 //--------------------------------------------------------------------------------------------
 // wrap generic bitwise conversion macros
 //--------------------------------------------------------------------------------------------
 
 /// @ingroup _bitwise_functions_
-/// @details formal conversion of a boolean value to an integer (bfalse = 0, btrue = 1)
-BIT_FIELD bool_to_bit( bool_t val );
+/// @details formal conversion of a boolean value to an integer (ego_false = 0, ego_true = 1)
+BIT_FIELD bool_to_bit( ego_bool val );
 
 /// @ingroup _bitwise_functions_
-/// @details formal conversion of an integer to a boolean value ( 0 = bfalse, all other values are btrue )
-bool_t bit_to_bool( BIT_FIELD val );
+/// @details formal conversion of an integer to a boolean value ( 0 = ego_false, all other values are ego_true )
+ego_bool bit_to_bool( BIT_FIELD val );
 
 //--------------------------------------------------------------------------------------------
 // wrap the BIT_FIELD macros, since lua doesn't recognize bitwise functions
@@ -137,19 +137,19 @@ BIT_FIELD BIT_FIELD_unset_bits( BIT_FIELD val, BIT_FIELD bits );
 
 /// @ingroup _bitwise_functions_
 /// @details wrapper for HAS_SOME_BITS() macro
-bool_t    BIT_FIELD_has_some_bits( BIT_FIELD val, BIT_FIELD test );
+ego_bool    BIT_FIELD_has_some_bits( BIT_FIELD val, BIT_FIELD test );
 
 /// @ingroup _bitwise_functions_
 /// @details wrapper for HAS_ALL_BITS() macro
-bool_t    BIT_FIELD_has_all_bits( BIT_FIELD val, BIT_FIELD test );
+ego_bool    BIT_FIELD_has_all_bits( BIT_FIELD val, BIT_FIELD test );
 
 /// @ingroup _bitwise_functions_
 /// @details wrapper for HAS_NO_BITS() macro
-bool_t    BIT_FIELD_has_no_bits( BIT_FIELD val, BIT_FIELD test );
+ego_bool    BIT_FIELD_has_no_bits( BIT_FIELD val, BIT_FIELD test );
 
 /// @ingroup _bitwise_functions_
 /// @details wrapper for MISSING_BITS() macro
-bool_t    BIT_FIELD_missing_bits( BIT_FIELD val, BIT_FIELD test );
+ego_bool    BIT_FIELD_missing_bits( BIT_FIELD val, BIT_FIELD test );
 
 /// @ingroup _bitwise_functions_
 /// @details set the given bit
@@ -161,7 +161,7 @@ BIT_FIELD BIT_FIELD_clear_one_bit( BIT_FIELD val, size_t which );
 
 /// @ingroup _bitwise_functions_
 /// @details test the given bit
-bool_t    BIT_FIELD_test_one_bit( BIT_FIELD val, size_t which );
+ego_bool    BIT_FIELD_test_one_bit( BIT_FIELD val, size_t which );
 
 /// @ingroup _bitwise_functions_
 /// @details adds all bits values to val
@@ -173,7 +173,7 @@ BIT_FIELD BIT_FIELD_clear_all_bits( BIT_FIELD val, BIT_FIELD bits );
 
 /// @ingroup _bitwise_functions_
 /// @details the values has all the given bits
-bool_t    BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits );
+ego_bool    BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits );
 
 //--------------------------------------------------------------------------------------------
 // wrapped script functions
@@ -183,12 +183,12 @@ bool_t    BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits );
 /// @details This function tells the character where to move next
 ///
 /// @lua AddWaypoint( tmpx = "x position", tmpy = "y position" )
-bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y );
+ego_bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y );
 
 /// @author ZF
 /// @details Ported the A* path finding algorithm by birdsey and heavily modified it
 /// This function adds enough waypoints to get from one point to another
-bool_t FindPath( waypoint_list_t * plst, struct s_chr * pchr, float dst_x, float dst_y, bool_t * used_astar_ptr );
+ego_bool FindPath( waypoint_list_t * plst, struct s_chr * pchr, float dst_x, float dst_y, ego_bool * used_astar_ptr );
 
 /// @author ZZ
 /// @details This function modifies tmpx and tmpy, depending on the setting of
@@ -196,7 +196,7 @@ bool_t FindPath( waypoint_list_t * plst, struct s_chr * pchr, float dst_x, float
 /// with the two little needle legs
 ///
 /// @lua Compass( tmpturn = "rotation", tmpdistance = "radius" )
-bool_t Compass( fvec2_base_t pos, int facing, float distance );
+ego_bool Compass( fvec2_base_t pos, int facing, float distance );
 
 /// @author ZZ
 /// @details This function returns the cost of the desired skin upgrade
@@ -222,17 +222,17 @@ Uint8 AddEndMessage( struct s_chr * pchr, const int message_index, struct s_scri
 
 /// @author ZZ
 /// @details This function finds the next tile in the passage, x0 and y0
-///    must be set first, and are set on a find.  Returns btrue or bfalse
+///    must be set first, and are set on a find.  Returns ego_true or ego_false
 ///    depending on if it finds one or not
 Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 );
 
 /// @author ZF
 /// @details This function searches the nearby vincinity for a melee weapon the character can use
-CHR_REF FindWeapon( struct s_chr * pchr, float max_distance, IDSZ weap_idsz, bool_t find_ranged, bool_t use_line_of_sight );
+CHR_REF FindWeapon( struct s_chr * pchr, float max_distance, IDSZ weap_idsz, ego_bool find_ranged, ego_bool use_line_of_sight );
 
 /// @author ZZ
 /// @details This function sets an object's lighting
-bool_t FlashObject( struct s_chr * pchr, Uint8 value );
+ego_bool FlashObject( struct s_chr * pchr, Uint8 value );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

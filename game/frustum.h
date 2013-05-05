@@ -22,10 +22,10 @@
 /// @file frustum.h
 /// @brief integrating the basic frustum object into Egoboo algorithms
 
-#include "../egolib/typedef.h"
+#include "egoboo_typedef.h"
 
-#include "../egolib/geometry.h"
-#include "../egolib/bbox.h"
+#include "geometry.h"
+#include "bbox.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -65,18 +65,18 @@ extern "C"
 
     ego_aabb_t * ego_aabb_ctor( ego_aabb_t * );
     ego_aabb_t * ego_aabb_dtor( ego_aabb_t * );
-    bool_t ego_aabb_self_clear( ego_aabb_t * );
-    bool_t ego_aabb_is_clear( const ego_aabb_t * pdst );
+    ego_bool ego_aabb_self_clear( ego_aabb_t * );
+    ego_bool ego_aabb_is_clear( const ego_aabb_t * pdst );
 
-    bool_t ego_aabb_self_union( ego_aabb_t * pdst, const ego_aabb_t * psrc );
-    bool_t ego_aabb_lhs_contains_rhs( const ego_aabb_t * lhs_ptr, const ego_aabb_t * rhs_ptr );
-    bool_t ego_aabb_overlap( const ego_aabb_t * lhs_ptr, const ego_aabb_t * rhs_ptr );
+    ego_bool ego_aabb_self_union( ego_aabb_t * pdst, const ego_aabb_t * psrc );
+    ego_bool ego_aabb_lhs_contains_rhs( const ego_aabb_t * lhs_ptr, const ego_aabb_t * rhs_ptr );
+    ego_bool ego_aabb_overlap( const ego_aabb_t * lhs_ptr, const ego_aabb_t * rhs_ptr );
 
-    bool_t ego_aabb_copy( ego_aabb_t * pdst, const ego_aabb_t * psrc );
-    bool_t ego_aabb_from_oct_bb( ego_aabb_t * dst, const struct s_oct_bb * src );
+    ego_bool ego_aabb_copy( ego_aabb_t * pdst, const ego_aabb_t * psrc );
+    ego_bool ego_aabb_from_oct_bb( ego_aabb_t * dst, const struct s_oct_bb * src );
 
-    bool_t ego_aabb_validate( ego_aabb_t * rhs );
-    bool_t ego_aabb_test( const ego_aabb_t * rhs );
+    ego_bool ego_aabb_validate( ego_aabb_t * rhs );
+    ego_bool ego_aabb_test( const ego_aabb_t * rhs );
 
 //--------------------------------------------------------------------------------------------
     struct s_egolib_frustum

@@ -102,7 +102,7 @@ extern "C"
     int    fs_createDirectory( const char *dirname );
     int    fs_removeDirectory( const char *dirname );
     void   fs_deleteFile( const char *filename );
-    bool_t fs_copyFile( const char *source, const char *dest );
+    C_BOOLEAN fs_copyFile( const char *source, const char *dest );
     void   fs_removeDirectoryAndContents( const char *dirname, int recursive );
     void   fs_copyDirectory( const char *sourceDir, const char *destDir );
 
@@ -111,7 +111,7 @@ extern "C"
     const char *fs_findNextFile( fs_find_context_t * fs_search );
     void        fs_findClose( fs_find_context_t * fs_search );
 
-    bool_t fs_ensureUserFile( const char * relative_filename, bool_t required );
+    C_BOOLEAN fs_ensureUserFile( const char * relative_filename, C_BOOLEAN required );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

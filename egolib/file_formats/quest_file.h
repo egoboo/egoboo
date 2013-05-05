@@ -63,7 +63,7 @@ extern "C"
 
     ConfigFilePtr_t quest_file_open( const char *player_directory );
     egolib_rv       quest_file_export( ConfigFilePtr_t pfile );
-    egolib_rv       quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export );
+    egolib_rv       quest_file_close( ConfigFilePtr_t * ppfile, C_BOOLEAN do_export );
     egolib_rv       quest_file_set_level( ConfigFilePtr_t ppfile, IDSZ idsz, int level );
     egolib_rv       quest_file_adjust_level( ConfigFilePtr_t ppfile, IDSZ idsz, int adjustment );
     egolib_rv       quest_file_get_level( ConfigFilePtr_t ppfile, IDSZ idsz );

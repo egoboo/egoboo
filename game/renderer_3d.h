@@ -76,7 +76,7 @@ struct s_line_data
 
 void   line_list_init( void );
 int    line_list_get_free( void );
-bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration );
+ego_bool line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration );
 void   line_list_draw_all( const struct s_camera * pcam );
 
 //--------------------------------------------------------------------------------------------
@@ -90,7 +90,7 @@ struct s_point_data
 
 void   point_list_init( void );
 int    point_list_get_free( void );
-bool_t point_list_add( const float x, const float y, const float z, const int duration );
+ego_bool point_list_add( const float x, const float y, const float z, const int duration );
 void   point_list_draw_all( const struct s_camera * pcam );
 
 //--------------------------------------------------------------------------------------------
@@ -99,8 +99,8 @@ void   point_list_draw_all( const struct s_camera * pcam );
 void gfx_begin_3d( const struct s_camera * pcam );
 void gfx_end_3d( void );
 
-bool_t render_oct_bb( struct s_oct_bb * bb, bool_t draw_square, bool_t draw_diamond );
-bool_t render_aabb( struct s_aabb * pbbox );
+ego_bool render_oct_bb( struct s_oct_bb * bb, ego_bool draw_square, ego_bool draw_diamond );
+ego_bool render_aabb( struct s_aabb * pbbox );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

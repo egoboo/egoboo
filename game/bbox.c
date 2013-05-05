@@ -21,7 +21,7 @@
 /// @brief
 /// @details
 
-#include "../egolib/bbox.inl"
+#include "bbox.inl"
 
 #include "../egolib/_math.inl"
 
@@ -39,7 +39,7 @@ typedef struct s_cv_point_data cv_point_data_t;
 //--------------------------------------------------------------------------------------------
 struct s_cv_point_data
 {
-    bool_t  inside;
+    ego_bool  inside;
     fvec3_t   pos;
     float   rads;
 };
@@ -55,13 +55,13 @@ static int cv_point_data_cmp( const void * pleft, const void * pright );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool_t aabb_copy( aabb_t * pdst, const aabb_t * psrc )
+ego_bool aabb_copy( aabb_t * pdst, const aabb_t * psrc )
 {
     size_t cnt;
 
     if ( NULL == pdst || NULL == psrc )
     {
-        return bfalse;
+        return ego_false;
     }
 
     for ( cnt = 0; cnt < 3; cnt++ )
@@ -70,50 +70,50 @@ bool_t aabb_copy( aabb_t * pdst, const aabb_t * psrc )
         pdst->maxs[cnt] = psrc->maxs[cnt];
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t aabb_self_clear( aabb_t * psrc )
+ego_bool aabb_self_clear( aabb_t * psrc )
 {
     /// @author BB
     /// @details Return this bounding box to an empty state.
 
     Uint32 cnt;
 
-    if ( NULL == psrc ) return bfalse;
+    if ( NULL == psrc ) return ego_false;
 
     for ( cnt = 0; cnt < 3; cnt++ )
     {
         psrc->mins[cnt] = psrc->maxs[cnt] = 0.0f;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t aabb_is_clear( const aabb_t * pdst )
+ego_bool aabb_is_clear( const aabb_t * pdst )
 {
     int cnt;
-    bool_t retval;
+    ego_bool retval;
 
-    if ( NULL == pdst ) return btrue;
+    if ( NULL == pdst ) return ego_true;
 
     // assume the best
-    retval = btrue;
+    retval = ego_true;
 
     // scan through the values
     for ( cnt = 0; cnt < 3; cnt++ )
     {
         if ( 0.0f != pdst->mins[cnt] )
         {
-            retval = bfalse;
+            retval = ego_false;
             break;
         }
 
         if ( 0.0f != pdst->maxs[cnt] )
         {
-            retval = bfalse;
+            retval = ego_false;
             break;
         }
     }
@@ -122,9 +122,9 @@ bool_t aabb_is_clear( const aabb_t * pdst )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t aabb_from_oct_bb( aabb_t * dst, const oct_bb_t * src )
+ego_bool aabb_from_oct_bb( aabb_t * dst, const oct_bb_t * src )
 {
-    if ( NULL == dst ) return bfalse;
+    if ( NULL == dst ) return ego_false;
 
     if ( NULL == src )
     {
@@ -142,11 +142,11 @@ bool_t aabb_from_oct_bb( aabb_t * dst, const oct_bb_t * src )
         dst->maxs[kZ] = src->maxs[OCT_Z];
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
+ego_bool aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
     /// @author BB
     /// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
@@ -156,7 +156,7 @@ bool_t aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 
     const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
 
-    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return bfalse;
+    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return ego_false;
 
     // the optomizer is supposed to do this stuff all by itself,
     // but isn't
@@ -167,23 +167,23 @@ bool_t aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 
     for ( cnt = 0; cnt < 3; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return bfalse;
-        if (( *rhs_mins ) < ( *lhs_mins ) ) return bfalse;
+        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return ego_false;
+        if (( *rhs_mins ) < ( *lhs_mins ) ) return ego_false;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t aabb_self_union( aabb_t * pdst, const aabb_t * psrc )
+ego_bool aabb_self_union( aabb_t * pdst, const aabb_t * psrc )
 {
     size_t cnt;
 
-    if ( NULL == pdst ) return bfalse;
+    if ( NULL == pdst ) return ego_false;
 
     if ( NULL == psrc )
     {
-        return bfalse;
+        return ego_false;
     }
 
     for ( cnt = 0; cnt < 3; cnt++ )
@@ -192,11 +192,11 @@ bool_t aabb_self_union( aabb_t * pdst, const aabb_t * psrc )
         pdst->maxs[cnt] = MAX( pdst->maxs[cnt], psrc->maxs[cnt] );
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
+ego_bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
     /// @author BB
     /// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
@@ -206,7 +206,7 @@ bool_t aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 
     const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
 
-    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return bfalse;
+    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return ego_false;
 
     // the optomizer is supposed to do this stuff all by itself,
     // but isn't
@@ -217,11 +217,11 @@ bool_t aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 
     for ( cnt = 0; cnt < 3; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        if (( *rhs_maxs ) < ( *lhs_mins ) ) return bfalse;
-        if (( *rhs_mins ) > ( *lhs_maxs ) ) return bfalse;
+        if (( *rhs_maxs ) < ( *lhs_mins ) ) return ego_false;
+        if (( *rhs_mins ) > ( *lhs_maxs ) ) return ego_false;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -348,8 +348,8 @@ OVolume_t * OVolume__ctor( OVolume_t * pv )
     if ( NULL == pv ) return pv;
 
     pv->lod = -1;
-    pv->needs_shape = btrue;
-    pv->needs_position = btrue;
+    pv->needs_shape = ego_true;
+    pv->needs_position = ego_true;
     oct_bb_ctor( &( pv->oct ) );
 
     return pv;
@@ -492,33 +492,33 @@ OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
+ego_bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 {
     /// @author BB
     /// @details determine which of the 16 possible intersection points are within both
     ///     square and diamond bounding volumes
 
-    bool_t invalid;
+    ego_bool invalid;
     int cnt, tnc, count;
     float  area, darea, volume;
 
     fvec3_t center, centroid;
     cv_point_data_t pd[16];
 
-    if ( NULL == pov ) return bfalse;
+    if ( NULL == pov ) return ego_false;
 
-    invalid = bfalse;
-    if ( pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = btrue;
-    else if ( pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = btrue;
-    else if ( pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = btrue;
-    else if ( pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY] ) invalid = btrue;
-    else if ( pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX] ) invalid = btrue;
+    invalid = ego_false;
+    if ( pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = ego_true;
+    else if ( pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = ego_true;
+    else if ( pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = ego_true;
+    else if ( pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY] ) invalid = ego_true;
+    else if ( pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX] ) invalid = ego_true;
 
     if ( invalid )
     {
         pov->lod = -1;
         if ( NULL != pvolume )( *pvolume ) = 0;
-        return bfalse;
+        return ego_false;
     }
 
     // square points
@@ -595,7 +595,7 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     {
         float ftmp;
 
-        pd[cnt].inside = bfalse;
+        pd[cnt].inside = ego_false;
 
         // check the box
         if ( pd[cnt].pos.x < pov->oct.mins[OCT_X] || pd[cnt].pos.x > pov->oct.maxs[OCT_X] ) continue;
@@ -612,10 +612,10 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
         center.x += pd[cnt].pos.x;
         center.y += pd[cnt].pos.y;
         count++;
-        pd[cnt].inside = btrue;
+        pd[cnt].inside = ego_true;
     };
 
-    if ( count < 3 ) return bfalse;
+    if ( count < 3 ) return ego_false;
 
     // find the centroid
     center.x *= 1.0f / ( float )count;
@@ -689,18 +689,18 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     }
 
     // is the volume valid?
-    invalid = bfalse;
-    if ( pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = btrue;
-    else if ( pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = btrue;
-    else if ( pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = btrue;
-    else if ( pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY] ) invalid = btrue;
-    else if ( pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX] ) invalid = btrue;
+    invalid = ego_false;
+    if ( pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = ego_true;
+    else if ( pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = ego_true;
+    else if ( pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = ego_true;
+    else if ( pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY] ) invalid = ego_true;
+    else if ( pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX] ) invalid = ego_true;
 
     if ( invalid )
     {
         pov->lod = -1;
         if ( NULL != pvolume )( *pvolume ) = 0;
-        return bfalse;
+        return ego_false;
     }
 
     // determine the volume center
@@ -724,12 +724,12 @@ bool_t OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool_t CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * pvb )
+ego_bool CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * pvb )
 {
-    bool_t retval;
+    ego_bool retval;
     CVolume_t cv;
 
-    if ( pva->lod < 0 || pvb->lod < 0 ) return bfalse;
+    if ( pva->lod < 0 || pvb->lod < 0 ) return ego_false;
 
     //---- reset the OVolume
     OVolume__ctor( &( pcv->ov ) );
@@ -739,7 +739,7 @@ bool_t CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * p
     cv.ov = OVolume_intersect( pva, pvb );
     if ( cv.ov.lod < 0 )
     {
-        return bfalse;
+        return ego_false;
     };
 
     //---- refine the collision volume ----
@@ -756,19 +756,19 @@ bool_t CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * p
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t CVolume_refine( CVolume_t * pcv )
+ego_bool CVolume_refine( CVolume_t * pcv )
 {
     /// @author BB
     /// @details determine which of the 16 possible intersection points are within both
     ///     square and diamond bounding volumes
 
-    if ( NULL == pcv ) return bfalse;
+    if ( NULL == pcv ) return ego_false;
 
     if ( pcv->ov.oct.maxs[OCT_Z] <= pcv->ov.oct.mins[OCT_Z] )
     {
         pcv->ov.lod = -1;
         pcv->volume = 0;
-        return bfalse;
+        return ego_false;
     }
 
     return OVolume_refine( &( pcv->ov ), &( pcv->center ), &( pcv->volume ) );
@@ -1186,7 +1186,7 @@ egolib_rv oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oc
 {
     int cnt;
 
-    bool_t src1_empty, src2_empty;
+    ego_bool src1_empty, src2_empty;
     if ( NULL == pdst ) return rv_error;
 
     src1_empty = ( NULL == psrc1 || psrc1->empty );

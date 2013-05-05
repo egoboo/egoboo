@@ -23,7 +23,7 @@
 
 #include "egoboo_typedef.h"
 
-#include "../egolib/bsp.h"
+#include "bsp.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -59,12 +59,12 @@ struct s_mpd_BSP
 
 mesh_BSP_t * mesh_BSP_ctor( mesh_BSP_t * pbsp, const struct s_ego_mesh * pmesh );
 mesh_BSP_t * mesh_BSP_dtor( mesh_BSP_t * pbsp );
-bool_t       mesh_BSP_alloc( mesh_BSP_t * pbsp );
-bool_t       mesh_BSP_free( mesh_BSP_t * pbsp );
-bool_t       mesh_BSP_fill( mesh_BSP_t * pbsp, const struct s_ego_mesh * pmpd );
+ego_bool       mesh_BSP_alloc( mesh_BSP_t * pbsp );
+ego_bool       mesh_BSP_free( mesh_BSP_t * pbsp );
+ego_bool       mesh_BSP_fill( mesh_BSP_t * pbsp, const struct s_ego_mesh * pmpd );
 
-bool_t       mesh_BSP_can_collide( BSP_leaf_t * pleaf );
-bool_t       mesh_BSP_is_visible( BSP_leaf_t * pleaf );
+ego_bool       mesh_BSP_can_collide( BSP_leaf_t * pleaf );
+ego_bool       mesh_BSP_is_visible( BSP_leaf_t * pleaf );
 
 int          mesh_BSP_collide_aabb( const mesh_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 int          mesh_BSP_collide_frustum( const mesh_BSP_t * pbsp, const struct s_egolib_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
@@ -79,4 +79,4 @@ extern mesh_BSP_t mesh_BSP_root;
 
 egolib_rv mesh_BSP_system_begin( struct s_ego_mesh * pmpd );
 egolib_rv mesh_BSP_system_end( void );
-bool_t    mesh_BSP_system_started( void );
+ego_bool    mesh_BSP_system_started( void );

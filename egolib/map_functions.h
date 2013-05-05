@@ -46,7 +46,7 @@ extern "C"
 // generic functions
 //--------------------------------------------------------------------------------------------
 
-    bool_t twist_to_normal( Uint8 twist, float v[], float slide );
+    C_BOOLEAN twist_to_normal( Uint8 twist, float v[], float slide );
 
     struct s_map * map_generate_tile_twist_data( struct s_map * pmesh );
     struct s_map * map_generate_fan_type_data( struct s_map * pmesh );

@@ -47,36 +47,36 @@ const float ice_friction = 0.9738f;  // the square of air_friction
 static egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
 static egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
 
-static bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
-static bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_base_t nrm, float * depth );
+static ego_bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
+static ego_bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_base_t nrm, float * depth );
 static float phys_get_depth( const oct_vec_t * podepth, const fvec3_base_t nrm );
-static bool_t phys_warp_normal( const float exponent, fvec3_base_t nrm );
-static bool_t phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth );
-static bool_t phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth );
+static ego_bool phys_warp_normal( const float exponent, fvec3_base_t nrm );
+static ego_bool phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth );
+static ego_bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth )
+ego_bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth )
 {
     int cnt;
     float fdiff, fdepth;
-    bool_t retval;
+    ego_bool retval;
 
     oct_bb_t otmp;
     oct_vec_t opos_a, opos_b;
 
-    if ( NULL == podepth || NULL == *podepth ) return bfalse;
+    if ( NULL == podepth || NULL == *podepth ) return ego_false;
 
     oct_vec_self_clear( podepth );
 
     // are the initial volumes any good?
-    if ( NULL == pbb_a || pbb_a->empty ) return bfalse;
-    if ( NULL == pbb_b || pbb_b->empty ) return bfalse;
+    if ( NULL == pbb_a || pbb_a->empty ) return ego_false;
+    if ( NULL == pbb_b || pbb_b->empty ) return ego_false;
 
     // is there any overlap?
     if ( rv_success != oct_bb_intersection( pbb_a, pbb_b, &otmp ) )
     {
-        return bfalse;
+        return ego_false;
     }
 
     // estimate the "cm position" of the objects by the bounding volumes
@@ -87,7 +87,7 @@ bool_t phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b,
     }
 
     // find the (signed) depth in each dimension
-    retval = btrue;
+    retval = ego_true;
     for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         fdiff  = opos_b[cnt] - opos_a[cnt];
@@ -95,7 +95,7 @@ bool_t phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b,
 
         // if the measured depth is less than zero, or the difference in positions
         // is ambiguous, this algorithm fails
-        if ( fdepth <= 0.0f || 0.0f == fdiff ) retval = bfalse;
+        if ( fdepth <= 0.0f || 0.0f == fdiff ) retval = ego_false;
 
         ( *podepth )[cnt] = ( fdiff < 0.0f ) ? -fdepth : fdepth;
     }
@@ -106,19 +106,19 @@ bool_t phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth )
+ego_bool phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth )
 {
     int cnt;
-    bool_t rv;
+    ego_bool rv;
 
-    if ( NULL == podepth || NULL == *podepth ) return bfalse;
+    if ( NULL == podepth || NULL == *podepth ) return ego_false;
 
     oct_vec_self_clear( podepth );
 
-    if ( NULL == pbb_a || NULL == pbb_b ) return bfalse;
+    if ( NULL == pbb_a || NULL == pbb_b ) return ego_false;
 
     // assume the best
-    rv = btrue;
+    rv = ego_true;
 
     // scan through the dimensions of the oct_bbs
     for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
@@ -144,7 +144,7 @@ bool_t phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, 
                 ( *podepth )[cnt] = -diff2;
             }
 
-            rv = bfalse;
+            rv = ego_false;
         }
         else if ( diff1 < diff2 )
         {
@@ -160,15 +160,15 @@ bool_t phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_warp_normal( const float exponent, fvec3_base_t nrm )
+ego_bool phys_warp_normal( const float exponent, fvec3_base_t nrm )
 {
     // use the exponent to warp the normal into a cylinder-like shape, if needed
 
     float length_hrz_2, length_vrt_2;
 
-    if ( 1.0f == exponent ) return btrue;
+    if ( 1.0f == exponent ) return ego_true;
 
-    if ( NULL == nrm || 0.0f == fvec3_length_abs( nrm ) ) return bfalse;
+    if ( NULL == nrm || 0.0f == fvec3_length_abs( nrm ) ) return ego_false;
 
     length_hrz_2 = fvec2_length_2( nrm );
     length_vrt_2 = fvec3_length_2( nrm ) - length_hrz_2;
@@ -226,7 +226,7 @@ float phys_get_depth( const oct_vec_t * podepth, const fvec3_base_t nrm )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_base_t nrm, float * depth )
+ego_bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_base_t nrm, float * depth )
 {
     // use the given (signed) podepth info to make a normal vector, and measure
     // the shortest distance to the border
@@ -234,7 +234,7 @@ bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fve
     float   tmin_aa, tmin_diag, ftmp, tmin;
     fvec3_t nrm_aa, nrm_diag;
 
-    bool_t rv;
+    ego_bool rv;
 
     if ( NULL == podepth )
 
@@ -278,7 +278,7 @@ bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fve
         tmin_aa = MIN( tmin_aa, ftmp );
     }
 
-    if ( tmin_aa <= 0.0f || tmin_aa >= 1e6 ) return bfalse;
+    if ( tmin_aa <= 0.0f || tmin_aa >= 1e6 ) return ego_false;
 
     // next do the diagonal axes
     fvec3_self_clear( nrm_diag.v );
@@ -320,7 +320,7 @@ bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fve
         tmin_diag = MIN( tmin_diag, ftmp );
     }
 
-    if ( tmin_diag <= 0.0f || tmin_diag >= 1e6 ) return bfalse;
+    if ( tmin_diag <= 0.0f || tmin_diag >= 1e6 ) return ego_false;
 
     if ( tmin_aa < tmin_diag )
     {
@@ -350,24 +350,24 @@ bool_t phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fve
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth )
+ego_bool phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth )
 {
     // estimate the normal for collision volumes that are partially overlapping
 
-    bool_t use_pressure;
+    ego_bool use_pressure;
 
     // is everything valid?
-    if ( NULL == pobb_a || NULL == pobb_b ) return bfalse;
+    if ( NULL == pobb_a || NULL == pobb_b ) return ego_false;
 
     // do we need to use the more expensive algorithm?
-    use_pressure = bfalse;
+    use_pressure = ego_false;
     if ( oct_bb_lhs_contains_rhs( pobb_a, pobb_b ) )
     {
-        use_pressure = btrue;
+        use_pressure = ego_true;
     }
     else if ( oct_bb_lhs_contains_rhs( pobb_b, pobb_a ) )
     {
-        use_pressure = btrue;
+        use_pressure = ego_true;
     }
 
     if ( !use_pressure )
@@ -375,7 +375,7 @@ bool_t phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t *
         // try to get the collision depth using the given oct_bb's
         if ( !phys_get_collision_depth( pobb_a, pobb_b, podepth ) )
         {
-            use_pressure = btrue;
+            use_pressure = ego_true;
         }
     }
 
@@ -388,7 +388,7 @@ bool_t phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t *
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth )
+ego_bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth )
 {
     // use a more robust algorithm to get the normal no matter how the 2 volumes are
     // related
@@ -397,18 +397,18 @@ bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * 
     fvec3_t   loc_nrm;
     oct_vec_t loc_odepth;
 
-    bool_t rv;
+    ego_bool rv;
 
     // handle "optional" parameters
     if ( NULL == depth ) depth = &loc_tmin;
     if ( NULL == nrm ) nrm = loc_nrm.v;
     if ( NULL == podepth || NULL == *podepth ) podepth = &loc_odepth;
 
-    if ( NULL == pobb_a || NULL == pobb_b ) return bfalse;
+    if ( NULL == pobb_a || NULL == pobb_b ) return ego_false;
 
     // calculate the direction of the nearest way out for each octagonal axis
     rv = phys_get_pressure_depth( pobb_a, pobb_b, podepth );
-    if ( !rv ) return bfalse;
+    if ( !rv ) return ego_false;
 
     return phys_estimate_depth( podepth, exponent, nrm, depth );
 }
@@ -435,7 +435,7 @@ egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const o
 
     if ( OCT_Z != index )
     {
-        bool_t close_test_1, close_test_2;
+        ego_bool close_test_1, close_test_2;
 
         // is there any possibility of the 2 objects acting as a platform pair
         close_test_1 = HAS_SOME_BITS( test_platform, PHYS_PLATFORM_OBJ1 );
@@ -569,7 +569,7 @@ egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const o
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
+ego_bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
 {
     /// @author BB
     /// @details A test to determine whether two "fast moving" objects are interacting within a frame.
@@ -582,11 +582,11 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
     oct_vec_t ovel1, ovel2;
 
     int    index;
-    bool_t found;
+    ego_bool found;
     float  local_tmin, local_tmax;
 
     int    failure_count = 0;
-    bool_t failure[OCT_COUNT];
+    ego_bool failure[OCT_COUNT];
 
     // handle optional parameters
     if ( NULL == tmin ) tmin = &local_tmin;
@@ -603,7 +603,7 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
     oct_bb_add_ovec( src1_orig, opos1, &src1 );
     oct_bb_add_ovec( src2_orig, opos2, &src2 );
 
-    found = bfalse;
+    found = ego_false;
     *tmin = +1.0e6;
     *tmax = -1.0e6;
     if ( fvec3_dist_abs( vel1, vel2 ) < 1.0e-6 )
@@ -620,7 +620,7 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
 
             if ( ABS( ovel1[index] - ovel2[index] ) < 1.0e-6 )
             {
-                failure[index] = btrue;
+                failure[index] = ego_true;
                 failure_count++;
             }
             else
@@ -639,18 +639,18 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
                 {
                     // This case will only occur if the objects are not moving relative to each other.
 
-                    failure[index] = btrue;
+                    failure[index] = ego_true;
                     failure_count++;
                 }
                 else if ( rv_success == retval )
                 {
-                    failure[index] = bfalse;
+                    failure[index] = ego_false;
 
                     if ( !found )
                     {
                         *tmin = tmp_min;
                         *tmax = tmp_max;
-                        found = btrue;
+                        found = ego_true;
                     }
                     else
                     {
@@ -659,8 +659,8 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
                     }
 
                     // check the values vs. reasonable bounds
-                    if ( *tmax <= *tmin ) return bfalse;
-                    if ( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
+                    if ( *tmax <= *tmin ) return ego_false;
+                    if ( *tmin > 1.0f || *tmax < 0.0f ) return ego_false;
                 }
             }
         }
@@ -682,10 +682,10 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
         float tmp_min, tmp_max;
 
         // check to see if there the intersection times make any sense
-        if ( *tmax <= *tmin ) return bfalse;
+        if ( *tmax <= *tmin ) return ego_false;
 
         // check whether there is any overlap this frame
-        if ( *tmin >= 1.0f || *tmax <= 0.0f ) return bfalse;
+        if ( *tmin >= 1.0f || *tmax <= 0.0f ) return ego_false;
 
         // clip the interaction time to just one frame
         tmp_min = CLIP( *tmin, 0.0f, 1.0f );
@@ -705,9 +705,9 @@ bool_t phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos
         oct_bb_validate( pdst );
     }
 
-    if ( pdst->empty ) return bfalse;
+    if ( pdst->empty ) return ego_false;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -736,8 +736,8 @@ egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, c
 
     if ( OCT_Z != index )
     {
-        bool_t platform_1;
-        bool_t platform_2;
+        ego_bool platform_1;
+        ego_bool platform_2;
 
         platform_1 = HAS_SOME_BITS( test_platform, PHYS_PLATFORM_OBJ1 );
         platform_2 = HAS_SOME_BITS( test_platform, PHYS_PLATFORM_OBJ2 );
@@ -890,7 +890,7 @@ egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, c
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
+ego_bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
 {
     /// @author BB
     /// @details A test to determine whether two "fast moving" objects are interacting within a frame.
@@ -905,7 +905,7 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
     oct_vec_t ovel1, ovel2;
 
     int    cnt, index;
-    bool_t found;
+    ego_bool found;
     float  tolerance;
     float  local_tmin, local_tmax;
 
@@ -921,7 +921,7 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
             oct_bb_intersection( src1_orig, src2_orig, pdst );
         }
 
-        return btrue;
+        return ego_true;
     }
 
     // convert the position and velocity vectors to octagonal format
@@ -935,7 +935,7 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
     oct_bb_add_ovec( src2_orig, opos2, &src2 );
 
     // cycle through the coordinates to see when the two volumes might coincide
-    found = bfalse;
+    found = ego_false;
     *tmin = *tmax = -1.0f;
     for ( index = 0; index < OCT_COUNT; index ++ )
     {
@@ -943,7 +943,7 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
         float tmp_min, tmp_max;
 
         retval = phys_intersect_oct_bb_close_index( index, &src1, ovel1, &src2, ovel2, test_platform, &tmp_min, &tmp_max );
-        if ( rv_fail == retval ) return bfalse;
+        if ( rv_fail == retval ) return ego_false;
 
         if ( rv_success == retval )
         {
@@ -951,7 +951,7 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
             {
                 *tmin = tmp_min;
                 *tmax = tmp_max;
-                found = btrue;
+                found = ego_true;
             }
             else
             {
@@ -960,11 +960,11 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
             }
         }
 
-        if ( *tmax < *tmin ) return bfalse;
+        if ( *tmax < *tmin ) return ego_false;
     }
 
     // if the objects do not interact this frame let the caller know
-    if ( *tmin > 1.0f || *tmax < 0.0f ) return bfalse;
+    if ( *tmin > 1.0f || *tmax < 0.0f ) return ego_false;
 
     // determine the expanded collision volumes for both objects
     phys_expand_oct_bb( &src1, vel1, *tmin, *tmax, &exp1 );
@@ -976,18 +976,18 @@ bool_t phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base
     // check to see if there is any possibility of interaction at all
     for ( cnt = 0; cnt < OCT_Z; cnt++ )
     {
-        if ( intersection.mins[cnt] > intersection.maxs[cnt] ) return bfalse;
+        if ( intersection.mins[cnt] > intersection.maxs[cnt] ) return ego_false;
     }
 
     tolerance = ( 0 == test_platform ) ? 0.0f : PLATTOLERANCE;
-    if ( intersection.mins[OCT_Z] > intersection.maxs[OCT_Z] + tolerance ) return bfalse;
+    if ( intersection.mins[OCT_Z] > intersection.maxs[OCT_Z] + tolerance ) return ego_false;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst )
+ego_bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst )
 {
     /// @author BB
     /// @details use the velocity of an object and its oct_bb_t to determine the
@@ -1000,7 +1000,7 @@ bool_t phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const 
     abs_vel = fvec3_length_abs( vel );
     if ( 0.0f == abs_vel )
     {
-        return oct_bb_copy( pdst, psrc ) ? btrue : bfalse;
+        return oct_bb_copy( pdst, psrc ) ? ego_true : ego_false;
     }
 
     // determine the bounding volume at t == tmin
@@ -1017,7 +1017,7 @@ bool_t phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const 
         tmp_diff.z = vel[kZ] * tmin;
 
         // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_fvec3( psrc, tmp_diff.v, &tmp_min ) ) return bfalse;
+        if ( !oct_bb_add_fvec3( psrc, tmp_diff.v, &tmp_min ) ) return ego_false;
     }
 
     // determine the bounding volume at t == tmax
@@ -1034,17 +1034,17 @@ bool_t phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const 
         tmp_diff.z = vel[kZ] * tmax;
 
         // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_fvec3( psrc, tmp_diff.v, &tmp_max ) ) return bfalse;
+        if ( !oct_bb_add_fvec3( psrc, tmp_diff.v, &tmp_max ) ) return ego_false;
     }
 
     // determine bounding box for the range of times
-    if ( !oct_bb_union( &tmp_min, &tmp_max, pdst ) ) return bfalse;
+    if ( !oct_bb_union( &tmp_min, &tmp_max, pdst ) ) return ego_false;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst )
+ego_bool phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst )
 {
     /// @author BB
     /// @details use the object velocity to figure out where the volume that the character will
@@ -1053,7 +1053,7 @@ bool_t phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst
 
     oct_bb_t tmp_oct1, tmp_oct2;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return ego_false;
 
     // copy the volume
     oct_bb_copy( &tmp_oct1, &( pchr->chr_max_cv ) );
@@ -1066,7 +1066,7 @@ bool_t phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst )
+ego_bool phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst )
 {
     /// @author BB
     /// @details use the object velocity to figure out where the volume that the particle will
@@ -1074,7 +1074,7 @@ bool_t phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst
 
     oct_bb_t tmp_oct1, tmp_oct2;
 
-    if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) ) return ego_false;
 
     // copy the volume
     oct_bb_copy( &tmp_oct1, &( pprt->prt_max_cv ) );
@@ -1166,17 +1166,17 @@ int breadcrumb_cmp( const void * lhs, const void * rhs )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t breadcrumb_list_full( const breadcrumb_list_t *  lst )
+ego_bool breadcrumb_list_full( const breadcrumb_list_t *  lst )
 {
-    if ( NULL == lst || !lst->on ) return btrue;
+    if ( NULL == lst || !lst->on ) return ego_true;
 
     return ( lst->count >= MAX_BREADCRUMB );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t breadcrumb_list_empty( const breadcrumb_list_t * lst )
+ego_bool breadcrumb_list_empty( const breadcrumb_list_t * lst )
 {
-    if ( NULL == lst || !lst->on ) return btrue;
+    if ( NULL == lst || !lst->on ) return ego_true;
 
     return ( 0 == lst->count );
 }
@@ -1227,7 +1227,7 @@ void breadcrumb_list_validate( breadcrumb_list_t * lst )
         {
             if ( 0 != ego_mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) )
             {
-                bc->valid = bfalse;
+                bc->valid = ego_false;
                 invalid_cnt++;
             }
         }
@@ -1427,16 +1427,16 @@ breadcrumb_t * breadcrumb_list_alloc( breadcrumb_list_t * lst )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
+ego_bool breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
 {
     int cnt, invalid_cnt;
 
-    bool_t retval;
+    ego_bool retval;
     breadcrumb_t * pold, *ptmp;
 
-    if ( NULL == lst || !lst->on ) return bfalse;
+    if ( NULL == lst || !lst->on ) return ego_false;
 
-    if ( NULL == pnew ) return bfalse;
+    if ( NULL == pnew ) return ego_false;
 
     for ( cnt = 0, invalid_cnt = 0; cnt < lst->count; cnt ++ )
     {
@@ -1498,12 +1498,12 @@ bool_t breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew )
     }
 
     // assign the data to the list element
-    retval = bfalse;
+    retval = ego_false;
     if ( NULL != pold )
     {
         *pold = *pnew;
 
-        retval = btrue;
+        retval = ego_true;
     }
 
     return retval;
@@ -1538,11 +1538,11 @@ phys_data_t * phys_data_ctor( phys_data_t * pphys )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t apos_self_union( apos_t * lhs, apos_t * rhs )
+ego_bool apos_self_union( apos_t * lhs, apos_t * rhs )
 {
     int cnt;
 
-    if ( NULL == lhs || NULL == rhs ) return bfalse;
+    if ( NULL == lhs || NULL == rhs ) return ego_false;
 
     // scan through the components of the vector and find the
     // maximum displacement
@@ -1553,16 +1553,16 @@ bool_t apos_self_union( apos_t * lhs, apos_t * rhs )
         lhs->sum.v[cnt] += rhs->sum.v[cnt];
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs )
+ego_bool apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs )
 {
     int cnt;
 
-    if ( NULL == lhs ) return bfalse;
-    if ( NULL == rhs ) return btrue;
+    if ( NULL == lhs ) return ego_false;
+    if ( NULL == rhs ) return ego_true;
 
     LOG_NAN_FVEC3( rhs );
 
@@ -1584,17 +1584,17 @@ bool_t apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs )
         lhs->sum.v[cnt] += rhs[cnt];
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t apos_self_union_index( apos_t * lhs, const float val, const int index )
+ego_bool apos_self_union_index( apos_t * lhs, const float val, const int index )
 {
     // find the maximum displacement at the given index
 
-    if ( NULL == lhs ) return bfalse;
+    if ( NULL == lhs ) return ego_false;
 
-    if ( index < 0 || index > 2 ) return bfalse;
+    if ( index < 0 || index > 2 ) return ego_false;
 
     LOG_NAN( val );
 
@@ -1611,15 +1611,15 @@ bool_t apos_self_union_index( apos_t * lhs, const float val, const int index )
     // find the sum of the displacement
     lhs->sum.v[index] += val;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t apos_evaluate( const apos_t * src, fvec3_base_t dst )
+ego_bool apos_evaluate( const apos_t * src, fvec3_base_t dst )
 {
     int cnt;
 
-    if ( NULL == dst ) return bfalse;
+    if ( NULL == dst ) return ego_false;
 
     if ( NULL == src )
     {
@@ -1631,7 +1631,7 @@ bool_t apos_evaluate( const apos_t * src, fvec3_base_t dst )
         dst[cnt] = src->maxs.v[cnt] + src->mins.v[cnt];
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------

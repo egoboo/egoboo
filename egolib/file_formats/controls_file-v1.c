@@ -35,7 +35,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_load_vfs_1( const char* szFilename )
+C_BOOLEAN input_settings_load_vfs_1( const char* szFilename )
 {
     /// @author ZZ
     /// @details This function reads the settings.txt file, version 3
@@ -61,7 +61,7 @@ bool_t input_settings_load_vfs_1( const char* szFilename )
     {
         log_error( "Could not load input settings (%s)!\n", szFilename );
 
-        return bfalse;
+        return C_FALSE;
     }
 
     // read the keyboard InputDevices
@@ -113,7 +113,7 @@ bool_t input_settings_load_vfs_1( const char* szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_save_vfs_1( const char* szFilename )
+C_BOOLEAN input_settings_save_vfs_1( const char* szFilename )
 {
     /// @author ZF
     /// @details This function saves all current game settings to "controls.txt"
@@ -128,7 +128,7 @@ bool_t input_settings_save_vfs_1( const char* szFilename )
     if ( NULL == filewrite )
     {
         log_warning( "Could not save input settings (%s)!\n", szFilename );
-        return bfalse;
+        return C_FALSE;
     }
 
     // Just some information
@@ -207,5 +207,5 @@ bool_t input_settings_save_vfs_1( const char* szFilename )
     // All done
     vfs_close( filewrite );
 
-    return btrue;
+    return C_TRUE;
 }

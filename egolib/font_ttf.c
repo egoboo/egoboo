@@ -224,19 +224,19 @@ int fnt_drawText_raw_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, con
 {
     int rv;
 
-    bool_t       sdl_surf_external;
+    C_BOOLEAN       sdl_surf_external;
     SDL_Surface * loc_pSrcSurface = NULL;
     SDL_Surface **loc_ppSrcSurface = NULL;
 
     // handle optional ppTmpSurface
     if ( NULL != ppSrcSurface )
     {
-        sdl_surf_external = btrue;
+        sdl_surf_external = C_TRUE;
         loc_ppSrcSurface = ppSrcSurface;
     }
     else
     {
-        sdl_surf_external = bfalse;
+        sdl_surf_external = C_FALSE;
         loc_ppSrcSurface = &loc_pSrcSurface;
     }
 
@@ -275,7 +275,7 @@ void fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_S
     va_list args;
     int rv;
 
-    bool_t       sdl_surf_external;
+    C_BOOLEAN       sdl_surf_external;
     SDL_Surface *loc_pSurface = NULL;
     SDL_Surface **loc_ppTmpSurface = NULL;
 
@@ -284,12 +284,12 @@ void fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_S
     // handle optional ppTmpSurface
     if ( NULL != ppTmpSurface )
     {
-        sdl_surf_external = btrue;
+        sdl_surf_external = C_TRUE;
         loc_ppTmpSurface = ppTmpSurface;
     }
     else
     {
-        sdl_surf_external = bfalse;
+        sdl_surf_external = C_FALSE;
         loc_ppTmpSurface = &loc_pSurface;
     }
 
@@ -397,10 +397,10 @@ int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat *
 {
     int rv, print_rv, upload_rv;
 
-    bool_t  gl_id_external;
+    C_BOOLEAN  gl_id_external;
     GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-    bool_t        sdl_surf_external;
+    C_BOOLEAN        sdl_surf_external;
     SDL_Surface  *loc_pSurface      = NULL;
     SDL_Surface **loc_ppTmpSurface  = NULL;
 
@@ -411,22 +411,22 @@ int fnt_print_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat *
     }
 
     // handle optional tex_id
-    gl_id_external = btrue;
+    gl_id_external = C_TRUE;
     if ( INVALID_GL_ID == tex_id )
     {
-        gl_id_external = bfalse;
+        gl_id_external = C_FALSE;
         glGenTextures( 1, &tex_id );
     }
 
     // handle optional ppTmpSurface
     if ( NULL != ppTmpSurface )
     {
-        sdl_surf_external = btrue;
+        sdl_surf_external = C_TRUE;
         loc_ppTmpSurface = ppTmpSurface;
     }
     else
     {
-        sdl_surf_external = bfalse;
+        sdl_surf_external = C_FALSE;
         loc_ppTmpSurface = &loc_pSurface;
     }
 
@@ -482,7 +482,7 @@ int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * t
     int rv, vsnprintf_rv;
     STRING szText = EMPTY_CSTR;
 
-    bool_t  gl_id_external;
+    C_BOOLEAN  gl_id_external;
     GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     // handle the tex_coords
@@ -492,10 +492,10 @@ int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * t
     }
 
     // handle optional tex_id
-    gl_id_external = btrue;
+    gl_id_external = C_TRUE;
     if ( INVALID_GL_ID == tex_id )
     {
-        gl_id_external = bfalse;
+        gl_id_external = C_FALSE;
         glGenTextures( 1, &tex_id );
     }
 
@@ -521,10 +521,10 @@ void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLflo
 {
     int rv;
 
-    bool_t  gl_id_external;
+    C_BOOLEAN  gl_id_external;
     GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-    bool_t sdl_surf_external;
+    C_BOOLEAN sdl_surf_external;
     SDL_Surface * loc_pTmpSurface = NULL;
     SDL_Surface  **loc_ppTmpSurface = NULL;
 
@@ -535,30 +535,30 @@ void fnt_drawText_raw_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLflo
     }
 
     // handle optional tex_id
-    gl_id_external = btrue;
+    gl_id_external = C_TRUE;
     if ( INVALID_GL_ID == tex_id )
     {
-        gl_id_external = bfalse;
+        gl_id_external = C_FALSE;
         glGenTextures( 1, &tex_id );
     }
 
     // handle optional ppTmpSurface
     if ( NULL != ppTmpSurface )
     {
-        sdl_surf_external = btrue;
+        sdl_surf_external = C_TRUE;
         loc_ppTmpSurface = ppTmpSurface;
     }
     else
     {
-        sdl_surf_external = bfalse;
+        sdl_surf_external = C_FALSE;
         loc_ppTmpSurface = &loc_pTmpSurface;
     }
 
     // alocate a texture, if necessary
-    gl_id_external = btrue;
+    gl_id_external = C_TRUE;
     if ( INVALID_GL_ID == tex_id )
     {
-        gl_id_external = bfalse;
+        gl_id_external = C_FALSE;
         glGenTextures( 1, &tex_id );
     }
 
@@ -603,10 +603,10 @@ void fnt_drawText_OGL_va( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloa
 {
     int rv;
 
-    bool_t  gl_id_external;
+    C_BOOLEAN  gl_id_external;
     GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-    bool_t       sdl_surf_external;
+    C_BOOLEAN       sdl_surf_external;
     SDL_Surface * loc_pTmpSurface = NULL;
     SDL_Surface **loc_ppTmpSurface = NULL;
 
@@ -617,22 +617,22 @@ void fnt_drawText_OGL_va( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloa
     }
 
     // handle optional tex_id
-    gl_id_external = btrue;
+    gl_id_external = C_TRUE;
     if ( INVALID_GL_ID == tex_id )
     {
-        gl_id_external = bfalse;
+        gl_id_external = C_FALSE;
         glGenTextures( 1, &tex_id );
     }
 
     // handle optional ppTmpSurface
     if ( NULL != ppTmpSurface )
     {
-        sdl_surf_external = btrue;
+        sdl_surf_external = C_TRUE;
         loc_ppTmpSurface = ppTmpSurface;
     }
     else
     {
-        sdl_surf_external = bfalse;
+        sdl_surf_external = C_FALSE;
         loc_ppTmpSurface = &loc_pTmpSurface;
     }
 
@@ -733,11 +733,11 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloa
     size_t len;
     char *buffer, *line;
 
-    bool_t  gl_id_external;
+    C_BOOLEAN  gl_id_external;
     GLfloat loc_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
     GLfloat tmp_tex_coords[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-    bool_t       sdl_surf_external;
+    C_BOOLEAN       sdl_surf_external;
     SDL_Surface * loc_pTmpSurface = NULL;
     SDL_Surface **loc_ppTmpSurface = NULL;
 
@@ -753,22 +753,22 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloa
     }
 
     // handle optional tex_id
-    gl_id_external = btrue;
+    gl_id_external = C_TRUE;
     if ( INVALID_GL_ID == tex_id )
     {
-        gl_id_external = bfalse;
+        gl_id_external = C_FALSE;
         glGenTextures( 1, &tex_id );
     }
 
     // handle optional ppTmpSurface
     if ( NULL != ppTmpSurface )
     {
-        sdl_surf_external = btrue;
+        sdl_surf_external = C_TRUE;
         loc_ppTmpSurface = ppTmpSurface;
     }
     else
     {
-        sdl_surf_external = bfalse;
+        sdl_surf_external = C_FALSE;
         loc_ppTmpSurface = &loc_pTmpSurface;
     }
 

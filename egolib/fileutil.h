@@ -113,30 +113,30 @@ extern "C"
 
     void   make_newloadname( const char *modname, const char *appendname, char *newloadname );
 
-    bool_t goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool_t optional );
-    char   goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, bool_t optional );
-    bool_t goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool_t optional );
-    char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optional );
+    C_BOOLEAN goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, C_BOOLEAN optional );
+    char   goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, C_BOOLEAN optional );
+    C_BOOLEAN goto_colon_vfs( char * buffer, vfs_FILE* fileread, C_BOOLEAN optional );
+    char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, C_BOOLEAN optional );
 
-    bool_t copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite );
+    C_BOOLEAN copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite );
     char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len );
-    bool_t copy_to_delimiter_vfs( vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen );
+    C_BOOLEAN copy_to_delimiter_vfs( vfs_FILE * fileread, vfs_FILE * filewrite, int delim, char * buffer, size_t bufflen );
 
     int    vfs_get_version( vfs_FILE* fileread );
-    bool_t vfs_put_version( vfs_FILE* filewrite, const int version );
+    C_BOOLEAN vfs_put_version( vfs_FILE* filewrite, const int version );
 
     char   vfs_get_next_char( vfs_FILE * fileread );
     int    vfs_get_next_int( vfs_FILE * fileread );
     float  vfs_get_next_float( vfs_FILE * fileread );
     UFP8_T vfs_get_next_ufp8( vfs_FILE* fileread );
     SFP8_T vfs_get_next_sfp8( vfs_FILE* fileread );
-    bool_t vfs_get_next_name( vfs_FILE * fileread, char * name, size_t name_len );
-    bool_t vfs_get_next_range( vfs_FILE* fileread, FRange * prange );
-    bool_t vfs_get_next_pair( vfs_FILE * fileread, IPair * ppair );
+    C_BOOLEAN vfs_get_next_name( vfs_FILE * fileread, char * name, size_t name_len );
+    C_BOOLEAN vfs_get_next_range( vfs_FILE* fileread, FRange * prange );
+    C_BOOLEAN vfs_get_next_pair( vfs_FILE * fileread, IPair * ppair );
     IDSZ   vfs_get_next_idsz( vfs_FILE * fileread );
-    bool_t vfs_get_next_bool( vfs_FILE * fileread );
-    bool_t vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len );
-    bool_t vfs_get_next_line( vfs_FILE * fileread, char * str, size_t str_len );
+    C_BOOLEAN vfs_get_next_bool( vfs_FILE * fileread );
+    C_BOOLEAN vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len );
+    C_BOOLEAN vfs_get_next_line( vfs_FILE * fileread, char * str, size_t str_len );
 
     char   vfs_get_first_letter( vfs_FILE* fileread );
     Sint32 vfs_get_int( vfs_FILE* fileread );
@@ -146,20 +146,20 @@ extern "C"
     IDSZ   vfs_get_idsz( vfs_FILE* fileread );
     int    vfs_get_damage_type( vfs_FILE * fileread );
     int    vfs_get_next_damage_type( vfs_FILE * fileread );
-    bool_t vfs_get_bool( vfs_FILE * fileread );
+    C_BOOLEAN vfs_get_bool( vfs_FILE * fileread );
     Uint8  vfs_get_damage_modifier( vfs_FILE * fileread );
     float  vfs_get_damage_resist( vfs_FILE * fileread );
-    bool_t vfs_get_name( vfs_FILE* fileread,  char *szName, size_t max_len );
-    bool_t vfs_get_string( vfs_FILE * fileread, char * str, size_t str_len );
-    bool_t vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len );
-    bool_t vfs_get_range( vfs_FILE* fileread, FRange * prange );
-    bool_t vfs_get_pair( vfs_FILE* fileread, IPair * ppair );
+    C_BOOLEAN vfs_get_name( vfs_FILE* fileread,  char *szName, size_t max_len );
+    C_BOOLEAN vfs_get_string( vfs_FILE * fileread, char * str, size_t str_len );
+    C_BOOLEAN vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len );
+    C_BOOLEAN vfs_get_range( vfs_FILE* fileread, FRange * prange );
+    C_BOOLEAN vfs_get_pair( vfs_FILE* fileread, IPair * ppair );
 
     void vfs_put_int( vfs_FILE* filewrite, const char* text, int ival );
     void vfs_put_float( vfs_FILE* filewrite, const char* text, float fval );
     void vfs_put_ufp8( vfs_FILE* filewrite, const char* text, UFP8_T ival );
     void vfs_put_sfp8( vfs_FILE* filewrite, const char* text, SFP8_T ival );
-    void vfs_put_bool( vfs_FILE* filewrite, const char* text, bool_t truth );
+    void vfs_put_bool( vfs_FILE* filewrite, const char* text, C_BOOLEAN truth );
     void vfs_put_damage_type( vfs_FILE* filewrite, const char* text, Uint8 damagetype );
     void vfs_put_action( vfs_FILE* filewrite, const char* text, Uint8 action );
     void vfs_put_gender( vfs_FILE* filewrite, const char* text, Uint8 gender );

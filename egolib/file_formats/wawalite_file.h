@@ -98,11 +98,11 @@ extern "C"
         float  douse_level;         ///< Surface level for torches
         Uint8  spek_start;         ///< Specular begins at which light value
         Uint8  spek_level;         ///< General specular amount (0-255)
-        bool_t is_water;         ///< Is it water?  ( Or lava... )
-        bool_t overlay_req;
-        bool_t background_req;
+        C_BOOLEAN is_water;         ///< Is it water?  ( Or lava... )
+        C_BOOLEAN overlay_req;
+        C_BOOLEAN background_req;
 
-        bool_t light;            ///< Is it light ( default is alpha )
+        C_BOOLEAN light;            ///< Is it light ( default is alpha )
 
         float  foregroundrepeat;
         float  backgroundrepeat;
@@ -148,8 +148,8 @@ extern "C"
 /// A wrapper for the weather data in "wawalite.txt"
     struct s_wawalite_weather
     {
-        bool_t  over_water;
-        int     egolib_timer__reset;
+        C_BOOLEAN  over_water;
+        int     timer_reset;
         int     part_gpip;           ///< Which particle to spawn?
         STRING  weather_name;
     };
@@ -159,8 +159,8 @@ extern "C"
     /// A wrapper for the graphics data in "wawalite.txt"
     struct s_wawalite_graphics
     {
-        bool_t exploremode;
-        bool_t usefaredge;
+        C_BOOLEAN exploremode;
+        C_BOOLEAN usefaredge;
     };
 
 //--------------------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ extern "C"
 /// A wrapper for the camera data in "wawalite.txt"
     struct s_wawalite_camera
     {
-        bool_t swing;
+        C_BOOLEAN swing;
         float  swing_rate;
         float  swing_amp;
     };
@@ -178,13 +178,13 @@ extern "C"
 /// A wrapper for the fog data in "wawalite.txt"
     struct s_wawalite_fog
     {
-        bool_t found;
+        C_BOOLEAN found;
         float  top;
         float  bottom;
         float  red;
         float  grn;
         float  blu;
-        bool_t affects_water;
+        C_BOOLEAN affects_water;
     };
 
 //--------------------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    bool_t            write_wawalite_file_vfs( const wawalite_data_t * pdata );
+    C_BOOLEAN            write_wawalite_file_vfs( const wawalite_data_t * pdata );
     wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t * pdata );
 
     wawalite_data_t * wawalite_limit( wawalite_data_t * pdata );

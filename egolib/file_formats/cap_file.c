@@ -64,12 +64,12 @@ cap_t * cap_init( cap_t * pcap )
     }
 
     // Clear non-zero, non-false expansions...
-    pcap->reflect          = btrue;
+    pcap->reflect          = C_TRUE;
     pcap->hidestate        = NOHIDE;
     pcap->spelleffect_type = NO_SKIN_OVERRIDE;
     pcap->skin_override    = NO_SKIN_OVERRIDE;
     pcap->isvaluable       = -1;
-    pcap->draw_icon        = btrue;
+    pcap->draw_icon        = C_TRUE;
 
     // either these will be overridden by data in the data.txt, or
     // they will be limited by the spawning character's max stats
@@ -125,7 +125,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     strncpy( pcap->name, szLoadName, SDL_arraysize( pcap->name ) );
 
     // mark it as loaded
-    pcap->loaded = btrue;
+    pcap->loaded = C_TRUE;
 
     // Read in the real general data
     vfs_get_next_name( fileread, pcap->classname, SDL_arraysize( pcap->classname ) );
@@ -217,7 +217,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     }
 
     // Skin defenses ( 4 skins )
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         iTmp = 0xFF - vfs_get_int( fileread );
@@ -226,7 +226,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        goto_colon_vfs( NULL, fileread, bfalse );
+        goto_colon_vfs( NULL, fileread, C_FALSE );
         for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
             pcap->damage_resistance[damagetype][cnt] = vfs_get_damage_resist( fileread );
@@ -235,7 +235,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
     for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
-        goto_colon_vfs( NULL, fileread, bfalse );
+        goto_colon_vfs( NULL, fileread, C_FALSE );
 
         for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
@@ -253,7 +253,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
         }
     }
 
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         pcap->skin_info.maxaccel[cnt] = vfs_get_float( fileread ) / 80.0f;
@@ -320,9 +320,9 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 
     // Blud
     cTmp = vfs_get_next_char( fileread );
-    if ( 'T' == char_toupper(( unsigned )cTmp ) )  pcap->blud_valid = btrue;
+    if ( 'T' == char_toupper(( unsigned )cTmp ) )  pcap->blud_valid = C_TRUE;
     else if ( 'U' == char_toupper(( unsigned )cTmp ) )  pcap->blud_valid = ULTRABLUDY;
-    else                              pcap->blud_valid = bfalse;
+    else                              pcap->blud_valid = C_FALSE;
 
     pcap->blud_lpip = vfs_get_next_int( fileread );
 
@@ -353,8 +353,8 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     pcap->canbedazed     =  vfs_get_next_bool( fileread );
     pcap->canbegrogged   =  vfs_get_next_bool( fileread );
 
-    goto_colon_vfs( NULL, fileread, bfalse );  // !!!BAD!!! Life add
-    goto_colon_vfs( NULL, fileread, bfalse );  // !!!BAD!!! Mana add
+    goto_colon_vfs( NULL, fileread, C_FALSE );  // !!!BAD!!! Life add
+    goto_colon_vfs( NULL, fileread, C_FALSE );  // !!!BAD!!! Mana add
     if ( vfs_get_next_bool( fileread ) )   pcap->see_invisible_level = 1;
 
     pcap->kursechance                 = vfs_get_next_int( fileread );
@@ -374,7 +374,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
     pcap->canuseplatforms = !pcap->platform;
 
     // Read expansions
-    while ( goto_colon_vfs( NULL, fileread, btrue ) )
+    while ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
     {
         idsz = vfs_get_idsz( fileread );
 
@@ -443,23 +443,23 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
                 {
                     if ( 'S' == *ptr )
                     {
-                        pcap->bump_override_size = btrue;
+                        pcap->bump_override_size = C_TRUE;
                     }
                     else if ( 'B' == *ptr )
                     {
-                        pcap->bump_override_sizebig = btrue;
+                        pcap->bump_override_sizebig = C_TRUE;
                     }
                     else if ( 'H' == *ptr )
                     {
-                        pcap->bump_override_height = btrue;
+                        pcap->bump_override_height = C_TRUE;
                     }
                     else if ( 'C' == *ptr )
                     {
-                        pcap->dont_cull_backfaces = btrue;
+                        pcap->dont_cull_backfaces = C_TRUE;
                     }
                     else if ( 'T' == *ptr )
                     {
-                        pcap->skin_has_transparency = btrue;
+                        pcap->skin_has_transparency = C_TRUE;
                     }
 
                     // start on the next character
@@ -482,7 +482,7 @@ cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateName, cap_t * pcap )
+C_BOOLEAN save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateName, cap_t * pcap )
 {
     /// @author BB
     /// @details export one cap_t struct to a "data.txt" file
@@ -492,11 +492,11 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
 
     int damagetype, skin;
 
-    if ( NULL == pcap ) return bfalse;
+    if ( NULL == pcap ) return C_FALSE;
 
     // Open the file
     filewrite = vfs_openWrite( szSaveName );
-    if ( NULL == filewrite ) return bfalse;
+    if ( NULL == filewrite ) return C_FALSE;
 
     // open the template file
     filetemp = NULL;
@@ -517,7 +517,7 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     if ( NULL == filetemp )
     {
         vfs_close( filewrite );
-        return bfalse;
+        return C_FALSE;
     }
 
     // Real general data
@@ -845,7 +845,7 @@ bool_t save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateNa
     vfs_close( filewrite );
     template_close_vfs( filetemp );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------

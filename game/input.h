@@ -59,10 +59,10 @@ struct s_cursor
     int     x;
     int     y;
     int     z;
-    bool_t  pressed;
-    bool_t  clicked;
-    bool_t  pending_click;
-    bool_t  wheel_event;
+    ego_bool  pressed;
+    ego_bool  clicked;
+    ego_bool  pending_click;
+    ego_bool  wheel_event;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ struct s_cursor
 /// The internal representation of the mouse data
 struct s_mouse_data
 {
-    bool_t                  on;              ///< Is it alive?
+    ego_bool                  on;              ///< Is it alive?
     float                   sense;           ///< Sensitivity threshold
 
     Sint32                  x;               ///< Mouse X movement counter
@@ -89,7 +89,7 @@ mouse_data_t * mouse_data__init( mouse_data_t * ptr );
 
 #define MOUSE_INIT \
     {\
-        bfalse,    /* on */         \
+        ego_false,    /* on */         \
         0.9f,      /* sense */      \
         0,         /* x */          \
         0,         /* y */          \
@@ -103,10 +103,10 @@ mouse_data_t * mouse_data__init( mouse_data_t * ptr );
 /// The internal representation of the keyboard data
 struct s_keyboard_data
 {
-    bool_t  on;                        ///< Is the keyboard alive?
+    ego_bool  on;                        ///< Is the keyboard alive?
 
-    bool_t  chat_mode;                 ///< Input text from keyboard?
-    bool_t  chat_done;                 ///< Input text from keyboard finished?
+    ego_bool  chat_mode;                 ///< Input text from keyboard?
+    ego_bool  chat_done;                 ///< Input text from keyboard finished?
 
     int     state_size;
     Uint8  *state_ptr;
@@ -114,9 +114,9 @@ struct s_keyboard_data
 
 #define KEYBOARD_INIT \
     {\
-        bfalse,   /* on */           \
-        bfalse,   /* chat_mode */    \
-        bfalse,   /* chat_done */    \
+        ego_false,   /* on */           \
+        ego_false,   /* chat_mode */    \
+        ego_false,   /* chat_done */    \
         0,        /* state_size */   \
         NULL,     /* state_ptr */    \
     }
@@ -132,7 +132,7 @@ keyboard_data_t * keyboard_data__init( keyboard_data_t * ptr );
 /// The internal representation of the joystick data
 struct s_joystick_data
 {
-    bool_t  on;                ///< Is the holy joystick alive?
+    ego_bool  on;                ///< Is the holy joystick alive?
 
     float   x;
     float   y;
@@ -161,4 +161,4 @@ void   input_read_all_devices( void );
 
 void      input_cursor_reset( void );
 void      input_cursor_finish_wheel_event( void );
-bool_t    input_cursor_wheel_event_pending( void );
+ego_bool    input_cursor_wheel_event_pending( void );

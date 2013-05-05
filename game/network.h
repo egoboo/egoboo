@@ -82,8 +82,8 @@ extern int     net_players_loaded;
 //--------------------------------------------------------------------------------------------
 void net_initialize( void );
 void net_shutDown( void );
-bool_t net_begin( void );
-bool_t net_end( void );
+ego_bool net_begin( void );
+ego_bool net_end( void );
 
 void net_unbuffer_player_latches( void );
 

@@ -121,18 +121,18 @@ extern "C"
 // egonet_instance_t
 //--------------------------------------------------------------------------------------------
 
-    const bool_t     egonet_instance_get_serviceon( const egonet_instance_t * pnet );
-    const bool_t     egonet_instance_get_hostactive( const egonet_instance_t * pnet );
-    const bool_t     egonet_instance_get_readytostart( const egonet_instance_t * pnet );
-    const bool_t     egonet_instance_get_waitingforclients( const egonet_instance_t * pnet );
+    const C_BOOLEAN     egonet_instance_get_serviceon( const egonet_instance_t * pnet );
+    const C_BOOLEAN     egonet_instance_get_hostactive( const egonet_instance_t * pnet );
+    const C_BOOLEAN     egonet_instance_get_readytostart( const egonet_instance_t * pnet );
+    const C_BOOLEAN     egonet_instance_get_waitingforclients( const egonet_instance_t * pnet );
     const int        egonet_instance_get_local_machine( const egonet_instance_t * pnet );
     const int        egonet_instance_get_client_count( const egonet_instance_t * pnet );
     const ENetHost * egonet_instance_get_myHost( const egonet_instance_t * pnet );
 
-    bool_t egonet_instance_set_hostactive( egonet_instance_t * pnet, const bool_t val );
-    bool_t egonet_instance_set_waitingforclients( egonet_instance_t * pnet, const bool_t val );
-    bool_t egonet_instance_set_readytostart( egonet_instance_t * pnet, const bool_t val );
-    bool_t egonet_instance_set_myHost( egonet_instance_t * pnet, const ENetHost* phost );
+    C_BOOLEAN egonet_instance_set_hostactive( egonet_instance_t * pnet, const C_BOOLEAN val );
+    C_BOOLEAN egonet_instance_set_waitingforclients( egonet_instance_t * pnet, const C_BOOLEAN val );
+    C_BOOLEAN egonet_instance_set_readytostart( egonet_instance_t * pnet, const C_BOOLEAN val );
+    C_BOOLEAN egonet_instance_set_myHost( egonet_instance_t * pnet, const ENetHost* phost );
 
 //--------------------------------------------------------------------------------------------
 // BaseConnectionInfo_t
@@ -158,7 +158,7 @@ extern "C"
 
     struct s_BaseServerState
     {
-        bool_t am_host;
+        C_BOOLEAN am_host;
 
         Uint32 last_frame;
 
@@ -170,7 +170,7 @@ extern "C"
 
 #define BASE_SERVER_STATE_INIT \
     { \
-        bfalse,       /* bool_t                 am_host       */ \
+        C_FALSE,       /* C_BOOLEAN                 am_host       */ \
         (Uint32)(~0), /* Uint32                 last_frame    */ \
         0,            /* size_t                 client_size   */ \
         NULL,         /* STRING               * client_name   */ \
@@ -223,7 +223,7 @@ extern "C"
 // egonet_instance_t
 //--------------------------------------------------------------------------------------------
 
-    const bool_t     egonet_on( void );
+    const C_BOOLEAN     egonet_on( void );
 
 //--------------------------------------------------------------------------------------------
 // Packet reading/writing
@@ -238,23 +238,23 @@ extern "C"
 
     ego_packet_t * ego_packet_ctor( ego_packet_t * ptr );
     ego_packet_t * ego_packet_dtor( ego_packet_t * ptr );
-    bool_t ego_packet_begin( ego_packet_t * ptr );
-    bool_t ego_packet_addUint8( ego_packet_t * ptr, Uint8 uc );
-    bool_t ego_packet_addSint8( ego_packet_t * ptr, Sint8 sc );
-    bool_t ego_packet_addUint16( ego_packet_t * ptr, Uint16 us );
-    bool_t ego_packet_addSint16( ego_packet_t * ptr, Sint16 ss );
-    bool_t ego_packet_addUint32( ego_packet_t * ptr, Uint32 ui );
-    bool_t ego_packet_addSint32( ego_packet_t * ptr, Sint32 si );
-    bool_t ego_packet_addString( ego_packet_t * ptr, const char *string );
+    C_BOOLEAN ego_packet_begin( ego_packet_t * ptr );
+    C_BOOLEAN ego_packet_addUint8( ego_packet_t * ptr, Uint8 uc );
+    C_BOOLEAN ego_packet_addSint8( ego_packet_t * ptr, Sint8 sc );
+    C_BOOLEAN ego_packet_addUint16( ego_packet_t * ptr, Uint16 us );
+    C_BOOLEAN ego_packet_addSint16( ego_packet_t * ptr, Sint16 ss );
+    C_BOOLEAN ego_packet_addUint32( ego_packet_t * ptr, Uint32 ui );
+    C_BOOLEAN ego_packet_addSint32( ego_packet_t * ptr, Sint32 si );
+    C_BOOLEAN ego_packet_addString( ego_packet_t * ptr, const char *string );
 
     // functions that have no use at the moment
-    bool_t ego_packet_readString( ego_packet_t * ptr, char *buffer, int maxLen );
-    bool_t ego_packet_readUint8( ego_packet_t * ptr, Uint8 * pval );
-    bool_t ego_packet_readSint8( ego_packet_t * ptr, Sint8 * pval );
-    bool_t ego_packet_readUint16( ego_packet_t * ptr, Uint16 * pval );
-    bool_t ego_packet_readSint16( ego_packet_t * ptr, Sint16 * pval );
-    bool_t ego_packet_readUint32( ego_packet_t * ptr, Uint32 * pval );
-    bool_t ego_packet_readSint32( ego_packet_t * ptr, Sint32 * pval );
+    C_BOOLEAN ego_packet_readString( ego_packet_t * ptr, char *buffer, int maxLen );
+    C_BOOLEAN ego_packet_readUint8( ego_packet_t * ptr, Uint8 * pval );
+    C_BOOLEAN ego_packet_readSint8( ego_packet_t * ptr, Sint8 * pval );
+    C_BOOLEAN ego_packet_readUint16( ego_packet_t * ptr, Uint16 * pval );
+    C_BOOLEAN ego_packet_readSint16( ego_packet_t * ptr, Sint16 * pval );
+    C_BOOLEAN ego_packet_readUint32( ego_packet_t * ptr, Uint32 * pval );
+    C_BOOLEAN ego_packet_readSint32( ego_packet_t * ptr, Sint32 * pval );
 
 /// enet packet wrapper
     struct s_enet_packet
@@ -265,25 +265,25 @@ extern "C"
 
     enet_packet_t * enet_packet_ctor( enet_packet_t * );
     enet_packet_t * enet_packet_dtor( enet_packet_t * );
-    bool_t enet_packet_startReading( enet_packet_t * ptr, ENetPacket *packet );
-    bool_t enet_packet_doneReading( enet_packet_t * ptr );
+    C_BOOLEAN enet_packet_startReading( enet_packet_t * ptr, ENetPacket *packet );
+    C_BOOLEAN enet_packet_doneReading( enet_packet_t * ptr );
     size_t enet_packet_remainingSize( enet_packet_t * ptr );
-    bool_t enet_packet_readString( enet_packet_t * ptr, char *buffer, size_t maxLen );
-    bool_t enet_packet_readUint8( enet_packet_t * ptr, Uint8 * pval );
-    bool_t enet_packet_readSint8( enet_packet_t * ptr, Sint8 * pval );
-    bool_t enet_packet_readUint16( enet_packet_t * ptr, Uint16 * pval );
-    bool_t enet_packet_readSint16( enet_packet_t * ptr, Sint16 * pval );
-    bool_t enet_packet_readUint32( enet_packet_t * ptr, Uint32 * pval );
-    bool_t enet_packet_readSint32( enet_packet_t * ptr, Sint32 * pval );
+    C_BOOLEAN enet_packet_readString( enet_packet_t * ptr, char *buffer, size_t maxLen );
+    C_BOOLEAN enet_packet_readUint8( enet_packet_t * ptr, Uint8 * pval );
+    C_BOOLEAN enet_packet_readSint8( enet_packet_t * ptr, Sint8 * pval );
+    C_BOOLEAN enet_packet_readUint16( enet_packet_t * ptr, Uint16 * pval );
+    C_BOOLEAN enet_packet_readSint16( enet_packet_t * ptr, Sint16 * pval );
+    C_BOOLEAN enet_packet_readUint32( enet_packet_t * ptr, Uint32 * pval );
+    C_BOOLEAN enet_packet_readSint32( enet_packet_t * ptr, Sint32 * pval );
 
 //--------------------------------------------------------------------------------------------
 // Networking functions
 //--------------------------------------------------------------------------------------------
 
-    void egonet_initialize( BaseServerState_t * ps, BaseClientState_t * pc, size_t size, bool_t req_enet );
+    void egonet_initialize( BaseServerState_t * ps, BaseClientState_t * pc, size_t size, C_BOOLEAN req_enet );
     void egonet_shutDown( void );
-    bool_t egonet_begin( bool_t req_enet );
-    bool_t egonet_end( void );
+    C_BOOLEAN egonet_begin( C_BOOLEAN req_enet );
+    C_BOOLEAN egonet_end( void );
 
     egonet_instance_t * egonet_get_instance( void );
 
@@ -294,26 +294,26 @@ extern "C"
     void egonet_logf( const char *format, ... );
 
 // network packet handling
-    bool_t egonet_broadcastPacket( ego_packet_t * pkt );
-    bool_t egonet_broadcastPacketGuaranteed( ego_packet_t * pkt );
-    bool_t egonet_sendPacketToOneClientGuaranteed( ego_packet_t * pkt, int player );
-    bool_t egonet_sendPacketToPeer( ego_packet_t * ptr, ENetPeer *peer );
-    bool_t egonet_sendPacketToPeerGuaranteed( ego_packet_t * ptr, ENetPeer *peer );
+    C_BOOLEAN egonet_broadcastPacket( ego_packet_t * pkt );
+    C_BOOLEAN egonet_broadcastPacketGuaranteed( ego_packet_t * pkt );
+    C_BOOLEAN egonet_sendPacketToOneClientGuaranteed( ego_packet_t * pkt, int player );
+    C_BOOLEAN egonet_sendPacketToPeer( ego_packet_t * ptr, ENetPeer *peer );
+    C_BOOLEAN egonet_sendPacketToPeerGuaranteed( ego_packet_t * ptr, ENetPeer *peer );
 
     // get values from the instance singleton
-    const bool_t     egonet_get_serviceon( void );
-    const bool_t     egonet_get_hostactive( void );
-    const bool_t     egonet_get_readytostart( void );
-    const bool_t     egonet_get_waitingforclients( void );
+    const C_BOOLEAN     egonet_get_serviceon( void );
+    const C_BOOLEAN     egonet_get_hostactive( void );
+    const C_BOOLEAN     egonet_get_readytostart( void );
+    const C_BOOLEAN     egonet_get_waitingforclients( void );
     const int        egonet_get_local_machine( void );
     const int        egonet_get_client_count( void );
     const ENetHost * egonet_get_myHost( void );
 
     // set values from the instance singleton
-    bool_t egonet_set_hostactive( const bool_t val );
-    bool_t egonet_set_waitingforclients( const bool_t val );
-    bool_t egonet_set_readytostart( const bool_t val );
-    bool_t egonet_set_myHost( const ENetHost* phost );
+    C_BOOLEAN egonet_set_hostactive( const C_BOOLEAN val );
+    C_BOOLEAN egonet_set_waitingforclients( const C_BOOLEAN val );
+    C_BOOLEAN egonet_set_readytostart( const C_BOOLEAN val );
+    C_BOOLEAN egonet_set_myHost( const ENetHost* phost );
 
 // functions that must be implemented externally
     extern egolib_rv egonet_dispatchEvent( ENetEvent *event );

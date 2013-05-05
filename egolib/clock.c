@@ -56,7 +56,7 @@ struct s_ClockState
 };
 
 static ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int size );
-static bool_t         clk_dtor( ClockState_t * cs );
+static C_BOOLEAN         clk_dtor( ClockState_t * cs );
 
 //static void   clk_initTime( ClockState_t * cs );
 static void   clk_setFrameHistoryWindow( ClockState_t * cs, int size );
@@ -113,16 +113,16 @@ ClockState_t * clk_create( const char * name, int size )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t clk_destroy( ClockState_t ** pcs )
+C_BOOLEAN clk_destroy( ClockState_t ** pcs )
 {
-    if ( NULL == pcs ) return bfalse;
+    if ( NULL == pcs ) return C_FALSE;
 
-    if ( NULL == *pcs ) return btrue;
+    if ( NULL == *pcs ) return C_TRUE;
 
     clk_dtor( *pcs );
     EGOBOO_DELETE( *pcs );
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -148,15 +148,15 @@ ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int window_size )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t clk_dtor( ClockState_t * cs )
+C_BOOLEAN clk_dtor( ClockState_t * cs )
 {
-    if ( NULL == cs ) return bfalse;
+    if ( NULL == cs ) return C_FALSE;
 
     EGOBOO_DELETE_ARY( cs->frameHistory );
 
     BLANK_STRUCT_PTR( cs )
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------

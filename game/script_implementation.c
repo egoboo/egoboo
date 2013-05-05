@@ -44,13 +44,13 @@
 //--------------------------------------------------------------------------------------------
 // wrap generic bitwise conversion macros
 //--------------------------------------------------------------------------------------------
-BIT_FIELD bool_to_bit( bool_t val )
+BIT_FIELD bool_to_bit( ego_bool val )
 {
     return BOOL_TO_BIT( val );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t bit_to_bool( BIT_FIELD val )
+ego_bool bit_to_bool( BIT_FIELD val )
 {
     return BIT_TO_BOOL( val );
 }
@@ -103,25 +103,25 @@ BIT_FIELD BIT_FIELD_unset_bits( BIT_FIELD val, BIT_FIELD bits )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BIT_FIELD_has_some_bits( BIT_FIELD val, BIT_FIELD test )
+ego_bool BIT_FIELD_has_some_bits( BIT_FIELD val, BIT_FIELD test )
 {
     return HAS_SOME_BITS( val, test );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BIT_FIELD_has_all_bits( BIT_FIELD val, BIT_FIELD test )
+ego_bool BIT_FIELD_has_all_bits( BIT_FIELD val, BIT_FIELD test )
 {
     return HAS_ALL_BITS( val, test );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BIT_FIELD_has_no_bits( BIT_FIELD val, BIT_FIELD test )
+ego_bool BIT_FIELD_has_no_bits( BIT_FIELD val, BIT_FIELD test )
 {
     return HAS_NO_BITS( val, test );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BIT_FIELD_missing_bits( BIT_FIELD val, BIT_FIELD test )
+ego_bool BIT_FIELD_missing_bits( BIT_FIELD val, BIT_FIELD test )
 {
     return HAS_SOME_BITS( val, test ) && !HAS_ALL_BITS( val, test );
 }
@@ -158,11 +158,11 @@ BIT_FIELD BIT_FIELD_clear_one_bit( BIT_FIELD val, size_t which )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BIT_FIELD_test_one_bit( BIT_FIELD val, size_t which )
+ego_bool BIT_FIELD_test_one_bit( BIT_FIELD val, size_t which )
 {
     const size_t bit_count = 8 * sizeof( BIT_FIELD );
 
-    bool_t retval = bfalse;
+    ego_bool retval = ego_false;
 
     if ( which >= 0 && which < bit_count )
     {
@@ -193,7 +193,7 @@ BIT_FIELD BIT_FIELD_clear_all_bits( BIT_FIELD val, BIT_FIELD bits )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits )
+ego_bool BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits )
 {
     return HAS_ALL_BITS( val, bits );
 }
@@ -201,15 +201,15 @@ bool_t BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits )
 //--------------------------------------------------------------------------------------------
 // waypoint_list_t
 //--------------------------------------------------------------------------------------------
-bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp )
+ego_bool waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp )
 {
     int index;
 
     // is the list valid?
-    if ( NULL == plst || plst->tail >= MAXWAY ) return bfalse;
+    if ( NULL == plst || plst->tail >= MAXWAY ) return ego_false;
 
     // is the list is empty?
-    if ( 0 == plst->head ) return bfalse;
+    if ( 0 == plst->head ) return ego_false;
 
     if ( plst->tail > plst->head )
     {
@@ -236,16 +236,16 @@ bool_t waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp )
     wp[kY] = plst->pos[index][kY];
     wp[kZ] = plst->pos[index][kZ];
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y )
+ego_bool waypoint_list_push( waypoint_list_t * plst, int x, int y )
 {
     /// @author BB
     /// @details Add a waypoint to the waypoint list
 
-    if ( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return ego_false;
 
     // add the value
     plst->pos[plst->head][kX] = x;
@@ -256,60 +256,60 @@ bool_t waypoint_list_push( waypoint_list_t * plst, int x, int y )
     plst->head++;
     if ( plst->head >= MAXWAY ) plst->head = MAXWAY - 1;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t waypoint_list_reset( waypoint_list_t * plst )
+ego_bool waypoint_list_reset( waypoint_list_t * plst )
 {
     /// @author BB
     /// @details reset the waypoint list to the beginning
 
-    if ( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return ego_false;
 
     plst->tail = 0;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t waypoint_list_clear( waypoint_list_t * plst )
+ego_bool waypoint_list_clear( waypoint_list_t * plst )
 {
     /// @author BB
     /// @details Clear out all waypoints
 
-    if ( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return ego_false;
 
     plst->tail = 0;
     plst->head = 0;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t waypoint_list_empty( waypoint_list_t * plst )
+ego_bool waypoint_list_empty( waypoint_list_t * plst )
 {
-    if ( NULL == plst ) return btrue;
+    if ( NULL == plst ) return ego_true;
 
     return 0 == plst->head;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t waypoint_list_finished( waypoint_list_t * plst )
+ego_bool waypoint_list_finished( waypoint_list_t * plst )
 {
-    if ( NULL == plst || 0 == plst->head ) return btrue;
+    if ( NULL == plst || 0 == plst->head ) return ego_true;
 
     return plst->tail == plst->head;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t waypoint_list_advance( waypoint_list_t * plst )
+ego_bool waypoint_list_advance( waypoint_list_t * plst )
 {
-    bool_t retval;
+    ego_bool retval;
 
-    if ( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return ego_false;
 
-    retval = bfalse;
+    retval = ego_false;
     if ( plst->tail > plst->head )
     {
         // fix the tail
@@ -319,7 +319,7 @@ bool_t waypoint_list_advance( waypoint_list_t * plst )
     {
         // advance the tail
         plst->tail++;
-        retval = btrue;
+        retval = ego_true;
     }
 
     // clamp the tail to valid values
@@ -332,9 +332,9 @@ bool_t waypoint_list_advance( waypoint_list_t * plst )
 // line_of_sight_info_t
 //--------------------------------------------------------------------------------------------
 
-bool_t line_of_sight_blocked( line_of_sight_info_t * plos )
+ego_bool line_of_sight_blocked( line_of_sight_info_t * plos )
 {
-    bool_t mesh_hit = bfalse, chr_hit = bfalse;
+    ego_bool mesh_hit = ego_false, chr_hit = ego_false;
 
     mesh_hit = line_of_sight_with_mesh( plos );
 
@@ -350,7 +350,7 @@ bool_t line_of_sight_blocked( line_of_sight_info_t * plos )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t line_of_sight_with_mesh( line_of_sight_info_t * plos )
+ego_bool line_of_sight_with_mesh( line_of_sight_info_t * plos )
 {
     Uint32 fan_last;
 
@@ -364,12 +364,12 @@ bool_t line_of_sight_with_mesh( line_of_sight_info_t * plos )
     int dbig, dsmall;
     int TwoDsmall, TwoDsmallMinusTwoDbig, TwoDsmallMinusDbig;
 
-    bool_t steep;
+    ego_bool steep;
 
-    if ( NULL == plos ) return bfalse;
+    if ( NULL == plos ) return ego_false;
 
     //is there any point of these calculations?
-    if ( EMPTY_BIT_FIELD == plos->stopped_by ) return bfalse;
+    if ( EMPTY_BIT_FIELD == plos->stopped_by ) return ego_false;
 
     ix_stt = FLOOR( plos->x0 / GRID_FSIZE );
     ix_end = FLOOR( plos->x1 / GRID_FSIZE );
@@ -457,7 +457,7 @@ bool_t line_of_sight_with_mesh( line_of_sight_info_t * plos )
                 plos->collide_y  = iy;
                 plos->collide_fx = collide_fx;
 
-                return btrue;
+                return ego_true;
             }
 
             fan_last = fan;
@@ -475,14 +475,14 @@ bool_t line_of_sight_with_mesh( line_of_sight_info_t * plos )
         }
     }
 
-    return bfalse;
+    return ego_false;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t line_of_sight_with_characters( line_of_sight_info_t * plos )
+ego_bool line_of_sight_with_characters( line_of_sight_info_t * plos )
 {
 
-    if ( NULL == plos ) return bfalse;
+    if ( NULL == plos ) return ego_false;
 
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
@@ -490,20 +490,20 @@ bool_t line_of_sight_with_characters( line_of_sight_info_t * plos )
     }
     CHR_END_LOOP();
 
-    return bfalse;
+    return ego_false;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y )
+ego_bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y )
 {
     // AddWaypoint( tmpx = "x position", tmpy = "y position" )
     /// @author ZZ
     /// @details This function tells the character where to move next
 
-    bool_t returncode;
+    ego_bool returncode;
 
-    if ( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return ego_false;
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
     cap_t * pcap;
@@ -516,7 +516,7 @@ bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos
     loc_pos.y = pos_y;
 
     // is this a safe position?
-    returncode = bfalse;
+    returncode = ego_false;
 
     pcap = chr_get_pcap( ichr );
     if ( NULL != pcap )
@@ -553,7 +553,7 @@ bool_t AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y, bool_t * used_astar_ptr )
+ego_bool FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y, ego_bool * used_astar_ptr )
 {
     // FindPath
     /// @author ZF
@@ -563,12 +563,12 @@ bool_t FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y,
     int src_ix, src_iy;
     int dst_ix, dst_iy;
     line_of_sight_info_t los_info;
-    bool_t straight_line;
-    bool_t returncode = bfalse;
+    ego_bool straight_line;
+    ego_bool returncode = ego_false;
 
     if ( NULL != used_astar_ptr )
     {
-        *used_astar_ptr = bfalse;
+        *used_astar_ptr = ego_false;
     }
 
     //Our current position
@@ -583,9 +583,9 @@ bool_t FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y,
     waypoint_list_clear( plst );
 
     //Don't do need to do anything if there is no need to move
-    if ( src_ix == dst_ix && src_iy == dst_iy ) return bfalse;
+    if ( src_ix == dst_ix && src_iy == dst_iy ) return ego_false;
 
-    returncode = bfalse;
+    returncode = ego_false;
 
     //setup line of sight data for source
     los_info.stopped_by = pchr->stoppedby;
@@ -614,7 +614,7 @@ bool_t FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y,
 
         if ( NULL != used_astar_ptr )
         {
-            *used_astar_ptr = btrue;
+            *used_astar_ptr = ego_true;
         }
     }
 
@@ -629,7 +629,7 @@ bool_t FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t Compass( fvec2_base_t pos, int facing, float distance )
+ego_bool Compass( fvec2_base_t pos, int facing, float distance )
 {
     // Compass( tmpturn = "rotation", tmpdistance = "radius" )
 
@@ -645,7 +645,7 @@ bool_t Compass( fvec2_base_t pos, int facing, float distance )
     pos[kX] -= turntocos[ turn ] * distance;
     pos[kY] -= turntosin[ turn ] * distance;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -699,11 +699,11 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
     Uint32 endtile;
     Uint32 fan;
-    bool_t       useful;
+    ego_bool       useful;
     ego_tile_info_t * ptile = NULL;
     int loc_starttile;
 
-    if ( INVALID_PASSAGE( passage ) ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return ego_false;
 
     // limit the start tile the the 256 tile images that we have
     loc_starttile = CLIP_TO_08BITS( starttile );
@@ -712,7 +712,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     endtile   =  loc_starttile + frames - 1;
     endtile = CLIP( endtile, 0, 255 );
 
-    useful = bfalse;
+    useful = ego_false;
     CHR_BEGIN_LOOP_ACTIVE( character, pchr )
     {
         float lerp_z;
@@ -744,7 +744,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
                     *ptilex = pchr->pos.x;
                     *ptiley = pchr->pos.y;
 
-                    useful = btrue;
+                    useful = ego_true;
 
                     // Change the tile image
                     img++;
@@ -783,11 +783,11 @@ Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pst
     pro_t *ppro;
     char * dst, * dst_end;
 
-    Uint8 returncode = btrue;
+    Uint8 returncode = ego_true;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !ALLOCATED_PCHR( pchr ) ) return ego_false;
 
-    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, message_index ) ) return bfalse;
+    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, message_index ) ) return ego_false;
     ppro = ProList_get_ptr( pchr->profile_ref );
 
     ichr           = GET_REF_PCHR( pchr );
@@ -809,7 +809,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
 {
     /// @author ZZ
     /// @details This function finds the next tile in the passage, x0 and y0
-    ///    must be set first, and are set on a find.  Returns btrue or bfalse
+    ///    must be set first, and are set on a find.  Returns ego_true or ego_false
     ///    depending on if it finds one or not
 
     int x, y;
@@ -817,7 +817,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
     passage_t  * ppass = NULL;
     ego_tile_info_t * ptile = NULL;
 
-    if ( INVALID_PASSAGE( passage ) ) return bfalse;
+    if ( INVALID_PASSAGE( passage ) ) return ego_false;
     ppass = PassageStack_get_ptr( passage );
 
     // Do the first row
@@ -838,7 +838,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
             {
                 *px1 = ( x * GRID_ISIZE ) + 64;
                 *py1 = ( y * GRID_ISIZE ) + 64;
-                return btrue;
+                return ego_true;
             }
         }
         y++;
@@ -856,12 +856,12 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
             {
                 *px1 = x * GRID_ISIZE + 64;
                 *py1 = y * GRID_ISIZE + 64;
-                return btrue;
+                return ego_true;
             }
         }
     }
 
-    return bfalse;
+    return ego_false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -875,7 +875,7 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
     size_t length;
     pro_t *ppro;
 
-    if ( !IS_VALID_MESSAGE_PRO( iprofile, message ) ) return bfalse;
+    if ( !IS_VALID_MESSAGE_PRO( iprofile, message ) ) return ego_false;
     ppro = ProList_get_ptr( iprofile );
 
     slot = DisplayMsg_get_free();
@@ -890,11 +890,11 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
 
     *dst_end = CSTR_END;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool_t find_ranged, bool_t use_line_of_sight )
+CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, ego_bool find_ranged, ego_bool use_line_of_sight )
 {
     /// @author ZF
     /// @details This function searches the nearby vincinity for a melee weapon the character can use
@@ -908,7 +908,7 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool_t fin
 
     line_of_sight_info_t los;
 
-    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
+    if ( !DEFINED_PCHR( pchr ) ) return ego_false;
     ichr = GET_INDEX_PCHR( pchr );
 
     //get the model for this character
@@ -980,18 +980,17 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool_t fin
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t FlashObject( chr_t * pchr, Uint8 value )
+ego_bool FlashObject( chr_t * pchr, Uint8 value )
 {
     /// @author ZZ
     /// @details This function sets a character's lighting
 
     gfx_rv flash_rv;
 
-    if ( !DEFINED_PCHR( pchr ) ) return bfalse;
+    if ( !DEFINED_PCHR( pchr ) ) return ego_false;
 
     flash_rv = chr_instance_flash( &( pchr->inst ), value );
 
     return gfx_success == flash_rv;
 }
-
 

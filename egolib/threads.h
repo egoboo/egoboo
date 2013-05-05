@@ -55,15 +55,15 @@ extern "C"
     egolib_thread_t * egolib_thread_start( egolib_thread_t *, SDL_thread_callback_t, void * );
 
 // thread control
-    bool_t egolib_thread_req_end( egolib_thread_t * );
-    bool_t egolib_thread_req_quit( egolib_thread_t * );
-    bool_t egolib_thread_kill( egolib_thread_t * );
+    C_BOOLEAN egolib_thread_req_end( egolib_thread_t * );
+    C_BOOLEAN egolib_thread_req_quit( egolib_thread_t * );
+    C_BOOLEAN egolib_thread_kill( egolib_thread_t * );
 
 // accessors
-    bool_t egolib_thread_running( const egolib_thread_t * );
-    bool_t egolib_thread_check_started( const egolib_thread_t * );
-    bool_t egolib_thread_check_done( const egolib_thread_t * );
-    bool_t egolib_thread_check_error( const egolib_thread_t * );
+    C_BOOLEAN egolib_thread_running( const egolib_thread_t * );
+    C_BOOLEAN egolib_thread_check_started( const egolib_thread_t * );
+    C_BOOLEAN egolib_thread_check_done( const egolib_thread_t * );
+    C_BOOLEAN egolib_thread_check_error( const egolib_thread_t * );
     const SDL_Thread * egolib_thread_get_thread_ptr( const egolib_thread_t * );
 
 //--------------------------------------------------------------------------------------------

@@ -95,7 +95,7 @@ static void cart_mouse_data_mesh_set_tile( Uint16 tiletoset );
 static void cart_mouse_data_flatten_mesh();
 static void cart_mouse_data_clear_mesh();
 static void cart_mouse_data_three_e_mesh();
-static void cart_mouse_data_mesh_replace_tile( bool_t tx_only, bool_t at_floor_level );
+static void cart_mouse_data_mesh_replace_tile( ego_bool tx_only, ego_bool at_floor_level );
 static void cart_mouse_data_mesh_set_fx();
 static void cart_mouse_data_rect_select();
 static void cart_mouse_data_rect_unselect();
@@ -125,7 +125,7 @@ static int     brushamount = 50;   // Amount of raise/lower
 static float   debugx = -1;        // Blargh
 static float   debugy = -1;        //
 
-static bool_t addinglight = bfalse;
+static ego_bool addinglight = ego_false;
 
 static int numlight;
 static light_t light_lst[MAXLIGHT];
@@ -134,8 +134,8 @@ static int ambi = 22;
 static int ambicut = 1;
 static int direct = 16;
 
-static bool_t _sdl_atexit_registered = bfalse;
-static bool_t _ttf_atexit_registered = bfalse;
+static ego_bool _sdl_atexit_registered = ego_false;
+static ego_bool _ttf_atexit_registered = ego_false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -144,12 +144,12 @@ static bool_t _ttf_atexit_registered = bfalse;
 static void draw_cursor_in_window( window_t * pwin );
 static void unbound_mouse();
 static void bound_mouse();
-static bool_t cartman_check_keys( const char *modname, cartman_mpd_t * pmesh );
-static bool_t cartman_check_mouse( const char *modname, cartman_mpd_t * pmesh );
+static ego_bool cartman_check_keys( const char *modname, cartman_mpd_t * pmesh );
+static ego_bool cartman_check_mouse( const char *modname, cartman_mpd_t * pmesh );
 static void   cartman_check_input( const char *modname, cartman_mpd_t * pmesh );
 
 // loading
-static bool_t load_module( const char *modname, cartman_mpd_t * pmesh );
+static ego_bool load_module( const char *modname, cartman_mpd_t * pmesh );
 static void gfx_system_load_basic_textures( const char *modname );
 static void cartman_create_mesh( cartman_mpd_t * pmesh );
 
@@ -207,8 +207,8 @@ static void main_end( void );
 extern "C"
 {
 #endif
-    extern bool_t config_download( egoboo_config_t * pcfg );
-    extern bool_t config_upload( egoboo_config_t * pcfg );
+    extern ego_bool config_download( egoboo_config_t * pcfg );
+    extern ego_bool config_upload( egoboo_config_t * pcfg );
 #if defined(__cplusplus)
 }
 
@@ -406,7 +406,7 @@ void gfx_system_load_basic_textures( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t load_module( const char *modname, cartman_mpd_t * pmesh )
+ego_bool load_module( const char *modname, cartman_mpd_t * pmesh )
 {
     STRING mod_path = EMPTY_CSTR;
     wawalite_data_t * pdata;
@@ -417,7 +417,7 @@ bool_t load_module( const char *modname, cartman_mpd_t * pmesh )
 
     if ( !setup_init_module_vfs_paths( modname ) )
     {
-        return bfalse;
+        return ego_false;
     }
 
     //  show_name(mod_path);
@@ -438,7 +438,7 @@ bool_t load_module( const char *modname, cartman_mpd_t * pmesh )
     numlight = 0;
     addinglight = 0;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -491,7 +491,7 @@ void render_tile_window( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
                     if ( NULL != tx_tile )
                     {
-                        draw_top_tile( x, y, fan, tx_tile, bfalse, pwin->pmesh );
+                        draw_top_tile( x, y, fan, tx_tile, ego_false, pwin->pmesh );
                     }
                 }
             }
@@ -777,7 +777,7 @@ void load_all_windows( cartman_mpd_t * pmesh )
 
     for ( cnt = 0; cnt < MAXWIN; cnt++ )
     {
-        window_lst[cnt].on = bfalse;
+        window_lst[cnt].on = ego_false;
         oglx_texture_Release( &( window_lst[cnt].tex ) );
     }
 
@@ -991,7 +991,7 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
     int    mpix_x, mpix_z;
     float  mpos_x, mpos_z;
     float  mpos_y0, mpos_y1;
-    bool_t inside;
+    ego_bool inside;
 
     if ( NULL == pwin || !pwin->on || !HAS_BITS( pwin->mode, WINMODE_SIDE ) ) return;
 
@@ -1059,7 +1059,7 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
         {
             if ( -1 == mdata.rect_drag )
             {
-                mdata.rect_draw = btrue;
+                mdata.rect_draw = ego_true;
                 mdata.rect_drag = pwin->id;
                 mdata.rect_done = -1;
 
@@ -1103,7 +1103,7 @@ void cartman_check_mouse_side( window_t * pwin, float zoom_hrz, float zoom_vrt )
                 cart_mouse_data_rect_select();
             }
 
-            mdata.rect_draw = bfalse;
+            mdata.rect_draw = ego_false;
             mdata.rect_drag = -1;
             mdata.rect_done = -1;
         }
@@ -1156,7 +1156,7 @@ void cartman_check_mouse_tile( window_t * pwin, float zoom_hrz, float zoom_vrt )
     int fan_tmp;
     int mpix_x, mpix_y;
     float mpos_x, mpos_y;
-    bool_t inside;
+    ego_bool inside;
 
     if ( NULL == pwin || !pwin->on || !HAS_BITS( pwin->mode, WINMODE_TILE ) ) return;
 
@@ -1247,12 +1247,12 @@ void cartman_check_mouse_tile( window_t * pwin, float zoom_hrz, float zoom_vrt )
 
         if ( !CART_KEYDOWN( SDLK_k ) )
         {
-            addinglight = bfalse;
+            addinglight = ego_false;
         }
         if ( CART_KEYDOWN( SDLK_k ) && !addinglight )
         {
             add_light( mdata.win_mpos_x, mdata.win_mpos_y, MINRADIUS / zoom_hrz, MAP_MAXLEVEL / zoom_hrz );
-            addinglight = btrue;
+            addinglight = ego_true;
         }
         if ( addinglight )
         {
@@ -1266,7 +1266,7 @@ void cartman_check_mouse_fx( window_t * pwin, float zoom_hrz, float zoom_vrt )
 {
     int mpix_x, mpix_y;
     float mpos_x, mpos_y;
-    bool_t inside;
+    ego_bool inside;
 
     if ( NULL == pwin || !pwin->on || !HAS_BITS( pwin->mode, WINMODE_FX ) ) return;
 
@@ -1366,7 +1366,7 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
     int mpix_x, mpix_y;
     float mpos_x, mpos_y;
     float mpos_z0, mpos_z1;
-    bool_t inside;
+    ego_bool inside;
 
     if ( NULL == pwin || !pwin->on || !HAS_BITS( pwin->mode, WINMODE_VERTEX ) ) return;
 
@@ -1434,7 +1434,7 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
         {
             if ( -1 == mdata.rect_drag )
             {
-                mdata.rect_draw = btrue;
+                mdata.rect_draw = ego_true;
                 mdata.rect_drag = pwin->id;
                 mdata.rect_done = -1;
 
@@ -1476,7 +1476,7 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
                 cart_mouse_data_rect_select();
             }
 
-            mdata.rect_draw = bfalse;
+            mdata.rect_draw = ego_false;
             mdata.rect_drag = -1;
             mdata.rect_done = -1;
         }
@@ -1501,11 +1501,11 @@ void cartman_check_mouse_vertex( window_t * pwin, float zoom_hrz, float zoom_vrt
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
+ego_bool cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
 {
     int cnt;
 
-    if ( !mos.on ) return bfalse;
+    if ( !mos.on ) return ego_false;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1539,7 +1539,7 @@ bool_t cartman_check_mouse( const char * modulename, cartman_mpd_t * pmesh )
         }
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1556,9 +1556,9 @@ void ease_up_mesh( cartman_mpd_t * pmesh, float zoom_vrt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
+ego_bool cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
 {
-    if ( !check_keys( 20 ) ) return bfalse;
+    if ( !check_keys( 20 ) ) return ego_false;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -1851,20 +1851,20 @@ bool_t cartman_check_keys( const char * modname, cartman_mpd_t * pmesh )
         mdata.presser = 3;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_input_mouse( SDL_Event * pevt )
+ego_bool check_input_mouse( SDL_Event * pevt )
 {
-    bool_t handled = bfalse;
+    ego_bool handled = ego_false;
 
-    if ( NULL == pevt || !mos.on ) return bfalse;
+    if ( NULL == pevt || !mos.on ) return ego_false;
 
     if ( 0 == mos.b )
     {
-        mos.drag = bfalse;
-        mos.drag_begin = bfalse;
+        mos.drag = ego_false;
+        mos.drag_begin = ego_false;
 
         // set mdata??
     }
@@ -1886,8 +1886,8 @@ bool_t check_input_mouse( SDL_Event * pevt )
                     mos.b |= SDL_BUTTON( SDL_BUTTON_RIGHT );
                     break;
             }
-            ui.pending_click = btrue;
-            handled = btrue;
+            ui.pending_click = ego_true;
+            handled = ego_true;
             break;
 
         case SDL_MOUSEBUTTONUP:
@@ -1905,8 +1905,8 @@ bool_t check_input_mouse( SDL_Event * pevt )
                     mos.b &= ~SDL_BUTTON( SDL_BUTTON_RIGHT );
                     break;
             }
-            ui.pending_click = bfalse;
-            handled = btrue;
+            ui.pending_click = ego_false;
+            handled = ego_true;
             break;
 
         case SDL_MOUSEMOTION:
@@ -1920,7 +1920,7 @@ bool_t check_input_mouse( SDL_Event * pevt )
                 }
                 else
                 {
-                    mos.drag = bfalse;
+                    mos.drag = ego_false;
                 }
             }
 
@@ -1942,12 +1942,12 @@ bool_t check_input_mouse( SDL_Event * pevt )
         if ( mos.drag_begin )
         {
             // start dragging
-            mos.drag = btrue;
+            mos.drag = ego_true;
         }
         else if ( !mos.drag )
         {
             // set the dragging to begin the next mouse time the mouse moves
-            mos.drag_begin = btrue;
+            mos.drag_begin = ego_true;
 
             // initialize the drag rect
             mos.tlx = mos.x;
@@ -1966,19 +1966,19 @@ bool_t check_input_mouse( SDL_Event * pevt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_input_keyboard( SDL_Event * pevt )
+ego_bool check_input_keyboard( SDL_Event * pevt )
 {
-    bool_t handled = bfalse;
+    ego_bool handled = ego_false;
 
-    if ( NULL == pevt || !key.on ) return bfalse;
+    if ( NULL == pevt || !key.on ) return ego_false;
 
     switch ( pevt->type )
     {
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             key.state = pevt->key.state;
-            key.needs_update = btrue;
-            handled = btrue;
+            key.needs_update = ego_true;
+            handled = ego_true;
             break;
     }
 
@@ -2123,7 +2123,7 @@ void draw_lotsa_stuff( cartman_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 void draw_main( cartman_mpd_t * pmesh )
 {
-    bool_t recalc_lighting = bfalse;
+    ego_bool recalc_lighting = ego_false;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
@@ -2139,15 +2139,15 @@ void draw_main( cartman_mpd_t * pmesh )
 
         itmp = ambi;
         draw_slider( 0, 250, 19, 350, &ambi,          0, 200 );
-        if ( itmp != ambi ) recalc_lighting = btrue;
+        if ( itmp != ambi ) recalc_lighting = ego_true;
 
         itmp = ambicut;
         draw_slider( 20, 250, 39, 350, &ambicut,       0, ambi );
-        if ( itmp != ambicut ) recalc_lighting = btrue;
+        if ( itmp != ambicut ) recalc_lighting = ego_true;
 
         itmp = direct;
         draw_slider( 40, 250, 59, 350, &direct,        0, 100 );
-        if ( itmp != direct ) recalc_lighting = btrue;
+        if ( itmp != direct ) recalc_lighting = ego_true;
 
         draw_slider( 60, 250, 79, 350, &brushamount, -50,  50 );
 
@@ -2244,7 +2244,7 @@ int main( int argcnt, char* argtext[] )
     {
         log_error( "Cannot load the setup file \"%s\".\n", fname );
     }
-    config_download( &cfg, btrue );
+    config_download( &cfg, ego_true );
 
     // initialize the SDL elements
     cartman_init_SDL_base();
@@ -2286,7 +2286,7 @@ int main( int argcnt, char* argtext[] )
 }
 
 //--------------------------------------------------------------------------------------------
-static bool_t _sdl_initialized_base = bfalse;
+static ego_bool _sdl_initialized_base = ego_false;
 void cartman_init_SDL_base()
 {
     if ( _sdl_initialized_base ) return;
@@ -2305,7 +2305,7 @@ void cartman_init_SDL_base()
     if ( !_sdl_atexit_registered )
     {
         atexit( SDL_Quit );
-        _sdl_atexit_registered = bfalse;
+        _sdl_atexit_registered = ego_false;
     }
 
     log_info( "Intializing SDL Timing Services... " );
@@ -2330,7 +2330,7 @@ void cartman_init_SDL_base()
         log_message( "Success!\n" );
     }
 
-    _sdl_initialized_base = btrue;
+    _sdl_initialized_base = ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2420,13 +2420,13 @@ void cartman_check_input( const char * modulename, cartman_mpd_t * pmesh )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t config_download( egoboo_config_t * pcfg )
+ego_bool config_download( egoboo_config_t * pcfg )
 {
     return setup_download( pcfg );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t config_upload( egoboo_config_t * pcfg )
+ego_bool config_upload( egoboo_config_t * pcfg )
 {
     return setup_upload( pcfg );
 }
@@ -2478,7 +2478,7 @@ void cart_mouse_data_three_e_mesh()
 }
 
 //--------------------------------------------------------------------------------------------
-void cart_mouse_data_mesh_replace_tile( bool_t tx_only, bool_t at_floor_level )
+void cart_mouse_data_mesh_replace_tile( ego_bool tx_only, ego_bool at_floor_level )
 {
     mesh_replace_tile( mdata.win_mesh, mdata.win_fan_x, mdata.win_fan_y, mdata.win_fan, mdata.tx, mdata.upper, mdata.fx, mdata.type, mdata.presser, tx_only, at_floor_level );
 }

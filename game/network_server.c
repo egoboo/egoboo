@@ -233,11 +233,11 @@ egolib_rv sv_hostGame( void )
         }
 
         // Try to create a host player
-        //return create_player(btrue);
-        ServerState.base.am_host = btrue;
+        //return create_player(ego_true);
+        ServerState.base.am_host = C_TRUE;
 
         // Moved from net_sayHello because there they cause a race issue
-        egonet_set_waitingforclients( btrue );
+        egonet_set_waitingforclients( C_TRUE );
         net_players_loaded = 0;
     }
 
@@ -253,7 +253,7 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
     int time;
 
     ego_packet_t  ego_pkt;
-    bool_t handled;
+    ego_bool handled;
 
     Uint8  ub;
     Uint32 ui;
@@ -263,7 +263,7 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
     if ( !egonet_on() || NULL == enet_pkt ) return rv_error;
 
     // assume the best
-    handled = btrue;
+    handled = ego_true;
 
     // log the packet
     log_info( "sv_handlePacket: Received " );
@@ -280,7 +280,7 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
                 net_players_ready++;
                 if ( net_players_ready >= ServerState.base.client_count )
                 {
-                    egonet_set_readytostart( btrue );
+                    egonet_set_readytostart( C_TRUE );
                 }
             }
             break;
@@ -332,7 +332,7 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
                 if ( net_players_loaded == ServerState.base.client_count )
                 {
                     // Let the games begin...
-                    egonet_set_waitingforclients( bfalse );
+                    egonet_set_waitingforclients( C_FALSE );
                     ego_packet_begin( &ego_pkt );
                     ego_packet_addUint16( &ego_pkt, TO_REMOTE_START );
                     egonet_broadcastPacketGuaranteed( &ego_pkt );
@@ -376,7 +376,7 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
             //    break;
 
         default:
-            handled = bfalse;
+            handled = ego_false;
             break;
     }
 
@@ -385,5 +385,4 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
 
     return handled ? rv_success : rv_fail;
 }
-
 

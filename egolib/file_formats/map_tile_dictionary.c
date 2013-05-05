@@ -41,7 +41,7 @@ static tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size )
+C_BOOLEAN tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size )
 {
     /// @author ZZ
     /// @details This function loads fan types for the terrain
@@ -55,12 +55,12 @@ bool_t tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdic
     vfs_FILE* fileread;
     tile_definition_t * pdef_sml, * pdef_big;
 
-    if ( NULL == pdict ) return bfalse;
+    if ( NULL == pdict ) return C_FALSE;
 
     // "delete" the old list
     BLANK_STRUCT_PTR( pdict );
 
-    if ( !VALID_CSTR( filename ) ) return bfalse;
+    if ( !VALID_CSTR( filename ) ) return C_FALSE;
 
     // handle default parameters
     if ( max_dict_size < 0 )
@@ -73,7 +73,7 @@ bool_t tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdic
     if ( NULL == fileread )
     {
         log_error( "Cannot load the tile definitions \"%s\".\n", filename );
-        return bfalse;
+        return C_FALSE;
     }
 
     fantype_count    = vfs_get_next_int( fileread );
@@ -148,17 +148,17 @@ bool_t tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdic
 
     vfs_close( fileread );
 
-    pdict->loaded = btrue;
+    pdict->loaded = C_TRUE;
 
     pdict = tile_dictionary_finalize( pdict );
 
-    return btrue;
+    return C_TRUE;
 
 tile_dictionary_load_vfs_fail:
 
     BLANK_STRUCT_PTR( pdict );
 
-    return bfalse;
+    return C_FALSE;
 }
 
 //--------------------------------------------------------------------------------------------

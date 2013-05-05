@@ -63,7 +63,7 @@ token_t * token_ctor( token_t * pt );
 // the current state of the parser
 struct s_parser_state
 {
-    bool_t       error;
+    ego_bool       error;
     token_t      token;
     int          line_count;
 
@@ -84,7 +84,7 @@ parser_state_t *  parser_state_ctor( parser_state_t * ps )
     token_ctor( &( ps->token ) );
 
     // just to be explicit
-    ps->error = bfalse;
+    ps->error = ego_false;
 
     return ps;
 }
@@ -105,7 +105,7 @@ static script_info_t default_ai_script;
 
 INSTANTIATE_STATIC_ARY( OpListAry, OpList );
 
-bool_t debug_scripts     = bfalse;
+ego_bool debug_scripts     = ego_false;
 FILE * debug_script_file = NULL;
 
 const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
@@ -601,21 +601,21 @@ parser_state_t * script_compiler_get_state( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t script_compiler_error( parser_state_t * ps )
+ego_bool script_compiler_error( parser_state_t * ps )
 {
-    if ( NULL == ps ) return btrue;
+    if ( NULL == ps ) return ego_true;
 
     return ps->error;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t script_compiler_clear_error( parser_state_t * ps )
+ego_bool script_compiler_clear_error( parser_state_t * ps )
 {
-    if ( NULL == ps ) return btrue;
+    if ( NULL == ps ) return ego_true;
 
-    ps->error = bfalse;
+    ps->error = ego_false;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -674,17 +674,17 @@ size_t load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript )
 
     int stillgoing, foundtext;
     char cTmp;
-    bool_t tabs_warning_needed, inside_string;
+    ego_bool tabs_warning_needed, inside_string;
 
     // Parse to start to maintain indentation
     ps->line_buffer[0] = CSTR_END;
     ps->line_buffer_count = 0;
 
-    stillgoing = btrue;
-    inside_string = bfalse;
+    stillgoing = ego_true;
+    inside_string = ego_false;
 
     // try to trap all end of line conditions so we can properly count the lines
-    tabs_warning_needed = bfalse;
+    tabs_warning_needed = ego_false;
     while ( read < ps->load_buffer_count )
     {
         cTmp = ps->load_buffer[read];
@@ -712,7 +712,7 @@ size_t load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript )
 
         if ( C_TAB_CHAR == cTmp )
         {
-            tabs_warning_needed = btrue;
+            tabs_warning_needed = ego_true;
             cTmp = ' ';
         }
 
@@ -729,8 +729,8 @@ size_t load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript )
     }
 
     // Parse to comment or end of line
-    foundtext = bfalse;
-    inside_string = bfalse;
+    foundtext = ego_false;
+    inside_string = ego_false;
     while ( read < ps->load_buffer_count )
     {
         cTmp = ps->load_buffer[read];
@@ -775,7 +775,7 @@ size_t load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript )
         // convert whitespace characters to
         if ( !isspace(( unsigned )cTmp ) || inside_string )
         {
-            foundtext = btrue;
+            foundtext = ego_true;
 
             ps->line_buffer[ps->line_buffer_count] = cTmp;
             ps->line_buffer_count++;
@@ -854,14 +854,14 @@ int get_indentation( parser_state_t * ps, script_info_t *pscript )
     if ( HAS_SOME_BITS( cnt, 1 ) )
     {
         log_message( "SCRIPT ERROR: %s() - Invalid indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->line_buffer );
-        ps->error = btrue;
+        ps->error = ego_true;
     }
 
     cnt >>= 1;
     if ( cnt > 15 )
     {
         log_message( "SCRIPT ERROR: %s() - Too many levels of indentation \"%s\"(%d) - \"%s\"\n", __FUNCTION__, pscript->name, ps->token.iLine, ps->line_buffer );
-        ps->error = btrue;
+        ps->error = ego_true;
         cnt = 15;
     }
 
@@ -876,7 +876,7 @@ size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max
 
     size_t cnt;
     char   cTmp;
-    bool_t inside_string = bfalse;
+    ego_bool inside_string = ego_false;
 
     cnt = 0;
     while ( cnt < buffer_size )
@@ -916,7 +916,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
     int cnt;
     char cTmp;
     IDSZ idsz;
-    bool_t parsed = bfalse;
+    ego_bool parsed = ego_false;
 
     size_t       szWord_length_max = 0;
 
@@ -936,7 +936,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
     }
 
     // nothing is parsed yet
-    parsed = bfalse;
+    parsed = ego_false;
 
     // Skip any initial spaces
     cTmp = ps->line_buffer[read];
@@ -1019,7 +1019,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
         ptok->iIndex = MAX_OPCODE;
 
         // move on to the next thing
-        parsed = btrue;
+        parsed = ego_true;
     }
 
     // Check for IDSZ constant
@@ -1032,7 +1032,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
         ptok->iIndex = MAX_OPCODE;
 
         // move on to the next thing
-        parsed = btrue;
+        parsed = ego_true;
     }
 
     if ( !parsed && ( 0 == strcmp( ptok->szWord, "=" ) ) )
@@ -1042,7 +1042,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
         ptok->iIndex = MAX_OPCODE;
 
         // move on to the next thing
-        parsed = btrue;
+        parsed = ego_true;
     }
 
     // convert the string token to a new token type
@@ -1057,7 +1057,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
             log_message( "SCRIPT ERROR: %s() - The string in line %d is empty\n.", __FUNCTION__, ptok->iLine );
 
             // some kind of error
-            parsed = btrue;
+            parsed = ego_true;
         }
         else if ( '#' == str[0] )
         {
@@ -1114,14 +1114,14 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
             ptok->cType = 'C';
             ptok->iIndex = MAX_OPCODE;
 
-            parsed = btrue;
+            parsed = ego_true;
         }
         else
         {
             // a normal string
 
             signed tnc;
-            bool_t message_found = bfalse;
+            ego_bool message_found = ego_false;
 
             // see if this message is already loaded, no need to load it twice into memory
             if ( NULL != ppro->message_ary )
@@ -1131,7 +1131,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
                     if ( 0 == strcmp( ppro->message_ary[tnc], str ) )
                     {
                         ptok->iValue = tnc;
-                        message_found = btrue;
+                        message_found = ego_true;
                         break;
                     }
                 }
@@ -1147,7 +1147,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
             ptok->cType = 'C';
             ptok->iIndex = MAX_OPCODE;
 
-            parsed = btrue;
+            parsed = ego_true;
         }
     }
 
@@ -1163,7 +1163,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
                 ptok->iIndex = cnt;
 
                 // move on to the next thing
-                parsed = btrue;
+                parsed = ego_true;
 
                 break;
             }
@@ -1180,7 +1180,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
         ptok->cType  = '?';
         ptok->iIndex = MAX_OPCODE;
 
-        ps->error = btrue;
+        ps->error = ego_true;
     }
 
 parse_token_end:

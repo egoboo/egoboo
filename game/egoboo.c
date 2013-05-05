@@ -84,8 +84,8 @@ static ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char *
 extern "C"
 {
 #endif
-    extern bool_t config_download( egoboo_config_t * pcfg, bool_t synch_from_file );
-    extern bool_t config_upload( egoboo_config_t * pcfg );
+    extern ego_bool config_download( egoboo_config_t * pcfg, ego_bool synch_from_file );
+    extern ego_bool config_upload( egoboo_config_t * pcfg );
 #if defined(__cplusplus)
 }
 
@@ -96,10 +96,10 @@ extern "C"
 static ClockState_t    * _gclock = NULL;
 static ego_process_t     _eproc;
 
-static bool_t  screenshot_keyready  = btrue;
+static ego_bool  screenshot_keyready  = ego_true;
 
-static bool_t _sdl_atexit_registered    = bfalse;
-static bool_t _sdl_initialized_base     = bfalse;
+static ego_bool _sdl_atexit_registered    = ego_false;
+static ego_bool _sdl_initialized_base     = ego_false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     setup_read_vfs();
 
     // download the "setup.txt" values into the cfg struct
-    config_download( &cfg, btrue );
+    config_download( &cfg, ego_true );
 
     // do basic system initialization
     ego_init_SDL();
@@ -138,7 +138,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // synchronize the config values with the various game subsystems
     // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
     // to valid values
-    config_download( &cfg, btrue );
+    config_download( &cfg, ego_true );
 
     log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL );
     GLSetup_SupportedFormats();
@@ -194,7 +194,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
 //--------------------------------------------------------------------------------------------
 int do_ego_proc_running( ego_process_t * eproc )
 {
-    bool_t menu_valid, game_valid;
+    ego_bool menu_valid, game_valid;
 
     if ( !process_validate( PROC_PBASE( eproc ) ) ) return -1;
 
@@ -235,7 +235,7 @@ int do_ego_proc_running( ego_process_t * eproc )
         // a new module has been picked
 
         // reset the flag
-        pickedmodule_ready = bfalse;
+        pickedmodule_ready = ego_false;
 
         // start the game process
         process_start( PROC_PBASE( GProc ) );
@@ -252,19 +252,19 @@ int do_ego_proc_running( ego_process_t * eproc )
     {
         if ( !SDL_KEYDOWN( keyb, SDLK_F10 ) )
         {
-            single_frame_keyready = btrue;
+            single_frame_keyready = ego_true;
         }
         else if ( single_frame_keyready && SDL_KEYDOWN( keyb, SDLK_F10 ) )
         {
             if ( !single_frame_mode )
             {
-                single_frame_mode = btrue;
+                single_frame_mode = ego_true;
             }
 
             // request one update and one frame
-            single_frame_requested  = btrue;
-            single_update_requested = btrue;
-            single_frame_keyready   = bfalse;
+            single_frame_requested  = ego_true;
+            single_update_requested = ego_true;
+            single_frame_keyready   = ego_false;
         }
 
     }
@@ -272,25 +272,25 @@ int do_ego_proc_running( ego_process_t * eproc )
     // Check for screenshots
     if ( !SDL_KEYDOWN( keyb, SDLK_F11 ) )
     {
-        screenshot_keyready = btrue;
+        screenshot_keyready = ego_true;
     }
     else if ( screenshot_keyready && SDL_KEYDOWN( keyb, SDLK_F11 ) )
     {
-        screenshot_keyready = bfalse;
-        screenshot_requested = btrue;
+        screenshot_keyready = ego_false;
+        screenshot_requested = ego_true;
     }
 
     if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F9 ) && NULL != PMod && PMod->active )
     {
         // super secret "I win" button
-        //PMod->beat        = btrue;
-        //PMod->exportvalid = btrue;
+        //PMod->beat        = ego_true;
+        //PMod->exportvalid = ego_true;
 
         CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
         {
             if ( !VALID_PLA( pchr->is_which_player ) )
             {
-                kill_character( cnt, ( CHR_REF )511, bfalse );
+                kill_character( cnt, ( CHR_REF )511, ego_false );
             }
         }
         CHR_END_LOOP();
@@ -299,19 +299,19 @@ int do_ego_proc_running( ego_process_t * eproc )
     // handle an escape by passing it on to all active sub-processes
     if ( eproc->escape_requested )
     {
-        eproc->escape_requested = bfalse;
+        eproc->escape_requested = ego_false;
 
         // use the escape key to get out of single frame mode
-        single_frame_mode = bfalse;
+        single_frame_mode = ego_false;
 
         if ( process_running( PROC_PBASE( GProc ) ) )
         {
-            GProc->escape_requested = btrue;
+            GProc->escape_requested = ego_true;
         }
 
         if ( process_running( PROC_PBASE( MProc ) ) )
         {
-            MProc->escape_requested = btrue;
+            MProc->escape_requested = ego_true;
         }
     }
 
@@ -322,16 +322,16 @@ int do_ego_proc_running( ego_process_t * eproc )
     // toggle the free-running mode on the process timers
     if ( cfg.dev_mode )
     {
-        bool_t free_running_keydown = SDL_KEYDOWN( keyb, SDLK_f ) && SDL_KEYDOWN( keyb, SDLK_LCTRL );
+        ego_bool free_running_keydown = SDL_KEYDOWN( keyb, SDLK_f ) && SDL_KEYDOWN( keyb, SDLK_LCTRL );
         if ( free_running_keydown )
         {
-            eproc->free_running_latch_requested = btrue;
+            eproc->free_running_latch_requested = ego_true;
         }
 
         if ( !free_running_keydown && eproc->free_running_latch_requested )
         {
-            eproc->free_running_latch = btrue;
-            eproc->free_running_latch_requested = bfalse;
+            eproc->free_running_latch = ego_true;
+            eproc->free_running_latch_requested = ego_false;
         }
     }
 
@@ -339,16 +339,16 @@ int do_ego_proc_running( ego_process_t * eproc )
     {
         if ( NULL != MProc )
         {
-            MProc->gui_timer.free_running = !MProc->gui_timer.free_running;
+            MProc->gui_timer.free_running = TO_C_BOOL( !MProc->gui_timer.free_running );
         }
 
         if ( NULL != GProc )
         {
-            GProc->ups_timer.free_running = !GProc->ups_timer.free_running && !egonet_on();
-            GProc->fps_timer.free_running = !GProc->fps_timer.free_running;
+            GProc->ups_timer.free_running = TO_C_BOOL( !GProc->ups_timer.free_running && !egonet_on() );
+            GProc->fps_timer.free_running = TO_C_BOOL( !GProc->fps_timer.free_running );
         }
 
-        eproc->free_running_latch = bfalse;
+        eproc->free_running_latch = ego_false;
     }
 
     // a heads up display that can be used to debug values that are used by both the menu and the game
@@ -440,7 +440,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
             if ( 1 == proc_result )
             {
                 eproc->base.state  = proc_finish;
-                eproc->base.killme = bfalse;
+                eproc->base.killme = C_FALSE;
             }
             break;
 
@@ -473,23 +473,23 @@ int SDL_main( int argc, char **argv )
 
 #if defined(EGOBOO_THROTTLED)
     // update the game at the user-defined rate
-    EProc->loop_timer.free_running = bfalse;
-    MProc->gui_timer.free_running  = bfalse;
-    GProc->ups_timer.free_running  = bfalse;
-    GProc->fps_timer.free_running  = bfalse;
+    EProc->loop_timer.free_running = C_FALSE;
+    MProc->gui_timer.free_running  = C_FALSE;
+    GProc->ups_timer.free_running  = C_FALSE;
+    GProc->fps_timer.free_running  = C_FALSE;
 #else
     // make the game update as fast as possible
-    EProc->loop_timer.free_running = btrue;
-    MProc->gui_timer.free_running  = btrue;
-    GProc->ups_timer.free_running  = btrue;
-    GProc->fps_timer.free_running  = btrue;
+    EProc->loop_timer.free_running = C_TRUE;
+    MProc->gui_timer.free_running  = C_TRUE;
+    GProc->ups_timer.free_running  = C_TRUE;
+    GProc->fps_timer.free_running  = C_TRUE;
 #endif
 
     // run the processes
     gfx_request_clear_screen();
     while ( !EProc->base.killme && !EProc->base.terminated )
     {
-        if ( !egolib_timer_throttle( &( EProc->loop_timer ), 100.0f ) )
+        if ( !egolib_timer__throttle( &( EProc->loop_timer ), 100.0f ) )
         {
             // let the OS breathe. It may delay as long as 10ms
             SDL_Delay( 1 );
@@ -536,7 +536,7 @@ void memory_cleanUp( void )
     _quit_game( EProc );
 
     // synchronize the config values with the various game subsystems
-    config_synch( &cfg, btrue );
+    config_synch( &cfg, C_TRUE );
 
     // quit the setup system, making sure that the setup file is written
     setup_write_vfs();
@@ -605,7 +605,7 @@ void ego_init_SDL_base( void )
     if ( !_sdl_atexit_registered )
     {
         atexit( SDL_Quit );
-        _sdl_atexit_registered = bfalse;
+        _sdl_atexit_registered = ego_false;
     }
 
     log_info( "Intializing SDL Timing Services... " );
@@ -630,7 +630,7 @@ void ego_init_SDL_base( void )
         log_message( "Success!\n" );
     }
 
-    _sdl_initialized_base = btrue;
+    _sdl_initialized_base = ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -708,16 +708,16 @@ Uint32 egoboo_get_ticks( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t config_download( egoboo_config_t * pcfg, bool_t synch_from_file )
+ego_bool config_download( egoboo_config_t * pcfg, ego_bool synch_from_file )
 {
-    int tmp_maxparticles;
-    bool_t rv;
+    size_t tmp_maxparticles;
+    ego_bool rv;
 
     // synchronize settings from a pre-loaded setup.txt? (this will load setup.txt into *pcfg)
     if ( synch_from_file )
     {
         rv = setup_download( pcfg );
-        if ( !rv ) return bfalse;
+        if ( !rv ) return ego_false;
     }
 
     // status display
@@ -738,7 +738,7 @@ bool_t config_download( egoboo_config_t * pcfg, bool_t synch_from_file )
     if ( maxparticles != tmp_maxparticles )
     {
         maxparticles = tmp_maxparticles;
-        maxparticles_dirty = btrue;
+        maxparticles_dirty = ego_true;
     }
 
     // camera options
@@ -753,22 +753,22 @@ bool_t config_download( egoboo_config_t * pcfg, bool_t synch_from_file )
     // texture options
     oglx_texture_parameters_download_gfx( &tex_params, pcfg );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t config_upload( egoboo_config_t * pcfg )
+ego_bool config_upload( egoboo_config_t * pcfg )
 {
-    if ( NULL == pcfg ) return bfalse;
+    if ( NULL == pcfg ) return ego_false;
 
     pcfg->autoturncamera = cam_options.turn_mode;
-    pcfg->fps_allowed    = fpson;
+    pcfg->fps_allowed    = TO_C_BOOL( fpson );
 
     // number of particles
     pcfg->particle_count_req = CLIP( maxparticles, 0, MAX_PRT );
 
     // messages
-    pcfg->messageon_req     = DisplayMsg_on;
+    pcfg->messageon_req     = TO_C_BOOL( DisplayMsg_on );
     pcfg->message_count_req = !DisplayMsg_on ? 0 : MAX( EGO_MESSAGE_MIN, DisplayMsg_count );
 
     // convert the config values to a setup file

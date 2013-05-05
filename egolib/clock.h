@@ -94,7 +94,7 @@ extern "C"
     struct s_ClockState;
 
     ClockState_t * clk_create( const char * name, int size );
-    bool_t         clk_destroy( ClockState_t ** cs );
+    C_BOOLEAN         clk_destroy( ClockState_t ** cs );
     ClockState_t * clk_renew( ClockState_t * cs );
 
     void     clk_frameStep( ClockState_t * cs );          ///< Update the clock.

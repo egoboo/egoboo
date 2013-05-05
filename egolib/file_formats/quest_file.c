@@ -44,7 +44,7 @@ ConfigFilePtr_t quest_file_open( const char *player_directory )
     // Figure out the file path
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/quest.txt", player_directory );
 
-    retval = ConfigFile_Load( newloadname, bfalse );
+    retval = ConfigFile_Load( newloadname, C_FALSE );
     if ( NULL == retval )
     {
         retval = ConfigFile_create();
@@ -69,7 +69,7 @@ egolib_rv quest_file_export( ConfigFilePtr_t pfile )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv quest_file_close( ConfigFilePtr_t * ppfile, bool_t do_export )
+egolib_rv quest_file_close( ConfigFilePtr_t * ppfile, C_BOOLEAN do_export )
 {
     egolib_rv export_rv = rv_success;
 
@@ -123,7 +123,7 @@ egolib_rv quest_log_download_vfs( IDSZ_node_t * quest_log, size_t quest_log_len,
 
     // Load each IDSZ
     retval = rv_success;
-    while ( goto_colon_vfs( NULL, fileread, btrue ) )
+    while ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
     {
         egolib_rv rv;
 

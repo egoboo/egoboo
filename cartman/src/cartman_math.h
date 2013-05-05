@@ -38,4 +38,4 @@ typedef float cart_vec_t[3];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool_t SDL_RectIntersect( SDL_Rect * src, SDL_Rect * dst, SDL_Rect * isect );
+ego_bool SDL_RectIntersect( SDL_Rect * src, SDL_Rect * dst, SDL_Rect * isect );

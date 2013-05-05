@@ -27,11 +27,12 @@
 
 #include "char.inl"
 #include "particle.inl"
+#include "bsp.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t _obj_BSP_system_initialized = bfalse;
+static ego_bool _obj_BSP_system_initialized = ego_false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -57,7 +58,7 @@ void obj_BSP_system_begin( mesh_BSP_t * pBSP )
     obj_BSP_ctor( &prt_BSP_root, 2, pBSP );
 
     // let the code know that everything is initialized
-    _obj_BSP_system_initialized = btrue;
+    _obj_BSP_system_initialized = ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -73,19 +74,19 @@ void obj_BSP_system_end( void )
         obj_BSP_dtor( &chr_BSP_root );
         obj_BSP_dtor( &prt_BSP_root );
 
-        _obj_BSP_system_initialized = bfalse;
+        _obj_BSP_system_initialized = ego_false;
     }
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth )
+ego_bool obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth )
 {
     // allocate make a 2D BSP tree
 
     BSP_tree_t * rv;
 
-    if ( NULL == pbsp ) return bfalse;
+    if ( NULL == pbsp ) return ego_false;
 
     obj_BSP_free( pbsp );
 
@@ -95,17 +96,17 @@ bool_t obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_free( obj_BSP_t * pbsp )
+ego_bool obj_BSP_free( obj_BSP_t * pbsp )
 {
-    if ( NULL == pbsp ) return bfalse;
+    if ( NULL == pbsp ) return ego_false;
 
     BSP_tree_dealloc( &( pbsp->tree ) );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp )
+ego_bool obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp )
 {
     /// @author BB
     /// @details Create a new BSP tree for game objects.
@@ -126,11 +127,11 @@ bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp
         log_error( "obj_BSP_ctor() - cannot construct an object BSP with more than than 3 dimensions\n" );
     }
 
-    if ( NULL == pmesh_bsp ) return bfalse;
+    if ( NULL == pmesh_bsp ) return ego_false;
     mesh_tree = &( pmesh_bsp->tree );
     mesh_dim = pmesh_bsp->tree.dimensions;
 
-    if ( NULL == pbsp ) return bfalse;
+    if ( NULL == pbsp ) return ego_false;
     obj_tree = &( pbsp->tree );
 
     BLANK_STRUCT_PTR( pbsp )
@@ -182,13 +183,13 @@ bool_t obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp
 
     BSP_aabb_validate( &( obj_tree->bsp_bbox ) );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t obj_BSP_dtor( obj_BSP_t * pbsp )
+ego_bool obj_BSP_dtor( obj_BSP_t * pbsp )
 {
-    if ( NULL == pbsp ) return bfalse;
+    if ( NULL == pbsp ) return ego_false;
 
     // deallocate everything
     obj_BSP_free( pbsp );
@@ -196,25 +197,25 @@ bool_t obj_BSP_dtor( obj_BSP_t * pbsp )
     // run the destructors on all of the sub-objects
     BSP_tree_dtor( &( pbsp->tree ) );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_BSP_insert( chr_t * pchr )
+ego_bool chr_BSP_insert( chr_t * pchr )
 {
     /// @author BB
     /// @details insert a character's BSP_leaf_t into the BSP_tree_t
 
-    bool_t       retval;
+    ego_bool       retval;
     BSP_leaf_t * pleaf;
     BSP_tree_t * ptree;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return ego_false;
 
     ptree = &( chr_BSP_root.tree );
 
     // no interactions with hidden objects
-    if ( pchr->is_hidden ) return bfalse;
+    if ( pchr->is_hidden ) return ego_false;
 
     // heal the leaf if it needs it
     pleaf = POBJ_GET_PLEAF( pchr );
@@ -227,7 +228,7 @@ bool_t chr_BSP_insert( chr_t * pchr )
     };
 
     // do the insert
-    retval = bfalse;
+    retval = ego_false;
     if ( !oct_bb_empty( &( pchr->chr_max_cv ) ) )
     {
         oct_bb_t tmp_oct;
@@ -252,12 +253,12 @@ bool_t chr_BSP_insert( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
+ego_bool prt_BSP_insert( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details insert a particle's BSP_leaf_t into the BSP_tree_t
 
-    bool_t       retval;
+    ego_bool       retval;
     BSP_leaf_t * pleaf;
     BSP_tree_t * ptree;
 
@@ -265,12 +266,12 @@ bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
 
     oct_bb_t tmp_oct;
 
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return ego_false;
     loc_pprt = pbdl_prt->prt_ptr;
     ptree = &( prt_BSP_root.tree );
 
     // is the particle in-game?
-    if ( !INGAME_PPRT_BASE( loc_pprt ) || loc_pprt->is_hidden || loc_pprt->is_ghost ) return bfalse;
+    if ( !INGAME_PPRT_BASE( loc_pprt ) || loc_pprt->is_hidden || loc_pprt->is_ghost ) return ego_false;
 
     // heal the leaf if necessary
     pleaf = POBJ_GET_PLEAF( loc_pprt );
@@ -299,7 +300,7 @@ bool_t prt_BSP_insert( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_BSP_clear( void )
+ego_bool chr_BSP_clear( void )
 {
     CHR_REF ichr;
 
@@ -313,11 +314,11 @@ bool_t chr_BSP_clear( void )
         BSP_leaf_remove_link( POBJ_GET_PLEAF( ChrList.lst + ichr ) );
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_BSP_clear( void )
+ego_bool prt_BSP_clear( void )
 {
     PRT_REF iprt;
 
@@ -331,11 +332,11 @@ bool_t prt_BSP_clear( void )
         BSP_leaf_remove_link( POBJ_GET_PLEAF( PrtList.lst + iprt ) );
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_BSP_fill( void )
+ego_bool chr_BSP_fill( void )
 {
     // insert the characters
     chr_BSP_root.count = 0;
@@ -352,11 +353,11 @@ bool_t chr_BSP_fill( void )
     }
     CHR_END_LOOP()
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_BSP_fill( void )
+ego_bool prt_BSP_fill( void )
 {
     // insert the particles
     prt_BSP_root.count = 0;
@@ -372,7 +373,7 @@ bool_t prt_BSP_fill( void )
     }
     PRT_END_LOOP()
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -403,7 +404,7 @@ int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const egolib_frustum_t * pf
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t chr_BSP_can_collide( BSP_leaf_t * pchr_leaf )
+ego_bool chr_BSP_can_collide( BSP_leaf_t * pchr_leaf )
 {
     /// @author BB
     /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
@@ -411,28 +412,28 @@ bool_t chr_BSP_can_collide( BSP_leaf_t * pchr_leaf )
 
     chr_t * pchr;
 
-    bool_t can_be_reaffirmed;
-    bool_t can_grab_money;
-    bool_t can_use_platforms;
-    bool_t can_collide;
+    ego_bool can_be_reaffirmed;
+    ego_bool can_grab_money;
+    ego_bool can_use_platforms;
+    ego_bool can_collide;
 
-    bool_t requires_chr_chr;
-    bool_t requires_chr_prt;
+    ego_bool requires_chr_chr;
+    ego_bool requires_chr_prt;
 
     // make sure we have a character leaf
     if ( NULL == pchr_leaf || NULL == pchr_leaf->data || BSP_LEAF_CHR != pchr_leaf->data_type )
     {
-        return bfalse;
+        return ego_false;
     }
     pchr = ( chr_t * )( pchr_leaf->data );
 
-    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return ego_false;
 
     // no interactions with hidden objects
-    if ( pchr->is_hidden ) return bfalse;
+    if ( pchr->is_hidden ) return ego_false;
 
     // no interactions with packed objects
-    if ( VALID_CHR_RANGE( pchr->inwhich_inventory ) ) return bfalse;
+    if ( VALID_CHR_RANGE( pchr->inwhich_inventory ) ) return ego_false;
 
     // generic flags for character interaction
     can_be_reaffirmed = ( pchr->reaffirm_damagetype < DAMAGE_COUNT );
@@ -449,15 +450,15 @@ bool_t chr_BSP_can_collide( BSP_leaf_t * pchr_leaf )
 
     // even if an object does not interact with other characters,
     // it must still be inserted if it might interact with a particle
-    if ( !requires_chr_chr && !requires_chr_prt ) return bfalse;
+    if ( !requires_chr_chr && !requires_chr_prt ) return ego_false;
 
-    if ( oct_bb_empty( &( pchr->chr_max_cv ) ) ) return bfalse;
+    if ( oct_bb_empty( &( pchr->chr_max_cv ) ) ) return ego_false;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_BSP_can_collide( BSP_leaf_t * pprt_leaf )
+ego_bool prt_BSP_can_collide( BSP_leaf_t * pprt_leaf )
 {
     /// @author BB
     /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
@@ -469,27 +470,27 @@ bool_t prt_BSP_can_collide( BSP_leaf_t * pprt_leaf )
     // Each one of these tests allows one MORE reason to include the particle, not one less.
     // Removed bump particles. We have another loop that can detect these, and there
     // is no reason to fill up the BSP with particles like coins.
-    bool_t       has_enchant;
-    bool_t       does_damage;
-    bool_t       does_status_effect;
-    bool_t       does_special_effect;
-    bool_t       can_push;
+    ego_bool       has_enchant;
+    ego_bool       does_damage;
+    ego_bool       does_status_effect;
+    ego_bool       does_special_effect;
+    ego_bool       can_push;
 
     // make sure we have a character leaf
     if ( NULL == pprt_leaf || NULL == pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type )
     {
-        return bfalse;
+        return ego_false;
     }
     pprt = ( prt_t * )( pprt_leaf->data );
 
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return ego_false;
     ppip = PipStack_get_ptr( pprt->pip_ref );
 
     // is the particle in-game?
-    if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden || pprt->is_ghost ) return bfalse;
+    if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden || pprt->is_ghost ) return ego_false;
 
     // Make this optional? Is there any reason to fail if the particle has no profile reference?
-    has_enchant = bfalse;
+    has_enchant = ego_false;
     if ( ppip->spawnenchant )
     {
         if ( !LOADED_PRO( pprt->profile_ref ) )
@@ -513,13 +514,13 @@ bool_t prt_BSP_can_collide( BSP_leaf_t * pprt_leaf )
     can_push            = does_damage && ppip->allowpush;
 
     // particles with no effect
-    if ( !can_push && !has_enchant && !does_damage && !does_status_effect && !does_special_effect ) return bfalse;
+    if ( !can_push && !has_enchant && !does_damage && !does_status_effect && !does_special_effect ) return ego_false;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_BSP_is_visible( BSP_leaf_t * pchr_leaf )
+ego_bool chr_BSP_is_visible( BSP_leaf_t * pchr_leaf )
 {
     /// @author BB
     /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
@@ -530,23 +531,23 @@ bool_t chr_BSP_is_visible( BSP_leaf_t * pchr_leaf )
     // make sure we have a character leaf
     if ( NULL == pchr_leaf || NULL == pchr_leaf->data || BSP_LEAF_CHR != pchr_leaf->data_type )
     {
-        return bfalse;
+        return ego_false;
     }
     pchr = ( chr_t * )( pchr_leaf->data );
 
-    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return ego_false;
 
     // no interactions with hidden objects
-    if ( pchr->is_hidden ) return bfalse;
+    if ( pchr->is_hidden ) return ego_false;
 
     // no interactions with packed objects
-    if ( VALID_CHR_RANGE( pchr->inwhich_inventory ) ) return bfalse;
+    if ( VALID_CHR_RANGE( pchr->inwhich_inventory ) ) return ego_false;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
+ego_bool prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
 {
     /// @author BB
     /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
@@ -557,24 +558,24 @@ bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
     // make sure we have a character leaf
     if ( NULL == pprt_leaf || NULL == pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type )
     {
-        return bfalse;
+        return ego_false;
     }
     pprt = ( prt_t * )( pprt_leaf->data );
 
     // is the particle in-game?
-    if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden ) return bfalse;
+    if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden ) return ego_false;
 
     // zero sized particles are not visible
     if ( 0 == pprt->size )
     {
-        return bfalse;
+        return ego_false;
     }
     else if ( pprt->inst.valid && pprt->inst.size <= 0.0f )
     {
-        return bfalse;
+        return ego_false;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -582,28 +583,28 @@ bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
 //--------------------------------------------------------------------------------------------
 
 ////--------------------------------------------------------------------------------------------
-//bool_t obj_BSP_insert_leaf( obj_BSP_t * pbsp, BSP_leaf_t * pleaf, int depth, int address_x[], int address_y[], int address_z[] )
+//ego_bool obj_BSP_insert_leaf( obj_BSP_t * pbsp, BSP_leaf_t * pleaf, int depth, int address_x[], int address_y[], int address_z[] )
 //{
 //    int i;
-//    bool_t retval;
+//    ego_bool retval;
 //    Uint32 index;
 //    BSP_branch_t * pbranch, * pbranch_new;
 //    BSP_tree_t * ptree = &( pbsp->tree );
 //
-//    retval = bfalse;
+//    retval = ego_false;
 //    if ( depth < 0 )
 //    {
 //        // this can only happen if the node does not intersect the BSP bounding box
 //        pleaf->next = ptree->infinite;
 //        ptree->infinite = pleaf;
-//        retval = btrue;
+//        retval = ego_true;
 //    }
 //    else if ( 0 == depth )
 //    {
 //        // this can only happen if the object should be in the root node list
 //        pleaf->next = ptree->root->nodes;
 //        ptree->root->nodes = pleaf;
-//        retval = btrue;
+//        retval = ego_true;
 //    }
 //    else
 //    {
@@ -628,30 +629,30 @@ bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
 //
 
 ////--------------------------------------------------------------------------------------------
-//bool_t obj_BSP_collide_branch( BSP_branch_t * pbranch, oct_bb_t * pvbranch, oct_bb_t * pvobj, int_ary_t * colst )
+//ego_bool obj_BSP_collide_branch( BSP_branch_t * pbranch, oct_bb_t * pvbranch, oct_bb_t * pvobj, int_ary_t * colst )
 //{
 //    /// @author BB
 /// @details Recursively search the BSP tree for collisions with the pvobj
-//    //      Return bfalse if we need to break out of the recursive search for any reson.
+//    //      Return ego_false if we need to break out of the recursive search for any reson.
 //
 //    Uint32 i;
 //    oct_bb_t    int_ov, tmp_ov;
 //    float x_mid, y_mid, z_mid;
 //    int address_x, address_y, address_z;
 //
-//    if ( NULL == colst ) return bfalse;
-//    if ( NULL == pvbranch || oct_bb_empty( *pvbranch ) ) return bfalse;
-//    if ( NULL == pvobj  || oct_bb_empty( *pvobj ) ) return bfalse;
+//    if ( NULL == colst ) return ego_false;
+//    if ( NULL == pvbranch || oct_bb_empty( *pvbranch ) ) return ego_false;
+//    if ( NULL == pvobj  || oct_bb_empty( *pvobj ) ) return ego_false;
 //
 //    // return if the object does not intersect the branch
 //    if ( !oct_bb_intersection( pvobj, pvbranch, &int_ov ) )
 //    {
-//        return bfalse;
+//        return ego_false;
 //    }
 //
 //    if ( !obj_BSP_collide_nodes( pbranch->nodes, pvobj, colst ) )
 //    {
-//        return bfalse;
+//        return ego_false;
 //    };
 //
 //    // check for collisions with any of the children
@@ -700,17 +701,17 @@ bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
 //        if ( oct_bb_intersection( pvobj, &tmp_ov, &int_ov ) )
 //        {
 //            // potential interaction with the child. go recursive!
-//            bool_t ret = obj_BSP_collide_branch( pbranch->children[i], &( tmp_ov ), pvobj, colst );
+//            ego_bool ret = obj_BSP_collide_branch( pbranch->children[i], &( tmp_ov ), pvobj, colst );
 //            if ( !ret ) return ret;
 //        }
 //    }
 //
-//    return btrue;
+//    return ego_true;
 //}
 //
 
 ////--------------------------------------------------------------------------------------------
-//bool_t obj_BSP_collide_nodes( BSP_leaf_t leaf_lst[], oct_bb_t * pvobj, int_ary_t * colst )
+//ego_bool obj_BSP_collide_nodes( BSP_leaf_t leaf_lst[], oct_bb_t * pvobj, int_ary_t * colst )
 //{
 //    /// @author BB
 //    /// @details check for collisions with the given node list
@@ -718,14 +719,14 @@ bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
 //    BSP_leaf_t * pleaf;
 //    oct_bb_t    int_ov, * pnodevol;
 //
-//    if ( NULL == leaf_lst || NULL == pvobj ) return bfalse;
+//    if ( NULL == leaf_lst || NULL == pvobj ) return ego_false;
 //
-//    if ( 0 == int_ary_get_size( colst ) || int_ary_get_top( colst ) >= int_ary_get_size( colst ) ) return bfalse;
+//    if ( 0 == int_ary_get_size( colst ) || int_ary_get_top( colst ) >= int_ary_get_size( colst ) ) return ego_false;
 //
 //    // check for collisions with any of the nodes of this branch
 //    for ( pleaf = leaf_lst; NULL != pleaf; pleaf = pleaf->next )
 //    {
-//        if ( NULL == pleaf ) EGOBOO_ASSERT( bfalse );
+//        if ( NULL == pleaf ) EGOBOO_ASSERT( ego_false );
 //
 //        // get the volume of the node
 //        pnodevol = NULL;
@@ -752,6 +753,6 @@ bool_t prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
 //            if ( int_ary_get_top( colst ) >= int_ary_get_size( colst ) )
 //            {
 //                // too many nodes. break out of the search.
-//                return bfalse;
+//                return ego_false;
 //            };
 //        }

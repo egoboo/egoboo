@@ -289,7 +289,7 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     SDL_Surface     * screen, * local_surface;
     SDL_PixelFormat * pformat;
     SDL_PixelFormat   tmpformat;
-    bool_t            use_alpha;
+    C_BOOLEAN            use_alpha;
     GLenum            target;
 
     SDLX_screen_info_t sdl_scr;

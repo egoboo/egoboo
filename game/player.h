@@ -45,7 +45,7 @@ typedef struct s_player player_t;
 /// The state of a player
 struct s_player
 {
-    bool_t                  valid;                    ///< Player used?
+    ego_bool                  valid;                    ///< Player used?
     CHR_REF                 index;                    ///< Which character?
 
     /// the buffered input from the local input devices
@@ -53,7 +53,7 @@ struct s_player
 
     // inventory stuff
     Uint8                   inventory_slot;
-    bool_t                  draw_inventory;
+    ego_bool                  draw_inventory;
     Uint32                  inventory_cooldown;
     int                     inventory_lerp;
 

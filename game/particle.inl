@@ -22,8 +22,8 @@
 #include "particle.h"
 
 #include "../egolib/_math.inl"
-#include "../egolib/bbox.inl"
 
+#include "bbox.inl"
 #include "PrtList.inl"
 #include "char.inl"
 
@@ -34,7 +34,7 @@
 static INLINE PIP_REF  prt_get_ipip( const PRT_REF particle );
 static INLINE pip_t  * prt_get_ppip( const PRT_REF particle );
 static INLINE CHR_REF  prt_get_iowner( const PRT_REF iprt, int depth );
-static INLINE bool_t   prt_set_size( prt_t *, int size );
+static INLINE ego_bool   prt_set_size( prt_t *, int size );
 static INLINE float    prt_get_scale( prt_t * pprt );
 
 static INLINE prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
@@ -43,7 +43,7 @@ static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * ppr
 
 static INLINE const float * prt_get_pos_v_const( const prt_t * pprt );
 static INLINE float       * prt_get_pos_v( prt_t * pprt );
-static INLINE bool_t        prt_get_pos( const prt_t * pprt, fvec3_base_t pos );
+static INLINE ego_bool        prt_get_pos( const prt_t * pprt, fvec3_base_t pos );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
@@ -74,13 +74,13 @@ static INLINE pip_t * prt_get_ppip( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t prt_set_size( prt_t * pprt, int size )
+static INLINE ego_bool prt_set_size( prt_t * pprt, int size )
 {
     pip_t *ppip;
 
-    if ( !DEFINED_PPRT( pprt ) ) return bfalse;
+    if ( !DEFINED_PPRT( pprt ) ) return ego_false;
 
-    if ( !LOADED_PIP( pprt->pip_ref ) ) return bfalse;
+    if ( !LOADED_PIP( pprt->pip_ref ) ) return ego_false;
     ppip = PipStack_get_ptr( pprt->pip_ref );
 
     // set the graphical size
@@ -126,7 +126,7 @@ static INLINE bool_t prt_set_size( prt_t * pprt, int size )
     // use the padded bumper to figure out the chr_max_cv
     oct_bb_set_bumper( &( pprt->prt_max_cv ), pprt->bump_padded );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -293,15 +293,15 @@ static INLINE prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * ppr
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_get_pos( const prt_t * pprt, fvec3_base_t pos )
+ego_bool prt_get_pos( const prt_t * pprt, fvec3_base_t pos )
 {
     float * copy_rv;
 
-    if ( !ALLOCATED_PPRT( pprt ) ) return bfalse;
+    if ( !ALLOCATED_PPRT( pprt ) ) return ego_false;
 
     copy_rv = fvec3_base_copy( pos, pprt->pos.v );
 
-    return ( NULL == copy_rv ) ? bfalse : btrue;
+    return ( NULL == copy_rv ) ? ego_false : ego_true;
 }
 
 //--------------------------------------------------------------------------------------------

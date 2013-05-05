@@ -23,30 +23,35 @@
 /// @brief
 /// @details
 
-#include "../egolib/bbox.h"
+#include "bbox.h"
 
 #include "../egolib/platform.h"
 
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static INLINE bool_t oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos );
-static INLINE bool_t oct_vec_self_clear( oct_vec_t * ovec );
-static INLINE bool_t oct_vec_add_fvec3( const oct_vec_t osrc, const fvec3_base_t fvec, oct_vec_t odst );
-static INLINE bool_t oct_vec_self_add_fvec3( oct_vec_t osrc, const fvec3_base_t fvec );
+static INLINE ego_bool oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos );
+static INLINE ego_bool oct_vec_self_clear( oct_vec_t * ovec );
+static INLINE ego_bool oct_vec_add_fvec3( const oct_vec_t osrc, const fvec3_base_t fvec, oct_vec_t odst );
+static INLINE ego_bool oct_vec_self_add_fvec3( oct_vec_t osrc, const fvec3_base_t fvec );
 
 static INLINE oct_bb_t * oct_bb_ctor( oct_bb_t * pobb );
 static INLINE egolib_rv oct_bb_set_bumper( oct_bb_t * pobb, const bumper_t src );
 static INLINE egolib_rv oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc );
 static INLINE egolib_rv oct_bb_validate( oct_bb_t * pobb );
-static INLINE bool_t oct_bb_empty_raw( const oct_bb_t * pbb );
-static INLINE bool_t oct_bb_empty( const oct_bb_t * pbb );
+static INLINE ego_bool oct_bb_empty_raw( const oct_bb_t * pbb );
+static INLINE ego_bool oct_bb_empty( const oct_bb_t * pbb );
 static INLINE egolib_rv  oct_bb_set_ovec( oct_bb_t * pobb, const oct_vec_t ovec );
 static INLINE oct_bb_t * oct_bb_ctor_index( oct_bb_t * pobb, int index );
 static INLINE egolib_rv oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
 static INLINE egolib_rv oct_bb_validate_index( oct_bb_t * pobb, int index );
-static INLINE bool_t oct_bb_empty_index_raw( const oct_bb_t * pbb, int index );
-static INLINE bool_t oct_bb_empty_index( const oct_bb_t * pbb, int index );
+static INLINE ego_bool oct_bb_empty_index_raw( const oct_bb_t * pbb, int index );
+static INLINE ego_bool oct_bb_empty_index( const oct_bb_t * pbb, int index );
 static INLINE egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst, int index );
 static INLINE egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
 static INLINE egolib_rv oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
@@ -61,15 +66,15 @@ static INLINE egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t 
 static INLINE egolib_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
 static INLINE egolib_rv oct_bb_self_sum_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
 static INLINE egolib_rv oct_bb_self_grow( oct_bb_t * pdst, const oct_vec_t ovec );
-static INLINE bool_t oct_bb_point_inside( const oct_bb_t * pobb, const oct_vec_t ovec );
-static INLINE bool_t oct_bb_lhs_contains_rhs( const oct_bb_t * plhs, const oct_bb_t * prhs );
+static INLINE ego_bool oct_bb_point_inside( const oct_bb_t * pobb, const oct_vec_t ovec );
+static INLINE ego_bool oct_bb_lhs_contains_rhs( const oct_bb_t * plhs, const oct_bb_t * prhs );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static INLINE bool_t oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos )
+static INLINE ego_bool oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos )
 {
-    if ( NULL == ovec ) return bfalse;
+    if ( NULL == ovec ) return ego_false;
 
     ovec[OCT_X ] =  pos[kX];
     ovec[OCT_Y ] =  pos[kY];
@@ -77,28 +82,28 @@ static INLINE bool_t oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos )
     ovec[OCT_XY] =  pos[kX] + pos[kY];
     ovec[OCT_YX] = -pos[kX] + pos[kY];
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t oct_vec_self_clear( oct_vec_t * ovec )
+static INLINE ego_bool oct_vec_self_clear( oct_vec_t * ovec )
 {
     int cnt;
 
-    if ( NULL == ovec ) return bfalse;
+    if ( NULL == ovec ) return ego_false;
 
     for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         ( *ovec )[cnt] = 0.0f;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t oct_vec_add_fvec3( const oct_vec_t osrc, const fvec3_base_t fvec, oct_vec_t odst )
+static INLINE ego_bool oct_vec_add_fvec3( const oct_vec_t osrc, const fvec3_base_t fvec, oct_vec_t odst )
 {
-    if ( NULL == odst ) return bfalse;
+    if ( NULL == odst ) return ego_false;
 
     oct_vec_ctor( odst, fvec );
 
@@ -112,16 +117,16 @@ static INLINE bool_t oct_vec_add_fvec3( const oct_vec_t osrc, const fvec3_base_t
         }
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t oct_vec_self_add_fvec3( oct_vec_t osrc, const fvec3_base_t fvec )
+static INLINE ego_bool oct_vec_self_add_fvec3( oct_vec_t osrc, const fvec3_base_t fvec )
 {
     int cnt;
     oct_vec_t otmp;
 
-    if ( NULL == osrc ) return bfalse;
+    if ( NULL == osrc ) return ego_false;
 
     oct_vec_ctor( otmp, fvec );
 
@@ -130,7 +135,7 @@ static INLINE bool_t oct_vec_self_add_fvec3( oct_vec_t osrc, const fvec3_base_t 
         osrc[cnt] += otmp[cnt];
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -141,7 +146,7 @@ static INLINE oct_bb_t * oct_bb_ctor( oct_bb_t * pobb )
 
     BLANK_STRUCT_PTR( pobb )
 
-    pobb->empty = btrue;
+    pobb->empty = ego_true;
 
     return pobb;
 }
@@ -196,16 +201,16 @@ static INLINE egolib_rv oct_bb_validate( oct_bb_t * pobb )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t oct_bb_empty_raw( const oct_bb_t * pbb )
+static INLINE ego_bool oct_bb_empty_raw( const oct_bb_t * pbb )
 {
     int cnt;
-    bool_t rv = bfalse;
+    ego_bool rv = ego_false;
 
     for ( cnt = 0; cnt < OCT_COUNT; cnt ++ )
     {
         if ( pbb->mins[cnt] >= pbb->maxs[cnt] )
         {
-            rv = btrue;
+            rv = ego_true;
             break;
         }
     }
@@ -214,9 +219,9 @@ static INLINE bool_t oct_bb_empty_raw( const oct_bb_t * pbb )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t oct_bb_empty( const oct_bb_t * pbb )
+static INLINE ego_bool oct_bb_empty( const oct_bb_t * pbb )
 {
-    if ( NULL == pbb || pbb->empty ) return btrue;
+    if ( NULL == pbb || pbb->empty ) return ego_true;
 
     return oct_bb_empty_raw( pbb );
 }
@@ -241,7 +246,7 @@ static INLINE egolib_rv  oct_bb_set_ovec( oct_bb_t * pobb, const oct_vec_t ovec 
     }
 
     // this is true by the definition of this function
-    pobb->empty = btrue;
+    pobb->empty = ego_true;
 
     return rv_success;
 }
@@ -255,7 +260,7 @@ static INLINE oct_bb_t * oct_bb_ctor_index( oct_bb_t * pobb, int index )
     if ( index >= 0 && index < OCT_COUNT )
     {
         pobb->mins[index] = pobb->maxs[index] = 0.0f;
-        pobb->empty = btrue;
+        pobb->empty = ego_true;
     }
 
     return pobb;
@@ -286,24 +291,24 @@ static INLINE egolib_rv oct_bb_validate_index( oct_bb_t * pobb, int index )
 
     if ( oct_bb_empty_index( pobb, index ) )
     {
-        pobb->empty = btrue;
+        pobb->empty = ego_true;
     }
 
     return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t oct_bb_empty_index_raw( const oct_bb_t * pbb, int index )
+static INLINE ego_bool oct_bb_empty_index_raw( const oct_bb_t * pbb, int index )
 {
-    return BOOL_T( pbb->mins[index] >= pbb->maxs[index] );
+    return ( pbb->mins[index] >= pbb->maxs[index] );
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t oct_bb_empty_index( const oct_bb_t * pbb, int index )
+static INLINE ego_bool oct_bb_empty_index( const oct_bb_t * pbb, int index )
 {
-    if ( NULL == pbb || pbb->empty ) return btrue;
+    if ( NULL == pbb || pbb->empty ) return ego_true;
 
-    if ( index < 0 || index >= OCT_COUNT ) return btrue;
+    if ( index < 0 || index >= OCT_COUNT ) return ego_true;
 
     return oct_bb_empty_index_raw( pbb, index );
 }
@@ -314,14 +319,14 @@ static INLINE egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb
     /// @author BB
     /// @details find the union of two oct_bb_t
 
-    bool_t src1_empty, src2_empty;
+    ego_bool src1_empty, src2_empty;
 
     if ( NULL == pdst ) return rv_error;
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    src1_empty = BOOL_T( NULL == psrc1 );
-    src2_empty = BOOL_T( NULL == psrc2 );
+    src1_empty = ( NULL == psrc1 );
+    src2_empty = ( NULL == psrc2 );
 
     if ( src1_empty && src2_empty )
     {
@@ -353,14 +358,14 @@ static INLINE egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const
     /// @author BB
     /// @details find the intersection of two oct_bb_t
 
-    bool_t src1_empty, src2_empty;
+    ego_bool src1_empty, src2_empty;
 
     if ( NULL == pdst ) return rv_error;
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    src1_empty = BOOL_T( NULL == psrc1 || psrc1->empty );
-    src2_empty = BOOL_T( NULL == psrc2 || psrc2->empty );
+    src1_empty = ( NULL == psrc1 || psrc1->empty );
+    src2_empty = ( NULL == psrc2 || psrc2->empty );
 
     if ( src1_empty && src2_empty )
     {
@@ -382,13 +387,13 @@ static INLINE egolib_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_
     /// @author BB
     /// @details find the union of two oct_bb_t
 
-    bool_t src_empty;
+    ego_bool src_empty;
 
     if ( NULL == pdst ) return rv_error;
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    src_empty = BOOL_T( NULL == psrc );
+    src_empty = ( NULL == psrc );
 
     if ( src_empty )
     {
@@ -410,13 +415,13 @@ static INLINE egolib_rv oct_bb_self_intersection_index( oct_bb_t * pdst, const o
     /// @author BB
     /// @details find the intersection of two oct_bb_t
 
-    bool_t src_empty;
+    ego_bool src_empty;
 
     if ( NULL == pdst ) return rv_error;
 
     if ( index < 0 || index >= OCT_COUNT ) return rv_error;
 
-    src_empty = BOOL_T( NULL == psrc || psrc->empty );
+    src_empty = ( NULL == psrc || psrc->empty );
 
     if ( src_empty )
     {
@@ -438,13 +443,13 @@ static INLINE egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * 
     /// @author BB
     /// @details find the union of two oct_bb_t
 
-    bool_t src1_null, src2_null;
+    ego_bool src1_null, src2_null;
     int cnt;
 
     if ( NULL == pdst ) return rv_error;
 
-    src1_null = BOOL_T( NULL == psrc1 );
-    src2_null = BOOL_T( NULL == psrc2 );
+    src1_null = ( NULL == psrc1 );
+    src2_null = ( NULL == psrc2 );
 
     if ( src1_null && src2_null )
     {
@@ -476,13 +481,13 @@ static INLINE egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_b
     /// @author BB
     /// @details find the intersection of two oct_bb_t
 
-    bool_t src1_empty, src2_empty;
+    ego_bool src1_empty, src2_empty;
     int cnt;
 
     if ( NULL == pdst ) return rv_error;
 
-    src1_empty = BOOL_T( NULL == psrc1 || psrc1->empty );
-    src2_empty = BOOL_T( NULL == psrc2 || psrc2->empty );
+    src1_empty = ( NULL == psrc1 || psrc1->empty );
+    src2_empty = ( NULL == psrc2 || psrc2->empty );
 
     if ( src1_empty && src2_empty )
     {
@@ -506,12 +511,12 @@ static INLINE egolib_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psr
     /// @author BB
     /// @details find the union of two oct_bb_t
 
-    bool_t src_null;
+    ego_bool src_null;
     int cnt;
 
     if ( NULL == pdst ) return rv_error;
 
-    src_null = BOOL_T( NULL == psrc );
+    src_null = ( NULL == psrc );
 
     if ( src_null )
     {
@@ -535,12 +540,12 @@ static INLINE egolib_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_
     /// @author BB
     /// @details find the intersection of two oct_bb_t
 
-    bool_t src_empty;
+    ego_bool src_empty;
     int cnt;
 
     if ( NULL == pdst ) return rv_error;
 
-    src_empty = BOOL_T( NULL == psrc || psrc->empty );
+    src_empty = ( NULL == psrc || psrc->empty );
 
     if ( src_empty )
     {
@@ -703,45 +708,45 @@ static INLINE egolib_rv  oct_bb_self_grow( oct_bb_t * pdst, const oct_vec_t ovec
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t oct_bb_point_inside( const oct_bb_t * pobb, const oct_vec_t ovec )
+static INLINE ego_bool oct_bb_point_inside( const oct_bb_t * pobb, const oct_vec_t ovec )
 {
     int cnt;
 
-    if ( NULL == pobb || pobb->empty ) return bfalse;
+    if ( NULL == pobb || pobb->empty ) return ego_false;
 
-    if ( NULL == ovec ) return bfalse;
+    if ( NULL == ovec ) return ego_false;
 
     for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
-        if ( ovec[cnt] < pobb->mins[cnt] ) return bfalse;
-        if ( ovec[cnt] > pobb->maxs[cnt] ) return bfalse;
+        if ( ovec[cnt] < pobb->mins[cnt] ) return ego_false;
+        if ( ovec[cnt] > pobb->maxs[cnt] ) return ego_false;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t oct_bb_lhs_contains_rhs( const oct_bb_t * plhs, const oct_bb_t * prhs )
+static INLINE ego_bool oct_bb_lhs_contains_rhs( const oct_bb_t * plhs, const oct_bb_t * prhs )
 {
     int cnt;
 
-    if ( NULL == plhs || plhs->empty ) return bfalse;
+    if ( NULL == plhs || plhs->empty ) return ego_false;
 
-    if ( NULL == prhs ) return bfalse;
+    if ( NULL == prhs ) return ego_false;
 
     for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
-        if ( prhs->maxs[cnt] > plhs->maxs[cnt] ) return bfalse;
-        if ( prhs->mins[cnt] < plhs->mins[cnt] ) return bfalse;
+        if ( prhs->maxs[cnt] > plhs->maxs[cnt] ) return ego_false;
+        if ( prhs->mins[cnt] < plhs->mins[cnt] ) return ego_false;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t oct_bb_get_mids( const oct_bb_t * pbb, oct_vec_t mids )
+static INLINE ego_bool oct_bb_get_mids( const oct_bb_t * pbb, oct_vec_t mids )
 {
-    if ( NULL == pbb || NULL == mids ) return bfalse;
+    if ( NULL == pbb || NULL == mids ) return ego_false;
 
     if ( oct_bb_empty( pbb ) )
     {
@@ -757,5 +762,12 @@ static INLINE bool_t oct_bb_get_mids( const oct_bb_t * pbb, oct_vec_t mids )
         }
     }
 
-    return btrue;
+    return ego_true;
 }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+#endif

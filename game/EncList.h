@@ -55,13 +55,13 @@ void    EncList_reinit( void );
 
 ENC_REF EncList_allocate( const ENC_REF override );
 
-bool_t  EncList_free_one( const ENC_REF ienc );
+ego_bool  EncList_free_one( const ENC_REF ienc );
 void    EncList_free_all( void );
 
 void    EncList_update_used( void );
 
 void   EncList_cleanup( void );
 
-bool_t EncList_add_activation( const ENC_REF ienc );
-bool_t EncList_add_termination( const ENC_REF ienc );
-bool_t EncList_request_terminate( const ENC_REF ienc );
+ego_bool EncList_add_activation( const ENC_REF ienc );
+ego_bool EncList_add_termination( const ENC_REF ienc );
+ego_bool EncList_request_terminate( const ENC_REF ienc );

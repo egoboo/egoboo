@@ -153,7 +153,7 @@ void make_planmap( struct s_cartman_mpd * pmesh );
 void draw_top_fan( struct s_select_lst * plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_side_fan( struct s_select_lst * plst, int fan, float zoom_hrz, float zoom_vrt );
 void draw_schematic( struct s_window * pwin, int fantype, int x, int y );
-void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool_t draw_tile, struct s_cartman_mpd * pmesh );
+void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, ego_bool draw_tile, struct s_cartman_mpd * pmesh );
 void draw_tile_fx( float x, float y, Uint8 fx, float scale );
 
 // ogl routines

@@ -36,7 +36,7 @@ SDL_Surface * bmpcursor = NULL;
 //--------------------------------------------------------------------------------------------
 void do_cursor()
 {
-    bool_t left_press;
+    ego_bool left_press;
 
     // This function implements a mouse cursor
     ui.cur_x = mos.x;  if ( ui.cur_x < 6 )  ui.cur_x = 6;  if ( ui.cur_x > sdl_scr.x - 6 )  ui.cur_x = sdl_scr.x - 6;
@@ -44,10 +44,10 @@ void do_cursor()
 
     left_press = MOUSE_PRESSED( SDL_BUTTON_LEFT );
 
-    ui.clicked = bfalse;
+    ui.clicked = ego_false;
     if ( left_press && !ui.pressed )
     {
-        ui.clicked = btrue;
+        ui.clicked = ego_true;
     }
     ui.pressed = left_press;
 }
@@ -107,7 +107,7 @@ void load_window( window_t * pwin, int id, char *loadname, int x, int y, int bx,
     pwin->bordery  = by;
     pwin->surfacex = sx;
     pwin->surfacey = sy;
-    pwin->on       = btrue;
+    pwin->on       = ego_true;
     pwin->mode     = mode;
     pwin->id       = id;
     pwin->pmesh    = pmesh;

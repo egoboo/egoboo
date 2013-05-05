@@ -143,21 +143,21 @@ extern "C"
         EGO_PROFILE_STUFF
 
         // enchant spawning info
-        bool_t  override;                         ///< Override other enchants?
-        bool_t  remove_overridden;                ///< Remove other enchants?
-        bool_t  retarget;                         ///< Pick a weapon?
+        C_BOOLEAN  override;                         ///< Override other enchants?
+        C_BOOLEAN  remove_overridden;                ///< Remove other enchants?
+        C_BOOLEAN  retarget;                         ///< Pick a weapon?
         Uint8   required_damagetype;              ///< Don't enchant if the target is immune to required_damagetype
         Uint8   require_damagetarget_damagetype;  ///< Only enchant the target if the target damagetarget_damagetype matches this value
-        bool_t  spawn_overlay;                    ///< Spawn an overlay?
+        C_BOOLEAN  spawn_overlay;                    ///< Spawn an overlay?
 
         // ending conditions
         int     lifetime;                         ///< Time in seconds
-        bool_t  endifcantpay;                     ///< End on out of mana
+        C_BOOLEAN  endifcantpay;                     ///< End on out of mana
         IDSZ    removedbyidsz;                    ///< By particle or [NONE]
 
         // despawning info
-        bool_t  stayiftargetdead;                 ///< Stay if target has died?
-        bool_t  stayifnoowner;                    ///< Stay if owner has died?
+        C_BOOLEAN  stayiftargetdead;                 ///< Stay if target has died?
+        C_BOOLEAN  stayifnoowner;                    ///< Stay if owner has died?
 
         // skill modifications
         Sint16  owner_mana;
@@ -166,10 +166,10 @@ extern "C"
         Sint16  target_life;
 
         // generic modifications
-        bool_t  setyesno[MAX_ENCHANT_SET];    ///< Set this value?
+        C_BOOLEAN  setyesno[MAX_ENCHANT_SET];    ///< Set this value?
         float   setvalue[MAX_ENCHANT_SET];    ///< Value to use
 
-        bool_t  addyesno[MAX_ENCHANT_ADD];    ///< Add this value?
+        C_BOOLEAN  addyesno[MAX_ENCHANT_ADD];    ///< Add this value?
         float   addvalue[MAX_ENCHANT_ADD];    ///< The values to add
 
         // special modifications
@@ -184,8 +184,8 @@ extern "C"
 
         // what to so when the enchant ends
         Sint16  endsound_index;              ///< Sound on end (-1 for none)
-        bool_t  killtargetonend;             ///< Kill the target on end?
-        bool_t  poofonend;                   ///< Spawn a poof on end?
+        C_BOOLEAN  killtargetonend;             ///< Kill the target on end?
+        C_BOOLEAN  poofonend;                   ///< Spawn a poof on end?
         int     endmessage;                  ///< Message for end -1 for none
 
     };
@@ -194,7 +194,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
     eve_t *  load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve );
-    bool_t   save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateName, eve_t * peve );
+    C_BOOLEAN   save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateName, eve_t * peve );
 
     eve_t * eve_init( eve_t * peve );
 

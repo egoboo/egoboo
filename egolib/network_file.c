@@ -367,7 +367,7 @@ egolib_rv netfile_handleEvent( ENetEvent * event )
     size_t fileSize;
     enet_packet_t enet_pkt;
     ego_packet_t  ego_pkt;
-    bool_t handled;
+    C_BOOLEAN handled;
 
     Uint8  ub;
     Uint16 us;
@@ -382,7 +382,7 @@ egolib_rv netfile_handleEvent( ENetEvent * event )
     }
 
     // assume the best
-    handled = btrue;
+    handled = C_TRUE;
 
     // log the packet
     log_info( "netfile_handleEvent: Received " );
@@ -634,7 +634,7 @@ egolib_rv netfile_handleEvent( ENetEvent * event )
             break;
 
         default:
-            handled = bfalse;
+            handled = C_FALSE;
             break;
     }
 

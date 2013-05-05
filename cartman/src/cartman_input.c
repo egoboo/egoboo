@@ -27,14 +27,14 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-mouse_t      mos = { btrue };
-keyboard_t   key = { btrue, bfalse };
+mouse_t      mos = { ego_true };
+keyboard_t   key = { ego_true, ego_false };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t check_input_mouse( SDL_Event * pevt );
-static bool_t check_input_keyboard( SDL_Event * pevt );
+static ego_bool check_input_mouse( SDL_Event * pevt );
+static ego_bool check_input_keyboard( SDL_Event * pevt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -47,31 +47,31 @@ void update_mouse()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_keys( Uint32 resolution )
+ego_bool check_keys( Uint32 resolution )
 {
     static int last_tick = -1;
     int tick;
 
     // 20 ticks per key dalay
     tick = SDL_GetTicks();
-    if ( tick < last_tick + resolution ) return bfalse;
+    if ( tick < last_tick + resolution ) return ego_false;
     last_tick = tick;
 
     if ( key.delay > 0 )
     {
         key.delay--;
-        return bfalse;
+        return ego_false;
     }
 
-    if ( !key.on ) return bfalse;
+    if ( !key.on ) return ego_false;
 
     if ( key.needs_update )
     {
         key.sdlbuffer = SDL_GetKeyState( &( key.count ) );
-        key.needs_update = bfalse;
+        key.needs_update = ego_false;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -84,12 +84,12 @@ void check_input()
     {
         if ( NULL == egolib_console_handle_events( &evt ) )
         {
-            key.override = btrue;
+            key.override = ego_true;
             continue;
         }
         else
         {
-            key.override = bfalse;
+            key.override = ego_false;
         }
 
         switch ( evt.type )
@@ -104,15 +104,15 @@ void check_input()
                 if ( HAS_BITS( evt.active.state, SDL_APPINPUTFOCUS ) )
                 {
                     key.on = ( 1 == evt.active.gain );
-                    if ( key.on ) key.needs_update = btrue;
+                    if ( key.on ) key.needs_update = ego_true;
                 }
 
                 if ( HAS_BITS( evt.active.state, SDL_APPACTIVE ) )
                 {
                     if ( 1 != evt.active.gain )
                     {
-                        mos.on = bfalse;
-                        key.on = bfalse;
+                        mos.on = ego_false;
+                        key.on = ego_false;
                     }
                 }
                 break;
@@ -132,16 +132,16 @@ void check_input()
 };
 
 //--------------------------------------------------------------------------------------------
-bool_t check_input_mouse( SDL_Event * pevt )
+ego_bool check_input_mouse( SDL_Event * pevt )
 {
-    bool_t handled = bfalse;
+    ego_bool handled = ego_false;
 
-    if ( NULL == pevt || !mos.on ) return bfalse;
+    if ( NULL == pevt || !mos.on ) return ego_false;
 
     if ( 0 == mos.b )
     {
-        mos.drag = bfalse;
-        mos.drag_begin = bfalse;
+        mos.drag = ego_false;
+        mos.drag_begin = ego_false;
 
         // set mdata??
     }
@@ -163,8 +163,8 @@ bool_t check_input_mouse( SDL_Event * pevt )
                     mos.b |= SDL_BUTTON( SDL_BUTTON_RIGHT );
                     break;
             }
-            ui.pending_click = btrue;
-            handled = btrue;
+            ui.pending_click = ego_true;
+            handled = ego_true;
             break;
 
         case SDL_MOUSEBUTTONUP:
@@ -182,8 +182,8 @@ bool_t check_input_mouse( SDL_Event * pevt )
                     mos.b &= ~SDL_BUTTON( SDL_BUTTON_RIGHT );
                     break;
             }
-            ui.pending_click = bfalse;
-            handled = btrue;
+            ui.pending_click = ego_false;
+            handled = ego_true;
             break;
 
         case SDL_MOUSEMOTION:
@@ -197,7 +197,7 @@ bool_t check_input_mouse( SDL_Event * pevt )
                 }
                 else
                 {
-                    mos.drag = bfalse;
+                    mos.drag = ego_false;
                 }
             }
 
@@ -219,12 +219,12 @@ bool_t check_input_mouse( SDL_Event * pevt )
         if ( mos.drag_begin )
         {
             // start dragging
-            mos.drag = btrue;
+            mos.drag = ego_true;
         }
         else if ( !mos.drag )
         {
             // set the dragging to begin the next mouse time the mouse moves
-            mos.drag_begin = btrue;
+            mos.drag_begin = ego_true;
 
             // initialize the drag rect
             mos.tlx = mos.x;
@@ -243,11 +243,11 @@ bool_t check_input_mouse( SDL_Event * pevt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_input_keyboard( SDL_Event * pevt )
+ego_bool check_input_keyboard( SDL_Event * pevt )
 {
-    bool_t handled = bfalse;
+    ego_bool handled = ego_false;
 
-    if ( NULL == pevt || !key.on ) return bfalse;
+    if ( NULL == pevt || !key.on ) return ego_false;
 
     switch ( pevt->type )
     {
@@ -255,8 +255,8 @@ bool_t check_input_keyboard( SDL_Event * pevt )
         case SDL_KEYUP:
             key.state = pevt->key.state;
             key.mod   = pevt->key.keysym.mod;
-            key.needs_update = btrue;
-            handled = btrue;
+            key.needs_update = ego_true;
+            handled = ego_true;
             break;
     }
 
@@ -271,7 +271,7 @@ mouse_t * mouse_ctor( mouse_t * ptr )
 
     memset( ptr, 0, sizeof( *ptr ) );
 
-    ptr->on = btrue;
+    ptr->on = ego_true;
 
     return ptr;
 }
@@ -283,8 +283,8 @@ keyboard_t * keyboard_ctor( keyboard_t * ptr )
 
     memset( ptr, 0, sizeof( *ptr ) );
 
-    ptr->on           = btrue;
-    ptr->needs_update = btrue;
+    ptr->on           = ego_true;
+    ptr->needs_update = ego_true;
 
     return ptr;
 }

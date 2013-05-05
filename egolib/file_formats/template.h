@@ -36,7 +36,7 @@ extern "C"
     vfs_FILE* template_open_vfs( const char * filename );
     int       template_close_vfs( vfs_FILE* filetemp );
 
-    bool_t    template_seek_free( vfs_FILE* filetemp, vfs_FILE* filewrite );
+    C_BOOLEAN    template_seek_free( vfs_FILE* filetemp, vfs_FILE* filewrite );
     void      template_flush( vfs_FILE* filetemp, vfs_FILE* filewrite );
 
     void template_put_char( vfs_FILE* filetemp, vfs_FILE* filewrite, char cval );
@@ -44,7 +44,7 @@ extern "C"
     void template_put_float( vfs_FILE* filetemp, vfs_FILE* filewrite, float fval );
     void template_put_ufp8( vfs_FILE* filetemp, vfs_FILE* filewrite, UFP8_T ival );
     void template_put_sfp8( vfs_FILE* filetemp, vfs_FILE* filewrite, SFP8_T ival );
-    void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, bool_t truth );
+    void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, C_BOOLEAN truth );
     void template_put_damage_type( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 damagetype );
     void template_put_action( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 action );
     void template_put_gender( vfs_FILE* filetemp, vfs_FILE* filewrite, Uint8 gender );

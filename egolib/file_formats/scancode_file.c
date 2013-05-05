@@ -37,9 +37,9 @@ static size_t    scantag_count = 0;
 static scantag_t scantag_lst[MAXTAG];
 
 static void   scantag_reset( void );
-static bool_t scantag_read_one( vfs_FILE *fileread );
-static bool_t scantag_matches_control( scantag_t * ptag, control_t * pcontrol );
-static bool_t scantag_matches_device( scantag_t * ptag, int device_type );
+static C_BOOLEAN scantag_read_one( vfs_FILE *fileread );
+static C_BOOLEAN scantag_matches_control( scantag_t * ptag, control_t * pcontrol );
+static C_BOOLEAN scantag_matches_device( scantag_t * ptag, int device_type );
 
 static const char * scantag_tok( char * tag_string );
 
@@ -55,14 +55,14 @@ void scantag_reset( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scantag_read_one( vfs_FILE *fileread )
+C_BOOLEAN scantag_read_one( vfs_FILE *fileread )
 {
     /// @author ZZ
-    /// @details This function finds the next tag, returning btrue if it found one
+    /// @details This function finds the next tag, returning C_TRUE if it found one
 
-    bool_t retval;
+    C_BOOLEAN retval;
 
-    retval = goto_colon_vfs( NULL, fileread, btrue ) && ( scantag_count < MAXTAG );
+    retval = goto_colon_vfs( NULL, fileread, C_TRUE ) && ( scantag_count < MAXTAG );
     if ( retval )
     {
         vfs_get_string( fileread, scantag_lst[scantag_count].name, SDL_arraysize( scantag_lst[scantag_count].name ) );
@@ -219,14 +219,14 @@ control_t * scantag_parse_control( char * tag_string, control_t * pcontrol )
                 // add in any key modifiers
                 pcontrol->tag_key_mods |= scancode_get_kmod( tag_value );
 
-                pcontrol->loaded = btrue;
+                pcontrol->loaded = C_TRUE;
             }
         }
         else
         {
             pcontrol->tag_bits |= tag_value;
 
-            pcontrol->loaded = btrue;
+            pcontrol->loaded = C_TRUE;
         }
 
         // go to the next token
@@ -279,14 +279,14 @@ scantag_t *  scantag_get_tag( int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t scantag_get_value( int index, Uint32 * pvalue )
+C_BOOLEAN scantag_get_value( int index, Uint32 * pvalue )
 {
-    bool_t retval = bfalse;
+    C_BOOLEAN retval = C_FALSE;
 
     if ( index >= 0 && index < MAXTAG && NULL != pvalue )
     {
         *pvalue = scantag_lst[index].value;
-        retval = btrue;
+        retval = C_TRUE;
     }
 
     return retval;
@@ -588,32 +588,32 @@ scantag_get_string_end:
 }
 
 //--------------------------------------------------------------------------------------------
-//bool_t scantag_matches_control( scantag_t * ptag, control_t * pcontrol )
+//C_BOOLEAN scantag_matches_control( scantag_t * ptag, control_t * pcontrol )
 //{
 //    // valid tag?
-//    if( NULL == ptag ) return bfalse;
+//    if( NULL == ptag ) return C_FALSE;
 //
 //    // valid control?
-//    if( NULL == pcontrol || !pcontrol->loaded ) return bfalse;
+//    if( NULL == pcontrol || !pcontrol->loaded ) return C_FALSE;
 //
 //    // check the value
-//    if( ptag->value != pcontrol->tag ) return bfalse;
+//    if( ptag->value != pcontrol->tag ) return C_FALSE;
 //
 //    // check the key type
-//    if( pcontrol->is_key && 'K' != ptag->name[0] ) return bfalse;
+//    if( pcontrol->is_key && 'K' != ptag->name[0] ) return C_FALSE;
 //
 //    // passed all the tests
-//    return btrue;
+//    return C_TRUE;
 //}
 
 //--------------------------------------------------------------------------------------------
-//bool_t scantag_matches_device( scantag_t * ptag, int device_type )
+//C_BOOLEAN scantag_matches_device( scantag_t * ptag, int device_type )
 //{
-//    bool_t matches;
+//    C_BOOLEAN matches;
 //
-//    if( NULL == ptag ) return bfalse;
+//    if( NULL == ptag ) return C_FALSE;
 //
-//    matches = bfalse;
+//    matches = C_FALSE;
 //
 //    if ( INPUT_DEVICE_KEYBOARD == device_type )
 //    {

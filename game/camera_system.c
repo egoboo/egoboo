@@ -63,7 +63,7 @@ struct s_camera_players
 /// extended data for each camera
 struct s_ext_camera
 {
-    bool_t           on;
+    ego_bool           on;
     camera_players_t targets;
     ego_frect_t      screen;
 
@@ -79,8 +79,8 @@ static ext_camera_t * ext_camera_dtor( ext_camera_t * ptr );
 static ext_camera_t * ext_camera_reinit( ext_camera_t * ptr );
 static egolib_rv ext_camera_begin( ext_camera_t * pext, GLint * mode );
 static egolib_rv ext_camera_end( ext_camera_t * pext, GLint mode );
-static bool_t ext_camera_free( ext_camera_t * ptr );
-static bool_t ext_camera_update_projection( ext_camera_t * ptr );
+static ego_bool ext_camera_free( ext_camera_t * ptr );
+static ego_bool ext_camera_update_projection( ext_camera_t * ptr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ ext_camera_list_t * ext_camera_list_reinit( ext_camera_list_t * );
 // private variables
 //--------------------------------------------------------------------------------------------
 
-static bool_t               _camera_system_initialized = bfalse;
+static ego_bool               _camera_system_initialized = ego_false;
 
 static ext_camera_list_t    _camera_lst;
 
@@ -162,14 +162,14 @@ ext_camera_t * ext_camera_dtor( ext_camera_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ext_camera_free( ext_camera_t * ptr )
+ego_bool ext_camera_free( ext_camera_t * ptr )
 {
     renderlist_mgr_t * rmgr_ptr = NULL;
     dolist_mgr_t     * dmgr_ptr = NULL;
 
-    if ( NULL == ptr ) return bfalse;
+    if ( NULL == ptr ) return ego_false;
 
-    if ( !ptr->on ) return btrue;
+    if ( !ptr->on ) return ego_true;
 
     // free any locked renderlist
     rmgr_ptr = gfx_system_get_renderlist_mgr( &( ptr->which ) );
@@ -187,7 +187,7 @@ bool_t ext_camera_free( ext_camera_t * ptr )
         ptr->do_list = -1;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -200,11 +200,11 @@ ext_camera_t * ext_camera_reinit( ext_camera_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ext_camera_update_projection( ext_camera_t * ptr )
+ego_bool ext_camera_update_projection( ext_camera_t * ptr )
 {
     float frustum_near, frustum_far, aspect_ratio;
 
-    if ( NULL == ptr ) return bfalse;
+    if ( NULL == ptr ) return ego_false;
 
     //---- set the camera's projection matrix
     aspect_ratio = ( ptr->screen.xmax - ptr->screen.xmin ) / ( ptr->screen.ymax - ptr->screen.ymin );
@@ -216,13 +216,13 @@ bool_t ext_camera_update_projection( ext_camera_t * ptr )
 
     camera_gluPerspective( &( ptr->which ), CAM_FOV, aspect_ratio, frustum_near, frustum_far );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ext_camera_set_screen( ext_camera_t * ptr, float xmin, float ymin, float xmax, float ymax )
+ego_bool ext_camera_set_screen( ext_camera_t * ptr, float xmin, float ymin, float xmax, float ymax )
 {
-    if ( NULL == ptr ) return bfalse;
+    if ( NULL == ptr ) return ego_false;
 
     // set the screen
     ptr->screen.xmin = xmin;
@@ -234,32 +234,32 @@ bool_t ext_camera_set_screen( ext_camera_t * ptr, float xmin, float ymin, float 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ext_camera_get_screen( ext_camera_t * pext, ego_frect_t * prect )
+ego_bool ext_camera_get_screen( ext_camera_t * pext, ego_frect_t * prect )
 {
     // a NULL camera is an error
-    if ( NULL == pext ) return bfalse;
+    if ( NULL == pext ) return ego_false;
 
     // an invalid camera gives "nothing"
     if ( !pext->on )
     {
         BLANK_STRUCT_PTR( prect );
-        return bfalse;
+        return ego_false;
     }
 
     // a NULL prect is an accident
-    if ( NULL == prect ) return btrue;
+    if ( NULL == prect ) return ego_true;
 
     // copy the data
     memmove( prect, &( pext->screen ), sizeof( *prect ) );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
 // INITIALIZATION
 //--------------------------------------------------------------------------------------------
 
-bool_t camera_system_is_started( void )
+ego_bool camera_system_is_started( void )
 {
     return _camera_system_initialized;
 }
@@ -281,7 +281,7 @@ egolib_rv camera_system_begin( int camera_count )
 
         // we're initialized.
         // !set this here, or bad things happen!
-        _camera_system_initialized = btrue;
+        _camera_system_initialized = ego_true;
 
         // reset all the cameras
         camera_system_init( camera_count );
@@ -298,7 +298,7 @@ egolib_rv camera_system_end( void )
         // de-construct the cameras
         ext_camera_list_dtor( &_camera_lst );
 
-        _camera_system_initialized = bfalse;
+        _camera_system_initialized = ego_false;
     }
 
     return !_camera_system_initialized ? rv_success : rv_fail;
@@ -352,7 +352,7 @@ egolib_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam )
     pcam->do_list = dolist_mgr_get_free_idx( dmgr_ptr );
 
     // turn the camera on
-    pcam->on = btrue;
+    pcam->on = ego_true;
 
     return pcam->on ? rv_success : rv_fail;
 }
@@ -411,7 +411,7 @@ egolib_rv _camera_system_end_camera_ptr( ext_camera_t * pcam )
     }
 
     // turn the camera off
-    pcam->on = bfalse;
+    pcam->on = ego_false;
 
     // reset the camera targets
     pcam->targets.count = 0;
@@ -714,7 +714,7 @@ egolib_rv _camera_system_autoformat_cameras( int cameras )
     static const int border = 1;
 
     float  aspect_ratio;
-    bool_t widescreen;
+    ego_bool widescreen;
 
     ext_camera_t * pcam;
     int cam_count;

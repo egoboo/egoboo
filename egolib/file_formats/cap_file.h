@@ -268,11 +268,11 @@ extern "C"
         float        size_perlevel;                  ///< Scale increases
         Uint32       shadow_size;                    ///< Shadow size
         Uint32       bump_size;                     ///< Bounding octagon
-        bool_t       bump_override_size;            ///< let bump_size override the measured object size
+        C_BOOLEAN       bump_override_size;            ///< let bump_size override the measured object size
         Uint32       bump_sizebig;                  ///< For octagonal bumpers
-        bool_t       bump_override_sizebig;         ///< let bump_sizebig override the measured object size
+        C_BOOLEAN       bump_override_sizebig;         ///< let bump_sizebig override the measured object size
         Uint32       bump_height;                   ///< the height of the object
-        bool_t       bump_override_height;          ///< let bump_height overrride the measured height of the object
+        C_BOOLEAN       bump_override_height;          ///< let bump_height overrride the measured height of the object
         Uint8        stoppedby;                     ///< Collision Mask
 
         // movement
@@ -282,29 +282,29 @@ extern "C"
         float        anim_speed_walk;               ///< Walk threshold
         float        anim_speed_run;                ///< Run threshold
         Uint8        flyheight;                     ///< Fly height
-        bool_t       waterwalk;                     ///< Walk on water?
+        C_BOOLEAN       waterwalk;                     ///< Walk on water?
 
         // status graphics
         Uint8        life_color;                     ///< Life bar color
         Uint8        mana_color;                     ///< Mana bar color
-        bool_t       draw_icon;                     ///< Draw icon
+        C_BOOLEAN       draw_icon;                     ///< Draw icon
 
         // model graphics
         Uint8        flashand;                      ///< Flashing rate
         Uint8        alpha;                         ///< Transparency
         Uint8        light;                         ///< Light blending
-        bool_t       transferblend;                 ///< Transfer blending to rider/weapons
+        C_BOOLEAN       transferblend;                 ///< Transfer blending to rider/weapons
         Uint8        sheen;                         ///< How shiny it is ( 0-15 )
-        bool_t       enviro;                        ///< Phong map this baby?
+        C_BOOLEAN       enviro;                        ///< Phong map this baby?
         SFP8_T       uoffvel;                       ///< "horizontal" texture movement rate (8.8 fixed point)
         SFP8_T       voffvel;                       ///< "vertical" texture movement rate (8.8 fixed point)
-        bool_t       uniformlit;                    ///< Bad lighting?
-        bool_t       reflect;                       ///< Draw the reflection
-        bool_t       alwaysdraw;                    ///< Always render
-        bool_t       forceshadow;                   ///< Draw a shadow?
-        bool_t       ripple;                        ///< Spawn ripples?
-        bool_t       dont_cull_backfaces;           ///< Force the drawing of backfaces?
-        bool_t       skin_has_transparency;         ///< The skin has transparent areas
+        C_BOOLEAN       uniformlit;                    ///< Bad lighting?
+        C_BOOLEAN       reflect;                       ///< Draw the reflection
+        C_BOOLEAN       alwaysdraw;                    ///< Always render
+        C_BOOLEAN       forceshadow;                   ///< Draw a shadow?
+        C_BOOLEAN       ripple;                        ///< Spawn ripples?
+        C_BOOLEAN       dont_cull_backfaces;           ///< Force the drawing of backfaces?
+        C_BOOLEAN       skin_has_transparency;         ///< The skin has transparent areas
 
         // attack blocking info
         Uint16       iframefacing;                  ///< Invincibility frame
@@ -313,7 +313,7 @@ extern "C"
         Uint16       nframeangle;
 
         // defense
-        bool_t       resistbumpspawn;                        ///< Don't catch fire
+        C_BOOLEAN       resistbumpspawn;                        ///< Don't catch fire
         Uint8        defense[MAX_SKIN];                      ///< Defense for each skin
         Uint8        damage_modifier[DAMAGE_COUNT][MAX_SKIN];
         float        damage_resistance[DAMAGE_COUNT][MAX_SKIN];
@@ -329,37 +329,37 @@ extern "C"
         int          sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
 
         // flags
-        bool_t       isequipment;                    ///< Behave in silly ways
-        bool_t       isitem;                         ///< Is it an item?
-        bool_t       ismount;                        ///< Can you ride it?
-        bool_t       isstackable;                    ///< Is it arrowlike?
-        bool_t       invictus;                       ///< Is it invincible?
-        bool_t       platform;                       ///< Can be stood on?
-        bool_t       canuseplatforms;                ///< Can use platforms?
-        bool_t       cangrabmoney;                   ///< Collect money?
-        bool_t       canopenstuff;                   ///< Open chests/doors?
-        bool_t       canbedazed;                     ///< Can it be dazed?
-        bool_t       canbegrogged;                   ///< Can it be grogged?
-        bool_t       istoobig;                       ///< Can't be put in pack
-        bool_t       isranged;                       ///< Flag for ranged weapon
-        bool_t       nameknown;                      ///< Is the class name known?
-        bool_t       usageknown;                     ///< Is its usage known
-        bool_t       cancarrytonextmodule;           ///< Take it with you?
+        C_BOOLEAN       isequipment;                    ///< Behave in silly ways
+        C_BOOLEAN       isitem;                         ///< Is it an item?
+        C_BOOLEAN       ismount;                        ///< Can you ride it?
+        C_BOOLEAN       isstackable;                    ///< Is it arrowlike?
+        C_BOOLEAN       invictus;                       ///< Is it invincible?
+        C_BOOLEAN       platform;                       ///< Can be stood on?
+        C_BOOLEAN       canuseplatforms;                ///< Can use platforms?
+        C_BOOLEAN       cangrabmoney;                   ///< Collect money?
+        C_BOOLEAN       canopenstuff;                   ///< Open chests/doors?
+        C_BOOLEAN       canbedazed;                     ///< Can it be dazed?
+        C_BOOLEAN       canbegrogged;                   ///< Can it be grogged?
+        C_BOOLEAN       istoobig;                       ///< Can't be put in pack
+        C_BOOLEAN       isranged;                       ///< Flag for ranged weapon
+        C_BOOLEAN       nameknown;                      ///< Is the class name known?
+        C_BOOLEAN       usageknown;                     ///< Is its usage known
+        C_BOOLEAN       cancarrytonextmodule;           ///< Take it with you?
         Uint8        damagetarget_damagetype;               ///< For AI DamageTarget
-        bool_t       slotvalid[SLOT_COUNT];          ///< Left/Right hands valid
-        bool_t       ridercanattack;                 ///< Rider attack?
+        C_BOOLEAN       slotvalid[SLOT_COUNT];          ///< Left/Right hands valid
+        C_BOOLEAN       ridercanattack;                 ///< Rider attack?
         Uint8        kursechance;                    ///< Chance of being kursed
         Sint8        hidestate;                      ///< Don't draw when...
         Sint8        isvaluable;                     ///< Force to be valuable
         int          spelleffect_type;               ///< is the object that a spellbook generates
 
         // item usage
-        bool_t       needskillidtouse;               ///< Check IDSZ first?
+        C_BOOLEAN       needskillidtouse;               ///< Check IDSZ first?
         Uint8        weaponaction;                   ///< Animation needed to swing
         Sint16       manacost;                       ///< How much mana to use this object?
         Uint8        attack_attached;                ///< Do we have attack particles?
         int          attack_lpip;                    ///< What kind of attack particles?
-        bool_t       attack_fast;                    ///< Ignores the default reload time?
+        C_BOOLEAN       attack_fast;                    ///< Ignores the default reload time?
 
         float        str_bonus;                      ///< Strength     damage factor
         float        wis_bonus;                      ///< Wisdom       damage factor
@@ -383,13 +383,13 @@ extern "C"
         int          see_invisible_level;             ///< Can it see invisible?
 
         // random stuff
-        bool_t       stickybutt;                    ///< Stick to the ground?
+        C_BOOLEAN       stickybutt;                    ///< Stick to the ground?
     };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
     cap_t * load_one_cap_file_vfs( const char * tmploadname, cap_t * pcap );
-    bool_t  save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateFile, cap_t * pcap );
+    C_BOOLEAN  save_one_cap_file_vfs( const char * szSaveName, const char * szTemplateFile, cap_t * pcap );
 
     cap_t * cap_init( cap_t * pcap );
 

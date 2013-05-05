@@ -155,7 +155,7 @@ void input_device_init( input_device_t * pdevice, int req_type )
     // clear out all the data
     BLANK_STRUCT_PTR( pdevice )
 
-    // set everything that is not 0, bfalse, 0.0f, etc.
+    // set everything that is not 0, C_FALSE, 0.0f, etc.
     pdevice->sustain     = 0.58f;
     pdevice->cover       = 1.0f - pdevice->sustain;
     pdevice->device_type = type;

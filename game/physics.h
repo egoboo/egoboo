@@ -21,9 +21,9 @@
 
 /// @file physics.h
 
-#include "../egolib/bbox.h"
-
 #include "egoboo_typedef.h"
+
+#include "bbox.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -79,10 +79,10 @@ struct s_apos
     fvec3_t sum;
 };
 
-bool_t apos_self_union( apos_t * lhs, apos_t * rhs );
-bool_t apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs );
-bool_t apos_self_union_index( apos_t * lhs, const float val, const int index );
-bool_t apos_evaluate( const apos_t * src, fvec3_base_t dst );
+ego_bool apos_self_union( apos_t * lhs, apos_t * rhs );
+ego_bool apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs );
+ego_bool apos_self_union_index( apos_t * lhs, const float val, const int index );
+ego_bool apos_evaluate( const apos_t * src, fvec3_base_t dst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ phys_data_t * phys_data_sum_avel_index( phys_data_t * pphys, const float val, co
 //--------------------------------------------------------------------------------------------
 struct s_breadcrumb
 {
-    bool_t         valid;                    /// is this position valid
+    ego_bool         valid;                    /// is this position valid
     fvec3_t        pos;                      ///< A stored safe position
     Uint32         grid;                     ///< the grid index of this position
     float          radius;                   ///< the size of the object at this position
@@ -132,21 +132,21 @@ int            breadcrumb_cmp( const void * lhs, const void * rhs );
 
 struct s_breadcrumb_list
 {
-    bool_t       on;
+    ego_bool       on;
     int          count;
     breadcrumb_t lst[MAX_BREADCRUMB];
 };
 
 void           breadcrumb_list_validate( breadcrumb_list_t * lst );
-bool_t         breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew );
+ego_bool         breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew );
 breadcrumb_t * breadcrumb_list_last_valid( breadcrumb_list_t * lst );
 breadcrumb_t * breadcrumb_list_alloc( breadcrumb_list_t * lst );
 breadcrumb_t * breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 match_grid );
 breadcrumb_t * breadcrumb_list_oldest( breadcrumb_list_t * lst );
 breadcrumb_t * breadcrumb_list_newest( breadcrumb_list_t * lst );
 void           breadcrumb_list_compact( breadcrumb_list_t * lst );
-bool_t         breadcrumb_list_empty( const breadcrumb_list_t * lst );
-bool_t         breadcrumb_list_full( const breadcrumb_list_t *  lst );
+ego_bool         breadcrumb_list_empty( const breadcrumb_list_t * lst );
+ego_bool         breadcrumb_list_full( const breadcrumb_list_t *  lst );
 
 //--------------------------------------------------------------------------------------------
 // the global physics/friction values
@@ -168,16 +168,16 @@ extern const float ice_friction;            ///< estimte if the friction on ice
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t phys_expand_oct_bb( const oct_bb_t * src, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst );
-bool_t phys_expand_chr_bb( struct s_chr * pchr, float tmin, float tmax, oct_bb_t * pdst );
-bool_t phys_expand_prt_bb( struct s_prt * pprt, float tmin, float tmax, oct_bb_t * pdst );
+ego_bool phys_expand_oct_bb( const oct_bb_t * src, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst );
+ego_bool phys_expand_chr_bb( struct s_chr * pchr, float tmin, float tmax, oct_bb_t * pdst );
+ego_bool phys_expand_prt_bb( struct s_prt * pprt, float tmin, float tmax, oct_bb_t * pdst );
 
-bool_t phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin );
-bool_t phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth );
+ego_bool phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin );
+ego_bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth );
 
-bool_t phys_intersect_oct_bb( const oct_bb_t * src1, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
+ego_bool phys_intersect_oct_bb( const oct_bb_t * src1, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
 
-bool_t get_chr_mass( struct s_chr * pchr, float * wt );
-bool_t get_prt_mass( struct s_prt * pprt, struct s_chr * pchr, float * wt );
+ego_bool get_chr_mass( struct s_chr * pchr, float * wt );
+ego_bool get_prt_mass( struct s_prt * pprt, struct s_chr * pchr, float * wt );
 void   get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
 

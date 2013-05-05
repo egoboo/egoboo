@@ -86,6 +86,11 @@ void sys_fs_init( const char * root_dir )
     snprintf( linux_configPath, SDL_arraysize( linux_configPath ), "%s/etc/egoboo-2.x/", PREFIX );
     snprintf( linux_binaryPath, SDL_arraysize( linux_binaryPath ), "%s/games/", PREFIX );
     snprintf( linux_dataPath,   SDL_arraysize( linux_dataPath ),   "%s/share/games/egoboo-2.x/", PREFIX );
+#elif !defined(_NIX_PREFIX) && defined(_DEBUG)
+    // assume we are debugging using the "install directory" rather than using a real installation
+    strncpy( linux_configPath, ".", SDL_arraysize( linux_configPath ) );
+    strncpy( linux_binaryPath, ".", SDL_arraysize( linux_binaryPath ) );
+    strncpy( linux_dataPath, ".", SDL_arraysize( linux_dataPath ) );
 #else
     // these are read-only directories
     strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
@@ -139,7 +144,7 @@ void fs_deleteFile( const char *filename )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fs_copyFile( const char *source, const char *dest )
+C_BOOLEAN fs_copyFile( const char *source, const char *dest )
 {
     /// @author ZZ
     /// @details This function copies a file on the local machine
@@ -151,13 +156,13 @@ bool_t fs_copyFile( const char *source, const char *dest )
 
     sourcef = fopen( source, "rb" );
     if ( !sourcef )
-        return bfalse;
+        return C_FALSE;
 
     destf = fopen( dest, "wb" );
     if ( !destf )
     {
         fclose( sourcef );
-        return bfalse;
+        return C_FALSE;
     }
 
     while (( bytes_read = fread( buf, 1, sizeof( buf ), sourcef ) ) )
@@ -166,7 +171,7 @@ bool_t fs_copyFile( const char *source, const char *dest )
     //Finish it up
     fclose( sourcef );
     fclose( destf );
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------

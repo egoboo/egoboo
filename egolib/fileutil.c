@@ -99,15 +99,15 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
+C_BOOLEAN copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
 {
     /// @author BB
     /// @details copy a line of arbitrary length, in chunks of length sizeof(linebuffer)
     /// @todo This should be moved to file_common.c
 
     char linebuffer[64];
-    if ( NULL == fileread || NULL == filewrite ) return bfalse;
-    if ( vfs_eof( fileread ) || vfs_eof( filewrite ) ) return bfalse;
+    if ( NULL == fileread || NULL == filewrite ) return C_FALSE;
+    if ( vfs_eof( fileread ) || vfs_eof( filewrite ) ) return C_FALSE;
 
     vfs_gets( linebuffer, SDL_arraysize( linebuffer ), fileread );
     vfs_puts( linebuffer, filewrite );
@@ -117,11 +117,11 @@ bool_t copy_line_vfs( vfs_FILE * fileread, vfs_FILE * filewrite )
         vfs_puts( linebuffer, filewrite );
     }
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool_t optional )
+C_BOOLEAN goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, C_BOOLEAN optional )
 {
     /// @author ZZ
     /// @details This function moves a file read pointer to the next delimiter char iTmp;
@@ -130,7 +130,7 @@ bool_t goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool_t
 
     int iTmp, write;
 
-    if ( vfs_eof( fileread )  || vfs_error( fileread ) ) return bfalse;
+    if ( vfs_eof( fileread )  || vfs_error( fileread ) ) return C_FALSE;
 
     write = 0;
     if ( NULL != buffer ) buffer[0] = CSTR_END;
@@ -163,7 +163,7 @@ bool_t goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool_t
 }
 
 //--------------------------------------------------------------------------------------------
-char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, bool_t optional )
+char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * delim_list, C_BOOLEAN optional )
 {
     /// @author ZZ
     /// @details This function moves a file read pointer to the next colon char iTmp;
@@ -174,22 +174,22 @@ char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * de
 
     char   retval = CSTR_END;
     int    iTmp, write;
-    bool_t is_delim;
+    C_BOOLEAN is_delim;
 
-    if ( INVALID_CSTR( delim_list ) ) return bfalse;
+    if ( INVALID_CSTR( delim_list ) ) return C_FALSE;
 
-    if ( vfs_eof( fileread ) || vfs_error( fileread ) ) return bfalse;
+    if ( vfs_eof( fileread ) || vfs_error( fileread ) ) return C_FALSE;
 
     // use a simpler function if it is easier
     if ( 1 == strlen( delim_list ) )
     {
-        bool_t rv = goto_delimiter_vfs( buffer, fileread, delim_list[0], optional );
+        C_BOOLEAN rv = goto_delimiter_vfs( buffer, fileread, delim_list[0], optional );
         retval = rv ? delim_list[0] : retval;
     }
 
     if ( NULL != buffer ) buffer[0] = CSTR_END;
 
-    is_delim = bfalse;
+    is_delim = C_FALSE;
     write    = 0;
     iTmp = vfs_getc( fileread );
     while ( !vfs_eof( fileread ) && !vfs_error( fileread ) )
@@ -227,7 +227,7 @@ char goto_delimiter_list_vfs( char * buffer, vfs_FILE* fileread, const char * de
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool_t optional )
+C_BOOLEAN goto_colon_vfs( char * buffer, vfs_FILE* fileread, C_BOOLEAN optional )
 {
     /// @author BB
     /// @details the two functions goto_colon_vfs and goto_colon_yesno have been combined
@@ -236,7 +236,7 @@ bool_t goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool_t optional )
 }
 
 //--------------------------------------------------------------------------------------------
-char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optional )
+char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, C_BOOLEAN optional )
 {
     /// @author ZZ
     /// @details This function moves a file read pointer to the next colon char *pmem;
@@ -296,7 +296,7 @@ char vfs_get_first_letter( vfs_FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_name( vfs_FILE* fileread,  char *szName, size_t max_len )
+C_BOOLEAN vfs_get_name( vfs_FILE* fileread,  char *szName, size_t max_len )
 {
     /// @author ZZ
     /// @details This function loads a string of up to MAXCAPNAMESIZE characters, parsing
@@ -307,10 +307,10 @@ bool_t vfs_get_name( vfs_FILE* fileread,  char *szName, size_t max_len )
 
     STRING format;
 
-    if ( NULL == szName ) return bfalse;
+    if ( NULL == szName ) return C_FALSE;
     szName[0] = CSTR_END;
 
-    if ( NULL == fileread || ( 0 != vfs_error( fileread ) ) || vfs_eof( fileread ) ) return bfalse;
+    if ( NULL == fileread || ( 0 != vfs_error( fileread ) ) || vfs_eof( fileread ) ) return C_FALSE;
 
     // limit the max length of the string!
     // return value if the number of fields fields, not amount fields from file
@@ -365,11 +365,11 @@ void vfs_put_sfp8( vfs_FILE* filewrite, const char* text, SFP8_T ival )
 }
 
 //--------------------------------------------------------------------------------------------
-void vfs_put_bool( vfs_FILE* filewrite, const char* text, bool_t truth )
+void vfs_put_bool( vfs_FILE* filewrite, const char* text, C_BOOLEAN truth )
 {
     /// @author ZZ
     /// @details This function kinda mimics vfs_printf for the output of
-    ///    btrue bfalse statements
+    ///    C_TRUE C_FALSE statements
 
     vfs_printf( filewrite, "%s", text );
     vfs_printf( filewrite, truth ? "TRUE" : "FALSE" );
@@ -584,7 +584,7 @@ void vfs_put_expansion_string( vfs_FILE* filewrite, const char* text, IDSZ idsz,
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_range( vfs_FILE* fileread, FRange * prange )
+C_BOOLEAN vfs_get_range( vfs_FILE* fileread, FRange * prange )
 {
     /// @author ZZ
     /// @details This function reads a damage/stat range ( eg. 5-9 )
@@ -593,7 +593,7 @@ bool_t vfs_get_range( vfs_FILE* fileread, FRange * prange )
     float fFrom, fTo;
     long fpos;
 
-    if ( NULL == fileread || vfs_error( fileread ) || vfs_eof( fileread ) ) return bfalse;
+    if ( NULL == fileread || vfs_error( fileread ) || vfs_eof( fileread ) ) return C_FALSE;
 
     // read the range
     fFrom = vfs_get_float( fileread );  // The first number
@@ -620,30 +620,30 @@ bool_t vfs_get_range( vfs_FILE* fileread, FRange * prange )
         prange->to   = MAX( fFrom, fTo );
     }
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_next_range( vfs_FILE* fileread, FRange * prange )
+C_BOOLEAN vfs_get_next_range( vfs_FILE* fileread, FRange * prange )
 {
     /// @author ZZ
     /// @details This function reads a damage/stat range ( eg. 5-9 )
 
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_range( fileread, prange );
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_pair( vfs_FILE* fileread, IPair * ppair )
+C_BOOLEAN vfs_get_pair( vfs_FILE* fileread, IPair * ppair )
 {
     /// @author ZZ
     /// @details This function reads a damage/stat loc_pair ( eg. 5-9 )
 
     FRange loc_range;
 
-    if ( !vfs_get_range( fileread, &loc_range ) ) return bfalse;
+    if ( !vfs_get_range( fileread, &loc_range ) ) return C_FALSE;
 
     if ( NULL != ppair )
     {
@@ -652,7 +652,7 @@ bool_t vfs_get_pair( vfs_FILE* fileread, IPair * ppair )
         ppair->rand = FLOAT_TO_FP8( loc_range.to - loc_range.from );
     }
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -724,7 +724,7 @@ int vfs_get_version( vfs_FILE* fileread )
     /// @details scanr the file for a "// file_version blah" flag
     long filepos;
     int  ch;
-    bool_t newline, iscomment;
+    C_BOOLEAN newline, iscomment;
     STRING keyword;
     int file_version, fields;
 
@@ -735,13 +735,13 @@ int vfs_get_version( vfs_FILE* fileread )
     vfs_seek( fileread, 0 );
 
     file_version = -1;
-    iscomment = bfalse;
+    iscomment = C_FALSE;
     while ( !vfs_eof( fileread ) )
     {
         ch = vfs_getc( fileread );
 
         // trap new lines
-        if ( ASCII_LINEFEED_CHAR ==  ch || C_CARRIAGE_RETURN_CHAR ==  ch ) { newline = btrue; iscomment = bfalse; continue; }
+        if ( ASCII_LINEFEED_CHAR ==  ch || C_CARRIAGE_RETURN_CHAR ==  ch ) { newline = C_TRUE; iscomment = C_FALSE; continue; }
 
         // ignore whitespace
         if ( isspace( ch ) ) continue;
@@ -752,7 +752,7 @@ int vfs_get_version( vfs_FILE* fileread )
             ch = vfs_getc( fileread );
             if ( C_SLASH_CHR == ch )
             {
-                iscomment = btrue;
+                iscomment = C_TRUE;
             }
         }
 
@@ -769,7 +769,7 @@ int vfs_get_version( vfs_FILE* fileread )
             }
             else
             {
-                iscomment = bfalse;
+                iscomment = C_FALSE;
             }
         }
         else
@@ -783,7 +783,7 @@ int vfs_get_version( vfs_FILE* fileread )
                 ch = vfs_getc( fileread );
             }
 
-            iscomment = bfalse;
+            iscomment = C_FALSE;
             continue;
         }
     };
@@ -798,9 +798,9 @@ int vfs_get_version( vfs_FILE* fileread )
 }*/
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_put_version( vfs_FILE* filewrite, const int version )
+C_BOOLEAN vfs_put_version( vfs_FILE* filewrite, const int version )
 {
-    if ( vfs_error( filewrite ) ) return bfalse;
+    if ( vfs_error( filewrite ) ) return C_FALSE;
 
     return 0 != vfs_printf( filewrite, "$FILE_VERSION %i\n\n", version );
 }
@@ -869,7 +869,7 @@ char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite
 //--------------------------------------------------------------------------------------------
 char vfs_get_next_char( vfs_FILE * fileread )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_first_letter( fileread );
 }
@@ -908,7 +908,7 @@ SFP8_T vfs_get_sfp8( vfs_FILE* fileread )
 //--------------------------------------------------------------------------------------------
 int vfs_get_next_int( vfs_FILE * fileread )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_int( fileread );
 }
@@ -916,7 +916,7 @@ int vfs_get_next_int( vfs_FILE * fileread )
 //--------------------------------------------------------------------------------------------
 UFP8_T vfs_get_next_ufp8( vfs_FILE * fileread )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_ufp8( fileread );
 }
@@ -924,18 +924,18 @@ UFP8_T vfs_get_next_ufp8( vfs_FILE * fileread )
 //--------------------------------------------------------------------------------------------
 SFP8_T vfs_get_next_sfp8( vfs_FILE * fileread )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_sfp8( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_string( vfs_FILE * fileread, char * str, size_t str_len )
+C_BOOLEAN vfs_get_string( vfs_FILE * fileread, char * str, size_t str_len )
 {
     int fields;
     STRING format_str;
 
-    if ( NULL == str || 0 == str_len ) return bfalse;
+    if ( NULL == str || 0 == str_len ) return C_FALSE;
 
     snprintf( format_str, SDL_arraysize( format_str ), "%%%ds", str_len - 1 );
 
@@ -947,28 +947,28 @@ bool_t vfs_get_string( vfs_FILE * fileread, char * str, size_t str_len )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len )
+C_BOOLEAN vfs_get_next_string( vfs_FILE * fileread, char * str, size_t str_len )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_string( fileread, str, str_len );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len )
+C_BOOLEAN vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len )
 {
     char * gets_rv;
-    bool_t found;
+    C_BOOLEAN found;
 
-    if ( NULL == str || 0 == str_len ) return bfalse;
+    if ( NULL == str || 0 == str_len ) return C_FALSE;
 
     gets_rv = vfs_gets( str, str_len, fileread );
 
-    found = bfalse;
+    found = C_FALSE;
     if ( gets_rv == str )
     {
         int cnt;
-        found = btrue;
+        found = C_TRUE;
 
         // make sure the string terminates as egoboo expects
         for ( cnt = 0; cnt < str_len; cnt++ )
@@ -989,9 +989,9 @@ bool_t vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_next_line( vfs_FILE * fileread, char * str, size_t str_len )
+C_BOOLEAN vfs_get_next_line( vfs_FILE * fileread, char * str, size_t str_len )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_line( fileread, str, str_len );
 }
@@ -1010,23 +1010,23 @@ float vfs_get_float( vfs_FILE * fileread )
 //--------------------------------------------------------------------------------------------
 float  vfs_get_next_float( vfs_FILE * fileread )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_float( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_next_name( vfs_FILE * fileread, char * name, size_t name_len )
+C_BOOLEAN vfs_get_next_name( vfs_FILE * fileread, char * name, size_t name_len )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_name( fileread, name, name_len );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_next_pair( vfs_FILE * fileread, IPair * ppair )
+C_BOOLEAN vfs_get_next_pair( vfs_FILE * fileread, IPair * ppair )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_pair( fileread, ppair );
 }
@@ -1034,7 +1034,7 @@ bool_t vfs_get_next_pair( vfs_FILE * fileread, IPair * ppair )
 //--------------------------------------------------------------------------------------------
 IDSZ vfs_get_next_idsz( vfs_FILE * fileread )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_idsz( fileread );
 }
@@ -1067,13 +1067,13 @@ int vfs_get_damage_type( vfs_FILE * fileread )
 //--------------------------------------------------------------------------------------------
 int vfs_get_next_damage_type( vfs_FILE * fileread )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_damage_type( fileread );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_bool( vfs_FILE * fileread )
+C_BOOLEAN vfs_get_bool( vfs_FILE * fileread )
 {
     char cTmp = vfs_get_first_letter( fileread );
 
@@ -1081,9 +1081,9 @@ bool_t vfs_get_bool( vfs_FILE * fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t vfs_get_next_bool( vfs_FILE * fileread )
+C_BOOLEAN vfs_get_next_bool( vfs_FILE * fileread )
 {
-    goto_colon_vfs( NULL, fileread, bfalse );
+    goto_colon_vfs( NULL, fileread, C_FALSE );
 
     return vfs_get_bool( fileread );
 }

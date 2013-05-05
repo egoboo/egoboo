@@ -71,7 +71,7 @@ enum e_bb_opt
 /// Any graphics that can be composited onto a SDL_surface can be used
 struct s_billboard_data
 {
-    bool_t    valid;        ///< has the billboard data been initialized?
+    ego_bool    valid;        ///< has the billboard data been initialized?
 
     Uint32    time;         ///< the time when the billboard will expire
     TX_REF    tex_ref;      ///< our texture index
@@ -90,9 +90,9 @@ struct s_billboard_data
 };
 
 billboard_data_t * billboard_data_init( billboard_data_t * pbb );
-bool_t             billboard_data_free( billboard_data_t * pbb );
-bool_t             billboard_data_update( billboard_data_t * pbb );
-bool_t             billboard_data_printf_ttf( billboard_data_t * pbb, struct s_Font *font, SDL_Color color, const char * format, ... );
+ego_bool             billboard_data_free( billboard_data_t * pbb );
+ego_bool             billboard_data_update( billboard_data_t * pbb );
+ego_bool             billboard_data_printf_ttf( billboard_data_t * pbb, struct s_Font *font, SDL_Color color, const char * format, ... );
 
 #define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < BILLBOARD_COUNT ) )
 #define VALID_BILLBOARD( IBB )       ( VALID_BILLBOARD_RANGE( IBB ) && BillboardList.lst[IBB].valid )
@@ -107,16 +107,16 @@ void   BillboardList_init_all( void );
 void   BillboardList_update_all( void );
 void   BillboardList_free_all( void );
 size_t BillboardList_get_free_ref( Uint32 lifetime_secs );
-bool_t BillboardList_free_one( size_t ibb );
+ego_bool BillboardList_free_one( size_t ibb );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool_t billboard_system_begin( void );
-bool_t billboard_system_end( void );
-bool_t billboard_system_init( void );
+ego_bool billboard_system_begin( void );
+ego_bool billboard_system_end( void );
+ego_bool billboard_system_init( void );
 
-bool_t billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
+ego_bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
 gfx_rv billboard_system_render_all( const struct s_camera * pcam );
 
 

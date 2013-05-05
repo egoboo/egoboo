@@ -31,7 +31,6 @@
 #include "../egolib/console.h"
 #include "../egolib/endian.h"
 #include "../egolib/fileutil.h"
-#include "../egolib/frustum.h"
 #include "../egolib/_math.h"
 #include "../egolib/platform.h"
 #include "../egolib/process.h"

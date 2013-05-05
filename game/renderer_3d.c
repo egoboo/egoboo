@@ -95,11 +95,11 @@ int line_list_get_free( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration )
+ego_bool line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration )
 {
     int iline = line_list_get_free();
 
-    if ( iline == LINE_COUNT ) return bfalse;
+    if ( iline == LINE_COUNT ) return ego_false;
 
     //Source
     line_list[iline].src.x = src_x;
@@ -119,7 +119,7 @@ bool_t line_list_add( const float src_x, const float src_y, const float src_z, c
 
     line_list[iline].time = egoboo_get_ticks() + duration;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -215,11 +215,11 @@ void point_list_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t point_list_add( const float x, const float y, const float z, const int duration )
+ego_bool point_list_add( const float x, const float y, const float z, const int duration )
 {
     int ipoint = point_list_get_free();
 
-    if ( ipoint == POINT_COUNT ) return bfalse;
+    if ( ipoint == POINT_COUNT ) return ego_false;
 
     //position
     point_list[ipoint].src.x = x;
@@ -234,7 +234,7 @@ bool_t point_list_add( const float x, const float y, const float z, const int du
 
     point_list[ipoint].time = egoboo_get_ticks() + duration;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -331,12 +331,12 @@ void point_list_draw_all( const camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 // AXIS BOUNDING BOX IMPLEMENTATION(S)
 //--------------------------------------------------------------------------------------------
-bool_t render_aabb( aabb_t * pbbox )
+ego_bool render_aabb( aabb_t * pbbox )
 {
     GLXvector3f * pmin, * pmax;
     GLint matrix_mode[1];
 
-    if ( NULL == pbbox ) return bfalse;
+    if ( NULL == pbbox ) return ego_false;
 
     // save the matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
@@ -397,15 +397,15 @@ bool_t render_aabb( aabb_t * pbbox )
     // restore the matrix mode
     GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
+ego_bool render_oct_bb( oct_bb_t * bb, ego_bool draw_square, ego_bool draw_diamond )
 {
-    bool_t retval = bfalse;
+    ego_bool retval = ego_false;
 
-    if ( NULL == bb ) return bfalse;
+    if ( NULL == bb ) return ego_false;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
     {
@@ -484,7 +484,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
             GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->maxs[OCT_Z] );
             GL_DEBUG_END();
 
-            retval = btrue;
+            retval = ego_true;
         }
 
         //------------------------------------------------
@@ -541,7 +541,7 @@ bool_t render_oct_bb( oct_bb_t * bb, bool_t draw_square, bool_t draw_diamond )
             GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
             GL_DEBUG_END();
 
-            retval = btrue;
+            retval = ego_true;
         }
 
     }

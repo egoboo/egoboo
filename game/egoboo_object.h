@@ -25,7 +25,7 @@
 #include "egoboo_typedef.h"
 
 #include "../egolib/state_machine.h"
-#include "../egolib/bsp.h"
+#include "bsp.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -69,14 +69,14 @@ struct s_ego_object_base
     Uint32             guid;      ///< a globally unique identifier
 
     // "process" control control
-    bool_t             allocated;   ///< Does it exist?
-    bool_t             on;          ///< Can it be accessed?
-    bool_t             turn_me_on;  ///< Has someone requested that the object be turned on?
-    bool_t             kill_me;     ///< Has someone requested that the object be destroyed?
-    bool_t             spawning;    ///< is the object in the midst of being created?
+    ego_bool             allocated;   ///< Does it exist?
+    ego_bool             on;          ///< Can it be accessed?
+    ego_bool             turn_me_on;  ///< Has someone requested that the object be turned on?
+    ego_bool             kill_me;     ///< Has someone requested that the object be destroyed?
+    ego_bool             spawning;    ///< is the object in the midst of being created?
 
-    bool_t             in_free_list; ///< the object is currently in the free list
-    bool_t             in_used_list; ///< the object is currently in the used list
+    ego_bool             in_free_list; ///< the object is currently in the free list
+    ego_bool             in_used_list; ///< the object is currently in the used list
 
     // things related to the updating of objects
     size_t         update_count;  ///< How many updates have been made to this object?
@@ -100,11 +100,11 @@ obj_data_t * ego_object_dtor( obj_data_t * pbase );
 #define POBJ_ALLOCATE( PDATA, INDEX ) \
     if( NULL != PDATA ) \
     { \
-        (PDATA)->obj_base.allocated  = btrue;  \
-        (PDATA)->obj_base.on         = bfalse; \
-        (PDATA)->obj_base.turn_me_on = bfalse; \
-        (PDATA)->obj_base.kill_me    = bfalse; \
-        (PDATA)->obj_base.spawning   = bfalse; \
+        (PDATA)->obj_base.allocated  = ego_true;  \
+        (PDATA)->obj_base.on         = ego_false; \
+        (PDATA)->obj_base.turn_me_on = ego_false; \
+        (PDATA)->obj_base.kill_me    = ego_false; \
+        (PDATA)->obj_base.spawning   = ego_false; \
         (PDATA)->obj_base.index      = INDEX;  \
         (PDATA)->obj_base.state      = ego_object_constructing; \
         (PDATA)->obj_base.guid       = ego_object_guid++; \
@@ -124,17 +124,17 @@ obj_data_t * ego_object_dtor( obj_data_t * pbase );
     { \
         if( ego_object_terminated != (PDATA)->obj_base.state ) \
         { \
-            (PDATA)->obj_base.kill_me = btrue; \
+            (PDATA)->obj_base.kill_me = ego_true; \
         } \
-        (PDATA)->obj_base.on = bfalse; \
+        (PDATA)->obj_base.on = ego_false; \
     }
 
 /// Completely turn off an obj_data_t object and mark it as no longer allocated
 #define POBJ_TERMINATE( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
     { \
-        (PDATA)->obj_base.allocated = bfalse; \
-        (PDATA)->obj_base.on        = bfalse; \
+        (PDATA)->obj_base.allocated = ego_false; \
+        (PDATA)->obj_base.on        = ego_false; \
         (PDATA)->obj_base.state     = ego_object_terminated; \
     }
 
@@ -143,21 +143,21 @@ obj_data_t * ego_object_dtor( obj_data_t * pbase );
     {\
         if( !(PDATA)->obj_base.spawning )\
         {\
-            (PDATA)->obj_base.spawning = btrue;\
+            (PDATA)->obj_base.spawning = ego_true;\
             ego_object_spawn_depth++;\
         }\
     }\
-     
+
 #define POBJ_END_SPAWN( PDATA ) \
     if( NULL != PDATA && (PDATA)->obj_base.allocated ) \
     {\
         if( (PDATA)->obj_base.spawning )\
         {\
-            (PDATA)->obj_base.spawning = bfalse;\
+            (PDATA)->obj_base.spawning = ego_false;\
             ego_object_spawn_depth--;\
         }\
     }\
-     
+
 /// Is the object flagged as requesting termination?
 #define FLAG_ALLOCATED_PBASE( PBASE ) ( ( (PBASE)->allocated ) && (ego_object_invalid != (PBASE)->state) )
 /// Is the object allocated?

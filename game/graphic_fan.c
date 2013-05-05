@@ -38,7 +38,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t animate_tile( ego_mesh_t * pmesh, Uint32 itile );
+static ego_bool animate_tile( ego_mesh_t * pmesh, Uint32 itile );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ void animate_all_tiles( ego_mesh_t * pmesh )
 {
     Uint32 cnt, itile;
     Uint32 tile_count, anim_count;
-    bool_t small_tile_update, big_tile_update;
+    ego_bool small_tile_update, big_tile_update;
 
     if ( NULL == pmesh ) return;
 
@@ -71,7 +71,7 @@ void animate_all_tiles( ego_mesh_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t animate_tile( ego_mesh_t * pmesh, Uint32 itile )
+ego_bool animate_tile( ego_mesh_t * pmesh, Uint32 itile )
 {
     /// @author BB
     /// @details animate a given tile
@@ -84,14 +84,14 @@ bool_t animate_tile( ego_mesh_t * pmesh, Uint32 itile )
     // do nothing if the tile is not animated
     if ( 0 == ego_mesh_test_fx( pmesh, itile, MAPFX_ANIM ) )
     {
-        return btrue;
+        return ego_true;
     }
 
     // grab a pointer to the tile
     ptile = ego_mesh_get_ptile( pmesh, itile );
     if ( NULL == ptile )
     {
-        return bfalse;
+        return ego_false;
     }
 
     image = TILE_GET_LOWER_BITS( ptile->img ); // Tile image

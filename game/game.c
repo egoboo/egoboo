@@ -111,7 +111,7 @@ PROFILE_DECLARE( cl_talkToHost );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t  overrideslots      = bfalse;
+ego_bool  overrideslots      = ego_false;
 
 // End text
 char   endtext[MAXENDTEXT] = EMPTY_CSTR;
@@ -135,7 +135,7 @@ weather_instance_t    weather;
 water_instance_t      water;
 fog_instance_t        fog;
 
-bool_t activate_spawn_file_active = bfalse;
+ego_bool activate_spawn_file_active = ego_false;
 
 import_list_t ImportList  = IMPORT_LIST_INIT;
 
@@ -166,7 +166,7 @@ static void let_all_characters_think( void );
 static void do_weather_spawn_particles( void );
 
 // module initialization / deinitialization - not accessible by scripts
-static bool_t game_load_module_data( const char *smallname );
+static ego_bool game_load_module_data( const char *smallname );
 static void   game_release_module_data( void );
 static void   game_load_all_profiles( const char *modname );
 static void   game_load_profile_ai( void );
@@ -174,7 +174,7 @@ static void   game_load_profile_ai( void );
 static void   activate_spawn_file_vfs( void );
 static void   activate_alliance_file_vfs( void );
 
-static bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo );
+static ego_bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo );
 
 static void   game_reset_players( void );
 
@@ -187,7 +187,7 @@ static int game_process_do_running( game_process_t * gproc );
 static int game_process_do_leaving( game_process_t * gproc );
 
 // misc
-static bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which );
+static ego_bool game_begin_menu( menu_process_t * mproc, which_menu_t which );
 static void   game_end_menu( menu_process_t * mproc );
 
 static void   do_game_hud( void );
@@ -196,21 +196,21 @@ static void   do_game_hud( void );
 void reset_all_object_lists( void );
 
 // implementing wawalite data
-static bool_t upload_light_data( const wawalite_data_t * pdata );
-static bool_t upload_phys_data( const wawalite_physics_t * pdata );
-static bool_t upload_graphics_data( const wawalite_graphics_t * pdata );
-static bool_t upload_camera_data( const wawalite_camera_t * pdata );
+static ego_bool upload_light_data( const wawalite_data_t * pdata );
+static ego_bool upload_phys_data( const wawalite_physics_t * pdata );
+static ego_bool upload_graphics_data( const wawalite_graphics_t * pdata );
+static ego_bool upload_camera_data( const wawalite_camera_t * pdata );
 
 // implementing water layer data
-bool_t upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
+ego_bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count );
 
 // misc
-static float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, bool_t waterwalk );
-static float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool_t waterwalk );
+static float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, ego_bool waterwalk );
+static float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, ego_bool waterwalk );
 static float get_mesh_max_vertex_2( ego_mesh_t * pmesh, chr_t * pchr );
 
-static bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info );
-static bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info );
+static ego_bool activate_spawn_file_spawn( spawn_file_info_t * psp_info );
+static ego_bool activate_spawn_file_load_object( spawn_file_info_t * psp_info );
 static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
 
 static void game_setup_module( const char *smallname );
@@ -237,7 +237,7 @@ static void bump_all_update_counters( void );
 //--------------------------------------------------------------------------------------------
 // Random Things
 //--------------------------------------------------------------------------------------------
-egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool_t is_local )
+egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, ego_bool is_local )
 {
     /// @author ZZ
     /// @details This function exports a character
@@ -351,7 +351,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv export_all_players( bool_t require_local )
+egolib_rv export_all_players( ego_bool require_local )
 {
     /// @author ZZ
     /// @details This function saves all the local players in the
@@ -359,7 +359,7 @@ egolib_rv export_all_players( bool_t require_local )
 
     egolib_rv export_chr_rv;
     egolib_rv retval;
-    bool_t is_local;
+    ego_bool is_local;
     PLA_REF ipla;
     int number;
     CHR_REF character;
@@ -494,7 +494,7 @@ void statlist_add( const CHR_REF character )
     if ( pchr->show_stats ) return;
 
     StatusList.lst[StatusList.count].who = character;
-    pchr->show_stats = btrue;
+    pchr->show_stats = ego_true;
     StatusList.count++;
 }
 
@@ -574,7 +574,7 @@ egolib_rv chr_set_frame( const CHR_REF character, int req_action, int frame_alon
     action = mad_get_action_ref( imad, req_action );
 
     // set the action
-    retval = chr_set_action( pchr, action, btrue, btrue );
+    retval = chr_set_action( pchr, action, ego_true, ego_true );
     if ( rv_success == retval )
     {
         // the action is set. now set the frame info.
@@ -599,14 +599,14 @@ void activate_alliance_file_vfs( void )
     fileread = vfs_openRead( "mp_data/alliance.txt" );
     if ( fileread )
     {
-        while ( goto_colon_vfs( NULL, fileread, btrue ) )
+        while ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
         {
             vfs_get_string( fileread, szTemp, SDL_arraysize( szTemp ) );
             teama = ( szTemp[0] - 'A' ) % TEAM_MAX;
 
             vfs_get_string( fileread, szTemp, SDL_arraysize( szTemp ) );
             teamb = ( szTemp[0] - 'A' ) % TEAM_MAX;
-            TeamStack.lst[teama].hatesteam[REF_TO_INT( teamb )] = bfalse;
+            TeamStack.lst[teama].hatesteam[REF_TO_INT( teamb )] = ego_false;
         }
 
         vfs_close( fileread );
@@ -689,7 +689,7 @@ void blah_billboard( void )
     const SDL_Color color_blu = {0x7F, 0x7F, 0xFF, 0xFF};
     const GLXvector4f default_tint = { 1.00f, 1.00f, 1.00f, 1.00f };
 
-    bool_t needs_new;
+    ego_bool needs_new;
     Uint32 current_time;
 
     current_time = egoboo_get_ticks();
@@ -698,22 +698,22 @@ void blah_billboard( void )
     {
         if ( INVALID_CHR_REF != ChrList.lst[ichr].attachedto ) continue;
 
-        needs_new = bfalse;
+        needs_new = ego_false;
 
         if ( !VALID_BILLBOARD_RANGE( pchr->ibillboard ) )
         {
-            needs_new = btrue;
+            needs_new = ego_true;
         }
         //else
         //{
         //    pbb = BillboardList_get_ptr(pchr->ibillboard);
         //    if( NULL == pbb )
         //    {
-        //        needs_new = btrue;
+        //        needs_new = ego_true;
         //    }
         //    else if ( current_time >= pbb->time )
         //    {
-        //        needs_new = btrue;
+        //        needs_new = ego_true;
         //    }
 
         //    BillboardList_free_one( pchr->ibillboard );
@@ -742,8 +742,8 @@ int update_game( void )
     int tnc, numdead, numalive;
     int update_loop_cnt;
     int max_iterations;
-    bool_t need_updates;
-    bool_t free_running;
+    ego_bool need_updates;
+    ego_bool free_running;
     Uint32 loc_true_update;
 
     PLA_REF ipla;
@@ -752,7 +752,7 @@ int update_game( void )
     free_running = GProc->ups_timer.free_running && !egonet_on();
 
     // Check for all local players being dead
-    local_stats.allpladead      = bfalse;
+    local_stats.allpladead      = ego_false;
     local_stats.seeinvis_level  = 0.0f;
     local_stats.seekurse_level  = 0.0f;
     local_stats.seedark_level   = 0.0f;
@@ -775,7 +775,7 @@ int update_game( void )
         if ( !INGAME_CHR( ichr ) )
         {
             PlaStack.lst[ipla].index = INVALID_CHR_REF;
-            PlaStack.lst[ipla].valid = bfalse;
+            PlaStack.lst[ipla].valid = ego_false;
             continue;
         }
         pchr = ChrList_get_ptr( ichr );
@@ -815,7 +815,7 @@ int update_game( void )
     // Did everyone die?
     if ( numdead >= local_stats.player_count )
     {
-        local_stats.allpladead = btrue;
+        local_stats.allpladead = ego_true;
     }
 
     // check for autorespawn
@@ -851,25 +851,25 @@ int update_game( void )
     loc_true_update = true_update;
 
     max_iterations = 1;
-    need_updates    = bfalse;
+    need_updates    = ego_false;
     if ( free_running )
     {
         // if the ups_timer is free-running then there is only one update
         // per each unregulated pass through the loop
 
-        need_updates = btrue;
+        need_updates = ego_true;
         max_iterations = 1;
     }
     else if ( single_frame_mode )
     {
         // for single frame mode, only one update per request
-        need_updates = btrue;
+        need_updates = ego_true;
         max_iterations = 1;
     }
     else if ( update_wld < loc_true_update )
     {
         // if the ups_timer is throttled, do not exceed the given rate
-        need_updates    = btrue;
+        need_updates    = ego_true;
         max_iterations = 2 * TARGET_UPS;
     }
 
@@ -891,7 +891,7 @@ int update_game( void )
 
                 // keep the mpdfx lists up-to-date. No calculation is done unless one
                 // of the mpdfx values was changed during the last update
-                mpdfx_lists_synch( &( PMesh->fxlists ), &( PMesh->gmem ), bfalse );
+                mpdfx_lists_synch( &( PMesh->fxlists ), &( PMesh->gmem ), ego_false );
 
                 // read the input values
                 input_read_all_devices();
@@ -1013,13 +1013,13 @@ void game_update_timers( void )
     /// @details This function updates the game timers
 
     int    clock_diff;
-    bool_t free_running = bfalse;
-    bool_t is_paused    = bfalse;
+    ego_bool free_running = ego_false;
+    ego_bool is_paused    = ego_false;
 
-    static bool_t was_paused = bfalse;
+    static ego_bool was_paused = ego_false;
 
     // is the game/module paused?
-    is_paused = bfalse;
+    is_paused = ego_false;
     if ( !egonet_on() )
     {
         is_paused  = !process_running( PROC_PBASE( GProc ) ) || GProc->mod_paused;
@@ -1031,12 +1031,12 @@ void game_update_timers( void )
         // for a local game, force the function to ignore the accumulation of time
         // until you re-join the game
         egolib_throttle_update_diff( &game_throttle, 0 );
-        was_paused = btrue;
+        was_paused = ego_true;
         return;
     }
 
     // are the game updates free running?
-    free_running = bfalse;
+    free_running = ego_false;
     if ( !egonet_on() )
     {
         free_running = GProc->ups_timer.free_running;
@@ -1087,7 +1087,7 @@ void game_update_timers( void )
     game_ups_clock += clock_diff;
 
     // if it got this far and the funciton had been paused, it is time to unpause it
-    was_paused = bfalse;
+    was_paused = ego_false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1128,10 +1128,10 @@ void game_reset_timers( void )
 
     // reset the synchronization
     clock_wld = 0;
-    outofsync = bfalse;
+    outofsync = ego_false;
 
     // reset the pits
-    pits.kill = pits.teleport = bfalse;
+    pits.kill = pits.teleport = ego_false;
     clock_pit = 0;
 
     // reset some counters
@@ -1175,7 +1175,7 @@ int game_do_menu( menu_process_t * mproc )
     static double loc_frameDuration = 0.0f;
 
     int menuResult;
-    bool_t need_menu = bfalse;
+    ego_bool need_menu = ego_false;
 
     if ( process_running( PROC_PBASE( mproc ) ) )
     {
@@ -1185,14 +1185,14 @@ int game_do_menu( menu_process_t * mproc )
         {
             // someone else (and that means the game) has drawn a frame
             // so we just need to draw the menu over that frame
-            need_menu = btrue;
+            need_menu = ego_true;
 
             // force the menu to be displayed immediately when the game stops
-            timer_reset( &( mproc->gui_timer ), -1, cfg.framelimit );
+            egolib_timer__reset( &( mproc->gui_timer ), -1, cfg.framelimit );
         }
-        else if ( egolib_timer_throttle( &( mproc->gui_timer ), cfg.framelimit ) )
+        else if ( egolib_timer__throttle( &( mproc->gui_timer ), cfg.framelimit ) )
         {
-            need_menu = btrue;
+            need_menu = ego_true;
         }
     }
 
@@ -1220,7 +1220,7 @@ int game_process_do_begin( game_process_t * gproc )
 {
     BillboardList_init_all();
 
-    gproc->escape_latch = bfalse;
+    gproc->escape_latch = ego_false;
 
     // initialize math objects
     make_randie();
@@ -1265,7 +1265,7 @@ int game_process_do_begin( game_process_t * gproc )
     camera_system_reset_targets( PMesh );
 
     // Initialize the process
-    gproc->base.valid = btrue;
+    gproc->base.valid = C_TRUE;
 
     // initialize all the profile variables
     PROFILE_RESET( game_update_loop );
@@ -1321,10 +1321,10 @@ int game_process_do_running( game_process_t * gproc )
 {
     int update_loops = 0;
 
-    bool_t need_ups_update  = bfalse;
-    bool_t need_fps_update  = bfalse;
-    bool_t ups_free_running = bfalse;
-    bool_t fps_free_running = bfalse;
+    ego_bool need_ups_update  = ego_false;
+    ego_bool need_fps_update  = ego_false;
+    ego_bool ups_free_running = ego_false;
+    ego_bool fps_free_running = ego_false;
 
     if ( !process_validate( PROC_PBASE( gproc ) ) ) return -1;
 
@@ -1338,23 +1338,23 @@ int game_process_do_running( game_process_t * gproc )
     // update all the timers
     game_update_timers();
 
-    need_ups_update = bfalse;
+    need_ups_update = ego_false;
     if ( single_frame_mode )
     {
         if ( single_update_requested )
         {
-            need_ups_update = btrue;
-            single_update_requested = bfalse;
-            timer_reset( &( gproc->ups_timer ), -1, TARGET_UPS );
+            need_ups_update = ego_true;
+            single_update_requested = ego_false;
+            egolib_timer__reset( &( gproc->ups_timer ), -1, TARGET_UPS );
         }
     }
     else if ( ups_free_running )
     {
-        need_ups_update = btrue;
+        need_ups_update = ego_true;
     }
-    else if ( egolib_timer_throttle( &( gproc->ups_timer ), TARGET_UPS ) )
+    else if ( egolib_timer__throttle( &( gproc->ups_timer ), TARGET_UPS ) )
     {
-        need_ups_update = btrue;
+        need_ups_update = ego_true;
     }
 
     if ( need_ups_update )
@@ -1369,18 +1369,18 @@ int game_process_do_running( game_process_t * gproc )
             else
             {
                 input_device_t * pdevice;
-                bool_t msg_pressed;
+                ego_bool msg_pressed;
                 int cnt;
 
                 // check to see if anyone has pressed the message button
-                msg_pressed = bfalse;
+                msg_pressed = ego_false;
                 for ( cnt = 0; cnt < MAX_LOCAL_PLAYERS; cnt++ )
                 {
                     pdevice = InputDevices.lst + cnt;
 
                     if ( input_device_control_active( pdevice, CONTROL_MESSAGE ) )
                     {
-                        msg_pressed = btrue;
+                        msg_pressed = ego_true;
                         break;
                     }
                 }
@@ -1390,8 +1390,8 @@ int game_process_do_running( game_process_t * gproc )
                 {
                     // reset the keyboard buffer
                     SDL_EnableKeyRepeat( 20, SDL_DEFAULT_REPEAT_DELAY );
-                    keyb.chat_mode = btrue;
-                    keyb.chat_done = bfalse;
+                    keyb.chat_mode = ego_true;
+                    keyb.chat_done = ego_false;
                     net_chat.buffer_count = 0;
                     net_chat.buffer[0] = CSTR_END;
                 }
@@ -1441,7 +1441,7 @@ int game_process_do_running( game_process_t * gproc )
         }
 
         // just to be complete
-        need_ups_update = bfalse;
+        need_ups_update = ego_false;
     }
 
     // Do the display stuff
@@ -1449,23 +1449,23 @@ int game_process_do_running( game_process_t * gproc )
     // are the frames free running?
     fps_free_running = GProc->fps_timer.free_running;
 
-    need_fps_update = bfalse;
+    need_fps_update = ego_false;
     if ( single_frame_mode )
     {
         if ( single_frame_requested )
         {
-            need_fps_update = btrue;
-            single_frame_requested = bfalse;
-            timer_reset( &( gproc->fps_timer ), -1, cfg.framelimit );
+            need_fps_update = ego_true;
+            single_frame_requested = ego_false;
+            egolib_timer__reset( &( gproc->fps_timer ), -1, cfg.framelimit );
         }
     }
     else if ( fps_free_running )
     {
-        need_fps_update = btrue;
+        need_fps_update = ego_true;
     }
-    else if ( egolib_timer_throttle( &( gproc->fps_timer ), cfg.framelimit ) )
+    else if ( egolib_timer__throttle( &( gproc->fps_timer ), cfg.framelimit ) )
     {
-        need_fps_update = btrue;
+        need_fps_update = ego_true;
     }
 
     // Do the display stuff
@@ -1488,12 +1488,12 @@ int game_process_do_running( game_process_t * gproc )
         est_max_fps  = 0.9F * est_max_fps + 0.1F * ( 1.0F - est_update_time * TARGET_UPS ) / PROFILE_QUERY( gfx_loop );
 
         // just to be complete
-        need_fps_update = bfalse;
+        need_fps_update = ego_false;
     }
 
     if ( gproc->escape_requested )
     {
-        gproc->escape_requested = bfalse;
+        gproc->escape_requested = ego_false;
 
         if ( !gproc->escape_latch )
         {
@@ -1506,8 +1506,8 @@ int game_process_do_running( game_process_t * gproc )
                 game_begin_menu( MProc, emnu_GamePaused );
             }
 
-            gproc->escape_latch = btrue;
-            gproc->mod_paused   = btrue;
+            gproc->escape_latch = ego_true;
+            gproc->mod_paused   = ego_true;
         }
     }
 
@@ -1613,7 +1613,7 @@ int game_process_run( game_process_t * gproc, double frameDuration )
             if ( 1 == proc_result )
             {
                 gproc->base.state  = proc_finish;
-                gproc->base.killme = bfalse;
+                gproc->base.killme = C_FALSE;
             }
             break;
 
@@ -1650,7 +1650,7 @@ CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing,
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
-        bool_t target_friend, target_enemy;
+        ego_bool target_friend, target_enemy;
 
         if ( !pchr->alive || pchr->isitem || INGAME_CHR( pchr->inwhich_inventory ) ) continue;
 
@@ -1696,43 +1696,43 @@ CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing,
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits )
+ego_bool chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits )
 {
-    bool_t retval = bfalse;
+    ego_bool retval = ego_false;
 
-    bool_t is_hated, hates_me;
-    bool_t is_friend, is_prey, is_predator, is_mutual;
+    ego_bool is_hated, hates_me;
+    ego_bool is_friend, is_prey, is_predator, is_mutual;
     chr_t * ptst;
 
     // Skip non-existing objects
-    if ( !ACTIVE_PCHR( psrc ) ) return bfalse;
+    if ( !ACTIVE_PCHR( psrc ) ) return ego_false;
 
-    if ( !INGAME_CHR( ichr_test ) ) return bfalse;
+    if ( !INGAME_CHR( ichr_test ) ) return ego_false;
     ptst = ChrList_get_ptr( ichr_test );
 
     // Skip hidden characters
-    if ( ptst->is_hidden ) return bfalse;
+    if ( ptst->is_hidden ) return ego_false;
 
     // Players only?
-    if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return bfalse;
+    if (( HAS_SOME_BITS( targeting_bits, TARGET_PLAYERS ) || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) ) && !VALID_PLA( ptst->is_which_player ) ) return ego_false;
 
     // Skip held objects
-    if ( IS_ATTACHED_CHR( ichr_test ) ) return bfalse;
+    if ( IS_ATTACHED_CHR( ichr_test ) ) return ego_false;
 
     // Allow to target ourselves?
-    if ( psrc == ptst && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return bfalse;
+    if ( psrc == ptst && HAS_NO_BITS( targeting_bits, TARGET_SELF ) ) return ego_false;
 
     // Don't target our holder if we are an item and being held
-    if ( psrc->isitem && psrc->attachedto == GET_REF_PCHR( ptst ) ) return bfalse;
+    if ( psrc->isitem && psrc->attachedto == GET_REF_PCHR( ptst ) ) return ego_false;
 
     // Allow to target dead stuff?
-    if ( ptst->alive == HAS_SOME_BITS( targeting_bits, TARGET_DEAD ) ) return bfalse;
+    if ( ptst->alive == HAS_SOME_BITS( targeting_bits, TARGET_DEAD ) ) return ego_false;
 
     // Don't target invisible stuff, unless we can actually see them
-    if ( !chr_can_see_object( psrc, ptst ) ) return bfalse;
+    if ( !chr_can_see_object( psrc, ptst ) ) return ego_false;
 
     //Need specific skill? ([NONE] always passes)
-    if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst, idsz ) ) return bfalse;
+    if ( HAS_SOME_BITS( targeting_bits, TARGET_SKILL ) && 0 == chr_get_skill( ptst, idsz ) ) return ego_false;
 
     // Require player to have specific quest?
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
@@ -1744,20 +1744,20 @@ bool_t chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const
 
         // find only active quests?
         // this makes it backward-compatible with zefz's version
-        if ( quest_level < 0 ) return bfalse;
+        if ( quest_level < 0 ) return ego_false;
     }
 
     is_hated = team_hates_team( psrc->team, ptst->team );
     hates_me = team_hates_team( ptst->team, psrc->team );
 
     // Target neutral items? (still target evil items, could be pets)
-    if (( ptst->isitem || ptst->invictus ) && !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) ) return bfalse;
+    if (( ptst->isitem || ptst->invictus ) && !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) ) return ego_false;
 
     // Only target those of proper team. Skip this part if it's a item
     if ( !ptst->isitem )
     {
-        if (( HAS_NO_BITS( targeting_bits, TARGET_ENEMIES ) && is_hated ) ) return bfalse;
-        if (( HAS_NO_BITS( targeting_bits, TARGET_FRIENDS ) && !is_hated ) ) return bfalse;
+        if (( HAS_NO_BITS( targeting_bits, TARGET_ENEMIES ) && is_hated ) ) return ego_false;
+        if (( HAS_NO_BITS( targeting_bits, TARGET_FRIENDS ) && !is_hated ) ) return ego_false;
     }
 
     // these options are here for ideas of ways to mod this function
@@ -1769,20 +1769,20 @@ bool_t chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const
     //This is the last and final step! Check for specific IDSZ too? (not needed if we are looking for a quest)
     if ( IDSZ_NONE == idsz || HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
-        retval = btrue;
+        retval = ego_true;
     }
     else
     {
-        bool_t match_idsz = ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_PARENT ) ) ||
+        ego_bool match_idsz = ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_PARENT ) ) ||
                             ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_TYPE ) );
 
         if ( match_idsz )
         {
-            if ( !HAS_SOME_BITS( targeting_bits, TARGET_INVERTID ) ) retval = btrue;
+            if ( !HAS_SOME_BITS( targeting_bits, TARGET_INVERTID ) ) retval = ego_true;
         }
         else
         {
-            if ( HAS_SOME_BITS( targeting_bits, TARGET_INVERTID ) ) retval = btrue;
+            if ( HAS_SOME_BITS( targeting_bits, TARGET_INVERTID ) ) retval = ego_true;
         }
     }
 
@@ -1929,7 +1929,7 @@ void do_damage_tiles( void )
         if ( 0 == pchr->damage_timer )
         {
             int actual_damage;
-            actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.damagetype, ( TEAM_REF )TEAM_DAMAGE, INVALID_CHR_REF, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+            actual_damage = damage_character( character, ATK_BEHIND, damagetile.amount, damagetile.damagetype, ( TEAM_REF )TEAM_DAMAGE, INVALID_CHR_REF, DAMFX_NBLOC | DAMFX_ARMO, ego_false );
             pchr->damage_timer = DAMAGETILETIME;
 
             if (( actual_damage > 0 ) && ( -1 != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
@@ -1978,7 +1978,7 @@ void update_pits( void )
                 if ( pits.kill && pchr->pos.z < PITDEPTH )
                 {
                     // Got one!
-                    kill_character( ichr, INVALID_CHR_REF, bfalse );
+                    kill_character( ichr, INVALID_CHR_REF, ego_false );
                     pchr->vel.x = 0;
                     pchr->vel.y = 0;
 
@@ -1990,7 +1990,7 @@ void update_pits( void )
                 // Do we teleport it?
                 if ( pits.teleport && pchr->pos.z < PITDEPTH * 4 )
                 {
-                    bool_t teleported;
+                    ego_bool teleported;
 
                     // Teleport them back to a "safe" spot
                     teleported = chr_teleport( ichr, pits.teleport_pos.x, pits.teleport_pos.y, pits.teleport_pos.z, pchr->ori.facing_z );
@@ -1998,7 +1998,7 @@ void update_pits( void )
                     if ( !teleported )
                     {
                         // Kill it instead
-                        kill_character( ichr, INVALID_CHR_REF, bfalse );
+                        kill_character( ichr, INVALID_CHR_REF, ego_false );
                     }
                     else
                     {
@@ -2018,7 +2018,7 @@ void update_pits( void )
                         }
 
                         // Do some damage (same as damage tile)
-                        damage_character( ichr, ATK_BEHIND, damagetile.amount, damagetile.damagetype, ( TEAM_REF )TEAM_DAMAGE, chr_get_pai( ichr )->bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+                        damage_character( ichr, ATK_BEHIND, damagetile.amount, damagetile.damagetype, ( TEAM_REF )TEAM_DAMAGE, chr_get_pai( ichr )->bumplast, DAMFX_NBLOC | DAMFX_ARMO, ego_false );
                     }
                 }
             }
@@ -2034,7 +2034,7 @@ void do_weather_spawn_particles( void )
     /// @details This function drops snowflakes or rain or whatever, also swings the camera
 
     int    cnt;
-    bool_t foundone;
+    ego_bool foundone;
 
     if ( weather.time > 0 && weather.part_gpip != -1 )
     {
@@ -2044,13 +2044,13 @@ void do_weather_spawn_particles( void )
             weather.time = weather.timer_reset;
 
             // Find a valid player
-            foundone = bfalse;
+            foundone = ego_false;
             for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
             {
                 weather.iplayer = ( PLA_REF )(( REF_TO_INT( weather.iplayer ) + 1 ) % MAX_PLAYER );
                 if ( PlaStack.lst[weather.iplayer].valid )
                 {
-                    foundone = btrue;
+                    foundone = ego_true;
                     break;
                 }
             }
@@ -2070,26 +2070,26 @@ void do_weather_spawn_particles( void )
                     {
                         prt_t * pprt = PrtList_get_ptr( particle );
 
-                        bool_t destroy_particle = bfalse;
+                        ego_bool destroy_particle = ego_false;
 
                         if ( weather.over_water && !prt_is_over_water( particle ) )
                         {
-                            destroy_particle = btrue;
+                            destroy_particle = ego_true;
                         }
                         else if ( EMPTY_BIT_FIELD != prt_test_wall( pprt, NULL, NULL ) )
                         {
-                            destroy_particle = btrue;
+                            destroy_particle = ego_true;
                         }
                         else
                         {
                             // Weather particles spawned at the edge of the map look ugly, so don't spawn them there
                             if ( pprt->pos.x < EDGE || pprt->pos.x > PMesh->gmem.edge_x - EDGE )
                             {
-                                destroy_particle = btrue;
+                                destroy_particle = ego_true;
                             }
                             else if ( pprt->pos.y < EDGE || pprt->pos.y > PMesh->gmem.edge_y - EDGE )
                             {
-                                destroy_particle = btrue;
+                                destroy_particle = ego_true;
                             }
                         }
 
@@ -2115,7 +2115,7 @@ void set_one_player_latch( const PLA_REF ipla )
     float dist, scale;
     float fsin, fcos;
     latch_t sum;
-    bool_t fast_camera_turn;
+    ego_bool fast_camera_turn;
     fvec2_t joy_pos, joy_new;
 
     player_t       * ppla;
@@ -2296,10 +2296,10 @@ void set_one_player_latch( const PLA_REF ipla )
             if ( input_device_control_active( pdevice, CONTROL_LEFT_GET ) )
             {
                 //put it away and swap with any existing item
-                inventory_swap_item( ppla->index, ppla->inventory_slot, SLOT_LEFT, bfalse );
+                inventory_swap_item( ppla->index, ppla->inventory_slot, SLOT_LEFT, ego_false );
 
                 // Make it take a little time
-                chr_play_action( pchr, ACTION_MG, bfalse );
+                chr_play_action( pchr, ACTION_MG, ego_false );
                 pchr->reload_timer = PACKDELAY;
             }
 
@@ -2307,10 +2307,10 @@ void set_one_player_latch( const PLA_REF ipla )
             if ( input_device_control_active( pdevice, CONTROL_RIGHT_GET ) )
             {
                 // put it away and swap with any existing item
-                inventory_swap_item( ppla->index, ppla->inventory_slot, SLOT_RIGHT, bfalse );
+                inventory_swap_item( ppla->index, ppla->inventory_slot, SLOT_RIGHT, ego_false );
 
                 // Make it take a little time
-                chr_play_action( pchr, ACTION_MG, bfalse );
+                chr_play_action( pchr, ACTION_MG, ego_false );
                 pchr->reload_timer = PACKDELAY;
             }
         }
@@ -2366,7 +2366,7 @@ void check_stats( void )
     if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_m ) && SDL_KEYDOWN( keyb, SDLK_LSHIFT ) && mapvalid )
     {
         mapon = !mapon;
-        youarehereon = btrue;
+        youarehereon = ego_true;
         stat_check_delay = 150;
     }
 
@@ -2388,7 +2388,7 @@ void check_stats( void )
 
             //Give 10% of XP needed for next level
             xpgain = 0.1f * ( pcap->experience_forlevel[MIN( pchr->experiencelevel+1, MAXLEVEL )] - pcap->experience_forlevel[pchr->experiencelevel] );
-            give_experience( pchr->ai.index, xpgain, XP_DIRECT, btrue );
+            give_experience( pchr->ai.index, xpgain, XP_DIRECT, ego_true );
             stat_check_delay = 1;
         }
     }
@@ -2411,7 +2411,7 @@ void check_stats( void )
             pcap = pro_get_pcap( pchr->profile_ref );
 
             //Heal 1 life
-            heal_character( pchr->ai.index, pchr->ai.index, 256, btrue );
+            heal_character( pchr->ai.index, pchr->ai.index, 256, ego_true );
             stat_check_delay = 1;
         }
     }
@@ -2596,7 +2596,7 @@ void show_armor( int statindex )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
+ego_bool get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
 {
     /// @author ZF
     /// @details Get a character's life and mana regeneration, considering all sources
@@ -2604,7 +2604,7 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
     int local_liferegen, local_manaregen;
     CHR_REF ichr;
 
-    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return ego_false;
     ichr = GET_REF_PCHR( pchr );
 
     if ( NULL == pliferegen ) pliferegen = &local_liferegen;
@@ -2631,7 +2631,7 @@ bool_t get_chr_regeneration( chr_t * pchr, int * pliferegen, int * pmanaregen )
     }
     ENC_END_LOOP();
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2797,7 +2797,7 @@ void load_all_profiles_import( void )
     import_data.max_slot = -1;
 
     // This overwrites existing loaded slots that are loaded globally
-    overrideslots = btrue;
+    overrideslots = ego_true;
     import_data.player = -1;
     import_data.slot   = -100;
 
@@ -2805,7 +2805,7 @@ void load_all_profiles_import( void )
     import_dir_profiles_vfs( "mp_remote" );
 
     // return this to the normal value
-    overrideslots = bfalse;
+    overrideslots = ego_false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2893,15 +2893,15 @@ void game_load_all_profiles( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
+ego_bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
 {
     chr_t * pchr, *pparent;
     cap_t *pcap;
 
     // trap bad pointers
-    if ( NULL == pinfo ) return bfalse;
+    if ( NULL == pinfo ) return ego_false;
 
-    if ( !INGAME_CHR( ichr ) ) return bfalse;
+    if ( !INGAME_CHR( ichr ) ) return ego_false;
     pchr = ChrList_get_ptr( ichr );
     pcap = chr_get_pcap( ichr );
 
@@ -2918,7 +2918,7 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     if ( pinfo->attach == ATTACH_INVENTORY )
     {
         // Inventory character
-        inventory_add_item( pinfo->parent, ichr, MAXINVENTORY, btrue );
+        inventory_add_item( pinfo->parent, ichr, MAXINVENTORY, ego_true );
 
         SET_BIT( pchr->ai.alert, ALERTIF_GRABBED );     // Make spellbooks change
     }
@@ -2948,23 +2948,23 @@ bool_t chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     if ( start_new_player && NULL != pparent && VALID_PLA( pparent->is_which_player ) )
     {
         chr_t *pitem;
-        pchr->nameknown = btrue;
+        pchr->nameknown = ego_true;
 
         //Unkurse both inhand items
         if ( INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {
             pitem = ChrList_get_ptr( ichr );
-            pitem->iskursed = bfalse;
+            pitem->iskursed = ego_false;
         }
         if ( INGAME_CHR( pchr->holdingwhich[SLOT_RIGHT] ) )
         {
             pitem = ChrList_get_ptr( ichr );
-            pitem->iskursed = bfalse;
+            pitem->iskursed = ego_false;
         }
 
     }
 
-    return btrue;
+    return ego_true;
 }
 
 void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
@@ -2994,7 +2994,7 @@ void convert_spawn_file_load_name( spawn_file_info_t * psp_info )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
+ego_bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 {
     /// @author BB
     /// @details Try to load a global object named int psp_info->spawn_coment into
@@ -3003,11 +3003,11 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
     STRING filename;
     PRO_REF ipro;
 
-    if ( NULL == psp_info || psp_info->slot < 0 ) return bfalse;
+    if ( NULL == psp_info || psp_info->slot < 0 ) return ego_false;
 
     //Is it already loaded?
     ipro = ( PRO_REF )psp_info->slot;
-    if ( LOADED_PRO( ipro ) ) return bfalse;
+    if ( LOADED_PRO( ipro ) ) return ego_false;
 
     // do the loading
     if ( CSTR_END != psp_info->spawn_coment[0] )
@@ -3023,20 +3023,20 @@ bool_t activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
+ego_bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 {
     int     tnc, local_index = 0;
     CHR_REF new_object;
     chr_t * pobject;
     PRO_REF iprofile;
 
-    if ( NULL == psp_info || !psp_info->do_spawn || psp_info->slot < 0 ) return bfalse;
+    if ( NULL == psp_info || !psp_info->do_spawn || psp_info->slot < 0 ) return ego_false;
 
     iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
     new_object = spawn_one_character( psp_info->pos.v, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF );
-    if ( !DEFINED_CHR( new_object ) ) return bfalse;
+    if ( !DEFINED_CHR( new_object ) ) return ego_false;
 
     pobject = ChrList_get_ptr( new_object );
 
@@ -3058,21 +3058,21 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
         {
             // a single player module
 
-            bool_t player_added;
+            ego_bool player_added;
 
             player_added = add_player( new_object, ( PLA_REF )PlaStack.count, InputDevices.lst + local_stats.player_count );
 
             if ( start_new_player && player_added )
             {
                 // !!!! make sure the player is identified !!!!
-                pobject->nameknown = btrue;
+                pobject->nameknown = ego_true;
             }
         }
         else if ( PlaStack.count < PMod->importamount && PlaStack.count < PMod->playeramount && PlaStack.count < ImportList.count )
         {
             // A multiplayer module
 
-            bool_t player_added;
+            ego_bool player_added;
 
             local_index = -1;
             for ( tnc = 0; tnc < ImportList.count; tnc++ )
@@ -3089,7 +3089,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 }
             }
 
-            player_added = bfalse;
+            player_added = ego_false;
             if ( -1 != local_index )
             {
                 // It's a local PlaStack.count
@@ -3106,7 +3106,7 @@ bool_t activate_spawn_file_spawn( spawn_file_info_t * psp_info )
         statlist_add( new_object );
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3125,7 +3125,7 @@ void activate_spawn_file_vfs( void )
     size_t              dynamic_count = 0;
 
     // tell everyone we are spawning a module
-    activate_spawn_file_active = btrue;
+    activate_spawn_file_active = ego_true;
 
     // Turn some back on
     newloadname = "mp_data/spawn.txt";
@@ -3222,7 +3222,7 @@ void activate_spawn_file_vfs( void )
             // If nothing is already in that slot, try to load it.
             if ( !LOADED_PRO(( PRO_REF ) sp_info->slot ) )
             {
-                bool_t import_object = sp_info->slot > PMod->importamount * MAX_IMPORT_PER_PLAYER;
+                ego_bool import_object = sp_info->slot > PMod->importamount * MAX_IMPORT_PER_PLAYER;
 
                 if ( !activate_spawn_file_load_object( sp_info ) )
                 {
@@ -3254,7 +3254,7 @@ void activate_spawn_file_vfs( void )
     tilt_characters_to_terrain();
 
     // done spawning
-    activate_spawn_file_active = bfalse;
+    activate_spawn_file_active = ego_false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3357,7 +3357,7 @@ void game_setup_module( const char *smallname )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_load_module_data( const char *smallname )
+ego_bool game_load_module_data( const char *smallname )
 {
     /// @author ZZ
     /// @details This function loads a module
@@ -3409,14 +3409,14 @@ bool_t game_load_module_data( const char *smallname )
         mesh_BSP_fill( &mesh_BSP_root, pmesh_rv );
     }
 
-    return btrue;
+    return ego_true;
 
 game_load_module_data_fail:
 
     // release any data that might have been allocated
     game_release_module_data();
 
-    return bfalse;
+    return ego_false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3539,7 +3539,7 @@ void game_quit_module( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_begin_module( const char * modname, Uint32 seed )
+ego_bool game_begin_module( const char * modname, Uint32 seed )
 {
     /// @author BB
     /// @details all of the initialization code before the module actually starts
@@ -3553,20 +3553,20 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     reset_all_object_lists();
 
     // set up the virtual file system for the module
-    if ( !setup_init_module_vfs_paths( modname ) ) return bfalse;
+    if ( !setup_init_module_vfs_paths( modname ) ) return ego_false;
 
     // load all the in-game module data
     srand( seed );
     if ( !game_load_module_data( modname ) )
     {
         game_module_stop( PMod );
-        return bfalse;
+        return ego_false;
     };
 
     game_setup_module( modname );
 
     // make sure the per-module configuration settings are correct
-    config_synch( &cfg, btrue );
+    config_synch( &cfg, C_TRUE );
 
     // initialize the game objects
     initialize_all_objects();
@@ -3587,14 +3587,14 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
     game_module_start( PMod );
 
     // initialize the timers as the very last thing
-    timeron = bfalse;
+    timeron = ego_false;
     game_reset_timers();
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_update_imports( void )
+ego_bool game_update_imports( void )
 {
     /// @author BB
     /// @details This function saves all the players to the players dir
@@ -3604,7 +3604,7 @@ bool_t game_update_imports( void )
     if ( PMod->exportvalid )
     {
         // export the players
-        export_all_players( bfalse );
+        export_all_players( ego_false );
 
         // update the import list
         import_list_from_players( &ImportList );
@@ -3616,7 +3616,7 @@ bool_t game_update_imports( void )
     // copy the import data back into the import folder
     game_copy_imports( &ImportList );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3653,19 +3653,19 @@ void game_release_module_data( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t attach_one_particle( prt_bundle_t * pbdl_prt )
+ego_bool attach_one_particle( prt_bundle_t * pbdl_prt )
 {
     prt_t * pprt;
     chr_t * pchr;
 
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return bfalse;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return ego_false;
     pprt = pbdl_prt->prt_ptr;
 
-    if ( !INGAME_CHR( pbdl_prt->prt_ptr->attachedto_ref ) ) return bfalse;
+    if ( !INGAME_CHR( pbdl_prt->prt_ptr->attachedto_ref ) ) return ego_false;
     pchr = ChrList_get_ptr( pbdl_prt->prt_ptr->attachedto_ref );
 
     pprt = place_particle_at_vertex( pprt, pprt->attachedto_ref, pprt->attachedto_vrt_off );
-    if ( NULL == pprt ) return bfalse;
+    if ( NULL == pprt ) return ego_false;
 
     // the previous function can inactivate a particle
     if ( ACTIVE_PPRT( pprt ) )
@@ -3677,7 +3677,7 @@ bool_t attach_one_particle( prt_bundle_t * pbdl_prt )
         }
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3695,24 +3695,24 @@ void attach_all_particles( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice )
+ego_bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice )
 {
     /// @author ZZ
-    /// @details This function adds a player, returning bfalse if it fails, btrue otherwise
+    /// @details This function adds a player, returning ego_false if it fails, ego_true otherwise
 
     player_t * ppla = NULL;
     chr_t    * pchr = NULL;
 
-    if ( !VALID_PLA_RANGE( player ) ) return bfalse;
+    if ( !VALID_PLA_RANGE( player ) ) return ego_false;
     ppla = PlaStack_get_ptr( player );
 
     // does the player already exist?
-    if ( ppla->valid ) return bfalse;
+    if ( ppla->valid ) return ego_false;
 
     // re-construct the players
     pla_reinit( ppla );
 
-    if ( !DEFINED_CHR( character ) ) return bfalse;
+    if ( !DEFINED_CHR( character ) ) return ego_false;
     pchr = ChrList_get_ptr( character );
 
     // set the reference to the player
@@ -3725,19 +3725,19 @@ bool_t add_player( const CHR_REF character, const PLA_REF player, input_device_t
     // ppla->quest_file = quest_file_open( chr_get_dir_name(character) );
 
     ppla->index              = character;
-    ppla->valid              = btrue;
+    ppla->valid              = ego_true;
     ppla->pdevice            = pdevice;
 
     if ( pdevice != NULL )
     {
-        local_stats.noplayers = bfalse;
-        pchr->islocalplayer = btrue;
+        local_stats.noplayers = ego_false;
+        pchr->islocalplayer = ego_true;
         local_stats.player_count++;
     }
 
     PlaStack.count++;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3758,7 +3758,7 @@ void let_all_characters_think( void )
     {
         cap_t * pcap;
 
-        bool_t is_crushed, is_cleanedup, can_think;
+        ego_bool is_crushed, is_cleanedup, can_think;
 
         pcap = chr_get_pcap( character );
         if ( NULL == pcap ) continue;
@@ -3789,9 +3789,9 @@ void let_all_characters_think( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which )
+ego_bool game_begin_menu( menu_process_t * mproc, which_menu_t which )
 {
-    if ( NULL == mproc ) return bfalse;
+    if ( NULL == mproc ) return ego_false;
 
     if ( !process_running( PROC_PBASE( mproc ) ) )
     {
@@ -3803,7 +3803,7 @@ bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which )
         process_start( PROC_PBASE( mproc ) );
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3872,7 +3872,7 @@ camera_t * set_PCamera( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool_t waterwalk )
+float get_mesh_level( ego_mesh_t * pmesh, float x, float y, ego_bool waterwalk )
 {
     /// @author ZZ
     /// @details This function returns the height of a point within a mesh fan, precise
@@ -4218,9 +4218,9 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_choose_module( int imod, int seed )
+ego_bool game_choose_module( int imod, int seed )
 {
-    bool_t retval;
+    ego_bool retval;
 
     if ( seed < 0 ) seed = ( int )time( NULL );
 
@@ -4247,7 +4247,7 @@ game_process_t * game_process_init( game_process_t * gproc )
     process_init( PROC_PBASE( gproc ) );
 
     gproc->menu_depth = -1;
-    gproc->pause_key_ready = btrue;
+    gproc->pause_key_ready = ego_true;
 
     // initialize all the profile variables
     PROFILE_INIT( game_update_loop );
@@ -4292,7 +4292,7 @@ void game_reset_players( void )
     /// @details This function clears the player list data
 
     // Reset the local data stuff
-    local_stats.allpladead = bfalse;
+    local_stats.allpladead = ego_false;
 
     local_stats.seeinvis_level = 0.0f;
     local_stats.seeinvis_level = 0.0f;
@@ -4309,11 +4309,11 @@ void game_reset_players( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count )
+ego_bool upload_water_layer_data( water_instance_layer_t inst[], const wawalite_water_layer_t data[], const int layer_count )
 {
     int layer;
 
-    if ( NULL == inst || 0 == layer_count ) return bfalse;
+    if ( NULL == inst || 0 == layer_count ) return ego_false;
 
     for ( layer = 0; layer < layer_count; layer++ )
     {
@@ -4349,13 +4349,13 @@ bool_t upload_water_layer_data( water_instance_layer_t inst[], const wawalite_wa
         }
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_weather_data( weather_instance_t * pinst, const wawalite_weather_t * pdata )
+ego_bool upload_weather_data( weather_instance_t * pinst, const wawalite_weather_t * pdata )
 {
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return ego_false;
 
     BLANK_STRUCT_PTR( pinst )
 
@@ -4373,13 +4373,13 @@ bool_t upload_weather_data( weather_instance_t * pinst, const wawalite_weather_t
     // set the new data
     pinst->time = pinst->timer_reset;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_fog_data( fog_instance_t * pinst, const wawalite_fog_t * pdata )
+ego_bool upload_fog_data( fog_instance_t * pinst, const wawalite_fog_t * pdata )
 {
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return ego_false;
 
     BLANK_STRUCT_PTR( pinst )
 
@@ -4397,13 +4397,13 @@ bool_t upload_fog_data( fog_instance_t * pinst, const wawalite_fog_t * pdata )
     pinst->distance = ( pdata->top - pdata->bottom );
     pinst->on       = ( pinst->distance < 1.0f ) && pinst->on;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_damagetile_data( damagetile_instance_t * pinst, const wawalite_damagetile_t * pdata )
+ego_bool upload_damagetile_data( damagetile_instance_t * pinst, const wawalite_damagetile_t * pdata )
 {
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return ego_false;
 
     BLANK_STRUCT_PTR( pinst )
 
@@ -4421,15 +4421,15 @@ bool_t upload_damagetile_data( damagetile_instance_t * pinst, const wawalite_dam
         pinst->sound_index  = CLIP( pdata->sound_index, INVALID_SOUND, MAX_WAVE );
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t * pdata, const size_t animtile_count )
+ego_bool upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile_t * pdata, const size_t animtile_count )
 {
     Uint32 cnt;
 
-    if ( NULL == inst || 0 == animtile_count ) return bfalse;
+    if ( NULL == inst || 0 == animtile_count ) return ego_false;
 
     BLANK_STRUCT_PTR( inst )
 
@@ -4454,13 +4454,13 @@ bool_t upload_animtile_data( animtile_instance_t inst[], const wawalite_animtile
         }
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_light_data( const wawalite_data_t * pdata )
+ego_bool upload_light_data( const wawalite_data_t * pdata )
 {
-    if ( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return ego_false;
 
     // upload the lighting data
     light_nrm[kX] = pdata->light_x;
@@ -4496,13 +4496,13 @@ bool_t upload_light_data( const wawalite_data_t * pdata )
     //make_lighttable( pdata->light_x, pdata->light_y, pdata->light_z, pdata->light_a );
     //make_lighttospek();
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_phys_data( const wawalite_physics_t * pdata )
+ego_bool upload_phys_data( const wawalite_physics_t * pdata )
 {
-    if ( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return ego_false;
 
     // upload the physics data
     hillslide      = pdata->hillslide;
@@ -4512,31 +4512,31 @@ bool_t upload_phys_data( const wawalite_physics_t * pdata )
     waterfriction  = pdata->waterfriction;
     gravity        = pdata->gravity;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_graphics_data( const wawalite_graphics_t * pdata )
+ego_bool upload_graphics_data( const wawalite_graphics_t * pdata )
 {
-    if ( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return ego_false;
 
     // Read extra data
     gfx.exploremode = pdata->exploremode;
     gfx.usefaredge  = pdata->usefaredge;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_camera_data( const wawalite_camera_t * pdata )
+ego_bool upload_camera_data( const wawalite_camera_t * pdata )
 {
-    if ( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return ego_false;
 
     cam_options.swing     = pdata->swing;
     cam_options.swing_rate = pdata->swing_rate;
     cam_options.swing_amp  = pdata->swing_amp;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4559,87 +4559,87 @@ void upload_wawalite( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_module_setup( game_module_t * pinst, const mod_file_t * pdata, const char * loadname, const Uint32 seed )
+ego_bool game_module_setup( game_module_t * pinst, const mod_file_t * pdata, const char * loadname, const Uint32 seed )
 {
     //Prepeares a module to be played
-    if ( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return ego_false;
 
-    if ( !game_module_init( pinst ) ) return bfalse;
+    if ( !game_module_init( pinst ) ) return ego_false;
 
     pinst->importamount   = pdata->importamount;
     pinst->exportvalid    = pdata->allowexport;
     pinst->exportreset    = pdata->allowexport;
     pinst->playeramount   = pdata->maxplayers;
     pinst->importvalid    = ( pinst->importamount > 0 );
-    pinst->respawnvalid   = ( bfalse != pdata->respawnvalid );
+    pinst->respawnvalid   = ( ego_false != pdata->respawnvalid );
     pinst->respawnanytime = ( RESPAWN_ANYTIME == pdata->respawnvalid );
 
     strncpy( pinst->loadname, loadname, SDL_arraysize( pinst->loadname ) );
 
-    pinst->active = bfalse;
-    pinst->beat   = bfalse;
+    pinst->active = ego_false;
+    pinst->beat   = ego_false;
     pinst->seed   = seed;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_module_init( game_module_t * pinst )
+ego_bool game_module_init( game_module_t * pinst )
 {
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return ego_false;
 
     BLANK_STRUCT_PTR( pinst )
 
     pinst->seed = ( Uint32 )~0;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_module_reset( game_module_t * pinst, const Uint32 seed )
+ego_bool game_module_reset( game_module_t * pinst, const Uint32 seed )
 {
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return ego_false;
 
-    pinst->beat        = bfalse;
+    pinst->beat        = ego_false;
     pinst->exportvalid = pinst->exportreset;
     pinst->seed        = seed;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_module_start( game_module_t * pinst )
+ego_bool game_module_start( game_module_t * pinst )
 {
     /// @author BB
     /// @details Let the module go
 
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return ego_false;
 
-    pinst->active = btrue;
+    pinst->active = ego_true;
 
     srand( pinst->seed );
     pinst->randsave = rand();
     randindex = rand() % RANDIE_COUNT;
 
-    egonet_set_hostactive( btrue ); // very important or the input will not work
+    egonet_set_hostactive( C_TRUE ); // very important or the input will not work
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_module_stop( game_module_t * pinst )
+ego_bool game_module_stop( game_module_t * pinst )
 {
     /// @author BB
     /// @details stop the module
 
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return ego_false;
 
-    pinst->active      = bfalse;
+    pinst->active      = ego_false;
 
     // network stuff
-    egonet_set_hostactive( bfalse );
+    egonet_set_hostactive( C_FALSE );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4664,7 +4664,7 @@ wawalite_data_t * read_wawalite_vfs( void /* const char *modname */ )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t wawalite_finalize( wawalite_data_t * pdata )
+ego_bool wawalite_finalize( wawalite_data_t * pdata )
 {
     /// @author BB
     /// @details coerce all parameters to in-bounds values
@@ -4673,7 +4673,7 @@ bool_t wawalite_finalize( wawalite_data_t * pdata )
 
     wawalite_water_layer_t * ilayer;
 
-    if ( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return ego_false;
 
     //No weather?
     if ( 0 == strcmp( pdata->weather.weather_name, "NONE" ) )
@@ -4683,7 +4683,7 @@ bool_t wawalite_finalize( wawalite_data_t * pdata )
     else
     {
         STRING prt_file, prt_end_file, line;
-        bool_t success;
+        ego_bool success;
 
         strncpy( line, pdata->weather.weather_name, SDL_arraysize( line ) );
 
@@ -4766,16 +4766,16 @@ bool_t wawalite_finalize( wawalite_data_t * pdata )
         windspeed.z /= ( float )windspeed_count;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t write_wawalite_vfs( const wawalite_data_t * pdata )
+ego_bool write_wawalite_vfs( const wawalite_data_t * pdata )
 {
     /// @author BB
     /// @details Prepare and write the wawalite file
 
-    if ( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return ego_false;
 
     return write_wawalite_file_vfs( pdata );
 }
@@ -4833,18 +4833,18 @@ Uint8 get_light( int light, float seedark_mag )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
+ego_bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
 {
     chr_t * pdropper, * pitem;
-    bool_t inshop;
+    ego_bool inshop;
 
-    if ( !INGAME_CHR( iitem ) ) return bfalse;
+    if ( !INGAME_CHR( iitem ) ) return ego_false;
     pitem = ChrList_get_ptr( iitem );
 
-    if ( !INGAME_CHR( idropper ) ) return bfalse;
+    if ( !INGAME_CHR( idropper ) ) return ego_false;
     pdropper = ChrList_get_ptr( idropper );
 
-    inshop = bfalse;
+    inshop = ego_false;
     if ( pitem->isitem && ShopStack.count > 0 )
     {
         CHR_REF iowner;
@@ -4858,7 +4858,7 @@ bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
             int price;
             chr_t * powner = ChrList_get_ptr( iowner );
 
-            inshop = btrue;
+            inshop = ego_true;
 
             price = chr_get_price( iitem );
 
@@ -4884,22 +4884,22 @@ bool_t do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
+ego_bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
 {
-    bool_t can_grab, can_pay, in_shop;
+    ego_bool can_grab, can_pay, in_shop;
     int price;
 
     chr_t * ppicker, * pitem;
 
-    if ( !INGAME_CHR( iitem ) ) return bfalse;
+    if ( !INGAME_CHR( iitem ) ) return ego_false;
     pitem = ChrList_get_ptr( iitem );
 
-    if ( !INGAME_CHR( ipicker ) ) return bfalse;
+    if ( !INGAME_CHR( ipicker ) ) return ego_false;
     ppicker = ChrList_get_ptr( ipicker );
 
-    can_grab = btrue;
-    can_pay  = btrue;
-    in_shop  = bfalse;
+    can_grab = ego_true;
+    can_pay  = ego_true;
+    in_shop  = ego_false;
 
     if ( pitem->isitem && ShopStack.count > 0 )
     {
@@ -4913,7 +4913,7 @@ bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
         {
             chr_t * powner = ChrList_get_ptr( iowner );
 
-            in_shop = btrue;
+            in_shop = ego_true;
             price   = chr_get_price( iitem );
 
             if ( ppicker->money >= price )
@@ -4927,15 +4927,15 @@ bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
                 powner->money   = powner->money + price;
                 powner->money   = CLIP( powner->money, 0, MAXMONEY );
 
-                can_grab = btrue;
-                can_pay  = btrue;
+                can_grab = ego_true;
+                can_pay  = ego_true;
             }
             else
             {
                 // Don't allow purchase
                 ai_add_order( &( powner->ai ), price, SHOP_NOAFFORD );
-                can_grab = bfalse;
-                can_pay  = bfalse;
+                can_grab = ego_false;
+                can_pay  = ego_false;
             }
         }
     }
@@ -4965,21 +4965,21 @@ bool_t do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
+ego_bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 {
     // Pets can try to steal in addition to invisible characters
 
-    bool_t can_steal;
+    ego_bool can_steal;
 
     chr_t * pthief, * pitem;
 
-    if ( !INGAME_CHR( iitem ) ) return bfalse;
+    if ( !INGAME_CHR( iitem ) ) return ego_false;
     pitem = ChrList_get_ptr( iitem );
 
-    if ( !INGAME_CHR( ithief ) ) return bfalse;
+    if ( !INGAME_CHR( ithief ) ) return ego_false;
     pthief = ChrList_get_ptr( ithief );
 
-    can_steal = btrue;
+    can_steal = ego_true;
     if ( pitem->isitem && ShopStack.count > 0 )
     {
         CHR_REF iowner;
@@ -4996,12 +4996,12 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 
             detection = generate_irand_pair( tmp_rand );
 
-            can_steal = btrue;
+            can_steal = ego_true;
             if ( chr_can_see_object( powner, pthief ) || detection <= 5 || ( detection - ( pthief->dexterity >> 7 ) + ( powner->wisdom >> 7 ) ) > 50 )
             {
                 ai_add_order( &( powner->ai ), SHOP_STOLEN, SHOP_THEFT );
                 powner->ai.target = ithief;
-                can_steal = bfalse;
+                can_steal = ego_false;
             }
         }
     }
@@ -5010,24 +5010,24 @@ bool_t do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
+ego_bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 {
-    bool_t can_grab;
-    bool_t is_invis, can_steal;
+    ego_bool can_grab;
+    ego_bool is_invis, can_steal;
     chr_t * pchr, * pitem, *pkeeper;
     int ix, iy;
     CHR_REF shop_keeper;
 
-    if ( !INGAME_CHR( ichr ) ) return bfalse;
+    if ( !INGAME_CHR( ichr ) ) return ego_false;
     pchr = ChrList_get_ptr( ichr );
 
-    if ( !INGAME_CHR( iitem ) ) return bfalse;
+    if ( !INGAME_CHR( iitem ) ) return ego_false;
     pitem = ChrList_get_ptr( iitem );
     ix = pitem->pos.x / GRID_FSIZE;
     iy = pitem->pos.y / GRID_FSIZE;
 
     // assume that there is no shop so that the character can grab anything
-    can_grab = btrue;
+    can_grab = ego_true;
 
     // check if we are doing this inside a shop
     shop_keeper = shop_get_owner( ix, iy );
@@ -5064,7 +5064,7 @@ bool_t can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, bool_t waterwalk )
+float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, ego_bool waterwalk )
 {
     float zdone = ego_mesh_get_max_vertex_0( pmesh, grid_x, grid_y );
 
@@ -5082,7 +5082,7 @@ float get_mesh_max_vertex_0( ego_mesh_t * pmesh, int grid_x, int grid_y, bool_t 
 }
 
 //--------------------------------------------------------------------------------------------
-float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, bool_t waterwalk )
+float get_mesh_max_vertex_1( ego_mesh_t * pmesh, int grid_x, int grid_y, oct_bb_t * pbump, ego_bool waterwalk )
 {
     float zdone = ego_mesh_get_max_vertex_1( pmesh, grid_x, grid_y, pbump->mins[OCT_X], pbump->mins[OCT_Y], pbump->maxs[OCT_X], pbump->maxs[OCT_Y] );
 
@@ -5257,7 +5257,7 @@ void cleanup_character_enchants( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
+ego_bool attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 {
     /// @author BB
     /// @details attach a character to a platform
@@ -5269,15 +5269,15 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     fvec3_t   platform_up = VECT3( 0, 0, 1 );
 
     // verify that we do not have two dud pointers
-    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
-    if ( !ACTIVE_PCHR( pplat ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return ego_false;
+    if ( !ACTIVE_PCHR( pplat ) ) return ego_false;
 
     pchr_cap = pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pchr_cap ) return bfalse;
+    if ( NULL == pchr_cap ) return ego_false;
 
     // check if they can be connected
-    if ( !pchr_cap->canuseplatforms || ( 0 != pchr->flyheight ) ) return bfalse;
-    if ( !pplat->platform ) return bfalse;
+    if ( !pchr_cap->canuseplatforms || ( 0 != pchr->flyheight ) ) return ego_false;
+    if ( !pplat->platform ) return ego_false;
 
     // do the attachment
     pchr->onwhichplatform_ref    = GET_REF_PCHR( pplat );
@@ -5316,11 +5316,11 @@ bool_t attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     // this is necessary for key buttons to work properly, for instance
     ai_state_set_bumplast( &( pplat->ai ), GET_REF_PCHR( pchr ) );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t detach_character_from_platform( chr_t * pchr )
+ego_bool detach_character_from_platform( chr_t * pchr )
 {
     /// @author BB
     /// @details attach a character to a platform
@@ -5334,10 +5334,10 @@ bool_t detach_character_from_platform( chr_t * pchr )
     float   old_level, old_zlerp;
 
     // verify that we do not have two dud pointers
-    if ( !ACTIVE_PCHR( pchr ) ) return bfalse;
+    if ( !ACTIVE_PCHR( pchr ) ) return ego_false;
 
     pchr_cap = pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pchr_cap ) return bfalse;
+    if ( NULL == pchr_cap ) return ego_false;
 
     // save some values
     old_platform_ref = pchr->onwhichplatform_ref;
@@ -5371,11 +5371,11 @@ bool_t detach_character_from_platform( chr_t * pchr )
         pchr->jumpnumber = pchr->jumpnumberreset;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
+ego_bool attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
 {
     /// @author BB
     /// @details attach a particle to a platform
@@ -5383,14 +5383,14 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     pip_t   * pprt_pip;
 
     // verify that we do not have two dud pointers
-    if ( !ACTIVE_PPRT( pprt ) ) return bfalse;
-    if ( !ACTIVE_PCHR( pplat ) ) return bfalse;
+    if ( !ACTIVE_PPRT( pprt ) ) return ego_false;
+    if ( !ACTIVE_PCHR( pplat ) ) return ego_false;
 
     pprt_pip = prt_get_ppip( GET_REF_PPRT( pprt ) );
-    if ( NULL == pprt_pip ) return bfalse;
+    if ( NULL == pprt_pip ) return ego_false;
 
     // check if they can be connected
-    if ( !pplat->platform ) return bfalse;
+    if ( !pplat->platform ) return ego_false;
 
     // do the attachment
     pprt->onwhichplatform_ref    = GET_REF_PCHR( pplat );
@@ -5400,11 +5400,11 @@ bool_t attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     // update the character's relationship to the ground
     prt_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_min_cv.maxs[OCT_Z] ) );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t detach_particle_from_platform( prt_t * pprt )
+ego_bool detach_particle_from_platform( prt_t * pprt )
 {
     /// @author BB
     /// @details attach a particle to a platform
@@ -5412,13 +5412,13 @@ bool_t detach_particle_from_platform( prt_t * pprt )
     prt_bundle_t bdl_prt;
 
     // verify that we do not have two dud pointers
-    if ( !DEFINED_PPRT( pprt ) ) return bfalse;
+    if ( !DEFINED_PPRT( pprt ) ) return ego_false;
 
     // grab all of the particle info
     prt_bundle_set( &bdl_prt, pprt );
 
     // check if they can be connected
-    if ( INGAME_CHR( pprt->onwhichplatform_ref ) ) return bfalse;
+    if ( INGAME_CHR( pprt->onwhichplatform_ref ) ) return ego_false;
 
     // undo the attachment
     pprt->onwhichplatform_ref    = INVALID_CHR_REF;
@@ -5429,14 +5429,14 @@ bool_t detach_particle_from_platform( prt_t * pprt )
     // get the correct particle environment
     move_one_particle_get_environment( &bdl_prt );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t import_element_init( import_element_t * ptr )
+ego_bool import_element_init( import_element_t * ptr )
 {
-    if ( NULL == ptr ) return bfalse;
+    if ( NULL == ptr ) return ego_false;
 
     BLANK_STRUCT_PTR( ptr )
 
@@ -5444,7 +5444,7 @@ bool_t import_element_init( import_element_t * ptr )
     ptr->player = INVALID_PLAYER_REF;
     ptr->slot   = -1;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5512,11 +5512,11 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t import_list_init( import_list_t * imp_lst )
+ego_bool import_list_init( import_list_t * imp_lst )
 {
     int cnt;
 
-    if ( NULL == imp_lst ) return bfalse;
+    if ( NULL == imp_lst ) return ego_false;
 
     for ( cnt = 0; cnt < MAX_IMPORTS; cnt++ )
     {
@@ -5524,13 +5524,13 @@ bool_t import_list_init( import_list_t * imp_lst )
     }
     imp_lst->count = 0;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
 egolib_rv import_list_from_players( import_list_t * imp_lst )
 {
-    bool_t is_local;
+    ego_bool is_local;
     PLA_REF player;
 
     PLA_REF                 player_idx;
@@ -5585,10 +5585,10 @@ egolib_rv import_list_from_players( import_list_t * imp_lst )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t check_time( Uint32 check )
+ego_bool check_time( Uint32 check )
 {
     /// @author ZF
-    /// @details Returns btrue if and only if all time and date specifications determined by the e_time parameter is true. This
+    /// @details Returns ego_true if and only if all time and date specifications determined by the e_time parameter is true. This
     ///    could indicate time of the day, a specific holiday season etc.
 
     switch ( check )
@@ -5607,13 +5607,13 @@ bool_t check_time( Uint32 check )
         case TIME_DAY: return !check_time( TIME_NIGHT );
 
             //Unhandled check
-        default: log_warning( "Unhandled time enum in check_time()\n" ); return bfalse;
+        default: log_warning( "Unhandled time enum in check_time()\n" ); return ego_false;
     }
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t water_instance_make( water_instance_t * pinst, const wawalite_water_t * pdata )
+ego_bool water_instance_make( water_instance_t * pinst, const wawalite_water_t * pdata )
 {
     /// @author ZZ
     /// @details This function sets up water movements
@@ -5622,7 +5622,7 @@ bool_t water_instance_make( water_instance_t * pinst, const wawalite_water_t * p
     float temp;
     Uint8 spek;
 
-    if ( NULL == pinst || NULL == pdata ) return bfalse;
+    if ( NULL == pinst || NULL == pdata ) return ego_false;
 
     for ( layer = 0; layer < pdata->layer_count; layer++ )
     {
@@ -5661,15 +5661,15 @@ bool_t water_instance_make( water_instance_t * pinst, const wawalite_water_t * p
             pinst->spek[cnt] = spek;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t upload_water_data( water_instance_t * pinst, const wawalite_water_t * pdata )
+ego_bool upload_water_data( water_instance_t * pinst, const wawalite_water_t * pdata )
 {
     //int layer;
 
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return ego_false;
 
     BLANK_STRUCT_PTR( pinst )
 
@@ -5716,7 +5716,7 @@ bool_t upload_water_data( water_instance_t * pinst, const wawalite_water_t * pda
         pinst->layer[0].light_add = iTmp * INV_FF;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5748,12 +5748,12 @@ egolib_rv water_instance_move( water_instance_t * pwater )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t water_instance_set_douse_level( water_instance_t * pinst, float level )
+ego_bool water_instance_set_douse_level( water_instance_t * pinst, float level )
 {
     int   ilayer;
     float dlevel;
 
-    if ( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return ego_false;
 
     // get the level difference
     dlevel = level - pinst->douse_level;
@@ -5770,7 +5770,7 @@ bool_t water_instance_set_douse_level( water_instance_t * pinst, float level )
 
     ego_mesh_update_water_level( PMesh );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5807,14 +5807,14 @@ float water_instance_layer_get_level( water_instance_layer_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t status_list_update_cameras( status_list_t * plst )
+ego_bool status_list_update_cameras( status_list_t * plst )
 {
     int cnt, index, base_index;
     ext_camera_list_t * pclst;
 
-    if ( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return ego_false;
 
-    if ( !plst->on || 0 == plst->count ) return btrue;
+    if ( !plst->on || 0 == plst->count ) return ego_true;
 
     // get the camera list
     pclst = camera_system_get_list();
@@ -5845,5 +5845,5 @@ bool_t status_list_update_cameras( status_list_t * plst )
         }
     }
 
-    return btrue;
+    return ego_true;
 }

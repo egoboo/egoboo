@@ -72,52 +72,52 @@
 // testing functions
 //--------------------------------------------------------------------------------------------
 
-static INLINE bool_t _VALID_PRT_RANGE( const PRT_REF IPRT );
-static INLINE bool_t _DEFINED_PRT( const PRT_REF IPRT );
-static INLINE bool_t _ALLOCATED_PRT( const PRT_REF IPRT );
-static INLINE bool_t _ACTIVE_PRT( const PRT_REF IPRT );
-static INLINE bool_t _WAITING_PRT( const PRT_REF IPRT );
-static INLINE bool_t _TERMINATED_PRT( const PRT_REF IPRT );
+static INLINE ego_bool _VALID_PRT_RANGE( const PRT_REF IPRT );
+static INLINE ego_bool _DEFINED_PRT( const PRT_REF IPRT );
+static INLINE ego_bool _ALLOCATED_PRT( const PRT_REF IPRT );
+static INLINE ego_bool _ACTIVE_PRT( const PRT_REF IPRT );
+static INLINE ego_bool _WAITING_PRT( const PRT_REF IPRT );
+static INLINE ego_bool _TERMINATED_PRT( const PRT_REF IPRT );
 
 static INLINE size_t  _GET_INDEX_PPRT( const prt_t * PPRT );
 static INLINE PRT_REF _GET_REF_PPRT( const prt_t * PPRT );
-static INLINE bool_t  _DEFINED_PPRT( const prt_t * PPRT );
-static INLINE bool_t  _VALID_PRT_PTR( const prt_t * PPRT );
-static INLINE bool_t  _ALLOCATED_PPRT( const prt_t * PPRT );
-static INLINE bool_t  _ACTIVE_PPRT( const prt_t * PPRT );
-static INLINE bool_t  _TERMINATED_PPRT( const prt_t * PPRT );
+static INLINE ego_bool  _DEFINED_PPRT( const prt_t * PPRT );
+static INLINE ego_bool  _VALID_PRT_PTR( const prt_t * PPRT );
+static INLINE ego_bool  _ALLOCATED_PPRT( const prt_t * PPRT );
+static INLINE ego_bool  _ACTIVE_PPRT( const prt_t * PPRT );
+static INLINE ego_bool  _TERMINATED_PPRT( const prt_t * PPRT );
 
-static INLINE bool_t _INGAME_PRT_BASE( const PRT_REF IPRT );
-static INLINE bool_t _INGAME_PPRT_BASE( const prt_t * PPRT );
+static INLINE ego_bool _INGAME_PRT_BASE( const PRT_REF IPRT );
+static INLINE ego_bool _INGAME_PPRT_BASE( const prt_t * PPRT );
 
-static INLINE bool_t _INGAME_PRT( const PRT_REF IPRT );
-static INLINE bool_t _INGAME_PPRT( const prt_t * PPRT );
+static INLINE ego_bool _INGAME_PRT( const PRT_REF IPRT );
+static INLINE ego_bool _INGAME_PPRT( const prt_t * PPRT );
 
-static INLINE bool_t _DISPLAY_PRT( const PRT_REF IPRT );
-static INLINE bool_t _DISPLAY_PPRT( const prt_t * PPRT );
+static INLINE ego_bool _DISPLAY_PRT( const PRT_REF IPRT );
+static INLINE ego_bool _DISPLAY_PPRT( const prt_t * PPRT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t _VALID_PRT_RANGE( const PRT_REF IPRT ) { return VALID_PRT_RANGE( IPRT ); }
-static INLINE bool_t _DEFINED_PRT( const PRT_REF IPRT )     { return DEFINED_PRT( IPRT );     }
-static INLINE bool_t _ALLOCATED_PRT( const PRT_REF IPRT )   { return ALLOCATED_PRT( IPRT );   }
-static INLINE bool_t _ACTIVE_PRT( const PRT_REF IPRT )      { return ACTIVE_PRT( IPRT );      }
-static INLINE bool_t _WAITING_PRT( const PRT_REF IPRT )     { return WAITING_PRT( IPRT );     }
-static INLINE bool_t _TERMINATED_PRT( const PRT_REF IPRT )  { return TERMINATED_PRT( IPRT );  }
+static INLINE ego_bool _VALID_PRT_RANGE( const PRT_REF IPRT ) { return VALID_PRT_RANGE( IPRT ); }
+static INLINE ego_bool _DEFINED_PRT( const PRT_REF IPRT )     { return DEFINED_PRT( IPRT );     }
+static INLINE ego_bool _ALLOCATED_PRT( const PRT_REF IPRT )   { return ALLOCATED_PRT( IPRT );   }
+static INLINE ego_bool _ACTIVE_PRT( const PRT_REF IPRT )      { return ACTIVE_PRT( IPRT );      }
+static INLINE ego_bool _WAITING_PRT( const PRT_REF IPRT )     { return WAITING_PRT( IPRT );     }
+static INLINE ego_bool _TERMINATED_PRT( const PRT_REF IPRT )  { return TERMINATED_PRT( IPRT );  }
 
 static INLINE size_t  _GET_INDEX_PPRT( const prt_t * PPRT )  { return GET_INDEX_PPRT( PPRT );  }
 static INLINE PRT_REF _GET_REF_PPRT( const prt_t * PPRT )    { return GET_REF_PPRT( PPRT );    }
-static INLINE bool_t  _DEFINED_PPRT( const prt_t * PPRT )    { return DEFINED_PPRT( PPRT );    }
-static INLINE bool_t  _VALID_PRT_PTR( const prt_t * PPRT )   { return VALID_PRT_PTR( PPRT );   }
-static INLINE bool_t  _ALLOCATED_PPRT( const prt_t * PPRT )  { return ALLOCATED_PPRT( PPRT );  }
-static INLINE bool_t  _ACTIVE_PPRT( const prt_t * PPRT )     { return ACTIVE_PPRT( PPRT );     }
-static INLINE bool_t  _TERMINATED_PPRT( const prt_t * PPRT ) { return TERMINATED_PPRT( PPRT ); }
+static INLINE ego_bool  _DEFINED_PPRT( const prt_t * PPRT )    { return DEFINED_PPRT( PPRT );    }
+static INLINE ego_bool  _VALID_PRT_PTR( const prt_t * PPRT )   { return VALID_PRT_PTR( PPRT );   }
+static INLINE ego_bool  _ALLOCATED_PPRT( const prt_t * PPRT )  { return ALLOCATED_PPRT( PPRT );  }
+static INLINE ego_bool  _ACTIVE_PPRT( const prt_t * PPRT )     { return ACTIVE_PPRT( PPRT );     }
+static INLINE ego_bool  _TERMINATED_PPRT( const prt_t * PPRT ) { return TERMINATED_PPRT( PPRT ); }
 
-static INLINE bool_t _INGAME_PRT_BASE( const PRT_REF IPRT )  { return INGAME_PRT_BASE( IPRT );  }
-static INLINE bool_t _INGAME_PPRT_BASE( const prt_t * PPRT ) { return INGAME_PPRT_BASE( PPRT ); }
+static INLINE ego_bool _INGAME_PRT_BASE( const PRT_REF IPRT )  { return INGAME_PRT_BASE( IPRT );  }
+static INLINE ego_bool _INGAME_PPRT_BASE( const prt_t * PPRT ) { return INGAME_PPRT_BASE( PPRT ); }
 
-static INLINE bool_t _INGAME_PRT( const PRT_REF IPRT )       { return INGAME_PRT( IPRT );  }
-static INLINE bool_t _INGAME_PPRT( const prt_t * PPRT )      { return INGAME_PPRT( PPRT ); }
+static INLINE ego_bool _INGAME_PRT( const PRT_REF IPRT )       { return INGAME_PRT( IPRT );  }
+static INLINE ego_bool _INGAME_PPRT( const prt_t * PPRT )      { return INGAME_PPRT( PPRT ); }
 
-static INLINE bool_t _DISPLAY_PRT( const PRT_REF IPRT )      { return DISPLAY_PRT( IPRT ); }
-static INLINE bool_t _DISPLAY_PPRT( const prt_t * PPRT )     { return DISPLAY_PPRT( PPRT ); }
+static INLINE ego_bool _DISPLAY_PRT( const PRT_REF IPRT )      { return DISPLAY_PRT( IPRT ); }
+static INLINE ego_bool _DISPLAY_PPRT( const prt_t * PPRT )     { return DISPLAY_PPRT( PPRT ); }

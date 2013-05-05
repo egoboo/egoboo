@@ -382,24 +382,6 @@
 			RelativePath=".\_math.inl">
 		</File>
 		<File
-			RelativePath=".\bbox.c">
-		</File>
-		<File
-			RelativePath=".\bbox.h">
-		</File>
-		<File
-			RelativePath=".\bbox.inl">
-		</File>
-		<File
-			RelativePath=".\bsp.c">
-		</File>
-		<File
-			RelativePath=".\bsp.h">
-		</File>
-		<File
-			RelativePath=".\bsp.inl">
-		</File>
-		<File
 			RelativePath=".\clock.c">
 		</File>
 		<File
@@ -460,18 +442,6 @@
 			RelativePath=".\font_ttf.h">
 		</File>
 		<File
-			RelativePath=".\frustum.c">
-		</File>
-		<File
-			RelativePath=".\frustum.h">
-		</File>
-		<File
-			RelativePath=".\geometry.c">
-		</File>
-		<File
-			RelativePath=".\geometry.h">
-		</File>
-		<File
 			RelativePath=".\hash.c">
 		</File>
 		<File
@@ -488,9 +458,6 @@
 		</File>
 		<File
 			RelativePath=".\input_device.h">
-		</File>
-		<File
-			RelativePath=".\list_code.inl">
 		</File>
 		<File
 			RelativePath=".\log.c">
@@ -575,9 +542,6 @@
 		</File>
 		<File
 			RelativePath=".\typedef.h">
-		</File>
-		<File
-			RelativePath=".\typedef_cpp.h">
 		</File>
 		<File
 			RelativePath=".\vfs.c">

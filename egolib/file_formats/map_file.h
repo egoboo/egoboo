@@ -165,8 +165,8 @@ extern "C"
     map_t *      map_ctor( map_t * pmesh );
     map_t *      map_dtor( map_t * pmesh );
     map_t *      map_renew( map_t * pmesh );
-    bool_t       map_free( map_t * pmesh );
-    bool_t       map_init( map_t * pmesh, map_info_t * pinfo );
+    C_BOOLEAN       map_free( map_t * pmesh );
+    C_BOOLEAN       map_init( map_t * pmesh, map_info_t * pinfo );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

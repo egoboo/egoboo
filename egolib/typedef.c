@@ -31,13 +31,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// implement simple type arrays
-IMPLEMENT_DYNAMIC_ARY( char_ary,   char );
-IMPLEMENT_DYNAMIC_ARY( short_ary,  short );
-IMPLEMENT_DYNAMIC_ARY( int_ary,    int );
-IMPLEMENT_DYNAMIC_ARY( float_ary,  float );
-IMPLEMENT_DYNAMIC_ARY( double_ary, double );
-
 static void va_non_fatal_assert( const char *format, va_list args );
 
 //--------------------------------------------------------------------------------------------
@@ -68,25 +61,25 @@ const char * undo_idsz( IDSZ idsz )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t irect_point_inside( irect_t * prect, int   ix, int   iy )
+C_BOOLEAN irect_point_inside( irect_t * prect, int   ix, int   iy )
 {
-    if ( NULL == prect ) return bfalse;
+    if ( NULL == prect ) return C_FALSE;
 
-    if ( ix < prect->left || ix > prect->right  + 1 ) return bfalse;
-    if ( iy < prect->top  || iy > prect->bottom + 1 ) return bfalse;
+    if ( ix < prect->left || ix > prect->right  + 1 ) return C_FALSE;
+    if ( iy < prect->top  || iy > prect->bottom + 1 ) return C_FALSE;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t frect_point_inside( frect_t * prect, float fx, float fy )
+C_BOOLEAN frect_point_inside( frect_t * prect, float fx, float fy )
 {
-    if ( NULL == prect ) return bfalse;
+    if ( NULL == prect ) return C_FALSE;
 
-    if ( fx < prect->left || fx > prect->right ) return bfalse;
-    if ( fy < prect->top  || fy > prect->bottom ) return bfalse;
+    if ( fx < prect->left || fx > prect->right ) return C_FALSE;
+    if ( fy < prect->top  || fy > prect->bottom ) return C_FALSE;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------

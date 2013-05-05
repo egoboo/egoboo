@@ -65,22 +65,22 @@ extern "C"
 
     struct s_process_instance
     {
-        bool_t          valid;
-        bool_t          paused;
-        bool_t          killme;
-        bool_t          terminated;
+        C_BOOLEAN          valid;
+        C_BOOLEAN          paused;
+        C_BOOLEAN          killme;
+        C_BOOLEAN          terminated;
         process_state_t state;
         double          frameDuration;
     };
 
     process_t * process_init( process_t * proc );
-    bool_t      process_start( process_t * proc );
-    bool_t      process_kill( process_t * proc );
-    bool_t      process_validate( process_t * proc );
-    bool_t      process_terminate( process_t * proc );
-    bool_t      process_pause( process_t * proc );
-    bool_t      process_resume( process_t * proc );
-    bool_t      process_running( process_t * proc );
+    C_BOOLEAN      process_start( process_t * proc );
+    C_BOOLEAN      process_kill( process_t * proc );
+    C_BOOLEAN      process_validate( process_t * proc );
+    C_BOOLEAN      process_terminate( process_t * proc );
+    C_BOOLEAN      process_pause( process_t * proc );
+    C_BOOLEAN      process_resume( process_t * proc );
+    C_BOOLEAN      process_running( process_t * proc );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

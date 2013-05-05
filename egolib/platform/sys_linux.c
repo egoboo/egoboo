@@ -87,7 +87,7 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
     // @TODO: It has been reported that this doesn't work (22.02.2011)
 
     STRING message, buffer;
-    bool_t tried[DIALOG_PROGRAM_END] = { bfalse };
+    C_BOOLEAN tried[DIALOG_PROGRAM_END] = { C_FALSE };
     int i, type = DIALOG_PROGRAM_BEGIN;
     const char *session = getenv( "DESKTOP_SESSION" );
 
@@ -101,7 +101,7 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
     if ( 0 == strcmp( session, "gnome" ) ) type = ZENITY;
     else if ( 0 == strcmp( session, "kde" ) ) type = KDIALOG;
 
-    while ( btrue )
+    while ( C_TRUE )
     {
         //Ready the command
         switch ( type )
@@ -115,7 +115,7 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
         if ( 0 <= system( buffer ) ) break;
 
         //Nope, try the next solution
-        tried[type] = btrue;
+        tried[type] = C_TRUE;
 
         for ( i = DIALOG_PROGRAM_BEGIN; i < DIALOG_PROGRAM_END; i++ )
         {

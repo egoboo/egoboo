@@ -29,17 +29,17 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t hash_node_dtor( hash_node_t * n );
+static C_BOOLEAN hash_node_dtor( hash_node_t * n );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t hash_node_dtor( hash_node_t * n )
+C_BOOLEAN hash_node_dtor( hash_node_t * n )
 {
-    if ( NULL == n ) return bfalse;
+    if ( NULL == n ) return C_FALSE;
 
     n->data = NULL;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -63,11 +63,11 @@ hash_node_t * hash_node_create( void * data )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_node_destroy( hash_node_t ** pn )
+C_BOOLEAN hash_node_destroy( hash_node_t ** pn )
 {
-    bool_t retval = bfalse;
+    C_BOOLEAN retval = C_FALSE;
 
-    if ( NULL == pn || NULL == *pn ) return bfalse;
+    if ( NULL == pn || NULL == *pn ) return C_FALSE;
 
     retval = hash_node_dtor( *pn );
 
@@ -191,11 +191,11 @@ hash_list_t * hash_list_create( int size )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_list_destroy( hash_list_t ** plst )
+C_BOOLEAN hash_list_destroy( hash_list_t ** plst )
 {
-    bool_t retval = bfalse;
+    C_BOOLEAN retval = C_FALSE;
 
-    if ( NULL == plst || NULL == *plst ) return bfalse;
+    if ( NULL == plst || NULL == *plst ) return C_FALSE;
 
     retval = ( NULL != hash_list_dtor( *plst ) );
 
@@ -229,70 +229,70 @@ hash_node_t *  hash_list_get_node( hash_list_t *plst, int i )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_list_set_allocd( hash_list_t *plst, int ival )
+C_BOOLEAN hash_list_set_allocd( hash_list_t *plst, int ival )
 {
-    if ( NULL == plst ) return bfalse;
+    if ( NULL == plst ) return C_FALSE;
 
     plst->allocated = ival;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_list_set_count( hash_list_t *plst, int i, int count )
+C_BOOLEAN hash_list_set_count( hash_list_t *plst, int i, int count )
 {
-    if ( NULL == plst || NULL == plst->subcount ) return bfalse;
+    if ( NULL == plst || NULL == plst->subcount ) return C_FALSE;
 
-    if ( i >= plst->allocated ) return bfalse;
+    if ( i >= plst->allocated ) return C_FALSE;
 
     plst->subcount[i] = count;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_list_set_node( hash_list_t *plst, int i, hash_node_t * pnode )
+C_BOOLEAN hash_list_set_node( hash_list_t *plst, int i, hash_node_t * pnode )
 {
-    if ( NULL == plst || NULL == plst->sublist ) return bfalse;
+    if ( NULL == plst || NULL == plst->sublist ) return C_FALSE;
 
-    if ( i >= plst->allocated ) return bfalse;
+    if ( i >= plst->allocated ) return C_FALSE;
 
     plst->sublist[i] = pnode;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_list_free( hash_list_t * lst )
+C_BOOLEAN hash_list_free( hash_list_t * lst )
 {
-    if ( NULL == lst ) return bfalse;
-    if ( 0 == lst->allocated ) return btrue;
+    if ( NULL == lst ) return C_FALSE;
+    if ( 0 == lst->allocated ) return C_TRUE;
 
     EGOBOO_DELETE_ARY( lst->subcount );
     EGOBOO_DELETE_ARY( lst->sublist );
     lst->allocated = 0;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_list_alloc( hash_list_t * lst, int size )
+C_BOOLEAN hash_list_alloc( hash_list_t * lst, int size )
 {
-    if ( NULL == lst ) return bfalse;
+    if ( NULL == lst ) return C_FALSE;
 
     hash_list_free( lst );
 
     lst->subcount = EGOBOO_NEW_ARY( int, size );
     if ( NULL == lst->subcount )
     {
-        return bfalse;
+        return C_FALSE;
     }
 
     lst->sublist = EGOBOO_NEW_ARY( hash_node_t *, size );
     if ( NULL == lst->sublist )
     {
         EGOBOO_DELETE( lst->subcount );
-        return bfalse;
+        return C_FALSE;
     }
     else
     {
@@ -302,11 +302,11 @@ bool_t hash_list_alloc( hash_list_t * lst, int size )
 
     lst->allocated = size;
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_list_renew( hash_list_t * lst )
+C_BOOLEAN hash_list_renew( hash_list_t * lst )
 {
     /// @author BB
     /// @details renew the CoNode_t hash table.
@@ -316,7 +316,7 @@ bool_t hash_list_renew( hash_list_t * lst )
 
     int cnt;
 
-    if ( NULL == lst ) return bfalse;
+    if ( NULL == lst ) return C_FALSE;
 
     for ( cnt = 0; cnt < lst->allocated; cnt++ )
     {
@@ -324,7 +324,7 @@ bool_t hash_list_renew( hash_list_t * lst )
         lst->sublist[cnt]  = NULL;
     }
 
-    return btrue;
+    return C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -339,13 +339,13 @@ hash_list_iterator_t * hash_list_iterator_ctor( hash_list_iterator_t * it )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hlst )
+C_BOOLEAN hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hlst )
 {
     int i;
 
     it = hash_list_iterator_ctor( it );
 
-    if ( NULL == it || NULL == hlst ) return bfalse;
+    if ( NULL == it || NULL == hlst ) return C_FALSE;
 
     // find the first non-null hash element
     for ( i = 0; i < hlst->allocated && NULL == it->pnode; i++ )
@@ -358,23 +358,23 @@ bool_t hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hl
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_list_iterator_done( hash_list_iterator_t * it, hash_list_t * hlst )
+C_BOOLEAN hash_list_iterator_done( hash_list_iterator_t * it, hash_list_t * hlst )
 {
-    if ( NULL == it || NULL == hlst ) return btrue;
+    if ( NULL == it || NULL == hlst ) return C_TRUE;
 
     // the end consition
-    if ( it->hash >= hlst->allocated ) return btrue;
+    if ( it->hash >= hlst->allocated ) return C_TRUE;
 
-    return bfalse;
+    return C_FALSE;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t hash_list_iterator_next( hash_list_iterator_t * it, hash_list_t * hlst )
+C_BOOLEAN hash_list_iterator_next( hash_list_iterator_t * it, hash_list_t * hlst )
 {
     int i, inext;
     hash_node_t * pnext;
 
-    if ( NULL == it || NULL == hlst ) return bfalse;
+    if ( NULL == it || NULL == hlst ) return C_FALSE;
 
     inext = it->hash;
     pnext = NULL;

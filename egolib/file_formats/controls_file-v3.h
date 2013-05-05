@@ -33,8 +33,8 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    bool_t input_settings_load_vfs_3( const char *szFilename );
-    bool_t input_settings_save_vfs_3( const char* szFilename );
+    C_BOOLEAN input_settings_load_vfs_3( const char *szFilename );
+    C_BOOLEAN input_settings_save_vfs_3( const char* szFilename );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

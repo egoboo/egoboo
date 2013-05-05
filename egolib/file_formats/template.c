@@ -36,8 +36,8 @@
 
 static char * template_dump_buffer( vfs_FILE * outfile, char * buffer_beg, char * buffer_end, char * pcarat );
 
-static bool_t template_seek_marker( vfs_FILE * tempfile, const char * marker_str );
-static bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const char * marker_str );
+static C_BOOLEAN template_seek_marker( vfs_FILE * tempfile, const char * marker_str );
+static C_BOOLEAN template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const char * marker_str );
 static void   template_copy_to_eof( vfs_FILE * tempfile, vfs_FILE * outfile );
 
 //--------------------------------------------------------------------------------------------
@@ -66,13 +66,13 @@ char * template_dump_buffer( vfs_FILE * outfile, char * buffer_beg, char * buffe
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
+C_BOOLEAN template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
 {
-    bool_t       found;
+    C_BOOLEAN       found;
     int          iTmp;
     char const * pmark = marker_str;
 
-    found = bfalse;
+    found = C_FALSE;
     pmark = marker_str;
     while ( !vfs_eof( tempfile ) )
     {
@@ -84,7 +84,7 @@ bool_t template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
             pmark++;
             if ( CSTR_END == *pmark )
             {
-                found = btrue;
+                found = C_TRUE;
                 break;
             }
         }
@@ -98,9 +98,9 @@ bool_t template_seek_marker( vfs_FILE * tempfile, const char * marker_str )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const char * marker_str )
+C_BOOLEAN template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const char * marker_str )
 {
-    bool_t       found;
+    C_BOOLEAN       found;
     int          iTmp;
     char const * pmark = marker_str;
 
@@ -111,10 +111,10 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
 
     if ( vfs_eof( tempfile ) )
     {
-        return bfalse;
+        return C_FALSE;
     }
 
-    found  = bfalse;
+    found  = C_FALSE;
     pmark  = marker_str;
     pcarat = buffer;
     while ( !vfs_eof( tempfile ) )
@@ -128,7 +128,7 @@ bool_t template_copy_to_marker( vfs_FILE * tempfile, vfs_FILE * outfile, const c
             pmark++;
             if ( CSTR_END == *pmark )
             {
-                found = btrue;
+                found = C_TRUE;
 
                 // reset the buffer
                 pcarat  = buffer;
@@ -193,7 +193,7 @@ int template_close_vfs( vfs_FILE* filetemp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t template_seek_free( vfs_FILE* filetemp, vfs_FILE* filewrite )
+C_BOOLEAN template_seek_free( vfs_FILE* filetemp, vfs_FILE* filewrite )
 {
     return template_copy_to_marker( filetemp, filewrite, "##" );
 }
@@ -251,7 +251,7 @@ void template_put_sfp8( vfs_FILE* filetemp, vfs_FILE* filewrite, SFP8_T ival )
 }
 
 //--------------------------------------------------------------------------------------------
-void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, bool_t truth )
+void template_put_bool( vfs_FILE* filetemp, vfs_FILE* filewrite, C_BOOLEAN truth )
 {
     if ( template_copy_to_marker( filetemp, filewrite, "#%" ) )
     {

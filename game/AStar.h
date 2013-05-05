@@ -45,7 +45,7 @@ typedef struct s_AStar_Node AStar_Node_t;
 struct s_AStar_Node
 {
     float  weight;
-    bool_t closed;
+    ego_bool closed;
 
     int    ix, iy;
     AStar_Node_t *parent;
@@ -53,5 +53,5 @@ struct s_AStar_Node
 
 //------------------------------------------------------------------------------
 //Public functions
-bool_t AStar_find_path( struct s_ego_mesh *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy );
-bool_t AStar_get_path( const int pos_x, const int dst_y, struct s_waypoint_list *plst );
+ego_bool AStar_find_path( struct s_ego_mesh *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy );
+ego_bool AStar_get_path( const int pos_x, const int dst_y, struct s_waypoint_list *plst );

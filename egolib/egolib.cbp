@@ -25,7 +25,7 @@
 					<Add option="/D_LIB" />
 					<Add option="/D_CONSOLE" />
 					<Add directory="%LibraryInstallDir%include" />
-					<Add directory="%LibraryInstallDir%include\SDL" />
+					<Add directory="%LibraryInstallDir%include/SDL" />
 				</Compiler>
 				<Linker>
 					<Add directory="%LibraryInstallDir%lib" />
@@ -48,7 +48,7 @@
 					<Add option="/D_LIB" />
 					<Add option="/D_CONSOLE" />
 					<Add directory="%LibraryInstallDir%include" />
-					<Add directory="%LibraryInstallDir%include\SDL" />
+					<Add directory="%LibraryInstallDir%include/SDL" />
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -74,7 +74,7 @@
 					<Add option="/D_LIB" />
 					<Add option="/D_CONSOLE" />
 					<Add directory="%LibraryInstallDir%include" />
-					<Add directory="%LibraryInstallDir%include\SDL" />
+					<Add directory="%LibraryInstallDir%include/SDL" />
 				</Compiler>
 				<Linker>
 					<Add directory="%LibraryInstallDir%lib" />
@@ -97,7 +97,7 @@
 					<Add option="/D_LIB" />
 					<Add option="/D_CONSOLE" />
 					<Add directory="%LibraryInstallDir%include" />
-					<Add directory="%LibraryInstallDir%include\SDL" />
+					<Add directory="%LibraryInstallDir%include/SDL" />
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -123,7 +123,7 @@
 					<Add option="/D_LIB" />
 					<Add option="/D_CONSOLE" />
 					<Add directory="%LibraryInstallDir%include" />
-					<Add directory="%LibraryInstallDir%include\SDL" />
+					<Add directory="%LibraryInstallDir%include/SDL" />
 				</Compiler>
 				<Linker>
 					<Add directory="%LibraryInstallDir%lib" />
@@ -146,7 +146,7 @@
 					<Add option="/D_LIB" />
 					<Add option="/D_CONSOLE" />
 					<Add directory="%LibraryInstallDir%include" />
-					<Add directory="%LibraryInstallDir%include\SDL" />
+					<Add directory="%LibraryInstallDir%include/SDL" />
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -166,12 +166,12 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_LIB" />
 					<Add option="-D_CONSOLE" />
-					<Add directory="\usr\include" />
-					<Add directory="\usr\local\include" />
+					<Add directory="/usr/include" />
+					<Add directory="/usr/local/include" />
 				</Compiler>
 				<Linker>
-					<Add directory="\usr\lib" />
-					<Add directory="\usr\local\lib" />
+					<Add directory="/usr/lib" />
+					<Add directory="/usr/local/lib" />
 				</Linker>
 			</Target>
 			<Target title="cygwin-gcc-release">
@@ -192,12 +192,12 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_LIB" />
 					<Add option="-D_CONSOLE" />
-					<Add directory="\usr\include" />
-					<Add directory="\usr\local\include" />
+					<Add directory="/usr/include" />
+					<Add directory="/usr/local/include" />
 				</Compiler>
 				<Linker>
-					<Add directory="\usr\lib" />
-					<Add directory="\usr\local\lib" />
+					<Add directory="/usr/lib" />
+					<Add directory="/usr/local/lib" />
 				</Linker>
 			</Target>
 			<Target title="nix-gcc-debug">
@@ -218,15 +218,15 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_LIB" />
 					<Add option="-D_CONSOLE" />
-					<Add directory="\usr\include" />
-					<Add directory="\usr\include\lua5.1" />
-					<Add directory="\usr\local\include" />
-					<Add directory="\usr\local\include\lua5.1" />
+					<Add directory="/usr/include" />
+					<Add directory="/usr/include/lua5.1" />
+					<Add directory="/usr/local/include" />
+					<Add directory="/usr/local/include/lua5.1" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg" />
-					<Add directory="\usr\lib" />
-					<Add directory="\usr\local\lib" />
+					<Add directory="/usr/lib" />
+					<Add directory="/usr/local/lib" />
 				</Linker>
 			</Target>
 			<Target title="nix-gcc-release">
@@ -246,14 +246,14 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_LIB" />
 					<Add option="-D_CONSOLE" />
-					<Add directory="\usr\include" />
-					<Add directory="\usr\include\lua5.1" />
-					<Add directory="\usr\local\include" />
-					<Add directory="\usr\local\include\lua5.1" />
+					<Add directory="/usr/include" />
+					<Add directory="/usr/include/lua5.1" />
+					<Add directory="/usr/local/include" />
+					<Add directory="/usr/local/include/lua5.1" />
 				</Compiler>
 				<Linker>
-					<Add directory="\usr\lib" />
-					<Add directory="\usr\local\lib" />
+					<Add directory="/usr/lib" />
+					<Add directory="/usr/local/lib" />
 				</Linker>
 			</Target>
 		</Build>
@@ -296,111 +296,131 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="endian.h" />
-		<Unit filename="extensions\SDL_GL_extensions.c">
+		<Unit filename="extensions/SDL_GL_extensions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions\SDL_GL_extensions.h" />
-		<Unit filename="extensions\SDL_extensions.c">
+		<Unit filename="extensions/SDL_GL_extensions.h" />
+		<Unit filename="extensions/SDL_extensions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions\SDL_extensions.h" />
-		<Unit filename="extensions\ogl_debug.c">
+		<Unit filename="extensions/SDL_extensions.h" />
+		<Unit filename="extensions/ogl_debug.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions\ogl_debug.h" />
-		<Unit filename="extensions\ogl_extensions.c">
+		<Unit filename="extensions/ogl_debug.h" />
+		<Unit filename="extensions/ogl_extensions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions\ogl_extensions.h" />
-		<Unit filename="extensions\ogl_include.c">
+		<Unit filename="extensions/ogl_extensions.h" />
+		<Unit filename="extensions/ogl_include.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions\ogl_include.h" />
-		<Unit filename="extensions\ogl_texture.c">
+		<Unit filename="extensions/ogl_include.h" />
+		<Unit filename="extensions/ogl_texture.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions\ogl_texture.h" />
+		<Unit filename="extensions/ogl_texture.h" />
 		<Unit filename="file_common.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="file_common.h" />
-		<Unit filename="file_formats\SDL_md2.c">
+		<Unit filename="file_formats/SDL_md2.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\SDL_md2.h" />
-		<Unit filename="file_formats\cap_file.c">
+		<Unit filename="file_formats/SDL_md2.h" />
+		<Unit filename="file_formats/cap_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\cap_file.h" />
-		<Unit filename="file_formats\configfile.c">
+		<Unit filename="file_formats/cap_file.h" />
+		<Unit filename="file_formats/configfile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\configfile.h" />
-		<Unit filename="file_formats\controls_file-v1.c">
+		<Unit filename="file_formats/configfile.h" />
+		<Unit filename="file_formats/controls_file-v1.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\controls_file-v1.h" />
-		<Unit filename="file_formats\controls_file-v2.c">
+		<Unit filename="file_formats/controls_file-v1.h" />
+		<Unit filename="file_formats/controls_file-v2.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\controls_file-v2.h" />
-		<Unit filename="file_formats\controls_file-v3.c">
+		<Unit filename="file_formats/controls_file-v2.h" />
+		<Unit filename="file_formats/controls_file-v3.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\controls_file-v3.h" />
-		<Unit filename="file_formats\controls_file.c">
+		<Unit filename="file_formats/controls_file-v3.h" />
+		<Unit filename="file_formats/controls_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\controls_file.h" />
-		<Unit filename="file_formats\eve_file.c">
+		<Unit filename="file_formats/controls_file.h" />
+		<Unit filename="file_formats/eve_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\eve_file.h" />
-		<Unit filename="file_formats\id_md2.c">
+		<Unit filename="file_formats/eve_file.h" />
+		<Unit filename="file_formats/id_md2.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\id_md2.h" />
-		<Unit filename="file_formats\id_normals.inl" />
-		<Unit filename="file_formats\module_file.c">
+		<Unit filename="file_formats/id_md2.h" />
+		<Unit filename="file_formats/id_normals.inl" />
+		<Unit filename="file_formats/map_file-v1.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\module_file.h" />
-		<Unit filename="file_formats\mpd_file.c">
+		<Unit filename="file_formats/map_file-v1.h" />
+		<Unit filename="file_formats/map_file-v2.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\mpd_file.h" />
-		<Unit filename="file_formats\passage_file.c">
+		<Unit filename="file_formats/map_file-v2.h" />
+		<Unit filename="file_formats/map_file-v3.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\passage_file.h" />
-		<Unit filename="file_formats\pip_file.c">
+		<Unit filename="file_formats/map_file-v3.h" />
+		<Unit filename="file_formats/map_file-v4.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\pip_file.h" />
-		<Unit filename="file_formats\quest_file.c">
+		<Unit filename="file_formats/map_file-v4.h" />
+		<Unit filename="file_formats/map_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\quest_file.h" />
-		<Unit filename="file_formats\scancode_file.c">
+		<Unit filename="file_formats/map_file.h" />
+		<Unit filename="file_formats/map_tile_dictionary.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\scancode_file.h" />
-		<Unit filename="file_formats\spawn_file.c">
+		<Unit filename="file_formats/map_tile_dictionary.h" />
+		<Unit filename="file_formats/module_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\spawn_file.h" />
-		<Unit filename="file_formats\template.c">
+		<Unit filename="file_formats/module_file.h" />
+		<Unit filename="file_formats/passage_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\template.h" />
-		<Unit filename="file_formats\treasure_table_file.c">
+		<Unit filename="file_formats/passage_file.h" />
+		<Unit filename="file_formats/pip_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\treasure_table_file.h" />
-		<Unit filename="file_formats\wawalite_file.c">
+		<Unit filename="file_formats/pip_file.h" />
+		<Unit filename="file_formats/quest_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats\wawalite_file.h" />
+		<Unit filename="file_formats/quest_file.h" />
+		<Unit filename="file_formats/scancode_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats/scancode_file.h" />
+		<Unit filename="file_formats/spawn_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats/spawn_file.h" />
+		<Unit filename="file_formats/template.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats/template.h" />
+		<Unit filename="file_formats/treasure_table_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats/treasure_table_file.h" />
+		<Unit filename="file_formats/wawalite_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file_formats/wawalite_file.h" />
 		<Unit filename="fileutil.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -433,10 +453,14 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="log.h" />
-		<Unit filename="lua\lua_console.c">
+		<Unit filename="lua/lua_console.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="lua\lua_console.h" />
+		<Unit filename="lua/lua_console.h" />
+		<Unit filename="map_functions.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="map_functions.h" />
 		<Unit filename="mem.h" />
 		<Unit filename="network.c">
 			<Option compilerVar="CC" />
@@ -447,35 +471,35 @@
 		</Unit>
 		<Unit filename="network_file.h" />
 		<Unit filename="platform.h" />
-		<Unit filename="platform\NSFileManager+DirectoryLocations.h" />
-		<Unit filename="platform\file_amiga.c">
+		<Unit filename="platform/NSFileManager+DirectoryLocations.h" />
+		<Unit filename="platform/file_amiga.c">
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="platform\file_linux.c">
+		<Unit filename="platform/file_linux.c">
 			<Option compilerVar="CC" />
 			<Option target="cygwin-gcc-debug" />
 			<Option target="cygwin-gcc-release" />
 			<Option target="nix-gcc-debug" />
 			<Option target="nix-gcc-release" />
 		</Unit>
-		<Unit filename="platform\file_win.c">
+		<Unit filename="platform/file_win.c">
 			<Option compilerVar="CC" />
 			<Option target="win32-vc2003-debug" />
 			<Option target="win32-vc2003-release" />
 		</Unit>
-		<Unit filename="platform\sys_linux.c">
+		<Unit filename="platform/sys_linux.c">
 			<Option compilerVar="CC" />
 			<Option target="cygwin-gcc-debug" />
 			<Option target="cygwin-gcc-release" />
 			<Option target="nix-gcc-debug" />
 			<Option target="nix-gcc-release" />
 		</Unit>
-		<Unit filename="platform\sys_mac.c">
+		<Unit filename="platform/sys_mac.c">
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="platform\sys_win32.c">
+		<Unit filename="platform/sys_win32.c">
 			<Option compilerVar="CC" />
 			<Option target="win32-vc2003-debug" />
 			<Option target="win32-vc2003-release" />

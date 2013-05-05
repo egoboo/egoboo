@@ -39,7 +39,7 @@
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="FALSE"
 				DebugInformationFormat="4"
-				CompileAs="1"
+				CompileAs="2"
 				DisableSpecificWarnings="4127;4239;4130;4505"
 				ShowIncludes="FALSE"/>
 			<Tool
@@ -163,6 +163,9 @@
 				RelativePath=".\egoboo_object.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_typedef.c">
+			</File>
+			<File
 				RelativePath=".\input.c">
 			</File>
 		</Filter>
@@ -179,6 +182,9 @@
 				RelativePath=".\egoboo_typedef.h">
 			</File>
 			<File
+				RelativePath=".\egoboo_typedef_cpp.h">
+			</File>
+			<File
 				RelativePath=".\input.h">
 			</File>
 		</Filter>
@@ -188,6 +194,12 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
 				RelativePath=".\AStar.c">
+			</File>
+			<File
+				RelativePath=".\bbox.c">
+			</File>
+			<File
+				RelativePath=".\bsp.c">
 			</File>
 			<File
 				RelativePath=".\camera.c">
@@ -234,7 +246,13 @@
 				RelativePath=".\EncList.c">
 			</File>
 			<File
+				RelativePath=".\frustum.c">
+			</File>
+			<File
 				RelativePath=".\game.c">
+			</File>
+			<File
+				RelativePath=".\geometry.c">
 			</File>
 			<File
 				RelativePath=".\graphic.c">
@@ -338,6 +356,18 @@
 				RelativePath=".\AStar.h">
 			</File>
 			<File
+				RelativePath=".\bbox.h">
+			</File>
+			<File
+				RelativePath=".\bbox.inl">
+			</File>
+			<File
+				RelativePath=".\bsp.h">
+			</File>
+			<File
+				RelativePath=".\bsp.inl">
+			</File>
+			<File
 				RelativePath=".\camera.h">
 			</File>
 			<File
@@ -362,7 +392,13 @@
 				RelativePath=".\EncList.h">
 			</File>
 			<File
+				RelativePath=".\frustum.h">
+			</File>
+			<File
 				RelativePath=".\game.h">
+			</File>
+			<File
+				RelativePath=".\geometry.h">
 			</File>
 			<File
 				RelativePath=".\graphic.h">

@@ -59,23 +59,23 @@ camera_options_t cam_options;
 // Camera control stuff
 //--------------------------------------------------------------------------------------------
 
-bool_t camera_reset_view( camera_t * pcam )
+ego_bool camera_reset_view( camera_t * pcam )
 {
-    if ( NULL == pcam ) return bfalse;
+    if ( NULL == pcam ) return ego_false;
 
     camera_gluLookAt( pcam, pcam->roll );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t camera_reset_projection( camera_t * pcam, float fov_deg, float ar )
+ego_bool camera_reset_projection( camera_t * pcam, float fov_deg, float ar )
 {
-    if ( NULL == pcam ) return bfalse;
+    if ( NULL == pcam ) return ego_false;
 
     camera_gluPerspective( pcam, fov_deg, ar, 1, 20 );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -780,7 +780,7 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
     /// @details Read camera control input for one specific player controller
 
     int type;
-    bool_t autoturn_camera;
+    ego_bool autoturn_camera;
 
     //Don't do network players
     if ( NULL == pdevice ) return;
@@ -938,7 +938,7 @@ void camera_reset( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF trac
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
+ego_bool camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
     /// @author BB
     /// @details Force the camera to focus in on the players. Should be called any time there is
@@ -947,7 +947,7 @@ bool_t camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const CHR
 
     Uint8 turn_mode_save, move_mode_save;
 
-    if ( NULL == pcam ) return bfalse;
+    if ( NULL == pcam ) return ego_false;
 
     // save some values
     turn_mode_save = pcam->turn_mode;
@@ -975,5 +975,5 @@ bool_t camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const CHR
     // reset the turn time
     pcam->turn_time = 0;
 
-    return btrue;
+    return ego_true;
 }

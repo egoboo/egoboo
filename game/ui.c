@@ -140,13 +140,13 @@ void ui_Reset( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_handle_SDL_Event( SDL_Event *evt )
+ego_bool ui_handle_SDL_Event( SDL_Event *evt )
 {
-    bool_t handled;
+    ego_bool handled;
 
-    if ( NULL == evt ) return bfalse;
+    if ( NULL == evt ) return ego_false;
 
-    handled = btrue;
+    handled = ego_true;
     switch ( evt->type )
     {
         case SDL_MOUSEBUTTONDOWN:
@@ -184,7 +184,7 @@ bool_t ui_handle_SDL_Event( SDL_Event *evt )
             break;
 
         default:
-            handled = bfalse;
+            handled = ego_false;
     }
 
     return handled;
@@ -486,7 +486,7 @@ float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float v
         ui_virtual_to_screen( vx + vw, vy + vh, &( scr_rect.xmax ), &( scr_rect.ymax ) );
 
         // Draw the image
-        draw_quad_2d( img, scr_rect, tx_rect, btrue, image_tint );
+        draw_quad_2d( img, scr_rect, tx_rect, ego_true, image_tint );
     }
 
     return vy + vheight;
@@ -496,7 +496,7 @@ float ui_drawImage( ui_id_t id, oglx_texture_t *img, float vx, float vy, float v
 float ui_drawWidgetButton( ui_Widget_t * pw )
 {
     GLfloat * pcolor = NULL;
-    bool_t bactive, bhot;
+    ego_bool bactive, bhot;
 
     bactive = ui_context.active == pw->id && ui_context.hot == pw->id;
     bactive = bactive || 0 != ( pw->mask & pw->state & UI_BITS_CLICKED );
@@ -748,18 +748,18 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_copyWidget( ui_Widget_t * pw2, ui_Widget_t * pw1 )
+ego_bool ui_copyWidget( ui_Widget_t * pw2, ui_Widget_t * pw1 )
 {
-    if ( NULL == pw2 || NULL == pw1 ) return bfalse;
+    if ( NULL == pw2 || NULL == pw1 ) return ego_false;
     return NULL != memcpy( pw2, pw1, sizeof( ui_Widget_t ) );
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, float pixels )
+ego_bool ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, float pixels )
 {
-    if ( NULL == pw2 || NULL == pw1 ) return bfalse;
+    if ( NULL == pw2 || NULL == pw1 ) return ego_false;
 
-    if ( !ui_copyWidget( pw2, pw1 ) ) return bfalse;
+    if ( !ui_copyWidget( pw2, pw1 ) ) return ego_false;
 
     pw2->vx += pixels;
     pw2->vy += pixels;
@@ -773,9 +773,9 @@ bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, float pixels )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight )
+ego_bool ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, oglx_texture_t *img, float vx, float vy, float vwidth, float vheight )
 {
-    if ( NULL == pw ) return bfalse;
+    if ( NULL == pw ) return ego_false;
 
     if ( NULL == pfont ) pfont = ui_getFont();
 
@@ -791,40 +791,40 @@ bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *te
     pw->mask    = 0;
     pw->timeout = 0;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_widgetAddMask( ui_Widget_t * pw, const BIT_FIELD mbits )
+ego_bool ui_widgetAddMask( ui_Widget_t * pw, const BIT_FIELD mbits )
 {
-    if ( NULL == pw ) return bfalse;
+    if ( NULL == pw ) return ego_false;
 
     SET_BIT( pw->mask, mbits );
     UNSET_BIT( pw->state, mbits );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_widgetRemoveMask( ui_Widget_t * pw, const BIT_FIELD mbits )
+ego_bool ui_widgetRemoveMask( ui_Widget_t * pw, const BIT_FIELD mbits )
 {
-    if ( NULL == pw ) return bfalse;
+    if ( NULL == pw ) return ego_false;
 
     UNSET_BIT( pw->mask, mbits );
     UNSET_BIT( pw->state, mbits );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_widgetSetMask( ui_Widget_t * pw, const BIT_FIELD mbits )
+ego_bool ui_widgetSetMask( ui_Widget_t * pw, const BIT_FIELD mbits )
 {
-    if ( NULL == pw ) return bfalse;
+    if ( NULL == pw ) return ego_false;
 
     pw->mask  = mbits;
     UNSET_BIT( pw->state, mbits );
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------

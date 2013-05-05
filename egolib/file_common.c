@@ -36,7 +36,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool_t _fs_initialized = bfalse;
+static C_BOOLEAN _fs_initialized = C_FALSE;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ void fs_init( const char * root_dir )
 
     sys_fs_init( root_dir );
 
-    _fs_initialized = btrue;
+    _fs_initialized = C_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -332,7 +332,7 @@ FILE * fs_openConfigDirectoryFile( const char * relative_pathname, const char * 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t fs_ensureUserFile( const char * relative_filename, bool_t required )
+C_BOOLEAN fs_ensureUserFile( const char * relative_filename, C_BOOLEAN required )
 {
     /// @author BB
     /// @details if the file does not exist in the user data directory, it is copied from the

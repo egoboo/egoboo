@@ -27,7 +27,8 @@
 #include "../egolib/log.h"
 #include "../egolib/endian.h"
 #include "../egolib/_math.inl"
-#include "../egolib/bbox.inl"
+
+#include "bbox.inl"
 
 // this include must be the absolute last include
 #include "../egolib/mem.h"
@@ -246,11 +247,11 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
 
     for ( cnt = 0; cnt < num_frames; cnt++ )
     {
-        bool_t bfound;
+        ego_bool bfound;
 
         pframe = pmd2->m_frames + cnt;
 
-        bfound = bfalse;
+        bfound = ego_false;
         for ( tnc = 0; tnc  < num_verts; tnc++ )
         {
             oct_vec_t opos;
@@ -271,7 +272,7 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
             if ( !bfound )
             {
                 oct_bb_set_ovec( &( pframe->bb ), opos );
-                bfound = btrue;
+                bfound = ego_true;
             }
             else
             {
@@ -303,7 +304,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
 {
     FILE * f;
     int i, v;
-    bool_t bfound;
+    ego_bool bfound;
 
     id_md2_header_t md2_header;
     MD2_Model_t    *model;
@@ -423,7 +424,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
 #endif
 
         // unpack the md2 vertex_lst from this frame
-        bfound = bfalse;
+        bfound = ego_false;
         for ( v = 0; v < md2_header.num_vertices; v++ )
         {
             oct_vec_t ovec;
@@ -454,7 +455,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
             if ( !bfound )
             {
                 oct_bb_set_ovec( &( pframe->bb ), ovec );
-                bfound = btrue;
+                bfound = ego_true;
             }
             else
             {

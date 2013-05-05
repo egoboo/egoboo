@@ -64,7 +64,7 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
     fileread = vfs_openRead( szLoadName );
     if ( NULL == fileread ) return NULL;
 
-    // btrue/bfalse values
+    // C_TRUE/C_FALSE values
     peve->retarget = vfs_get_next_bool( fileread );
     peve->override = vfs_get_next_bool( fileread );
     peve->remove_overridden = vfs_get_next_bool( fileread );
@@ -164,10 +164,10 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
     peve->setvalue[SETCOSTFOREACHMISSILE] = vfs_get_float( fileread );
 
     peve->setyesno[SETMORPH] = vfs_get_next_bool( fileread );
-    peve->setvalue[SETMORPH] = btrue;  // vfs_get_bool( fileread );        //ZF> huh? why always channel and morph?
+    peve->setvalue[SETMORPH] = C_TRUE;  // vfs_get_bool( fileread );        //ZF> huh? why always channel and morph?
 
     peve->setyesno[SETCHANNEL] = vfs_get_next_bool( fileread );
-    peve->setvalue[SETCHANNEL] = btrue;  // vfs_get_bool( fileread );
+    peve->setvalue[SETCHANNEL] = C_TRUE;  // vfs_get_bool( fileread );
 
     // Now read in the add values
     peve->addvalue[ADDJUMPPOWER]    = vfs_get_next_float( fileread );
@@ -194,7 +194,7 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
     }
 
     // Read expansions
-    while ( goto_colon_vfs( NULL, fileread, btrue ) )
+    while ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
     {
         idsz = vfs_get_idsz( fileread );
 
@@ -215,22 +215,22 @@ eve_t * load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve )
     vfs_close( fileread );
 
     strncpy( peve->name, szLoadName, SDL_arraysize( peve->name ) );
-    peve->loaded = btrue;
+    peve->loaded = C_TRUE;
 
     return peve;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateName, eve_t * peve )
+C_BOOLEAN save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateName, eve_t * peve )
 {
     /// @author ZZ
     /// @details This function loads the enchantment associated with an object
     vfs_FILE* filewrite, * filetemp;
 
-    if ( NULL == peve ) return bfalse;
+    if ( NULL == peve ) return C_FALSE;
 
     filewrite = vfs_openWrite( szLoadName );
-    if ( NULL == filewrite ) return bfalse;
+    if ( NULL == filewrite ) return C_FALSE;
 
     filetemp = NULL;
 
@@ -246,7 +246,7 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
         filetemp = template_open_vfs( "mp_data/templates/enchant.txt" );
     }
 
-    // btrue/bfalse values
+    // C_TRUE/C_FALSE values
     template_put_bool( filetemp, filewrite, peve->retarget );
     template_put_bool( filetemp, filewrite, peve->override );
     template_put_bool( filetemp, filewrite, peve->remove_overridden );
@@ -428,7 +428,7 @@ bool_t save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplat
     vfs_close( filewrite );
     template_close_vfs( filetemp );
 
-    return btrue;
+    return C_TRUE;
 }
 
 

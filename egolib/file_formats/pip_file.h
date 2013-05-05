@@ -147,7 +147,7 @@ extern "C"
         char    comment[1024];                ///< the first line of the file has a comment line
 
         // spawning
-        bool_t  force;                        ///< Force spawn?
+        C_BOOLEAN  force;                        ///< Force spawn?
         Uint8   type;                         ///< Transparency mode
         Uint8   numframes;                    ///< Number of frames
         Uint8   image_base;                   ///< Starting image
@@ -163,17 +163,17 @@ extern "C"
         IPair   spacing_vrt_pair;             ///< Altitude
         IPair   vel_hrz_pair;                 ///< Shot velocity
         IPair   vel_vrt_pair;                 ///< Up velocity
-        bool_t  newtargetonspawn;             ///< Get new target?
-        bool_t  needtarget;                   ///< Need a target?
-        bool_t  startontarget;                ///< Start on target?
+        C_BOOLEAN  newtargetonspawn;             ///< Get new target?
+        C_BOOLEAN  needtarget;                   ///< Need a target?
+        C_BOOLEAN  startontarget;                ///< Start on target?
 
         // ending conditions
         int     end_time;                      ///< Time until end
-        bool_t  end_water;                     ///< End if underwater
-        bool_t  end_bump;                      ///< End if bumped
-        bool_t  end_ground;                    ///< End if on ground
-        bool_t  end_wall;                      ///< End if hit a wall
-        bool_t  end_lastframe;                 ///< End on last frame
+        C_BOOLEAN  end_water;                     ///< End if underwater
+        C_BOOLEAN  end_bump;                      ///< End if bumped
+        C_BOOLEAN  end_ground;                    ///< End if on ground
+        C_BOOLEAN  end_wall;                      ///< End if hit a wall
+        C_BOOLEAN  end_lastframe;                 ///< End on last frame
         Sint8   end_sound;                     ///< Ending sound
         Sint8   end_sound_floor;               ///< Floor sound
         Sint8   end_sound_wall;                ///< Ricochet sound
@@ -204,31 +204,31 @@ extern "C"
         int       daze_time;                    ///< Daze
         int       grog_time;                    ///< Drunkeness
         BIT_FIELD damfx;                        ///< Damage effects
-        bool_t    intdamagebonus;               ///< Add intelligence as damage bonus
-        bool_t    wisdamagebonus;               ///< Add wisdom as damage bonus
-        bool_t    spawnenchant;                 ///< Spawn enchant?
-        bool_t    onlydamagefriendly;           ///< Only friends?
-        bool_t    friendlyfire;                 ///< Friendly fire
-        bool_t    hateonly;                     ///< Only hit hategroup
-        bool_t    cause_roll;                   ///< @todo Not implemented!!
-        bool_t    cause_pancake;                ///< @todo Not implemented!!
+        C_BOOLEAN    intdamagebonus;               ///< Add intelligence as damage bonus
+        C_BOOLEAN    wisdamagebonus;               ///< Add wisdom as damage bonus
+        C_BOOLEAN    spawnenchant;                 ///< Spawn enchant?
+        C_BOOLEAN    onlydamagefriendly;           ///< Only friends?
+        C_BOOLEAN    friendlyfire;                 ///< Friendly fire
+        C_BOOLEAN    hateonly;                     ///< Only hit hategroup
+        C_BOOLEAN    cause_roll;                   ///< @todo Not implemented!!
+        C_BOOLEAN    cause_pancake;                ///< @todo Not implemented!!
         Uint16    lifedrain;                    ///< Steal this much life
         Uint16    manadrain;                    ///< Steal this much mana
 
         // homing
-        bool_t   homing;                       ///< Homing?
+        C_BOOLEAN   homing;                       ///< Homing?
         FACING_T targetangle;                  ///< To find target
         float    homingaccel;                  ///< Acceleration rate
         float    homingfriction;               ///< Deceleration rate
         float    zaimspd;                      ///< [ZSPD] For Z aiming
-        bool_t   rotatetoface;                 ///< Arrows/Missiles
-        bool_t   targetcaster;                 ///< Target caster?
+        C_BOOLEAN   rotatetoface;                 ///< Arrows/Missiles
+        C_BOOLEAN   targetcaster;                 ///< Target caster?
 
         // physics
         float   spdlimit;                     ///< Speed limit
         float   dampen;                       ///< Bounciness
-        bool_t  allowpush;                    ///< Allow particle to push characters around
-        bool_t  ignore_gravity;               ///< Ignores gravity
+        C_BOOLEAN  allowpush;                    ///< Allow particle to push characters around
+        C_BOOLEAN  ignore_gravity;               ///< Ignores gravity
 
         dynalight_info_t dynalight;           ///< Dynamic lighting info
 

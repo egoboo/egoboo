@@ -36,15 +36,15 @@
 // FORWARD DECLARARIONS
 //--------------------------------------------------------------------------------------------
 // cap_t accessor functions
-static INLINE bool_t cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz );
-static INLINE bool_t cap_has_idsz( const CAP_REF icap, IDSZ idsz );
+static INLINE ego_bool cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz );
+static INLINE ego_bool cap_has_idsz( const CAP_REF icap, IDSZ idsz );
 
 //--------------------------------------------------------------------------------------------
 // team_t accessor functions
 static INLINE CHR_REF  team_get_ileader( const TEAM_REF iteam );
 static INLINE chr_t  * team_get_pleader( const TEAM_REF iteam );
 
-static INLINE bool_t team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team );
+static INLINE ego_bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team );
 
 //--------------------------------------------------------------------------------------------
 // chr_t accessor functions
@@ -77,23 +77,23 @@ static INLINE void chr_set_shadow( chr_t * pchr, const float width );
 static INLINE void chr_set_height( chr_t * pchr, const float height );
 static INLINE void chr_set_fat( chr_t * pchr, const float fat );
 
-static INLINE bool_t chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
-static INLINE bool_t chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
-static INLINE bool_t chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
+static INLINE ego_bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
+static INLINE ego_bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
+static INLINE ego_bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
 
-static INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_base_t vec );
-static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_base_t vec );
-static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_base_t vec );
-static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_base_t vec );
+static INLINE ego_bool chr_getMatUp( chr_t *pchr, fvec3_base_t vec );
+static INLINE ego_bool chr_getMatRight( chr_t *pchr, fvec3_base_t vec );
+static INLINE ego_bool chr_getMatForward( chr_t *pchr, fvec3_base_t vec );
+static INLINE ego_bool chr_getMatTranslate( chr_t *pchr, fvec3_base_t vec );
 
 static INLINE const float * chr_get_pos_v_const( const chr_t * pchr );
 static INLINE float       * chr_get_pos_v( chr_t * pchr );
-static INLINE bool_t        chr_get_pos( const chr_t * pchr, fvec3_base_t pos );
+static INLINE ego_bool        chr_get_pos( const chr_t * pchr, fvec3_base_t pos );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz )
+static INLINE ego_bool cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz )
 {
     /// @author BB
     /// @details check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
@@ -101,18 +101,18 @@ static INLINE bool_t cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz )
 
     cap_t * pcap;
 
-    if ( !LOADED_CAP( icap ) ) return bfalse;
+    if ( !LOADED_CAP( icap ) ) return ego_false;
     pcap = CapStack_get_ptr( icap );
 
-    if ( IDSZ_NONE == test_idsz ) return btrue;
-    if ( test_idsz == pcap->idsz[IDSZ_TYPE  ] ) return btrue;
-    if ( test_idsz == pcap->idsz[IDSZ_PARENT] ) return btrue;
+    if ( IDSZ_NONE == test_idsz ) return ego_true;
+    if ( test_idsz == pcap->idsz[IDSZ_TYPE  ] ) return ego_true;
+    if ( test_idsz == pcap->idsz[IDSZ_PARENT] ) return ego_true;
 
-    return bfalse;
+    return ego_false;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t cap_has_idsz( const CAP_REF icap, IDSZ idsz )
+static INLINE ego_bool cap_has_idsz( const CAP_REF icap, IDSZ idsz )
 {
     /// @author BB
     /// @details does idsz match any of the stored values in pcap->idsz[]?
@@ -120,19 +120,19 @@ static INLINE bool_t cap_has_idsz( const CAP_REF icap, IDSZ idsz )
 
     int     cnt;
     cap_t * pcap;
-    bool_t  retval;
+    ego_bool  retval;
 
-    if ( !LOADED_CAP( icap ) ) return bfalse;
+    if ( !LOADED_CAP( icap ) ) return ego_false;
     pcap = CapStack_get_ptr( icap );
 
-    if ( IDSZ_NONE == idsz ) return btrue;
+    if ( IDSZ_NONE == idsz ) return ego_true;
 
-    retval = bfalse;
+    retval = ego_false;
     for ( cnt = 0; cnt < IDSZ_COUNT; cnt++ )
     {
         if ( pcap->idsz[cnt] == idsz )
         {
-            retval = btrue;
+            retval = ego_true;
             break;
         }
     }
@@ -168,12 +168,12 @@ static INLINE chr_t  * team_get_pleader( const TEAM_REF iteam )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
+static INLINE ego_bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
 {
     /// @author BB
     /// @details a wrapper function for access to the hatesteam data
 
-    if ( ipredator_team >= TEAM_MAX || iprey_team >= TEAM_MAX ) return bfalse;
+    if ( ipredator_team >= TEAM_MAX || iprey_team >= TEAM_MAX ) return ego_false;
 
     return TeamStack.lst[ipredator_team].hatesteam[ REF_TO_INT( iprey_team )];
 }
@@ -378,7 +378,7 @@ static INLINE IDSZ chr_get_idsz( const CHR_REF ichr, int type )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_has_idsz( const CHR_REF ichr, IDSZ idsz )
+static INLINE ego_bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz )
 {
     /// @author BB
     /// @details a wrapper for cap_has_idsz
@@ -389,7 +389,7 @@ static INLINE bool_t chr_has_idsz( const CHR_REF ichr, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_is_type_idsz( const CHR_REF item, IDSZ test_idsz )
+static INLINE ego_bool chr_is_type_idsz( const CHR_REF item, IDSZ test_idsz )
 {
     /// @author BB
     /// @details check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
@@ -403,44 +403,44 @@ static INLINE bool_t chr_is_type_idsz( const CHR_REF item, IDSZ test_idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
+static INLINE ego_bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
 {
     /// @author BB
     /// @details is item vulnerable to the type in profile test_profile?
 
     IDSZ vulnie;
 
-    if ( !INGAME_CHR( item ) ) return bfalse;
+    if ( !INGAME_CHR( item ) ) return ego_false;
     vulnie = chr_get_idsz( item, IDSZ_VULNERABILITY );
 
     // not vulnerable if there is no specific weakness
-    if ( IDSZ_NONE == vulnie ) return bfalse;
+    if ( IDSZ_NONE == vulnie ) return ego_false;
 
     // check vs. every IDSZ that could have something to do with attacking
-    if ( vulnie == pro_get_idsz( test_profile, IDSZ_TYPE ) ) return btrue;
-    if ( vulnie == pro_get_idsz( test_profile, IDSZ_PARENT ) ) return btrue;
+    if ( vulnie == pro_get_idsz( test_profile, IDSZ_TYPE ) ) return ego_true;
+    if ( vulnie == pro_get_idsz( test_profile, IDSZ_PARENT ) ) return ego_true;
 
-    return bfalse;
+    return ego_false;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_base_t vup )
+static INLINE ego_bool chr_getMatUp( chr_t *pchr, fvec3_base_t vup )
 {
     /// @author BB
     /// @details MAKE SURE the value it calculated relative to a valid matrix
 
-    bool_t rv;
+    ego_bool rv;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !ALLOCATED_PCHR( pchr ) ) return ego_false;
 
-    if ( NULL == vup ) return bfalse;
+    if ( NULL == vup ) return ego_false;
 
     if ( !chr_matrix_valid( pchr ) )
     {
-        chr_update_matrix( pchr, btrue );
+        chr_update_matrix( pchr, ego_true );
     }
 
-    rv = bfalse;
+    rv = ego_false;
     if ( chr_matrix_valid( pchr ) )
     {
         rv = mat_getChrUp( pchr->inst.matrix.v, vup );
@@ -453,27 +453,27 @@ static INLINE bool_t chr_getMatUp( chr_t *pchr, fvec3_base_t vup )
         vup[kX] = vup[kY] = 0.0f;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_base_t vright )
+static INLINE ego_bool chr_getMatRight( chr_t *pchr, fvec3_base_t vright )
 {
     /// @author BB
     /// @details MAKE SURE the value it calculated relative to a valid matrix
 
-    bool_t rv;
+    ego_bool rv;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !ALLOCATED_PCHR( pchr ) ) return ego_false;
 
-    if ( NULL == vright ) return bfalse;
+    if ( NULL == vright ) return ego_false;
 
     if ( !chr_matrix_valid( pchr ) )
     {
-        chr_update_matrix( pchr, btrue );
+        chr_update_matrix( pchr, ego_true );
     }
 
-    rv = bfalse;
+    rv = ego_false;
     if ( chr_matrix_valid( pchr ) )
     {
         rv = mat_getChrRight( pchr->inst.matrix.v, vright );
@@ -486,27 +486,27 @@ static INLINE bool_t chr_getMatRight( chr_t *pchr, fvec3_base_t vright )
         vright[kX] = vright[kZ] = 0.0f;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_base_t vfwd )
+static INLINE ego_bool chr_getMatForward( chr_t *pchr, fvec3_base_t vfwd )
 {
     /// @author BB
     /// @details MAKE SURE the value it calculated relative to a valid matrix
 
-    bool_t rv;
+    ego_bool rv;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !ALLOCATED_PCHR( pchr ) ) return ego_false;
 
-    if ( NULL == vfwd ) return bfalse;
+    if ( NULL == vfwd ) return ego_false;
 
     if ( !chr_matrix_valid( pchr ) )
     {
-        chr_update_matrix( pchr, btrue );
+        chr_update_matrix( pchr, ego_true );
     }
 
-    rv = bfalse;
+    rv = ego_false;
     if ( chr_matrix_valid( pchr ) )
     {
         rv = mat_getChrForward( pchr->inst.matrix.v, vfwd );
@@ -519,27 +519,27 @@ static INLINE bool_t chr_getMatForward( chr_t *pchr, fvec3_base_t vfwd )
         vfwd[kY] = vfwd[kZ] = 0.0f;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_base_t vtrans )
+static INLINE ego_bool chr_getMatTranslate( chr_t *pchr, fvec3_base_t vtrans )
 {
     /// @author BB
     /// @details MAKE SURE the value it calculated relative to a valid matrix
 
-    bool_t rv;
+    ego_bool rv;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !ALLOCATED_PCHR( pchr ) ) return ego_false;
 
-    if ( NULL == vtrans ) return bfalse;
+    if ( NULL == vtrans ) return ego_false;
 
     if ( !chr_matrix_valid( pchr ) )
     {
-        chr_update_matrix( pchr, btrue );
+        chr_update_matrix( pchr, ego_true );
     }
 
-    rv = bfalse;
+    rv = ego_false;
     if ( chr_matrix_valid( pchr ) )
     {
         rv = mat_getTranslate( pchr->inst.matrix.v, vtrans );
@@ -550,7 +550,7 @@ static INLINE bool_t chr_getMatTranslate( chr_t *pchr, fvec3_base_t vtrans )
         fvec3_base_copy( vtrans, chr_get_pos_v_const( pchr ) );
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -567,7 +567,7 @@ static INLINE void chr_update_size( chr_t * pchr )
     pchr->bump.size_big = pchr->bump_save.size_big * pchr->fat;
     pchr->bump.height   = pchr->bump_save.height   * pchr->fat;
 
-    chr_update_collision_size( pchr, btrue );
+    chr_update_collision_size( pchr, ego_true );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -693,15 +693,15 @@ static INLINE float * chr_get_pos_v( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t chr_get_pos( const chr_t * pchr, fvec3_base_t pos )
+static INLINE ego_bool chr_get_pos( const chr_t * pchr, fvec3_base_t pos )
 {
     float * copy_retval;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return bfalse;
+    if ( !ALLOCATED_PCHR( pchr ) ) return ego_false;
 
     copy_retval = fvec3_base_copy( pos, pchr->pos.v );
 
-    return BOOL_T( NULL != copy_retval );
+    return TO_EGO_BOOL( NULL != copy_retval );
 }
 
 //--------------------------------------------------------------------------------------------

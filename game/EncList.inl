@@ -67,46 +67,46 @@
 // testing functions
 //--------------------------------------------------------------------------------------------
 
-static INLINE bool_t _VALID_ENC_RANGE( const ENC_REF IENC );
-static INLINE bool_t _DEFINED_ENC( const ENC_REF IENC );
-static INLINE bool_t _ALLOCATED_ENC( const ENC_REF IENC );
-static INLINE bool_t _ACTIVE_ENC( const ENC_REF IENC );
-static INLINE bool_t _WAITING_ENC( const ENC_REF IENC );
-static INLINE bool_t _TERMINATED_ENC( const ENC_REF IENC );
+static INLINE ego_bool _VALID_ENC_RANGE( const ENC_REF IENC );
+static INLINE ego_bool _DEFINED_ENC( const ENC_REF IENC );
+static INLINE ego_bool _ALLOCATED_ENC( const ENC_REF IENC );
+static INLINE ego_bool _ACTIVE_ENC( const ENC_REF IENC );
+static INLINE ego_bool _WAITING_ENC( const ENC_REF IENC );
+static INLINE ego_bool _TERMINATED_ENC( const ENC_REF IENC );
 
 static INLINE size_t  _GET_INDEX_PENC( const enc_t * PENC );
 static INLINE ENC_REF _GET_REF_PENC( const enc_t * PENC );
-static INLINE bool_t  _DEFINED_PENC( const enc_t * PENC );
-static INLINE bool_t  _VALID_ENC_PTR( const enc_t * PENC );
-static INLINE bool_t  _ALLOCATED_PENC( const enc_t * PENC );
-static INLINE bool_t  _ACTIVE_PENC( const enc_t * PENC );
-static INLINE bool_t  _TERMINATED_PENC( const enc_t * PENC );
+static INLINE ego_bool  _DEFINED_PENC( const enc_t * PENC );
+static INLINE ego_bool  _VALID_ENC_PTR( const enc_t * PENC );
+static INLINE ego_bool  _ALLOCATED_PENC( const enc_t * PENC );
+static INLINE ego_bool  _ACTIVE_PENC( const enc_t * PENC );
+static INLINE ego_bool  _TERMINATED_PENC( const enc_t * PENC );
 
-static INLINE bool_t _INGAME_ENC_BASE( const ENC_REF IENC );
-static INLINE bool_t _INGAME_PENC_BASE( const enc_t * PENC );
+static INLINE ego_bool _INGAME_ENC_BASE( const ENC_REF IENC );
+static INLINE ego_bool _INGAME_PENC_BASE( const enc_t * PENC );
 
-static INLINE bool_t _INGAME_ENC( const ENC_REF IENC );
-static INLINE bool_t _INGAME_PENC( const enc_t * PENC );
+static INLINE ego_bool _INGAME_ENC( const ENC_REF IENC );
+static INLINE ego_bool _INGAME_PENC( const enc_t * PENC );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE bool_t _VALID_ENC_RANGE( const ENC_REF IENC ) { return VALID_ENC_RANGE( IENC ); }
-static INLINE bool_t _DEFINED_ENC( const ENC_REF IENC )     { return DEFINED_ENC( IENC );     }
-static INLINE bool_t _ALLOCATED_ENC( const ENC_REF IENC )   { return ALLOCATED_ENC( IENC );   }
-static INLINE bool_t _ACTIVE_ENC( const ENC_REF IENC )      { return ACTIVE_ENC( IENC );      }
-static INLINE bool_t _WAITING_ENC( const ENC_REF IENC )     { return WAITING_ENC( IENC );     }
-static INLINE bool_t _TERMINATED_ENC( const ENC_REF IENC )  { return TERMINATED_ENC( IENC );  }
+static INLINE ego_bool _VALID_ENC_RANGE( const ENC_REF IENC ) { return VALID_ENC_RANGE( IENC ); }
+static INLINE ego_bool _DEFINED_ENC( const ENC_REF IENC )     { return DEFINED_ENC( IENC );     }
+static INLINE ego_bool _ALLOCATED_ENC( const ENC_REF IENC )   { return ALLOCATED_ENC( IENC );   }
+static INLINE ego_bool _ACTIVE_ENC( const ENC_REF IENC )      { return ACTIVE_ENC( IENC );      }
+static INLINE ego_bool _WAITING_ENC( const ENC_REF IENC )     { return WAITING_ENC( IENC );     }
+static INLINE ego_bool _TERMINATED_ENC( const ENC_REF IENC )  { return TERMINATED_ENC( IENC );  }
 
 static INLINE size_t  _GET_INDEX_PENC( const enc_t * PENC )  { return _GET_INDEX_PENC( PENC );  }
 static INLINE ENC_REF _GET_REF_PENC( const enc_t * PENC )    { return _GET_REF_PENC( PENC );    }
-static INLINE bool_t  _DEFINED_PENC( const enc_t * PENC )    { return _DEFINED_PENC( PENC );    }
-static INLINE bool_t  _VALID_ENC_PTR( const enc_t * PENC )   { return _VALID_ENC_PTR( PENC );   }
-static INLINE bool_t  _ALLOCATED_PENC( const enc_t * PENC )  { return _ALLOCATED_PENC( PENC );  }
-static INLINE bool_t  _ACTIVE_PENC( const enc_t * PENC )     { return _ACTIVE_PENC( PENC );     }
-static INLINE bool_t  _TERMINATED_PENC( const enc_t * PENC ) { return _TERMINATED_PENC( PENC ); }
+static INLINE ego_bool  _DEFINED_PENC( const enc_t * PENC )    { return _DEFINED_PENC( PENC );    }
+static INLINE ego_bool  _VALID_ENC_PTR( const enc_t * PENC )   { return _VALID_ENC_PTR( PENC );   }
+static INLINE ego_bool  _ALLOCATED_PENC( const enc_t * PENC )  { return _ALLOCATED_PENC( PENC );  }
+static INLINE ego_bool  _ACTIVE_PENC( const enc_t * PENC )     { return _ACTIVE_PENC( PENC );     }
+static INLINE ego_bool  _TERMINATED_PENC( const enc_t * PENC ) { return _TERMINATED_PENC( PENC ); }
 
-static INLINE bool_t _INGAME_ENC_BASE( const ENC_REF IENC )  { return _INGAME_ENC_BASE( IENC );  }
-static INLINE bool_t _INGAME_PENC_BASE( const enc_t * PENC ) { return _INGAME_PENC_BASE( PENC ); }
+static INLINE ego_bool _INGAME_ENC_BASE( const ENC_REF IENC )  { return _INGAME_ENC_BASE( IENC );  }
+static INLINE ego_bool _INGAME_PENC_BASE( const enc_t * PENC ) { return _INGAME_PENC_BASE( PENC ); }
 
-static INLINE bool_t _INGAME_ENC( const ENC_REF IENC )       { return _INGAME_ENC( IENC );  }
-static INLINE bool_t _INGAME_PENC( const enc_t * PENC )      { return _INGAME_PENC( PENC ); }
+static INLINE ego_bool _INGAME_ENC( const ENC_REF IENC )       { return _INGAME_ENC( IENC );  }
+static INLINE ego_bool _INGAME_PENC( const enc_t * PENC )      { return _INGAME_PENC( PENC ); }

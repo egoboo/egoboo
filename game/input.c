@@ -52,7 +52,7 @@
 mouse_data_t    mous = MOUSE_INIT;
 keyboard_data_t keyb = KEYBOARD_INIT;
 joystick_data_t joy_lst[MAX_JOYSTICK];
-input_cursor_t  input_cursor = {0, 0, bfalse, bfalse, bfalse, bfalse};
+input_cursor_t  input_cursor = {0, 0, ego_false, ego_false, ego_false, ego_false};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -67,9 +67,9 @@ static void input_read_keyboard( void );
 static void input_read_joysticks( void );
 static void input_read_joystick( int which );
 
-static bool_t input_handle_SDL_Event( SDL_Event * pevt );
-static bool_t input_handle_SDL_KEYDOWN( SDL_Event * pevt );
-static bool_t input_handle_chat( SDL_Event * pevt );
+static ego_bool input_handle_SDL_Event( SDL_Event * pevt );
+static ego_bool input_handle_SDL_KEYDOWN( SDL_Event * pevt );
+static ego_bool input_handle_chat( SDL_Event * pevt );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ void input_system_init_keyboard( void )
     scancode_begin();
 
     // turn the keyboard on
-    keyb.on         = btrue;
+    keyb.on         = ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ void input_system_init_mouse( void )
 
     mouse_data__init( &mous );
 
-    mous.on = btrue;
+    mous.on = ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void input_system_init_joysticks( void )
 
     for ( i = 0; i < MAX_JOYSTICK; i++ )
     {
-        joystick_data_init( joy_lst + i );
+        joystick_data__init( joy_lst + i );
 
         if ( i < SDL_NumJoysticks() )
         {
@@ -244,32 +244,32 @@ void input_read_joysticks( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_handle_chat( SDL_Event * pevt )
+ego_bool input_handle_chat( SDL_Event * pevt )
 {
     Uint32 kmod;
-    bool_t is_alt, is_shift;
+    ego_bool is_alt, is_shift;
 
-    if ( NULL == pevt || SDL_KEYDOWN != pevt->type ) return bfalse;
+    if ( NULL == pevt || SDL_KEYDOWN != pevt->type ) return ego_false;
 
     kmod = SDL_GetModState();
 
     is_alt   = HAS_SOME_BITS( kmod, KMOD_ALT | KMOD_CTRL );
     is_shift = HAS_SOME_BITS( kmod, KMOD_SHIFT );
 
-    if ( is_alt ) return bfalse;
+    if ( is_alt ) return ego_false;
 
     if ( SDLK_RETURN == pevt->key.keysym.sym || SDLK_KP_ENTER == pevt->key.keysym.sym )
     {
         net_chat.buffer[net_chat.buffer_count] = CSTR_END;
-        keyb.chat_mode = bfalse;
-        keyb.chat_done = btrue;
+        keyb.chat_mode = ego_false;
+        keyb.chat_done = ego_true;
         SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
     }
     else if ( SDLK_ESCAPE == pevt->key.keysym.sym )
     {
         // reset the keyboard buffer
-        keyb.chat_mode = bfalse;
-        keyb.chat_done = bfalse;
+        keyb.chat_mode = ego_false;
+        keyb.chat_done = ego_false;
         net_chat.buffer_count = 0;
         net_chat.buffer[0] = CSTR_END;
         SDL_EnableKeyRepeat( 0, SDL_DEFAULT_REPEAT_DELAY );
@@ -301,15 +301,15 @@ bool_t input_handle_chat( SDL_Event * pevt )
         net_chat.buffer[net_chat.buffer_count] = CSTR_END;
     }
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_handle_SDL_KEYDOWN( SDL_Event * pevt )
+ego_bool input_handle_SDL_KEYDOWN( SDL_Event * pevt )
 {
-    bool_t handled = bfalse;
+    ego_bool handled = ego_false;
 
-    if ( NULL == pevt || SDL_KEYDOWN != pevt->type ) return bfalse;
+    if ( NULL == pevt || SDL_KEYDOWN != pevt->type ) return ego_false;
 
     if ( keyb.chat_mode )
     {
@@ -320,8 +320,8 @@ bool_t input_handle_SDL_KEYDOWN( SDL_Event * pevt )
         if ( SDLK_ESCAPE == pevt->key.keysym.sym )
         {
             // tell the main process about the escape request
-            EProc->escape_requested = btrue;
-            handled = btrue;
+            EProc->escape_requested = ego_true;
+            handled = ego_true;
         }
     }
 
@@ -329,13 +329,13 @@ bool_t input_handle_SDL_KEYDOWN( SDL_Event * pevt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_handle_SDL_Event( SDL_Event * pevt )
+ego_bool input_handle_SDL_Event( SDL_Event * pevt )
 {
-    bool_t handled = bfalse;
+    ego_bool handled = ego_false;
 
-    if ( NULL == pevt ) return bfalse;
+    if ( NULL == pevt ) return ego_false;
 
-    handled = btrue;
+    handled = ego_true;
     switch ( pevt->type )
     {
         case SDL_ACTIVEEVENT:
@@ -352,12 +352,12 @@ bool_t input_handle_SDL_Event( SDL_Event * pevt )
                 if ( 1 == pevt->active.gain )
                 {
                     // gained mouse focus
-                    mous.on = btrue;
+                    mous.on = ego_true;
                 }
                 else
                 {
                     // lost mouse focus
-                    mous.on = bfalse;
+                    mous.on = ego_false;
                 }
             }
             else if ( SDL_APPINPUTFOCUS == pevt->active.type )
@@ -365,12 +365,12 @@ bool_t input_handle_SDL_Event( SDL_Event * pevt )
                 if ( 1 == pevt->active.gain )
                 {
                     // gained mouse focus
-                    keyb.on = btrue;
+                    keyb.on = ego_true;
                 }
                 else
                 {
                     // lost mouse focus
-                    keyb.on = bfalse;
+                    keyb.on = ego_false;
                 }
             }
             break;
@@ -398,21 +398,21 @@ bool_t input_handle_SDL_Event( SDL_Event * pevt )
             if ( pevt->button.button == SDL_BUTTON_WHEELUP )
             {
                 input_cursor.z++;
-                input_cursor.wheel_event = btrue;
+                input_cursor.wheel_event = ego_true;
             }
             else if ( pevt->button.button == SDL_BUTTON_WHEELDOWN )
             {
                 input_cursor.z--;
-                input_cursor.wheel_event = btrue;
+                input_cursor.wheel_event = ego_true;
             }
             else
             {
-                input_cursor.pending_click = btrue;
+                input_cursor.pending_click = ego_true;
             }
             break;
 
         case SDL_MOUSEBUTTONUP:
-            input_cursor.pending_click = bfalse;
+            input_cursor.pending_click = ego_false;
             break;
 
         case SDL_MOUSEMOTION:
@@ -431,7 +431,7 @@ bool_t input_handle_SDL_Event( SDL_Event * pevt )
             break;
 
         default:
-            handled = btrue;
+            handled = ego_true;
             break;
     }
 
@@ -475,26 +475,26 @@ void input_read_all_devices( void )
 //--------------------------------------------------------------------------------------------
 void input_cursor_reset( void )
 {
-    input_cursor.pressed       = bfalse;
-    input_cursor.clicked       = bfalse;
-    input_cursor.pending_click = bfalse;
-    input_cursor.wheel_event   = bfalse;
+    input_cursor.pressed       = ego_false;
+    input_cursor.clicked       = ego_false;
+    input_cursor.pending_click = ego_false;
+    input_cursor.wheel_event   = ego_false;
     input_cursor.z             = 0;
 }
 
 //--------------------------------------------------------------------------------------------
 void input_cursor_finish_wheel_event( void )
 {
-    input_cursor.wheel_event   = bfalse;
+    input_cursor.wheel_event   = ego_false;
     input_cursor.z             = 0;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_cursor_wheel_event_pending( void )
+ego_bool input_cursor_wheel_event_pending( void )
 {
     if ( input_cursor.wheel_event && 0 == input_cursor.z )
     {
-        input_cursor.wheel_event = bfalse;
+        input_cursor.wheel_event = ego_false;
     }
 
     return input_cursor.wheel_event;
@@ -527,54 +527,54 @@ BIT_FIELD input_device_get_buttonmask( input_device_t *pdevice )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_device_is_enabled( input_device_t *pdevice )
+C_BOOLEAN input_device_is_enabled( input_device_t *pdevice )
 {
     /// @author ZF
     /// @details This determines if the specified input device is enabled or not
 
     // assume the worst
-    bool_t retval = bfalse;
+    C_BOOLEAN retval = C_FALSE;
 
     // make sure the idevice is valid
-    if ( NULL == pdevice ) return bfalse;
+    if ( NULL == pdevice ) return C_FALSE;
 
     if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type )
     {
-        retval = keyb.on;
+        retval = TO_C_BOOL( keyb.on );
     }
     else if ( INPUT_DEVICE_MOUSE == pdevice->device_type )
     {
-        retval = mous.on;
+        retval = TO_C_BOOL( mous.on );
     }
     else if ( IS_VALID_JOYSTICK( pdevice->device_type ) )
     {
         int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
 
-        retval = joy_lst[ijoy].on;
+        retval = TO_C_BOOL( joy_lst[ijoy].on );
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontrol )
+C_BOOLEAN input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontrol )
 {
     /// @author ZZ
-    /// @details This function returns btrue if the given icontrol is pressed...
+    /// @details This function returns ego_true if the given icontrol is pressed...
 
-    bool_t      retval = bfalse;
+    C_BOOLEAN     retval = C_FALSE;
     control_t   * pcontrol;
     int           cnt, key_count;
 
     // make sure the idevice is valid
-    if ( NULL == pdevice ) return bfalse;
+    if ( NULL == pdevice ) return C_FALSE;
     pcontrol = pdevice->control_lst + icontrol;
 
     // if no control information was loaded, it can't be pressed
-    if ( !pcontrol->loaded ) return bfalse;
+    if ( !pcontrol->loaded ) return C_FALSE;
 
     // assume the best
-    retval = btrue;
+    retval = C_TRUE;
 
     // test for bits
     if ( 0 != pcontrol->tag_bits )
@@ -583,7 +583,7 @@ bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icon
 
         if ( !HAS_ALL_BITS( bmask, pcontrol->tag_bits ) )
         {
-            retval = bfalse;
+            retval = C_FALSE;
             goto input_device_control_active_done;
         }
     }
@@ -597,7 +597,7 @@ bool_t input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icon
 
         if ( !SDL_KEYDOWN( keyb, keycode ) )
         {
-            retval = bfalse;
+            retval = C_FALSE;
             goto input_device_control_active_done;
         }
     }
@@ -615,14 +615,14 @@ mouse_data_t * mouse_data__init( mouse_data_t * ptr )
 
     if ( NULL == ptr ) return ptr;
 
-    ptr->on = btrue;
+    ptr->on = ego_true;
     ptr->sense = 12;
     ptr->x = ptr->y = 0.0f;
     ptr->b = 0;
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-        ptr->button[cht] = 0;
+        ptr->button[cnt] = 0;
     }
 
     return ptr;
@@ -636,9 +636,9 @@ keyboard_data_t * keyboard_data__init( keyboard_data_t * ptr )
     if ( NULL == ptr ) return ptr;
 
     // defaults
-    ptr->on         = bfalse;
-    ptr->chat_mode  = bfalse;
-    ptr->chat_done  = bfalse;
+    ptr->on         = ego_false;
+    ptr->chat_mode  = ego_false;
+    ptr->chat_done  = ego_false;
     ptr->state_size = 0;
     ptr->state_ptr  = NULL;
 
@@ -653,12 +653,15 @@ joystick_data_t * joystick_data__init( joystick_data_t * ptr )
 
     if ( NULL == ptr ) return NULL;
 
-    ptr->on = bfalse;
+    ptr->on = ego_false;
     ptr->x = ptr->y = 0.0f;
     ptr->b = 0;
     ptr->sdl_ptr = NULL;
 
-    for ( cnt = 0; cnt < JOYBUTTON; cnt++ ) ptr->button[i] = 0;
+    for ( cnt = 0; cnt < JOYBUTTON; cnt++ )
+    {
+        ptr->button[cnt] = 0;
+    }
 
     return ptr;
 }

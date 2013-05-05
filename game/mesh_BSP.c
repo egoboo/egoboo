@@ -23,18 +23,19 @@
 
 #include "mesh_BSP.h"
 
-#include "../egolib/frustum.h"
 #include "../egolib/_math.inl"
-#include "../egolib/bbox.inl"
 
+#include "frustum.h"
 #include "obj_BSP.h"
 
+#include "bbox.inl"
 #include "mesh.inl"
+#include "bsp.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t _mpd_BSP_system_initialized = bfalse;
+static ego_bool _mpd_BSP_system_initialized = ego_false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -44,11 +45,11 @@ mesh_BSP_t mesh_BSP_root = MAP_BSP_INIT;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool_t mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index );
+static ego_bool mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t mesh_BSP_system_started( void )
+ego_bool mesh_BSP_system_started( void )
 {
     return _mpd_BSP_system_initialized;
 }
@@ -87,7 +88,7 @@ egolib_rv  mesh_BSP_system_end( void )
         mesh_BSP_dtor( &mesh_BSP_root );
     }
 
-    _mpd_BSP_system_initialized = bfalse;
+    _mpd_BSP_system_initialized = ego_false;
 
     return rv_success;
 }
@@ -162,28 +163,28 @@ mesh_BSP_t * mesh_BSP_dtor( mesh_BSP_t * pbsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_BSP_alloc( mesh_BSP_t * pbsp )
+ego_bool mesh_BSP_alloc( mesh_BSP_t * pbsp )
 {
-    if ( NULL == pbsp ) return bfalse;
+    if ( NULL == pbsp ) return ego_false;
 
     // BSP_tree_alloc() is called by BSP_tree_ctor(), so there is no need to
     // do any allocation here
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_BSP_free( mesh_BSP_t * pbsp )
+ego_bool mesh_BSP_free( mesh_BSP_t * pbsp )
 {
-    if ( NULL == pbsp ) return bfalse;
+    if ( NULL == pbsp ) return ego_false;
 
     // no other data allocated, so nothing else to do
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_BSP_fill( mesh_BSP_t * pbsp, const ego_mesh_t * pmpd )
+ego_bool mesh_BSP_fill( mesh_BSP_t * pbsp, const ego_mesh_t * pmpd )
 {
     int cnt;
 
@@ -191,12 +192,12 @@ bool_t mesh_BSP_fill( mesh_BSP_t * pbsp, const ego_mesh_t * pmpd )
     ego_tile_info_t * tlist, *ptile;
 
     // error trap
-    if ( NULL == pbsp || NULL == pmpd ) return bfalse;
+    if ( NULL == pbsp || NULL == pmpd ) return ego_false;
     tcount = pmpd->tmem.tile_count;
     tlist  = pmpd->tmem.tile_list;
 
     // make sure the mesh is allocated
-    if ( 0 == tcount || NULL == tlist ) return bfalse;
+    if ( 0 == tcount || NULL == tlist ) return ego_false;
 
     // initialize the bsp volume
     // assumes tlist[0] is insterted
@@ -241,16 +242,16 @@ int mesh_BSP_collide_frustum( const mesh_BSP_t * pbsp, const egolib_frustum_t * 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
+ego_bool mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
 {
     /// @author BB
     /// @details insert a tile's BSP_leaf_t into the BSP_tree_t
 
-    bool_t       retval;
+    ego_bool       retval;
     BSP_leaf_t * pleaf;
     BSP_tree_t * ptree;
 
-    if ( NULL == pbsp || NULL == ptile ) return bfalse;
+    if ( NULL == pbsp || NULL == ptile ) return ego_false;
     ptree = &( pbsp->tree );
 
     // grab the leaf from the tile
@@ -282,7 +283,7 @@ bool_t mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t mesh_BSP_can_collide( BSP_leaf_t * pleaf )
+ego_bool mesh_BSP_can_collide( BSP_leaf_t * pleaf )
 {
     /// @author BB
     /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
@@ -293,17 +294,17 @@ bool_t mesh_BSP_can_collide( BSP_leaf_t * pleaf )
     // make sure we have a character leaf
     if ( NULL == pleaf || NULL == pleaf->data || BSP_LEAF_TILE != pleaf->data_type )
     {
-        return bfalse;
+        return ego_false;
     }
     ptile = ( ego_tile_info_t * )( pleaf->data );
 
-    if ( TILE_IS_FANOFF( *ptile ) ) return bfalse;
+    if ( TILE_IS_FANOFF( *ptile ) ) return ego_false;
 
-    return btrue;
+    return ego_true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_BSP_is_visible( BSP_leaf_t * pleaf )
+ego_bool mesh_BSP_is_visible( BSP_leaf_t * pleaf )
 {
     /// @author BB
     /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
@@ -314,11 +315,11 @@ bool_t mesh_BSP_is_visible( BSP_leaf_t * pleaf )
     // make sure we have a character leaf
     if ( NULL == pleaf || NULL == pleaf->data || BSP_LEAF_TILE != pleaf->data_type )
     {
-        return bfalse;
+        return ego_false;
     }
     ptile = ( ego_tile_info_t * )( pleaf->data );
 
-    if ( TILE_IS_FANOFF( *ptile ) ) return bfalse;
+    if ( TILE_IS_FANOFF( *ptile ) ) return ego_false;
 
-    return btrue;
+    return ego_true;
 }

@@ -41,7 +41,7 @@ device_list_t     InputDevices;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_load_vfs_3( const char* szFilename )
+C_BOOLEAN input_settings_load_vfs_3( const char* szFilename )
 {
     /// @author ZZ
     /// @details This function reads the controls.txt file, version 3
@@ -60,7 +60,7 @@ bool_t input_settings_load_vfs_3( const char* szFilename )
     InputDevices.count = 0;
 
     fileread = vfs_openRead( szFilename );
-    if ( NULL == fileread ) return bfalse;
+    if ( NULL == fileread ) return C_FALSE;
 
     // Read input for each player
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
@@ -110,7 +110,7 @@ bool_t input_settings_load_vfs_3( const char* szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_save_vfs_3( const char* szFilename )
+C_BOOLEAN input_settings_save_vfs_3( const char* szFilename )
 {
     /// @author ZF
     /// @details This function saves all current game settings to "controls.txt"
@@ -124,7 +124,7 @@ bool_t input_settings_save_vfs_3( const char* szFilename )
     if ( NULL == filewrite )
     {
         log_warning( "Could not save input settings (%s)!\n", szFilename );
-        return bfalse;
+        return C_FALSE;
     }
 
     //Add version number
@@ -202,5 +202,5 @@ bool_t input_settings_save_vfs_3( const char* szFilename )
     // All done
     vfs_close( filewrite );
 
-    return btrue;
+    return C_TRUE;
 }
