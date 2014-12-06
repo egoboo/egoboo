@@ -1,3 +1,10 @@
 # Visual Studio 2013.
 *.sdf
 *.opensdf
+*.suo
+egolib_vs13-Debug/
+egolib_vs13-Release/
+cartman_vs13-Debug/
+cartman_vs13-Release/
+game_vs13-Debug/
+game_vs13-Release/
