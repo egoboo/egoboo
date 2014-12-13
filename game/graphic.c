@@ -4978,8 +4978,8 @@ gfx_error_state_t * gfx_error_pop( void )
 
     if ( 0 == gfx_error_stack.count || gfx_error_stack.count >= GFX_ERROR_MAX ) return NULL;
 
-    retval = gfx_error_stack.lst + gfx_error_stack.count;
     gfx_error_stack.count--;
+    retval = gfx_error_stack.lst + gfx_error_stack.count;
 
     return retval;
 }

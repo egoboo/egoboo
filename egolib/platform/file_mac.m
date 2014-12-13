@@ -44,30 +44,33 @@ void sys_fs_init()
 
 const char *fs_getBinaryDirectory()
 {
-	return [binaryPath cString];
+	return [binaryPath UTF8String];
 }
 
 const char *fs_getDataDirectory()
 {
-	return [dataPath cString];
+	return [dataPath UTF8String];
 }
 
 const char *fs_getUserDirectory()
 {
-	return [userPath cString];
+	return [userPath UTF8String];
 }
 
 const char *fs_getConfigDirectory()
 {
-	return [dataPath cString];
+	return [dataPath UTF8String];
 }
 
 int fs_createDirectory(const char *dirName)
 {
 	BOOL ok;
 
-	NSString *path = [[NSString alloc] initWithCString: dirName];
-	ok = [[NSFileManager defaultManager] createDirectoryAtPath:path attributes:nil];
+	NSString *path = [[NSString alloc] initWithUTF8String: dirName];
+    ok = [[NSFileManager defaultManager] createDirectoryAtPath:path
+                                   withIntermediateDirectories:NO
+                                                    attributes:nil
+                                                         error:nil];
 	[path release];
 
 	if (ok == YES) return 1;
@@ -77,8 +80,8 @@ int fs_createDirectory(const char *dirName)
 int fs_removeDirectory(const char *dirName)
 {
 	BOOL ok;
-	NSString *path = [[NSString alloc] initWithCString:dirName];
-	ok = [[NSFileManager defaultManager] removeFileAtPath:path handler:nil];
+	NSString *path = [[NSString alloc] initWithUTF8String:dirName];
+	ok = [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 	[path release];
 
 	if (ok == YES) return 1;
@@ -87,8 +90,8 @@ int fs_removeDirectory(const char *dirName)
 
 void fs_deleteFile(const char *fileName)
 {
-	NSString *path = [[NSString alloc] initWithCString:fileName];
-	[[NSFileManager defaultManager] removeFileAtPath:path handler:nil];
+	NSString *path = [[NSString alloc] initWithUTF8String:fileName];
+	[[NSFileManager defaultManager] removeItemAtPath:path error:nil];
 	[path release];
 }
 
@@ -96,11 +99,11 @@ void fs_copyFile(const char *source, const char *dest)
 {
 	NSString *srcPath, *destPath;
 
-	srcPath = [[NSString alloc] initWithCString:source];
-	destPath = [[NSString alloc] initWithCString:dest];
+	srcPath = [[NSString alloc] initWithUTF8String:source];
+	destPath = [[NSString alloc] initWithUTF8String:dest];
 
 	NSLog(@"Copying file\n%@\nto\n%@\n", srcPath, destPath);
-	if ([[NSFileManager defaultManager] copyPath:srcPath toPath:destPath handler:nil] != YES)
+	if ([[NSFileManager defaultManager] copyItemAtPath:srcPath toPath:destPath error:nil] != YES)
 	{
 		NSLog(@"Failed to copy!");
 	}
@@ -116,7 +119,7 @@ int fs_fileIsDirectory(const char *filename)
 	NSString *path;
 	NSFileManager *manager;
 
-	path = [[NSString alloc] initWithCString: filename];
+	path = [[NSString alloc] initWithUTF8String: filename];
 	manager = [NSFileManager defaultManager];
 
 	if ([manager fileExistsAtPath: path isDirectory: &isDir] && isDir)
@@ -147,21 +150,20 @@ const char *fs_findNextFile()
 	{
 		// Also, don't go down directories recursively.
 		pathName = [NSString stringWithFormat: @"%@/%@", fs_dirEnumPath, fileName];
-		if(fs_fileIsDirectory([pathName cString]))
+		if(fs_fileIsDirectory([pathName UTF8String]))
 		{
 			[fs_dirEnum skipDescendents];
 		}
-		[pathName release];
 
 		if(fs_dirEnumExtension != nil)
 		{
 			if ([[fileName pathExtension] isEqualToString: fs_dirEnumExtension])
 			{
-				return [fileName cString];
+				return [fileName UTF8String];
 			}
 		} else
 		{
-			return [fileName cString];
+			return [fileName UTF8String];
 		}
 	}
 
@@ -209,7 +211,7 @@ const char *fs_findFirstFile(const char *path, const char *extension)
 		searchPath = [NSString stringWithFormat: @"%@/%s", dataPath, path];
 	} else
 	{
-		searchPath = [NSString stringWithCString: path];
+		searchPath = [NSString stringWithUTF8String: path];
 	}
 
 	fs_dirEnum = [[NSFileManager defaultManager] enumeratorAtPath: searchPath];
@@ -217,7 +219,7 @@ const char *fs_findFirstFile(const char *path, const char *extension)
 
 	if(extension != NULL)
 	{
-		fs_dirEnumExtension = [NSString stringWithCString: extension];
+		fs_dirEnumExtension = [NSString stringWithUTF8String: extension];
 	}
 
 	fs_dirEnumPath = searchPath;

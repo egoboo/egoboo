@@ -69,22 +69,21 @@ static NSString *getApplicationName(void)
 @end
 #endif
 
-@interface SDLApplication : NSApplication
+@interface NSObject(NSApplicationDelegate)
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender;
 @end
 
-@implementation SDLApplication
-/* Invoked from the Quit menu item */
-- (void)terminate:(id)sender
+/* The main class of the application, the application's delegate */
+@implementation SDLMain
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
 {
     /* Post a SDL_QUIT event */
     SDL_Event event;
     event.type = SDL_QUIT;
     SDL_PushEvent(&event);
+    return NSTerminateCancel;
 }
-@end
-
-/* The main class of the application, the application's delegate */
-@implementation SDLMain
 
 - (IBAction)options:(id)sender
 {
@@ -154,7 +153,6 @@ static NSString *getApplicationName(void)
         if ([menuItem hasSubmenu])
             [self fixMenu:[menuItem submenu] withAppName:appName];
     }
-    [ aMenu sizeToFit ];
 }
 
 #else
@@ -408,7 +406,6 @@ int main (int argc, char **argv)
     gArgv[i] = NULL;
 	
 #if SDL_USE_NIB_FILE
-    [SDLApplication poseAsClass:[NSApplication class]];
     NSApplicationMain (argc, (const char **)argv);
 #else
     CustomApplicationMain (argc, argv);
