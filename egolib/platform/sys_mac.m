@@ -56,8 +56,8 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
     /// @details Show error message to Mac users instead of just closing for no reason
     
     //NSStringify the strings
-    NSString * warningString = [[NSString alloc] initWithCString:warning];
-    NSString * formatString = [[NSString alloc] initWithCString:format];
+    NSString * warningString = [[NSString alloc] initWithUTF8String:warning];
+    NSString * formatString = [[NSString alloc] initWithUTF8String:format];
     
     //Ready the message
     NSString * formattedString = [[NSString alloc] initWithFormat:formatString arguments:args];
@@ -74,7 +74,6 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
     
     // Cleanup
     [alert release];
-    [message release];
     [warningString release];
     [formatString release];
     [formattedString release];

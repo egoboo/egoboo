@@ -2565,6 +2565,8 @@ ego_bool BSP_branch_list_alloc( BSP_branch_list_t * BL, size_t dim )
     if ( NULL == BL ) return ego_false;
 
     BSP_branch_list_dealloc( BL );
+    
+    if ( 0 == child_count ) return ego_false;
 
     // allocate the child list
     BL->lst = EGOBOO_NEW_ARY( BSP_branch_t*, child_count );

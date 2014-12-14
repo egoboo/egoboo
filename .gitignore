@@ -1,3 +1,10 @@
 # Visual Studio 2013.
 *.sdf
 *.opensdf
+
+# OS X
+.DS_Store
+
+# Xcode
+xcuserdata
+*.xcuserstate

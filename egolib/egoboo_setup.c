@@ -68,7 +68,10 @@
         { \
             strncpy( lTempStr, DEFAULT, SDL_arraysize( lTempStr ) ); \
         } \
-        strncpy( VAR, lTempStr, LEN ); \
+        if ( lTempStr != VAR ) \
+        { \
+            strncpy( VAR, lTempStr, LEN ); \
+        } \
         VAR[(LEN) - 1] = CSTR_END; \
     }
 

@@ -78,11 +78,11 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // a replacement for memset()
 #    if !defined(BLANK_STRUCT)
-#       define BLANK_STRUCT(XX)  /* memset( &(XX), 0, sizeof(XX) ); */
+#       define BLANK_STRUCT(XX)  memset( &(XX), 0, sizeof(XX) );
 #    endif
 
 #    if !defined(BLANK_STRUCT_PTR)
-#       define BLANK_STRUCT_PTR(XX)  /* memset( XX, 0, sizeof( *(XX) ) ); */
+#       define BLANK_STRUCT_PTR(XX)  memset( XX, 0, sizeof( *(XX) ) );
 #    endif
 
 #    if !defined(BLANK_ARY)
