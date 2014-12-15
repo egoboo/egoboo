@@ -166,7 +166,7 @@ EXTERN local_stats_t local_stats;
 
 //---------------------------------------------------------------------------------------------------------------------
 
-#include "../egolib/process.h"
+#include "egolib/process.h"
 
 /// a process that controls the master loop of the program
 struct s_ego_process

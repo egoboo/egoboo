@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file script.h
+/// @file game/script.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "script_implementation.h"
+#include "game/script_implementation.h"
 
-#include "../egolib/clock.h"
+#include "egolib/clock.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

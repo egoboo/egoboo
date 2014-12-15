@@ -19,12 +19,12 @@
 //*
 //********************************************************************************************
 
-/// @file script_implementation.h
+/// @file game/script_implementation.h
 /// @details turns script_functions.* into a bunch of stubs
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/_math.h"
+#include "egolib/_math.h"
 
 /// @defgroup _bitwise_functions_ Bitwise Scripting Functions
 /// @details These functions may be necessary to export the bitwise functions for handling alerts to

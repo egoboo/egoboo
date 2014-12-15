@@ -17,43 +17,43 @@
 //*
 //********************************************************************************************
 
-/// @file script_functions.c
+/// @file game/script_functions.c
 /// @brief implementation of the internal egoscript functions
-/// @details These are the c-functions that are called to implement the egoscript commsnds
-/// At some pont, the non-trivial commands in this file will be broken out to discrete functions
+/// @details These are the c-functions that are called to implement the egoscript commands.
+/// At some point, the non-trivial commands in this file will be broken out to discrete functions
 /// and wrapped by some external language (like Lua) using something like SWIG, and a cross compiler written.
 /// The current code is about 3/4 of the way toward this goal.
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
-#include "script_functions.h"
-#include "script_implementation.h"
+#include "game/script_functions.h"
+#include "game/script_implementation.h"
 
-#include "../egolib/log.h"
-#include "../egolib/_math.h"
-#include "../egolib/strutil.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/file_formats/spawn_file.h"
-#include "../egolib/file_formats/quest_file.h"
-#include "../egolib/_math.inl"
+#include "egolib/log.h"
+#include "egolib/_math.h"
+#include "egolib/strutil.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/file_formats/spawn_file.h"
+#include "egolib/file_formats/quest_file.h"
+#include "egolib/_math.inl"
 
-#include "mad.h"
-#include "link.h"
-#include "camera_system.h"
-#include "input.h"
-#include "network.h"
-#include "game.h"
-#include "player.h"
-#include "menu.h"
-#include "graphic_billboard.h"
-#include "renderer_2d.h"
-#include "passage.h"
-#include "AStar.h"
+#include "game/mad.h"
+#include "game/link.h"
+#include "game/camera_system.h"
+#include "game/input.h"
+#include "game/network.h"
+#include "game/game.h"
+#include "game/player.h"
+#include "game/menu.h"
+#include "game/graphic_billboard.h"
+#include "game/renderer_2d.h"
+#include "game/passage.h"
+#include "game/AStar.h"
 
-#include "profile.inl"
-#include "enchant.inl"
-#include "char.inl"
-#include "particle.inl"
-#include "mesh.inl"
+#include "game/profile.inl"
+#include "game/enchant.inl"
+#include "game/char.inl"
+#include "game/particle.inl"
+#include "game/mesh.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

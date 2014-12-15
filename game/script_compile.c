@@ -17,22 +17,22 @@
 //*
 //********************************************************************************************
 
-/// @file script_compile.c
+/// @file game/script_compile.c
 /// @brief Implementation of the script compiler
 /// @details
 
-#include "script_compile.h"
+#include "game/script_compile.h"
 
-#include "../egolib/log.h"
-#include "../egolib/vfs.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/strutil.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/_math.h"
+#include "egolib/log.h"
+#include "egolib/vfs.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/_math.h"
 
-#include "game.h"
-#include "renderer_2d.h"
-#include "egoboo.h"
+#include "game/game.h"
+#include "game/renderer_2d.h"
+#include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------

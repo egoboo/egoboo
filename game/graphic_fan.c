@@ -25,15 +25,15 @@
 #include "game/graphic_fan.h"
 #include "game/graphic_texture.h"
 
-#include "../egolib/extensions/SDL_extensions.h"
-#include "../egolib/file_formats/map_tile_dictionary.h"
+#include "egolib/extensions/SDL_extensions.h"
+#include "egolib/file_formats/map_tile_dictionary.h"
 
-#include "camera_system.h"
-#include "game.h"
-#include "renderer_3d.h"
-#include "egoboo.h"
+#include "game/camera_system.h"
+#include "game/game.h"
+#include "game/renderer_3d.h"
+#include "game/egoboo.h"
 
-#include "mesh.inl"
+#include "game/mesh.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/// @file script_compile.h
+/// @file game/script_compile.h
 
-#include "egoboo_typedef.h"
-#include "script.h"
-#include "profile.h"
+#include "game/egoboo_typedef.h"
+#include "game/script.h"
+#include "game/profile.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -100,6 +100,6 @@
 //--------------------------------------------------------------------------------------------
 // do the includes last so that the compile switches are always set
 
-#include "../egolib/egolib_config.h"
+#include "egolib/egolib_config.h"
 
 #define EGOBOO_CONFIG_H

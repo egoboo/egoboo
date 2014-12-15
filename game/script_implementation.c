@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file script_implementation.c
+/// @file game/script_implementation.c
 /// @brief implementation of the internal egoscript functions
 /// @details These are the c-functions that are called to implement the egoscript commsnds
 /// At some pont, the non-trivial commands in this file will be broken out to discrete functions
@@ -25,21 +25,21 @@
 /// The current code is about 3/4 of the way toward this goal.
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
-#include "script_implementation.h"
+#include "game/script_implementation.h"
 
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/strutil.h"
-#include "../egolib/_math.inl"
+#include "egolib/egoboo_setup.h"
+#include "egolib/strutil.h"
+#include "egolib/_math.inl"
 
-#include "game.h"
-#include "AStar.h"
-#include "passage.h"
-#include "renderer_2d.h"
+#include "game/game.h"
+#include "game/AStar.h"
+#include "game/passage.h"
+#include "game/renderer_2d.h"
 
-#include "ChrList.inl"
-#include "mesh.inl"
-#include "profile.inl"
-#include "char.inl"
+#include "game/ChrList.inl"
+#include "game/mesh.inl"
+#include "game/profile.inl"
+#include "game/char.inl"
 
 //--------------------------------------------------------------------------------------------
 // wrap generic bitwise conversion macros
