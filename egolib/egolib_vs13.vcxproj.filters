@@ -392,9 +392,6 @@
     <ClInclude Include="typedef.h">
       <Filter>header files</Filter>
     </ClInclude>
-    <ClInclude Include="typedef_cpp.h">
-      <Filter>header files</Filter>
-    </ClInclude>
     <ClInclude Include="vfs.h">
       <Filter>header files</Filter>
     </ClInclude>
