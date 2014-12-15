@@ -19,14 +19,14 @@
 //*
 //********************************************************************************************
 
-/// @file profile.h
+/// @file game/profile.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/file_formats/cap_file.h"
+#include "egolib/file_formats/cap_file.h"
 
-#include "egoboo.h"
-#include "script.h"     //for script_info_t
+#include "game/egoboo.h"
+#include "game/script.h"     //for script_info_t
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

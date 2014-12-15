@@ -22,7 +22,7 @@
 #include <math.h>
 #include <assert.h>
 
-#include <egolib/egolib.h>
+#include "egolib/egolib.h"
 
 #include "cartman.h"
 

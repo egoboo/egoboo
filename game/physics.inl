@@ -42,7 +42,7 @@
 
 #include "physics.h"
 
-#include "bbox.inl"
+#include "../egolib/bbox.inl"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS

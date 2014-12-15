@@ -22,7 +22,7 @@
 /// @file hash.h
 /// @details Implementation of the "efficient" hash node storage.
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

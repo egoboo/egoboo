@@ -3,10 +3,10 @@
 #---------------------
 # the source files
 
-EGOLIB_SRC			:= $(wildcard ./*.c)
-EGOLIB_PLATFORM		:= $(wildcard ./file_formats/*_linux.c)
-EGOLIB_FILE_FORMAT	:= $(wildcard ./file_formats/*.c)
-EGOLIB_EXTENSIONS		:= $(wildcard ./extensions/*.c)
+EGOLIB_SRC          := $(wildcard ./*.c)
+EGOLIB_PLATFORM     := $(wildcard ./file_formats/*_linux.c)
+EGOLIB_FILE_FORMAT  := $(wildcard ./file_formats/*.c)
+EGOLIB_EXTENSIONS   := $(wildcard ./extensions/*.c)
 
 EGOLIB_OBJ := ${EGOLIB_SRC:.c=.lo} ${EGOLIB_FILE_FORMAT:.c=.lo} ${EGOLIB_EXTENSIONS:.c=.lo} ${EGOLIB_PLATFORM:.c=.lo}
 

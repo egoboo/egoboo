@@ -19,14 +19,14 @@
 //*
 //********************************************************************************************
 
-/// @file PrtList.h
+/// @file game/PrtList.h
 /// @brief Routines for particle list management
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "egoboo_object.h"
+#include "game/egoboo_object.h"
 
-#include "particle.h"
+#include "game/particle.h"
 
 //--------------------------------------------------------------------------------------------
 // looping macros

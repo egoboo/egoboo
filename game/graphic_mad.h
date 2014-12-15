@@ -19,14 +19,14 @@
 //*
 //********************************************************************************************
 
-/// @file graphic_mad.h
+/// @file game/graphic_mad.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/_math.h"
-#include "../egolib/file_formats/cap_file.h"
+#include "egolib/_math.h"
+#include "egolib/file_formats/cap_file.h"
 
-#include "graphic.h"
+#include "game/graphic.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

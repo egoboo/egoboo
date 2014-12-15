@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file client.h
+/// @file game/client.h
 /// @details Basic skeleton for the client portion of a client-server architecture,
 /// this is totally not in use yet.
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "network.h"
+#include "game/network.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

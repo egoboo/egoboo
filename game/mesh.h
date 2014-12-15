@@ -19,15 +19,15 @@
 //*
 //********************************************************************************************
 
-/// @file mesh.h
+/// @file game/mesh.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/file_formats/map_file.h"
-#include "../egolib/extensions/ogl_include.h"
+#include "egolib/file_formats/map_file.h"
+#include "egolib/extensions/ogl_include.h"
 
-#include "bsp.h"
-#include "lighting.h"
+#include "egolib/bsp.h"
+#include "game/lighting.h"
 
 //--------------------------------------------------------------------------------------------
 // external types

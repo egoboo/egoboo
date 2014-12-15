@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 ///
-/// @file md2.h
+/// @file game/md2.h
 /// @brief Md2 Model display routines
 /// @details Adapted from "Tactics - MD2_Model.h" by Jonathan Fischer
 ///   A class for loading/using Quake 2 and Egoboo md2 models.
@@ -28,11 +28,11 @@
 /// @note You will routinely include "md2.h" only in headers (*.h) files where you need to declare an
 ///       struct defined in this file. In *.inl files or *.c/*.cpp files you will routinely include "md2.inl", instead.
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/file_formats/id_md2.h"
+#include "egolib/file_formats/id_md2.h"
 
-#include "physics.h"
+#include "game/physics.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

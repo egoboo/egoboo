@@ -180,9 +180,14 @@ extern "C"
 //------------
 // fix the naming of some linux-flavored functions in MSVC
 #if defined(_MSC_VER)
+
 #    define snprintf _snprintf
 #    define stricmp  _stricmp
+
+// This isnt needed in MSCV 2013 and causes errors
+#    if !(_MSC_VER >= 1800)
 #    define isnan    _isnan
+#    endif
 #    define strlwr   _strlwr
 #    define strupr   _strupr
 

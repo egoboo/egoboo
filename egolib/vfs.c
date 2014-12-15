@@ -28,18 +28,18 @@
 
 #include <physfs.h>
 
-#include "../egolib/vfs.h"
+#include "egolib/vfs.h"
 
-#include "../egolib/file_common.h"
-#include "../egolib/log.h"
+#include "egolib/file_common.h"
+#include "egolib/log.h"
 
-#include "../egolib/strutil.h"
-#include "../egolib/endian.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/platform.h"
+#include "egolib/strutil.h"
+#include "egolib/endian.h"
+#include "egolib/fileutil.h"
+#include "egolib/platform.h"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

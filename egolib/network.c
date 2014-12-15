@@ -24,20 +24,20 @@
 
 #include <stdarg.h>
 
-#include "../egolib/network.h"
+#include "egolib/network.h"
 
-#include "../egolib/network_file.h"
-#include "../egolib/file_common.h"
-#include "../egolib/log.h"
-#include "../egolib/strutil.h"
-#include "../egolib/vfs.h"
-#include "../egolib/platform.h"
-#include "../egolib/egoboo_setup.h"
+#include "egolib/network_file.h"
+#include "egolib/file_common.h"
+#include "egolib/log.h"
+#include "egolib/strutil.h"
+#include "egolib/vfs.h"
+#include "egolib/platform.h"
+#include "egolib/egoboo_setup.h"
 
-#include "file_formats/module_file.h"
+#include "egolib/file_formats/module_file.h"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

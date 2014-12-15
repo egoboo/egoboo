@@ -21,20 +21,20 @@
 /// @brief Implementation of Egoboo file utilities
 /// @details
 
-#include "../egolib/fileutil.h"
+#include "egolib/fileutil.h"
 
-#include "../egolib/log.h"
-#include "../egolib/strutil.h"
-#include "../egolib/platform.h"
-#include "../egolib/egoboo_setup.h"
+#include "egolib/log.h"
+#include "egolib/strutil.h"
+#include "egolib/platform.h"
+#include "egolib/egoboo_setup.h"
 
-#include "../egolib/extensions/ogl_texture.h"
-#include "../egolib/file_formats/cap_file.h"
+#include "egolib/extensions/ogl_texture.h"
+#include "egolib/file_formats/cap_file.h"
 
-#include "../egolib/_math.inl"
+#include "egolib/_math.inl"
 
 // includes for egoboo constants
-#include "../game/mad.h"                    // for ACTION_* constants
+#include "game/mad.h"                    // for ACTION_* constants
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

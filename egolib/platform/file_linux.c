@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file platform/file_linux.c
+/// @file egolib/platform/file_linux.c
 /// @brief Implementation of the linux system-dependent filesystem functions
 /// @details
 
@@ -29,12 +29,12 @@
 #include <sys/stat.h>
 #include <linux/limits.h>
 
-#include "../file_common.h"
-#include "../log.h"
-#include "../strutil.h"
+#include "egolib/file_common.h"
+#include "egolib/log.h"
+#include "egolib/strutil.h"
 
 // this include must be the absolute last include
-#include "../mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

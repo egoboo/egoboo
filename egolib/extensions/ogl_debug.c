@@ -26,9 +26,9 @@
 #include <assert.h>
 #include <memory.h>
 
-#include "ogl_debug.h"
+#include "egolib/extensions/ogl_debug.h"
 
-#include "../file_common.h"
+#include "egolib/file_common.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

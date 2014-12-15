@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file network.h
+/// @file game/network.h
 /// @brief Skeleton for Egoboo networking
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/network.h"
-#include "../egolib/network_file.h"
+#include "egolib/network.h"
+#include "egolib/network_file.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

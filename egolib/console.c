@@ -27,21 +27,21 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
-#include "../egolib/console.inl"
+#include "egolib/console.inl"
 
-#include "../egolib/file_common.h"
-#include "../egolib/scancode.h"
-#include "../egolib/strutil.h"
-#include "../egolib/vfs.h"
+#include "egolib/file_common.h"
+#include "egolib/scancode.h"
+#include "egolib/strutil.h"
+#include "egolib/vfs.h"
 
-#include "extensions/ogl_debug.h"
-#include "extensions/ogl_extensions.h"
-#include "extensions/SDL_extensions.h"
+#include "egolib/extensions/ogl_debug.h"
+#include "egolib/extensions/ogl_extensions.h"
+#include "egolib/extensions/SDL_extensions.h"
 
-#include "../egolib/_math.inl"
+#include "egolib/_math.inl"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

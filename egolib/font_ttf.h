@@ -27,7 +27,7 @@
 #include <SDL_ttf.h>
 #include <SDL_opengl.h>
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

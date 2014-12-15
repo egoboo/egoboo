@@ -20,7 +20,7 @@
 //*
 //********************************************************************************************
 
-#include <egolib/egolib.h>
+#include "egolib/egolib.h"
 
 #include "cartman_typedef.h"
 

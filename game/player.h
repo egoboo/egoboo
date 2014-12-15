@@ -19,14 +19,14 @@
 //*
 //********************************************************************************************
 
-/// @file player.h
+/// @file game/player.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/IDSZ_map.h"
+#include "egolib/IDSZ_map.h"
 
-#include "network.h"
-#include "input.h"
+#include "game/network.h"
+#include "game/input.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

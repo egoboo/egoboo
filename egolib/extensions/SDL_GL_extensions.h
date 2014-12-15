@@ -24,8 +24,8 @@
 /// @brief Definitions for OpenGL extensions to SDL
 /// @details
 
-#include "ogl_extensions.h"
-#include "SDL_extensions.h"
+#include "egolib/extensions/ogl_extensions.h"
+#include "egolib/extensions/SDL_extensions.h"
 
 #if defined(__cplusplus)
 extern "C"

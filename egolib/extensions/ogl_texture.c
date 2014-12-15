@@ -26,9 +26,9 @@
 
 #include <SDL_image.h>
 
-#include "ogl_texture.h"
-#include "ogl_debug.h"
-#include "SDL_GL_extensions.h"
+#include "egolib/extensions/ogl_texture.h"
+#include "egolib/extensions/ogl_debug.h"
+#include "egolib/extensions/SDL_GL_extensions.h"
 
 #include "../egoboo_setup.h"
 #include "../strutil.h"

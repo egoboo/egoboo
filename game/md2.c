@@ -28,7 +28,7 @@
 #include "../egolib/endian.h"
 #include "../egolib/_math.inl"
 
-#include "bbox.inl"
+#include "../egolib/bbox.inl"
 
 // this include must be the absolute last include
 #include "../egolib/mem.h"

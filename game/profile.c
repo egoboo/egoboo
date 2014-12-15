@@ -34,7 +34,7 @@
 #include "script_compile.h"
 #include "game.h"
 
-#include "bsp.inl"
+#include "../egolib/bsp.inl"
 #include "ChrList.inl"
 #include "PrtList.inl"
 #include "mesh.inl"

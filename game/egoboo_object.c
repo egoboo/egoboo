@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo_object.c
+/// @file game/egoboo_object.c
 /// @brief Implementation of Egoboo "object" control routines
 /// @details
 
-#include "../egolib/strutil.h"
+#include "egolib/strutil.h"
 
-#include "egoboo_object.h"
+#include "game/egoboo_object.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

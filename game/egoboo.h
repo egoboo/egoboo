@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo.h
+/// @file game/egoboo.h
 ///
 /// @details Disgusting, hairy, way too monolithic header file for the whole darn
 /// project.  In severe need of cleaning up.  Venture here with extreme
@@ -27,10 +27,10 @@
 /// don't run out of oxygen.
 
 /* Typedefs for various platforms */
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/timer.h"
-#include "../egolib/clock.h"
+#include "egolib/timer.h"
+#include "egolib/clock.h"
 
 /// The following magic allows this include to work in multiple files
 #if defined(DECLARE_GLOBALS)

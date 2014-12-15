@@ -21,10 +21,10 @@
 /// @brief Implementation of the 3d renderer functions
 /// @details
 
-#include "renderer_3d.h"
+#include "game/renderer_3d.h"
 
-#include "camera.h"
-#include "egoboo.h"
+#include "game/camera.h"
+#include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 // INTERNAL VARIABLES

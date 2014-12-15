@@ -21,11 +21,11 @@
 
 /// @file collision.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/hash.h"
+#include "egolib/hash.h"
 
-#include "bbox.inl"
+#include "egolib/bbox.inl"
 
 //--------------------------------------------------------------------------------------------
 // external structs

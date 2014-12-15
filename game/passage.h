@@ -19,12 +19,12 @@
 //*
 //********************************************************************************************
 
-/// @file passage.h
+/// @file game/passage.h
 /// @Passages and doors and whatnot.  Things that impede your progress!
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/file_formats/passage_file.h"
+#include "egolib/file_formats/passage_file.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

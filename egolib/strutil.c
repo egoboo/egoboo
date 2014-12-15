@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_strutil.c
+/// @file egolib/strutil.c
 /// @brief String manipulation functions.
 /// @details
 
-#include "../egolib/strutil.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/platform.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -19,15 +19,15 @@
 //*
 //********************************************************************************************
 
-/// @file particle.h
+/// @file game/particle.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/file_formats/pip_file.h"
+#include "egolib/file_formats/pip_file.h"
 
-#include "egoboo_object.h"
-#include "graphic_prt.h"
-#include "physics.h"
+#include "game/egoboo_object.h"
+#include "game/graphic_prt.h"
+#include "game/physics.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs

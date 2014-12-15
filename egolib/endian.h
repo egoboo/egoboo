@@ -29,7 +29,7 @@
 #    include <Endian.h>
 #endif
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

@@ -1,11 +1,11 @@
-#include "../egolib/network_file.h"
+#include "egolib/network_file.h"
 
-#include "../egolib/log.h"
+#include "egolib/log.h"
 
-#include "../egolib/network.h"
-#include "../egolib/strutil.h"
-#include "../egolib/vfs.h"
-#include "../egolib/platform.h"
+#include "egolib/network.h"
+#include "egolib/strutil.h"
+#include "egolib/vfs.h"
+#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

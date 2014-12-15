@@ -21,8 +21,8 @@
 /// @brief Implementation of a timer "class" using SDL_GetTicks()
 /// @details
 
-#include "../egolib/timer.h"
-#include "../egolib/_math.inl"
+#include "egolib/timer.h"
+#include "egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

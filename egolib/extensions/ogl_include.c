@@ -25,8 +25,8 @@
 
 #include <math.h>
 
-#include "ogl_include.h"
-#include "ogl_debug.h"
+#include "egolib/extensions/ogl_include.h"
+#include "egolib/extensions/ogl_debug.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

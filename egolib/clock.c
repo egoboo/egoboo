@@ -24,12 +24,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../egolib/clock.h"
-#include "../egolib/system.h"
-#include "../egolib/log.h"
+#include "egolib/clock.h"
+#include "egolib/system.h"
+#include "egolib/log.h"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

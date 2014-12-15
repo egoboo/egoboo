@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <_PropertySheetDisplayName>physfs-debug</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>physfs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(ExternalDependenciesDir)\physfs-2.1.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <link>
+      <AdditionalLibraryDirectories>$(ExternalDependenciesDir)\physfs-2.1.1\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

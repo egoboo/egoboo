@@ -21,14 +21,14 @@
 /// @brief bitmapped font stuff
 /// @details
 
-#include "../egolib/font_bmp.h"
-#include "../egolib/log.h"
+#include "egolib/font_bmp.h"
+#include "egolib/log.h"
 
-#include "../egolib/vfs.h"
-#include "../egolib/strutil.h"
-#include "../egolib/fileutil.h"
+#include "egolib/vfs.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
 
-#include "extensions/ogl_texture.h"
+#include "egolib/extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

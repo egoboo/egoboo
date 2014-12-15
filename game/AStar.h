@@ -24,7 +24,7 @@
 /// @details A very ugly implementation of the AStar pathfinding agorithm.
 ///   There is lots of room for improvement.
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

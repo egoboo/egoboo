@@ -22,10 +22,10 @@
 /// @file egoboo_object.h
 /// @details Definitions of data that all Egoboo objects should "inherit"
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/state_machine.h"
-#include "bsp.h"
+#include "egolib/state_machine.h"
+#include "egolib/bsp.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

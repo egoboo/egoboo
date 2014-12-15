@@ -27,19 +27,19 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "../egolib/font_ttf.h"
-#include "../egolib/log.h"
+#include "egolib/font_ttf.h"
+#include "egolib/log.h"
 
-#include "extensions/ogl_include.h"
-#include "extensions/ogl_debug.h"
-#include "extensions/SDL_GL_extensions.h"
+#include "egolib/extensions/ogl_include.h"
+#include "egolib/extensions/ogl_debug.h"
+#include "egolib/extensions/SDL_GL_extensions.h"
 
-#include "../egolib/typedef.h"
-#include "../egolib/strutil.h"
-#include "../egolib/platform.h"
+#include "egolib/typedef.h"
+#include "egolib/strutil.h"
+#include "egolib/platform.h"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -19,12 +19,12 @@
 //*
 //********************************************************************************************
 
-/// @file map_functions.h
+/// @file game/map_functions.h
 /// @brief Definitions for mpd functionality ported from cartman and EgoMap
 ///
 /// @details
 
-#include "../egolib/map_functions.h"
+#include "egolib/map_functions.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

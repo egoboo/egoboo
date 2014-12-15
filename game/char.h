@@ -23,18 +23,18 @@
 /// @note You will routinely include "char.h" only in headers (*.h) files where you need to declare an
 ///       object of team_t or chr_t. In *.inl files or *.c/*.cpp files you will routinely include "char.inl", instead.
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/file_formats/cap_file.h"
+#include "egolib/file_formats/cap_file.h"
 
-#include "egoboo_object.h"
-#include "graphic.h"
-#include "graphic_mad.h"
-#include "sound.h"
-#include "script.h"
-#include "md2.h"
-#include "physics.h"
-#include "egoboo.h"
+#include "game/egoboo_object.h"
+#include "game/graphic.h"
+#include "game/graphic_mad.h"
+#include "game/sound.h"
+#include "game/script.h"
+#include "game/md2.h"
+#include "game/physics.h"
+#include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs

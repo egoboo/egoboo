@@ -1,0 +1,360 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Core Source">
+      <UniqueIdentifier>{a06fd31b-d61d-4ee1-a70d-1310e17996bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core Headers">
+      <UniqueIdentifier>{aefe3701-fec9-4327-a980-9d26e9cc5fc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Game Headers">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Game Inline">
+      <UniqueIdentifier>{88939e8d-df88-4e25-b172-f4a616046801}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scripting system">
+      <UniqueIdentifier>{e06cfe0e-9dce-44b8-98dd-3ef5b6ed32e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="doxygen">
+      <UniqueIdentifier>{a0a3f065-69c0-475a-bc74-a218c4425c0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{21e1d90e-17bb-419c-9491-d8cd31278e71}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="script.c">
+      <Filter>scripting system</Filter>
+    </ClCompile>
+    <ClCompile Include="script_compile.c">
+      <Filter>scripting system</Filter>
+    </ClCompile>
+    <ClCompile Include="script_functions.c">
+      <Filter>scripting system</Filter>
+    </ClCompile>
+    <ClCompile Include="input.c">
+      <Filter>Core Source</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo_object.c">
+      <Filter>Core Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AStar.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_system.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="char.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ChrList.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="collision.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="egoboo.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="enchant.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="EncList.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="game.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic_billboard.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic_fan.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic_mad.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic_prt.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="graphic_texture.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="lighting.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="link.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mad.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="md2.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="menu.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="network.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="network_client.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="network_server.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="obj_BSP.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="passage.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="physics.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="player.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="profile.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="PrtList.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="rpc.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="sound.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ui.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="script_implementation.c">
+      <Filter>scripting system</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer_2d.c">
+      <Filter>Core Source</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer_3d.c">
+      <Filter>Core Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh_BSP.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mesh_functions.c">
+      <Filter>Game Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="script.h">
+      <Filter>scripting system</Filter>
+    </ClInclude>
+    <ClInclude Include="script_compile.h">
+      <Filter>scripting system</Filter>
+    </ClInclude>
+    <ClInclude Include="script_functions.h">
+      <Filter>scripting system</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_doxygen.h">
+      <Filter>doxygen</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>Core Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_config.h">
+      <Filter>Core Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_object.h">
+      <Filter>Core Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo_typedef.h">
+      <Filter>Core Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AStar.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_system.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="char.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ChrList.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="collision.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="egoboo.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="enchant.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="EncList.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="game.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic_billboard.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic_fan.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic_mad.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic_prt.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="graphic_texture.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="lighting.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="link.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mad.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="md2.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="menu.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="network.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="network_client.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="network_server.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="obj_BSP.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="particle.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="passage.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="physics.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="profile.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PrtList.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="rpc.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="sound.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ui.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="script_implementation.h">
+      <Filter>scripting system</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh_BSP.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh_functions.h">
+      <Filter>Game Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer_3d.h">
+      <Filter>Core Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer_2d.h">
+      <Filter>Core Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\res\egoboo.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\egoboo3.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\res\old-egoboo.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="PrtList.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="char.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="ChrList.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="enchant.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="EncList.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="md2.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="mesh.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="particle.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="physics.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+    <None Include="profile.inl">
+      <Filter>Game Inline</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\res\egoboo.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

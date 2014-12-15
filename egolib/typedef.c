@@ -21,12 +21,12 @@
 /// @brief Implementation of the support functions for Egoboo's special datatypes
 /// @details
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #include <stdarg.h>
 
-#include "../egolib/log.h"
-#include "../egolib/_math.inl"
+#include "egolib/log.h"
+#include "egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -191,3 +191,11 @@ void non_fatal_assert( int val, const char * format, ... )
 
     va_end( args );
 }
+
+//--------------------------------------------------------------------------------------------
+// implement simple type arrays
+IMPLEMENT_DYNAMIC_ARY( char_ary,   char );
+IMPLEMENT_DYNAMIC_ARY( short_ary,  short );
+IMPLEMENT_DYNAMIC_ARY( int_ary,    int );
+IMPLEMENT_DYNAMIC_ARY( float_ary,  float );
+IMPLEMENT_DYNAMIC_ARY( double_ary, double );

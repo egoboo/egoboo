@@ -24,9 +24,9 @@
 
 #include <SDL.h>
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/input_device.h"
+#include "egolib/input_device.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

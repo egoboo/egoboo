@@ -39,7 +39,7 @@
 #include "lighting.h"
 #include "egoboo.h"
 
-#include "bbox.inl"
+#include "../egolib/bbox.inl"
 #include "profile.inl"
 #include "char.inl"
 #include "md2.inl"

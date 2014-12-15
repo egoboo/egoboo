@@ -54,7 +54,7 @@
 #include "../egolib/file_formats/id_md2.h"
 #include "../egolib/file_formats/map_tile_dictionary.h"
 
-#include "frustum.h"
+#include "../egolib/frustum.h"
 #include "network_server.h"
 #include "mad.h"
 #include "obj_BSP.h"
@@ -72,7 +72,7 @@
 #include "lighting.h"
 #include "egoboo.h"
 
-#include "bsp.inl"
+#include "../egolib/bsp.inl"
 #include "char.inl"
 #include "particle.inl"
 #include "enchant.inl"

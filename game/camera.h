@@ -21,12 +21,12 @@
 
 /// @file camera.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/_math.h"
+#include "egolib/_math.h"
+#include "egolib/frustum.h"
 
-#include "frustum.h"
-#include "physics.h"
+#include "game/physics.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file EncList.h
+/// @file game/EncList.h
 /// @brief Routines for enchant list management
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "egoboo_object.h"
-#include "enchant.h"
+#include "game/egoboo_object.h"
+#include "game/enchant.h"
 
 //--------------------------------------------------------------------------------------------
 // looping macros

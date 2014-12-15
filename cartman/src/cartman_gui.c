@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-#include <egolib/egolib.h>
+#include "egolib/egolib.h"
 
 #include "cartman_gui.h"
 #include "cartman_input.h"

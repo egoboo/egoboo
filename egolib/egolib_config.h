@@ -41,8 +41,8 @@
 //--------------------------------------------------------------------------------------------
 
 // do the includes last so that the compile switches are always set
-#include "../egolib/platform.h"
-#include "../egolib/endian.h"
+#include "egolib/platform.h"
+#include "egolib/endian.h"
 
 //--------------------------------------------------------------------------------------------
 

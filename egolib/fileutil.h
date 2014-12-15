@@ -22,10 +22,10 @@
 /// @file fileutil.h
 /// Read/write values from/to files
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
-#include "../egolib/vfs.h"
-#include "../egolib/file_common.h"
+#include "egolib/vfs.h"
+#include "egolib/file_common.h"
 
 #if defined(__cplusplus)
 extern "C"

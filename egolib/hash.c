@@ -17,14 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file hash.c
+/// @file egolib/hash.c
 /// @brief Implementation of the support functions for hash tables
 /// @details
 
-#include "../egolib/hash.h"
+#include "egolib/hash.h"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

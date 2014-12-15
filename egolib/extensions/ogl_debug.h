@@ -26,7 +26,7 @@
 /// @brief Definitions for the debugging extensions for OpenGL
 /// @details
 
-#include "ogl_include.h"
+#include "egolib/extensions/ogl_include.h"
 
 #undef USE_GL_DEBUG
 

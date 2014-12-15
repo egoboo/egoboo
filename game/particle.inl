@@ -23,7 +23,7 @@
 
 #include "../egolib/_math.inl"
 
-#include "bbox.inl"
+#include "../egolib/bbox.inl"
 #include "PrtList.inl"
 #include "char.inl"
 

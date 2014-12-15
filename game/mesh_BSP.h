@@ -23,7 +23,7 @@
 
 #include "egoboo_typedef.h"
 
-#include "bsp.h"
+#include "../egolib/bsp.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs

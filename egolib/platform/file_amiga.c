@@ -27,14 +27,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "../egolib/file_common.h"
-#include "../egoliblog.h"
-#include "../egolib/strutil.h"
+#include "egolib/file_common.h"
+#include "egolib/egoliblog.h"
+#include "egolib/strutil.h"
 
-#include "glob.h"
+#include "egolib/glob.h"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 #define PATH_MAX 256
 #define PREFIX "PROGDIR:"

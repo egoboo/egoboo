@@ -19,7 +19,7 @@
 
 #include <SDL_image.h>
 
-#include <egolib/egolib.h>
+#include "egolib/egolib.h"
 
 #include "cartman_gfx.h"
 

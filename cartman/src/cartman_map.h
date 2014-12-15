@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-#include <egolib/egolib.h>
+#include "egolib/egolib.h"
 
 #include "cartman_typedef.h"
 
-#include <egolib/file_formats/map_tile_dictionary.h>
+#include "egolib/file_formats/map_tile_dictionary.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

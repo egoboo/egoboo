@@ -25,12 +25,12 @@
 
 #include "../egolib/_math.inl"
 
-#include "frustum.h"
+#include "../egolib/frustum.h"
 #include "obj_BSP.h"
 
-#include "bbox.inl"
+#include "../egolib/bbox.inl"
 #include "mesh.inl"
-#include "bsp.inl"
+#include "../egolib/bsp.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

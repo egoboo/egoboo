@@ -19,16 +19,16 @@
 //*
 //********************************************************************************************
 
-/// @file graphic_billboard.h
+/// @file game/graphic_billboard.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
 #include <SDL.h>
 
-#include "../egolib/_math.h"
-#include "../egolib/extensions/ogl_include.h"
+#include "egolib/_math.h"
+#include "egolib/extensions/ogl_include.h"
 
-#include "graphic.h"
+#include "game/graphic.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs

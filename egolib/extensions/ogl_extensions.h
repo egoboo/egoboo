@@ -28,7 +28,7 @@
 
 #include <SDL_opengl.h>
 
-#include "../file_common.h"
+#include "egolib/file_common.h"
 
 #if defined(__cplusplus)
 extern "C"

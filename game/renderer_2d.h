@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file renderer_2d.h
+/// @file game/renderer_2d.h
 /// @brief Routines for rendering 2d primitves
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/extensions/ogl_include.h"
-#include "../egolib/extensions/ogl_texture.h"
+#include "egolib/extensions/ogl_include.h"
+#include "egolib/extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

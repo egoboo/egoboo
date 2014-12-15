@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file renderer_3d.h
+/// @file game/renderer_3d.h
 /// @brief Routines for rendering 3d primitves
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "../egolib/extensions/ogl_texture.h"
-#include "../egolib/_math.h"
+#include "egolib/extensions/ogl_texture.h"
+#include "egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

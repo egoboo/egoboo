@@ -21,16 +21,16 @@
 /// @brief Implementation of the 2d renderer functions
 /// @details
 
-#include "renderer_2d.h"
+#include "game/renderer_2d.h"
 
-#include "menu.h"
+#include "game/menu.h"
 
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/font_bmp.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/strutil.h"
-#include "../egolib/extensions/SDL_extensions.h"
-#include "../egolib/extensions/SDL_GL_extensions.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/font_bmp.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
+#include "egolib/extensions/SDL_extensions.h"
+#include "egolib/extensions/SDL_GL_extensions.h"
 
 //--------------------------------------------------------------------------------------------
 // EXTERNAL VARIABLES

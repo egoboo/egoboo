@@ -17,14 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file map_functions.c
+/// @file egolib/map_functions.c
 /// @brief mpd functionality ported from cartman and EgoMap
 /// @details
 
-#include "map_functions.h"
+#include "egolib/map_functions.h"
 
-#include "log.h"
-#include "file_formats/map_file.h"
+#include "egolib/log.h"
+#include "egolib/file_formats/map_file.h"
 
 //--------------------------------------------------------------------------------------------
 // Generic functions

@@ -13,12 +13,12 @@ PROJ_VERSION	:= 2.x
 #---------------------
 # the target names
 
-EGO_DIR		:= ./game
-EGO_TARGET		:= $(PROJ_NAME)-$(PROJ_VERSION)
+EGO_DIR	          := ./game
+EGO_TARGET        := $(PROJ_NAME)-$(PROJ_VERSION)
 
-EGOLIB_DIR		:= ./egolib
-EGOLIB_TARGET	:= lib$(PROJ_NAME).la
-EGOLIB_TARGET_LUA	:= lib$(PROJ_NAME)-lua.la
+EGOLIB_DIR        := ./egolib
+EGOLIB_TARGET     := lib$(PROJ_NAME).la
+EGOLIB_TARGET_LUA := lib$(PROJ_NAME)-lua.la
 
 #------------------------------------
 # user defined macros

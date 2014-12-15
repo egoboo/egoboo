@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/// @file obj_BSP.h
+/// @file game/obj_BSP.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "bsp.h"
+#include "egolib/bsp.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs

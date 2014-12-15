@@ -19,19 +19,19 @@
 //*
 //********************************************************************************************
 
-/// @file graphic.h
+/// @file game/graphic.h
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
 #include <SDL.h>
 
-#include "../egolib/extensions/ogl_texture.h"
-#include "../egolib/file_formats/module_file.h"
+#include "egolib/extensions/ogl_texture.h"
+#include "egolib/file_formats/module_file.h"
 
-#include "mesh.h"
-#include "mad.h"
-#include "camera_system.h"
-#include "egoboo.h"
+#include "game/mesh.h"
+#include "game/mad.h"
+#include "game/camera_system.h"
+#include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs

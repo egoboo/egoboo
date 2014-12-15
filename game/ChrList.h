@@ -22,11 +22,11 @@
 /// @file ChrList.h
 /// @brief Routines for character list management
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
-#include "egoboo_object.h"
+#include "game/egoboo_object.h"
 
-#include "char.h"
+#include "game/char.h"
 
 //--------------------------------------------------------------------------------------------
 // looping macros
