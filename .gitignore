@@ -9,6 +9,9 @@ cartman_vs13-Release/
 game_vs13-Debug/
 game_vs13-Release/
 
+# Code::Blocks
+*.layout
+
 # OS X
 .DS_Store
 
