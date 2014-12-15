@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file threads.c
+/// @file egolib/threads.c
 /// @brief implementation of worker threads using SDL
 /// @details
 

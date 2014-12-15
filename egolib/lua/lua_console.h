@@ -19,9 +19,9 @@
 //*
 //********************************************************************************************
 
-#include "../typedef.h"
+#include "egolib//typedef.h"
 
-#include "../console.h"
+#include "egolib/console.h"
 
 #if defined(__cplusplus)
 extern "C"

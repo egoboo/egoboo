@@ -19,10 +19,8 @@
 //*
 //********************************************************************************************
 
-/// @file frustum.h
+/// @file egolib/frustum.h
 /// @brief integrating the basic frustum object into Egoboo algorithms
-
-//#include "egoboo_typedef.h"
 
 #include "egolib/geometry.h"
 #include "egolib/bbox.h"

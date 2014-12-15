@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file hash.h
+/// @file egolib/hash.h
 /// @details Implementation of the "efficient" hash node storage.
 
 #include "egolib/typedef.h"

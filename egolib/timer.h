@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/// @file timer.h
+/// @file egolib/timer.h
 /// @brief Definitions of a timer "class" using SDL_GetTicks()
 /// @details
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file scancode.h
+/// @file egolib/scancode.h
 /// @details translation of SDL scancodes to keys
 
 #include <SDL.h>

@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/// @file throttle.h
+/// @file egolib/throttle.h
 /// @brief Definitions of a clock "class" using SDL_GetTicks()
 /// @details
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

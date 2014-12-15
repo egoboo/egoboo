@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/controls_file.c
+/// @file egolib/input_device.c
 /// @brief Routines for reading and writing the file "controls.txt" and "scancode.txt"
 /// @details
 
-#include "../egolib/input_device.h"
+#include "egolib/input_device.h"
 
 #include "../egolib/log.h"
 

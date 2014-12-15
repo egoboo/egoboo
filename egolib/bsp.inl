@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file bsp.inl
+/// @file egolib/bsp.inl
 /// @brief
 /// @details
 
-#include "bsp.h"
+#include "egolib/bsp.h"
 
-#include "../egolib/platform.h"
+#include "egolib/platform.h"
 
 #if defined(__cplusplus)
 extern "C"

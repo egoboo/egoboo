@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_vfs.c
+/// @file egolib/vfs.c
 /// @brief Implementation of the Egoboo virtual file system
 /// @details
 

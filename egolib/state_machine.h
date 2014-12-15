@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file state_machine.h
+/// @file egolib/state_machine.h
 
 #if defined(__cplusplus)
 extern "C"

@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file lua_console.c
+/// @file egolib/lua/lua_console.c
 /// @brief Quale-like console running Lua behind Egoboo
 /// @details
 
-#include "lua_console.h"
+#include "egolib/lua/lua_console.h"
 
 #include <string.h>
 

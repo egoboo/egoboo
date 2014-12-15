@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_fileutil.c
+/// @file egolib/fileutil.c
 /// @brief Implementation of Egoboo file utilities
 /// @details
 

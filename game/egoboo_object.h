@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo_object.h
+/// @file game/egoboo_object.h
 /// @details Definitions of data that all Egoboo objects should "inherit"
 
 #include "game/egoboo_typedef.h"

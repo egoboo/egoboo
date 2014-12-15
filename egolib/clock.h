@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file clock.h
+/// @file egolib/clock.h
 /// @brief Clock & timer functionality.
 /// @details This implementation was adapted from Noel Lopis' article in
 ///   Game Programming Gems 4.

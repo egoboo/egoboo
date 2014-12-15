@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_math.h
+/// @file egolib/_math.h
 /// @details The name's pretty self explanatory, doncha think?
 
 #include <math.h>
 #include <float.h>
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

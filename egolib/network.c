@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file network.c
+/// @file egolib/network.c
 /// @brief Egoboo networking implementation
 /// @details Shuttles bits across the network, using Enet.  Networked play doesn't
 /// really work at the moment.
@@ -367,7 +367,7 @@ void egonet_close_session( void )
 #if defined(ENET11)
                 enet_peer_disconnect( &gnet.myHost->peers[i], 0 );
 #else
-                enet_peer_disconnect( &gnet.myHost->peers[i] );
+                enet_peer_disconnect( &gnet.myHost->peers[i], 0 );
 #endif
             }
 
@@ -437,7 +437,7 @@ void egonet_listen_for_packets( void )
 #if defined(ENET11)
                     enet_peer_disconnect( event.peer, 0 );
 #else
-                    enet_peer_disconnect( event.peer );
+                    enet_peer_disconnect( event.peer, 0 );
 #endif
                     break;
 

@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_console.c
+/// @file egolib/console.c
 /// @brief Implementation of code for implementing a Quake-like console in Egoboo
 /// @details
 

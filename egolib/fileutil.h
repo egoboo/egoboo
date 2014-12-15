@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file fileutil.h
+/// @file egolib/fileutil.h
 /// Read/write values from/to files
 
 #include "egolib/typedef.h"

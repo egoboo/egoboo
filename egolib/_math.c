@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_math.c
+/// @file egolib/math.c
 /// @brief The name's pretty self explanatory, doncha think?
 /// @details This is the remainder of non-inlined math functions that deal with initialization
 
-#include "../egolib/_math.inl"
+#include "egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

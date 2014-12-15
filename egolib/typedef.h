@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_typedef.h
+/// @file egolib/egolib_typedef.h
 /// @details some basic types that are used throughout the game code.
 
 #include <assert.h>
@@ -28,10 +28,10 @@
 #include <SDL.h>
 
 // this include must be the absolute last include
-#include "egolib_config.h"
+#include "egolib/egolib_config.h"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 #if defined(__cplusplus)
 extern "C"

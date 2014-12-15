@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_typedef.c
+/// @file egolib/egolib_typedef.c
 /// @brief Implementation of the support functions for Egoboo's special datatypes
 /// @details
 

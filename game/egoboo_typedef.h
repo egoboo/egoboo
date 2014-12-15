@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo_typedef.h
+/// @file game/egoboo_typedef.h
 /// @details base type definitions and config options
 
 #include "egolib/typedef.h"

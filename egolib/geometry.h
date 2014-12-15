@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file    geometry.h
+/// @file    egolib/geometry.h
 /// @brief   functions for manipulating geometric primatives
 /// @details The frustum code was inspired by Ben Humphrey (DigiBen at http://www.gametutorials.com), who was inspired by
 ///          Mark Morely (through the now vanished tutorial at http://www.markmorley.com/opengl/frustumculling.html)

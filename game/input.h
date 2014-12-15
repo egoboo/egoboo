@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file input.h
+/// @file game/input.h
 /// @details Keyboard, mouse, and joystick handling code.
 
 #include <SDL.h>

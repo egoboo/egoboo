@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file IDSZ_map.h
+/// @file egolib/IDSZ_map.h
 /// @brief
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

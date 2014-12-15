@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo_setup.h
+/// @file egolib/egoboo_setup.h
 
 #include "egolib/typedef.h"
 

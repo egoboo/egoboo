@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file font_bmp.c
+/// @file egolib/font_bmp.c
 /// @brief bitmapped font stuff
 /// @details
 

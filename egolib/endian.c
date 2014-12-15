@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_endian.c
+/// @file egolib/endian.c
 /// @brief Implementation of endian conversion routines
 /// @details
 

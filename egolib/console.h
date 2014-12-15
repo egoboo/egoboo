@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_console.h
+/// @file egolib/console.h
 /// @A quake-console that can be used for anything.
 
 #include "egolib/typedef.h"

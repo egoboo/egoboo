@@ -22,8 +22,8 @@
 // This is a silly file so that we can keep tin internals of the egolib_console_t hidden,
 // while allowing lua_console to "inherit" the egolib_console_t structure
 
-#include "../egolib/console.h"
-#include "../egolib/font_ttf.h"
+#include "egolib/console.h"
+#include "egolib/font_ttf.h"
 
 #if defined(__cplusplus)
 extern "C"

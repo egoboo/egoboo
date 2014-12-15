@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file process.h
+/// @file egolib/process.h
 
-#include "../egolib/typedef.h"
-#include "../egolib/state_machine.h"
+#include "egolib/typedef.h"
+#include "egolib/state_machine.h"
 
 #if defined(__cplusplus)
 extern "C"

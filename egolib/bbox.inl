@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file bbox.inl
+/// @file egolib/bbox.inl
 /// @brief
 /// @details
 
-#include "bbox.h"
+#include "egolib/bbox.h"
 
-#include "../egolib/platform.h"
+#include "egolib/platform.h"
 
 #if defined(__cplusplus)
 extern "C"

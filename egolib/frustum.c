@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib_frustum.c
+/// @file egolib/frustum.c
 /// @brief a frustum culling package
 /// @details The frustum_calculate() function was inspired by Ben Humphrey (DigiBen at http://www.gametutorials.com), who was inspired by
 ///          Mark Morely (through the now vanished tutorial at http://www.markmorley.com/opengl/frustumculling.html)

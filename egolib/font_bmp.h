@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file font_bmp.h
+/// @file egolib/font_bmp.h
 /// @details bitmapped font stuff
 
 #include "egolib/typedef.h"

@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo_setup.c
+/// @file egolib/egoboo_setup.c
 /// @brief Functions for handling the setup.txt file
 /// @details
 

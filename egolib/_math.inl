@@ -19,18 +19,18 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo_math.inl
+/// @file egolib/_math.inl
 /// @brief
 /// @details Almost all of the math functions are intended to be inlined for maximum speed
 
 #include <float.h>
 
-#include "../egolib/_math.h"
-#include "../egolib/platform.h"
-#include "log.h"
+#include "egolib/_math.h"
+#include "egolib/platform.h"
+#include "egolib/log.h"
 
-#include "extensions/ogl_include.h"
-#include "extensions/ogl_debug.h"
+#include "egolib/extensions/ogl_include.h"
+#include "egolib/extensions/ogl_debug.h"
 
 #if defined(__cplusplus)
 extern "C"

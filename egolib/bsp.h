@@ -19,12 +19,12 @@
 //*
 //********************************************************************************************
 
-/// @file bsp.h
+/// @file egolib/bsp.h
 /// @details
 
 #include "egolib/typedef.h"
 
-#include "frustum.h"
+#include "egolib/frustum.h"
 
 #if defined(__cplusplus)
 extern "C"

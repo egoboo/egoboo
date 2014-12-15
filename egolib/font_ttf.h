@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file font_ttf.h
+/// @file egolib/font_ttf.h
 /// @details True-type font drawing functionality.  Uses the SDL_ttf module
 /// to do it's business. This depends on Freetype 2 & OpenGL.
 

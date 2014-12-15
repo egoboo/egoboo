@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file system.h
+/// @file egolib/system.h
 /// @details Interface to operating system dependant stuff.  Currently only in use to
 /// use a higher performance timer than SDL provides on Windows machines.
 

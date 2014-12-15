@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file threads.h
+/// @file egolib/threads.h
 /// @brief A way to handle worker threads using SDL
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"
