@@ -17,18 +17,18 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/pip_file.c
+/// @file egolib/file_formats/pip_file.c
 /// @brief Routines for reading and writing the particle profile file "part*.txt"
 /// @details
 
-#include "pip_file.h"
+#include "egolib/file_formats/pip_file.h"
 
-#include "../vfs.h"
-#include "../fileutil.h"
-#include "../strutil.h"
+#include "egolib/vfs.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
 
 // includes for egoboo constants
-#include "../../game/sound.h"                 // for INVALID_SOUND
+#include "game/sound.h"                 // for INVALID_SOUND
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

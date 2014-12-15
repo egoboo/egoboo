@@ -17,19 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/template.c
+/// @file egolib/file_formats/template.c
 /// @brief Functions output Egoboo's custom text file types using templates in /basicdat/templates/*.txt
 /// @details
 
-#include "template.h"
+#include "egolib/file_formats/template.h"
 
-#include "../strutil.h"
-#include "../fileutil.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
 
-#include "../file_formats/cap_file.h"
+#include "egolib/file_formats/cap_file.h"
 
 // includes for egoboo constants
-#include "../../game/mad.h"                     // for ACTION_* constants
+#include "game/mad.h"                     // for ACTION_* constants
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

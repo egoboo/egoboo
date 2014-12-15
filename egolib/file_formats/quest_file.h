@@ -19,12 +19,12 @@
 //*
 //********************************************************************************************
 
-/// @file quest.h
+/// @file egolib/file_formats/quest_file.h
 /// @brief read/write/modify the quest.txt file
 
-#include "../typedef.h"
+#include "egolib/typedef.h"
 
-#include "configfile.h"
+#include "egolib/file_formats/configfile.h"
 
 #if defined(__cplusplus)
 extern "C"

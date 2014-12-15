@@ -18,13 +18,13 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/id_md2.c
+/// @file egolib/file_formats/id_md2.c
 /// @brief A raw reader and writer for ID software's .md2 model type
 /// @details
 
-#include "id_md2.h"
+#include "egolib/file_formats/id_md2.h"
 
-#include "../vfs.h"
+#include "egolib/vfs.h"
 
 #include <stdlib.h>
 

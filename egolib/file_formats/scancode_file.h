@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/scancode_file.h
+/// @file egolib/file_formats/scancode_file.h
 /// @details routines for reading and writing the file "scancode.txt"
 
-#include "../typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

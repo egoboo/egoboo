@@ -26,13 +26,13 @@
 #include <shellapi.h>
 #include <shlwapi.h>
 
-#include "../file_common.h"
-#include "../log.h"
-#include "../strutil.h"
-#include "../platform.h"
+#include "egolib/file_common.h"
+#include "egolib/log.h"
+#include "egolib/strutil.h"
+#include "egolib/platform.h"
 
 // this include must be the absolute last include
-#include "../mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

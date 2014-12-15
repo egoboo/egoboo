@@ -39,13 +39,13 @@ extern "C"
 
 #endif
 
-#include "../typedef.h"
-#include "../file_common.h"
+#include "egolib/typedef.h"
+#include "egolib/file_common.h"
 
-#include "../console.inl"
+#include "egolib/console.inl"
 
 // this include must be the absolute last include
-#include "../mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

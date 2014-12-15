@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 ///
-/// @file file_formats/configfile.c
+/// @file egolib/file_formats/configfile.c
 /// @brief Configuration file loading implementation
 /// @details All functions to manage a ConfigFile
 ///
@@ -58,7 +58,7 @@
 
 #include <string.h>
 
-#include "configfile.h"
+#include "egolib/file_formats/configfile.h"
 
 //--------------------------------------------------------------------------------------------
 // MACROS

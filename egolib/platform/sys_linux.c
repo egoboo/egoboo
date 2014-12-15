@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file platform/sys_linux.c
+/// @file egolib/platform/sys_linux.c
 /// @brief System Dependent Functions
 /// @details Unix/GNU/Linux/*nix - specific code
 
@@ -25,9 +25,9 @@
 #include <stdarg.h>
 #include <sys/time.h>
 
-#include "../log.h"
-#include "../system.h"
-#include "../file_common.h" /* for NULL */
+#include "egolib/log.h"
+#include "egolib/system.h"
+#include "egolib/file_common.h" /* for NULL */
 
 //--------------------------------------------------------------------------------------------
 //Different methods of displaying messages in Linux

@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/controls_file.h
+/// @file egolib/file_formats/controls_file.h
 /// @details routines for reading and writing version 2 of "controls.txt"
 
-#include "../typedef.h"
-#include "../network.h"
+#include "egolib/typedef.h"
+#include "egolib/network.h"
 
 #if defined(__cplusplus)
 extern "C"

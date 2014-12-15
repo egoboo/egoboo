@@ -18,7 +18,7 @@
 //*
 //********************************************************************************************
 
-/// @file extensions/ogl_texture.c
+/// @file egolib/extensions/ogl_texture.c
 /// @ingroup _ogl_extensions_
 /// @brief Implements OpenGL texture loading using SDL_image
 /// @details Basic loading and managing OpenGL textures.
@@ -30,8 +30,8 @@
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/SDL_GL_extensions.h"
 
-#include "../egoboo_setup.h"
-#include "../strutil.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/strutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

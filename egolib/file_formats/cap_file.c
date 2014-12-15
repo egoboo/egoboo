@@ -17,19 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/cap_file.c
+/// @file egolib/file_formats/cap_file.c
 /// @brief routines for reading and writing the character profile file data.txt
 /// @details
 
-#include "cap_file.h"
-#include "map_file.h"
+#include "egolib/file_formats/cap_file.h"
+#include "egolib/file_formats/map_file.h"
 
-#include "template.h"
+#include "egolib/file_formats/template.h"
 
-#include "../fileutil.h"
-#include "../strutil.h"
-#include "../vfs.h"
-#include "../_math.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
+#include "egolib/vfs.h"
+#include "egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

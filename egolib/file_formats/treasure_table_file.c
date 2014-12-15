@@ -17,16 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file treasure_table.c
+/// @file egolib/file_formats/treasure_table.c
 /// @brief Implementation of code for handling random treasure generation
 /// @details
 
-#include "treasure_table_file.h"
+#include "egolib/file_formats/treasure_table_file.h"
 
-#include "../fileutil.h"
-#include "../strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
 
-#include "../_math.inl"      //For randomization
+#include "egolib/_math.inl"      //For randomization
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -17,21 +17,21 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/eve_file.c
+/// @file egolib/file_formats/eve_file.c
 /// @brief Functions to read and write Egoboo's enchant definition files ( /modules/*.mod/objects/*.obj/enchant.txt )
 /// @details
 
-#include "eve_file.h"
-#include "template.h"
+#include "egolib/file_formats/eve_file.h"
+#include "egolib/file_formats/template.h"
 
-#include "../strutil.h"
-#include "../fileutil.h"
-#include "../vfs.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/vfs.h"
 
-#include "../_math.inl"
+#include "egolib/_math.inl"
 
 // includes for egoboo constants
-#include "../../game/sound.h"       // for INVALID_SOUND
+#include "game/sound.h"       // for INVALID_SOUND
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

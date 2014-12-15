@@ -17,16 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file platform/sys_win32.c
+/// @file egolib/platform/sys_win32.c
 /// @brief System Dependent Functions
 /// @details Win32 - specific code
 
 #include <windows.h>
 #include <stdarg.h>
 
-#include "../system.h"
-#include "../log.h"
-#include "../platform.h"
+#include "egolib/system.h"
+#include "egolib/log.h"
+#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

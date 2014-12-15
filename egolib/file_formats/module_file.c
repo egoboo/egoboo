@@ -21,15 +21,15 @@
 /// @brief Functions for reading and writing Egoboo's menu.txt file ( /modules/*.mod/gamedat/menu.txt )
 /// @details
 
-#include "module_file.h"
-#include "quest_file.h"
+#include "egolib/file_formats/module_file.h"
+#include "egolib/file_formats/quest_file.h"
 
-#include "../log.h"
+#include "egolib/log.h"
 
-#include "../vfs.h"
-#include "../strutil.h"
-#include "../fileutil.h"
-#include "../platform.h"
+#include "egolib/vfs.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

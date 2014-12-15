@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/template.h
+/// @file egolib/file_formats/template.h
 /// @brief Write formatted output using a pre-formatted template file
 
-#include "../typedef.h"
-#include "../vfs.h"
+#include "egolib/typedef.h"
+#include "egolib/vfs.h"
 
 #if defined(__cplusplus)
 extern "C"

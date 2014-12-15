@@ -19,8 +19,8 @@
 //*
 //********************************************************************************************
 
-#include "../typedef.h"
-#include "../_math.h"
+#include "egolib/typedef.h"
+#include "egolib/_math.h"
 
 #if defined(__cplusplus)
 extern "C"

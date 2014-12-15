@@ -37,7 +37,7 @@
 //--------------------------------------------------------------------------------------------
 float kMd2Normals[EGO_NORMAL_COUNT][3] =
 {
-#include "../egolib/file_formats/id_normals.inl"
+#include "egolib/file_formats/id_normals.inl"
     , {0, 0, 0}                     ///< the "equal light" normal
 };
 

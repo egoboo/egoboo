@@ -17,25 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/wawalite_file.c
+/// @file egolib/file_formats/wawalite_file.c
 /// @brief Functions to read and write the Egoboo's wawalite.txt file
 /// @details
 
 #include <string.h>
 
-#include "wawalite_file.h"
+#include "egolib/file_formats/wawalite_file.h"
 
-#include "pip_file.h"
-#include "cap_file.h"
+#include "egolib/file_formats/pip_file.h"
+#include "egolib/file_formats/cap_file.h"
 
-#include "../log.h"
-#include "../fileutil.h"
-#include "../strutil.h"
+#include "egolib/log.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
 
-#include "../_math.inl"
+#include "egolib/_math.inl"
 
 // includes for egoboo constants
-#include "../../game/sound.h"                 // for INVALID_SOUND
+#include "game/sound.h"                 // for INVALID_SOUND
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

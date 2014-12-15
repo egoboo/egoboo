@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/configfile.h
+/// @file egolib/file_formats/configfile.h
 /// @details Configuration file loading code.
 
 #include <stdio.h>

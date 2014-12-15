@@ -21,7 +21,7 @@
 
 /// @defgroup _ogl_extensions_ Extensions to OpenGL
 
-/// @file extensions/ogl_include.h
+/// @file egolib/extensions/ogl_include.h
 /// @ingroup _ogl_extensions_
 /// @brief Base definitions of the extensions to OpenGL
 /// @details
@@ -30,7 +30,7 @@
 
 #include <SDL_opengl.h>
 
-#include "../file_common.h"
+#include "egolib/file_common.h"
 
 #if defined(__cplusplus)
 extern "C"

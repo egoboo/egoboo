@@ -17,14 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/map_file-v3.c
+/// @file egolib/file_formats/map_file-v3.c
 /// @brief Functions for raw read and write access to the .mpd file type
 /// @details
 
-#include "map_file-v3.h"
+#include "egolib/file_formats/map_file-v3.h"
 
-#include "../log.h"
-#include "../strutil.h"
+#include "egolib/log.h"
+#include "egolib/strutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

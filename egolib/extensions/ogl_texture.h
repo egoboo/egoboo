@@ -21,18 +21,18 @@
 
 /// @defgroup _ogl_extensions_ Extensions to OpenGL
 
-/// @file extensions/ogl_texture.h
+/// @file egolib/extensions/ogl_texture.h
 /// @ingroup _ogl_extensions_
 /// @brief Definitions for OpenGL texture loading using SDL_image
 /// @details
 
 #include <SDL.h>
 
-#include "ogl_include.h"
-#include "ogl_debug.h"
-#include "ogl_extensions.h"
+#include "egolib/extensions/ogl_include.h"
+#include "egolib/extensions/ogl_debug.h"
+#include "egolib/extensions/ogl_extensions.h"
 
-#include "../typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

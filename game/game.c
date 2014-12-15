@@ -54,7 +54,7 @@
 #include "egolib/console.h"
 
 #if defined(USE_LUA_CONSOLE)
-#   include "../egolib/lua/lua_console.h"
+#   include "egolib/lua/lua_console.h"
 #endif
 
 #include "game/mad.h"

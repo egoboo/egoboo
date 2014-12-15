@@ -19,9 +19,9 @@
 //*
 //********************************************************************************************
 
-/// @file treasure_tables.h
+/// @file egolib/treasure_tables.h
 
-#include "../typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

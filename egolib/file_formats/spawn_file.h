@@ -19,12 +19,12 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/spawn_file.h
+/// @file egolib/file_formats/spawn_file.h
 /// @details loading the environment definitions for a module
 
-#include "../typedef.h"
-#include "../vfs.h"
-#include "../_math.h"
+#include "egolib/typedef.h"
+#include "egolib/vfs.h"
+#include "egolib/_math.h"
 
 #if defined(__cplusplus)
 extern "C"

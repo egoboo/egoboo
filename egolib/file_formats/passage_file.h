@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/passage_file.h
+/// @file egolib/file_formats/passage_file.h
 /// @details help read/write the passage file
 
-#include "../typedef.h"
-#include "../vfs.h"
+#include "egolib/typedef.h"
+#include "egolib/vfs.h"
 
 #if defined(__cplusplus)
 extern "C"

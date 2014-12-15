@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/eve_file.h
+/// @file egolib/file_formats/eve_file.h
 /// @details data and functions for reading and writing enchant.txt files
 
-#include "../typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

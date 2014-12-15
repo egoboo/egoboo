@@ -19,8 +19,8 @@
 //*
 //********************************************************************************************
 
-#include "../typedef.h"
-#include "../IDSZ_map.h"
+#include "egolib/typedef.h"
+#include "egolib/IDSZ_map.h"
 
 #if defined(__cplusplus)
 extern "C"

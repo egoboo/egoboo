@@ -23,12 +23,12 @@
 
 #include "egolib/input_device.h"
 
-#include "../egolib/log.h"
+#include "egolib/log.h"
 
-#include "../egolib/strutil.h"
-#include "../egolib/platform.h"
+#include "egolib/strutil.h"
+#include "egolib/platform.h"
 
-#include "../egolib/_math.inl"
+#include "egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

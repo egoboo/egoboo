@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 
-#include "map_file.h"
+#include "egolib/file_formats/map_file.h"
 
 #if defined(__cplusplus)
 extern "C"

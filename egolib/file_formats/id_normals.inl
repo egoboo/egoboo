@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/id_normals.inl
+/// @file egolib/file_formats/id_normals.inl
 /// @brief Md2 model lighting normal lookup table
 
 { -0.525731f, 0.000000f, 0.850651f},

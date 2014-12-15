@@ -17,20 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file quest.c
+/// @file egolib/file_formats/quest_file.c
 /// @brief Handles functions that modify quest.txt files and the players quest log
 
-#include "quest_file.h"
+#include "egolib/file_formats/quest_file.h"
 
-#include "../IDSZ_map.h"
-#include "../log.h"
+#include "egolib/IDSZ_map.h"
+#include "egolib/log.h"
 
-#include "../fileutil.h"
-#include "../vfs.h"
-#include "../strutil.h"
-//#include "../egoboo.h"
+#include "egolib/fileutil.h"
+#include "egolib/vfs.h"
+#include "egolib/strutil.h"
 
-#include "../_math.inl"
+#include "egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

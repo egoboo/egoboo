@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file network_file.h
+/// @file egolib/network_file.h
 /// @brief file transfer protocol
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #include <enet/enet.h>
 

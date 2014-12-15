@@ -24,11 +24,11 @@
 
 #include "egolib/file_common.h"
 
-#include "../egolib/log.h"
+#include "egolib/log.h"
 
-#include "../egolib/strutil.h"
-#include "../egolib/vfs.h"
-#include "../egolib/platform.h"
+#include "egolib/strutil.h"
+#include "egolib/vfs.h"
+#include "egolib/platform.h"
 
 #if !defined(MAX_PATH)
 #define MAX_PATH 260  // Same value that Windows uses...

@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file log.h
+/// @file egolib/log.h
 /// @details Basic logging functionality.
 
-#include "../egolib/typedef.h"
+#include "egolib/typedef.h"
 
 #include <stdio.h>
 

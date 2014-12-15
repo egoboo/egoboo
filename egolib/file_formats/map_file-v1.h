@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/map_file-v1.h
+/// @file egolib/file_formats/map_file-v1.h
 /// @brief Load and save version 1 ("MapA") files
 /// @details
 
 #include <stdio.h>
 
-#include "map_file.h"
+#include "egolib/file_formats/map_file.h"
 
 #if defined(__cplusplus)
 extern "C"

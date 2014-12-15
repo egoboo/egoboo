@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/cap_file.h
+/// @file egolib/file_formats/cap_file.h
 /// @details routines for reading and writing the character profile file data.txt
 
-#include "../typedef.h"
-#include "../IDSZ_map.h"
+#include "egolib/typedef.h"
+#include "egolib/IDSZ_map.h"
 
 #if defined(__cplusplus)
 extern "C"

@@ -1,9 +1,9 @@
 #pragma once
 
-/// @file file_formats/id_md2.h
+/// @file egolib/file_formats/id_md2.h
 /// @details Md2 model file loading structures & constants.
 
-#include "../extensions/ogl_include.h"
+#include "egolib/extensions/ogl_include.h"
 
 #if defined(__cplusplus)
 extern "C"

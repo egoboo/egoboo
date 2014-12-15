@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/map_tile_dictionary.h
+/// @file egolib/file_formats/map_tile_dictionary.h
 /// @brief The tile definitions
 /// @details
 
-#include "../typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

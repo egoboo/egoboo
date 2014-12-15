@@ -17,17 +17,17 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/map_tile_dictionary.c
+/// @file egolib/file_formats/map_tile_dictionary.c
 /// @brief Read the tile definitions from a file
 /// @details
 
-#include "map_tile_dictionary.h"
+#include "egolib/file_formats/map_tile_dictionary.h"
 
-#include "../strutil.h"
-#include "../fileutil.h"
-#include "../log.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/log.h"
 
-#include "../_math.inl"
+#include "egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

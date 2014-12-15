@@ -17,19 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/scancode_file.c
+/// @file egolib/file_formats/scancode_file.c
 /// @brief Functions to read and write Egoboo's basicdat/scantag.txt file
 /// @details
 
-#include "scancode_file.h"
+#include "egolib/file_formats/scancode_file.h"
 
-#include "../log.h"
-#include "../input_device.h"
+#include "egolib/log.h"
+#include "egolib/input_device.h"
 
-#include "../vfs.h"
-#include "../fileutil.h"
-#include "../strutil.h"
-#include "../platform.h"
+#include "egolib/vfs.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
+#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

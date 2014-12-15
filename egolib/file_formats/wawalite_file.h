@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/wawalite_file.h
+/// @file egolib/file_formats/wawalite_file.h
 /// @details loading the environment definitions for a module
 
-#include "../_math.h"
+#include "egolib/_math.h"
 
 #if defined(__cplusplus)
 extern "C"

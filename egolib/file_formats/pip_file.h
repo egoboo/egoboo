@@ -19,10 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/pip_file.h
+/// @file egolib/file_formats/pip_file.h
 /// @details routines for reading and writing the particle profile file "part*.txt"
 
-#include "../typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

@@ -17,14 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/passage_file.c
+/// @file egolib/file_formats/passage_file.c
 /// @brief A scanner for the passage file for a given module ( /modules/*.mod/basicdat/passages.txt )
 /// @details
 
-#include "passage_file.h"
-#include "map_file.h"
+#include "egolib/file_formats/passage_file.h"
+#include "egolib/file_formats/map_file.h"
 
-#include "../fileutil.h"
+#include "egolib/fileutil.h"
 
 //--------------------------------------------------------------------------------------------
 passage_t * passage_init( passage_t * ppass )

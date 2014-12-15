@@ -17,21 +17,21 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/spawn_file.c
+/// @file egolib/file_formats/spawn_file.c
 /// @brief Implementation of a scanner for Egoboo's spawn.txt file
 /// @details
 
-#include "spawn_file.h"
+#include "egolib/file_formats/spawn_file.h"
 
-#include "cap_file.h"
+#include "egolib/file_formats/cap_file.h"
 
-#include "../fileutil.h"
-#include "../strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
 
-#include "../_math.inl"
+#include "egolib/_math.inl"
 
 // includes for egoboo constants
-#include "../../game/char.h"       // for TEAM_* constants
+#include "game/char.h"       // for TEAM_* constants
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

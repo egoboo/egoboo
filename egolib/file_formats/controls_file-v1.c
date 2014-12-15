@@ -17,21 +17,21 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/controls_file.c
+/// @file egolib/file_formats/controls_file.c
 /// @brief Routines for reading and writing version 1 of "controls.txt"
 /// @details
 
-#include "controls_file.h"
-#include "controls_file-v1.h"
-#include "scancode_file.h"
+#include "egolib/file_formats/controls_file.h"
+#include "egolib/file_formats/controls_file-v1.h"
+#include "egolib/file_formats/scancode_file.h"
 
-#include "../log.h"
-#include "../input_device.h"
+#include "egolib/log.h"
+#include "egolib/input_device.h"
 
-#include "../fileutil.h"
-#include "../strutil.h"
-#include "../platform.h"
-#include "../vfs.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
+#include "egolib/platform.h"
+#include "egolib/vfs.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

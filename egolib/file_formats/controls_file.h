@@ -19,12 +19,12 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/controls_file.h
+/// @file egolib/file_formats/controls_file.h
 /// @details routines for reading and writing the file controls.txt and "scancode.txt"
 
-#include "../typedef.h"
-#include "../vfs.h"
-#include "../input_device.h"
+#include "egolib/typedef.h"
+#include "egolib/vfs.h"
+#include "egolib/input_device.h"
 
 #if defined(__cplusplus)
 extern "C"

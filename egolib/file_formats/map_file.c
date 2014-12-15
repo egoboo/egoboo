@@ -29,15 +29,15 @@
 
 #include "map_tile_dictionary.h"
 
-#include "../map_functions.h"
+#include "egolib/map_functions.h"
 
-#include "../log.h"
+#include "egolib/log.h"
 
-#include "../endian.h"
-#include "../fileutil.h"
-#include "../strutil.h"
+#include "egolib/endian.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
 
-#include "../_math.inl"
+#include "egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
