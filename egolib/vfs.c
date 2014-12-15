@@ -240,7 +240,7 @@ vfs_FILE * vfs_openReadB( const char * filename )
     if ( INVALID_CSTR( filename ) ) return NULL;
 
     // make sure that PHYSFS gets the filename with the slashes it wants
-    filename = vfs_resolveReadFilename( filename );
+    //filename = vfs_resolveReadFilename( filename );
 
     ftmp = PHYSFS_openRead( filename );
     if ( NULL == ftmp ) return NULL;
@@ -2024,10 +2024,11 @@ int vfs_getc( vfs_FILE * pfile )
     else if ( vfs_physfs == pfile->type )
     {
         char cTmp;
-        retval = PHYSFS_read( pfile->ptr.p, &cTmp, 1, sizeof( cTmp ) );
+        retval = PHYSFS_read( pfile->ptr.p, &cTmp, sizeof( cTmp ), 1 );
 
         if ( -1 == retval ) pfile->flags |= VFS_ERROR;
         if ( 0 == retval ) pfile->flags |= VFS_EOF;
+        if ( 1 == retval ) retval = cTmp;
     }
 
     return retval;

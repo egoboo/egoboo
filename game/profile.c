@@ -573,6 +573,13 @@ ego_bool release_one_pro_data( const PRO_REF iobj )
 
     // release whatever textures are being used
     release_one_profile_textures( iobj );
+    
+    // release messages
+    if ( NULL != pobj->message_ary )
+    {
+        free( pobj->message_ary );
+        pobj->message_ary = NULL;
+    }
 
     return ego_true;
 }
@@ -719,7 +726,7 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     // fill in all missing skin graphics up to MAX_SKIN
     iskin = min_skin_tx;
     iicon = min_icon_tx;
-    for ( cnt = 0; cnt <= MAX_SKIN; cnt++ )
+    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         if ( VALID_TX_RANGE( pobj->tex_ref[cnt] ) )
         {

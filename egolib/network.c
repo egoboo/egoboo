@@ -367,7 +367,7 @@ void egonet_close_session( void )
 #if defined(ENET11)
                 enet_peer_disconnect( &gnet.myHost->peers[i], 0 );
 #else
-                enet_peer_disconnect( &gnet.myHost->peers[i], 0 );
+                enet_peer_disconnect( &gnet.myHost->peers[i] );
 #endif
             }
 
@@ -437,7 +437,7 @@ void egonet_listen_for_packets( void )
 #if defined(ENET11)
                     enet_peer_disconnect( event.peer, 0 );
 #else
-                    enet_peer_disconnect( event.peer, 0 );
+                    enet_peer_disconnect( event.peer );
 #endif
                     break;
 

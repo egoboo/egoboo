@@ -743,6 +743,8 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        tlst[itile].type = type;
     //    }
     //}
+    
+    EGOBOO_DELETE_ARY(ary)
 
     return pmesh;
 }

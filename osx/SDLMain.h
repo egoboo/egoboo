@@ -15,4 +15,5 @@
 - (IBAction)loadPlayer:(id)sender;
 - (IBAction)multiPlayer:(id)sender;
 - (IBAction)help:(id)sender;
+- (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender;
 @end
