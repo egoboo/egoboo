@@ -17,17 +17,17 @@
 //*
 //********************************************************************************************
 
-/// @file ChrList.c
+/// @file game/ChrList.c
 /// @brief Implementation of the ChrList_* functions
 /// @details
 
-#include "ChrList.inl"
+#include "game/ChrList.inl"
 
-#include "../egolib/log.h"
+#include "egolib/log.h"
 
-#include "egoboo_object.h"
+#include "game/egoboo_object.h"
 
-#include "char.inl"
+#include "game/char.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

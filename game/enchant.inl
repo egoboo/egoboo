@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file enchant.inl
+/// @file game/enchant.inl
 
-#include "EncList.inl"
-#include "ChrList.inl"
+#include "game/EncList.inl"
+#include "game/ChrList.inl"
 
-#include "char.inl"
-#include "profile.inl"
+#include "game/char.inl"
+#include "game/profile.inl"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARARIONS

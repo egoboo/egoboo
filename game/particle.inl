@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-#include "particle.h"
+#include "game/particle.h"
 
-#include "../egolib/_math.inl"
+#include "egolib/_math.inl"
 
-#include "../egolib/bbox.inl"
-#include "PrtList.inl"
-#include "char.inl"
+#include "egolib/bbox.inl"
+#include "game/PrtList.inl"
+#include "game/char.inl"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATION

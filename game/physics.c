@@ -17,15 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file physics.c
+/// @file game/physics.c
 
-#include "physics.inl"
+#include "game/physics.inl"
 
-#include "game.h"
+#include "game/game.h"
 
-#include "char.inl"
-#include "particle.inl"
-#include "mesh.inl"
+#include "game/char.inl"
+#include "game/particle.inl"
+#include "game/mesh.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

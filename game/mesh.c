@@ -17,30 +17,30 @@
 //*
 //********************************************************************************************
 
-/// @file mesh.c
+/// @file game/mesh.c
 /// @brief Functions for creating, reading, and writing Egoboo's .mpd mesh file
 /// @details
 
-#include "mesh.inl"
+#include "game/mesh.inl"
 
-#include "../egolib/log.h"
-#include "../egolib/endian.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/strutil.h"
-#include "../egolib/file_formats/map_tile_dictionary.h"
-#include "../egolib/extensions/SDL_extensions.h"
+#include "egolib/log.h"
+#include "egolib/endian.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
+#include "egolib/file_formats/map_tile_dictionary.h"
+#include "egolib/extensions/SDL_extensions.h"
 
-#include "../egolib/_math.inl"
+#include "egolib/_math.inl"
 
-#include "mesh_functions.h"
-#include "graphic.h"
-#include "graphic_texture.h"
-#include "egoboo.h"
+#include "game/mesh_functions.h"
+#include "game/graphic.h"
+#include "game/graphic_texture.h"
+#include "game/egoboo.h"
 
-#include "../egolib/bbox.inl"
+#include "egolib/bbox.inl"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

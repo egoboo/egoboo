@@ -17,67 +17,67 @@
 //*
 //********************************************************************************************
 
-/// @file graphic.c
+/// @file game/graphic.c
 /// @brief Simple Egoboo renderer
 /// @details All sorts of stuff related to drawing the game
 
-#include "graphic.h"
-#include "graphic_prt.h"
-#include "graphic_mad.h"
-#include "graphic_fan.h"
-#include "graphic_billboard.h"
-#include "graphic_texture.h"
-#include "renderer_2d.h"
-#include "renderer_3d.h"
+#include "game/graphic.h"
+#include "game/graphic_prt.h"
+#include "game/graphic_mad.h"
+#include "game/graphic_fan.h"
+#include "game/graphic_billboard.h"
+#include "game/graphic_texture.h"
+#include "game/renderer_2d.h"
+#include "game/renderer_3d.h"
 
 #include <assert.h>
 
 #include <SDL_image.h>
 
-#include "../egolib/log.h"
-#include "../egolib/clock.h"
-#include "../egolib/throttle.h"
-#include "../egolib/font_bmp.h"
-#include "../egolib/font_ttf.h"
-#include "../egolib/vfs.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/strutil.h"
-#include "../egolib/fileutil.h"
+#include "egolib/log.h"
+#include "egolib/clock.h"
+#include "egolib/throttle.h"
+#include "egolib/font_bmp.h"
+#include "egolib/font_ttf.h"
+#include "egolib/vfs.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
 
-#include "../egolib/console.h"
+#include "egolib/console.h"
 #if defined(USE_LUA_CONSOLE)
-#    include "../egolib/lua/lua_console.h"
+#    include "egolib/lua/lua_console.h"
 #endif
 
-#include "../egolib/extensions/SDL_extensions.h"
-#include "../egolib/extensions/SDL_GL_extensions.h"
-#include "../egolib/file_formats/id_md2.h"
-#include "../egolib/file_formats/map_tile_dictionary.h"
+#include "egolib/extensions/SDL_extensions.h"
+#include "egolib/extensions/SDL_GL_extensions.h"
+#include "egolib/file_formats/id_md2.h"
+#include "egolib/file_formats/map_tile_dictionary.h"
 
-#include "../egolib/frustum.h"
-#include "network_server.h"
-#include "mad.h"
-#include "obj_BSP.h"
-#include "mesh_BSP.h"
-#include "player.h"
-#include "collision.h"
-#include "script.h"
-#include "camera_system.h"
-#include "input.h"
-#include "passage.h"
-#include "menu.h"
-#include "script_compile.h"
-#include "game.h"
-#include "ui.h"
-#include "lighting.h"
-#include "egoboo.h"
+#include "egolib/frustum.h"
+#include "game/network_server.h"
+#include "game/mad.h"
+#include "game/obj_BSP.h"
+#include "game/mesh_BSP.h"
+#include "game/player.h"
+#include "game/collision.h"
+#include "game/script.h"
+#include "game/camera_system.h"
+#include "game/input.h"
+#include "game/passage.h"
+#include "game/menu.h"
+#include "game/script_compile.h"
+#include "game/game.h"
+#include "game/ui.h"
+#include "game/lighting.h"
+#include "game/egoboo.h"
 
-#include "../egolib/bsp.inl"
-#include "char.inl"
-#include "particle.inl"
-#include "enchant.inl"
-#include "profile.inl"
-#include "mesh.inl"
+#include "egolib/bsp.inl"
+#include "game/char.inl"
+#include "game/particle.inl"
+#include "game/enchant.inl"
+#include "game/profile.inl"
+#include "game/mesh.inl"
 
 //--------------------------------------------------------------------------------------------
 // internal structs

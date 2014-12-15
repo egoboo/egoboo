@@ -17,33 +17,33 @@
 //*
 //********************************************************************************************
 
-/// @file particle.c
+/// @file game/particle.c
 /// @brief Manages particle systems.
 
-#include "particle.inl"
+#include "game/particle.inl"
 
-#include "../egolib/log.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/strutil.h"
+#include "egolib/log.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
 
-#include "sound.h"
-#include "camera_system.h"
-#include "game.h"
-#include "mesh.h"
-#include "obj_BSP.h"
-#include "mesh_functions.h"
-#include "mad.h"
-#include "renderer_3d.h"
-#include "egoboo.h"
+#include "game/sound.h"
+#include "game/camera_system.h"
+#include "game/game.h"
+#include "game/mesh.h"
+#include "game/obj_BSP.h"
+#include "game/mesh_functions.h"
+#include "game/mad.h"
+#include "game/renderer_3d.h"
+#include "game/egoboo.h"
 
-#include "mesh.inl"
-#include "enchant.inl"
-#include "profile.inl"
-#include "PrtList.inl"
+#include "game/mesh.inl"
+#include "game/enchant.inl"
+#include "game/profile.inl"
+#include "game/PrtList.inl"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

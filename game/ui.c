@@ -17,23 +17,23 @@
 //*
 //********************************************************************************************
 
-/// @file ui.c
+/// @file game/ui.c
 /// @brief The Egoboo GUI
 /// @details A basic library for implementing user interfaces, based off of Casey Muratori's
 /// IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
 
-#include "ui.h"
+#include "game/ui.h"
 
 #include <string.h>
 #include <SDL_opengl.h>
 
-#include "../egolib/font_ttf.h"
-#include "../egolib/extensions/ogl_debug.h"
-#include "../egolib/extensions/SDL_extensions.h"
+#include "egolib/font_ttf.h"
+#include "egolib/extensions/ogl_debug.h"
+#include "egolib/extensions/SDL_extensions.h"
 
-#include "menu.h"
-#include "graphic.h"
-#include "renderer_2d.h"
+#include "game/menu.h"
+#include "game/graphic.h"
+#include "game/renderer_2d.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

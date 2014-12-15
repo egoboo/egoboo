@@ -17,11 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file game.c
+/// @file game/game.c
 /// @brief The code for controlling the game
 /// @details
 
-#include "game.h"
+#include "game/game.h"
 
 #include <time.h>
 #include <assert.h>
@@ -30,64 +30,62 @@
 
 #include <SDL_image.h>
 
-#include "../egolib/clock.h"
-#include "../egolib/throttle.h"
-#include "../egolib/vfs.h"
-#include "../egolib/endian.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/strutil.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/vfs.h"
-#include "../egolib/font_bmp.h"
-#include "../egolib/font_ttf.h"
-#include "../egolib/log.h"
-#include "../egolib/system.h"
+#include "egolib/clock.h"
+#include "egolib/throttle.h"
+#include "egolib/vfs.h"
+#include "egolib/endian.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/vfs.h"
+#include "egolib/font_bmp.h"
+#include "egolib/font_ttf.h"
+#include "egolib/log.h"
+#include "egolib/system.h"
 
-#include "../egolib/file_formats/controls_file.h"
-#include "../egolib/file_formats/scancode_file.h"
-#include "../egolib/file_formats/treasure_table_file.h"
-#include "../egolib/file_formats/wawalite_file.h"
-#include "../egolib/file_formats/spawn_file.h"
-#include "../egolib/file_formats/quest_file.h"
-#include "../egolib/file_formats/id_md2.h"
-
-#include "../egolib/extensions/SDL_extensions.h"
-
-#include "../egolib/console.h"
+#include "egolib/file_formats/controls_file.h"
+#include "egolib/file_formats/scancode_file.h"
+#include "egolib/file_formats/treasure_table_file.h"
+#include "egolib/file_formats/wawalite_file.h"
+#include "egolib/file_formats/spawn_file.h"
+#include "egolib/file_formats/quest_file.h"
+#include "egolib/file_formats/id_md2.h"
+#include "egolib/extensions/SDL_extensions.h"
+#include "egolib/console.h"
 
 #if defined(USE_LUA_CONSOLE)
 #   include "../egolib/lua/lua_console.h"
 #endif
 
-#include "mad.h"
-#include "player.h"
-#include "link.h"
-#include "ui.h"
-#include "sound.h"
-#include "graphic.h"
-#include "graphic_fan.h"
-#include "graphic_texture.h"
-#include "graphic_billboard.h"
-#include "renderer_2d.h"
-#include "passage.h"
-#include "input.h"
-#include "menu.h"
-#include "network_client.h"
-#include "network_server.h"
-#include "camera_system.h"
-#include "collision.h"
-#include "obj_BSP.h"
-#include "mesh_BSP.h"
-#include "script.h"
-#include "script_compile.h"
-#include "egoboo.h"
+#include "game/mad.h"
+#include "game/player.h"
+#include "game/link.h"
+#include "game/ui.h"
+#include "game/sound.h"
+#include "game/graphic.h"
+#include "game/graphic_fan.h"
+#include "game/graphic_texture.h"
+#include "game/graphic_billboard.h"
+#include "game/renderer_2d.h"
+#include "game/passage.h"
+#include "game/input.h"
+#include "game/menu.h"
+#include "game/network_client.h"
+#include "game/network_server.h"
+#include "game/camera_system.h"
+#include "game/collision.h"
+#include "game/obj_BSP.h"
+#include "game/mesh_BSP.h"
+#include "game/script.h"
+#include "game/script_compile.h"
+#include "game/egoboo.h"
 
-#include "char.inl"
-#include "particle.inl"
-#include "enchant.inl"
-#include "profile.inl"
-#include "mesh.inl"
-#include "physics.inl"
+#include "game/char.inl"
+#include "game/particle.inl"
+#include "game/enchant.inl"
+#include "game/profile.inl"
+#include "game/mesh.inl"
+#include "game/physics.inl"
 
 //--------------------------------------------------------------------------------------------
 

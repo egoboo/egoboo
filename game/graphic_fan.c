@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file graphic_fan.c
+/// @file game/graphic_fan.c
 /// @brief World mesh drawing.
 /// @details
 
-#include "graphic.h"
-#include "graphic_fan.h"
-#include "graphic_texture.h"
+#include "game/graphic.h"
+#include "game/graphic_fan.h"
+#include "game/graphic_texture.h"
 
 #include "../egolib/extensions/SDL_extensions.h"
 #include "../egolib/file_formats/map_tile_dictionary.h"

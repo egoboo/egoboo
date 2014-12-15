@@ -17,24 +17,24 @@
 //*
 //********************************************************************************************
 
-/// @file passage.c
+/// @file game/passage.c
 /// @brief Passages and doors and whatnot.  Things that impede your progress!
 
-#include "passage.h"
+#include "game/passage.h"
 
-#include "../egolib/fileutil.h"
-#include "../egolib/_math.h"
-#include "../egolib/file_formats/quest_file.h"
+#include "egolib/fileutil.h"
+#include "egolib/_math.h"
+#include "egolib/file_formats/quest_file.h"
 
-#include "script.h"
-#include "sound.h"
-#include "game.h"
-#include "network.h"
-#include "player.h"
-#include "egoboo.h"
+#include "game/script.h"
+#include "game/sound.h"
+#include "game/game.h"
+#include "game/network.h"
+#include "game/player.h"
+#include "game/egoboo.h"
 
-#include "char.inl"
-#include "mesh.inl"
+#include "game/char.inl"
+#include "game/mesh.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

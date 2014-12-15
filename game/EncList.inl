@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file EncList.inl
+/// @file game/EncList.inl
 /// @brief
 /// @details
 
-#include "EncList.h"
+#include "game/EncList.h"
 
-#include "enchant.h"
+#include "game/enchant.h"
 
 //--------------------------------------------------------------------------------------------
 // testing macros

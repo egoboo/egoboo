@@ -17,42 +17,42 @@
 //*
 //********************************************************************************************
 
-/// @file menu.c
+/// @file game/menu.c
 /// @brief Implements the main menu tree, using the code in Ui.*
 /// @details
 
-#include "menu.h"
+#include "game/menu.h"
 
-#include "../egolib/log.h"
-#include "../egolib/font_ttf.h"
-#include "../egolib/_math.h"
-#include "../egolib/vfs.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/strutil.h"
-#include "../egolib/font_bmp.h"
-#include "../egolib/file_formats/quest_file.h"
-#include "../egolib/file_formats/controls_file.h"
-#include "../egolib/file_formats/scancode_file.h"
-#include "../egolib/file_formats/module_file.h"
-#include "../egolib/extensions/SDL_extensions.h"
+#include "egolib/log.h"
+#include "egolib/font_ttf.h"
+#include "egolib/_math.h"
+#include "egolib/vfs.h"
+#include "egolib/fileutil.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/strutil.h"
+#include "egolib/font_bmp.h"
+#include "egolib/file_formats/quest_file.h"
+#include "egolib/file_formats/controls_file.h"
+#include "egolib/file_formats/scancode_file.h"
+#include "egolib/file_formats/module_file.h"
+#include "egolib/extensions/SDL_extensions.h"
 
-#include "mad.h"
-#include "player.h"
-#include "game.h"
-#include "graphic_texture.h"
-#include "renderer_2d.h"
-#include "ui.h"
-#include "link.h"
-#include "game.h"
-#include "sound.h"
-#include "input.h"
-#include "camera_system.h"
-#include "egoboo.h"
+#include "game/mad.h"
+#include "game/player.h"
+#include "game/game.h"
+#include "game/graphic_texture.h"
+#include "game/renderer_2d.h"
+#include "game/ui.h"
+#include "game/link.h"
+#include "game/game.h"
+#include "game/sound.h"
+#include "game/input.h"
+#include "game/camera_system.h"
+#include "game/egoboo.h"
 
-#include "particle.inl"
-#include "char.inl"
-#include "profile.inl"
+#include "game/particle.inl"
+#include "game/char.inl"
+#include "game/profile.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

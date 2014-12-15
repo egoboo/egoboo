@@ -17,13 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file lighting.c
+/// @file game/lighting.c
 /// @brief Code for controlling the character and mesh lighting
 /// @details
 
-#include "lighting.h"
+#include "game/lighting.h"
 
-#include "../egolib/_math.inl"
+#include "egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

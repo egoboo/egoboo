@@ -17,22 +17,22 @@
 //*
 //********************************************************************************************
 
-/// @file graphic_billboard.c
+/// @file game/graphic_billboard.c
 /// @brief
 /// @details
 
-#include "graphic_billboard.h"
-#include "graphic_texture.h"
-#include "renderer_2d.h"
-#include "renderer_3d.h"
+#include "game/graphic_billboard.h"
+#include "game/graphic_texture.h"
+#include "game/renderer_2d.h"
+#include "game/renderer_3d.h"
 
-#include "../egolib/font_ttf.h"
-#include "../egolib/_math.inl"
+#include "egolib/font_ttf.h"
+#include "egolib/_math.inl"
 
-#include "camera.h"
+#include "game/camera.h"
 
-#include "char.inl"
-#include "particle.inl"
+#include "game/char.inl"
+#include "game/particle.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -17,20 +17,20 @@
 //*
 //********************************************************************************************
 
-/// @file map_BSP.c
+/// @file game/map_BSP.c
 /// @brief Implementation of functions for the mpd BSP
 /// @details
 
-#include "mesh_BSP.h"
+#include "game/mesh_BSP.h"
 
-#include "../egolib/_math.inl"
+#include "egolib/_math.inl"
 
-#include "../egolib/frustum.h"
-#include "obj_BSP.h"
+#include "egolib/frustum.h"
+#include "game/obj_BSP.h"
 
-#include "../egolib/bbox.inl"
-#include "mesh.inl"
-#include "../egolib/bsp.inl"
+#include "egolib/bbox.inl"
+#include "game/mesh.inl"
+#include "egolib/bsp.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

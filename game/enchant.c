@@ -17,25 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file enchant.c
+/// @file game/enchant.c
 /// @brief handles enchantments attached to objects
 /// @details
 
-#include "enchant.inl"
+#include "game/enchant.inl"
 
-#include "../egolib/log.h"
-#include "../egolib/fileutil.h"
+#include "egolib/log.h"
+#include "egolib/fileutil.h"
 
-#include "sound.h"
-#include "camera_system.h"
-#include "game.h"
-#include "script_functions.h"
-#include "egoboo.h"
+#include "game/sound.h"
+#include "game/camera_system.h"
+#include "game/game.h"
+#include "game/script_functions.h"
+#include "game/egoboo.h"
 
-#include "char.inl"
-#include "mad.h"
-#include "particle.inl"
-#include "profile.inl"
+#include "game/char.inl"
+#include "game/mad.h"
+#include "game/particle.inl"
+#include "game/profile.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

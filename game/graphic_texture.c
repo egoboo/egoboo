@@ -17,14 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file texture.c
+/// @file game/texture.c
 /// @brief Implementation of code for controlling object texturing
 /// @details
 
-#include "../egolib/fileutil.h"
-#include "../egolib/_math.inl"
+#include "egolib/fileutil.h"
+#include "egolib/_math.inl"
 
-#include "graphic_texture.h"
+#include "game/graphic_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

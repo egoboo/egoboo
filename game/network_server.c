@@ -17,16 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file server.c
+/// @file game/server.c
 /// @brief This code is not currently in use.
 /// @details
 
-#include "network_server.h"
+#include "game/network_server.h"
 
-#include "../egolib/log.h"
+#include "egolib/log.h"
 
-#include "game.h"
-#include "player.h"
+#include "game/game.h"
+#include "game/player.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -17,17 +17,17 @@
 //*
 //********************************************************************************************
 
-/// @file rpc.c
+/// @file game/rpc.c
 /// @brief The implementation of the Remote Procedure Calls
 /// @details
 
-#include "../egolib/strutil.h"
-#include "../egolib/log.h"
+#include "egolib/strutil.h"
+#include "egolib/log.h"
 
-#include "rpc.h"
+#include "game/rpc.h"
 
-#include "graphic_texture.h"
-#include "menu.h"
+#include "game/graphic_texture.h"
+#include "game/menu.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

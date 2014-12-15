@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file ChrList.inl
+/// @file game/ChrList.inl
 /// @brief
 /// @details
 
-#include "ChrList.h"
+#include "game/ChrList.h"
 
-#include "char.h"
+#include "game/char.h"
 
 //--------------------------------------------------------------------------------------------
 // testing macros

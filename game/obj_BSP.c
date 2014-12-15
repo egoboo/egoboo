@@ -17,17 +17,17 @@
 //*
 //********************************************************************************************
 
-/// @file obj_BSP.c
+/// @file game/obj_BSP.c
 /// @brief Implementation of functions for the object BSP
 /// @details
 
-#include "obj_BSP.h"
+#include "game/obj_BSP.h"
 
-#include "mesh_BSP.h"
+#include "game/mesh_BSP.h"
 
-#include "char.inl"
-#include "particle.inl"
-#include "../egolib/bsp.inl"
+#include "game/char.inl"
+#include "game/particle.inl"
+#include "egolib/bsp.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

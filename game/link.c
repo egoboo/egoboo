@@ -17,25 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file link.c
+/// @file game/link.c
 /// @brief Manages in-game links connecting modules
 /// @details
 
-#include "link.h"
+#include "game/link.h"
 
-#include "../egolib/log.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/strutil.h"
-#include "../egolib/file_formats/module_file.h"
+#include "egolib/log.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
+#include "egolib/file_formats/module_file.h"
 
-#include "camera_system.h"
-#include "menu.h"
-#include "graphic.h"
-#include "game.h"
-#include "player.h"
-#include "egoboo.h"
+#include "game/camera_system.h"
+#include "game/menu.h"
+#include "game/graphic.h"
+#include "game/game.h"
+#include "game/player.h"
+#include "game/egoboo.h"
 
-#include "char.inl"
+#include "game/char.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

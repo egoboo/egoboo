@@ -17,31 +17,31 @@
 //*
 //********************************************************************************************
 
-/// @file profile.c
+/// @file game/profile.c
 /// @brief Implementation of functions for controlling and accessing object profiles
 /// @details
 
-#include "profile.inl"
+#include "game/profile.inl"
 
-#include "../egolib/log.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/strutil.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/vfs.h"
+#include "egolib/log.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/strutil.h"
+#include "egolib/fileutil.h"
+#include "egolib/vfs.h"
 
-#include "graphic_texture.h"
-#include "renderer_2d.h"
-#include "script_compile.h"
-#include "game.h"
+#include "game/graphic_texture.h"
+#include "game/renderer_2d.h"
+#include "game/script_compile.h"
+#include "game/game.h"
 
-#include "../egolib/bsp.inl"
-#include "ChrList.inl"
-#include "PrtList.inl"
-#include "mesh.inl"
-#include "particle.inl"
+#include "egolib/bsp.inl"
+#include "game/ChrList.inl"
+#include "game/PrtList.inl"
+#include "game/mesh.inl"
+#include "game/particle.inl"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -17,25 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file mad.c
+/// @file game/mad.c
 /// @brief The files for handling Egoboo's internal model definitions
 /// @details
 
-#include "mad.h"
+#include "game/mad.h"
 
-#include "../egolib/log.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/strutil.h"
-#include "../egolib/file_formats/cap_file.h"
+#include "egolib/log.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
+#include "egolib/file_formats/cap_file.h"
 
-#include "graphic.h"
-#include "graphic_texture.h"
-#include "script_compile.h"
-#include "sound.h"
+#include "game/graphic.h"
+#include "game/graphic_texture.h"
+#include "game/script_compile.h"
+#include "game/sound.h"
 
-#include "md2.inl"
-#include "particle.inl"
+#include "game/md2.inl"
+#include "game/particle.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -17,47 +17,47 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo.c
+/// @file game/egoboo.c
 /// @brief Code for the main program process
 /// @details
 
 #define DECLARE_GLOBALS
-#include "egoboo.h"
+#include "game/egoboo.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include "../egolib/log.h"
-#include "../egolib/system.h"
-#include "../egolib/font_bmp.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/vfs.h"
-#include "../egolib/console.h"
-#include "../egolib/strutil.h"
+#include "egolib/log.h"
+#include "egolib/system.h"
+#include "egolib/font_bmp.h"
+#include "egolib/fileutil.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/vfs.h"
+#include "egolib/console.h"
+#include "egolib/strutil.h"
 
-#include "../egolib/file_formats/scancode_file.h"
-#include "../egolib/file_formats/controls_file.h"
-#include "../egolib/file_formats/treasure_table_file.h"
-#include "../egolib/extensions/SDL_extensions.h"
-#include "../egolib/clock.h"
+#include "egolib/file_formats/scancode_file.h"
+#include "egolib/file_formats/controls_file.h"
+#include "egolib/file_formats/treasure_table_file.h"
+#include "egolib/extensions/SDL_extensions.h"
+#include "egolib/clock.h"
 
-#include "network.h"
-#include "sound.h"
-#include "ui.h"
-#include "input.h"
-#include "game.h"
-#include "menu.h"
-#include "player.h"
-#include "graphic.h"
-#include "graphic_texture.h"
-#include "renderer_2d.h"
+#include "game/network.h"
+#include "game/sound.h"
+#include "game/ui.h"
+#include "game/input.h"
+#include "game/game.h"
+#include "game/menu.h"
+#include "game/player.h"
+#include "game/graphic.h"
+#include "game/graphic_texture.h"
+#include "game/renderer_2d.h"
 
-#include "char.inl"
-#include "particle.inl"
-#include "enchant.inl"
-#include "collision.h"
-#include "profile.inl"
+#include "game/char.inl"
+#include "game/particle.inl"
+#include "game/enchant.inl"
+#include "game/collision.h"
+#include "game/profile.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

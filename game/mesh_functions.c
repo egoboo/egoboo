@@ -17,12 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file map_functions.c
+/// @file game/map_functions.c
 /// @brief mpd functionality ported from cartman and EgoMap
 /// @details
 
-#include "mesh_functions.h"
-#include "mesh.h"
+#include "game/mesh_functions.h"
+#include "game/mesh.h"
 
 //--------------------------------------------------------------------------------------------
 // Translated Cartman functions

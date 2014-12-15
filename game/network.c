@@ -17,35 +17,35 @@
 //*
 //********************************************************************************************
 
-/// @file network.c
+/// @file game/network.c
 /// @brief Egoboo networking implementation
 /// @details Shuttles bits across the network, using Enet.  Networked play doesn't
 /// really work at the moment.
 
-#include "network.h"
-#include "network_server.h"
-#include "network_client.h"
+#include "game/network.h"
+#include "game/network_server.h"
+#include "game/network_client.h"
 
 #include <stdarg.h>
 
-#include "../egolib/file_common.h"
-#include "../egolib/log.h"
-#include "../egolib/strutil.h"
-#include "../egolib/vfs.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/file_formats/module_file.h"
+#include "egolib/file_common.h"
+#include "egolib/log.h"
+#include "egolib/strutil.h"
+#include "egolib/vfs.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/file_formats/module_file.h"
 
-#include "input.h"
-#include "game.h"
-#include "menu.h"
-#include "player.h"
-#include "renderer_2d.h"
-#include "egoboo.h"
+#include "game/input.h"
+#include "game/game.h"
+#include "game/menu.h"
+#include "game/player.h"
+#include "game/renderer_2d.h"
+#include "game/egoboo.h"
 
-#include "char.inl"
+#include "game/char.inl"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

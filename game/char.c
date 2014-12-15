@@ -17,43 +17,43 @@
 //*
 //********************************************************************************************
 
-/// @file char.c
+/// @file game/char.c
 /// @brief Implementation of character functions
 /// @details
 
-#include "char.inl"
+#include "game/char.inl"
 
-#include "../egolib/log.h"
-#include "../egolib/vfs.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/fileutil.h"
-#include "../egolib/strutil.h"
-#include "../egolib/file_formats/quest_file.h"
-#include "../egolib/_math.inl"
+#include "egolib/log.h"
+#include "egolib/vfs.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/fileutil.h"
+#include "egolib/strutil.h"
+#include "egolib/file_formats/quest_file.h"
+#include "egolib/_math.inl"
 
-#include "mad.h"
-#include "player.h"
-#include "script.h"
-#include "graphic_billboard.h"
-#include "graphic_texture.h"
-#include "renderer_2d.h"
-#include "renderer_3d.h"
-#include "menu.h"
-#include "sound.h"
-#include "camera_system.h"
-#include "input.h"
-#include "passage.h"
-#include "game.h"
-#include "ui.h"
-#include "collision.h"                  //Only or detach_character_from_platform()
-#include "obj_BSP.h"
-#include "egoboo.h"
+#include "game/mad.h"
+#include "game/player.h"
+#include "game/script.h"
+#include "game/graphic_billboard.h"
+#include "game/graphic_texture.h"
+#include "game/renderer_2d.h"
+#include "game/renderer_3d.h"
+#include "game/menu.h"
+#include "game/sound.h"
+#include "game/camera_system.h"
+#include "game/input.h"
+#include "game/passage.h"
+#include "game/game.h"
+#include "game/ui.h"
+#include "game/collision.h"                  //Only or detach_character_from_platform()
+#include "game/obj_BSP.h"
+#include "game/egoboo.h"
 
-#include "ChrList.inl"
-#include "mesh.inl"
+#include "game/ChrList.inl"
+#include "game/mesh.inl"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -17,16 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file EncList.c
+/// @file game/EncList.c
 /// @brief Implementation of the EncList_* functions
 /// @details
 
-#include "EncList.h"
-#include "egoboo_object.h"
+#include "game/EncList.h"
+#include "game/egoboo_object.h"
 
-#include "../egolib/log.h"
+#include "egolib/log.h"
 
-#include "enchant.inl"
+#include "game/enchant.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file physics.inl
+/// @file game/physics.inl
 /// @details Put all the functions that need to be fast in this file
 ///
 /// @note
@@ -40,9 +40,9 @@
 /// flag set to ego_false. Setting break_out to ego_true will make the function faster in the case that there is no collision,
 /// but it will leave some of the "depth vector" uncalculated, which might leave it with uninitialized data.
 
-#include "physics.h"
+#include "game/physics.h"
 
-#include "../egolib/bbox.inl"
+#include "egolib/bbox.inl"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS

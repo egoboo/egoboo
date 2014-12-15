@@ -17,24 +17,24 @@
 //*
 //********************************************************************************************
 
-/// @file camera.c
+/// @file game/camera.c
 /// @brief Various functions related to how the game camera works.
 /// @details
 
-#include "camera.h"
+#include "game/camera.h"
 
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/file_formats/controls_file.h"
-#include "../egolib/extensions/SDL_extensions.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/file_formats/controls_file.h"
+#include "egolib/extensions/SDL_extensions.h"
 
-#include "input.h"
-#include "graphic.h"
-#include "network.h"
-#include "player.h"
-#include "egoboo.h"
+#include "game/input.h"
+#include "game/graphic.h"
+#include "game/network.h"
+#include "game/player.h"
+#include "game/egoboo.h"
 
-#include "char.inl"
-#include "mesh.inl"
+#include "game/char.inl"
+#include "game/mesh.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

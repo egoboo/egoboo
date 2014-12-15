@@ -19,12 +19,12 @@
 //*
 //********************************************************************************************
 
-#include "profile.h"
+#include "game/profile.h"
 
-#include "char.h"
-#include "particle.h"
-#include "enchant.h"
-#include "mad.h"
+#include "game/char.h"
+#include "game/particle.h"
+#include "game/enchant.h"
+#include "game/mad.h"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS

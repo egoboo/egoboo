@@ -18,20 +18,20 @@
 //********************************************************************************************
 
 ///
-/// @file md2.c
+/// @file game/md2.c
 /// @brief Raw MD2 loader
 /// @details Raw model loader for ID Software's MD2 file format
 
-#include "md2.inl"
+#include "game/md2.inl"
 
-#include "../egolib/log.h"
-#include "../egolib/endian.h"
-#include "../egolib/_math.inl"
+#include "egolib/log.h"
+#include "egolib/endian.h"
+#include "egolib/_math.inl"
 
-#include "../egolib/bbox.inl"
+#include "egolib/bbox.inl"
 
 // this include must be the absolute last include
-#include "../egolib/mem.h"
+#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

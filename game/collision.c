@@ -17,25 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file collision.c
+/// @file game/collision.c
 /// @brief The code that handles collisions between in-game objects
 /// @details
 
-#include "collision.h"
+#include "game/collision.h"
 
-#include "../egolib/log.h"
-#include "../egolib/hash.h"
-#include "../egolib/extensions/SDL_extensions.h"
+#include "egolib/log.h"
+#include "egolib/hash.h"
+#include "egolib/extensions/SDL_extensions.h"
 
-#include "obj_BSP.h"
-#include "game.h"
-#include "graphic_billboard.h"
+#include "game/obj_BSP.h"
+#include "game/game.h"
+#include "game/graphic_billboard.h"
 
-#include "char.inl"
-#include "particle.inl"
-#include "enchant.inl"
-#include "profile.inl"
-#include "physics.inl"
+#include "game/char.inl"
+#include "game/particle.inl"
+#include "game/enchant.inl"
+#include "game/profile.inl"
+#include "game/physics.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

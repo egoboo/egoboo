@@ -17,19 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file client.c
+/// @file game/client.c
 /// @brief This code is not currently in use.
 
-#include "network_client.h"
+#include "game/network_client.h"
 
-#include "../egolib/log.h"
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/strutil.h"
+#include "egolib/log.h"
+#include "egolib/egoboo_setup.h"
+#include "egolib/strutil.h"
 
-#include "game.h"
-#include "player.h"
-#include "menu.h"
-#include "egoboo.h"
+#include "game/game.h"
+#include "game/player.h"
+#include "game/menu.h"
+#include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

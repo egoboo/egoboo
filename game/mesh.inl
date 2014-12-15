@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/// @file mesh.inl
+/// @file game/mesh.inl
 
-#include "mesh.h"
+#include "game/mesh.h"
 
-#include "../egolib/_math.h"
+#include "egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS

@@ -17,23 +17,23 @@
 //*
 //********************************************************************************************
 
-/// @file camera_system.c
+/// @file game/camera_system.c
 /// @brief
 /// @details
 
-#include "camera_system.h"
+#include "game/camera_system.h"
 
-#include "../egolib/egoboo_setup.h"
-#include "../egolib/extensions/SDL_extensions.h"
-#include "../egolib/_math.inl"
+#include "egolib/egoboo_setup.h"
+#include "egolib/extensions/SDL_extensions.h"
+#include "egolib/_math.inl"
 
-#include "network.h"
-#include "mesh.h"
-#include "graphic.h"
-#include "game.h"
-#include "player.h"
+#include "game/network.h"
+#include "game/mesh.h"
+#include "game/graphic.h"
+#include "game/game.h"
+#include "game/player.h"
 
-#include "ChrList.inl"
+#include "game/ChrList.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

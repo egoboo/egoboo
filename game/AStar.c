@@ -17,16 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file AStar.c
+/// @file game/AStar.c
 /// @brief
 /// @details
 
-#include "AStar.h"
+#include "game/AStar.h"
 
-#include "graphic.h" //for point debugging
-#include "script.h"  //for waypoint list control
+#include "game/graphic.h" //for point debugging
+#include "game/script.h"  //for waypoint list control
 
-#include "mesh.inl"
+#include "game/mesh.inl"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

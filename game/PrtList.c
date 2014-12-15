@@ -17,17 +17,17 @@
 //*
 //********************************************************************************************
 
-/// @file PrtList.c
+/// @file game/PrtList.c
 /// @brief Implementation of the PrtList_* functions
 /// @details
 
-#include "PrtList.h"
+#include "game/PrtList.h"
 
-#include "egoboo_object.h"
+#include "game/egoboo_object.h"
 
-#include "particle.inl"
+#include "game/particle.inl"
 
-#include "../egolib/log.h"
+#include "egolib/log.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
