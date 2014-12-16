@@ -1,0 +1,169 @@
+Slot number    : 85
+Class name     : Gelatine_Blob
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : OTHER
+
+Life color     : 1
+Mana color     : 5
+Life           : 3		//Summoner int adds to this
+Life up        : 3
+Mana           : 0.00
+Mana up        : 0.00-0.00
+Mana return    : 0.00
+Mana return up : 0.00-0.00
+Mana flow      : 0.00
+Mana flow up   : 0.00-0.00
+STR            : 3
+STR up         : 0.00-1.00
+WIS            : 0.00
+WIS up         : 0.00-0.00
+INT            : 0.00
+INT up         : 0.00-0.00
+DEX            : 4
+DEX up         : 0.00-1.00
+
+Size           : 1.00
+Size up        : 0.15
+Shadow size    : 15
+Bump size      : 30
+Bump height    : 80
+Bump dampen    : 0.50
+Weight         : 150
+Jump power     : 0.00
+Jump number    : 0
+Sneak speed    : 1
+Walk speed     : 3
+Run speed      : 5
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : FALSE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : TRUE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 10000
+
+Base defense   :  10  10  10  10
+S damage shift :   1   1   1   1
+C damage shift :   2   2   2   2
+P damage shift :   1   1   1   1
+H damage shift :   1   1   1   1
+E damage shift :   1   1   1   1
+F damage shift :   0   0   0   0
+I damage shift :   1   1   1   1
+Z damage shift :   1   1   1   1
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   T   T
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  50  50  50  50
+
+EXP for 2nd    : 20
+EXP for 3rd    : 40
+EXP for 4th    : 60
+EXP for 5th    : 120
+EXP for 6th    : 240
+Starting EXP   : 0
+EXP worth      : 8
+EXP exchange   : 0.010
+EXPSECRET      : 0.00
+EXPQUEST       : 0.00
+EXPDARE        : 0.00
+EXPKILL        : 1.00
+EXPMURDER      : 0.00
+EXPREVENGE     : 0.00
+EXPTEAMWORK    : 0.01
+EXPROLEPLAY    : 0.00
+
+//Set IDSZ stuff
+IDSZ Parent    : [BOOK]
+IDSZ Type      : [MAGI]
+IDSZ Skill     : [WMAG]
+IDSZ Special   : [XNOS]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [NONE]
+
+//General flags
+Is an item     : TRUE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : TRUE
+Usage known    : TRUE
+Is exportable  : TRUE
+Requires skill : TRUE
+Is platform    : FALSE
+Collects money : FALSE
+Can open stuff : FALSE
+
+//Attack animation and damage type
+Damage type    : ZAP
+Attack type    : WALK
+
+//Attatched particles
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+//Grips
+Left valid     : FALSE
+Right valid    : FALSE
+
+//Weapon particle spawning
+Part on weapon : TRUE
+Part type      : 0
+
+//Poof particle spawning
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 1
+
+//Blud?
+Blud valid    : TRUE
+Part type      : 7
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 50
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : BAD
+Skin 1 name    : BAD
+Skin 2 name    : BAD
+Skin 3 name    : BAD
+Skin 0 cost    : 100
+Skin 1 cost    : 100
+Skin 2 cost    : 100
+Skin 3 cost    : 100
+STR dampen     : 0.0
+
+No rider attak : FALSE
+Can be dazed   : FALSE
+Can be grogged : FALSE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : -1
+Jump sound     : -1
+
+:[STUK] 0
+:[HIDE] 0
+:[ICON] 0
+:[VALU] 1       //Always sold at 100% price
+:[BOOK] 1

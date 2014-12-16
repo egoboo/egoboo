@@ -1,0 +1,13 @@
+Message 0: %n_did_something_stupid...
+Message 1: %n_was_killed_by_%t!
+Message 2: Watch_yourself,_you_clumsy_oaf!
+Message 3: UNUSED
+Message 4: UNUSED
+Message 5: UNUSED
+Message 6: Hello...
+Message 7: What's_that?_My_brother_has_been_looking_for_me?
+Message 8: I_do_love_adventure._Let's_get_going!
+Message 9: NEW_MODULE_UNLOCKED
+Message 10: What_are_we_waiting_for?
+Message 11: Oh_it_is_you_again...
+Message 12: One_time_you_can_go_on_adventure_with_us_again...

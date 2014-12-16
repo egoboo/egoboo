@@ -1,0 +1,6 @@
+Message 0: %t_grabbed_%n..
+Message 1: %o_healed_%t!
+Message 2: %t_healed_%g_wounds.
+Message 3: %o_revived_%t_from_the_dead!
+Message 4: %o_is_trying_to_revive_%t!!
+Message 5: The_%n_was_crushed!

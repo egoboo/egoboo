@@ -1,0 +1,17 @@
+// Create the character
+IfSpawned
+  tmpargument = 3000
+  AccelerateUp
+  tmpargument = 0
+  SendMessageNear
+Else
+  SetTargetToSelf
+    tmpx = targetspeedz
+    tmpy = 1
+    IfXIsLessThanY
+      GoPoof
+
+IfHitGround
+  GoPoof
+
+End

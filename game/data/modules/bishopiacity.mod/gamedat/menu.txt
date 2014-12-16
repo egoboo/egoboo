@@ -1,0 +1,24 @@
+// This file contains info for the module's menu description
+Module Name 		: Capital_City_of_Bishopia
+Reference Directory 		: palice.mod
+Required reference IDSZ 	: [MAIN] 4
+Number of imports ( 0 to 4 ) 	: 4
+Exporting ( TRUE or FALSE ) 	: TRUE
+Minimum players ( 1 to 4 ) 	: 1
+Maximum players ( 1 to 4 ) 	: 4
+Respawning ( TRUE or FALSE ) 	: FALSE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** ) 	: -
+
+// Module summary
+:Bishopia_lies_in_the_Northern
+:centre_of_the_plains_region_and
+:is_the_seat_of_power_for_Lord
+:Bishop._The_continent_has_been
+:put_in_a_state_of_unrest_with
+:his_abduction_and_the_rising_evil.
+:_
+:_
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] TOWN                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

@@ -1,0 +1,27 @@
+Message 0: %t_saved_%n!
+Message 1: THANK_YOU_FOR_PLAYING_EGOBOO...
+Message 2: %t_got_%g_revenge!
+Message 3: Are_you_sure_you_want_to_let_Bishop_live_and_forfeit_your_revenge?
+Message 4: %t_usurped_%n's_throne!
+Message 5: -----THE_END-----%#
+Message 6: %#CREDITS%#
+Message 7: Aaron_Bishop%#
+Message 8: Benjamin_Bishop%#
+Message 9: Johan_Jansen_aka_Zefz%#
+Message10: Jonathan_Fischer%#
+Message11: Benjamin_Birdsey%#
+Message12: Chainsaw_aka_Cimeries_aka_Ben_Weiss%#
+Message13: Florian_Natterer%#
+Message14: PurpleSquerkle%#
+Message15: Edward_Blakely%#
+Message16: BenUrban%#
+Message17: Penguinflyer5234%#
+Message18: John_Dick_aka_booger%#
+Message19: Hiroy%#
+Message20: Kalle_Suhonen_aka_Woodmouse%#
+Message21: Klaster_Timrak%#
+Message22: Arakon%#
+Message23: Elmin%#
+Message24: %#AND_SPECIAL_THANKS_TO:_ZIPPY_EGOBOO_TEAM%#
+Message25: THE_OPENGL_PORTERS%#
+Message26: THE_EGOBOO_COMMUNITY!

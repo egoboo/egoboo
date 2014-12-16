@@ -1,0 +1,22 @@
+Module Name :Archeologist_Starter
+Reference Directory :palsand.mod
+Required reference IDSZ :[ARCH]
+Number of imports ( 0 to 4 ) :0
+Exporting ( TRUE or FALSE ) :FALSE
+Minimum players ( 1 to 4 ) :1
+Maximum players ( 1 to 4 ) :1
+Respawning ( TRUE or FALSE ) :TRUE
+RTS control (TRUE, FALSE, ALL) :FALSE
+Level rating ( * to  ***** ) :*****
+
+// Module summary
+:Help_your_friend_Marcus_by_
+:recovering_the_ancient_Golden_
+:Cetza_Idol_for_the_Royal_Bishopian
+:museum._Legend_says_it_is_guarded
+:by_ancient_puzzles_and_traps.
+:Watch_out_for_the_deadly
+:Jungle_Warriors,_and_hope_there
+:aren't_any_snakes!
+
+// IDZs

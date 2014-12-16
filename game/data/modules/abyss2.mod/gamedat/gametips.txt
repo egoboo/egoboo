@@ -1,0 +1,8 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: This_is_the_final_level_where_you_save_Lord_Bishop!
+Tip 1: There_are_secrets_hidden_around_to_aid_you_on_your_quest.
+Tip 2: Devil_Doors_have_a_riddle_you_need_to_solve_before_they_open.
+Tip 3: Potion_of_Magic_Immunity_and_Potion_of_Power_might_be_useful_here.
+Tip 4: This_might_be_the_hardest_dungeon_you_will_ever_face!
+Tip 5: You_will_need_a_Crushing_Weapon_at_your_side._You_can_loot_them_from_Monsters.
+Tip 6: In_the_Abyss,_no_one_can_hear_you_scream...

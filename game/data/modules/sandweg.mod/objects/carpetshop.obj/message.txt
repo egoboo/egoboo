@@ -1,0 +1,9 @@
+Message 0: %t_won't_be_making_any_carpets_soon...
+Message 1: The_shop_keeper_looks_better...
+Message 2: Find_the_carpet_of_your_dreams!
+Message 3: Special_price!_Just_for_you,_my_friend!
+Message 4: Real_arabic_carpets!
+Message 5: Here_is_your_money._(%x_Zenny)
+Message 6: Have_a_nice_day!_(%x_Zenny)
+Message 7: Sorry_that_is_too_expensive_for_%t!_(%x_Zenny)
+Message 8: I_won't_pay_for_that!

@@ -1,0 +1,63 @@
+// Eat the candy!
+IfUsed
+  tmpargument = 50
+  SetReloadTime
+
+  // Heal some life and mana
+  SetTargetToWhoeverIsHolding
+  tmpargument = 768       // 3 life and mana regained
+  HealTarget
+  PumpTarget
+
+  tmpargument = ACTIONMC        // Drink animation
+  TargetDoAction
+
+  tmpargument = 0
+  PlaySound
+  tmpargument = 2
+  SendMessageNear
+
+  CostAmmo
+  IfAmmoOut
+    GoPoof
+
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  MakeAmmoKnown
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+// Make a sound
+IfHitGround
+  tmpargument = 1
+  PlaySound
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+// All done
+End
+

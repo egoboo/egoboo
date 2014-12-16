@@ -1,0 +1,10 @@
+Message 0: %t_put_out_the_shopkeeper's_light...
+Message 1: The_shop_keeper_looks_better...
+Message 2: Lamps,_torches,_oil..._Everything_you_need!
+Message 3: Special_price_for_you,_my_friend!
+Message 4: All_kinds_of_lamps!
+Message 5: Sold!_(%x_Zenny)
+Message 6: May_light_find_it's_way_to_you..._(%x_Zenny)
+Message 7: Hand's_off!_(%x_Zenny)
+Message 8: That_seems_worthless_to_me...
+: __%X__

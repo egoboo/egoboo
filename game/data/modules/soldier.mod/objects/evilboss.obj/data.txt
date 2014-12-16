@@ -1,0 +1,158 @@
+Slot number    : 42
+Class name     : Dark_Paladin
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : MALE
+
+Life color    	: 1
+Mana color    	 : 3
+Life           	: 10.00
+Life up       	 : 1-2.00
+Mana         	  : 13.25
+Mana up      	  : 0.50-1.00
+Mana return   	 : 2.00
+Mana return up 	: 0.00-0.00
+Mana flow      	: 2.00
+Mana flow up  	 : 0.00-0.00
+STR            	: 14.00
+STR up       	  : 1.00-2.50
+WIS           	 : 18.00
+WIS up       	  : 0.50-1.00
+INT            	: 4.16
+INT up       	  : 0.00-0.00
+DEX            	: 7-12.00
+DEX up        	 : 1.00-2.00
+
+Size           : 1.1
+Size up        : 0.05
+Shadow size    : 25
+Bump size      : 30
+Bump height    : 90
+Bump dampen    : 0.20
+Weight         : 110
+Jump power     : 10.00
+Jump number    : 1
+Sneak speed    : 1
+Walk speed     : 3
+Run speed      : 5
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 16000
+
+Base defense   :  70   0   0   0
+S damage shift :   1   1   1   1
+C damage shift :   1   1   1   1
+P damage shift :   1   1   1   1
+H damage shift :   2   1   1   1
+E damage shift :   2   1   1   1
+F damage shift :   1   1   1   1
+I damage shift :   1   1   1   1
+Z damage shift :   1   1   1   1
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   T   T
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  40  40  40  40
+
+EXP for 2nd    : 400
+EXP for 3rd    : 800
+EXP for 4th    : 1600
+EXP for 5th    : 3200
+EXP for 6th    : 6400
+Starting EXP   : 0
+EXP worth      : 45
+EXP exchange   : 0.010
+EXPSECRET      : 0.00
+EXPQUEST       : 0.90
+EXPDARE        : 0.30
+EXPKILL        : 1.20
+EXPMURDER      : 1.00
+EXPREVENGE     : 1.50
+EXPTEAMWORK    : 0.10
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [HUMA]
+IDSZ Type      : [PALA]
+IDSZ Skill     : [JOUS]
+IDSZ Special   : [EVIL]
+IDSZ Hate      : [GOOD]
+IDSZ Vulnie    : [NONE]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : TRUE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : CRUSH
+Attack type    : SLASH
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : TRUE
+Part type      : 0
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 3
+
+Blud valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 1.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : Black_Platemail
+Skin 1 name    : BAD
+Skin 2 name    : BAD
+Skin 3 name    : BAD
+Skin 0 cost    : 500
+Skin 1 cost    : 0
+Skin 2 cost    : 0
+Skin 3 cost    : 0
+STR dampen     : 0.050
+
+No rider attak : FALSE
+Can be dazed   : FALSE
+Can be grogged : FALSE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : 0
+Jump sound     : 1
+
+:[LEVL] 1
+:[AWEP] 1       //Can use advanced weapons

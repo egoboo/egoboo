@@ -1,0 +1,14 @@
+IfSpawned
+  tmpargument = 0
+  SetContent
+  tmpargument = 255
+  FlashVariable
+
+// Shrink the shadow
+GetContent
+tmpargument = tmpargument + 1
+SetContent
+tmpargument = 35 - tmpargument
+SetShadowSize
+
+End

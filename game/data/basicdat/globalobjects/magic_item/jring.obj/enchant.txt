@@ -1,0 +1,71 @@
+// Basic enchantment stuff
+Retarget as target's weapon ( TRUE or FALSE )	: FALSE
+Override set values ( TRUE or FALSE )		: FALSE
+Remove overridden enchants ( TRUE or FALSE )	: FALSE
+Kill character on end ( TRUE or FALSE )		: FALSE
+Spawn poof on end ( TRUE or FALSE )		: FALSE
+Seconds before end ( -1 for infinite )		: -1
+End message ( -1 for none )			: -1
+
+
+// Enchantment draining/sustaining
+Owner's mana boost each second ( -1.0 to 1.0 )	: 0.0
+Target's mana boost each second ( -1.0 to 1.0 ) : 0.0
+End if mana can't be payed ( TRUE or FALSE )	: FALSE
+Owner's life boost each second ( -1.0 to 1.0 )	: 0.0
+Target's life boost each second ( -1.0 to 1.0 )	: 0.0
+
+
+// Stuff to make the enchantment more specific
+Don't work if target resists ... ( ex. CRUSH )	: NONE
+Only work if target causes ... ( ex. SLASH )	: NONE
+Removed by ... ( [NONE] or an IDSZ )		: [NONE]
+
+
+// Set target's attributes...  The numbers are explicit, and
+// are reset when removed.  Multiple sets are not cumulative
+// because that would be bad.  Preceed each value with a T
+// if the value is to be set, F otherwise
+Damage type ( CRUSH, POKE, SLASH, etc. )	: F CRUSH
+Number of jumps ( 0 to 2 )			: F 2
+Life bar color ( 0 to 5, 1 is red )		: F 4
+Mana bar color ( 0 to 5, 5 is purple )		: F 4
+SLASH damage modifier ( InversionTFC, Shift )	: F F 2
+CRUSH damage modifier ( InversionTFC, Shift )	: F F 2
+POKE  damage modifier ( InversionTFC, Shift )	: F F 2
+HOLY  damage modifier ( InversionTFC, Shift )	: F T 1
+EVIL  damage modifier ( InversionTFC, Shift )	: F F 1
+FIRE  damage modifier ( InversionTFC, Shift )	: F F 1
+ICE   damage modifier ( InversionTFC, Shift )	: F F 1
+ZAP   damage modifier ( InversionTFC, Shift )	: F F 1
+Flashing AND ( 1, 3, 7, 15...  255 is don't )	: F 7
+Light blending ( 255 is normal )		: F 128
+Alpha blending ( 255 is normal )		: F 128
+Sheen ( 0 - 15, 0 is dull, 15 is shiny )	: F 0
+Fly to height ( 0 to 255, Won't affect innate )	: F 40
+Walk on water ( TRUE or FALSE, Not on innate )	: F TRUE
+Can see invisible ( TRUE or FALSE )		: F TRUE
+Missile treatment ( NORMAL, DEFLECT, REFLECT )	: F DEFLECT
+Cost for each missile treated ( 0.0 to 1.0 )	: F 3.0
+Morph target ( TRUE )				: F TRUE
+Target may now channel life ( TRUE )		: F TRUE
+
+
+// Modify target's attributes...  These are cumulative, and
+// are simply undone when removed.
+Jump power increase ( -5.0 to 5.0 )		: 10.0
+Bump dampen change ( -1.0 to 1.0 )		: 0.0
+Bounciness change ( -.95 to .95 )		: 0.0
+Damage bonus ( -4.0 to 4.0 )			: 0.0
+Size increase ( -.5 to .5 )			: 0.0
+Acceleration booost ( -40 to 40 )		: 0
+Darkening red shift change ( -3 to 3 )		: 0
+Darkening green shift ( -3 to 3 )		: 0
+Darkening blue shift ( -3 to 3 )		: 0
+Base defense increase ( -50 to 50 )		: 0
+Maximum mana increase ( -3.0 to 3.0 )		: 0.0
+Maximum life increase ( -3.0 to 3.0 )		: 0.0
+Strength boost ( -3.0 to 3.0 )			: 0.0
+Wisdom boost ( -3.0 to 3.0 )			: 0.0
+Intelligence boost ( -3.0 to 3.0 )		: 0.0
+Dexterity boost ( -3.0 to 3.0 )			: 0.0

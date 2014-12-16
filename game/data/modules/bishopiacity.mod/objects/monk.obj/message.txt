@@ -1,0 +1,9 @@
+Message 0: %n_is_visiting_the_gods...
+Message 1: Not_USED
+Message 2: Not_USED
+Message 3: %t_slew_a_%c_in_the_fray!
+Message 4: A_%c_had_a_little_too_much_faith...
+Message 5: We_have_an_agreement..._(%x_Zenny)
+Message 6: Thank_you..._(%x_Zenny)
+Message 7: I_am_sorry,_you_lack_the_funds..._(%x_Zenny)
+Message 8: Thank_you_for_your_donation...

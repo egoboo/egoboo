@@ -1,0 +1,78 @@
+BUGS
+- Mouse pointer disappears after starting a game
+- Not all tiles get drawn properly if you zoom the camera in max (sometimes this also happens with minimum zoom as well)
+- Twice there was a crash bug (playing Elf Starter) caused by cone_intersects_point() where the return value was max negative 64-bit integer (-858993460)
+  Note: This bug happened again. This time it returned 39803748
+  Note: This also happened in Paladin Starter (retval = 19195920)
+  Function should only return type geometry_rv but seems to return seemingly random other values
+- Billboards are drawn upside-down!
+- Rotating the camera does not work
+- Swinging a weapon in right hand will cause your character to move slightly. I am un-sure if this is intended.
+- There is no darkness in modules
+- I cant pick up money
+- Water pool in Soldier Starter is not drawn
+- Sounds seem to carry too far. I can hear stuff on the other side of the map (sometimes very loud)
+- The enemy riding the chocobone in Soldier starter seems only to ride around me in circles
+- Tranches popping out of chests and broken idols are flinged outside the map
+- Lumpkin blood seems to take very long time to disappear
+- The camera in G'nome starter does not swing
+- Camera movements become choppy if you move close to the edges
+- Something is wrong with the AI turning code. AI are not properly facing their opponents (Vikings in Valkyrie Starter). Possible SetTurnModeToWatchTarget ?
+- Whips do not uncoil when they attack
+- Blips on the minimap no longer work
+- Sneaking does not work
+- Potions are so bright they are completely white (you cannot see the potion contents like red liquid)
+- Longbows in the hands of Cobols no longer spawn (Rogue Starter)
+- The chained ball in Rogue Starter suddenly duplicated when I grabbed it. I have 2 chains attached to my leg now!
+
+All these modules have Water (related?):
+- Performance problems in Elf Starter (~10 fps, ~25 ups, update lag: ~5)
+- Performance problems in Wizard Starter as well
+- Performance problems in Valkyrie Starter
+
+Related particle bump bugs:
+- Ghouls do not hurt you with their melee attack (Healer Starter)
+- It also seems that all foes are more difficult to hit, as direct contact seems not to work.
+- It is almost impossible to get injured by ghouls. Sometimes jumping during their attacks can cause injury, however. (HOLY damage works OK)
+- Frights are not hurt by HOLY magic
+- Attack particle when attacking with a Claw spawns in the wrong hand
+
+Here is a short list of the know issues in Egoboo that weren't fixed in the last release. There might be other 
+issues that weren't detected hidden around the game. If you discover one, please report in in the community forums
+at: http://egoboo.sourceforge.net/forum/ 
+
+Thanks!
+
+UNCONFIRMED:
+2. The Paladin module seems to be missing the items it needs to be completed; neither the first or second rooms of the sarcophaguses contain keys!
+11. Rug mimics are very hard to find because they are usually invisible unless they are attacking.
+12. The cursor is not displayïng correctly in specific texture filtering modes
+
+KNOWN BUGS:
+- The hints seem to be ‘cut’ off my screen, perhaps due to the font size, or my resolution.
+- Sometimes the avatars in the playër select will turn into books. Could any of you guess why that might be happening?
+- Can't use command keys for input controls (shift ctrl, etc.)
+- Tourist: one of the keys ( at platforms) always fell trough the platform to the pit. that makes this level unbeatable. 
+- "items falls through the floor" bug
+- Redo some of the Devil Door stuff (detect dead)
+- Trigger Tiles move through players.
+- Xbows and Longbows have horrible attack range as the arrows hit ground too early
+- Archmage Trials: After solving the mirror puzzle (with the minotaur) my character gets supersized. 
+- In the tourist starter the spike traps are hurting the character even when he doesn't touches them. (They hurt even when standing some steps away...) 
+- After killing guards or monsters with bombs a false message is displayed. (eg. "A guard killed a guard." "A sheep butchered a sheep"). Also the guards don't attack the player who set up the bomb. They attack the shepherd or the healer/alchemist. 
+- Bear Trapped monsters can be moved around when they get bumped by allies.
+- I know of a crash bug that I have never done anything to fix. If you play the game with sound turned off, the game will crash because the in-game music is not loaded and all the pointers are null. For some reason this is not an easy fix, but I can't remember why.
+- Exploit: You can assassinate characters with bear traps. 
+- Unlocking the door of the Cobol Mage room does not work; you can walk through the - still visible - door after "unlocking" it, but the middle part is not trespassable. 
+
+COSMETIC/TRIVIAL 
+- Sometimes “Immune” pops up when idols are attacked. I find this misleading, as idols could still be destroyed with the same weapon used previously.
+- Starting equipment is not properly unkursed
+- SetFrame doesnt seem to work properly. (see mosquitoes, they are stuck in one frame)
+- Need magic sparks for the sporks attacks.
+- Backstab messages in the ticker are displayed twice.
+
+WISHLIST:
+- Add multiplayer networking
+- MESHFX_WALL should become hillside and not impassable while MESH_FXSLIPPERY should become icy.
+- Rework how identifying stuff works. Currently it doesn't work at all.

@@ -1,0 +1,128 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+#dependency Paladin   0
+#dependency Ghoul     56
+#dependency GrubBug   59
+#dependency RockOpen  54    //For destroyed stone idols
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+Paladin:   NONE    0  24.0   8.5   1.0   S    0   0  0   0   0   T   F   G
+  warham:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  lamp:   NONE    49  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+moduletool:   NONE    80  24.0   10.0   3.0   N    0   0  21  0   0   F   F   E
+
+ulna:   NONE    37  12.0   8.0   1.0   N    6   0  0   0   0   F   F   E
+  Hatchet:   NONE    42  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+ulna:   NONE    37  36.5   8.5   1.0   N    3   0  0   1   0   F   F   E
+  Torch:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+brazier:   NONE    39  26.5   10.5   0.0   N    0   0  0   0   0   F   F   N
+
+ulna:   NONE    37  24.5   24.5   1.0   N    1   0  0   1   0   F   F   E
+ulna:   NONE    37  23.5   22.5   1.0   N    2   0  0   0   0   F   F   E
+  Sword:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+chest:   NONE    67  38.0   51.5   1.0   N    4   0  0   0   0   F   F   N
+  Sword:   NONE    45  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+brazier:   NONE    39  20.5   34.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    39  27.5   34.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    39  27.5   44.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    39  20.5   44.5   1.0   N    0   0  0   0   0   F   F   N
+blob:   NONE    48  36.5   23.5   1.0   N    0   0  0   0   0   F   F   E
+blob:   NONE    48  37.5   19.5   1.0   N    0   0  0   0   0   F   F   E
+blob:   NONE    48  39.5   20.5   1.0   N    0   0  0   0   0   F   F   E
+blob:   NONE    48  36.5   27.5   1.0   N    0   0  0   0   0   F   F   E
+blob:   NONE    48  39.0   27.0   1.0   N    0   0  0   0   0   F   F   E
+tomb:   NONE    51  12.5   40.0   1.0   N    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Pillar:   NONE    40  53.5   4.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  53.5   7.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  47.5   7.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  47.5   4.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  12.5   20.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  9.5   17.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  12.5   17.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  9.5   20.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  29.5   29.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  19.5   29.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  29.5   16.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    40  19.5   16.5   1.0   N    0   1  0   0   0   F   F   N
+grubbug:   NONE    59  64.0   5.0   1.0   N    0   0  0   0   0   F   F   E
+grubbug:   NONE    59  62.0   6.0   1.0   N    0   0  0   0   0   F   F   E
+grubbug:   NONE    59  63.0   6.0   1.0   N    0   0  0   0   0   F   F   E
+grubbug:   NONE    59  60.0   6.0   1.0   N    0   0  0   0   0   F   F   E
+grubbug:   NONE    59  64.0   8.0   1.0   N    0   0  0   0   0   F   F   E
+grubbug:   NONE    59  61.5   4.5   1.0   N    0   0  0   0   0   F   F   E
+grubbug:   NONE    59  39.0   24.0   1.0   N    0   0  0   0   0   F   F   E
+grubbug:   NONE    59  38.0   23.0   1.0   N    0   0  0   0   0   F   F   E
+fright:   NONE    60  24.5   22.5   1.0   N    0   0  0   0   0   F   F   E
+irondoor:   NONE    61  31.0   8.0   1.0   W    0   0  4   0   0   F   F   N
+irondoor:   NONE    61  18.0   8.0   1.0   W    0   0  2   0   0   F   F   N
+gate:   NONE    62  24.0   12.5   1.0   N    0   0  1   0   0   F   F   N
+gate:   NONE    62  24.0   14.5   1.0   N    0   0  0   0   0   F   F   N
+lockdoor:   NONE    44  24.0   32.0   1.0   N    0   0  8   0   0   F   F   N
+blob:   NONE    48  27.5   49.5   1.0   N    0   0  0   0   0   F   F   E
+blob:   NONE    48  18.0   49.0   1.0   N    0   0  0   0   0   F   F   E
+blob:   NONE    48  29.5   48.5   1.0   N    0   0  0   0   0   F   F   E
+ubutton:   NONE    63  11.0   19.0   1.0   N    0   0  1   0   0   F   F   N
+ubutton:   NONE    63  65.5   6.0   1.0   N    0   0  0   0   0   F   F   N
+lockdoor:   NONE    44  34.0   49.0   1.0   W    0   0  12   0   0   F   F   N
+exitdoor:   NONE    71  24.0   3.5   1.0   S    0   0  19   0   0   F   F   N
+
+rockhead:   NONE    52  47.5   30.5   1.0   N    0   0  0   54   0   F   F   E
+  Tranch:   NONE    55  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
+rockhead:   NONE    52  47.5   25.5   1.0   S    0   0  0   54   0   F   F   E
+  Torch:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Cinquedea:   NONE    46  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+rockhead:   NONE    52  47.5   21.5   1.0   N    19   0  0   54   0   F   F   E
+rockhead:   NONE    52  47.5   16.5   1.0   S    0   0  0   54   0   F   F   E
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  OilFlask:   NONE    41  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+rockhead:   NONE    52  13.5   41.5   1.0   N    0   0  0   54   0   F   F   E
+  lamp:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+brazier:   NONE    39  21.5   10.5   1.0   N    0   0  0   0   0   F   F   N
+irondoor:   NONE    61  12.0   51.0   1.0   N    0   0  10   0   0   F   F   N
+irondoor:   NONE    61  51.0   39.0   1.0   E    0   0  14   0   0   F   F   N
+fright:   NONE    60  42.5   38.5   1.0   N    0   0  0   0   0   F   F   E
+fright:   NONE    60  38.5   48.5   1.0   N    0   0  0   0   0   F   F   E
+evilaltar:   NONE    66  61.5   39.0   1.0   W    0   0  18   0   0   F   F   E
+  keye:   NONE    64  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Mount:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+irondoor:   NONE    61  24.0   47.0   1.0   N    0   0  16   0   0   F   F   N
+Mimic:   NONE    68  39.5   51.5   1.0   N    12   0  0   0   0   F   F   E
+rockhead:   NONE    52  13.5   38.5   1.0   N    0   0  0   54   0   F   F   S
+  XBow:   NONE    58  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+pchest:   NONE    65  36.5   51.5   1.0   N    0   0  0   0   0   F   F   N
+  Lance:   NONE    38  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Hatchet:   NONE    42  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+tomb:   NONE    51  47.5   19.0   1.0   W    0   0  0   0   0   F   F   N
+tomb:   NONE    51  47.5   28.0   1.0   E    0   0  0   0   0   F   F   N
+  KeyA:   NONE    43  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+Gelfeet:   NONE    57  12.0   55.0   1.0   N    0   0  0   0   0   F   F   E
+  KeyA:   NONE    43  12.0   55.0   0.5   N    0   0  0   0   0   F   F   N

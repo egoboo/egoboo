@@ -1,0 +1,23 @@
+Module Name 			: Griffin_Tower
+Reference Directory 		: bishopiacity.mod
+Required reference IDSZ 	: [GRIF] 0
+Number of imports ( 0 to 4 ) :4
+Exporting ( TRUE or FALSE ) :FALSE
+Minimum players ( 1 to 4 ) :1
+Maximum players ( 1 to 4 ) :4
+Respawning ( TRUE or FALSE ) :TRUE
+Module Type (MAINQUEST, SIDEQUEST or TOWN)			: SIDEQUEST
+Level rating ( * to  ***** ) :*****
+
+// Module summary
+:The_criminals_have_broken_out_of
+:their_prison_cells!_The_people_of
+:Bishopia_are_depending_on_your
+:help_to_fight_them_back_and_kill
+:their_leader_Bargel...
+:_
+:_
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )

@@ -1,0 +1,7 @@
+Message 0: %t_grabbed_%n.
+Message 1: The_%c_squished!
+Message 2: %t_whipped_out_%n.
+Message 3: %t_swalloed_%n.
+Message 4: %t_looks_sick...
+Message 5: %t_feels_sick...
+Message 6: %t_has_increased_max_mana!

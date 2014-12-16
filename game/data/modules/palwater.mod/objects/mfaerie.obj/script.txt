@@ -1,0 +1,45 @@
+// ZZ> This controls the blue faerie
+IfTimeOut
+  IfStateIs1
+    // Circle around sister
+    tmpargument = [FAER]
+    tmpdistance = 14 // Items, friends and enemies
+    SetTargetToNearestBlahID
+    tmpx = targetx
+    tmpy = targety
+    tmpturn = targetturnto
+    tmpdistance = 100
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand & 31 + 20
+    SetTime
+  IfStateIs0
+    tmpargument = passage
+    IfPassageOpen
+      // Go meet sister
+      ClearWaypoints
+      tmpx = 5248
+      tmpy = 5120
+      AddWaypoint
+      tmpx = 5248
+      tmpy = 6784
+      AddWaypoint
+      tmpargument = 1
+      SetState
+      tmpargument = 400
+      SetTime
+    Else
+      // Show the players what to do...
+      tmpx = selfspawnx
+      tmpy = selfspawny
+      tmpturn = xyturnto + 16384
+      tmpdistance = 200
+      Compass
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = rand & 31 + 20
+      SetTime
+
+// All done
+End

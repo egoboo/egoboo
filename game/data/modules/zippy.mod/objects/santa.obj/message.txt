@@ -1,0 +1,4 @@
+Message 0: Ho!_Ho!_Ho!_Merry_Christmas!
+Message 1: %n_dropped_a_present!
+Message 2: %n_dropped_a_candy_cane!
+Message 3: %t_has_had_enough_for_now...

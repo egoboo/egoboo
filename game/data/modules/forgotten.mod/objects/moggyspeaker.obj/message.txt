@@ -1,0 +1,9 @@
+Message 0: Mmm,_tasty.
+Message 1: Looks_like_this_old_fortress_has_been_overrun_with_vermin.
+Message 2: Oh,_I_bet_this_is_the_door_to_the_treasure_room.
+Message 3: I_bet_there's_all_kind_of_good_loot_in_here!
+Message 4: Mmm._That's_not_half_bad!
+Message 5: Well,_let's_not_dawdle_here.
+Message 6: That_grub_is_gigantic!
+Message 7: Look_at_all_this_treasure!_Don't_worry,_we'll_share_it_with_you_too.
+Message 8: Well,_it's_time_to_go_home_now._It's_been_a_lot_of_fun._Hope_to_see_you_again!

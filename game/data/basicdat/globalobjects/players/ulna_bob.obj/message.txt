@@ -1,0 +1,5 @@
+Message 0: %t_breaked_the_%c's_bones
+Message 1: The_%c_was_crushed.
+Message 2: FF
+Message 3: The_%c_was_destroyed.
+Message 4: The_%c_was_destroyed.

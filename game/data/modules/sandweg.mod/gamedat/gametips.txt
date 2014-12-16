@@ -1,0 +1,7 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Sand_Weg_is_a_fine_place_to_buy_arabic_carpets!
+Tip 1: You_will_find_the_finest_sand_in_all_of_Lorule_here!
+Tip 2: Only_Divine_heroes_can_enter_the_Divine_Order.
+Tip 3: Sand_Weg_has_the_tastiest_Kabobs_in_Lorule!
+Tip 4: Sand_Weg_is_ruled_by_Sultan_Abdulla.
+Tip 5: The_main_export_of_Sand_Weg_is..._sand.

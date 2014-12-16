@@ -1,0 +1,6 @@
+// This file contains information for copying actions
+// It enables the character to use the same attack animation
+// for many different attack action types
+// The format is colon followed by the action names
+
+: SLICE CHOP

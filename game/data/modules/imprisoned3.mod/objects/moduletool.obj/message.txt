@@ -1,0 +1,5 @@
+Message 0: Once_again_you_bravely_step_into_the_glowing_portal_to_continue_your
+Message 1: _quest._The_next_level_should_be_the_final_one_before_you_finally
+Message 2: get_to_meet_the_mysterious_Imprisoned_One!
+Message 3: %#You_have_%Y_minutes_and_%X_seconds_left_before_The_Imprisoned_
+Message 4: One_breaks_free!

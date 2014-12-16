@@ -1,0 +1,25 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: Wizard_Start
+Reference module ( Directory name or NONE )     	: NONE
+Required reference IDSZ ( or [NONE] )         		: [NONE]
+Number of imports ( 0 to 4 )                    		: 0
+Allow exporting of characters ( TRUE or FALSE ) 	: FALSE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 1
+Allow respawning ( ANYTIME, TRUE or FALSE )	: TRUE
+NOT USED				: FALSE
+Level rating ( *, **, ***, ****, or ***** )     		: *****
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:Find_all_the_nessecary
+:hidden_reagents_to_summon
+:a_Hellrover_to_kill_your
+:evil_lich_master!
+:_
+:_
+:_
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )

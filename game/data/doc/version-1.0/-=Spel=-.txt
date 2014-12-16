@@ -1,0 +1,55 @@
+Spells
+======
+Throw			- Used to knock back enemies, No damage
+Blink			- Used to move quickly in random direction
+Drain Mana		- Used to stop wizards, Close range
+Drain Life		- Used to damage others, Close range
+Missile			- Homing damage
+Shock			- Close range radial attack, Cast ducking
+Fireball		- Big damage, Area effect
+Lightning		- Bouncing, Hit multiple targets
+Identify		- ID all objects in inventory
+Unlock			- Used to open chests, Some doors
+Animate			- Create a zombi friend, Sustain
+Rot			- Create a wight proximity mine, Sustain
+Deflect			- Cast on friend in range or self, Uncast
+Levitate		- Cast on friend in range or self, Uncast
+The Unseen		- Cast on target in range or self, Uncast
+Unseeing		- Cast on friend in range or self, Uncast
+Morph			- Sneak past Goblins, Open doors, Uncast
+Bind			- Used to stop big guys momentarily, Uncast
+Wall of Swords		- Fall from sky and stick in ground, Uncast
+Ring of Flame		- Will hurt caster, Push out others, Uncast
+Enchant Weapon		- Target item in other hand, Uncast, Unkurse
+Disenchant		- Kill undead or magic enemy
+
+
+Scrolls
+=======
+Rebirth			- Return a character to life, Charge
+Identify		- Identify an item
+
+
+Potions
+=======
+Life Potion		- Increase life, Down permanent
+Mana Potion		- Increase mana, Down permanent
+Strength Potion		- Increase size and strength, Down permanent
+Speed Potion		- Increase speed and dexterity, Down permanent
+
+
+Neckwear
+========
+Rosary			- Increase evil defense
+Amulet of Yendor	- Allows channel, Regeneration
+
+
+Footwear
+========
+Strider Shoes		- Allow water walking, Jump higher
+
+
+Handwear
+========
+
+

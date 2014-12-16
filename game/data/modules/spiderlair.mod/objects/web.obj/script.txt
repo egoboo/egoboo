@@ -1,0 +1,27 @@
+IfSpawned
+  tmpargument = 30
+  SetTime
+
+// Make squishy sound
+IfTimeOut
+  tmpargument = 5 + rand & 15
+  SetTime
+
+  tmpargument = [NONE]
+  tmpdistance = BLAHFRIENDS + BLAHENEMIES
+  SetTargetToWideBlahID
+    tmpx = targetdistance
+    tmpy = 64
+    IfXIsLessThanY
+      IfStateIs0
+        tmpargument = 0
+        PlaySound
+        tmpargument = 1
+        SetState
+    Else
+      tmpargument = 0
+      SetState
+
+// All done
+End
+

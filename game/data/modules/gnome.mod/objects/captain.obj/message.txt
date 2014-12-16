@@ -1,0 +1,7 @@
+Message 0: %n_is_sailing_the_seven_skies...
+Message 1: HATE
+Message 2: You'll_walk_the_plank
+Message 3: %t_mutinied!
+Message 4: %n_has_fallen,_and_he_can't_get_up!
+Message 5: I'll_watch_your_back.
+Message 6: %n_reloaded_%p_Gonne...

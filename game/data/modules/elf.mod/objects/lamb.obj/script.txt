@@ -1,0 +1,48 @@
+//------------------------------------------------------------------------------
+// ZZ> Move around...  Start at state 0
+IfTimeOut
+  tmpx=rand&63
+  tmpy=0
+  IfXIsEqualToY
+    tmpargument = 0
+    tmpdistance = rand & 1027 + 40000
+    PlaySound
+
+  tmpx = rand & 511 - 256 + selfspawnx
+  tmpy = rand & 511 - 256 + selfspawny
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = rand & 63 + 30
+  SetTime
+  tmpargument = 0
+  IfStateIsNot
+    GetState
+    tmpargument = tmpargument -1
+    SetState
+
+IfBumped
+  SetTargetToWhoeverBumped
+  tmpargument = [ELFF]
+  IfTargetHasID
+    IfStateIs0
+      tmpargument = rand % 3 + 1
+      SendMessageNear
+      tmpargument = 8
+      SetState
+      tmpargument = 0
+      tmpdistance = rand & 1027 + 40000
+      PlaySound
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 0
+  SendMessageNear
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

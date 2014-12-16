@@ -1,0 +1,220 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+// Divine Shop
+#dependency SpkMace          46
+#dependency KiteShield       78
+#dependency Ressurection     79	
+#dependency MSword           81
+#dependency Clairvoyance     85
+#dependency Confusion        88
+#dependency SyphonMana      112
+#dependency CombatBless	    122	
+#dependency Regeneration    124	
+#dependency Exorcism        125
+#dependency Restoration     128
+#dependency HolyBolt        129
+#dependency Mallet          132
+#dependency TrueSightScroll 140
+#dependency PRing	          158
+
+// Lamp Shop
+#dependency Lamp             44
+#dependency OilFlask         49
+#dependency Torch	           47
+#dependency Everburn         48
+
+// Shopkeeper
+#dependency Sword            50 
+#dependency Spear		         51 
+#dependency Trident	         57
+#dependency ThunderSpear     62
+#dependency XBow	           71 
+#dependency Stiletto	       74 
+#dependency KiteShield	     78
+#dependency Sojurn		       82
+#dependency Strike		       83
+#dependency Pike		         89
+#dependency Quiver	         90 
+#dependency Bomb		         96 
+#dependency Scimitar         92 
+#dependency Scythe	        131
+#dependency AmmoBox	        123
+
+//Sand shop
+#dependency SandFlask	      106
+
+//Quest Rewards
+#dependency JRing           135
+#dependency LifeRing  	    136
+#dependency LuckRing        137
+
+#dependency Tranch           41
+#dependency Fright           65
+#dependency Ghoul            98
+
+
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+unknown:   NONE    0  35.5   37.5   1.0   W    0   0  0   0   0   T   F   G
+  unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+unknown:   NONE    9  35.5   40.5   1.0   W    0   0  0   0   0   T   F   G
+  unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+unknown:   NONE    18  38.5   37.5   1.0   W    0   0  0   0   0   T   F   G
+  unknown:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+unknown:   NONE    27  38.5   40.5   1.0   W    0   0  0   0   0   T   F   G
+  unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+moduletool:   NONE    126  24.5   30.5   1.0   N    0   0  4   0   0   F   F   N
+
+stonebridge:   NONE    36  31.5   37.5   0.0   N    0   0  0   0   0   F   F   N
+well:   NONE    39  13.0   35.0   1.0   N    0   0  0   0   0   F   F   N
+gate:   NONE    40  36.0   27.5   0.0   E    0   0  32   0   0   F   F   N
+gate:   NONE    40  23.0   52.0   0.0   N    0   0  32   0   0   F   F   N
+FlagPost:   NONE    107  28.5   40.0   0.0   ?    0   3  0   0   0   F   F   N
+
+kabobspit:   NONE    37  20.5   34.5   0.0   N    0   0  0   0   0   F   F   N
+kabobman:   NONE    38  21.5   34.3   0.0   S    0   0  0   0   0   F   F   G
+
+abdulla:   NONE    42  25.5   41.5   0.0   N    0   0  0   0   0   F   F   G
+  Scimitar:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
+
+tent:   NONE    43  7.8   35.0   0.0   E    0   0  0   0   0   F   F   N
+lampshop:   NONE    45  8.8   35.0   0.0   E    0   0  0   0   0   F   F   G
+  Light:   NONE    54  0.0   0.0   0.0   R    0   0  0   0   0   F   F   Null
+
+TouristGuide   NONE    52  29.0   35.5   0.0   S    0   0  0   0   0   F   F   G
+
+//Big shop
+shopkeeper:   NONE    53  12.0   42.5   0.0   ?    0   0  1   0   0   F   F   G
+  Scimitar:   NONE    92  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
+  XBow:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   Null
+EnchantArmorScroll:   NONE    58  14.0   41.0   0.0   E    0   0  0   0   0   F   F   Null
+EnchantArmorScroll:   NONE    58  14.0   42.0   0.0   E    0   0  0   0   0   F   F   Null
+EnchantArmorScroll:   NONE    58  14.0   43.0   0.0   E    0   0  0   0   0   F   F   Null
+EnchantWeaponScroll:   NONE    60  10.0   41.0   0.0   W    0   0  0   0   0   F   F   Null
+EnchantWeaponScroll:   NONE    60  10.0   42.0   0.0   W    0   0  0   0   0   F   F   Null
+EnchantWeaponScroll:   NONE    60  10.0   43.0   0.0   W    0   0  0   0   0   F   F   Null
+
+//Inhabitants
+peasant:   NONE    103  16.5   37.5   0.0   ?    0   0  0   0   0   F   F   G
+peasant:   NONE    103  26.5   38.5   0.0   ?    1   1  0   0   0   F   F   G
+peasant:   NONE    103  24.0   31.0   0.0   ?    2   2  0   0   0   F   F   G
+peasant:   NONE    103  20.5   35.5   0.0   ?    4   3  0   0   0   F   F   G
+
+//Sand shop
+tent:   NONE    43  28.0   31.25   0.0   ?    0   0  0   0   0   F   F   N
+sandshop:   NONE    105  27.0   31.0   0.0   E    0   0  3   0   0   F   F   G
+
+//Carpet shop
+tent:   NONE    43  16.5   40.5   0.0   N    0   1  0   0   0   F   F   N
+carpetshop:   NONE    102  16.5   39.5   0.0   N    0   0  2   0   0   F   F   G
+  carpet:   NONE    101  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+carpet:   NONE    101  18.0   39.5   0.0   N    0   0  0   1   0   F   F   N
+carpet:   NONE    101  17.8   39.0   0.0   N    0   1  0   1   0   F   F   N
+carpet:   NONE    101  15.5   38.5   0.0   N    0   2  0   1   0   F   F   N
+carpet:   NONE    101  18.0   38.5   0.0   N    0   3  0   1   0   F   F   N
+carpet:   NONE    101  15.5   39.5   0.0   N    0   0  0   0   0   F   F   N
+carpet:   NONE    101  16.0   39.0   0.0   N    0   0  0   0   0   F   F   N
+
+//The town watch
+guard:   NONE    104  37.5   35.5   0.0   E    0   0  0   0   0   F   F   G
+  Spear:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+guard:   NONE    104  24.5   42.0   0.0   E    0   0  0   0   0   F   F   G
+  Trident:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+guard:   NONE    104  24.5   39.5   0.0   E    0   0  0   0   0   F   F   G
+  Trident:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+guard:   NONE    104  7.5   38.5   0.0   E    0   0  0   0   0   F   F    G
+  Scimitar:   NONE    92  0.0   0.0   0.0   R    0   0  0   0   0   F   F   Null
+guard:   NONE    104  13.5   16.5   0.0   N    0   0  0   0   0   F   F   G
+  Trident:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+guard:   NONE    104  9.5   16.5   0.0   N    0   0  0   0   0   F   F    G
+  Spear:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+guard:   NONE    104  17.5   43.5   0.0   W    0   0  0   0   0   F   F   G
+  XBow:   NONE    71  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+//Divine shop
+gate:   NONE    40  23.0   18.0   0.0   N    0   0  4   0   0   F   F   N
+divineshop:   NONE    108  23.0   13.5   0.0   ?    0   0  6   0   0   F   F   G
+rebirth:   NONE    133  22.0   11.5   0.0   N    0   0  0   0   0   F   F   N
+rebirth:   NONE    133  23.0   11.5   0.0   N    0   0  0   0   0   F   F   N
+rebirth:   NONE    133  24.0   11.5   0.0   N    0   0  0   0   0   F   F   N
+
+//Dangers outside
+dustdevil:   NONE    113  46.5   52.5   1.0   N    0   0  0   0   0   F   F   D
+dustdevil:   NONE    113  53.5   59.5   1.0   N    0   1  0   0   0   F   F   D
+dustdevil:   NONE    113  54.5   49.5   1.0   N    0   2  0   0   0   F   F   D
+
+//Signs
+smallsign:   NONE    130  13.0   8.0   0.0    N    0   0  0   0   0   F   F   N
+smallsign:   NONE    130  42.5   39.0   0.0   E    0   0  0   0   0   F   F   N
+smallsign:   NONE    130  25.0   19.5   0.0   S    0   1  0   0   0   F   F   N
+
+chest:   NONE    59  19.0   12.5   0.0   E    2   0  0   96   9   F   F   N
+chest:   NONE    59  19.0   13.5   0.0   E    1   0  0   96   9   F   F   N
+chest:   NONE    59  19.0   14.5   0.0   E    0   0  0   96   9   F   F   N
+
+chest:   NONE    59  27.0   12.5   0.0   W    2   0  0   96   7   F   F   N
+chest:   NONE    59  27.0   13.5   0.0   W    1   0  0   96   7   F   F   N
+chest:   NONE    59  27.0   14.5   0.0   W    0   0  0   96   7   F   F   N
+
+tent:   NONE    43  21.0 27.0   0.0   ?    0   2  0   0   0   F   F   N
+alchemist   NONE    ??  22.0 27.0   0.0   E    0   0  0   0   0   F   F   G         //TODO: Add alchemist shop
+
+dTree:   NONE    134  8.5 23.0   0.0   ?    0   2  0   0   0   F   F   N
+dTree:   NONE    134  56.0 10.0   0.0   ?    0   2  0   0   0   F   F   N
+
+Prophet:   NONE    52  9.0 19.5   0.0   S    0   0  0   0   0   F   F   G
+  Qstaff:   NONE    55  0.0 0.0   0.0   R    0   0  0   0   0   F   F   N

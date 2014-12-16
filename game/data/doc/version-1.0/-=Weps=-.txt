@@ -1,0 +1,35 @@
+Crossbow Weapons
+================
+**Silver Crossbow, Silver Arrows, 50
+**Hand Crossbow, Fast fire darts, Low damage, No stuck, 50
+
+Longbow Weapons
+===============
+**"The Speedbow", Shoot fast, 99
+
+Sword Weapons
+=============
+Rusty sword, Can't RUST, Becomes Mana Sword
+"The Mana Sword", Can't RUST, Charges when owner is blocking
+"Hunger", Whispers, Drains your life ( sneaky )
+"Sloth", Slows you down, Slow attack, Cursed
+
+Dagger Weapons
+==============
+**"The Incisor"
+
+Mace Weapons
+============
+"Godsend", Flashes when undead are near
+"Smite", Yells at you, Black status bars
+
+
+Axe Weapons
+===========
+"The Bait", Drips blood
+
+Shields
+=======
+Tower Shield
+"Invictus", Deflect, Enchant owner on use, Then disenchant
+Old Shield, Rustproof

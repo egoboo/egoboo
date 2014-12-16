@@ -1,0 +1,23 @@
+Module Name 			: Paladin_Start
+Reference Directory 			:NONE
+Required reference IDSZ 		:[NONE]
+Number of imports ( 0 to 4 )		:0
+Exporting ( TRUE or FALSE ) 		:FALSE
+Minimum players ( 1 to 4 ) 		:1
+Maximum players ( 1 to 4 ) 		:1
+Respawning (ANYTIME, TRUE or FALSE ) 	:TRUE
+NOT USED		 	:FALSE
+Level rating ( * to  ***** ) 		:***
+
+// Module summary
+:Prove_your_worth_to_become_a
+:Paladin_by_destroying_the_evil
+:altar_that_sustains_the_undead.
+:_
+:Can_you_escape_alive?
+:_
+:_
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )

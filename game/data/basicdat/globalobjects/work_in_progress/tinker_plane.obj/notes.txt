@@ -1,0 +1,7 @@
+This is an esxperimental test plane from the from the Royal Bishopian Air Force. It is being built by G'Nomes, so it is very dangerous!
+
+It should be able to pick up objects into its bomb bay and then drop themusing the rider's normal grab right.
+
+Using the rider's grab left will cause the player to be ejected from the cockpit.
+
+It is using the bullets from the Gatlin Gonne at the moment.

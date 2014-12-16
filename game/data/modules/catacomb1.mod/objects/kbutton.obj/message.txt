@@ -1,0 +1,3 @@
+Message 0:  %t_unlocked_a_%c.
+Message 1:  The_%c_was_activated.
+Message 2:  The_door_is_warded_against_magic...

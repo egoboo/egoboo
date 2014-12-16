@@ -1,0 +1,72 @@
+General Effects
+===============
+Black status bars
+Heavy ( Slower, Less jump power )
+Slow attack ( Reload time )
+Decreases max life of holder
+Decreases max life of enemy on hit
+Decreases max life of holder on hit
+Can deflect arrows/spells
+Limited amount of ammo
+No Friendly Fire ( XBowOLuv )
+
+
+
+Easy Bracelets
+==============
+Bracelet of Protection
+Bracelet of Regeneration
+Bracelet of Flames, Tint red
+Bracelet of Winters, Tint blue
+Bracelet of Skulls
+Bracelet of Storms
+Bracelet of Strength
+Bracelet of Dexterity
+
+
+
+Easy Amulets
+============
+Amulet of the Unseen
+Amulet of Unseeing
+Amulet of Channeling
+Amulet of Levitation
+Amulet of Fortitude
+Amulet of Power
+Amulet of Intelligence
+Amulet of Wisdom
+
+
+Easy Potions
+============
+Potion of Healing
+Potion of Mana
+Potion of Strength
+Potion of Wisdom
+Potion of Intelligence
+Potion of Dexterity
+Potion of Experience
+Potion of Speed
+
+
+Easy Misc
+=========
+Small pouch...  Throwing Stars, Dust...
+Running Shoes...  Speed
+Trogskin Boots...  Jumping
+Strider Boots...  Water walking
+Shield of Deflection...  Undo enc when not used...  Sparklies...
+Rustproof Shield...  Rustproof
+
+
+Items for G'nome
+================
+Bear Trap
+Satchel Charge
+Six Pack o' Grog ( Cans??? )
+Box of Nails
+
+
+
+Spells to Do Later
+==================

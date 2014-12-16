@@ -1,0 +1,17 @@
+// Special resizing upon spawn
+IfSpawned
+  tmpargument = 0
+  IfContentIs
+    DoNothing
+  Else
+    SetTargetToSelf
+    tmpargument = selfcontent
+    SetTargetSize
+
+// Drop inhand items when bumped
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    DropItems
+
+End

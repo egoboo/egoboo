@@ -1,0 +1,42 @@
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+unknown:   NONE    0  14.5   10.5   1.5   N    0   0  0   0   0   T   F   A
+  unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+unknown:   NONE    9  15.5   10.5   1.5   N    0   0  0   0   0   T   F   B
+  unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+unknown:   NONE    18  14.5   11.5   1.5   N    0   0  0   0   0   T   F   C
+  unknown:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+unknown:   NONE    27  15.5   11.5   1.5   N    0   0  0   0   0   T   F   D
+  unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+bumper:   NONE    36  14.5   10.5   0.0   W    0   0  0   0   0   F   F   Z
+bumper:   NONE    36  15.5   10.5   0.0   W    0   1  0   0   0   F   F   Z
+bumper:   NONE    36  14.5   11.5   0.0   W    0   2  0   0   0   F   F   Z
+bumper:   NONE    36  15.5   11.5   0.0   W    0   3  0   0   0   F   F   Z
+moduletool:   NONE    126  15.5   11.5   0.0   W    0   3  0   0   0   F   F   N

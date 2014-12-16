@@ -1,0 +1,43 @@
+// ZZ> This controls the pink faerie
+IfTimeOut
+  IfStateIs1
+    // Fly around the treasure room
+    tmpx = 3456
+    tmpy = 6784
+    tmpturn = xyturnto + 16384
+    tmpdistance = 200
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand & 31 + 20
+    SetTime
+  IfStateIs0
+    tmpargument = passage
+    IfPassageOpen
+      // Fly to the treasure room
+      ClearWaypoints
+      tmpx = selfspawnx
+      tmpy = 6784
+      AddWaypoint
+      tmpx = 3600
+      tmpy = 6784
+      AddWaypoint
+      tmpx = 3520
+      tmpy = 6400
+      tmpargument = 1
+      SetState
+      tmpargument = 300
+      SetTime
+    Else
+      // Fly around the middle of the room
+      tmpx = selfspawnx
+      tmpy = selfspawny
+      tmpturn = xyturnto + 16384
+      tmpdistance = 200
+      Compass
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = rand & 31 + 20
+      SetTime
+// All done
+End

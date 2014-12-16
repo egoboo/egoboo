@@ -1,0 +1,74 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//                 TopleftXY  BottomrightXY   Open    ShootThrough  SlippyClose
+0 LavaRoom:          7   66     16  75         T       T             F
+1 TileMimicRoom:     63  38     72  47         T       T             F
+2 Start-Cobol:       46  70     47  71         F       F             F
+3 Start-CobolOpen:   47  70     48  71         T       T             F
+4 Start-Dirt:        32  70     33  71         F       F             F
+5 Start-DirtOpen:    33  70     34  71         T       T             F
+6 Start-Bull:        39  63     40  64         F       F             F
+7 Start-BullOpen:    39  64     40  65         T       T             F
+8 Bull-Assassin:     46  56     47  57         F       F             F
+9 Bull-AssassinOpen: 45  56     46  57         T       T             F
+10 Bull-Library:     39  49     40  50         F       F             F
+11 Bull-LibraryOpen: 39  50     40  51         T       T             F
+12 Lava-Bull:        32  56     33  57         F       F             F
+13 Lava-BullOpen:    31  56     32  57         T       T             F
+14 Empty-Lava:       18  56     19  57         F       F             F
+15 Empty-LavaOpen:   17  56     18  57         T       T             F
+16 Lava-Dirt:        25  63     26  64         F       F             F
+17 Lava-DirtOpen:    25  62     26  63         T       T             F
+18 Lava-Snow:        25  49     26  50         F       F             F
+19 Lava-SnowOpen:    25  50     26  51         T       T             F
+20 Start-Dirt:       18  70     19  71         F       F             F
+21 Start-DirtOpen:   19  70     20  71         T       T             F
+22 LTile-Empty:      11  63     12  64         F       F             F
+23 LTile-EmptyOpen:  11  64     12  65         T       T             F
+24 Empty-Brazier:    11  49     12  50         F       F             F
+25 Empty-BrazierOpen:11  50     12  51         T       T             F
+26 Brazier-Snow:     18  42     19  43         F       F             F
+27 Brazier-SnowOpen: 17  42     18  43         T       T             F
+28 Snow-Library:     32  42     33  43         F       F             F
+29 Snow-LibraryOpen: 31  42     32  43         T       T             F
+30 Hall-Snow:        25  35     26  36         F       F             F
+31 Hall-SnowOpen:    25  34     26  35         T       T             F
+32 Brazier-End:      11  35     12  36         F       F             F
+33 Brazier-EndOpen:  11  34     12  35         T       T             F
+34 Battle-Cobol:     60  70     61  71         F       F             F
+35 Battle-CobolOpen: 61  70     62  71         T       T             F
+36 Assassin-Cobol:   53  63     54  64         F       F             F
+37 Assassin-CobolOpen:53  64    54  65         T       T             F
+38 Chro-Assassin:    53  49     54  50         F       F             F
+39 Chro-AssassinOpen:53  48     54  49         T       T             F
+40 Assassin-Knight:  60  56     61  57         F       F             F
+41 Assassin-KnightOpen:59  56   60  57         T       T             F
+42 Knight-Trigger:    67  49     68  50         F       F             F
+43 Knight-TriggerOpen:67  50     68  51         T       T             F
+44 Knight-Battle:     67  63     68  64         F       F             F
+45 Knight-BattleOpen: 67  62     68  63         T       T             F
+46 Trigger-Corner:    67  35     68  36         F       F             F
+47 Trigger-CornerOpen:67  36     68  37         T       T             F
+48 Corner-Labby:      60  28     61  29         F       F             F
+49 Corner-LabbyOpen:  61  28     62  29         T       T             F
+50 Library-Cro:      46  42     47  43         F       F             F
+51 Library-CroOpen:  45  42     46  43         T       T             F
+52 Trigger-Cro:      60  42     61  43         F       F             F
+53 Trigger-CroOpen:  61  42     62  43         T       T             F
+54 Laby-Cro:         53  35     54  36         F       F             F
+55 Laby-CroOpen:     53  34     54  35         T       T             F
+56 Laby-JestH:       46  28     47  29         F       F             F
+57 Laby-JestHOpen:   47  28     48  29         T       T             F
+58 Hall-JestH:       32  28     33  29         F       F             F
+59 Hall-JestHOpen:   31  28     32  29         T       T             F
+60 JestH-Library:    39  35     40  36         F       F             F
+61 JestH-LibraryOpen:39  34     40  35         T       T             F
+62 Corn-Hall:        18  28     19  29         F       F             F
+63 Corn-HallOpen:    17  28     18  29         T       T             F
+64 JesterLava:       49  5     62  18         T       T             F
+65 PrisonGate:       64  10     69  11         F       T             F
+66 JesterGate:       44  10     49  11         F       F             F
+67 JesterGateDetect: 43  10     44  11         T       T             F
+68 BossDoor:         20  10     24  11         F       F             F
+69 BossDoorDetect:   24  10     25  11         T       T             F

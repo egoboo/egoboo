@@ -1,0 +1,93 @@
+**Classes**
+    [HUMA] Adventurer ( Twink )
+        Guide the heroes to the GrubMum, Slay it
+        Thrust, Chop, Slice, Bash, Longbow, Xbow, Flinged, Parry
+        Wizard magic [WMAG]
+            Leather Jerkin
+            Chainmail
+            Plate Armor
+            Hero Costume ( Link )
+    [HUMA] Soldier ( Sambo )
+        Escape the gladiator pit by becoming a champion
+        Thrust, Chop, Slice, Bash, Flinged, Parry
+        Illiterate [ILLI]
+            Gladiator Mail
+            Chainshirt
+            Magic Armor
+            Hero Costume ( Rambo )
+    [HUMA] Healer ( Evessa )
+        Find the Vampiress and cure her
+        Bash, Flinged, Parry, Zap
+        Cleric magic [CMAG]
+            Robe
+            Halberk
+            Holy Armor
+            Hero Costume ( Avatar )
+    [ELVE] Elf ( Lyndrel )
+        Help the Faeries reclaim their Mushroom Ring ( power center )
+        Thrust, Bash, Flinged, Zap
+        Read Elven writing [ELVE]
+        Wizard magic [WMAG]
+            Elven Clothes ( Dressy )
+            Leaf Armor
+            Mithril Armor
+            Hero Costume ( Spock )
+    [HUMA] Rogue ( Hasim )
+        Escape from prison ( Ball and Chain )
+        Thrust, Slice, Longbow, Xbow, Flinged
+        Double jump
+        Pick pockets
+        Sneak
+        Disarm traps [DISA]
+        Illiterate [ILLI]
+            Leather Suit
+            Cat Suit
+            Ninja Suit
+            Hero Costume ( Alladin )
+    [HUMA] Wizard ( Zambini )
+        Kill your evil master
+        Thrust, Chop, Slice, Bash, Flinged, Zap
+        Wizard magic [WMAG]
+            Wizard's Robe
+            Scholar's Robe
+            Druid's Robe
+            Hero Costume ( Santa )
+    [GNOM] G'nome ( Wibble ) ( Tag )
+        Save the Skysteamer from the Air Pirates
+        Thrust, Chop, Slice, Bash, Parry
+        Resist all magic ( even healing )
+        Technology [TECH]
+        Read G'nomish writing [GNOM]
+            Overalls
+            Lab Coat
+            Prototype Armor
+            Hero Costume ( Logan )
+
+
+
+
+
+**Secondaries**
+    [HUMA] Tourist
+        Find your luggage
+        Thrust, Flinged
+        Technology [TECH]
+            Red Flower Shirt
+            Green Flower Shirt
+            Blue Flower Shirt
+            Hero Costume ( Nudist )
+    [TROL] Troll
+        Unarmed, Chop, Bash
+        Upgrade armor to 0 on death...  Stone skin
+        Fire damage hurts
+        Illiterate ( low intelligence )
+    [CENT] Centress
+        Thrust, Slice, Longbow, Xbow, Flinged, Parry
+        Mount
+            Unclothed
+            Cloth Barding
+            Chain Barding
+            Heavy Barding
+    [HUMA] Amazon???
+    [HUMA] Dancer???
+    [HUMA] Ranger Scout???

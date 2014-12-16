@@ -1,0 +1,4 @@
+Message 0: %t_picked_up_a_%c.
+Message 1: The_%c_was_crushed!
+Message 2: %t's_bow_is_reloaded.
+Message 3: %t_has_no_bow_to_reload...

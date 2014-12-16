@@ -1,0 +1,162 @@
+Slot number    : -1
+Class name     : Ball_of_Light
+Uniform light  : TRUE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : OTHER
+
+Life color     : 1
+Mana color     : 5
+Life           : 1
+Life up        : 0.00
+Mana           : 0.00
+Mana up        : 0.00
+Mana return    : 0.00
+Mana return up : 0.00
+Mana flow      : 0.00
+Mana flow up   : 0.00
+STR            : 1
+STR up         : 0.00
+WIS            : 1.00
+WIS up         : 0.00
+INT            : 1.00
+INT up         : 0.00
+DEX            : 1.00
+DEX up         : 0.00
+
+Size           : 1.00
+Size up        : 0.00
+Shadow size    : 0
+Bump size      : 0
+Bump height    : 0
+Bump dampen    : 0.35
+Weight         : 0
+Jump power     : 0.00
+Jump number    : 0
+Sneak speed    : 0
+Walk speed     : 4
+Run speed      : 7
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : TRUE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 10000
+
+Base defense   :   0   0   0   0
+S damage shift :   3   3   3   3
+C damage shift :   3   3   3   3
+P damage shift :   3   3   3   3
+H damage shift :   3   3   3   3
+E damage shift :   3   3   3   3
+F damage shift :   3   3   3   3
+I damage shift :   3   3   3   3
+Z damage shift :   3   3   3   3
+S damage code  :   C   C   C   C
+C damage code  :   C   C   C   C
+P damage code  :   C   C   C   C
+H damage code  :   C   C   C   C
+E damage code  :   C   C   C   C
+F damage code  :   C   C   C   C
+I damage code  :   C   C   C   C
+Z damage code  :   C   C   C   C
+Acceleration   :  80  80  80  80
+
+EXP for 2nd    : 11111
+EXP for 3rd    : 11111
+EXP for 4th    : 11111
+EXP for 5th    : 11111
+EXP for 6th    : 11111
+Starting EXP   : 0
+EXP worth      : 0
+EXP exchange   : 0.010
+EXPSECRET      : 0.00
+EXPQUEST       : 0.00
+EXPDARE        : 0.00
+EXPKILL        : 1.00
+EXPMURDER      : 0.00
+EXPREVENGE     : 0.00
+EXPTEAMWORK    : 0.00
+EXPROLEPLAY    : 0.00
+
+IDSZ Parent    : [BOOK]
+IDSZ Type      : [BALL]
+IDSZ Skill     : [WMAG]
+IDSZ Special   : [NONE]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [NONE]
+
+Is an item     : TRUE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : FALSE
+Usage known    : TRUE
+Is exportable  : TRUE
+Requires skill : TRUE
+Is platform    : FALSE
+Collects money : FALSE
+Can open stuff : FALSE
+
+Damage type    : CRUSH
+Attack type    : WALK
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : TRUE
+Part type      : 0
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 2
+
+Blud valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : BAD
+Skin 1 name    : BAD
+Skin 2 name    : BAD
+Skin 3 name    : BAD
+Skin 0 cost    : 100
+Skin 1 cost    : 100
+Skin 2 cost    : 100
+Skin 3 cost    : 100
+STR dampen     : 0.050
+
+No rider attak : FALSE
+Can be dazed   : FALSE
+Can be grogged : FALSE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : TRUE
+Kursed chance  : 0
+Footfall sound : -1
+Jump sound     : -1
+
+:[VALU] 1       //Always sold at 100% price
+:[HIDE] 0
+:[PLAT] 0
+:[ICON] 0
+:[BOOK] 0
+:[RIPP] 0       //Do not make ripples

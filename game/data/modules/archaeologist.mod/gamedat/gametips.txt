@@ -1,0 +1,6 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: The_Archaeologist_can_both_detect_and_disarm_traps._(Some_traps_cannot_be_disarmed)
+Tip 1: The_whip_is_useful_for_stunning_enemies.
+Tip 2: Think_Indiana_Jones.
+Tip 3: Jungle_Cat_Warriors_are_afraid_of_water.
+Tip 4: Look_around_for_secrets_and_bonus_loot.

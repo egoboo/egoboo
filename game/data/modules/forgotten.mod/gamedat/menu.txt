@@ -1,0 +1,24 @@
+Module Name :Forgotten_Fortress
+Reference Directory          :bishopiacity.mod
+Required reference IDSZ      :[FORT] 2
+Number of imports ( 0 to 4 ) :1
+Exporting ( TRUE or FALSE )  :FALSE
+Minimum players ( 1 to 4 )   :1
+Maximum players ( 1 to 4 )   :1
+Respawning ( TRUE or FALSE ) :TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** ) :****
+
+// Module summary
+:This_ancient_stronghold_lies_
+:forgotten_deep_within_the
+:forest._It_must_contain_all_kinds
+:of_interesting_treasure!
+:Help_twin_adventurers_Moggy_
+:and_Meena_explore_the_
+:fortress_and_uncover_its
+:secrets.
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] SIDEQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

@@ -1,0 +1,221 @@
+#dependency Tourist 0
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+HERO:   NONE    0  57.5   58.5   7.0   N    1000   0  0   0   0   T   F   G
+  camera:   NONE    48  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  TouristGuide:   NONE    160  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  fortunecookie:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  fakecreditcard:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Start room
+shaft:   NONE    42  57.5   58.5   0.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    40  57.5   58.5   0.0   N    0   0  0   0   0   F   F   E
+
+//Long boulder hall
+bouldertrap:   NONE    36  60.0   47.0   0.0   N    3136   0  0   6016   0   F   F   N
+
+//Trap glyph
+spikedtrap:   NONE    43  41.5   52.0   1.0   E    0   0  0   11   0   F   F   E
+spikedtrap:   NONE    43  36.0   54.0   1.0   N    0   0  0   3   0   F   F   E
+spikedtrap:   NONE    43  36.0   58.0   1.0   N    0   0  0   7   0   F   F   E
+spikedtrap:   NONE    43  44.0   52.0   1.0   E    0   0  0   8   0   F   F   E
+spikedtrap:   NONE    43  43.0   52.0   1.0   W    0   0  0   9   0   F   F   E
+spikedtrap:   NONE    43  36.0   57.0   1.0   N    0   0  0   6   0   F   F   E
+spikedtrap:   NONE    43  36.0   55.0   1.0   N    0   0  0   4   0   F   F   E
+spikedtrap:   NONE    43  36.0   53.0   1.0   N    0   0  0   2   0   F   F   E
+spikedtrap:   NONE    43  36.0   51.0   1.0   N    0   0  0   0   0   F   F   E
+spikedtrap:   NONE    43  36.0   52.0   1.0   N    0   0  0   1   0   F   F   E
+spikedtrap:   NONE    43  42.0   52.0   1.0   W    0   0  0   10   0   F   F   E
+spikedtrap   NONE    43  45.0   52.0   1.0   E    0   0  0   11   0   F   F   E
+spikedtrap:   NONE    43  41.0   52.0   1.0   E    0   0  0   12   0   F   F   E
+spikedtrap:   NONE    43  36.0   56.0   1.0   N    0   0  0   5   0   F   F   E
+switch:   NONE    53  43.5   56.0   0.0   N    0   0  0   0   0   F   F   N
+KeyA:   NONE    37  42.5   56.0   0.0   ?    0   0  0   0   0   F   F   N
+
+//Pit room
+platform:   NONE    44  57.5   37.0   0.0   ?    0   0  0   0   0   F   F   N
+KeyA:   NONE    37  57.5   37.0   0.5   ?    0   0  0   0   0   F   F   N
+platform:   NONE    44  43.5   38.0   1.0   ?    0   0  0   1   0   F   F   N
+platform:   NONE    44  50.5   39.5   1.0   ?    0   0  0   1   0   F   F   N
+platform:   NONE    44  52.5   39.5   1.0   ?    0   0  0   2   0   F   F   N
+platform:   NONE    44  53.5   36.0   1.0   ?    0   0  0   3   0   F   F   N
+
+kbutton:   NONE    46  24.0   38.5   0.0   S    0   0  1   0   0   F   F   N
+kbutton:   NONE    46  30.0   38.5   0.0   S    0   0  2   0   0   F   F   N
+BearTrap:   NONE    41  38.0   60.5   0.0   ?    0   0  0   0   0   F   F   N
+BearTrap:   NONE    41  40.0   60.5   0.0   ?    0   0  0   0   0   F   F   N
+BearTrap:   NONE    41  42.0   60.5   0.0   ?    0   0  0   0   0   F   F   N
+BearTrap:   NONE    41  44.0   60.5   0.0   ?    0   0  0   0   0   F   F   N
+BearTrap:   NONE    41  46.0   60.5   0.0   ?    0   0  0   0   0   F   F   N
+BearTrap:   NONE    41  39.0   59.5   0.0   ?    0   0  0   0   0   F   F   N
+BearTrap:   NONE    41  41.0   59.5   0.0   ?    0   0  0   0   0   F   F   N
+BearTrap:   NONE    41  43.0   59.5   0.0   ?    0   0  0   0   0   F   F   N
+BearTrap:   NONE    41  45.0   59.5   0.0   ?    0   0  0   0   0   F   F   N
+
+//First mine chamber
+landmine:   NONE    38  39.0   25.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  37.0   24.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  35.0   26.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  36.0   25.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  38.0   24.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  40.0   23.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  34.0   22.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  33.0   24.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  32.0   25.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  31.0   26.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  30.0   27.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  41.0   22.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  41.0   23.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  41.0   25.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  40.0   22.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  39.0   23.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  38.0   22.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  37.0   23.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  26.5   26.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  26.5   25.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  25.5   25.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  29.9   28.0   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  31.5   27.0   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  32.5   28.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  33.5   28.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  35.0   27.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  36.5   28.0   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  37.5   27.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  40.5   28.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  40.0   26.0   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  36.5   23.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  31.0   23.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  30.0   24.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  29.5   26.0   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  27.5   23.5   0.0   ?    0   0  0   196   0   F   F   N
+landmine:   NONE    38  26.0   22.5   0.0   ?    0   0  0   198   0   F   F   N
+landmine:   NONE    38  30.0   22.5   0.0   ?    0   0  0   196   0   F   F   N
+
+//Boulder room
+bouldertrap:   NONE    36  58.75   13.8   1.0   N    5000   0  0   1600   0   F   F   N
+bouldertrap:   NONE    36  39.5   10.8   1.0   N    7500   0  0   1550   0   F   F   N
+bouldertrap:   NONE    36  58.75   7.8   1.0   N    5000   0  0   1350   0   F   F   N
+bouldertrap:   NONE    36  39.5   5.8   1.0   N    7600   0  0   742   0   F   F   N
+
+//treasure room
+Chest:   NONE    59  57.0   24.0   0.0   W    0   0  0   1   0   F   F   N
+  Torch:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+brazier:   NONE    39  48.5   21.0   0.0   N    0   0  0   1   0   F   F   N
+brazier:   NONE    39  48.5   26.5   0.0   S    0   0  0   1   0   F   F   N
+
+//running room
+brazier:   NONE    39  32.0   6.0   1.0   N    0   0  5   0   0   F   F   N
+gate:   NONE    45  17.0   12.0   1.0   N    0   0  5   0   0   F   F   N
+
+//Last spikes
+spikedtrap:   NONE    43  6.0   36.0   1.0   N    0   0  0   0   0   F   F   E
+spikedtrap:   NONE    43  6.0   37.0   1.0   S    0   0  0   1   0   F   F   E
+spikedtrap:   NONE    43  6.0   38.0   1.0   N    0   0  0   2   0   F   F   E
+spikedtrap:   NONE    43  6.0   39.0   1.0   S    0   0  0   3   0   F   F   E
+spikedtrap:   NONE    43  6.0   40.0   1.0   N    0   0  0   4   0   F   F   E
+spikedtrap:   NONE    43  6.0   44.0   1.0   S    0   0  0   0   0   F   F   E
+spikedtrap:   NONE    43  6.0   45.0   1.0   N    0   0  0   1   0   F   F   E
+spikedtrap:   NONE    43  6.0   46.0   1.0   S    0   0  0   2   0   F   F   E
+spikedtrap:   NONE    43  6.0   47.0   1.0   S    0   0  0   3   0   F   F   E
+spikedtrap:   NONE    43  6.0   48.0   1.0   N    0   0  0   4   0   F   F   E
+spikedtrap:   NONE    43  6.0   51.0   1.0   N    0   0  0   0   0   F   F   E
+spikedtrap:   NONE    43  6.0   52.0   1.0   S    0   0  0   1   0   F   F   E
+spikedtrap:   NONE    43  6.0   53.0   1.0   S    0   0  0   2   0   F   F   E
+spikedtrap:   NONE    43  6.0   54.0   1.0   N    0   0  0   3   0   F   F   E
+spikedtrap:   NONE    43  6.0   55.0   1.0   S    0   0  0   4   0   F   F   E
+switch:   NONE    53  6.0   57.5   0.0   E    0   0  0   0   0   F   F   N
+
+//Second mine chamber (77 friggin mines)
+landmine:   NONE    38  15.5   30.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  11.5   27.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  12.5   28.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  11.5   25.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  10.5   27.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  9.5   25.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  13.5   25.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  14.5   28.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  16.5   27.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  11.5   26.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  11.5   24.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  12.5   29.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  13.5   29.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  14.5   26.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  17.5   25.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  14.5   24.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  15.5   25.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  16.5   26.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  17.5   26.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  15.5   27.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  17.5   27.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  16.5   28.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  15.5   29.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  13.5   27.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  12.5   24.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  15.5   24.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  10.5   26.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  12.0   26.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  11.5   28.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  10.5   24.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  14.5   30.5   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  17.0   30.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  17.0   31.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  17.0   33.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  15.0   34.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  15.0   32.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  14.0   33.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  13.0   34.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  12.0   31.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  13.0   31.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  12.0   32.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  10.0   29.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  10.0   31.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  11.0   29.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  11.0   32.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  10.0   34.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  9.0   33.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  7.0   34.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  6.0   34.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  7.0   34.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  7.0   33.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  6.0   32.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  7.0   31.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  8.0   32.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  8.0   30.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  9.0   28.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  9.0   30.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  7.0   28.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  3.0   30.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  5.0   29.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  7.0   25.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  8.0   27.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  8.0   25.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  7.5   24.5   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  5.0   25.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  4.0   27.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  6.0   26.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  3.0   25.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  4.0   31.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  3.0   33.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  6.0   27.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  4.0   28.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  6.0   30.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  5.0   31.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  4.0   25.0   1.0   N    0   0  0   198   0   F   F   N
+landmine:   NONE    38  5.0   26.0   1.0   N    0   0  0   196   0   F   F   N
+landmine:   NONE    38  4.0   33.0   1.0   N    0   0  0   198   0   F   F   N
+
+//Boss room
+brazier:   NONE    39  11.5   53.5   1.0   S    0   0  0   1   0   F   F   N
+brazier:   NONE    39  17.5   53.5   1.0   N    0   0  0   1   0   F   F   N
+brazier:   NONE    39  17.5   60.5   1.0   E    0   0  0   1   0   F   F   N
+brazier:   NONE    39  11.5   60.5   1.0   S    0   0  0   1   0   F   F   N
+Sacrophagus:   NONE    52  24.0   57.0   6.0   N    0   0  0   0   0   F   F   E
+
+gate:   NONE    45  27.0   34.0   1.0   N    0   0  1   0   0   F   F   N
+gate:   NONE    45  27.0   32.0   1.0   N    0   0  2   0   0   F   F   S
+
+//Second gates
+button:   NONE    56  7.0   15.0   1.0   N    0   0  3   0   0   F   F   N
+button:   NONE    56  31.0   15.0   1.0   N    0   0  4   0   0   F   F   N
+gate:   NONE    45  17.0   19.0   1.0   N    0   0  4   0   0   F   F   N
+gate:   NONE    45  17.0   17.0   1.0   N    0   0  3   0   0   F   F   S

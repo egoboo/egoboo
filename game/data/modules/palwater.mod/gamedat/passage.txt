@@ -1,0 +1,56 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 MasterZero:  59  59     60  60         F       F             F
+1 MasterGrub:  59  59     60  60         F       F             F
+2 MasterTwo:   59  59     60  60         F       F             F
+
+3 ShutDetect:  22  8      23  9          T       T             F
+4 Shut:        20  8      21  9          F       F             F
+
+5 ShutDetect:  12  14     13  15         T       T             F
+6 Shut:        12  16     13  17         F       F             F
+
+7 ShutDetect:  12  26     13  27         T       T             F
+8 Shut:        12  28     13  29         F       F             F
+
+9 ShutDetect:  18  36     19  37         T       T             F
+10Shut:        20  36     21  37         F       F             F
+
+11ShutDetect:  26  16     27  17         T       T             F
+12Shut:        26  14     27  15         F       F             F
+
+13ShutDetect:  26  32     27  33         T       T             F
+14Shut:        26  30     27  31         F       F             F
+
+15LockDetect:  31  36     31  37         T       T             F
+16Lock:        32  36     33  37         F       F             F
+
+17ShutDetect:  44  22     45  23         T       T             F
+18Shut:        46  22     47  23         F       F             F
+
+19Trigger:     32  52     33  53         F       F             F
+
+20Trigger:     40  44     41  45         F       F             F
+
+21BossMusic:   36  44     45  57         T       T             F
+22FillMusic:   8   28     21  41         T       T             F
+
+23FillDrop:    8   32     17  35         T       T             F
+24TrapDrop:    8   48     17  53         T       T             F
+25GrubDrop:    50  20     55  25         T       T             F
+
+26CMusic:      10  16     15  29         T       T             F
+27CMusic:      8   42     17  57         T       T             F
+28CMusic:      24  6      29  13         T       T             F
+29CMusic:      22  34     31  39         T       T             F
+30CMusic:      32  32     45  41         T       T             F
+31CMusic:      46  19     55  25         T       T             F
+32SMusic:      22  14     31  31         T       T             F
+33SMusic:      38  20     43  25         T       T             F
+34SMusic:      50  32     55  37         T       T             F
+
+35GnomePlate:  12  44     13  45         T       T             F
+36GnomePlate:  40  42     41  43         T       T             F
+37GnomePlate:  44  22     45  23         T       T             F

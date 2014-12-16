@@ -1,0 +1,22 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             	  TopleftXY  BottomrightXY  	Open    ShootThrough  SlippyClose
+
+00 PrisonDoorOne:   56 34      57 34         	 F       T             F
+01 PrisonDoorTwo:   56 48      57 48         	 F       T             F
+02 PrisonDoorOne:   49 34      50 34         	 F       T             F
+03 PrisonDoorThree: 49 48      50 48         	 F       T             F
+04 LeftCellOne:     43 12      44 12         	 F       T             F
+05 LeftCellTwo:     53 12      54 12         	 F       T             F
+06 RightCellOne:    52 69      53 69         	 F       T             F
+07 RightCellTwo:    65 69      66 69         	 F       T             F
+08 BossDoorOne:     20 19      21 22         	 F       F             F
+09 BossDoorOneOpen: 20 18      21 19         	 T       T             F
+10 BossDoorTwo:     20 23      21 26         	 F       F             F
+11 BossDoorTwoOpen: 20 22      21 23         	 T       T             F
+12 BossDoorThree:   20 27      21 30         	 F       F             F
+13 BossDoorThreeOpen:20 26      21 27         	 T       T             F
+14 TreasureGate:    9 36      10 37         	 F       T             F
+15 LeftStartGate:   72 36      73 36         	 F       T             F
+16 RightStartGate:   72 46      73 46         	 F       T             F

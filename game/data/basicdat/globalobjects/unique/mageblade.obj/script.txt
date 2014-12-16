@@ -1,0 +1,92 @@
+// Finders keepers...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+
+// Enchant
+IfHeld
+  IfStateIs0
+    SetTargetToOwner
+    EnchantTarget           // Weapon magical effect
+      tmpargument = 1
+      SetState
+Else
+  IfStateIs1
+    UndoEnchant
+    tmpargument = 0
+    SetState
+
+// Not held, follow the owner
+IfStateIs0
+  IfTimeOut
+    tmpargument = 15
+    SetTime
+
+    tmpx = ownerx
+    tmpy = ownery
+    tmpdistance = -90
+    tmpturn = ownerturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+
+    // Adjust fly height to the owner
+    SetTargetToOwner
+    tmpargument = targetaltitude + 20
+    SetFlyHeight
+
+  // Spawn sparklies
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 2
+  SpawnExactParticle
+
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+// Make a sound
+IfHitGround
+  tmpargument = 1
+  PlaySound
+
+// Make a sound
+IfTakenOut
+  tmpargument = 2
+  PlaySound
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 2
+    SendMessageNear
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+// All done
+End
+

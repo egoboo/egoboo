@@ -1,0 +1,6 @@
+Message 0: The_%c_was_slain_by_%t!!!
+Message 1: The_%c_was_enraged!
+Message 2: The_%c_ate_%t!!!
+Message 3: Even_with_all_the_experience_you_have,_you_still_forgot
+Message 4: to_grab_the_last_Spork_of_Yore!__How_silly_of_you...
+Message 5: The_yeti_looks_weaker!

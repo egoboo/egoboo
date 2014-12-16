@@ -1,0 +1,12 @@
+Message 0: Your_evil_master_the_lich_Asmodeus_has_been_destroyed!
+Message 1: The_%c_was_killed_by_a_ally!
+Message 2: The_arch_lich_Asmodeus_was_destroyed_by_its_own_powers!
+Message 3: Hahaha..._You_have_still_a_lot_to_learn...
+Message 4: You_think_you_can_defeat_me!?
+Message 5: Your_little_pet_is_useless_against_me!
+Message 6: With_the_help_of_your_summoned_Hell_Rover_you_have_destroyed_
+Message 7: the_evil_Lich!_Your_plan_has_worked_so_far,_you_have_learned_powerful_
+Message 8: secrets_of_the_arcane_and_the_dark_arts_of_Necromancy_which_
+Message 9: will_aid_you_in_your_quest_to_save_your_king..._As_the_king's_
+Message 10: advisor_and_old_friend_you_know_that_you_need_to_collect_the_5_sporks_of_power_to_
+Message 11: unlock_the_Royal_Catacombs_where_the_Dracolich_disappeared_with_your_king.

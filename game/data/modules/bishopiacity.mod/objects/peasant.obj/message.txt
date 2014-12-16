@@ -1,0 +1,9 @@
+Message 0: A_%c_was_killed.
+Message 1: Did_you_hear?_Last_night_someone_got_murdered._Must_be_those_werewoffs.
+Message 2: Hey,_are_you_one_of_them_G'nomes?
+Message 3: Look_at_that_shiny_armor._You_must_be_someone_important.
+Message 4: Good_day_to_you_sir.
+Message 5: The_king_is_gone,_so_what._All_he_did_was_taxes_anyways.
+Message 6: Either_you_are_an_Elf_or_you_have_had_one_bad_run_with_a_fishin.
+Message 7: What_are_you_bothering_me_for?_I_don't_even_know_you.
+Message 8: I_dreamt_about_the_knights_in_armor_saying_something_about_the_king._Was_it_you?

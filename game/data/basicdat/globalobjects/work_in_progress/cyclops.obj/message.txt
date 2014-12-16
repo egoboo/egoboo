@@ -1,0 +1,13 @@
+Message 0: %t_maimed_a_%Cyclops.
+Message 1: A_%Cyclops_was_hit_from_behind!
+Message 2: %t_slew_a_%Cyclops!
+Message 3: A_%Cyclops_has_fallen!
+Message 4: A_%Cyclops_woke_up!
+Message 5: %t_enjoyed_that_too_much...
+Message 6: %t_is_a_murderer!
+Message 7: The_%Cyclops_looks_better...
+Message 8: %t_got_one_in_the_back!
+Message 9: With_%t's_final_blow,_the_land_of_Lorule_has_once_again_been_set
+Message 10: _right.__Or_has_it?__Your_return_to_your_home_village_has_been_
+Message 11: burnt_down._Broken_harted_at_the_loss_of_your_family_and_friends
+Message 12: you_embark_on_a_quest_to_slay_whatever_did_this...

@@ -1,0 +1,4 @@
+I made this for a module I was working on before Zefz made those blue-fire frights for the Crypt.
+Maybe these little buggers can replace them. (They have wings, like mephits. See varwing.obj)
+
+by Ben Weiss A.k.a Cimeries/Chainsaw

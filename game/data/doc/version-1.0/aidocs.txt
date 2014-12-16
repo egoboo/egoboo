@@ -1,0 +1,2131 @@
+--------------------------------------------------------------------------------
+NOTES ( IMPORTANT )
+--------------------------------------------------------------------------------
+Indent by 2 spaces for each level of nesting ( NO TABS!!! )
+An indented section is only run if the last function proceeded ( didn't fail )
+Order of operations is left to right, no silly reverse polish things
+Only the tmp* variable can be set, others only read
+Don't do something like tmpx = -tmpy...  Instead do tmpx = 0-tmpy...
+Each script runs from top to bottom, 50 times per second
+Commenting actually works in script files ( just for show in others... )
+Parse errors are logged
+Have a nice day
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+FUNCTIONS
+--------------------------------------------------------------------------------
+IfSpawned
+  // This function proceeds if the character was spawned this update
+--------------------------------------------------------------------------------
+IfTimeOut
+  // This function proceeds if the character's aitime is 0...  Use
+  // in conjunction with SetTime
+--------------------------------------------------------------------------------
+IfAtWaypoint
+  // This function proceeds if the character reached its waypoint this
+  // update
+--------------------------------------------------------------------------------
+IfAtLastWaypoint
+  // This function proceeds if the character reached its last waypoint this
+  // update
+--------------------------------------------------------------------------------
+IfPutAway
+  // This function proceeds if the character ( an item ) was put in its
+  // owner's pocket this update
+--------------------------------------------------------------------------------
+IfAttacked
+  // This function proceeds if the character sustained more than a point of
+  // damage this update
+--------------------------------------------------------------------------------
+IfBumped
+  // This function proceeds if the character was bumped by another character
+  // this update
+--------------------------------------------------------------------------------
+IfOrdered
+  // This function proceeds if the character got an order from another
+  // character on its team this update
+--------------------------------------------------------------------------------
+IfCalledForHelp
+  // This function proceeds if one of the character's teammates was nearly
+  // killed this update
+--------------------------------------------------------------------------------
+SetContent
+  // This function sets the content variable...  Used in conjunction with
+  // GetContent...  Content is preserved from update to update
+  tmpargument = 5
+  SetContent
+--------------------------------------------------------------------------------
+IfKilled
+  // This function proceeds if the character was killed this update
+--------------------------------------------------------------------------------
+IfTargetKilled
+  // This function proceeds if the character's target from last update was
+  // killed during this update
+--------------------------------------------------------------------------------
+ClearWaypoints
+  // This function is used to move a character around...  Do this before
+  // AddWaypoint
+--------------------------------------------------------------------------------
+AddWaypoint
+  // This function tells the character where to move next
+  ClearWaypoints
+  tmpx = targetx
+  tmpy = targety
+  AddWaypoint
+--------------------------------------------------------------------------------
+FindPath
+  // This function doesn't work yet !!!BAD!!!
+--------------------------------------------------------------------------------
+Compass
+  // This function modifies tmpx and tmpy, depending on the setting of
+  // tmpdistance and tmpturn.  It acts like one of those Compass thing
+  // with the two little needle legs
+  tmpx = selfx
+  tmpy = selfy
+  tmpturn = selfturn
+  tmpdistance = 500
+  Compass
+  // tmpx and tmpy are now 500 units in front of the character
+--------------------------------------------------------------------------------
+GetTargetArmorPrice
+  // This function returns the cost of the desired skin upgrade, setting
+  // tmpx to the price
+  tmpargument = 0	// Find price for skin0.bmp
+  GetTargetArmorPrice
+--------------------------------------------------------------------------------
+SetTime
+  // This function sets the character's time...  50 clicks per second...
+  // Used in conjunction with IfTimeOut
+  tmpargument = 200
+  SetTime
+--------------------------------------------------------------------------------
+GetContent
+  // This function sets tmpargument to the character's content variable...
+  // Used in conjunction with SetContent, or as a NOP to space out an Else
+--------------------------------------------------------------------------------
+JoinTargetTeam
+  // This function lets a character join a different team...  Used
+  // mostly for pets
+--------------------------------------------------------------------------------
+SetTargetToNearbyEnemy
+  // This function sets the target to a nearby enemy, failing if there are none
+--------------------------------------------------------------------------------
+SetTargetToTargetLeftHand
+  // This function sets the target to the item in the target's left hand,
+  // failing if the target has no left hand item
+--------------------------------------------------------------------------------
+SetTargetToTargetRightHand
+  // This function sets the target to the item in the target's right hand,
+  // failing if the target has no right hand item
+--------------------------------------------------------------------------------
+SetTargetToWhoeverAttacked
+  // This function sets the target to whoever attacked the character last...
+  IfAttacked
+    SetTargetToWhoeverAttacked
+--------------------------------------------------------------------------------
+SetTargetToWhoeverHealed
+  // This function sets the target to whoever attacked the character last...
+  // Sometimes, attacks actually heal the character, so it makes more sense
+  // to use this instead of the above function...
+  IfHealed
+    SetTargetToWhoeverHealed
+--------------------------------------------------------------------------------
+SetTargetToWhoeverBumped
+  // This function sets the target to whoever bumped the character last...
+  IfBumped
+    SetTargetToWhoeverBumped
+--------------------------------------------------------------------------------
+SetTargetToWhoeverCalledForHelp
+  // This function sets the target to whoever called for help last...
+  IfCalledForHelp
+    SetTargetToWhoeverCalledForHelp
+--------------------------------------------------------------------------------
+SetTargetToOldTarget
+  // This function sets the target to the target from last update, used to
+  // undo other SetTarget functions
+  SetTargetToNearbyEnemy
+    tmpargument = [HUMA]
+    IfTargetHasID
+      SetTargetToOldTarget
+--------------------------------------------------------------------------------
+SetTurnModeToVelocity
+  // This function sets the character's movement mode to the default
+--------------------------------------------------------------------------------
+SetTurnModeToWatch
+  // This function makes the character look at its next waypoint, usually
+  // used with close waypoints or the Stop function
+--------------------------------------------------------------------------------
+SetTurnModeToSpin
+  // This function makes the character spin around in a circle, usually
+  // used for magical items and such
+--------------------------------------------------------------------------------
+SetBumpHeight
+  // This function makes the character taller or shorter, usually used when
+  // the character dies
+  IfKilled
+    tmpargument = 45
+    SetBumpHeight
+--------------------------------------------------------------------------------
+IfTargetHasID
+  // This function proceeds if the target has either a parent or type IDSZ
+  // matching tmpargument...
+  tmpargument = [HUMA]
+  IfTargetHasID
+    KillTarget
+--------------------------------------------------------------------------------
+IfTargetHasItemID
+  // This function proceeds if the target has a matching item in his/her
+  // pockets or hands.
+  tmpargument = [SWOR]
+  IfTargetHasItemID
+    KillTarget
+--------------------------------------------------------------------------------
+IfTargetHoldingItemID
+  // This function proceeds if the target has a matching item in his/her
+  // hands.  It also sets tmpargument to the proper latch button to press
+  // to use that item
+  tmpargument = [SWOR]
+  IfTargetHoldingItemID
+    PressLatch
+--------------------------------------------------------------------------------
+IfTargetHasSkillID
+  // This function proceeds if the target has a matching skill IDSZ
+  tmpargument = [DISA]
+  IfTargetHasSkillID
+    GetState // NOP...  Used because you need some padding before an Else
+  Else
+    KillTarget
+--------------------------------------------------------------------------------
+Else
+  // This function proceeds if the last function failed...  Need padding
+  // before it...  See the above function for an example...
+--------------------------------------------------------------------------------
+Run
+  // This function sets the character's maximum acceleration to its
+  // actual maximum
+--------------------------------------------------------------------------------
+Walk
+  // This function sets the character's maximum acceleration to 66%
+  // of its actual maximum
+--------------------------------------------------------------------------------
+Sneak
+  // This function sets the character's maximum acceleration to 33%
+  // of its actual maximum
+--------------------------------------------------------------------------------
+DoAction
+  // This function makes the character do a given action if it isn't doing
+  // anything better.  Fails if the character is busy.
+  tmpargument = ACTIONDB
+  DoAction
+--------------------------------------------------------------------------------
+KeepAction
+  // This function makes the character's animation stop on its last frame
+  // and stay there...  Usually used for dropped items
+--------------------------------------------------------------------------------
+IssueOrder
+  // This function tells all of the character's teammates to do something,
+  // though each teammate needs to interpret the order using IfOrdered in
+  // its own script...
+  SetTargetToNearbyEnemy
+    tmpargument = 5 // The type of order
+    IssueOrder
+--------------------------------------------------------------------------------
+DropWeapons
+  // This function drops the character's in-hand items...  It will also
+  // buck the rider if the character is a mount
+--------------------------------------------------------------------------------
+TargetDoAction
+  // The function makes the target do a specific action
+  tmpargument = ACTIONMG
+  TargetDoAction
+--------------------------------------------------------------------------------
+OpenPassage
+  // This function allows movement over the given passage area.  Passage
+  // areas are defined in passage.txt.  Fails if the passage is already open
+  tmpargument = passage // passage is set in spawn.txt for the given character
+  OpenPassage
+--------------------------------------------------------------------------------
+ClosePassage
+  // This function prohibits movement over the given passage area, proceeding
+  // if the passage isn't blocked.  Crushable characters within the passage
+  // are crushed.
+  tmpargument = passage
+  ClosePassage
+    tmpargument = 0
+    SendMessage
+--------------------------------------------------------------------------------
+IfPassageOpen
+  // This function proceeds if the given passage is open to movement...  Used
+  // mostly by door characters to tell them when to run their open animation.
+  tmpargument = 2 // Check passage 2
+  IfPassageOpen
+    tmpargument = ACTIONMA
+    DoAction
+--------------------------------------------------------------------------------
+GoPoof
+  // This function removes the character from the game entirely...  This
+  // doesn't work on players
+  IfCrushed
+    GoPoof
+--------------------------------------------------------------------------------
+CostTargetItemID
+  // This function proceeds if the target has a matching item, and poofs
+  // that item...  For one use keys and such
+  IfBumped
+    SetTargetToWhoeverBumped
+    tmpargument = [KEYA]
+    CostTargetItemID
+      tmpargument = passage
+      OpenPassage
+--------------------------------------------------------------------------------
+DoActionOverride
+  // This function makes the character do a given action no matter what
+  tmpargument = ACTIONDB
+  DoAction
+--------------------------------------------------------------------------------
+IfHealed
+  // This function proceeds if the character was healed by a healing particle
+--------------------------------------------------------------------------------
+SendMessage
+  // This function sends a message...  All players will see the message
+  tmpargument = MESSAGEDEATH
+  SendMessage
+--------------------------------------------------------------------------------
+CallForHelp
+  // This function calls all of the character's teammates for help...  The
+  // teammates must use IfCalledForHelp in their scripts
+--------------------------------------------------------------------------------
+AddIDSZ
+  // This function slaps an expansion IDSZ onto the module description...
+  // Used to show completion of special quests for a given module
+  tmpargument = [QUES]
+  AddIDSZ
+--------------------------------------------------------------------------------
+End
+  // This is the last function in a script
+--------------------------------------------------------------------------------
+SetState
+  // This function sets the character's state...  VERY IMPORTANT...
+  // State is preserved from update to update
+  tmpargument = 5
+  SetState
+--------------------------------------------------------------------------------
+GetState
+  // This function sets tmpargument to the character's state...
+--------------------------------------------------------------------------------
+IfStateIs
+  // This function proceeds if the character's state equals tmpargument
+  tmpargument = 1
+  IfStateIs
+    tmpargument = ACTIONMG
+    DoAction
+--------------------------------------------------------------------------------
+IfTargetCanOpenStuff
+  // This function proceeds if the target can open stuff ( set in data.txt )
+  // Used by chests and buttons and such so only "smart" creatures can operate
+  // them
+--------------------------------------------------------------------------------
+IfGrabbed
+  // This function proceeds if the character was grabbed this update...
+  // Used mostly by item characters
+--------------------------------------------------------------------------------
+IfMounted
+  // This function proceeds if a rider jumped on the character's back this
+  // update
+--------------------------------------------------------------------------------
+IfDropped
+  // This function proceeds if the character was dropped this update...
+  // Used mostly by item characters
+--------------------------------------------------------------------------------
+IfDismounted
+  // This function proceeds if the character's rider jumped off this update...
+--------------------------------------------------------------------------------
+SetTargetToWhoeverIsHolding
+  // This function sets the target to the character's holder or mount,
+  // failing if the character is not held
+--------------------------------------------------------------------------------
+DamageTarget
+  // This function damages the target
+  tmpargument = rand & 4095 + 2048
+  DamageTarget
+--------------------------------------------------------------------------------
+IfXIsLessThanY
+  // This function proceeds if tmpx is less than tmpy...
+  tmpx = 0
+  tmpy = 1
+  IfXIsLessThanY
+    DebugMessage
+--------------------------------------------------------------------------------
+IfYIsMoreThanX
+  // This function proceeds if tmpy is more than tmpx...
+  tmpx = 0
+  tmpy = 1
+  IfYIsMoreThanX
+    DebugMessage
+--------------------------------------------------------------------------------
+SetWeatherTime
+  // This function can be used to slow down or speed up or stop rain and
+  // other weather effects
+  tmpargument = 0
+  SetWeatherTime
+--------------------------------------------------------------------------------
+GetBumpHeight
+  // This function sets tmpargument to the character's height
+--------------------------------------------------------------------------------
+IfReaffirmed
+  // This function proceeds if the character was damaged by its reaffirm
+  // damage type...  Used to relight the torch...
+--------------------------------------------------------------------------------
+UnkeepAction
+  // This function undoes KeepAction
+--------------------------------------------------------------------------------
+IfTargetIsOnOtherTeam
+  // This function proceeds if the target is on another team
+--------------------------------------------------------------------------------
+IfTargetIsOnHatedTeam
+  // This function proceeds if the target is on an enemy team
+--------------------------------------------------------------------------------
+PressLatchButton
+  // This function emulates joystick button presses
+  tmpargument = LATCHBUTTONLEFT
+  PressLatchButton
+--------------------------------------------------------------------------------
+SetTargetToTargetOfLeader
+  // This function sets the target to the team's leader's target
+--------------------------------------------------------------------------------
+IfLeaderKilled
+  // This function proceeds if the team's leader died this update
+--------------------------------------------------------------------------------
+BecomeLeader
+  // This function makes the character the leader of the team
+--------------------------------------------------------------------------------
+ChangeTargetArmor
+  // This function sets the armor type of the target...  Used for chests
+  // Sets tmpargument as the old type and tmpx as the new type
+  tmpargument = 0
+  ChangeTargetArmor
+--------------------------------------------------------------------------------
+GiveMoneyToTarget
+  // This function increases the target's money, while decreasing the
+  // character's own money.  tmpargument is set to the amount transferred
+  tmpargument = 50
+  GiveMoneyToTarget
+--------------------------------------------------------------------------------
+DropKeys
+  // This function drops all of the keys in the character's inventory.
+  // This does NOT drop keys in the character's hands.
+--------------------------------------------------------------------------------
+IfLeaderIsAlive
+  // This function proceeds if the team has a leader
+--------------------------------------------------------------------------------
+IfTargetIsOldTarget
+  // This function proceeds if the target is the same as it was last update
+--------------------------------------------------------------------------------
+SetTargetToLeader
+  // This function sets the target to the leader, proceeding if their is
+  // a valid leader for the character's team
+--------------------------------------------------------------------------------
+SpawnCharacter
+  // This function spawns a character of the same type as the spawner...
+  // This is horribly complicated to use, so see ANIMATE.OBJ for an example
+  // tmpx and tmpy give the coodinates, tmpturn gives the new character's
+  // direction, and tmpdistance gives the new character's initial velocity
+  tmpx = selfx + 100
+  tmpy = selfy
+  tmpturn = selfturn
+  tmpdistance = 0
+  SpawnCharacter
+--------------------------------------------------------------------------------
+RespawnCharacter
+  // This function respawns the character at its starting location...
+  // Often used with the Clean functions
+  IfCleanedUp
+    RespawnCharacter
+--------------------------------------------------------------------------------
+ChangeTile
+  // This function changes the tile under the character to the new tile type,
+  // which is highly module dependent
+  tmpargument = 50
+  ChangeTile
+--------------------------------------------------------------------------------
+IfUsed
+  // This function proceeds if the character was used by its holder or rider...
+  // Character's cannot be used if their reload time is greater than 0
+--------------------------------------------------------------------------------
+DropMoney
+  // This function drops a certain amount of money, if the character has that
+  // much
+  tmpargument = 1
+  DropMoney
+--------------------------------------------------------------------------------
+SetOldTarget
+  // This function sets the old target to the current target...  To allow
+  // greater manipulations of the target
+  SetOldTarget
+  SetTargetToNearbyEnemy
+    tmpx = targetx
+    tmpy = targety
+    SetTargetToOldTarget
+--------------------------------------------------------------------------------
+DetachFromHolder
+  // This function drops the character or makes it get off its mount
+  // Can be used to make slippery weapons, or to make certain characters
+  // incapable of wielding certain weapons...  A troll can't grab a torch...
+--------------------------------------------------------------------------------
+IfTargetHasVulnerabilityID
+  // This function proceeds if the target is vulnerable to the given IDSZ...
+  tmpargument = [SILV]
+  IfTargetHasVulnerabilityID
+    tmpargument = 0
+    SendMessageNear
+--------------------------------------------------------------------------------
+CleanUp
+  // This function tells all the dead characters on the team to clean
+  // themselves up...  Usually done by the boss creature every second or so
+--------------------------------------------------------------------------------
+IfCleanedUp
+  // This function proceeds if the character is dead and if the boss told it
+  // to clean itself up
+  IfCleanedUp
+    RespawnCharacter
+--------------------------------------------------------------------------------
+IfSitting
+  // This function proceeds if the character is riding a mount
+--------------------------------------------------------------------------------
+IfHeld
+  // This function proceeds if the character is held by another character
+--------------------------------------------------------------------------------
+IfTargetIsHurt
+  // This function proceeds if the target has lost more than a point of life
+--------------------------------------------------------------------------------
+IfTargetIsAPlayer
+  // This function proceeds if the target is controlled by a human
+--------------------------------------------------------------------------------
+PlaySound
+  // This function plays one of the character's sounds...  The sound fades
+  // out depending on its distance from the viewer
+  tmpargument = 0      // sound0.wav
+  tmpdistance = 11025  // the frequency
+  PlaySound
+--------------------------------------------------------------------------------
+SpawnParticle
+  // This function spawns a particle, offset from the character's location
+  tmpargument = 0        // part0.txt
+  tmpdistance = GRIPLEFT // Offset from the character's left hand
+  tmpx = 100             // Offset amount
+  tmpy = 100             // Offset amount
+  SpawnParticle
+--------------------------------------------------------------------------------
+IfTargetIsAlive
+  // This function proceeds if the target is alive
+--------------------------------------------------------------------------------
+Stop
+  // This function sets the character's maximum acceleration to 0...  Used
+  // along with Walk and Run and Sneak
+--------------------------------------------------------------------------------
+DisaffirmCharacter
+  // This function removes all the attached particles from a character
+  // ( stuck arrows, flames, etc )
+--------------------------------------------------------------------------------
+ReaffirmCharacter
+  // This function makes sure it has all of its reaffirmation particles
+  // attached to it...  Used to make the torch light again
+--------------------------------------------------------------------------------
+IfTargetIsSelf
+  // This function proceeds if the character is targeting itself
+--------------------------------------------------------------------------------
+IfTargetIsMale
+  // This function proceeds if the target is male
+--------------------------------------------------------------------------------
+IfTargetIsFemale
+  // This function proceeds if the target is female
+--------------------------------------------------------------------------------
+SetTargetToSelf
+  // This function sets the target to the character itself
+--------------------------------------------------------------------------------
+SetTargetToRider
+  // This function sets the target to whoever is riding the character,
+  // failing if there is no rider
+--------------------------------------------------------------------------------
+GetAttackTurn
+  // This function sets tmpturn to the direction from which the last attack
+  // came...  Not particularly useful in most cases, but it could be...
+  IfAttacked
+    GetAttackTurn
+    tmpdistance = 500
+    tmpx = selfx
+    tmpy = selfy
+    Compass
+    ClearWaypoints
+    AddWaypoint
+--------------------------------------------------------------------------------
+GetDamageType
+  // This function sets tmpargument to the damage type of the last attack that
+  // hit the character
+  IfAttacked
+    GetDamageType
+    tmpx = tmpargument
+    tmpy = DAMAGESLASH
+    IfXIsEqualToY
+      tmpargument = 0
+      SendMessageNear
+--------------------------------------------------------------------------------
+BecomeSpell
+  // This function turns a spellbook character into a spell...  TOO COMPLICATED
+  // TO EXPLAIN...  SHOULDN'T EVER BE NEEDED BY YOU...
+--------------------------------------------------------------------------------
+BecomeSpellbook
+  // This function turns a spell character into a spellbook...  TOO COMPLICATED
+  // TO EXPLAIN...  Just copy the spells that already exist, and don't change
+  // them too much
+--------------------------------------------------------------------------------
+IfScoredAHit
+  // This function proceeds if the character damaged another character this
+  // update...
+--------------------------------------------------------------------------------
+IfDisaffirmed
+  // This function proceeds if the character was disaffirmed...  This doesn't
+  // seem useful anymore...
+--------------------------------------------------------------------------------
+TranslateOrder
+  // This function translates a packed order into understandable values...
+  // See CreateOrder for more...  This function sets tmpx, tmpy, tmpargument,
+  // and possibly sets the target ( which may not be good )
+  IfOrdered
+    SetOldTarget          // Save the current target
+    TranslateOrder
+    SetTargetToOldTarget  // Make sure the target doesn't change
+    SetState
+--------------------------------------------------------------------------------
+SetTargetToWhoeverWasHit
+  // This function sets the target to whoever was hit by the character last
+  IfScoredAHit
+    SetTargetToWhoeverWasHit
+    IfTargetIsOnSameTeam
+      tmpargument = 0
+      SendMessageNear  // Sorry 'bout that...
+--------------------------------------------------------------------------------
+SetTargetToWideEnemy
+  // This function sets the target to an enemy in the vicinity around the
+  // character, failing if there are none
+--------------------------------------------------------------------------------
+IfChanged
+  // This function proceeds if the character has changed shape...  Needed
+  // for morph spells and such
+--------------------------------------------------------------------------------
+IfInWater
+  // This function proceeds if the character has just entered into some water
+  // this update ( and the water is really water, not fog or another effect )
+--------------------------------------------------------------------------------
+IfBored
+  // This function proceeds if the character has been standing idle too long
+--------------------------------------------------------------------------------
+IfTooMuchBaggage
+  // This function proceeds if the character tries to put an item in his/her
+  // pockets, but the character already has 6 items in the inventory...
+  // Used to tell the players what's going on...
+--------------------------------------------------------------------------------
+IfGrogged
+  // This function proceeds if the character has been grogged ( a type of
+  // confusion ) this update
+--------------------------------------------------------------------------------
+IfDazed
+  // This function proceeds if the character has been dazed ( a type of
+  // confusion ) this update
+--------------------------------------------------------------------------------
+IfTargetHasSpecialID
+  // This function proceeds if the character has a special IDSZ ( in data.txt )
+  tmpargument = [GOOD]
+  IfTargetHasSpecialID
+    tmpargument = 0
+    SendMessageNear
+--------------------------------------------------------------------------------
+PressTargetLatchButton
+  // This function mimics joystick button presses for the target...
+  // For making items force their own usage and such
+  tmpargument = LATCHLEFT
+  PressTargetLatchButton
+--------------------------------------------------------------------------------
+IfInvisible
+  // This function proceeds if the character is invisible
+--------------------------------------------------------------------------------
+IfArmorIs
+  // This function proceeds if the character's skin type equals tmpargument
+  tmpargument = 1
+  IfArmorIs
+    tmpargument = 0
+    SendMessageNear
+--------------------------------------------------------------------------------
+GetTargetGrogTime
+  // This function sets tmpargument to the number of updates before the
+  // character is ungrogged, proceeding if the number is greater than 0
+--------------------------------------------------------------------------------
+GetTargetDazeTime
+  // This function sets tmpargument to the number of updates before the
+  // character is undazed, proceeding if the number is greater than 0
+--------------------------------------------------------------------------------
+SetDamageType
+  // This function lets a weapon change the type of damage it inflicts
+  tmpargument = DAMAGESLASH
+  SetDamageType
+--------------------------------------------------------------------------------
+SetWaterLevel
+  // This function raises or lowers the water in the module
+  tmpargument = 100
+  SetWaterLevel
+--------------------------------------------------------------------------------
+EnchantTarget
+  // This function enchants the target with the enchantment given
+  // in enchant.txt...  Make sure you use SetOwnerToTarget before
+  // doing this...
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+  EnchantTarget
+--------------------------------------------------------------------------------
+EnchantChild
+  // This function enchants the last character spawned with the enchantment
+  // given in enchant.txt...  Make sure you use SetOwnerToTarget before
+  // doing this...
+--------------------------------------------------------------------------------
+TeleportTarget
+  // This function makes the target move instantly to the x, y location
+  SetTargetToNearestEnemy
+    tmpx = selfx - 200
+    tmpy = selfy - 200
+    TeleportTarget
+--------------------------------------------------------------------------------
+GiveExperienceToTarget
+  // This function gives experience to the target
+  tmpargument = 40       	// The base amount of experience
+  tmpdistance = EXPROLEPLAY	// The type of experience
+  GiveExperienceToTarget
+--------------------------------------------------------------------------------
+IncreaseAmmo
+  // This function increases the character's ammo by 1
+--------------------------------------------------------------------------------
+UnkurseTarget
+  // This function unkurses the target
+--------------------------------------------------------------------------------
+GiveExperienceToTargetTeam
+  // This function gives experience to everyone on the target's team
+  tmpargument = 40		// The base amount of experience
+  tmpdistance = EXPQUEST	// The type of experience
+  GiveExperienceToTargetTeam
+--------------------------------------------------------------------------------
+IfUnarmed
+  // This function proceeds if the character is holding no items in hand...
+--------------------------------------------------------------------------------
+RestockTargetAmmoIDAll
+  // This function restocks the ammo of all of the target's items, if those
+  // items have a matching parent or type IDSZ
+  tmpargument = [XBOW]
+  RestockTargetAmmoIDAll
+--------------------------------------------------------------------------------
+RestockTargetAmmoIDFirst
+  // This function restocks the ammo of the first of the target's items that
+  // matches the IDSZ
+  tmpargument = [LBOW]
+  RestockTargetAmmoIDFirst
+--------------------------------------------------------------------------------
+FlashTarget
+  // This function makes the target flash
+--------------------------------------------------------------------------------
+SetRedShift
+  // This function sets the character's red shift ( 0 - 3 ), higher values
+  // making the character less red and darker
+  tmpargument = 3
+  SetRedShift
+--------------------------------------------------------------------------------
+SetGreenShift
+  // This function sets the character's red shift ( 0 - 3 ), higher values
+  // making the character less green and darker
+  tmpargument = 1
+  SetGreenShift
+--------------------------------------------------------------------------------
+SetBlueShift
+  // This function sets the character's red shift ( 0 - 3 ), higher values
+  // making the character less blue and darker
+  tmpargument = 2
+  SetBlueShift
+--------------------------------------------------------------------------------
+SetLight
+  // This function alters the character's transparency ( 0 - 255 )
+  tmpargument = 128
+  SetLight
+--------------------------------------------------------------------------------
+SetAlpha
+  // This function alters the character's transparency ( 0 - 255 )
+  tmpargument = 128
+  SetLight
+--------------------------------------------------------------------------------
+IfHitFromBehind
+  // This function proceeds if the last attack to the character came
+  // from behind
+  IfAttacked
+    IfHitFromBehind
+      tmpargument = ACTIONHA
+      DoActionOverride
+--------------------------------------------------------------------------------
+IfHitFromFront
+  // This function proceeds if the last attack to the character came
+  // from the front
+  IfAttacked
+    IfHitFromFront
+      tmpargument = ACTIONHB
+      DoActionOverride
+--------------------------------------------------------------------------------
+IfHitFromLeft
+  // This function proceeds if the last attack to the character came
+  // from the left
+  IfAttacked
+    IfHitFromLeft
+      tmpargument = ACTIONHC
+      DoActionOverride
+--------------------------------------------------------------------------------
+IfHitFromRight
+  // This function proceeds if the last attack to the character came
+  // from the right
+  IfAttacked
+    IfHitFromRight
+      tmpargument = ACTIONHD
+      DoActionOverride
+--------------------------------------------------------------------------------
+IfTargetIsOnSameTeam
+  // This function proceeds if the target is on the character's team
+--------------------------------------------------------------------------------
+KillTarget
+  // This function kills the target
+--------------------------------------------------------------------------------
+UndoEnchant
+  // This function removes the last enchantment spawned by the character,
+  // proceeding if an enchantment was removed
+--------------------------------------------------------------------------------
+GetWaterLevel
+  // This function sets tmpargument to the current water level * 10...
+  // A waterlevel in wawalight of 85 would set tmpargument to 850
+  GetWaterLevel
+  tmpargument = tmpargument - 1
+  SetWaterLevel
+--------------------------------------------------------------------------------
+CostTargetMana
+  // This function costs the target a specific amount of mana, proceeding
+  // if the target was able to pay the price...  The amounts are * 256
+  tmpargument = 256 // Cost one point of mana
+  CostTargetMana
+    tmpargument = 0
+    SendMessageNear
+--------------------------------------------------------------------------------
+IfTargetHasAnyID
+  // This function proceeds if the target has any IDSZ that matches the given
+  // one
+  tmpargument = [XFIR]
+  IfTargetHasAnyID
+    tmpargument = 0
+    SendMessageNear
+--------------------------------------------------------------------------------
+SetBumpSize
+  // This function sets the how wide the character is
+  tmpargument = 60
+  SetBumpSize
+--------------------------------------------------------------------------------
+IfNotDropped
+  // This function proceeds if the character is kursed and another character
+  // was holding it and tried to drop it
+--------------------------------------------------------------------------------
+IfYIsLessThanX
+  // This function proceeds if tmpy is less than tmpx
+  tmpx = 1
+  tmpy = 0
+  IfXIsLessThanY
+    DebugMessage
+--------------------------------------------------------------------------------
+IfXIsMoreThanY
+  // This function proceeds if tmpx is more than tmpy
+  tmpx = 1
+  tmpy = 0
+  IfXIsLessThanY
+    DebugMessage
+--------------------------------------------------------------------------------
+SetFlyHeight
+  // This function makes the character fly ( or fall to ground if 0 )
+  tmpargument = 50
+  SetFlyHeight
+--------------------------------------------------------------------------------
+IfBlocked
+  // This function proceeds if the character blocked the attack of another
+  // character this update
+--------------------------------------------------------------------------------
+IfTargetIsDefending
+  // This function proceeds if the target is holding up a shield or similar
+  // defense
+--------------------------------------------------------------------------------
+IfTargetIsAttacking
+  // This function proceeds if the target is doing an attack action
+--------------------------------------------------------------------------------
+IfStateIs0
+IfStateIsParry    // Same as 0
+IfStateIs1
+IfStateIsWander   // Same as 1
+IfStateIs2
+IfStateIsGuard    // Same as 2
+IfStateIs3
+IfStateIsFollow   // Same as 3
+IfStateIs4
+IfStateIsSurround // Same as 4
+IfStateIs5
+IfStateIsRetreat  // Same as 5
+IfStateIs6
+IfStateIsCharge   // Same as 6
+IfStateIs7
+IfStateIsCombat   // Same as 7
+IfStateIs8
+IfStateIs9
+IfStateIs10
+IfStateIs11
+IfStateIs12
+IfStateIs13
+IfStateIs14
+IfStateIs15
+  // These functions proceed if the state matches
+--------------------------------------------------------------------------------
+IfContentIs
+  // This function proceeds if the content matches tmpargument
+  tmpargument = 0
+  IfContentIs
+    tmpargument = 1
+    SendMessageNear
+--------------------------------------------------------------------------------
+SetTurnModeToWatchTarget
+  // This function makes the character face its target, no matter what
+  // direction it is moving in...  Undo this with SetTurnModeToVelocity
+--------------------------------------------------------------------------------
+IfStateIsNot
+  // This function proceeds if the character's state does not equal tmpargument
+  tmpargument = 0
+  IfStateIsNot
+    tmpargument = 1
+    SendMessageNear
+--------------------------------------------------------------------------------
+IfXIsEqualToY
+IfYIsEqualToX
+  // These functions proceed if tmpx and tmpy are the same
+  tmpx = 0
+  tmpy = 0
+  IfXIsEqualToY
+    DebugMessage
+--------------------------------------------------------------------------------
+DebugMessage
+  // This function spits out some useful numbers
+--------------------------------------------------------------------------------
+BlackTarget
+  // The opposite of FlashTarget, causing the target to turn black
+--------------------------------------------------------------------------------
+SendMessageNear
+  // This function sends a message to all nearby players
+  tmpargument = 0  // Message 0
+  SendMessageNear
+--------------------------------------------------------------------------------
+IfHitGround
+  // This function proceeds if a character hit the ground this update...
+  // Used to determine when to play the sound for a dropped item
+--------------------------------------------------------------------------------
+IfNameIsKnown
+  // This function proceeds if the character's name is known
+--------------------------------------------------------------------------------
+IfUsageIsKnown
+  // This function proceeds if the character's usage is known
+--------------------------------------------------------------------------------
+IfHoldingItemID
+  // This function proceeds if the character is holding a specified item
+  // in hand, setting tmpargument to the latch button to press to use it
+  tmpargument = [SWOR]
+  IfHoldingItemID
+    PressLatchButton
+--------------------------------------------------------------------------------
+IfHoldingRangedWeapon
+  // This function proceeds if the character is holding a specified item
+  // in hand, setting tmpargument to the latch button to press to use it
+  IfHoldingRangedWeapon
+    PressLatchButton
+--------------------------------------------------------------------------------
+IfHoldingMeleeWeapon
+  // This function proceeds if the character is holding a specified item
+  // in hand, setting tmpargument to the latch button to press to use it
+  IfHoldingMeleeWeapon
+    tmpargument = tmpargument < 5 // Put it away
+    PressLatchButton
+--------------------------------------------------------------------------------
+IfHoldingShield
+  // This function proceeds if the character is holding a specified item
+  // in hand, setting tmpargument to the latch button to press to use it...
+  // The button will need to be held down...
+  IfHoldingMeleeWeapon
+    tmpargument = tmpargument < 3 // Drop it on the ground
+    PressLatchButton
+--------------------------------------------------------------------------------
+IfKursed
+  // This function proceeds if the character is kursed
+--------------------------------------------------------------------------------
+IfTargetIsKursed
+  // This function proceeds if the target is kursed
+--------------------------------------------------------------------------------
+IfTargetIsDressedUp
+  // This function proceeds if the target is dressed in facy clothes
+--------------------------------------------------------------------------------
+IfOverWater
+  // This function proceeds if the character is on a water tile
+--------------------------------------------------------------------------------
+IfThrown
+  // This function proceeds if the character was thrown this update...
+--------------------------------------------------------------------------------
+MakeNameKnown
+  // This function makes the name of the character known, for identifying
+  // weapons and spells and such
+--------------------------------------------------------------------------------
+MakeUsageKnown
+  // This function makes the usage known for this type of object
+--------------------------------------------------------------------------------
+StopTargetMovement
+  // This function sets the target's x and y velocities to 0, and
+  // sets the z velocity to 0 if the character is moving upwards...
+  // This is a special function for the IronBall object
+--------------------------------------------------------------------------------
+SetXY
+  // This function sets one of the 8 permanent storage variable slots
+  // ( each of which holds an x,y pair )
+  tmpargument = 0   // slot 0 to 7
+  tmpx = selfx
+  tmpy = selfy
+  SetXY
+--------------------------------------------------------------------------------
+GetXY
+  // This function reads one of the 8 permanent storage variable slots,
+  // setting tmpx and tmpy accordingly
+  tmpargument = 3   // slot 0 to 7
+  GetXY
+--------------------------------------------------------------------------------
+AddXY
+  // This function alters the contents of one of the 8 permanent storage
+  // slots
+  tmpargument = 7   // slot 0 to 7
+  tmpx = 0
+  tmpy = 50
+  SetXY             // slot 7 now contains ( 0 and 50 )
+  tmpx = 100
+  tmpy = 50
+  AddXY             // slot 7 now contains ( 100 and 100 )
+--------------------------------------------------------------------------------
+MakeAmmoKnown
+  // This function makes the character's ammo known ( for items )
+--------------------------------------------------------------------------------
+SpawnAttachedParticle
+  // This function spawns a particle attached to the character
+  tmpargument = 0         // part0.txt
+  tmpdistance = GRIPRIGHT // the character's right hand
+  SpawnAttachedParticle
+--------------------------------------------------------------------------------
+SpawnExactParticle
+  // This function spawns a particle at a specific x, y, z position
+  tmpargument = 0         // part0.txt
+  tmpx = selfx            // x
+  tmpy = selfy            // y
+  tmpdistance = selfz     // z
+  SpawnExactParticle
+--------------------------------------------------------------------------------
+AccelerateTarget
+  // This function changes the x and y speeds of the target
+  tmpx = 10
+  tmpy = 0
+  AccelerateTarget
+--------------------------------------------------------------------------------
+IfDistanceIsMoreThanTurn
+  // This function proceeds if tmpdistance is more than tmpturn
+  tmpturn = 0
+  tmpdistance = 50
+  IfDistanceIsMoreThanTurn
+    DebugMessage
+--------------------------------------------------------------------------------
+IfCrushed
+  // This function proceeds if the character was crushed in a passage this
+  // update...
+--------------------------------------------------------------------------------
+MakeCrushValid
+  // This function makes a character able to be crushed by closing doors
+  // and such
+--------------------------------------------------------------------------------
+SetTargetToLowestTarget
+  // This function sets the target to the absolute bottom character...
+  // The holder of the target, or the holder of the holder of the target, or
+  // the holder of the holder of ther holder of the target, etc...
+--------------------------------------------------------------------------------
+IfNotPutAway
+  // This function proceeds if the character couldn't be put into another
+  // character's pockets for some reasong...  It might be kursed or too big
+  // or something
+--------------------------------------------------------------------------------
+IfNotTakenOut
+  // This function proceeds if the character is equiped in another's inventory,
+  // and the holder tried to unequip it ( take it out of pack ), but the
+  // item was kursed and didn't cooperate
+--------------------------------------------------------------------------------
+IfTakenOut
+  // This function proceeds if the character is removed from another's
+  // inventory
+--------------------------------------------------------------------------------
+IfAmmoOut
+  // This function proceeds if the character itself has no ammo left...
+  // This is for crossbows and such, not archers...
+--------------------------------------------------------------------------------
+PlaySoundLooped
+  // This function starts playing a continuous sound
+  tmpargument = 0    // sound0.wav
+  tmpdistance = 8000 // frequency
+  PlaySoundLooped
+--------------------------------------------------------------------------------
+StopSound
+  // This function stops the playing of a continuous sound
+  tmpargument = 0    // sound0.wav
+  StopSound
+--------------------------------------------------------------------------------
+HealSelf
+  // This function gives life back to the character...  Values given as * 256
+  // This does NOT remove [HEAL] enchants ( poisons )
+  tmpargument = 256 // One point of life
+  HealSelf
+--------------------------------------------------------------------------------
+Equip
+  // This function flags the character as being equipped...  This is used
+  // by equipment items when they are placed in the inventory
+--------------------------------------------------------------------------------
+IfTargetHasItemIDEquipped
+  // This function proceeds if the target already wearing a matching item
+  tmpargument = [RING]
+  IfTargetHasItemIDEquipped
+    tmpargument = 0
+    SendMessageNear
+--------------------------------------------------------------------------------
+SetOwnerToTarget
+  // This function must be called before enchanting anything...  The owner
+  // is the character that pays the sustain costs and such for the enchantment
+--------------------------------------------------------------------------------
+SetTargetToOwner
+  // This function sets the target to whoever was previously declared as the
+  // owner...
+--------------------------------------------------------------------------------
+SetFrame
+  // This function sets the .MD2 frame for the character...  Values are * 4
+  tmpargument = 8  // Frame 2
+  SetFrame
+--------------------------------------------------------------------------------
+BreakPassage
+  // This function causes the tiles of a passage to increment if stepped on.
+  // tmpx and tmpy are both set to the location of whoever broke the tile if
+  // the function passed...
+  tmpargument = 20  // The passage to check
+  tmpturn = 200     // The starting tile type
+  tmpdistance = 4   // The number of frames ( tiles 200, 201, 202, 203 )
+  tmpx = 0          // Don't animate
+  tmpy = FXANIM     // Become an animated tile
+  BreakPassage
+    DebugMessage    // Done every time the tile changes
+
+
+
+  // Or...
+  tmpargument = 20  // The passage to check
+  tmpturn = 200     // Start at tile 200
+  tmpdistance = 5   // Tiles 200, 201, 202, 203, tmpx
+  tmpx = 204        // Set it as an animated tile ( 204, 205, 206, 207 )
+                    // Number of animated frames is in WAWALITE.TXT
+  tmpy = FXANIM + FXWATER + FXDAMAGE
+  BreakPassage
+    DebugMessage    // Done every time the tile changes
+
+
+--------------------------------------------------------------------------------
+SetReloadTime
+  // This function stops a character from being used for a while...  Used
+  // by weapons to slow down their attack rate...  50 clicks per second...
+  tmpargument = 100  // Two seconds
+  SetReloadTime
+--------------------------------------------------------------------------------
+SetTargetToWideBlahID
+  // This function sets the target to a character that matches the description,
+  // and who is located in the general vicinity of the character
+  tmpargument = [HUMA]
+  tmpdistance = BLAHDEAD | BLAHENEMIES
+  SetTargetToWideBlahID
+    // Found a dead, humanoid enemy...
+    DebugMessage
+
+
+  tmpargument = [LUMP]
+  tmpdistance = BLAHENEMIES | BLAHINVERTID
+  SetTargetToWideBlahID
+    // Found a living enemy, who is not a Lumpkin ( morph spell... )
+    DebugMessage
+--------------------------------------------------------------------------------
+PoofTarget
+  // This function removes the target from the game, failing if the
+  // target is a player
+--------------------------------------------------------------------------------
+ChildDoActionOverride
+  // This function lets a character set the action of the last character
+  // it spawned.  It also sets the current frame to the first frame of the
+  // action ( no interpolation from last frame ).
+  tmpargument = ACTIONMD
+  ChildDoActionOverride
+--------------------------------------------------------------------------------
+SpawnPoof
+  // This function makes a poof at the character's location...  The
+  // poof form and particle types are set in data.txt
+--------------------------------------------------------------------------------
+SetSpeedPercent
+  // This function acts like Run or Walk, except it allows the explicit
+  // setting of the speed
+  tmpargument = 33  // 33%...  Same as Sneak
+  SetSpeedPercent
+--------------------------------------------------------------------------------
+SetChildState
+  // This function lets a character set the state of the last character it
+  // spawned
+  tmpargument = 3
+  SetChildState
+--------------------------------------------------------------------------------
+SpawnAttachedSizedParticle
+  // This function spawns a particle of the specific size attached to the
+  // character...  For spell charging effects
+  tmpargument = 5        // part5.txt
+  tmpdistance = GRIPLEFT // in the left hand
+  tmpturn = 50000
+  SpawnAttachedSizedParticle
+--------------------------------------------------------------------------------
+ChangeArmor
+  // This function changes the character's armor...
+  // Sets tmpargument as the old type and tmpx as the new type
+  tmpargument = 1
+  ChangeArmor
+--------------------------------------------------------------------------------
+ShowTimer
+  // This function sets the value displayed by the module timer...
+  // For races and such...  50 clicks per second
+  tmpargument = 243
+  ShowTimer    // 00:04:86
+--------------------------------------------------------------------------------
+IfFacingTarget
+  // This function proceeds if the character is more or less facing its
+  // target
+--------------------------------------------------------------------------------
+SetVolume
+  // This function modifies the playback volume of a given sound as it is
+  // being played...  For fading out loops...
+  tmpargument = 11    // sound11.txt
+  tmpdistance = 100   // As this goes higher, the sound more silent/distant
+  SetVolume
+--------------------------------------------------------------------------------
+SpawnAttachedFacedParticle
+  // This function spawns a particle attached to the character, facing the
+  // same direction given by tmpturn
+  tmpargument = 0         // part0.txt
+  tmpdistance = GRIPRIGHT // the character's right hand
+  tmpturn = selfturn      // face the same direction
+  SpawnAttachedParticle
+--------------------------------------------------------------------------------
+IfStateIsOdd
+  // This function proceeds if the character's state is 1, 3, 5, 7, etc
+--------------------------------------------------------------------------------
+SetTargetToDistantEnemy
+  // This function finds a character within a certain distance of the
+  // character, failing if there are none
+  tmpdistance = 400000 // square of the radius
+  SetTargetToDistantEnemy
+    DebugMessage
+--------------------------------------------------------------------------------
+Teleport
+  // This function teleports the character to a new location, failing if
+  // the location is blocked or off the map
+  tmpx = rand & 255 - 128 + selfx
+  tmpy = rand & 255 - 128 + selfy
+  Teleport
+--------------------------------------------------------------------------------
+GiveStrengthToTarget
+GiveWisdomToTarget
+GiveIntelligenceToTarget
+GiveDexterityToTarget
+GiveLifeToTarget
+GiveManaToTarget
+  // These functions increase the target's permanent stats...  Values are * 256
+  tmpargument = 0 - 128 // Decrease by half a point
+  GiveStrengthToTarget
+--------------------------------------------------------------------------------
+ShowMap
+  // This function shows the module's map...  Fails if the map is already visible
+--------------------------------------------------------------------------------
+ShowYouAreHere
+  // This function shows the blinking white blip on the map that represents the
+  // camera location
+--------------------------------------------------------------------------------
+ShowBlipXY
+  // This function draws a blip on the map, and must be done each update
+  tmpx = selfx
+  tmpy = selfy
+  tmpargument = GREEN  // Color of the blip
+  ShowBlipXY
+--------------------------------------------------------------------------------
+HealTarget
+  // This function gives some life back to the target...  Values are * 256
+  // Any enchantments that are removed by [HEAL], like poison, go away
+  tmpargument = 2560  // 10 points
+  HealTarget
+--------------------------------------------------------------------------------
+PumpTarget
+  // This function gives some mana back to the target...  Values are * 256
+  tmpargument = 2560  // 10 points
+  PumpTarget
+--------------------------------------------------------------------------------
+CostAmmo
+  // This function costs the character 1 point of ammo
+--------------------------------------------------------------------------------
+MakeSimilarNamesKnown
+  // This function makes the names of similar objects known...  Checks
+  // all 6 IDSZ types to make sure they match...
+--------------------------------------------------------------------------------
+SpawnAttachedHolderParticle
+  // This function spawns a particle attached to the character's holder
+  tmpargument = 0         // part0.txt
+  tmpdistance = GRIPRIGHT // the holder's right hand
+  SpawnAttachedParticle
+--------------------------------------------------------------------------------
+SetTargetReloadTime
+  // This function stops the target from attacking for a while...
+  // 50 clicks per second
+  tmpargument = 50
+  SetTargetReloadTime
+--------------------------------------------------------------------------------
+SetFogLevel
+  // This function sets the level of the module's fog...  Values are * 10
+  tmpargument = 840
+  SetFogLevel
+--------------------------------------------------------------------------------
+GetFogLevel
+  // This function sets tmpargument to the level of the module's fog...
+  //  Values are * 10
+  GetFogLevel
+  tmpargument = tmpargument - 1
+  SetFogLevel
+--------------------------------------------------------------------------------
+SetFogTAD
+  // This function sets the color of the module's fog...  TAD stands for
+  // turn, argument, distance -> red, green, blue...  Makes sense, huh?
+  tmpturn = 255     // red
+  tmpargument = 255 // green
+  tmpdistance = 255 // blue
+  SetFogTAD
+--------------------------------------------------------------------------------
+SetFogBottomLevel
+  // This function sets the level of the module's fog...  Values are * 10
+  tmpargument = 840
+  SetFogBottomLevel
+--------------------------------------------------------------------------------
+GetFogBottomLevel
+  // This function sets tmpargument to the level of the module's fog...
+  //  Values are * 10
+  GetFogBottomLevel
+  tmpargument = tmpargument - 1
+  SetFogBottomLevel
+--------------------------------------------------------------------------------
+CorrectActionForHand
+  // This function changes tmpargument according to which hand the character
+  // is held in ( this is for wizards casting spells )
+  tmpargument = ACTIONZA  // Must be an A...  ZA, BA, CA, DA, etc...
+  CorrectActionForHand    // ZA or ZB if in left hand, ZC or ZD if in right
+  SetTargetToWhoeverIsHolding
+  TargetDoAction
+--------------------------------------------------------------------------------
+IfTargetIsMounted
+  // This function proceeds if the target is riding a mount
+--------------------------------------------------------------------------------
+SparkleIcon
+  // This function starts little sparklies going around the character's icon
+  tmpargument = RED
+  SparkleIcon
+--------------------------------------------------------------------------------
+UnsparkleIcon
+  // This function stops little sparklies going around the character's icon
+--------------------------------------------------------------------------------
+GetTileXY
+  // This function sets tmpargument to the tile type at the specified
+  // coordinates
+  tmpx = selfx
+  tmpy = selfy
+  GetTileXY
+--------------------------------------------------------------------------------
+SetTileXY
+  // This function changes the tile type at the specified coordinates
+  tmpx = selfx
+  tmpy = selfy
+  GetTileXY
+  tmpargument = tmpargument + 1
+  SetTileXY
+--------------------------------------------------------------------------------
+SetShadowSize
+  // This function makes the character's shadow bigger or smaller
+  tmpargument = 50
+  SetShadowSize
+--------------------------------------------------------------------------------
+OrderTarget
+  // This function issues an order to the given target
+  tmpargument = 50
+  OrderTarget
+--------------------------------------------------------------------------------
+SetTargetToWhoeverIsInPassage
+  // This function sets the target to whoever is blocking the given passage
+  tmpargument = passage
+  SetTargetToWhoeverIsInPassage
+    KillTarget
+--------------------------------------------------------------------------------
+IfCharacterWasABook
+  // Proceeds if the character started life as a book or the spell object...
+  // USED BY THE MORPH SPELL...  Not much use elsewhere
+--------------------------------------------------------------------------------
+SetEnchantBoostValues
+  // This function sets the mana and life drains for the last enchantment
+  // spawned by this character...  Values are * 256
+  tmpargument = 0 - 256  // Cost owner 1 mana per second
+  tmpdistance = 256      // Give owner 1 life per second
+  tmpx = 0               // Give target 0 mana per second
+  tmpy = 0 - 256         // Cost target 1 life per second
+  SetEnchantBoostValues
+--------------------------------------------------------------------------------
+SpawnCharacterXYZ
+  // This function spawns a character of the same type at a specific location
+  tmpx = selfx               // X position of the new character
+  tmpy = selfy               // Y position of the new character
+  tmpdistance = selfz + 200  // Altitude of the new character
+  tmpturn = selfturn         // facing of the new character
+  SpawnCharacterXYZ
+--------------------------------------------------------------------------------
+SpawnExactCharacterXYZ
+  // This function spawns a character at a specific location, using a
+  // specific model type...  DON'T USE THIS FOR EXPORTABLE ITEMS OR CHARACTERS,
+  // AS THE MODEL SLOTS MAY VARY FROM MODULE TO MODULE...
+  tmpargument = 10           // The specific model slot
+  tmpx = selfx               // X position of the new character
+  tmpy = selfy               // Y position of the new character
+  tmpdistance = selfz + 200  // Altitude of the new character
+  tmpturn = selfturn         // facing of the new character
+  SpawnExactCharacterXYZ
+--------------------------------------------------------------------------------
+ChangeTargetClass
+  // This function changes the target character's model slot...  DON'T USE
+  // THIS FOR EXPORTABLE ITEMS OR CHARACTERS, AS THE MODEL SLOTS MAY VARY FROM
+  // MODULE TO MODULE...  This is intended as a way to incorporate more
+  // player classes into the game...
+  tmpargument = [SOLD]
+  IfTargetHasID                // Only let Soldiers undergo the class change
+    tmpargument = 10           // The specific model slot to change to
+    ChangeTargetClass
+--------------------------------------------------------------------------------
+PlayFullSound
+  // This function plays one of the character's sounds...  The sound will
+  // be heard at full volume by all players
+  tmpargument = 0      // sound0.wav
+  tmpdistance = 11025  // the frequency
+  PlayFullSound
+--------------------------------------------------------------------------------
+SpawnExactChaseParticle
+  // This function spawns a particle at a specific x, y, z position,
+  // that will home in on the character's target
+  tmpargument = 0         // part0.txt
+  tmpx = selfx            // x
+  tmpy = selfy            // y
+  tmpdistance = selfz     // z
+  SpawnExactChaseParticle
+--------------------------------------------------------------------------------
+CreateOrder
+  // This function compresses tmpx, tmpy, tmpargument ( 0 - 15 ), and the
+  // character's target into tmpargument...  This new tmpargument can then
+  // be issued as an order to teammates...  TranslateOrder will undo the
+  // compression
+  tmpx = targetx
+  tmpy = targety
+  tmpargument = 0 // The order type
+  CreateOrder
+  IssueOrder
+--------------------------------------------------------------------------------
+OrderSpecialID
+  // This function orders all characters with the given special IDSZ...
+  // Note that the IDSZ is set in tmpdistance...
+  tmpx = selfx
+  tmpy = selfy
+  tmpargument = 15     // The order type
+  CreateOrder
+  tmpdistance = [FRUN] // Yell at all characters that run from Fire
+  OrderSpecialID
+--------------------------------------------------------------------------------
+UnkurseTargetInventory
+  // This function unkurses all items held and in the pockets of the target
+--------------------------------------------------------------------------------
+IfTargetIsSneaking
+  // This function proceeds if the target is doing ACTIONWA or ACTIONDA
+--------------------------------------------------------------------------------
+DropItems
+  // This function drops all of the items the character is holding
+--------------------------------------------------------------------------------
+RespawnTarget
+  // This function respawns the target at its current location
+--------------------------------------------------------------------------------
+TargetDoActionSetFrame
+  // This function starts the target doing the given action, and also sets
+  // the starting frame to the first of the animation ( so there is no 
+  // interpolation 'cause it looks awful in some circumstances )
+  tmpargument = ACTIONMD
+  TargetDoActionSetFrame
+--------------------------------------------------------------------------------
+IfTargetCanSeeInvisible
+  // This function proceeds if the target can see invisible
+--------------------------------------------------------------------------------
+SetTargetToNearestBlahID
+  // This function finds the NEAREST ( exact ) character that fits the given
+  // parameters, failing if it finds none
+  tmpargument = [HUMA]
+  tmpdistance = BLAHDEAD | BLAHENEMIES
+  SetTargetToWideBlahID
+    // Found a dead, humanoid enemy...
+    DebugMessage
+--------------------------------------------------------------------------------
+SetTargetToNearestEnemy
+  // This function finds the NEAREST ( exact ) enemy, failing if it finds none
+--------------------------------------------------------------------------------
+SetTargetToNearestFriend
+  // This function finds the NEAREST ( exact ) friend, failing if it finds none
+--------------------------------------------------------------------------------
+SetTargetToNearestLifeform
+  // This function finds the NEAREST ( exact ) friend or enemy, failing if it
+  // finds none
+--------------------------------------------------------------------------------
+FlashPassage
+  // This function makes the given passage fully lit...  For debug purposes
+  tmpargument = passage // passage is set in spawn.txt for the given character
+  tmpdistance = 255	// color to flash it
+  FlashPassage
+--------------------------------------------------------------------------------
+FindTileInPassage
+  // This function finds all tiles of the specified type that lie within the
+  // given passage.  Call multiple times to find multiple tiles.  tmpx and
+  // tmpy will be set to the middle of the found tile if one is found, or
+  // both will be set to 0 if no tile is found.
+  tmpargument = passage // The passage to check
+  tmpdistance = 51	// The tile type to find
+  tmpx = 0			// Needed for first call
+  tmpy = 0			// Needed for first call
+  FindTileInPassage
+    tmpargument = 52
+    SetTileXY
+  // Do it again, x and y set from last call
+  tmpargument = passage
+  FindTileInPassage
+    tmpargument = 52
+    SetTileXY
+  // Do it again, x and y set from last call
+  tmpargument = passage
+  FindTileInPassage
+    tmpargument = 52
+    SetTileXY
+--------------------------------------------------------------------------------
+IfHeldInLeftHand
+  // This function passes if another character is holding the character in its
+  // left hand.  Used mostly by enchants that target the item of the other
+  // hand
+--------------------------------------------------------------------------------
+NotAnItem
+  // This function makes the character a non-item character...  Used for
+  // spells that summon creatures
+--------------------------------------------------------------------------------
+SetChildAmmo
+  // This function sets the ammo of the last character spawned by this
+  // character
+  tmpx = selfx + 100
+  tmpy = selfy
+  tmpturn = selfturn
+  tmpdistance = 0
+  SpawnCharacter
+    tmpargument = 1
+    SetChildAmmo
+--------------------------------------------------------------------------------
+IfHitVulnerable
+  // This function proceeds if the character was hit by a weapon of its
+  // vulnerability IDSZ...  For example, a werewolf gets hit by a [SILV]
+  // bullet.
+--------------------------------------------------------------------------------
+IfTargetIsFlying
+  // This function proceeds if the target is flying
+--------------------------------------------------------------------------------
+IdentifyTarget
+  // This function reveals the target's name, ammo, and usage
+  // Proceeds if the target was unknown
+--------------------------------------------------------------------------------
+BeatModule
+  // This function displays the Module Ended message
+--------------------------------------------------------------------------------
+EndModule
+  // This function presses the Escape key
+--------------------------------------------------------------------------------
+DisableExport
+  // This function turns export off
+--------------------------------------------------------------------------------
+EnableExport
+  // This function turns export on
+--------------------------------------------------------------------------------
+GetTargetState
+  // This function sets tmpargument to the state of the target
+--------------------------------------------------------------------------------
+SetSpeech
+  // This function sets ALL of the RTS speech types to tmpargument
+  tmpargument = 0
+  SetSpeech
+--------------------------------------------------------------------------------
+SetMoveSpeech
+SetSecondMoveSpeech
+SetAttackSpeech
+SetAssistSpeech
+SetTerrainSpeech
+SetSelectSpeech
+  // These functions set one of the RTS speech types to tmpargument
+  tmpargument = 0
+  SetSpeech
+  tmpargument = 1
+  SetAttachSpeech
+--------------------------------------------------------------------------------
+ClearEndMessage
+  // This function empties the end-module text buffer
+--------------------------------------------------------------------------------
+AddEndMessage
+  // This function adds a message to the end-module text buffer
+  ClearEndMessage
+  tmpargument = 0
+  AddEndMessage
+  tmpargument = 1
+  AddEndMessage
+--------------------------------------------------------------------------------
+SetMusic
+  // This function starts playing a type of music
+  tmpturn = IGCOMBAT    // The type of music
+  tmpdistance = 2       // The number of repetitions ( in, 1, 2, out )
+  SetMusic
+--------------------------------------------------------------------------------
+SetMusicPassage
+  // This function keys a passage to play music when entered by the players
+  tmpargument = passage // The passage to set
+  tmpturn = IGSECRET    // The type of music
+  tmpdistance = 0       // The number of repetitions ( in, out )
+  SetMusicPassage
+--------------------------------------------------------------------------------
+MakeCrushInvalid
+  // This function makes a character uncrushable by doors
+--------------------------------------------------------------------------------
+StopMusic
+  // This function stops the interactive music
+--------------------------------------------------------------------------------
+FlashVariable
+  // This function makes the character flash according to tmpargument
+  tmpargument = 0
+  FlashVariable
+  // SetTargetToSelf
+  // BlackTarget
+--------------------------------------------------------------------------------
+AccelerateUp
+  // This function makes the character accelerate up and down
+  tmpargument = 100
+  AccelerateUp
+--------------------------------------------------------------------------------
+FlashVariableHeight
+  // This function allows a character to have dark feet and a bright head
+  tmpturn = 0		// 0 to 255, intensity below bottom height
+  tmpx = 1000		// -32000 to 32000, Bottom height
+  tmpdistance = 255	// 0 to 255, intensity above top height
+  tmpy = 10000          // -32000 to 32000, Top height
+  FlashVariableHeight
+--------------------------------------------------------------------------------
+SetDamageTime
+  // This function makes the character invincible for tmpargument frames
+  tmpargument = 50	// One Second
+  SetDamageTime
+--------------------------------------------------------------------------------
+IfTargetIsAMount
+  // This function passes if the target is a mountable character
+--------------------------------------------------------------------------------
+IfTargetIsAPlatform
+  // This function passes if the target is a platform character
+--------------------------------------------------------------------------------
+AddStat
+  // This function turns on an NPC's status display
+--------------------------------------------------------------------------------
+DisenchantTarget
+  // This function removes all enchantments on the target character, proceeding
+  // if there were any, failing if not
+--------------------------------------------------------------------------------
+DisenchantAll
+  // This function removes all enchantments in the game
+--------------------------------------------------------------------------------
+SetVolumeNearestTeammate
+  // This function lets insects buzz correctly...  The closest team member
+  // is used to determine the overall sound level.
+  tmpargument = 1     // The sound to manipulate
+  tmpdistance = 0     // How far away the sound is
+  SetVolumeClosestTeammate
+--------------------------------------------------------------------------------
+AddShopPassage
+  // This function makes a passage behave as a shop area, as long as the
+  // character is alive.
+  tmpargument = passage
+  AddShopPassage
+--------------------------------------------------------------------------------
+TargetPayForArmor
+  // This function costs the target the appropriate amount of money for the
+  // given armor type.  Passes if the character has enough, and fails if not.
+  // Does trade-in bonus automatically.  tmpy is always set to cost of requested
+  // skin tmpx is set to amount needed after trade-in ( 0 for pass ).
+  tmpargument = 3  // The skin type to buy
+  TargetPayForArmor
+    // Give 'em the armor
+    ChangeTargetArmor
+  Else
+    // Not enough money
+    tmpargument = 2
+    SendMessageNear
+--------------------------------------------------------------------------------
+JoinEvilTeam
+  // This function makes the character join team E.
+--------------------------------------------------------------------------------
+JoinNullTeam
+  // This function makes the character join team N.
+--------------------------------------------------------------------------------
+JoinGoodTeam
+  // This function makes the character join team G.
+--------------------------------------------------------------------------------
+PitsKill
+  // This function activates pit deaths for when characters fall below a
+  // certain altitude...
+--------------------------------------------------------------------------------
+SetTargetToPassageID
+  // This function sets the target to the first character in the passage
+  // who has an item with the given IDSZ.  Fails if none are found.
+  tmpargument = passage
+  tmpdistance = [KEYA]
+  SetTargetToPassageID
+--------------------------------------------------------------------------------
+MakeNameUnknown
+  // This function makes the character's name unknown...  Use if you have
+  // subspawning of creatures from a book...
+--------------------------------------------------------------------------------
+SpawnExactParticleEndSpawn
+  // This function spawns a particle at a specific x, y, z position...
+  // When the particle ends, a character is spawned at its final location.
+  // The character is the same type of whatever spawned the particle.
+  tmpargument = 0         // part0.txt
+  tmpturn = 1             // The state of the child, when spawned
+  tmpx = selfx            // x
+  tmpy = selfy            // y
+  tmpdistance = selfz     // z
+  SpawnExactParticleEndSpawn
+--------------------------------------------------------------------------------
+SpawnPoofSpeedSpacingDamage
+  // This function spawns a poof, but sets the XY Velocity and XY Spacing of
+  // the poof particles first...  Base damage is also changed...
+  tmpx = 10          // The xy velocity
+  tmpy = 30          // The xy spacing
+  tmpargument = 256  // Do 1 point of damage (+random amount in part file ).
+                     // If the damage was originally 4-10, it's as if it said
+                     // 1-7 instead...
+  SpawnPoofSpeedSpacingDamage
+--------------------------------------------------------------------------------
+GiveExperienceToGoodTeam
+  // This function gives experience to everyone on the G team
+  tmpargument = 40		// The base amount of experience
+  tmpdistance = EXPQUEST	// The type of experience
+  GiveExperienceToGoodTeam
+--------------------------------------------------------------------------------
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+CONSTANTS
+--------------------------------------------------------------------------------
+BLAHDEAD
+BLAHENEMIES
+BLAHFRIENDS
+BLAHITEMS
+BLAHINVERTID
+  // These are for the Blah style functions, to specify exactly what type
+  // of target to find.  These are OR'd together, so I usually figure out the
+  // number and write that exactly, rather than letting the compiler handle it.
+  // For example, BLAHFRIENDS | BLAHENEMIES is the same as the number 6.
+  // BLAHINVERTID only works with the SetTargetToWideBlahID function.
+--------------------------------------------------------------------------------
+STATEPARRY
+STATEWANDER
+STATEGUARD
+STATEFOLLOW
+STATESURROUND
+STATERETREAT
+STATECHARGE
+STATECOMBAT
+  // These are generic, named states, in case you like using names instead of
+  // numbers
+--------------------------------------------------------------------------------
+GRIPONLY
+GRIPLEFT
+GRIPRIGHT
+SPAWNORIGIN
+SPAWNLAST
+  // These are grip and spawn locations for particle spawning and such
+--------------------------------------------------------------------------------
+LATCHLEFT
+LATCHRIGHT
+LATCHJUMP
+LATCHALTLEFT
+LATCHALTRIGHT
+LATCHPACKLEFT
+LATCHPACKRIGHT
+  // These are the different buttons that can be pressed ( alt means get/drop )
+--------------------------------------------------------------------------------
+DAMAGESLASH
+DAMAGECRUSH
+DAMAGEPOKE
+DAMAGEHOLY
+DAMAGEEVIL
+DAMAGEFIRE
+DAMAGEICE
+DAMAGEZAP
+  // These are the different damage types
+--------------------------------------------------------------------------------
+ACTIONDA	// Dance ( Standing still )
+ACTIONDB	// Dance
+ACTIONDC	// Dance
+ACTIONDD	// Dance
+ACTIONUA	// Unarmed attack left
+ACTIONUB	// Unarmed attack left
+ACTIONUC	// Unarmed attack right
+ACTIONUD	// Unarmed attack right
+ACTIONTA	// Thrust attack left
+ACTIONTB	// Thrust attack left
+ACTIONTC	// Thrust attack right
+ACTIONTD	// Thrust attack right
+ACTIONCA	// Chop attack left
+ACTIONCB	// Chop attack left
+ACTIONCC	// Chop attack right
+ACTIONCD	// Chop attack right
+ACTIONSA	// Slice attack left
+ACTIONSB	// Slice attack left
+ACTIONSC	// Slice attack right
+ACTIONSD	// Slice attack right
+ACTIONBA	// Bash attack left
+ACTIONBB	// Bash attack left
+ACTIONBC	// Bash attack right
+ACTIONBD	// Bash attack right
+ACTIONLA	// Longbow attack left
+ACTIONLB	// Longbow attack left
+ACTIONLC	// Longbow attack right
+ACTIONLD	// Longbow attack right
+ACTIONXA	// Crossbow attack left
+ACTIONXB	// Crossbow attack left
+ACTIONXC	// Crossbow attack right
+ACTIONXD	// Crossbow attack right
+ACTIONFA	// Flinged attack left
+ACTIONFB	// Flinged attack left
+ACTIONFC	// Flinged attack right
+ACTIONFD	// Flinged attack right
+ACTIONPA	// Parry attack left ( 1 frame )
+ACTIONPB	// Parry attack left ( DON'T USE )
+ACTIONPC	// Parry attack right ( 1 frame )
+ACTIONPD	// Parry attack right ( DON'T USE )
+ACTIONEA	// Evade
+ACTIONEB	// Evade
+ACTIONRA	// Roll
+ACTIONZA	// Zap left
+ACTIONZB	// Zap left
+ACTIONZC	// Zap right
+ACTIONZD	// Zap right
+ACTIONWA	// Sneak
+ACTIONWB	// Walk
+ACTIONWC	// Run
+ACTIONWD	// Push
+ACTIONJA	// Jump
+ACTIONJB	// Falling from left hand
+ACTIONJC	// Falling from right hand
+ACTIONHA	// Hit
+ACTIONHB	// Hit
+ACTIONHC	// Hit
+ACTIONHD	// Hit
+ACTIONKA	// Killed
+ACTIONKB	// Killed
+ACTIONKC	// Killed
+ACTIONKD	// Killed
+ACTIONMA	// Drop item left
+ACTIONMB	// Drop item right
+ACTIONMC	// Cheer/Slam left
+ACTIONMD	// Show off/Rise from ground/Slam right
+ACTIONME	// Grab item left
+ACTIONMF	// Grab item right
+ACTIONMG	// Open chest
+ACTIONMH	// Sit ( DON'T USE )
+ACTIONMI	// Ride
+ACTIONMJ	// Object activated
+ACTIONMK	// Sleeping
+ACTIONML	// Unlock
+ACTIONMM	// Held left
+ACTIONMN	// Held right
+  // These are all of the available action types
+--------------------------------------------------------------------------------
+EXPSECRET	// For finding hidden things, Identifying items, etc
+EXPQUEST	// For finishing a module, Completing a subquest, etc
+EXPDARE		// For being brave and/or foolish
+EXPKILL		// For killing a monster
+EXPMURDER	// For killing a sleeping monster ( ACTIONMK )
+EXPREVENGE	// For killing a hated monster ( hate group IDSZ )
+EXPTEAMWORK	// A comrade killed a monster
+EXPROLEPLAY	// For playing your character
+  // These are the experience types, which may be refined further by
+  // IDSZ checks
+--------------------------------------------------------------------------------
+MESSAGEDEATH
+MESSAGEHATE
+MESSAGEOUCH
+MESSAGEFRAG
+MESSAGEACCIDENT
+MESSAGECOSTUME
+  // These are the standard message types, but feel free not to use them
+--------------------------------------------------------------------------------
+ORDERMOVE
+ORDERATTACK
+ORDERASSIST
+ORDERSTAND
+ORDERTERRAIN
+  // These are the RTS orders
+--------------------------------------------------------------------------------
+WHITE
+RED
+YELLOW
+GREEN
+BLUE
+PURPLE
+  // These are colors for blips and sparkles
+--------------------------------------------------------------------------------
+IGNORMAL
+IGSECRET
+IGCOMBAT
+  // These are interactive music types
+--------------------------------------------------------------------------------
+FXNOREFLECT
+FXDRAWREFLECT
+FXANIM
+FXWATER
+FXBARRIER
+FXIMPASS
+FXDAMAGE
+FXSLIPPY
+  // These are map effects
+--------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+VARIABLES
+--------------------------------------------------------------------------------
+tmpx
+tmpy
+tmpdistance
+tmpturn
+tmpargument
+  // These variables are used as arguments to functions, and are the only
+  // variables that can be written to...
+  tmpx = tmpx + 50        // This is okay
+  tmpy = 0 - 200          // This is okay
+  tmpdistance = 99
+  tmpturn = rand & 255    // This is okay
+  tmpargument = 
+  selfx = 30              // !!!THIS IS WRONG, WRONG, WRONG!!!
+--------------------------------------------------------------------------------
+rand
+  // This variable is a random number between
+--------------------------------------------------------------------------------
+selfx
+selfy
+  // Location of the character
+--------------------------------------------------------------------------------
+selfturn
+  // The facing of the character
+--------------------------------------------------------------------------------
+selfcounter
+  // The character's number on the team
+--------------------------------------------------------------------------------
+selforder
+  // The order given to the character...  Should probably now just use
+  // TranslateOrder if possible
+--------------------------------------------------------------------------------
+selfmorale
+  // The number of characters left in the character's team
+--------------------------------------------------------------------------------
+selflife
+  // The life of the character...  Value is * 256
+--------------------------------------------------------------------------------
+targetx
+targety
+  // Location of the target
+--------------------------------------------------------------------------------
+targetdistance
+  // Distance to the target.  This is NOT correct, but it usually works just
+  // fine.  If you really need the correct distance, use xydistance after
+  // setting tmpx and tmpy.
+--------------------------------------------------------------------------------
+targetturn
+  // The facing of the target
+--------------------------------------------------------------------------------
+leaderx
+leadery
+  // Location of the team's leader
+--------------------------------------------------------------------------------
+leaderdistance
+  // Distance to the leader ( not exact )
+--------------------------------------------------------------------------------
+leaderturn
+  // Facing of the leader
+--------------------------------------------------------------------------------
+gotox
+gotoy
+  // Next waypoint location
+--------------------------------------------------------------------------------
+gotodistance
+  // Distance to next waypoint
+--------------------------------------------------------------------------------
+targetturnto
+  // Direction to the target from the character...  VERY USEFUL
+--------------------------------------------------------------------------------
+passage
+  // The character's passage...  Set is spawn.txt
+--------------------------------------------------------------------------------
+weight
+  // The amount of weight on top of a character ( not exact )...
+  // For buttons that need heavy things dropped on them
+--------------------------------------------------------------------------------
+selfaltitude
+  // The character's distance above the ground
+--------------------------------------------------------------------------------
+selfid
+  // The character's type IDSZ
+--------------------------------------------------------------------------------
+selfhateid
+  // The character's hate IDSZ
+--------------------------------------------------------------------------------
+selfmana
+  // The mana of the character...  Value is * 256
+--------------------------------------------------------------------------------
+targetstr
+targetwis
+targetint
+targetdex
+targetlife
+targetmana
+  // The stats of the target...  Value is * 256
+--------------------------------------------------------------------------------
+targetlevel
+  // The experience level of the target...  0-5
+--------------------------------------------------------------------------------
+targetspeedx
+targetspeedy
+targetspeedz
+  // The speeds of the target
+--------------------------------------------------------------------------------
+selfspawnx
+selfspawny
+  // The starting location of the character
+--------------------------------------------------------------------------------
+selfstate
+  // The character's state
+--------------------------------------------------------------------------------
+selfstr
+selfwis
+selfint
+selfdex
+selfmanaflow
+  // The stats of the character...  Value is * 256
+--------------------------------------------------------------------------------
+targetmanaflow
+  // How much the target can pump spells...  Value is * 256
+--------------------------------------------------------------------------------
+selfattached
+  // The number of particles attached to the character
+--------------------------------------------------------------------------------
+swingturn
+  // For the sliding crate in the G'nome starter...  The tilt of the floor
+--------------------------------------------------------------------------------
+xydistance
+  // An exact distance...  sqrt(tmpx * tmpx + tmpy * tmpy)
+--------------------------------------------------------------------------------
+selfz
+  // Up down location of the character
+--------------------------------------------------------------------------------
+targetaltitude
+  // Distance of the target above the ground
+--------------------------------------------------------------------------------
+targetz
+  // Up down location of the target
+--------------------------------------------------------------------------------
+selfindex
+  // The unique number associated with this character
+--------------------------------------------------------------------------------
+ownerx
+ownery
+  // The owner location
+--------------------------------------------------------------------------------
+ownerturn
+  // The owner facing
+--------------------------------------------------------------------------------
+ownerdistance
+  // The distance to the owner ( not exact )
+--------------------------------------------------------------------------------
+ownerturnto
+  // The direction to the owner from the character...
+--------------------------------------------------------------------------------
+xyturnto
+  // The direction to tmpx, tmpy from the character...
+--------------------------------------------------------------------------------
+selfmoney
+  // The amount of money held by the character
+--------------------------------------------------------------------------------
+selfaccel
+  // The current acceleration rate of the character
+--------------------------------------------------------------------------------
+targetexp
+  // The amount of experience the target has earned so far
+--------------------------------------------------------------------------------
+selfammo
+  // The amount of ammo the character has left ( for weapon scripts )
+--------------------------------------------------------------------------------

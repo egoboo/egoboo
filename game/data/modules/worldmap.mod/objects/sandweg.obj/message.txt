@@ -1,0 +1,5 @@
+Message 0: Ancient_%c_looks_deserted!
+Message 1: %c_seems_pretty_quiet...
+Message 2: Press_ATTACK_to_enter_%c.
+Message 3: %t_has_found_%c.
+Message 4: sandweg.mod

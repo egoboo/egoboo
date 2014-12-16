@@ -1,0 +1,154 @@
+// Encounter
+#dependency Ulna       18
+#dependency Squidgie   37
+#dependency GrubBug    38
+#dependency Mosquito   50
+#dependency PitCobra   55
+#dependency Tranch     72
+#dependency Crab       79
+#dependency Cockatrice 97
+#dependency Ghoul      98
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+Hero 00:   NONE      0    53.5 45.0 6.0   N   0   0   0   0   0   T   F   Good
+  Hero 01: NONE      1    0    0    0    L   0   0   0   0   0   F   F   Null
+  Hero 02: NONE      2    0    0    0    R   0   0   0   0   0   F   F   Null
+  Hero 03: NONE      3    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 04: NONE      4    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 05: NONE      5    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 06: NONE      6    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 07: NONE      7    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 08: NONE      8    0    0    0    I   0   0   0   0   0   F   F   Null
+
+Hero 09:   NONE      9    53.5 48.0 6.0  N   0   0   0   0   0   T   F   Good
+  Hero 10: NONE     10    0    0    0    L   0   0   0   0   0   F   F   Null
+  Hero 11: NONE     11    0    0    0    R   0   0   0   0   0   F   F   Null
+  Hero 12: NONE     12    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 13: NONE     13    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 14: NONE     14    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 15: NONE     15    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 16: NONE     16    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 17: NONE     17    0    0    0    I   0   0   0   0   0   F   F   Null
+
+Hero 18:   NONE     18    56.5 45.0 6.0  N   0   0   0   0   0   T   F   Good
+  Hero 19: NONE     19    0    0    0    L   0   0   0   0   0   F   F   Null
+  Hero 20: NONE     20    0    0    0    R   0   0   0   0   0   F   F   Null
+  Hero 21: NONE     21    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 22: NONE     22    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 23: NONE     23    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 24: NONE     24    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 25: NONE     25    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 26: NONE     26    0    0    0    I   0   0   0   0   0   F   F   Null
+
+Hero 27:   NONE     27    56.5 48.0 6.0  N   0   0   0   0   0   T   F   Good
+  Hero 28: NONE     28    0    0    0    L   0   0   0   0   0   F   F   Null
+  Hero 29: NONE     29    0    0    0    R   0   0   0   0   0   F   F   Null
+  Hero 30: NONE     30    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 31: NONE     31    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 32: NONE     32    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 33: NONE     33    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 34: NONE     34    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 35: NONE     35    0    0    0    I   0   0   0   0   0   F   F   Null
+
+// the module links
+Forgotten:       NONE    82  58.0   59.5   1.0   E    0   0  2   0   0   F   F   Evil
+palsand:     NONE    40  18.0   60.0   0.0   W    0   0  2   0   0   F   F   Evil
+palshad:     NONE    41  42.5   34.5   0.0   N    0   0  2   0   0   F   F   Evil
+palwater:    NONE    42  41.5   82.5   0.0   N    0   1  2   0   0   F   F   Evil
+palash:      NONE    43  17.0   28.0   0.0   E    0   0  2   0   0   F   F   Evil
+palice:      NONE    81  81.0   23.5   1.0   W    0   0  2   0   0   F   F   Evil
+zippy:       NONE    44  63.0   35.0   0.0   W    0   0  2   0   0   F   F   Null
+greatwood:   NONE    46  76.5   49.5   0.0   W    0   0  2   0   0   F   F   Null
+bishopia:    NONE    45  40.0   55.5   0.0   E    0   0  2   0   0   F   F   Null
+sandweg:     NONE    83  15.5   51.4   0.0   S    0   0  2   0   0   F   F   Null
+
+// encounters
+encounter:   NONE    54  60.0   35.0   0.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  30.0   26.0   1.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  45.0   34.0   2.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  57.0   19.0   1.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  70.0   24.0   2.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  85.0   34.0   1.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  67.5   56.5   1.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  84.0   58.0   1.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  53.0   67.0   1.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  36.0   74.0   1.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  23.0   62.0   1.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  10.0   50.0   1.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  24.5   37.5   1.0   N    0   0  0   0   0   F   F   E
+encounter:   NONE    54  9.0    25.0   1.0   N    0   0  0   0   0   F   F   E
+
+//Elven lands
+Tree:   NONE    59  75.0   45.0   0.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  73.0   44.0   0.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  76.5   47.5   0.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  75.0   42.0   0.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  66.5   46.5   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  70.0   42.5   0.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  68.5   49.5   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  65.5   50.5   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  71.0   45.0   0.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  71.0   48.0   0.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  73.5   51.5   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  77.5   45.5   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  73.5   48.5   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  70.5   51.5   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  73.0   44.0   0.0   ?    0   0  0   0   0   F   F   N
+Treestump:   NONE    56  72.5   57.5   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  47.0   73.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  49.0   69.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  52.0   71.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  52.0   64.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  58.0   68.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  54.0   66.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  55.0   62.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  60.0   65.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  56.0   56.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  62.0   57.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  62.0   53.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  66.0   59.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  71.0   61.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  68.0   54.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  59.0   49.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  62.0   68.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  56.0   71.0   1.0   ?    0   0  0   0   0   F   F   N
+Tree:   NONE    59  75.5   54.5   0.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  79.0   44.0   1.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  79.5   49.5   0.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  71.0   52.0   1.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  69.0   45.0   1.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  65.0   52.0   1.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  69.0   58.0   1.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  63.0   59.0   1.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  60.0   62.0   1.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  56.0   65.0   1.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  64.0   63.0   1.0   ?    0   0  0   0   0   F   F   N
+PineTree:   NONE    53  59.0   54.0   1.0   ?    0   0  0   0   0   F   F   N
+
+faeriering:   NONE    80  55.0   68.0   0.0   ?    0   0  0   0   0   F   F   N
+
+// other stuff
+moduletool: NONE    125  53.0   45.0   1.0   N    0   0  0   0   0   F   F   N
+
+//Winter lands
+SnowFall:   NONE      125    72.5 21.0 0.0   N   0   0   0   1   0   F   F   Null
+SnowFall:   NONE      125    74.5 30.0 0.0   N   0   0   0   1   0   F   F   Null
+PineTree:   NONE      53     78.5 32.0 0.0   ?   0   1   0   0   0   F   F   Null
+PineTree:   NONE      53     81.0 30.0 0.0   ?   0   3   0   0   0   F   F   Null
+PineTree:   NONE      53     76.5 33.0 0.0   ?   0   1   0   0   0   F   F   Null
+PineTree:   NONE      53     80.0 18.5 0.0   ?   0   2   0   0   0   F   F   Null
+PineTree:   NONE      53     66.5 22.5 0.0   ?   0   3   0   0   0   F   F   Null
+PineTree:   NONE      53     65.5 21.5 0.0   ?   0   1   0   0   0   F   F   Null
+PineTree:   NONE      53     68.5 29.7 0.0   ?   0   2   0   0   0   F   F   Null
+PineTree:   NONE      53     80.5 33.0 0.0   ?   0   2   0   0   0   F   F   Null
+PineTree:   NONE      53     64.7 26.8 0.0   ?   0   1   0   0   0   F   F   Null
+PineTree:   NONE      53     66.5 25.0 0.0   ?   0   3   0   0   0   F   F   Null
+PineTree:   NONE      53     72.2 19.5 0.0   ?   0   2   0   0   0   F   F   Null
+
+PineTree:   NONE      53     82.0 41.0 0.0   ?   0   0   0   0   0   F   F   Null
+PineTree:   NONE      53     76.8 40.0 0.0   ?   0   0   0   0   0   F   F   Null
+PineTree:   NONE      53     79.5 36.0 0.0   ?   0   2   0   0   0   F   F   Null
+PineTree:   NONE      53     75.7 37.5 0.0   ?   0   0   0   0   0   F   F   Null
+
+//Ashlands
+Volcano:   NONE      200     32.6 30.0 1.0   ?   0   0   0   0   0   F   F   Evil

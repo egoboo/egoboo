@@ -1,0 +1,30 @@
+//This gives each song a number which is used in scripts and such.
+//The menu always plays track number 0, the first song in the list.
+
+Menu Music: themesong.ogg
+Music 1: bishopia.ogg
+Music 2: dungeon.ogg
+Music 3: dramatic.ogg
+Music 4: arabic.ogg
+Music 5: gnomeship.ogg
+Music 6: bigboss.ogg
+Music 7: darkdungeon.ogg
+Music 8: frozen.ogg
+Music 9: zippy.ogg
+Music 10: catacombs.ogg
+Music 11: castle.ogg
+Music 12: mystery.ogg
+Music 13: swamp.ogg
+Music 14: victory.ogg
+Music 15: dramaticboss.ogg
+Music 16: thedracolich.ogg
+Music 17: funny.ogg
+Music 18: theabyss.ogg
+Music 19: credits.ogg
+Music 20: bigboss2.ogg
+Music 21: Safe_Haven.ogg
+Music 22: Irish_Night.ogg
+Music 23: Once_lost.ogg
+Music 24: icylands.ogg
+Music 25: heroism.ogg
+Music 26: sandweg.ogg

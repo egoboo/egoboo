@@ -1,0 +1,5 @@
+Message 0: You_are_sucked_into_the_shimmering_portal_and_are_rapidly_sent_
+Message 1: to_the_second_level_of_this_gigantic_tower..._What_horrors_and_
+Message 2: dangers_will_you_face_before_you_reach_the_entrance_to_the_third_
+Message 3: level?_You_have_%Y_minutes_and_%X_seconds_left_before_The_Imprisoned_
+Message 4: One_breaks_free!

@@ -1,0 +1,9 @@
+Message 0: The_%c_has_fallen.
+Message 1: The_%c_has_been_destroyed!
+Message 2: BLAH
+Message 3: %t_destroyed_a_%c!
+Message 4: The_%c_wasn't_very_careful.
+Message 5: BLAH
+Message 6: BLAH
+Message 7: The_%c_looks_like_it_has_been_healed.
+Message 8: The_%c_has_been_taken_out.

@@ -1,0 +1,277 @@
+Overview
+--------
+     The IDSZ system is a way of describing
+objects using 4 letter words.  For example,
+a crossbow has an IDSZ of [XBOW], and a sword
+has an IDSZ of [SWOR].
+     Why?  It lets you add generic flags to
+the game, so other people can build on them.
+For example, I might want to make a sword
+that gets a bonus against Dragons.  Since
+Dragons have a [DRAG] IDSZ, the sword's
+scripted AI can check if it hit a dragon,
+and do a little extra damage if it did.
+     The nice part is that the weapon will
+also work against other [DRAG] creatures,
+like Dragonmen and Drag Queens, that I'm
+sure people will add in the future.
+     The only way it will work though, is
+if everyone uses the same ID strings.  So,
+before you make a [MINO] [TAUR], consult the
+lists below.
+
+
+Basic Types
+-----------
+  [NONE] - Not applicable
+  [XARM] - Too big to wear equipment
+  [XFIR] - Shouldn't use flaming items
+  [XICE] - Shouldn't use icy items
+  [XNOS] - Doesn't have a nose ( can't breathe toxic gas )
+  [XWEP] - Is a weapon ( for purposes of enchant weapon spells )
+  [XFUN] - Is a fun mount ( has special attack...  Press the button )
+  [XENC] - Shouldn't be enchanted ( bosses can't be bound... )
+  [XLEG] - Shouldn't get caught in bear traps
+
+
+Creature Parent/Child Types
+---------------------------
+  [HUMA] - Humanoid
+    [ADVE] - Adventurer
+    [WIZA] - Wizard
+    [HEAL] - Healer
+    [ROGU] - Rogue
+    [SOLD] - Soldier
+    [PALA] - Paladin
+    [ELFF] - Elf
+    [GNOM] - G'nome
+    [GUAR] - Guard
+    [KNIG] - Knight
+    [KING] - King
+    [WARL] - Warlock
+    [NECR] - Necromancer
+    [HORS] - Centaur/Centress
+    [LUMP] - Lumpkin
+    [FROG] - Trog
+    [LIZA] - Lizardman
+    [DRAG] - Dragonman
+    [BULL] - Minotaur
+    [WOLF] - Werewolf
+    [BEAR] - Werebear/COBOL
+    [BOAR] - Wereboar/Ork
+  [GIAN] - Giant Humanoid
+    [OGRE] - Ogre/Large human
+    [FIRE] - Fire Giant
+    [FROS] - Frost Giant
+    [STOR] - Storm Giant
+    [TROL] - Troll
+  [INSE] - Insect
+    [GRUB] - Grub Bug
+    [WASP] - Wasp
+    [SPID] - Spider
+    [SCOR] - Scorpion
+    [MOSQ] - Mosquito
+    [CRAB] - Crab
+  [UNDE] - Undead
+    [HUMA] - Zombi/Ghoul
+    [SKEL] - Skeleton
+    [MUMM] - Mummy
+    [GHOS] - Ghost ( Fright, Haunt )
+    [VAMP] - Vampire
+    [LICH] - Lich
+    [DRAG] - Dragon Lich
+    [MAGI] - Ghost Knight
+  [FAER] - Sprite/Faerie
+    [FLAM] - Flame Sprite
+  [MAGI] - Magical ( can be disenchanted )
+    [STAL] - Stalker
+    [BALL] - Ball of Light
+    [SHAD] - Shadow/Shade
+    [VORT] - Vortex
+    [MIMI] - Mimic
+    [LOCK] - Chest Mimic
+    [EART] - Earth Elemental
+    [FIRE] - Fire Elemental
+    [WATE] - Water Elemental
+    [WIND] - Wind Elemental
+  [ANIM] - Animate ( like magical, but no enchant sustaining )
+    [TILE] - Tile mimic ( custom death script )
+    [BLOB] - Acid blob ( custom death script )
+    [CUBE] - Gelfeet ( shouldn't die )
+    [WIER] - Water wierd ( shouldn't die an easy death )
+  [FISH] - Fish and other water creatures
+    [SQUI] - Squid
+    [OCTO] - Octopus
+  [RODE] - Rodent
+    [MOUS] - Mouse
+    [RATT] - Rat
+    [SQUI] - Squirrel
+  [BUNN] - Bunny
+  [LIZA] - Lizard
+    [BASI] - Basilisk
+    [DRAG] - Dragon
+  [BIRD] - Bird
+    [COCK] - Cockatrice
+    [CHIC] - Chicken
+  [DEMO] - Demon
+    [GARG] - Gargoyle
+    [WATC] - Watcher
+  [FROG] - Frog
+  [BOAR] - Boar/Hog/Pig
+  [GOAT] - Goat/Lamb/Sheep
+  [TURT] - Turtle
+  [HORS] - Horse
+  [BULL] - Bull/Cow
+  [WOLF] - Dog/Wolf
+    [BULL] - Bull Wolf
+    [HOTT] - Hot Dog
+  [LION] - Cat/Lion/BigCat
+  [MECH] - Mechanical
+
+
+
+Equipment Parent/Child Types
+----------------------------
+  [FOOT] - Footwear
+    [SHOE] - Shoes
+    [BOOT] - Boots
+  [HAND] - Handwear
+    [BAND] - Band
+    [BRAC] - Bracelet
+    [RING] - Ring
+    [GLOV] - Gloves
+    [GAUN] - Gauntlets
+  [NECK] - Neckwear
+    [AMUL] - Amulet
+    [PEND] - Pendant
+    [LACE] - Necklace
+
+
+
+Item Parent/Child Types
+-----------------------
+  [POTI] - Potion
+    [LIFE] - Life potion
+    [MANA] - Mana potion
+    [SPEE] - Speed potion
+    [POIS] - Poison
+  [GONN] - Gonne
+    [SHOT] - Shotgonne
+    [GATL] - Gatlin Gonne
+  [XBOW] - Crossbow
+    [WOOD] - Crossbow
+    [SILV] - Silver Crossbow
+  [LBOW] - Longbow
+    [WOOD] - Long Bow
+    [SILV] - Silver Longbow
+    [ARTI] - Artifact
+  [MACE] - Mace
+    [BLUN] - Blunt
+    [SPIK] - Spiked
+    [ARTI] - Artifact
+  [CLAW] - Claw
+    [IRON] - Iron Claw
+    [BRAS] - Brass Claw
+    [SILV] - Silver Claw
+    [ARTI] - Artifact
+  [STAF] - Staff
+    [ARTI] - Artifact
+  [POLE] - Polearm
+    [SPEA] - Spear
+    [HALB] - Halberd
+    [ARTI] - Artifact
+  [SWOR] - Sword
+    [LONG] - Longsword
+    [SHOR] - Shortsword
+    [ARTI] - Artifact
+  [SHIE] - Shield
+    [LARG] - Large shield
+    [TOWE] - Tower shield
+    [ARTI] - Artifact
+  [DAGG] - Dagger
+    [BODK] - Bodkin
+    [PONI] - Poniard
+    [STIL] - Stiletto
+    [CINQ] - Cinquedea
+    [ARTI] - Artifact
+  [AXEE] - Axe
+    [PICK] - Pick-Axe
+    [CLEA] - Cleaver
+    [HATC] - Hatchet
+    [BATT] - Battle Axe
+    [ARTI] - Artifact
+  [HAMM] - Hammer
+    [MALL] - Mallet
+    [WARH] - Warhammer
+    [ARTI] - Artifact
+  [KEYA] - Key ( KEYA through KEYZ are used )
+  [BOOK] - Book
+
+
+
+Misc Parent/Child Types
+-----------------------
+  [CHES] - Chest
+    [LOCK] - Unlockable chest
+  [DOOR] - Door
+    [LOCK] - Unlockable door
+  [BUTT] - Button
+    [LOCK] - Unlockable button
+  [PLAN] - Plant
+    [TREE] - Tree
+  [ROCK] - Rock/Boulder
+    [GRAV] - Grave
+    [HEAD] - Stone Idol
+  [BRAZ] - Brazier
+  [URNN] - Urn
+
+
+Material Types
+--------------
+  [CLAY] - Clay
+  [ROCK] - Rock
+  [WOOD] - Wooden
+  [HOLY] - Holy ( vs. Undead, vs. Demon )
+  [IRON] - Iron ( can be destroyed )
+  [RUST] - Rusted ( cannot be destroyed )
+  [SILV] - Silver ( vs. Lycanthropes )
+  [GOLD] - Gold
+
+
+
+Vulnerability Types
+-------------------
+  [SILV] - Silver ( for Lycanthropes )
+  [HOLY] - Holy ( for Undead )
+  [RUST] - Rust ( may be destroyed by corrosion )
+
+
+
+Skill Types
+-----------
+  [WMAG] - Wizard magic
+  [DISA] - Disarm traps
+  [TECH] - Technology
+  [JOUS] - Jousting
+
+
+
+Special Types
+-------------
+  [EVIL] - Evil alignment ( [UNDO] orders... )
+  [GOOD] - Good alignment
+  [HRUN] - Scared of holy items
+  [ERUN] - Scared of evil items
+  [FRUN] - Scared of fire items
+  [IRUN] - Scared of ice items
+  [ZRUN] - Scared of zap items
+  [WAKE] - Might be sleeping ( [WAKE] orders )
+
+
+Order Types ( issued by another character )
+-------------------------------------------
+  [UNDO] - Undo enchants on ( w/special [EVIL] )
+  [WAKE] - Wake sleepers ( w/ special [WAKE] )
+  491    - Unlock order ( w/ parent/type [LOCK] )
+
+

@@ -1,0 +1,145 @@
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+
+#dependency Everburn 68
+#dependency Chiuaua 67
+#dependency MagicPick 69 
+
+//The player and his equipment
+HERO:        NONE    0  3.5  12.5   0.0   N    0   0  0   0   0   T   F   R
+  unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Misc stuff
+moduletool:   NONE    44  6.0   26.0   1.0   N    0   0  3   0   0   F   F   N
+lavabubble:   NONE    62  53.0   57.5   1.0   N    0   0  0   0   0   F   F   N  //These two are the big lavapit
+lavabubble:   NONE    62  53.0   60.5   1.0   N    0   0  0   0   0   F   F   N
+lavabubble:   NONE    62  52.0   51.0   1.0   N    0   0  0   0   0   F   F   N   //This is the small lava pit
+
+//First room
+gate:   NONE    38  9.25   12.0   0.0   E    0   0  2   0   0   F   F   N
+rogueknife:   NONE    43  6.0   13.0   0.0   ?    0   0  5   0   0   F   F   Robber
+  knife:   NONE    39  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  incisor:   NONE    40  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Out of the maze passage
+gate:   NONE    38  29.0   33.0   1.0   N    0   0  4   0   0   F   F   N
+obutton:   NONE    47  27.5   28.5   1.0   N    0   0  4   0   0   F   F   N
+
+//Outside the maze there are guards
+treasuryguard:   NONE    50  17.5   37.5   1.0   N    4   0  0   1   0   F   F   Guards
+  Mallet:   NONE    60  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+treasuryguard:   NONE    50  17.5   37.5   1.0   S    5   0  0   2   0   F   F   Guards
+  Mallet:   NONE    60  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+treasuryguard:   NONE    50  28.5   56.5   1.0   W    8   0  0   3   0   F   F   Guards	//Sleepy head
+  Spear:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    102  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+treasuryguard:   NONE    50  31.5   48.5   1.0   N    9   0  0   0   0   F   F   Guards
+  Spear:   NONE    61  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+treasuryguard:   NONE    50  34.5   48.5   1.0   N    15   0  0   0   0   F   F   Guards
+  LBow:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+treasuryguard:   NONE    50  41.0   51.0   1.0   N    14   0  0   4   0   F   F   Guards	//Inside Guard
+  Mallet:   NONE    60  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    102  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+treasuryguard:   NONE    50  43.0   58.0   1.0   N    1   0  0   5   0   F   F   Guards	//Inside Guard
+  LBow:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+Tree:   NONE    37  18.5   52.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    37  22.5   44.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    37  33.5   36.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    37  43.5   37.5   1.0   N    0   0  0   0   0   F   F   N
+
+//Keyroom Traps
+deadfall:   NONE    53  10.5   26.0   1.0   N    0   0  0   0   0   F   F   T
+BearTrap:   NONE    36  15.5   27.5   1.0   N    0   0  0   0   0   F   F   N
+BearTrap:   NONE    36  11.5   26.5   1.0   N    0   0  0   0   0   F   F   N
+BearTrap:   NONE    36  13.5   25.5   1.0   N    0   0  0   0   0   F   F   N
+BearTrap:   NONE    36  14.5   26.5   1.0   S    0   0  0   0   0   F   F   N
+BearTrap:   NONE    36  13.5   26.5   1.0   W    0   0  0   0   0   F   F   N
+BearTrap:   NONE    36  15.5   26.5   1.0   E    0   0  0   0   0   F   F   N
+BearTrap:   NONE    36  22.0   56.0   1.0   N    0   0  0   0   0   F   F   N
+chest:   NONE    59  6.0   26.0   0.0   E    39   0  0  11   0   F   F   N
+  KeyA:   NONE    56  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//In the maze
+mosquito:   NONE    48  25.5   17.5   1.0   N    0   0  0   0   0   F   F   Insects
+mosquito:   NONE    48  23.5   16.5   1.0   N    0   0  0   0   0   F   F   Insects
+mosquito:   NONE    48  24.5   17.5   1.0   N    0   0  0   0   0   F   F   Insects
+mosquito:   NONE    48  25.5   16.5   1.0   N    0   0  0   0   0   F   F   Insects
+mosquito:   NONE    48  23.5   17.5   1.0   N    0   0  0   0   0   F   F   Insects
+mosquito:   NONE    48  24.5   16.5   1.0   N    0   0  0   0   0   F   F   Insects
+Tranch:   NONE    52  32.0   20.0   0.0   N    0   0  0   0   0   F   F   Evil
+Tranch:   NONE    52  33.0   23.0   0.0   N    0   0  0   0   0   F   F   Evil
+
+//The deadly corner
+deadfall:   NONE    53  30.0   15.5   1.0   N    0   0  1   0   0   F   F   T
+BearTrap:   NONE    36  30.0   15.5   1.0   N    0   0  0   0   0   F   F   N
+
+//Map room
+PitCobra:   NONE    55  40.0   7.0   1.0   N    0   0  0   0   0   F   F   E
+PitCobra:   NONE    55  39.0   9.0   1.0   N    0   0  0   0   0   F   F   E
+PitCobra:   NONE    55  40.0   10.0   1.0   N    0   0  0   0   0   F   F   E
+PitCobra:   NONE    55  43.0   9.0   1.0   N    0   0  0   0   0   F   F   E
+chest:   NONE    59  41.5   9.0   1.0   W    14   0  0   9   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  knife:   NONE    39  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ninjastars:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+    
+PitCobra:   NONE    55  44.0   21.0   1.0   N    0   0  0   0   4   F   F   Evil    //The dead end kingcobra
+
+//The secret garden
+mosquito:   NONE    48  65.0   50.5   1.0   N    0   0  0   0   0   F   F   Vermin
+mosquito:   NONE    48  66.0   51.0   1.0   N    0   0  0   0   0   F   F   Vermin
+mosquito:   NONE    48  68.0   51.0   1.0   N    0   0  0   0   0   F   F   Vermin
+mosquito:   NONE    48  63.0   51.0   1.0   N    0   0  0   0   0   F   F   Vermin
+mosquito:   NONE    48  66.0   53.0   1.0   N    0   0  0   0   0   F   F   Vermin
+KeyA:   NONE    56  66.0   61.0   1.0   N    0   0  0   0   0   F   F   N		//Key after lava gap
+
+//The doors inside the treasury
+shutdoor:   NONE    45  33.0   50.0   1.0   S    0   0  6   0   0   F   F   N
+shutdoor:   NONE    45  30.0   58.0   1.0   W    0   0  8   0   0   F   F   N
+shutdoor:   NONE    45  32.0   61.0   1.0   S    0   0  10   0   0   F   F   N
+shutdoor:   NONE    45  42.0   63.0   1.0   N    0   0  12   0   0   F   F   N
+shutdoor:   NONE    45  49.0   58.0   1.0   W    0   0  14   0   0   F   F   N
+shutdoor:   NONE    45  52.0   47.0   1.0   S    0   0  16   0   0   F   F   N
+shutdoor:   NONE    45  59.0   51.0   1.0   E    0   0  18   0   0   F   F   N
+shutdoor:   NONE    45  66.0   45.0   1.0   N    0   0  20   0   0   F   F   N
+shutdoor:   NONE    45  66.0   57.0   1.0   S    0   0  22   0   0   F   F   N
+
+//Treasure Vault room
+treasuredoor:   NONE    63  56.5   72.0   1.0   W    0   0  24   0   0   F   F   N
+tbutton:   NONE    64  53.5   70.5   1.0   W    0   0  24   0   0   F   F   N
+tbutton:   NONE    64  53.5   73.5   1.0   W    0   0  24   0   0   F   F   N
+tbutton:   NONE    64  50.5   70.5   1.0   W    0   0  24   0   0   F   F   N
+tbutton:   NONE    64  50.5   73.5   1.0   W    0   0  24   0   0   F   F   N
+
+treasurechest:   NONE    65  60.5   74.5   1.0   N    99   0  0   0   0   F   F   N		//Treasure
+treasurechest:   NONE    65  60.5   69.5   1.0   S    99   0  0   0   0   F   F   N		//Treasure
+treasurechest:   NONE    65  62.5   74.5   1.0   N    0   0  0   0   0   F   F   N	
+  Rogue_Armor:	 NONE    -1  0.0   0.0   0.0   I    0   3  0   0   0   F   F   N
+treasurechest:   NONE    65  62.5   69.5   1.0   S    9   1  0   1   0   F   F   N		//Some standard loot
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  LBow:   			NONE    58  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ninjastars:   	NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %POISONED_WEAPON: NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+treasurechest:   NONE    65  64.5   72.0   1.0   W    59   0  0   3   0   F   F   N  	//The big one
+
+//Zelda room
+eyeball:   NONE    72  53.5   42.0   1.0   W    0   2  0   0   0   F   F   G
+
+//Puzzle
+unknown:   NONE    66  42.5  71.5   1.0   N    0   0  0   1   0   F   F   N
+unknown:   NONE    66  43.5  71.5   1.0   N    0   0  0   3   0   F   F   N
+unknown:   NONE    66  41.5  71.5   1.0   N    0   0  0   5   0   F   F   N
+unknown:   NONE    66  40.5  71.5   1.0   N    0   0  0   3   0   F   F   N
+maintainer:   NONE    41  42.5  70.0   1.0   N    0   0  0   0   0   F   F   N

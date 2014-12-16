@@ -1,0 +1,10 @@
+// This initializes music and goes away
+tmpargument = 7
+tmpdistance = 0
+PlayMusic
+
+GoPoof
+
+// All done
+End
+

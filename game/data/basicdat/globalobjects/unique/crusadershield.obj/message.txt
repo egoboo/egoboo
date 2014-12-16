@@ -1,0 +1,4 @@
+Message 0: %t_took_the_%n.
+Message 1: The_%n_was_flattened!
+Message 2: The_%n_doesn't_work_for_%t...
+Message 3: The_holy_%n_begins_to_glow!

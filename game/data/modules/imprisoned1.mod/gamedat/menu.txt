@@ -1,0 +1,23 @@
+Module Name :The_Imprisoned_One
+Reference Directory :NONE
+Required reference IDSZ :[IMPR] 0
+Number of imports ( 0 to 4 ) :4
+Exporting ( TRUE or FALSE ) :FALSE
+Minimum players ( 1 to 4 ) :1
+Maximum players ( 1 to 4 ) :4
+Respawning ( TRUE or FALSE ) :TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** ) :*****
+
+// Module summary
+:A_powerful,_ancient_Evil_radiates_from
+:this_old_tower._You_can_feel_its_reckless
+:hatred_and_destructiveness_growing_stronger
+:by_the_minute._Find_this_menace_and_neutralize
+:it_in_before_it_breaks_free_and
+:plunges_the_world_into_a_fiery_chaos!
+:The_end_of_everything_approaches...
+:Hurry,_before_it_is_too_late!
+
+// IDZs
+:[TYPE] SIDEQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

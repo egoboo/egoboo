@@ -1,0 +1,14 @@
+Message 0: %n_fell_to_%t...
+Message 1: Hail!_My_name_is_%n.
+Message 2: Greetings_fellow_elf!_I_am_%n.
+Message 3: I_like_this_town_much_better_than_Bishopia.
+Message 4: It_is_so_much_closer_to_nature...
+Message 5: I_am_sorry,_but_you_do_not_have_that_pet...
+Message 6: Are_you_sure?
+Message 7: Excellent!_It's_a_deal!
+Message 8: Are_you_sure?
+Message 9: Trade_TUNDRA_BUNNY_for_FEARIE_pet?
+Message 10: Trade_FROG_for_MYSTIC_MOLD_pet?
+Message 11: Trade_SQUIRREL_for_BLACK_SHEEP_pet?
+Message 12: Trade_FAERIE_for_ALBINO_BAT_pet?
+Message 13: Trade_TUNDRA_BUNNY_for_SEEING_GRUB_BUG_pet?

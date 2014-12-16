@@ -1,0 +1,27 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: Water_Palace
+Reference module ( Directory name or NONE )	: palsand.mod
+Required reference IDSZ ( or [NONE] )		: [MAIN] 0
+Number of imports ( 0 to 4 )                    		: 4
+Allow exporting of characters ( TRUE or FALSE ) 	: FALSE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 4
+Allow respawning ( ANYTIME, TRUE or FALSE )	: TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( *, **, ***, ****, or ***** )     		: *****
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:Within_the_wet_and_moist_halls
+:of_the_water_palace,_one_of
+:the_Sporks_of_Yore_is_hidden.
+:_
+:Are_you_the_right_adventurer_to
+:claim_it?
+:_
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[PRNT] worldmap.mod 41.5 82.5 0.0
+:[TYPE] MAINQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

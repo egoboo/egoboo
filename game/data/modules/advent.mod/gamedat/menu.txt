@@ -1,0 +1,25 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: Adventurer_Start
+Reference module ( Directory name or NONE )     	: NONE
+Required reference IDSZ ( or [NONE] )           	: [NONE]
+Number of imports ( 0 to 4 )                    		: 0
+Allow exporting of characters ( TRUE or FALSE ) 	: TRUE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 1
+Allow respawning ( TRUE or FALSE )		: TRUE
+NOT USED				: FALSE
+Level rating ( *, **, ***, ****, or ***** )    		 : **
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:A_colony_of_grub_bugs_has_nested
+:far_below_Lord_Bishop's_castle.
+:As_a_Royal_Torch_Bearer,_duty
+:requires_you_to_guide_his_majesty's
+:champions,_Sir_Brom_and_Mother_Mim,
+:to_the_source_of_this_evil.
+:Good_Luck!
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )

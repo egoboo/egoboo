@@ -1,0 +1,9 @@
+Message 0: %n_ascended!
+Message 1: %n_HATE
+Message 2: Feel_my_wrath!
+Message 3: %n_was_killed_by_%t!
+Message 4: %n_has_departed...
+Message 5: Here_is_your_money..._(%x_Zenny)
+Message 6: Your_debt_is_paid..._(%x_Zenny)
+Message 7: You_lack_the_money!_(%x_Zenny)
+Message 8: No_value,_but_maybe_I_can_resell_it.

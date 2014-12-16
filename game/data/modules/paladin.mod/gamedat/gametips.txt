@@ -1,0 +1,5 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Paladins_start_out_as_normal_Soldiers._They_only_become_divine_after_their_Paladin_Quest.
+Tip 1: Paladins_are_as_adept_as_Soldiers_in_terms_of_weapon_mastery.
+Tip 2: Paladins_usually_wear_heavy_armor,_which_makes_them_slow.
+Tip 3: A_Paladin_gains_50_percent_XP_bonus_for_doing_Quests.

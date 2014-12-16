@@ -1,0 +1,27 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned
+  MakeAmmoKnown
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+// Do a sound
+IfHitGround
+  tmpargument = 0
+  tmpdistance = rand & 2047 + 7000
+  PlaySound
+
+// The model is pretty bad...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+// All done
+End
+

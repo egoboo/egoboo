@@ -1,0 +1,16 @@
+//                 TopleftXY  BottomrightXY    Open    ShootThrough  SlippyClose
+0 JunkShopArea:    7    96     10  99         T       T             F
+1 DunlarSmithy:    50    25     52  28         T       T             F
+2 PaladinDoor:    21    40     21  41         F       T             F
+3 PaladinDoorOpen:    20    40     22  41         T       T             F
+4 RogueDoor:    68    32     70  32         F       T             F
+5 RogueDoorOpen:    68    31     70  33         T       T             F
+6 ZambiniShop:    68    94     75  98         T       T             F
+7 AlchemyShop: 47    73     53  78         T       T             F
+8 RogueShop:    62    26     64  29         T       T             F
+9 SecretShop:    77    34     79  37         T       T             F
+10 AlkorShop:    75    79     80  83         T       T             F
+11 PaladinShop:    23    39     25  43         T       T             F
+12 GateEscapeOne:    36    0     40  3         T       T             F
+13 GateEscapeTwo:    36    115     40  117         T       T             F
+14 SpawnZone:        36    108     40  117         T       T             F

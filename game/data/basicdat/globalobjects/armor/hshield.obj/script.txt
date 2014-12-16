@@ -1,0 +1,53 @@
+// Magical effect
+IfHeld
+  SetTargetToWhoeverIsHolding
+  tmpargument = 1
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+  IfTimeOut
+    tmpargument = 128
+    HealTarget
+    SetTime
+
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+// Make a sound
+IfHitGround
+  tmpargument = 0
+  tmpdistance = rand % 2047 + 8000
+  PlaySound
+
+// All done
+End
+

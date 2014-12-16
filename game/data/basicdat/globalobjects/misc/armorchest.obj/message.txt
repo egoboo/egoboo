@@ -1,0 +1,20 @@
+Message 0: %t_bought_%0..._(%x_Zenny)
+Message 1: %t_purchased_%1..._(%x_Zenny)
+Message 2: %t_paid_for_%2..._(%x_Zenny)
+Message 3: %t_bought_%3..._(%x_Zenny)
+Message 4: The_%c_has_opened.
+Message 5: %t_opened_the_%c.
+Message 6: The_armor_is_too_expensive!_(%x_Zenny_more)
+Message 7: %t_stole_%0!
+Message 8: %t_stole_%1!
+Message 9: %t_stole_%2!
+Message10: %t_stole_%3!
+Message11: This_%c_has_armor_in_it,_but_it's_for_an_Archaeologist.
+Message12: This_%c_has_armor_in_it,_but_it's_for_a_G'nome.
+Message13: This_%c_has_armor_in_it,_but_it's_for_a_Soldier.
+Message14: This_%c_has_armor_in_it,_but_it's_for_an_Elf.
+Message15: This_%c_has_armor_in_it,_but_it's_for_an_Adventurer.
+Message16: This_%c_has_armor_in_it,_but_it's_for_a_Wizard.
+Message17: This_%c_has_armor_in_it,_but_it's_for_a_Healer.
+Message18: This_%c_has_armor_in_it,_but_it's_for_a_Rogue.
+Message19: This_%c_has_armor_in_it,_but_it's_for_a_Paladin.

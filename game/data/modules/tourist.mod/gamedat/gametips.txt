@@ -1,0 +1,6 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Tourists_can_disarm_traps.
+Tip 1: Tourists_can_use_gonnepowder_weapons.
+Tip 2: Use_your_camera_to_daze_monsters.
+Tip 2: Taking_a_picture_saves_a_screenshot.
+Tip 3: Eating_fortune_cookies_heals_you_and_gives_some_permanent_wisdom.

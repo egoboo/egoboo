@@ -1,0 +1,53 @@
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+
+Player1:   NONE    0  37.6  37.6   0.0   N    0   0  0   0   0   T   F   G			// Player 1 stuff
+  unknown: NONE    1   0.0    0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown: NONE    2   0.0    0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown: NONE    3   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    4   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    5   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    6   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    7   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    8   0.0    0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+Player2:   NONE    9   39.6 37.6   0.0   N    0   0  0   0   0   T   F   G			// Player 2 stuff
+  unknown: NONE    10   0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown: NONE    11   0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown: NONE    12   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    13   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    14   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    15   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    16   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    17   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+Player3:   NONE    18  39.6 39.6   0.0   N    0   0  0   0   0   T   F   G			// Player 3 stuff
+  unknown: NONE    19   0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown: NONE    20   0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown: NONE    21   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    22   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    23   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    24   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    25   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    26   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+Player4:   NONE    27  37.6 39.6   0.0   N    0   0  0   0   0   T   F   G			// Player 4 stuff
+  unknown: NONE    28   0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown: NONE    29   0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown: NONE    30   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    31   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    32   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    33   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    34   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown: NONE    35   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//for debugging A*
+Follower:   NONE    37  37.6  37.6   0.0   N    0   0  0   0   0   F   F   G
+  
+Strider:   NONE    100 41 41   0.0   N    0   0  0   0   0   F   F   N
+Bullwolf:   NONE    101 43 41   0.0   N    0   0  0   0   0   F   F   N
+Bumper:   NONE    102 45 41   0.0   N    0   0  0   0   0   F   F   N
+hotdog:   NONE    103 47 41   0.0   N    0   0  0   0   0   F   F   N
+mouse:   NONE    104 41 43   0.0   N    0   0  0   0   0   F   F   N
+hellrover:   NONE    105 43 43   0.0   N    0   0  0   0   0   F   F   N
+choco:   NONE    106 45 43   0.0   N    0   0  0   0   0   F   F   N
+tinker_plane:   NONE    107 47 43   0.0   N    0   0  0   0   0   F   F   N

@@ -1,0 +1,6 @@
+Message 0: The_%c_is_empty...
+Message 1: Wait!__There's_a_false_bottom!
+Message 2: %t_looted_the_%c.
+Message 3: The_%c_blew_open!
+Message 4: %t_disarmed_a_Gas_Trap!
+Message 5: %t_set_off_a_Gas_Trap!

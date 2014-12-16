@@ -1,0 +1,6 @@
+// This will drop the items the crate holds.
+// set the dir to 'I' in spawn.txt to hold items
+// simple script, eh?
+IfBumped
+  DropItems
+End

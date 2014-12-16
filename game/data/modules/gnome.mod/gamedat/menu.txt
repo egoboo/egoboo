@@ -1,0 +1,25 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: G'Nome_Start
+Reference module ( Directory name or NONE )	: rogue.mod
+Required reference IDSZ ( or [NONE] )		: [KNIF]
+Number of imports ( 0 to 4 )                		: 0
+Allow exporting of characters ( TRUE or FALSE ) 	: FALSE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 1
+Allow respawning (ANYTIME, TRUE or FALSE )	: TRUE
+NOT USED				: FALSE
+Level rating ( *, **, ***, ****, or ***** )		: ***
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:Shortly_after_leaving_Highspire,
+:your_airship_was_set_upon_by_a
+:band_of_sky_pirates._Most_of_the
+:crew_jumped_ship_(G'Nomes_lack
+:common_sense),_so_now_it's_up_to
+:you_and_Captain_Whitebeard_to
+:save_the_sky_steamer._Good_Luck!
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )

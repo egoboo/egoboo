@@ -1,0 +1,6 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: How_many_G'nomes_does_it_take_to_change_a_Light_Bulb?_None,_they_can't_figure_out_how_to_change_one_with_gonnepowder_or_grog.
+Tip 1: You_have_no_spare_ammo,_so_choose_your_shots_wisely!
+Tip 2: You_get_a_XP_bonus_if_Captain_Whitebeard_survives_the_module.
+Tip 3: G'nomes_are_Immune_to_Groggyness_and_Poison.
+Tip 4: The_G'Nomish_magic_resistance_makes_Healing_Magic_less_effective_on_them.

@@ -1,0 +1,91 @@
+//-----------------------------------------------------------------------------------------------
+// Setup character
+IfSpawned
+  MakeCrushValid
+
+  // Selfcontent is the limit of our armor level at spawn
+  tmpx = selfcontent
+  tmpy = 0
+  IfXIsMoreThanY
+    SetTargetToSelf
+    tmpx = targetarmor + 1
+    tmpy = selfcontent
+    IfXIsMoreThanY
+      tmpargument = selfcontent
+      ChangeArmor
+      tmpargument = 0
+      SetContent
+
+//-----------------------------------------------------------------------------------------------
+// Swap armors if it fits
+IfUsed
+  // Remember what type of armor we are
+  SetTargetToSelf
+  tmpturn = targetarmor
+
+  // Do we share the same type IDSZ?
+  SetTargetToWhoeverIsHolding
+  tmpargument = selfid
+  IfTargetHasID
+
+    // Do they already use this kind of armor?
+    tmpx = targetarmor
+    tmpy = tmpturn
+    IfXIsEqualToY
+      tmpargument = 4
+      SendMessageNear
+
+    // Swap armors!
+    Else
+      // They swap to our armor
+      tmpargument = tmpturn
+      ChangeTargetArmor
+
+      // We swap to their type
+      ChangeArmor
+      SendMessageNear
+
+      // Play sound effect
+      tmpargument = 1
+      PlaySound
+
+  // This armour doesn't fit this character
+  Else
+    tmpargument = 10
+    SendMessageNear
+
+  // Set some cooldown
+  tmpargument = 100
+  SetReloadTime
+
+//-----------------------------------------------------------------------------------------------
+// Tell them what they found
+IfGrabbed
+
+  // Make them our owner so the message is properly displayed
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+
+  // Determine which message to display
+  SetTargetToSelf
+  tmpargument = targetarmor + 5
+  IfTargetIsAPlayer
+    SendMessageNear
+
+//-----------------------------------------------------------------------------------------------
+// Sound if hit ground
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+//-----------------------------------------------------------------------------------------------
+// Crushed in a passage
+IfCrushed
+  tmpargument = 9
+  SendMessageNear
+  SpawnPoof
+  GoPoof
+
+//-----------------------------------------------------------------------------------------------
+End
+//-----------------------------------------------------------------------------------------------

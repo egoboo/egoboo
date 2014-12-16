@@ -1,0 +1,6 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Sometimes_you_have_no_choice_but_to_trust_a_Deamon.
+Tip 1: You_can_sometimes_get_different_monster_types_to_fight_each_other.
+Tip 2: Every_elemental_type_is_opposed_to_all_other_elemental_types.
+Tip 3: Elemental_resistance_could_be_useful_here.
+Tip 4: Remember_to_use_fire_magic_against_ice_monsters!_(and_vice_versa)

@@ -1,0 +1,8 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: While_morphed_you_cannot_cast_spells,_but_you_can_use_Gonnepowder_Weapons.
+Tip 1: Destroy_tents_to_uncover_extra_loot!
+Tip 2: You_can_only_destroy_statues_with_crushing_weapons.
+Tip 3: There_is_a_secret_level_in_this_module.
+Tip 4: The_mushroom_ring_is_outside_the_fortress.
+Tip 5: Elves_have_great_mana_regeneration_but_rather_low_mana_pool.
+Tip 6: The_Jiive_elves_come_out_at_night...

@@ -1,0 +1,7 @@
+Message 0: %n_didn't_survive...
+Message 1: %t_killed_%n!
+Message 2: Hey!
+Message 3: The_treasury_is_trough_this_maze!
+Message 4: We_need_a_golden_key_before_we_can_go_on!
+Message 5: Sorry,_I_need_a_rogue_for_this_job...
+Message 6: I_will_open_the_gate_for_you._Watch_out_for_guards!

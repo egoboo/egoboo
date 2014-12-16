@@ -1,0 +1,181 @@
+// All spiders are poisonous. Spider size and hp depends on their level
+// TODO:
+// Normal spider... default
+// Black Widow... black spider with white cross... stronger
+// Fire spider... set enemies on fire (magma skin)
+// Spider Wraith... teleports and can only be hurt by magic (transparent, red eyes)
+
+IfSpawned
+  MakeCrushValid
+  tmpargument = STATEGUARD
+  SetState
+
+  // Fire particle attached
+  tmpargument = 2
+  IfArmorIs
+    tmpargument = 6                     // Pure cosmetical
+    tmpdistance = 25                    // behind
+    tmpturn = selflevel*1000 + 20000    // flame size increases with level
+    SpawnAttachedSizedParticle
+
+  // Transparent
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = 250
+    SetAlpha
+    SetLight
+
+IfScoredAHit
+
+  // Black widows are extra poisonous
+  tmpargument = 1
+  IfArmorIs
+    SetTargetToWhoeverWasHit
+    IfTargetIsAlive
+      EnchantTarget
+
+  tmpargument = 2
+  IfArmorIs
+    tmpargument = 7
+    tmpdistance = GRIPONLY
+    SpawnParticle
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+IfDropped
+  // Popped out of a chest
+  tmpargument = 3
+  PlaySound
+
+IfKilled
+  IfTargetIsSelf
+    tmpargument = 2     // Sucide!
+  Else
+    tmpargument = 0     // Slain
+  SendMessageNear
+  tmpargument = 40
+  SetBumpHeight
+  tmpargument = 4
+  PlaySound
+
+  // Get rid of those flames (if any)
+  tmpargument = 2
+  IfArmorIs
+    DisaffirmCharacter
+
+  // Award bonus xp for special spider types
+  IfTargetIsOnHatedTeam
+    SetTargetToSelf
+    tmpargument = targetarmor*20    // 0, 20, 40 and 80 xp bonus
+    tmpdistance = EXPKILL
+    GiveExperienceToTarget
+
+  // Poof away
+  tmpargument = 3
+  IfArmorIs
+    SpawnPoof
+    GoPoof
+
+// Ouch!
+IfAttacked
+  SetTargetToWhoeverAttacked
+  tmpargument = rand & 1
+  PlaySound
+
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      tmpargument = ACTIONUA
+      DoAction
+  Else
+    // Scuttle around
+    tmpargument = STATECOMBAT
+    IfStateIsNot
+      tmpx = rand & 1023 - 512 + selfx
+      tmpy = rand & 1023 - 512 + selfy
+      ClearWaypoints
+      AddWaypoint
+      SetTargetToOldTarget
+
+// The nest is under attack!
+IfCalledForHelp
+  tmpargument = STATECOMBAT
+  IfStateIsNot
+    SetTargetToWhoeverCalledForHelp
+    tmpx = targetdistance
+    tmpy = 128*12    // 12 tiles away
+    IfXIsLessThanY
+      SetTargetToNearestEnemy
+      tmpx = targetx
+      tmpy = targety
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 100
+      SetTime
+
+// Main AI loop
+IfTimeOut
+
+  // Look for enemies
+  SetTargetToSelf
+  tmpx = targetlevel*128 + 768    // 6 tiles +1 tile per level
+  SetTargetToWideEnemy
+
+    IfStateIsGuard
+      tmpargument = STATECOMBAT
+      SetState
+      tmpargument = 3
+      PlaySound
+      CallForHelp
+
+    // Move towards enemy
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 1200
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+
+    tmpx = targetdistance
+    tmpy = 128*4
+    IfXIsLessThanY
+      tmpargument = 50
+      SetSpeedPercent
+    Else
+      tmpargument = 200
+      SetSpeedPercent
+
+    // Attack
+    IfFacingTarget
+      tmpx = targetdistance
+      tmpy = 150
+      IfXIsLessThanY
+        tmpargument = ACTIONUA
+        DoAction
+
+  // Wait at spawn
+  Else
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint
+
+    tmpargument = STATEGUARD
+    SetState
+
+  tmpargument = rand & 31 + 25
+  SetTime
+
+// All done
+End

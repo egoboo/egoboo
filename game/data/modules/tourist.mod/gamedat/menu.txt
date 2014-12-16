@@ -1,0 +1,23 @@
+Module Name :Tourist_Start
+Reference Directory :NONE
+Required reference IDSZ :[TOUR] 2
+Number of imports ( 0 to 4 ) :0
+Exporting ( TRUE or FALSE ) :FALSE
+Minimum players ( 1 to 4 ) :1
+Maximum players ( 1 to 4 ) :1
+Respawning ( TRUE or FALSE ) :FALSE
+RTS control (TRUE, FALSE, ALL) :FALSE
+Level rating ( * to  ***** ) :******
+
+// Module summary
+:Whle_looking_for_the_gift_shoppe_you_fell
+:through_a_weak_spot_in_the_floor._That
+:will_teach_you_to_use_a_cheap_travel_agent!
+:_
+:Find_your_way_back_to_the_gift_shoppe
+:and_take_some_pictures_along_the_way.
+:Just_remeber,_"you_break_it,_you_buy_it"!
+:_
+
+// IDZs
+

@@ -1,0 +1,6 @@
+Message 0: The_inscription_is_in_G'nomish...
+Message 1: The_inscription_reads...
+Message 2: __Passage_Condemned
+Message 3: __Keep_Lit
+Message 4: __Boss_Chamber
+Message 5: __Wait_Here

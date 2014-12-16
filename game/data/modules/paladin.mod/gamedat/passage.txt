@@ -1,0 +1,26 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 FirstIronGate:  23  14     24  14         F       T             F
+1 SecondIronGate:  23  12     24  12         F       T             F
+2 RightIronDoor:  17  7     18  8         F       F             F
+3 RightDoorOpen:  16  7     19  8         T       T             F
+4 LeftIronDoor:  30  7     31  8         F       F             F
+5 LeftDoorOpen:  29  7     32  8         T       T             F
+6 LeftPitTrap:  25  35     27  42         T       T             F
+7 RightPitTrap:  20  35     22  42         T       T             F
+8 FirstLockedDoor:  23  31     24  32         F       F             F
+9 FirstLockedDoorOpen:  23  30     24  33         T       T             F
+10 DarkDoor:  11  50     12  51         F       F             F
+11 DarkDoorOpen:  11  49     12  52         T       T             F
+12 SecondLockedDoor:  33  48     34  49         F       F             F
+13 SecondLockedDoorOpen:  32  48     34  49         T       T             F
+14 LastRoomDoor:  50  38     51  39         F       F             F
+15 LastRoomDoorOpen:  49  38     52  39         T       T             F
+16 MiddleIronDoor:  23  46     24  47         F       F             F
+17 MiddleIronDooropen:  23  45     24  48         T       T             F
+18 UndeadTag:  23  45     24  48         T       T             F
+19 ExitDoor:  23  3     24  4         F       F             F
+20 ExitDoorOpen:  23  2     24  5         T       T             F
+21 Exit:  23  0     24  2         T       T             F

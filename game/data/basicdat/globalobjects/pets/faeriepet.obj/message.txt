@@ -1,0 +1,16 @@
+Message 0: %n_is_no_more!
+Message 1: =%n=
+Message 2: Level_%X_%m%c
+Message 3: %t_released_%n.
+Message 4: _STR:~%X~WIS:~%Y~JOY:~:(
+Message 5: _STR:~%X~WIS:~%Y~JOY:~:[
+Message 6: _STR:~%X~WIS:~%Y~JOY:~:]
+Message 7: _STR:~%X~WIS:~%Y~JOY:~:)
+Message 8: _INT:~%X~DEX:~%Y~EXP:~%d
+Message 9: The_%c_slips_through_%n's_fingers!
+Message10: %t_picked_up_%n.
+Message11: %t_took_out_%n.
+Message12: %o_grabbed_a_companion_%c!
+Message13: It_tells_you_%p_name_is_%n...
+Message14: %n_sparkled_some_fearie_dust_on_%t!
+Message15: The_fearie_dust_faded_away...

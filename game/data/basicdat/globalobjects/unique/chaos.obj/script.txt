@@ -1,0 +1,58 @@
+// "Chaos", made by Clonkinator. It basically just is a whip that does slightly more (CRUSH)
+// damage than a normal whip, glows and shrinks the target every time it hits. Doesn't work
+// against enemies that are resistant to poison. No drawbacks for the user.
+// Oh, and by the way, this weapon can even hit several enemies at the same time. Cool, eh?
+
+// Make it Glow
+ReaffirmCharacter
+
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+// Make a sound
+IfHitGround
+  tmpargument = 1
+  PlaySound
+
+// Make a sound
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 2
+    SendMessageNear
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+IfUsed
+  tmpargument = 0
+  PlaySound
+
+// All done
+End
+

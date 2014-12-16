@@ -1,0 +1,9 @@
+Message 0: %t_won't_be_selling_any_sand_soon...
+Message 1: The_shop_keeper_looks_better...
+Message 2: Sand!_High_quality_sand!
+Message 3: Get_your_sand_here!
+Message 4: Buy_the_best_sand_in_Lorule!
+Message 5: Here_you_go..._(%x_Zenny)
+Message 6: Thanks!_(%x_Zenny)
+Message 7: Sorry!_(%x_Zenny)
+Message 8: I_am_a_respectable_merchant_and_don't_buy_that!

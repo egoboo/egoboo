@@ -1,0 +1,10 @@
+Message 0: %t_destroyed_a_%c!
+Message 1: A_%c_dissolved...
+Message 2: N/A
+Message 3: Run_for_your_life_%t!!!
+Message 4: A_%c_made_a_fool_of_itself...
+Message 5: Feel_my_wrath!
+Message 6: You_will_never_save_Lord_Bishop!
+Message 7: The_dracolich_will_conquer_all!
+Message 8: Bishopia_will_burn_in_fire!
+Message 9: You_are_doomed...

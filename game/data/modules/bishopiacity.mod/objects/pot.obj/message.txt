@@ -1,0 +1,17 @@
+Message 0: Hey,_stupid %t,_gimme_a_little_privacy!
+Message 1: What_were_you_expecting?_A_secret_passage?
+Message 2: Yes,_%t._It's_a_pot._Back_to_work,_now,_%t.
+Message 3: Go_away!_I'm_hiding.
+Message 4: Nothing_to_see_here._Move_along...
+Message 5: The_pot_makes_a_loud_CLANG!
+Message 6: %t_spills_some_of_the_bubbling_mess_in_the_pot.
+Message 7: You_don't_know_who_you're_messing_with,_buddy.
+Message 8: I_know_who_you_are.
+Message 9: I'm_going_to_report_you_to_the_guards.
+Message 10: Ooh,_%t_is_sitting_in_a_pot,_just_like_all_the_cool_kids_are.
+Message 11: Let's_just_hope_some_cannibal_doesn't_suddenly_walk_by_here...
+Message 11: Bring_on_the_boiling_water!
+Message 12: If_you_had_to_go_THAT_badly,_%t,_you_should_have_gone_to_an_outhouse!
+Message 13: Eww._Is_this_a_chamber_pot?
+Message 14: Wow,_a_bunch_of_money_is_in_here!_Not.
+Message 15: Something_is_cooking_here...

@@ -1,0 +1,3 @@
+Message 0: %t_found_the_Obsidian_%c!
+Message 1: Well,_that's_one_more_Spork_safe_in_your_possession...__You've_been
+Message 2: _saving_these_things,_right?

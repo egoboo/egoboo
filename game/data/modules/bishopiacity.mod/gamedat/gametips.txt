@@ -1,0 +1,21 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Alkor_is_owner_of_the_G'nomish_Shop._He_buys_and_sells_G'nome_tech.
+Tip 1: Bishopia_is_the_perfect_place_for_heroes_to_find_quests.
+Tip 2: Dunlar_is_the_owner_of_the_smithy._His_weapons_are_the_finest_in_town.
+Tip 3: New_people_may_appear_or_disappear_in_Bishopia_later_in_the_game.
+Tip 4: There_are_rumors_of_a_hidden_Arch_Mage_guild_in_Bishopia.
+Tip 5: The_outhouses_are_more_useful_than_you_think.
+Tip 6: Grard's_armory_stocks_fine_armor,_but_it_may_not_fit_you_half_the_time.
+Tip 7: The_guard_Captain_is_head_of_the_Bishopia_guard._He_is_usually_at_Griffon_tower.
+Tip 8: Mylvin_is_the_potion_shopkeeper._Buy_all_sort_of_Potions_here.
+Tip 9: Olaf_has_a_junkyard_that_carries_all_sorts_of_junk._It's_a_junkyard,_alright.
+Tip 10: There_are_rumours_of_a_secret_Guild_of_Thieves_in_Bishopia.
+Tip 11: There_is_a_secret_shop_that_sells_precious_items..._I'm_not_telling_you_where_it_is.
+Tip 12: Bishopia_is_the_biggest_city_and_the_Capitol_of_Lorule.
+Tip 13: Tuk_is_the_monk_that_runs_the_divine_shop_of_the_Paladin_Guild.
+Tip 14: Zambini_is_the_magic_shop_owner._He_is_one_of_the_most_powerful_mages_alive.
+Tip 15: Visit_Bishopia_Graveyard_to_mourn_the_dead.
+Tip 16: Shops_restock_with_random_goods_every_time_you_visit_the_city.
+Tip 17: If_you_are_lucky,_you_might_find_something_in_the_Junk_Shop_that_is_not_junk.
+Tip 18: Bump_into_other_characters_and_you_may_gain_quests!
+Tip 19: Some_quests_can_only_be_obtained_later_in_the_game.

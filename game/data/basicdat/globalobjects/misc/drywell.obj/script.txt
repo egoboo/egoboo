@@ -1,0 +1,10 @@
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    IfTimeOut
+      tmpargument = 0
+      SendMessageNear
+      tmpargument = 200
+      SetTime
+
+End

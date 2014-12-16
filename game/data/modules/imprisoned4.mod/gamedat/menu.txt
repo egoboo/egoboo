@@ -1,0 +1,23 @@
+Module Name :The_Imprisoned_One_IV
+Reference Directory             :NONE
+Required reference IDSZ         :[IMPC] 0
+Number of imports ( 0 to 4 )    :4
+Exporting ( TRUE or FALSE )     :FALSE
+Minimum players ( 1 to 4 )      :1
+Maximum players ( 1 to 4 )      :4
+Respawning ( TRUE or FALSE )    :FALSE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** )    :*******
+
+// Module summary
+:Protect_the_portal_to_the_final_level
+:before_it_is_destroyed_by_the_invading
+:forces!
+:_
+:Escape_through_the_portal_to_the_final_level
+:as_soon_as_it_is_ready.
+:_
+:_
+
+// IDZs
+:[TYPE] SIDEQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

@@ -1,0 +1,10 @@
+// Spawn smoke
+IfTimeOut
+  tmpargument = 0
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = 600
+  SpawnExactParticle
+  tmpargument = 6
+  SetTime
+End

@@ -1,0 +1,7 @@
+Message 0: %t_killed_the_%c!
+Message 1: The_%c_had_some_trouble...
+Message 2: The_%c_looks_better...
+Message 3: With_the_Necromancer_slain,_the_City_of_Bishopia_can_rest_once_again..._
+Message 4: Or_can_it?_When_you_emerge_from_the_dark_and_filthy_crypt_you_hear_
+Message 5: tales_of_King_Bishop_being_captured!_The_Necromancer_was_just_a_
+Message 6: diversion_and_now_you_must_find_a_way_to_save_the_king!_

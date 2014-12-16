@@ -1,0 +1,26 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )            : #%
+Reference module ( Directory name or NONE )     : #%
+Required reference IDSZ ( or [NONE] )           : #%
+Number of imports ( 0 to 4 )                    : #%
+Allow exporting of characters ( TRUE or FALSE ) : #%
+Minimum number of players ( 1 to 4 )            : #%
+Maximum number of players ( 1 to 4 )            : #%
+Allow respawning ( TRUE or FALSE )              : #%
+NOT USED                                        : #%
+Level rating ( *, **, ***, ****, or ***** )     : #%
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+: #%
+: #%
+: #%
+: #%
+: #%
+: #%
+: #%
+: #%
+
+
+// Module expansion IDSZs ( with a colon in front )
+##

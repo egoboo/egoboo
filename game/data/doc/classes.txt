@@ -1,0 +1,434 @@
+Information about stats:
+STR - Directly adds bonus damage to most melee weapons, unarmed attacks and
+      longbows. You need 21 strength to use the Maul of the Titans. Increases chance
+      to correctly block an attack with an shield.
+WIS - Reduces chances of poisoning self. Increases damage/effect of all Divine 
+      spells. Reduces damage taken from arcane spells. Increases resistance vs.
+      Bind spell. Increases chance to find hidden bottoms in chests. Very slightly
+      increases the amount of experience gained.
+INT - Required to read specific scripts and identify special items. Increases damage
+      dealt and control for all Arcane spells. Reduces damage from divine spells.
+      Slightly increases reload time for gunpowder weapons. Slightly increases the
+      amount of experience gained.
+DEX - Increases aim for ranged weapons and spells. Increases attack speed with all
+      weapons. Increases chance to sneak successfully. Adds bonus damage to backstabs.
+DEF - Every point of defence adds about 0,4% damage reduction. Someone with 70 DEF
+      reduces all damage taken by about 27% (After applying damage resistances)
+
+All classes also gain additional special abillities when gaining levels. Thes abilities are
+usually passive and need not to be activated. Certain abillities also improves further with 
+each gained level after gaining the skill in the first place (duration, chance, power, etc.)
+
+SKILL DESCRIPTION
+------------------
+Acrobatic Mastery: Can preform the incredible feat of jumping three times in a row.
+Acrobatics: Can preform double jumps.
+Alchemy: Automatically identify all potions and flasks.
+Ancient Blud: Slowly regenerate life naturally.
+Arcane Magic: Can use arcane spellbooks.
+Backstab: Deal extra damage when attacking sleeping creatures or enemies from behind.
+Backpacker: Character doesn't drop any of his/her money and keys when dying.
+Butcher Form: Zombi becomes a Butcher. Extra life, damage and size but somewhat reduced speed.
+Cartography: The character always has the minimap of the current dungeon/area.
+Class Mastery: +3 bonus to all stats.
+Crackshot: % chance based on DEX to daze enemies with Gunpowder.
+Critical Strike: 1% chance per level to deal +1 damage per 2 levels. Sound effect is played.
+Crusader: Converts EVIL damage taken into mana.
+Darkvision: The character has enhanced vision in darkness and doesn't always need a light source to see
+            in deep darkness.
+Danger Sense: This reveals all enemies on the minimap if the map has been found.
+Defender: Gives a full 100% block rating with all shields.
+Deadly Strike: When being hidden and attacking a non-undead opponent, this skill gives +1 bonus damage 
+               for every 4 DEX the character posesses.
+Disarm Trap: Can detect and disarm traps. Also pick locks.
+Divine Magic: Can heal, banish and use divine runes.
+Divine Power: Can spend life as mana if needed.
+Elemental Staff: A Wizard's Staff crackles with elemental energies as it smashes into his enemies.
+Elven Senses: The keen elven senses allows him to sense invisible stuff and gives a +5 bonus to wisdom.
+Groggy Strike: % chance to grog enemy. Sound effect is played. Duration increases with level.
+Guardian Angel: 1% per 2 points of WIS to ressurect when killed without any XP or money loss!
+Halo: The Paladin becomes a beacon of all that is good and pure.
+Hardy: Reduces all damage taken by 1/2 life point per 4 character levels.
+Hide in Plain Sight: The character can move quickly around while being stealthed, even when near enemies.
+Holy Aura: Deals holy damage to all undead who bump the character. Damage increases with level.
+Holy Smite: Deals extra damage against [EVIL] creatures. Damage increases with level.
+Improvised Weapons: +0.25 bonus damage per level to improvised weapons (shovel, toilet plunger. etc)
+Jousting: Can use the lance weapon in combat.
+Last Boon: Using her last breath, the Healer heals all her remaining allies in a burst of holy light.
+Listen: Increases listen range by 33% (Works through walls and doors)
+Literate: Character can read scrolls, bookstands, libraries, scripts, etc.
+Lore Mastery: The character automatically identies everything that is grabbed.
+Lucky: Gives a small bonus to everything.
+Magical Ampitude: Automatically identify all magic scrolls and wands.
+Mobility: Character automatically jumps over corpses.
+Mystic Intellect: Gain a vast 10 bonus to intelligence.
+Poison Use: Can use poison without failure. Automatically identifies any poisenous items that are picked up.
+            This skill also allows the character to throw poison potions at enemies in combat.
+Sense Undead: All enemy undead shows up on the minimap (if the map has been found).
+Sharpshooter: Deal bonus damage based on DEX with Gunpowder weapons.
+Sneak: Can stealth while moving one step at the time. Tap keyboard movement very slowly.
+Speed: Gives an extra +1% extra movement speed per level as long as the character has not lost more than
+       one-fourth of his or her maximum life.
+Stalker: Can stealth while sneaking around. Tap keyboard movement.
+Stealth: When not moving, fade away into the shadows.
+Sunder Attack: Percent chance based on level to reduce enemy armor by 10. Sound effect is played.
+Teleport Mastery: The spellcaster can cast teleport with 100% accuracy and 33% less mana cost.
+Things that go Boom: The G'nome won't go down without a "little" firework. Very dangerous.
+Too Silly to Die: The Tourist has a % chance equal to his level to instantly respawn when killed with
+                  no XP or money loss at all! He is simply too silly to die!
+Ultimate Sacrifice: In his death, the character engulfs his opponents in divine fury.
+Use Technological Items: Use g'nomish items and toys like gunpowder and bombs.
+Weapon Mastery: Gives a permanent full +2 damage bonus with the specified weapon.
+Weapon Profiency: Allows the character to use the more advanced weapons like big swords and axes.
+Wizard's Missile: Shoots rapidly red homing missiles when doing unarmed attacks (costs 1 mana)
+
+
+VALKYRIE
+-------------------------------------------
+Level       Abillity
+1			- Immune vs. Cold, Weapon Profiency, Poison Use, Backstab
+2			- Weapon Mastery (Spear)
+3			- n/a
+4			- Speed
+5			- n/a
+6			- n/a
+7			- Stealth (While standing still)
+8     - n/a
+9			- n/a
+10		- Sneak (Can move 1 step at the time while stealthing)
+11    - n/a
+12		- Hardy
+13    - n/a
+14    - Stalker (Can sneak while stealthing)
+15    - Critical Strike
+16    - n/a
+17    - n/a
+18    - Shade (Can move and jump while stealthing)
+19    - n/a
+20    - Ultimate Sacrifice
+-------------------------------------------
+
+
+
+G'NOME
+-------------------------------------------
+Level       Abillity
+1			- Use Technological Items, Read G'nomish, Immune vs. Grog, 
+        Poison Resistance, Literate, Darkvision
+2			- n/a
+3			- n/a
+4			- Listen
+5			- n/a
+6			- n/a
+7			- Crackshot
+8			- n/a
+9			- n/a
+10		- Sharpshooter
+11		- n/a
+12		- n/a
+13    - Hardy
+14    - n/a
+15    - n/a
+16    - Ancient Blud
+17    - n/a
+18    - n/a
+19    - n/a
+20    - Things that go Boom
+-------------------------------------------
+
+
+ARCHEOLOGIST
+-------------------------------------------
+Level       Abillity
+1			Acrobacy, Disarm Trap, Use Technological Items, Mobility, Literate
+2			n/a
+3			Weapon Mastery (Whip)
+4			n/a
+5			n/a
+6			Lore Mastery
+7			n/a
+8			n/a
+9			Lucky
+10	  n/a	
+11		n/a
+12		Cartography
+13    n/a
+14    n/a
+15    Danger Sense
+16    n/a
+17    n/a
+18    n/a
+19    n/a
+20    n/a
+-------------------------------------------
+
+
+
+ADVENTURER
+-------------------------------------------
+Level   Abillity
+1			- Weapon Profiency, Arcane Magic, Literate
+2			- n/a
+3			- n/a
+4			- Alchemy
+5			- n/a			
+6			- n/a
+7     - Speed
+8	    - n/a
+9     - n/a
+10	  - Stealth
+11	  - n/a
+12	  - n/a
+13	  - Listen
+14	  - n/a
+15	  - n/a
+16    - Class Mastery
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
+-------------------------------------------
+
+
+HEALER
+-------------------------------------------
+Level       Abillity
+1			- Divine Magic, See Kurses, Literate
+2			- n/a
+3			- n/a
+4			- Holy Aura
+5			- n/a
+6			- n/a
+7			- Divine Power
+8			- n/a
+9			- n/a
+10		- Guardian Angel
+11		- n/a
+12		- n/a
+13		- Immune vs. Kurses
+14		- n/a
+15		- n/a
+16		- Last Boon
+17		- n/a
+18		- n/a
+19		- n/a
+20		- n/a
+-------------------------------------------
+
+
+PALADIN
+-------------------------------------------
+Level   Abillity
+1			- Weapon Profiency, Jousting, Literate
+2			- Divine Magic
+3			- n/a
+4			- Holy Smite
+5			- n/a
+6			- n/a
+7			- Crusader
+8			- n/a
+9			- n/a
+10		- Halo
+11		- n/a
+12		- n/a
+13		- Sense Undead
+14		- n/a
+15		- n/a
+16		- Ultimate Sacrifice
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
+-------------------------------------------
+
+
+WIZARD
+-------------------------------------------
+Level   Abillity
+1     - Alchemy, Arcane Magic, Literate
+2     - n/a
+3     - Magical Ampitude
+4     - n/a
+5     - Teleport Mastery
+6     - n/a
+7     - n/a
+8     - Elemental Staff
+9     - n/a
+10    - n/a
+11    - Mystic Intellect
+12    - n/a
+13    - n/a
+14    - Wizard's Missile
+15    - n/a
+16    - n/a
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
+-------------------------------------------
+
+
+WOOD ELF
+-------------------------------------------
+Level   Abillity
+1     - Weapon Profiency, Arcane Magic, Literate, Darkvision
+2     - Listen
+3     - n/a
+4     - n/a
+5     - Stealth (While standing still)
+6     - n/a
+7     - n/a
+8     - Weapon Mastery (Longbow)
+9     - n/a
+10    - n/a
+11    - Elven Senses
+12    - n/a
+13    - n/a
+14    - Danger Sense
+15    - n/a
+16    - n/a
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
+-------------------------------------------
+
+
+SOLDIER
+-------------------------------------------
+Level   Abillity
+1     - Weapon Profiency, Defender, Jousting
+2     - Critical Strike
+3     - n/a
+4     - n/a
+5     - Sunder Attack
+6     - n/a
+7     - n/a
+8     - Weapon Mastery (All)
+9     - n/a
+10    - n/a
+11    - Grogging Hit
+12    - n/a
+13    - n/a
+14    - Hardy
+15    - n/a
+16    - n/a
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
+-------------------------------------------
+
+
+ROGUE
+-------------------------------------------
+Level   Abillity
+1     - Backstab, Disarm Traps, Poison Use, Acrobatics
+2     - Stealth (Standing still)
+3     - Mobility
+4     - Sneak (Can move 1 step at the time while stealthing)
+5     - Listen
+6     - Stalker (Can sneak while stealthing)
+7     - n/a
+8     - Master Acrobacy
+9     - n/a
+10    - Shade (Can move and jump while stealthing)
+11    - n/a
+12    - n/a
+13    - Hide in Plain Sight
+14    - n/a
+15    - n/a
+16    - Deadly Strike
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
+-------------------------------------------
+
+TOURIST
+-------------------------------------------
+Level	Ability
+1     - Use Technological Items, Use Poison, Backstab, Literate
+2     - Mobility
+3     - n/a
+4     - n/a
+5     - Improvised Weapons
+6     - n/a
+7     - n/a
+8     - Cartography
+9     - n/a
+10    - n/a
+11    - Lucky
+12    - n/a
+13    - n/a
+14    - Backpacker
+15    - n/a
+16    - n/a
+17    - To Silly to Die
+18    - n/a
+19    - n/a
+20    - n/a
+-------------------------------------------
+
+ZOMBI
+-------------------------------------------
+Level	  Ability
+1     - Immune vs Grog and Daze, Darkvision
+2     - n/a
+3     - Immune vs. Banishment
+4     - n/a
+5     - Immune vs. Kurses
+6     - n/a
+7     - Life Steal attack
+8     - n/a
+9     - Butcher Form
+10    - n/a
+11    - Daze attacks
+12    - n/a
+13    - Explosive Death attack		
+14    - n/a
+15    - n/a
+16    - n/a
+17    - n/a
+18    - n/a
+19    - n/a
+20    - n/a
+-------------------------------------------
+
+
+HOBGOBLIN (Under Development)
+-------------------------------------------
+Level	Ability
+1     - n/a
+2     - n/a
+3     - n/a
+4     - n/a
+5     - n/a
+6     - n/a
+7     - n/a
+8     - n/a
+9     - n/a
+10    - n/a
+11    - n/a
+12    - n/a
+13    - n/a		
+-------------------------------------------
+
+
+VAMPYRE (Under Development)
+-------------------------------------------
+Level	Ability
+1     - Literate
+2     - n/a
+3     - n/a
+4     - n/a
+5     - n/a
+6     - n/a
+7     - n/a
+8     - n/a
+9     - n/a
+10    - n/a
+11    - n/a
+12    - n/a
+13    - n/a		
+-------------------------------------------

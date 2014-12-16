@@ -1,0 +1,24 @@
+Module Name :Test_Module
+Reference Directory :NONE
+Required reference IDSZ :[NONE]
+Number of imports ( 0 to 4 ) :4
+Exporting ( TRUE or FALSE ) :TRUE
+Minimum players ( 1 to 4 ) :1
+Maximum players ( 1 to 4 ) :4
+Respawning ( TRUE or FALSE ) :TRUE
+RTS control (TRUE, FALSE, ALL) :FALSE
+Level rating ( * to  ***** ) :*
+
+// Module summary
+:An_empty_module_that
+:can_be_used_to_test
+:players_and_objects.
+:_
+:_
+:_
+:_
+:_
+
+// IDZs
+:[TYPE] DEBUG                //Module Type (MAINQUEST, SIDEQUEST or TOWN)
+

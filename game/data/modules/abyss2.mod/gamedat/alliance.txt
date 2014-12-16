@@ -1,0 +1,21 @@
+// This file tells the module which teams should ally with which teams.
+// Only the first letter of a team name is used, and make sure it is
+// capital.  N is predefined to be neutral.  If one team allies with another,
+// but the other team does not reciprocate the alliance, then the first
+// team can still be killed by the second.
+
+Alliance: Summoned Evil
+Alliance: Evil Summoned
+Alliance: Lords Evil
+Alliance: Evil Lords
+Alliance: Summoned Lords
+Alliance: Lords Summoned
+
+Alliance: Evil King
+Alliance: King Evil
+Alliance: Evil King
+
+//Dont react on prisoners
+Alliance: Evil Hatred
+Alliance: Evil Xar
+Alliance: Evil Angel

@@ -1,0 +1,10 @@
+Message 0: You_have_to_rescue_the_faeries
+Message 1: and_lead_them_to_here...
+Message 2: You_have_freed_the_faeries!!
+Message 3: You_have_saved_the_faeries_from_being_cooked_and_
+Message 4: eaten_by_Lumpkins!_But_you_know_that_problems_like_
+Message 5: this_will_continue_to_happen_unless_you_fix_the_source_
+Message 6: of_the_problem!_Lumpkins_have_grown_bolder_each_day_since_
+Message 7: King_Bishop_had_been_captured_by_the_Dracolich._You_have_no_
+Message 8: choice_but_to_leave_the_elven_lands_and_rescue_the_king!_
+

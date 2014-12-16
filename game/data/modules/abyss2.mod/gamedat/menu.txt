@@ -1,0 +1,24 @@
+Module Name :Abyss_Part_2
+Reference Directory :abyss1.mod
+Required reference IDSZ :[MAIN] 7
+Number of imports ( 0 to 4 ) :4
+Exporting ( TRUE or FALSE ) :FALSE
+Minimum players ( 1 to 4 ) :1
+Maximum players ( 1 to 4 ) :4
+Respawning ( TRUE or FALSE ) :TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** ) :**********
+
+// Module summary
+:The_roars_of_the_slain_Deamon
+:Lord_echoes_through_the_higher
+:planes_of_the_Abyss._A_rift_tears
+:open_before_you_and_a_portal
+:leading_even_deeper_into_the
+:Abyss_glows_before_you...
+:_
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] MAINQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

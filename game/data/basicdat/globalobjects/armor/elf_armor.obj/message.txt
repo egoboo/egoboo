@@ -1,0 +1,11 @@
+Message 0: %t_donned_%0.
+Message 1: %t_donned_%1.
+Message 2: %t_donned_%2.
+Message 3: %t_donned_%3.
+Message 4: %t_is_already_wearing_this_type_of_armor!
+Message 5: %o_found_some_%0.
+Message 6: %o_found_some_%1.
+Message 7: %o_found_some_%2.
+Message 8: %o_found_some_%3.
+Message 9: The_%c_was_destroyed!
+Message 10: This_%c_only_fits_for_an_Elf.

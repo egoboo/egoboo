@@ -1,0 +1,46 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+
+00 PlateRead: 	40 51      41 52          T       T             F
+01 Sanctum: 	51 48      54 51          T       T             F
+02 TrapStage1: 	13 18      13 19          T       T             F
+03 TrapStage2: 	11 8       11 9          T       T             F
+04 TrapStage3: 	9 13       9 14          T       T             F
+05 TrapStage4: 	14 13      15 14          T       T             F
+06 PlateRead2: 	46 31      47 32          T       T             F
+07 DeamonEntrance: 	45 31      45 32          T       T             F
+08 DeamonDetect: 	35 26      41 32          T       T             F
+09 DeamonExit: 	20 12      23 27          F       T             F
+10 PlateRead3: 	35 100      36 101         T       T             F
+11 DevilGate1: 	35 102      36 103         F       F             F
+12 DevilGate1Detect: 35 101      36 104         T       T             F
+13 DevilGate1Block: 34 102      37 106         F       F             F
+14 OblivionExit: 	95 99      98 100          F       T             F
+15 OblivionExit2: 	99 79      100 85          F       T             F
+16 PlateRead3: 	61 103      62 104          T       T             F
+17 PlateRead4: 	52 60      53 61          T       T             F
+18 ArrowTrap: 	89 74      90 75          T       T             F
+19 DeadFall: 	87 74      88 75          T       T             F
+20 DeadFall2: 	83 74      84 75          T       T             F
+21 DeadFall3: 	80 74      81 75          T       T             F
+22 KurseTrap1: 	77 74      78 75          T       T             F
+23 ArrowTrap: 	74 74      75 75          T       T             F
+24 DeamonExit2: 43 15      46 19          F       T             F
+25 PlateRead5: 66 11      67 12          T       T             F
+26 DevilGate2: 68 11      69 12          T       T             F
+27 DevilGate2Detect: 67 11      70 12          T       T             F
+28 DevilGate2Block: 70 9      72 14          T       T             F
+29 PlateRead6: 	17 72      18 73          T       T             F
+30 DevilGate3: 	15 72      16 73          F       T             F
+31 DevilGate3Detect: 	14 72      17 73          T       T             F
+32 DevilGateBlock: 	12 72      14 73          F       T             F
+33 KurseTrap2: 	61 22      62 23          T       T             F
+34 BossDoor: 	65 49      70 50          F       F             F
+35 PlateRead7: 	63 49      64 50          T       T             F
+36 BossMusic: 	67 49      70 50          T       T             F
+37 LastSealGate: 64 25      65 25          T       T             F
+38 LastSealOpen: 64 24      65 24          T       T             F
+39 InnerSanctum: 94 49      97 51          T       T             F
+40 DracoLich: 	90 49      97 51          T       T             F

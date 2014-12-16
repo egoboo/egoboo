@@ -1,0 +1,5 @@
+Message 0: %t_laughs_an_evil_laugh.
+Message 1: No_more_fun_today...
+Message 2: %t_isn't_strong_enough_to_lift_this...(Need_%x_more_strength)
+Message 3: The_%c_was_crushed!
+Message 4: %t_lifted_%g_%c!

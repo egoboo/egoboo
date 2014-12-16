@@ -1,0 +1,90 @@
+**Egoboo Characters**
+  Heroes
+    Adventurer			- Link...  Guard, Peasant, Squire
+    Healer			- Avatar...  Nurse, Knight, Prophet
+    Elf				- Spock...  Deep Elf
+    Wizard			- Santa...  Teacher
+    G'nome			- Logan...  Dwarf
+    Soldier			- Ikari Rambo...  Guard, Statue
+?   Rogue			- Alladin...  Peasant
+  Secondary Heroes
+    Dwarf			-
+    Centress			- ???...  Centaur
+?   Tourist			-
+?   Mystic			-
+?   Dancer			-
+?   Amazon			-
+  Pets
+    Zombi			-
+    Faerie			-
+?   Puppy			-
+?   Kitten			-
+?   Empire Monkey		-
+  Imbued Monsters
+    Book Mimic			- Imbue book ( stored in Imbue )
+    Luggage Mimic		- Imbue chest ( carries armor )
+    Chair Mimic			- Imbue chair ( free ride )
+    Living Statue		- Imbue statue ( use Soldier )
+    Thatch Golem		- Imbue Haystack
+?   Jack O' Lantern		- Imbue Pumpkin
+  Happy Mounts
+    Mouse			- Lab Rat, Rabbit
+    Wumpus			-
+    Bumper Car			-
+?   Kaja Spider			-
+?   Iron G'nome			-
+  NPCs
+?   King			-
+?   Queen			-
+?   Waitress			-
+?   Shopkeeper			-
+
+
+
+
+  Humanoid Monsters
+?   Orc				- Like Maul/Moblin
+    Trog			-
+    Goblin			-
+    Skulton			-
+    COBOL			-
+    Wizard			-
+?   Dark Knight			-
+  Monster Mounts
+?   PitBull			- HotDog, SlushPup
+?   Boar			-
+  Monsters
+?   Snake			- Like LoZ speed snakes
+?   Serpent			-
+?   Floating Eye		- Paralyze, Gas Spore
+?   Freezing Sphere		- Explodes on contact
+?   Slime			- Multiply to team limit
+?   Mantrap			-
+?   Stranglevine		-
+?   Heart of Vine		-
+?   Thorn			- Pops out of ground
+    Vinebeast			-
+    Gelfeet			-
+    Vortex			-
+    Chest Mimic			-
+    Spider			-
+    Squidgey			-
+    GrubBug			-
+    Gipan			- Gaze rays
+    Little Demon		- From wizard's portal
+    Shade			- Use character model
+?   Marionette			-
+?   Bulb Scorpion		-
+?   Loach			-
+  Boss Monsters
+    GrubMum			- Only damage from front
+    Scorpion			- Silver Scorpion
+    Troll			- Stone ala Trow, fears [FIRE]
+    Great Worm			- Pops out of ground
+    WereWolf			-
+    Vampiress			-
+?   Medusa			-
+?   Water Wierd			-
+?   Earth Elemental		- Big hand
+?   Yeti			- Bigfoot
+?   Gigas			- Lumber, Frost, Flame

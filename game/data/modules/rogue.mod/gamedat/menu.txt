@@ -1,0 +1,25 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: Rogue_Start
+Reference module ( Directory name or NONE )	: NONE
+Required reference IDSZ ( or [NONE] )		: [NONE]
+Number of imports ( 0 to 4 )                    : 0
+Allow exporting of characters ( TRUE or FALSE )	: FALSE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 1
+Allow respawning ( ANYTIME, TRUE or FALSE )	: TRUE
+NONE						: FALSE
+Level rating ( *, **, ***, ****, or ***** )     : ****
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:After_the_guards_caught_you
+:"admiring"_Lord_Bishop's_treasure
+:horde,_you_were_sentenced_to_2
+:years_forced_labor_in_the_COBOL
+:Mines._Since_your_computer_will
+:be_outdated_in_half_that_time,
+:you've_opted_for_an_early
+:release..._Good_Luck!
+
+
+// Module expansion IDSZs ( with a colon in front )

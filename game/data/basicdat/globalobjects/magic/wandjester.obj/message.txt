@@ -1,0 +1,13 @@
+Message 0: %t_found_%n.
+Message 1: %t_was_healed!
+Message 2: %t_feels_recharged!
+Message 3: Mmm,_tomatoes!
+Message 4: Hmm.._Does_the_world_seem_slower?
+Message 5: %t_can't_use_this...
+Message 6: No_effect!?
+Message 7: YIKES!
+Message 8: %t_feels_dizzy...
+Message 9: %t_feels_more_experienced!
+Message 10: %t_is_permanently_more_nimble!
+Message 11: The_%c_burned_out.
+Message 12: %t_feels_hurt..

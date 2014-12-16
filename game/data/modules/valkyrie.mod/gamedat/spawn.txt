@@ -1,0 +1,231 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+#dependency Valkyrie 0
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+Player 0:   NONE    0  23.5   17.5   0.0   ?    0   0  0   0   0   T   F   G
+  spear.obj:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  divineshield.obj:   NONE    121  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+//Cozy spawn  
+moduletool.obj:   NONE    37  26.5   18.5   0.0   ?    0   0  0   0   0   F   F   N
+meatspit.obj:   NONE    60  24.5   17.5   0.0   N    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  23.0   19.0   0.0   ?    1   0  0   0   0   F   F   E
+  lbow.obj:   NONE    97  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  24.0   13.0   0.0   ?    2   0  0   0   0   F   F   E
+  battleaxe.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  towershield.obj:   NONE    47  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  25.5   17.5   0.0   ?    3   1  0   0   1   F   F   E
+  hatchet.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  towershield.obj:   NONE    47  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+//Bludy Battlefield
+trorc.obj:   NONE    39  34.5   28.5   1.0   ?    1   1  0   0   0   F   F   E
+  battleaxe.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  spikeshield.obj:   NONE    44  33.0   32.0   1.0   L    0   0  0   0   0   F   F   N
+deadviking.obj:   NONE    68  35.5   27.5   1.0   ?    0   0  0   0   0   F   F   N
+  hatchet.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  35.5   27.5   1.0   ?    2   0  0   0   0   F   F   E
+  hatchet.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  spikeshield.obj:   NONE    44  33.0   32.0   1.0   L    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  33.5   32.5   1.0   ?    0   0  0   0   0   F   F   E
+  lbow.obj:   NONE    97  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+deadtrorc.obj:   NONE    40  35.5   31.5   1.0   ?    1   0  0   0   0   F   F   E
+  spkmace.obj:   NONE    88  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  spikeshield.obj:   NONE    44  33.0   32.0   1.0   L    0   0  0   0   0   F   F   N
+deadtrorc.obj:   NONE    40  32.0   30.0   1.0   N    2   0  0   0   0   F   F   N
+  lbow.obj:   NONE    97  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+deadtrorc.obj:   NONE    40  36.5   29.5   1.0   N    0   0  0   0   0   F   F   N
+  hatchet.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  spikeshield.obj:   NONE    44  33.0   32.0   1.0   L    0   0  0   0   0   F   F   N
+soul.obj:   NONE    69  33.5   27.5   1.0   ?    0   0  0   0   0   F   F   N
+deadviking.obj:   NONE    68  33.5   27.5   1.0   ?    1   0  0   0   0   F   F   N
+deadviking.obj:   NONE    68  31.5   29.5   1.0   ?    0   0  0   0   0   F   F   N
+  spkmace.obj:   NONE    88  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+//3 vs. 3 battlefield
+trorc.obj:   NONE    39  53.0   17.0   1.0   ?    1   0  0   0   0   F   F   E
+  spkmace.obj:   NONE    88  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  52.0   19.0   1.0   ?    2   1  0   0   0   F   F   E
+  hatchet.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  53.0   21.0   1.0   ?    0   0  0   0   0   F   F   E
+  lbow.obj:   NONE    97  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  48.0   16.0   1.0   ?    0   0  0   0   0   F   F   E
+  lbow.obj:   NONE    97  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  47.0   18.0   1.0   ?    0   0  0   0   0   F   F   E
+  hatchet.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  towershield.obj:   NONE    47  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  47.0   20.0   1.0   ?    3   1  0   0   1   F   F   E
+  battleaxe.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  battleaxe.obj:   NONE    45  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+//2 vs. many battlefield
+soul.obj:   NONE    69  55.0   52.0   1.0   N    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  51.0   54.0   1.0   ?    0   0  0   0   0   F   F   E
+  spkmace.obj:   NONE    88  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  53.0   51.0   1.0   ?    7   1  0   0   0   F   F   E
+  lbow.obj:   NONE    97  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  58.0   49.0   1.0   ?    0   0  0   0   0   F   F   E
+  hatchet.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  58.0   54.0   1.0   ?    0   0  0   0   0   F   F   E
+  battleaxe.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  54.0   56.0   1.0   ?    3   1  0   0   0   F   F   E
+  hatchet.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  spikeshield.obj:   NONE    44  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  56.0   52.0   1.0   ?    0   0  0   0   0   F   F   E
+  battleaxe.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  54.0   54.0   1.0   ?    0   0  0   0   0   F   F   E
+  spkmace.obj:   NONE    88  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+//Dead battlefield
+deadtrorc.obj:   NONE    40  37.0   54.0   1.0   ?    0   0  0   0   0   F   F   N
+  battleaxe.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+deadtrorc.obj:   NONE    40  39.0   58.0   1.0   ?    0   0  0   0   0   F   F   N
+deadtrorc.obj:   NONE    40  41.0   54.0   1.0   ?    0   0  0   0   0   F   F   N
+soul.obj:   NONE    69  39.0   55.0   1.0   N    0   0  0   0   0   F   F   N
+deadviking.obj:   NONE    68  37.0   56.0   1.0   ?    2   1  0   0   0   F   F   N
+  battleaxe.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+//Various trees
+pinetree.obj:   NONE    55  31.0   58.0   1.0   ?    0   1  0   0   0   F   F   N
+pinetree.obj:   NONE    55  49.0   57.0   1.0   ?    0   2  0   0   0   F   F   N
+pinetree.obj:   NONE    55  44.0   43.0   1.0   ?    0   3  0   0   0   F   F   N
+pinetree.obj:   NONE    55  43.0   46.0   1.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  45.0   44.0   1.0   ?    0   1  0   0   0   F   F   N
+pinetree.obj:   NONE    55  29.0   46.0   1.0   ?    0   2  0   0   0   F   F   N
+
+//Forest
+pinetree.obj:   NONE    55  20.0   20.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  17.0   10.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  12.0   22.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  22.0   13.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  10.0   13.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  15.0   16.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  6.0   18.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  10.0   8.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  4.0   8.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  5.0   3.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  12.0   3.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  13.0   8.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  16.0   5.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  20.0   8.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  22.0   4.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  25.0   2.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  26.0   7.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  29.0   13.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  9.0   18.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  4.0   24.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  4.0   13.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  29.0   4.0   0.0   ?    0   4  0   0   0   F   F   N
+
+//Mount icy
+frostlizard.obj:   NONE    76  3.0   47.0   2.0   N    0   0  0   0   0   F   F   E
+frostlizard.obj:   NONE    76  6.0   49.0   2.0   N    0   0  0   0   0   F   F   E
+
+pinetree.obj:   NONE    55  7.0   49.0   2.0   ?    0   1  0   0   0   F   F   N
+pinetree.obj:   NONE    55  13.0  41.0   0.0   ?    0   2  0   0   0   F   F   N
+pinetree.obj:   NONE    55  9.0   38.0   0.0   ?    0   3  0   0   0   F   F   N
+pinetree.obj:   NONE    55  4.0   38.0   0.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  6.0   56.0   0.0   ?    0   1  0   0   0   F   F   N
+pinetree.obj:   NONE    55  2.0   58.0   0.0   ?    0   2  0   0   0   F   F   N
+
+strider.obj:     NONE      56   3.5  51.0  2.0  ?   0   0  0   0   0   F   F   N
+chest.obj:     NONE      51   5.0  51.0  2.0  N   19   0  0   0   0   F   F   N
+  ppotion.obj:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ppotion.obj:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ppotion.obj:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ppotion.obj:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  lpotion.obj:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  lpotion.obj:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  spear.obj:     NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Graveyard
+snowygrave.obj:   NONE    38  6.0   33.0   0.0   E    0   4  0   0   0   F   F   N
+snowygrave.obj:   NONE    38  6.0   30.0   0.0   E    0   4  0   0   0   F   F   N
+snowygrave.obj:   NONE    38  6.0   27.0   0.0   E    0   4  0   0   0   F   F   N
+snowygrave.obj:   NONE    38  9.0   33.0   0.0   E    0   4  0   0   0   F   F   N
+snowygrave.obj:   NONE    38  9.0   30.0   0.0   E    0   4  0   0   0   F   F   N
+snowygrave.obj:   NONE    38  9.0   27.0   0.0   E    0   4  0   0   0   F   F   N
+soul.obj:   NONE    69  7.5   30.0   0.0   N    0   0  0   0   0   F   F   N
+
+//Big battle below mount icy
+viking.obj:   NONE    41  16.0   44.0   1.0   N    0   0  0   0   0   F   F   G
+  spear.obj:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  17.0   45.0   1.0   N    3   2  0   0   0   F   F   G
+  battleaxe.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  towershield.obj:   NONE    47  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  16.0   47.0   1.0   N    0   0  0   0   0   F   F   G
+  lbow.obj:   NONE    97  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  17.0   48.0   1.0   N    0   0  0   0   0   F   F   G
+  spkmace.obj:   NONE    88  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+soul.obj:   NONE    69  17.0   48.0   1.0   N    0   0  0   0   0   F   F   N
+soul.obj:   NONE    69  16.5   48.5   1.0   N    0   0  0   0   0   F   F   N
+
+trorc.obj:   NONE    39  22.0   43.0   1.0   N    1   0  0   0   0   F   F   E
+  spear.obj:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  lpotion.obj:   NONE    53  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  22.0   45.0   1.0   N    2   1  0   0   0   F   F   E
+  battleaxe.obj:   NONE    45  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  spikeshield.obj:   NONE    44  33.0   32.0   1.0   L    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  19.0   47.0   1.0   N    3   0  0   0   0   F   F   E
+  lbow.obj:   NONE    97  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  20.0   44.0   1.0   N    0   0  0   0   0   F   F   E
+  spkmace.obj:   NONE    88  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  21.0   47.0   1.0   N    1   0  0   0   0   F   F   E
+  lbow.obj:   NONE    97  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  16.0   46.0   1.0   N    0   0  0   0   0   F   F   E
+  spkmace.obj:   NONE    88  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  torch.obj:   NONE    77  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+//Happy campers
+meatspit.obj:   NONE    60  34.0   4.0   1.0   ?    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  35.0   5.0   1.0   N    0   0  0   0   0   F   F   E
+  spkmace.obj:   NONE    88  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  torch.obj:   NONE    77  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+trorc.obj:   NONE    39  33.0   3.0   1.0   N    0   0  0   0   0   F   F   E
+  spkmace.obj:   NONE    88  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  spikeshield.obj:   NONE    44  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+//Unhappy campers
+deadtrorc.obj:   NONE    40  7.0   11.0   1.0   N    0   0  0   0   0   F   F   N
+  lpotion.obj:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+deadtrorc.obj:   NONE    40  21.0   62.0   1.0   N    2   0  0   0   0   F   F   N
+  torch.obj:   NONE    77  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+deadtrorc.obj:   NONE    40  24.0   61.0   1.0   N    1   0  0   0   0   F   F   N
+deadtrorc.obj:   NONE    40  21.0   59.0   1.0   N    0   0  0   0   0   F   F   N
+viking.obj:   NONE    41  22.0   61.0   1.0   N    4   2  0   0   0   F   F   G
+  spear.obj:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+//Frozen pit
+frostlizard.obj:   NONE    76  58.0   36.0   1.0   N    0   0  0   0   0   F   F   E
+soul.obj:   NONE    69  58.0   36.0   1.0   N    0   0  0   0   0   F   F   N
+
+//Some random stuff
+pinetree.obj:   NONE    55  52.0   28.0   1.0   ?    0   1  0   0   0   F   F   N
+pinetree.obj:   NONE    55  56.0   60.0   1.0   ?    0   2  0   0   0   F   F   N
+pinetree.obj:   NONE    55  63.0   57.0   1.0   ?    0   3  0   0   0   F   F   N
+pinetree.obj:   NONE    55  61.0   48.0   1.0   ?    0   4  0   0   0   F   F   N
+pinetree.obj:   NONE    55  61.0   18.0   1.0   ?    0   1  0   0   0   F   F   N
+pinetree.obj:   NONE    55  43.0   10.0   1.0   ?    0   2  0   0   0   F   F   N

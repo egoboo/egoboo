@@ -1,0 +1,446 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+PlayerAtTroll   NONE    0  71.5   13.5   2.0   S    0   0  0   0   0   T   F   G
+PLAYER 1:   NONE    0  76.5   42.5   2.0   S    0   0  0   0   0   T   F   G
+  unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER 2:   NONE    9  76.5   42.5   2.0   S    0   0  0   0   0   T   F   G
+  unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER 3:   NONE    18  75.5   40.5   2.0   W    0   0  0   0   0   T   F   G
+  unknown:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER 4:   NONE    27  75.5   42.5   2.0   E    0   0  0   0   0   T   F   G
+  unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+
+//--------------------------------------------------------------------------------
+//Barricade
+stairs:   NONE    37  76.5   41.5   1.5   W    0   0  0   0   0   F   F   N
+table:   NONE    38  63.5   44.5   1.0   W    0   0  0   1   0   F   F   N
+table:   NONE    38  65.5   37.5   1.0   S    0   0  0   1   0   F   F   N
+LPotion:   NONE    36  66.0   38.0   1.0   N    0   0  0   0   0   F   F   N
+deadbody:   NONE    39  64.5   43.5   1.0   N    0   0  0   0   0   F   F   N
+haypile:   NONE    40  64.0   40.0   1.0   N    0   0  0   0   0   F   F   N
+Cinquedea:   NONE    41  65.0   40.0   1.0   N    0   0  0   0   0   F   F   N
+Rack:   NONE    100  75.25   44.75   0.0   N    0   0  0   0   0   F   F   N
+  Spear:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+Rack:   NONE    100  75.25   38.25   0.0   S    0   0  0   0   0   F   F   N
+
+guard:   NONE    45  68.0   42.0   1.0   N    0   0  0   0   0  F   F   G
+  Spear:   NONE    52  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  gshield:   NONE    50  63.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+
+guard:   NONE    45  65.0   45.0   0.0   N    0   0  0   0   0   F   F   G
+  Sword:   NONE    49  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  gshield:   NONE    50  63.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+
+guard:   NONE    45  65.0   41.0   1.0   N    0   0  0   0   0   F   F   G
+  Sword:   NONE    49  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+
+guard:   NONE    45  73.0   43.0   2.0   N    0   0  0   5   0   F   F   G
+  Spear:   NONE    52  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  gshield:   NONE    50  63.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+
+guard:   NONE    45  73.0   38.0   2.0   N    0   0  0   0   0   F   F   G
+  LBow:   NONE    46  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+
+//--------------------------------------------------------------------------------
+//Attack team
+prisoner:   NONE    44  54.5   41.5   1.0   N    0   0  0   6   0   F   F   E
+  Cinquedea:   NONE    41  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+
+prisoner:   NONE    44  57.5   39.5   1.0   N    0   0  0   6   0   F   F   E
+  PStiletto:   NONE    54  0.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+
+prisoner:   NONE    44  54.5   43.5   1.0   N    0   0  0   6   0   F   F   E
+  Cinquedea:   NONE    41  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  tshield:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+prisoner:   NONE    44  54.5   39.5   1.0   N    0   0  0   6   0   F   F   E
+  ninjastars:   NONE    47  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  knife:   NONE    57  63.5   44.5   1.0   I    0   0  0   0   0   F   F   N
+
+//--------------------------------------------------------------------------------
+//Cell room hall
+switch:   NONE    58  55.5   36.5   1.0   W    0   0  0   0   0   F   F   N
+switch:   NONE    58  55.5   46.5   1.0   W    0   0  1   0   0   F   F   N
+switch:   NONE    58  48.5   36.5   1.0   W    0   0  2   1   0   F   F   N
+switch:   NONE    58  48.5   46.5   1.0   W    0   0  3   1   0   F   F   N
+gate:   NONE    43  57.0   48.0   1.0   N    0   0  1   0   0   F   F   N
+gate:   NONE    43  50.0   48.0   1.0   N    0   0  3   0   0   F   F   N
+gate:   NONE    43  50.0   34.5   1.0   N    0   0  2   0   0   F   F   N
+gate:   NONE    43  57.0   34.8   1.0   N    0   0  0   0   0   F   F   N
+deadbody:   NONE    39  50.0   40.0   1.0   N    0   1  0   0   0   F   F   N
+chair:   NONE    66  52.0   43.0   1.0   W    0   0  0   1   0   F   F   N
+chair:   NONE    66  67.0   45.0   1.0   N    0   0  0   1   0   F   F   N
+chair:   NONE    66  60.0   37.0   1.0   E    0   0  0   1   0   F   F   N
+table:   NONE    38  61.0   41.0   1.0   E    0   0  0   1   0   F   F   N
+haypile:   NONE    40  59.0   58.0   1.0   N    0   0  0   0   0   F   F   N
+haypile:   NONE    40  62.0   55.0   1.0   N    0   0  0   0   0   F   F   N
+haypile:   NONE    40  63.0   58.0   1.0   N    0   0  0   0   0   F   F   N
+
+//--------------------------------------------------------------------------------
+//Closed prison
+prisoner:   NONE    44  62.5   53.5   1.0   N    0   0  0   0   0   F   F   E
+  knife:   NONE    57  0.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+prisoner:   NONE    44  62.5   57.5   1.0   N    0   0  0   0   0   F   F   E
+  KiteShield:   NONE    50  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+  Sword:   NONE    49  0.5   0.5   1.0   R    0   0  0   0   0   F   F   N
+prisoner:   NONE    44  59.5   54.5   1.0   N    0   0  0   0   0   F   F   E
+  gshield:   NONE    52  0.5   0.5   1.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    59  60.5   56.5   1.0   N    0   0  0   0   0   F   F   E
+  gshield:   NONE    57  0.5   0.5   1.0   R    0   0  0   0   0   F   F   N
+  gshield:   NONE    57  0.5   0.5   1.0   L    0   0  0   0   0   F   F   N
+
+haypile:   NONE    40  61.0   25.0   1.0   N    0   0  0   0   0   F   F   N
+haypile:   NONE    40  61.0   30.0   1.0   N    0   0  0   0   0   F   F   N
+haypile:   NONE    40  58.0   26.0   1.0   N    0   0  0   0   0   F   F   N
+
+//--------------------------------------------------------------------------------
+//Store room
+crate:   NONE    42  51.5   57.5   3.0   N    0   0  0   0   0   F   F   N
+barrel:   NONE    98  51.5   56.5   1.0   N    0   0  0   0   0   F   F   N
+barrel:   NONE    98  51.5   59.5   1.0   N    0   0  0   0   0   F   F   N
+crate:   NONE    42  49.5   59.5   1.0   N    0   0  0   0   0   F   F   N
+crate:   NONE    42  51.5   57.5   1.0   N    0   0  0   0   0   F   F   N
+crate:   NONE    42  46.5   50.5   1.0   N    0   0  0   0   0   F   F   N
+powbox:   NONE    68  47.0   52.0   1.0   N    0   0  0   0   0   F   F   N
+Mimic:   NONE    62  51.5   58.5   1.0   W    99   0  0   0   0   F   F   E
+  %RANDOM_SCROLL:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+chest:   NONE    61  46.5   56.5   1.0   E    19   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  66.0   38.0   1.0   I    0   0  0   0   0   F   F   N
+  gshield:   NONE    52  0.5   0.5   1.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+
+//--------------------------------------------------------------------------------
+//Guarding the X way
+prisoner:   NONE    44  39.0   41.0   1.0   N    0   0  0   0   0   F   F   E
+  PStiletto:   NONE    54  0.0   0.5   0.0   R    0   0  0   0   0   F   F   N
+prisoner:   NONE    44  40.0   42.0   1.0   N    0   0  0   0   0   F   F   E
+  knife:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  knife:   NONE    57  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+cobol:   NONE    63  40.0   40.0   1.0   N    0   0  0   150   0   F   F   E
+  SpkMace:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+//--------------------------------------------------------------------------------
+//Sleeping prison
+cobol:   NONE    63  61.0   23.0   1.0   N    0   2  0   200   0   F   F   E
+  whip:   NONE    67  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  59.0   24.0   1.0   N    0   2  0   700   0   F   F   E
+  longbow:   NONE    46  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  knife:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  59.0   26.0   1.0   N    0   2  0   75   0   F   F   E
+  knife:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+prisoner:   NONE    44  62.0   27.0   1.0   N    0   0  0   0   0   F   F   E
+  SpkMace:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+chest:   NONE    61  62.0   24.0   1.0   N    12   0  0   1   0   F   F   N       //Locked
+  %RANDOM_WAND:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//--------------------------------------------------------------------------------
+//Key prisoners
+lumpkin:   NONE    59  48.0   27.0   1.0   N    0   0  0   0   0   F   F   E
+  Sword:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    59  50.0   25.0   1.0   N    0   0  0   0   0   F   F   E
+  gonne:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KeyC:   NONE    64  49.0   26.0   1.0   I    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  50.0   28.0   1.0   N    0   1  0   100   0   F   F   E
+  Cinquedea:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+
+prisoner:   NONE    44  48.0   25.0   1.0   N    0   0  0   0   0   F   F   E
+  whip:   NONE    67  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+//--------------------------------------------------------------------------------
+//Lumpkin boss
+barrel:   NONE    98  27.5   39.5   1.0   N    0   0  0   0   0   F   F   N
+crate:   NONE    42  28.5   40.5   1.0   N    0   0  0   0   0   F   F   N
+powbox:   NONE    68  28.5   39.5   1.0   N    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    59  28.5   42.5   1.0   N    0   0  0   0   0   F   F   E
+  Sword:   NONE    49  0.0   0.0   1.0   R    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    59  32.5   39.5   1.0   N    0   0  0   0   0   F   F   E
+  Sword:   NONE    49  0.0   0.0   1.0   R    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    59  30.5   38.5   1.0   N    0   0  0   0   0   F   F   E
+  Sword:   NONE    49  0.0   0.0   1.0   R    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    59  30.5   44.5   1.0   N    0   0  0   0   0   F   F   E
+  ninjastars:   NONE    47  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    59  31.5   37.5   1.0   N    0   0  0   0   0   F   F   E
+  Sword:   NONE    49  0.0   0.0   1.0   R    0   0  0   0   0   F   F   N
+
+bosslumpkin:   NONE    69  25.0   44.0   1.0   N    49   0  0   0   0   F   F   E
+  whip:   NONE    67  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  gonne:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  bomb:   NONE    119  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KeyC:   NONE    64  49.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+chest:   NONE    61  27.5   38.5   1.0   N    14   0  0   1   0   F   F   N         //Locked
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  gonne:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KeyA:   NONE    70  49.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+
+//--------------------------------------------------------------------------------
+//Troll boss
+sandtroll:   NONE    71  71.5   13.5   1.0   N    39   0  0   0   0   F   F   T
+  KeyA:   NONE    70  49.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+deadbody:   NONE    39  58.0   14.0   1.0   E    0   2  0   0   0   F   F   N
+  Cinquedea:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+deadbody:   NONE    39  56.0   15.0   1.0   S    0   1  0   0   0   F   F   N
+deadbody:   NONE    39  63.5   13.5   1.0   W    0   2  0   0   0   F   F   N
+deadbody:   NONE    39  65.5   15.5   1.0   N    0   0  0   0   0   F   F   N
+  Cinquedea:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+deadbody:   NONE    39  67.5   10.5   1.0   E    0   1  0   0   0   F   F   N
+  LBow:   NONE    46  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+deadbody:   NONE    39  72.5   13.5   1.0   S    0   2  0   0   0   F   F   N
+deadbody:   NONE    39  71.5   14.5   1.0   W    0   0  0   0   0   F   F   N
+  Sword:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+deadbody:   NONE    39  70.5   12.5   1.0   N    0   1  0   0   0   F   F   N
+deadbody:   NONE    39  71.5   12.5   1.0   E    0   2  0   0   0   F   F   N
+  whip:   NONE    67  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+deadbody:   NONE    39  70.5   13.5   1.0   S    0   2  0   0   0   F   F   N
+table:   NONE    38  64.0   10.0   1.0   N    0   0  0   1   0   F   F   N
+chair:   NONE    66  67.0   14.0   1.0   E    0   0  0   1   0   F   F   N
+chair:   NONE    66  70.0   10.0   1.0   S    0   0  0   1   0   F   F   N
+
+
+//--------------------------------------------------------------------------------
+//Cobol boss
+bosscobol:   NONE    72  19.5   15.5   1.0   N    9   0  0   0   0   F   F   E
+  tshield:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  PStiletto:   NONE    54  0.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  KeyA:   NONE    70  49.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  20.5   17.5   1.0   N    8   0  0   200   0   F   F   E
+  Cinquedea:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  20.5   13.5   1.0   N    7   0  0   200   0   F   F   E
+  Cinquedea:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  22.5   17.5   1.0   N    6   0  0   200   0   F   F   E
+  Cinquedea:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  23.5   15.5   1.0   N    5   0  0   200   0   F   F   E
+  Cinquedea:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  21.5   15.5   1.0   N    4   0  0   600   0   F   F   E
+  LBow:   NONE    46  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  22.5   13.5   1.0   N    3   0  0   600   0   F   F   E
+  LBow:   NONE    46  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+
+table:   NONE    38  31.0   19.0   1.0   N    0   0  0   0   0   F   F   N
+chair:   NONE    66  31.5   20.5   1.0   N    0   0  0   0   0   F   F   N
+crate:   NONE    42  34.0   10.0   1.0   N    0   0  0   0   0   F   F   N
+Mimic:   NONE    62  31.0   9.0   1.0   N    0   0  0   0   0   F   F   E
+  KeyC:   NONE    64  49.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_SCROLL:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_ARCANE_SPELLBOOK:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+
+//--------------------------------------------------------------------------------
+//Left prison cells
+prisoner:   NONE    44  42.0   6.0   1.0   N    1   0  0   0   0   F   F   E
+  ninjastars:   NONE    47  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    59  44.0   7.0   1.0   N    2   0  0   0   0   F   F   E
+  Sword:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  42.0   6.0   1.0   N    3   2  0   300   0   F   F   E
+  whip:   NONE    67  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+chest:   NONE    61  54.0   6.0   1.0   S    0   0  0   1   0   F   F   N           //Locked
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  75.0   53.0   1.0   I    0   0  0   0   0   F   F   N
+
+gate:   NONE    43  54.0   12.75   1.0   S    0   0  5   0   0   F   F   N
+gate:   NONE    43  44.0   12.75   1.0   N    0   0  4   0   0   F   F   N
+switch:   NONE    58  52.0   14.25   1.0   W    0   0  5   0   0   F   F   N
+switch:   NONE    58  41.0   14.25   1.0   W    0   0  4   0   0   F   F   N
+haypile:   NONE    40  43.0   8.0   1.0   N    0   0  0   0   0   F   F   N
+
+
+//--------------------------------------------------------------------------------
+//Right prison cells
+powbox:   NONE    68  39.5   72.5   3.0   N    0   0  0   0   0   F   F   N
+powbox:   NONE    68  39.5   71.5   1.0   N    0   0  0   0   0   F   F   N
+powbox:   NONE    68  39.5   73.5   1.0   N    0   0  0   0   0   F   F   N
+powbox:   NONE    68  39.5   72.5   1.0   N    0   0  0   0   0   F   F   N
+deadbody:   NONE    39  41.0   69.0   1.0   N    0   4  0   0   0   F   F   N
+chair:   NONE    66  42.0   72.0   1.0   E    0   0  0   1   0   F   F   N
+
+switch:   NONE    58  55.5   67.5   1.0   W    0   0  6   0   0   F   F   N
+switch:   NONE    58  68.5   67.5   1.0   W    0   0  7   1   0   F   F   N
+gate:   NONE    43  53.0   69.5   1.0   S    0   0  6   0   0   F   F   N
+gate:   NONE    43  66.0   69.5   1.0   N    0   0  7   0   0   F   F   N
+
+prisoner:   NONE    44  41.0   74.0   1.0   N    0   0  0   0   0   F   F   E
+  Spear:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+prisoner:   NONE    44  42.0   73.0   1.0   N    0   0  0   0   0   F   F   E
+  Spear:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+prisoner:   NONE    44  69.0   74.0   1.0   N    0   0  0   0   0   F   F   E
+  Spear:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  67.0   74.0   1.0   N    0   1  0   600   0   F   F   E
+  LBow:   NONE    46  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ironball:   NONE    55  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+cobol:   NONE    63  70.0   72.0   1.0   N    0   1  0   200   0   F   F   E
+  SpkMace:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    59  68.0   72.0   1.0   N    0   0  0   0   0   F   F   E
+  Sword:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+KeyC:   NONE    64  70.0   74.0   1.0   N    0   0  0   0   0   F   F   N
+haypile:   NONE    40  64.0   72.0   1.0   N    0   0  0   0   0   F   F   N
+haypile:   NONE    40  67.0   74.0   1.0   N    0   0  0   0   0   F   F   N
+haypile:   NONE    40  54.0   74.0   1.0   N    0   0  0   0   0   F   F   N
+haypile:   NONE    40  51.0   72.0   1.0   N    0   0  0   0   0   F   F   N
+
+
+//--------------------------------------------------------------------------------
+//Right guard chamber
+chest:   NONE    61  71.5   49.5   1.0   S    0   0  0   0   0   F   F   N            //Contains random level 2 armor
+  %RANDOM_ARMOR:   NONE    -1  0.0   0.0   0.0   I    0   1  0   0   0   F   F   N
+table:   NONE    38  71.5   52.5   1.0   W    0   0  0   0   0   F   F   N
+chair:   NONE    66  72.5   52.5   1.0   W    0   0  0   0   0   F   F   N
+table:   NONE    38  76.5   55.5   1.0   E    0   0  0   0   0   F   F   N
+chair:   NONE    66  75.5   55.5   1.0   E    0   0  0   1   0   F   F   N
+crate:   NONE    42  76.0   51.0   0.0   ?    0   4  0   0   0   F   F   N
+mushroom:   NONE    74  76.0   51.0   1.0   ?    0   0  0   0   0   F   F   N
+
+gate:   NONE    43  73.0   46.5   1.0   N    0   0  16   0   0   F   F   N
+switch:   NONE    58  74.5   49.5   1.0   W    0   0  16   0   0   F   F   N
+
+Rack:   NONE    100  76.75   53.0   0.0   W    0   0  0   0   0   F   F   N
+  Spear:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  LBow:   NONE    46  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+
+//--------------------------------------------------------------------------------
+//Left guard chamber
+table:   NONE    38  72.0   27.0   1.0   N    0   0  0   1   0   F   F   N
+table:   NONE    38  73.0   27.25   1.0   N    0   0  0   1   0   F   F   N
+deadbody:   NONE    39  74.0   31.0   1.0   N    0   4  0   0   0   F   F   N
+LPotion:   NONE    36  72.0   30.0   1.0   ?    0   0  0   0   0   F   F   N
+
+gate:   NONE    43  73.0   36.5   2.0   N    0   0  15   0   0   F   F   N
+switch:   NONE    58  75.25   33.5   0.0   E    0   0  15   0   0   F   F   N
+
+Rack:   NONE    100  75.75   30.0   0.0   W    0   0  0   0   0   F   F   N
+  SpkMace:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Sword:   NONE    49  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+//--------------------------------------------------------------------------------
+//Boss room
+lockdoor:   NONE    73  21.0   20.0   1.0   N    0   0  8   0   0   F   F   N
+lockdoor:   NONE    73  21.0   24.0   1.0   N    0   0  10   0   0   F   F   N
+lockdoor:   NONE    73  21.0   28.0   1.0   N    0   0  12   0   0   F   F   N
+
+bargel:   NONE    76  12.0   30.0   1.0   N    99   0  14   0   0  F   F   E
+  bind:   NONE    77  63.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+  burn:   NONE    78  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  bdiary:   NONE    128  63.5   44.5   1.0   I    0   0  0   0   0   F   F   N
+
+healer:   NONE    75  8.0   30.0   1.0   N    19   0  0   0   0   F   F   E
+  SpkMace:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+prisoner:   NONE    44  12.0   28.0   1.0   N    0   0  0   0   0   F   F   E
+  whip:   NONE    67  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+prisoner:   NONE    44  12.0   33.0   1.0   N    0   0  0   0   0   F   F   E
+  Spear:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+prisoner:   NONE    44  7.0   27.0   1.0   N    0   0  0   0   0   F   F   E
+  ninjastars:   NONE    47  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+
+//--------------------------------------------------------------------------------
+//Treasury!
+gate:   NONE    43  10.0   36.0   1.0   N    0   0  14   0   0   F   F   N
+chest:   NONE    61  8.5   41.5   1.0   N    0   0  0   0   0   F   F   N            //Contains random level 3 armor
+  %RANDOM_ARMOR:   NONE    -1  0.0   0.0   0.0   I    0   2  0   0   0   F   F   N
+  %RANDOM_SCROLL:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+chest:   NONE    61  11.5   41.5   1.0   N    0   0  0   1   0   F   F   N              //Chest
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RARE_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_DIVINE_RUNE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

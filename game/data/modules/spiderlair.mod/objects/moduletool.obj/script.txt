@@ -1,0 +1,12 @@
+// This initializes music and goes away
+IfSpawned
+  tmpargument = 7
+  tmpdistance = 0
+  PlayMusic
+
+  // No longer needed
+  GoPoof
+
+// All done
+End
+

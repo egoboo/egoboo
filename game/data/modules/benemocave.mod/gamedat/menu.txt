@@ -1,0 +1,24 @@
+Module Name :Benemo_Cave
+Reference Directory : NONE
+Required reference IDSZ : [BENE] 0
+Number of imports ( 0 to 4 ) :4
+Exporting ( TRUE or FALSE ) :FALSE
+Minimum players ( 1 to 4 ) :1
+Maximum players ( 1 to 4 ) :4
+Respawning ( TRUE or FALSE ) :TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** ) :******
+
+// Module summary
+:A_cave_in_the_middle_of_a_deep
+:forest..._This_must_be_the_cave
+:Angus_was_talking_about._There
+:are_supposed_to_be_bandits_of_all
+:sorts_in_there...
+:Find_the_stolen_heirloom_and
+:kill_the_infamous_assasin
+:Bludhawk,_if_you_can...
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] SIDEQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

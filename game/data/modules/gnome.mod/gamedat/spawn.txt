@@ -1,0 +1,95 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+#dependency GNome 0
+
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+Player 0:  NONE      0    17.3 24.2 0.0  S   0   0   0   0   0   T   F   Good
+  Gonne:   NONE      10   0    0    0    R   0   0   0   0   0   F   F   Null
+Captain:   NONE      12   16.3 24.2 0.0  S   0   0   0   0   0   T   F   Good
+  Gonne:   NONE      10   0    0    0    R   0   0   0   0   0   F   F   Null
+
+
+// Scrub Lumpkins
+Lumpkin:   NONE      11   16.7 36.8 0    N   0   0   0   0   0   F   F   Pirate
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   17.4 37.5 0    N   0   0   0   0   0   F   F   Pirate
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   15.6 37.6 0    N   0   0   0   0   0   F   F   Pirate
+  Claw:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   12.6 34.4 0    N   0   0   0   0   0   F   F   Pirate
+  Claw:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+  Sword:   NONE      50   0    0    0    L   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   16.7 32.4 0    N   0   0   0   0   0   F   F   Pirate
+  Claw:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   17.5 32.4 0    N   0   0   0   0   0   F   F   Pirate
+  Claw:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   12.3 18.7 0    N   0   0   0   0   0   F   F   Pirate
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+  Claw:    NONE      51   0    0    0    L   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   13.2 18.4 0    N   0   0   0   0   0   F   F   Pirate
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   21.5 18.4 0    N   0   0   0   0   0   F   F   Pirate
+  Claw:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   12.5 37.5 0    N   0   0   0   0   0   F   F   Pirate
+  Claw:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   13.5 37.5 0    N   0   0   0   0   0   F   F   Pirate
+  Claw:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+  Claw:    NONE      51   0    0    0    L   0   0   0   0   0   F   F   Null
+Lumpkin:   NONE      11   14.5 37.5 0    N   0   0   0   0   0   F   F   Pirate
+  Claw:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+
+
+// Elite goblins
+Leader:    NONE      11   15.8 14.3 0    N   0   2   0   0   0   F   F   Pirate
+  Gonne:   NONE      10   0    0    0    L   0   0   0   0   0   F   F   Null
+  Claw:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+Leader:    NONE      11   17.7 14.2 0    N   0   2   0   0   0   F   F   Pirate
+  Gonne:   NONE      10   0    0    0    L   0   0   0   0   0   F   F   Null
+Gonner:    NONE      11   11.2 37.8 2    N   0   1   0   0   0   F   F   Pirate
+  Claw:    NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+Gatlin:    NONE      52   11.2 37.8 0    W   0   0   0   0   0   F   F   Null
+
+
+
+// Toys
+BEARTRAP:  NONE      13   11.4 26.4 0    E   0   0   0   0   0   F   F   Null
+BEARTRAP:  NONE      13   12.2 25.7 0    S   0   0   0   0   0   F   F   Null
+BEARTRAP:  NONE      13   11.8 26.2 0    W   0   0   0   0   0   F   F   Null
+BEARTRAP:  NONE      13   21.3 26.2 0    E   0   0   0   0   0   F   F   Null
+BEARTRAP:  NONE      13   21.8 27.0 0    S   0   0   0   0   0   F   F   Null
+BEARTRAP:  NONE      13   22.5 26.4 0    N   0   0   0   0   0   F   F   Null
+
+
+
+// Extras
+Stair:     NONE      53   12.0 34.0 0    N   0   0   0   0   0   F   F   Null
+Stair:     NONE      53   22.0 17.95 0   S   0   0   0   0   0   F   F   Null
+Crate:     NONE      39   15.3 27.3 0    N   0   0   0   0   0   F   F   Null
+Crate:     NONE      39   18.3 27.7 0    N   0   1   0   0   0   F   F   Null
+Crate:     NONE      39   18.5 33.7 0    N   0   2   0   0   0   F   F   Null
+LStack:    NONE      54   13.5 13.5 0    N   0   0   0   0   0   F   F   Null
+RStack:    NONE      54   20.5 13.5 0    N   0   0   0   0   0   F   F   Null
+Wheel:     NONE      55   17.0 14.5 0    S   0   0   0   0   0   F   F   Null

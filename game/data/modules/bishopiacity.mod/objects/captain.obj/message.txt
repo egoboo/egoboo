@@ -1,0 +1,10 @@
+Message 0: %t_killed_the_%c...
+Message 1: A_NEW_MODULE_HAS_BEEN_UNLOCKED
+Message 2: We_don't_need_low_level_adventurers_here...
+Message 3: Sorry,_we_don't_need_a_Hero_right_now.
+Message 4: Praise_Aaron!_A_hero_in_our_time_of_need!
+Message 5: The_prisoners_have_rioted_and_escaped!_Chaos_reigns
+Message 6: within_the_tower!_Kill_their_leader_Bargel_and_bring
+Message 7: back_some_proof!
+Message 8: __%t_gained_a_permanent_life_point!
+Message 9: It_is_done!_Praise_Aaron!

@@ -1,0 +1,162 @@
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+
+#dependency Elf       0
+#dependency JiiveElf  33
+#dependency RockOpen  48    //For destroyed stone idols
+
+
+PLAYER:   NONE    0  33.0   32.5   0.0   N    0   0  0   0   0   T   F   G
+  Morph:   NONE    31  32.5   32.5   1.0   L    0   0  0   0   0   F   F   N
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+Pot:       NONE    20  32.5   32.5   1.0   E    0   0  0   0   0   F   F   N
+  
+lumpkin:   NONE    30  47.5   30.5   1.0   N    0   0  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+lumpkin:   NONE    30  46.5   33.5   1.0   N    0   1  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+lumpkin:   NONE    30  46.5   31.5   1.0   N    0   2  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Torch:   NONE    46  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+lumpkin:   NONE    30  42.5   38.5   0.0   N    0   3  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+lumpkin:   NONE    30  45.5   31.0   0.0   E    0   0  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+lumpkin:   NONE    30  45.5   31.0   0.0   E    0   0  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+crab:   NONE    79  12.5   26.0   0.0   W    0   0  0   0   0   F   F   E
+crab:   NONE    79  13.5   29.0   0.0   E    0   0  0   0   0   F   F   E
+crab:   NONE    79  13.0   29.5   0.0   S    0   0  0   0   0   F   F   E
+crab:   NONE    79  12.6   32.5   0.0   N    0   0  0   0   0   F   F   E
+crab:   NONE    79  13.6   33.0   0.0   W    0   0  0   0   0   F   F   E
+crab:   NONE    79  13.0   38.0   0.0   E    0   0  0   0   0   F   F   E
+crab:   NONE    79  13.5   13.5   1.0   S    0   0  0   0   0   F   F   E
+crab:   NONE    79  13.5   50.0   0.0   N    0   0  0   0   0   F   F   E
+crab:   NONE    79  39.5   49.5   1.0   W    0   0  0   0   0   F   F   E
+crab:   NONE    79  42.5   12.5   1.0   E    0   0  0   0   0   F   F   E
+
+Tent:   NONE    10  34.5   32.5   0.0   N    0   0  0   0   0   F   F   E
+  %RANDOM_POTION:   NONE    38  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Tent:   NONE    10  33.5   30.5   0.0   S    0   1  0   0   0   F   F   E
+  Mallet:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Tent:   NONE    10  38.5   29.5   0.0   E    0   0  0   0   0   F   F   E
+Tent:   NONE    10  39.5   35.5   0.0   W    0   1  0   0   0   F   F   E
+  protect:   NONE    39  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Tent:   NONE    10  29.5   37.5   0.0   E    0   0  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Tent:   NONE    10  35.5   30.5   0.0   W    0   1  0   0   0   F   F   E
+Tent:   NONE    10  36.5   32.5   0.0   N    5   0  0   0   0   F   F   E
+Tent:   NONE    10  34.5   26.5   0.0   N    0   1  0   0   0   F   F   E
+  Torch:   NONE    46  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Tent:   NONE    10  30.5   25.5   0.0   S    0   1  0   0   0   F   F   E
+Tent:   NONE    10  29.5   33.5   0.0   W    0   0  0   0   0   F   F   E
+Tent:   NONE    10  27.5   25.5   0.0   E    4   1  0   0   0   F   F   E
+rockhead:   NONE    47  17.5   31.5   0.0   E    0   0  0   48   0   F   F   E
+  faerie1:   NONE    74  0.0   0.0   0.0   I    0   0  0   0   0   F   F   G
+  faerie2:   NONE    75  0.0   0.0   0.0   I    0   0  0   0   1   F   F   G
+brazier:   NONE    77  17.5   30.5   0.0   E    0   0  0   2   0   F   F   N
+brazier:   NONE    77  17.5   32.5   0.0   E    0   0  0   2   0   F   F   N
+
+ring:   NONE    104  58.5   6.5   1.0   N    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    30  19.5   31.5   3.0   N    0   0  0   0   0   F   F   E
+  gonne:   NONE    42  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+chest:   NONE    40  35.5   43.5   1.0   N    0   0  0   0   0   F   F   N
+  LBow:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Light:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+brazier:   NONE    77  33.5   43.5   1.0   N    0   0  0   1   0   F   F   N
+
+lumpkin:   NONE    30  34.5   42.5   1.0   N    0   0  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+lumpkin:   NONE    30  34.0   21.0   1.0   N    0   0  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Torch:   NONE    46  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+spit:   NONE    41  32.0   28.0   1.0   N    0   0  0   0   0   F   F   N
+spit:   NONE    41  34.5   41.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  55.0   35.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  53.0   41.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  57.0   38.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  54.0   27.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  59.0   23.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  62.0   27.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  57.0   24.0   2.0   N    0   0  0   0   0   F   F   N
+mosquito:   NONE    37  58.5   50.5   1.0   N    0   0  0   0   0   F   F   W
+mosquito:   NONE    37  59.5   50.5   1.0   N    0   0  0   0   0   F   F   W
+mosquito:   NONE    37  59.5   51.5   1.0   N    0   0  0   0   0   F   F   W
+Tree:   NONE    43  5.0   12.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  11.0   6.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  3.5   1.5   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  9.0   10.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  6.0   3.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  8.0   19.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  4.0   26.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  7.0   32.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  3.0   38.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  7.0   43.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  8.5   50.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  4.0   52.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  7.5   53.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  8.0   62.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  2.0   59.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  10.0   58.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  23.0   57.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  31.0   56.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  28.0   61.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  39.0   55.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  42.0   60.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  50.0   56.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  55.5   60.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  57.5   53.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  61.0   48.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  56.0   46.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  59.0   15.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  56.0   18.0   2.0   N    0   0  0   0   0   F   F   N
+spit:   NONE    41  5.5   57.5   2.0   N    0   0  0   0   0   F   F   N
+Tent:   NONE    10  4.5   59.5   2.0   N    0   1  0   0   0   F   F   E
+  BearTrap:   NONE    44  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  BearTrap:   NONE    44  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Tent:   NONE    10  6.5   55.5   2.0   E    4   0  0   0   0   F   F   E
+Tree:   NONE    43  61.5   3.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  60.5   9.5   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  53.5   8.5   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  55.5   1.5   1.0   N    0   0  0   0   0   F   F   N
+
+lumpkin:   NONE    30  4.5   56.5   2.0   N    0   0  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+lumpkin:   NONE    30  7.5   58.5   1.0   N    0   2  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+lumpkin:   NONE    30  3.5   58.5   2.0   N    0   1  0   0   0   F   F   E
+  claw:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+mosquito:   NONE    37  5.5   5.5   2.0   N    0   0  0   0   0   F   F   B
+mosquito:   NONE    37  6.5   4.5   2.0   N    0   0  0   0   0   F   F   B
+mosquito:   NONE    37  6.5   5.5   2.0   N    0   0  0   0   0   F   F   B
+mosquito:   NONE    37  4.5   5.5   2.0   N    0   0  0   0   0   F   F   B
+mosquito:   NONE    37  4.5   4.5   2.0   N    0   0  0   0   0   F   F   B
+mosquito:   NONE    37  5.5   4.5   2.0   N    0   0  0   0   0   F   F   B
+BearTrap:   NONE    44  50.0   60.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  19.0   3.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  24.0   7.0   2.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  29.0   4.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  31.0   6.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  37.0   5.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  48.0   9.0   1.0   N    0   0  0   0   0   F   F   N
+grave:   NONE    45  35.5   58.5   1.0   N    0   0  0   0   0   F   F   E
+Tree:   NONE    43  35.0   53.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  35.0   61.0   1.0   N    0   0  0   0   0   F   F   N
+Tree:   NONE    43  39.0   59.0   1.0   N    0   0  0   0   0   F   F   N
+BearTrap:   NONE    44  5.0   51.0   2.0   N    0   0  0   0   0   F   F   N
+BearTrap:   NONE    44  39.5   4.5   1.0   N    0   0  0   0   0   F   F   N
+BearTrap:   NONE    44  10.0   53.0   1.0   N    0   0  0   0   0   F   F   N
+BearTrap:   NONE    44  10.0   62.0   1.0   N    0   0  0   0   0   F   F   N
+lamb:   NONE    53  23.0   3.0   1.0   N    0   0  0   0   0   F   F   N
+lamb:   NONE    53  21.0   4.0   1.0   N    0   0  0   0   0   F   F   N
+lamb:   NONE    53  3.5   22.5   1.0   N    0   0  0   0   0   F   F   N
+BearTrap:   NONE    44  10.0   55.0   1.0   N    0   0  0   0   0   F   F   N
+
+exitarea:   NONE    110  58.5   6.5   1.0   N    0   0  0   0   0   F   F   N

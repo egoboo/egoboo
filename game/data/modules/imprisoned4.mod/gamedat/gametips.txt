@@ -1,0 +1,8 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Bombs_can_be_combined_with_Bear_Traps_make_something_truly_deadly.
+Tip 1: Use_the_Skull_Trap_spell_to_create_a_deadly_fiery_trap.
+Tip 2: Use_the_Icicle_spell_to_create_a_deadly_icy_trap.
+Tip 3: Use_time_between_waves_to_prepeare_for_the_next_one.
+Tip 4: You_cannot_heal_the_portal_once_it_is_damaged.
+Tip 5: Use_caltrops_to_slow_and_damage_enemies.
+Tip 6: Use_the_well_to_heal_life_and_mana_between_fights.

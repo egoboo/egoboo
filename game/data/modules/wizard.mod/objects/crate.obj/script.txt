@@ -1,0 +1,6 @@
+// Setup
+IfSpawned
+  SetTurnModeToWatchTarget
+  SetTargetToSelf
+
+End

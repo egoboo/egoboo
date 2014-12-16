@@ -1,0 +1,26 @@
+// Randomize wrapping and contents
+IfSpawned
+  tmpargument = rand % 3
+  ChangeArmor
+
+// Allow it to be opened
+IfUsed
+  SetTargetToSelf
+  tmpargument = 200 + targetarmor
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactCharacterXYZ
+
+  // Finish up
+  SetTargetToWhoeverIsHolding
+  tmpargument = 0
+  SendMessage
+  PlaySound
+  tmpargument = 50
+  SetTargetReloadTime
+
+  // no longer needed
+  GoPoof
+
+End

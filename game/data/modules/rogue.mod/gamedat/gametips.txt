@@ -1,0 +1,9 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Attacking_sleeping_enemies_will_kill_them_instantly.
+Tip 1: On_level_2,_you_gain_stealth_which_allows_you_to_hide_when_not_moving.
+Tip 2: Attack_enemies_from_behind_to_backstab_them_for_bonus_damage.
+Tip 3: Gather_enough_treasure_to_unlock_a_bonus_level!
+Tip 4: If_you_rescue_K'nife,_you_will_unlock_a_bonus_level!
+Tip 5: You_can_pick_up_the_iron_ball_you_are_attached_to.
+Tip 6: Crush_the_Iron_Ball_in_a_door.
+Tip 7: Rogues_can_use_poisoned_weapons_without_poisoning_themselves.

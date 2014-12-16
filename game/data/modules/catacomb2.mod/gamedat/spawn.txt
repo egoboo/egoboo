@@ -1,0 +1,242 @@
+#dependency Zombi         52
+
+//--------------------------------------------------------------------------------------------
+//         Name    Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+PlayerAtBoss   NONE    0  	69.5   58.5   0.0   N    0   0  0   0   0   T   F   G
+PLAYER1:   NONE    0  	4.5   38.5   0.0   N    0   0  0   0   0   T   F   G
+  unknown:   NONE    1  	0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    2  	0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    3  	0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    4  	0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    5  	0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    6 	0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    7 	0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    8 	0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER2:   NONE    9  	4.5   39.5   0.0   N    0   0  0   0   0   T   F   G
+  unknown:   NONE    10  	0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    11  	0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    12   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    13   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    14   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    15   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    16   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    17   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER3:   NONE    18   5.5   38.5   0.0   N    0   0  0   0   0   T   F   G
+  unknown:   NONE    19   0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    26   0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER4:   NONE    27   5.5   39.5   0.0   N    0   0  0   0   0   T   F   G
+  unknown:   NONE    28   0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+//--------------------------------------------------------------------------------------------
+
+stairs:    NONE    45  	5.0   	38.0  	0.0   	N    	0   	1  	0   	0   	0   	F   	F   	N
+moduletool: NONE   100 	5.5 	38.0 	3.0 	N 	0 	0 	0 	0 	0 	F 	F 	N
+
+//Warlock place
+catacomb2gate:   NONE    43  28.0   52.5   1.0   N    0   0  46   3   0   F   F   N
+catacomb2gate:   NONE    43  28.0   54.5   1.0   N    0   0  46   2   0   F   F   N
+catacomb2gate:   NONE    43  28.0   56.5   1.0   N    0   0  46   1   0   F   F   N
+brazier:   NONE    51  31.5   68.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    51  31.5   58.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    51  24.5   58.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    51  24.5   68.5   1.0   N    0   0  0   0   0   F   F   N
+warlock:   NONE    54  29.5   61.5   1.0   N    58   0  0   55183   3   F   F   E
+  BattleWard:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  fireball:   NONE    57  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+warlock:   NONE    54  28.5   65.5   1.0   N    32   0  0   32976   4   F   F   E
+  bstaff:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  BattleWard:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+warlock:   NONE    54  26.5   63.5   1.0   N    39   0  0   55183   3   F   F   E
+  BattleWard:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Orbstorm:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+bookstand:   NONE    53  26.5   65.5   1.0   N    0   0  0   0   0   F   F   N
+  %RANDOM_ARCANE_SPELLBOOK:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+bookstand:   NONE    53  29.5   65.5   1.0   N    0   0  0   0   0   F   F   N
+bookshelf:   NONE    50  25.3   60.0   1.0   E    0   0  0   0   0   F   F   N
+  %RANDOM_ARCANE_SPELLBOOK:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+bookshelf:   NONE    50  30.8   60.0   1.0   W    0   0  0   0   0   F   F   N
+bookshelf:   NONE    50  30.8   64.0   1.0   W    0   0  0   0   0   F   F   N
+bookshelf:   NONE    50  25.3   64.0   1.0   E    0   0  0   0   0   F   F   N
+bookshelf:   NONE    50  31.8   62.0   1.0   W    0   0  0   0   0   F   F   N
+bookshelf:   NONE    50  24.3   62.0   1.0   E    0   0  0   0   0   F   F   N
+keyb:   NONE    77  28.0   67.0   1.0   N    0   0  0   0   0   F   F   N
+
+choco:   NONE    41  5.0   74.0   1.0   N    0   0  0   0   0   F   F   N
+ghoul:   NONE    42  7.0   74.0   1.0   N    3   0  0   0   0   F   F   E
+ghoul:   NONE    42  5.0   76.0   1.0   N    0   0  0   0   0   F   F   E
+ghoul:   NONE    42  5.0   72.0   1.0   N    2   0  0   0   0   F   F   E
+chest:   NONE    46  6.5   27.0   1.0   E    0   0  0   1   0   F   F   N       //Locked
+  %MAGIC_ITEM:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %SILVER_WEAPON:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+KeyC:   NONE    44  36.5   6.5   1.0   N    0   0  0   0   0   F   F   N
+KeyC:   NONE    44  47.5   17.5   1.0   N    0   0  0   0   0   F   F   N
+KeyC:   NONE    44  58.5   42.0   1.0   N    0   0  0   0   0   F   F   N
+chest:   NONE    46  13.5   64.0   1.0   W    0   0  0   1   0   F   F   N        //Locked
+  %MAGIC_ITEM:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+butcher:   NONE    48  8.5   48.5   1.0   N    12   0  0   0   0   F   F   E
+  butcheraxe:   NONE    36  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+butcher:   NONE    48  10.5   49.5   1.0   N    14   0  0   0   0   F   F   E
+  butcheraxe:   NONE    36  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+//Random bat room
+Bat:   NONE    37  8.0   12.0   1.0   N    0   1  0   0   0   F   F   E
+Bat:   NONE    37  11.0   11.0   1.0   S    0   1  0   0   0   F   F   E
+Bat:   NONE    37  10.0   14.0   1.0   S    0   1  0   0   0   F   F   E
+Bat:   NONE    37  13.0   14.0   1.0   N    0   1  0   0   0   F   F   E
+Bat:   NONE    37  8.0   16.0   1.0   E    0   1  0   0   0   F   F   E
+Bat:   NONE    37  10.0   12.0   1.0   W    0   1  0   0   0   F   F   E
+
+ghost:   NONE    47  7.0   27.0   1.0   E    0   0  0   0   0   F   F   E
+vampyre:   NONE    39  39.0   15.0   1.0   N    41   0  0   0   0   F   F   U
+vampyre:   NONE    39  36.0   15.0   1.0   N    51   0  0   0   0   F   F   U
+vampyre:   NONE    39  37.0   17.0   1.0   N    42   0  0   0   0   F   F   U
+vampyre:   NONE    39  39.5   74.5   1.0   N    12   0  0   0   0   F   F   V
+SpkMace:   NONE    55  8.0   13.0   1.0   N    0   0  0   0   0   F   F   N
+%RANDOM_POTION:   NONE    -1  11.0   14.0   1.0   N    0   0  0   0   0   F   F   N
+%RANDOM_POTION:   NONE    -1  9.0   11.0   1.0   N    0   0  0   0   0   F   F   N
+shutdoor:   NONE    49  29.0   32.0   1.0   S    0   0  12   0   0   F   F   N
+shutdoor:   NONE    49  24.0   14.0   1.0   W    0   0  2   0   0   F   F   N
+shutdoor:   NONE    49  24.0   39.0   1.0   W    0   0  4   0   0   F   F   N
+shutdoor:   NONE    49  35.0   39.0   1.0   W    0   0  6   0   0   F   F   N
+shutdoor:   NONE    49  33.0   28.0   1.0   W    0   0  8   0   0   F   F   N
+shutdoor:   NONE    49  33.0   16.0   1.0   W    0   0  10   0   0   F   F   N
+shutdoor:   NONE    49  38.0   23.0   1.0   S    0   0  20   0   0   F   F   N
+shutdoor:   NONE    49  38.0   11.0   1.0   S    0   0  22   0   0   F   F   N
+shutdoor:   NONE    49  43.0   17.0   1.0   W    0   0  14   0   0   F   F   N
+shutdoor:   NONE    49  43.0   30.0   1.0   W    0   0  16   0   0   F   F   N
+shutdoor:   NONE    49  44.0   42.0   1.0   W    0   0  18   0   0   F   F   N
+pchest:   NONE    63  38.0   29.0   1.0   N    0   0  0   0   0   F   F   N
+  claw:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  powpotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+ulna:   NONE    59  37.0   52.0   1.0   N    24   0  0   0   0   F   F   E
+  claw:   NONE    68  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+ulna:   NONE    59  39.0   50.0   1.0   N    2   0  0   0   0   F   F   E
+  Hatchet:   NONE    69  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+ulna:   NONE    59  39.0   53.0   1.0   N    21   0  0   0   6   F   F   E
+  Hatchet:   NONE    69  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+ulna:   NONE    59  41.0   52.0   1.0   N    34   0  0   1   0   F   F   E		//Thrower
+varguile:   NONE    80  28.5   26.5   1.0   N    0   0  0   0   0   F   F   E
+  varwing:   NONE    81  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+Bat:   NONE    37  29.0   12.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    37  27.0   14.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    37  29.0   15.0   1.0   N    0   2  0   0   0   F   F   B
+zombi:   NONE    52  39.0   39.0   1.0   N    0   0  0   0   0   F   F   E
+zombi:   NONE    52  40.0   41.0   1.0   N    0   0  0   0   0   F   F   E
+switch:   NONE    64  28.0   49.5   1.0   N    0   0  0   0   0   F   F   N
+switch:   NONE    64  28.0   74.5   1.0   N    0   0  0   0   0   F   F   N
+silxbow:   NONE    65  12.0   11.0   1.0   N    0   0  0   0   0   F   F   N
+pchest:   NONE    63  40.5   77.5   1.0   N    99   0  0   0   0   F   F   N
+ghost:   NONE    47  47.0   8.0   1.0   E    0   0  0   0   0   F   F   E
+ghost:   NONE    47  48.0   5.0   1.0   N    0   0  0   0   0   F   F   E
+ghost:   NONE    47  49.0   7.0   1.0   S    0   0  0   0   0   F   F   E
+varguile:   NONE    80  56.0   21.0   1.0   N    0   0  0   0   0   F   F   E
+  varwing:   NONE    81  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+ulna:   NONE    59  58.0   19.0   1.0   N    1   0  0   0   0   F   F   E
+  SpkMace:   NONE    55  0.0   0.0   0.0   R    2   0  0   0   0   F   F   N
+ghoul:   NONE    42  56.0   22.0   1.0   N    0   0  0   0   0   F   F   E
+zombi:   NONE    52  58.0   21.0   1.0   N    0   0  0   0   0   F   F   E
+butcher:   NONE    48  28.5   77.5   1.0   N    19   0  0   0   0   F   F   E
+  butcheraxe:   NONE    36  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+butcher:   NONE    48  15.0   75.0   1.0   N    14   0  0   0   0   F   F   E
+  butcheraxe:   NONE    36  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+zombi:   NONE    52  17.0   76.0   1.0   N    0   0  0   0   0   F   F   E
+zombi:   NONE    52  14.0   77.0   1.0   N    0   0  0   0   0   F   F   E
+Hatchet:   NONE    69  30.0   37.0   1.0   N    0   0  0   0   0   F   F   N
+claw:   NONE    68  28.0   40.0   1.0   N    0   0  0   0   0   F   F   N
+Hatchet:   NONE    69  38.0   40.0   1.0   E    0   0  0   0   0   F   F   N
+switch:   NONE    64  38.5   63.0   1.0   N    0   0  0   0   0   F   F   N
+claw:   NONE    68  15.0   77.0   1.0   N    1   0  0   0   0   F   F   N
+body:   NONE    75  42.0   62.0   1.0   E    0   0  0   0   0   F   F   N
+body:   NONE    75  40.0   64.0   1.0   W    0   0  0   0   0   F   F   N
+body:   NONE    75  39.0   61.0   1.0   N    2   0  0   0   0   F   F   N
+body:   NONE    75  43.0   64.0   1.0   S    0   0  0   0   0   F   F   N
+body:   NONE    75  27.0   36.0   1.0   N    0   0  0   0   0   F   F   N
+body:   NONE    75  28.0   40.0   1.0   E    3   0  0   0   0   F   F   N
+body:   NONE    75  30.0   40.0   1.0   S    0   0  0   0   0   F   F   N
+body:   NONE    75  31.0   37.0   1.0   W    1   0  0   0   0   F   F   N
+shutdoor:   NONE    49  54.0   42.0   1.0   W    0   0  26   0   0   F   F   N
+shutdoor:   NONE    49  52.0   30.0   1.0   E    0   0  28   0   0   F   F   N
+shutdoor:   NONE    49  47.0   24.0   1.0   S    0   0  30   0   0   F   F   N
+shutdoor:   NONE    49  52.0   19.0   1.0   W    0   0  34   0   0   F   F   N
+shutdoor:   NONE    49  48.0   12.0   1.0   N    0   0  32   0   0   F   F   N
+shutdoor:   NONE    49  53.0   8.0   1.0   W    0   0  36   0   0   F   F   N
+shutdoor:   NONE    49  44.0   6.0   1.0   W    0   0  24   0   0   F   F   N
+shutdoor:   NONE    49  58.0   36.0   1.0   S    0   0  38   0   0   F   F   N
+shutdoor:   NONE    49  62.0   21.0   1.0   W    0   0  40   0   0   F   F   N
+shutdoor:   NONE    49  61.0   10.0   1.0   W    0   0  42   0   0   F   F   N
+shutdoor:   NONE    49  65.0   15.0   1.0   N    0   0  44   0   0   F   F   N
+shutdoor:   NONE    49  24.0   27.0   1.0   W    0   0  0   0   0   F   F   N
+
+//The zombi room
+body:   NONE    75  74.0   37.0   1.0   ?    1   0  0   0   0   F   F   E
+body:   NONE    75  75.3   37.0   1.0   ?    2   0  0   0   0   F   F   E
+body:   NONE    75  74.3   34.3   1.0   ?    0   0  0   0   0   F   F   E
+body:   NONE    75  76.3   35.0   1.0   ?    3   0  0   0   0   F   F   E
+body:   NONE    75  77.3   37.5   1.0   ?    0   0  0   0   0   F   F   E
+body:   NONE    75  74.0   36.0   1.0   ?    5   0  0   0   0   F   F   E
+body:   NONE    75  77.5   34.5   1.0   ?    0   0  0   0   0   F   F   E
+body:   NONE    75  75.5   36.5   1.0   ?    4   0  0   0   0   F   F   E
+body:   NONE    75  77.0   36.0   1.0   ?    0   0  0   0   0   F   F   E
+body:   NONE    75  76.0   36.0   1.0   ?    6   0  0   0   0   F   F   E
+body:   NONE    75  76.5   37.5   1.0   ?    0   0  0   0   0   F   F   E
+body:   NONE    75  75.0   35.0   1.0   ?    7   0  0   0   0   F   F   E
+hrune:   NONE    121  78.0   36.0   0.0   ?    0   0  0   0   0   F   F   N
+
+//Key room
+trigtile:   NONE    72  59.5   40.5   1.0   N    0   0  47   0   0   F   F   E
+trigtile:   NONE    72  57.5   40.5   1.0   N    0   0  47   0   0   F   F   E
+trigtile:   NONE    72  57.5   43.5   1.0   N    0   0  47   0   0   F   F   E
+trigtile:   NONE    72  59.5   43.5   1.0   N    0   0  47   0   0   F   F   E
+
+//From key room
+trigtile:   NONE    72  56.0   29.0   1.0   N    0   0  48   0   0   F   F   E
+trigtile:   NONE    72  59.0   30.0   1.0   N    0   0  48   0   0   F   F   E
+trigtile:   NONE    72  57.5   31.5   1.0   N    0   0  48   0   0   F   F   E
+
+choco:   NONE    41  64.5   8.5   1.0   N    0   0  0   0   0   F   F   N
+spikedtrap:   NONE    73  18.0   51.0   0.0   E    0   0  0   0   0   F   F   N
+spikedtrap:   NONE    73  21.0   51.0   0.0   W    0   0  0   0   0   F   F   N
+chest:   NONE    46  57.0   11.5   1.0   N    39   0  0   9   0   F   F   N   //Locked with secret bottom
+  AmmoBox:   NONE    79  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  powpotion:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Last corridor
+vampyre:   NONE    39  50.0   58.0   1.0   N    19   0  0   0   0   F   F   W
+vampyre:   NONE    39  50.0   58.0   1.0   N    14   0  0   0   0   F   F   W
+spikedtrap:   NONE    73  55.8   52.0   1.0   W    0   0  0   0   0   F   F   N
+spikedtrap:   NONE    73  54.0   51.8   1.0   E    0   0  0   0   0   F   F   N
+spikedtrap:   NONE    73  52.0   51.8   1.0   W    0   0  0   0   0   F   F   N
+spikedtrap:   NONE    73  50.3   51.5   1.0   E    0   0  0   0   0   F   F   N
+shutdoor:   NONE    49  45.0   52.0   1.0   E    0   0  49   0   0   F   F   N
+
+//Boss room guardians
+ghoul:   NONE    42  70.0   52.0   1.0   E    0   0  0   0   0   F   F   E
+ghoul:   NONE    42  67.0   54.0   1.0   W    0   0  0   0   0   F   F   E
+wright:   NONE    62  68.0   50.0   1.0   N    0   0  0   0   0   F   F   E
+ghost:   NONE    47  71.0   50.0   1.0   S    0   0  0   0   0   F   F   E
+
+//Last boss room
+bossdoor:   NONE    76  69.0   58.0   1.0   N    0   0  51   0   0   F   F   N
+skulton:   NONE    74  69.0   69.0   1.0   N    99   0  0   0   0   F   F   L
+  Hatchet:   NONE    69  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+ulna:   NONE    59  70.0   66.0   1.0   N    13   0  0   0   0   F   F   L
+  claw:   NONE    68  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ulna:   NONE    59  66.0   65.0   1.0   N    11   0  0   1   0   F   F   L		//Thrower
+ulna:   NONE    59  71.0   69.0   1.0   N    12   0  0   0   0   F   F   L
+  Hatchet:   NONE    69  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ulna:   NONE    59  69.0   63.0   1.0   N    5   0  0   1   0   F   F   L		//Thrower

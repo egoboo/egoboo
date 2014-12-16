@@ -1,0 +1,8 @@
+Message 0: %t_found_a_%c!
+Message 1: The_%c_was_crushed_into_dust!
+Message 2: %t_identified_the_gem._It_is_a_Bludstone_gem!
+Message 3: %t_grabbed_a_%c.
+Message 4: %t_cannot_use_this...
+Message 5: This_is_a_Bludstone_Gem._Used_as_a_ingredient...
+Message 6: What_a_nice_shiny_gem!
+

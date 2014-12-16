@@ -1,0 +1,26 @@
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+
+0 FirstDoor:        22   38     23     39     F    F    F
+1 FirstDoorOpen:    22   37     23     38     T    T    F
+2 SecondDoor:       27   47     28     48     F    F    F
+3 SecondDoorOpen:   27   46     28     47     T    T    F
+4 ToTreasure:       41   52     42     53     F    F    F
+5 ToTreasureOpen:   40   52     41     53     T    T    F
+6 FromTreasure:     41   43     42     44     F    F    F
+7 FromTreasureOpen: 42   43     43     44     T    T    F
+8 ToBossDoor:       43   15     44     16     F    F    F
+9 ToBossDoorOpen:   43   16     44     17     T    T    F
+10 BossDoor:        34   16     35     17     F    F    F
+11 BossDoorOpen:    34   15     35     16     T    T    F
+12 BackToStart:     22   26     23     27     F    F    F
+13 BackToStartOpen: 22   25     23     26     T    T    F
+
+
+
+
+
+
+
+
+
+

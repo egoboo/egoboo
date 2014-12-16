@@ -1,0 +1,20 @@
+This one is an interesting idea I had, inspired by the various lizard monsters and the mounting system in Nethack/SLASH'EM.
+This model and skin set is intended to be used for reptilian pets, mounts, and monsters.
+Based on the Gnewt from the old Zippy project.
+
+- Adjusted model 
+- Animations 
+- Additional skins (armor, new hues) 
+By Ben Weiss A.k.a Cimeries/Chainsaw
+
+- Original Gnewt model
+- First skin
+By ???
+
+armor.bmp provided for ease of editing (If you make a skin you can slap it on to create an "armored" version of your new skin.)
+The armor is intended for mounts (there's a saddle on the salamander's back), but I was also thinking of allowing players to purchase armor for their pet lizards.
+
+Todo:
+- Create a smooth walking animation
+- Scripting and data
+- Create a pet armor shop event/object

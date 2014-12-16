@@ -1,0 +1,10 @@
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  tmpargument = 0
+  SendMessageNear
+
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+End

@@ -1,0 +1,10 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: You_will_need_a_Book_of_Unlock
+Tip 1: You_will_need_a_Book_of_Missile
+Tip 2: You_will_need_a_Book_of_Disenchant
+Tip 3: You_will_need_a_Book_of_Truesight
+Tip 4: You_will_need_a_Book_of_Protect.
+Tip 5: Archmagic_is_the_most_powerful_magic_in_the_world_of_Lorule.
+Tip 6: Even_the_gods_fear_Archmagic.
+Tip 7: Transformation_to_an_Archmage_is_permanent_and_cannot_be_undone.
+Tip 8: Only_the_most_skilled_wizard_can_ever_dream_of_becoming_an_Archmage.

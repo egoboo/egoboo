@@ -1,0 +1,15 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+
+00 GhoulDetect: 36 50      38 52          T       T             F
+01 GhoulSpawn:  34 49      38 56          T       T             F
+02 Deadfalltrap: 26 40      28 41          T       T             F
+03 Deadfalltrap2: 42 11      44 13          T       T             F
+04 VampireDoor: 13 52      17 53          F       T             F
+05 BatDoor: 53 22      54 24          F       T             F
+06 BossDoor: 53 36      54 38          F       F             F
+//07 BossKey1: 55 32      56 33          T       T             F
+//08 BossKey2: 51 32      52 33          T       T             F
+

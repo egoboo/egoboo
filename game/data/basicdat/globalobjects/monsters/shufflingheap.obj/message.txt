@@ -1,0 +1,4 @@
+Message 0: %t_popped_a_%c.
+Message 1: %c_did_not_find_the_way_home...
+Message 2: %t_was_paralysed!
+Message 3: %t_backstabbed_the_%c!

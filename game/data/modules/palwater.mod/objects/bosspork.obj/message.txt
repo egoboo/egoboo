@@ -1,0 +1,5 @@
+Message 0: %t_found_the_Silver_%c!
+Message 1: At_long_last,_the_%c_has_been_found!__Perhaps_the_combined_strength
+Message 2: _of_all_five_Sporks_of_Yore_will_be_enough_to_save_Lord_Bishop,
+Message 3: _but_you'd_better_hurry...__Time_is_running_out!__(Not_really,
+Message 4: _it_just_sounds_good)

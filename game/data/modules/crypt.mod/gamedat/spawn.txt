@@ -1,0 +1,169 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+#dependency RockOpen  48    //For destroyed stone idols
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+HeroAtBoss NONE      0    47.5 10.5 0.0  N   0   0   0   0   0   T   F   Good
+Hero 00:   NONE      0    35.0 55.5 0.0  N   0   0   0   0   0   T   F   Good
+  Hero 01: NONE      1    0    0    0    L   0   0   0   0   0   F   F   Null
+  Hero 02: NONE      2    0    0    0    R   0   0   0   0   0   F   F   Null
+  Hero 03: NONE      3    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 04: NONE      4    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 05: NONE      5    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 06: NONE      6    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 07: NONE      7    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 08: NONE      8    0    0    0    I   0   0   0   0   0   F   F   Null
+
+Hero 09:   NONE      9    36.0 55.5 0.0  N   0   0   0   0   0   T   F   Good
+  Hero 10: NONE     10    0    0    0    L   0   0   0   0   0   F   F   Null
+  Hero 11: NONE     11    0    0    0    R   0   0   0   0   0   F   F   Null
+  Hero 12: NONE     12    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 13: NONE     13    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 14: NONE     14    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 15: NONE     15    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 16: NONE     16    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 17: NONE     17    0    0    0    I   0   0   0   0   0   F   F   Null
+
+//1st room stuff
+Chest:    NONE      53   34   55.5 0.0  N   0   0   0   0   0   F   F   Null
+  Lamp:    NONE      18   0    0    0.0  I   0   0   0   0   0   F   F   Null
+  OilFlask:   NONE      20   0    0    0.0  I   0   0   0   0   0   F   F   Null
+Chest:    NONE      53   38   55.5 0.0  N   0   0   0   0   0   F   F   Null
+  Mace:    NONE      49   0    0    0.0  I   0   0   0   0   0   F   F   Null
+  %NORMAL_TREASURE: NONE      -1   0    0    0.0  I   0   0   0   0   0   F   F   Null
+Gatelite:  NONE      45   36.0 56.5 0.0  N   0   0   0   0   0   F   F   Null
+
+Blob:      NONE      91   36.5 52.5 0.0  S   0   0   0   0   0   F   F   Evil
+
+RockHead:  NONE      47   37.5 29.5 0.0  S   0   0   0   48  0   F   F   Evil
+  %RANDOM_SCROLL: NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+RockHead:  NONE      47   37.5 26.5 0.0  S   0   0   0   48  0   F   F   Evil
+  %RANDOM_POTION: NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+RockHead:  NONE      47   34.5 29.5 0.0  S   0   0   0   48  0   F   F   Evil
+  Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      47   34.5 26.5 0.0  S  49   0   0   48  0   F   F   Evil
+RockHead:  NONE      47   12.5 18.5 0.0  E   0   0   0   48  0   F   F   Evil
+  Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
+  Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      47   12.5 21.5 0.0  E   0   0   0   48  0   F   F   Evil
+  %NORMAL_ITEM: NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+RockHead:  NONE      47   12.5 11.5 0.0  E   0   0   7   48  0   F   F   Evil
+
+Blob:      NONE      91   15.5 19.5 0.0  N   0   0   0   0   0   F   F   Evil
+Blob:      NONE      91   13.5 20.5 0.0  W   0   0   0   0   0   F   F   Evil
+Blob:      NONE      91   14.5 21.5 0.0  E   0   0   0   0   0   F   F   Evil
+
+Wright:    NONE      54   35.5 25.5 0.0  S   0   0   0   0   0   F   F   Evil
+Wright:    NONE      54   34.5 28.5 0.0  W   0   0   0   0   0   F   F   Evil
+Wright:    NONE      54   22.5 20.5 0.0  E   0   0   0   0   0   F   F   Evil
+Wright:    NONE      54   12.5  9.5 0.0  N   0   0   0   0   0   F   F   Evil
+
+Ulna:      NONE      36   15.5  8.5 0.0  N   0   0   0   0   0   F   F   Evil
+  Hatchet: NONE      41   0    0    0    R   0   0   0   0   0   F   F   Null
+Ghuul:     NONE      61   14.5 11.5 0.0  S   0   0   0   0   0   F   F   Evil
+Ulna:      NONE      36   13.5 10.5 0.0  E   0   0   0   0   0   F   F   Evil
+  Scythe:  NONE      39   0    0    0    R   0   0   0   0   0   F   F   Null
+Ulna2:     NONE      36   24.5 12.5 0.0  W   0   0   0   1   0   F   F   Evil
+Ulna:      NONE      36   23.5 18.5 0.0  N   0   0   0   0   0   F   F   Evil
+  Scythe:  NONE      39   0    0    0    R   0   0   0   0   0   F   F   Null
+Ghuul:     NONE      61   14.5 11.5 0.0  S   0   0   0   0   0   F   F   Evil
+Ulna:      NONE      36   14.5 19.5 0.0  S   0   0   0   0   0   F   F   Evil
+  Hatchet: NONE      41   0    0    0    R   0   0   0   0   0   F   F   Null
+Ulna2:     NONE      36   24.5 27.5 0.0  W   0   0   0   1   0   F   F   Evil
+Ulna:      NONE      36   36.5 28.5 0.0  N   0   0   0   0   0   F   F   Evil
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+Ulna2:     NONE      36   33.5 31.5 0.0  W   0   0   0   1   0   F   F   Evil
+Ulna:      NONE      36   35.5 29.5 0.0  E   0   0   0   0   0   F   F   Evil
+  Hatchet: NONE      41   0    0    0    R   0   0   0   0   0   F   F   Null
+Ghuul:     NONE      61   14.5 11.5 0.0  S   0   0   0   0   0   F   F   Evil
+Ulna:      NONE      36   34.5 40.5 0.0  N   0   0   0   0   0   F   F   Evil
+  Hatchet: NONE      41   0    0    0    R   0   0   0   0   0   F   F   Null
+Ulna2:     NONE      36   36.5 42.5 0.0  W   0   0   0   1   0   F   F   Evil
+Ulna:      NONE      36   34.5 43.5 0.0  W   0   0   0   0   0   F   F   Evil
+  Scythe:  NONE      39   0    0    0    R   0   0   0   0   0   F   F   Null
+Ghuul:     NONE      61   14.5 11.5 0.0  S   0   0   0   0   0   F   F   Evil
+Ulna:      NONE      36   22.5 51.5 0.0  S   0   0   0   0   0   F   F   Evil
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+
+IronDoor:  NONE      55   30.0 42.0 0.0  W   0   0   3   0   0   F   F   Null
+IronDoor:  NONE      55   42.0 42.0 0.0  E   0   0   4   0   0   F   F   Null
+LockDoor:  NONE      51   44.0 28.0 0.0  W   0   0   5   0   0   F   F   Null
+IronDoor:  NONE      55   28.0 10.0 0.0  E   0   0   7   0   0   F   F   Null
+
+Brazier:   NONE      77   33.5 39.5 0.0  N   20  0   0   2   0   F   F   Null
+Brazier:   NONE      77   38.5 39.5 0.0  S   20  0   4   0   0   F   F   Null
+Brazier:   NONE      77   40.5 26.5 0.0  E   0   0   3   0   0   F   F   Null
+
+Chest:    NONE      53   34.5 10.5 0.0  W   59  0   0   8   0   F   F   Null      //Secret bottom
+  %RANDOM_POTION: NONE    -1   0    0    0    I   0   0   0   0   0   F   F   Null
+  %RARE_TREASURE:   NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+  %RANDON_ARCANE_SPELLBOOK: NONE -1   0    0    0    I   0   0   0   0   0   F   F   Null
+Chest:    NONE      53   14.5 9.5  0.0  E   0   0   0   2   0   F   F   Null      //Map chest
+
+RockHead:  NONE      47   23.5 52.5 0.0  N   0   0   0   0   0   F   F   Evil
+  SpkMace: NONE      46   0    0    0    I   0   0   0   0   0   F   F   Null
+  Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
+  Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
+
+Chest:    NONE      53   47.5 52.5 0.0  N   0   0   5   0   0   F   F   Null
+  %RANDOM_KURSED: NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+  %RANDOM_SCROLL: NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+  %RANDOM_POTION: NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+  KeyA:    NONE      40   0    0    0    I   0   0   0   0   0   F   F   Null
+
+//Chest Guardian
+Ulna Cap:  NONE      36   47.5 51.5 0    N   15  1   0   0   2   F   F   Evil
+  Scythe:  NONE      39   0    0    0    R   0   0   0   0   0   F   F   Null
+
+Tranch:    NONE      72   23.5  9.5 0.0  S   0   0   0   0   0   F   F   Evil
+Tranch:    NONE      72   25.5 51.5 0.0  N   0   0   0   0   0   F   F   Evil
+Tranch:    NONE      72   24.5 53.5 0.0  E   0   0   0   0   0   F   F   Evil
+
+//Final room props
+Candle:    NONE      99   48   10   0    N   0   0   0   0   0   F   F   Null
+Chest:    NONE      53   50.5 8.5  0.0  S   99  0   0    8   0   F   F   Null   //Secret bottom
+  %RANDOM_ARCANE_SPELLBOOK: NONE      -1  0    0    0    I   0   0   0   0   0   F   F   Null
+  %RANDOM_DIVINE_RUNE:      NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+  %RARE_TREASURE:           NONE      -1   0    0    0    R   0   0   0   0   0   F   F   Null
+BossIdol:  NONE      52   48   10   0.0  S   0   0   0   0   0   F   F   Evil
+
+
+//Evil boss
+Lich:      NONE      80   47.5 10.5 0.0  S   39  0   0 32975 2   F   F   Evil
+  OrbStorm:NONE      60  0    0    0    L   0   0   0   0   0   F   F   Null
+  LifeDrain:NONE     108   0    0    0    R   0   0   0   0   0   F   F   Null
+
+
+//Bodyguards
+Ulna Cap:  NONE      36   46   12   0    S   0   1   0   0   1   F   F   Evil
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+Ulna Cap:  NONE      36   49   12   0    S   0   1   0   0   1   F   F   Evil
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+
+Ulna:      NONE      36   46   13   0    S   3   0   0   0   1   F   F   Evil
+  Scythe:  NONE      39   0    0    0    R   0   0   0   0   0   F   F   Null
+Ulna:      NONE      36   49   13   0    S   3   0   0   0   0   F   F   Evil
+  Hatchet: NONE      41   0    0    0    R   0   0   0   0   0   F   F   Null
+

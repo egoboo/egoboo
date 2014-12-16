@@ -1,0 +1,211 @@
+// The states
+// 0: Walking around in city
+// 1: Stay idle or return to beginning point
+// 2: In combat
+
+// Get mean if characters wanna be bad
+IfAttacked
+  Run
+  CallForHelp
+  IfTargetIsAPlayer
+    tmpargument = TEAME
+    TargetJoinTeam
+  tmpargument = 2
+  SetState
+
+IfCalledForHelp
+  Walk
+
+IfKilled
+  CallForHelp            // Warn friends
+  tmpargument = TEAME
+  TargetJoinTeam
+
+  tmpargument = 0
+  SendMessageNear
+  tmpargument = selfmoney
+  DropMoney
+
+IfSpawned
+  tmpargument = rand % 4    // Randomize skin
+  ChangeArmor
+  Sneak                // Dont run about
+
+  tmpargument = STATEWANDER
+  SetState
+
+//------------------------------------------------------------------------------
+// ZZ> Handle normal state
+IfTimeOut
+  SetTurnModeToVelocity
+  tmpargument = rand % 200 + 80
+  SetTime
+
+  IfStateIsWander
+    tmpx = rand % 2024 - 1012 + selfx
+    tmpy = rand % 2024 - 1012 + selfy
+    tmpturn = rand & 511 - 256 + selfturn
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToNearbyEnemy        // Enemy near, go combat mode
+      tmpargument = STATECOMBAT
+      SetState
+      tmpargument = 50
+      SetTime
+      CallForHelp
+
+    // Random banter
+    Else
+      tmpargument = [NONE]
+      tmpdistance = BLAHPLAYERS + BLAHFRIENDS
+      SetTargetToNearestBlahID
+        tmpx = targetdistance
+        tmpy = 128*3                  // Within 3 tiles of distance
+        IfXIsLessThanY
+
+          // Randomize what to say
+          tmpx = rand % 8
+
+          // Werewoff rumor
+          tmpy = 0
+          IfXIsEqualToY
+            tmpargument = 1
+            SendMessageNear
+            tmpargument = 5
+            PlaySound
+
+          // G'nome greeting
+          tmpy = 1
+          IfXIsEqualToY
+            tmpargument = [GNOM]
+            IfTargetHasID
+              tmpargument = 2
+              SendMessageNear
+              tmpargument = 6
+              PlaySound
+
+          // Shiny armor
+          tmpy = 2
+          IfXIsEqualToY
+            IfTargetIsDressedUp
+              DoNothing
+            Else
+              tmpargument = 3
+              SendMessageNear
+              tmpargument = 7
+              PlaySound
+
+          // Male greeting
+          tmpy = 3
+          IfXIsEqualToY
+            IfTargetIsMale
+              tmpargument = 4
+              SendMessageNear
+              tmpargument = 8
+              PlaySound
+
+          // dead king means no taxes
+          tmpy = 4
+          IfXIsEqualToY
+            tmpargument = 5
+            SendMessageNear
+            tmpargument = 9
+            PlaySound
+
+          // Elf greeting
+          tmpy = 5
+          IfXIsEqualToY
+            tmpargument = [ELFF]
+            IfTargetHasID
+              tmpargument = 6
+              SendMessageNear
+              tmpargument = 10
+              PlaySound
+
+          // bad temper
+          tmpy = 6
+          IfXIsEqualToY
+            tmpargument = 7
+            SendMessageNear
+            tmpargument = 11
+            PlaySound
+
+          // Paladin and Soldier greeting
+          tmpy = 7
+          IfXIsEqualToY
+            tmpdistance = 0
+            tmpturn = 0
+
+            tmpargument = [PALA]
+            IfTargetHasID
+              tmpdistance = 1
+
+            tmpargument = [SOLD]
+            IfTargetHasID
+              tmpdistance = 1
+
+            IfDistanceIsMoreThanTurn
+              tmpargument = 8
+              SendMessageNear
+              tmpargument = 12
+              PlaySound
+
+          // Look at the target
+          tmpx = tmpargument
+          tmpy = 13
+          IfXIsLessThanY
+            tmpy = 4
+            IfXIsMoreThanY
+              SetTurnModeToWatchTarget
+              tmpargument = 400
+              SetTime
+
+  IfStateIsCombat
+    SetTargetToNearbyEnemy
+      IfFacingTarget            // Attack enemy?
+        tmpx = targetdistance
+        tmpy = 100
+        IfXIsLessThanY
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+      Else
+        tmpx = targetx            // Get in combat position
+        tmpy = targety
+        tmpturn = targetturnto
+        tmpdistance = 200
+        Compass
+        ClearWaypoints
+        AddWaypoint
+    Else
+      tmpargument = STATEWANDER
+      SetState
+    tmpargument = 60
+    SetTime
+
+// What to do if bumped
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    IfFacingTarget            // Attack enemies
+      tmpargument = LATCHRIGHT
+      PressLatchButton
+    Else
+      tmpx = targetx            // Move towards enemy
+      tmpy = targety
+      ClearWaypoints
+      AddWaypoint
+  Else
+    tmpx = rand & 511 - 256 + selfx    // Try to move out of friendlies way
+    tmpy = rand & 511 - 256 + selfy
+    tmpdistance = 100
+    tmpturn = targetturnto + 32768
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------
+

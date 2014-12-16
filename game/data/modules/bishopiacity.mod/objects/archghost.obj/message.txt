@@ -1,0 +1,9 @@
+Message 0: Oh,_hello_there.
+Message 1: I_am_sorry..._Only_the_most_powerful_mages_are_allowed_in_here...
+Message 2: Hey,_excuse_me!
+Message 3: Greetings_fellow_mage!
+Message 4: This_is_the_entrance_to_the_Arch-Mage_trials! 
+Message 5: So,_do_you_want_to_enter?
+Message 6: Remember_to_bring_along_the_five_basic_spells_of_wizardry!
+Message 7: Book_of_Unlock,_Missile,_Disenchant,_Truesight_and_Protect!
+Message 8: NEW_SECRET_MODULE_UNLOCKED

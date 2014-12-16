@@ -1,0 +1,6 @@
+Message 0: %t_put_an_end_to_%n!
+Message 1: %n_looks_better...
+Message 2: Warriors_attack!
+Message 3: You_have_slain_the_notorius_bandit_leader_Bludhawk_and_cleared_
+Message 4: the_cave_for_Bandits._Now_just_bring_Angus_his_family_heirloom_
+Message 5: that_you_hopefully_looted_of_Bludhawks_body_and_claim_your_reward!_

@@ -1,0 +1,6 @@
+Message 0: Watch_out_%t!_The_Volcano_is_erupting!!
+Message 1: Epic_battles_will_be_fought_in_the_Fire_Domain!
+Message 2: Only_danger_and_death_awaits_in_the_Fire_Domain...
+Message 3: Press_ATTACK_to_enter_the_Fire_Domain.
+Message 4: %t_has_found_the_Fire_Domain...
+Message 5: firedom.mod

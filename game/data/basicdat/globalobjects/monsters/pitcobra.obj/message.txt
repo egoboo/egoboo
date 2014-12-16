@@ -1,0 +1,3 @@
+Message 0: %t_killed_a_%c.
+Message 1: The_%c_was_mooshed.
+Message 2: A_%c_was_not_too_bright...

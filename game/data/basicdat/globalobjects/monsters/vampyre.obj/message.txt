@@ -1,0 +1,6 @@
+Message 0: %t_has_slain_a_vampire!
+Message 1: The_%c_is_covering_in_fear!!
+Message 2: A_%c_was_betrayed!
+Message 3: A_%c_somehow_killed_itself...
+Message 4: A_%c_changed_to_gass_form!
+Message 5: The_%c_was_banished!

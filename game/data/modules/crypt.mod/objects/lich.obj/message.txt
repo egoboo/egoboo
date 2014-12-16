@@ -1,0 +1,8 @@
+Message 0: The_Lich_has_been_destroyed!
+Message 1: The_%c_was_killed_by_a_ally!
+Message 2: The_Lich_was_destroyed_by_its_own_powers!
+Message 3: Hahaha...
+Message 4: You_think_you_can_defeat_me!?
+Message 5: With_the_Lich_destroyed_and_his_remains_soaked_in_Holy_water,_
+Message 6: you_have_ensured_that_the_evil_Necromancer_will_never_return_
+Message 7: to_haunt_Bishopia_again!_

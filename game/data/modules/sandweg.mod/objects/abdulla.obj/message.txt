@@ -1,0 +1,8 @@
+Message 0: %n_was_murdered!
+Message 1: Help!_I_need_help!
+Message 2: Monsters_have_invaded_my_palace!
+Message 3: You_look_like_a_hero_yes?
+Message 4: I'll_give_a_magic_ring_to_the_Hero_who_saves_my_palace.
+Message 5: NEW_MODULE_UNLOCKED
+Message 6: Thank_you_hero!
+Message 7: %n_looks_better...

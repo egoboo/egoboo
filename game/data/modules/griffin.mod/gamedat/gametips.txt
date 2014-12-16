@@ -1,0 +1,6 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Griffin_tower_is_Bishopia's_high_security_prison.
+Tip 1: Bargel_is_a_fearsome_evil_Wizard.
+Tip 2: There_is_a_sand_troll_in_one_of_the_prison_cells.
+Tip 3: Multiple_notorius_criminals_have_escaped.
+Tip 4: The_Bishopia_Guard_will_protect_the_city_from_the_escaped_criminals.

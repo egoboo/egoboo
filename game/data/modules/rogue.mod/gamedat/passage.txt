@@ -1,0 +1,46 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+
+00MasterZero:  59 59      59 59          F       F             F
+01DeadFall:    41 43      42 44          T       T             F
+02DeadFall:    7  49      8  50          T       T             F
+03ExitArea:    52 2       53 3           T       T             F
+
+04Gate:        52 4       53 5           F       T             F
+05Gate:        52 11      53 11          F       T             F
+06Gate:        52 17      53 17          F       T             F
+07Gate:        52 23      53 23          F       T             F
+
+08ShutDetect:  41 54      42 55          T       T             F
+09Shutter:     39 54      40 55          F       F             F
+
+10ShutDetect:  52 47      53 48          T       T             F
+11Shutter:     52 49      53 50          F       F             F
+
+12ShutDetect:  41 43      42 44          T       T             F
+13Shutter:     43 43      44 44          F       F             F
+
+14LockDetect:  52 38      53 39          T       T             F
+15LockedDoor:  52 36      53 37          F       F             F
+
+16LockDetect:  38 28      39 29          T       T             F
+17LockedDoor:  38 26      39 27          F       F             F
+
+18Music:       9  37      20 46          T       T             F
+19Music:       19 36      31 50          T       T             F
+20Music:       18 3       32 16          T       T             F
+21Music:       35 17      42 26          T       T             F
+22Music:       49 19      55 36          T       T             F
+
+23Music:       8  15      15 24          T       T             F
+24Music:       6  26      17 37          T       T             F
+25Music:       18 23      31 36          T       T             F
+26Music:       35 29      47 36          T       T             F
+27Music:       3  46      19 60          T       T             F
+28Music:       40 50      61 61          T       T             F
+29Music:       43 39      55 49          T       T             F
+30Music:       49 6       57 10          T       T             F
+31Music:       49 12      57 16          T       T             F
+32Music:       49 18      57 22          T       T             F

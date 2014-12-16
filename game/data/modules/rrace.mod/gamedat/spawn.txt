@@ -1,0 +1,77 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+Hero 00:   NONE      00   14.5 10.5 3  N   0   0   0   0   0   T   F   ATeam
+  Item 01: NONE      01   0    0    0    L   0   0   0   0   0   F   F   Null
+  Item 02: NONE      02   0    0    0    R   0   0   0   0   0   F   F   Null
+  Item 03: NONE      03   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 04: NONE      04   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 05: NONE      05   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 06: NONE      06   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 07: NONE      07   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 08: NONE      08   0    0    0    I   0   0   0   0   0   F   F   Null
+
+Hero 09:   NONE      09   15.5 10.5 3  N   0   0   0   0   0   T   F   BTeam
+  Item 10: NONE      10   0    0    0    L   0   0   0   0   0   F   F   Null
+  Item 11: NONE      11   0    0    0    R   0   0   0   0   0   F   F   Null
+  Item 12: NONE      12   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 13: NONE      13   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 14: NONE      14   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 15: NONE      15   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 16: NONE      16   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 17: NONE      17   0    0    0    I   0   0   0   0   0   F   F   Null
+
+Hero 18:   NONE      18   14.5 11.5 3  N   0   0   0   0   0   T   F   CTeam
+  Item 19: NONE      19   0    0    0    L   0   0   0   0   0   F   F   Null
+  Item 20: NONE      20   0    0    0    R   0   0   0   0   0   F   F   Null
+  Item 21: NONE      21   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 22: NONE      22   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 23: NONE      23   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 24: NONE      24   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 25: NONE      25   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 26: NONE      26   0    0    0    I   0   0   0   0   0   F   F   Null
+
+Hero 27:   NONE      27   15.5 11.5 3  N   0   0   0   0   0   T   F   DTeam
+  Item 28: NONE      28   0    0    0    L   0   0   0   0   0   F   F   Null
+  Item 29: NONE      29   0    0    0    R   0   0   0   0   0   F   F   Null
+  Item 30: NONE      30   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 31: NONE      31   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 32: NONE      32   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 33: NONE      33   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 34: NONE      34   0    0    0    I   0   0   0   0   0   F   F   Null
+  Item 35: NONE      35   0    0    0    I   0   0   0   0   0   F   F   Null
+
+Bumper:   NONE     36   14.5 10.5  0    W   0   0   0   0   0   F   F   ZTeam
+Bumper:   NONE     36   15.5 10.5  0    W   0   1   0   0   0   F   F   ZTeam
+Bumper:   NONE     36   14.5 11.5  0    W   0   2   0   0   0   F   F   ZTeam
+Bumper:   NONE     36   15.5 11.5  0    W   0   3   0   0   0   F   F   ZTeam
+
+TBunny:    NONE     75    34.5 33.5 0.0  N   0   0   0   0   0   F   F   Evil
+TBunny:    NONE     75    34.5 33.5 0.0  N   0   0   0   1   0   F   F   Evil
+TBunny:    NONE     75    34.5 33.5 0.0  N   0   0   0   3   0   F   F   Evil
+TBunny:    NONE     75    34.5 33.5 0.0  N   0   0   0   4   0   F   F   Evil
+TBunny:    NONE     75    34.5 33.5 0.0  N   0   0   0   5   0   F   F   Evil
+
+moduletool:   NONE    126  15.5   11.5   0.0   W    0   3  0   0   0   F   F   N

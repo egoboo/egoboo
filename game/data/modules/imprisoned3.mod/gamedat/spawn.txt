@@ -1,0 +1,249 @@
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+HERO 1:   NONE    0  43.5   74.5   1.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:  NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+HERO 2:   NONE    9  43.5   75.5   1.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:  NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+HERO 3:   NONE    18  44.5   75.5   1.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:  NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+HERO 4:   NONE    27  44.5   74.5   1.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:  NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+crazynpc.obj:   NONE    92  44.4   70.7   0.0   ?    3   0  0   0   0   F   F   C
+  knife.obj:   NONE    112  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  npcnote.obj:   NONE    94  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+moduletool.obj:   NONE    38  12.5   27.5   1.0   N    0   0  0   0   0   F   F   N
+
+//Entrance
+tent.obj:   NONE    40  43.5   70.5   0.0   ?    7   4  0   0   0   F   F   E
+  gem.obj:   NONE    57  0.0   0.0   0.0   I    0   4  0   0   0   F   F   N
+  ppotion.obj:   NONE    58  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  oilflask.obj:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//The portal maze!
+portal.obj:   NONE    37  44.0   76.5   0.0   W    0   0  0   32   0   F   F   N
+portal.obj:   NONE    37  38.5   71.0   0.0   S    0   0  0   2   0   F   F   N
+portal.obj:   NONE    37  44.0   65.5   0.0   E    0   0  0   1   0   F   F   N
+portal.obj:   NONE    37  49.5   71.0   0.0   N    0   0  0   0   0   F   F   N
+portal.obj:   NONE    37  37.5   54.5   0.0   S    0   0  0   6   0   F   F   N
+portal.obj:   NONE    37  26.0   54.0   1.0   N    0   0  0   7   0   F   F   N
+portal.obj:   NONE    37  25.0   42.0   1.0   N    0   0  0   9   0   F   F   N
+portal.obj:   NONE    37  37.0   42.0   1.0   N    0   0  0   8   0   F   F   N
+portal.obj:   NONE    37  29.5   71.0   0.0   N    0   0  0   5   0   F   F   N
+portal.obj:   NONE    37  24.0   65.0   0.0   W    0   0  0   4   0   F   F   W
+portal.obj:   NONE    37  13.0   74.0   0.0   N    0   0  0   14   0   F   F   N
+portal.obj:   NONE    37  24.0   76.5   0.0   E    0   0  0   3   0   F   F   N
+portal.obj:   NONE    37  57.0   77.0   0.0   N    0   0  0   13   0   F   F   N
+portal.obj:   NONE    37  49.0   49.0   1.0   N    0   0  0   10   0   F   F   N
+portal.obj:   NONE    37  36.0   34.0   1.0   E    0   0  0   23   0   F   F   N
+portal.obj:   NONE    37  8.0   61.0   1.0   W    0   0  0   29   0   F   F   N
+portal.obj:   NONE    37  57.0   60.0   1.0   N    0   0  0   12   0   F   F   N
+portal.obj:   NONE    37  73.0   60.0   1.0   N    0   0  0   11   0   F   F   N
+portal.obj:   NONE    37  71.0   52.0   1.0   W    0   0  0   25   0   F   F   N
+portal.obj:   NONE    37  10.0   52.0   1.0   E    0   0  0   16   0   F   F   N
+portal.obj:   NONE    37  3.0   47.0   1.0   N    0   0  0   15   0   F   F   N
+portal.obj:   NONE    37  10.0   40.0   1.0   W    0   0  0   11   0   F   F   N
+portal.obj:   NONE    37  16.0   47.0   1.0   N    0   0  0   17   0   F   F   N
+portal.obj:   NONE    37  12.0   32.0   1.0   W    0   0  0   19   0   F   F   N
+portal.obj:   NONE    37  12.0   20.0   0.0   E    0   0  0   18   0   F   F   N
+portal.obj:   NONE    37  19.0   27.0   1.0   N    0   0  0   20   0   F   F   N
+portal.obj:   NONE    37  71.0   27.0   1.0   E    0   0  0   26   0   F   F   N
+portal.obj:   NONE    37  27.5   28.0   0.0   N    0   0  0   21   0   F   F   N
+portal.obj:   NONE    37  57.0   37.0   1.0   W    0   0  0   11   0   F   F   N
+portal.obj:   NONE    37  35.5   19.5   1.0   W    0   0  0   22   0   F   F   N
+portal.obj:   NONE    37  43.0   28.0   1.0   N    0   0  0   24   0   F   F   N
+portal.obj:   NONE    37  51.0   31.0   1.0   N    0   0  0   7   0   F   F   N
+portal.obj:   NONE    37  64.0   30.5   1.0   N    0   0  0   27   0   F   F   N
+portal.obj:   NONE    37  57.0   25.0   1.0   W    0   0  0   28   0   F   F   N
+portal.obj:   NONE    37  70.5   18.5   1.0   W    0   0  0   33   0   F   F   N
+portal.obj:   NONE    37  52.5   7.5   1.0   N    0   0  0   30   0   F   F   N
+portal.obj:   NONE    37  40.0   12.0   1.0   W    0   0  0   34   0   F   F   N
+
+//Chaos room
+mephit.obj:   NONE    41  32.0   50.0   1.0   N    1   4  0   0   0   F   F   E
+  mephitwing.obj:   NONE    42  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit.obj:   NONE    41  30.0   47.0   1.0   N    2   4  0   0   0   F   F   E
+  mephitwing.obj:   NONE    42  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit.obj:   NONE    41  34.0   47.0   1.0   N    3   4  0   0   0   F   F   E
+  mephitwing.obj:   NONE    42  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit.obj:   NONE    41  32.0   44.0   1.0   N    4   4  0   0   0   F   F   E
+  mephitwing.obj:   NONE    42  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit.obj:   NONE    41  28.0   51.0   1.0   N    5   4  0   0   0   F   F   E
+  mephitwing.obj:   NONE    42  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit.obj:   NONE    41  28.0   45.0   1.0   N    6   4  0   0   0   F   F   E
+  mephitwing.obj:   NONE    42  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+tree.obj:   NONE    44  33.5   50.5   1.0   ?    0   0  0   0   0   F   F   N
+swampplant.obj:   NONE    43  33.5   46.5   1.0   ?    0   0  0   0   0   F   F   N
+swampplant.obj:   NONE    43  29.5   50.5   1.0   ?    0   0  0   0   0   F   F   N
+tree.obj:   NONE    44  30.5   45.5   1.0   ?    0   0  0   0   0   F   F   N
+
+//Illusion room
+illusion.obj:   NONE    45  7.0   68.0   1.0   N    0   0  0   0   0   F   F   E
+  illusionwing.obj:   NONE    46  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  
+//Boulder hall
+bouldertrap.obj:   NONE    47  71.0   29.5   1.0   N    9088   0  0   6400   0   F   F   N
+
+//Fire chamber
+firelizard.obj:   NONE    49  13.0   26.0   0.0   N    0   0  0   0   0   F   F   E
+firelizard.obj:   NONE    49  9.0   27.0   0.0   N    0   0  0   0   0   F   F   E
+firelizard.obj:   NONE    49  15.0   28.0   0.0   N    0   0  0   0   0   F   F   E
+keyc.obj:   NONE    91  13.0   27.5   ?    0   0  0   0   0   F   F   N
+
+//Labyrinth
+minotore.obj:   NONE    50  72.5   67.5   1.0   N    0   0  0   0   0   F   F   E
+  battleaxe.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+minotore.obj:   NONE    50  61.5   64.5   1.0   N    0   0  0   0   0   F   F   E
+  battleaxe.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+minotore.obj:   NONE    50  67.0   76.0   1.0   N    0   0  0   0   0   F   F   E
+  battleaxe.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+chest.obj:   NONE    64  72.0   76.0   0.0   S    7   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE   -1  0.0   0.0    0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_SCROLL:   NONE   -1  0.0   0.0    0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_SCROLL:   NONE   -1  0.0   0.0    0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_DIVINE_RUNE:   NONE   -1  0.0   0.0    0.0   I    0   0  0   0   0   F   F   N
+
+//Rusty room
+pillar.obj:   NONE    80  5.0   42.0   1.0   ?    0   0  0   0   0   F   F   N
+pillar.obj:   NONE    80  14.0   42.0   1.0   ?    0   0  0   0   0   F   F   N
+pillar.obj:   NONE    80  13.0   50.0   1.0   ?    0   0  0   0   0   F   F   N
+pillar.obj:   NONE    80  5.0   50.0   1.0   ?    0   0  0   0   0   F   F   N
+rusteater.obj:   NONE    53  10.0   46.0   0.0   ?    0   0  0   0   0   F   F   E
+rustmaggot.obj:   NONE    54  9.0   45.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot.obj:   NONE    54  14.0   47.0   1.0   N    0   0  0   0   0   F   F  E
+rustmaggot.obj:   NONE    54  6.0   49.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot.obj:   NONE    54  6.0   42.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot.obj:   NONE    54  11.0   49.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot.obj:   NONE    54  13.0   44.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot.obj:   NONE    54  5.0   44.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot.obj:   NONE    54  13.0   50.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot.obj:   NONE    54  15.0   42.0   1.0   N    0   0  0   0   0   F   F   E
+rshield.obj:   NONE    55  11.5   46.5   0.0   ?    0   0  0   0   0   F   F   N
+rshield.obj:   NONE    55  6.5   48.5   0.0   ?    0   0  0   0   0   F   F   N
+rsword.obj:   NONE    56  6.5   42.5   0.0   ?    0   0  0   0   0   F   F   N
+rsword.obj:   NONE    56  14.5   50.5   0.0   ?    0   0  0   0   0   F   F   N
+
+//Library
+bookshelf.obj:   NONE    60  52.5   43.5   1.0   S    0   0  0   0   0   F   F   N
+bookshelf.obj:   NONE    60  57.0   47.0   0.0   N    0   0  0   0   0   F   F   N
+bookshelf.obj:   NONE    60  58.5   43.5   1.0   S    0   0  0   0   0   F   F   N
+bookshelf.obj:   NONE    60  57.5   53.5   1.0   N    0   0  0   0   0   F   F   N
+  %RANDOM_ARCANE_SPELLBOOK:   NONE   -1  0.0   0.0    0.0   I    0   0  0   0   0   F   F   N
+bookshelf.obj:   NONE    60  56.0   48.5   0.0   W    0   0  0   0   0   F   F   N
+bookshelf.obj:   NONE    60  52.5   53.5   1.0   N    0   0  0   0   0   F   F   N
+bookshelf.obj:   NONE    60  53.0   48.5   0.0   E    0   0  0   0   0   F   F   N
+bookshelf.obj:   NONE    60  57.0   50.0   0.0   S    0   0  0   0   0   F   F   N
+bookstand.obj:   NONE    77  60.5   46.5   1.0   W    0   4  0   0   0   F   F   N
+  %RANDOM_ARCANE_SPELLBOOK:   NONE   -1  0.0   0.0    0.0   I    0   0  0   0   0   F   F   N
+bookstand.obj:   NONE    77  60.5   50.5   1.0   W    0   4  0   0   0   F   F   N
+bookstand.obj:   NONE    77  55.5   43.5   1.0   S    0   4  0   0   0   F   F   N
+bookstand.obj:   NONE    77  55.5   53.5   1.0   N    0   4  0   0   0   F   F   N
+  %RANDOM_ARCANE_SPELLBOOK:   NONE   -1  0.0   0.0    0.0   I    0   0  0   0   0   F   F   N
+warlock.obj:   NONE    70  54.0   45.0   1.0   N    9   0  0   55183   6   F   F   E
+  unseen.obj:   NONE   73  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+  iceray.obj:   NONE   72  0.0   0.0    0.0   L    0   0  0   0   0   F   F   N
+warlock.obj:   NONE    70  54.0   52.0   1.0   N    16   0  0   32975   1   F   F   E
+  scythe.obj:   NONE   75  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+  enchant.obj:   NONE   76  0.0   0.0    0.0   L    0   0  0   0   0   F   F   N
+warlock.obj:   NONE    70  59.0   48.0   1.0   N    14   0  0   32768   0   F   F   E
+  shock.obj:   NONE   74  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+carpetmimic.obj:   NONE    71  54.5   48.5   0.0   E    0   4  0   0   0   F   F   E
+
+//Water room
+swampplant.obj:   NONE    43  71.0   6.0   0.0   ?    0   0  0   0   0   F   F   N
+crab.obj:   NONE    68  70.0   12.0   1.0   N    0   0  0   0   0   F   F   E
+crab.obj:   NONE    68  66.0   8.0   1.0   N    0   0  0   0   0   F   F   E
+crab.obj:   NONE    68  62.0   6.0   1.0   N    0   0  0   0   0   F   F   E
+crab.obj:   NONE    68  71.0   13.0   1.0   N    0   0  0   0   0   F   F   E
+kcrab.obj:   NONE    67  69.0   8.0   1.0   N    0   0  0   0   0   F   F   E
+kcrab.obj:   NONE    67  65.0   6.0   1.0   N    0   0  0   0   0   F   F   E
+kcrab.obj:   NONE    67  60.0   7.0   1.0   N    0   0  0   0   0   F   F   E
+crab.obj:   NONE    68  56.0   6.0   1.0   N    0   0  0   0   0   F   F   E
+
+//Dimlock room
+assassin.obj:   NONE    79  58.0   30.0  0.0   ?    3   0  0   0   0   F   F   E
+  pstiletto.obj:   NONE   78  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+dimlockcaster.obj:   NONE    81  57.0   34.0   1.0   ?    7   0  0   55183   0   F   F   E
+  battleward.obj:   NONE   69  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+  xbow.obj:   NONE   83  0.0   0.0    0.0   L    0   0  0   0   0   F   F   N
+dimlockcaster.obj:   NONE    81  56.0   31.0   1.0   ?    4   1  0   32975   2   F   F   E
+  sanctify.obj:   NONE   84  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+  mace.obj:   NONE   85  0.0   0.0    0.0   L    0   0  0   0   0   F   F   N
+bullwolf.obj:   NONE    52  60.0   31.0   0.0   ?    0   0  0   0   0   F   F   E
+dimlock.obj:   NONE    82  60.0   31.0   1.0   ?    2   0  0   0   0   F   F   E
+  sscimitar.obj:   NONE   86  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+  tshield.obj:   NONE   87  0.0   0.0    0.0   L    0   0  0   0   0   F   F   N
+chest.obj:   NONE    64  56.5   31.0   0.0   E    0   0  0   128   0   F   F   N
+  gem.obj:   NONE    57  0.0   0.0   0.0   I    0   4  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Demonic chamber
+dreadnaught.obj:   NONE    90  36.0   28.0   1.0   N    0   0  0   0   0   F   F   E
+  mace.obj:   NONE   85  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+eyeball.obj:   NONE    89  31.0   27.0   1.0   ?    0   0  0   0   0   F   F   E
+eyeball.obj:   NONE    89  40.0   26.0   1.0   ?    0   0  0   0   0   F   F   E
+demon.obj:   NONE    88  34.0   25.0   1.0   N    0   0  0   0   0   F   F   E
+demon.obj:   NONE    88  38.0   30.0   1.0   N    0   0  0   0   0   F   F   E
+demon.obj:   NONE    88  33.0   29.0   1.0   N    0   0  0   0   0   F   F   E
+chest.obj:   NONE    64  36.0   28.0   0.0   N    0   0  0   1   0   F   F   N
+  keyr.obj:   NONE    90  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  gem.obj:   NONE    57  0.0   0.0   0.0   I    0   4  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Final room
+kbutton.obj:   NONE    113  11.5   6.0   0.0   E    0   0  0   0   0   F   F   N
+dragonstatue.obj:   NONE    93  32.5   13.5   1.0   N    0   0  0   0   0   F   F   N
+museumstatue.obj:   NONE    95  23.5   12.5   1.0   N    0   0  0   0   0   F   F   N
+museumstatue.obj:   NONE    95  16.5   12.5   1.0   N    0   0  0   0   0   F   F   N
+museumstatue.obj:   NONE    95  8.5   12.5   1.0   N    0   0  0   0   0   F   F   N
+
+bosschest.obj:   NONE    108   32.5   10.0   1.0   S    0   0  0   0   0   F   F   N
+  %MAGIC_ITEM:   NONE    -1  0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RARE_TREASURE:   NONE    -1  0.0   0.0   I    0   0  0   0   0   F   F   N
+  keyb.obj:   NONE    111  0.0   0.0   I    0   0  0   0   0   F   F   N
+cambion.obj:   NONE    96   32.0   11.5   1.0   N    0   0  0   0   0   F   F   N
+  cleaver.obj:   NONE   106  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+  missile.obj:   NONE   105  0.0   0.0    0.0   L    0   0  0   0   0   F   F   N
+  keyc.obj:   NONE    91  0.0   0.0   I    0   0  0   0   0   F   F   N
+grell.obj:   NONE    97 35.0   9.0   1.0   ?    0   0  0   0   0   F   F   N
+  mephitwing.obj:   NONE    42  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  broadsword.obj:   NONE    98  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+zorro.obj:   NONE    99 29.0   9.5   1.0   E    0   0  0   0   0   F   F   N
+  pstiletto.obj:   NONE   78  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+  pistol.obj:   NONE   100  0.0   0.0    0.0   L    0   0  0   0   0   F   F   N
+xara.obj:   NONE    101 30.0   11.0   1.0   E    0   0  0   0   0   F   F   N
+  battleward.obj:   NONE   69  0.0   0.0    0.0   L    0   0  0   0   0   F   F   N
+  meteor.obj:   NONE   104  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+tiara.obj:   NONE    102 35.0   11.5   1.0   W    0   0  0   0   0   F   F   N
+  pike.obj:   NONE   103  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N
+layna.obj:   NONE    107 33.5   11.5   1.0   N    0   0  0   0   0   F   F   N
+  mace.obj:   NONE   85  0.0   0.0    0.0   R    0   0  0   0   0   F   F   N

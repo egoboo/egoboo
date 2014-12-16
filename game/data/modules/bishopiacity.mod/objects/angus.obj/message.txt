@@ -1,0 +1,8 @@
+Message 0: A_%c_was_murdered...
+Message 1: Oy!_Sombody_has_stolen_me_family_heirloom!
+Message 2: Could_ye_bring_it_back_to_Angus?_I'll_be_mighty_grateful!
+Message 3: I'll_get_revenge_on_Bludhawk_and_his_laddies!
+Message 4: Thank_ye_hero!_I_found_this_lying_around_me_castle._Ye_Can_have_it.
+Message 5: NEW_MODULE_UNLOCKED
+Message 6: Thank_ye_hero!
+Message 7: Oy!
