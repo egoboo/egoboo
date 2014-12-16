@@ -8,6 +8,11 @@
     <IncludePath>$(LibraryInstallDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryInstallDir)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)/game/src;$(SolutionDir)/egolib/src;$(SolutionDir)/cartman/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="ExternalDependenciesDir">
       <Value>$(ExternalDependenciesDir)</Value>

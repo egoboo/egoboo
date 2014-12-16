@@ -13,46 +13,46 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
-    <Filter Include="extensions">
+    <Filter Include="Extensions">
       <UniqueIdentifier>{e6606188-44b9-445a-a3c8-dd1dfd536ced}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inline Files">
+      <UniqueIdentifier>{2f277393-d4e2-406c-9b06-3f86b2a38e56}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SDL_GetPixel.c">
-      <Filter>extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="SDL_PutPixel.c">
-      <Filter>extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="SDL_rotozoom.c">
-      <Filter>extensions</Filter>
-    </ClCompile>
-    <ClCompile Include="cartman.c">
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cartman_functions.c">
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_functions.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cartman_gfx.c">
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_gfx.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cartman_gui.c">
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_gui.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cartman_input.c">
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_input.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cartman_map.c">
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cartman_math.c">
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_math.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cartman_select.c">
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_select.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="standard.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\SDL_GetPixel.c">
+      <Filter>Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\SDL_PutPixel.c">
+      <Filter>Extensions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\SDL_rotozoom.c">
+      <Filter>Extensions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -143,43 +143,49 @@
     <None Include="res\cartman.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_math.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="cartman\standard.inl">
+      <Filter>Inline Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SDL_Pixel.h">
-      <Filter>extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="SDL_rotozoom.h">
-      <Filter>extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="cartman.h">
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cartman_config.h">
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cartman_functions.h">
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cartman_gfx.h">
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_gfx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cartman_gui.h">
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cartman_input.h">
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cartman_map.h">
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cartman_math.h">
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cartman_select.h">
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_select.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cartman_typedef.h">
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_typedef.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\SDL_Pixel.h">
+      <Filter>Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\SDL_rotozoom.h">
+      <Filter>Extensions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

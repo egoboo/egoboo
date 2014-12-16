@@ -138,23 +138,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="cartman.c" />
-    <ClCompile Include="cartman_functions.c" />
-    <ClCompile Include="cartman_gfx.c" />
-    <ClCompile Include="cartman_gui.c" />
-    <ClCompile Include="cartman_input.c" />
-    <ClCompile Include="cartman_map.c" />
-    <ClCompile Include="cartman_math.c" />
-    <ClCompile Include="cartman_select.c" />
-    <ClCompile Include="SDL_GetPixel.c" />
-    <ClCompile Include="SDL_PutPixel.c" />
-    <ClCompile Include="SDL_rotozoom.c" />
-    <ClCompile Include="standard.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman.c" />
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_functions.c" />
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_gfx.c" />
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_gui.c" />
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_input.c" />
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_map.c" />
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_math.c" />
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_select.c" />
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\SDL_GetPixel.c" />
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\SDL_PutPixel.c" />
+    <ClCompile Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\SDL_rotozoom.c" />
+    <None Include="cartman\standard.inl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_math.inl" />
     <None Include="res\cartman_vs10.rc" />
     <None Include="res\cartman.ico" />
     <None Include="..\data\anim.pcx" />
@@ -186,18 +186,18 @@
     <None Include="..\data\window.png" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cartman.h" />
-    <ClInclude Include="cartman_config.h" />
-    <ClInclude Include="cartman_functions.h" />
-    <ClInclude Include="cartman_gfx.h" />
-    <ClInclude Include="cartman_gui.h" />
-    <ClInclude Include="cartman_input.h" />
-    <ClInclude Include="cartman_map.h" />
-    <ClInclude Include="cartman_math.h" />
-    <ClInclude Include="cartman_select.h" />
-    <ClInclude Include="cartman_typedef.h" />
-    <ClInclude Include="SDL_Pixel.h" />
-    <ClInclude Include="SDL_rotozoom.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_config.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_functions.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_gfx.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_gui.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_input.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_map.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_math.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_select.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\cartman_typedef.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\SDL_Pixel.h" />
+    <ClInclude Include="..\..\..\egoboo%40egoboo%40github.com\cartman\src\cartman\SDL_rotozoom.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\egolib\egolib_vs13.vcxproj">

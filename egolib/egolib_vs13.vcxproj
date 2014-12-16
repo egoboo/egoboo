@@ -136,150 +136,135 @@
     </Xdcmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bbox.c" />
-    <ClCompile Include="bsp.c" />
-    <ClCompile Include="clock.c" />
-    <ClCompile Include="console.c" />
-    <ClCompile Include="egoboo_setup.c" />
-    <ClCompile Include="endian.c" />
-    <ClCompile Include="extensions\ogl_debug.c" />
-    <ClCompile Include="extensions\ogl_extensions.c" />
-    <ClCompile Include="extensions\ogl_include.c" />
-    <ClCompile Include="extensions\ogl_texture.c" />
-    <ClCompile Include="extensions\SDL_extensions.c" />
-    <ClCompile Include="extensions\SDL_GL_extensions.c" />
-    <ClCompile Include="fileutil.c" />
-    <ClCompile Include="file_common.c" />
-    <ClCompile Include="file_formats\cap_file.c" />
-    <ClCompile Include="file_formats\configfile.c" />
-    <ClCompile Include="file_formats\controls_file-v1.c" />
-    <ClCompile Include="file_formats\controls_file-v2.c" />
-    <ClCompile Include="file_formats\controls_file-v3.c" />
-    <ClCompile Include="file_formats\controls_file.c" />
-    <ClCompile Include="file_formats\eve_file.c" />
-    <ClCompile Include="file_formats\id_md2.c" />
-    <ClCompile Include="file_formats\map_file-v1.c" />
-    <ClCompile Include="file_formats\map_file-v2.c" />
-    <ClCompile Include="file_formats\map_file-v3.c" />
-    <ClCompile Include="file_formats\map_file-v4.c" />
-    <ClCompile Include="file_formats\map_file.c" />
-    <ClCompile Include="file_formats\map_tile_dictionary.c" />
-    <ClCompile Include="file_formats\module_file.c" />
-    <ClCompile Include="file_formats\passage_file.c" />
-    <ClCompile Include="file_formats\pip_file.c" />
-    <ClCompile Include="file_formats\quest_file.c" />
-    <ClCompile Include="file_formats\scancode_file.c" />
-    <ClCompile Include="file_formats\SDL_md2.c" />
-    <ClCompile Include="file_formats\spawn_file.c" />
-    <ClCompile Include="file_formats\template.c" />
-    <ClCompile Include="file_formats\treasure_table_file.c" />
-    <ClCompile Include="file_formats\wawalite_file.c" />
-    <ClCompile Include="font_bmp.c" />
-    <ClCompile Include="font_ttf.c" />
-    <ClCompile Include="frustum.c" />
-    <ClCompile Include="geometry.c" />
-    <ClCompile Include="hash.c" />
-    <ClCompile Include="IDSZ_map.c" />
-    <ClCompile Include="input_device.c" />
-    <ClCompile Include="log.c" />
-    <ClCompile Include="lua\lua_console.c" />
-    <ClCompile Include="map_functions.c" />
-    <ClCompile Include="network.c" />
-    <ClCompile Include="network_file.c" />
-    <ClCompile Include="platform\file_amiga.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="platform\file_linux.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="platform\file_win.c" />
-    <ClCompile Include="platform\sys_linux.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="platform\sys_win32.c" />
-    <ClCompile Include="process.c" />
-    <ClCompile Include="scancode.c" />
-    <ClCompile Include="strutil.c" />
-    <ClCompile Include="threads.c" />
-    <ClCompile Include="throttle.c" />
-    <ClCompile Include="timer.c" />
-    <ClCompile Include="typedef.c" />
-    <ClCompile Include="vfs.c" />
-    <ClCompile Include="_math.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bbox.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bsp.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\clock.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\console.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\egoboo_setup.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\endian.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_debug.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_extensions.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_include.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_texture.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\SDL_extensions.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\SDL_GL_extensions.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\fileutil.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_common.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\cap_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\configfile.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v1.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v2.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v3.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\eve_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\id_md2.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v1.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v2.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v3.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v4.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_tile_dictionary.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\module_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\passage_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\pip_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\quest_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\scancode_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\SDL_md2.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\spawn_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\template.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\treasure_table_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\wawalite_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\font_bmp.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\font_ttf.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\frustum.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\geometry.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\hash.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\IDSZ_map.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\input_device.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\log.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\lua\lua_console.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\map_functions.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\file_win.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\sys_win32.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\process.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\scancode.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\strutil.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\threads.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\throttle.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\timer.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\typedef.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\vfs.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bbox.h" />
-    <ClInclude Include="bsp.h" />
-    <ClInclude Include="clock.h" />
-    <ClInclude Include="console.h" />
-    <ClInclude Include="egoboo_setup.h" />
-    <ClInclude Include="egolib.h" />
-    <ClInclude Include="egolib_config.h" />
-    <ClInclude Include="endian.h" />
-    <ClInclude Include="extensions\ogl_debug.h" />
-    <ClInclude Include="extensions\ogl_extensions.h" />
-    <ClInclude Include="extensions\ogl_include.h" />
-    <ClInclude Include="extensions\ogl_texture.h" />
-    <ClInclude Include="extensions\SDL_extensions.h" />
-    <ClInclude Include="extensions\SDL_GL_extensions.h" />
-    <ClInclude Include="fileutil.h" />
-    <ClInclude Include="file_common.h" />
-    <ClInclude Include="file_formats\cap_file.h" />
-    <ClInclude Include="file_formats\configfile.h" />
-    <ClInclude Include="file_formats\controls_file-v1.h" />
-    <ClInclude Include="file_formats\controls_file-v2.h" />
-    <ClInclude Include="file_formats\controls_file-v3.h" />
-    <ClInclude Include="file_formats\controls_file.h" />
-    <ClInclude Include="file_formats\eve_file.h" />
-    <ClInclude Include="file_formats\id_md2.h" />
-    <ClInclude Include="file_formats\map_file-v1.h" />
-    <ClInclude Include="file_formats\map_file-v2.h" />
-    <ClInclude Include="file_formats\map_file-v3.h" />
-    <ClInclude Include="file_formats\map_file-v4.h" />
-    <ClInclude Include="file_formats\map_file.h" />
-    <ClInclude Include="file_formats\map_tile_dictionary.h" />
-    <ClInclude Include="file_formats\module_file.h" />
-    <ClInclude Include="file_formats\passage_file.h" />
-    <ClInclude Include="file_formats\pip_file.h" />
-    <ClInclude Include="file_formats\quest_file.h" />
-    <ClInclude Include="file_formats\scancode_file.h" />
-    <ClInclude Include="file_formats\SDL_md2.h" />
-    <ClInclude Include="file_formats\spawn_file.h" />
-    <ClInclude Include="file_formats\template.h" />
-    <ClInclude Include="file_formats\treasure_table_file.h" />
-    <ClInclude Include="file_formats\wawalite_file.h" />
-    <ClInclude Include="font_bmp.h" />
-    <ClInclude Include="font_ttf.h" />
-    <ClInclude Include="frustum.h" />
-    <ClInclude Include="geometry.h" />
-    <ClInclude Include="hash.h" />
-    <ClInclude Include="IDSZ_map.h" />
-    <ClInclude Include="input_device.h" />
-    <ClInclude Include="log.h" />
-    <ClInclude Include="lua\lua_console.h" />
-    <ClInclude Include="map_functions.h" />
-    <ClInclude Include="mem.h" />
-    <ClInclude Include="network.h" />
-    <ClInclude Include="network_file.h" />
-    <ClInclude Include="platform.h" />
-    <ClInclude Include="platform\NSFileManager+DirectoryLocations.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="process.h" />
-    <ClInclude Include="scancode.h" />
-    <ClInclude Include="state_machine.h" />
-    <ClInclude Include="strutil.h" />
-    <ClInclude Include="system.h" />
-    <ClInclude Include="threads.h" />
-    <ClInclude Include="throttle.h" />
-    <ClInclude Include="timer.h" />
-    <ClInclude Include="typedef.h" />
-    <ClInclude Include="vfs.h" />
-    <ClInclude Include="_math.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bbox.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bsp.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\clock.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\console.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\egoboo_setup.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\egolib.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\egolib_config.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\endian.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_debug.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_extensions.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_include.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_texture.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\SDL_extensions.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\SDL_GL_extensions.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\fileutil.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_common.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\cap_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\configfile.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v1.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v2.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v3.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\eve_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\id_md2.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v1.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v2.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v3.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v4.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_tile_dictionary.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\module_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\passage_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\pip_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\quest_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\scancode_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\SDL_md2.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\spawn_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\template.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\treasure_table_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\wawalite_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\font_bmp.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\font_ttf.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\frustum.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\geometry.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\hash.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\IDSZ_map.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\input_device.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\log.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\lua\lua_console.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\map_functions.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\mem.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\NSFileManager+DirectoryLocations.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\process.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\scancode.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\state_machine.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\strutil.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\system.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\threads.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\throttle.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\timer.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\typedef.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\vfs.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuildStep Include="file_formats\id_normals.inl">
@@ -306,6 +291,13 @@
     <None Include="..\..\egoboo%40egoboo%40github.com\egolib\libraries.props" />
     <None Include="..\..\egoboo%40egoboo%40github.com\egolib\lua-debug.props" />
     <None Include="..\..\egoboo%40egoboo%40github.com\egolib\physfs-debug.props" />
+    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bbox.inl" />
+    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bsp.inl" />
+    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\console.inl" />
+    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\egolib.inl" />
+    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\id_normals.inl" />
+    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\NSFileManager+DirectoryLocations.m" />
+    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.inl" />
     <None Include="lua.props" />
     <None Include="..\..\egoboo%40egoboo%40github.com\egolib\multithreaded_debug_dll.props" />
     <None Include="..\..\egoboo%40egoboo%40github.com\egolib\multithreaded_dll.props" />
@@ -317,24 +309,6 @@
     <None Include="..\..\egoboo%40egoboo%40github.com\egolib\sdl.props">
       <SubType>Designer</SubType>
     </None>
-    <None Include="bbox.inl" />
-    <None Include="bsp.inl" />
-    <None Include="console.inl" />
-    <None Include="egolib.inl" />
-    <None Include="file_formats\id_normals.inl" />
-    <None Include="platform\file_mac.m">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </None>
-    <None Include="platform\NSFileManager+DirectoryLocations.m">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </None>
-    <None Include="platform\sys_mac.m">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </None>
-    <None Include="_math.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
