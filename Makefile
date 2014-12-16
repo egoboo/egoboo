@@ -13,7 +13,7 @@ PROJ_VERSION	:= 2.x
 #---------------------
 # the target names
 
-EGO_DIR	          := ./game
+EGO_DIR           := ./game
 EGO_TARGET        := $(PROJ_NAME)-$(PROJ_VERSION)
 
 EGOLIB_DIR        := ./egolib
@@ -30,7 +30,7 @@ endif
 
 ifndef ($(INSTALL_DIR),"")
 	# the user can specify a non-standard location for "install"
-	INSTALL_DIR := ../install
+	INSTALL_DIR := game/data
 endif
 
 #------------------------------------
@@ -57,8 +57,8 @@ egoboo_lua: egolib_lua
 all: egolib egoboo
 
 clean:
-	make -C $(EGOLIB_DIR) clean
-	make -C $(EGO_DIR) clean
+	make -C $(EGOLIB_DIR) clean EGOLIB_TARGET=$(EGOLIB_TARGET)
+	make -C $(EGO_DIR) clean EGOLIB_TARGET=$(EGOLIB_TARGET)
 
 install: egoboo
 
@@ -69,10 +69,10 @@ install: egoboo
 
 #	copy the binary to the games folder
 	mkdir -p $(PREFIX)/games
-	install -m 755 $(EGO_DIR)/$(PROJ_NAME) $(PREFIX)/games
+	install -m 755 $(EGO_DIR)/$(EGO_TARGET) $(PREFIX)/games
 
 #	call the installer in the required install directory
-	make -C INSTALL_DIR install
+	make -C $(INSTALL_DIR) install
 
 	#####################################
 	# Egoboo installation is finished

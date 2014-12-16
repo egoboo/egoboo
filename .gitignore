@@ -18,3 +18,4 @@ game_vs13-Release/
 # Xcode
 xcuserdata
 *.xcuserstate
+*.xccheckout
