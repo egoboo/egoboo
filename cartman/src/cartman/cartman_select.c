@@ -34,7 +34,7 @@ select_lst_t * select_lst_default()
 }
 
 //--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_init( select_lst_t * plst, const cartman_mpd_t * pmpd )
+select_lst_t * select_lst_init( select_lst_t * plst, cartman_mpd_t * pmpd )
 {
     // get proper list
     if ( NULL == plst ) plst = &_selection;
@@ -163,7 +163,7 @@ int select_lst_count( const select_lst_t * plst )
 }
 
 //--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_synch_mesh( select_lst_t * plst, const cartman_mpd_t * pmesh )
+select_lst_t * select_lst_synch_mesh( select_lst_t * plst, cartman_mpd_t * pmesh )
 {
     if ( NULL == plst ) plst = &_selection;
     if ( NULL == plst ) return plst;
@@ -176,7 +176,7 @@ select_lst_t * select_lst_synch_mesh( select_lst_t * plst, const cartman_mpd_t *
 }
 
 //--------------------------------------------------------------------------------------------
-select_lst_t * select_lst_set_mesh( select_lst_t * plst, const cartman_mpd_t * pmesh )
+select_lst_t * select_lst_set_mesh( select_lst_t * plst, cartman_mpd_t * pmesh )
 {
     if ( NULL == plst ) plst = &_selection;
     if ( NULL == pmesh ) pmesh = &mesh;

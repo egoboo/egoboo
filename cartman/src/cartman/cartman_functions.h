@@ -59,11 +59,11 @@ void fix_vertices( struct s_cartman_mpd * pmesh, int mapx, int mapy );
 void weld_corner_verts( struct s_cartman_mpd * pmesh, int mapx, int mapy );
 
 // functions taking a selection as an argument
-void mesh_select_weld( const struct s_select_lst * plst );
-void mesh_select_move( const struct s_select_lst * plst, float x, float y, float z );
-void mesh_select_set_z_no_bound( const struct s_select_lst * plst, float z );
-void mesh_select_jitter( const struct s_select_lst * plst );
-void mesh_select_verts_connected( const struct s_select_lst * plst );
+void mesh_select_weld( struct s_select_lst * plst );
+void mesh_select_move( struct s_select_lst * plst, float x, float y, float z );
+void mesh_select_set_z_no_bound( struct s_select_lst * plst, float z );
+void mesh_select_jitter( struct s_select_lst * plst );
+void mesh_select_verts_connected( struct s_select_lst * plst );
 
 // select_lst_t extensions
 struct s_select_lst * select_lst_add_rect( struct s_select_lst * plst, float x0, float y0, float z0, float x1, float y1, float z1, int mode );

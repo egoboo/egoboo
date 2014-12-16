@@ -346,10 +346,10 @@ void draw_top_fan( select_lst_t * plst, int fan, float zoom_hrz, float zoom_vrt 
     cart_vec_t vpos;
 
     // aliases
-    cartman_mpd_t        * pmesh  = NULL;
+    const cartman_mpd_t  * pmesh  = NULL;
     tile_definition_t    * pdef   = NULL;
-    cartman_mpd_tile_t   * pfan   = NULL;
-    cartman_mpd_vertex_t * vlst   = NULL;
+    const cartman_mpd_tile_t   * pfan   = NULL;
+    const cartman_mpd_vertex_t * vlst   = NULL;
     tile_line_data_t     * plines = NULL;
 
     plst = select_lst_synch_mesh( plst, &mesh );

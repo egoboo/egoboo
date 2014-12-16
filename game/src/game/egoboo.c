@@ -123,7 +123,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     sys_initialize();
     clk_init();
-    _gclock = clk_create( "global clock", -1 );
+	_gclock = clk_create("global clock",1); 
+	EGOBOO_ASSERT(NULL != _gclock);
 
     // read the "setup.txt" file
     setup_read_vfs();
@@ -383,7 +384,7 @@ int do_ego_proc_leaving( ego_process_t * eproc )
     {
         // hopefully this will only happen once
         object_systems_end();
-        clk_destroy( &_gclock );
+		clk_destroy(_gclock); _gclock = NULL;
         egolib_console_end();
         ui_end();
         gfx_system_end();
@@ -558,7 +559,7 @@ void memory_cleanUp( void )
     }
 
     // shut down the clock services
-    clk_destroy( &_gclock );
+	if (_gclock) { clk_destroy(_gclock); _gclock = NULL; }
     clk_shutdown();
 
     // deallocate any dynamically allocated collision memory

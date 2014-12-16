@@ -92,19 +92,20 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
 
-#   define C_TRUE SDL_TRUE
-#   define C_FALSE SDL_FALSE
-#   define C_BOOLEAN SDL_bool
-
-#   if defined(__cplusplus)
-#       define ego_true  true
-#       define ego_false false
-#       define ego_bool  bool
-#   else
-#       define ego_true  C_TRUE
-#       define ego_false C_FALSE
-#       define ego_bool  C_BOOLEAN
+#if !defined(__cplusplus)
+	#include <stdbool.h>
 #endif
+
+/** @todo Remove this soon, simply use @a true. */
+#define C_TRUE true
+/** @todo Remove this soon, simply use @a false. */
+#define C_FALSE false
+/* @todo Remove this soon, simply use @a bool. */
+#define C_BOOLEAN bool
+
+#define ego_true  C_TRUE
+#define ego_false C_FALSE
+#define ego_bool  C_BOOLEAN
 
     // this typedef must be after the enum definition or gcc has a fit
 
@@ -223,6 +224,24 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 // RECTANGLE
+#if 0
+	template <T> struct s_rect
+	{
+		T left,
+	      right,
+		  top,
+		  bottom;
+	};
+	template <T> C_BOOLEAN rect_point_inside(const struct s_rect<T> *rect, T x, T y)
+	{
+		EGOBOO_ASSERT(NULL != rect);
+
+		if (x < r->left || x > r->right)  return C_FALSE;
+		if (y < r->top  || y > r->bottom) return C_FALSE;
+
+		return C_TRUE;
+	}
+#endif
     struct s_irect
     {
         int left;

@@ -2250,7 +2250,7 @@ ego_bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, ego
         fvec3_t   vforward;
 
         //---- generate billboards for things that players can interact with
-        if ( FEEDBACK_OFF != cfg.feedback && VALID_PLA( pchr_a->is_which_player ) )
+        if ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback && VALID_PLA( pchr_a->is_which_player ) )
         {
             // things that can be grabbed
             for ( cnt = 0; cnt < grab_count; cnt++ )
@@ -3551,7 +3551,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
     int     actual_damage, base_damage, max_damage;
     chr_t * pchr;
     cap_t * pcap;
-    ego_bool do_feedback = ( FEEDBACK_OFF != cfg.feedback );
+    ego_bool do_feedback = ( EGO_FEEDBACK_TYPE_OFF != cfg.feedback );
     ego_bool friendly_fire = ego_false, immune_to_damage = ego_false;
     Uint8  damage_modifier = 0;
 
@@ -8265,7 +8265,7 @@ const char* describe_value( float value, float maxval, int * rank_ptr )
 
     if ( NULL == rank_ptr ) rank_ptr = &local_rank;
 
-    if ( cfg.feedback == FEEDBACK_NUMBER )
+    if ( cfg.feedback == EGO_FEEDBACK_TYPE_NUMBER )
     {
         snprintf( retval, SDL_arraysize( retval ), "%2.1f", value );
         return retval;
@@ -8306,7 +8306,7 @@ const char* describe_damage( float value, float maxval, int * rank_ptr )
 
     if ( NULL == rank_ptr ) rank_ptr = &local_rank;
 
-    if ( cfg.feedback == FEEDBACK_NUMBER )
+    if ( cfg.feedback == EGO_FEEDBACK_TYPE_NUMBER )
     {
         snprintf( retval, SDL_arraysize( retval ), "%2.1f", FP8_TO_FLOAT( value ) );
         return retval;
@@ -8350,7 +8350,7 @@ const char* describe_wounds( float max, float current )
     if ( 0 == max ) return NULL;
     fval = ( current / max ) * 100;
 
-    if ( cfg.feedback == FEEDBACK_NUMBER )
+    if ( cfg.feedback == EGO_FEEDBACK_TYPE_NUMBER )
     {
         snprintf( retval, SDL_arraysize( retval ), "%2.1f", FP8_TO_FLOAT( current ) );
         return retval;

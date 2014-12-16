@@ -38,7 +38,7 @@
 struct s_ClockState
 {
     // Clock data
-    const char * name;
+    char *name;
 
     double sourceStartTime;  // The first value the clock receives from above function
     double sourceLastTime;  // The last value the clock received from above function
@@ -50,19 +50,18 @@ struct s_ClockState
 
     // Circular buffer to hold frame histories
     double *frameHistory;
-    int frameHistorySize;
-    int frameHistoryWindow;
-    int frameHistoryHead;
+    size_t frameHistorySize;
+    size_t frameHistoryWindow;
+    size_t frameHistoryHead;
 };
 
-static ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int size );
-static C_BOOLEAN         clk_dtor( ClockState_t * cs );
+static ClockState_t *clk_ctor(ClockState_t *self,const char * name,size_t window_size);
+static void clk_dtor(ClockState_t *self);
+static int clk_setFrameHistoryWindow(ClockState_t *self,size_t new_window_size);
 
-//static void   clk_initTime( ClockState_t * cs );
-static void   clk_setFrameHistoryWindow( ClockState_t * cs, int size );
 static void   clk_addToFrameHistory( ClockState_t * cs, double frame );
 static double clk_getExactLastFrameDuration( ClockState_t * cs );
-static double clk_guessFrameDuration( ClockState_t * cs );
+static double clk_guessFrameDuration(const ClockState_t *self);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -103,153 +102,174 @@ void clk_shutdown( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ClockState_t * clk_create( const char * name, int size )
+ClockState_t *clk_create(const char *name,size_t size)
 {
-    ClockState_t * cs;
-
-    cs = EGOBOO_NEW( ClockState_t );
-
-    return clk_ctor( cs, name, size );
+    ClockState_t *self;
+    self = EGOBOO_NEW(ClockState_t);
+	if (!self)
+	{
+		return NULL;
+	}
+	if (!clk_ctor(self,name,size))
+	{
+		EGOBOO_DELETE(self);
+		return NULL;
+	}
+	return self;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN clk_destroy( ClockState_t ** pcs )
+void clk_destroy(ClockState_t *self)
 {
-    if ( NULL == pcs ) return C_FALSE;
-
-    if ( NULL == *pcs ) return C_TRUE;
-
-    clk_dtor( *pcs );
-    EGOBOO_DELETE( *pcs );
-
-    return C_TRUE;
+    clk_dtor(self);
+    EGOBOO_DELETE(self);
 }
 
 //--------------------------------------------------------------------------------------------
-ClockState_t * clk_ctor( ClockState_t * cs, const char * name, int window_size )
+static ClockState_t *clk_ctor(ClockState_t *self,const char * name,size_t window_size)
 {
+	EGOBOO_ASSERT(NULL != self && NULL != name && window_size > 0);
     clock_source_ptr_t psrc;
-
-    if ( NULL == cs ) return cs;
-
-    BLANK_STRUCT_PTR( cs )
+    BLANK_STRUCT_PTR(self)
 
     psrc = clock_getTimeSource();
-    cs->sourceStartTime = psrc();
-    cs->sourceLastTime  = cs->sourceStartTime;
+    self->sourceStartTime = psrc();
+    self->sourceLastTime  = self->sourceStartTime;
 
-    cs->maximumFrameTime = 0.2;
-    cs->name = name;
-
-    if ( window_size < 0 ) window_size = 1;
-    clk_setFrameHistoryWindow( cs, window_size );
-
-    return cs;
+    self->maximumFrameTime = 0.2;
+	self->name = strdup(name);
+	if (!self->name)
+	{
+		/* @todo Do we have to release psrc? */
+		return NULL;
+	}
+	self->frameHistoryHead = 0;
+	self->frameHistory = EGOBOO_NEW_ARY(double,window_size);
+	if (!self->frameHistory)
+	{
+		free(self->name);
+		self->name = NULL;
+		return NULL; /* @todo Do we have to release psrc? */
+	}
+	self->frameHistoryWindow = window_size;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN clk_dtor( ClockState_t * cs )
+static void clk_dtor(ClockState_t *self)
 {
-    if ( NULL == cs ) return C_FALSE;
-
-    EGOBOO_DELETE_ARY( cs->frameHistory );
-
-    BLANK_STRUCT_PTR( cs )
-
-    return C_TRUE;
+	EGOBOO_ASSERT(NULL != self);
+    EGOBOO_DELETE_ARY(self->frameHistory);
+	free(self->name);
+	BLANK_STRUCT_PTR(self);
 }
 
 //--------------------------------------------------------------------------------------------
-ClockState_t * clk_renew( ClockState_t * cs )
+ClockState_t *clk_renew(ClockState_t *self)
 {
-    const char * name;
-    int size;
-
-    name = cs->name;
-    size = cs->frameHistorySize;
-
-    clk_dtor( cs );
-    return clk_ctor( cs, name, size );
+	clock_source_ptr_t psrc = clock_getTimeSource();
+	self->sourceStartTime = psrc();
+	self->sourceLastTime = self->sourceStartTime;
+	self->maximumFrameTime = 0.2;
+	self->frameHistoryHead = 0;
+	return self;
 }
 
 //--------------------------------------------------------------------------------------------
-void clk_setFrameHistoryWindow( ClockState_t * cs, int size )
+/**
+ * @brief
+ *	Set the frame history window size.
+ * @param self
+ *	the clock
+ * @param new_window_size
+ *	the new frame history window size
+ * @return
+ *	@a 0 on success, a non-zero value on faiure
+ * @pre
+ *	new_window_size > 0
+ * @post
+ *	If this function fails, the state of the clock is not observably modified.
+ */
+int clk_setFrameHistoryWindow(ClockState_t *self,size_t new_window_size)
 {
+	EGOBOO_ASSERT(NULL != self && new_window_size > 0);
     double *history;
-    int oldSize, newSize;
-
-    if ( NULL == cs ) return;
+    size_t old_window_size;
 
     // Save the old size of the array
-    oldSize = cs->frameHistoryWindow;
-
-    // Determine the new size of the array (minimum of 1)
-    newSize = ( size <= 1 ) ? 1 : size;
+    old_window_size = self->frameHistoryWindow;
 
     // create the new array
-    history = EGOBOO_NEW_ARY( double, newSize );
-    if ( NULL != history )
-    {
-        memset( history, 0, sizeof( *history ) * newSize );
-    }
+    history = EGOBOO_NEW_ARY(double, new_window_size);
+	if (!history)
+	{
+		return 1;
+	}
+	EGOBOO_ASSERT(NULL != history);
+	memset(history, 0, sizeof(double) * new_window_size);
 
-    if ( NULL != cs->frameHistory )
-    {
-        int smaller;
+	EGOBOO_ASSERT(NULL != self->frameHistory);
+	size_t smaller; /* @todo Use std::min. */
 
-        // Copy over the older history.  Make sure that only the size of the
-        // smaller buffer is copied
-        smaller = ( newSize < oldSize ) ? newSize : oldSize;
-        memcpy( history, cs->frameHistory, smaller );
+	// Copy over the older history. 
+	// Make sure that only the size of the smaller buffer is copied
+	smaller = (new_window_size < old_window_size) ? new_window_size : old_window_size;
+    memcpy(history, self->frameHistory, smaller);
 
-        EGOBOO_DELETE_ARY( cs->frameHistory );
-    }
+    EGOBOO_DELETE_ARY(self->frameHistory);
 
-    cs->frameHistoryHead   = 0;
-    cs->frameHistory       = history;
-    cs->frameHistoryWindow = newSize;
+    self->frameHistoryHead   = 0;
+    self->frameHistory       = history;
+    self->frameHistoryWindow = new_window_size;
+	return 0;
 }
 
 //--------------------------------------------------------------------------------------------
-double clk_guessFrameDuration( ClockState_t * cs )
-{
-    double time = 0;
 
-    if ( 1 == cs->frameHistorySize )
+/**
+* @brief
+*	Guess the duration of a frame based on data recorded in the frame history window.
+* @param self
+*	the clock
+* @return
+*	the guessed duration of a frame.
+*/
+double clk_guessFrameDuration(const ClockState_t *self)
+{
+	EGOBOO_ASSERT(NULL != self);
+    double time = 0;
+    if (1 == self->frameHistorySize)
     {
-        time = cs->frameHistory[0];
+        time = self->frameHistory[0];
     }
     else
     {
-        int c;
         double totalTime = 0;
-
-        for ( c = 0; c < cs->frameHistorySize; c++ )
+        for (size_t c = 0; c < self->frameHistorySize; c++)
         {
-            totalTime += cs->frameHistory[c];
+            totalTime += self->frameHistory[c];
         }
-
-        time = totalTime / cs->frameHistorySize;
-    };
+        time = totalTime / self->frameHistorySize;
+    }
 
     return time;
 }
 
 //--------------------------------------------------------------------------------------------
-void clk_addToFrameHistory( ClockState_t * cs, double frame )
+void clk_addToFrameHistory(ClockState_t *self,double frame_duration)
 {
-    cs->frameHistory[cs->frameHistoryHead] = frame;
+    self->frameHistory[self->frameHistoryHead] = frame_duration;
 
-    cs->frameHistoryHead++;
-    if ( cs->frameHistoryHead >= cs->frameHistoryWindow )
+    self->frameHistoryHead++;
+    if (self->frameHistoryHead >= self->frameHistoryWindow )
     {
-        cs->frameHistoryHead = 0;
+        self->frameHistoryHead = 0;
     }
 
-    cs->frameHistorySize++;
-    if ( cs->frameHistorySize > cs->frameHistoryWindow )
+    self->frameHistorySize++;
+    if (self->frameHistorySize > self->frameHistoryWindow )
     {
-        cs->frameHistorySize = cs->frameHistoryWindow;
+        self->frameHistorySize = self->frameHistoryWindow;
     }
 }
 
@@ -284,6 +304,7 @@ double clk_getExactLastFrameDuration( ClockState_t * cs )
 //--------------------------------------------------------------------------------------------
 void clk_frameStep( ClockState_t * cs )
 {
+	EGOBOO_ASSERT(NULL != cs);
     double lastFrame = clk_getExactLastFrameDuration( cs );
     clk_addToFrameHistory( cs, lastFrame );
 

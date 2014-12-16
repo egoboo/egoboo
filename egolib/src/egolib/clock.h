@@ -42,24 +42,24 @@ extern "C"
 
     typedef double( *clock_source_ptr_t )( void );
 
-    typedef struct tm* EGO_TIME;
+	typedef struct tm* EGO_TIME;
 
-//--------------------------------------------------------------------------------------------
-// PROFILING MACROS
-//--------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------
+	// PROFILING MACROS
+	//--------------------------------------------------------------------------------------------
 
-// macros to use the high resolution timer for profiling
+	// macros to use the high resolution timer for profiling
 #define PROFILE_KEEP  0.9F
 #define PROFILE_NEW  (1.0F - PROFILE_KEEP)
 
-#define PROFILE_DECLARE_STRUCT    ClockState_t * _clkstate; double _clkcount; double _clktime
-#define PROFILE_INIT_STRUCT(XX,PTR) (PTR)->_clkstate  = clk_create(#XX, -1);
-#define PROFILE_FREE_STRUCT(PTR)    clk_destroy(&((PTR)->_clkstate));
+#define PROFILE_DECLARE_STRUCT      ClockState_t * _clkstate = NULL; double _clkcount; double _clktime
+#define PROFILE_INIT_STRUCT(XX,PTR) (PTR)->_clkstate  = clk_create(#XX,1);
+#define PROFILE_FREE_STRUCT(PTR)    if (NULL != (PTR)->_clkstate) { clk_destroy(((PTR)->_clkstate)); ((PTR)->_clkstate) = NULL; }
 
-#define PROFILE_DECLARE(XX)        static ClockState_t * clkstate_##XX = NULL; static double clkcount_##XX = 0.0F; static double clktime_##XX = 0.0F;
-#define PROFILE_INIT(XX)           clkstate_##XX  = clk_create(#XX, -1);
-#define PROFILE_RESET(XX)          clkcount_##XX = 0.0; clktime_##XX = 0.0;
-#define PROFILE_FREE(XX)           clk_destroy(&(clkstate_##XX));
+#define PROFILE_DECLARE(XX)         static ClockState_t * clkstate_##XX = NULL; static double clkcount_##XX = 0.0F; static double clktime_##XX = 0.0F;
+#define PROFILE_INIT(XX)            clkstate_##XX  = clk_create(#XX,1);
+#define PROFILE_RESET(XX)           clkcount_##XX = 0.0; clktime_##XX = 0.0;
+#define PROFILE_FREE(XX)            if (NULL != (clkstate_##XX)) { clk_destroy((clkstate_##XX)); (clkstate_##XX) = NULL; }
 
 #if defined(DEBUG_PROFILE) && defined(_DEBUG)
 
@@ -91,17 +91,41 @@ extern "C"
 // struct s_ClockState
 //--------------------------------------------------------------------------------------------
 
-    struct s_ClockState;
+struct s_ClockState;
 
-    ClockState_t * clk_create( const char * name, int size );
-    C_BOOLEAN         clk_destroy( ClockState_t ** cs );
-    ClockState_t * clk_renew( ClockState_t * cs );
+/**
+ * @brief
+ *	Create a clock.
+ * @param name
+ *	the name of the clock.
+ *	An internal copy of the string is stored.
+ * @param window_size
+ *	the histogram size of the clock.
+ * @return
+ *	a pointer to the clock on success, @a NULL on failure
+ * @pre
+ *	NULL != name && window_size > 0
+ * @remark
+ *	A histogram of size @a n records the duration of @a n frames.
+ *	The average frame duration can be computed from the recorded frame durations.
+ */
+ClockState_t *clk_create(const char *name,size_t window_size);
 
-    void     clk_frameStep( ClockState_t * cs );          ///< Update the clock.
-    double   clk_getTime( ClockState_t * cs );            ///< Returns the current time.  The clock's time only updates when clk_frameStep() is called
-    double   clk_getFrameDuration( ClockState_t * cs );   ///< Return the length of the current frame. (Sort of.)
-    Uint32   clk_getFrameNumber( ClockState_t * cs );     ///< Return which frame we're on
-    float    clk_getFrameRate( ClockState_t * cs );       ///< Return the current instantaneous FPS
+/**
+ * @brief
+ *	Destroy a clock.
+ * @param cs
+ *	a pointer to the clock
+ */
+void clk_destroy(ClockState_t *self);
+
+ClockState_t * clk_renew( ClockState_t * cs );
+
+void     clk_frameStep( ClockState_t * cs );          ///< Update the clock.
+double   clk_getTime( ClockState_t * cs );            ///< Returns the current time.  The clock's time only updates when clk_frameStep() is called
+double   clk_getFrameDuration( ClockState_t * cs );   ///< Return the length of the current frame. (Sort of.)
+Uint32   clk_getFrameNumber( ClockState_t * cs );     ///< Return which frame we're on
+float    clk_getFrameRate( ClockState_t * cs );       ///< Return the current instantaneous FPS
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES

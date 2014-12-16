@@ -73,25 +73,25 @@ struct s_chr_prt_collsion_data
     //---- collision parameters
 
     // true collisions
-    ego_bool    int_min;
+    ego_bool  int_min;
     float     depth_min;
 
     // hit-box collisions
-    ego_bool    int_max;
+    ego_bool  int_max;
     float     depth_max;
 
     // platform interactions
-    //ego_bool    int_plat;
+    //ego_bool  int_plat;
     //float     plat_lerp;
 
-    ego_bool    is_impact;
-    ego_bool    is_pressure;
-    ego_bool    is_collision;
+    ego_bool  is_impact;
+    ego_bool  is_pressure;
+    ego_bool  is_collision;
     float     dot;
     fvec3_t   nrm;
 
     // collision modifications
-    ego_bool   mana_paid;
+    ego_bool mana_paid;
     int      max_damage, actual_damage;
     fvec3_t  vdiff, vdiff_para, vdiff_perp;
     float    block_factor;

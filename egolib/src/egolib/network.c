@@ -1063,9 +1063,7 @@ BaseServerState_t * BaseServerState_ctor( BaseServerState_t * ptr, size_t size )
             }
             else
             {
-                int cnt;
-
-                for ( cnt = 0; cnt < size; cnt++ )
+                for (size_t cnt = 0; cnt < size; cnt++ )
                 {
                     BaseConnectionInfo_ctor( ptr->client_info + cnt );
                 }
@@ -1100,15 +1098,13 @@ BaseServerState_t * BaseServerState_dtor( BaseServerState_t * ptr )
 //--------------------------------------------------------------------------------------------
 int BaseServerState_count_connections( BaseServerState_t * ptr )
 {
-    int cnt;
-
     if ( NULL == ptr ) return 0;
 
     // count the valid connections
     ptr->client_count = 0;
     if ( NULL != ptr->client_info )
     {
-        for ( cnt = 0; cnt < ptr->client_size; cnt++ )
+        for (size_t cnt = 0; cnt < ptr->client_size; cnt++ )
         {
             if ( -1 != ptr->client_info[cnt].connection_slot )
             {

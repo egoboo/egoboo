@@ -3149,9 +3149,9 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
     /// @details update everything about a particle that does not depend on collisions
     ///               or interactions with characters
 
-    obj_data_t * base_ptr;
-    prt_t             * loc_pprt;
-    pip_t             * loc_ppip;
+    obj_data_t *base_ptr;
+    prt_t      *loc_pprt;
+    pip_t      *loc_ppip;
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
     loc_pprt = pbdl_prt->prt_ptr;

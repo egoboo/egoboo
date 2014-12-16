@@ -72,11 +72,9 @@ float read_float_RW( SDL_RWops * rw )
 //--------------------------------------------------------------------------------------------
 float * read_SDL_vecf_RW( SDL_RWops * rw, float vec[], size_t count )
 {
-    int i;
-
     if ( NULL == vec ) return vec;
 
-    for ( i = 0; i < count; i++ )
+    for (size_t i = 0; i < count; i++)
     {
         vec[i] = read_float_RW( rw );
     }
@@ -87,11 +85,9 @@ float * read_SDL_vecf_RW( SDL_RWops * rw, float vec[], size_t count )
 //--------------------------------------------------------------------------------------------
 Uint8 * read_SDL_vecuc_RW( SDL_RWops * rw, Uint8 vec[], size_t count )
 {
-    int i;
+    if (NULL == vec) return vec;
 
-    if ( NULL == vec ) return vec;
-
-    for ( i = 0; i < count; i++ )
+    for (size_t i = 0; i < count; i++)
     {
         SDL_RWread( rw, vec + i, 1, 1 );
     }
@@ -102,11 +98,9 @@ Uint8 * read_SDL_vecuc_RW( SDL_RWops * rw, Uint8 vec[], size_t count )
 //--------------------------------------------------------------------------------------------
 Uint16 * read_SDL_vecus_RW( SDL_RWops * rw, Uint16 vec[],  size_t count )
 {
-    int i;
-
     if ( NULL == vec ) return vec;
 
-    for ( i = 0; i < count; i++ )
+    for ( size_t i = 0; i < count; i++ )
     {
         vec[i] = SDL_ReadLE16( rw );
     }
@@ -154,15 +148,13 @@ SDL_md2_header_t * load_SDL_md2_header_RW( SDL_RWops * rw, SDL_md2_header_t * pd
 //--------------------------------------------------------------------------------------------
 SDL_md2_skin_t * load_SDL_md2_skin_RW( SDL_RWops * rw, SDL_md2_skin_t * pdata, size_t count )
 {
-    int i;
-
     if ( NULL == pdata ) return pdata;
 
     memset( pdata, 0, count * 64 * sizeof( char ) );
 
     if ( NULL == rw ) return pdata;
 
-    for ( i = 0; i < count; i++ )
+    for (size_t i = 0; i < count; i++)
     {
         read_SDL_string_RW( rw, pdata[i].name, 64 );
     }
@@ -173,15 +165,13 @@ SDL_md2_skin_t * load_SDL_md2_skin_RW( SDL_RWops * rw, SDL_md2_skin_t * pdata, s
 //--------------------------------------------------------------------------------------------
 SDL_md2_texcoord_t * load_SDL_md2_texcoord_RW( SDL_RWops * rw, SDL_md2_texcoord_t * pdata, size_t count )
 {
-    int i;
-
     if ( NULL == pdata ) return pdata;
 
     memset( pdata, 0, count * sizeof( SDL_md2_texcoord_t ) );
 
     if ( NULL == rw ) return pdata;
 
-    for ( i = 0; i < count; i++ )
+    for (size_t i = 0; i < count; i++)
     {
         SDL_md2_texcoord_t * ptex = pdata + i;
 
@@ -195,15 +185,13 @@ SDL_md2_texcoord_t * load_SDL_md2_texcoord_RW( SDL_RWops * rw, SDL_md2_texcoord_
 //--------------------------------------------------------------------------------------------
 SDL_md2_triangle_t * load_SDL_md2_triangle_RW( SDL_RWops * rw, SDL_md2_triangle_t * pdata, size_t count )
 {
-    int i;
-
     if ( NULL == pdata ) return pdata;
 
     memset( pdata, 0, sizeof( SDL_md2_header_t ) );
 
     if ( NULL == rw ) return pdata;
 
-    for ( i = 0; i < count; i++ )
+    for (size_t i = 0; i < count; i++)
     {
         SDL_md2_triangle_t * ptri = pdata + i;
 
@@ -217,15 +205,13 @@ SDL_md2_triangle_t * load_SDL_md2_triangle_RW( SDL_RWops * rw, SDL_md2_triangle_
 //--------------------------------------------------------------------------------------------
 SDL_md2_vertex_t * load_SDL_md2_vertex_RW( SDL_RWops * rw, SDL_md2_vertex_t * pdata, size_t count )
 {
-    int i;
-
     if ( NULL == pdata ) return pdata;
 
     memset( pdata, 0, count * sizeof( SDL_md2_vertex_t ) );
 
     if ( NULL == rw ) return pdata;
 
-    for ( i = 0; i < count; ++i )
+    for (size_t i = 0; i < count; ++i)
     {
         SDL_md2_vertex_t * pvrt = pdata + i;
 
@@ -239,8 +225,6 @@ SDL_md2_vertex_t * load_SDL_md2_vertex_RW( SDL_RWops * rw, SDL_md2_vertex_t * pd
 //--------------------------------------------------------------------------------------------
 SDL_md2_frame_t * load_SDL_md2_frame_RW( SDL_RWops * rw, SDL_md2_frame_t * pdata, size_t fcount, size_t vcount )
 {
-    int i;
-
     if ( NULL == pdata ) return pdata;
 
     SDL_md2_frame_free( pdata, fcount );
@@ -248,7 +232,7 @@ SDL_md2_frame_t * load_SDL_md2_frame_RW( SDL_RWops * rw, SDL_md2_frame_t * pdata
     if ( NULL == rw ) return pdata;
 
     /* Read frames */
-    for ( i = 0; i < fcount; ++i )
+    for ( size_t i = 0; i < fcount; ++i )
     {
         SDL_md2_frame_t * pframe = pdata + i;
 
@@ -270,16 +254,13 @@ Sint32 * load_SDL_glcmd_RW( SDL_RWops * rw, Sint32 * pdata, size_t size )
 {
     // BB> this reads the raw command data. It will need to be scanned, switched to the
     //     proper endian type, and decoded to be used.
-
-    int i;
-
     if ( NULL == pdata ) return pdata;
 
     memset( pdata, 0, size * sizeof( Sint32 ) );
 
     if ( NULL == rw ) return pdata;
 
-    for ( i = 0; i < size; i++ )
+    for ( size_t i = 0; i < size; i++ )
     {
         pdata[i] = SDL_ReadLE32( rw );
     }
@@ -467,11 +448,9 @@ SDL_md2_alloc_fail:
 //--------------------------------------------------------------------------------------------
 SDL_bool SDL_md2_frame_free( SDL_md2_frame_t * pdata, size_t fcount )
 {
-    int i;
-
     if ( NULL == pdata ) return SDL_FALSE;
 
-    for ( i = 0; i < fcount; ++i )
+    for ( size_t i = 0; i < fcount; ++i )
     {
         SDL_md2_frame_t * pframe = pdata + i;
 

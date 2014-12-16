@@ -68,7 +68,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
@@ -84,7 +84,7 @@
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4820%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ShowIncludes>false</ShowIncludes>
       <FloatingPointExceptions>true</FloatingPointExceptions>
@@ -100,6 +100,7 @@
       <CompileAsManaged>false</CompileAsManaged>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -140,7 +141,7 @@
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CompileAs>CompileAsC</CompileAs>
+      <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4820;4668;4255;4738;4710;4711;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ShowIncludes>false</ShowIncludes>
       <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>

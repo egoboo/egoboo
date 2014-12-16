@@ -687,11 +687,11 @@ float cartman_mpd_get_level( cartman_mpd_t * pmesh, float x, float y )
 //--------------------------------------------------------------------------------------------
 int cartman_mpd_free_vertex_list( cartman_mpd_t * pmesh, int list[], size_t size )
 {
-    int cnt, ivrt;
+    int ivrt;
 
     if ( NULL == pmesh || NULL == list || 0 == size ) return -1;
 
-    for ( cnt = 0; cnt < size; cnt++ )
+    for (size_t cnt = 0; cnt < size; cnt++ )
     {
         ivrt = list[cnt];
         if ( !CART_VALID_VERTEX_RANGE( ivrt ) ) break;
@@ -706,8 +706,8 @@ int cartman_mpd_free_vertex_list( cartman_mpd_t * pmesh, int list[], size_t size
 //--------------------------------------------------------------------------------------------
 int cartman_mpd_allocate_vertex_list( cartman_mpd_t * pmesh, int list[], size_t size, size_t count )
 {
-    int cnt, valid_verts;
-    int allocated = 0;
+	size_t cnt, valid_verts;
+	int allocated = 0;
     Uint32 vrt_at_old = 0, vrt_free_old = MAP_VERTICES_MAX;
 
     ego_bool alloc_error = ego_false;
@@ -725,7 +725,7 @@ int cartman_mpd_allocate_vertex_list( cartman_mpd_t * pmesh, int list[], size_t 
 
     // try to allocate the vertices
     alloc_error = ego_false;
-    for ( cnt = 0, valid_verts = 0; cnt < count; cnt++, valid_verts++ )
+    for (cnt = 0, valid_verts = 0; cnt < count; cnt++, valid_verts++ )
     {
         int vert = cartman_mpd_find_free_vertex( pmesh );
         if ( vert < 0 )

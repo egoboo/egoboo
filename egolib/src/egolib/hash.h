@@ -47,18 +47,17 @@ extern "C"
 /// a hash type for "efficiently" storing data
     struct s_hash_node
     {
-        struct s_hash_node * next;
-
-        void * data;
+        struct s_hash_node *next;
+        void *data;
     };
 
-    hash_node_t * hash_node_create( void * data );
-    C_BOOLEAN        hash_node_destroy( hash_node_t ** );
-    hash_node_t * hash_node_ctor( hash_node_t * n, void * data );
-    hash_node_t * hash_node_insert_after( hash_node_t lst[], hash_node_t * n );
-    hash_node_t * hash_node_insert_before( hash_node_t lst[], hash_node_t * n );
-    hash_node_t * hash_node_remove_after( hash_node_t lst[] );
-    hash_node_t * hash_node_remove( hash_node_t lst[] );
+    hash_node_t *hash_node_create( void * data );
+    C_BOOLEAN    hash_node_destroy( hash_node_t ** );
+    hash_node_t *hash_node_ctor( hash_node_t * n, void * data );
+    hash_node_t *hash_node_insert_after( hash_node_t lst[], hash_node_t * n );
+    hash_node_t *hash_node_insert_before( hash_node_t lst[], hash_node_t * n );
+    hash_node_t *hash_node_remove_after( hash_node_t lst[] );
+    hash_node_t *hash_node_remove( hash_node_t lst[] );
 
 //--------------------------------------------------------------------------------------------
     struct s_hash_list
@@ -69,12 +68,17 @@ extern "C"
     };
 
     hash_list_t * hash_list_create( int size );
-    C_BOOLEAN        hash_list_destroy( hash_list_t ** );
+    C_BOOLEAN     hash_list_destroy( hash_list_t ** );
+	/* @todo MH: Make private. */
     hash_list_t * hash_list_ctor( hash_list_t * lst, int size );
+	/* @todo: MH: Make private. */
     hash_list_t * hash_list_dtor( hash_list_t * lst );
-    C_BOOLEAN        hash_list_free( hash_list_t * lst );
-    C_BOOLEAN        hash_list_alloc( hash_list_t * lst, int size );
-    C_BOOLEAN        hash_list_renew( hash_list_t * lst );
+	/* @todo MH: Make private. */
+    C_BOOLEAN     hash_list_free( hash_list_t * lst );
+	/* @todo MH: Make private. */
+    C_BOOLEAN     hash_list_alloc( hash_list_t * lst, int size );
+	/* @todo MH: Make private. */
+    C_BOOLEAN     hash_list_renew( hash_list_t * lst );
 
     size_t        hash_list_count_nodes( hash_list_t *plst );
     int           hash_list_get_allocd( hash_list_t *plst );

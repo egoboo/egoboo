@@ -165,11 +165,11 @@ void egoboo_config__init( egoboo_config_t * pcfg )
 
     // {GAME}
     pcfg->message_count_req     = 6;
-    pcfg->message_duration      = 50;               // Time to keep the message alive
-    pcfg->show_stats            = C_TRUE;            // Draw the status bars?
-    pcfg->autoturncamera        = CAM_TURN_GOOD;    // Type of camera control...
-    pcfg->feedback              = FEEDBACK_TEXT;    // What feedback does the player want
-    pcfg->difficulty            = GAME_NORMAL;      // What is the current game difficulty
+    pcfg->message_duration      = 50;                      // Time to keep the message alive
+    pcfg->show_stats            = C_TRUE;                  // Draw the status bars?
+    pcfg->autoturncamera        = CAM_TURN_GOOD;           // Type of camera control...
+    pcfg->feedback              = EGO_FEEDBACK_TYPE_TEXT;  // What feedback does the player want
+    pcfg->difficulty            = GAME_NORMAL;             // What is the current game difficulty
 
     // {DEBUG}
     pcfg->fps_allowed       = C_TRUE;             // FPS displayed?
@@ -412,7 +412,7 @@ C_BOOLEAN setup_download( egoboo_config_t * pcfg )
 
     //Feedback
     GetKey_int( "FEEDBACK", lTempInt, cfg_default.feedback );
-    pcfg->feedback = ( FEEDBACK_TYPE )lTempInt;
+    pcfg->feedback = ( EGO_FEEDBACK_TYPE )lTempInt;
 
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );

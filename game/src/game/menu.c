@@ -2959,8 +2959,8 @@ int doGameOptions( float deltaTime )
             if ( !cfg.feedback ) sz_buttons[5] = "Disabled";
             else
             {
-                if ( cfg.feedback == FEEDBACK_TEXT ) sz_buttons[5] = "Enabled";
-                else                              sz_buttons[5] = "Debug";
+                if ( cfg.feedback == EGO_FEEDBACK_TYPE_TEXT ) sz_buttons[5] = "Enabled";
+                else                                          sz_buttons[5] = "Debug";
             }
 
             // Fall trough
@@ -3102,26 +3102,26 @@ int doGameOptions( float deltaTime )
             {
                 if ( cfg.dev_mode )
                 {
-                    cfg.feedback = ( FEEDBACK_TYPE )( cfg.feedback + 1 );
-                    if ( cfg.feedback > FEEDBACK_NUMBER ) cfg.feedback = FEEDBACK_OFF;
+                    cfg.feedback = ( EGO_FEEDBACK_TYPE )( cfg.feedback + 1 );
+                    if ( cfg.feedback > EGO_FEEDBACK_TYPE_NUMBER ) cfg.feedback = EGO_FEEDBACK_TYPE_OFF;
                 }
                 else
                 {
-                    if ( FEEDBACK_OFF == cfg.feedback )
+                    if ( EGO_FEEDBACK_TYPE_OFF == cfg.feedback )
                     {
-                        cfg.feedback = FEEDBACK_TEXT;
+                        cfg.feedback = EGO_FEEDBACK_TYPE_TEXT;
                     }
                     else
                     {
-                        cfg.feedback = FEEDBACK_OFF;
+                        cfg.feedback = EGO_FEEDBACK_TYPE_OFF;
                     }
                 }
 
                 switch ( cfg.feedback )
                 {
-                    case FEEDBACK_OFF:    sz_buttons[5] = "Disabled"; break;
-                    case FEEDBACK_TEXT:   sz_buttons[5] = "Enabled";  break;
-                    case FEEDBACK_NUMBER: sz_buttons[5] = "Debug";    break;
+                    case EGO_FEEDBACK_TYPE_OFF:    sz_buttons[5] = "Disabled"; break;
+                    case EGO_FEEDBACK_TYPE_TEXT:   sz_buttons[5] = "Enabled";  break;
+                    case EGO_FEEDBACK_TYPE_NUMBER: sz_buttons[5] = "Debug";    break;
                 }
             }
 

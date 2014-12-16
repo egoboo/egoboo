@@ -243,13 +243,13 @@ int scantag_find_index( const char *string )
     /// @details Find the index of the scantag that matches the given string.
     ///    It will return -1 if there are no matches.
 
-    int cnt, retval;
+    int retval;
 
     // assume no matches
     retval = -1;
 
     // find a match, if possible
-    for ( cnt = 0; cnt < scantag_count; cnt++ )
+    for (size_t cnt = 0; cnt < scantag_count; cnt++ )
     {
         if ( 0 == strcmp( string, scantag_lst[cnt].name ) )
         {

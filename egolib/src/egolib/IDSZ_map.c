@@ -122,17 +122,14 @@ IDSZ_node_t* idsz_map_get( const IDSZ_node_t idsz_map[], const size_t idsz_map_l
 {
     /// @details ZF> This function returns a pointer to the IDSZ_node_t from the IDSZ specified
     ///              or NULL if it wasn't found in the map.
-
-    int i;
-    size_t key;
     IDSZ_node_t* found_node = NULL;
 
     if ( NULL == idsz_map || IDSZ_NONE == idsz ) return NULL;
 
     // iterate the map
-    for ( i = 0; i < idsz_map_len; i++ )
+    for (size_t i = 0; i < idsz_map_len; i++)
     {
-        key = ( idsz + i ) % idsz_map_len;
+        size_t key = ( idsz + i ) % idsz_map_len;
 
         // found an empty spot, it's not in here
         if ( IDSZ_NONE == idsz_map[key].id ) break;

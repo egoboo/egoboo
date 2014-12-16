@@ -232,7 +232,7 @@ void weld_BL( cartman_mpd_t * pmesh, int mapx, int mapy )
 }
 
 //--------------------------------------------------------------------------------------------
-int get_fan_vertex_by_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int grid_ix, int grid_iy, int ext_verts[] )
+int get_fan_vertex_by_coord( const cartman_mpd_t * pmesh, const cartman_mpd_tile_t * pfan, int grid_ix, int grid_iy, int ext_verts[] )
 {
     int cnt, ivrt, idx, gx, gy;
 
@@ -240,7 +240,7 @@ int get_fan_vertex_by_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, i
     int * vert_lst = NULL;
 
     tile_definition_t    * pdef;
-    cartman_mpd_vertex_t * pvrt;
+    const cartman_mpd_vertex_t * pvrt;
 
     // catch bad parameters
     if ( NULL == pmesh || NULL == pfan ) return -1;
@@ -454,7 +454,7 @@ ego_bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, in
             pvrt = CART_MPD_VERTEX_PTR( pmesh, ivrt );
             if ( NULL != pvrt && VERTEXUNUSED != pvrt->a )
             {
-                float weight = exp( - SQR( gx - grid_ix ) - SQR( gy - grid_iy ) );
+                float weight = expf( - SQR( gx - grid_ix ) - SQR( gy - grid_iy ) );
 
                 vsum.x += pvrt->x * weight;
                 vsum.y += pvrt->y * weight;
@@ -825,7 +825,7 @@ int nearest_edge_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, float nearx,
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_move( const select_lst_t * plst, float x, float y, float z )
+void mesh_select_move( select_lst_t * plst, float x, float y, float z )
 {
     int ivrt, cnt;
     float newx, newy, newz;
@@ -883,7 +883,7 @@ void mesh_select_move( const select_lst_t * plst, float x, float y, float z )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_set_z_no_bound( const select_lst_t * plst, float z )
+void mesh_select_set_z_no_bound( select_lst_t * plst, float z )
 {
     int vert, cnt;
 
@@ -910,7 +910,7 @@ void mesh_select_set_z_no_bound( const select_lst_t * plst, float z )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_jitter( const select_lst_t * plst )
+void mesh_select_jitter( select_lst_t * plst )
 {
     int cnt;
     Uint32 vert;
@@ -933,7 +933,7 @@ void mesh_select_jitter( const select_lst_t * plst )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_verts_connected( const select_lst_t * plst )
+void mesh_select_verts_connected( select_lst_t * plst )
 {
     int vert, cnt, tnc, mapx, mapy;
     Uint8 select_vertsfan;
@@ -995,7 +995,7 @@ void mesh_select_verts_connected( const select_lst_t * plst )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_select_weld( const select_lst_t * plst )
+void mesh_select_weld( select_lst_t * plst )
 {
     // ZZ> This function welds the highlighted vertices
 

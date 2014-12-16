@@ -967,11 +967,10 @@ C_BOOLEAN vfs_get_line( vfs_FILE * fileread, char * str, size_t str_len )
     found = C_FALSE;
     if ( gets_rv == str )
     {
-        int cnt;
         found = C_TRUE;
 
         // make sure the string terminates as egoboo expects
-        for ( cnt = 0; cnt < str_len; cnt++ )
+        for (size_t cnt = 0; cnt < str_len; cnt++ )
         {
             if ( ASCII_LINEFEED_CHAR == str[cnt] || C_FORMFEED_CHAR == str[cnt] || C_NEW_LINE_CHAR == str[cnt] )
             {

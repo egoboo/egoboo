@@ -50,15 +50,15 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 // What feedback does the user want
-    enum e_feedback
+    enum ego_feedback_type
     {
-        FEEDBACK_OFF = 0,           //None
-        FEEDBACK_TEXT,              //Descriptive text
-        FEEDBACK_NUMBER             //Show the damage as a number
+        EGO_FEEDBACK_TYPE_OFF = 0,           //None
+        EGO_FEEDBACK_TYPE_TEXT,              //Descriptive text
+        EGO_FEEDBACK_TYPE_NUMBER             //Show the damage as a number
     };
 
     // this typedef must be after the enum definition or gcc has a fit
-    typedef enum e_feedback FEEDBACK_TYPE;
+    typedef enum ego_feedback_type EGO_FEEDBACK_TYPE;
 
 //--------------------------------------------------------------------------------------------
 // struct s_egoboo_config
@@ -68,29 +68,29 @@ extern "C"
     struct s_egoboo_config
     {
         // {GRAPHIC}
-        C_BOOLEAN                  fullscreen_req;            ///< Start in fullscreen?
+        C_BOOLEAN               fullscreen_req;            ///< Start in fullscreen?
         int                     scrd_req;                  ///< Screen bit depth
         int                     scrz_req;                  ///< Screen z-buffer depth ( 8 unsupported )
         int                     scrx_req;                  ///< Screen X size
         int                     scry_req;                  ///< Screen Y size
-        C_BOOLEAN                  use_perspective;               ///< Perspective correct textures?
-        C_BOOLEAN                  use_dither;                    ///< Dithering?
-        C_BOOLEAN                  reflect_allowed;           ///< Reflections?
+        C_BOOLEAN               use_perspective;           ///< Perspective correct textures?
+        C_BOOLEAN               use_dither;                ///< Dithering?
+        C_BOOLEAN               reflect_allowed;           ///< Reflections?
         Uint8                   reflect_fade;              ///< 255 = Don't fade reflections
-        C_BOOLEAN                  reflect_prt;               ///< Reflect particles?
-        C_BOOLEAN                  shadow_allowed;            ///< Shadows?
-        C_BOOLEAN                  shadow_sprite;             ///< Shadow sprites?
-        C_BOOLEAN                  use_phong;                 ///< Do phong overlay?
-        C_BOOLEAN                  twolayerwater_allowed;     ///< Two layer water?
-        C_BOOLEAN                  overlay_allowed;           ///< Allow large overlay?
-        C_BOOLEAN                  background_allowed;        ///< Allow large background?
-        C_BOOLEAN                  fog_allowed;
-        C_BOOLEAN                  gouraud_req;               ///< Gouraud shading?
-        Uint8                   multisamples;          ///< Antialiasing?
-        Uint8                   texturefilter_req;             ///< Texture filtering?
+        C_BOOLEAN               reflect_prt;               ///< Reflect particles?
+        C_BOOLEAN               shadow_allowed;            ///< Shadows?
+        C_BOOLEAN               shadow_sprite;             ///< Shadow sprites?
+        C_BOOLEAN               use_phong;                 ///< Do phong overlay?
+        C_BOOLEAN               twolayerwater_allowed;     ///< Two layer water?
+        C_BOOLEAN               overlay_allowed;           ///< Allow large overlay?
+        C_BOOLEAN               background_allowed;        ///< Allow large background?
+        C_BOOLEAN               fog_allowed;
+        C_BOOLEAN               gouraud_req;               ///< Gouraud shading?
+        Uint8                   multisamples;              ///< Antialiasing?
+        Uint8                   texturefilter_req;         ///< Texture filtering?
         int                     dyna_count_req;            ///< Max number of lights to draw
         Sint32                  framelimit;
-        Uint16                  particle_count_req;                              ///< max number of particles
+        Uint16                  particle_count_req;        ///< max number of particles
 
         // {SOUND}
         C_BOOLEAN                  sound_allowed;
@@ -104,7 +104,7 @@ extern "C"
         C_BOOLEAN                  sound_footfall;
 
         // {NETWORK}
-        C_BOOLEAN                  network_allowed;            ///< Try to connect?
+        C_BOOLEAN               network_allowed;            ///< Try to connect?
         int                     network_lag;                ///< Lag tolerance
         char                    network_hostname[64];                            ///< Name for hosting session
         char                    network_messagename[64];                         ///< Name for messages
@@ -112,17 +112,17 @@ extern "C"
         // {GAME}
         int                     message_count_req;
         Uint16                  message_duration;        ///< Time to keep the message alive
-        C_BOOLEAN                  show_stats;              ///< Draw the status bars?
+        C_BOOLEAN               show_stats;              ///< Draw the status bars?
         Uint8                   autoturncamera;          ///< Type of camera control...
-        FEEDBACK_TYPE           feedback;                ///< Feedback type
+        EGO_FEEDBACK_TYPE       feedback;                ///< Feedback type
         Uint8                   difficulty;              ///< What is the current game difficulty
 
         // {DEBUG}
-        C_BOOLEAN                  fps_allowed;             ///< FPS displayed?
-        C_BOOLEAN                  hide_mouse;
-        C_BOOLEAN                  grab_mouse;
-        C_BOOLEAN                  dev_mode;
-        C_BOOLEAN                  sdl_image_allowed;       ///< Allow advanced SDL_Image functions?
+        C_BOOLEAN               fps_allowed;             ///< FPS displayed?
+        C_BOOLEAN               hide_mouse;
+        C_BOOLEAN               grab_mouse;
+        C_BOOLEAN               dev_mode;
+        C_BOOLEAN               sdl_image_allowed;       ///< Allow advanced SDL_Image functions?
 
         // other values
         C_BOOLEAN                  messageon_req;

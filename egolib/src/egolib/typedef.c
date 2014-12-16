@@ -65,7 +65,9 @@ C_BOOLEAN irect_point_inside( irect_t * prect, int   ix, int   iy )
 {
     if ( NULL == prect ) return C_FALSE;
 
+	/* @todo Remove +1. */
     if ( ix < prect->left || ix > prect->right  + 1 ) return C_FALSE;
+	/* @todo Remove +1. */
     if ( iy < prect->top  || iy > prect->bottom + 1 ) return C_FALSE;
 
     return C_TRUE;

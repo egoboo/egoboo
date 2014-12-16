@@ -89,7 +89,7 @@ void initialize_lua( void )
 {
     if ( NULL != global_L ) return;
 
-    global_L = lua_open();
+	global_L = luaL_newstate();
 
     // open some libraries
     // do not open the io library for security!
