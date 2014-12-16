@@ -1,0 +1,28 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             	  TopleftXY  BottomrightXY  	Open    ShootThrough  SlippyClose
+
+00 SporkDoor: 	  15 27      19 28         	 F       F             F
+01 FirstDoor: 	  24 27      25 28         	 T       F             F
+02 FirstDoorOpen: 23 27      24 28         	 T       T             F
+03 StartMusic: 	  17 25      21 30         	 T       T             F
+04 LeverPuzzle:   10 53      11 57         	 F       F             F
+05 LeverPuzzleOpen:10 52     11 54         	 T       T             F
+06 PitDoor: 	  26 3       27 4         	 F       F             F
+07 PitDoorOpen:   26 3       27 4         	 T       T             F
+08 FromPitDoor:   60 17      61 18         	 F       F             F
+09 FromPitDoorOpen:60 16     61 17         	 T       T             F
+10 ButcherDoor:   29 27      30 28         	 F       F             F
+11 ButcherDoorOpen:28 27     29 28         	 T       T             F
+12 GhoulDetect:	  72 44      73 47         	 T       T             F
+13 GhoulSpawn:	  69 44      80 47         	 T       T             F
+14 FirstGate:	  76 54      77 54         	 T       T             F
+15 SecondGate:	  76 59      77 59         	 T       T             F
+16 BossDoor:	  76 64      77 68         	 F       F             F
+17 BossDoorOpen:  76 63      77 64         	 T       T             F
+18 ToLBARoom:     24 75      25 76         	 F       F             F
+19 ToLBARoomOpen: 23 75      24 76         	 T       T             F
+20 FromLBARoom:   47 62      48 63         	 F       F             F
+21 FromLBARoomOpen:47 63      48 64         	 T       T             F
+22 ExitDoor:	  62 75      68 76         	 F       F             F

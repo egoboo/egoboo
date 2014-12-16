@@ -1,0 +1,6 @@
+Message 0: A_%c_was_murdered...
+Message 1: Greetings_%s!_You_are_needed!
+Message 2: People_have_gone_missing_at_nights.
+Message 3: And_strange_noises_have_been_heard_from_the_graveyard!
+Message 4: We_need_a_hero_like_you_to_help_us!
+Message 5: This_crypt_over_here_gives_me_the_chills...

@@ -1,0 +1,27 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: The_Land_of_Lorule
+Reference module ( Directory name or NONE )     : NONE
+Required reference IDSZ ( or [NONE] )           : [NONE]
+Number of imports ( 0 to 4 )                    : 4
+Allow exporting of characters ( TRUE or FALSE ) : TRUE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 4
+Allow respawning ( TRUE or FALSE )		: TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( *, **, ***, ****, or ***** )     : *
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:Adventure_awaits_you,_traveller!
+:From_the_plains_of_Bishopia
+:to_the_Doom_Wastes,
+:there_are_many_secrets_and_many
+:dangers.
+:_
+:Take_care_on_your_quest_for_
+:glory...
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] MAINQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)
+

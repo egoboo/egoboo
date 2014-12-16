@@ -1,0 +1,5 @@
+Message 0: Welcome_to_%c!
+Message 1: %t_should_see_the_sights_in_%c.
+Message 2: Press_ATTACK_to_enter_%c.
+Message 3: %t_has_found_%c.
+Message 4: bishopia.mod

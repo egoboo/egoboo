@@ -1,0 +1,16 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//                   TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+
+00 Door1:            31 17      32 18          F       F             F
+01 Door1Open:        31 16      32 17          T       T             F
+
+02 Door2:            31 44      32 45          F       F             F
+03 Door2Open:        31 45      32 46          T       T             F
+
+04 Door3:            18 31      19 32          F       F             F
+05 Door3Open:        17 31      18 32          T       T             F
+
+06 Door4:            44 30      45 31          F       F             F
+07 Door4Open:        45 30      46 31          T       T             F

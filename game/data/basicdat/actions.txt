@@ -1,0 +1,76 @@
+:DA	Dance ( Standing still )
+:DB	Dance ( Bored )
+:DC	Dance ( Bored )
+:DD	Dance ( Bored )
+:UA	Unarmed
+:UB	Unarmed
+:UC	Unarmed
+:UD	Unarmed
+:TA	Thrust
+:TB	Thrust
+:TC	Thrust
+:TD	Thrust
+:CA	Crush
+:CB	Crush
+:CC	Crush
+:CD	Crush
+:SA	Slash
+:SB	Slash
+:SC	Slash
+:SD	Slash
+:BA	Bash
+:BB	Bash
+:BC	Bash
+:BD	Bash
+:LA	Longbow
+:LB	Longbow
+:LC	Longbow
+:LD	Longbow
+:XA	Crossbow
+:XB	Crossbow
+:XC	Crossbow
+:XD	Crossbow
+:FA	Flinged
+:FB	Flinged
+:FC	Flinged
+:FD	Flinged
+:PA	Parry
+:PB	Parry
+:PC	Parry
+:PD	Parry
+:EA	Evade
+:EB	Evade
+:RA	Roll
+:ZA	Zap Magic
+:ZB	Zap Magic
+:ZC	Zap Magic
+:ZD	Zap Magic
+:WA	Sneak
+:WB	Walk
+:WC	Run
+:WD	Push
+:JA	Jump
+:JB	Jump ( Falling ) ( Drop left )
+:JC	Jump ( Falling ) ( Drop right )
+:HA	Hit ( Taking damage )
+:HB	Hit ( Taking damage )
+:HC	Hit ( Taking damage )
+:HD	Hit ( Taking damage )
+:KA	Killed
+:KB	Killed
+:KC	Killed
+:KD	Killed
+:MA	Drop Item Left
+:MB	Drop Item Right
+:MC	Cheer
+:MD	Show Off
+:ME	Grab Item Left
+:MF	Grab Item Right
+:MG	Open Chest
+:MH	Sit ( Riding a mount )
+:MI	Ride
+:MJ	Activated ( For items )
+:MK	Snoozing
+:ML	Unlock
+:MM	Held Left
+:MN	Held Right

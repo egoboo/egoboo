@@ -1,0 +1,52 @@
+**Magic Weapons**
+    [RING]
+      Ring of invisibility that eats away wearer's mana
+    [FOOT]
+      Boots of speed, Run away from you
+      Boots of vaulting, Jump higher
+    [AXEE]
+      Axe that bleeds
+      Axe that is hurled, then bounces around
+      Axe of wounding ( extra damage )
+    [BOW ]
+      Silver Bow
+      Flame Bow
+      Poison Bow
+      Bow of damage
+      Bow of accuracy
+      Bow of range
+      Bow of many arrows
+      Bow that shoots through several targets
+      Bow with bouncing arrows
+      Bow that spawns new target arrow when it hits something ( chain )
+    [XBOW]
+      Triple XBow, Shoot three arrows then reload
+      Singer, Reload quickly, Shoot darts
+    [HAMM]
+      Hammer that is hurled, then calls a lighting strike
+      Hammer that can only be hefted by heavy characters, Slows
+      Hammer of Titans ( Extra large, Increase holder size/str, Pancake )
+    [MACE]
+      Mace that dazes on impact
+    [SPEA]
+      Blue crystal spear that shatters on a dragon...
+    [DAGG]
+      Poison Dagger
+      Dagger of mana draining ( wound, continuous )
+      Dagger of berserker rage ( like a chihuahua ), PressTargetLatch...
+    [SWOR]
+      Flaming Longsword
+      Golden Longsword
+      Longsword that knocks enemies back
+      Longsword of life leeching ( on hit )
+      Shortsword that warns of undead ( Flash Red, Make sound )
+      Shortsword of light ( Blue light model, Spawn sparklies )
+      Shortsword of Venom
+      Defender ( Causes wielder to block automatically, if able )
+    [SHIE]
+      Shield of deflection, Enchant when used, Undo if not blocking
+      Shield of reflection, Ditto
+
+
+
+

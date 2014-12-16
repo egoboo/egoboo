@@ -1,0 +1,55 @@
+**Hero Starter Modules**
+>>Adventurer, Sewer, Grub hunt
+>>Healer, Find Elvira in monastery, Cure her
+>>Elf, Help Faeries reclaim their mushroom circle
+>>Wizard, Apprenticed to evil wizard, Kill him
+>>Rogue, Escape from prison
+>>G'nome, Airship
+>>Soldier, Become champion gladiator
+  Tourist, Find luggage...
+  Archeologist, Rolling boulder race
+  Amazon,
+  Dancer,
+
+**Hero Single Player Modules**
+>>The Labyrinth, Big maze with minotaur chasing you
+>>Babies in danger quest
+  Don't Wake Baddy, Sneak into dragon's lair and grab the goods
+  Mushroom Forest, Get to other side, Fog, Spirits, Headless Horseman
+  Fake Damsel quest
+  Evil sheriff quest
+
+**Hero Multiplayer Modules**
+>>Water Palace, Water striders, Water wierd, Water level changes
+>>Steal artifact from wizard, Mimics and traps are foes, Escape too
+>>Gladiators in the Pit, Fight continuous waves of monsters
+>>Slave Mines, Free the slaves, Heart of Vines
+>>Thorgard's Rest, Clear out undead in dwarven tomb
+>>The Fellwoods, BIG trees, Lilly pads, Water, Shaft, Trogs hide, Lumber giant
+  Hallowed ground, Return as ghosts to defend graves
+  Charlotte, Starflies, Zombis pop out of snow leaving holes
+
+**Capacity Modules**
+>>BomberG'nome
+>>Snow Crystal Rainbow Race, Wumpus, Announcer, Chevrons
+>>Bumper Cars, Large background
+>>StarWars, sabres, blasters, droids, etc.
+>>Duel in the Pit, Deathmatch, Enter as chosen character class
+>>Battle in the Pit, Deathmatch, Respawn as random monster
+>>RTS, Tanks, Trucks, Choppers, Rocket Jeeps, Character houses, Trees
+  Godzilla RTS
+  Gambling Above the Pit, Place bets on monsters
+  4-on-4 Basketball, Large background, Smack each other around
+  G'nomeGolf, "Make a hole in one"
+  Rat Race, Through maze
+  Catch snowflakes
+  Ice Fortress, Multiplayer snowball fight
+  G'nome Bowling
+  Hunt the Wumpus
+  Shepherd, Herd them sheep
+  Stargame, 1 Layer water stars, Weather stars, Respawn ship based on XP
+  Stargame Shoot'em Up
+  Ikari Warriors, UZI's, Tanks to drive, 1 Hit kills
+  Diaboo, RTS, Explore mode, 8 characters to split
+  Civaboo, Tile based civilization type game
+

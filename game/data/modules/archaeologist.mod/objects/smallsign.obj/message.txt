@@ -1,0 +1,5 @@
+Message 0: Welcome_to_the_Temple_of_Doom!_(tm)
+Message 1: (Free_entry!)
+Message 2: Thank_you_for_visiting!_Please_come_again...
+Message 3: No_refunds!
+Message 4: Now_entering_the_lands_of_the_Jungle_Warrior!

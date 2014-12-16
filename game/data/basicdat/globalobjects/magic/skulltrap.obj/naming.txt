@@ -1,0 +1,9 @@
+:a_Book_o
+:STOP
+
+:f_Skull_
+:STOP
+
+:Trap
+:STOP
+

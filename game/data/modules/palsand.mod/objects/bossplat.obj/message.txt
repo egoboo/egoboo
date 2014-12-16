@@ -1,0 +1,8 @@
+Message 0: The_inscription_is_in_G'nomish...
+Message 1: The_inscription_reads...
+Message 2: __Scorpion_Locker
+Message 3: __Lock_Sequence
+Message 4: __Land_Mines
+Message 5: __Shoe_Box
+Message 6: __Jewelry_Box
+Message 7: __Trap_Box

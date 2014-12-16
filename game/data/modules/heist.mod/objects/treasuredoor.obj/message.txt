@@ -1,0 +1,4 @@
+Message 0: The_tresaure_vault_is_open!
+Message 1: Success!_You_have_plundered_the_well_guarded_vault_
+Message 2: of_Lord_Hagen's_treasury!_The_riches_and_magic_items_
+Message 3: in_the_vault_will_aid_you_greatly_on_your_quest!_

@@ -1,0 +1,64 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 5
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+IfDisaffirmed
+  tmpargument = 2
+  SendMessageNear
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+// Make a sound
+IfHitGround
+  tmpargument = 0
+  tmpdistance = rand & 2047 + 10000
+  PlaySound
+
+// Spawn damage particle
+IfUsed
+  tmpx = selfattached
+  tmpy = 0
+  tmpargument = 0
+  IfXIsMoreThanY              // Is the flame still there?
+    tmpargument = 1                // Yes
+  tmpdistance = SPAWNLAST          // Model vertex to attach to
+  SpawnAttachedParticle
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+    tmpargument = [XFIR]            // Burn hands...
+    IfTargetHasAnyID
+      tmpargument = 3
+      SendMessageNear
+      DetachFromHolder
+      tmpargument = 256
+      DamageTarget
+    Else
+      IfTargetIsAPlayer
+        tmpargument = 0
+        SendMessageNear
+// Magical always lighted
+ReaffirmCharacter
+
+// All done
+End
+

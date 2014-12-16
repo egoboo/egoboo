@@ -1,0 +1,204 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+#dependency Ghost 42
+#dependency Zombi 47
+#dependency Ghoul 66
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+playerAtBoss   NONE    0  76.5   76.5   1.0   N    0   0  0   0   0   T   F   G
+playerOutside   NONE    0  20.5   28.5   0.0   N    0   0  0   0   0   T   F   G
+player1:   NONE    0  8.5   21.5   0.0   N    0   0  0   0   0   T   F   G
+  LeftHand:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RightHand:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Inventory1:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory2:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory3:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory4:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory5:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory6:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+player2:   NONE    9  10.5   21.5   0.0   N    0   0  0   0   0   T   F   G
+  LeftHand:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RightHand:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Inventory1:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory2:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory3:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory4:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory5:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory6:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+player3:   NONE    18  10.5   19.5   0.0   N    0   0  0   0   0   T   F   G
+  LeftHand:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RightHand:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Inventory1:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory2:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory3:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory4:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory5:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory6:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+player4:   NONE    27  8.5   19.5   0.0   N    0   0  0   0   0   T   F   G
+  LeftHand:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RightHand:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Inventory1:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory2:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory3:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory4:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory5:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  Inventory6:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+
+//Start room
+sporkdoor:     NONE    36  16.0   28.0   0.0   W    0   0  0   0   0   F   F   N
+moduletool:    NONE    44  5.5   27.5   1.0   N    0   0  0   0   0   F   F   E
+stairs:        NONE    53  9.5   20.5   0.0   S    0   0  0   0   0   F   F   N
+sporkbutton:   NONE    54  10.0   30.0   1.0   N    0   3  0   1   0   F   F   N
+sporkbutton:   NONE    54  9.0   28.0   1.0   N    0   0  0   4   0   F   F   N
+sporkbutton:   NONE    54  8.0   26.0   1.0   N    0   1  0   0   0   F   F   N
+sporkbutton:   NONE    54  8.0   30.0   1.0   N    0   2  0   3   0   F   F   N
+sporkbutton:   NONE    54  10.0   26.0   1.0   N    0   3  0   2   0   F   F   N
+
+butcher:   NONE    50  37.0   28.0   1.0   N    39   0  0   0   5   F   F   E
+  butcheraxe:   NONE    45  37.0   28.0   1.0   R    0   0  0   0   0   F   F   E
+  keyb:   NONE    87  37.0   28.0   1.0   I    0   0  0   0   0   F   F   N
+body:   NONE    43  37.0   25.0   1.0   W    0   0  0   0   0   F   F   E
+body:   NONE    43  37.0   30.0   1.0   S    0   0  0   0   0   F   F   E
+body:   NONE    43  35.0   27.0   1.0   N    0   0  0   0   0   F   F   E
+brazier:   NONE    41  23.5   14.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    41  17.5   14.5   1.0   E    0   0  0   1   0   F   F   N
+Pillar:   NONE    51  22.5   20.0   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  19.5   20.0   1.0   E    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  22.5   36.0   1.0   W    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  19.5   36.0   1.0   S    0   0  0   0   0   F   F   N
+
+puzzlemod:   NONE    40  12.5   50.5   1.0   N    0   0  0   0   0   F   F   N
+puzzleswitch:   NONE    57  8.5   51.5   1.0   N    0   0  0   1   0   F   F   N
+puzzleswitch:   NONE    57  8.5   49.5   1.0   N    0   0  0   3   0   F   F   N
+puzzleswitch:   NONE    57  8.5   47.5   1.0   N    0   0  0   5   0   F   F   N
+puzzleswitch:   NONE    57  8.5   45.5   1.0   N    0   0  0   3   0   F   F   N
+puzzleswitch:   NONE    57  8.5   43.5   1.0   N    0   0  0   5   0   F   F   N
+lockdoor:   NONE    64  11.0   54.3   1.0   N    0   0  4   0   0   F   F   N
+chest:   NONE    58  23.0   62.0   1.0   W    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_SCROLL:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_SCROLL:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+ulna:   NONE    49  20.5   44.5   1.0   N    0   0  0   0   0   F   F   E
+  scythe:   NONE    67  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+ulna:   NONE    49  18.5   45.5   1.0   N    0   0  0   1   0   F   F   E
+body:   NONE    43  34.0   30.0   1.0   N    0   0  0   0   0   F   F   N
+body:   NONE    43  35.0   28.0   1.0   N    0   0  0   0   0   F   F   N
+body:   NONE    43  38.0   26.0   1.0   N    0   0  0   0   0   F   F   E
+Pillar:   NONE    51  32.0   40.0   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  37.5   39.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  43.5   44.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  43.0   40.0   1.0   N    0   0  0   0   0   F   F   N
+body:   NONE    43  32.0   42.0   1.0   N    0   0  0   0   0   F   F   N
+body:   NONE    43  41.0   39.0   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  37.5   44.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  31.5   44.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  31.5   50.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  37.5   50.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  43.5   50.5   1.0   N    0   0  0   0   0   F   F   N
+body:   NONE    43  42.5   46.5   1.0   N    0   0  0   1   0   F   F   N
+sarcophagus:   NONE    65  40.5   47.5   1.0   N    0   0  0   0   0   F   F   N
+sarcophagus:   NONE    65  40.5   41.5   1.0   N    0   0  0   0   0   F   F   N
+sarcophagus:   NONE    65  34.5   47.5   1.0   N    0   0  0   0   0   F   F   N
+sarcophagus:   NONE    65  34.5   41.5   1.0   N    0   0  0   0   0   F   F   N
+ghoul:   NONE    66  33.0   44.0   1.0   N    0   0  0   0   0   F   F   E
+ghoul:   NONE    66  35.0   45.0   1.0   N    0   0  0   0   0   F   F   E
+fright:   NONE    48  37.0   47.0   1.0   N    0   0  0   0   0   F   F   E
+lockdoor:   NONE    64  30.0   28.0   1.0   W    0   0  10   0   0   F   F   N
+Bat:   NONE    46  33.0   7.0   1.0   N    0   0  0   0   0   F   F   E
+Bat:   NONE    46  34.0   9.0   1.0   N    0   0  0   0   0   F   F   E
+Bat:   NONE    46  37.5   9.5   1.0   N    0   0  0   0   0   F   F   E
+Bat:   NONE    46  36.0   10.0   1.0   N    0   0  0   0   0   F   F   E
+sarcophagus:   NONE    65  50.5   35.5   1.0   N    0   0  0   0   0   F   F   N
+sarcophagus:   NONE    65  50.5   31.5   1.0   N    0   0  0   0   0   F   F   N
+sarcophagus:   NONE    65  57.5   31.5   1.0   N    0   0  0   0   0   F   F   N
+sarcophagus:   NONE    65  57.5   35.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  48.5   36.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  48.5   30.5   1.0   N    0   0  0   0   0   F   F   N
+shutdoor:   NONE    56  61.0   18.0   1.0   N    0   0  8   0   0   F   F   N
+shutdoor:   NONE    56  27.0   4.0   1.0   W    0   0  6   0   0   F   F   N
+well:   NONE    68  35.5   59.5   1.0   N    0   0  0   0   0   F   F   N
+ghoul:   NONE    66  45.0   23.0   1.0   N    0   0  0   0   0   F   F   E
+ghoul:   NONE    66  44.0   25.0   1.0   N    0   0  0   0   0   F   F   E
+body:   NONE    43  31.0   19.0   1.0   N    0   0  0   0   0   F   F   N
+Bat:   NONE    46  53.0   57.0   1.0   N    0   2  0   0   0   F   F   E
+Bat:   NONE    46  54.0   59.0   1.0   N    0   0  0   0   0   F   F   E
+Bat:   NONE    46  52.0   56.0   1.0   N    0   0  0   0   0   F   F   E
+Bat:   NONE    46  52.0   58.0   1.0   N    0   0  0   0   0   F   F   E
+sarcophagus:   NONE    65  80.5   46.0   1.0   W    0   0  0   0   0   F   F   N
+brazier:   NONE    41  69.5   44.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    41  69.5   47.5   1.0   N    0   0  0   0   0   F   F   N
+ulna:   NONE    49  77.0   34.0   1.0   N    0   0  0   0   0   F   F   E
+  scythe:   NONE    67  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+ulna:   NONE    49  77.0   35.0   1.0   N    0   0  1   0   0   F   F   E
+ulna:   NONE    49  80.0   33.0   1.0   N    0   0  1   0   0   F   F   E
+ulna:   NONE    49  80.0   34.0   1.0   N    0   0  0   0   0   F   F   E
+  katana:   NONE    86  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+ulna:   NONE    49  78.0   35.0   1.0   N    50   0  0   0   3   F   F   E
+  katana:   NONE    86  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+shufflingheap:   NONE    70  35.5   61.5   1.0   S    25   0  0   0   0   F   F   S
+shufflingheap:   NONE    70  67.5   32.5   1.0   S    0   0  0   0   0   F   F   S
+vampirelord:   NONE    72  76.5   76.5   1.0   N    75   0  22   0   0   F   F   E
+  vamplordwing:   NONE    73  0.0   0.0   1.0   L    0   0  0   0   0   F   F   S
+gate:   NONE    74  77.0   54.5   1.0   N    0   0  14   0   0   F   F   N
+gate:   NONE    74  77.0   59.5   1.0   S    0   0  15   0   0   F   F   N
+fright:   NONE    48  79.0   52.0   1.0   N    0   0  0   0   0   F   F   E
+Bat:   NONE    46  74.0   62.0   1.0   N    0   0  0   0   0   F   F   A
+shutdoor:   NONE    56  25.0   76.0   1.0   W    0   0  18   0   0   F   F   N
+shutdoor:   NONE    56  48.0   63.0   1.0   S    0   0  20   0   0   F   F   N
+chest:   NONE    58  50.5   84.5   1.0   S    30   0  0   0   0   F   F   N			//Secret chest
+  mageblade:   NONE    82  50.5   84.5   1.0   I    0   0  0   0   0   F   F   N
+summonspellII:   NONE    85  50.5   84.5   1.0   I    0   0  0   0   0   F   F   N
+brazier:   NONE    41  71.5   71.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    41  71.5   81.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    41  81.5   81.5   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    41  81.5   71.5   1.0   N    0   0  0   0   0   F   F   N
+KeyA:   NONE    63  19.0   76.0   1.0   N    0   0  0   0   0   F   F   N
+chest:   NONE    58  56.5   45.0   1.0   E    199   0  0   0   0   F   F   N
+puzzle:   NONE    76  61.0   8.0   1.0   N    0   0  0   0   0   F   F   G
+brazier:   NONE    41  4.0   79.0   1.0   N    0   0  0   0   0   F   F   N
+brazier:   NONE    41  10.0   85.0   1.0   N    0   0  0   0   0   F   F   N
+bossdoor:   NONE    79  77.0   65.0   1.0   N    0   0  16   0   0   F   F   N
+bossdoor:   NONE    79  68.0   76.0   1.0   E    0   0  22   0   0   F   F   N
+trapdoor:   NONE    80  59.0   76.0   1.0   W    0   0  0   0   0   F   F   N
+Pillar:   NONE    51  59.5   77.5   1.0   N    0   1  0   0   0   F   F   N
+Pillar:   NONE    51  59.5   74.5   1.0   N    0   1  0   0   0   F   F   N
+kbutton:   NONE    81  74.0   52.0   1.0   N    0   0  14   0   0   F   F   N
+kbutton:   NONE    81  79.0   57.0   1.0   N    0   0  15   0   0   F   F   N
+switch:   NONE    75  74.0   57.0   1.0   N    0   0  14   0   0   F   F   N
+switch:   NONE    75  79.0   62.0   1.0   N    0   0  15   0   0   F   F   N
+
+//Final chests
+chest:   NONE    58  62.0   72.5   0.0   S    0   0  0   0   0   F   F   N 
+  %RANDOM_ARMOR:  -1	0.0		0.0		0.0		I  0   3  0   0   0   F   F   N		//Random level 3 armor
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+chest:   NONE    58  62.0   79.5   0.0   N    4   0  0   0   0   F   F   N
+  %RARE_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+KeyA:   NONE    63  49.5   75.0   1.0   N    0   0  0   0   0   F   F   N

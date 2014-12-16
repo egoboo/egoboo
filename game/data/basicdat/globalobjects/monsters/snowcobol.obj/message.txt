@@ -1,0 +1,9 @@
+Message 0: %t_maimed_a_%c.
+Message 1: A_%c_had_a_little_accident!
+Message 2: %t_slew_a_%c_Captain!
+Message 3: A_%c_Captain_has_fallen!
+Message 4: A_%c_woke_up!
+Message 5: %t_enjoyed_that_too_much...
+Message 6: %t_is_a_murderer!
+Message 7: The_%c_looks_better...
+Message 8: %t_got_one_in_the_back!

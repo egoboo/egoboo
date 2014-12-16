@@ -1,0 +1,6 @@
+// Setup
+IfSpawned
+  tmpargument = rand % 4
+  ChangeArmor
+
+End

@@ -1,0 +1,6 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Use_the_well_to_refill_mana_and_health.
+Tip 1: Use_magic_instead_of_brute_force_to_defeat_enemies.
+Tip 2: Save_mana_potions_for_battle.
+Tip 3: Search_book_cases_for_hidden_spell_books_and_tips.
+Tip 4: Wizards_have_a_great_mana_pool_but_lack_fast_regeneration._Use_mana_potions_to_compensate!

@@ -1,0 +1,37 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 Entrance:  57  08     58  09         F       F             F
+1 Entrance Opener:  56  07     59  10         T       T             F
+2 Drop Trap:  53  24     59  30         T       T             F
+3 Exit:  35  46     36  47         F       F             F
+4 Exit Opener:  34  45     37  48         T       T             F
+5 Clencher Room:  42  34     43  35         F       T             F
+6 Clenchers' Opener:  41  33     44  36         T       T             F
+7 Mosquito Room:  30  38     31  39         F       T             F
+8 Mosquitos' Opener:  29  37     32  40         T       T             F
+
+9 Locked Door:  10  27     11  28         F       F             F
+10Lock Opener:  10  26     11  28         T       T             F
+
+
+11Treasure Room:  06  21     07  22         F       F             F
+12Treasure Room Opener:  06  21     08  22         T       T             F
+
+
+13Moggy speak 0:  13  00     17  10         T       T             F
+14Moggy speak 1:  43  24     49  30         T       T             F
+15Moggy speak 2:  08  20     09  23         T       T             F
+16Moggy speak 3:  50  57     51  59         T       T             F
+17Moggy speak 4:  18  15     27  16         T       T             F
+18Moggy speak 5:  20  42     28  48         T       T             F
+19Moggy speak 6:  05  17     05  26         T       T             F
+20Moggy speak 7:  02  25     03  26         T       T             F
+
+21Meena speak 0:  08  00     12  10         T       T             F
+22Meena speak 1:  18  00     21  10         T       T             F
+23Meena speak 2:  09  25     12  26         T       T             F
+24Meena speak 3:  14  26     16  26         T       T             F
+25Meena speak 4:  21  52     28  59         T       T             F
+26Meena speak 5:  02  17     03  18         T       T             F

@@ -1,0 +1,273 @@
+// Rogue special abillties:
+// LEVEL   ABILITY
+// 1     - Backstab, Disarm Traps, Poison Use, Acrobatics
+// 2     - Stealth (Standing still)
+// 3     - Mobility
+// 4     - Sneak (Can move 1 step at the time while stealthing)
+// 5     - Listen
+// 6     - Stalker (Can sneak while stealthing)
+// 7     - n/a
+// 8     - Master Acrobacy
+// 9     - n/a
+// 10    - Shade (Move and jump while stealthed)
+// 11    - n/a
+// 12    - n/a
+// 13    - Hide in Plain Sight
+// 14    - n/a
+// 15    - n/a
+// 16    - Deadly Strike
+// 17    - n/a
+// 18    - n/a
+// 19    - n/a
+// 20    - n/a
+//-----------------------------------------------------------------------------
+// Reset
+IfSpawned
+  tmpargument = 0
+  SetState
+  SetContent
+
+//-----------------------------------------------------------------------------
+// Auto jump over corpses (Mobility skill)
+tmpx = selflevel
+tmpy = 2          // Need level 3
+IfXIsMoreThanY
+  IfBumped
+    SetTargetToWhoeverBumped
+    IfTargetIsAlive
+      DoNothing
+    Else
+      tmpargument = LATCHJUMP
+      PressLatchButton
+
+//-----------------------------------------------------------------------------
+// Deadly Strike skill
+IfScoredAHit
+  IfInvisible           // Only if hidden
+    tmpx = selflevel
+    tmpy = 14           // Level 16 or higher
+    IfXIsMoreThanY
+      SetTargetToWhoeverWasHit
+      IfTargetCanSeeInvisible
+        DoNothing               // No good if they can see us
+      Else
+        tmpargument = [UNDE]
+        IfTargetHasID
+          DoNothing             // Undead are immune to this
+        Else
+          tmpargument = selfdex > 6    // +1 damage for every 4 DEX
+          DamageTarget
+
+          // Sound and message
+          tmpargument = 8
+          tmpdistance = 3
+          tmpturn = RED
+          DrawBillboard
+          tmpargument = 13
+          PlaySound
+
+//-----------------------------------------------------------------------------
+// Gain new skills on level up
+IfLevelUp
+
+  // Listen skill
+  tmpx = selflevel
+  tmpy = 3            // Level 5
+  IfXIsEqualToY
+    SetTargetToSelf
+    tmpargument = [LIST]
+    tmpdistance = 1
+    GiveSkillToTarget
+
+//------------------------------------------------------------------------------
+// Activate master acrobacy if enough xp gained
+tmpargument = 0
+
+IfContentIs
+  SetTargetToSelf
+  tmpx = selflevel
+  tmpy = 6
+  IfXIsMoreThanY
+    SetOwnerToTarget
+    EnchantTarget     // Give the special bonus
+    tmpargument = 1
+    SetContent
+
+//-----------------------------------------------------------------------------
+// Go stealth mode when standing still
+// State 0 = Ready
+// State 1 = Cooldown
+// State 2 = Going stealth stealth
+// State 3 = In stealth mode
+
+tmpx = selflevel
+tmpy = 0           // Need to be level 2 at least
+IfXIsMoreThanY
+  // If tmpdistance > 0 then reset cloak timer
+  tmpdistance = 0
+
+  // Stuff that makes us visible
+  SetTargetToSelf
+  IfBumped
+    tmpdistance = 300     // 6 seconds
+  IfAttacked
+    tmpdistance = 300     // 6 seconds
+  IfTargetIsAttacking
+    tmpdistance = 150     // 3 seconds
+  IfTargetIsDefending
+    tmpdistance = 100     // 2 seconds
+
+  // Is the player not moving to fast?
+  SetTargetToSelf
+
+  IfStateIs3                // Allow movement if already stealthed
+    tmpy = selflevel      // Max speed determined by level
+  Else
+    tmpy = 1                // When not stealthed, stand still to go stealth
+  tmpx = targetspeedx + targetspeedy + targetspeedz
+  IfXIsLessThanY
+    SetTargetToNearbyEnemy  // Can't hide in plain sight
+      tmpx = selflevel*50 + targetdistance        // Level increases
+    Else
+      tmpx = 551
+    tmpy = 550
+    IfXIsMoreThanY
+      IfInvisible
+        DoNothing           // No need to hide if already invisisble
+      Else
+        IfStateIs0
+          tmpargument = 2
+          SetState
+          tmpargument = 50
+          SetTime
+  Else                    // Character is moving, reset timer
+    tmpdistance = 75     // 1,5 seconds
+
+  // Handle and reset cooldown counter for stealth
+  IfTimeOut
+    IfStateIs1
+      tmpargument = 0
+      SetState
+    IfStateIs2
+      tmpargument = 0
+      SetLight
+      tmpargument = 11
+      PlaySound
+      tmpargument = 3
+      SetState
+
+    // Check sneak abillity to see if we are detected
+    IfStateIs3
+      tmpargument = 25            // Check every 1 second
+      SetTime
+      SetTargetToNearestEnemy
+        tmpturn = selflevel*50
+        tmpx = targetdistance
+        tmpy = 1000 - tmpturn
+        IfXIsLessThanY
+          tmpturn = targetdistance > 7          // Distance increases chance
+          tmpx = targetwis > 9
+          tmpx = tmpx - tmpturn
+          tmpx = rand % 40 + tmpx
+          tmpy = selfdex > 10
+          tmpy = rand % 40 + tmpy
+          IfXIsMoreThanY                        // We were detected!
+            tmpdistance = 300               // 6 seconds
+
+  // Disable stealth and reset timer if tmpdistance is bigger than 0
+  tmpturn = 0
+  IfDistanceIsMoreThanTurn
+    tmpargument = tmpdistance
+    SetTime
+    IfStateIs3
+      tmpargument = 255
+      SetLight
+      tmpargument = 12
+      PlaySound
+    tmpargument = 1
+    SetState
+
+//-----------------------------------------------------------------------------
+// Gong sound
+IfCleanedUp
+  tmpargument = 2
+  PlayFullSound
+
+//------------------------------------------------------------------------------
+// Yell at player
+IfTooMuchBaggage
+  tmpargument = 7
+  SendMessageNear
+  tmpargument = 7
+  PlaySound
+  tmpargument = 50
+  SetReloadTime
+
+//------------------------------------------------------------------------------
+// ZZ> Scream and shout
+IfUsed
+  tmpargument = rand & 1 + 8
+  PlaySound
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being bored by cheering or sneezing
+IfBored
+  tmpargument = ACTIONMC
+  DoAction
+    tmpargument = 6
+    SendMessageNear
+    tmpargument = 10
+    PlaySound
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 5
+  PlaySound
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = 1+selflevel*selflevel*100        // The money loss formula
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+  // Undo skill enchant
+  UndoEnchant
+  tmpargument = 0
+  SetContent
+
+//------------------------------------------------------------------------------
+// ZZ> For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  // Pick either 0 or 7, Parry or Combat
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 6
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 3
+    PlaySound
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

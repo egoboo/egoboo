@@ -1,0 +1,17 @@
+Message 0: %t_killed_a_%c...
+Message 1: A_Bishopia_guard_reloaded_%p_weapon..
+Message 2: A_%c_got_himself_killed...
+Message 3: A_%c_was_killed_by_friendly_fire...
+Message 4: UNUSED
+Message 5: UNUSED
+Message 6: Good_day_to_you_sir!
+Message 7: What_can_I_do_for_you_my_lady?
+Message 8: Move_along_sir.
+Message 9: We_serve_and_protect.
+Message 10: Stay_out_of_trouble.
+Message 11: Good_day_madam.
+Message 12: Keep_moving..
+Message 13: Obey_the_law_or_we_will_put_you_in_jail!
+Message 14: Die_criminal!
+Message 15: Justice_will_be_swift_and_painful!
+Message 16: There_he_is!

@@ -1,0 +1,92 @@
+Message 0: "Here_lies_a_happy_pink_elephant,_who_led_a_full_life. 
+Message 1: And_died_a_full_death..._Wait,_does_that_even_make_any_sense?"
+
+Message 2: "I_love_burying_people_with_illiterate 
+Message 3: families._Nobody_cares_what_I_carve_here."
+
+Message 4: "Arakon,_the_great_cartographer."
+
+Message 5: "Pteromys._Weapon_craftsman,_and_also_some_kind_of_dinosaur."
+
+Message 6: "This_is_the_tomb_of_the_great_Avatar_Benjamin."
+
+Message 7: "Here_lies_Spyro_the_great." 
+
+Message 8: "Here_lies_Jedediah,_who_lived_to_be_894_years_old.
+Message 9: The_good_die_young?_More_true_than_you_know,_sonny."
+
+Message 10: The_tombstone_just_says_"Jonathan."_Looks_like_a_fresh_grave.
+
+Message 11: "Veiva_the_craftsman."
+
+Message 12: "Here_lies_Tom._He_stepped_on_one_of_those_land_mines
+Message 13: in_the_Sand_Palace._Haha!"
+
+Message 14: "Here_lies_Klastek_Timrak,_the_finest_
+Message 15:  bard_Bishopia_has_ever_seen."
+
+Message 16: "Icezd._Had_a_funny_name,_but_don't_hold_it_against_him."
+
+Message 17: "Booger,_explorer_extraordinaire."
+
+Message 18: "Mary._She's_not_actually_buried_here,_because
+Message 19: she_was_devoured_by_the_Dark_Ones._Awww..." 
+
+Message 20: "Here_lies_Bertha._She_thought_it_was_jam,_but_it
+Message 21:  was_actually_an_acid_blob."
+
+Message 22: "Do_you_want_your_possessions_identified?"
+
+Message 23: "Here_lies_Krumble._...If_yeh_had_only_grabbed_me 
+Message 24: gonne_when_I'd_said_to!"
+
+Message 25: "Here's_Zipp._Dead,_obviously._And_replaced._Poor_Zipp?"
+
+Message 26: "Here_is_the_tomb_of_General_Dolny." 
+
+Message 27:  It_says:_"(c)_2008_The_Tombstone_Corporation."
+
+Message 28: "This_is_Eatsonlyheads._He_lived_for_a_long_time, 
+Message 29:  despite_his_strange_diet."
+
+Message 30: "Don't_let_them_fool_you,_kid._Coffins_are_really_boring. 
+Message 31: Not_at_all_what_they're_cracked_up_to_be." 
+
+Message 32: "BOO!_...Heehee._Scared_you,_didn't_it?"
+
+Message 33: "'Hey,_I_bet_you_I_can_chug_six_potions_of_sickness_in
+Message 34: four_minutes!_He_couldn't."
+
+Message 35: "Khalil._Poisoned_himself_with_a_stiletto.
+Message 36: Be_careful_with_sharp_objects."
+
+Message 37: "This_is_the_grave_of_Ptapasu_the_sculptor." 
+
+Message 38: "Elmin,_former_mayor_of_Zippy_Village._Rest_in_peace." 
+
+Message 39: "Here_lies_Aleous,_a_great_scribe." 
+
+Message 40: It_says:_"CAUTION:_This_tombstone_has_sharp_edges!"
+
+Message 41: "Here's_Hunna._He_was_the_best_Paladin_in_Bishopia." 
+
+Message 42: It's_blank._Spooooky
+
+Message 43: "Aile_the_Alien,_extraterrestrial_artist." 
+
+Message 44: "Use_at_your_own_risk." 
+
+Message 45: "This_is_Alazimir,_editor_of_Bishopia's_first_newspaper."
+
+Message 46: "Gary_Clark,_the_ancient_scribe."
+
+Message 47: "Morgan,_the_ancient_scribe."
+
+Message 48: "Ollipekka,_the_ancient_scribe."
+
+Message 49: "Paco,_the_ancient_scribe." 
+
+Message 50: "Here_lies_Les_the_great._He_was_torn_apart_by
+Message 51: ten_trolls._No_Les._No_more."
+
+Message 52: "Step_back!_You_are_standing_on_my_face!"

@@ -1,0 +1,3 @@
+Message 0: %n_had_too_much_faith...
+Message 1: %n_was_killed!
+Message 2: %n_looks_better!

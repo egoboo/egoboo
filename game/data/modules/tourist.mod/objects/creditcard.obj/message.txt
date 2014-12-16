@@ -1,0 +1,8 @@
+Message 0: %t_found_%n.
+Message 1: This_is_a_Visa_Creditcard.
+Message 2: What_a_strange_plaque...
+Message 3: %t_unlocked_the_lock_using_the_%c! 
+Message 4: %t_needs_more_practice... 
+Message 5: Oh_no!_%t_snapped_%g_%c! 
+Message 6: (DEX:%X%__ROLL:%Y) 
+ 

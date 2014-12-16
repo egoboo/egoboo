@@ -1,0 +1,11 @@
+Message 0: %n_is_among_the_Angels..._Or_is_she?
+Message 1: 1_HATE
+Message 2: You_little..
+Message 3: %t_sacrificed_%n!
+Message 4: Sister_%n_needs_a_new_Guardian_Angel..._Or_do_Mystics_have_Guardian_Devils?
+Message 5: Even_Lord_Bishop_couldn't_help_%n...
+Message 6: Doodlenoggins,_eh?
+Message 7: Hello?
+Message 8: Anybody_home?
+Message 9: Hey_now!
+Message 10: Some_divine_power_has_ressurected_%n!_Or_is_it_demonic_power...?

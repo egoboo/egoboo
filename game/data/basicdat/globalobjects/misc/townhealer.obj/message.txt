@@ -1,0 +1,8 @@
+Message 0: Mother_%n_is_among_the_Angels...
+Message 1: 1_HATE
+Message 2: Hey_now!
+Message 3: %t_sacrificed_Mother_%n!
+Message 4: %n_had_a_little_too_much_faith...
+Message 5: Need_a_full_restoration?_(Costs_10_$)
+Message 6: %t_was_restored!
+Message 8: %t_does_not_have_enough_money!_(Need_%x$_more)

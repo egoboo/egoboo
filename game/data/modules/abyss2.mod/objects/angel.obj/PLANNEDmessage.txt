@@ -1,0 +1,20 @@
+Message 0: %n_has_fallen...
+Message 1: That_wasn't_very_nice_%n!
+Message 2: %n_was_a_bit_reckless...
+Message 3: _________IN_PRISON____________
+Message 4: Release_me_from_these_chains_mortal!
+Message 5: Destroy_the_yellow_orb!
+Message 6: I_have_been_trapped!_Save_me!
+Message 7: Hail!
+Message 8: I_am_most_grateful_to_be_able_to_fight_evil_with_you!
+Message 9: Come_back_soon,_hero!
+Message 10: _____________SPECIAL_TALKING______________
+Message 11: Stay_away_from_me,_spawn_of_evil!
+Message 12: Greetings_noble_paladin!
+Message 13: Hello_holy_sister.
+Message 14: I_have_been_trapped_here._Can_you_save_me?
+Message 15: You_should_be_more_careful,_you_almost_died_there...
+Message 16: There_you_go...
+Message 17: Be_warned,_next_time_I_might_not_be_able_to_bring_you_back...
+
+

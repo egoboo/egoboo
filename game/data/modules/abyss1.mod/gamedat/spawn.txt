@@ -1,0 +1,182 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+#dependency Ghuul          98
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+PlayerAtBoss   NONE    0  54.0   45.0 7.0   N    0   0  0   0   0   T   F   G
+Player1:       NONE    0  30.5   54.5   7.0   N    0   0  0   0   0   T   F   G
+  LEFT:        NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT:       NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Player2:       NONE    9  32.5   54.5   8.0   N    0   0  0   0   0   T   F   G
+  LEFT:        NONE    10 0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT:       NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Player3:       NONE    18  32.5   52.5   7.0   N    0   0  0   0   0   T   F   G
+  LEFT:        NONE    19 0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT:       NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Player4:       NONE    27  34.5   52.5   12.0   N    0   0  0   0   0   T   F   G
+  LEFT:        NONE    28 0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT:       NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+KeyC:   NONE    39  37.5   51.5   0.0   N    0   0  0   0   0   F   F   N
+moduletool:   NONE    96  31.5   55.5   1.0   N    0   0  0   0   0   F   F   E
+shaft:   NONE    44  37.5   51.5   1.0   W    0   0  0   0   0   F   F   N
+
+//Locked chest with map and secret bottom
+chest:   NONE    37  31.5   50.5   0.0   S    0   0  0  11   0   F   F   N
+  %RANDOM_SCROLL:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+waterwierd:   NONE    40  7.0   18.0   1.0   N    0   0  0   0   0   F   F   E
+waterwierd:   NONE    40  9.0   16.0   1.0   N    0   0  0   0   0   F   F   E
+
+chest:   NONE    37  41.0   34.0   0.0   N    119   0  0   8   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KeyC:   NONE    39  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_KURSED:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+deadfall:   NONE    36  27.5   41.0   1.0   N    0   0  2   0   0   F   F   T
+eyeball:   NONE    45  34.0   41.0   1.0   N    0   0  0   0   0   F   F   E
+eyeball:   NONE    45  21.0   29.0   1.0   N    0   0  0   0   0   F   F   E
+eyeball:   NONE    45  18.0   27.0   1.0   S    0   0  0   0   0   F   F   E
+eyeball:   NONE    45  19.0   30.0   1.0   E    0   0  0   0   0   F   F   E
+stalker:   NONE    38  17.5   41.5   1.0   N    0   0  0   0   0   F   F   E
+  Spear:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+stalker:   NONE    38  18.5   42.5   1.0   N    0   0  0   0   0   F   F   E
+  Spear:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+stalker:   NONE    38  17.5   39.5   1.0   N    0   0  0   0   0   F   F   E
+  Spear:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+
+//Big boss
+daemonlord:   NONE    47  54.0   45.0   1.0   N    799   0  0   0   2   F   F   E
+  deamonlordwing:   NONE    48  0.0   0.0   0.0   L    0   0  0   0   0   F   F   S
+  %UNIQUE_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+Bat:   NONE    46  54.0   11.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  52.0   13.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  51.0   9.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  50.0   12.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  52.0   10.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  54.0   13.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  51.0   14.0   1.0   N    0   2  0   0   0   F   F   B
+Bat:   NONE    46  53.0   15.0   1.0   N    0   2  0   0   0   F   F   B
+mephit:   NONE    49  42.5   34.5   1.0   N    3   0  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    49  39.5   30.5   1.0   N    4   0  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    49  42.5   31.5   1.0   N    7   0  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    49  39.5   32.5   1.0   N    14   3  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+//Trapped firebomb chest
+chest:   NONE    37  8.0   41.0   1.0   E    0   0  0   4   0   F   F   N
+  %RARE_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+ghost:   NONE    55  9.5   54.5   1.0   N    0   0  0   0   0   F   F   U
+ghost:   NONE    55  6.5   51.5   1.0   N    0   0  0   0   0   F   F   U
+ghost:   NONE    55  7.5   50.5   1.0   N    0   0  0   0   0   F   F   U
+
+chest:   NONE    37  20.0   17.0   1.0   S    0   0  0   1   0   F   F   N
+  %RARE_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+deadfall:   NONE    36  43.5   12.5   1.0   N    0   0  3   0   0   F   F   T
+chest:   NONE    37  34.5   13.5   0.0   S    99   0  0   8   0   F   F   N
+  %RANDOM_SCROLL:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_ARCANE_SPELLBOOK:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+waterwierd:   NONE    40  34.5   9.5   1.0   N    0   0  0   0   0   F   F   E
+eyeball:   NONE    45  33.5   13.5   1.0   N    0   0  0   0   0   F   F   E
+eyeball:   NONE    45  35.5   13.5   1.0   N    0   0  0   0   0   F   F   E
+
+//Guarding the boss room
+mephit:   NONE    49  55.0   31.0   1.0   N    3   3  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    49  52.0   29.0   1.0   N    4   0  0   0   0   F   F   E
+  mephiting:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    49  53.0   32.0   1.0   N    10   3  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    49  55.0   29.0   1.0   N    19   0  0   0   0   F   F   E
+  mephitwing:   NONE    52  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+
+chest:   NONE    37  8.0   30.0   0.0   N    0   0  0   0   0   F   F   N
+  KeyB:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+chest:   NONE    37  22.0   53.0   0.0   W    0   0  0   0   0   F   F   N
+  KeyB:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+shaft:   NONE    44  21.5   53.0   1.0   W    0   0  0   0   0   F   F   N
+shaft:   NONE    44  8.0   30.0   1.0   N    0   0  0   0   0   F   F   N
+specialgate:   NONE    61  13.5   53.0   1.0   E    0   0  4   0   0   F   F   N 	//vampire gate
+specialgate:   NONE    61  54.0   22.0   1.0   N    0   0  5   0   0   F   F   N
+bossdoor:   NONE    58  54.0   36.8   1.0   N    0   0  6   0   0   F   F   N
+bbutton:   NONE    60  55.5   33.0   1.0   N    0   0  6   0   0   F   F   N
+bbutton:   NONE    60  52.5   33.0   1.0   N    0   0  6   0   0   F   F   N
+demon:   NONE    62  9.0   29.0   1.0   N    0   0  0   0   0   F   F   P
+demon:   NONE    62  6.0   29.0   1.0   N    0   0  0   0   0   F   F   P
+demon:   NONE    62  10.0   31.0   1.0   N    0   0  0   0   0   F   F   P
+demon:   NONE    62  19.5   51.5   1.0   N    0   0  0   0   0   F   F   P
+demon:   NONE    62  20.0   53.0   1.0   N    0   0  0   0   0   F   F   P
+demon:   NONE    62  21.0   55.0   1.0   N    0   0  0   0   0   F   F   P
+demon:   NONE    62  56.0   42.0   1.0   N    4   0  0   0   0   F   F   E
+demon:   NONE    62  50.0   42.0   1.0   N    4   0  0   0   0   F   F   E
+
+hellrover:   NONE    64  40.0   36.0   1.0   N    0   0  0   0   0   F   F   E
+DarkSpirit:  NONE    100  40.0   36.0   1.5   N    0   0  0   0   0   F   F   E
+  BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+hellrover:   NONE    64  21.5   15.5   1.0   S    0   0  0   0   0   F   F   E
+DarkSpirit:  NONE    100  21.5   15.5   1.5   N    0   0  0   0   0   F   F   E
+  BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+hellrover:   NONE    64  57.5   12.5   1.0   W    0   0  0   0   0   F   F   E
+DarkSpirit:  NONE    100  57.5   12.5   1.5   N    0   0  0   0   0   F   F   E
+  BlackLance:  NONE    99  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N

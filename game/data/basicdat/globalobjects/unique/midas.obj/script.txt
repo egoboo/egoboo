@@ -1,0 +1,122 @@
+// We control when ammo is used
+IfUsed
+  IncreaseAmmo
+
+// Turn enemies to gold!
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  IfTargetIsAPlayer
+    tmpargument = 6
+    tmpdistance = 3
+    tmpturn = RED
+    DrawBillboard
+  Else
+    tmpargument = [UNDE]
+    IfTargetHasID
+      tmpargument = 6
+      tmpdistance = 3
+      tmpturn = RED
+      DrawBillboard
+    Else
+      FlashTarget
+      KillTarget                // Turn em to gold!
+        tmpargument = 5
+        SetTime
+        SetReloadTime
+        tmpargument = 1
+        SetState
+
+IfTimeOut
+
+  // Turn enemies into gold
+  IfStateIs1
+    SetTargetToWhoeverWasHit
+    PoofTarget
+
+    // Spawn some gold
+    tmpargument = 2
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    SpawnExactParticle
+
+    // Tell them what happened
+    tmpargument = 2
+    SendMessageNear
+    tmpargument = 5
+    PlaySound
+
+    tmpargument = 5
+    tmpdistance = 3
+    tmpturn = YELLOW
+    DrawBillboard
+
+    // Finite amount of ammo
+    CostAmmo
+    IfAmmoOut
+      GoPoof
+      tmpargument = 7
+      SendMessageNear
+    tmpargument = 0
+    SetState
+
+//--------------------------------------------------------------------------------
+// This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+
+//--------------------------------------------------------------------------------
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+//--------------------------------------------------------------------------------
+// Say oops, that's kursed
+IfNotDropped
+  SetTargetToWhoeverIsHolding
+  tmpargument = 3
+  SendMessageNear
+
+//--------------------------------------------------------------------------------
+IfDropped                // Make it lie on floor
+  KeepAction
+
+//--------------------------------------------------------------------------------
+IfGrabbed                // Tell them what they've won...
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+//--------------------------------------------------------------------------------
+IfTakenOut                // Do the unsheathe sound
+  tmpargument = 2
+  PlaySound
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 2
+    SendMessageNear
+
+//--------------------------------------------------------------------------------
+IfHitGround                // Make a sound
+  tmpargument = 1
+  PlaySound
+
+//--------------------------------------------------------------------------------
+
+// All done
+End
+
+//--------------------------------------------------------------------------------

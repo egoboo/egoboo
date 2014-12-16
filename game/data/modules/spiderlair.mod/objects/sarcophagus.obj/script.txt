@@ -1,0 +1,58 @@
+// Any damage below 3 is ignored
+IfSpawned
+  tmpargument = 767
+  SetDamageThreshold
+
+IfHealed
+  // Spawn a defense ping
+  IfStateIs0
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 2
+    SpawnExactParticle
+    tmpargument = 1
+    SetState
+    tmpargument = 20
+    SetTime
+
+IfAttacked
+  // Spawn a defense ping
+  IfStateIs0
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 2
+    SpawnExactParticle
+    tmpargument = 1
+    SetState
+    tmpargument = 20
+    SetTime
+
+IfTimeOut
+  // Ready the pings
+  tmpargument = 0
+  SetState
+  tmpargument = 500
+  SetTime
+
+IfKilled
+  GoPoof
+  tmpargument = 0
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+  PlaySound
+
+  // Drop loot
+  DropItems
+  DropKeys
+  tmpargument = selfmoney
+  DropMoney
+
+// Make it destroyable
+IfSpawned
+  JoinEvilTeam
+
+End

@@ -1,0 +1,258 @@
+MultiHack - Weapon listing
+==========================
+
+Name			Nonid Name		Notes ( Weak/Strong attack )
+-----------------------	-----------------------	--------------------------------
+Knife			Knife			P:1+4,
+Silver Knife		Dinner Knife		P:1+4, Werekill
+Bodkin			Dagger			P:2+4,
+Goblin Dagger		Crude Dagger		P:3+2,
+Athame			Long Dagger		P:3+4,
+Stiletto		Dagger			P:3+4, Poison
+Poniard			Dagger			P:4+4,
+Short Sword		Short Sword		P:4+6,
+Wakizashi		Short Sword		P:4+6,
+Cinquedea		Dagger			P:5+5,
+Elven Long Knife	Runed Short Sword	P:5+6,
+Rapier			Narrow Sword		P:6+6,
+
+Cutlass			Curved Sword		S:3+8,
+Sabre			Curved Sword		S:4+8,
+Falcion			Curved Sword		S:6+8,
+Bastard Sword		Sword			S:7+10,
+Scimitar		Curved Sword		S:9+8,
+Broad Sword		Sword			S:10+10,
+Long Sword		Sword			S:12+10,
+Katana			Sword			S:12+10,
+Elven Blade		Runed Sword		S:14+10,
+Claymore		Large Sword		S:17+10,
+Two-Handed Sword	Large Sword		S:20+10,
+
+Javelin			Spear			P:4+12,
+Goblin Spear		Crude Spear		P:6+10,
+Lug Spear		Spear			P:6+12,
+Leaf Spear		Spear			P:10+12,
+Trident			Forked Spear		P:12+12,
+
+Sparth Axe		Polearm			S:14+6,
+Partisan		Polearm			P:4+6, S:14+6,
+Glaive			Polearm			S:18+6,
+Halberd			Polearm			P:8+6, S:18+6,
+
+Weighted Pouch		Weighted Pouch		C:0+2,
+Cane			Cane			C:2+2,
+Rod			Rod			C:2+2,
+Cane of Healing		Cane			H:4+4,
+Club			Club			C:2+4,
+Pick			Pick			P:2+4, C:2+2,
+Mace			Mace			C:6+6,
+Goblin Mace		Spiked Mace		P:4+4, C:6+6,
+War Hammer		Hammer			C:8+8,
+Dwarven Mattock		Heavy Pick		P:6+4, C:8+8,
+Dwarven Hammer		Massive Hammer		C:12+12,
+
+Cat o Nine Tails	Flail			S:0+10,
+Bullwhip		Whip			S:0+20,
+Chain Whip		Chain Whip		S:0+20, C:4+4,
+Flail			Flail			C:2+10,
+Iron Ball and Chain     Ball and Chain		C:2:15, Locked
+Morning Star		Large Flail		C:2+20,
+Rust Whip		Tendril			S:0+20, Rust
+
+Cleaver			Small Axe		S:2+4,
+Hatchet			Small Axe		S:8+4,
+Battle Axe		Large Axe		S:20+4,
+Dwarven Axe		Massive Axe		S:24+4,
+
+Sling			Sling			+C:2+2, Giantkill
+Bow			Bow			+P:6+4
+Longbow			Bow			+P:10+4
+Elven Bow		Ornate Bow		+P:14+4
+Crossbow		Crossbow		+P:14+6
+Triple Crossbow		Crossbow		+P:14+6
+Blunderbuss		Strange Trumpet		+P:20+10,
+
+Arrow			Arrow			P:0+1,
+Silver Arrow		Arrow			P:0+1, Werekill
+Bolt			Bolt			P:0+1,
+Elven Shaft		Arrow			P:1+1,
+Stone			Gray Stone		C:0+2,
+Lead Shot		Metal Beads		C:0+2,
+Boomerang		Curved Stick		P:0+6, S:0+6, C:0+6
+Shuriken		Throwing Star		P:4+4
+Dynamite		Strange Candle		C:100+100, reads "TNT"
+
+"Backstabber"		Twisted Dagger		P:10+4, Backstab, E
+  "Hold me close in the shadows, friend."	Coal1
+  "Thine hands art sweaty and thy grip poor,	Nonal1
+   perhaps thou shouldst put me away before
+   I am lost for all time..."
+  "The stench of thine breath is too much to	Misal1
+   bear."
+"Crime"			Curved Dagger		P:10+4, Unlock, Map, E
+  "I promise, wealth, yesss.  Riches."		Coal1
+  "Thisss, the key, splendor.  Yesss.  Lead..." Coal2
+  "Stone door, three.  He.  He, he..."		Coal3
+  "Don't forget my cut, yesss."			CoalTreas1/CoalTrap1
+  "Mine too, yesss?"				NonalTreas1/NonalTrap1
+  "No, mine!"					MisalTreas1/MisalTrap1
+  "I know, way.  Yesss."			Nonal1
+  "I show, key.  Yesss."			Nonal2
+  "I, thisss."					Nonal3
+  "Kill, theee."				Misal1
+"Jalluse"		Grooved Short Sword	P:16+4, Dwarfkill, E
+"Klesmid"		Wispy Sword		S:16+8, Goodluck, Protect, N
+"Ten Wives"		Rusty Sword		S:10+10, Rustem, Goodluck, N
+  "Uh!  Look girls, a new master!  Let me see!	ManHandle0
+   Oooh, he's cute.  My turn, my turn!"
+  "He's back, he's back!  Such pretty eyes	ManHandle1
+   too.  Oh, Sweety, your mine.  I saw him
+   first!  No, I did!"
+  "Did anyone ever tell you how deep your	Man1
+   voice is?"
+  "Such beautiful eyes, too!  Well, I like	Man2
+   his cute little nose best.  Nu-uh that
+   hair just screams macho!"
+  "You show 'em, Boss!  Yeah, way to go!"	ManCrit1
+  "That one didn't stand a chance againt	ManSlay1
+   you!  You're our hero!"
+  "Look girls, it's our Mistress.  Everone	FemHandle1
+   wave hello.  Hi.  How are you?  Well isn't
+   that nice.  Well, okay, we're going to
+   get back to work now.  Ta ta."
+  "You better clean us off good after that	FemSlay1
+   yucky one, Dear.  Oh, my, Kaja!  Just
+   look at that stain."
+  "My you are a reckless one deary!  Look	FemSlay2
+   at all that blood and ichor you spilt
+   on poor Janna..."
+"Manolete"		Matadore's Sword	S:16+10, Bullkill, N
+  "Ah, again I lay in strong hands..."		ManHandle0
+  "A fair blow, lad!"				ManCrit1
+  "Hah!  Chelsove would be proud, son."		ManSlay1
+  "Martolene himself couldn't have done		ManSlay2
+   better."
+  "Unhand me, wench!"				FemHandle1
+  "You drew me out too soon, woman!"		FemCrit1
+  "Pah!  You know not how to handle the likes	FemCrit2
+   of me!"
+  "I alone conquer."				FemSlay1
+  "You never would have triumphed, were	I not	FemSlay2
+   in hand!"
+"The Trap"		Sinister Sword		S:13+13, Paralyze, Warn, E
+  "Beware, Master!"				CoalTrap1
+  "Put trust in me, Master.  A friend I am.	CoalHandle0
+   I shall warn of traps and trap thine foes.
+   A friend I am.  The Trap I am."
+  "A friend I am..."				CoalHandle1
+  "I smell the fear..."				CoalCrit1
+  "They can't help but fall before thee!"	CoalSlay1
+  "'Tis truly the god of Death who wields me!"	CoalSlay2
+  "No don't!  'Tis a trap!"			NonalTreas1
+  "Gems!  I smell Gems!"			NonalTreas1
+  "Gold!  I smell Gold!"			NonalTrap1
+  "No don't!  'Tis a trap!"			NonalTrap2
+  "Medusa, Medusa!  She comes!  Before all is	NonalHandle1
+   lost!  Dig out thine eyes with mine edge!"
+  "Ech!  Poison Gas!  Hurry, hurry!  I know	NonalHandle2
+   a village three levels down!  You'll find
+   an antidote there!"
+  "Quick!  While the blood is still fresh on	NonalSlay1
+   mine blade!  Slit thine throat with me and
+   thou shalt live forever!"
+  "Run!  Seven more are coming!"		NonalSlay2
+  "Thine god shall be angry over that kill!"	NonalSlay3
+"Trolldoom"		Toothed Sword		S:16+8, Flame, Trollkill, N
+"Dispa..."		Broken Sword		S:6+5, Flame, Drain, E
+  "Cast me off if thou will, Fool!"		CoalDrop1
+"Crucifix"		Radiant Sword		S:14+10, Deadkill, Heal, G
+"Advocate"		Black Sword		S:20+10, Goodkill, Wish, E
+"Godsend"		White Sword		S:20+10, Evilkill, Lifesave, G
+"Pig Spit"		Charred Spear		P:18+12, Animalkill, N
+  "I hunger, Master.  Let us find food."	CoalHandle1
+  "I need be fed, Master."			NonalHandle1
+"Dragonspine"		Wrought Iron Spear	P:22+12, Lizardkill, N
+"Little Lady Marie"	Etched Polearm		P:10+6, S:16+6:, Protect, G
+"Bruise"		Knotted Club		C:8+4, Strength, Conflict, E
+  "I have nothing to say to thee!"		Nonal1
+  ""						NonalMiss1
+  ""						NonalMiss2
+  "A lucky blow!"				NonalCrit1
+  "That one wasn't even looking!"		NonalCrit2
+  "Such pathetic form.  Thou art a disgrace."	NonalCrit3
+  "Hah!  I've seen better from a kobold!"	NonalSlay1
+  "A newborn ratling could have beaten that	NonalSlay2
+   one!"
+  "That one was too easy..."			NonalSlay3
+"Checkmate"		Crowned Mace		C:12+6, Speed, Intelligence, G
+  "An envoy of the White King!"			CoalHandle0
+  "The game shall soon be ours!"		Coal1
+  "Aha!  Check!"				CoalCrit1
+  "Checkmate, friend!"				CoalSlay1
+  "Hmmm...  A red pawn?"			NonalHandle0
+  "I shall serve thee, but know that I am	Nonal1
+   meant for another."
+  "Release me, Black Pawn!"			MisalHandle1
+  "Your strategy is most unappealing."		MisalCrit1
+  "There was no thought behind that move."	MisalCrit2
+  "An even exchange it will be, Pawn..."	MisalSlay1
+  "Such a small loss matters not."		MisalSlay2
+"Hallow"		Radiant Mace		C:12+6, Deadkill, Light, G
+"Maesund"		Stone Mace		C:12+6, Petrify, E
+"Pathe"			Frost Covered Hammer	C:16+8, Freeze, Regenerate, N
+"Copper Stein"		Copper Hammer		C:24+12, Ichorkill, Confuse, N
+"Late Shift"		Engraved Pick		P:6+4, C:10+8, Map, Gobkill, N
+"Kalindekka"		Barbed Whip		S:0+30, Poison, Drain, E
+"Brookshaw"		Wooden Flail		C:2+30, Flame, Spirit, G
+"The Shakes"		Polished Axe		S:16+4, Paralyze, Disease, N
+"Bitterwind"		Notched Axe		S:16+4, Pushback, Freeze, N
+"Hardfall"		Great Bronze Axe	S:30+4, Giantkill, Strength, N
+"Halfstrap"		Torn Sling		+C:8+2, Giantkill, Speed, G
+"Llenwoe"		Jeweled Bow		+P:20+4, Trollkill, Goodluck, G
+"Whistling Dixie"	Polished Steel Crossbow	+P:16+6, Pushback, N
+  "Dixie whistles a little song for you..."	Coal1
+  "Dixie whistles a little song..."		Nonal1
+"Pestillence"		Dark Oaken Scythe	S:24+6, Disease, Poison, E
+"Snare"
+"Brensteeld"
+"Holborth's Blade"
+"Gash"
+"Stormy"
+"Vorpy"
+"Mojo"
+"Crug's Eye"		Board With A Nail In It	P:, C:, Blind
+
+
+Named weapons don't show plus, but are easier to enchant
+Weapons can be named by etching
+Most artifacts are also +4 to armor and final damages
+Wand of Misgiving
+Wand of Backfire
+Artifacts fall silent after exhausting phrases ( timeout )
+Goblins get jolted when grabbing a gobkiller.  Same with others.
+Goblins can't wield a gobkiller.  Weapon won't have it.  Same with others.
+Artifact Throwing Sword that leaps from hand and returns like boomerang
+
+0 -3		: -45 ToHit +0 Damage
+1 -2		: -30 ToHit +0 Damage
+2 -1		: -15 ToHit +0 Damage
+3 +0		: +0 ToHit, +0 Damage
+4 +1		: +15 ToHit, +2 Damage
+5 +2		: +30 ToHit, +4 Damage
+6 +3		: +45 ToHit, +6 Damage
+7 +4		: +60 ToHit, +8 Damage
+
+0 Cursed	: -20 ToHit, +0 Damage, Can't be dropped
+1 Uncursed	: +0 ToHit, +0 Damage
+2 Blessed	: +20 ToHit, +0 Damage, +4 Damage vs. Evil
+
+0 Unskilled	: +0 ToHit, +0 Damage, Weak attack only
+1 Basic		: +15 ToHit, +2 Damage, Weak attack only
+2 Skilled	: +30 ToHit, +4 Damage
+3 Expert	: +45 ToHit, +6 Damage
+4 Master	: +60 ToHit, +8 Damage
+
+
+ToHit is based on level, class, and weapon proficiency
+Attack will hit if (FoeDex - ChrDex - ToHit - 128 + (rand()&255)) < 0
+Damage added from modifiers are automatic in regards to armor

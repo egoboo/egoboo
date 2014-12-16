@@ -1,0 +1,3 @@
+Message 0: With_the_death_of_the_Skulton,_a_great_rift_opens_up_before_you._It's_powerful_energies_
+Message 1: shakes_the_entire_tomb_making_dust_fall_from_the_roof._You_step_into_the_portal._
+Message 2: A_warm_fearsome_glow_surrounds_you_as_you_fall_down_into_the_depths_of_the_Abyss..._

@@ -1,0 +1,159 @@
+//------------------------------------------------------------------------------
+// Get mean if characters wanna be bad
+IfAttacked
+  CallForHelp
+  SetTargetToWhoeverAttacked
+  tmpargument = TEAME       // Team EVIL
+  TargetJoinTeam
+
+IfKilled
+  SetTargetToWhoeverAttacked
+  tmpargument = TEAME       // Team EVIL
+  TargetJoinTeam
+
+//------------------------------------------------------------------------------
+IfKilled
+  tmpargument = "%n was slain..."
+  SendMessageNear
+  tmpargument = selfmoney
+  DropMoney
+
+//------------------------------------------------------------------------------
+// Disable unlocking the quest if they already have it or have finished it
+IfSpawned
+  tmpargument = [SPID]
+  tmpdistance = BLAHQUEST
+  SetTargetToNearestBlahID
+    IfTargetHasQuest          // To get the quest
+      tmpx = tmpdistance
+      tmpy = 0
+      IfXIsEqualToY
+        tmpargument = 2       // Unlocked but not beaten
+        SetState
+      Else
+        tmpargument = 5       // Unlocked and beaten
+        SetState
+
+//------------------------------------------------------------------------------
+IfAttacked
+  tmpargument = 7
+  PlaySound
+
+  // Teleport away
+  tmpargument = ACTIONMJ
+  DoAction
+    tmpargument = 100
+    SetState
+
+//------------------------------------------------------------------------------
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    IfTargetIsOnSameTeam
+      tmpargument = 0
+      IfContentIs
+
+        // Cooldown before next talk
+        tmpargument = 100
+        SetTime
+        tmpargument = 1
+        SetContent
+
+        tmpx = selfstate
+        tmpy = 0
+        IfXIsEqualToY
+          tmpargument = "Hail %s! My name is %n..."
+          SendMessageNear
+          tmpargument = 1
+          PlayFullSound
+          SetState
+
+        tmpy = 1
+        IfXIsEqualToY
+          tmpargument = "And I need to hire you for a quest!"
+          SendMessageNear
+          tmpargument = 2
+          PlayFullSound
+          SetState
+
+        tmpy = 2
+        IfXIsEqualToY
+          tmpargument = "I wil give you a gem if you delve into the spider lair..."
+          SendMessageNear
+          tmpargument = 3
+          PlayFullSound
+          SetState
+
+        tmpy = 3
+        IfXIsEqualToY
+          tmpargument = "...and retrive the eye of Galgazar!"
+          SendMessageNear
+          tmpargument = 4
+          PlayFullSound
+
+          tmpargument = [SPID]
+          IfTargetHasQuest
+            tmpargument = 2
+            SetState
+          Else
+            tmpargument = 4
+            SetState
+
+        tmpy = 4
+        IfXIsEqualToY
+          tmpargument = "==QUEST UNLOCKED=="
+          SendMessageNear
+          tmpargument = 5
+          PlayFullSound
+          tmpargument = 2
+          SetState
+
+          // Unlock the quest
+          tmpargument = [SPID]
+          tmpdistance = 0
+          AddQuestAllPlayers
+
+        tmpy = 5
+        IfXIsEqualToY
+          tmpargument = "Pleasure doing business with you %n!"
+          SendMessageNear
+          tmpargument = 6
+          PlayFullSound
+
+          // Beat the quest for all players
+          tmpargument = [SPID]
+          IfTargetHasQuest
+            tmpx = tmpdistance      // This can only be done once
+            tmpy = 1
+            IfXIsEqualToY
+              tmpargument = [SPQU]
+              CostTargetItemID      // Make them deliver the quest item
+                tmpdistance = 2
+                AddQuestAllPlayers
+                tmpargument = "%n dropped a gem!"
+                SendMessageNear
+                DropItems           // Reward!
+
+                tmpargument = 50
+                tmpdistance = EXPQUEST
+                GiveExperienceToGoodTeam
+
+//------------------------------------------------------------------------------
+IfTimeOut
+  tmpargument = rand & 15 + 25
+  SetTime
+
+  tmpargument = 0
+  SetContent
+
+  // Escape!
+  tmpargument = 100
+  IfStateIs
+    tmpargument = "%n_teleported_away..."
+    SendMessageNear
+    GoPoof
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------
+

@@ -1,0 +1,331 @@
+//-----------------------------------------------------------------------------------------
+// Special for bishopia
+IfSpawned
+  JoinGoodTeam    // Just in case
+
+  tmpargument = 0
+  IfContentIs
+    tmpargument = STATEWANDER     // Wander around randomly
+    SetState
+  Else
+    tmpargument = STATEGUARD      // Stand ground
+    SetState
+
+  tmpargument = 0
+  SetContent
+
+  // Randomize skin
+  tmpargument = 3
+  IfArmorIs
+    DoNothing
+  Else
+    tmpargument = rand % 3
+    ChangeArmor
+
+//-----------------------------------------------------------------------------------------
+// Get mean if characters wanna be bad
+IfAttacked
+  SetTargetToWhoeverAttacked
+
+  tmpargument = rand % 3 + 3
+  PlaySound
+
+  // Player got into trouble
+  IfTargetIsAPlayer
+    DisableExport
+    CallForHelp
+    tmpargument = TEAME
+    TargetJoinTeam
+
+  // Wops, a friendly NPC attacked
+  Else
+    IfTargetIsOnSameTeam
+      SetTargetToOldTarget
+
+  tmpargument = STATECOMBAT
+  SetState
+
+//-----------------------------------------------------------------------------------------
+// Someone is causing trouble!
+IfCalledForHelp
+  SetTargetToWideEnemy
+    tmpargument = STATECOMBAT
+    SetState
+  Else
+    tmpargument = STATECHARGE
+    SetState
+
+//-----------------------------------------------------------------------------------------
+// Main AI loop
+IfTimeOut
+
+  // Reduce the talk timer
+  tmpx = selfcontent
+  tmpy = 0
+  IfXIsMoreThanY
+    tmpargument = STATECOMBAT
+    IfStateIsNot
+      tmpargument = selfcontent - 1
+      SetContent
+
+  IfStateIsWander
+    SetTurnModeToVelocity
+    tmpargument = 10        // Move at 10% of max speed
+    SetSpeedPercent
+    tmpargument = rand % 60 + 60
+    SetTime
+
+    // Look around if there is any trouble moving
+    SetTargetToWideEnemy
+      tmpargument = STATECOMBAT
+      SetState
+      CallForHelp
+
+    // Wander around
+    Else
+      tmpx = rand & 512 + selfx - 256
+      tmpy = rand & 512 + selfy - 256
+      ClearWaypoints
+      AddWaypoint
+
+  IfStateIsCombat
+    tmpargument = 66        // Move at 66% of max speed
+    SetSpeedPercent
+    tmpargument = rand & 15 + 30
+    SetTime
+    SetTurnModeToVelocity
+
+    // Anything nearby we can hit?
+    tmpdistance = 1200
+    SetTargetToDistantEnemy
+
+      // Ranged AI
+      IfHoldingRangedWeapon
+        tmpx = rand & 511 + targetx - 256
+        tmpy = rand & 511 + targety - 256
+        tmpdistance = -800
+        tmpturn = targetturnto
+        Compass
+        ClearWaypoints
+        AddWaypoint
+
+        // Figure out if it is safe to shoot
+        IfFacingTarget
+          SetTurnModeToWatchTarget
+
+          // See if there is a chance for friendly fire
+          tmpdistance = 1
+          SetOldTarget
+          tmpx = targetdistance
+          SetTargetToNearestFriend
+          IfFacingTarget
+            tmpy = targetdistance
+            IfYIsMoreThanX
+              tmpdistance = 0
+          tmpturn = 0
+          SetTargetToOldTarget
+
+          // If tmpdistance not equal 0, then it is safe to shoot
+          IfDistanceIsMoreThanTurn
+            IfHoldingRangedWeapon
+              PressLatchButton
+
+        // Are we low on ammo?
+        SetOldTarget
+        SetTargetToSelf
+        SetTargetToTargetRightHand
+        tmpx = targetammo
+        tmpy = 5
+        IfXIsLessThanY
+          tmpargument = ACTIONMC
+          DoAction
+          tmpargument = [XBOW]
+          RestockTargetAmmoIDFirst
+          tmpargument = [LBOW]
+          RestockTargetAmmoIDFirst
+          tmpargument = 1
+          SendMessageNear
+          tmpargument = 9
+          PlaySound
+        SetTargetToOldTarget
+
+      // Melee AI
+      IfHoldingMeleeWeapon
+        tmpx = rand & 511 + targetx - 256
+        tmpy = rand & 511 + targety - 256
+        tmpdistance = 200
+        tmpturn = targetturnto
+        Compass
+        ClearWaypoints
+        AddWaypoint
+
+        // Combat intensive AI when we get close
+        tmpx = targetdistance
+        tmpy = 400
+        IfXIsLessThanY
+          SetTurnModeToWatchTarget
+
+        // Attack?
+        IfFacingTarget
+          tmpx = targetdistance
+          tmpy = 200
+          IfXIsLessThanY
+            PressLatchButton
+
+    // No enemies found
+    Else
+      tmpargument = STATECHARGE
+      SetState
+
+  IfStateIsCharge
+    tmpargument = 100        // Move at 100% of max speed
+    SetSpeedPercent
+
+    SetTurnModeToVelocity
+    tmpargument = rand & 15 + 35
+    SetTime
+
+    // Pick any enemy in bishopia!
+    SetTargetToNearestEnemy
+
+      // Are we close enough to engage in combat?
+      tmpx = targetdistance
+      tmpy = 800
+      IfXIsLessThanY
+        tmpargument = STATECOMBAT
+        SetState
+
+        // War cry
+        tmpx = rand & 255
+        tmpy = 90
+        IfXIsLessThanY
+          tmpargument = rand % 3 + 14
+          PlayFullSound
+          SendMessage
+
+      // Nope, get closer
+      Else
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = 1500
+        tmpturn = targetturnto
+        Compass
+        ClearWaypoints
+        AddWaypoint
+
+    // No more enemies found
+    Else
+      tmpargument = STATEWANDER
+      SetState
+
+//-----------------------------------------------------------------------------------------
+// Use shield against attacking enemies
+IfTargetIsAttacking                    // Must be attacking
+  IfTargetIsOnHatedTeam                // Must be enemy
+    IfHoldingShield
+      IfFacingTarget              // Only if we are facing eachother!
+        IfTargetIsFacingSelf
+          PressLatchButton          // Yep, defend!
+
+//-----------------------------------------------------------------------------------------
+// How to react if bumped
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnSameTeam
+
+    // Talk if it's a player
+    IfTargetIsAPlayer
+      tmpargument = STATECOMBAT
+      IfStateIsNot
+        tmpargument = 0
+        IfContentIs
+          Stop
+          tmpargument = ACTIONMC
+          DoAction
+
+          // Randomize talk
+          tmpx = rand % 5
+
+          tmpy = 0
+          IfXIsEqualToY
+            tmpargument = 6     // Good day sir!
+            IfTargetIsFemale
+              tmpargument = 11   // Good day madam!
+
+            // Warn thieves
+            tmpargument = [DISA]
+            IfTargetHasSkillID
+              tmpargument = 13    // Obey the law or we will put you in jail!
+
+          tmpy = 1
+          IfXIsEqualToY
+            tmpargument = 8     // Move along sir.
+            IfTargetIsFemale
+              tmpargument = 7   // How can I help you mylady
+
+          tmpy = 2
+          IfXIsEqualToY
+            tmpargument = 9     // We serve and protect
+
+          tmpy = 3
+          IfXIsEqualToY
+            tmpargument = 10     // Stay out of trouble!
+
+          tmpy = 4
+          IfXIsEqualToY
+            tmpargument = 12     // Keep moving!
+
+          // Now say it!
+          PlayFullSound
+          SendMessage
+
+          // Set cooldown
+          tmpargument = 2    // about 2 seconds
+          SetContent
+
+    // Get out of the way of friendlies, unless we are standing ground
+    Else
+      tmpargument = STATEGUARD
+      IfStateIsNot
+        tmpx = rand & 1023 + targetx - 512
+        tmpy = rand & 1023 + targety - 512
+        ClearWaypoints
+        AddWaypoint
+
+//-----------------------------------------------------------------------------------------
+// Handle death
+IfKilled
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    tmpargument = TEAME
+    TargetJoinTeam
+    CallForHelp            // Warn friends
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+  DropItems
+  DropKeys
+
+  // Death sound
+  tmpargument = 1
+  PlaySound
+
+  // Send message
+  tmpargument = 0
+  IfTargetIsOnSameTeam
+    tmpargument = 5
+    IfTargetIsSelf
+      tmpargument = 4
+  SendMessageNear
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+//-----------------------------------------------------------------------------------------
+
+// All done
+End
+
+//-----------------------------------------------------------------------------------------

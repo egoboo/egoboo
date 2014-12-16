@@ -1,0 +1,7 @@
+Message 0: %t_apprehensively_fingers_%n.
+Message 1: The_%c_was_smashed!
+Message 2: %t's_%c_is_%k...
+Message 3: The_%c_won't_go_in!
+Message 4: %t_lifted_%n.
+Message 5: %n_feels_very_hot....
+Message 6: A_WEAPON_IS_USELESS_IN_THE_HANDS_OF_THE_IDLE.

@@ -1,0 +1,40 @@
+Egoboo Wallsets
+===============
+*Sewer Wall ( Grey Brick )
+*Stone Wall ( Beige Stones )
+Townhouse Wall ( Whitewash with Wooden supports, Small trim, Windows )
+Cave Wall ( Dark Brown-Grey, Grassed portions, Glowy entrance )
+Goldbrick Wall ( Small bricks, Pillars, Large brick trim, Tapestries )
+Inside House Wall ( Darker Townhouse, Large rocky trim, Glowy Windows )
+Castle Wall ( High, Gradiated, Cross windows, Bricks, 
+Inside Church Wall ( High, Stainglass, Columns, Carvings )
+Snow Wall ( Red stone, Wooden supports )
+Catacomb Wall ( Insets, Skull bricks, Bone art )
+Library Wall ( Bookcases )
+
+
+
+Egoboo Floorsets
+================
+*Sewer Floor ( Gree tiles )
+*Wooden Floor ( Floor planks in three shades )
+*Snow Floor ( White drifts )
+*Hexagon Floor ( Hexagon pattern )
+Chess Floor ( Simple black and white with drawn sheen )
+Grass Floor ( Many edges to other floor types, Ledges, Stairs )
+Overgrowth Floor ( Thicker grass )
+Bush Floor ( Thick leaves, Impassable... )
+Swamp Floor ( Blackish Brown animated floor, Animated edges )
+Desert Floor ( Yellow Brown drifts )
+Dirtpath Floor ( Brownish low contrast rocks )
+Cobblestone Floor ( Any color, Stairs )
+Stone Bridge ( Light grey, SD3 style curvature )
+Townhouse Roof ( Blue shingles )
+Cave Floor ( Green Brown low contrast rocks, 2 value sets, Stairs )
+Goldbrick Floor ( Cobblestones, Stairs, Blue carpet )
+Waterstone Floor ( Animated sparklies, Waterfall ripples )
+Waterwoods Floor ( Animated sparklies, Ripples, Underwater vines )
+Catacomb Floor ( Carved floor drawings of buried kings )
+
+
+

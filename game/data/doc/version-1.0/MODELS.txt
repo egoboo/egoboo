@@ -1,0 +1,137 @@
+Overview
+--------
+     Egoboo uses .MD2 files for object models.
+These can be created with the Quake2 Modeller,
+which is a freeware program I included with
+this game.  I didn't write the modeller, but
+it's by far the best I've found.
+     Your models can't have more than 128
+vertices, and some vertices need to be used
+for grips.  What are grips?
+     Grips are where weapons get attached to
+your character.  Each character can have up
+to 2 grips ( Left and Right ), each of which
+takes 4 vertices.  THE GRIP VERTICES SHOULD BE
+PUT INTO THE MODEL LAST.  Just cut and paste
+from some other model and you'll be fine.
+     SPAWNLAST is used by weapons, and this is
+just a single extra vertex that floats at the
+tip of the weapon.  Attack particles get spawned
+at this point.  THE SPAWNLAST VERTEX SHOULD BE
+PUT INTO THE MODEL LAST.
+     A couple quick notes about the Quake2
+Modeller...  First, it crashes often, so save,
+make back ups, and live with it.  Second, it uses
+the Quake2 Palette and .PCX files for skins.  Draw
+your skins as .BMP files using the Egoboo palette,
+then do an image conversion.  Several free programs
+are out there that can do it.
+
+
+
+Frame Names
+-----------
+     The most important thing about creating a new
+model is to name your frames correctly.  The name
+consists of a 2 letter action type, followed by a
+the 2 digit frame number, followed by any special
+codes.  It looks something like KA03SP.  Not too
+tough.
+
+
+
+Action Types
+------------
+DA - Dance ( Typical standing )
+DB - Dance ( Bored )
+DC - Dance ( Bored )
+DD - Dance ( Bored )
+UA - Unarmed Attack ( Left )
+UB - Unarmed Attack ( Left )
+UC - Unarmed Attack ( Right )
+UD - Unarmed Attack ( Right )
+TA - Thrust Attack ( Left )
+TB - Thrust Attack ( Left )
+TC - Thrust Attack ( Right )
+TD - Thrust Attack ( Right )
+CA - Chop Attack ( Left )
+CB - Chop Attack ( Left )
+CC - Chop Attack ( Right )
+CD - Chop Attack ( Right )
+SA - Slice Attack ( Left )
+SB - Slice Attack ( Left )
+SC - Slice Attack ( Right )
+SD - Slice Attack ( Right )
+BA - Bash Attack ( Left )
+BB - Bash Attack ( Left )
+BC - Bash Attack ( Right )
+BD - Bash Attack ( Right )
+LA - Longbow Attack ( Left )
+LB - Longbow Attack ( Left )
+LC - Longbow Attack ( Right )
+LD - Longbow Attack ( Right )
+XA - Crossbow Attack ( Left )
+XB - Crossbow Attack ( Left )
+XC - Crossbow Attack ( Right )
+XD - Crossbow Attack ( Right )
+FA - Flinged Attack ( Left )
+FB - Flinged Attack ( Left )
+FC - Flinged Attack ( Right )
+FD - Flinged Attack ( Right )
+PA - Parry or Block ( Left )
+PB - Parry or Block ( Left )
+PC - Parry or Block ( Right )
+PD - Parry or Block ( Right )
+EA - Evade
+EB - Evade
+RA - Roll
+ZA - Zap Magic ( Left )
+ZB - Zap Magic ( Left )
+ZC - Zap Magic ( Right )
+ZD - Zap Magic ( Right )
+WA - Sneak
+WB - Walk
+WC - Run
+WD - Push
+JA - Jump
+JB - Falling ( End of Jump ) ( Dropped Item left )
+JC - Falling [ Dropped item right ]
+HA - Hit
+HB - Hit
+HC - Hit
+HD - Hit
+KA - Killed
+KB - Killed
+KC - Killed
+KD - Killed
+MA - Misc ( Drop Left Item )
+MB - Misc ( Drop Right Item )
+MC - Misc ( Cheer/Slam Left )
+MD - Misc ( Show Off/Slam Right/Rise from ground )
+ME - Misc ( Grab Item Left )
+MF - Misc ( Grab Item Right )
+MG - Misc ( Open Chest )
+MH - Misc ( Sit )
+MI - Misc ( Ride )
+MJ - Misc ( Object Activated )
+MK - Misc ( Snoozing )
+ML - Misc ( Unlock )
+MM - Misc ( Held Left )
+MN - Misc ( Held Right )
+
+
+
+Special Codes
+-------------
+AL - Spawn an attack particle on the left weapon
+DL - Drop the item in the left grip
+GL - Grab an item with the left grip
+CL - Grab a character with the left grip
+AR - Spawn an attack particle on the right weapon
+DR - Drop the item in the right grip
+GR - Grab an item with the right grip
+CR - Grab a character with the right grip
+I  - Make the character invincible
+S  - Stop the character from from accelerating
+F  - Play a footfall sound
+P  - Poof the character

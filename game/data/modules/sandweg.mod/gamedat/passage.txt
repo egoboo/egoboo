@@ -1,0 +1,14 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 LampShop:    8  34      9  35          T       T             F
+1 GeneralShop: 9  40      14  44         T       T             F
+2 CarpetShop:  15 38     17  39          T       T             F
+3 SandShop:    26 30     27  32          T       T             F
+4 DivineGate:    22 17     23  18          F       T             F
+5 DivineGateOpen:22 16     23  19          T       T             F
+6 DivineShop:    19 11     26  15          T       T             F
+7 EscapeZoneOne: 10 2      12  3           T       T             F
+8 EscapeZoneTwo: 60 36     61  38          T       T             F
+9 SpawnZone:     35 37     39  41          T       T             F

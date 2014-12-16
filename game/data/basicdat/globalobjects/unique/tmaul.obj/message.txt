@@ -1,0 +1,6 @@
+Message 0: %t_grabbed_%n.
+Message 1: The_%n_was_destroyed!
+Message 2: %t's_%n_is_%k...
+Message 3: The_%n_won't_go_in!
+Message 4: %t_hefted_%g_%n.
+Message 5: The_%n_is_too_heavy_for_%t...

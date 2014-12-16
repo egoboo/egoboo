@@ -1,0 +1,25 @@
+Module Name 					: Ice_Palace
+Reference Directory 				: palash.mod
+Required reference IDSZ 			: [MAIN] 3
+Number of imports ( 0 to 4 ) 			: 4
+Exporting ( TRUE or FALSE ) 			: FALSE
+Minimum players ( 1 to 4 ) 			: 1
+Maximum players ( 1 to 4 ) 			: 4
+Respawning (ANYTIME, TRUE or FALSE ) 		: TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** ) 			: ****
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:For_many_years,_the_ice_palace_has
+:been_hidden_under_the_thick_layers
+:of_snow._But_today,_for_the_first
+:time_in_centuries_someone_will
+:visit..._
+:_
+:_
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[PRNT] worldmap.mod 0 0 0 
+:[TYPE] MAINQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

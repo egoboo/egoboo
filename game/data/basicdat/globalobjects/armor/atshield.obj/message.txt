@@ -1,0 +1,2 @@
+Message 0: %t_found_a_%c.
+Message 1: The_%c_was_flattened!

@@ -1,0 +1,78 @@
+Enemy Uniqueness
+================
+Gauntlet ghost absorb
+Directional immunity
+Grab character
+Turn to stone and heal
+Ranged attack
+Heal other enemies
+Spawn small enemies
+Homing attack
+Eyeball watches player
+Change in behavior when player sighted ( Run quick at player )
+Mounted
+Teleport
+Throw player around
+Doesn't move
+Move slowly
+Move quickly
+Steal player money ( NetHack Leprechaun )
+Steal player items ( NetHack Nymph, Uninterested in Females )
+Block arrows to defend archers
+No reflection
+Weaknesses and Resistances
+Mimic scenery object
+Invisibility
+Appear in large group
+Self destruct and explode
+Can't be killed ( Death from Gauntlet )
+Can't fight hand to hand ( Lobbers from Gauntlet )
+Eat corpses to replenish health ( Devourers from Diablo )
+Posess NPC ( Seiken Densetsu 3, Eagle )
+Block passage with large form ( Snorlax from Pokemon )
+Mimic player actions or appearance ( Shade from Prince of Persia )
+Make player dizzy
+Move in a pattern
+Paralyze player, Bite and hold until broken free
+Act as only light source
+Only vulnerable at certain times ( Gannon from Zelda )
+Run away when looked at
+Jump high ( Spiders from Zelda )
+Walk on water ( Blue spiders from Zelda )
+Stops player from attacking ( Skulls from Zelda, Sets reload time )
+Invulnerable, Shoots at player ( Trap statues from Zelda )
+Respawn when killed
+Split when killed ( Hold hidden item in each hand )
+Flying mount ( Jump every time used... )
+Poisonous
+Only vulnerable to non weapon ( Whistle from Zelda, Bats? )
+Rabite rain
+Push player off cliff ( Center platform? )
+Zap any character that gets too close ( Myth obelisk )
+Drains player mana
+Heals player if unarmed ( NetHack Nurse )
+Permanently damage player, Enchant MaxLife ( Undead boss )
+Catch player on fire
+Tongue grab, Eat player, Egg drop
+Toggle water level or open doors when hit
+Damage player for each point done ( Eye for an Eye )
+Petrify player if looking at each other ( Medusa )
+Deflect ranged attacks
+Blows player around ( Wind Tunnel, Vortices )
+Mimic background tiles ( Floor tile mimics from Zelda )
+Mimic weapon until player grabs it ( Make eyes blink )
+Scares NPC helpers
+Scared of Fire
+Scared when ally dies ( Fallen from Diablo )
+Uses a shield to block
+Gets three big attacks, Then weak ( Shade from Myth )
+Too big to squeeze through small passage
+Leaves trail of damage sparklies ( Light Cycles Tron )
+Other enemies die when killed ( Room Leaders from Zelda )
+Attack in formation, Circles and lines
+Door/Wall creature ( Seiken Densetsu 3 )
+Sleeping until approached or attacked
+Pops out of water/lava/ground ( Zola from Zelda )
+
+
+

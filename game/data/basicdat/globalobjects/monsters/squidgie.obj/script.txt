@@ -1,0 +1,140 @@
+IfSpawned
+  // Don't zap if just spawned
+  tmpargument = 30
+  SetTime
+  tmpargument = 1
+  SetState
+
+IfKilled
+  // Handle death
+  IfTargetIsSelf
+    tmpargument = 1
+  Else
+    tmpargument = 0
+  SendMessageNear
+  tmpargument = 30
+  SetBumpSize
+  tmpargument = 40
+  SetBumpHeight
+  tmpargument = 25
+  SetShadowSize
+  tmpargument = 1
+  ChangeArmor
+  tmpargument = 1
+  PlaySound
+
+IfAttacked
+  // Make noise
+  SetTargetToWhoeverAttacked
+  tmpargument = 0
+  PlaySound
+
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    // Do a lightning circle
+    IfStateIs0
+      tmpargument = 2
+      PlaySound
+      tmpargument = ACTIONUA
+      DoAction
+      tmpdistance = SPAWNORIGIN
+      tmpargument = 0
+      SpawnAttachedParticle
+      tmpargument = 100
+      SetTime
+      tmpargument = 1
+      SetState
+  // Scooch around
+  tmpx = rand & 255 + targetx - 128
+  tmpy = rand & 255 + targety - 128
+  ClearWaypoints
+  AddWaypoint
+  SetTargetToOldTarget
+
+// Find enemies
+IfTimeOut
+  tmpargument = rand & 15 + 10
+  SetTime
+  tmpargument = 0
+  SetState
+
+  SetTargetToWideEnemy
+    SetTurnModeToWatchTarget
+    tmpx = selfaccel
+    tmpy = 1
+    IfXIsMoreThanY
+      tmpx = targetdistance
+      tmpy = 500
+      IfXIsLessThanY
+        tmpy = 140
+        IfXIsLessThanY
+          // Do a lightning circle
+          IfStateIs0
+            tmpargument = 2
+            PlaySound
+            tmpargument = ACTIONUA
+            DoAction
+            tmpdistance = SPAWNORIGIN
+            tmpargument = 0
+            SpawnAttachedParticle
+            tmpargument = 100
+            SetTime
+            tmpargument = 1
+            SetState
+        Else
+          // Is the enemy facing the character?
+          IfTargetIsFacingSelf
+            tmpargument = ACTIONHA
+            DoAction
+              SetOldTarget
+              SetTargetToSelf
+              tmpy = 32768
+              IfXIsLessThanY
+                tmpturn = 16384 + selfturn
+              Else
+                tmpturn = 49162 + selfturn
+              tmpx = 0
+              tmpy = 0
+              tmpdistance = 25
+              Compass
+              AccelerateTarget
+              SetTargetToOldTarget
+              tmpargument = 3
+              PlaySound
+              tmpx = targetx
+              tmpy = targety
+              tmpdistance = 800
+            Else
+              tmpx = selfx
+              tmpy = selfy
+              tmpturn = selfturn + 32768
+              tmpdistance = 800
+          Else
+            tmpx = targetx
+            tmpy = targety
+            tmpturn = selfturn
+            tmpdistance = 800
+        Else
+          tmpx = targetx
+          tmpy = targety
+          tmpturn = selfturn
+          tmpdistance = 800
+      Else
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = selfturn
+        tmpdistance = 800
+      Compass
+    Else
+      tmpx = targetx
+      tmpy = targety
+  Else
+    tmpx = rand & 511 - 256 + selfspawnx
+    tmpy = rand & 511 - 256 + selfspawny
+  ClearWaypoints
+  AddWaypoint
+
+// All done
+End
+

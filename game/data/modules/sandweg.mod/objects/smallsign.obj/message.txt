@@ -1,0 +1,5 @@
+Message 0: Welcome_to_Sandweg!_The_sandiest_city_in_Lorule.
+Message 1: The_Divine_Order_of_Aaron
+Message 2: N/A
+Message 3: N/A
+Message 4: %t_can't_read!

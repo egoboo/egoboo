@@ -1,0 +1,13 @@
+:Ti
+:Pa
+:Ly
+:Li
+:Ca
+:STOP
+
+:ger
+:nter
+:nx
+:on
+:t
+:STOP

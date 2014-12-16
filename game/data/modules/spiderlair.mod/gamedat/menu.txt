@@ -1,0 +1,26 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		        : Lair_of_the_Spider_Queen
+Reference module ( Directory name or NONE )     : NONE
+Required reference IDSZ ( or [NONE] )           : [SPID]
+Number of imports ( 0 to 4 )                    : 2
+Allow exporting of characters ( TRUE or FALSE ) : FALSE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 2
+Allow respawning ( TRUE or FALSE )		: TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( *, **, ***, ****, or ***** )     : **
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:"Little_itsy_bitsy_spider_I_am_not_your_lunch!
+:Crunch._Chrunch._Crunch."
+:_
+:Defeat_the_spider_queen_and_her_minions
+:and_find_the_magical_Eye_of_Galgazar.
+:Then_bring_the_eye_back_to_Java_in_Zippy
+:for_a_reward!
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] SIDEQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

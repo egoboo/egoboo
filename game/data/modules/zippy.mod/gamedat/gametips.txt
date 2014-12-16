@@ -1,0 +1,8 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Frazzle,_the_magic_shopkeeper,_has_a_fine_selection_of_Arcane_spell_books.
+Tip 1: The_sheep_have_a_mystery_that_the_shepherds_are_afraid_someone_will_find_out...
+Tip 2: Watts_is_the_general_shop_owner_and_sells_everything_from_weapons_to_scrolls.
+Tip 3: Be_careful_when_buying_armor_from_chests.
+Tip 4: New_people_may_appear_or_disappear_in_Zippy_later_in_the_game.
+Tip 5: Shops_restock_with_random_goods_each_time_you_visit_the_town.
+Tip 6: Zippy_is_a_smaller_village_that_thrives_on_Sheep_farming.

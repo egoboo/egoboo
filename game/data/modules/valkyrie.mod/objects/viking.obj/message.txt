@@ -1,0 +1,9 @@
+Message 0: %t_killed_a_%c.
+Message 1: A_%c_was_killed_in_the_fray!
+Message 2: _
+Message 3: _
+Message 4: _
+Message 5: Take_no_prisoners!
+Message 6: %t_is_a_murderer!
+Message 7: The_%c_looks_better...
+Message 8: %t_backstabbed_the_%c!

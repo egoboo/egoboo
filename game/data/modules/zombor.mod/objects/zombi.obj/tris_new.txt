@@ -1,0 +1,5 @@
+The original model used the S command in frames where the zombi was paused. 
+
+The new model just adjusts the position of the zombi so that in frames where he is stopped, he moves backward at the correct movement rate (which would make him still compared to the floor).
+
+This relies on having an accurate estimation of the speed of the model and the new code for implementing the variable frame rate.

@@ -1,0 +1,4 @@
+Message 0: A_Tourist_hostage_was_rescued!
+Message 1: All_hostages_were_saved!_(200_bonus_XP!)
+Message 2: The_tourist_hostages_has_been_saved_from_the_Cobol_Emperor._Hopefully_this_will_be_enough
+Message 3: to_once_again_restore_tourism_in_Lorule_to_what_it_once_was...

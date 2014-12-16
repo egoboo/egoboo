@@ -1,0 +1,2 @@
+Message 0: The_%c_exploded!
+Message 1: %t_was_paralysed!

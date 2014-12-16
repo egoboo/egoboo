@@ -1,0 +1,58 @@
+//------------------------------------------------------------------------------
+IfTimeOut
+  tmpx = selfx
+  tmpy = selfy
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 50
+  SetTime
+
+//------------------------------------------------------------------------------
+// ZZ> Bite characters that it bumps
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      tmpargument = LATCHRIGHT
+      PressLatchButton
+  Else
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfSpawned
+  JoinNullTeam  // For rebirth...
+IfKilled
+  JoinGoodTeam  // For rebirth...
+  tmpargument = 4
+  tmpdistance = rand & 2047 + 10000
+  PlaySound
+  tmpargument = 0
+  SendMessageNear
+
+  // Drop goodies
+  tmpargument = 65535
+  DropMoney
+
+  // Make the character body
+  tmpargument = 50
+  SetBumpHeight
+  tmpargument = 43
+  SetBumpSize
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  // Drop rider
+  tmpx = rand & 255
+  tmpy = 190
+  IfXIsMoreThanY
+    DropWeapons
+
+  tmpargument = rand & 1 + 2
+  tmpdistance = rand & 2047 + 10000
+  PlaySound
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

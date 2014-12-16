@@ -1,0 +1,118 @@
+// BB> The aeroplane script
+
+// General stuff
+IfSpawned
+  MakeAmmoKnown
+  MakeNameKnown
+  ClearWaypoints
+  JoinNullTeam
+  tmpargument = 0
+  SetContent
+
+IfScoredAHit
+  SetTargetToRider
+    tmpargument = 30
+    tmpdistance = EXPROLEPLAY
+    GiveExperienceToTarget
+
+IfMounted
+  SetTargetToRider
+  TargetJoinTeam
+  tmpargument = 1
+  SetContent
+
+IfDismounted
+  JoinNullTeam
+  tmpargument = 0
+  SetContent
+
+tmpargument = 1
+
+IfContentIs
+  tmpargument = LATCHJUMP
+  PressLatchButton
+
+// Set number of shells to drop
+IfUsed
+  tmpargument = 8
+  SetContent
+  tmpargument = 0
+  SetTime
+
+  // Play the machine gun sound
+  IfAmmoOut
+    tmpargument = 0
+    StopSound
+    tmpargument = 3
+    PlaySoundLooped
+    tmpargument = 2
+    SetState
+  Else
+    tmpargument = 0
+    PlaySoundLooped
+    tmpargument = 1
+    SetState
+
+IfTimeOut
+
+  // Firing state
+  IfStateIs1
+
+    // Down the count
+    tmpargument = 0
+    GetContent
+    tmpargument = tmpargument - 1
+    SetContent
+
+    // Check ammo
+    IfAmmoOut
+      tmpargument = 0
+      StopSound
+      tmpargument = 2
+      SetState
+
+    // Drop a shell
+    Else
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpargument = 3
+      SpawnExactParticle
+
+    // Do again in 9 frames
+    tmpargument = 9
+    SetTime
+
+    // Stop sounds
+    tmpargument = 0
+    IfContentIs
+      StopSound
+      SetState
+      // Do an echo
+      tmpargument = 2
+      PlaySound
+
+  // Whirring state
+  IfStateIs2
+
+    // Down the count
+    tmpargument = selfcontent - 1
+    SetContent
+
+    // Do again in 9 frames
+    tmpargument = 9
+    SetTime
+
+    // Stop sounds
+    tmpargument = 0
+    IfContentIs
+      SetState
+      tmpargument = 3
+      StopSound
+
+      // Do the hum out
+      tmpargument = 4
+      PlaySound
+
+// All done
+End

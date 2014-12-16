@@ -1,0 +1,27 @@
+//------------------------------------------------------------------------------
+// Make snores go at different times
+IfSpawned
+  tmpargument = selfindex & 3 < 6
+  SetTime
+
+//------------------------------------------------------------------------------
+// Sleepy Z's
+IfTimeOut
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+
+  // Snore
+  tmpargument = rand & 3
+  tmpdistance = rand & 2047 + 15000
+  PlaySound
+
+  // Wait a while
+  tmpargument = 100
+  SetTime
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

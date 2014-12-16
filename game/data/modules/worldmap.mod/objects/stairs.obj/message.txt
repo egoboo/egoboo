@@ -1,0 +1,4 @@
+Message 0: Go_up_the_stairs?
+Message 1: %t_has_found_some_stairs.
+Message 2: Press_ATTACK_to_climb_up.
+Message 3: Would_you_like_to_ascend_the_stairs?

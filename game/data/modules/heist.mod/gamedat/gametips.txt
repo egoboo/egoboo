@@ -1,0 +1,6 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Stealth_is_the_Rogue's_best_friend.
+Tip 1: Make_sure_that_K'nife_survives,_you_will_need_him_to_get_to_the_treasure.
+Tip 2: Backstabs_can_kill_instantly.
+Tip 3: If_a_guard_notices_you,_he_will_sound_the_alarm.
+Tip 4: You_need_to_navigate_the_maze_before_reaching_the_treasury.

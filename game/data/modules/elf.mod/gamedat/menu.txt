@@ -1,0 +1,24 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: Elf_Start
+Reference module ( Directory name or NONE )	: NONE
+Required reference IDSZ ( or [NONE] )		: [NONE]
+Number of imports ( 0 to 4 )                    		: 0
+Allow exporting of characters ( TRUE or FALSE )	: FALSE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 1
+Allow respawning ( ANYTIME, TRUE or FALSE )	: TRUE
+NOT USED				: FALSE
+Level rating ( *, **, ***, ****, or ***** )     		: **
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:Two_of_your_Faerie_friends_have
+:been_captured_by_the_dispicable_Lumpkins.
+:You_tried_to_rescue_them,_but_ended
+:up_as_lunch...
+:Escape,_before_you_are_boiled_alive_and
+:lead_the_little_ones_to_the_safety_of
+:the_faerie_ring.
+:_
+
+// Module expansion IDSZs ( with a colon in front )

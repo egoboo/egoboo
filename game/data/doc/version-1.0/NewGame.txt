@@ -1,0 +1,203 @@
+It's not just a game, It's a FREE game
+
+**Skin Armor**
+    !!THROW HOLY WATER ONLY IF YOU KNOW IT'S HOLY WATER!!
+    [ARMO]
+      *Default
+      Leather Armor	Leather Armor?
+      Studded Leather	Leather Armor?
+      Chainshirt	Chainshirt?
+      Mithril Chainmail	Chainshirt?
+      Platemail		Platemail?
+      Field Plate	Platemail?
+    [ROBE]
+      *Default
+      Sage's Robe	Robe?
+      Warlock's Robe	Robe?
+      Enchanter's Robe	Robe?
+    [SMAL]
+      *Default
+      Leather Armor	Leather Armor?
+      Chainshirt	Chainshirt?
+      Mithril Chainmail	Chainshirt?
+      Platemail		Platemail?
+      Dwarven Plate	Platemail?
+    [TUTU]
+      *Default
+      Designer Dress	Tutu?
+      Leather Tutu	Tutu?
+      Cat Suit		Tutu?
+
+**Miscellaneous Items**
+    [KEY ]
+    [MONE]
+    [NECK]
+    [POTI]
+      Healing Potion	Potion?
+      Mana Potion	Potion?
+      Cure Potion	Potion?
+      Poison		Potion?
+      Holy Water	Potion?
+    [RING]
+    [SHOE]
+    [SKUL]
+
+**Weapon Types**
+    [AMMO]
+      Arrow		Arrow?
+      Silver Arrow	Arrow?
+      Poison Arrow	Arrow?
+    [AXE ]
+      Throwing Axe	Axe?
+      Hatchet		Axe?
+      Mattock		Pick?
+      Cleaver		Cleaver?
+      "The Bait"	Cleaver?
+    [BOOM]
+      Boomerang		Stick?
+    [BOW ]
+      Short Bow		Bow?
+      Long Bow		Bow?
+      "Dixie"		Bow?
+    [CANE]
+      Cane		Cane?
+      Black Cane	Cane?
+      White Cane	Cane?
+      Red Cane		Cane?
+    [CLAW]
+    [CROS]
+    [EXPL]
+      Burning Oil	Oil?
+      Keg Charge	Barrel?
+      Dynamite		Candle?
+    [KICK]
+    [KNIF]
+      Throwing Knife	Dagger?
+      Bodkin		Dagger?
+      Stiletto		Dagger?
+      Cutlass		Pirate Sword?
+      Shortsword	Shortsword?
+      "Defender"	Dagger?
+      "Crime"		Dagger?
+    [MACE]
+      Whip		Whip?
+      Mace		Mace?
+      Flail		Flail?
+      Mallet		Hammer?
+      Sledge		Hammer?
+      "Crug's Eye"	Board With A Nail In It?
+    [SWOR]
+      Scimitar		Sword?
+      Saber		Sword?
+      Rapier		Sword?
+      Broadsword	Sword?
+      Longsword		Sword?
+      "Kilmore"		Sword?
+      "Manolete"	Sword?
+      "Ten Wives"	Sword?
+    [SHIE]
+      Buckler		Buckler?
+      Shield		Shield?
+      "Void"		Shield?
+    [TORC]
+      Torch		Torch?
+    [TRAP]
+      Bait		Bait?
+      Hook Bait		Bait?
+      Poison Bait	Bait?		Green Cheese
+      Nail		Trap?
+      Rat Trap		Trap?
+      Bear Trap		Trap?
+      Trigger		Trap?
+
+
+**Inventory**
+    8 slots, with stacking
+    Spell orbs are stored in inventory
+    Stack items of same type ( only if flag is set )
+    Items carry over to next scenario ( if flag is set )
+    Each carry over has unique skin and model
+
+**Experience**
+    Get experience from different sources based on class
+      Finding a secret
+      Finishing a quest
+      Using an unknown item
+      Helping another player with magic
+      Player kills an enemy
+      Player kills a sleeping enemy
+      Player kills an enemy in hate group ( 4 letter code )
+      Another player kills an enemy
+      An enemy is allowed to escape ( count spared lives at end )
+      Saying something in character ( "My God will protect me")
+
+**Magic**
+    Pumpable spells can never exceed the character's channel stat
+
+**Plot Ideas**
+    Bocaburg
+    Cross a pit of spikes on the back of a mama grub (not mounted)
+    Village of Twins, I'm not Dan, He is...
+    Silver Scorpion... "Perseus!  Your sword!  Arrggh..."
+    Ball and chain swinging from ceiling like Mario
+    Big flashing billboard that says "Secret Level This Way-->", to
+      introduce the idea of many secret levels
+    Buy a dragon ( without being told it's a whelp )
+    Fidgit the Basildragon...  Loves to chew on its owner
+    Destroyed town
+    Ice Gigas that enchants players' weapons with ice so they can't hurt it
+    Town of pixies that call the players giants
+    Kitski quest, She's attacking a village, eating peasants, 500 lb
+    Empire Monkeys, infected with harmless virus
+    Assassinate goblin king
+    Search for fountain of youth, Oz type ending
+    Royal carriage heist
+    Tollgate
+    Snow Crystal Rainbow Race, Wumpus racing, Speed chevrons
+    The Fellwoods, Big lake with giant lilly pads
+      Four 50ft diameter trees, one of which is only a stump
+      Waterfalls and shafts of light come from the canopy above
+      Crystal clear water effect over prelit lake bottom
+      Trogs hide underwater and in trees, Trogpoles swim in water
+    Multiplayer puzzles, Falling tiles
+    Find a secret skull, bring back to life to get NPC/New Class
+    One part when lots of unintroduced characters talk about some
+      great plot and confuse the players to parody the conventional
+      RPG
+
+
+**Conversation**
+    "So you're Tiamat, huh? Are you evil? Yes? Would you like to convert?" 
+    "Your mother was a Gully Dwarf."
+    "My God will protect me." 
+    "So what are you going to do after...?"  "I'm going to move in with you"
+
+**Notes**
+    !!!Knock characters out!!!
+    !!!Side games!!!  Gambling!!!
+    Archeologist vulnerable to [SNAK], ID items
+    Time limit option for module
+    Enemies may ( chance ) leave an evil skull if they can be animated
+    Basil dragon familiar as inventory item ( share damage )
+    Some classes resist both happy and bad magic
+    A bottle clearly marked poison
+    Spell Orbs or Spell Seeds???
+    Evasion and blocking animations
+    Talking character's comment on nifty effects
+    Modules can require completion of another module ( directory name )
+    Modules have image and description
+    Random skins for potions
+    Classes have auto ID mask for items types and curse state
+    Ranger Scouts
+    Currency is either Zorkmids or Zenny or Rupie
+    Modules can limit min and max number of players
+    Each module has a player level suggestion
+    New classes become available by copying info to directory
+    Each class has an image and description and starting items
+    Copy ALL data from remote class directory to temp directory
+    Key and button assignments can be changed
+    Some items ( Weapons ) cannot be hotkeyed ( use a flag )
+    Each character has 8 item inventory
+    Classes and Saved characters treated EXACTLY the same
+    Each player has 4 armor skins and 2 (8) import skins
+    Each campaign has an opening like MythII, Silly voice

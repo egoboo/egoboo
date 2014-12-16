@@ -1,0 +1,6 @@
+Message 0: %t_found_a_%c.
+Message 1: The_%c_was_destroyed!
+Message 2: %t's_%c_is_%k...
+Message 3: The_%c_won't_go_in!
+Message 4: %t_can't_joust!
+Message 5: %t_readies_%g_%c...

@@ -1,0 +1,5 @@
+Message 0: %t_grabbed_%n.
+Message 1: Oh_no!_The_%c_was_destroyed!
+Message 2: %t_drew_the_mighty_%n.
+Message 3: %t_drew_a_fancy_%c...
+Message 4: Snicker-Snack!

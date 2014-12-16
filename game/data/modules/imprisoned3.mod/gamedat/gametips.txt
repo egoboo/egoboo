@@ -1,0 +1,5 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: The_portal_you_just_came_out_of_might_not_lead_back_to_the_room_you_came_from!
+Tip 1: You_should_try_to_collect_gems.
+Tip 2: Be_prepeared_for_combat_-before-_you_enter_a_portal.
+Tip 3: The_colors_of_the_portals_have_no_significance.

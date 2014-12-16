@@ -1,0 +1,85 @@
+// Create the character
+IfSpawned
+  IfStateIs0
+    // It's an imported spell in hand
+    KeepAction
+
+IfChanged
+  // It's a spell in hand
+  tmpargument = 0
+  SetState
+  KeepAction
+
+// Spell AI...
+IfStateIs0
+  // Remove the charge
+  IfTakenOut
+    tmpargument = 0
+    SetContent
+    SetTargetToWhoeverIsHolding
+      IfTargetIsAPlayer
+        tmpargument = 0
+        SendMessageNear
+  // Allow it to be used
+  IfUsed
+    SetTargetToWhoeverIsHolding
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpargument = 0
+      SpawnExactParticle
+
+      tmpargument = 10
+      CostTargetMana
+        tmpargument = selfcontent + targetmanaflow
+        SetContent
+      Else
+        // Make the spell fizzle or autocast...
+        tmpargument = 1
+        SendMessageNear
+        tmpargument = 50
+        SetReloadTime
+
+  // Cast the spell
+  Else
+    tmpx = selfcontent
+    tmpargument = 0
+    SetContent
+    tmpy = 0
+    IfXIsMoreThanY
+      tmpx = tmpx - 512
+      IfXIsMoreThanY
+        // Figure out the charge state, and spawn accordingly
+        tmpturn = tmpx > 9 + 1        // State 1, 2, or 3 for child
+        tmpargument = 0
+        tmpx = selfx
+        tmpy = selfy
+        tmpdistance = selfz
+        SpawnExactParticleEndSpawn
+        tmpargument = ACTIONZC
+        IfHeldInLeftHand
+          tmpargument = ACTIONZA
+        TargetDoAction
+        tmpargument = 25
+        SetReloadTime
+
+        IfUsageIsKnown
+          DoNothing
+        Else
+          tmpargument = 30
+          tmpdistance = EXPSECRET
+          GiveExperienceToTarget
+          MakeUsageKnown
+          MakeNameKnown
+
+  // Return to spellbook, Do last!
+  IfDropped
+    tmpargument = 0
+    SetContent
+    BecomeSpellbook
+    DisaffirmCharacter
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+
+End

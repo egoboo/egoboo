@@ -1,0 +1,30 @@
+Overview
+--------
+     The MESSAGE.TXT files use cryptic little escape
+sequences to display certain types of information.
+Each sequence consists of a % followed by a letter or
+number.  Here's a nice little list...
+
+
+Escape Sequences
+----------------
+%n	- The character's name ( or class if name is unknown )
+%t	- The target's name ( or class if name is unknown )
+%o	- The owner's name ( or class if name is unknown )
+%c	- The character's class
+%s	- The target's class
+%0	- The target's skin 0 name ( some_Leather_Armor )
+%1	- The target's skin 1 name ( some_Chainmail )
+%2	- The target's skin 2 name ( a_Breastplate )
+%2	- The target's skin 3 name ( a_Hero_Costume ) ( What? )
+%d	- The value of tmpdistance
+%x	- The value of tmpx
+%y	- The value of tmpy
+%D	- The value of tmpdistance ( Use for stat display of pets )
+%X	- The value of tmpx ( Use for stat display of pets )
+%Y	- The value of tmpy ( Use for stat display of pets )
+%a	- The character's ammo ( or ? if unknown )
+%k	- The character's kurse state ( kursed or unkursed )
+%p	- The character's possessive ( his, her, or its )
+%g	- The target's possessive ( his, her, or its )
+%m	- The character's gender ( male_, female_, or _ )

@@ -1,0 +1,85 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned
+  SetTargetToSelf
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  tmpargument = rand & 7 + 3
+  SetContent
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on floor
+IfDropped
+  tmpargument = rand & 3 + 5
+  SetContent
+  SetTargetToSelf
+  KeepAction
+
+// Make a sound
+IfHitGround
+  tmpargument = 1
+  PlaySound
+
+// Make a sound
+IfTakenOut
+  tmpargument = rand & 3 + 5
+  SetContent
+  tmpargument = 2
+  PlaySound
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 2
+    SendMessageNear
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+IfTimeOut
+  // Heh, heh, heh...
+  SetTargetToWhoeverIsHolding
+    GetContent
+    tmpx = tmpargument
+    tmpy = 2
+    IfXIsLessThanY
+      tmpy = 1
+      IfXIsEqualToY
+        tmpargument = 3
+        PlaySound
+        tmpargument = 3
+        SendMessageNear
+        tmpargument = 0
+        SetContent
+    Else
+      tmpargument = tmpargument - 1
+      SetContent
+
+    tmpx = targetlife
+    tmpy = 1024
+    IfXIsMoreThanY
+      tmpargument = 0 - 2
+      GiveLifeToTarget
+    tmpargument = 256
+    HealTarget
+  tmpargument = 50
+  SetTime
+
+// All done
+End
+

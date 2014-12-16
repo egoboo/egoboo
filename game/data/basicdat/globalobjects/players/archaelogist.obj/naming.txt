@@ -1,0 +1,17 @@
+:Ind
+:And
+:Jond
+:Mark
+:Jon
+:Harr
+:STOP
+
+:y
+:iana
+:er
+:or
+:es
+:ie
+:ey
+:ison
+:STOP

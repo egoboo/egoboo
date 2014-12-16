@@ -1,0 +1,33 @@
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+IfUsed
+  IfStateIs0
+    SetTargetToWhoeverIsHolding
+    tmpargument = [TOUR]
+    IfTargetHasID
+      tmpargument = 2           // special message for tourist
+    Else
+      tmpargument = 1
+    SetState
+    SendMessageNear
+    tmpargument = 100
+    SetTime
+
+IfTimeOut
+  tmpargument = 100
+  SetTime
+  tmpargument = 0
+  SetState
+
+// Make a sound
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+// All done
+End
+

@@ -1,0 +1,7 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Many_Deamons_are_damaged_by_Healing_Magic.
+Tip 1: Fire_resistance_is_a_good_thing_to_have_in_the_Abyss.
+Tip 2: Killing_the_Deamon_Lord_with_a_toilet_plunger_is_very_humiliating.
+Tip 3: You_can_actually_jump_on_floating_eyes.
+Tip 4: Sneaky_Rogues_should_try_to_backstab_stuff.
+Tip 5: You_cant_unlock_the_next_level_if_you_play_in_Easy_mode!

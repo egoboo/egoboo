@@ -1,0 +1,2 @@
+Message 0: %t_pulled_an_invisible_switch!
+Message 1: %t_pulled_the_switch.

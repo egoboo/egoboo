@@ -1,0 +1,32 @@
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = "%t_found_%c."
+    SendMessageNear
+
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpargument = "Bring_this_artifact_to_Java_in_Zippy_Town."
+  SendMessageNear
+  tmpargument = 100
+  SetReloadTime
+
+IfTimeOut
+  tmpargument = 5
+  SetTime
+
+  // Magic trail
+  tmpargument = 0
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+
+// Make a sound
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+// All done
+End
+

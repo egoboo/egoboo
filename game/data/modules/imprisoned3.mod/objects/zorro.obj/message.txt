@@ -1,0 +1,4 @@
+Message 0: %t_killed_%n.
+Message 1: %n_has_fallen.
+Message 2: Stupid!
+Message 3: %n_looks_better...

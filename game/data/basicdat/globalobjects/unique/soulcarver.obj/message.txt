@@ -1,0 +1,7 @@
+Message 0: %t_grabbed_%n.
+Message 1: %n_was_broken!
+Message 2: %t_unleashed_%n.
+Message 3: This_weapon_is_unnaturally_effective...
+Message 4: The_Lost_exact_their_revenge!
+Message 5: %t_suffers_the_purgatory_of_%n.
+Message 6: %n_is_erasing_all_memory_of_%t.

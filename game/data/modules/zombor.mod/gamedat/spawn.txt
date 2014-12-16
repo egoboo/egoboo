@@ -1,0 +1,110 @@
+#dependency Zombor  0
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+PLAYER 1:   NONE    0  12.5   35.5   0.0   N    0   0  0   0   0   T   F   Z
+
+//Cleric boss
+cleric:   NONE    56  34.5   24.25   1.0   N    39   0  0   0   0   F   F   G
+  Scimitar:   NONE    53  23.0   35.0   1.0   R    0   0  0   0   0   F   F   N
+  holybolt:   NONE    57  23.0   35.0   1.0   L    0   0  0   0   0   F   F   N
+healer:   NONE    29  35.0   24.25   1.0   N    8   1  0   0   0   F   F   G
+  warham:   NONE    40  22.0   31.0   1.0   R    0   0  0   0   0   F   F   N
+healer:   NONE    29  34.0   24.25   1.0   N    6   1  0   0   0   F   F   G
+  warham:   NONE    40  22.0   31.0   1.0   R    0   0  0   0   0   F   F   N
+
+//Necromancer boss
+nercomancer:   NONE    45  13.0   33.0   1.0   N    128   0  0   0   0   T   F   E
+  //SCYTHE MODE
+  Scythe   NONE    59  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
+  //SHOCK SPELL MODE  
+  Shock: NONE    54  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
+  Animate:   NONE    34  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
+  WandMissile:   NONE    31  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
+
+zombi:   NONE    44  16.0   32.0   1.0   N    0   0  0   0   0   F   F   Z
+Tranch:   NONE    37  15.5   12.5   1.0   N    0   0  0   0   0   F   F   V
+Tranch:   NONE    37  11.5   9.5   1.0   N    0   0  0   0   0   F   F   V
+deadbody:   NONE    43  11.0   31.0   1.0   N    0   0  0   0   0   F   F   N
+deadbody:   NONE    43  15.0   34.0   1.0   N    0   0  0   0   0   F   F   N
+rsword:   NONE    38  23.0   35.0   1.0   N    0   0  0   0   0   F   F   N
+KiteShield:   NONE    42  27.5   31.5   1.0   N    0   0  0   0   0   F   F   N
+warham:   NONE    40  22.0   31.0   1.0   N    0   0  0   0   0   F   F   N
+knight:   NONE    36  12.0   46.0   1.0   N    14   0  0   0   0   F   F   G
+  Mace:   NONE    33  27.5   31.5   1.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    42  27.5   31.5   1.0   L    0   0  0   0   0   F   F   N
+mouse:   NONE    60  14.0   48.0   1.0   N    0   0  0   0   0   F   F   N
+knave:     NONE    35  12.0   46.0   1.0   N    6   0  0   0   0   F   F   G
+  shock:   NONE    54  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
+  Torch:   NONE    30  14.0   48.0   2.0   L    0   0  0   0   0   F   F   N
+shutdoor:   NONE    46  28.0   48.0   1.0   N    0   0  2   0   0   F   F   N
+shutdoor:   NONE    46  23.0   39.0   1.0   N    0   0  0   0   0   F   F   N
+shutdoor:   NONE    46  42.0   44.0   1.0   E    0   0  6   0   0   F   F   N
+shutdoor:   NONE    46  42.0   53.0   1.0   W    0   0  4   0   0   F   F   N
+shutdoor:   NONE    46  44.0   16.0   1.0   S    0   0  8   0   0   F   F   N
+shutdoor:   NONE    46  23.0   27.0   1.0   N    0   0  12   0   0   F   F   N
+gate:   NONE    47  13.8   22.0   1.0   W    0   0  0   0   0   F   F   N
+mouse:   NONE    60  37.5   52.5   1.0   N    0   0  0   0   0   F   F   N
+knight:   NONE    36  37.5   52.5   3.0   N    0   0  0   0   0   F   F   G
+  rsword:   NONE    38  23.0   35.0   1.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    42  27.5   31.5   1.0   L    0   0  0   0   0   F   F   N
+grubbug:   NONE    48  31.0   53.0   1.0   N    0   0  0   0   0   F   F   V
+grubbug:   NONE    48  31.0   51.0   1.0   N    0   0  0   0   0   F   F   V
+grubbug:   NONE    48  29.0   54.0   1.0   N    0   0  0   0   0   F   F   V
+grubbug:   NONE    48  29.0   51.0   1.0   N    0   0  0   0   0   F   F   V
+chest:   NONE    49  48.5   46.5   1.0   W    49   0  0   0   0   F   F   N
+chest:   NONE    49  48.5   50.5   1.0   W    0   0  0   0   0   F   F   N
+  LBow:   NONE    51  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
+  Tranch:   NONE    37  48.5   46.5   1.0   I    0   0  0   0   0   F   F   G
+  %NORMAL_TREASURE:   NONE    -1  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
+knave:   NONE    35  34.5   42.5   1.0   N    3   0  0   0   0   F   F   G
+  Torch:   NONE    30  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
+knave:   NONE    35  36.5   42.5   1.0   N    4   0  0   0   0   F   F   G
+  claw:   NONE    41  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
+knave:   NONE    35  35.5   42.5   1.0   N    5   0  0   0   0   F   F   G
+  LBow:   NONE    51  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
+deadbody:   NONE    43  46.5   46.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    50  44.5   50.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    50  44.5   47.5   1.0   N    0   0  0   0   0   F   F   N
+deadbody:   NONE    43  49.5   20.5   1.0   N    0   0  0   0   0   F   F   N
+deadbody:   NONE    43  44.0   34.0   1.0   N    0   0  0   0   0   F   F   N
+healer:   NONE    29  43.0   32.0   1.0   N    12   0  0   0   0   F   F   G
+  Mace:   NONE    33  27.5   31.5   1.0   R    0   0  0   0   0   F   F   N
+knight:   NONE    36  41.0   34.0   1.0   N    14   0  0   0   0   F   F   G
+  KiteShield:   NONE    42  27.0   32.0   1.0   L    0   0  0   0   0   F   F   N
+  warham:   NONE    40  22.0   31.0   1.0   R    0   0  0   0   0   F   F   N
+knight:   NONE    36  40.0   31.0   2.0   N    15   0  0   0   0   F   F   G
+  rsword:   NONE    38  23.0   35.0   1.0   R    0   0  0   0   0   F   F   N
+mouse:   NONE    60  40.0   31.0   1.0   N    0   0  0   0   0   F   F   N
+crate:   NONE    39  47.5   21.5   1.0   N    0   0  0   0   0   F   F   N
+barrel:   NONE    59  46.5   22.5   1.0   N    0   0  0   0   0   F   F   N
+crate:   NONE    39  48.5   22.5   1.0   N    0   0  0   0   0   F   F   N
+barrel:   NONE    59  47.5   31.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    50  36.5   35.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    50  36.5   30.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    50  45.5   35.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    50  45.5   30.5   1.0   N    0   0  0   0   0   F   F   N
+knave:   NONE    35  45.0   20.0   1.0   N    0   0  0   0   0   F   F   G
+  claw:   NONE    41  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
+knave:   NONE    35  47.0   19.0   1.0   N    0   0  0   0   0   F   F   G
+  Animate:   NONE    31  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
+  WandMissile:   NONE    42  27.0   32.0   1.0   L    0   0  0   0   0   F   F   N
+knight:   NONE    36  35.5   11.5   1.0   N    0   0  0   0   0   F   F   G
+  LBow:   NONE    51  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
+healer:   NONE    29  33.5   9.5   1.0   N    0   0  0   0   0   F   F   G
+  Mace:   NONE    33  14.0   48.0   2.0   R    0   0  0   0   0   F   F   N
+Pillar:   NONE    50  32.5   13.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    50  32.5   6.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    50  37.5   6.5   1.0   N    0   0  0   0   0   F   F   N
+Pillar:   NONE    50  37.5   13.5   1.0   N    0   0  0   0   0   F   F   N
+grubbug:   NONE    48  13.0   9.0   1.0   N    0   0  0   0   0   F   F   V
+grubbug:   NONE    48  13.0   11.0   1.0   N    0   0  0   0   0   F   F   V
+grubbug:   NONE    48  14.0   10.0   1.0   N    0   0  0   0   0   F   F   V
+chest:   NONE    49  11.5   12.5   1.0   E    19   0  0   0   0   F   F   N
+  Torch:   NONE    30  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
+chest:   NONE    49  48.5   17.5   1.0   S    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
+  Scimitar:   NONE    53  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
+  scythe:   NONE    59  14.0   48.0   2.0   I    0   0  0   0   0   F   F   N
+
+KeyA:   NONE    52  13.5   7.0   1.0   N    0   0  0   0   0   F   F   N
+lockdoor:   NONE    58  35.0   16.5   1.0   N    0   0  10   0   0   F   F   N

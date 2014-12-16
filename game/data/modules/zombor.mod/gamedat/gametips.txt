@@ -1,0 +1,5 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: As_you_gain_levels,_the_Zombi_will_gain_life_steal_with_unarmed_attacks.
+Tip 1: Helper_Zombis_will_grab_weapons_if_they_find_them_lying_around.
+Tip 2: If_your_master_dies,_you_fail.
+Tip 3: Every_enemy_you_kill_adds_another_Zombi_to_your_team!

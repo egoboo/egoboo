@@ -1,0 +1,30 @@
+//                     TopleftXY  BottomrightXY   Open  ShootThrough  SlippyClose
+
+0 SideDoor:             11    19     12  20         F       F             F
+1 SideDoorOpen:         11    21     12  22         T       T             F
+2 SideDoor2Locked:      11    36     12  37         F       F             F
+3 SideDoor2LockedOpen:  11    35     12  37         T       T             F
+4 DoorToCobols:         25    18     26  19         F       F             F
+5 DoorToCobolsOpen:     25    17     26  18         T       T             F
+6 OutofSquids:          30    11     31  12         F       F             F
+7 OutOfSquisOpen:       29    11     32  13         T       T             F
+8 BackToSquidLand:      35    15     36  16         F       F             F
+9 BackToSquidLandOpen:  35    16     36  17         T       T             F
+10 ToTheRust:           37    4      38  5          F       F             F
+11 ToTheRustOpen:       35    4      37  5          T       T             F
+12 OutOfRust:           43    11     44  12         F       F             F
+13 OutOfRustOpen:       43    10     44  11         T       T             F
+14 IceroomLocked:       25    37     26  38         F       F             F
+15 IceroomLockedOpen:   25    35     26  37         T       T             F
+16 IceFoor:             20    42     32  52         T       T             T
+17 BossRoomLocked:      37    45     38  46         F       F             F
+18 BossRoomLockedOpen:  37    46     38  48         T       T             F
+19 MonsterDrop:      	  33    7      37  15         T       T             F
+20 LastDoor:            42    49     43  50         F       F             F
+21 LastDoorOpen:        41    49     42  50         T       T             F
+22 MonsterDrop2:      	55    38     58  41         T       T             F
+23 BossDoor:      	    45    33     46  34         F       F             F
+24 TreasureDoor1        8    52     9  53          F       F             F
+25 TreasureDoor1Open    8    51     9  52          T       T             F
+26 TreasureDoor2       14    52     15  53         F       F             F
+27 TreasureDoor2Open   14    51     15  52         T       T             F

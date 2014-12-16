@@ -1,0 +1,209 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+#dependency RustEater     53
+#dependency KeyR          43
+#dependency Squidgie      46
+
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+Player 1:    NONE    0  11.5  29.5  5.0   S    0   0  0   0   0   T   F   G
+  unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+Player 2:   NONE    9  13.5   29.5   8.0   S    0   0  0   0   0   T   F   G
+  unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+Player 3:   NONE    18  11.5   27.5   12.0   S    0   0  0   0   0   T   F   G
+  unknown:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  
+Player 4:   NONE    27  13.5   26.5   14.0   S    0   0  0   0   0   T   F   G
+  unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+moduletool:   NONE    126  29.5   26.5   3.0   N    0   0  0   0   0   F   F   E
+snowcobol:   NONE    42  29.5   26.5   1.0   S    4   1  0   100   6   F   F   E
+  Hatchet:   NONE    37  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   R    1   0  0   0   0   F   F   N
+snowcobol:   NONE    42  26.5   27.5   1.0   S    2   0  0   600   0   F   F   E
+  XBow:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Cinquedea:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+snowcobol:   NONE    42  24.5   23.5   2.0   S    1   0  0   100   0   F   F   E
+  Cinquedea:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
+snowcobol:   NONE    42  24.5   32.5   1.0   N    3   0  0   100   0   F   F   E
+  Cinquedea:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
+snowcobol:   NONE    42  26.5   29.5   1.0   N    4   0  0   700   0   F   F   E
+  XBow:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Hatchet:   NONE    37  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+snowcobol:   NONE    42  26.5   32.5   2.0   N    5   0  0   100   0   F   F   E
+  Cinquedea:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+Strider:   NONE    40  26.5   32.5   1.0   N    0   0  0   0   0   F   F   N
+Strider:   NONE    40  24.5   23.5   1.0   S    0   0  0   0   0   F   F   N
+
+halldoor:   NONE    38  12.0   20.0   1.0   S    0   0  0   0   0   F   F   N
+lockdoor:   NONE    56  12.0   36.8   1.0   N    0   0  2   1   0   F   F   N
+halldoor:   NONE    38  26.0   19.0   1.0   N    0   0  4   0   0   F   F   N
+lockdoor:   NONE    56  26.0   38.0   1.0   N    0   0  14   0   0   F   F   N
+
+chest:   NONE    36  22.5   24.0   1.0   E    57   0  0   8   0   F   F   N       //Secret bottom
+  XBow:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_POTION:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+chest:   NONE    36  22.5   33.0   1.0   E    0   0  0   0   0   F   F   N
+  KeyA:   NONE    93  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_ARCANE_SPELLBOOK:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Map room
+mephit:   NONE    77  13.0   9.0   1.0   S    0   1  0   0   0   F   F   E
+  mephitwing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    77  10.0   11.0   1.0   N    0   1  0   0   0   F   F   E
+  mephitwing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+mephit:   NONE    77  14.0   12.0   1.0   E    0   1  0   0   0   F   F   E
+  mephitwing:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+chest:   NONE    36  12.5   11.5   1.0   N    0   0  0   2   0   F   F   N          //Contains map
+halldoor:   NONE    38  36.0   16.0   1.0   S    0   0  8   0   0   F   F   N
+halldoor:   NONE    38  44.0   12.33   1.0   N    0   0  12   0   0   F   F   N
+halldoor:   NONE    38  31.0   12.0   1.0   W    0   2  6   0   0   F   F   N
+halldoor:   NONE    38  43.0   50.0   1.0   W    0   0  20   0   0   F   F   N
+
+//Optional treasure chamber
+lockdoor   NONE    56  15.0   53.0   0.0   N    0   0  26   0   0   F   F   N
+lockdoor   NONE    56  9.0   53.0   0.0   N    0   0  24   0   0   F   F   N
+chest:   NONE    36  9.0   56.0   1.0   N    0   0  0   1   0   F   F   N           //Locked
+  %RANDOM_DIVINE_RUNE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  frog:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   I    1   0  0   0   0   F   F   N
+chest:   NONE    36  14.8   56.0   1.0   N    0   0  0   1   0   F   F   N          //Locked
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_KURSED:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  LPotion:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  LPotion:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+frostlizard:   NONE    48  14.0   44.0   1.0   N    0   0  0   0   0   F   F   E
+  KeyA:   NONE    93  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+frostlizard:   NONE    48  9.0   46.0   1.0   N    0   0  0   0   0   F   F   E
+  KeyC:   NONE    94  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+squidgie:   NONE    46  25.0   14.0   0.0   ?    0   0  0   0   0   F   F   E
+squidgie:   NONE    46  28.0   11.0   0.0   ?    0   0  0   0   0   F   F   E
+squidgie:   NONE    46  25.0   9.0    0.0   ?    0   0  0   0   0   F   F   E
+
+yeti:   NONE    51  46.5   40.5   0.0   N    99   0  23   0   0   F   F   E
+lockdoor:   NONE    56  38.0   46.0   0.0   S    0   0  17   0   0   F   F   N
+
+//Treasure chamber
+chest:   NONE    36  46.5   27.5   1.0   S    0   0  0   0   0   F   F   N
+  %RARE_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RARE_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+chest:   NONE    36  44.5   27.5   1.0   S    0   0  0   0   0   F   F   N     //Contains random level 4 armor
+  %RANDOM_ARMOR:   NONE    -1  0.0   0.0   0.0   I    0   3  0   0   0   F   F   N
+chest:   NONE    36  46.5   30.5   1.0   N    0   0  0   0   0   F   F   N
+  LPotion:   NONE    86  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_ARCANE_SPELLBOOK:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RANDOM_SCROLL:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+spork:   NONE    60  36.5   28.5   2.0   W    0   0  0   0   0   F   F   N
+
+//Mimic room
+Mimic:   NONE    41  57.0   50.5   1.0   N    9   0  0   0   0   F   F   E
+  KeyA:   NONE    93  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Ice Cobol Chamber
+Strider:   NONE    40  54.5   25.5   1.0   N    0   0  0   0   0   F   F   N
+Strider:   NONE    40  56.5   30.5   2.0   N    0   0  0   0   0   F   F   E
+snowcobol:   NONE    42  55.5   21.5   1.0   N    2   2  0   100   0   F   F   E
+  XBow:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Hatchet:   NONE    37  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+snowcobol:   NONE    42  57.5   22.5   1.0   N    5   2  0   100   6   F   F   E
+  Cinquedea:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
+snowcobol:   NONE    42  56.5   30.5   2.5   N    5   0  0   100   0   F   F   E
+  Cinquedea:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+snowcobol:   NONE    42  56.5   26.5   1.0   N    3   0  0   600   0   F   F   E
+  XBow:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  Cinquedea:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+snowcobol:   NONE    42  52.5   17.5   1.0   N    1   0  0   100   0   F   F   E
+  Hatchet:   NONE    37  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  KiteShield:   NONE    39  0.0   0.0   0.0   L    1   0  0   0   0   F   F   N
+bossplat:   NONE    57  12.5   28.5   2.0   N    0   0  0   0   0   F   F   N
+halldoor:   NONE    38  38.3   5.0   1.0   W    0   0  10   0   0   F   F   N
+
+//Rust Eater room
+halldoor:   NONE    38  46.0   34.0   1.0   S    0   0  23   2   0   F   F   N
+
+rustmaggot:   NONE    54  48.5   7.5   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot:   NONE    54  44.0   6.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot:   NONE    54  44.0   8.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot:   NONE    54  48.0   5.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot:   NONE    54  50.0   6.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot:   NONE    54  46.0   8.0   1.0   N    0   0  0   0   0   F   F   E
+rustmaggot:   NONE    54  50.0   10.0   1.0   N    0   0  0   0   0   F   F   E
+
+chest:   NONE    36  56.5   8.5   1.0   N    99   0  0   128   0   F   F   N      //Rune Warded chest
+  %RANDOM_DIVINE_RUNE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  lance:   NONE    132  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %RARE_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  %NORMAL_TREASURE:   NONE    -1  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+
+//Ice chamber
+frostorb:   NONE    55  21.5   53.5   1.0   N    0   0  0   0   0   F   F   E
+frostorb:   NONE    55  29.0   49.0   1.0   N    0   0  0   0   0   F   F   E
+frostorb:   NONE    55  25.0   53.0   1.0   E    0   0  0   0   0   F   F   N
+frostorb:   NONE    55  23.0   46.0   1.0   N    0   0  0   0   0   F   F   E
+frostorb:   NONE    55  26.0   49.0   1.0   N    0   0  0   0   0   F   F   E
+
+frostlizard:   NONE    48  44.0   16.0   1.0   N    0   0  0   0   0   F   F   E
+frostlizard:   NONE    48  42.0   19.0   1.0   N    0   0  0   0   0   F   F   E
+monsterdrop:   NONE    58  35.0   11.0   1.0   N    0   0  19   46   0   F   F   E
+
+monsterdrop:   NONE    58  57.5   40.5   1.0   N    0   0  22   54   0   F   F   E
+chest:   NONE    36  44.5   30.5   0.0   N    0   0  0   0   0   F   F   N       //Random armor
+  %RANDOM_ARMOR:   NONE    -1  0.0   0.0   0.0   I    0   4  0   2   0   F   F   N

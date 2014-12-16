@@ -1,0 +1,9 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 ShopArea:    8   7      13  12         T       T             F
+1 MagicShop:   18 53      23  58         T       T             F
+2 EscapeOne:   2  40      3   41         T       T             F
+3 EscapeTwo:   60 44      61  45         T       T             F
+4 SpawnZone:   31 31      33  33         T       T             F

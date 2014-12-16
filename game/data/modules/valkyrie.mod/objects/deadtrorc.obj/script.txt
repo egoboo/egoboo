@@ -1,0 +1,10 @@
+IfSpawned
+  tmpargument = rand % 4
+  ChangeArmor
+  SetTargetToSelf
+  KillTarget
+  tmpargument = selfmoney
+  DropMoney
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

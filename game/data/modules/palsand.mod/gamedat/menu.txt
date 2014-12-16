@@ -1,0 +1,27 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: Sand_Palace
+Reference module ( Directory name or NONE )	: NONE
+Required reference IDSZ ( or [NONE] )		: [NONE]
+Number of imports ( 0 to 4 )                   		 : 4
+Allow exporting of characters ( TRUE or FALSE ) 	: TRUE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 4
+Allow respawning (ANYTIME, TRUE or FALSE )	: TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( *, **, ***, ****, or ***** )   		: ***
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:Lost_in_the_Great_Big_Desert_for
+:generations,_the_Sand_Palace_is
+:thought_to_be_of_ancient_G'Nomish
+:origin._Though_some_claim_it's_an
+:elaborate_trap_to_protect_one_of
+:the_Sporks_of_Yore,_nobody_knows
+:for_sure._Now_the_mystery_is_yours
+:to_unravel._Good_Luck!
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[PRNT] worldmap.mod 18.0 60.0 0.0
+:[TYPE] MAINQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

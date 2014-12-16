@@ -1,0 +1,131 @@
+// This file tells the module what to spawn and where...
+//     Name is the character's name with underscores, or NONE for a default
+//         one.
+//     Slot is the character's profile slot...  Get this from checking
+//         SLOT.TXT or DATA.TXT.
+//     Xpos and Ypos are the starting location for the character.
+//     Zpos is the starting elevation for the character.
+//     Dir is the direction the character faces, valid values are N S E W and ?.
+//         You can also use L and R for in hand weapons, or I for an inventory
+//         item.  L R I spawn attached to the last true character.  L is
+//         also used for mounts with only one grip.
+//     Mon is the bonus money for the character for this module.
+//     Skn is the character's skin, 0 to 3.  This can be set to 4 for a random
+//         one.
+//     Pas is the passage this character references, for buttons and doors.
+//     Con is the content setting for this character.  Used for armor chests.
+//     Lvl is the starting level for this character.  This is ignored for
+//         players.
+//     Stt is T or F to decide whether a status bar should appear.
+//     Gho is T to make the character a ghost, F for default.
+//     Team is the character's team, only the first letter is used, so from
+//         A-Z ( caps only ).
+//         Null is predefined to be the neutral team.
+
+#dependency Healer    0
+#dependency RockOpen  48    //For destroyed stone idols
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+Player 0:  NONE      0    36.0 55.5 0    N   3   0   0   0   0   T   F   Good
+  KiteShield:  NONE  71   0    1    0    L   0   0   0   0   0   F   F   Null
+  Mace:    NONE      41   0    0    0    R   0   0   0   0   0   F   F   Null
+Faerie:    NONE      74   36.0 54.0 0.0  S   0   0   0   0   0   F   F   Null
+
+Music:     NONE      90   36.0 55.5 3    N   0   0   0   0   0   F   F   Null
+
+RockHead:  NONE      38   47.5  8.5 0.0  S   0   0   0   48  0   F   F   Evil
+  DivineShield: NONE  57   0    0    0    I   0   0   0   0   0   F   F   Null
+RockHead:  NONE      38   37.5 29.5 0.0  S   0   0   0   48  0   F   F   Evil
+RockHead:  NONE      38   37.5 26.5 0.0  S   0   0   0   48  0   F   F   Evil
+  LPotion: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
+RockHead:  NONE      38   34.5 29.5 0.0  S   0   0   0   48  0   F   F   Evil
+  Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      38   34.5 26.5 0.0  S  49   0   0   48  0   F   F   Evil
+RockHead:  NONE      38   12.5 18.5 0.0  E   0   0   0   48  0   F   F   Evil
+  Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
+  Tranch:  NONE      72   0    0    0    I   0   0   0   0   0   F   F   Evil
+RockHead:  NONE      38   12.5 21.5 0.0  E   0   0   0   48  0   F   F   Evil
+  %RANDOM_POTION: NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+RockHead:  NONE      38   12.5 11.5 0.0  E   0   0   6   48  0   F   F   Evil
+RockHead:  NONE      38   23.5 52.5 0.0  N   0   0   5   48   0   F   F   Evil
+  SpkMace: NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+
+
+Blob:      NONE      91   36.5 52.5 0.0  S   0   0   0   0   0   F   F   Evil
+Blob:      NONE      91   15.5 19.5 0.0  N   0   0   0   0   0   F   F   Evil
+Blob:      NONE      91   13.5 20.5 0.0  W   0   0   0   0   0   F   F   Evil
+Blob:      NONE      91   14.5 21.5 0.0  E   0   0   0   0   0   F   F   Evil
+
+
+Fright:    NONE      54   35.5 25.5 0.0  S   0   0   0   0   0   F   F   Evil
+Fright:    NONE      54   34.5 28.5 0.0  W   0   0   0   0   0   F   F   Evil
+Fright:    NONE      54   22.5 20.5 0.0  E   0   0   0   0   0   F   F   Evil
+Fright:    NONE      54   12.5  9.5 0.0  N   0   0   0   0   0   F   F   Evil
+
+
+Ghoul:     NONE      98   15.5  8.5 0.0  N   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   14.5 11.5 0.0  S   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   13.5 10.5 0.0  E   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   24.5 12.5 0.0  W   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   23.5 18.5 0.0  N   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   20.5 19.5 0.0  E   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   14.5 19.5 0.0  S   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   24.5 27.5 0.0  W   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   36.5 28.5 0.0  N   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   33.5 31.5 0.0  W   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   35.5 29.5 0.0  E   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   39.5 31.5 0.0  S   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   34.5 40.5 0.0  N   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   36.5 42.5 0.0  W   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   34.5 43.5 0.0  E   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   23.5 50.5 0.0  S   0   0   0   0   0   F   F   Evil
+Ghoul:     NONE      98   22.5 51.5 0.0  S   0   0   0   0   0   F   F   Evil
+
+
+
+
+IronDoor:  NONE      55   30.0 42.0 0.0  W   0   0   3   0   0   F   F   Null
+IronDoor:  NONE      55   42.0 42.0 0.0  E   0   0   4   0   0   F   F   Null
+IronDoor:  NONE      55   44.0 28.0 0.0  W   0   0   5   0   0   F   F   Null
+IronDoor:  NONE      55   28.0 10.0 0.0  E   0   0   6   0   0   F   F   Null
+
+
+
+Brazier:   NONE      77   33.5 39.5 0.0  N   20  0   3   0   0   F   F   Null
+Brazier:   NONE      77   38.5 39.5 0.0  S   20  0   4   0   0   F   F   Null
+Brazier:   NONE      77   46.5  8.5 0.0  W   0   0   0   2   0   F   F   Null
+Brazier:   NONE      77   48.5  8.5 0.0  N   0   0   0   2   0   F   F   Null
+Brazier    NONE      77   40.5 26.5 0.0  E   0   0   0   2   0   F   F   Null
+Brazier:   NONE      77   40.5 26.5 0.0  E   0   0   0   2   0   F   F   Null
+
+Chest:    NONE      53   34.5 10.5 0.0  W   59  0   0   8   0   F   F   Null        //Fake bottom
+  Mace:    NONE      41   0    0    0    I   0   0   0   0   0   F   F   Null
+  Torch:   NONE      47   0    0    0    I   0   0   0   0   0   F   F   Null
+Chest:    NONE      53   14.5 9.5  0.0  E   0   0   0   2   0   F   F   Null      //Contains map
+Chest:    NONE      53   47.5 52.5 0.0  N   0   0   0   0   0   F   F   Null
+  %RANDOM_KURSED: NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+  %RANDOM_SCROLL: NONE      -1   0    0    0    I   0   0   0   0   0   F   F   Null
+  LPotion: NONE      44   0    0    0    I   0   0   0   0   0   F   F   Null
+
+Gatelite:  NONE      45   36.0 56.5 0.0  N   0   0   0   0   0   F   F   Null
+
+
+Tranch:    NONE      72   23.5  9.5 0.0  S   0   0   0   0   0   F   F   Evil
+Tranch:    NONE      72   25.5 51.5 0.0  N   0   0   0   0   0   F   F   Evil
+Tranch:    NONE      72   24.5 53.5 0.0  E   0   0   0   0   0   F   F   Evil
+
+
+BossNecro: NONE      80   47.5 10.5 0.0  S   39  0   0 32919 0   F   F   Evil
+  Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
+  Missile: NONE      51   0    0    0    L   0   0   0   0   0   F   F   Null
+
+  
+Ulna:      NONE      18   46   12   0    S   0   0   0   0   0   F   F   Evil
+  KurCinq: NONE      42   0    0    0    R   0   0   0   0   0   F   F   Null
+Ulna:      NONE      18   49   12   0    S   0   0   0   0   0   F   F   Evil
+  KurCinq: NONE      42   0    0    0    R   0   0   0   0   0   F   F   Null
+
+Ulna:      NONE      18   46   13   0    S   3   0   0   0   0   F   F   Evil
+  Mace:    NONE      41   0    0    0    L   0   0   0   0   0   F   F   Null
+Ulna:      NONE      18   49   13   0    S   3   0   0   0   0   F   F   Evil
+  Mace:    NONE      41   0    0    0    L   0   0   0   0   0   F   F   Null

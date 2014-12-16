@@ -1,0 +1,10 @@
+Message 0: %n_was_killed_by_%t...
+Message 1: No_way...
+Message 2: Not_me!
+Message 3: %t_killed_%n_in_the_fray!
+Message 4: %n_tripped_on_%p_spurs...
+Message 5: %n_was_killed_in_action!
+Message 6: Hey!
+Message 7: Critical_Hit!
+Message 8: Groggy_Strike!
+Message 9: Sunder_Attack!

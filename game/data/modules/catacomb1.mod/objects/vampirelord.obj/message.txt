@@ -1,0 +1,11 @@
+Message 0: %t_has_slain_a_Vampire_Lord!
+Message 1: The_%c_is_retreating!
+Message 2: A_%c_was_betrayed!
+Message 3: A_%c_somehow_killed_itself...
+Message 4: A_%c_changed_to_gass_form!
+Message 5: The_%c_was_banished!
+Message 6: %t_weapon_is_ineffective!
+Message 7: %t_engaged_a_Vampire_Lord!
+Message 8: The_Vampire_Lord_was_outsmarted!
+Message 9: With_the_death_of_the_Vampire_Lord,_the_next_
+Message 10: step_on_your_quest_lies_cleared_as_you_decend_deeper_into_the_catacombs.

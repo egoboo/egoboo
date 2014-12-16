@@ -1,0 +1,6 @@
+Message 0: %t_looted_the_chest...
+Message 1: The_chest_is_empty.
+Message 2: The_%c_is_locked...
+Message 3: The_%c_has_opened.
+Message 4: %t_picked_the_lock!
+Message 5: %t_used_a_Chest_Key.

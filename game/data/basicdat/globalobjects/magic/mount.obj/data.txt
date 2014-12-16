@@ -1,0 +1,169 @@
+Slot number    : -1
+Class name     : Mount
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : RANDOM
+
+Life color     : 1
+Mana color     : 5
+Life           : 5
+Life up        : 3
+Mana           : 0.00
+Mana up        : 0.00-0.00
+Mana return    : 0.00
+Mana return up : 0.00-0.00
+Mana flow      : 0.00
+Mana flow up   : 0.00-0.00
+STR            : 6-10
+STR up         : 2-4
+WIS            : 10-12
+WIS up         : 2.00-3.00
+INT            : 5-8
+INT up         : 2.00-3.00
+DEX            : 10-14
+DEX up         : 3-4
+
+Size           : 3.00
+Size up        : 0.15
+Shadow size    : 15
+Bump size      : 30
+Bump height    : 80
+Bump dampen    : 0.50
+Weight         : 150
+Jump power     : 0.00
+Jump number    : 0
+Sneak speed    : 1
+Walk speed     : 3
+Run speed      : 5
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : FALSE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : TRUE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 10000
+
+Base defense   :  10  20  30  40
+S damage shift :   1   1   2   2
+C damage shift :   1   1   1   1
+P damage shift :   1   1   2   2
+H damage shift :   3   2   1   0
+E damage shift :   1   1   2   3
+F damage shift :   1   2   2   2
+I damage shift :   1   1   1   1
+Z damage shift :   1   1   1   1
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   T   T
+E damage code  :   F   F   F   C
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  50  60  70  70
+
+EXP for 2nd    : 2
+EXP for 3rd    : 3
+EXP for 4th    : 4
+EXP for 5th    : 99999
+EXP for 6th    : 99999
+Starting EXP   : 0
+EXP worth      : 0
+EXP exchange   : 0.00
+EXPSECRET      : 0.00
+EXPQUEST       : 0.00
+EXPDARE        : 0.00
+EXPKILL        : 0.00
+EXPMURDER      : 0.00
+EXPREVENGE     : 0.00
+EXPTEAMWORK    : 0.00
+EXPROLEPLAY    : 0.00
+
+//Set IDSZ stuff
+IDSZ Parent    : [BOOK]
+IDSZ Type      : [SALA]
+IDSZ Skill     : [HMAG]
+IDSZ Special   : [NONE]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [NONE]
+
+//General flags
+Is an item     : TRUE
+Is a mount     : TRUE
+Is stackable   : FALSE
+Name known     : FALSE
+Usage known    : TRUE
+Is exportable  : TRUE
+Requires skill : TRUE
+Is platform    : FALSE
+Collects money : FALSE
+Can open stuff : FALSE
+
+//Attack animation and damage type
+Damage type    : SLASH
+Attack type    : WALK
+
+//Attatched particles
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+//Grips
+Left valid     : TRUE
+Right valid    : FALSE
+
+//Weapon particle spawning
+Part on weapon : TRUE
+Part type      : 0
+
+//Poof particle spawning
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 1
+
+//Blud?
+Blud valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : Lesser_Mount
+Skin 1 name    : Mount
+Skin 2 name    : Greater_Mount
+Skin 3 name    : Legendary_Mount
+Skin 0 cost    : 250
+Skin 1 cost    : 250
+Skin 2 cost    : 250
+Skin 3 cost    : 250
+STR dampen     : 0.15
+
+No rider attak : FALSE
+Can be dazed   : FALSE
+Can be grogged : FALSE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : -1
+Jump sound     : -1
+
+:[GOLD] 0
+:[HIDE] 0
+:[PLAT] 1
+:[VALU] 1       //Always sold at 100% price
+:[BOOK] 1

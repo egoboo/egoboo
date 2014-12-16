@@ -1,0 +1,6 @@
+Message 0: That's_a_heavy_%c,_%t.
+Message 1: The_chain_is_locked_to_your_leg.
+Message 2: That's_%t's_%c!
+Message 3: The_chain_came_loose!
+Message 4: The_ball_was_crushed!
+Message 5: The_ball_is_too_big...

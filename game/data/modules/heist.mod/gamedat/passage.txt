@@ -1,0 +1,45 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+
+00DeadFall:  	10 25      11 26          T       T             F
+01DeadFall:  	29 15      30 16          T       T             F
+
+02StartDoor:  	9 11       12 12          F       T             F
+
+03FallingMonsters:  	7 25      8 26          T       T             F
+
+04OutOfMazeDoor:  	28 33       29 35          F       T             F
+05OutOfMazeCheck:  	27 28       31 30          T       T             F
+
+//The treasury doors
+06TreasuryExit:  	32 49       33 50          F       F             F
+07TreasuryExitCheck:  	32 50       33 51          T       T             F
+
+08TreasuryEntrance:  	29 57       30 58          F       F             F
+09TreasuryEntranceCheck:  28 57       29 58         T       T             F
+
+10ToStartRoom:  	31 60       32 61          F       F             F
+11ToStartRoomCheck:  	31 61       32 62         T       T             F
+
+12ToGoldRoom:  		41 62       42 63          F       F             F
+13ToGoldRoomCheck:  	41 61       42 62         T       T             F
+
+14ToLavaRoom:  		48 57       49 58         F       F             F
+15ToLavaRoomCheck:  	47 57       48 58         T       T             F
+
+16ToZeldaRoom:  	51 46       52 47         F       F             F
+17ToZeldaRoomCheck:  	51 47       52 48         T       T             F
+
+18FromSecretGarden:  	58 50       59 51         F       F             F
+19FromSecretGardenCheck: 59 50       60 51         T       T             F
+
+20FromZeldaRoom:  	65 44       66 45         F       F             F
+21FromZeldaRoomCheck:   65 43       66 44         T       T             F
+
+22FromLavaRoom:  	65 56       66 57         F       F             F
+23FromLavaRoomCheck:	65 57       66 58         T       T             F
+
+24FromLavaRoom:  	55 71       58 72         F       F             F
+25FromLavaRoomCheck:	54 71       55 72         T       T             F

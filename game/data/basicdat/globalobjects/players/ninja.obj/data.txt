@@ -1,0 +1,163 @@
+Slot number    : -1
+Class name     : Ninja
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : MALE
+
+Life color     : 1
+Mana color     : 5
+Life           : 15.66
+Life up        : 1.00-2.00
+Mana           : 0.00
+Mana up        : 0.00-0.00
+Mana return    : 0.00
+Mana return up : 0.00-0.00
+Mana flow      : 0.00
+Mana flow up   : 0.00-0.00
+STR            : 6.70
+STR up         : 0.00-1.00
+WIS            : 6.39
+WIS up         : 0.00-0.00
+INT            : 22.61
+INT up         : 1.00-2.00
+DEX            : 25.61
+DEX up         : 2.00-3.00
+
+Size           : 1.49
+Size up        : 0.04
+Shadow size    : 25
+Bump size      : 30
+Bump height    : 90
+Bump dampen    : 0.35
+Weight         : 110
+Jump power     : 24.00
+Jump number    : 2
+Sneak speed    : 1
+Walk speed     : 6
+Run speed      : 6
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 16000
+
+Base defense   :   0  30  50  60
+S damage shift :   1   1   1   1
+C damage shift :   1   1   1   2
+P damage shift :   1   1   2   2
+H damage shift :   1   1   1   1
+E damage shift :   1   1   1   1
+F damage shift :   1   1   1   1
+I damage shift :   1   1   1   1
+Z damage shift :   1   1   1   1
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   T   T
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  70  80  85  75
+
+EXP for 2nd    : 2135
+EXP for 3rd    : 3655
+EXP for 4th    : 5000
+EXP for 5th    : 8755
+EXP for 6th    : 12575
+Starting EXP   : 952
+EXP worth      : 30
+EXP exchange   : 0.010
+EXPSECRET      : 1.50
+EXPQUEST       : 0.30
+EXPDARE        : 0.30
+EXPKILL        : 0.40
+EXPMURDER      : 1.50
+EXPREVENGE     : 1.00
+EXPTEAMWORK    : 0.30
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [HUMA]
+IDSZ Type      : [NINJ]
+IDSZ Skill     : [DISA]
+IDSZ Special   : [NONE]
+IDSZ Hate      : [EVIL]
+IDSZ Vulnie    : [HOLY]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : TRUE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : CRUSH
+Attack type    : SLASH
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : TRUE
+Part type      : 0
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 1
+
+Blood valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : a_shadow_ninja
+Skin 1 name    : red_ninja_suit
+Skin 2 name    : yellow_tuxedo_ninja
+Skin 3 name    : robo_ninja
+Skin 0 cost    : 5
+Skin 1 cost    : 50
+Skin 2 cost    : 500
+Skin 3 cost    : 1000
+STR dampen     : 0.100
+
+No rider attak : FALSE
+Can be dazed   : TRUE
+Can be grogged : TRUE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : FALSE
+Kursed chance  : 0
+Footfall sound : 0
+Jump sound     : 1
+
+:[GOLD] 700
+:[DRES] 3
+:[PLAT] 1
+:[SKIN] 0
+:[CONT] 0
+:[STAT] 0
+:[LEVL] 1

@@ -1,0 +1,24 @@
+// ZZ> This function makes poopies when bumped
+IfBumped            // Turn
+  SetTargetToWhoeverBumped
+    IfTargetIsAPlayer
+      IfStateIs0        // Disable looping
+        tmpargument = ACTIONMJ
+        DoAction
+        tmpargument = 0
+        PlaySound                  //  Start the new action
+        tmpargument = rand % 24    + 1
+        SendMessageNear
+        tmpargument = 1
+        SetState        // Disable loop
+
+// Enable messaging again
+IfTimeOut
+  tmpargument = 100
+  SetTime
+  tmpargument = 0
+  SetState
+
+// Finished with this character
+End
+

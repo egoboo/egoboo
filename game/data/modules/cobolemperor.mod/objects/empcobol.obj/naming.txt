@@ -1,0 +1,10 @@
+:Tiberius   //14AD-37AD "The Emperor who trusted Sejanus and lived a debauched life in Capri"
+:Caligula	  //37-41AD	  "The Evil Emperor who proclaimed himself a god"
+:Nero	      //54-68AD	  "The mad tyrant who blamed the Christians for the burning of Rome"
+:Domitian	  //81-96AD	  "The evil emperor who murdered thousands of Christians"
+:Commodus	  //177-192AD	"More savage than Domitian, more foul than Nero".
+:Caracalla	//198-217AD	"The common enemy of mankind."
+:Elagabalus	//218-222AD	"He married a Vestal Virgin and then took a husband..."
+:Carinus	  //283-285AD "The debauched Emperor suspected of incest..."  
+:STOP
+

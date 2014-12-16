@@ -1,0 +1,51 @@
+What I've done already:
+
+== 1. Model and skin ==
+I did these a while ago, so I don't remember whether I tested it in game, but I don't think
+I did. The model might need size adjustments...
+
+== 2. Messages ==
+I might come up with more of these later, but right now there are 107 (unless I counted
+wrong, but it's something close to that). Most of them are actually in multiple lines...
+I'm not sure what the game does to messages that are too long right now, but if it knows
+how to deal with them, it would be a lot more convenient to have them all in one line.
+I think there might be one or two that actually need to be broken up, though (because it's
+kind of a part of the humor). So maybe it's best to just leave them as they are... though
+that would be very tedious to script for.
+...Just don't mess with the wording; I spent a while getting them all "just right". =P
+
+== 3. Data file ==
+I don't think you have to change anything there... it should all be set up right.
+
+
+
+What still needs to be done:
+
+== 1. Script ==
+When you eat it, it should recover health (1/5th - 1/3rd of what a life potion does) and
+give you back some of your maximum life (about a half a point; this could be randomized
+a bit, too). It shows the third message, and then the fifth (I think it already does this).
+Then it should show the seventh. If the character is illiterate, it then shows the tenth
+message and does not give you a fortune. If the cookie has been dropped in water, it shows
+the eighth message and does not give you a fortune. If the cookie has come in contact with
+fire, it shows the ninth message and does not give you a fortune.
+If the eater can read and the message hasn't been damaged, it shows message 11 and gives
+you a random fortune.
+
+== 2. Dark Ones ==
+If you feed them a cookie, they should give you something nice.
+
+== 3. Message system ==
+I think the message system should be altered so that the time the messages stay on the
+screen is longer by default and can be altered in the setup file. Maybe the maximum number
+of messages should also be greater by default...
+The cookies give a lot of messages before they even get to the fortune, and some of the
+fortunes are pretty long... Good excuse to upgrade the message system? =P
+
+== 4. Icon ==
+I didn't do one.
+
+
+
+
+--PurpleSquerkle

@@ -1,0 +1,127 @@
+// This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+
+// Crushed in a passage
+IfCrushed
+  tmpargument = 4
+  tmpdistance = selfz
+  tmpx = selfx
+  tmpy = selfy
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 4
+  SendMessageNear
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+// Tell them what they've won, Johnny!
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  tmpargument = ACTIONDB
+  DoAction
+
+// Hide in hand
+IfHeld
+  tmpargument = 1
+  SetState
+Else
+  tmpargument = 0
+  SetState
+
+// Spell stuff
+IfUsed
+  UndoEnchant
+    tmpargument = 50
+    SetReloadTime
+  Else
+    SetTargetToWhoeverIsHolding
+    tmpargument = [HMAG]
+    IfTargetHasSkillID                // Need divine spell skill
+      tmpx = selfcontent
+      tmpy = 768                    // Don't overcharge
+      IfXIsLessThanY
+        tmpy = targetmanaflow            // Enough spell power?
+        IfYIsMoreThanX
+          tmpargument = 6                // Mana cost
+          CostTargetMana      // Increase the charge
+            tmpargument = selfcontent + 6        // Casting Time
+            SetContent
+
+            // Spawn particles around target
+            SetTargetToNearestFriend
+            tmpx = targetdistance
+            tmpy = 375
+            IfXIsMoreThanY            // No target in range, select caster
+              SetTargetToWhoeverIsHolding
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 0
+            SpawnExactParticle
+            tmpargument = RED            // Icon sparkles
+            SparkleIcon
+Else
+  tmpx = selfcontent
+  tmpy = 750
+  IfXIsMoreThanY        // Enough power to activate?
+
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpargument = 2
+    SpawnExactParticle
+
+    SetOldTarget            // Remember the spell target
+    SetTargetToWhoeverIsHolding
+    SetOwnerToTarget            // Make the caster sustain the spell
+    SetTargetToOldTarget        // Retarget the spell target
+    EnchantTarget        // Do the enchant
+
+    tmpargument = 100        // Set cooldown time
+    SetReloadTime
+
+    tmpargument = 3
+    SendMessageNear        // Tell what happened
+    tmpargument = 1
+    PlaySound
+
+    // Award xp and stuff for daring to do it
+    IfNameIsKnown
+      DoNothing
+    Else
+      tmpargument = 20
+      tmpdistance = EXPDARE
+      GiveExperienceToTarget
+      MakeNameKnown
+      MakeUsageKnown
+  Else
+    tmpx = selfcontent
+    tmpy = 0
+    IfXIsMoreThanY        // Only if there was a charge
+      tmpargument = 1
+      SendMessageNear        // Tell it didn't work
+      tmpargument = 2
+      PlaySound
+  tmpargument = 0
+  SetContent            // Reset counter
+  UnsparkleIcon
+
+// All done
+End
+

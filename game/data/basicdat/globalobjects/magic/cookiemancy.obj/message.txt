@@ -1,0 +1,349 @@
+Message 0: %t_snatched_up_a_%c.
+Message 1: The_%c_got_crunched.
+Message 2: %t_took_out_a_%c.
+Message 3: %t_ate_a_%c:
+Message 4: %t_is_looking_good!
+Message 5: %t_feels_great!
+Message 6: %t_dropped_a_%c...
+Message 7: The_%c_got_soaked!
+Message 8: The_paper_got_wet..._It's_unreadable_now.
+Message 9: It_looks_like_the_paper_has_been_charred._You_can't_read_it.
+Message 10: Too_bad_you_can't_read._It_might_say_something_insightful...
+Message 11: The_%c_got_burned!
+
+Message 12: "The_Devteam_has_thought_of_everything...
+Message 13: But_a_stupid_idea_is_a_stupid_idea."
+
+Message 14: "The_Oracle_is_a_myth."
+
+Message 15: "Never_take_advice_from_fortune_cookies."
+Message 16: Hmm..._It's_intriguingly_paradoxical!
+
+Message 17: "You're_doomed."
+
+Message 18: "Your_lucky_numbers_are_0,_13,_and_(3127411/11)3471-1."
+
+Message 19: "Pay_no_attention_to_the_man_behind_that_curtain!"
+
+Message 20: "Manufactured_by_cookiemancy."
+
+Message 21: "Made_in_Taiwan."
+
+Message 22: "Less_than_20_mg_of_trans_fat!"
+
+Message 23: "New_look,_same_great_taste!"
+
+Message 24: "May_contain_peanuts."___Sure,_NOW_they_tell_me...
+
+Message 25: "Inside_this_cookie_is..._Another_cookie!"
+
+Message 26: "What,_did_you_expect_a_baseball_card?
+Message 27: Maybe_a_cool_toy,_or__some_corny_jokes?
+Message 28: Go_buy_yourself_some_Cracker_Jacks,_kid!"
+
+Message 29: "Well,_I_can't_really_give_you_any_advice_other_than:
+Message 30: Eat_more_cookies!"___Hey,_that's_good_advice!
+
+Message 31: "For_any_remedy_there_is_a_misery."
+
+Message 32: "All_your_soul_are_belong_to_Aaron."
+
+Message 33: "The_pen_is_mightier_than_the_sword...IF_it_is_sharpened,
+Message 34: poisoned,_and_thrown_really_hard_at_the_target._But
+Message 35: really,_you're_better_off_with_the_sword."
+
+Message 36: "He_who_write_silly_proverbs_with_on_purpose_bad
+Message 37: grammar_have_way_too_much_time_on_his_hand."
+
+Message 38: "The_sheep_in_Zippy_Village_are_secretly_plotting_to
+Message 39: take_over_the_world._I_thought_you_might_want_to_know."
+
+Message 40: There_is_a_map_inside_this_cookie!
+Message 41: But_it_was_blank...
+
+Message 42: "Haha._The_guy_over_there_got_a_better_fortune_than_you."
+
+Message 43: "Umm..._Spend_more_money.
+Message 44: ...Well,_sorry,_that's_all_I've_got!_Get_over_it."
+
+Message 45: "Were_you_expecting_some_profound_and/or_cryptic
+Message 46: message?_Well,_too_bad!_I_have_better_things_to_do_with
+Message 47: my_time!"
+
+Message 48: "You_shouldn't_just_eat_things_that_are_sitting_around_on
+Message 49: the_floor._Seriously,_that_cookie_could_have_been_POISONED!
+Message 50: Then_what_,huh?_THEN_WHAT?!"
+
+Message 51: "You_lost_the_Game."
+
+Message 52: "You_should_stop_looking_for_the_meaning_of_life_in_your
+Message 53: dessert._It's_a_cookie._Now_eat_it."
+
+Message 54: "Have_you_been_spending_the_last_week_trying_to_find_one
+Message 55: of_these_that_actually_makes_sense?_If_so,_I_suggest_you
+Message 56: find_something_more_productive_to_do."
+
+Message 57: "Bake_ME_some_cookies_for_a_change,_why_don't_you?"
+
+Message 58: "Blah,_blah,_blah,_blah..._It_is_your_DESTINY."
+
+Message 59: "You_will_die.__..But_don't_worry_too_much.
+Message 60: Everyone_does_eventually,_after_all."
+
+Message 61: The_fortune_is_blank!
+
+Message 62: "Good_news:_You_will_live_happily_ever_after.
+Message 63: Bad_news:_The_previous_sentence_was_a_lie."
+
+Message 64: "I_can_haz_forchun?"
+
+Message 65: "Im_in_ur_cookie,_telling_ur_forchun."
+
+Message 66: "Let's_go_bother_the_Dracolich!_Bother,_bother,_bother!"
+
+Message 67: "Badger_badger_badger_badger_badger,_MUSHROOM,_MUSHROOM!"
+
+Message 69: "That's_no_moon._That's_a_sp..._Oh.
+Message 70: No,_it's_just_the_moon._*sigh*"
+
+Message 71: "Welcome_to_egoboo.sourceforge.net._It's_dot_com!
+Message 72: No,_wait._It_really_is_dot_net."
+
+Message 73: "The_key_to_preventing_theft_is_never_owning
+Message 74: anything_that_other_people_would_want_to_have."
+
+Message 75: "I_have_to_admit_that_I'm_a_bit_worried_about_the
+Message 76: computer_games_you're_playing._You_spend_all_your_time
+Message 77: killing_imaginary_people,_and_pretty_soon_you_might
+Message 78: think_it's_a_good_idea_to_do_that_in_real_l--AAARGHH!"
+
+Message 79: "Magic_shops_are_not_libraries.
+Message 80: You_have_to_pay_for_what_you_take,_doofus!
+Message 81: ...Or_you_could_just_kill_off_the_owner._But_you_didn't
+Message 82: hear_that_from_me."
+
+Message 83: "It's_been_said_that_all_of_the_sporks_of_Yore,_when
+Message 84: brought_together,_will_open_the_entrance_to_the_Catacombs.
+Message 85: Oh,_you_knew_that_already?_Well_excuse_me_for_livin'!"
+
+Message 86: "When_you_don't_have_any_money,_you_never_have_to_worry
+Message 87: about_losing_it."
+
+Message 89: "Not_even_the_Dark_Ones_would_refuse_a_cookie!"
+
+Message 90: "GWAWOD._DYWYPI?_AYBABTU!"
+
+Message 91: "Listen_carefully!_This_message_is_of_vital_importance!"
+Message 92: Whoops!_A_sudden_gust_of_wind_blew_the_paper_away...
+
+Message 94: "Don't_be_in_a_hurry..._Keep_an_eye_out_for_secrets!"
+
+Message 95: "Rumor_has_it_the_notorious_Zombor's_grave_is_near
+Message 96: a_Lumpkin_camp_that's_not_far_from_here."
+
+Message 97: "Speed,_speed,_speed!_Getting_through_quickly_is_the_key!
+Message 98: ...Sometimes."
+
+Message 99: "If_found,_please_return_this_cookie_to..."
+Message 100: Oops,_you_already_ate_it.
+Message 101: Oh,_well._It_was_just_a_cookie...
+
+Message 102: "Those_crates_with_all_the_warning_labels_on_them_are_pretty
+Message 103: dangerous,_but_they_can_be_useful,_too..._Just_don't_get_too
+Message 104: close!"
+
+Message 105: "If_you_see_something_cool,_maybe_you_should_take_a_screenshot
+Message 106: and_show_your_friends."___Weird._What's_a_'screenshot'?
+
+Message 108: "Potions_might_help_you,_but_many_are_also_slightly
+Message 109: unhealthy,_so_drink_sparingly."
+
+Message 110: "Magic_weapons_are_obviously_very_powerful,_but_many_of_them_are
+Message 111: also_kursed._You_have_to_decide_whether_the_pros_outweigh_the_cons!"
+
+Message 112: "Some_classes_are_better_at_using_certain_types_of_weapons_than_others.
+Message 113: There_may_be_some_weapons_you_can't_use_at_all."
+
+Message 114: "Spiritual_creatures_such_as_ghosts_can't_be_harmed_by_physical_attacks.
+Message 115: But_you_don't_need_magic;_just_burn_them_with_a_torch!"
+
+Message 116: "Look._Get_the_Sporks._Save_the_king._It's_not_that_complicated.
+Message 117: Do_you_really_need_me_to_tell_you_that?"
+
+Message 118: "They_say_that_any_village_without_a_dancing_girl_in_it_is
+Message 119: probably_filled_with_theives_and_liars."
+
+Message 120: "If_you're_having_trouble_fighting_alone,_get_help.
+Message 121: There's_no_shame_in_accomplishing_things_as_a_team!"
+
+Message 122: "Friends_are_your_most_valuable_possession.
+Message 123: ...But_that_doesn't_mean_you_have_to_let_them_steal_your_stuff."
+
+Message 124: "Always_make_sure_you're_well_prepared_before_entering_dungeons.
+Message 125: Don't_assume_you'll_be_able_to_tackle_every_challenge_that_comes_your
+Message 126: way_with_an_empty_quiver_and_no_potions!"
+
+Message 127: "Each_class_has_several_special_abilities,_but_you'll_only_learn_them
+Message 128: through_experience."
+
+Message 129: "42."
+
+Message 130: "Baseball_Kirby!"__Hmm..._That_sounds_familliar.
+
+Message 131: "Smashing_tombstones_is_very_dishonorable ...Usually."
+
+Message 133: "404_error:_Fortune_not_found."
+
+Message 134: "EAT_COOKIES_PLAY_AGAIN"
+
+Message 135: "</cookie>"
+
+Message 136: "Congratulations!_This_is_a_golden_ticket!"
+Message 137: Hey...Sure_enough,_it_is!_Wow, lucky!
+
+Message 138: "Send_help_I_am_being_held_prisoner_in
+Message 139: a_chinese_bakery"
+
+Message 140: "Isn't_it_great_to_be_literate!_Think_of_all_the_great_things_you
+Message 141: can_read!"__...Well,_that_certainly_wasn't_one_of_them.
+
+Message 142:
+
+Message 143: "Look_out!_There's_a_monster_behind_you!"
+
+Message 144: "Good_job._You_managed_to_not_accidentally_eat_your_fortune."
+
+Message 145: "How's_my_baking?_Call_826-1014."
+
+Message 146: "CAUTION:_Cookie_may_be_hot."
+Message 147: ...As_if_that_warning_does_you_any_good_after_you've_eaten_it.
+
+Message 148: "The_grass_is_always_at_a_higher_resolution_on_the_other_side!"
+
+Message 149: "Watch_out_for_falling_rocks."
+
+Message 150: "CAUTION:_This_paper_has_sharp_edges!!"
+
+Message 151: "So_i_herd_u_lyk_grub_bugs..."
+
+Message 152: "SECRET_MODULE_UNLOCKED!
+Message 153: ...Just_kidding."
+
+Message 155: "They're_more_like_MISfortune_cookies_half_the_time."
+
+Message 156: "What,_eating_me_wasn't_enough_for_you?_Now_you_have_to_fiddle_with_my_insides,_too?"
+
+Message 157: "Today_will_be_a_good_day._You_will_kill_monsters."
+Message 158: Suddenly_you_get_the_urge_to_not_kill_any_monsters_today,
+Message 159: just_to_prove_it_wrong.
+
+Message 160: "So_two_bald_guys_walk_into_a_bar,_and..."
+Message 161: "...Oh,_you've_heard_it_already?_Sorry."
+
+Message 162: "Early_to_bed,_early_to_rise,_makes_a_man..._BOOOORING."
+
+Message 163: "They_say_that_violence_is_not_the_answer.
+Message 164: But_what_do_they_know?"
+
+Message 165: "Man,_you're_such_a_loser."
+
+Message 166: "So_the_moral_of_the_story_is..."
+Message 167: Who_cares?_Stories_with_morals_are_lame.
+Message 168: %t_throws_the_paper_away."
+
+Message 169: "Why_be_healthy_later_when_you_can_be_happy_now?"
+
+Message 170: "All_the_cool_kids_are_doin'_it!"
+
+Message 171: "Go_jump_in_a_lake.
+Message 172: No,_really._You_go_ahead_and_do_that_now,_OK?"
+
+Message 173: "Why_did_the_Chocobone_cross_the_road?
+Message 174: ...Well,_I_don't_know!_Why_do_you_think_I_was_asking_YOU?!"
+
+Message 175: "A_rolling_stone_gathers_no_potentially_disease-ridden_fungus."
+
+Message 176: "Pow!"
+
+Message 177: "Say_what_now?"
+
+Message 178: "It's_been_said_that_it's_not_really_worth_your_time_to
+Message 179: try_teaching_a_Sand_Troll_to_dance."
+
+Message 180: "Rumor_has_it_you_can_run_barefoot_across_lava_and_survive.
+Message 181: But_I_wouldn't_try_it_unless_you_really_know_what_you're_doing."
+
+Message 182: "Everyone_is_always_looking_for_the_person_who_has_all_the_answers.
+Message 183: Shouldn't_they_find_the_person_who_has_all_the_questions_first?"
+
+Message 184: "Don't_forget_to..._something.
+Message 185: I_can't_remember_what._Can_you_ask_again_a_little_later?"
+
+Message 186: "Once_upon_a_time..."
+Message 187: Forget_it._I've_heard_this_one_already.
+
+Message 188: "There's_something_on_your_face,_there.
+Message 189: No...a_little_more_to_the_right.
+Message 190: There._You_got_it."
+
+Message 191: "You_can't_hide_from_us!_We're_everywhere!"
+
+Message 192: "It_might_be_a_good_idea_to_start_panicking_right_about_now."
+
+Message 193: "Humpty_Dumpty_sat_on_a_wall._Humpty_dumpty_had_a_great_fall.
+Message 194: And_then_all_the_other_kids_laughed_at_him_for_being_such
+Message 195: a_clumsy_goon."
+
+Message 196: "The_journey_of_a_thousand_miles_begins_with_finding_your_car_keys."
+
+Message 197: "Are_you_sure_that_was_such_a_good_idea?"
+
+Message 198: "Boy,_you_could_sure_benefit_from_losing_a_few_pounds!
+Message 199: What_were_you_thinking,_eating_that_cookie?!"
+
+Message 200: "They_say_that_if_you_don't_want_to_get_slaughtered_by
+Message 201: the_Dracolich,_you_should..._give_it_up._Really,_you_don't
+Message 202: stand_a_chance!"
+
+Message 203: "I_know_where_you_live."
+
+Message 204: "Boy,_they_sure_weren't_kidding_when_they_said_you_were_ugly!"
+
+Message 205: "You_still_owe_me_143_zorkmids,_%t."
+
+Message 206: "Legends_tell_of_a_great_hero_who_will_be_able_to_defeat
+Message 207: the_Dracolich_and_save--"
+Message 208: "Hold_on!_You_weren't_supposed_to_see_that_one._We_don't
+Message 209: want_you_getting_overconfident_or_anything..."
+
+Message 210: "This_cookie_contains_one_zenny!"
+
+Message 211: "You_will_loose_something..."
+
+Message 212: "Do_you_feel_confused?"
+
+Message 213: "What's_that_sound?"
+
+Message 214: "Floating_eyes_can't_stand_Hawaiian_shirts."
+
+Message 215: "Most_of_the_bugs_in_Egoboo_are_Grub_Bugs."
+
+Message 216: "PLEASE_ignore_previous_fortune."  
+
+Message 217: "There_is_a_trap_on_this_level!"
+
+Message 218: "They_say_that_fortune_cookies_are_food_for_thought."
+
+Message 219: "Toilet_plungers_make_great_weapons!"
+
+Message 220: "You_swallowed_the_fortune!"
+
+Message 221: "The_cookie_you_just_ate_was_poisoned!"
+
+Message 222: %t_grabbed_the_%n.
+Message 223: %t_didn't_charge_it_enough...
+Message 224: %t_summoned_a_Fortune_Cookie!
+Message 225: %t_brought_out_a_Book.
+Message 226: %t_brought_out_the_%n.
+Message 227: %t_grabbed_an_ancient_Tome.
+Message 228: %t_can't_read!

@@ -1,0 +1,4 @@
+Message 0: %t_found_%n.
+Message 1: %t_summons_a_Missile_nova!
+Message 2: The_spell_was_not_charged_enough...
+Message 3: %t_brought_out_%n.

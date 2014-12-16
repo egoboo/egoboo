@@ -1,0 +1,5 @@
+Message 0: %t_found_the_%c!
+Message 1: Yes!_The_final_Spork_is_in_your_hands!_With_the_%c_
+Message 2: your_collection_of_all_5_sporks_should_be_complete._
+Message 3: Head_to_the_Royal_Catacombs_and_use_the_sporks_to_open_the_ancient_grave.
+Message 4: You_did_keep_all_sporks_did_you_not_%t?

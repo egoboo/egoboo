@@ -1,0 +1,659 @@
+Number of Fan Types: 26
+
+ 0  Two Faced Ground...
+      Vertices: 4
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+      Commands: 1
+        Command Size: 4
+          Vrt: 1
+          Vrt: 2
+          Vrt: 3
+          Vrt: 0
+
+ 1  Two Faced Ground...
+      Vertices: 4
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+      Commands: 1
+        Command Size: 4
+          Vrt: 0
+          Vrt: 1
+          Vrt: 2
+          Vrt: 3
+
+ 2  Four Faced Ground...
+      Vertices: 5
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 48   U: 0.50    V: 0.50
+      Commands: 1
+        Command Size: 6
+          Vrt: 4
+          Vrt: 3
+          Vrt: 0
+          Vrt: 1
+          Vrt: 2
+          Vrt: 3
+
+ 3  Eight Faced Ground...
+      Vertices: 9
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 16   U: 0.50    V: 0.00
+        Ref: 35   U: 1.00    V: 0.50
+        Ref: 28   U: 0.50    V: 1.00
+        Ref: 32   U: 0.00    V: 0.50
+        Ref: 48   U: 0.50    V: 0.50
+      Commands: 1
+        Command Size: 10
+          Vrt: 8
+          Vrt: 3
+          Vrt: 7
+          Vrt: 0
+          Vrt: 4
+          Vrt: 1
+          Vrt: 5
+          Vrt: 2
+          Vrt: 6
+          Vrt: 3
+
+ 4  Ten Face Pillar...
+      Vertices: 8
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 5    U: 0.33    V: 0.33
+        Ref: 6    U: 0.66    V: 0.33
+        Ref: 10   U: 0.66    V: 0.66
+        Ref: 9    U: 0.33    V: 0.66
+      Commands: 2
+        Command Size: 8
+          Vrt: 7
+          Vrt: 3
+          Vrt: 0
+          Vrt: 4
+          Vrt: 5
+          Vrt: 6
+          Vrt: 2
+          Vrt: 3
+        Command Size: 6
+          Vrt: 5
+          Vrt: 4
+          Vrt: 0
+          Vrt: 1
+          Vrt: 2
+          Vrt: 6
+
+ 5  Eighteen Faced Pillar...
+      Vertices: 16
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 1    U: 0.33    V: 0.00
+        Ref: 2    U: 0.66    V: 0.00
+        Ref: 7    U: 1.00    V: 0.33
+        Ref: 11   U: 1.00    V: 0.66
+        Ref: 14   U: 0.66    V: 1.00
+        Ref: 13   U: 0.33    V: 1.00
+        Ref: 8    U: 0.00    V: 0.66
+        Ref: 4    U: 0.00    V: 0.33
+        Ref: 5    U: 0.33    V: 0.33
+        Ref: 6    U: 0.66    V: 0.33
+        Ref: 10   U: 0.66    V: 0.66
+        Ref: 9    U: 0.33    V: 0.66
+      Commands: 4
+        Command Size: 10
+          Vrt: 15
+          Vrt: 3
+          Vrt: 10
+          Vrt: 11
+          Vrt: 12
+          Vrt: 13
+          Vrt: 14
+          Vrt: 8
+          Vrt: 9
+          Vrt: 3
+        Command Size: 8
+          Vrt: 13
+          Vrt: 12
+          Vrt: 4
+          Vrt: 5
+          Vrt: 1
+          Vrt: 6
+          Vrt: 7
+          Vrt: 14
+        Command Size: 4
+          Vrt: 12
+          Vrt: 11
+          Vrt: 0
+          Vrt: 4
+        Command Size: 4
+          Vrt: 14
+          Vrt: 7
+          Vrt: 2
+          Vrt: 8
+
+ 6  Blank...
+      Vertices: 0
+      Commands: 0
+
+ 7  Blank...
+      Vertices: 0
+      Commands: 0
+
+ 8  Six Faced Wall (WE)...
+      Vertices: 8
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 7    U: 1.00    V: 0.33
+        Ref: 11   U: 1.00    V: 0.66
+        Ref: 8    U: 0.00    V: 0.66
+        Ref: 4    U: 0.00    V: 0.33
+      Commands: 2
+        Command Size: 6
+          Vrt: 5
+          Vrt: 2
+          Vrt: 3
+          Vrt: 6
+          Vrt: 7
+          Vrt: 4
+        Command Size: 4
+          Vrt: 4
+          Vrt: 7
+          Vrt: 0
+          Vrt: 1
+
+ 9  Six Faced Wall (NS)...
+      Vertices: 8
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 1    U: 0.33    V: 0.00
+        Ref: 2    U: 0.66    V: 0.00
+        Ref: 14   U: 0.66    V: 1.00
+        Ref: 13   U: 0.33    V: 1.00
+      Commands: 2
+        Command Size: 6
+          Vrt: 7
+          Vrt: 3
+          Vrt: 0
+          Vrt: 4
+          Vrt: 5
+          Vrt: 6
+        Command Size: 4
+          Vrt: 6
+          Vrt: 5
+          Vrt: 1
+          Vrt: 2
+
+10  Blank...
+      Vertices: 0
+      Commands: 0
+
+11  Blank...
+      Vertices: 0
+      Commands: 0
+
+12  Eight Faced Wall (W)...
+      Vertices: 8
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 8    U: 0.00    V: 0.66
+        Ref: 4    U: 0.00    V: 0.33
+        Ref: 6    U: 0.66    V: 0.33
+        Ref: 10   U: 0.66    V: 0.66
+      Commands: 2
+        Command Size: 8
+          Vrt: 7
+          Vrt: 3
+          Vrt: 4
+          Vrt: 5
+          Vrt: 6
+          Vrt: 1
+          Vrt: 2
+          Vrt: 3
+        Command Size: 4
+          Vrt: 1
+          Vrt: 6
+          Vrt: 5
+          Vrt: 0
+
+13  Eight Faced Wall (N)...
+      Vertices: 8
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 1    U: 0.33    V: 0.00
+        Ref: 2    U: 0.66    V: 0.00
+        Ref: 10   U: 0.66    V: 0.66
+        Ref: 9    U: 0.33    V: 0.66
+      Commands: 2
+        Command Size: 8
+          Vrt: 7
+          Vrt: 3
+          Vrt: 0
+          Vrt: 4
+          Vrt: 5
+          Vrt: 6
+          Vrt: 2
+          Vrt: 3
+        Command Size: 4
+          Vrt: 2
+          Vrt: 6
+          Vrt: 5
+          Vrt: 1
+
+14  Eight Faced Wall (E)...
+      Vertices: 8
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 7    U: 1.00    V: 0.33
+        Ref: 11   U: 1.00    V: 0.66
+        Ref: 5    U: 0.33    V: 0.33
+        Ref: 9    U: 0.33    V: 0.66
+      Commands: 2
+        Command Size: 8
+          Vrt: 6
+          Vrt: 3
+          Vrt: 0
+          Vrt: 1
+          Vrt: 4
+          Vrt: 5
+          Vrt: 7
+          Vrt: 3
+        Command Size: 4
+          Vrt: 3
+          Vrt: 7
+          Vrt: 5
+          Vrt: 2
+
+15  Eight Faced Wall (S)...
+      Vertices: 8
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 14   U: 0.66    V: 1.00
+        Ref: 13   U: 0.33    V: 1.00
+        Ref: 5    U: 0.33    V: 0.33
+        Ref: 6    U: 0.66    V: 0.33
+      Commands: 2
+        Command Size: 8
+          Vrt: 7
+          Vrt: 5
+          Vrt: 6
+          Vrt: 0
+          Vrt: 1
+          Vrt: 2
+          Vrt: 4
+          Vrt: 5
+        Command Size: 4
+          Vrt: 0
+          Vrt: 6
+          Vrt: 5
+          Vrt: 3
+
+16  Ten Faced Wall (WS)...
+      Vertices: 10
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 14   U: 0.66    V: 1.00
+        Ref: 13   U: 0.33    V: 1.00
+        Ref: 8    U: 0.00    V: 0.66
+        Ref: 4    U: 0.00    V: 0.33
+        Ref: 6    U: 0.66    V: 0.33
+        Ref: 9    U: 0.33    V: 0.66
+      Commands: 2
+        Command Size: 8
+          Vrt: 9
+          Vrt: 3
+          Vrt: 6
+          Vrt: 7
+          Vrt: 8
+          Vrt: 4
+          Vrt: 5
+          Vrt: 3
+        Command Size: 6
+          Vrt: 8
+          Vrt: 7
+          Vrt: 0
+          Vrt: 1
+          Vrt: 2
+          Vrt: 4
+
+17  Ten Faced Wall (NW)...
+      Vertices: 10
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 1    U: 0.33    V: 0.00
+        Ref: 2    U: 0.66    V: 0.00
+        Ref: 8    U: 0.00    V: 0.66
+        Ref: 4    U: 0.00    V: 0.33
+        Ref: 5    U: 0.33    V: 0.33
+        Ref: 10   U: 0.66    V: 0.66
+      Commands: 2
+        Command Size: 8
+          Vrt: 8
+          Vrt: 6
+          Vrt: 7
+          Vrt: 0
+          Vrt: 4
+          Vrt: 5
+          Vrt: 9
+          Vrt: 6
+        Command Size: 6
+          Vrt: 9
+          Vrt: 5
+          Vrt: 1
+          Vrt: 2
+          Vrt: 3
+          Vrt: 6
+
+18  Ten Faced Wall (NE)...
+      Vertices: 10
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 1    U: 0.33    V: 0.00
+        Ref: 2    U: 0.66    V: 0.00
+        Ref: 7    U: 1.00    V: 0.33
+        Ref: 11   U: 1.00    V: 0.66
+        Ref: 6    U: 0.66    V: 0.33
+        Ref: 9    U: 0.33    V: 0.66
+      Commands: 2
+        Command Size: 8
+          Vrt: 8
+          Vrt: 9
+          Vrt: 4
+          Vrt: 5
+          Vrt: 1
+          Vrt: 6
+          Vrt: 7
+          Vrt: 9
+        Command Size: 6
+          Vrt: 9
+          Vrt: 7
+          Vrt: 2
+          Vrt: 3
+          Vrt: 0
+          Vrt: 4
+
+19  Ten Faced Wall (ES)...
+      Vertices: 10
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 7    U: 1.00    V: 0.33
+        Ref: 11   U: 1.00    V: 0.66
+        Ref: 14   U: 0.66    V: 1.00
+        Ref: 13   U: 0.33    V: 1.00
+        Ref: 5    U: 0.33    V: 0.33
+        Ref: 10   U: 0.66    V: 0.66
+      Commands: 2
+        Command Size: 8
+          Vrt: 9
+          Vrt: 7
+          Vrt: 8
+          Vrt: 4
+          Vrt: 5
+          Vrt: 2
+          Vrt: 6
+          Vrt: 7
+        Command Size: 6
+          Vrt: 8
+          Vrt: 7
+          Vrt: 3
+          Vrt: 0
+          Vrt: 1
+          Vrt: 4
+
+20  Twelve Faced Wall (WSE)...
+      Vertices: 12
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 7    U: 1.00    V: 0.33
+        Ref: 11   U: 1.00    V: 0.66
+        Ref: 14   U: 0.66    V: 1.00
+        Ref: 13   U: 0.33    V: 1.00
+        Ref: 8    U: 0.00    V: 0.66
+        Ref: 4    U: 0.00    V: 0.33
+        Ref: 10   U: 0.66    V: 0.66
+        Ref: 9    U: 0.33    V: 0.66
+      Commands: 3
+        Command Size: 9
+          Vrt: 11
+          Vrt: 3
+          Vrt: 8
+          Vrt: 9
+          Vrt: 4
+          Vrt: 10
+          Vrt: 6
+          Vrt: 7
+          Vrt: 3
+        Command Size: 5
+          Vrt: 10
+          Vrt: 4
+          Vrt: 5
+          Vrt: 2
+          Vrt: 6
+        Command Size: 4
+          Vrt: 4
+          Vrt: 9
+          Vrt: 0
+          Vrt: 1
+
+21  Twelve Faced Wall (NWS)...
+      Vertices: 12
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 1    U: 0.33    V: 0.00
+        Ref: 2    U: 0.66    V: 0.00
+        Ref: 14   U: 0.66    V: 1.00
+        Ref: 13   U: 0.33    V: 1.00
+        Ref: 8    U: 0.00    V: 0.66
+        Ref: 4    U: 0.00    V: 0.33
+        Ref: 5    U: 0.33    V: 0.33
+        Ref: 9    U: 0.33    V: 0.66
+      Commands: 3
+        Command Size: 9
+          Vrt: 10
+          Vrt: 8
+          Vrt: 9
+          Vrt: 0
+          Vrt: 4
+          Vrt: 5
+          Vrt: 6
+          Vrt: 11
+          Vrt: 8
+        Command Size: 5
+          Vrt: 11
+          Vrt: 6
+          Vrt: 7
+          Vrt: 3
+          Vrt: 8
+        Command Size: 4
+          Vrt: 6
+          Vrt: 5
+          Vrt: 1
+          Vrt: 2
+
+22  Twelve Faced Wall (ENW)...
+      Vertices: 12
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 1    U: 0.33    V: 0.00
+        Ref: 2    U: 0.66    V: 0.00
+        Ref: 7    U: 1.00    V: 0.33
+        Ref: 11   U: 1.00    V: 0.66
+        Ref: 8    U: 0.00    V: 0.66
+        Ref: 4    U: 0.00    V: 0.33
+        Ref: 5    U: 0.33    V: 0.33
+        Ref: 6    U: 0.66    V: 0.33
+      Commands: 3
+        Command Size: 9
+          Vrt: 11
+          Vrt: 8
+          Vrt: 10
+          Vrt: 4
+          Vrt: 5
+          Vrt: 1
+          Vrt: 6
+          Vrt: 7
+          Vrt: 8
+        Command Size: 5
+          Vrt: 10
+          Vrt: 8
+          Vrt: 9
+          Vrt: 0
+          Vrt: 4
+        Command Size: 4
+          Vrt: 8
+          Vrt: 7
+          Vrt: 2
+          Vrt: 3
+
+23  Twelve Faced Wall (SEN)...
+      Vertices: 12
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 1    U: 0.33    V: 0.00
+        Ref: 2    U: 0.66    V: 0.00
+        Ref: 7    U: 1.00    V: 0.33
+        Ref: 11   U: 1.00    V: 0.66
+        Ref: 14   U: 0.66    V: 1.00
+        Ref: 13   U: 0.33    V: 1.00
+        Ref: 6    U: 0.66    V: 0.33
+        Ref: 10   U: 0.66    V: 0.66
+      Commands: 3
+        Command Size: 9
+          Vrt: 11
+          Vrt: 9
+          Vrt: 4
+          Vrt: 10
+          Vrt: 6
+          Vrt: 7
+          Vrt: 2
+          Vrt: 8
+          Vrt: 9
+        Command Size: 5
+          Vrt: 10
+          Vrt: 4
+          Vrt: 5
+          Vrt: 1
+          Vrt: 6
+        Command Size: 4
+          Vrt: 4
+          Vrt: 9
+          Vrt: 3
+          Vrt: 0
+
+24  Twelve Faced Stair (WE)...
+      Vertices: 14
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 0    U: 0.16    V: 0.00
+        Ref: 1    U: 0.33    V: 0.00
+        Ref: 1    U: 0.50    V: 0.00
+        Ref: 2    U: 0.66    V: 0.00
+        Ref: 2    U: 0.83    V: 0.00
+        Ref: 14   U: 0.83    V: 1.00
+        Ref: 14   U: 0.66    V: 1.00
+        Ref: 13    U: 0.50    V: 1.00
+        Ref: 13    U: 0.33    V: 1.00
+        Ref: 12    U: 0.16    V: 1.00
+      Commands: 3
+        Command Size: 6
+          Vrt: 13
+          Vrt: 3
+          Vrt: 0
+          Vrt: 4
+          Vrt: 5
+          Vrt: 12
+        Command Size: 6
+          Vrt: 11
+          Vrt: 12
+          Vrt: 5
+          Vrt: 6
+          Vrt: 7
+          Vrt: 10
+        Command Size: 6
+          Vrt: 9
+          Vrt: 10
+          Vrt: 7
+          Vrt: 8
+          Vrt: 1
+          Vrt: 2
+
+25  Twelve Faced Stair (NS)...
+      Vertices: 14
+        Ref: 0    U: 0.00    V: 0.00
+        Ref: 3    U: 1.00    V: 0.00
+        Ref: 15   U: 1.00    V: 1.00
+        Ref: 12   U: 0.00    V: 1.00
+        Ref: 3    U: 1.00    V: 0.16
+        Ref: 7    U: 1.00    V: 0.33
+        Ref: 7    U: 1.00    V: 0.50
+        Ref: 11   U: 1.00    V: 0.66
+        Ref: 11   U: 1.00    V: 0.83
+        Ref: 8    U: 0.00    V: 0.83
+        Ref: 8    U: 0.00    V: 0.66
+        Ref: 4    U: 0.00    V: 0.50
+        Ref: 4    U: 0.00    V: 0.33
+        Ref: 0    U: 0.00    V: 0.16
+      Commands: 3
+        Command Size: 6
+          Vrt: 13
+          Vrt: 0
+          Vrt: 1
+          Vrt: 4
+          Vrt: 5
+          Vrt: 12
+        Command Size: 6
+          Vrt: 11
+          Vrt: 12
+          Vrt: 5
+          Vrt: 6
+          Vrt: 7
+          Vrt: 10
+        Command Size: 6
+          Vrt: 9
+          Vrt: 10
+          Vrt: 7
+          Vrt: 8
+          Vrt: 2
+          Vrt: 3

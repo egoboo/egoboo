@@ -1,0 +1,26 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )			: Abyss_Part_1
+Reference module ( Directory name or NONE )		: catacomb2.mod
+Required reference IDSZ ( or [NONE] )			: [MAIN] 6
+Number of imports ( 0 to 4 )				      : 4
+Allow exporting of characters ( TRUE or FALSE ) 		: FALSE
+Minimum number of players ( 1 to 4 )			: 1
+Maximum number of players ( 1 to 4 )			: 4
+Allow respawning ( TRUE or FALSE )			  : TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( *, **, ***, ****, or ***** )     			: ********
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:As_you_enter_the_magic_portal
+:in_the_catacombs_you_are_instantly
+:transported_to_a_horrid_place,
+:the_first_level_of_the_Abyss!!
+:_
+:_
+:_
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] MAINQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

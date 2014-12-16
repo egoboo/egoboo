@@ -1,0 +1,11 @@
+Message 0: %t_can't_read!
+Message 1: %t_can't_decipher_the_glyphs.
+Message 2: The_inscription_reads...
+Message 3: __The_Chamber_of_Fate
+Message 4: __Hall_of_the_Lords
+Message 5: __Hell_Grounds
+Message 6: __Tomb_of_"Xar_the_Betrayer"
+Message 7: __Cell_of_"Loknar_the_Slayer"
+Message 8: __Chains_of_"Elayne_Holyshrine"
+Message 9: __Chamber_of_Oblivion
+Message 10: __==THE_INNER_SANCTUM==

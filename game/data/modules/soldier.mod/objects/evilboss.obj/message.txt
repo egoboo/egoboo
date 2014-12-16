@@ -1,0 +1,9 @@
+Message 0: %n_was_defeated_by_%t!
+Message 1: Fool!
+Message 2: Warriors,_attack!
+Message 3: %n_looks_better!
+Message 4: %n_dropped_%g_shield!
+Message 5: The_Evil_Paladin_has_been_defeated,_but_sadly_Lord_Hagen_did_not_make_it_out_alive_
+Message 6:  _of_this_dungeon._Maybe_your_next_rescue_mission_for_Lord_Bishop_will_go_better?
+Message 7: Lord_Hagen_was_rescued_and_the_Evil_Paladin_has_been_defeated._Has_Lorule_ever_seen
+Message 8: a_more_fine_warrior?_Your_talents_will_be_needed_now,_as_news_of_the_Kings_capture_reaches_your_ears...

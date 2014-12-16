@@ -1,0 +1,103 @@
+// Mana drips
+Force spawn ( TRUE or FALSE )				: FALSE
+Image type ( SOLID, LIGHT, or TRANS )			: LIGHT
+Starting frame ( 0 to 255 )				: 209
+Number of frames ( 1 to 16 )				: 1
+Frame rate ( 0 to 1000 )				: 40
+Frame rate randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 31
+Rotation base ( 0 to 65535 )				: 0
+Random rotation add ( 0, 1, 3, 7, 15, 31, 63... )	: 65535
+Rotation rate ( 0 to 1000 )				: 4000
+Starting size ( 0 to 65535 )				: 20000
+Size increase rate ( 0 to 1000 )			: -1000
+Speed limit ( 0.0 to 10.0 )				: 7.0
+Facing rate ( 0 to 1000 )				: 0
+
+
+
+// Ending conditions
+Water ends particle ( TRUE or FALSE )			: FALSE
+Bump ends particle ( TRUE or FALSE )			: TRUE
+End if hits ground ( TRUE or FALSE )			: FALSE
+End after last frame ( TRUE or FALSE )			: FALSE
+Time before end ( 1 to 1000, 0 )			: 15
+
+
+
+// Collision data
+Bounce dampen ( 0.0 to 0.9 )				: 0
+Bump money ( 0 to 100 )					: 0
+Bump size ( 0 to 60 )					: 0
+Bump height ( 0 to 60 )					: 0
+Bump damage amount ( 0-0 to 0-16 to 16-16 )		: 0
+Bump damage type ( SLASH, CRUSH, POKE, HOLY,
+              EVIL, FIRE, ICE, ZAP )			: ZAP
+
+
+
+
+// Lighting data
+Does it act as a dynamic light? ( TRUE or FALSE )	: FALSE
+Dynalight level ( around 0.7 )				: 0.0
+Dynalight falloff ( around 1000 )			: 0
+
+
+
+// Initial spawning of this particle
+Facing base ( 0 to 65535 )				: 0
+Facing randomness ( 0, 1, 3, 7, 15, 31, 63... )		: 65535
+XY Spacing ( 0 to 100 )					: 6
+XY Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 7
+Z Spacing ( -100 to 100 )				: 10
+Z Spacing randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 7
+XY Velocity ( 0 to 100 )				: 0
+XY Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
+Z Velocity ( -100 to 100 )				: 4
+Z Velocity randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
+
+
+
+// Continuous spawning of other particles
+Spawn time ( 0 to 100 )					: 0
+Amount to spawn each time ( 0 to 10 )			: 0
+Facing add for each one ( 0 to 65535 )			: 0
+Spawn type ( 0 to 3 )					: 0
+
+
+
+// End spawning of other particles
+Amount to spawn at end ( 0 to 10 )			: 0
+Facing add for each one ( 0 to 65535 )			: 0
+Spawn type ( 0 to 3 )					: 0
+
+
+
+// Bump spawning of attached particles
+Amount to spawn on bump ( 0 to 10 )			: 0
+Spawn type ( 0 to 3 )					: 0
+
+
+// Random stuff
+Daze time on hit ( 0 to 250 )				: 0
+Grog time on hit ( 0 to 250 )				: 0
+Spawn enchant on hit ( TRUE or FALSE )			: FALSE
+Cause roll on hit ( TRUE or FALSE )			: FALSE
+Cause pancake on hit ( TRUE or FALSE )			: FALSE
+Need target to spawn ( TRUE or FALSE )			: FALSE
+Target is caster ( TRUE or FALSE )			: FALSE
+Start on target ( TRUE or FALSE )			: FALSE
+Only damage friendly ( TRUE or FALSE )			: FALSE
+Spawn sound ( -1 for none )				: -1
+End sound ( -1 for none )				: -1
+Friendly fire ( TRUE or FALSE )				: FALSE
+Only hit hate group ( TRUE or FALSE )			: FALSE
+New target on spawn ( TRUE or FALSE )			: FALSE
+Target angle ( 0 to 32768 )				: 0
+Home in on target ( TRUE or FALSE )			: FALSE
+Homing friction ( 0.0 to 1.0 )				: 0.0
+Homing acceleration ( 0.0 to 1.0 )			: 0.0
+Rotate to face direction ( TRUE or FALSE )		: FALSE
+Respawn character on hit ( TRUE or FALSE )		: FALSE
+Mana drain on hit ( 0 to 50 )				: 0
+Life drain on hit ( 0 to 50 )				: 0
+

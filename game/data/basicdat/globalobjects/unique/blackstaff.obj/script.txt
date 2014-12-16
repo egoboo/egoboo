@@ -1,0 +1,93 @@
+// This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+
+IfStateIs0
+  tmpargument = 15
+  SetFlyHeight
+  tmpargument = 2
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+Else
+  tmpargument = 0
+  SetFlyHeight
+
+// Particle effect
+IfTakenOut
+  ReaffirmCharacter
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+// Make a sound
+IfHitGround
+  tmpargument = 1
+  tmpdistance = rand % 2047 + 10000
+  PlaySound
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+  SetTargetToWhoeverIsHolding
+  tmpargument = 1
+  SetState
+  SetOwnerToTarget
+
+// Magic enchants
+IfHeld
+  IfStateIs1
+    GetState                // DoNothing
+  Else
+    SetTargetToWhoeverIsHolding
+    tmpargument = 1
+    SetState
+    SetOwnerToTarget
+    tmpargument = [WMAG]
+    IfTargetHasSkillID
+      EnchantTarget
+
+// Undo enchants
+IfHitGround
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+  UndoEnchant
+  tmpargument = 0
+  SetState
+
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+  UndoEnchant
+  tmpargument = 0
+  SetState
+
+IfPutAway
+  UndoEnchant
+  tmpargument = 0
+  SetState
+
+// All done
+End
+

@@ -1,0 +1,111 @@
+#dependency AnimatedXBow   84
+
+//Monster Waves
+#dependency Tranch        42
+#dependency GrubBug       38
+#dependency Crab          41
+#dependency Zombi         71
+#dependency FireLizard    73
+#dependency Lumpkin       74
+#dependency Assassin      76
+#dependency Minotore      80
+#dependency KCrab         90
+#dependency GigaGelfeet   91
+
+
+//Weapons
+#dependency Spear         72
+#dependency Gonne         75
+#dependency Stiletto      77
+#dependency HanXBow       78
+#dependency Claw          79
+#dependency Hatchet       81
+#dependency Mace          82
+#dependency Trident       83
+#dependency Cinquedea     87
+#dependency Battleaxe     88
+
+//Treasure
+#dependency LPotion       43
+#dependency MPotion       44
+#dependency Grog          45
+#dependency Medkit        46
+#dependency AmmoBox       47
+#dependency Quiver        48
+#dependency CombatBless   49
+#dependency SkullTrap     50
+#dependency Icicles       51
+#dependency SkullWall     52
+#dependency BearTrap      53
+#dependency Bomb          54
+#dependency Caltrop       55
+#dependency Mushroom      56
+#dependency Gem           57
+#dependency DexAmulet     58
+#dependency SlowShoes     59
+#dependency PowPotion     60
+#dependency PowderKeg     61
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+PLAYER 1:   NONE    0  35.5   33.5   1.0   N    0   0  0   0   0   T   F   G
+LEFT HAND:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+RIGHT HAND:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER 2:   NONE    9  35.5   33.5   1.0   N    0   0  0   0   0   T   F   G
+LEFT HAND:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+RIGHT HAND:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER 3:   NONE    18  35.5   33.5   1.0   N    0   0  0   0   0   T   F   G
+LEFT HAND:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+RIGHT HAND:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER 4:   NONE    27  35.5   33.5   1.0   N    0   0  0   0   0   T   F   G
+LEFT HAND:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+RIGHT HAND:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+INVENTORY:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+portal.obj:   NONE    39  32.0   31   0.0   ?    0   0  0   0   0   F   F   G
+
+moduletool.obj:   NONE    40  31.0   10.0   1.0   N    0   0  0   0   0   F   F   E
+moduletool.obj:   NONE    40  10.0   32.0   1.0   N    0   0  0   0   0   F   F   E
+moduletool.obj:   NONE    40  32.0   55.0   1.0   N    0   0  0   0   0   F   F   E
+moduletool.obj:   NONE    40  54.0   31.0   1.0   N    0   0  0   0   0   F   F   E
+
+//Room guards (no players enter here!)
+animatedxbow.obj:   NONE    84  34.5   55.0   1.0   ?    0   0  0   0   0   F   F   E
+animatedxbow.obj:   NONE    84  29.5   55.0   1.0   ?    0   0  0   0   0   F   F   E
+
+animatedxbow.obj:   NONE    84  10   29.5   1.0   ?    0   0  0   0   0   F   F   E
+animatedxbow.obj:   NONE    84  10   34.5   1.0   ?    0   0  0   0   0   F   F   E
+
+animatedxbow.obj:   NONE    84  29.5   11.0   1.0   ?    0   0  0   0   0   F   F   E
+animatedxbow.obj:   NONE    84  34.5   11.0   1.0   ?    0   0  0   0   0   F   F   E
+
+animatedxbow.obj:   NONE    84  54.0   28.5   1.0   ?    0   0  0   0   0   F   F   E
+animatedxbow.obj:   NONE    84  54.0   33.5   1.0   ?    0   0  0   0   0   F   F   E
+
+//Doors
+irondoor.obj:   NONE    86  32.0   18.0   1.0   S    0   0  0   0   0   F   F   N
+irondoor.obj:   NONE    86  32.0   45.0   1.0   N    0   0  2   0   0   F   F   N
+irondoor.obj:   NONE    86  19.0   32.0   1.0   E    0   0  4   0   0   F   F   N
+irondoor.obj:   NONE    86  45.0   31.0   1.0   W    0   0  6   0   0   F   F   N

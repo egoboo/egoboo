@@ -1,0 +1,7 @@
+Message 0: Test_II_-_Defense
+Message 1: Test_III_-_Strategy
+Message 2: Test_IV_-_Memory
+Message 3: Test_V_-_Mirror
+Message 4: Test_VI_-_Trickery
+Message 5: Test_VII_-_Combat
+Message 6: Test_VIII_-_Spellcraft

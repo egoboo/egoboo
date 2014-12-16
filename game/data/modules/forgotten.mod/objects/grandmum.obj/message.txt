@@ -1,0 +1,6 @@
+Message 0: %t_smooshed_the_yucky_%c.
+Message 1: The_%c_was_crushed.
+Message 2: Heehee..._Smoosh!
+Message 3: As_vile_grand_mum_is_slain_and_the_treasures_of_this_old_
+Message 4: fortress_has_been_looted,_your_quest_draws_to_an_end._
+Message 5: Now_your_attention_is_drawn_to_the_real_that_lies_quest_ahead..._

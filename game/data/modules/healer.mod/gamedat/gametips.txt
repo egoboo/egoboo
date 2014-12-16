@@ -1,0 +1,8 @@
+//Lists all the game tips that are randomly displayed whenever you are loading a module. 
+Tip 0: Many_undead_can_only_be_permanently_destroyed_by_healing_magic.
+Tip 1: Healers_can_burn_spellbooks_to_gain_bonus_XP!
+Tip 2: Attacking_unarmed_will_cause_your_Healer_to_cast_a_heal_spell.
+Tip 3: Divine_casters_use_Runes_to_cast_more_advanced_spells.
+Tip 4: Your_helper_faerie_should_light_your_way.
+Tip 5: Don't_touch_acid_blobs,_it's_bad_for_your_health!
+Tip 6: Use_torches_to_light_unlit_braziers.

@@ -1,0 +1,9 @@
+Message 0: %t_found_a_%c!
+Message 1: The_%c_was_crushed_into_dust!
+Message 2: %t_identified_the_gem...
+Message 3: %t_grabbed_a_%c.
+Message 4: This_is_a_amethyst_(300$)
+Message 5: This_is_a_emerald_(450$)
+Message 6: This_is_a_ruby_(600$)
+Message 7: This_is_a_diamond_(800$)
+Message 8: This_is_a_pretty_stone...

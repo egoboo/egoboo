@@ -1,0 +1,43 @@
+//------------------------------------------------------------------------------
+// Show the character's location
+tmpx = selfx
+tmpy = selfy
+tmpargument = YELLOW
+ShowBlipXY
+
+//------------------------------------------------------------------------------
+IfKilled                // This reduces the height of the char
+  tmpargument = 1
+  PlaySound
+
+  // Last words
+  tmpargument = 0
+  IfTargetIsOnSameTeam              // Fragged!
+    tmpargument = 3
+    IfTargetIsSelf                // No, just a damage tile
+      tmpargument = 4
+  SendMessage
+
+  tmpargument = selfmoney              // Drop money
+  DropMoney
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+IfTimeOut                // This is done every so often
+  tmpargument = rand & 15 + 15          // Try again later
+  SetTime
+
+  tmpdistance = 100
+  tmpx = leaderx
+  tmpy = leadery
+  tmpturn = 49152 + leaderturn        // Stand to side
+  Compass
+  FindPath
+
+//------------------------------------------------------------------------------
+
+// Finished with this character
+End
+
+//------------------------------------------------------------------------------

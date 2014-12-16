@@ -1,0 +1,7 @@
+Message 0: This_ruined_fortress_has_been_untouched_for_years...
+Message 1: What_are_we_waiting_for?_Let's_check_the_place_out!
+Message 2: Eek!
+Message 3: Looks_like_we'll_need_a_key_to_get_through_here.
+Message 4: Be_careful!_The_old_guardians_of_this_place_are_still_ready_to_defend_it.
+Message 5: Brother,_I_don't_like_the_look_of_this.
+Message 6: Oh,_that_really_was_an_excellent_adventure!

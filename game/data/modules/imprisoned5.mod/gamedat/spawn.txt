@@ -1,0 +1,60 @@
+#dependency Demon             40
+#dependency Eyeball           41
+#dependency Ghuul             42
+#dependency BrainScrambler    43
+#dependency FrostMist         44
+#dependency Saboteur          45
+#dependency Cockatrice        46
+#dependency KCrab             47
+#dependency FiendBug          48
+
+
+//         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+PLAYER 1:   NONE    0  35.5   33.5   1.0   N    0   0  0   0   0   T   F   G
+  LEFT:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER 2:   NONE    9  35.5   33.5   1.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER 3:   NONE    18  35.5   33.5   1.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+PLAYER 4:   NONE    27  35.5   33.5   1.0   N    0   0  0   0   0   T   F   G
+  LEFT HAND:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  RIGHT HAND:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  INVENTORY:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//The big boss
+demogorgon.obj:   NONE    38  30.0   26.0   0.0   ?    0   2  0   0   0   F   F   E
+ironball:   NONE    51  31.0   25.0   0.0   ?    0   0  0   0   0   F   F   G
+ironball:   NONE    51  31.0   27.0   0.0   ?    0   0  0   0   0   F   F   G
+ironball:   NONE    51  29.0   27.0   0.0   ?    0   0  0   0   0   F   F   G
+ironball:   NONE    51  29.0   25.0   0.0   ?    0   0  0   0   0   F   F   G
+
+switch.obj:   NONE    50  35.5   34.5   0.0   N    0   0  0   0   0   F   F   N
+switch.obj:   NONE    50  38.5   17.5   0.0   N    0   0  0   1   0   F   F   N
+switch.obj:   NONE    50  21.5   17.5   0.0   N    0   0  0   2   0   F   F   N
+switch.obj:   NONE    50  21.5   34.5   0.0   N    0   0  0   3   0   F   F   N

@@ -1,0 +1,158 @@
+Object slot number ( 0 to 63, don't use twice )	: 74
+Class name (Use _ for spaces)   		 	: Skulton
+Uniform light (TRUE or FALSE		 		: FALSE
+Maximum ammo (Set to 0 for N/A) 		 	: 0
+Current ammo  (Note more than Max) 			: 0
+Gender (MALE, FEMALE OR OTHER)			: OTHER
+
+Life color     	: 1
+Mana color   	  : 5
+Life          		 : 25-30
+Life up       		 : 2-3
+Mana          	 : 0.00
+Mana up       	 : 0.00-0.00
+Mana return    	: 0.00
+Mana return up	 : 0.00-0.00
+Mana flow     	 : 0.00
+Mana flow up   	: 0.00-0.00
+STR            	: 26-31
+STR up         	: 2-3
+WIS            	: 3-5
+WIS up         	: 0.00-1.00
+INT            	: 3-4
+INT up        	 : 0.00-1.00
+DEX           	 : 15-17
+DEX up        	 : 1.00-2.00
+
+Size        		   : 1.40
+Size up      		  : 0.25
+Shadow size   	 : 24
+Bump size     	 : 25
+Bump height   	 : 80
+Bump dampen  	  : 0.35
+Weight      		   : 150
+Jump power    	 : 17.00
+Jump number   	 : 2
+Sneak speed    	: 2
+Walk speed    	 : 4
+Run speed      : 7
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 14000
+
+Base defense   :  100  30  70  130
+S damage shift :   1   1   1   1
+C damage shift :   0   0   0   0
+P damage shift :   2   2   2   2
+H damage shift :   0   0   0   0
+E damage shift :   3   3   3   3
+F damage shift :   1   1   1   1
+I damage shift :   1   1   1   1
+Z damage shift :   2   2   2   2
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   F   F   F   F
+E damage code  :   F   F   F   F
+F damage code  :   F   F   F   F
+I damage code  :   F   F   F   F
+Z damage code  :   F   F   F   F
+Acceleration   :  60  30 25  25
+
+EXP for 2nd    : 200
+EXP for 3rd    : 400
+EXP for 4th    : 800
+EXP for 5th    : 1600
+EXP for 6th    : 3200
+Starting EXP   : 0
+EXP worth      : 55
+EXP exchange   : 0.03
+EXPSECRET      : 0.00
+EXPQUEST       : 1.00
+EXPDARE        : 0.00
+EXPKILL        : 0.90
+EXPMURDER      : 0.00
+EXPREVENGE     : 2.00
+EXPTEAMWORK    : 0.10
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [UNDE]
+IDSZ Type      : [SKEL]
+IDSZ Skill     : [XENO]		//Sustained by enchant
+IDSZ Special   : [EVIL]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [HOLY]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : FALSE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : CRUSH
+Attack type    : SLICE
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : FALSE
+Part type      : 0
+
+Poof amount    : 0
+Facing add     : 0
+Part type      : 0
+
+Blud valid    : TRUE
+Part type      : 1
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : SKIN
+Skin 1 name    : SKIN
+Skin 2 name    : SKIN
+Skin 3 name    : SKIN
+Skin 0 cost    : 0
+Skin 1 cost    : 20
+Skin 2 cost    : 80
+Skin 3 cost    : 200
+STR dampen     : 0.075
+
+No rider attak : FALSE
+Can be dazed   : FALSE
+Can be grogged : FALSE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : TRUE
+Kursed chance  : 0
+Footfall sound : 1
+Jump sound     : -1
+
+//Expansions
+:[AWEP] 1             //Advanced weapons profiency

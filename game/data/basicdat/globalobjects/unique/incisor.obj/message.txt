@@ -1,0 +1,5 @@
+Message 0: %t_picked_up_%n.
+Message 1: %n_was_destroyed!
+Message 2: %n_is_%k...
+Message 3: %n_won't_go_in!
+Message 4: %t_drew_%n.

@@ -1,0 +1,4 @@
+Message 0: %n_was_too_brave...
+Message 1: %n_got_killed_by_%t!
+Message 2: Hey_watch_it!
+Message 3: %n_quaffed_a_Healing_Potion!

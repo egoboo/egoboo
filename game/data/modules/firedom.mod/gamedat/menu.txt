@@ -1,0 +1,24 @@
+Module Name 				: Fire_Domain
+Reference Directory 				: palash.mod
+Required reference IDSZ 			: [BEAT]
+Number of imports ( 0 to 4 ) 			: 4
+Exporting ( TRUE or FALSE ) 			: FALSE
+Minimum players ( 1 to 4 ) 			: 1
+Maximum players ( 1 to 4 ) 			: 4
+Respawning ( ANYTIME, TRUE or FALSE ) 		: FALSE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** ) 			: -
+
+// Module summary
+:A_multi-player_free-for-all!
+:Watch_out_for_falling_rocks,_and
+:take_care_not_to_fall_into_the
+:lava--_it_burns!
+:Up_to_four_can_play._Positions
+:not_filled_will_be_taken_by_the
+:very_acrobatic_Firehoppers...
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] FUN                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

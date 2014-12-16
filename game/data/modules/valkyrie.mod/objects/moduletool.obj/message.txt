@@ -1,0 +1,5 @@
+Message 0: You've_rescued_all_the_brave_warrior_souls_and_brought_them_to_their_new_home_
+Message 1: of_Valhalla_where_they_can_fight_drink_and_have_all_the_women_they_want!_
+Message 2: But_your_objective_here_on_the_mortal_realm_is_not_over!_You_hear_the_land_of_
+Message 3: Lorule_is_in_great_need_of_heroes...
+Message 4: You_have_rescued_all_the_warrior_souls!

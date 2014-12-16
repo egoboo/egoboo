@@ -1,0 +1,23 @@
+Module Name                     :The_Imprisoned_One_III
+Reference Directory             :NONE
+Required reference IDSZ         :[IMPB] 0
+Number of imports ( 0 to 4 )    :4
+Exporting ( TRUE or FALSE )     :FALSE
+Minimum players ( 1 to 4 )      :1
+Maximum players ( 1 to 4 )      :4
+Respawning ( TRUE or FALSE )    :TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** )    :*******
+
+// Module summary
+:The_elemental_Deamon_lies_slain.
+:As_you_enter_the_portal_down_to_the
+:next_level,_you_are_greeted_by
+:three_new_portals!
+:_
+:What_could_this_mean?
+:Is_there_enough_time?
+:_
+
+// IDZs
+:[TYPE] SIDEQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

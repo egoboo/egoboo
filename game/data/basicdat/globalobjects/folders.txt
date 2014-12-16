@@ -1,0 +1,26 @@
+The globalobjects directory is broken up into subdirectories by the in-game purpose of the objects
+
+armor       = shields and suits of armor
+magic       = spell books, spell orbs, runes, etc.
+potions     = anything that comes in a bottle
+scrolls     = magical scrolls, usually one time use like potions
+weapons     = anything hat does direct damage, throws a missile, or blocks damage
+magic_items = any remaining objects that can be picked up and are essentially magical in nature (rings, bracelets, shoes ...)
+items       = anything that can be picked up that does not go in the above categories
+
+traps       = devious and deadly traps for the treasure hungry adventurer
+misc        = objects that are neither items or monsters, usually props such as chairs, pillars and tables
+monsters    = enough said
+players     = all models that could be potentially played by a player
+pets        = mounts and pets the players or monsters can carry or ride
+
+unique      = things that there are only 1 of in the whole world (or just a few)
+works_in_progess = not ready for use yet, but may need to be tried in-game
+
+----------------------------
+
+other ideas for directories
+
+reagents    = items that are used up to make something else. technically, things like an ammo box might belong here, but it is really for the idea of alchemy
+
+

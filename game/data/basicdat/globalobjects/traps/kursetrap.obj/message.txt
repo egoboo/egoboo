@@ -1,0 +1,1 @@
+Message 0: %t_activated_a_%c!

@@ -1,0 +1,11 @@
+// Play Music
+tmpargument = 11
+tmpdistance = 0
+PlayMusic
+
+// Don't hang around
+GoPoof
+
+// All done
+End
+

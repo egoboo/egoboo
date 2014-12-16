@@ -1,0 +1,88 @@
+Overview
+--------
+     The data files for Egoboo started out simple.  Then
+they got complex, and I updated them.  More complexity,
+and more updates, until I had so many files that updating
+them all individually took too long.  That's why there
+are Expansions.
+     Expansions are those cryptic four letter IDSZ things
+at the bottom of certain data files.  This document lists
+the different expansions and says a little bit about each
+one.
+
+
+
+Particle Expansions
+-------------------
+     Particle expansions go in PART?.TXT files, and
+are followed by a single number.  Be sure to precede
+each with a colon, or it won't be read.
+:[TURN] 0	// This isn't very useful...  Don't turn with character
+:[ARMO] 0	// Particle is armor piercing ( Base defense of 0 ) 
+:[BLOC] 0	// Particle can't be blocked by a shield
+:[ARRO] 0	// Particle only damages the character to whom it is attached
+:[TIME] 0	// Don't set invincibility time on hit
+:[PUSH] 0	// Don't push the enemy back on hit
+:[ZSPD] 20	// 0 to 20 or so, Allows up/down aiming at targets
+:[FSND] 2	// 0 to 15, Sound file to play when particle hits the floor
+:[WSND] 4	// 0 to 15, Sound file to play when particle hits a wall
+:[WEND] 1	// 0 or 1, Particle will end if it hits a wall
+:[DLEV] -10	// -50 to 50 or so, Dynamic light level change, *1000 notation
+:[DRAD] -10000	// -10000 to 10000 or so, Dynamic light radius change, *1000
+
+
+
+Character Expansions
+--------------------
+     Character expansions go in DATA.TXT files, and
+are followed by a single number.  Be sure to precede
+each with a colon, or it won't be read.
+:[ICON] 1	// Outdated?
+:[STUK] 0	// Don't allow particles to stick to character ( arrows, etc. )
+:[PACK] 0	// Don't let character be put in pack...  For large items
+:[VAMP] 1	// Character has no reflection
+:[DRAW] 1	// Character is always drawn, even if far away from camera
+:[RANG] 1	// Character is flagged as a ranged weapon
+:[EQUI] 1	// Character is flagged as equipment, For worn items
+:[SQUA] 1	// Character has a square base, Most are circular
+:[SHAD] 1	// Draw the shadow, even if partially transparent
+:[CKUR] 1	// Character can see kurses...  Used for the Healer
+:[SKIN] 2	// 0 to 3, Override the skin given in SPAWN.TXT, For imports
+:[DRES]	2	// 0 to 3, Flag a skin as "Dressy", May be used multiple times
+:[CONT] 100	// 0 to 100 or so, Set the AI content to this
+:[STAT] 50	// 0 to 100 or so, Set the AI state to this
+:[HIDE] 3	// 0 to 100 or so, Don't draw when the AI state is this
+:[GOLD] 200	// 0 to 9999, Set starting gold for the character
+:[LEVL] 0	// 0 to 5, Set the level to this+1, 0 is 1st level...
+:[PLAT] 1	// 0 or 1, Character can use platforms?
+:[RIPP] 0	// 0 or 1, Character makes ripples?
+
+
+
+Enchant Expansions
+------------------
+     Enchant expansions go in ENCHANT.TXT files, and
+are followed by a single number.  Be sure to precede
+each with a colon, or it won't be read.
+:[STAY] 1	// Stay around even after the owner has died
+:[AMOU] 8       // 0 to 15, Amount to spawn each time
+:[TIME] 25      // 1 to 100, Time until next spawn
+:[TYPE] 0       // 0 to 7, Type of particles to spawn
+:[FACE] 8192    // 0 to 65535, Facing add for each one...
+:[SEND] 0       // 0 to 15, The end sound
+:[SFRQ] 10000   // 8000 to 44100, The end sound frequency
+:[OVER] 1       // 1 to 100, Create a child overlay object with this state
+                // The overlay follows the target around, and is killed when
+                // the enchantment ends...
+
+
+Module Expansions
+-----------------
+     These go in the MENU.TXT files.  These
+aren't entered by hand, rather a character in
+the module must use the AddIDSZ function to
+automagically append it to the file.
+     Any given module may check another module
+to see if it has a given IDSZ, for hiding
+certain modules until a secret is found or
+the other module is beaten.

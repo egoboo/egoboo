@@ -1,0 +1,6 @@
+Message 0: You_made_it!_Barely_escaping_the_clutches_of_the_
+Message 1: angry_mummy,_you_now_have_a_fantastic_picture_you_
+Message 2: can_take_home_and_brag_about._But_your_adventures_in_
+Message 3: Lorule_isn't_over_yet!_You_can't_leave_without_a_picture_
+Message 4: of_the_king!_You_need_to_find_this_fella_so_that_you_can_
+Message 5: take_a_few_pictures_of_him._

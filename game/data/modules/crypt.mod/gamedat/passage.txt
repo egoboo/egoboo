@@ -1,0 +1,15 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 MasterZero:  62  62     62  62         F       F             F
+1 MasterOne:   62  62     62  62         F       F             F
+2 MasterTwo:   62  62     62  62         F       F             F
+
+3 IronDoor:    29  41     30  42         F       F             F
+4 IronDoor:    41  41     42  42         F       F             F
+
+5 LockDetect:  42  27     42  28         T       T             F
+6 Lock:        43  27     44  28         F       F             F
+
+7 IronDoor:    27   9     28  10         F       F             F

@@ -1,0 +1,61 @@
+// Create the character
+IfSpawned
+  KeepAction
+
+// Draw message
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+
+// Allow it to be cast
+IfStateIs0
+  IfUsed
+    tmpargument = 0
+    PlaySound
+
+    MakeNameKnown
+    MakeUsageKnown
+    tmpargument = 1
+    SetState
+    tmpargument = 20
+    SetContent
+    tmpargument = 30
+    SetReloadTime
+
+    // Spawn the damage particle
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 2
+    SpawnExactParticle
+
+// Shoot for a while
+IfStateIs1
+  GetContent
+  tmpargument = tmpargument - 1
+  SetContent
+  tmpx = tmpargument
+  tmpy = 0
+  IfXIsMoreThanY
+    // Spawn the effect particles
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 0
+    SpawnExactParticle
+  Else
+    tmpargument = 0
+    SetState
+
+// Return to spellbook, Do last!
+IfDropped
+  tmpargument = 0
+  SetContent
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+End

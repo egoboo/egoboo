@@ -1,0 +1,100 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned
+  MakeAmmoKnown
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+  tmpargument = 0
+  IfContentIs
+    tmpargument = 0              // Off
+    SetState
+  Else
+    tmpargument = 1              // On
+    SetState
+    tmpargument = 0
+    tmpdistance = SPAWNLAST          // Model vertex to attach to
+    SpawnAttachedParticle
+  tmpargument = 250
+  SetTime
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 5
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+IfDisaffirmed
+  tmpargument = 1
+  PlaySound
+  tmpargument = 0              // Off
+  SetState
+
+IfTakenOut
+  tmpargument = 0              // Off
+  SetState
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+// Make a sound
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+IfUsed
+  IfStateIs0
+    IfAmmoOut
+      tmpargument = 2
+      SendMessageNear
+    Else
+      tmpargument = 1              // On
+      SetState
+
+      tmpargument = 0
+      tmpdistance = SPAWNORIGIN          // Model vertex to attach to
+      SpawnAttachedParticle
+
+      tmpargument = 50  // one second
+      SetReloadTime
+
+      tmpargument = 200
+      SetTime
+  Else
+    tmpargument = 0              // Off
+    SetState
+    DisaffirmCharacter
+    tmpargument = 50  // one second
+    SetReloadTime
+
+// Burn some oil every now and then
+IfTimeOut
+  IfStateIs1
+    CostAmmo
+    IfAmmoOut
+      tmpargument = 0              // Off
+      SetState
+      DisaffirmCharacter
+      tmpargument = 2
+      SendMessageNear
+    tmpargument = 250
+    SetTime
+
+// All done
+End
+

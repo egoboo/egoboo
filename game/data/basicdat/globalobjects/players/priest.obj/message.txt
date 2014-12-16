@@ -1,0 +1,9 @@
+Message 0: Sister_%n_is_among_the_Angels...
+Message 1: 1_HATE
+Message 2: You_little!
+Message 3: %t_sacrificed_Sister_%n!
+Message 4: Sister_%n_needs_a_new_Guardian_Angel...
+Message 5: Even_Lord_Bishop_couldn't_help_Sister_%n...
+Message 6: Doodlenoggins,_eh?
+Message 7: Hello?
+Message 8: Anybody_home?

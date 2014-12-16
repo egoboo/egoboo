@@ -1,0 +1,100 @@
+IfSpawned
+  tmpargument = STATEWANDER
+  SetState
+  BecomeLeader
+
+IfKilled
+  tmpargument = 0
+  PlaySound
+
+  tmpargument = 1
+  SendMessageNear
+
+  // Beat the module
+  EnableExport
+  BeatModule
+  tmpargument = [BEAT]
+  AddIDSZ
+
+  // Victory tune
+  tmpargument = 14
+  PlayMusic
+
+  // Quest xp
+  tmpargument = 50
+  tmpdistance = EXPQUEST
+  GiveExperienceToGoodTeam
+
+IfAttacked
+  tmpargument = rand & 1 + 1
+  PlaySound
+
+  // Run away from attacker
+  SetTargetToWhoeverAttacked
+  tmpx = targetx
+  tmpy = targety
+  tmpdistance = - 800
+  tmpturn = targetturnto
+  Compass
+  ClearWaypoints
+  AddWaypoint
+
+IfTimeOut
+  tmpargument = 50
+  SetTime
+
+  // Respawn my spider children!
+  tmpargument = [SPID]
+  tmpdistance = BLAHDEAD + BLAHFRIENDS
+  SetTargetToWideBlahID
+    RespawnTarget
+    tmpargument = 2
+    SendMessageNear
+
+  // Just wandering around in our throne room doing spidey queen stuff
+  IfStateIsWander
+    SetTurnModeToVelocity
+    SetTargetToWideEnemy
+      tmpargument = 3
+      PlayFullSound
+      tmpargument = 0
+      SendMessageNear
+      tmpargument = STATECOMBAT
+      SetState
+      tmpargument = 25
+      tmpdistance = 0
+      PlayMusic
+    Else
+      tmpx = rand & 1023 + selfspawnx - 512
+      tmpy = rand & 1023 + selfspawny - 512
+      ClearWaypoints
+      AddWaypoint
+
+  // Pissed off!
+  IfStateIsCombat
+    tmpdistance = 128*10        // 10 tiles
+    SetTargetToDistantEnemy
+      CallForHelp               // summon any spiderlings
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = -600
+      tmpturn = rand
+      Compass
+      ClearWaypoints
+      AddWaypoint
+
+      // Attack!
+      SetTurnModeToWatchTarget
+      IfFacingTarget
+        tmpargument = ACTIONUA
+        DoAction
+
+    // Enemy ran away
+    Else
+      tmpargument = STATEWANDER
+      SetState
+      tmpargument = 7
+      tmpdistance = 0
+      PlayMusic
+
+End

@@ -1,0 +1,6 @@
+Message 0: %t_slew_the_%c!!!
+Message 1: The_%c_woke_up!!!
+Message 2: The_%c_ate_%t!!!
+Message 3: The_%c_ate_%t!!!
+Message 4: The_%c_looks_sick...
+Message 5: _

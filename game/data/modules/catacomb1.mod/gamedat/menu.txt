@@ -1,0 +1,25 @@
+// This file contains info for the module's menu description
+Module Name 				:Catacombs_Level_1
+Reference Directory 			:palice.mod
+Required reference IDSZ 		:[MAIN] 4
+Number of imports ( 0 to 4 ) 		:4
+Exporting ( TRUE or FALSE ) 		:FALSE
+Minimum players ( 1 to 4 ) 		:1
+Maximum players ( 1 to 4 ) 		:4
+Respawning ( ANYTIME, TRUE or FALSE ) 	:TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** ) 		:******
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:After_descending_into_the_ancient
+:royal_catacombs,_you_find
+:yourselves_within_a_large_chamber.
+:Ancient_magic_wards_the_entrance
+:to_the_dens_of_of_hatred._It_is
+:time_to_find_out_whether_the_search
+:for_the_Sporks_was_worth_it...
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] MAINQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

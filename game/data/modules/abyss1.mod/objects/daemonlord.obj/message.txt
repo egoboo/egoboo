@@ -1,0 +1,6 @@
+Message 0: The_mighty_%c_was_slain_by_%t!
+Message 1: The_gruesome_%c_was_betrayed!
+Message 2: %t_was_slaughtered_by_the_gruesome_%c!
+Message 3: %t_engaged_a_fearsome_%c!
+Message 4: A_%c_made_a_fool_of_itself...
+Message 5: CONGRATULATIONS!_Beat_the_Deamon_Lord_in_NORMAL_mode_or_harder_to_unlock_the_final_level!

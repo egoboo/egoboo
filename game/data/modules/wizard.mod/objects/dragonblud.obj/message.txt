@@ -1,0 +1,9 @@
+Message 0: %t_grabbed_%n.
+Message 1: The_%c_shattered!
+Message 2: %t_identified_the_potion._It_is_a_potion_of_Dragonblud!
+Message 3: %t_whipped_out_%n.
+Message 4: %t_cannot_use_this...
+Message 5: This_is_a_potion_with_Dragonblud._Can_be_used_as_ingredient...
+Message 6: A_potion_with_strange_purple_liquid...
+
+

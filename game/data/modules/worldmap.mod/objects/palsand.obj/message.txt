@@ -1,0 +1,5 @@
+Message 0: Dare_you_enter_%c?
+Message 1: Death_awaits_%t_in_%c
+Message 2: Press_ATTACK_to_enter_%c.
+Message 3: %t_has_found_%c.
+Message 4: palsand.mod

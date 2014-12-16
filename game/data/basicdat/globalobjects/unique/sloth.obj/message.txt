@@ -1,0 +1,6 @@
+Message 0: %t_grabbed_%n.
+Message 1: %n_was_destroyed!
+Message 2: %t_drew_%n.
+Message 3: The_%c_is_kursed!
+Message 4: %n_wont_go_in!
+

@@ -1,0 +1,6 @@
+Message 0: %t_slew_the_yicky_%c!!!
+Message 1: The_%c_went_down_the_drain...
+Message 2: With_%t's_final_blow,_the_land_of_Lorule_has_once_again_been_set
+Message 3: _right.__Or_has_it?__Your_return_to_Lord_Bishop's_castle_is_met_only
+Message 4: _with_tears...__His_Majesty_is_missing!__Now_the_task_falls_upon
+Message 5: _you,_a_proven_Adventurer,_to_find_the_lost_king...

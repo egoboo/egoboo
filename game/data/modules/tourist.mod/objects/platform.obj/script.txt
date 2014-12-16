@@ -1,0 +1,94 @@
+tmpx = selfz
+tmpy = 0
+
+IfXIsLessThanY
+  tmpargument = 10
+  SetFlyHeight
+
+// When Spawned
+IfSpawned
+  tmpargument = 10
+  SetFlyHeight                    // Randomize Z position
+  ClearWaypoints
+
+  // Platform near the start (TEAL)
+  tmpargument = 1
+  IfContentIs
+    tmpx = 44 < 7
+    tmpy = 37 < 7
+    AddWaypoint
+
+    tmpx = 49 < 7
+    tmpy = 35 < 7
+    AddWaypoint
+
+    tmpx = 51 < 7
+    tmpy = 37 < 7
+    AddWaypoint
+
+    tmpargument = 3
+    SetRedShift
+
+  // Second platform (BLUE)
+  tmpargument = 2
+  IfContentIs
+    tmpx = 51 < 7
+    tmpy = 37 < 7
+    AddWaypoint
+
+    tmpx = 57 < 7
+    tmpy = 38 < 7
+    AddWaypoint
+
+    tmpx = 56 < 7
+    tmpy = 39 < 7
+    AddWaypoint
+
+    tmpargument = 3
+    SetRedShift
+    SetGreenShift
+
+  // Third platform (PINK)
+  tmpargument = 3
+  IfContentIs
+    tmpx = 50 < 7
+    tmpy = 39 < 7
+    AddWaypoint
+
+    tmpx = 51 < 7
+    tmpy = 35 < 7
+    AddWaypoint
+
+    tmpx = 54 < 7
+    tmpy = 37 < 7
+    AddWaypoint
+
+    tmpargument = 3
+    SetBlueShift
+
+// Completely random platform AI
+tmpargument = 0
+
+IfContentIs
+  IfTimeOut
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand % 200
+    SetTime
+
+// Don't get stuck in other platforms
+IfBumped
+  // The key platform doesnt do this, unless the key falls off
+  tmpx = selfcontent
+  tmpy = 0
+  IfXIsMoreThanY
+    SetTargetToWhoeverBumped
+    tmpargument = [PLAT]
+    IfTargetHasID
+      tmpargument = rand & 63 + targetz - 32    // Fudge until success!
+      SetFlyHeight
+
+// All Done
+End

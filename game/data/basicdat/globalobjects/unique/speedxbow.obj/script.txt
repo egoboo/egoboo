@@ -1,0 +1,60 @@
+// ZZ> This function makes an item fall to the floor when spawned
+
+// Sparkle it magic
+IfHeld
+  tmpargument = YELLOW
+  SparkleIcon
+Else
+  UnsparkleIcon
+
+IfSpawned
+  MakeAmmoKnown
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 4
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+// Make it lie on floor
+IfDropped
+  KeepAction
+
+// Play the drop sound
+IfHitGround
+  tmpargument = 2
+  PlaySound
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+IfUsed
+  IfNameIsKnown
+    DoNothing
+  Else
+    tmpargument = 15
+    tmpdistance = EXPSECRET
+    GiveExperienceToTarget
+    MakeNameKnown
+  IfAmmoOut
+    tmpargument = 3
+    PlaySound
+
+// All done
+End
+

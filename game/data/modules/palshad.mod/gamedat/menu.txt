@@ -1,0 +1,27 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: Shadow_Palace
+Reference module ( Directory name or NONE )	: palwater.mod
+Required reference IDSZ ( or [NONE] )		: [MAIN] 1
+Number of imports ( 0 to 4 )                   	: 4
+Allow exporting of characters ( TRUE or FALSE ) 	: FALSE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 4
+Allow respawning ( ANYTIME, TRUE or FALSE )	: TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( *, **, ***, ****, or ***** )     		: ****
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:In_the_darklands_the_ancient
+:Shadow_Palace_is_hidden!
+:This_dreaded_place_of_evil_holds
+:the_most_unspeakable_evil_artifacts
+:waiting_for_foolish_adventurers
+:to_claim_them...
+:_
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[PRNT] worldmap.mod 42.5   34.5   0.0   
+:[TYPE] MAINQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

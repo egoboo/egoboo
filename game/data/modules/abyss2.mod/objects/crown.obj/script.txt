@@ -1,0 +1,27 @@
+// Become correct skin
+IfSpawned
+  GetContent
+  ChangeArmor
+
+// ZZ> This function makes an item fall to the floor when spawned
+IfHitGround                // Make a sound
+  tmpargument = 0
+  PlaySound
+
+// Tell them what they've won...
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    GetContent
+    SendMessageNear
+
+IfDropped
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    GetContent
+    tmpargument = tmpargument + 4
+    SendMessageNear
+
+// All done
+End
+

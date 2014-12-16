@@ -1,0 +1,6 @@
+Message 0: %t_picked_up_%n.
+Message 1: %n_was_smashed!
+Message 2: %t's_%c_is_%k...
+Message 3: The_%c_won't_go_in!
+Message 4: %t_took_out_%n.
+Message 5: Smite_thee!

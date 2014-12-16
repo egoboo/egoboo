@@ -1,0 +1,27 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: The_Crypt
+Reference module ( Directory name or NONE )	: bishopiacity.mod
+Required reference IDSZ ( or [NONE] )		: [CRYP] 1
+Number of imports ( 0 to 4 )			: 2
+Allow exporting of characters ( TRUE or FALSE ) : FALSE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 2
+Allow respawning ( TRUE or FALSE )		: TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( *, **, ***, ****, or ***** )     : ***
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:Sometime_ago_a_brave_healer
+:killed_an_evil_necromancer,
+:now_the_sorcerer_has_returned
+:as_an_undead_himself.
+:_
+:Enter_his_lair_and_slay_him
+:once_again..._
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] SIDEQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)
+

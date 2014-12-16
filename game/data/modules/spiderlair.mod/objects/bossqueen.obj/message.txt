@@ -1,0 +1,3 @@
+Message 0: Time_to_feed!
+Message 1: %n_has_been_slain_by_%t!
+Message 2: The_%t_came_back_to_life!

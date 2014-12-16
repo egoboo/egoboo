@@ -1,0 +1,64 @@
+**Character AI types**
+Charge and attack
+Flank then attack
+Scurry away from light (use chrlightturnleftright)
+Surround then attack
+Mind own business, but attack if enemy draws near
+Run away unless in a group
+Hide and wait for ambush
+Follow and protect another character
+Run around collecting items
+Run around collecting money
+Run around looking for smaller characters to eat
+Attack any enemy that enters rectangular territory
+Move randomly around territory
+Move randomly in area around another character
+Stay in one spot and spin around
+Stay in one spot and snipe enemies
+Follow favorite item
+Stay in one spot unless mounted
+Check out new character in territory, run away if attacked
+Move through waypoints, Stop at end
+Move through waypoints, Loop to first, Attack any nearby enemy, Resume
+Attack nearby character if it's in hate group, Even if on own team
+Run away from nearby character if it's in hate group
+Heals friends
+
+
+**Damage**
+Characters have preset resistances to each type of damage
+Eight or so damage types
+Every damage type can be reversed into healing, by character type
+  Holy damage (Heal spell) heals a human, hurts a skeleton
+Characters have a range of facings from which they are vulnerable
+  Triceratops can only be damaged from behind
+Characters may be invulnerable to attack in certain frames
+  Wait until the Watcher opens its eye
+  Mark invulnerable frames in MD2 with an I ( eg. DA00I )
+Characters may need to be hit by something else to go vulnerable
+  Hit the bug with a torch, then smack it with a good weapon
+Characters get walloped if they're in a magic weapon's hate group
+  Hit the Frost Gigas with a Giantslayer
+Characters get walloped if the weapon is in their vulnerability group
+  Poke the Werewolf with a Silver Spork
+Every Magic attachment adds another ID string, and has a Nullify ID
+  An ice sabre spell adds an ICE string and removes any FIRE attachments
+  A Cure poison spell removes all POIS attachments on a character
+Doors open when *ATTACKED* with a key of the correct type
+  Use vulnerability with a KY## ID string
+Each item has an attack animation set code ('S' for slash)
+Particles *CAN* damage characters, Important particles always get spawned
+  Remove unimportant particles to make room if necessary
+
+
+**Damage Types**
+Crush Damage	(Mace)
+Poke Damage	(Dagger)
+Slash Damage	(Sword)
+Evil Damage	(Poison)
+Holy Damage	(Healing Spell)
+Fire Damage	(Fireball)
+Ice Damage	(Ice Storm)
+Zap Damage	(Lightning Cone)
+
+Hate Wallop	(Giantslayer, Holy Bolt)

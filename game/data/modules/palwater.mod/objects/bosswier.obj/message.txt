@@ -1,0 +1,4 @@
+Message 0: %t_destroyed_the_%c!
+Message 1: The_%c_was_destroyed!
+Message 2: All_that_hard_work_and_you_forget_to_grab_the_Spork...
+Message 3: __C'mon,_%t!__Lord_Bishop_is_counting_on_you.

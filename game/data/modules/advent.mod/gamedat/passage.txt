@@ -1,0 +1,22 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 Deadend:     3  51      4  52          F       T             F
+1 Deadend:     53 7       54 8           F       T             F
+2 Door:        40 53      41 54          F       F             F
+3 Armor:       48 27      49 28          F       F             F
+4 Trog:        17 18      18 19          F       F             F
+5 MamaLeft:    24 25      25 26          F       F             F
+6 GoodiesOut:  29 15      30 16          F       F             F
+7 GoodiesIn:   29  6      30  7          F       F             F
+8 Gelfeet:     49 45      50 46          F       T             F
+9 Gelfeet:     59 51      60 52          F       T             F
+
+10MuseBoss:    2  2       20 18          T       T             F
+11MuseGel:     50 40      61 51          T       T             F
+12MuseTrog:    4  29      11 40          T       T             F
+
+13MuseBook:    22 8       31 14          T       T             F
+14MuseMouse:   50 22      61 33          T       T             F
+15MuseMimic:   16 34      23 41          T       T             F

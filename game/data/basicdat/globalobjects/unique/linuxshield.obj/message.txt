@@ -1,0 +1,4 @@
+Message 0: %t_found_a_Linuxian_Shield,_trust_Linux_to_defend!
+Message 1: Hah!_No_Windows_gain_the_benefits_of_Linux!
+Message 2: Pfft..._Linux_decided_to_leave_this_poor_OS...
+Message 3: Linux_accepts_Macintosh,_but_it_doesn't_give_you_100%.

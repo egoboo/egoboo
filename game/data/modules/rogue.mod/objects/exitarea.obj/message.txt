@@ -1,0 +1,9 @@
+Message 0: With_K'nife_close_behind,_you_easily_break_through_the_last_Cobol_
+Message 1: defenses.__Freedom_at_last!__As_a_reward,_K'nife_arranges_
+Message 2: for_one_of_his_cousins_to_join_you_in_your_quest_for_Lord_Bishop's_
+Message 3: head.__His_airship_should_be_arriving_shortly...
+Message 4: Nimbly_dodging_a_hail_of_arrows,_you_break_through_the_last_
+Message 5: Cobol_gate.__Freedom_at_last_for_%t!__Now_it's_time_to_hunt_down_
+Message 6: Lord_Bishop,_and_settle_the_score...
+Message 7: Impressed_with_your_looting_skills,_K'nife_offers_you_a_job_that_
+Message 8: could_earn_you_the_equipment_you_need_to_take_your_revenge!_

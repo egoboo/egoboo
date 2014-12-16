@@ -1,0 +1,79 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or a floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 MasterZero:  58  58     58  58         F       T             F
+1 MasterTroll: 58  58     58  58         F       F             F
+2 MasterPuzz:  58  58     58  58         F       F             F
+
+3 ShutDetect:  8   18     9   19         T       T             F
+4 Shut:        8   16     9   17         F       F             F
+
+5 ShutDetect:  14  8      15  9          T       T             F
+6 Shut:        16  8      17  9          F       F             F
+
+7 ShutDetect:  34  12     35  13         T       T             F
+8 Shut:        34  14     35  15         F       F             F
+
+9 ShutDetect:  42  8      43  9          T       T             F
+10Shut:        40  8      41  9          F       F             F
+
+11ShutDetect:  48  18     49  19         T       T             F
+12Shut:        50  18     51  19         F       F             F
+
+13ShutDetect:  56  10     57  11         T       T             F
+14Shut:        56  12     57  13         F       F             F
+
+15LockDetect:  22  13     23  13         T       T             F
+16Lock:        22  14     23  15         F       F             F
+
+17ShutDetect:  18  36     19  37         T       T             F
+18Shut:        16  36     17  37         F       F             F
+
+19ShutDetect:  59  59     59  59         T       T             F
+20Shut:        22  42     23  43         F       F             F
+
+21LockDetect:  43  27     43  28         T       T             F
+22Lock:        44  27     45  28         F       F             F
+
+23LockDetect:  43  33     43  34         T       T             F
+24Lock:        44  33     45  34         F       F             F
+
+25LockDetect:  43  39     43  40         T       T             F
+26Lock:        44  39     45  40         F       F             F
+
+27ShutDetect:  59  59     59  59         T       T             F
+28Shut:        32  52     33  53         F       F             F
+
+29DropDetect:  6   20     11  25         T       T             F
+30DropDetect:  32  6      37  11         T       T             F
+31TileSpawn:   43  17     46  20         T       T             F
+
+32LockDetect:  22  29     23  29         T       T             F
+33Lock:        22  30     23  31         F       F             F
+
+34MasterPuzz:  58  58     58  58         F       T             F
+
+35GnomePlate:  22  40     23  41         T       T             F
+36GnomePlate:  18  36     19  37         T       T             F
+37GnomePlate:  26  36     27  37         T       T             F
+38GnomePlate:  40  27     41  28         T       T             F
+39GnomePlate:  40  33     41  34         T       T             F
+40GnomePlate:  40  39     41  40         T       T             F
+
+41MusicCombat: 14  6      27  13         T       T             F
+42MusicCombat: 32  8      45  13         T       T             F
+43MusicCombat: 49  15     59  21         T       T             F
+44MusicCombat: 6   17     12  33         T       T             F
+45MusicCombat: 18  15     29  29         T       T             F
+46MusicCombat: 16  43     29  59         T       T             F
+47MusicCombat: 26  36     39  37         T       T             F
+
+48MusicSecret: 17  6      25  11         T       T             F
+49MusicSecret: 34  15     41  19         T       T             F
+50MusicSecret: 20  31     25  39         T       T             F
+51MusicSecret: 33  46     50  59         T       T             F
+
+52MasterScor:  58  58     58  58         F       F             F
+
+53 ModuleSecret:  7   7     10   10         T       T             F

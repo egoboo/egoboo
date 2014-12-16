@@ -1,0 +1,155 @@
+Overview
+--------
+    Each adventure for Egoboo is called
+a module ( .MOD ), and they are all contained
+in the MODULES directory.  Tucked away inside
+the .MOD directory is an OBJECTS directory
+that has lots of .OBJ subdirectories.  These
+are object profiles.
+    Each object profile defines a certain
+type of character for the game to use,
+and the game can create several characters
+from the same profile.  Characters may
+be items, vehicles, people, monsters,
+spells, whatever...  And they are all
+treated in very much the same way.
+    Each object has several components.
+There is a 3D triangle model, TRIS.MD2.
+There are up to four skins, TRIS?.BMP.
+Each skin should also have a matching icon,
+ICON?.BMP.  There are up to eight sounds,
+SOUND?.WAV.  There is an AI script, a
+general data file, a random name file, and
+a message file.  Finally, there are as
+many as four particle templates, which
+are the primary means of making spells.
+
+
+
+Making A New Object
+-------------------
+     Don't try.
+     Instead, change an old object to fit
+your needs.  Start with the closest thing
+you can find and go from there.
+     Objects that can be carried from module
+to module should only have one 32x32 skin,
+to save texture memory.  Use the
+BASICDAT\NULLICON.BMP file as a starting point
+in making the icon.
+     If your object is a stackable item
+( a potion for example ), then it should have
+unique IDSZ's to prevent items that are kinda
+similar from being stacked with it.
+     Each object needs a slot number, so
+make one up.  Egoboo will quit if 2 objects in
+the same module have the same slot, so check
+BASICDAT\SLOTUSED.TXT to find a good one.  If
+the module allows imports, slots 0 to 35 are
+reserved.  Start at 36.
+
+
+
+Making A New Module
+-------------------
+     Again, don't try.  Just take an existing
+module and change it around.  For example, copy
+PALSAND.MOD to PALCOOL.MOD and hack away at it.
+Use CARTMAN to edit the map, and PAINT and PUT
+to edit the TILE?.BMP files ( used for background ).
+     Make sure object slot 127 is used by
+BOOK.OBJ, otherwise spells will get all messed up.
+When working with CARTMAN, do the lighting last,
+as that data isn't saved with the map.
+     Most of the monsters and items that I made can
+be taken from module to module with little hassle.
+Most.  Some are rigged to open passages and do other
+funky stuff, so be careful ( BOSS*.OBJ always need
+tweaking, but others might too ).
+     Edit SPAWN.TXT to place monsters and items.
+In RTS modules, use ATEAM, BTEAM, CTEAM, DTEAM,
+ETEAM, FTEAM, GTEAM, and HTEAM for the players.
+Units on those teams are poofed if there isn't
+a player playing 'em...
+
+
+
+
+Changing the Source Code
+------------------------
+     Egoboo was written using Visual C++ 5.0, and the
+source code is included, so feel free to change it any
+way you please.  Hopefully, most changes can be made by
+simply changing data, but there are some things I just
+didn't have time for...
+     Egoboo's AI needs a working FindPath algorithm.  This
+would improve the AI 100%, but alas, I'm lazy.
+     Egoboo needs a random level generator.  I tried to
+standardize most of the tile sets, so it shouldn't be too
+difficult to do...
+     The vertex usage for the background mesh is poorly
+implemented, as it takes about 4x as much memory as
+necessary ( redundant vertices ).
+     The "enchant adds" get screwy at times because of the
+limits ( can't have -intelligence ).  Egoboo should recompute
+the entire thing instead of undoing the last add, but it
+doesn't seem to be a major problem.
+     Egoboo needs an OpenGL conversion.  My 3D card
+doesn't support GL, despite what the box says, so that's
+why I used Direct3D.  Please don't hate me.
+
+
+
+All About Particles
+-------------------
+     Particles are the little 2 dimensional
+images that are used for arrows, coins, explosions
+and a good deal of other things.  The
+BASICDAT/PARTICLE.BMP file shows all 256 images,
+while the PART?.TXT files determine how a particle
+behaves.  Please don't draw new images, because
+that will make things less portable.
+     Hopefully, most of the entries in the
+PART?.TXT files will be straight forward,
+but here are some tips:
+     0) Always start at zero.
+     1> A colon is needed before each
+        entry, just follow the format and
+        it'll be okay.
+     2> Don't rearrange the entries.
+     3> Use "Force Spawn" for particles
+        that do damage, but not for effect
+        particles ( smoke, blood )
+     4> Speed limit affects the Up/Down
+        velocity, and is used to make feathers
+        fall slowly and smoke rise.
+     5> Use "Facing Rate" to rotate the
+        subspawn facing.  Useful for
+        swirly effects, but stay clear of it
+        until you know what you're doing.
+        I think the potions use this...
+     6> "Time Before End" becomes "Animation
+        Cycles Before End" when "End After
+        Last Frame" is TRUE.  Makes sense,
+        huh?
+     7> If several dynamic light particles
+        are spawned by some other particle,
+        only the first one is really a light.
+     8> Some objects have attached particles
+        ( such as the torch ).  When the torch
+        is relit, it's called reaffirming
+        attached particles.
+     9) Don't start from scratch, copy the
+        closest thing that I already made
+        and go from there.
+
+
+
+When It Breaks...
+-----------------
+     Egoboo will break.  When it does, it
+usually logs the error somewhere in the
+BASICDAT directory.  ERRORLOG.TXT is for
+general errors, PARSEERR.TXT for scripting
+errors ( usually typos ), and NETLOG.TXT
+for network errors.

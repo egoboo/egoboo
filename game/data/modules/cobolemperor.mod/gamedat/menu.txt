@@ -1,0 +1,24 @@
+Module Name :The_COBOL_Emperor's_Palace
+Reference Directory :NONE
+Required reference IDSZ :[COBO] 0
+Number of imports ( 0 to 4 ) :4
+Exporting ( TRUE or FALSE ) :FALSE
+Minimum players ( 1 to 4 ) :1
+Maximum players ( 1 to 4 ) :4
+Respawning ( TRUE or FALSE ) :TRUE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( * to  ***** ) : ****
+
+// Module summary
+:A_COBOL_slave-lord_has_proclaimed
+:himself_the_Emperor_of_Lorule,
+:trying_to_recreate_the_great_COBOL
+:empire_that_was_destroyed_long_ago.
+:He_is_keeping_a_couple_of_tourists
+:hostage_inside_the_palace.
+:_
+:Free_the_hostages_and_kill_the_emperor.
+
+// IDZs
+:[TYPE] SIDEQUEST                //Module Type (MAINQUEST, SIDEQUEST or TOWN)
+

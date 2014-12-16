@@ -1,0 +1,26 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: Rainbow_Cars
+Reference module ( Directory name or NONE )	: palash.mod
+Required reference IDSZ ( or [NONE] )		: [BEAT]
+Number of imports ( 0 to 4 )                    : 4
+Allow exporting of characters ( TRUE or FALSE ) : TRUE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 4
+Allow respawning ( TRUE or FALSE )		: FALSE
+Is a RTS module (TRUE or FALSE)			      : FALSE
+Level rating ( *, **, ***, ****, or ***** )     : Unrated
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:For_funsies...
+:_
+:_
+:_
+:_
+:_
+:_
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[TYPE] FUN                //Module Type (MAINQUEST, SIDEQUEST or TOWN)

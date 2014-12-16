@@ -1,0 +1,17 @@
+Message 0: %n_was_butchered!
+Message 1: =%n=
+Message 2: Level_%X_%c
+Message 3: %t_let_%n_loose!
+Message 4: _STR:~%X~WIS:~%Y~JOY:~:(
+Message 5: _STR:~%X~WIS:~%Y~JOY:~:[
+Message 6: _STR:~%X~WIS:~%Y~JOY:~:]
+Message 7: _STR:~%X~WIS:~%Y~JOY:~:)
+Message 8: _INT:~%X~DEX:~%Y~EXP:~%d
+Message 9: This_tame_%c_belongs_to_%t.
+Message10: %t_picked_up_%n.
+Message11: %t_pulls_out_%n.
+Message12: %o_found_a_tame_%c!
+Message13: I'll_name_it_%n...
+Message14: %n_went_in_a_blud_rage!
+Message15: %n_is_no_longer_in_a_blud_rage...
+Message16: A_%c_fell_from_the_skies!

@@ -1,0 +1,4 @@
+Message 0: Dare_you_enter_%n?
+Message 1: Death_awaits_%t_in_%n
+Message 2: Press_ATTACK_to_enter_%n.
+Message 3: %t_has_found_%n.

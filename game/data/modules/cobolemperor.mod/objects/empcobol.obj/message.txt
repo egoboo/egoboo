@@ -1,0 +1,10 @@
+Message 0: %t_has_slain_%c_%n!
+Message 1: %c_%n_was_too_good_for_%g_own_health.
+Message 2: The_great_%c_%n_looks_better...
+Message 3: %t_stabbed_%c_in_the_back!
+Message 4: The_%c_is_no_longer_enraged...
+Message 5: The_%c_went_berserk!
+Message 6: %t_has_dealt_the_killing_blow_to_the_evil_Cobol_Emperor_%n
+Message 7: _and_put_an_end_to_his_evil_reign._The_Cobol_forces_are
+Message 8: _once_again_dispersing_into_chaotic_groups_when_their_leadership
+Message 9: _was_destroyed...

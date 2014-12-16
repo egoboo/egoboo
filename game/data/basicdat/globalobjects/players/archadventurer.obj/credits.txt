@@ -1,0 +1,8 @@
+Some new fun objects for Egoboo
+By: Zefz
+
+Zazazan
+---------
+This is an archmage hero class. This is what your
+wizard will turn into when completing the required module.
+There are actually 6 different orbs (powerful spellbooks)

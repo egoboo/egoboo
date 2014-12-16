@@ -1,0 +1,9 @@
+Message 0: %t_killed_%n.
+Message 1: %n_was_hit_from_behind!
+Message 2: _
+Message 3: _
+Message 4: _
+Message 5: _
+Message 6: _
+Message 7: %n_looks_better...
+Message 8: %n_was_backstabbed!
