@@ -3,7 +3,7 @@
 #---------------------
 # the source files
 
-EGO_SRC := ${wildcard ./*.c}
+EGO_SRC := ${wildcard ./src/game/*.c}
 EGO_OBJ := ${EGO_SRC:.c=.o}
 
 #---------------------
@@ -16,13 +16,13 @@ SDLCONF_L := $(shell ${SDL_CONF} --libs)
 #---------------------
 # the egolib configuration
 
-EGOLIB_L      := -L$../$(EGOLIB_DIR) -l$(EGOLIB_TARGET)
+EGOLIB_L      := ../egolib/$(EGOLIB_TARGET)
 
 #---------------------
 # the compiler options
 
-CC      := gcc-3
-INC     := -I.
+CC      := gcc
+INC     := -Isrc -I../egolib/src
 LDFLAGS := ${SDLCONF_L} ${EGOLIB_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -lGL -lGLU
 
 # use different options if the environmental variable PREFIX is defined
@@ -32,7 +32,13 @@ else
 	OPT := -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
 endif
 
-CFLAGS  := ${OPT} ${SDLCONF_C}
+
+define link_rule
+	libtool --mode=link \
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+endef
+
+CFLAGS  := ${INC} ${OPT} ${SDLCONF_C}
 
 #------------------------------------
 # definitions of the target projects
@@ -42,7 +48,7 @@ CFLAGS  := ${OPT} ${SDLCONF_C}
 all: $(EGO_TARGET)
 
 $(EGO_TARGET): ${EGO_OBJ} 
-	${CC} -o $@ $^ ${LDFLAGS} ${CFLAGS}
+	$(call link_rule)
 
 clean:
 	rm -f ${EGO_OBJ} $(EGO_TARGET)
