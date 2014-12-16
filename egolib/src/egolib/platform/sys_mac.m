@@ -25,8 +25,8 @@
 #import <Foundation/NSString.h>
 #include <sys/time.h>
 
-#include "system.h"
-#include "file_common.h" /* for NULL */
+#include "egolib/system.h"
+#include "egolib/file_common.h" /* for NULL */
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
