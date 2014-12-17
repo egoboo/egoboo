@@ -90,12 +90,12 @@ struct s_ui_Widget
     float         vwidth, vheight;
 };
 
-ego_bool ui_copyWidget( ui_Widget_t * pw2, ui_Widget_t * pw1 );
-ego_bool ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, float pixels );
-ego_bool ui_initWidget( ui_Widget_t * pw, ui_id_t id, struct s_Font * pfont, const char *text, oglx_texture_t *img, float x, float y, float width, float height );
-ego_bool ui_widgetAddMask( ui_Widget_t * pw, const BIT_FIELD mbits );
-ego_bool ui_widgetRemoveMask( ui_Widget_t * pw, const BIT_FIELD mbits );
-ego_bool ui_widgetSetMask( ui_Widget_t * pw, const BIT_FIELD mbits );
+bool ui_copyWidget( ui_Widget_t * pw2, ui_Widget_t * pw1 );
+bool ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, float pixels );
+bool ui_initWidget( ui_Widget_t * pw, ui_id_t id, struct s_Font * pfont, const char *text, oglx_texture_t *img, float x, float y, float width, float height );
+bool ui_widgetAddMask( ui_Widget_t * pw, const BIT_FIELD mbits );
+bool ui_widgetRemoveMask( ui_Widget_t * pw, const BIT_FIELD mbits );
+bool ui_widgetSetMask( ui_Widget_t * pw, const BIT_FIELD mbits );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ void ui_end( void );
 void ui_Reset( void );
 
 /// Pass input data from SDL to the ui
-ego_bool ui_handle_SDL_Event( SDL_Event *evt );
+bool ui_handle_SDL_Event( SDL_Event *evt );
 
 // Allow the ui to do work that needs to be done before and after each frame
 void ui_beginFrame( float deltaTime );

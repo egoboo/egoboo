@@ -44,15 +44,15 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static ego_bool scr_increment_pos( script_info_t * pself );
-static ego_bool scr_set_pos( script_info_t * pself, size_t position );
+static bool scr_increment_pos( script_info_t * pself );
+static bool scr_set_pos( script_info_t * pself, size_t position );
 
 static Uint8 scr_run_function( script_state_t * pstate, ai_state_t * pself, script_info_t *pscript );
 static void  scr_set_operand( script_state_t * pstate, Uint8 variable );
 static void  scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t * pscript );
 
-static ego_bool scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript );
-static ego_bool scr_run_function_call( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript );
+static bool scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript );
+static bool scr_run_function_call( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript );
 
 PROFILE_DECLARE( script_function )
 
@@ -62,12 +62,12 @@ static double _script_function_times[SCRIPT_FUNCTIONS_COUNT];
 static PRO_REF script_error_model = INVALID_PRO_REF;
 static const char * script_error_classname = "UNKNOWN";
 
-static ego_bool _scripting_system_initialized = ego_false;
+static bool _scripting_system_initialized = false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static ego_bool ai_state_free( ai_state_t * pself );
+static bool ai_state_free( ai_state_t * pself );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void scripting_system_begin( void )
             _script_function_times[cnt] = 0.0F;
         }
 
-        _scripting_system_initialized = ego_true;
+        _scripting_system_initialized = true;
     }
 }
 
@@ -119,7 +119,7 @@ void scripting_system_end( void )
         }
 #endif
 
-        _scripting_system_initialized = ego_false;
+        _scripting_system_initialized = false;
     }
 }
 
@@ -150,7 +150,7 @@ void scr_run_chr_script( const CHR_REF character )
     if ( pself->changed )
     {
         SET_BIT( pself->alert, ALERTIF_CHANGED );
-        pself->changed = ego_false;
+        pself->changed = false;
     }
 
     PROFILE_BEGIN_STRUCT( pself );
@@ -230,7 +230,7 @@ void scr_run_chr_script( const CHR_REF character )
     script_state__init( &my_state );
 
     // reset the ai
-    pself->terminate = ego_false;
+    pself->terminate = false;
     pscript->indent    = 0;
 
     // Run the AI Script
@@ -301,15 +301,15 @@ void scr_run_chr_script( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool scr_run_function_call( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript )
+bool scr_run_function_call( script_state_t * pstate, ai_state_t *pself, script_info_t *pscript )
 {
     Uint8  functionreturn;
 
     // check for valid pointers
-    if ( NULL == pstate || NULL == pself ) return ego_false;
+    if ( NULL == pstate || NULL == pself ) return false;
 
     // check for valid execution pointer
-    if ( pscript->position >= pscript->length ) return ego_false;
+    if ( pscript->position >= pscript->length ) return false;
 
     // Run the function
     functionreturn = scr_run_function( pstate, pself, pscript );
@@ -333,20 +333,20 @@ ego_bool scr_run_function_call( script_state_t * pstate, ai_state_t *pself, scri
         scr_set_pos( pscript, new_index );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_info_t * pscript )
+bool scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_info_t * pscript )
 {
     const char * variable;
     Uint32 var_value, operand_count, i;
 
     // check for valid pointers
-    if ( NULL == pstate || NULL == pscript ) return ego_false;
+    if ( NULL == pstate || NULL == pscript ) return false;
 
     // check for valid execution pointer
-    if ( pscript->position >= pscript->length ) return ego_false;
+    if ( pscript->position >= pscript->length ) return false;
 
     var_value = pscript->data[pscript->position] & VALUE_BITS;
 
@@ -393,7 +393,7 @@ ego_bool scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_i
     // go to the next opcode
     scr_increment_pos( pscript );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -406,11 +406,11 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
     Uint32 valuecode = pscript->data[pscript->position] & VALUE_BITS;
 
     // Assume that the function will pass, as most do
-    Uint8 returncode = ego_true;
+    Uint8 returncode = true;
     if ( MAX_OPCODE == valuecode )
     {
         log_message( "SCRIPT ERROR: scr_run_function() - model == %d, class name == \"%s\" - Unknown opcode found!\n", REF_TO_INT( script_error_model ), script_error_classname );
-        return ego_false;
+        return false;
     }
 
     // debug stuff
@@ -839,7 +839,7 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
                     // if none of the above, skip the line and log an error
                 default:
                     log_message( "SCRIPT ERROR: scr_run_function() - ai script \"%s\" - unhandled script function %d\n", pscript->name, valuecode );
-                    returncode = ego_false;
+                    returncode = false;
                     break;
             }
 
@@ -1537,48 +1537,48 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool scr_increment_pos( script_info_t * pscript )
+bool scr_increment_pos( script_info_t * pscript )
 {
-    if ( NULL == pscript ) return ego_false;
-    if ( pscript->position >= pscript->length ) return ego_false;
+    if ( NULL == pscript ) return false;
+    if ( pscript->position >= pscript->length ) return false;
 
     pscript->position++;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool scr_set_pos( script_info_t * pscript, size_t position )
+bool scr_set_pos( script_info_t * pscript, size_t position )
 {
-    if ( NULL == pscript ) return ego_false;
-    if ( position >= pscript->length ) return ego_false;
+    if ( NULL == pscript ) return false;
+    if ( position >= pscript->length ) return false;
 
     pscript->position = position;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool ai_state_get_wp( ai_state_t * pself )
+bool ai_state_get_wp( ai_state_t * pself )
 {
     // try to load up the top waypoint
 
-    if ( NULL == pself || !INGAME_CHR( pself->index ) ) return ego_false;
+    if ( NULL == pself || !INGAME_CHR( pself->index ) ) return false;
 
     pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ai_state_ensure_wp( ai_state_t * pself )
+bool ai_state_ensure_wp( ai_state_t * pself )
 {
     // is the current waypoint is not valid, try to load up the top waypoint
 
-    if ( NULL == pself || !INGAME_CHR( pself->index ) ) return ego_false;
+    if ( NULL == pself || !INGAME_CHR( pself->index ) ) return false;
 
-    if ( pself->wp_valid ) return ego_true;
+    if ( pself->wp_valid ) return true;
 
     return ai_state_get_wp( pself );
 }
@@ -1592,7 +1592,7 @@ void set_alerts( const CHR_REF character )
 
     chr_t      * pchr;
     ai_state_t * pai;
-    ego_bool at_waypoint;
+    bool at_waypoint;
 
     // invalid characters do not think
     if ( !INGAME_CHR( character ) ) return;
@@ -1611,7 +1611,7 @@ void set_alerts( const CHR_REF character )
     // is the current waypoint is not valid, try to load up the top waypoint
     ai_state_ensure_wp( pai );
 
-    at_waypoint = ego_false;
+    at_waypoint = false;
     if ( pai->wp_valid )
     {
         at_waypoint = ( ABS( pchr->pos.x - pai->wp[kX] ) < WAYTHRESH ) &&
@@ -1698,14 +1698,14 @@ void issue_special_order( Uint32 value, IDSZ idsz )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool ai_state_free( ai_state_t * pself )
+bool ai_state_free( ai_state_t * pself )
 {
-    if ( NULL == pself ) return ego_false;
+    if ( NULL == pself ) return false;
 
     // free any allocated data
     PROFILE_FREE_STRUCT( pself );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1755,11 +1755,11 @@ ai_state_t * ai_state_dtor( ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
+bool ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
 {
-    ego_bool retval;
+    bool retval;
 
-    if ( NULL == pai ) return ego_false;
+    if ( NULL == pai ) return false;
 
     // this function is only truely valid if there is no other order
     retval = HAS_NO_BITS( pai->alert, ALERTIF_ORDERED );
@@ -1772,40 +1772,40 @@ ego_bool ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ai_state_set_changed( ai_state_t * pai )
+bool ai_state_set_changed( ai_state_t * pai )
 {
     /// @author BB
     /// @details do something tricky here
 
-    ego_bool retval = ego_false;
+    bool retval = false;
 
-    if ( NULL == pai ) return ego_false;
+    if ( NULL == pai ) return false;
 
     if ( HAS_NO_BITS( pai->alert, ALERTIF_CHANGED ) )
     {
         SET_BIT( pai->alert, ALERTIF_CHANGED );
-        retval = ego_true;
+        retval = true;
     }
 
     if ( !pai->changed )
     {
-        pai->changed = ego_true;
-        retval = ego_true;
+        pai->changed = true;
+        retval = true;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
+bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 {
     /// @author BB
     /// @details bumping into a chest can initiate whole loads of update messages.
     ///     Try to throttle the rate that new "bump" messages can be passed to the ai
 
-    if ( NULL == pself ) return ego_false;
+    if ( NULL == pself ) return false;
 
-    if ( !INGAME_CHR( ichr ) ) return ego_false;
+    if ( !INGAME_CHR( ichr ) ) return false;
 
     // 5 bumps per second?
     if ( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + TARGET_UPS / 5 )
@@ -1815,7 +1815,7 @@ ego_bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
     }
     pself->bumplast = ichr;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------

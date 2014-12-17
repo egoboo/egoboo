@@ -41,18 +41,24 @@ device_list_t     InputDevices;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN input_settings_load_vfs_3( const char* szFilename )
+bool input_settings_load_vfs_3( const char* szFilename )
 {
     /// @author ZZ
     /// @details This function reads the controls.txt file, version 3
 
     TAG_STRING currenttag = EMPTY_CSTR;
-    int idevice, icontrol, iactual;
+#if 0
+    int iactual;
+#endif
+#if 0
+	int idevice;
+	int icontrol;
+#endif
     input_device_t * pdevice;
     vfs_FILE* fileread = NULL;
 
     // clear out all existing control data
-    for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
+    for ( size_t idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
         // clear the input control
         input_device_ctor( InputDevices.lst + idevice );
@@ -60,10 +66,10 @@ C_BOOLEAN input_settings_load_vfs_3( const char* szFilename )
     InputDevices.count = 0;
 
     fileread = vfs_openRead( szFilename );
-    if ( NULL == fileread ) return C_FALSE;
+    if ( NULL == fileread ) return false;
 
     // Read input for each player
-    for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
+    for ( size_t idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
         size_t count;
         int type;
@@ -87,7 +93,7 @@ C_BOOLEAN input_settings_load_vfs_3( const char* szFilename )
         else                                                 count = CONTROL_CAMERA + 1;
 
         //Read each input control button
-        for ( icontrol = CONTROL_BEGIN, iactual = CONTROL_BEGIN; icontrol < count; icontrol++ )
+        for ( size_t icontrol = CONTROL_BEGIN, iactual = CONTROL_BEGIN; icontrol < count; icontrol++ )
         {
             // version 3 does not have this control
             if ( icontrol == CONTROL_RIGHT_PACK ) continue;
@@ -110,7 +116,7 @@ C_BOOLEAN input_settings_load_vfs_3( const char* szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN input_settings_save_vfs_3( const char* szFilename )
+bool input_settings_save_vfs_3( const char* szFilename )
 {
     /// @author ZF
     /// @details This function saves all current game settings to "controls.txt"
@@ -124,7 +130,7 @@ C_BOOLEAN input_settings_save_vfs_3( const char* szFilename )
     if ( NULL == filewrite )
     {
         log_warning( "Could not save input settings (%s)!\n", szFilename );
-        return C_FALSE;
+        return false;
     }
 
     //Add version number
@@ -202,5 +208,5 @@ C_BOOLEAN input_settings_save_vfs_3( const char* szFilename )
     // All done
     vfs_close( filewrite );
 
-    return C_TRUE;
+    return true;
 }

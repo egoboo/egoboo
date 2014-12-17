@@ -216,7 +216,7 @@ GLuint oglx_texture_Convert( oglx_texture_t *ptex, SDL_Surface * image, Uint32 k
     ptex->base.width  = powerOfTwo( image->w );
 
     // Set up some parameters for the format of the oglx_texture_t
-    ptex->base_valid = C_TRUE;
+    ptex->base_valid = true;
     ptex->surface    = image;
     ptex->imgW       = image->w;
     ptex->imgH       = image->h;
@@ -224,7 +224,7 @@ GLuint oglx_texture_Convert( oglx_texture_t *ptex, SDL_Surface * image, Uint32 k
 
     //// use the following command to grab every possible texture attribute in OpenGL v1.4 for
     //// this texture. Useful for debugging
-    // ptex->base_valid = C_FALSE;
+    // ptex->base_valid = false;
     //oglx_grab_texture_state( tx_target, 0, ptex );
 
     return ptex->base.binding;
@@ -328,7 +328,7 @@ SDL_bool IMG_test_alpha_key( SDL_Surface * psurf, Uint32 key )
     Uint32     * ui32_ptr;
 
     // flags
-    C_BOOLEAN check_index = SDL_FALSE;
+    bool check_index = SDL_FALSE;
 
     if ( NULL == psurf ) return SDL_FALSE;
 

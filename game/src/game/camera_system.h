@@ -58,7 +58,7 @@ typedef void ( *renderer_ptr_t )( const camera_t *, const int render_list_index,
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-ego_bool    camera_system_is_started( void );
+bool    camera_system_is_started( void );
 
 egolib_rv camera_system_begin( int camera_count );
 egolib_rv camera_system_end( void );
@@ -86,5 +86,5 @@ camera_t *              camera_list_get_camera_index( ext_camera_list_t * plst, 
 ext_camera_t *          camera_list_get_ext_camera_index( ext_camera_list_t * plst, int index );
 int                     camera_list_find_target_index( ext_camera_list_t * plst, const CHR_REF itarget );
 
-ego_bool ext_camera_set_screen( ext_camera_t * ptr, float xmin, float ymin, float xmax, float ymax );
-ego_bool ext_camera_get_screen( ext_camera_t * pext, ego_frect_t * prect );
+bool ext_camera_set_screen( ext_camera_t * ptr, float xmin, float ymin, float xmax, float ymax );
+bool ext_camera_get_screen( ext_camera_t * pext, ego_frect_t * prect );

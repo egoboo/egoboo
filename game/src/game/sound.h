@@ -113,15 +113,15 @@ struct s_mix_ptr
 /// The global variables for the sound module
 struct s_snd_config
 {
-    ego_bool       soundvalid;           ///< Allow playing of sound?
+    bool       soundvalid;           ///< Allow playing of sound?
     Uint8        soundvolume;          ///< Volume of sounds played
 
-    ego_bool       musicvalid;           ///< Allow music and loops?
+    bool       musicvalid;           ///< Allow music and loops?
     Uint8        musicvolume;          ///< The sound volume of music
 
     int          maxsoundchannel;      ///< Max number of sounds playing at the same time
     int          buffersize;           ///< Buffer size set in setup.txt
-    ego_bool       highquality;          ///< Allow CD quality frequency sounds?
+    bool       highquality;          ///< Allow CD quality frequency sounds?
 };
 
 //--------------------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ extern snd_config_t snd;
 
 extern Mix_Chunk * g_wavelist[GSND_COUNT];      ///< All sounds loaded into memory
 
-extern ego_bool      musicinmemory;                          ///< Is the music loaded in memory?
+extern bool      musicinmemory;                          ///< Is the music loaded in memory?
 extern int         songplaying;                            ///< Current song that is playing
 extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   ///< This is a specific music file loaded into memory
 
@@ -139,12 +139,12 @@ extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   ///< This is a specif
 //--------------------------------------------------------------------------------------------
 // The global functions for the sound module
 
-ego_bool sound_system_initialize( void );
+bool sound_system_initialize( void );
 void   sound_system_restart( void );
 
 Mix_Chunk * sound_load_chunk_vfs( const char * szFileName );
 Mix_Music * sound_load_music( const char * szFileName );
-ego_bool      sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type );
+bool      sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type );
 
 int     sound_play_mix( fvec3_base_t pos, struct s_mix_ptr * pptr );
 int     sound_play_chunk_looped( const fvec3_base_t snd_pos, const Mix_Chunk * pchunk, const int loops, const CHR_REF object );
@@ -161,16 +161,16 @@ void    sound_stop_song( void );
 void    sound_load_global_waves_vfs( void );
 void    sound_load_all_music_sounds_vfs( void );
 
-ego_bool sound_system_download_from_config( snd_config_t * psnd, struct s_egoboo_config * pcfg );
+bool sound_system_download_from_config( snd_config_t * psnd, struct s_egoboo_config * pcfg );
 
-ego_bool looped_stop_object_sounds( const CHR_REF  ichr );
+bool looped_stop_object_sounds( const CHR_REF  ichr );
 void   looped_update_all_sound( void );
 
 void   sound_finish_sound( void );
 void   sound_free_chunk( Mix_Chunk * pchunk );
 
 int get_current_song_playing( void );
-ego_bool LoopedList_remove( int channel );
+bool LoopedList_remove( int channel );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

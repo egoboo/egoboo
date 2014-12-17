@@ -63,7 +63,7 @@ struct s_camera_players
 /// extended data for each camera
 struct s_ext_camera
 {
-    ego_bool           on;
+    bool           on;
     camera_players_t targets;
     ego_frect_t      screen;
 
@@ -79,8 +79,8 @@ static ext_camera_t * ext_camera_dtor( ext_camera_t * ptr );
 static ext_camera_t * ext_camera_reinit( ext_camera_t * ptr );
 static egolib_rv ext_camera_begin( ext_camera_t * pext, GLint * mode );
 static egolib_rv ext_camera_end( ext_camera_t * pext, GLint mode );
-static ego_bool ext_camera_free( ext_camera_t * ptr );
-static ego_bool ext_camera_update_projection( ext_camera_t * ptr );
+static bool ext_camera_free( ext_camera_t * ptr );
+static bool ext_camera_update_projection( ext_camera_t * ptr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ ext_camera_list_t * ext_camera_list_reinit( ext_camera_list_t * );
 // private variables
 //--------------------------------------------------------------------------------------------
 
-static ego_bool               _camera_system_initialized = ego_false;
+static bool               _camera_system_initialized = false;
 
 static ext_camera_list_t    _camera_lst;
 
@@ -162,14 +162,14 @@ ext_camera_t * ext_camera_dtor( ext_camera_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ext_camera_free( ext_camera_t * ptr )
+bool ext_camera_free( ext_camera_t * ptr )
 {
     renderlist_mgr_t * rmgr_ptr = NULL;
     dolist_mgr_t     * dmgr_ptr = NULL;
 
-    if ( NULL == ptr ) return ego_false;
+    if ( NULL == ptr ) return false;
 
-    if ( !ptr->on ) return ego_true;
+    if ( !ptr->on ) return true;
 
     // free any locked renderlist
     rmgr_ptr = gfx_system_get_renderlist_mgr( &( ptr->which ) );
@@ -187,7 +187,7 @@ ego_bool ext_camera_free( ext_camera_t * ptr )
         ptr->do_list = -1;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -200,11 +200,11 @@ ext_camera_t * ext_camera_reinit( ext_camera_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ext_camera_update_projection( ext_camera_t * ptr )
+bool ext_camera_update_projection( ext_camera_t * ptr )
 {
     float frustum_near, frustum_far, aspect_ratio;
 
-    if ( NULL == ptr ) return ego_false;
+    if ( NULL == ptr ) return false;
 
     //---- set the camera's projection matrix
     aspect_ratio = ( ptr->screen.xmax - ptr->screen.xmin ) / ( ptr->screen.ymax - ptr->screen.ymin );
@@ -216,13 +216,13 @@ ego_bool ext_camera_update_projection( ext_camera_t * ptr )
 
     camera_gluPerspective( &( ptr->which ), CAM_FOV, aspect_ratio, frustum_near, frustum_far );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ext_camera_set_screen( ext_camera_t * ptr, float xmin, float ymin, float xmax, float ymax )
+bool ext_camera_set_screen( ext_camera_t * ptr, float xmin, float ymin, float xmax, float ymax )
 {
-    if ( NULL == ptr ) return ego_false;
+    if ( NULL == ptr ) return false;
 
     // set the screen
     ptr->screen.xmin = xmin;
@@ -234,32 +234,32 @@ ego_bool ext_camera_set_screen( ext_camera_t * ptr, float xmin, float ymin, floa
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ext_camera_get_screen( ext_camera_t * pext, ego_frect_t * prect )
+bool ext_camera_get_screen( ext_camera_t * pext, ego_frect_t * prect )
 {
     // a NULL camera is an error
-    if ( NULL == pext ) return ego_false;
+    if ( NULL == pext ) return false;
 
     // an invalid camera gives "nothing"
     if ( !pext->on )
     {
         BLANK_STRUCT_PTR( prect );
-        return ego_false;
+        return false;
     }
 
     // a NULL prect is an accident
-    if ( NULL == prect ) return ego_true;
+    if ( NULL == prect ) return true;
 
     // copy the data
     memmove( prect, &( pext->screen ), sizeof( *prect ) );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
 // INITIALIZATION
 //--------------------------------------------------------------------------------------------
 
-ego_bool camera_system_is_started( void )
+bool camera_system_is_started( void )
 {
     return _camera_system_initialized;
 }
@@ -281,7 +281,7 @@ egolib_rv camera_system_begin( int camera_count )
 
         // we're initialized.
         // !set this here, or bad things happen!
-        _camera_system_initialized = ego_true;
+        _camera_system_initialized = true;
 
         // reset all the cameras
         camera_system_init( camera_count );
@@ -298,7 +298,7 @@ egolib_rv camera_system_end( void )
         // de-construct the cameras
         ext_camera_list_dtor( &_camera_lst );
 
-        _camera_system_initialized = ego_false;
+        _camera_system_initialized = false;
     }
 
     return !_camera_system_initialized ? rv_success : rv_fail;
@@ -352,7 +352,7 @@ egolib_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam )
     pcam->do_list = dolist_mgr_get_free_idx( dmgr_ptr );
 
     // turn the camera on
-    pcam->on = ego_true;
+    pcam->on = true;
 
     return pcam->on ? rv_success : rv_fail;
 }
@@ -411,7 +411,7 @@ egolib_rv _camera_system_end_camera_ptr( ext_camera_t * pcam )
     }
 
     // turn the camera off
-    pcam->on = ego_false;
+    pcam->on = false;
 
     // reset the camera targets
     pcam->targets.count = 0;
@@ -714,7 +714,7 @@ egolib_rv _camera_system_autoformat_cameras( int cameras )
     static const int border = 1;
 
     float  aspect_ratio;
-    ego_bool widescreen;
+    bool widescreen;
 
     ext_camera_t * pcam;
     int cam_count;
@@ -1006,7 +1006,7 @@ egolib_rv _camera_system_autoset_targets( void )
 {
     // spread the targets out over all the cameras
 
-    int cnt, target_count;
+    int target_count;
     ext_camera_t * pcam, * pcam_end;
 
     if ( !camera_system_is_started() )
@@ -1028,7 +1028,7 @@ egolib_rv _camera_system_autoset_targets( void )
     if ( pcam < pcam_end )
     {
         // put all the valid players into camera 0
-        for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+        for ( size_t cnt = 0; cnt < MAX_PLAYER; cnt++ )
         {
             player_t * ppla;
 
@@ -1078,7 +1078,7 @@ egolib_rv _camera_system_autoset_targets( void )
     {
         // still not enough things to track for the number of cameras.
         // should not happen unless I am messing with the camera code...
-        for ( cnt = 0; cnt < StatusList.count && pcam < pcam_end; cnt++ )
+        for ( size_t cnt = 0; cnt < StatusList.count && pcam < pcam_end; cnt++ )
         {
             chr_t * pchr;
             CHR_REF blah;
@@ -1189,20 +1189,22 @@ ext_camera_list_t * ext_camera_list_reinit( ext_camera_list_t * plst )
 //--------------------------------------------------------------------------------------------
 int camera_list_find_target_index( ext_camera_list_t * plst, const CHR_REF itarget )
 {
+#if 0
     int cnt, tnc;
+#endif
     int retval;
     ext_camera_t * pext;
 
     if ( NULL == plst || !VALID_CHR_RANGE( itarget ) ) return -1;
 
     retval = -1;
-    for ( cnt = 0; cnt < MAX_CAMERAS; cnt++ )
+    for ( size_t cnt = 0; cnt < MAX_CAMERAS; cnt++ )
     {
         pext = plst->lst + cnt;
 
         if ( pext->on )
         {
-            for ( tnc = 0; tnc < pext->targets.count; tnc++ )
+            for ( size_t tnc = 0; tnc < pext->targets.count; tnc++ )
             {
                 if ( itarget == pext->targets.who[tnc] )
                 {

@@ -35,13 +35,16 @@
 #include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN input_settings_load_vfs_2( const char* szFilename )
+bool input_settings_load_vfs_2( const char* szFilename )
 {
     /// @author ZZ
     /// @details This function reads the controls.txt file, version 2
 
     TAG_STRING currenttag = EMPTY_CSTR;
-    int idevice, icontrol;
+	int idevice;
+#if 0
+	int icontrol;
+#endif
     input_device_t * pdevice;
     vfs_FILE* fileread = NULL;
 
@@ -54,14 +57,17 @@ C_BOOLEAN input_settings_load_vfs_2( const char* szFilename )
     InputDevices.count = 0;
 
     fileread = vfs_openRead( szFilename );
-    if ( NULL == fileread ) return C_FALSE;
+    if ( NULL == fileread ) return false;
 
     // Read input for each player
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
+#if 0
         size_t count;
+#endif
+#if 0
         int type;
-
+#endif
         pdevice = InputDevices.lst + idevice;
 
         // figure out how we move
@@ -71,17 +77,19 @@ C_BOOLEAN input_settings_load_vfs_2( const char* szFilename )
         }
 
         // get the input device type from the tag
-        type = translate_string_to_input_type( currenttag );
+		int type;
+		type = translate_string_to_input_type( currenttag );
 
         // set the device type based on the control name
         input_device_init( pdevice, type );
 
         //Find out how many fields we are to read
+		size_t count;
         if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type ) count = CONTROL_COMMAND_COUNT;
         else                                                 count = CONTROL_CAMERA + 1;
 
         //Read each input control button
-        for ( icontrol = CONTROL_BEGIN; icontrol < count; icontrol++ )
+        for ( size_t icontrol = CONTROL_BEGIN; icontrol < count; icontrol++ )
         {
             if ( vfs_get_next_line( fileread, currenttag, SDL_arraysize( currenttag ) ) )
             {
@@ -98,7 +106,7 @@ C_BOOLEAN input_settings_load_vfs_2( const char* szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN input_settings_save_vfs_2( const char* szFilename )
+bool input_settings_save_vfs_2(const char* szFilename)
 {
     /// @author ZF
     /// @details This function saves all current game settings to "controls.txt"
@@ -112,7 +120,7 @@ C_BOOLEAN input_settings_save_vfs_2( const char* szFilename )
     if ( NULL == filewrite )
     {
         log_warning( "Could not save input settings (%s)!\n", szFilename );
-        return C_FALSE;
+        return false;
     }
 
     //Add version number
@@ -189,5 +197,5 @@ C_BOOLEAN input_settings_save_vfs_2( const char* szFilename )
     // All done
     vfs_close( filewrite );
 
-    return C_TRUE;
+    return true;
 }

@@ -38,7 +38,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static ego_bool animate_tile( ego_mesh_t * pmesh, Uint32 itile );
+static bool animate_tile( ego_mesh_t * pmesh, Uint32 itile );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ void animate_all_tiles( ego_mesh_t * pmesh )
 {
     Uint32 cnt, itile;
     Uint32 tile_count, anim_count;
-    ego_bool small_tile_update, big_tile_update;
+    bool small_tile_update, big_tile_update;
 
     if ( NULL == pmesh ) return;
 
@@ -71,7 +71,7 @@ void animate_all_tiles( ego_mesh_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool animate_tile( ego_mesh_t * pmesh, Uint32 itile )
+bool animate_tile( ego_mesh_t * pmesh, Uint32 itile )
 {
     /// @author BB
     /// @details animate a given tile
@@ -84,14 +84,14 @@ ego_bool animate_tile( ego_mesh_t * pmesh, Uint32 itile )
     // do nothing if the tile is not animated
     if ( 0 == ego_mesh_test_fx( pmesh, itile, MAPFX_ANIM ) )
     {
-        return ego_true;
+        return true;
     }
 
     // grab a pointer to the tile
     ptile = ego_mesh_get_ptile( pmesh, itile );
     if ( NULL == ptile )
     {
-        return ego_false;
+        return false;
     }
 
     image = TILE_GET_LOWER_BITS( ptile->img ); // Tile image
@@ -538,11 +538,12 @@ void animate_tiles( void )
 {
     /// @author ZZ
     /// @details This function changes the animated tile frame
-
+#if 0
     int cnt, tnc;
+#endif
     animtile_instance_t * patile;
 
-    for ( cnt = 0; cnt < 2; cnt ++ )
+    for ( size_t cnt = 0; cnt < 2; cnt ++ )
     {
         // grab the tile data
         patile = animtile + cnt;
@@ -554,7 +555,7 @@ void animate_tiles( void )
         patile->frame_add_old = patile->frame_add;
 
         // cycle through all frames since the last time
-        for ( tnc = patile->frame_update_old + 1; tnc <= true_frame; tnc++ )
+        for ( Uint32 tnc = patile->frame_update_old + 1; tnc <= true_frame; tnc++ )
         {
             if ( 0 == ( tnc & patile->update_and ) )
             {

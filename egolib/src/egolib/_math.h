@@ -24,8 +24,46 @@
 
 #include <math.h>
 #include <float.h>
+#include <algorithm>
 
 #include "egolib/typedef.h"
+
+#if !defined(MIN)
+	#define MIN(x,y) std::min((x),(y)) 
+	#if 0
+		#define MIN(x, y)  LAMBDA((x) > (y), y, x )
+	#endif
+#endif
+
+#if !defined(MAX)
+	#define MAX(x,y) std::max((x),(y))
+	#if 0
+		#define MAX(x, y)  LAMBDA((x) > (y), x, y )
+	#endif
+#endif
+
+/**
+ * @brief
+ *	Clip a value.
+ * @param _value
+ *	the value
+ * @param _minimum
+ *	the minimum
+ * @param _maximum
+ *	the maximum
+ * @return
+ *	the clipped value
+ */
+template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& _maximum)
+{
+	return std::min(std::max(_value, _minimum), _maximum);
+}
+
+#if 0
+#if !defined(CLIP)
+	#define CLIP(VAL,VMIN,VMAX) std::min(std::max(VAL,VMIN),VMAX)
+#endif
+#endif
 
 #if defined(__cplusplus)
 extern "C"
@@ -149,14 +187,6 @@ extern "C"
 #    define SGN(X)  LAMBDA( 0 == (X), 0, LAMBDA( (X) > 0, 1, -1) )
 #endif
 
-#if !defined(MIN)
-#    define MIN(x, y)  LAMBDA((x) > (y), y, x )
-#endif
-
-#if !defined(MAX)
-#    define MAX(x, y)  LAMBDA((x) > (y), x, y )
-#endif
-
 #if !defined(SQR)
 #    define SQR(A) ((A)*(A))
 #endif
@@ -195,10 +225,6 @@ extern "C"
 
 #if !defined(ATAN2)
 #    define ATAN2(A, B) ((float)atan2((float)(A), (float)(B)))
-#endif
-
-#if !defined(CLIP)
-#    define CLIP(VAL,VMIN,VMAX) MIN(MAX(VAL,VMIN),VMAX)
 #endif
 
 #if !defined(SWAP)

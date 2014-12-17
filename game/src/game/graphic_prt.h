@@ -67,10 +67,10 @@ void prt_set_texture_params( const TX_REF itex );
 /// All the data necessary to diaplay a partile
 struct s_prt_instance
 {
-    ego_bool valid;                ///< is the infor in this struct valid?
+    bool valid;                ///< is the infor in this struct valid?
 
     // graphical optimizations
-    ego_bool         indolist;     ///< Has it been added yet?
+    bool         indolist;     ///< Has it been added yet?
 
     // basic info
     Uint8    type;               ///< particle type
@@ -98,7 +98,7 @@ struct s_prt_instance
     float    falpha;             ///< current alpha
 
     // pre-compute some values for the reflected particle posisions
-    ego_bool  ref_valid;
+    bool  ref_valid;
     fvec3_t ref_up;
     fvec3_t ref_right;
     fvec3_t ref_pos;

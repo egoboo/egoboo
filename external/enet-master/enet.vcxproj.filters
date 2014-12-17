@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="Windows-1252"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\callbacks.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\compress.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\host.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\list.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\packet.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\peer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\protocol.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\unix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\win32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{98EDB225-48DB-4E2F-955F-82630A543871}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -121,17 +121,17 @@ EXTERN float           stabilized_game_ups_weight EQ( STABILIZED_COVER );
 /// Timers
 EXTERN Uint32          outofsync   EQ( 0 );
 
-EXTERN ego_bool          pickedmodule_ready EQ( ego_false ); ///< Is there a new picked module?
+EXTERN bool          pickedmodule_ready EQ( false ); ///< Is there a new picked module?
 EXTERN int             pickedmodule_index EQ( -1 );     ///< The module index number
 EXTERN STRING          pickedmodule_path;               ///< The picked module's full path name
 EXTERN STRING          pickedmodule_name;               ///< The picked module's short name
 EXTERN STRING          pickedmodule_write_path;         ///< The picked module's path name relative to the userdata directory
 
 //HUD
-EXTERN ego_bool          timeron        EQ( ego_false );        ///< Game timer displayed?
+EXTERN bool          timeron        EQ( false );        ///< Game timer displayed?
 EXTERN Uint32          timervalue     EQ( 0 );             ///< Timer time ( 50ths of a second )
 EXTERN int             wraptolerance  EQ( 80 );            ///< Status bar
-EXTERN ego_bool          fpson          EQ( ego_true );         ///< Show FPS?
+EXTERN bool          fpson          EQ( true );         ///< Show FPS?
 
 /// EWWWW. GLOBALS ARE EVIL.
 
@@ -142,7 +142,7 @@ EXTERN ego_bool          fpson          EQ( ego_true );         ///< Show FPS?
 
 struct s_local_stats
 {
-    ego_bool  noplayers;          ///< Are there any local players?
+    bool  noplayers;          ///< Are there any local players?
     int     player_count;
 
     float   grog_level;
@@ -154,7 +154,7 @@ struct s_local_stats
     float   seekurse_level;
     float   listening_level;    ///< Players with listen skill?
 
-    ego_bool  allpladead;         ///< Have players died?
+    bool  allpladead;         ///< Have players died?
     int     revivetimer;        ///< Cooldown to respawn
 
     //ESP
@@ -176,25 +176,25 @@ struct s_ego_process
     double frameDuration;
     int    menuResult;
 
-    ego_bool was_active;
-    ego_bool escape_requested, escape_latch;
+    bool was_active;
+    bool escape_requested, escape_latch;
 
     egolib_timer_t loop_timer;
 
-    ego_bool free_running_latch_requested;
-    ego_bool free_running_latch;
+    bool free_running_latch_requested;
+    bool free_running_latch;
 
     char * argv0;
 };
 
 void ego_init_SDL_base( void );
 
-EXTERN ego_bool screenshot_requested EQ( ego_false );
+EXTERN bool screenshot_requested EQ( false );
 
-EXTERN ego_bool single_frame_mode EQ( ego_false );
-EXTERN ego_bool single_frame_keyready EQ( ego_true );
-EXTERN ego_bool single_frame_requested EQ( ego_false );
-EXTERN ego_bool single_update_requested EQ( ego_false );
+EXTERN bool single_frame_mode EQ( false );
+EXTERN bool single_frame_keyready EQ( true );
+EXTERN bool single_frame_requested EQ( false );
+EXTERN bool single_update_requested EQ( false );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

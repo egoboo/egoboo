@@ -27,9 +27,9 @@
 #include "egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN egolib_throttle_reset( egolib_throttle_t * pthrottle )
+bool egolib_throttle_reset( egolib_throttle_t * pthrottle )
 {
-    if ( NULL == pthrottle ) return C_FALSE;
+    if ( NULL == pthrottle ) return false;
 
     pthrottle->ticks_stt = SDL_GetTicks();
     pthrottle->ticks_lst = pthrottle->ticks_stt;
@@ -38,18 +38,18 @@ C_BOOLEAN egolib_throttle_reset( egolib_throttle_t * pthrottle )
     pthrottle->time_lst = 0;
     pthrottle->time_now = 0;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN egolib_throttle_update( egolib_throttle_t * pthrottle )
+bool egolib_throttle_update( egolib_throttle_t * pthrottle )
 {
-    if ( NULL == pthrottle ) return C_FALSE;
+    if ( NULL == pthrottle ) return false;
 
     if ( -1 == pthrottle->ticks_stt )
     {
         egolib_throttle_reset( pthrottle );
-        return C_FALSE;
+        return false;
     }
 
     pthrottle->ticks_lst = pthrottle->ticks_now;
@@ -58,27 +58,27 @@ C_BOOLEAN egolib_throttle_update( egolib_throttle_t * pthrottle )
     pthrottle->time_lst  = pthrottle->time_now;
     pthrottle->time_now += pthrottle->ticks_now - pthrottle->ticks_lst;
 
-    return C_TRUE;
+    return true;
 
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN egolib_throttle_update_1( egolib_throttle_t * pthrottle, int granularity )
+bool egolib_throttle_update_1( egolib_throttle_t * pthrottle, int granularity )
 {
     int ticks, diff;
 
-    if ( NULL == pthrottle ) return C_FALSE;
+    if ( NULL == pthrottle ) return false;
 
     if ( -1 == pthrottle->ticks_stt )
     {
         egolib_throttle_reset( pthrottle );
-        return C_FALSE;
+        return false;
     }
 
     ticks = SDL_GetTicks();
 
     diff  = ticks - pthrottle->ticks_lst;
-    if ( diff < granularity ) return C_FALSE;
+    if ( diff < granularity ) return false;
 
     pthrottle->ticks_lst = pthrottle->ticks_now;
     pthrottle->ticks_now = ticks;
@@ -86,18 +86,18 @@ C_BOOLEAN egolib_throttle_update_1( egolib_throttle_t * pthrottle, int granulari
     pthrottle->time_lst  = pthrottle->time_now;
     pthrottle->time_now += diff;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN egolib_throttle_update_diff( egolib_throttle_t * pthrottle, int diff )
+bool egolib_throttle_update_diff( egolib_throttle_t * pthrottle, int diff )
 {
-    if ( NULL == pthrottle ) return C_FALSE;
+    if ( NULL == pthrottle ) return false;
 
     if ( -1 == pthrottle->ticks_stt )
     {
         egolib_throttle_reset( pthrottle );
-        return C_FALSE;
+        return false;
     }
 
     // let the ticks proceed as normal
@@ -108,5 +108,5 @@ C_BOOLEAN egolib_throttle_update_diff( egolib_throttle_t * pthrottle, int diff )
     pthrottle->time_lst  = pthrottle->time_now;
     pthrottle->time_now += diff;
 
-    return C_TRUE;
+    return true;
 }

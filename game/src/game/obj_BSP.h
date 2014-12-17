@@ -55,11 +55,11 @@ struct s_obj_BSP
 
 #define OBJ_BSP_INIT_VALS { 0, BSP_TREE_INIT_VALS }
 
-ego_bool obj_BSP_ctor( obj_BSP_t * pbsp, int dim, const struct s_mpd_BSP * pmesh_bsp );
-ego_bool obj_BSP_dtor( obj_BSP_t * pbsp );
+bool obj_BSP_ctor( obj_BSP_t * pbsp, int dim, const struct s_mpd_BSP * pmesh_bsp );
+bool obj_BSP_dtor( obj_BSP_t * pbsp );
 
-ego_bool obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth );
-ego_bool obj_BSP_free( obj_BSP_t * pbsp );
+bool obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth );
+bool obj_BSP_free( obj_BSP_t * pbsp );
 
 int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const struct s_egolib_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
@@ -76,17 +76,17 @@ extern obj_BSP_t prt_BSP_root;
 void obj_BSP_system_begin( struct s_mpd_BSP * pBSP );
 void obj_BSP_system_end( void );
 
-ego_bool chr_BSP_insert( struct s_chr * pchr );
-ego_bool chr_BSP_fill( void );
-ego_bool chr_BSP_clear( void );
-ego_bool chr_BSP_can_collide( BSP_leaf_t * pleaf );
-ego_bool chr_BSP_is_visible( BSP_leaf_t * pleaf );
+bool chr_BSP_insert( struct s_chr * pchr );
+bool chr_BSP_fill( void );
+bool chr_BSP_clear( void );
+bool chr_BSP_can_collide( BSP_leaf_t * pleaf );
+bool chr_BSP_is_visible( BSP_leaf_t * pleaf );
 
-ego_bool prt_BSP_insert( struct s_prt_bundle * pbdl_prt );
-ego_bool prt_BSP_fill( void );
-ego_bool prt_BSP_clear( void );
-ego_bool prt_BSP_can_collide( BSP_leaf_t * pleaf );
-ego_bool prt_BSP_is_visible( BSP_leaf_t * pleaf );
+bool prt_BSP_insert( struct s_prt_bundle * pbdl_prt );
+bool prt_BSP_fill( void );
+bool prt_BSP_clear( void );
+bool prt_BSP_can_collide( BSP_leaf_t * pleaf );
+bool prt_BSP_is_visible( BSP_leaf_t * pleaf );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

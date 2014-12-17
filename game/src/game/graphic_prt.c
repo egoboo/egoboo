@@ -104,8 +104,8 @@ struct s_prt_registry_entity
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static gfx_rv prt_instance_update( const camera_t * pcam, const PRT_REF particle, Uint8 trans, ego_bool do_lighting );
-static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, ego_bool do_reflect );
+static gfx_rv prt_instance_update( const camera_t * pcam, const PRT_REF particle, Uint8 trans, bool do_lighting );
+static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool do_reflect );
 static int  cmp_prt_registry_entity( const void * vlhs, const void * vrhs );
 
 static void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_offset );
@@ -115,7 +115,7 @@ static void render_prt_bbox( prt_bundle_t * pbdl_prt );
 
 static gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pinst, prt_t * pprt );
 static fmat_4x4_t prt_instance_make_matrix( prt_instance_t * pinst );
-static gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, ego_bool do_lighting );
+static gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, bool do_lighting );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
     if ( SPRITE_SOLID != pprt->type ) return gfx_fail;
 
     // billboard for the particle
-    calc_billboard_verts( vtlist, pinst, pinst->size, ego_false );
+    calc_billboard_verts( vtlist, pinst, pinst->size, false );
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
@@ -234,7 +234,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT );
     {
-        ego_bool draw_particle;
+        bool draw_particle;
         GLXvector4f particle_color;
 
         // don't write into the depth buffer (disable glDepthMask for transparent objects)
@@ -247,7 +247,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
         // draw draw front and back faces of polygons
         oglx_end_culling();    // ENABLE_BIT
 
-        draw_particle = ego_false;
+        draw_particle = false;
         if ( SPRITE_SOLID == pprt->type )
         {
             // do the alpha blended edge ("anti-aliasing") of the solid particle
@@ -267,7 +267,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
             pinst->texture_ref = TX_PARTICLE_TRANS;
             oglx_texture_Bind( TxList_get_valid_ptr( pinst->texture_ref ) );
 
-            draw_particle = ego_true;
+            draw_particle = true;
         }
         else if ( SPRITE_LIGHT == pprt->type )
         {
@@ -318,7 +318,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
 
         if ( draw_particle )
         {
-            calc_billboard_verts( vtlist, pinst, pinst->size, ego_false );
+            calc_billboard_verts( vtlist, pinst, pinst->size, false );
 
             GL_DEBUG( glColor4fv )( particle_color );             // GL_CURRENT_BIT
 
@@ -379,7 +379,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
     {
         ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT );
         {
-            ego_bool draw_particle;
+            bool draw_particle;
             GLXvector4f particle_color;
 
             // don't write into the depth buffer (disable glDepthMask for transparent objects)
@@ -392,7 +392,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
             // draw draw front and back faces of polygons
             oglx_end_culling();    // ENABLE_BIT
 
-            draw_particle = ego_false;
+            draw_particle = false;
             if ( SPRITE_LIGHT == pprt->type )
             {
                 // do the light sprites
@@ -450,7 +450,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
             {
                 // Calculate the position of the four corners of the billboard
                 // used to display the particle.
-                calc_billboard_verts( vtlist, pinst, pinst->size, ego_true );
+                calc_billboard_verts( vtlist, pinst, pinst->size, true );
 
                 GL_DEBUG( glColor4fv )( particle_color );      // GL_CURRENT_BIT
 
@@ -474,7 +474,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, ego_bool do_reflect )
+void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool do_reflect )
 {
     // Calculate the position of the four corners of the billboard
     // used to display the particle.
@@ -603,8 +603,7 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
-
+	Egoboo_Renderer_OpenGL_multMatrix(&(pinst->matrix));
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
         GL_DEBUG( glVertex3fv )( pinst->vrt_lst[vrt].pos );
@@ -678,13 +677,13 @@ gfx_rv update_all_prt_instance( const camera_t * pcam )
 
         if ( !prt_bdl.prt_ptr->inst.indolist )
         {
-            pinst->valid     = ego_false;
-            pinst->ref_valid = ego_false;
+            pinst->valid     = false;
+            pinst->ref_valid = false;
         }
         else
         {
             // calculate the "billboard" for this particle
-            if ( gfx_error == prt_instance_update( pcam, iprt, 255, ego_true ) )
+            if ( gfx_error == prt_instance_update( pcam, iprt, 255, true ) )
             {
                 retval = gfx_error;
             }
@@ -708,8 +707,8 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL particle instance" );
         return gfx_error;
     }
-    pinst->valid     = ego_false;
-    pinst->ref_valid = ego_false;
+    pinst->valid     = false;
+    pinst->ref_valid = false;
 
     if ( NULL == pcam )
     {
@@ -1012,8 +1011,8 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
     pinst->size  = FP8_TO_FLOAT( pprt->size ) * pinst->scale;
 
     // this instance is now completely valid
-    pinst->valid     = ego_true;
-    pinst->ref_valid = ego_true;
+    pinst->valid     = true;
+    pinst->ref_valid = true;
 
     return gfx_success;
 }
@@ -1041,7 +1040,7 @@ fmat_4x4_t prt_instance_make_matrix( prt_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, ego_bool do_lighting )
+gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, bool do_lighting )
 {
     Uint32 alpha;
     Sint16  self_light;
@@ -1102,7 +1101,7 @@ gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv prt_instance_update( const camera_t * pcam, const PRT_REF particle, Uint8 trans, ego_bool do_lighting )
+gfx_rv prt_instance_update( const camera_t * pcam, const PRT_REF particle, Uint8 trans, bool do_lighting )
 {
     prt_t          * pprt;
     prt_instance_t * pinst;
@@ -1174,7 +1173,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         {
             GL_DEBUG( glColor4fv )( white_vec );
 
-            render_oct_bb( &loc_bb, ego_true, ego_true );
+            render_oct_bb( &loc_bb, true, true );
         }
         GL_DEBUG( glEnable )( GL_TEXTURE_2D );
     }

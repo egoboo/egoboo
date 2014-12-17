@@ -41,7 +41,7 @@ static tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size )
+bool tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * pdict, int max_dict_size )
 {
     /// @author ZZ
     /// @details This function loads fan types for the terrain
@@ -55,12 +55,12 @@ C_BOOLEAN tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * p
     vfs_FILE* fileread;
     tile_definition_t * pdef_sml, * pdef_big;
 
-    if ( NULL == pdict ) return C_FALSE;
+    if ( NULL == pdict ) return false;
 
     // "delete" the old list
     BLANK_STRUCT_PTR( pdict );
 
-    if ( !VALID_CSTR( filename ) ) return C_FALSE;
+    if ( !VALID_CSTR( filename ) ) return false;
 
     // handle default parameters
     if ( max_dict_size < 0 )
@@ -73,7 +73,7 @@ C_BOOLEAN tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * p
     if ( NULL == fileread )
     {
         log_error( "Cannot load the tile definitions \"%s\".\n", filename );
-        return C_FALSE;
+        return false;
     }
 
     fantype_count    = vfs_get_next_int( fileread );
@@ -148,17 +148,17 @@ C_BOOLEAN tile_dictionary_load_vfs( const char * filename, tile_dictionary_t * p
 
     vfs_close( fileread );
 
-    pdict->loaded = C_TRUE;
+    pdict->loaded = true;
 
     pdict = tile_dictionary_finalize( pdict );
 
-    return C_TRUE;
+    return true;
 
 tile_dictionary_load_vfs_fail:
 
     BLANK_STRUCT_PTR( pdict );
 
-    return C_FALSE;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -169,13 +169,16 @@ tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict )
     const float texture_offset = 0.5f;
 
     Uint32 entry, cnt;
-    int fantype_offset, vertex_count;
+#if 0
+	int fantype_offset;
+#endif
+    int vertex_count;
     tile_definition_t * pdef_sml, * pdef_big;
 
     if ( NULL == pdict ) return pdict;
 
     // Correct all of them silly texture positions for seamless tiling
-    fantype_offset = pdict->offset;
+    size_t fantype_offset = pdict->offset;
     for ( entry = 0; entry < fantype_offset; entry++ )
     {
         pdef_sml = pdict->def_lst + entry;

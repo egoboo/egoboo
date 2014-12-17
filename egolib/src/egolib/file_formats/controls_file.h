@@ -26,9 +26,11 @@
 #include "egolib/vfs.h"
 #include "egolib/input_device.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -46,17 +48,18 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    C_BOOLEAN input_settings_load_vfs( const char *szFilename, int version );
-    C_BOOLEAN input_settings_save_vfs( const char* szFilename, int version );
+	bool input_settings_load_vfs(const char *szFilename, int version);
+	bool input_settings_save_vfs(const char* szFilename, int version);
 
     void export_control( vfs_FILE * filewrite, const char * text, int device, struct s_control * pcontrol );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #if defined(__cplusplus)
 }
-
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------

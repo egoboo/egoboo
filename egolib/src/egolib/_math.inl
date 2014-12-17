@@ -73,9 +73,9 @@ extern "C"
 // ieee 32-bit floating point number functions
     static INLINE Uint32 float32_to_uint32( float f );
     static INLINE float  uint32_to_float32( Uint32 i );
-    static INLINE ego_bool ieee32_infinite( float f );
-    static INLINE ego_bool ieee32_nan( float f );
-    static INLINE ego_bool ieee32_bad( float f );
+    static INLINE bool ieee32_infinite( float f );
+    static INLINE bool ieee32_nan( float f );
+    static INLINE bool ieee32_bad( float f );
 
 // conversion functions
     static INLINE FACING_T vec_to_facing( const float dx, const float dy );
@@ -94,15 +94,15 @@ extern "C"
     static INLINE int generate_randmask( const int base, const Uint32 mask );
 
 // vector functions
-    static INLINE ego_bool  fvec2_valid( const fvec2_base_t A );
-    static INLINE ego_bool  fvec2_self_clear( fvec2_base_t A );
-    static INLINE ego_bool  fvec2_base_copy( fvec2_base_t A, const fvec2_base_t B );
+    static INLINE bool  fvec2_valid( const fvec2_base_t A );
+    static INLINE bool  fvec2_self_clear( fvec2_base_t A );
+    static INLINE bool  fvec2_base_copy( fvec2_base_t A, const fvec2_base_t B );
     static INLINE float   fvec2_length( const fvec2_base_t A );
     static INLINE float   fvec2_length_abs( const fvec2_base_t A );
     static INLINE float   fvec2_length_2( const fvec2_base_t A );
-    static INLINE ego_bool  fvec2_self_scale( fvec2_base_t A, const float B );
-    static INLINE ego_bool  fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B );
-    static INLINE ego_bool  fvec2_self_normalize( fvec2_base_t A );
+    static INLINE bool  fvec2_self_scale( fvec2_base_t A, const float B );
+    static INLINE bool  fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B );
+    static INLINE bool  fvec2_self_normalize( fvec2_base_t A );
     static INLINE float   fvec2_cross_product( const fvec2_base_t A, const fvec2_base_t B );
     static INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_t B );
     static INLINE float   fvec2_dist_abs( const fvec2_base_t A, const fvec2_base_t B );
@@ -111,10 +111,10 @@ extern "C"
     static INLINE float * fvec2_normalize( fvec2_base_t DST, const fvec2_base_t SRC );
     static INLINE float * fvec2_scale( fvec2_base_t DST, const fvec2_base_t SRC, const float B );
 
-    static INLINE ego_bool  fvec3_valid( const fvec3_base_t A );
-    static INLINE ego_bool  fvec3_self_clear( fvec3_base_t A );
-    static INLINE ego_bool  fvec3_self_scale( fvec3_base_t A, const float B );
-    static INLINE ego_bool  fvec3_self_sum( fvec3_base_t A, const fvec3_base_t RHS );
+    static INLINE bool  fvec3_valid( const fvec3_base_t A );
+    static INLINE bool  fvec3_self_clear( fvec3_base_t A );
+    static INLINE bool  fvec3_self_scale( fvec3_base_t A, const float B );
+    static INLINE bool  fvec3_self_sum( fvec3_base_t A, const fvec3_base_t RHS );
     static INLINE float   fvec3_self_normalize( fvec3_base_t A );
     static INLINE float   fvec3_self_normalize_to( fvec3_base_t A, const float B );
     static INLINE float   fvec3_length_2( const fvec3_base_t SRC );
@@ -131,9 +131,9 @@ extern "C"
     static INLINE float * fvec3_cross_product( fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS );
     static INLINE float   fvec3_decompose( const fvec3_base_t src, const fvec3_base_t vnrm, fvec3_base_t vpara, fvec3_base_t vperp );
 
-    static INLINE ego_bool fvec4_valid( const fvec4_base_t A );
-    static INLINE ego_bool fvec4_self_clear( fvec4_base_t A );
-    static INLINE ego_bool fvec4_self_scale( fvec4_base_t A, const float B );
+    static INLINE bool fvec4_valid( const fvec4_base_t A );
+    static INLINE bool fvec4_self_clear( fvec4_base_t A );
+    static INLINE bool fvec4_self_scale( fvec4_base_t A, const float B );
 
 // matrix functions
     static INLINE float * mat_Copy( fmat_4x4_base_t DST, const fmat_4x4_base_t src );
@@ -151,13 +151,13 @@ extern "C"
     static INLINE float * mat_Projection_orig( fmat_4x4_base_t DST, const float near_plane, const float far_plane, const float fov );
     static INLINE void    mat_TransformVertices( const fmat_4x4_base_t Matrix, const fvec4_t pSourceV[], fvec4_t pDestV[], const Uint32 NumVertor );
 
-    static INLINE ego_bool   mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
-    static INLINE ego_bool   mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
-    static INLINE ego_bool   mat_getChrRight( const fmat_4x4_base_t mat, fvec3_base_t vec );
-    static INLINE ego_bool   mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
-    static INLINE ego_bool   mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vec );
-    static INLINE ego_bool   mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
-    static INLINE ego_bool   mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool   mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool   mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool   mat_getChrRight( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool   mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool   mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool   mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vec );
+    static INLINE bool   mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vec );
     static INLINE float *  mat_getTranslate_v( const fmat_4x4_base_t mat );
 
     static INLINE float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed( fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z );
@@ -192,7 +192,7 @@ static INLINE float uint32_to_float32( Uint32 i )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool ieee32_infinite( float f )
+static INLINE bool ieee32_infinite( float f )
 {
     Uint32 u = float32_to_uint32( f );
 
@@ -200,7 +200,7 @@ static INLINE ego_bool ieee32_infinite( float f )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool ieee32_nan( float f )
+static INLINE bool ieee32_nan( float f )
 {
     Uint32 u = float32_to_uint32( f );
 
@@ -208,11 +208,11 @@ static INLINE ego_bool ieee32_nan( float f )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool ieee32_bad( float f )
+static INLINE bool ieee32_bad( float f )
 {
     Uint32 u = float32_to_uint32( f );
 
-    return ( IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) ) ? ego_true : ego_false;
+    return ( IEEE32_EXPONENT == ( u & IEEE32_EXPONENT ) ) ? true : false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -372,65 +372,65 @@ static INLINE int generate_randmask( const int base, const Uint32 mask )
 // VECTOR FUNCTIONS
 //--------------------------------------------------------------------------------------------
 
-static INLINE ego_bool fvec2_valid( const fvec2_base_t A )
+static INLINE bool fvec2_valid( const fvec2_base_t A )
 {
     int cnt;
 
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
     for ( cnt = 0; cnt < 2; cnt++ )
     {
-        if ( ieee32_bad( A[cnt] ) ) return ego_false;
+        if ( ieee32_bad( A[cnt] ) ) return false;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec2_self_clear( fvec2_base_t A )
+static INLINE bool fvec2_self_clear( fvec2_base_t A )
 {
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
     A[kX] = A[kY] = 0.0f;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec2_base_copy( fvec2_base_t A, const fvec2_base_t B )
+static INLINE bool fvec2_base_copy( fvec2_base_t A, const fvec2_base_t B )
 {
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
     if ( NULL == B ) return fvec2_self_clear( A );
 
     A[kX] = B[kX];
     A[kY] = B[kY];
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec2_self_scale( fvec2_base_t A, const float B )
+static INLINE bool fvec2_self_scale( fvec2_base_t A, const float B )
 {
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
     A[kX] *= B;
     A[kY] *= B;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B )
+static INLINE bool fvec2_self_sum( fvec2_base_t A, const fvec2_base_t B )
 {
-    if ( NULL == A || NULL == B ) return ego_false;
+    if ( NULL == A || NULL == B ) return false;
 
     A[kX] += B[kX];
     A[kY] += B[kY];
 
     LOG_NAN_FVEC2( A );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -584,14 +584,14 @@ static INLINE float * fvec2_normalize( fvec2_base_t DST, const fvec2_base_t SRC 
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool  fvec2_self_normalize( fvec2_base_t A )
+static INLINE bool  fvec2_self_normalize( fvec2_base_t A )
 {
     float len2;
     float inv_len;
 
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
-    if ( 0.0f == fvec2_length_abs( A ) ) return ego_false;
+    if ( 0.0f == fvec2_length_abs( A ) ) return false;
 
     len2 = A[kX] * A[kX] + A[kY] * A[kY];
     inv_len = 1.0f / SQRT( len2 );
@@ -599,7 +599,7 @@ static INLINE ego_bool  fvec2_self_normalize( fvec2_base_t A )
     A[kX] *= inv_len;
     A[kY] *= inv_len;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -616,28 +616,28 @@ static INLINE float   fvec2_dot_product( const fvec2_base_t A, const fvec2_base_
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec3_valid( const fvec3_base_t A )
+static INLINE bool fvec3_valid( const fvec3_base_t A )
 {
     int cnt;
 
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
     for ( cnt = 0; cnt < 3; cnt++ )
     {
-        if ( ieee32_bad( A[cnt] ) ) return ego_false;
+        if ( ieee32_bad( A[cnt] ) ) return false;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec3_self_clear( fvec3_base_t A )
+static INLINE bool fvec3_self_clear( fvec3_base_t A )
 {
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
     A[kX] = A[kY] = A[kZ] = 0.0f;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -662,9 +662,9 @@ static INLINE float * fvec3_base_copy( fvec3_base_t DST, const fvec3_base_t SRC 
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec3_self_scale( fvec3_base_t A, const float B )
+static INLINE bool fvec3_self_scale( fvec3_base_t A, const float B )
 {
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
     A[kX] *= B;
     A[kY] *= B;
@@ -672,13 +672,13 @@ static INLINE ego_bool fvec3_self_scale( fvec3_base_t A, const float B )
 
     LOG_NAN_FVEC3( A );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec3_self_sum( fvec3_base_t A, const fvec3_base_t B )
+static INLINE bool fvec3_self_sum( fvec3_base_t A, const fvec3_base_t B )
 {
-    if ( NULL == A || NULL == B ) return ego_false;
+    if ( NULL == A || NULL == B ) return false;
 
     A[kX] += B[kX];
     A[kY] += B[kY];
@@ -686,7 +686,7 @@ static INLINE ego_bool fvec3_self_sum( fvec3_base_t A, const fvec3_base_t B )
 
     LOG_NAN_FVEC3( A );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1107,35 +1107,35 @@ static INLINE float   fvec3_dot_product( const fvec3_base_t A, const fvec3_base_
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec4_valid( const fvec4_base_t A )
+static INLINE bool fvec4_valid( const fvec4_base_t A )
 {
     int cnt;
 
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-        if ( ieee32_bad( A[cnt] ) ) return ego_false;
+        if ( ieee32_bad( A[cnt] ) ) return false;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec4_self_clear( fvec4_base_t A )
+static INLINE bool fvec4_self_clear( fvec4_base_t A )
 {
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
     A[kX] = A[kY] = A[kZ] = 0.0f;
     A[kW] = 1.0f;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool fvec4_self_scale( fvec4_base_t A, const float B )
+static INLINE bool fvec4_self_scale( fvec4_base_t A, const float B )
 {
-    if ( NULL == A ) return ego_false;
+    if ( NULL == A ) return false;
 
     A[kX] *= B;
     A[kY] *= B;
@@ -1144,7 +1144,7 @@ static INLINE ego_bool fvec4_self_scale( fvec4_base_t A, const float B )
 
     LOG_NAN_FVEC4( A );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1527,93 +1527,93 @@ static INLINE float * mat_Projection_orig(
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vpos )
+static INLINE bool mat_getTranslate( const fmat_4x4_base_t mat, fvec3_base_t vpos )
 {
-    if ( NULL == mat || NULL == vpos ) return ego_false;
+    if ( NULL == mat || NULL == vpos ) return false;
 
     vpos[kX] = mat[MAT_IDX( 3, 0 )];
     vpos[kY] = mat[MAT_IDX( 3, 1 )];
     vpos[kZ] = mat[MAT_IDX( 3, 2 )];
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
+static INLINE bool mat_getChrUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
 {
-    if ( NULL == mat || NULL == vup ) return ego_false;
+    if ( NULL == mat || NULL == vup ) return false;
 
     // for a character
     vup[kX] = mat[MAT_IDX( 2, 0 )];
     vup[kY] = mat[MAT_IDX( 2, 1 )];
     vup[kZ] = mat[MAT_IDX( 2, 2 )];
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t vright )
+static INLINE bool mat_getChrForward( const fmat_4x4_base_t mat, fvec3_base_t vright )
 {
-    if ( NULL == mat || NULL == vright ) return ego_false;
+    if ( NULL == mat || NULL == vright ) return false;
 
     // for a character
     vright[kX] = -mat[MAT_IDX( 0, 0 )];
     vright[kY] = -mat[MAT_IDX( 0, 1 )];
     vright[kZ] = -mat[MAT_IDX( 0, 2 )];
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool mat_getChrRight( const fmat_4x4_base_t mat, fvec3_base_t vfrw )
+static INLINE bool mat_getChrRight( const fmat_4x4_base_t mat, fvec3_base_t vfrw )
 {
-    if ( NULL == mat || NULL == vfrw ) return ego_false;
+    if ( NULL == mat || NULL == vfrw ) return false;
 
     // for a character's matrix
     vfrw[kX] = mat[MAT_IDX( 1, 0 )];
     vfrw[kY] = mat[MAT_IDX( 1, 1 )];
     vfrw[kZ] = mat[MAT_IDX( 1, 2 )];
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
+static INLINE bool mat_getCamUp( const fmat_4x4_base_t mat, fvec3_base_t vup )
 {
-    if ( NULL == mat || NULL == vup ) return ego_false;
+    if ( NULL == mat || NULL == vup ) return false;
 
     // for the camera
     vup[kX] = mat[MAT_IDX( 0, 1 )];
     vup[kY] = mat[MAT_IDX( 1, 1 )];
     vup[kZ] = mat[MAT_IDX( 2, 1 )];
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vright )
+static INLINE bool mat_getCamRight( const fmat_4x4_base_t mat, fvec3_base_t vright )
 {
-    if ( NULL == mat || NULL == vright ) return ego_false;
+    if ( NULL == mat || NULL == vright ) return false;
 
     // for the camera
     vright[kX] = -mat[MAT_IDX( 0, 0 )];
     vright[kY] = -mat[MAT_IDX( 1, 0 )];
     vright[kZ] = -mat[MAT_IDX( 2, 0 )];
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vfrw )
+static INLINE bool mat_getCamForward( const fmat_4x4_base_t mat, fvec3_base_t vfrw )
 {
-    if ( NULL == mat || NULL == vfrw ) return ego_false;
+    if ( NULL == mat || NULL == vfrw ) return false;
 
     // for the camera
     vfrw[kX] = -mat[MAT_IDX( 0, 2 )];
     vfrw[kY] = -mat[MAT_IDX( 1, 2 )];
     vfrw[kZ] = -mat[MAT_IDX( 2, 2 )];
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------

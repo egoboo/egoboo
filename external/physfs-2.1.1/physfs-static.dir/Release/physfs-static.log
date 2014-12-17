@@ -1,0 +1,102 @@
+﻿Der Buildvorgang wurde am 15.12.2014 00:18:40 gestartet.
+     1>Projekt "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\physfs-static.vcxproj" auf Knoten "2", Build Ziel(e).
+     1>CustomBuild:
+         Building Custom Rule C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/physfs-2.1.1/CMakeLists.txt
+         CMake does not need to re-run because C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\CMakeFiles\generate.stamp is up-to-date.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\." /I"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123" /nologo /W3 /WX- /O2 /Ob2 /Oy- /D WIN32 /D _WINDOWS /D NDEBUG /D _CRT_SECURE_NO_WARNINGS=1 /D _REENTRANT /D _THREAD_SAFE /D HAVE_ASSERT_H=1 /D PHYSFS_SUPPORTS_ZIP=1 /D PHYSFS_SUPPORTS_7Z=1 /D PHYSFS_SUPPORTS_GRP=1 /D PHYSFS_SUPPORTS_WAD=1 /D PHYSFS_SUPPORTS_HOG=1 /D PHYSFS_SUPPORTS_MVL=1 /D PHYSFS_SUPPORTS_QPAK=1 /D Z_PREFIX=1 /D "CMAKE_INTDIR=\"Release\"" /D _MBCS /Gm- /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"physfs-static.dir\Release\\" /Fd"physfs-static.dir\Release\vc120.pdb" /Gd /TC /analyze- /errorReport:prompt "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\physfs.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\physfs_byteorder.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\physfs_unicode.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\os2.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\pocketpc.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\posix.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\unix.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\macosx.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\windows.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\dir.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\grp.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\hog.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\lzma.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\mvl.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\qpak.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\wad.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\zip.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\7zCrc.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zBuffer.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zDecode.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zExtract.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zHeader.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zIn.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zItem.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zMethodID.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Compress\Branch\BranchX86.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Compress\Branch\BranchX86_2.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Compress\Lzma\LzmaDecode.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\adler32.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\compress.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\crc32.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\deflate.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\gzio.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\infback.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\inffast.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\inflate.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\inftrees.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\trees.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\uncompr.c" "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\zutil.c"
+         physfs.c
+         physfs_byteorder.c
+         physfs_unicode.c
+         os2.c
+         pocketpc.c
+         posix.c
+         unix.c
+         macosx.c
+         windows.c
+     1>C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\windows.c(949): warning C4996: 'GetVersionExA': wurde als veraltet deklariert
+                 C:\Program Files (x86)\Windows Kits\8.1\Include\um\sysinfoapi.h(433): Siehe Deklaration von 'GetVersionExA'
+         dir.c
+         grp.c
+         hog.c
+         lzma.c
+     1>C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\lzma.c(134): warning C4244: 'Initialisierung': Konvertierung von 'PHYSFS_sint64' in 'size_t', möglicher Datenverlust
+     1>C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\lzma.c(331): warning C4244: 'Initialisierung': Konvertierung von 'CFileSize' in 'size_t', möglicher Datenverlust
+     1>C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\lzma.c(407): warning C4244: '=': Konvertierung von 'PHYSFS_uint64' in 'size_t', möglicher Datenverlust
+         mvl.c
+         qpak.c
+         wad.c
+         zip.c
+         7zCrc.c
+         7zBuffer.c
+         7zDecode.c
+         Code wird generiert...
+         Kompilieren...
+         7zExtract.c
+         7zHeader.c
+         7zIn.c
+         7zItem.c
+         7zMethodID.c
+         BranchX86.c
+         BranchX86_2.c
+         LzmaDecode.c
+         adler32.c
+         compress.c
+         crc32.c
+         deflate.c
+         gzio.c
+         infback.c
+         inffast.c
+         inflate.c
+         inftrees.c
+         trees.c
+         uncompr.c
+         zutil.c
+         Code wird generiert...
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\Lib.exe /OUT:"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\Release\physfs.lib" /NOLOGO "physfs-static.dir\Release\physfs.obj"
+         "physfs-static.dir\Release\physfs_byteorder.obj"
+         "physfs-static.dir\Release\physfs_unicode.obj"
+         "physfs-static.dir\Release\os2.obj"
+         "physfs-static.dir\Release\pocketpc.obj"
+         "physfs-static.dir\Release\posix.obj"
+         "physfs-static.dir\Release\unix.obj"
+         "physfs-static.dir\Release\macosx.obj"
+         "physfs-static.dir\Release\windows.obj"
+         "physfs-static.dir\Release\dir.obj"
+         "physfs-static.dir\Release\grp.obj"
+         "physfs-static.dir\Release\hog.obj"
+         "physfs-static.dir\Release\lzma.obj"
+         "physfs-static.dir\Release\mvl.obj"
+         "physfs-static.dir\Release\qpak.obj"
+         "physfs-static.dir\Release\wad.obj"
+         "physfs-static.dir\Release\zip.obj"
+         "physfs-static.dir\Release\7zCrc.obj"
+         "physfs-static.dir\Release\7zBuffer.obj"
+         "physfs-static.dir\Release\7zDecode.obj"
+         "physfs-static.dir\Release\7zExtract.obj"
+         "physfs-static.dir\Release\7zHeader.obj"
+         "physfs-static.dir\Release\7zIn.obj"
+         "physfs-static.dir\Release\7zItem.obj"
+         "physfs-static.dir\Release\7zMethodID.obj"
+         "physfs-static.dir\Release\BranchX86.obj"
+         "physfs-static.dir\Release\BranchX86_2.obj"
+         "physfs-static.dir\Release\LzmaDecode.obj"
+         "physfs-static.dir\Release\adler32.obj"
+         "physfs-static.dir\Release\compress.obj"
+         "physfs-static.dir\Release\crc32.obj"
+         "physfs-static.dir\Release\deflate.obj"
+         "physfs-static.dir\Release\gzio.obj"
+         "physfs-static.dir\Release\infback.obj"
+         "physfs-static.dir\Release\inffast.obj"
+         "physfs-static.dir\Release\inflate.obj"
+         "physfs-static.dir\Release\inftrees.obj"
+         "physfs-static.dir\Release\trees.obj"
+         "physfs-static.dir\Release\uncompr.obj"
+         "physfs-static.dir\Release\zutil.obj"
+         physfs-static.vcxproj -> C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\Release\physfs.lib
+     1>Die Erstellung des Projekts "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\physfs-static.vcxproj" ist abgeschlossen, Build Ziel(e).
+
+Build erfolgreich.
+
+Verstrichene Zeit 00:00:20.17

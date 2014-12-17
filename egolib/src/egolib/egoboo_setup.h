@@ -22,6 +22,7 @@
 /// @file egolib/egoboo_setup.h
 
 #include "egolib/typedef.h"
+#include "egolib/tx_filters.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -68,43 +69,43 @@ extern "C"
     struct s_egoboo_config
     {
         // {GRAPHIC}
-        C_BOOLEAN               fullscreen_req;            ///< Start in fullscreen?
+        bool               fullscreen_req;            ///< Start in fullscreen?
         int                     scrd_req;                  ///< Screen bit depth
         int                     scrz_req;                  ///< Screen z-buffer depth ( 8 unsupported )
         int                     scrx_req;                  ///< Screen X size
         int                     scry_req;                  ///< Screen Y size
-        C_BOOLEAN               use_perspective;           ///< Perspective correct textures?
-        C_BOOLEAN               use_dither;                ///< Dithering?
-        C_BOOLEAN               reflect_allowed;           ///< Reflections?
+        bool               use_perspective;           ///< Perspective correct textures?
+        bool               use_dither;                ///< Dithering?
+        bool               reflect_allowed;           ///< Reflections?
         Uint8                   reflect_fade;              ///< 255 = Don't fade reflections
-        C_BOOLEAN               reflect_prt;               ///< Reflect particles?
-        C_BOOLEAN               shadow_allowed;            ///< Shadows?
-        C_BOOLEAN               shadow_sprite;             ///< Shadow sprites?
-        C_BOOLEAN               use_phong;                 ///< Do phong overlay?
-        C_BOOLEAN               twolayerwater_allowed;     ///< Two layer water?
-        C_BOOLEAN               overlay_allowed;           ///< Allow large overlay?
-        C_BOOLEAN               background_allowed;        ///< Allow large background?
-        C_BOOLEAN               fog_allowed;
-        C_BOOLEAN               gouraud_req;               ///< Gouraud shading?
+        bool               reflect_prt;               ///< Reflect particles?
+        bool               shadow_allowed;            ///< Shadows?
+        bool               shadow_sprite;             ///< Shadow sprites?
+        bool               use_phong;                 ///< Do phong overlay?
+        bool               twolayerwater_allowed;     ///< Two layer water?
+        bool               overlay_allowed;           ///< Allow large overlay?
+        bool               background_allowed;        ///< Allow large background?
+        bool               fog_allowed;
+        bool               gouraud_req;               ///< Gouraud shading?
         Uint8                   multisamples;              ///< Antialiasing?
-        Uint8                   texturefilter_req;         ///< Texture filtering?
+        e_tx_filters            texturefilter_req;         ///< Texture filtering?
         int                     dyna_count_req;            ///< Max number of lights to draw
         Sint32                  framelimit;
         Uint16                  particle_count_req;        ///< max number of particles
 
         // {SOUND}
-        C_BOOLEAN                  sound_allowed;
-        C_BOOLEAN                  music_allowed;
+        bool               sound_allowed;
+        bool               music_allowed;
         Uint8                   music_volume;               ///< The sound volume of music
         Uint8                   sound_volume;               ///< Volume of sounds played
         Uint16                  sound_channel_count;        ///< Max number of sounds playing at the same time
         Uint16                  sound_buffer_size;
-        C_BOOLEAN                  sound_highquality;
-        C_BOOLEAN                  sound_highquality_base;
-        C_BOOLEAN                  sound_footfall;
+        bool               sound_highquality;
+        bool               sound_highquality_base;
+        bool               sound_footfall;
 
         // {NETWORK}
-        C_BOOLEAN               network_allowed;            ///< Try to connect?
+        bool               network_allowed;            ///< Try to connect?
         int                     network_lag;                ///< Lag tolerance
         char                    network_hostname[64];                            ///< Name for hosting session
         char                    network_messagename[64];                         ///< Name for messages
@@ -112,20 +113,20 @@ extern "C"
         // {GAME}
         int                     message_count_req;
         Uint16                  message_duration;        ///< Time to keep the message alive
-        C_BOOLEAN               show_stats;              ///< Draw the status bars?
+        bool               show_stats;              ///< Draw the status bars?
         Uint8                   autoturncamera;          ///< Type of camera control...
         EGO_FEEDBACK_TYPE       feedback;                ///< Feedback type
         Uint8                   difficulty;              ///< What is the current game difficulty
 
         // {DEBUG}
-        C_BOOLEAN               fps_allowed;             ///< FPS displayed?
-        C_BOOLEAN               hide_mouse;
-        C_BOOLEAN               grab_mouse;
-        C_BOOLEAN               dev_mode;
-        C_BOOLEAN               sdl_image_allowed;       ///< Allow advanced SDL_Image functions?
+        bool               fps_allowed;             ///< FPS displayed?
+        bool               hide_mouse;
+        bool               grab_mouse;
+        bool               dev_mode;
+        bool               sdl_image_allowed;       ///< Allow advanced SDL_Image functions?
 
         // other values
-        C_BOOLEAN                  messageon_req;
+        bool                  messageon_req;
     };
 
 //--------------------------------------------------------------------------------------------
@@ -138,25 +139,25 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
     /// begin the setup module
-    extern C_BOOLEAN setup_begin( void );
+    extern bool setup_begin( void );
 
     /// end the setup module
-    extern C_BOOLEAN setup_end( void );
+    extern bool setup_end( void );
 
     /// Read the "setup.txt" file
-    extern C_BOOLEAN setup_read_vfs( void );
+    extern bool setup_read_vfs( void );
 
     /// Write the "setup.txt" file
-    C_BOOLEAN setup_write_vfs( void );
+    bool setup_write_vfs( void );
 
     /// download the data in "setup.txt" to an egoboo_config_t data structure
-    C_BOOLEAN setup_download( egoboo_config_t * pcfg );
+    bool setup_download( egoboo_config_t * pcfg );
 
     /// upload the data in an egoboo_config_t data structure to "setup.txt"
-    C_BOOLEAN setup_upload( egoboo_config_t * pcfg );
+    bool setup_upload( egoboo_config_t * pcfg );
 
     /// ensure that the program, egoboo_config_t data structure, and "setup.txt" all agree
-    C_BOOLEAN config_synch( egoboo_config_t * pcfg, C_BOOLEAN synch_from_file );
+    bool config_synch( egoboo_config_t * pcfg, bool synch_from_file );
 
     /// set the basic search paths used by the egoboo virtual file system
     void setup_init_base_vfs_paths( void );
@@ -165,7 +166,7 @@ extern "C"
     void setup_clear_base_vfs_paths( void );
 
     /// initialize a module's vfs mount points
-    C_BOOLEAN setup_init_module_vfs_paths( const char * mod_path );
+    bool setup_init_module_vfs_paths( const char * mod_path );
 
     /// initialize a module's vfs mount points
     void   setup_clear_module_vfs_paths( void );

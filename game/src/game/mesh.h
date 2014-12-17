@@ -123,20 +123,20 @@ struct s_ego_tile_info
     size_t  vrtstart;                          ///< Which vertex to start at
 
     // some extra flags
-    ego_bool  fanoff;                            ///< display this tile?
+    bool  fanoff;                            ///< display this tile?
 
     // some info about the renderlist
-    ego_bool  inrenderlist;                      ///< Is the tile going to be rendered this frame?
+    bool  inrenderlist;                      ///< Is the tile going to be rendered this frame?
     int     inrenderlist_frame;                ///< What was the frame number the last time this tile was rendered?
 
     // tile corner lighting parameters
     normal_cache_t ncache;                     ///< the normals at the corners of this tile
     light_cache_t  lcache;                     ///< the light at the corners of this tile
-    ego_bool         request_lcache_update;        ///< has this tile been tagged for a lcache update?
+    bool         request_lcache_update;        ///< has this tile been tagged for a lcache update?
     int            lcache_frame;              ///< the last frame in which the lighting cache was updated
 
     // tile vertex lighting parameters
-    ego_bool         request_clst_update;          ///< has this tile been tagged for a color list update?
+    bool         request_clst_update;          ///< has this tile been tagged for a color list update?
     int            clst_frame;                 ///< the last frame in which the color list was updated
     light_cache_t  d1_cache;                   ///< the estimated change in the light at the corner of the tile
     light_cache_t  d2_cache;                   ///< the estimated change in the light at the corner of the tile
@@ -244,12 +244,12 @@ mpdfx_list_ary_t * mpdfx_list_ary_dtor( mpdfx_list_ary_t * ptr );
 mpdfx_list_ary_t * mpdfx_list_ary_alloc( mpdfx_list_ary_t * ptr, size_t count );
 mpdfx_list_ary_t * mpdfx_list_ary_dealloc( mpdfx_list_ary_t * ptr );
 mpdfx_list_ary_t * mpdfx_list_ary_reset( mpdfx_list_ary_t * ptr );
-ego_bool mpdfx_list_ary_push( mpdfx_list_ary_t * ptr, size_t value );
+bool mpdfx_list_ary_push( mpdfx_list_ary_t * ptr, size_t value );
 
 //--------------------------------------------------------------------------------------------
 struct s_mpdfx_lists
 {
-    ego_bool   dirty;
+    bool   dirty;
 
     mpdfx_list_ary_t sha;
     mpdfx_list_ary_t drf;
@@ -264,7 +264,7 @@ struct s_mpdfx_lists
 mpdfx_lists_t * mpdfx_lists_ctor( mpdfx_lists_t * );
 mpdfx_lists_t * mpdfx_lists_dtor( mpdfx_lists_t * );
 
-ego_bool mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, ego_bool force );
+bool mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool force );
 
 //--------------------------------------------------------------------------------------------
 
@@ -316,14 +316,14 @@ extern int mesh_bound_tests;
 extern int mesh_pressure_tests;
 
 // variables to optimize calls to bind the textures
-extern ego_bool  mesh_tx_none;           ///< use blank textures?
+extern bool  mesh_tx_none;           ///< use blank textures?
 extern TX_REF  mesh_tx_image;          ///< Last texture used
 extern Uint8   mesh_tx_size;           ///< what size texture?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 ego_mesh_t * ego_mesh_create( ego_mesh_t * pmesh, int tiles_x, int tiles_y );
-ego_bool       ego_mesh_destroy( ego_mesh_t ** pmesh );
+bool       ego_mesh_destroy( ego_mesh_t ** pmesh );
 
 ego_mesh_t * ego_mesh_ctor( ego_mesh_t * pmesh );
 ego_mesh_t * ego_mesh_dtor( ego_mesh_t * pmesh );
@@ -334,11 +334,11 @@ ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * pmesh );
 
 void   ego_mesh_make_twist( void );
 
-ego_bool ego_mesh_test_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, float threshold );
-float  ego_mesh_light_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, ego_bool reflective, float mesh_lighting_keep );
-ego_bool ego_mesh_interpolate_vertex( tile_mem_t * pmem, ego_tile_info_t * ptile, float pos[], float * plight );
+bool ego_mesh_test_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, float threshold );
+float  ego_mesh_light_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep );
+bool ego_mesh_interpolate_vertex( tile_mem_t * pmem, ego_tile_info_t * ptile, float pos[], float * plight );
 
-ego_bool grid_light_one_corner( const ego_mesh_t * pmesh, int fan, float height, float nrm[], float * plight );
+bool grid_light_one_corner( const ego_mesh_t * pmesh, int fan, float height, float nrm[], float * plight );
 
 BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, float nrm[], float * pressure, mesh_wall_data_t * private_data );
 BIT_FIELD ego_mesh_test_wall( const ego_mesh_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, mesh_wall_data_t * private_data );
@@ -346,13 +346,13 @@ BIT_FIELD ego_mesh_test_wall( const ego_mesh_t * pmesh, const float pos[], const
 float ego_mesh_get_max_vertex_0( const ego_mesh_t * pmesh, int grid_x, int grid_y );
 float ego_mesh_get_max_vertex_1( const ego_mesh_t * pmesh, int grid_x, int grid_y, float xmin, float ymin, float xmax, float ymax );
 
-ego_bool ego_mesh_set_texture( ego_mesh_t * pmesh, Uint32 tile, Uint16 image );
-ego_bool ego_mesh_update_texture( ego_mesh_t * pmesh, Uint32 tile );
+bool ego_mesh_set_texture( ego_mesh_t * pmesh, Uint32 tile, Uint16 image );
+bool ego_mesh_update_texture( ego_mesh_t * pmesh, Uint32 tile );
 
 fvec2_t ego_mesh_get_diff( const ego_mesh_t * pmesh, const float pos[], float radius, float center_pressure, const BIT_FIELD bits );
 float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const float pos[], float radius, const BIT_FIELD bits );
 
-ego_bool ego_mesh_update_water_level( ego_mesh_t * pmesh );
+bool ego_mesh_update_water_level( ego_mesh_t * pmesh );
 
 void mesh_texture_invalidate( void );
 struct s_oglx_texture * mesh_texture_bind( const ego_tile_info_t * ptile );

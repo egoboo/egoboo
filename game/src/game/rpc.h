@@ -46,18 +46,18 @@ struct s_rpc_base
 {
     int    index;      ///< the index of this request
     int    guid;       ///< the request id number
-    ego_bool allocated;  ///< is this request being used?
-    ego_bool finished;   ///< has the request been fully processed?
-    ego_bool abort;      ///< has the calling function requested an abort?
+    bool allocated;  ///< is this request being used?
+    bool finished;   ///< has the request been fully processed?
+    bool abort;      ///< has the calling function requested an abort?
 
     int    data_type;  ///< a the type of the "inherited" data
     void * data;       ///< a pointer to the "inherited" data
 };
 
-static INLINE ego_bool ego_rpc_valid( const ego_rpc_base_t * prpc )           { return ( NULL != prpc ) && prpc->allocated; }
-static INLINE ego_bool ego_rpc_matches( const ego_rpc_base_t * prpc, const int guid ) { return ( NULL != prpc ) && prpc->allocated && ( guid == prpc->guid ); }
-static INLINE ego_bool ego_rpc_finished( const ego_rpc_base_t * prpc, const int guid ) { return !ego_rpc_matches( prpc, guid ) || ( prpc->finished ); }
-static INLINE ego_bool ego_rpc_abort( ego_rpc_base_t * prpc, const int guid ) { if ( !ego_rpc_matches( prpc, guid ) ) return ego_false; prpc->abort = ego_true; return ego_true; }
+static INLINE bool ego_rpc_valid( const ego_rpc_base_t * prpc )           { return ( NULL != prpc ) && prpc->allocated; }
+static INLINE bool ego_rpc_matches( const ego_rpc_base_t * prpc, const int guid ) { return ( NULL != prpc ) && prpc->allocated && ( guid == prpc->guid ); }
+static INLINE bool ego_rpc_finished( const ego_rpc_base_t * prpc, const int guid ) { return !ego_rpc_matches( prpc, guid ) || ( prpc->finished ); }
+static INLINE bool ego_rpc_abort( ego_rpc_base_t * prpc, const int guid ) { if ( !ego_rpc_matches( prpc, guid ) ) return false; prpc->abort = true; return true; }
 
 ego_rpc_base_t * ego_rpc_base_ctor( ego_rpc_base_t * prpc, int data_type, void * data );
 ego_rpc_base_t * ego_rpc_base_dtor( ego_rpc_base_t * prpc );
@@ -90,6 +90,6 @@ tx_request_t * ego_rpc_load_mnu_TxList( const char *filename );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool ego_rpc_system_begin( void );
+bool ego_rpc_system_begin( void );
 void   ego_rpc_system_end( void );
-ego_bool ego_rpc_system_timestep( void );
+bool ego_rpc_system_timestep( void );

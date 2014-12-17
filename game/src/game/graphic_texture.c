@@ -179,9 +179,9 @@ TX_REF TxList_get_free( const TX_REF itex )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool TxList_free_one( const TX_REF itex )
+bool TxList_free_one( const TX_REF itex )
 {
-    if ( itex < 0 || itex >= TX_COUNT ) return ego_false;
+    if ( itex < 0 || itex >= TX_COUNT ) return false;
 
     // release the texture
     oglx_texture_Release( TxList.lst + itex );
@@ -193,13 +193,13 @@ ego_bool TxList_free_one( const TX_REF itex )
         // that is an error
         for ( cnt = 0; cnt < TxList.free_count; cnt++ )
         {
-            if ( itex == TxList.free_ref[cnt] ) return ego_false;
+            if ( itex == TxList.free_ref[cnt] ) return false;
         }
     }
 #endif
 
     if ( TxList.free_count >= TX_COUNT )
-        return ego_false;
+        return false;
 
     // do not put anything below TX_SPECIAL_LAST back onto the free stack
     if ( itex >= TX_SPECIAL_LAST )
@@ -210,7 +210,7 @@ ego_bool TxList_free_one( const TX_REF itex )
         TxList.update_guid++;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------

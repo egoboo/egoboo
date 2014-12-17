@@ -20,8 +20,9 @@
 /// @file egolib/platform/sys_win32.c
 /// @brief System Dependent Functions
 /// @details Win32 - specific code
-
+#define NOMINMAX
 #include <windows.h>
+#undef NOMINMAX
 #include <stdarg.h>
 
 #include "egolib/system.h"

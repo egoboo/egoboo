@@ -21,28 +21,28 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool SDL_RectIntersect( SDL_Rect * src, SDL_Rect * dst, SDL_Rect * isect )
+bool SDL_RectIntersect( SDL_Rect * src, SDL_Rect * dst, SDL_Rect * isect )
 {
     Sint16 xmin, xmax, ymin, ymax;
 
     // should not happen
-    if ( NULL == src && NULL == dst ) return ego_false;
+    if ( NULL == src && NULL == dst ) return false;
 
     // null cases
-    if ( NULL == isect ) return ego_false;
-    if ( NULL == src ) { *isect = *dst; return ego_true; }
-    if ( NULL == dst ) { *isect = *src; return ego_true; }
+    if ( NULL == isect ) return false;
+    if ( NULL == src ) { *isect = *dst; return true; }
+    if ( NULL == dst ) { *isect = *src; return true; }
 
-    xmin = MAX( src->x, dst->x );
-    xmax = MIN( src->x + src->w, dst->x + dst->w );
+    xmin = std::max( src->x, dst->x );
+    xmax = std::min( src->x + src->w, dst->x + dst->w );
 
-    ymin = MAX( src->y, dst->y );
-    ymax = MIN( src->y + src->h, dst->y + dst->h );
+    ymin = std::max( src->y, dst->y );
+    ymax = std::min( src->y + src->h, dst->y + dst->h );
 
     isect->x = xmin;
-    isect->w = MAX( 0, xmax - xmin );
+    isect->w = std::max( 0, xmax - xmin );
     isect->y = ymin;
-    isect->h = MAX( 0, ymax - ymin );
+    isect->h = std::max( 0, ymax - ymin );
 
-    return ego_true;
+    return true;
 }

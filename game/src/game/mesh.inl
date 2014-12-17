@@ -37,13 +37,13 @@ static INLINE Uint32 ego_mesh_get_block_int( const ego_mesh_t * pmesh, int block
 static INLINE Uint32 ego_mesh_get_tile_int( const ego_mesh_t * pmesh, int grid_x,  int grid_y );
 
 static INLINE Uint32 ego_mesh_test_fx( const ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
-static INLINE ego_bool ego_mesh_clear_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
-static INLINE ego_bool ego_mesh_add_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
+static INLINE bool ego_mesh_clear_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
+static INLINE bool ego_mesh_add_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
 
 static INLINE Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_FIELD test );
-static INLINE ego_bool ego_mesh_grid_is_valid( const ego_mesh_t *, Uint32 id );
+static INLINE bool ego_mesh_grid_is_valid( const ego_mesh_t *, Uint32 id );
 
-static INLINE ego_bool ego_mesh_tile_has_bits( const ego_mesh_t *, const int ix, const int iy, const BIT_FIELD bits );
+static INLINE bool ego_mesh_tile_has_bits( const ego_mesh_t *, const int ix, const int iy, const BIT_FIELD bits );
 
 static INLINE ego_tile_info_t * ego_mesh_get_ptile( const ego_mesh_t *, const Uint32 itile );
 static INLINE ego_grid_info_t * ego_mesh_get_pgrid( const ego_mesh_t *, const Uint32 itile );
@@ -51,15 +51,15 @@ static INLINE Uint8             ego_mesh_get_twist( ego_mesh_t * pmesh, const Ui
 
 static INLINE GRID_FX_BITS ego_grid_info_get_all_fx( const ego_grid_info_t * );
 static INLINE GRID_FX_BITS ego_grid_info_test_all_fx( const ego_grid_info_t *, const GRID_FX_BITS bits );
-static INLINE ego_bool       ego_grid_info_add_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
-static INLINE ego_bool       ego_grid_info_sub_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
-static INLINE ego_bool       ego_grid_info_set_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
+static INLINE bool       ego_grid_info_add_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
+static INLINE bool       ego_grid_info_sub_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
+static INLINE bool       ego_grid_info_set_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
-static INLINE ego_bool ego_mesh_tile_has_bits( const ego_mesh_t * pmesh, const int ix, const int iy, const BIT_FIELD bits )
+static INLINE bool ego_mesh_tile_has_bits( const ego_mesh_t * pmesh, const int ix, const int iy, const BIT_FIELD bits )
 {
     int          itile;
     GRID_FX_BITS fx;
@@ -87,13 +87,13 @@ static INLINE Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_F
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool ego_mesh_grid_is_valid( const ego_mesh_t * pmpd, Uint32 id )
+static INLINE bool ego_mesh_grid_is_valid( const ego_mesh_t * pmpd, Uint32 id )
 {
-    if ( NULL == pmpd ) return ego_false;
+    if ( NULL == pmpd ) return false;
 
     mesh_bound_tests++;
 
-    if ( INVALID_TILE == id ) return ego_false;
+    if ( INVALID_TILE == id ) return false;
 
     return id < pmpd->info.tiles_count;
 }
@@ -197,39 +197,39 @@ static INLINE Uint32 ego_mesh_get_tile_int( const ego_mesh_t * pmesh, int grid_x
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool ego_mesh_clear_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags )
+static INLINE bool ego_mesh_clear_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags )
 {
-    ego_bool retval;
+    bool retval;
 
     // test for mesh
-    if ( NULL == pmesh ) return ego_false;
+    if ( NULL == pmesh ) return false;
 
     // test for invalid tile
     mesh_bound_tests++;
-    if ( itile > pmesh->info.tiles_count ) return ego_false;
+    if ( itile > pmesh->info.tiles_count ) return false;
 
     mesh_mpdfx_tests++;
     retval = ego_grid_info_sub_pass_fx( pmesh->gmem.grid_list + itile, flags );
 
     if ( retval )
     {
-        pmesh->fxlists.dirty = ego_true;
+        pmesh->fxlists.dirty = true;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool ego_mesh_add_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags )
+static INLINE bool ego_mesh_add_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags )
 {
-    ego_bool retval;
+    bool retval;
 
     // test for mesh
-    if ( NULL == pmesh ) return ego_false;
+    if ( NULL == pmesh ) return false;
 
     // test for invalid tile
     mesh_bound_tests++;
-    if ( itile > pmesh->info.tiles_count ) return ego_false;
+    if ( itile > pmesh->info.tiles_count ) return false;
 
     // succeed only of something actually changed
     mesh_mpdfx_tests++;
@@ -237,7 +237,7 @@ static INLINE ego_bool ego_mesh_add_fx( ego_mesh_t * pmesh, Uint32 itile, const 
 
     if ( retval )
     {
-        pmesh->fxlists.dirty = ego_true;
+        pmesh->fxlists.dirty = true;
     }
 
     return retval;
@@ -332,11 +332,11 @@ static INLINE GRID_FX_BITS ego_grid_info_test_all_fx( const ego_grid_info_t * pg
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool ego_grid_info_add_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
+static INLINE bool ego_grid_info_add_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
 {
     GRID_FX_BITS old_bits, new_bits;
 
-    if ( NULL == pgrid ) return ego_false;
+    if ( NULL == pgrid ) return false;
 
     // save the old bits
     old_bits = ego_grid_info_get_all_fx( pgrid );
@@ -352,11 +352,11 @@ static INLINE ego_bool ego_grid_info_add_pass_fx( ego_grid_info_t * pgrid, const
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool ego_grid_info_sub_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
+static INLINE bool ego_grid_info_sub_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
 {
     GRID_FX_BITS old_bits, new_bits;
 
-    if ( NULL == pgrid ) return ego_false;
+    if ( NULL == pgrid ) return false;
 
     // save the old bits
     old_bits = ego_grid_info_get_all_fx( pgrid );
@@ -372,11 +372,11 @@ static INLINE ego_bool ego_grid_info_sub_pass_fx( ego_grid_info_t * pgrid, const
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool ego_grid_info_set_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
+static INLINE bool ego_grid_info_set_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
 {
     GRID_FX_BITS old_bits, new_bits;
 
-    if ( NULL == pgrid ) return ego_false;
+    if ( NULL == pgrid ) return false;
 
     // save the old bits
     old_bits = ego_grid_info_get_all_fx( pgrid );

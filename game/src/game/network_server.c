@@ -233,11 +233,11 @@ egolib_rv sv_hostGame( void )
         }
 
         // Try to create a host player
-        //return create_player(ego_true);
-        ServerState.base.am_host = C_TRUE;
+        //return create_player(true);
+        ServerState.base.am_host = true;
 
         // Moved from net_sayHello because there they cause a race issue
-        egonet_set_waitingforclients( C_TRUE );
+        egonet_set_waitingforclients( true );
         net_players_loaded = 0;
     }
 
@@ -253,7 +253,7 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
     int time;
 
     ego_packet_t  ego_pkt;
-    ego_bool handled;
+    bool handled;
 
     Uint8  ub;
     Uint32 ui;
@@ -263,7 +263,7 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
     if ( !egonet_on() || NULL == enet_pkt ) return rv_error;
 
     // assume the best
-    handled = ego_true;
+    handled = true;
 
     // log the packet
     log_info( "sv_handlePacket: Received " );
@@ -280,7 +280,7 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
                 net_players_ready++;
                 if ( net_players_ready >= ServerState.base.client_count )
                 {
-                    egonet_set_readytostart( C_TRUE );
+                    egonet_set_readytostart( true );
                 }
             }
             break;
@@ -332,7 +332,7 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
                 if ( net_players_loaded == ServerState.base.client_count )
                 {
                     // Let the games begin...
-                    egonet_set_waitingforclients( C_FALSE );
+                    egonet_set_waitingforclients( false );
                     ego_packet_begin( &ego_pkt );
                     ego_packet_addUint16( &ego_pkt, TO_REMOTE_START );
                     egonet_broadcastPacketGuaranteed( &ego_pkt );
@@ -376,7 +376,7 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
             //    break;
 
         default:
-            handled = ego_false;
+            handled = false;
             break;
     }
 

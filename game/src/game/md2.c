@@ -247,11 +247,11 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
 
     for ( cnt = 0; cnt < num_frames; cnt++ )
     {
-        ego_bool bfound;
+        bool bfound;
 
         pframe = pmd2->m_frames + cnt;
 
-        bfound = ego_false;
+        bfound = false;
         for ( tnc = 0; tnc  < num_verts; tnc++ )
         {
             oct_vec_t opos;
@@ -272,7 +272,7 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
             if ( !bfound )
             {
                 oct_bb_set_ovec( &( pframe->bb ), opos );
-                bfound = ego_true;
+                bfound = true;
             }
             else
             {
@@ -304,7 +304,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
 {
     FILE * f;
     int i, v;
-    ego_bool bfound;
+    bool bfound;
 
     id_md2_header_t md2_header;
     MD2_Model_t    *model;
@@ -424,7 +424,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
 #endif
 
         // unpack the md2 vertex_lst from this frame
-        bfound = ego_false;
+        bfound = false;
         for ( v = 0; v < md2_header.num_vertices; v++ )
         {
             oct_vec_t ovec;
@@ -455,7 +455,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
             if ( !bfound )
             {
                 oct_bb_set_ovec( &( pframe->bb ), ovec );
-                bfound = ego_true;
+                bfound = true;
             }
             else
             {

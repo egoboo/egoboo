@@ -70,26 +70,26 @@ spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
+bool spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
 {
     char cTmp, delim;
-    C_BOOLEAN retval;
+    bool retval;
 
     // trap bad pointers
-    if ( NULL == fileread || NULL == pinfo ) return C_FALSE;
+    if ( NULL == fileread || NULL == pinfo ) return false;
 
     spawn_file_info_reinit( pinfo );
 
     // check for another entry, either the "#" or ":" delimiters
-    delim = goto_delimiter_list_vfs( pinfo->spawn_coment, fileread, "#:", C_TRUE );
-    if ( CSTR_END == delim ) return C_FALSE;
+    delim = goto_delimiter_list_vfs( pinfo->spawn_coment, fileread, "#:", true );
+    if ( CSTR_END == delim ) return false;
 
-    retval = C_FALSE;
+    retval = false;
     if ( ':' == delim )
     {
-        retval = C_TRUE;
+        retval = true;
 
-        pinfo->do_spawn = C_TRUE;
+        pinfo->do_spawn = true;
 
         vfs_get_string( fileread, pinfo->spawn_name, SDL_arraysize( pinfo->spawn_name ) );
         str_decode( pinfo->spawn_name, SDL_arraysize( pinfo->spawn_name ), pinfo->spawn_name );
@@ -142,12 +142,12 @@ C_BOOLEAN spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo )
         STRING szTmp1, szTmp2;
         int    iTmp, fields;
 
-        pinfo->do_spawn = C_FALSE;
+        pinfo->do_spawn = false;
 
         fields = vfs_scanf( fileread, "%255s%255s%d", szTmp1, szTmp2, &iTmp );
         if ( 3 == fields && 0 == strcmp( szTmp1, "dependency" ) )
         {
-            retval = C_TRUE;
+            retval = true;
 
             // seed the info with the data
             strncpy( pinfo->spawn_coment, szTmp2, SDL_arraysize( pinfo->spawn_coment ) );

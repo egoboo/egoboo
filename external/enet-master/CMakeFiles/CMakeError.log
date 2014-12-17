@@ -1,0 +1,388 @@
+Determining if the function fcntl exists failed with the following output:
+Change Dir: C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTryCompileExec2260795234.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Microsoft (R)-Buildmodul, Version 12.0.31101.0
+[Microsoft .NET Framework, Version 4.0.30319.34014]
+Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+
+Der Buildvorgang wurde am 15.12.2014 01:16:10 gestartet.
+Projekt "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2260795234.vcxproj" auf Knoten "1" (Standardziele).
+PrepareForBuild:
+  Das Verzeichnis "cmTryCompileExec2260795234.dir\Debug\" wird erstellt.
+  Das Verzeichnis "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
+  Das Verzeichnis "cmTryCompileExec2260795234.dir\Debug\cmTryCom.B9FB6571.tlog\" wird erstellt.
+InitializeBuildStatus:
+  "cmTryCompileExec2260795234.dir\Debug\cmTryCom.B9FB6571.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=fcntl /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec2260795234.dir\Debug\\" /Fd"cmTryCompileExec2260795234.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  Microsoft (R) C/C++-Optimierungscompiler Version 18.00.31101 fr x86
+  Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+  
+  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=fcntl /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec2260795234.dir\Debug\\" /Fd"cmTryCompileExec2260795234.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  
+  CheckFunctionExists.c
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec2260795234.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec2260795234.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec2260795234.lib" /MACHINE:X86 /SAFESEH  /machine:X86 /debug cmTryCompileExec2260795234.dir\Debug\CheckFunctionExists.obj
+CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_fcntl" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2260795234.vcxproj]
+C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec2260795234.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2260795234.vcxproj]
+Die Erstellung des Projekts "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2260795234.vcxproj" ist abgeschlossen (Standardziele) -- FEHLER.
+
+Fehler beim Buildvorgang.
+
+"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2260795234.vcxproj" (Standardziel) (1) ->
+(Link Ziel) -> 
+  CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_fcntl" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2260795234.vcxproj]
+  C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec2260795234.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2260795234.vcxproj]
+
+    0 Warnung(en)
+    2 Fehler
+
+Verstrichene Zeit 00:00:02.39
+
+
+Determining if the function poll exists failed with the following output:
+Change Dir: C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTryCompileExec393600886.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Microsoft (R)-Buildmodul, Version 12.0.31101.0
+[Microsoft .NET Framework, Version 4.0.30319.34014]
+Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+
+Der Buildvorgang wurde am 15.12.2014 01:16:14 gestartet.
+Projekt "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec393600886.vcxproj" auf Knoten "1" (Standardziele).
+PrepareForBuild:
+  Das Verzeichnis "cmTryCompileExec393600886.dir\Debug\" wird erstellt.
+  Das Verzeichnis "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
+  Das Verzeichnis "cmTryCompileExec393600886.dir\Debug\cmTryCom.B765C3DC.tlog\" wird erstellt.
+InitializeBuildStatus:
+  "cmTryCompileExec393600886.dir\Debug\cmTryCom.B765C3DC.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=poll /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec393600886.dir\Debug\\" /Fd"cmTryCompileExec393600886.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  Microsoft (R) C/C++-Optimierungscompiler Version 18.00.31101 fr x86
+  Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+  
+  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=poll /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec393600886.dir\Debug\\" /Fd"cmTryCompileExec393600886.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  
+  CheckFunctionExists.c
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec393600886.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec393600886.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec393600886.lib" /MACHINE:X86 /SAFESEH  /machine:X86 /debug cmTryCompileExec393600886.dir\Debug\CheckFunctionExists.obj
+CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_poll" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec393600886.vcxproj]
+C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec393600886.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec393600886.vcxproj]
+Die Erstellung des Projekts "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec393600886.vcxproj" ist abgeschlossen (Standardziele) -- FEHLER.
+
+Fehler beim Buildvorgang.
+
+"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec393600886.vcxproj" (Standardziel) (1) ->
+(Link Ziel) -> 
+  CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_poll" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec393600886.vcxproj]
+  C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec393600886.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec393600886.vcxproj]
+
+    0 Warnung(en)
+    2 Fehler
+
+Verstrichene Zeit 00:00:02.68
+
+
+Determining if the function gethostbyname_r exists failed with the following output:
+Change Dir: C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTryCompileExec1466805113.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Microsoft (R)-Buildmodul, Version 12.0.31101.0
+[Microsoft .NET Framework, Version 4.0.30319.34014]
+Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+
+Der Buildvorgang wurde am 15.12.2014 01:16:18 gestartet.
+Projekt "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1466805113.vcxproj" auf Knoten "1" (Standardziele).
+PrepareForBuild:
+  Das Verzeichnis "cmTryCompileExec1466805113.dir\Debug\" wird erstellt.
+  Das Verzeichnis "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
+  Das Verzeichnis "cmTryCompileExec1466805113.dir\Debug\cmTryCom.F7617589.tlog\" wird erstellt.
+InitializeBuildStatus:
+  "cmTryCompileExec1466805113.dir\Debug\cmTryCom.F7617589.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=gethostbyname_r /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec1466805113.dir\Debug\\" /Fd"cmTryCompileExec1466805113.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  Microsoft (R) C/C++-Optimierungscompiler Version 18.00.31101 fr x86
+  Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+  
+  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=gethostbyname_r /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec1466805113.dir\Debug\\" /Fd"cmTryCompileExec1466805113.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  
+  CheckFunctionExists.c
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec1466805113.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec1466805113.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec1466805113.lib" /MACHINE:X86 /SAFESEH  /machine:X86 /debug cmTryCompileExec1466805113.dir\Debug\CheckFunctionExists.obj
+CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_gethostbyname_r" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1466805113.vcxproj]
+C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec1466805113.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1466805113.vcxproj]
+Die Erstellung des Projekts "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1466805113.vcxproj" ist abgeschlossen (Standardziele) -- FEHLER.
+
+Fehler beim Buildvorgang.
+
+"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1466805113.vcxproj" (Standardziel) (1) ->
+(Link Ziel) -> 
+  CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_gethostbyname_r" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1466805113.vcxproj]
+  C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec1466805113.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1466805113.vcxproj]
+
+    0 Warnung(en)
+    2 Fehler
+
+Verstrichene Zeit 00:00:03.13
+
+
+Determining if the function gethostbyaddr_r exists failed with the following output:
+Change Dir: C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTryCompileExec2750756107.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Microsoft (R)-Buildmodul, Version 12.0.31101.0
+[Microsoft .NET Framework, Version 4.0.30319.34014]
+Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+
+Der Buildvorgang wurde am 15.12.2014 01:16:22 gestartet.
+Projekt "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2750756107.vcxproj" auf Knoten "1" (Standardziele).
+PrepareForBuild:
+  Das Verzeichnis "cmTryCompileExec2750756107.dir\Debug\" wird erstellt.
+  Das Verzeichnis "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
+  Das Verzeichnis "cmTryCompileExec2750756107.dir\Debug\cmTryCom.0FE39EA1.tlog\" wird erstellt.
+InitializeBuildStatus:
+  "cmTryCompileExec2750756107.dir\Debug\cmTryCom.0FE39EA1.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=gethostbyaddr_r /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec2750756107.dir\Debug\\" /Fd"cmTryCompileExec2750756107.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  Microsoft (R) C/C++-Optimierungscompiler Version 18.00.31101 fr x86
+  Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+  
+  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=gethostbyaddr_r /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec2750756107.dir\Debug\\" /Fd"cmTryCompileExec2750756107.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  
+  CheckFunctionExists.c
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec2750756107.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec2750756107.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec2750756107.lib" /MACHINE:X86 /SAFESEH  /machine:X86 /debug cmTryCompileExec2750756107.dir\Debug\CheckFunctionExists.obj
+CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_gethostbyaddr_r" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2750756107.vcxproj]
+C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec2750756107.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2750756107.vcxproj]
+Die Erstellung des Projekts "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2750756107.vcxproj" ist abgeschlossen (Standardziele) -- FEHLER.
+
+Fehler beim Buildvorgang.
+
+"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2750756107.vcxproj" (Standardziel) (1) ->
+(Link Ziel) -> 
+  CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_gethostbyaddr_r" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2750756107.vcxproj]
+  C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec2750756107.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec2750756107.vcxproj]
+
+    0 Warnung(en)
+    2 Fehler
+
+Verstrichene Zeit 00:00:02.99
+
+
+Determining if the function inet_pton exists failed with the following output:
+Change Dir: C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTryCompileExec3683968547.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Microsoft (R)-Buildmodul, Version 12.0.31101.0
+[Microsoft .NET Framework, Version 4.0.30319.34014]
+Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+
+Der Buildvorgang wurde am 15.12.2014 01:16:27 gestartet.
+Projekt "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3683968547.vcxproj" auf Knoten "1" (Standardziele).
+PrepareForBuild:
+  Das Verzeichnis "cmTryCompileExec3683968547.dir\Debug\" wird erstellt.
+  Das Verzeichnis "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
+  Das Verzeichnis "cmTryCompileExec3683968547.dir\Debug\cmTryCom.9DBA3E94.tlog\" wird erstellt.
+InitializeBuildStatus:
+  "cmTryCompileExec3683968547.dir\Debug\cmTryCom.9DBA3E94.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=inet_pton /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec3683968547.dir\Debug\\" /Fd"cmTryCompileExec3683968547.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  Microsoft (R) C/C++-Optimierungscompiler Version 18.00.31101 fr x86
+  Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+  
+  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=inet_pton /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec3683968547.dir\Debug\\" /Fd"cmTryCompileExec3683968547.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  
+  CheckFunctionExists.c
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec3683968547.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec3683968547.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec3683968547.lib" /MACHINE:X86 /SAFESEH  /machine:X86 /debug cmTryCompileExec3683968547.dir\Debug\CheckFunctionExists.obj
+CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_inet_pton" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3683968547.vcxproj]
+C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec3683968547.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3683968547.vcxproj]
+Die Erstellung des Projekts "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3683968547.vcxproj" ist abgeschlossen (Standardziele) -- FEHLER.
+
+Fehler beim Buildvorgang.
+
+"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3683968547.vcxproj" (Standardziel) (1) ->
+(Link Ziel) -> 
+  CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_inet_pton" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3683968547.vcxproj]
+  C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec3683968547.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3683968547.vcxproj]
+
+    0 Warnung(en)
+    2 Fehler
+
+Verstrichene Zeit 00:00:02.28
+
+
+Determining if the function inet_ntop exists failed with the following output:
+Change Dir: C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTryCompileExec3815858765.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Microsoft (R)-Buildmodul, Version 12.0.31101.0
+[Microsoft .NET Framework, Version 4.0.30319.34014]
+Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+
+Der Buildvorgang wurde am 15.12.2014 01:16:30 gestartet.
+Projekt "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3815858765.vcxproj" auf Knoten "1" (Standardziele).
+PrepareForBuild:
+  Das Verzeichnis "cmTryCompileExec3815858765.dir\Debug\" wird erstellt.
+  Das Verzeichnis "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
+  Das Verzeichnis "cmTryCompileExec3815858765.dir\Debug\cmTryCom.BFF5A35A.tlog\" wird erstellt.
+InitializeBuildStatus:
+  "cmTryCompileExec3815858765.dir\Debug\cmTryCom.BFF5A35A.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=inet_ntop /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec3815858765.dir\Debug\\" /Fd"cmTryCompileExec3815858765.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  Microsoft (R) C/C++-Optimierungscompiler Version 18.00.31101 fr x86
+  Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+  
+  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=inet_ntop /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec3815858765.dir\Debug\\" /Fd"cmTryCompileExec3815858765.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Program Files (x86)\CMake\share\cmake-3.1\Modules\CheckFunctionExists.c"
+  
+  CheckFunctionExists.c
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec3815858765.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec3815858765.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp/Debug/cmTryCompileExec3815858765.lib" /MACHINE:X86 /SAFESEH  /machine:X86 /debug cmTryCompileExec3815858765.dir\Debug\CheckFunctionExists.obj
+CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_inet_ntop" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3815858765.vcxproj]
+C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec3815858765.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3815858765.vcxproj]
+Die Erstellung des Projekts "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3815858765.vcxproj" ist abgeschlossen (Standardziele) -- FEHLER.
+
+Fehler beim Buildvorgang.
+
+"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3815858765.vcxproj" (Standardziel) (1) ->
+(Link Ziel) -> 
+  CheckFunctionExists.obj : error LNK2019: Verweis auf nicht aufgelöstes externes Symbol "_inet_ntop" in Funktion "_main". [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3815858765.vcxproj]
+  C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\cmTryCompileExec3815858765.exe : fatal error LNK1120: 1 nicht aufgelöste Externe [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3815858765.vcxproj]
+
+    0 Warnung(en)
+    2 Fehler
+
+Verstrichene Zeit 00:00:03.82
+
+
+Performing C SOURCE FILE Test HAS_MSGHDR_FLAGS failed with the following output:
+Change Dir: C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTryCompileExec1236667810.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Microsoft (R)-Buildmodul, Version 12.0.31101.0
+[Microsoft .NET Framework, Version 4.0.30319.34014]
+Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+
+Der Buildvorgang wurde am 15.12.2014 01:16:35 gestartet.
+Projekt "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1236667810.vcxproj" auf Knoten "1" (Standardziele).
+PrepareForBuild:
+  Das Verzeichnis "cmTryCompileExec1236667810.dir\Debug\" wird erstellt.
+  Das Verzeichnis "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
+  Das Verzeichnis "cmTryCompileExec1236667810.dir\Debug\cmTryCom.1E114E0C.tlog\" wird erstellt.
+InitializeBuildStatus:
+  "cmTryCompileExec1236667810.dir\Debug\cmTryCom.1E114E0C.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D HAS_MSGHDR_FLAGS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec1236667810.dir\Debug\\" /Fd"cmTryCompileExec1236667810.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\src.c"
+  Microsoft (R) C/C++-Optimierungscompiler Version 18.00.31101 fr x86
+  Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+  
+  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D HAS_MSGHDR_FLAGS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec1236667810.dir\Debug\\" /Fd"cmTryCompileExec1236667810.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\src.c"
+  
+  src.c
+C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\src.c(3): fatal error C1083: Datei (Include) kann nicht ge”ffnet werden: "sys/socket.h": No such file or directory [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1236667810.vcxproj]
+Die Erstellung des Projekts "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1236667810.vcxproj" ist abgeschlossen (Standardziele) -- FEHLER.
+
+Fehler beim Buildvorgang.
+
+"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1236667810.vcxproj" (Standardziel) (1) ->
+(ClCompile Ziel) -> 
+  C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\src.c(3): fatal error C1083: Datei (Include) kann nicht ge”ffnet werden: "sys/socket.h": No such file or directory [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec1236667810.vcxproj]
+
+    0 Warnung(en)
+    1 Fehler
+
+Verstrichene Zeit 00:00:01.81
+
+Source file was:
+
+#include <sys/types.h>
+#include <sys/socket.h>
+
+int main()
+{
+   struct msghdr* tmp;
+   (void) tmp->msg_flags;
+   return 0;
+}
+
+Determining size of socklen_t failed with the following output:
+Change Dir: C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Program Files (x86)/MSBuild/12.0/bin/MSBuild.exe" "cmTryCompileExec3177503457.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=12.0"
+Microsoft (R)-Buildmodul, Version 12.0.31101.0
+[Microsoft .NET Framework, Version 4.0.30319.34014]
+Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+
+Der Buildvorgang wurde am 15.12.2014 01:16:38 gestartet.
+Projekt "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3177503457.vcxproj" auf Knoten "1" (Standardziele).
+PrepareForBuild:
+  Das Verzeichnis "cmTryCompileExec3177503457.dir\Debug\" wird erstellt.
+  Das Verzeichnis "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\Debug\" wird erstellt.
+  Das Verzeichnis "cmTryCompileExec3177503457.dir\Debug\cmTryCom.D0FB0123.tlog\" wird erstellt.
+InitializeBuildStatus:
+  "cmTryCompileExec3177503457.dir\Debug\cmTryCom.D0FB0123.tlog\unsuccessfulbuild" wird erstellt, da "AlwaysCreate" angegeben wurde.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec3177503457.dir\Debug\\" /Fd"cmTryCompileExec3177503457.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CheckTypeSize\HAS_SOCKLEN_T.c"
+  Microsoft (R) C/C++-Optimierungscompiler Version 18.00.31101 fr x86
+  Copyright (C) Microsoft Corporation. Alle Rechte vorbehalten.
+  
+  cl /c /Zi /W3 /WX- /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"cmTryCompileExec3177503457.dir\Debug\\" /Fd"cmTryCompileExec3177503457.dir\Debug\vc120.pdb" /Gd /TC /analyze- /errorReport:queue "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CheckTypeSize\HAS_SOCKLEN_T.c"
+  
+  HAS_SOCKLEN_T.c
+C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CheckTypeSize\HAS_SOCKLEN_T.c(2): fatal error C1083: Datei (Include) kann nicht ge”ffnet werden: "sys/socket.h": No such file or directory [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3177503457.vcxproj]
+Die Erstellung des Projekts "C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3177503457.vcxproj" ist abgeschlossen (Standardziele) -- FEHLER.
+
+Fehler beim Buildvorgang.
+
+"C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3177503457.vcxproj" (Standardziel) (1) ->
+(ClCompile Ziel) -> 
+  C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CheckTypeSize\HAS_SOCKLEN_T.c(2): fatal error C1083: Datei (Include) kann nicht ge”ffnet werden: "sys/socket.h": No such file or directory [C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\CMakeFiles\CMakeTmp\cmTryCompileExec3177503457.vcxproj]
+
+    0 Warnung(en)
+    1 Fehler
+
+Verstrichene Zeit 00:00:02.48
+
+C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/enet-master/CMakeFiles/CheckTypeSize/HAS_SOCKLEN_T.c:
+#include "sys/types.h"
+#include "sys/socket.h"
+
+
+#undef KEY
+#if defined(__i386)
+# define KEY '_','_','i','3','8','6'
+#elif defined(__x86_64)
+# define KEY '_','_','x','8','6','_','6','4'
+#elif defined(__ppc__)
+# define KEY '_','_','p','p','c','_','_'
+#elif defined(__ppc64__)
+# define KEY '_','_','p','p','c','6','4','_','_'
+#endif
+
+#define SIZE (sizeof(socklen_t))
+char info_size[] =  {'I', 'N', 'F', 'O', ':', 's','i','z','e','[',
+  ('0' + ((SIZE / 10000)%10)),
+  ('0' + ((SIZE / 1000)%10)),
+  ('0' + ((SIZE / 100)%10)),
+  ('0' + ((SIZE / 10)%10)),
+  ('0' +  (SIZE    % 10)),
+  ']',
+#ifdef KEY
+  ' ','k','e','y','[', KEY, ']',
+#endif
+  '\0'};
+
+#ifdef __CLASSIC_C__
+int main(argc, argv) int argc; char *argv[];
+#else
+int main(int argc, char *argv[])
+#endif
+{
+  int require = 0;
+  require += info_size[argc];
+  (void)argv;
+  return require;
+}
+
+

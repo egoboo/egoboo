@@ -459,7 +459,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
             // draw the last output line and work backwards
             for ( i = (( int )console_line_count ) - 1; i >= 0 && height > 0 ; i-- )
             {
-                size_t len = MIN( 1023, console_line_lengths[i] );
+                size_t len = MIN( (size_t)1023, console_line_lengths[i] );
 
                 strncpy( buffer, pcon->output_buffer + console_line_offsets[i], len );
                 buffer[len] = CSTR_END;
@@ -688,7 +688,7 @@ SDL_Event * egolib_console_handle_events( SDL_Event * pevt )
         else if ( SDLK_LEFT == vkey )
         {
             pcon->buffer_carat--;
-            pcon->buffer_carat = CLIP( pcon->buffer_carat, 0, EGOBOO_CONSOLE_LENGTH - 1 );
+            pcon->buffer_carat = CLIP( pcon->buffer_carat, (size_t)0, (size_t)(EGOBOO_CONSOLE_LENGTH - 1) );
 
             pevt = NULL;
         }
@@ -696,7 +696,7 @@ SDL_Event * egolib_console_handle_events( SDL_Event * pevt )
         else if ( SDLK_RIGHT == vkey )
         {
             pcon->buffer_carat++;
-            pcon->buffer_carat = CLIP( pcon->buffer_carat, 0, EGOBOO_CONSOLE_LENGTH - 1 );
+            pcon->buffer_carat = CLIP( pcon->buffer_carat, (size_t)0, (size_t)(EGOBOO_CONSOLE_LENGTH - 1) );
 
             pevt = NULL;
         }

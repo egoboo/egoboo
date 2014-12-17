@@ -139,64 +139,64 @@ cartman_mpd_tile_t * cartman_mpd_tile_dtor( cartman_mpd_tile_t * ptr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool cartman_mpd_vertex_ary_ctor( cartman_mpd_vertex_t ary[], size_t size )
+bool cartman_mpd_vertex_ary_ctor( cartman_mpd_vertex_t ary[], size_t size )
 {
     size_t cnt;
 
-    if ( NULL == ary || 0 == size ) return ego_false;
+    if ( NULL == ary || 0 == size ) return false;
 
     for ( cnt = 0; cnt < size; cnt++ )
     {
         cartman_mpd_vertex_ctor( ary + cnt );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool cartman_mpd_vertex_ary_dtor( cartman_mpd_vertex_t ary[], size_t size )
+bool cartman_mpd_vertex_ary_dtor( cartman_mpd_vertex_t ary[], size_t size )
 {
     size_t cnt;
 
-    if ( NULL == ary || 0 == size ) return ego_false;
+    if ( NULL == ary || 0 == size ) return false;
 
     for ( cnt = 0; cnt < size; cnt++ )
     {
         cartman_mpd_vertex_ctor( ary + cnt );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool cartman_mpd_tile_ary_ctor( cartman_mpd_tile_t ary[], size_t size )
+bool cartman_mpd_tile_ary_ctor( cartman_mpd_tile_t ary[], size_t size )
 {
     size_t cnt;
 
-    if ( NULL == ary || 0 == size ) return ego_false;
+    if ( NULL == ary || 0 == size ) return false;
 
     for ( cnt = 0; cnt < size; cnt++ )
     {
         cartman_mpd_tile_ctor( ary + cnt );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size )
+bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size )
 {
     size_t cnt;
 
-    if ( NULL == ary || 0 == size ) return ego_false;
+    if ( NULL == ary || 0 == size ) return false;
 
     for ( cnt = 0; cnt < size; cnt++ )
     {
         cartman_mpd_tile_ctor( ary + cnt );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -245,7 +245,7 @@ cartman_mpd_info_t * cartman_mpd_info_dtor( cartman_mpd_info_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool cartman_mpd_info_init( cartman_mpd_info_t * pinfo, int vert_count, size_t tiles_x, size_t tiles_y )
+bool cartman_mpd_info_init( cartman_mpd_info_t * pinfo, int vert_count, size_t tiles_x, size_t tiles_y )
 {
 
     // handle default values
@@ -264,7 +264,7 @@ ego_bool cartman_mpd_info_init( cartman_mpd_info_t * pinfo, int vert_count, size
     pinfo->edgey = pinfo->tiles_y * TILE_ISIZE;
     pinfo->edgez = DEFAULT_Z_SIZE;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -541,22 +541,22 @@ void cartman_mpd_free_vertices( cartman_mpd_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool cartman_mpd_link_vertex( cartman_mpd_t * pmesh, int iparent, int ichild )
+bool cartman_mpd_link_vertex( cartman_mpd_t * pmesh, int iparent, int ichild )
 {
     cartman_mpd_vertex_t * pparent, * pchild;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
-    if ( !CART_VALID_VERTEX_RANGE( iparent ) ) return ego_false;
+    if ( !CART_VALID_VERTEX_RANGE( iparent ) ) return false;
     pparent = pmesh->vrt + iparent;
 
-    if ( !CART_VALID_VERTEX_RANGE( ichild ) ) return ego_false;
+    if ( !CART_VALID_VERTEX_RANGE( ichild ) ) return false;
     pchild = pmesh->vrt + ichild;
 
     pparent->next = ichild;
     pchild->next  = CHAINEND;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -566,13 +566,13 @@ int cartman_mpd_find_free_vertex( cartman_mpd_t * pmesh )
 
     int cnt;
 
-    ego_bool found;
+    bool found;
     cartman_mpd_vertex_t * vrt_lst;
 
     if ( NULL == pmesh ) pmesh = &mesh;
     vrt_lst = pmesh->vrt;
 
-    if ( pmesh->vrt_free <= 0 ) return ego_false;
+    if ( pmesh->vrt_free <= 0 ) return false;
 
     for ( cnt = 0;
           cnt < MAP_VERTICES_MAX && VERTEXUNUSED != pmesh->vrt[pmesh->vrt_at].a;
@@ -586,11 +586,11 @@ int cartman_mpd_find_free_vertex( cartman_mpd_t * pmesh )
         }
     }
 
-    found = ego_false;
+    found = false;
     if ( VERTEXUNUSED == pmesh->vrt[pmesh->vrt_at].a )
     {
         pmesh->vrt[pmesh->vrt_at].a = 1;
-        found = ego_true;
+        found = true;
     }
 
     return found ? pmesh->vrt_at : -1;
@@ -710,7 +710,7 @@ int cartman_mpd_allocate_vertex_list( cartman_mpd_t * pmesh, int list[], size_t 
 	int allocated = 0;
     Uint32 vrt_at_old = 0, vrt_free_old = MAP_VERTICES_MAX;
 
-    ego_bool alloc_error = ego_false;
+    bool alloc_error = false;
 
     // the list must be valid
     if ( NULL == list || 0 == size ) return -1;
@@ -724,13 +724,13 @@ int cartman_mpd_allocate_vertex_list( cartman_mpd_t * pmesh, int list[], size_t 
     vrt_free_old = pmesh->vrt_free;
 
     // try to allocate the vertices
-    alloc_error = ego_false;
+    alloc_error = false;
     for (cnt = 0, valid_verts = 0; cnt < count; cnt++, valid_verts++ )
     {
         int vert = cartman_mpd_find_free_vertex( pmesh );
         if ( vert < 0 )
         {
-            alloc_error = ego_true;
+            alloc_error = true;
             break;
         }
 
@@ -1137,7 +1137,7 @@ cartman_mpd_t * cartman_mpd_convert( cartman_mpd_t * pmesh_dst, map_t * pmesh_sr
             pvrt_dst->x = pvrt_src->pos.x;
             pvrt_dst->y = pvrt_src->pos.y;
             pvrt_dst->z = pvrt_src->pos.z;
-            pvrt_dst->a = MAX( pvrt_src->a, 1 );  // force a != VERTEXUNUSED
+            pvrt_dst->a = std::max( pvrt_src->a, (Uint8)1 );  // force a != VERTEXUNUSED
         };
     }
 
@@ -1163,7 +1163,8 @@ cartman_mpd_t * cartman_mpd_finalize( cartman_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
 {
-    int cnt, ivrt_dst, itile;
+	size_t cnt;
+    int ivrt_dst, itile;
 
     cartman_mpd_info_t   * pinfo_src;
     cartman_mpd_tile_t   * fan_ary_src;
@@ -1197,7 +1198,7 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
     map_init( pmesh_dst, &loc_info_dst );
 
     // revert the tile information
-    for ( cnt = 0; cnt < pinfo_src->tiles_count; cnt++ )
+    for (cnt = 0; cnt < pinfo_src->tiles_count; cnt++ )
     {
         tile_info_t        * ptile_dst = fan_ary_dst + cnt;
         cartman_mpd_tile_t * pfan_src  = fan_ary_src + cnt;
@@ -1294,7 +1295,7 @@ cartman_mpd_revert_fail:
 void tile_dict_lines_add( int fantype, int start, int end )
 {
     // ZZ> This function adds a line to the vertex schematic
-    int cnt;
+    size_t cnt;
     tile_line_data_t * plines;
 
     if ( fantype < 0 || fantype >= MAP_FAN_TYPE_MAX ) return;
@@ -1323,13 +1324,15 @@ void tile_dict_lines_add( int fantype, int start, int end )
 //--------------------------------------------------------------------------------------------
 void cartman_tile_dictionary_load_vfs()
 {
+#if 0
     int fantype;
+#endif
     tile_definition_t * pdef;
 
     tile_dictionary_load_vfs( "mp_data/fans.txt", &tile_dict, -1 );
 
     // generate the lines for each fan type
-    for ( fantype = 0;  fantype < tile_dict.def_count; fantype++ )
+    for ( size_t fantype = 0;  fantype < tile_dict.def_count; fantype++ )
     {
         int entry, command;
 

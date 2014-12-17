@@ -31,15 +31,15 @@ process_t * process_init( process_t * proc )
 
     BLANK_STRUCT_PTR( proc )
 
-    proc->terminated = C_TRUE;
+    proc->terminated = true;
 
     return proc;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN process_start( process_t * proc )
+bool process_start(process_t * proc)
 {
-    if ( NULL == proc ) return C_FALSE;
+    if ( NULL == proc ) return false;
 
     // choose the correct proc->state
     if ( proc->terminated || proc->state > proc_leaving )
@@ -56,31 +56,31 @@ C_BOOLEAN process_start( process_t * proc )
     }
 
     // tell it to run
-    proc->terminated = C_FALSE;
-    proc->valid      = C_TRUE;
-    proc->paused     = C_FALSE;
+    proc->terminated = false;
+    proc->valid      = true;
+    proc->paused     = false;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN process_kill( process_t * proc )
+bool process_kill(process_t * proc)
 {
-    if ( NULL == proc ) return C_FALSE;
+    if ( NULL == proc ) return false;
 
-    if ( !process_validate( proc ) ) return C_TRUE;
+    if ( !process_validate( proc ) ) return true;
 
     // turn the process back on with an order to commit suicide
-    proc->paused = C_FALSE;
-    proc->killme = C_TRUE;
+    proc->paused = false;
+    proc->killme = true;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN process_validate( process_t * proc )
+bool process_validate(process_t * proc)
 {
-    if ( NULL == proc ) return C_FALSE;
+    if ( NULL == proc ) return false;
 
     if ( !proc->valid || proc->terminated )
     {
@@ -91,47 +91,47 @@ C_BOOLEAN process_validate( process_t * proc )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN process_terminate( process_t * proc )
+bool process_terminate(process_t * proc)
 {
-    if ( NULL == proc ) return C_FALSE;
+    if ( NULL == proc ) return false;
 
-    proc->valid      = C_FALSE;
-    proc->terminated = C_TRUE;
+    proc->valid      = false;
+    proc->terminated = true;
     proc->state      = proc_begin;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN process_pause( process_t * proc )
+bool process_pause(process_t * proc)
 {
-    C_BOOLEAN old_value;
+	bool old_value;
 
-    if ( !process_validate( proc ) ) return C_FALSE;
+    if ( !process_validate( proc ) ) return false;
 
     old_value    = proc->paused;
-    proc->paused = C_TRUE;
+    proc->paused = true;
 
     return old_value != proc->paused;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN process_resume( process_t * proc )
+bool process_resume(process_t * proc)
 {
-    C_BOOLEAN old_value;
+	bool old_value;
 
-    if ( !process_validate( proc ) ) return C_FALSE;
+    if ( !process_validate( proc ) ) return false;
 
     old_value    = proc->paused;
-    proc->paused = C_FALSE;
+    proc->paused = false;
 
     return old_value != proc->paused;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN process_running( process_t * proc )
+bool process_running(process_t * proc)
 {
-    if ( !process_validate( proc ) ) return C_FALSE;
+    if ( !process_validate( proc ) ) return false;
 
     return !proc->paused;
 }

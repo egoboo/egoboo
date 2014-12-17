@@ -107,8 +107,8 @@ typedef struct s_gfx_config gfx_config_t;
 enum e_gfx_rv
 {
     gfx_error   = -1,
-    gfx_fail    = ego_false,
-    gfx_success = ego_true
+    gfx_fail    = false,
+    gfx_success = true
 };
 
 // this typedef must be after the enum definition or gcc has a fit
@@ -218,33 +218,33 @@ int                     obj_registry_entity_cmp( const void * pleft, const void 
 struct s_gfx_config
 {
     GLuint shading;
-    ego_bool refon;
+    bool refon;
     Uint8  reffadeor;
-    ego_bool antialiasing;
-    ego_bool dither;
-    ego_bool perspective;
-    ego_bool phongon;
-    ego_bool shaon;
-    ego_bool shasprite;
+    bool antialiasing;
+    bool dither;
+    bool perspective;
+    bool phongon;
+    bool shaon;
+    bool shasprite;
 
-    ego_bool clearson;          ///< Do we clear every time?
-    ego_bool draw_background;   ///< Do we draw the background image?
-    ego_bool draw_overlay;      ///< Draw overlay?
-    ego_bool draw_water_0;      ///< Do we draw water layer 1 (TX_WATER_LOW)
-    ego_bool draw_water_1;      ///< Do we draw water layer 2 (TX_WATER_TOP)
+    bool clearson;          ///< Do we clear every time?
+    bool draw_background;   ///< Do we draw the background image?
+    bool draw_overlay;      ///< Draw overlay?
+    bool draw_water_0;      ///< Do we draw water layer 1 (TX_WATER_LOW)
+    bool draw_water_1;      ///< Do we draw water layer 2 (TX_WATER_TOP)
 
     size_t dynalist_max;     ///< Max number of dynamic lights to draw
-    ego_bool exploremode;       ///< fog of war mode for mesh display
-    ego_bool usefaredge;        ///< Far edge maps? (Outdoor)
+    bool exploremode;       ///< fog of war mode for mesh display
+    bool usefaredge;        ///< Far edge maps? (Outdoor)
 
     // virtual window parameters
     float vw, vh;
     float vdw, vdh;
 };
 
-ego_bool gfx_config_init( gfx_config_t * pgfx );
-ego_bool gfx_system_set_virtual_screen( gfx_config_t * pgfx );
-ego_bool gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
+bool gfx_config_init( gfx_config_t * pgfx );
+bool gfx_system_set_virtual_screen( gfx_config_t * pgfx );
+bool gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -300,15 +300,18 @@ extern float           lighttoenviroy[256];                                ///< 
 
 void   gfx_system_begin( void );
 void   gfx_system_end( void );
-int    gfx_system_init_OpenGL( void );
-void   gfx_system_main( void );
-void   gfx_system_reload_all_textures( void );
-void   gfx_system_make_enviro( void );
-void   gfx_system_init_all_graphics( void );
-void   gfx_system_release_all_graphics( void );
-void   gfx_system_delete_all_graphics( void );
-void   gfx_system_load_assets( void );
-void   gfx_system_load_basic_textures( void );
+
+int    gfx_system_init_OpenGL();
+void   gfx_system_uninit_OpenGL();
+
+void   gfx_system_main();
+void   gfx_system_reload_all_textures();
+void   gfx_system_make_enviro();
+void   gfx_system_init_all_graphics();
+void   gfx_system_release_all_graphics();
+void   gfx_system_delete_all_graphics();
+void   gfx_system_load_assets();
+void   gfx_system_load_basic_textures();
 
 renderlist_mgr_t * gfx_system_get_renderlist_mgr( const struct s_camera * pcam );
 dolist_mgr_t * gfx_system_get_dolist_mgr( void );
@@ -316,11 +319,11 @@ dolist_mgr_t * gfx_system_get_dolist_mgr( void );
 // the render engine callback
 void   gfx_system_render_world( const struct s_camera * pcam, const int render_list_index, const int dolist_index );
 
-void   gfx_request_clear_screen( void );
-void   gfx_do_clear_screen( void );
-ego_bool gfx_flip_pages_requested( void );
-void   gfx_request_flip_pages( void );
-void   gfx_do_flip_pages( void );
+void gfx_request_clear_screen();
+void gfx_do_clear_screen();
+bool gfx_flip_pages_requested();
+void gfx_request_flip_pages();
+void gfx_do_flip_pages();
 
 float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_color, Uint32 sparkle_timer, float size );
 float draw_menu_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Uint32 delta_update, float size );
@@ -328,42 +331,42 @@ float draw_game_icon( const TX_REF icontype, float x, float y, Uint8 sparkle, Ui
 void  draw_map_texture( float x, float y );
 float draw_one_bar( Uint8 bartype, float x, float y, int ticks, int maxticks );
 float draw_status( const CHR_REF character, float x, float y );
-void  draw_one_character_icon( const CHR_REF item, float x, float y, ego_bool draw_ammo, Uint8 sparkle_override );
-void  draw_cursor( void );
-void  draw_blip( float sizeFactor, Uint8 color, float x, float y, ego_bool mini_map );
+void  draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_ammo, Uint8 sparkle_override );
+void  draw_cursor();
+void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map );
 
 //void   make_lightdirectionlookup( void );
 
-ego_bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos );
+bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos );
 float  grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
 
-void release_all_profile_textures( void );
+void release_all_profile_textures();
 
-gfx_rv gfx_load_blips( void );
-gfx_rv gfx_load_bars( void );
-gfx_rv gfx_load_map( void );
-gfx_rv gfx_load_icons( void );
+gfx_rv gfx_load_blips();
+gfx_rv gfx_load_bars();
+gfx_rv gfx_load_map();
+gfx_rv gfx_load_icons();
 
-float  get_ambient_level( void );
+float  get_ambient_level();
 
-void   draw_mouse_cursor( void );
+void   draw_mouse_cursor();
 
 gfx_rv chr_instance_flash( struct s_chr_instance * pinst, Uint8 value );
 
 //void gfx_calc_rotmesh( void );
 
 int            renderlist_mgr_get_free_idx( renderlist_mgr_t * ptr );
-gfx_rv         renderlist_mgr_free_one( renderlist_mgr_t * ptr, int index );
-renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, int index );
+gfx_rv         renderlist_mgr_free_one( renderlist_mgr_t * ptr, size_t index );
+renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, size_t index );
 
 int        dolist_mgr_get_free_idx( dolist_mgr_t * ptr );
-gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, int index );
-dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index );
+gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, size_t index );
+dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, size_t index );
 
 gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh );
 gfx_rv renderlist_attach_camera( renderlist_t * ptr, const struct s_camera * pcam );
 
-ego_bool oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
+bool oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
 
 struct s_oglx_texture * gfx_get_mesh_tx_sml( int which );
 struct s_oglx_texture * gfx_get_mesh_tx_big( int which );

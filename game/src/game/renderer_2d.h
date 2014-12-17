@@ -22,10 +22,12 @@
 /// @file game/renderer_2d.h
 /// @brief Routines for rendering 2d primitves
 
+#include "egolib/opengl/renderer.h"
+#if 0
 #include "game/egoboo_typedef.h"
-
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_texture.h"
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -65,34 +67,36 @@ DECLARE_STATIC_ARY_TYPE( DisplayMsgAry, msg_t, EGO_MESSAGE_MAX );
 
 DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
-extern void  DisplayMsg_clear( void );
-extern void  DisplayMsg_reset( void );
-extern int   DisplayMsg_get_free( void );
-extern int   DisplayMsg_printf( const char *format, ... );
-extern void  DisplayMsg_print( const char *text );
-extern int   DisplayMsg_vprintf( const char *format, va_list args );
-extern float DisplayMsg_draw_all( float y );
+extern void  DisplayMsg_clear();
+extern void  DisplayMsg_reset();
+extern int   DisplayMsg_get_free();
+extern int   DisplayMsg_printf(const char *format, ...);
+extern void  DisplayMsg_print(const char *text);
+extern int   DisplayMsg_vprintf(const char *format, va_list args);
+extern float DisplayMsg_draw_all(float y);
 
-extern int    DisplayMsg_timechange;     ///< how much time has elapsed for messages
-extern int    DisplayMsg_count;          ///< maximum number of displayed messages
-extern ego_bool DisplayMsg_on;             ///< Messages?
+extern int  DisplayMsg_timechange;     ///< how much time has elapsed for messages
+extern int  DisplayMsg_count;          ///< maximum number of displayed messages
+extern bool DisplayMsg_on;             ///< Messages?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 extern const GLXvector4f white_vec;
 extern const GLXvector4f black_vec;
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // mode control
-void gfx_begin_2d( void );
-void gfx_end_2d( void );
-void gfx_begin_text( void );
-void gfx_end_text( void );
-void gfx_enable_texturing( void );
-void gfx_disable_texturing( void );
+void gfx_begin_2d();
+void gfx_end_2d();
+void gfx_begin_text();
+void gfx_end_text();
+void gfx_enable_texturing();
+void gfx_disable_texturing();
 void gfx_reshape_viewport( int w, int h );
 
 // bitmap font functions
@@ -105,8 +109,8 @@ int   draw_string_raw( float x, float y, const char *format, ... );
 int   DisplayMsg_printf( const char *format, ... );
 
 // graphics primitive functions
-void   draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const ego_bool use_alpha, const GLXvector4f quad_tint );
-ego_bool dump_screenshot( void );
+void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const GLXvector4f quad_tint );
+bool dump_screenshot();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

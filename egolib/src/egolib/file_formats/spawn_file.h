@@ -57,7 +57,7 @@ extern "C"
 /// The internal representation of a single line in "spawn.txt"
     struct s_spawn_file_info
     {
-        C_BOOLEAN     do_spawn;
+        bool       do_spawn;
         STRING     spawn_coment;
 
         STRING     spawn_name;
@@ -69,7 +69,7 @@ extern "C"
         int        money;
         int        level;
         int        skin;
-        C_BOOLEAN  stat;
+        bool       stat;
         REF_T      team;
         FACING_T   facing;
         REF_T      attach;
@@ -81,7 +81,7 @@ extern "C"
     spawn_file_info_t * spawn_file_info_init( spawn_file_info_t *pinfo );
     spawn_file_info_t * spawn_file_info_reinit( spawn_file_info_t *pinfo );
 
-    C_BOOLEAN spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo );
+    bool spawn_file_scan( vfs_FILE * fileread, spawn_file_info_t *pinfo );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

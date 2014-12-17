@@ -52,12 +52,12 @@ static void    ChrList_clear( void );
 static void    ChrList_init( void );
 static void    ChrList_deinit( void );
 
-static ego_bool ChrList_add_free_ref( const CHR_REF ichr );
-static ego_bool ChrList_remove_free_ref( const CHR_REF ichr );
-static ego_bool ChrList_remove_free_idx( const int index );
+static bool ChrList_add_free_ref( const CHR_REF ichr );
+static bool ChrList_remove_free_ref( const CHR_REF ichr );
+static bool ChrList_remove_free_idx( const int index );
 
-static ego_bool ChrList_remove_used_ref( const CHR_REF ichr );
-static ego_bool ChrList_remove_used_idx( const int index );
+static bool ChrList_remove_used_ref( const CHR_REF ichr );
+static bool ChrList_remove_used_idx( const int index );
 
 static void   ChrList_prune_used_list( void );
 static void   ChrList_prune_free_list( void );
@@ -130,8 +130,8 @@ void ChrList_clear( void )
         ChrList.used_ref[cnt] = INVALID_CHR_IDX;
 
         // let the particle data know that it is not in a list
-        ChrList.lst[cnt].obj_base.in_free_list = ego_false;
-        ChrList.lst[cnt].obj_base.in_used_list = ego_false;
+        ChrList.lst[cnt].obj_base.in_free_list = false;
+        ChrList.lst[cnt].obj_base.in_used_list = false;
     }
 }
 
@@ -183,7 +183,7 @@ void ChrList_prune_used_list( void )
 
     for ( cnt = 0; cnt < ChrList.used_count; cnt++ )
     {
-        ego_bool removed = ego_false;
+        bool removed = false;
 
         ichr = ( CHR_REF )ChrList.used_ref[cnt];
 
@@ -203,13 +203,14 @@ void ChrList_prune_used_list( void )
 void ChrList_prune_free_list( void )
 {
     // prune the free list
-
+#if 0
     size_t cnt;
+#endif
     CHR_REF ichr;
 
-    for ( cnt = 0; cnt < ChrList.free_count; cnt++ )
+    for ( size_t cnt = 0; cnt < ChrList.free_count; cnt++ )
     {
-        ego_bool removed = ego_false;
+        bool removed = false;
 
         ichr = ( CHR_REF )ChrList.free_ref[cnt];
 
@@ -269,7 +270,7 @@ void ChrList_update_used( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChrList_free_one( const CHR_REF ichr )
+bool ChrList_free_one( const CHR_REF ichr )
 {
     /// @author ZZ
     /// @details This function sticks a character back on the free enchant stack
@@ -277,11 +278,11 @@ ego_bool ChrList_free_one( const CHR_REF ichr )
     /// @note Tying ALLOCATED_CHR() and POBJ_TERMINATE() to ChrList_free_one()
     /// should be enough to ensure that no character is freed more than once
 
-    ego_bool retval;
+    bool retval;
     chr_t * pchr;
     obj_data_t * pbase;
 
-    if ( !ALLOCATED_CHR( ichr ) ) return ego_false;
+    if ( !ALLOCATED_CHR( ichr ) ) return false;
     pchr = ChrList_get_ptr( ichr );
     pbase = POBJ_GET_PBASE( pchr );
 
@@ -299,7 +300,7 @@ ego_bool ChrList_free_one( const CHR_REF ichr )
     {
         // deallocate any dynamically allocated memory
         pchr = chr_config_deinitialize( pchr, 100 );
-        if ( NULL == pchr ) return ego_false;
+        if ( NULL == pchr ) return false;
 
         if ( pbase->in_used_list )
         {
@@ -308,7 +309,7 @@ ego_bool ChrList_free_one( const CHR_REF ichr )
 
         if ( pbase->in_free_list )
         {
-            retval = ego_true;
+            retval = true;
         }
         else
         {
@@ -317,7 +318,7 @@ ego_bool ChrList_free_one( const CHR_REF ichr )
 
         // character "destructor"
         pchr = chr_dtor( pchr );
-        if ( NULL == pchr ) return ego_false;
+        if ( NULL == pchr ) return false;
     }
 
     return retval;
@@ -357,7 +358,7 @@ size_t ChrList_pop_free( const int idx )
         if ( VALID_CHR_RANGE( retval ) )
         {
             // let the object know it is not in the free list any more
-            ChrList.lst[retval].obj_base.in_free_list = ego_false;
+            ChrList.lst[retval].obj_base.in_free_list = false;
             break;
         }
 
@@ -404,22 +405,22 @@ int ChrList_find_free_ref( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChrList_add_free_ref( const CHR_REF ichr )
+bool ChrList_add_free_ref( const CHR_REF ichr )
 {
-    ego_bool retval;
+    bool retval;
 
-    if ( !VALID_CHR_RANGE( ichr ) ) return ego_false;
+    if ( !VALID_CHR_RANGE( ichr ) ) return false;
 
 #if defined(_DEBUG) && defined(DEBUG_CHR_LIST)
     if ( ChrList_find_free_ref( ichr ) > 0 )
     {
-        return ego_false;
+        return false;
     }
 #endif
 
     EGOBOO_ASSERT( !ChrList.lst[ichr].obj_base.in_free_list );
 
-    retval = ego_false;
+    retval = false;
     if ( ChrList.free_count < MAX_CHR )
     {
         ChrList.free_ref[ChrList.free_count] = ichr;
@@ -427,21 +428,21 @@ ego_bool ChrList_add_free_ref( const CHR_REF ichr )
         ChrList.free_count++;
         ChrList.update_guid++;
 
-        ChrList.lst[ichr].obj_base.in_free_list = ego_true;
+        ChrList.lst[ichr].obj_base.in_free_list = true;
 
-        retval = ego_true;
+        retval = true;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChrList_remove_free_idx( const int index )
+bool ChrList_remove_free_idx( const int index )
 {
     CHR_REF ichr;
 
     // was it found?
-    if ( index < 0 || index >= ChrList.free_count ) return ego_false;
+    if ( index < 0 || index >= ChrList.free_count ) return false;
 
     ichr = ( CHR_REF )ChrList.free_ref[index];
 
@@ -451,7 +452,7 @@ ego_bool ChrList_remove_free_idx( const int index )
     if ( VALID_CHR_RANGE( ichr ) )
     {
         // let the object know it is not in the list anymore
-        ChrList.lst[ichr].obj_base.in_free_list = ego_false;
+        ChrList.lst[ichr].obj_base.in_free_list = false;
     }
 
     // shorten the list
@@ -464,7 +465,7 @@ ego_bool ChrList_remove_free_idx( const int index )
         SWAP( size_t, ChrList.free_ref[index], ChrList.free_ref[ChrList.free_count] );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -492,22 +493,22 @@ int ChrList_find_used_ref( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChrList_push_used( const CHR_REF ichr )
+bool ChrList_push_used( const CHR_REF ichr )
 {
-    ego_bool retval;
+    bool retval;
 
-    if ( !VALID_CHR_RANGE( ichr ) ) return ego_false;
+    if ( !VALID_CHR_RANGE( ichr ) ) return false;
 
 #if defined(_DEBUG) && defined(DEBUG_CHR_LIST)
     if ( ChrList_find_used_ref( ichr ) > 0 )
     {
-        return ego_false;
+        return false;
     }
 #endif
 
     EGOBOO_ASSERT( !ChrList.lst[ichr].obj_base.in_used_list );
 
-    retval = ego_false;
+    retval = false;
     if ( ChrList.used_count < MAX_CHR )
     {
         ChrList.used_ref[ChrList.used_count] = REF_TO_INT( ichr );
@@ -515,21 +516,21 @@ ego_bool ChrList_push_used( const CHR_REF ichr )
         ChrList.used_count++;
         ChrList.update_guid++;
 
-        ChrList.lst[ichr].obj_base.in_used_list = ego_true;
+        ChrList.lst[ichr].obj_base.in_used_list = true;
 
-        retval = ego_true;
+        retval = true;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChrList_remove_used_idx( const int index )
+bool ChrList_remove_used_idx( const int index )
 {
     CHR_REF ichr;
 
     // was it found?
-    if ( index < 0 || index >= ChrList.used_count ) return ego_false;
+    if ( index < 0 || index >= ChrList.used_count ) return false;
 
     ichr = ( CHR_REF )ChrList.used_ref[index];
 
@@ -539,7 +540,7 @@ ego_bool ChrList_remove_used_idx( const int index )
     if ( VALID_CHR_RANGE( ichr ) )
     {
         // let the object know it is not in the list anymore
-        ChrList.lst[ichr].obj_base.in_used_list = ego_false;
+        ChrList.lst[ichr].obj_base.in_used_list = false;
     }
 
     // shorten the list
@@ -552,11 +553,11 @@ ego_bool ChrList_remove_used_idx( const int index )
         SWAP( size_t, ChrList.used_ref[index], ChrList.used_ref[ChrList.used_count] );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChrList_remove_used_ref( const CHR_REF ichr )
+bool ChrList_remove_used_ref( const CHR_REF ichr )
 {
     // find the object in the used list
     int index = ChrList_find_used_ref( ichr );
@@ -586,8 +587,8 @@ CHR_REF ChrList_allocate( const CHR_REF override )
                 ChrList.free_ref[override_index] = ichr;
 
                 // fix the in_free_list values
-                ChrList.lst[ichr].obj_base.in_free_list = ego_true;
-                ChrList.lst[override].obj_base.in_free_list = ego_false;
+                ChrList.lst[ichr].obj_base.in_free_list = true;
+                ChrList.lst[override].obj_base.in_free_list = false;
 
                 ichr = override;
             }
@@ -631,12 +632,14 @@ CHR_REF ChrList_allocate( const CHR_REF override )
 //--------------------------------------------------------------------------------------------
 void ChrList_cleanup( void )
 {
+#if 0
     int     cnt;
+#endif
     chr_t * pchr;
 
     // go through the list and activate all the characters that
     // were created while the list was iterating
-    for ( cnt = 0; cnt < chr_activation_count; cnt++ )
+    for ( size_t cnt = 0; cnt < chr_activation_count; cnt++ )
     {
         CHR_REF ichr = chr_activation_list[cnt];
 
@@ -645,14 +648,14 @@ void ChrList_cleanup( void )
 
         if ( !pchr->obj_base.turn_me_on ) continue;
 
-        pchr->obj_base.on         = ego_true;
-        pchr->obj_base.turn_me_on = ego_false;
+        pchr->obj_base.on         = true;
+        pchr->obj_base.turn_me_on = false;
     }
     chr_activation_count = 0;
 
     // go through and delete any characters that were
     // supposed to be deleted while the list was iterating
-    for ( cnt = 0; cnt < chr_termination_count; cnt++ )
+    for ( size_t cnt = 0; cnt < chr_termination_count; cnt++ )
     {
         ChrList_free_one( chr_termination_list[cnt] );
     }
@@ -660,41 +663,41 @@ void ChrList_cleanup( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChrList_add_activation( const CHR_REF ichr )
+bool ChrList_add_activation( const CHR_REF ichr )
 {
     // put this character into the activation list so that it can be activated right after
     // the ChrList loop is completed
 
-    ego_bool retval = ego_false;
+    bool retval = false;
 
-    if ( !VALID_CHR_RANGE( ichr ) ) return ego_false;
+    if ( !VALID_CHR_RANGE( ichr ) ) return false;
 
     if ( chr_activation_count < MAX_CHR )
     {
         chr_activation_list[chr_activation_count] = ichr;
         chr_activation_count++;
 
-        retval = ego_true;
+        retval = true;
     }
 
-    ChrList.lst[ichr].obj_base.turn_me_on = ego_true;
+    ChrList.lst[ichr].obj_base.turn_me_on = true;
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChrList_add_termination( const CHR_REF ichr )
+bool ChrList_add_termination( const CHR_REF ichr )
 {
-    ego_bool retval = ego_false;
+    bool retval = false;
 
-    if ( !VALID_CHR_RANGE( ichr ) ) return ego_false;
+    if ( !VALID_CHR_RANGE( ichr ) ) return false;
 
     if ( chr_termination_count < MAX_CHR )
     {
         chr_termination_list[chr_termination_count] = ichr;
         chr_termination_count++;
 
-        retval = ego_true;
+        retval = true;
     }
 
     // at least mark the object as "waiting to be terminated"
@@ -704,7 +707,7 @@ ego_bool ChrList_add_termination( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChrList_request_terminate( const CHR_REF ichr )
+bool ChrList_request_terminate( const CHR_REF ichr )
 {
     /// @author BB
     /// @details Mark this character for deletion
@@ -727,7 +730,7 @@ int ChrList_count_used( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChrList_remove_free_ref( const CHR_REF ichr )
+bool ChrList_remove_free_ref( const CHR_REF ichr )
 {
     // find the object in the free list
     int index = ChrList_find_free_ref( ichr );

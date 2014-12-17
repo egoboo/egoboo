@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file renderer_2d.c
+/// @file game/renderer_2d.c
 /// @brief Implementation of the 2d renderer functions
 /// @details
 
@@ -38,12 +38,14 @@
 
 INSTANTIATE_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 
-int    DisplayMsg_timechange = 0;
-int    DisplayMsg_count    = EGO_MESSAGE_MAX;
-ego_bool DisplayMsg_on    = ego_true;
+int DisplayMsg_timechange = 0;
+int DisplayMsg_count = EGO_MESSAGE_MAX;
+bool DisplayMsg_on = true;
 
+#if 0
 const GLXvector4f white_vec = {1.0f, 1.0f, 1.0f, 1.0f};
 const GLXvector4f black_vec = {0.0f, 0.0f, 0.0f, 1.0f};
+#endif
 
 //--------------------------------------------------------------------------------------------
 // PRIVATE FUNCTIONS
@@ -150,7 +152,7 @@ void DisplayMsg_clear( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void DisplayMsg_reset( void )
+void DisplayMsg_reset()
 {
     /// @author ZZ
     /// @details This makes messages safe to use
@@ -167,7 +169,7 @@ void DisplayMsg_reset( void )
 }
 
 //--------------------------------------------------------------------------------------------
-int DisplayMsg_get_free( void )
+int DisplayMsg_get_free()
 {
     /// @author ZZ
     /// @details This function finds the best message to use
@@ -286,7 +288,9 @@ void gfx_begin_2d( void )
     // Set up an orthogonal projection
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glLoadIdentity )();
+	/* @todo Remove glLoadIdentity and glOrtho. Use fmat_4x4_t API to build an ortho projection matrix,
+	         use Egoboo_Renderer_OpenGL_loadMatrix to load the matrix. */
+	GL_DEBUG( glLoadIdentity )();
     GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
 
     // Reset the Modelview Matrix
@@ -335,7 +339,7 @@ void gfx_begin_text( void )
 
     // do not display the completely transparent portion
     GL_DEBUG( glEnable )( GL_ALPHA_TEST );                               // GL_ENABLE_BIT
-    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                            // GL_COLOR_BUFFER_BIT
+    GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                         // GL_COLOR_BUFFER_BIT
 
     GL_DEBUG( glEnable )( GL_BLEND );                                    // GL_COLOR_BUFFER_BIT
     GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );     // GL_COLOR_BUFFER_BIT
@@ -344,9 +348,9 @@ void gfx_begin_text( void )
     GL_DEBUG( glDisable )( GL_DEPTH_TEST );                              // GL_ENABLE_BIT
 
     // draw draw front and back faces of polygons
-    oglx_end_culling();                               // GL_ENABLE_BIT
+    oglx_end_culling();                                                  // GL_ENABLE_BIT
 
-    GL_DEBUG( glColor4fv )( white_vec );                                // GL_CURRENT_BIT
+    GL_DEBUG( glColor4fv )( white_vec );                                 // GL_CURRENT_BIT
 }
 
 //--------------------------------------------------------------------------------------------
@@ -381,9 +385,9 @@ void gfx_reshape_viewport( int w, int h )
 }
 
 //--------------------------------------------------------------------------------------------
-// PRIMATVES
+// PRIMITIVES
 //--------------------------------------------------------------------------------------------
-void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const ego_bool use_alpha, const GLXvector4f quad_tint )
+void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const GLXvector4f quad_tint )
 {
     const GLfloat * tint = NULL;
 
@@ -426,10 +430,10 @@ void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_
 
         GL_DEBUG( glBegin )( GL_QUADS );
         {
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmin, tx_rect.ymax ); GL_DEBUG( glVertex2f )( scr_rect.xmin, scr_rect.ymax );
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmax, tx_rect.ymax ); GL_DEBUG( glVertex2f )( scr_rect.xmax, scr_rect.ymax );
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmax, tx_rect.ymin ); GL_DEBUG( glVertex2f )( scr_rect.xmax, scr_rect.ymin );
-            GL_DEBUG( glTexCoord2f )( tx_rect.xmin, tx_rect.ymin ); GL_DEBUG( glVertex2f )( scr_rect.xmin, scr_rect.ymin );
+			GL_DEBUG(glTexCoord2f)(tx_rect.xmin, tx_rect.ymax); GL_DEBUG(glVertex2f)(scr_rect.xmin, scr_rect.ymax);
+			GL_DEBUG(glTexCoord2f)(tx_rect.xmax, tx_rect.ymax); GL_DEBUG(glVertex2f)(scr_rect.xmax, scr_rect.ymax);
+			GL_DEBUG(glTexCoord2f)(tx_rect.xmax, tx_rect.ymin); GL_DEBUG(glVertex2f)(scr_rect.xmax, scr_rect.ymin);
+			GL_DEBUG(glTexCoord2f)(tx_rect.xmin, tx_rect.ymin); GL_DEBUG(glVertex2f)(scr_rect.xmin, scr_rect.ymin);
         }
         GL_DEBUG_END();
 
@@ -480,7 +484,7 @@ void draw_one_font( oglx_texture_t * ptex, int fonttype, float x_stt, float y_st
     tx_rect.ymin += border;
     tx_rect.ymax -= border;
 
-    draw_quad_2d( ptex, sc_rect, tx_rect, ego_true, NULL );
+    draw_quad_2d( ptex, sc_rect, tx_rect, true, NULL );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -516,7 +520,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
     int stt_x = x;
     Uint8 cTmp = szText[0];
     int newy = y + fontyspacing;
-    Uint8 newword = ego_true;
+    Uint8 newword = true;
     int cnt = 1;
 
     oglx_texture_t * tx_ptr = mnu_TxList_get_valid_ptr(( TX_REF )MENU_TX_FONT_BMP );
@@ -533,7 +537,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
         {
             int endx = x + font_bmp_length_of_word( szText + cnt - 1 );
 
-            newword = ego_false;
+            newword = false;
             if ( endx > maxx )
             {
                 // Wrap the end and cut off spaces and tabs
@@ -582,7 +586,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
 
             if ( '~' == cTmp || C_NEW_LINE_CHAR == cTmp || C_CARRIAGE_RETURN_CHAR == cTmp || isspace( cTmp ) )
             {
-                newword = ego_true;
+                newword = true;
             }
         }
     }
@@ -594,21 +598,21 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
 //--------------------------------------------------------------------------------------------
 // UTILITY FUNCTIONS
 //--------------------------------------------------------------------------------------------
-ego_bool dump_screenshot( void )
+bool dump_screenshot( void )
 {
     /// @author BB
     /// @details dumps the current screen (GL context) to a new bitmap file
     /// right now it dumps it to whatever the current directory is
 
-    // returns ego_true if successful, ego_false otherwise
+    // returns true if successful, false otherwise
 
     int i;
-    ego_bool savefound = ego_false;
-    ego_bool saved     = ego_false;
+    bool savefound = false;
+    bool saved     = false;
     STRING szFilename, szResolvedFilename;
 
     // find a valid file name
-    savefound = ego_false;
+    savefound = false;
     i = 0;
     while ( !savefound && ( i < 100 ) )
     {
@@ -622,7 +626,7 @@ ego_bool dump_screenshot( void )
         }
     }
 
-    if ( !savefound ) return ego_false;
+    if ( !savefound ) return false;
 
     // convert the file path to the correct write path
     strncpy( szResolvedFilename, vfs_resolveWriteFilename( szFilename ), SDL_arraysize( szFilename ) );
@@ -631,7 +635,7 @@ ego_bool dump_screenshot( void )
     if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL ) )
     {
         SDL_SaveBMP( sdl_scr.pscreen, szResolvedFilename );
-        return ego_false;
+        return false;
     }
 
     // we ARE using OpenGL
@@ -646,7 +650,7 @@ ego_bool dump_screenshot( void )
         {
             //Something went wrong
             SDL_FreeSurface( temp );
-            return ego_false;
+            return false;
         }
 
         //Now lock the surface so that we can read it

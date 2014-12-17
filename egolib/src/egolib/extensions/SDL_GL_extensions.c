@@ -18,15 +18,15 @@
 //*
 //********************************************************************************************
 
-/// @file extensions/SDL_GL_extensions.c
+/// @file egolib/extensions/SDL_GL_extensions.c
 /// @ingroup _sdl_extensions_
 /// @brief Implementation of the OpenGL extensions to SDL
 /// @details
 
 #include "SDL_GL_extensions.h"
-
-#include "ogl_debug.h"
-#include "ogl_texture.h"
+#include "egolib/tx_filters.h"
+#include "egolib/extensions/ogl_debug.h"
+#include "egolib/extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -285,12 +285,13 @@ FILE * SDL_GL_set_stdout( FILE * pfile )
 //--------------------------------------------------------------------------------------------
 GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap_s, GLint wrap_t )
 {
-    int               srf_w, srf_h, tx_w, tx_h;
-    SDL_Surface     * screen, * local_surface;
-    SDL_PixelFormat * pformat;
-    SDL_PixelFormat   tmpformat;
-    C_BOOLEAN            use_alpha;
-    GLenum            target;
+    int srf_w, srf_h, tx_w, tx_h;
+    SDL_Surface *screen,
+		        *local_surface;
+    SDL_PixelFormat *pformat;
+    SDL_PixelFormat tmpformat;
+    bool use_alpha;
+    GLenum target;
 
     SDLX_screen_info_t sdl_scr;
 

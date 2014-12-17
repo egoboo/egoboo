@@ -25,22 +25,26 @@
 #include "egolib/typedef.h"
 #include "egolib/network.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    C_BOOLEAN input_settings_load_vfs_3( const char *szFilename );
-    C_BOOLEAN input_settings_save_vfs_3( const char* szFilename );
+    bool input_settings_load_vfs_3( const char *szFilename );
+    bool input_settings_save_vfs_3( const char* szFilename );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #if defined(__cplusplus)
 }
+#endif
 
 #endif
 

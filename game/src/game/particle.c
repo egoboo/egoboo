@@ -60,7 +60,7 @@ INSTANTIATE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack, MAX_PIP );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static ego_bool  prt_free( prt_t * pprt );
+static bool  prt_free( prt_t * pprt );
 
 static prt_t * prt_config_ctor( prt_t * pprt );
 static prt_t * prt_config_init( prt_t * pprt );
@@ -84,11 +84,11 @@ static prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt );
 
-static ego_bool prt_update_pos( prt_t * pprt );
-static ego_bool prt_update_safe( prt_t * pprt, ego_bool force );
-static ego_bool prt_update_safe_raw( prt_t * pprt );
+static bool prt_update_pos( prt_t * pprt );
+static bool prt_update_safe( prt_t * pprt, bool force );
+static bool prt_update_safe_raw( prt_t * pprt );
 static PIP_REF PipStack_get_free( void );
-static ego_bool move_one_particle( prt_bundle_t * pbdl_prt );
+static bool move_one_particle( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt );
@@ -104,18 +104,18 @@ IMPLEMENT_STACK( pip_t, PipStack, MAX_PIP );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool prt_free( prt_t * pprt )
+bool prt_free( prt_t * pprt )
 {
-    if ( !ALLOCATED_PPRT( pprt ) ) return ego_false;
+    if ( !ALLOCATED_PPRT( pprt ) ) return false;
 
     // do not allow this if you are inside a particle loop
     EGOBOO_ASSERT( 0 == prt_loop_depth );
 
-    if ( TERMINATED_PPRT( pprt ) ) return ego_true;
+    if ( TERMINATED_PPRT( pprt ) ) return true;
 
     // deallocate any dynamic data
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -288,7 +288,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     TURN_T  turn;
     float   loc_spdlimit;
     int     prt_life_frames_updates, prt_anim_frames_updates;
-    ego_bool  prt_life_infinite, prt_anim_infinite;
+    bool  prt_life_infinite, prt_anim_infinite;
 
     FACING_T loc_facing;
     CHR_REF loc_chr_origin;
@@ -339,7 +339,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
     // Lighting and sound
     pprt->dynalight    = ppip->dynalight;
-    pprt->dynalight.on = ego_false;
+    pprt->dynalight.on = false;
     if ( 0 == pdata->multispawn )
     {
         pprt->dynalight.on = ppip->dynalight.mode;
@@ -451,8 +451,8 @@ prt_t * prt_config_do_init( prt_t * pprt )
     tmp_pos.x += pprt->offset.x;
     tmp_pos.y += pprt->offset.y;
 
-    tmp_pos.x = CLIP( tmp_pos.x, 0, PMesh->gmem.edge_x - 2 );
-    tmp_pos.y = CLIP( tmp_pos.y, 0, PMesh->gmem.edge_y - 2 );
+    tmp_pos.x = CLIP( tmp_pos.x, 0.0f, PMesh->gmem.edge_x - 2.0f );
+    tmp_pos.y = CLIP( tmp_pos.y, 0.0f, PMesh->gmem.edge_y - 2.0f );
 
     prt_set_pos( pprt, tmp_pos.v );
     pprt->pos_old  = tmp_pos;
@@ -483,13 +483,13 @@ prt_t * prt_config_do_init( prt_t * pprt )
     // if it ends after the last frame, end_time tells you the number of cycles through
     // the animation
     prt_anim_frames_updates  = 0;
-    prt_anim_infinite = ego_false;
+    prt_anim_infinite = false;
     if ( ppip->end_lastframe )
     {
         if ( 0 == pprt->image_add )
         {
             prt_anim_frames_updates = INFINITE_UPDATES;
-            prt_anim_infinite = ego_true;
+            prt_anim_infinite = true;
         }
         else
         {
@@ -506,13 +506,13 @@ prt_t * prt_config_do_init( prt_t * pprt )
     {
         // no end to the frames
         prt_anim_frames_updates  = INFINITE_UPDATES;
-        prt_anim_infinite = ego_true;
+        prt_anim_infinite = true;
     }
     prt_anim_frames_updates = MAX( 1, prt_anim_frames_updates );
 
     // estimate the number of frames
     prt_life_frames_updates  = 0;
-    prt_life_infinite = ego_false;
+    prt_life_infinite = false;
     if ( ppip->end_lastframe )
     {
         // for end last frame, the lifetime is given by the
@@ -523,7 +523,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     {
         // zero or negative lifetime == infinite lifetime
         prt_life_frames_updates = INFINITE_UPDATES;
-        prt_life_infinite = ego_true;
+        prt_life_infinite = true;
     }
     else
     {
@@ -535,7 +535,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     if ( prt_life_infinite )
     {
         pprt->lifetime_total = ( size_t )( ~0 );
-        pprt->is_eternal     = ego_true;
+        pprt->is_eternal     = true;
     }
     else
     {
@@ -546,13 +546,13 @@ prt_t * prt_config_do_init( prt_t * pprt )
         pprt->lifetime_total     = CEIL(( float ) prt_life_frames_updates * ( float )TARGET_UPS / ( float )TARGET_FPS );
     }
     // make the particle exists for AT LEAST one update
-    pprt->lifetime_total     = MAX( 1, pprt->lifetime_total );
+    pprt->lifetime_total     = std::max( (size_t)1, pprt->lifetime_total );
     pprt->lifetime_remaining = pprt->lifetime_total;
 
     // set the frame counters
     // make the particle display AT LEAST one frame, regardless of how many updates
     // it has or when someone requests for it to terminate
-    pprt->frames_total       = MAX( 1, prt_anim_frames_updates );
+    pprt->frames_total       = std::max( 1, prt_anim_frames_updates );
     pprt->lifetime_remaining = pprt->lifetime_total;
 
     // Damage stuff
@@ -590,7 +590,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     if ( 0 == prt_hit_wall( pprt, tmp_pos.v, NULL, NULL, NULL ) )
     {
         pprt->safe_pos   = tmp_pos;
-        pprt->safe_valid = ego_true;
+        pprt->safe_valid = true;
         pprt->safe_grid  = pprt->onwhichgrid;
     }
 
@@ -859,7 +859,7 @@ prt_t * prt_run_config( prt_t * pprt )
             }
         }
 
-        base_ptr->kill_me = ego_false;
+        base_ptr->kill_me = false;
     }
 
     switch ( base_ptr->state )
@@ -937,7 +937,7 @@ prt_t * prt_config_init( prt_t * pprt )
 
     if ( 0 == prt_loop_depth )
     {
-        pprt->obj_base.on = ego_true;
+        pprt->obj_base.on = true;
     }
     else
     {
@@ -1786,7 +1786,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     ///               Collisions with the mesh are included in this step.
 
     float loc_level;
-    ego_bool touch_a_floor, hit_a_wall, needs_test;
+    bool touch_a_floor, hit_a_wall, needs_test;
     fvec3_t nrm_total;
     fvec3_t tmp_pos;
 
@@ -1810,8 +1810,8 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     // only deal with attached particles
     if ( INVALID_CHR_REF == loc_pprt->attachedto_ref ) return pbdl_prt;
 
-    touch_a_floor = ego_false;
-    hit_a_wall  = ego_false;
+    touch_a_floor = false;
+    hit_a_wall  = false;
     nrm_total.x = nrm_total.y = nrm_total.z = 0;
 
     loc_level = penviro->adj_level;
@@ -1819,7 +1819,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     // Move the particle
     if ( tmp_pos.z < loc_level )
     {
-        touch_a_floor = ego_true;
+        touch_a_floor = true;
     }
 
     if ( touch_a_floor )
@@ -1836,8 +1836,8 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     }
 
     // interaction with the mesh walls
-    hit_a_wall = ego_false;
-    needs_test = ego_false;
+    hit_a_wall = false;
+    needs_test = false;
     if ( ABS( loc_pprt->vel.x ) + ABS( loc_pprt->vel.y ) > 0.0f )
     {
         mesh_wall_data_t wdata;
@@ -1853,7 +1853,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
 
             if ( 0 != hit_bits )
             {
-                hit_a_wall = ego_true;
+                hit_a_wall = true;
             }
         }
     }
@@ -1885,8 +1885,8 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     ///               Collisions with the mesh are included in this step.
 
     float ftmp, loc_level;
-    ego_bool hit_a_floor, hit_a_wall, needs_test;
-    ego_bool touch_a_floor, touch_a_wall;
+    bool hit_a_floor, hit_a_wall, needs_test;
+    bool touch_a_floor, touch_a_wall;
     fvec3_t nrm_total;
     fvec3_t tmp_pos;
 
@@ -1913,10 +1913,10 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         return move_one_particle_integrate_motion_attached( pbdl_prt );
     }
 
-    hit_a_floor   = ego_false;
-    hit_a_wall    = ego_false;
-    touch_a_floor = ego_false;
-    touch_a_wall  = ego_false;
+    hit_a_floor   = false;
+    hit_a_wall    = false;
+    touch_a_floor = false;
+    touch_a_wall  = false;
     nrm_total.x = nrm_total.y = nrm_total.z = 0.0f;
 
     loc_level = penviro->adj_level;
@@ -1932,7 +1932,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         fvec3_t vel_perp, vel_para;
         Uint8 tmp_twist = TWIST_FLAT;
 
-        touch_a_floor = ego_true;
+        touch_a_floor = true;
 
         tmp_twist = cartman_get_fan_twist( PMesh, loc_pprt->onwhichgrid );
 
@@ -1968,7 +1968,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
             // take reflection in the floor into account when computing the new level
             tmp_pos.z = loc_level + ( loc_level - ftmp ) * loc_ppip->dampen + 0.1f;
 
-            hit_a_floor = ego_true;
+            hit_a_floor = true;
         }
         else if ( vel_dot > 0.0f )
         {
@@ -1998,8 +1998,8 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     }
 
     // interaction with the mesh walls
-    hit_a_wall = ego_false;
-    needs_test = ego_false;
+    hit_a_wall = false;
+    needs_test = false;
     if ( ABS( loc_pprt->vel.x ) + ABS( loc_pprt->vel.y ) > 0.0f )
     {
         mesh_wall_data_t wdata;
@@ -2024,7 +2024,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
             // how is the character hitting the wall?
             if ( EMPTY_BIT_FIELD != prt_hit_wall( loc_pprt, tmp_pos.v, nrm.v, &pressure, &wdata ) )
             {
-                touch_a_wall = ego_true;
+                touch_a_wall = true;
 
                 nrm_total.x += nrm.x;
                 nrm_total.y += nrm.y;
@@ -2131,7 +2131,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     }
 
     //Don't fall in pits...
-    if ( loc_pprt->is_homing ) tmp_pos.z = MAX( tmp_pos.z, 0 );
+    if ( loc_pprt->is_homing ) tmp_pos.z = std::max( tmp_pos.z, 0.0f );
 
     //Rotate particle to the direction we are moving
     if ( loc_ppip->rotatetoface )
@@ -2156,7 +2156,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool move_one_particle( prt_bundle_t * pbdl_prt )
+bool move_one_particle( prt_bundle_t * pbdl_prt )
 {
     /// @author BB
     /// @details The master function for controlling a particle's motion
@@ -2164,14 +2164,14 @@ ego_bool move_one_particle( prt_bundle_t * pbdl_prt )
     prt_t             * loc_pprt;
     prt_environment_t * penviro;
 
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return ego_false;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
     loc_pprt = pbdl_prt->prt_ptr;
     penviro  = &( loc_pprt->enviro );
 
-    if ( !DISPLAY_PPRT( loc_pprt ) ) return ego_false;
+    if ( !DISPLAY_PPRT( loc_pprt ) ) return false;
 
     // if the particle is hidden it is frozen in time. do nothing.
-    if ( loc_pprt->is_hidden ) return ego_false;
+    if ( loc_pprt->is_hidden ) return false;
 
     // save the acceleration from the last time-step
     fvec3_sub( penviro->acc.v, loc_pprt->vel.v, loc_pprt->vel_old.v );
@@ -2188,26 +2188,26 @@ ego_bool move_one_particle( prt_bundle_t * pbdl_prt )
 
     // what is the local environment like?
     pbdl_prt = move_one_particle_get_environment( pbdl_prt );
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return ego_false;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
 
     // wind, current, and other fluid friction effects
     pbdl_prt = move_one_particle_do_fluid_friction( pbdl_prt );
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return ego_false;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
 
     // do friction with the floor before voluntary motion
     pbdl_prt = move_one_particle_do_floor_friction( pbdl_prt );
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return ego_false;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
 
     pbdl_prt = move_one_particle_do_homing( pbdl_prt );
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return ego_false;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
 
     pbdl_prt = move_one_particle_do_z_motion( pbdl_prt );
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return ego_false;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
 
     pbdl_prt = move_one_particle_integrate_motion( pbdl_prt );
-    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return ego_false;
+    if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return false;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2415,7 +2415,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
                     if ( DEFINED_PRT( bs_part ) )
                     {
                         vertex_occupied[bestvertex] = bs_part;
-                        PrtList.lst[bs_part].is_bumpspawn = ego_true;
+                        PrtList.lst[bs_part].is_bumpspawn = true;
                         bs_count++;
                     }
                 }
@@ -2432,7 +2432,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
 
                 //        if( DEFINED_PRT(bs_part) )
                 //        {
-                //            PrtList.lst[bs_part].is_bumpspawn = ego_true;
+                //            PrtList.lst[bs_part].is_bumpspawn = true;
                 //            bs_count++;
                 //        }
                 //    }
@@ -2448,21 +2448,21 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool prt_is_over_water( const PRT_REF iprt )
+bool prt_is_over_water( const PRT_REF iprt )
 {
     /// @author ZZ
-    /// @details This function returns ego_true if the particle is over a water tile
+    /// @details This function returns true if the particle is over a water tile
     Uint32 fan;
 
-    if ( !ALLOCATED_PRT( iprt ) ) return ego_false;
+    if ( !ALLOCATED_PRT( iprt ) ) return false;
 
     fan = ego_mesh_get_grid( PMesh, PrtList.lst[iprt].pos.x, PrtList.lst[iprt].pos.y );
     if ( ego_mesh_grid_is_valid( PMesh, fan ) )
     {
-        if ( 0 != ego_mesh_test_fx( PMesh, fan, MAPFX_WATER ) )  return ego_true;
+        if ( 0 != ego_mesh_test_fx( PMesh, fan, MAPFX_WATER ) )  return true;
     }
 
-    return ego_false;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2511,8 +2511,8 @@ PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
         return INVALID_PIP_REF;
     }
 
-    ppip->end_sound = CLIP( ppip->end_sound, INVALID_SOUND, MAX_WAVE );
-    ppip->soundspawn = CLIP( ppip->soundspawn, INVALID_SOUND, MAX_WAVE );
+    ppip->end_sound = CLIP<Sint8>( ppip->end_sound, INVALID_SOUND, MAX_WAVE );
+    ppip->soundspawn = CLIP<Sint8>( ppip->soundspawn, INVALID_SOUND, MAX_WAVE );
 
     return ipip;
 }
@@ -2580,25 +2580,25 @@ void PipStack_release_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PipStack_release_one( const PIP_REF ipip )
+bool PipStack_release_one( const PIP_REF ipip )
 {
     pip_t * ppip;
 
-    if ( !VALID_PIP_RANGE( ipip ) ) return ego_false;
+    if ( !VALID_PIP_RANGE( ipip ) ) return false;
     ppip = PipStack_get_ptr( ipip );
 
-    if ( !ppip->loaded ) return ego_true;
+    if ( !ppip->loaded ) return true;
 
     pip_init( ppip );
 
-    ppip->loaded  = C_FALSE;
+    ppip->loaded  = false;
     ppip->name[0] = CSTR_END;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool prt_request_terminate( prt_t * pprt )
+bool prt_request_terminate( prt_t * pprt )
 {
     /// @author BB
     /// @details Tell the game to get rid of this object and treat it
@@ -2607,11 +2607,11 @@ ego_bool prt_request_terminate( prt_t * pprt )
     /// @note PrtList_request_terminate() will force the game to
     ///       (eventually) call end_one_particle_in_game() on this particle
 
-    ego_bool  is_visible;
+    bool  is_visible;
 
     if ( NULL == pprt || !ALLOCATED_PPRT( pprt ) || TERMINATED_PPRT( pprt ) )
     {
-        return ego_false;
+        return false;
     }
 
     is_visible =
@@ -2622,7 +2622,7 @@ ego_bool prt_request_terminate( prt_t * pprt )
     if ( is_visible && 0 == pprt->obj_base.frame_count )
     {
         // turn the particle into a ghost
-        pprt->is_ghost = ego_true;
+        pprt->is_ghost = true;
     }
     else
     {
@@ -2631,7 +2631,7 @@ ego_bool prt_request_terminate( prt_t * pprt )
         POBJ_REQUEST_TERMINATE( pprt );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2739,10 +2739,10 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     pip_t * loc_ppip;
     chr_t * loc_pchr;
 
-    ego_bool skewered_by_arrow;
-    ego_bool has_vulnie;
-    ego_bool is_immolated_by;
-    ego_bool no_protection_from;
+    bool skewered_by_arrow;
+    bool has_vulnie;
+    bool is_immolated_by;
+    bool no_protection_from;
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
     loc_pprt = pbdl_prt->prt_ptr;
@@ -2766,7 +2766,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     loc_pchr = ChrList_get_ptr( loc_pprt->attachedto_ref );
 
     // find out who is holding the owner of this object
-    iholder = chr_get_lowest_attachment( ichr, ego_true );
+    iholder = chr_get_lowest_attachment( ichr, true );
     if ( INVALID_CHR_REF == iholder ) iholder = ichr;
 
     // do nothing if you are attached to your owner
@@ -2831,7 +2831,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     }
 
     //---- do the damage
-    actual_damage = damage_character( ichr, ATK_BEHIND, local_damage, loc_pprt->damagetype, loc_pprt->team, loc_pprt->owner_ref, loc_ppip->damfx, ego_false );
+    actual_damage = damage_character( ichr, ATK_BEHIND, local_damage, loc_pprt->damagetype, loc_pprt->team, loc_pprt->owner_ref, loc_ppip->damfx, false );
 
     // adjust any remaining particle damage
     if ( loc_pprt->damage.base > 0 )
@@ -2910,7 +2910,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
 {
     /// handle the particle interaction with water
 
-    ego_bool inwater;
+    bool inwater;
 
     prt_t             * loc_pprt;
     pip_t             * loc_ppip;
@@ -2940,14 +2940,14 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
     }
     else if ( inwater )
     {
-        ego_bool  spawn_valid     = ego_false;
+        bool  spawn_valid     = false;
         int     global_pip_index = -1;
         fvec3_t vtmp            = VECT3( pbdl_prt->prt_ptr->pos.x, pbdl_prt->prt_ptr->pos.y, water.surface_level );
 
         if ( INVALID_CHR_REF == pbdl_prt->prt_ptr->owner_ref && ( PIP_SPLASH == pbdl_prt->prt_ptr->pip_ref || PIP_RIPPLE == pbdl_prt->prt_ptr->pip_ref ) )
         {
             /* do not spawn anything for a splash or a ripple */
-            spawn_valid = ego_false;
+            spawn_valid = false;
         }
         else
         {
@@ -2961,7 +2961,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
                 {
                     global_pip_index = PIP_RIPPLE;
                 }
-                spawn_valid = ego_true;
+                spawn_valid = true;
             }
             else
             {
@@ -2974,7 +2974,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
                         if ( 0 == (( update_wld + pbdl_prt->prt_ptr->obj_base.guid ) & ripand ) )
                         {
 
-                            spawn_valid = ego_true;
+                            spawn_valid = true;
                             global_pip_index = PIP_RIPPLE;
                         }
                     }
@@ -2988,11 +2988,11 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
             spawn_one_particle_global( vtmp.v, 0, global_pip_index, 0 );
         }
 
-        pbdl_prt->prt_ptr->enviro.inwater  = ego_true;
+        pbdl_prt->prt_ptr->enviro.inwater  = true;
     }
     else
     {
-        pbdl_prt->prt_ptr->enviro.inwater = ego_false;
+        pbdl_prt->prt_ptr->enviro.inwater = false;
     }
 
     return pbdl_prt;
@@ -3005,19 +3005,19 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
 
     prt_t             * loc_pprt;
     pip_t             * loc_ppip;
-    ego_bool              image_overflow;
+    bool              image_overflow;
     Uint16              image_overflow_amount;
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
     loc_pprt = pbdl_prt->prt_ptr;
     loc_ppip = pbdl_prt->pip_ptr;
 
-    image_overflow = ego_false;
+    image_overflow = false;
     image_overflow_amount = 0;
     if ( loc_pprt->image_off >= loc_pprt->image_max )
     {
         // how did the image get here?
-        image_overflow = ego_true;
+        image_overflow = true;
 
         // cast the unsigned integers to a larger type to make sure there are no overflows
         image_overflow_amount = (( signed )loc_pprt->image_off ) + (( signed )loc_pprt->image_add ) - (( signed )loc_pprt->image_max );
@@ -3032,7 +3032,7 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
         }
         else
         {
-            image_overflow = ego_true;
+            image_overflow = true;
             image_overflow_amount = (( signed )loc_pprt->image_off ) + (( signed )loc_pprt->image_add ) - (( signed )loc_pprt->image_max );
         }
     }
@@ -3159,7 +3159,7 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
     base_ptr = POBJ_GET_PBASE( loc_pprt );
 
     // determine whether the pbdl_prt->prt_ref is hidden
-    loc_pprt->is_hidden = ego_false;
+    loc_pprt->is_hidden = false;
     if ( INGAME_CHR( loc_pprt->attachedto_ref ) )
     {
         loc_pprt->is_hidden = ChrList.lst[loc_pprt->attachedto_ref].is_hidden;
@@ -3177,7 +3177,7 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
     // figure out where the particle is on the mesh and update the particle states
     {
         // determine whether the pbdl_prt->prt_ref is hidden
-        loc_pprt->is_hidden = ego_false;
+        loc_pprt->is_hidden = false;
         if ( INGAME_CHR( loc_pprt->attachedto_ref ) )
         {
             loc_pprt->is_hidden = ChrList.lst[loc_pprt->attachedto_ref].is_hidden;
@@ -3226,7 +3226,7 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
     /// @details handle the case where the particle is still being diaplayed, but is no longer
     ///               in the game
 
-    ego_bool prt_visible;
+    bool prt_visible;
 
     obj_data_t * base_ptr;
     prt_t             * loc_pprt;
@@ -3258,7 +3258,7 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
     }
 
     // determine whether the pbdl_prt->prt_ref is hidden
-    loc_pprt->is_hidden = ego_false;
+    loc_pprt->is_hidden = false;
     if ( INGAME_CHR( loc_pprt->attachedto_ref ) )
     {
         loc_pprt->is_hidden = ChrList.lst[loc_pprt->attachedto_ref].is_hidden;
@@ -3330,41 +3330,41 @@ prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool prt_update_safe_raw( prt_t * pprt )
+bool prt_update_safe_raw( prt_t * pprt )
 {
-    ego_bool retval = ego_false;
+    bool retval = false;
 
     BIT_FIELD hit_a_wall;
     float  pressure;
 
-    if ( !ALLOCATED_PPRT( pprt ) ) return ego_false;
+    if ( !ALLOCATED_PPRT( pprt ) ) return false;
 
     hit_a_wall = prt_hit_wall( pprt, NULL, NULL, &pressure, NULL );
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
-        pprt->safe_valid = ego_true;
+        pprt->safe_valid = true;
         prt_get_pos( pprt, pprt->safe_pos.v );
         pprt->safe_time  = update_wld;
         pprt->safe_grid  = ego_mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
 
-        retval = ego_true;
+        retval = true;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool prt_update_safe( prt_t * pprt, ego_bool force )
+bool prt_update_safe( prt_t * pprt, bool force )
 {
     Uint32 new_grid;
-    ego_bool retval = ego_false;
-    ego_bool needs_update = ego_false;
+    bool retval = false;
+    bool needs_update = false;
 
-    if ( !ALLOCATED_PPRT( pprt ) ) return ego_false;
+    if ( !ALLOCATED_PPRT( pprt ) ) return false;
 
     if ( force || !pprt->safe_valid )
     {
-        needs_update = ego_true;
+        needs_update = true;
     }
     else
     {
@@ -3375,12 +3375,12 @@ ego_bool prt_update_safe( prt_t * pprt, ego_bool force )
             if ( ABS( pprt->pos.x - pprt->safe_pos.x ) > GRID_FSIZE ||
                  ABS( pprt->pos.y - pprt->safe_pos.y ) > GRID_FSIZE )
             {
-                needs_update = ego_true;
+                needs_update = true;
             }
         }
         else if ( new_grid != pprt->safe_grid )
         {
-            needs_update = ego_true;
+            needs_update = true;
         }
     }
 
@@ -3394,30 +3394,30 @@ ego_bool prt_update_safe( prt_t * pprt, ego_bool force )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool prt_update_pos( prt_t * pprt )
+bool prt_update_pos( prt_t * pprt )
 {
-    if ( !ALLOCATED_PPRT( pprt ) ) return ego_false;
+    if ( !ALLOCATED_PPRT( pprt ) ) return false;
 
     pprt->onwhichgrid  = ego_mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
     pprt->onwhichblock = ego_mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
 
     // update whether the current character position is safe
-    prt_update_safe( pprt, ego_false );
+    prt_update_safe( pprt, false );
 
     // update the breadcrumb list (does not exist for particles )
-    // prt_update_breadcrumb( pprt, ego_false );
+    // prt_update_breadcrumb( pprt, false );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool prt_set_pos( prt_t * pprt, const fvec3_base_t pos )
+bool prt_set_pos( prt_t * pprt, const fvec3_base_t pos )
 {
-    ego_bool retval = ego_false;
+    bool retval = false;
 
     if ( !ALLOCATED_PPRT( pprt ) ) return retval;
 
-    retval = ego_true;
+    retval = true;
 
     LOG_NAN_FVEC3( pos );
 

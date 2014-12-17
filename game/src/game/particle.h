@@ -81,15 +81,15 @@ struct s_prt_environment
     float adj_floor;              ///< The level for the particle to sit on the floor or a platform
 
     // friction stuff
-    ego_bool is_slipping;
-    ego_bool is_slippy,    is_watery;
+    bool is_slipping;
+    bool is_slippy,    is_watery;
     float  air_friction, ice_friction;
     float  fluid_friction_hrz, fluid_friction_vrt;
     float  friction_hrz;
     float  traction;
 
     // misc states
-    ego_bool   inwater;
+    bool   inwater;
     fvec3_t  acc;
 };
 
@@ -120,7 +120,7 @@ struct s_prt_spawn_data
 struct s_prt
 {
     obj_data_t obj_base;              ///< the "inheritance" from obj_data_t
-    ego_bool     is_ghost;              ///< the particla has been killed, but is hanging around a while...
+    bool     is_ghost;              ///< the particla has been killed, but is hanging around a while...
 
     prt_spawn_data_t  spawn_data;
 
@@ -146,7 +146,7 @@ struct s_prt
 
     Uint32  onwhichgrid;                      ///< Where the part is
     Uint32  onwhichblock;                    ///< The particle's collision block
-    ego_bool  is_hidden;                       ///< Is the particle related to a hidden character?
+    bool  is_hidden;                       ///< Is the particle related to a hidden character?
 
     // platforms
     float   targetplatform_level;             ///< What is the height of the target platform?
@@ -168,7 +168,7 @@ struct s_prt
     UFP8_T            image_max;             ///< Maximum image offset (8.8 fixed point)
 
     // lifetime stuff
-    ego_bool            is_eternal;            ///< Does the particle ever time-out?
+    bool            is_eternal;            ///< Does the particle ever time-out?
     size_t            lifetime_total;        ///< Total particle lifetime in updates
     size_t            lifetime_remaining;    ///< How many updates does the particle have left?
     size_t            frames_total;          ///< Total number of particle frames
@@ -189,13 +189,13 @@ struct s_prt
     UFP8_T            manadrain;             ///< (8.8 fixed point)
 
     // bump effects
-    ego_bool            is_bumpspawn;          ///< this particle is like a flame, burning something
+    bool            is_bumpspawn;          ///< this particle is like a flame, burning something
 
     // motion effects
     float             buoyancy;              ///< an estimate of the particle bouyancy in air
     float             air_resistance;        ///< an estimate of the particle's extra resistance to air motion
-    ego_bool            is_homing;             ///< Is the particle in control of its motion?
-    ego_bool            no_gravity;            ///< does the particle ignore gravity?
+    bool            is_homing;             ///< Is the particle in control of its motion?
+    bool            no_gravity;            ///< does the particle ignore gravity?
 
     // some data that needs to be copied from the particle profile
     Uint8             endspawn_amount;         ///< The number of particles to be spawned at the end
@@ -208,7 +208,7 @@ struct s_prt
     prt_environment_t enviro;                 ///< the particle's environment
     phys_data_t       phys;                   ///< the particle's physics data
 
-    ego_bool         safe_valid;                ///< is the last "safe" position valid?
+    bool         safe_valid;                ///< is the last "safe" position valid?
     fvec3_t        safe_pos;                  ///< the last "safe" position
     Uint32         safe_time;                 ///< the last "safe" time
     Uint32         safe_grid;                 ///< the last "safe" grid
@@ -216,10 +216,10 @@ struct s_prt
 
 prt_t * prt_ctor( prt_t * pprt );
 prt_t * prt_dtor( prt_t * pprt );
-ego_bool  prt_request_terminate( prt_t * pprt );
+bool  prt_request_terminate( prt_t * pprt );
 
 void   prt_set_level( prt_t * pprt, const float level );
-ego_bool prt_set_pos( prt_t * pprt, const fvec3_base_t pos );
+bool prt_set_pos( prt_t * pprt, const fvec3_base_t pos );
 
 //--------------------------------------------------------------------------------------------
 struct s_prt_bundle
@@ -263,7 +263,7 @@ PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_R
 // prt functions
 BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
 BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], struct s_mesh_wall_data * pdata );
-ego_bool    prt_is_over_water( const PRT_REF particle );
+bool    prt_is_over_water( const PRT_REF particle );
 void      prt_play_sound( const PRT_REF particle, Sint8 sound );
 
 prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt );
@@ -272,7 +272,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt );
 PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override );
 void    PipStack_init_all( void );
 void    PipStack_release_all( void );
-ego_bool  PipStack_release_one( const PIP_REF ipip );
+bool  PipStack_release_one( const PIP_REF ipip );
 
 // particle state machine functions
 prt_t * prt_run_config( prt_t * pprt );

@@ -170,7 +170,7 @@ struct s_mad
     Uint16  framelip_to_walkframe[4][FRAMELIP_COUNT];        ///< For walk animations
 
     int     action_map[ACTION_COUNT];          ///< actual action = action_map[requested action]
-    ego_bool  action_valid[ACTION_COUNT];        ///< ego_false if not valid
+    bool  action_valid[ACTION_COUNT];        ///< false if not valid
     int     action_stt[ACTION_COUNT];          ///< First frame of anim
     int     action_end[ACTION_COUNT];          ///< The last frame
 
@@ -190,18 +190,18 @@ struct s_mad
 
 DECLARE_STACK_EXTERN( mad_t, MadStack, MAX_MAD );
 
-void MadStack_ctor( void );
-void MadStack_dtor( void );
-void MadStack_reinit( void );
+void MadStack_ctor();
+void MadStack_dtor();
+void MadStack_reinit();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void model_system_begin( void );
-void model_system_end( void );
+void model_system_begin();
+void model_system_end();
 
-void    MadStack_reconstruct_all( void );
-void    MadStack_release_all( void );
-ego_bool  MadStack_release_one( const MAD_REF imad );
+void    MadStack_reconstruct_all();
+void    MadStack_release_all();
+bool  MadStack_release_one( const MAD_REF imad );
 MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF object );
 
 void   load_action_names_vfs( const char* loadname );

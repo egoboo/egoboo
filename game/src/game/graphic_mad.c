@@ -67,8 +67,8 @@ static gfx_rv render_one_mad_tex( const camera_t * pcam, const CHR_REF ichr, GLX
 // private chr_instance_t methods
 static gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
 static gfx_rv chr_instance_free( chr_instance_t * pinst );
-static gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, ego_bool force, ego_bool vertices_match, ego_bool frames_match );
-static gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, ego_bool *verts_match, ego_bool *frames_match );
+static gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool force, bool vertices_match, bool frames_match );
+static gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool *verts_match, bool *frames_match );
 static gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
 static void   chr_instance_clear_cache( chr_instance_t * pinst );
 static void   chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], MD2_Vertex_t lst_ary[], MD2_Vertex_t nxt_ary[], int vmin, int vmax, float flip );
@@ -157,11 +157,11 @@ gfx_rv render_one_mad_enviro( const camera_t * pcam, const CHR_REF character, GL
 
     if ( HAS_SOME_BITS( bits, CHR_REFLECT ) )
     {
-        GL_DEBUG( glMultMatrixf )( pinst->ref.matrix.v );
+		Egoboo_Renderer_OpenGL_multMatrix(&(pinst->ref.matrix));
     }
     else
     {
-        GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
+		Egoboo_Renderer_OpenGL_multMatrix(&(pinst->matrix));
     }
 
     // Choose texture and matrix
@@ -361,11 +361,11 @@ gfx_rv render_one_mad_tex( const camera_t * pcam, const CHR_REF character, GLXve
 
     if ( 0 != ( bits & CHR_REFLECT ) )
     {
-        GL_DEBUG( glMultMatrixf )( pinst->ref.matrix.v );
+		Egoboo_Renderer_OpenGL_multMatrix(&(pinst->ref.matrix));
     }
     else
     {
-        GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
+		Egoboo_Renderer_OpenGL_multMatrix(&(pinst->matrix));
     }
 
     // Choose texture and matrix
@@ -666,7 +666,7 @@ gfx_rv render_one_mad_trans( const camera_t * pcam, const CHR_REF ichr )
     chr_t * pchr;
     chr_instance_t * pinst;
     GLXvector4f tint;
-    ego_bool rendered;
+    bool rendered;
 
     if ( NULL == pcam )
     {
@@ -685,7 +685,7 @@ gfx_rv render_one_mad_trans( const camera_t * pcam, const CHR_REF ichr )
     if ( pchr->is_hidden ) return gfx_fail;
 
     // there is an outside chance the object will not be rendered
-    rendered = ego_false;
+    rendered = false;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT )
     {
@@ -709,7 +709,7 @@ gfx_rv render_one_mad_trans( const camera_t * pcam, const CHR_REF ichr )
 
             if ( render_one_mad( pcam, ichr, tint, CHR_ALPHA ) )
             {
-                rendered = ego_true;
+                rendered = true;
             }
         }
         if ( pinst->light < 255 )
@@ -727,7 +727,7 @@ gfx_rv render_one_mad_trans( const camera_t * pcam, const CHR_REF ichr )
 
             if ( render_one_mad( pcam, ichr, tint, CHR_LIGHT ) )
             {
-                rendered = ego_true;
+                rendered = true;
             }
         }
 
@@ -740,7 +740,7 @@ gfx_rv render_one_mad_trans( const camera_t * pcam, const CHR_REF ichr )
 
             if ( render_one_mad( pcam, ichr, tint, CHR_PHONG ) )
             {
-                rendered = ego_true;
+                rendered = true;
             }
         }
     }
@@ -837,7 +837,7 @@ void draw_chr_bbox( chr_t * pchr )
             oct_bb_add_fvec3( &( pchr->slot_cv[SLOT_LEFT] ), pchr->pos.v, &bb );
 
             GL_DEBUG( glColor4fv )( white_vec );
-            render_oct_bb( &bb, ego_true, ego_true );
+            render_oct_bb( &bb, true, true );
         }
         GL_DEBUG( glEnable )( GL_TEXTURE_2D );
     }
@@ -892,8 +892,7 @@ void draw_chr_verts( chr_t * pchr, int vrt_offset, int verts )
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glMultMatrixf )( pchr->inst.matrix.v );
-
+	Egoboo_Renderer_OpenGL_multMatrix(&(pchr->inst.matrix));
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
         for ( cnt = vmin; cnt < vmax; cnt++ )
@@ -934,7 +933,10 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
+	Egoboo_Renderer_OpenGL_multMatrix(&(pinst->matrix));
+#if 0
     GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
+#endif
 
     _draw_one_grip_raw( pinst, pmad, slot );
 
@@ -1054,7 +1056,7 @@ void draw_chr_grips( chr_t * pchr )
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glMultMatrixf )( pchr->inst.matrix.v );
+	Egoboo_Renderer_OpenGL_multMatrix(&(pchr->inst.matrix));
 
     slot = SLOT_LEFT;
     if ( pcap->slotvalid[slot] )
@@ -1081,7 +1083,7 @@ void draw_chr_grips( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, ego_bool force )
+void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bool force )
 {
     /// @author BB
     /// @details determine the basic per-vertex lighting
@@ -1103,7 +1105,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, eg
     // force this function to be evaluated the 1st time through
     if ( pinst->lighting_frame_all < 0 || pinst->lighting_frame_all < 0 )
     {
-        force = ego_true;
+        force = true;
     }
 
     // has this already been calculated this update?
@@ -1111,7 +1113,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, eg
     pinst->lighting_update_wld = update_wld;
 
     // make sure the matrix is valid
-    chr_update_matrix( pchr, ego_true );
+    chr_update_matrix( pchr, true );
 
     // has this already been calculated in the last frame_skip frames?
     if ( !force && pinst->lighting_frame_all >= 0 && ( Uint32 )pinst->lighting_frame_all >= game_frame_all ) return;
@@ -1231,7 +1233,7 @@ gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, ego_bool *verts_match, ego_bool *frames_match )
+gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool *verts_match, bool *frames_match )
 {
     /// @author BB
     /// @details determine whether some specific vertices of an instance need to be updated
@@ -1239,7 +1241,7 @@ gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, eg
     ///                gfx_fail    means that the instance does not need to be updated
     ///                gfx_success means that the instance should be updated
 
-    ego_bool local_verts_match, flips_match, local_frames_match;
+    bool local_verts_match, flips_match, local_frames_match;
 
     vlst_cache_t * psave;
 
@@ -1251,8 +1253,8 @@ gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, eg
     if ( NULL == frames_match ) frames_match = &local_frames_match;
 
     // initialize the boolean pointers
-    *verts_match  = ego_false;
-    *frames_match = ego_false;
+    *verts_match  = false;
+    *frames_match = false;
 
     // do we have a valid instance?
     if ( NULL == pinst )
@@ -1370,10 +1372,10 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], MD2_Vertex_t lst
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, ego_bool force )
+gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool force )
 {
     int    maxvert, frame_count, md2_verts;
-    ego_bool vertices_match, frames_match;
+    bool vertices_match, frames_match;
     float  loc_flip;
 
     gfx_rv retval;
@@ -1447,8 +1449,8 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
         vdirty1_max = vmax;
 
         // force the routine to update
-        vertices_match = ego_false;
-        frames_match   = ego_false;
+        vertices_match = false;
+        frames_match   = false;
     }
     else
     {
@@ -1513,13 +1515,13 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, ego_bool force, ego_bool vertices_match, ego_bool frames_match )
+gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmin, bool force, bool vertices_match, bool frames_match )
 {
     // this is getting a bit ugly...
     // we need to do this calculation as little as possible, so it is important that the
     // pinst->save.* values be tested and stored properly
 
-    ego_bool verts_updated, frames_updated;
+    bool verts_updated, frames_updated;
     int    maxvert;
 
     vlst_cache_t * psave;
@@ -1533,7 +1535,7 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
     psave   = &( pinst->save );
 
     // the save_vmin and save_vmax is the most complex
-    verts_updated = ego_false;
+    verts_updated = false;
     if ( force )
     {
         // to get here, either the specified range was outside the clean range or
@@ -1542,7 +1544,7 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
 
         psave->vmin   = vmin;
         psave->vmax   = vmax;
-        verts_updated = ego_true;
+        verts_updated = true;
     }
     else if ( vertices_match && frames_match )
     {
@@ -1556,7 +1558,7 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
         // but only the ones in the range [vmin, vmax] actually were.
         psave->vmin = vmin;
         psave->vmax = vmax;
-        verts_updated = ego_true;
+        verts_updated = true;
     }
     else if ( frames_match )
     {
@@ -1574,7 +1576,7 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
             // overlap, so we can merge them
             psave->vmin = MIN( psave->vmin, vmin );
             psave->vmax = MAX( psave->vmax, vmax );
-            verts_updated = ego_true;
+            verts_updated = true;
         }
         else
         {
@@ -1585,13 +1587,13 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
                 // obviously no change...
                 psave->vmin = psave->vmin;
                 psave->vmax = psave->vmax;
-                verts_updated = ego_true;
+                verts_updated = true;
             }
             else
             {
                 psave->vmin = vmin;
                 psave->vmax = vmax;
-                verts_updated = ego_true;
+                verts_updated = true;
             }
         }
     }
@@ -1602,7 +1604,7 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
         // everything was dirty, so just save the new vertex list
         psave->vmin = vmin;
         psave->vmax = vmax;
-        verts_updated = ego_true;
+        verts_updated = true;
     }
 
     psave->frame_nxt = pinst->frame_nxt;
@@ -1610,11 +1612,11 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
     psave->flip      = pinst->flip;
 
     // store the last time there was an update to the animation
-    frames_updated = ego_false;
+    frames_updated = false;
     if ( !frames_match )
     {
         psave->frame_wld = update_wld;
-        frames_updated   = ego_true;
+        frames_updated   = true;
     }
 
     // store the time of the last full update
@@ -1624,7 +1626,7 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
     }
 
     // mark the saved vlst_cache data as valid
-    psave->valid = ego_true;
+    psave->valid = true;
 
     return ( verts_updated || frames_updated ) ? gfx_success : gfx_fail;
 }
@@ -1653,8 +1655,8 @@ gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[],
     {
         if ( 0xFFFF == vrt_lst[cnt] ) continue;
 
-        vmin = MIN( vmin, vrt_lst[cnt] );
-        vmax = MAX( vmax, vrt_lst[cnt] );
+        vmin = std::min<Uint16>( vmin, vrt_lst[cnt] );
+        vmax = std::max<Uint16>( vmax, vrt_lst[cnt] );
         count++;
     }
 
@@ -1662,13 +1664,13 @@ gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[],
     if ( 0 == count ) return gfx_fail;
 
     // force the vertices to update
-    retval = chr_instance_update_vertices( pinst, vmin, vmax, ego_true );
+    retval = chr_instance_update_vertices( pinst, vmin, vmax, true );
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, ego_bool action_ready, ego_bool override_action )
+gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool action_ready, bool override_action )
 {
     int action_old;
     mad_t * pmad;
@@ -1712,7 +1714,7 @@ gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, ego_bool act
     // invalidate the vertex list if the action has changed
     if ( action_old != action )
     {
-        pinst->save.valid = ego_false;
+        pinst->save.valid = false;
     }
 
     return gfx_success;
@@ -1764,7 +1766,7 @@ gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, ego_bool action_ready, ego_bool override_action )
+gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool action_ready, bool override_action )
 {
     gfx_rv retval;
 
@@ -1783,7 +1785,7 @@ gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, ego
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, ego_bool action_ready, ego_bool override_action )
+gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool action_ready, bool override_action )
 {
     mad_t * pmad;
 
@@ -1818,7 +1820,7 @@ gfx_rv chr_instance_increment_action( chr_instance_t * pinst )
     gfx_rv retval;
 
     int     action, action_old;
-    ego_bool  action_ready;
+    bool  action_ready;
 
     if ( NULL == pinst )
     {
@@ -1842,7 +1844,7 @@ gfx_rv chr_instance_increment_action( chr_instance_t * pinst )
     // D == "dance" and "W" == walk
     action_ready = ACTION_IS_TYPE( action, D ) || ACTION_IS_TYPE( action, W );
 
-    retval = chr_instance_start_anim( pinst, action, action_ready, ego_true );
+    retval = chr_instance_start_anim( pinst, action, action_ready, true );
 
     return retval;
 }
@@ -1884,21 +1886,21 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
             frame_nxt = frame_lst;
 
             // Break a kept action at any time
-            pinst->action_ready = ego_true;
+            pinst->action_ready = true;
         }
         else if ( pinst->action_loop )
         {
             // Convert the action into a riding action if the character is mounted
             if ( INGAME_CHR( imount ) )
             {
-                chr_instance_start_anim( pinst, mount_action, ego_true, ego_true );
+                chr_instance_start_anim( pinst, mount_action, true, true );
             }
 
             // set the frame to the beginning of the action
             frame_nxt = pmad->action_stt[pinst->action_which];
 
             // Break a looped action at any time
-            pinst->action_ready = ego_true;
+            pinst->action_ready = true;
         }
         else
         {
@@ -1922,7 +1924,7 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, ego_bool action_ready )
+gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool action_ready )
 {
     /// @author ZZ
     /// @details This function starts a generic action for a character
@@ -1943,7 +1945,7 @@ gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, ego_bool ac
 
     action = mad_get_action_ref( pinst->imad, action );
 
-    return chr_instance_start_anim( pinst, action, action_ready, ego_true );
+    return chr_instance_start_anim( pinst, action, action_ready, true );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2010,12 +2012,12 @@ chr_instance_t * chr_instance_ctor( chr_instance_t * pinst )
     // set the animation state
     pinst->rate         = 1.0f;
     pinst->action_next  = ACTION_DA;
-    pinst->action_ready = ego_true;                     // argh! this must be set at the beginning, script's spawn animations do not work!
+    pinst->action_ready = true;                     // argh! this must be set at the beginning, script's spawn animations do not work!
     pinst->frame_lst    = 0;
     pinst->frame_nxt    = 0;
 
     // the vlst_cache parameters are not valid
-    pinst->save.valid = ego_false;
+    pinst->save.valid = false;
 
     // set the update frame to an invalid value
     pinst->update_frame        = -1;
@@ -2072,7 +2074,7 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     ///     if not, the data chould be set to safe values...
 
     mad_t * pmad;
-    ego_bool updated = ego_false;
+    bool updated = false;
     size_t vlst_size;
 
     if ( NULL == pinst )
@@ -2093,7 +2095,7 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
 
     if ( pinst->imad != imad )
     {
-        updated = ego_true;
+        updated = true;
         pinst->imad = imad;
     }
 
@@ -2101,33 +2103,33 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     vlst_size = md2_get_numVertices( pmad->md2_ptr );
     if ( pinst->vrt_count != vlst_size )
     {
-        updated = ego_true;
+        updated = true;
         chr_instance_alloc( pinst, vlst_size );
     }
 
     // set the frames to frame 0 of this object's data
     if ( 0 != pinst->frame_nxt || 0 != pinst->frame_lst )
     {
-        updated          = ego_true;
+        updated          = true;
         pinst->frame_lst = 0;
         pinst->frame_nxt = 0;
 
         // the vlst_cache parameters are not valid
-        pinst->save.valid = ego_false;
+        pinst->save.valid = false;
     }
 
     if ( updated )
     {
         // update the vertex and lighting cache
         chr_instance_clear_cache( pinst );
-        chr_instance_update_vertices( pinst, -1, -1, ego_true );
+        chr_instance_update_vertices( pinst, -1, -1, true );
     }
 
     return updated ? gfx_success : gfx_fail;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, ego_bool need_matrix )
+gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool need_matrix )
 {
     int startalpha;
 
@@ -2218,10 +2220,10 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     chr_instance_set_mad( pinst, pro_get_imad( profile ) );
 
     // set the initial action, all actions override it
-    chr_instance_play_action( pinst, ACTION_DA, ego_true );
+    chr_instance_play_action( pinst, ACTION_DA, true );
 
     // upload these parameters to the reflection cache, but don't compute the matrix
-    chr_instance_update_ref( pinst, 0, ego_false );
+    chr_instance_update_ref( pinst, 0, false );
 
     return gfx_success;
 }
@@ -2321,7 +2323,7 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, ego_bool val )
+gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool val )
 {
     if ( NULL == pinst )
     {
@@ -2335,7 +2337,7 @@ gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, ego_bool val )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, ego_bool val )
+gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool val )
 {
     if ( NULL == pinst )
     {
@@ -2349,7 +2351,7 @@ gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, ego_bool val )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, ego_bool val )
+gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool val )
 {
     if ( NULL == pinst )
     {
@@ -2537,23 +2539,23 @@ gfx_rv vlst_cache_test( vlst_cache_t * pcache, chr_instance_t * pinst )
 
     if ( NULL == pinst )
     {
-        pcache->valid = ego_false;
+        pcache->valid = false;
         return gfx_success;
     }
 
     if ( pinst->frame_lst != pcache->frame_nxt )
     {
-        pcache->valid = ego_false;
+        pcache->valid = false;
     }
 
     if ( pinst->frame_lst != pcache->frame_lst )
     {
-        pcache->valid = ego_false;
+        pcache->valid = false;
     }
 
     if (( pinst->frame_lst != pcache->frame_lst )  && ABS( pinst->flip - pcache->flip ) > flip_tolerance )
     {
-        pcache->valid = ego_false;
+        pcache->valid = false;
     }
 
     return gfx_success;
@@ -2601,7 +2603,7 @@ gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
     ptex = TxList_get_valid_ptr( itex );
 
     // get the transparency info from the texture
-    pinst->skin_has_transparency = ego_false;
+    pinst->skin_has_transparency = false;
     if ( NULL != ptex )
     {
         pinst->skin_has_transparency = ( SDL_FALSE != ptex->has_alpha );
@@ -2614,15 +2616,15 @@ gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float grid_level )
+bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float grid_level )
 {
     /// @author BB
     /// @details Generate the extra data needed to display a reflection for this character
 
-    if ( NULL == pinst ) return ego_false;
+    if ( NULL == pinst ) return false;
 
     // invalidate the current matrix
-    pinst->ref.matrix_valid = ego_false;
+    pinst->ref.matrix_valid = false;
 
     // actually flip the matrix
     if ( pinst->matrix_cache.valid )
@@ -2634,10 +2636,10 @@ ego_bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float gri
         pinst->ref.matrix.CNV( 2, 2 ) = -pinst->ref.matrix.CNV( 2, 2 );
         pinst->ref.matrix.CNV( 3, 2 ) = 2 * grid_level - pinst->ref.matrix.CNV( 3, 2 );
 
-        pinst->ref.matrix_valid = ego_true;
+        pinst->ref.matrix_valid = true;
 
         // fix the reflection
-        chr_instance_update_ref( pinst, grid_level, ego_false );
+        chr_instance_update_ref( pinst, grid_level, false );
     }
 
     return pinst->ref.matrix_valid;

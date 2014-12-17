@@ -46,7 +46,7 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, prt_t, PrtList, MAX_PRT );
 int prt_loop_depth = 0;
 
 size_t maxparticles       = 512;
-ego_bool maxparticles_dirty = ego_true;
+bool maxparticles_dirty = true;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -55,12 +55,12 @@ static void    PrtList_clear( void );
 static void    PrtList_init( void );
 static void    PrtList_deinit( void );
 
-static ego_bool  PrtList_add_free_ref( const PRT_REF iprt );
-static ego_bool  PrtList_remove_free_ref( const PRT_REF iprt );
-static ego_bool  PrtList_remove_free_idx( const int index );
+static bool  PrtList_add_free_ref( const PRT_REF iprt );
+static bool  PrtList_remove_free_ref( const PRT_REF iprt );
+static bool  PrtList_remove_free_idx( const int index );
 
-static ego_bool  PrtList_remove_used_ref( const PRT_REF iprt );
-static ego_bool  PrtList_remove_used_idx( const int index );
+static bool  PrtList_remove_used_ref( const PRT_REF iprt );
+static bool  PrtList_remove_used_idx( const int index );
 
 static void    PrtList_prune_used_list( void );
 static void    PrtList_prune_free_list( void );
@@ -124,7 +124,7 @@ void PrtList_clear( void )
     PRT_REF cnt;
 
     // fix any problems with maxparticles
-    maxparticles = MIN( maxparticles, MAX_PRT );
+    maxparticles = std::min( maxparticles, (size_t)MAX_PRT );
 
     // clear out the list
     PrtList.free_count = 0;
@@ -136,11 +136,11 @@ void PrtList_clear( void )
         PrtList.used_ref[cnt] = INVALID_PRT_IDX;
 
         // let the particle data know that it is not in a list
-        PrtList.lst[cnt].obj_base.in_free_list = ego_false;
-        PrtList.lst[cnt].obj_base.in_used_list = ego_false;
+        PrtList.lst[cnt].obj_base.in_free_list = false;
+        PrtList.lst[cnt].obj_base.in_used_list = false;
     }
 
-    maxparticles_dirty = ego_false;
+    maxparticles_dirty = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ void PrtList_prune_used_list( void )
 
     for ( cnt = 0; cnt < PrtList.used_count; cnt++ )
     {
-        ego_bool removed = ego_false;
+        bool removed = false;
 
         iprt = ( PRT_REF )PrtList.used_ref[cnt];
 
@@ -215,7 +215,7 @@ void PrtList_prune_free_list( void )
 
     for ( cnt = 0; cnt < PrtList.free_count; cnt++ )
     {
-        ego_bool removed = ego_false;
+        bool removed = false;
 
         iprt = ( PRT_REF )PrtList.free_ref[cnt];
 
@@ -275,7 +275,7 @@ void PrtList_update_used( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PrtList_free_one( const PRT_REF iprt )
+bool PrtList_free_one( const PRT_REF iprt )
 {
     /// @author ZZ
     /// @details This function sticks a particle back on the free particle stack
@@ -283,11 +283,11 @@ ego_bool PrtList_free_one( const PRT_REF iprt )
     /// @note Tying ALLOCATED_PRT() and POBJ_TERMINATE() to PrtList_free_one()
     /// should be enough to ensure that no particle is freed more than once
 
-    ego_bool retval;
+    bool retval;
     prt_t * pprt;
     obj_data_t * pbase;
 
-    if ( !ALLOCATED_PRT( iprt ) ) return ego_false;
+    if ( !ALLOCATED_PRT( iprt ) ) return false;
     pprt = PrtList_get_ptr( iprt );
     pbase = POBJ_GET_PBASE( pprt );
 
@@ -301,7 +301,7 @@ ego_bool PrtList_free_one( const PRT_REF iprt )
     {
         // deallocate any dynamically allocated memory
         pprt = prt_config_deinitialize( pprt, 100 );
-        if ( NULL == pprt ) return ego_false;
+        if ( NULL == pprt ) return false;
 
         if ( pbase->in_used_list )
         {
@@ -310,7 +310,7 @@ ego_bool PrtList_free_one( const PRT_REF iprt )
 
         if ( pbase->in_free_list )
         {
-            retval = ego_true;
+            retval = true;
         }
         else
         {
@@ -319,7 +319,7 @@ ego_bool PrtList_free_one( const PRT_REF iprt )
 
         // particle "destructor"
         pprt = prt_config_deconstruct( pprt, 100 );
-        if ( NULL == pprt ) return ego_false;
+        if ( NULL == pprt ) return false;
     }
 
     return retval;
@@ -360,7 +360,7 @@ size_t PrtList_pop_free( const int idx )
         if ( VALID_PRT_RANGE( retval ) )
         {
             // let the object know it is not in the free list any more
-            PrtList.lst[retval].obj_base.in_free_list = ego_false;
+            PrtList.lst[retval].obj_base.in_free_list = false;
             break;
         }
 
@@ -376,7 +376,7 @@ size_t PrtList_pop_free( const int idx )
 }
 
 //--------------------------------------------------------------------------------------------
-PRT_REF PrtList_allocate( const ego_bool force )
+PRT_REF PrtList_allocate( const bool force )
 {
     /// @author ZZ
     /// @details This function gets an unused particle.  If all particles are in use
@@ -401,7 +401,7 @@ PRT_REF PrtList_allocate( const ego_bool force )
             // Gotta find one, so go through the list and replace a unimportant one
             for ( iprt = 0; iprt < maxparticles; iprt++ )
             {
-                ego_bool was_forced = ego_false;
+                bool was_forced = false;
                 prt_t * pprt;
 
                 // Is this an invalid particle? The particle allocation count is messed up! :(
@@ -421,7 +421,7 @@ PRT_REF PrtList_allocate( const ego_bool force )
                 }
 
                 // do not bump another
-                was_forced = TO_EGO_BOOL( PipStack.lst[pprt->pip_ref].force );
+                was_forced = TO_C_BOOL( PipStack.lst[pprt->pip_ref].force );
 
                 if ( WAITING_PRT( iprt ) )
                 {
@@ -553,22 +553,22 @@ int PrtList_find_free_ref( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PrtList_add_free_ref( const PRT_REF iprt )
+bool PrtList_add_free_ref( const PRT_REF iprt )
 {
-    ego_bool retval;
+    bool retval;
 
-    if ( !VALID_PRT_RANGE( iprt ) ) return ego_false;
+    if ( !VALID_PRT_RANGE( iprt ) ) return false;
 
 #if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
     if ( PrtList_find_free_ref( iprt ) > 0 )
     {
-        return ego_false;
+        return false;
     }
 #endif
 
     EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_free_list );
 
-    retval = ego_false;
+    retval = false;
     if ( PrtList.free_count < maxparticles )
     {
         PrtList.free_ref[PrtList.free_count] = iprt;
@@ -576,21 +576,21 @@ ego_bool PrtList_add_free_ref( const PRT_REF iprt )
         PrtList.free_count++;
         PrtList.update_guid++;
 
-        PrtList.lst[iprt].obj_base.in_free_list = ego_true;
+        PrtList.lst[iprt].obj_base.in_free_list = true;
 
-        retval = ego_true;
+        retval = true;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PrtList_remove_free_idx( const int index )
+bool PrtList_remove_free_idx( const int index )
 {
     PRT_REF iprt;
 
     // was it found?
-    if ( index < 0 || index >= PrtList.free_count ) return ego_false;
+    if ( index < 0 || index >= PrtList.free_count ) return false;
 
     iprt = ( PRT_REF )PrtList.free_ref[index];
 
@@ -600,7 +600,7 @@ ego_bool PrtList_remove_free_idx( const int index )
     if ( VALID_PRT_RANGE( iprt ) )
     {
         // let the object know it is not in the list anymore
-        PrtList.lst[iprt].obj_base.in_free_list = ego_false;
+        PrtList.lst[iprt].obj_base.in_free_list = false;
     }
 
     // shorten the list
@@ -613,7 +613,7 @@ ego_bool PrtList_remove_free_idx( const int index )
         SWAP( size_t, PrtList.free_ref[index], PrtList.free_ref[PrtList.free_count] );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -641,22 +641,22 @@ int PrtList_find_used_ref( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PrtList_push_used( const PRT_REF iprt )
+bool PrtList_push_used( const PRT_REF iprt )
 {
-    ego_bool retval;
+    bool retval;
 
-    if ( !VALID_PRT_RANGE( iprt ) ) return ego_false;
+    if ( !VALID_PRT_RANGE( iprt ) ) return false;
 
 #if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
     if ( PrtList_find_used_ref( iprt ) > 0 )
     {
-        return ego_false;
+        return false;
     }
 #endif
 
     EGOBOO_ASSERT( !PrtList.lst[iprt].obj_base.in_used_list );
 
-    retval = ego_false;
+    retval = false;
     if ( PrtList.used_count < maxparticles )
     {
         PrtList.used_ref[PrtList.used_count] = REF_TO_INT( iprt );
@@ -664,21 +664,21 @@ ego_bool PrtList_push_used( const PRT_REF iprt )
         PrtList.used_count++;
         PrtList.update_guid++;
 
-        PrtList.lst[iprt].obj_base.in_used_list = ego_true;
+        PrtList.lst[iprt].obj_base.in_used_list = true;
 
-        retval = ego_true;
+        retval = true;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PrtList_remove_used_idx( const int index )
+bool PrtList_remove_used_idx( const int index )
 {
     PRT_REF iprt;
 
     // was it found?
-    if ( index < 0 || index >= PrtList.used_count ) return ego_false;
+    if ( index < 0 || index >= PrtList.used_count ) return false;
 
     iprt = ( PRT_REF )PrtList.used_ref[index];
 
@@ -688,7 +688,7 @@ ego_bool PrtList_remove_used_idx( const int index )
     if ( VALID_PRT_RANGE( iprt ) )
     {
         // let the object know it is not in the list anymore
-        PrtList.lst[iprt].obj_base.in_used_list = ego_false;
+        PrtList.lst[iprt].obj_base.in_used_list = false;
     }
 
     // shorten the list
@@ -701,11 +701,11 @@ ego_bool PrtList_remove_used_idx( const int index )
         SWAP( size_t, PrtList.used_ref[index], PrtList.used_ref[PrtList.used_count] );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PrtList_remove_used_ref( const PRT_REF iprt )
+bool PrtList_remove_used_ref( const PRT_REF iprt )
 {
     // find the object in the used list
     int index = PrtList_find_used_ref( iprt );
@@ -730,8 +730,8 @@ void PrtList_cleanup( void )
 
         if ( !pprt->obj_base.turn_me_on ) continue;
 
-        pprt->obj_base.on         = ego_true;
-        pprt->obj_base.turn_me_on = ego_false;
+        pprt->obj_base.on         = true;
+        pprt->obj_base.turn_me_on = false;
     }
     prt_activation_count = 0;
 
@@ -745,41 +745,41 @@ void PrtList_cleanup( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PrtList_add_activation( const PRT_REF iprt )
+bool PrtList_add_activation( const PRT_REF iprt )
 {
     // put this particle into the activation list so that it can be activated right after
     // the PrtList loop is completed
 
-    ego_bool retval = ego_false;
+    bool retval = false;
 
-    if ( !VALID_PRT_RANGE( iprt ) ) return ego_false;
+    if ( !VALID_PRT_RANGE( iprt ) ) return false;
 
     if ( prt_activation_count < MAX_PRT )
     {
         prt_activation_list[prt_activation_count] = iprt;
         prt_activation_count++;
 
-        retval = ego_true;
+        retval = true;
     }
 
-    PrtList.lst[iprt].obj_base.turn_me_on = ego_true;
+    PrtList.lst[iprt].obj_base.turn_me_on = true;
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PrtList_add_termination( const PRT_REF iprt )
+bool PrtList_add_termination( const PRT_REF iprt )
 {
-    ego_bool retval = ego_false;
+    bool retval = false;
 
-    if ( !VALID_PRT_RANGE( iprt ) ) return ego_false;
+    if ( !VALID_PRT_RANGE( iprt ) ) return false;
 
     if ( prt_termination_count < MAX_PRT )
     {
         prt_termination_list[prt_termination_count] = iprt;
         prt_termination_count++;
 
-        retval = ego_true;
+        retval = true;
     }
 
     // at least mark the object as "waiting to be terminated"
@@ -884,7 +884,7 @@ void PrtList_reset_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PrtList_request_terminate( const PRT_REF iprt )
+bool PrtList_request_terminate( const PRT_REF iprt )
 {
     prt_t * pprt = PrtList_get_ptr( iprt );
 
@@ -892,7 +892,7 @@ ego_bool PrtList_request_terminate( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool PrtList_remove_free_ref( const PRT_REF iprt )
+bool PrtList_remove_free_ref( const PRT_REF iprt )
 {
     // find the object in the free list
     int index = PrtList_find_free_ref( iprt );

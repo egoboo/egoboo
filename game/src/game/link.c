@@ -54,8 +54,8 @@ typedef struct s_link_stack_entry link_stack_entry_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static ego_bool link_push_module( void );
-static ego_bool link_test_module( const char * modname );
+static bool link_push_module( void );
+static bool link_test_module( const char * modname );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -87,18 +87,18 @@ static link_stack_entry_t link_stack[LINK_STACK_MAX];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool link_follow_modname( const char * modname, ego_bool push_current_module )
+bool link_follow_modname( const char * modname, bool push_current_module )
 {
     /// @author BB
     /// @details This causes the game to follow a link, given the module name
 
-    ego_bool retval;
+    bool retval;
     int old_link_stack_count = link_stack_count;
 
-    if ( !VALID_CSTR( modname ) ) return ego_false;
+    if ( !VALID_CSTR( modname ) ) return false;
 
     // can this module be loaded?
-    if ( !link_test_module( modname ) ) return ego_false;
+    if ( !link_test_module( modname ) ) return false;
 
     // push the link BEFORE you change the module data
     // otherwise you won't save the correct data!
@@ -139,21 +139,21 @@ ego_bool link_follow_modname( const char * modname, ego_bool push_current_module
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool link_build_vfs( const char * fname, Link_t list[] )
+bool link_build_vfs( const char * fname, Link_t list[] )
 {
     vfs_FILE * pfile;
     int i;
 
-    if ( !VALID_CSTR( fname ) ) return ego_false;
+    if ( !VALID_CSTR( fname ) ) return false;
 
     pfile = vfs_openRead( fname );
-    if ( NULL == pfile ) return ego_false;
+    if ( NULL == pfile ) return false;
 
     i = 0;
-    while ( goto_colon_vfs( NULL, pfile, C_TRUE ) && i < LINK_COUNT )
+    while ( goto_colon_vfs( NULL, pfile, true ) && i < LINK_COUNT )
     {
         vfs_get_string( pfile, list[i].modname, SDL_arraysize( list[i].modname ) );
-        list[i].valid = ego_true;
+        list[i].valid = true;
         i++;
     }
 
@@ -163,17 +163,17 @@ ego_bool link_build_vfs( const char * fname, Link_t list[] )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool link_pop_module( void )
+bool link_pop_module( void )
 {
-    ego_bool retval;
+    bool retval;
     link_stack_entry_t * pentry;
 
-    if ( link_stack_count <= 0 ) return ego_false;
+    if ( link_stack_count <= 0 ) return false;
     link_stack_count--;
 
     pentry = link_stack + link_stack_count;
 
-    retval = link_follow_modname( pentry->modname, ego_false );
+    retval = link_follow_modname( pentry->modname, false );
 
     if ( retval )
     {
@@ -205,7 +205,7 @@ ego_bool link_pop_module( void )
                 pchr->pos_old  = phero->pos;
                 pchr->pos_stt  = phero->pos_stt;
 
-                chr_update_safe( pchr, ego_true );
+                chr_update_safe( pchr, true );
             }
         };
     }
@@ -214,13 +214,13 @@ ego_bool link_pop_module( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool link_push_module( void )
+bool link_push_module( void )
 {
-    ego_bool retval;
+    bool retval;
     link_stack_entry_t * pentry;
     PLA_REF ipla;
 
-    if ( link_stack_count >= MAX_PLAYER || pickedmodule_index < 0 ) return ego_false;
+    if ( link_stack_count >= MAX_PLAYER || pickedmodule_index < 0 ) return false;
 
     // grab an entry
     pentry = link_stack + link_stack_count;
@@ -262,27 +262,27 @@ ego_bool link_push_module( void )
     }
 
     // the function only succeeds if at least one hero's info was cached
-    retval = ego_false;
+    retval = false;
     if ( pentry->hero_count > 0 )
     {
         link_stack_count++;
-        retval = ego_true;
+        retval = true;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool link_load_parent( const char * modname, fvec3_t pos )
+bool link_load_parent( const char * modname, fvec3_t pos )
 {
     int i;
     link_stack_entry_t * pentry;
     fvec3_t   pos_diff;
 
-    if ( !VALID_CSTR( modname ) ) return ego_false;
+    if ( !VALID_CSTR( modname ) ) return false;
 
     // push this module onto the stack so we can count the heroes
-    if ( !link_push_module() ) return ego_false;
+    if ( !link_push_module() ) return false;
 
     // grab the stored data
     pentry = link_stack + ( link_stack_count - 1 );
@@ -312,13 +312,13 @@ ego_bool link_load_parent( const char * modname, fvec3_t pos )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool link_test_module( const char * modname )
+bool link_test_module( const char * modname )
 {
-    ego_bool retval = ego_false;
+    bool retval = false;
 
     LoadPlayer_list_t tmp_loadplayer = LOADPLAYER_LIST_INIT;
 
-    if ( !VALID_CSTR( modname ) ) return ego_false;
+    if ( !VALID_CSTR( modname ) ) return false;
 
     // generate a temporary list of loadplayers
     LoadPlayer_list_from_players( &tmp_loadplayer );

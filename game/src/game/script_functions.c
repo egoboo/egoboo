@@ -65,18 +65,18 @@
 #define SCRIPT_FUNCTION_BEGIN() \
     chr_t * pchr; \
     pro_t * ppro; \
-    Uint8 returncode = ego_true; \
-    if( NULL == pstate || NULL == pself || !ALLOCATED_CHR(pself->index) ) return ego_false; \
+    Uint8 returncode = true; \
+    if( NULL == pstate || NULL == pself || !ALLOCATED_CHR(pself->index) ) return false; \
     pchr = ChrList_get_ptr( pself->index ); \
-    if( !LOADED_PRO(pchr->profile_ref) ) return ego_false; \
+    if( !LOADED_PRO(pchr->profile_ref) ) return false; \
     ppro = ProList_get_ptr( pchr->profile_ref );
 
 #define SCRIPT_FUNCTION_END() \
     return returncode;
 
 #define FUNCTION_BEGIN() \
-    Uint8 returncode = ego_true; \
-    if( !ALLOCATED_PCHR( pchr ) ) return ego_false;
+    Uint8 returncode = true; \
+    if( !ALLOCATED_PCHR( pchr ) ) return false;
 
 #define FUNCTION_END() \
     return returncode;
@@ -86,7 +86,7 @@
 #define SET_TARGET(ITARGET,PTARGET)   SET_TARGET_0( ITARGET ); SET_TARGET_1(ITARGET,PTARGET)
 
 #define SCRIPT_REQUIRE_TARGET(PTARGET) \
-    if( !INGAME_CHR(pself->target) ) return ego_false; \
+    if( !INGAME_CHR(pself->target) ) return false; \
     PTARGET = ChrList_get_ptr( pself->target );
 
 //--------------------------------------------------------------------------------------------
@@ -106,11 +106,11 @@ Uint8 scr_set_AlertBit( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pstate->argument >= 0 && pstate->argument < 32 )
     {
         SET_BIT( pself->alert, 1 << pstate->argument );
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -126,11 +126,11 @@ Uint8 scr_ClearAlertBit( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pstate->argument >= 0 && pstate->argument < 32 )
     {
         UNSET_BIT( pself->alert, 1 << pstate->argument );
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -146,7 +146,7 @@ Uint8 scr_TestAlertBit( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pstate->argument >= 0 && pstate->argument < 32 )
     {
         returncode = HAS_SOME_BITS( pself->alert,  1 << pstate->argument );
@@ -210,11 +210,11 @@ Uint8 scr_set_Bit( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pstate->y >= 0 && pstate->y < 32 )
     {
         SET_BIT( pstate->x, 1 << pstate->y );
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -230,11 +230,11 @@ Uint8 scr_ClearBit( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pstate->y >= 0 && pstate->y < 32 )
     {
         UNSET_BIT( pstate->x, 1 << pstate->y );
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -250,7 +250,7 @@ Uint8 scr_TestBit( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pstate->y >= 0 && pstate->y < 32 )
     {
         returncode = HAS_SOME_BITS( pstate->x, 1 << pstate->y );
@@ -526,12 +526,12 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     /// @details Ported the A* path finding algorithm by birdsey and heavily modified it
     /// This function adds enough waypoints to get from one point to another
 
-    ego_bool used_astar;
+    bool used_astar;
 
     SCRIPT_FUNCTION_BEGIN();
 
     //Too soon since last try?
-    if ( pself->astar_timer > update_wld ) return ego_false;
+    if ( pself->astar_timer > update_wld ) return false;
 
     returncode = FindPath( &( pself->wp_lst ), pchr, pstate->x, pstate->y, &used_astar );
 
@@ -595,12 +595,12 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
     if ( value > 0 )
     {
         pstate->x  = value;
-        returncode = ego_true;
+        returncode = true;
     }
     else
     {
         pstate->x  = 0;
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -651,11 +651,11 @@ Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ego_false;
+    returncode = false;
     if ( INGAME_CHR( pself->target ) )
     {
         switch_team( pself->index, pself_target->team );
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -680,7 +680,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -702,11 +702,11 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     ichr = pself_target->holdingwhich[SLOT_LEFT];
-    returncode = ego_false;
+    returncode = false;
     if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET( ichr, pself_target );
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -728,11 +728,11 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
-    returncode = ego_false;
+    returncode = false;
     if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET( ichr, pself_target );
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -753,7 +753,7 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pse
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -774,7 +774,7 @@ Uint8 scr_set_TargetToWhoeverBumped( script_state_t * pstate, ai_state_t * pself
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -799,12 +799,12 @@ Uint8 scr_set_TargetToWhoeverCalledForHelp( script_state_t * pstate, ai_state_t 
         }
         else
         {
-            returncode = ego_false;
+            returncode = false;
         }
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -826,7 +826,7 @@ Uint8 scr_set_TargetToOldTarget( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -918,7 +918,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    item = chr_has_item_idsz( pself->target, ( IDSZ ) pstate->argument, ego_false );
+    item = chr_has_item_idsz( pself->target, ( IDSZ ) pstate->argument, false );
 
     returncode = INGAME_CHR( item );
 
@@ -1043,10 +1043,10 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
 
     action = mad_get_action_ref( pchr->inst.imad, pstate->argument );
 
-    returncode = ego_false;
-    if ( rv_success == chr_start_anim( pchr, action, ego_false, ego_false ) )
+    returncode = false;
+    if ( rv_success == chr_start_anim( pchr, action, false, false ) )
     {
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -1062,7 +1062,7 @@ Uint8 scr_KeepAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_instance_set_action_keep( &( pchr->inst ), ego_true );
+    chr_instance_set_action_keep( &( pchr->inst ), true );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1099,7 +1099,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
     ichr = pchr->holdingwhich[SLOT_LEFT];
     if ( INGAME_CHR( ichr ) )
     {
-        detach_character_from_mount( ichr, ego_true, ego_true );
+        detach_character_from_mount( ichr, true, true );
         if ( pchr->ismount )
         {
             fvec3_t tmp_pos;
@@ -1116,7 +1116,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
     ichr = pchr->holdingwhich[SLOT_RIGHT];
     if ( INGAME_CHR( ichr ) )
     {
-        detach_character_from_mount( ichr, ego_true, ego_true );
+        detach_character_from_mount( ichr, true, true );
         if ( pchr->ismount )
         {
             fvec3_t tmp_pos;
@@ -1144,7 +1144,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( INGAME_CHR( pself->target ) )
     {
         chr_t * pself_target = ChrList_get_ptr( pself->target );
@@ -1153,9 +1153,9 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
         {
             int action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
 
-            if ( rv_success == chr_start_anim( pself_target, action, ego_false, ego_false ) )
+            if ( rv_success == chr_start_anim( pself_target, action, false, false ) )
             {
-                returncode = ego_true;
+                returncode = true;
             }
         }
     }
@@ -1206,7 +1206,7 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pstate->argument >= 0 && pstate->argument < MAX_PASS )
     {
         PASS_REF ipass = ( PASS_REF )pstate->argument;
@@ -1227,10 +1227,10 @@ Uint8 scr_GoPoof( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( !VALID_PLA( pchr->is_which_player ) )
     {
-        returncode = ego_true;
+        returncode = true;
         pself->poof_time = update_wld;
     }
 
@@ -1278,11 +1278,11 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         if ( cnt == MAXINVENTORY ) item = INVALID_CHR_REF;
     }
 
-    returncode = ego_false;
+    returncode = false;
     if ( INGAME_CHR( item ) )
     {
         pitem = ChrList_get_ptr( item );
-        returncode = ego_true;
+        returncode = true;
 
         // Cost one ammo
         if ( pitem->ammo > 1 )
@@ -1296,12 +1296,12 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
             if ( INGAME_CHR( pitem->inwhich_inventory ) && cnt < MAXINVENTORY )
             {
                 // Remove from the pack
-                inventory_remove_item( pchr->ai.index, cnt, ego_true );
+                inventory_remove_item( pchr->ai.index, cnt, true );
             }
             else
             {
                 // Drop from hand
-                detach_character_from_mount( item, ego_true, ego_false );
+                detach_character_from_mount( item, true, false );
             }
 
             // get rid of the character, no matter what
@@ -1326,10 +1326,10 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
 
     action = mad_get_action_ref( pchr->inst.imad, pstate->argument );
 
-    returncode = ego_false;
-    if ( rv_success == chr_start_anim( pchr, action, ego_false, ego_true ) )
+    returncode = false;
+    if ( rv_success == chr_start_anim( pchr, action, false, true ) )
     {
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -1392,7 +1392,7 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
     if ( module_add_idsz_vfs( pickedmodule_name, pstate->argument, 0, NULL ) )
     {
         // invalidate any module list so that we will reload them
-        module_list_valid = ego_false;
+        module_list_valid = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -1454,7 +1454,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
     chr_t * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
-    returncode = ego_false;
+    returncode = false;
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
@@ -1524,7 +1524,7 @@ Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t * pstate, ai_state_t * ps
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -1545,7 +1545,7 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
     tmp_damage.base = pstate->argument;
     tmp_damage.rand = 1;
 
-    damage_character( pself->target, ATK_FRONT, tmp_damage, pchr->damagetarget_damagetype, pchr->team, pself->index, DAMFX_NBLOC, ego_true );
+    damage_character( pself->target, ATK_FRONT, tmp_damage, pchr->damagetarget_damagetype, pchr->team, pself->index, DAMFX_NBLOC, true );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1619,7 +1619,7 @@ Uint8 scr_UnkeepAction( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_instance_set_action_keep( &( pchr->inst ), ego_false );
+    chr_instance_set_action_keep( &( pchr->inst ), false );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1698,17 +1698,17 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
             }
             else
             {
-                returncode = ego_false;
+                returncode = false;
             }
         }
         else
         {
-            returncode = ego_false;
+            returncode = false;
         }
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -1783,8 +1783,8 @@ Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     //squash out-or-range values
-    pchr->money = CLIP( pchr->money, 0, MAXMONEY );
-    pself_target->money = CLIP( pself_target->money, 0, MAXMONEY );
+    pchr->money = CLIP( pchr->money, (Sint16)0, (Sint16)MAXMONEY );
+    pself_target->money = CLIP( pself_target->money, (Sint16)0, (Sint16)MAXMONEY );
 
     // limit the range of the character's money
     iTmp = pchr->money - pstate->argument;
@@ -1867,7 +1867,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( VALID_TEAM_RANGE( pchr->team ) )
     {
         CHR_REF ileader = TeamStack.lst[pchr->team].leader;
@@ -1875,7 +1875,7 @@ Uint8 scr_set_TargetToLeader( script_state_t * pstate, ai_state_t * pself )
         if ( TEAM_NOLEADER != ileader && INGAME_CHR( ileader ) )
         {
             SET_TARGET_0( ileader );
-            returncode = ego_true;
+            returncode = true;
         }
     }
 
@@ -2032,11 +2032,11 @@ Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
 
     if ( INGAME_CHR( pchr->attachedto ) )
     {
-        detach_character_from_mount( pself->index, ego_true, ego_true );
+        detach_character_from_mount( pself->index, true, true );
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -2053,7 +2053,7 @@ Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
 
     pcap = chr_get_pcap( pself->target );
     if ( NULL != pcap )
@@ -2122,7 +2122,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     if ( !pself_target->alive || pself_target->life > pself_target->life_max - HURTDAMAGE )
-        returncode = ego_false;
+        returncode = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -2367,7 +2367,7 @@ Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -2461,7 +2461,7 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     pcap = chr_get_pcap( pself->index );
-    if ( NULL == pcap ) return ego_false;
+    if ( NULL == pcap ) return false;
 
     // Figure out what this spellbook looks like
     iskin = pcap->spelleffect_type;
@@ -2483,9 +2483,9 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
         // Do dropped animation
         int tmp_action = mad_get_action_ref( pchr->inst.imad, ACTION_JB );
 
-        if ( rv_success == chr_start_anim( pchr, tmp_action, ego_false, ego_true ) )
+        if ( rv_success == chr_start_anim( pchr, tmp_action, false, true ) )
         {
-            returncode = ego_true;
+            returncode = true;
         }
     }
 
@@ -2516,7 +2516,7 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
         {
             returncode = HAS_SOME_BITS( ChrList.lst[pchr->attachedto].ai.alert, ALERTIF_SCOREDAHIT );
         }
-        else returncode = ego_false;*/
+        else returncode = false;*/
 
     SCRIPT_FUNCTION_END();
 }
@@ -2561,7 +2561,7 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -2582,7 +2582,7 @@ Uint8 scr_set_TargetToWhoeverWasHit( script_state_t * pstate, ai_state_t * pself
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -2607,7 +2607,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -2714,7 +2714,7 @@ Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
 
     pcap = chr_get_pcap( pself->target );
     if ( NULL != pcap )
@@ -2907,7 +2907,7 @@ Uint8 scr_add_TargetExperience( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    give_experience( pself->target, pstate->argument, ( xp_type )pstate->distance, ego_false );
+    give_experience( pself->target, pstate->argument, ( xp_type )pstate->distance, false );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2941,7 +2941,7 @@ Uint8 scr_UnkurseTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->iskursed = ego_false;
+    pself_target->iskursed = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3142,9 +3142,9 @@ Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
-        returncode = ego_true;
+        returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3159,9 +3159,9 @@ Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pself->directionlast >= ATK_LEFT + 8192 || pself->directionlast < ATK_FRONT + 8192 )
-        returncode = ego_true;
+        returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3176,9 +3176,9 @@ Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pself->directionlast >= ATK_LEFT - 8192 && pself->directionlast < ATK_LEFT + 8192 )
-        returncode = ego_true;
+        returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3193,9 +3193,9 @@ Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pself->directionlast >= ATK_RIGHT - 8192 && pself->directionlast < ATK_RIGHT + 8192 )
-        returncode = ego_true;
+        returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3209,9 +3209,9 @@ Uint8 scr_TargetIsOnSameTeam( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( chr_get_iteam( pself->target ) == pchr->team )
-        returncode = ego_true;
+        returncode = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3235,7 +3235,7 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->attachedto;
     }
 
-    kill_character( pself->target, ichr, ego_false );
+    kill_character( pself->target, ichr, false );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3257,7 +3257,7 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
     else
     {
         pchr->undoenchant = INVALID_ENC_REF;
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -3669,7 +3669,7 @@ Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
 
     pcap = pro_get_pcap( pchr->profile_ref );
 
-    returncode = ego_false;
+    returncode = false;
     if ( NULL != pcap )
     {
         returncode = pcap->usageknown;
@@ -3709,7 +3709,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     pstate->argument = 0;
 
     // Check right hand
@@ -3723,7 +3723,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
             if ( 0 == pstate->argument || ( update_wld & 1 ) )
             {
                 pstate->argument = LATCHBUTTON_RIGHT;
-                returncode = ego_true;
+                returncode = true;
             }
         }
     }
@@ -3739,7 +3739,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
             if ( NULL != pcap && pcap->isranged && ( 0 == ChrList.lst[ichr].ammomax || ( 0 != ChrList.lst[ichr].ammo && ChrList.lst[ichr].ammoknown ) ) )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
-                returncode = ego_true;
+                returncode = true;
             }
         }
 
@@ -3760,7 +3760,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     pstate->argument = 0;
 
     if ( !returncode )
@@ -3776,7 +3776,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
                 if ( 0 == pstate->argument || ( update_wld & 1 ) )
                 {
                     pstate->argument = LATCHBUTTON_RIGHT;
-                    returncode = ego_true;
+                    returncode = true;
                 }
             }
         }
@@ -3793,7 +3793,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
             if ( NULL != pcap && !pcap->isranged && pcap->weaponaction != ACTION_PA )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
-                returncode = ego_true;
+                returncode = true;
             }
         }
     }
@@ -3813,7 +3813,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     pstate->argument = 0;
 
     if ( !returncode )
@@ -3827,7 +3827,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
             if ( NULL != pcap && pcap->weaponaction == ACTION_PA )
             {
                 pstate->argument = LATCHBUTTON_RIGHT;
-                returncode = ego_true;
+                returncode = true;
             }
         }
     }
@@ -3843,7 +3843,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
             if ( NULL != pcap && pcap->weaponaction == ACTION_PA )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
-                returncode = ego_true;
+                returncode = true;
             }
         }
     }
@@ -3896,7 +3896,7 @@ Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
 
     pcap = pro_get_pcap( pchr->profile_ref );
 
-    returncode = ego_false;
+    returncode = false;
     if ( NULL != pcap )
     {
         returncode = HAS_SOME_BITS( pcap->skin_info.dressy, 1 << pchr->skin );
@@ -3943,8 +3943,8 @@ Uint8 scr_MakeNameKnown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->nameknown = ego_true;
-    //           pchr->icon = ego_true;
+    pchr->nameknown = true;
+    //           pchr->icon = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3963,11 +3963,11 @@ Uint8 scr_MakeUsageKnown( script_state_t * pstate, ai_state_t * pself )
 
     pcap = pro_get_pcap( pchr->profile_ref );
 
-    returncode = ego_false;
+    returncode = false;
     if ( NULL != pcap )
     {
-        pcap->usageknown = C_TRUE;
-        returncode       = ego_true;
+        pcap->usageknown = true;
+        returncode       = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -4053,7 +4053,7 @@ Uint8 scr_MakeAmmoKnown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->ammoknown = ego_true;
+    pchr->ammoknown = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4072,7 +4072,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
 
     //If we are a weapon, our holder is the owner of this particle
     ichr    = pself->index;
-    iholder = chr_get_lowest_attachment( ichr, ego_true );
+    iholder = chr_get_lowest_attachment( ichr, true );
     if ( INGAME_CHR( iholder ) )
     {
         ichr = iholder;
@@ -4174,7 +4174,7 @@ Uint8 scr_MakeCrushValid( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->canbecrushed = ego_true;
+    pchr->canbecrushed = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4192,7 +4192,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    itarget = chr_get_lowest_attachment( pself->target, ego_false );
+    itarget = chr_get_lowest_attachment( pself->target, false );
 
     if ( INGAME_CHR( itarget ) )
     {
@@ -4200,7 +4200,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -4265,7 +4265,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
 
     new_chunk = chr_get_chunk_ptr( pchr, pstate->argument );
 
@@ -4320,7 +4320,7 @@ Uint8 scr_HealSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    heal_character( pself->index, pself->index, pstate->argument, ego_true );
+    heal_character( pself->index, pself->index, pstate->argument, true );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4335,7 +4335,7 @@ Uint8 scr_Equip( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->isequipped = ego_true;
+    pchr->isequipped = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4351,7 +4351,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    item = chr_has_inventory_idsz( pself->target, pstate->argument, ego_true );
+    item = chr_has_inventory_idsz( pself->target, pstate->argument, true );
 
     returncode = INGAME_CHR( item );
 
@@ -4389,7 +4389,7 @@ Uint8 scr_set_TargetToOwner( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -4465,11 +4465,11 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     if ( INGAME_CHR( ichr ) )
     {
         SET_TARGET_0( ichr );
-        returncode = ego_true;
+        returncode = true;
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -4489,10 +4489,10 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ego_false;
+    returncode = false;
     if ( INVALID_PLA( pself_target->is_which_player ) )             //Do not poof players
     {
-        returncode = ego_true;
+        returncode = true;
         if ( pself->target == pself->index )
         {
             // Poof self later
@@ -4523,7 +4523,7 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( INGAME_CHR( pself->child ) )
     {
         int action;
@@ -4532,9 +4532,9 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
 
         action = mad_get_action_ref( pchild->inst.imad, pstate->argument );
 
-        if ( rv_success == chr_start_anim( pchild, action, ego_false, ego_true ) )
+        if ( rv_success == chr_start_anim( pchild, action, false, true ) )
         {
-            returncode = ego_true;
+            returncode = true;
         }
     }
 
@@ -4668,7 +4668,7 @@ Uint8 scr_ShowTimer( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    timeron = ego_true;
+    timeron = true;
     timervalue = pstate->argument;
 
     SCRIPT_FUNCTION_END();
@@ -4783,7 +4783,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -4965,7 +4965,7 @@ Uint8 scr_ShowMap( script_state_t * pstate, ai_state_t * pself )
     /// Fails if map already visible
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( mapon )  returncode = ego_false;
+    if ( mapon )  returncode = false;
 
     mapon = mapvalid;
 
@@ -5024,10 +5024,10 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
-    if ( heal_character( pself->target, pself->index, pstate->argument, ego_false ) )
+    returncode = false;
+    if ( heal_character( pself->target, pself->index, pstate->argument, false ) )
     {
-        returncode = ego_true;
+        returncode = true;
         remove_all_enchants_with_idsz( pself->target, MAKE_IDSZ( 'H', 'E', 'A', 'L' ) );
     }
 
@@ -5090,7 +5090,7 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     pcap_chr = pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pcap_chr ) return ego_false;
+    if ( NULL == pcap_chr ) return false;
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr_test )
     {
@@ -5099,18 +5099,18 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
         pcap_test = chr_get_pcap( cnt );
         if ( NULL == pcap_test ) continue;
 
-        sTmp = ego_true;
+        sTmp = true;
         for ( tTmp = 0; tTmp < IDSZ_COUNT; tTmp++ )
         {
             if ( pcap_chr->idsz[tTmp] != pcap_test->idsz[tTmp] )
             {
-                sTmp = ego_false;
+                sTmp = false;
             }
         }
 
         if ( sTmp )
         {
-            pchr_test->nameknown = ego_true;
+            pchr_test->nameknown = true;
         }
     }
     CHR_END_LOOP();
@@ -5188,7 +5188,7 @@ Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
     fog.top += fTmp;
     fog.distance += fTmp;
     fog.on = cfg.fog_allowed;
-    if ( fog.distance < 1.0f )  fog.on = ego_false;
+    if ( fog.distance < 1.0f )  fog.on = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5243,7 +5243,7 @@ Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
     fog.bottom += fTmp;
     fog.distance -= fTmp;
     fog.on = cfg.fog_allowed;
-    if ( fog.distance < 1.0f )  fog.on = ego_false;
+    if ( fog.distance < 1.0f )  fog.on = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5305,7 +5305,7 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ego_false;
+    returncode = false;
 
     ichr = pself_target->attachedto;
     if ( INGAME_CHR( ichr ) )
@@ -5366,13 +5366,13 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     iTmp = ego_mesh_get_grid( PMesh, pstate->x, pstate->y );
 
     ptile = ego_mesh_get_ptile( PMesh, iTmp );
     if ( NULL != ptile )
     {
-        returncode = ego_true;
+        returncode = true;
         pstate->argument = ptile->img & TILE_LOWER_MASK;
     }
 
@@ -5427,7 +5427,7 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
 
     if ( !INGAME_CHR( pself->target ) )
     {
-        returncode = ego_false;
+        returncode = false;
     }
     else
     {
@@ -5457,7 +5457,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5495,7 +5495,7 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
 
     iTmp = pchr->undoenchant;
 
-    returncode = ego_false;
+    returncode = false;
     if ( INGAME_ENC( iTmp ) )
     {
         EncList.lst[iTmp].owner_mana = pstate->argument;
@@ -5503,7 +5503,7 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
         EncList.lst[iTmp].target_mana = pstate->x;
         EncList.lst[iTmp].target_life = pstate->y;
 
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5748,18 +5748,18 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
     ichr = pself_target->holdingwhich[SLOT_LEFT];
     if ( INGAME_CHR( ichr ) )
     {
-        ChrList.lst[ichr].iskursed = ego_false;
+        ChrList.lst[ichr].iskursed = false;
     }
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
     if ( INGAME_CHR( ichr ) )
     {
-        ChrList.lst[ichr].iskursed = ego_false;
+        ChrList.lst[ichr].iskursed = false;
     }
 
     PACK_BEGIN_LOOP( pself_target->inventory, pitem, item )
     {
-        pitem->iskursed = ego_false;
+        pitem->iskursed = false;
     }
     PACK_END_LOOP();
 
@@ -5830,7 +5830,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( INGAME_CHR( pself->target ) )
     {
         int action;
@@ -5838,12 +5838,12 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
 
         action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
 
-        if ( rv_success == chr_start_anim( pself_target, action, ego_false, ego_true ) )
+        if ( rv_success == chr_start_anim( pself_target, action, false, true ) )
         {
             // remove the interpolation
             chr_instance_remove_interpolation( &( pself_target->inst ) );
 
-            returncode = ego_true;
+            returncode = true;
         }
     }
 
@@ -5890,7 +5890,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5915,7 +5915,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5940,7 +5940,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5967,7 +5967,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6021,7 +6021,7 @@ Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     ichr = pchr->attachedto;
     if ( INGAME_CHR( ichr ) )
     {
@@ -6041,7 +6041,7 @@ Uint8 scr_NotAnItem( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->isitem = ego_false;
+    pchr->isitem = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6107,19 +6107,19 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     ichr = pself->target;
-    if ( ChrList.lst[ichr].ammomax != 0 )  ChrList.lst[ichr].ammoknown = ego_true;
+    if ( ChrList.lst[ichr].ammomax != 0 )  ChrList.lst[ichr].ammoknown = true;
     if ( 0 == strcmp( "Blah", ChrList.lst[ichr].Name ) )
     {
         returncode = !ChrList.lst[ichr].nameknown;
-        ChrList.lst[ichr].nameknown = ego_true;
+        ChrList.lst[ichr].nameknown = true;
     }
 
     pcap = chr_get_pcap( pself->target );
     if ( NULL != pcap )
     {
-        pcap->usageknown = C_TRUE;
+        pcap->usageknown = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6134,7 +6134,7 @@ Uint8 scr_BeatModule( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->beat = ego_true;
+    PMod->beat = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6149,7 +6149,7 @@ Uint8 scr_EndModule( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This tells the game to quit
-    EProc->escape_requested = ego_true;
+    EProc->escape_requested = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6163,7 +6163,7 @@ Uint8 scr_DisableExport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->exportvalid = ego_false;
+    PMod->exportvalid = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6177,7 +6177,7 @@ Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->exportvalid = ego_true;
+    PMod->exportvalid = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6294,7 +6294,7 @@ Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pstate->argument >= 0 && pstate->argument < MAX_PASS )
     {
         PASS_REF ipass = ( PASS_REF )pstate->argument;
@@ -6362,7 +6362,7 @@ Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     if ( pstate->argument >= 0 && pstate->argument < MAX_PASS )
     {
         PASS_REF ipass = ( PASS_REF )pstate->argument;
@@ -6382,7 +6382,7 @@ Uint8 scr_MakeCrushInvalid( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->canbecrushed = ego_false;
+    pchr->canbecrushed = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6705,12 +6705,12 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !INGAME_CHR( pself->target ) ) return ego_false;
+    if ( !INGAME_CHR( pself->target ) ) return false;
 
     pself_target = ChrList_get_ptr( pself->target );
 
     pcap = chr_get_pcap( pself->target );         // The Target's model
-    if ( NULL == pcap )  return ego_false;
+    if ( NULL == pcap )  return false;
 
     iTmp = pcap->skin_info.cost[pstate->argument&3];
     pstate->y = iTmp;                             // Cost of new skin
@@ -6721,16 +6721,16 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
     {
         // Not enough.
         pstate->x = iTmp - pself_target->money;        // Amount needed
-        returncode = ego_false;
+        returncode = false;
     }
     else
     {
         // Pay for it.  Cost may be negative after refund.
         pself_target->money = pself_target->money - iTmp;
-        pself_target->money = CLIP( pself_target->money, 0, MAXMONEY );
+        pself_target->money = CLIP( pself_target->money, (Sint16)0, (Sint16)MAXMONEY );
 
         pstate->x = 0;
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6788,7 +6788,7 @@ Uint8 scr_PitsKill( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pits.kill = ego_true;
+    pits.kill = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6813,7 +6813,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6829,7 +6829,7 @@ Uint8 scr_MakeNameUnknown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->nameknown = ego_false;
+    pchr->nameknown = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6894,12 +6894,12 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
     SCRIPT_FUNCTION_BEGIN();
 
     pcap = pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pcap ) return ego_false;
+    if ( NULL == pcap ) return false;
 
     ppip = pro_get_ppip( pchr->profile_ref, pcap->gopoofprt_lpip );
-    if ( NULL == ppip ) return ego_false;
+    if ( NULL == ppip ) return false;
 
-    returncode = ego_false;
+    returncode = false;
     if ( NULL != ppip )
     {
         /// @note BB@> if we do not change both the ppip->damage.from AND the ppip->damage.to
@@ -6926,7 +6926,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
         ppip->damage.from           = fTmp;
         ppip->damage.to             = ppip->damage.from + damage_rand;
 
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -6954,7 +6954,7 @@ Uint8 scr_DoNothing( script_state_t * pstate, ai_state_t * pself )
     /// @details This function does nothing
     /// Use this for debugging or in combination with a Else function
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6973,12 +6973,12 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 
     pcap = chr_get_pcap( pself->target );
 
-    returncode = ego_false;
+    returncode = false;
     if ( NULL != pcap && pcap->canbegrogged )
     {
         int timer_val = pself_target->grog_timer + pstate->argument;
         pself_target->grog_timer = MAX( 0, timer_val );
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7001,13 +7001,13 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
     pcap = chr_get_pcap( pself->target );
 
     // Characters who manage to daze themselves are ignore their daze immunity
-    returncode = ego_false;
+    returncode = false;
     if ( NULL != pcap && ( pcap->canbedazed || pself->index == pself->target ) )
     {
         int timer_val = pself_target->daze_timer + pstate->argument;
         pself_target->daze_timer = MAX( 0, timer_val );
 
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7022,7 +7022,7 @@ Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->respawnvalid = ego_true;
+    PMod->respawnvalid = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7036,7 +7036,7 @@ Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->respawnvalid = ego_false;
+    PMod->respawnvalid = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7068,17 +7068,17 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
             }
             else
             {
-                returncode = ego_false;
+                returncode = false;
             }
         }
         else
         {
-            returncode = ego_false;
+            returncode = false;
         }
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7099,7 +7099,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
 
     if ( !pself_target->alive || pself_target->mana > pself_target->mana_max - HURTDAMAGE )
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7121,7 +7121,7 @@ Uint8 scr_EnableListenSkill( script_state_t * pstate, ai_state_t * pself )
                      ( NULL == pmad ) ? "UNKNOWN" : pmad->name );
     }
 
-    returncode = ego_false;
+    returncode = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7141,7 +7141,7 @@ Uint8 scr_set_TargetToLastItemUsed( script_state_t * pstate, ai_state_t * pself 
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7156,9 +7156,9 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return ego_false;
+    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return false;
 
-    returncode = link_follow_modname( ppro->message_ary[pstate->argument], ego_true );
+    returncode = link_follow_modname( ppro->message_ary[pstate->argument], true );
     if ( !returncode )
     {
         DisplayMsg_printf( "That's too scary for %s", pchr->Name );
@@ -7177,9 +7177,9 @@ Uint8 scr_OperatorIsLinux( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
 #if defined(__unix__)
-    returncode = ego_true;
+    returncode = true;
 #else
-    returncode = ego_false;
+    returncode = false;
 #endif
 
     SCRIPT_FUNCTION_END();
@@ -7196,10 +7196,10 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !INGAME_CHR( pself->target ) ) return ego_false;
+    if ( !INGAME_CHR( pself->target ) ) return false;
 
     pcap = chr_get_pcap( pself->target );
-    if ( NULL == pcap ) return ego_false;
+    if ( NULL == pcap ) return false;
 
     returncode = pcap->isranged || chr_has_idsz( pself->target, MAKE_IDSZ( 'X', 'W', 'E', 'P' ) );
 
@@ -7231,7 +7231,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     for ( iTmp = 0; iTmp < MAX_PIP_PER_PROFILE; iTmp++ )
     {
         pip_t * ppip = pro_get_ppip( pchr->profile_ref, iTmp );
@@ -7239,7 +7239,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 
         if ( ppip->intdamagebonus || ppip->wisdamagebonus )
         {
-            returncode = ego_true;
+            returncode = true;
             break;
         }
     }
@@ -7258,12 +7258,12 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     //Now check if it really was backstabbed
-    returncode = ego_false;
+    returncode = false;
     if ( HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
     {
         //Who is the dirty backstabber?
         chr_t * pattacker = ChrList_get_ptr( pself->attacklast );
-        if ( !ACTIVE_PCHR( pattacker ) ) return ego_false;
+        if ( !ACTIVE_PCHR( pattacker ) ) return false;
 
         //Only if hit from behind
         if ( pself->directionlast >= ATK_BEHIND - 8192 && pself->directionlast < ATK_BEHIND + 8192 )
@@ -7272,7 +7272,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
             if ( chr_get_skill( pattacker, MAKE_IDSZ( 'S', 'T', 'A', 'B' ) ) )
             {
                 //Finally we require it to be physical damage!
-                if ( DAMAGE_IS_PHYSICAL( pself->damagetypelast ) ) returncode = ego_true;
+                if ( DAMAGE_IS_PHYSICAL( pself->damagetypelast ) ) returncode = true;
             }
         }
     }
@@ -7338,7 +7338,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
@@ -7351,7 +7351,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 
         if ( QUEST_BEATEN == quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), ( IDSZ )pstate->argument, QUEST_MAXVAL ) )
         {
-            returncode = ego_true;
+            returncode = true;
         }
     }
 
@@ -7374,7 +7374,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ego_false;
+    returncode = false;
 
     ipla = pself_target->is_which_player;
     if ( VALID_PLA( ipla ) )
@@ -7388,7 +7388,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     if ( quest_level >= 0 )
     {
         pstate->distance = quest_level;
-        returncode       = ego_true;
+        returncode       = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7409,7 +7409,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ego_false;
+    returncode = false;
     ipla = pself_target->is_which_player;
     if ( VALID_PLA( ipla ) && 0 != pstate->distance )
     {
@@ -7437,7 +7437,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ego_false;
+    returncode = false;
     for ( player_count = 0, success_count = 0, ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         int quest_level;
@@ -7491,14 +7491,14 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
 
     if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->gmem.edge_x - EDGE && pstate->y < PMesh->gmem.edge_y - EDGE )
     {
-        pits.teleport = ego_true;
+        pits.teleport = true;
         pits.teleport_pos.x = pstate->x;
         pits.teleport_pos.y = pstate->y;
         pits.teleport_pos.z = pstate->distance;
     }
     else
     {
-        pits.kill = ego_true;          //make it kill instead
+        pits.kill = true;          //make it kill instead
     }
 
     SCRIPT_FUNCTION_END();
@@ -7562,12 +7562,12 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         chr_t * pchild = ChrList_get_ptr( ichr );
 
-        Uint8 grip = CLIP( pstate->distance, ATTACH_INVENTORY, ATTACH_RIGHT );
+        Uint8 grip = CLIP( pstate->distance, (int)ATTACH_INVENTORY, (int)ATTACH_RIGHT );
 
         if ( grip == ATTACH_INVENTORY )
         {
             // Inventory character
-            if ( inventory_add_item( pself->target, ichr, MAXINVENTORY, ego_true ) )
+            if ( inventory_add_item( pself->target, ichr, MAXINVENTORY, true ) )
             {
                 SET_BIT( pchild->ai.alert, ALERTIF_GRABBED );  // Make spellbooks change
                 pchild->attachedto = pself->target;  // Make grab work
@@ -7646,7 +7646,7 @@ Uint8 scr_set_TargetToChild( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7675,8 +7675,8 @@ Uint8 scr_End( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pself->terminate = ego_true;
-    returncode       = ego_false;
+    pself->terminate = true;
+    returncode       = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7808,9 +7808,9 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
 #if defined(__APPLE__)
-    returncode = ego_true;
+    returncode = true;
 #else
-    returncode = ego_false;
+    returncode = false;
 #endif
 
     SCRIPT_FUNCTION_END();
@@ -7828,7 +7828,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     ///use message.txt to send the module name
-    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return ego_false;
+    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return false;
 
     returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, ppro->message_ary[pstate->argument] );
 
@@ -7849,7 +7849,7 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( !INGAME_CHR( pself->target ) ) return ego_false;
+    if ( !INGAME_CHR( pself->target ) ) return false;
 
     change_character( pself->index, pself_target->basemodel_ref, pself_target->skin, ENC_LEAVE_ALL );
 
@@ -7956,7 +7956,7 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ego_false;
+    returncode = false;
     if ( pself_target->alive )
     {
         // Check all enchants to see if they are removed
@@ -7979,11 +7979,11 @@ Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = ego_false;
+    returncode = false;
     if ( pself_target->isitem && !pself_target->iskursed )
     {
-        pself_target->iskursed = ego_true;
-        returncode = ego_true;
+        pself_target->iskursed = true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();
@@ -8035,7 +8035,7 @@ Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pself_target->ammo = MIN( pstate->argument, pself_target->ammomax );
+    pself_target->ammo = std::min( pstate->argument, (int)pself_target->ammomax );
 
     SCRIPT_FUNCTION_END();
 }
@@ -8049,7 +8049,7 @@ Uint8 scr_EnableInvictus( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->invictus = ego_true;
+    pchr->invictus = true;
 
     SCRIPT_FUNCTION_END();
 }
@@ -8063,7 +8063,7 @@ Uint8 scr_DisableInvictus( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->invictus = ego_false;
+    pchr->invictus = false;
 
     SCRIPT_FUNCTION_END();
 }
@@ -8083,7 +8083,7 @@ Uint8 scr_TargetDamageSelf( script_state_t * pstate, ai_state_t * pself )
     tmp_damage.base = pstate->argument;
     tmp_damage.rand = 1;
 
-    damage_character( pself->index, ATK_FRONT, tmp_damage, pstate->distance, chr_get_iteam( pself->target ), pself->target, DAMFX_NBLOC, ego_true );
+    damage_character( pself->index, ATK_FRONT, tmp_damage, pstate->distance, chr_get_iteam( pself->target ), pself->target, DAMFX_NBLOC, true );
 
     SCRIPT_FUNCTION_END();
 }
@@ -8127,7 +8127,7 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return ego_false;
+    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return false;
 
     //Figure out which color to use
     switch ( pstate->turn )
@@ -8166,7 +8166,7 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
     }
     else
     {
-        returncode = ego_false;
+        returncode = false;
     }
 
     SCRIPT_FUNCTION_END();
@@ -8233,13 +8233,13 @@ Uint8 scr_set_TargetToNearbyMeleeWeapon( script_state_t * pstate, ai_state_t * p
 
     SCRIPT_FUNCTION_BEGIN();
 
-    best_target = FindWeapon( pchr, WIDE, MAKE_IDSZ( 'X', 'W', 'E', 'P' ), ego_false, ego_true );
+    best_target = FindWeapon( pchr, WIDE, MAKE_IDSZ( 'X', 'W', 'E', 'P' ), false, true );
 
     //Did we find anything good?
     if ( INGAME_CHR( best_target ) )
     {
         pself->target = best_target;
-        returncode = ego_true;
+        returncode = true;
     }
 
     SCRIPT_FUNCTION_END();

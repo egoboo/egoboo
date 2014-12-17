@@ -186,6 +186,7 @@
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\map_functions.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network_file.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\opengl\renderer.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\file_win.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\sys_win32.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\process.c" />
@@ -199,6 +200,7 @@
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\mem.hpp" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bbox.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bsp.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\clock.h" />
@@ -252,6 +254,7 @@
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\mem.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network_file.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\opengl\renderer.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\NSFileManager+DirectoryLocations.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\process.h" />
@@ -262,6 +265,7 @@
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\threads.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\throttle.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\timer.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\tx_filters.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\typedef.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\vfs.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.h" />

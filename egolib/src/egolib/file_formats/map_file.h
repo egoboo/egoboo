@@ -22,9 +22,11 @@
 #include "egolib/typedef.h"
 #include "egolib/_math.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -165,15 +167,16 @@ extern "C"
     map_t *      map_ctor( map_t * pmesh );
     map_t *      map_dtor( map_t * pmesh );
     map_t *      map_renew( map_t * pmesh );
-    C_BOOLEAN       map_free( map_t * pmesh );
-    C_BOOLEAN       map_init( map_t * pmesh, map_info_t * pinfo );
+    bool         map_free( map_t * pmesh );
+    bool         map_init( map_t * pmesh, map_info_t * pinfo );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #if defined(__cplusplus)
 }
-
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------

@@ -179,7 +179,7 @@ extern "C"
 /// the basic definition of a single control
     struct s_control
     {
-        C_BOOLEAN loaded;
+        bool loaded;
 
         // device bits for non-keyboard entry
         Uint32 tag_bits;
@@ -213,8 +213,8 @@ extern "C"
 
 // special functions that must be implemented by the user
     extern BIT_FIELD input_device_get_buttonmask( input_device_t *pdevice );
-    extern C_BOOLEAN    input_device_is_enabled( input_device_t *pdevice );
-    extern C_BOOLEAN    input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontrol );
+    extern bool      input_device_is_enabled( input_device_t *pdevice );
+    extern bool      input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontrol );
 
 //--------------------------------------------------------------------------------------------
 

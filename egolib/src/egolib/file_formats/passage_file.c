@@ -39,19 +39,19 @@ passage_t * passage_init( passage_t * ppass )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN scan_passage_file( vfs_FILE * fileread, passage_t * ppass )
+bool scan_passage_file( vfs_FILE * fileread, passage_t * ppass )
 {
     /// @author ZZ
     /// @details This function reads the passage file
 
-    C_BOOLEAN found;
+    bool found;
 
-    if ( NULL == fileread || NULL == ppass ) return C_FALSE;
+    if ( NULL == fileread || NULL == ppass ) return false;
 
     passage_init( ppass );
 
-    found = C_FALSE;
-    if ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
+    found = false;
+    if ( goto_colon_vfs( NULL, fileread, true ) )
     {
         ppass->area.left   = vfs_get_int( fileread );
         ppass->area.top    = vfs_get_int( fileread );
@@ -64,7 +64,7 @@ C_BOOLEAN scan_passage_file( vfs_FILE * fileread, passage_t * ppass )
         if ( vfs_get_bool( fileread ) ) ppass->mask = MAPFX_IMPASS;
         if ( vfs_get_bool( fileread ) ) ppass->mask = MAPFX_SLIPPY;
 
-        found = C_TRUE;
+        found = true;
     }
 
     return found;

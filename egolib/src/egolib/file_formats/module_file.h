@@ -76,25 +76,25 @@ extern "C"
         STRING  longname;                     ///< Module names
         STRING  reference;                    ///< the module reference string
         Uint8   importamount;                 ///< # of import characters
-        C_BOOLEAN  allowexport;                  ///< Export characters?
+        bool    allowexport;                  ///< Export characters?
         Uint8   minplayers;                   ///< Number of players
         Uint8   maxplayers;
-        C_BOOLEAN  monstersonly;                           ///< Only allow monsters
+        bool    monstersonly;                           ///< Only allow monsters
         Uint8   respawnvalid;                           ///< Allow respawn
         int     numlines;                               ///< Lines in summary
         char    summary[SUMMARYLINES][SUMMARYSIZE];     ///< Quest description
 
         IDSZ_node_t     unlockquest;                    ///< the quest required to unlock this module
         module_filter_t moduletype;                     ///< Main quest, town, sidequest or whatever
-        C_BOOLEAN          beaten;                         ///< The module has been marked with the [BEAT] eapansion
+        bool            beaten;                         ///< The module has been marked with the [BEAT] eapansion
     };
 
     mod_file_t * mod_file__init( mod_file_t * );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-    C_BOOLEAN module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer );
-    C_BOOLEAN module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer );
+    bool module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer );
+    bool module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer );
 
     mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod );
 

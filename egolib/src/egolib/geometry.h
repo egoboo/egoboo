@@ -82,7 +82,7 @@ extern "C"
 // the base type of the plane data
     typedef fvec4_base_t plane_base_t;
 
-    ego_bool plane_base_normalize( plane_base_t * plane );
+    bool plane_base_normalize( plane_base_t * plane );
 
 //--------------------------------------------------------------------------------------------
 // a datatype for spheres
@@ -100,7 +100,7 @@ extern "C"
         -1.0f       /*float   radius */ \
     }
 
-    ego_bool sphere_self_clear( sphere_t * );
+    bool sphere_self_clear( sphere_t * );
 
 //--------------------------------------------------------------------------------------------
 // a datatype for cubes
@@ -163,10 +163,10 @@ extern "C"
     geometry_rv cone_intersects_point( const cone_t * lhs, const fvec3_base_t rhs );
     geometry_rv cone_intersects_sphere( const cone_t * lhs, const sphere_t * rhs );
 
-    geometry_rv frustum_intersects_point( const frustum_base_t pf, const fvec3_base_t pos, const ego_bool do_ends );
-    geometry_rv frustum_intersects_sphere( const frustum_base_t pf, const fvec3_base_t pos, const float radius, const ego_bool do_ends );
-    geometry_rv frustum_intersects_cube( const frustum_base_t pf, const fvec3_base_t pos, const float size, const ego_bool do_ends );
-    geometry_rv frustum_intersects_aabb( const frustum_base_t pf, const fvec3_base_t corner1, const fvec3_base_t corner2, const ego_bool do_ends );
+    geometry_rv frustum_intersects_point( const frustum_base_t pf, const fvec3_base_t pos, const bool do_ends );
+    geometry_rv frustum_intersects_sphere( const frustum_base_t pf, const fvec3_base_t pos, const float radius, const bool do_ends );
+    geometry_rv frustum_intersects_cube( const frustum_base_t pf, const fvec3_base_t pos, const float size, const bool do_ends );
+    geometry_rv frustum_intersects_aabb( const frustum_base_t pf, const fvec3_base_t corner1, const fvec3_base_t corner2, const bool do_ends );
 
 //--------------------------------------------------------------------------------------------
 // misc routines
@@ -176,10 +176,10 @@ extern "C"
     float plane_point_distance( const plane_base_t plane, const point_base_t pos );
 
 /// find the parametric line where two planes intersect
-    ego_bool two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const plane_base_t p0, const plane_base_t p1 );
+    bool two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const plane_base_t p0, const plane_base_t p1 );
 
 /// find the point where 3 planes intersect
-    ego_bool three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 );
+    bool three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

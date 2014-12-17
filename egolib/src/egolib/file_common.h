@@ -25,9 +25,11 @@
 
 #include "egolib/typedef.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -102,7 +104,7 @@ extern "C"
     int    fs_createDirectory( const char *dirname );
     int    fs_removeDirectory( const char *dirname );
     void   fs_deleteFile( const char *filename );
-    C_BOOLEAN fs_copyFile( const char *source, const char *dest );
+	bool   fs_copyFile(const char *source, const char *dest);
     void   fs_removeDirectoryAndContents( const char *dirname, int recursive );
     void   fs_copyDirectory( const char *sourceDir, const char *destDir );
 
@@ -111,14 +113,15 @@ extern "C"
     const char *fs_findNextFile( fs_find_context_t * fs_search );
     void        fs_findClose( fs_find_context_t * fs_search );
 
-    C_BOOLEAN fs_ensureUserFile( const char * relative_filename, C_BOOLEAN required );
+    bool        fs_ensureUserFile( const char * relative_filename, bool required );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #if defined(__cplusplus)
 }
-
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------

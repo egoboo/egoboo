@@ -35,72 +35,72 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static INLINE ego_bool BSP_leaf_valid( BSP_leaf_t * L );
+static INLINE bool BSP_leaf_valid( BSP_leaf_t * L );
 
-static INLINE ego_bool BSP_aabb_empty( const BSP_aabb_t * psrc );
-static INLINE ego_bool BSP_aabb_invalidate( BSP_aabb_t * psrc );
-static INLINE ego_bool BSP_aabb_self_clear( BSP_aabb_t * psrc );
+static INLINE bool BSP_aabb_empty( const BSP_aabb_t * psrc );
+static INLINE bool BSP_aabb_invalidate( BSP_aabb_t * psrc );
+static INLINE bool BSP_aabb_self_clear( BSP_aabb_t * psrc );
 
-static INLINE ego_bool BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr );
-static INLINE ego_bool BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr );
+static INLINE bool BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr );
+static INLINE bool BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr );
 
-static INLINE ego_bool BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
-static INLINE ego_bool BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
+static INLINE bool BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
+static INLINE bool BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool BSP_leaf_valid( BSP_leaf_t * L )
+static INLINE bool BSP_leaf_valid( BSP_leaf_t * L )
 {
-    if ( NULL == L ) return ego_false;
+    if ( NULL == L ) return false;
 
-    if ( NULL == L->data ) return ego_false;
-    if ( L->data_type < 0 ) return ego_false;
+    if ( NULL == L->data ) return false;
+    if ( L->data_type < 0 ) return false;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool BSP_aabb_empty( const BSP_aabb_t * psrc )
+static INLINE bool BSP_aabb_empty( const BSP_aabb_t * psrc )
 {
     Uint32 cnt;
 
-    if ( NULL == psrc || 0 == psrc->dim  || !psrc->valid ) return ego_true;
+    if ( NULL == psrc || 0 == psrc->dim  || !psrc->valid ) return true;
 
     for ( cnt = 0; cnt < psrc->dim; cnt++ )
     {
         if ( psrc->maxs.ary[cnt] <= psrc->mins.ary[cnt] )
-            return ego_true;
+            return true;
     }
 
-    return ego_false;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool BSP_aabb_invalidate( BSP_aabb_t * psrc )
+static INLINE bool BSP_aabb_invalidate( BSP_aabb_t * psrc )
 {
-    if ( NULL == psrc ) return ego_false;
+    if ( NULL == psrc ) return false;
 
     // set it to valid
-    psrc->valid = ego_false;
+    psrc->valid = false;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool BSP_aabb_self_clear( BSP_aabb_t * psrc )
+static INLINE bool BSP_aabb_self_clear( BSP_aabb_t * psrc )
 {
     /// @author BB
     /// @details Return this bounding box to an empty state.
 
     Uint32 cnt;
 
-    if ( NULL == psrc ) return ego_false;
+    if ( NULL == psrc ) return false;
 
     if ( psrc->dim <= 0 || NULL == psrc->mins.ary || NULL == psrc->mids.ary || NULL == psrc->maxs.ary )
     {
         BSP_aabb_invalidate( psrc );
-        return ego_false;
+        return false;
     }
 
     for ( cnt = 0; cnt < psrc->dim; cnt++ )
@@ -108,12 +108,12 @@ static INLINE ego_bool BSP_aabb_self_clear( BSP_aabb_t * psrc )
         psrc->mins.ary[cnt] = psrc->mids.ary[cnt] = psrc->maxs.ary[cnt] = 0.0f;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr )
+static INLINE bool BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr )
 {
     /// @author BB
     /// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
@@ -123,11 +123,11 @@ static INLINE ego_bool BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_pt
 
     const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
 
-    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return ego_false;
-    if ( NULL == rhs_ptr || !rhs_ptr->valid ) return ego_false;
+    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
+    if ( NULL == rhs_ptr || !rhs_ptr->valid ) return false;
 
     min_dim = MIN( rhs_ptr->dim, lhs_ptr->dim );
-    if ( 0 == min_dim ) return ego_false;
+    if ( 0 == min_dim ) return false;
 
     // the optomizer is supposed to do this stuff all by itself,
     // but isn't
@@ -138,15 +138,15 @@ static INLINE ego_bool BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_pt
 
     for ( cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        if (( *rhs_maxs ) < ( *lhs_mins ) ) return ego_false;
-        if (( *rhs_mins ) > ( *lhs_maxs ) ) return ego_false;
+        if (( *rhs_maxs ) < ( *lhs_mins ) ) return false;
+        if (( *rhs_mins ) > ( *lhs_maxs ) ) return false;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr )
+static INLINE bool BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr )
 {
     /// @author BB
     /// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
@@ -156,11 +156,11 @@ static INLINE ego_bool BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, c
 
     const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
 
-    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return ego_false;
-    if ( NULL == rhs_ptr || !rhs_ptr->valid ) return ego_false;
+    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
+    if ( NULL == rhs_ptr || !rhs_ptr->valid ) return false;
 
     min_dim = MIN( rhs_ptr->dim, lhs_ptr->dim );
-    if ( 0 == min_dim ) return ego_false;
+    if ( 0 == min_dim ) return false;
 
     // the optomizer is supposed to do this stuff all by itself,
     // but isn't
@@ -171,16 +171,16 @@ static INLINE ego_bool BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, c
 
     for ( cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return ego_false;
-        if (( *rhs_mins ) < ( *lhs_mins ) ) return ego_false;
+        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return false;
+        if (( *rhs_mins ) < ( *lhs_mins ) ) return false;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
+static INLINE bool BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
     /// @author BB
     /// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
@@ -190,11 +190,11 @@ static INLINE ego_bool BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, c
 
     const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
 
-    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return ego_false;
-    if ( NULL == rhs_ptr /* || !rhs_ptr->valid */ ) return ego_false;
+    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
+    if ( NULL == rhs_ptr /* || !rhs_ptr->valid */ ) return false;
 
-    min_dim = MIN( 3 /* rhs_ptr->dim */, lhs_ptr->dim );
-    if ( 0 == min_dim ) return ego_false;
+    min_dim = MIN( (size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim );
+    if ( 0 == min_dim ) return false;
 
     // the optomizer is supposed to do this stuff all by itself,
     // but isn't
@@ -205,15 +205,15 @@ static INLINE ego_bool BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, c
 
     for ( cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        if (( *rhs_maxs ) < ( *lhs_mins ) ) return ego_false;
-        if (( *rhs_mins ) > ( *lhs_maxs ) ) return ego_false;
+        if (( *rhs_maxs ) < ( *lhs_mins ) ) return false;
+        if (( *rhs_mins ) > ( *lhs_maxs ) ) return false;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE ego_bool BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
+static INLINE bool BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
     /// @author BB
     /// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
@@ -223,11 +223,11 @@ static INLINE ego_bool BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const
 
     const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
 
-    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return ego_false;
-    if ( NULL == rhs_ptr /* || !rhs_ptr->valid */ ) return ego_false;
+    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
+    if ( NULL == rhs_ptr /* || !rhs_ptr->valid */ ) return false;
 
-    min_dim = MIN( 3 /* rhs_ptr->dim */, lhs_ptr->dim );
-    if ( 0 == min_dim ) return ego_false;
+    min_dim = MIN( (size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim );
+    if ( 0 == min_dim ) return false;
 
     // the optomizer is supposed to do this stuff all by itself,
     // but isn't
@@ -238,11 +238,11 @@ static INLINE ego_bool BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const
 
     for ( cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return ego_false;
-        if (( *rhs_mins ) < ( *lhs_mins ) ) return ego_false;
+        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return false;
+        if (( *rhs_mins ) < ( *lhs_mins ) ) return false;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -29,14 +29,14 @@
 //--------------------------------------------------------------------------------------------
 // Generic functions
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN twist_to_normal( Uint8 twist, float v[], float slide )
+bool twist_to_normal( Uint8 twist, float v[], float slide )
 {
     int ix, iy;
     float dx, dy;
     float nx, ny, nz, nz2;
     float diff_xy;
 
-    if ( NULL == v ) return C_FALSE;
+    if ( NULL == v ) return false;
 
     diff_xy = 128.0f / slide;
 
@@ -65,7 +65,7 @@ C_BOOLEAN twist_to_normal( Uint8 twist, float v[], float slide )
     v[1] = ny;
     v[2] = nz;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -194,7 +194,7 @@ int map_get_fx_itile( map_t * pmesh, int itile )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN map_has_some_fx_itile( map_t * pmesh, int itile, Uint8 test_fx )
+bool map_has_some_fx_itile( map_t * pmesh, int itile, Uint8 test_fx )
 {
     Uint8 tile_fx;
 
@@ -204,13 +204,13 @@ C_BOOLEAN map_has_some_fx_itile( map_t * pmesh, int itile, Uint8 test_fx )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN map_has_some_fx_pos( map_t * pmesh, int mapx, int mapy, Uint8 test_fx )
+bool map_has_some_fx_pos( map_t * pmesh, int mapx, int mapy, Uint8 test_fx )
 {
     return map_has_some_fx_itile( pmesh, map_get_itile( pmesh, mapx, mapy ), test_fx );
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN map_has_no_fx_itile( map_t * pmesh, int itile, Uint8 test_fx )
+bool map_has_no_fx_itile( map_t * pmesh, int itile, Uint8 test_fx )
 {
     Uint8 tile_fx;
 
@@ -220,7 +220,7 @@ C_BOOLEAN map_has_no_fx_itile( map_t * pmesh, int itile, Uint8 test_fx )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN map_has_no_fx_pos( map_t * pmesh, int mapx, int mapy, Uint8 test_fx )
+bool map_has_no_fx_pos( map_t * pmesh, int mapx, int mapy, Uint8 test_fx )
 {
     return map_has_no_fx_itile( pmesh, map_get_itile( pmesh, mapx, mapy ), test_fx );
 }
@@ -234,7 +234,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     size_t   mapx, mapy, itile;
     size_t   tile_x, tile_y;
     int      step_x, step_y;
-    C_BOOLEAN   west_flat, north_flat, south_flat, east_flat;
+    bool     west_flat, north_flat, south_flat, east_flat;
     Uint32   wall_flags;
     int      tile_type;
     Uint8    type;
@@ -315,7 +315,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
             float zpos[8];
 
             int cnt, jtile;
-            C_BOOLEAN is_column;
+            bool is_column;
 
             // de-initialize the positions of the "vertices"
             for ( cnt = 0; cnt < 8; cnt++ )
@@ -472,10 +472,10 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
             if ( zpos[6] < 0.0f ) zpos[6] = 0.5f * ( zpos[5] + zpos[7] );
 
             // override the center positions for known tiles
-            is_column = C_FALSE;
+            is_column = false;
             if ( (zpos[1] == zpos[3]) && ( zpos[3] == zpos[5] ) && (zpos[5] == zpos[7]) )
             {
-                is_column = C_TRUE;
+                is_column = true;
             }
         }
     }
@@ -668,47 +668,47 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        }
 
     //        // check the west edge
-    //        west_flat = C_FALSE;
+    //        west_flat = false;
     //        if ( vrt_hgt[12] == vrt_hgt[8] == vrt_hgt[4] == vrt_hgt[0] )
     //        {
-    //            west_flat = C_TRUE;
+    //            west_flat = true;
     //        }
     //        else if ( MAX(vrt_hgt[12],vrt_hgt[0]) - MIN(vrt_hgt[12],vrt_hgt[0]) >= 0.99f * TILE_FSIZE  )
     //        {
-    //            west_flat = C_TRUE;
+    //            west_flat = true;
     //        }
 
     //        // check the north edge
-    //        north_flat = C_FALSE;
+    //        north_flat = false;
     //        if ( vrt_hgt[0] == vrt_hgt[1] == vrt_hgt[2] == vrt_hgt[3] )
     //        {
-    //            north_flat = C_TRUE;
+    //            north_flat = true;
     //        }
     //        else if ( MAX(vrt_hgt[0],vrt_hgt[3]) - MIN(vrt_hgt[0],vrt_hgt[3]) >= 0.99f * TILE_FSIZE )
     //        {
-    //            north_flat = C_TRUE;
+    //            north_flat = true;
     //        }
 
     //        // check the east edge
-    //        east_flat = C_FALSE;
+    //        east_flat = false;
     //        if ( vrt_hgt[3] == vrt_hgt[7] == vrt_hgt[11] == vrt_hgt[15] )
     //        {
-    //            east_flat = C_TRUE;
+    //            east_flat = true;
     //        }
     //        else if ( MAX(vrt_hgt[3],vrt_hgt[15]) - MIN(vrt_hgt[3],vrt_hgt[15]) >= 0.99f * TILE_FSIZE )
     //        {
-    //            east_flat = C_TRUE;
+    //            east_flat = true;
     //        }
 
     //        // check the south edge
-    //        south_flat = C_FALSE;
+    //        south_flat = false;
     //        if ( vrt_hgt[15] == vrt_hgt[14] == vrt_hgt[13] == vrt_hgt[12] )
     //        {
-    //            south_flat = C_TRUE;
+    //            south_flat = true;
     //        }
     //        else if ( MAX(vrt_hgt[15],vrt_hgt[12]) - MIN(vrt_hgt[15],vrt_hgt[12]) >= 0.99f * TILE_FSIZE )
     //        {
-    //            south_flat = C_TRUE;
+    //            south_flat = true;
     //        }
 
     //        wall_flags = LAMBDA( west_flat,   0, 1 << 0 );

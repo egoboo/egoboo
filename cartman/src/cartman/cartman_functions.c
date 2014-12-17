@@ -287,14 +287,14 @@ int get_fan_vertex_by_coord( const cartman_mpd_t * pmesh, const cartman_mpd_tile
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int grid_ix, int grid_iy, fvec3_base_t vec, int ext_verts[] )
+bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, int grid_ix, int grid_iy, fvec3_base_t vec, int ext_verts[] )
 {
     // set the coordinates of the given vertex to the interpolated position along the edge of the fan
 
     int loc_verts[16];
     int * vert_lst = NULL;
 
-    ego_bool retval, is_edge_x, is_edge_y;
+    bool retval, is_edge_x, is_edge_y;
     int cnt, ivrt, idx;
 
     float   vweight = 0.0f;
@@ -322,7 +322,7 @@ ego_bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, in
             vec[kY] = pvrt->y;
             vec[kZ] = pvrt->z;
 
-            return ego_true;
+            return true;
         }
     }
     else
@@ -338,11 +338,11 @@ ego_bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, in
     if ( is_edge_x && is_edge_y )
     {
         log_warning( "%s - something is wrong with the vertices.\n", __FUNCTION__ );
-        return ego_false;
+        return false;
     }
 
     // assume the worst
-    retval = ego_false;
+    retval = false;
 
     if ( is_edge_x )
     {
@@ -378,7 +378,7 @@ ego_bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, in
         if ( NULL == pvrt_min || NULL == pvrt_max ||
              -1 == grid_min || -1 == grid_max )
         {
-            retval = ego_false;
+            retval = false;
         }
         else
         {
@@ -389,7 +389,7 @@ ego_bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, in
             vec[kY] = fmax * pvrt_max->y + fmin * pvrt_min->y;
             vec[kZ] = fmax * pvrt_max->z + fmin * pvrt_min->z;
 
-            retval = ego_true;
+            retval = true;
         }
     }
     else if ( is_edge_y )
@@ -426,7 +426,7 @@ ego_bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, in
         if ( NULL == pvrt_min || NULL == pvrt_max ||
              -1 == grid_min || -1 == grid_max )
         {
-            retval = ego_false;
+            retval = false;
         }
         else
         {
@@ -437,7 +437,7 @@ ego_bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, in
             vec[kY] = fmax * pvrt_max->y + fmin * pvrt_min->y;
             vec[kZ] = fmax * pvrt_max->z + fmin * pvrt_min->z;
 
-            retval = ego_true;
+            retval = true;
         }
     }
     else
@@ -465,7 +465,7 @@ ego_bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, in
 
         if ( vweight <= 0.0f )
         {
-            retval = ego_false;
+            retval = false;
         }
         else
         {
@@ -473,7 +473,7 @@ ego_bool interpolate_coord( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, in
             vec[kY] = vsum.y / vweight;
             vec[kZ] = vsum.z / vweight;
 
-            retval = ego_true;
+            retval = true;
         }
     }
 
@@ -535,7 +535,7 @@ void weld_edge_verts( cartman_mpd_t * pmesh, cartman_mpd_tile_t * pfan, tile_def
     int fake_edge_verts[8 + 1];
 
     int    grid_ix, grid_iy;
-    ego_bool is_edge_x, is_edge_y;
+    bool is_edge_x, is_edge_y;
     int    allocate_rv;
 
     if ( NULL == pmesh || NULL == pfan || NULL == pdef ) return;
@@ -965,7 +965,7 @@ void mesh_select_verts_connected( select_lst_t * plst )
             pdef = TILE_DICT_PTR( tile_dict, pfan->type );
             if ( NULL == pdef ) continue;
 
-            select_vertsfan = ego_false;
+            select_vertsfan = false;
 
             for ( cnt = 0, vert = pfan->vrtstart;
                   cnt < pdef->numvertices;
@@ -975,7 +975,7 @@ void mesh_select_verts_connected( select_lst_t * plst )
                 {
                     if ( plst->which[tnc] == vert )
                     {
-                        select_vertsfan = ego_true;
+                        select_vertsfan = true;
                         break;
                     }
                 }
@@ -1058,7 +1058,7 @@ void mesh_select_weld( select_lst_t * plst )
             vlst[vert].x = avg_x;
             vlst[vert].y = avg_y;
             vlst[vert].z = avg_z;
-            vlst[vert].a = CLIP( avg_a, 1, 255 );
+            vlst[vert].a = CLIP( avg_a, 1.0f, 255.0f );
         }
     }
 }
@@ -1428,27 +1428,27 @@ void three_e_mesh( cartman_mpd_t * pmesh, Uint8 upper, Uint8 tx )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool fan_is_floor( cartman_mpd_t * pmesh, int mapx, int mapy )
+bool fan_is_floor( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     cartman_mpd_tile_t * pfan;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
     pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
-    if ( NULL == pfan ) return ego_false;
+    if ( NULL == pfan ) return false;
 
     return !HAS_BITS( pfan->fx, ( MAPFX_WALL | MAPFX_IMPASS ) );
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool fan_is_wall( cartman_mpd_t * pmesh, int mapx, int mapy )
+bool fan_is_wall( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     cartman_mpd_tile_t * pfan;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
     pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
-    if ( NULL == pfan ) return ego_true;
+    if ( NULL == pfan ) return true;
 
     return HAS_BITS( pfan->fx, ( MAPFX_WALL | MAPFX_IMPASS ) );
 }
@@ -1460,13 +1460,13 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
 {
     Uint32 vert, vert_count;
     int cnt;
-    ego_bool noedges, nocorners;
+    bool noedges, nocorners;
     float bestprox, prox, tprox, max_hgt, min_hgt;
 
     float corner_hgt[4];
 
-    ego_bool floor_mx, floor_px, floor_my, floor_py;
-    ego_bool floor_mxmy, floor_mxpy, floor_pxmy, floor_pxpy;
+    bool floor_mx, floor_px, floor_my, floor_py;
+    bool floor_mxmy, floor_mxpy, floor_pxmy, floor_pxpy;
 
     cartman_mpd_tile_t   * pfan   = NULL;
     cartman_mpd_vertex_t * vlst   = NULL;
@@ -1731,29 +1731,29 @@ void mesh_replace_fx( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask, Uin
 //--------------------------------------------------------------------------------------------
 Uint8 tile_is_different( cartman_mpd_t * pmesh, int mapx, int mapy, Uint16 fx_bits, Uint16 fx_mask )
 {
-    // ZZ> ego_false if of same set, ego_true if different
+    // ZZ> false if of same set, true if different
 
     cartman_mpd_tile_t   * pfan   = NULL;
 
     if ( NULL == pmesh ) pmesh = &mesh;
 
     pfan = cartman_mpd_get_pfan( pmesh, mapx, mapy );
-    if ( NULL == pfan ) return ego_false;
+    if ( NULL == pfan ) return false;
 
     if ( fx_mask == 0xC0 )
     {
         if ( pfan->tx_bits >= ( MAPFX_WALL | MAPFX_IMPASS ) )
         {
-            return ego_false;
+            return false;
         }
     }
 
     if ( fx_bits == ( pfan->tx_bits&fx_mask ) )
     {
-        return ego_false;
+        return false;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1975,7 +1975,7 @@ void trim_mesh_tile( cartman_mpd_t * pmesh, Uint16 fx_bits, Uint16 fx_mask )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_replace_tile( cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan, Uint8 _tx, Uint8 _upper, Uint8 _fx, Uint8 _type, Uint16 _presser, ego_bool tx_only, ego_bool at_floor_level )
+void mesh_replace_tile( cartman_mpd_t * pmesh, int _xfan, int _yfan, int _onfan, Uint8 _tx, Uint8 _upper, Uint8 _fx, Uint8 _type, Uint16 _presser, bool tx_only, bool at_floor_level )
 {
     cart_vec_t pos[CORNER_COUNT];
     int tx_bits;

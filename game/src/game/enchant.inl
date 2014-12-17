@@ -40,7 +40,7 @@ static INLINE EVE_REF   enc_get_ieve( const ENC_REF ienc );
 static INLINE eve_t   * enc_get_peve( const ENC_REF ienc );
 
 static INLINE IDSZ      enc_get_idszremove( const ENC_REF ienc );
-static INLINE ego_bool    enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile );
+static INLINE bool    enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile );
 
 //--------------------------------------------------------------------------------------------
 // IMPLEMENTATION
@@ -132,21 +132,21 @@ IDSZ enc_get_idszremove( const ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile )
+bool enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile )
 {
     IDSZ idsz_remove;
 
-    if ( !INGAME_ENC( ienc ) ) return ego_false;
+    if ( !INGAME_ENC( ienc ) ) return false;
     idsz_remove = enc_get_idszremove( ienc );
 
     // if nothing can remove it, just go on with your business
-    if ( IDSZ_NONE == idsz_remove ) return ego_false;
+    if ( IDSZ_NONE == idsz_remove ) return false;
 
     // check vs. every IDSZ that could have something to do with cancelling the enchant
-    if ( idsz_remove == pro_get_idsz( test_profile, IDSZ_TYPE ) ) return ego_true;
-    if ( idsz_remove == pro_get_idsz( test_profile, IDSZ_PARENT ) ) return ego_true;
+    if ( idsz_remove == pro_get_idsz( test_profile, IDSZ_TYPE ) ) return true;
+    if ( idsz_remove == pro_get_idsz( test_profile, IDSZ_PARENT ) ) return true;
 
-    return ego_false;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------

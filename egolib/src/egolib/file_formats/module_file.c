@@ -43,11 +43,11 @@ mod_file_t * mod_file__init( mod_file_t * ptr )
     strncpy( ptr->longname, "*UNKNOWN*", sizeof( ptr->longname ) );
     ptr->reference[0] = CSTR_END;
     ptr->importamount = 1;
-    ptr->allowexport = C_FALSE;
+    ptr->allowexport = false;
     ptr->minplayers = 0;
     ptr->maxplayers = 0;
-    ptr->monstersonly = C_FALSE;
-    ptr->respawnvalid = C_FALSE;
+    ptr->monstersonly = false;
+    ptr->respawnvalid = false;
 
     ptr->numlines = 0;
     for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
@@ -58,7 +58,7 @@ mod_file_t * mod_file__init( mod_file_t * ptr )
 
     IDSZ_node__init( &( ptr->unlockquest ) );
     ptr->moduletype = FILTER_OFF;
-    ptr->beaten = C_FALSE;
+    ptr->beaten = false;
 
     return ptr;
 }
@@ -94,7 +94,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     pmod->maxplayers   = vfs_get_next_int( fileread );
 
     cTmp = vfs_get_next_char( fileread );
-    if ( 'T' == char_toupper(( unsigned )cTmp ) )  pmod->respawnvalid = C_TRUE;
+    if ( 'T' == char_toupper(( unsigned )cTmp ) )  pmod->respawnvalid = true;
     if ( 'A' == char_toupper(( unsigned )cTmp ) )  pmod->respawnvalid = RESPAWN_ANYTIME;
 
     vfs_get_next_char( fileread );
@@ -128,7 +128,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
     pmod->moduletype = FILTER_SIDE;
 
     // Read expansions
-    while ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
+    while ( goto_colon_vfs( NULL, fileread, true ) )
     {
         IDSZ idsz = vfs_get_idsz( fileread );
 
@@ -147,7 +147,7 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
         }
         else if ( idsz == MAKE_IDSZ( 'B', 'E', 'A', 'T' ) )
         {
-            pmod->beaten = C_TRUE;
+            pmod->beaten = true;
         }
     }
 
@@ -157,52 +157,52 @@ mod_file_t * module_load_info_vfs( const char * szLoadName, mod_file_t * pmod )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer )
+bool module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, char * buffer )
 {
     /// @author ZZ
-    /// @details This function returns C_TRUE if the named module has the required IDSZ
+    /// @details This function returns true if the named module has the required IDSZ
 
     vfs_FILE *fileread;
     STRING newloadname;
     Uint32 newidsz;
-    C_BOOLEAN foundidsz;
+    bool foundidsz;
     int cnt;
 
-    if ( idsz == IDSZ_NONE ) return C_TRUE;
+    if ( idsz == IDSZ_NONE ) return true;
 
-    if ( 0 == strcmp( szModName, "NONE" ) ) return C_FALSE;
+    if ( 0 == strcmp( szModName, "NONE" ) ) return false;
 
     snprintf( newloadname, SDL_arraysize( newloadname ), "mp_modules/%s/gamedat/menu.txt", szModName );
 
     fileread = vfs_openRead( newloadname );
-    if ( NULL == fileread ) return C_FALSE;
+    if ( NULL == fileread ) return false;
 
     // Read basic data
-    goto_colon_vfs( NULL, fileread, C_FALSE );  // Name of module...  Doesn't matter
-    goto_colon_vfs( NULL, fileread, C_FALSE );  // Reference directory...
-    goto_colon_vfs( NULL, fileread, C_FALSE );  // Reference IDSZ...
-    goto_colon_vfs( NULL, fileread, C_FALSE );  // Import...
-    goto_colon_vfs( NULL, fileread, C_FALSE );  // Export...
-    goto_colon_vfs( NULL, fileread, C_FALSE );  // Min players...
-    goto_colon_vfs( NULL, fileread, C_FALSE );  // Max players...
-    goto_colon_vfs( NULL, fileread, C_FALSE );  // Respawn...
-    goto_colon_vfs( NULL, fileread, C_FALSE );  // BAD! NOT USED
-    goto_colon_vfs( NULL, fileread, C_FALSE );  // Rank...
+    goto_colon_vfs( NULL, fileread, false );  // Name of module...  Doesn't matter
+    goto_colon_vfs( NULL, fileread, false );  // Reference directory...
+    goto_colon_vfs( NULL, fileread, false );  // Reference IDSZ...
+    goto_colon_vfs( NULL, fileread, false );  // Import...
+    goto_colon_vfs( NULL, fileread, false );  // Export...
+    goto_colon_vfs( NULL, fileread, false );  // Min players...
+    goto_colon_vfs( NULL, fileread, false );  // Max players...
+    goto_colon_vfs( NULL, fileread, false );  // Respawn...
+    goto_colon_vfs( NULL, fileread, false );  // BAD! NOT USED
+    goto_colon_vfs( NULL, fileread, false );  // Rank...
 
     // Summary...
     for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
     {
-        goto_colon_vfs( NULL, fileread, C_FALSE );
+        goto_colon_vfs( NULL, fileread, false );
     }
 
     // Now check expansions
-    foundidsz = C_FALSE;
-    while ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
+    foundidsz = false;
+    while ( goto_colon_vfs( NULL, fileread, true ) )
     {
         newidsz = vfs_get_idsz( fileread );
         if ( newidsz == idsz )
         {
-            foundidsz = C_TRUE;
+            foundidsz = true;
             break;
         }
     }
@@ -229,13 +229,13 @@ C_BOOLEAN module_has_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_l
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer )
+bool module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_len, const char * buffer )
 {
     /// @author ZZ
     /// @details This function appends an IDSZ to the module's menu.txt file
 
     vfs_FILE *filewrite;
-    C_BOOLEAN retval = C_FALSE;
+    bool retval = false;
 
     // Only add if there isn't one already
     if ( !module_has_idsz_vfs( szModName, idsz, 0, NULL ) )
@@ -264,7 +264,7 @@ C_BOOLEAN module_add_idsz_vfs( const char *szModName, IDSZ idsz, size_t buffer_l
             vfs_printf( filewrite, "\n" );
 
             // success
-            retval = C_TRUE;
+            retval = true;
 
             // close the file
             vfs_close( filewrite );

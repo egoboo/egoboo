@@ -61,27 +61,27 @@ const char * undo_idsz( IDSZ idsz )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN irect_point_inside( irect_t * prect, int   ix, int   iy )
+bool irect_point_inside(irect_t * prect, int   ix, int   iy)
 {
-    if ( NULL == prect ) return C_FALSE;
+    if ( NULL == prect ) return false;
 
 	/* @todo Remove +1. */
-    if ( ix < prect->left || ix > prect->right  + 1 ) return C_FALSE;
+    if ( ix < prect->left || ix > prect->right  + 1 ) return false;
 	/* @todo Remove +1. */
-    if ( iy < prect->top  || iy > prect->bottom + 1 ) return C_FALSE;
+    if ( iy < prect->top  || iy > prect->bottom + 1 ) return false;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN frect_point_inside( frect_t * prect, float fx, float fy )
+bool frect_point_inside(frect_t * prect, float fx, float fy)
 {
-    if ( NULL == prect ) return C_FALSE;
+    if ( NULL == prect ) return false;
 
-    if ( fx < prect->left || fx > prect->right ) return C_FALSE;
-    if ( fy < prect->top  || fy > prect->bottom ) return C_FALSE;
+    if ( fx < prect->left || fx > prect->right ) return false;
+    if ( fy < prect->top  || fy > prect->bottom ) return false;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------

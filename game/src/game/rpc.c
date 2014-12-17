@@ -42,16 +42,16 @@
 //--------------------------------------------------------------------------------------------
 INSTANTIATE_LIST_STATIC( tx_request_t, TxReqList, MAX_TX_REQ );
 
-static ego_bool _rpc_system_initialized = ego_false;
+static bool _rpc_system_initialized = false;
 static int    _rpc_system_guid;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void   TxReqList_ctor( void );
 static void   TxReqList_dtor( void );
-static ego_bool TxReqList_timestep( void );
+static bool TxReqList_timestep( void );
 static size_t TxReqList_get_free_ref( int type );
-static ego_bool TxReqList_free_one( int index );
+static bool TxReqList_free_one( int index );
 
 static int ego_rpc_system_get_guid( void );
 
@@ -69,9 +69,9 @@ ego_rpc_base_t * ego_rpc_base_ctor( ego_rpc_base_t * prpc, int data_type, void *
 
     if ( ego_rpc_valid( prpc ) ) return NULL;
 
-    prpc->allocated = ego_true;
-    prpc->finished  = ego_false;
-    prpc->abort     = ego_false;
+    prpc->allocated = true;
+    prpc->finished  = false;
+    prpc->abort     = false;
 
     prpc->guid      = ego_rpc_system_get_guid();
     prpc->data_type = data_type;
@@ -132,16 +132,16 @@ tx_request_t * tx_request_dtor( tx_request_t * preq )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool ego_rpc_system_begin( void )
+bool ego_rpc_system_begin( void )
 {
     /// @author BB
     /// @details initialize all the rpc arrays here
 
-    if ( _rpc_system_initialized ) return ego_true;
+    if ( _rpc_system_initialized ) return true;
 
     TxReqList_ctor();
 
-    _rpc_system_initialized = ego_true;
+    _rpc_system_initialized = true;
 
     return _rpc_system_initialized;
 }
@@ -156,18 +156,18 @@ void ego_rpc_system_end( void )
 
     TxReqList_dtor();
 
-    _rpc_system_initialized = ego_false;
+    _rpc_system_initialized = false;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ego_rpc_system_timestep( void )
+bool ego_rpc_system_timestep( void )
 {
     /// @author BB
     /// @details step through a single request of each type
 
-    if ( !ego_rpc_system_begin() ) return ego_false;
+    if ( !ego_rpc_system_begin() ) return false;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -269,16 +269,16 @@ size_t TxReqList_get_free_ref( int type )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool TxReqList_free_one( int ireq )
+bool TxReqList_free_one( int ireq )
 {
     /// @author ZZ
     /// @details
 
-    ego_bool         retval;
+    bool         retval;
     tx_request_t * preq;
 
     preq = TxReqList_get_ptr( ireq );
-    if ( NULL == preq ) return ego_false;
+    if ( NULL == preq ) return false;
 
     // destruct the request
     tx_request_dtor( preq );
@@ -290,13 +290,13 @@ ego_bool TxReqList_free_one( int ireq )
         // that is an error
         for ( cnt = 0; cnt < TxReqList.free_count; cnt++ )
         {
-            if ( ireq == TxReqList.free_ref[cnt] ) return ego_false;
+            if ( ireq == TxReqList.free_ref[cnt] ) return false;
         }
     }
 #endif
 
     // push it on the free stack
-    retval = ego_false;
+    retval = false;
     if ( TxReqList.free_count < MAX_TX_REQ )
     {
         TxReqList.free_ref[TxReqList.free_count] = ireq;
@@ -304,14 +304,14 @@ ego_bool TxReqList_free_one( int ireq )
         TxReqList.free_count++;
         TxReqList.update_guid++;
 
-        retval = ego_true;
+        retval = true;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool TxReqList_timestep( void )
+bool TxReqList_timestep( void )
 {
     /// @author BB
     /// @details TxReqList_timestep() is called by the main thread.
@@ -320,36 +320,36 @@ ego_bool TxReqList_timestep( void )
     // take off the back of the list
     tx_request_t * preq;
     int index;
-    ego_bool retval;
+    bool retval;
 
     // grab the index the 1st ting
     index = TxReqList.used_count - 1;
 
     // ??lock the list??
     preq = TxReqList_get_ptr( index );
-    if ( NULL == preq ) return ego_false;
+    if ( NULL == preq ) return false;
 
     if ( preq->ego_rpc_base.abort )
     {
         TxReqList_free_one( preq->ego_rpc_base.index );
-        return ego_true;
+        return true;
     }
 
-    retval = ego_false;
+    retval = false;
     switch ( preq->ego_rpc_base.data_type )
     {
         case 1:
             // TxList_load_one_vfs()
             preq->index = TxList_load_one_vfs( preq->filename, preq->itex_src, preq->key );
-            preq->ego_rpc_base.finished = ego_true;
-            retval = ego_true;
+            preq->ego_rpc_base.finished = true;
+            retval = true;
             break;
 
         case 2:
             // mnu_TxList_load_one_vfs()
             preq->index = mnu_TxList_load_one_vfs( preq->filename, preq->itex_src, preq->key );
-            preq->ego_rpc_base.finished = ego_true;
-            retval = ego_true;
+            preq->ego_rpc_base.finished = true;
+            retval = true;
             break;
 
         default:

@@ -58,6 +58,7 @@ extern "C"
 #define VALID_BINDING( BIND ) ( (0 != (BIND)) && (INVALID_GL_ID != (BIND)) )
 #define ERROR_IMAGE_BINDING( BIND ) ( ErrorImage_get_binding() == (BIND) )
 
+#if 0
 /// OpenGL Texture filtering methods
     enum e_tx_filters
     {
@@ -70,6 +71,7 @@ extern "C"
         TX_ANISOTROPIC,
         TX_FILTER_COUNT
     };
+#endif
 
 // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_tx_filters TX_FILTERS;

@@ -103,16 +103,16 @@ struct s_enc
 
     ENC_REF nextenchant_ref;             ///< Next in the list
 
-    ego_bool  setyesno[MAX_ENCHANT_SET];  ///< Was it set?
+    bool  setyesno[MAX_ENCHANT_SET];  ///< Was it set?
     float   setsave[MAX_ENCHANT_SET];   ///< The value to restore
 
-    ego_bool  addyesno[MAX_ENCHANT_ADD];  ///< Was the value adjusted
+    bool  addyesno[MAX_ENCHANT_ADD];  ///< Was the value adjusted
     float   addsave[MAX_ENCHANT_ADD];   ///< The adjustment
 };
 
 enc_t * enc_ctor( enc_t * penc );
 enc_t * enc_dtor( enc_t * penc );
-ego_bool  enc_request_terminate( enc_t * penc );
+bool  enc_request_terminate( enc_t * penc );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -130,8 +130,8 @@ void    cleanup_all_enchants( void );
 void    bump_all_enchants_update_counters( void );
 
 // enchant list management
-ego_bool  remove_enchant( const ENC_REF  enchant_idx, ENC_REF * enchant_parent );
-ego_bool  remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz );
+bool  remove_enchant( const ENC_REF  enchant_idx, ENC_REF * enchant_parent );
+bool  remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz );
 ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent );
 
 // enc functions
@@ -144,7 +144,7 @@ void    enc_remove_add( const ENC_REF  enchant_idx, int value_idx );
 // EveStack functions
 void   EveStack_init_all( void );
 void   EveStack_release_all( void );
-ego_bool EveStack_release_one( const EVE_REF ieve );
+bool EveStack_release_one( const EVE_REF ieve );
 EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF profile );
 
 // enchant state machine functions

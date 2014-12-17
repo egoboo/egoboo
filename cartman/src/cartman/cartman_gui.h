@@ -82,12 +82,12 @@ struct s_ui_state
     int    cur_x;              // Cursor position
     int    cur_y;              //
 
-    ego_bool pressed;                //
-    ego_bool clicked;                //
-    ego_bool pending_click;
+    bool pressed;                //
+    bool clicked;                //
+    bool pending_click;
 
-    ego_bool GrabMouse;
-    ego_bool HideMouse;
+    bool GrabMouse;
+    bool HideMouse;
 };
 
 //--------------------------------------------------------------------------------------------

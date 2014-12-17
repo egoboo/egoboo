@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/// @file collision.h
+/// @file game/collision.h
 
 #include "game/egoboo_typedef.h"
 
@@ -84,7 +84,7 @@ typedef hash_list_t CHashList_t;
 
 CHashList_t * CHashList_ctor( CHashList_t * pchlst, int size );
 CHashList_t * CHashList_dtor( CHashList_t * pchlst );
-ego_bool        CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_ary_t * cdata, HashNode_ary_t * hnlst );
+bool        CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_ary_t * cdata, HashNode_ary_t * hnlst );
 
 CHashList_t * CHashList_get_Instance( int size );
 
@@ -95,7 +95,7 @@ extern int CHashList_inserted;
 //--------------------------------------------------------------------------------------------
 // global functions
 
-ego_bool collision_system_begin( void );
+bool collision_system_begin( void );
 void   collision_system_end( void );
 
 void bump_all_objects( void );

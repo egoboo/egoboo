@@ -68,7 +68,7 @@ static mad_t * mad_make_equally_lit( mad_t * pmad );
 static mad_t * mad_ctor( mad_t * pmad );
 static mad_t * mad_dtor( mad_t * pmad );
 static mad_t * mad_reconstruct( mad_t * pmad );
-static ego_bool  mad_free( mad_t * pmad );
+static bool  mad_free( mad_t * pmad );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -212,7 +212,7 @@ mad_t * action_check_copy_vfs( mad_t * pmad, const char* loadname )
     fileread = vfs_openRead( loadname );
     if ( NULL == fileread ) return pmad;
 
-    while ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
+    while ( goto_colon_vfs( NULL, fileread, true ) )
     {
         vfs_get_string( fileread, szOne, SDL_arraysize( szOne ) );
         actiona = action_which( szOne[0] );
@@ -493,7 +493,7 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
         }
         else
         {
-            ego_bool bad_form = ego_false;
+            bool bad_form = false;
             switch ( token_index )
             {
                 case  0: // "I" == invulnerable
@@ -553,42 +553,42 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
                     break;
 
                 case  8: // "LA"
-                    bad_form = ego_true;
+                    bad_form = true;
                     SET_BIT( fx, MADFX_ACTLEFT );
                     break;
 
                 case  9: // "LG"
-                    bad_form = ego_true;
+                    bad_form = true;
                     SET_BIT( fx, MADFX_GRABLEFT );
                     break;
 
                 case 10: // "LD"
-                    bad_form = ego_true;
+                    bad_form = true;
                     SET_BIT( fx, MADFX_DROPLEFT );
                     break;
 
                 case 11: // "LC"
-                    bad_form = ego_true;
+                    bad_form = true;
                     SET_BIT( fx, MADFX_CHARLEFT );
                     break;
 
                 case 12: // "RA"
-                    bad_form = ego_true;
+                    bad_form = true;
                     SET_BIT( fx, MADFX_ACTRIGHT );
                     break;
 
                 case 13: // "RG"
-                    bad_form = ego_true;
+                    bad_form = true;
                     SET_BIT( fx, MADFX_GRABRIGHT );
                     break;
 
                 case 14: // "RD"
-                    bad_form = ego_true;
+                    bad_form = true;
                     SET_BIT( fx, MADFX_DROPRIGHT );
                     break;
 
                 case 15: // "RC"
-                    bad_form = ego_true;
+                    bad_form = true;
                     SET_BIT( fx, MADFX_CHARRIGHT );
                     break;
             }
@@ -697,7 +697,7 @@ void load_action_names_vfs( const char* loadname )
 
     char first = CSTR_END, second = CSTR_END;
     STRING comment;
-    ego_bool found;
+    bool found;
 
     fileread = vfs_openRead( loadname );
     if ( !fileread ) return;
@@ -706,12 +706,12 @@ void load_action_names_vfs( const char* loadname )
     {
         comment[0] = CSTR_END;
 
-        found = ego_false;
-        if ( goto_colon_vfs( NULL, fileread, C_FALSE ) )
+        found = false;
+        if ( goto_colon_vfs( NULL, fileread, false ) )
         {
             if ( vfs_scanf( fileread, " %c%c %s", &first, &second, &comment ) >= 2 )
             {
-                found = ego_true;
+                found = true;
             }
         }
 
@@ -750,7 +750,7 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad 
     mad_reconstruct( pmad );
 
     // mark it as used
-    pmad->loaded = C_TRUE;
+    pmad->loaded = true;
 
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
     strncpy( pmad->name, tmploadname, SDL_arraysize( pmad->name ) );
@@ -916,7 +916,7 @@ mad_t * mad_rip_actions( mad_t * pmad )
         pmad->action_map[action_now]   = ACTION_COUNT;
         pmad->action_stt[action_now]   = -1;
         pmad->action_end[action_now]   = -1;
-        pmad->action_valid[action_now] = ego_false;
+        pmad->action_valid[action_now] = false;
     }
 
     // grab the frame info from the md2
@@ -928,7 +928,7 @@ mad_t * mad_rip_actions( mad_t * pmad )
 
     // Make a default dance action (ACTION_DA) to be the 1st frame of the animation
     pmad->action_map[ACTION_DA]   = ACTION_DA;
-    pmad->action_valid[ACTION_DA] = ego_true;
+    pmad->action_valid[ACTION_DA] = true;
     pmad->action_stt[ACTION_DA]   = 0;
     pmad->action_end[ACTION_DA]   = 0;
 
@@ -944,7 +944,7 @@ mad_t * mad_rip_actions( mad_t * pmad )
             pmad->action_map[action_now]   = action_now;
             pmad->action_stt[action_now]   = iframe;
             pmad->action_end[action_now]   = iframe;
-            pmad->action_valid[action_now] = ego_true;
+            pmad->action_valid[action_now] = true;
 
             last_action = action_now;
         }
@@ -962,15 +962,15 @@ mad_t * mad_rip_actions( mad_t * pmad )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool mad_free( mad_t * pmad )
+bool mad_free( mad_t * pmad )
 {
     /// Free all allocated memory
 
-    if ( !LOADED_PMAD( pmad ) ) return ego_false;
+    if ( !LOADED_PMAD( pmad ) ) return false;
 
     MD2_Model_destroy( &( pmad->md2_ptr ) );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1023,7 +1023,7 @@ mad_t * mad_dtor( mad_t * pmad )
     BLANK_STRUCT_PTR( pmad )
 
     // "destruct" the base object
-    pmad->loaded = C_FALSE;
+    pmad->loaded = false;
 
     return pmad;
 }
@@ -1051,19 +1051,19 @@ void MadStack_release_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool MadStack_release_one( const MAD_REF imad )
+bool MadStack_release_one( const MAD_REF imad )
 {
     mad_t * pmad;
 
-    if ( !VALID_MAD_RANGE( imad ) ) return ego_false;
+    if ( !VALID_MAD_RANGE( imad ) ) return false;
     pmad = MadStack_get_ptr( imad );
 
-    if ( !pmad->loaded ) return ego_true;
+    if ( !pmad->loaded ) return true;
 
     // free any md2 data
     mad_reconstruct( pmad );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1080,7 +1080,7 @@ int randomize_action( int action, int slot )
     if ( slot < 0 || slot >= SLOT_COUNT ) return action;
 
     // a valid action?
-    if ( action < 0 || action >= ACTION_COUNT ) return ego_false;
+    if ( action < 0 || action >= ACTION_COUNT ) return false;
 
     diff = slot * 2;
 
@@ -1176,18 +1176,18 @@ void mad_make_equally_lit_ref( const MAD_REF imad )
 //Uint16 test_frame_name( char letter )
 //{
 //    /// @author ZZ
-/// @details This function returns ego_true if the 4th, 5th, 6th, or 7th letters
+/// @details This function returns true if the 4th, 5th, 6th, or 7th letters
 //    ///    of the frame name matches the input argument
 //
-//    if ( letter   == cFrameName[4] ) return ego_true;
-//    if ( CSTR_END == cFrameName[4] ) return ego_false;
-//    if ( letter   == cFrameName[5] ) return ego_true;
-//    if ( CSTR_END == cFrameName[5] ) return ego_false;
-//    if ( letter   == cFrameName[6] ) return ego_true;
-//    if ( CSTR_END == cFrameName[6] ) return ego_false;
-//    if ( letter   == cFrameName[7] ) return ego_true;
+//    if ( letter   == cFrameName[4] ) return true;
+//    if ( CSTR_END == cFrameName[4] ) return false;
+//    if ( letter   == cFrameName[5] ) return true;
+//    if ( CSTR_END == cFrameName[5] ) return false;
+//    if ( letter   == cFrameName[6] ) return true;
+//    if ( CSTR_END == cFrameName[6] ) return false;
+//    if ( letter   == cFrameName[7] ) return true;
 //
-//    return ego_false;
+//    return false;
 //}
 
 //--------------------------------------------------------------------------------------------

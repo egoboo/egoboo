@@ -59,23 +59,23 @@ camera_options_t cam_options;
 // Camera control stuff
 //--------------------------------------------------------------------------------------------
 
-ego_bool camera_reset_view( camera_t * pcam )
+bool camera_reset_view( camera_t * pcam )
 {
-    if ( NULL == pcam ) return ego_false;
+    if ( NULL == pcam ) return false;
 
     camera_gluLookAt( pcam, pcam->roll );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool camera_reset_projection( camera_t * pcam, float fov_deg, float ar )
+bool camera_reset_projection( camera_t * pcam, float fov_deg, float ar )
 {
-    if ( NULL == pcam ) return ego_false;
+    if ( NULL == pcam ) return false;
 
     camera_gluPerspective( pcam, fov_deg, ar, 1, 20 );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -573,14 +573,15 @@ void camera_update_track( camera_t * pcam, const ego_mesh_t * pmesh, CHR_REF tra
     {
         // a camera mode for focusing in on the players that are actually doing something.
         // "Show me the drama!"
-
+#if 0
         int cnt;
+#endif
         chr_t * local_chr_ptrs[MAX_PLAYER];
         int local_chr_count = 0;
 
         // count the number of local players, first
         local_chr_count = 0;
-        for ( cnt = 0; cnt < track_list_size; cnt++ )
+        for ( size_t cnt = 0; cnt < track_list_size; cnt++ )
         {
             chr_t * pchr = NULL;
             CHR_REF ichr = track_list[cnt];
@@ -618,7 +619,7 @@ void camera_update_track( camera_t * pcam, const ego_mesh_t * pmesh, CHR_REF tra
             sum_level = 0.0f;
             fvec3_self_clear( sum_pos.v );
 
-            for ( cnt = 0; cnt < local_chr_count; cnt++ )
+            for ( int cnt = 0; cnt < local_chr_count; cnt++ )
             {
                 chr_t * pchr;
                 float weight1, weight2, weight;
@@ -637,7 +638,7 @@ void camera_update_track( camera_t * pcam, const ego_mesh_t * pmesh, CHR_REF tra
                 // but there is no real way to do this?
 
                 // get the maximum effect
-                weight =  MAX( weight1, weight2 );
+                weight =  std::max( weight1, weight2 );
 
                 // The character is on foot
                 sum_pos.x += pchr->pos.x * weight;
@@ -780,7 +781,7 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
     /// @details Read camera control input for one specific player controller
 
     int type;
-    ego_bool autoturn_camera;
+    bool autoturn_camera;
 
     //Don't do network players
     if ( NULL == pdevice ) return;
@@ -938,7 +939,7 @@ void camera_reset( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF trac
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
+bool camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size )
 {
     /// @author BB
     /// @details Force the camera to focus in on the players. Should be called any time there is
@@ -947,7 +948,7 @@ ego_bool camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const C
 
     Uint8 turn_mode_save, move_mode_save;
 
-    if ( NULL == pcam ) return ego_false;
+    if ( NULL == pcam ) return false;
 
     // save some values
     turn_mode_save = pcam->turn_mode;
@@ -975,5 +976,5 @@ ego_bool camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const C
     // reset the turn time
     pcam->turn_time = 0;
 
-    return ego_true;
+    return true;
 }

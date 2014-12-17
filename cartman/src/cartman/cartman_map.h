@@ -133,7 +133,7 @@ struct s_cartman_mpd_info
 cartman_mpd_info_t * cartman_mpd_info_ctor( cartman_mpd_info_t * );
 cartman_mpd_info_t * cartman_mpd_info_dtor( cartman_mpd_info_t * );
 
-ego_bool cartman_mpd_info_init( cartman_mpd_info_t * pinfo, int vert_count, size_t tiles_x, size_t tiles_y );
+bool cartman_mpd_info_init( cartman_mpd_info_t * pinfo, int vert_count, size_t tiles_x, size_t tiles_y );
 
 //--------------------------------------------------------------------------------------------
 struct s_cartman_mpd_vertex
@@ -148,8 +148,8 @@ struct s_cartman_mpd_vertex
 cartman_mpd_vertex_t * cartman_mpd_vertex_ctor( cartman_mpd_vertex_t * );
 cartman_mpd_vertex_t * cartman_mpd_vertex_dtor( cartman_mpd_vertex_t * );
 
-ego_bool cartman_mpd_vertex_ary_ctor( cartman_mpd_vertex_t ary[], size_t size );
-ego_bool cartman_mpd_vertex_ary_dtor( cartman_mpd_vertex_t ary[], size_t size );
+bool cartman_mpd_vertex_ary_ctor( cartman_mpd_vertex_t ary[], size_t size );
+bool cartman_mpd_vertex_ary_dtor( cartman_mpd_vertex_t ary[], size_t size );
 
 //--------------------------------------------------------------------------------------------
 struct s_cartman_mpd_tile
@@ -164,8 +164,8 @@ struct s_cartman_mpd_tile
 cartman_mpd_tile_t * cartman_mpd_tile_ctor( cartman_mpd_tile_t * );
 cartman_mpd_tile_t * cartman_mpd_tile_dtor( cartman_mpd_tile_t * );
 
-ego_bool cartman_mpd_tile_ary_ctor( cartman_mpd_tile_t ary[], size_t size );
-ego_bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size );
+bool cartman_mpd_tile_ary_ctor( cartman_mpd_tile_t ary[], size_t size );
+bool cartman_mpd_tile_ary_dtor( cartman_mpd_tile_t ary[], size_t size );
 
 //--------------------------------------------------------------------------------------------
 struct s_cartman_mpd
@@ -213,7 +213,7 @@ int  cartman_mpd_count_vertices( cartman_mpd_t * pmesh );
 
 void cartman_mpd_free_vertices( cartman_mpd_t * pmesh );
 int cartman_mpd_find_free_vertex( cartman_mpd_t * pmesh );
-ego_bool cartman_mpd_link_vertex( cartman_mpd_t * pmesh, int iparent, int child );
+bool cartman_mpd_link_vertex( cartman_mpd_t * pmesh, int iparent, int child );
 
 Uint8 cartman_mpd_get_fan_twist( cartman_mpd_t * pmesh, Uint32 fan );
 float cartman_mpd_get_level( cartman_mpd_t * pmesh, float x, float y );

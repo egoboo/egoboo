@@ -48,20 +48,20 @@ extern int enc_loop_depth;
 // Function prototypes
 //--------------------------------------------------------------------------------------------
 
-void    EncList_ctor( void );
-void    EncList_dtor( void );
+void    EncList_ctor();
+void    EncList_dtor();
 
-void    EncList_reinit( void );
+void    EncList_reinit();
 
 ENC_REF EncList_allocate( const ENC_REF override );
 
-ego_bool  EncList_free_one( const ENC_REF ienc );
-void    EncList_free_all( void );
+bool  EncList_free_one( const ENC_REF ienc );
+void    EncList_free_all();
 
-void    EncList_update_used( void );
+void    EncList_update_used();
 
-void   EncList_cleanup( void );
+void   EncList_cleanup();
 
-ego_bool EncList_add_activation( const ENC_REF ienc );
-ego_bool EncList_add_termination( const ENC_REF ienc );
-ego_bool EncList_request_terminate( const ENC_REF ienc );
+bool EncList_add_activation( const ENC_REF ienc );
+bool EncList_add_termination( const ENC_REF ienc );
+bool EncList_request_terminate( const ENC_REF ienc );

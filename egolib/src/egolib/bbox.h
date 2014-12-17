@@ -75,14 +75,14 @@ extern "C"
         float maxs[3];
     };
 
-    ego_bool aabb_copy( aabb_t * pdst, const aabb_t * psrc );
-    ego_bool aabb_self_clear( aabb_t * pdst );
-    ego_bool aabb_is_clear( const aabb_t * pdst );
+    bool aabb_copy( aabb_t * pdst, const aabb_t * psrc );
+    bool aabb_self_clear( aabb_t * pdst );
+    bool aabb_is_clear( const aabb_t * pdst );
 
-    ego_bool aabb_from_oct_bb( aabb_t * dst, const struct s_oct_bb * src );
-    ego_bool aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
-    ego_bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
-    ego_bool aabb_self_union( aabb_t * pdst, const aabb_t * psrc );
+    bool aabb_from_oct_bb( aabb_t * dst, const struct s_oct_bb * src );
+    bool aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
+    bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
+    bool aabb_self_union( aabb_t * pdst, const aabb_t * psrc );
 
 #define AABB_INIT_VALS   { {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }
 
@@ -120,14 +120,14 @@ extern "C"
 /// values in data.txt. Computed on the fly.
     struct s_oct_bb
     {
-        ego_bool  empty;
+        bool  empty;
         oct_vec_t mins,
 		          maxs;
     };
 
     egolib_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip );
 
-#define OCT_BB_INIT_VALS { ego_true, OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
+#define OCT_BB_INIT_VALS { true, OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
 
 //--------------------------------------------------------------------------------------------
 //struct s_ego_aabb
@@ -135,7 +135,7 @@ extern "C"
 //    int    sub_used;
 //    float  weight;
 //
-//    ego_bool used;
+//    bool used;
 //    int    level;
 //    int    address;
 //
@@ -172,8 +172,8 @@ extern "C"
     struct s_OVolume
     {
         int        lod;             ///< the level of detail (LOD) of this volume
-        ego_bool   needs_shape;     ///< is the shape data valid?
-        ego_bool   needs_position;  ///< Is the position data valid?
+        bool   needs_shape;     ///< is the shape data valid?
+        bool   needs_position;  ///< Is the position data valid?
 
         oct_bb_t   oct;
     };
@@ -181,11 +181,11 @@ extern "C"
     OVolume_t * OVolume__ctor( OVolume_t * );
     OVolume_t OVolume_merge( const OVolume_t * pv1, const OVolume_t * pv2 );
     OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 );
-//ego_bool    OVolume_draw( OVolume_t * cv, ego_bool draw_square, ego_bool draw_diamond );
-//ego_bool    OVolume_shift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
-//ego_bool    OVolume_unshift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
+//bool    OVolume_draw( OVolume_t * cv, bool draw_square, bool draw_diamond );
+//bool    OVolume_shift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
+//bool    OVolume_unshift( OVolume_t * cv_src, fvec3_t * pos_src, OVolume_t *cv_dst );
 
-    ego_bool    OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume );
+    bool    OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume );
 
 //--------------------------------------------------------------------------------------------
 
@@ -203,14 +203,14 @@ extern "C"
     };
 
     CVolume_t * CVolume__blank( CVolume_t * );
-    ego_bool CVolume_ctor( CVolume_t * , const OVolume_t * pva, const OVolume_t * pvb );
-    ego_bool CVolume_refine( CVolume_t * );
+    bool CVolume_ctor( CVolume_t * , const OVolume_t * pva, const OVolume_t * pvb );
+    bool CVolume_refine( CVolume_t * );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // type conversion routines
 
-//ego_bool bumper_to_oct_bb_1( const bumper_t src, const fvec3_t vel, oct_bb_t * pdst );
+//bool bumper_to_oct_bb_1( const bumper_t src, const fvec3_t vel, oct_bb_t * pdst );
 
     egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, const bumper_t bump_base, bumper_t * pdst_bump, oct_bb_t * pdst_bb );
 

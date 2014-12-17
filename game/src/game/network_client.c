@@ -149,7 +149,7 @@ egolib_rv cl_joinGame( const char* hostname )
         {
             log_info( "cl_joinGame: Connected to %s:%d\n", hostname, NET_EGOBOO_PORT );
             return rv_success;
-            // return create_player(ego_false);
+            // return create_player(false);
         }
         else
         {
@@ -171,7 +171,7 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
     int time;
 
     ego_packet_t  ego_pkt;
-    ego_bool handled;
+    bool handled;
 
     Uint8  ub;
     Sint16 ss;
@@ -181,7 +181,7 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
     if ( !egonet_on() || NULL == enet_pkt ) return rv_error;
 
     // assume the best
-    handled = ego_true;
+    handled = true;
 
     // log the packet
     log_info( "sv_handlePacket: Received " );
@@ -212,10 +212,10 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
                     strncpy( pickedmodule_name,       mnu_ModList_get_name( pickedmodule_index ), SDL_arraysize( pickedmodule_name ) );
                     strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
 
-                    pickedmodule_ready = ego_true;
+                    pickedmodule_ready = true;
 
                     // Make ourselves ready
-                    egonet_set_readytostart( C_TRUE );
+                    egonet_set_readytostart( true );
 
                     // Tell the host we're ready
                     ego_packet_begin( &ego_pkt );
@@ -225,10 +225,10 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
                 else
                 {
                     // The module doesn't exist locally
-                    pickedmodule_ready = ego_false;
+                    pickedmodule_ready = false;
 
                     // Halt the process
-                    egonet_set_readytostart( C_FALSE );
+                    egonet_set_readytostart( false );
 
                     // Tell the host we're not ready
                     ego_packet_begin( &ego_pkt );
@@ -242,7 +242,7 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
             log_info( "TO_REMOTE_START\n" );
             if ( !egonet_get_hostactive() )
             {
-                egonet_set_waitingforclients( C_FALSE );
+                egonet_set_waitingforclients( false );
             }
             break;
 
@@ -279,18 +279,18 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
                 if ( stamp < nexttimestamp )
                 {
                     log_warning( "net_dispatchEvent: OUT OF ORDER PACKET\n" );
-                    outofsync = ego_true;
+                    outofsync = true;
                 }
                 if ( stamp <= update_wld )
                 {
                     log_warning( "net_dispatchEvent: LATE PACKET\n" );
-                    outofsync = ego_true;
+                    outofsync = true;
                 }
                 if ( stamp > nexttimestamp )
                 {
                     log_warning( "net_dispatchEvent: MISSED PACKET\n" );
                     nexttimestamp = stamp;  // Still use it
-                    outofsync = ego_true;
+                    outofsync = true;
                 }
                 if ( stamp == nexttimestamp )
                 {
@@ -330,7 +330,7 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
             break;
 
         default:
-            handled = ego_false;
+            handled = false;
             break;
     }
 

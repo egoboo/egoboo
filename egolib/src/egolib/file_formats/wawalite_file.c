@@ -47,11 +47,11 @@ wawalite_data_t wawalite_data;
 
 static wawalite_data_t _wawalite_file;
 
-static C_BOOLEAN wawalite_water_init( wawalite_water_t * pdata );
-static C_BOOLEAN wawalite_weather_init( wawalite_weather_t * pdata );
-static C_BOOLEAN wawalite_fog_init( wawalite_fog_t * pdata );
-static C_BOOLEAN wawalite_animtile_init( wawalite_animtile_t * pdata );
-static C_BOOLEAN wawalite_damagetile_init( wawalite_damagetile_t * pdata );
+static bool wawalite_water_init(wawalite_water_t * pdata);
+static bool wawalite_weather_init(wawalite_weather_t * pdata);
+static bool wawalite_fog_init(wawalite_fog_t * pdata);
+static bool wawalite_animtile_init(wawalite_animtile_t * pdata);
+static bool wawalite_damagetile_init(wawalite_damagetile_t * pdata);
 
 static wawalite_water_t *      read_wawalite_water( vfs_FILE * fileread, wawalite_water_t * pwater );
 static wawalite_data_t *       read_wawalite_light( vfs_FILE * fileread, wawalite_data_t * pdata );
@@ -63,15 +63,15 @@ static wawalite_graphics_t *   read_wawalite_graphics( vfs_FILE * fileread, wawa
 static wawalite_camera_t *     read_wawalite_camera( vfs_FILE * fileread, wawalite_camera_t * pcamera );
 static wawalite_data_t *       read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdata );
 
-static C_BOOLEAN write_wawalite_water( vfs_FILE * filewrite, const wawalite_water_t * pwater );
-static C_BOOLEAN write_wawalite_light( vfs_FILE * filewrite, const wawalite_data_t * pdata );
-static C_BOOLEAN write_wawalite_physics( vfs_FILE * filewrite, const wawalite_physics_t * pphys );
-static C_BOOLEAN write_wawalite_animtile( vfs_FILE * filewrite, const wawalite_animtile_t * panimtile );
-static C_BOOLEAN write_wawalite_damagetile( vfs_FILE * filewrite, const wawalite_damagetile_t * pdamagetile );
-static C_BOOLEAN write_wawalite_weather( vfs_FILE * filewrite, const wawalite_weather_t * pweather );
-static C_BOOLEAN write_wawalite_graphics( vfs_FILE * filewrite, const wawalite_graphics_t * pgraphics );
-static C_BOOLEAN write_wawalite_camera( vfs_FILE * filewrite, const wawalite_camera_t * pcamera );
-static C_BOOLEAN write_wawalite_fog( vfs_FILE * filewrite, const wawalite_data_t * pdata );
+static bool write_wawalite_water( vfs_FILE * filewrite, const wawalite_water_t * pwater );
+static bool write_wawalite_light( vfs_FILE * filewrite, const wawalite_data_t * pdata );
+static bool write_wawalite_physics( vfs_FILE * filewrite, const wawalite_physics_t * pphys );
+static bool write_wawalite_animtile( vfs_FILE * filewrite, const wawalite_animtile_t * panimtile );
+static bool write_wawalite_damagetile( vfs_FILE * filewrite, const wawalite_damagetile_t * pdamagetile );
+static bool write_wawalite_weather( vfs_FILE * filewrite, const wawalite_weather_t * pweather );
+static bool write_wawalite_graphics( vfs_FILE * filewrite, const wawalite_graphics_t * pgraphics );
+static bool write_wawalite_camera( vfs_FILE * filewrite, const wawalite_camera_t * pcamera );
+static bool write_wawalite_fog( vfs_FILE * filewrite, const wawalite_data_t * pdata );
 
 static const int WAWALITE_FILE_VERSION = 2;
 
@@ -285,9 +285,9 @@ wawalite_data_t * read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdat
     if ( NULL == fileread ) return pdata;
 
     // Read unnecessary data...  Only read if it exists...
-    if ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
+    if ( goto_colon_vfs( NULL, fileread, true ) )
     {
-        pdata->fog.found         = C_TRUE;
+        pdata->fog.found         = true;
         pdata->fog.top           = vfs_get_float( fileread );
         pdata->fog.bottom        = vfs_get_next_float( fileread );
         pdata->fog.red           = vfs_get_next_float( fileread ) * 255;
@@ -296,7 +296,7 @@ wawalite_data_t * read_wawalite_fog( vfs_FILE * fileread, wawalite_data_t * pdat
         pdata->fog.affects_water = vfs_get_next_bool( fileread );
 
         // Read extra stuff for damage tile particles...
-        if ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
+        if ( goto_colon_vfs( NULL, fileread, true ) )
         {
             pdata->damagetile.part_gpip    = vfs_get_int( fileread );
             pdata->damagetile.partand     = vfs_get_next_int( fileread );
@@ -357,9 +357,9 @@ wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN write_wawalite_water( vfs_FILE * filewrite, const wawalite_water_t * pwater )
+bool write_wawalite_water( vfs_FILE * filewrite, const wawalite_water_t * pwater )
 {
-    if ( NULL == filewrite || NULL == pwater ) return C_FALSE;
+    if ( NULL == filewrite || NULL == pwater ) return false;
 
     // Read water data first
     vfs_put_int( filewrite, "Number of Water Layers ( 1=Fast, 2=Good )           :", pwater->layer_count );
@@ -400,13 +400,13 @@ C_BOOLEAN write_wawalite_water( vfs_FILE * filewrite, const wawalite_water_t * p
     vfs_put_float( filewrite, "Level 1... U speed ( .0002 )        :",  pwater->layer[1].tx_add.s );
     vfs_put_float( filewrite, "Level 1... V speed ( .0002 )        :",  pwater->layer[1].tx_add.t );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN write_wawalite_light( vfs_FILE * filewrite, const wawalite_data_t * pdata )
+bool write_wawalite_light(vfs_FILE * filewrite, const wawalite_data_t * pdata)
 {
-    if ( NULL == filewrite || NULL == pdata ) return C_FALSE;
+    if ( NULL == filewrite || NULL == pdata ) return false;
 
     // Read light data second
     vfs_put_float( filewrite, "Light X direction ( 1.00 )        :", pdata->light_x );
@@ -414,13 +414,13 @@ C_BOOLEAN write_wawalite_light( vfs_FILE * filewrite, const wawalite_data_t * pd
     vfs_put_float( filewrite, "Light Z direction ( 0.50 )        :", pdata->light_z );
     vfs_put_float( filewrite, "Ambient light ( 0.20 )            :", pdata->light_a );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN write_wawalite_physics( vfs_FILE * filewrite, const wawalite_physics_t * pphys )
+bool write_wawalite_physics( vfs_FILE * filewrite, const wawalite_physics_t * pphys )
 {
-    if ( NULL == filewrite || NULL == pphys ) return C_FALSE;
+    if ( NULL == filewrite || NULL == pphys ) return false;
 
     // Read tile data third
     vfs_put_float( filewrite, "Hillslide ( 1.00 )              :", pphys->hillslide );
@@ -430,77 +430,77 @@ C_BOOLEAN write_wawalite_physics( vfs_FILE * filewrite, const wawalite_physics_t
     vfs_put_float( filewrite, "Normal friction ( .95 )         :", pphys->noslipfriction );
     vfs_put_float( filewrite, "Gravity ( -1.0 )                :", pphys->gravity );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN write_wawalite_animtile( vfs_FILE * filewrite, const wawalite_animtile_t * panimtile )
+bool write_wawalite_animtile( vfs_FILE * filewrite, const wawalite_animtile_t * panimtile )
 {
-    if ( NULL == filewrite || NULL == panimtile ) return C_FALSE;
+    if ( NULL == filewrite || NULL == panimtile ) return false;
 
     // animated tile
     vfs_put_int( filewrite, "Animated tile update AND ( 0, 1, 3, 7, 15, 31 )        :", panimtile->update_and );
     vfs_put_int( filewrite, "Animated tile frame AND ( 3 == 4 frame, 7 == 8 frame ) :", panimtile->frame_and );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN write_wawalite_damagetile( vfs_FILE * filewrite, const wawalite_damagetile_t * pdamagetile )
+bool write_wawalite_damagetile( vfs_FILE * filewrite, const wawalite_damagetile_t * pdamagetile )
 {
-    if ( NULL == filewrite || NULL == pdamagetile ) return C_FALSE;
+    if ( NULL == filewrite || NULL == pdamagetile ) return false;
 
     // basic damage tile
     vfs_put_int( filewrite, "Damage tile damage ( 0 to 65535, 512 is 1 life block )  :", pdamagetile->amount );
     vfs_put_damage_type( filewrite, "Damage tile damage type ( SLASH, CRUSH, POKE, HOLY\n                          EVIL, FIRE, ICE, ZAP )  :", pdamagetile->damagetype );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN write_wawalite_weather( vfs_FILE * filewrite, const wawalite_weather_t * pweather )
+bool write_wawalite_weather( vfs_FILE * filewrite, const wawalite_weather_t * pweather )
 {
-    if ( NULL == filewrite || NULL == pweather ) return C_FALSE;
+    if ( NULL == filewrite || NULL == pweather ) return false;
 
     // weather data
     vfs_printf( filewrite, "Weather particle effect ( NONE, LAVA, RAIN or SNOW ): %s", pweather->weather_name );
     vfs_put_bool( filewrite, "Weather particles only over water ( TRUE or FALSE )  :", pweather->over_water );
     vfs_put_int( filewrite,  "Weather particle spawn rate ( 0 to 100, 0 is none )  :", pweather->timer_reset );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN write_wawalite_graphics( vfs_FILE * filewrite, const wawalite_graphics_t * pgraphics )
+bool write_wawalite_graphics( vfs_FILE * filewrite, const wawalite_graphics_t * pgraphics )
 {
-    if ( NULL == filewrite || NULL == pgraphics ) return C_FALSE;
+    if ( NULL == filewrite || NULL == pgraphics ) return false;
 
     // graphics options
     vfs_put_bool( filewrite, "Explore mode ( TRUE or FALSE )                         :", pgraphics->exploremode );
     vfs_put_bool( filewrite, "Far Edge mode...  For outside levels ( TRUE or FALSE ) :", pgraphics->usefaredge );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN write_wawalite_camera( vfs_FILE * filewrite, const wawalite_camera_t * pcamera )
+bool write_wawalite_camera( vfs_FILE * filewrite, const wawalite_camera_t * pcamera )
 {
-    if ( NULL == filewrite || NULL == pcamera ) return C_FALSE;
+    if ( NULL == filewrite || NULL == pcamera ) return false;
 
     // camera data
     vfs_put_float( filewrite, "Camera swing rate ( 0 to 100 )                :", pcamera->swing_rate );
     vfs_put_float( filewrite, "Camera swing amplitude ( 0, or .002 to .100 ) :", pcamera->swing_amp );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN write_wawalite_fog( vfs_FILE * filewrite, const wawalite_data_t * pdata )
+bool write_wawalite_fog( vfs_FILE * filewrite, const wawalite_data_t * pdata )
 {
-    if ( NULL == filewrite || NULL == pdata ) return C_FALSE;
+    if ( NULL == filewrite || NULL == pdata ) return false;
 
     // write optional data...  Only read if it exists...
-    if ( !pdata->fog.found ) return C_TRUE;
+    if ( !pdata->fog.found ) return true;
 
     vfs_printf( filewrite, "\n\n// Fog Expansion...  Leave this out for no fog...\n" );
     vfs_put_float( filewrite, "Fog top z ( 0 to 100 )                            :", pdata->fog.top );
@@ -515,11 +515,11 @@ C_BOOLEAN write_wawalite_fog( vfs_FILE * filewrite, const wawalite_data_t * pdat
     vfs_put_int( filewrite, "Particle timing AND ( 1, 3, 7, 15, etc. )          :", pdata->damagetile.partand );
     vfs_put_int( filewrite, "Damage sound ( 0 to 4 )                            :", pdata->damagetile.sound_index );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN write_wawalite_file_vfs( const wawalite_data_t * pdata )
+bool write_wawalite_file_vfs( const wawalite_data_t * pdata )
 {
     /// @author ZZ
     /// @details This function sets up water and lighting for the module
@@ -527,13 +527,13 @@ C_BOOLEAN write_wawalite_file_vfs( const wawalite_data_t * pdata )
     vfs_FILE*  filewrite;
     STRING newloadname;
 
-    if ( NULL == pdata ) return C_FALSE;
+    if ( NULL == pdata ) return false;
 
     filewrite = vfs_openWrite( "mp_data/wawalite.txt" );
     if ( NULL == filewrite )
     {
         log_warning( "Could not write file! (\"%s\")\n", newloadname );
-        return C_FALSE;
+        return false;
     }
 
     // Add file verison number
@@ -562,42 +562,42 @@ C_BOOLEAN write_wawalite_file_vfs( const wawalite_data_t * pdata )
 
     vfs_close( filewrite );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN wawalite_water_init( wawalite_water_t * pdata )
+bool wawalite_water_init( wawalite_water_t * pdata )
 {
-    if ( NULL == pdata ) return C_FALSE;
+    if ( NULL == pdata ) return false;
 
     BLANK_STRUCT_PTR( pdata )
 
     pdata->spek_start =   128;
     pdata->spek_level =   128;
-    pdata->is_water   = C_TRUE;
+    pdata->is_water   = true;
 
     pdata->foregroundrepeat = 1;
     pdata->backgroundrepeat = 1;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN wawalite_weather_init( wawalite_weather_t * pdata )
+bool wawalite_weather_init( wawalite_weather_t * pdata )
 {
-    if ( NULL == pdata ) return C_FALSE;
+    if ( NULL == pdata ) return false;
 
     BLANK_STRUCT_PTR( pdata )
 
     pdata->timer_reset = 10;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN wawalite_fog_init( wawalite_fog_t * pdata )
+bool wawalite_fog_init( wawalite_fog_t * pdata )
 {
-    if ( NULL == pdata ) return C_FALSE;
+    if ( NULL == pdata ) return false;
 
     BLANK_STRUCT_PTR( pdata );
 
@@ -605,28 +605,28 @@ C_BOOLEAN wawalite_fog_init( wawalite_fog_t * pdata )
     pdata->red           = 255;
     pdata->grn           = 255;
     pdata->blu           = 255;
-    pdata->affects_water = C_TRUE;
+    pdata->affects_water = true;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN wawalite_animtile_init( wawalite_animtile_t * pdata )
+bool wawalite_animtile_init( wawalite_animtile_t * pdata )
 {
-    if ( NULL == pdata ) return C_FALSE;
+    if ( NULL == pdata ) return false;
 
     BLANK_STRUCT_PTR( pdata )
 
     pdata->update_and    = 7;                        // New tile every 7 frames
     pdata->frame_and     = 3;              // Only 4 frames
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN wawalite_damagetile_init( wawalite_damagetile_t * pdata )
+bool wawalite_damagetile_init( wawalite_damagetile_t * pdata )
 {
-    if ( NULL == pdata ) return C_FALSE;
+    if ( NULL == pdata ) return false;
 
     pdata->part_gpip    = -1;
     pdata->partand     = 255;
@@ -634,7 +634,7 @@ C_BOOLEAN wawalite_damagetile_init( wawalite_damagetile_t * pdata )
     pdata->damagetype  = DAMAGE_FIRE;
     pdata->amount      = 256;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -650,8 +650,8 @@ wawalite_data_t *  wawalite_limit( wawalite_data_t * pdata )
 
     for ( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
     {
-        pdata->water.layer[cnt].light_dir = CLIP( pdata->water.layer[cnt].light_dir, 0, 63 );
-        pdata->water.layer[cnt].light_add = CLIP( pdata->water.layer[cnt].light_add, 0, 63 );
+        pdata->water.layer[cnt].light_dir = CLIP( pdata->water.layer[cnt].light_dir, (Uint32)0, (Uint32)63 );
+        pdata->water.layer[cnt].light_add = CLIP( pdata->water.layer[cnt].light_add, (Uint32)0, (Uint32)63 );
     }
 
     return pdata;

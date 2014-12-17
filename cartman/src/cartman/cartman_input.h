@@ -47,16 +47,16 @@ typedef struct s_mouse mouse_t;
 
 struct s_mouse
 {
-    ego_bool on;
+    bool on;
 
     int   x, y;
     int   x_old, y_old;
     int   b;
 
-    ego_bool relative;
+    bool relative;
     int   cx, cy;
 
-    ego_bool            drag, drag_begin;
+    bool            drag, drag_begin;
     struct s_window * drag_window;
     int               drag_mode;
     int               tlx, tly, brx, bry;
@@ -68,12 +68,12 @@ mouse_t * mouse_ctor( mouse_t * );
 
 struct s_keyboard
 {
-    ego_bool   on;                //< Is the keyboard alive?
-    ego_bool   override;          //< has the console overridden the keyboard?
+    bool   on;                //< Is the keyboard alive?
+    bool   override;          //< has the console overridden the keyboard?
     int      count;
     int      delay;
 
-    ego_bool   needs_update;
+    bool   needs_update;
     Uint8  * sdlbuffer;
     Uint8    state;
     SDLMod   mod;
@@ -103,7 +103,7 @@ extern keyboard_t   key;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define CART_KEYDOWN(k)       ( (!key.on || key.override || (k >= key.count) || (NULL == key.sdlbuffer)) ? ego_false : (0 != key.sdlbuffer[k]))     // Helper for gettin' em
+#define CART_KEYDOWN(k)       ( (!key.on || key.override || (k >= key.count) || (NULL == key.sdlbuffer)) ? false : (0 != key.sdlbuffer[k]))     // Helper for gettin' em
 #define CART_KEYMOD(m)        ( key.on && !key.override && (NULL != key.sdlbuffer) && (0 != (key.state & (m))) )
 #define CART_KEYDOWN_MOD(k,m) ( CART_KEYDOWN(k) && (0 != (key.state & (m))) )
 
@@ -111,5 +111,5 @@ extern keyboard_t   key;
 //--------------------------------------------------------------------------------------------
 
 void   check_input();
-ego_bool check_keys( Uint32 resolution );
+bool check_keys( Uint32 resolution );
 void   update_mouse();

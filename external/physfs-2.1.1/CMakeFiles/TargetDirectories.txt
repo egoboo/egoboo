@@ -1,0 +1,6 @@
+C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/physfs-2.1.1/CMakeFiles/test_physfs.dir
+C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/physfs-2.1.1/CMakeFiles/docs.dir
+C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/physfs-2.1.1/CMakeFiles/ALL_BUILD.dir
+C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/physfs-2.1.1/CMakeFiles/physfs-static.dir
+C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/physfs-2.1.1/CMakeFiles/physfs.dir
+C:/Users/michaelheilmann/Desktop/Arbeitsplatz/egoboo@egoboo@github.com/external/physfs-2.1.1/CMakeFiles/ZERO_CHECK.dir

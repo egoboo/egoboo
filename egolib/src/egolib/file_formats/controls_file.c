@@ -54,18 +54,18 @@ void export_control( vfs_FILE * filewrite, const char * text, int device, contro
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN input_settings_load_vfs( const char *szFilename, int required_version )
+bool input_settings_load_vfs(const char *szFilename, int required_version)
 {
     /// @author ZZ
     /// @details This function reads the controls.txt file
     int file_version;
     vfs_FILE* fileread = NULL;
-    C_BOOLEAN retval = C_FALSE;
+	bool retval = false;
 
     // Make sure the file exists, if not copy it from the default folder
-    if ( !fs_ensureUserFile( "controls.txt", C_TRUE ) )
+    if ( !fs_ensureUserFile( "controls.txt", true ) )
     {
-        return C_FALSE;
+        return false;
     }
 
     // get the file version
@@ -75,7 +75,7 @@ C_BOOLEAN input_settings_load_vfs( const char *szFilename, int required_version 
     if ( NULL == fileread )
     {
         log_warning( "Could not load input settings (%s)!\n", szFilename );
-        return C_FALSE;
+        return false;
     }
     else
     {
@@ -89,7 +89,7 @@ C_BOOLEAN input_settings_load_vfs( const char *szFilename, int required_version 
     {
         log_warning( "File version (%d) did match the required version (%d)\n", file_version, required_version );
 
-        return C_FALSE;
+        return false;
     }
 
     switch ( file_version )
@@ -109,7 +109,7 @@ C_BOOLEAN input_settings_load_vfs( const char *szFilename, int required_version 
 
         default:
             log_warning( "Cannot load the given setting.txt file because required_version %d is not supported.\n", file_version );
-            retval = C_FALSE;
+            retval = false;
             break;
     }
 
@@ -117,12 +117,12 @@ C_BOOLEAN input_settings_load_vfs( const char *szFilename, int required_version 
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN input_settings_save_vfs( const char* szFilename, int version )
+bool input_settings_save_vfs(const char* szFilename, int version)
 {
     /// @author BB
     /// @details Write the controls.txt file using the correct version
 
-    C_BOOLEAN retval = C_FALSE;
+	bool retval = false;
 
     if ( -1 == version )
     {
@@ -147,7 +147,7 @@ C_BOOLEAN input_settings_save_vfs( const char* szFilename, int version )
 
         default:
             log_warning( "Cannot save the given setting.txt file because version %d is not supported.\n", version );
-            retval = C_FALSE;
+            retval = false;
             break;
     }
 

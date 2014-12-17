@@ -96,28 +96,31 @@ extern "C"
 	#include <stdbool.h>
 #endif
 
-/** @todo Remove this soon, simply use @a true. */
+#if 0
+/** @todo Remove this, use @a true. */
 #define C_TRUE true
-/** @todo Remove this soon, simply use @a false. */
+/** @todo Remove this, use @a false. */
 #define C_FALSE false
-/* @todo Remove this soon, simply use @a bool. */
+/** @todo Remove this, use @a bool. */
 #define C_BOOLEAN bool
+#endif
 
-#define ego_true  C_TRUE
-#define ego_false C_FALSE
-#define ego_bool  C_BOOLEAN
+/** @todo Remove this, use @a true.*/
+#define ego_true  true
+/** @todo Remove this, use @a false. */
+#define ego_false false
+/** @todo Remove this, use @a bool. */
+#define ego_bool  bool
 
-    // this typedef must be after the enum definition or gcc has a fit
-
-#   if !defined(TO_EGO_BOOL)
-#       if defined(__cplusplus)
-#           define TO_EGO_BOOL(VAL) LAMBDA(VAL, ego_true, ego_false)
-#           define TO_C_BOOL(VAL)   LAMBDA(VAL, C_TRUE, C_FALSE)
-#       else
-#           define TO_EGO_BOOL(VAL) (VAL)
-#           define TO_C_BOOL(VAL)   (VAL)
-#       endif
-#   endif
+#if !defined(TO_EGO_BOOL)
+	#if defined(__cplusplus)
+		#define TO_EGO_BOOL(VAL) LAMBDA(VAL, true, false)
+		#define TO_C_BOOL(VAL)   LAMBDA(VAL, true, false)
+	#else
+		#define TO_EGO_BOOL(VAL) (VAL)
+		#define TO_C_BOOL(VAL) (VAL)
+	#endif
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -126,8 +129,8 @@ extern "C"
     enum e_egolib_rv
     {
         rv_error   = -1,
-        rv_fail    = C_FALSE,
-        rv_success = C_TRUE
+        rv_fail    = false,
+        rv_success = true
     };
 
     // this typedef must be after the enum definition or gcc has a fit
@@ -236,10 +239,10 @@ extern "C"
 	{
 		EGOBOO_ASSERT(NULL != rect);
 
-		if (x < r->left || x > r->right)  return C_FALSE;
-		if (y < r->top  || y > r->bottom) return C_FALSE;
+		if (x < r->left || x > r->right)  return false;
+		if (y < r->top  || y > r->bottom) return false;
 
-		return C_TRUE;
+		return true;
 	}
 #endif
     struct s_irect
@@ -250,7 +253,7 @@ extern "C"
         int bottom;
     };
 
-    C_BOOLEAN irect_point_inside( irect_t * prect, int   ix, int   iy );
+    bool irect_point_inside( irect_t * prect, int   ix, int   iy );
 
     struct s_frect
     {
@@ -260,7 +263,7 @@ extern "C"
         float bottom;
     };
 
-    C_BOOLEAN frect_point_inside( frect_t * prect, float fx, float fy );
+    bool frect_point_inside( frect_t * prect, float fx, float fy );
 
     struct s_ego_irect
     {
@@ -329,7 +332,7 @@ extern "C"
 
 /// the "base class" of Egoboo profiles
 #   define  EGO_PROFILE_STUFF \
-    C_BOOLEAN loaded;                  /** Was the data read in? */ \
+    bool loaded;                    /** Was the data read in? */ \
     STRING name;                    /** Usually the source filename */ \
     int    request_count;           /** the number of attempted spawnx */ \
     int    create_count;            /** the number of successful spawns */
@@ -402,7 +405,7 @@ extern "C"
     C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);          \
     void   NAME##_ctor( void );                     \
     void   NAME##_dtor( void );                     \
-    ego_bool NAME##_push_used( const REF_T );         \
+    bool NAME##_push_used( const REF_T );         \
     TYPE * NAME##_get_ptr( const size_t );          \
     extern struct s_c_list__##TYPE__##NAME NAME
 
@@ -415,7 +418,7 @@ extern "C"
 
 #   define C_IMPLEMENT_LIST(TYPE, NAME, COUNT)          \
     static int     NAME##_find_free_ref( const REF_T ); \
-    static ego_bool  NAME##_push_free( const REF_T );     \
+    static bool  NAME##_push_free( const REF_T );     \
     static size_t  NAME##_pop_free( const int );        \
     static int     NAME##_find_used_ref( const REF_T ); \
     static size_t  NAME##_pop_used( const int );        \
@@ -463,21 +466,21 @@ extern "C"
     \
     ARY_T##_t   *ARY_T##_ctor( ARY_T##_t * pary, size_t sz ); \
     ARY_T##_t   *ARY_T##_dtor( ARY_T##_t * pary ); \
-    ego_bool    ARY_T##_alloc( ARY_T##_t * pary, size_t sz ); \
-    ego_bool    ARY_T##_free( ARY_T##_t * pary ); \
+    bool    ARY_T##_alloc( ARY_T##_t * pary, size_t sz ); \
+    bool    ARY_T##_free( ARY_T##_t * pary ); \
     void        ARY_T##_clear( ARY_T##_t * pary ); \
     size_t      ARY_T##_get_top( const ARY_T##_t * pary ); \
     size_t      ARY_T##_get_size( const ARY_T##_t * pary ); \
     ELEM_T *    ARY_T##_pop_back( ARY_T##_t * pary ); \
-    ego_bool    ARY_T##_push_back( ARY_T##_t * pary , ELEM_T val );
+    bool    ARY_T##_push_back( ARY_T##_t * pary , ELEM_T val );
 
 #   define DYNAMIC_ARY_INIT_VALS {0,0,NULL}
 
 #   define INSTANTIATE_DYNAMIC_ARY(ARY_T, NAME) ARY_T##_t NAME = DYNAMIC_ARY_INIT_VALS;
 
 #   define IMPLEMENT_DYNAMIC_ARY(ARY_T, ELEM_T) \
-    ego_bool  ARY_T##_alloc( ARY_T##_t * pary, size_t sz ) { if(NULL == pary) return ego_false; ARY_T##_free( pary ); pary->ary = EGOBOO_NEW_ARY( ELEM_T, sz );  pary->alloc = (NULL == pary->ary) ? 0 : sz; return ego_true; } \
-    ego_bool  ARY_T##_free(ARY_T##_t * pary )              { if(NULL == pary) return ego_false; EGOBOO_DELETE_ARY(pary->ary); pary->alloc = 0; pary->top = 0; return ego_true; } \
+    bool  ARY_T##_alloc( ARY_T##_t * pary, size_t sz ) { if(NULL == pary) return false; ARY_T##_free( pary ); pary->ary = EGOBOO_NEW_ARY( ELEM_T, sz );  pary->alloc = (NULL == pary->ary) ? 0 : sz; return true; } \
+    bool  ARY_T##_free(ARY_T##_t * pary )              { if(NULL == pary) return false; EGOBOO_DELETE_ARY(pary->ary); pary->alloc = 0; pary->top = 0; return true; } \
     ARY_T##_t *ARY_T##_ctor(ARY_T##_t * pary, size_t sz)   { if(NULL == pary) return NULL;   BLANK_STRUCT_PTR( pary ) if( !ARY_T##_alloc(pary, sz) ) return NULL; return pary; } \
     ARY_T##_t *ARY_T##_dtor(ARY_T##_t * pary )             { if(NULL == pary) return NULL;   ARY_T##_free(pary); BLANK_STRUCT_PTR( pary ) return pary; } \
     \
@@ -486,7 +489,7 @@ extern "C"
     size_t ARY_T##_get_size( const ARY_T##_t * pary )      { return (NULL == pary->ary) ? 0 : pary->alloc; } \
     \
     ELEM_T   *ARY_T##_pop_back( ARY_T##_t * pary )             { if( NULL == pary || pary->top < 1 ) return NULL; --pary->top; return &(pary->ary[pary->top]); } \
-    ego_bool ARY_T##_push_back( ARY_T##_t * pary, ELEM_T val ) { ego_bool retval = ego_false; if( NULL == pary ) return ego_false; if (pary->top >= 0 && (size_t)pary->top < pary->alloc) { pary->ary[pary->top] = val; pary->top++; retval = ego_true; } return retval; }
+    bool ARY_T##_push_back( ARY_T##_t * pary, ELEM_T val ) { bool retval = false; if( NULL == pary ) return false; if (pary->top >= 0 && (size_t)pary->top < pary->alloc) { pary->ary[pary->top] = val; pary->top++; retval = true; } return retval; }
 
 #   define DYNAMIC_ARY_INVALID_RAW(PARY) ( (0 == (PARY)->alloc) || ((PARY)->top < 0) || ((size_t)(PARY)->top >= (PARY)->alloc) )
 #   define DYNAMIC_ARY_INVALID(PARY) ( (NULL == (PARY)) || DYNAMIC_ARY_INVALID_RAW(PARY) )

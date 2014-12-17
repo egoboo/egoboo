@@ -83,7 +83,7 @@ struct s_music_stack_element
     int         number;
 };
 
-static ego_bool                music_stack_pop( Mix_Music ** mus, int * song );
+static bool                music_stack_pop( Mix_Music ** mus, int * song );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -93,29 +93,29 @@ INSTANTIATE_LIST_STATIC( looped_sound_data_t, LoopedList, LOOPED_COUNT );
 static void   LoopedList_init( void );
 static void   LoopedList_clear( void );
 
-static ego_bool LoopedList_free_one( size_t index );
+static bool LoopedList_free_one( size_t index );
 static size_t LoopedList_get_free_ref( void );
 
-static ego_bool LoopedList_validate( void );
+static bool LoopedList_validate( void );
 static size_t LoopedList_add( const Mix_Chunk * sound, int loops, const CHR_REF  object );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static ego_bool sdl_audio_initialize( void );
-static ego_bool sdl_mixer_initialize( void );
+static bool sdl_audio_initialize( void );
+static bool sdl_mixer_initialize( void );
 static void   sdl_mixer_quit( void );
 
 static int    _calculate_volume( const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float fov_rad );
-static ego_bool _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float pan );
-static ego_bool _update_channel_volume( int channel, const int volume, const float pan );
-static ego_bool _calculate_average_camera_stereo( const fvec3_base_t snd_pos, fvec3_base_t cam_pos, fvec3_base_t cam_center, fvec3_base_t diff, float * pan_ptr );
+static bool _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float pan );
+static bool _update_channel_volume( int channel, const int volume, const float pan );
+static bool _calculate_average_camera_stereo( const fvec3_base_t snd_pos, fvec3_base_t cam_pos, fvec3_base_t cam_center, fvec3_base_t diff, float * pan_ptr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // Sound using SDL_Mixer
-static ego_bool mixeron         = ego_false;
+static bool mixeron         = false;
 
 // text filenames for the global sounds
 static const char * wavenames[GSND_COUNT] =
@@ -130,7 +130,7 @@ static const char * wavenames[GSND_COUNT] =
     "shieldblock"
 };
 
-static ego_bool sound_atexit_registered = ego_false;
+static bool sound_atexit_registered = false;
 
 static int                   music_stack_depth = 0;
 static music_stack_element_t music_stack[MUSIC_STACK_COUNT];
@@ -141,7 +141,7 @@ static music_stack_element_t music_stack[MUSIC_STACK_COUNT];
 snd_config_t snd;
 
 // music
-ego_bool      musicinmemory = ego_false;
+bool      musicinmemory = false;
 Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];
 int         songplaying   = INVALID_SOUND;
 
@@ -150,9 +150,9 @@ Mix_Chunk * g_wavelist[GSND_COUNT];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static ego_bool sound_system_config_init( snd_config_t * psnd );
+static bool sound_system_config_init( snd_config_t * psnd );
 static void music_stack_init( void );
-static ego_bool music_stack_push( Mix_Music * mus, int song );
+static bool music_stack_push( Mix_Music * mus, int song );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -187,12 +187,12 @@ static void music_stack_finished_callback( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool music_stack_push( Mix_Music * mus, int song )
+bool music_stack_push( Mix_Music * mus, int song )
 {
     if ( music_stack_depth >= MUSIC_STACK_COUNT - 1 )
     {
         music_stack_depth = MUSIC_STACK_COUNT - 1;
-        return ego_false;
+        return false;
     }
 
     music_stack[music_stack_depth].mus    = mus;
@@ -200,20 +200,20 @@ ego_bool music_stack_push( Mix_Music * mus, int song )
 
     music_stack_depth++;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool music_stack_pop( Mix_Music ** mus, int * song )
+bool music_stack_pop( Mix_Music ** mus, int * song )
 {
-    if ( NULL == mus || NULL == song ) return ego_false;
+    if ( NULL == mus || NULL == song ) return false;
 
     // fail if music isn't loaded
     if ( !musicinmemory )
     {
         *mus = NULL;
         *song = INVALID_SOUND;
-        return ego_false;
+        return false;
     }
 
     // set the default to be song 0
@@ -229,7 +229,7 @@ ego_bool music_stack_pop( Mix_Music ** mus, int * song )
         *song = music_stack[music_stack_depth].number;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -245,9 +245,9 @@ void music_stack_init( void )
 //--------------------------------------------------------------------------------------------
 // SDL
 //--------------------------------------------------------------------------------------------
-ego_bool sdl_audio_initialize( void )
+bool sdl_audio_initialize( void )
 {
-    ego_bool retval = ego_true;
+    bool retval = true;
 
     // make sure that SDL audio is turned on
     if ( 0 == SDL_WasInit( SDL_INIT_AUDIO ) )
@@ -258,13 +258,13 @@ ego_bool sdl_audio_initialize( void )
             log_message( "Failed!\n" );
             log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
 
-            retval = ego_false;
-            snd.musicvalid = ego_false;
-            snd.soundvalid = ego_false;
+            retval = false;
+            snd.musicvalid = false;
+            snd.soundvalid = false;
         }
         else
         {
-            retval = ego_true;
+            retval = true;
             log_message( "Success!\n" );
         }
     }
@@ -273,7 +273,7 @@ ego_bool sdl_audio_initialize( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool sdl_mixer_initialize( void )
+bool sdl_mixer_initialize( void )
 {
     /// @author ZF
     /// @details This intitializes the SDL_mixer services
@@ -284,7 +284,7 @@ ego_bool sdl_mixer_initialize( void )
         log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", link_version->major, link_version->minor, link_version->patch );
         if ( Mix_OpenAudio( cfg.sound_highquality_base ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, snd.buffersize ) < 0 )
         {
-            mixeron = ego_false;
+            mixeron = false;
             log_message( "Failure!\n" );
             log_warning( "Unable to initialize audio: %s\n", Mix_GetError() );
         }
@@ -296,10 +296,10 @@ ego_bool sdl_mixer_initialize( void )
             // initialize the music stack
             music_stack_init();
 
-            mixeron = ego_true;
+            mixeron = true;
 
             atexit( sdl_mixer_quit );
-            sound_atexit_registered = ego_true;
+            sound_atexit_registered = true;
 
             log_message( "Success!\n" );
         }
@@ -314,16 +314,16 @@ void sdl_mixer_quit( void )
     if ( mixeron && ( 0 != SDL_WasInit( SDL_INIT_AUDIO ) ) )
     {
         Mix_CloseAudio();
-        mixeron = ego_false;
+        mixeron = false;
     }
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// This function enables the use of SDL_Audio and SDL_Mixer functions, returns ego_true if success
-ego_bool sound_system_initialize( void )
+// This function enables the use of SDL_Audio and SDL_Mixer functions, returns true if success
+bool sound_system_initialize( void )
 {
-    ego_bool retval = ego_false;
+    bool retval = false;
     if ( sdl_audio_initialize() )
     {
         retval = sdl_mixer_initialize();
@@ -343,7 +343,7 @@ void sound_system_restart( void )
     //if ( mixeron )
     {
         Mix_CloseAudio();
-        mixeron = ego_false;
+        mixeron = false;
     }
 
     // loose the info on the currently playing song
@@ -351,7 +351,7 @@ void sound_system_restart( void )
     {
         if ( -1 != Mix_OpenAudio( cfg.sound_highquality_base ? MIX_HIGH_QUALITY : MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, snd.buffersize ) )
         {
-            mixeron = ego_true;
+            mixeron = true;
             Mix_AllocateChannels( snd.maxsoundchannel );
             Mix_VolumeMusic( snd.musicvolume );
 
@@ -361,7 +361,7 @@ void sound_system_restart( void )
             if ( !sound_atexit_registered )
             {
                 atexit( sdl_mixer_quit );
-                sound_atexit_registered = ego_true;
+                sound_atexit_registered = true;
             }
         }
         else
@@ -372,26 +372,26 @@ void sound_system_restart( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool sound_system_config_init( snd_config_t * psnd )
+bool sound_system_config_init( snd_config_t * psnd )
 {
     // Initialize the sound settings and set all values to default
-    if ( NULL == psnd ) return ego_false;
+    if ( NULL == psnd ) return false;
 
-    psnd->soundvalid        = ego_false;
-    psnd->musicvalid        = ego_false;
+    psnd->soundvalid        = false;
+    psnd->musicvalid        = false;
     psnd->musicvolume       = 50;                            // The sound volume of music
     psnd->soundvolume       = 75;          // Volume of sounds played
     psnd->maxsoundchannel   = 16;      // Max number of sounds playing at the same time
     psnd->buffersize        = 2048;
-    psnd->highquality       = ego_false;
+    psnd->highquality       = false;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool sound_system_download_from_config( snd_config_t * psnd, egoboo_config_t * pcfg )
+bool sound_system_download_from_config( snd_config_t * psnd, egoboo_config_t * pcfg )
 {
-    if ( NULL == psnd && NULL == pcfg ) return ego_false;
+    if ( NULL == psnd && NULL == pcfg ) return false;
 
     if ( NULL == pcfg )
     {
@@ -399,8 +399,8 @@ ego_bool sound_system_download_from_config( snd_config_t * psnd, egoboo_config_t
     }
 
     // coerce pcfg to have valid values
-    pcfg->sound_channel_count = CLIP( pcfg->sound_channel_count, 8, 128 );
-    pcfg->sound_buffer_size   = CLIP( pcfg->sound_buffer_size, 512, 8196 );
+    pcfg->sound_channel_count = CLIP( pcfg->sound_channel_count, (Uint16)8, (Uint16)128 );
+    pcfg->sound_buffer_size   = CLIP( pcfg->sound_buffer_size, (Uint16)512, (Uint16)8196 );
 
     if ( NULL != psnd )
     {
@@ -413,7 +413,7 @@ ego_bool sound_system_download_from_config( snd_config_t * psnd, egoboo_config_t
         psnd->highquality     = pcfg->sound_highquality;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -422,7 +422,7 @@ Mix_Chunk * sound_load_chunk_vfs( const char * szFileName )
 {
     STRING      full_file_name;
     Mix_Chunk * tmp_chunk;
-    ego_bool      file_exists = ego_false;
+    bool      file_exists = false;
 
     if ( !mixeron ) return NULL;
     if ( INVALID_CSTR( szFileName ) ) return NULL;
@@ -434,7 +434,7 @@ Mix_Chunk * sound_load_chunk_vfs( const char * szFileName )
     snprintf( full_file_name, SDL_arraysize( full_file_name ), "%s.%s", szFileName, "ogg" );
     if ( vfs_exists( full_file_name ) )
     {
-        file_exists = ego_true;
+        file_exists = true;
         tmp_chunk = Mix_LoadWAV( vfs_resolveReadFilename( full_file_name ) );
     }
 
@@ -444,7 +444,7 @@ Mix_Chunk * sound_load_chunk_vfs( const char * szFileName )
         snprintf( full_file_name, SDL_arraysize( full_file_name ), "%s.%s", szFileName, "wav" );
         if ( vfs_exists( full_file_name ) )
         {
-            file_exists = ego_true;
+            file_exists = true;
             tmp_chunk = Mix_LoadWAV( vfs_resolveReadFilename( full_file_name ) );
         }
     }
@@ -463,7 +463,7 @@ Mix_Music * sound_load_music( const char * szFileName )
 {
     STRING      full_file_name;
     Mix_Music * tmp_music;
-    ego_bool      file_exists = ego_false;
+    bool      file_exists = false;
 
     if ( !mixeron ) return NULL;
     if ( INVALID_CSTR( szFileName ) ) return NULL;
@@ -475,7 +475,7 @@ Mix_Music * sound_load_music( const char * szFileName )
     snprintf( full_file_name, SDL_arraysize( full_file_name ), "%s.%s", szFileName, "wav" );
     if ( vfs_exists( full_file_name ) )
     {
-        file_exists = ego_true;
+        file_exists = true;
         tmp_music = Mix_LoadMUS( full_file_name );
     }
 
@@ -486,7 +486,7 @@ Mix_Music * sound_load_music( const char * szFileName )
         snprintf( full_file_name, SDL_arraysize( full_file_name ), "%s.%s", szFileName, "ogg" );
         if ( vfs_exists( full_file_name ) )
         {
-            file_exists = ego_true;
+            file_exists = true;
             tmp_music = Mix_LoadMUS( full_file_name );
         }
     }
@@ -501,17 +501,17 @@ Mix_Music * sound_load_music( const char * szFileName )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
+bool sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
 {
 
-    if ( !mixeron ) return ego_false;
-    if ( NULL == pptr ) return ego_false;
+    if ( !mixeron ) return false;
+    if ( NULL == pptr ) return false;
 
     // clear out the data
     pptr->ptr.unk = NULL;
     pptr->type    = MIX_UNKNOWN;
 
-    if ( INVALID_CSTR( szFileName ) ) return ego_false;
+    if ( INVALID_CSTR( szFileName ) ) return false;
 
     switch ( type )
     {
@@ -856,7 +856,7 @@ void sound_load_all_music_sounds_vfs( void )
     // Load the music data into memory
     for ( cnt = 0; cnt < MAXPLAYLISTLENGTH && !vfs_eof( playlist ); cnt++ )
     {
-        if ( goto_colon_vfs( NULL, playlist, C_TRUE ) )
+        if ( goto_colon_vfs( NULL, playlist, true ) )
         {
             vfs_get_string( playlist, songname, SDL_arraysize( songname ) );
 
@@ -864,7 +864,7 @@ void sound_load_all_music_sounds_vfs( void )
             musictracksloaded[cnt] = Mix_LoadMUS( vfs_resolveReadFilename( loadpath ) );
         }
     }
-    musicinmemory = ego_true;
+    musicinmemory = true;
 
     //Special xmas theme, override the default menu theme song
     if ( check_time( SEASON_CHRISTMAS ) )
@@ -912,33 +912,33 @@ void   LoopedList_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool LoopedList_validate( void )
+bool LoopedList_validate( void )
 {
     /// @author BB
     /// @details do the free and used indices have valid values?
 
-    ego_bool retval;
+    bool retval;
 
-    retval = ego_true;
+    retval = true;
     if ( LOOPED_COUNT != LoopedList.free_count + LoopedList.used_count )
     {
         // punt!
         LoopedList_clear();
-        retval = ego_false;
+        retval = false;
     }
 
     return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool LoopedList_free_one( size_t index )
+bool LoopedList_free_one( size_t index )
 {
     /// @author BB
     /// @details free a looped sound only if it is actually being used
     int   cnt;
     LOOP_REF ref;
 
-    if ( !LoopedList_validate() ) return ego_false;
+    if ( !LoopedList_validate() ) return false;
 
     // is the index actually free?
     for ( cnt = 0; cnt < LoopedList.used_count; cnt++ )
@@ -947,7 +947,7 @@ ego_bool LoopedList_free_one( size_t index )
     }
 
     // was anything found?
-    if ( cnt >= LoopedList.used_count ) return ego_false;
+    if ( cnt >= LoopedList.used_count ) return false;
 
     // swap the value with the one on the top of the stack
     SWAP( size_t, LoopedList.used_ref[cnt], LoopedList.used_ref[LoopedList.used_count-1] );
@@ -963,7 +963,7 @@ ego_bool LoopedList_free_one( size_t index )
     LoopedList.lst[ref].chunk   = NULL;
     LoopedList.lst[ref].object  = INVALID_CHR_REF;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -995,29 +995,29 @@ size_t LoopedList_pop_free( const int idx )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool LoopedList_push_free( const REF_T index )
+bool LoopedList_push_free( const REF_T index )
 {
-    if ( LoopedList.free_count >= LOOPED_COUNT ) return ego_false;
+    if ( LoopedList.free_count >= LOOPED_COUNT ) return false;
 
     LoopedList.free_ref[LoopedList.free_count] = index;
 
     LoopedList.free_count++;
     LoopedList.update_guid++;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool LoopedList_push_used( const REF_T index )
+bool LoopedList_push_used( const REF_T index )
 {
-    if ( LoopedList.used_count >= LOOPED_COUNT ) return ego_false;
+    if ( LoopedList.used_count >= LOOPED_COUNT ) return false;
 
     LoopedList.used_ref[LoopedList.used_count] = index;
 
     LoopedList.used_count++;
     LoopedList.update_guid++;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1053,7 +1053,7 @@ size_t LoopedList_get_free_ref( void )
 {
     size_t index;
 
-    if ( !LoopedList_validate() ) return ego_false;
+    if ( !LoopedList_validate() ) return false;
 
     // try to get a free value
     index = LoopedList_pop_free( -1 );
@@ -1136,19 +1136,19 @@ size_t LoopedList_add( const Mix_Chunk * sound, int channel, const CHR_REF  ichr
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool LoopedList_remove( int channel )
+bool LoopedList_remove( int channel )
 {
     /// @author BB
     /// @details remove a looped sound from the used list
 
     int cnt;
-    ego_bool retval;
+    bool retval;
 
-    if ( 0 == LoopedList.used_count ) return ego_false;
+    if ( 0 == LoopedList.used_count ) return false;
 
-    if ( !LoopedList_validate() ) return ego_false;
+    if ( !LoopedList_validate() ) return false;
 
-    retval = ego_false;
+    retval = false;
     for ( cnt = 0; cnt < LoopedList.used_count; cnt++ )
     {
         size_t index = LoopedList.used_ref[cnt];
@@ -1215,25 +1215,25 @@ void looped_update_all_sound( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool looped_stop_object_sounds( const CHR_REF  ichr )
+bool looped_stop_object_sounds( const CHR_REF  ichr )
 {
     /// @author BB
     /// @details free any looped sound(s) being made by a certain character
     int freed;
     int cnt;
-    ego_bool found;
+    bool found;
 
-    if ( !ALLOCATED_CHR( ichr ) ) return ego_false;
+    if ( !ALLOCATED_CHR( ichr ) ) return false;
 
     // we have to do this a funny way, because it is hard to guarantee how the
     // "delete"/"free" function LoopedList_free_one() will free an entry, and because
     // each object could have multiple looped sounds
 
     freed = 0;
-    found = ego_true;
+    found = true;
     while ( found && LoopedList.used_count > 0 )
     {
-        found = ego_false;
+        found = false;
         for ( cnt = 0; cnt < LoopedList.used_count; cnt++ )
         {
             LOOP_REF ref;
@@ -1250,7 +1250,7 @@ ego_bool looped_stop_object_sounds( const CHR_REF  ichr )
                 if ( LoopedList_free_one( index ) )
                 {
                     freed++;
-                    found = ego_true;
+                    found = true;
                     sound_stop_channel( channel );
                     break;
                 }
@@ -1300,7 +1300,7 @@ int _calculate_volume( const fvec3_base_t cam_pos, const fvec3_base_t cam_center
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool _update_channel_volume( int channel, const int volume, const float pan )
+bool _update_channel_volume( int channel, const int volume, const float pan )
 {
     float loc_pan = pan, loc_volume = volume;
     float cosval;
@@ -1325,18 +1325,18 @@ ego_bool _update_channel_volume( int channel, const int volume, const float pan 
     // apply the volume adjustments
     Mix_SetPanning( channel, leftvol, rightvol );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t cam_pos, fvec3_base_t cam_center, fvec3_base_t diff, float * pan_ptr )
+bool _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t cam_pos, fvec3_base_t cam_center, fvec3_base_t diff, float * pan_ptr )
 {
     int cam_count;
     fvec2_t pan_diff;
     ext_camera_iterator_t * it;
     ext_camera_list_t * pclst;
 
-    if ( NULL == pos ) return ego_false;
+    if ( NULL == pos ) return false;
 
     // initialize the values
     fvec3_self_clear( cam_pos );
@@ -1422,18 +1422,18 @@ ego_bool _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t 
         *pan_ptr = ATAN2( pan_diff.y, pan_diff.x );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float pan )
+bool _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float pan )
 {
     /// @author BB
     /// @details This updates the stereo image of a looped sound
 
     int       volume;
 
-    if ( INVALID_SOUND_CHANNEL == channel ) return ego_false;
+    if ( INVALID_SOUND_CHANNEL == channel ) return false;
 
     volume = _calculate_volume( cam_pos, cam_center, diff, DEG_TO_RAD( CAM_FOV ) );
 

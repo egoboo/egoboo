@@ -129,8 +129,8 @@ struct s_ChoosePlayer_element
 static ChoosePlayer_element_t * ChoosePlayer_ctor( ChoosePlayer_element_t * ptr );
 static ChoosePlayer_element_t * ChoosePlayer_dtor( ChoosePlayer_element_t * ptr );
 
-static ego_bool ChoosePlayer_init( ChoosePlayer_element_t * ptr );
-static ego_bool ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr );
+static bool ChoosePlayer_init( ChoosePlayer_element_t * ptr );
+static bool ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr );
 
 //--------------------------------------------------------------------------------------------
 
@@ -198,16 +198,16 @@ struct s_SelectedPlayer_list
 
 // implementation of the SelectedPlayer_list_t
 static egolib_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst );
-static ego_bool    SelectedPlayer_list_check_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
-static ego_bool    SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
-static ego_bool    SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
+static bool  SelectedPlayer_list_check_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
+static bool  SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
+static bool  SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
 static int       SelectedPlayer_list_index_from_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx );
 
 //--------------------------------------------------------------------------------------------
 // declaration of "private" variables
 //--------------------------------------------------------------------------------------------
 
-static int          mnu_stack_index = 0;
+static int mnu_stack_index = 0;
 static which_menu_t mnu_stack[MENU_STACK_COUNT];
 
 static which_menu_t mnu_whichMenu = emnu_Main;
@@ -256,13 +256,13 @@ INSTANTIATE_STACK_STATIC( mnu_module_t, mnu_ModList, MAX_MODULE );
 #define INVALID_MOD_REF ((MOD_REF)INVALID_MOD_IDX)
 
 menu_process_t * MProc             = &_mproc;
-ego_bool           start_new_player  = ego_false;
-ego_bool           module_list_valid = ego_false;
+bool           start_new_player  = false;
+bool           module_list_valid = false;
 
 /* The font used for drawing text.  It's smaller than the button font */
 Font *menuFont = NULL;
 
-ego_bool mnu_draw_background = ego_true;
+bool mnu_draw_background = true;
 
 LoadPlayer_list_t mnu_loadplayer     = LOADPLAYER_LIST_INIT;
 
@@ -271,10 +271,10 @@ LoadPlayer_list_t mnu_loadplayer     = LOADPLAYER_LIST_INIT;
 //--------------------------------------------------------------------------------------------
 
 // Implementation of the mnu_stack
-static ego_bool       mnu_stack_push( which_menu_t menu );
+static bool mnu_stack_push( which_menu_t menu );
 static which_menu_t mnu_stack_pop( void );
 static which_menu_t mnu_stack_peek( void );
-static void         mnu_stack_clear( void );
+static void mnu_stack_clear( void );
 
 // Implementation of the mnu_SlidyButton array
 static void mnu_SlidyButton_init( float lerp, const char *button_text[] );
@@ -303,12 +303,12 @@ static int menu_process_do_running( menu_process_t * mproc );
 static int menu_process_do_leaving( menu_process_t * mproc );
 
 // the hint system
-static ego_bool       mnu_Tips_global_load_vfs( GameTips_t * );
-static ego_bool       mnu_Tips_local_load_vfs( GameTips_t * );
-static const char * mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal );
+static bool       mnu_Tips_global_load_vfs( GameTips_t * );
+static bool mnu_Tips_local_load_vfs( GameTips_t * );
+static const char *mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal );
 
 // "private" module utility
-static void   mnu_load_all_module_info( void );
+static void mnu_load_all_module_info( void );
 
 // "private" asset function
 static MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_ref );
@@ -319,8 +319,8 @@ static void autoformat_init_tip_text( void );
 static void autoformat_init_copyright_text( void );
 
 // misc other stuff
-static void      mnu_release_one_module( const MOD_REF imod );
-static void      mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst );
+static void mnu_release_one_module( const MOD_REF imod );
+static void mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst );
 static egolib_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPlayer_list_t * sp_lst );
 static egolib_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
 //static egolib_rv mnu_copy_local_imports( import_list_t * imp_lst );
@@ -335,7 +335,7 @@ static int doShowResults( float deltaTime );
 
 static int doVideoOptions( float deltaTime );
 static int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_screen_info_t * psdl_scr, STRING * psz_screen_size );
-static ego_bool doVideoOptions_coerce_aspect_ratio( int width, int height, float * pratio, STRING * psz_ratio );
+static bool doVideoOptions_coerce_aspect_ratio( int width, int height, float * pratio, STRING * psz_ratio );
 
 static int doAudioOptions( float deltaTime );
 static int doGameOptions( float deltaTime );
@@ -343,7 +343,7 @@ static int doInputOptions( float deltaTime );
 static int doOptions( float deltaTime );
 
 static int doChooseCharacter( float deltaTime );
-static ego_bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mode, const int x, const int y, const int width, const int height );
+static bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mode, const int x, const int y, const int width, const int height );
 
 static int doChoosePlayer( float deltaTime );
 
@@ -357,7 +357,7 @@ static int cmp_mod_ref( const void * vref1, const void * vref2 );
 static void   mnu_TxList_init_all( void );
 static void   mnu_TxList_delete_all( void );
 static MNU_TX_REF mnu_TxList_get_free( const MNU_TX_REF itex );
-static ego_bool mnu_TxList_free_one( const MNU_TX_REF  itex );
+static bool mnu_TxList_free_one( const MNU_TX_REF  itex );
 
 // implementation of "private" mnu_TxList functions
 static void   mnu_TxList_reset_freelist( void );
@@ -374,16 +374,16 @@ IMPLEMENT_STACK( mnu_module_t, mnu_ModList, MAX_MODULE );
 //--------------------------------------------------------------------------------------------
 // implementation of the menu stack
 //--------------------------------------------------------------------------------------------
-ego_bool mnu_stack_push( which_menu_t menu )
+bool mnu_stack_push( which_menu_t menu )
 {
     mnu_stack_index = CLIP( mnu_stack_index, 0, MENU_STACK_COUNT ) ;
 
-    if ( mnu_stack_index >= MENU_STACK_COUNT ) return ego_false;
+    if ( mnu_stack_index >= MENU_STACK_COUNT ) return false;
 
     mnu_stack[mnu_stack_index] = menu;
     mnu_stack_index++;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -449,7 +449,7 @@ int menu_process_do_begin( menu_process_t * mproc )
     mnu_load_all_module_info();
 
     // initialize the process state
-    mproc->base.valid = C_TRUE;
+    mproc->base.valid = true;
 
     return 1;
 }
@@ -461,7 +461,7 @@ int menu_process_do_running( menu_process_t * mproc )
 
     if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
 
-    mproc->was_active = TO_EGO_BOOL( mproc->base.valid );
+    mproc->was_active = TO_C_BOOL( mproc->base.valid );
 
     if ( mproc->base.paused ) return 0;
 
@@ -485,10 +485,10 @@ int menu_process_do_running( menu_process_t * mproc )
     if ( mnu_get_menu_depth() <= GProc->menu_depth )
     {
         GProc->menu_depth   = -1;
-        GProc->escape_latch = ego_false;
+        GProc->escape_latch = false;
 
         // We have exited the menu and restarted the game
-        GProc->mod_paused = ego_false;
+        GProc->mod_paused = false;
         process_pause( PROC_PBASE( MProc ) );
     }
 
@@ -564,7 +564,7 @@ int menu_process_run( menu_process_t * mproc, double frameDuration )
             if ( 1 == proc_result )
             {
                 mproc->base.state  = proc_finish;
-                mproc->base.killme = C_FALSE;
+                mproc->base.killme = false;
             }
             break;
 
@@ -581,7 +581,7 @@ int menu_process_run( menu_process_t * mproc, double frameDuration )
 }
 
 //--------------------------------------------------------------------------------------------
-menu_process_t * menu_process_init( menu_process_t * mproc )
+menu_process_t *menu_process_init( menu_process_t * mproc )
 {
     if ( NULL == mproc ) return NULL;
 
@@ -595,14 +595,14 @@ menu_process_t * menu_process_init( menu_process_t * mproc )
 //--------------------------------------------------------------------------------------------
 // Code for global initialization/deinitialization of the menu system
 //--------------------------------------------------------------------------------------------
-static ego_bool _menu_system_constructed       = ego_false;
-static ego_bool _menu_system_atexit_registered = ego_false;
+static bool _menu_system_constructed = false;
+static bool _menu_system_atexit_registered = false;
 
-static void   menu_system_atexit( void );
-static ego_bool menu_system_ctor( void );
-static ego_bool menu_system_dtor( void );
-static ego_bool menu_system_init( void );
-static ego_bool menu_system_deinit( void );
+static void menu_system_atexit( void );
+static bool menu_system_ctor( void );
+static bool menu_system_dtor( void );
+static bool menu_system_init( void );
+static bool menu_system_deinit( void );
 
 //--------------------------------------------------------------------------------------------
 void menu_system_atexit( void )
@@ -611,7 +611,7 @@ void menu_system_atexit( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool menu_system_ctor( void )
+bool menu_system_ctor( void )
 {
     if ( !_menu_system_constructed )
     {
@@ -621,14 +621,14 @@ ego_bool menu_system_ctor( void )
         // construct the mnu_TxList array
         mnu_TxList_ctor();
 
-        _menu_system_constructed = ego_true;
+        _menu_system_constructed = true;
     }
 
     return _menu_system_constructed;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool menu_system_dtor( void )
+bool menu_system_dtor( void )
 {
     if ( _menu_system_constructed )
     {
@@ -645,16 +645,16 @@ ego_bool menu_system_dtor( void )
         // destruct the mnu_TxList array
         mnu_TxList_dtor();
 
-        _menu_system_constructed = ego_false;
+        _menu_system_constructed = false;
     }
 
     return !_menu_system_constructed;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool menu_system_init( void )
+bool menu_system_init( void )
 {
-    ego_bool retval = ego_true;
+    bool retval = true;
 
     // load the bitmapped font
     font_bmp_load_vfs( mnu_TxList_get_valid_ptr(( MNU_TX_REF )MENU_TX_FONT_BMP ), "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after gfx_system_init_all_graphics()
@@ -664,7 +664,7 @@ ego_bool menu_system_init( void )
     if ( NULL == menuFont )
     {
         log_error( "Could not load the menu font! (\"mp_data/Bo_Chen.ttf\")\n" );
-        retval = ego_false;
+        retval = false;
     }
 
     autoformat_init( &gfx );
@@ -679,14 +679,14 @@ ego_bool menu_system_init( void )
     if ( !mnu_load_cursor() )
     {
         log_warning( "Could not load mouse cursor (basicdat" SLASH_STR "cursor.png)\n" );
-        retval = ego_false;
+        retval = false;
     }
 
     // ready the global icons used in the menu
     if ( !mnu_load_all_global_icons() )
     {
         log_warning( "Could not load all global icons!\n" );
-        retval = ego_false;
+        retval = false;
     }
 
     // Load game hints
@@ -696,7 +696,7 @@ ego_bool menu_system_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool menu_system_deinit( void )
+bool menu_system_deinit( void )
 {
 
     // release the font
@@ -709,7 +709,7 @@ ego_bool menu_system_deinit( void )
     // if this has not been done before yet, do it now
     LoadPlayer_list_dealloc( &mnu_loadplayer );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -724,7 +724,7 @@ int menu_system_begin( void )
     if ( !_menu_system_atexit_registered )
     {
         atexit( menu_system_atexit );
-        _menu_system_atexit_registered = ego_true;
+        _menu_system_atexit_registered = true;
     }
 
     // Should be okay to randomize the seed here
@@ -750,12 +750,12 @@ void menu_system_end( void )
 //--------------------------------------------------------------------------------------------
 // Interface for starting and stopping menus
 //--------------------------------------------------------------------------------------------
-ego_bool mnu_begin_menu( which_menu_t which )
+bool mnu_begin_menu( which_menu_t which )
 {
-    if ( !mnu_stack_push( mnu_whichMenu ) ) return ego_false;
+    if ( !mnu_stack_push( mnu_whichMenu ) ) return false;
     mnu_whichMenu = which;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1485,7 +1485,7 @@ int doChooseModule( float deltaTime )
                 //Do the module filter button
                 if ( !start_new_player )
                 {
-                    ego_bool click_button;
+                    bool click_button;
 
                     GL_DEBUG( glColor4fv )( white_vec );
                     ui_drawTextBox( menuFont, "Module Filter:", moduleMenuOffsetX + 257, moduleMenuOffsetY - 27, 0, 0, 20 );
@@ -1567,7 +1567,7 @@ int doChooseModule( float deltaTime )
                 }
                 else
                 {
-                    pickedmodule_ready = ego_true;
+                    pickedmodule_ready = true;
                     result = ( PMod->importamount > 0 ) ? 1 : 2;
                 }
             }
@@ -1588,7 +1588,7 @@ int doChooseModule( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, ChoosePlayer_list_t * chooseplayer )
+bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, ChoosePlayer_list_t * chooseplayer )
 {
     int    i;
     STRING  szFilename;
@@ -1601,12 +1601,12 @@ ego_bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr,
     // free any allocated data
     ChoosePlayer_list_dealloc( chooseplayer );
 
-    if ( NULL == loadplayer_ptr ) return ego_false;
+    if ( NULL == loadplayer_ptr ) return false;
 
     // grab the loadplayer_idx data
     if ( !LOADED_CAP( loadplayer_ptr->cap_ref ) )
     {
-        return ego_false;
+        return false;
     }
     cap_ptr = CapStack_get_ptr( loadplayer_ptr->cap_ref );
 
@@ -1622,7 +1622,7 @@ ego_bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr,
 
     // copy the skin
     chooseplayer_ptr->skin_ref = loadplayer_ptr->skin_ref;
-    chooseplayer_ptr->skin_ref = CLIP( chooseplayer_ptr->skin_ref, 0, MAX_SKIN - 1 );
+    chooseplayer_ptr->skin_ref = CLIP( chooseplayer_ptr->skin_ref, (SKIN_T)0, (SKIN_T)(MAX_SKIN - 1) );
 
     // copy the texture reference over
     chooseplayer_ptr->tx_ref = loadplayer_ptr->tx_ref;
@@ -1644,7 +1644,7 @@ ego_bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr,
         snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj", loadplayer_ptr->dir, i );
 
         // load the profile
-        cap_ref = CapStack_load_one( szFilename, slot, ego_false );
+        cap_ref = CapStack_load_one( szFilename, slot, false );
         if ( LOADED_CAP( cap_ref ) )
         {
             cap_ptr = CapStack_get_ptr( cap_ref );
@@ -1669,11 +1669,11 @@ ego_bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr,
         }
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mode, const int x, const int y, const int width, const int height )
+bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mode, const int x, const int y, const int width, const int height )
 {
     int   i;
     float x1, y1;
@@ -1747,14 +1747,16 @@ ego_bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, in
             // Life and mana (can be less than maximum if not in easy mode)
             if ( cfg.difficulty >= GAME_NORMAL )
             {
-                snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d/%d", MIN( UFP8_TO_UINT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from );
+                snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d/%d",
+					      std::min( (int)UFP8_TO_UINT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from );
                 y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
                 y1 = ui_drawBar( x1, y1, UFP8_TO_UINT( pcap->life_spawn ), ( int )pcap->life_stat.val.from, pcap->life_color );
 
                 if ( pcap->mana_stat.val.from > 0 )
                 {
-                    snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d/%d", MIN( UFP8_TO_UINT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from );
+                    snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d/%d",
+						      std::min( (int)UFP8_TO_UINT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from );
                     y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
                     y1 = ui_drawBar( x1, y1, UFP8_TO_UINT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from, pcap->mana_color );
@@ -1840,7 +1842,7 @@ ego_bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, in
         }
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1885,7 +1887,7 @@ int doChoosePlayer( float deltaTime )
             }
 
             // load information for all the players that could be imported
-            LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", ego_true );
+            LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", true );
 
             // no players selected by default
             if ( mnu_SelectedList.count == 0 )
@@ -2062,10 +2064,10 @@ int doChooseCharacter( float deltaTime )
     static oglx_texture_t background;
     static int    startIndex = 0;
     static int    last_player = 0;
-    static ego_bool new_player = ego_false;
+    static bool new_player = false;
     static int numVertical, numHorizontal;
     //static Uint32 BitsInput[4];
-    //static ego_bool device_on[4];
+    //static bool device_on[4];
     static const char * button_text[] = { "Select Character", "None", "" };
 
     int result = 0;
@@ -2076,7 +2078,7 @@ int doChooseCharacter( float deltaTime )
         case MM_Begin:
             TxList_free_one(( TX_REF )TX_BARS );
             last_player = selectedPlayers[currentSelectingPlayer];
-            new_player = ego_true;
+            new_player = true;
 
             ego_texture_load_vfs( &background, "mp_data/menu/menu_selectplayers", TRANSCOLOR );
 
@@ -2182,7 +2184,7 @@ int doChooseCharacter( float deltaTime )
                     {
                         // button has become cursor_clicked
                         last_player = lplayer;
-                        new_player  = ego_true;
+                        new_player  = true;
                         SET_BIT( mnu_widgetList[m].state, UI_BITS_CLICKED );
                     }
                     else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )
@@ -2231,7 +2233,7 @@ int doChooseCharacter( float deltaTime )
                 if ( new_player )
                 {
                     // load and display the new lplayer data
-                    new_player = ego_false;
+                    new_player = false;
                     doChooseCharacter_show_stats( loadplayer_ptr, 0, GFX_WIDTH - 400, 5, 350, GFX_HEIGHT - 50 );
                 }
                 else
@@ -2416,7 +2418,9 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     scantag_t * ptag     = NULL;
 
     int         cnt;
+#if 0
     int         tag_idx  = -1;
+#endif
     size_t      max_tag  = 0;
     size_t      tag_count = 0;
 
@@ -2457,14 +2461,14 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     {
         int ijoy = pdevice->device_type - INPUT_DEVICE_JOY;
 
-        for ( tag_idx = 0; tag_idx < max_tag; tag_idx++ )
+        for ( size_t tag_idx = 0; tag_idx < max_tag; tag_idx++ )
         {
             ptag = scantag_get_tag( tag_idx );
             if ( NULL == ptag ) continue;
 
             if ( SCANTAG_JOYBUTTON( joy_lst + ijoy, ptag->value ) )
             {
-                pcontrol->loaded = C_TRUE;
+                pcontrol->loaded = true;
                 pcontrol->tag_bits |= ptag->value;
 
                 // count the valid tags
@@ -2474,14 +2478,14 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     }
     else if ( INPUT_DEVICE_MOUSE  == pdevice->device_type )
     {
-        for ( tag_idx = 0; tag_idx < max_tag; tag_idx++ )
+        for ( size_t tag_idx = 0; tag_idx < max_tag; tag_idx++ )
         {
             ptag = scantag_get_tag( tag_idx );
             if ( NULL == ptag ) continue;
 
             if ( SCANTAG_MOUSBUTTON( ptag->value ) )
             {
-                pcontrol->loaded = C_TRUE;
+                pcontrol->loaded = true;
                 pcontrol->tag_bits |= ptag->value;
 
                 // count the valid tags
@@ -2498,7 +2502,7 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
         ptag = scantag_find_value( NULL, 'K', cnt );
         if ( NULL == ptag ) continue;
 
-        pcontrol->loaded = C_TRUE;
+        pcontrol->loaded = true;
         pcontrol->tag_key_lst[pcontrol->tag_key_count] = ptag->value;
         pcontrol->tag_key_count++;
 
@@ -2524,8 +2528,8 @@ int doInputOptions( float deltaTime )
     static int menuState = MM_Begin;
     static int menuChoice = 0;
     static int waitingforinput = -1;
-    static ego_bool device_found = ego_true;
-    static ego_bool update_input_type;
+    static bool device_found = true;
+    static bool update_input_type;
 
     enum extra_input_strings
     {
@@ -2560,7 +2564,7 @@ int doInputOptions( float deltaTime )
 
             waitingforinput = -1;
             player = 0;
-            update_input_type = ego_true;
+            update_input_type = true;
 
             //Clip to valid value
             if ( INPUT_DEVICE_UNKNOWN == InputDevices.lst[player].device_type )
@@ -2602,7 +2606,7 @@ int doInputOptions( float deltaTime )
             //Detect if input is availible and update the input type button accordingly
             if ( update_input_type )
             {
-                update_input_type = ego_false;
+                update_input_type = false;
                 device_found = input_device_is_enabled( pdevice );
                 snprintf( button_text[string_device], sizeof( STRING ), "%s", translate_input_type_to_string( pdevice->device_type ) );
             }
@@ -2817,7 +2821,7 @@ int doInputOptions( float deltaTime )
                 player %= MAX_LOCAL_PLAYERS;
 
                 snprintf( button_text[string_player], sizeof( STRING ), "Player %i", player + 1 );
-                update_input_type = ego_true;
+                update_input_type = true;
             }
 
             // Save settings button
@@ -3129,7 +3133,7 @@ int doGameOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 7, sz_buttons[6], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 //apply changes
-                config_synch( &cfg, C_FALSE );
+                config_synch( &cfg, false );
 
                 // save the setup file
                 setup_write_vfs();
@@ -3356,7 +3360,7 @@ int doAudioOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 9, sz_buttons[8], menuFont, buttonLeft, GFX_HEIGHT - 60, 200, 30 ) )
             {
                 //apply changes
-                config_synch( &cfg, C_FALSE );
+                config_synch( &cfg, false );
 
                 // save the setup file
                 setup_write_vfs();
@@ -3410,14 +3414,14 @@ int doAudioOptions( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool doVideoOptions_coerce_aspect_ratio( int width, int height, float * pratio, STRING * psz_ratio )
+bool doVideoOptions_coerce_aspect_ratio( int width, int height, float * pratio, STRING * psz_ratio )
 {
     /// @author BB
     /// @details coerce the aspect ratio of the screen to some standard size
 
     float req_aspect_ratio;
 
-    if ( 0 == height || NULL == pratio || NULL == psz_ratio ) return ego_false;
+    if ( 0 == height || NULL == pratio || NULL == psz_ratio ) return false;
 
     req_aspect_ratio = ( float )width / ( float )height;
 
@@ -3447,7 +3451,7 @@ ego_bool doVideoOptions_coerce_aspect_ratio( int width, int height, float * prat
         strncpy( *psz_ratio, "16:9", SDL_arraysize( *psz_ratio ) );
     }
 
-    return ego_true;
+    return true;
 
 }
 
@@ -3558,7 +3562,7 @@ int doVideoOptions_fix_fullscreen_resolution( egoboo_config_t * pcfg, SDLX_scree
 
     snprintf( *psz_screen_size, SDL_arraysize( *psz_screen_size ), "%dx%d - %s", pcfg->scrx_req, pcfg->scry_req, sz_aspect_ratio );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3597,7 +3601,7 @@ int doVideoOptions( float deltaTime )
     static STRING Cmaxparticles;
     static STRING Cmaxdyna;
 
-    static ego_bool widescreen;
+    static bool widescreen;
     static float  aspect_ratio;
     static STRING sz_screen_size;
 
@@ -3730,17 +3734,17 @@ int doVideoOptions( float deltaTime )
                 }
                 else                            // Set to defaults
                 {
-                    cfg.use_perspective    = C_FALSE;
-                    cfg.background_allowed = C_FALSE;
-                    cfg.overlay_allowed    = C_FALSE;
+                    cfg.use_perspective    = false;
+                    cfg.background_allowed = false;
+                    cfg.overlay_allowed    = false;
                     sz_buttons[but_3dfx] = "Off";
                 }
             }
             else                              // Set to defaults
             {
-                cfg.use_perspective    = C_FALSE;
-                cfg.background_allowed = C_FALSE;
-                cfg.overlay_allowed    = C_FALSE;
+                cfg.use_perspective    = false;
+                cfg.background_allowed = false;
+                cfg.overlay_allowed    = false;
                 sz_buttons[but_3dfx] = "Off";
             }
 
@@ -3831,9 +3835,9 @@ int doVideoOptions( float deltaTime )
 
                 if ( cfg.reflect_allowed && 0 == cfg.reflect_fade && cfg.reflect_prt )
                 {
-                    cfg.reflect_allowed = C_FALSE;
+                    cfg.reflect_allowed = false;
                     cfg.reflect_fade = 255;
-                    cfg.reflect_prt = C_FALSE;
+                    cfg.reflect_prt = false;
                     sz_buttons[but_reflections] = "Off";
                 }
                 else
@@ -3842,7 +3846,7 @@ int doVideoOptions( float deltaTime )
                     {
                         sz_buttons[but_reflections] = "Medium";
                         cfg.reflect_fade = 255;
-                        cfg.reflect_prt = C_TRUE;
+                        cfg.reflect_prt = true;
                     }
                     else
                     {
@@ -3853,10 +3857,10 @@ int doVideoOptions( float deltaTime )
                         }
                         else
                         {
-                            cfg.reflect_allowed = C_TRUE;
+                            cfg.reflect_allowed = true;
                             cfg.reflect_fade = 255;
                             sz_buttons[but_reflections] = "Low";
-                            cfg.reflect_prt = C_FALSE;
+                            cfg.reflect_prt = false;
                         }
                     }
                 }
@@ -3924,8 +3928,8 @@ int doVideoOptions( float deltaTime )
             {
                 if ( cfg.shadow_allowed && !cfg.shadow_sprite )
                 {
-                    cfg.shadow_allowed = C_FALSE;
-                    cfg.shadow_sprite = C_FALSE;                // Just in case
+                    cfg.shadow_allowed = false;
+                    cfg.shadow_sprite = false;                // Just in case
                     sz_buttons[but_shadow] = "Off";
                 }
                 else
@@ -3933,12 +3937,12 @@ int doVideoOptions( float deltaTime )
                     if ( cfg.shadow_allowed && cfg.shadow_sprite )
                     {
                         sz_buttons[but_shadow] = "Best";
-                        cfg.shadow_sprite = C_FALSE;
+                        cfg.shadow_sprite = false;
                     }
                     else
                     {
-                        cfg.shadow_allowed = C_TRUE;
-                        cfg.shadow_sprite = C_TRUE;
+                        cfg.shadow_allowed = true;
+                        cfg.shadow_sprite = true;
                         sz_buttons[but_shadow] = "Normal";
                     }
                 }
@@ -3995,10 +3999,10 @@ int doVideoOptions( float deltaTime )
             {
                 if ( cfg.use_phong && cfg.use_perspective && cfg.overlay_allowed && cfg.background_allowed )
                 {
-                    cfg.use_phong          = C_FALSE;
-                    cfg.use_perspective    = C_FALSE;
-                    cfg.overlay_allowed    = C_FALSE;
-                    cfg.background_allowed = C_FALSE;
+                    cfg.use_phong          = false;
+                    cfg.use_perspective    = false;
+                    cfg.overlay_allowed    = false;
+                    cfg.background_allowed = false;
                     sz_buttons[but_3dfx] = "Off";
                 }
                 else
@@ -4006,19 +4010,19 @@ int doVideoOptions( float deltaTime )
                     if ( !cfg.use_phong )
                     {
                         sz_buttons[but_3dfx] = "Okay";
-                        cfg.use_phong = C_TRUE;
+                        cfg.use_phong = true;
                     }
                     else
                     {
                         if ( !cfg.use_perspective && cfg.overlay_allowed && cfg.background_allowed )
                         {
                             sz_buttons[but_3dfx] = "Superb";
-                            cfg.use_perspective = C_TRUE;
+                            cfg.use_perspective = true;
                         }
                         else
                         {
-                            cfg.overlay_allowed = C_TRUE;
-                            cfg.background_allowed = C_TRUE;
+                            cfg.overlay_allowed = true;
+                            cfg.background_allowed = true;
                             sz_buttons[but_3dfx] = "Good";
                         }
                     }
@@ -4032,12 +4036,12 @@ int doVideoOptions( float deltaTime )
                 if ( cfg.twolayerwater_allowed )
                 {
                     sz_buttons[but_multiwater] = "Off";
-                    cfg.twolayerwater_allowed = C_FALSE;
+                    cfg.twolayerwater_allowed = false;
                 }
                 else
                 {
                     sz_buttons[but_multiwater] = "On";
-                    cfg.twolayerwater_allowed = C_TRUE;
+                    cfg.twolayerwater_allowed = true;
                 }
             }
 
@@ -4070,7 +4074,7 @@ int doVideoOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Widescreen:", buttonLeft + 300, GFX_HEIGHT - 70, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 12, sz_buttons[but_widescreen], menuFont, buttonLeft + 450, GFX_HEIGHT - 70, 25, 25 ) )
             {
-                ego_bool old_widescreen = widescreen;
+                bool old_widescreen = widescreen;
 
                 // toggle widescreen
                 widescreen = !widescreen;
@@ -4154,7 +4158,7 @@ int doVideoOptions( float deltaTime )
                 menuChoice = 1;
 
                 //apply changes
-                config_synch( &cfg, C_FALSE );
+                config_synch( &cfg, false );
 
                 // save the setup file
                 setup_write_vfs();
@@ -4518,7 +4522,7 @@ int doShowEndgame( float deltaTime )
 
         case MM_Finish:
             {
-                ego_bool reloaded = ego_false;
+                bool reloaded = false;
 
                 // try to pop the last module off the module stack
                 reloaded = link_pop_module();
@@ -4536,7 +4540,7 @@ int doShowEndgame( float deltaTime )
                     // now we want to graduate to the ChoosePlayer menu to
                     // build our party
 
-                    start_new_player = ego_false;
+                    start_new_player = false;
 
                     // if we beat a beginner module, we want to
                     // go to ChoosePlayer instead of ChooseModule.
@@ -4555,7 +4559,7 @@ int doShowEndgame( float deltaTime )
                     process_kill( PROC_PBASE( GProc ) );
 
                     /// @note ZF@> Reload all players since their quest logs may have changed and new modules unlocked
-                    LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", ego_true );
+                    LoadPlayer_list_import_all( &mnu_loadplayer, "mp_players", true );
                 }
 
                 menuState = MM_Begin;
@@ -4589,8 +4593,8 @@ int doMenu( float deltaTime )
             result = doMainMenu( deltaTime );
             if ( result != 0 )
             {
-                if ( 1 == result )      { mnu_begin_menu( emnu_ChooseModule ); start_new_player = ego_true; }
-                else if ( 2 == result ) { mnu_begin_menu( emnu_ChoosePlayer ); start_new_player = ego_false; }
+                if ( 1 == result )      { mnu_begin_menu( emnu_ChooseModule ); start_new_player = true; }
+                else if ( 2 == result ) { mnu_begin_menu( emnu_ChoosePlayer ); start_new_player = false; }
                 else if ( 3 == result ) { mnu_begin_menu( emnu_Options ); }
                 else if ( 4 == result ) retval = MENU_QUIT;  // need to request a quit somehow
             }
@@ -4604,12 +4608,12 @@ int doMenu( float deltaTime )
                 if ( 1 == result )
                 {
                     mnu_begin_menu( emnu_ChooseModule );
-                    start_new_player = ego_true;
+                    start_new_player = true;
                 }
                 else if ( 2 == result )
                 {
                     mnu_begin_menu( emnu_ChoosePlayer );
-                    start_new_player = ego_false;
+                    start_new_player = false;
                 }
                 else if ( 3 == result )
                 {
@@ -4713,7 +4717,7 @@ int doMenu( float deltaTime )
                 {
                     // "Quit Module"
 
-                    ego_bool reloaded = ego_false;
+                    bool reloaded = false;
 
                     mnu_end_menu();
 
@@ -4937,7 +4941,7 @@ MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_r
     //     that we need to display the book icon.
 
     MNU_TX_REF icon_ref = ( MNU_TX_REF )TX_ICON_NULL;
-    ego_bool is_spell_fx, is_book, draw_book;
+    bool is_spell_fx, is_book, draw_book;
 
     cap_t * pitem_cap;
 
@@ -4957,7 +4961,7 @@ MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_r
     {
         SKIN_T iskin = cap_get_skin_overide( pitem_cap );
 
-        iskin = CLIP( iskin, 0, bookicon_count );
+        iskin = CLIP<SKIN_T>( iskin, 0, bookicon_count );
 
         icon_ref = bookicon_ref[ iskin ];
     }
@@ -4990,28 +4994,28 @@ int mnu_get_mod_number( const char *szModName )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumber, size_t buffer_len, char * buffer )
+bool mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumber, size_t buffer_len, char * buffer )
 {
     int            cnt;
     mnu_module_t * pmod;
-    ego_bool         allowed;
+    bool         allowed;
 
-    if ( INVALID_MOD( modnumber ) ) return ego_false;
+    if ( INVALID_MOD( modnumber ) ) return false;
     pmod = mnu_ModList_get_ptr( modnumber );
 
     // First check if we are in developers mode or that the right module has been beaten before
-    allowed = ego_false;
+    allowed = false;
 
     if ( cfg.dev_mode )
     {
-        allowed = ego_true;
+        allowed = true;
     }
 
     if ( !allowed )
     {
         if ( module_has_idsz_vfs( pmod->base.reference, pmod->base.unlockquest.id, buffer_len, buffer ) )
         {
-            allowed = ego_true;
+            allowed = true;
         }
     }
 
@@ -5044,18 +5048,18 @@ ego_bool mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF mod
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModName )
+bool mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModName )
 {
     /// @author ZZ
     /// @details This function tests to see if a module can be entered by
     ///    the players
 
-    ego_bool retval;
+    bool retval;
 
     // find the module by name
     int modnumber = mnu_get_mod_number( szModName );
 
-    retval = ego_false;
+    retval = false;
     if ( modnumber >= 0 )
     {
         retval = mnu_test_module_by_index( lp_lst, ( MOD_REF )modnumber, 0, NULL );
@@ -5107,7 +5111,7 @@ void mnu_load_all_module_info( void )
             mnu_ModList.count++;
 
             // mark the module data as loaded
-            pmod->loaded = C_TRUE;
+            pmod->loaded = true;
 
             // save the module path
             strncpy( pmod->vfs_path, vfs_ModPath, SDL_arraysize( pmod->vfs_path ) );
@@ -5131,7 +5135,7 @@ void mnu_load_all_module_info( void )
     }
     vfs_findClose( &ctxt );
 
-    module_list_valid = ego_true;
+    module_list_valid = true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5222,7 +5226,7 @@ void mnu_ModList_release_images( void )
 //--------------------------------------------------------------------------------------------
 // Implementation of the GameTips_t system
 //--------------------------------------------------------------------------------------------
-ego_bool mnu_Tips_global_load_vfs( GameTips_t * pglobal )
+bool mnu_Tips_global_load_vfs( GameTips_t * pglobal )
 {
     /// @author ZF
     /// @details This function loads all of the game hints and tips
@@ -5230,7 +5234,7 @@ ego_bool mnu_Tips_global_load_vfs( GameTips_t * pglobal )
     vfs_FILE *fileread;
     Uint8 cnt;
 
-    if ( NULL == pglobal ) return ego_false;
+    if ( NULL == pglobal ) return false;
 
     // reset the count
     pglobal->count = 0;
@@ -5240,13 +5244,13 @@ ego_bool mnu_Tips_global_load_vfs( GameTips_t * pglobal )
     if ( NULL == fileread )
     {
         log_warning( "Could not load the game tips and hints. (\"mp_data/gametips.txt\")\n" );
-        return ego_false;
+        return false;
     }
 
     // Load the data
     for ( cnt = 0; cnt < MENU_MAX_GAMETIPS && !vfs_eof( fileread ); cnt++ )
     {
-        if ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
+        if ( goto_colon_vfs( NULL, fileread, true ) )
         {
             //Read the line
             vfs_get_string( fileread, buffer, SDL_arraysize( buffer ) );
@@ -5267,7 +5271,7 @@ ego_bool mnu_Tips_global_load_vfs( GameTips_t * pglobal )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool mnu_Tips_local_load_vfs( GameTips_t * plocal )
+bool mnu_Tips_local_load_vfs( GameTips_t * plocal )
 {
     /// @author ZF
     /// @details This function loads all module specific hints and tips. If this fails, the game will
@@ -5283,12 +5287,12 @@ ego_bool mnu_Tips_local_load_vfs( GameTips_t * plocal )
     // Open all the tips
     snprintf( buffer, SDL_arraysize( buffer ), "mp_modules/%s/gamedat/gametips.txt", pickedmodule_name );
     fileread = vfs_openRead( buffer );
-    if ( NULL == fileread ) return ego_false;
+    if ( NULL == fileread ) return false;
 
     // Load the data
     for ( cnt = 0; cnt < MENU_MAX_GAMETIPS && !vfs_eof( fileread ); cnt++ )
     {
-        if ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
+        if ( goto_colon_vfs( NULL, fileread, true ) )
         {
             //Read the line
             vfs_get_string( fileread, buffer, SDL_arraysize( buffer ) );
@@ -5313,8 +5317,8 @@ const char * mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal )
     const char * retval = "Don't die...\n";
     int          randval = 0;
 
-    ego_bool valid_global = ( NULL != pglobal ) && ( 0 != pglobal->count );
-    ego_bool valid_local  = ( NULL != plocal )  && ( 0 != plocal->count );
+    bool valid_global = ( NULL != pglobal ) && ( 0 != pglobal->count );
+    bool valid_local  = ( NULL != plocal )  && ( 0 != plocal->count );
 
     randval = rand();
 
@@ -5415,9 +5419,9 @@ ChoosePlayer_element_t * ChoosePlayer_dtor( ChoosePlayer_element_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChoosePlayer_init( ChoosePlayer_element_t * ptr )
+bool ChoosePlayer_init( ChoosePlayer_element_t * ptr )
 {
-    if ( NULL == ptr ) return ego_false;
+    if ( NULL == ptr ) return false;
 
     BLANK_STRUCT_PTR( ptr )
 
@@ -5427,11 +5431,11 @@ ego_bool ChoosePlayer_init( ChoosePlayer_element_t * ptr )
 
     chop_definition_init( &( ptr->chop ) );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr )
+bool ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr )
 {
     // release all allocated resources
 
@@ -5447,7 +5451,7 @@ ego_bool ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr )
     }
     ptr->tx_ref = INVALID_MNU_TX_REF;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5522,7 +5526,7 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     slot = ( MAX_IMPORT_OBJECTS + 2 ) + lst->count;
 
     // try to load the character profile
-    icap = CapStack_load_one( foundfile, slot, ego_false );
+    icap = CapStack_load_one( foundfile, slot, false );
     if ( !LOADED_CAP( icap ) ) return rv_fail;
     pcap = CapStack_get_ptr( icap );
 
@@ -5615,7 +5619,7 @@ egolib_rv LoadPlayer_list_dealloc( LoadPlayer_list_t * lst )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, ego_bool initialize )
+egolib_rv LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, bool initialize )
 {
     /// @author ZZ
     /// @details This function figures out which players may be imported, and loads basic
@@ -5715,9 +5719,9 @@ LoadPlayer_element_t * LoadPlayer_element_dtor( LoadPlayer_element_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool LoadPlayer_element_dealloc( LoadPlayer_element_t * ptr )
+bool LoadPlayer_element_dealloc( LoadPlayer_element_t * ptr )
 {
-    if ( NULL == ptr ) return ego_false;
+    if ( NULL == ptr ) return false;
 
     // release the cap
     if ( MAX_CAP != ptr->cap_ref )
@@ -5733,13 +5737,13 @@ ego_bool LoadPlayer_element_dealloc( LoadPlayer_element_t * ptr )
     }
     ptr->tx_ref = INVALID_TX_REF;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool LoadPlayer_element_init( LoadPlayer_element_t * ptr )
+bool LoadPlayer_element_init( LoadPlayer_element_t * ptr )
 {
-    if ( NULL == ptr ) return ego_false;
+    if ( NULL == ptr ) return false;
 
     BLANK_STRUCT_PTR( ptr )
 
@@ -5750,7 +5754,7 @@ ego_bool LoadPlayer_element_init( LoadPlayer_element_t * ptr )
     idsz_map_init( ptr->quest_log, MAX_IDSZ_MAP_SIZE );
     chop_definition_init( &( ptr->chop ) );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5879,18 +5883,18 @@ egolib_rv SelectedPlayer_list_init( SelectedPlayer_list_t * sp_lst )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool SelectedPlayer_list_check_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx )
+bool SelectedPlayer_list_check_loadplayer( SelectedPlayer_list_t * sp_lst, int loadplayer_idx )
 {
     int i;
 
-    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) ) return ego_false;
+    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) ) return false;
 
     for ( i = 0; i < MAX_PLAYER && i < sp_lst->count; i++ )
     {
-        if ( sp_lst->lst[i].player == loadplayer_idx ) return ego_true;
+        if ( sp_lst->lst[i].player == loadplayer_idx ) return true;
     }
 
-    return ego_false;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5914,25 +5918,25 @@ int SelectedPlayer_list_index_from_loadplayer( SelectedPlayer_list_t * sp_lst,  
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_idx )
+bool SelectedPlayer_list_add( SelectedPlayer_list_t * sp_lst, int loadplayer_idx )
 {
-    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) || sp_lst->count >= MAX_PLAYER ) return ego_false;
-    if ( SelectedPlayer_list_check_loadplayer( sp_lst,  loadplayer_idx ) ) return ego_false;
+    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) || sp_lst->count >= MAX_PLAYER ) return false;
+    if ( SelectedPlayer_list_check_loadplayer( sp_lst,  loadplayer_idx ) ) return false;
 
     sp_lst->lst[sp_lst->count].player       = loadplayer_idx;
     sp_lst->lst[sp_lst->count].input_device = INPUT_DEVICE_UNKNOWN;
     sp_lst->count++;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplayer_idx )
+bool SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplayer_idx )
 {
     int i;
-    ego_bool found = ego_false;
+    bool found = false;
 
-    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) || sp_lst->count <= 0 ) return ego_false;
+    if ( !VALID_LOADPLAYER_IDX( mnu_loadplayer, loadplayer_idx ) || sp_lst->count <= 0 ) return false;
 
     if ( 1 == sp_lst->count )
     {
@@ -5947,7 +5951,7 @@ ego_bool SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadpla
         {
             if ( sp_lst->lst[i].player == loadplayer_idx )
             {
-                found = ego_true;
+                found = true;
                 break;
             }
         }
@@ -6151,9 +6155,9 @@ MNU_TX_REF mnu_TxList_get_free( const MNU_TX_REF itex )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool mnu_TxList_free_one( const MNU_TX_REF itex )
+bool mnu_TxList_free_one( const MNU_TX_REF itex )
 {
-    if ( !VALID_MENU_TX_RANGE( itex ) ) return ego_false;
+    if ( !VALID_MENU_TX_RANGE( itex ) ) return false;
 
     // release the texture
     oglx_texture_Release( mnu_TxList.lst + itex );
@@ -6165,13 +6169,13 @@ ego_bool mnu_TxList_free_one( const MNU_TX_REF itex )
         // that is an error
         for ( cnt = 0; cnt < mnu_TxList.free_count; cnt++ )
         {
-            if ( itex == mnu_TxList.free_ref[cnt] ) return ego_false;
+            if ( itex == mnu_TxList.free_ref[cnt] ) return false;
         }
     }
 #endif
 
     if ( mnu_TxList.free_count >= MENU_TX_COUNT )
-        return ego_false;
+        return false;
 
     // do not put anything below MENU_TX_LAST_SPECIAL back onto the free stack
     if ( itex >= MENU_TX_LAST_SPECIAL )
@@ -6182,7 +6186,7 @@ ego_bool mnu_TxList_free_one( const MNU_TX_REF itex )
         mnu_TxList.update_guid++;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6226,7 +6230,7 @@ oglx_texture_t * mnu_TxList_get_valid_ptr( const MNU_TX_REF itex )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool mnu_load_cursor( void )
+bool mnu_load_cursor( void )
 {
     /// @author ZF
     /// @details Load the mouse cursor
@@ -6235,34 +6239,34 @@ ego_bool mnu_load_cursor( void )
 
     load_rv = mnu_TxList_load_one_vfs( "mp_data/cursor", MENU_TX_CURSOR, TRANSCOLOR );
 
-    return VALID_MENU_TX_RANGE( load_rv ) ? ego_true : ego_false;
+    return VALID_MENU_TX_RANGE( load_rv ) ? true : false;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool mnu_load_all_global_icons( void )
+bool mnu_load_all_global_icons( void )
 {
     /// @author ZF
     /// @details Load all the global icons used in all modules
 
     // Setup
     MNU_TX_REF load_rv;
-    ego_bool result = gfx_success;
+    bool result = gfx_success;
 
     // Now load every icon
     load_rv = mnu_TxList_load_one_vfs( "mp_data/nullicon", ( MNU_TX_REF )MENU_TX_ICON_NULL, INVALID_KEY );
-    result = !VALID_MENU_TX_RANGE( load_rv ) ? ego_false : result;
+    result = !VALID_MENU_TX_RANGE( load_rv ) ? false : result;
 
     load_rv = mnu_TxList_load_one_vfs( "mp_data/keybicon", ( MNU_TX_REF )MENU_TX_ICON_KEYB, INVALID_KEY );
-    result = !VALID_MENU_TX_RANGE( load_rv ) ? ego_false : result;
+    result = !VALID_MENU_TX_RANGE( load_rv ) ? false : result;
 
     load_rv = mnu_TxList_load_one_vfs( "mp_data/mousicon", ( MNU_TX_REF )MENU_TX_ICON_MOUS, INVALID_KEY );
-    result = !VALID_MENU_TX_RANGE( load_rv ) ? ego_false : result;
+    result = !VALID_MENU_TX_RANGE( load_rv ) ? false : result;
 
     load_rv = mnu_TxList_load_one_vfs( "mp_data/joyaicon", ( MNU_TX_REF )MENU_TX_ICON_JOYA, INVALID_KEY );
-    result = !VALID_MENU_TX_RANGE( load_rv ) ? ego_false : result;
+    result = !VALID_MENU_TX_RANGE( load_rv ) ? false : result;
 
     load_rv = mnu_TxList_load_one_vfs( "mp_data/joybicon", ( MNU_TX_REF )MENU_TX_ICON_JOYB, INVALID_KEY );
-    result = !VALID_MENU_TX_RANGE( load_rv ) ? ego_false : result;
+    result = !VALID_MENU_TX_RANGE( load_rv ) ? false : result;
 
     return result;
 }
@@ -6276,7 +6280,7 @@ mnu_module_t * mnu_module__init( mnu_module_t * ptr )
 
     ptr->request_count = 0;
     ptr->create_count = 0;
-    ptr->loaded = C_FALSE;
+    ptr->loaded = false;
     ptr->name[0] = CSTR_END;
 
     mod_file__init( &( ptr->base ) );
@@ -6290,10 +6294,10 @@ mnu_module_t * mnu_module__init( mnu_module_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-/*ego_bool SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, const BIT_FIELD input_bits )
+/*bool SelectedPlayer_list_add_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, const BIT_FIELD input_bits )
 {
     int i;
-    ego_bool done, retval = ego_false;
+    bool done, retval = false;
 
     int selected_index = -1;
 
@@ -6319,7 +6323,7 @@ mnu_module_t * mnu_module__init( mnu_module_t * ptr )
             {
                 // add in the selected bits for the selected loadplayer_idx
                 SET_BIT( sp_lst->lst[i].input_device, input_bits );
-                retval = ego_true;
+                retval = true;
             }
             else
             {
@@ -6332,18 +6336,18 @@ mnu_module_t * mnu_module__init( mnu_module_t * ptr )
     // Do the tricky part of removing all players with invalid inputs from the list
     // It is tricky because removing a loadplayer_idx changes the value of the loop control
     // value sp_lst->count within the loop.
-    done = ego_false;
+    done = false;
     while ( !done )
     {
         // assume the best
-        done = ego_true;
+        done = true;
 
         for ( i = 0; i < sp_lst->count; i++ )
         {
             if ( INPUT_DEVICE_UNKNOWN == sp_lst->lst[i].input_device )
             {
                 // we found one
-                done = ego_false;
+                done = false;
                 SelectedPlayer_list_remove( sp_lst,  sp_lst->lst[i].player );
             }
         }
@@ -6353,10 +6357,10 @@ mnu_module_t * mnu_module__init( mnu_module_t * ptr )
 }*/
 
 //--------------------------------------------------------------------------------------------
-/*ego_bool SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits )
+/*bool SelectedPlayer_list_remove_input( SelectedPlayer_list_t * sp_lst, int loadplayer_idx, Uint32 input_bits )
 {
     int i;
-    ego_bool retval = ego_false;
+    bool retval = false;
 
     for ( i = 0; i < MAX_PLAYER && i < sp_lst->count; i++ )
     {
@@ -6374,7 +6378,7 @@ mnu_module_t * mnu_module__init( mnu_module_t * ptr )
                 SelectedPlayer_list_remove( sp_lst,  loadplayer_idx );
             }
 
-            retval = ego_true;
+            retval = true;
 
             break;
         }

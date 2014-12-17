@@ -42,7 +42,7 @@ typedef struct s_link Link_t;
 // The data needed to describe a single link between modules
 struct s_link
 {
-    ego_bool   valid;
+    bool   valid;
     STRING   modname;
     PASS_REF passage;
 };
@@ -56,11 +56,11 @@ extern Link_t LinkList[LINK_COUNT];
 //--------------------------------------------------------------------------------------------
 
 // Function prototypes
-ego_bool link_follow_modname( const char * modname, ego_bool push_current_module );
-ego_bool link_build_vfs( const char * fname, Link_t list[] );
+bool link_follow_modname( const char * modname, bool push_current_module );
+bool link_build_vfs( const char * fname, Link_t list[] );
 
-ego_bool link_pop_module( void );
-ego_bool link_load_parent( const char * modname, fvec3_t pos );
+bool link_pop_module( void );
+bool link_load_parent( const char * modname, fvec3_t pos );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

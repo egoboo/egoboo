@@ -131,7 +131,7 @@ select_lst_t * select_lst_remove( select_lst_t * plst, int vert )
 //--------------------------------------------------------------------------------------------
 int select_lst_find( const select_lst_t * plst, int vert )
 {
-    // ZZ> This function returns ego_true if the vertex has been highlighted by user
+    // ZZ> This function returns true if the vertex has been highlighted by user
 
     int cnt, rv;
 

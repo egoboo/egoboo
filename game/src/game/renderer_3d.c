@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file renderer_3d.c
+/// @file game/renderer_3d.c
 /// @brief Implementation of the 3d renderer functions
 /// @details
 
@@ -30,7 +30,7 @@
 // INTERNAL VARIABLES
 //--------------------------------------------------------------------------------------------
 
-static line_data_t  line_list[LINE_COUNT];
+static line_data_t line_list[LINE_COUNT];
 static point_data_t point_list[POINT_COUNT];
 
 //--------------------------------------------------------------------------------------------
@@ -41,12 +41,11 @@ void gfx_begin_3d( const camera_t * pcam )
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glLoadMatrixf )( pcam->mProjection.v );
-
+	Egoboo_Renderer_OpenGL_loadMatrix( &(pcam->mProjection) );
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glLoadMatrixf )( pcam->mView.v );
+	Egoboo_Renderer_OpenGL_loadMatrix( &(pcam->mView) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -64,7 +63,7 @@ void gfx_end_3d( void )
 //--------------------------------------------------------------------------------------------
 // LINE IMPLENTATION
 //--------------------------------------------------------------------------------------------
-void line_list_init( void )
+void line_list_init()
 {
     /// @details  BB@> initialize the list so that no lines are valid
 
@@ -77,7 +76,7 @@ void line_list_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-int line_list_get_free( void )
+int line_list_get_free()
 {
     /// @details  BB@> get the 1st free line
 
@@ -95,11 +94,11 @@ int line_list_get_free( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration )
+bool line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration )
 {
     int iline = line_list_get_free();
 
-    if ( iline == LINE_COUNT ) return ego_false;
+    if ( iline == LINE_COUNT ) return false;
 
     //Source
     line_list[iline].src.x = src_x;
@@ -119,7 +118,7 @@ ego_bool line_list_add( const float src_x, const float src_y, const float src_z,
 
     line_list[iline].time = egoboo_get_ticks() + duration;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -202,7 +201,7 @@ void line_list_draw_all( const camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 // POINT IMPLENTATION
 //--------------------------------------------------------------------------------------------
-void point_list_init( void )
+void point_list_init()
 {
     /// @details  BB@> initialize the list so that no points are valid
 
@@ -215,11 +214,11 @@ void point_list_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool point_list_add( const float x, const float y, const float z, const int duration )
+bool point_list_add( const float x, const float y, const float z, const int duration )
 {
     int ipoint = point_list_get_free();
 
-    if ( ipoint == POINT_COUNT ) return ego_false;
+    if ( ipoint == POINT_COUNT ) return false;
 
     //position
     point_list[ipoint].src.x = x;
@@ -234,7 +233,7 @@ ego_bool point_list_add( const float x, const float y, const float z, const int 
 
     point_list[ipoint].time = egoboo_get_ticks() + duration;
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -331,12 +330,12 @@ void point_list_draw_all( const camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 // AXIS BOUNDING BOX IMPLEMENTATION(S)
 //--------------------------------------------------------------------------------------------
-ego_bool render_aabb( aabb_t * pbbox )
+bool render_aabb( aabb_t * pbbox )
 {
     GLXvector3f * pmin, * pmax;
     GLint matrix_mode[1];
 
-    if ( NULL == pbbox ) return ego_false;
+    if ( NULL == pbbox ) return false;
 
     // save the matrix mode
     GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
@@ -397,15 +396,15 @@ ego_bool render_aabb( aabb_t * pbbox )
     // restore the matrix mode
     GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool render_oct_bb( oct_bb_t * bb, ego_bool draw_square, ego_bool draw_diamond )
+bool render_oct_bb( oct_bb_t * bb, bool draw_square, bool draw_diamond )
 {
-    ego_bool retval = ego_false;
+    bool retval = false;
 
-    if ( NULL == bb ) return ego_false;
+    if ( NULL == bb ) return false;
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT );
     {
@@ -484,7 +483,7 @@ ego_bool render_oct_bb( oct_bb_t * bb, ego_bool draw_square, ego_bool draw_diamo
             GL_DEBUG( glVertex3f )( p1_x, p1_y, bb->maxs[OCT_Z] );
             GL_DEBUG_END();
 
-            retval = ego_true;
+            retval = true;
         }
 
         //------------------------------------------------
@@ -541,7 +540,7 @@ ego_bool render_oct_bb( oct_bb_t * bb, ego_bool draw_square, ego_bool draw_diamo
             GL_DEBUG( glVertex3f )( bb->maxs[OCT_X], bb->mins[OCT_Y], bb->maxs[OCT_Z] );
             GL_DEBUG_END();
 
-            retval = ego_true;
+            retval = true;
         }
 
     }

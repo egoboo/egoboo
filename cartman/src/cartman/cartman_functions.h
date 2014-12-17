@@ -79,14 +79,14 @@ void jitter_mesh( struct s_cartman_mpd * pmesh );
 void flatten_mesh( struct s_cartman_mpd * pmesh, int y0 );
 void clear_mesh( struct s_cartman_mpd * pmesh, Uint8 upper, Uint16 presser, Uint8 tx, Uint8 type );
 void three_e_mesh( struct s_cartman_mpd * pmesh, Uint8 upper, Uint8 tx );
-ego_bool fan_is_floor( struct s_cartman_mpd * pmesh, int mapx, int mapy );
-ego_bool fan_is_wall( struct s_cartman_mpd * pmesh, int mapx, int mapy );
+bool fan_is_floor( struct s_cartman_mpd * pmesh, int mapx, int mapy );
+bool fan_is_wall( struct s_cartman_mpd * pmesh, int mapx, int mapy );
 void   set_barrier_height( struct s_cartman_mpd * pmesh, int mapx, int mapy );
 void   fix_walls( struct s_cartman_mpd * pmesh );
 void   impass_edges( struct s_cartman_mpd * pmesh, int amount );
 
 void mesh_replace_fx( struct s_cartman_mpd * pmesh, Uint16 fx_bits, Uint16 fx_mask, Uint8 fx_new );
-void mesh_replace_tile( struct s_cartman_mpd * pmesh, int xfan, int yfan, int onfan, Uint8 tx, Uint8 upper, Uint8 fx, Uint8 type, Uint16 presser, ego_bool tx_only, ego_bool at_floor_level );
+void mesh_replace_tile( struct s_cartman_mpd * pmesh, int xfan, int yfan, int onfan, Uint8 tx, Uint8 upper, Uint8 fx, Uint8 type, Uint16 presser, bool tx_only, bool at_floor_level );
 void mesh_set_fx( struct s_cartman_mpd * pmesh, int fan, Uint8 fx );
 void mesh_move( struct s_cartman_mpd * pmesh, float dx, float dy, float dz );
 

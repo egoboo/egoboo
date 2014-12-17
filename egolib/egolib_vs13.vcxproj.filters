@@ -22,6 +22,9 @@
     <Filter Include="Lua">
       <UniqueIdentifier>{159266bb-db21-41e6-9989-7b420b223573}</UniqueIdentifier>
     </Filter>
+    <Filter Include="OpenGL">
+      <UniqueIdentifier>{64b06b6c-4104-43af-8294-33f28825a826}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.c">
@@ -206,6 +209,9 @@
     </ClCompile>
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\lua\lua_console.c">
       <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\opengl\renderer.c">
+      <Filter>OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -406,6 +412,15 @@
     </ClInclude>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\lua\lua_console.h">
       <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\mem.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\opengl\renderer.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\tx_filters.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

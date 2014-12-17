@@ -20,8 +20,9 @@
 /// @file platform/file_win.c
 /// @brief Windows-specific filesystem functions.
 /// @details
-
+#define NOMINMAX
 #include <windows.h>
+#undef NOMINMAX
 #include <shlobj.h>
 #include <shellapi.h>
 #include <shlwapi.h>
@@ -162,7 +163,7 @@ int fs_fileIsDirectory( const char *filename )
     // Returns 1 if this filename is a directory
     DWORD fileAttrs;
 
-    if ( INVALID_CSTR( filename ) ) return C_FALSE;
+    if ( INVALID_CSTR( filename ) ) return false;
 
     fileAttrs = GetFileAttributes( filename );
 
@@ -199,11 +200,11 @@ void fs_deleteFile( const char *filename )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN fs_copyFile( const char *source, const char *dest )
+bool fs_copyFile( const char *source, const char *dest )
 {
-    if ( INVALID_CSTR( source ) || INVALID_CSTR( dest ) ) return C_FALSE;
+    if ( INVALID_CSTR( source ) || INVALID_CSTR( dest ) ) return false;
 
-    return ( TRUE == CopyFile( source, dest, C_FALSE ) );
+    return ( TRUE == CopyFile( source, dest, false ) );
 }
 
 //--------------------------------------------------------------------------------------------

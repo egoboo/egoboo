@@ -45,7 +45,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static ego_bool _profile_system_initialized = ego_false;
+static bool _profile_system_initialized = false;
 
 chop_data_t  chop_mem = {0, 0};
 pro_import_t import_data;
@@ -60,12 +60,12 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, pro_t, ProList, MAX_PROFILE );
 
 static void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject );
 
-static ego_bool obj_verify_file_vfs( const char * tmploadname );
+static bool obj_verify_file_vfs( const char * tmploadname );
 static int obj_read_slot_vfs( const char * tmploadname );
 
-static ego_bool release_one_pro_data( const PRO_REF iobj );
-static ego_bool release_one_profile_textures( const PRO_REF iobj );
-static ego_bool pro_init( pro_t * pobj );
+static bool release_one_pro_data( const PRO_REF iobj );
+static bool release_one_profile_textures( const PRO_REF iobj );
+static bool pro_init( pro_t * pobj );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ void profile_system_begin( void )
         // initialize the models
         model_system_end();
 
-        _profile_system_initialized = ego_false;
+        _profile_system_initialized = false;
     }
 
     // initialize all the profile lists
@@ -157,7 +157,7 @@ void profile_system_begin( void )
     init_slot_idsz();
 
     // let the code know that everything is initialized
-    _profile_system_initialized = ego_true;
+    _profile_system_initialized = true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -175,17 +175,17 @@ void profile_system_end( void )
         // initialize the models
         model_system_end();
 
-        _profile_system_initialized = ego_false;
+        _profile_system_initialized = false;
     }
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool pro_init( pro_t * pobj )
+bool pro_init( pro_t * pobj )
 {
     int cnt;
 
-    if ( NULL == pobj ) return ego_false;
+    if ( NULL == pobj ) return false;
 
     if ( pobj->loaded )
     {
@@ -210,7 +210,7 @@ ego_bool pro_init( pro_t * pobj )
     chop_definition_init( &( pobj->chop ) );
 
     // do the final invalidation
-    pobj->loaded   = C_FALSE;
+    pobj->loaded   = false;
     strncpy( pobj->name, "*NONE*", SDL_arraysize( pobj->name ) );
 
     // clear out the textures
@@ -220,7 +220,7 @@ ego_bool pro_init( pro_t * pobj )
         pobj->ico_ref[cnt] = INVALID_TX_REF;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -298,21 +298,21 @@ size_t ProList_pop_free( const int index )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ProList_push_free( const PRO_REF iobj )
+bool ProList_push_free( const PRO_REF iobj )
 {
     /// @author BB
     /// @details push an object onto the free stack
 
-    ego_bool retval;
+    bool retval;
 
 #if defined(_DEBUG)
     // determine whether this character is already in the list of free objects
     // that is an error
-    if ( -1 != ProList_find_free_ref( iobj ) ) return ego_false;
+    if ( -1 != ProList_find_free_ref( iobj ) ) return false;
 #endif
 
     // push it on the free stack
-    retval = ego_false;
+    retval = false;
     if ( ProList.free_count < MAX_PROFILE )
     {
         ProList.free_ref[ProList.free_count] = REF_TO_INT( iobj );
@@ -320,7 +320,7 @@ ego_bool ProList_push_free( const PRO_REF iobj )
         ProList.free_count++;
         ProList.update_guid++;
 
-        retval = ego_true;
+        retval = true;
     }
 
     return retval;
@@ -399,21 +399,21 @@ size_t ProList_pop_used( const int index )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ProList_push_used( const PRO_REF iobj )
+bool ProList_push_used( const PRO_REF iobj )
 {
     /// @author BB
     /// @details push an object onto the used stack
 
-    ego_bool retval;
+    bool retval;
 
 #if defined(_DEBUG)
     // determine whether this character is already in the list of used objects
     // that is an error
-    if ( -1 != ProList_find_used_ref( iobj ) ) return ego_false;
+    if ( -1 != ProList_find_used_ref( iobj ) ) return false;
 #endif
 
     // push it on the used stack
-    retval = ego_false;
+    retval = false;
     if ( ProList.used_count < MAX_PROFILE )
     {
         ProList.used_ref[ProList.used_count] = REF_TO_INT( iobj );
@@ -421,7 +421,7 @@ ego_bool ProList_push_used( const PRO_REF iobj )
         ProList.used_count++;
         ProList.update_guid++;
 
-        retval = ego_true;
+        retval = true;
     }
 
     return retval;
@@ -445,7 +445,7 @@ void ProList_init( void )
         pobj = ProList.lst + cnt;
 
         // make sure we don't get a stupid warning
-        pobj->loaded = C_FALSE;
+        pobj->loaded = false;
 
         pro_init( pobj );
 
@@ -486,12 +486,12 @@ size_t ProList_get_free_ref( const PRO_REF override )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ProList_free_one( const PRO_REF iobj )
+bool ProList_free_one( const PRO_REF iobj )
 {
     /// @author ZZ
     /// @details This function sticks an object back on the free object stack
 
-    if ( !VALID_PRO_RANGE( iobj ) ) return ego_false;
+    if ( !VALID_PRO_RANGE( iobj ) ) return false;
 
     // object "destructor"
     // inilializes an object to safe values
@@ -504,12 +504,12 @@ ego_bool ProList_free_one( const PRO_REF iobj )
 // object functions
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool release_one_profile_textures( const PRO_REF iobj )
+bool release_one_profile_textures( const PRO_REF iobj )
 {
     int tnc;
     pro_t  * pobj;
 
-    if ( !LOADED_PRO( iobj ) ) return ego_false;
+    if ( !LOADED_PRO( iobj ) ) return false;
     pobj = ProList.lst + iobj;
 
     for ( tnc = 0; tnc < MAX_SKIN; tnc++ )
@@ -541,7 +541,7 @@ ego_bool release_one_profile_textures( const PRO_REF iobj )
         bookicon_count = 0;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -556,12 +556,12 @@ void release_all_profile_textures( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool release_one_pro_data( const PRO_REF iobj )
+bool release_one_pro_data( const PRO_REF iobj )
 {
     int cnt;
     pro_t * pobj;
 
-    if ( !LOADED_PRO( iobj ) ) return ego_false;
+    if ( !LOADED_PRO( iobj ) ) return false;
     pobj = ProList.lst + iobj;
 
     // free all sounds
@@ -581,17 +581,17 @@ ego_bool release_one_pro_data( const PRO_REF iobj )
         pobj->message_ary = NULL;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool release_one_pro( const PRO_REF iobj )
+bool release_one_pro( const PRO_REF iobj )
 {
     pro_t * pobj;
 
-    if ( !VALID_PRO_RANGE( iobj ) ) return ego_false;
+    if ( !VALID_PRO_RANGE( iobj ) ) return false;
 
-    if ( !LOADED_PRO_RAW( iobj ) ) return ego_true;
+    if ( !LOADED_PRO_RAW( iobj ) ) return true;
     pobj = ProList.lst + iobj;
 
     // release all of the sub-profiles
@@ -606,7 +606,7 @@ ego_bool release_one_pro( const PRO_REF iobj )
 
     pro_init( pobj );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -800,7 +800,7 @@ void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject )
     {
         STRING line;
 
-        while ( goto_colon_vfs( NULL, fileread, C_TRUE ) )
+        while ( goto_colon_vfs( NULL, fileread, true ) )
         {
             //Load one line
             vfs_get_string( fileread, line, SDL_arraysize( line ) );
@@ -812,14 +812,14 @@ void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool release_one_local_pips( const PRO_REF iobj )
+bool release_one_local_pips( const PRO_REF iobj )
 {
     int cnt;
     pro_t * pobj;
 
-    if ( !VALID_PRO_RANGE( iobj ) ) return ego_false;
+    if ( !VALID_PRO_RANGE( iobj ) ) return false;
 
-    if ( !LOADED_PRO_RAW( iobj ) ) return ego_true;
+    if ( !LOADED_PRO_RAW( iobj ) ) return true;
     pobj = ProList.lst + iobj;
 
     for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
@@ -828,7 +828,7 @@ ego_bool release_one_local_pips( const PRO_REF iobj )
         pobj->prtpip[cnt] = INVALID_PIP_REF;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -877,7 +877,7 @@ int obj_read_slot_vfs( const char * tmploadname )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool obj_verify_file_vfs( const char * tmploadname )
+bool obj_verify_file_vfs( const char * tmploadname )
 {
     STRING szLoadName;
 
@@ -932,7 +932,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
 
     int cnt;
     STRING newloadname;
-    ego_bool required;
+    bool required;
 
     int islot;     // this has to be a signed value for this function to work properly
 
@@ -997,7 +997,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
     pobj  = ProList.lst + iobj;
 
     // load the character profile
-    pobj->icap = CapStack_load_one( tmploadname, islot, ego_false );
+    pobj->icap = CapStack_load_one( tmploadname, islot, false );
     islot = REF_TO_INT( pobj->icap );
 
     // Load the model for this iobj
@@ -1044,7 +1044,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
 
     // mark the profile as loaded
     strncpy( pobj->name, tmploadname, SDL_arraysize( pobj->name ) );
-    pobj->loaded = C_TRUE;
+    pobj->loaded = true;
 
     return islot;
 }
@@ -1090,14 +1090,14 @@ const char * pro_create_chop( const PRO_REF iprofile )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool pro_load_chop_vfs( const PRO_REF iprofile, const char *szLoadname )
+bool pro_load_chop_vfs( const PRO_REF iprofile, const char *szLoadname )
 {
     /// @author BB
     /// @details load the chop for the given profile
 
     pro_t * ppro;
 
-    if ( !VALID_PRO_RANGE( iprofile ) ) return ego_false;
+    if ( !VALID_PRO_RANGE( iprofile ) ) return false;
     ppro = ProList.lst + iprofile;
 
     // clear out any current definition
@@ -1186,7 +1186,7 @@ const char * chop_create( chop_data_t * pdata, chop_definition_t * pdefinition )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool chop_load_vfs( chop_data_t * pdata, const char *szLoadname, chop_definition_t * pdefinition )
+bool chop_load_vfs( chop_data_t * pdata, const char *szLoadname, chop_definition_t * pdefinition )
 {
     /// @author ZZ
     /// @details This function reads a naming.txt file into the chop data buffer and sets the
@@ -1198,10 +1198,10 @@ ego_bool chop_load_vfs( chop_data_t * pdata, const char *szLoadname, chop_defini
 
     chop_definition_t local_definition;
 
-    if ( NULL == pdata || pdata->carat >= CHOPDATACHUNK ) return ego_false;
+    if ( NULL == pdata || pdata->carat >= CHOPDATACHUNK ) return false;
 
     fileread = vfs_openRead( szLoadname );
-    if ( NULL == fileread ) return ego_false;
+    if ( NULL == fileread ) return false;
 
     // in case we get a stupid value.
     // we could create a dynamically allocated struct in this case...
@@ -1212,7 +1212,7 @@ ego_bool chop_load_vfs( chop_data_t * pdata, const char *szLoadname, chop_defini
 
     which_section = 0;
     section_count = 0;
-    while ( which_section < MAXSECTION && pdata->carat < CHOPDATACHUNK && goto_colon_vfs( NULL, fileread, C_TRUE ) )
+    while ( which_section < MAXSECTION && pdata->carat < CHOPDATACHUNK && goto_colon_vfs( NULL, fileread, true ) )
     {
         vfs_get_string( fileread, tmp_buffer, SDL_arraysize( tmp_buffer ) );
 
@@ -1264,7 +1264,7 @@ ego_bool chop_load_vfs( chop_data_t * pdata, const char *szLoadname, chop_defini
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool chop_export_vfs( const char *szSaveName, const char * szChop )
+bool chop_export_vfs( const char *szSaveName, const char * szChop )
 {
     /// @author ZZ
     /// @details This function exports a simple string to the naming.txt file
@@ -1273,11 +1273,11 @@ ego_bool chop_export_vfs( const char *szSaveName, const char * szChop )
     char cTmp;
     int cnt, tnc;
 
-    if ( !VALID_CSTR( szChop ) ) return ego_false;
+    if ( !VALID_CSTR( szChop ) ) return false;
 
     // Can it export?
     filewrite = vfs_openWrite( szSaveName );
-    if ( NULL == filewrite ) return ego_false;
+    if ( NULL == filewrite ) return false;
 
     cnt = 0;
     cTmp = szChop[0];
@@ -1307,5 +1307,5 @@ ego_bool chop_export_vfs( const char *szSaveName, const char * szChop )
 
     vfs_close( filewrite );
 
-    return ego_true;
+    return true;
 }

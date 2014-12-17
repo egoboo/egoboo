@@ -24,9 +24,11 @@
 
 #include "egolib/typedef.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -61,28 +63,29 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-    void         scantag_read_all_vfs( const char *szFilename );
+    void        scantag_read_all_vfs( const char *szFilename );
 
-    size_t       scantag_get_count( void );
-    int          scantag_find_index( const char *string );
-    scantag_t *  scantag_get_tag( int index );
-    C_BOOLEAN       scantag_get_value( int index, Uint32 * pvalue );
-    const char * scantag_get_name( int index );
+    size_t      scantag_get_count( void );
+    int         scantag_find_index( const char *string );
+    scantag_t  *scantag_get_tag( int index );
+	bool        scantag_get_value(int index, Uint32 * pvalue);
+    const char *scantag_get_name( int index );
 
-    const char       * scantag_get_string( int device, struct s_control * pcontrol, char * buffer, size_t buffer_size );
-    struct s_control * scantag_parse_control( char * tag_string, struct s_control * pcontrol );
+    const char       *scantag_get_string( int device, struct s_control * pcontrol, char * buffer, size_t buffer_size );
+    struct s_control *scantag_parse_control( char * tag_string, struct s_control * pcontrol );
 
-    Uint32             scancode_get_kmod( Uint32 scancode );
+    Uint32            scancode_get_kmod( Uint32 scancode );
 
-    scantag_t * scantag_find_bits( scantag_t * ptag_src, char device_char, Uint32 tag_bits );
-    scantag_t * scantag_find_value( scantag_t * ptag_src, char device_char, Uint32 tag_value );
+    scantag_t *scantag_find_bits( scantag_t * ptag_src, char device_char, Uint32 tag_bits );
+    scantag_t *scantag_find_value( scantag_t * ptag_src, char device_char, Uint32 tag_value );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #if defined(__cplusplus)
 }
-
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------

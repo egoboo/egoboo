@@ -46,7 +46,7 @@
 DECLARE_LIST_EXTERN( prt_t, PrtList, MAX_PRT );
 
 extern size_t maxparticles;
-extern ego_bool maxparticles_dirty;
+extern bool maxparticles_dirty;
 
 extern int    prt_loop_depth;
 
@@ -58,9 +58,9 @@ void    PrtList_ctor( void );
 void    PrtList_dtor( void );
 void    PrtList_reinit( void );
 
-PRT_REF PrtList_allocate( const ego_bool force );
+PRT_REF PrtList_allocate( const bool force );
 
-ego_bool  PrtList_free_one( const PRT_REF iprt );
+bool  PrtList_free_one( const PRT_REF iprt );
 void    PrtList_free_all( void );
 
 void    PrtList_update_used( void );
@@ -68,8 +68,8 @@ void    PrtList_update_used( void );
 void    PrtList_cleanup( void );
 void    PrtList_reset_all( void );
 
-ego_bool  PrtList_add_activation( const PRT_REF iprt );
-ego_bool  PrtList_add_termination( const PRT_REF iprt );
-ego_bool PrtList_request_terminate( const PRT_REF iprt );
+bool  PrtList_add_activation( const PRT_REF iprt );
+bool  PrtList_add_termination( const PRT_REF iprt );
+bool PrtList_request_terminate( const PRT_REF iprt );
 
 int     PrtList_count_free( void );

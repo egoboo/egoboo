@@ -39,7 +39,7 @@ typedef struct s_cv_point_data cv_point_data_t;
 //--------------------------------------------------------------------------------------------
 struct s_cv_point_data
 {
-    ego_bool  inside;
+    bool  inside;
     fvec3_t   pos;
     float   rads;
 };
@@ -55,13 +55,13 @@ static int cv_point_data_cmp( const void * pleft, const void * pright );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-ego_bool aabb_copy( aabb_t * pdst, const aabb_t * psrc )
+bool aabb_copy( aabb_t * pdst, const aabb_t * psrc )
 {
     size_t cnt;
 
     if ( NULL == pdst || NULL == psrc )
     {
-        return ego_false;
+        return false;
     }
 
     for ( cnt = 0; cnt < 3; cnt++ )
@@ -70,50 +70,50 @@ ego_bool aabb_copy( aabb_t * pdst, const aabb_t * psrc )
         pdst->maxs[cnt] = psrc->maxs[cnt];
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool aabb_self_clear( aabb_t * psrc )
+bool aabb_self_clear( aabb_t * psrc )
 {
     /// @author BB
     /// @details Return this bounding box to an empty state.
 
     Uint32 cnt;
 
-    if ( NULL == psrc ) return ego_false;
+    if ( NULL == psrc ) return false;
 
     for ( cnt = 0; cnt < 3; cnt++ )
     {
         psrc->mins[cnt] = psrc->maxs[cnt] = 0.0f;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool aabb_is_clear( const aabb_t * pdst )
+bool aabb_is_clear( const aabb_t * pdst )
 {
     int cnt;
-    ego_bool retval;
+    bool retval;
 
-    if ( NULL == pdst ) return ego_true;
+    if ( NULL == pdst ) return true;
 
     // assume the best
-    retval = ego_true;
+    retval = true;
 
     // scan through the values
     for ( cnt = 0; cnt < 3; cnt++ )
     {
         if ( 0.0f != pdst->mins[cnt] )
         {
-            retval = ego_false;
+            retval = false;
             break;
         }
 
         if ( 0.0f != pdst->maxs[cnt] )
         {
-            retval = ego_false;
+            retval = false;
             break;
         }
     }
@@ -122,9 +122,9 @@ ego_bool aabb_is_clear( const aabb_t * pdst )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool aabb_from_oct_bb( aabb_t * dst, const oct_bb_t * src )
+bool aabb_from_oct_bb( aabb_t * dst, const oct_bb_t * src )
 {
-    if ( NULL == dst ) return ego_false;
+    if ( NULL == dst ) return false;
 
     if ( NULL == src )
     {
@@ -142,11 +142,11 @@ ego_bool aabb_from_oct_bb( aabb_t * dst, const oct_bb_t * src )
         dst->maxs[kZ] = src->maxs[OCT_Z];
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
+bool aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
     /// @author BB
     /// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
@@ -156,7 +156,7 @@ ego_bool aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 
     const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
 
-    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return ego_false;
+    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return false;
 
     // the optomizer is supposed to do this stuff all by itself,
     // but isn't
@@ -167,36 +167,36 @@ ego_bool aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 
     for ( cnt = 0; cnt < 3; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return ego_false;
-        if (( *rhs_mins ) < ( *lhs_mins ) ) return ego_false;
+        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return false;
+        if (( *rhs_mins ) < ( *lhs_mins ) ) return false;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool aabb_self_union( aabb_t * pdst, const aabb_t * psrc )
+bool aabb_self_union( aabb_t * pdst, const aabb_t * psrc )
 {
     size_t cnt;
 
-    if ( NULL == pdst ) return ego_false;
+    if ( NULL == pdst ) return false;
 
     if ( NULL == psrc )
     {
-        return ego_false;
+        return false;
     }
 
     for ( cnt = 0; cnt < 3; cnt++ )
     {
-        pdst->mins[cnt] = MIN( pdst->mins[cnt], psrc->mins[cnt] );
-        pdst->maxs[cnt] = MAX( pdst->maxs[cnt], psrc->maxs[cnt] );
+        pdst->mins[cnt] = std::min( pdst->mins[cnt], psrc->mins[cnt] );
+        pdst->maxs[cnt] = std::max( pdst->maxs[cnt], psrc->maxs[cnt] );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
+bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 {
     /// @author BB
     /// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
@@ -206,7 +206,7 @@ ego_bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 
     const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
 
-    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return ego_false;
+    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return false;
 
     // the optomizer is supposed to do this stuff all by itself,
     // but isn't
@@ -217,11 +217,11 @@ ego_bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 
     for ( cnt = 0; cnt < 3; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
     {
-        if (( *rhs_maxs ) < ( *lhs_mins ) ) return ego_false;
-        if (( *rhs_mins ) > ( *lhs_maxs ) ) return ego_false;
+        if (( *rhs_maxs ) < ( *lhs_mins ) ) return false;
+        if (( *rhs_mins ) > ( *lhs_maxs ) ) return false;
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -293,7 +293,7 @@ ego_bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 ////--------------------------------------------------------------------------------------------
 //EGO_CONST aabb_ary_t * bbox_ary_dtor( aabb_ary_t * ary )
 //{
-//    int i;
+//    size_t i;
 //
 //    if ( NULL == ary ) return NULL;
 //
@@ -322,7 +322,7 @@ ego_bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 //}
 //
 ////--------------------------------------------------------------------------------------------
-//EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, int count )
+//EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, size_t count )
 //{
 //    if ( NULL == ary ) return NULL;
 //
@@ -348,8 +348,8 @@ OVolume_t * OVolume__ctor( OVolume_t * pv )
     if ( NULL == pv ) return pv;
 
     pv->lod = -1;
-    pv->needs_shape = ego_true;
-    pv->needs_position = ego_true;
+    pv->needs_shape = true;
+    pv->needs_position = true;
     oct_bb_ctor( &( pv->oct ) );
 
     return pv;
@@ -449,32 +449,32 @@ OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 )
         }
         else if ( pv1->lod >= 0 )
         {
-            rv.oct.mins[OCT_XY] = MAX( pv1->oct.mins[OCT_XY], pv2->oct.mins[OCT_X] + pv2->oct.mins[OCT_Y] );
-            rv.oct.maxs[OCT_XY] = MIN( pv1->oct.maxs[OCT_XY], pv2->oct.maxs[OCT_X] + pv2->oct.maxs[OCT_Y] );
+            rv.oct.mins[OCT_XY] = std::max( pv1->oct.mins[OCT_XY], pv2->oct.mins[OCT_X] + pv2->oct.mins[OCT_Y] );
+            rv.oct.maxs[OCT_XY] = std::min( pv1->oct.maxs[OCT_XY], pv2->oct.maxs[OCT_X] + pv2->oct.maxs[OCT_Y] );
             if ( rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY] ) return rv;
 
-            rv.oct.mins[OCT_YX] = MAX( pv1->oct.mins[OCT_YX], -pv2->oct.maxs[OCT_X] + pv2->oct.mins[OCT_Y] );
-            rv.oct.maxs[OCT_YX] = MIN( pv1->oct.maxs[OCT_YX], -pv2->oct.mins[OCT_X] + pv2->oct.maxs[OCT_Y] );
+            rv.oct.mins[OCT_YX] = std::max( pv1->oct.mins[OCT_YX], -pv2->oct.maxs[OCT_X] + pv2->oct.mins[OCT_Y] );
+            rv.oct.maxs[OCT_YX] = std::min( pv1->oct.maxs[OCT_YX], -pv2->oct.mins[OCT_X] + pv2->oct.maxs[OCT_Y] );
             if ( rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX] ) return rv;
         }
         else if ( pv2->lod >= 0 )
         {
-            rv.oct.mins[OCT_XY] = MAX( pv1->oct.mins[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_XY] );
-            rv.oct.maxs[OCT_XY] = MIN( pv1->oct.maxs[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_XY] );
+            rv.oct.mins[OCT_XY] = std::max( pv1->oct.mins[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_XY] );
+            rv.oct.maxs[OCT_XY] = std::min( pv1->oct.maxs[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_XY] );
             if ( rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY] ) return rv;
 
-            rv.oct.mins[OCT_YX] = MAX( -pv1->oct.maxs[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_YX] );
-            rv.oct.maxs[OCT_YX] = MIN( -pv1->oct.mins[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_YX] );
+            rv.oct.mins[OCT_YX] = std::max( -pv1->oct.maxs[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_YX] );
+            rv.oct.maxs[OCT_YX] = std::min( -pv1->oct.mins[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_YX] );
             if ( rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX] ) return rv;
         }
         else
         {
-            rv.oct.mins[OCT_XY] = MAX( pv1->oct.mins[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_X] + pv2->oct.mins[OCT_Y] );
-            rv.oct.maxs[OCT_XY] = MIN( pv1->oct.maxs[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_X] + pv2->oct.maxs[OCT_Y] );
+            rv.oct.mins[OCT_XY] = std::max( pv1->oct.mins[OCT_X] + pv1->oct.mins[OCT_Y], pv2->oct.mins[OCT_X] + pv2->oct.mins[OCT_Y] );
+            rv.oct.maxs[OCT_XY] = std::min( pv1->oct.maxs[OCT_X] + pv1->oct.maxs[OCT_Y], pv2->oct.maxs[OCT_X] + pv2->oct.maxs[OCT_Y] );
             if ( rv.oct.mins[OCT_XY] >= rv.oct.maxs[OCT_XY] ) return rv;
 
-            rv.oct.mins[OCT_YX] = MAX( -pv1->oct.maxs[OCT_X] + pv1->oct.mins[OCT_Y], -pv2->oct.maxs[OCT_X] + pv2->oct.mins[OCT_Y] );
-            rv.oct.maxs[OCT_YX] = MIN( -pv1->oct.mins[OCT_X] + pv1->oct.maxs[OCT_Y], -pv2->oct.mins[OCT_X] + pv2->oct.maxs[OCT_Y] );
+            rv.oct.mins[OCT_YX] = std::max( -pv1->oct.maxs[OCT_X] + pv1->oct.mins[OCT_Y], -pv2->oct.maxs[OCT_X] + pv2->oct.mins[OCT_Y] );
+            rv.oct.maxs[OCT_YX] = std::min( -pv1->oct.mins[OCT_X] + pv1->oct.maxs[OCT_Y], -pv2->oct.mins[OCT_X] + pv2->oct.maxs[OCT_Y] );
             if ( rv.oct.mins[OCT_YX] >= rv.oct.maxs[OCT_YX] ) return rv;
         }
 
@@ -484,7 +484,7 @@ OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 )
         }
         else
         {
-            rv.lod = MIN( pv1->lod, pv2->lod );
+            rv.lod = std::min( pv1->lod, pv2->lod );
         }
     }
 
@@ -492,33 +492,33 @@ OVolume_t OVolume_intersect( const OVolume_t * pv1, const OVolume_t * pv2 )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
+bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 {
     /// @author BB
     /// @details determine which of the 16 possible intersection points are within both
     ///     square and diamond bounding volumes
 
-    ego_bool invalid;
+    bool invalid;
     int cnt, tnc, count;
     float  area, darea, volume;
 
     fvec3_t center, centroid;
     cv_point_data_t pd[16];
 
-    if ( NULL == pov ) return ego_false;
+    if ( NULL == pov ) return false;
 
-    invalid = ego_false;
-    if ( pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = ego_true;
-    else if ( pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = ego_true;
-    else if ( pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = ego_true;
-    else if ( pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY] ) invalid = ego_true;
-    else if ( pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX] ) invalid = ego_true;
+    invalid = false;
+    if ( pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = true;
+    else if ( pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = true;
+    else if ( pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = true;
+    else if ( pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY] ) invalid = true;
+    else if ( pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX] ) invalid = true;
 
     if ( invalid )
     {
         pov->lod = -1;
         if ( NULL != pvolume )( *pvolume ) = 0;
-        return ego_false;
+        return false;
     }
 
     // square points
@@ -595,7 +595,7 @@ ego_bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     {
         float ftmp;
 
-        pd[cnt].inside = ego_false;
+        pd[cnt].inside = false;
 
         // check the box
         if ( pd[cnt].pos.x < pov->oct.mins[OCT_X] || pd[cnt].pos.x > pov->oct.maxs[OCT_X] ) continue;
@@ -612,10 +612,10 @@ ego_bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
         center.x += pd[cnt].pos.x;
         center.y += pd[cnt].pos.y;
         count++;
-        pd[cnt].inside = ego_true;
+        pd[cnt].inside = true;
     };
 
-    if ( count < 3 ) return ego_false;
+    if ( count < 3 ) return false;
 
     // find the centroid
     center.x *= 1.0f / ( float )count;
@@ -689,18 +689,18 @@ ego_bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     }
 
     // is the volume valid?
-    invalid = ego_false;
-    if ( pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = ego_true;
-    else if ( pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = ego_true;
-    else if ( pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = ego_true;
-    else if ( pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY] ) invalid = ego_true;
-    else if ( pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX] ) invalid = ego_true;
+    invalid = false;
+    if ( pov->oct.mins[OCT_X]  >= pov->oct.maxs[OCT_X] ) invalid = true;
+    else if ( pov->oct.mins[OCT_Y]  >= pov->oct.maxs[OCT_Y] ) invalid = true;
+    else if ( pov->oct.mins[OCT_Z]  >= pov->oct.maxs[OCT_Z] ) invalid = true;
+    else if ( pov->oct.mins[OCT_XY] >= pov->oct.maxs[OCT_XY] ) invalid = true;
+    else if ( pov->oct.mins[OCT_YX] >= pov->oct.maxs[OCT_YX] ) invalid = true;
 
     if ( invalid )
     {
         pov->lod = -1;
         if ( NULL != pvolume )( *pvolume ) = 0;
-        return ego_false;
+        return false;
     }
 
     // determine the volume center
@@ -724,12 +724,12 @@ ego_bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-ego_bool CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * pvb )
+bool CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t * pvb )
 {
-    ego_bool retval;
+    bool retval;
     CVolume_t cv;
 
-    if ( pva->lod < 0 || pvb->lod < 0 ) return ego_false;
+    if ( pva->lod < 0 || pvb->lod < 0 ) return false;
 
     //---- reset the OVolume
     OVolume__ctor( &( pcv->ov ) );
@@ -739,12 +739,12 @@ ego_bool CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t *
     cv.ov = OVolume_intersect( pva, pvb );
     if ( cv.ov.lod < 0 )
     {
-        return ego_false;
+        return false;
     };
 
     //---- refine the collision volume ----
 
-    cv.ov.lod = MIN( pva->lod, pvb->lod );
+    cv.ov.lod = std::min( pva->lod, pvb->lod );
     retval = CVolume_refine( &cv );
 
     if ( NULL != pcv )
@@ -756,19 +756,19 @@ ego_bool CVolume_ctor( CVolume_t * pcv, const OVolume_t * pva, const OVolume_t *
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool CVolume_refine( CVolume_t * pcv )
+bool CVolume_refine( CVolume_t * pcv )
 {
     /// @author BB
     /// @details determine which of the 16 possible intersection points are within both
     ///     square and diamond bounding volumes
 
-    if ( NULL == pcv ) return ego_false;
+    if ( NULL == pcv ) return false;
 
     if ( pcv->ov.oct.maxs[OCT_Z] <= pcv->ov.oct.mins[OCT_Z] )
     {
         pcv->ov.lod = -1;
         pcv->volume = 0;
-        return ego_false;
+        return false;
     }
 
     return OVolume_refine( &( pcv->ov ), &( pcv->center ), &( pcv->volume ) );
@@ -1058,8 +1058,9 @@ void points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_co
     /// @author BB
     /// @details convert the new point cloud into a level 1 bounding box using a fvec4_t
     ///               array as the source
-
+#if 0
     Uint32 cnt, tnc;
+#endif
     oct_vec_t otmp;
     oct_vec_base_t pmins, pmaxs;
 
@@ -1071,20 +1072,20 @@ void points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_co
 
     // initialize using the first point
     oct_vec_ctor( otmp, pos[0].v );
-    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    for ( Uint32 cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
         pmins[cnt] = pmaxs[cnt] = otmp[cnt];
     }
 
     // cycle through all other points
-    for ( cnt = 1; cnt < pos_count; cnt++ )
+    for ( Uint32 cnt = 1; cnt < pos_count; cnt++ )
     {
         oct_vec_ctor( otmp, pos[cnt].v );
 
-        for ( tnc = 0; tnc < OCT_COUNT; tnc++ )
+        for ( Uint32 tnc = 0; tnc < OCT_COUNT; tnc++ )
         {
-            pmins[tnc] = MIN( pmins[tnc], otmp[tnc] );
-            pmaxs[tnc] = MAX( pmaxs[tnc], otmp[tnc] );
+            pmins[tnc] = std::min( pmins[tnc], otmp[tnc] );
+            pmaxs[tnc] = std::max( pmaxs[tnc], otmp[tnc] );
         }
     }
 
@@ -1129,7 +1130,7 @@ egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, c
             val2 = ABS( psrc_bb->maxs[OCT_Y] );
             val3 = ABS( psrc_bb->mins[OCT_Y] );
             val4 = ABS( psrc_bb->maxs[OCT_Y] );
-            pdst_bump->size = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
+			pdst_bump->size = std::max({ val1, val2, val3, val4 });
         }
 
         if ( 0.0f == bump_stt.size_big )
@@ -1186,7 +1187,7 @@ egolib_rv oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oc
 {
     int cnt;
 
-    ego_bool src1_empty, src2_empty;
+    bool src1_empty, src2_empty;
     if ( NULL == pdst ) return rv_error;
 
     src1_empty = ( NULL == psrc1 || psrc1->empty );

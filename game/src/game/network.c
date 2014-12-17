@@ -102,7 +102,7 @@ void net_sayHello( void )
 
     if ( !egonet_on() )
     {
-        egonet_set_waitingforclients( C_FALSE );
+        egonet_set_waitingforclients( false );
     }
     else if ( egonet_get_hostactive() )
     {
@@ -111,7 +111,7 @@ void net_sayHello( void )
         net_players_loaded++;
         if ( net_players_loaded >= ServerState.base.client_count )
         {
-            egonet_set_waitingforclients( C_FALSE );
+            egonet_set_waitingforclients( false );
         }
     }
     else
@@ -300,13 +300,13 @@ void net_initialize( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool net_begin( void )
+bool net_begin( void )
 {
     return egonet_begin( cfg.network_allowed );
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool net_end( void )
+bool net_end( void )
 {
     return egonet_end();
 }
@@ -410,13 +410,13 @@ egolib_rv egonet_dispatchEvent( ENetEvent *event )
 
     enet_packet_t enet_pkt;
     ego_packet_t  ego_pkt;
-    ego_bool handled;
+    bool handled;
 
     ego_packet_ctor( &ego_pkt );
     enet_packet_ctor( &enet_pkt );
 
     // assume the best
-    handled = ego_true;
+    handled = true;
 
     if ( !egonet_on() || NULL == event )
     {
@@ -475,14 +475,14 @@ egolib_rv egonet_handlePacket( enet_packet_t * enet_pkt )
     STRING filename;      // also used for reading various strings
 
     ego_packet_t  ego_pkt;
-    ego_bool handled;
+    bool handled;
 
     ego_packet_ctor( &ego_pkt );
 
     if ( !egonet_on() || NULL == enet_pkt ) return rv_error;
 
     // assume the best
-    handled = ego_true;
+    handled = true;
 
     // log the packet
     log_info( "sv_handlePacket: Received " );
@@ -499,7 +499,7 @@ egolib_rv egonet_handlePacket( enet_packet_t * enet_pkt )
             break;
 
         default:
-            handled = ego_false;
+            handled = false;
             break;
     }
 

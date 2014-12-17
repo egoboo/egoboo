@@ -52,7 +52,7 @@ extern "C"
     };
 
     hash_node_t *hash_node_create( void * data );
-    C_BOOLEAN    hash_node_destroy( hash_node_t ** );
+    bool         hash_node_destroy( hash_node_t ** );
     hash_node_t *hash_node_ctor( hash_node_t * n, void * data );
     hash_node_t *hash_node_insert_after( hash_node_t lst[], hash_node_t * n );
     hash_node_t *hash_node_insert_before( hash_node_t lst[], hash_node_t * n );
@@ -67,29 +67,24 @@ extern "C"
         hash_node_t ** sublist;
     };
 
-    hash_list_t * hash_list_create( int size );
-    C_BOOLEAN     hash_list_destroy( hash_list_t ** );
-	/* @todo MH: Make private. */
-    hash_list_t * hash_list_ctor( hash_list_t * lst, int size );
-	/* @todo: MH: Make private. */
-    hash_list_t * hash_list_dtor( hash_list_t * lst );
-	/* @todo MH: Make private. */
-    C_BOOLEAN     hash_list_free( hash_list_t * lst );
-	/* @todo MH: Make private. */
-    C_BOOLEAN     hash_list_alloc( hash_list_t * lst, int size );
-	/* @todo MH: Make private. */
-    C_BOOLEAN     hash_list_renew( hash_list_t * lst );
+    hash_list_t *hash_list_create( int size );
+    bool         hash_list_destroy( hash_list_t ** );
+    hash_list_t *hash_list_ctor( hash_list_t * lst, int size );
+    hash_list_t *hash_list_dtor( hash_list_t * lst );
+    bool         hash_list_free( hash_list_t * lst );
+    bool         hash_list_alloc( hash_list_t * lst, int size );
+    bool         hash_list_renew( hash_list_t * lst );
 
-    size_t        hash_list_count_nodes( hash_list_t *plst );
-    int           hash_list_get_allocd( hash_list_t *plst );
-    size_t        hash_list_get_count( hash_list_t *plst, int i );
-    hash_node_t * hash_list_get_node( hash_list_t *plst, int i );
+    size_t       hash_list_count_nodes( hash_list_t *plst );
+    int          hash_list_get_allocd( hash_list_t *plst );
+    size_t       hash_list_get_count( hash_list_t *plst, int i );
+    hash_node_t *hash_list_get_node( hash_list_t *plst, int i );
 
-    C_BOOLEAN        hash_list_set_allocd( hash_list_t *plst,        int );
-    C_BOOLEAN        hash_list_set_count( hash_list_t *plst, int i, int );
-    C_BOOLEAN        hash_list_set_node( hash_list_t *plst, int i, hash_node_t * );
+    bool        hash_list_set_allocd( hash_list_t *plst,        int );
+    bool        hash_list_set_count( hash_list_t *plst, int i, int );
+    bool        hash_list_set_node( hash_list_t *plst, int i, hash_node_t * );
 
-    C_BOOLEAN        hash_list_insert_unique( hash_list_t * phash, hash_node_t * pnode );
+    bool        hash_list_insert_unique( hash_list_t * phash, hash_node_t * pnode );
 
 //--------------------------------------------------------------------------------------------
 
@@ -102,9 +97,9 @@ extern "C"
 
     hash_list_iterator_t * hash_list_iterator_ctor( hash_list_iterator_t * it );
     void                 * hash_list_iterator_ptr( hash_list_iterator_t * it );
-    C_BOOLEAN                 hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hlst );
-    C_BOOLEAN                 hash_list_iterator_done( hash_list_iterator_t * it, hash_list_t * hlst );
-    C_BOOLEAN                 hash_list_iterator_next( hash_list_iterator_t * it, hash_list_t * hlst );
+    bool                 hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hlst );
+    bool                 hash_list_iterator_done( hash_list_iterator_t * it, hash_list_t * hlst );
+    bool                 hash_list_iterator_next( hash_list_iterator_t * it, hash_list_t * hlst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

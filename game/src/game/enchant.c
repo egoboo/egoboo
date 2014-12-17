@@ -44,7 +44,7 @@ INSTANTIATE_STACK( ACCESS_TYPE_NONE, eve_t, EveStack, MAX_EVE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static ego_bool  enc_free( enc_t * penc );
+static bool  enc_free( enc_t * penc );
 
 static enc_t * enc_config_ctor( enc_t * penc );
 static enc_t * enc_config_init( enc_t * penc );
@@ -58,7 +58,7 @@ static enc_t * enc_config_do_init( enc_t * penc );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static ego_bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent );
+static bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -82,13 +82,13 @@ void enchant_system_end( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool  enc_free( enc_t * penc )
+bool  enc_free( enc_t * penc )
 {
-    if ( !ALLOCATED_PENC( penc ) ) return ego_false;
+    if ( !ALLOCATED_PENC( penc ) ) return false;
 
     // nothing to do yet
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -146,11 +146,11 @@ enc_t * enc_dtor( enc_t * penc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
+bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 {
     enc_t * penc;
 
-    if ( !ALLOCATED_ENC( ienc ) ) return ego_false;
+    if ( !ALLOCATED_ENC( ienc ) ) return false;
     penc = EncList_get_ptr( ienc );
 
     // Unlink it from the spawner (if possible)
@@ -214,22 +214,22 @@ ego_bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
+bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
 {
     /// @author ZF
     /// @details This function removes all enchants with the character that has the specified
-    ///               IDSZ. If idsz [NONE] is specified, all enchants will be removed. Return ego_true
+    ///               IDSZ. If idsz [NONE] is specified, all enchants will be removed. Return true
     ///               if at least one enchant was removed.
 
     ENC_REF ienc_now, ienc_nxt;
     size_t  ienc_count;
 
     eve_t * peve;
-    ego_bool retval = ego_false;
+    bool retval = false;
     chr_t *pchr;
 
     // Stop invalid pointers
-    if ( !ACTIVE_CHR( ichr ) ) return ego_false;
+    if ( !ACTIVE_CHR( ichr ) ) return false;
     pchr = ChrList_get_ptr( ichr );
 
     // clean up the enchant list before doing anything
@@ -246,7 +246,7 @@ ego_bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
         if ( NULL != peve && ( IDSZ_NONE == remove_idsz || remove_idsz == peve->removedbyidsz ) )
         {
             remove_enchant( ienc_now, NULL );
-            retval = ego_true;
+            retval = true;
         }
 
         ienc_now = ienc_nxt;
@@ -258,7 +258,7 @@ ego_bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
+bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 {
     /// @author ZZ
     /// @details This function removes a specific enchantment and adds it to the unused list
@@ -271,7 +271,7 @@ ego_bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     CHR_REF target_ref, spawner_ref, overlay_ref;
     chr_t * target_ptr, *spawner_ptr, *overlay_ptr;
 
-    if ( !ALLOCATED_ENC( ienc ) ) return ego_false;
+    if ( !ALLOCATED_ENC( ienc ) ) return false;
     penc = EncList_get_ptr( ienc );
     peve = enc_get_peve( ienc );
 
@@ -343,7 +343,7 @@ ego_bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             switch_team( overlay_ref, overlay_ptr->team_base );
         }
 
-        kill_character( overlay_ref, INVALID_CHR_REF, ego_true );
+        kill_character( overlay_ref, INVALID_CHR_REF, true );
     }
 
     // nothing above this demends on having a valid enchant profile
@@ -409,10 +409,10 @@ ego_bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
             switch_team( target_ref, target_ptr->team_base );
         }
 
-        kill_character( target_ref, INVALID_CHR_REF, ego_true );
+        kill_character( target_ref, INVALID_CHR_REF, true );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -480,7 +480,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
     peve = pro_get_peve( profile );
     if ( NULL == peve ) return;
 
-    penc->setyesno[value_idx] = ego_false;
+    penc->setyesno[value_idx] = false;
     if ( peve->setyesno[value_idx] )
     {
         conflict = enc_value_filled( ienc, value_idx );
@@ -508,7 +508,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
                 character = penc->target_ref;
                 ptarget = ChrList_get_ptr( character );
 
-                penc->setyesno[value_idx] = ego_true;
+                penc->setyesno[value_idx] = true;
 
                 switch ( value_idx )
                 {
@@ -663,7 +663,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
 
     if ( !peve->addyesno[value_idx] )
     {
-        penc->addyesno[value_idx] = ego_false;
+        penc->addyesno[value_idx] = false;
         penc->addsave[value_idx]  = 0.0f;
         return;
     }
@@ -758,7 +758,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             getadd_int( 0, newvalue, PERFECTBIG, &valuetoadd );
             ptarget->mana_max += valuetoadd;
             //ptarget->mana    += valuetoadd;                       /// @note ZF@> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
-            ptarget->mana = CLIP( ptarget->mana, 0, ptarget->mana_max );
+            ptarget->mana = CLIP( (UFP8_T)ptarget->mana, (UFP8_T)0, ptarget->mana_max );
             fvaluetoadd = valuetoadd;
             break;
 
@@ -768,7 +768,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
             getadd_int( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
             ptarget->life_max += valuetoadd;
             //ptarget->life += valuetoadd;                        /// @note ZF@> bit of a problem here, we dont want players to heal or lose life by requipping magic ornaments
-            ptarget->life = CLIP( ptarget->life, 1, ptarget->life_max );
+            ptarget->life = CLIP( (UFP8_T)ptarget->life, (UFP8_T)1, ptarget->life_max );
             fvaluetoadd = valuetoadd;
             break;
 
@@ -941,7 +941,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     lifetime             = peve->lifetime;
     if ( lifetime > 0 && peve->required_damagetype < DAMAGE_COUNT )
     {
-        lifetime -= MAX( 1, CEIL(( ptarget->damage_resistance[peve->required_damagetype] ) * peve->lifetime ) );
+        lifetime -= std::max( 1.0f, CEIL(( ptarget->damage_resistance[peve->required_damagetype] ) * peve->lifetime ) );
         printf( "Damage resistance reduced duration from %i to %3.0f\n", peve->lifetime, lifetime );
     }
     penc->lifetime       = lifetime;
@@ -980,14 +980,14 @@ enc_t * enc_config_do_init( enc_t * penc )
 
             penc->overlay_ref = overlay;  // Kill this character on end...
             povl->ai.target   = pdata->target_ref;
-            povl->is_overlay  = ego_true;
+            povl->is_overlay  = true;
             chr_set_ai_state( povl, peve->spawn_overlay );  // ??? WHY DO THIS ???
 
             // Start out with ActionMJ...  Object activated
             action = mad_get_action_ref( chr_get_imad( overlay ), ACTION_MJ );
             if ( !ACTION_IS_TYPE( action, D ) )
             {
-                chr_start_anim( povl, action, ego_false, ego_true );
+                chr_start_anim( povl, action, false, true );
             }
 
             // Assume it's transparent...
@@ -1086,7 +1086,7 @@ enc_t * enc_config_do_active( enc_t * penc )
                     ChrList.lst[owner].life += penc->owner_life;
                     if ( ChrList.lst[owner].life <= 0 )
                     {
-                        kill_character( owner, target, ego_false );
+                        kill_character( owner, target, false );
                     }
                     if ( ChrList.lst[owner].life > ChrList.lst[owner].life_max )
                     {
@@ -1097,7 +1097,7 @@ enc_t * enc_config_do_active( enc_t * penc )
                 // Change mana
                 if ( 0 != penc->owner_mana )
                 {
-                    ego_bool mana_paid = cost_mana( owner, -penc->owner_mana, target );
+                    bool mana_paid = cost_mana( owner, -penc->owner_mana, target );
                     if ( EveStack.lst[eve].endifcantpay && !mana_paid )
                     {
                         EncList_request_terminate( ienc );
@@ -1123,7 +1123,7 @@ enc_t * enc_config_do_active( enc_t * penc )
                         ChrList.lst[target].life += penc->target_life;
                         if ( ChrList.lst[target].life <= 0 )
                         {
-                            kill_character( target, owner, ego_false );
+                            kill_character( target, owner, false );
                         }
                         if ( ChrList.lst[target].life > ChrList.lst[target].life_max )
                         {
@@ -1134,7 +1134,7 @@ enc_t * enc_config_do_active( enc_t * penc )
                     // Change mana
                     if ( 0 != penc->target_mana )
                     {
-                        ego_bool mana_paid = cost_mana( target, -penc->target_mana, owner );
+                        bool mana_paid = cost_mana( target, -penc->target_mana, owner );
                         if ( EveStack.lst[eve].endifcantpay && !mana_paid )
                         {
                             EncList_request_terminate( ienc );
@@ -1331,7 +1331,7 @@ enc_t * enc_run_config( enc_t * penc )
             pbase->state = ego_object_deinitializing;
         }
 
-        pbase->kill_me = ego_false;
+        pbase->kill_me = false;
     }
 
     switch ( pbase->state )
@@ -1409,7 +1409,7 @@ enc_t * enc_config_init( enc_t * penc )
 
     if ( 0 == enc_loop_depth )
     {
-        penc->obj_base.on = ego_true;
+        penc->obj_base.on = true;
     }
     else
     {
@@ -1458,7 +1458,7 @@ enc_t * enc_config_deinit( enc_t * penc )
     POBJ_END_SPAWN( penc );
 
     pbase->state = ego_object_destructing;
-    pbase->on    = ego_false;
+    pbase->on    = false;
 
     return penc;
 }
@@ -1642,7 +1642,7 @@ EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF ieve )
             retval = ieve;
 
             // limit the endsound_index
-            peve->endsound_index = CLIP( peve->endsound_index, INVALID_SOUND, MAX_WAVE );
+            peve->endsound_index = CLIP<Sint16>( peve->endsound_index, INVALID_SOUND, MAX_WAVE );
         }
     }
 
@@ -1766,7 +1766,7 @@ void enc_remove_set( const ENC_REF ienc, int value_idx )
             break;
     }
 
-    penc->setyesno[value_idx] = ego_false;
+    penc->setyesno[value_idx] = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1916,7 +1916,7 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
                 break;
         }
 
-        penc->addyesno[value_idx] = ego_false;
+        penc->addyesno[value_idx] = false;
     }
 }
 
@@ -1944,18 +1944,18 @@ void EveStack_release_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool EveStack_release_one( const EVE_REF ieve )
+bool EveStack_release_one( const EVE_REF ieve )
 {
     eve_t * peve;
 
-    if ( !VALID_EVE_RANGE( ieve ) ) return ego_false;
+    if ( !VALID_EVE_RANGE( ieve ) ) return false;
     peve = EveStack_get_ptr( ieve );
 
-    if ( !peve->loaded ) return ego_true;
+    if ( !peve->loaded ) return true;
 
     eve_init( peve );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1984,7 +1984,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
     /// @details remove all the dead enchants from the enchant list
     ///     and report back the first non-dead enchant in the list.
 
-    ego_bool enc_used[MAX_ENC];
+    bool enc_used[MAX_ENC];
 
     ENC_REF first_valid_enchant;
 
@@ -2023,12 +2023,12 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
         if ( !INGAME_ENC( ienc_now ) )
         {
             remove_enchant( ienc_now, enc_parent );
-            enc_used[ienc_now] = ego_true;
+            enc_used[ienc_now] = true;
         }
         else
         {
             // store this enchant in the list of used enchants
-            enc_used[ienc_now] = ego_true;
+            enc_used[ienc_now] = true;
 
             // keep track of the first valid enchant
             if ( INVALID_ENC_REF == first_valid_enchant )
@@ -2057,12 +2057,12 @@ void cleanup_all_enchants( void )
     {
         ENC_REF * enc_lst;
         eve_t   * peve;
-        ego_bool    do_remove;
-        ego_bool valid_owner, valid_target;
+        bool    do_remove;
+        bool valid_owner, valid_target;
 
         // try to determine something about the parent
         enc_lst = NULL;
-        valid_target = ego_false;
+        valid_target = false;
         if ( INGAME_CHR( penc->target_ref ) )
         {
             valid_target = ChrList.lst[penc->target_ref].alive;
@@ -2072,7 +2072,7 @@ void cleanup_all_enchants( void )
         }
 
         //try to determine if the owner exists and is alive
-        valid_owner = ego_false;
+        valid_owner = false;
         if ( INGAME_CHR( penc->owner_ref ) )
         {
             valid_owner = ChrList.lst[penc->owner_ref].alive;
@@ -2081,31 +2081,31 @@ void cleanup_all_enchants( void )
         if ( !LOADED_EVE( penc->eve_ref ) )
         {
             // this should never happen
-            EGOBOO_ASSERT( ego_false );
+            EGOBOO_ASSERT( false );
             continue;
         }
         peve = EveStack_get_ptr( penc->eve_ref );
 
-        do_remove = ego_false;
+        do_remove = false;
         if ( WAITING_PBASE( POBJ_GET_PBASE( penc ) ) )
         {
             // the enchant has been marked for removal
-            do_remove = ego_true;
+            do_remove = true;
         }
         else if ( !valid_owner && !peve->stayifnoowner )
         {
             // the enchant's owner has died
-            do_remove = ego_true;
+            do_remove = true;
         }
         else if ( !valid_target && !peve->stayiftargetdead )
         {
             // the enchant's target has died
-            do_remove = ego_true;
+            do_remove = true;
         }
         else if ( valid_owner && peve->endifcantpay )
         {
             // Undo enchants that cannot be sustained anymore
-            if ( 0 == ChrList.lst[penc->owner_ref].mana ) do_remove = ego_true;
+            if ( 0 == ChrList.lst[penc->owner_ref].mana ) do_remove = true;
         }
         else
         {
@@ -2138,11 +2138,11 @@ void bump_all_enchants_update_counters( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool enc_request_terminate( enc_t * penc )
+bool enc_request_terminate( enc_t * penc )
 {
-    if ( NULL == penc || !ALLOCATED_PENC( penc ) || TERMINATED_PENC( penc ) ) return ego_false;
+    if ( NULL == penc || !ALLOCATED_PENC( penc ) || TERMINATED_PENC( penc ) ) return false;
 
     POBJ_REQUEST_TERMINATE( penc );
 
-    return ego_true;
+    return true;
 }

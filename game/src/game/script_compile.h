@@ -54,7 +54,7 @@ typedef struct s_opcode_data opcode_data_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern ego_bool debug_scripts;
+extern bool debug_scripts;
 extern FILE * debug_script_file;
 
 /// temporary data describing a single egoscript opcode
@@ -614,7 +614,7 @@ enum e_script_variables
 
 parser_state_t * script_compiler_init( void );
 parser_state_t * script_compiler_get_state( void );
-ego_bool           script_compiler_error( parser_state_t * );
-ego_bool           script_compiler_clear_error( parser_state_t * );
+bool           script_compiler_error( parser_state_t * );
+bool           script_compiler_clear_error( parser_state_t * );
 
 egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript );

@@ -23,14 +23,14 @@
 ///          Mark Morely (through the now vanished tutorial at http://www.markmorley.com/opengl/frustumculling.html)
 
 #include "egolib/frustum.h"
-
+#include "egolib/opengl/renderer.h"
 #include "egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// use OpenGL to multiply matrices
-static INLINE ego_bool ogl_matrix_mult( GLXmatrix clip, const GLXmatrix proj, const GLXmatrix modl );
+static INLINE bool ogl_matrix_mult( GLXmatrix clip, const GLXmatrix proj, const GLXmatrix modl );
 
 /// Call this every time the camera moves to update the frustum
 static void frustum_calculate( frustum_base_t pf, const float proj[], const float modl[] );
@@ -38,14 +38,14 @@ static void frustum_calculate( frustum_base_t pf, const float proj[], const floa
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static INLINE ego_bool ogl_matrix_mult( GLXmatrix clip, const GLXmatrix proj, const GLXmatrix modl )
+static INLINE bool ogl_matrix_mult( GLXmatrix clip, const GLXmatrix proj, const GLXmatrix modl )
 {
     // a helper function to harness opengl to do our matrix multiplications for us
 
     if ( NULL == clip )
     {
         // nothing to do
-        return ego_false;
+        return false;
     }
 
     if ( NULL == proj || NULL == modl )
@@ -81,7 +81,7 @@ static INLINE ego_bool ogl_matrix_mult( GLXmatrix clip, const GLXmatrix proj, co
         glMatrixMode( matrix_mode[0] );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -217,11 +217,11 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
 
     geometry_rv retval = geometry_error;
     geometry_rv intersect_rv;
-    ego_bool finished;
+    bool finished;
 
     if ( NULL == pfrust || NULL == paabb ) return geometry_error;
 
-    finished = ego_false;
+    finished = false;
 
     if ( !finished )
     {
@@ -247,7 +247,7 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
                 // The camera is inside the bounding box, so it must intersect with it.
                 // As a speedup, don't try to further refine this answer.
                 retval = geometry_intersect;
-                finished = ego_true;
+                finished = true;
                 break;
         }
     }
@@ -262,13 +262,13 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
     //        case geometry_error:
     //            // an error occured in this function
     //            retval = intersect_rv;
-    //            finished = ego_true;
+    //            finished = true;
     //            break;
 
     //        case geometry_outside:
     //            // the sphere surrounding the camera frustum does not intersect the sphere surrounding the aabb
     //            retval = intersect_rv;
-    //            finished = ego_true;
+    //            finished = true;
     //            break;
 
     //        case geometry_intersect:
@@ -294,17 +294,17 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
                 // the cone representing the camera frustum does not intersect the sphere surrounding the aabb
                 // since the cone is bigger than the frustum, we are done
                 retval = geometry_outside;
-                finished = ego_true;
+                finished = true;
                 break;
 
             case geometry_intersect:
                 retval = geometry_intersect;
-                finished = ego_true;
+                finished = true;
                 break;
 
             case geometry_inside:
                 retval = geometry_inside;
-                finished = ego_true;
+                finished = true;
                 break;
         }
     }
@@ -313,8 +313,8 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
     {
         // do the complete calculation. whatever it returns is what it is.
         // do not check the front and back of the frustum
-        retval = frustum_intersects_aabb( pfrust->data, paabb->data.mins, paabb->data.maxs, ego_false );
-        finished = ego_true;
+        retval = frustum_intersects_aabb( pfrust->data, paabb->data.mins, paabb->data.maxs, false );
+        finished = true;
     }
 
     return retval;
@@ -342,25 +342,25 @@ ego_aabb_t * ego_aabb_dtor( ego_aabb_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ego_aabb_self_clear( ego_aabb_t * psrc )
+bool ego_aabb_self_clear( ego_aabb_t * psrc )
 {
-    if ( NULL == psrc ) return ego_false;
+    if ( NULL == psrc ) return false;
 
     aabb_self_clear( &( psrc->data ) );
 
     sphere_self_clear( &( psrc->sphere ) );
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ego_aabb_copy( ego_aabb_t * pdst, const ego_aabb_t * psrc )
+bool ego_aabb_copy( ego_aabb_t * pdst, const ego_aabb_t * psrc )
 {
-    ego_bool retval = ego_false;
+    bool retval = false;
 
     if ( NULL == pdst )
     {
-        retval = ego_false;
+        retval = false;
     }
     else if ( NULL == psrc )
     {
@@ -371,15 +371,15 @@ ego_bool ego_aabb_copy( ego_aabb_t * pdst, const ego_aabb_t * psrc )
         memmove( pdst, psrc, sizeof( *pdst ) );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ego_aabb_from_oct_bb( ego_aabb_t * dst, const oct_bb_t * src )
+bool ego_aabb_from_oct_bb( ego_aabb_t * dst, const oct_bb_t * src )
 {
-    ego_bool retval;
+    bool retval;
 
-    if ( NULL == dst ) return ego_false;
+    if ( NULL == dst ) return false;
 
     retval = aabb_from_oct_bb( &( dst->data ), src );
 
@@ -396,11 +396,11 @@ ego_bool ego_aabb_from_oct_bb( ego_aabb_t * dst, const oct_bb_t * src )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ego_aabb_is_clear( const ego_aabb_t * pdst )
+bool ego_aabb_is_clear( const ego_aabb_t * pdst )
 {
-    ego_bool retval;
+    bool retval;
 
-    if ( NULL == pdst ) return ego_true;
+    if ( NULL == pdst ) return true;
 
     retval = aabb_is_clear( &( pdst->data ) );
 
@@ -413,12 +413,12 @@ ego_bool ego_aabb_is_clear( const ego_aabb_t * pdst )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ego_aabb_self_union( ego_aabb_t * pdst, const ego_aabb_t * psrc )
+bool ego_aabb_self_union( ego_aabb_t * pdst, const ego_aabb_t * psrc )
 {
-    ego_bool retval = ego_false;
+    bool retval = false;
 
-    if ( NULL == pdst ) return ego_false;
-    if ( NULL == psrc ) return ego_true;
+    if ( NULL == pdst ) return false;
+    if ( NULL == psrc ) return true;
 
     if ( pdst->sphere.radius < 0.0f )
     {
@@ -427,7 +427,7 @@ ego_bool ego_aabb_self_union( ego_aabb_t * pdst, const ego_aabb_t * psrc )
 
     if ( psrc->sphere.radius < 0.0f )
     {
-        return ego_true;
+        return true;
     }
 
     retval = aabb_self_union( &( pdst->data ), &( psrc->data ) );
@@ -444,9 +444,9 @@ ego_bool ego_aabb_self_union( ego_aabb_t * pdst, const ego_aabb_t * psrc )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ego_aabb_lhs_contains_rhs( const ego_aabb_t * lhs_ptr, const ego_aabb_t * rhs_ptr )
+bool ego_aabb_lhs_contains_rhs( const ego_aabb_t * lhs_ptr, const ego_aabb_t * rhs_ptr )
 {
-    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return ego_false;
+    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return false;
 
     ego_aabb_test( lhs_ptr );
     ego_aabb_test( rhs_ptr );
@@ -455,9 +455,9 @@ ego_bool ego_aabb_lhs_contains_rhs( const ego_aabb_t * lhs_ptr, const ego_aabb_t
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ego_aabb_overlap( const ego_aabb_t * lhs_ptr, const ego_aabb_t * rhs_ptr )
+bool ego_aabb_overlap( const ego_aabb_t * lhs_ptr, const ego_aabb_t * rhs_ptr )
 {
-    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return ego_false;
+    if ( NULL == lhs_ptr || NULL == rhs_ptr ) return false;
 
     ego_aabb_test( lhs_ptr );
     ego_aabb_test( rhs_ptr );
@@ -466,13 +466,13 @@ ego_bool ego_aabb_overlap( const ego_aabb_t * lhs_ptr, const ego_aabb_t * rhs_pt
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ego_aabb_validate( ego_aabb_t * rhs )
+bool ego_aabb_validate( ego_aabb_t * rhs )
 {
     int cnt;
     float radius_2;
     fvec3_t vtmp;
 
-    if ( NULL == rhs ) return ego_false;
+    if ( NULL == rhs ) return false;
 
     for ( cnt = 0; cnt < 3; cnt++ )
     {
@@ -490,23 +490,23 @@ ego_bool ego_aabb_validate( ego_aabb_t * rhs )
         rhs->sphere.radius = SQRT( radius_2 );
     }
 
-    return ego_true;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_bool ego_aabb_test( const ego_aabb_t * rhs )
+bool ego_aabb_test( const ego_aabb_t * rhs )
 {
-    ego_bool retval;
+    bool retval;
 
-    if ( NULL == rhs ) return ego_false;
+    if ( NULL == rhs ) return false;
 
     if ( rhs->sphere.radius < 0.0f )
     {
-        retval = ego_false;
+        retval = false;
     }
     else
     {
-        retval = ego_true;
+        retval = true;
     }
 
     return retval;

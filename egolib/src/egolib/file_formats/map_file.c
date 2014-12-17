@@ -49,17 +49,17 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static map_info_t * map_info_ctor( map_info_t * pinfo );
-static map_info_t * map_info_dtor( map_info_t * pinfo );
+static map_info_t *map_info_ctor( map_info_t * pinfo );
+static map_info_t *map_info_dtor( map_info_t * pinfo );
 
-static map_mem_t *  map_mem_ctor( map_mem_t * pmem );
-static map_mem_t *  map_mem_dtor( map_mem_t * pmem );
-static C_BOOLEAN       map_mem_free( map_mem_t * pmem );
-static C_BOOLEAN       map_mem_alloc( map_mem_t * pmem, map_info_t * pinfo );
+static map_mem_t *map_mem_ctor( map_mem_t * pmem );
+static map_mem_t *map_mem_dtor( map_mem_t * pmem );
+static bool map_mem_free( map_mem_t * pmem );
+static bool map_mem_alloc( map_mem_t * pmem, map_info_t * pinfo );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-map_t * map_ctor( map_t * pmesh )
+map_t *map_ctor( map_t * pmesh )
 {
     if ( NULL == pmesh ) return NULL;
 
@@ -72,7 +72,7 @@ map_t * map_ctor( map_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-map_t * map_dtor( map_t * pmesh )
+map_t *map_dtor( map_t * pmesh )
 {
     if ( NULL == pmesh ) return NULL;
 
@@ -92,21 +92,21 @@ map_t * map_renew( map_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN map_free( map_t * pmesh )
+bool map_free( map_t * pmesh )
 {
-    if ( NULL == pmesh ) return C_FALSE;
+    if ( NULL == pmesh ) return false;
 
     map_mem_free( &( pmesh->mem ) );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN map_init( map_t * pmesh, map_info_t * pinfo )
+bool map_init( map_t * pmesh, map_info_t * pinfo )
 {
     map_info_t loc_info;
 
-    if ( NULL == pmesh || NULL == pinfo ) return C_FALSE;
+    if ( NULL == pmesh || NULL == pinfo ) return false;
 
     // make a copy of the mesh info, in case "pinfo == &(pmesh->info)"
     memcpy( &loc_info, pinfo, sizeof( loc_info ) );
@@ -144,13 +144,13 @@ C_BOOLEAN map_init( map_t * pmesh, map_info_t * pinfo )
     // copy the desired mesh info into the actual mesh info
     memmove( &( pmesh->info ), &loc_info, sizeof( pmesh->info ) );
 
-    return C_TRUE;
+    return true;
 
 map_init_fail:
 
     map_dtor( pmesh );
 
-    return C_FALSE;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -197,19 +197,19 @@ map_mem_t * map_mem_dtor( map_mem_t * pmem )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN map_mem_alloc( map_mem_t * pmem, map_info_t * pinfo )
+bool map_mem_alloc( map_mem_t * pmem, map_info_t * pinfo )
 {
     int tile_count;
 
-    if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return C_FALSE;
+    if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return false;
 
     // free any memory already allocated
-    if ( !map_mem_free( pmem ) ) return C_FALSE;
+    if ( !map_mem_free( pmem ) ) return false;
 
     if ( pinfo->vertcount > MAP_VERTICES_MAX )
     {
         log_warning( "map_mem_alloc() - mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MAP_VERTICES_MAX );
-        return C_FALSE;
+        return false;
     }
 
     // allocate new memory
@@ -219,7 +219,7 @@ C_BOOLEAN map_mem_alloc( map_mem_t * pmem, map_info_t * pinfo )
         map_mem_free( pmem );
         log_error( "map_mem_alloc() - reduce the maximum number of vertices! (Check MAP_VERTICES_MAX)\n" );
 
-        return C_FALSE;
+        return false;
     }
     pmem->vcount = pinfo->vertcount;
 
@@ -230,17 +230,17 @@ C_BOOLEAN map_mem_alloc( map_mem_t * pmem, map_info_t * pinfo )
         map_mem_free( pmem );
         log_error( "map_mem_alloc() - not enough memory to allocate the tile info\n" );
 
-        return C_FALSE;
+        return false;
     }
     pmem->tile_count = tile_count;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN map_mem_free( map_mem_t * pmem )
+bool map_mem_free( map_mem_t * pmem )
 {
-    if ( NULL == pmem ) return C_FALSE;
+    if ( NULL == pmem ) return false;
 
     // free the memory
     EGOBOO_DELETE_ARY( pmem->vlst );
@@ -249,7 +249,7 @@ C_BOOLEAN map_mem_free( map_mem_t * pmem )
     EGOBOO_DELETE_ARY( pmem->tile_list );
     pmem->tile_count = 0;
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -263,7 +263,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
 
     int map_version;
     Uint32 tiles_count;
-    C_BOOLEAN test_limits = C_FALSE;
+    bool test_limits = false;
 
     Uint32 ui32_tmp;
     map_info_t loc_info;
@@ -306,7 +306,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     else if ( map_version > CURRENT_MAP_VERSION_NUMBER )
     {
         log_warning( "%s - file version is too recent or invalid. Not all features will be supported %d/%d.\n", __FUNCTION__, map_version, CURRENT_MAP_VERSION_NUMBER );
-        test_limits = C_TRUE;
+        test_limits = true;
     }
 
     // read the rest of the "header"

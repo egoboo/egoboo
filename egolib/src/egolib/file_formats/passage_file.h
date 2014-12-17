@@ -52,12 +52,12 @@ extern "C"
         irect_t area;
         int     music;                ///< Music track appointed to the specific passage
         Uint8   mask;                 ///< Is it IMPASSABLE, SLIPPERY or whatever
-        C_BOOLEAN  open;                 ///< Is the passage open?
+        bool  open;                 ///< Is the passage open?
     };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-    C_BOOLEAN scan_passage_file( vfs_FILE * fileread, passage_t * ppass );
+    bool scan_passage_file( vfs_FILE * fileread, passage_t * ppass );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

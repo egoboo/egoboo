@@ -589,7 +589,7 @@ void draw_schematic( window_t * pwin, int fantype, int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, ego_bool draw_tile, cartman_mpd_t * pmesh )
+void draw_top_tile( float x0, float y0, int fan, oglx_texture_t * tx_tile, bool draw_tile, cartman_mpd_t * pmesh )
 {
     static simple_vertex_t loc_vrt[4];
 
@@ -1531,7 +1531,7 @@ int gfx_init_ogl()
     // Load the current graphical settings
     // gfx_system_load_assets();
 
-    _ogl_initialized = ego_true;
+    _ogl_initialized = true;
 
     return _ogl_initialized && _sdl_initialized_graphics;
 }

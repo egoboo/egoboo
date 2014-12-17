@@ -24,9 +24,11 @@
 
 #include "egolib/typedef.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -143,21 +145,21 @@ extern "C"
         EGO_PROFILE_STUFF
 
         // enchant spawning info
-        C_BOOLEAN  override;                         ///< Override other enchants?
-        C_BOOLEAN  remove_overridden;                ///< Remove other enchants?
-        C_BOOLEAN  retarget;                         ///< Pick a weapon?
-        Uint8   required_damagetype;              ///< Don't enchant if the target is immune to required_damagetype
-        Uint8   require_damagetarget_damagetype;  ///< Only enchant the target if the target damagetarget_damagetype matches this value
-        C_BOOLEAN  spawn_overlay;                    ///< Spawn an overlay?
+        bool  override;                         ///< Override other enchants?
+        bool  remove_overridden;                ///< Remove other enchants?
+        bool  retarget;                         ///< Pick a weapon?
+        Uint8 required_damagetype;              ///< Don't enchant if the target is immune to required_damagetype
+        Uint8 require_damagetarget_damagetype;  ///< Only enchant the target if the target damagetarget_damagetype matches this value
+        bool  spawn_overlay;                    ///< Spawn an overlay?
 
         // ending conditions
-        int     lifetime;                         ///< Time in seconds
-        C_BOOLEAN  endifcantpay;                     ///< End on out of mana
-        IDSZ    removedbyidsz;                    ///< By particle or [NONE]
+        int lifetime;                           ///< Time in seconds
+        bool endifcantpay;                      ///< End on out of mana
+        IDSZ removedbyidsz;                     ///< By particle or [NONE]
 
         // despawning info
-        C_BOOLEAN  stayiftargetdead;                 ///< Stay if target has died?
-        C_BOOLEAN  stayifnoowner;                    ///< Stay if owner has died?
+        bool stayiftargetdead;                  ///< Stay if target has died?
+        bool stayifnoowner;                     ///< Stay if owner has died?
 
         // skill modifications
         Sint16  owner_mana;
@@ -166,44 +168,45 @@ extern "C"
         Sint16  target_life;
 
         // generic modifications
-        C_BOOLEAN  setyesno[MAX_ENCHANT_SET];    ///< Set this value?
-        float   setvalue[MAX_ENCHANT_SET];    ///< Value to use
+        bool setyesno[MAX_ENCHANT_SET];        ///< Set this value?
+        float setvalue[MAX_ENCHANT_SET];       ///< Value to use
 
-        C_BOOLEAN  addyesno[MAX_ENCHANT_ADD];    ///< Add this value?
-        float   addvalue[MAX_ENCHANT_ADD];    ///< The values to add
+        bool addyesno[MAX_ENCHANT_ADD];        ///< Add this value?
+        float addvalue[MAX_ENCHANT_ADD];       ///< The values to add
 
         // special modifications
-        int  seekurse;                        ///< Allow target to see kurses
-        int  darkvision;                      ///< Allow target to see in darkness
+        int seekurse;                        ///< Allow target to see kurses
+        int darkvision;                      ///< Allow target to see in darkness
 
         // continuous spawning
-        Uint16  contspawn_delay;              ///< Spawn timer
-        Uint8   contspawn_amount;             ///< Spawn amount
-        Uint16  contspawn_facingadd;          ///< Spawn in circle
-        int     contspawn_lpip;               ///< Spawn type ( local )
+        Uint16 contspawn_delay;              ///< Spawn timer
+        Uint8 contspawn_amount;              ///< Spawn amount
+        Uint16 contspawn_facingadd;          ///< Spawn in circle
+        int contspawn_lpip;                  ///< Spawn type ( local )
 
         // what to so when the enchant ends
         Sint16  endsound_index;              ///< Sound on end (-1 for none)
-        C_BOOLEAN  killtargetonend;             ///< Kill the target on end?
-        C_BOOLEAN  poofonend;                   ///< Spawn a poof on end?
-        int     endmessage;                  ///< Message for end -1 for none
+        bool killtargetonend;                ///< Kill the target on end?
+        bool poofonend;                      ///< Spawn a poof on end?
+        int endmessage;                      ///< Message for end -1 for none
 
     };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    eve_t *  load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve );
-    C_BOOLEAN   save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateName, eve_t * peve );
+    eve_t *load_one_enchant_file_vfs( const char* szLoadName, eve_t * peve );
+	bool   save_one_enchant_file_vfs(const char* szLoadName, const char * szTemplateName, eve_t * peve);
 
-    eve_t * eve_init( eve_t * peve );
+    eve_t *eve_init( eve_t * peve );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #if defined(__cplusplus)
 }
-
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------

@@ -50,11 +50,11 @@ extern "C"
         int time_now;
     };
 
-    C_BOOLEAN egolib_throttle_reset( egolib_throttle_t * pclock );
+    bool egolib_throttle_reset( egolib_throttle_t * pclock );
 
-    C_BOOLEAN egolib_throttle_update( egolib_throttle_t * pclock );
-    C_BOOLEAN egolib_throttle_update_1( egolib_throttle_t * pclock, int granularity );
-    C_BOOLEAN egolib_throttle_update_diff( egolib_throttle_t * pclock, int diff );
+    bool egolib_throttle_update( egolib_throttle_t * pclock );
+    bool egolib_throttle_update_1( egolib_throttle_t * pclock, int granularity );
+    bool egolib_throttle_update_diff( egolib_throttle_t * pclock, int diff );
 
 #define EGOLIB_THROTTLE_INIT { -1, 0, 0, 0, 0 }
 

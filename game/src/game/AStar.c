@@ -43,7 +43,7 @@ static AStar_Node_t *start_node = NULL;
 //------------------------------------------------------------------------------
 //"Private" functions
 static AStar_Node_t* AStar_get_next_node( void );
-static AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, float weight, ego_bool closed );
+static AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, float weight, bool closed );
 static void AStar_reset( void );
 
 //------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ AStar_Node_t* AStar_get_next_node( void )
 }
 
 //------------------------------------------------------------------------------
-AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, float weight, ego_bool closed )
+AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, float weight, bool closed )
 {
     /// @author ZF
     /// @details Adds one new node to the end of the node list
@@ -96,14 +96,14 @@ void AStar_reset( void )
 }
 
 //------------------------------------------------------------------------------
-ego_bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy )
+bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy )
 {
     /// @author ZF
     /// @details Explores up to MAX_ASTAR_NODES number of nodes to find a path between the source coordinates and destination coordinates.
-    //              The result is stored in a node list and can be accessed through AStar_get_path(). Returns ego_false if no path was found.
+    //              The result is stored in a node list and can be accessed through AStar_get_path(). Returns false if no path was found.
 
     int j, k, cnt;
-    ego_bool done;
+    bool done;
     int deadend_count;
     AStar_Node_t * popen;
     float weight;
@@ -115,7 +115,7 @@ ego_bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix,
 #ifdef DEBUG_ASTAR
         printf( "AStar failed because source position is off the mesh.\n" );
 #endif
-        return ego_false;
+        return false;
     }
 
     //be a bit flexible if the destination is inside a wall
@@ -139,23 +139,23 @@ ego_bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix,
 #ifdef DEBUG_ASTAR
         printf( "AStar failed because goal position is impassable (and no nearby non-impassable tile found).\n" );
 #endif
-        return ego_false;
+        return false;
     }
 flexible_destination:
 
     // restart the algorithm
-    done = ego_false;
+    done = false;
     AStar_reset();
 
     // initialize the starting node
     weight = SQRT(( src_ix - dst_ix ) * ( src_ix - dst_ix ) + ( src_iy - dst_iy ) * ( src_iy - dst_iy ) );
-    start_node = AStar_add_node( src_ix, src_iy, NULL, weight, ego_false );
+    start_node = AStar_add_node( src_ix, src_iy, NULL, weight, false );
 
     // do the algorithm
     while ( !done )
     {
         int tmp_x, tmp_y;
-        ego_bool stop;
+        bool stop;
 
         // list is completely full... we failed
         if ( node_list_length == MAX_ASTAR_NODES ) break;
@@ -187,8 +187,8 @@ flexible_destination:
                     {
                         weight = ( tmp_x - popen->ix ) * ( tmp_x - popen->ix ) + ( tmp_y - popen->iy ) * ( tmp_y - popen->iy );
                         weight = sqrt( weight );
-                        final_node = AStar_add_node( tmp_x, tmp_y, popen, weight, ego_false );
-                        done = ego_true;
+                        final_node = AStar_add_node( tmp_x, tmp_y, popen, weight, false );
+                        done = true;
                         continue;
                     }
 
@@ -201,13 +201,13 @@ flexible_destination:
                     }
 
                     // is this already in the list? (must be checked before wall or fanoff)
-                    stop = ego_false;
+                    stop = false;
                     for ( cnt = 0; cnt < node_list_length; cnt++ )
                     {
                         if ( node_list[cnt].ix == tmp_x && node_list[cnt].iy == tmp_y )
                         {
                             deadend_count++;
-                            stop = ego_true;
+                            stop = true;
                             break;
                         }
                     }
@@ -221,7 +221,7 @@ flexible_destination:
                     if ( TILE_IS_FANOFF( *ptile ) )
                     {
                         // add the invalid tile to the list as a closed tile
-                        AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, ego_true );
+                        AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );
                         deadend_count++;
                         continue;
                     }
@@ -230,7 +230,7 @@ flexible_destination:
                     if ( ego_mesh_tile_has_bits( PMesh, tmp_x, tmp_y, stoppedby ) )
                     {
                         // add the invalid tile to the list as a closed tile
-                        AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, ego_true );
+                        AStar_add_node( tmp_x, tmp_y, popen, 0xFFFF, true );
                         deadend_count++;
                         continue;
                     }
@@ -242,7 +242,7 @@ flexible_destination:
                     weight  = ( tmp_x - popen->ix ) * ( tmp_x - popen->ix ) + ( tmp_y - popen->iy ) * ( tmp_y - popen->iy );
                     weight += ( tmp_x - dst_ix ) * ( tmp_x - dst_ix ) + ( tmp_y - dst_iy ) * ( tmp_y - dst_iy );
                     weight  = sqrt( weight );
-                    AStar_add_node( tmp_x, tmp_y, popen, weight, ego_false );
+                    AStar_add_node( tmp_x, tmp_y, popen, weight, false );
                 }
             }
 
@@ -250,7 +250,7 @@ flexible_destination:
             {
                 // this node is no longer active.
                 // move it to the closed list so that we do not get any loops
-                popen->closed = ego_true;
+                popen->closed = true;
             }
         }
 
@@ -269,17 +269,17 @@ flexible_destination:
 }
 
 //------------------------------------------------------------------------------
-ego_bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst )
+bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst )
 {
     /// @author ZF
-    /// @details Fills a waypoint list with sensible waypoints. It will return ego_false if it failed to add at least one waypoint.
+    /// @details Fills a waypoint list with sensible waypoints. It will return false if it failed to add at least one waypoint.
     //              The function goes through all the AStar_nodes and finds out which one are critical. A critical node is one that
     //              creates a corner. The function automatically prunes away all non-critical nodes. The final waypoint will always be
     //              the destination coordinates.
 
     int i;
     size_t path_length, waypoint_num;
-    //ego_bool diagonal_movement = ego_false;
+    //bool diagonal_movement = false;
 
     AStar_Node_t *current_node, *last_waypoint, *safe_waypoint;
     AStar_Node_t *node_path[MAX_ASTAR_PATH];
@@ -304,7 +304,7 @@ ego_bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst
     safe_waypoint = NULL;
     for ( i = path_length - 1; i >= 0 && waypoint_num < MAXWAY; i-- )
     {
-        ego_bool change_direction;
+        bool change_direction;
 
         //get current node
         current_node = node_path[i];

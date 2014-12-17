@@ -72,8 +72,8 @@ struct s_lighting_cache_base
 };
 
 lighting_cache_base_t * lighting_cache_base_init( lighting_cache_base_t * pdata );
-ego_bool                  lighting_cache_base_max_light( lighting_cache_base_t * cache );
-ego_bool                  lighting_cache_base_blend( lighting_cache_base_t * cache, const lighting_cache_base_t * cnew, float keep );
+bool                  lighting_cache_base_max_light( lighting_cache_base_t * cache );
+bool                  lighting_cache_base_blend( lighting_cache_base_t * cache, const lighting_cache_base_t * cnew, float keep );
 
 //--------------------------------------------------------------------------------------------
 struct s_lighting_cache
@@ -86,8 +86,8 @@ struct s_lighting_cache
 };
 
 lighting_cache_t * lighting_cache_init( lighting_cache_t * pdata );
-ego_bool             lighting_cache_max_light( lighting_cache_t * cache );
-ego_bool             lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, float keep );
+bool             lighting_cache_max_light( lighting_cache_t * cache );
+bool             lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, float keep );
 
 //--------------------------------------------------------------------------------------------
 #define MAXDYNADIST                     2700        // Leeway for offscreen lights
@@ -110,11 +110,11 @@ extern float  light_a, light_d, light_nrm[3];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * src, const fmat_4x4_base_t mat );
-ego_bool lighting_cache_interpolate( lighting_cache_t * dst, const lighting_cache_t * src[], const float u, const float v );
+bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * src, const fmat_4x4_base_t mat );
+bool lighting_cache_interpolate( lighting_cache_t * dst, const lighting_cache_t * src[], const float u, const float v );
 float lighting_cache_test( const lighting_cache_t * src[], const float u, const float v, float * low_max_diff, float * hgh_max_diff );
 
 float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_base_t nrm, const float z, const aabb_t bbox, float * light_amb, float * light_dir );
 
-ego_bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_base_t nrm );
+bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_base_t nrm );
 float  dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_base_t diff );

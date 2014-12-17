@@ -30,7 +30,7 @@ egolib_timer_t * egolib_timer__init( egolib_timer_t * ptr )
 {
     if ( NULL == ptr ) return ptr;
 
-    ptr->free_running = C_FALSE;
+    ptr->free_running = false;
     ptr->ticks_lst = 0;
     ptr->ticks_now = 0;
     ptr->ticks_next = 0;
@@ -40,14 +40,14 @@ egolib_timer_t * egolib_timer__init( egolib_timer_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN egolib_timer__throttle( egolib_timer_t * ptimer, float rate )
+bool egolib_timer__throttle( egolib_timer_t * ptimer, float rate )
 {
     /// @author BB
-    /// @details return C_TRUE if the process should proceed, C_FALSE, otherwise
+    /// @details return true if the process should proceed, false, otherwise
 
     int ticks;
 
-    if ( NULL == ptimer ) return C_FALSE;
+    if ( NULL == ptimer ) return false;
 
     // the current time
     ticks  = SDL_GetTicks();
@@ -56,18 +56,18 @@ C_BOOLEAN egolib_timer__throttle( egolib_timer_t * ptimer, float rate )
     ptimer->ticks_diff = ticks - ptimer->ticks_lst;
 
     // return if not enough time has elapsed
-    if ( !ptimer->free_running && ( ticks <= ptimer->ticks_next ) ) return C_FALSE;
+    if ( !ptimer->free_running && ( ticks <= ptimer->ticks_next ) ) return false;
 
     // set the next update
     egolib_timer__reset( ptimer, ticks, rate );
 
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN egolib_timer__reset( egolib_timer_t * ptimer, int ticks, float rate )
+bool egolib_timer__reset( egolib_timer_t * ptimer, int ticks, float rate )
 {
-    if ( NULL == ptimer ) return C_FALSE;
+    if ( NULL == ptimer ) return false;
 
     if ( ticks < 0 )
     {
@@ -82,5 +82,5 @@ C_BOOLEAN egolib_timer__reset( egolib_timer_t * ptimer, int ticks, float rate )
     // determine the elapsed time
     ptimer->ticks_diff = ptimer->ticks_now - ptimer->ticks_lst;
 
-    return C_TRUE;
+    return true;
 }

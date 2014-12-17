@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -18,7 +16,7 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-
+#pragma once
 /// @file egolib/clock.h
 /// @brief Clock & timer functionality.
 /// @details This implementation was adapted from Noel Lopis' article in
