@@ -30,23 +30,20 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static double _sys_startuptime;
+static NSDate * _sys_startdate;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void sys_initialize()
+void sys_initialize(void)
 {
-    struct timeval now;
-    gettimeofday( &now, NULL );
-    _sys_startuptime = now.tv_sec + now.tv_usec * 1e-6;
+    _sys_startdate = [NSDate date];
+    [_sys_startdate retain];
 }
 
 //--------------------------------------------------------------------------------------------
-double sys_getTime()
+double sys_getTime(void)
 {
-    struct timeval now;
-    gettimeofday( &now, NULL );
-    return (( double )now.tv_sec ) + now.tv_usec * 1e-6 - _sys_startuptime;
+    return [[NSDate date] timeIntervalSinceDate:_sys_startdate];
 }
 
 //--------------------------------------------------------------------------------------------

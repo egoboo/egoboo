@@ -364,7 +364,7 @@ egolib_rv netfile_handleEvent( ENetEvent * event )
     char newfile;
 
     vfs_FILE *file;
-    size_t fileSize;
+    Uint32 fileSize;
     enet_packet_t enet_pkt;
     ego_packet_t  ego_pkt;
     C_BOOLEAN handled;

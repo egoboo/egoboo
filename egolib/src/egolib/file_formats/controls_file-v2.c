@@ -91,6 +91,8 @@ C_BOOLEAN input_settings_load_vfs_2( const char* szFilename )
 
         InputDevices.count++;
     }
+    
+    vfs_close( fileread );
 
     return InputDevices.count > 0;
 }
