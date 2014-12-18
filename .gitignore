@@ -10,13 +10,16 @@ game_vs13-Debug/
 game_vs13-Release/
 external/
 
-# Code::Blocks
+# Code::Blocks.
 *.layout
 
-# OS X
+# OS X.
 .DS_Store
 
-# Xcode
+# Xcode.
 xcuserdata
 *.xcuserstate
 *.xccheckout
+
+# General.
+*.bak
