@@ -17,16 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file platform/sys_mac.c
+/// @file egolib/platform/sys_mac.c
 /// @brief Implementation of mac system-dependent functions
 /// @details
 
 #import <AppKit/NSAlert.h>
 #import <Foundation/NSString.h>
-#include <sys/time.h>
+#import <Foundation/NSDate.h>
 
 #include "egolib/system.h"
-#include "egolib/file_common.h" /* for NULL */
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

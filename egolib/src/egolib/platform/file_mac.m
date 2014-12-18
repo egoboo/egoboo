@@ -1,16 +1,13 @@
-// mac-file.m
+// egolib/platform/file_mac.m
 
 // Egoboo, Copyright (C) 2000 Aaron Bishop
-
-#include "egolib/file_common.h"
 
 #import <Foundation/NSPathUtilities.h>
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSBundle.h>
 #import "NSFileManager+DirectoryLocations.h"
-#include <string.h>
-#include <SDL.h>
-#include <SDL_endian.h>
+
+#include "egolib/file_common.h"
 
 struct s_mac_find_context {
     NSDirectoryEnumerator * dirEnum;
@@ -19,7 +16,6 @@ struct s_mac_find_context {
     NSString * currentFile;
 };
 
-#define MAX_PATH 260
 static NSString *binaryPath = nil;
 static NSString *dataPath = nil;
 static NSString *userPath = nil;

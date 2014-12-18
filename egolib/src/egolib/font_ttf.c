@@ -632,6 +632,8 @@ void fnt_drawText_OGL_va( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloa
     }
 
     rv = fnt_vprintf_OGL( font, fnt_color, tex_id, tex_coords, format, args, loc_ppTmpSurface );
+    
+    EGOBOO_ASSERT(loc_ppTmpSurface != NULL && *loc_ppTmpSurface != NULL);
 
     if ( rv <= 0 )
     {

@@ -2656,17 +2656,21 @@ float draw_character_xp_bar( const CHR_REF character, float x, float y )
     if ( NULL == pcap ) return y;
 
     //Draw the small XP progress bar
-    if ( pchr->experiencelevel < MAXLEVEL )
+    if ( pchr->experiencelevel < MAXLEVEL - 1 )
     {
         Uint8  curlevel    = pchr->experiencelevel + 1;
         Uint32 xplastlevel = pcap->experience_forlevel[curlevel-1];
         Uint32 xpneed      = pcap->experience_forlevel[curlevel];
-		assert(pchr->experience >= xplastlevel);
+        
+        while (pchr->experience <= xplastlevel && curlevel > 0) {
+            curlevel--;
+            xplastlevel = pcap->experience_forlevel[curlevel-1];
+        }
 
 		float fraction = ((float)(pchr->experience - xplastlevel)) / (float)std::max<unsigned int>( xpneed - xplastlevel, 1 );
         int   numticks = fraction * NUMTICK;
 
-        y = draw_one_xp_bar( x, y, CLIP( numticks, 0, 255 ) );
+        y = draw_one_xp_bar( x, y, CLIP( numticks, 0, NUMTICK ) );
     }
 
     return y;
