@@ -1,29 +1,30 @@
-/*
-  pixdemo - demo of put/get pixel for SDL.
-  Copyright (C) 1999, 2000 Neil McGill
-
-  This game is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Library General Public
-  License as published by the Free Software Foundation; either
-  version 2 of the License, or (at your option) any later version.
-
-  This game is distributed in the hope that it will be fun,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Library General Public License for more details.
-
-  You should have received a copy of the GNU Library General Public
-  License along with this game; if not, write to the Free
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-  Neil McGill
-
-  $Id: SDL_PutPixel.cpp,v 1.1 2002/08/21 22:14:00 arakon Exp $
-*/
-
-#include <string.h>
-
-#include "SDL_Pixel.h"
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+/**
+ * @file
+ *	cartman/SDL_PutPixel.c
+ * @brief
+ *	Put pixel for SDL.
+ * @author
+ *	Neil McGill
+ */
+#include "cartman/SDL_Pixel.h"
 
 /*
  * This function sets the specified pixel on a surface. Sanity checks are

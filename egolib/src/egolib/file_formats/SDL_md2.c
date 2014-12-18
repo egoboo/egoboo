@@ -18,11 +18,11 @@
 //*
 //********************************************************************************************
 
-/// @file file_formats/SDL_md2.c
+/// @file egolib/file_formats/SDL_md2.c
 /// @brief A .md2 file reader using SDL's RWOPS interface
 /// @details
 
-#include "SDL_md2.h"
+#include "egolib/file_formats/SDL_md2.h"
 #include "egolib//vfs.h"
 
 //--------------------------------------------------------------------------------------------

@@ -23,9 +23,6 @@
 /// @brief Implementation of the debugging extensions for OpenGL
 /// @details
 
-#include <assert.h>
-#include <memory.h>
-
 #include "egolib/extensions/ogl_debug.h"
 
 #include "egolib/file_common.h"

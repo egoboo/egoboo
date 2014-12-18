@@ -23,8 +23,6 @@
 /// @brief Load and save version 1 ("MapA") files
 /// @details
 
-#include <stdio.h>
-
 #include "egolib/file_formats/map_file.h"
 
 #if defined(__cplusplus)

@@ -26,10 +26,6 @@
 /// @brief Definitions for generic extensions to SDL
 /// @details
 
-#include <assert.h>
-
-#include <SDL.h>
-
 #include "egolib/file_common.h"
 
 #if defined(__cplusplus)

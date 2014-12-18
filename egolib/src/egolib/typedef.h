@@ -22,11 +22,6 @@
 /// @file egolib/egolib_typedef.h
 /// @details some basic types that are used throughout the game code.
 
-#include <assert.h>
-#include <ctype.h>
-
-#include <SDL.h>
-
 // this include must be the absolute last include
 #include "egolib/egolib_config.h"
 
@@ -91,10 +86,6 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
-
-#if !defined(__cplusplus)
-	#include <stdbool.h>
-#endif
 
 #if 0
 /** @todo Remove this, use @a true. */

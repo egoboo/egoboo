@@ -21,8 +21,6 @@
 /// @brief Implementation of a clock "class" using SDL_GetTicks()
 /// @details
 
-#include <SDL.h>
-
 #include "egolib/throttle.h"
 #include "egolib/_math.h"
 

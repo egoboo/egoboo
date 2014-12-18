@@ -17,9 +17,6 @@
 //*
 //********************************************************************************************
 
-#include <assert.h>
-#include <math.h>
-
 #include "egolib/egolib.h"
 
 #include "cartman_map.h"

@@ -18,12 +18,10 @@
 //*
 //********************************************************************************************
 
-/// @file extensions/SDL_extensions.c
+/// @file egolib/extensions/SDL_extensions.c
 /// @ingroup _sdl_extensions_
 /// @brief Implementation of generic extensions to SDL
 /// @details
-
-#include <SDL_opengl.h>
 
 #include "egolib/extensions/SDL_extensions.h"
 

@@ -23,9 +23,6 @@
 /// @details Interface to operating system dependant stuff.  Currently only in use to
 /// use a higher performance timer than SDL provides on Windows machines.
 
-#include <stdlib.h>
-#include <stdarg.h>
-
 #if 0
 #if defined(__cplusplus)
 extern "C"

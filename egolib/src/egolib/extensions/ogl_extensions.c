@@ -23,9 +23,6 @@
 /// @brief Implementation of extended functions and variables for OpenGL
 /// @details
 
-#include <math.h>
-#include <string.h>
-
 #include "egolib/extensions/ogl_extensions.h"
 #include "egolib/extensions/ogl_debug.h"
 

@@ -133,10 +133,10 @@ bool lighting_cache_base_max_light( lighting_cache_base_t * cache )
     float max_light;
 
     // determine the lighting extents
-    max_light = ABS( cache->lighting[0] );
+    max_light = std::abs( cache->lighting[0] );
     for ( cnt = 1; cnt < LIGHTING_VEC_SIZE - 1; cnt++ )
     {
-        max_light = MAX( max_light, ABS( cache->lighting[cnt] ) );
+        max_light = std::max( max_light, std::abs( cache->lighting[cnt] ) );
     }
 
     cache->max_light = max_light;

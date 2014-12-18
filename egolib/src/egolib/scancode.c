@@ -21,8 +21,6 @@
 /// @brief
 /// @details
 
-#include <stdio.h>
-
 #include "egolib/scancode.h"
 #include "egolib/strutil.h"
 

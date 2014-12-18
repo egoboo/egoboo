@@ -24,9 +24,6 @@
 #define DECLARE_GLOBALS
 #include "game/egoboo.h"
 
-#include <SDL.h>
-#include <SDL_image.h>
-
 #include "egolib/log.h"
 #include "egolib/system.h"
 #include "egolib/font_bmp.h"

@@ -22,9 +22,6 @@
 /// @file egolib/strutil.h
 /// @String manipulation functions.
 
-#include <string.h>
-#include <ctype.h>
-
 #include "egolib/typedef.h"
 
 #if defined(__cplusplus)

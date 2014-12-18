@@ -22,8 +22,6 @@
 /// @details Shuttles bits across the network, using Enet.  Networked play doesn't
 /// really work at the moment.
 
-#include <stdarg.h>
-
 #include "egolib/network.h"
 
 #include "egolib/network_file.h"

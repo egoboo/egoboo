@@ -21,8 +21,6 @@
 /// @brief Functions to read and write the Egoboo's wawalite.txt file
 /// @details
 
-#include <string.h>
-
 #include "egolib/file_formats/wawalite_file.h"
 
 #include "egolib/file_formats/pip_file.h"

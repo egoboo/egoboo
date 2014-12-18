@@ -23,9 +23,6 @@
 
 #include "game/sound.h"
 
-#include <SDL.h>
-#include <SDL_mixer.h>
-
 #include "egolib/vfs.h"
 #include "egolib/fileutil.h"
 #include "egolib/egoboo_setup.h"

@@ -21,8 +21,6 @@
 
 /// @file egolib/file_common.h
 
-#include <stdio.h>
-
 #include "egolib/typedef.h"
 
 #if 0

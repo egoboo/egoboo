@@ -22,11 +22,6 @@
 /// @file egolib/_math.h
 /// @details The name's pretty self explanatory, doncha think?
 
-#include <cmath>
-#include <cstdlib>
-#include <float.h>
-#include <algorithm>
-
 #include "egolib/typedef.h"
 
 #if !defined(ABS)

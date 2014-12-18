@@ -25,8 +25,6 @@
 #include "game/script_compile.h"
 #include "game/script_functions.h"
 
-#include <assert.h>
-
 #include "egolib/log.h"
 #include "egolib/vfs.h"
 #include "egolib/egoboo_setup.h"

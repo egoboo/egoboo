@@ -1,25 +1,55 @@
-/*
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+/**
+ * @file
+ *	cartman/SDL_rotozoom.c
+ * @brief
+ *	rotozoomer for 8 or 32 Bit surfaces
+ * @author
+ *	A. Schiffler
+ */
+#include "cartman/SDL_rotozoom.h"
 
-SDL_rotozoom.c - rotozoomer for 32bit or 8bit surfaces
-
-LGPL (c) A. Schiffler
-
-*/
-
-#include <stdlib.h>
-#include <string.h>
-
-#include <SDL.h>
-
-#include "SDL_rotozoom.h"
-
-#ifndef MAX
-#define MAX(a,b)    (((a) > (b)) ? (a) : (b))
+/** @todo Remove this use PI from Egolib. */
+#ifndef M_PI
+#define M_PI  3.141592654
 #endif
 
-#ifndef MIN
-#define MIN(a,b)    (((a) < (b)) ? (a) : (b))
-#endif
+/* ---- Defines */
+
+#define SMOOTHING_OFF    0
+#define SMOOTHING_ON    1
+
+/* ---- Structures */
+
+typedef struct ColorRGBA
+{
+	Uint8 r;
+	Uint8 g;
+	Uint8 b;
+	Uint8 a;
+} tColorRGBA;
+
+typedef struct tColorY
+{
+	Uint8 y;
+} tColorY;
 
 /*
 

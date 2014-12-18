@@ -22,8 +22,6 @@
 /// @file game/input.h
 /// @details Keyboard, mouse, and joystick handling code.
 
-#include <SDL.h>
-
 #include "game/egoboo_typedef.h"
 
 #include "egolib/input_device.h"

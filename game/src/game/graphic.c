@@ -30,10 +30,6 @@
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 
-#include <assert.h>
-
-#include <SDL_image.h>
-
 #include "egolib/log.h"
 #include "egolib/clock.h"
 #include "egolib/throttle.h"

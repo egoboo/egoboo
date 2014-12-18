@@ -22,7 +22,7 @@
 /// @file egolib/scancode.h
 /// @details translation of SDL scancodes to keys
 
-#include <SDL.h>
+#include "egolib/platform.h"
 
 #if 0
 #if defined(__cplusplus)

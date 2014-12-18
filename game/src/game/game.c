@@ -23,13 +23,6 @@
 
 #include "game/game.h"
 
-#include <time.h>
-#include <assert.h>
-#include <float.h>
-#include <string.h>
-
-#include <SDL_image.h>
-
 #include "egolib/clock.h"
 #include "egolib/throttle.h"
 #include "egolib/vfs.h"

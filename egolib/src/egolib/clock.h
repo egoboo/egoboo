@@ -24,8 +24,6 @@
 
 #include "egolib/typedef.h"
 
-#include <time.h>
-
 #if 0
 #if defined(__cplusplus)
 extern "C"

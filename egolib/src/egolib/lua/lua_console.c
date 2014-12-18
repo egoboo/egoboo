@@ -23,8 +23,6 @@
 
 #include "egolib/lua/lua_console.h"
 
-#include <string.h>
-
 #if defined(__cplusplus)
 extern "C"
 {

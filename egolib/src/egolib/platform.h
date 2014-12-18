@@ -23,7 +23,105 @@
 /// @brief System-dependent global parameters.
 ///   @todo  some of this stuff is compiler dependent, rather than system dependent.
 
-#include <SDL.h>  ///< use the basic SDL platform definitions
+#if defined(__cplusplus)
+#include <cstdlib>
+#else
+#include <stdlib.h>
+#endif
+
+#if defined(__cplusplus)
+#include <cstddef>
+#else
+#include <stddef.h>
+#endif
+
+#if defined(__cplusplus)
+#include <cctype>
+#else
+#include <ctype.h>
+#endif
+
+#if defined(__cplusplus)
+#include <cstdarg>
+#else
+#include <stdarg.h>
+#endif
+
+#if defined(__cplusplus)
+#include <cstdio>
+#else
+#include <stdio.h>
+#endif
+
+#if defined(__cplusplus)
+#include <cassert>
+#else
+#include <assert.h>
+#endif
+
+#if defined(__cplusplus)
+#include <cmath>
+#else
+#include <math.h>
+#endif
+
+#if defined(__cplusplus)
+#include <cfloat>
+#else
+#include <float.h>
+#include <float.h>
+#endif
+
+#if defined(__cplusplus)
+#include <ctime>
+#else
+#include <time.h>
+#endif
+
+#if defined(__cplusplus)
+#include <memory>
+#else
+#include <memory.h>
+#endif
+#if defined(__cplusplus)
+#include <cstring>
+#else
+#include <string.h>
+#endif
+
+#if defined(__cplusplus)
+#include <cstdbool>
+#else
+#include <stdbool.h>
+#endif
+
+#if defined(__cplusplus)
+#include <cerrno>
+#else
+#include <errno.h>
+#endif
+
+//--------------------------------------------------------------------------------------------
+// SDL.
+#include <SDL.h>
+#include <SDL_endian.h>
+#include <SDL_stdinc.h>
+#include <SDL_types.h>
+#include <SDL_rwops.h>
+#include <SDL_thread.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
+#include <SDL_opengl.h>
+#include <SDL_mixer.h>
+
+//--------------------------------------------------------------------------------------------
+// Fast file I/O. This is available under Windows, Linux and Mac OS X. 
+#include <fcntl.h>
+
+//--------------------------------------------------------------------------------------------
+// Exclusive C++ headers from here on.
+#include <algorithm>
+
 
 #if defined(__cplusplus)
 extern "C"

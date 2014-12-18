@@ -24,8 +24,6 @@
 
 #include "game/egoboo_typedef.h"
 
-#include <SDL_mixer.h>
-
 #include "egolib/_math.h"
 #include "egolib/vec.h"
 

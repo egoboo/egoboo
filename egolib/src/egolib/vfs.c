@@ -21,11 +21,6 @@
 /// @brief Implementation of the Egoboo virtual file system
 /// @details
 
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <stdarg.h>
-
 #include <physfs.h>
 
 #include "egolib/vfs.h"

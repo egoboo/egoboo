@@ -26,8 +26,6 @@
 #include "game/network_server.h"
 #include "game/network_client.h"
 
-#include <stdarg.h>
-
 #include "egolib/file_common.h"
 #include "egolib/log.h"
 #include "egolib/strutil.h"

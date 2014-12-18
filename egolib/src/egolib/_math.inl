@@ -23,8 +23,6 @@
 /// @brief
 /// @details Almost all of the math functions are intended to be inlined for maximum speed
 
-#include <float.h>
-
 #include "egolib/_math.h"
 #include "egolib/vec.h"
 #include "egolib/platform.h"

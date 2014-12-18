@@ -21,8 +21,6 @@
 
 /// @file game/mad.h
 
-#include <SDL_opengl.h>
-
 #include "game/egoboo_typedef.h"
 
 #include "game/md2.h"

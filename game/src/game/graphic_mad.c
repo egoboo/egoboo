@@ -26,8 +26,6 @@
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 
-#include <SDL_opengl.h>
-
 #include "egolib/log.h"
 #include "egolib/egoboo_setup.h"
 #include "egolib/file_formats/id_md2.h"

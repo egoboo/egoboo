@@ -21,9 +21,6 @@
 /// @brief Clock & timer implementation
 /// @details This implementation was adapted from Noel Lopis' article in Game Programming Gems 4.
 
-#include <stddef.h>
-#include <stdlib.h>
-
 #include "egolib/clock.h"
 #include "egolib/system.h"
 #include "egolib/log.h"

@@ -26,8 +26,6 @@
 /// @brief Definitions for extended functions and variables for OpenGL
 /// @details
 
-#include <SDL_opengl.h>
-
 #include "egolib/file_common.h"
 
 #if defined(__cplusplus)

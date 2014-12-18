@@ -24,9 +24,6 @@
 
 #include "game/ui.h"
 
-#include <string.h>
-#include <SDL_opengl.h>
-
 #include "egolib/font_ttf.h"
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/SDL_extensions.h"

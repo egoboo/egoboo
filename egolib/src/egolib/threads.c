@@ -21,9 +21,6 @@
 /// @brief implementation of worker threads using SDL
 /// @details
 
-#include <SDL.h>
-#include <SDL_thread.h>
-
 #include "egolib/log.h"
 
 #include "egolib/threads.h"

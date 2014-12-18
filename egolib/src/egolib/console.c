@@ -21,12 +21,6 @@
 /// @brief Implementation of code for implementing a Quake-like console in Egoboo
 /// @details
 
-#include <string.h>
-#include <stdarg.h>
-
-#include <SDL.h>
-#include <SDL_opengl.h>
-
 #include "egolib/console.inl"
 
 #include "egolib/file_common.h"

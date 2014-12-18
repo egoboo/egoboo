@@ -22,10 +22,6 @@
 /// @file mem.h
 /// @details Macros to control allocation and deallocation of memory
 
-#include <memory.h>
-#include <string.h>
-#include <stdlib.h>
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

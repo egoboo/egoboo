@@ -26,8 +26,6 @@
 /// @brief Definitions for OpenGL texture loading using SDL_image
 /// @details
 
-#include <SDL.h>
-
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/ogl_extensions.h"

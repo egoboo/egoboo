@@ -23,8 +23,6 @@
 
 #include "egolib/typedef.h"
 
-#include <stdarg.h>
-
 #include "egolib/log.h"
 #include "egolib/_math.inl"
 

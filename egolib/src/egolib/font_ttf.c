@@ -17,15 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file font_ttf.c
+/// @file egolib/font_ttf.c
 /// @brief TTF management
 /// @details True-type font drawing functionality.  Uses Freetype 2 & OpenGL
 /// to do it's business.
-
-#include <stdlib.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdarg.h>
 
 #include "egolib/font_ttf.h"
 #include "egolib/log.h"

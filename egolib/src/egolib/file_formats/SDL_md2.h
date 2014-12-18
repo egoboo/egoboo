@@ -1,13 +1,11 @@
 #pragma once
 
+#include "egolib/platform.h"
+
 //--------------------------------------------------------------------------------------------
 // A MD2 reader using SDL.
 // - reads the data into unpacked structures
 // - converts data to the local endian-ness using the SDL RWops
-
-#include <SDL_types.h>
-#include <SDL_opengl.h>
-#include <SDL_rwops.h>
 
 #if defined(__cplusplus)
 extern "C"

@@ -22,8 +22,7 @@
 /// @file egolib/file_formats/configfile.h
 /// @details Configuration file loading code.
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

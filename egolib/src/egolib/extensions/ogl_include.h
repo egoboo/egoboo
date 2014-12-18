@@ -26,10 +26,6 @@
 /// @brief Base definitions of the extensions to OpenGL
 /// @details
 
-#include <assert.h>
-
-#include <SDL_opengl.h>
-
 #include "egolib/file_common.h"
 
 #if defined(__cplusplus)

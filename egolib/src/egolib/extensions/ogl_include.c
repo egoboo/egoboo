@@ -23,8 +23,6 @@
 /// @brief Base implementation of the OpenGL extensions
 /// @details
 
-#include <math.h>
-
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_debug.h"
 
