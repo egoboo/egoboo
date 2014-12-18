@@ -24,6 +24,7 @@
 #include "game/egoboo_typedef.h"
 
 #include "egolib/_math.h"
+#include "egolib/vec.h"
 #include "egolib/process.h"
 #include "egolib/timer.h"
 

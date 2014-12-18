@@ -46,13 +46,15 @@ typedef struct s_obj_BSP obj_BSP_t;
 // the BSP structure housing the object
 struct s_obj_BSP
 {
-    /// the number of objects in thhis obj_BSP
-    int          count;
+    /// the number of objects in this obj_BSP.
+	/// @todo This should be unsigned.
+    int count;
 
     /// the BSP of characters for character-character and character-particle interactions
     BSP_tree_t   tree;
 };
 
+/** @todo Remove this. obj_BSP_ctor must be used. */
 #define OBJ_BSP_INIT_VALS { 0, BSP_TREE_INIT_VALS }
 
 bool obj_BSP_ctor( obj_BSP_t * pbsp, int dim, const struct s_mpd_BSP * pmesh_bsp );

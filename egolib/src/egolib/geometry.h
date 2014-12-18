@@ -20,24 +20,23 @@
 //********************************************************************************************
 
 /// @file    egolib/geometry.h
-/// @brief   functions for manipulating geometric primatives
+/// @brief   functions for manipulating geometric primitives
 /// @details The frustum code was inspired by Ben Humphrey (DigiBen at http://www.gametutorials.com), who was inspired by
 ///          Mark Morely (through the now vanished tutorial at http://www.markmorley.com/opengl/frustumculling.html)
 
 #include "egolib/typedef.h"
-
 #include "egolib/_math.h"
+#include "egolib/sphere.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
+#endif
 
-//--------------------------------------------------------------------------------------------
-// external types
-//--------------------------------------------------------------------------------------------
-
-    struct s_aabb;
+// Forward declaration.
+typedef struct aabb_t aabb_t;
 
 //--------------------------------------------------------------------------------------------
 // internal types
@@ -49,8 +48,7 @@ extern "C"
     struct s_cube;
     typedef struct s_cube cube_t;
 
-    struct s_sphere;
-    typedef struct s_sphere sphere_t;
+
 
     struct s_cone;
     typedef struct s_cone cone_t;
@@ -88,19 +86,6 @@ extern "C"
 // a datatype for spheres
 //--------------------------------------------------------------------------------------------
 
-    struct s_sphere
-    {
-        fvec3_t origin;
-        float   radius;
-    };
-
-#define SPHERE_INIT_VALS                \
-    {                                   \
-        ZERO_VECT3, /*fvec3_t pos    */ \
-        -1.0f       /*float   radius */ \
-    }
-
-    bool sphere_self_clear( sphere_t * );
 
 //--------------------------------------------------------------------------------------------
 // a datatype for cubes
@@ -154,7 +139,7 @@ extern "C"
 
     geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_base_t corner1, const fvec3_base_t corner2 );
 
-    geometry_rv aabb_intersects_aabb( const struct s_aabb * lhs, const struct s_aabb * rhs );
+    geometry_rv aabb_intersects_aabb( const aabb_t * lhs, const aabb_t * rhs );
 
     geometry_rv plane_intersects_aabb( const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs );
 
@@ -184,9 +169,10 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #if defined(__cplusplus)
 }
-
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------

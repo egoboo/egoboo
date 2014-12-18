@@ -21,6 +21,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/_math.h"
+#include "egolib/vec.h"
 
 #if 0
 #if defined(__cplusplus)

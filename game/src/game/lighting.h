@@ -22,9 +22,9 @@
 /// @file game/lighting.h
 
 #include "game/egoboo_typedef.h"
-
 #include "egolib/_math.h"
-
+#include "egolib/vec.h"
+#include "egolib/aabb.h"
 #include "game/physics.h"
 
 //--------------------------------------------------------------------------------------------

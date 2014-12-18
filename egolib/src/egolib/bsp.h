@@ -26,9 +26,11 @@
 
 #include "egolib/frustum.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -187,51 +189,56 @@ extern "C"
     bool BSP_branch_list_clear_rec( BSP_branch_list_t * );
 
     bool BSP_branch_list_collide_frustum( const BSP_branch_list_t * BL, const struct s_egolib_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-    bool BSP_branch_list_collide_aabb( const BSP_branch_list_t * BL, const struct s_aabb * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+    bool BSP_branch_list_collide_aabb( const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
 #define INVALID_BSP_BRANCH_LIST(BL) ( (NULL == (BL)) || (NULL == (BL)->lst) || (0 == (BL)->lst_size) )
 
 //--------------------------------------------------------------------------------------------
-    struct s_BSP_branch
-    {
-        BSP_branch_t  * parent;                 //< the parent branch of this branch
+struct s_BSP_branch
+{
+    BSP_branch_t  * parent;                 //< the parent branch of this branch
 
-        BSP_leaf_list_t   unsorted;             //< nodes that have not yet been sorted
-        BSP_branch_list_t children;             //< the child branches of this branch
-        BSP_leaf_list_t   nodes;                //< the nodes at this level
+    BSP_leaf_list_t   unsorted;             //< nodes that have not yet been sorted
+    BSP_branch_list_t children;             //< the child branches of this branch
+    BSP_leaf_list_t   nodes;                //< the nodes at this level
 
-        BSP_aabb_t      bsp_bbox;               //< the size of the node
-        int             depth;                  //< the actual depth of this branch
-    };
+    BSP_aabb_t      bsp_bbox;               //< the size of the node
+    int             depth;                  //< the actual depth of this branch
+};
 
-    DECLARE_DYNAMIC_ARY( BSP_branch_ary, BSP_branch_t )
-    DECLARE_DYNAMIC_ARY( BSP_branch_pary, BSP_branch_t * )
+DECLARE_DYNAMIC_ARY( BSP_branch_ary, BSP_branch_t )
+DECLARE_DYNAMIC_ARY( BSP_branch_pary, BSP_branch_t * )
 
-    BSP_branch_t * BSP_branch_ctor( BSP_branch_t * B, size_t dim );
-    BSP_branch_t * BSP_branch_dtor( BSP_branch_t * B );
-    bool         BSP_branch_alloc( BSP_branch_t * B, size_t dim );
-    bool         BSP_branch_dealloc( BSP_branch_t * B );
+BSP_branch_t *BSP_branch_ctor( BSP_branch_t * B, size_t dim );
+BSP_branch_t *BSP_branch_dtor( BSP_branch_t * B );
+bool          BSP_branch_alloc( BSP_branch_t * B, size_t dim );
+bool          BSP_branch_dealloc( BSP_branch_t * B );
 
-    bool         BSP_branch_empty( const BSP_branch_t * pbranch );
+bool          BSP_branch_empty( const BSP_branch_t * pbranch );
 
-    bool         BSP_branch_clear( BSP_branch_t * B, bool recursive );
-    bool         BSP_branch_free_nodes( BSP_branch_t * B, bool recursive );
-    bool         BSP_branch_unlink_all( BSP_branch_t * B );
-    bool         BSP_branch_unlink_parent( BSP_branch_t * B );
-    bool         BSP_branch_unlink_children( BSP_branch_t * B );
-    bool         BSP_branch_unlink_nodes( BSP_branch_t * B );
-    bool         BSP_branch_update_depth_rec( BSP_branch_t * B, int depth );
+bool          BSP_branch_clear( BSP_branch_t * B, bool recursive );
+bool          BSP_branch_free_nodes( BSP_branch_t * B, bool recursive );
+bool          BSP_branch_unlink_all( BSP_branch_t * B );
+bool          BSP_branch_unlink_parent( BSP_branch_t * B );
+bool          BSP_branch_unlink_children( BSP_branch_t * B );
+bool          BSP_branch_unlink_nodes( BSP_branch_t * B );
+bool          BSP_branch_update_depth_rec( BSP_branch_t * B, int depth );
 
-    bool         BSP_branch_add_all_rec( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-    bool         BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-    bool         BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-    bool         BSP_branch_add_all_children( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+bool          BSP_branch_add_all_rec( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+bool          BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+bool          BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+bool          BSP_branch_add_all_children( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
-// OBSOLETE
-//BSP_branch_t * BSP_branch_create( size_t dim );
-//bool         BSP_branch_destroy( BSP_branch_t ** ppbranch );
-//BSP_branch_t * BSP_branch_create_ary( size_t ary_size, size_t dim );
-//bool         BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** ppbranch );
+#if 0
+/** @todo Remove this. */
+BSP_branch_t * BSP_branch_create( size_t dim );
+/** @todo Remove this. */
+bool           BSP_branch_destroy( BSP_branch_t ** ppbranch );
+/** @todo Remove this. */
+BSP_branch_t  *BSP_branch_create_ary( size_t ary_size, size_t dim );
+/** @todo Remove this. */
+bool           BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** ppbranch );
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -252,6 +259,7 @@ extern "C"
         BSP_aabb_t        bsp_bbox;    ///< the root-size of the tree
     };
 
+/** @todo Remove this. BSP_tree_ctor must be used. */
 #define BSP_TREE_INIT_VALS                                                   \
     {                                                                        \
         0,                         /* size_t              dimensions     */  \
@@ -266,10 +274,10 @@ extern "C"
         BSP_AABB_INIT_VALS         /* BSP_aabb_t          bsp_bbox       */  \
     }
 
-    BSP_tree_t * BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );
-    BSP_tree_t * BSP_tree_dtor( BSP_tree_t * t );
-    bool       BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim );
-    bool       BSP_tree_dealloc( BSP_tree_t * t );
+    BSP_tree_t *BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );
+    BSP_tree_t *BSP_tree_dtor( BSP_tree_t * t );
+    bool        BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim );
+    bool        BSP_tree_dealloc( BSP_tree_t * t );
 
     bool         BSP_tree_clear_rec( BSP_tree_t * t );
     bool         BSP_tree_prune( BSP_tree_t * t );
@@ -283,22 +291,32 @@ extern "C"
     size_t         BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
     size_t         BSP_tree_collide_frustum( const BSP_tree_t * tree, const struct s_egolib_frustum * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
-// OBSOLETE
-//BSP_tree_t * BSP_tree_create( size_t count );
-//bool       BSP_tree_destroy( BSP_tree_t ** ptree );
-//bool       BSP_tree_init_0( BSP_tree_t * t );
-//BSP_tree_t * BSP_tree_init_1( BSP_tree_t * t, Sint32 dim, Sint32 depth );
-//bool         BSP_tree_insert( BSP_tree_t * t, BSP_branch_t * B, BSP_leaf_t * n, int index );
-//bool         BSP_tree_free_nodes( BSP_tree_t * t, bool recursive );
-//bool         BSP_tree_free_all( BSP_tree_t * t );
-//bool         BSP_tree_add_free( BSP_tree_t * t, BSP_branch_t * B );
+#if 0
+/** @todo Remove this. */
+BSP_tree_t *BSP_tree_create( size_t count );
+/** @todo Remove this. */
+bool        BSP_tree_destroy( BSP_tree_t ** ptree );
+/** @todo Remove this. */
+bool        BSP_tree_init_0( BSP_tree_t * t );
+/** @todo Remove this. */
+BSP_tree_t *BSP_tree_init_1( BSP_tree_t * t, Sint32 dim, Sint32 depth );
+/** @todo Remove this. */
+bool        BSP_tree_insert( BSP_tree_t * t, BSP_branch_t * B, BSP_leaf_t * n, int index );
+/** @todo Remove this. */
+bool        BSP_tree_free_nodes( BSP_tree_t * t, bool recursive );
+/** @todo Remove this. */
+bool        BSP_tree_free_all( BSP_tree_t * t );
+/** @todo Remove this. */
+bool        BSP_tree_add_free( BSP_tree_t * t, BSP_branch_t * B );
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #if defined(__cplusplus)
 }
-
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
