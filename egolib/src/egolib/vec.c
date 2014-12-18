@@ -94,7 +94,7 @@ float fvec2_length_abs(const fvec2_base_t A)
 //--------------------------------------------------------------------------------------------
 float fvec2_length_2(const fvec2_base_t A)
 {
-	register float A2;
+	float A2;
 
 	if (NULL == A) return 0.0f;
 
@@ -106,7 +106,7 @@ float fvec2_length_2(const fvec2_base_t A)
 //--------------------------------------------------------------------------------------------
 float fvec2_length(const fvec2_base_t A)
 {
-	register float A2;
+	float A2;
 
 	if (NULL == A) return 0.0f;
 
@@ -342,19 +342,24 @@ bool fvec3_self_sum(fvec3_base_t A, const fvec3_base_t B)
 //--------------------------------------------------------------------------------------------
 float fvec3_length_abs(const fvec3_base_t A)
 {
-	register float retval;
+	float retval;
 
 	if (NULL == A) return 0.0f;
 
 	retval = ABS(A[kX]) + ABS(A[kY]) + ABS(A[kZ]);
 
+#if 0
+    // Not sure why this one's different
 	//DEBUG
 	if (ieee32_bad(retval))
 	{
-		log_debug("Game decided to crash, but I refuse! (%s - %d)\n" __FILE__, __LINE__);
+		log_debug("Game decided to crash, but I refuse! (%s - %d)\n", __FILE__, __LINE__);
 		retval = 0.00f;
 	}
 	//DEBUG END
+#endif
+    
+    LOG_NAN( retval );
 
 	return retval;
 }
@@ -362,7 +367,7 @@ float fvec3_length_abs(const fvec3_base_t A)
 //--------------------------------------------------------------------------------------------
 float fvec3_length_2(const fvec3_base_t A)
 {
-	register float A2;
+	float A2;
 
 	if (NULL == A) return 0.0f;
 
@@ -376,7 +381,7 @@ float fvec3_length_2(const fvec3_base_t A)
 //--------------------------------------------------------------------------------------------
 float fvec3_length(const fvec3_base_t A)
 {
-	register float A2;
+	float A2;
 
 	if (NULL == A) return 0.0f;
 
@@ -531,7 +536,7 @@ float * fvec3_normalize(fvec3_base_t DST, const fvec3_base_t SRC)
 //--------------------------------------------------------------------------------------------
 float fvec3_self_normalize(fvec3_base_t A)
 {
-	register float len = -1.0f;
+	float len = -1.0f;
 
 	if (NULL == A) return len;
 
@@ -558,7 +563,7 @@ float fvec3_self_normalize(fvec3_base_t A)
 //--------------------------------------------------------------------------------------------
 float fvec3_self_normalize_to(fvec3_base_t vec, const float B)
 {
-	register float len = -1.0f;
+	float len = -1.0f;
 
 	if (NULL == vec) return len;
 
@@ -618,7 +623,7 @@ float fvec3_decompose(const fvec3_base_t A, const fvec3_base_t vnrm, fvec3_base_
 	/// @author BB
 	/// @details the normal (vnrm) is assumed to be normalized. Try to get this as optimized as possible.
 
-	register float dot;
+	float dot;
 
 	// error trapping
 	if (NULL == A || NULL == vnrm) return 0.0f;
@@ -709,7 +714,7 @@ float fvec3_decompose(const fvec3_base_t A, const fvec3_base_t vnrm, fvec3_base_
 //--------------------------------------------------------------------------------------------
 float fvec3_dist_abs(const fvec3_base_t A, const fvec3_base_t B)
 {
-	register float retval;
+	float retval;
 
 	if (NULL == A || NULL == B) return 0.0f;
 
@@ -723,7 +728,7 @@ float fvec3_dist_abs(const fvec3_base_t A, const fvec3_base_t B)
 //--------------------------------------------------------------------------------------------
 float fvec3_dist_2(const fvec3_base_t LHS, const fvec3_base_t RHS)
 {
-	register float retval = 0.0f, ftmp;
+	float retval = 0.0f, ftmp;
 
 	if (NULL == LHS || NULL == LHS) return 0.0f;
 
@@ -744,7 +749,7 @@ float fvec3_dist_2(const fvec3_base_t LHS, const fvec3_base_t RHS)
 //--------------------------------------------------------------------------------------------
 float   fvec3_dot_product(const fvec3_base_t A, const fvec3_base_t B)
 {
-	register float retval;
+	float retval;
 
 	if (NULL == A || NULL == B) return 0.0f;
 

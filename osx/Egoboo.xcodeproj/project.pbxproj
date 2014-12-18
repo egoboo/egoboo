@@ -157,6 +157,10 @@
 		CDD931961A423C9A0004A8B2 /* doc in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85181A3FB85100CFB956 /* doc */; };
 		CDD931971A423C9A0004A8B2 /* modules in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851E1A3FB85100CFB956 /* modules */; };
 		CDD931991A42434E0004A8B2 /* data in Resources */ = {isa = PBXBuildFile; fileRef = CDD931981A42434E0004A8B2 /* data */; };
+		CDD931A21A428D970004A8B2 /* aabb.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319A1A428D970004A8B2 /* aabb.c */; };
+		CDD931A31A428D970004A8B2 /* cube.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319C1A428D970004A8B2 /* cube.c */; };
+		CDD931A41A428D970004A8B2 /* sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319E1A428D970004A8B2 /* sphere.c */; };
+		CDD931A51A428D970004A8B2 /* vec.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD931A01A428D970004A8B2 /* vec.c */; };
 		CDFB85201A3FB85100CFB956 /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85141A3FB85100CFB956 /* basicdat */; };
 		CDFB85211A3FB85100CFB956 /* BUGS.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85151A3FB85100CFB956 /* BUGS.txt */; };
 		CDFB85221A3FB85100CFB956 /* Changelog.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85161A3FB85100CFB956 /* Changelog.txt */; };
@@ -537,6 +541,14 @@
 		CDD9318A1A4232480004A8B2 /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer.h; sourceTree = "<group>"; };
 		CDD9318B1A4232480004A8B2 /* tx_filters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tx_filters.h; sourceTree = "<group>"; };
 		CDD931981A42434E0004A8B2 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = data; sourceTree = "<group>"; };
+		CDD9319A1A428D970004A8B2 /* aabb.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = aabb.c; sourceTree = "<group>"; };
+		CDD9319B1A428D970004A8B2 /* aabb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aabb.h; sourceTree = "<group>"; };
+		CDD9319C1A428D970004A8B2 /* cube.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = cube.c; sourceTree = "<group>"; };
+		CDD9319D1A428D970004A8B2 /* cube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cube.h; sourceTree = "<group>"; };
+		CDD9319E1A428D970004A8B2 /* sphere.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = sphere.c; sourceTree = "<group>"; };
+		CDD9319F1A428D970004A8B2 /* sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sphere.h; sourceTree = "<group>"; };
+		CDD931A01A428D970004A8B2 /* vec.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = vec.c; sourceTree = "<group>"; };
+		CDD931A11A428D970004A8B2 /* vec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
 		CDFB85141A3FB85100CFB956 /* basicdat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = basicdat; sourceTree = "<group>"; };
 		CDFB85151A3FB85100CFB956 /* BUGS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BUGS.txt; sourceTree = "<group>"; };
 		CDFB85161A3FB85100CFB956 /* Changelog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Changelog.txt; sourceTree = "<group>"; };
@@ -893,6 +905,8 @@
 				CD39B3011A374B6000B377BE /* _math.c */,
 				CD39B3021A374B6000B377BE /* _math.h */,
 				CD39B3031A374B6000B377BE /* _math.inl */,
+				CDD9319A1A428D970004A8B2 /* aabb.c */,
+				CDD9319B1A428D970004A8B2 /* aabb.h */,
 				CDCA1F8F1A3F56AB00002E76 /* bbox.c */,
 				CDCA1F901A3F56AB00002E76 /* bbox.h */,
 				CDCA1F911A3F56AB00002E76 /* bbox.inl */,
@@ -904,6 +918,8 @@
 				CD39B3061A374B6000B377BE /* console.c */,
 				CD39B3071A374B6000B377BE /* console.h */,
 				CD39B3081A374B6000B377BE /* console.inl */,
+				CDD9319C1A428D970004A8B2 /* cube.c */,
+				CDD9319D1A428D970004A8B2 /* cube.h */,
 				CD39B3091A374B6000B377BE /* egoboo_setup.c */,
 				CD39B30A1A374B6000B377BE /* egoboo_setup.h */,
 				CD39B30B1A374B6000B377BE /* egolib_config.h */,
@@ -948,6 +964,8 @@
 				CD39B37D1A374B6000B377BE /* process.h */,
 				CD39B37E1A374B6000B377BE /* scancode.c */,
 				CD39B37F1A374B6000B377BE /* scancode.h */,
+				CDD9319E1A428D970004A8B2 /* sphere.c */,
+				CDD9319F1A428D970004A8B2 /* sphere.h */,
 				CD39B3801A374B6000B377BE /* state_machine.h */,
 				CD39B3811A374B6000B377BE /* strutil.c */,
 				CD39B3821A374B6000B377BE /* strutil.h */,
@@ -961,6 +979,8 @@
 				CDD9318B1A4232480004A8B2 /* tx_filters.h */,
 				CD39B38A1A374B6000B377BE /* typedef.c */,
 				CD39B38B1A374B6000B377BE /* typedef.h */,
+				CDD931A01A428D970004A8B2 /* vec.c */,
+				CDD931A11A428D970004A8B2 /* vec.h */,
 				CD39B38C1A374B6000B377BE /* vfs.c */,
 				CD39B38D1A374B6000B377BE /* vfs.h */,
 			);
@@ -1353,6 +1373,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CDD931A51A428D970004A8B2 /* vec.c in Sources */,
 				CDCA1FAC1A3F57D000002E76 /* egoboo_setup.c in Sources */,
 				CDCA1FDA1A3F57D000002E76 /* NSFileManager+DirectoryLocations.m in Sources */,
 				CDCA1FB81A3F57D000002E76 /* controls_file-v2.c in Sources */,
@@ -1365,6 +1386,7 @@
 				CDCA1FC71A3F57D000002E76 /* scancode_file.c in Sources */,
 				CDCA1FC41A3F57D000002E76 /* passage_file.c in Sources */,
 				CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */,
+				CDD931A41A428D970004A8B2 /* sphere.c in Sources */,
 				CDCA1FA91A3F57D000002E76 /* bsp.c in Sources */,
 				CDCA1FCC1A3F57D000002E76 /* wawalite_file.c in Sources */,
 				CDCA1FD41A3F57D000002E76 /* input_device.c in Sources */,
@@ -1407,7 +1429,9 @@
 				CDCA1FBF1A3F57D000002E76 /* map_file-v3.c in Sources */,
 				CDCA1FD31A3F57D000002E76 /* IDSZ_map.c in Sources */,
 				CDCA1FA71A3F57D000002E76 /* _math.c in Sources */,
+				CDD931A31A428D970004A8B2 /* cube.c in Sources */,
 				CDCA1FC51A3F57D000002E76 /* pip_file.c in Sources */,
+				CDD931A21A428D970004A8B2 /* aabb.c in Sources */,
 				CDCA1FD91A3F57D000002E76 /* file_mac.m in Sources */,
 				CDCA1FB31A3F57D000002E76 /* SDL_GL_extensions.c in Sources */,
 				CDCA1FE31A3F57D000002E76 /* vfs.c in Sources */,
