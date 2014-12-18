@@ -314,7 +314,7 @@ void make_planmap( cartman_mpd_t * pmesh )
 
             if ( NULL != tx_tile )
             {
-                SDL_Rect dst = {putx, puty, TINYXY, TINYXY};
+                SDL_Rect dst = {static_cast<Sint16>(putx), static_cast<Sint16>(puty), TINYXY, TINYXY};
                 cartman_BlitSurface( tx_tile->surface, NULL, bmphitemap, &dst );
             }
             putx += TINYXY;
@@ -1305,7 +1305,7 @@ void get_small_tiles( SDL_Surface* bmpload )
     {
         for ( x = 0, x1 = 0; x < sz_x && x1 < 256; x += step_x, x1 += SMALLXY )
         {
-            SDL_Rect src1 = { x, y, ( step_x - 1 ), ( step_y - 1 ) };
+            SDL_Rect src1 = { static_cast<Sint16>(x), static_cast<Sint16>(y), static_cast<Uint16>( step_x - 1 ), static_cast<Uint16>( step_y - 1 ) };
 
             oglx_texture_ctor( tx_smalltile + numsmalltile );
 

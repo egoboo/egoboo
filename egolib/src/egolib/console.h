@@ -50,7 +50,7 @@ extern "C"
     SDL_bool           egolib_console_destroy( egolib_console_t ** pcon, SDL_bool do_free );
     void               egolib_console_show( egolib_console_t * pcon );
     void               egolib_console_hide( egolib_console_t * pcon );
-    void               egolib_console_fprint( egolib_console_t * pcon, const char *format, ... );
+    void               egolib_console_fprint( egolib_console_t * pcon, const char *format, ... ) GCC_PRINTF_FUNC( 2 );
 
 //--------------------------------------------------------------------------------------------
 // GLOBAL FUNCTION PROTOTYPES

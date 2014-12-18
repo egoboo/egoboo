@@ -339,7 +339,7 @@ void str_add_linebreaks( char * text, size_t text_len, size_t line_len )
         {
             break;
         }
-        else if ( CSTR_END == text )
+        else if ( NULL == text )
         {
             // reached the end of the string
             break;

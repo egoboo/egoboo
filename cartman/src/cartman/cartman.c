@@ -2195,6 +2195,10 @@ int main( int argcnt, char* argtext[] )
 
     //argcnt = 3;
     //argtext = blah;
+#ifdef __APPLE__
+    // hack to change current directory
+    assert(chdir("Cartman.app/Contents/Resources/") == 0);
+#endif
 
     // register the function to be called to deinitialize the program
     atexit( main_end );

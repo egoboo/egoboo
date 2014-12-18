@@ -70,7 +70,7 @@ DECLARE_EXTERN_STATIC_ARY( DisplayMsgAry, DisplayMsg );
 extern void  DisplayMsg_clear();
 extern void  DisplayMsg_reset();
 extern int   DisplayMsg_get_free();
-extern int   DisplayMsg_printf(const char *format, ...);
+extern int   DisplayMsg_printf(const char *format, ...) GCC_PRINTF_FUNC( 1 );
 extern void  DisplayMsg_print(const char *text);
 extern int   DisplayMsg_vprintf(const char *format, va_list args);
 extern float DisplayMsg_draw_all(float y);
@@ -100,13 +100,13 @@ void gfx_disable_texturing();
 void gfx_reshape_viewport( int w, int h );
 
 // bitmap font functions
-float draw_string( float x, float y, const char *format, ... );
+float draw_string( float x, float y, const char *format, ... ) GCC_PRINTF_FUNC( 3 );
 float draw_wrap_string( const char *szText, float x, float y, int maxx );
 void  draw_one_font( oglx_texture_t * ptex, int fonttype, float x, float y );
-int   draw_string_raw( float x, float y, const char *format, ... );
+int   draw_string_raw( float x, float y, const char *format, ... ) GCC_PRINTF_FUNC( 3 );
 
 // debugging functions
-int   DisplayMsg_printf( const char *format, ... );
+int   DisplayMsg_printf( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
 
 // graphics primitive functions
 void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const GLXvector4f quad_tint );

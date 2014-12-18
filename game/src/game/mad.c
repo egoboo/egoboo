@@ -709,7 +709,7 @@ void load_action_names_vfs( const char* loadname )
         found = false;
         if ( goto_colon_vfs( NULL, fileread, false ) )
         {
-            if ( vfs_scanf( fileread, " %c%c %s", &first, &second, &comment ) >= 2 )
+            if ( vfs_scanf( fileread, " %c%c %s", &first, &second, comment ) >= 2 )
             {
                 found = true;
             }

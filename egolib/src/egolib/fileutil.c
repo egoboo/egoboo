@@ -488,7 +488,7 @@ void vfs_put_range( vfs_FILE* filewrite, const char* text, FRange val )
 
     vfs_put_range_raw( filewrite, val );
 
-    vfs_printf( filewrite, "\n", text );
+    vfs_printf( filewrite, "\n" );
 }
 
 //--------------------------------------------------------------------------------------------

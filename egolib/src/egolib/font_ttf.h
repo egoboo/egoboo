@@ -62,13 +62,13 @@ extern "C"
 /// Works for multiple-line strings, using the user-supplied spacing
     extern void    fnt_getTextBoxSize( Font *font, int spacing, const char *text, int *width, int *height );
 
-    extern void    fnt_drawTextBox_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, const char *format, ... );
-    extern void    fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_Surface * pDstSurface, SDL_Surface ** ppTmpSurface, const char *format, ... );
+    extern void    fnt_drawTextBox_SDL( TTF_Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, const char *format, ... ) GCC_PRINTF_FUNC( 8 );
+    extern void    fnt_drawText_SDL( TTF_Font * font, SDL_Color fnt_color, int x, int y, SDL_Surface * pDstSurface, SDL_Surface ** ppTmpSurface, const char *format, ... ) GCC_PRINTF_FUNC( 7 );
 
-    extern void    fnt_drawTextBox_OGL( Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, SDL_Surface ** ppTmpSurface, const char *format, ... );
-    extern void    fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, ... );
+    extern void    fnt_drawTextBox_OGL( Font *font, SDL_Color fnt_color, int x, int y, int width, int height, int spacing, SDL_Surface ** ppTmpSurface, const char *format, ... ) GCC_PRINTF_FUNC( 9 );
+    extern void    fnt_drawText_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, int x, int y, SDL_Surface ** ppTmpSurface, const char *format, ... ) GCC_PRINTF_FUNC( 8 );
 
-    extern void    fnt_drawText_OGL_immediate( Font *font, SDL_Color fnt_color, int x, int y, const char *format, ... );
+    extern void    fnt_drawText_OGL_immediate( Font *font, SDL_Color fnt_color, int x, int y, const char *format, ... ) GCC_PRINTF_FUNC( 5 );
 
 /// handle variable arguments
     extern int fnt_vprintf_SDL( TTF_Font *font, SDL_Color fnt_color, const char *format, va_list args, SDL_Surface ** ppTmpSurface );

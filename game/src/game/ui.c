@@ -580,7 +580,7 @@ float ui_drawTextBox( Font * font, const char *text, float vx, float vy, float v
     spacing = ui_context.ah * vspacing;
 
     // draw using screen coordinates
-    fnt_drawTextBox_OGL( font, ui_text_color, x1, y1, x2 - x1, y2 - y1, spacing, NULL, text );
+    fnt_drawTextBox_OGL( font, ui_text_color, x1, y1, x2 - x1, y2 - y1, spacing, NULL, "%s", text );
 
     return MAX( vy + vheight, vy + vspacing );
 }
@@ -617,7 +617,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, Font * font, float vx
         text_y = (( y2 - y1 ) - text_h ) / 2 + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText_OGL_immediate( font, ui_text_color, text_x, text_y, text );
+        fnt_drawText_OGL_immediate( font, ui_text_color, text_x, text_y, "%s", text );
     }
 
     return result;
@@ -676,7 +676,7 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture_t *img, const
         text_y = (( y2 - y1 ) - text_h ) / 2         + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText_OGL_immediate( font, ui_text_color, text_x, text_y, text );
+        fnt_drawText_OGL_immediate( font, ui_text_color, text_x, text_y, "%s", text );
     }
 
     return result;
@@ -741,7 +741,7 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
         text_y = (( y2 - y1 ) - text_h ) / 2                + y1;
 
         GL_DEBUG( glColor3f )( 1, 1, 1 );
-        fnt_drawText_OGL( pw->pfont, ui_text_color, INVALID_GL_ID, NULL, text_x, text_y, &( pw->text_surf ), pw->text );
+        fnt_drawText_OGL( pw->pfont, ui_text_color, INVALID_GL_ID, NULL, text_x, text_y, &( pw->text_surf ), "%s", pw->text );
     }
 
     return result;
