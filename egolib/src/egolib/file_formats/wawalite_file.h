@@ -23,6 +23,7 @@
 /// @details loading the environment definitions for a module
 
 #include "egolib/_math.h"
+#include "egolib/vec.h"
 
 #if defined(__cplusplus)
 extern "C"

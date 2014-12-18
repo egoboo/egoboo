@@ -23,10 +23,13 @@
 /// @brief A small "library" for dealing with various bounding boxes
 
 #include "egolib/_math.h"
+#include "egolib/vec.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -38,23 +41,22 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_aabb;
-    typedef struct s_aabb aabb_t;
-
     struct s_bumper;
     typedef struct s_bumper bumper_t;
 
     struct s_oct_bb;
     typedef struct s_oct_bb oct_bb_t;
 
-//struct s_ego_aabb;
-//typedef struct s_ego_aabb ego_aabb_t;
+#if 0
+struct s_ego_aabb;
+typedef struct s_ego_aabb ego_aabb_t;
 
-//struct s_aabb_lst;
-//typedef struct s_aabb_lst aabb_lst_t;
+struct s_aabb_lst;
+typedef struct s_aabb_lst aabb_lst_t;
 
-//struct s_aabb_ary;
-//typedef struct s_aabb_ary aabb_ary_t;
+struct s_aabb_ary;
+typedef struct s_aabb_ary aabb_ary_t;
+#endif
 
     struct s_OVolume;
     typedef struct s_OVolume OVolume_t;
@@ -68,23 +70,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// axis aligned bounding box
-    struct s_aabb
-    {
-        float mins[3];
-        float maxs[3];
-    };
 
-    bool aabb_copy( aabb_t * pdst, const aabb_t * psrc );
-    bool aabb_self_clear( aabb_t * pdst );
-    bool aabb_is_clear( const aabb_t * pdst );
-
-    bool aabb_from_oct_bb( aabb_t * dst, const struct s_oct_bb * src );
-    bool aabb_lhs_contains_rhs( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
-    bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
-    bool aabb_self_union( aabb_t * pdst, const aabb_t * psrc );
-
-#define AABB_INIT_VALS   { {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }
 
 //--------------------------------------------------------------------------------------------
 
@@ -220,9 +206,10 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #if defined(__cplusplus)
 }
-
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------

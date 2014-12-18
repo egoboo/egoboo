@@ -24,6 +24,53 @@
 #include "egolib/_math.inl"
 
 //--------------------------------------------------------------------------------------------
+// IEEE 32-BIT FLOATING POINT NUMBER FUNCTIONS
+//--------------------------------------------------------------------------------------------
+Uint32 float32_to_uint32(float f)
+{
+	union { Uint32 i; float f; } val;
+
+	val.f = f;
+
+	return val.i;
+}
+
+//--------------------------------------------------------------------------------------------
+float uint32_to_float32(Uint32 i)
+{
+	union { Uint32 i; float f; } val;
+
+	val.i = i;
+
+	return val.f;
+
+}
+
+//--------------------------------------------------------------------------------------------
+bool ieee32_infinite(float f)
+{
+	Uint32 u = float32_to_uint32(f);
+
+	return (0 == (u & IEEE32_FRACTION)) && (IEEE32_EXPONENT == (u & IEEE32_EXPONENT));
+}
+
+//--------------------------------------------------------------------------------------------
+bool ieee32_nan(float f)
+{
+	Uint32 u = float32_to_uint32(f);
+
+	return (0 != (u&IEEE32_FRACTION)) && (IEEE32_EXPONENT == (u & IEEE32_EXPONENT));
+}
+
+//--------------------------------------------------------------------------------------------
+bool ieee32_bad(float f)
+{
+	Uint32 u = float32_to_uint32(f);
+
+	return (IEEE32_EXPONENT == (u & IEEE32_EXPONENT)) ? true : false;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 float turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
 float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to cosine

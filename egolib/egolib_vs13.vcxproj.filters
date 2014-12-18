@@ -213,6 +213,15 @@
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\opengl\renderer.c">
       <Filter>OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\aabb.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\sphere.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\vec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\vfs.h">
@@ -420,6 +429,15 @@
       <Filter>OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\tx_filters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\aabb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\vec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

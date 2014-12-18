@@ -96,7 +96,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -114,7 +114,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <FloatingPointExceptions>true</FloatingPointExceptions>
       <DisableSpecificWarnings>4820;4668;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -122,8 +122,11 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <UndefinePreprocessorDefinitions>_DEBUG;__cplusplus;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
-      <StringPooling>false</StringPooling>
+      <StringPooling>true</StringPooling>
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
@@ -136,6 +139,7 @@
     </Xdcmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\aabb.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bbox.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bsp.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\clock.c" />
@@ -191,16 +195,19 @@
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\sys_win32.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\process.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\scancode.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\sphere.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\strutil.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\threads.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\throttle.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\timer.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\typedef.c" />
+    <ClCompile Include="src\egolib\vec.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\vfs.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\mem.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\aabb.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bbox.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bsp.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\clock.h" />
@@ -259,6 +266,7 @@
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\NSFileManager+DirectoryLocations.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\process.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\scancode.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\sphere.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\state_machine.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\strutil.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\system.h" />
@@ -267,6 +275,7 @@
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\timer.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\tx_filters.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\typedef.h" />
+    <ClInclude Include="src\egolib\vec.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\vfs.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.h" />
   </ItemGroup>

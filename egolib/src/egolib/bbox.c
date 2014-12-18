@@ -22,8 +22,8 @@
 /// @details
 
 #include "egolib/bbox.inl"
-
 #include "egolib/_math.inl"
+#include "egolib/aabb.h"
 
 // this include must be the absolute last include
 #include "egolib/mem.h"

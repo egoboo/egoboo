@@ -23,6 +23,7 @@
 /// @brief Routines for rendering 3d primitves
 
 #include "egolib/opengl/renderer.h"
+#include "egolib/vec.h"
 #if 0
 #include "game/egoboo_typedef.h"
 #include "egolib/extensions/ogl_texture.h"
@@ -32,8 +33,9 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+// Forward declarations.
 struct s_oct_bb;
-struct s_aabb;
+typedef struct aabb_t aabb_t;
 struct s_camera;
 
 //--------------------------------------------------------------------------------------------
@@ -102,7 +104,7 @@ void gfx_begin_3d( const struct s_camera * pcam );
 void gfx_end_3d();
 
 bool render_oct_bb( struct s_oct_bb * bb, bool draw_square, bool draw_diamond );
-bool render_aabb( struct s_aabb * pbbox );
+bool render_aabb( aabb_t * pbbox );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

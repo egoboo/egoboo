@@ -25,6 +25,7 @@
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
 #include "egolib/_math.h"
+#include "egolib/vec.h"
 
 #if defined(__cplusplus)
 extern "C"

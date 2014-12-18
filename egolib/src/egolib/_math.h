@@ -28,6 +28,13 @@
 
 #include "egolib/typedef.h"
 
+#if !defined(ABS)
+	#define ABS(x) abs(x)
+#if 0
+	#define ABS(X)  LAMBDA((X) > 0, X, -(X) )
+#endif
+#endif
+
 #if !defined(MIN)
 	#define MIN(x,y) std::min((x),(y)) 
 	#if 0
@@ -65,6 +72,26 @@ template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& 
 #endif
 #endif
 
+//--------------------------------------------------------------------------------------------
+// IEEE 32-BIT FLOATING POINT NUMBER FUNCTIONS
+//--------------------------------------------------------------------------------------------
+#define IEEE32_FRACTION 0x007FFFFFL
+#define IEEE32_EXPONENT 0x7F800000L
+#define IEEE32_SIGN     0x80000000L
+
+#if defined(TEST_NAN_RESULT)
+#    define LOG_NAN(XX)      if( ieee32_bad(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
+#else
+#    define LOG_NAN(XX)
+#endif
+
+// ieee 32-bit floating point number functions
+Uint32 float32_to_uint32(float f);
+float  uint32_to_float32(Uint32 i);
+bool   ieee32_infinite(float f);
+bool   ieee32_nan(float f);
+bool   ieee32_bad(float f);
+
 #if defined(__cplusplus)
 extern "C"
 {
@@ -76,14 +103,7 @@ extern "C"
     struct s_fmat_4x4;
     typedef struct s_fmat_4x4  fmat_4x4_t;
 
-    union u_fvec2;
-    typedef union u_fvec2 fvec2_t;
 
-    union u_fvec3;
-    typedef union u_fvec3 fvec3_t;
-
-    union u_fvec4;
-    typedef union u_fvec4 fvec4_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -179,10 +199,6 @@ extern "C"
 // Just define ABS, MIN, and MAX using macros for the moment. This is likely to be the
 // fastest and most cross-platform solution
 
-#if !defined(ABS)
-#    define ABS(X)  LAMBDA((X) > 0, X, -(X) )
-#endif
-
 #if !defined(SGN)
 #    define SGN(X)  LAMBDA( 0 == (X), 0, LAMBDA( (X) > 0, 1, -1) )
 #endif
@@ -270,9 +286,6 @@ extern "C"
     enum { kX = 0, kY, kZ, kW };             ///< Enumerated indices for the elements of the base vector types
 
     typedef float fmat_4x4_base_t[16];       ///< the basic 4x4 floating point matrix type
-    typedef float fvec2_base_t[2];           ///< the basic floating point 2-vector type
-    typedef float fvec3_base_t[3];           ///< the basic floating point 3-vector type
-    typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector type
 
     typedef double dmat_4x4_base_t[16];      ///< the basic 4x4 double precision matrix type
     typedef double dvec2_base_t[2];          ///< the basic double precision 2-vector type
@@ -288,31 +301,14 @@ extern "C"
 /// Necessary in c so that the function return can be assigned to another matrix more simply.
     struct s_fmat_4x4  { fmat_4x4_base_t  v; };
 
-/// A 2-vector type that allows more than one form of access
-    union  u_fvec2 { fvec2_base_t v; struct { float x, y; }; struct { float s, t; }; };
 
-/// A 3-vector type that allows more than one form of access
-    union  u_fvec3 { fvec3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; };
-
-/// A 4-vector type that allows more than one form of access
-    union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; };
 
 // turn it back on
 #if defined(_MSC_VER)
 #   pragma warning(default : 4201)
 #endif
 
-// macros for initializing vectors to zero
-#define ZERO_VECT2   { {0.0f,0.0f} }
-#define ZERO_VECT3   { {0.0f,0.0f,0.0f} }
-#define ZERO_VECT4   { {0.0f,0.0f,0.0f,0.0f} }
-#define ZERO_MAT_4X4 { {0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f} }
 
-// Macros for initializing vectors to specific values. Most C compilers will allow you to initialize
-// to non-constant values, but they do complain.
-#define VECT2(XX,YY) { {XX,YY} }
-#define VECT3(XX,YY,ZZ) { {XX,YY,ZZ} }
-#define VECT4(XX,YY,ZZ,WW) { {XX,YY,ZZ,WW} }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
