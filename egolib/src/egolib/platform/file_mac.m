@@ -102,7 +102,7 @@ void fs_deleteFile(const char *fileName)
 	[path release];
 }
 
-C_BOOLEAN fs_copyFile(const char *source, const char *dest)
+bool fs_copyFile(const char *source, const char *dest)
 {
     BOOL didCopy;
 	NSString *srcPath, *destPath;

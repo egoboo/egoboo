@@ -130,8 +130,8 @@ extern "C"
     long         vfs_fileLength( vfs_FILE * pfile );
     int          vfs_rewind( vfs_FILE * pfile );
 
-    int          vfs_scanf( vfs_FILE * pfile, const char *format, ... );
-    int          vfs_printf( vfs_FILE * pfile, const char *format, ... );
+    int          vfs_scanf( vfs_FILE * pfile, const char *format, ... ) GCC_SCANF_FUNC( 2 );
+    int          vfs_printf( vfs_FILE * pfile, const char *format, ... ) GCC_PRINTF_FUNC( 2 );
 
     int          vfs_putc( int c, vfs_FILE * pfile );
     int          vfs_getc( vfs_FILE * pfile );

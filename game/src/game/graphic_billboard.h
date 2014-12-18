@@ -92,7 +92,7 @@ struct s_billboard_data
 billboard_data_t * billboard_data_init( billboard_data_t * pbb );
 bool             billboard_data_free( billboard_data_t * pbb );
 bool             billboard_data_update( billboard_data_t * pbb );
-bool             billboard_data_printf_ttf( billboard_data_t * pbb, struct s_Font *font, SDL_Color color, const char * format, ... );
+bool             billboard_data_printf_ttf( billboard_data_t * pbb, struct s_Font *font, SDL_Color color, const char * format, ... ) GCC_PRINTF_FUNC( 4 );
 
 #define VALID_BILLBOARD_RANGE( IBB ) ( ( (IBB) >= 0 ) && ( (IBB) < BILLBOARD_COUNT ) )
 #define VALID_BILLBOARD( IBB )       ( VALID_BILLBOARD_RANGE( IBB ) && BillboardList.lst[IBB].valid )

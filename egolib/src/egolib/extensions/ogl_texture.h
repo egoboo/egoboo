@@ -31,6 +31,7 @@
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/ogl_extensions.h"
+#include "egolib/tx_filters.h"
 
 #include "egolib/typedef.h"
 

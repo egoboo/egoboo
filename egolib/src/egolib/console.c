@@ -432,7 +432,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
 
         fnt_getTextSize( pcon->pfont, buffer, &text_w, &text_h );
         height -= text_h;
-        fnt_drawText_OGL_immediate( pcon->pfont, con_color, pwin->x, height - text_h, buffer );
+        fnt_drawText_OGL_immediate( pcon->pfont, con_color, pwin->x, height - text_h, "%s", buffer );
 
         if ( CSTR_END != pcon->output_buffer[0] )
         {
@@ -466,7 +466,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
 
                 fnt_getTextSize( pcon->pfont, buffer, &text_w, &text_h );
                 height -= text_h;
-                fnt_drawText_OGL_immediate( pcon->pfont, con_color, pwin->x, height - text_h, buffer );
+                fnt_drawText_OGL_immediate( pcon->pfont, con_color, pwin->x, height - text_h, "%s", buffer );
             }
         }
 

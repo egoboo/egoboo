@@ -2706,7 +2706,7 @@ float draw_status( const CHR_REF character, float x, float y )
     generictext[7] = CSTR_END;
 
     // draw the name
-    y = draw_string_raw( x + 8, y, generictext );
+    y = draw_string_raw( x + 8, y, "%s", generictext );
 
     // draw the character's money
     y = draw_string_raw( x + 8, y, "$%4d", pchr->money ) + 8;
@@ -3722,7 +3722,7 @@ gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * r
         render_rv = render_fan( pmesh, tmp_itile );
         if ( cfg.dev_mode && gfx_error == render_rv )
         {
-            log_warning( "%s - error rendering tile %d.\n", tmp_itile );
+            log_warning( "%s - error rendering tile %d.\n", __FUNCTION__, tmp_itile );
         }
     }
 
@@ -5381,7 +5381,7 @@ gfx_rv gfx_load_bars( void )
     /// @author ZZ
     /// @details This function loads the status bar bitmap
 
-    const char * pname = EMPTY_CSTR;
+    const char * pname = "";
     TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval  = gfx_success;
 
@@ -5442,11 +5442,10 @@ gfx_rv gfx_load_blips( void )
     /// @author ZZ
     /// @details This function loads the blip bitmaps
 
-    const char * pname = EMPTY_CSTR;
+    const char * pname = "mp_data/blip";
     TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval  = gfx_success;
-
-    pname = "mp_data/blip";
+    
     load_rv = TxList_load_one_vfs( pname, ( TX_REF )TX_BLIP, INVALID_KEY );
     if ( !VALID_TX_RANGE( load_rv ) )
     {
@@ -5460,11 +5459,10 @@ gfx_rv gfx_load_blips( void )
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_load_icons( void )
 {
-    const char * pname = EMPTY_CSTR;
+    const char * pname = "mp_data/nullicon";
     TX_REF load_rv = INVALID_TX_REF;
     gfx_rv retval  = gfx_success;
 
-    pname = "mp_data/nullicon";
     load_rv = TxList_load_one_vfs( pname, ( TX_REF )TX_ICON_NULL, INVALID_KEY );
     if ( !VALID_TX_RANGE( load_rv ) )
     {

@@ -1241,7 +1241,10 @@ bool grid_light_one_corner( const ego_mesh_t * pmesh, int fan, float height, flo
     ( *plight ) = CLIP(( *plight ), 0.0f, 255.0f );
 
     // update the cache frame
+#if 0
+    // figure out the correct way to cache *plight
     pgrid->cache_frame = game_frame_all;
+#endif
 
     return true;
 }

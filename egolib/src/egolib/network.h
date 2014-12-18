@@ -297,7 +297,7 @@ extern "C"
     void egonet_unbuffer_player_latches( void );
     void egonet_close_session( void );
     void egonet_turn_on_service( int service );
-    void egonet_logf( const char *format, ... );
+    void egonet_logf( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
 
 // network packet handling
     bool egonet_broadcastPacket( ego_packet_t * pkt );

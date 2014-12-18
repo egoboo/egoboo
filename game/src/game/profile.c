@@ -717,7 +717,7 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
     if ( max_icon < 0 )
     {
         max_icon = 0;
-        pobj->tex_ref[max_icon] = TX_ICON_NULL;
+        pobj->ico_ref[max_icon] = TX_ICON_NULL;
         log_debug( "Object is missing an icon (%s)!\n", tmploadname );
     }
 

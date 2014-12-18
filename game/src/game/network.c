@@ -495,7 +495,7 @@ egolib_rv egonet_handlePacket( enet_packet_t * enet_pkt )
         case TO_ANY_TEXT:
             log_info( "TO_ANY_TEXT\n" );
             enet_packet_readString( enet_pkt, filename, sizeof( filename ) );
-            DisplayMsg_printf( filename );
+            DisplayMsg_printf( "%s", filename );
             break;
 
         default:
