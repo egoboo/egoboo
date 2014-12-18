@@ -243,6 +243,16 @@ extern "C"
 #    endif
 #  endif
 #endif
+    
+//--------------------------------------------------------------------------------------------
+// format attributes for GCC/Clang
+#if defined(__GNUC__)
+#   define GCC_PRINTF_FUNC( fmtargnum ) __attribute__ (( format( __printf__, fmtargnum, fmtargnum+1 ) ))
+#   define GCC_SCANF_FUNC( fmtargnum ) __attribute__ (( format( __scanf__, fmtargnum, fmtargnum+1 ) ))
+#else
+#   define GCC_PRINTF_FUNC( fmtargnum )
+#   define GCC_SCANF_FUNC( fmtargnum )
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
