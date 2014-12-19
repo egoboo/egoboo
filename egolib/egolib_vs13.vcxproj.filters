@@ -27,453 +27,477 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.c">
+    <ClCompile Include="..\egolib\src\egolib\_math.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bbox.c">
+    <ClCompile Include="..\egolib\src\egolib\bbox.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bsp.c">
+    <ClCompile Include="..\egolib\src\egolib\bsp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\clock.c">
+    <ClCompile Include="..\egolib\src\egolib\clock.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\console.c">
+    <ClCompile Include="..\egolib\src\egolib\console.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\egoboo_setup.c">
+    <ClCompile Include="..\egolib\src\egolib\egoboo_setup.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\endian.c">
+    <ClCompile Include="..\egolib\src\egolib\endian.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_common.c">
+    <ClCompile Include="..\egolib\src\egolib\file_common.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\fileutil.c">
+    <ClCompile Include="..\egolib\src\egolib\fileutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\font_bmp.c">
+    <ClCompile Include="..\egolib\src\egolib\font_bmp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\font_ttf.c">
+    <ClCompile Include="..\egolib\src\egolib\font_ttf.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\frustum.c">
+    <ClCompile Include="..\egolib\src\egolib\frustum.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\geometry.c">
+    <ClCompile Include="..\egolib\src\egolib\geometry.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\hash.c">
+    <ClCompile Include="..\egolib\src\egolib\hash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\IDSZ_map.c">
+    <ClCompile Include="..\egolib\src\egolib\IDSZ_map.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\input_device.c">
+    <ClCompile Include="..\egolib\src\egolib\input_device.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\log.c">
+    <ClCompile Include="..\egolib\src\egolib\log.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\map_functions.c">
+    <ClCompile Include="..\egolib\src\egolib\map_functions.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network.c">
+    <ClCompile Include="..\egolib\src\egolib\network.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network_file.c">
+    <ClCompile Include="..\egolib\src\egolib\network_file.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\process.c">
+    <ClCompile Include="..\egolib\src\egolib\process.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\scancode.c">
+    <ClCompile Include="..\egolib\src\egolib\scancode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\strutil.c">
+    <ClCompile Include="..\egolib\src\egolib\strutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\threads.c">
+    <ClCompile Include="..\egolib\src\egolib\threads.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\throttle.c">
+    <ClCompile Include="..\egolib\src\egolib\throttle.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\timer.c">
+    <ClCompile Include="..\egolib\src\egolib\timer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\typedef.c">
+    <ClCompile Include="..\egolib\src\egolib\typedef.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\vfs.c">
+    <ClCompile Include="..\egolib\src\egolib\vfs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_debug.c">
+    <ClCompile Include="..\egolib\src\egolib\extensions\ogl_debug.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_extensions.c">
+    <ClCompile Include="..\egolib\src\egolib\extensions\ogl_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_include.c">
+    <ClCompile Include="..\egolib\src\egolib\extensions\ogl_include.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_texture.c">
+    <ClCompile Include="..\egolib\src\egolib\extensions\ogl_texture.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\SDL_extensions.c">
+    <ClCompile Include="..\egolib\src\egolib\extensions\SDL_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\SDL_GL_extensions.c">
+    <ClCompile Include="..\egolib\src\egolib\extensions\SDL_GL_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\cap_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\cap_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\configfile.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\configfile.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\controls_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v1.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\controls_file-v1.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v2.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\controls_file-v2.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v3.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\controls_file-v3.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\eve_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\eve_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\id_md2.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\id_md2.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\map_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v1.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\map_file-v1.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v2.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\map_file-v2.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v3.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\map_file-v3.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v4.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\map_file-v4.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_tile_dictionary.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\map_tile_dictionary.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\module_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\module_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\passage_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\passage_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\pip_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\pip_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\quest_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\quest_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\scancode_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\scancode_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\SDL_md2.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\SDL_md2.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\spawn_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\spawn_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\template.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\template.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\treasure_table_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\treasure_table_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\wawalite_file.c">
+    <ClCompile Include="..\egolib\src\egolib\file_formats\wawalite_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\file_win.c">
+    <ClCompile Include="..\egolib\src\egolib\platform\file_win.c">
       <Filter>Platforms</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\sys_win32.c">
+    <ClCompile Include="..\egolib\src\egolib\platform\sys_win32.c">
       <Filter>Platforms</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\lua\lua_console.c">
+    <ClCompile Include="..\egolib\src\egolib\lua\lua_console.c">
       <Filter>Lua</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\opengl\renderer.c">
+    <ClCompile Include="..\egolib\src\egolib\opengl\renderer.c">
       <Filter>OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\aabb.c">
+    <ClCompile Include="..\egolib\src\egolib\aabb.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\sphere.c">
+    <ClCompile Include="..\egolib\src\egolib\sphere.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\vec.c">
+    <ClCompile Include="..\egolib\src\egolib\platform\file_amiga.c">
+      <Filter>Platforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\egolib\src\egolib\platform\file_linux.c">
+      <Filter>Platforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\egolib\src\egolib\platform\sys_linux.c">
+      <Filter>Platforms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\egolib\src\egolib\matrix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\egolib\src\egolib\vec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bv.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\vfs.h">
+    <ClInclude Include="..\egolib\src\egolib\vfs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\typedef.h">
+    <ClInclude Include="..\egolib\src\egolib\typedef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\timer.h">
+    <ClInclude Include="..\egolib\src\egolib\timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\throttle.h">
+    <ClInclude Include="..\egolib\src\egolib\throttle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\threads.h">
+    <ClInclude Include="..\egolib\src\egolib\threads.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\system.h">
+    <ClInclude Include="..\egolib\src\egolib\system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\strutil.h">
+    <ClInclude Include="..\egolib\src\egolib\strutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\state_machine.h">
+    <ClInclude Include="..\egolib\src\egolib\state_machine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\scancode.h">
+    <ClInclude Include="..\egolib\src\egolib\scancode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\process.h">
+    <ClInclude Include="..\egolib\src\egolib\process.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform.h">
+    <ClInclude Include="..\egolib\src\egolib\platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network_file.h">
+    <ClInclude Include="..\egolib\src\egolib\network_file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\network.h">
+    <ClInclude Include="..\egolib\src\egolib\network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\mem.h">
+    <ClInclude Include="..\egolib\src\egolib\mem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\map_functions.h">
+    <ClInclude Include="..\egolib\src\egolib\map_functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\log.h">
+    <ClInclude Include="..\egolib\src\egolib\log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\input_device.h">
+    <ClInclude Include="..\egolib\src\egolib\input_device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\IDSZ_map.h">
+    <ClInclude Include="..\egolib\src\egolib\IDSZ_map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\hash.h">
+    <ClInclude Include="..\egolib\src\egolib\hash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\geometry.h">
+    <ClInclude Include="..\egolib\src\egolib\geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\frustum.h">
+    <ClInclude Include="..\egolib\src\egolib\frustum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\font_ttf.h">
+    <ClInclude Include="..\egolib\src\egolib\font_ttf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\font_bmp.h">
+    <ClInclude Include="..\egolib\src\egolib\font_bmp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\fileutil.h">
+    <ClInclude Include="..\egolib\src\egolib\fileutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_common.h">
+    <ClInclude Include="..\egolib\src\egolib\file_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\endian.h">
+    <ClInclude Include="..\egolib\src\egolib\endian.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\egolib_config.h">
+    <ClInclude Include="..\egolib\src\egolib\egolib_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\egolib.h">
+    <ClInclude Include="..\egolib\src\egolib\egolib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\egoboo_setup.h">
+    <ClInclude Include="..\egolib\src\egolib\egoboo_setup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\console.h">
+    <ClInclude Include="..\egolib\src\egolib\console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\clock.h">
+    <ClInclude Include="..\egolib\src\egolib\clock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bsp.h">
+    <ClInclude Include="..\egolib\src\egolib\bsp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bbox.h">
+    <ClInclude Include="..\egolib\src\egolib\bbox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.h">
+    <ClInclude Include="..\egolib\src\egolib\_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_debug.h">
+    <ClInclude Include="..\egolib\src\egolib\extensions\ogl_debug.h">
       <Filter>Extensions</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_extensions.h">
+    <ClInclude Include="..\egolib\src\egolib\extensions\ogl_extensions.h">
       <Filter>Extensions</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_include.h">
+    <ClInclude Include="..\egolib\src\egolib\extensions\ogl_include.h">
       <Filter>Extensions</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\ogl_texture.h">
+    <ClInclude Include="..\egolib\src\egolib\extensions\ogl_texture.h">
       <Filter>Extensions</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\SDL_extensions.h">
+    <ClInclude Include="..\egolib\src\egolib\extensions\SDL_extensions.h">
       <Filter>Extensions</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\extensions\SDL_GL_extensions.h">
+    <ClInclude Include="..\egolib\src\egolib\extensions\SDL_GL_extensions.h">
       <Filter>Extensions</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\cap_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\cap_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\configfile.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\configfile.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\controls_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v1.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\controls_file-v1.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v2.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\controls_file-v2.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\controls_file-v3.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\controls_file-v3.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\eve_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\eve_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\id_md2.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\id_md2.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\map_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v1.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\map_file-v1.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v2.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\map_file-v2.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v3.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\map_file-v3.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_file-v4.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\map_file-v4.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\map_tile_dictionary.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\map_tile_dictionary.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\module_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\module_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\passage_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\passage_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\pip_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\pip_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\quest_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\quest_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\scancode_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\scancode_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\SDL_md2.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\SDL_md2.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\spawn_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\spawn_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\template.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\template.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\treasure_table_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\treasure_table_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\wawalite_file.h">
+    <ClInclude Include="..\egolib\src\egolib\file_formats\wawalite_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\NSFileManager+DirectoryLocations.h">
+    <ClInclude Include="..\egolib\src\egolib\platform\NSFileManager+DirectoryLocations.h">
       <Filter>Platforms</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\lua\lua_console.h">
+    <ClInclude Include="..\egolib\src\egolib\lua\lua_console.h">
       <Filter>Lua</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\mem.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\opengl\renderer.h">
+    <ClInclude Include="..\egolib\src\egolib\opengl\renderer.h">
       <Filter>OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\tx_filters.h">
+    <ClInclude Include="..\egolib\src\egolib\tx_filters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\aabb.h">
+    <ClInclude Include="..\egolib\src\egolib\aabb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\sphere.h">
+    <ClInclude Include="..\egolib\src\egolib\sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\vec.h">
+    <ClInclude Include="..\egolib\src\egolib\matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\egolib\src\egolib\vec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\enet.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\libraries.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\multithreaded_debug_dll.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\multithreaded_dll.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\opengl.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\physfs.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\sdl.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\sdl-debug.props" />
-    <None Include="lua.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\enet-debug.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\lua-debug.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\physfs-debug.props" />
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\_math.inl">
+    <None Include="..\egolib\enet.props" />
+    <None Include="..\egolib\libraries.props" />
+    <None Include="..\egolib\multithreaded_debug_dll.props" />
+    <None Include="..\egolib\multithreaded_dll.props" />
+    <None Include="..\egolib\opengl.props" />
+    <None Include="..\egolib\physfs.props" />
+    <None Include="..\egolib\sdl.props" />
+    <None Include="..\egolib\sdl-debug.props" />
+    <None Include="..\egolib\enet-debug.props" />
+    <None Include="..\egolib\lua-debug.props" />
+    <None Include="..\egolib\physfs-debug.props" />
+    <None Include="..\egolib\src\egolib\_math.inl">
       <Filter>Inline Files</Filter>
     </None>
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bbox.inl">
+    <None Include="..\egolib\src\egolib\bbox.inl">
       <Filter>Inline Files</Filter>
     </None>
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bsp.inl">
+    <None Include="..\egolib\src\egolib\bsp.inl">
       <Filter>Inline Files</Filter>
     </None>
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\console.inl">
+    <None Include="..\egolib\src\egolib\console.inl">
       <Filter>Inline Files</Filter>
     </None>
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\egolib.inl">
+    <None Include="..\egolib\src\egolib\egolib.inl">
       <Filter>Inline Files</Filter>
     </None>
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\file_formats\id_normals.inl">
+    <None Include="..\egolib\src\egolib\file_formats\id_normals.inl">
       <Filter>File Formats</Filter>
     </None>
-    <None Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\platform\NSFileManager+DirectoryLocations.m">
+    <None Include="..\egolib\src\egolib\platform\NSFileManager+DirectoryLocations.m">
       <Filter>Platforms</Filter>
     </None>
+    <None Include="..\egolib\src\egolib\platform\file_mac.m">
+      <Filter>Platforms</Filter>
+    </None>
+    <None Include="..\egolib\src\egolib\platform\sys_mac.m">
+      <Filter>Platforms</Filter>
+    </None>
+    <None Include="..\egolib\lua.props" />
   </ItemGroup>
 </Project>

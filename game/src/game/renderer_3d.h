@@ -34,9 +34,9 @@
 //--------------------------------------------------------------------------------------------
 
 // Forward declarations.
-struct s_oct_bb;
+typedef struct oct_bb_t oct_bb_t;
 typedef struct aabb_t aabb_t;
-struct s_camera;
+typedef struct camera_t camera_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ struct s_line_data
 void line_list_init();
 int  line_list_get_free();
 bool line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration );
-void line_list_draw_all( const struct s_camera * pcam );
+void line_list_draw_all( const camera_t *pcam );
 
 //--------------------------------------------------------------------------------------------
 // some points to be drawn in the display
@@ -95,15 +95,15 @@ struct s_point_data
 void point_list_init();
 int  point_list_get_free();
 bool point_list_add( const float x, const float y, const float z, const int duration );
-void point_list_draw_all( const struct s_camera * pcam );
+void point_list_draw_all( const camera_t *pcam );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void gfx_begin_3d( const struct s_camera * pcam );
+void gfx_begin_3d( const camera_t *pcam );
 void gfx_end_3d();
 
-bool render_oct_bb( struct s_oct_bb * bb, bool draw_square, bool draw_diamond );
+bool render_oct_bb( oct_bb_t *bb, bool draw_square, bool draw_diamond );
 bool render_aabb( aabb_t * pbbox );
 
 //--------------------------------------------------------------------------------------------

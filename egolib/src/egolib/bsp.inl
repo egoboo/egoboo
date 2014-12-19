@@ -126,7 +126,7 @@ static INLINE bool BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_ptr, c
     if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
     if ( NULL == rhs_ptr || !rhs_ptr->valid ) return false;
 
-    min_dim = MIN( rhs_ptr->dim, lhs_ptr->dim );
+    min_dim = std::min( rhs_ptr->dim, lhs_ptr->dim );
     if ( 0 == min_dim ) return false;
 
     // the optomizer is supposed to do this stuff all by itself,
@@ -159,7 +159,7 @@ static INLINE bool BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, const
     if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
     if ( NULL == rhs_ptr || !rhs_ptr->valid ) return false;
 
-    min_dim = MIN( rhs_ptr->dim, lhs_ptr->dim );
+    min_dim = std::min( rhs_ptr->dim, lhs_ptr->dim );
     if ( 0 == min_dim ) return false;
 
     // the optomizer is supposed to do this stuff all by itself,
@@ -193,7 +193,7 @@ static INLINE bool BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, const
     if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
     if ( NULL == rhs_ptr /* || !rhs_ptr->valid */ ) return false;
 
-    min_dim = MIN( (size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim );
+	min_dim = std::min((size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim);
     if ( 0 == min_dim ) return false;
 
     // the optomizer is supposed to do this stuff all by itself,
@@ -226,7 +226,7 @@ static INLINE bool BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const aab
     if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
     if ( NULL == rhs_ptr /* || !rhs_ptr->valid */ ) return false;
 
-    min_dim = MIN( (size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim );
+    min_dim = std::min( (size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim );
     if ( 0 == min_dim ) return false;
 
     // the optomizer is supposed to do this stuff all by itself,

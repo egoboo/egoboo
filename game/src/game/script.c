@@ -286,7 +286,7 @@ void scr_run_chr_script( const CHR_REF character )
         latch2 = pchr->latch.x * pchr->latch.x + pchr->latch.y * pchr->latch.y;
         if ( latch2 > 1.0f )
         {
-            float scale = 1.0f / SQRT( latch2 );
+            float scale = 1.0f / std::sqrt( latch2 );
             pchr->latch.x *= scale;
             pchr->latch.y *= scale;
         }
@@ -1285,7 +1285,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARXYDISTANCE:
                 varname = "XYDISTANCE";
-                iTmp = SQRT( pstate->x * pstate->x + pstate->y * pstate->y );
+                iTmp = std::sqrt( pstate->x * pstate->x + pstate->y * pstate->y );
                 break;
 
             case VARSELFZ:

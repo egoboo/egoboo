@@ -9,7 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game_vs13.vcxp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "egolib", "egolib\egolib_vs13.vcxproj", "{0F32DD35-A264-4906-8FC9-2D0FE0613230}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cartman", "cartman\src\cartman_vs13.vcxproj", "{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cartman", "cartman\cartman_vs13.vcxproj", "{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0F32DD35-A264-4906-8FC9-2D0FE0613230} = {0F32DD35-A264-4906-8FC9-2D0FE0613230}
 	EndProjectSection

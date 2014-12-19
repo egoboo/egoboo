@@ -47,6 +47,13 @@ bool fvec2_self_clear(fvec2_base_t A)
 }
 
 //--------------------------------------------------------------------------------------------
+bool fvec2_self_is_clear(const fvec2_base_t A)
+{
+	if (NULL == A) return true;
+	return A[kX] == A[kY] == 0.0f;
+}
+
+//--------------------------------------------------------------------------------------------
 bool fvec2_base_copy(fvec2_base_t A, const fvec2_base_t B)
 {
 	if (NULL == A) return false;
@@ -112,7 +119,7 @@ float fvec2_length(const fvec2_base_t A)
 
 	A2 = A[kX] * A[kX] + A[kY] * A[kY];
 
-	return SQRT(A2);
+	return std::sqrt(A2);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -219,7 +226,7 @@ float * fvec2_normalize(fvec2_base_t DST, const fvec2_base_t SRC)
 
 		if (0.0f != len2)
 		{
-			float inv_len = 1.0f / SQRT(len2);
+			float inv_len = 1.0f / std::sqrt(len2);
 			LOG_NAN(inv_len);
 
 			DST[kX] = SRC[kX] * inv_len;
@@ -236,15 +243,16 @@ float * fvec2_normalize(fvec2_base_t DST, const fvec2_base_t SRC)
 //--------------------------------------------------------------------------------------------
 bool  fvec2_self_normalize(fvec2_base_t A)
 {
+#if 0
 	float len2;
 	float inv_len;
-
+#endif
 	if (NULL == A) return false;
 
 	if (0.0f == fvec2_length_abs(A)) return false;
 
-	len2 = A[kX] * A[kX] + A[kY] * A[kY];
-	inv_len = 1.0f / SQRT(len2);
+	float len2 = A[kX] * A[kX] + A[kY] * A[kY];
+	float inv_len = 1.0f / std::sqrt(len2);
 
 	A[kX] *= inv_len;
 	A[kY] *= inv_len;
@@ -265,6 +273,19 @@ float   fvec2_dot_product(const fvec2_base_t A, const fvec2_base_t B)
 }
 
 //--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------
+void fvec3_ctor(fvec3_base_t A)
+{
+	A[kX] = A[kY] = A[kZ] = 0.0f;
+}
+
+//--------------------------------------------------------------------------------------------
+void fvec3_dtor(fvec3_base_t A)
+{
+	A[kX] = A[kY] = A[kZ] = 0.0f;
+}
 //--------------------------------------------------------------------------------------------
 bool fvec3_valid(const fvec3_base_t A)
 {
@@ -289,6 +310,14 @@ bool fvec3_self_clear(fvec3_base_t A)
 
 	return true;
 }
+
+//--------------------------------------------------------------------------------------------
+bool fvec3_self_is_clear(const fvec2_base_t A)
+{
+	if (NULL == A) return true;
+	return A[kX] == A[kY] == A[kZ] == 0.0f;
+}
+
 
 //--------------------------------------------------------------------------------------------
 float * fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC)
@@ -381,15 +410,13 @@ float fvec3_length_2(const fvec3_base_t A)
 //--------------------------------------------------------------------------------------------
 float fvec3_length(const fvec3_base_t A)
 {
-	float A2;
-
 	if (NULL == A) return 0.0f;
 
-	A2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
+	float A2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
 
 	LOG_NAN(A2);
 
-	return SQRT(A2);
+	return std::sqrt(A2);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -519,7 +546,7 @@ float * fvec3_normalize(fvec3_base_t DST, const fvec3_base_t SRC)
 		}
 		else
 		{
-			float inv_len = 1.0f / SQRT(len2);
+			float inv_len = 1.0f / std::sqrt(len2);
 			LOG_NAN(inv_len);
 
 			DST[kX] = SRC[kX] * inv_len;
@@ -542,11 +569,9 @@ float fvec3_self_normalize(fvec3_base_t A)
 
 	if (0.0f != fvec3_length_abs(A))
 	{
-		float len2, inv_len;
-
-		len2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
-		len = SQRT(len2);
-		inv_len = 1.0f / len;
+		float len2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
+		len = std::sqrt(len2);
+		float inv_len = 1.0f / len;
 
 		LOG_NAN(inv_len);
 
@@ -575,11 +600,12 @@ float fvec3_self_normalize_to(fvec3_base_t vec, const float B)
 	}
 	else if (0.0f != fvec3_length_abs(vec))
 	{
+#if 0
 		float len2, inv_len;
-
-		len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY] + vec[kZ] * vec[kZ];
-		len = SQRT(len2);
-		inv_len = B / len;
+#endif
+		float len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY] + vec[kZ] * vec[kZ];
+		len = std::abs(len2);
+		float inv_len = B / len;
 
 		LOG_NAN(inv_len);
 

@@ -1458,7 +1458,7 @@ void gfx_system_init_SDL_graphics()
     ogl_vparam.antialiasing   = GL_TRUE;
     ogl_vparam.perspective    = cfg.use_perspective ? GL_NICEST : GL_FASTEST;
     ogl_vparam.shading        = GL_SMOOTH;
-    ogl_vparam.userAnisotropy = 16.0f * MAX( 0, cfg.texturefilter_req - TX_TRILINEAR_2 );
+    ogl_vparam.userAnisotropy = 16.0f * std::max( 0, cfg.texturefilter_req - TX_TRILINEAR_2 );
 
     log_info( "Opening SDL Video Mode...\n" );
 

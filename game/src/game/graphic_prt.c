@@ -1159,8 +1159,8 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         // make sure that it has some minimum extent
         //for(cnt = 0; cnt < OCT_COUNT; cnt++ )
         //{
-        //    tmp_bb.mins[cnt] = MIN( tmp_bb.mins[cnt], -1 );
-        //    tmp_bb.maxs[cnt] = MAX( tmp_bb.mins[cnt],  1 );
+        //    tmp_bb.mins[cnt] = std::min( tmp_bb.mins[cnt], -1 );
+        //    tmp_bb.maxs[cnt] = std::max( tmp_bb.mins[cnt],  1 );
         //}
 
         // determine the expanded collision volumes for both objects

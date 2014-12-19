@@ -428,9 +428,9 @@ PRT_REF PrtList_allocate( const bool force )
                     // if the particle has been "terminated" but is still waiting around, bump it to the
                     // front of the list
 
-                    size_t min_time  = MIN( pprt->lifetime_remaining, pprt->frames_remaining );
+                    size_t min_time  = std::min( pprt->lifetime_remaining, pprt->frames_remaining );
 
-                    if ( min_time < MAX( min_life, min_anim ) )
+                    if ( min_time < std::max( min_life, min_anim ) )
                     {
                         min_life     = pprt->lifetime_remaining;
                         min_life_idx = iprt;

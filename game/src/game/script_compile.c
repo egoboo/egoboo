@@ -1406,7 +1406,7 @@ Uint32 jump_goto( int index, int index_end, script_info_t *pscript )
         }
     }
 
-    return MIN( index, index_end );
+    return std::min( index, index_end );
 }
 
 //--------------------------------------------------------------------------------------------

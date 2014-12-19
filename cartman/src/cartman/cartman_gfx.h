@@ -35,8 +35,10 @@ struct s_Font;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_camera;
+typedef struct camera_t camera_t;
+#if 0
 typedef struct s_camera camera_t;
+#endif
 
 struct s_simple_vertex;
 typedef struct s_simple_vertex simple_vertex_t;
@@ -51,7 +53,7 @@ struct s_ogl_surface
 
 //--------------------------------------------------------------------------------------------
 
-struct s_camera
+struct camera_t
 {
     float x;       // the position of the center of the window
     float y;       //
@@ -172,8 +174,8 @@ int cartman_BlitSurface( SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, 
 SDL_Surface * cartman_LoadIMG( const char * szName );
 
 // camera stuff
-void cartman_begin_ortho_camera_hrz( struct s_window * pwin, struct s_camera * pcam, float zoom_x, float zoom_y );
-void cartman_begin_ortho_camera_vrt( struct s_window * pwin, struct s_camera * pcam, float zoom_x, float zoom_z );
+void cartman_begin_ortho_camera_hrz( struct s_window * pwin, camera_t *pcam, float zoom_x, float zoom_y );
+void cartman_begin_ortho_camera_vrt( struct s_window * pwin, camera_t *pcam, float zoom_x, float zoom_z );
 void cartman_end_ortho_camera();
 
 // setup

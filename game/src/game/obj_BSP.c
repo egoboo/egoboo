@@ -37,7 +37,9 @@ static bool _obj_BSP_system_initialized = false;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+/** @todo The origin of all problems. Global variables of complex object. */
 obj_BSP_t chr_BSP_root = OBJ_BSP_INIT_VALS;
+/** @todo The origin of all problems. Global variables of complex objects. */
 obj_BSP_t prt_BSP_root = OBJ_BSP_INIT_VALS;
 
 //--------------------------------------------------------------------------------------------
@@ -141,20 +143,20 @@ bool obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp )
 
     // find the maximum extent of the bsp
     bsp_size = 0.0f;
-    min_dim = MIN( bsp_dim, mesh_dim );
+    min_dim = std::min( bsp_dim, mesh_dim );
 
     for ( cnt = 0; cnt < min_dim; cnt ++ )
     {
         float tmp_size = ABS( mesh_tree->bsp_bbox.maxs.ary[cnt] - mesh_tree->bsp_bbox.mins.ary[cnt] );
-        bsp_size = MAX( bsp_size, tmp_size );
+        bsp_size = std::max( bsp_size, tmp_size );
     }
 
     // copy the volume from the mesh
     for ( cnt = 0; cnt < min_dim; cnt++ )
     {
         // get the size
-        obj_tree->bsp_bbox.mins.ary[cnt] = MIN( mesh_tree->bsp_bbox.mins.ary[cnt], mesh_tree->bbox.data.mins[cnt] );
-        obj_tree->bsp_bbox.maxs.ary[cnt] = MAX( mesh_tree->bsp_bbox.maxs.ary[cnt], mesh_tree->bbox.data.maxs[cnt] );
+        obj_tree->bsp_bbox.mins.ary[cnt] = std::min( mesh_tree->bsp_bbox.mins.ary[cnt], mesh_tree->bbox.data.mins[cnt] );
+        obj_tree->bsp_bbox.maxs.ary[cnt] = std::max( mesh_tree->bsp_bbox.maxs.ary[cnt], mesh_tree->bbox.data.maxs[cnt] );
 
         // make some extra space
         obj_tree->bsp_bbox.mins.ary[cnt] -= bsp_size * 0.25f;
@@ -171,8 +173,8 @@ bool obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp )
     if ( bsp_dim > 2 )
     {
         // make some extra special space in the z direction
-        obj_tree->bsp_bbox.mins.ary[kZ] = MIN( -bsp_size, obj_tree->bsp_bbox.mins.ary[kZ] );
-        obj_tree->bsp_bbox.maxs.ary[kZ] = MAX( bsp_size, obj_tree->bsp_bbox.maxs.ary[kZ] );
+        obj_tree->bsp_bbox.mins.ary[kZ] = std::min( -bsp_size, obj_tree->bsp_bbox.mins.ary[kZ] );
+        obj_tree->bsp_bbox.maxs.ary[kZ] = std::max( bsp_size, obj_tree->bsp_bbox.maxs.ary[kZ] );
     }
 
     // calculate the mid positions
@@ -238,7 +240,7 @@ bool chr_BSP_insert( chr_t * pchr )
         phys_expand_chr_bb( pchr, 0.0f, 1.0f, &tmp_oct );
 
         // convert the bounding box
-        ego_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
+        bv_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
 
         // insert the leaf
         retval = BSP_tree_insert_leaf( ptree, pleaf );
@@ -288,7 +290,7 @@ bool prt_BSP_insert( prt_bundle_t * pbdl_prt )
     phys_expand_prt_bb( loc_pprt, 0.0f, 1.0f, &tmp_oct );
 
     // convert the bounding box
-    ego_aabb_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
+    bv_from_oct_bb( &( pleaf->bbox ), &tmp_oct );
 
     retval = BSP_tree_insert_leaf( ptree, pleaf );
     if ( retval )

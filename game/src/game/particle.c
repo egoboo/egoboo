@@ -401,7 +401,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                     {
                         vel.x = ChrList.lst[pprt->target_ref].pos.x - pdata->pos.x;
                         vel.y = ChrList.lst[pprt->target_ref].pos.y - pdata->pos.y;
-                        tvel = SQRT( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
+                        tvel = std::sqrt( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
                         if ( tvel > 0.0f )
                         {
                             // This is the vel.z alteration
@@ -508,7 +508,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
         prt_anim_frames_updates  = INFINITE_UPDATES;
         prt_anim_infinite = true;
     }
-    prt_anim_frames_updates = MAX( 1, prt_anim_frames_updates );
+    prt_anim_frames_updates = std::max( 1, prt_anim_frames_updates );
 
     // estimate the number of frames
     prt_life_frames_updates  = 0;
@@ -529,7 +529,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     {
         prt_life_frames_updates = ppip->end_time;
     }
-    prt_life_frames_updates = MAX( 1, prt_life_frames_updates );
+    prt_life_frames_updates = std::max( 1, prt_life_frames_updates );
 
     // set lifetime counter
     if ( prt_life_infinite )
@@ -1256,7 +1256,7 @@ void prt_set_level( prt_t * pprt, const float level )
 
     pprt->enviro.level = level;
 
-    loc_height = prt_get_scale( pprt ) * MAX( FP8_TO_FLOAT( pprt->size ), pprt->offset.z * 0.5f );
+    loc_height = prt_get_scale( pprt ) * std::max( FP8_TO_FLOAT( pprt->size ), pprt->offset.z * 0.5f );
 
     pprt->enviro.adj_level = pprt->enviro.level;
     pprt->enviro.adj_floor = pprt->enviro.floor_level;
@@ -1298,7 +1298,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
     loc_level = penviro->floor_level;
     if ( INGAME_CHR( loc_pprt->onwhichplatform_ref ) )
     {
-        loc_level = MAX( penviro->floor_level, ChrList.lst[loc_pprt->onwhichplatform_ref].pos.z + ChrList.lst[loc_pprt->onwhichplatform_ref].chr_min_cv.maxs[OCT_Z] );
+        loc_level = std::max( penviro->floor_level, ChrList.lst[loc_pprt->onwhichplatform_ref].pos.z + ChrList.lst[loc_pprt->onwhichplatform_ref].chr_min_cv.maxs[OCT_Z] );
     }
     prt_set_level( loc_pprt, loc_level );
 
@@ -1575,7 +1575,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
         float ftmp;
 
         penviro->traction *= 0.5f;
-        temp_friction_xy  = SQRT( temp_friction_xy );
+        temp_friction_xy  = std::sqrt( temp_friction_xy );
 
         fric_floor.x = floor_acc.x * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
         fric_floor.y = floor_acc.y * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
@@ -2339,7 +2339,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
             }
 
             vertices = ( int )pchr->inst.vrt_count - ( int )grip_verts;
-            vertices = MAX( 0, vertices );
+            vertices = std::max( 0, vertices );
 
             if ( vertices != 0 )
             {
@@ -2546,7 +2546,7 @@ void PipStack_release_all( void )
         {
             pip_t * ppip = PipStack_get_ptr( cnt );
 
-            max_request = MAX( max_request, ppip->request_count );
+            max_request = std::max( max_request, ppip->request_count );
             tnc++;
         }
     }
@@ -2837,7 +2837,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     if ( loc_pprt->damage.base > 0 )
     {
         loc_pprt->damage.base -= actual_damage;
-        loc_pprt->damage.base  = MAX( 0, loc_pprt->damage.base );
+        loc_pprt->damage.base  = std::max( 0, loc_pprt->damage.base );
 
         // properly scale the random amount
         loc_pprt->damage.rand  = ABS( loc_ppip->damage.to - loc_ppip->damage.from ) * loc_pprt->damage.base / loc_ppip->damage.from;
@@ -3049,7 +3049,7 @@ prt_bundle_t * prt_update_animation( prt_bundle_t * pbdl_prt )
         else
         {
             // freeze it at the last frame
-            loc_pprt->image_off = MAX( 0, ( signed )loc_pprt->image_max - 1 );
+            loc_pprt->image_off = std::max( 0, ( signed )loc_pprt->image_max - 1 );
         }
     }
 

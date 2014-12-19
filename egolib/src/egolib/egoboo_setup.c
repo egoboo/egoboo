@@ -743,7 +743,7 @@ bool setup_init_module_vfs_paths( const char * mod_path )
 
     path_seperator_1 = strrchr( mod_path, SLASH_CHR );
     path_seperator_2 = strrchr( mod_path, NET_SLASH_CHR );
-    path_seperator_1 = MAX( path_seperator_1, path_seperator_2 );
+    path_seperator_1 = std::max( path_seperator_1, path_seperator_2 );
 
     if ( NULL == path_seperator_1 )
     {

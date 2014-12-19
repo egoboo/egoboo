@@ -55,7 +55,7 @@ bool twist_to_normal( Uint8 twist, float v[], float slide )
     nz = 0.0f;
     if ( nz2 > 0.0f )
     {
-        nz = SQRT( nz2 );
+        nz = std::sqrt( nz2 );
     }
 
     nx = - dx * nz / diff_xy;
@@ -673,7 +673,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        {
     //            west_flat = true;
     //        }
-    //        else if ( MAX(vrt_hgt[12],vrt_hgt[0]) - MIN(vrt_hgt[12],vrt_hgt[0]) >= 0.99f * TILE_FSIZE  )
+    //        else if ( std::max(vrt_hgt[12],vrt_hgt[0]) - std::min(vrt_hgt[12],vrt_hgt[0]) >= 0.99f * TILE_FSIZE  )
     //        {
     //            west_flat = true;
     //        }
@@ -684,7 +684,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        {
     //            north_flat = true;
     //        }
-    //        else if ( MAX(vrt_hgt[0],vrt_hgt[3]) - MIN(vrt_hgt[0],vrt_hgt[3]) >= 0.99f * TILE_FSIZE )
+    //        else if ( std::max(vrt_hgt[0],vrt_hgt[3]) - std::min(vrt_hgt[0],vrt_hgt[3]) >= 0.99f * TILE_FSIZE )
     //        {
     //            north_flat = true;
     //        }
@@ -695,7 +695,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        {
     //            east_flat = true;
     //        }
-    //        else if ( MAX(vrt_hgt[3],vrt_hgt[15]) - MIN(vrt_hgt[3],vrt_hgt[15]) >= 0.99f * TILE_FSIZE )
+    //        else if ( std::max(vrt_hgt[3],vrt_hgt[15]) - std::min(vrt_hgt[3],vrt_hgt[15]) >= 0.99f * TILE_FSIZE )
     //        {
     //            east_flat = true;
     //        }
@@ -706,7 +706,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     //        {
     //            south_flat = true;
     //        }
-    //        else if ( MAX(vrt_hgt[15],vrt_hgt[12]) - MIN(vrt_hgt[15],vrt_hgt[12]) >= 0.99f * TILE_FSIZE )
+    //        else if ( std::max(vrt_hgt[15],vrt_hgt[12]) - std::min(vrt_hgt[15],vrt_hgt[12]) >= 0.99f * TILE_FSIZE )
     //        {
     //            south_flat = true;
     //        }

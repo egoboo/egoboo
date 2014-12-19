@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -18,13 +16,14 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-
 /// @file egolib/frustum.h
 /// @brief integrating the basic frustum object into Egoboo algorithms
+#pragma once
 
 #include "egolib/geometry.h"
 #include "egolib/bbox.h"
 #include "egolib/aabb.h"
+#include "egolib/bv.h"
 
 #if 0
 #if defined(__cplusplus)
@@ -44,9 +43,10 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 
-
+#if 0
     struct s_egolib_frustum;
-    typedef struct s_egolib_frustum egolib_frustum_t;
+#endif
+    typedef struct egolib_frustum_t egolib_frustum_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ extern "C"
 
 
 //--------------------------------------------------------------------------------------------
-    struct s_egolib_frustum
+    struct egolib_frustum_t
     {
         // basic frustum data
         frustum_base_t data;
@@ -72,7 +72,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// Call this every time the camera moves to update the frustum
-    geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust, const ego_aabb_t * paabb );
+    geometry_rv egolib_frustum_intersects_bv( const egolib_frustum_t * pfrust, const bv_t * paabb );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -86,5 +86,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #define _egolib_frustum_h
-
+#endif

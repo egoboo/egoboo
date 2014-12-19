@@ -808,7 +808,7 @@ int nearest_edge_vertex( cartman_mpd_t * pmesh, int mapx, int mapy, float nearx,
 
             prox_x = grid_fx - nearx;
             prox_y = grid_fy - neary;
-            dist_abs = ABS( prox_x ) + ABS( prox_y );
+			dist_abs = std::abs(prox_x) + std::abs(prox_y);
 
             if ( dist_abs < bestprox )
             {
@@ -1328,7 +1328,7 @@ void flatten_mesh( cartman_mpd_t * pmesh, int y0 )
             {
                 float ftmp = vlst[vert].z - height;
 
-                if ( ABS( ftmp ) < 50 )
+				if (std::abs(ftmp) < 50)
                 {
                     vlst[vert].z = height;
                 }
@@ -1514,8 +1514,8 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
     for ( cnt = 1; cnt < 4 && CHAINEND != vert; vert = vlst[vert].next, cnt++ )
     {
         corner_hgt[cnt] = vlst[vert].z;
-        min_hgt = MIN( min_hgt, corner_hgt[cnt] );
-        max_hgt = MAX( max_hgt, corner_hgt[cnt] );
+		min_hgt = std::min(min_hgt, corner_hgt[cnt]);
+        max_hgt = std::max( max_hgt, corner_hgt[cnt] );
     }
 
     // correct all vertices
@@ -1588,7 +1588,7 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
             {
                 ftmp = corner_hgt[CORNER_BR] - min_hgt;
 
-                weight = ( float )MAX( pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )std::max( pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
@@ -1599,7 +1599,7 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
             {
                 ftmp = corner_hgt[CORNER_TR] - min_hgt;
 
-                weight = ( float )MIN( pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )std::min( pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
@@ -1610,7 +1610,7 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
             {
                 ftmp = corner_hgt[CORNER_BL] - min_hgt;
 
-                weight = ( float )MIN( 3 - pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )std::min( 3 - pdef->grid_ix[cnt], pdef->grid_iy[cnt] ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;
@@ -1621,7 +1621,7 @@ void set_barrier_height( cartman_mpd_t * pmesh, int mapx, int mapy )
             {
                 ftmp = corner_hgt[CORNER_TL] - min_hgt;
 
-                weight = ( float )MIN( 3 - pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
+                weight = ( float )std::min( 3 - pdef->grid_ix[cnt], 3 - pdef->grid_iy[cnt] ) / 3.0f;
                 ftmp *= BARRIER_FUNC( weight );
 
                 vsum += weight * ftmp;

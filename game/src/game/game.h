@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------
 
 struct s_ego_mesh;
-struct s_camera;
+typedef struct camera_t camera_t;
 struct s_script_state;
 struct s_mod_file;
 
@@ -416,9 +416,9 @@ bool status_list_update_cameras( status_list_t * plst );
 //--------------------------------------------------------------------------------------------
 
 // various global pointers
-extern game_process_t       * GProc;
-extern struct s_ego_mesh     * PMesh;
-extern struct s_camera      * PCamera;
+extern game_process_t  *GProc;
+extern struct s_ego_mesh *PMesh;
+extern camera_t *PCamera;
 extern struct s_game_module * PMod;
 
 // special terrain and wawalite-related data structs
@@ -503,7 +503,7 @@ void  free_all_objects( void );
 
 /// Data
 struct s_ego_mesh * set_PMesh( struct s_ego_mesh * pmpd );
-struct s_camera  * set_PCamera( struct s_camera * pcam );
+camera_t  *set_PCamera( camera_t * pcam );
 
 float get_mesh_level( struct s_ego_mesh * pmesh, float x, float y, bool waterwalk );
 

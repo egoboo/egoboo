@@ -35,8 +35,9 @@
 // external structs
 //--------------------------------------------------------------------------------------------
 
+// Forward declarations.
 struct s_chr;
-struct s_camera;
+typedef struct camera_t camera_t;
 struct s_egoboo_config;
 struct s_chr_instance;
 struct s_oglx_texture_parameters;
@@ -311,11 +312,11 @@ void   gfx_system_delete_all_graphics();
 void   gfx_system_load_assets();
 void   gfx_system_load_basic_textures();
 
-renderlist_mgr_t * gfx_system_get_renderlist_mgr( const struct s_camera * pcam );
+renderlist_mgr_t * gfx_system_get_renderlist_mgr( const camera_t *pcam );
 dolist_mgr_t * gfx_system_get_dolist_mgr( void );
 
 // the render engine callback
-void   gfx_system_render_world( const struct s_camera * pcam, const int render_list_index, const int dolist_index );
+void   gfx_system_render_world( const camera_t * pcam, const int render_list_index, const int dolist_index );
 
 void gfx_request_clear_screen();
 void gfx_do_clear_screen();
@@ -362,7 +363,7 @@ gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, size_t index );
 dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, size_t index );
 
 gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh );
-gfx_rv renderlist_attach_camera( renderlist_t * ptr, const struct s_camera * pcam );
+gfx_rv renderlist_attach_camera( renderlist_t * ptr, const camera_t *pcam );
 
 bool oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
 

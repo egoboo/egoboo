@@ -44,12 +44,14 @@ extern "C"
     struct s_bumper;
     typedef struct s_bumper bumper_t;
 
-    struct s_oct_bb;
-    typedef struct s_oct_bb oct_bb_t;
+#if 0
+    struct oct_bb;
+#endif
+    typedef struct oct_bb_t oct_bb_t;
 
 #if 0
-struct s_ego_aabb;
-typedef struct s_ego_aabb ego_aabb_t;
+struct s_bv;
+typedef struct s_bv bv_t;
 
 struct s_aabb_lst;
 typedef struct s_aabb_lst aabb_lst_t;
@@ -104,7 +106,7 @@ typedef struct s_aabb_ary aabb_ary_t;
 /// to be used for the Level 1 character "bumper"
 /// The best possible octagonal bounding volume. A generalization of the old octagonal bounding box
 /// values in data.txt. Computed on the fly.
-    struct s_oct_bb
+    struct oct_bb_t
     {
         bool  empty;
         oct_vec_t mins,
@@ -116,7 +118,7 @@ typedef struct s_aabb_ary aabb_ary_t;
 #define OCT_BB_INIT_VALS { true, OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
 
 //--------------------------------------------------------------------------------------------
-//struct s_ego_aabb
+//struct s_bv
 //{
 //    int    sub_used;
 //    float  weight;
@@ -132,7 +134,7 @@ typedef struct s_aabb_ary aabb_ary_t;
 //struct s_aabb_lst
 //{
 //    int       count;
-//    ego_aabb_t * list;
+//    bv_t * list;
 //};
 //
 //EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst );

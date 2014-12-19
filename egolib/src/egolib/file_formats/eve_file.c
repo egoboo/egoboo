@@ -255,7 +255,7 @@ bool save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateN
     template_put_bool( filetemp, filewrite, peve->poofonend );
 
     // More stuff
-    template_put_int( filetemp, filewrite, MAX( -1, peve->lifetime ) );
+    template_put_int( filetemp, filewrite, std::max( -1, peve->lifetime ) );
     template_put_int( filetemp, filewrite, peve->endmessage );
 
     // Drain stuff

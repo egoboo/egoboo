@@ -64,12 +64,14 @@ bool obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth );
 bool obj_BSP_free( obj_BSP_t * pbsp );
 
 int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const struct s_egolib_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+/** @todo Remove this. */
 extern obj_BSP_t chr_BSP_root;
+/** @todo Remove this. */
 extern obj_BSP_t prt_BSP_root;
 
 //--------------------------------------------------------------------------------------------

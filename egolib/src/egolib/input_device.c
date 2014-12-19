@@ -179,7 +179,7 @@ void input_device_add_latch( input_device_t * pdevice, float newx, float newy )
     dist = pdevice->latch.x * pdevice->latch.x + pdevice->latch.y * pdevice->latch.y;
     if ( dist > 1.0f )
     {
-        float scale = 1.0f / SQRT( dist );
+        float scale = 1.0f / std::sqrt( dist );
 
         pdevice->latch.x *= scale;
         pdevice->latch.y *= scale;

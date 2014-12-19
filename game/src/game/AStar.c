@@ -148,7 +148,7 @@ flexible_destination:
     AStar_reset();
 
     // initialize the starting node
-    weight = SQRT(( src_ix - dst_ix ) * ( src_ix - dst_ix ) + ( src_iy - dst_iy ) * ( src_iy - dst_iy ) );
+    weight = std::sqrt(( src_ix - dst_ix ) * ( src_ix - dst_ix ) + ( src_iy - dst_iy ) * ( src_iy - dst_iy ) );
     start_node = AStar_add_node( src_ix, src_iy, NULL, weight, false );
 
     // do the algorithm

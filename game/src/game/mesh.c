@@ -962,13 +962,13 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
         }
 
         // extend the mesh bounding box
-        ptmem->bbox.mins[XX] = MIN( ptmem->bbox.mins[XX], poct->mins[XX] );
-        ptmem->bbox.mins[YY] = MIN( ptmem->bbox.mins[YY], poct->mins[YY] );
-        ptmem->bbox.mins[ZZ] = MIN( ptmem->bbox.mins[ZZ], poct->mins[ZZ] );
+        ptmem->bbox.mins[XX] = std::min( ptmem->bbox.mins[XX], poct->mins[XX] );
+        ptmem->bbox.mins[YY] = std::min( ptmem->bbox.mins[YY], poct->mins[YY] );
+        ptmem->bbox.mins[ZZ] = std::min( ptmem->bbox.mins[ZZ], poct->mins[ZZ] );
 
-        ptmem->bbox.maxs[XX] = MAX( ptmem->bbox.maxs[XX], poct->maxs[XX] );
-        ptmem->bbox.maxs[YY] = MAX( ptmem->bbox.maxs[YY], poct->maxs[YY] );
-        ptmem->bbox.maxs[ZZ] = MAX( ptmem->bbox.maxs[ZZ], poct->maxs[ZZ] );
+        ptmem->bbox.maxs[XX] = std::max( ptmem->bbox.maxs[XX], poct->maxs[XX] );
+        ptmem->bbox.maxs[YY] = std::max( ptmem->bbox.maxs[YY], poct->maxs[YY] );
+        ptmem->bbox.maxs[ZZ] = std::max( ptmem->bbox.maxs[ZZ], poct->maxs[ZZ] );
     }
 
     return true;
@@ -1434,7 +1434,7 @@ float ego_mesh_light_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, bool 
             *pdelta1 = *pdelta2;
         }
 
-        max_delta = MAX( max_delta, *pdelta1 );
+        max_delta = std::max( max_delta, *pdelta1 );
     }
 
     // un-mark the lcache
@@ -1562,11 +1562,11 @@ BIT_FIELD ego_mesh_test_wall( const ego_mesh_t * pmesh, const float pos[], const
     pdata->fy_max = pos[kY] + loc_radius;
 
     // make a large limit in case the pos is so large that it cannot be represented by an int
-    pdata->fx_min = MAX( pdata->fx_min, -9.0f * pmesh->gmem.edge_x );
-    pdata->fx_max = MIN( pdata->fx_max, 10.0f * pmesh->gmem.edge_x );
+    pdata->fx_min = std::max( pdata->fx_min, -9.0f * pmesh->gmem.edge_x );
+    pdata->fx_max = std::min( pdata->fx_max, 10.0f * pmesh->gmem.edge_x );
 
-    pdata->fy_min = MAX( pdata->fy_min, -9.0f * pmesh->gmem.edge_y );
-    pdata->fy_max = MIN( pdata->fy_max, 10.0f * pmesh->gmem.edge_y );
+    pdata->fy_min = std::max( pdata->fy_min, -9.0f * pmesh->gmem.edge_y );
+    pdata->fy_max = std::min( pdata->fy_max, 10.0f * pmesh->gmem.edge_y );
 
     // find an integer bound.
     // we need to know about out of range values below clamp these to valid values
@@ -1576,15 +1576,15 @@ BIT_FIELD ego_mesh_test_wall( const ego_mesh_t * pmesh, const float pos[], const
     bound.ymax = FLOOR( pdata->fy_max / GRID_FSIZE );
 
     // limit the test values to be in-bounds
-    pdata->fx_min = MAX( pdata->fx_min, 0.0f );
-    pdata->fx_max = MIN( pdata->fx_max, pmesh->gmem.edge_x );
-    pdata->fy_min = MAX( pdata->fy_min, 0.0f );
-    pdata->fy_max = MIN( pdata->fy_max, pmesh->gmem.edge_y );
+    pdata->fx_min = std::max( pdata->fx_min, 0.0f );
+    pdata->fx_max = std::min( pdata->fx_max, pmesh->gmem.edge_x );
+    pdata->fy_min = std::max( pdata->fy_min, 0.0f );
+    pdata->fy_max = std::min( pdata->fy_max, pmesh->gmem.edge_y );
 
-    pdata->ix_min = MAX( bound.xmin, 0 );
-    pdata->ix_max = MIN( bound.xmax, pmesh->info.tiles_x - 1 );
-    pdata->iy_min = MAX( bound.ymin, 0 );
-    pdata->iy_max = MIN( bound.ymax, pmesh->info.tiles_y - 1 );
+    pdata->ix_min = std::max( bound.xmin, 0 );
+    pdata->ix_max = std::min( bound.xmax, pmesh->info.tiles_x - 1 );
+    pdata->iy_min = std::max( bound.ymin, 0 );
+    pdata->iy_max = std::min( bound.ymax, pmesh->info.tiles_y - 1 );
 
     // clear the bit accumulator
     pass = 0;
@@ -1737,13 +1737,13 @@ float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const float pos[], float 
 
                 // determine the area overlap of the tile with the
                 // object's bounding box
-                ovl_x_min = MAX( fx_min, tx_min );
-                ovl_x_max = MIN( fx_max, tx_max );
+                ovl_x_min = std::max( fx_min, tx_min );
+                ovl_x_max = std::min( fx_max, tx_max );
 
-                ovl_y_min = MAX( fy_min, ty_min );
-                ovl_y_max = MIN( fy_max, ty_max );
+                ovl_y_min = std::max( fy_min, ty_min );
+                ovl_y_max = std::min( fy_max, ty_max );
 
-                min_area = MIN( tile_area, obj_area );
+                min_area = std::min( tile_area, obj_area );
 
                 area_ratio = 0.0f;
                 if ( ovl_x_min <= ovl_x_max && ovl_y_min <= ovl_y_max )
@@ -1842,7 +1842,7 @@ fvec2_t ego_mesh_get_diff( const ego_mesh_t * pmesh, const float pos[], float ra
     // limit the maximum displacement to less than one tile
     if ( ABS( diff.x ) + ABS( diff.y ) > 0.0f )
     {
-        float fmax = MAX( ABS( diff.x ), ABS( diff.y ) );
+        float fmax = std::max( ABS( diff.x ), ABS( diff.y ) );
 
         diff.x /= fmax;
         diff.y /= fmax;
@@ -1985,7 +1985,7 @@ BIT_FIELD ego_mesh_hit_wall( const ego_mesh_t * pmesh, const float pos[], const 
             }
             else
             {
-                float dist = SQRT( nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY] );
+                float dist = std::sqrt( nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY] );
 
                 //*pressure = dist;
                 nrm[kX] /= dist;
@@ -2068,7 +2068,7 @@ float ego_mesh_get_max_vertex_1( const ego_mesh_t * pmesh, int grid_x, int grid_
 
         if ( fx >= xmin && fx <= xmax && fy >= ymin && fy <= ymax )
         {
-            zmax = MAX( zmax, ( *pvert )[ZZ] );
+            zmax = std::max( zmax, ( *pvert )[ZZ] );
         }
     }
 

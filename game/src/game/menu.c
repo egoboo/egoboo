@@ -834,9 +834,9 @@ int doMainMenu( float deltaTime )
             }
 
             // calculate the centered position of the background
-            fminw = ( float ) MIN( GFX_WIDTH , background.imgW ) / ( float ) background.imgW;
-            fminh = ( float ) MIN( GFX_HEIGHT, background.imgH ) / ( float ) background.imgW;
-            fmin  = MIN( fminw, fminh );
+            fminw = ( float ) std::min( GFX_WIDTH , background.imgW ) / ( float ) background.imgW;
+            fminh = ( float ) std::min( GFX_HEIGHT, background.imgH ) / ( float ) background.imgW;
+            fmin  = std::min( fminw, fminh );
 
             bg_rect.w = background.imgW * fmin;
             bg_rect.h = background.imgH * fmin;
@@ -844,7 +844,7 @@ int doMainMenu( float deltaTime )
             bg_rect.y = ( GFX_HEIGHT - bg_rect.h ) * 0.5f;
 
             // calculate the position of the logo
-            fmin  = MIN( bg_rect.w * 0.5f / logo.imgW, bg_rect.h * 0.5f / logo.imgH );
+            fmin  = std::min( bg_rect.w * 0.5f / logo.imgW, bg_rect.h * 0.5f / logo.imgH );
 
             logo_rect.x = bg_rect.x;
             logo_rect.y = bg_rect.y;
@@ -1196,10 +1196,10 @@ int doChooseModule( float deltaTime )
 
             // Figure out at what offset we want to draw the module menu.
             moduleMenuOffsetX = ( GFX_WIDTH  - 640 ) / 2;
-            moduleMenuOffsetX = MAX( 0, moduleMenuOffsetX );
+            moduleMenuOffsetX = std::max( 0, moduleMenuOffsetX );
 
             moduleMenuOffsetY = ( GFX_HEIGHT - 480 ) / 2;
-            moduleMenuOffsetY = MAX( 0, moduleMenuOffsetY );
+            moduleMenuOffsetY = std::max( 0, moduleMenuOffsetY );
 
             menuState = MM_Entering;
 
@@ -1355,7 +1355,7 @@ int doChooseModule( float deltaTime )
                 // Draw buttons for the modules that can be selected
                 x = 93;
                 y = 20;
-                for ( i = startIndex; i < MIN( startIndex + 3, validModules_count ); i++ )
+				for (i = startIndex; i < std::min(startIndex + 3, validModules_count); i++)
                 {
                     // fix the menu images in case one or more of them are undefined
                     MOD_REF          loc_imod;
@@ -5608,7 +5608,7 @@ egolib_rv LoadPlayer_list_dealloc( LoadPlayer_list_t * lst )
 
     if ( 0 == lst->count ) return rv_success;
 
-    lst->count = MIN( lst->count, MAX_LOADPLAYER );
+    lst->count = std::min( lst->count, MAX_LOADPLAYER );
     for ( i = 0; i < lst->count; i++ )
     {
         LoadPlayer_element_dtor( lst->lst + i );

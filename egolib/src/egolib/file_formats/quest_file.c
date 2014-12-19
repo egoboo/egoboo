@@ -244,7 +244,7 @@ int quest_log_adjust_level( IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ 
 
         // Modify the quest level for that specific quest
         if ( adjustment == QUEST_MAXVAL ) dst_level = QUEST_BEATEN;
-        else                             dst_level = MAX( 0, src_level + adjustment );
+        else                             dst_level = std::max( 0, src_level + adjustment );
 
         // set the quest level
         pquest->level = dst_level;

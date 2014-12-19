@@ -1233,8 +1233,8 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     //if ( mount_b && pchr_b->enviro.level < pchr_a->pos.z + pchr_a->bump.height + PLATTOLERANCE )
     //    return false;
 
-    odepth[OCT_Z]  = MIN( pchr_b->chr_min_cv.maxs[OCT_Z] + pchr_b->pos.z, pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->pos.z ) -
-                     MAX( pchr_b->chr_min_cv.mins[OCT_Z] + pchr_b->pos.z, pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->pos.z );
+	odepth[OCT_Z] = std::min(pchr_b->chr_min_cv.maxs[OCT_Z] + pchr_b->pos.z, pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->pos.z) -
+                    std::max( pchr_b->chr_min_cv.mins[OCT_Z] + pchr_b->pos.z, pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->pos.z );
 
     collide_z  = TO_C_BOOL( odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE );
 
@@ -1253,42 +1253,42 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
         depth_a = ( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z] ) - ( pchr_a->pos.z + pchr_a->chr_min_cv.mins[OCT_Z] );
         depth_b = ( pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pchr_b->pos.z + pchr_b->chr_min_cv.mins[OCT_Z] );
 
-        odepth[OCT_Z] = MIN( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z], pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] ) -
-                        MAX( pchr_b->pos.z + pchr_b->chr_min_cv.mins[OCT_Z], pchr_a->pos.z + pchr_a->chr_min_cv.mins[OCT_Z] );
+        odepth[OCT_Z] = std::min( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z], pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] ) -
+                        std::max( pchr_b->pos.z + pchr_b->chr_min_cv.mins[OCT_Z], pchr_a->pos.z + pchr_a->chr_min_cv.mins[OCT_Z] );
 
-        chara_on_top = TO_C_BOOL( ABS( odepth[OCT_Z] - depth_a ) < ABS( odepth[OCT_Z] - depth_b ) );
+		chara_on_top = TO_C_BOOL(std::abs(odepth[OCT_Z] - depth_a) < std::abs(odepth[OCT_Z] - depth_b));
 
         // the collision is determined by the platform size
         if ( chara_on_top )
         {
             // size of a doesn't matter
-            odepth[OCT_X]  = MIN(( pchr_b->chr_min_cv.maxs[OCT_X] + pchr_b->pos.x ) - pchr_a->pos.x,
-                                 pchr_a->pos.x - ( pchr_b->chr_min_cv.mins[OCT_X] + pchr_b->pos.x ) );
+            odepth[OCT_X]  = std::min(( pchr_b->chr_min_cv.maxs[OCT_X] + pchr_b->pos.x ) - pchr_a->pos.x,
+                                        pchr_a->pos.x - ( pchr_b->chr_min_cv.mins[OCT_X] + pchr_b->pos.x ) );
 
-            odepth[OCT_Y]  = MIN(( pchr_b->chr_min_cv.maxs[OCT_Y] + pchr_b->pos.y ) -  pchr_a->pos.y,
-                                 pchr_a->pos.y - ( pchr_b->chr_min_cv.mins[OCT_Y] + pchr_b->pos.y ) );
+            odepth[OCT_Y]  = std::min(( pchr_b->chr_min_cv.maxs[OCT_Y] + pchr_b->pos.y ) -  pchr_a->pos.y,
+                                        pchr_a->pos.y - ( pchr_b->chr_min_cv.mins[OCT_Y] + pchr_b->pos.y ) );
 
-            odepth[OCT_XY] = MIN(( pchr_b->chr_min_cv.maxs[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) - ( pchr_a->pos.x + pchr_a->pos.y ),
-                                 ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
+            odepth[OCT_XY] = std::min(( pchr_b->chr_min_cv.maxs[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) - ( pchr_a->pos.x + pchr_a->pos.y ),
+                                      ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
 
-            odepth[OCT_YX] = MIN(( pchr_b->chr_min_cv.maxs[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
-                                 ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
+            odepth[OCT_YX] = std::min(( pchr_b->chr_min_cv.maxs[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
+                                      ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
         }
         else
         {
             // size of b doesn't matter
 
-            odepth[OCT_X]  = MIN(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->pos.x ) - pchr_b->pos.x,
-                                 pchr_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
+            odepth[OCT_X]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->pos.x ) - pchr_b->pos.x,
+                                        pchr_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
 
-            odepth[OCT_Y]  = MIN(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pchr_b->pos.y,
-                                 pchr_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
+            odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pchr_b->pos.y,
+                                        pchr_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
 
-            odepth[OCT_XY] = MIN(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pchr_b->pos.x + pchr_b->pos.y ),
-                                 ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+            odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pchr_b->pos.x + pchr_b->pos.y ),
+                                      ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
 
-            odepth[OCT_YX] = MIN(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pchr_b->pos.x + pchr_b->pos.y ),
-                                 ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+            odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pchr_b->pos.x + pchr_b->pos.y ),
+                                      ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
         }
     }
     else if ( platform_a )
@@ -1298,17 +1298,17 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
         // size of b doesn't matter
 
-        odepth[OCT_X]  = MIN(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->pos.x ) - pchr_b->pos.x,
-                             pchr_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
+        odepth[OCT_X]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->pos.x ) - pchr_b->pos.x,
+                                    pchr_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
 
-        odepth[OCT_Y]  = MIN(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pchr_b->pos.y,
-                             pchr_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
+		odepth[OCT_Y] = std::min((pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->pos.y) - pchr_b->pos.y,
+                                  pchr_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
 
-        odepth[OCT_XY] = MIN(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pchr_b->pos.x + pchr_b->pos.y ),
-                             ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+		odepth[OCT_XY] = std::min((pchr_a->chr_min_cv.maxs[OCT_XY] + (pchr_a->pos.x + pchr_a->pos.y)) - (pchr_b->pos.x + pchr_b->pos.y),
+                                  ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
 
-        odepth[OCT_YX] = MIN(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pchr_b->pos.x + pchr_b->pos.y ),
-                             ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+		odepth[OCT_YX] = std::min((pchr_a->chr_min_cv.maxs[OCT_YX] + (-pchr_a->pos.x + pchr_a->pos.y)) - (-pchr_b->pos.x + pchr_b->pos.y),
+                                  ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
     }
     else if ( platform_b )
     {
@@ -1316,17 +1316,17 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
         odepth[OCT_Z] = ( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z] ) - ( pchr_a->pos.z + pchr_a->chr_min_cv.mins[OCT_Z] );
 
         // size of a doesn't matter
-        odepth[OCT_X]  = MIN(( pchr_b->chr_min_cv.maxs[OCT_X] + pchr_b->pos.x ) - pchr_a->pos.x,
-                             pchr_a->pos.x - ( pchr_b->chr_min_cv.mins[OCT_X] + pchr_b->pos.x ) );
+		odepth[OCT_X] = std::min((pchr_b->chr_min_cv.maxs[OCT_X] + pchr_b->pos.x) - pchr_a->pos.x,
+                                  pchr_a->pos.x - ( pchr_b->chr_min_cv.mins[OCT_X] + pchr_b->pos.x ) );
 
-        odepth[OCT_Y]  = MIN( pchr_b->chr_min_cv.maxs[OCT_Y] + ( pchr_b->pos.y -  pchr_a->pos.y ),
-                              ( pchr_a->pos.y - pchr_b->chr_min_cv.mins[OCT_Y] ) + pchr_b->pos.y );
+		odepth[OCT_Y] = std::min(pchr_b->chr_min_cv.maxs[OCT_Y] + (pchr_b->pos.y - pchr_a->pos.y),
+                                 ( pchr_a->pos.y - pchr_b->chr_min_cv.mins[OCT_Y] ) + pchr_b->pos.y );
 
-        odepth[OCT_XY] = MIN(( pchr_b->chr_min_cv.maxs[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) - ( pchr_a->pos.x + pchr_a->pos.y ),
-                             ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
+		odepth[OCT_XY] = std::min((pchr_b->chr_min_cv.maxs[OCT_XY] + (pchr_b->pos.x + pchr_b->pos.y)) - (pchr_a->pos.x + pchr_a->pos.y),
+                                  ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
 
-        odepth[OCT_YX] = MIN(( pchr_b->chr_min_cv.maxs[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
-                             ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
+        odepth[OCT_YX] = std::min(( pchr_b->chr_min_cv.maxs[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
+                                  ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
 
     }
 
@@ -1392,8 +1392,8 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     platform_a = /* pprt_b->canuseplatforms && */ pchr_a->platform;
     if ( !platform_a ) return false;
 
-    odepth[OCT_Z]  = MIN( pprt_b->prt_max_cv.maxs[OCT_Z] + pprt_b->pos.z, pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->pos.z ) -
-                     MAX( pprt_b->prt_max_cv.mins[OCT_Z] + pprt_b->pos.z, pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->pos.z );
+    odepth[OCT_Z]  = std::min( pprt_b->prt_max_cv.maxs[OCT_Z] + pprt_b->pos.z, pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->pos.z ) -
+                     std::max( pprt_b->prt_max_cv.mins[OCT_Z] + pprt_b->pos.z, pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->pos.z );
 
 	collide_z = TO_C_BOOL(odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE);
 
@@ -1407,17 +1407,17 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
 
     // size of b doesn't matter
 
-    odepth[OCT_X]  = MIN(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->pos.x ) - pprt_b->pos.x,
-                         pprt_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
+	odepth[OCT_X] = std::min((pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->pos.x) - pprt_b->pos.x,
+                              pprt_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
 
-    odepth[OCT_Y]  = MIN(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pprt_b->pos.y,
-                         pprt_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
+    odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pprt_b->pos.y,
+                                pprt_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
 
-    odepth[OCT_XY] = MIN(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pprt_b->pos.x + pprt_b->pos.y ),
-                         ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+    odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pprt_b->pos.x + pprt_b->pos.y ),
+                              ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
 
-    odepth[OCT_YX] = MIN(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pprt_b->pos.x + pprt_b->pos.y ),
-                         ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+    odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pprt_b->pos.x + pprt_b->pos.y ),
+                              ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
 
     collide_x  = TO_C_BOOL( odepth[OCT_X]  > 0.0f );
     collide_y  = TO_C_BOOL( odepth[OCT_Y]  > 0.0f );

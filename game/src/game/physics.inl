@@ -148,15 +148,15 @@ static INLINE bool test_interaction_close_2( const oct_bb_t * cv_a, const fvec3_
     // calculate the depth
     for ( cnt = 0; cnt < OCT_Z; cnt++ )
     {
-        float ftmp1 = MIN(( ob[cnt] + cv_b->maxs[cnt] ) - oa[cnt], oa[cnt] - ( ob[cnt] + cv_b->mins[cnt] ) );
-        float ftmp2 = MIN(( oa[cnt] + cv_a->maxs[cnt] ) - ob[cnt], ob[cnt] - ( oa[cnt] + cv_a->mins[cnt] ) );
-        depth = MAX( ftmp1, ftmp2 );
+        float ftmp1 = std::min(( ob[cnt] + cv_b->maxs[cnt] ) - oa[cnt], oa[cnt] - ( ob[cnt] + cv_b->mins[cnt] ) );
+        float ftmp2 = std::min(( oa[cnt] + cv_a->maxs[cnt] ) - ob[cnt], ob[cnt] - ( oa[cnt] + cv_a->mins[cnt] ) );
+        depth = std::max( ftmp1, ftmp2 );
         if ( depth <= 0.0f ) return false;
     }
 
     // treat the z coordinate the same as always
-    depth = MIN( cv_b->maxs[OCT_Z] + ob[OCT_Z], cv_a->maxs[OCT_Z] + oa[OCT_Z] ) -
-            MAX( cv_b->mins[OCT_Z] + ob[OCT_Z], cv_a->mins[OCT_Z] + oa[OCT_Z] );
+    depth = std::min( cv_b->maxs[OCT_Z] + ob[OCT_Z], cv_a->maxs[OCT_Z] + oa[OCT_Z] ) -
+            std::max( cv_b->mins[OCT_Z] + ob[OCT_Z], cv_a->mins[OCT_Z] + oa[OCT_Z] );
 
     return TO_C_BOOL( test_platform ? ( depth > -PLATTOLERANCE ) : ( depth > 0.0f ) );
 }
@@ -292,9 +292,9 @@ static INLINE bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv
         opos_b = ( cv_b->mins[cnt] + cv_b->maxs[cnt] ) * 0.5f;
 
         // measue the depth
-        ftmp1 = MIN( cv_b->maxs[cnt] - opos_a, opos_a - cv_b->mins[cnt] );
-        ftmp2 = MIN( cv_a->maxs[cnt] - opos_b, opos_b - cv_a->mins[cnt] );
-        depth[cnt] = MAX( ftmp1, ftmp2 );
+        ftmp1 = std::min( cv_b->maxs[cnt] - opos_a, opos_a - cv_b->mins[cnt] );
+        ftmp2 = std::min( cv_a->maxs[cnt] - opos_b, opos_b - cv_a->mins[cnt] );
+        depth[cnt] = std::max( ftmp1, ftmp2 );
 
         if ( depth[cnt] <= 0.0f )
         {
@@ -304,8 +304,8 @@ static INLINE bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv
     }
 
     // treat the z coordinate the same as always
-    depth[OCT_Z]  = MIN( cv_b->maxs[OCT_Z], cv_a->maxs[OCT_Z] ) -
-                    MAX( cv_b->mins[OCT_Z], cv_a->mins[OCT_Z] );
+    depth[OCT_Z]  = std::min( cv_b->maxs[OCT_Z], cv_a->maxs[OCT_Z] ) -
+                    std::max( cv_b->mins[OCT_Z], cv_a->mins[OCT_Z] );
 
     if ( depth[OCT_Z] <= 0.0f )
     {
@@ -343,8 +343,8 @@ static INLINE bool get_depth_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a,
     valid = true;
     for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
-        depth[cnt]  = MIN( cv_b->maxs[cnt] + ob[cnt], cv_a->maxs[cnt] + oa[cnt] ) -
-                      MAX( cv_b->mins[cnt] + ob[cnt], cv_a->mins[cnt] + oa[cnt] );
+        depth[cnt]  = std::min( cv_b->maxs[cnt] + ob[cnt], cv_a->maxs[cnt] + oa[cnt] ) -
+                      std::max( cv_b->mins[cnt] + ob[cnt], cv_a->mins[cnt] + oa[cnt] );
 
         if ( depth[cnt] <= 0.0f )
         {

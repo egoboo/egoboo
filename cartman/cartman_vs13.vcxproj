@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>cartman</ProjectName>
+    <ProjectGuid>{87DFC5F5-A78E-4BE2-AEB7-AFB8DA3DBD63}</ProjectGuid>
+    <RootNamespace>cartman</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)\egolib\libraries.props" />
+    <Import Project="$(SolutionDir)\egolib\enet.props" />
+    <Import Project="$(SolutionDir)\egolib\physfs.props" />
+    <Import Project="$(SolutionDir)\egolib\opengl.props" />
+    <Import Project="$(SolutionDir)\egolib\sdl.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)\egolib\libraries.props" />
+    <Import Project="$(SolutionDir)\egolib\opengl.props" />
+    <Import Project="$(SolutionDir)\egolib\sdl-debug.props" />
+    <Import Project="$(SolutionDir)\egolib\enet-debug.props" />
+    <Import Project="$(SolutionDir)\egolib\physfs-debug.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_vs13-Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_vs13-Debug\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)_vs13-Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)_vs13-Release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <SmallerTypeCheck>true</SmallerTypeCheck>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <AdditionalIncludeDirectories>$(SolutionDir)/cartman/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)cartman.exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)cartman.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>false</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(SolutionDir)/cartman/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4820;4668;4255;4738;4710;4711;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\cartman\src\cartman\cartman.c" />
+    <ClCompile Include="..\cartman\src\cartman\cartman_functions.c" />
+    <ClCompile Include="..\cartman\src\cartman\cartman_gfx.c" />
+    <ClCompile Include="..\cartman\src\cartman\cartman_gui.c" />
+    <ClCompile Include="..\cartman\src\cartman\cartman_input.c" />
+    <ClCompile Include="..\cartman\src\cartman\cartman_map.c" />
+    <ClCompile Include="..\cartman\src\cartman\cartman_math.c" />
+    <ClCompile Include="..\cartman\src\cartman\cartman_select.c" />
+    <ClCompile Include="..\cartman\src\cartman\SDL_GetPixel.c" />
+    <ClCompile Include="..\cartman\src\cartman\SDL_PutPixel.c" />
+    <ClCompile Include="..\cartman\src\cartman\SDL_rotozoom.c" />
+    <None Include="cartman\standard.inl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\cartman\src\cartman\cartman_math.inl" />
+    <None Include="res\cartman_vs10.rc" />
+    <None Include="res\cartman.ico" />
+    <None Include="..\cartman\data\anim.pcx" />
+    <None Include="..\cartman\data\anim.png" />
+    <None Include="..\cartman\data\backdrop.pcx" />
+    <None Include="..\cartman\data\backdrop.png" />
+    <None Include="..\cartman\data\bestpal.pcx" />
+    <None Include="..\cartman\data\damage.pcx" />
+    <None Include="..\cartman\data\damage.png" />
+    <None Include="..\cartman\data\drawref.pcx" />
+    <None Include="..\cartman\data\drawref.png" />
+    <None Include="..\cartman\data\egomap_icon.bmp" />
+    <None Include="..\cartman\data\impass.pcx" />
+    <None Include="..\cartman\data\impass.png" />
+    <None Include="..\cartman\data\pc8x8.fon" />
+    <None Include="..\cartman\data\point.pcx" />
+    <None Include="..\cartman\data\point.png" />
+    <None Include="..\cartman\data\pointon.pcx" />
+    <None Include="..\cartman\data\pointon.png" />
+    <None Include="..\cartman\data\ref.pcx" />
+    <None Include="..\cartman\data\ref.png" />
+    <None Include="..\cartman\data\slippy.pcx" />
+    <None Include="..\cartman\data\slippy.png" />
+    <None Include="..\cartman\data\slit.pcx" />
+    <None Include="..\cartman\data\slit.png" />
+    <None Include="..\cartman\data\water.pcx" />
+    <None Include="..\cartman\data\water.png" />
+    <None Include="..\cartman\data\window.pcx" />
+    <None Include="..\cartman\data\window.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\cartman\src\cartman\cartman.h" />
+    <ClInclude Include="..\cartman\src\cartman\cartman_config.h" />
+    <ClInclude Include="..\cartman\src\cartman\cartman_functions.h" />
+    <ClInclude Include="..\cartman\src\cartman\cartman_gfx.h" />
+    <ClInclude Include="..\cartman\src\cartman\cartman_gui.h" />
+    <ClInclude Include="..\cartman\src\cartman\cartman_input.h" />
+    <ClInclude Include="..\cartman\src\cartman\cartman_map.h" />
+    <ClInclude Include="..\cartman\src\cartman\cartman_math.h" />
+    <ClInclude Include="..\cartman\src\cartman\cartman_select.h" />
+    <ClInclude Include="..\cartman\src\cartman\cartman_typedef.h" />
+    <ClInclude Include="..\cartman\src\cartman\SDL_Pixel.h" />
+    <ClInclude Include="..\cartman\src\cartman\SDL_rotozoom.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\egolib\egolib_vs13.vcxproj">
+      <Project>{0f32dd35-a264-4906-8fc9-2d0fe0613230}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

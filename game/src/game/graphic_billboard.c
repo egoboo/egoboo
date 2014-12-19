@@ -104,7 +104,7 @@ bool billboard_data_update( billboard_data_t * pbb )
     chr_getMatUp( pchr, vup.v );
 
     height = pchr->bump.height;
-    offset = MIN( pchr->bump.height * 0.5f, pchr->bump.size );
+    offset = std::min( pchr->bump.height * 0.5f, pchr->bump.size );
 
     pos_new.x = pchr->pos.x + vup.x * ( height + offset );
     pos_new.y = pchr->pos.y + vup.y * ( height + offset );

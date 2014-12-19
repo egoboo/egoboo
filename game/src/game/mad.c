@@ -382,7 +382,7 @@ mad_t *  mad_get_walk_frame( mad_t * pmad, int lip, int action )
             // but there could be rounding error
             framealong = ( frame * action_count ) / FRAMELIP_COUNT;
 
-            framealong = MIN( framealong, action_count - 1 );
+            framealong = std::min( framealong, action_count - 1 );
         }
 
         pmad->framelip_to_walkframe[lip][frame] = action_stt + framealong;
@@ -650,7 +650,7 @@ mad_t * mad_make_framelip( mad_t * pmad, int action )
         framelip = (( frame - action_stt ) * FRAMELIP_COUNT ) / action_count;
 
         // limit the framelip to the valid range
-        md2_frame_ptr->framelip = MIN( framelip, FRAMELIP_COUNT - 1 );
+        md2_frame_ptr->framelip = std::min( framelip, FRAMELIP_COUNT - 1 );
     }
 
     return pmad;

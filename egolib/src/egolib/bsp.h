@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,10 +19,11 @@
 
 /// @file egolib/bsp.h
 /// @details
+#pragma once
 
 #include "egolib/typedef.h"
-
 #include "egolib/frustum.h"
+#include "egolib/bv.h"
 
 #if 0
 #if defined(__cplusplus)
@@ -37,7 +36,8 @@ extern "C"
 // external structs
 //--------------------------------------------------------------------------------------------
 
-    struct s_egolib_frustum;
+	// Forward declaration.
+	typedef struct egolib_frustum_t egolib_frustum_t;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -125,7 +125,7 @@ extern "C"
         void              * data;
         size_t              index;
 
-        ego_aabb_t          bbox;
+        bv_t          bbox;
     };
 
     DECLARE_DYNAMIC_ARY( BSP_leaf_ary, BSP_leaf_t )
@@ -148,7 +148,7 @@ extern "C"
         size_t          count;
         BSP_leaf_t    * lst;
 
-        ego_aabb_t      bbox;
+        bv_t      bbox;
     };
 
 #define BSP_LEAF_LIST_INIT_VALS                       \
@@ -178,7 +178,7 @@ extern "C"
         BSP_branch_t ** lst;
 
         size_t          inserted;
-        ego_aabb_t      bbox;
+        bv_t      bbox;
     };
 
     BSP_branch_list_t * BSP_branch_list_ctor( BSP_branch_list_t *, size_t dim );
@@ -188,7 +188,7 @@ extern "C"
     bool BSP_branch_list_dealloc( BSP_branch_list_t * );
     bool BSP_branch_list_clear_rec( BSP_branch_list_t * );
 
-    bool BSP_branch_list_collide_frustum( const BSP_branch_list_t * BL, const struct s_egolib_frustum * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+    bool BSP_branch_list_collide_frustum( const BSP_branch_list_t * BL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
     bool BSP_branch_list_collide_aabb( const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
 #define INVALID_BSP_BRANCH_LIST(BL) ( (NULL == (BL)) || (NULL == (BL)->lst) || (0 == (BL)->lst_size) )
@@ -255,7 +255,7 @@ bool           BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** ppbranch
         BSP_leaf_list_t   infinite;    ///< all nodes which do not fit inside the BSP tree
 
         int               depth;       ///< the maximum actual depth of the tree
-        ego_aabb_t        bbox;        ///< the actual size of everything in the tree
+        bv_t        bbox;        ///< the actual size of everything in the tree
         BSP_aabb_t        bsp_bbox;    ///< the root-size of the tree
     };
 
@@ -270,26 +270,26 @@ bool           BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** ppbranch
         NULL,                      /* BSP_branch_t      * root           */  \
         BSP_LEAF_LIST_INIT_VALS,   /* BSP_leaf_list_t     infinite       */  \
         0,                         /* int                 depth          */  \
-        EGO_AABB_INIT_VALS,        /* ego_aabb_t          bbox           */  \
+        BV_INIT_VALS,              /* bv_t                bbox           */  \
         BSP_AABB_INIT_VALS         /* BSP_aabb_t          bsp_bbox       */  \
     }
 
-    BSP_tree_t *BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );
-    BSP_tree_t *BSP_tree_dtor( BSP_tree_t * t );
-    bool        BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim );
-    bool        BSP_tree_dealloc( BSP_tree_t * t );
+    BSP_tree_t  *BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );
+    BSP_tree_t  *BSP_tree_dtor( BSP_tree_t * t );
+    bool         BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim );
+    bool         BSP_tree_dealloc( BSP_tree_t * t );
 
-    bool         BSP_tree_clear_rec( BSP_tree_t * t );
-    bool         BSP_tree_prune( BSP_tree_t * t );
-    BSP_branch_t * BSP_tree_get_free( BSP_tree_t * t );
-    BSP_branch_t * BSP_tree_ensure_root( BSP_tree_t * t );
-    BSP_branch_t * BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int index );
-    Sint32         BSP_tree_count_nodes( Sint32 dim, Sint32 depth );
-    bool         BSP_tree_insert_leaf( BSP_tree_t * ptree, BSP_leaf_t * pleaf );
-    bool         BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt );
+    bool          BSP_tree_clear_rec( BSP_tree_t * t );
+    bool          BSP_tree_prune( BSP_tree_t * t );
+    BSP_branch_t *BSP_tree_get_free( BSP_tree_t * t );
+    BSP_branch_t *BSP_tree_ensure_root( BSP_tree_t * t );
+    BSP_branch_t *BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int index );
+    Sint32        BSP_tree_count_nodes( Sint32 dim, Sint32 depth );
+    bool          BSP_tree_insert_leaf( BSP_tree_t * ptree, BSP_leaf_t * pleaf );
+    bool          BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt );
 
-    size_t         BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-    size_t         BSP_tree_collide_frustum( const BSP_tree_t * tree, const struct s_egolib_frustum * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+    size_t        BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+    size_t        BSP_tree_collide_frustum( const BSP_tree_t * tree, const egolib_frustum_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
 #if 0
 /** @todo Remove this. */
@@ -321,5 +321,6 @@ bool        BSP_tree_add_free( BSP_tree_t * t, BSP_branch_t * B );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
+#if 0
 #define _egolib_bsp_h
+#endif

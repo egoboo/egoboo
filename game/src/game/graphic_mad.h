@@ -24,6 +24,7 @@
 #include "game/egoboo_typedef.h"
 
 #include "egolib/_math.h"
+#include "egolib/matrix.h"
 #include "egolib/file_formats/cap_file.h"
 
 #include "game/graphic.h"
@@ -31,7 +32,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_camera;
+// Forward declaration.
+typedef struct camera_t camera_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -274,7 +276,7 @@ bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float floor_l
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad( const struct s_camera * pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
-gfx_rv render_one_mad_ref( const struct s_camera * pcam, const CHR_REF ichr );
-gfx_rv render_one_mad_trans( const struct s_camera * pcam, const CHR_REF ichr );
-gfx_rv render_one_mad_solid( const struct s_camera * pcam, const CHR_REF ichr );
+gfx_rv render_one_mad( const camera_t *pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+gfx_rv render_one_mad_ref( const camera_t *pcam, const CHR_REF ichr );
+gfx_rv render_one_mad_trans( const camera_t *pcam, const CHR_REF ichr );
+gfx_rv render_one_mad_solid( const camera_t *pcam, const CHR_REF ichr );

@@ -19,13 +19,13 @@
 //*
 //********************************************************************************************
 
-/// @file camera.h
+/// @file game/camera.h
 
 #include "game/egoboo_typedef.h"
 
 #include "egolib/_math.h"
+#include "egolib/matrix.h"
 #include "egolib/frustum.h"
-
 #include "game/physics.h"
 
 //--------------------------------------------------------------------------------------------
@@ -40,8 +40,10 @@ struct s_ego_mesh;
 struct s_camera_options;
 typedef struct s_camera_options camera_options_t;
 
+#if 0
 struct s_camera;
-typedef struct s_camera camera_t;
+#endif
+typedef struct camera_t camera_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -114,7 +116,7 @@ struct s_camera_options
 //--------------------------------------------------------------------------------------------
 
 /// definition of the Egoboo camera object
-struct s_camera
+struct camera_t
 {
     // the projection matrices
     fmat_4x4_t mView;                        ///< View Matrix

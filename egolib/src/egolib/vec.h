@@ -44,7 +44,7 @@ union  u_fvec2 { fvec2_base_t v; struct { float x, y; }; struct { float s, t; };
 union  u_fvec3 { fvec3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; };
 
 /// A 4-vector type that allows more than one form of access
-union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; };
+union  u_fvec4 { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; };
 
 // macros for initializing vectors to zero
 #define ZERO_VECT2   { {0.0f,0.0f} }
@@ -70,6 +70,7 @@ union  u_fvec4     { fvec4_base_t v; struct { float x, y, z, w; }; struct { floa
 
 bool   fvec2_valid(const fvec2_base_t A);
 bool   fvec2_self_clear(fvec2_base_t A);
+bool   fvec2_self_is_clear(const fvec2_base_t A);
 bool   fvec2_base_copy(fvec2_base_t A, const fvec2_base_t B);
 float  fvec2_length(const fvec2_base_t A);
 float  fvec2_length_abs(const fvec2_base_t A);
@@ -85,8 +86,11 @@ float *fvec2_add(fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RH
 float *fvec2_normalize(fvec2_base_t DST, const fvec2_base_t SRC);
 float *fvec2_scale(fvec2_base_t DST, const fvec2_base_t SRC, const float B);
 
+void   fvec3_ctor(fvec3_base_t A);
+void   fvec3_dtor(fvec3_base_t A);
 bool   fvec3_valid(const fvec3_base_t A);
 bool   fvec3_self_clear(fvec3_base_t A);
+bool   fvec3_self_is_clear(const fvec3_base_t A);
 bool   fvec3_self_scale(fvec3_base_t A, const float B);
 bool   fvec3_self_sum(fvec3_base_t A, const fvec3_base_t RHS);
 float  fvec3_self_normalize(fvec3_base_t A);

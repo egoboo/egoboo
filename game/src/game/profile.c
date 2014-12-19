@@ -721,7 +721,7 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
         log_debug( "Object is missing an icon (%s)!\n", tmploadname );
     }
 
-    max_tex = MAX( max_skin, max_icon );
+    max_tex = std::max( max_skin, max_icon );
 
     // fill in all missing skin graphics up to MAX_SKIN
     iskin = min_skin_tx;
@@ -1226,7 +1226,7 @@ bool chop_load_vfs( chop_data_t * pdata, const char *szLoadname, chop_definition
                 int itmp;
                 pdefinition->section[which_section].size  = section_count;
                 itmp = ( int )pdata->chop_count - ( int )section_count;
-                pdefinition->section[which_section].start = MAX( 0, itmp );
+                pdefinition->section[which_section].start = std::max( 0, itmp );
             }
 
             which_section++;
@@ -1255,7 +1255,7 @@ bool chop_load_vfs( chop_data_t * pdata, const char *szLoadname, chop_definition
         int itmp;
         pdefinition->section[which_section].size  = section_count;
         itmp = ( int )pdata->chop_count - ( int )section_count;
-        pdefinition->section[which_section].start = MAX( 0, itmp );
+        pdefinition->section[which_section].start = std::max( 0, itmp );
     }
 
     vfs_close( fileread );

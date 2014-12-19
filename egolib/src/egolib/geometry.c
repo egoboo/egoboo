@@ -53,7 +53,7 @@ bool plane_base_normalize( plane_base_t * plane )
     }
     else
     {
-        float magniude = SQRT( magnitude2 );
+        float magniude = std::sqrt( magnitude2 );
 
         fvec4_self_scale(( *plane ), 1.0f / magniude );
     }
@@ -799,12 +799,4 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool sphere_self_clear( sphere_t * ptr )
-{
-    if ( NULL == ptr ) return false;
 
-    fvec3_self_clear( ptr->origin.v );
-    ptr->radius = -1.0f;
-
-    return true;
-}

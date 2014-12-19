@@ -34,11 +34,14 @@
 /**
  * @brief
  *	A sphere.
+ *	The terms the/a "sphere_t object" and the/a "sphere" are synonyms.
  */
+#if 0
 struct s_sphere;
-typedef struct s_sphere sphere_t;
+#endif
+typedef struct sphere_t sphere_t;
 
-struct s_sphere
+struct sphere_t
 {
 	fvec3_t origin;
 	float   radius;
@@ -50,4 +53,40 @@ struct s_sphere
         -1.0f       /*float   radius */ \
     }
 
-bool sphere_self_clear(sphere_t *);
+/**
+ * @brief
+ *	Construct a sphere.
+ * @param self
+ *	a pointer to the uninitialized sphere_t object
+ * @post
+ *	the sphere_t object pointed by @a self is initialized with a sphere's default values
+ * @remark
+ *	The default values of a sphere are a radius of @a -1 and a position of @a (0,0,0).
+ */
+sphere_t *sphere_ctor(sphere_t *self);
+
+/**
+ * @brief
+ *	Destruct a sphere.
+ * @param self
+ *	a pointer to the sphere
+ */
+sphere_t *sphere_dtor(sphere_t *self);
+
+/**
+ * @brief
+ *	"Clear" a sphere i.e. assign it its default values.
+ * @param self
+ *	a pointer to the sphere
+ */
+bool sphere_self_clear(sphere_t *self);
+
+/**
+* @brief
+*	Get if a sphere is "clear" i.e. has its default values assigned.
+* @param self
+*	a pointer to the sphere
+* @return
+*	@a true if the sphere is "clear", @a false otherwise
+*/
+bool sphere_is_clear(const sphere_t *self);

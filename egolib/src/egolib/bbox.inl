@@ -377,8 +377,8 @@ static INLINE egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const
 
     // no simple case. do the hard work
 
-    pdst->mins[index]  = MAX( psrc1->mins[index],  psrc2->mins[index] );
-    pdst->maxs[index]  = MIN( psrc1->maxs[index],  psrc2->maxs[index] );
+    pdst->mins[index]  = std::max( psrc1->mins[index],  psrc2->mins[index] );
+    pdst->maxs[index]  = std::min( psrc1->maxs[index],  psrc2->maxs[index] );
 
     return oct_bb_validate_index( pdst, index );
 }
@@ -405,8 +405,8 @@ static INLINE egolib_rv  oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_
 
     // no simple case, do the hard work
 
-    pdst->mins[index]  = MIN( pdst->mins[index],  psrc->mins[index] );
-    pdst->maxs[index]  = MAX( pdst->maxs[index],  psrc->maxs[index] );
+	pdst->mins[index] = std::min(pdst->mins[index], psrc->mins[index]);
+    pdst->maxs[index]  = std::max( pdst->maxs[index],  psrc->maxs[index] );
 
     return oct_bb_validate_index( pdst, index );
 }
@@ -432,8 +432,8 @@ static INLINE egolib_rv oct_bb_self_intersection_index( oct_bb_t * pdst, const o
 
     // no simple case. do the hard work
 
-    pdst->mins[index]  = MAX( pdst->mins[index],  psrc->mins[index] );
-    pdst->maxs[index]  = MIN( pdst->maxs[index],  psrc->maxs[index] );
+    pdst->mins[index]  = std::max( pdst->mins[index],  psrc->mins[index] );
+    pdst->maxs[index]  = std::min( pdst->maxs[index],  psrc->maxs[index] );
 
     return oct_bb_validate_index( pdst, index );
 }
@@ -470,8 +470,8 @@ static INLINE egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * 
     // no simple case, do the hard work
     for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
-        pdst->mins[cnt]  = MIN( psrc1->mins[cnt],  psrc2->mins[cnt] );
-        pdst->maxs[cnt]  = MAX( psrc1->maxs[cnt],  psrc2->maxs[cnt] );
+        pdst->mins[cnt]  = std::min( psrc1->mins[cnt],  psrc2->mins[cnt] );
+        pdst->maxs[cnt]  = std::max( psrc1->maxs[cnt],  psrc2->maxs[cnt] );
     }
 
     return oct_bb_validate( pdst );
@@ -529,8 +529,8 @@ static INLINE egolib_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psr
     // no simple case, do the hard work
     for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
-        pdst->mins[cnt]  = MIN( pdst->mins[cnt],  psrc->mins[cnt] );
-        pdst->maxs[cnt]  = MAX( pdst->maxs[cnt],  psrc->maxs[cnt] );
+        pdst->mins[cnt]  = std::min( pdst->mins[cnt],  psrc->mins[cnt] );
+        pdst->maxs[cnt]  = std::max( pdst->maxs[cnt],  psrc->maxs[cnt] );
     }
 
     return oct_bb_validate( pdst );
@@ -557,8 +557,8 @@ static INLINE egolib_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_
     // no simple case. do the hard work
     for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
-        pdst->mins[cnt]  = MAX( pdst->mins[cnt],  psrc->mins[cnt] );
-        pdst->maxs[cnt]  = MIN( pdst->maxs[cnt],  psrc->maxs[cnt] );
+        pdst->mins[cnt]  = std::max( pdst->mins[cnt],  psrc->mins[cnt] );
+        pdst->maxs[cnt]  = std::min( pdst->maxs[cnt],  psrc->maxs[cnt] );
     }
 
     return oct_bb_validate( pdst );
@@ -685,8 +685,8 @@ static INLINE egolib_rv  oct_bb_self_sum_ovec( oct_bb_t * pdst, const oct_vec_t 
 
     for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
     {
-        pdst->mins[cnt] = MIN( pdst->mins[cnt], ovec[cnt] );
-        pdst->maxs[cnt] = MAX( pdst->maxs[cnt], ovec[cnt] );
+        pdst->mins[cnt] = std::min( pdst->mins[cnt], ovec[cnt] );
+        pdst->maxs[cnt] = std::max( pdst->maxs[cnt], ovec[cnt] );
     }
 
     return oct_bb_validate( pdst );

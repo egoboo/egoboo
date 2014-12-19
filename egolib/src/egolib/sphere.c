@@ -20,3 +20,41 @@
 /// @file egolib/sphere.c
 /// @brief spheres
 #include "egolib/sphere.h"
+
+sphere_t *sphere_ctor(sphere_t *self)
+{
+#if 0
+	EGOBOO_ASSERT(nullptr != self);
+#endif
+	if (nullptr == self) return self;
+	self->radius = -1.0f;
+	fvec3_ctor(self->origin.v);
+#if 0
+	if (nullptr == self) return self;
+#endif
+	return self;
+}
+
+sphere_t *sphere_dtor(sphere_t *self)
+{
+	if (nullptr == self) return self;
+	fvec3_dtor(self->origin.v);
+	self->radius = 0.0f;
+	return self;
+}
+
+
+bool sphere_self_clear(sphere_t *self)
+{
+	if (nullptr == self) return false;
+	fvec3_self_clear(self->origin.v);
+	self->radius = 0.0f;
+	return true;
+}
+
+bool sphere_self_is_clear(const sphere_t *self)
+{
+	if (nullptr == self) return true;
+	return 0.0f == self->radius
+		&& fvec3_self_is_clear(self->origin.v);
+}

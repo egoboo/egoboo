@@ -204,7 +204,7 @@ gfx_rv render_one_mad_enviro( const camera_t * pcam, const CHR_REF character, GL
                     col[BB] = pvrt->color_dir * INV_FF;
                     col[AA] = 1.0f;
 
-                    cmax = MAX( MAX( col[RR], col[GG] ), col[BB] );
+                    cmax = std::max( std::max( col[RR], col[GG] ), col[BB] );
 
                     if ( cmax != 0.0f )
                     {
@@ -1164,8 +1164,8 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
         pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;
 
-        pinst->max_light = MAX( pinst->max_light, pvert->color_dir );
-        pinst->min_light = MIN( pinst->min_light, pvert->color_dir );
+        pinst->max_light = std::max( pinst->max_light, pvert->color_dir );
+        pinst->min_light = std::min( pinst->min_light, pvert->color_dir );
     }
 
     // ??coerce this to reasonable values in the presence of negative light??
@@ -1572,8 +1572,8 @@ gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, int vmi
         {
             // the old list [save_vmin, save_vmax] and the new list [vmin, vmax]
             // overlap, so we can merge them
-            psave->vmin = MIN( psave->vmin, vmin );
-            psave->vmax = MAX( psave->vmax, vmax );
+            psave->vmin = std::min( psave->vmin, vmin );
+            psave->vmax = std::max( psave->vmax, vmax );
             verts_updated = true;
         }
         else
@@ -2308,7 +2308,7 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
 
     // get the next frames
     new_nxt = frame_stt + frame_along;
-    new_nxt = MIN( new_nxt, frame_end );
+    new_nxt = std::min( new_nxt, frame_end );
 
     pinst->frame_nxt  = new_nxt;
     pinst->ilip       = ilip;

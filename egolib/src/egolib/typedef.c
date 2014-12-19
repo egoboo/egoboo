@@ -117,8 +117,8 @@ void pair_to_range( IPair pair, FRange * prange )
         fFrom = FP8_TO_FLOAT( pair.base );
         fTo   = FP8_TO_FLOAT( pair.base + pair.rand );
 
-        prange->from = MIN( fFrom, fTo );
-        prange->to   = MAX( fFrom, fTo );
+        prange->from = std::min( fFrom, fTo );
+        prange->to   = std::max( fFrom, fTo );
     }
 }
 
@@ -137,8 +137,8 @@ void range_to_pair( FRange range, IPair * ppair )
     {
         float fFrom, fTo;
 
-        fFrom = MIN( range.from, range.to );
-        fTo   = MAX( range.from, range.to );
+        fFrom = std::min( range.from, range.to );
+        fTo   = std::max( range.from, range.to );
 
         ppair->base = FLOAT_TO_FP8( fFrom );
         ppair->rand = FLOAT_TO_FP8( fTo - fFrom );

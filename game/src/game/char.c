@@ -2122,21 +2122,21 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
 
         // determine the actual max vertical distance
         grab2_vrt = SQR( pchr_c->bump.height );
-        grab2_vrt = MAX( grab2_vrt, const_grab2_vrt );
+        grab2_vrt = std::max( grab2_vrt, const_grab2_vrt );
 
         // the normal horizontal grab distance is dependent on the size of the two objects
         bump_size2_b = SQR( pchr_c->bump.size );
 
         // visibility affects the max grab distance.
         // if it is not visible then we have to be touching it.
-        grab2_hrz = MAX( bump_size2_a, bump_size2_b );
+        grab2_hrz = std::max( bump_size2_a, bump_size2_b );
         if ( !too_dark && !too_invis )
         {
-            grab2_hrz = MAX( grab2_hrz, const_grab2_hrz );
+            grab2_hrz = std::max( grab2_hrz, const_grab2_hrz );
         }
 
         // the player can get info from objects that are farther away
-        info2_hrz = MAX( grab2_hrz, const_info2_hrz );
+        info2_hrz = std::max( grab2_hrz, const_info2_hrz );
 
         // Is it too far away to interact with?
         if ( diff2_hrz > info2_hrz || diff2_vrt > grab2_vrt ) continue;
@@ -3127,7 +3127,7 @@ bool chr_download_cap( chr_t * pchr, cap_t * pcap )
     else
     {
         Uint32 itmp = pcap->weight * pcap->size * pcap->size * pcap->size;
-        pchr->phys.weight = MIN( itmp, CHR_MAX_WEIGHT );
+        pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
     }
 
     // Image rendering
@@ -3144,7 +3144,7 @@ bool chr_download_cap( chr_t * pchr, cap_t * pcap )
 
     // Experience
     iTmp = generate_irand_range( pcap->experience );
-    pchr->experience      = MIN( iTmp, MAXXP );
+    pchr->experience      = std::min( iTmp, MAXXP );
     pchr->experiencelevel = pcap->level_override;
 
     // Particle attachments
@@ -3285,7 +3285,7 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool req
     pcap->sound_index[SOUND_JUMP]     = CLIP( pcap->sound_index[SOUND_JUMP], INVALID_SOUND, MAX_WAVE );
 
     //0 == bumpdampenmeans infinite mass, and causes some problems
-    pcap->bumpdampen = MAX( INV_FF, pcap->bumpdampen );
+    pcap->bumpdampen = std::max( INV_FF, pcap->bumpdampen );
 
     return icap;
 }
@@ -3607,7 +3607,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
     // This can also be used to lessen effectiveness of healing
     actual_damage = generate_irand_pair( damage );
     base_damage   = actual_damage;
-    actual_damage *= MAX( 0.00f, ( damagetype >= DAMAGE_COUNT ) ? 1.00f : 1.00f - pchr->damage_resistance[damagetype] );
+    actual_damage *= std::max( 0.00f, ( damagetype >= DAMAGE_COUNT ) ? 1.00f : 1.00f - pchr->damage_resistance[damagetype] );
 
     // Increase electric damage when in water
     if ( damagetype == DAMAGE_ZAP && chr_is_over_water( pchr ) )
@@ -3621,7 +3621,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
     if ( HAS_SOME_BITS( damage_modifier, DAMAGEMANA ) )
     {
         int manadamage;
-        manadamage = MAX( pchr->mana - actual_damage, 0 );
+        manadamage = std::max( pchr->mana - actual_damage, 0 );
         pchr->mana = manadamage;
         actual_damage -= manadamage;
         chr_update_attacker( pchr, attacker, false );
@@ -4294,8 +4294,8 @@ chr_t * chr_config_do_active( chr_t * pchr )
     pchr = resize_one_character( pchr );
 
     // update some special skills
-    pchr->see_kurse_level  = MAX( pchr->see_kurse_level,  chr_get_skill( pchr, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) );
-    pchr->darkvision_level = MAX( pchr->darkvision_level, chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) );
+    pchr->see_kurse_level  = std::max( pchr->see_kurse_level,  chr_get_skill( pchr, MAKE_IDSZ( 'C', 'K', 'U', 'R' ) ) );
+    pchr->darkvision_level = std::max( pchr->darkvision_level, chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) ) );
 
     return pchr;
 }
@@ -5287,7 +5287,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     else
     {
         Uint32 itmp = pcap_new->weight * pchr->fat * pchr->fat * pchr->fat;
-        pchr->phys.weight = MIN( itmp, CHR_MAX_WEIGHT );
+        pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
     }
 
     // Image rendering
@@ -5670,7 +5670,7 @@ bool update_chr_darkvision( const CHR_REF character )
         int base_level = chr_get_skill( pchr, MAKE_IDSZ( 'D', 'A', 'R', 'K' ) );     // Natural darkvision
 
         //Use the better of the two darkvision abilities
-        pchr->darkvision_level = MAX( base_level, tmp_level );
+        pchr->darkvision_level = std::max( base_level, tmp_level );
     }
 
     return true;
@@ -5754,7 +5754,7 @@ void move_one_character_get_environment( chr_t * pchr )
     //---- The flying height of the character, the maximum of tile level, platform level and water level
     if ( 0 != ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_WATER ) )
     {
-        penviro->fly_level = MAX( penviro->level, water.surface_level );
+        penviro->fly_level = std::max( penviro->level, water.surface_level );
     }
 
     if ( penviro->fly_level < 0 )
@@ -5992,12 +5992,12 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     }
 
     // test to see if the player has any more friction left?
-    penviro->is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > penviro->friction_hrz );
+    penviro->is_slipping = ( std::abs( fric.x ) + std::abs( fric.y ) + std::abs( fric.z ) > penviro->friction_hrz );
 
     if ( penviro->is_slipping )
     {
         penviro->traction *= 0.5f;
-        temp_friction_xy  = SQRT( temp_friction_xy );
+        temp_friction_xy  = std::sqrt( temp_friction_xy );
 
         // the first guess about the floor friction
         fvec3_scale( fric_floor.v, floor_acc.v, penviro->traction *( 1.0f - temp_friction_xy ) );
@@ -6066,7 +6066,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
     }
 
     pchr->enviro.new_v.x = pchr->enviro.new_v.y = 0.0f;
-    if ( ABS( dvx ) + ABS( dvy ) > 0.05f )
+	if (std::abs(dvx) + std::abs(dvy) > 0.05f)
     {
         PLA_REF ipla = pchr->is_which_player;
 
@@ -6380,7 +6380,7 @@ bool chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
 
                     //Determine the attack speed (how fast we play the animation)
                     pchr->inst.rate  = 0.35f;                                 //base attack speed
-                    pchr->inst.rate += MIN( 2.00f, chr_dex * 0.035f );         //every 10 dex increases base attack speed by 100%
+                    pchr->inst.rate += std::min( 2.00f, chr_dex * 0.035f );         //every 10 dex increases base attack speed by 100%
 
                     //Add some reload time as a true limit to attacks per second
                     //Dexterity decreases the reload time for all weapons. We could allow other stats like intelligence
@@ -6891,7 +6891,7 @@ bool move_one_character_integrate_motion( chr_t * pchr )
                     pchr->vel.z *= -pchr->phys.bumpdampen;
                     diff        *= -pchr->phys.bumpdampen;
 
-                    tmp_pos.z = MAX( tmp_pos.z + diff, grid_level );
+                    tmp_pos.z = std::max( tmp_pos.z + diff, grid_level );
                 }
                 else
                 {
@@ -6953,7 +6953,7 @@ bool move_one_character_integrate_motion( chr_t * pchr )
                 breadcrumb_t * bc         = NULL;
 
                 // try to get the correct "outward" pressure from nrm
-                if ( !found_nrm && ABS( nrm.x ) + ABS( nrm.y ) > 0.0f )
+				if (!found_nrm && std::abs(nrm.x) + std::abs(nrm.y) > 0.0f)
                 {
                     found_nrm = true;
                 }
@@ -6969,7 +6969,7 @@ bool move_one_character_integrate_motion( chr_t * pchr )
                     diff.x = pchr->safe_pos.x - pchr->pos.x;
                     diff.y = pchr->safe_pos.y - pchr->pos.y;
 
-                    if ( ABS( diff.x ) + ABS( diff.y ) > 0.0f )
+					if (std::abs(diff.x) + std::abs(diff.y) > 0.0f)
                     {
                         found_diff = true;
                     }
@@ -7028,7 +7028,7 @@ bool move_one_character_integrate_motion( chr_t * pchr )
                         diff.y *= -1.0f;
                     }
 
-                    if ( ABS( diff.x ) + ABS( diff.y ) > 0.0f )
+					if (std::abs(diff.x) + std::abs(diff.y) > 0.0f)
                     {
                         found_diff = true;
                     }
@@ -7093,7 +7093,7 @@ bool move_one_character_integrate_motion( chr_t * pchr )
                     }
 
                     // normalize the diff_perp so that it is at most tile_fraction of a grid in any direction
-                    ftmp = MAX( ABS( diff_perp.x ), ABS( diff_perp.y ) );
+                    ftmp = std::max( ABS( diff_perp.x ), ABS( diff_perp.y ) );
 
                     // protect us from a virtual divide by zero
                     if ( ftmp < 1e-6 ) ftmp = 1.00f;
@@ -9366,7 +9366,7 @@ bool chr_can_see_dark( const chr_t * pchr, const chr_t * pobj )
 
     enviro_light = ( pobj->inst.alpha * pobj->inst.max_light ) * INV_FF;
     self_light   = ( pobj->inst.light == 255 ) ? 0 : pobj->inst.light;
-    light        = MAX( enviro_light, self_light );
+    light        = std::max( enviro_light, self_light );
 
     if ( 0 != pchr->darkvision_level )
     {
@@ -9525,7 +9525,7 @@ void chr_set_light( chr_t * pchr, const int light )
     pchr->inst.light = CLIP( light, 0, 255 );
 
     //This prevents players from becoming completely invisible
-    if ( VALID_PLA( pchr->is_which_player ) )  pchr->inst.light = MAX( (Uint8)128, pchr->inst.light );
+    if ( VALID_PLA( pchr->is_which_player ) )  pchr->inst.light = std::max( (Uint8)128, pchr->inst.light );
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
 }

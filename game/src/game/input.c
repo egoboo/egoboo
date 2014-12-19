@@ -215,7 +215,7 @@ void input_read_joystick( int which )
 
     // get buttons
     button_count = SDL_JoystickNumButtons( pjoy->sdl_ptr );
-    button_count = MIN( JOYBUTTON, button_count );
+    button_count = std::min( JOYBUTTON, button_count );
     for ( i = 0; i < button_count; i++ )
     {
         pjoy->button[i] = SDL_JoystickGetButton( pjoy->sdl_ptr, i );

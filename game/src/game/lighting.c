@@ -167,7 +167,7 @@ bool lighting_cache_base_blend( lighting_cache_base_t * cold, const lighting_cac
 
             cold->lighting[tnc] = cnew->lighting[tnc];
 
-            max_delta = MAX( max_delta, delta );
+            max_delta = std::max( max_delta, delta );
         }
     }
     else
@@ -179,7 +179,7 @@ bool lighting_cache_base_blend( lighting_cache_base_t * cold, const lighting_cac
 
             ftmp = cold->lighting[tnc];
             cold->lighting[tnc] = ftmp * keep + cnew->lighting[tnc] * ( 1.0f - keep );
-            max_delta = MAX( max_delta, ABS( cold->lighting[tnc] - ftmp ) );
+            max_delta = std::max( max_delta, ABS( cold->lighting[tnc] - ftmp ) );
         }
     }
 
@@ -213,7 +213,7 @@ bool lighting_cache_max_light( lighting_cache_t * cache )
     lighting_cache_base_max_light( &( cache->hgh ) );
 
     // set the maximum direct light
-    cache->max_light = MAX( cache->low.max_light, cache->hgh.max_light );
+    cache->max_light = std::max( cache->low.max_light, cache->hgh.max_light );
 
     return true;
 }
@@ -228,7 +228,7 @@ bool lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, fl
     lighting_cache_base_blend( &( cache->hgh ), ( &cnew->hgh ), keep );
 
     // find the absolute maximum delta
-    cache->max_delta = MAX( cache->low.max_delta, cache->hgh.max_delta );
+    cache->max_delta = std::max( cache->low.max_delta, cache->hgh.max_delta );
 
     return true;
 }
@@ -639,7 +639,7 @@ bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighti
     // do the normalization
     if ( 1.0f != rad_sqr && 0.0f != rad_sqr )
     {
-        float rad = SQRT( rad_sqr );
+        float rad = std::sqrt( rad_sqr );
         local_nrm[kX] /= rad;
         local_nrm[kY] /= rad;
         local_nrm[kZ] /= rad;

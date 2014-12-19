@@ -196,36 +196,36 @@ egolib_rv egolib_frustum_calculate( egolib_frustum_t * pf, const float proj[], c
         // calculate the required trig functions
         pf->cone.cos_2 = cos_half_fov * cos_half_fov;
         pf->cone.sin_2 = 1.0f - pf->cone.cos_2;
-        pf->cone.inv_sin = 1.0f / SQRT( pf->cone.sin_2 );
+        pf->cone.inv_sin = 1.0f / std::sqrt( pf->cone.sin_2 );
     }
 
     return rv_success;
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust, const ego_aabb_t * paabb )
+geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t * self,const bv_t *bv)
 {
     /// @author BB
-    /// @details determine the geometric relationship between the given frustum and axis-aligned bounding box
+    /// @details determine the geometric relationship between the given frustum a bounding volume.
     ///
     /// @notes the return values deal with the aabb being inside the frustum or not
     ///
     /// geometry_error     - obvious
-    /// geometry_outside   - the aabb is outside the frustum
-    /// geometry_intersect - the aabb and the frustum partially overlap
-    /// geometry_inside    - the aabb is completely inside the frustum
+    /// geometry_outside   - the bounding volume is outside the frustum
+    /// geometry_intersect - the bounding volume and the frustum partially overlap
+    /// geometry_inside    - the bounding volume is completely inside the frustum
 
     geometry_rv retval = geometry_error;
     geometry_rv intersect_rv;
     bool finished;
 
-    if ( NULL == pfrust || NULL == paabb ) return geometry_error;
+    if ( NULL == self || NULL == bv ) return geometry_error;
 
     finished = false;
 
     if ( !finished )
     {
-        intersect_rv = point_intersects_aabb( pfrust->origin.v, paabb->data.mins, paabb->data.maxs );
+        intersect_rv = point_intersects_aabb( self->origin.v, bv->data.mins, bv->data.maxs );
 
         switch ( intersect_rv )
         {
@@ -281,7 +281,7 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
 
     if ( !finished )
     {
-        intersect_rv = cone_intersects_sphere( &( pfrust->cone ), &( paabb->sphere ) );
+        intersect_rv = cone_intersects_sphere( &( self->cone ), &( bv->sphere ) );
 
         switch ( intersect_rv )
         {
@@ -313,7 +313,7 @@ geometry_rv egolib_frustum_intersects_ego_aabb( const egolib_frustum_t * pfrust,
     {
         // do the complete calculation. whatever it returns is what it is.
         // do not check the front and back of the frustum
-        retval = frustum_intersects_aabb( pfrust->data, paabb->data.mins, paabb->data.maxs, false );
+        retval = frustum_intersects_aabb( self->data, bv->data.mins, bv->data.maxs, false );
         finished = true;
     }
 

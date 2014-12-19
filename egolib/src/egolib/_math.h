@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -18,31 +16,29 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-
 /// @file egolib/_math.h
 /// @details The name's pretty self explanatory, doncha think?
+#pragma once
 
 #include "egolib/typedef.h"
 
 #if !defined(ABS)
 	#define ABS(x) std::abs(x)
-#if 0
-	#define ABS(X)  LAMBDA((X) > 0, X, -(X) )
-#endif
 #endif
 
+#if 0
 #if !defined(MIN)
 	#define MIN(x,y) std::min((x),(y)) 
 	#if 0
 		#define MIN(x, y)  LAMBDA((x) > (y), y, x )
 	#endif
 #endif
+#endif
 
-#if !defined(MAX)
-	#define MAX(x,y) std::max((x),(y))
-	#if 0
-		#define MAX(x, y)  LAMBDA((x) > (y), x, y )
-	#endif
+#if 0
+#if !defined(SQRT)
+	#define SQRT(A) ((float)sqrt((float)(A)))
+#endif
 #endif
 
 /**
@@ -92,14 +88,6 @@ bool   ieee32_bad(float f);
 extern "C"
 {
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct s_fmat_4x4;
-    typedef struct s_fmat_4x4  fmat_4x4_t;
-
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -192,8 +180,6 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// Just define ABS, MIN, and MAX using macros for the moment. This is likely to be the
-// fastest and most cross-platform solution
 
 #if !defined(SGN)
 #    define SGN(X)  LAMBDA( 0 == (X), 0, LAMBDA( (X) > 0, 1, -1) )
@@ -201,10 +187,6 @@ extern "C"
 
 #if !defined(SQR)
 #    define SQR(A) ((A)*(A))
-#endif
-
-#if !defined(SQRT)
-#    define SQRT(A) ((float)sqrt((float)(A)))
 #endif
 
 #if !defined(LOG)
@@ -281,27 +263,20 @@ extern "C"
 
     enum { kX = 0, kY, kZ, kW };             ///< Enumerated indices for the elements of the base vector types
 
-    typedef float fmat_4x4_base_t[16];       ///< the basic 4x4 floating point matrix type
-
-    typedef double dmat_4x4_base_t[16];      ///< the basic 4x4 double precision matrix type
+#if 0
     typedef double dvec2_base_t[2];          ///< the basic double precision 2-vector type
     typedef double dvec3_base_t[3];          ///< the basic double precision 3-vector type
     typedef double dvec4_base_t[4];          ///< the basic double precision 4-vector type
-
-// turn off a really useless warning
-#if defined(_MSC_VER)
-#   pragma warning(disable : 4201)
 #endif
-
-/// A wrapper for fmat_4x4_base_t
-/// Necessary in c so that the function return can be assigned to another matrix more simply.
-    struct s_fmat_4x4  { fmat_4x4_base_t  v; };
-
-
-
-// turn it back on
-#if defined(_MSC_VER)
-#   pragma warning(default : 4201)
+#if 0
+	// turn off a really useless warning
+	#if defined(_MSC_VER)
+		#pragma warning(disable : 4201)
+	#endif
+	// turn it back on
+	#if defined(_MSC_VER)
+		#pragma warning(default : 4201)
+	#endif
 #endif
 
 

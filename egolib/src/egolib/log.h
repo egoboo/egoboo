@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,7 @@
 
 /// @file egolib/log.h
 /// @details Basic logging functionality.
+#pragma once
 
 #include "egolib/typedef.h"
 

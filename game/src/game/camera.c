@@ -304,12 +304,12 @@ void camera_update_effects( camera_t * pcam )
     {
         float zoom_add;
         pcam->swing = ( pcam->swing + 120 ) & 0x3FFF;
-        local_swingamp = MAX( local_swingamp, 0.175f );
+        local_swingamp = std::max( local_swingamp, 0.175f );
 
         zoom_add = ( 0 == ((( int )local_stats.grog_level ) % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_stats.grog_level * 0.35f;
 
         pcam->zadd_goto   = pcam->zadd_goto + zoom_add;
-        pcam->motion_blur = MIN( 1.00f, 0.5f + 0.03f * local_stats.grog_level );
+        pcam->motion_blur = std::min( 1.00f, 0.5f + 0.03f * local_stats.grog_level );
 
         pcam->zadd_goto = CLIP( pcam->zadd_goto, CAM_ZADD_MIN, CAM_ZADD_MAX );
     }
@@ -318,7 +318,7 @@ void camera_update_effects( camera_t * pcam )
     if ( local_stats.daze_level > 0 )
     {
         pcam->turn_z_add = local_stats.daze_level * CAM_TURN_KEY * 0.5f;
-        pcam->motion_blur = MIN( 1.00f, 0.5f + 0.03f * local_stats.daze_level );
+        pcam->motion_blur = std::min( 1.00f, 0.5f + 0.03f * local_stats.daze_level );
     }
 
     //Apply camera swinging

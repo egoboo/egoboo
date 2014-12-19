@@ -616,8 +616,8 @@ bool vfs_get_range( vfs_FILE* fileread, FRange * prange )
 
     if ( NULL != prange )
     {
-        prange->from = MIN( fFrom, fTo );
-        prange->to   = MAX( fFrom, fTo );
+        prange->from = std::min( fFrom, fTo );
+        prange->to   = std::max( fFrom, fTo );
     }
 
     return true;

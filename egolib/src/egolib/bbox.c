@@ -269,7 +269,7 @@ bool aabb_overlap( const aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
 //
 //    if ( count > 0 )
 //    {
-//        lst->list = EGOBOO_NEW_ARY( ego_aabb_t, count );
+//        lst->list = EGOBOO_NEW_ARY( bv_t, count );
 //        if ( NULL != lst->list )
 //        {
 //            lst->count = count;
@@ -704,7 +704,7 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     }
 
     // determine the volume center
-    if ( NULL != pcenter && ABS( area ) > 0.0f )
+    if ( NULL != pcenter && std::abs( area ) > 0.0f )
     {
         ( *pcenter ).x = centroid.x / area;
         ( *pcenter ).y = centroid.y / area;
@@ -1113,11 +1113,11 @@ egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, c
         }
         else
         {
-            // have to use MAX here because the height can be distorted due
+            // have to use std::max here because the height can be distorted due
             // to make object-particle interactions easier (i.e. it allows you to
             // hit a grub bug with your hands)
 
-            pdst_bump->height = MAX( bump_base.height, psrc_bb->maxs[OCT_Z] );
+            pdst_bump->height = std::max( bump_base.height, psrc_bb->maxs[OCT_Z] );
         }
 
         if ( 0.0f == bump_stt.size )
@@ -1126,10 +1126,10 @@ egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, c
         }
         else
         {
-            val1 = ABS( psrc_bb->mins[OCT_X] );
-            val2 = ABS( psrc_bb->maxs[OCT_Y] );
-            val3 = ABS( psrc_bb->mins[OCT_Y] );
-            val4 = ABS( psrc_bb->maxs[OCT_Y] );
+            val1 = std::abs( psrc_bb->mins[OCT_X] );
+			val2 = std::abs(psrc_bb->maxs[OCT_Y]);
+			val3 = std::abs(psrc_bb->mins[OCT_Y]);
+			val4 = std::abs(psrc_bb->maxs[OCT_Y]);
 			pdst_bump->size = std::max({ val1, val2, val3, val4 });
         }
 
@@ -1139,11 +1139,11 @@ egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, c
         }
         else
         {
-            val1 = ABS( psrc_bb->maxs[OCT_YX] );
-            val2 = ABS( psrc_bb->mins[OCT_YX] );
-            val3 = ABS( psrc_bb->maxs[OCT_XY] );
-            val4 = ABS( psrc_bb->mins[OCT_XY] );
-            pdst_bump->size_big = MAX( MAX( val1, val2 ), MAX( val3, val4 ) );
+			val1 = std::abs(psrc_bb->maxs[OCT_YX]);
+			val2 = std::abs(psrc_bb->mins[OCT_YX]);
+			val3 = std::abs(psrc_bb->maxs[OCT_XY]);
+			val4 = std::abs(psrc_bb->mins[OCT_XY]);
+            pdst_bump->size_big = std::max( std::max( val1, val2 ), std::max( val3, val4 ) );
         }
     }
 
@@ -1163,7 +1163,7 @@ egolib_rv oct_bb_downgrade( const oct_bb_t * psrc_bb, const bumper_t bump_stt, c
         else
         {
             // handle the vertical distortion the same as above
-            pdst_bb->maxs[OCT_Z] = MAX( bump_base.height, psrc_bb->maxs[OCT_Z] );
+            pdst_bb->maxs[OCT_Z] = std::max( bump_base.height, psrc_bb->maxs[OCT_Z] );
         }
 
         // 0.0f == bump_stt.size is supposed to be shorthand for "this object doesn't interact

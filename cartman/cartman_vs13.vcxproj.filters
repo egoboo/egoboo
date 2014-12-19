@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="Extensions">
+      <UniqueIdentifier>{e6606188-44b9-445a-a3c8-dd1dfd536ced}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Inline Files">
+      <UniqueIdentifier>{2f277393-d4e2-406c-9b06-3f86b2a38e56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data Files">
+      <UniqueIdentifier>{4f21736f-c347-422c-a4a3-024843346172}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\cartman\src\cartman\cartman.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cartman\src\cartman\cartman_functions.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cartman\src\cartman\cartman_gfx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cartman\src\cartman\cartman_gui.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cartman\src\cartman\cartman_input.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cartman\src\cartman\cartman_map.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cartman\src\cartman\cartman_math.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cartman\src\cartman\cartman_select.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cartman\src\cartman\SDL_GetPixel.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cartman\src\cartman\SDL_PutPixel.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cartman\src\cartman\SDL_rotozoom.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\cartman_vs10.rc">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\cartman.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="cartman\standard.inl">
+      <Filter>Inline Files</Filter>
+    </None>
+    <None Include="..\cartman\src\cartman\cartman_math.inl">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="..\cartman\data\egomap_icon.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\cartman\data\anim.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\anim.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\backdrop.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\backdrop.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\bestpal.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\damage.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\damage.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\drawref.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\drawref.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\impass.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\impass.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\pc8x8.fon">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\point.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\point.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\pointon.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\pointon.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\ref.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\ref.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\slippy.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\slippy.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\slit.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\slit.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\water.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\water.png">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\window.pcx">
+      <Filter>Data Files</Filter>
+    </None>
+    <None Include="..\cartman\data\window.png">
+      <Filter>Data Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\cartman\src\cartman\cartman.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\cartman_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\cartman_functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\cartman_gfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\cartman_gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\cartman_input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\cartman_map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\cartman_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\cartman_select.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\cartman_typedef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\SDL_Pixel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cartman\src\cartman\SDL_rotozoom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

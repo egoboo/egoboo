@@ -116,12 +116,12 @@ mesh_BSP_t * mesh_BSP_ctor( mesh_BSP_t * pbsp, const ego_mesh_t * pmesh )
     x_max = pmesh->gmem.edge_x;
     y_min = 0.0f;
     y_max = pmesh->gmem.edge_y;
-    bsp_size = MAX( x_max - x_min, y_max - y_min );
+    bsp_size = std::max( x_max - x_min, y_max - y_min );
 
     // determine the number of bifurcations necessary to get cells the size of the "blocks"
     grids_x = pmesh->gmem.grids_x;
     grids_y = pmesh->gmem.grids_y;
-    depth = CEIL( LOG( 0.5f * MAX( grids_x, grids_y ) ) / LOG( 2.0f ) );
+    depth = CEIL( LOG( 0.5f * std::max( grids_x, grids_y ) ) / LOG( 2.0f ) );
 
     // make a 2D BSP tree with "max depth" depth
     // this automatically allocates all data
@@ -267,7 +267,7 @@ bool mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
     };
 
     // convert the octagonal bounding box to an aabb
-    ego_aabb_from_oct_bb( &( pleaf->bbox ), &( ptile->oct ) );
+    bv_from_oct_bb( &( pleaf->bbox ), &( ptile->oct ) );
 
     // insert the leaf
     retval = BSP_tree_insert_leaf( ptree, pleaf );

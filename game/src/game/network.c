@@ -198,7 +198,7 @@ void net_unbuffer_player_latches( void )
                 SET_BIT( tmp_latch.b, tlatch_list[tnc].button );
             }
 
-            numplatimes = MAX( numplatimes, latch_count );
+            numplatimes = std::max( numplatimes, latch_count );
             if ( weight_sum > 0.0f )
             {
                 tmp_latch.x /= ( float )weight_sum;

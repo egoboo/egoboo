@@ -453,7 +453,7 @@ SDL_bool egolib_console_draw( egolib_console_t * pcon )
             // draw the last output line and work backwards
             for ( i = (( int )console_line_count ) - 1; i >= 0 && height > 0 ; i-- )
             {
-                size_t len = MIN( (size_t)1023, console_line_lengths[i] );
+                size_t len = std::min( (size_t)1023, console_line_lengths[i] );
 
                 strncpy( buffer, pcon->output_buffer + console_line_offsets[i], len );
                 buffer[len] = CSTR_END;

@@ -705,7 +705,7 @@ gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_attach_camera( renderlist_t * ptr, const struct s_camera * pcam )
+gfx_rv renderlist_attach_camera( renderlist_t * ptr, const camera_t * pcam )
 {
     if ( NULL == ptr )
     {
@@ -1813,7 +1813,7 @@ void gfx_system_init_SDL_graphics(void)
     ogl_vparam.antialiasing   = GL_TRUE;
     ogl_vparam.perspective    = cfg.use_perspective ? GL_NICEST : GL_FASTEST;
     ogl_vparam.shading        = GL_SMOOTH;
-    ogl_vparam.userAnisotropy = 16.0f * MAX( 0, cfg.texturefilter_req - TX_TRILINEAR_2 );
+    ogl_vparam.userAnisotropy = 16.0f * std::max( 0, cfg.texturefilter_req - TX_TRILINEAR_2 );
 
     log_info( "Opening SDL Video Mode...\n" );
 
@@ -2260,7 +2260,7 @@ float draw_icon_texture( oglx_texture_t * ptex, float x, float y, Uint8 sparkle_
     {
         float factor_wid = ( float )size / width;
         float factor_hgt = ( float )size / height;
-        float factor = MIN( factor_wid, factor_hgt );
+        float factor = std::min( factor_wid, factor_hgt );
 
         width *= factor;
         height *= factor;
@@ -2508,7 +2508,7 @@ float draw_one_bar( Uint8 bartype, float x_stt, float y_stt, int ticks, int maxt
     if ( ticks > 0 )
     {
         int full_ticks = NUMTICK - ticks;
-        int empty_ticks = NUMTICK - ( MIN( NUMTICK, total_ticks ) - ticks );
+        int empty_ticks = NUMTICK - ( std::min( NUMTICK, total_ticks ) - ticks );
 
         //---- draw a partial row of full ticks
         tx_rect.xmin  = tab_width  / tx_width;
@@ -3227,11 +3227,11 @@ void draw_inventory( void )
         pchr = ChrList_get_ptr( ichr );
 
         //handle inventories sliding into view
-        ppla->inventory_lerp = MIN( ppla->inventory_lerp, width );
+        ppla->inventory_lerp = std::min( ppla->inventory_lerp, width );
         if ( ppla->inventory_lerp > 0 && lerp_time[cnt] < SDL_GetTicks() )
         {
             lerp_time[cnt] = SDL_GetTicks() + 1;
-            ppla->inventory_lerp = MAX( 0, ppla->inventory_lerp - 16 );
+            ppla->inventory_lerp = std::max( 0, ppla->inventory_lerp - 16 );
         }
 
         //set initial positions
@@ -3420,8 +3420,8 @@ void render_shadow( const CHR_REF character )
         float factor_penumbra = ( 1.5f ) * (( pchr->bump.size ) / size_penumbra );
         float factor_umbra    = ( 1.5f ) * (( pchr->bump.size ) / size_umbra );
 
-        factor_umbra    = MAX( 1.0f, factor_umbra );
-        factor_penumbra = MAX( 1.0f, factor_penumbra );
+        factor_umbra    = std::max( 1.0f, factor_umbra );
+        factor_penumbra = std::max( 1.0f, factor_penumbra );
 
         alpha_umbra    *= 1.0f / factor_umbra / factor_umbra / 1.5f;
         alpha_penumbra *= 1.0f / factor_penumbra / factor_penumbra / 1.5f;
@@ -4785,7 +4785,7 @@ gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture )
         default_turn = ( 3 * 2047 ) & TRIG_TABLE_MASK;
         sinsize = turntosin[default_turn] * size;
         cossize = turntocos[default_turn] * size;
-        loc_foregroundrepeat = water.foregroundrepeat * MIN( x / sdl_scr.x, y / sdl_scr.x );
+        loc_foregroundrepeat = water.foregroundrepeat * std::min( x / sdl_scr.x, y / sdl_scr.x );
 
         vtlist[0].pos[XX] = x + cossize;
         vtlist[0].pos[YY] = y - sinsize;
@@ -4992,7 +4992,7 @@ bool oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, ego
     else
     {
 		ptex->texturefilter = std::min<TX_FILTERS>(pcfg->texturefilter_req, TX_FILTER_COUNT);
-        ptex->userAnisotropy = ogl_caps.maxAnisotropy * MAX( 0, ( int )ptex->texturefilter - ( int )TX_TRILINEAR_2 );
+        ptex->userAnisotropy = ogl_caps.maxAnisotropy * std::max( 0, ( int )ptex->texturefilter - ( int )TX_TRILINEAR_2 );
     }
 
     return true;
@@ -5918,7 +5918,7 @@ float get_ambient_level( void )
         min_amb *= local_stats.seedark_mag;
     }
 
-    return 255; // MAX( glob_amb, min_amb );
+    return 255; // std::max( glob_amb, min_amb );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6045,7 +6045,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam )
             }
             else
             {
-                distance_max = MAX( distance_max, distance );
+                distance_max = std::max( distance_max, distance );
             }
 
             // grab a new light from the list
@@ -6156,10 +6156,10 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
 
         poct = &( ptmem->tile_list[fan].oct );
 
-        mesh_bound.xmin = MIN( mesh_bound.xmin, poct->mins[OCT_X] );
-        mesh_bound.xmax = MAX( mesh_bound.xmax, poct->maxs[OCT_X] );
-        mesh_bound.ymin = MIN( mesh_bound.ymin, poct->mins[OCT_Y] );
-        mesh_bound.ymax = MAX( mesh_bound.ymax, poct->maxs[OCT_Y] );
+        mesh_bound.xmin = std::min( mesh_bound.xmin, poct->mins[OCT_X] );
+        mesh_bound.xmax = std::max( mesh_bound.xmax, poct->maxs[OCT_X] );
+        mesh_bound.ymin = std::min( mesh_bound.ymin, poct->mins[OCT_Y] );
+        mesh_bound.ymax = std::max( mesh_bound.ymax, poct->maxs[OCT_Y] );
     }
 
     // is the visible mesh list empty?
@@ -6196,13 +6196,13 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
 
             if ( pdyna->falloff <= 0.0f || 0.0f == pdyna->level ) continue;
 
-            radius = SQRT( pdyna->falloff * 765.0f * 0.5f );
+            radius = std::sqrt( pdyna->falloff * 765.0f * 0.5f );
 
             // find the intersection with the frustum boundary
-            ftmp.xmin = MAX( pdyna->pos.x - radius, mesh_bound.xmin );
-            ftmp.xmax = MIN( pdyna->pos.x + radius, mesh_bound.xmax );
-            ftmp.ymin = MAX( pdyna->pos.y - radius, mesh_bound.ymin );
-            ftmp.ymax = MIN( pdyna->pos.y + radius, mesh_bound.ymax );
+            ftmp.xmin = std::max( pdyna->pos.x - radius, mesh_bound.xmin );
+            ftmp.xmax = std::min( pdyna->pos.x + radius, mesh_bound.xmax );
+            ftmp.ymin = std::max( pdyna->pos.y - radius, mesh_bound.ymin );
+            ftmp.ymax = std::min( pdyna->pos.y + radius, mesh_bound.ymax );
 
             // check to see if it intersects the "frustum"
             if ( ftmp.xmin >= ftmp.xmax || ftmp.ymin >= ftmp.ymax ) continue;
@@ -6212,10 +6212,10 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
             reg_count++;
 
             // determine the maxumum bounding box that encloses all valid lights
-            light_bound.xmin = MIN( light_bound.xmin, ftmp.xmin );
-            light_bound.xmax = MAX( light_bound.xmax, ftmp.xmax );
-            light_bound.ymin = MIN( light_bound.ymin, ftmp.ymin );
-            light_bound.ymax = MAX( light_bound.ymax, ftmp.ymax );
+            light_bound.xmin = std::min( light_bound.xmin, ftmp.xmin );
+            light_bound.xmax = std::max( light_bound.xmax, ftmp.xmax );
+            light_bound.ymin = std::min( light_bound.ymin, ftmp.ymin );
+            light_bound.ymax = std::max( light_bound.ymax, ftmp.ymax );
         }
 
         // are there any dynalights visible?
@@ -6267,13 +6267,13 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
             fake_dynalight.pos.y    = fake_dynalight.pos.y / dyna_weight_sum + pcam->center.y;
             fake_dynalight.pos.z    = fake_dynalight.pos.z / dyna_weight_sum + pcam->center.z;
 
-            radius = SQRT( fake_dynalight.falloff * 765.0f * 0.5f );
+            radius = std::sqrt( fake_dynalight.falloff * 765.0f * 0.5f );
 
             // find the intersection with the frustum boundary
-            ftmp.xmin = MAX( fake_dynalight.pos.x - radius, mesh_bound.xmin );
-            ftmp.xmax = MIN( fake_dynalight.pos.x + radius, mesh_bound.xmax );
-            ftmp.ymin = MAX( fake_dynalight.pos.y - radius, mesh_bound.ymin );
-            ftmp.ymax = MIN( fake_dynalight.pos.y + radius, mesh_bound.ymax );
+            ftmp.xmin = std::max( fake_dynalight.pos.x - radius, mesh_bound.xmin );
+            ftmp.xmax = std::min( fake_dynalight.pos.x + radius, mesh_bound.xmax );
+            ftmp.ymin = std::max( fake_dynalight.pos.y - radius, mesh_bound.ymin );
+            ftmp.ymax = std::min( fake_dynalight.pos.y + radius, mesh_bound.ymax );
 
             // make a fake light bound
             light_bound = ftmp;
@@ -6712,7 +6712,7 @@ gfx_rv gfx_update_flashing( dolist_t * pdolist )
         // Do blacking
         // having one holy player in your party will cause the effect, BUT
         // having some non-holy players will dilute it
-        tmp_seekurse_level = MIN( local_stats.seekurse_level, 1.0f );
+        tmp_seekurse_level = std::min( local_stats.seekurse_level, 1.0f );
         if (( local_stats.seekurse_level > 0.0f ) && pchr->iskursed && 1.0f != tmp_seekurse_level )
         {
             if ( HAS_NO_BITS( game_frame_all, SEEKURSEAND ) )
@@ -6952,7 +6952,7 @@ void gfx_reload_decimated_textures( void )
 
     if ( !_gfx_system_mesh_textures_initialized ) return;
 
-    count = MIN( MESH_IMG_COUNT, mesh_tx_sml_cnt );
+    count = std::min( MESH_IMG_COUNT, mesh_tx_sml_cnt );
     for ( cnt = 0; cnt < count; cnt++ )
     {
         if ( oglx_texture_Valid( mesh_tx_sml + cnt ) )
@@ -6961,7 +6961,7 @@ void gfx_reload_decimated_textures( void )
         }
     }
 
-    count = MIN( MESH_IMG_COUNT, mesh_tx_big_cnt );
+    count = std::min( MESH_IMG_COUNT, mesh_tx_big_cnt );
     for ( cnt = 0; cnt < count; cnt++ )
     {
         if ( oglx_texture_Valid( mesh_tx_big + cnt ) )

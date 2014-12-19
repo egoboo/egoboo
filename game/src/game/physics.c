@@ -260,8 +260,8 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
     if ( nrm_aa.x != 0.0f )
     {
         ftmp = ( *podepth )[OCT_X] / nrm_aa.x;
-        ftmp = MAX( 0.0f, ftmp );
-        tmin_aa = MIN( tmin_aa, ftmp );
+        ftmp = std::max( 0.0f, ftmp );
+        tmin_aa = std::min( tmin_aa, ftmp );
     }
 
     if ( nrm_aa.y != 0.0f )
@@ -302,22 +302,22 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
     if ( nrm_diag.x != 0.0f )
     {
         ftmp = INV_SQRT_TWO * ( *podepth )[OCT_XY] / nrm_diag.x;
-        ftmp = MAX( 0.0f, ftmp );
-        tmin_diag = MIN( tmin_diag, ftmp );
+        ftmp = std::max( 0.0f, ftmp );
+        tmin_diag = std::min( tmin_diag, ftmp );
     }
 
     if ( nrm_diag.y != 0.0f )
     {
         ftmp = INV_SQRT_TWO * ( *podepth )[OCT_YX] / nrm_diag.y;
-        ftmp = MAX( 0.0f, ftmp );
-        tmin_diag = MIN( tmin_diag, ftmp );
+        ftmp = std::max( 0.0f, ftmp );
+        tmin_diag = std::min( tmin_diag, ftmp );
     }
 
     if ( nrm_diag.z != 0.0f )
     {
         ftmp = ( *podepth )[OCT_Z] / nrm_diag.z;
-        ftmp = MAX( 0.0f, ftmp );
-        tmin_diag = MIN( tmin_diag, ftmp );
+        ftmp = std::max( 0.0f, ftmp );
+        tmin_diag = std::min( tmin_diag, ftmp );
     }
 
     if ( tmin_diag <= 0.0f || tmin_diag >= 1e6 ) return false;
@@ -455,8 +455,8 @@ egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const o
             time[2] = ( src1_max - src2_min ) / vdiff;
             time[3] = ( src1_max - src2_max ) / vdiff;
 
-            *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
-            *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+            *tmin = std::min( std::min( time[0], time[1] ), std::min( time[2], time[3] ) );
+            *tmax = std::max( std::max( time[0], time[1] ), std::max( time[2], time[3] ) );
         }
         else
         {
@@ -483,8 +483,8 @@ egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const o
             time[2] = ( src1_max - src2_min ) / vdiff;
             time[3] = ( src1_max - src2_max ) / vdiff;
 
-            *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
-            *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+            *tmin = std::min( std::min( time[0], time[1] ), std::min( time[2], time[3] ) );
+            *tmax = std::max( std::max( time[0], time[1] ), std::max( time[2], time[3] ) );
         }
         else if ( 0.0f == tolerance_1 )
         {
@@ -499,8 +499,8 @@ egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const o
             time[2] = ( src1_max - plat_min ) / vdiff;
             time[3] = ( src1_max - plat_max ) / vdiff;
 
-            *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
-            *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+            *tmin = std::min( std::min( time[0], time[1] ), std::min( time[2], time[3] ) );
+            *tmax = std::max( std::max( time[0], time[1] ), std::max( time[2], time[3] ) );
         }
         else if ( 0.0f == tolerance_2 )
         {
@@ -516,8 +516,8 @@ egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const o
             time[2] = ( plat_max - src2_min ) / vdiff;
             time[3] = ( plat_max - src2_max ) / vdiff;
 
-            *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
-            *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+            *tmin = std::min( std::min( time[0], time[1] ), std::min( time[2], time[3] ) );
+            *tmax = std::max( std::max( time[0], time[1] ), std::max( time[2], time[3] ) );
         }
 
         else if ( tolerance_1 > 0.0f && tolerance_2 > 0.0f )
@@ -537,8 +537,8 @@ egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const o
             time[1] = ( src1_min - plat_max ) / vdiff;
             time[2] = ( src1_max - plat_min ) / vdiff;
             time[3] = ( src1_max - plat_max ) / vdiff;
-            tmp_min1 = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
-            tmp_max1 = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+            tmp_min1 = std::min( std::min( time[0], time[1] ), std::min( time[2], time[3] ) );
+            tmp_max1 = std::max( std::max( time[0], time[1] ), std::max( time[2], time[3] ) );
 
             // obj1 is platform
             plat_min = src1_min;
@@ -548,11 +548,11 @@ egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const o
             time[5] = ( plat_min - src2_max ) / vdiff;
             time[6] = ( plat_max - src2_min ) / vdiff;
             time[7] = ( plat_max - src2_max ) / vdiff;
-            tmp_min2 = MIN( MIN( time[4], time[5] ), MIN( time[6], time[7] ) );
-            tmp_max2 = MAX( MAX( time[4], time[5] ), MAX( time[6], time[7] ) );
+            tmp_min2 = std::min( std::min( time[4], time[5] ), std::min( time[6], time[7] ) );
+            tmp_max2 = std::max( std::max( time[4], time[5] ), std::max( time[6], time[7] ) );
 
-            *tmin = MIN( tmp_min1, tmp_min2 );
-            *tmax = MAX( tmp_max1, tmp_max2 );
+            *tmin = std::min( tmp_min1, tmp_min2 );
+            *tmax = std::max( tmp_max1, tmp_max2 );
         }
     }
 
@@ -654,8 +654,8 @@ bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos1,
                     }
                     else
                     {
-                        *tmin = MAX( *tmin, tmp_min );
-                        *tmax = MIN( *tmax, tmp_max );
+                        *tmin = std::max( *tmin, tmp_min );
+                        *tmax = std::min( *tmax, tmp_max );
                     }
 
                     // check the values vs. reasonable bounds
@@ -776,8 +776,8 @@ egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, c
             time[0] = ( opos1 - src2_min ) / vdiff;
             time[1] = ( opos1 - src2_max ) / vdiff;
 
-            *tmin = MIN( time[0], time[1] );
-            *tmax = MAX( time[0], time[1] );
+            *tmin = std::min( time[0], time[1] );
+            *tmax = std::max( time[0], time[1] );
         }
         else
         {
@@ -792,8 +792,8 @@ egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, c
             time[2] = ( opos1 - src2_min ) / vdiff;
             time[3] = ( opos1 - src2_max ) / vdiff;
 
-            *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
-            *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+            *tmin = std::min( std::min( time[0], time[1] ), std::min( time[2], time[3] ) );
+            *tmax = std::max( std::max( time[0], time[1] ), std::max( time[2], time[3] ) );
         }
     }
     else /* OCT_Z == index */
@@ -818,8 +818,8 @@ egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, c
             time[2] = ( src1_max - src2_min ) / vdiff;
             time[3] = ( src1_max - src2_max ) / vdiff;
 
-            *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
-            *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+            *tmin = std::min( std::min( time[0], time[1] ), std::min( time[2], time[3] ) );
+            *tmax = std::max( std::max( time[0], time[1] ), std::max( time[2], time[3] ) );
         }
         else if ( 0.0f != tolerance_1 && 0.0f == tolerance_2 )
         {
@@ -833,8 +833,8 @@ egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, c
             time[0] = ( plat_min - obj_pos ) / vdiff;
             time[1] = ( plat_max - obj_pos ) / vdiff;
 
-            *tmin = MIN( time[0], time[1] );
-            *tmax = MAX( time[0], time[1] );
+            *tmin = std::min( time[0], time[1] );
+            *tmax = std::max( time[0], time[1] );
         }
         else if ( 0.0f == tolerance_1 && 0.0f != tolerance_2 )
         {
@@ -872,8 +872,8 @@ egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, c
             time[2] = ( plat_min - obj_pos ) / vdiff;
             time[3] = ( plat_max - obj_pos ) / vdiff;
 
-            *tmin = MIN( MIN( time[0], time[1] ), MIN( time[2], time[3] ) );
-            *tmax = MAX( MAX( time[0], time[1] ), MAX( time[2], time[3] ) );
+            *tmin = std::min( std::min( time[0], time[1] ), std::min( time[2], time[3] ) );
+            *tmax = std::max( std::max( time[0], time[1] ), std::max( time[2], time[3] ) );
         }
     }
 
@@ -955,8 +955,8 @@ bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t
             }
             else
             {
-                *tmin = MAX( *tmin, tmp_min );
-                *tmax = MIN( *tmax, tmp_max );
+                *tmin = std::max( *tmin, tmp_min );
+                *tmax = std::min( *tmax, tmp_max );
             }
         }
 
@@ -1548,8 +1548,8 @@ bool apos_self_union( apos_t * lhs, apos_t * rhs )
     // maximum displacement
     for ( cnt = 0; cnt < 3; cnt ++ )
     {
-        lhs->mins.v[cnt] = MIN( lhs->mins.v[cnt], rhs->mins.v[cnt] );
-        lhs->maxs.v[cnt] = MAX( lhs->maxs.v[cnt], rhs->maxs.v[cnt] );
+        lhs->mins.v[cnt] = std::min( lhs->mins.v[cnt], rhs->mins.v[cnt] );
+        lhs->maxs.v[cnt] = std::max( lhs->maxs.v[cnt], rhs->maxs.v[cnt] );
         lhs->sum.v[cnt] += rhs->sum.v[cnt];
     }
 
@@ -1573,11 +1573,11 @@ bool apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs )
         // find the extrema of the displacement
         if ( rhs[cnt] > 0.0f )
         {
-            lhs->maxs.v[cnt] = MAX( lhs->maxs.v[cnt], rhs[cnt] );
+            lhs->maxs.v[cnt] = std::max( lhs->maxs.v[cnt], rhs[cnt] );
         }
         else if ( rhs[cnt] < 0.0f )
         {
-            lhs->mins.v[cnt] = MIN( lhs->mins.v[cnt], rhs[cnt] );
+            lhs->mins.v[cnt] = std::min( lhs->mins.v[cnt], rhs[cnt] );
         }
 
         // find the sum of the displacement
@@ -1601,11 +1601,11 @@ bool apos_self_union_index( apos_t * lhs, const float val, const int index )
     // find the extrema of the displacement
     if ( val > 0.0f )
     {
-        lhs->maxs.v[index] = MAX( lhs->maxs.v[index], val );
+        lhs->maxs.v[index] = std::max( lhs->maxs.v[index], val );
     }
     else if ( val < 0.0f )
     {
-        lhs->mins.v[index] = MIN( lhs->mins.v[index], val );
+        lhs->mins.v[index] = std::min( lhs->mins.v[index], val );
     }
 
     // find the sum of the displacement

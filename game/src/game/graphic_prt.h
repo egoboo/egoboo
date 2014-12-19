@@ -31,7 +31,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_camera;
+// Forward declaration.
+typedef struct camera_t camera_t;
 struct s_prt;
 struct s_prt_bundle;
 
@@ -113,5 +114,5 @@ void   render_all_prt_bbox( void );
 
 void   render_all_prt_attachment( void );
 
-gfx_rv update_all_prt_instance( const struct s_camera * pcam );
+gfx_rv update_all_prt_instance( const struct camera_t * pcam );
 

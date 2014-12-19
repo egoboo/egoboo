@@ -1388,7 +1388,7 @@ bool _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t cam_
                 float pan_wt    = 1.0f / ( 1.0f + diff2 / GRID_FSIZE / GRID_FSIZE );
 
                 // normalize the difference vector in 2d
-                inv_diff_len = SQRT( inv_diff2 );
+                inv_diff_len = std::sqrt( inv_diff2 );
                 fvec2_scale( norm_diff.v, tmp_diff.v, inv_diff_len );
 
                 // measure the diff relative to the camera direction

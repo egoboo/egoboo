@@ -2152,7 +2152,7 @@ void set_one_player_latch( const PLA_REF ipla )
 
         if ( fast_camera_turn || !input_device_control_active( pdevice,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
         {
-            dist = SQRT( mous.x * mous.x + mous.y * mous.y );
+            dist = std::sqrt( mous.x * mous.x + mous.y * mous.y );
             if ( dist > 0 )
             {
                 scale = mous.sense / dist;
@@ -2210,7 +2210,7 @@ void set_one_player_latch( const PLA_REF ipla )
             dist = joy_pos.x * joy_pos.x + joy_pos.y * joy_pos.y;
             if ( dist > 1.0f )
             {
-                scale = 1.0f / SQRT( dist );
+                scale = 1.0f / std::sqrt( dist );
                 joy_pos.x *= scale;
                 joy_pos.y *= scale;
             }
@@ -2378,7 +2378,7 @@ void check_stats( void )
             cap_t * pcap = pro_get_pcap( pchr->profile_ref );
 
             //Give 10% of XP needed for next level
-            xpgain = 0.1f * ( pcap->experience_forlevel[MIN( pchr->experiencelevel+1, MAXLEVEL )] - pcap->experience_forlevel[pchr->experiencelevel] );
+            xpgain = 0.1f * ( pcap->experience_forlevel[std::min( pchr->experiencelevel+1, MAXLEVEL )] - pcap->experience_forlevel[pchr->experiencelevel] );
             give_experience( pchr->ai.index, xpgain, XP_DIRECT, true );
             stat_check_delay = 1;
         }
@@ -2770,7 +2770,7 @@ void import_dir_profiles_vfs( const char * dirname )
 
             // load it
             import_data.slot_lst[cnt] = load_one_profile_vfs( filename, MAX_PROFILE );
-            import_data.max_slot      = MAX( import_data.max_slot, cnt );
+            import_data.max_slot      = std::max( import_data.max_slot, cnt );
         }
     }
 }
@@ -4464,7 +4464,7 @@ bool upload_light_data( const wawalite_data_t * pdata )
 
     if ( ABS( light_nrm[kX] ) + ABS( light_nrm[kY] ) + ABS( light_nrm[kZ] ) > 0.0f )
     {
-        float fTmp = SQRT( light_nrm[kX] * light_nrm[kX] + light_nrm[kY] * light_nrm[kY] + light_nrm[kZ] * light_nrm[kZ] );
+        float fTmp = std::sqrt( light_nrm[kX] * light_nrm[kX] + light_nrm[kY] * light_nrm[kY] + light_nrm[kZ] * light_nrm[kZ] );
 
         // get the extra magnitude of the direct light
         if ( gfx.usefaredge )
@@ -4795,7 +4795,7 @@ Uint8 get_alpha( int alpha, float seeinvis_mag )
         else if ( alpha < SEEINVISIBLE )
         {
             alpha *= seeinvis_mag;
-            alpha = MAX( alpha, SEEINVISIBLE );
+            alpha = std::max( alpha, SEEINVISIBLE );
         }
         else
         {
@@ -5117,7 +5117,7 @@ float get_mesh_max_vertex_2( ego_mesh_t * pmesh, chr_t * pchr )
     for ( corner = 1; corner < 4; corner++ )
     {
         float fval = get_mesh_level( pmesh, pos_x[corner], pos_y[corner], pchr->waterwalk );
-        zmax = MAX( zmax, fval );
+        zmax = std::max( zmax, fval );
     }
 
     return zmax;
@@ -5205,7 +5205,7 @@ float get_chr_level( ego_mesh_t * pmesh, chr_t * pchr )
         for ( cnt = 1; cnt < grid_vert_count; cnt ++ )
         {
             fval = get_mesh_max_vertex_1( pmesh, grid_vert_x[cnt], grid_vert_y[cnt], &bump, pchr->waterwalk );
-            zmax = MAX( zmax, fval );
+            zmax = std::max( zmax, fval );
         }
     }
 
@@ -5392,7 +5392,7 @@ bool attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
-    prt_set_level( pprt, MAX( pprt->enviro.level, pplat->pos.z + pplat->chr_min_cv.maxs[OCT_Z] ) );
+    prt_set_level( pprt, std::max( pprt->enviro.level, pplat->pos.z + pplat->chr_min_cv.maxs[OCT_Z] ) );
 
     return true;
 }
@@ -5784,7 +5784,7 @@ float water_instance_get_water_level( water_instance_t * ptr )
             // do it this way so the macro does not evaluate water_instance_layer_get_level() twice
             float tmpval = water_instance_layer_get_level( ptr->layer + cnt );
 
-            level = MAX( level, tmpval );
+            level = std::max( level, tmpval );
         }
     }
 

@@ -1845,7 +1845,7 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
                     int def_val;
                     valuetoadd = penc->addsave[value_idx];
                     def_val = ptarget->defense - valuetoadd;
-                    ptarget->defense = MAX( 0, def_val );
+                    ptarget->defense = std::max( 0, def_val );
                 }
                 break;
 

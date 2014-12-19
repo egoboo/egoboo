@@ -579,7 +579,7 @@ float ui_drawTextBox( Font * font, const char *text, float vx, float vy, float v
     // draw using screen coordinates
     fnt_drawTextBox_OGL( font, ui_text_color, x1, y1, x2 - x1, y2 - y1, spacing, NULL, "%s", text );
 
-    return MAX( vy + vheight, vy + vspacing );
+    return std::max( vy + vheight, vy + vspacing );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -860,7 +860,7 @@ void ui_set_virtual_screen( float vw, float vh, float ww, float wh )
     ui_context.wh = wh;
 
     // define the forward transform
-    k = MIN( sdl_scr.x / ww, sdl_scr.y / wh );
+    k = std::min( sdl_scr.x / ww, sdl_scr.y / wh );
     ui_context.aw = k;
     ui_context.ah = k;
     ui_context.bw = ( sdl_scr.x - k * ww ) * 0.5f;
@@ -927,7 +927,7 @@ float ui_drawIcon( const TX_REF icontype, float vx, float vy, Uint8 sparkle, Uin
     ui_virtual_to_screen( vx + icon_size, vy + icon_size, &x2, &y2 );
 
     //Draw the icon
-    y1 = draw_icon_texture( mnu_TxList_get_valid_ptr( icontype ), x1, y1, sparkle, delta_update, MIN( x2 - x1, y2 - y1 ) );
+    y1 = draw_icon_texture( mnu_TxList_get_valid_ptr( icontype ), x1, y1, sparkle, delta_update, std::min( x2 - x1, y2 - y1 ) );
 
     // convert back to virtual
     ui_screen_to_virtual( x1, y1, &vx, &vy );

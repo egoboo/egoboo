@@ -1801,11 +1801,11 @@ Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
     // limit the transfer values
     if ( pstate->argument < 0 )
     {
-        pstate->argument = MAX( iTmp, tTmp );
+        pstate->argument = std::max( iTmp, tTmp );
     }
     else
     {
-        pstate->argument = MIN( iTmp, tTmp );
+        pstate->argument = std::min( iTmp, tTmp );
     }
 
     pchr->money         = pchr->money + pstate->argument;
@@ -3359,7 +3359,7 @@ Uint8 scr_set_FlyHeight( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->flyheight = MAX( 0, pstate->argument );
+    pchr->flyheight = std::max( 0, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4442,7 +4442,7 @@ Uint8 scr_set_ReloadTime( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->reload_timer = MAX( 0, pstate->argument );
+    pchr->reload_timer = std::max( 0, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4571,7 +4571,7 @@ Uint8 scr_set_SpeedPercent( script_state_t * pstate, ai_state_t * pself )
     reset_character_accel( pself->index );
 
     fvalue = pstate->argument / 100.0f;
-    fvalue = MAX( 0.0f, fvalue );
+    fvalue = std::max( 0.0f, fvalue );
 
     pchr->maxaccel = pchr->maxaccel_reset * fvalue;
 
@@ -6977,7 +6977,7 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
     if ( NULL != pcap && pcap->canbegrogged )
     {
         int timer_val = pself_target->grog_timer + pstate->argument;
-        pself_target->grog_timer = MAX( 0, timer_val );
+        pself_target->grog_timer = std::max( 0, timer_val );
         returncode = true;
     }
 
@@ -7005,7 +7005,7 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
     if ( NULL != pcap && ( pcap->canbedazed || pself->index == pself->target ) )
     {
         int timer_val = pself_target->daze_timer + pstate->argument;
-        pself_target->daze_timer = MAX( 0, timer_val );
+        pself_target->daze_timer = std::max( 0, timer_val );
 
         returncode = true;
     }
