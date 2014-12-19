@@ -69,7 +69,6 @@
 #include <cfloat>
 #else
 #include <float.h>
-#include <float.h>
 #endif
 
 #if defined(__cplusplus)
@@ -83,6 +82,7 @@
 #else
 #include <memory.h>
 #endif
+
 #if defined(__cplusplus)
 #include <cstring>
 #else

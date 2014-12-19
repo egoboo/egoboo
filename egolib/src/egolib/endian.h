@@ -21,10 +21,6 @@
 
 /// @file egolib/endian.h
 
-#if defined(_APPLE_)
-	#include <Endian.h>
-#endif
-
 #include "egolib/typedef.h"
 
 #if 0
