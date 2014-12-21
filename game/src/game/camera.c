@@ -573,9 +573,6 @@ void camera_update_track( camera_t * pcam, const ego_mesh_t * pmesh, CHR_REF tra
     {
         // a camera mode for focusing in on the players that are actually doing something.
         // "Show me the drama!"
-#if 0
-        int cnt;
-#endif
         chr_t * local_chr_ptrs[MAX_PLAYER];
         int local_chr_count = 0;
 

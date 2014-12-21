@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/vec.h
-/// @brief 2-,3- and 4-dimensional vectors
+/// @file  egolib/vec.h
+/// @brief 2-,3- and 4-dimensional vectors.
+
 #pragma once
 
 #include "egolib/typedef.h"

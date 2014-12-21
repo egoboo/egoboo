@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,16 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/system.h
+/// @file    egolib/system.h
 /// @details Interface to operating system dependant stuff.  Currently only in use to
-/// use a higher performance timer than SDL provides on Windows machines.
+///          use a higher performance timer than SDL provides on Windows machines.
 
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
+#pragma once
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -42,17 +35,3 @@ extern "C"
     int    sys_frameStep( void );
 
     void   sys_popup( const char * popup_title, const char * warning, const char * format, va_list args );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define egoboo_System_h

@@ -285,11 +285,11 @@ char vfs_get_first_letter( vfs_FILE* fileread )
     /// @details This function returns the next non-whitespace character
     char cTmp;
 
-    vfs_scanf( fileread, "%c", &cTmp );
+	vfs_scanf(fileread, "%c", &cTmp); /* @todo Do not use scanf to read a single letter. */
 
     while ( isspace(( unsigned )cTmp ) )
     {
-        vfs_scanf( fileread, "%c", &cTmp );
+		vfs_scanf(fileread, "%c", &cTmp); /* @todo Do not us scanf to read a single letter. */
     }
 
     return cTmp;

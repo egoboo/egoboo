@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -20,6 +18,8 @@
 //********************************************************************************************
 
 /// @file game/script_compile.h
+
+#pragma once
 
 #include "game/egoboo_typedef.h"
 #include "game/script.h"

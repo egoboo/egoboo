@@ -121,7 +121,7 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
     fontoffset = yspacing;
     for ( cnt = 0; cnt < NUMFONT && goto_colon_vfs( NULL, fileread, true ); cnt++ )
     {
-        vfs_scanf( fileread, "%c", &cTmp );
+		vfs_scanf(fileread, "%c", &cTmp); /* @todo Do not use scanf to read a single letter. */
         xspacing = vfs_get_int( fileread );
         if ( asciitofont[( Uint8 )cTmp] == 255 ) asciitofont[( Uint8 )cTmp] = ( Uint8 ) cnt;
         if ( stt_x + xspacing + 1 > 255 )

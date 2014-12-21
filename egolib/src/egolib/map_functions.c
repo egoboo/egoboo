@@ -234,10 +234,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
     size_t   mapx, mapy, itile;
     size_t   tile_x, tile_y;
     int      step_x, step_y;
-    bool     west_flat, north_flat, south_flat, east_flat;
-    Uint32   wall_flags;
     int      tile_type;
-    Uint8    type;
     Uint32   WALL_BITS = MAPFX_WALL | MAPFX_IMPASS;
     Uint8 *  ary = NULL;
 

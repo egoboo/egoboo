@@ -1189,9 +1189,6 @@ ext_camera_list_t * ext_camera_list_reinit( ext_camera_list_t * plst )
 //--------------------------------------------------------------------------------------------
 int camera_list_find_target_index( ext_camera_list_t * plst, const CHR_REF itarget )
 {
-#if 0
-    int cnt, tnc;
-#endif
     int retval;
     ext_camera_t * pext;
 

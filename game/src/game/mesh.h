@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -20,6 +18,7 @@
 //********************************************************************************************
 
 /// @file game/mesh.h
+#pragma once
 
 #include "game/egoboo_typedef.h"
 
@@ -39,43 +38,26 @@ struct s_oglx_texture;
 // internal types
 //--------------------------------------------------------------------------------------------
 
-// struct for holding the mpd data
-struct s_ego_mesh;
-typedef struct s_ego_mesh ego_mesh_t;
-
-struct s_ego_tile_info;
-typedef struct s_ego_tile_info ego_tile_info_t;
-
-struct s_ego_grid_info;
-typedef struct s_ego_grid_info ego_grid_info_t;
-
-struct s_grid_mem;
-typedef struct s_grid_mem grid_mem_t;
-
-struct s_tile_mem;
-typedef struct s_tile_mem tile_mem_t;
-
-struct s_mpdfx_list_ary;
-typedef struct s_mpdfx_list_ary mpdfx_list_ary_t;
-
-struct s_mpdfx_lists;
-typedef struct s_mpdfx_lists mpdfx_lists_t;
-
-struct s_ego_mesh_info;
-typedef struct s_ego_mesh_info ego_mesh_info_t;
-
-struct s_mesh_wall_data;
-typedef struct s_mesh_wall_data mesh_wall_data_t;
+// Forward declarations.
+struct ego_mesh_t;
+struct ego_tile_info_t;
+struct ego_grid_info_t;
+struct grid_mem_t;
+struct tile_mem_t;
+struct mpdfx_list_ary_t;
+struct mpdfx_lists_t;
+struct ego_mesh_info_t;
+struct mesh_wall_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define GRID_BITS       7
+#define GRID_BITS      7
 #define GRID_ISIZE     (1<<(GRID_BITS))
 #define GRID_FSIZE     ((float)GRID_ISIZE)
 #define GRID_MASK      (GRID_ISIZE - 1)
 
-#define BLOCK_BITS    9
+#define BLOCK_BITS      9
 #define BLOCK_ISIZE     (1<<(BLOCK_BITS))
 #define BLOCK_FSIZE     ((float)BLOCK_ISIZE)
 #define BLOCK_MASK      (BLOCK_ISIZE - 1)
@@ -115,7 +97,7 @@ typedef float       light_cache_t[4];
 //--------------------------------------------------------------------------------------------
 
 /// The data describing an Egoboo tile
-struct s_ego_tile_info
+struct ego_tile_info_t
 {
     // the "inherited" tile info
     Uint8   type;                              ///< Tile type
@@ -127,16 +109,16 @@ struct s_ego_tile_info
 
     // some info about the renderlist
     bool  inrenderlist;                      ///< Is the tile going to be rendered this frame?
-    int     inrenderlist_frame;                ///< What was the frame number the last time this tile was rendered?
+    int   inrenderlist_frame;                ///< What was the frame number the last time this tile was rendered?
 
     // tile corner lighting parameters
     normal_cache_t ncache;                     ///< the normals at the corners of this tile
     light_cache_t  lcache;                     ///< the light at the corners of this tile
-    bool         request_lcache_update;        ///< has this tile been tagged for a lcache update?
-    int            lcache_frame;              ///< the last frame in which the lighting cache was updated
+    bool           request_lcache_update;      ///< has this tile been tagged for a lcache update?
+    int            lcache_frame;               ///< the last frame in which the lighting cache was updated
 
     // tile vertex lighting parameters
-    bool         request_clst_update;          ///< has this tile been tagged for a color list update?
+    bool           request_clst_update;        ///< has this tile been tagged for a color list update?
     int            clst_frame;                 ///< the last frame in which the color list was updated
     light_cache_t  d1_cache;                   ///< the estimated change in the light at the corner of the tile
     light_cache_t  d2_cache;                   ///< the estimated change in the light at the corner of the tile
@@ -163,7 +145,7 @@ ego_tile_info_t * ego_tile_info_destroy_ary( ego_tile_info_t * ary, size_t count
 typedef BIT_FIELD GRID_FX_BITS;
 
 /// The data describing an Egoboo grid
-struct s_ego_grid_info
+struct ego_grid_info_t
 {
     // MODIFY THESE FLAGS
     GRID_FX_BITS    base_fx;                   ///< the special effects flags in the mpd
@@ -189,7 +171,7 @@ ego_grid_info_t * ego_grid_info_create_ary( size_t count );
 ego_grid_info_t * ego_grid_info_destroy_ary( ego_grid_info_t * ary, size_t count );
 
 //--------------------------------------------------------------------------------------------
-struct s_grid_mem
+struct grid_mem_t
 {
     int             grids_x;                          ///< Size in grids
     int             grids_y;
@@ -213,7 +195,7 @@ struct s_grid_mem
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the dynamically allocated mesh memory
-struct s_tile_mem
+struct tile_mem_t
 {
     aabb_t           bbox;                             ///< bounding box for the entire mesh
 
@@ -231,7 +213,7 @@ struct s_tile_mem
 
 //--------------------------------------------------------------------------------------------
 
-struct s_mpdfx_list_ary
+struct mpdfx_list_ary_t
 {
     size_t   cnt;
 
@@ -247,7 +229,7 @@ mpdfx_list_ary_t * mpdfx_list_ary_reset( mpdfx_list_ary_t * ptr );
 bool mpdfx_list_ary_push( mpdfx_list_ary_t * ptr, size_t value );
 
 //--------------------------------------------------------------------------------------------
-struct s_mpdfx_lists
+struct mpdfx_lists_t
 {
     bool   dirty;
 
@@ -269,7 +251,7 @@ bool mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool for
 //--------------------------------------------------------------------------------------------
 
 /// The generic parameters describing an ego_mesh
-struct s_ego_mesh_info
+struct ego_mesh_info_t
 {
     size_t          vertcount;                         ///< For malloc
 
@@ -281,7 +263,7 @@ struct s_ego_mesh_info
 //--------------------------------------------------------------------------------------------
 
 /// Egoboo's representation of the .mpd mesh file
-struct s_ego_mesh
+struct ego_mesh_t
 {
     ego_mesh_info_t  info;
     tile_mem_t      tmem;
@@ -293,7 +275,7 @@ struct s_ego_mesh
 //--------------------------------------------------------------------------------------------
 // struct for caching fome values for wall collisions
 
-struct s_mesh_wall_data
+struct mesh_wall_data_t
 {
     int   ix_min, ix_max, iy_min, iy_max;
     float fx_min, fx_max, fy_min, fy_max;
@@ -322,8 +304,8 @@ extern Uint8   mesh_tx_size;           ///< what size texture?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-ego_mesh_t * ego_mesh_create( ego_mesh_t * pmesh, int tiles_x, int tiles_y );
-bool       ego_mesh_destroy( ego_mesh_t ** pmesh );
+ego_mesh_t *ego_mesh_create( ego_mesh_t * pmesh, int tiles_x, int tiles_y );
+bool        ego_mesh_destroy( ego_mesh_t ** pmesh );
 
 ego_mesh_t * ego_mesh_ctor( ego_mesh_t * pmesh );
 ego_mesh_t * ego_mesh_dtor( ego_mesh_t * pmesh );

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,18 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/bbox.h
-/// @brief A small "library" for dealing with various bounding boxes
+/// @file  egolib/bbox.h
+/// @brief A small "library" for dealing with various bounding boxes.
+
+#pragma once
 
 #include "egolib/_math.h"
 #include "egolib/vec.h"
-
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -44,21 +37,7 @@ extern "C"
     struct s_bumper;
     typedef struct s_bumper bumper_t;
 
-#if 0
-    struct oct_bb;
-#endif
     typedef struct oct_bb_t oct_bb_t;
-
-#if 0
-struct s_bv;
-typedef struct s_bv bv_t;
-
-struct s_aabb_lst;
-typedef struct s_aabb_lst aabb_lst_t;
-
-struct s_aabb_ary;
-typedef struct s_aabb_ary aabb_ary_t;
-#endif
 
     struct s_OVolume;
     typedef struct s_OVolume OVolume_t;
@@ -204,17 +183,3 @@ typedef struct s_aabb_ary aabb_ary_t;
 
     int    oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count );
     void   points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_count );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_bbox_h

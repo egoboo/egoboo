@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,34 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/file_formats/controls_file-v1.h
-/// @details routines for reading and writing version 1 of "controls.txt"
+/// @file  egolib/file_formats/controls_file-v1.h
+/// @brief Routines for reading and writing version 1 of <tt>"controls.txt"</tt>.
+
+#pragma once
 
 #include "egolib/typedef.h"
 
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    bool input_settings_load_vfs_1( const char *szFilename );
-    bool input_settings_save_vfs_1( const char *szFilename );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _file_formats_controls_file_v1_h
+bool input_settings_load_vfs_1(const char *szFilename);
+bool input_settings_save_vfs_1(const char *szFilename);

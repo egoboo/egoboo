@@ -17,30 +17,18 @@
 //*
 //********************************************************************************************
 
-/// @file    egolib/sphere.h
-/// @brief   spheres
+/// @file  egolib/sphere.h
+/// @brief Spheres.
+
 #pragma once
 
 #include "egolib/vec.h"
-#if 0
-#include "egolib/typedef.h"
-#include "egolib/_math.h"
-#endif
-#if 0
-#include "egolib/typedef.h"
-#include "egolib/_math.h"
-#endif
 
 /**
- * @brief
- *	A sphere.
- *	The terms the/a "sphere_t object" and the/a "sphere" are synonyms.
- */
-#if 0
-struct s_sphere;
-#endif
-typedef struct sphere_t sphere_t;
-
+* @brief
+*	A sphere.
+*	The terms the/a "sphere_t object" and the/a "sphere" are synonyms.
+*/
 struct sphere_t
 {
 	fvec3_t origin;

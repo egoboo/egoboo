@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,8 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file game/sound.h
+/// @file  game/sound.h
 /// @Sound handling using SDL_mixer
+
+#pragma once
 
 #include "game/egoboo_typedef.h"
 

@@ -640,7 +640,10 @@ geometry_rv cone_intersects_point( const cone_t * K, const fvec3_base_t P )
         }
         else
         {
-            float test1, test2, test3;
+#if 0
+			float test1, test2;
+#endif
+			float test3;
 
             // the test for being inside:
             //     the perp distance from the axis (squared, perp_dist_2) must be less than

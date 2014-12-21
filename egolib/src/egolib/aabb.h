@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/aabb.h
-/// @brief axis-aligned bounding boxes
+/// @file  egolib/aabb.h
+/// @brief Axis-aligned bounding boxes.
+
 #pragma once
 
 #include "egolib/sphere.h"

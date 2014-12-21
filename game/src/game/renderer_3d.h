@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,21 +20,18 @@
 /// @file game/renderer_3d.h
 /// @brief Routines for rendering 3d primitves
 
+#pragma once
+
 #include "egolib/opengl/renderer.h"
 #include "egolib/vec.h"
-#if 0
-#include "game/egoboo_typedef.h"
-#include "egolib/extensions/ogl_texture.h"
-#include "egolib/_math.h"
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // Forward declarations.
-typedef struct oct_bb_t oct_bb_t;
-typedef struct aabb_t aabb_t;
-typedef struct camera_t camera_t;
+struct oct_bb_t;
+struct aabb_t;
+struct camera_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

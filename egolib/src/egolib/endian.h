@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,14 +19,9 @@
 
 /// @file egolib/endian.h
 
-#include "egolib/typedef.h"
+#pragma once
 
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
+#include "egolib/typedef.h"
 
 //--------------------------------------------------------------------------------------------
 // REMAPPING OF SDL MACROS
@@ -81,17 +74,3 @@ extern "C"
     size_t endian_fwrite_sint32( FILE* filewrite, Sint32 val );
     size_t endian_fwrite_sint16( FILE* filewrite, Sint16 val );
     size_t endian_fwrite_sint08( FILE* filewrite, Sint8  val );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_endian_h

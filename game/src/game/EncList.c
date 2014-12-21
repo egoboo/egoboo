@@ -202,9 +202,6 @@ void EncList_prune_used_list( void )
 void EncList_prune_free_list( void )
 {
     // prune the free list
-#if 0
-    size_t cnt;
-#endif
     ENC_REF ienc;
 
     for ( size_t cnt = 0; cnt < EncList.free_count; cnt++ )
@@ -632,9 +629,6 @@ ENC_REF EncList_allocate( const ENC_REF override )
 //--------------------------------------------------------------------------------------------
 void EncList_cleanup( void )
 {
-#if 0
-    int     cnt;
-#endif
     enc_t * penc;
 
     // go through the list and activate all the enchants that

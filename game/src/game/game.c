@@ -67,8 +67,7 @@
 #include "game/network_server.h"
 #include "game/camera_system.h"
 #include "game/collision.h"
-#include "game/obj_BSP.h"
-#include "game/mesh_BSP.h"
+#include "game/bsp.h"
 #include "game/script.h"
 #include "game/script_compile.h"
 #include "game/egoboo.h"
@@ -3016,9 +3015,6 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 //--------------------------------------------------------------------------------------------
 bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
 {
-#if 0
-	int tnc;
-#endif
     int     local_index = 0;
     CHR_REF new_object;
     chr_t * pobject;

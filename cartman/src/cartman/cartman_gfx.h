@@ -35,10 +35,7 @@ struct s_Font;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-typedef struct camera_t camera_t;
-#if 0
-typedef struct s_camera camera_t;
-#endif
+struct camera_t;
 
 struct s_simple_vertex;
 typedef struct s_simple_vertex simple_vertex_t;

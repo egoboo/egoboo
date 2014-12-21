@@ -2416,11 +2416,7 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
 
     control_t * pcontrol = NULL;
     scantag_t * ptag     = NULL;
-
     int         cnt;
-#if 0
-    int         tag_idx  = -1;
-#endif
     size_t      max_tag  = 0;
     size_t      tag_count = 0;
 

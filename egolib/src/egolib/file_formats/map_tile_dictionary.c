@@ -168,10 +168,6 @@ tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict )
     const int   tile_pix_big = tile_pix_sml * 2;
     const float texture_offset = 0.5f;
 
-    Uint32 entry, cnt;
-#if 0
-	int fantype_offset;
-#endif
     int vertex_count;
     tile_definition_t * pdef_sml, * pdef_big;
 
@@ -179,13 +175,13 @@ tile_dictionary_t * tile_dictionary_finalize( tile_dictionary_t * pdict )
 
     // Correct all of them silly texture positions for seamless tiling
     size_t fantype_offset = pdict->offset;
-    for ( entry = 0; entry < fantype_offset; entry++ )
+    for ( Uint32 entry = 0; entry < fantype_offset; entry++ )
     {
         pdef_sml = pdict->def_lst + entry;
         pdef_big = pdict->def_lst + entry + fantype_offset;
 
         vertex_count = pdef_sml->numvertices;
-        for ( cnt = 0; cnt < vertex_count; cnt++ )
+        for ( Uint32 cnt = 0; cnt < vertex_count; cnt++ )
         {
             pdef_sml->u[cnt] = ( texture_offset + pdef_sml->u[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;
             pdef_sml->v[cnt] = ( texture_offset + pdef_sml->v[cnt] * ( tile_pix_sml - 2.0f * texture_offset ) ) / tile_pix_sml;

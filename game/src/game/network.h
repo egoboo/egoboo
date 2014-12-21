@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,8 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file game/network.h
+/// @file  game/network.h
 /// @brief Skeleton for Egoboo networking
+
+#pragma once
 
 #include "game/egoboo_typedef.h"
 

@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file game/client.c
+/// @file  game/client.c
 /// @brief This code is not currently in use.
 
 #include "game/network_client.h"

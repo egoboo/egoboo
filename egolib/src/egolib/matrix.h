@@ -21,10 +21,6 @@
 #pragma once
 
 #include "egolib/vec.h"
-#if 0
-#include "egolib/typedef.h"
-#include "egolib/_math.h"
-#endif
 
 typedef float  fmat_4x4_base_t[16];      ///< the basic 4x4 single precision floating point ("float")  matrix type
 #if 0

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,18 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/fileutil.h
-/// Read/write values from/to files
+/// @file  egolib/fileutil.h
+/// @brief read/write values from/to files
+
+#pragma once
 
 #include "egolib/typedef.h"
 
 #include "egolib/vfs.h"
 #include "egolib/file_common.h"
-
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
 
 //--------------------------------------------------------------------------------------------
 // TYPEDEFS
@@ -176,16 +171,3 @@ extern "C"
 
     void    GLSetup_SupportedFormats( void );
     Uint32  ego_texture_load_vfs( struct s_oglx_texture *texture, const char *filename, Uint32 key );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_fileutil_h

@@ -53,8 +53,7 @@
 #include "egolib/frustum.h"
 #include "game/network_server.h"
 #include "game/mad.h"
-#include "game/obj_BSP.h"
-#include "game/mesh_BSP.h"
+#include "game/bsp.h"
 #include "game/player.h"
 #include "game/collision.h"
 #include "game/script.h"
@@ -517,9 +516,6 @@ gfx_rv renderlist_lst_push( renderlist_lst_t * ary, Uint32 index, float distance
 
     if ( ary->count >= MAXMESHRENDER ) return gfx_fail;
 
-#if 0
-    if ( ary->count < 0 ) ary->count = 0;
-#endif
     ary->lst[ary->count].index    = index;
     ary->lst[ary->count].distance = distance;
 
@@ -564,9 +560,6 @@ gfx_rv renderlist_reset( renderlist_t * plst )
 
     ego_mesh_t * pmesh;
     ego_tile_info_t * tlist;
-#if 0
-    int cnt;
-#endif
     if ( NULL == plst )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
@@ -721,9 +714,6 @@ gfx_rv renderlist_attach_camera( renderlist_t * ptr, const camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst )
 {
-#if 0
-    int j;
-#endif
     size_t       colst_size, colst_top;
     BSP_leaf_t * pleaf;
     ego_mesh_t  * pmesh  = NULL;
@@ -810,9 +800,6 @@ gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcol
 //--------------------------------------------------------------------------------------------
 renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr )
 {
-#if 0
-    int cnt;
-#endif
     if ( NULL == ptr )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist array" );
@@ -836,9 +823,6 @@ renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr )
 //--------------------------------------------------------------------------------------------
 renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr )
 {
-#if 0
-    int cnt;
-#endif
     if ( NULL == ptr )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist array" );
@@ -931,9 +915,6 @@ int renderlist_mgr_get_free_idx( renderlist_mgr_t * pmgr )
 //--------------------------------------------------------------------------------------------
 gfx_rv renderlist_mgr_free_one( renderlist_mgr_t * pmgr, size_t index )
 {
-#if 0
-    size_t cnt;
-#endif
     gfx_rv retval = gfx_error;
 
     // renderlist manager started?
@@ -1169,9 +1150,6 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
 {
     BSP_leaf_t * pleaf;
     size_t colst_size, colst_top;
-#if 0
-    int j;
-#endif
     gfx_rv retval;
 
     if ( NULL == pdlist )
@@ -1480,9 +1458,6 @@ int dolist_mgr_get_free_idx( dolist_mgr_t * pmgr )
 //--------------------------------------------------------------------------------------------
 gfx_rv dolist_mgr_free_one( dolist_mgr_t * pmgr, size_t index )
 {
-#if 0
-    size_t cnt;
-#endif
     gfx_rv retval = gfx_error;
 
     // dolist manager started?
@@ -1668,17 +1643,11 @@ void gfx_system_end( void )
 void gfx_system_uninit_OpenGL(void)
 {
 	Egoboo_Renderer_OpenGL_uninitialize();
-#if 0
-	gfx_system_uninit_SDL_graphics();
-#endif
 }
 
 //--------------------------------------------------------------------------------------------
 int gfx_system_init_OpenGL(void)
 {
-#if 0
-	gfx_system_init_SDL_graphics();
-#endif
 	Egoboo_Renderer_OpenGL_initialize(); /* @todo Add error handling. */
 
     // GL_DEBUG(glClear)) stuff
@@ -2748,20 +2717,13 @@ float draw_status( const CHR_REF character, float x, float y )
 //--------------------------------------------------------------------------------------------
 void draw_all_status( void )
 {
-#if 0
-    int cnt, tnc;
-#endif
-    int y;
-    ego_frect_t screen;
-    ext_camera_list_t * pclst;
-
     if ( !StatusList.on ) return;
 
     // connect each status object with its camera
     status_list_update_cameras( &StatusList );
 
     // get the camera list
-    pclst = camera_system_get_list();
+    ext_camera_list_t *pclst = camera_system_get_list();
 
     for ( size_t cnt = 0; cnt < MAX_CAMERAS; cnt++ )
     {
@@ -2770,10 +2732,11 @@ void draw_all_status( void )
         if ( NULL == pext ) continue;
 
         // grab the screen
+		ego_frect_t screen;
         if ( !ext_camera_get_screen( pext, &screen ) ) continue;
 
         // draw all attached status
-        y = screen.ymin;
+        int y = screen.ymin;
         for ( size_t tnc = 0; tnc < StatusList.count; tnc++ )
         {
             status_list_element_t * pelem = StatusList.lst + tnc;
@@ -4861,9 +4824,6 @@ gfx_rv render_water( renderlist_t * prlist )
 {
     /// @author ZZ
     /// @details This function draws all of the water fans
-#if 0
-    int cnt;
-#endif
     gfx_rv retval;
 
     if ( NULL == prlist )
@@ -5763,9 +5723,6 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
     int numvertices;
     int ivrt, vertex;
     float light;
-#if 0
-    int    entry;
-#endif
     Uint32 fan;
 
     ego_tile_info_t   * ptile = NULL;
@@ -6099,9 +6056,6 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
     size_t cnt;
     Uint32 fan;
     int    tnc;
-#if 0
-	int entry;
-#endif
     int ix, iy;
     float x0, y0, local_keep;
     bool needs_dynalight;

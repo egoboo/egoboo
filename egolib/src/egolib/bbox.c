@@ -1058,9 +1058,6 @@ void points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_co
     /// @author BB
     /// @details convert the new point cloud into a level 1 bounding box using a fvec4_t
     ///               array as the source
-#if 0
-    Uint32 cnt, tnc;
-#endif
     oct_vec_t otmp;
     oct_vec_base_t pmins, pmaxs;
 

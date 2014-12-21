@@ -19,25 +19,19 @@
 
 /// @file egolib/bsp.h
 /// @details
+
 #pragma once
 
 #include "egolib/typedef.h"
 #include "egolib/frustum.h"
 #include "egolib/bv.h"
 
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
-
 //--------------------------------------------------------------------------------------------
 // external structs
 //--------------------------------------------------------------------------------------------
 
 	// Forward declaration.
-	typedef struct egolib_frustum_t egolib_frustum_t;
+	struct egolib_frustum_t;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -229,17 +223,6 @@ bool          BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_t
 bool          BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 bool          BSP_branch_add_all_children( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 
-#if 0
-/** @todo Remove this. */
-BSP_branch_t * BSP_branch_create( size_t dim );
-/** @todo Remove this. */
-bool           BSP_branch_destroy( BSP_branch_t ** ppbranch );
-/** @todo Remove this. */
-BSP_branch_t  *BSP_branch_create_ary( size_t ary_size, size_t dim );
-/** @todo Remove this. */
-bool           BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** ppbranch );
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
     struct s_BSP_tree
@@ -290,37 +273,3 @@ bool           BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** ppbranch
 
     size_t        BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
     size_t        BSP_tree_collide_frustum( const BSP_tree_t * tree, const egolib_frustum_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-
-#if 0
-/** @todo Remove this. */
-BSP_tree_t *BSP_tree_create( size_t count );
-/** @todo Remove this. */
-bool        BSP_tree_destroy( BSP_tree_t ** ptree );
-/** @todo Remove this. */
-bool        BSP_tree_init_0( BSP_tree_t * t );
-/** @todo Remove this. */
-BSP_tree_t *BSP_tree_init_1( BSP_tree_t * t, Sint32 dim, Sint32 depth );
-/** @todo Remove this. */
-bool        BSP_tree_insert( BSP_tree_t * t, BSP_branch_t * B, BSP_leaf_t * n, int index );
-/** @todo Remove this. */
-bool        BSP_tree_free_nodes( BSP_tree_t * t, bool recursive );
-/** @todo Remove this. */
-bool        BSP_tree_free_all( BSP_tree_t * t );
-/** @todo Remove this. */
-bool        BSP_tree_add_free( BSP_tree_t * t, BSP_branch_t * B );
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#if 0
-#define _egolib_bsp_h
-#endif

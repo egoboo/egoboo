@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,15 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/hash.h
+/// @file    egolib/hash.h
 /// @details Implementation of the "efficient" hash node storage.
 
-#include "egolib/typedef.h"
+#pragma once
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
+#include "egolib/typedef.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -100,16 +95,3 @@ extern "C"
     bool                 hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hlst );
     bool                 hash_list_iterator_done( hash_list_iterator_t * it, hash_list_t * hlst );
     bool                 hash_list_iterator_next( hash_list_iterator_t * it, hash_list_t * hlst );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define hash_h

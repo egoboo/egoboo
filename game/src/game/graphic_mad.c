@@ -932,9 +932,6 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
 	Egoboo_Renderer_OpenGL_multMatrix(&(pinst->matrix));
-#if 0
-    GL_DEBUG( glMultMatrixf )( pinst->matrix.v );
-#endif
 
     _draw_one_grip_raw( pinst, pmad, slot );
 

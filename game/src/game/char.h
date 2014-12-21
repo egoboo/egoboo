@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -23,6 +21,8 @@
 /// @note You will routinely include "char.h" only in headers (*.h) files where you need to declare an
 ///       object of team_t or chr_t. In *.inl files or *.c/*.cpp files you will routinely include "char.inl", instead.
 
+#pragma once
+
 #include "game/egoboo_typedef.h"
 
 #include "egolib/file_formats/cap_file.h"
@@ -45,7 +45,7 @@ struct s_eve;
 struct s_pip;
 struct s_object_profile;
 struct s_billboard_data_t;
-struct s_mesh_wall_data;
+struct mesh_wall_data_t;
 
 struct s_prt;
 
@@ -611,8 +611,8 @@ void keep_weapons_with_holders();
 void make_one_character_matrix( const CHR_REF cnt );
 void move_one_character_get_environment( chr_t * pchr );
 
-BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, struct s_mesh_wall_data * pdata );
-BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], struct s_mesh_wall_data * pdata );
+BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata );
+BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t * pdata );
 
 CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team, const int skin, const FACING_T facing, const char *name, const CHR_REF override );
 void    respawn_character( const CHR_REF character );

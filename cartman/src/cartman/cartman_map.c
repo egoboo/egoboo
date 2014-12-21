@@ -1321,9 +1321,6 @@ void tile_dict_lines_add( int fantype, int start, int end )
 //--------------------------------------------------------------------------------------------
 void cartman_tile_dictionary_load_vfs()
 {
-#if 0
-    int fantype;
-#endif
     tile_definition_t * pdef;
 
     tile_dictionary_load_vfs( "mp_data/fans.txt", &tile_dict, -1 );

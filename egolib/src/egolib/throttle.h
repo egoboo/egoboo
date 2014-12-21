@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,9 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/throttle.h
+/// @file  egolib/throttle.h
 /// @brief Definitions of a clock "class" using SDL_GetTicks()
 /// @details
+
+#pragma once
 
 #include "egolib/typedef.h"
 

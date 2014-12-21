@@ -28,6 +28,7 @@
 #include "egolib/extensions/SDL_extensions.h"
 
 #include "game/obj_BSP.h"
+#include "game/bsp.h"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
 

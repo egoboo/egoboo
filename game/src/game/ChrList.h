@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -20,7 +18,9 @@
 //********************************************************************************************
 
 /// @file ChrList.h
-/// @brief Routines for character list management
+/// @brief Routines for character list management.
+
+#pragma once
 
 #include "game/egoboo_typedef.h"
 

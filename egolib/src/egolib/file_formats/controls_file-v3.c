@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/file_formats/controls_file.c
-/// @brief Routines for reading and writing version 2 of "controls.txt"
-/// @details
+/// @file  egolib/file_formats/controls_file-v3.c
+/// @brief Routines for reading and writing version 3 of <tt>"controls.txt"</tt>.
 
 #include "egolib/file_formats/controls_file.h"
 #include "egolib/file_formats/controls_file-v3.h"
@@ -47,13 +46,6 @@ bool input_settings_load_vfs_3( const char* szFilename )
     /// @details This function reads the controls.txt file, version 3
 
     TAG_STRING currenttag = EMPTY_CSTR;
-#if 0
-    int iactual;
-#endif
-#if 0
-	int idevice;
-	int icontrol;
-#endif
     input_device_t * pdevice;
     vfs_FILE* fileread = NULL;
 

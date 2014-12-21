@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -24,19 +22,14 @@
 /// @details The frustum code was inspired by Ben Humphrey (DigiBen at http://www.gametutorials.com), who was inspired by
 ///          Mark Morely (through the now vanished tutorial at http://www.markmorley.com/opengl/frustumculling.html)
 
+#pragma once
+
 #include "egolib/typedef.h"
 #include "egolib/_math.h"
 #include "egolib/sphere.h"
 
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
-
 // Forward declaration.
-typedef struct aabb_t aabb_t;
+struct aabb_t;
 
 //--------------------------------------------------------------------------------------------
 // internal types
@@ -47,8 +40,6 @@ typedef struct aabb_t aabb_t;
 
     struct s_cube;
     typedef struct s_cube cube_t;
-
-
 
     struct s_cone;
     typedef struct s_cone cone_t;
@@ -165,17 +156,3 @@ typedef struct aabb_t aabb_t;
 
 /// find the point where 3 planes intersect
     bool three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define geometry_h

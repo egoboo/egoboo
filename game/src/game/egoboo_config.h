@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,7 @@
 
 /// @file game/egoboo_config.h
 /// @brief Compile switches
+#pragma once
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -32,29 +31,29 @@
 #define MAX_PRT             2048           ///< Maximum number of particles
 #define TOTAL_MAX_DYNA      64             ///< Maximum number of dynamic lights
 
-#define MAX_TEXTURE        (MAX_CHR * 4)     ///< Maximum number of textures
-#define MAX_ICON           (MAX_TEXTURE + 4) ///< Maximum number of icons
+#define MAX_TEXTURE         (MAX_CHR * 4)     ///< Maximum number of textures
+#define MAX_ICON            (MAX_TEXTURE + 4) ///< Maximum number of icons
 
 /// profile pre-allocations
-#define MAX_PROFILE         256          ///< Maximum number of object profiles
+#define MAX_PROFILE         256       ///< Maximum number of object profiles
 
 /// per-object pre-allocations
-#define MAX_WAVE             30        ///< Maximum number of *.wav/*.ogg per object
-#define MAX_PIP_PER_PROFILE  13        ///< Maximum number of part*.txt per object
+#define MAX_WAVE            30        ///< Maximum number of *.wav/*.ogg per object
+#define MAX_PIP_PER_PROFILE 13        ///< Maximum number of part*.txt per object
 #define MAX_PIP             (MAX_PROFILE * MAX_PIP_PER_PROFILE)
 
 // special values
-#define INVALID_CHR_IDX         MAX_CHR
-#define INVALID_ENC_IDX         MAX_ENC
-#define INVALID_PRT_IDX         MAX_PRT
-#define INVALID_PRO_IDX         MAX_PROFILE
-#define INVALID_PIP_IDX         MAX_PIP
+#define INVALID_CHR_IDX     MAX_CHR
+#define INVALID_ENC_IDX     MAX_ENC
+#define INVALID_PRT_IDX     MAX_PRT
+#define INVALID_PRO_IDX     MAX_PROFILE
+#define INVALID_PIP_IDX     MAX_PIP
 
-#define INVALID_CHR_REF         (( CHR_REF ) INVALID_CHR_IDX)
-#define INVALID_ENC_REF         (( ENC_REF ) INVALID_ENC_IDX)
-#define INVALID_PRT_REF         (( PRT_REF ) INVALID_PRT_IDX)
-#define INVALID_PRO_REF         (( PRO_REF ) INVALID_PRO_IDX)
-#define INVALID_PIP_REF         (( PIP_REF ) INVALID_PIP_IDX)
+#define INVALID_CHR_REF     (( CHR_REF ) INVALID_CHR_IDX)
+#define INVALID_ENC_REF     (( ENC_REF ) INVALID_ENC_IDX)
+#define INVALID_PRT_REF     (( PRT_REF ) INVALID_PRT_IDX)
+#define INVALID_PRO_REF     (( PRO_REF ) INVALID_PRO_IDX)
+#define INVALID_PIP_REF     (( PIP_REF ) INVALID_PIP_IDX)
 
 // Some macro switches
 #undef  OLD_CAMERA_MODE       ///< Use the old camera style
@@ -76,30 +75,28 @@
 
 #undef  DEBUG_OBJECT_SPAWN    ///< Log debug info for every object spawned
 
-#undef   DEBUG_PRT_LIST      ///< Track every single deletion from the PrtList to make sure the same element is not deleted twice. Prevents corruption of the PrtList.free_lst
-#undef   DEBUG_ENC_LIST      ///< Track every single deletion from the EncList to make sure the same element is not deleted twice. Prevents corruption of the EncList.free_lst
-#undef   DEBUG_CHR_LIST      ///< Track every single deletion from the ChrList to make sure the same element is not deleted twice. Prevents corruption of the ChrList.free_lst
+#undef   DEBUG_PRT_LIST       ///< Track every single deletion from the PrtList to make sure the same element is not deleted twice. Prevents corruption of the PrtList.free_lst
+#undef   DEBUG_ENC_LIST       ///< Track every single deletion from the EncList to make sure the same element is not deleted twice. Prevents corruption of the EncList.free_lst
+#undef   DEBUG_CHR_LIST       ///< Track every single deletion from the ChrList to make sure the same element is not deleted twice. Prevents corruption of the ChrList.free_lst
 
-#define CLIP_LIGHT_FANS      ///< is the light_fans() function going to be throttled?
-#undef  CLIP_ALL_LIGHT_FANS  ///< a switch for selecting how the fans will be updated
+#define CLIP_LIGHT_FANS       ///< is the light_fans() function going to be throttled?
+#undef  CLIP_ALL_LIGHT_FANS   ///< a switch for selecting how the fans will be updated
 
-#undef  DEBUG_WAYPOINTS      ///< display error messages when adding waypoints. It will also prevent "unsafe" waypoint being added to the waypoint list.
+#undef  DEBUG_WAYPOINTS       ///< display error messages when adding waypoints. It will also prevent "unsafe" waypoint being added to the waypoint list.
 
-#undef  DEBUG_ASTAR          ///< Debug AStar pathfinding
+#undef  DEBUG_ASTAR           ///< Debug AStar pathfinding
 
-#undef  DRAW_CHR_BBOX        ///< display selected character bounding boxes
-#undef  DRAW_PRT_BBOX        ///< display selected particle bounding boxes
-#define DRAW_LISTS          ///< display any lines or points that have been added to various lists
+#undef  DRAW_CHR_BBOX         ///< display selected character bounding boxes
+#undef  DRAW_PRT_BBOX         ///< display selected particle bounding boxes
+#define DRAW_LISTS            ///< display any lines or points that have been added to various lists
 
-#define MAD_CULL_RIGHT       ///< helps to define which faces are clipped when rendering character models
-#define MAP_CULL_RIGHT       ///< helps to define which faces are clipped when rendering the mesh
+#define MAD_CULL_RIGHT        ///< helps to define which faces are clipped when rendering character models
+#define MAP_CULL_RIGHT        ///< helps to define which faces are clipped when rendering the mesh
 
-#undef EGOBOO_THROTTLED     ///< are the inner loops of the game throttled?
+#undef EGOBOO_THROTTLED       ///< are the inner loops of the game throttled?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // do the includes last so that the compile switches are always set
 
 #include "egolib/egolib_config.h"
-
-#define EGOBOO_CONFIG_H

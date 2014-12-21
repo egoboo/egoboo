@@ -18,8 +18,7 @@
 //********************************************************************************************
 
 /// @file egolib/bv.h
-/// @brief convex bounding volumes consiting of spheres enclosing boxes
-#pragma once
+/// @brief Convex bounding volumes consiting of spheres enclosing boxes.
 
 #pragma once
 
@@ -27,15 +26,13 @@
 #include "egolib/aabb.h"
 
 // Forward declaration.
-typedef struct oct_bb_t oct_bb_t;
+struct oct_bb_t;
 
 /**
 * @brief
 *	A convex bounding volume consisting of a sphere enclosing a bounding box.
 */
-typedef struct s_bv_t bv_t;
-
-struct s_bv_t
+struct bv_t
 {
 	sphere_t sphere;
 	aabb_t data;

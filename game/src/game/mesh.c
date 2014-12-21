@@ -324,9 +324,6 @@ bool ego_mesh_remove_ambient( ego_mesh_t * pmesh )
 {
     /// @author BB
     /// @details remove extra ambient light in the lightmap
-#if 0
-    Uint32 cnt;
-#endif
     Uint8 min_vrt_a = 255;
 
     if ( NULL == pmesh ) return false;
@@ -347,9 +344,6 @@ bool ego_mesh_remove_ambient( ego_mesh_t * pmesh )
 //--------------------------------------------------------------------------------------------
 bool ego_mesh_recalc_twist( ego_mesh_t * pmesh )
 {
-#if 0
-    Uint32 fan;
-#endif
     ego_mesh_info_t * pinfo;
     tile_mem_t  * ptmem;
     grid_mem_t  * pgmem;

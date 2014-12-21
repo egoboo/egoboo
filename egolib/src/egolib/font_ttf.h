@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,16 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/font_ttf.h
+/// @file    egolib/font_ttf.h
 /// @details True-type font drawing functionality.  Uses the SDL_ttf module
-/// to do it's business. This depends on Freetype 2 & OpenGL.
+///          to do it's business. This depends on Freetype 2 & OpenGL.
+
+#pragma once
 
 #include "egolib/typedef.h"
-
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -69,16 +64,3 @@ extern "C"
 /// handle variable arguments
     extern int fnt_vprintf_SDL( TTF_Font *font, SDL_Color fnt_color, const char *format, va_list args, SDL_Surface ** ppTmpSurface );
     extern int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * tex_coords, const char *format, va_list args, SDL_Surface ** ppTmpSurface );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define egoboo_Font_h

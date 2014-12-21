@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,14 +19,9 @@
 
 /// @file egolib/file_common.h
 
-#include "egolib/typedef.h"
+#pragma once
 
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
+#include "egolib/typedef.h"
 
 //--------------------------------------------------------------------------------------------
 // TYPEDEFS
@@ -112,17 +105,3 @@ extern "C"
     void        fs_findClose( fs_find_context_t * fs_search );
 
     bool        fs_ensureUserFile( const char * relative_filename, bool required );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_file_common_h

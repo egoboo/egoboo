@@ -28,8 +28,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_ego_mesh;
-struct s_camera;
+struct ego_mesh_t;
 struct s_renderlist;
 
 //--------------------------------------------------------------------------------------------
@@ -47,10 +46,10 @@ struct s_renderlist;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void animate_all_tiles( struct s_ego_mesh * pmesh );
+void animate_all_tiles( ego_mesh_t * pmesh );
 
-gfx_rv render_fan( const struct s_ego_mesh * pmesh, const Uint32 fan );
-gfx_rv render_hmap_fan( const struct s_ego_mesh * pmesh, const Uint32 itile );
-gfx_rv render_water_fan( const struct s_ego_mesh * pmesh, const Uint32 fan, const Uint8 layer );
+gfx_rv render_fan( const ego_mesh_t *pmesh, const Uint32 fan );
+gfx_rv render_hmap_fan( const ego_mesh_t *pmesh, const Uint32 itile );
+gfx_rv render_water_fan( const ego_mesh_t *pmesh, const Uint32 fan, const Uint8 layer );
 
 void animate_tiles( void );

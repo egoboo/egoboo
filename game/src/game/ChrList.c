@@ -19,7 +19,6 @@
 
 /// @file game/ChrList.c
 /// @brief Implementation of the ChrList_* functions
-/// @details
 
 #include "game/ChrList.inl"
 
@@ -48,9 +47,9 @@ int chr_loop_depth = 0;
 // private ChrList_t functions
 //--------------------------------------------------------------------------------------------
 
-static void    ChrList_clear( void );
-static void    ChrList_init( void );
-static void    ChrList_deinit( void );
+static void ChrList_clear( void );
+static void ChrList_init( void );
+static void ChrList_deinit( void );
 
 static bool ChrList_add_free_ref( const CHR_REF ichr );
 static bool ChrList_remove_free_ref( const CHR_REF ichr );
@@ -59,8 +58,8 @@ static bool ChrList_remove_free_idx( const int index );
 static bool ChrList_remove_used_ref( const CHR_REF ichr );
 static bool ChrList_remove_used_idx( const int index );
 
-static void   ChrList_prune_used_list( void );
-static void   ChrList_prune_free_list( void );
+static void ChrList_prune_used_list( void );
+static void ChrList_prune_free_list( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -71,16 +70,13 @@ IMPLEMENT_LIST( chr_t, ChrList, MAX_CHR );
 //--------------------------------------------------------------------------------------------
 void ChrList_ctor( void )
 {
-    CHR_REF cnt;
-    chr_t * pchr;
-
     // initialize the list
     ChrList_init();
 
     // construct the sub-objects
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        pchr = ChrList.lst + cnt;
+        chr_t *pchr = ChrList.lst + cnt;
 
         // blank out all the data, including the obj_base data
         BLANK_STRUCT_PTR( pchr )
@@ -96,13 +92,10 @@ void ChrList_ctor( void )
 //--------------------------------------------------------------------------------------------
 void ChrList_dtor( void )
 {
-    CHR_REF cnt;
-    chr_t * pchr;
-
     // construct the sub-objects
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        pchr = ChrList.lst + cnt;
+        chr_t *pchr = ChrList.lst + cnt;
 
         // destruct the object
         chr_dtor( pchr );
@@ -118,12 +111,10 @@ void ChrList_dtor( void )
 //--------------------------------------------------------------------------------------------
 void ChrList_clear( void )
 {
-    CHR_REF cnt;
-
     // clear out the list
     ChrList.free_count = 0;
     ChrList.used_count = 0;
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         // blank out the list
         ChrList.free_ref[cnt] = INVALID_CHR_IDX;
@@ -138,12 +129,10 @@ void ChrList_clear( void )
 //--------------------------------------------------------------------------------------------
 void ChrList_init( void )
 {
-    int cnt;
-
     ChrList_clear();
 
     // place all the characters on the free list
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for ( size_t cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         CHR_REF ichr = ( MAX_CHR - 1 ) - cnt;
 
@@ -154,10 +143,8 @@ void ChrList_init( void )
 //--------------------------------------------------------------------------------------------
 void ChrList_deinit( void )
 {
-    CHR_REF cnt;
-
     // request that the sub-objects deconstruct themselves
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         chr_config_deconstruct( ChrList_get_ptr( cnt ), 100 );
     }
@@ -177,15 +164,11 @@ void ChrList_reinit( void )
 void ChrList_prune_used_list( void )
 {
     // prune the used list
-
-    size_t cnt;
-    CHR_REF ichr;
-
-    for ( cnt = 0; cnt < ChrList.used_count; cnt++ )
+    for ( size_t cnt = 0; cnt < ChrList.used_count; cnt++ )
     {
         bool removed = false;
 
-        ichr = ( CHR_REF )ChrList.used_ref[cnt];
+        CHR_REF ichr = ( CHR_REF )ChrList.used_ref[cnt];
 
         if ( !VALID_CHR_RANGE( ichr ) || !DEFINED_CHR( ichr ) )
         {
@@ -203,16 +186,11 @@ void ChrList_prune_used_list( void )
 void ChrList_prune_free_list( void )
 {
     // prune the free list
-#if 0
-    size_t cnt;
-#endif
-    CHR_REF ichr;
-
     for ( size_t cnt = 0; cnt < ChrList.free_count; cnt++ )
     {
         bool removed = false;
 
-        ichr = ( CHR_REF )ChrList.free_ref[cnt];
+        CHR_REF ichr = ( CHR_REF )ChrList.free_ref[cnt];
 
         if ( VALID_CHR_RANGE( ichr ) && INGAME_CHR_BASE( ichr ) )
         {
@@ -229,14 +207,11 @@ void ChrList_prune_free_list( void )
 //--------------------------------------------------------------------------------------------
 void ChrList_update_used( void )
 {
-    size_t cnt;
-    CHR_REF ichr;
-
     ChrList_prune_used_list();
     ChrList_prune_free_list();
 
     // go through the character list to see if there are any dangling characters
-    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
+    for ( CHR_REF ichr = 0; ichr < MAX_CHR; ichr++ )
     {
         if ( !ALLOCATED_CHR( ichr ) ) continue;
 
@@ -257,13 +232,13 @@ void ChrList_update_used( void )
     }
 
     // blank out the unused elements of the used list
-    for ( cnt = ChrList.used_count; cnt < MAX_CHR; cnt++ )
+    for ( size_t cnt = ChrList.used_count; cnt < MAX_CHR; cnt++ )
     {
         ChrList.used_ref[cnt] = INVALID_CHR_IDX;
     }
 
     // blank out the unused elements of the free list
-    for ( cnt = ChrList.free_count; cnt < MAX_CHR; cnt++ )
+    for ( size_t cnt = ChrList.free_count; cnt < MAX_CHR; cnt++ )
     {
         ChrList.free_ref[cnt] = INVALID_CHR_IDX;
     }
@@ -376,9 +351,7 @@ size_t ChrList_pop_free( const int idx )
 //--------------------------------------------------------------------------------------------
 void ChrList_free_all( void )
 {
-    CHR_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         ChrList_free_one( cnt );
     }
@@ -387,11 +360,11 @@ void ChrList_free_all( void )
 //--------------------------------------------------------------------------------------------
 int ChrList_find_free_ref( const CHR_REF ichr )
 {
-    int retval = -1, cnt;
+    int retval = -1;
 
     if ( !VALID_CHR_RANGE( ichr ) ) return retval;
 
-    for ( cnt = 0; cnt < ChrList.free_count; cnt++ )
+    for ( int cnt = 0; cnt < ChrList.free_count; cnt++ )
     {
         if ( ichr == ChrList.free_ref[cnt] )
         {
@@ -407,8 +380,6 @@ int ChrList_find_free_ref( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 bool ChrList_add_free_ref( const CHR_REF ichr )
 {
-    bool retval;
-
     if ( !VALID_CHR_RANGE( ichr ) ) return false;
 
 #if defined(_DEBUG) && defined(DEBUG_CHR_LIST)
@@ -420,7 +391,7 @@ bool ChrList_add_free_ref( const CHR_REF ichr )
 
     EGOBOO_ASSERT( !ChrList.lst[ichr].obj_base.in_free_list );
 
-    retval = false;
+    bool retval = false;
     if ( ChrList.free_count < MAX_CHR )
     {
         ChrList.free_ref[ChrList.free_count] = ichr;
@@ -475,11 +446,11 @@ int ChrList_find_used_ref( const CHR_REF ichr )
     /// @details if an object of index iobj exists on the used list, return the used list index
     ///     otherwise return -1
 
-    int retval = -1, cnt;
+    int retval = -1;
 
     if ( !VALID_CHR_RANGE( ichr ) ) return retval;
 
-    for ( cnt = 0; cnt < ChrList.used_count; cnt++ )
+    for ( int cnt = 0; cnt < ChrList.used_count; cnt++ )
     {
         if ( ichr == ChrList.used_ref[cnt] )
         {
@@ -527,12 +498,10 @@ bool ChrList_push_used( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 bool ChrList_remove_used_idx( const int index )
 {
-    CHR_REF ichr;
-
     // was it found?
     if ( index < 0 || index >= ChrList.used_count ) return false;
 
-    ichr = ( CHR_REF )ChrList.used_ref[index];
+    CHR_REF ichr = ( CHR_REF )ChrList.used_ref[index];
 
     // blank out the index in the list
     ChrList.used_ref[index] = INVALID_CHR_IDX;
@@ -632,9 +601,6 @@ CHR_REF ChrList_allocate( const CHR_REF override )
 //--------------------------------------------------------------------------------------------
 void ChrList_cleanup( void )
 {
-#if 0
-    int     cnt;
-#endif
     chr_t * pchr;
 
     // go through the list and activate all the characters that

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,6 +20,8 @@
 /// @file game/script_implementation.h
 /// @details turns script_functions.* into a bunch of stubs
 
+#pragma once
+
 #include "game/egoboo_typedef.h"
 
 #include "egolib/_math.h"
@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------
 
 struct s_chr;
-struct s_script_state;
+struct script_state_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
 /// @author ZZ
 /// @details This function appends a message to the end-module text
-Uint8 AddEndMessage( struct s_chr * pchr, const int message_index, struct s_script_state * pstate );
+Uint8 AddEndMessage( struct s_chr * pchr, const int message_index, script_state_t * pstate );
 
 /// @author ZZ
 /// @details This function finds the next tile in the passage, x0 and y0
@@ -240,4 +240,4 @@ bool FlashObject( struct s_chr * pchr, Uint8 value );
 
 /// @author ZZ
 /// @details This function sticks a message_offset in the display queue and sets its timer
-Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int message, struct s_script_state * pstate );
+Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int message, script_state_t * pstate );

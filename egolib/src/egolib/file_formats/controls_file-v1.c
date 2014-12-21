@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/file_formats/controls_file.c
-/// @brief Routines for reading and writing version 1 of "controls.txt"
-/// @details
+/// @file  egolib/file_formats/controls_file-v1.c
+/// @brief Routines for reading and writing version 1 of <tt>"controls.txt"</tt>.
 
 #include "egolib/file_formats/controls_file.h"
 #include "egolib/file_formats/controls_file-v1.h"

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,8 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/egolib_config.h
-/// @brief Compile switches
+/// @file  egolib/egolib_config.h
+/// @brief compilation time switches
+
+#pragma once
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -43,7 +43,3 @@
 // do the includes last so that the compile switches are always set
 #include "egolib/platform.h"
 #include "egolib/endian.h"
-
-//--------------------------------------------------------------------------------------------
-
-#define _egolib__config_h_

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -20,6 +18,8 @@
 //********************************************************************************************
 
 /// @file game/obj_BSP.h
+
+#pragma once
 
 #include "game/egoboo_typedef.h"
 
@@ -65,34 +65,3 @@ bool obj_BSP_free( obj_BSP_t * pbsp );
 
 int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/** @todo Remove this. */
-extern obj_BSP_t chr_BSP_root;
-/** @todo Remove this. */
-extern obj_BSP_t prt_BSP_root;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-void obj_BSP_system_begin( struct s_mpd_BSP * pBSP );
-void obj_BSP_system_end( void );
-
-bool chr_BSP_insert( struct s_chr * pchr );
-bool chr_BSP_fill( void );
-bool chr_BSP_clear( void );
-bool chr_BSP_can_collide( BSP_leaf_t * pleaf );
-bool chr_BSP_is_visible( BSP_leaf_t * pleaf );
-
-bool prt_BSP_insert( struct s_prt_bundle * pbdl_prt );
-bool prt_BSP_fill( void );
-bool prt_BSP_clear( void );
-bool prt_BSP_can_collide( BSP_leaf_t * pleaf );
-bool prt_BSP_is_visible( BSP_leaf_t * pleaf );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _obj_BSP_H

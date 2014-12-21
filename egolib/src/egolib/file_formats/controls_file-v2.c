@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/file_formats/controls_file.c
-/// @brief Routines for reading and writing version 2 of "controls.txt"
-/// @details
+/// @file  egolib/file_formats/controls_file-v2.c
+/// @brief Routines for reading and writing version 2 of <tt>"controls.txt"</tt>.
 
 #include "egolib/file_formats/controls_file.h"
 #include "egolib/file_formats/controls_file-v2.h"
@@ -42,9 +41,6 @@ bool input_settings_load_vfs_2( const char* szFilename )
 
     TAG_STRING currenttag = EMPTY_CSTR;
 	int idevice;
-#if 0
-	int icontrol;
-#endif
     input_device_t * pdevice;
     vfs_FILE* fileread = NULL;
 
@@ -62,12 +58,6 @@ bool input_settings_load_vfs_2( const char* szFilename )
     // Read input for each player
     for ( idevice = 0; idevice < MAX_LOCAL_PLAYERS; idevice++ )
     {
-#if 0
-        size_t count;
-#endif
-#if 0
-        int type;
-#endif
         pdevice = InputDevices.lst + idevice;
 
         // figure out how we move

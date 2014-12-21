@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -20,7 +18,9 @@
 //********************************************************************************************
 
 /// @file egolib/egolib.h
-/// @brief all-in-one header file
+/// @brief All-in-one header file.
+
+#pragma once
 
 #include "egolib/typedef.h"
 
@@ -76,21 +76,10 @@
 #include "egolib/file_formats/treasure_table_file.h"
 #include "egolib/file_formats/wawalite_file.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 #if defined(USE_LUA_CONSOLE)
-#   include "egolib/lua/lua_console.h"
+	#include "egolib/lua/lua_console.h"
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 //!!! watch this one. if you are using the Fluid Studios memory manager,
 //!!! this must be the absolute last include file.
 #include "egolib/mem.h"
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_h

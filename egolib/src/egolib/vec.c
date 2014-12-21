@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/vec.c
-/// @brief 2-,3- and 4-dimensional vectors
+/// @file  egolib/vec.c
+/// @brief 2-,3- and 4-dimensional vectors.
 #include "egolib/vec.h"
 #include "egolib/log.h"
 
@@ -243,10 +243,6 @@ float * fvec2_normalize(fvec2_base_t DST, const fvec2_base_t SRC)
 //--------------------------------------------------------------------------------------------
 bool  fvec2_self_normalize(fvec2_base_t A)
 {
-#if 0
-	float len2;
-	float inv_len;
-#endif
 	if (NULL == A) return false;
 
 	if (0.0f == fvec2_length_abs(A)) return false;
@@ -315,7 +311,9 @@ bool fvec3_self_clear(fvec3_base_t A)
 bool fvec3_self_is_clear(const fvec2_base_t A)
 {
 	if (NULL == A) return true;
-	return A[kX] == A[kY] == A[kZ] == 0.0f;
+	return 0.0f == A[kX]
+		&& 0.0f == A[kY]
+		&& 0.0f == A[kZ];
 }
 
 
@@ -600,9 +598,6 @@ float fvec3_self_normalize_to(fvec3_base_t vec, const float B)
 	}
 	else if (0.0f != fvec3_length_abs(vec))
 	{
-#if 0
-		float len2, inv_len;
-#endif
 		float len2 = vec[kX] * vec[kX] + vec[kY] * vec[kY] + vec[kZ] * vec[kZ];
 		len = std::abs(len2);
 		float inv_len = B / len;

@@ -17,9 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file egoboo_timer.c
-/// @brief Implementation of a timer "class" using SDL_GetTicks()
-/// @details
+/// @file egolib/timer.c
+/// @brief Implementation of a timer "class" using SDL_GetTicks().
 
 #include "egolib/timer.h"
 #include "egolib/_math.inl"

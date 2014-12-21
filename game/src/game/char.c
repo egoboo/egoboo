@@ -2017,9 +2017,6 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     const float const_info2_hrz = SQR( 3.0f * GRID_FSIZE );
     const float const_grab2_hrz = SQR( 1.0f * GRID_FSIZE );
     const float const_grab2_vrt = SQR( GRABSIZE );
-#if 0
-    int       cnt;
-#endif
     CHR_REF   ichr_b;
     slot_t    slot;
     oct_vec_t mids;

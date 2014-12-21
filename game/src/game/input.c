@@ -564,10 +564,8 @@ bool input_device_control_active( input_device_t *pdevice, CONTROL_BUTTON icontr
 
     bool retval = false;
     control_t *pcontrol;
-#if 0
-    int cnt, key_count;
-#endif
-    // make sure the idevice is valid
+
+	// make sure the idevice is valid
     if ( NULL == pdevice ) return false;
     pcontrol = pdevice->control_lst + icontrol;
 

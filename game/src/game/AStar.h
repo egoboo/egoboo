@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,17 +17,19 @@
 //*
 //********************************************************************************************
 
-/// @file AStar.h
+/// @file game/AStar.h
 /// @brief A* pathfinding.
-/// @details A very ugly implementation of the AStar pathfinding agorithm.
-///   There is lots of room for improvement.
+/// @details A very ugly implementation of the A* pathfinding agorithm.
+///          There is lots of room for improvement.
+#pragma once
 
 #include "game/egoboo_typedef.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-struct s_ego_mesh;
+// Forward declarations.
+struct ego_mesh_t;
 struct s_waypoint_list;
 
 //------------------------------------------------------------------------------
@@ -53,5 +53,5 @@ struct s_AStar_Node
 
 //------------------------------------------------------------------------------
 //Public functions
-bool AStar_find_path( struct s_ego_mesh *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy );
+bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy );
 bool AStar_get_path( const int pos_x, const int dst_y, struct s_waypoint_list *plst );

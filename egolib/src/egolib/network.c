@@ -17,10 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/network.c
-/// @brief Egoboo networking implementation
-/// @details Shuttles bits across the network, using Enet.  Networked play doesn't
-/// really work at the moment.
+/// @file    egolib/network.c
+/// @brief   Egoboo networking implementation.
+/// @details Shuttles bits across the network, using Enet.
+///          Networked play doesn't really work at the moment.
 
 #include "egolib/network.h"
 

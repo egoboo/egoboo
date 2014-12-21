@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,55 +17,38 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/timer.h
-/// @brief Definitions of a timer "class" using SDL_GetTicks()
-/// @details
+/// @file  egolib/timer.h
+/// @brief Definitions of a timer "class" using SDL_GetTicks().
+
+#pragma once
 
 #include "egolib/typedef.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_egolib_timer;
-    typedef struct s_egolib_timer egolib_timer_t;
+struct s_egolib_timer;
+typedef struct s_egolib_timer egolib_timer_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// SDL_GetTicks() always returns milli-seconds
-#define TICKS_PER_SEC                   1000.0f
+#define TICKS_PER_SEC 1000.0f
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// a method for throttling processes using SDL_GetTicks()
-    struct s_egolib_timer
-    {
-        bool    free_running;
+struct s_egolib_timer
+{
+    bool    free_running;
 
-        int     ticks_lst;
-        int     ticks_now;
-        int     ticks_next;
-        int     ticks_diff;
-    };
+    int     ticks_lst;
+    int     ticks_now;
+    int     ticks_next;
+    int     ticks_diff;
+};
 
-    egolib_timer_t * egolib_timer__init( egolib_timer_t * );
-	bool egolib_timer__throttle(egolib_timer_t * timer, float rate);
-	bool egolib_timer__reset(egolib_timer_t * timer, int ticks, float rate);
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_timer_h
+egolib_timer_t * egolib_timer__init(egolib_timer_t *);
+bool egolib_timer__throttle(egolib_timer_t * timer, float rate);
+bool egolib_timer__reset(egolib_timer_t * timer, int ticks, float rate);

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file game/PrtList.h
 /// @brief Routines for particle list management
+
+#pragma once
 
 #include "game/egoboo_typedef.h"
 

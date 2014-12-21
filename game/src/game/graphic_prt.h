@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------
 
 // Forward declaration.
-typedef struct camera_t camera_t;
+struct camera_t;
 struct s_prt;
 struct s_prt_bundle;
 

@@ -16,20 +16,15 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-#pragma once
-/// @file egolib/clock.h
-/// @brief Clock & timer functionality.
+
+/// @file    egolib/clock.h
+/// @brief   clock & timer functionality
 /// @details This implementation was adapted from Noel Lopis' article in
-///   Game Programming Gems 4.
+///          Game Programming Gems 4.
+
+#pragma once
 
 #include "egolib/typedef.h"
-
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
 
 //--------------------------------------------------------------------------------------------
 // TYPEDEFS
@@ -134,17 +129,3 @@ float    clk_getFrameRate( ClockState_t * cs );       ///< Return the current in
     void clk_init( void );                                 ///< Init the clock module
     void clk_shutdown( void );                             ///< Shut down the clock module
     void clk_setTimeSource( clock_source_ptr_t tsrc );   ///< Specify where the clock gets its time values from
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_clock_h

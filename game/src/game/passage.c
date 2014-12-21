@@ -484,15 +484,15 @@ void add_passage( passage_t * pdata )
     if ( ipass >= MAX_PASS ) return;
     ppass = PassageStack_get_ptr( ipass );
 
-    ppass->area.left      = CLIP( pdata->area.left, 0, PMesh->info.tiles_x - 1 );
-    ppass->area.top      = CLIP( pdata->area.top, 0, PMesh->info.tiles_y - 1 );
+    ppass->area.left    = CLIP( pdata->area.left, 0, PMesh->info.tiles_x - 1 );
+    ppass->area.top     = CLIP( pdata->area.top, 0, PMesh->info.tiles_y - 1 );
 
-    ppass->area.right  = CLIP( pdata->area.right, 0, PMesh->info.tiles_x - 1 );
+    ppass->area.right   = CLIP( pdata->area.right, 0, PMesh->info.tiles_x - 1 );
     ppass->area.bottom  = CLIP( pdata->area.bottom, 0, PMesh->info.tiles_y - 1 );
 
-    ppass->mask          = pdata->mask;
-    ppass->music         = pdata->music;
-    ppass->open          = true;
+    ppass->mask         = pdata->mask;
+    ppass->music        = pdata->music;
+    ppass->open         = true;
 
     // Is it closed? (default is open)
     if ( !pdata->open )

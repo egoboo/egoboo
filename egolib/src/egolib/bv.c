@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file egolib/bv.c
-/// @brief convex bounding volumes consiting of spheres enclosing boxes
+/// @brief Convex bounding volumes consiting of spheres enclosing boxes.
 #include "egolib/bv.h"
 
 #include "egolib/bbox.h"
@@ -31,9 +31,6 @@ bv_t *bv_ctor(bv_t *self)
 
 	sphere_ctor(&(self->sphere));
 	aabb_ctor(&(self->data));
-#if 0
-	bv_self_clear(self);
-#endif
 	return self;
 }
 

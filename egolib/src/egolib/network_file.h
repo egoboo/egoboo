@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,8 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/network_file.h
-/// @brief file transfer protocol
+/// @file  egolib/network_file.h
+/// @brief File transfer protocol.
+
+#pragma once
 
 #include "egolib/typedef.h"
 

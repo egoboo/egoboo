@@ -37,7 +37,7 @@
 
 // Forward declarations.
 struct s_chr;
-typedef struct camera_t camera_t;
+struct camera_t;
 struct s_egoboo_config;
 struct s_chr_instance;
 struct s_oglx_texture_parameters;

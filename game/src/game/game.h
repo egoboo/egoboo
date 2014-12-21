@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file game.h
 
+#pragma once
+
 #include "game/egoboo_typedef.h"
 
 #include "egolib/_math.h"
@@ -34,9 +34,10 @@
 // forward declaration of external structs
 //--------------------------------------------------------------------------------------------
 
-struct s_ego_mesh;
-typedef struct camera_t camera_t;
-struct s_script_state;
+// Forward declarations.
+struct ego_mesh_t;
+struct camera_t;
+struct script_state_t;
 struct s_mod_file;
 
 struct s_wawalite_animtile;
@@ -417,7 +418,7 @@ bool status_list_update_cameras( status_list_t * plst );
 
 // various global pointers
 extern game_process_t  *GProc;
-extern struct s_ego_mesh *PMesh;
+extern ego_mesh_t *PMesh;
 extern camera_t *PCamera;
 extern struct s_game_module * PMod;
 
@@ -502,16 +503,16 @@ CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing, const PIP_REF ipip, 
 void  free_all_objects( void );
 
 /// Data
-struct s_ego_mesh * set_PMesh( struct s_ego_mesh * pmpd );
+ego_mesh_t *set_PMesh( ego_mesh_t * pmpd );
 camera_t  *set_PCamera( camera_t * pcam );
 
-float get_mesh_level( struct s_ego_mesh * pmesh, float x, float y, bool waterwalk );
+float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk );
 
 bool game_choose_module( int imod, int seed );
 
 int    game_do_menu( struct s_menu_process * mproc );
 
-void expand_escape_codes( const CHR_REF ichr, struct s_script_state * pstate, char * src, char * src_end, char * dst, char * dst_end );
+void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
 void attach_all_particles( void );
 
@@ -526,7 +527,7 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
 bool get_chr_regeneration( struct s_chr * pchr, int *pliferegen, int * pmanaregen );
 
-float get_chr_level( struct s_ego_mesh * pmesh, struct s_chr * pchr );
+float get_chr_level( ego_mesh_t * pmesh, struct s_chr * pchr );
 
 void disenchant_character( const CHR_REF ichr );
 

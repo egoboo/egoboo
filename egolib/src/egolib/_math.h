@@ -16,29 +16,16 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
 /// @file egolib/_math.h
 /// @details The name's pretty self explanatory, doncha think?
+
 #pragma once
 
 #include "egolib/typedef.h"
 
 #if !defined(ABS)
 	#define ABS(x) std::abs(x)
-#endif
-
-#if 0
-#if !defined(MIN)
-	#define MIN(x,y) std::min((x),(y)) 
-	#if 0
-		#define MIN(x, y)  LAMBDA((x) > (y), y, x )
-	#endif
-#endif
-#endif
-
-#if 0
-#if !defined(SQRT)
-	#define SQRT(A) ((float)sqrt((float)(A)))
-#endif
 #endif
 
 /**
@@ -57,12 +44,6 @@ template<typename T> const T& CLIP(const T& _value, const T& _minimum, const T& 
 {
 	return std::min(std::max(_value, _minimum), _maximum);
 }
-
-#if 0
-#if !defined(CLIP)
-	#define CLIP(VAL,VMIN,VMAX) std::min(std::max(VAL,VMIN),VMAX)
-#endif
-#endif
 
 //--------------------------------------------------------------------------------------------
 // IEEE 32-BIT FLOATING POINT NUMBER FUNCTIONS
@@ -319,4 +300,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #define _egolib_math_h
+#endif

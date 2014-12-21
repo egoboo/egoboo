@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -20,18 +18,13 @@
 //********************************************************************************************
 
 /// @file egolib/file_formats/quest_file.h
-/// @brief read/write/modify the quest.txt file
+/// @brief read/write/modify the <tt>quest.txt</tt> file
+
+#pragma once
 
 #include "egolib/typedef.h"
 
 #include "egolib/file_formats/configfile.h"
-
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -56,30 +49,16 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 // Public functions
-    egolib_rv quest_log_download_vfs( struct s_IDSZ_node * quest_log, size_t quest_log_len, const char* player_directory );
-    egolib_rv quest_log_upload_vfs( struct s_IDSZ_node * quest_log, size_t quest_log_len, const char *player_directory );
-    int       quest_log_set_level( struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz, int level );
-    int       quest_log_adjust_level( struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz, int adjustment );
-    int       quest_log_get_level( struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz );
-    egolib_rv quest_log_add( struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz, int level );
+	egolib_rv quest_log_download_vfs(struct s_IDSZ_node * quest_log, size_t quest_log_len, const char* player_directory);
+	egolib_rv quest_log_upload_vfs(struct s_IDSZ_node * quest_log, size_t quest_log_len, const char *player_directory);
+	int       quest_log_set_level(struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz, int level);
+	int       quest_log_adjust_level(struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz, int adjustment);
+	int       quest_log_get_level(struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz);
+	egolib_rv quest_log_add(struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz, int level);
 
-    ConfigFilePtr_t quest_file_open( const char *player_directory );
-    egolib_rv       quest_file_export( ConfigFilePtr_t pfile );
-    egolib_rv       quest_file_close( ConfigFilePtr_t * ppfile, bool do_export );
-    egolib_rv       quest_file_set_level( ConfigFilePtr_t ppfile, IDSZ idsz, int level );
-    egolib_rv       quest_file_adjust_level( ConfigFilePtr_t ppfile, IDSZ idsz, int adjustment );
-    egolib_rv       quest_file_get_level( ConfigFilePtr_t ppfile, IDSZ idsz );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _file_formats_quest_fille_h
+	ConfigFilePtr_t quest_file_open(const char *player_directory);
+	egolib_rv       quest_file_export(ConfigFilePtr_t pfile);
+	egolib_rv       quest_file_close(ConfigFilePtr_t * ppfile, bool do_export);
+	egolib_rv       quest_file_set_level(ConfigFilePtr_t ppfile, IDSZ idsz, int level);
+	egolib_rv       quest_file_adjust_level(ConfigFilePtr_t ppfile, IDSZ idsz, int adjustment);
+	egolib_rv       quest_file_get_level(ConfigFilePtr_t ppfile, IDSZ idsz);

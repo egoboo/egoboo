@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,17 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/console.h
-/// @A quake-console that can be used for anything.
+/// @file  egolib/console.h
+/// @brief A quake-style console that can be used for anything.
+
+#pragma once
 
 #include "egolib/typedef.h"
-
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
 
 //--------------------------------------------------------------------------------------------
 // TYPEDEFS
@@ -61,17 +54,3 @@ extern "C"
     void        egolib_console_draw_all( void );
 
     SDL_Event * egolib_console_handle_events( SDL_Event * evt );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_console_h

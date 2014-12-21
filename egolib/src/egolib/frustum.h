@@ -16,8 +16,10 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
 /// @file egolib/frustum.h
 /// @brief integrating the basic frustum object into Egoboo algorithms
+
 #pragma once
 
 #include "egolib/geometry.h"
@@ -25,67 +27,32 @@
 #include "egolib/aabb.h"
 #include "egolib/bv.h"
 
-#if 0
-#if defined(__cplusplus)
-extern "C"
+// Forward declaration.
+struct s_oct_bb;
+
+/**
+ * @brief
+ *	A view frustum.
+ */
+struct egolib_frustum_t
 {
-#endif
-#endif
+    // basic frustum data
+    frustum_base_t data;
 
-//--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
-
-    struct s_oct_bb;
-
-//--------------------------------------------------------------------------------------------
-// internal structs
-//--------------------------------------------------------------------------------------------
-
-
-#if 0
-    struct s_egolib_frustum;
-#endif
-    typedef struct egolib_frustum_t egolib_frustum_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-
-
-//--------------------------------------------------------------------------------------------
-    struct egolib_frustum_t
-    {
-        // basic frustum data
-        frustum_base_t data;
-
-        // data for intersection optimization
-        fvec3_t   origin;
-        sphere_t  sphere;
-        cone_t    cone;
-    };
+    // data for intersection optimization
+    fvec3_t   origin;
+    sphere_t  sphere;
+    cone_t    cone;
+};
 
 /// Call this every time the camera moves to update the frustum
-    egolib_rv egolib_frustum_calculate( egolib_frustum_t * pfrust, const float proj[], const float modl[] );
+egolib_rv egolib_frustum_calculate(egolib_frustum_t * pfrust, const float proj[], const float modl[]);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// Call this every time the camera moves to update the frustum
-    geometry_rv egolib_frustum_intersects_bv( const egolib_frustum_t * pfrust, const bv_t * paabb );
+geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t * pfrust, const bv_t * paabb);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#define _egolib_frustum_h
-#endif

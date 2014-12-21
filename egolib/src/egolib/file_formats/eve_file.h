@@ -19,17 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/file_formats/eve_file.h
-/// @details data and functions for reading and writing enchant.txt files
+/// @file  egolib/file_formats/eve_file.h
+/// @brief Data and functions to read and write Egoboo's enchant definition files (<tt>"/modules/*.mod/objects/*.obj/enchant.txt"</tt>).
 
 #include "egolib/typedef.h"
-
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -199,17 +192,3 @@ extern "C"
 	bool   save_one_enchant_file_vfs(const char* szLoadName, const char * szTemplateName, eve_t * peve);
 
     eve_t *eve_init( eve_t * peve );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _file_formats_eve_file_h

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,19 +17,17 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/egolib_typedef.h
-/// @details some basic types that are used throughout the game code.
+/// @file    egolib/egolib_typedef.h
+/// @brief   Basic types used throughout the code.
+/// @details Some basic types that are used throughout the game code.
+
+#pragma once
 
 // this include must be the absolute last include
 #include "egolib/egolib_config.h"
 
 // this include must be the absolute last include
 #include "egolib/mem.h"
-
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -86,22 +82,6 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 // BOOLEAN
-
-#if 0
-/** @todo Remove this, use @a true. */
-#define C_TRUE true
-/** @todo Remove this, use @a false. */
-#define C_FALSE false
-/** @todo Remove this, use @a bool. */
-#define C_BOOLEAN bool
-#endif
-
-/** @todo Remove this, use @a true.*/
-#define ego_true  true
-/** @todo Remove this, use @a false. */
-#define ego_false false
-/** @todo Remove this, use @a bool. */
-#define ego_bool  bool
 
 #if !defined(TO_EGO_BOOL)
 	#if defined(__cplusplus)
@@ -218,24 +198,6 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 // RECTANGLE
-#if 0
-	template <T> struct s_rect
-	{
-		T left,
-	      right,
-		  top,
-		  bottom;
-	};
-	template <T> C_BOOLEAN rect_point_inside(const struct s_rect<T> *rect, T x, T y)
-	{
-		EGOBOO_ASSERT(NULL != rect);
-
-		if (x < r->left || x > r->right)  return false;
-		if (y < r->top  || y > r->bottom) return false;
-
-		return true;
-	}
-#endif
     struct s_irect
     {
         int left;
@@ -561,12 +523,3 @@ extern "C"
 #   define _DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
 #   define _INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
 #   define _INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
-
-#if defined(__cplusplus)
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_typedef_h

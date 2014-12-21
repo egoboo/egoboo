@@ -42,11 +42,6 @@ int DisplayMsg_timechange = 0;
 int DisplayMsg_count = EGO_MESSAGE_MAX;
 bool DisplayMsg_on = true;
 
-#if 0
-const GLXvector4f white_vec = {1.0f, 1.0f, 1.0f, 1.0f};
-const GLXvector4f black_vec = {0.0f, 0.0f, 0.0f, 1.0f};
-#endif
-
 //--------------------------------------------------------------------------------------------
 // PRIVATE FUNCTIONS
 //--------------------------------------------------------------------------------------------

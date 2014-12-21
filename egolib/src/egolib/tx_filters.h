@@ -16,13 +16,18 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
+// @file  egolib/tx_filters.h
+// @brief enumeration of texture filtering methods
+
 #pragma once
 
 /**
  * @brief
  *	An enumeration of texture filtering methods.
  */
-typedef enum e_tx_filters {
+typedef enum e_tx_filters
+{
 	
 	TX_UNFILTERED,
     
@@ -41,3 +46,6 @@ typedef enum e_tx_filters {
 	TX_FILTER_COUNT,
 
 } e_tx_filters;
+
+/** @todo Remove this alias. */
+typedef enum e_tx_filters TX_FILTERS;

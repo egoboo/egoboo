@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file game/script.h
 
+#pragma once
+
 #include "game/egoboo_typedef.h"
 
 #include "game/script_implementation.h"
@@ -30,14 +30,9 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_script_info;
-typedef struct s_script_info script_info_t;
-
-struct s_ai_state;
-typedef struct s_ai_state ai_state_t;
-
-struct s_script_state;
-typedef struct s_script_state script_state_t;
+struct script_info_t;
+struct ai_state_t;
+struct script_state_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -121,9 +116,9 @@ enum chr_alert_bits
 #endif
 
 //--------------------------------------------------------------------------------------------
-// struct s_script_info
+// struct script_info_t
 //--------------------------------------------------------------------------------------------
-struct s_script_info
+struct script_info_t
 {
     STRING          name;                            // Name of the script file
 
@@ -137,11 +132,11 @@ struct s_script_info
 };
 
 //--------------------------------------------------------------------------------------------
-// struct s_ai_state
+// struct ai_state_t
 //--------------------------------------------------------------------------------------------
 
 /// the state variables for a script / AI
-struct s_ai_state
+struct ai_state_t
 {
     // some script states
     Sint32         poof_time;
@@ -188,23 +183,23 @@ struct s_ai_state
     PROFILE_DECLARE_STRUCT;
 };
 
-ai_state_t * ai_state_ctor( ai_state_t * pself );
-ai_state_t * ai_state_dtor( ai_state_t * pself );
-ai_state_t * ai_state_reconstruct( ai_state_t * pself );
-bool       ai_state_set_bumplast( ai_state_t * pself, const CHR_REF  ichr );
-bool       ai_state_get_wp( ai_state_t * pself );
-bool       ai_state_ensure_wp( ai_state_t * pself );
-bool       ai_add_order( ai_state_t * pai, Uint32 value, Uint16 counter );
-bool       ai_state_set_changed( ai_state_t * pai );
-void         ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank );
+ai_state_t *ai_state_ctor(ai_state_t * pself);
+ai_state_t *ai_state_dtor(ai_state_t * pself);
+ai_state_t *ai_state_reconstruct(ai_state_t * pself);
+bool        ai_state_set_bumplast(ai_state_t * pself, const CHR_REF  ichr);
+bool        ai_state_get_wp(ai_state_t * pself);
+bool        ai_state_ensure_wp(ai_state_t * pself);
+bool        ai_add_order(ai_state_t * pai, Uint32 value, Uint16 counter);
+bool        ai_state_set_changed(ai_state_t * pai);
+void        ai_state_spawn(ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank);
 
 //--------------------------------------------------------------------------------------------
-// struct s_script_state
+// struct script_state_t
 //--------------------------------------------------------------------------------------------
 
 /// The state of the scripting system
-/// @delails It is not persistent between one evaluation of a script and another
-struct s_script_state
+/// @details It is not persistent between one evaluation of a script and another
+struct script_state_t
 {
     int     x;
     int     y;

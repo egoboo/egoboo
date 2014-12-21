@@ -18,8 +18,7 @@
 //********************************************************************************************
 
 /// @file game/map_BSP.c
-/// @brief Implementation of functions for the mpd BSP
-/// @details
+/// @brief BSPs for meshes
 
 #include "game/mesh_BSP.h"
 
@@ -32,66 +31,7 @@
 #include "game/mesh.inl"
 #include "egolib/bsp.inl"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static bool _mpd_BSP_system_initialized = false;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-mesh_BSP_t mesh_BSP_root = MAP_BSP_INIT;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static bool mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool mesh_BSP_system_started( void )
-{
-    return _mpd_BSP_system_initialized;
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv mesh_BSP_system_begin( ego_mesh_t * pmpd )
-{
-    // if he system is already started, do a reboot
-    if ( _mpd_BSP_system_initialized )
-    {
-        if ( rv_error == mesh_BSP_system_end() )
-        {
-            return rv_error;
-        }
-    }
-
-    // start the system using the given mesh
-    if ( NULL != pmpd )
-    {
-        mesh_BSP_t * rv;
-
-        // initialize the mesh's BSP structure with the mesh tiles
-        rv = mesh_BSP_ctor( &mesh_BSP_root, pmpd );
-
-        _mpd_BSP_system_initialized = ( NULL != rv );
-    }
-
-    return _mpd_BSP_system_initialized ? rv_success : rv_fail;
-}
-
-//--------------------------------------------------------------------------------------------
-egolib_rv  mesh_BSP_system_end( void )
-{
-    if ( _mpd_BSP_system_initialized )
-    {
-        mesh_BSP_dtor( &mesh_BSP_root );
-    }
-
-    _mpd_BSP_system_initialized = false;
-
-    return rv_success;
-}
+static bool  mesh_BSP_insert(mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -242,7 +182,7 @@ int mesh_BSP_collide_frustum( const mesh_BSP_t * pbsp, const egolib_frustum_t * 
 }
 
 //--------------------------------------------------------------------------------------------
-bool mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
+static bool mesh_BSP_insert( mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index )
 {
     /// @author BB
     /// @details insert a tile's BSP_leaf_t into the BSP_tree_t

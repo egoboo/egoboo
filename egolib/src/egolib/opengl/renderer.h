@@ -25,10 +25,6 @@
 #include "egolib/extensions/ogl_texture.h"
 #include "egolib/_math.h"
 #include "egolib/matrix.h"
-#if 0
-#include "game/egoboo_typedef.h"
-#include "egolib/extensions/ogl_texture.h"
-#endif
 
 /**
  * @ingroup egoboo-opengl

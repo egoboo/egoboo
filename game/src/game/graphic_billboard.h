@@ -34,7 +34,7 @@
 
 // Forward declarations.
 struct s_Font;
-typedef struct camera_t camera_t;
+struct camera_t;
 
 //--------------------------------------------------------------------------------------------
 // internal structs

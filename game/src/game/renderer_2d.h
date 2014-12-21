@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,12 +20,9 @@
 /// @file game/renderer_2d.h
 /// @brief Routines for rendering 2d primitves
 
+#pragma once
+
 #include "egolib/opengl/renderer.h"
-#if 0
-#include "game/egoboo_typedef.h"
-#include "egolib/extensions/ogl_include.h"
-#include "egolib/extensions/ogl_texture.h"
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -78,14 +73,6 @@ extern float DisplayMsg_draw_all(float y);
 extern int  DisplayMsg_timechange;     ///< how much time has elapsed for messages
 extern int  DisplayMsg_count;          ///< maximum number of displayed messages
 extern bool DisplayMsg_on;             ///< Messages?
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if 0
-extern const GLXvector4f white_vec;
-extern const GLXvector4f black_vec;
-#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

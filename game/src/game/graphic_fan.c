@@ -538,9 +538,6 @@ void animate_tiles( void )
 {
     /// @author ZZ
     /// @details This function changes the animated tile frame
-#if 0
-    int cnt, tnc;
-#endif
     animtile_instance_t * patile;
 
     for ( size_t cnt = 0; cnt < 2; cnt ++ )

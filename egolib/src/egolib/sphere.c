@@ -17,21 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/sphere.c
-/// @brief spheres
+/// @file  egolib/sphere.c
+/// @brief Spheres.
 #include "egolib/sphere.h"
 
 sphere_t *sphere_ctor(sphere_t *self)
 {
-#if 0
-	EGOBOO_ASSERT(nullptr != self);
-#endif
 	if (nullptr == self) return self;
 	self->radius = -1.0f;
 	fvec3_ctor(self->origin.v);
-#if 0
-	if (nullptr == self) return self;
-#endif
 	return self;
 }
 
