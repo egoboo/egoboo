@@ -1084,14 +1084,14 @@ cartman_mpd_t * cartman_mpd_convert( cartman_mpd_t * pmesh_dst, map_t * pmesh_sr
         pdef = TILE_DICT_PTR( tile_dict, pfan_dst->type );
         if ( NULL == pdef )
         {
-            log_warning( "%s - invalid fan type in fan # %d %d\n", __FUNCTION__, ifan_dst );
+            log_warning( "%s - invalid fan type in fan # %d\n", __FUNCTION__, ifan_dst );
             goto cartman_mpd_convert_fail;
         }
 
         // get an appropriate number of vertices from the tile definition
         if ( 0 == pdef->numvertices )
         {
-            log_warning( "%s - undefined fan type %d in fan # %d %d\n", __FUNCTION__, pfan_dst->type, ifan_dst );
+            log_warning( "%s - undefined fan type %d in fan # %d\n", __FUNCTION__, pfan_dst->type, ifan_dst );
             vert_count = 4;
         }
         else
@@ -1102,7 +1102,7 @@ cartman_mpd_t * cartman_mpd_convert( cartman_mpd_t * pmesh_dst, map_t * pmesh_sr
         // check for valid vertex count
         if ( vert_count > MAP_FAN_VERTICES_MAX )
         {
-            log_warning( "%s - too many vertices in fan type %d in fan # %d %d\n", __FUNCTION__, pfan_dst->type, ifan_dst );
+            log_warning( "%s - too many vertices in fan type %d in fan # %d\n", __FUNCTION__, pfan_dst->type, ifan_dst );
             goto cartman_mpd_convert_fail;
         }
 
@@ -1241,7 +1241,7 @@ map_t * cartman_mpd_revert( map_t * pmesh_dst, cartman_mpd_t * pmesh_src )
         // is the initial vertex valid?
         if ( !CART_VALID_VERTEX_RANGE( pfan_src->vrtstart ) )
         {
-            log_warning( "%s - vertex %d is outside of valid vertex range\n", __FUNCTION__, pfan_src->vrtstart, MAP_VERTICES_MAX );
+            log_warning( "%s - vertex %d is outside of valid vertex range\n", __FUNCTION__, pfan_src->vrtstart );
             goto cartman_mpd_revert_fail;
         }
 

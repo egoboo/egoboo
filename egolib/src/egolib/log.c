@@ -144,15 +144,17 @@ void log_warning( const char *format, ... )
 //--------------------------------------------------------------------------------------------
 void log_error( const char *format, ... )
 {
-    va_list args;
+    va_list args, args2;
 
     va_start( args, format );
+    va_copy( args2, args );
     writeLogMessage( "FATAL ERROR: ", format, args );
 
     // Windows users get a proper error message popup box
-    sys_popup( "Egoboo: Fatal Error", "Egoboo has encountered a problem and is exiting. \nThis is the error report: \n", format, args );
+    sys_popup( "Egoboo: Fatal Error", "Egoboo has encountered a problem and is exiting. \nThis is the error report: \n", format, args2 );
 
     va_end( args );
+    va_end( args2 );
 
     fflush( logFile );
     exit( -1 );

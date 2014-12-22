@@ -2631,7 +2631,7 @@ float draw_character_xp_bar( const CHR_REF character, float x, float y )
         Uint32 xplastlevel = pcap->experience_forlevel[curlevel-1];
         Uint32 xpneed      = pcap->experience_forlevel[curlevel];
         
-        while (pchr->experience <= xplastlevel && curlevel > 0) {
+        while (pchr->experience < xplastlevel && curlevel > 1) {
             curlevel--;
             xplastlevel = pcap->experience_forlevel[curlevel-1];
         }
