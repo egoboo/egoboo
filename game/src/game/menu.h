@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,13 +20,9 @@
 /// @file game/menu.h
 /// @details Implements the main menu tree, using the code in Ui.*.
 
-#include "game/egoboo_typedef.h"
+#pragma once
 
-#include "egolib/IDSZ_map.h"
-#include "egolib/process.h"
-#include "egolib/timer.h"
-#include "egolib/extensions/ogl_texture.h"
-#include "egolib/file_formats/module_file.h"        // for MAX_MODULE
+#include "game/egoboo_typedef.h"
 
 #include "game/network.h"
 #include "game/profile.h"
@@ -177,7 +171,7 @@ egolib_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
 //--------------------------------------------------------------------------------------------
 
 oglx_texture_t * mnu_TxList_get_valid_ptr( const TX_REF itex );
-void             mnu_TxList_reload_all( void );
+void             mnu_TxList_reload_all();
 TX_REF mnu_TxList_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
 
 //--------------------------------------------------------------------------------------------
@@ -199,19 +193,19 @@ DECLARE_LIST_EXTERN( oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
 //--------------------------------------------------------------------------------------------
 
 // code for initializing and deinitializing the menu system
-int  menu_system_begin( void );
-void menu_system_end( void );
+int  menu_system_begin();
+void menu_system_end();
 
 // global function to control navigation of the game menus
 int doMenu( float deltaTime );
 
 // code to start and stop menus
 bool mnu_begin_menu( which_menu_t which );
-void   mnu_end_menu( void );
-int    mnu_get_menu_depth( void );
+void   mnu_end_menu();
+int    mnu_get_menu_depth();
 
 // "public" implmentation of the TxTitleImage array
-//void   TxTitleImage_reload_all( void );
+//void   TxTitleImage_reload_all();
 //TX_REF TxTitleImage_load_one_vfs( const char *szLoadName );
 
 extern bool start_new_player;
@@ -234,7 +228,7 @@ menu_process_t     * menu_process_init( menu_process_t * mproc );
 // "public" reset of the autoformatting
 void autoformat_init( struct s_gfx_config * pgfx );
 
-bool mnu_load_cursor( void );
-bool mnu_load_all_global_icons( void );
+bool mnu_load_cursor();
+bool mnu_load_all_global_icons();
 
 #define egoboo_Menu_h

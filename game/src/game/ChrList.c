@@ -17,15 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file game/ChrList.c
+/// @file  game/ChrList.c
 /// @brief Implementation of the ChrList_* functions
 
 #include "game/ChrList.inl"
-
-#include "egolib/log.h"
-
-#include "game/egoboo_object.h"
-
 #include "game/char.inl"
 
 //--------------------------------------------------------------------------------------------
@@ -47,9 +42,9 @@ int chr_loop_depth = 0;
 // private ChrList_t functions
 //--------------------------------------------------------------------------------------------
 
-static void ChrList_clear( void );
-static void ChrList_init( void );
-static void ChrList_deinit( void );
+static void ChrList_clear();
+static void ChrList_init();
+static void ChrList_deinit();
 
 static bool ChrList_add_free_ref( const CHR_REF ichr );
 static bool ChrList_remove_free_ref( const CHR_REF ichr );
@@ -58,8 +53,8 @@ static bool ChrList_remove_free_idx( const int index );
 static bool ChrList_remove_used_ref( const CHR_REF ichr );
 static bool ChrList_remove_used_idx( const int index );
 
-static void ChrList_prune_used_list( void );
-static void ChrList_prune_free_list( void );
+static void ChrList_prune_used_list();
+static void ChrList_prune_free_list();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -68,7 +63,7 @@ IMPLEMENT_LIST( chr_t, ChrList, MAX_CHR );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ChrList_ctor( void )
+void ChrList_ctor()
 {
     // initialize the list
     ChrList_init();
@@ -90,7 +85,7 @@ void ChrList_ctor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_dtor( void )
+void ChrList_dtor()
 {
     // construct the sub-objects
     for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
@@ -109,7 +104,7 @@ void ChrList_dtor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_clear( void )
+void ChrList_clear()
 {
     // clear out the list
     ChrList.free_count = 0;
@@ -127,7 +122,7 @@ void ChrList_clear( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_init( void )
+void ChrList_init()
 {
     ChrList_clear();
 
@@ -141,7 +136,7 @@ void ChrList_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_deinit( void )
+void ChrList_deinit()
 {
     // request that the sub-objects deconstruct themselves
     for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
@@ -154,14 +149,14 @@ void ChrList_deinit( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_reinit( void )
+void ChrList_reinit()
 {
     ChrList_deinit();
     ChrList_init();
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_prune_used_list( void )
+void ChrList_prune_used_list()
 {
     // prune the used list
     for ( size_t cnt = 0; cnt < ChrList.used_count; cnt++ )
@@ -183,7 +178,7 @@ void ChrList_prune_used_list( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_prune_free_list( void )
+void ChrList_prune_free_list()
 {
     // prune the free list
     for ( size_t cnt = 0; cnt < ChrList.free_count; cnt++ )
@@ -205,7 +200,7 @@ void ChrList_prune_free_list( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_update_used( void )
+void ChrList_update_used()
 {
     ChrList_prune_used_list();
     ChrList_prune_free_list();
@@ -349,7 +344,7 @@ size_t ChrList_pop_free( const int idx )
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_free_all( void )
+void ChrList_free_all()
 {
     for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
     {
@@ -599,7 +594,7 @@ CHR_REF ChrList_allocate( const CHR_REF override )
 }
 
 //--------------------------------------------------------------------------------------------
-void ChrList_cleanup( void )
+void ChrList_cleanup()
 {
     chr_t * pchr;
 
@@ -684,13 +679,13 @@ bool ChrList_request_terminate( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-int ChrList_count_free( void )
+int ChrList_count_free()
 {
     return ChrList.free_count;
 }
 
 //--------------------------------------------------------------------------------------------
-int ChrList_count_used( void )
+int ChrList_count_used()
 {
     return ChrList.used_count; // MAX_CHR - ChrList.free_count;
 }

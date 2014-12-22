@@ -27,15 +27,6 @@
 
 #include "game/script_functions.h"
 #include "game/script_implementation.h"
-
-#include "egolib/log.h"
-#include "egolib/_math.h"
-#include "egolib/strutil.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/file_formats/spawn_file.h"
-#include "egolib/file_formats/quest_file.h"
-#include "egolib/_math.inl"
-
 #include "game/mad.h"
 #include "game/link.h"
 #include "game/camera_system.h"
@@ -48,7 +39,6 @@
 #include "game/renderer_2d.h"
 #include "game/passage.h"
 #include "game/AStar.h"
-
 #include "game/profile.inl"
 #include "game/enchant.inl"
 #include "game/char.inl"

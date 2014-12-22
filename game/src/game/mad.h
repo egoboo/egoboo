@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,8 +19,9 @@
 
 /// @file game/mad.h
 
-#include "game/egoboo_typedef.h"
+#pragma once
 
+#include "game/egoboo_typedef.h"
 #include "game/md2.h"
 
 //--------------------------------------------------------------------------------------------

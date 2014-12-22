@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,24 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file mem.h
+/// @file egolib/mem.h
 /// @details Macros to control allocation and deallocation of memory
 
+#pragma once
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if 0
-template<T> Egoboo_New(void) {
-	return calloc(1,sizeof(T));
-}
-#endif
 #define EGOBOO_NEW( TYPE ) (TYPE *)calloc(1, sizeof(TYPE))
-
-#if 0
-template<T> Egoboo_NewAry(size_t length) {
-	return calloc(length,sizeof(T));
-}
-#endif
 #define EGOBOO_NEW_ARY( TYPE, COUNT ) (TYPE *)calloc(COUNT, sizeof(TYPE))
 
 #define EGOBOO_DELETE(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }

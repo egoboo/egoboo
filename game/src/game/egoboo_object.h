@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,13 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file game/egoboo_object.h
+/// @file    game/egoboo_object.h
 /// @details Definitions of data that all Egoboo objects should "inherit"
 
-#include "game/egoboo_typedef.h"
+#pragma once
 
-#include "egolib/state_machine.h"
-#include "egolib/bsp.h"
+#include "game/egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

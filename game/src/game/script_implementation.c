@@ -26,16 +26,10 @@
 /// The functions below will then be replaced with stub calls to the "real" functions.
 
 #include "game/script_implementation.h"
-
-#include "egolib/egoboo_setup.h"
-#include "egolib/strutil.h"
-#include "egolib/_math.inl"
-
 #include "game/game.h"
 #include "game/AStar.h"
 #include "game/passage.h"
 #include "game/renderer_2d.h"
-
 #include "game/ChrList.inl"
 #include "game/mesh.inl"
 #include "game/profile.inl"

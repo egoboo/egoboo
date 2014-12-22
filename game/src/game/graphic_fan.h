@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,8 +19,9 @@
 
 /// @file game/graphic_fan.h
 
-#include "game/egoboo_typedef.h"
+#pragma once
 
+#include "game/egoboo_typedef.h"
 #include "game/graphic.h"
 
 //--------------------------------------------------------------------------------------------
@@ -52,4 +51,4 @@ gfx_rv render_fan( const ego_mesh_t *pmesh, const Uint32 fan );
 gfx_rv render_hmap_fan( const ego_mesh_t *pmesh, const Uint32 itile );
 gfx_rv render_water_fan( const ego_mesh_t *pmesh, const Uint32 fan, const Uint8 layer );
 
-void animate_tiles( void );
+void animate_tiles();

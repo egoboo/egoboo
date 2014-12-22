@@ -17,15 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file game/rpc.c
-/// @brief The implementation of the Remote Procedure Calls
+/// @file  game/rpc.c
+/// @brief The implementation of the Remote Procedure Calls.
 /// @details
 
-#include "egolib/strutil.h"
-#include "egolib/log.h"
-
+#include "egolib/egolib.h"
 #include "game/rpc.h"
-
 #include "game/graphic_texture.h"
 #include "game/menu.h"
 
@@ -47,13 +44,13 @@ static int    _rpc_system_guid;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void   TxReqList_ctor( void );
-static void   TxReqList_dtor( void );
-static bool TxReqList_timestep( void );
+static void   TxReqList_ctor();
+static void   TxReqList_dtor();
+static bool TxReqList_timestep();
 static size_t TxReqList_get_free_ref( int type );
 static bool TxReqList_free_one( int index );
 
-static int ego_rpc_system_get_guid( void );
+static int ego_rpc_system_get_guid();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -132,7 +129,7 @@ tx_request_t * tx_request_dtor( tx_request_t * preq )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool ego_rpc_system_begin( void )
+bool ego_rpc_system_begin()
 {
     /// @author BB
     /// @details initialize all the rpc arrays here
@@ -147,7 +144,7 @@ bool ego_rpc_system_begin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void ego_rpc_system_end( void )
+void ego_rpc_system_end()
 {
     /// @author BB
     /// @details de-initialize all the rpc arrays here
@@ -160,7 +157,7 @@ void ego_rpc_system_end( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_rpc_system_timestep( void )
+bool ego_rpc_system_timestep()
 {
     /// @author BB
     /// @details step through a single request of each type
@@ -171,14 +168,14 @@ bool ego_rpc_system_timestep( void )
 }
 
 //--------------------------------------------------------------------------------------------
-int ego_rpc_system_get_guid( void )
+int ego_rpc_system_get_guid()
 {
     return ++_rpc_system_guid;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void TxReqList_ctor( void )
+void TxReqList_ctor()
 {
     TREQ_REF cnt;
 
@@ -212,7 +209,7 @@ void TxReqList_ctor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void TxReqList_dtor( void )
+void TxReqList_dtor()
 {
     TREQ_REF cnt;
 
@@ -311,7 +308,7 @@ bool TxReqList_free_one( int ireq )
 }
 
 //--------------------------------------------------------------------------------------------
-bool TxReqList_timestep( void )
+bool TxReqList_timestep()
 {
     /// @author BB
     /// @details TxReqList_timestep() is called by the main thread.

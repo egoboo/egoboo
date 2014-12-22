@@ -17,27 +17,21 @@
 //*
 //********************************************************************************************
 
-/// @file game/graphic_mad.c
+/// @file  game/graphic_mad.c
 /// @brief Character model drawing code.
 /// @details
 
+#include "egolib/bbox.inl"
 #include "game/graphic_mad.h"
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-
-#include "egolib/log.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/file_formats/id_md2.h"
-
 #include "game/mad.h"
 #include "game/camera_system.h"
 #include "game/game.h"
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-
-#include "egolib/bbox.inl"
 #include "game/profile.inl"
 #include "game/char.inl"
 #include "game/md2.inl"

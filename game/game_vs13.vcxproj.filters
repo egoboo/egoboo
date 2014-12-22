@@ -170,7 +170,7 @@
     <ClCompile Include="..\game\src\game\ui.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\bsp.c">
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\bsp.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -322,7 +322,7 @@
     <ClInclude Include="..\game\src\game\ui.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\bsp.h">
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\bsp.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
   </ItemGroup>

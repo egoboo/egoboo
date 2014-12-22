@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -18,20 +16,19 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-///
-/// @file game/md2.h
-/// @brief Md2 Model display routines
+
+/// @file    game/md2.h
+/// @brief   Raw MD2 loader.
 /// @details Adapted from "Tactics - MD2_Model.h" by Jonathan Fischer
-///   A class for loading/using Quake 2 and Egoboo md2 models.
-///   Creating/destroying objects of this class is done in the same fashion as
-///   Textures, so see Texture.h for details.
-/// @note You will routinely include "md2.h" only in headers (*.h) files where you need to declare an
-///       struct defined in this file. In *.inl files or *.c/*.cpp files you will routinely include "md2.inl", instead.
+///          A class for loading/using Quake 2 and Egoboo md2 models.
+///          Creating/destroying objects of this class is done in the same fashion as
+///          Textures, so see Texture.h for details.
+/// @note    You will routinely include "md2.h" only in headers (*.h) files where you need to declare an
+///          struct defined in this file. In *.inl files or *.c/*.cpp files you will routinely include "md2.inl", instead.
+
+#pragma once
 
 #include "game/egoboo_typedef.h"
-
-#include "egolib/file_formats/id_md2.h"
-
 #include "game/physics.h"
 
 //--------------------------------------------------------------------------------------------
@@ -122,7 +119,7 @@ struct s_ego_md2_glcommand
 void MD2_GLCommand_ctor( MD2_GLCommand_t * m );
 void MD2_GLCommand_dtor( MD2_GLCommand_t * m );
 
-MD2_GLCommand_t * MD2_GLCommand_create( void );
+MD2_GLCommand_t * MD2_GLCommand_create();
 MD2_GLCommand_t * MD2_GLCommand_new_vector( int n );
 void              MD2_GLCommand_destroy( MD2_GLCommand_t ** m );
 void              MD2_GLCommand_delete_vector( MD2_GLCommand_t * v, int n );
@@ -150,7 +147,7 @@ struct s_ego_md2_model
 // CTORS
 MD2_Model_t * MD2_Model_ctor( MD2_Model_t * m );
 MD2_Model_t * MD2_Model_dtor( MD2_Model_t * m );
-MD2_Model_t * MD2_Model_create( void );
+MD2_Model_t * MD2_Model_create();
 void          MD2_Model_destroy( MD2_Model_t ** m );
 MD2_Model_t * MD2_Model_new_vector( int n );
 void          MD2_Model_delete_vector( MD2_Model_t * v, int n );

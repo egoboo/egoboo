@@ -17,16 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file char.h
+/// @file game/char.h
 /// @note You will routinely include "char.h" only in headers (*.h) files where you need to declare an
 ///       object of team_t or chr_t. In *.inl files or *.c/*.cpp files you will routinely include "char.inl", instead.
 
 #pragma once
 
 #include "game/egoboo_typedef.h"
-
-#include "egolib/file_formats/cap_file.h"
-
 #include "game/egoboo_object.h"
 #include "game/graphic.h"
 #include "game/graphic_mad.h"
@@ -704,7 +701,7 @@ bool  character_grab_stuff( const CHR_REF chara, grip_offset_t grip, bool people
 // generic helper functions
 
 bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects );
-void init_slot_idsz( void );
+void init_slot_idsz();
 
 grip_offset_t slot_to_grip_offset( slot_t slot );
 slot_t        grip_offset_to_slot( grip_offset_t grip );

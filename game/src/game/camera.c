@@ -23,10 +23,6 @@
 
 #include "game/camera.h"
 
-#include "egolib/egoboo_setup.h"
-#include "egolib/file_formats/controls_file.h"
-#include "egolib/extensions/SDL_extensions.h"
-
 #include "game/input.h"
 #include "game/graphic.h"
 #include "game/network.h"

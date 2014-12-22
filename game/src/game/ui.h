@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,13 +17,14 @@
 //*
 //********************************************************************************************
 
-/// @file game/ui.h
+/// @file    game/ui.h
+/// @brief   The Egoboo GUI.
 /// @details A basic library for implementing user interfaces, based off of Casey Muratori's
-/// IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
+///          IMGUI (https://mollyrocket.com/forums/viewtopic.php?t=134).
+
+#pragma once
 
 #include "game/egoboo_typedef.h"
-
-#include "egolib/extensions/ogl_texture.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -100,15 +99,15 @@ bool ui_widgetSetMask( ui_Widget_t * pw, const BIT_FIELD mbits );
 
 // Initialize or shut down the ui system
 int  ui_begin( const char *default_font, int default_font_size );
-void ui_end( void );
-void ui_Reset( void );
+void ui_end();
+void ui_Reset();
 
 /// Pass input data from SDL to the ui
 bool ui_handle_SDL_Event( SDL_Event *evt );
 
 // Allow the ui to do work that needs to be done before and after each frame
 void ui_beginFrame( float deltaTime );
-void ui_endFrame( void );
+void ui_endFrame();
 
 // UI controls
 ui_buttonValues ui_doWidget( ui_Widget_t * pWidget );
@@ -121,7 +120,7 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture_t *img, const
 int  ui_mouseInside( float x, float y, float width, float height );
 // void ui_setActive( ui_id_t id );
 // void ui_setHot( ui_id_t id );
-struct s_Font* ui_getFont( void );
+struct s_Font* ui_getFont();
 struct s_Font* ui_setFont( struct s_Font * font );
 
 //--------------------------------------------------------------------------------------------

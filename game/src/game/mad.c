@@ -17,23 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file game/mad.c
-/// @brief The files for handling Egoboo's internal model definitions
+/// @file  game/mad.c
+/// @brief The files for handling Egoboo's internal model definitions.
 /// @details
 
 #include "game/mad.h"
-
-#include "egolib/log.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/fileutil.h"
-#include "egolib/strutil.h"
-#include "egolib/file_formats/cap_file.h"
-
 #include "game/graphic.h"
 #include "game/graphic_texture.h"
 #include "game/script_compile.h"
 #include "game/sound.h"
-
 #include "game/md2.inl"
 #include "game/particle.inl"
 
@@ -77,13 +69,13 @@ IMPLEMENT_STACK( mad_t, MadStack, MAX_MAD );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void model_system_begin( void )
+void model_system_begin()
 {
     MadStack_ctor();
 }
 
 //--------------------------------------------------------------------------------------------
-void model_system_end( void )
+void model_system_end()
 {
     MadStack_dtor();
 }
@@ -91,7 +83,7 @@ void model_system_end( void )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void MadStack_ctor( void )
+void MadStack_ctor()
 {
     MAD_REF cnt;
 
@@ -102,7 +94,7 @@ void MadStack_ctor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void MadStack_dtor( void )
+void MadStack_dtor()
 {
     MAD_REF cnt;
 
@@ -113,7 +105,7 @@ void MadStack_dtor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void MadStack_reinit( void )
+void MadStack_reinit()
 {
     MAD_REF cnt;
 
@@ -938,6 +930,11 @@ mad_t * mad_rip_actions( mad_t * pmad )
     {
         action_now = action_number( frame_list[iframe].name );
 
+		if (action_now == NOACTION) {
+			log_warning("Got no action for frame name '%s', ignoring", frame_list[iframe].name);
+			continue;
+		}
+
         if ( last_action != action_now )
         {
             // start a new action
@@ -1029,7 +1026,7 @@ mad_t * mad_dtor( mad_t * pmad )
 }
 
 //--------------------------------------------------------------------------------------------
-void MadStack_reconstruct_all( void )
+void MadStack_reconstruct_all()
 {
     MAD_REF cnt;
 
@@ -1040,7 +1037,7 @@ void MadStack_reconstruct_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void MadStack_release_all( void )
+void MadStack_release_all()
 {
     MAD_REF cnt;
 

@@ -17,22 +17,16 @@
 //*
 //********************************************************************************************
 
-/// @file game/passage.c
+/// @file  game/passage.c
 /// @brief Passages and doors and whatnot.  Things that impede your progress!
 
 #include "game/passage.h"
-
-#include "egolib/fileutil.h"
-#include "egolib/_math.h"
-#include "egolib/file_formats/quest_file.h"
-
 #include "game/script.h"
 #include "game/sound.h"
 #include "game/game.h"
 #include "game/network.h"
 #include "game/player.h"
 #include "game/egoboo.h"
-
 #include "game/char.inl"
 #include "game/mesh.inl"
 
@@ -45,10 +39,10 @@ INSTANTIATE_STACK( ACCESS_TYPE_NONE, shop_t,    ShopStack, MAX_SHOP );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static int ShopStack_get_free( void );
-static void ShopStack_free_all( void );
-static int PasageStack_get_free( void );
-static void PassageStack_free_all( void );
+static int ShopStack_get_free();
+static void ShopStack_free_all();
+static int PasageStack_get_free();
+static void PassageStack_free_all();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -58,13 +52,13 @@ IMPLEMENT_STACK( shop_t,    ShopStack, MAX_SHOP );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void PassageStack_free_all( void )
+void PassageStack_free_all()
 {
     PassageStack.count = 0;
 }
 
 //--------------------------------------------------------------------------------------------
-int PasageStack_get_free( void )
+int PasageStack_get_free()
 {
     int ipass = MAX_PASS;
 
@@ -79,7 +73,7 @@ int PasageStack_get_free( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ShopStack_free_all( void )
+void ShopStack_free_all()
 {
     SHOP_REF cnt;
 
@@ -92,7 +86,7 @@ void ShopStack_free_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-int ShopStack_get_free( void )
+int ShopStack_get_free()
 {
     int ishop = INVALID_PASS_REF;
 
@@ -299,7 +293,7 @@ CHR_REF who_is_blocking_passage( const PASS_REF passage, const CHR_REF isrc, IDS
 }
 
 //--------------------------------------------------------------------------------------------
-void check_passage_music( void )
+void check_passage_music()
 {
     /// @author ZF
     /// @details This function checks all passages if there is a player in it, if it is, it plays a specified
@@ -419,7 +413,7 @@ bool close_passage( const PASS_REF passage )
 }
 
 //--------------------------------------------------------------------------------------------
-void clear_all_passages( void )
+void clear_all_passages()
 {
     /// @author ZZ
     /// @details This function clears the passage list ( for doors )
@@ -502,7 +496,7 @@ void add_passage( passage_t * pdata )
 }
 
 //--------------------------------------------------------------------------------------------
-void activate_passages_file_vfs( void )
+void activate_passages_file_vfs()
 {
     /// @author ZZ
     /// @details This function reads the passage file

@@ -24,9 +24,6 @@
 
 #include "game/egoboo_typedef.h"
 
-#include "egolib/_math.h"
-#include "egolib/vec.h"
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -138,8 +135,8 @@ extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   ///< This is a specif
 //--------------------------------------------------------------------------------------------
 // The global functions for the sound module
 
-bool sound_system_initialize( void );
-void   sound_system_restart( void );
+bool sound_system_initialize();
+void   sound_system_restart();
 
 Mix_Chunk * sound_load_chunk_vfs( const char * szFileName );
 Mix_Music * sound_load_music( const char * szFileName );
@@ -151,24 +148,24 @@ void    sound_play_song( int songnumber, Uint16 fadetime, int loops );
 void    sound_finish_song( Uint16 fadetime );
 int     sound_play_chunk_full( Mix_Chunk * pchunk );
 
-void    sound_fade_all( void );
+void    sound_fade_all();
 void    fade_in_music( Mix_Music * music );
 
 void    sound_stop_channel( int whichchannel );
-void    sound_stop_song( void );
+void    sound_stop_song();
 
-void    sound_load_global_waves_vfs( void );
-void    sound_load_all_music_sounds_vfs( void );
+void    sound_load_global_waves_vfs();
+void    sound_load_all_music_sounds_vfs();
 
 bool sound_system_download_from_config( snd_config_t * psnd, struct s_egoboo_config * pcfg );
 
 bool looped_stop_object_sounds( const CHR_REF  ichr );
-void   looped_update_all_sound( void );
+void   looped_update_all_sound();
 
-void   sound_finish_sound( void );
+void   sound_finish_sound();
 void   sound_free_chunk( Mix_Chunk * pchunk );
 
-int get_current_song_playing( void );
+int get_current_song_playing();
 bool LoopedList_remove( int channel );
 
 //--------------------------------------------------------------------------------------------

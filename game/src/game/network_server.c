@@ -22,9 +22,7 @@
 /// @details
 
 #include "game/network_server.h"
-
-#include "egolib/log.h"
-
+#include "egolib/egolib.h"
 #include "game/game.h"
 #include "game/player.h"
 
@@ -40,12 +38,12 @@ ServerState_t ServerState = SERVER_STATE_INIT;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void sv_frameStep( void )
+void sv_frameStep()
 {
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv sv_talkToRemotes( void )
+egolib_rv sv_talkToRemotes()
 {
     /// @author ZZ
     /// @details This function sends the character data to all the remote machines
@@ -152,7 +150,7 @@ egolib_rv sv_talkToRemotes( void )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv sv_letPlayersJoin( void )
+egolib_rv sv_letPlayersJoin()
 {
     /// @author ZZ
     /// @details This function finds all the players in the game
@@ -206,7 +204,7 @@ egolib_rv sv_letPlayersJoin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv sv_hostGame( void )
+egolib_rv sv_hostGame()
 {
     /// @author ZZ
     /// @details This function tries to host a new session

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,11 +17,12 @@
 //*
 //********************************************************************************************
 
-///
 /// @file game/md2.inl
 /// @brief Implementation Egoboo's Md2 loading and saving
 /// @details functions that will be declared inside the base class
 /// @note You will routinely include "md2.inl" in all *.inl files or *.c/*.cpp files, instead of "md2.h"
+
+#pragma once
 
 #include "game/md2.h"
 

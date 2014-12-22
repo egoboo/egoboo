@@ -18,14 +18,10 @@
 //********************************************************************************************
 
 /// @file game/mesh.h
+
 #pragma once
 
 #include "game/egoboo_typedef.h"
-
-#include "egolib/file_formats/map_file.h"
-#include "egolib/extensions/ogl_include.h"
-
-#include "egolib/bsp.h"
 #include "game/lighting.h"
 
 //--------------------------------------------------------------------------------------------
@@ -162,7 +158,7 @@ struct ego_grid_info_t
 ego_grid_info_t * ego_grid_info_ctor( ego_grid_info_t * ptr );
 ego_grid_info_t * ego_grid_info_dtor( ego_grid_info_t * ptr );
 ego_grid_info_t * ego_grid_info_free( ego_grid_info_t * ptr );
-ego_grid_info_t * ego_grid_info_create( void );
+ego_grid_info_t * ego_grid_info_create();
 ego_grid_info_t * ego_grid_info_destroy( ego_grid_info_t * ptr );
 
 ego_grid_info_t * ego_grid_info_ctor_ary( ego_grid_info_t * ptr, size_t count );
@@ -314,7 +310,7 @@ ego_mesh_t * ego_mesh_renew( ego_mesh_t * pmesh );
 /// loading/saving
 ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * pmesh );
 
-void   ego_mesh_make_twist( void );
+void   ego_mesh_make_twist();
 
 bool ego_mesh_test_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, float threshold );
 float  ego_mesh_light_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, bool reflective, float mesh_lighting_keep );
@@ -336,5 +332,5 @@ float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const float pos[], float 
 
 bool ego_mesh_update_water_level( ego_mesh_t * pmesh );
 
-void mesh_texture_invalidate( void );
+void mesh_texture_invalidate();
 struct s_oglx_texture * mesh_texture_bind( const ego_tile_info_t * ptile );

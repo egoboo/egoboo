@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,6 +20,8 @@
 /// @file game/EncList.inl
 /// @brief
 /// @details
+
+#pragma once
 
 #include "game/EncList.h"
 

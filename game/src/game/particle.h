@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,10 +19,9 @@
 
 /// @file game/particle.h
 
+#pragma once
+
 #include "game/egoboo_typedef.h"
-
-#include "egolib/file_formats/pip_file.h"
-
 #include "game/egoboo_object.h"
 #include "game/graphic_prt.h"
 #include "game/physics.h"
@@ -243,16 +240,16 @@ extern int prt_pressure_tests;
 //--------------------------------------------------------------------------------------------
 
 // particle_system functions
-void particle_system_begin( void );
-void particle_system_end( void );
+void particle_system_begin();
+void particle_system_end();
 
 PRT_REF end_one_particle_now( const PRT_REF particle );
 PRT_REF end_one_particle_in_game( const PRT_REF particle );
 
-void update_all_particles( void );
-void move_all_particles( void );
-void cleanup_all_particles( void );
-void bump_all_particles_update_counters( void );
+void update_all_particles();
+void move_all_particles();
+void cleanup_all_particles();
+void bump_all_particles_update_counters();
 
 PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
@@ -270,8 +267,8 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt );
 
 // PipStack functions
 PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override );
-void    PipStack_init_all( void );
-void    PipStack_release_all( void );
+void    PipStack_init_all();
+void    PipStack_release_all();
 bool  PipStack_release_one( const PIP_REF ipip );
 
 // particle state machine functions

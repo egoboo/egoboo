@@ -18,33 +18,33 @@
 //********************************************************************************************
 
 /// @file  game/bsp.h
-/// @brief global character and particle BSPs
+/// @brief Global mesh, character and particle BSPs.
 #pragma once
 
 #include "game/obj_BSP.h"
 #include "game/mesh_BSP.h"
 
-// Forward declaration.
-struct ego_mesh;
-struct s_prt_bundle;
-
 /**
  * @brief
- *	Global BSP for the mesh.
- * @todo
- *	Should be <tt>mesh_BSP_T *p_mesh_BSP_root</tt>.
+ *	Get the (global) mesh BSP.
+ * @return
+ *	the BSP
+ * @pre
+ *	the (global) mesh BSP was initialized
  */
-extern mesh_BSP_t mesh_BSP_root;
+mesh_BSP_t *getMeshBSP();
 
 /**
  * @brief
  *	Initialize the (global) mesh BSP.
  * @param mesh
  *	the mesh used in initialization
- * @todo
- *	Document return value.
+ * @return
+ *	@a true on success, @a false on failure
+ * @remark
+ *	If the BSPs were already initialized, they are re-initialized.
  */
-egolib_rv mesh_BSP_system_begin(ego_mesh_t *mesh);
+bool mesh_BSP_system_begin(ego_mesh_t *mesh);
 
 /**
  * @brief
@@ -52,7 +52,7 @@ egolib_rv mesh_BSP_system_begin(ego_mesh_t *mesh);
  * @remark
  *	If the mesh BSP is not initialized, this function is a noop.
  */
-egolib_rv mesh_BSP_system_end(void);
+void mesh_BSP_system_end();
 
 /**
  * @brief
@@ -60,58 +60,70 @@ egolib_rv mesh_BSP_system_end(void);
  * @return
  *	@a true if the mesh BSP is initialized, @a false otherwise
  */
-bool mesh_BSP_system_started(void);
+bool mesh_BSP_system_started();
 
 //--------------------------------------------------------------------------------------------
 
 /**
  * @brief
- *	Global BSP for the characters.
- * @todo
- *	Should be <tt>chr_BSP_T *p_chr_BSP_root</tt>.
+ *	Get the global BSP for the characters.
+ * @return
+ *	the BSP
+ * @pre
+ *	the global character BSP was initialized
  */
-extern obj_BSP_t chr_BSP_root;
+obj_BSP_t *getChrBSP();
 
 /**
  * @brief
- *	Global BSP for the particles.
- * @todo
- *	Should be <tt>obj_BSP_T *p_prt_BSP_root</tt>.
+ *	Get the global BSP for the particles.
+ * @return
+ *	the BSP
+ * @pre
+ *	the global particle BSP was initialized 
  */
-extern obj_BSP_t prt_BSP_root;
+obj_BSP_t *getPtrBSP();
 
 /**
  * @brief
  *	Initialize the (global) object (i.e. character and particle) BSPs.
- * @param meshBSP
+ * @param mesh_bsp
  *	the mesh BSP used in initialization
+ * @return
+ *	@a true on success, @a false on failure
+ * @post
+ *	The object BSP is initialized.
+ * @remark
+ *	If the BSPs were already initialized, they are re-initialized.
  */
-void obj_BSP_system_begin(struct s_mpd_BSP * pBSP);
+bool obj_BSP_system_begin(mesh_BSP_t * mesh_bsp);
 
 /**
  * @brief
  *	Uninitialize the (global) object (i.e. character and particle) BSPs if they are initialized.
  * @remark
  *	If the object BSPs are not initialized, this function is a noop.
+ * @post
+ *	The object BSP is initialized.
  */
 void obj_BSP_system_end();
 
 /**
-* @brief
-*	Get if the (global) object (i.e. character and particle) BSPs are initialized.
-* @return
-*	@a true if the object BSPs are initialized, @a false otherwise
-*/
+ * @brief
+ *	Get if the (global) object (i.e. character and particle) BSPs are initialized.
+ * @return
+ *	@a true if the object BSPs are initialized, @a false otherwise
+ */
 bool obj_BSP_system_started();
 
 
-bool chr_BSP_insert(struct s_chr * pchr);
+bool chr_BSP_insert(s_chr * pchr);
 bool chr_BSP_fill();
 bool chr_BSP_clear();
 bool chr_BSP_can_collide(BSP_leaf_t * pleaf);
 bool chr_BSP_is_visible(BSP_leaf_t * pleaf);
 
-bool prt_BSP_insert(struct s_prt_bundle * pbdl_prt);
+bool prt_BSP_insert(s_prt_bundle * pbdl_prt);
 bool prt_BSP_fill();
 bool prt_BSP_clear();
 bool prt_BSP_can_collide(BSP_leaf_t * pleaf);

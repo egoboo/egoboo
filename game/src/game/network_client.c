@@ -21,11 +21,6 @@
 /// @brief This code is not currently in use.
 
 #include "game/network_client.h"
-
-#include "egolib/log.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/strutil.h"
-
 #include "game/game.h"
 #include "game/player.h"
 #include "game/menu.h"
@@ -39,13 +34,13 @@ ClientState_t ClientState = { BASE_CLIENT_STATE_INIT };
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void cl_frameStep( void )
+void cl_frameStep()
 {
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-egolib_rv cl_talkToHost( void )
+egolib_rv cl_talkToHost()
 {
     /// @author ZZ
     /// @details This function sends the latch packets to the host machine

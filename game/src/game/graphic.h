@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,10 +19,9 @@
 
 /// @file game/graphic.h
 
-#include "game/egoboo_typedef.h"
+#pragma once
 
-#include "egolib/extensions/ogl_texture.h"
-#include "egolib/file_formats/module_file.h"
+#include "game/egoboo_typedef.h"
 
 #include "game/mesh.h"
 #include "game/mad.h"
@@ -136,8 +133,8 @@ struct s_gfx_error_stack
 #define GFX_ERROR_STACK_INIT { 0, { GFX_ERROR_STATE_INIT } }
 
 egolib_rv           gfx_error_add( const char * file, const char * function, int line, int id, const char * sz );
-gfx_error_state_t * gfx_error_pop( void );
-void                gfx_error_clear( void );
+gfx_error_state_t * gfx_error_pop();
+void                gfx_error_clear();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -297,8 +294,8 @@ extern float           lighttoenviroy[256];                                ///< 
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-void   gfx_system_begin( void );
-void   gfx_system_end( void );
+void   gfx_system_begin();
+void   gfx_system_end();
 
 int    gfx_system_init_OpenGL();
 void   gfx_system_uninit_OpenGL();
@@ -313,7 +310,7 @@ void   gfx_system_load_assets();
 void   gfx_system_load_basic_textures();
 
 renderlist_mgr_t * gfx_system_get_renderlist_mgr( const camera_t *pcam );
-dolist_mgr_t * gfx_system_get_dolist_mgr( void );
+dolist_mgr_t * gfx_system_get_dolist_mgr();
 
 // the render engine callback
 void   gfx_system_render_world( const camera_t * pcam, const int render_list_index, const int dolist_index );
@@ -334,7 +331,7 @@ void  draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_a
 void  draw_cursor();
 void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map );
 
-//void   make_lightdirectionlookup( void );
+//void   make_lightdirectionlookup();
 
 bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos );
 float  grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
@@ -352,7 +349,7 @@ void   draw_mouse_cursor();
 
 gfx_rv chr_instance_flash( struct s_chr_instance * pinst, Uint8 value );
 
-//void gfx_calc_rotmesh( void );
+//void gfx_calc_rotmesh();
 
 int            renderlist_mgr_get_free_idx( renderlist_mgr_t * ptr );
 gfx_rv         renderlist_mgr_free_one( renderlist_mgr_t * ptr, size_t index );

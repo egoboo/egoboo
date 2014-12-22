@@ -17,15 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file ChrList.h
+/// @file  game/ChrList.h
 /// @brief Routines for character list management.
 
 #pragma once
 
 #include "game/egoboo_typedef.h"
-
 #include "game/egoboo_object.h"
-
 #include "game/char.h"
 
 //--------------------------------------------------------------------------------------------
@@ -60,11 +58,11 @@ void    ChrList_free_all();
 
 void    ChrList_update_used();
 
-void    ChrList_cleanup( void );
+void    ChrList_cleanup();
 
 bool ChrList_add_activation( const CHR_REF ichr );
 bool ChrList_add_termination( const CHR_REF ichr );
 bool ChrList_request_terminate( const CHR_REF ichr );
 
-int ChrList_count_free( void );
-int ChrList_count_used( void );
+int ChrList_count_free();
+int ChrList_count_used();

@@ -21,26 +21,13 @@
 /// @brief Functions for creating, reading, and writing Egoboo's .mpd mesh file
 /// @details
 
-#include "game/mesh.inl"
-
-#include "egolib/log.h"
-#include "egolib/endian.h"
-#include "egolib/fileutil.h"
-#include "egolib/strutil.h"
-#include "egolib/file_formats/map_tile_dictionary.h"
-#include "egolib/extensions/SDL_extensions.h"
-
 #include "egolib/_math.inl"
-
+#include "egolib/bbox.inl"
+#include "game/mesh.inl"
 #include "game/mesh_functions.h"
 #include "game/graphic.h"
 #include "game/graphic_texture.h"
 #include "game/egoboo.h"
-
-#include "egolib/bbox.inl"
-
-// this include must be the absolute last include
-#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -182,7 +169,7 @@ oglx_texture_t * ego_mesh_get_texture( Uint8 image, Uint8 size )
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_texture_invalidate( void )
+void mesh_texture_invalidate()
 {
     mesh_tx_image = MESH_IMG_COUNT;
     mesh_tx_size  = 0xFF;
@@ -838,7 +825,7 @@ void ego_mesh_make_vrtstart( ego_mesh_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void ego_mesh_make_twist( void )
+void ego_mesh_make_twist()
 {
     /// @author ZZ
     /// @details This function precomputes surface normals and steep hill acceleration for
@@ -2233,7 +2220,7 @@ ego_grid_info_t * ego_grid_info_free( ego_grid_info_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-ego_grid_info_t * ego_grid_info_create( void )
+ego_grid_info_t * ego_grid_info_create()
 {
     ego_grid_info_t * retval = NULL;
 

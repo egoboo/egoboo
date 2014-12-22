@@ -19,13 +19,10 @@
 //*
 //********************************************************************************************
 
-/// @file enchant.h
-/// @details Decleares some stuff used for handling enchants
+/// @file    game/enchant.h
+/// @details Decleares some stuff used for handling enchants.
 
 #include "game/egoboo_typedef.h"
-
-#include "egolib/file_formats/eve_file.h"
-
 #include "game/egoboo_object.h"
 
 //--------------------------------------------------------------------------------------------
@@ -119,15 +116,15 @@ bool  enc_request_terminate( enc_t * penc );
 // Prototypes
 
 // enchant_system functions
-void enchant_system_begin( void );
-void enchant_system_end( void );
+void enchant_system_begin();
+void enchant_system_end();
 
 ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_REF spawner, const ENC_REF enc_override, const PRO_REF modeloptional );
 
-void    update_all_enchants( void );
-void    cleanup_all_enchants( void );
+void    update_all_enchants();
+void    cleanup_all_enchants();
 
-void    bump_all_enchants_update_counters( void );
+void    bump_all_enchants_update_counters();
 
 // enchant list management
 bool  remove_enchant( const ENC_REF  enchant_idx, ENC_REF * enchant_parent );
@@ -142,8 +139,8 @@ void    enc_remove_set( const ENC_REF  enchant_idx, int value_idx );
 void    enc_remove_add( const ENC_REF  enchant_idx, int value_idx );
 
 // EveStack functions
-void   EveStack_init_all( void );
-void   EveStack_release_all( void );
+void   EveStack_init_all();
+void   EveStack_release_all();
 bool EveStack_release_one( const EVE_REF ieve );
 EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF profile );
 

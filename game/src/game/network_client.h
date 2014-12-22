@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -23,8 +21,9 @@
 /// @details Basic skeleton for the client portion of a client-server architecture,
 /// this is totally not in use yet.
 
-#include "game/egoboo_typedef.h"
+#pragma once
 
+#include "game/egoboo_typedef.h"
 #include "game/network.h"
 
 //--------------------------------------------------------------------------------------------
@@ -51,15 +50,15 @@ extern ClientState_t ClientState;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-int  cl_init( void );
-void cl_shutDown( void );
-void cl_frameStep( void );
+int  cl_init();
+void cl_shutDown();
+void cl_frameStep();
 
 // Much more to come...
 // int  cl_connectToServer(...);
 // int  cl_loadModule(...);
 
-egolib_rv cl_talkToHost( void );
+egolib_rv cl_talkToHost();
 egolib_rv cl_joinGame( const char *hostname );
 egolib_rv cl_handlePacket( enet_packet_t * enet_pkt );
 

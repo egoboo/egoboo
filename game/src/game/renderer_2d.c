@@ -17,20 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file game/renderer_2d.c
+/// @file  game/renderer_2d.c
 /// @brief Implementation of the 2d renderer functions
 /// @details
 
 #include "game/renderer_2d.h"
-
 #include "game/menu.h"
-
-#include "egolib/egoboo_setup.h"
-#include "egolib/font_bmp.h"
-#include "egolib/fileutil.h"
-#include "egolib/strutil.h"
-#include "egolib/extensions/SDL_extensions.h"
-#include "egolib/extensions/SDL_GL_extensions.h"
 
 //--------------------------------------------------------------------------------------------
 // EXTERNAL VARIABLES
@@ -134,7 +126,7 @@ int draw_string_raw( float x, float y, const char *format, ... )
 IMPLEMENT_STATIC_ARY( DisplayMsgAry, EGO_MESSAGE_MAX );
 
 //--------------------------------------------------------------------------------------------
-void DisplayMsg_clear( void )
+void DisplayMsg_clear()
 {
     /// @author ZZ
     /// @details This function empties the message buffer
@@ -274,7 +266,7 @@ float DisplayMsg_draw_all( float y )
 //--------------------------------------------------------------------------------------------
 // MODE CONTROL
 //--------------------------------------------------------------------------------------------
-void gfx_begin_2d( void )
+void gfx_begin_2d()
 {
 
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_SCISSOR_BIT );
@@ -304,7 +296,7 @@ void gfx_begin_2d( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_end_2d( void )
+void gfx_end_2d()
 {
     // get the old modelview matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
@@ -325,7 +317,7 @@ void gfx_end_2d( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_begin_text( void )
+void gfx_begin_text()
 {
     // do not use the ATTRIB_PUSH macro, since the glPopAttrib() is in a different function
     GL_DEBUG( glPushAttrib )( GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
@@ -349,14 +341,14 @@ void gfx_begin_text( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_end_text( void )
+void gfx_end_text()
 {
     // do not use the ATTRIB_POP macro, since the glPushAttrib() is in a different function
     GL_DEBUG( glPopAttrib )();
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_enable_texturing( void )
+void gfx_enable_texturing()
 {
     if ( !GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D ) )
     {
@@ -365,7 +357,7 @@ void gfx_enable_texturing( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_disable_texturing( void )
+void gfx_disable_texturing()
 {
     if ( GL_DEBUG( glIsEnabled )( GL_TEXTURE_2D ) )
     {
@@ -593,7 +585,7 @@ float draw_wrap_string( const char *szText, float x, float y, int maxx )
 //--------------------------------------------------------------------------------------------
 // UTILITY FUNCTIONS
 //--------------------------------------------------------------------------------------------
-bool dump_screenshot( void )
+bool dump_screenshot()
 {
     /// @author BB
     /// @details dumps the current screen (GL context) to a new bitmap file

@@ -21,16 +21,12 @@
 /// @brief
 /// @details
 
+#include "egolib/_math.inl"
 #include "game/graphic_billboard.h"
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-
-#include "egolib/font_ttf.h"
-#include "egolib/_math.inl"
-
 #include "game/camera.h"
-
 #include "game/char.inl"
 #include "game/particle.inl"
 
@@ -43,7 +39,7 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, billboard_data_t, BillboardList, BILLBOARD_C
 // private functions
 //--------------------------------------------------------------------------------------------
 
-static void BillboardList_clear_data( void );
+static void BillboardList_clear_data();
 
 //--------------------------------------------------------------------------------------------
 // private variables
@@ -171,7 +167,7 @@ bool billboard_data_printf_ttf( billboard_data_t * pbb, Font *font, SDL_Color co
 IMPLEMENT_LIST( billboard_data_t, BillboardList, BILLBOARD_COUNT );
 
 //--------------------------------------------------------------------------------------------
-void BillboardList_init_all( void )
+void BillboardList_init_all()
 {
     BBOARD_REF cnt;
 
@@ -184,7 +180,7 @@ void BillboardList_init_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void BillboardList_update_all( void )
+void BillboardList_update_all()
 {
     BBOARD_REF cnt;
     Uint32     ticks;
@@ -231,7 +227,7 @@ void BillboardList_update_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void BillboardList_free_all( void )
+void BillboardList_free_all()
 {
     BBOARD_REF cnt;
 
@@ -337,7 +333,7 @@ bool BillboardList_free_one( size_t ibb )
 
 //--------------------------------------------------------------------------------------------
 
-void BillboardList_clear_data( void )
+void BillboardList_clear_data()
 {
     /// @author BB
     /// @details reset the free billboard list.
@@ -355,7 +351,7 @@ void BillboardList_clear_data( void )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-bool billboard_system_begin( void )
+bool billboard_system_begin()
 {
     if ( !_billboard_system_started )
     {
@@ -369,7 +365,7 @@ bool billboard_system_begin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool billboard_system_end( void )
+bool billboard_system_end()
 {
     if ( _billboard_system_started )
     {
@@ -383,7 +379,7 @@ bool billboard_system_end( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool billboard_system_init( void )
+bool billboard_system_init()
 {
     billboard_system_end();
     billboard_system_begin();

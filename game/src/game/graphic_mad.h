@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,12 +19,9 @@
 
 /// @file game/graphic_mad.h
 
+#pragma once
+
 #include "game/egoboo_typedef.h"
-
-#include "egolib/_math.h"
-#include "egolib/matrix.h"
-#include "egolib/file_formats/cap_file.h"
-
 #include "game/graphic.h"
 
 //--------------------------------------------------------------------------------------------

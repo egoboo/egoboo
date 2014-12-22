@@ -23,9 +23,7 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
-
 #include "game/egoboo_object.h"
-
 #include "game/particle.h"
 
 //--------------------------------------------------------------------------------------------
@@ -54,22 +52,22 @@ extern int    prt_loop_depth;
 // Function prototypes
 //--------------------------------------------------------------------------------------------
 
-void    PrtList_ctor( void );
-void    PrtList_dtor( void );
-void    PrtList_reinit( void );
+void    PrtList_ctor();
+void    PrtList_dtor();
+void    PrtList_reinit();
 
 PRT_REF PrtList_allocate( const bool force );
 
 bool  PrtList_free_one( const PRT_REF iprt );
-void    PrtList_free_all( void );
+void    PrtList_free_all();
 
-void    PrtList_update_used( void );
+void    PrtList_update_used();
 
-void    PrtList_cleanup( void );
-void    PrtList_reset_all( void );
+void    PrtList_cleanup();
+void    PrtList_reset_all();
 
 bool  PrtList_add_activation( const PRT_REF iprt );
 bool  PrtList_add_termination( const PRT_REF iprt );
 bool PrtList_request_terminate( const PRT_REF iprt );
 
-int     PrtList_count_free( void );
+int     PrtList_count_free();

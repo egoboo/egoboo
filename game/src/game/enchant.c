@@ -23,9 +23,6 @@
 
 #include "game/enchant.inl"
 
-#include "egolib/log.h"
-#include "egolib/fileutil.h"
-
 #include "game/sound.h"
 #include "game/camera_system.h"
 #include "game/game.h"
@@ -67,14 +64,14 @@ IMPLEMENT_STACK( eve_t, EveStack, MAX_EVE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void enchant_system_begin( void )
+void enchant_system_begin()
 {
     EncList_ctor();
     EveStack_init_all();
 }
 
 //--------------------------------------------------------------------------------------------
-void enchant_system_end( void )
+void enchant_system_end()
 {
     EveStack_release_all();
     EncList_dtor();
@@ -1922,7 +1919,7 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void EveStack_init_all( void )
+void EveStack_init_all()
 {
     EVE_REF cnt;
 
@@ -1933,7 +1930,7 @@ void EveStack_init_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void EveStack_release_all( void )
+void EveStack_release_all()
 {
     EVE_REF cnt;
 
@@ -1959,7 +1956,7 @@ bool EveStack_release_one( const EVE_REF ieve )
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_enchants( void )
+void update_all_enchants()
 {
     ENC_REF ienc;
 
@@ -2047,7 +2044,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_all_enchants( void )
+void cleanup_all_enchants()
 {
     /// @author ZZ
     /// @details this function scans all the enchants and removes any dead ones.
@@ -2122,7 +2119,7 @@ void cleanup_all_enchants( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void bump_all_enchants_update_counters( void )
+void bump_all_enchants_update_counters()
 {
     ENC_REF cnt;
 

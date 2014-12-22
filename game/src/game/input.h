@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,9 +20,9 @@
 /// @file game/input.h
 /// @details Keyboard, mouse, and joystick handling code.
 
-#include "game/egoboo_typedef.h"
+#pragma once
 
-#include "egolib/input_device.h"
+#include "game/egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

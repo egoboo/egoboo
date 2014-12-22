@@ -17,21 +17,16 @@
 //*
 //********************************************************************************************
 
-///
-/// @file game/md2.c
-/// @brief Raw MD2 loader
-/// @details Raw model loader for ID Software's MD2 file format
+/// @file    game/md2.c
+/// @brief   Raw MD2 loader.
+/// @details Adapted from "Tactics - MD2_Model.h" by Jonathan Fischer
+///          A class for loading/using Quake 2 and Egoboo md2 models.
+///          Creating/destroying objects of this class is done in the same fashion as
+///          Textures, so see Texture.h for details.
 
 #include "game/md2.inl"
-
-#include "egolib/log.h"
-#include "egolib/endian.h"
 #include "egolib/_math.inl"
-
 #include "egolib/bbox.inl"
-
-// this include must be the absolute last include
-#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -97,7 +92,7 @@ void MD2_GLCommand_dtor( MD2_GLCommand_t * m )
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_GLCommand_t * MD2_GLCommand_create( void )
+MD2_GLCommand_t * MD2_GLCommand_create()
 {
     MD2_GLCommand_t * m;
 
@@ -194,7 +189,7 @@ MD2_Model_t * MD2_Model_dtor( MD2_Model_t * m )
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_Model_t * MD2_Model_create( void )
+MD2_Model_t * MD2_Model_create()
 {
     MD2_Model_t * m = EGOBOO_NEW( MD2_Model_t );
 

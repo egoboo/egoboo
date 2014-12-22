@@ -17,17 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file game.h
+/// @file game/game.h
 
 #pragma once
 
 #include "game/egoboo_typedef.h"
-
-#include "egolib/_math.h"
-#include "egolib/vec.h"
-#include "egolib/process.h"
-#include "egolib/timer.h"
-
 #include "game/input.h"
 
 //--------------------------------------------------------------------------------------------
@@ -458,11 +452,11 @@ extern int             update_lag;
 //--------------------------------------------------------------------------------------------
 
 /// the hook for deinitializing an old module
-void   game_quit_module( void );
+void   game_quit_module();
 
 /// the hook for exporting all the current players and reloading them
-bool game_update_imports( void );
-void   game_finish_module( void );
+bool game_update_imports();
+void   game_finish_module();
 bool game_begin_module( const char * modname, Uint32 seed );
 
 /// Exporting stuff
@@ -476,7 +470,7 @@ void show_full_status( int statindex );
 void show_magic_status( int statindex );
 
 /// End Text
-void reset_end_text( void );
+void reset_end_text();
 
 /// Particles
 int     number_of_attached_particles( const CHR_REF character );
@@ -488,7 +482,7 @@ int     reaffirm_attached_particles( const CHR_REF character );
 /// Statlist
 void statlist_add( const CHR_REF character );
 void statlist_move_to_top( const CHR_REF character );
-void statlist_sort( void );
+void statlist_sort();
 
 /// Player
 void   set_one_player_latch( const PLA_REF player );
@@ -500,7 +494,7 @@ CHR_REF chr_find_target( struct s_chr * psrc, float max_dist, IDSZ idsz, const B
 CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget );
 
 /// object initialization
-void  free_all_objects( void );
+void  free_all_objects();
 
 /// Data
 ego_mesh_t *set_PMesh( ego_mesh_t * pmpd );
@@ -514,7 +508,7 @@ int    game_do_menu( struct s_menu_process * mproc );
 
 void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
 
-void attach_all_particles( void );
+void attach_all_particles();
 
 Uint8 get_alpha( int alpha, float seeinvis_mag );
 Uint8 get_light( int alpha, float seedark_mag );
@@ -547,7 +541,7 @@ bool check_time( Uint32 check );
 void   game_update_timers();
 
 // wawalite functions
-struct s_wawalite_data * read_wawalite_vfs( void );
+struct s_wawalite_data * read_wawalite_vfs();
 bool write_wawalite_vfs( const struct s_wawalite_data * pdata );
 bool wawalite_finalize( struct s_wawalite_data * pdata );
 void   upload_wawalite();

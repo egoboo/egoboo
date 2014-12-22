@@ -24,7 +24,6 @@
 /// @details
 
 #include "egolib/extensions/ogl_debug.h"
-
 #include "egolib/file_common.h"
 
 //--------------------------------------------------------------------------------------------

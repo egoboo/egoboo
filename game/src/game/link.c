@@ -22,19 +22,12 @@
 /// @details
 
 #include "game/link.h"
-
-#include "egolib/log.h"
-#include "egolib/fileutil.h"
-#include "egolib/strutil.h"
-#include "egolib/file_formats/module_file.h"
-
 #include "game/camera_system.h"
 #include "game/menu.h"
 #include "game/graphic.h"
 #include "game/game.h"
 #include "game/player.h"
 #include "game/egoboo.h"
-
 #include "game/char.inl"
 
 //--------------------------------------------------------------------------------------------
@@ -54,7 +47,7 @@ typedef struct s_link_stack_entry link_stack_entry_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool link_push_module( void );
+static bool link_push_module();
 static bool link_test_module( const char * modname );
 
 //--------------------------------------------------------------------------------------------
@@ -163,7 +156,7 @@ bool link_build_vfs( const char * fname, Link_t list[] )
 }
 
 //--------------------------------------------------------------------------------------------
-bool link_pop_module( void )
+bool link_pop_module()
 {
     bool retval;
     link_stack_entry_t * pentry;
@@ -214,7 +207,7 @@ bool link_pop_module( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool link_push_module( void )
+bool link_push_module()
 {
     bool retval;
     link_stack_entry_t * pentry;

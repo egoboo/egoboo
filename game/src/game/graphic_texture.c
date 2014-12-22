@@ -21,9 +21,7 @@
 /// @brief Implementation of code for controlling object texturing
 /// @details
 
-#include "egolib/fileutil.h"
 #include "egolib/_math.inl"
-
 #include "game/graphic_texture.h"
 
 //--------------------------------------------------------------------------------------------
@@ -34,7 +32,7 @@ INSTANTIATE_LIST( ACCESS_TYPE_NONE, oglx_texture_t, TxList, TX_COUNT );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void TxList_reset_freelist( void );
+static void TxList_reset_freelist();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -44,7 +42,7 @@ IMPLEMENT_LIST( oglx_texture_t, TxList, TX_COUNT );
 //--------------------------------------------------------------------------------------------
 // TxList implementation
 //--------------------------------------------------------------------------------------------
-void TxList_reset_freelist( void )
+void TxList_reset_freelist()
 {
     /// @author BB
     /// @details reset the free texture list. Start at TX_SPECIAL_LAST so that the global textures/icons are
@@ -60,7 +58,7 @@ void TxList_reset_freelist( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void TxList_init_all( void )
+void TxList_init_all()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -76,7 +74,7 @@ void TxList_init_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void TxList_release_all( void )
+void TxList_release_all()
 {
     /// @author ZZ
     /// @details This function releases all of the textures
@@ -92,7 +90,7 @@ void TxList_release_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void TxList_delete_all( void )
+void TxList_delete_all()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -108,7 +106,7 @@ void TxList_delete_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void TxList_reload_all( void )
+void TxList_reload_all()
 {
     /// @author BB
     /// @details This function re-loads all the current textures back into

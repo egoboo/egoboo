@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,9 +19,9 @@
 
 /// @file game/graphic_texture.h
 
-#include "game/egoboo_typedef.h"
+#pragma once
 
-#include "egolib/extensions/ogl_texture.h"
+#include "game/egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -66,12 +64,12 @@ DECLARE_LIST_EXTERN( oglx_texture_t, TxList, TX_COUNT );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void             TxList_init_all( void );
-void             TxList_delete_all( void );
-void             TxList_release_all( void );
+void             TxList_init_all();
+void             TxList_delete_all();
+void             TxList_release_all();
 TX_REF           TxList_get_free( const TX_REF itex );
 bool           TxList_free_one( const TX_REF  itex );
 TX_REF           TxList_load_one_vfs( const char *filename, const TX_REF  itex_src, Uint32 key );
 oglx_texture_t * TxList_get_valid_ptr( const TX_REF itex );
 
-void             TxList_reload_all( void );
+void             TxList_reload_all();

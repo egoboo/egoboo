@@ -21,6 +21,7 @@
 /// @brief A* pathfinding.
 /// @details A very ugly implementation of the A* pathfinding agorithm.
 ///          There is lots of room for improvement.
+
 #pragma once
 
 #include "game/egoboo_typedef.h"

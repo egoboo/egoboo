@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,8 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file game/EncList.h
+/// @file  game/EncList.h
 /// @brief Routines for enchant list management
+
+#pragma once
 
 #include "game/egoboo_typedef.h"
 

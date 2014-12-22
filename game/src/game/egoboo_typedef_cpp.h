@@ -85,8 +85,8 @@ private:
     _ty    lst[_sz];
 
 public:
-    _ty & operator []( const t_reference<_ty> & ref ) { const REF_T val = ref.get_value( void ); /* if ( val > _sz ) CPP_EGOBOO_ASSERT( NULL == "t_cpp_ary::operator[] - index out of range" ); */ return lst[val]; }
-    _ty * operator + ( const t_reference<_ty> & ref ) { const REF_T val = ref.get_value( void ); /* if ( val > _sz ) CPP_EGOBOO_ASSERT( NULL == "t_cpp_ary::operator + - index out of range" ); */ return lst + val; }
+    _ty & operator []( const t_reference<_ty> & ref ) { const REF_T val = ref.get_value(); /* if ( val > _sz ) CPP_EGOBOO_ASSERT( NULL == "t_cpp_ary::operator[] - index out of range" ); */ return lst[val]; }
+    _ty * operator + ( const t_reference<_ty> & ref ) { const REF_T val = ref.get_value(); /* if ( val > _sz ) CPP_EGOBOO_ASSERT( NULL == "t_cpp_ary::operator + - index out of range" ); */ return lst + val; }
 };
 
 #define CPP_DECLARE_T_ARY(TYPE, NAME, COUNT) t_cpp_ary<TYPE, COUNT> NAME

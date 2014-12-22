@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,8 +17,9 @@
 //*
 //********************************************************************************************
 
-#include "game/profile.h"
+#pragma once
 
+#include "game/profile.h"
 #include "game/char.h"
 #include "game/particle.h"
 #include "game/enchant.h"

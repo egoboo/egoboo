@@ -17,16 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file game/particle.c
+/// @file  game/particle.c
 /// @brief Manages particle systems.
 
 #include "game/particle.inl"
-
-#include "egolib/log.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/fileutil.h"
-#include "egolib/strutil.h"
-
 #include "game/sound.h"
 #include "game/camera_system.h"
 #include "game/game.h"
@@ -36,14 +30,10 @@
 #include "game/mad.h"
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"
-
 #include "game/mesh.inl"
 #include "game/enchant.inl"
 #include "game/profile.inl"
 #include "game/PrtList.inl"
-
-// this include must be the absolute last include
-#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -87,7 +77,7 @@ static prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt );
 static bool prt_update_pos( prt_t * pprt );
 static bool prt_update_safe( prt_t * pprt, bool force );
 static bool prt_update_safe_raw( prt_t * pprt );
-static PIP_REF PipStack_get_free( void );
+static PIP_REF PipStack_get_free();
 static bool move_one_particle( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_prt );
@@ -1226,7 +1216,7 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_particles( void )
+void update_all_particles()
 {
     /// @author BB
     /// @details main loop for updating particles. Do not use the
@@ -2211,7 +2201,7 @@ bool move_one_particle( prt_bundle_t * pbdl_prt )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_all_particles( void )
+void move_all_particles()
 {
     /// @author ZZ
     /// @details This is the particle physics function
@@ -2232,7 +2222,7 @@ void move_all_particles( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void particle_system_begin( void )
+void particle_system_begin()
 {
     /// @author ZZ
     /// @details This function sets up particle data
@@ -2243,7 +2233,7 @@ void particle_system_begin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void particle_system_end( void )
+void particle_system_end()
 {
     PipStack_release_all();
     PrtList_dtor();
@@ -2466,7 +2456,7 @@ bool prt_is_over_water( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-PIP_REF PipStack_get_free( void )
+PIP_REF PipStack_get_free()
 {
     int retval = INVALID_PIP_REF;
 
@@ -2519,7 +2509,7 @@ PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void PipStack_init_all( void )
+void PipStack_init_all()
 {
     PIP_REF cnt;
 
@@ -2533,7 +2523,7 @@ void PipStack_init_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void PipStack_release_all( void )
+void PipStack_release_all()
 {
     PIP_REF cnt;
     int tnc;
@@ -2677,7 +2667,7 @@ int prt_do_end_spawn( const PRT_REF iprt )
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_all_particles( void )
+void cleanup_all_particles()
 {
     PRT_REF iprt;
 
@@ -2709,7 +2699,7 @@ void cleanup_all_particles( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void bump_all_particles_update_counters( void )
+void bump_all_particles_update_counters()
 {
     PRT_REF cnt;
 

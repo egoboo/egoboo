@@ -17,28 +17,13 @@
 //*
 //********************************************************************************************
 
-/// @file game/egoboo.c
+/// @file  game/egoboo.c
 /// @brief Code for the main program process
 /// @details
 
 #define DECLARE_GLOBALS
 #include "game/egoboo.h"
-
-#include "egolib/log.h"
-#include "egolib/system.h"
-#include "egolib/font_bmp.h"
-#include "egolib/fileutil.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/vfs.h"
-#include "egolib/console.h"
-#include "egolib/strutil.h"
-
-#include "egolib/file_formats/scancode_file.h"
-#include "egolib/file_formats/controls_file.h"
-#include "egolib/file_formats/treasure_table_file.h"
-#include "egolib/extensions/SDL_extensions.h"
-#include "egolib/clock.h"
-
+#include "egolib/egolib.h"
 #include "game/network.h"
 #include "game/sound.h"
 #include "game/ui.h"
@@ -49,7 +34,6 @@
 #include "game/graphic.h"
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
-
 #include "game/char.inl"
 #include "game/particle.inl"
 #include "game/enchant.inl"
@@ -64,11 +48,11 @@ static int do_ego_proc_running( ego_process_t * eproc );
 static int do_ego_proc_leaving( ego_process_t * eproc );
 static int do_ego_proc_run( ego_process_t * eproc, double frameDuration );
 
-static void memory_cleanUp( void );
-static int  ego_init_SDL( void );
+static void memory_cleanUp();
+static int  ego_init_SDL();
 
-static void object_systems_begin( void );
-static void object_systems_end( void );
+static void object_systems_begin();
+static void object_systems_end();
 
 static void _quit_game( ego_process_t * pgame );
 
@@ -523,7 +507,7 @@ int SDL_main( int argc, char **argv )
 }
 
 //--------------------------------------------------------------------------------------------
-void memory_cleanUp( void )
+void memory_cleanUp()
 {
     /// @author ZF
     /// @details This function releases all loaded things in memory and cleans up everything properly
@@ -576,7 +560,7 @@ void memory_cleanUp( void )
 }
 
 //--------------------------------------------------------------------------------------------
-int ego_init_SDL( void )
+int ego_init_SDL()
 {
     ego_init_SDL_base();
     input_system_init();
@@ -585,7 +569,7 @@ int ego_init_SDL( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void ego_init_SDL_base( void )
+void ego_init_SDL_base()
 {
     if ( _sdl_initialized_base ) return;
 
@@ -632,7 +616,7 @@ void ego_init_SDL_base( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void object_systems_begin( void )
+void object_systems_begin()
 {
     /// @author BB
     /// @details initialize all the object systems
@@ -644,7 +628,7 @@ void object_systems_begin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void object_systems_end( void )
+void object_systems_end()
 {
     /// @author BB
     /// @details quit all the object systems
@@ -688,7 +672,7 @@ ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char **argv )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 egoboo_get_ticks( void )
+Uint32 egoboo_get_ticks()
 {
     Uint32 ticks = 0;
 

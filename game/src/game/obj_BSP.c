@@ -32,40 +32,32 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+static bool obj_BSP_allocTree(obj_BSP_t *self, int dim, int depth);
+static void obj_BSP_deallocTree(obj_BSP_t *self);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth )
+static bool obj_BSP_allocTree(obj_BSP_t *self, int dim, int depth)
 {
-    // allocate make a 2D BSP tree
-
-    BSP_tree_t * rv;
-
-    if ( NULL == pbsp ) return false;
-
-    obj_BSP_free( pbsp );
-
-    rv = BSP_tree_ctor( &( pbsp->tree ), dim, depth );
-
-    return ( NULL != rv );
+	EGOBOO_ASSERT(NULL != self);
+    BSP_tree_t *rv = BSP_tree_ctor(&(self->tree), dim, depth);
+	return (NULL != rv);
 }
 
 //--------------------------------------------------------------------------------------------
-bool obj_BSP_free( obj_BSP_t * pbsp )
+static void obj_BSP_deallocTree(obj_BSP_t *self)
 {
-    if ( NULL == pbsp ) return false;
-
-    BSP_tree_dealloc( &( pbsp->tree ) );
-
-    return true;
+	EGOBOO_ASSERT(NULL != self);
+    BSP_tree_dealloc(&(self->tree));
 }
 
 //--------------------------------------------------------------------------------------------
-bool obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp )
+/// @brief Construct a BSP tree for game object.
+/// @remark The used parameters duplicate the maximum resolution of the old system.
+/// @author BB
+/// @author MH
+bool obj_BSP_ctor(obj_BSP_t *self, int bsp_dim, const mesh_BSP_t *mesh_bsp)
 {
-    /// @author BB
-    /// @details Create a new BSP tree for game objects.
-    ///     These parameters duplicate the max resolution of the old system.
-
     int          cnt;
     int          mesh_dim, min_dim;
     float        bsp_size;
@@ -81,17 +73,17 @@ bool obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp )
         log_error( "obj_BSP_ctor() - cannot construct an object BSP with more than than 3 dimensions\n" );
     }
 
-    if ( NULL == pmesh_bsp ) return false;
-    mesh_tree = &( pmesh_bsp->tree );
-    mesh_dim = pmesh_bsp->tree.dimensions;
+    if ( NULL == mesh_bsp ) return false;
+    mesh_tree = &(mesh_bsp->tree);
+    mesh_dim = mesh_bsp->tree.dimensions;
 
-    if ( NULL == pbsp ) return false;
-    obj_tree = &( pbsp->tree );
+    if ( NULL == self ) return false;
+    obj_tree = &(self->tree);
 
-    BLANK_STRUCT_PTR( pbsp )
+    BLANK_STRUCT_PTR(self)
 
     // allocate the data
-    obj_BSP_alloc( pbsp, bsp_dim, mesh_tree->max_depth );
+	if (!obj_BSP_allocTree(self, bsp_dim, mesh_tree->max_depth)) return false;
 
     // find the maximum extent of the bsp
     bsp_size = 0.0f;
@@ -99,12 +91,12 @@ bool obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp )
 
     for ( cnt = 0; cnt < min_dim; cnt ++ )
     {
-        float tmp_size = ABS( mesh_tree->bsp_bbox.maxs.ary[cnt] - mesh_tree->bsp_bbox.mins.ary[cnt] );
+        float tmp_size = std::abs( mesh_tree->bsp_bbox.maxs.ary[cnt] - mesh_tree->bsp_bbox.mins.ary[cnt] );
         bsp_size = std::max( bsp_size, tmp_size );
     }
 
     // copy the volume from the mesh
-    for ( cnt = 0; cnt < min_dim; cnt++ )
+    for ( int cnt = 0; cnt < min_dim; cnt++ )
     {
         // get the size
         obj_tree->bsp_bbox.mins.ary[cnt] = std::min( mesh_tree->bsp_bbox.mins.ary[cnt], mesh_tree->bbox.data.mins[cnt] );
@@ -141,53 +133,81 @@ bool obj_BSP_ctor( obj_BSP_t * pbsp, int bsp_dim, const mesh_BSP_t * pmesh_bsp )
 }
 
 //--------------------------------------------------------------------------------------------
-bool obj_BSP_dtor( obj_BSP_t * pbsp )
+void obj_BSP_dtor(obj_BSP_t *self)
 {
-    if ( NULL == pbsp ) return false;
+	EGOBOO_ASSERT(NULL != self);
 
-    // deallocate everything
-    obj_BSP_free( pbsp );
+    // Deallocate everything.
+    obj_BSP_deallocTree(self);
 
-    // run the destructors on all of the sub-objects
-    BSP_tree_dtor( &( pbsp->tree ) );
-
-    return true;
+    // Run the destructors on all of the sub-objects.
+    BSP_tree_dtor(&(self->tree ));
 }
 
 //--------------------------------------------------------------------------------------------
-int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+obj_BSP_t *obj_BSP_new(int dim, const mesh_BSP_t *mesh_bsp)
 {
-    /// @author BB
-    /// @details fill the collision list with references to tiles that the object volume may overlap.
-    ///      Return the number of collisions found.
-
-    if ( NULL == pbsp || NULL == paabb || NULL == colst ) return 0;
-
-    // infinite nodes
-    return BSP_tree_collide_aabb( &( pbsp->tree ), paabb, ptest, colst );
+	EGOBOO_ASSERT(NULL != mesh_bsp);
+	obj_BSP_t *self = (obj_BSP_t *)malloc(sizeof(obj_BSP_t));
+	if (!self)
+	{
+		log_error("%s:%d: unable to allocate %zu Bytes\n",__FILE__,__LINE__,sizeof(obj_BSP_t));
+		return NULL;
+	}
+	if (!obj_BSP_ctor(self, dim, mesh_bsp))
+	{
+		free(self);
+		return NULL;
+	}
+	return self;
 }
 
-//--------------------------------------------------------------------------------------------
-int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst )
+void obj_BSP_delete(obj_BSP_t *self)
 {
-    /// @author BB
-    /// @details fill the collision list with references to tiles that the object volume may overlap.
-    ///      Return the number of collisions found.
-
-    if ( NULL == pbsp || NULL == pfrust || NULL == colst ) return 0;
-
-    // infinite nodes
-    return BSP_tree_collide_frustum( &( pbsp->tree ), pfrust, ptest, colst );
+	EGOBOO_ASSERT(NULL != self);
+	obj_BSP_dtor(self);
+	free(self);
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool chr_BSP_can_collide( BSP_leaf_t * pchr_leaf )
+/**
+ * @brief
+ *	Fill the collision list with references to tiles that the object volume may overlap.
+ * @return
+ *	return the number of collisions found
+ * @author
+ *	BB
+ */
+int obj_BSP_collide_aabb(const obj_BSP_t *self, const aabb_t *aabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst)
 {
-    /// @author BB
-    /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
-    ///               can be added to a collision list
+    if (NULL == self || NULL == aabb || NULL == colst) return 0;
 
+    // Infinite nodes.
+    return BSP_tree_collide_aabb(&(self->tree), aabb, ptest, colst);
+}
+
+/**
+ * @brief
+ *	Fill the collision list with references to tiles that the object volume may overlap.
+ * @return
+ *	the number of collisions found
+ * @author BB
+ */
+int obj_BSP_collide_frustum(const obj_BSP_t *self, const egolib_frustum_t * frustum, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst)
+{
+    if (NULL == self || NULL == frustum || NULL == colst) return 0;
+
+    // Infinite nodes.
+    return BSP_tree_collide_frustum(&(self->tree), frustum, ptest, colst);
+}
+
+/**
+ * @brief
+ *	A test function passed to BSP_*_collide_* functions to determine whether a leaf can be added to a collision list.
+ * @author
+ *	BB
+ */
+bool chr_BSP_can_collide(BSP_leaf_t * pchr_leaf)
+{
     chr_t * pchr;
 
     bool can_be_reaffirmed;
@@ -235,13 +255,14 @@ bool chr_BSP_can_collide( BSP_leaf_t * pchr_leaf )
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool prt_BSP_can_collide( BSP_leaf_t * pprt_leaf )
+/**
+ * @brief
+ *	A test function passed to BSP_*_collide_* functions to determine whether a leaf can be added to a collision list.
+ * @author
+ *	BB
+ */
+bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
 {
-    /// @author BB
-    /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
-    ///               can be added to a collision list
-
     prt_t * pprt;
     pip_t * ppip;
 
@@ -298,57 +319,56 @@ bool prt_BSP_can_collide( BSP_leaf_t * pprt_leaf )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_BSP_is_visible( BSP_leaf_t * pchr_leaf )
+/**
+ * @brief
+ *	A test function passed to BSP_*_collide_* functions to determine whether a leaf can be added to a collision list.
+ * @author
+ *	BB
+ */
+bool chr_BSP_is_visible(BSP_leaf_t * pchr_leaf)
 {
-    /// @author BB
-    /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
-    ///               can be added to a collision list
-
-    chr_t * pchr;
-
     // make sure we have a character leaf
-    if ( NULL == pchr_leaf || NULL == pchr_leaf->data || BSP_LEAF_CHR != pchr_leaf->data_type )
+    if (NULL == pchr_leaf || NULL == pchr_leaf->data || BSP_LEAF_CHR != pchr_leaf->data_type)
     {
         return false;
     }
-    pchr = ( chr_t * )( pchr_leaf->data );
+	chr_t *pchr = (chr_t *)(pchr_leaf->data);
 
-    if ( !ACTIVE_PCHR( pchr ) ) return false;
+    if (!ACTIVE_PCHR(pchr)) return false;
 
     // no interactions with hidden objects
-    if ( pchr->is_hidden ) return false;
+    if (pchr->is_hidden) return false;
 
     // no interactions with packed objects
-    if ( VALID_CHR_RANGE( pchr->inwhich_inventory ) ) return false;
+    if (VALID_CHR_RANGE(pchr->inwhich_inventory)) return false;
 
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool prt_BSP_is_visible( BSP_leaf_t * pprt_leaf )
+/**
+ * @brief
+ *	A test function passed to BSP_*_collide_* functions to determine whether a leaf can be added to a collision list.
+ * @author
+ *	BB
+ */
+bool prt_BSP_is_visible(BSP_leaf_t * pprt_leaf)
 {
-    /// @author BB
-    /// @details a test function passed to BSP_*_collide_* functions to determine whether a leaf
-    ///               can be added to a collision list
-
-    prt_t * pprt;
-
     // make sure we have a character leaf
-    if ( NULL == pprt_leaf || NULL == pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type )
+    if (NULL == pprt_leaf || NULL == pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type)
     {
         return false;
     }
-    pprt = ( prt_t * )( pprt_leaf->data );
+	prt_t *pprt = (prt_t *)(pprt_leaf->data);
 
     // is the particle in-game?
-    if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden ) return false;
+    if (!INGAME_PPRT_BASE(pprt) || pprt->is_hidden) return false;
 
     // zero sized particles are not visible
-    if ( 0 == pprt->size )
+    if (0 == pprt->size)
     {
         return false;
     }
-    else if ( pprt->inst.valid && pprt->inst.size <= 0.0f )
+    else if (pprt->inst.valid && pprt->inst.size <= 0.0f)
     {
         return false;
     }

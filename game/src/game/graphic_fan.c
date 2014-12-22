@@ -17,22 +17,17 @@
 //*
 //********************************************************************************************
 
-/// @file game/graphic_fan.c
+/// @file  game/graphic_fan.c
 /// @brief World mesh drawing.
 /// @details
 
 #include "game/graphic.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_texture.h"
-
-#include "egolib/extensions/SDL_extensions.h"
-#include "egolib/file_formats/map_tile_dictionary.h"
-
 #include "game/camera_system.h"
 #include "game/game.h"
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"
-
 #include "game/mesh.inl"
 
 //--------------------------------------------------------------------------------------------
@@ -534,7 +529,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
 }
 
 //--------------------------------------------------------------------------------------------
-void animate_tiles( void )
+void animate_tiles()
 {
     /// @author ZZ
     /// @details This function changes the animated tile frame

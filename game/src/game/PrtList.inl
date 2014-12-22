@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -23,8 +21,9 @@
 /// @brief
 /// @details
 
-#include "game/PrtList.h"
+#pragma once
 
+#include "game/PrtList.h"
 #include "game/particle.h"
 
 //--------------------------------------------------------------------------------------------

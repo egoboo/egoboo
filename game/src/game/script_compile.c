@@ -22,14 +22,6 @@
 /// @details
 
 #include "game/script_compile.h"
-
-#include "egolib/log.h"
-#include "egolib/vfs.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/strutil.h"
-#include "egolib/fileutil.h"
-#include "egolib/_math.h"
-
 #include "game/game.h"
 #include "game/renderer_2d.h"
 #include "game/egoboo.h"
@@ -551,8 +543,8 @@ static void load_ai_codes_vfs( const char* loadname );
 
 // functions for debugging the scripts
 #if (DEBUG_SCRIPT_LEVEL > 2) && defined(_DEBUG)
-static void print_token( void );
-static void print_line( void );
+static void print_token();
+static void print_line();
 #else
 #   define print_token()
 #   define print_line()
@@ -566,7 +558,7 @@ IMPLEMENT_STATIC_ARY( OpListAry, MAX_OPCODE );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-parser_state_t *  script_compiler_init( void )
+parser_state_t *  script_compiler_init()
 {
     /// @author BB
     /// @details initalize the sctipt compiling module
@@ -586,7 +578,7 @@ parser_state_t *  script_compiler_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-parser_state_t * script_compiler_get_state( void )
+parser_state_t * script_compiler_get_state()
 {
     // get a valid singleton
 

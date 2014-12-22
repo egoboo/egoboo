@@ -23,10 +23,6 @@
 
 #include "game/egoboo_typedef.h"
 
-#include "egolib/hash.h"
-
-#include "egolib/bbox.inl"
-
 //--------------------------------------------------------------------------------------------
 // external structs
 //--------------------------------------------------------------------------------------------
@@ -95,7 +91,7 @@ extern int CHashList_inserted;
 //--------------------------------------------------------------------------------------------
 // global functions
 
-bool collision_system_begin( void );
-void   collision_system_end( void );
+bool collision_system_begin();
+void   collision_system_end();
 
-void bump_all_objects( void );
+void bump_all_objects();

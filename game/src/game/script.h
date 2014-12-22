@@ -22,10 +22,7 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
-
 #include "game/script_implementation.h"
-
-#include "egolib/clock.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -221,5 +218,5 @@ void issue_order( const CHR_REF character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );
 void set_alerts( const CHR_REF character );
 
-void scripting_system_begin( void );
-void scripting_system_end( void );
+void scripting_system_begin();
+void scripting_system_end();

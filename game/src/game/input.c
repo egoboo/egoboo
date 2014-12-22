@@ -23,21 +23,6 @@
 
 #include "game/input.h"
 
-#if defined(USE_LUA_CONSOLE)
-#    include "egolib/lua/lua_console.h"
-#else
-#    include "egolib/console.h"
-#endif
-
-#include "egolib/egoboo_setup.h"
-#include "egolib/log.h"
-#include "egolib/scancode.h"
-#include "egolib/fileutil.h"
-#include "egolib/strutil.h"
-#include "egolib/_math.h"
-#include "egolib/file_formats/controls_file.h"
-#include "egolib/extensions/SDL_extensions.h"
-
 #include "game/ui.h"
 #include "game/network.h"
 #include "game/menu.h"

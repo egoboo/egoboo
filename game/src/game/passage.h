@@ -24,8 +24,6 @@
 
 #include "game/egoboo_typedef.h"
 
-#include "egolib/file_formats/passage_file.h"
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -89,9 +87,9 @@ DECLARE_STACK_EXTERN( shop_t, ShopStack, MAX_SHOP );
 //--------------------------------------------------------------------------------------------
 // prototypes
 
-void   check_passage_music( void );
-void   clear_all_passages( void );
-void   activate_passages_file_vfs( void );
+void   check_passage_music();
+void   clear_all_passages();
+void   activate_passages_file_vfs();
 
 void   add_passage( passage_t * pdata );
 

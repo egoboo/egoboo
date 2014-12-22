@@ -17,45 +17,47 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/egolib.h
+/// @file  egolib/egolib.h
 /// @brief All-in-one header file.
 
 #pragma once
 
-#include "egolib/typedef.h"
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
+#include "egolib/aabb.h"
+#include "egolib/bsp.h"
+#include "egolib/bbox.h"
 #include "egolib/clock.h"
-#include "egolib/console.h"
-#include "egolib/endian.h"
-#include "egolib/fileutil.h"
-#include "egolib/_math.h"
-#include "egolib/platform.h"
-#include "egolib/process.h"
-#include "egolib/state_machine.h"
-#include "egolib/strutil.h"
-#include "egolib/timer.h"
-#include "egolib/vfs.h"
 #include "egolib/egoboo_setup.h"
+#include "egolib/endian.h"
+#include "egolib/file_common.h"
+#include "egolib/fileutil.h"
 #include "egolib/font_bmp.h"
 #include "egolib/font_ttf.h"
-#include "egolib/system.h"
-#include "egolib/clock.h"
-#include "egolib/file_common.h"
-#include "egolib/log.h"
+#include "egolib/frustum.h"
 #include "egolib/hash.h"
+#include "egolib/_math.h"
+#include "egolib/IDSZ_map.h"
+#include "egolib/input_device.h"
+#include "egolib/log.h"
+#include "egolib/matrix.h"
+#include "egolib/map_functions.h"
+#include "egolib/network.h"
+#include "egolib/network_file.h"
+#include "egolib/platform.h"
+#include "egolib/process.h"
+#include "egolib/scancode.h"
+#include "egolib/state_machine.h"
+#include "egolib/strutil.h"
+#include "egolib/system.h"
+#include "egolib/throttle.h"
+#include "egolib/timer.h"
+#include "egolib/typedef.h"
+#include "egolib/vfs.h"
+#include "egolib/vec.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#include "egolib/extensions/ogl_debug.h"
-#include "egolib/extensions/ogl_extensions.h"
-#include "egolib/extensions/ogl_include.h"
-#include "egolib/extensions/ogl_texture.h"
-#include "egolib/extensions/SDL_extensions.h"
-#include "egolib/extensions/SDL_GL_extensions.h"
+#include "egolib/opengl/renderer.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -67,6 +69,7 @@
 #include "egolib/file_formats/id_md2.h"
 #include "egolib/file_formats/module_file.h"
 #include "egolib/file_formats/map_file.h"
+#include "egolib/file_formats/map_tile_dictionary.h"
 #include "egolib/file_formats/passage_file.h"
 #include "egolib/file_formats/pip_file.h"
 #include "egolib/file_formats/quest_file.h"
@@ -76,8 +79,16 @@
 #include "egolib/file_formats/treasure_table_file.h"
 #include "egolib/file_formats/wawalite_file.h"
 
+#if 0
 #if defined(USE_LUA_CONSOLE)
 	#include "egolib/lua/lua_console.h"
+#endif
+#endif
+
+#if defined(USE_LUA_CONSOLE)
+	#include "egolib/lua/lua_console.h"
+#else
+	#include "egolib/console.h"
 #endif
 
 //!!! watch this one. if you are using the Fluid Studios memory manager,

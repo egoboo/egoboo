@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,15 +20,14 @@
 /// @file game/egoboo.h
 ///
 /// @details Disgusting, hairy, way too monolithic header file for the whole darn
-/// project.  In severe need of cleaning up.  Venture here with extreme
-/// caution, and bring one of those canaries with you to make sure you
-/// don't run out of oxygen.
+///          project.  In severe need of cleaning up.  Venture here with extreme
+///          caution, and bring one of those canaries with you to make sure you
+///          don't run out of oxygen.
+
+#pragma once
 
 /* Typedefs for various platforms */
 #include "game/egoboo_typedef.h"
-
-#include "egolib/timer.h"
-#include "egolib/clock.h"
 
 /// The following magic allows this include to work in multiple files
 #if defined(DECLARE_GLOBALS)
@@ -166,7 +163,7 @@ EXTERN local_stats_t local_stats;
 
 //---------------------------------------------------------------------------------------------------------------------
 
-#include "egolib/process.h"
+#include "egolib/egolib.h"
 
 /// a process that controls the master loop of the program
 struct s_ego_process
@@ -187,7 +184,7 @@ struct s_ego_process
     char * argv0;
 };
 
-void ego_init_SDL_base( void );
+void ego_init_SDL_base();
 
 EXTERN bool screenshot_requested EQ( false );
 
@@ -204,7 +201,7 @@ extern ego_process_t * EProc;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-Uint32 egoboo_get_ticks( void );
+Uint32 egoboo_get_ticks();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -23,16 +23,16 @@
 
 #include "game/egoboo_typedef.h"
 
-#include "egolib/bsp.h"
-
 //--------------------------------------------------------------------------------------------
 // external structs
 //--------------------------------------------------------------------------------------------
 
 struct s_chr;
 struct s_prt_bundle;
+#if 0
 struct s_egolib_frustum;
-struct s_mpd_BSP;
+#endif
+struct mesh_BSP_t;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -57,11 +57,37 @@ struct s_obj_BSP
 /** @todo Remove this. obj_BSP_ctor must be used. */
 #define OBJ_BSP_INIT_VALS { 0, BSP_TREE_INIT_VALS }
 
-bool obj_BSP_ctor( obj_BSP_t * pbsp, int dim, const struct s_mpd_BSP * pmesh_bsp );
-bool obj_BSP_dtor( obj_BSP_t * pbsp );
+/**
+ * @todo
+ *	Make private.
+ * @todo
+ *	If @a dim can not be negative, then it should be of type @a size_t.
+ */
+bool obj_BSP_ctor(obj_BSP_t *self, int dim, const mesh_BSP_t *mesh_bsp);
+/* @todo Make private*/
+void obj_BSP_dtor(obj_BSP_t *self);
 
-bool obj_BSP_alloc( obj_BSP_t * pbsp, int dim, int depth );
-bool obj_BSP_free( obj_BSP_t * pbsp );
+/**
+ * @brief
+ *	Create a new object BSP.
+ * @param dim
+ *	?
+ * @param mesh_bsp
+ *	the mesh BSP used when initializing the object BSP
+ * @return
+ *	the object BSP on success, @a NULL on failure
+ * @todo
+ *	If @a dim can not be negative, then it should be of type @a size_t.
+ */
+obj_BSP_t *obj_BSP_new(int dim,const mesh_BSP_t *mesh_bsp);
+
+/**
+ * @brief
+ *	Delete an object BSP.
+ * @param self
+ *	the object BSP
+ */
+void obj_BSP_delete(obj_BSP_t *self);
 
 int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
 int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );

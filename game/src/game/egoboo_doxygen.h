@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -18,6 +16,8 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
+#pragma once
 
 // This file is only used to set-up some special features of the doxygen automatic
 // source code documentation. This file uses the doxygen's normal "\" notation. In the rest

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,9 +19,9 @@
 
 /// @file game/link.h
 
+#pragma once
+
 #include "game/egoboo_typedef.h"
-#include "egolib/_math.h"
-#include "egolib/vec.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -59,7 +57,7 @@ extern Link_t LinkList[LINK_COUNT];
 bool link_follow_modname( const char * modname, bool push_current_module );
 bool link_build_vfs( const char * fname, Link_t list[] );
 
-bool link_pop_module( void );
+bool link_pop_module();
 bool link_load_parent( const char * modname, fvec3_t pos );
 
 //--------------------------------------------------------------------------------------------

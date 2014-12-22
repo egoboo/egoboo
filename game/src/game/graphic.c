@@ -21,6 +21,8 @@
 /// @brief Simple Egoboo renderer
 /// @details All sorts of stuff related to drawing the game
 
+#include "egolib/egolib.h"
+#include "egolib/bsp.inl"
 #include "game/graphic.h"
 #include "game/graphic_prt.h"
 #include "game/graphic_mad.h"
@@ -29,28 +31,6 @@
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-
-#include "egolib/log.h"
-#include "egolib/clock.h"
-#include "egolib/throttle.h"
-#include "egolib/font_bmp.h"
-#include "egolib/font_ttf.h"
-#include "egolib/vfs.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/strutil.h"
-#include "egolib/fileutil.h"
-
-#include "egolib/console.h"
-#if defined(USE_LUA_CONSOLE)
-#    include "egolib/lua/lua_console.h"
-#endif
-
-#include "egolib/extensions/SDL_extensions.h"
-#include "egolib/extensions/SDL_GL_extensions.h"
-#include "egolib/file_formats/id_md2.h"
-#include "egolib/file_formats/map_tile_dictionary.h"
-
-#include "egolib/frustum.h"
 #include "game/network_server.h"
 #include "game/mad.h"
 #include "game/bsp.h"
@@ -66,8 +46,6 @@
 #include "game/ui.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-
-#include "egolib/bsp.inl"
 #include "game/char.inl"
 #include "game/particle.inl"
 #include "game/enchant.inl"
@@ -404,20 +382,20 @@ static BSP_leaf_pary_t  _dolist_colst    = DYNAMIC_ARY_INIT_VALS;
  * @brief
  *	Initialize the SDL graphics system.
  */
-static void gfx_system_init_SDL_graphics(void);
+static void gfx_system_init_SDL_graphics();
 
 /**
  * @brief
  *	Uninitialize the SDL graphics system.
  */
-static void gfx_system_uninit_SDL_graphics(void);
+static void gfx_system_uninit_SDL_graphics();
 
-static void gfx_reset_timers( void );
+static void gfx_reset_timers();
 
-static void _flip_pages( void );
+static void _flip_pages();
 
-static void gfx_update_fps_clock( void );
-static void gfx_update_fps( void );
+static void gfx_update_fps_clock();
+static void gfx_update_fps();
 
 static gfx_rv light_fans( renderlist_t * prlist );
 
@@ -446,23 +424,23 @@ static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam );
 
 static float draw_one_xp_bar( float x, float y, Uint8 ticks );
 static float draw_character_xp_bar( const CHR_REF character, float x, float y );
-static void  draw_all_status( void );
-static void  draw_map( void );
+static void  draw_all_status();
+static void  draw_map();
 static float draw_fps( float y );
 static float draw_help( float y );
 static float draw_debug( float y );
 static float draw_timer( float y );
 static float draw_game_status( float y );
-static void  draw_hud( void );
-static void  draw_inventory( void );
+static void  draw_hud();
+static void  draw_inventory();
 
 static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
 static bool gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct, const bool do_ends );
 
-static void gfx_reload_decimated_textures( void );
+static void gfx_reload_decimated_textures();
 
 static gfx_rv update_one_chr_instance( struct s_chr * pchr );
-static gfx_rv gfx_update_all_chr_instance( void );
+static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing( dolist_t * pdolist );
 
 static gfx_rv light_fans_throttle_update( ego_mesh_t * pmesh, ego_tile_info_t * ptile, int fan, float threshold );
@@ -472,10 +450,10 @@ static bool sum_global_lighting( lighting_vector_t lighting );
 static float calc_light_rotation( int rotation, int normal );
 static float calc_light_global( int rotation, int normal, float lx, float ly, float lz );
 
-//static void gfx_init_icon_data( void );
-static void   gfx_init_bar_data( void );
-static void   gfx_init_blip_data( void );
-static void   gfx_init_map_data( void );
+//static void gfx_init_icon_data();
+static void   gfx_init_bar_data();
+static void   gfx_init_blip_data();
+static void   gfx_init_map_data();
 
 static SDL_Surface * gfx_create_SDL_Surface( int w, int h );
 
@@ -1511,7 +1489,7 @@ dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index )
 //--------------------------------------------------------------------------------------------
 // gfx_system INITIALIZATION
 //--------------------------------------------------------------------------------------------
-void gfx_system_begin( void )
+void gfx_system_begin()
 {
     // set the graphics state
 	gfx_system_init_SDL_graphics(); /* @todo Error handling. */
@@ -1582,7 +1560,7 @@ void gfx_system_begin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_end( void )
+void gfx_system_end()
 {
     // initialize the profiling variables
     PROFILE_FREE( render_scene_init );
@@ -1640,13 +1618,13 @@ void gfx_system_end( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_uninit_OpenGL(void)
+void gfx_system_uninit_OpenGL()
 {
 	Egoboo_Renderer_OpenGL_uninitialize();
 }
 
 //--------------------------------------------------------------------------------------------
-int gfx_system_init_OpenGL(void)
+int gfx_system_init_OpenGL()
 {
 	Egoboo_Renderer_OpenGL_initialize(); /* @todo Add error handling. */
 
@@ -1701,7 +1679,7 @@ int gfx_system_init_OpenGL(void)
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_uninit_SDL_graphics(void)
+void gfx_system_uninit_SDL_graphics()
 {
 	if (!_sdl_initialized_graphics)
 	{
@@ -1709,7 +1687,7 @@ void gfx_system_uninit_SDL_graphics(void)
 	}
 }
 
-void gfx_system_init_SDL_graphics(void)
+void gfx_system_init_SDL_graphics()
 {
 	if (_sdl_initialized_graphics)
 	{
@@ -1865,7 +1843,7 @@ void gfx_system_render_world( const camera_t * pcam, const int render_list_index
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_main( void )
+void gfx_system_main()
 {
     /// @author ZZ
     /// @details This function does all the drawing stuff
@@ -1925,7 +1903,7 @@ renderlist_mgr_t * gfx_system_get_renderlist_mgr( const camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-dolist_mgr_t * gfx_system_get_dolist_mgr( void )
+dolist_mgr_t * gfx_system_get_dolist_mgr()
 {
     if ( gfx_success != dolist_mgr_begin( &_dolist_mgr_data ) )
     {
@@ -1936,7 +1914,7 @@ dolist_mgr_t * gfx_system_get_dolist_mgr( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_load_assets( void )
+void gfx_system_load_assets()
 {
     /// @author ZF
     /// @details This function loads all the graphics based on the game settings
@@ -2006,7 +1984,7 @@ void gfx_system_load_assets( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_init_all_graphics( void )
+void gfx_system_init_all_graphics()
 {
     gfx_init_bar_data();
     gfx_init_blip_data();
@@ -2043,7 +2021,7 @@ void gfx_system_init_all_graphics( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_release_all_graphics( void )
+void gfx_system_release_all_graphics()
 {
     gfx_init_bar_data();
     gfx_init_blip_data();
@@ -2054,7 +2032,7 @@ void gfx_system_release_all_graphics( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_delete_all_graphics( void )
+void gfx_system_delete_all_graphics()
 {
     gfx_init_bar_data();
     gfx_init_blip_data();
@@ -2065,7 +2043,7 @@ void gfx_system_delete_all_graphics( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_load_basic_textures( void )
+void gfx_system_load_basic_textures()
 {
     /// @author ZZ
     /// @details This function loads the standard textures for a module
@@ -2119,7 +2097,7 @@ void gfx_system_load_basic_textures( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_make_enviro( void )
+void gfx_system_make_enviro()
 {
     /// @author ZZ
     /// @details This function sets up the environment mapping table
@@ -2142,7 +2120,7 @@ void gfx_system_make_enviro( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_reload_all_textures( void )
+void gfx_system_reload_all_textures()
 {
     /// @author BB
     /// @details function is called when the graphics mode is changed or the program is
@@ -2631,7 +2609,7 @@ float draw_character_xp_bar( const CHR_REF character, float x, float y )
         Uint32 xplastlevel = pcap->experience_forlevel[curlevel-1];
         Uint32 xpneed      = pcap->experience_forlevel[curlevel];
         
-        while (pchr->experience <= xplastlevel && curlevel > 0) {
+		while (pchr->experience < xplastlevel && curlevel > 1) {
             curlevel--;
             xplastlevel = pcap->experience_forlevel[curlevel-1];
         }
@@ -2715,7 +2693,7 @@ float draw_status( const CHR_REF character, float x, float y )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_all_status( void )
+void draw_all_status()
 {
     if ( !StatusList.on ) return;
 
@@ -2750,7 +2728,7 @@ void draw_all_status( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_map( void )
+void draw_map()
 {
     size_t cnt;
 
@@ -3084,7 +3062,7 @@ float draw_game_status( float y )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_hud( void )
+void draw_hud()
 {
     /// @author ZZ
     /// @details draw in-game heads up display
@@ -3121,7 +3099,7 @@ void draw_hud( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_inventory( void )
+void draw_inventory()
 {
     /// @author ZF
     /// @details This renders the open inventories of all local players
@@ -3254,7 +3232,7 @@ void draw_inventory( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_mouse_cursor( void )
+void draw_mouse_cursor()
 {
     int     x, y;
     oglx_texture_t * pcursor;
@@ -4985,7 +4963,7 @@ egolib_rv gfx_error_add( const char * file, const char * function, int line, int
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_error_state_t * gfx_error_pop( void )
+gfx_error_state_t * gfx_error_pop()
 {
     gfx_error_state_t * retval;
 
@@ -4998,7 +4976,7 @@ gfx_error_state_t * gfx_error_pop( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_error_clear( void )
+void gfx_error_clear()
 {
     gfx_error_stack.count = 0;
 }
@@ -5117,7 +5095,7 @@ bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void gfx_update_fps_clock( void )
+void gfx_update_fps_clock()
 {
     /// @author ZZ
     /// @details This function updates the graphics timers
@@ -5169,7 +5147,7 @@ void gfx_update_fps_clock( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_update_fps( void )
+void gfx_update_fps()
 {
     // at fold = 0.60f, it will take approximately 9 updates for the
     // weight of the first value to be reduced to 1%
@@ -5281,7 +5259,7 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright )
 // ASSET INITIALIZATION
 //--------------------------------------------------------------------------------------------
 
-void gfx_init_bar_data( void )
+void gfx_init_bar_data()
 {
     Uint8 cnt;
 
@@ -5302,7 +5280,7 @@ void gfx_init_bar_data( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_init_blip_data( void )
+void gfx_init_blip_data()
 {
     int cnt;
 
@@ -5320,7 +5298,7 @@ void gfx_init_blip_data( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_init_map_data( void )
+void gfx_init_map_data()
 {
     /// @author ZZ
     /// @details This function releases all the map images
@@ -5336,7 +5314,7 @@ void gfx_init_map_data( void )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_bars( void )
+gfx_rv gfx_load_bars()
 {
     /// @author ZZ
     /// @details This function loads the status bar bitmap
@@ -5365,7 +5343,7 @@ gfx_rv gfx_load_bars( void )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_map( void )
+gfx_rv gfx_load_map()
 {
     /// @author ZZ
     /// @details This function loads the map bitmap
@@ -5397,7 +5375,7 @@ gfx_rv gfx_load_map( void )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_blips( void )
+gfx_rv gfx_load_blips()
 {
     /// @author ZZ
     /// @details This function loads the blip bitmaps
@@ -5417,7 +5395,7 @@ gfx_rv gfx_load_blips( void )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_load_icons( void )
+gfx_rv gfx_load_icons()
 {
     const char * pname = "mp_data/nullicon";
     TX_REF load_rv = INVALID_TX_REF;
@@ -5438,13 +5416,13 @@ gfx_rv gfx_load_icons( void )
 //--------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------
-void gfx_request_clear_screen( void )
+void gfx_request_clear_screen()
 {
     gfx_page_clear_requested = true;
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_do_clear_screen( void )
+void gfx_do_clear_screen()
 {
     bool game_needs_clear, menu_needs_clear;
 
@@ -5480,7 +5458,7 @@ void gfx_do_clear_screen( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_do_flip_pages( void )
+void gfx_do_flip_pages()
 {
     bool try_flip;
 
@@ -5504,19 +5482,19 @@ void gfx_do_flip_pages( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_request_flip_pages( void )
+void gfx_request_flip_pages()
 {
     gfx_page_flip_requested = true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool gfx_flip_pages_requested( void )
+bool gfx_flip_pages_requested()
 {
     return gfx_page_flip_requested;
 }
 
 //--------------------------------------------------------------------------------------------
-void _flip_pages( void )
+void _flip_pages()
 {
     //GL_DEBUG( glFlush )();
 
@@ -5839,7 +5817,7 @@ gfx_rv light_fans( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-float get_ambient_level( void )
+float get_ambient_level()
 {
     /// @author BB
     /// @details get the actual global ambient level
@@ -5910,7 +5888,7 @@ bool sum_global_lighting( lighting_vector_t lighting )
 //--------------------------------------------------------------------------------------------
 // SEMI OBSOLETE FUNCTIONS
 //--------------------------------------------------------------------------------------------
-void draw_cursor( void )
+void draw_cursor()
 {
     /// @author ZZ
     /// @details This function implements a mouse cursor
@@ -6448,7 +6426,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
 
     // get the tiles in the center of the view
     _renderlist_colst.top = 0;
-    mesh_BSP_collide_frustum( &( mesh_BSP_root ), &( pcam->frustum_big ), NULL, &_renderlist_colst );
+    mesh_BSP_collide_frustum(getMeshBSP(), &( pcam->frustum_big ), NULL, &_renderlist_colst );
 
     // transfer valid _renderlist_colst entries to the dolist
     if ( gfx_error == renderlist_add_colst( prlist, &_renderlist_colst ) )
@@ -6510,7 +6488,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, const camera_t * pcam )
 
     // collide the characters with the frustum
     _dolist_colst.top = 0;
-    obj_BSP_collide_frustum( &chr_BSP_root, &( pcam->frustum ), chr_BSP_is_visible, &_dolist_colst );
+	obj_BSP_collide_frustum(getChrBSP(), &(pcam->frustum), chr_BSP_is_visible, &_dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
     if ( gfx_error == dolist_add_colst( pdlist, &_dolist_colst ) )
@@ -6521,10 +6499,10 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, const camera_t * pcam )
 
     // collide the particles with the frustum
     _dolist_colst.top = 0;
-    obj_BSP_collide_frustum( &prt_BSP_root, &( pcam->frustum ), prt_BSP_is_visible, &_dolist_colst );
+    obj_BSP_collide_frustum(getPtrBSP(), &( pcam->frustum ), prt_BSP_is_visible, &_dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
-    if ( gfx_error == dolist_add_colst( pdlist, &_dolist_colst ) )
+    if (gfx_error == dolist_add_colst(pdlist, &_dolist_colst))
     {
         retval = gfx_error;
         goto gfx_make_dolist_exit;
@@ -6592,7 +6570,7 @@ float calc_light_global( int rotation, int normal, float lx, float ly, float lz 
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_reset_timers( void )
+void gfx_reset_timers()
 {
     egolib_throttle_reset( &gfx_throttle );
     gfx_clear_loops = 0;
@@ -6895,7 +6873,7 @@ void gfx_decimate_all_mesh_textures()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_reload_decimated_textures( void )
+void gfx_reload_decimated_textures()
 {
     /// @author BB
     /// @details This function re-loads all the current textures back into

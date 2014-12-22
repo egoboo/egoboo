@@ -24,9 +24,6 @@
 
 #include "game/egoboo_typedef.h"
 
-#include "egolib/_math.h"
-#include "egolib/vec.h"
-
 /// @defgroup _bitwise_functions_ Bitwise Scripting Functions
 /// @details These functions may be necessary to export the bitwise functions for handling alerts to
 ///  scripting languages where there is no support for bitwise operators (Lua, tcl, ...)

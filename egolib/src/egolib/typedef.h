@@ -94,18 +94,23 @@
 #endif
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-/// special return values
-    enum e_egolib_rv
+	/**
+	 * @brief
+	 *	Special return values.
+	 * @todo
+	 *	Rename to Ego::Result.
+	 */
+    enum egolib_rv
     {
         rv_error   = -1,
         rv_fail    = false,
         rv_success = true
     };
-
+#if 0
     // this typedef must be after the enum definition or gcc has a fit
     typedef enum e_egolib_rv egolib_rv;
+#endif
 
 //--------------------------------------------------------------------------------------------
 // 24.8 fixed point types

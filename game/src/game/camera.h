@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,11 +19,9 @@
 
 /// @file game/camera.h
 
-#include "game/egoboo_typedef.h"
+#pragma once
 
-#include "egolib/_math.h"
-#include "egolib/matrix.h"
-#include "egolib/frustum.h"
+#include "game/egoboo_typedef.h"
 #include "game/physics.h"
 
 //--------------------------------------------------------------------------------------------

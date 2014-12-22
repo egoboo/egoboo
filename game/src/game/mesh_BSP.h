@@ -24,46 +24,68 @@
 
 #include "game/egoboo_typedef.h"
 
-#include "egolib/bsp.h"
-
 //--------------------------------------------------------------------------------------------
 // external structs
 //--------------------------------------------------------------------------------------------
 
 // Forward declarations.
-typedef struct ego_mesh_t ego_mesh_t;
-typedef struct egolib_frustum_t egolib_frustum_t;
+struct ego_mesh_t;
+struct egolib_frustum_t;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
 //--------------------------------------------------------------------------------------------
 
-struct s_mpd_BSP;
-typedef struct s_mpd_BSP mesh_BSP_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-// the BSP structure housing the mesh
-struct s_mpd_BSP
+/**
+ * @brief
+ *	A BSP housing a mesh.
+ */
+struct mesh_BSP_t
 {
     size_t         count;
     oct_bb_t       volume;
     BSP_tree_t     tree;
 };
 
-#define MAP_BSP_INIT \
+#define MESH_BSP_INIT \
     {\
         0,                 /* count  */ \
         OCT_BB_INIT_VALS,  /* volume */ \
         BSP_TREE_INIT_VALS /* tree   */ \
     }
 
-mesh_BSP_t *mesh_BSP_ctor( mesh_BSP_t * pbsp, const ego_mesh_t * pmesh );
-mesh_BSP_t *mesh_BSP_dtor( mesh_BSP_t * pbsp );
-bool        mesh_BSP_alloc( mesh_BSP_t * pbsp );
-bool        mesh_BSP_free( mesh_BSP_t * pbsp );
-bool        mesh_BSP_fill( mesh_BSP_t * pbsp, const ego_mesh_t * pmpd );
+/** @todo Should return @a bool. */
+mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh);
+/** @todo Should return @a void. */
+mesh_BSP_t *mesh_BSP_dtor(mesh_BSP_t *self);
+ 
+/**
+ * @brief
+ *	Create a new mesh BSP for a mesh.
+ * @param mesh
+ *	the mesh used in initialization
+ * @return
+ *	the mesh BSP on success, @a NULL failure
+ * @author
+ *	BB
+ * @author
+ *	MH
+ * @details
+ *	These parameters duplicate the max resolution of the old system.
+ */
+mesh_BSP_t *mesh_BSP_new(const ego_mesh_t *mesh);
+
+/**
+ * @brief
+ *	Delete a mesh BSP.
+ * @param self
+ *	the mesh BSP
+ */
+void mesh_BSP_delete(mesh_BSP_t *mesh_bsp);
+
+bool        mesh_BSP_alloc(mesh_BSP_t *self);
+bool        mesh_BSP_free(mesh_BSP_t *self);
+bool        mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh);
 
 bool        mesh_BSP_can_collide( BSP_leaf_t * pleaf );
 bool        mesh_BSP_is_visible( BSP_leaf_t * pleaf );

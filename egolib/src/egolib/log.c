@@ -41,30 +41,30 @@ static int _atexit_registered = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void writeLogMessage( const char *prefix, const char *format, va_list args )
+static void writeLogMessage(const char *prefix, const char *format, va_list args)
 {
-    if ( NULL != logFile )
+    if (NULL != logFile)
     {
-        vsnprintf( logBuffer, MAX_LOG_MESSAGE - 1, format, args );
-        fputs( prefix, logFile );
-        fputs( logBuffer, logFile );
+        vsnprintf(logBuffer, MAX_LOG_MESSAGE - 1, format, args);
+        fputs(prefix, logFile);
+        fputs(logBuffer, logFile);
 
 #if defined(_CONSOLE) && defined(LOG_TO_CONSOLE)
-        fputs( prefix, stdout );
-        fputs( logBuffer, stdout );
+        fputs(prefix, stdout);
+        fputs(logBuffer, stdout);
 #endif
 
-        fflush( logFile );
+        fflush(logFile);
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void log_init( const char * logname )
+void log_init(const char *logname)
 {
-    if ( NULL == logFile )
+    if (NULL == logFile)
     {
-        logFile = fopen( logname, "wt" );
-        if ( NULL != logFile && !_atexit_registered )
+        logFile = fopen(logname, "wt");
+        if (NULL != logFile && !_atexit_registered)
         {
             _atexit_registered = 1;
             atexit( log_shutdown );
@@ -73,93 +73,93 @@ void log_init( const char * logname )
 }
 
 //--------------------------------------------------------------------------------------------
-void log_shutdown( void )
+void log_shutdown()
 {
-    if ( NULL != logFile )
+    if (NULL != logFile)
     {
-        fclose( logFile );
+        fclose(logFile);
         logFile = NULL;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void log_setLoggingLevel( int level )
+void log_setLoggingLevel(int level)
 {
-    if ( level > 0 )
+    if (level > 0)
     {
         logLevel = level;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void log_message( const char *format, ... )
+void log_message(const char *format, ...)
 {
     va_list args;
 
-    va_start( args, format );
-    writeLogMessage( "", format, args );
-    va_end( args );
+    va_start(args, format);
+    writeLogMessage("", format, args);
+    va_end(args);
 }
 
 //--------------------------------------------------------------------------------------------
-void log_debug( const char *format, ... )
+void log_debug(const char *format, ...)
 {
     va_list args;
 
     // Only if developer mode is enabled
-    if ( !cfg.dev_mode ) return;
+    if (!cfg.dev_mode) return;
 
-    va_start( args, format );
-    if ( logLevel >= 3 )
+    va_start(args, format);
+    if (logLevel >= 3)
     {
-        writeLogMessage( "DEBUG: ", format, args );
+        writeLogMessage("DEBUG: ", format, args);
     }
-    va_end( args );
+    va_end(args);
 }
 
 //--------------------------------------------------------------------------------------------
-void log_info( const char *format, ... )
+void log_info(const char *format, ...)
 {
     va_list args;
-    if ( logLevel >= 2 )
+    if (logLevel >= 2)
     {
-        va_start( args, format );
-        writeLogMessage( "INFO: ", format, args );
-        va_end( args );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void log_warning( const char *format, ... )
-{
-    va_list args;
-    if ( logLevel >= 1 )
-    {
-        va_start( args, format );
-        writeLogMessage( "WARN: ", format, args );
-        va_end( args );
+        va_start(args, format);
+        writeLogMessage("INFO: ", format, args);
+        va_end(args);
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void log_error( const char *format, ... )
+void log_warning(const char *format, ...)
+{
+    va_list args;
+    if (logLevel >= 1)
+    {
+        va_start(args, format);
+        writeLogMessage("WARN: ", format, args);
+        va_end(args);
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void log_error(const char *format, ...)
 {
     va_list args;
 
-    va_start( args, format );
-    writeLogMessage( "FATAL ERROR: ", format, args );
+    va_start(args, format);
+    writeLogMessage("FATAL ERROR: ", format, args);
 
     // Windows users get a proper error message popup box
-    sys_popup( "Egoboo: Fatal Error", "Egoboo has encountered a problem and is exiting. \nThis is the error report: \n", format, args );
+    sys_popup("Egoboo: Fatal Error", "Egoboo has encountered a problem and is exiting. \nThis is the error report: \n", format, args);
 
-    va_end( args );
+    va_end(args);
 
-    fflush( logFile );
-    exit( -1 );
+    fflush(logFile);
+    exit(EXIT_FAILURE);
 }
 
 //--------------------------------------------------------------------------------------------
-FILE * log_get_file( void )
+FILE *log_get_file()
 {
     return logFile;
 }

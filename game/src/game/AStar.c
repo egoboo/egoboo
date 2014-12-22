@@ -42,12 +42,12 @@ static AStar_Node_t *start_node = NULL;
 
 //------------------------------------------------------------------------------
 //"Private" functions
-static AStar_Node_t* AStar_get_next_node( void );
+static AStar_Node_t* AStar_get_next_node();
 static AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, float weight, bool closed );
-static void AStar_reset( void );
+static void AStar_reset();
 
 //------------------------------------------------------------------------------
-AStar_Node_t* AStar_get_next_node( void )
+AStar_Node_t* AStar_get_next_node()
 {
     /// @author ZF
     /// @details This function finds and returns the next cheapest open node
@@ -85,7 +85,7 @@ AStar_Node_t* AStar_add_node( const int x, const int y, AStar_Node_t *parent, fl
 }
 
 //------------------------------------------------------------------------------
-void AStar_reset( void )
+void AStar_reset()
 {
     /// @author ZF
     /// @details Reset AStar memory. This doesn't actually clear anything to make it work as fast as possible

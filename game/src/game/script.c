@@ -17,26 +17,18 @@
 //*
 //********************************************************************************************
 
-/// @file game/script.c
+/// @file  game/script.c
 /// @brief Implements the game's scripting language.
 /// @details
 
 #include "game/script.h"
 #include "game/script_compile.h"
 #include "game/script_functions.h"
-
-#include "egolib/log.h"
-#include "egolib/vfs.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/strutil.h"
-#include "egolib/_math.h"
-
 #include "game/mad.h"
 #include "game/camera_system.h"
 #include "game/game.h"
 #include "game/network.h"
 #include "game/player.h"
-
 #include "game/profile.inl"
 #include "game/char.inl"
 
@@ -69,7 +61,7 @@ static bool ai_state_free( ai_state_t * pself );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void scripting_system_begin( void )
+void scripting_system_begin()
 {
     if ( !_scripting_system_initialized )
     {
@@ -88,7 +80,7 @@ void scripting_system_begin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void scripting_system_end( void )
+void scripting_system_end()
 {
     if ( _scripting_system_initialized )
     {

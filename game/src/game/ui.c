@@ -17,17 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file game/ui.c
-/// @brief The Egoboo GUI
+/// @file    game/ui.c
+/// @brief   The Egoboo GUI.
 /// @details A basic library for implementing user interfaces, based off of Casey Muratori's
-/// IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
+///          IMGUI (https://mollyrocket.com/forums/viewtopic.php?t=134).
 
 #include "game/ui.h"
-
-#include "egolib/font_ttf.h"
-#include "egolib/extensions/ogl_debug.h"
-#include "egolib/extensions/SDL_extensions.h"
-
 #include "game/menu.h"
 #include "game/graphic.h"
 #include "game/renderer_2d.h"
@@ -115,7 +110,7 @@ int ui_begin( const char *default_font, int default_font_size )
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_end( void )
+void ui_end()
 {
     // clear out the default font
     if ( NULL != ui_context.defaultFont )
@@ -131,7 +126,7 @@ void ui_end( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_Reset( void )
+void ui_Reset()
 {
     ui_context.active = ui_context.hot = UI_Nothing;
 }
@@ -230,7 +225,7 @@ void ui_beginFrame( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_endFrame( void )
+void ui_endFrame()
 {
     // Restore the GL_PROJECTION matrix
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
@@ -322,7 +317,7 @@ void ui_setWidgethot( ui_Widget_t * pw )
 }
 
 //--------------------------------------------------------------------------------------------
-Font* ui_getFont( void )
+Font* ui_getFont()
 {
     return ( NULL != ui_context.activeFont ) ? ui_context.activeFont : ui_context.defaultFont;
 }

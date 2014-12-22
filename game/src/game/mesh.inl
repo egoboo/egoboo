@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,9 +19,9 @@
 
 /// @file game/mesh.inl
 
-#include "game/mesh.h"
+#pragma once
 
-#include "egolib/_math.h"
+#include "game/mesh.h"
 
 //--------------------------------------------------------------------------------------------
 // FORWARD DECLARATIONS

@@ -59,18 +59,18 @@ typedef void ( *renderer_ptr_t )( const camera_t *, const int render_list_index,
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-bool    camera_system_is_started( void );
+bool    camera_system_is_started();
 
 egolib_rv camera_system_begin( int camera_count );
-egolib_rv camera_system_end( void );
+egolib_rv camera_system_end();
 egolib_rv camera_system_init( int camera_count );
 
 egolib_rv camera_system_reset( struct ego_mesh_t * pmesh );
 egolib_rv camera_system_move( struct ego_mesh_t * pmesh );
 egolib_rv camera_system_reset_targets( struct ego_mesh_t * pmesh );
 
-camera_t          * camera_system_get_main( void );
-ext_camera_list_t * camera_system_get_list( void );
+camera_t          * camera_system_get_main();
+ext_camera_list_t * camera_system_get_list();
 
 egolib_rv camera_system_render_all( renderer_ptr_t );
 

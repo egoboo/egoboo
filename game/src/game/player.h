@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,10 +19,9 @@
 
 /// @file game/player.h
 
+#pragma once
+
 #include "game/egoboo_typedef.h"
-
-#include "egolib/IDSZ_map.h"
-
 #include "game/network.h"
 #include "game/input.h"
 
@@ -83,7 +80,7 @@ DECLARE_STACK_EXTERN( player_t, PlaStack, MAX_PLAYER );                         
 #define VALID_PLA(IPLA)       ( VALID_PLA_RANGE(IPLA) && ((IPLA) < PlaStack.count) && PlaStack.lst[IPLA].valid )
 #define INVALID_PLA(IPLA)     ( !VALID_PLA_RANGE(IPLA) || ((IPLA) >= PlaStack.count)|| !PlaStack.lst[IPLA].valid )
 
-void           PlaStack_reset_all( void );
+void           PlaStack_reset_all();
 CHR_REF        PlaStack_get_ichr( const PLA_REF iplayer );
 struct s_chr * PlaStack_get_pchr( const PLA_REF iplayer );
 void           PlaStack_add_tlatch( const PLA_REF iplayer, Uint32 time, latch_t net_latch );

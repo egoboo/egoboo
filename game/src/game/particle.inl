@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,10 +17,10 @@
 //*
 //********************************************************************************************
 
+#pragma once
+
 #include "game/particle.h"
-
 #include "egolib/_math.inl"
-
 #include "egolib/bbox.inl"
 #include "game/PrtList.inl"
 #include "game/char.inl"

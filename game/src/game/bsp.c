@@ -17,8 +17,8 @@
 //*
 //********************************************************************************************
 
-/// @file game/bsp.c
-/// @brief global character and particle BSPs
+/// @file  game/bsp.c
+/// @brief Global mesh, character and particle BSPs.
 #include "game/bsp.h"
 #include "game/char.h"
 #include "game/mesh.h"
@@ -28,81 +28,110 @@
 
 //--------------------------------------------------------------------------------------------
 
-static bool _mpd_BSP_system_initialized = false;
-mesh_BSP_t mesh_BSP_root = MAP_BSP_INIT;
+static bool _mesh_BSP_system_initialized = false;
+
+/**
+ * @brief
+ *	Global BSP for the mesh.
+ */
+static mesh_BSP_t *mesh_BSP_root = NULL;
+
+mesh_BSP_t *getMeshBSP()
+{
+	EGOBOO_ASSERT(true == _mesh_BSP_system_initialized && NULL != mesh_BSP_root);
+	return mesh_BSP_root;
+}
 
 bool mesh_BSP_system_started()
 {
-	return _mpd_BSP_system_initialized;
+	return _mesh_BSP_system_initialized;
 }
 
-egolib_rv mesh_BSP_system_begin(ego_mesh_t * pmpd)
+bool mesh_BSP_system_begin(ego_mesh_t *mesh)
 {
-	// if he system is already started, do a reboot
-	if (_mpd_BSP_system_initialized)
+	EGOBOO_ASSERT(NULL != mesh);
+
+	// If the system is already started, do a reboot.
+	if (_mesh_BSP_system_initialized)
 	{
-		if (rv_error == mesh_BSP_system_end())
-		{
-			return rv_error;
-		}
+		mesh_BSP_system_end();
 	}
 
-	// start the system using the given mesh
-	if (NULL != pmpd)
+	// Start the system using the given mesh.
+	mesh_BSP_root = mesh_BSP_new(mesh);
+	if (!mesh_BSP_root)
 	{
-		mesh_BSP_t * rv;
-
-		// initialize the mesh's BSP structure with the mesh tiles
-		rv = mesh_BSP_ctor(&mesh_BSP_root, pmpd);
-
-		_mpd_BSP_system_initialized = (NULL != rv);
+		return false;
 	}
-
-	return _mpd_BSP_system_initialized ? rv_success : rv_fail;
+	// Let the code know that everything is initialized.
+	_mesh_BSP_system_initialized = true;
+	return true;
 }
 
-egolib_rv  mesh_BSP_system_end(void)
+void mesh_BSP_system_end()
 {
-	if (_mpd_BSP_system_initialized)
+	if (_mesh_BSP_system_initialized)
 	{
-		mesh_BSP_dtor(&mesh_BSP_root);
+		mesh_BSP_delete(mesh_BSP_root);
+		mesh_BSP_root = NULL;
 	}
-
-	_mpd_BSP_system_initialized = false;
-
-	return rv_success;
+	_mesh_BSP_system_initialized = false;
 }
 
 //--------------------------------------------------------------------------------------------
 
 static bool _obj_BSP_system_initialized = false;
 
-/** @todo The origin of all problems. Global variables of complex object. */
-obj_BSP_t chr_BSP_root = OBJ_BSP_INIT_VALS;
+/**
+ * @brief
+ *	Global BSP for the characters.
+ */
+static obj_BSP_t *chr_BSP_root = NULL;
 
-/** @todo The origin of all problems. Global variables of complex objects. */
-obj_BSP_t prt_BSP_root = OBJ_BSP_INIT_VALS;
+/**
+ * @brief
+ *	Global BSP for the particles.
+ */
+static obj_BSP_t *prt_BSP_root = NULL;
 
-void obj_BSP_system_begin(mesh_BSP_t * pBSP)
+obj_BSP_t *getChrBSP()
 {
-	/// @author BB
-	/// @details initialize the obj_BSP list and load up some intialization files
-	///     necessary for the the obj_BSP loading code to work
+	EGOBOO_ASSERT(true == _obj_BSP_system_initialized && NULL != chr_BSP_root);
+	return chr_BSP_root;
+}
 
+obj_BSP_t *getPtrBSP()
+{
+	EGOBOO_ASSERT(true == _obj_BSP_system_initialized && NULL != prt_BSP_root);
+	return prt_BSP_root;
+}
+
+bool obj_BSP_system_begin(mesh_BSP_t *mesh_bsp)
+{
 	if (_obj_BSP_system_initialized)
 	{
 		obj_BSP_system_end();
 	}
 
 	// use 2D BSPs for the moment
-	obj_BSP_ctor(&chr_BSP_root, 2, pBSP);
-	obj_BSP_ctor(&prt_BSP_root, 2, pBSP);
-
-	// let the code know that everything is initialized
+	chr_BSP_root = obj_BSP_new(2,mesh_bsp);
+	if (!chr_BSP_root)
+	{
+		return false;
+	}
+	prt_BSP_root = obj_BSP_new(2, mesh_bsp);
+	if (!prt_BSP_root)
+	{
+		obj_BSP_delete(chr_BSP_root);
+		chr_BSP_root = NULL;
+		return false;
+	}
+	// Let the code know that everything is initialized.
 	_obj_BSP_system_initialized = true;
+	return true;
 }
 
-void obj_BSP_system_end(void)
+void obj_BSP_system_end()
 {
 	/// @author BB
 	/// @details initialize the obj_BSP list and load up some intialization files
@@ -111,8 +140,10 @@ void obj_BSP_system_end(void)
 	if (_obj_BSP_system_initialized)
 	{
 		// delete the object BSP data
-		obj_BSP_dtor(&chr_BSP_root);
-		obj_BSP_dtor(&prt_BSP_root);
+		obj_BSP_delete(chr_BSP_root);
+		chr_BSP_root = NULL;
+		obj_BSP_delete(prt_BSP_root);
+		prt_BSP_root = NULL;
 
 		_obj_BSP_system_initialized = false;
 	}
@@ -139,7 +170,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 
 	if (NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr) return false;
 	loc_pprt = pbdl_prt->prt_ptr;
-	ptree = &(prt_BSP_root.tree);
+	ptree = &(prt_BSP_root->tree);
 
 	// is the particle in-game?
 	if (!INGAME_PPRT_BASE(loc_pprt) || loc_pprt->is_hidden || loc_pprt->is_ghost) return false;
@@ -164,20 +195,20 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	retval = BSP_tree_insert_leaf(ptree, pleaf);
 	if (retval)
 	{
-		prt_BSP_root.count++;
+		prt_BSP_root->count++;
 	}
 
 	return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_BSP_clear(void)
+bool chr_BSP_clear()
 {
 	CHR_REF ichr;
 
 	// unlink all the BSP nodes
-	BSP_tree_clear_rec(&(chr_BSP_root.tree));
-	chr_BSP_root.count = 0;
+	BSP_tree_clear_rec(&(chr_BSP_root->tree));
+	chr_BSP_root->count = 0;
 
 	// unlink all used character nodes
 	for (ichr = 0; ichr < MAX_CHR; ichr++)
@@ -189,13 +220,13 @@ bool chr_BSP_clear(void)
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_BSP_clear(void)
+bool prt_BSP_clear()
 {
 	PRT_REF iprt;
 
 	// unlink all the BSP nodes
-	BSP_tree_clear_rec(&(prt_BSP_root.tree));
-	prt_BSP_root.count = 0;
+	BSP_tree_clear_rec(&(prt_BSP_root->tree));
+	prt_BSP_root->count = 0;
 
 	// unlink all used particle nodes
 	for (iprt = 0; iprt < maxparticles; iprt++)
@@ -218,7 +249,7 @@ bool chr_BSP_insert(chr_t * pchr)
 
 	if (!ACTIVE_PCHR(pchr)) return false;
 
-	ptree = &(chr_BSP_root.tree);
+	ptree = &(chr_BSP_root->tree);
 
 	// no interactions with hidden objects
 	if (pchr->is_hidden) return false;
@@ -252,17 +283,17 @@ bool chr_BSP_insert(chr_t * pchr)
 
 	if (retval)
 	{
-		chr_BSP_root.count++;
+		chr_BSP_root->count++;
 	}
 
 	return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_BSP_fill(void)
+bool chr_BSP_fill()
 {
 	// insert the characters
-	chr_BSP_root.count = 0;
+	chr_BSP_root->count = 0;
 	CHR_BEGIN_LOOP_ACTIVE(ichr, pchr)
 	{
 		// reset a couple of things here
@@ -280,10 +311,10 @@ bool chr_BSP_fill(void)
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_BSP_fill(void)
+bool prt_BSP_fill()
 {
 	// insert the particles
-	prt_BSP_root.count = 0;
+	prt_BSP_root->count = 0;
 	PRT_BEGIN_LOOP_ACTIVE(iprt, prt_bdl)
 	{
 		// reset a couple of things here
@@ -296,5 +327,5 @@ bool prt_BSP_fill(void)
 	}
 	PRT_END_LOOP()
 
-		return true;
+	return true;
 }

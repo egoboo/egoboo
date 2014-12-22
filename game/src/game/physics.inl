@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -40,8 +38,9 @@
 /// flag set to false. Setting break_out to true will make the function faster in the case that there is no collision,
 /// but it will leave some of the "depth vector" uncalculated, which might leave it with uninitialized data.
 
-#include "game/physics.h"
+#pragma once
 
+#include "game/physics.h"
 #include "egolib/bbox.inl"
 
 //--------------------------------------------------------------------------------------------

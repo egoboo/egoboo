@@ -22,18 +22,9 @@
 /// @details
 
 #include "game/sound.h"
-
-#include "egolib/vfs.h"
-#include "egolib/fileutil.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/strutil.h"
-#include "egolib/_math.inl"
-#include "egolib/log.h"
-
 #include "game/camera_system.h"
 #include "game/game.h"
 #include "game/graphic.h"
-
 #include "game/char.inl"
 
 //--------------------------------------------------------------------------------------------
@@ -87,21 +78,21 @@ static bool                music_stack_pop( Mix_Music ** mus, int * song );
 
 INSTANTIATE_LIST_STATIC( looped_sound_data_t, LoopedList, LOOPED_COUNT );
 
-static void   LoopedList_init( void );
-static void   LoopedList_clear( void );
+static void   LoopedList_init();
+static void   LoopedList_clear();
 
 static bool LoopedList_free_one( size_t index );
-static size_t LoopedList_get_free_ref( void );
+static size_t LoopedList_get_free_ref();
 
-static bool LoopedList_validate( void );
+static bool LoopedList_validate();
 static size_t LoopedList_add( const Mix_Chunk * sound, int loops, const CHR_REF  object );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static bool sdl_audio_initialize( void );
-static bool sdl_mixer_initialize( void );
-static void   sdl_mixer_quit( void );
+static bool sdl_audio_initialize();
+static bool sdl_mixer_initialize();
+static void   sdl_mixer_quit();
 
 static int    _calculate_volume( const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float fov_rad );
 static bool _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fvec3_base_t cam_center, const fvec3_base_t diff, const float pan );
@@ -148,7 +139,7 @@ Mix_Chunk * g_wavelist[GSND_COUNT];
 //--------------------------------------------------------------------------------------------
 
 static bool sound_system_config_init( snd_config_t * psnd );
-static void music_stack_init( void );
+static void music_stack_init();
 static bool music_stack_push( Mix_Music * mus, int song );
 
 //--------------------------------------------------------------------------------------------
@@ -159,7 +150,7 @@ IMPLEMENT_LIST( looped_sound_data_t, LoopedList, LOOPED_COUNT );
 //--------------------------------------------------------------------------------------------
 // music_stack
 //--------------------------------------------------------------------------------------------
-static void music_stack_finished_callback( void )
+static void music_stack_finished_callback()
 {
     // this function is only called when a music function is finished playing
     // pop the saved music off the stack
@@ -230,7 +221,7 @@ bool music_stack_pop( Mix_Music ** mus, int * song )
 }
 
 //--------------------------------------------------------------------------------------------
-void music_stack_init( void )
+void music_stack_init()
 {
     // push on the default music value
     music_stack_push( musictracksloaded[0], 0 );
@@ -242,7 +233,7 @@ void music_stack_init( void )
 //--------------------------------------------------------------------------------------------
 // SDL
 //--------------------------------------------------------------------------------------------
-bool sdl_audio_initialize( void )
+bool sdl_audio_initialize()
 {
     bool retval = true;
 
@@ -270,7 +261,7 @@ bool sdl_audio_initialize( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool sdl_mixer_initialize( void )
+bool sdl_mixer_initialize()
 {
     /// @author ZF
     /// @details This intitializes the SDL_mixer services
@@ -306,7 +297,7 @@ bool sdl_mixer_initialize( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void sdl_mixer_quit( void )
+void sdl_mixer_quit()
 {
     if ( mixeron && ( 0 != SDL_WasInit( SDL_INIT_AUDIO ) ) )
     {
@@ -318,7 +309,7 @@ void sdl_mixer_quit( void )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // This function enables the use of SDL_Audio and SDL_Mixer functions, returns true if success
-bool sound_system_initialize( void )
+bool sound_system_initialize()
 {
     bool retval = false;
     if ( sdl_audio_initialize() )
@@ -335,7 +326,7 @@ bool sound_system_initialize( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_system_restart( void )
+void sound_system_restart()
 {
     //if ( mixeron )
     {
@@ -581,7 +572,7 @@ int sound_play_mix( fvec3_base_t pos, mix_ptr_t * pptr )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_fade_all( void )
+void sound_fade_all()
 {
     if ( mixeron )
     {
@@ -599,7 +590,7 @@ void fade_in_music( Mix_Music * music )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_finish_sound( void )
+void sound_finish_sound()
 {
     Mix_FadeOutChannel( -1, 500 );     // Stop all in-game sounds that are playing
     sound_finish_song( 500 );          // Fade out the existing song and pop the music stack
@@ -615,7 +606,7 @@ void sound_free_chunk( Mix_Chunk * pchunk )
 }
 
 //--------------------------------------------------------------------------------------------
-int get_current_song_playing( void )
+int get_current_song_playing()
 {
     /// @author ZF
     /// @details This gives read access to the private variable 'songplaying'
@@ -776,7 +767,7 @@ void sound_finish_song( Uint16 fadetime )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_stop_song( void )
+void sound_stop_song()
 {
     /// @author ZF
     /// @details This function sets music track to pause
@@ -787,7 +778,7 @@ void sound_stop_song( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_load_global_waves_vfs( void )
+void sound_load_global_waves_vfs()
 {
     /// @author ZZ
     /// @details This function loads the global waves
@@ -830,7 +821,7 @@ void sound_load_global_waves_vfs( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void sound_load_all_music_sounds_vfs( void )
+void sound_load_all_music_sounds_vfs()
 {
     /// @author ZF
     /// @details This function loads all of the music sounds
@@ -887,7 +878,7 @@ void sound_load_all_music_sounds_vfs( void )
 //--------------------------------------------------------------------------------------------
 // LoopedList
 //--------------------------------------------------------------------------------------------
-void   LoopedList_init( void )
+void   LoopedList_init()
 {
     /// @author BB
     /// @details setup the looped sound list
@@ -909,7 +900,7 @@ void   LoopedList_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool LoopedList_validate( void )
+bool LoopedList_validate()
 {
     /// @author BB
     /// @details do the free and used indices have valid values?
@@ -1046,7 +1037,7 @@ size_t LoopedList_pop_used( const int idx )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t LoopedList_get_free_ref( void )
+size_t LoopedList_get_free_ref()
 {
     size_t index;
 
@@ -1072,7 +1063,7 @@ size_t LoopedList_get_free_ref( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void LoopedList_clear( void )
+void LoopedList_clear()
 {
     /// @author BB
     /// @details shut off all the looped sounds
@@ -1168,7 +1159,7 @@ bool LoopedList_remove( int channel )
 //--------------------------------------------------------------------------------------------
 // looped
 //--------------------------------------------------------------------------------------------
-void looped_update_all_sound( void )
+void looped_update_all_sound()
 {
     int cnt;
 

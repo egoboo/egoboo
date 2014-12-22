@@ -17,27 +17,23 @@
 //*
 //********************************************************************************************
 
-/// @file game/graphic_prt.c
+/// @file  game/graphic_prt.c
 /// @brief Particle system drawing and management code.
 /// @details
 
+#include "egolib/bbox.inl"
 #include "game/graphic_prt.h"
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-
 #include "game/game.h"
 #include "game/camera_system.h"
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-
-#include "egolib/egoboo_setup.h"
-
 #include "game/particle.inl"
 #include "game/char.inl"
 #include "game/profile.inl"
-#include "egolib/bbox.inl"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -548,7 +544,7 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void render_all_prt_attachment( void )
+void render_all_prt_attachment()
 {
     GL_DEBUG( glDisable )( GL_BLEND );
 
@@ -560,7 +556,7 @@ void render_all_prt_attachment( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_all_prt_bbox( void )
+void render_all_prt_bbox()
 {
     PRT_BEGIN_LOOP_DISPLAY( iprt, prt_bdl )
     {

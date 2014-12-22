@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,10 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file game/egoboo_typedef.h
-/// @details base type definitions and config options
+/// @file    game/egoboo_typedef.h
+/// @details Base type definitions and config options.
 
-#include "egolib/typedef.h"
+#pragma once
+
+#include "egolib/egolib.h"
 
 #include "game/egoboo_config.h"
 

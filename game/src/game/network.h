@@ -24,9 +24,6 @@
 
 #include "game/egoboo_typedef.h"
 
-#include "egolib/network.h"
-#include "egolib/network_file.h"
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -80,20 +77,20 @@ extern int     net_players_loaded;
 //--------------------------------------------------------------------------------------------
 // Networking functions
 //--------------------------------------------------------------------------------------------
-void net_initialize( void );
-void net_shutDown( void );
-bool net_begin( void );
-bool net_end( void );
+void net_initialize();
+void net_shutDown();
+bool net_begin();
+bool net_end();
 
-void net_unbuffer_player_latches( void );
+void net_unbuffer_player_latches();
 
-void net_sayHello( void );
-void net_send_message( void );
+void net_sayHello();
+void net_send_message();
 
-void find_open_sessions( void );
-void stop_players_from_joining( void );
+void find_open_sessions();
+void stop_players_from_joining();
 void turn_on_service( int service );
 
-void net_count_players( void );
+void net_count_players();
 
 int create_player( int host );

@@ -17,21 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file game/collision.c
+/// @file  game/collision.c
 /// @brief The code that handles collisions between in-game objects
 /// @details
 
 #include "game/collision.h"
-
-#include "egolib/log.h"
-#include "egolib/hash.h"
-#include "egolib/extensions/SDL_extensions.h"
-
 #include "game/obj_BSP.h"
 #include "game/bsp.h"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
-
 #include "game/char.inl"
 #include "game/particle.inl"
 #include "game/enchant.inl"
@@ -145,7 +139,7 @@ static bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_
 static bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b );
 
 static bool fill_interaction_list( CHashList_t * pclst, CoNode_ary_t * pcn_lst, HashNode_ary_t * phn_lst );
-static bool fill_bumplists( void );
+static bool fill_bumplists();
 
 static bool bump_all_platforms( CoNode_ary_t * pcn_ary );
 static bool bump_all_mounts( CoNode_ary_t * pcn_ary );
@@ -194,7 +188,7 @@ int CHashList_inserted = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool collision_system_begin( void )
+bool collision_system_begin()
 {
     if ( !_collision_system_initialized )
     {
@@ -226,7 +220,7 @@ collision_system_begin_fail:
 }
 
 //--------------------------------------------------------------------------------------------
-void collision_system_end( void )
+void collision_system_end()
 {
     if ( _collision_hash_initialized )
     {
@@ -884,7 +878,7 @@ bool fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashNod
 
         // find all collisions with other characters and particles
         _coll_leaf_lst.top = 0;
-        obj_BSP_collide_aabb( &chr_BSP_root, &tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
+        obj_BSP_collide_aabb(getChrBSP(), &tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
@@ -948,7 +942,7 @@ bool fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashNod
         }
 
         _coll_leaf_lst.top = 0;
-        obj_BSP_collide_aabb( &prt_BSP_root, &tmp_aabb, prt_BSP_can_collide, &_coll_leaf_lst );
+        obj_BSP_collide_aabb(getPtrBSP(), &tmp_aabb, prt_BSP_can_collide, &_coll_leaf_lst );
         if ( _coll_leaf_lst.top > 0 )
         {
             int j;
@@ -1040,7 +1034,7 @@ bool fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashNod
 
         // find all collisions with characters
         _coll_leaf_lst.top = 0;
-        obj_BSP_collide_aabb( &chr_BSP_root, &tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
+        obj_BSP_collide_aabb(getChrBSP(), &tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
@@ -1163,7 +1157,7 @@ bool fill_interaction_list( CHashList_t * pchlst, CoNode_ary_t * cn_lst, HashNod
 }
 
 //--------------------------------------------------------------------------------------------
-bool fill_bumplists( void )
+bool fill_bumplists()
 {
     /// @author BB
     /// @details Fill in the obj_BSP_t for this frame
@@ -1180,10 +1174,10 @@ bool fill_bumplists( void )
     prt_BSP_fill();
 
     // remove empty branches from the tree
-    if ( 63 == ( game_frame_all & 63 ) )
+    if (63 == ( game_frame_all & 63))
     {
-        BSP_tree_prune( &( chr_BSP_root.tree ) );
-        BSP_tree_prune( &( prt_BSP_root.tree ) );
+        BSP_tree_prune(&(getChrBSP()->tree));
+        BSP_tree_prune(&(getChrBSP()->tree));
     }
 
     return true;
@@ -1441,7 +1435,7 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
 }
 
 //--------------------------------------------------------------------------------------------
-void bump_all_objects( void )
+void bump_all_objects()
 {
     /// @author ZZ
     /// @details This function sets handles characters hitting other characters or particles

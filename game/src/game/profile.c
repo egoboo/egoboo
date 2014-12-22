@@ -17,31 +17,20 @@
 //*
 //********************************************************************************************
 
-/// @file game/profile.c
+/// @file  game/profile.c
 /// @brief Implementation of functions for controlling and accessing object profiles
 /// @details
 
+#include "egolib/bsp.inl"
 #include "game/profile.inl"
-
-#include "egolib/log.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/strutil.h"
-#include "egolib/fileutil.h"
-#include "egolib/vfs.h"
-
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/script_compile.h"
 #include "game/game.h"
-
-#include "egolib/bsp.inl"
 #include "game/ChrList.inl"
 #include "game/PrtList.inl"
 #include "game/mesh.inl"
 #include "game/particle.inl"
-
-// this include must be the absolute last include
-#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -74,7 +63,7 @@ IMPLEMENT_LIST( pro_t, ProList, MAX_PROFILE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void init_all_profiles( void )
+void init_all_profiles()
 {
     /// @author ZZ
     /// @details This function initializes all of the model profiles
@@ -99,7 +88,7 @@ void init_all_profiles( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_profiles( void )
+void release_all_profiles()
 {
     /// @author ZZ
     /// @details This function clears out all of the model data
@@ -118,7 +107,7 @@ void release_all_profiles( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void profile_system_begin( void )
+void profile_system_begin()
 {
     /// @author BB
     /// @details initialize the profile list and load up some intialization files
@@ -161,7 +150,7 @@ void profile_system_begin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void profile_system_end( void )
+void profile_system_end()
 {
     /// @author BB
     /// @details initialize the profile list and load up some intialization files
@@ -430,7 +419,7 @@ bool ProList_push_used( const PRO_REF iobj )
 //--------------------------------------------------------------------------------------------
 // The "public" ProList management functions
 //--------------------------------------------------------------------------------------------
-void ProList_init( void )
+void ProList_init()
 {
     /// @author BB
     /// @details initialize all the objects and the object free list.
@@ -545,7 +534,7 @@ bool release_one_profile_textures( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_profile_textures( void )
+void release_all_profile_textures()
 {
     PRO_REF cnt;
 
@@ -610,7 +599,7 @@ bool release_one_pro( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_pro( void )
+void release_all_pro()
 {
     /// @author BB
     /// @details release the allocated data for all objects
@@ -624,7 +613,7 @@ void release_all_pro( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_pro_data( void )
+void release_all_pro_data()
 {
     /// @author BB
     /// @details release the allocated data for all objects
@@ -832,7 +821,7 @@ bool release_one_local_pips( const PRO_REF iobj )
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_local_pips( void )
+void release_all_local_pips()
 {
     // clear out the local pips
 

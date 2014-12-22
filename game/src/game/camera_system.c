@@ -23,8 +23,6 @@
 
 #include "game/camera_system.h"
 
-#include "egolib/egoboo_setup.h"
-#include "egolib/extensions/SDL_extensions.h"
 #include "egolib/_math.inl"
 
 #include "game/network.h"
@@ -111,7 +109,7 @@ static ext_camera_list_t    _camera_lst;
 //--------------------------------------------------------------------------------------------
 
 static egolib_rv _camera_system_autoformat_cameras( int cameras );
-static egolib_rv _camera_system_autoset_targets( void );
+static egolib_rv _camera_system_autoset_targets();
 static egolib_rv _camera_system_begin_camera_ptr( ext_camera_t * pcam );
 static egolib_rv _camera_system_end_camera_ptr( ext_camera_t * pcam );
 
@@ -259,7 +257,7 @@ bool ext_camera_get_screen( ext_camera_t * pext, ego_frect_t * prect )
 // INITIALIZATION
 //--------------------------------------------------------------------------------------------
 
-bool camera_system_is_started( void )
+bool camera_system_is_started()
 {
     return _camera_system_initialized;
 }
@@ -291,7 +289,7 @@ egolib_rv camera_system_begin( int camera_count )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv camera_system_end( void )
+egolib_rv camera_system_end()
 {
     if ( _camera_system_initialized )
     {
@@ -480,7 +478,7 @@ egolib_rv camera_system_init( int camera_count )
 }
 
 //--------------------------------------------------------------------------------------------
-camera_t * camera_system_get_main( void )
+camera_t * camera_system_get_main()
 {
     int cnt;
     camera_t * retval = NULL;
@@ -502,7 +500,7 @@ camera_t * camera_system_get_main( void )
 }
 
 //--------------------------------------------------------------------------------------------
-ext_camera_list_t * camera_system_get_list( void )
+ext_camera_list_t * camera_system_get_list()
 {
     if ( !camera_system_is_started() ) return NULL;
 
@@ -1002,7 +1000,7 @@ egolib_rv _camera_system_autoformat_cameras( int cameras )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv _camera_system_autoset_targets( void )
+egolib_rv _camera_system_autoset_targets()
 {
     // spread the targets out over all the cameras
 

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -23,8 +21,9 @@
 /// @Basic skeleton for the server portion of a client-server architecture,
 /// this is totally not in use yet.
 
-#include "game/egoboo_typedef.h"
+#pragma once
 
+#include "game/egoboo_typedef.h"
 #include "game/network.h"
 
 //--------------------------------------------------------------------------------------------
@@ -63,13 +62,13 @@ extern ServerState_t ServerState;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-int  sv_init( void );
-void sv_shutDown( void );
-void sv_frameStep( void );
+int  sv_init();
+void sv_shutDown();
+void sv_frameStep();
 
-egolib_rv sv_talkToRemotes( void );
-egolib_rv sv_hostGame( void );
-egolib_rv sv_letPlayersJoin( void );
+egolib_rv sv_talkToRemotes();
+egolib_rv sv_hostGame();
+egolib_rv sv_letPlayersJoin();
 egolib_rv sv_handlePacket( enet_packet_t * enet_pkt );
 
 // More to come...

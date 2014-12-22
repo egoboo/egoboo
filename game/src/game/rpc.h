@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -26,6 +24,8 @@
 /// The main use of this at the moment (since we have no server), is to make it possible
 /// to do things like loading modules in a worker thread. All graphics functions must be
 /// called from the main thread...
+
+#pragma once
 
 #include "game/egoboo_typedef.h"
 
@@ -90,6 +90,6 @@ tx_request_t * ego_rpc_load_mnu_TxList( const char *filename );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool ego_rpc_system_begin( void );
-void   ego_rpc_system_end( void );
-bool ego_rpc_system_timestep( void );
+bool ego_rpc_system_begin();
+void   ego_rpc_system_end();
+bool ego_rpc_system_timestep();

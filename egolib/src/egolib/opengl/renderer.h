@@ -21,8 +21,12 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/extensions/ogl_debug.h"
+#include "egolib/extensions/ogl_extensions.h"
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_texture.h"
+#include "egolib/extensions/SDL_extensions.h"
+#include "egolib/extensions/SDL_GL_extensions.h"
 #include "egolib/_math.h"
 #include "egolib/matrix.h"
 

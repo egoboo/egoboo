@@ -32,6 +32,10 @@
 #include "egolib/extensions/ogl_extensions.h"
 #include "egolib/extensions/SDL_extensions.h"
 
+#if defined(USE_LUA_CONSOLE)
+#include "egolib/lua/lua_console.h"
+#endif
+
 #include "egolib/_math.inl"
 
 // this include must be the absolute last include
@@ -648,7 +652,6 @@ SDL_Event * egolib_console_handle_events( SDL_Event * pevt )
                 {
                     strncpy( pcon->buffer, egolib_console_get_saved( pcon ), SDL_arraysize( pcon->buffer ) );
                     pcon->buffer_carat = strlen( pcon->buffer );
-                    pcon->buffer_carat = (( int )pcon->buffer_carat ) - 1;
                 }
             }
 
@@ -673,7 +676,6 @@ SDL_Event * egolib_console_handle_events( SDL_Event * pevt )
                 {
                     strncpy( pcon->buffer, egolib_console_get_saved( pcon ), EGOBOO_CONSOLE_LENGTH - 1 );
                     pcon->buffer_carat = strlen( pcon->buffer );
-                    pcon->buffer_carat = (( int )pcon->buffer_carat ) - 1;
                 }
             }
 

@@ -21,9 +21,6 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
-
-#include "egolib/file_formats/cap_file.h"
-
 #include "game/egoboo.h"
 #include "game/script.h"     //for script_info_t
 
@@ -158,7 +155,7 @@ int          pro_get_slot_vfs( const char * tmploadname, int slot_override );
 const char * pro_create_chop( const PRO_REF profile_ref );
 bool       pro_load_chop_vfs( const PRO_REF profile_ref, const char *szLoadname );
 
-void    ProList_init( void );
+void    ProList_init();
 size_t  ProList_get_free_ref( const PRO_REF override_ref );
 bool  ProList_free_one( const PRO_REF object_ref );
 
@@ -181,15 +178,15 @@ extern chop_data_t chop_mem;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void profile_system_begin( void );
-void profile_system_end( void );
+void profile_system_begin();
+void profile_system_end();
 
-void   init_all_profiles( void );
+void   init_all_profiles();
 int    load_profile_skins_vfs( const char * tmploadname, const PRO_REF object_ref );
-void   release_all_pro_data( void );
-void   release_all_profiles( void );
-void   release_all_pro( void );
-void   release_all_local_pips( void );
+void   release_all_pro_data();
+void   release_all_profiles();
+void   release_all_pro();
+void   release_all_local_pips();
 bool release_one_pro( const PRO_REF object_ref );
 bool release_one_local_pips( const PRO_REF object_ref );
 

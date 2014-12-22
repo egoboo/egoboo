@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,11 +19,9 @@
 
 /// @file game/graphic_prt.h
 
+#pragma once
+
 #include "game/egoboo_typedef.h"
-
-#include "egolib/file_formats/pip_file.h"
-#include "egolib/_math.h"
-
 #include "game/graphic.h"
 
 //--------------------------------------------------------------------------------------------
@@ -110,9 +106,9 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt );
 gfx_rv render_one_prt_trans( const PRT_REF iprt );
 gfx_rv render_one_prt_ref( const PRT_REF iprt );
 
-void   render_all_prt_bbox( void );
+void   render_all_prt_bbox();
 
-void   render_all_prt_attachment( void );
+void   render_all_prt_attachment();
 
 gfx_rv update_all_prt_instance( const struct camera_t * pcam );
 

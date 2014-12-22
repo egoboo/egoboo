@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,12 +20,11 @@
 /// @file game/char.inl
 /// @note You will routinely include "char.inl" in all *.inl files or *.c/*.cpp files, instead of "char.h"
 
+#pragma once
+
 #include "game/char.h"
-
-#include "egolib/_math.inl"
-
-/// @note include "game/profile.inl" here.
-///  Do not include "char.inl" in "profile.inl", otherwise there is a bootstrapping problem.
+/// @note Include "game/profile.inl" here.
+///       Do not include "char.inl" in "profile.inl", otherwise there is a bootstrapping problem.
 #include "game/profile.inl"
 #include "game/enchant.inl"
 #include "game/particle.inl"

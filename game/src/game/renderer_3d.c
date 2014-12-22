@@ -49,7 +49,7 @@ void gfx_begin_3d( const camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_end_3d( void )
+void gfx_end_3d()
 {
     // Restore the GL_MODELVIEW matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
@@ -237,7 +237,7 @@ bool point_list_add( const float x, const float y, const float z, const int dura
 }
 
 //--------------------------------------------------------------------------------------------
-int point_list_get_free( void )
+int point_list_get_free()
 {
     int cnt;
 

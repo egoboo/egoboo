@@ -17,8 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file game/egoboo_config.h
-/// @brief Compile switches
+/// @file  game/egoboo_config.h
+/// @brief Compile switches.
+
 #pragma once
 
 //--------------------------------------------------------------------------------------------
@@ -99,4 +100,4 @@
 //--------------------------------------------------------------------------------------------
 // do the includes last so that the compile switches are always set
 
-#include "egolib/egolib_config.h"
+#include "egolib/egolib.h"

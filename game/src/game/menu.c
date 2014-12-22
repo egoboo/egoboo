@@ -22,21 +22,6 @@
 /// @details
 
 #include "game/menu.h"
-
-#include "egolib/log.h"
-#include "egolib/font_ttf.h"
-#include "egolib/_math.h"
-#include "egolib/vfs.h"
-#include "egolib/fileutil.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/strutil.h"
-#include "egolib/font_bmp.h"
-#include "egolib/file_formats/quest_file.h"
-#include "egolib/file_formats/controls_file.h"
-#include "egolib/file_formats/scancode_file.h"
-#include "egolib/file_formats/module_file.h"
-#include "egolib/extensions/SDL_extensions.h"
-
 #include "game/mad.h"
 #include "game/player.h"
 #include "game/game.h"
@@ -49,7 +34,6 @@
 #include "game/input.h"
 #include "game/camera_system.h"
 #include "game/egoboo.h"
-
 #include "game/particle.inl"
 #include "game/char.inl"
 #include "game/profile.inl"
@@ -272,21 +256,21 @@ LoadPlayer_list_t mnu_loadplayer     = LOADPLAYER_LIST_INIT;
 
 // Implementation of the mnu_stack
 static bool mnu_stack_push( which_menu_t menu );
-static which_menu_t mnu_stack_pop( void );
-static which_menu_t mnu_stack_peek( void );
-static void mnu_stack_clear( void );
+static which_menu_t mnu_stack_pop();
+static which_menu_t mnu_stack_peek();
+static void mnu_stack_clear();
 
 // Implementation of the mnu_SlidyButton array
 static void mnu_SlidyButton_init( float lerp, const char *button_text[] );
 static void mnu_SlidyButton_update_all( float deltaTime );
-static void mnu_SlidyButton_draw_all( void );
+static void mnu_SlidyButton_draw_all();
 
 // implementation of "private" TxTitleImage functions
-//static void TxTitleImage_clear_data( void );
+//static void TxTitleImage_clear_data();
 //static void TxTitleImage_release_one( const MNU_TX_REF index );
-//static void TxTitleImage_ctor( void );
-//static void TxTitleImage_release_all( void );
-//static void TxTitleImage_dtor( void );
+//static void TxTitleImage_ctor();
+//static void TxTitleImage_release_all();
+//static void TxTitleImage_dtor();
 
 // tipText functions
 static void tipText_set_position( Font * font, const char * text, int spacing );
@@ -295,7 +279,7 @@ static void tipText_set_position( Font * font, const char * text, int spacing );
 static void copyrightText_set_position( Font * font, const char * text, int spacing );
 
 // implementation of "private" ModList functions
-static void mnu_ModList_release_all( void );
+static void mnu_ModList_release_all();
 
 // "process" management
 static int menu_process_do_begin( menu_process_t * mproc );
@@ -308,15 +292,15 @@ static bool mnu_Tips_local_load_vfs( GameTips_t * );
 static const char *mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal );
 
 // "private" module utility
-static void mnu_load_all_module_info( void );
+static void mnu_load_all_module_info();
 
 // "private" asset function
 static MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_ref );
 
 // implementation of the autoformatting
-static void autoformat_init_slidy_buttons( void );
-static void autoformat_init_tip_text( void );
-static void autoformat_init_copyright_text( void );
+static void autoformat_init_slidy_buttons();
+static void autoformat_init_tip_text();
+static void autoformat_init_copyright_text();
 
 // misc other stuff
 static void mnu_release_one_module( const MOD_REF imod );
@@ -325,7 +309,7 @@ static egolib_rv mnu_set_local_import_list( import_list_t * imp_lst, SelectedPla
 static egolib_rv mnu_set_selected_list( LoadPlayer_list_t * dst, LoadPlayer_list_t * src, SelectedPlayer_list_t * sp_lst );
 //static egolib_rv mnu_copy_local_imports( import_list_t * imp_lst );
 
-static void mnu_ModList_release_images( void );
+static void mnu_ModList_release_images();
 static void mnu_module_init( mnu_module_t * pmod );
 
 static int doShowEndgame( float deltaTime );
@@ -354,15 +338,15 @@ static int doMainMenu( float deltaTime );
 static int cmp_mod_ref( const void * vref1, const void * vref2 );
 
 // declaration of mnu_TxList functions not used outside this module
-static void   mnu_TxList_init_all( void );
-static void   mnu_TxList_delete_all( void );
+static void   mnu_TxList_init_all();
+static void   mnu_TxList_delete_all();
 static MNU_TX_REF mnu_TxList_get_free( const MNU_TX_REF itex );
 static bool mnu_TxList_free_one( const MNU_TX_REF  itex );
 
 // implementation of "private" mnu_TxList functions
-static void   mnu_TxList_reset_freelist( void );
+static void   mnu_TxList_reset_freelist();
 static void   mnu_TxList_release_one( const MNU_TX_REF index );
-static void   mnu_TxList_release_all( void );
+static void   mnu_TxList_release_all();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -387,7 +371,7 @@ bool mnu_stack_push( which_menu_t menu )
 }
 
 //--------------------------------------------------------------------------------------------
-which_menu_t mnu_stack_pop( void )
+which_menu_t mnu_stack_pop()
 {
     if ( mnu_stack_index < 0 )
     {
@@ -406,7 +390,7 @@ which_menu_t mnu_stack_pop( void )
 }
 
 //--------------------------------------------------------------------------------------------
-which_menu_t mnu_stack_peek( void )
+which_menu_t mnu_stack_peek()
 {
     which_menu_t return_menu = emnu_Main;
 
@@ -419,7 +403,7 @@ which_menu_t mnu_stack_peek( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_stack_clear( void )
+void mnu_stack_clear()
 {
     mnu_stack_index = 0;
     mnu_stack[0] = emnu_Main;
@@ -598,20 +582,20 @@ menu_process_t *menu_process_init( menu_process_t * mproc )
 static bool _menu_system_constructed = false;
 static bool _menu_system_atexit_registered = false;
 
-static void menu_system_atexit( void );
-static bool menu_system_ctor( void );
-static bool menu_system_dtor( void );
-static bool menu_system_init( void );
-static bool menu_system_deinit( void );
+static void menu_system_atexit();
+static bool menu_system_ctor();
+static bool menu_system_dtor();
+static bool menu_system_init();
+static bool menu_system_deinit();
 
 //--------------------------------------------------------------------------------------------
-void menu_system_atexit( void )
+void menu_system_atexit()
 {
     menu_system_dtor();
 }
 
 //--------------------------------------------------------------------------------------------
-bool menu_system_ctor( void )
+bool menu_system_ctor()
 {
     if ( !_menu_system_constructed )
     {
@@ -628,7 +612,7 @@ bool menu_system_ctor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool menu_system_dtor( void )
+bool menu_system_dtor()
 {
     if ( _menu_system_constructed )
     {
@@ -652,7 +636,7 @@ bool menu_system_dtor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool menu_system_init( void )
+bool menu_system_init()
 {
     bool retval = true;
 
@@ -696,7 +680,7 @@ bool menu_system_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool menu_system_deinit( void )
+bool menu_system_deinit()
 {
 
     // release the font
@@ -713,7 +697,7 @@ bool menu_system_deinit( void )
 }
 
 //--------------------------------------------------------------------------------------------
-int menu_system_begin( void )
+int menu_system_begin()
 {
     // initializes the menu system
     //
@@ -738,7 +722,7 @@ int menu_system_begin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void menu_system_end( void )
+void menu_system_end()
 {
     // deinitializes the menu system
 
@@ -759,13 +743,13 @@ bool mnu_begin_menu( which_menu_t which )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_end_menu( void )
+void mnu_end_menu()
 {
     mnu_whichMenu = mnu_stack_pop();
 }
 
 //--------------------------------------------------------------------------------------------
-int mnu_get_menu_depth( void )
+int mnu_get_menu_depth()
 {
     return mnu_stack_index;
 }
@@ -4798,7 +4782,7 @@ void autoformat_init( gfx_config_t * pgfx )
 }
 
 //--------------------------------------------------------------------------------------------
-void autoformat_init_slidy_buttons( void )
+void autoformat_init_slidy_buttons()
 {
     // Figure out where to draw the buttons
     buttonLeft = 40;
@@ -4806,7 +4790,7 @@ void autoformat_init_slidy_buttons( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void autoformat_init_tip_text( void )
+void autoformat_init_tip_text()
 {
     // set the text
     tipText = NULL;
@@ -4819,7 +4803,7 @@ void autoformat_init_tip_text( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void autoformat_init_copyright_text( void )
+void autoformat_init_copyright_text()
 {
     // set the text
     copyrightText = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion " VERSION "\n";
@@ -5076,7 +5060,7 @@ void mnu_module_init( mnu_module_t * pmod )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_load_all_module_info( void )
+void mnu_load_all_module_info()
 {
     vfs_search_context_t * ctxt;
 
@@ -5181,7 +5165,7 @@ const char * mnu_ModList_get_name( int imod )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_ModList_release_all( void )
+void mnu_ModList_release_all()
 {
     MOD_REF cnt;
 
@@ -5200,7 +5184,7 @@ void mnu_ModList_release_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_ModList_release_images( void )
+void mnu_ModList_release_images()
 {
     MOD_REF cnt;
     int tnc;
@@ -5378,7 +5362,7 @@ void mnu_SlidyButton_update_all( float deltaTime )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_SlidyButton_draw_all( void )
+void mnu_SlidyButton_draw_all()
 {
     int i;
 
@@ -5975,7 +5959,7 @@ bool SelectedPlayer_list_remove( SelectedPlayer_list_t * sp_lst, int loadplayer_
 IMPLEMENT_LIST( oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
 
 //--------------------------------------------------------------------------------------------
-void mnu_TxList_reset_freelist( void )
+void mnu_TxList_reset_freelist()
 {
     /// @author BB
     /// @details reset the free texture list. Start at MENU_TX_LAST_SPECIAL so that the global textures/icons are
@@ -5991,7 +5975,7 @@ void mnu_TxList_reset_freelist( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_TxList_ctor( void )
+void mnu_TxList_ctor()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -6016,7 +6000,7 @@ void mnu_TxList_release_one( const MNU_TX_REF index )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_TxList_dtor( void )
+void mnu_TxList_dtor()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -6032,7 +6016,7 @@ void mnu_TxList_dtor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_TxList_init_all( void )
+void mnu_TxList_init_all()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -6048,7 +6032,7 @@ void mnu_TxList_init_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_TxList_release_all( void )
+void mnu_TxList_release_all()
 {
     /// @author ZZ
     /// @details This function releases all of the textures
@@ -6064,7 +6048,7 @@ void mnu_TxList_release_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_TxList_delete_all( void )
+void mnu_TxList_delete_all()
 {
     /// @author ZZ
     /// @details This function clears out all of the textures
@@ -6080,7 +6064,7 @@ void mnu_TxList_delete_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void mnu_TxList_reload_all( void )
+void mnu_TxList_reload_all()
 {
     /// @author BB
     /// @details This function re-loads all the current textures back into
@@ -6226,7 +6210,7 @@ oglx_texture_t * mnu_TxList_get_valid_ptr( const MNU_TX_REF itex )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool mnu_load_cursor( void )
+bool mnu_load_cursor()
 {
     /// @author ZF
     /// @details Load the mouse cursor
@@ -6239,7 +6223,7 @@ bool mnu_load_cursor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool mnu_load_all_global_icons( void )
+bool mnu_load_all_global_icons()
 {
     /// @author ZF
     /// @details Load all the global icons used in all modules

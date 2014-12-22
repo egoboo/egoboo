@@ -23,12 +23,6 @@
 
 #include "game/char.inl"
 
-#include "egolib/log.h"
-#include "egolib/vfs.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/fileutil.h"
-#include "egolib/strutil.h"
-#include "egolib/file_formats/quest_file.h"
 #include "egolib/_math.inl"
 
 #include "game/mad.h"
@@ -51,9 +45,6 @@
 
 #include "game/ChrList.inl"
 #include "game/mesh.inl"
-
-// this include must be the absolute last include
-#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -113,7 +104,7 @@ static bool set_weapongrip( const CHR_REF iitem, const CHR_REF iholder, Uint16 v
 static BBOARD_REF chr_add_billboard( const CHR_REF ichr, Uint32 lifetime_secs );
 
 static chr_t * resize_one_character( chr_t * pchr );
-//static void    resize_all_characters( void );
+//static void    resize_all_characters();
 
 static bool  chr_free( chr_t * pchr );
 
@@ -191,14 +182,14 @@ IMPLEMENT_STACK( team_t, TeamStack, TEAM_MAX );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void character_system_begin( void )
+void character_system_begin()
 {
     ChrList_ctor();
     CapStack_init_all();
 }
 
 //--------------------------------------------------------------------------------------------
-void character_system_end( void )
+void character_system_end()
 {
     CapStack_release_all();
     ChrList_dtor();
@@ -483,7 +474,7 @@ bool chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst )
 }
 
 //--------------------------------------------------------------------------------------------
-void keep_weapons_with_holders( void )
+void keep_weapons_with_holders()
 {
     /// @author ZZ
     /// @details This function keeps weapons near their holders
@@ -875,7 +866,7 @@ place_particle_at_vertex_fail:
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_character_matrices( void )
+void update_all_character_matrices()
 {
     /// @author ZZ
     /// @details This function makes all of the character's matrices
@@ -889,7 +880,7 @@ void update_all_character_matrices( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void free_all_chraracters( void )
+void free_all_chraracters()
 {
     /// @author ZZ
     /// @details This function resets the character allocation list
@@ -5674,7 +5665,7 @@ bool update_chr_darkvision( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void update_all_characters( void )
+void update_all_characters()
 {
     /// @author ZZ
     /// @details This function updates stats and such for every character
@@ -7694,7 +7685,7 @@ void move_one_character( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_all_characters( void )
+void move_all_characters()
 {
     /// @author ZZ
     /// @details This function handles character physics
@@ -7719,7 +7710,7 @@ void move_all_characters( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void cleanup_all_characters( void )
+void cleanup_all_characters()
 {
     CHR_REF cnt;
 
@@ -7747,7 +7738,7 @@ void cleanup_all_characters( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void bump_all_characters_update_counters( void )
+void bump_all_characters_update_counters()
 {
     CHR_REF cnt;
 
@@ -7877,7 +7868,7 @@ slot_t grip_offset_to_slot( grip_offset_t grip_off )
 }
 
 //--------------------------------------------------------------------------------------------
-void init_slot_idsz( void )
+void init_slot_idsz()
 {
     inventory_idsz[INVEN_PACK]  = IDSZ_NONE;
     inventory_idsz[INVEN_NECK]  = MAKE_IDSZ( 'N', 'E', 'C', 'K' );
@@ -8424,7 +8415,7 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void CapStack_init_all( void )
+void CapStack_init_all()
 {
     /// @author BB
     /// @details initialize every character profile in the game
@@ -8438,7 +8429,7 @@ void CapStack_init_all( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void CapStack_release_all( void )
+void CapStack_release_all()
 {
     /// @author BB
     /// @details release every character profile in the game
@@ -8473,7 +8464,7 @@ bool CapStack_release_one( const CAP_REF icap )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_teams( void )
+void reset_teams()
 {
     /// @author ZZ
     /// @details This function makes everyone hate everyone else

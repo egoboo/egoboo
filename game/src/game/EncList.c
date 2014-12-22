@@ -23,9 +23,6 @@
 
 #include "game/EncList.h"
 #include "game/egoboo_object.h"
-
-#include "egolib/log.h"
-
 #include "game/enchant.inl"
 
 //--------------------------------------------------------------------------------------------
@@ -47,9 +44,9 @@ int enc_loop_depth = 0;
 // private EncList_t functions
 //--------------------------------------------------------------------------------------------
 
-static void    EncList_clear( void );
-static void    EncList_init( void );
-static void    EncList_deinit( void );
+static void    EncList_clear();
+static void    EncList_init();
+static void    EncList_deinit();
 
 static bool  EncList_add_free_ref( const ENC_REF ienc );
 static bool  EncList_remove_free_ref( const ENC_REF ienc );
@@ -58,8 +55,8 @@ static bool  EncList_remove_free_idx( const int index );
 static bool EncList_remove_used_ref( const ENC_REF ienc );
 static bool EncList_remove_used_idx( const int index );
 
-static void   EncList_prune_used_list( void );
-static void   EncList_prune_free_list( void );
+static void   EncList_prune_used_list();
+static void   EncList_prune_free_list();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -68,7 +65,7 @@ IMPLEMENT_LIST( enc_t, EncList, MAX_ENC );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void EncList_ctor( void )
+void EncList_ctor()
 {
     ENC_REF cnt;
     enc_t * penc;
@@ -93,7 +90,7 @@ void EncList_ctor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_dtor( void )
+void EncList_dtor()
 {
     ENC_REF cnt;
     enc_t * penc;
@@ -115,7 +112,7 @@ void EncList_dtor( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_deinit( void )
+void EncList_deinit()
 {
     ENC_REF cnt;
 
@@ -130,14 +127,14 @@ void EncList_deinit( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_reinit( void )
+void EncList_reinit()
 {
     EncList_deinit();
     EncList_init();
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_clear( void )
+void EncList_clear()
 {
     ENC_REF cnt;
 
@@ -157,7 +154,7 @@ void EncList_clear( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_init( void )
+void EncList_init()
 {
     int cnt;
 
@@ -173,7 +170,7 @@ void EncList_init( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_prune_used_list( void )
+void EncList_prune_used_list()
 {
     // prune the used list
 
@@ -199,7 +196,7 @@ void EncList_prune_used_list( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_prune_free_list( void )
+void EncList_prune_free_list()
 {
     // prune the free list
     ENC_REF ienc;
@@ -223,7 +220,7 @@ void EncList_prune_free_list( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_update_used( void )
+void EncList_update_used()
 {
     size_t cnt;
     ENC_REF ienc;
@@ -371,7 +368,7 @@ size_t EncList_pop_free( const int idx )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_free_all( void )
+void EncList_free_all()
 {
     ENC_REF cnt;
 
@@ -627,7 +624,7 @@ ENC_REF EncList_allocate( const ENC_REF override )
 }
 
 //--------------------------------------------------------------------------------------------
-void EncList_cleanup( void )
+void EncList_cleanup()
 {
     enc_t * penc;
 

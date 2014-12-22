@@ -17,33 +17,21 @@
 //*
 //********************************************************************************************
 
-/// @file game/network.c
-/// @brief Egoboo networking implementation
-/// @details Shuttles bits across the network, using Enet.  Networked play doesn't
-/// really work at the moment.
+/// @file    game/network.c
+/// @brief   Egoboo networking implementation.
+/// @details Shuttles bits across the network, using Enet.
+///          Networked play doesn't really work at the moment.
 
 #include "game/network.h"
 #include "game/network_server.h"
 #include "game/network_client.h"
-
-#include "egolib/file_common.h"
-#include "egolib/log.h"
-#include "egolib/strutil.h"
-#include "egolib/vfs.h"
-#include "egolib/egoboo_setup.h"
-#include "egolib/file_formats/module_file.h"
-
 #include "game/input.h"
 #include "game/game.h"
 #include "game/menu.h"
 #include "game/player.h"
 #include "game/renderer_2d.h"
 #include "game/egoboo.h"
-
 #include "game/char.inl"
-
-// this include must be the absolute last include
-#include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -93,7 +81,7 @@ Uint32 nexttimestamp;                          // Expected timestamp
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void net_sayHello( void )
+void net_sayHello()
 {
     /// @author ZZ
     /// @details This function lets everyone know we're here
@@ -127,7 +115,7 @@ void net_sayHello( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_unbuffer_player_latches( void )
+void net_unbuffer_player_latches()
 {
     /// @author ZZ
     /// @details This function sets character latches based on player input to the host
@@ -289,7 +277,7 @@ void net_unbuffer_player_latches( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_initialize( void )
+void net_initialize()
 {
     /// @author ZZ
     /// @details This starts up the network and logs whatever goes on
@@ -298,19 +286,19 @@ void net_initialize( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool net_begin( void )
+bool net_begin()
 {
     return egonet_begin( cfg.network_allowed );
 }
 
 //--------------------------------------------------------------------------------------------
-bool net_end( void )
+bool net_end()
 {
     return egonet_end();
 }
 
 //--------------------------------------------------------------------------------------------
-void net_shutDown( void )
+void net_shutDown()
 {
     log_info( "net_shutDown: Turning off networking.\n" );
 
@@ -318,7 +306,7 @@ void net_shutDown( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void find_open_sessions( void )
+void find_open_sessions()
 {
     /*PORT
     /// @author ZZ
@@ -340,14 +328,14 @@ void find_open_sessions( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void stop_players_from_joining( void )
+void stop_players_from_joining()
 {
     /// @author ZZ
     /// @details This function stops players from joining a game
 }
 
 //--------------------------------------------------------------------------------------------
-void net_send_message( void )
+void net_send_message()
 {
     /// @author ZZ
     /// @details sends the message in the keyboard buffer to all other players
@@ -379,7 +367,7 @@ player_t* chr_get_ppla( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void net_count_players( void )
+void net_count_players()
 {
     //int cnt;
     PLA_REF ipla;
