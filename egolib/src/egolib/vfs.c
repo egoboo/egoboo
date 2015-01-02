@@ -2310,12 +2310,18 @@ int vfs_add_mount_point( const char * root_path, const char * relative_path, con
 
     /// @note ZF@> 2010-06-30 vfs_convert_fname_sys() broke the Linux version
     /// @note BB@> 2010-06-30 the error in vfs_convert_fname_sys() might be fixed now
+    /// @note PF@> 2015-01-01 this should be unneeded. root_path and relative_path should both
+    ///                       sys-dependent paths, unless Windows does something strange?
+#if 0
     loc_dirname = vfs_convert_fname_sys( dirname );
+#else
+    loc_dirname = dirname;
+#endif
 
     if ( _vfs_mount_info_add( mount_point, root_path, relative_path ) )
     {
         retval = PHYSFS_mount( loc_dirname, mount_point, append );
-        if ( 1 != retval )
+        if ( 0 == retval )
         {
             // go back and remove the mount info, since PHYSFS rejected the
             // data we gave it

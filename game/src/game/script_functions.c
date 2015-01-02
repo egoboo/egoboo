@@ -3009,6 +3009,7 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
     /// if the item matches the ID given ( parent or child type )
 
     int     iTmp;
+    int     ichr;
     chr_t * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -3016,13 +3017,25 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
     iTmp = 0;  // Amount of ammo given
-
-    PACK_BEGIN_LOOP( pself_target->inventory, pitem, item )
+    
+    ichr = pself_target->holdingwhich[SLOT_LEFT];
+    iTmp += restock_ammo(ichr, pstate->argument);
+    
+    if (iTmp == 0)
     {
-        iTmp += restock_ammo( item, pstate->argument );
-        if ( 0 != iTmp ) break;
+        ichr = pself_target->holdingwhich[SLOT_RIGHT];
+        iTmp += restock_ammo(ichr, pstate->argument);
     }
-    PACK_END_LOOP()
+
+    if (iTmp == 0)
+    {
+        PACK_BEGIN_LOOP( pself_target->inventory, pitem, item )
+        {
+            iTmp += restock_ammo( item, pstate->argument );
+            if ( 0 != iTmp ) break;
+        }
+        PACK_END_LOOP()
+    }
 
     pstate->argument = iTmp;
     returncode = ( iTmp != 0 );

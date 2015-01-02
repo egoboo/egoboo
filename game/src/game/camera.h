@@ -159,6 +159,7 @@ struct camera_t
 
     // effects
     float         motion_blur;         ///< Blurry effect
+    float         motion_blur_old;     ///< Blurry effect one frame ago (used to init the accum buffer)
     int           swing;               ///< Camera swingin'
     int           swing_rate;
     float         swing_amp;

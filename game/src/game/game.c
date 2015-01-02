@@ -5426,6 +5426,7 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
 
     // delete the data in the directory
     vfs_removeDirectoryAndContents( "import", VFS_TRUE );
+    vfs_remove_mount_point("import");
 
     // make sure the directory exists
     if ( !vfs_mkdir( "/import" ) )
@@ -5433,6 +5434,7 @@ egolib_rv game_copy_imports( import_list_t * imp_lst )
         log_warning( "mnu_copy_local_imports() - Could not create the import folder. (%s)\n", vfs_getError() );
         return rv_error;
     }
+    vfs_add_mount_point( fs_getUserDirectory(), "import", "mp_import", 1 );
 
     // copy all of the imports over
     for ( import_idx = 0; import_idx < imp_lst->count; import_idx++ )
