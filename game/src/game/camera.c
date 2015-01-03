@@ -59,7 +59,7 @@ bool camera_reset_view( camera_t * pcam )
 {
     if ( NULL == pcam ) return false;
 
-    camera_gluLookAt( pcam, pcam->roll );
+    camera_gluLookAt( pcam, RAD_TO_DEG(pcam->roll) );
 
     return true;
 }
@@ -89,19 +89,18 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->swing_rate = cam_options.swing_rate;
 
     // constant values
-    pcam->move_mode_old  = CAM_PLAYER;
-    pcam->move_mode      = CAM_PLAYER;
-    pcam->swing_rate     =  0;
-    pcam->swing_amp      =  0;
-    pcam->zoom           =  CAM_ZOOM_AVG;
-    pcam->zadd           =  CAM_ZADD_AVG;
+    pcam->move_mode_old   =  CAM_PLAYER;
+    pcam->move_mode       =  CAM_PLAYER;
+    pcam->zoom            =  CAM_ZOOM_AVG;
+    pcam->zadd            =  CAM_ZADD_AVG;
     pcam->zadd_goto       =  CAM_ZADD_AVG;
-    pcam->zgoto          =  CAM_ZADD_AVG;
-    pcam->turn_z_rad     = -PI_OVER_FOUR;
-    pcam->turn_z_add     =  0;
-    pcam->turn_z_sustain =  0.60f;
-    pcam->roll           =  0.0f;
-    pcam->motion_blur    =  0.0f;
+    pcam->zgoto           =  CAM_ZADD_AVG;
+    pcam->turn_z_rad      = -PI_OVER_FOUR;
+    pcam->turn_z_add      =  0;
+    pcam->turn_z_sustain  =  0.60f;
+    pcam->roll            =  0.0f;
+    pcam->motion_blur     =  0.0f;
+    pcam->motion_blur_old =  0.0f;
     fvec3_self_clear( pcam->center.v );
 
     // derived values
@@ -287,6 +286,8 @@ void camera_gluLookAt( camera_t * pcam, float roll_deg )
 void camera_update_effects( camera_t * pcam )
 {
     float local_swingamp = pcam->swing_amp;
+    
+    pcam->motion_blur_old = pcam->motion_blur;
 
     // Fade out the motion blur
     if ( pcam->motion_blur > 0 )
@@ -295,7 +296,7 @@ void camera_update_effects( camera_t * pcam )
         if ( pcam->motion_blur < 0.001f ) pcam->motion_blur = 0;
     }
 
-    // Swing the camera if players are groggy and apply motion blur
+    // Swing the camera if players are groggy
     if ( local_stats.grog_level > 0 )
     {
         float zoom_add;
@@ -305,17 +306,19 @@ void camera_update_effects( camera_t * pcam )
         zoom_add = ( 0 == ((( int )local_stats.grog_level ) % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_stats.grog_level * 0.35f;
 
         pcam->zadd_goto   = pcam->zadd_goto + zoom_add;
-        pcam->motion_blur = std::min( 1.00f, 0.5f + 0.03f * local_stats.grog_level );
 
         pcam->zadd_goto = CLIP( pcam->zadd_goto, CAM_ZADD_MIN, CAM_ZADD_MAX );
     }
 
-    //Rotate camera if they are dazed and apply motion blur
+    //Rotate camera if they are dazed
     if ( local_stats.daze_level > 0 )
     {
         pcam->turn_z_add = local_stats.daze_level * CAM_TURN_KEY * 0.5f;
-        pcam->motion_blur = std::min( 1.00f, 0.5f + 0.03f * local_stats.daze_level );
     }
+    
+    // Apply motion blur
+    if ( local_stats.daze_level > 0 || local_stats.grog_level > 0 )
+        pcam->motion_blur = std::min( 0.95f, 0.5f + 0.03f * std::max( local_stats.daze_level, local_stats.grog_level ));
 
     //Apply camera swinging
     //mat_Multiply( pcam->mView.v, mat_Translate( tmp1.v, pcam->pos.x, -pcam->pos.y, pcam->pos.z ), pcam->mViewSave.v );  // xgg
@@ -347,7 +350,7 @@ void camera_make_matrix( camera_t * pcam )
     /// @author ZZ
     /// @details This function sets pcam->mView to the camera's location and rotation
 
-    camera_gluLookAt( pcam, pcam->roll );
+    camera_gluLookAt( pcam, RAD_TO_DEG(pcam->roll) );
 
     //--- pre-compute some camera vectors
     mat_getCamForward( pcam->mView.v, pcam->vfw.v );

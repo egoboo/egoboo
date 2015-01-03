@@ -223,6 +223,9 @@ geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t * self,const bv_
 
     finished = false;
 
+    /// @todo PF@> Something's wrong; this returns intersect/inside for tiles not actually being
+    ///            in the frustum, just force the complete calc for now.
+#if 0
     if ( !finished )
     {
         intersect_rv = point_intersects_aabb( self->origin.v, bv->data.mins, bv->data.maxs );
@@ -308,6 +311,7 @@ geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t * self,const bv_
                 break;
         }
     }
+#endif
 
     if ( !finished )
     {

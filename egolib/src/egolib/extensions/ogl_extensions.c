@@ -170,8 +170,8 @@ void oglx_Get_Screen_Info( oglx_caps_t * pcaps )
     pcaps->gl_renderer    = GL_DEBUG( glGetString )( GL_RENDERER );
     pcaps->gl_extensions  = GL_DEBUG( glGetString )( GL_EXTENSIONS );
 
-    pcaps->glu_version    = GL_DEBUG( gluGetString )( GL_VERSION );
-    pcaps->glu_extensions = GL_DEBUG( gluGetString )( GL_EXTENSIONS );
+    pcaps->glu_version    = GL_DEBUG( gluGetString )( GLU_VERSION );
+    pcaps->glu_extensions = GL_DEBUG( gluGetString )( GLU_EXTENSIONS );
 
     GL_DEBUG( glGetIntegerv )( GL_MAX_MODELVIEW_STACK_DEPTH,     &pcaps->max_modelview_stack_depth );
     GL_DEBUG( glGetIntegerv )( GL_MAX_PROJECTION_STACK_DEPTH,    &pcaps->max_projection_stack_depth );

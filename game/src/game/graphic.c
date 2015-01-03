@@ -1755,6 +1755,11 @@ void gfx_system_init_SDL_graphics()
     sdl_vparam.gl_att.multi_buffers      = ( cfg.multisamples > 1 ) ? 1 : 0;
     sdl_vparam.gl_att.multi_samples      = cfg.multisamples;
     sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
+    
+    sdl_vparam.gl_att.accum[0]           = 8;
+    sdl_vparam.gl_att.accum[1]           = 8;
+    sdl_vparam.gl_att.accum[2]           = 8;
+    sdl_vparam.gl_att.accum[3]           = 8;
 
     ogl_vparam.dither         = cfg.use_dither ? GL_TRUE : GL_FALSE;
     ogl_vparam.antialiasing   = GL_TRUE;
@@ -1809,9 +1814,14 @@ void gfx_system_render_world( const camera_t * pcam, const int render_list_index
 
         if ( pcam->motion_blur > 0 )
         {
+            if (pcam->motion_blur_old < 0.001f)
+                GL_DEBUG(glAccum)(GL_LOAD, 1);
             //Do motion blur
-            GL_DEBUG( glAccum )( GL_MULT, pcam->motion_blur );
-            GL_DEBUG( glAccum )( GL_ACCUM, 1.0f - pcam->motion_blur );
+            if (!GProc->mod_paused)
+            {
+                GL_DEBUG( glAccum )( GL_MULT, pcam->motion_blur );
+                GL_DEBUG( glAccum )( GL_ACCUM, 1.0f - pcam->motion_blur );
+            }
             GL_DEBUG( glAccum )( GL_RETURN, 1.0f );
         }
     }
@@ -6426,7 +6436,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
 
     // get the tiles in the center of the view
     _renderlist_colst.top = 0;
-    mesh_BSP_collide_frustum(getMeshBSP(), &( pcam->frustum_big ), NULL, &_renderlist_colst );
+    mesh_BSP_collide_frustum(getMeshBSP(), &( pcam->frustum ), NULL, &_renderlist_colst );
 
     // transfer valid _renderlist_colst entries to the dolist
     if ( gfx_error == renderlist_add_colst( prlist, &_renderlist_colst ) )
