@@ -608,11 +608,18 @@ prt_t * prt_config_do_init( prt_t * pprt )
         if ( loc_spdlimit > 0.0f ) pprt->buoyancy *= 0.5f;
 
         // determine if there is any left-over air resistance
-        pprt->air_resistance  = 1.0f - ( pprt->buoyancy + STANDARD_GRAVITY ) / -loc_spdlimit;
-        pprt->air_resistance = CLIP( pprt->air_resistance, air_resistance_min, air_resistance_max );
-
-        pprt->air_resistance /= air_friction;
-        pprt->air_resistance = CLIP( pprt->air_resistance, 0.0f, 1.0f );
+        if ( std::abs(loc_spdlimit) > 0.0001f )
+        {
+            pprt->air_resistance  = 1.0f - ( pprt->buoyancy + STANDARD_GRAVITY ) / -loc_spdlimit;
+            pprt->air_resistance = CLIP( pprt->air_resistance, air_resistance_min, air_resistance_max );
+            
+            pprt->air_resistance /= air_friction;
+            pprt->air_resistance = CLIP( pprt->air_resistance, 0.0f, 1.0f );
+        }
+        else
+        {
+            pprt->air_resistance = 0.0f;
+        }
     }
 
     pprt->endspawn_characterstate = SPAWNNOCHARACTER;
