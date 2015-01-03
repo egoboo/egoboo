@@ -230,5 +230,3 @@ void autoformat_init( struct s_gfx_config * pgfx );
 
 bool mnu_load_cursor();
 bool mnu_load_all_global_icons();
-
-#define egoboo_Menu_h

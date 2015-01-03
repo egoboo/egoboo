@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file egolib/file_formats/passage_file.h
 /// @details help read/write the passage file
+
+#pragma once
 
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"

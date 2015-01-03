@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file egolib/file_formats/pip_file.h
 /// @details routines for reading and writing the particle profile file "part*.txt"
+
+#pragma once
 
 #include "egolib/typedef.h"
 
@@ -254,8 +254,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _file_formats_pip_file_h

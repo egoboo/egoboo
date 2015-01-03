@@ -35,10 +35,9 @@
 // Forward declarations.
 struct s_chr;
 struct camera_t;
-struct s_egoboo_config;
+struct egoboo_config_t;
 struct s_chr_instance;
 struct s_oglx_texture_parameters;
-struct s_egoboo_config;
 struct s_Font;
 
 //--------------------------------------------------------------------------------------------
@@ -240,7 +239,7 @@ struct s_gfx_config
 
 bool gfx_config_init( gfx_config_t * pgfx );
 bool gfx_system_set_virtual_screen( gfx_config_t * pgfx );
-bool gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
+bool gfx_config_download_from_egoboo_config( gfx_config_t * pgfx, egoboo_config_t * pcfg );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -362,7 +361,7 @@ dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, size_t index );
 gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh );
 gfx_rv renderlist_attach_camera( renderlist_t * ptr, const camera_t *pcam );
 
-bool oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
+bool oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, egoboo_config_t * pcfg );
 
 struct s_oglx_texture * gfx_get_mesh_tx_sml( int which );
 struct s_oglx_texture * gfx_get_mesh_tx_big( int which );

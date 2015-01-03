@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file  egolib/scancode.h
 /// @brief Translation of SDL scancodes to keys.
+
+#pragma once
 
 #include "egolib/platform.h"
 

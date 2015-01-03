@@ -25,7 +25,7 @@
 #include "egolib/sphere.h"
 
 // Forward declaration.
-typedef struct oct_bb_t oct_bb_t;
+struct oct_bb_t;
 
 //--------------------------------------------------------------------------------------------
 
@@ -35,12 +35,13 @@ typedef struct oct_bb_t oct_bb_t;
  * @remark
  *	The terms "the/an axis-aligned bounding box (object)" and "the/an AABB (object)" are synonyms.
  */
+#if 0
 typedef struct aabb_t aabb_t;
-
+#endif
 struct aabb_t
 {
-	float mins[3];
-	float maxs[3];
+	float mins[3]; /**< @todo Use fvec3_t. */
+	float maxs[3]; /**< @todo Use fvec3_t. */
 };
 
 aabb_t *aabb_ctor(aabb_t *self);
@@ -50,11 +51,34 @@ bool aabb_self_clear(aabb_t * pdst);
 bool aabb_is_clear(const aabb_t * pdst);
 
 bool aabb_from_oct_bb(aabb_t * dst, const struct oct_bb_t * src);
-bool aabb_lhs_contains_rhs(const aabb_t * lhs_ptr, const aabb_t * rhs_ptr);
-bool aabb_overlap(const aabb_t * lhs_ptr, const aabb_t * rhs_ptr);
+/**
+ * @brief
+ *	Does this AABB contain another AABB.
+ * @param self
+ *	this AABB
+ * @param other
+ *	the other AABB
+ * @return
+ *	@a true if the other AABB is contained in this AABB
+ */
+bool aabb_lhs_contains_rhs(const aabb_t *self, const aabb_t *other);
+
+/**
+ * @brief
+ *	Do this AABB and another AABB overlap.
+ * @param self
+ *	this AABB
+ * @param other
+ *	the other AABB
+ * @return
+ *	@a true if this AABB and the other AABB overlap
+ */
+bool aabb_overlap(const aabb_t *self, const aabb_t *other);
 bool aabb_self_union(aabb_t * pdst, const aabb_t * psrc);
 
+#if 0
 /** @todo Remove this. aabb_ctor must be declared, defined and used. */
 #define AABB_INIT_VALS   { {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }
+#endif
 
 //--------------------------------------------------------------------------------------------

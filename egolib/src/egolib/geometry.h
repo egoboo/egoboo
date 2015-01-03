@@ -38,12 +38,14 @@ struct aabb_t;
     struct s_intersection_info;
     typedef struct s_intersection_info intersection_info_t;
 
-    struct s_cube;
+    struct cube_t;
+#if 0
     typedef struct s_cube cube_t;
-
-    struct s_cone;
+#endif
+    struct cone_t;
+#if 0
     typedef struct s_cone cone_t;
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -82,7 +84,7 @@ struct aabb_t;
 // a datatype for cubes
 //--------------------------------------------------------------------------------------------
 
-    struct s_cube
+    struct cube_t
     {
         fvec3_t pos;
         float   size;
@@ -92,7 +94,7 @@ struct aabb_t;
 // a datatype for cones
 //--------------------------------------------------------------------------------------------
 
-    struct s_cone
+    struct cone_t
     {
         fvec3_t origin;
         fvec3_t axis;

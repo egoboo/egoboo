@@ -53,6 +53,3 @@ egolib_rv egolib_frustum_calculate(egolib_frustum_t * pfrust, const float proj[]
 
 /// Call this every time the camera moves to update the frustum
 geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t * pfrust, const bv_t * paabb);
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------

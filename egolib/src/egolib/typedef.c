@@ -178,7 +178,7 @@ void va_non_fatal_assert( const char *format, va_list args )
 }
 
 //--------------------------------------------------------------------------------------------
-void non_fatal_assert( int val, const char * format, ... )
+void non_fatal_assert( bool val, const char * format, ... )
 {
     va_list args;
 

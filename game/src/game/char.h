@@ -711,8 +711,3 @@ const char* describe_damage( float value, float maxval, int * rank_ptr );
 const char* describe_wounds( float max, float current );
 
 struct s_billboard_data * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, const BIT_FIELD opt_bits );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define egoboo_char_h

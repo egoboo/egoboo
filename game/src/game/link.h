@@ -59,8 +59,3 @@ bool link_build_vfs( const char * fname, Link_t list[] );
 
 bool link_pop_module();
 bool link_load_parent( const char * modname, fvec3_t pos );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _link_h

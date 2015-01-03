@@ -49,8 +49,8 @@
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    void        egolib_console_begin( void );
-    void        egolib_console_end( void );
-    void        egolib_console_draw_all( void );
+    void        egolib_console_begin();
+    void        egolib_console_end();
+    void        egolib_console_draw_all();
 
     SDL_Event * egolib_console_handle_events( SDL_Event * evt );

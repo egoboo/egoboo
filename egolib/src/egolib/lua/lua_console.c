@@ -238,7 +238,7 @@ SDL_bool lua_console_run( egolib_console_t * ego_con, void * data )
     EGOBOO_ASSERT( global_L );
 
 	if (NULL == lua_con->L) return SDL_FALSE;
-	EGOBOO_ASSERT(global_L);
+	EGOBOO_ASSERT( global_L );
 
     status = luaL_loadbuffer( lua_con->L, ego_con->buffer, strlen( ego_con->buffer ), "lua_console" );
 

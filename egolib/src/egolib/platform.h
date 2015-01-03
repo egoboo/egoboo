@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -19,9 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file platform.h
+/// @file egolib/platform.h
 /// @brief System-dependent global parameters.
 ///   @todo  some of this stuff is compiler dependent, rather than system dependent.
+
+#pragma once
 
 #if defined(__cplusplus)
 #include <cstdlib>
@@ -358,8 +358,3 @@ extern "C"
 #if defined(__cplusplus)
 }
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_platform_h_

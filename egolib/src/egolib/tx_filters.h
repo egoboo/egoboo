@@ -47,5 +47,7 @@ typedef enum e_tx_filters
 
 } e_tx_filters;
 
+#if 0
 /** @todo Remove this alias. */
 typedef enum e_tx_filters TX_FILTERS;
+#endif

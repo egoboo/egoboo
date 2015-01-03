@@ -3856,7 +3856,7 @@ int doVideoOptions( float deltaTime )
                 }
                 else
                 {
-                    cfg.texturefilter_req = ( TX_FILTERS )(( int )cfg.texturefilter_req + 1 );
+                    cfg.texturefilter_req = ( e_tx_filters )(( int )cfg.texturefilter_req + 1 );
                 }
 
                 if ( cfg.texturefilter_req > TX_ANISOTROPIC )

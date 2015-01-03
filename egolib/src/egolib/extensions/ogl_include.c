@@ -26,6 +26,7 @@
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_debug.h"
 
+#if 0
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define LOCAL_STDERR ((NULL == _ogl_include_stderr) ? stderr : _ogl_include_stderr)
@@ -53,7 +54,9 @@ GLboolean handle_opengl_error( void )
 
     return error;
 }
+#endif
 
+#if 0
 //--------------------------------------------------------------------------------------------
 void oglx_ViewMatrix( GLXmatrix view,
                       const GLXvector3f from,     // camera location
@@ -176,7 +179,9 @@ GLboolean oglx_ProjectionMatrix_2( GLXmatrix proj, GLfloat frustum_near, GLfloat
 
     return GL_TRUE;
 }
+#endif
 
+#if 0
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 FILE * set_ogl_include_stderr( FILE * pfile )
@@ -194,3 +199,4 @@ FILE * set_ogl_include_stderr( FILE * pfile )
 
     return pfile_old;
 }
+#endif

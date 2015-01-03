@@ -4925,11 +4925,11 @@ bool oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, ego
     if ( ogl_caps.maxAnisotropy <= 1.0f )
     {
         ptex->userAnisotropy = 0.0f;
-		ptex->texturefilter = std::min<TX_FILTERS>(pcfg->texturefilter_req, TX_TRILINEAR_2);
+		ptex->texturefilter = std::min<e_tx_filters>(pcfg->texturefilter_req, TX_TRILINEAR_2);
     }
     else
     {
-		ptex->texturefilter = std::min<TX_FILTERS>(pcfg->texturefilter_req, TX_FILTER_COUNT);
+		ptex->texturefilter = std::min<e_tx_filters>(pcfg->texturefilter_req, TX_FILTER_COUNT);
         ptex->userAnisotropy = ogl_caps.maxAnisotropy * std::max( 0, ( int )ptex->texturefilter - ( int )TX_TRILINEAR_2 );
     }
 

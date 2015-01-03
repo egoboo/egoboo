@@ -98,8 +98,3 @@ int   DisplayMsg_printf( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
 // graphics primitive functions
 void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_frect_t tx_rect, const bool use_alpha, const GLXvector4f quad_tint );
 bool dump_screenshot();
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egoboo_renderer_2d_h

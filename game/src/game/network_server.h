@@ -75,8 +75,3 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt );
 // int  sv_beginSinglePlayer(...)
 // int  sv_beginMultiPlayer(...)
 // int  sv_loadModule(...)
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define egoboo_Server_h

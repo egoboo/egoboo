@@ -1,4 +1,3 @@
-#pragma once
 //********************************************************************************************
 //*
 //*    This file is part of the opengl extensions library. This library is
@@ -25,6 +24,8 @@
 /// @ingroup _ogl_extensions_
 /// @brief Definitions for extended functions and variables for OpenGL
 /// @details
+
+#pragma once
 
 #include "egolib/file_common.h"
 
@@ -160,8 +161,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _extensions_ogl_extensions_h

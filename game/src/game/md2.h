@@ -165,8 +165,3 @@ extern float kMd2Normals[EGO_NORMAL_COUNT][3];
 MD2_Model_t * md2_load( const char * szFilename, MD2_Model_t* m );
 void          md2_free( MD2_Model_t * m );
 void          md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float scale_z );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egoboo_md2_h

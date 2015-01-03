@@ -54,8 +54,10 @@ struct s_obj_BSP
     BSP_tree_t   tree;
 };
 
+#if 0
 /** @todo Remove this. obj_BSP_ctor must be used. */
 #define OBJ_BSP_INIT_VALS { 0, BSP_TREE_INIT_VALS }
+#endif
 
 /**
  * @todo

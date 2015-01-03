@@ -22,16 +22,8 @@
 
 #pragma once
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
 #define EGOBOO_NEW( TYPE ) (TYPE *)calloc(1, sizeof(TYPE))
 #define EGOBOO_NEW_ARY( TYPE, COUNT ) (TYPE *)calloc(COUNT, sizeof(TYPE))
 
 #define EGOBOO_DELETE(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
 #define EGOBOO_DELETE_ARY(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_mem_h_

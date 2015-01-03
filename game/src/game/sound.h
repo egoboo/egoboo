@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_egoboo_config;
+struct egoboo_config_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ void    sound_stop_song();
 void    sound_load_global_waves_vfs();
 void    sound_load_all_music_sounds_vfs();
 
-bool sound_system_download_from_config( snd_config_t * psnd, struct s_egoboo_config * pcfg );
+bool sound_system_download_from_config( snd_config_t * psnd, egoboo_config_t * pcfg );
 
 bool looped_stop_object_sounds( const CHR_REF  ichr );
 void   looped_update_all_sound();
@@ -167,8 +167,3 @@ void   sound_free_chunk( Mix_Chunk * pchunk );
 
 int get_current_song_playing();
 bool LoopedList_remove( int channel );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _sound_h

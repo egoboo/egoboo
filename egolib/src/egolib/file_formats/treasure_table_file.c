@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/file_formats/treasure_table.c
+/// @file egolib/file_formats/treasure_table_file.c
 /// @brief Implementation of code for handling random treasure generation
 /// @details
 

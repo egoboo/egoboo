@@ -1,4 +1,3 @@
-#pragma once
 //********************************************************************************************
 //*
 //*    This file is part of the SDL extensions library. This library is
@@ -23,6 +22,8 @@
 /// @ingroup _sdl_extensions_
 /// @brief Definitions for OpenGL extensions to SDL
 /// @details
+
+#pragma once
 
 #include "egolib/extensions/ogl_extensions.h"
 #include "egolib/extensions/SDL_extensions.h"
@@ -76,8 +77,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _extensions_sdl_gl_extensions_h

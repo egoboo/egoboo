@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file egolib/file_formats/cap_file.h
 /// @details routines for reading and writing the character profile file data.txt
+
+#pragma once
 
 #include "egolib/typedef.h"
 #include "egolib/IDSZ_map.h"

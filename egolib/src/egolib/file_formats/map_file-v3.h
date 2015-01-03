@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -23,6 +21,8 @@
 /// @brief Load and save version 3 ("MapC") files
 /// @details
 
+#pragma once
+
 #include "egolib/file_formats/map_file.h"
 
 #if defined(__cplusplus)
@@ -43,8 +43,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _file_formats_mpd_file_v3_h

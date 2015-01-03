@@ -1,4 +1,3 @@
-#pragma once
 //********************************************************************************************
 //*
 //*    This file is part of the SDL extensions library. This library is
@@ -25,6 +24,8 @@
 /// @ingroup _sdl_extensions_
 /// @brief Definitions for generic extensions to SDL
 /// @details
+
+#pragma once
 
 #include "egolib/file_common.h"
 
@@ -220,8 +221,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _extensions_sdl_extensions_h

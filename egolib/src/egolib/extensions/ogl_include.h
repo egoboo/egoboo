@@ -1,4 +1,3 @@
-#pragma once
 //********************************************************************************************
 //*
 //*    This file is part of the opengl extensions library. This library is
@@ -26,6 +25,8 @@
 /// @brief Base definitions of the extensions to OpenGL
 /// @details
 
+#pragma once
+
 #include "egolib/file_common.h"
 
 #if defined(__cplusplus)
@@ -35,16 +36,18 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
+#if 0
     struct s_oglx_light;
     typedef struct s_oglx_light oglx_light_t;
-
+#endif
+#if 0
     struct s_oglx_vertex;
     typedef struct s_oglx_vertex oglx_vertex_t;
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 1
 #if defined(DEBUG_ATTRIB) && defined(_DEBUG)
 #    define ATTRIB_PUSH(TXT, BITS)    { GLint xx=0; GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&xx); GL_DEBUG(glPushAttrib)(BITS); vfs_printf( stdout, "INFO: PUSH  ATTRIB: %s before attrib stack push. level == %d\n", TXT, xx); }
 #    define ATTRIB_POP(TXT)           { GLint xx=0; GL_DEBUG(glPopAttrib)(); GL_DEBUG(glGetIntegerv)(GL_ATTRIB_STACK_DEPTH,&xx); vfs_printf( stdout, "INFO: POP   ATTRIB: %s after attrib stack pop. level == %d\n", TXT, xx); }
@@ -61,24 +64,27 @@ extern "C"
 #    define ATTRIB_GUARD_OPEN(XX)
 #    define ATTRIB_GUARD_CLOSE(XX,YY)
 #endif
+#endif
 
-/// OpenGL compliant definition of an invalid texture binding
+/// OpenGL compliant definition of an invalid texture binding.
+/// @todo Remove this.
 #define INVALID_GL_ID  ( (GLuint) (~0) )
 
-    enum { XX = 0, YY, ZZ, WW };         ///< indices for x, y, z, and w coordinates in a 4-vector
-    enum { RR = 0, GG, BB, AA };         ///< indices for r, g, b, and alpha coordinates in a 4-color vector
-    enum { SS = 0, TT };                 ///< indices for s and t, 4-vector texture coordinate
+enum { XX = 0, YY, ZZ, WW };         ///< indices for x, y, z, and w coordinates in a 4-vector
+enum { RR = 0, GG, BB, AA };         ///< indices for r, g, b, and alpha coordinates in a 4-color vector
+enum { SS = 0, TT };                 ///< indices for s and t, 4-vector texture coordinate
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    typedef GLfloat GLXmatrix[16];       ///< generic 4x4 matrix type
-    typedef GLfloat GLXvector4f[4];      ///< generic 4-vector
-    typedef GLfloat GLXvector3f[3];      ///< generic 3-vector
-    typedef GLfloat GLXvector2f[2];      ///< generic 2-vector
+typedef GLfloat GLXmatrix[16];       ///< generic 4x4 matrix type
+typedef GLfloat GLXvector4f[4];      ///< generic 4-vector
+typedef GLfloat GLXvector3f[3];      ///< generic 3-vector
+typedef GLfloat GLXvector2f[2];      ///< generic 2-vector
 
 //--------------------------------------------------------------------------------------------
 /// generic OpenGL vertex
+#if 0
     struct s_oglx_vertex
     {
         GLXvector4f pos;     ///< the position of the vertex
@@ -88,50 +94,51 @@ extern "C"
         GLuint      color;   ///< r,g,b,a using glColor4ubv
         GLXvector2f tx;      ///< s,t coorsinates for texture mapping glTexCoord2fv
     };
+#endif
 
 //--------------------------------------------------------------------------------------------
 /// generic OpenGL lighting struct
+#if 0
     struct s_oglx_light
     {
         GLXvector4f emission, diffuse, specular;
         float     shininess[1];
     };
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
+#if 0
     GLboolean handle_opengl_error( void );
-
+#endif
+#if 0
     void oglx_ViewMatrix( GLXmatrix view,
                           const GLXvector3f from,      ///< @var camera location
                           const GLXvector3f at,        ///< @var camera look-at target
                           const GLXvector3f world_up,  ///< @var world’s up, usually 0, 0, 1
                           const GLfloat roll );        ///< @var clockwise roll around viewing direction, in radians
-
+#endif
+#if 0
     void oglx_ProjectionMatrix( GLXmatrix proj,
                                 const GLfloat near_plane,    ///< @var distance to near clipping plane
                                 const GLfloat far_plane,     ///< @var distance to far clipping plane
                                 const GLfloat fov_rad );     ///< @var vertical field-of-view angle, in radians
-
+#endif
+#if 0
     GLboolean oglx_ProjectionMatrix_2( GLXmatrix proj,
                                        GLfloat frustum_near, ///< @var distance to near clipping plane
                                        GLfloat frustum_far,  ///< @var distance to far clipping plane
                                        GLfloat fov_rad,      ///< @var vertical field-of-view angle, in radians
                                        GLfloat screen[] );   ///< @var the screen coordinates of the current viewport
-
+#endif
 /// Set the FILE that ogl_include will use to dump debugging information.
 /// If not set, it will default to stderr.
+#if 0
     FILE * set_ogl_include_stderr( FILE * pfile );
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #if defined(__cplusplus)
 }
-
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _extensions_ogl_include_h

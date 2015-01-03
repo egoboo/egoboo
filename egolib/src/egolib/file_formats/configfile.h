@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file egolib/file_formats/configfile.h
 /// @details Configuration file loading code.
+
+#pragma once
 
 #include "egolib/platform.h"
 
@@ -165,8 +165,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _file_formats_configfile_h_

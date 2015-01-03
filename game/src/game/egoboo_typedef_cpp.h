@@ -128,7 +128,3 @@ struct t_cpp_stack
 #define CPP_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      extern t_cpp_stack<TYPE, COUNT> NAME
 #define CPP_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  static t_cpp_stack<TYPE, COUNT> NAME
 #define CPP_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) ACCESS t_cpp_stack<TYPE, COUNT> NAME
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#define _egolib_typedef_cpp_h

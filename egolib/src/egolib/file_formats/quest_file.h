@@ -29,9 +29,9 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// @note BB@> use this forward declaration of the "struct s_IDSZ_node" instead of including
+/// @note BB@> use this forward declaration of the "struct IDSZ_node_t" instead of including
 /// "IDSZ_map.h" to remove possible circular dependencies
-    struct s_IDSZ_node;
+    struct IDSZ_node_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -49,12 +49,12 @@
 //--------------------------------------------------------------------------------------------
 
 // Public functions
-	egolib_rv quest_log_download_vfs(struct s_IDSZ_node * quest_log, size_t quest_log_len, const char* player_directory);
-	egolib_rv quest_log_upload_vfs(struct s_IDSZ_node * quest_log, size_t quest_log_len, const char *player_directory);
-	int       quest_log_set_level(struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz, int level);
-	int       quest_log_adjust_level(struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz, int adjustment);
-	int       quest_log_get_level(struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz);
-	egolib_rv quest_log_add(struct s_IDSZ_node * quest_log, size_t quest_log_len, IDSZ idsz, int level);
+	egolib_rv quest_log_download_vfs(IDSZ_node_t * quest_log, size_t quest_log_len, const char* player_directory);
+	egolib_rv quest_log_upload_vfs(IDSZ_node_t * quest_log, size_t quest_log_len, const char *player_directory);
+	int       quest_log_set_level(IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int level);
+	int       quest_log_adjust_level(IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int adjustment);
+	int       quest_log_get_level(IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz);
+	egolib_rv quest_log_add(IDSZ_node_t * quest_log, size_t quest_log_len, IDSZ idsz, int level);
 
 	ConfigFilePtr_t quest_file_open(const char *player_directory);
 	egolib_rv       quest_file_export(ConfigFilePtr_t pfile);

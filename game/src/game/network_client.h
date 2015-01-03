@@ -61,8 +61,3 @@ void cl_frameStep();
 egolib_rv cl_talkToHost();
 egolib_rv cl_joinGame( const char *hostname );
 egolib_rv cl_handlePacket( enet_packet_t * enet_pkt );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define egoboo_Client_h

@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file egolib/file_formats/spawn_file.h
 /// @details loading the environment definitions for a module
+
+#pragma once
 
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"
@@ -91,8 +91,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _file_formats_spawn_file_h

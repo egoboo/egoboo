@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,6 +20,8 @@
 /// @file egolib/_math.inl
 /// @brief
 /// @details Almost all of the math functions are intended to be inlined for maximum speed
+
+#pragma once
 
 #include "egolib/_math.h"
 #include "egolib/vec.h"

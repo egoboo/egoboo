@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,6 +20,8 @@
 /// @file egolib/file_formats/map_tile_dictionary.h
 /// @brief The tile definitions
 /// @details
+
+#pragma once
 
 #include "egolib/typedef.h"
 
@@ -100,8 +100,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _file_formats_map_tile_dictionary_h

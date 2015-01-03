@@ -28,10 +28,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_camera_options;
-
-    struct s_egoboo_config;
-    typedef struct s_egoboo_config egoboo_config_t;
+    struct camera_options_t;
+    struct egoboo_config_t;
 
 //--------------------------------------------------------------------------------------------
 // CONSTANTS
@@ -58,11 +56,11 @@
     typedef enum ego_feedback_type EGO_FEEDBACK_TYPE;
 
 //--------------------------------------------------------------------------------------------
-// struct s_egoboo_config
+// struct egoboo_config_t
 //--------------------------------------------------------------------------------------------
 
 /// The internal representation of the data in "settings.txt"
-    struct s_egoboo_config
+    struct egoboo_config_t
     {
         // {GRAPHIC}
         bool               fullscreen_req;            ///< Start in fullscreen?

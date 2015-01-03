@@ -38,12 +38,14 @@ struct bv_t
 	aabb_t data;
 };
 
+#if 0
 /* @todo Remove this. bv_ctor must be used. */
 #define BV_INIT_VALS                            \
     {                                           \
         SPHERE_INIT_VALS, /* sphere_t sphere */ \
         AABB_INIT_VALS    /* aabb_t aabb   */   \
     }
+#endif
 
 bv_t *bv_ctor(bv_t *);
 bv_t *bv_dtor(bv_t *);

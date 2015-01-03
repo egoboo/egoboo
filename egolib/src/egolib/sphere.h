@@ -35,11 +35,14 @@ struct sphere_t
 	float   radius;
 };
 
+#if 0
+/** @todo Remove this. sphere_ctor must be used. */
 #define SPHERE_INIT_VALS                \
     {                                   \
         ZERO_VECT3, /*fvec3_t pos    */ \
         -1.0f       /*float   radius */ \
     }
+#endif
 
 /**
  * @brief
@@ -70,11 +73,11 @@ sphere_t *sphere_dtor(sphere_t *self);
 bool sphere_self_clear(sphere_t *self);
 
 /**
-* @brief
-*	Get if a sphere is "clear" i.e. has its default values assigned.
-* @param self
-*	a pointer to the sphere
-* @return
-*	@a true if the sphere is "clear", @a false otherwise
-*/
+ * @brief
+ *	Get if a sphere is "clear" i.e. has its default values assigned.
+ * @param self
+ *	a pointer to the sphere
+ * @return
+ *	@a true if the sphere is "clear", @a false otherwise
+ */
 bool sphere_is_clear(const sphere_t *self);

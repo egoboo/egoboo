@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -22,8 +20,9 @@
 /// @file egolib/input_device.h
 /// @details routines for reading and writing the file controls.txt and "scancode.txt"
 
-#include "egolib/typedef.h"
+#pragma once
 
+#include "egolib/typedef.h"
 #include "egolib/network.h"
 
 #if defined(__cplusplus)
@@ -245,8 +244,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_input_device_h

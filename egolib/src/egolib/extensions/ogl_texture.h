@@ -1,4 +1,3 @@
-#pragma once
 //********************************************************************************************
 //*
 //*    This file is part of the opengl extensions library. This library is
@@ -25,6 +24,8 @@
 /// @ingroup _ogl_extensions_
 /// @brief Definitions for OpenGL texture loading using SDL_image
 /// @details
+
+#pragma once
 
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_debug.h"
@@ -95,8 +96,8 @@ extern "C"
 
     struct s_oglx_texture_parameters
     {
-        TX_FILTERS texturefilter;
-        GLfloat    userAnisotropy;
+        e_tx_filters texturefilter;
+        GLfloat userAnisotropy;
     };
 
 //--------------------------------------------------------------------------------------------
@@ -122,8 +123,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _extensions_ogl_texture_h

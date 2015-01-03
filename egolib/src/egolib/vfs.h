@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -25,6 +23,8 @@
 /// @details Almost all filesystem reads and writes should be handled through this interface. The only possible
 /// exceptions would be the log file (?) or something similar.
 /// Currently, this basically just wraps PhysicsFS functions
+
+#pragma once
 
 #include "egolib/typedef.h"
 
@@ -171,8 +171,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _egolib_vfs_h

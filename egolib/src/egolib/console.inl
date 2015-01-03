@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 // This is a silly file so that we can keep tin internals of the egolib_console_t hidden,
 // while allowing lua_console to "inherit" the egolib_console_t structure
+
+#pragma once
 
 #include "egolib/console.h"
 #include "egolib/font_ttf.h"
@@ -80,8 +80,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define egolib_console_inl

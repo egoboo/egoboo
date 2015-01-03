@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file  egolib/file_formats/eve_file.h
 /// @brief Data and functions to read and write Egoboo's enchant definition files (<tt>"/modules/*.mod/objects/*.obj/enchant.txt"</tt>).
+
+#pragma once
 
 #include "egolib/typedef.h"
 

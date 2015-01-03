@@ -32,11 +32,8 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_irect;
-    typedef struct s_irect irect_t;
-
-    struct s_frect;
-    typedef struct s_frect frect_t;
+    struct irect_t;
+    struct frect_t;
 
     struct s_ego_irect;
     typedef struct s_ego_irect ego_irect_t;
@@ -58,7 +55,7 @@
 // portable definition of assert. the c++ version can be activated below.
 // make assert into a warning if _DEBUG is not defined
 
-    void non_fatal_assert( int val, const char * format, ... ) GCC_PRINTF_FUNC( 2 );
+    void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 );
 
 #if defined(_DEBUG)
 #   define C_EGOBOO_ASSERT(X) assert(X)
@@ -85,10 +82,14 @@
 
 #if !defined(TO_EGO_BOOL)
 	#if defined(__cplusplus)
+#if 0
 		#define TO_EGO_BOOL(VAL) LAMBDA(VAL, true, false)
+#endif
 		#define TO_C_BOOL(VAL)   LAMBDA(VAL, true, false)
 	#else
+#if 0
 		#define TO_EGO_BOOL(VAL) (VAL)
+#endif
 		#define TO_C_BOOL(VAL) (VAL)
 	#endif
 #endif
@@ -203,7 +204,7 @@
 
 //--------------------------------------------------------------------------------------------
 // RECTANGLE
-    struct s_irect
+    struct irect_t
     {
         int left;
         int right;
@@ -211,9 +212,9 @@
         int bottom;
     };
 
-    bool irect_point_inside( irect_t * prect, int   ix, int   iy );
+    bool irect_point_inside( irect_t *prect, int ix, int iy );
 
-    struct s_frect
+    struct frect_t
     {
         float left;
         float right;

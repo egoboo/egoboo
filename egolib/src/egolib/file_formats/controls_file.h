@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file  egolib/file_formats/controls_file.h
 /// @brief Functions and data for reading and writing the file <tt>"controls.txt"</tt> and <tt>"scancode.txt"</tt>.
+
+#pragma once
 
 #include "egolib/typedef.h"
 #include "egolib/vfs.h"

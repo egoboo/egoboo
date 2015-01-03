@@ -99,8 +99,3 @@ void gfx_end_3d();
 
 bool render_oct_bb( oct_bb_t *bb, bool draw_square, bool draw_diamond );
 bool render_aabb( aabb_t * pbbox );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define egoboo_renderer_3d_h

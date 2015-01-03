@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -21,6 +19,8 @@
 
 /// @file egolib/file_formats/wawalite_file.h
 /// @details loading the environment definitions for a module
+
+#pragma once
 
 #include "egolib/_math.h"
 #include "egolib/vec.h"
@@ -232,8 +232,3 @@ extern "C"
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#define _file_formats_wawalite_h
