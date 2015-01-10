@@ -87,10 +87,11 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
     // @TODO: It has been reported that this doesn't work (22.02.2011)
 
     STRING message, buffer;
-    C_BOOLEAN tried[DIALOG_PROGRAM_END] = { C_FALSE };
+    bool tried[DIALOG_PROGRAM_END];
     int i, type = DIALOG_PROGRAM_BEGIN;
     const char *session = getenv( "DESKTOP_SESSION" );
 
+    for (int cnt = DIALOG_PROGRAM_BEGIN; cnt < DIALOG_PROGRAM_END; cnt++) tried[cnt] = false;
     //Ready the message
     strncpy( message, warning, SDL_arraysize( message ) );
     vsnprintf( buffer, SDL_arraysize( buffer ), format, args );
@@ -99,28 +100,29 @@ void sys_popup( const char * popup_title, const char * warning, const char * for
 
     //Figure out if there is a method we prefer
     if ( 0 == strcmp( session, "gnome" ) ) type = ZENITY;
-    else if ( 0 == strcmp( session, "kde" ) ) type = KDIALOG;
+    else if ( 0 == strcmp( session, "kde-plasma" ) ) type = KDIALOG;
 
-    while ( C_TRUE )
+    while ( true )
     {
         //Ready the command
         switch ( type )
         {
-            case ZENITY:   sprintf( buffer, "zenity --error --text=\"%s\" --title=\"%s\"", message, popup_title ); break;
-            case KDIALOG:  sprintf( buffer, "kdialog %s \"--error\" --title \"%s\"", message, popup_title ); break;
-            case XMESSAGE: sprintf( buffer, "xmessage -center \"%s\"", message ); break;
+            case ZENITY:   sprintf( buffer, "zenity --error --text='%s' --title='%s'", message, popup_title ); break;
+            case KDIALOG:  sprintf( buffer, "kdialog --error '%s' --title '%s'", message, popup_title ); break;
+            case XMESSAGE: sprintf( buffer, "xmessage -center '%s'", message ); break;
         }
 
         //Did we succeed?
-        if ( 0 <= system( buffer ) ) break;
+        if ( 0 == system( buffer ) ) break;
 
         //Nope, try the next solution
-        tried[type] = C_TRUE;
+        tried[type] = true;
 
         for ( i = DIALOG_PROGRAM_BEGIN; i < DIALOG_PROGRAM_END; i++ )
         {
-            if ( tried[type] ) continue;
+            if ( tried[i] ) continue;
             type = i;
+            break;
         }
 
         //Did everything fail? If so we just give up

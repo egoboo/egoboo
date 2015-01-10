@@ -210,18 +210,22 @@
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-Wmain" />
+					<Add option="-std=c++0x" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-pg" />
 					<Add option="-g" />
 					<Add option="`sdl-config --cflags`" />
+					<Add option="-x c++" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_LIB" />
 					<Add option="-D_CONSOLE" />
 					<Add directory="/usr/include" />
-					<Add directory="/usr/include/lua5.1" />
+					<Add directory="/usr/include/lua5.2" />
 					<Add directory="/usr/local/include" />
 					<Add directory="/usr/local/include/lua5.1" />
+					<Add directory="src" />
+					<Add directory="../game/src" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg" />
@@ -257,288 +261,313 @@
 				</Linker>
 			</Target>
 		</Build>
-		<Unit filename="IDSZ_map.c">
+		<Unit filename="src/egolib/IDSZ_map.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="IDSZ_map.h" />
-		<Unit filename="_math.c">
+		<Unit filename="src/egolib/IDSZ_map.h" />
+		<Unit filename="src/egolib/_math.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="_math.h" />
-		<Unit filename="_math.inl" />
-		<Unit filename="bbox.c">
+		<Unit filename="src/egolib/_math.h" />
+		<Unit filename="src/egolib/_math.inl" />
+		<Unit filename="src/egolib/aabb.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="bbox.h" />
-		<Unit filename="bbox.inl" />
-		<Unit filename="bsp.c">
+		<Unit filename="src/egolib/aabb.h" />
+		<Unit filename="src/egolib/bbox.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="bsp.h" />
-		<Unit filename="bsp.inl" />
-		<Unit filename="clock.c">
+		<Unit filename="src/egolib/bbox.h" />
+		<Unit filename="src/egolib/bbox.inl" />
+		<Unit filename="src/egolib/bsp.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="clock.h" />
-		<Unit filename="console.c">
+		<Unit filename="src/egolib/bsp.h" />
+		<Unit filename="src/egolib/bsp.inl" />
+		<Unit filename="src/egolib/bv.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="console.h" />
-		<Unit filename="console.inl" />
-		<Unit filename="egoboo_setup.c">
+		<Unit filename="src/egolib/bv.h" />
+		<Unit filename="src/egolib/clock.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="egoboo_setup.h" />
-		<Unit filename="egolib.h" />
-		<Unit filename="egolib.inl" />
-		<Unit filename="egolib_config.h" />
-		<Unit filename="endian.c">
+		<Unit filename="src/egolib/clock.h" />
+		<Unit filename="src/egolib/console.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="endian.h" />
-		<Unit filename="extensions/SDL_GL_extensions.c">
+		<Unit filename="src/egolib/console.h" />
+		<Unit filename="src/egolib/console.inl" />
+		<Unit filename="src/egolib/cube.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions/SDL_GL_extensions.h" />
-		<Unit filename="extensions/SDL_extensions.c">
+		<Unit filename="src/egolib/cube.h" />
+		<Unit filename="src/egolib/egoboo_setup.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions/SDL_extensions.h" />
-		<Unit filename="extensions/ogl_debug.c">
+		<Unit filename="src/egolib/egoboo_setup.h" />
+		<Unit filename="src/egolib/egolib.h" />
+		<Unit filename="src/egolib/egolib.inl" />
+		<Unit filename="src/egolib/egolib_config.h" />
+		<Unit filename="src/egolib/endian.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions/ogl_debug.h" />
-		<Unit filename="extensions/ogl_extensions.c">
+		<Unit filename="src/egolib/endian.h" />
+		<Unit filename="src/egolib/extensions/SDL_GL_extensions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions/ogl_extensions.h" />
-		<Unit filename="extensions/ogl_include.c">
+		<Unit filename="src/egolib/extensions/SDL_GL_extensions.h" />
+		<Unit filename="src/egolib/extensions/SDL_extensions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions/ogl_include.h" />
-		<Unit filename="extensions/ogl_texture.c">
+		<Unit filename="src/egolib/extensions/SDL_extensions.h" />
+		<Unit filename="src/egolib/extensions/ogl_debug.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="extensions/ogl_texture.h" />
-		<Unit filename="file_common.c">
+		<Unit filename="src/egolib/extensions/ogl_debug.h" />
+		<Unit filename="src/egolib/extensions/ogl_extensions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_common.h" />
-		<Unit filename="file_formats/SDL_md2.c">
+		<Unit filename="src/egolib/extensions/ogl_extensions.h" />
+		<Unit filename="src/egolib/extensions/ogl_include.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/SDL_md2.h" />
-		<Unit filename="file_formats/cap_file.c">
+		<Unit filename="src/egolib/extensions/ogl_include.h" />
+		<Unit filename="src/egolib/extensions/ogl_texture.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/cap_file.h" />
-		<Unit filename="file_formats/configfile.c">
+		<Unit filename="src/egolib/extensions/ogl_texture.h" />
+		<Unit filename="src/egolib/file_common.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/configfile.h" />
-		<Unit filename="file_formats/controls_file-v1.c">
+		<Unit filename="src/egolib/file_common.h" />
+		<Unit filename="src/egolib/file_formats/SDL_md2.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/controls_file-v1.h" />
-		<Unit filename="file_formats/controls_file-v2.c">
+		<Unit filename="src/egolib/file_formats/SDL_md2.h" />
+		<Unit filename="src/egolib/file_formats/cap_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/controls_file-v2.h" />
-		<Unit filename="file_formats/controls_file-v3.c">
+		<Unit filename="src/egolib/file_formats/cap_file.h" />
+		<Unit filename="src/egolib/file_formats/configfile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/controls_file-v3.h" />
-		<Unit filename="file_formats/controls_file.c">
+		<Unit filename="src/egolib/file_formats/configfile.h" />
+		<Unit filename="src/egolib/file_formats/controls_file-v1.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/controls_file.h" />
-		<Unit filename="file_formats/eve_file.c">
+		<Unit filename="src/egolib/file_formats/controls_file-v1.h" />
+		<Unit filename="src/egolib/file_formats/controls_file-v2.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/eve_file.h" />
-		<Unit filename="file_formats/id_md2.c">
+		<Unit filename="src/egolib/file_formats/controls_file-v2.h" />
+		<Unit filename="src/egolib/file_formats/controls_file-v3.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/id_md2.h" />
-		<Unit filename="file_formats/id_normals.inl" />
-		<Unit filename="file_formats/map_file-v1.c">
+		<Unit filename="src/egolib/file_formats/controls_file-v3.h" />
+		<Unit filename="src/egolib/file_formats/controls_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/map_file-v1.h" />
-		<Unit filename="file_formats/map_file-v2.c">
+		<Unit filename="src/egolib/file_formats/controls_file.h" />
+		<Unit filename="src/egolib/file_formats/eve_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/map_file-v2.h" />
-		<Unit filename="file_formats/map_file-v3.c">
+		<Unit filename="src/egolib/file_formats/eve_file.h" />
+		<Unit filename="src/egolib/file_formats/id_md2.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/map_file-v3.h" />
-		<Unit filename="file_formats/map_file-v4.c">
+		<Unit filename="src/egolib/file_formats/id_md2.h" />
+		<Unit filename="src/egolib/file_formats/id_normals.inl" />
+		<Unit filename="src/egolib/file_formats/map_file-v1.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/map_file-v4.h" />
-		<Unit filename="file_formats/map_file.c">
+		<Unit filename="src/egolib/file_formats/map_file-v1.h" />
+		<Unit filename="src/egolib/file_formats/map_file-v2.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/map_file.h" />
-		<Unit filename="file_formats/map_tile_dictionary.c">
+		<Unit filename="src/egolib/file_formats/map_file-v2.h" />
+		<Unit filename="src/egolib/file_formats/map_file-v3.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/map_tile_dictionary.h" />
-		<Unit filename="file_formats/module_file.c">
+		<Unit filename="src/egolib/file_formats/map_file-v3.h" />
+		<Unit filename="src/egolib/file_formats/map_file-v4.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/module_file.h" />
-		<Unit filename="file_formats/passage_file.c">
+		<Unit filename="src/egolib/file_formats/map_file-v4.h" />
+		<Unit filename="src/egolib/file_formats/map_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/passage_file.h" />
-		<Unit filename="file_formats/pip_file.c">
+		<Unit filename="src/egolib/file_formats/map_file.h" />
+		<Unit filename="src/egolib/file_formats/map_tile_dictionary.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/pip_file.h" />
-		<Unit filename="file_formats/quest_file.c">
+		<Unit filename="src/egolib/file_formats/map_tile_dictionary.h" />
+		<Unit filename="src/egolib/file_formats/module_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/quest_file.h" />
-		<Unit filename="file_formats/scancode_file.c">
+		<Unit filename="src/egolib/file_formats/module_file.h" />
+		<Unit filename="src/egolib/file_formats/passage_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/scancode_file.h" />
-		<Unit filename="file_formats/spawn_file.c">
+		<Unit filename="src/egolib/file_formats/passage_file.h" />
+		<Unit filename="src/egolib/file_formats/pip_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/spawn_file.h" />
-		<Unit filename="file_formats/template.c">
+		<Unit filename="src/egolib/file_formats/pip_file.h" />
+		<Unit filename="src/egolib/file_formats/quest_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/template.h" />
-		<Unit filename="file_formats/treasure_table_file.c">
+		<Unit filename="src/egolib/file_formats/quest_file.h" />
+		<Unit filename="src/egolib/file_formats/scancode_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/treasure_table_file.h" />
-		<Unit filename="file_formats/wawalite_file.c">
+		<Unit filename="src/egolib/file_formats/scancode_file.h" />
+		<Unit filename="src/egolib/file_formats/spawn_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file_formats/wawalite_file.h" />
-		<Unit filename="fileutil.c">
+		<Unit filename="src/egolib/file_formats/spawn_file.h" />
+		<Unit filename="src/egolib/file_formats/template.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="fileutil.h" />
-		<Unit filename="font_bmp.c">
+		<Unit filename="src/egolib/file_formats/template.h" />
+		<Unit filename="src/egolib/file_formats/treasure_table_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="font_bmp.h" />
-		<Unit filename="font_ttf.c">
+		<Unit filename="src/egolib/file_formats/treasure_table_file.h" />
+		<Unit filename="src/egolib/file_formats/wawalite_file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="font_ttf.h" />
-		<Unit filename="frustum.c">
+		<Unit filename="src/egolib/file_formats/wawalite_file.h" />
+		<Unit filename="src/egolib/fileutil.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="frustum.h" />
-		<Unit filename="geometry.c">
+		<Unit filename="src/egolib/fileutil.h" />
+		<Unit filename="src/egolib/font_bmp.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="geometry.h" />
-		<Unit filename="hash.c">
+		<Unit filename="src/egolib/font_bmp.h" />
+		<Unit filename="src/egolib/font_ttf.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="hash.h" />
-		<Unit filename="input_device.c">
+		<Unit filename="src/egolib/font_ttf.h" />
+		<Unit filename="src/egolib/frustum.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="input_device.h" />
-		<Unit filename="log.c">
+		<Unit filename="src/egolib/frustum.h" />
+		<Unit filename="src/egolib/geometry.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="log.h" />
-		<Unit filename="lua/lua_console.c">
+		<Unit filename="src/egolib/geometry.h" />
+		<Unit filename="src/egolib/hash.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="lua/lua_console.h" />
-		<Unit filename="map_functions.c">
+		<Unit filename="src/egolib/hash.h" />
+		<Unit filename="src/egolib/input_device.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="map_functions.h" />
-		<Unit filename="mem.h" />
-		<Unit filename="network.c">
+		<Unit filename="src/egolib/input_device.h" />
+		<Unit filename="src/egolib/log.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="network.h" />
-		<Unit filename="network_file.c">
+		<Unit filename="src/egolib/log.h" />
+		<Unit filename="src/egolib/lua/lua_console.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="network_file.h" />
-		<Unit filename="platform.h" />
-		<Unit filename="platform/NSFileManager+DirectoryLocations.h" />
-		<Unit filename="platform/file_amiga.c">
+		<Unit filename="src/egolib/lua/lua_console.h" />
+		<Unit filename="src/egolib/map_functions.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/egolib/map_functions.h" />
+		<Unit filename="src/egolib/matrix.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/egolib/matrix.h" />
+		<Unit filename="src/egolib/mem.h" />
+		<Unit filename="src/egolib/network.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/egolib/network.h" />
+		<Unit filename="src/egolib/network_file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/egolib/network_file.h" />
+		<Unit filename="src/egolib/opengl/renderer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/egolib/opengl/renderer.h" />
+		<Unit filename="src/egolib/platform.h" />
+		<Unit filename="src/egolib/platform/NSFileManager+DirectoryLocations.h" />
+		<Unit filename="src/egolib/platform/file_amiga.c">
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="platform/file_linux.c">
+		<Unit filename="src/egolib/platform/file_linux.c">
 			<Option compilerVar="CC" />
 			<Option target="cygwin-gcc-debug" />
 			<Option target="cygwin-gcc-release" />
 			<Option target="nix-gcc-debug" />
 			<Option target="nix-gcc-release" />
 		</Unit>
-		<Unit filename="platform/file_win.c">
+		<Unit filename="src/egolib/platform/file_win.c">
 			<Option compilerVar="CC" />
 			<Option target="win32-vc2003-debug" />
 			<Option target="win32-vc2003-release" />
 		</Unit>
-		<Unit filename="platform/sys_linux.c">
+		<Unit filename="src/egolib/platform/sys_linux.c">
 			<Option compilerVar="CC" />
 			<Option target="cygwin-gcc-debug" />
 			<Option target="cygwin-gcc-release" />
 			<Option target="nix-gcc-debug" />
 			<Option target="nix-gcc-release" />
 		</Unit>
-		<Unit filename="platform/sys_mac.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="platform/sys_win32.c">
+		<Unit filename="src/egolib/platform/sys_win32.c">
 			<Option compilerVar="CC" />
 			<Option target="win32-vc2003-debug" />
 			<Option target="win32-vc2003-release" />
 		</Unit>
-		<Unit filename="process.c">
+		<Unit filename="src/egolib/process.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="process.h" />
-		<Unit filename="scancode.c">
+		<Unit filename="src/egolib/process.h" />
+		<Unit filename="src/egolib/scancode.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="scancode.h" />
-		<Unit filename="state_machine.h" />
-		<Unit filename="strutil.c">
+		<Unit filename="src/egolib/scancode.h" />
+		<Unit filename="src/egolib/sphere.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="strutil.h" />
-		<Unit filename="system.h" />
-		<Unit filename="threads.c">
+		<Unit filename="src/egolib/sphere.h" />
+		<Unit filename="src/egolib/state_machine.h" />
+		<Unit filename="src/egolib/strutil.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="threads.h" />
-		<Unit filename="throttle.c">
+		<Unit filename="src/egolib/strutil.h" />
+		<Unit filename="src/egolib/system.h" />
+		<Unit filename="src/egolib/threads.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="throttle.h" />
-		<Unit filename="timer.c">
+		<Unit filename="src/egolib/threads.h" />
+		<Unit filename="src/egolib/throttle.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="timer.h" />
-		<Unit filename="typedef.c">
+		<Unit filename="src/egolib/throttle.h" />
+		<Unit filename="src/egolib/timer.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="typedef.h" />
-		<Unit filename="typedef_cpp.h" />
-		<Unit filename="vfs.c">
+		<Unit filename="src/egolib/timer.h" />
+		<Unit filename="src/egolib/tx_filters.h" />
+		<Unit filename="src/egolib/typedef.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="vfs.h" />
+		<Unit filename="src/egolib/typedef.h" />
+		<Unit filename="src/egolib/typedef_cpp.h" />
+		<Unit filename="src/egolib/vec.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/egolib/vec.h" />
+		<Unit filename="src/egolib/vfs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/egolib/vfs.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

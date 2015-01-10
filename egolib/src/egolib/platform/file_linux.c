@@ -94,8 +94,8 @@ void sys_fs_init( const char * root_dir )
 #else
     // these are read-only directories
     strncpy( linux_configPath, "/etc/egoboo-2.x/",         SDL_arraysize( linux_configPath ) );
-    strncpy( linux_binaryPath, "/games/",                  SDL_arraysize( linux_binaryPath ) );
-    strncpy( linux_dataPath,   "/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
+    strncpy( linux_binaryPath, "/usr/games/",                  SDL_arraysize( linux_binaryPath ) );
+    strncpy( linux_dataPath,   "/usr/share/games/egoboo-2.x/", SDL_arraysize( linux_dataPath ) );
 #endif
 
     // the log file cannot be started until there is a user data path to dump the file into
@@ -144,7 +144,7 @@ void fs_deleteFile( const char *filename )
 }
 
 //--------------------------------------------------------------------------------------------
-C_BOOLEAN fs_copyFile( const char *source, const char *dest )
+bool fs_copyFile( const char *source, const char *dest )
 {
     /// @author ZZ
     /// @details This function copies a file on the local machine
@@ -156,13 +156,13 @@ C_BOOLEAN fs_copyFile( const char *source, const char *dest )
 
     sourcef = fopen( source, "rb" );
     if ( !sourcef )
-        return C_FALSE;
+        return false;
 
     destf = fopen( dest, "wb" );
     if ( !destf )
     {
         fclose( sourcef );
-        return C_FALSE;
+        return false;
     }
 
     while (( bytes_read = fread( buf, 1, sizeof( buf ), sourcef ) ) )
@@ -171,7 +171,7 @@ C_BOOLEAN fs_copyFile( const char *source, const char *dest )
     //Finish it up
     fclose( sourcef );
     fclose( destf );
-    return C_TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
