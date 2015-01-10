@@ -29,13 +29,13 @@
 struct oct_bb_t;
 
 /**
-* @brief
-*	A convex bounding volume consisting of a sphere enclosing a bounding box.
-*/
+ * @brief
+ *	A convex bounding volume consisting of a sphere enclosing a bounding box.
+ */
 struct bv_t
 {
 	sphere_t sphere;
-	aabb_t data;
+	aabb_t aabb;
 };
 
 #if 0

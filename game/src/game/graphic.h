@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------------------------
 
 // Forward declarations.
-struct s_chr;
+struct chr_t;
 struct camera_t;
 struct egoboo_config_t;
 struct s_chr_instance;

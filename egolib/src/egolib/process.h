@@ -24,17 +24,20 @@
 #include "egolib/typedef.h"
 #include "egolib/state_machine.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_process_instance;
+    struct process_t;
+#if 0
     typedef struct s_process_instance process_t;
-
+#endif
 //--------------------------------------------------------------------------------------------
 // MACROS AND ENUMS
 //--------------------------------------------------------------------------------------------
@@ -63,7 +66,7 @@ extern "C"
 /// A rudimantary implementation of "non-preemptive multitasking" in Egoboo.
 /// @details All other process types "inherit" from this one
 
-    struct s_process_instance
+    struct process_t
     {
         bool          valid;
         bool          paused;
@@ -85,7 +88,8 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 #if defined(__cplusplus)
 }
-
+#endif
 #endif

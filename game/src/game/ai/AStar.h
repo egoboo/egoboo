@@ -31,19 +31,20 @@
 
 // Forward declarations.
 struct ego_mesh_t;
-struct s_waypoint_list;
+struct waypoint_list_t;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-struct s_AStar_Node;
-typedef struct s_AStar_Node AStar_Node_t;
+#if 0
+struct AStar_Node_t;
+#endif
 
 //------------------------------------------------------------------------------
 // A* pathfinding --------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-struct s_AStar_Node
+struct AStar_Node_t
 {
     float  weight;
     bool closed;
@@ -54,5 +55,5 @@ struct s_AStar_Node
 
 //------------------------------------------------------------------------------
 //Public functions
-bool AStar_find_path( ego_mesh_t *PMesh, Uint32 stoppedby, const int src_ix, const int src_iy, int dst_ix, int dst_iy );
-bool AStar_get_path( const int pos_x, const int dst_y, struct s_waypoint_list *plst );
+bool AStar_find_path( ego_mesh_t *mesh, Uint32 stoppedBy, const int src_ix, const int src_iy, int dst_ix, int dst_iy );
+bool AStar_get_path( const int pos_x, const int dst_y, waypoint_list_t *plst );

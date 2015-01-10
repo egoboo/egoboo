@@ -26,11 +26,11 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_chr;
+struct chr_t;
 struct s_prt;
 struct s_cap;
-struct s_mad;
-struct s_eve;
+struct mad_t;
+struct eve_t;
 struct s_pip;
 
 struct Mix_Chunk;

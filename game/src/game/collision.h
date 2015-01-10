@@ -27,15 +27,16 @@
 // external structs
 //--------------------------------------------------------------------------------------------
 
-struct s_chr;
+struct chr_t;
 struct s_prt;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_CoNode;
+struct CoNode_t;
+#if 0
 typedef struct s_CoNode CoNode_t;
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -45,7 +46,7 @@ typedef struct s_CoNode CoNode_t;
 /// Instead, a separate lists of free hash_nodes and free CoNodes are kept, and they are
 /// associated through the hash_node_t::data pointer when the hash node is added to the
 /// hash_list_t
-struct s_CoNode
+struct CoNode_t
 {
     // the "colliding" objects
     CHR_REF chra;
@@ -92,6 +93,6 @@ extern int CHashList_inserted;
 // global functions
 
 bool collision_system_begin();
-void   collision_system_end();
+void collision_system_end();
 
 void bump_all_objects();

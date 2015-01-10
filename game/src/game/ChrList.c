@@ -249,12 +249,10 @@ bool ChrList_free_one( const CHR_REF ichr )
     /// should be enough to ensure that no character is freed more than once
 
     bool retval;
-    chr_t * pchr;
-    obj_data_t * pbase;
 
     if ( !ALLOCATED_CHR( ichr ) ) return false;
-    pchr = ChrList_get_ptr( ichr );
-    pbase = POBJ_GET_PBASE( pchr );
+    chr_t *pchr = ChrList_get_ptr( ichr );
+    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
 
 #if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
     chr_log_script_time( ichr );

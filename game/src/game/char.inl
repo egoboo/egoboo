@@ -68,20 +68,11 @@ static INLINE IDSZ chr_get_idsz( const CHR_REF ichr, int type );
 
 static INLINE void chr_update_size( chr_t * pchr );
 static INLINE void chr_init_size( chr_t * pchr, cap_t * pcap );
-static INLINE void chr_set_size( chr_t * pchr, const float size );
-static INLINE void chr_set_width( chr_t * pchr, const float width );
-static INLINE void chr_set_shadow( chr_t * pchr, const float width );
-static INLINE void chr_set_height( chr_t * pchr, const float height );
-static INLINE void chr_set_fat( chr_t * pchr, const float fat );
+
 
 static INLINE bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
 static INLINE bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 static INLINE bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
-
-static INLINE bool chr_getMatUp( chr_t *pchr, fvec3_base_t vec );
-static INLINE bool chr_getMatRight( chr_t *pchr, fvec3_base_t vec );
-static INLINE bool chr_getMatForward( chr_t *pchr, fvec3_base_t vec );
-static INLINE bool chr_getMatTranslate( chr_t *pchr, fvec3_base_t vec );
 
 static INLINE const float *chr_get_pos_v_const( const chr_t * pchr );
 static INLINE float       *chr_get_pos_v( chr_t * pchr );
@@ -421,136 +412,6 @@ static INLINE bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profil
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE bool chr_getMatUp( chr_t *pchr, fvec3_base_t vup )
-{
-    /// @author BB
-    /// @details MAKE SURE the value it calculated relative to a valid matrix
-
-    bool rv;
-
-    if ( !ALLOCATED_PCHR( pchr ) ) return false;
-
-    if ( NULL == vup ) return false;
-
-    if ( !chr_matrix_valid( pchr ) )
-    {
-        chr_update_matrix( pchr, true );
-    }
-
-    rv = false;
-    if ( chr_matrix_valid( pchr ) )
-    {
-        rv = mat_getChrUp( pchr->inst.matrix.v, vup );
-    }
-
-    if ( !rv )
-    {
-        // assume default Up is +z
-        vup[kZ] = 1.0f;
-        vup[kX] = vup[kY] = 0.0f;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE bool chr_getMatRight( chr_t *pchr, fvec3_base_t vright )
-{
-    /// @author BB
-    /// @details MAKE SURE the value it calculated relative to a valid matrix
-
-    bool rv;
-
-    if ( !ALLOCATED_PCHR( pchr ) ) return false;
-
-    if ( NULL == vright ) return false;
-
-    if ( !chr_matrix_valid( pchr ) )
-    {
-        chr_update_matrix( pchr, true );
-    }
-
-    rv = false;
-    if ( chr_matrix_valid( pchr ) )
-    {
-        rv = mat_getChrRight( pchr->inst.matrix.v, vright );
-    }
-
-    if ( !rv )
-    {
-        // assume default Right is +y
-        vright[kY] = 1.0f;
-        vright[kX] = vright[kZ] = 0.0f;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE bool chr_getMatForward( chr_t *pchr, fvec3_base_t vfwd )
-{
-    /// @author BB
-    /// @details MAKE SURE the value it calculated relative to a valid matrix
-
-    bool rv;
-
-    if ( !ALLOCATED_PCHR( pchr ) ) return false;
-
-    if ( NULL == vfwd ) return false;
-
-    if ( !chr_matrix_valid( pchr ) )
-    {
-        chr_update_matrix( pchr, true );
-    }
-
-    rv = false;
-    if ( chr_matrix_valid( pchr ) )
-    {
-        rv = mat_getChrForward( pchr->inst.matrix.v, vfwd );
-    }
-
-    if ( !rv )
-    {
-        // assume default Forward is +x
-        vfwd[kX] = 1.0f;
-        vfwd[kY] = vfwd[kZ] = 0.0f;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE bool chr_getMatTranslate( chr_t *pchr, fvec3_base_t vtrans )
-{
-    /// @author BB
-    /// @details MAKE SURE the value it calculated relative to a valid matrix
-
-    bool rv;
-
-    if ( !ALLOCATED_PCHR( pchr ) ) return false;
-
-    if ( NULL == vtrans ) return false;
-
-    if ( !chr_matrix_valid( pchr ) )
-    {
-        chr_update_matrix( pchr, true );
-    }
-
-    rv = false;
-    if ( chr_matrix_valid( pchr ) )
-    {
-        rv = mat_getTranslate( pchr->inst.matrix.v, vtrans );
-    }
-
-    if ( !rv )
-    {
-        fvec3_base_copy( vtrans, chr_get_pos_v_const( pchr ) );
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static INLINE void chr_update_size( chr_t * pchr )
 {
@@ -591,83 +452,7 @@ static INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
 }
 
 //--------------------------------------------------------------------------------------------
-static INLINE void chr_set_size( chr_t * pchr, const float size )
-{
-    /// @author BB
-    /// @details scale the entire character so that the size matches the given value
 
-    float ratio;
-
-    if ( !DEFINED_PCHR( pchr ) ) return;
-
-    ratio = size / pchr->bump.size;
-
-    pchr->shadow_size_save  *= ratio;
-    pchr->bump_save.size    *= ratio;
-    pchr->bump_save.size_big *= ratio;
-    pchr->bump_save.height  *= ratio;
-
-    chr_update_size( pchr );
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE void chr_set_width( chr_t * pchr, const float width )
-{
-    /// @author BB
-    /// @details update the base character "width". This also modifies the shadow size
-
-    float ratio;
-
-    if ( !DEFINED_PCHR( pchr ) ) return;
-
-    ratio = width / pchr->bump_stt.size;
-    ratio = ABS( ratio );
-
-    pchr->shadow_size_stt   *= ratio;
-    pchr->bump_stt.size     *= ratio;
-    pchr->bump_stt.size_big *= ratio;
-
-    chr_update_size( pchr );
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE void chr_set_shadow( chr_t * pchr, const float width )
-{
-    /// @author BB
-    /// @details update the base shadow size
-
-    if ( !DEFINED_PCHR( pchr ) ) return;
-
-    pchr->shadow_size_save = width;
-
-    chr_update_size( pchr );
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE void chr_set_fat( chr_t * pchr, const float fat )
-{
-    /// @author BB
-    /// @details update all the character size info by specifying the fat value
-
-    if ( !DEFINED_PCHR( pchr ) ) return;
-
-    pchr->fat = fat;
-
-    chr_update_size( pchr );
-}
-
-//--------------------------------------------------------------------------------------------
-static INLINE void chr_set_height( chr_t * pchr, const float height )
-{
-    /// @author BB
-    /// @details update the base character height
-
-    if ( !DEFINED_PCHR( pchr ) ) return;
-
-    pchr->bump_save.height = std::max( height, 0.0f );
-
-    chr_update_size( pchr );
-}
 
 //--------------------------------------------------------------------------------------------
 static INLINE const float * chr_get_pos_v_const( const chr_t * pchr )

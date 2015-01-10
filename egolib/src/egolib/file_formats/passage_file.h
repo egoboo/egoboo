@@ -45,15 +45,15 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// The definition of an "active area" in the game
-/// @detalis Used for a variety of purposes, including doors and shops.
-    struct s_passage
-    {
-        // Passage positions
-        irect_t area;
-        int     music;                ///< Music track appointed to the specific passage
-        Uint8   mask;                 ///< Is it IMPASSABLE, SLIPPERY or whatever
-        bool  open;                 ///< Is the passage open?
-    };
+/// @details Used for a variety of purposes, including doors and shops.
+struct s_passage
+{
+    // Passage positions
+    irect_t area;
+    int music;   ///< Music track appointed to the specific passage
+    Uint8 mask;  ///< Is it IMPASSABLE, SLIPPERY or whatever
+    bool open;   ///< Is the passage open?
+};
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

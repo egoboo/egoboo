@@ -26,7 +26,7 @@
  * @brief
  *	An enumeration of texture filtering methods.
  */
-typedef enum e_tx_filters
+enum tx_filter_t
 {
 	
 	TX_UNFILTERED,
@@ -45,7 +45,7 @@ typedef enum e_tx_filters
 
 	TX_FILTER_COUNT,
 
-} e_tx_filters;
+};
 
 #if 0
 /** @todo Remove this alias. */

@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "egolib/typedef.h"
+#include "egolib/DynamicArray.hpp"
 #include "egolib/frustum.h"
 #include "egolib/bv.h"
 
@@ -86,17 +86,6 @@
         float_ary_t mids;
         float_ary_t maxs;
     };
-
-#if 0
-#define BSP_AABB_INIT_VALS                         \
-    {                                                  \
-        false,                /* bool      valid */ \
-        0,                     /* size_t      dim   */ \
-        DYNAMIC_ARY_INIT_VALS, /* float_ary_t mins  */ \
-        DYNAMIC_ARY_INIT_VALS, /* float_ary_t mids  */ \
-        DYNAMIC_ARY_INIT_VALS  /* float_ary_t maxs  */ \
-    }
-#endif
 
     BSP_aabb_t * BSP_aabb_ctor( BSP_aabb_t * pbb, size_t dim );
     BSP_aabb_t * BSP_aabb_dtor( BSP_aabb_t * pbb );
@@ -245,23 +234,6 @@ bool          BSP_branch_add_all_children( const BSP_branch_t * pbranch, BSP_lea
         bv_t        bbox;        ///< the actual size of everything in the tree
         BSP_aabb_t        bsp_bbox;    ///< the root-size of the tree
     };
-
-#if 0
-/** @todo Remove this. BSP_tree_ctor must be used. */
-#define BSP_TREE_INIT_VALS                                                   \
-    {                                                                        \
-        0,                         /* size_t              dimensions     */  \
-        0,                         /* int                 max_depth      */  \
-        DYNAMIC_ARY_INIT_VALS,     /* BSP_branch_ary_t    branch_all     */  \
-        DYNAMIC_ARY_INIT_VALS,     /* BSP_branch_pary_t   branch_used    */  \
-        DYNAMIC_ARY_INIT_VALS,     /* BSP_branch_pary_t   branch_free    */  \
-        NULL,                      /* BSP_branch_t      * root           */  \
-        BSP_LEAF_LIST_INIT_VALS,   /* BSP_leaf_list_t     infinite       */  \
-        0,                         /* int                 depth          */  \
-        BV_INIT_VALS,              /* bv_t                bbox           */  \
-        BSP_AABB_INIT_VALS         /* BSP_aabb_t          bsp_bbox       */  \
-    }
-#endif
 
     BSP_tree_t  *BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );
     BSP_tree_t  *BSP_tree_dtor( BSP_tree_t * t );

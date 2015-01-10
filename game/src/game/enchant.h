@@ -29,7 +29,7 @@
 // external structs
 //--------------------------------------------------------------------------------------------
 struct s_object_profile;
-struct s_chr;
+struct chr_t;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -73,11 +73,11 @@ struct s_enc_spawn_data
 
 //--------------------------------------------------------------------------------------------
 
-/// The difinition of a single Egoboo enchantment
-/// This "inherits" from obj_data_t
+/// The difinition of a single Egoboo enchantment.
+/// @extends Ego::Entity
 struct s_enc
 {
-    obj_data_t obj_base;
+    Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
 
     enc_spawn_data_t  spawn_data;
 

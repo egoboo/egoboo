@@ -28,8 +28,11 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_player;
+struct chr_t;
+struct player_t;
+#if 0
 typedef struct s_player player_t;
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -40,7 +43,7 @@ typedef struct s_player player_t;
 //--------------------------------------------------------------------------------------------
 
 /// The state of a player
-struct s_player
+struct player_t
 {
     bool                  valid;                    ///< Player used?
     CHR_REF                 index;                    ///< Which character?
@@ -80,10 +83,10 @@ DECLARE_STACK_EXTERN( player_t, PlaStack, MAX_PLAYER );                         
 #define VALID_PLA(IPLA)       ( VALID_PLA_RANGE(IPLA) && ((IPLA) < PlaStack.count) && PlaStack.lst[IPLA].valid )
 #define INVALID_PLA(IPLA)     ( !VALID_PLA_RANGE(IPLA) || ((IPLA) >= PlaStack.count)|| !PlaStack.lst[IPLA].valid )
 
-void           PlaStack_reset_all();
-CHR_REF        PlaStack_get_ichr( const PLA_REF iplayer );
-struct s_chr * PlaStack_get_pchr( const PLA_REF iplayer );
-void           PlaStack_add_tlatch( const PLA_REF iplayer, Uint32 time, latch_t net_latch );
+void PlaStack_reset_all();
+CHR_REF PlaStack_get_ichr( const PLA_REF iplayer );
+chr_t *PlaStack_get_pchr( const PLA_REF iplayer );
+void PlaStack_add_tlatch( const PLA_REF iplayer, Uint32 time, latch_t net_latch );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

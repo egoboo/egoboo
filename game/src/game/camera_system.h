@@ -41,16 +41,13 @@ struct ego_mesh_t;
 //--------------------------------------------------------------------------------------------
 
 /// an opaque struct holding all of the extended camera information
-struct s_ext_camera;
-typedef struct s_ext_camera ext_camera_t;
+struct ext_camera_t;
 
 /// an opaque struct used to house the list of cameras
-struct s_ext_camera_list;
-typedef struct s_ext_camera_list ext_camera_list_t;
+struct ext_camera_list_t;
 
 /// an opaque struct used to iterate over cameras
-struct s_ext_camera_iterator;
-typedef struct s_ext_camera_iterator ext_camera_iterator_t;
+struct ext_camera_iterator_t;
 
 /// a callback for the camera system to render the game data
 typedef void ( *renderer_ptr_t )( const camera_t *, const int render_list_index, const int dolist_index );

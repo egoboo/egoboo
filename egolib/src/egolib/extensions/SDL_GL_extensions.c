@@ -24,7 +24,7 @@
 /// @details
 
 #include "SDL_GL_extensions.h"
-#include "egolib/tx_filters.h"
+#include "egolib/tx_filter.h"
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/ogl_texture.h"
 

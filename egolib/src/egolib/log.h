@@ -42,6 +42,9 @@ extern "C"
     void   log_debug( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
     void   log_info( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
     void   log_warning( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
+	/// @todo "logging" should have no side effects except of (eventually)
+	/// writing the log entry. However, log_error in fact terminates the
+	/// program.
     void   log_error( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
 
 //--------------------------------------------------------------------------------------------

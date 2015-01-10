@@ -191,11 +191,3 @@ void non_fatal_assert( bool val, const char * format, ... )
 
     va_end( args );
 }
-
-//--------------------------------------------------------------------------------------------
-// implement simple type arrays
-IMPLEMENT_DYNAMIC_ARY( char_ary,   char );
-IMPLEMENT_DYNAMIC_ARY( short_ary,  short );
-IMPLEMENT_DYNAMIC_ARY( int_ary,    int );
-IMPLEMENT_DYNAMIC_ARY( float_ary,  float );
-IMPLEMENT_DYNAMIC_ARY( double_ary, double );

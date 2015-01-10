@@ -137,8 +137,8 @@ struct ai_state_t
 {
     // some script states
     Sint32         poof_time;
-    bool         changed;
-    bool         terminate;
+    bool           changed;
+    bool           terminate;
 
     // who are we related to?
     CHR_REF        index;         ///< what is the index value of this character
@@ -171,7 +171,7 @@ struct ai_state_t
     Uint16         order_counter;         ///< The rank of the character on the order chain
 
     // waypoints
-    bool          wp_valid;            ///< is the current waypoint valid?
+    bool            wp_valid;            ///< is the current waypoint valid?
     waypoint_t      wp;                  ///< current waypoint
     waypoint_list_t wp_lst;              ///< Stored waypoints
     Uint32          astar_timer;         ///< Throttle on astar pathfinding

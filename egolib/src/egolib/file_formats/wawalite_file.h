@@ -25,44 +25,56 @@
 #include "egolib/_math.h"
 #include "egolib/vec.h"
 
+#if 0
 #if defined(__cplusplus)
 extern "C"
 {
+#endif
 #endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_wawalite_water_layer;
+    struct wawalite_water_layer_t;
+#if 0
     typedef struct s_wawalite_water_layer wawalite_water_layer_t;
-
-    struct s_wawalite_water;
+#endif
+    struct wawalite_water_t;
+#if 0
     typedef struct s_wawalite_water wawalite_water_t;
-
-    struct s_wawalite_physics;
+#endif
+    struct wawalite_physics_t;
+#if 0
     typedef struct s_wawalite_physics wawalite_physics_t;
-
-    struct s_wawalite_animtile;
+#endif
+    struct wawalite_animtile_t;
+#if 0
     typedef struct s_wawalite_animtile wawalite_animtile_t;
-
-    struct s_wawalite_damagetile;
+#endif
+    struct wawalite_damagetile_t;
+#if 0
     typedef struct s_wawalite_damagetile wawalite_damagetile_t;
-
-    struct s_wawalite_weather;
+#endif
+    struct wawalite_weather_t;
+#if 0
     typedef struct s_wawalite_weather wawalite_weather_t;
-
-    struct s_wawalite_graphics;
+#endif
+    struct wawalite_graphics_t;
+#if 0
     typedef struct s_wawalite_graphics wawalite_graphics_t;
-
-    struct s_wawalite_camera;
+#endif
+    struct wawalite_camera_t;
+#if 0
     typedef struct s_wawalite_camera wawalite_camera_t;
-
-    struct s_wawalite_fog;
+#endif
+    struct wawalite_fog_t;
+#if 0
     typedef struct s_wawalite_fog wawalite_fog_t;
-
-    struct s_wawalite_data;
+#endif
+    struct wawalite_data_t;
+#if 0
     typedef struct s_wawalite_data wawalite_data_t;
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -72,7 +84,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the water layer data in "wawalite.txt"
-    struct s_wawalite_water_layer
+    struct wawalite_water_layer_t
     {
         Uint32  frame_add;      ///< Speed
 
@@ -90,7 +102,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the water data in "wawalite.txt"
-    struct s_wawalite_water
+    struct wawalite_water_t
     {
         int                    layer_count;
         wawalite_water_layer_t layer[MAXWATERLAYER];
@@ -112,7 +124,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the physics data in "wawalite.txt"
-    struct s_wawalite_physics
+    struct wawalite_physics_t
     {
         float hillslide;
         float slippyfriction;
@@ -125,7 +137,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the animated tile data in "wawalite.txt"
-    struct s_wawalite_animtile
+    struct wawalite_animtile_t
     {
         Uint32 update_and;
         Uint32 frame_and;
@@ -134,7 +146,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the damagetile data in "wawalite.txt"
-    struct s_wawalite_damagetile
+    struct wawalite_damagetile_t
     {
         Uint32 amount;
         int    damagetype;
@@ -147,7 +159,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the weather data in "wawalite.txt"
-    struct s_wawalite_weather
+    struct wawalite_weather_t
     {
         bool  over_water;
         int     timer_reset;
@@ -158,7 +170,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
     /// A wrapper for the graphics data in "wawalite.txt"
-    struct s_wawalite_graphics
+    struct wawalite_graphics_t
     {
         bool exploremode;
         bool usefaredge;
@@ -167,7 +179,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the camera data in "wawalite.txt"
-    struct s_wawalite_camera
+    struct wawalite_camera_t
     {
         bool swing;
         float  swing_rate;
@@ -177,7 +189,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A wrapper for the fog data in "wawalite.txt"
-    struct s_wawalite_fog
+    struct wawalite_fog_t
     {
         bool found;
         float  top;
@@ -191,7 +203,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// An internal representation of the data in "wawalite.txt"
-    struct s_wawalite_data
+    struct wawalite_data_t
     {
         Uint32 seed;
         Sint8 version;
@@ -227,8 +239,8 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
+#if 0
 #if defined(__cplusplus)
 }
-
+#endif
 #endif

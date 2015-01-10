@@ -27,7 +27,7 @@
 // external structs
 //--------------------------------------------------------------------------------------------
 
-struct s_chr;
+struct chr_t;
 struct s_prt_bundle;
 #if 0
 struct s_egolib_frustum;

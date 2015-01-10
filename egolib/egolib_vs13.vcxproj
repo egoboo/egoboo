@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bv.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\DynamicArray.cpp" />
     <ClCompile Include="..\egolib\src\egolib\aabb.c" />
     <ClCompile Include="..\egolib\src\egolib\bbox.c" />
     <ClCompile Include="..\egolib\src\egolib\bsp.c" />
@@ -226,6 +227,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bv.h" />
+    <ClInclude Include="src\egolib\DynamicArray.hpp" />
+    <ClInclude Include="src\egolib\Stack.hpp" />
     <ClInclude Include="..\egolib\src\egolib\aabb.h" />
     <ClInclude Include="..\egolib\src\egolib\bbox.h" />
     <ClInclude Include="..\egolib\src\egolib\bsp.h" />
@@ -296,7 +299,7 @@
     <ClInclude Include="..\egolib\src\egolib\threads.h" />
     <ClInclude Include="..\egolib\src\egolib\throttle.h" />
     <ClInclude Include="..\egolib\src\egolib\timer.h" />
-    <ClInclude Include="..\egolib\src\egolib\tx_filters.h" />
+    <ClInclude Include="src\egolib\tx_filter.h" />
     <ClInclude Include="..\egolib\src\egolib\typedef.h" />
     <ClInclude Include="..\egolib\src\egolib\vec.h" />
     <ClInclude Include="..\egolib\src\egolib\vfs.h" />

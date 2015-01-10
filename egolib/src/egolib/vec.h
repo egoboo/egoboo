@@ -29,23 +29,60 @@ typedef float fvec2_base_t[2];           ///< the basic floating point 2-vector 
 typedef float fvec3_base_t[3];           ///< the basic floating point 3-vector type
 typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector type
 
-union u_fvec2;
+struct fvec2_t;
+#if 0
 typedef union u_fvec2 fvec2_t;
-
-union u_fvec3;
+#endif
+struct fvec3_t;
+#if 0
 typedef union u_fvec3 fvec3_t;
-
-union u_fvec4;
+#endif
+struct fvec4_t;
+#if 0
 typedef union u_fvec4 fvec4_t;
-
+#endif
 /// A 2-vector type that allows more than one form of access
-union  u_fvec2 { fvec2_base_t v; struct { float x, y; }; struct { float s, t; }; };
+struct fvec2_t
+{
+	union
+	{
+		fvec2_base_t v;
+		struct { float x, y; };
+		struct { float s, t; };
+	};
+};
 
 /// A 3-vector type that allows more than one form of access
-union  u_fvec3 { fvec3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; };
+struct fvec3_t
+{
+	union
+	{
+		fvec3_base_t v;
+		struct { float x, y, z; };
+		struct { float r, g, b; };
+	};
+	float& operator[](size_t const& index)
+	{
+		EGOBOO_ASSERT(index < 3);
+		return this->v[index];
+	}
+	const float &operator[](size_t const& index) const
+	{
+		EGOBOO_ASSERT(index < 3);
+		return this->v[index];
+	}
+};
 
 /// A 4-vector type that allows more than one form of access
-union  u_fvec4 { fvec4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; };
+struct fvec4_t
+{
+	union
+	{
+		fvec4_base_t v;
+		struct { float x, y, z, w; };
+		struct { float r, g, b, a; };
+	};
+};
 
 // macros for initializing vectors to zero
 #define ZERO_VECT2   { {0.0f,0.0f} }
@@ -87,19 +124,98 @@ float *fvec2_add(fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RH
 float *fvec2_normalize(fvec2_base_t DST, const fvec2_base_t SRC);
 float *fvec2_scale(fvec2_base_t DST, const fvec2_base_t SRC, const float B);
 
-void   fvec3_ctor(fvec3_base_t A);
-void   fvec3_dtor(fvec3_base_t A);
-bool   fvec3_valid(const fvec3_base_t A);
-bool   fvec3_self_clear(fvec3_base_t A);
-bool   fvec3_self_is_clear(const fvec3_base_t A);
-bool   fvec3_self_scale(fvec3_base_t A, const float B);
+/**
+ * @brief
+ *	Construct a vector.
+ * @param v
+ *	the vector
+ * @post
+ *	the vector represents the null vector
+ */
+void fvec3_ctor(fvec3_base_t v);                 // @todo Remove this.
+void fvec3_ctor(fvec3_t& v);
+/**
+ * @brief
+ *	Destruct a vector.
+ * @param v
+ *	the vector
+ */
+void fvec3_dtor(fvec3_base_t v);                 // @todo Remove this.
+void fvec3_dtor(fvec3_t& v);
+
+bool fvec3_valid(const fvec3_base_t A);
+/**
+ * @brief
+ *	Set a vector to the null vector.
+ * @param v
+ *	the vector
+ * @post
+ *	@a v was assigned the null vector
+ */
+bool fvec3_self_clear(fvec3_base_t v);
+bool fvec3_self_is_clear(const fvec3_base_t A);
+/**
+ * @brief
+ *	Multiply a vector by a scalar.
+ * @param v
+ *	the vector
+ * @param s
+ *	the scalar
+ * @post
+ *	@a v was assigned the product <tt>s*v</tt>.
+ */
+bool   fvec3_self_scale(fvec3_t& v, const float s);
+bool   fvec3_self_scale(fvec3_base_t v, const float s); // @todo Remove this.
+
 bool   fvec3_self_sum(fvec3_base_t A, const fvec3_base_t RHS);
 float  fvec3_self_normalize(fvec3_base_t A);
 float  fvec3_self_normalize_to(fvec3_base_t A, const float B);
-float  fvec3_length_2(const fvec3_base_t SRC);
-float  fvec3_length(const fvec3_base_t SRC);
-float  fvec3_length_abs(const fvec3_base_t SRC);
-float  fvec3_dot_product(const fvec3_base_t LHS, const fvec3_base_t RHS);
+/**
+ * @brief
+ *	Get the squared length of a vector
+ *	(using the Euclidian metric).
+ * @param v
+ *	the vector
+ * @return
+ *	the squared length of the vector
+ */
+float fvec3_length_2(const fvec3_t& v);
+float fvec3_length_2(const fvec3_base_t v);      // Remove this.
+
+/**
+ * @brief
+ *	Get the length of a vector
+ *	(using the Euclidian metric).
+ * @param v
+ *	the vector
+ * @return
+ *	the length of the vector
+ */
+float fvec3_length(const fvec3_t& v);
+float fvec3_length(const fvec3_base_t v);        // Remove this.
+
+/**
+ * @brief
+ *	Get the length of a vector
+ *	(using the taxicab metric).
+ * @param v
+ *	the vector
+ * @return
+ *	the length of the vector
+ */
+float fvec3_length_abs(const fvec3_t& v);
+float fvec3_length_abs(const fvec3_base_t v);    // Remove this.
+/**
+ * @brief
+ *	Get the dot product of vectors.
+ * @param u,v
+ *	the vectors
+ * @return
+ *	the dot product <tt>u x v</tt>
+ */
+float fvec3_dot_product(const fvec3_base_t u, const fvec3_base_t v);
+float fvec3_dot_product(const fvec3_t& u, const fvec3_t& v);
+
 float  fvec3_dist_abs(const fvec3_base_t LHS, const fvec3_base_t RHS);
 float  fvec3_dist_2(const fvec3_base_t LHS, const fvec3_base_t RHS);
 float *fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC);

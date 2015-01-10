@@ -42,4 +42,4 @@ struct s_control;
 bool input_settings_load_vfs(const char *szFilename, int version);
 bool input_settings_save_vfs(const char* szFilename, int version);
 
-    void export_control( vfs_FILE * filewrite, const char * text, int device, struct s_control * pcontrol );
+void export_control( vfs_FILE * filewrite, const char * text, int device, struct s_control * pcontrol );

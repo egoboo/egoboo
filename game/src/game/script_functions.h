@@ -29,7 +29,7 @@
 
 struct script_state_t;
 struct ai_state_t;
-struct s_chr;
+struct chr_t;
 
 //--------------------------------------------------------------------------------------------
 // helper functions

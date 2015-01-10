@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_chr;
+struct chr_t;
 struct s_prt;
 
 //--------------------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ struct s_breadcrumb
     Uint32         id;                       ///< an id for differentiating the timing of several events at the same "time"
 };
 
-breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, struct s_chr * pchr );
+breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr );
 breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, struct s_prt * pprt );
 
 int            breadcrumb_cmp( const void * lhs, const void * rhs );
@@ -167,7 +167,7 @@ extern const float ice_friction;            ///< estimte if the friction on ice
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool phys_expand_oct_bb( const oct_bb_t * src, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst );
-bool phys_expand_chr_bb( struct s_chr * pchr, float tmin, float tmax, oct_bb_t * pdst );
+bool phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst );
 bool phys_expand_prt_bb( struct s_prt * pprt, float tmin, float tmax, oct_bb_t * pdst );
 
 bool phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * tmin );
@@ -175,7 +175,7 @@ bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * po
 
 bool phys_intersect_oct_bb( const oct_bb_t * src1, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
 
-bool get_chr_mass( struct s_chr * pchr, float * wt );
-bool get_prt_mass( struct s_prt * pprt, struct s_chr * pchr, float * wt );
-void   get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
+bool get_chr_mass( chr_t * pchr, float * wt );
+bool get_prt_mass( struct s_prt * pprt, chr_t * pchr, float * wt );
+void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
 

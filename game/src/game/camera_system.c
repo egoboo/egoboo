@@ -36,12 +36,13 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_camera_players;
+struct camera_players_t;
+#if 0
 typedef struct s_camera_players camera_players_t;
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_ext_camera_iterator
+struct ext_camera_iterator_t
 {
     int                 index;
     ext_camera_list_t * list;
@@ -49,7 +50,7 @@ struct s_ext_camera_iterator
 
 //--------------------------------------------------------------------------------------------
 /// who is supposed to be in-view for this camera?
-struct s_camera_players
+struct camera_players_t
 {
     size_t  count;
     CHR_REF who[MAX_LOCAL_PLAYERS];
@@ -59,9 +60,9 @@ struct s_camera_players
 //--------------------------------------------------------------------------------------------
 
 /// extended data for each camera
-struct s_ext_camera
+struct ext_camera_t
 {
-    bool           on;
+    bool             on;
     camera_players_t targets;
     ego_frect_t      screen;
 
@@ -84,7 +85,7 @@ static bool ext_camera_update_projection( ext_camera_t * ptr );
 //--------------------------------------------------------------------------------------------
 
 /// a struct to hold camera lists
-struct s_ext_camera_list
+struct ext_camera_list_t
 {
     size_t       count;
     ext_camera_t lst[MAX_CAMERAS];
@@ -100,9 +101,9 @@ ext_camera_list_t * ext_camera_list_reinit( ext_camera_list_t * );
 // private variables
 //--------------------------------------------------------------------------------------------
 
-static bool               _camera_system_initialized = false;
+static bool _camera_system_initialized = false;
 
-static ext_camera_list_t    _camera_lst;
+static ext_camera_list_t _camera_lst;
 
 //--------------------------------------------------------------------------------------------
 // private funcitons
@@ -119,17 +120,15 @@ static egolib_rv _camera_system_end_camera_ptr( ext_camera_t * pcam );
 
 ext_camera_t * ext_camera_ctor( ext_camera_t * ptr )
 {
-    int tnc;
-
     if ( NULL == ptr ) return NULL;
-
+#if 0
     BLANK_STRUCT_PTR( ptr );
-
+#endif
     // construct the actual camera
     camera_ctor( &( ptr->which ) );
 
     // invalidate the targets the camera is tracking
-    for ( tnc = 0; tnc < MAX_LOCAL_PLAYERS; tnc++ )
+    for ( size_t tnc = 0; tnc < MAX_LOCAL_PLAYERS; tnc++ )
     {
         ptr->targets.who[tnc] = INVALID_CHR_REF;
     }
@@ -140,6 +139,9 @@ ext_camera_t * ext_camera_ctor( ext_camera_t * ptr )
 
     // what was the last game_frame_all when the camera rendered itself?
     ptr->last_frame  = -1;
+
+	// deactivate the camera
+	ptr->on = false;
 
     // assume that the camera is fullscreen
     ext_camera_set_screen( ptr, 0, 0, sdl_scr.x, sdl_scr.y );
@@ -162,15 +164,12 @@ ext_camera_t * ext_camera_dtor( ext_camera_t * ptr )
 //--------------------------------------------------------------------------------------------
 bool ext_camera_free( ext_camera_t * ptr )
 {
-    renderlist_mgr_t * rmgr_ptr = NULL;
-    dolist_mgr_t     * dmgr_ptr = NULL;
-
     if ( NULL == ptr ) return false;
 
     if ( !ptr->on ) return true;
 
     // free any locked renderlist
-    rmgr_ptr = gfx_system_get_renderlist_mgr( &( ptr->which ) );
+	renderlist_mgr_t *rmgr_ptr = gfx_system_get_renderlist_mgr(&(ptr->which));
     if ( -1 != ptr->render_list )
     {
         renderlist_mgr_free_one( rmgr_ptr, ptr->render_list );
@@ -178,7 +177,7 @@ bool ext_camera_free( ext_camera_t * ptr )
     }
 
     // free any locked dolist
-    dmgr_ptr = gfx_system_get_dolist_mgr();
+	dolist_mgr_t *dmgr_ptr = gfx_system_get_dolist_mgr();
     if ( -1 != ptr->do_list )
     {
         dolist_mgr_free_one( dmgr_ptr, ptr->render_list );
@@ -212,7 +211,7 @@ bool ext_camera_update_projection( ext_camera_t * ptr )
     // set the maximum depth to be the "largest possible size" of a mesh
     frustum_far  = GRID_ISIZE * 256 * SQRT_TWO;
 
-    camera_gluPerspective( &( ptr->which ), CAM_FOV, aspect_ratio, frustum_near, frustum_far );
+    camera_gluPerspective( &( ptr->which ), camera_t::DEFAULT_FOV, aspect_ratio, frustum_near, frustum_far );
 
     return true;
 }

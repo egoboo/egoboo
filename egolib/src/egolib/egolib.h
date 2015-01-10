@@ -51,6 +51,7 @@
 #include "egolib/throttle.h"
 #include "egolib/timer.h"
 #include "egolib/typedef.h"
+#include "egolib/DynamicArray.hpp"
 #include "egolib/vfs.h"
 #include "egolib/vec.h"
 

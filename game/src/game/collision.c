@@ -1452,10 +1452,10 @@ void bump_all_objects()
     }
 
     // set up the collision node array
-    _co_ary.top = _co_ary.alloc;
+    _co_ary.top = _co_ary.cp;
 
     // set up the hash node array
-    _hn_ary.top = _hn_ary.alloc;
+    _hn_ary.top = _hn_ary.cp;
 
     // fill up the BSP structures
     fill_bumplists();

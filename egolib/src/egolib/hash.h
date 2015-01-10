@@ -27,22 +27,25 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_hash_node;
+    struct hash_node_t;
+#if 0
     typedef struct s_hash_node hash_node_t;
-
-    struct s_hash_list;
+#endif
+    struct hash_list_t;
+#if 0
     typedef struct s_hash_list hash_list_t;
-
-    struct s_hash_list_iterator;
+#endif
+    struct hash_list_iterator_t;
+#if 0
     typedef struct s_hash_list_iterator hash_list_iterator_t;
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// a hash type for "efficiently" storing data
-    struct s_hash_node
+    struct hash_node_t
     {
-        struct s_hash_node *next;
+        hash_node_t *next;
         void *data;
     };
 
@@ -55,7 +58,7 @@
     hash_node_t *hash_node_remove( hash_node_t lst[] );
 
 //--------------------------------------------------------------------------------------------
-    struct s_hash_list
+    struct hash_list_t
     {
         int            allocated;
         int         *  subcount;
@@ -84,7 +87,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// An iterator element for traversing the hash_list_t
-    struct s_hash_list_iterator
+    struct hash_list_iterator_t
     {
         int           hash;
         hash_node_t * pnode;

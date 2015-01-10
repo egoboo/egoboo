@@ -552,3 +552,19 @@ void  mat_TransformVertices(const fmat_4x4_base_t Matrix, const fvec4_t pSourceV
 		}
 	}
 }
+
+void dump_matrix(const fmat_4x4_base_t a)
+{
+	if (NULL == a) return;
+
+	for (size_t j = 0; j < 4; j++)
+	{
+		printf("  ");
+
+		for (size_t i = 0; i < 4; i++)
+		{
+			printf("%f ", a[MAT_IDX(i, j)]);
+		}
+		printf("\n");
+	}
+}

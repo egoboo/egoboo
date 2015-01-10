@@ -230,8 +230,8 @@ chr_t * chr_ctor( chr_t * pchr )
     /// @details initialize the character data to safe values
 
     int cnt;
-    obj_data_t save_base;
-    obj_data_t * pbase;
+    Ego::Entity save_base;
+    Ego::Entity *pbase;
 
     if ( NULL == pchr ) return pchr;
 
@@ -242,7 +242,7 @@ chr_t * chr_ctor( chr_t * pchr )
     //---- construct the character object
 
     // save the base object data
-    memcpy( &save_base, pbase, sizeof( obj_data_t ) );
+    memcpy( &save_base, pbase, sizeof( Ego::Entity ) );
 
     if ( ALLOCATED_PCHR( pchr ) )
     {
@@ -257,7 +257,7 @@ chr_t * chr_ctor( chr_t * pchr )
     BLANK_STRUCT_PTR( pchr )
 
     // restore the base object data
-    memcpy( pbase, &save_base, sizeof( obj_data_t ) );
+    memcpy( pbase, &save_base, sizeof( Ego::Entity ) );
 
     // reset the base counters
     pbase->update_count = 0;
@@ -4292,23 +4292,20 @@ chr_t * chr_config_do_active( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_construct( chr_t * pchr, int max_iterations )
 {
-    int          iterations;
-    obj_data_t * pbase;
-
     if ( NULL == pchr ) return NULL;
 
-    pbase = POBJ_GET_PBASE( pchr );
+    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
     if ( !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deconstruct it and start over
-    if ( pbase->state > ( int )( ego_object_constructing + 1 ) )
+    if ( pbase->state > ( int )( Ego::Entity::State::Constructing + 1 ) )
     {
         chr_t * tmp_chr = chr_config_deconstruct( pchr, max_iterations );
         if ( tmp_chr == pchr ) return NULL;
     }
 
-    iterations = 0;
-    while ( NULL != pchr && pbase->state <= ego_object_constructing && iterations < max_iterations )
+    int iterations = 0;
+    while ( NULL != pchr && pbase->state <= Ego::Entity::State::Constructing && iterations < max_iterations )
     {
         chr_t * ptmp = chr_run_config( pchr );
         if ( ptmp != pchr ) return NULL;
@@ -4321,8 +4318,8 @@ chr_t * chr_config_construct( chr_t * pchr, int max_iterations )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_initialize( chr_t * pchr, int max_iterations )
 {
-    int          iterations;
-    obj_data_t * pbase;
+    int iterations;
+    Ego::Entity *pbase;
 
     if ( NULL == pchr )  return NULL;
 
@@ -4330,14 +4327,14 @@ chr_t * chr_config_initialize( chr_t * pchr, int max_iterations )
     if ( !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deconstruct it and start over
-    if ( pbase->state > ( int )( ego_object_initializing + 1 ) )
+    if ( pbase->state > ( int )( Ego::Entity::State::Initializing + 1 ) )
     {
         chr_t * tmp_chr = chr_config_deconstruct( pchr, max_iterations );
         if ( tmp_chr == pchr ) return NULL;
     }
 
     iterations = 0;
-    while ( NULL != pchr && pbase->state <= ego_object_initializing && iterations < max_iterations )
+    while ( NULL != pchr && pbase->state <= Ego::Entity::State::Initializing && iterations < max_iterations )
     {
         chr_t * ptmp = chr_run_config( pchr );
         if ( ptmp != pchr ) return NULL;
@@ -4350,8 +4347,8 @@ chr_t * chr_config_initialize( chr_t * pchr, int max_iterations )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
 {
-    int          iterations;
-    obj_data_t * pbase;
+    int iterations;
+    Ego::Entity *pbase;
 
     if ( NULL == pchr ) return NULL;
 
@@ -4359,22 +4356,22 @@ chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
     if ( !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deconstruct it and start over
-    if ( pbase->state > ( int )( ego_object_active + 1 ) )
+    if ( pbase->state > ( int )( Ego::Entity::State::Active + 1 ) )
     {
         chr_t * tmp_chr = chr_config_deconstruct( pchr, max_iterations );
         if ( tmp_chr == pchr ) return NULL;
     }
 
     iterations = 0;
-    while ( NULL != pchr && pbase->state < ego_object_active && iterations < max_iterations )
+    while ( NULL != pchr && pbase->state < Ego::Entity::State::Active && iterations < max_iterations )
     {
         chr_t * ptmp = chr_run_config( pchr );
         if ( ptmp != pchr ) return NULL;
         iterations++;
     }
 
-    EGOBOO_ASSERT( pbase->state == ego_object_active );
-    if ( pbase->state == ego_object_active )
+    EGOBOO_ASSERT( pbase->state == Ego::Entity::State::Active );
+    if ( pbase->state == Ego::Entity::State::Active )
     {
         ChrList_push_used( GET_INDEX_PCHR( pchr ) );
     }
@@ -4385,26 +4382,23 @@ chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations )
 {
-    int          iterations;
-    obj_data_t * pbase;
-
     if ( NULL == pchr ) return NULL;
 
-    pbase = POBJ_GET_PBASE( pchr );
+    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
     if ( !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, deinitialize it
-    if ( pbase->state > ( int )( ego_object_deinitializing + 1 ) )
+    if ( pbase->state > ( int )( Ego::Entity::DeInitializing + 1 ) )
     {
         return pchr;
     }
-    else if ( pbase->state < ego_object_deinitializing )
+    else if ( pbase->state < Ego::Entity::State::DeInitializing )
     {
-        pbase->state = ego_object_deinitializing;
+        pbase->state = Ego::Entity::State::DeInitializing;
     }
 
-    iterations = 0;
-    while ( NULL != pchr && pbase->state <= ego_object_deinitializing && iterations < max_iterations )
+    int iterations = 0;
+    while ( NULL != pchr && pbase->state <= Ego::Entity::State::DeInitializing && iterations < max_iterations )
     {
         chr_t * ptmp = chr_run_config( pchr );
         if ( ptmp != pchr ) return NULL;
@@ -4417,27 +4411,24 @@ chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations )
 {
-    int          iterations;
-    obj_data_t * pbase;
-
     if ( NULL == pchr ) return NULL;
 
-    pbase = POBJ_GET_PBASE( pchr );
+    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
     if ( !pbase->allocated ) return NULL;
 
     // if the character is already beyond this stage, do nothing
-    if ( pbase->state > ( int )( ego_object_destructing + 1 ) )
+    if ( pbase->state > ( int )( Ego::Entity::State::Destructing + 1 ) )
     {
         return pchr;
     }
-    else if ( pbase->state < ego_object_deinitializing )
+    else if ( pbase->state < Ego::Entity::State::DeInitializing )
     {
         // make sure that you deinitialize before destructing
-        pbase->state = ego_object_deinitializing;
+        pbase->state = Ego::Entity::State::DeInitializing;
     }
 
-    iterations = 0;
-    while ( NULL != pchr && pbase->state <= ego_object_destructing && iterations < max_iterations )
+    int iterations = 0;
+    while ( NULL != pchr && pbase->state <= Ego::Entity::State::Destructing && iterations < max_iterations )
     {
         chr_t * ptmp = chr_run_config( pchr );
         if ( ptmp != pchr ) return NULL;
@@ -4451,19 +4442,17 @@ chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_run_config( chr_t * pchr )
 {
-    obj_data_t * pbase;
-
     if ( NULL == pchr ) return NULL;
 
-    pbase = POBJ_GET_PBASE( pchr );
+    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
     if ( !pbase->allocated ) return NULL;
 
     // set the object to deinitialize if it is not "dangerous" and if was requested
     if ( pbase->kill_me )
     {
-        if ( pbase->state > ego_object_constructing && pbase->state < ego_object_deinitializing )
+        if ( pbase->state > Ego::Entity::State::Constructing && pbase->state < Ego::Entity::State::DeInitializing )
         {
-            pbase->state = ego_object_deinitializing;
+            pbase->state = Ego::Entity::State::DeInitializing;
         }
 
         pbase->kill_me = false;
@@ -4472,32 +4461,32 @@ chr_t * chr_run_config( chr_t * pchr )
     switch ( pbase->state )
     {
         default:
-        case ego_object_invalid:
+	    case Ego::Entity::State::Invalid:
             pchr = NULL;
             break;
 
-        case ego_object_constructing:
+		case Ego::Entity::State::Constructing:
             pchr = chr_config_ctor( pchr );
             break;
 
-        case ego_object_initializing:
+		case Ego::Entity::State::Initializing:
             pchr = chr_config_init( pchr );
             break;
 
-        case ego_object_active:
+		case Ego::Entity::State::Active:
             pchr = chr_config_active( pchr );
             break;
 
-        case ego_object_deinitializing:
+		case Ego::Entity::State::DeInitializing:
             pchr = chr_config_deinit( pchr );
             break;
 
-        case ego_object_destructing:
+		case Ego::Entity::State::Destructing:
             pchr = chr_config_dtor( pchr );
             break;
 
-        case ego_object_waiting:
-        case ego_object_terminated:
+		case Ego::Entity::State::Waiting:
+		case Ego::Entity::State::Terminated:
             /* do nothing */
             break;
     }
@@ -4506,7 +4495,7 @@ chr_t * chr_run_config( chr_t * pchr )
     {
         pbase->update_guid = INVALID_UPDATE_GUID;
     }
-    else if ( ego_object_active == pbase->state )
+    else if ( Ego::Entity::State::Active == pbase->state )
     {
         pbase->update_guid = ChrList.update_guid;
     }
@@ -4520,11 +4509,9 @@ chr_t * chr_config_ctor( chr_t * pchr )
     /// @author BB
     /// @details initialize the character data to safe values
 
-    obj_data_t * pbase;
-
     // grab the base object
     if ( NULL == pchr ) return NULL;
-    pbase = POBJ_GET_PBASE( pchr );
+    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
 
     // if we aren't in the correct state, abort.
     if ( !STATE_CONSTRUCTING_PBASE( pbase ) ) return pchr;
@@ -4533,7 +4520,7 @@ chr_t * chr_config_ctor( chr_t * pchr )
     if ( NULL == pchr ) return pchr;
 
     // we are done constructing. move on to initializing.
-    pchr->obj_base.state = ego_object_initializing;
+    pchr->obj_base.state = Ego::Entity::State::Initializing;
 
     return pchr;
 }
@@ -4541,10 +4528,8 @@ chr_t * chr_config_ctor( chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 chr_t * chr_config_init( chr_t * pchr )
 {
-    obj_data_t * pbase;
-
     if ( NULL == pchr ) return NULL;
-    pbase = POBJ_GET_PBASE( pchr );
+    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
 
     if ( !STATE_INITIALIZING_PBASE( pbase ) ) return pchr;
 
@@ -4560,7 +4545,7 @@ chr_t * chr_config_init( chr_t * pchr )
         ChrList_add_activation( GET_INDEX_PCHR( pchr ) );
     }
 
-    pbase->state = ego_object_active;
+    pbase->state = Ego::Entity::State::Active;
 
     return pchr;
 }
@@ -4569,12 +4554,9 @@ chr_t * chr_config_init( chr_t * pchr )
 chr_t * chr_config_active( chr_t * pchr )
 {
     // there's nothing to configure if the object is active...
-
-    obj_data_t * pbase;
-
     if ( NULL == pchr ) return NULL;
 
-    pbase = POBJ_GET_PBASE( pchr );
+    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
 
     if ( !pbase->allocated ) return NULL;
     if ( !STATE_ACTIVE_PBASE( pbase ) ) return pchr;
@@ -4587,37 +4569,29 @@ chr_t * chr_config_active( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
+/// DeInitialize the character data.
 chr_t * chr_config_deinit( chr_t * pchr )
 {
-    /// @author BB
-    /// @details deinitialize the character data
-
-    obj_data_t * pbase;
-
     if ( NULL == pchr ) return NULL;
 
-    pbase = POBJ_GET_PBASE( pchr );
+    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
     if ( !STATE_DEINITIALIZING_PBASE( pbase ) ) return pchr;
 
     POBJ_END_SPAWN( pchr );
 
-    pbase->state = ego_object_destructing;
+    pbase->state = Ego::Entity::State::Destructing;
     pbase->on    = false;
 
     return pchr;
 }
 
 //--------------------------------------------------------------------------------------------
+/// @brief Destruct the character data.
 chr_t * chr_config_dtor( chr_t * pchr )
 {
-    /// @author BB
-    /// @details deinitialize the character data
-
-    obj_data_t * pbase;
-
     if ( NULL == pchr ) return NULL;
 
-    pbase = POBJ_GET_PBASE( pchr );
+    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
     if ( !STATE_DESTRUCTING_PBASE( pbase ) ) return pchr;
 
     POBJ_END_SPAWN( pchr );
@@ -7740,13 +7714,9 @@ void cleanup_all_characters()
 //--------------------------------------------------------------------------------------------
 void bump_all_characters_update_counters()
 {
-    CHR_REF cnt;
-
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        obj_data_t * pbase;
-
-        pbase = POBJ_GET_PBASE( ChrList.lst + cnt );
+        Ego::Entity *pbase = POBJ_GET_PBASE( ChrList.lst + cnt );
         if ( !ACTIVE_PBASE( pbase ) ) continue;
 
         pbase->update_count++;
@@ -9516,6 +9486,212 @@ void chr_set_light( chr_t * pchr, const int light )
     if ( VALID_PLA( pchr->is_which_player ) )  pchr->inst.light = std::max( (Uint8)128, pchr->inst.light );
 
     chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
+}
+
+//--------------------------------------------------------------------------------------------
+/// @brief Set the fat value of a character.
+/// @param chr the character
+/// @param fat the new fat value
+/// @remark The fat value influences the character size.
+void chr_set_fat(chr_t *chr, const float fat)
+{
+	if (!DEFINED_PCHR(chr)) return;
+	chr->fat = fat;
+	chr_update_size(chr);
+}
+
+//--------------------------------------------------------------------------------------------
+/// @brief Set the (base) height of a character.
+/// @param chr the character
+/// @param height the new height
+/// @remark The (base) height influences the character size.
+void chr_set_height(chr_t *chr, const float height)
+{
+	if (!DEFINED_PCHR(chr)) return;
+	chr->bump_save.height = std::max(height, 0.0f);
+	chr_update_size(chr);
+}
+
+//--------------------------------------------------------------------------------------------
+/// @brief Set the (base) width of a character.
+/// @param chr the character
+/// @param width the new width
+/// @remark Also modifies the shadow size.
+void chr_set_width(chr_t *chr, const float width)
+{
+	if (!DEFINED_PCHR(chr)) return;
+
+	float ratio = std::abs(width / chr->bump_stt.size);
+
+	chr->shadow_size_stt *= ratio;
+	chr->bump_stt.size *= ratio;
+	chr->bump_stt.size_big *= ratio;
+
+	chr_update_size(chr);
+}
+
+//--------------------------------------------------------------------------------------------
+/// @brief Set the scale of a character such that it matches the given size.
+/// @param chr the character
+/// @param size the size
+void chr_set_size(chr_t *chr, const float size)
+{
+	if (!DEFINED_PCHR(chr)) return;
+
+	float ratio = size / chr->bump.size;
+
+	chr->shadow_size_save *= ratio;
+	chr->bump_save.size *= ratio;
+	chr->bump_save.size_big *= ratio;
+	chr->bump_save.height *= ratio;
+
+	chr_update_size(chr);
+}
+
+//--------------------------------------------------------------------------------------------
+/// @brief Update the (base) shadow size of a character.
+/// @param chr the character
+/// @param size the base shadow size
+void chr_set_shadow(chr_t *chr, const float size)
+{
+	/// @author BB
+	/// @details update the base shadow size
+
+	if (!DEFINED_PCHR(chr)) return;
+
+	chr->shadow_size_save = size;
+
+	chr_update_size(chr);
+}
+
+//--------------------------------------------------------------------------------------------
+bool chr_getMatUp(chr_t *pchr, fvec3_base_t vup)
+{
+	/// @author BB
+	/// @details MAKE SURE the value it calculated relative to a valid matrix
+
+	bool rv;
+
+	if (!ALLOCATED_PCHR(pchr)) return false;
+
+	if (NULL == vup) return false;
+
+	if (!chr_matrix_valid(pchr))
+	{
+		chr_update_matrix(pchr, true);
+	}
+
+	rv = false;
+	if (chr_matrix_valid(pchr))
+	{
+		rv = mat_getChrUp(pchr->inst.matrix.v, vup);
+	}
+
+	if (!rv)
+	{
+		// assume default Up is +z
+		vup[kZ] = 1.0f;
+		vup[kX] = vup[kY] = 0.0f;
+	}
+
+	return true;
+}
+
+//--------------------------------------------------------------------------------------------
+bool chr_getMatRight(chr_t *pchr, fvec3_base_t vright)
+{
+	/// @author BB
+	/// @details MAKE SURE the value it calculated relative to a valid matrix
+
+	bool rv;
+
+	if (!ALLOCATED_PCHR(pchr)) return false;
+
+	if (NULL == vright) return false;
+
+	if (!chr_matrix_valid(pchr))
+	{
+		chr_update_matrix(pchr, true);
+	}
+
+	rv = false;
+	if (chr_matrix_valid(pchr))
+	{
+		rv = mat_getChrRight(pchr->inst.matrix.v, vright);
+	}
+
+	if (!rv)
+	{
+		// assume default Right is +y
+		vright[kY] = 1.0f;
+		vright[kX] = vright[kZ] = 0.0f;
+	}
+
+	return true;
+}
+
+//--------------------------------------------------------------------------------------------
+bool chr_getMatForward(chr_t *pchr, fvec3_base_t vfwd)
+{
+	/// @author BB
+	/// @details MAKE SURE the value it calculated relative to a valid matrix
+
+	bool rv;
+
+	if (!ALLOCATED_PCHR(pchr)) return false;
+
+	if (NULL == vfwd) return false;
+
+	if (!chr_matrix_valid(pchr))
+	{
+		chr_update_matrix(pchr, true);
+	}
+
+	rv = false;
+	if (chr_matrix_valid(pchr))
+	{
+		rv = mat_getChrForward(pchr->inst.matrix.v, vfwd);
+	}
+
+	if (!rv)
+	{
+		// assume default Forward is +x
+		vfwd[kX] = 1.0f;
+		vfwd[kY] = vfwd[kZ] = 0.0f;
+	}
+
+	return true;
+}
+
+//--------------------------------------------------------------------------------------------
+bool chr_getMatTranslate(chr_t *pchr, fvec3_base_t vtrans)
+{
+	/// @author BB
+	/// @details MAKE SURE the value it calculated relative to a valid matrix
+
+	bool rv;
+
+	if (!ALLOCATED_PCHR(pchr)) return false;
+
+	if (NULL == vtrans) return false;
+
+	if (!chr_matrix_valid(pchr))
+	{
+		chr_update_matrix(pchr, true);
+	}
+
+	rv = false;
+	if (chr_matrix_valid(pchr))
+	{
+		rv = mat_getTranslate(pchr->inst.matrix.v, vtrans);
+	}
+
+	if (!rv)
+	{
+		fvec3_base_copy(vtrans, chr_get_pos_v_const(pchr));
+	}
+
+	return true;
 }
 
 //--------------------------------------------------------------------------------------------

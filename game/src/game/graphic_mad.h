@@ -265,7 +265,7 @@ MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst );
 float  chr_instance_get_remaining_flip( chr_instance_t * pinst );
 gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst );
 gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip );
-void   chr_instance_update_lighting_base( chr_instance_t * pinst, struct s_chr * pchr, bool force );
+void   chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bool force );
 void   chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits );
 bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
 

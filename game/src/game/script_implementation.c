@@ -27,7 +27,7 @@
 
 #include "game/script_implementation.h"
 #include "game/game.h"
-#include "game/AStar.h"
+#include "game/ai/AStar.h"
 #include "game/passage.h"
 #include "game/renderer_2d.h"
 #include "game/ChrList.inl"
@@ -190,136 +190,6 @@ BIT_FIELD BIT_FIELD_clear_all_bits( BIT_FIELD val, BIT_FIELD bits )
 bool BIT_FIELD_test_all_bits( BIT_FIELD val, BIT_FIELD bits )
 {
     return HAS_ALL_BITS( val, bits );
-}
-
-//--------------------------------------------------------------------------------------------
-// waypoint_list_t
-//--------------------------------------------------------------------------------------------
-bool waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp )
-{
-    int index;
-
-    // is the list valid?
-    if ( NULL == plst || plst->tail >= MAXWAY ) return false;
-
-    // is the list is empty?
-    if ( 0 == plst->head ) return false;
-
-    if ( plst->tail > plst->head )
-    {
-        // fix the tail
-        plst->tail = plst->head;
-
-        // we have passed the last waypoint
-        // just tell them the previous waypoint
-        index = plst->tail - 1;
-    }
-    else if ( plst->tail == plst->head )
-    {
-        // we have passed the last waypoint
-        // just tell them the previous waypoint
-        index = plst->tail - 1;
-    }
-    else
-    {
-        // tell them the current waypoint
-        index = plst->tail;
-    }
-
-    wp[kX] = plst->pos[index][kX];
-    wp[kY] = plst->pos[index][kY];
-    wp[kZ] = plst->pos[index][kZ];
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool waypoint_list_push( waypoint_list_t * plst, int x, int y )
-{
-    /// @author BB
-    /// @details Add a waypoint to the waypoint list
-
-    if ( NULL == plst ) return false;
-
-    // add the value
-    plst->pos[plst->head][kX] = x;
-    plst->pos[plst->head][kY] = y;
-    plst->pos[plst->head][kZ] = 0;
-
-    // do not let the list overflow
-    plst->head++;
-    if ( plst->head >= MAXWAY ) plst->head = MAXWAY - 1;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool waypoint_list_reset( waypoint_list_t * plst )
-{
-    /// @author BB
-    /// @details reset the waypoint list to the beginning
-
-    if ( NULL == plst ) return false;
-
-    plst->tail = 0;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool waypoint_list_clear( waypoint_list_t * plst )
-{
-    /// @author BB
-    /// @details Clear out all waypoints
-
-    if ( NULL == plst ) return false;
-
-    plst->tail = 0;
-    plst->head = 0;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool waypoint_list_empty( waypoint_list_t * plst )
-{
-    if ( NULL == plst ) return true;
-
-    return 0 == plst->head;
-}
-
-//--------------------------------------------------------------------------------------------
-bool waypoint_list_finished( waypoint_list_t * plst )
-{
-    if ( NULL == plst || 0 == plst->head ) return true;
-
-    return plst->tail == plst->head;
-}
-
-//--------------------------------------------------------------------------------------------
-bool waypoint_list_advance( waypoint_list_t * plst )
-{
-    bool retval;
-
-    if ( NULL == plst ) return false;
-
-    retval = false;
-    if ( plst->tail > plst->head )
-    {
-        // fix the tail
-        plst->tail = plst->head;
-    }
-    else if ( plst->tail < plst->head )
-    {
-        // advance the tail
-        plst->tail++;
-        retval = true;
-    }
-
-    // clamp the tail to valid values
-    if ( plst->tail >= MAXWAY ) plst->tail = MAXWAY - 1;
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

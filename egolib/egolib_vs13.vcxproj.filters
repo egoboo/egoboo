@@ -237,6 +237,9 @@
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bv.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\DynamicArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\egolib\src\egolib\vfs.h">
@@ -440,9 +443,6 @@
     <ClInclude Include="..\egolib\src\egolib\opengl\renderer.h">
       <Filter>OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="..\egolib\src\egolib\tx_filters.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\egolib\src\egolib\aabb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -456,6 +456,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\tx_filter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\DynamicArray.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Stack.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

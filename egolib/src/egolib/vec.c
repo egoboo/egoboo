@@ -272,15 +272,22 @@ float   fvec2_dot_product(const fvec2_base_t A, const fvec2_base_t B)
 //--------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------
-void fvec3_ctor(fvec3_base_t A)
+void fvec3_ctor(fvec3_t& v)
 {
-	A[kX] = A[kY] = A[kZ] = 0.0f;
+	v[kX] = v[kY] = v[kZ] = 0.0f;
 }
-
-//--------------------------------------------------------------------------------------------
-void fvec3_dtor(fvec3_base_t A)
+void fvec3_ctor(fvec3_base_t v)
 {
-	A[kX] = A[kY] = A[kZ] = 0.0f;
+	v[kX] = v[kY] = v[kZ] = 0.0f;
+}
+//--------------------------------------------------------------------------------------------
+void fvec3_dtor(fvec3_t& v)
+{
+	v[kX] = v[kY] = v[kZ] = 0.0f;
+}
+void fvec3_dtor(fvec3_base_t v)
+{
+	v[kX] = v[kY] = v[kZ] = 0.0f;
 }
 //--------------------------------------------------------------------------------------------
 bool fvec3_valid(const fvec3_base_t A)
@@ -298,22 +305,26 @@ bool fvec3_valid(const fvec3_base_t A)
 }
 
 //--------------------------------------------------------------------------------------------
-bool fvec3_self_clear(fvec3_base_t A)
+bool fvec3_self_clear(fvec3_base_t v)
 {
-	if (NULL == A) return false;
-
-	A[kX] = A[kY] = A[kZ] = 0.0f;
-
+	if (NULL == v)
+	{
+		return false;
+	}
+	v[kX] = v[kY] = v[kZ] = 0.0f;
 	return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool fvec3_self_is_clear(const fvec2_base_t A)
+bool fvec3_self_is_clear(const fvec2_base_t v)
 {
-	if (NULL == A) return true;
-	return 0.0f == A[kX]
-		&& 0.0f == A[kY]
-		&& 0.0f == A[kZ];
+	if (NULL == v)
+	{
+		return true;
+	}
+	return 0.0f == v[kX]
+		&& 0.0f == v[kY]
+		&& 0.0f == v[kZ];
 }
 
 
@@ -339,16 +350,23 @@ float * fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC)
 }
 
 //--------------------------------------------------------------------------------------------
-bool fvec3_self_scale(fvec3_base_t A, const float B)
+bool fvec3_self_scale(fvec3_t& v, const float s)
 {
-	if (NULL == A) return false;
-
-	A[kX] *= B;
-	A[kY] *= B;
-	A[kZ] *= B;
-
-	LOG_NAN_FVEC3(A);
-
+	v[kX] *= s;
+	v[kY] *= s;
+	v[kZ] *= s;
+	return true;
+}
+bool fvec3_self_scale(fvec3_base_t v, const float s)
+{
+	if (NULL == v)
+	{
+		return false;
+	}
+	v[kX] *= s;
+	v[kY] *= s;
+	v[kZ] *= s;
+	LOG_NAN_FVEC3(v);
 	return true;
 }
 
@@ -367,56 +385,46 @@ bool fvec3_self_sum(fvec3_base_t A, const fvec3_base_t B)
 }
 
 //--------------------------------------------------------------------------------------------
-float fvec3_length_abs(const fvec3_base_t A)
+float fvec3_length_abs(const fvec3_t& v)
 {
-	float retval;
+	float l_abs = std::abs(v[kX]) + std::abs(v[kY]) + std::abs(v[kZ]);
+	LOG_NAN(l_abs);
+	return l_abs;
+}
+float fvec3_length_abs(const fvec3_base_t v)
+{
+	if (NULL == v) return 0.0f;
+	float l_abs = std::abs(v[kX]) + std::abs(v[kY]) + std::abs(v[kZ]);   
+    LOG_NAN(l_abs);
+	return l_abs;
+}
+//--------------------------------------------------------------------------------------------
+float fvec3_length_2(const fvec3_t& v)
+{
+	float l2 = v[kX] * v[kX] + v[kY] * v[kY] + v[kZ] * v[kZ];
+	LOG_NAN(l2);
+	return l2;
+}
 
-	if (NULL == A) return 0.0f;
-
-	retval = ABS(A[kX]) + ABS(A[kY]) + ABS(A[kZ]);
-
-#if 0
-    // Not sure why this one's different
-	//DEBUG
-	if (ieee32_bad(retval))
+float fvec3_length_2(const fvec3_base_t v)
+{
+	if (NULL == v)
 	{
-		log_debug("Game decided to crash, but I refuse! (%s - %d)\n", __FILE__, __LINE__);
-		retval = 0.00f;
+		return 0.0f;
 	}
-	//DEBUG END
-#endif
-    
-    LOG_NAN( retval );
-
-	return retval;
+	float l2 = v[kX] * v[kX] + v[kY] * v[kY] + v[kZ] * v[kZ];
+	LOG_NAN(l2);
+	return l2;
 }
-
 //--------------------------------------------------------------------------------------------
-float fvec3_length_2(const fvec3_base_t A)
+float fvec3_length(const fvec3_t& v)
 {
-	float A2;
-
-	if (NULL == A) return 0.0f;
-
-	A2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
-
-	LOG_NAN(A2);
-
-	return A2;
+	return std::sqrt(fvec3_length_2(v));
 }
-
-//--------------------------------------------------------------------------------------------
-float fvec3_length(const fvec3_base_t A)
+float fvec3_length(const fvec3_base_t v)
 {
-	if (NULL == A) return 0.0f;
-
-	float A2 = A[kX] * A[kX] + A[kY] * A[kY] + A[kZ] * A[kZ];
-
-	LOG_NAN(A2);
-
-	return std::sqrt(A2);
+	return std::sqrt(fvec3_length_2(v));
 }
-
 //--------------------------------------------------------------------------------------------
 float * fvec3_add(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS)
 {

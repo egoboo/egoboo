@@ -33,6 +33,15 @@
 #include "game/mesh.inl"
 
 //--------------------------------------------------------------------------------------------
+
+const float camera_t::DEFAULT_FOV = 60.0f;
+
+const float camera_t::DEFAULT_TURN_JOY = 64;
+
+const float camera_t::DEFAULT_TURN_KEY = camera_t::DEFAULT_TURN_JOY;
+
+const Uint8 camera_t::DEFAULT_TURN_TIME = 16;
+
 //--------------------------------------------------------------------------------------------
 
 static void camera_update_position( camera_t * pcam );
@@ -42,7 +51,9 @@ static void camera_update_track( camera_t * pcam, const ego_mesh_t * pmesh, CHR_
 
 static size_t camera_create_track_list( CHR_REF track_list[], const size_t track_list_max_size );
 
+#if 0
 static void dump_matrix( const fmat_4x4_base_t a );
+#endif
 static void camera_update_effects( camera_t * pcam );
 static void camera_update_zoom( camera_t * pcam );
 
@@ -75,12 +86,12 @@ bool camera_reset_projection( camera_t * pcam, float fov_deg, float ar )
 }
 
 //--------------------------------------------------------------------------------------------
-camera_t * camera_ctor( camera_t * pcam )
+camera_t *camera_ctor( camera_t * pcam )
 {
     /// @author BB
     /// @details initialize the camera structure
 
-    BLANK_STRUCT_PTR( pcam )
+    //BLANK_STRUCT_PTR( pcam )
 
     // global options
     pcam->turn_mode  = cam_options.turn_mode;
@@ -89,7 +100,9 @@ camera_t * camera_ctor( camera_t * pcam )
     pcam->swing_rate = cam_options.swing_rate;
 
     // constant values
-    pcam->move_mode_old   =  CAM_PLAYER;
+	pcam->track_level     =  0;
+	pcam->turn_time       =  camera_t::DEFAULT_TURN_TIME;
+	pcam->move_mode_old   =  CAM_PLAYER;
     pcam->move_mode       =  CAM_PLAYER;
     pcam->zoom            =  CAM_ZOOM_AVG;
     pcam->zadd            =  CAM_ZADD_AVG;
@@ -116,13 +129,14 @@ camera_t * camera_ctor( camera_t * pcam )
 
     camera_reset_view( pcam );
 
-    camera_reset_projection( pcam, CAM_FOV, ( float )sdl_scr.x / ( float )sdl_scr.y );
+    camera_reset_projection( pcam, camera_t::DEFAULT_FOV, ( float )sdl_scr.x / ( float )sdl_scr.y );
 
     return pcam;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 void dump_matrix( const fmat_4x4_base_t a )
 {
     /// @author ZZ
@@ -143,6 +157,7 @@ void dump_matrix( const fmat_4x4_base_t a )
         printf( "\n" );
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -215,7 +230,7 @@ void camera_gluPerspective( camera_t * pcam, float fovy_deg, float aspect_ratio,
     GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, pcam->mProjection.v );
 
     // do another glu call
-    fov_big = camera_multiply_fov( CAM_FOV, fov_mag );
+    fov_big = camera_multiply_fov( camera_t::DEFAULT_FOV, fov_mag );
     GL_DEBUG( glLoadIdentity )();
     gluPerspective( fov_big, aspect_ratio, frustum_near, frustum_far );
 
@@ -223,7 +238,7 @@ void camera_gluPerspective( camera_t * pcam, float fovy_deg, float aspect_ratio,
     GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, pcam->mProjection_big.v );
 
     // do another glu call
-    fov_small = camera_multiply_fov( CAM_FOV, 1.0f / fov_mag );
+    fov_small = camera_multiply_fov( camera_t::DEFAULT_FOV, 1.0f / fov_mag );
     GL_DEBUG( glLoadIdentity )();
     gluPerspective( fov_small, aspect_ratio, frustum_near, frustum_far );
 
@@ -303,7 +318,7 @@ void camera_update_effects( camera_t * pcam )
         pcam->swing = ( pcam->swing + 120 ) & 0x3FFF;
         local_swingamp = std::max( local_swingamp, 0.175f );
 
-        zoom_add = ( 0 == ((( int )local_stats.grog_level ) % 2 ) ? 1 : - 1 ) * CAM_TURN_KEY * local_stats.grog_level * 0.35f;
+        zoom_add = ( 0 == ((( int )local_stats.grog_level ) % 2 ) ? 1 : - 1 ) * camera_t::DEFAULT_TURN_KEY * local_stats.grog_level * 0.35f;
 
         pcam->zadd_goto   = pcam->zadd_goto + zoom_add;
 
@@ -313,7 +328,7 @@ void camera_update_effects( camera_t * pcam )
     //Rotate camera if they are dazed
     if ( local_stats.daze_level > 0 )
     {
-        pcam->turn_z_add = local_stats.daze_level * CAM_TURN_KEY * 0.5f;
+        pcam->turn_z_add = local_stats.daze_level * camera_t::DEFAULT_TURN_KEY * 0.5f;
     }
     
     // Apply motion blur
@@ -419,7 +434,7 @@ void camera_update_center( camera_t * pcam )
         fvec3_sub( track_vec.v, pcam->track_pos.v, pcam->pos.v );
 
         // determine the size of the dead zone
-        track_fov = CAM_FOV * 0.25f;
+        track_fov = camera_t::DEFAULT_FOV * 0.25f;
         track_dist = fvec3_length( track_vec.v );
         track_size = track_dist * TAN( track_fov );
         track_size_x = track_size;
@@ -520,12 +535,12 @@ void camera_update_track( camera_t * pcam, const ego_mesh_t * pmesh, CHR_REF tra
 
         if ( SDL_KEYDOWN( keyb, SDLK_KP7 ) )
         {
-            pcam->turn_z_add += CAM_TURN_KEY;
+            pcam->turn_z_add += camera_t::DEFAULT_TURN_KEY;
         }
 
         if ( SDL_KEYDOWN( keyb, SDLK_KP9 ) )
         {
-            pcam->turn_z_add -= CAM_TURN_KEY;
+            pcam->turn_z_add -= camera_t::DEFAULT_TURN_KEY;
         }
 
         pcam->track_pos.z = 128 + ego_mesh_get_level( pmesh, pcam->track_pos.x, pcam->track_pos.y );
@@ -809,7 +824,7 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
             pcam->turn_z_add += ( mous.x / 3.0f );
             pcam->zadd_goto  += ( float ) mous.y / 3.0f;
 
-            pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
+            pcam->turn_time = camera_t::DEFAULT_TURN_TIME;  // Sticky turn...
         }
     }
     else if ( IS_VALID_JOYSTICK( type ) )
@@ -826,17 +841,17 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
         {
             if ( !input_device_control_active( pdevice, CONTROL_CAMERA ) )
             {
-                pcam->turn_z_add -= pjoy->x * CAM_TURN_JOY;
+                pcam->turn_z_add -= pjoy->x * camera_t::DEFAULT_TURN_JOY;
             }
         }
 
         //Normal camera
         else if ( input_device_control_active( pdevice, CONTROL_CAMERA ) )
         {
-            pcam->turn_z_add += pjoy->x * CAM_TURN_JOY;
-            pcam->zadd_goto  += pjoy->y * CAM_TURN_JOY;
+            pcam->turn_z_add += pjoy->x * camera_t::DEFAULT_TURN_JOY;
+            pcam->zadd_goto  += pjoy->y * camera_t::DEFAULT_TURN_JOY;
 
-            pcam->turn_time = CAM_TURN_TIME;  // Sticky turn...
+            pcam->turn_time = camera_t::DEFAULT_TURN_TIME;  // Sticky turn...
         }
     }
     else
@@ -849,11 +864,11 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
 
             if ( input_device_control_active( pdevice,  CONTROL_LEFT ) )
             {
-                pcam->turn_z_add += CAM_TURN_KEY;
+                pcam->turn_z_add += camera_t::DEFAULT_TURN_KEY;
             }
             if ( input_device_control_active( pdevice,  CONTROL_RIGHT ) )
             {
-                pcam->turn_z_add -= CAM_TURN_KEY;
+                pcam->turn_z_add -= camera_t::DEFAULT_TURN_KEY;
             }
         }
         else
@@ -865,28 +880,28 @@ void camera_read_input( camera_t *pcam, input_device_t *pdevice )
             // rotation
             if ( input_device_control_active( pdevice,  CONTROL_CAMERA_LEFT ) )
             {
-                turn_z_diff += CAM_TURN_KEY;
+                turn_z_diff += camera_t::DEFAULT_TURN_KEY;
             }
             if ( input_device_control_active( pdevice,  CONTROL_CAMERA_RIGHT ) )
             {
-                turn_z_diff -= CAM_TURN_KEY;
+                turn_z_diff -= camera_t::DEFAULT_TURN_KEY;
             }
 
             // Sticky turn?
             if ( 0 != turn_z_diff )
             {
                 pcam->turn_z_add += turn_z_diff;
-                pcam->turn_time   = CAM_TURN_TIME;
+                pcam->turn_time   = camera_t::DEFAULT_TURN_TIME;
             }
 
             //zoom
             if ( input_device_control_active( pdevice,  CONTROL_CAMERA_OUT ) )
             {
-                pcam->zadd_goto += CAM_TURN_KEY;
+                pcam->zadd_goto += camera_t::DEFAULT_TURN_KEY;
             }
             if ( input_device_control_active( pdevice,  CONTROL_CAMERA_IN ) )
             {
-                pcam->zadd_goto -= CAM_TURN_KEY;
+                pcam->zadd_goto -= camera_t::DEFAULT_TURN_KEY;
             }
         }
     }
@@ -942,7 +957,8 @@ bool camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_R
     ///          a "change of scene". With the new velocity-tracking of the camera, this would include
     ///          things like character respawns, adding new players, etc.
 
-    Uint8 turn_mode_save, move_mode_save;
+	e_camera_turn_mode turn_mode_save;
+	Uint8 move_mode_save;
 
     if ( NULL == pcam ) return false;
 

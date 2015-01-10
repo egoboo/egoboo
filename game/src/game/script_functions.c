@@ -38,7 +38,7 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/passage.h"
-#include "game/AStar.h"
+#include "game/ai/astar.h"
 #include "game/profile.inl"
 #include "game/enchant.inl"
 #include "game/char.inl"

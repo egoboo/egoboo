@@ -273,12 +273,10 @@ bool EncList_free_one( const ENC_REF ienc )
     /// should be enough to ensure that no enchant is freed more than once
 
     bool retval;
-    enc_t * penc;
-    obj_data_t * pbase;
 
     if ( !ALLOCATED_ENC( ienc ) ) return false;
-    penc  = EncList_get_ptr( ienc );
-    pbase = POBJ_GET_PBASE( penc );
+    enc_t *penc = EncList_get_ptr( ienc );
+    Ego::Entity *pbase = POBJ_GET_PBASE( penc );
 
 #if (DEBUG_SCRIPT_LEVEL > 0) && defined(DEBUG_PROFILE) && defined(_DEBUG)
     enc_log_script_time( ienc );

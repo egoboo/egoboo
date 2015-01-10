@@ -32,17 +32,17 @@
 struct ego_mesh_t;
 struct camera_t;
 struct script_state_t;
-struct s_mod_file;
+struct mod_file_t;
 
-struct s_wawalite_animtile;
-struct s_wawalite_damagetile;
-struct s_wawalite_weather;
-struct s_wawalite_water;
-struct s_wawalite_fog;
+struct wawalite_animtile_t;
+struct wawalite_damagetile_t;
+struct wawalite_weather_t;
+struct wawalite_water_t;
+struct wawalite_fog_t;
 
 struct s_menu_process;
 
-struct s_chr;
+struct chr_t;
 struct s_prt;
 struct s_prt_bundle;
 
@@ -296,10 +296,10 @@ struct s_water_instance
 
 float     water_instance_get_water_level( water_instance_t * pinst );
 egolib_rv water_instance_move( water_instance_t * pwater );
-bool    water_instance_make( water_instance_t * pinst, const struct s_wawalite_water * pdata );
+bool    water_instance_make( water_instance_t * pinst, const wawalite_water_t * pdata );
 bool    water_instance_set_douse_level( water_instance_t * pinst, float level );
 
-bool    upload_water_data( water_instance_t * dst, const struct s_wawalite_water * src );
+bool    upload_water_data( water_instance_t * dst, const wawalite_water_t * src );
 
 //--------------------------------------------------------------------------------------------
 
@@ -336,7 +336,7 @@ struct s_game_module
     Uint32  randsave;
 };
 
-bool game_module_setup( game_module_t * pinst, const struct s_mod_file * pdata, const char * loadname, const Uint32 seed );
+bool game_module_setup( game_module_t * pinst, const mod_file_t * pdata, const char * loadname, const Uint32 seed );
 bool game_module_init( game_module_t * pinst );
 bool game_module_reset( game_module_t * pinst, const Uint32 seed );
 bool game_module_start( game_module_t * pinst );
@@ -489,8 +489,8 @@ void   set_one_player_latch( const PLA_REF player );
 bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *pdevice );
 
 /// AI targeting
-bool  chr_check_target( struct s_chr * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits );
-CHR_REF chr_find_target( struct s_chr * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
+bool  chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const BIT_FIELD targeting_bits );
+CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIELD targeting_bits );
 CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing, const PIP_REF ipip, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget );
 
 /// object initialization
@@ -519,20 +519,20 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF ichr );
 bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem );
 bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem );
 
-bool get_chr_regeneration( struct s_chr * pchr, int *pliferegen, int * pmanaregen );
+bool get_chr_regeneration( chr_t * pchr, int *pliferegen, int * pmanaregen );
 
-float get_chr_level( ego_mesh_t * pmesh, struct s_chr * pchr );
+float get_chr_level( ego_mesh_t * pmesh, chr_t * pchr );
 
 void disenchant_character( const CHR_REF ichr );
 
-void cleanup_character_enchants( struct s_chr * pchr );
+void cleanup_character_enchants( chr_t * pchr );
 
 bool attach_one_particle( struct s_prt_bundle * pbdl_prt );
 
-bool attach_chr_to_platform( struct s_chr * pchr, struct s_chr * pplat );
-bool attach_prt_to_platform( struct s_prt * pprt, struct s_chr * pplat );
+bool attach_chr_to_platform( chr_t * pchr, chr_t * pplat );
+bool attach_prt_to_platform( struct s_prt * pprt, chr_t * pplat );
 
-bool detach_character_from_platform( struct s_chr * pchr );
+bool detach_character_from_platform( chr_t * pchr );
 bool detach_particle_from_platform( struct s_prt * pprt );
 
 egolib_rv game_copy_imports( struct s_import_list * imp_lst );
@@ -541,7 +541,7 @@ bool check_time( Uint32 check );
 void   game_update_timers();
 
 // wawalite functions
-struct s_wawalite_data * read_wawalite_vfs();
-bool write_wawalite_vfs( const struct s_wawalite_data * pdata );
-bool wawalite_finalize( struct s_wawalite_data * pdata );
+struct wawalite_data_t * read_wawalite_vfs();
+bool write_wawalite_vfs( const wawalite_data_t * pdata );
+bool wawalite_finalize( wawalite_data_t * pdata );
 void   upload_wawalite();

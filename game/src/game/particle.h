@@ -113,11 +113,11 @@ struct s_prt_spawn_data
 //--------------------------------------------------------------------------------------------
 
 /// The definition of the particle object
-/// This "inherits" for obj_data_t
+/// @extends Ego::Entity
 struct s_prt
 {
-    obj_data_t obj_base;                      ///< the "inheritance" from obj_data_t
-    bool       is_ghost;                      ///< the particla has been killed, but is hanging around a while...
+    Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
+    bool is_ghost;                   ///< the particla has been killed, but is hanging around a while...
 
     prt_spawn_data_t  spawn_data;
 

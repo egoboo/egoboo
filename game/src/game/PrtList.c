@@ -281,7 +281,7 @@ bool PrtList_free_one( const PRT_REF iprt )
 
     bool retval;
     prt_t * pprt;
-    obj_data_t * pbase;
+    Ego::Entity * pbase;
 
     if ( !ALLOCATED_PRT( iprt ) ) return false;
     pprt = PrtList_get_ptr( iprt );

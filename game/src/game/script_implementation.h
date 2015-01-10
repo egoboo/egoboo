@@ -23,6 +23,7 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
+#include "game/ai/WaypointList.h"
 
 /// @defgroup _bitwise_functions_ Bitwise Scripting Functions
 /// @details These functions may be necessary to export the bitwise functions for handling alerts to
@@ -31,45 +32,28 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_chr;
+struct chr_t;
 struct script_state_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_waypoint_list;
-typedef struct s_waypoint_list waypoint_list_t;
+struct waypoint_list_t;
 
-struct s_line_of_sight_info;
-typedef struct s_line_of_sight_info line_of_sight_info_t;
+struct line_of_sight_info_t;
 
 //--------------------------------------------------------------------------------------------
 // waypoint_list_t
 //--------------------------------------------------------------------------------------------
 
-#define MAXWAY              8                       ///< Waypoints
+
 #define WAYTHRESH           (GRID_ISIZE >> 1)       ///< Threshold for reaching waypoint (GRID_FSIZE/2)
 
-typedef float waypoint_t[3];
 
-struct s_waypoint_list
-{
-    int          tail;         ///< Which waypoint
-    int          head;         ///< Where to stick next
-    waypoint_t   pos[MAXWAY];  ///< Waypoint
-};
-
-bool waypoint_list_peek( waypoint_list_t * plst, waypoint_t wp );
-bool waypoint_list_push( waypoint_list_t * plst, int x, int y );
-bool waypoint_list_reset( waypoint_list_t * plst );
-bool waypoint_list_clear( waypoint_list_t * plst );
-bool waypoint_list_empty( waypoint_list_t * plst );
-bool waypoint_list_finished( waypoint_list_t * plst );
-bool waypoint_list_advance( waypoint_list_t * plst );
 
 //--------------------------------------------------------------------------------------------
 /// Data needed to specify a line-of-sight test
-struct s_line_of_sight_info
+struct line_of_sight_info_t
 {
     float x0, y0, z0;
     float x1, y1, z1;
@@ -186,7 +170,7 @@ bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y
 /// @author ZF
 /// @details Ported the A* path finding algorithm by birdsey and heavily modified it
 /// This function adds enough waypoints to get from one point to another
-bool FindPath( waypoint_list_t * plst, struct s_chr * pchr, float dst_x, float dst_y, bool * used_astar_ptr );
+bool FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y, bool * used_astar_ptr );
 
 /// @author ZZ
 /// @details This function modifies tmpx and tmpy, depending on the setting of
@@ -200,7 +184,7 @@ bool Compass( fvec2_base_t pos, int facing, float distance );
 /// @details This function returns the cost of the desired skin upgrade
 //
 /// @lua tmpx = GetTargetArmorPrice( tmpargument = "skin" )
-int GetArmorPrice( struct s_chr * pchr, const int skin );
+int GetArmorPrice( chr_t * pchr, const int skin );
 
 /// @author ZZ
 /// @details This function sets the character's ai timer.  50 clicks per second.
@@ -216,7 +200,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
 /// @author ZZ
 /// @details This function appends a message to the end-module text
-Uint8 AddEndMessage( struct s_chr * pchr, const int message_index, script_state_t * pstate );
+Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pstate );
 
 /// @author ZZ
 /// @details This function finds the next tile in the passage, x0 and y0
@@ -226,11 +210,11 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
 
 /// @author ZF
 /// @details This function searches the nearby vincinity for a melee weapon the character can use
-CHR_REF FindWeapon( struct s_chr * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight );
+CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight );
 
 /// @author ZZ
 /// @details This function sets an object's lighting
-bool FlashObject( struct s_chr * pchr, Uint8 value );
+bool FlashObject( chr_t * pchr, Uint8 value );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

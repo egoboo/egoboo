@@ -30,7 +30,7 @@ bv_t *bv_ctor(bv_t *self)
 	if (NULL == self) return self;
 
 	sphere_ctor(&(self->sphere));
-	aabb_ctor(&(self->data));
+	aabb_ctor(&(self->aabb));
 	return self;
 }
 
@@ -40,7 +40,7 @@ bv_t *bv_dtor(bv_t *self)
 	EGOBOO_ASSERT(NULL != self);
 	if (NULL == self) return self;
 
-	aabb_dtor(&(self->data));
+	aabb_dtor(&(self->aabb));
 	sphere_dtor(&(self->sphere));
 
 	return self;
@@ -52,7 +52,7 @@ bool bv_self_clear(bv_t *self)
 	EGOBOO_ASSERT(NULL != self);
 	if (NULL == self) return false;
 
-	aabb_self_clear(&(self->data));
+	aabb_self_clear(&(self->aabb));
 
 	sphere_self_clear(&(self->sphere));
 
@@ -87,7 +87,7 @@ bool bv_from_oct_bb(bv_t * dst, const oct_bb_t * src)
 
 	if (NULL == dst) return false;
 
-	retval = aabb_from_oct_bb(&(dst->data), src);
+	retval = aabb_from_oct_bb(&(dst->aabb), src);
 
 	if (retval)
 	{
@@ -108,7 +108,7 @@ bool bv_is_clear(const bv_t * pdst)
 
 	if (NULL == pdst) return true;
 
-	retval = aabb_is_clear(&(pdst->data));
+	retval = aabb_is_clear(&(pdst->aabb));
 
 	if (!retval)
 	{
@@ -136,7 +136,8 @@ bool bv_self_union(bv_t * pdst, const bv_t * psrc)
 		return true;
 	}
 
-	retval = aabb_self_union(&(pdst->data), &(psrc->data));
+	aabb_self_union(pdst->aabb, psrc->aabb);
+#if 0
 	if (retval)
 	{
 		retval = bv_validate(pdst);
@@ -145,8 +146,11 @@ bool bv_self_union(bv_t * pdst, const bv_t * psrc)
 	{
 		sphere_self_clear(&(pdst->sphere));
 	}
-
+#endif
+	return true;
+#if 0
 	return retval;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -157,7 +161,7 @@ bool bv_lhs_contains_rhs(const bv_t * lhs_ptr, const bv_t * rhs_ptr)
 	bv_test(lhs_ptr);
 	bv_test(rhs_ptr);
 
-	return aabb_lhs_contains_rhs(&(lhs_ptr->data), &(rhs_ptr->data));
+	return aabb_lhs_contains_rhs(lhs_ptr->aabb, rhs_ptr->aabb);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -168,7 +172,7 @@ bool bv_overlap(const bv_t * lhs_ptr, const bv_t * rhs_ptr)
 	bv_test(lhs_ptr);
 	bv_test(rhs_ptr);
 
-	return aabb_overlap(&(lhs_ptr->data), &(rhs_ptr->data));
+	return aabb_overlap(lhs_ptr->aabb, rhs_ptr->aabb);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -182,10 +186,10 @@ bool bv_validate(bv_t * rhs)
 
 	for (cnt = 0; cnt < 3; cnt++)
 	{
-		rhs->sphere.origin.v[cnt] = 0.5f * (rhs->data.mins[cnt] + rhs->data.maxs[cnt]);
+		rhs->sphere.origin.v[cnt] = 0.5f * (rhs->aabb.mins[cnt] + rhs->aabb.maxs[cnt]);
 	}
 
-	fvec3_sub(vtmp.v, rhs->data.mins, rhs->sphere.origin.v);
+	fvec3_sub(vtmp.v, rhs->aabb.mins, rhs->sphere.origin.v);
 	radius_2 = fvec3_length_2(vtmp.v);
 	if (0.0f == radius_2)
 	{

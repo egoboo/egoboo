@@ -99,8 +99,8 @@ bool obj_BSP_ctor(obj_BSP_t *self, int bsp_dim, const mesh_BSP_t *mesh_bsp)
     for ( int cnt = 0; cnt < min_dim; cnt++ )
     {
         // get the size
-        obj_tree->bsp_bbox.mins.ary[cnt] = std::min( mesh_tree->bsp_bbox.mins.ary[cnt], mesh_tree->bbox.data.mins[cnt] );
-        obj_tree->bsp_bbox.maxs.ary[cnt] = std::max( mesh_tree->bsp_bbox.maxs.ary[cnt], mesh_tree->bbox.data.maxs[cnt] );
+        obj_tree->bsp_bbox.mins.ary[cnt] = std::min( mesh_tree->bsp_bbox.mins.ary[cnt], mesh_tree->bbox.aabb.mins[cnt] );
+        obj_tree->bsp_bbox.maxs.ary[cnt] = std::max( mesh_tree->bsp_bbox.maxs.ary[cnt], mesh_tree->bbox.aabb.maxs[cnt] );
 
         // make some extra space
         obj_tree->bsp_bbox.mins.ary[cnt] -= bsp_size * 0.25f;

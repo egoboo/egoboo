@@ -36,9 +36,10 @@ struct camera_t;
 // internal structs
 //--------------------------------------------------------------------------------------------
 
-struct s_billboard_data;
+struct billboard_data_t;
+#if 0
 typedef struct s_billboard_data billboard_data_t;
-
+#endif
 //--------------------------------------------------------------------------------------------
 // constants
 //--------------------------------------------------------------------------------------------
@@ -64,7 +65,7 @@ enum e_bb_opt
 
 /// Description of a generic bilboarded object.
 /// Any graphics that can be composited onto a SDL_surface can be used
-struct s_billboard_data
+struct billboard_data_t
 {
     bool    valid;        ///< has the billboard data been initialized?
 

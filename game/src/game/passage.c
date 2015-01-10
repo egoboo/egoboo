@@ -523,11 +523,9 @@ CHR_REF shop_get_owner( int ix, int iy )
 {
     /// @author ZZ
     /// @details This function returns the owner of a item in a shop
-
-    SHOP_REF cnt;
     CHR_REF  owner = ( CHR_REF )SHOP_NOOWNER;
 
-    for ( cnt = 0; cnt < ShopStack.count; cnt++ )
+    for ( SHOP_REF cnt = 0; cnt < ShopStack.count; cnt++ )
     {
         PASS_REF    passage;
         passage_t * ppass;

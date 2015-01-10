@@ -39,7 +39,7 @@ struct camera_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// The camera mode
+/// The camera mode.
 enum e_camera_mode
 {
     CAM_PLAYER = 0,
@@ -47,45 +47,19 @@ enum e_camera_mode
     CAM_RESET
 };
 
-/// The mode that the camera uses to determine where is is looking
-enum e_camera_turn_mode
-{
-    CAM_TURN_NONE = 0,
-    CAM_TURN_AUTO = 1,
-    CAM_TURN_GOOD = 255
-};
-
-//#define CAM_TRACK_X_AREA_LOW     100
-//#define CAM_TRACK_X_AREA_HIGH    180
-//#define CAM_TRACK_Y_AREA_MINLOW  320
-//#define CAM_TRACK_Y_AREA_MAXLOW  460
-//#define CAM_TRACK_Y_AREA_MINHIGH 460
-//#define CAM_TRACK_Y_AREA_MAXHIGH 600
-
-#define CAM_FOV                             60          ///< Field of view
-#define CAM_TURN_JOY                        64         ///< Joystick camera rotation
-#define CAM_TURN_KEY               CAM_TURN_JOY         ///< Keyboard camera rotation
-#define CAM_TURN_TIME                       16          ///< Smooth turn
-//#define CAM_TRACK_FAR                     1200          ///< For outside modules...
-//#define CAM_TRACK_EDGE                     800          ///< Camtrack bounds
-
 /// Multi cam uses macro to switch between old and new camera
-#define CAM_ZOOM_FACTOR                              0.5f
+#define CAM_ZOOM_FACTOR 0.5f
 
 #if !defined(OLD_CAMERA_MODE)
-#    define CAM_ZOOM_MIN                         (800 * CAM_ZOOM_FACTOR)         ///< Camera distance
-#    define CAM_ZOOM_MAX                         (700 * CAM_ZOOM_FACTOR)
-#    define CAM_ZADD_MIN                         (800 * CAM_ZOOM_FACTOR)         ///< Camera height
-#    define CAM_ZADD_MAX                         (2750 * CAM_ZOOM_FACTOR)
-//#    define CAM_UPDOWN_MIN                       (0.24f * PI)                  ///< Camera updown angle
-//#    define CAM_UPDOWN_MAX                       (0.10f * PI)
+	#define CAM_ZOOM_MIN                         (800 * CAM_ZOOM_FACTOR)       ///< Camera distance
+	#define CAM_ZOOM_MAX                         (700 * CAM_ZOOM_FACTOR)
+	#define CAM_ZADD_MIN                         (800 * CAM_ZOOM_FACTOR)       ///< Camera height
+	#define CAM_ZADD_MAX                         (2750 * CAM_ZOOM_FACTOR)
 #else
-#    define CAM_ZOOM_MIN                         (500 * CAM_ZOOM_FACTOR)         ///< Camera distance
-#    define CAM_ZOOM_MAX                         (600 * CAM_ZOOM_FACTOR)
-#    define CAM_ZADD_MIN                         (800 * CAM_ZOOM_FACTOR)         ///< Camera height
-#    define CAM_ZADD_MAX                         (1500 * CAM_ZOOM_FACTOR)        // 1000
-//#    define CAM_UPDOWN_MIN                       (0.24f * PI)                  ///< Camera updown angle
-//#    define CAM_UPDOWN_MAX                       (0.18f * PI)                  // (0.15f*PI) // (0.18f*PI)
+	#define CAM_ZOOM_MIN                         (500 * CAM_ZOOM_FACTOR)       ///< Camera distance
+	#define CAM_ZOOM_MAX                         (600 * CAM_ZOOM_FACTOR)
+	#define CAM_ZADD_MIN                         (800 * CAM_ZOOM_FACTOR)       ///< Camera height
+	#define CAM_ZADD_MAX                         (1500 * CAM_ZOOM_FACTOR)      ///< 1000
 #endif
 
 #define CAM_ZADD_AVG                         (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX))
@@ -100,7 +74,7 @@ struct camera_options_t
     int           swing_rate;              ///< Camera swing rate
     float         swing_amp;               ///< Camera swing amplitude
 
-    Uint8         turn_mode;               ///< what is the camera mode
+	e_camera_turn_mode turn_mode;               ///< what is the camera turn mode
 };
 
 //--------------------------------------------------------------------------------------------
@@ -109,12 +83,28 @@ struct camera_options_t
 /// definition of the Egoboo camera object
 struct camera_t
 {
-    // the projection matrices
-    fmat_4x4_t mView;                        ///< View Matrix
 
-    fmat_4x4_t mProjection;                  ///< normal Projection Matrix
-    fmat_4x4_t mProjection_big;
-    fmat_4x4_t mProjection_small;
+	/// The default field of view angle (in degrees).
+	static const float DEFAULT_FOV;
+
+	/// The default joystick turn rotation.
+	/// @todo What unit is that?
+	static const float DEFAULT_TURN_JOY;
+
+	/// The default keyboard turn rotation.
+	/// @todo What unit is that?
+	static const float DEFAULT_TURN_KEY;
+
+	/// The default smooth turn rotation.
+	/// @todo What unit is that?
+	static const Uint8 DEFAULT_TURN_TIME;
+
+    // the projection matrices
+    fmat_4x4_t mView;                        ///< view matrix (derived/cached from other attributes)
+
+    fmat_4x4_t mProjection;                  ///< normal projection matrix (derived/cached from other attributes)
+    fmat_4x4_t mProjection_big;              ///< big    projection matrix (derived/cached from other attributes)
+    fmat_4x4_t mProjection_small;            ///< small  projection matrix (derived/cached from other attributes)
 
     // the view frustum
     egolib_frustum_t frustum;
@@ -126,12 +116,13 @@ struct camera_t
     Uint8  move_mode_old;           ///< the default movement mode
 
     // how do we calculate the turning?
-    Uint8  turn_mode;               ///< what is the camera mode
+	e_camera_turn_mode turn_mode;   ///< what is the camera turn mode
     Uint8  turn_time;               ///< time for the smooth turn
 
     // the actual camera position
-    fvec3_t       pos;                       ///< Camera position (z = 500-1000)
-    orientation_t ori;
+    fvec3_t       pos; ///< @brief The camera position.
+	                   ///< @inv @a z must be within the interval <tt>[500,1000]</tt>.
+    orientation_t ori; ///< @brief The camera orientation.
 
     // the middle of the objects that are being tracked
     fvec3_t       track_pos;               ///< Trackee position
@@ -139,11 +130,11 @@ struct camera_t
 
     // the position that the camera is focused on
     float         zoom;                    ///< Distance from the center
-    fvec3_t       center;                 ///< Move character to side before tracking
+    fvec3_t       center;                  ///< Move character to side before tracking
 
     // camera z motion
     float         zadd;                    ///< Camera height above terrain
-    float         zadd_goto;                ///< Desired z position
+    float         zadd_goto;               ///< Desired z position
     float         zgoto;
 
     // turning
@@ -175,13 +166,14 @@ extern camera_options_t cam_options;
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-camera_t * camera_ctor( camera_t * pcam );
+camera_t *camera_ctor(camera_t *cam);
+// @todo Add camera_dtor.
 
-void   camera_read_input( camera_t *pcam, struct s_input_device *pdevice );
-void   camera_make_matrix( camera_t * pcam );
+void camera_read_input( camera_t *pcam, struct s_input_device *pdevice );
+void camera_make_matrix( camera_t * pcam );
 
-void   camera_move( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size );
-void   camera_reset( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size );
+void camera_move( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size );
+void camera_reset( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size );
 bool camera_reset_target( camera_t * pcam, const ego_mesh_t * pmesh, const CHR_REF track_list[], const size_t track_list_size );
 
 bool camera_reset_view( camera_t * pcam );

@@ -117,7 +117,7 @@ void obj_BSP_system_end();
 bool obj_BSP_system_started();
 
 
-bool chr_BSP_insert(s_chr * pchr);
+bool chr_BSP_insert(chr_t * pchr);
 bool chr_BSP_fill();
 bool chr_BSP_clear();
 bool chr_BSP_can_collide(BSP_leaf_t * pleaf);

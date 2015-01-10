@@ -174,8 +174,9 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\ai\AStar.c" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\ai\WaypointList.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\bsp.c" />
-    <ClCompile Include="..\game\src\game\AStar.c" />
     <ClCompile Include="..\game\src\game\camera.c" />
     <ClCompile Include="..\game\src\game\camera_system.c" />
     <ClCompile Include="..\game\src\game\char.c" />
@@ -223,8 +224,9 @@
     <ClCompile Include="..\game\src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\ai\AStar.h" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\ai\WaypointList.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\bsp.h" />
-    <ClInclude Include="..\game\src\game\AStar.h" />
     <ClInclude Include="..\game\src\game\camera.h" />
     <ClInclude Include="..\game\src\game\camera_system.h" />
     <ClInclude Include="..\game\src\game\char.h" />

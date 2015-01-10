@@ -35,9 +35,6 @@ struct oct_bb_t;
  * @remark
  *	The terms "the/an axis-aligned bounding box (object)" and "the/an AABB (object)" are synonyms.
  */
-#if 0
-typedef struct aabb_t aabb_t;
-#endif
 struct aabb_t
 {
 	float mins[3]; /**< @todo Use fvec3_t. */
@@ -51,9 +48,10 @@ bool aabb_self_clear(aabb_t * pdst);
 bool aabb_is_clear(const aabb_t * pdst);
 
 bool aabb_from_oct_bb(aabb_t * dst, const struct oct_bb_t * src);
+
 /**
  * @brief
- *	Does this AABB contain another AABB.
+ *	Get if this AABB contains another AABB.
  * @param self
  *	this AABB
  * @param other
@@ -61,11 +59,11 @@ bool aabb_from_oct_bb(aabb_t * dst, const struct oct_bb_t * src);
  * @return
  *	@a true if the other AABB is contained in this AABB
  */
-bool aabb_lhs_contains_rhs(const aabb_t *self, const aabb_t *other);
+bool aabb_lhs_contains_rhs(const aabb_t& self, const aabb_t& other);
 
 /**
  * @brief
- *	Do this AABB and another AABB overlap.
+ *	Get if this AABB and another AABB overlap.
  * @param self
  *	this AABB
  * @param other
@@ -73,12 +71,18 @@ bool aabb_lhs_contains_rhs(const aabb_t *self, const aabb_t *other);
  * @return
  *	@a true if this AABB and the other AABB overlap
  */
-bool aabb_overlap(const aabb_t *self, const aabb_t *other);
-bool aabb_self_union(aabb_t * pdst, const aabb_t * psrc);
+bool aabb_overlap(const aabb_t& self, const aabb_t& other);
 
-#if 0
-/** @todo Remove this. aabb_ctor must be declared, defined and used. */
-#define AABB_INIT_VALS   { {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} }
-#endif
-
-//--------------------------------------------------------------------------------------------
+/**
+ * @brief
+ *	Compute the union of this AABB and another AABB.
+ * @param self
+ *	this AABB
+ * @param other
+ *	the other AABB
+ * @return
+ *	@a true if this AABB and the other AABB overlap
+ * @post
+ *	The union of this AABB and the other AABB was assigned to this AABB.
+ */
+void aabb_self_union(aabb_t& self, const aabb_t& other);

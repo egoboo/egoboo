@@ -635,7 +635,7 @@ int sound_play_chunk_looped( const fvec3_base_t snd_pos, const Mix_Chunk * pchun
     // measure the distance in tiles
     _calculate_average_camera_stereo( snd_pos, cam_pos.v, cam_center.v, diff.v, &pan );
 
-    volume = _calculate_volume( cam_pos.v, cam_center.v, diff.v, DEG_TO_RAD( CAM_FOV ) );
+    volume = _calculate_volume( cam_pos.v, cam_center.v, diff.v, DEG_TO_RAD( camera_t::DEFAULT_FOV ) );
 
     // play the sound
     if ( volume > 0 )
@@ -1423,7 +1423,7 @@ bool _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fvec
 
     if ( INVALID_SOUND_CHANNEL == channel ) return false;
 
-    volume = _calculate_volume( cam_pos, cam_center, diff, DEG_TO_RAD( CAM_FOV ) );
+    volume = _calculate_volume( cam_pos, cam_center, diff, DEG_TO_RAD( camera_t::DEFAULT_FOV ) );
 
     return _update_channel_volume( channel, volume, pan );
 }

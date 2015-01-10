@@ -30,7 +30,7 @@
 #include "egolib/extensions/ogl_include.h"
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/ogl_extensions.h"
-#include "egolib/tx_filters.h"
+#include "egolib/tx_filter.h"
 
 #include "egolib/typedef.h"
 
@@ -96,7 +96,7 @@ extern "C"
 
     struct s_oglx_texture_parameters
     {
-        e_tx_filters texturefilter;
+        tx_filter_t texturefilter;
         GLfloat userAnisotropy;
     };
 

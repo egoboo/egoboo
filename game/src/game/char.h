@@ -37,11 +37,11 @@
 // external structs
 //--------------------------------------------------------------------------------------------
 
-struct s_mad;
-struct s_eve;
+struct mad_t;
+struct eve_t;
 struct s_pip;
 struct s_object_profile;
-struct s_billboard_data_t;
+struct billboard_data_t;
 struct mesh_wall_data_t;
 
 struct s_prt;
@@ -49,17 +49,11 @@ struct s_prt;
 //--------------------------------------------------------------------------------------------
 // internal structs
 //--------------------------------------------------------------------------------------------
-struct s_team;
-typedef struct s_team team_t;
+struct team_t;
+struct chr_environment_t;
+struct chr_spawn_data_t;
+struct chr_t;
 
-struct s_chr_environment;
-typedef struct s_chr_environment chr_environment_t;
-
-struct s_chr_spawn_data;
-typedef struct s_chr_spawn_data chr_spawn_data_t;
-
-struct s_chr;
-typedef struct s_chr chr_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -152,7 +146,7 @@ typedef struct s_chr chr_t;
 //--------------------------------------------------------------------------------------------
 
 /// The possible methods for characters to determine what direction they are facing
-enum e_turn_modes
+enum turn_mode_t
 {
     TURNMODE_VELOCITY = 0,                       ///< Character gets rotation from velocity (normal)
     TURNMODE_WATCH,                              ///< For watch towers, look towards waypoint
@@ -161,11 +155,13 @@ enum e_turn_modes
     TURNMODE_COUNT
 };
 
+#if 0
 // this typedef must be after the enum definition or gcc has a fit
-typedef enum e_turn_modes TURN_MODE;
+typedef enum turn_mode_t TURN_MODE;
+#endif
 
 /// The vertex offsets for the various grips
-enum e_grip_offset
+enum grip_offset_t
 {
     GRIP_ORIGIN    =               0,                ///< Spawn attachments at the center
     GRIP_LAST      =               1,                ///< Spawn particles at the last vertex
@@ -177,8 +173,10 @@ enum e_grip_offset
     GRIP_ONLY      =               GRIP_LEFT
 };
 
+#if 0
 // this typedef must be after the enum definition or gcc has a fit
 typedef enum e_grip_offset grip_offset_t;
+#endif
 
 /// Bits used to control options for the chr_get_name() function
 enum e_chr_name_bits
@@ -220,7 +218,7 @@ enum e_team_types
 //--------------------------------------------------------------------------------------------
 
 /// The description of a single team
-struct s_team
+struct team_t
 {
     bool hatesteam[TEAM_MAX];    ///< Don't damage allies...
     Uint16   morale;                 ///< Number of characters on team
@@ -231,7 +229,7 @@ struct s_team
 //--------------------------------------------------------------------------------------------
 
 /// Everything that is necessary to compute the character's interaction with the environment
-struct s_chr_environment
+struct chr_environment_t
 {
     // floor stuff
     Uint8   grid_twist;           ///< The twist parameter of the current grid (what angle it it at)
@@ -269,7 +267,7 @@ struct s_chr_environment
 //--------------------------------------------------------------------------------------------
 
 /// the data used to define the spawning of a character
-struct s_chr_spawn_data
+struct chr_spawn_data_t
 {
     fvec3_t     pos;
     PRO_REF     profile;
@@ -282,11 +280,11 @@ struct s_chr_spawn_data
 
 //--------------------------------------------------------------------------------------------
 
-/// The definition of the character object
-/// This "inherits" for obj_data_t
-struct s_chr
+/// The definition of the character object.
+/// @extends Ego::Entity
+struct chr_t
 {
-    obj_data_t obj_base;
+    Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
 
     chr_spawn_data_t  spawn_data;
 
@@ -476,7 +474,7 @@ struct s_chr
 
     // movement properties
     bool         waterwalk;                     ///< Always above watersurfacelevel?
-    TURN_MODE      turnmode;                      ///< Turning mode
+    turn_mode_t  turnmode;                      ///< Turning mode
 
     BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
     float          anim_speed_sneak;              ///< Movement rate of the sneak animation
@@ -514,10 +512,10 @@ bool    chr_can_see_dark( const chr_t * pchr, const chr_t * pobj );
 bool    chr_can_see_invis( const chr_t * pchr, const chr_t * pobj );
 int       chr_get_price( const CHR_REF ichr );
 
-bool         chr_heal_mad( chr_t * pchr );
-MAD_REF        chr_get_imad( const CHR_REF ichr );
-struct s_mad * chr_get_pmad( const CHR_REF ichr );
-TX_REF         chr_get_txtexture_icon_ref( const CHR_REF item );
+bool     chr_heal_mad( chr_t * pchr );
+MAD_REF  chr_get_imad( const CHR_REF ichr );
+mad_t   *chr_get_pmad( const CHR_REF ichr );
+TX_REF   chr_get_txtexture_icon_ref( const CHR_REF item );
 
 bool chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 
@@ -551,6 +549,18 @@ void chr_set_blushift( chr_t * pchr, const int bs );
 void chr_set_sheen( chr_t * pchr, const int sheen );
 void chr_set_alpha( chr_t * pchr, const int alpha );
 void chr_set_light( chr_t * pchr, const int light );
+
+void chr_set_fat(chr_t *chr, const float fat);
+void chr_set_height(chr_t *chr, const float height);
+void chr_set_width(chr_t *chr, const float width);
+void chr_set_size(chr_t *chr, const float size);
+void chr_set_shadow(chr_t *chr, const float width);
+
+bool chr_getMatUp(chr_t *pchr, fvec3_base_t vec);
+bool chr_getMatRight(chr_t *pchr, fvec3_base_t vec);
+bool chr_getMatForward(chr_t *pchr, fvec3_base_t vec);
+bool chr_getMatTranslate(chr_t *pchr, fvec3_base_t vec);
+
 
 const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size );
 const char * chr_get_dir_name( const CHR_REF ichr );
@@ -710,4 +720,4 @@ const char * describe_value( float value, float maxval, int * rank_ptr );
 const char* describe_damage( float value, float maxval, int * rank_ptr );
 const char* describe_wounds( float max, float current );
 
-struct s_billboard_data * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, const BIT_FIELD opt_bits );
+billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, const BIT_FIELD opt_bits );

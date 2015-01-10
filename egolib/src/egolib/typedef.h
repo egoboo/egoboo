@@ -34,13 +34,8 @@
 
     struct irect_t;
     struct frect_t;
-
-    struct s_ego_irect;
-    typedef struct s_ego_irect ego_irect_t;
-
-    struct s_ego_frect;
-    typedef struct s_ego_frect ego_frect_t;
-
+    struct ego_irect_t;
+    struct ego_frect_t;
     struct s_pair;
     typedef struct s_pair IPair;
 
@@ -82,14 +77,8 @@
 
 #if !defined(TO_EGO_BOOL)
 	#if defined(__cplusplus)
-#if 0
-		#define TO_EGO_BOOL(VAL) LAMBDA(VAL, true, false)
-#endif
 		#define TO_C_BOOL(VAL)   LAMBDA(VAL, true, false)
 	#else
-#if 0
-		#define TO_EGO_BOOL(VAL) (VAL)
-#endif
 		#define TO_C_BOOL(VAL) (VAL)
 	#endif
 #endif
@@ -108,10 +97,6 @@
         rv_fail    = false,
         rv_success = true
     };
-#if 0
-    // this typedef must be after the enum definition or gcc has a fit
-    typedef enum e_egolib_rv egolib_rv;
-#endif
 
 //--------------------------------------------------------------------------------------------
 // 24.8 fixed point types
@@ -224,13 +209,13 @@
 
     bool frect_point_inside( frect_t * prect, float fx, float fy );
 
-    struct s_ego_irect
+    struct ego_irect_t
     {
         int xmin, ymin;
         int xmax, ymax;
     };
 
-    struct s_ego_frect
+    struct ego_frect_t
     {
         float xmin, ymin;
         float xmax, ymax;
@@ -339,17 +324,17 @@
 //--------------------------------------------------------------------------------------------
 // a simple array
 
-#   define C_DECLARE_T_ARY(TYPE, NAME, COUNT)  TYPE   NAME[COUNT]
+#define C_DECLARE_T_ARY(TYPE, NAME, COUNT)  TYPE   NAME[COUNT]
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // a simple list structure that tracks free elements
 
-#   define ACCESS_TYPE_NONE
+#define ACCESS_TYPE_NONE
 
-#   define INVALID_UPDATE_GUID ((unsigned)(~((unsigned)0)))
+#define INVALID_UPDATE_GUID ((unsigned)(~((unsigned)0)))
 
-#   define C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
+#define C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
     struct s_c_list__##TYPE__##NAME           \
     {                                         \
         unsigned update_guid;                 \
@@ -360,24 +345,24 @@
         C_DECLARE_T_ARY(TYPE, lst, COUNT);    \
     }
 
-#   define C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT) \
-    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);          \
-    void   NAME##_ctor( void );                     \
-    void   NAME##_dtor( void );                     \
-    bool NAME##_push_used( const REF_T );         \
-    TYPE * NAME##_get_ptr( const size_t );          \
+#define C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT) \
+    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);       \
+    void   NAME##_ctor( void );                  \
+    void   NAME##_dtor( void );                  \
+    bool NAME##_push_used( const REF_T );        \
+    TYPE * NAME##_get_ptr( const size_t );       \
     extern struct s_c_list__##TYPE__##NAME NAME
 
-#   define C_INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT) \
-    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);        \
+#define C_INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT) \
+    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);           \
     static struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
-#   define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) \
+#define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) \
     ACCESS struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
-#   define C_IMPLEMENT_LIST(TYPE, NAME, COUNT)          \
+#define C_IMPLEMENT_LIST(TYPE, NAME, COUNT)             \
     static int     NAME##_find_free_ref( const REF_T ); \
-    static bool  NAME##_push_free( const REF_T );     \
+    static bool  NAME##_push_free( const REF_T );       \
     static size_t  NAME##_pop_free( const int );        \
     static int     NAME##_find_used_ref( const REF_T ); \
     static size_t  NAME##_pop_used( const int );        \
@@ -387,7 +372,7 @@
 //--------------------------------------------------------------------------------------------
 // a simple stack structure
 
-#   define C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
+#define C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
     struct s_c_stack__##TYPE__##NAME           \
     {                                          \
         unsigned update_guid;                  \
@@ -395,85 +380,20 @@
         C_DECLARE_T_ARY(TYPE, lst, COUNT);     \
     }
 
-#   define C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT) \
+#define C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT) \
     C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
-    TYPE * NAME##_get_ptr( size_t );                 \
+    TYPE * NAME##_get_ptr( size_t );              \
     extern struct s_c_stack__##TYPE__##NAME NAME
 
-#   define C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT) \
-    C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
+#define C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  \
+    C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT);            \
     static struct s_c_stack__##TYPE__##NAME NAME = {0}
 
-#   define C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) \
+#define C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) \
     ACCESS struct s_c_stack__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0}
 
-#   define C_IMPLEMENT_STACK(TYPE, NAME, COUNT)  \
+#define C_IMPLEMENT_STACK(TYPE, NAME, COUNT)  \
     TYPE * NAME##_get_ptr( size_t index )   { return (index >= COUNT) ? NULL : NAME.lst + index; }
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// a template-like declaration of a dynamically allocated array
-#   define DECLARE_DYNAMIC_ARY(ARY_T, ELEM_T) \
-    struct s_DYNAMIC_ARY_##ARY_T \
-    { \
-        size_t alloc; \
-        int    top;  \
-        ELEM_T * ary; \
-    }; \
-    typedef struct s_DYNAMIC_ARY_##ARY_T ARY_T##_t; \
-    \
-    ARY_T##_t   *ARY_T##_ctor( ARY_T##_t * pary, size_t sz ); \
-    ARY_T##_t   *ARY_T##_dtor( ARY_T##_t * pary ); \
-    bool    ARY_T##_alloc( ARY_T##_t * pary, size_t sz ); \
-    bool    ARY_T##_free( ARY_T##_t * pary ); \
-    void        ARY_T##_clear( ARY_T##_t * pary ); \
-    size_t      ARY_T##_get_top( const ARY_T##_t * pary ); \
-    size_t      ARY_T##_get_size( const ARY_T##_t * pary ); \
-    ELEM_T *    ARY_T##_pop_back( ARY_T##_t * pary ); \
-    bool    ARY_T##_push_back( ARY_T##_t * pary , ELEM_T val );
-
-#   define DYNAMIC_ARY_INIT_VALS {0,0,NULL}
-
-#   define INSTANTIATE_DYNAMIC_ARY(ARY_T, NAME) ARY_T##_t NAME = DYNAMIC_ARY_INIT_VALS;
-
-#   define IMPLEMENT_DYNAMIC_ARY(ARY_T, ELEM_T) \
-    bool  ARY_T##_alloc( ARY_T##_t * pary, size_t sz ) { if(NULL == pary) return false; ARY_T##_free( pary ); pary->ary = EGOBOO_NEW_ARY( ELEM_T, sz );  pary->alloc = (NULL == pary->ary) ? 0 : sz; return true; } \
-    bool  ARY_T##_free(ARY_T##_t * pary )              { if(NULL == pary) return false; EGOBOO_DELETE_ARY(pary->ary); pary->alloc = 0; pary->top = 0; return true; } \
-    ARY_T##_t *ARY_T##_ctor(ARY_T##_t * pary, size_t sz)   { if(NULL == pary) return NULL;   BLANK_STRUCT_PTR( pary ) if( !ARY_T##_alloc(pary, sz) ) return NULL; return pary; } \
-    ARY_T##_t *ARY_T##_dtor(ARY_T##_t * pary )             { if(NULL == pary) return NULL;   ARY_T##_free(pary); BLANK_STRUCT_PTR( pary ) return pary; } \
-    \
-    void   ARY_T##_clear( ARY_T##_t * pary )               { if(NULL != pary) pary->top = 0; } \
-    size_t ARY_T##_get_top( const ARY_T##_t * pary )       { return (NULL == pary->ary) ? 0 : pary->top; } \
-    size_t ARY_T##_get_size( const ARY_T##_t * pary )      { return (NULL == pary->ary) ? 0 : pary->alloc; } \
-    \
-    ELEM_T   *ARY_T##_pop_back( ARY_T##_t * pary )             { if( NULL == pary || pary->top < 1 ) return NULL; --pary->top; return &(pary->ary[pary->top]); } \
-    bool ARY_T##_push_back( ARY_T##_t * pary, ELEM_T val ) { bool retval = false; if( NULL == pary ) return false; if (pary->top >= 0 && (size_t)pary->top < pary->alloc) { pary->ary[pary->top] = val; pary->top++; retval = true; } return retval; }
-
-#   define DYNAMIC_ARY_INVALID_RAW(PARY) ( (0 == (PARY)->alloc) || ((PARY)->top < 0) || ((size_t)(PARY)->top >= (PARY)->alloc) )
-#   define DYNAMIC_ARY_INVALID(PARY) ( (NULL == (PARY)) || DYNAMIC_ARY_INVALID_RAW(PARY) )
-
-#   define DYNAMIC_ARY_VALID_RAW(PARY) ( ((PARY)->alloc > 0) && ((PARY)->top >= 0) && ((size_t)(PARY)->top < (PARY)->alloc) )
-#   define DYNAMIC_ARY_VALID(PARY) ( (NULL != (PARY)) && DYNAMIC_ARY_VALID_RAW(PARY) )
-
-// a NULL, invalid, or empty list are all "empty"
-#   define DYNAMIC_ARY_HAS_ELEMENTS_RAW(PARY) ( ((PARY)->alloc > 0) && ((PARY)->top > 0) && (((size_t)(PARY)->top) < (PARY)->alloc) )
-#   define DYNAMIC_ARY_HAS_ELEMENTS(PARY) ( (NULL != (PARY)) && DYNAMIC_ARY_HAS_ELEMENTS_RAW(PARY) )
-
-// only valid lists can be full
-// avoid subtraction from unsigned values
-#   define DYNAMIC_ARY_CAN_ADD_ELEMENTS_RAW(PARY) ( ((PARY)->alloc > 0) && ((PARY)->top >= 0) && (((size_t)(PARY)->top) + 1 < (PARY)->alloc) )
-#   define DYNAMIC_ARY_CAN_ADD_ELEMENTS(PARY) ( (NULL != (PARY)) && DYNAMIC_ARY_CAN_ADD_ELEMENTS_RAW(PARY) )
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// forward declaration of standard dynamic array types
-
-    DECLARE_DYNAMIC_ARY( char_ary,   char )
-    DECLARE_DYNAMIC_ARY( short_ary,  short )
-    DECLARE_DYNAMIC_ARY( int_ary,    int )
-    DECLARE_DYNAMIC_ARY( float_ary,  float )
-    DECLARE_DYNAMIC_ARY( double_ary, double )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -228,7 +228,7 @@ geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t * self,const bv_
 #if 0
     if ( !finished )
     {
-        intersect_rv = point_intersects_aabb( self->origin.v, bv->data.mins, bv->data.maxs );
+        intersect_rv = point_intersects_aabb( self->origin.v, bv->aabb.mins, bv->aabb.maxs );
 
         switch ( intersect_rv )
         {
@@ -317,7 +317,7 @@ geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t * self,const bv_
     {
         // do the complete calculation. whatever it returns is what it is.
         // do not check the front and back of the frustum
-        retval = frustum_intersects_aabb( self->data, bv->data.mins, bv->data.maxs, false );
+        retval = frustum_intersects_aabb( self->data, bv->aabb.mins, bv->aabb.maxs, false );
         finished = true;
     }
 

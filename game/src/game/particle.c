@@ -109,19 +109,15 @@ bool prt_free( prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
+/// @brief Set all particle parameters to safe values.
+/// @details The C equivalent of a parameterless constructor.
 prt_t * prt_ctor( prt_t * pprt )
 {
-    /// @author BB
-    /// @details Set all particle parameters to safe values.
-    ///      @details The c equivalent of the particle prt::new() function.
-
-    obj_data_t save_base;
-    obj_data_t * base_ptr;
-
     // save the base object data, do not construct it with this function.
     if ( NULL == pprt ) return NULL;
-    base_ptr = POBJ_GET_PBASE( pprt );
+    Ego::Entity *base_ptr = POBJ_GET_PBASE( pprt );
 
+	Ego::Entity save_base;
     memcpy( &save_base, base_ptr, sizeof( save_base ) );
 
     BLANK_STRUCT_PTR( pprt )
@@ -158,7 +154,7 @@ prt_t * prt_ctor( prt_t * pprt )
     // initialize the physics
     phys_data_ctor( &( pprt->phys ) );
 
-    pprt->obj_base.state = ego_object_initializing;
+    pprt->obj_base.state = Ego::Entity::State::Initializing;
 
     return pprt;
 }
@@ -670,7 +666,7 @@ prt_t * prt_config_do_deinit( prt_t * pprt )
     if ( NULL == pprt ) return pprt;
 
     // go to the next state
-    pprt->obj_base.state = ego_object_destructing;
+    pprt->obj_base.state = Ego::Entity::State::Destructing;
 
     return pprt;
 }
@@ -679,23 +675,20 @@ prt_t * prt_config_do_deinit( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_construct( prt_t * pprt, int max_iterations )
 {
-    int          iterations;
-    obj_data_t * base_ptr;
-
     if ( NULL == pprt ) return NULL;
 
-    base_ptr = POBJ_GET_PBASE( pprt );
+    Ego::Entity *base_ptr = POBJ_GET_PBASE( pprt );
     if ( !base_ptr->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if ( base_ptr->state > ( int )( ego_object_constructing + 1 ) )
+    if ( base_ptr->state > ( int )( Ego::Entity::State::Constructing + 1 ) )
     {
         prt_t * tmp_prt = prt_config_deconstruct( pprt, max_iterations );
         if ( tmp_prt == pprt ) return NULL;
     }
 
-    iterations = 0;
-    while ( NULL != pprt && base_ptr->state <= ego_object_constructing && iterations < max_iterations )
+    int iterations = 0;
+    while ( NULL != pprt && base_ptr->state <= Ego::Entity::Constructing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
         if ( ptmp != pprt ) return NULL;
@@ -708,23 +701,20 @@ prt_t * prt_config_construct( prt_t * pprt, int max_iterations )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_initialize( prt_t * pprt, int max_iterations )
 {
-    int          iterations;
-    obj_data_t * base_ptr;
-
     if ( NULL == pprt ) return NULL;
 
-    base_ptr = POBJ_GET_PBASE( pprt );
+    Ego::Entity *base_ptr = POBJ_GET_PBASE( pprt );
     if ( !base_ptr->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if ( base_ptr->state > ( int )( ego_object_initializing + 1 ) )
+    if ( base_ptr->state > ( int )( Ego::Entity::State::Initializing + 1 ) )
     {
         prt_t * tmp_prt = prt_config_deconstruct( pprt, max_iterations );
         if ( tmp_prt == pprt ) return NULL;
     }
 
-    iterations = 0;
-    while ( NULL != pprt && base_ptr->state <= ego_object_initializing && iterations < max_iterations )
+    int iterations = 0;
+    while ( NULL != pprt && base_ptr->state <= Ego::Entity::State::Initializing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
         if ( ptmp != pprt ) return NULL;
@@ -737,31 +727,28 @@ prt_t * prt_config_initialize( prt_t * pprt, int max_iterations )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_activate( prt_t * pprt, int max_iterations )
 {
-    int          iterations;
-    obj_data_t * base_ptr;
-
     if ( NULL == pprt ) return NULL;
 
-    base_ptr = POBJ_GET_PBASE( pprt );
+    Ego::Entity *base_ptr = POBJ_GET_PBASE( pprt );
     if ( !base_ptr->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it and start over
-    if ( base_ptr->state > ( int )( ego_object_active + 1 ) )
+    if ( base_ptr->state > ( int )( Ego::Entity::State::Active + 1 ) )
     {
         prt_t * tmp_prt = prt_config_deconstruct( pprt, max_iterations );
         if ( tmp_prt == pprt ) return NULL;
     }
 
-    iterations = 0;
-    while ( NULL != pprt && base_ptr->state < ego_object_active && iterations < max_iterations )
+	int iterations = 0;
+    while ( NULL != pprt && base_ptr->state < Ego::Entity::State::Active && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
         if ( ptmp != pprt ) return NULL;
         iterations++;
     }
 
-    EGOBOO_ASSERT( base_ptr->state == ego_object_active );
-    if ( base_ptr->state == ego_object_active )
+    EGOBOO_ASSERT( base_ptr->state == Ego::Entity::State::Active );
+    if ( base_ptr->state == Ego::Entity::State::Active )
     {
         PrtList_push_used( GET_INDEX_PPRT( pprt ) );
     }
@@ -772,26 +759,23 @@ prt_t * prt_config_activate( prt_t * pprt, int max_iterations )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations )
 {
-    int          iterations;
-    obj_data_t * base_ptr;
-
     if ( NULL == pprt ) return NULL;
-    base_ptr = POBJ_GET_PBASE( pprt );
+    Ego::Entity *base_ptr = POBJ_GET_PBASE( pprt );
 
     if ( !base_ptr->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deinitialize it
-    if ( base_ptr->state > ( int )( ego_object_deinitializing + 1 ) )
+    if ( base_ptr->state > ( int )( Ego::Entity::State::DeInitializing + 1 ) )
     {
         return pprt;
     }
-    else if ( base_ptr->state < ego_object_deinitializing )
+    else if ( base_ptr->state < Ego::Entity::State::DeInitializing )
     {
-        base_ptr->state = ego_object_deinitializing;
+        base_ptr->state = Ego::Entity::State::DeInitializing;
     }
 
-    iterations = 0;
-    while ( NULL != pprt && base_ptr->state <= ego_object_deinitializing && iterations < max_iterations )
+	int iterations = 0;
+    while ( NULL != pprt && base_ptr->state <= Ego::Entity::State::DeInitializing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
         if ( ptmp != pprt ) return NULL;
@@ -805,7 +789,7 @@ prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations )
 prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations )
 {
     int          iterations;
-    obj_data_t * base_ptr;
+    Ego::Entity *base_ptr;
 
     if ( NULL == pprt ) return NULL;
     base_ptr = POBJ_GET_PBASE( pprt );
@@ -813,18 +797,18 @@ prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations )
     if ( !base_ptr->allocated ) return NULL;
 
     // if the particle is already beyond this stage, deconstruct it
-    if ( base_ptr->state > ( int )( ego_object_destructing + 1 ) )
+    if ( base_ptr->state > ( int )( Ego::Entity::State::Destructing + 1 ) )
     {
         return pprt;
     }
-    else if ( base_ptr->state < ego_object_destructing )
+    else if ( base_ptr->state < Ego::Entity::State::Destructing )
     {
         // make sure that you deinitialize before destructing
-        base_ptr->state = ego_object_deinitializing;
+        base_ptr->state = Ego::Entity::State::DeInitializing;
     }
 
     iterations = 0;
-    while ( NULL != pprt && base_ptr->state <= ego_object_destructing && iterations < max_iterations )
+    while ( NULL != pprt && base_ptr->state <= Ego::Entity::State::Destructing && iterations < max_iterations )
     {
         prt_t * ptmp = prt_run_config( pprt );
         if ( ptmp != pprt ) return NULL;
@@ -838,7 +822,7 @@ prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_run_config( prt_t * pprt )
 {
-    obj_data_t * base_ptr;
+    Ego::Entity *base_ptr;
 
     if ( NULL == pprt ) return NULL;
     base_ptr = POBJ_GET_PBASE( pprt );
@@ -850,9 +834,9 @@ prt_t * prt_run_config( prt_t * pprt )
     {
         if ( !TERMINATED_PBASE( base_ptr ) )
         {
-            if ( base_ptr->state < ego_object_deinitializing )
+            if ( base_ptr->state < Ego::Entity::State::DeInitializing )
             {
-                base_ptr->state = ego_object_deinitializing;
+                base_ptr->state = Ego::Entity::State::DeInitializing;
             }
         }
 
@@ -862,32 +846,32 @@ prt_t * prt_run_config( prt_t * pprt )
     switch ( base_ptr->state )
     {
         default:
-        case ego_object_invalid:
+		case Ego::Entity::State::Invalid:
             pprt = NULL;
             break;
 
-        case ego_object_constructing:
+		case Ego::Entity::State::Constructing:
             pprt = prt_config_ctor( pprt );
             break;
 
-        case ego_object_initializing:
+		case Ego::Entity::State::Initializing:
             pprt = prt_config_init( pprt );
             break;
 
-        case ego_object_active:
+		case Ego::Entity::State::Active:
             pprt = prt_config_active( pprt );
             break;
 
-        case ego_object_deinitializing:
+		case Ego::Entity::State::DeInitializing:
             pprt = prt_config_deinit( pprt );
             break;
 
-        case ego_object_destructing:
+		case Ego::Entity::State::Destructing:
             pprt = prt_config_dtor( pprt );
             break;
 
-        case ego_object_waiting:
-        case ego_object_terminated:
+		case Ego::Entity::State::Waiting:
+		case Ego::Entity::State::Terminated:
             /* do nothing */
             break;
     }
@@ -896,7 +880,7 @@ prt_t * prt_run_config( prt_t * pprt )
     {
         base_ptr->update_guid = INVALID_UPDATE_GUID;
     }
-    else if ( ego_object_active == base_ptr->state )
+    else if ( Ego::Entity::State::Active == base_ptr->state )
     {
         base_ptr->update_guid = PrtList.update_guid;
     }
@@ -907,7 +891,7 @@ prt_t * prt_run_config( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_ctor( prt_t * pprt )
 {
-    obj_data_t * base_ptr;
+    Ego::Entity *base_ptr;
 
     // grab the base object
     if ( NULL == pprt ) return NULL;
@@ -922,7 +906,7 @@ prt_t * prt_config_ctor( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_init( prt_t * pprt )
 {
-    obj_data_t * base_ptr;
+    Ego::Entity *base_ptr;
 
     if ( NULL == pprt ) return NULL;
 
@@ -941,7 +925,7 @@ prt_t * prt_config_init( prt_t * pprt )
         PrtList_add_activation( GET_INDEX_PPRT( pprt ) );
     }
 
-    base_ptr->state = ego_object_active;
+    base_ptr->state = Ego::Entity::State::Active;
 
     return pprt;
 }
@@ -951,7 +935,7 @@ prt_t * prt_config_active( prt_t * pprt )
 {
     // there's nothing to configure if the object is active...
 
-    obj_data_t * base_ptr;
+    Ego::Entity *base_ptr;
 
     if ( NULL == pprt ) return NULL;
 
@@ -973,7 +957,7 @@ prt_t * prt_config_deinit( prt_t * pprt )
     /// @author BB
     /// @details deinitialize the character data
 
-    obj_data_t * base_ptr;
+    Ego::Entity *base_ptr;
 
     if ( NULL == pprt ) return NULL;
 
@@ -990,7 +974,7 @@ prt_t * prt_config_deinit( prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 prt_t * prt_config_dtor( prt_t * pprt )
 {
-    obj_data_t * base_ptr;
+    Ego::Entity *base_ptr;
 
     if ( NULL == pprt ) return NULL;
 
@@ -2682,8 +2666,8 @@ void cleanup_all_particles()
     // number of particles could change inside this list
     for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
-        prt_t * pprt;
-        obj_data_t * base_ptr;
+        prt_t *pprt;
+        Ego::Entity *base_ptr;
 
         pprt = PrtList_get_ptr( iprt );
 
@@ -2712,7 +2696,7 @@ void bump_all_particles_update_counters()
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        obj_data_t * base_ptr;
+        Ego::Entity *base_ptr;
 
         base_ptr = POBJ_GET_PBASE( PrtList_get_ptr( cnt ) );
         if ( !ACTIVE_PBASE( base_ptr ) ) continue;
@@ -3146,9 +3130,9 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
     /// @details update everything about a particle that does not depend on collisions
     ///               or interactions with characters
 
-    obj_data_t *base_ptr;
-    prt_t      *loc_pprt;
-    pip_t      *loc_ppip;
+    Ego::Entity *base_ptr;
+    prt_t *loc_pprt;
+    pip_t *loc_ppip;
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
     loc_pprt = pbdl_prt->prt_ptr;
@@ -3225,9 +3209,9 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
 
     bool prt_visible;
 
-    obj_data_t * base_ptr;
-    prt_t             * loc_pprt;
-    pip_t             * loc_ppip;
+    Ego::Entity *base_ptr;
+    prt_t *loc_pprt;
+    pip_t *loc_ppip;
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
     loc_pprt = pbdl_prt->prt_ptr;
@@ -3283,10 +3267,11 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * prt_update( prt_bundle_t * pbdl_prt )
 {
-    obj_data_t        * loc_pbase;
-    prt_t             * loc_pprt, * tmp_pprt;
-    pip_t             * loc_ppip;
-    prt_environment_t * penviro;
+    Ego::Entity *loc_pbase;
+    prt_t *loc_pprt,
+		  *tmp_pprt;
+    pip_t *loc_ppip;
+    prt_environment_t *penviro;
 
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return NULL;
     loc_pprt = pbdl_prt->prt_ptr;

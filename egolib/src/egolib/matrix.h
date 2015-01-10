@@ -16,6 +16,7 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
 /// @file egolib/matrix.h
 /// @details matrices
 #pragma once
@@ -66,3 +67,11 @@ float *mat_getTranslate_v(const fmat_4x4_base_t mat);
 
 float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z);
 float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z);
+
+/**
+ * @brief
+ *	Dump a textual representation of a matrix to standard output.
+ * @param a
+ *	the matrix
+ */
+void dump_matrix(const fmat_4x4_base_t a);

@@ -439,7 +439,7 @@ static bool gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_b
 
 static void gfx_reload_decimated_textures();
 
-static gfx_rv update_one_chr_instance( struct s_chr * pchr );
+static gfx_rv update_one_chr_instance( chr_t * pchr );
 static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing( dolist_t * pdolist );
 
@@ -707,7 +707,7 @@ gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcol
         return gfx_error;
     }
 
-    colst_size = BSP_leaf_pary_get_size( pcolst );
+    colst_size = BSP_leaf_pary_get_cp( pcolst );
     if ( 0 == colst_size )
     {
         return gfx_error;
@@ -1140,7 +1140,7 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
         return gfx_error;
     }
 
-    colst_size = BSP_leaf_pary_get_size( pcolst );
+    colst_size = BSP_leaf_pary_get_cp( pcolst );
     if ( 0 == colst_size )
     {
         return gfx_error;
@@ -4935,11 +4935,11 @@ bool oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, ego
     if ( ogl_caps.maxAnisotropy <= 1.0f )
     {
         ptex->userAnisotropy = 0.0f;
-		ptex->texturefilter = std::min<e_tx_filters>(pcfg->texturefilter_req, TX_TRILINEAR_2);
+		ptex->texturefilter = std::min<tx_filter_t>(pcfg->texturefilter_req, TX_TRILINEAR_2);
     }
     else
     {
-		ptex->texturefilter = std::min<e_tx_filters>(pcfg->texturefilter_req, TX_FILTER_COUNT);
+		ptex->texturefilter = std::min<tx_filter_t>(pcfg->texturefilter_req, TX_FILTER_COUNT);
         ptex->userAnisotropy = ogl_caps.maxAnisotropy * std::max( 0, ( int )ptex->texturefilter - ( int )TX_TRILINEAR_2 );
     }
 
@@ -6420,7 +6420,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
 
     // has the colst been allocated?
     local_allocation = false;
-    if ( 0 == BSP_leaf_pary_get_size( &_renderlist_colst ) )
+    if ( 0 == BSP_leaf_pary_get_cp( &_renderlist_colst ) )
     {
         // allocate a BSP_leaf_pary to return the detected nodes
         local_allocation = true;
@@ -6485,7 +6485,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, const camera_t * pcam )
 
     // has the colst been allocated?
     local_allocation = false;
-    if ( 0 == BSP_leaf_pary_get_size( &_dolist_colst ) )
+    if ( 0 == BSP_leaf_pary_get_cp( &_dolist_colst ) )
     {
         // allocate a BSP_leaf_pary to return the detected nodes
         local_allocation = true;

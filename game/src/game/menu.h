@@ -31,7 +31,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_mod_file;
+struct mod_file_t;
 struct s_gfx_config;
 struct s_Font;
 
@@ -211,10 +211,10 @@ int    mnu_get_menu_depth();
 extern bool start_new_player;
 
 // "public" implementation of mnu_ModList
-struct s_mod_file * mnu_ModList_get_base( int imod );
-const char *        mnu_ModList_get_vfs_path( int imod );
-const char *        mnu_ModList_get_dest_path( int imod );
-const char *        mnu_ModList_get_name( int imod );
+mod_file_t * mnu_ModList_get_base( int imod );
+const char * mnu_ModList_get_vfs_path( int imod );
+const char * mnu_ModList_get_dest_path( int imod );
+const char * mnu_ModList_get_name( int imod );
 
 // "public" module utilities
 int    mnu_get_mod_number( const char *szModName );
