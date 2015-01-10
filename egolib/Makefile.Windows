@@ -10,6 +10,9 @@ SOURCES += $(wildcard ./src/egolib/*.cpp) $(wildcard ./src/egolib/file_formats/*
 SOURCES     += ./src/egolib/platform/sys_win32.c
 SOURCES     += ./src/egolib/platform/file_win.c
 
+SOURCES := $(filter-out ./src/egolib/bsp_aabb.c, $(SOURCES))
+SOURCES := $(filter-out ./src/egolib/bsp_leaf.c, $(SOURCES))
+
 
 #-------------------
 # object output
