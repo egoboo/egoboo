@@ -35,7 +35,6 @@
 #include "egolib/frustum.h"
 #include "egolib/hash.h"
 #include "egolib/_math.h"
-#include "egolib/IDSZ_map.h"
 #include "egolib/input_device.h"
 #include "egolib/log.h"
 #include "egolib/matrix.h"

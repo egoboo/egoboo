@@ -1,7 +1,7 @@
 #pragma once
 
 #if !defined(__cplusplus)
-#    error egoboo_typedef_cpp.h should only be included is you are compling as c++
+#    error egoboo_typedef_cpp.h should only be included if you are compling as c++
 #endif
 
 #include <exception>
