@@ -241,26 +241,6 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
             }
             break;
 
-            //case TO_REMOTE_RTS:
-            //    log_info( "TO_REMOTE_RTS\n" );
-            //    if ( !pnet->hostactive )
-            //    {
-            //            whichorder = get_empty_order();
-            //            if(whichorder < MAXORDER)
-            //            {
-            //              // Add the order on the remote machine
-            //              cnt = 0;
-            //              while(cnt < MAXSELECT)
-            //              {
-            //                who = enet_packet_readUint8( enet_pkt, net_order[whichorder].who + cnt );
-            //                cnt++;
-            //              }
-            //              enet_packet_readUint32( enet_pkt, &(net_order[whichorder].what) );
-            //              enet_packet_readUint32( enet_pkt, &(net_order[whichorder].when) );
-            //            }
-            //    }
-            //    break;
-
         case TO_REMOTE_LATCH:
             log_info( "TO_REMOTE_LATCH\n" );
             if ( !egonet_get_hostactive() )

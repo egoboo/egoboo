@@ -338,41 +338,6 @@ egolib_rv sv_handlePacket( enet_packet_t * enet_pkt )
             }
             break;
 
-            //case TO_HOST_RTS:
-            //    log_info( "TO_HOST_RTS\n" );
-            //    if ( egonet_get_hostactive() )
-            //    {
-            //        whichorder = get_empty_order();
-            //        if(whichorder < MAXORDER)
-            //          {
-            //          // Add the order on the host machine
-            //          cnt = 0;
-            //          while(cnt < MAXSELECT)
-            //          {
-            //            enet_packet_readUint8( enet_pkt, net_order[whichorder].who + cnt );
-            //            cnt++;
-            //          }
-            //          enet_packet_readUint32( enet_pkt, &what );
-            //          when = update_wld + orderlag;
-            //          net_order[whichorder].what = what;
-            //          net_order[whichorder].when = when;
-
-            //          // Send the order off to everyone else
-            //          ego_packet_begin( &ego_pkt );
-            //          ego_packet_addUint16( &ego_pkt, TO_REMOTE_RTS);
-            //          cnt = 0;
-            //          while(cnt < MAXSELECT)
-            //          {
-            //            ego_packet_addUint8( &ego_pkt, net_order[whichorder].who[cnt]);
-            //            cnt++;
-            //          }
-            //          ego_packet_addUint32( &ego_pkt, what);
-            //          ego_packet_addUint32( &ego_pkt, when);
-            //          egonet_broadcastPacketGuaranteed( &ego_pkt );
-            //          }
-            //    }
-            //    break;
-
         default:
             handled = false;
             break;

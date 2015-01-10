@@ -25,7 +25,9 @@
 #include "egolib/typedef.h"
 
 #ifdef _WIN32
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #endif
 #include <enet/enet.h>
 #ifdef _WIN32
