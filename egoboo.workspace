@@ -5,8 +5,6 @@
 			<Depends filename="egolib/egolib.cbp" />
 		</Project>
 		<Project filename="egolib/egolib.cbp" />
-		<Project filename="cartman/src/cartman.cbp">
-			<Depends filename="egolib/egolib.cbp" />
-		</Project>
+		<Project filename="cartman/cartman.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

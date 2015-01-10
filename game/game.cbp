@@ -9,23 +9,27 @@
 			<Target title="nix-gcc-debug">
 				<Option platforms="Unix;" />
 				<Option output="egoboo-nix-gcc-debug" prefix_auto="0" extension_auto="1" />
-				<Option working_dir="../../install" />
+				<Option working_dir="data" />
 				<Option object_output="nix-gcc-debug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-Wmain" />
+					<Add option="-std=c++0x" />
 					<Add option="-Wfatal-errors" />
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="`sdl-config --cflags`" />
+					<Add option="-x c++" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
 					<Add directory="/usr/include" />
-					<Add directory="/usr/include/lua5.1" />
+					<Add directory="/usr/include/lua5.2" />
 					<Add directory="/usr/local/include" />
 					<Add directory="/usr/local/include/lua5.1" />
+					<Add directory="src" />
+					<Add directory="../egolib/src" />
 				</Compiler>
 				<Linker>
 					<Add option="`sdl-config --libs`" />
@@ -35,8 +39,7 @@
 					<Add library="SDL_mixer" />
 					<Add library="GL" />
 					<Add library="GLU" />
-					<Add library="lua50" />
-					<Add library="lualib50" />
+					<Add library="lua5.2" />
 					<Add library="enet" />
 					<Add library="physfs" />
 					<Add directory="/usr/lib" />
@@ -457,201 +460,209 @@
 				</Linker>
 			</Target>
 		</Build>
-		<Unit filename="AStar.c">
+		<Unit filename="src/game/AStar.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="AStar.h" />
-		<Unit filename="ChrList.c">
+		<Unit filename="src/game/AStar.h" />
+		<Unit filename="src/game/ChrList.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="ChrList.h" />
-		<Unit filename="ChrList.inl" />
-		<Unit filename="EncList.c">
+		<Unit filename="src/game/ChrList.h" />
+		<Unit filename="src/game/ChrList.inl" />
+		<Unit filename="src/game/EncList.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="EncList.h" />
-		<Unit filename="EncList.inl" />
-		<Unit filename="PrtList.c">
+		<Unit filename="src/game/EncList.h" />
+		<Unit filename="src/game/EncList.inl" />
+		<Unit filename="src/game/PrtList.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="PrtList.h" />
-		<Unit filename="PrtList.inl" />
-		<Unit filename="camera.c">
+		<Unit filename="src/game/PrtList.h" />
+		<Unit filename="src/game/PrtList.inl" />
+		<Unit filename="src/game/bsp.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="camera.h" />
-		<Unit filename="camera_system.c">
+		<Unit filename="src/game/bsp.h" />
+		<Unit filename="src/game/camera.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="camera_system.h" />
-		<Unit filename="char.c">
+		<Unit filename="src/game/camera.h" />
+		<Unit filename="src/game/camera_system.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="char.h" />
-		<Unit filename="char.inl" />
-		<Unit filename="collision.c">
+		<Unit filename="src/game/camera_system.h" />
+		<Unit filename="src/game/char.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="collision.h" />
-		<Unit filename="egoboo.c">
+		<Unit filename="src/game/char.h" />
+		<Unit filename="src/game/char.inl" />
+		<Unit filename="src/game/collision.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="egoboo.h" />
-		<Unit filename="egoboo_config.h" />
-		<Unit filename="egoboo_doxygen.h" />
-		<Unit filename="egoboo_object.c">
+		<Unit filename="src/game/collision.h" />
+		<Unit filename="src/game/egoboo.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="egoboo_object.h" />
-		<Unit filename="egoboo_typedef.h" />
-		<Unit filename="enchant.c">
+		<Unit filename="src/game/egoboo.h" />
+		<Unit filename="src/game/egoboo_config.h" />
+		<Unit filename="src/game/egoboo_doxygen.h" />
+		<Unit filename="src/game/egoboo_object.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="enchant.h" />
-		<Unit filename="enchant.inl" />
-		<Unit filename="game.c">
+		<Unit filename="src/game/egoboo_object.h" />
+		<Unit filename="src/game/egoboo_typedef.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="game.h" />
-		<Unit filename="graphic.c">
+		<Unit filename="src/game/egoboo_typedef.h" />
+		<Unit filename="src/game/egoboo_typedef_cpp.h" />
+		<Unit filename="src/game/enchant.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="graphic.h" />
-		<Unit filename="graphic_billboard.c">
+		<Unit filename="src/game/enchant.h" />
+		<Unit filename="src/game/enchant.inl" />
+		<Unit filename="src/game/game.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="graphic_billboard.h" />
-		<Unit filename="graphic_fan.c">
+		<Unit filename="src/game/game.h" />
+		<Unit filename="src/game/graphic.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="graphic_fan.h" />
-		<Unit filename="graphic_mad.c">
+		<Unit filename="src/game/graphic.h" />
+		<Unit filename="src/game/graphic_billboard.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="graphic_mad.h" />
-		<Unit filename="graphic_prt.c">
+		<Unit filename="src/game/graphic_billboard.h" />
+		<Unit filename="src/game/graphic_fan.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="graphic_prt.h" />
-		<Unit filename="graphic_texture.c">
+		<Unit filename="src/game/graphic_fan.h" />
+		<Unit filename="src/game/graphic_mad.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="graphic_texture.h" />
-		<Unit filename="input.c">
+		<Unit filename="src/game/graphic_mad.h" />
+		<Unit filename="src/game/graphic_prt.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="input.h" />
-		<Unit filename="lighting.c">
+		<Unit filename="src/game/graphic_prt.h" />
+		<Unit filename="src/game/graphic_texture.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="lighting.h" />
-		<Unit filename="link.c">
+		<Unit filename="src/game/graphic_texture.h" />
+		<Unit filename="src/game/input.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="link.h" />
-		<Unit filename="mad.c">
+		<Unit filename="src/game/input.h" />
+		<Unit filename="src/game/lighting.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="mad.h" />
-		<Unit filename="md2.c">
+		<Unit filename="src/game/lighting.h" />
+		<Unit filename="src/game/link.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="md2.h" />
-		<Unit filename="md2.inl" />
-		<Unit filename="menu.c">
+		<Unit filename="src/game/link.h" />
+		<Unit filename="src/game/mad.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="menu.h" />
-		<Unit filename="mesh.c">
+		<Unit filename="src/game/mad.h" />
+		<Unit filename="src/game/md2.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="mesh.h" />
-		<Unit filename="mesh.inl" />
-		<Unit filename="mesh_BSP.c">
+		<Unit filename="src/game/md2.h" />
+		<Unit filename="src/game/md2.inl" />
+		<Unit filename="src/game/menu.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="mesh_BSP.h" />
-		<Unit filename="mesh_functions.c">
+		<Unit filename="src/game/menu.h" />
+		<Unit filename="src/game/mesh.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="mesh_functions.h" />
-		<Unit filename="mpd_BSP.h" />
-		<Unit filename="mpd_functions.h" />
-		<Unit filename="network.c">
+		<Unit filename="src/game/mesh.h" />
+		<Unit filename="src/game/mesh.inl" />
+		<Unit filename="src/game/mesh_BSP.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="network.h" />
-		<Unit filename="network_client.c">
+		<Unit filename="src/game/mesh_BSP.h" />
+		<Unit filename="src/game/mesh_functions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="network_client.h" />
-		<Unit filename="network_server.c">
+		<Unit filename="src/game/mesh_functions.h" />
+		<Unit filename="src/game/mpd_BSP.h" />
+		<Unit filename="src/game/mpd_functions.h" />
+		<Unit filename="src/game/network.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="network_server.h" />
-		<Unit filename="obj_BSP.c">
+		<Unit filename="src/game/network.h" />
+		<Unit filename="src/game/network_client.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="obj_BSP.h" />
-		<Unit filename="particle.c">
+		<Unit filename="src/game/network_client.h" />
+		<Unit filename="src/game/network_server.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="particle.h" />
-		<Unit filename="particle.inl" />
-		<Unit filename="passage.c">
+		<Unit filename="src/game/network_server.h" />
+		<Unit filename="src/game/obj_BSP.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="passage.h" />
-		<Unit filename="physics.c">
+		<Unit filename="src/game/obj_BSP.h" />
+		<Unit filename="src/game/particle.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="physics.h" />
-		<Unit filename="physics.inl" />
-		<Unit filename="player.c">
+		<Unit filename="src/game/particle.h" />
+		<Unit filename="src/game/particle.inl" />
+		<Unit filename="src/game/passage.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="player.h" />
-		<Unit filename="profile.c">
+		<Unit filename="src/game/passage.h" />
+		<Unit filename="src/game/physics.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="profile.h" />
-		<Unit filename="profile.inl" />
-		<Unit filename="renderer_2d.c">
+		<Unit filename="src/game/physics.h" />
+		<Unit filename="src/game/physics.inl" />
+		<Unit filename="src/game/player.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="renderer_2d.h" />
-		<Unit filename="renderer_3d.c">
+		<Unit filename="src/game/player.h" />
+		<Unit filename="src/game/profile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="renderer_3d.h" />
-		<Unit filename="rpc.c">
+		<Unit filename="src/game/profile.h" />
+		<Unit filename="src/game/profile.inl" />
+		<Unit filename="src/game/renderer_2d.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="rpc.h" />
-		<Unit filename="script.c">
+		<Unit filename="src/game/renderer_2d.h" />
+		<Unit filename="src/game/renderer_3d.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="script.h" />
-		<Unit filename="script_compile.c">
+		<Unit filename="src/game/renderer_3d.h" />
+		<Unit filename="src/game/rpc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="script_compile.h" />
-		<Unit filename="script_functions.c">
+		<Unit filename="src/game/rpc.h" />
+		<Unit filename="src/game/script.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="script_functions.h" />
-		<Unit filename="script_implementation.c">
+		<Unit filename="src/game/script.h" />
+		<Unit filename="src/game/script_compile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="script_implementation.h" />
-		<Unit filename="sound.c">
+		<Unit filename="src/game/script_compile.h" />
+		<Unit filename="src/game/script_functions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="sound.h" />
-		<Unit filename="ui.c">
+		<Unit filename="src/game/script_functions.h" />
+		<Unit filename="src/game/script_implementation.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="ui.h" />
+		<Unit filename="src/game/script_implementation.h" />
+		<Unit filename="src/game/sound.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/game/sound.h" />
+		<Unit filename="src/game/ui.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/game/ui.h" />
 		<Extensions>
 			<envvars />
 			<code_completion />

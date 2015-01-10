@@ -1267,7 +1267,7 @@ int vfs_read_Sint64( vfs_FILE * pfile, Sint64 * val )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        retval = PHYSFS_readSLE64( pfile->ptr.p, val );
+        retval = PHYSFS_readSLE64( pfile->ptr.p, (PHYSFS_sint64*)val );
 
         error = ( 0 == retval );
     }
@@ -1299,7 +1299,7 @@ int vfs_read_Uint64( vfs_FILE * pfile, Uint64 * val )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        retval = PHYSFS_readULE64( pfile->ptr.p, val );
+        retval = PHYSFS_readULE64( pfile->ptr.p, (PHYSFS_uint64 *)val );
 
         error = ( 0 == retval );
     }

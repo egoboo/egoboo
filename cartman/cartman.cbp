@@ -469,46 +469,46 @@
 			<Add library="libSDL_image" />
 			<Add directory="\usr\lib" />
 		</Linker>
-		<Unit filename="SDL_GetPixel.c">
+		<Unit filename="src/cartman/SDL_GetPixel.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="SDL_Pixel.h" />
-		<Unit filename="SDL_PutPixel.c">
+		<Unit filename="src/cartman/SDL_Pixel.h" />
+		<Unit filename="src/cartman/SDL_PutPixel.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="SDL_rotozoom.c">
+		<Unit filename="src/cartman/SDL_rotozoom.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="SDL_rotozoom.h" />
-		<Unit filename="cartman.c">
+		<Unit filename="src/cartman/SDL_rotozoom.h" />
+		<Unit filename="src/cartman/cartman.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="cartman.h" />
-		<Unit filename="cartman_functions.c">
+		<Unit filename="src/cartman/cartman.h" />
+		<Unit filename="src/cartman/cartman_functions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="cartman_functions.h" />
-		<Unit filename="cartman_gfx.c">
+		<Unit filename="src/cartman/cartman_functions.h" />
+		<Unit filename="src/cartman/cartman_gfx.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="cartman_gfx.h" />
-		<Unit filename="cartman_gui.c">
+		<Unit filename="src/cartman/cartman_gfx.h" />
+		<Unit filename="src/cartman/cartman_gui.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="cartman_gui.h" />
-		<Unit filename="cartman_input.c">
+		<Unit filename="src/cartman/cartman_gui.h" />
+		<Unit filename="src/cartman/cartman_input.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="cartman_input.h" />
-		<Unit filename="cartman_math.c">
+		<Unit filename="src/cartman/cartman_input.h" />
+		<Unit filename="src/cartman/cartman_math.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="cartman_math.h" />
-		<Unit filename="cartman_mpd.c">
+		<Unit filename="src/cartman/cartman_math.h" />
+		<Unit filename="src/cartman/cartman_mpd.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="cartman_mpd.h" />
-		<Unit filename="standard.c">
+		<Unit filename="src/cartman/cartman_mpd.h" />
+		<Unit filename="src/cartman/standard.c">
 			<Option compilerVar="CC" />
 			<Option compile="0" />
 			<Option link="0" />
