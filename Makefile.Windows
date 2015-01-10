@@ -1,0 +1,14 @@
+.PHONY: egolib egoboo clean
+	
+all: egolib egoboo
+
+egolib:
+	make -C ./egolib -f Makefile.Windows
+
+egoboo: egolib
+	make -C ./game -f Makefile.Windows
+	
+clean:
+	make -C ./egolib -f Makefile.Windows clean
+	make -C ./game -f Makefile.Windows clean
+	
