@@ -6,7 +6,7 @@ EGOLIB_TARGET := libegoboo.a
 # the source files
 SOURCES = $(wildcard ./src/egolib/*.c) $(wildcard ./src/egolib/file_formats/*.c) $(wildcard ./src/egolib/extensions/*.c) $(wildcard ./src/egolib/opengl/*.c)
 
-SOURCES     += ./src/egolib/platform/sys_win.c
+SOURCES     += ./src/egolib/platform/sys_win32.c
 SOURCES     += ./src/egolib/platform/file_win.c
 
 
