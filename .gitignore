@@ -23,3 +23,6 @@ xcuserdata
 
 # General.
 *.bak
+*.o
+*.dll
+*.exe
