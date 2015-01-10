@@ -1,15 +1,24 @@
 #Speed up compilation by making in parallel
 #MAKEFLAGS += -j8
 
+
+#---------------------
+# the source files
+SOURCE := ${wildcard ./src/game/*.c}
+SOURCE += ${wildcard ./src/game/*/*.c}
+SOURCE += ${wildcard ./src/game/*.cpp}
+SOURCE += ${wildcard ./src/game/*/*.cpp}
+
+#---------------------
+# binary output
+OBJECTS := $(SOURCE:.c=.o)
+OBJECTS += $(SOURCES:.cpp=.o)
+
 #Binary file
 BIN = ./data/egoboo.exe
 
 #---------------------
-# the source files
-
-SOURCE := ${wildcard ./src/game/*.c}
-OBJECTS := $(SOURCE:.c=.o)
-
+#Includes
 INCLUDES := -Isrc -I../egolib/src
 INCLUDES += -I../../enet-1.3.12/include
 INCLUDES += -I../../physfs-2.0.3/
@@ -23,7 +32,12 @@ SDLCONF_L := $(shell sdl-config --libs)
 # the compiler options
 
 CXX      := g++
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -w -std=c++11 -ggdb -Og -fdiagnostics-color=always
+CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -Wall -Weffc++ -std=c++11 -Og
+
+#debug options
+CXXFLAGS += -ggdb -fdiagnostics-color=always
+#CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
+#CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 
 LINKER_LIBS := -lmingw32 -mwindows -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lSHFolder -lAdvapi32
 LINKER_LIBS += -L../egolib/ -legoboo
@@ -42,6 +56,8 @@ all: $(BIN)
 
 # Generic rule
 %.o: %.c
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BIN): ${OBJECTS} 
