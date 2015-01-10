@@ -146,7 +146,7 @@ static int          _vfs_mount_info_matches(const char * mount_point, const char
 static bool       _vfs_mount_info_remove(int cnt);
 static int          _vfs_mount_info_search(const char * some_path);
 
-static const char * _vfs_potential_mount_point(const char * some_path, const char ** pstripped_pos);
+//static const char * _vfs_potential_mount_point(const char * some_path, const char ** pstripped_pos);
 static void _vfs_findClose(vfs_search_context_t * ctxt);
 
 static int fake_physfs_vprintf(PHYSFS_File * pfile, const char *format, va_list args);
@@ -434,7 +434,7 @@ const char * vfs_convert_fname( const char * fname )
 }
 
 //--------------------------------------------------------------------------------------------
-const char * _vfs_potential_mount_point( const char * some_path, const char ** pstripped_pos )
+/*const char * _vfs_potential_mount_point( const char * some_path, const char ** pstripped_pos )
 {
     // This helper function was devised to read the first potential directory name
     // from the given path. Because:
@@ -494,7 +494,7 @@ const char * _vfs_potential_mount_point( const char * some_path, const char ** p
 
     // return the potential mount point in system-dependent format
     return str_convert_slash_sys( found_path, strlen( found_path ) );
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 void vfs_listSearchPaths( void )
@@ -1839,7 +1839,7 @@ int vfs_removeDirectoryAndContents( const char * dirname, int recursive )
 }
 
 //--------------------------------------------------------------------------------------------
-static bool _vfs_copyFile(const char *source, const char *dest)
+/*static bool _vfs_copyFile(const char *source, const char *dest)
 {
     /// @author ZZ
     /// @details This function copies a file on the local machine
@@ -1878,6 +1878,7 @@ _vfs_copyFile_end:
 
     return retval;
 }
+*/
 
 //--------------------------------------------------------------------------------------------
 int vfs_copyFile( const char *source, const char *dest )
@@ -1933,7 +1934,7 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     const char *fileName;
 
     VFS_PATH     szDst = EMPTY_CSTR;
-    const char * real_dst;
+    //const char * real_dst;
 
     vfs_search_context_t * ctxt;
 
@@ -1952,7 +1953,7 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
 
     // get the a filename that we are allowed to write to
     snprintf( szDst, SDL_arraysize( szDst ), "%s",  vfs_resolveWriteFilename( destDir ) );
-    real_dst = szDst;
+    //real_dst = szDst;
 
     // List all the files in the directory
     ctxt = vfs_findFirst( vfs_convert_fname( sourceDir ), NULL, VFS_SEARCH_FILE | VFS_SEARCH_BARE );
@@ -2253,7 +2254,7 @@ const char * vfs_getError( void )
 
     static char errors[1024];
     const char * physfs_error, * file_error;
-	bool is_error;
+	//bool is_error;
 
     BAIL_IF_NOT_INIT();
 
@@ -2261,7 +2262,7 @@ const char * vfs_getError( void )
     strncpy( errors, "unknown error", SDL_arraysize( errors ) );
 
     // assume no error
-    is_error = false;
+    //is_error = false;
 
     // try to get the physfs error state;
     physfs_error = PHYSFS_getLastError();

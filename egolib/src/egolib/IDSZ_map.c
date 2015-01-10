@@ -99,7 +99,7 @@ egolib_rv idsz_map_add( IDSZ_node_t idsz_map[], const size_t idsz_map_len, const
     //Trying to add a idsz to a full idsz list?
     if ( idsz_map_len == i )
     {
-        log_warning( "idsz_map_add() - Failed to add [%s] to an IDSZ_map. Consider increasing idsz_map_len (currently %i)\n", undo_idsz( idsz ), idsz_map_len );
+        log_warning( "idsz_map_add() - Failed to add [%s] to an IDSZ_map. Consider increasing idsz_map_len (currently %d)\n", undo_idsz( idsz ), static_cast<int>(idsz_map_len) );
 
         rv = rv_fail;
     }

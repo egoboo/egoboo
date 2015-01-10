@@ -189,7 +189,8 @@ void egolib_console_fprint( egolib_console_t * pcon, const char *format, ... )
 //--------------------------------------------------------------------------------------------
 void egolib_console_add_output( egolib_console_t * pcon, char * szNew )
 {
-    size_t out_len, copy_len;
+    size_t out_len;
+    //size_t copy_len;
     char * src, * dst;
 
     if ( NULL == pcon ) return;
@@ -200,7 +201,7 @@ void egolib_console_add_output( egolib_console_t * pcon, char * szNew )
     // initialize the pointers for the copy operation
     src      = szNew;
     dst      = pcon->output_buffer + pcon->output_carat;
-    copy_len = out_len;
+    //copy_len = out_len;
 
     // check to make sure that the ranges are valid
     if ( out_len > EGOBOO_CONSOLE_OUTPUT )
@@ -212,7 +213,7 @@ void egolib_console_add_output( egolib_console_t * pcon, char * szNew )
 
         // update the copy parameters
         src      = szNew + offset;
-        copy_len = out_len - offset;
+        //copy_len = out_len - offset;
     }
     else if ( pcon->output_carat + out_len > EGOBOO_CONSOLE_OUTPUT )
     {
@@ -260,11 +261,9 @@ egolib_console_t * egolib_console_ctor( egolib_console_t * pcon, SDL_Rect Con_re
 //--------------------------------------------------------------------------------------------
 egolib_console_t * egolib_console_create( egolib_console_t * pcon, SDL_Rect Con_rect, egolib_console_callback_t pcall, void * data )
 {
-    SDL_bool local_allocation = SDL_FALSE;
 
     if ( NULL == pcon )
     {
-        local_allocation = SDL_TRUE;
         pcon = EGOBOO_NEW( egolib_console_t );
     }
 

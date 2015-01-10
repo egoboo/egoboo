@@ -220,10 +220,10 @@ void net_unbuffer_player_latches()
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         chr_t * pchr;
-        player_t * ppla;
+        //player_t * ppla;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
-        ppla = PlaStack_get_ptr( ipla );
+        //ppla = PlaStack_get_ptr( ipla );
 
         character = PlaStack.lst[ipla].index;
         if ( !INGAME_CHR( character ) ) continue;
