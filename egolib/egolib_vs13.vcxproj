@@ -139,171 +139,171 @@
     </Xdcmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bv.c" />
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\DynamicArray.cpp" />
-    <ClCompile Include="..\egolib\src\egolib\aabb.c" />
-    <ClCompile Include="..\egolib\src\egolib\bbox.c" />
-    <ClCompile Include="..\egolib\src\egolib\bsp.c" />
-    <ClCompile Include="..\egolib\src\egolib\clock.c" />
-    <ClCompile Include="..\egolib\src\egolib\console.c" />
-    <ClCompile Include="..\egolib\src\egolib\egoboo_setup.c" />
-    <ClCompile Include="..\egolib\src\egolib\endian.c" />
-    <ClCompile Include="..\egolib\src\egolib\extensions\ogl_debug.c" />
-    <ClCompile Include="..\egolib\src\egolib\extensions\ogl_extensions.c" />
-    <ClCompile Include="..\egolib\src\egolib\extensions\ogl_include.c" />
-    <ClCompile Include="..\egolib\src\egolib\extensions\ogl_texture.c" />
-    <ClCompile Include="..\egolib\src\egolib\extensions\SDL_extensions.c" />
-    <ClCompile Include="..\egolib\src\egolib\extensions\SDL_GL_extensions.c" />
-    <ClCompile Include="..\egolib\src\egolib\fileutil.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_common.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\cap_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\configfile.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\controls_file-v1.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\controls_file-v2.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\controls_file-v3.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\controls_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\eve_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\id_md2.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\map_file-v1.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\map_file-v2.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\map_file-v3.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\map_file-v4.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\map_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\map_tile_dictionary.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\module_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\passage_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\pip_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\quest_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\scancode_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\SDL_md2.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\spawn_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\template.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\treasure_table_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\file_formats\wawalite_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\font_bmp.c" />
-    <ClCompile Include="..\egolib\src\egolib\font_ttf.c" />
-    <ClCompile Include="..\egolib\src\egolib\frustum.c" />
-    <ClCompile Include="..\egolib\src\egolib\geometry.c" />
-    <ClCompile Include="..\egolib\src\egolib\hash.c" />
-    <ClCompile Include="..\egolib\src\egolib\IDSZ_map.c" />
-    <ClCompile Include="..\egolib\src\egolib\input_device.c" />
-    <ClCompile Include="..\egolib\src\egolib\log.c" />
-    <ClCompile Include="..\egolib\src\egolib\lua\lua_console.c" />
-    <ClCompile Include="..\egolib\src\egolib\map_functions.c" />
-    <ClCompile Include="..\egolib\src\egolib\matrix.c" />
-    <ClCompile Include="..\egolib\src\egolib\network.c" />
-    <ClCompile Include="..\egolib\src\egolib\network_file.c" />
-    <ClCompile Include="..\egolib\src\egolib\opengl\renderer.c" />
-    <ClCompile Include="..\egolib\src\egolib\platform\file_amiga.c">
+    <ClCompile Include="src\egolib\bv.c" />
+    <ClCompile Include="src\egolib\DynamicArray.cpp" />
+    <ClCompile Include="src\egolib\aabb.c" />
+    <ClCompile Include="src\egolib\bbox.c" />
+    <ClCompile Include="src\egolib\bsp.c" />
+    <ClCompile Include="src\egolib\clock.c" />
+    <ClCompile Include="src\egolib\console.c" />
+    <ClCompile Include="src\egolib\egoboo_setup.c" />
+    <ClCompile Include="src\egolib\endian.c" />
+    <ClCompile Include="src\egolib\extensions\ogl_debug.c" />
+    <ClCompile Include="src\egolib\extensions\ogl_extensions.c" />
+    <ClCompile Include="src\egolib\extensions\ogl_include.c" />
+    <ClCompile Include="src\egolib\extensions\ogl_texture.c" />
+    <ClCompile Include="src\egolib\extensions\SDL_extensions.c" />
+    <ClCompile Include="src\egolib\extensions\SDL_GL_extensions.c" />
+    <ClCompile Include="src\egolib\fileutil.c" />
+    <ClCompile Include="src\egolib\file_common.c" />
+    <ClCompile Include="src\egolib\file_formats\cap_file.c" />
+    <ClCompile Include="src\egolib\file_formats\configfile.c" />
+    <ClCompile Include="src\egolib\file_formats\controls_file-v1.c" />
+    <ClCompile Include="src\egolib\file_formats\controls_file-v2.c" />
+    <ClCompile Include="src\egolib\file_formats\controls_file-v3.c" />
+    <ClCompile Include="src\egolib\file_formats\controls_file.c" />
+    <ClCompile Include="src\egolib\file_formats\eve_file.c" />
+    <ClCompile Include="src\egolib\file_formats\id_md2.c" />
+    <ClCompile Include="src\egolib\file_formats\map_file-v1.c" />
+    <ClCompile Include="src\egolib\file_formats\map_file-v2.c" />
+    <ClCompile Include="src\egolib\file_formats\map_file-v3.c" />
+    <ClCompile Include="src\egolib\file_formats\map_file-v4.c" />
+    <ClCompile Include="src\egolib\file_formats\map_file.c" />
+    <ClCompile Include="src\egolib\file_formats\map_tile_dictionary.c" />
+    <ClCompile Include="src\egolib\file_formats\module_file.c" />
+    <ClCompile Include="src\egolib\file_formats\passage_file.c" />
+    <ClCompile Include="src\egolib\file_formats\pip_file.c" />
+    <ClCompile Include="src\egolib\file_formats\quest_file.c" />
+    <ClCompile Include="src\egolib\file_formats\scancode_file.c" />
+    <ClCompile Include="src\egolib\file_formats\SDL_md2.c" />
+    <ClCompile Include="src\egolib\file_formats\spawn_file.c" />
+    <ClCompile Include="src\egolib\file_formats\template.c" />
+    <ClCompile Include="src\egolib\file_formats\treasure_table_file.c" />
+    <ClCompile Include="src\egolib\file_formats\wawalite_file.c" />
+    <ClCompile Include="src\egolib\font_bmp.c" />
+    <ClCompile Include="src\egolib\font_ttf.c" />
+    <ClCompile Include="src\egolib\frustum.c" />
+    <ClCompile Include="src\egolib\geometry.c" />
+    <ClCompile Include="src\egolib\hash.c" />
+    <ClCompile Include="src\egolib\IDSZ_map.c" />
+    <ClCompile Include="src\egolib\input_device.c" />
+    <ClCompile Include="src\egolib\log.c" />
+    <ClCompile Include="src\egolib\lua\lua_console.c" />
+    <ClCompile Include="src\egolib\map_functions.c" />
+    <ClCompile Include="src\egolib\matrix.c" />
+    <ClCompile Include="src\egolib\network.c" />
+    <ClCompile Include="src\egolib\network_file.c" />
+    <ClCompile Include="src\egolib\opengl\renderer.c" />
+    <ClCompile Include="src\egolib\platform\file_amiga.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\egolib\src\egolib\platform\file_linux.c">
+    <ClCompile Include="src\egolib\platform\file_linux.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\egolib\src\egolib\platform\file_win.c">
+    <ClCompile Include="src\egolib\platform\file_win.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\egolib\src\egolib\platform\sys_linux.c">
+    <ClCompile Include="src\egolib\platform\sys_linux.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\egolib\src\egolib\platform\sys_win32.c">
+    <ClCompile Include="src\egolib\platform\sys_win32.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\egolib\src\egolib\process.c" />
-    <ClCompile Include="..\egolib\src\egolib\scancode.c" />
-    <ClCompile Include="..\egolib\src\egolib\sphere.c" />
-    <ClCompile Include="..\egolib\src\egolib\strutil.c" />
-    <ClCompile Include="..\egolib\src\egolib\threads.c" />
-    <ClCompile Include="..\egolib\src\egolib\throttle.c" />
-    <ClCompile Include="..\egolib\src\egolib\timer.c" />
-    <ClCompile Include="..\egolib\src\egolib\typedef.c" />
-    <ClCompile Include="..\egolib\src\egolib\vec.c" />
-    <ClCompile Include="..\egolib\src\egolib\vfs.c" />
-    <ClCompile Include="..\egolib\src\egolib\_math.c" />
+    <ClCompile Include="src\egolib\process.c" />
+    <ClCompile Include="src\egolib\scancode.c" />
+    <ClCompile Include="src\egolib\sphere.c" />
+    <ClCompile Include="src\egolib\strutil.c" />
+    <ClCompile Include="src\egolib\threads.c" />
+    <ClCompile Include="src\egolib\throttle.c" />
+    <ClCompile Include="src\egolib\timer.c" />
+    <ClCompile Include="src\egolib\typedef.c" />
+    <ClCompile Include="src\egolib\vec.c" />
+    <ClCompile Include="src\egolib\vfs.c" />
+    <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\bv.h" />
+    <ClInclude Include="src\egolib\bv.h" />
     <ClInclude Include="src\egolib\DynamicArray.hpp" />
     <ClInclude Include="src\egolib\Stack.hpp" />
-    <ClInclude Include="..\egolib\src\egolib\aabb.h" />
-    <ClInclude Include="..\egolib\src\egolib\bbox.h" />
-    <ClInclude Include="..\egolib\src\egolib\bsp.h" />
-    <ClInclude Include="..\egolib\src\egolib\clock.h" />
-    <ClInclude Include="..\egolib\src\egolib\console.h" />
-    <ClInclude Include="..\egolib\src\egolib\egoboo_setup.h" />
-    <ClInclude Include="..\egolib\src\egolib\egolib.h" />
-    <ClInclude Include="..\egolib\src\egolib\egolib_config.h" />
-    <ClInclude Include="..\egolib\src\egolib\endian.h" />
-    <ClInclude Include="..\egolib\src\egolib\extensions\ogl_debug.h" />
-    <ClInclude Include="..\egolib\src\egolib\extensions\ogl_extensions.h" />
-    <ClInclude Include="..\egolib\src\egolib\extensions\ogl_include.h" />
-    <ClInclude Include="..\egolib\src\egolib\extensions\ogl_texture.h" />
-    <ClInclude Include="..\egolib\src\egolib\extensions\SDL_extensions.h" />
-    <ClInclude Include="..\egolib\src\egolib\extensions\SDL_GL_extensions.h" />
-    <ClInclude Include="..\egolib\src\egolib\fileutil.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_common.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\cap_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\configfile.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\controls_file-v1.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\controls_file-v2.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\controls_file-v3.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\controls_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\eve_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\id_md2.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\map_file-v1.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\map_file-v2.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\map_file-v3.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\map_file-v4.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\map_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\map_tile_dictionary.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\module_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\passage_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\pip_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\quest_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\scancode_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\SDL_md2.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\spawn_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\template.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\treasure_table_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\file_formats\wawalite_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\font_bmp.h" />
-    <ClInclude Include="..\egolib\src\egolib\font_ttf.h" />
-    <ClInclude Include="..\egolib\src\egolib\frustum.h" />
-    <ClInclude Include="..\egolib\src\egolib\geometry.h" />
-    <ClInclude Include="..\egolib\src\egolib\hash.h" />
-    <ClInclude Include="..\egolib\src\egolib\IDSZ_map.h" />
-    <ClInclude Include="..\egolib\src\egolib\input_device.h" />
-    <ClInclude Include="..\egolib\src\egolib\log.h" />
-    <ClInclude Include="..\egolib\src\egolib\lua\lua_console.h" />
-    <ClInclude Include="..\egolib\src\egolib\map_functions.h" />
-    <ClInclude Include="..\egolib\src\egolib\matrix.h" />
-    <ClInclude Include="..\egolib\src\egolib\mem.h" />
-    <ClInclude Include="..\egolib\src\egolib\network.h" />
-    <ClInclude Include="..\egolib\src\egolib\network_file.h" />
-    <ClInclude Include="..\egolib\src\egolib\opengl\renderer.h" />
-    <ClInclude Include="..\egolib\src\egolib\platform.h" />
-    <ClInclude Include="..\egolib\src\egolib\platform\NSFileManager+DirectoryLocations.h">
+    <ClInclude Include="src\egolib\aabb.h" />
+    <ClInclude Include="src\egolib\bbox.h" />
+    <ClInclude Include="src\egolib\bsp.h" />
+    <ClInclude Include="src\egolib\clock.h" />
+    <ClInclude Include="src\egolib\console.h" />
+    <ClInclude Include="src\egolib\egoboo_setup.h" />
+    <ClInclude Include="src\egolib\egolib.h" />
+    <ClInclude Include="src\egolib\egolib_config.h" />
+    <ClInclude Include="src\egolib\endian.h" />
+    <ClInclude Include="src\egolib\extensions\ogl_debug.h" />
+    <ClInclude Include="src\egolib\extensions\ogl_extensions.h" />
+    <ClInclude Include="src\egolib\extensions\ogl_include.h" />
+    <ClInclude Include="src\egolib\extensions\ogl_texture.h" />
+    <ClInclude Include="src\egolib\extensions\SDL_extensions.h" />
+    <ClInclude Include="src\egolib\extensions\SDL_GL_extensions.h" />
+    <ClInclude Include="src\egolib\fileutil.h" />
+    <ClInclude Include="src\egolib\file_common.h" />
+    <ClInclude Include="src\egolib\file_formats\cap_file.h" />
+    <ClInclude Include="src\egolib\file_formats\configfile.h" />
+    <ClInclude Include="src\egolib\file_formats\controls_file-v1.h" />
+    <ClInclude Include="src\egolib\file_formats\controls_file-v2.h" />
+    <ClInclude Include="src\egolib\file_formats\controls_file-v3.h" />
+    <ClInclude Include="src\egolib\file_formats\controls_file.h" />
+    <ClInclude Include="src\egolib\file_formats\eve_file.h" />
+    <ClInclude Include="src\egolib\file_formats\id_md2.h" />
+    <ClInclude Include="src\egolib\file_formats\map_file-v1.h" />
+    <ClInclude Include="src\egolib\file_formats\map_file-v2.h" />
+    <ClInclude Include="src\egolib\file_formats\map_file-v3.h" />
+    <ClInclude Include="src\egolib\file_formats\map_file-v4.h" />
+    <ClInclude Include="src\egolib\file_formats\map_file.h" />
+    <ClInclude Include="src\egolib\file_formats\map_tile_dictionary.h" />
+    <ClInclude Include="src\egolib\file_formats\module_file.h" />
+    <ClInclude Include="src\egolib\file_formats\passage_file.h" />
+    <ClInclude Include="src\egolib\file_formats\pip_file.h" />
+    <ClInclude Include="src\egolib\file_formats\quest_file.h" />
+    <ClInclude Include="src\egolib\file_formats\scancode_file.h" />
+    <ClInclude Include="src\egolib\file_formats\SDL_md2.h" />
+    <ClInclude Include="src\egolib\file_formats\spawn_file.h" />
+    <ClInclude Include="src\egolib\file_formats\template.h" />
+    <ClInclude Include="src\egolib\file_formats\treasure_table_file.h" />
+    <ClInclude Include="src\egolib\file_formats\wawalite_file.h" />
+    <ClInclude Include="src\egolib\font_bmp.h" />
+    <ClInclude Include="src\egolib\font_ttf.h" />
+    <ClInclude Include="src\egolib\frustum.h" />
+    <ClInclude Include="src\egolib\geometry.h" />
+    <ClInclude Include="src\egolib\hash.h" />
+    <ClInclude Include="src\egolib\IDSZ_map.h" />
+    <ClInclude Include="src\egolib\input_device.h" />
+    <ClInclude Include="src\egolib\log.h" />
+    <ClInclude Include="src\egolib\lua\lua_console.h" />
+    <ClInclude Include="src\egolib\map_functions.h" />
+    <ClInclude Include="src\egolib\matrix.h" />
+    <ClInclude Include="src\egolib\mem.h" />
+    <ClInclude Include="src\egolib\network.h" />
+    <ClInclude Include="src\egolib\network_file.h" />
+    <ClInclude Include="src\egolib\opengl\renderer.h" />
+    <ClInclude Include="src\egolib\platform.h" />
+    <ClInclude Include="src\egolib\platform\NSFileManager+DirectoryLocations.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\egolib\src\egolib\process.h" />
-    <ClInclude Include="..\egolib\src\egolib\scancode.h" />
-    <ClInclude Include="..\egolib\src\egolib\sphere.h" />
-    <ClInclude Include="..\egolib\src\egolib\state_machine.h" />
-    <ClInclude Include="..\egolib\src\egolib\strutil.h" />
-    <ClInclude Include="..\egolib\src\egolib\system.h" />
-    <ClInclude Include="..\egolib\src\egolib\threads.h" />
-    <ClInclude Include="..\egolib\src\egolib\throttle.h" />
-    <ClInclude Include="..\egolib\src\egolib\timer.h" />
+    <ClInclude Include="src\egolib\process.h" />
+    <ClInclude Include="src\egolib\scancode.h" />
+    <ClInclude Include="src\egolib\sphere.h" />
+    <ClInclude Include="src\egolib\state_machine.h" />
+    <ClInclude Include="src\egolib\strutil.h" />
+    <ClInclude Include="src\egolib\system.h" />
+    <ClInclude Include="src\egolib\threads.h" />
+    <ClInclude Include="src\egolib\throttle.h" />
+    <ClInclude Include="src\egolib\timer.h" />
     <ClInclude Include="src\egolib\tx_filter.h" />
-    <ClInclude Include="..\egolib\src\egolib\typedef.h" />
-    <ClInclude Include="..\egolib\src\egolib\vec.h" />
-    <ClInclude Include="..\egolib\src\egolib\vfs.h" />
-    <ClInclude Include="..\egolib\src\egolib\_math.h" />
+    <ClInclude Include="src\egolib\typedef.h" />
+    <ClInclude Include="src\egolib\vec.h" />
+    <ClInclude Include="src\egolib\vfs.h" />
+    <ClInclude Include="src\egolib\_math.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuildStep Include="file_formats\id_normals.inl">
@@ -323,40 +323,40 @@
     </CustomBuildStep>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\egolib\enet-debug.props" />
-    <None Include="..\egolib\enet.props">
+    <None Include="enet-debug.props" />
+    <None Include="enet.props">
       <SubType>Designer</SubType>
     </None>
-    <None Include="..\egolib\libraries.props" />
-    <None Include="..\egolib\lua-debug.props" />
-    <None Include="..\egolib\physfs-debug.props" />
-    <None Include="..\egolib\src\egolib\bbox.inl" />
-    <None Include="..\egolib\src\egolib\bsp.inl" />
-    <None Include="..\egolib\src\egolib\console.inl" />
-    <None Include="..\egolib\src\egolib\egolib.inl" />
-    <None Include="..\egolib\src\egolib\file_formats\id_normals.inl" />
-    <None Include="..\egolib\src\egolib\platform\file_mac.m">
+    <None Include="libraries.props" />
+    <None Include="lua-debug.props" />
+    <None Include="physfs-debug.props" />
+    <None Include="src\egolib\bbox.inl" />
+    <None Include="src\egolib\bsp.inl" />
+    <None Include="src\egolib\console.inl" />
+    <None Include="src\egolib\egolib.inl" />
+    <None Include="src\egolib\file_formats\id_normals.inl" />
+    <None Include="src\egolib\platform\file_mac.m">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="..\egolib\src\egolib\platform\NSFileManager+DirectoryLocations.m">
+    <None Include="src\egolib\platform\NSFileManager+DirectoryLocations.m">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="..\egolib\src\egolib\platform\sys_mac.m">
+    <None Include="src\egolib\platform\sys_mac.m">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="..\egolib\src\egolib\_math.inl" />
-    <None Include="..\egolib\lua.props" />
-    <None Include="..\egolib\multithreaded_debug_dll.props" />
-    <None Include="..\egolib\multithreaded_dll.props" />
-    <None Include="..\egolib\opengl.props" />
-    <None Include="..\egolib\physfs.props" />
-    <None Include="..\egolib\sdl-debug.props">
+    <None Include="src\egolib\_math.inl" />
+    <None Include="lua.props" />
+    <None Include="multithreaded_debug_dll.props" />
+    <None Include="multithreaded_dll.props" />
+    <None Include="opengl.props" />
+    <None Include="physfs.props" />
+    <None Include="sdl-debug.props">
       <SubType>Designer</SubType>
     </None>
-    <None Include="..\egolib\sdl.props">
+    <None Include="sdl.props">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>

@@ -140,66 +140,66 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\cartman\src\cartman\cartman.c" />
-    <ClCompile Include="..\cartman\src\cartman\cartman_functions.c" />
-    <ClCompile Include="..\cartman\src\cartman\cartman_gfx.c" />
-    <ClCompile Include="..\cartman\src\cartman\cartman_gui.c" />
-    <ClCompile Include="..\cartman\src\cartman\cartman_input.c" />
-    <ClCompile Include="..\cartman\src\cartman\cartman_map.c" />
-    <ClCompile Include="..\cartman\src\cartman\cartman_math.c" />
-    <ClCompile Include="..\cartman\src\cartman\cartman_select.c" />
-    <ClCompile Include="..\cartman\src\cartman\SDL_GetPixel.c" />
-    <ClCompile Include="..\cartman\src\cartman\SDL_PutPixel.c" />
-    <ClCompile Include="..\cartman\src\cartman\SDL_rotozoom.c" />
+    <ClCompile Include="src\cartman\cartman.c" />
+    <ClCompile Include="src\cartman\cartman_functions.c" />
+    <ClCompile Include="src\cartman\cartman_gfx.c" />
+    <ClCompile Include="src\cartman\cartman_gui.c" />
+    <ClCompile Include="src\cartman\cartman_input.c" />
+    <ClCompile Include="src\cartman\cartman_map.c" />
+    <ClCompile Include="src\cartman\cartman_math.c" />
+    <ClCompile Include="src\cartman\cartman_select.c" />
+    <ClCompile Include="src\cartman\SDL_GetPixel.c" />
+    <ClCompile Include="src\cartman\SDL_PutPixel.c" />
+    <ClCompile Include="src\cartman\SDL_rotozoom.c" />
     <None Include="cartman\standard.inl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\cartman\src\cartman\cartman_math.inl" />
+    <None Include="src\cartman\cartman_math.inl" />
     <None Include="res\cartman_vs10.rc" />
     <None Include="res\cartman.ico" />
-    <None Include="..\cartman\data\anim.pcx" />
-    <None Include="..\cartman\data\anim.png" />
-    <None Include="..\cartman\data\backdrop.pcx" />
-    <None Include="..\cartman\data\backdrop.png" />
-    <None Include="..\cartman\data\bestpal.pcx" />
-    <None Include="..\cartman\data\damage.pcx" />
-    <None Include="..\cartman\data\damage.png" />
-    <None Include="..\cartman\data\drawref.pcx" />
-    <None Include="..\cartman\data\drawref.png" />
-    <None Include="..\cartman\data\egomap_icon.bmp" />
-    <None Include="..\cartman\data\impass.pcx" />
-    <None Include="..\cartman\data\impass.png" />
-    <None Include="..\cartman\data\pc8x8.fon" />
-    <None Include="..\cartman\data\point.pcx" />
-    <None Include="..\cartman\data\point.png" />
-    <None Include="..\cartman\data\pointon.pcx" />
-    <None Include="..\cartman\data\pointon.png" />
-    <None Include="..\cartman\data\ref.pcx" />
-    <None Include="..\cartman\data\ref.png" />
-    <None Include="..\cartman\data\slippy.pcx" />
-    <None Include="..\cartman\data\slippy.png" />
-    <None Include="..\cartman\data\slit.pcx" />
-    <None Include="..\cartman\data\slit.png" />
-    <None Include="..\cartman\data\water.pcx" />
-    <None Include="..\cartman\data\water.png" />
-    <None Include="..\cartman\data\window.pcx" />
-    <None Include="..\cartman\data\window.png" />
+    <None Include="data\anim.pcx" />
+    <None Include="data\anim.png" />
+    <None Include="data\backdrop.pcx" />
+    <None Include="data\backdrop.png" />
+    <None Include="data\bestpal.pcx" />
+    <None Include="data\damage.pcx" />
+    <None Include="data\damage.png" />
+    <None Include="data\drawref.pcx" />
+    <None Include="data\drawref.png" />
+    <None Include="data\egomap_icon.bmp" />
+    <None Include="data\impass.pcx" />
+    <None Include="data\impass.png" />
+    <None Include="data\pc8x8.fon" />
+    <None Include="data\point.pcx" />
+    <None Include="data\point.png" />
+    <None Include="data\pointon.pcx" />
+    <None Include="data\pointon.png" />
+    <None Include="data\ref.pcx" />
+    <None Include="data\ref.png" />
+    <None Include="data\slippy.pcx" />
+    <None Include="data\slippy.png" />
+    <None Include="data\slit.pcx" />
+    <None Include="data\slit.png" />
+    <None Include="data\water.pcx" />
+    <None Include="data\water.png" />
+    <None Include="data\window.pcx" />
+    <None Include="data\window.png" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\cartman\src\cartman\cartman.h" />
-    <ClInclude Include="..\cartman\src\cartman\cartman_config.h" />
-    <ClInclude Include="..\cartman\src\cartman\cartman_functions.h" />
-    <ClInclude Include="..\cartman\src\cartman\cartman_gfx.h" />
-    <ClInclude Include="..\cartman\src\cartman\cartman_gui.h" />
-    <ClInclude Include="..\cartman\src\cartman\cartman_input.h" />
-    <ClInclude Include="..\cartman\src\cartman\cartman_map.h" />
-    <ClInclude Include="..\cartman\src\cartman\cartman_math.h" />
-    <ClInclude Include="..\cartman\src\cartman\cartman_select.h" />
-    <ClInclude Include="..\cartman\src\cartman\cartman_typedef.h" />
-    <ClInclude Include="..\cartman\src\cartman\SDL_Pixel.h" />
-    <ClInclude Include="..\cartman\src\cartman\SDL_rotozoom.h" />
+    <ClInclude Include="src\cartman\cartman.h" />
+    <ClInclude Include="src\cartman\cartman_config.h" />
+    <ClInclude Include="src\cartman\cartman_functions.h" />
+    <ClInclude Include="src\cartman\cartman_gfx.h" />
+    <ClInclude Include="src\cartman\cartman_gui.h" />
+    <ClInclude Include="src\cartman\cartman_input.h" />
+    <ClInclude Include="src\cartman\cartman_map.h" />
+    <ClInclude Include="src\cartman\cartman_math.h" />
+    <ClInclude Include="src\cartman\cartman_select.h" />
+    <ClInclude Include="src\cartman\cartman_typedef.h" />
+    <ClInclude Include="src\cartman\SDL_Pixel.h" />
+    <ClInclude Include="src\cartman\SDL_rotozoom.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\egolib\egolib_vs13.vcxproj">

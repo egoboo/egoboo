@@ -3,7 +3,7 @@
 #---------------------
 # the source files
 
-EGO_SRC := ${wildcard ./src/game/*.c}
+EGO_SRC := ${wildcard ./src/game/*.c} ${wildcard ./src/game/ai/*.c}
 EGO_OBJ := ${EGO_SRC:.c=.o}
 
 #---------------------
@@ -26,7 +26,7 @@ INC     := -Isrc -I../egolib/src
 LDFLAGS := ${SDLCONF_L} ${EGOLIB_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -lGL -lGLU
 
 # use different options if the environmental variable PREFIX is defined
-ifdef ($(PREFIX),"")
+ifeq ($(PREFIX),"")
 	OPT := -D_NO_PREFIX
 else
 	OPT := -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
@@ -38,7 +38,7 @@ define link_rule
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 endef
 
-CFLAGS  := ${INC} ${OPT} ${SDLCONF_C}
+CFLAGS  := ${INC} ${OPT} ${SDLCONF_C} -x c++ -std=c++11
 
 #------------------------------------
 # definitions of the target projects

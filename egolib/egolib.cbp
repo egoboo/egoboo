@@ -301,6 +301,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/egolib/cube.h" />
+        <Unit filename="src/egolib/DynamicArray.cpp">
+            <Option compilerVar="CC" />
+        </Unit>
+        <Unit filename="src/egolib/DynamicArray.hpp" />
 		<Unit filename="src/egolib/egoboo_setup.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -494,8 +498,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/egolib/opengl/renderer.h" />
-		<Unit filename="src/egolib/platform.h" />
-		<Unit filename="src/egolib/platform/NSFileManager+DirectoryLocations.h" />
+        <Unit filename="src/egolib/platform.h" />
 		<Unit filename="src/egolib/platform/file_amiga.c">
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
@@ -536,6 +539,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/egolib/sphere.h" />
+        <Unit filename="src/egolib/Stack.hpp" />
 		<Unit filename="src/egolib/state_machine.h" />
 		<Unit filename="src/egolib/strutil.c">
 			<Option compilerVar="CC" />
@@ -554,7 +558,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/egolib/timer.h" />
-		<Unit filename="src/egolib/tx_filters.h" />
+        <Unit filename="src/egolib/tx_filter.h" />
 		<Unit filename="src/egolib/typedef.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -566,8 +570,8 @@
 		<Unit filename="src/egolib/vec.h" />
 		<Unit filename="src/egolib/vfs.c">
 			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/egolib/vfs.h" />
+        </Unit>
+        <Unit filename="src/egolib/vfs.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />
