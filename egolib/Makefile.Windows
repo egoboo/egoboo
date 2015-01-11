@@ -4,10 +4,14 @@ EGOLIB_TARGET := libegoboo.a
 
 #---------------------
 # the source files
-SOURCES = $(wildcard ./src/egolib/*.c) $(wildcard ./src/egolib/file_formats/*.c) $(wildcard ./src/egolib/extensions/*.c) $(wildcard ./src/egolib/opengl/*.c)
+SOURCES := $(wildcard ./src/egolib/*.c) $(wildcard ./src/egolib/file_formats/*.c) $(wildcard ./src/egolib/extensions/*.c) $(wildcard ./src/egolib/opengl/*.c)
+SOURCES += $(wildcard ./src/egolib/*.cpp) $(wildcard ./src/egolib/file_formats/*.cpp) $(wildcard ./src/egolib/extensions/*.cpp) $(wildcard ./src/egolib/opengl/*.cpp)
 
 SOURCES     += ./src/egolib/platform/sys_win32.c
 SOURCES     += ./src/egolib/platform/file_win.c
+
+SOURCES := $(filter-out ./src/egolib/bsp_aabb.c, $(SOURCES))
+SOURCES := $(filter-out ./src/egolib/bsp_leaf.c, $(SOURCES))
 
 
 #-------------------
@@ -31,7 +35,13 @@ INCLUDES := -I./src -I../game/src
 INCLUDES += -I../../enet-1.3.12/include
 INCLUDES += -I../../physfs-2.0.3/
 
-CPP_FLAGS  := $(INCLUDES) $(SDLCONF_C) -w -std=c++11 -ggdb -Og -fdiagnostics-color=always
+CPP_FLAGS  := $(INCLUDES) $(SDLCONF_C) -Weffc++ -std=c++11 -Og
+#-Wall
+
+#Debug options
+CPP_FLAGS += -ggdb -fdiagnostics-color=always
+#CPP_FLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
+#CPP_FLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 
 #------------------------------------
 # definitions of the target projects
@@ -42,6 +52,8 @@ all: $(EGOLIB_TARGET)
 
 # Generic rule
 %.o: %.c
+	$(CC) $(CPP_FLAGS) -c $< -o $@
+%.o: %.cpp
 	$(CC) $(CPP_FLAGS) -c $< -o $@
 
 $(EGOLIB_TARGET): $(OBJECTS)

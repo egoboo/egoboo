@@ -39,7 +39,6 @@
 #include "game/script.h"
 #include "game/camera_system.h"
 #include "game/input.h"
-#include "game/passage.h"
 #include "game/menu.h"
 #include "game/script_compile.h"
 #include "game/game.h"
@@ -51,6 +50,7 @@
 #include "game/enchant.inl"
 #include "game/profile.inl"
 #include "game/mesh.inl"
+#include "game/module/PassageHandler.hpp" //only for getPassageCount()
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -2999,7 +2999,7 @@ float draw_debug( float y )
         if ( PMod->exportvalid ) snprintf( text, SDL_arraysize( text ), "~~EXPORT: TRUE" );
         else                    snprintf( text, SDL_arraysize( text ), "~~EXPORT: FALSE" );
         y = draw_string_raw( 0, y, text, PMod->exportvalid );
-        y = draw_string_raw( 0, y, "~~PASS %d/%d", ShopStack.count, PassageStack.count );
+        y = draw_string_raw( 0, y, "~~PASS %d", Passages::getPassageCount() );
         y = draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
         y = draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.part_gpip );
 

@@ -61,11 +61,11 @@ IDSZ vfs_get_idsz( vfs_FILE* fileread )
     iTmp = vfs_get_first_letter( fileread );
     if ( '[' == iTmp )
     {
-        long fpos;
+        //long fpos;
         int  i;
         char idsz_str[5] = EMPTY_CSTR;
 
-        fpos = vfs_tell( fileread );
+        vfs_tell( fileread );
 
         for ( i = 0; i < 4; i++ )
         {
@@ -314,7 +314,7 @@ bool vfs_get_name(vfs_FILE* fileread, char *szName, size_t max_len)
 
     // limit the max length of the string!
     // return value if the number of fields fields, not amount fields from file
-    snprintf( format, SDL_arraysize( format ), "%%%ds", max_len - 1 );
+    snprintf( format, SDL_arraysize( format ), "%%%llus", max_len - 1 );
 
     szName[0] = CSTR_END;
     fields = vfs_scanf( fileread, format, szName );
@@ -591,7 +591,6 @@ bool vfs_get_range( vfs_FILE* fileread, FRange * prange )
 
     char  cTmp;
     float fFrom, fTo;
-    long fpos;
 
     if ( NULL == fileread || vfs_error( fileread ) || vfs_eof( fileread ) ) return false;
 
@@ -600,7 +599,7 @@ bool vfs_get_range( vfs_FILE* fileread, FRange * prange )
     fTo   = fFrom;
 
     // The optional hyphen
-    fpos = vfs_tell( fileread );
+    vfs_tell( fileread );
     cTmp = vfs_get_first_letter( fileread );
 
     if ( '-' != cTmp )
@@ -812,7 +811,7 @@ char * copy_to_delimiter_mem( char * pmem, char * pmem_end, vfs_FILE * filewrite
     /// @details copy data from one file to another until the delimiter delim has been found
     ///    could be used to merge a template file with data
 
-    int write;
+    size_t write;
     char cTmp, temp_buffer[1024] = EMPTY_CSTR;
 
     if ( NULL == pmem || NULL == filewrite ) return pmem;
@@ -937,7 +936,7 @@ bool vfs_get_string(vfs_FILE * fileread, char * str, size_t str_len)
 
     if ( NULL == str || 0 == str_len ) return false;
 
-    snprintf( format_str, SDL_arraysize( format_str ), "%%%ds", str_len - 1 );
+    snprintf( format_str, SDL_arraysize( format_str ), "%%%llus", str_len - 1 );
 
     str[0] = CSTR_END;
     fields = vfs_scanf( fileread, format_str, str );
@@ -1141,7 +1140,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
     Uint32 retval;
     Uint8 type = 0;
     SDL_Surface * image = NULL;
-    GLenum tx_target;
+    //GLenum tx_target;
 
     // get rid of any old data
     oglx_texture_Release( texture );
@@ -1169,11 +1168,11 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
         // We could not load the image
         if ( NULL == image ) return INVALID_GL_ID;
 
-        tx_target = GL_TEXTURE_2D;
-        if ( image->w != image->h && ( 1 == image->w || image->h ) )
-        {
-            tx_target = GL_TEXTURE_1D;
-        }
+        //tx_target = GL_TEXTURE_2D;
+        //if ( image->w != image->h && ( 1 == image->w || image->h ) )
+        //{
+        //    tx_target = GL_TEXTURE_1D;
+        //}
 
         retval = oglx_texture_Convert( texture, image, key );
         strncpy( texture->name, fullname, SDL_arraysize( texture->name ) );

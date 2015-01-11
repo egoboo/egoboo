@@ -33,7 +33,6 @@
 #include "game/graphic_texture.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
-#include "game/passage.h"
 #include "game/input.h"
 #include "game/menu.h"
 #include "game/network_client.h"
@@ -44,6 +43,7 @@
 #include "game/script.h"
 #include "game/script_compile.h"
 #include "game/egoboo.h"
+#include "game/module/PassageHandler.hpp"
 
 #include "game/char.inl"
 #include "game/particle.inl"
@@ -69,7 +69,6 @@ PROFILE_DECLARE( talk_to_remotes );
 PROFILE_DECLARE( egonet_listen_for_packets );
 PROFILE_DECLARE( check_stats );
 PROFILE_DECLARE( set_local_latches );
-PROFILE_DECLARE( check_passage_music );
 PROFILE_DECLARE( cl_talkToHost );
 
 //--------------------------------------------------------------------------------------------
@@ -1239,7 +1238,6 @@ int game_process_do_begin( game_process_t * gproc )
     PROFILE_RESET( egonet_listen_for_packets );
     PROFILE_RESET( check_stats );
     PROFILE_RESET( set_local_latches );
-    PROFILE_RESET( check_passage_music );
     PROFILE_RESET( cl_talkToHost );
 
     // reset the ups counter
@@ -1371,11 +1369,7 @@ int game_process_do_running( game_process_t * gproc )
                 }
                 PROFILE_END2( check_stats );
 
-                PROFILE_BEGIN( check_passage_music );
-                {
-                    check_passage_music();
-                }
-                PROFILE_END2( check_passage_music );
+                Passages::checkPassageMusic();
 
                 if ( egonet_get_waitingforclients() )
                 {
@@ -1390,7 +1384,7 @@ int game_process_do_running( game_process_t * gproc )
         PROFILE_END2( game_update_loop );
 
         // estimate the main-loop update time is taking per inner-loop iteration
-        // do a kludge to average out the effects of functions like check_passage_music()
+        // do a kludge to average out the effects of functions like check_stats()
         // even when the inner loop does not execute
         if ( update_loops > 0 )
         {
@@ -1523,7 +1517,6 @@ int game_process_do_leaving( game_process_t * gproc )
     PROFILE_FREE( egonet_listen_for_packets );
     PROFILE_FREE( check_stats );
     PROFILE_FREE( set_local_latches );
-    PROFILE_FREE( check_passage_music );
     PROFILE_FREE( cl_talkToHost );
 
     return 1;
@@ -3311,7 +3304,7 @@ void game_setup_module( const char *smallname )
     str_append_slash_net( modname, SDL_arraysize( modname ) );
 
     // just the information in these files to load the module
-    activate_passages_file_vfs();        // read and implement the "passage script" passages.txt
+    Passages::loadAllPassages();         // read and implement the "passage script" passages.txt
     activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
     activate_alliance_file_vfs();        // set up the non-default team interactions
 
@@ -3597,8 +3590,8 @@ void game_release_module_data()
     gfx_system_release_all_graphics();
     release_all_profiles();
 
-    // deal with the mesh
-    clear_all_passages();
+    // free passages
+    Passages::clearPassages();
 
     // delete the mesh data
     ptmp = PMesh;
@@ -4217,7 +4210,6 @@ game_process_t * game_process_init( game_process_t * gproc )
     PROFILE_INIT( egonet_listen_for_packets );
     PROFILE_INIT( check_stats );
     PROFILE_INIT( set_local_latches );
-    PROFILE_INIT( check_passage_music );
     PROFILE_INIT( cl_talkToHost );
 
     return gproc;
@@ -4804,14 +4796,11 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
     pdropper = ChrList_get_ptr( idropper );
 
     inshop = false;
-    if ( pitem->isitem && ShopStack.count > 0 )
+    if ( pitem->isitem )
     {
         CHR_REF iowner;
 
-        int ix = FLOOR( pitem->pos.x / GRID_FSIZE );
-        int iy = FLOOR( pitem->pos.y / GRID_FSIZE );
-
-        iowner = shop_get_owner( ix, iy );
+        iowner = Passages::getShopOwner(pitem->pos.x, pitem->pos.y);
         if ( INGAME_CHR( iowner ) )
         {
             int price;
@@ -4824,7 +4813,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
             // Are they are trying to sell junk or quest items?
             if ( 0 == price )
             {
-                ai_add_order( &( powner->ai ), ( Uint32 ) price, SHOP_BUY );
+                ai_add_order( &( powner->ai ), ( Uint32 ) price, Passage::SHOP_BUY );
             }
             else
             {
@@ -4834,7 +4823,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
                 powner->money  = powner->money - price;
                 powner->money  = CLIP( powner->money, (Sint16)0, (Sint16)MAXMONEY );
 
-                ai_add_order( &( powner->ai ), ( Uint32 ) price, SHOP_BUY );
+                ai_add_order( &( powner->ai ), ( Uint32 ) price, Passage::SHOP_BUY );
             }
         }
     }
@@ -4860,14 +4849,11 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     can_pay  = true;
     in_shop  = false;
 
-    if ( pitem->isitem && ShopStack.count > 0 )
+    if ( pitem->isitem )
     {
         CHR_REF iowner;
 
-        int ix = FLOOR( pitem->pos.x / GRID_FSIZE );
-        int iy = FLOOR( pitem->pos.y / GRID_FSIZE );
-
-        iowner = shop_get_owner( ix, iy );
+        iowner = Passages::getShopOwner( pitem->pos.x, pitem->pos.y );
         if ( INGAME_CHR( iowner ) )
         {
             chr_t * powner = ChrList_get_ptr( iowner );
@@ -4878,7 +4864,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
             if ( ppicker->money >= price )
             {
                 // Okay to sell
-                ai_add_order( &( powner->ai ), ( Uint32 ) price, SHOP_SELL );
+                ai_add_order( &( powner->ai ), ( Uint32 ) price, Passage::SHOP_SELL );
 
                 ppicker->money  = ppicker->money - price;
                 ppicker->money  = CLIP( (int)ppicker->money, 0, MAXMONEY );
@@ -4892,7 +4878,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
             else
             {
                 // Don't allow purchase
-                ai_add_order( &( powner->ai ), price, SHOP_NOAFFORD );
+                ai_add_order( &( powner->ai ), price, Passage::SHOP_NOAFFORD );
                 can_grab = false;
                 can_pay  = false;
             }
@@ -4939,14 +4925,11 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
     pthief = ChrList_get_ptr( ithief );
 
     can_steal = true;
-    if ( pitem->isitem && ShopStack.count > 0 )
+    if ( pitem->isitem )
     {
         CHR_REF iowner;
 
-        int ix = FLOOR( pitem->pos.x / GRID_FSIZE );
-        int iy = FLOOR( pitem->pos.y / GRID_FSIZE );
-
-        iowner = shop_get_owner( ix, iy );
+        iowner = Passages::getShopOwner( pitem->pos.x, pitem->pos.y );
         if ( INGAME_CHR( iowner ) )
         {
             IPair  tmp_rand = {1, 100};
@@ -4958,7 +4941,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
             can_steal = true;
             if ( chr_can_see_object( powner, pthief ) || detection <= 5 || ( detection - ( pthief->dexterity >> 7 ) + ( powner->wisdom >> 7 ) ) > 50 )
             {
-                ai_add_order( &( powner->ai ), SHOP_STOLEN, SHOP_THEFT );
+                ai_add_order( &( powner->ai ), Passage::SHOP_STOLEN, Passage::SHOP_THEFT );
                 powner->ai.target = ithief;
                 can_steal = false;
             }
@@ -4974,7 +4957,6 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     bool can_grab;
     bool is_invis, can_steal;
     chr_t * pchr, * pitem, *pkeeper;
-    int ix, iy;
     CHR_REF shop_keeper;
 
     if ( !INGAME_CHR( ichr ) ) return false;
@@ -4982,14 +4964,12 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
 
     if ( !INGAME_CHR( iitem ) ) return false;
     pitem = ChrList_get_ptr( iitem );
-    ix = pitem->pos.x / GRID_FSIZE;
-    iy = pitem->pos.y / GRID_FSIZE;
 
     // assume that there is no shop so that the character can grab anything
     can_grab = true;
 
     // check if we are doing this inside a shop
-    shop_keeper = shop_get_owner( ix, iy );
+    shop_keeper = Passages::getShopOwner(pitem->pos.x, pitem->pos.y);
     pkeeper = ChrList_get_ptr( shop_keeper );
     if ( INGAME_PCHR( pkeeper ) )
     {

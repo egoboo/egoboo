@@ -50,7 +50,7 @@ bool fvec2_self_clear(fvec2_base_t A)
 bool fvec2_self_is_clear(const fvec2_base_t A)
 {
 	if (NULL == A) return true;
-	return A[kX] == A[kY] == 0.0f;
+	return A[kX] == 0.0f && A[kY] == 0.0f;
 }
 
 //--------------------------------------------------------------------------------------------

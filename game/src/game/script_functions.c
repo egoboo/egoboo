@@ -37,13 +37,14 @@
 #include "game/menu.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
-#include "game/passage.h"
 #include "game/ai/astar.h"
 #include "game/profile.inl"
 #include "game/enchant.inl"
 #include "game/char.inl"
 #include "game/particle.inl"
 #include "game/mesh.inl"
+
+#include "game/module/PassageHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1165,7 +1166,13 @@ Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = open_passage(( PASS_REF )pstate->argument );
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    
+    returncode = false;
+    if(passage) {
+        returncode = true;
+        passage->open();
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -1181,7 +1188,12 @@ Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = close_passage(( PASS_REF )pstate->argument );
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+
+    returncode = false;
+    if(passage) {
+        returncode = passage->close();
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -1196,12 +1208,11 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = false;
-    if ( pstate->argument >= 0 && pstate->argument < MAX_PASS )
-    {
-        PASS_REF ipass = ( PASS_REF )pstate->argument;
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
 
-        returncode = PassageStack.lst[ipass].open;
+    returncode = false;
+    if(passage) {
+        returncode = passage->isOpen();
     }
 
     SCRIPT_FUNCTION_END();
@@ -5452,15 +5463,18 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE );
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
 
-    if ( INGAME_CHR( ichr ) )
+    returncode = false;
+    if(passage)
     {
-        SET_TARGET_0( ichr );
-    }
-    else
-    {
-        returncode = false;
+        ichr = passage->whoIsBlockingPassage(pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, IDSZ_NONE);
+
+        if ( INGAME_CHR( ichr ) )
+        {
+            SET_TARGET_0( ichr );
+            returncode = true;
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -5987,7 +6001,10 @@ Uint8 scr_FlashPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    flash_passage(( PASS_REF )pstate->argument, pstate->distance );
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    if(passage) {
+        passage->flashColor(pstate->distance);
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6297,12 +6314,9 @@ Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = false;
-    if ( pstate->argument >= 0 && pstate->argument < MAX_PASS )
-    {
-        PASS_REF ipass = ( PASS_REF )pstate->argument;
-
-        PassageStack.lst[ipass].music = NO_MUSIC;
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    if(passage) {
+        passage->setMusic(Passage::NO_MUSIC);
     }
 
     SCRIPT_FUNCTION_END();
@@ -6365,12 +6379,9 @@ Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = false;
-    if ( pstate->argument >= 0 && pstate->argument < MAX_PASS )
-    {
-        PASS_REF ipass = ( PASS_REF )pstate->argument;
-
-        PassageStack.lst[ipass].music = pstate->distance;
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    if(passage) {
+        passage->setMusic(pstate->distance);
     }
 
     SCRIPT_FUNCTION_END();
@@ -6684,7 +6695,14 @@ Uint8 scr_AddShopPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    add_shop_passage( pself->index, ( PASS_REF )pstate->argument );
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    if(passage) {
+        passage->makeShop(pself->index);
+        returncode = true;
+    }
+    else {
+        returncode = false;
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -6804,19 +6822,18 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
     /// @details This function finds a character who is both in the passage and who has
     /// an item with the given IDSZ
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, pstate->distance );
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
 
-    if ( INGAME_CHR( ichr ) )
-    {
-        SET_TARGET_0( ichr );
-    }
-    else
-    {
-        returncode = false;
+    returncode = false;
+    if(passage) {
+        CHR_REF ichr = passage->whoIsBlockingPassage(pself->index, IDSZ_NONE, TARGET_SELF | TARGET_FRIENDS | TARGET_ENEMIES, pstate->distance);
+        if ( INGAME_CHR( ichr ) )
+        {
+            SET_TARGET_0( ichr );
+            returncode = true;
+        }
     }
 
     SCRIPT_FUNCTION_END();
@@ -7218,7 +7235,7 @@ Uint8 scr_SomeoneIsStealing( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pself->order_value == SHOP_STOLEN && pself->order_counter == SHOP_THEFT );
+    returncode = ( pself->order_value == Passage::SHOP_STOLEN && pself->order_counter == Passage::SHOP_THEFT );
 
     SCRIPT_FUNCTION_END();
 }
@@ -8157,19 +8174,18 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
     /// @details This function sets the target to whatever object with the specified bits
     /// in tmpdistance is blocking the given passage. This function lets passage rectangles be used as event triggers
 
-    CHR_REF ichr;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    ichr = who_is_blocking_passage(( PASS_REF )pstate->argument, pself->index, pstate->turn, TARGET_SELF | pstate->distance, IDSZ_NONE );
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    returncode = false;
+    if(passage) {
+        CHR_REF ichr = passage->whoIsBlockingPassage(pself->index, pstate->turn, TARGET_SELF | pstate->distance, IDSZ_NONE );
 
-    if ( INGAME_CHR( ichr ) )
-    {
-        SET_TARGET_0( ichr );
-    }
-    else
-    {
-        returncode = false;
+        if ( INGAME_CHR( ichr ) )
+        {
+            SET_TARGET_0( ichr );
+            returncode = true;
+        }
     }
 
     SCRIPT_FUNCTION_END();

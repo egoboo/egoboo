@@ -36,12 +36,12 @@
 #include "game/sound.h"
 #include "game/camera_system.h"
 #include "game/input.h"
-#include "game/passage.h"
 #include "game/game.h"
 #include "game/ui.h"
 #include "game/collision.h"                  //Only or detach_character_from_platform()
 #include "game/obj_BSP.h"
 #include "game/egoboo.h"
+#include "game/module/PassageHandler.hpp"
 
 #include "game/ChrList.inl"
 #include "game/mesh.inl"
@@ -3315,7 +3315,6 @@ void cleanup_one_character( chr_t * pchr )
     /// @details Everything necessary to disconnect one character from the game
 
     CHR_REF  ichr, itmp;
-    SHOP_REF ishop;
 
     if ( !ALLOCATED_PCHR( pchr ) ) return;
     ichr = GET_REF_PCHR( pchr );
@@ -3332,12 +3331,8 @@ void cleanup_one_character( chr_t * pchr )
         TeamStack.lst[pchr->team].leader = TEAM_NOLEADER;
     }
 
-    // Clear all shop passages that it owned...
-    for ( ishop = 0; ishop < ShopStack.count; ishop++ )
-    {
-        if ( ShopStack.lst[ishop].owner != ichr ) continue;
-        ShopStack.lst[ishop].owner = SHOP_NOOWNER;
-    }
+    // Clear all shop passages that it owned..
+    Passages::removeShopOwner(ichr);
 
     // detach from any mount
     if ( INGAME_CHR( pchr->attachedto ) )
@@ -4078,22 +4073,16 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // is the object part of a shop's inventory?
     if ( pchr->isitem )
     {
-        SHOP_REF ishop;
-
         // Items that are spawned inside shop passages are more expensive than normal
-        pchr->isshopitem = false;
-        for ( ishop = 0; ishop < ShopStack.count; ishop++ )
-        {
-            // Make sure the owner is not dead
-            if ( SHOP_NOOWNER == ShopStack.lst[ishop].owner ) continue;
 
-            if ( object_is_in_passage( ShopStack.lst[ishop].passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
-            {
-                pchr->isshopitem = true;               // Full value
-                pchr->iskursed   = false;              // Shop items are never kursed
-                pchr->nameknown  = true;
-                break;
-            }
+        CHR_REF shopOwner = Passages::getShopOwner(pchr->pos.x, pchr->pos.y);
+        if(shopOwner != Passage::SHOP_NOOWNER) {
+            pchr->isshopitem = true;               // Full value
+            pchr->iskursed   = false;              // Shop items are never kursed
+            pchr->nameknown  = true;               // identified
+        }
+        else {
+            pchr->isshopitem = false;
         }
     }
 

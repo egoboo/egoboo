@@ -28,7 +28,6 @@
 #include "mesh.h"
 #include "profile.h"
 #include "particle.h"
-#include "passage.h"
 #include "script.h"
 #include "script_functions.h"
 

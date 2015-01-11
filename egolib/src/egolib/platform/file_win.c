@@ -20,7 +20,9 @@
 /// @file platform/file_win.c
 /// @brief Windows-specific filesystem functions.
 /// @details
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include <windows.h>
 #undef NOMINMAX
 #include <shlobj.h>

@@ -360,6 +360,7 @@
 #define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) \
     ACCESS struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
+#ifndef C_IMPLEMENT_LIST
 #define C_IMPLEMENT_LIST(TYPE, NAME, COUNT)             \
     static int     NAME##_find_free_ref( const REF_T ); \
     static bool  NAME##_push_free( const REF_T );       \
@@ -367,6 +368,7 @@
     static int     NAME##_find_used_ref( const REF_T ); \
     static size_t  NAME##_pop_used( const int );        \
     TYPE * NAME##_get_ptr( const size_t index )   { return LAMBDA(index >= COUNT, NULL, NAME.lst + index); }
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
