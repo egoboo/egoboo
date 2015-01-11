@@ -21,16 +21,16 @@
 /// @brief Implementation of functions for controlling and accessing object profiles
 /// @details
 
-#include "egolib/bsp.inl"
-#include "game/profile.inl"
+#include "egolib/bsp.h"
+#include "game/profile.h"
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/script_compile.h"
 #include "game/game.h"
-#include "game/ChrList.inl"
-#include "game/PrtList.inl"
-#include "game/mesh.inl"
-#include "game/particle.inl"
+#include "game/ChrList.h"
+#include "game/PrtList.h"
+#include "game/mesh.h"
+#include "game/particle.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1297,4 +1297,173 @@ bool chop_export_vfs( const char *szSaveName, const char * szChop )
     vfs_close( filewrite );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------
+//inline
+//--------------------------------------------------------------------------------------------
+CAP_REF pro_get_icap( const PRO_REF iobj )
+{
+    pro_t * pobj;
+
+    if ( !LOADED_PRO( iobj ) ) return INVALID_CAP_REF;
+    pobj = ProList.lst + iobj;
+
+    return LOADED_CAP( pobj->icap ) ? pobj->icap : INVALID_CAP_REF;
+}
+
+//--------------------------------------------------------------------------------------------
+MAD_REF pro_get_imad( const PRO_REF iobj )
+{
+    pro_t * pobj;
+
+    if ( !LOADED_PRO( iobj ) ) return INVALID_MAD_REF;
+    pobj = ProList.lst + iobj;
+
+    return LOADED_MAD( pobj->imad ) ? pobj->imad : INVALID_MAD_REF;
+}
+
+//--------------------------------------------------------------------------------------------
+EVE_REF pro_get_ieve( const PRO_REF iobj )
+{
+    pro_t * pobj;
+
+    if ( !LOADED_PRO( iobj ) ) return INVALID_EVE_REF;
+    pobj = ProList.lst + iobj;
+
+    return LOADED_EVE( pobj->ieve ) ? pobj->ieve : INVALID_EVE_REF;
+}
+
+//--------------------------------------------------------------------------------------------
+PIP_REF pro_get_ipip( const PRO_REF iobj, int pip_index )
+{
+    pro_t * pobj;
+    PIP_REF found_pip, global_pip;
+
+    found_pip = INVALID_PIP_REF;
+
+    if ( !VALID_PRO_RANGE( iobj ) )
+    {
+        // check for a global pip
+        global_pip = (( pip_index < 0 ) || ( pip_index > MAX_PIP ) ) ? MAX_PIP : ( PIP_REF )pip_index;
+        if ( LOADED_PIP( global_pip ) )
+        {
+            found_pip = global_pip;
+        }
+    }
+    else if ( LOADED_PRO( iobj ) && pip_index < MAX_PIP_PER_PROFILE )
+    {
+        // this is a local pip
+        PIP_REF itmp;
+
+        // this pip is relative to a certain object
+        pobj = ProList.lst + iobj;
+
+        // grab the local pip
+        itmp = pobj->prtpip[pip_index];
+        if ( VALID_PIP_RANGE( itmp ) )
+        {
+            found_pip = itmp;
+        }
+    }
+
+    return found_pip;
+}
+
+//--------------------------------------------------------------------------------------------
+IDSZ pro_get_idsz( const PRO_REF iobj, int type )
+{
+    cap_t * pcap;
+
+    if ( type >= IDSZ_COUNT ) return IDSZ_NONE;
+
+    pcap = pro_get_pcap( iobj );
+    if ( NULL == pcap ) return IDSZ_NONE;
+
+    return pcap->idsz[type];
+}
+
+//--------------------------------------------------------------------------------------------
+cap_t * pro_get_pcap( const PRO_REF iobj )
+{
+    pro_t * pobj;
+
+    if ( !LOADED_PRO( iobj ) ) return NULL;
+    pobj = ProList.lst + iobj;
+
+    if ( !LOADED_CAP( pobj->icap ) ) return NULL;
+
+    return CapStack_get_ptr( pobj->icap );
+}
+
+//--------------------------------------------------------------------------------------------
+mad_t * pro_get_pmad( const PRO_REF iobj )
+{
+    pro_t * pobj;
+
+    if ( !LOADED_PRO( iobj ) ) return NULL;
+    pobj = ProList.lst + iobj;
+
+    if ( !LOADED_MAD( pobj->imad ) ) return NULL;
+
+    return MadStack_get_ptr( pobj->imad );
+}
+
+//--------------------------------------------------------------------------------------------
+eve_t * pro_get_peve( const PRO_REF iobj )
+{
+    pro_t * pobj;
+
+    if ( !LOADED_PRO( iobj ) ) return NULL;
+    pobj = ProList.lst + iobj;
+
+    if ( !LOADED_EVE( pobj->ieve ) ) return NULL;
+
+    return EveStack_get_ptr( pobj->ieve );
+}
+
+//--------------------------------------------------------------------------------------------
+pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index )
+{
+    pro_t * pobj;
+    PIP_REF global_pip, local_pip;
+
+    if ( !LOADED_PRO( iobj ) )
+    {
+        // check for a global pip
+        global_pip = (( pip_index < 0 ) || ( pip_index > MAX_PIP ) ) ? MAX_PIP : ( PIP_REF )pip_index;
+        if ( LOADED_PIP( global_pip ) )
+        {
+            return PipStack_get_ptr( global_pip );
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+
+    // this pip is relative to a certain object
+    pobj = ProList.lst + iobj;
+
+    // find the local pip if it exists
+    local_pip = INVALID_PIP_REF;
+    if ( pip_index < MAX_PIP_PER_PROFILE )
+    {
+        local_pip = pobj->prtpip[pip_index];
+    }
+
+    return LOADED_PIP( local_pip ) ? PipStack.lst + local_pip : NULL;
+}
+
+//--------------------------------------------------------------------------------------------
+Mix_Chunk * pro_get_chunk( const PRO_REF iobj, int index )
+{
+    pro_t * pobj;
+
+    if ( !VALID_SND( index ) ) return NULL;
+
+    if ( !LOADED_PRO( iobj ) ) return NULL;
+    pobj = ProList.lst + iobj;
+
+    return pobj->wavelist[index];
 }

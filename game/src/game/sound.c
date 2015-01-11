@@ -25,7 +25,11 @@
 #include "game/graphics/CameraSystem.hpp"
 #include "game/game.h"
 #include "game/graphic.h"
-#include "game/char.inl"
+#include "game/char.h"
+
+#include "game/ChrList.h"
+#include "game/EncList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

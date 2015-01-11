@@ -22,7 +22,7 @@
 /// @details All sorts of stuff related to drawing the game
 
 #include "egolib/egolib.h"
-#include "egolib/bsp.inl"
+#include "egolib/bsp.h"
 #include "game/graphic.h"
 #include "game/graphic_prt.h"
 #include "game/graphic_mad.h"
@@ -44,13 +44,17 @@
 #include "game/ui.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/char.inl"
-#include "game/particle.inl"
-#include "game/enchant.inl"
-#include "game/profile.inl"
-#include "game/mesh.inl"
+#include "game/char.h"
+#include "game/particle.h"
+#include "game/enchant.h"
+#include "game/profile.h"
+#include "game/mesh.h"
 #include "game/module/PassageHandler.hpp" //only for getPassageCount()
 #include "game/graphics/CameraSystem.hpp"
+
+#include "game/ChrList.h"
+#include "game/EncList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 // internal structs

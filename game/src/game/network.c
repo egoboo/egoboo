@@ -31,7 +31,9 @@
 #include "game/player.h"
 #include "game/renderer_2d.h"
 #include "game/egoboo.h"
-#include "game/char.inl"
+#include "game/char.h"
+
+#include "game/ChrList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

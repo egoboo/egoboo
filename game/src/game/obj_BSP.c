@@ -25,9 +25,12 @@
 
 #include "game/mesh_BSP.h"
 
-#include "game/char.inl" /** @todo Remove. */
-#include "game/particle.inl" /** @todo Remove. */
-#include "egolib/bsp.inl"
+#include "game/char.h" /** @todo Remove. */
+#include "game/particle.h" /** @todo Remove. */
+#include "egolib/bsp.h"
+
+#include "game/ChrList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

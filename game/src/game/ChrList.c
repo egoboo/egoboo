@@ -20,8 +20,8 @@
 /// @file  game/ChrList.c
 /// @brief Implementation of the ChrList_* functions
 
-#include "game/ChrList.inl"
-#include "game/char.inl"
+#include "game/ChrList.h"
+#include "game/char.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -696,3 +696,28 @@ bool ChrList_remove_free_ref( const CHR_REF ichr )
 
     return ChrList_remove_free_idx( index );
 }
+
+//--------------------------------------------------------------------------------------------
+// previously inlined
+//--------------------------------------------------------------------------------------------
+
+bool _VALID_CHR_RANGE( const CHR_REF ICHR ) { return VALID_CHR_RANGE( ICHR ); }
+bool _DEFINED_CHR( const CHR_REF ICHR )     { return DEFINED_CHR( ICHR );     }
+bool _ALLOCATED_CHR( const CHR_REF ICHR )   { return ALLOCATED_CHR( ICHR );   }
+bool _ACTIVE_CHR( const CHR_REF ICHR )      { return ACTIVE_CHR( ICHR );      }
+bool _WAITING_CHR( const CHR_REF ICHR )     { return WAITING_CHR( ICHR );     }
+bool _TERMINATED_CHR( const CHR_REF ICHR )  { return TERMINATED_CHR( ICHR );  }
+
+size_t  _GET_INDEX_PCHR( const chr_t * PCHR )  { return GET_INDEX_PCHR( PCHR );  }
+CHR_REF _GET_REF_PCHR( const chr_t * PCHR )    { return GET_REF_PCHR( PCHR );    }
+bool  _DEFINED_PCHR( const chr_t * PCHR )    { return DEFINED_PCHR( PCHR );    }
+bool  _VALID_CHR_PTR( const chr_t * PCHR )   { return VALID_CHR_PTR( PCHR );   }
+bool  _ALLOCATED_PCHR( const chr_t * PCHR )  { return ALLOCATED_PCHR( PCHR );  }
+bool  _ACTIVE_PCHR( const chr_t * PCHR )     { return ACTIVE_PCHR( PCHR );     }
+bool  _TERMINATED_PCHR( const chr_t * PCHR ) { return TERMINATED_PCHR( PCHR ); }
+
+bool _INGAME_CHR_BASE( const CHR_REF ICHR )  { return INGAME_CHR_BASE( ICHR );  }
+bool _INGAME_PCHR_BASE( const chr_t * PCHR ) { return INGAME_PCHR_BASE( PCHR ); }
+
+bool _INGAME_CHR( const CHR_REF ICHR )       { return TO_C_BOOL( INGAME_CHR( ICHR ) );  }
+bool _INGAME_PCHR( const chr_t * PCHR )      { return TO_C_BOOL( INGAME_PCHR( PCHR ) ); }

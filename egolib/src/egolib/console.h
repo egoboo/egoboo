@@ -23,6 +23,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/font_ttf.h"
 
 //--------------------------------------------------------------------------------------------
 // TYPEDEFS
@@ -54,3 +55,59 @@
     void        egolib_console_draw_all();
 
     SDL_Event * egolib_console_handle_events( SDL_Event * evt );
+
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define EGOBOO_CONSOLE_LINES   32
+#define EGOBOO_CONSOLE_LENGTH 256
+#define EGOBOO_CONSOLE_PROMPT '>'
+#define EGOBOO_CONSOLE_OUTPUT 4096
+
+#define EGOBOO_CONSOLE_WRITE_LEN 1024
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+/// The encapsulation of the data necessary to run a generic Quake-like console in Egoboo
+    struct s_egolib_console
+    {
+        egolib_console_t           * pnext;
+
+        egolib_console_callback_t    run_func;
+        void                       * run_data;
+
+        Font * pfont;
+
+        SDL_bool on;
+
+        SDL_Rect rect;
+
+        int    save_count;
+        int    save_index;
+        char   save_buffer[EGOBOO_CONSOLE_LINES][EGOBOO_CONSOLE_LENGTH];
+
+        size_t buffer_carat;
+        char   buffer[EGOBOO_CONSOLE_LENGTH];
+
+        size_t output_carat;
+        char   output_buffer[EGOBOO_CONSOLE_OUTPUT];
+    };
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+    extern egolib_console_t * egolib_console_top;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#if defined(__cplusplus)
+}
+
+#endif

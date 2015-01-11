@@ -26,11 +26,15 @@
 #include "game/bsp.h"
 #include "game/game.h"
 #include "game/graphic_billboard.h"
-#include "game/char.inl"
-#include "game/particle.inl"
-#include "game/enchant.inl"
-#include "game/profile.inl"
-#include "game/physics.inl"
+#include "game/char.h"
+#include "game/particle.h"
+#include "game/enchant.h"
+#include "game/profile.h"
+#include "game/physics.h"
+
+#include "game/ChrList.h"
+#include "game/PrtList.h"
+#include "game/EncList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

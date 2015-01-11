@@ -26,8 +26,8 @@
 #include "game/graphic_texture.h"
 #include "game/script_compile.h"
 #include "game/sound.h"
-#include "game/md2.inl"
-#include "game/particle.inl"
+#include "game/md2.h"
+#include "game/particle.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

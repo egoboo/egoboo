@@ -21,7 +21,7 @@
 /// @brief Implementation of code for controlling object texturing
 /// @details
 
-#include "egolib/_math.inl"
+#include "egolib/_math.h"
 #include "game/graphic_texture.h"
 
 //--------------------------------------------------------------------------------------------

@@ -21,11 +21,11 @@
 /// @brief BSPs for meshes.
 
 #include "game/mesh_BSP.h"
-#include "egolib/_math.inl"
-#include "egolib/bsp.inl"
-#include "egolib/bbox.inl"
+#include "egolib/_math.h"
+#include "egolib/bsp.h"
+#include "egolib/bbox.h"
 #include "game/obj_BSP.h"
-#include "game/mesh.inl"
+#include "game/mesh.h"
 
 
 static bool  mesh_BSP_insert(mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int index);

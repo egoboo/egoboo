@@ -46,12 +46,16 @@
 #include "game/module/PassageHandler.hpp"
 #include "game/graphics/CameraSystem.hpp"
 
-#include "game/char.inl"
-#include "game/particle.inl"
-#include "game/enchant.inl"
-#include "game/profile.inl"
-#include "game/mesh.inl"
-#include "game/physics.inl"
+#include "game/char.h"
+#include "game/particle.h"
+#include "game/enchant.h"
+#include "game/profile.h"
+#include "game/mesh.h"
+#include "game/physics.h"
+
+#include "game/ChrList.h"
+#include "game/EncList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 

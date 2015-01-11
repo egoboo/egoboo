@@ -1,6 +1,6 @@
 #include "game/graphics/CameraSystem.hpp"
 
-#include "egolib/_math.inl"
+#include "egolib/_math.h"
 
 #include "game/network.h"
 #include "game/mesh.h"
@@ -8,7 +8,7 @@
 #include "game/game.h"
 #include "game/player.h"
 
-#include "game/ChrList.inl"
+#include "game/ChrList.h"
 
 CameraSystem::CameraSystem() :
 	_initialized(false),

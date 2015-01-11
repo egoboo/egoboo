@@ -30,7 +30,7 @@
 #include "egolib/file_formats/configfile.h"
 #include "egolib/extensions/ogl_texture.h"
 
-#include "egolib/_math.inl"
+#include "egolib/_math.h"
 
 // includes for egoboo constants
 #include "game/graphics/Camera.hpp"            // for CAM_TURN_*

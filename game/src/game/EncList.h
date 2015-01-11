@@ -27,6 +27,9 @@
 #include "game/egoboo_object.h"
 #include "game/enchant.h"
 
+//Forward declarations
+struct enc_t;
+
 //--------------------------------------------------------------------------------------------
 // looping macros
 //--------------------------------------------------------------------------------------------
@@ -65,3 +68,64 @@ void   EncList_cleanup();
 bool EncList_add_activation( const ENC_REF ienc );
 bool EncList_add_termination( const ENC_REF ienc );
 bool EncList_request_terminate( const ENC_REF ienc );
+
+//--------------------------------------------------------------------------------------------
+// testing macros
+//--------------------------------------------------------------------------------------------
+
+#define VALID_ENC_RANGE( IENC )    ( ((ENC_REF)(IENC)) < MAX_ENC )
+#define DEFINED_ENC( IENC )        ( VALID_ENC_RANGE( IENC ) && DEFINED_PENC_RAW   ( EncList.lst + (IENC)) )
+#define ALLOCATED_ENC( IENC )      ( VALID_ENC_RANGE( IENC ) && ALLOCATED_PENC_RAW ( EncList.lst + (IENC)) )
+#define ACTIVE_ENC( IENC )         ( VALID_ENC_RANGE( IENC ) && ACTIVE_PENC_RAW    ( EncList.lst + (IENC)) )
+#define WAITING_ENC( IENC )        ( VALID_ENC_RANGE( IENC ) && WAITING_PENC_RAW   ( EncList.lst + (IENC)) )
+#define TERMINATED_ENC( IENC )     ( VALID_ENC_RANGE( IENC ) && TERMINATED_PENC_RAW( EncList.lst + (IENC)) )
+
+#define GET_INDEX_PENC( PENC )      LAMBDA(NULL == (PENC), INVALID_ENC_IDX, (size_t)GET_INDEX_POBJ( PENC, INVALID_ENC_IDX ))
+#define GET_REF_PENC( PENC )        ((ENC_REF)GET_INDEX_PENC( PENC ))
+#define VALID_ENC_PTR( PENC )       ( (NULL != (PENC)) && VALID_ENC_RANGE( GET_REF_POBJ( PENC, INVALID_ENC_REF) ) )
+#define DEFINED_PENC( PENC )        ( VALID_ENC_PTR( PENC ) && DEFINED_PENC_RAW   ( PENC ) )
+#define ALLOCATED_PENC( PENC )      ( VALID_ENC_PTR( PENC ) && ALLOCATED_PENC_RAW ( PENC ) )
+#define ACTIVE_PENC( PENC )         ( VALID_ENC_PTR( PENC ) && ACTIVE_PENC_RAW    ( PENC ) )
+#define WAITING_PENC( PENC )        ( VALID_ENC_PTR( PENC ) && WAITING_PENC_RAW   ( PENC ) )
+#define TERMINATED_PENC( PENC )     ( VALID_ENC_PTR( PENC ) && TERMINATED_PENC_RAW( PENC ) )
+
+// Macros to determine whether the enchant is in the game or not.
+// If objects are being spawned, then any object that is just "defined" is treated as "in game"
+#define INGAME_ENC_BASE(IENC)       ( VALID_ENC_RANGE( IENC ) && INGAME_PENC_BASE_RAW( EncList.lst + (IENC) ) )
+#define INGAME_PENC_BASE(PENC)      ( VALID_ENC_PTR( PENC ) && INGAME_PENC_BASE_RAW( PENC ) )
+
+#define INGAME_ENC(IENC)            LAMBDA( ego_object_spawn_depth > 0, DEFINED_ENC(IENC), INGAME_ENC_BASE(IENC) )
+#define INGAME_PENC(PENC)           LAMBDA( ego_object_spawn_depth > 0, DEFINED_PENC(PENC), INGAME_PENC_BASE(PENC) )
+
+// macros without range checking
+#define INGAME_PENC_BASE_RAW(PENC)      ( ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) && ON_PBASE( POBJ_GET_PBASE(PENC) ) )
+#define DEFINED_PENC_RAW( PENC )        ( ALLOCATED_PBASE ( POBJ_GET_PBASE(PENC) ) && !TERMINATED_PBASE ( POBJ_GET_PBASE(PENC) ) )
+#define ALLOCATED_PENC_RAW( PENC )      ALLOCATED_PBASE( POBJ_GET_PBASE(PENC) )
+#define ACTIVE_PENC_RAW( PENC )         ACTIVE_PBASE( POBJ_GET_PBASE(PENC) )
+#define WAITING_PENC_RAW( PENC )        WAITING_PBASE   ( POBJ_GET_PBASE(PENC) )
+#define TERMINATED_PENC_RAW( PENC )     TERMINATED_PBASE( POBJ_GET_PBASE(PENC) )
+
+//--------------------------------------------------------------------------------------------
+// testing functions
+//--------------------------------------------------------------------------------------------
+
+bool _VALID_ENC_RANGE( const ENC_REF IENC );
+bool _DEFINED_ENC( const ENC_REF IENC );
+bool _ALLOCATED_ENC( const ENC_REF IENC );
+bool _ACTIVE_ENC( const ENC_REF IENC );
+bool _WAITING_ENC( const ENC_REF IENC );
+bool _TERMINATED_ENC( const ENC_REF IENC );
+
+size_t  _GET_INDEX_PENC( const enc_t * PENC );
+ENC_REF _GET_REF_PENC( const enc_t * PENC );
+bool  _DEFINED_PENC( const enc_t * PENC );
+bool  _VALID_ENC_PTR( const enc_t * PENC );
+bool  _ALLOCATED_PENC( const enc_t * PENC );
+bool  _ACTIVE_PENC( const enc_t * PENC );
+bool  _TERMINATED_PENC( const enc_t * PENC );
+
+bool _INGAME_ENC_BASE( const ENC_REF IENC );
+bool _INGAME_PENC_BASE( const enc_t * PENC );
+
+bool _INGAME_ENC( const ENC_REF IENC );
+bool _INGAME_PENC( const enc_t * PENC );

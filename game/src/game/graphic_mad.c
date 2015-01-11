@@ -21,7 +21,7 @@
 /// @brief Character model drawing code.
 /// @details
 
-#include "egolib/bbox.inl"
+#include "egolib/bbox.h"
 #include "game/graphic_mad.h"
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
@@ -32,9 +32,13 @@
 #include "game/lighting.h"
 #include "game/egoboo.h"
 #include "game/graphics/CameraSystem.hpp"
-#include "game/profile.inl"
-#include "game/char.inl"
-#include "game/md2.inl"
+#include "game/profile.h"
+#include "game/char.h"
+#include "game/md2.h"
+
+#include "game/ChrList.h"
+#include "game/EncList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

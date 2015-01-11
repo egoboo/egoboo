@@ -22,6 +22,7 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
+#include "egolib/bbox.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -179,3 +180,19 @@ bool get_chr_mass( chr_t * pchr, float * wt );
 bool get_prt_mass( struct s_prt * pprt, chr_t * pchr, float * wt );
 void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
 
+//Inline below
+apos_t * apos_self_clear( apos_t * val );
+
+bool test_interaction_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform );
+bool test_interaction_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform );
+bool test_interaction_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const oct_bb_t * cv_b, const fvec3_base_t pos_b, int test_platform );
+bool test_interaction_close_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform );
+bool test_interaction_close_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform );
+bool test_interaction_close_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const oct_bb_t * cv_b, const fvec3_base_t pos_b, int test_platform );
+
+bool get_depth_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth );
+bool get_depth_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth );
+bool get_depth_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const oct_bb_t * cv_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth );
+bool get_depth_close_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth );
+bool get_depth_close_1( const oct_bb_t * cv_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth );
+bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv_b, bool break_out, oct_vec_t depth );
