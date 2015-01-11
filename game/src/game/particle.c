@@ -22,7 +22,6 @@
 
 #include "game/particle.inl"
 #include "game/sound.h"
-#include "game/camera_system.h"
 #include "game/game.h"
 #include "game/mesh.h"
 #include "game/obj_BSP.h"

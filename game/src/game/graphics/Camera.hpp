@@ -27,80 +27,94 @@
 //Forward declarations
 struct ego_mesh_t;
 
+/// The camera mode.
+enum CameraMode : uint8_t
+{
+    CAM_PLAYER,
+    CAM_FREE,
+    CAM_RESET
+};
+
+/// The mode that the camera uses to determine where is is looking.
+enum CameraTurnMode : uint8_t
+{
+	CAM_TURN_NONE = 0,
+	CAM_TURN_AUTO = 1,
+	CAM_TURN_GOOD = 255
+};
+
+struct CameraOptions
+{
+    int            swing;                   ///< Camera swing angle
+    int            swingRate;               ///< Camera swing rate
+    float          swingAmp;                ///< Camera swing amplitude
+	CameraTurnMode turnMode;                ///< what is the camera turn mode
+};
+	
+/// The default field of view angle (in degrees).
+constexpr float DEFAULT_FOV = 60.0f;
+
+/// The default joystick turn rotation.
+/// @todo What unit is that?
+constexpr float DEFAULT_TURN_JOY= 64;
+
+/// The default keyboard turn rotation.
+/// @todo What unit is that?
+constexpr float DEFAULT_TURN_KEY = DEFAULT_TURN_JOY;
+
+/// The default smooth turn rotation.
+/// @todo What unit is that?
+constexpr uint8_t DEFAULT_TURN_TIME = 16;
+
+/// Multi cam uses macro to switch between old and new camera
+constexpr float CAM_ZOOM_FACTOR = 0.5f;
+#ifdef OLD_CAMERA_MODE
+    constexpr float CAM_ZOOM_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera distance
+    constexpr float CAM_ZOOM_MAX = (700 * CAM_ZOOM_FACTOR);
+    constexpr float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
+    constexpr float CAM_ZADD_MAX = (2750 * CAM_ZOOM_FACTOR);
+#else
+    constexpr float CAM_ZOOM_MIN = (500 * CAM_ZOOM_FACTOR);       ///< Camera distance
+    constexpr float CAM_ZOOM_MAX = (800 * CAM_ZOOM_FACTOR);
+    constexpr float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
+    constexpr float CAM_ZADD_MAX = (1900 * CAM_ZOOM_FACTOR);
+#endif
+
+constexpr float CAM_ZADD_AVG = (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX));
+constexpr float CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
+
+/**
+* @brief class for handling camera
+**/
 class Camera
 {
 public:
-
-	/// The default field of view angle (in degrees).
-	static constexpr float DEFAULT_FOV = 60.0f;
-
-	/// The default joystick turn rotation.
-	/// @todo What unit is that?
-	static constexpr float DEFAULT_TURN_JOY= 64;
-
-	/// The default keyboard turn rotation.
-	/// @todo What unit is that?
-	static constexpr float DEFAULT_TURN_KEY = DEFAULT_TURN_JOY;
-
-	/// The default smooth turn rotation.
-	/// @todo What unit is that?
-	static constexpr uint8_t DEFAULT_TURN_TIME = 16;
-
-	/// Multi cam uses macro to switch between old and new camera
-	static constexpr float CAM_ZOOM_FACTOR = 0.5f;
-	#ifdef OLD_CAMERA_MODE
-		static constexpr float CAM_ZOOM_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera distance
-		static constexpr float CAM_ZOOM_MAX = (700 * CAM_ZOOM_FACTOR);
-		static constexpr float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
-		static constexpr float CAM_ZADD_MAX = (2750 * CAM_ZOOM_FACTOR);
-	#else
-		static constexpr float CAM_ZOOM_MIN = (500 * CAM_ZOOM_FACTOR);       ///< Camera distance
-		static constexpr float CAM_ZOOM_MAX = (600 * CAM_ZOOM_FACTOR);
-		static constexpr float CAM_ZADD_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera height
-		static constexpr float CAM_ZADD_MAX = (1500 * CAM_ZOOM_FACTOR);
-	#endif
-
-	static constexpr float CAM_ZADD_AVG = (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX));
-	static constexpr float CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
-
-	/// The camera mode.
-	enum CameraMode : uint8_t
-	{
-	    CAM_PLAYER,
-	    CAM_FREE,
-	    CAM_RESET
-	};
-
-	/// The mode that the camera uses to determine where is is looking.
-	enum CameraTurnMode : uint8_t
-	{
-		CAM_TURN_NONE = 0,
-		CAM_TURN_AUTO = 1,
-		CAM_TURN_GOOD = 255
-	};
-
-	struct CameraOptions
-	{
-	    int            swing;                   ///< Camera swing angle
-	    int            swingRate;               ///< Camera swing rate
-	    float          swingAmp;                ///< Camera swing amplitude
-		CameraTurnMode turnMode;                ///< what is the camera turn mode
-	};
-
-public:
 	Camera(const CameraOptions &options);
+    virtual ~Camera();
 
-	void resetView();
+    //various getters
+	inline const fmat_4x4_t& getProjection() const {return _mProjection;}
+    inline const egolib_frustum_t& getFrustum() const {return _frustum;}
+	inline const fmat_4x4_t& getView() const {return _mView;}
+    inline const orientation_t& getOrientation() const {return _ori;}
+    inline CameraTurnMode getTurnMode() const { return _turnMode; }
+    inline const fvec3_t& getTrackPosition() const { return _trackPos; }
+    inline const fvec3_t& getCenter() const { return _center; }
+    inline const fvec3_t& getPosition() const { return _pos; }
+    inline uint8_t getTurnTime() const { return _turnTime; }
+    inline float getTurnZOne() const { return _turnZOne; }
+    inline float getTurnZRad() const { return _turnZRad; }
 
-	void resetProjection(const float fov_deg, const float aspect_ratio);
 
-    /// @details This function moves the camera
-	void update(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
+    inline const fvec3_t& getVUP() const { return _vup; }
+    inline const fvec3_t& getVRT() const { return _vrt; }
+    inline const fvec3_t& getVFW() const { return _vfw; }
 
-    /// @details This function makes sure the camera starts in a suitable position
-	void reset(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
+    inline float getMotionBlur() const { return _motionBlur; }
+    inline float getMotionBlurOld() const { return _motionBlurOld; }
+    inline int getSwing() const { return _swing; }
 
-private:
+protected:
     /**
     * @brief This function makes the camera turn to face the character
 	**/
@@ -146,6 +160,16 @@ private:
 	* @brief Helper function to calculate FOV
 	**/
 	static inline float multiplyFOV(const float old_fov_deg, const float factor);
+
+	void resetView();
+
+	void updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near = 1.0f, const float frustum_far = 20.0f);
+
+    /// @details This function moves the camera
+	void update(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
+
+    /// @details This function makes sure the camera starts in a suitable position
+	void reset(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
 
 private:
 	const CameraOptions _options;

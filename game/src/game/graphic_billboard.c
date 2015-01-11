@@ -26,7 +26,7 @@
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
-#include "game/camera.h"
+#include "game/graphics/Camera.hpp"
 #include "game/char.inl"
 #include "game/particle.inl"
 
@@ -472,11 +472,11 @@ bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fve
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv billboard_system_render_all( const camera_t * pcam )
+gfx_rv billboard_system_render_all( std::shared_ptr<ExtendedCamera> pcam )
 {
     BBOARD_REF cnt;
 
-    if ( NULL == pcam )
+    if ( nullptr == pcam )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
         return gfx_error;
@@ -514,7 +514,7 @@ gfx_rv billboard_system_render_all( const camera_t * pcam )
                 pbb = BillboardList_get_ptr( cnt );
                 if ( NULL == pbb || !pbb->valid ) continue;
 
-                billboard_system_render_one( pbb, 0.75f, pcam->vup.v, pcam->vrt.v );
+                billboard_system_render_one( pbb, 0.75f, pcam->getVUP().v, pcam->getVRT().v );
             }
         }
         ATTRIB_POP( __FUNCTION__ );

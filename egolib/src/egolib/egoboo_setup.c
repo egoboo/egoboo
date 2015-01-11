@@ -33,7 +33,7 @@
 #include "egolib/_math.inl"
 
 // includes for egoboo constants
-#include "game/camera.h"            // for CAM_TURN_*
+#include "game/graphics/Camera.hpp"            // for CAM_TURN_*
 #include "game/renderer_2d.h"       // for EGO_MESSAGE_MAX
 
 //--------------------------------------------------------------------------------------------

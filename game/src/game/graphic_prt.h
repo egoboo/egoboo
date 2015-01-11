@@ -110,5 +110,5 @@ void   render_all_prt_bbox();
 
 void   render_all_prt_attachment();
 
-gfx_rv update_all_prt_instance( const struct camera_t * pcam );
+gfx_rv update_all_prt_instance( std::shared_ptr<ExtendedCamera> pcam );
 

@@ -30,7 +30,7 @@
 // Forward declarations.
 struct oct_bb_t;
 struct aabb_t;
-struct camera_t;
+class ExtendedCamera;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ struct s_line_data
 void line_list_init();
 int  line_list_get_free();
 bool line_list_add( const float src_x, const float src_y, const float src_z, const float pos_x, const float dst_y, const float dst_z, const int duration );
-void line_list_draw_all( const camera_t *pcam );
+void line_list_draw_all( std::shared_ptr<ExtendedCamera> pcam );
 
 //--------------------------------------------------------------------------------------------
 // some points to be drawn in the display
@@ -89,12 +89,12 @@ struct s_point_data
 void point_list_init();
 int  point_list_get_free();
 bool point_list_add( const float x, const float y, const float z, const int duration );
-void point_list_draw_all( const camera_t *pcam );
+void point_list_draw_all( std::shared_ptr<ExtendedCamera> pcam );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void gfx_begin_3d( const camera_t *pcam );
+void gfx_begin_3d( std::shared_ptr<ExtendedCamera> pcam );
 void gfx_end_3d();
 
 bool render_oct_bb( oct_bb_t *bb, bool draw_square, bool draw_diamond );

@@ -24,7 +24,6 @@
 #include "game/graphic.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_texture.h"
-#include "game/camera_system.h"
 #include "game/game.h"
 #include "game/renderer_3d.h"
 #include "game/egoboo.h"

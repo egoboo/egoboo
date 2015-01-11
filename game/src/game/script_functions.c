@@ -29,7 +29,6 @@
 #include "game/script_implementation.h"
 #include "game/mad.h"
 #include "game/link.h"
-#include "game/camera_system.h"
 #include "game/input.h"
 #include "game/network.h"
 #include "game/game.h"
@@ -45,6 +44,7 @@
 #include "game/mesh.inl"
 
 #include "game/module/PassageHandler.hpp"
+#include "game/graphics/CameraSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -3608,30 +3608,20 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
     /// @details This function sends a message if the camera is in the nearby area
 
     int iTmp, min_distance;
-    ext_camera_list_t * plst;
-    ext_camera_iterator_t * it;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // get the camera list
-    plst = camera_system_get_list();
-
     // iterate over all cameras and find the minimum distance
     min_distance = -1;
-    for ( it = camera_list_iterator_begin( plst ); NULL != it; it = camera_list_iterator_next( it ) )
+    for(std::shared_ptr<ExtendedCamera> camera : _cameraSystem.getCameraList())
     {
-        camera_t * pcam = camera_list_iterator_get_camera( it );
-        if ( NULL != pcam )
-        {
-            iTmp = ABS( pchr->pos_old.x - pcam->track_pos.x ) + ABS( pchr->pos_old.y - pcam->track_pos.y );
+        iTmp = std::fabs( pchr->pos_old.x - camera->getTrackPosition().x ) + std::fabs( pchr->pos_old.y - camera->getTrackPosition().y );
 
-            if ( -1 == min_distance || iTmp < min_distance )
-            {
-                min_distance = iTmp;
-            }
+        if ( -1 == min_distance || iTmp < min_distance )
+        {
+            min_distance = iTmp;
         }
     }
-    it = camera_list_iterator_end( it );
 
     if ( min_distance < MSGDISTANCE )
     {

@@ -63,7 +63,12 @@ Camera::Camera(const CameraOptions &options) :
     _ori.facing_z = ONE_TO_TURN( _turnZOne ) ;
 
     resetView();
-    resetProjection(DEFAULT_FOV, static_cast<float>(sdl_scr.x) / static_cast<float>(sdl_scr.y) );
+    updateProjection(DEFAULT_FOV, static_cast<float>(sdl_scr.x) / static_cast<float>(sdl_scr.y) );
+}
+
+Camera::~Camera()
+{
+    //dtor
 }
 
 float Camera::multiplyFOV( const float old_fov_deg, const float factor )
@@ -79,11 +84,9 @@ float Camera::multiplyFOV( const float old_fov_deg, const float factor )
     return new_fov_deg;
 }
 
-void Camera::resetProjection(const float fov_deg, const float aspect_ratio)
+void Camera::updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near, const float frustum_far)
 {
     const float fov_mag = SQRT_TWO;
-    const float frustum_near = 1;
-    const float frustum_far = 20;
 
     float fov_big   = fov_deg;
     float fov_small = fov_deg;
@@ -263,7 +266,7 @@ void Camera::updateCenter()
         fvec3_sub( track_vec.v, _trackPos.v, _pos.v );
 
         // determine the size of the dead zone
-        track_fov = camera_t::DEFAULT_FOV * 0.25f;
+        track_fov = DEFAULT_FOV * 0.25f;
         track_dist = fvec3_length( track_vec.v );
         track_size = track_dist * TAN( track_fov );
         track_size_x = track_size;
@@ -365,12 +368,12 @@ void Camera::updateTrack(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &t
 
 	        if ( SDL_KEYDOWN( keyb, SDLK_KP7 ) )
 	        {
-	            _turnZAdd += camera_t::DEFAULT_TURN_KEY;
+	            _turnZAdd += DEFAULT_TURN_KEY;
 	        }
 
 	        if ( SDL_KEYDOWN( keyb, SDLK_KP9 ) )
 	        {
-	            _turnZAdd -= camera_t::DEFAULT_TURN_KEY;
+	            _turnZAdd -= DEFAULT_TURN_KEY;
 	        }
 
 	        _trackPos.z = 128 + ego_mesh_get_level( pmesh, _trackPos.x, _trackPos.y );
@@ -762,8 +765,8 @@ void Camera::resetTarget( const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &
     resetView();
 
     // specify the modes that will make the camera point at the players
-    _turnMode = Camera::CAM_TURN_AUTO;
-    _moveMode = Camera::CAM_RESET;
+    _turnMode = CAM_TURN_AUTO;
+    _moveMode = CAM_RESET;
 
     // If you use CAM_RESET, camera_move() automatically restores _moveMode
     // to its default setting
@@ -801,7 +804,7 @@ void Camera::updateEffects()
         _swing = ( _swing + 120 ) & 0x3FFF;
         local_swingamp = std::max( local_swingamp, 0.175f );
 
-        zoom_add = ( 0 == ((( int )local_stats.grog_level ) % 2 ) ? 1 : - 1 ) * camera_t::DEFAULT_TURN_KEY * local_stats.grog_level * 0.35f;
+        zoom_add = ( 0 == ((( int )local_stats.grog_level ) % 2 ) ? 1 : - 1 ) * DEFAULT_TURN_KEY * local_stats.grog_level * 0.35f;
 
         _zaddGoto   = _zaddGoto + zoom_add;
 
@@ -811,7 +814,7 @@ void Camera::updateEffects()
     //Rotate camera if they are dazed
     if ( local_stats.daze_level > 0 )
     {
-        _turnZAdd = local_stats.daze_level * camera_t::DEFAULT_TURN_KEY * 0.5f;
+        _turnZAdd = local_stats.daze_level * DEFAULT_TURN_KEY * 0.5f;
     }
     
     // Apply motion blur

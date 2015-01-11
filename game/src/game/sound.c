@@ -22,7 +22,7 @@
 /// @details
 
 #include "game/sound.h"
-#include "game/camera_system.h"
+#include "game/graphics/CameraSystem.hpp"
 #include "game/game.h"
 #include "game/graphic.h"
 #include "game/char.inl"
@@ -635,7 +635,7 @@ int sound_play_chunk_looped( const fvec3_base_t snd_pos, const Mix_Chunk * pchun
     // measure the distance in tiles
     _calculate_average_camera_stereo( snd_pos, cam_pos.v, cam_center.v, diff.v, &pan );
 
-    volume = _calculate_volume( cam_pos.v, cam_center.v, diff.v, DEG_TO_RAD( camera_t::DEFAULT_FOV ) );
+    volume = _calculate_volume( cam_pos.v, cam_center.v, diff.v, DEG_TO_RAD( Camera::DEFAULT_FOV ) );
 
     // play the sound
     if ( volume > 0 )
@@ -1319,10 +1319,8 @@ bool _update_channel_volume( int channel, const int volume, const float pan )
 //--------------------------------------------------------------------------------------------
 bool _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t cam_pos, fvec3_base_t cam_center, fvec3_base_t diff, float * pan_ptr )
 {
-    int cam_count;
     fvec2_t pan_diff;
-    ext_camera_iterator_t * it;
-    ext_camera_list_t * pclst;
+    fvec3_t tmp_diff;
 
     if ( NULL == pos ) return false;
 
@@ -1332,30 +1330,17 @@ bool _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t cam_
     fvec3_self_clear( diff );
     fvec2_self_clear( pan_diff.v );
 
-    // get the camera list
-    pclst = camera_system_get_list();
-
-    // iterate over all cameras
-    cam_count = 0;
-    for ( it = camera_list_iterator_begin( pclst ); NULL != it; it = camera_list_iterator_next( it ) )
+    for(const std::shared_ptr<ExtendedCamera> &camera : _cameraSystem.getCameraList())
     {
-        fvec3_t tmp_diff;
-
-        camera_t * pcam = camera_list_iterator_get_camera( it );
-        if ( NULL == pcam ) continue;
-
-        // how many cameras?
-        cam_count++;
-
         // find the difference relative to this camera
-        fvec3_sub( tmp_diff.v, pos, pcam->center.v );
+        fvec3_sub( tmp_diff.v, pos, camera->getCenter().v );
 
         // sum up the differences
         fvec3_self_sum( diff, tmp_diff.v );
 
         // sum up the center positions
-        fvec3_self_sum( cam_pos, pcam->pos.v );
-        fvec3_self_sum( cam_center, pcam->center.v );
+        fvec3_self_sum( cam_pos, camera->getPosition().v );
+        fvec3_self_sum( cam_center, camera->getCenter().v );
 
         // if pan is required...
         if ( NULL != pan_ptr )
@@ -1365,8 +1350,8 @@ bool _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t cam_
             fvec2_t norm_diff, cam_diff, tmp;
 
             // calculate the camera trig functions
-            cam_sin = SIN( pcam->turn_z_rad );
-            cam_cos = COS( pcam->turn_z_rad );
+            cam_sin = SIN( camera->getTurnZRad() );
+            cam_cos = COS( camera->getTurnZRad() );
 
             // get the distance squared
             diff2 = fvec2_length_2( tmp_diff.v );
@@ -1394,9 +1379,9 @@ bool _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t cam_
             }
         }
     }
-    it = camera_list_iterator_end( it );
 
     // get the average
+    const size_t cam_count = _cameraSystem.getCameraList().size();
     if ( cam_count > 1 )
     {
         fvec3_self_scale( diff, 1.0f / cam_count );
@@ -1423,7 +1408,7 @@ bool _update_stereo_channel( int channel, const fvec3_base_t cam_pos, const fvec
 
     if ( INVALID_SOUND_CHANNEL == channel ) return false;
 
-    volume = _calculate_volume( cam_pos, cam_center, diff, DEG_TO_RAD( camera_t::DEFAULT_FOV ) );
+    volume = _calculate_volume( cam_pos, cam_center, diff, DEG_TO_RAD( Camera::DEFAULT_FOV ) );
 
     return _update_channel_volume( channel, volume, pan );
 }

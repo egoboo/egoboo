@@ -30,7 +30,6 @@
 
 // Forward declarations.
 struct ego_mesh_t;
-struct camera_t;
 struct script_state_t;
 struct mod_file_t;
 
@@ -47,6 +46,7 @@ struct s_prt;
 struct s_prt_bundle;
 
 struct s_import_list;
+class CameraSystem;
 
 //--------------------------------------------------------------------------------------------
 // forward declaration of internal structs
@@ -387,11 +387,11 @@ struct s_pit_info
 /// Status display info
 struct s_status_list_element
 {
-    int     camera_index;
+    int camera_index;
     CHR_REF who;
 };
 
-#define STATUS_LIST_ELEMENT_INIT { -1 /* camera_index */, MAX_CHR /* who */ }
+#define STATUS_LIST_ELEMENT_INIT { -1 /* camera_ptr */, MAX_CHR /* who */ }
 
 //--------------------------------------------------------------------------------------------
 
@@ -413,8 +413,10 @@ bool status_list_update_cameras( status_list_t * plst );
 // various global pointers
 extern game_process_t  *GProc;
 extern ego_mesh_t *PMesh;
-extern camera_t *PCamera;
 extern struct s_game_module * PMod;
+
+//TODO: remove this global
+extern CameraSystem _cameraSystem;
 
 // special terrain and wawalite-related data structs
 extern animtile_instance_t animtile[2];
@@ -498,7 +500,6 @@ void  free_all_objects();
 
 /// Data
 ego_mesh_t *set_PMesh( ego_mesh_t * pmpd );
-camera_t  *set_PCamera( camera_t * pcam );
 
 float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk );
 

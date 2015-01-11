@@ -25,12 +25,12 @@
 #include "game/script_compile.h"
 #include "game/script_functions.h"
 #include "game/mad.h"
-#include "game/camera_system.h"
 #include "game/game.h"
 #include "game/network.h"
 #include "game/player.h"
 #include "game/profile.inl"
 #include "game/char.inl"
+#include "game/graphics/CameraSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1264,13 +1264,12 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             case VARSWINGTURN:
                 varname = "SWINGTURN";
                 {
-                    ext_camera_list_t * plst = camera_system_get_list();
-                    camera_t          * pcam = camera_list_find_target( plst, pself->index );
+                    std::shared_ptr<ExtendedCamera> camera = _cameraSystem.getCameraByChrID(pself->index);
 
                     iTmp = 0;
-                    if ( NULL != pcam )
+                    if ( camera )
                     {
-                        iTmp = pcam->swing << 2;
+                        iTmp = camera->getSwing() << 2;
                     }
                 }
                 break;
