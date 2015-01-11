@@ -2081,7 +2081,7 @@ void set_one_player_latch( const PLA_REF ipla )
     if ( !input_device_is_enabled( pdevice ) ) return;
 
     // find the camera that is pointing at this character
-    std::shared_ptr<ExtendedCamera> pcam = _cameraSystem.getCameraByChrID(ppla->index);
+    std::shared_ptr<Camera> pcam = _cameraSystem.getCameraByChrID(ppla->index);
     if ( nullptr == pcam ) return;
 
     // fast camera turn if it is enabled and there is only 1 local player

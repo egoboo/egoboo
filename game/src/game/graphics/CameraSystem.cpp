@@ -45,7 +45,7 @@ void CameraSystem::begin(const size_t numberOfCameras)
 
     //Create cameras (allow for 0 cameras)
     for(size_t i = 0; i < std::min(numberOfCameras, MAX_CAMERAS); ++i) {
-        std::shared_ptr<ExtendedCamera> camera = std::make_shared<ExtendedCamera>(_cameraOptions);
+        std::shared_ptr<Camera> camera = std::make_shared<Camera>(_cameraOptions);
 
         // lock a renderlist for this camera
         const int renderList = renderlist_mgr_get_free_idx( rmgr_ptr );
@@ -91,7 +91,7 @@ void CameraSystem::resetAll(const ego_mesh_t * pmesh)
 	}
 
     // reset each camera
-    for(const std::shared_ptr<ExtendedCamera> &camera : _cameraList)
+    for(const std::shared_ptr<Camera> &camera : _cameraList)
     {
     	camera->reset(pmesh);
     }
@@ -104,7 +104,7 @@ void CameraSystem::updateAll( const ego_mesh_t * pmesh )
 	}
 
     // update each camera
-    for(const std::shared_ptr<ExtendedCamera> &camera : _cameraList)
+    for(const std::shared_ptr<Camera> &camera : _cameraList)
     {
     	camera->update(pmesh);
     }
@@ -117,13 +117,13 @@ void CameraSystem::resetAllTargets( const ego_mesh_t * pmesh )
 	}
 
     // update each camera
-    for(const std::shared_ptr<ExtendedCamera> &camera : _cameraList)
+    for(const std::shared_ptr<Camera> &camera : _cameraList)
     {
     	camera->resetTarget(pmesh);
     }
 }
 
-egolib_rv CameraSystem::renderAll( std::function<void(std::shared_ptr<ExtendedCamera>, int, int)> renderFunction )
+egolib_rv CameraSystem::renderAll( std::function<void(std::shared_ptr<Camera>, int, int)> renderFunction )
 {
     if ( NULL == renderFunction ) {
         return rv_error;
@@ -134,9 +134,9 @@ egolib_rv CameraSystem::renderAll( std::function<void(std::shared_ptr<ExtendedCa
     }
 
     //Store main camera to restore
-    std::shared_ptr<ExtendedCamera> storeMainCam = _mainCamera;
+    std::shared_ptr<Camera> storeMainCam = _mainCamera;
 
-    for(const std::shared_ptr<ExtendedCamera> &camera : _cameraList) 
+    for(const std::shared_ptr<Camera> &camera : _cameraList) 
     {
         // set the "global" camera pointer to this camera
         _mainCamera = camera;
@@ -147,13 +147,13 @@ egolib_rv CameraSystem::renderAll( std::function<void(std::shared_ptr<ExtendedCa
         }
 
         // set up everything for this camera
-        GLint mode = beginExtendedCameraMode(camera);
+        GLint mode = beginCameraMode(camera);
 
         // render the world for this camera
         renderFunction( camera, camera->getRenderList(), camera->getDoList() );
 
         // undo the camera setup
-        endExtendedCameraMode(mode);
+        endCameraMode(mode);
 
         //Set last update frame
         camera->setLastFrame(game_frame_all);
@@ -184,13 +184,13 @@ size_t CameraSystem::getCameraIndexByID(const CHR_REF target) const
     return 0;
 }
 
-std::shared_ptr<ExtendedCamera> CameraSystem::getCameraByChrID(const CHR_REF target) const
+std::shared_ptr<Camera> CameraSystem::getCameraByChrID(const CHR_REF target) const
 {
     if ( !VALID_CHR_RANGE( target ) )  {
     	return _mainCamera;
     }
 
-    for(const std::shared_ptr<ExtendedCamera> &camera : _cameraList) 
+    for(const std::shared_ptr<Camera> &camera : _cameraList) 
     {
     	for(CHR_REF id : camera->getTrackList())
     	{
@@ -203,7 +203,7 @@ std::shared_ptr<ExtendedCamera> CameraSystem::getCameraByChrID(const CHR_REF tar
     return _mainCamera;
 }
 
-void CameraSystem::endExtendedCameraMode( GLint mode )
+void CameraSystem::endCameraMode( GLint mode )
 {
     // return the old modelview mode
     glMatrixMode( GL_MODELVIEW );
@@ -224,7 +224,7 @@ void CameraSystem::endExtendedCameraMode( GLint mode )
 }
 
 
-GLint CameraSystem::beginExtendedCameraMode( const std::shared_ptr<ExtendedCamera> &camera)
+GLint CameraSystem::beginCameraMode( const std::shared_ptr<Camera> &camera)
 {
     /// how much bigger is mProjection_big than mProjection?
 	GLint mode;
@@ -338,9 +338,6 @@ void CameraSystem::autoSetTargets()
 
     // find a valid camera
     size_t cameraIndex = 0;
-
-    // is there at least one valid camera?
-    int target_count = 0;
    
     // put all the valid players into camera 0
     for ( size_t cnt = 0; cnt < MAX_PLAYER; cnt++ )
@@ -359,7 +356,6 @@ void CameraSystem::autoSetTargets()
 
         // store the target
         _cameraList[cameraIndex]->addTrackTarget(ppla->index);
-        target_count++;
         cameraIndex++;
     }
 

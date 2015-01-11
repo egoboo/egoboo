@@ -20,7 +20,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/input.h"
-#include "game/graphics/ExtendedCamera.hpp"
+#include "game/graphics/Camera.hpp"
 
 // Forward declaration.
 struct ego_mesh_t;
@@ -29,8 +29,7 @@ constexpr size_t MAX_CAMERAS = MAX_LOCAL_PLAYERS;
 
 class CameraSystem
 {
-public:
-	
+public:	
 	CameraSystem();
 
 	/**
@@ -52,25 +51,25 @@ public:
 	void updateAll( const ego_mesh_t * pmesh );
 	void resetAllTargets( const ego_mesh_t * pmesh );
 
-	egolib_rv renderAll(std::function<void(std::shared_ptr<ExtendedCamera>, int, int)> prend);
+	egolib_rv renderAll(std::function<void(std::shared_ptr<Camera>, int, int)> prend);
 
-	std::shared_ptr<ExtendedCamera> getCameraByChrID(const CHR_REF target) const;
+	std::shared_ptr<Camera> getCameraByChrID(const CHR_REF target) const;
 
 	size_t getCameraIndexByID(const CHR_REF target) const;
 
-	inline const std::vector<std::shared_ptr<ExtendedCamera>>& getCameraList() const {return _cameraList;}
+	inline const std::vector<std::shared_ptr<Camera>>& getCameraList() const {return _cameraList;}
 
     /**
     * @brief write access to global camera options
     **/
     CameraOptions& getCameraOptions();
 
-	inline std::shared_ptr<ExtendedCamera> getMainCamera() const {return _mainCamera;}
+	inline std::shared_ptr<Camera> getMainCamera() const {return _mainCamera;}
 
 private:
 
-	GLint beginExtendedCameraMode(const std::shared_ptr<ExtendedCamera> &camera);
-	void endExtendedCameraMode( GLint mode );
+	GLint beginCameraMode(const std::shared_ptr<Camera> &camera);
+	void endCameraMode( GLint mode );
 
 	/**
 	* @brief Determines the size of each camera depending on number of cameras and screen resolution.
@@ -86,6 +85,6 @@ private:
 private:
 	bool _initialized;
 	CameraOptions _cameraOptions;
-	std::vector<std::shared_ptr<ExtendedCamera>> _cameraList;
-	std::shared_ptr<ExtendedCamera> _mainCamera;
+	std::vector<std::shared_ptr<Camera>> _cameraList;
+	std::shared_ptr<Camera> _mainCamera;
 };

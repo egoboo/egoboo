@@ -1330,7 +1330,7 @@ bool _calculate_average_camera_stereo( const fvec3_base_t pos, fvec3_base_t cam_
     fvec3_self_clear( diff );
     fvec2_self_clear( pan_diff.v );
 
-    for(const std::shared_ptr<ExtendedCamera> &camera : _cameraSystem.getCameraList())
+    for(const std::shared_ptr<Camera> &camera : _cameraSystem.getCameraList())
     {
         // find the difference relative to this camera
         fvec3_sub( tmp_diff.v, pos, camera->getCenter().v );

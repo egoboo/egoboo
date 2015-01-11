@@ -36,7 +36,7 @@ static point_data_t point_list[POINT_COUNT];
 //--------------------------------------------------------------------------------------------
 // MODE CONTROL
 //--------------------------------------------------------------------------------------------
-void gfx_begin_3d( std::shared_ptr<ExtendedCamera> camera )
+void gfx_begin_3d( std::shared_ptr<Camera> camera )
 {
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
@@ -122,7 +122,7 @@ bool line_list_add( const float src_x, const float src_y, const float src_z, con
 }
 
 //--------------------------------------------------------------------------------------------
-void line_list_draw_all( std::shared_ptr<ExtendedCamera> pcam )
+void line_list_draw_all( std::shared_ptr<Camera> pcam )
 {
     /// @author BB
     /// @details draw some lines for debugging purposes
@@ -253,7 +253,7 @@ int point_list_get_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void point_list_draw_all( std::shared_ptr<ExtendedCamera> pcam )
+void point_list_draw_all( std::shared_ptr<Camera> pcam )
 {
     /// @author BB
     /// @details draw some points for debugging purposes

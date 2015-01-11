@@ -53,8 +53,8 @@ static void draw_chr_attached_grip( chr_t * pchr );
 static void draw_chr_bbox( chr_t * pchr );
 
 // these functions are only called by render_one_mad()
-static gfx_rv render_one_mad_enviro( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
-static gfx_rv render_one_mad_tex( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+static gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+static gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
 
 // private chr_instance_t methods
 static gfx_rv chr_instance_alloc( chr_instance_t * pinst, size_t vlst_size );
@@ -77,7 +77,7 @@ static matrix_cache_t * matrix_cache_init( matrix_cache_t * mcache );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_enviro( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @author ZZ
     /// @details This function draws an environment mapped model
@@ -292,7 +292,7 @@ else
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_tex( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @author ZZ
     /// @details This function draws a model
@@ -506,7 +506,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF c
 */
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
+gfx_rv render_one_mad( std::shared_ptr<Camera> pcam, const CHR_REF character, GLXvector4f tint, const BIT_FIELD bits )
 {
     /// @author ZZ
     /// @details This function picks the actual function to use
@@ -557,7 +557,7 @@ gfx_rv render_one_mad( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF chara
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_ref( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF ichr )
+gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 {
     /// @author ZZ
     /// @details This function draws characters reflected in the floor
@@ -649,7 +649,7 @@ gfx_rv render_one_mad_ref( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF i
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_trans( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF ichr )
+gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 {
     /// @author ZZ
     /// @details This function dispatches the rendering of transparent characters
@@ -742,7 +742,7 @@ gfx_rv render_one_mad_trans( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad_solid( std::shared_ptr<ExtendedCamera> pcam, const CHR_REF ichr )
+gfx_rv render_one_mad_solid( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
 {
     chr_t * pchr;
     chr_instance_t * pinst;

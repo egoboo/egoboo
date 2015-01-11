@@ -50,21 +50,6 @@ struct CameraOptions
     float          swingAmp;                ///< Camera swing amplitude
 	CameraTurnMode turnMode;                ///< what is the camera turn mode
 };
-	
-/// The default field of view angle (in degrees).
-constexpr float DEFAULT_FOV = 60.0f;
-
-/// The default joystick turn rotation.
-/// @todo What unit is that?
-constexpr float DEFAULT_TURN_JOY= 64;
-
-/// The default keyboard turn rotation.
-/// @todo What unit is that?
-constexpr float DEFAULT_TURN_KEY = DEFAULT_TURN_JOY;
-
-/// The default smooth turn rotation.
-/// @todo What unit is that?
-constexpr uint8_t DEFAULT_TURN_TIME = 16;
 
 /// Multi cam uses macro to switch between old and new camera
 constexpr float CAM_ZOOM_FACTOR = 0.5f;
@@ -80,9 +65,6 @@ constexpr float CAM_ZOOM_FACTOR = 0.5f;
     constexpr float CAM_ZADD_MAX = (1900 * CAM_ZOOM_FACTOR);
 #endif
 
-constexpr float CAM_ZADD_AVG = (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX));
-constexpr float CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
-
 /**
 * @brief class for handling camera
 **/
@@ -90,7 +72,30 @@ class Camera
 {
 public:
 	Camera(const CameraOptions &options);
-    virtual ~Camera();
+    ~Camera();
+    
+    /// The default field of view angle (in degrees).
+    static constexpr float DEFAULT_FOV = 60.0f;
+
+    /// The default joystick turn rotation.
+    /// @todo What unit is that?
+    static constexpr float DEFAULT_TURN_JOY= 64;
+
+    /// The default keyboard turn rotation.
+    /// @todo What unit is that?
+    static constexpr float DEFAULT_TURN_KEY = DEFAULT_TURN_JOY;
+
+    /// The default smooth turn rotation.
+    /// @todo What unit is that?
+    static constexpr uint8_t DEFAULT_TURN_TIME = 16;
+
+    static constexpr float CAM_ZADD_AVG = (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX));
+    static constexpr float CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
+
+    /**
+    * @brief Initialization that has to be after object construction
+    **/
+    void initialize(int renderList, int doList);
 
     //various getters
 	inline const fmat_4x4_t& getProjection() const {return _mProjection;}
@@ -105,7 +110,6 @@ public:
     inline float getTurnZOne() const { return _turnZOne; }
     inline float getTurnZRad() const { return _turnZRad; }
 
-
     inline const fvec3_t& getVUP() const { return _vup; }
     inline const fvec3_t& getVRT() const { return _vrt; }
     inline const fvec3_t& getVFW() const { return _vfw; }
@@ -113,6 +117,44 @@ public:
     inline float getMotionBlur() const { return _motionBlur; }
     inline float getMotionBlurOld() const { return _motionBlurOld; }
     inline int getSwing() const { return _swing; }
+
+    inline int getLastFrame() const {return _lastFrame;}
+    inline int getRenderList() const {return _renderList;}
+    inline int getDoList() const {return _doList;}
+
+    inline const std::forward_list<CHR_REF>& getTrackList() const {return _trackList;}
+
+    inline const ego_frect_t& getScreen() const { return _screen; }
+    
+    /**
+    * @brief Sets which areas of the video screen this camera should draw on
+    **/
+    void setScreen(float xmin, float ymin, float xmax, float ymax);
+    
+    /**
+    * @brief Makes this camera track the specified target
+    **/
+    void addTrackTarget(const CHR_REF target);
+
+    /// @details This function moves the camera
+    void update(const ego_mesh_t * pmesh);
+
+    /**
+    * @brief set which frame this camera was last updated
+    **/
+    void setLastFrame(int frame) {_lastFrame = frame;}
+
+    /**
+    *  @details This function makes sure the camera starts in a suitable position
+    **/
+    void reset(const ego_mesh_t * pmesh);
+
+    /**
+    * @brief Force the camera to focus in on the players. Should be called any time there is
+    *        a "change of scene". With the new velocity-tracking of the camera, this would include
+    *        things like character respawns, adding new players, etc.
+    **/
+    void resetTarget( const ego_mesh_t * pmesh);
 
 protected:
     /**
@@ -122,12 +164,7 @@ protected:
 
 	void updateCenter();
 
-	void updateTrack(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
-
-    /**
-    * @brief Create a default list of objects that are tracked
-	**/
-	std::forward_list<CHR_REF> createTrackList();
+	void updateTrack(const ego_mesh_t * pmesh);
 
 	/**
 	* @brief updates special effects like grog, blur, shaking, etc.
@@ -150,13 +187,6 @@ protected:
 	void readInput(input_device_t *pdevice);
 
 	/**
-    * @brief Force the camera to focus in on the players. Should be called any time there is
-    *        a "change of scene". With the new velocity-tracking of the camera, this would include
-    *        things like character respawns, adding new players, etc.
-    **/
-	void resetTarget( const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList );
-
-	/**
 	* @brief Helper function to calculate FOV
 	**/
 	static inline float multiplyFOV(const float old_fov_deg, const float factor);
@@ -164,12 +194,6 @@ protected:
 	void resetView();
 
 	void updateProjection(const float fov_deg, const float aspect_ratio, const float frustum_near = 1.0f, const float frustum_far = 20.0f);
-
-    /// @details This function moves the camera
-	void update(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
-
-    /// @details This function makes sure the camera starts in a suitable position
-	void reset(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
 
 private:
 	const CameraOptions _options;
@@ -229,4 +253,12 @@ private:
     int           _swingRate;
     float         _swingAmp;
     float         _roll;
+
+    //Extended camera data
+    std::forward_list<CHR_REF> _trackList;  ///< List of characters this camera is tracking
+    ego_frect_t         _screen;
+
+    int                 _lastFrame;         ///< number of last update frame
+    int                 _renderList;        ///< renderlist refid (-1 for none)
+    int                 _doList;            ///< dolist refid (-1 for none)
 };

@@ -49,7 +49,14 @@ Camera::Camera(const CameraOptions &options) :
 	_swing(_options.swing),
 	_swingRate(_options.swingRate),
 	_swingAmp(_options.swingAmp),
-	_roll(0.0f)
+	_roll(0.0f),
+
+    //Extended camera data
+    _trackList(),
+    _screen{0, 0, 0, 0},
+    _lastFrame(-1),
+    _renderList(-1),
+    _doList(-1)
 {
     // derived values
     fvec3_base_copy( _trackPos.v, _center.v );
@@ -63,12 +70,29 @@ Camera::Camera(const CameraOptions &options) :
     _ori.facing_z = ONE_TO_TURN( _turnZOne ) ;
 
     resetView();
-    updateProjection(DEFAULT_FOV, static_cast<float>(sdl_scr.x) / static_cast<float>(sdl_scr.y) );
+    //updateProjection(DEFAULT_FOV, static_cast<float>(sdl_scr.x) / static_cast<float>(sdl_scr.y) );
+
+    // assume that the camera is fullscreen
+    setScreen(0, 0, sdl_scr.x, sdl_scr.y);
 }
 
 Camera::~Camera()
 {
-    //dtor
+    // free any locked renderlist
+    renderlist_mgr_t *rmgr_ptr = gfx_system_get_renderlist_mgr();
+    if ( -1 != _renderList )
+    {
+        renderlist_mgr_free_one( rmgr_ptr, _renderList );
+        _renderList = -1;
+    }
+
+    // free any locked dolist
+    dolist_mgr_t *dmgr_ptr = gfx_system_get_dolist_mgr();
+    if ( -1 != _doList )
+    {
+        dolist_mgr_free_one( dmgr_ptr, _renderList ); //TODO: check is this correct? or should _renderList be _doList?
+        _doList = -1;
+    }
 }
 
 float Camera::multiplyFOV( const float old_fov_deg, const float factor )
@@ -326,7 +350,7 @@ void Camera::updateCenter()
     _center.z = _center.z * 0.9f + _trackPos.z * 0.1f;
 }
 
-void Camera::updateTrack(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList)
+void Camera::updateTrack(const ego_mesh_t * pmesh)
 {
     fvec3_t new_track;
     float new_track_level;
@@ -390,7 +414,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &t
 	        sum_level = 0.0f;
 	        fvec3_self_clear( sum_pos.v );
 
-	        for(CHR_REF ichr : trackList)
+	        for(CHR_REF ichr : _trackList)
 	        {
 	            chr_t * pchr = NULL;
 
@@ -426,7 +450,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &t
 
 	        // count the number of local players, first
 	        local_chr_count = 0;
-	        for(CHR_REF ichr : trackList)
+	        for(CHR_REF ichr : _trackList)
 	        {
 	            chr_t * pchr = NULL;
 
@@ -527,7 +551,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &t
     }
 }
 
-//--------------------------------------------------------------------------------------------
+/*
 std::forward_list<CHR_REF> Camera::createTrackList()
 {
 	std::forward_list<CHR_REF> trackList;
@@ -545,15 +569,11 @@ std::forward_list<CHR_REF> Camera::createTrackList()
 
     return trackList;
 }
+*/
 
-void Camera::update(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList)
+void Camera::update(const ego_mesh_t * pmesh)
 {
     PLA_REF ipla;
-    
-    //Handle optional parameter
-    if(trackList.empty()) {
-    	trackList = createTrackList();
-    }
 
     // update the _turnTime counter
     if ( CAM_TURN_NONE != _turnMode )
@@ -582,7 +602,7 @@ void Camera::update(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackL
     updateEffects();
 
     // update the average position of the tracked characters
-    updateTrack( pmesh, trackList );
+    updateTrack( pmesh );
 
     // move the camera center, if need be
     updateCenter();
@@ -715,7 +735,7 @@ void Camera::readInput( input_device_t *pdevice )
     }
 }
 
-void Camera::reset( const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList )
+void Camera::reset( const ego_mesh_t * pmesh )
 {
     // constant values
     _trackLevel   = 0.0f;
@@ -749,10 +769,10 @@ void Camera::reset( const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackL
     _turnMode   = _options.turnMode;
 
     // make sure you are looking at the players
-    resetTarget( pmesh, trackList );
+    resetTarget( pmesh );
 }
 
-void Camera::resetTarget( const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList )
+void Camera::resetTarget( const ego_mesh_t * pmesh )
 {
 	CameraTurnMode turnModeSave;
 	CameraMode moveModeSave;
@@ -770,7 +790,7 @@ void Camera::resetTarget( const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &
 
     // If you use CAM_RESET, camera_move() automatically restores _moveMode
     // to its default setting
-    update(pmesh, trackList);
+    update(pmesh);
 
     // fix the center position
     _center.x = _trackPos.x;
@@ -843,4 +863,44 @@ void Camera::updateEffects()
     }
 
     _swing = ( _swing + _swingRate ) & 0x3FFF;
+}
+
+void Camera::setScreen( float xmin, float ymin, float xmax, float ymax )
+{
+    // set the screen
+    _screen.xmin = xmin;
+    _screen.ymin = ymin;
+    _screen.xmax = xmax;
+    _screen.ymax = ymax;
+
+    //Update projection after setting size
+    float frustum_near, frustum_far, aspect_ratio;
+
+    //---- set the camera's projection matrix
+    aspect_ratio = ( _screen.xmax - _screen.xmin ) / ( _screen.ymax - _screen.ymin );
+
+    // the nearest we will have to worry about is 1/2 of a tile
+    frustum_near = GRID_ISIZE * 0.25f;
+
+    // set the maximum depth to be the "largest possible size" of a mesh
+    frustum_far  = GRID_ISIZE * 256 * SQRT_TWO;
+
+    updateProjection(DEFAULT_FOV, aspect_ratio, frustum_near, frustum_far);
+}
+
+void Camera::initialize(int renderList, int doList)
+{
+    // make the default viewport fullscreen
+    _screen.xmin = 0.0f;
+    _screen.xmax = sdl_scr.x;
+    _screen.ymin = 0.0f;
+    _screen.ymax = sdl_scr.y;
+
+    _renderList = renderList;
+    _doList = doList;
+}
+
+void Camera::addTrackTarget(const CHR_REF target)
+{
+    _trackList.push_front(target);
 }

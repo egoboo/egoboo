@@ -27,8 +27,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// Forward declaration.
-struct camera_t;
+// Forward declaration
 struct s_prt;
 struct s_prt_bundle;
 
@@ -110,5 +109,5 @@ void   render_all_prt_bbox();
 
 void   render_all_prt_attachment();
 
-gfx_rv update_all_prt_instance( std::shared_ptr<ExtendedCamera> pcam );
+gfx_rv update_all_prt_instance( std::shared_ptr<Camera> pcam );
 

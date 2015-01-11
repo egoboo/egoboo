@@ -472,7 +472,7 @@ bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fve
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv billboard_system_render_all( std::shared_ptr<ExtendedCamera> pcam )
+gfx_rv billboard_system_render_all( std::shared_ptr<Camera> pcam )
 {
     BBOARD_REF cnt;
 

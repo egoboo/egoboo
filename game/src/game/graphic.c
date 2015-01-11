@@ -110,7 +110,7 @@ gfx_rv renderlist_lst_push( renderlist_lst_t *, Uint32 index, float distance );
 struct s_renderlist
 {
     ego_mesh_t * pmesh;
-    std::shared_ptr<ExtendedCamera> pcam;
+    std::shared_ptr<Camera> pcam;
 
     renderlist_lst_t  all;     ///< List of which to render, total
     renderlist_lst_t  ref;     ///< ..., is reflected in the floor
@@ -120,7 +120,7 @@ struct s_renderlist
     renderlist_lst_t  wat;     ///< ..., draws a water tile
 };
 
-static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mesh_t * pmesh, std::shared_ptr<ExtendedCamera> pcam );
+static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mesh_t * pmesh, std::shared_ptr<Camera> pcam );
 static gfx_rv         renderlist_reset( renderlist_t * prlist );
 static gfx_rv         renderlist_insert( renderlist_t * prlist, const Uint32 index );
 static ego_mesh_t *   renderlist_get_pmesh( const renderlist_t * ptr );
@@ -181,7 +181,7 @@ struct s_dolist
 
 static dolist_t * dolist_init( dolist_t * pdolist, const size_t index );
 static gfx_rv     dolist_reset( dolist_t * pdolist, const size_t index );
-static gfx_rv     dolist_sort( dolist_t * pdolist, std::shared_ptr<ExtendedCamera> pcam, const bool do_reflect );
+static gfx_rv     dolist_sort( dolist_t * pdolist, std::shared_ptr<Camera> pcam, const bool do_reflect );
 static gfx_rv     dolist_test_chr( dolist_t * pdolist, const chr_t * pchr );
 static gfx_rv     dolist_add_chr_raw( dolist_t * pdolist, chr_t * pchr );
 static gfx_rv     dolist_test_prt( dolist_t * pdolist, const prt_t * pprt );
@@ -245,7 +245,7 @@ struct s_dynalist
 #define DYNALIST_INIT { -1 /* frame */, 0 /* count */ }
 
 static gfx_rv dynalist_init( dynalist_t * pdylist );
-static gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::shared_ptr<ExtendedCamera> pcam );
+static gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam );
 
 //--------------------------------------------------------------------------------------------
 // special functions and data related to tiled texture "optimization"
@@ -399,28 +399,28 @@ static void gfx_update_fps();
 
 static gfx_rv light_fans( renderlist_t * prlist );
 
-static gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, std::shared_ptr<ExtendedCamera> pcam );
+static gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam );
 static gfx_rv render_scene_mesh_ndr( const renderlist_t * prlist );
 static gfx_rv render_scene_mesh_drf_back( const renderlist_t * prlist );
-static gfx_rv render_scene_mesh_ref( std::shared_ptr<ExtendedCamera> pcam, const renderlist_t * prlist, const dolist_t * pdolist );
+static gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist );
 static gfx_rv render_scene_mesh_ref_chr( const renderlist_t * prlist );
 static gfx_rv render_scene_mesh_drf_solid( const renderlist_t * prlist );
 static gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist );
-static gfx_rv render_scene_mesh( std::shared_ptr<ExtendedCamera> pcam, const renderlist_t * prlist, const dolist_t * pdolist );
-static gfx_rv render_scene_solid( std::shared_ptr<ExtendedCamera> pcam, dolist_t * pdolist );
-static gfx_rv render_scene_trans( std::shared_ptr<ExtendedCamera> pcam, dolist_t * pdolist );
-static gfx_rv render_scene( std::shared_ptr<ExtendedCamera> pcam, const int render_list_index, const int dolist_index );
+static gfx_rv render_scene_mesh( std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist );
+static gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist );
+static gfx_rv render_scene_trans( std::shared_ptr<Camera> pcam, dolist_t * pdolist );
+static gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, const int dolist_index );
 static gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * rlst );
 static void   render_shadow( const CHR_REF character );
 static void   render_bad_shadow( const CHR_REF character );
 static gfx_rv render_water( renderlist_t * prlist );
 static void   render_shadow_sprite( float intensity, GLvertex v[] );
-static gfx_rv render_world_background( std::shared_ptr<ExtendedCamera> pcam, const TX_REF texture );
-static gfx_rv render_world_overlay( std::shared_ptr<ExtendedCamera> pcam, const TX_REF texture );
+static gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF texture );
+static gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture );
 
-static gfx_rv gfx_make_dolist( dolist_t * pdolist, std::shared_ptr<ExtendedCamera> pcam );
-static gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<ExtendedCamera> pcam );
-static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<ExtendedCamera> pcam );
+static gfx_rv gfx_make_dolist( dolist_t * pdolist, std::shared_ptr<Camera> pcam );
+static gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam );
+static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam );
 
 static float draw_one_xp_bar( float x, float y, Uint8 ticks );
 static float draw_character_xp_bar( const CHR_REF character, float x, float y );
@@ -506,7 +506,7 @@ gfx_rv renderlist_lst_push( renderlist_lst_t * ary, Uint32 index, float distance
 // renderlist implementation
 //--------------------------------------------------------------------------------------------
 
-renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh, std::shared_ptr<ExtendedCamera> pcam )
+renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh, std::shared_ptr<Camera> pcam )
 {
     if ( NULL == plst )
     {
@@ -676,7 +676,7 @@ gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_attach_camera( renderlist_t * ptr, std::shared_ptr<ExtendedCamera> pcam )
+gfx_rv renderlist_attach_camera( renderlist_t * ptr, std::shared_ptr<Camera> pcam )
 {
     if ( NULL == ptr )
     {
@@ -1218,7 +1218,7 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<ExtendedCamera> pcam, const bool do_reflect )
+gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool do_reflect )
 {
     /// @author ZZ
     /// @details This function orders the dolist based on distance from camera,
@@ -1788,7 +1788,7 @@ void gfx_system_init_SDL_graphics()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_render_world( std::shared_ptr<ExtendedCamera> pcam, const int render_list_index, const int dolist_index )
+void gfx_system_render_world( std::shared_ptr<Camera> pcam, const int render_list_index, const int dolist_index )
 {
     gfx_error_state_t * err_tmp;
 
@@ -2711,11 +2711,11 @@ void draw_all_status()
     status_list_update_cameras( &StatusList );
 
     // get the camera list
-    const std::vector<std::shared_ptr<ExtendedCamera>> &cameraList = _cameraSystem.getCameraList();
+    const std::vector<std::shared_ptr<Camera>> &cameraList = _cameraSystem.getCameraList();
 
     for(size_t i = 0; i < cameraList.size(); ++i)
     {
-        const std::shared_ptr<ExtendedCamera> &camera = cameraList[i];
+        const std::shared_ptr<Camera> &camera = cameraList[i];
 
         // draw all attached status
         int y = camera->getScreen().ymin;
@@ -3002,7 +3002,7 @@ float draw_debug( float y )
 
     if ( SDL_KEYDOWN( keyb, SDLK_F7 ) )
     {
-        std::shared_ptr<ExtendedCamera> camera = _cameraSystem.getMainCamera();
+        std::shared_ptr<Camera> camera = _cameraSystem.getMainCamera();
 
         // White debug mode
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-7!!!" );
@@ -3682,7 +3682,7 @@ gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * r
 //--------------------------------------------------------------------------------------------
 // render_scene FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, std::shared_ptr<ExtendedCamera> pcam )
+gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
 {
     gfx_rv retval;
     ego_mesh_t * pmesh;
@@ -3876,7 +3876,7 @@ gfx_rv render_scene_mesh_drf_back( const renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref( std::shared_ptr<ExtendedCamera> pcam, const renderlist_t * prlist, const dolist_t * pdolist )
+gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist )
 {
     /// @author BB
     /// @details Render all reflected objects
@@ -4148,7 +4148,7 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh( std::shared_ptr<ExtendedCamera> pcam, const renderlist_t * prlist, const dolist_t * pdolist )
+gfx_rv render_scene_mesh( std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist )
 {
     /// @author BB
     /// @details draw the mesh and any reflected objects
@@ -4255,7 +4255,7 @@ gfx_rv render_scene_mesh( std::shared_ptr<ExtendedCamera> pcam, const renderlist
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_solid( std::shared_ptr<ExtendedCamera> pcam, dolist_t * pdolist )
+gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
 {
     /// @detaile BB@> Render all solid objects
 
@@ -4317,7 +4317,7 @@ gfx_rv render_scene_solid( std::shared_ptr<ExtendedCamera> pcam, dolist_t * pdol
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_trans( std::shared_ptr<ExtendedCamera> pcam, dolist_t * pdolist )
+gfx_rv render_scene_trans( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
 {
     /// @author BB
     /// @details draw transparent objects
@@ -4377,7 +4377,7 @@ gfx_rv render_scene_trans( std::shared_ptr<ExtendedCamera> pcam, dolist_t * pdol
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene( std::shared_ptr<ExtendedCamera> pcam, const int render_list_index, const int dolist_index )
+gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, const int dolist_index )
 {
     /// @author ZZ
     /// @details This function draws 3D objects
@@ -4510,7 +4510,7 @@ gfx_rv render_scene( std::shared_ptr<ExtendedCamera> pcam, const int render_list
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_world_background( std::shared_ptr<ExtendedCamera> pcam, const TX_REF texture )
+gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF texture )
 {
     /// @author ZZ
     /// @details This function draws the large background
@@ -4683,7 +4683,7 @@ gfx_rv render_world_background( std::shared_ptr<ExtendedCamera> pcam, const TX_R
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_world_overlay( std::shared_ptr<ExtendedCamera> pcam, const TX_REF texture )
+gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture )
 {
     /// @author ZZ
     /// @details This function draws the large foreground
@@ -5932,7 +5932,7 @@ gfx_rv dynalist_init( dynalist_t * pdylist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<ExtendedCamera> pcam )
+gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
 {
     /// @author ZZ
     /// @details This function figures out which particles are visible, and it sets up dynamic
@@ -6032,7 +6032,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<ExtendedCamera> 
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::shared_ptr<ExtendedCamera> pcam )
+gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
 {
     /// @author ZZ
     /// @details Do all tile lighting, dynamic and global
@@ -6381,7 +6381,7 @@ gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<ExtendedCamera> pcam )
+gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam )
 {
     gfx_rv      retval;
     bool      local_allocation;
@@ -6453,7 +6453,7 @@ gfx_make_renderlist_exit:
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<ExtendedCamera> pcam )
+gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
 {
     /// @author ZZ
     /// @details This function finds the characters that need to be drawn and puts them in the list
