@@ -258,10 +258,11 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define INFINITE_UPDATES ((size_t)(~0))
 
 prt_t * prt_config_do_init( prt_t * pprt )
 {
+    const int INFINITE_UPDATES = INT32_MAX;
+
     PRT_REF            iprt;
     pip_t            * ppip;
     prt_spawn_data_t * pdata;
