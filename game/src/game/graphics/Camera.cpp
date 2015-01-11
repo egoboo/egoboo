@@ -1,7 +1,13 @@
+#include <cmath>
 #include "game/graphics/Camera.hpp"
 #include "game/graphic.h"
+#include "game/player.h"
 
-Camera::Camera() :
+#include "game/char.inl"
+#include "game/mesh.inl"
+
+Camera::Camera(const CameraOptions &options) :
+	_options(options),
 	_mView(),
 	_mProjection(),
 	_mProjectionBig(),
@@ -13,10 +19,10 @@ Camera::Camera() :
 
 	_moveMode(CAM_PLAYER),
 
-	_turnMode(cam_options.turn_mode),
+	_turnMode(_options.turnMode),
 	_turnTime(DEFAULT_TURN_TIME),
 
-	pos{0, 0, 0},
+	_pos{0, 0, 0},
 	_ori(),
 
 	_trackPos{0, 0, 0},
@@ -25,8 +31,8 @@ Camera::Camera() :
 	_zoom(CAM_ZOOM_AVG),
 	_center{0, 0, 0},
 	_zadd(CAM_ZADD_AVG),
-	_zadd_goto(CAM_ZADD_AVG),
-	_zgoto(CAM_ZADD_AVG),
+	_zaddGoto(CAM_ZADD_AVG),
+	_zGoto(CAM_ZADD_AVG),
 
 	_turnZRad(-PI_OVER_FOUR),
 	_turnZOne(0.0f),
@@ -40,18 +46,18 @@ Camera::Camera() :
 	//Special effects
 	_motionBlur(0.0f),
 	_motionBlurOld(0.0f),
-	_swing(cam_options.swing),
-	_swing_rate(cam_options.swing_rate),
-	_swingAmp(cam_options.swing_amp),
+	_swing(_options.swing),
+	_swingRate(_options.swingRate),
+	_swingAmp(_options.swingAmp),
 	_roll(0.0f)
 {
     // derived values
     fvec3_base_copy( _trackPos.v, _center.v );
-    fvec3_base_copy( pos.v,       _center.v );
+    fvec3_base_copy( _pos.v,       _center.v );
 
-    pos.x += _zoom * SIN( _turnZRad );
-    pos.y += _zoom * COS( _turnZRad );
-    pos.z += CAM_ZADD_MAX;
+    _pos.x += _zoom * SIN( _turnZRad );
+    _pos.y += _zoom * COS( _turnZRad );
+    _pos.z += CAM_ZADD_MAX;
 
     _turnZOne   = RAD_TO_ONE( _turnZRad );
     _ori.facing_z = ONE_TO_TURN( _turnZOne ) ;
@@ -60,14 +66,27 @@ Camera::Camera() :
     resetProjection(DEFAULT_FOV, static_cast<float>(sdl_scr.x) / static_cast<float>(sdl_scr.y) );
 }
 
-Camera::resetProjection(float fov_deg, float aspect_ratio)
+float Camera::multiplyFOV( const float old_fov_deg, const float factor )
+{
+    float old_fov_rad;
+    float new_fov_rad, new_fov_deg;
+
+    old_fov_rad = DEG_TO_RAD( old_fov_deg );
+
+    new_fov_rad = 2.0f * ATAN( factor * TAN( old_fov_rad * 0.5f ) );
+    new_fov_deg = RAD_TO_DEG( new_fov_rad );
+
+    return new_fov_deg;
+}
+
+void Camera::resetProjection(const float fov_deg, const float aspect_ratio)
 {
     const float fov_mag = SQRT_TWO;
     const float frustum_near = 1;
     const float frustum_far = 20;
 
-    float fov_big   = fovy_deg;
-    float fov_small = fovy_deg;
+    float fov_big   = fov_deg;
+    float fov_small = fov_deg;
     GLint matrix_mode[1];
 
     // save the matrix mode
@@ -79,13 +98,13 @@ Camera::resetProjection(float fov_deg, float aspect_ratio)
 
     // do the actual glu call
     GL_DEBUG( glLoadIdentity )();
-    gluPerspective( fovy_deg, aspect_ratio, frustum_near, frustum_far );
+    gluPerspective( fov_deg, aspect_ratio, frustum_near, frustum_far );
 
     // grab the matrix
     GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, _mProjection.v );
 
     // do another glu call
-    fov_big = camera_multiply_fov( camera_t::DEFAULT_FOV, fov_mag );
+    fov_big = multiplyFOV( DEFAULT_FOV, fov_mag );
     GL_DEBUG( glLoadIdentity )();
     gluPerspective( fov_big, aspect_ratio, frustum_near, frustum_far );
 
@@ -93,7 +112,7 @@ Camera::resetProjection(float fov_deg, float aspect_ratio)
     GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, _mProjectionBig.v );
 
     // do another glu call
-    fov_small = camera_multiply_fov( camera_t::DEFAULT_FOV, 1.0f / fov_mag );
+    fov_small = multiplyFOV( DEFAULT_FOV, 1.0f / fov_mag );
     GL_DEBUG( glLoadIdentity )();
     gluPerspective( fov_small, aspect_ratio, frustum_near, frustum_far );
 
@@ -110,9 +129,9 @@ Camera::resetProjection(float fov_deg, float aspect_ratio)
     egolib_frustum_calculate( &( _frustumSmall ), _mProjectionSmall.v, _mView.v );
 }
 
-Camera::resetView()
+void Camera::resetView()
 {
-	float roll_deg = RAD_TO_DEG(roll);
+	float roll_deg = RAD_TO_DEG(_roll);
 
     GLint matrix_mode[1];
 
@@ -128,14 +147,14 @@ Camera::resetView()
     GL_DEBUG( glScalef )( -1, 1, 1 );
 
     // check for stupidity
-    if (( pos.x != _center.x ) || ( pos.y != _center.y ) || ( pos.z != _center.z ) )
+    if (( _pos.x != _center.x ) || ( _pos.y != _center.y ) || ( _pos.z != _center.z ) )
     {
         // do the camera roll
         glRotatef( roll_deg, 0, 0, 1 );
 
         // do the actual glu call
         gluLookAt(
-            pos.x, pos.y, pos.z,
+            _pos.x, _pos.y, _pos.z,
             _center.x, _center.y, _center.z,
             0.0f, 0.0f, 1.0f );
     }
@@ -158,7 +177,7 @@ void Camera::updatePosition()
     fvec3_t pos_new;
 
     // update the height
-    _zgoto = _zadd;
+    _zGoto = _zadd;
 
     // update the turn
     //if ( 0 != _turnTime )
@@ -172,15 +191,14 @@ void Camera::updatePosition()
     TURN_T turnsin = TO_TURN( _ori.facing_z );
     pos_new.x = _center.x + _zoom * turntosin[turnsin];
     pos_new.y = _center.y + _zoom * turntocos[turnsin];
-    pos_new.z = _center.z + zgoto;
+    pos_new.z = _center.z + _zGoto;
 
     // make the camera motion smooth
-    pos.x = 0.9f * pos.x + 0.1f * pos_new.x;
-    pos.y = 0.9f * pos.y + 0.1f * pos_new.y;
-    pos.z = 0.9f * pos.z + 0.1f * pos_new.z;
+    _pos.x = 0.9f * _pos.x + 0.1f * pos_new.x;
+    _pos.y = 0.9f * _pos.y + 0.1f * pos_new.y;
+    _pos.z = 0.9f * _pos.z + 0.1f * pos_new.z;
 }
 
-//--------------------------------------------------------------------------------------------
 void Camera::makeMatrix()
 {
     resetView();
@@ -201,11 +219,11 @@ void Camera::updateZoom()
     float percentmin, percentmax;
 
     // update zadd
-    _zadd_goto = CLIP( _zadd_goto, CAM_ZADD_MIN, CAM_ZADD_MAX );
-    _zadd      = 0.9f * _zadd  + 0.1f * _zadd_goto;
+    _zaddGoto = CLIP( _zaddGoto, CAM_ZADD_MIN, CAM_ZADD_MAX );
+    _zadd      = 0.9f * _zadd  + 0.1f * _zaddGoto;
 
     // update zoom
-    percentmax = ( _zadd_goto - CAM_ZADD_MIN ) / ( float )( CAM_ZADD_MAX - CAM_ZADD_MIN );
+    percentmax = ( _zaddGoto - CAM_ZADD_MIN ) / ( float )( CAM_ZADD_MAX - CAM_ZADD_MIN );
     percentmin = 1.0f - percentmax;
     _zoom = ( CAM_ZOOM_MIN * percentmin ) + ( CAM_ZOOM_MAX * percentmax );
 
@@ -242,7 +260,7 @@ void Camera::updateCenter()
         fvec3_t track_vec;
 
         // what is the distance to the track position?
-        fvec3_sub( track_vec.v, _trackPos.v, pos.v );
+        fvec3_sub( track_vec.v, _trackPos.v, _pos.v );
 
         // determine the size of the dead zone
         track_fov = camera_t::DEFAULT_FOV * 0.25f;
@@ -305,7 +323,7 @@ void Camera::updateCenter()
     _center.z = _center.z * 0.9f + _trackPos.z * 0.1f;
 }
 
-void Camera::updateTrack(const ego_mesh_t * pmesh, const std::forward_list<CHR_REF> &trackList)
+void Camera::updateTrack(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList)
 {
     fvec3_t new_track;
     float new_track_level;
@@ -609,7 +627,7 @@ void Camera::readInput( input_device_t *pdevice )
         else if ( input_device_control_active( pdevice,  CONTROL_CAMERA ) )
         {
             _turnZAdd += ( mous.x / 3.0f );
-            _zadd_goto  += ( float ) mous.y / 3.0f;
+            _zaddGoto  += static_cast<float>(mous.y) / 3.0f;
 
             _turnTime = DEFAULT_TURN_TIME;  // Sticky turn...
         }
@@ -636,7 +654,7 @@ void Camera::readInput( input_device_t *pdevice )
         else if ( input_device_control_active( pdevice, CONTROL_CAMERA ) )
         {
             _turnZAdd += pjoy->x * DEFAULT_TURN_JOY;
-            _zadd_goto  += pjoy->y * DEFAULT_TURN_JOY;
+            _zaddGoto  += pjoy->y * DEFAULT_TURN_JOY;
 
             _turnTime = DEFAULT_TURN_TIME;  // Sticky turn...
         }
@@ -684,27 +702,27 @@ void Camera::readInput( input_device_t *pdevice )
             //zoom
             if ( input_device_control_active( pdevice,  CONTROL_CAMERA_OUT ) )
             {
-                _zadd_goto += DEFAULT_TURN_KEY;
+                _zaddGoto += DEFAULT_TURN_KEY;
             }
             if ( input_device_control_active( pdevice,  CONTROL_CAMERA_IN ) )
             {
-                _zadd_goto -= DEFAULT_TURN_KEY;
+                _zaddGoto -= DEFAULT_TURN_KEY;
             }
         }
     }
 }
 
-void Camera::reset( const ego_mesh_t * pmesh, const std::forward_list<CHR_REF> &trackList )
+void Camera::reset( const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList )
 {
     // constant values
     _trackLevel   = 0.0f;
     _zoom         = CAM_ZOOM_AVG;
     _zadd         = CAM_ZADD_AVG;
-    _zadd_goto    = CAM_ZADD_AVG;
-    _zgoto        = CAM_ZADD_AVG;
-    __turnZRad   = -PI_OVER_FOUR;
-    __turnZAdd   = 0;
-    _roll         = 0;
+    _zaddGoto     = CAM_ZADD_AVG;
+    _zGoto        = CAM_ZADD_AVG;
+    _turnZRad     = -PI_OVER_FOUR;
+    _turnZAdd     = 0.0f;
+    _roll         = 0.0f;
 
     // derived values
     _center.x     = pmesh->gmem.edge_x * 0.5f;
@@ -712,26 +730,26 @@ void Camera::reset( const ego_mesh_t * pmesh, const std::forward_list<CHR_REF> &
     _center.z     = 0.0f;
 
     fvec3_base_copy( _trackPos.v, _center.v );
-    fvec3_base_copy( pos.v,       _center.v );
+    fvec3_base_copy( _pos.v,       _center.v );
 
-    pos.x += _zoom * SIN( _turnZRad );
-    pos.y += _zoom * COS( _turnZRad );
-    pos.z += CAM_ZADD_MAX;
+    _pos.x += _zoom * SIN( _turnZRad );
+    _pos.y += _zoom * COS( _turnZRad );
+    _pos.z += CAM_ZADD_MAX;
 
     _turnZOne   = RAD_TO_ONE( _turnZRad );
     _ori.facing_z = ONE_TO_TURN( _turnZOne ) ;
 
     // get optional parameters
-    _swing      = cam_options.swing;
-    _swing_rate = cam_options.swing_rate;
-    _swing_amp  = cam_options.swing_amp;
-    _turnMode  = cam_options.turn_mode;
+    _swing      = _options.swing;
+    _swingRate  = _options.swingRate;
+    _swingAmp   = _options.swingAmp;
+    _turnMode   = _options.turnMode;
 
     // make sure you are looking at the players
     resetTarget( pmesh, trackList );
 }
 
-bool Camera::resetTarget( const ego_mesh_t * pmesh, const std::forward_list<CHR_REF> &trackList )
+void Camera::resetTarget( const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList )
 {
 	CameraTurnMode turnModeSave;
 	CameraMode moveModeSave;
@@ -744,8 +762,8 @@ bool Camera::resetTarget( const ego_mesh_t * pmesh, const std::forward_list<CHR_
     resetView();
 
     // specify the modes that will make the camera point at the players
-    _turnMode = CAM_TURN_AUTO;
-    _moveMode = CAM_RESET;
+    _turnMode = Camera::CAM_TURN_AUTO;
+    _moveMode = Camera::CAM_RESET;
 
     // If you use CAM_RESET, camera_move() automatically restores _moveMode
     // to its default setting
@@ -761,35 +779,33 @@ bool Camera::resetTarget( const ego_mesh_t * pmesh, const std::forward_list<CHR_
 
     // reset the turn time
     _turnTime = 0;
-
-    return true;
 }
 
 void Camera::updateEffects()
 {
-    float local_swingamp = swing_amp;
+    float local_swingamp = _swingAmp;
     
-    motionBlurOld = motionBlur;
+    _motionBlurOld = _motionBlur;
 
     // Fade out the motion blur
-    if ( motionBlur > 0 )
+    if ( _motionBlur > 0 )
     {
-        motionBlur *= 0.99f; //Decay factor
-        if ( motionBlur < 0.001f ) motionBlur = 0;
+        _motionBlur *= 0.99f; //Decay factor
+        if ( _motionBlur < 0.001f ) _motionBlur = 0;
     }
 
     // Swing the camera if players are groggy
     if ( local_stats.grog_level > 0 )
     {
         float zoom_add;
-        swing = ( swing + 120 ) & 0x3FFF;
+        _swing = ( _swing + 120 ) & 0x3FFF;
         local_swingamp = std::max( local_swingamp, 0.175f );
 
         zoom_add = ( 0 == ((( int )local_stats.grog_level ) % 2 ) ? 1 : - 1 ) * camera_t::DEFAULT_TURN_KEY * local_stats.grog_level * 0.35f;
 
-        _zadd_goto   = _zadd_goto + zoom_add;
+        _zaddGoto   = _zaddGoto + zoom_add;
 
-        _zadd_goto = CLIP( _zadd_goto, CAM_ZADD_MIN, CAM_ZADD_MAX );
+        _zaddGoto = CLIP( _zaddGoto, CAM_ZADD_MIN, CAM_ZADD_MAX );
     }
 
     //Rotate camera if they are dazed
@@ -800,28 +816,28 @@ void Camera::updateEffects()
     
     // Apply motion blur
     if ( local_stats.daze_level > 0 || local_stats.grog_level > 0 )
-        motionBlur = std::min( 0.95f, 0.5f + 0.03f * std::max( local_stats.daze_level, local_stats.grog_level ));
+        _motionBlur = std::min( 0.95f, 0.5f + 0.03f * std::max( local_stats.daze_level, local_stats.grog_level ));
 
     //Apply camera swinging
     //mat_Multiply( _mView.v, mat_Translate( tmp1.v, pos.x, -pos.y, pos.z ), _mViewSave.v );  // xgg
     if ( local_swingamp > 0.001f )
     {
-        roll = turntosin[swing] * local_swingamp;
+        _roll = turntosin[_swing] * local_swingamp;
         //mat_Multiply( _mView.v, mat_RotateY( tmp1.v, roll ), mat_Copy( tmp2.v, _mView.v ) );
     }
     // If the camera stops swinging for some reason, slowly return to _original position
-    else if ( 0 != roll )
+    else if ( 0 != _roll )
     {
-        roll *= 0.9875f;            //Decay factor
-        //mat_Multiply( _mView.v, mat_RotateY( tmp1.v, roll ), mat_Copy( tmp2.v, _mView.v ) );
+        _roll *= 0.9875f;            //Decay factor
+        //mat_Multiply( _mView.v, mat_RotateY( tmp1.v, _roll ), mat_Copy( tmp2.v, _mView.v ) );
 
         // Come to a standstill at some point
-        if ( ABS( roll ) < 0.001f )
+        if ( std::fabs( _roll ) < 0.001f )
         {
-            roll = 0;
-            swing = 0;
+            _roll = 0;
+            _swing = 0;
         }
     }
 
-    swing = ( swing + swing_rate ) & 0x3FFF;
+    _swing = ( _swing + _swingRate ) & 0x3FFF;
 }

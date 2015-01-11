@@ -22,39 +22,14 @@
 #include <cstdint>
 #include <forward_list>
 #include "game/egoboo_typedef.h"
+#include "game/physics.h"			//for orientation_t
 
-/// The camera mode.
-enum CameraMode : uint8_t
-{
-    CAM_PLAYER,
-    CAM_FREE,
-    CAM_RESET
-};
-
-/// The mode that the camera uses to determine where is is looking.
-enum CameraTurnMode : uint8_t
-{
-	CAM_TURN_NONE = 0,
-	CAM_TURN_AUTO = 1,
-	CAM_TURN_GOOD = 255
-};
+//Forward declarations
+struct ego_mesh_t;
 
 class Camera
 {
 public:
-	Camera();
-
-	void resetView();
-
-	void resetProjection();
-
-    /// @details This function moves the camera
-	void update(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
-
-    /// @details This function makes sure the camera starts in a suitable position
-	void reset(const ego_mesh_t * pmesh, const std::forward_list<CHR_REF> &trackList);
-
-protected:
 
 	/// The default field of view angle (in degrees).
 	static constexpr float DEFAULT_FOV = 60.0f;
@@ -72,7 +47,7 @@ protected:
 	static constexpr uint8_t DEFAULT_TURN_TIME = 16;
 
 	/// Multi cam uses macro to switch between old and new camera
-	static constexpr float CAM_ZOOM_FACTOR = 0.5f
+	static constexpr float CAM_ZOOM_FACTOR = 0.5f;
 	#ifdef OLD_CAMERA_MODE
 		static constexpr float CAM_ZOOM_MIN = (800 * CAM_ZOOM_FACTOR);       ///< Camera distance
 		static constexpr float CAM_ZOOM_MAX = (700 * CAM_ZOOM_FACTOR);
@@ -88,39 +63,98 @@ protected:
 	static constexpr float CAM_ZADD_AVG = (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX));
 	static constexpr float CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
 
+	/// The camera mode.
+	enum CameraMode : uint8_t
+	{
+	    CAM_PLAYER,
+	    CAM_FREE,
+	    CAM_RESET
+	};
+
+	/// The mode that the camera uses to determine where is is looking.
+	enum CameraTurnMode : uint8_t
+	{
+		CAM_TURN_NONE = 0,
+		CAM_TURN_AUTO = 1,
+		CAM_TURN_GOOD = 255
+	};
+
+	struct CameraOptions
+	{
+	    int            swing;                   ///< Camera swing angle
+	    int            swingRate;               ///< Camera swing rate
+	    float          swingAmp;                ///< Camera swing amplitude
+		CameraTurnMode turnMode;                ///< what is the camera turn mode
+	};
+
+public:
+	Camera(const CameraOptions &options);
+
+	void resetView();
+
+	void resetProjection(const float fov_deg, const float aspect_ratio);
+
+    /// @details This function moves the camera
+	void update(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
+
+    /// @details This function makes sure the camera starts in a suitable position
+	void reset(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
+
 private:
-    /// @details This function makes the camera turn to face the character
+    /**
+    * @brief This function makes the camera turn to face the character
+	**/
 	void updatePosition();
 
 	void updateCenter();
 
-	void updateTrack(const ego_mesh_t * pmesh, const std::forward_list<CHR_REF> &trackList);
+	void updateTrack(const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList);
 
-    /// @details Create a default list of objects that are tracked
+    /**
+    * @brief Create a default list of objects that are tracked
+	**/
 	std::forward_list<CHR_REF> createTrackList();
 
+	/**
+	* @brief updates special effects like grog, blur, shaking, etc.
+	**/
 	void updateEffects();
 
-    /// @details This function makes the camera look downwards as it is raised up
+    /**
+    * @brief This function makes the camera look downwards as it is raised up
+	**/
 	void updateZoom();
 
-    /// @details This function sets pcam->mView to the camera's location and rotation
+    /**
+    * @brief This function sets pcam->mView to the camera's location and rotation
+	**/
 	void makeMatrix();
 
-    /// @details Read camera control input for one specific player controller
+    /**
+    * @brief Read camera control input for one specific player controller
+	**/
 	void readInput(input_device_t *pdevice);
 
-    /// @details Force the camera to focus in on the players. Should be called any time there is
-    ///          a "change of scene". With the new velocity-tracking of the camera, this would include
-    ///          things like character respawns, adding new players, etc.
-	bool resetTarget( const ego_mesh_t * pmesh, const std::forward_list<CHR_REF> &trackList );
+	/**
+    * @brief Force the camera to focus in on the players. Should be called any time there is
+    *        a "change of scene". With the new velocity-tracking of the camera, this would include
+    *        things like character respawns, adding new players, etc.
+    **/
+	void resetTarget( const ego_mesh_t * pmesh, std::forward_list<CHR_REF> &trackList );
+
+	/**
+	* @brief Helper function to calculate FOV
+	**/
+	static inline float multiplyFOV(const float old_fov_deg, const float factor);
 
 private:
+	const CameraOptions _options;
+
    // the projection matrices
     fmat_4x4_t _mView;                        ///< view matrix (derived/cached from other attributes)
 
     fmat_4x4_t _mProjection;                  ///< normal projection matrix (derived/cached from other attributes)
-    fmat_4x4_t _mProjection_big;              ///< big    projection matrix (derived/cached from other attributes)
+    fmat_4x4_t _mProjectionBig;               ///< big    projection matrix (derived/cached from other attributes)
     fmat_4x4_t _mProjectionSmall;             ///< small  projection matrix (derived/cached from other attributes)
 
     // the view frustum
@@ -137,7 +171,7 @@ private:
 
     // the actual camera position
     fvec3_t       _pos; ///< @brief The camera position.
-	                   ///< @inv @a z must be within the interval <tt>[500,1000]</tt>.
+	                    ///< @inv @a z must be within the interval <tt>[500,1000]</tt>.
     orientation_t _ori; ///< @brief The camera orientation.
 
     // the middle of the objects that are being tracked
@@ -150,8 +184,8 @@ private:
 
     // camera z motion
     float         _zadd;                    ///< Camera height above terrain
-    float         _zadd_goto;               ///< Desired z position
-    float         _zgoto;
+    float         _zaddGoto;                ///< Desired z position
+    float         _zGoto;
 
     // turning
     float         _turnZRad;           ///< Camera z rotation (radians)
