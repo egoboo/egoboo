@@ -70,7 +70,6 @@
 #include "egolib/file_formats/module_file.h"
 #include "egolib/file_formats/map_file.h"
 #include "egolib/file_formats/map_tile_dictionary.h"
-#include "egolib/file_formats/passage_file.h"
 #include "egolib/file_formats/pip_file.h"
 #include "egolib/file_formats/quest_file.h"
 #include "egolib/file_formats/scancode_file.h"

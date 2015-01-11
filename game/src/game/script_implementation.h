@@ -196,7 +196,7 @@ Uint32 UpdateTime( Uint32 time_val, int delay );
 /// @author ZZ
 /// @details This function breaks the tiles of a passage if there is a character standing
 ///               on 'em.  Turns the tiles into damage terrain if it reaches last frame.
-Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const int starttile, const PASS_REF passage, int *ptilex, int *ptiley );
+Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const int starttile, const int passageID, int *ptilex, int *ptiley );
 
 /// @author ZZ
 /// @details This function appends a message to the end-module text
@@ -206,7 +206,7 @@ Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pst
 /// @details This function finds the next tile in the passage, x0 and y0
 ///    must be set first, and are set on a find.  Returns true or false
 ///    depending on if it finds one or not
-Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 );
+Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const int passageID, int *px1, int *py1 );
 
 /// @author ZF
 /// @details This function searches the nearby vincinity for a melee weapon the character can use

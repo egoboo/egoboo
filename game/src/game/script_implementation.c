@@ -28,12 +28,13 @@
 #include "game/script_implementation.h"
 #include "game/game.h"
 #include "game/ai/AStar.h"
-#include "game/passage.h"
 #include "game/renderer_2d.h"
 #include "game/ChrList.inl"
 #include "game/mesh.inl"
 #include "game/profile.inl"
 #include "game/char.inl"
+
+#include "game/module/PassageHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 // wrap generic bitwise conversion macros
@@ -555,7 +556,7 @@ Uint32 UpdateTime( Uint32 time_val, int delay )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const int starttile, const PASS_REF passage, int *ptilex, int *ptiley )
+Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const int starttile, const int passageID, int *ptilex, int *ptiley )
 {
     /// @author ZZ
     /// @details This function breaks the tiles of a passage if there is a character standing
@@ -567,7 +568,9 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     ego_tile_info_t * ptile = NULL;
     int loc_starttile;
 
-    if ( INVALID_PASSAGE( passage ) ) return false;
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(passageID);
+
+    if ( !passage ) return false;
 
     // limit the start tile the the 256 tile images that we have
     loc_starttile = CLIP_TO_08BITS( starttile );
@@ -602,7 +605,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
             if ( img >= loc_starttile && img < endtile )
             {
-                if ( object_is_in_passage(( PASS_REF )passage, pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
+                if ( passage->objectIsInPassage( pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
                 {
                     // Remember where the hit occured.
                     *ptilex = pchr->pos.x;
@@ -669,7 +672,7 @@ Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pst
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const PASS_REF passage, int *px1, int *py1 )
+Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const int passageID, int *px1, int *py1 )
 {
     /// @author ZZ
     /// @details This function finds the next tile in the passage, x0 and y0
@@ -678,22 +681,21 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
 
     int x, y;
     Uint32 fan;
-    passage_t  * ppass = NULL;
     ego_tile_info_t * ptile = NULL;
 
-    if ( INVALID_PASSAGE( passage ) ) return false;
-    ppass = PassageStack_get_ptr( passage );
+    std::shared_ptr<Passage> passage = Passages::getPassageByID(passageID);
+    if ( !passage ) return false;
 
     // Do the first row
     x = x0 / GRID_ISIZE;
     y = y0 / GRID_ISIZE;
 
-    if ( x < ppass->area.left )  x = ppass->area.left;
-    if ( y < ppass->area.top )  y = ppass->area.top;
+    if ( x < passage->getLeft() )  x = passage->getLeft();
+    if ( y < passage->getTop() )  y = passage->getTop();
 
-    if ( y < ppass->area.bottom )
+    if ( y < passage->getBottom() )
     {
-        for ( /*nothing*/; x <= ppass->area.right; x++ )
+        for ( /*nothing*/; x <= passage->getRight(); x++ )
         {
             fan = ego_mesh_get_tile_int( PMesh, x, y );
 
@@ -709,9 +711,9 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const P
     }
 
     // Do all remaining rows
-    for ( /* nothing */; y <= ppass->area.bottom; y++ )
+    for ( /* nothing */; y <= passage->getBottom(); y++ )
     {
-        for ( x = ppass->area.left; x <= ppass->area.right; x++ )
+        for ( x = passage->getLeft(); x <= passage->getRight(); x++ )
         {
             fan = ego_mesh_get_tile_int( PMesh, x, y );
 

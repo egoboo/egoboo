@@ -9,6 +9,8 @@ SOURCE += ${wildcard ./src/game/*/*.c}
 SOURCE += ${wildcard ./src/game/*.cpp}
 SOURCE += ${wildcard ./src/game/*/*.cpp}
 
+SOURCE := $(filter-out ./src/game/PhysicalConstants.cpp, $(SOURCE))
+
 #---------------------
 # binary output
 OBJECTS := $(SOURCE:.c=.o)
@@ -32,7 +34,8 @@ SDLCONF_L := $(shell sdl-config --libs)
 # the compiler options
 
 CXX      := g++
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -Wall -Weffc++ -std=c++11 -Og
+CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -Weffc++ -std=c++11 -Og
+#-Wall
 
 #debug options
 CXXFLAGS += -ggdb -fdiagnostics-color=always
