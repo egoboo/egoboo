@@ -460,10 +460,14 @@
 				</Linker>
 			</Target>
 		</Build>
-		<Unit filename="src/game/AStar.c">
+        <Unit filename="src/game/ai/AStar.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/game/AStar.h" />
+        <Unit filename="src/game/ai/AStar.h" />
+        <Unit filename="src/game/ai/WaypointList.c">
+            <Option compilerVar="CC" />
+        </Unit>
+        <Unit filename="src/game/ai/WaypointList.h" />
 		<Unit filename="src/game/ChrList.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -662,7 +666,7 @@
 		<Unit filename="src/game/ui.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/game/ui.h" />
+        <Unit filename="src/game/ui.h" />
 		<Extensions>
 			<envvars />
 			<code_completion />

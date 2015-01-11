@@ -4,11 +4,14 @@
 # the source files
 
 EGOLIB_SRC          := $(wildcard ./src/egolib/*.c)
-EGOLIB_PLATFORM     := $(wildcard ./src/egolib/file_formats/*_linux.c)
+EGOLIB_PLATFORM     := $(wildcard ./src/egolib/platform/*_linux.c)
 EGOLIB_FILE_FORMAT  := $(wildcard ./src/egolib/file_formats/*.c)
 EGOLIB_EXTENSIONS   := $(wildcard ./src/egolib/extensions/*.c)
+EGOLIB_OPENGL       := $(wildcard ./src/egolib/opengl/*.c)
+EGOLIB_CPPSRC       := ./src/egolib/DynamicArray.cpp
 
-EGOLIB_OBJ := ${EGOLIB_SRC:.c=.lo} ${EGOLIB_FILE_FORMAT:.c=.lo} ${EGOLIB_EXTENSIONS:.c=.lo} ${EGOLIB_PLATFORM:.c=.lo}
+EGOLIB_OBJ := ${EGOLIB_SRC:.c=.lo} ${EGOLIB_FILE_FORMAT:.c=.lo} ${EGOLIB_EXTENSIONS:.c=.lo} \
+                ${EGOLIB_PLATFORM:.c=.lo} ${EGOLIB_OPENGL:.c=.lo} ${EGOLIB_CPPSRC:.cpp:.lo}
 
 #---------------------
 # the SDL configuration
@@ -23,13 +26,13 @@ CC	:= gcc
 INC	:= -Isrc -I../game/src
 
 # use different options if the environmental variable PREFIX is defined
-ifdef ($(PREFIX),"")
+ifeq ($(PREFIX),"")
 	OPT := -D_NO_PREFIX
 else
 	OPT := -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
 endif
 
-CFLAGS  := ${SDLCONF_C} ${OPT} ${INC}
+CFLAGS  := ${SDLCONF_C} ${OPT} ${INC} -x c++ -std=c++11
 
 #------------------------------------
 # definitions of the libtool commands
