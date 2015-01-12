@@ -29,10 +29,10 @@
 #include "game/game.h"
 #include "game/ai/AStar.h"
 #include "game/renderer_2d.h"
-#include "game/ChrList.inl"
-#include "game/mesh.inl"
-#include "game/profile.inl"
-#include "game/char.inl"
+#include "game/ChrList.h"
+#include "game/mesh.h"
+#include "game/profile.h"
+#include "game/char.h"
 
 #include "game/module/PassageHandler.hpp"
 

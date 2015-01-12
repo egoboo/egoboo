@@ -25,6 +25,7 @@
 #include "egolib/DynamicArray.hpp"
 #include "egolib/frustum.h"
 #include "egolib/bv.h"
+#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -251,3 +252,17 @@ bool          BSP_branch_add_all_children( const BSP_branch_t * pbranch, BSP_lea
 
     size_t        BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
     size_t        BSP_tree_collide_frustum( const BSP_tree_t * tree, const egolib_frustum_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+
+
+//inline
+bool BSP_leaf_valid( BSP_leaf_t * L );
+
+bool BSP_aabb_empty( const BSP_aabb_t * psrc );
+bool BSP_aabb_invalidate( BSP_aabb_t * psrc );
+bool BSP_aabb_self_clear( BSP_aabb_t * psrc );
+
+bool BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr );
+bool BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr );
+
+bool BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr );
+bool BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr );

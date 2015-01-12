@@ -19,13 +19,16 @@
 
 /// @file game/physics.c
 
-#include "game/physics.inl"
+#include "game/physics.h"
 
 #include "game/game.h"
 
-#include "game/char.inl"
-#include "game/particle.inl"
-#include "game/mesh.inl"
+#include "game/char.h"
+#include "game/particle.h"
+#include "game/mesh.h"
+
+#include "game/ChrList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1708,4 +1711,310 @@ phys_data_t * phys_data_sum_avel_index( phys_data_t * pphys, const float val, co
     pphys->avel.v[index] += val;
 
     return pphys;
+}
+
+//--------------------------------------------------------------------------------------------
+//Inline below
+//--------------------------------------------------------------------------------------------
+bool test_interaction_close_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform )
+{
+    /// @author BB
+    /// @details Test whether two objects could interact based on the "collision bounding box"
+    ///               This version is for character-particle collisions
+
+    oct_bb_t cv_a, cv_b;
+
+    // convert the bumpers to the correct format
+    oct_bb_set_bumper( &cv_a, bump_a );
+    oct_bb_set_bumper( &cv_b, bump_b );
+
+    return test_interaction_close_2( &cv_a, pos_a, &cv_b, pos_b, test_platform );
+}
+
+//--------------------------------------------------------------------------------------------
+bool test_interaction_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform )
+{
+    /// @author BB
+    /// @details Test whether two objects could interact based on the "collision bounding box"
+    ///               This version is for character-particle collisions
+
+    oct_bb_t cv_a, cv_b;
+
+    // convert the bumpers to the correct format
+    oct_bb_set_bumper( &cv_a, bump_a );
+    oct_bb_set_bumper( &cv_b, bump_b );
+
+    return test_interaction_2( &cv_a, pos_a, &cv_b, pos_b, test_platform );
+}
+
+//--------------------------------------------------------------------------------------------
+bool test_interaction_close_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform )
+{
+    /// @author BB
+    /// @details Test whether two objects could interact based on the "collision bounding box"
+    ///               This version is for character-particle collisions
+
+    oct_bb_t cv_b;
+
+    // convert the bumper to the correct format
+    oct_bb_set_bumper( &cv_b, bump_b );
+
+    return test_interaction_close_2( cv_a, pos_a, &cv_b, pos_b, test_platform );
+}
+
+//--------------------------------------------------------------------------------------------
+bool test_interaction_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform )
+{
+    /// @author BB
+    /// @details Test whether two objects could interact based on the "collision bounding box"
+    ///               This version is for character-particle collisions
+
+    oct_bb_t cv_b;
+
+    // convert the bumper to the correct format
+    oct_bb_set_bumper( &cv_b, bump_b );
+
+    return test_interaction_2( cv_a, pos_a, &cv_b, pos_b, test_platform );
+}
+
+//--------------------------------------------------------------------------------------------
+bool test_interaction_close_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const oct_bb_t * cv_b, const fvec3_base_t pos_b, int test_platform )
+{
+    /// @author BB
+    /// @details Test whether two objects could interact based on the "collision bounding box"
+    ///               This version is for character-character collisions
+
+    int cnt;
+    float depth;
+    oct_vec_t oa, ob;
+
+    if ( NULL == cv_a || NULL == cv_b ) return false;
+
+    // translate the positions to oct_vecs
+    oct_vec_ctor( oa, pos_a );
+    oct_vec_ctor( ob, pos_b );
+
+    // calculate the depth
+    for ( cnt = 0; cnt < OCT_Z; cnt++ )
+    {
+        float ftmp1 = std::min(( ob[cnt] + cv_b->maxs[cnt] ) - oa[cnt], oa[cnt] - ( ob[cnt] + cv_b->mins[cnt] ) );
+        float ftmp2 = std::min(( oa[cnt] + cv_a->maxs[cnt] ) - ob[cnt], ob[cnt] - ( oa[cnt] + cv_a->mins[cnt] ) );
+        depth = std::max( ftmp1, ftmp2 );
+        if ( depth <= 0.0f ) return false;
+    }
+
+    // treat the z coordinate the same as always
+    depth = std::min( cv_b->maxs[OCT_Z] + ob[OCT_Z], cv_a->maxs[OCT_Z] + oa[OCT_Z] ) -
+            std::max( cv_b->mins[OCT_Z] + ob[OCT_Z], cv_a->mins[OCT_Z] + oa[OCT_Z] );
+
+    return TO_C_BOOL( test_platform ? ( depth > -PLATTOLERANCE ) : ( depth > 0.0f ) );
+}
+
+//--------------------------------------------------------------------------------------------
+bool test_interaction_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const oct_bb_t * cv_b, const fvec3_base_t pos_b, int test_platform )
+{
+    /// @author BB
+    /// @details Test whether two objects could interact based on the "collision bounding box"
+    ///               This version is for character-character collisions
+
+    int cnt;
+    oct_vec_t oa, ob;
+    float depth;
+
+    if ( NULL == cv_a || NULL == cv_b ) return false;
+
+    // translate the positions to oct_vecs
+    oct_vec_ctor( oa, pos_a );
+    oct_vec_ctor( ob, pos_b );
+
+    // calculate the depth
+    for ( cnt = 0; cnt < OCT_Z; cnt++ )
+    {
+        depth  = std::min( cv_b->maxs[cnt] + ob[cnt], cv_a->maxs[cnt] + oa[cnt] ) -
+                 std::max( cv_b->mins[cnt] + ob[cnt], cv_a->mins[cnt] + oa[cnt] );
+
+        if ( depth <= 0.0f ) return false;
+    }
+
+    // treat the z coordinate the same as always
+    depth = std::min( cv_b->maxs[OCT_Z] + ob[OCT_Z], cv_a->maxs[OCT_Z] + oa[OCT_Z] ) -
+            std::max( cv_b->mins[OCT_Z] + ob[OCT_Z], cv_a->mins[OCT_Z] + oa[OCT_Z] );
+
+    return TO_C_BOOL(( 0 != test_platform ) ? ( depth > -PLATTOLERANCE ) : ( depth > 0.0f ) );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool get_depth_close_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth )
+{
+    /// @author BB
+    /// @details Estimate the depth of collision based on the "collision bounding box"
+    ///               This version is for character-particle collisions
+
+    oct_bb_t cv_a, cv_b;
+
+    // convert the bumpers to the correct format
+    oct_bb_set_bumper( &cv_a, bump_a );
+    oct_bb_set_bumper( &cv_b, bump_b );
+
+    // shift the bumpers
+    oct_bb_self_add_fvec3( &cv_a, pos_a );
+    oct_bb_self_add_fvec3( &cv_b, pos_b );
+
+    return get_depth_close_2( &cv_a, &cv_b, break_out, depth );
+}
+
+//--------------------------------------------------------------------------------------------
+bool get_depth_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth )
+{
+    /// @author BB
+    /// @details Estimate the depth of collision based on the "collision bounding box"
+    ///               This version is for character-particle collisions
+
+    oct_bb_t cv_a, cv_b;
+
+    // convert the bumpers to the correct format
+    oct_bb_set_bumper( &cv_a, bump_a );
+    oct_bb_set_bumper( &cv_b, bump_b );
+
+    // convert the bumper to the correct format
+    oct_bb_set_bumper( &cv_b, bump_b );
+
+    return get_depth_2( &cv_a, pos_a, &cv_b, pos_b, break_out, depth );
+}
+
+//--------------------------------------------------------------------------------------------
+bool get_depth_close_1( const oct_bb_t * cv_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth )
+{
+    /// @author BB
+    /// @details Estimate the depth of collision based on the "collision bounding box"
+    ///               This version is for character-particle collisions
+
+    oct_bb_t cv_b;
+
+    // convert the bumper to the correct format
+    oct_bb_set_bumper( &cv_b, bump_b );
+
+    // shift the bumper
+    oct_bb_self_add_fvec3( &cv_b, pos_b );
+
+    return get_depth_close_2( cv_a, &cv_b, break_out, depth );
+}
+
+//--------------------------------------------------------------------------------------------
+bool get_depth_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth )
+{
+    /// @author BB
+    /// @details Estimate the depth of collision based on the "collision bounding box"
+    ///               This version is for character-particle collisions
+
+    oct_bb_t cv_b;
+
+    // convert the bumper to the correct format
+    oct_bb_set_bumper( &cv_b, bump_b );
+
+    return get_depth_2( cv_a, pos_a, &cv_b, pos_b, break_out, depth );
+}
+
+//--------------------------------------------------------------------------------------------
+bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv_b, bool break_out, oct_vec_t depth )
+{
+    /// @author BB
+    /// @details Estimate the depth of collision based on the "collision bounding box"
+    ///               This version is for character-character collisions
+
+    int cnt;
+    bool valid;
+    float ftmp1, ftmp2;
+    float opos_a, opos_b;
+
+    if ( NULL == depth ) return false;
+
+    if ( NULL == cv_a || NULL == cv_b ) return false;
+
+    // calculate the depth
+    valid = true;
+    for ( cnt = 0; cnt < OCT_Z; cnt++ )
+    {
+        // get positions from the bounding volumes
+        opos_a = ( cv_a->mins[cnt] + cv_a->maxs[cnt] ) * 0.5f;
+        opos_b = ( cv_b->mins[cnt] + cv_b->maxs[cnt] ) * 0.5f;
+
+        // measue the depth
+        ftmp1 = std::min( cv_b->maxs[cnt] - opos_a, opos_a - cv_b->mins[cnt] );
+        ftmp2 = std::min( cv_a->maxs[cnt] - opos_b, opos_b - cv_a->mins[cnt] );
+        depth[cnt] = std::max( ftmp1, ftmp2 );
+
+        if ( depth[cnt] <= 0.0f )
+        {
+            valid = false;
+            if ( break_out ) return false;
+        }
+    }
+
+    // treat the z coordinate the same as always
+    depth[OCT_Z]  = std::min( cv_b->maxs[OCT_Z], cv_a->maxs[OCT_Z] ) -
+                    std::max( cv_b->mins[OCT_Z], cv_a->mins[OCT_Z] );
+
+    if ( depth[OCT_Z] <= 0.0f )
+    {
+        valid = false;
+        if ( break_out ) return false;
+    }
+
+    // scale the diagonal components so that they are actually distances
+    depth[OCT_XY] *= INV_SQRT_TWO;
+    depth[OCT_YX] *= INV_SQRT_TWO;
+
+    return valid;
+}
+
+//--------------------------------------------------------------------------------------------
+bool get_depth_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const oct_bb_t * cv_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth )
+{
+    /// @author BB
+    /// @details Estimate the depth of collision based on the "collision bounding box"
+    ///               This version is for character-character collisions
+
+    int cnt;
+    oct_vec_t oa, ob;
+    bool valid;
+
+    if ( NULL == cv_a || NULL == pos_a || NULL == cv_b || NULL == pos_b ) return false;
+
+    if ( NULL == depth ) return false;
+
+    // translate the positions to oct_vecs
+    oct_vec_ctor( oa, pos_a );
+    oct_vec_ctor( ob, pos_b );
+
+    // calculate the depth
+    valid = true;
+    for ( cnt = 0; cnt < OCT_COUNT; cnt++ )
+    {
+        depth[cnt]  = std::min( cv_b->maxs[cnt] + ob[cnt], cv_a->maxs[cnt] + oa[cnt] ) -
+                      std::max( cv_b->mins[cnt] + ob[cnt], cv_a->mins[cnt] + oa[cnt] );
+
+        if ( depth[cnt] <= 0.0f )
+        {
+            valid = false;
+            if ( break_out ) return false;
+        }
+    }
+
+    // scale the diagonal components so that they are actually distances
+    depth[OCT_XY] *= INV_SQRT_TWO;
+    depth[OCT_YX] *= INV_SQRT_TWO;
+
+    return valid;
+}
+
+//--------------------------------------------------------------------------------------------
+apos_t * apos_self_clear( apos_t * val )
+{
+    if ( NULL == val ) return val;
+
+    BLANK_STRUCT_PTR( val )
+
+    return val;
 }

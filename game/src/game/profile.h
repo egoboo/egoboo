@@ -23,6 +23,10 @@
 #include "game/egoboo_typedef.h"
 #include "game/egoboo.h"
 #include "game/script.h"     //for script_info_t
+#include "game/char.h"
+//#include "game/particle.h"
+//#include "game/enchant.h"
+#include "game/mad.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -52,9 +56,6 @@ typedef struct s_chop_section chop_section_t;
 
 struct s_chop_definition;
 typedef struct s_chop_definition chop_definition_t;
-
-struct s_object_profile;
-typedef struct s_object_profile pro_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -115,7 +116,7 @@ chop_definition_t * chop_definition_init( chop_definition_t * pdefinition );
 //--------------------------------------------------------------------------------------------
 
 /// a wrapper for all the datafiles in the *.obj dir
-struct s_object_profile
+struct pro_t
 {
     EGO_PROFILE_STUFF
 
@@ -195,3 +196,16 @@ void profile_add_one_message( pro_t *pobject, const ego_message_t add_message );
 
 const char *  chop_create( chop_data_t * pdata, chop_definition_t * pdef );
 bool        chop_load_vfs( chop_data_t * pchop_data, const char *szLoadname, chop_definition_t * pchop_definition );
+
+//inline
+CAP_REF pro_get_icap( const PRO_REF iobj );
+MAD_REF pro_get_imad( const PRO_REF iobj );
+EVE_REF pro_get_ieve( const PRO_REF iobj );
+PIP_REF pro_get_ipip( const PRO_REF iobj, int ipip );
+IDSZ    pro_get_idsz( const PRO_REF iobj, int type );
+
+cap_t *     pro_get_pcap( const PRO_REF iobj );
+mad_t *     pro_get_pmad( const PRO_REF iobj );
+eve_t *     pro_get_peve( const PRO_REF iobj );
+pip_t *     pro_get_ppip( const PRO_REF iobj, int pip_index );
+Mix_Chunk * pro_get_chunk( const PRO_REF iobj, int index );

@@ -23,7 +23,7 @@
 
 #include "egolib/geometry.h"
 
-#include "egolib/_math.inl"
+#include "egolib/_math.h"
 
 #include "egolib/frustum.h"
 

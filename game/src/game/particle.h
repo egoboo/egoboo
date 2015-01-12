@@ -25,6 +25,9 @@
 #include "game/egoboo_object.h"
 #include "game/graphic_prt.h"
 #include "game/physics.h"
+#include "egolib/_math.h"
+#include "egolib/bbox.h"
+#include "game/char.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -278,3 +281,18 @@ prt_t * prt_config_initialize( prt_t * pprt, int max_iterations );
 prt_t * prt_config_activate( prt_t * pprt, int max_iterations );
 prt_t * prt_config_deinitialize( prt_t * pprt, int max_iterations );
 prt_t * prt_config_deconstruct( prt_t * pprt, int max_iterations );
+
+//inlined before
+PIP_REF  prt_get_ipip( const PRT_REF particle );
+pip_t  * prt_get_ppip( const PRT_REF particle );
+CHR_REF  prt_get_iowner( const PRT_REF iprt, int depth );
+bool   prt_set_size( prt_t *, int size );
+float    prt_get_scale( prt_t * pprt );
+
+prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
+prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle );
+prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt );
+
+const float *prt_get_pos_v_const( const prt_t * pprt );
+float       *prt_get_pos_v( prt_t * pprt );
+bool     prt_get_pos( const prt_t * pprt, fvec3_base_t pos );

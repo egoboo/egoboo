@@ -34,11 +34,15 @@
 #include "game/graphic.h"
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
-#include "game/char.inl"
-#include "game/particle.inl"
-#include "game/enchant.inl"
+#include "game/char.h"
+#include "game/particle.h"
+#include "game/enchant.h"
 #include "game/collision.h"
-#include "game/profile.inl"
+#include "game/profile.h"
+
+#include "game/ChrList.h"
+#include "game/EncList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

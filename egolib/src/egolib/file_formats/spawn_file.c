@@ -28,7 +28,7 @@
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
 
-#include "egolib/_math.inl"
+#include "egolib/_math.h"
 
 // includes for egoboo constants
 #include "game/char.h"       // for TEAM_* constants

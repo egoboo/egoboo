@@ -24,8 +24,9 @@
 #include <forward_list>
 #include "game/module/Passage.hpp"
 #include "game/game.h"
-#include "game/char.inl"
-#include "game/mesh.inl"
+#include "game/char.h"
+#include "game/mesh.h"
+#include "game/ChrList.h"
 
 Passage::Passage() :
     _area{0, 0, 0, 0},

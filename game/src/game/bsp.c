@@ -23,8 +23,10 @@
 #include "game/char.h"
 #include "game/mesh.h"
 #include "game/particle.h"
-#include "game/char.inl" /** @todo Remove. */
-#include "game/particle.inl" /** @todo Remove. */
+#include "game/char.h" /** @todo Remove. */
+#include "game/particle.h" /** @todo Remove. */
+#include "game/PrtList.h" /** @todo Remove. */
+#include "game/ChrList.h" /** @todo Remove. */
 
 //--------------------------------------------------------------------------------------------
 

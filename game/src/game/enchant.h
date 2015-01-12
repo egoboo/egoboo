@@ -1,5 +1,3 @@
-#pragma once
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -18,17 +16,26 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+#pragma once
 
 /// @file    game/enchant.h
 /// @details Decleares some stuff used for handling enchants.
 
 #include "game/egoboo_typedef.h"
 #include "game/egoboo_object.h"
+//#include "game/profile.h"
+
+//#include "game/EncList.h"
+//#include "game/ChrList.h"
+//
+//#include "game/char.h"
+//#include "game/profile.h"
 
 //--------------------------------------------------------------------------------------------
 // external structs
 //--------------------------------------------------------------------------------------------
 struct s_object_profile;
+struct pro_t;
 struct chr_t;
 
 //--------------------------------------------------------------------------------------------
@@ -37,9 +44,6 @@ struct chr_t;
 
 struct s_enc_spawn_data;
 typedef struct s_enc_spawn_data enc_spawn_data_t;
-
-struct s_enc;
-typedef struct s_enc enc_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -75,7 +79,7 @@ struct s_enc_spawn_data
 
 /// The difinition of a single Egoboo enchantment.
 /// @extends Ego::Entity
-struct s_enc
+struct enc_t
 {
     Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
 
@@ -151,3 +155,18 @@ enc_t * enc_config_initialize( enc_t * penc, int max_iterations );
 enc_t * enc_config_activate( enc_t * penc, int max_iterations );
 enc_t * enc_config_deinitialize( enc_t * penc, int max_iterations );
 enc_t * enc_config_deconstruct( enc_t * penc, int max_iterations );
+
+//--------------------------------------------------------------------------------------------
+// FORWARD DECLARARIONS (inline)
+//--------------------------------------------------------------------------------------------
+PRO_REF   enc_get_ipro( const ENC_REF ienc );
+pro_t   * enc_get_ppro( const ENC_REF ienc );
+
+CHR_REF   enc_get_iowner( const ENC_REF ienc );
+chr_t   * enc_get_powner( const ENC_REF ienc );
+
+EVE_REF   enc_get_ieve( const ENC_REF ienc );
+eve_t   * enc_get_peve( const ENC_REF ienc );
+
+IDSZ      enc_get_idszremove( const ENC_REF ienc );
+bool    enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile );
