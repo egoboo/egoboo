@@ -121,6 +121,8 @@
 //--------------------------------------------------------------------------------------------
 // Exclusive C++ headers from here on.
 #include <algorithm>
+#include <functional>
+#include <vector>
 
 
 #if defined(__cplusplus)
@@ -238,25 +240,30 @@ extern "C"
 // Compiler-specific definitions
 
 //------------
-// deal with gcc's the warnings about const on return types in C
-
+// Deal with gcc's the warnings about const on return types in C.
+// @todo Remove this.
 #define EGO_CONST
 
 //------------
-// fix how MSVC handles throw specifications on member functions
+// Fix how MSVC handles throw specifications on member functions.
 #if defined(_MSC_VER)
-#    define DECL_THROW(XX) throw(...)
+	#define DECL_THROW(XX) throw(...)
 #else
-#    define DECL_THROW(XX) throw(XX)
+	#define DECL_THROW(XX) throw(XX)
+#endif
+
+// MSVC does not support constexpr yet.
+#if defined(_MSC_VER)
+	#define constexpr const
 #endif
 
 //------------
-// localize the inline keyword to the compiler
+// Localize the inline keyword to the compiler.
 #if defined(_MSC_VER)
-/// In MS visual C, the "inline" keyword seems to be depricated. Must to be promoted to "_inline" or "__inline"
-#    define INLINE __inline
+	// In MSVC, the "inline" keyword seems to be depricated. Must to be promoted to "_inline" or "__inline".
+	#define INLINE __inline
 #else
-#    define INLINE inline
+	#define INLINE inline
 #endif
 
 //------------

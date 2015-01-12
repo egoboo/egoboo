@@ -75,22 +75,22 @@ public:
     ~Camera();
     
     /// The default field of view angle (in degrees).
-    static constexpr float DEFAULT_FOV = 60.0f;
+    static const float DEFAULT_FOV;
 
     /// The default joystick turn rotation.
     /// @todo What unit is that?
-    static constexpr float DEFAULT_TURN_JOY= 64;
+    static const float DEFAULT_TURN_JOY;
 
     /// The default keyboard turn rotation.
     /// @todo What unit is that?
-    static constexpr float DEFAULT_TURN_KEY = DEFAULT_TURN_JOY;
+    static const float DEFAULT_TURN_KEY;
 
     /// The default smooth turn rotation.
     /// @todo What unit is that?
-    static constexpr uint8_t DEFAULT_TURN_TIME = 16;
+    static const uint8_t DEFAULT_TURN_TIME;
 
-    static constexpr float CAM_ZADD_AVG = (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX));
-    static constexpr float CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
+    static const float CAM_ZADD_AVG;
+    static const float CAM_ZOOM_AVG;
 
     /**
     * @brief Initialization that has to be after object construction
@@ -132,28 +132,28 @@ public:
     void setScreen(float xmin, float ymin, float xmax, float ymax);
     
     /**
-    * @brief Makes this camera track the specified target
-    **/
+     * @brief Makes this camera track the specified target
+     */
     void addTrackTarget(const CHR_REF target);
 
     /// @details This function moves the camera
     void update(const ego_mesh_t * pmesh);
 
     /**
-    * @brief set which frame this camera was last updated
-    **/
+     * @brief set which frame this camera was last updated
+     */
     void setLastFrame(int frame) {_lastFrame = frame;}
 
     /**
-    *  @details This function makes sure the camera starts in a suitable position
-    **/
+     *  @details This function makes sure the camera starts in a suitable position
+     */
     void reset(const ego_mesh_t * pmesh);
 
     /**
-    * @brief Force the camera to focus in on the players. Should be called any time there is
-    *        a "change of scene". With the new velocity-tracking of the camera, this would include
-    *        things like character respawns, adding new players, etc.
-    **/
+     * @brief Force the camera to focus in on the players. Should be called any time there is
+     *        a "change of scene". With the new velocity-tracking of the camera, this would include
+     *        things like character respawns, adding new players, etc.
+     */
     void resetTarget( const ego_mesh_t * pmesh);
 
 protected:

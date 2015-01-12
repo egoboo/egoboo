@@ -17,7 +17,6 @@
 //*
 //********************************************************************************************
 
-#include "egolib/_math.inl"
-
+#include "egolib/_math.h"
 #include "cartman_math.h"
 

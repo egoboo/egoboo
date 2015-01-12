@@ -26,7 +26,7 @@
 #include "game/graphic.h" //for point debugging
 #include "game/script.h"  //for waypoint list control
 
-#include "game/mesh.inl"
+#include "game/mesh.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

@@ -263,6 +263,9 @@
         float right;
         float top;
         float bottom;
+		frect_t() :left(0.0f), right(0.0f), top(0.0f), bottom(0.0f)
+		{
+		}
     };
 
     bool frect_point_inside( frect_t * prect, float fx, float fy );

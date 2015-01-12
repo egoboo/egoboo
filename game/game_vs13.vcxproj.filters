@@ -33,14 +33,14 @@
     <Filter Include="AI">
       <UniqueIdentifier>{11288bae-a7e3-44df-8037-f8f2d71c16ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Sources\Graphics">
+      <UniqueIdentifier>{e1e429c1-25c1-46c1-aac1-f0a9df44e3a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Header Files\Graphics">
+      <UniqueIdentifier>{7af9834c-1fa2-416f-8bce-52ab1a6b566a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\game\camera.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\camera_system.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\char.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -179,14 +179,14 @@
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\PassageHandler.cpp">
       <Filter>Game Sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\Camera.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\CameraSystem.cpp">
+      <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\game\camera.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\camera_system.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\char.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
@@ -334,6 +334,12 @@
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\PassageHandler.hpp">
       <Filter>Game Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\Camera.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\CameraSystem.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\egoboo.ico">
@@ -344,21 +350,6 @@
     </None>
     <None Include="..\res\old-egoboo.ico">
       <Filter>Resource Files</Filter>
-    </None>
-    <None Include="src\game\char.inl">
-      <Filter>Game Header Files</Filter>
-    </None>
-    <None Include="src\game\ChrList.inl">
-      <Filter>Game Header Files</Filter>
-    </None>
-    <None Include="src\game\enchant.inl">
-      <Filter>Game Header Files</Filter>
-    </None>
-    <None Include="src\game\EncList.inl">
-      <Filter>Game Header Files</Filter>
-    </None>
-    <None Include="src\game\md2.inl">
-      <Filter>Game Header Files</Filter>
     </None>
     <None Include="src\game\mesh.inl">
       <Filter>Game Header Files</Filter>

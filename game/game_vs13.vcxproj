@@ -174,13 +174,13 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\Camera.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\CameraSystem.cpp" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\Passage.cpp" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\PassageHandler.cpp" />
     <ClCompile Include="src\game\ai\AStar.c" />
     <ClCompile Include="src\game\ai\WaypointList.c" />
     <ClCompile Include="src\game\bsp.c" />
-    <ClCompile Include="src\game\camera.c" />
-    <ClCompile Include="src\game\camera_system.c" />
     <ClCompile Include="src\game\char.c" />
     <ClCompile Include="src\game\ChrList.c" />
     <ClCompile Include="src\game\collision.c" />
@@ -224,13 +224,13 @@
     <ClCompile Include="src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\Camera.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\CameraSystem.hpp" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\Passage.hpp" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\PassageHandler.hpp" />
     <ClInclude Include="src\game\ai\AStar.h" />
     <ClInclude Include="src\game\ai\WaypointList.h" />
     <ClInclude Include="src\game\bsp.h" />
-    <ClInclude Include="src\game\camera.h" />
-    <ClInclude Include="src\game\camera_system.h" />
     <ClInclude Include="src\game\char.h" />
     <ClInclude Include="src\game\ChrList.h" />
     <ClInclude Include="src\game\collision.h" />
@@ -277,11 +277,6 @@
     <ClInclude Include="src\game\ui.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\game\char.inl" />
-    <None Include="src\game\ChrList.inl" />
-    <None Include="src\game\enchant.inl" />
-    <None Include="src\game\EncList.inl" />
-    <None Include="src\game\md2.inl" />
     <None Include="src\game\mesh.inl" />
     <None Include="src\game\particle.inl" />
     <None Include="src\game\physics.inl" />

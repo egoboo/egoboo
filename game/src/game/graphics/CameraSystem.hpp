@@ -33,18 +33,18 @@ public:
 	CameraSystem();
 
 	/**
-	* @return true if the camera system has been initialized and can be used
-	**/
+	 * @return true if the camera system has been initialized and can be used
+	 */
 	bool isInitialized();
 
 	/**
-	* @brief initializes the camera system, must be called before using
-	**/
+	 * @brief initializes the camera system, must be called before using
+	 */
 	void begin(const size_t numberOfCameras);
 
 	/**
-	* @brief frees any resources locked by the camera ssytem
-	**/
+	 * @brief frees any resources locked by the camera ssytem
+	 */
 	void end();
 
 	void resetAll( const ego_mesh_t * pmesh );
@@ -60,8 +60,8 @@ public:
 	inline const std::vector<std::shared_ptr<Camera>>& getCameraList() const {return _cameraList;}
 
     /**
-    * @brief write access to global camera options
-    **/
+     * @brief write access to global camera options
+     */
     CameraOptions& getCameraOptions();
 
 	inline std::shared_ptr<Camera> getMainCamera() const {return _mainCamera;}
@@ -72,14 +72,14 @@ private:
 	void endCameraMode( GLint mode );
 
 	/**
-	* @brief Determines the size of each camera depending on number of cameras and screen resolution.
-	*		 This also handles split cameras.
-	**/
+	 * @brief Determines the size of each camera depending on number of cameras and screen resolution.
+	 *		 This also handles split cameras.
+	 */
     void autoFormatTargets();
 
     /**
-    * @brief spread the targets out over all the cameras
-    **/
+     * @brief spread the targets out over all the cameras
+     */
     void autoSetTargets();
 
 private:
