@@ -679,7 +679,6 @@
 		CDFE08421A3F6978005395E7 /* cartman_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cartman_map.h; sourceTree = "<group>"; };
 		CDFE08431A3F6978005395E7 /* cartman_math.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = cartman_math.c; sourceTree = "<group>"; };
 		CDFE08441A3F6978005395E7 /* cartman_math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cartman_math.h; sourceTree = "<group>"; };
-		CDFE08451A3F6978005395E7 /* cartman_math.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cartman_math.inl; sourceTree = "<group>"; };
 		CDFE08461A3F6978005395E7 /* cartman_select.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = cartman_select.c; sourceTree = "<group>"; };
 		CDFE08471A3F6978005395E7 /* cartman_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cartman_select.h; sourceTree = "<group>"; };
 		CDFE08481A3F6978005395E7 /* cartman_typedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cartman_typedef.h; sourceTree = "<group>"; };
@@ -1321,7 +1320,6 @@
 				CDFE08421A3F6978005395E7 /* cartman_map.h */,
 				CDFE08431A3F6978005395E7 /* cartman_math.c */,
 				CDFE08441A3F6978005395E7 /* cartman_math.h */,
-				CDFE08451A3F6978005395E7 /* cartman_math.inl */,
 				CDFE08461A3F6978005395E7 /* cartman_select.c */,
 				CDFE08471A3F6978005395E7 /* cartman_select.h */,
 				CDFE08481A3F6978005395E7 /* cartman_typedef.h */,

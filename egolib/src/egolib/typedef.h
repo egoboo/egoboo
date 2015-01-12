@@ -230,7 +230,7 @@
 			{
 				if (left > right)
 				{
-					throw std:domain_error("the coordinate of the left side must be smaller than or equal to the coordinate of the right side");
+					throw std::domain_error("the coordinate of the left side must be smaller than or equal to the coordinate of the right side");
 				}
 				if (bottom > top)
 				{
