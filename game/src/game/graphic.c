@@ -5839,31 +5839,29 @@ float get_ambient_level()
     if ( gfx.usefaredge )
     {
         // for outside modules, max light_a means bright sunlight
-        glob_amb = light_a * 255.0f;
+        glob_amb = light_a;
     }
     else
     {
         // for inside modules, max light_a means dingy dungeon lighting
-        glob_amb = light_a * 32.0f;
+        glob_amb = light_a / 8.0f;
     }
 
     // determine the minimum ambient, based on darkvision
-    min_amb = INVISIBLE / 4;
+    min_amb = INVISIBLE / 4 / 256.0f;
     if ( local_stats.seedark_mag != 1.0f )
     {
         // start with the global light
         min_amb  = glob_amb;
 
         // give a iny boost in the case of no light_a
-        if ( local_stats.seedark_mag > 0.0f ) min_amb += 1.0f;
+        if ( local_stats.seedark_mag > 0.0f ) min_amb += 1.0f / 256.0f;
 
         // light_a can be quite dark, so we need a large magnification
-        min_amb *= local_stats.seedark_mag * local_stats.seedark_mag;
-        min_amb *= local_stats.seedark_mag * local_stats.seedark_mag;
-        min_amb *= local_stats.seedark_mag;
+        min_amb *= std::pow(1 + local_stats.seedark_mag, 5);
     }
 
-    return 255; // std::max( glob_amb, min_amb );
+    return std::max( glob_amb, min_amb );
 }
 
 //--------------------------------------------------------------------------------------------
