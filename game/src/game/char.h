@@ -27,7 +27,7 @@
 #include "game/egoboo_object.h"
 #include "game/graphic.h"
 #include "game/graphic_mad.h"
-#include "game/sound.h"
+//#include "game/sound.h"
 #include "game/script.h"
 #include "game/md2.h"
 #include "game/physics.h"
@@ -756,8 +756,6 @@ cap_t *chr_get_pcap( const CHR_REF ichr );
 eve_t *chr_get_peve( const CHR_REF ichr );
 pip_t *chr_get_ppip( const CHR_REF ichr, int ipip );
 
-Mix_Chunk      *chr_get_chunk_ptr( chr_t * pchr, int index );
-Mix_Chunk      *chr_get_chunk( const CHR_REF ichr, int index );
 team_t         *chr_get_pteam( const CHR_REF ichr );
 team_t         *chr_get_pteam_base( const CHR_REF ichr );
 ai_state_t     *chr_get_pai( const CHR_REF ichr );

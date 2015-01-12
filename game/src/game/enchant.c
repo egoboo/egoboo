@@ -23,7 +23,7 @@
 
 #include "game/enchant.h"
 
-#include "game/sound.h"
+//#include "game/sound.h"
 #include "game/game.h"
 #include "game/script_functions.h"
 #include "game/egoboo.h"
