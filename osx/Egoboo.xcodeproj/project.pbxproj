@@ -47,14 +47,12 @@
 		CD39B4821A37506100B377BE /* network.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B42D1A37506100B377BE /* network.c */; };
 		CD39B4831A37506100B377BE /* obj_BSP.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B42F1A37506100B377BE /* obj_BSP.c */; };
 		CD39B4841A37506100B377BE /* particle.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4311A37506100B377BE /* particle.c */; };
-		CD39B4861A37506100B377BE /* passage.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4341A37506100B377BE /* passage.c */; };
 		CD39B4881A37506100B377BE /* physics.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4371A37506100B377BE /* physics.c */; };
 		CD39B48A1A37506100B377BE /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B43A1A37506100B377BE /* player.c */; };
 		CD39B48B1A37506100B377BE /* profile.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B43C1A37506100B377BE /* profile.c */; };
 		CD39B48D1A37506100B377BE /* PrtList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B43F1A37506100B377BE /* PrtList.c */; };
 		CD39B48F1A37506100B377BE /* renderer_2d.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4421A37506100B377BE /* renderer_2d.c */; };
 		CD39B4901A37506100B377BE /* renderer_3d.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4441A37506100B377BE /* renderer_3d.c */; };
-		CD39B4911A37506100B377BE /* rpc.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4461A37506100B377BE /* rpc.c */; };
 		CD39B4921A37506100B377BE /* script_compile.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4481A37506100B377BE /* script_compile.c */; };
 		CD39B4931A37506100B377BE /* script_functions.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B44A1A37506100B377BE /* script_functions.c */; };
 		CD39B4941A37506100B377BE /* script_implementation.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B44C1A37506100B377BE /* script_implementation.c */; };
@@ -83,6 +81,8 @@
 		CD5B0CAF1A6204EC00F076F9 /* AStar.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAB1A6204EC00F076F9 /* AStar.c */; };
 		CD5B0CB01A6204EC00F076F9 /* WaypointList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAD1A6204EC00F076F9 /* WaypointList.c */; };
 		CD5B0CB41A62054300F076F9 /* DynamicArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */; };
+		CD97C1651A629E2500179A2C /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1611A629E2500179A2C /* Passage.cpp */; };
+		CD97C1661A629E2500179A2C /* PassageHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1631A629E2500179A2C /* PassageHandler.cpp */; };
 		CDBDE3EC1A43A3EF008E5FD1 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3A81A43A2CC008E5FD1 /* lapi.c */; };
 		CDBDE3EE1A43A3EF008E5FD1 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3AA1A43A2CC008E5FD1 /* lauxlib.c */; };
 		CDBDE3F01A43A3EF008E5FD1 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3AC1A43A2CC008E5FD1 /* lbaselib.c */; };
@@ -146,7 +146,6 @@
 		CDCA1FC11A3F57D000002E76 /* map_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B33B1A374B6000B377BE /* map_file.c */; };
 		CDCA1FC21A3F57D000002E76 /* map_tile_dictionary.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B33D1A374B6000B377BE /* map_tile_dictionary.c */; };
 		CDCA1FC31A3F57D000002E76 /* module_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B33F1A374B6000B377BE /* module_file.c */; };
-		CDCA1FC41A3F57D000002E76 /* passage_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3411A374B6000B377BE /* passage_file.c */; };
 		CDCA1FC51A3F57D000002E76 /* pip_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3431A374B6000B377BE /* pip_file.c */; };
 		CDCA1FC61A3F57D000002E76 /* quest_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3451A374B6000B377BE /* quest_file.c */; };
 		CDCA1FC71A3F57D000002E76 /* scancode_file.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3471A374B6000B377BE /* scancode_file.c */; };
@@ -173,7 +172,6 @@
 		CDCA1FDC1A3F57D000002E76 /* process.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B37C1A374B6000B377BE /* process.c */; };
 		CDCA1FDD1A3F57D000002E76 /* scancode.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B37E1A374B6000B377BE /* scancode.c */; };
 		CDCA1FDE1A3F57D000002E76 /* strutil.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3811A374B6000B377BE /* strutil.c */; };
-		CDCA1FDF1A3F57D000002E76 /* threads.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3841A374B6000B377BE /* threads.c */; };
 		CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3861A374B6000B377BE /* throttle.c */; };
 		CDCA1FE11A3F57D000002E76 /* timer.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3881A374B6000B377BE /* timer.c */; };
 		CDCA1FE21A3F57D000002E76 /* typedef.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B38A1A374B6000B377BE /* typedef.c */; };
@@ -394,8 +392,6 @@
 		CD39B33E1A374B6000B377BE /* map_tile_dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = map_tile_dictionary.h; sourceTree = "<group>"; };
 		CD39B33F1A374B6000B377BE /* module_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = module_file.c; sourceTree = "<group>"; };
 		CD39B3401A374B6000B377BE /* module_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = module_file.h; sourceTree = "<group>"; };
-		CD39B3411A374B6000B377BE /* passage_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = passage_file.c; sourceTree = "<group>"; };
-		CD39B3421A374B6000B377BE /* passage_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = passage_file.h; sourceTree = "<group>"; };
 		CD39B3431A374B6000B377BE /* pip_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = pip_file.c; sourceTree = "<group>"; };
 		CD39B3441A374B6000B377BE /* pip_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pip_file.h; sourceTree = "<group>"; };
 		CD39B3451A374B6000B377BE /* quest_file.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = quest_file.c; sourceTree = "<group>"; };
@@ -448,8 +444,6 @@
 		CD39B3811A374B6000B377BE /* strutil.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = strutil.c; sourceTree = "<group>"; };
 		CD39B3821A374B6000B377BE /* strutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strutil.h; sourceTree = "<group>"; };
 		CD39B3831A374B6000B377BE /* system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = system.h; sourceTree = "<group>"; };
-		CD39B3841A374B6000B377BE /* threads.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = threads.c; sourceTree = "<group>"; };
-		CD39B3851A374B6000B377BE /* threads.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = threads.h; sourceTree = "<group>"; };
 		CD39B3861A374B6000B377BE /* throttle.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = throttle.c; sourceTree = "<group>"; };
 		CD39B3871A374B6000B377BE /* throttle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = throttle.h; sourceTree = "<group>"; };
 		CD39B3881A374B6000B377BE /* timer.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = timer.c; sourceTree = "<group>"; };
@@ -530,8 +524,6 @@
 		CD39B4311A37506100B377BE /* particle.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = particle.c; sourceTree = "<group>"; };
 		CD39B4321A37506100B377BE /* particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = particle.h; sourceTree = "<group>"; };
 		CD39B4331A37506100B377BE /* particle.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = particle.inl; sourceTree = "<group>"; };
-		CD39B4341A37506100B377BE /* passage.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = passage.c; sourceTree = "<group>"; };
-		CD39B4351A37506100B377BE /* passage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = passage.h; sourceTree = "<group>"; };
 		CD39B4371A37506100B377BE /* physics.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = physics.c; sourceTree = "<group>"; };
 		CD39B4381A37506100B377BE /* physics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = physics.h; sourceTree = "<group>"; };
 		CD39B4391A37506100B377BE /* physics.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = physics.inl; sourceTree = "<group>"; };
@@ -547,8 +539,6 @@
 		CD39B4431A37506100B377BE /* renderer_2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer_2d.h; sourceTree = "<group>"; };
 		CD39B4441A37506100B377BE /* renderer_3d.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = renderer_3d.c; sourceTree = "<group>"; };
 		CD39B4451A37506100B377BE /* renderer_3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer_3d.h; sourceTree = "<group>"; };
-		CD39B4461A37506100B377BE /* rpc.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = rpc.c; sourceTree = "<group>"; };
-		CD39B4471A37506100B377BE /* rpc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rpc.h; sourceTree = "<group>"; };
 		CD39B4481A37506100B377BE /* script_compile.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = script_compile.c; sourceTree = "<group>"; };
 		CD39B4491A37506100B377BE /* script_compile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = script_compile.h; sourceTree = "<group>"; };
 		CD39B44A1A37506100B377BE /* script_functions.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = script_functions.c; sourceTree = "<group>"; };
@@ -574,7 +564,12 @@
 		CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicArray.cpp; sourceTree = "<group>"; };
 		CD5B0CB21A62054300F076F9 /* DynamicArray.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DynamicArray.hpp; sourceTree = "<group>"; };
 		CD5B0CB31A62054300F076F9 /* Stack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Stack.hpp; sourceTree = "<group>"; };
-		CDBDE3A21A43726C008E5FD1 /* file_amiga.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_amiga.c; sourceTree = "<group>"; };
+		CD97C15D1A629E1C00179A2C /* PhysicalConstants.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicalConstants.cpp; sourceTree = "<group>"; };
+		CD97C15E1A629E1C00179A2C /* PhysicalConstants.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PhysicalConstants.hpp; sourceTree = "<group>"; };
+		CD97C1611A629E2500179A2C /* Passage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Passage.cpp; sourceTree = "<group>"; };
+		CD97C1621A629E2500179A2C /* Passage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Passage.hpp; sourceTree = "<group>"; };
+		CD97C1631A629E2500179A2C /* PassageHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PassageHandler.cpp; sourceTree = "<group>"; };
+		CD97C1641A629E2500179A2C /* PassageHandler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PassageHandler.hpp; sourceTree = "<group>"; };
 		CDBDE3A31A43726C008E5FD1 /* file_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_linux.c; sourceTree = "<group>"; };
 		CDBDE3A41A43726C008E5FD1 /* file_win.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_win.c; sourceTree = "<group>"; };
 		CDBDE3A51A43726C008E5FD1 /* sys_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = sys_linux.c; sourceTree = "<group>"; };
@@ -816,6 +811,7 @@
 			children = (
 				CD5B0CAA1A6204EC00F076F9 /* ai */,
 				CDBDE4291A43A65E008E5FD1 /* lua */,
+				CD97C1601A629E2500179A2C /* module */,
 				CD44DD7E1A476046005E6DF0 /* bsp.c */,
 				CD44DD7F1A476046005E6DF0 /* bsp.h */,
 				CD39B3E21A37506100B377BE /* camera_system.c */,
@@ -890,8 +886,8 @@
 				CD39B4311A37506100B377BE /* particle.c */,
 				CD39B4321A37506100B377BE /* particle.h */,
 				CD39B4331A37506100B377BE /* particle.inl */,
-				CD39B4341A37506100B377BE /* passage.c */,
-				CD39B4351A37506100B377BE /* passage.h */,
+				CD97C15D1A629E1C00179A2C /* PhysicalConstants.cpp */,
+				CD97C15E1A629E1C00179A2C /* PhysicalConstants.hpp */,
 				CD39B4371A37506100B377BE /* physics.c */,
 				CD39B4381A37506100B377BE /* physics.h */,
 				CD39B4391A37506100B377BE /* physics.inl */,
@@ -907,8 +903,6 @@
 				CD39B4431A37506100B377BE /* renderer_2d.h */,
 				CD39B4441A37506100B377BE /* renderer_3d.c */,
 				CD39B4451A37506100B377BE /* renderer_3d.h */,
-				CD39B4461A37506100B377BE /* rpc.c */,
-				CD39B4471A37506100B377BE /* rpc.h */,
 				CD39B4481A37506100B377BE /* script_compile.c */,
 				CD39B4491A37506100B377BE /* script_compile.h */,
 				CD39B44A1A37506100B377BE /* script_functions.c */,
@@ -1113,8 +1107,6 @@
 				CD39B3811A374B6000B377BE /* strutil.c */,
 				CD39B3821A374B6000B377BE /* strutil.h */,
 				CD39B3831A374B6000B377BE /* system.h */,
-				CD39B3841A374B6000B377BE /* threads.c */,
-				CD39B3851A374B6000B377BE /* threads.h */,
 				CD39B3861A374B6000B377BE /* throttle.c */,
 				CD39B3871A374B6000B377BE /* throttle.h */,
 				CD39B3881A374B6000B377BE /* timer.c */,
@@ -1184,8 +1176,6 @@
 				CD39B33E1A374B6000B377BE /* map_tile_dictionary.h */,
 				CD39B33F1A374B6000B377BE /* module_file.c */,
 				CD39B3401A374B6000B377BE /* module_file.h */,
-				CD39B3411A374B6000B377BE /* passage_file.c */,
-				CD39B3421A374B6000B377BE /* passage_file.h */,
 				CD39B3431A374B6000B377BE /* pip_file.c */,
 				CD39B3441A374B6000B377BE /* pip_file.h */,
 				CD39B3451A374B6000B377BE /* quest_file.c */,
@@ -1220,7 +1210,6 @@
 			children = (
 				CD39B3761A374B6000B377BE /* NSFileManager+DirectoryLocations.h */,
 				CD39B3771A374B6000B377BE /* NSFileManager+DirectoryLocations.m */,
-				CDBDE3A21A43726C008E5FD1 /* file_amiga.c */,
 				CDBDE3A31A43726C008E5FD1 /* file_linux.c */,
 				CD39B3741A374B6000B377BE /* file_mac.m */,
 				CDBDE3A41A43726C008E5FD1 /* file_win.c */,
@@ -1240,6 +1229,17 @@
 				CD5B0CAE1A6204EC00F076F9 /* WaypointList.h */,
 			);
 			path = ai;
+			sourceTree = "<group>";
+		};
+		CD97C1601A629E2500179A2C /* module */ = {
+			isa = PBXGroup;
+			children = (
+				CD97C1611A629E2500179A2C /* Passage.cpp */,
+				CD97C1621A629E2500179A2C /* Passage.hpp */,
+				CD97C1631A629E2500179A2C /* PassageHandler.cpp */,
+				CD97C1641A629E2500179A2C /* PassageHandler.hpp */,
+			);
+			path = module;
 			sourceTree = "<group>";
 		};
 		CDBDE3A71A43A2CC008E5FD1 /* lua */ = {
@@ -1579,6 +1579,7 @@
 				CD39B4591A37506100B377BE /* camera_system.c in Sources */,
 				CD39B48F1A37506100B377BE /* renderer_2d.c in Sources */,
 				CD5B0CAF1A6204EC00F076F9 /* AStar.c in Sources */,
+				CD97C1661A629E2500179A2C /* PassageHandler.cpp in Sources */,
 				CD39B45D1A37506100B377BE /* ChrList.c in Sources */,
 				CD39B4961A37506100B377BE /* sound.c in Sources */,
 				CD39B48D1A37506100B377BE /* PrtList.c in Sources */,
@@ -1587,6 +1588,7 @@
 				CD39B46E1A37506100B377BE /* graphic_texture.c in Sources */,
 				CD39B4681A37506100B377BE /* game.c in Sources */,
 				CD39B48A1A37506100B377BE /* player.c in Sources */,
+				CD97C1651A629E2500179A2C /* Passage.cpp in Sources */,
 				CD39B46C1A37506100B377BE /* graphic_mad.c in Sources */,
 				CD39B47B1A37506100B377BE /* menu.c in Sources */,
 				CD39B4901A37506100B377BE /* renderer_3d.c in Sources */,
@@ -1604,7 +1606,6 @@
 				CD39B4951A37506100B377BE /* script.c in Sources */,
 				CD39B4601A37506100B377BE /* egoboo_object.c in Sources */,
 				CD39B46D1A37506100B377BE /* graphic_prt.c in Sources */,
-				CD39B4861A37506100B377BE /* passage.c in Sources */,
 				CD39B4B01A3762A500B377BE /* SDLMain.m in Sources */,
 				CD39B48B1A37506100B377BE /* profile.c in Sources */,
 				CD39B4971A37506100B377BE /* ui.c in Sources */,
@@ -1620,7 +1621,6 @@
 				CD39B4651A37506100B377BE /* EncList.c in Sources */,
 				CD39B4821A37506100B377BE /* network.c in Sources */,
 				CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */,
-				CD39B4911A37506100B377BE /* rpc.c in Sources */,
 				CD39B47E1A37506100B377BE /* mesh.c in Sources */,
 				CD39B4781A37506100B377BE /* mad.c in Sources */,
 				CD39B45A1A37506100B377BE /* camera.c in Sources */,
@@ -1682,7 +1682,6 @@
 				CDCA1FB61A3F57D000002E76 /* configfile.c in Sources */,
 				CDCA1FB21A3F57D000002E76 /* SDL_extensions.c in Sources */,
 				CDCA1FC71A3F57D000002E76 /* scancode_file.c in Sources */,
-				CDCA1FC41A3F57D000002E76 /* passage_file.c in Sources */,
 				CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */,
 				CDD931A41A428D970004A8B2 /* sphere.c in Sources */,
 				CDCA1FA91A3F57D000002E76 /* bsp.c in Sources */,
@@ -1720,7 +1719,6 @@
 				CDCA1FCF1A3F57D000002E76 /* font_ttf.c in Sources */,
 				CDCA1FAF1A3F57D000002E76 /* ogl_extensions.c in Sources */,
 				CDCA1FCD1A3F57D000002E76 /* fileutil.c in Sources */,
-				CDCA1FDF1A3F57D000002E76 /* threads.c in Sources */,
 				CDCA1FAD1A3F57D000002E76 /* endian.c in Sources */,
 				CDCA1FB41A3F57D000002E76 /* file_common.c in Sources */,
 				CDCA1FDD1A3F57D000002E76 /* scancode.c in Sources */,
@@ -2011,7 +2009,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
+					_CONSOLE,
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
