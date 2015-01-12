@@ -25,19 +25,9 @@
 #include "egolib/typedef.h"
 #include "egolib/tx_filter.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct camera_options_t;
-    struct egoboo_config_t;
-
-	/// The mode that the camera uses to determine where is is looking.
-	enum e_camera_turn_mode
-	{
-		CAM_TURN_NONE = 0,
-		CAM_TURN_AUTO = 1,
-		CAM_TURN_GOOD = 255
-	};
+//Forward declarations
+enum CameraTurnMode : uint8_t;
+struct egoboo_config_t;
 
 //--------------------------------------------------------------------------------------------
 // CONSTANTS
@@ -116,7 +106,7 @@
         int                message_count_req;
         Uint16             message_duration;        ///< Time to keep the message alive
         bool               show_stats;              ///< Draw the status bars?
-        e_camera_turn_mode autoturncamera;          ///< Type of camera control...
+        CameraTurnMode     autoturncamera;          ///< Type of camera control...
         EGO_FEEDBACK_TYPE  feedback;                ///< Feedback type
         Uint8              difficulty;              ///< What is the current game difficulty
 

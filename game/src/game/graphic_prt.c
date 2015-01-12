@@ -27,13 +27,13 @@
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/game.h"
-#include "game/camera_system.h"
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
 #include "game/particle.inl"
 #include "game/char.inl"
 #include "game/profile.inl"
+#include "game/graphics/CameraSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ struct s_prt_registry_entity
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static gfx_rv prt_instance_update( const camera_t * pcam, const PRT_REF particle, Uint8 trans, bool do_lighting );
+static gfx_rv prt_instance_update( std::shared_ptr<Camera> pcam, const PRT_REF particle, Uint8 trans, bool do_lighting );
 static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, bool do_reflect );
 static int  cmp_prt_registry_entity( const void * vlhs, const void * vrhs );
 
@@ -109,7 +109,7 @@ static void prt_draw_attached_point( prt_bundle_t * pbdl_prt );
 
 static void render_prt_bbox( prt_bundle_t * pbdl_prt );
 
-static gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pinst, prt_t * pprt );
+static gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_t * pinst, prt_t * pprt );
 static fmat_4x4_t prt_instance_make_matrix( prt_instance_t * pinst );
 static gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8 trans, bool do_lighting );
 
@@ -645,11 +645,11 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv update_all_prt_instance( const camera_t * pcam )
+gfx_rv update_all_prt_instance( std::shared_ptr<Camera> pcam )
 {
     gfx_rv retval;
 
-    if ( NULL == pcam )
+    if ( nullptr == pcam )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
         return gfx_error;
@@ -691,7 +691,7 @@ gfx_rv update_all_prt_instance( const camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )
+gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_t * pinst, prt_t * pprt )
 {
     pip_t * ppip;
 
@@ -706,7 +706,7 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
     pinst->valid     = false;
     pinst->ref_valid = false;
 
-    if ( NULL == pcam )
+    if ( nullptr == pcam )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
         return gfx_error;
@@ -738,10 +738,10 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
     pinst->ref_pos.z    = 2 * pprt->enviro.floor_level - pinst->pos.z;
 
     // get the vector from the camera to the particle
-    fvec3_sub( vfwd.v, pinst->pos.v, pcam->pos.v );
+    fvec3_sub( vfwd.v, pinst->pos.v, pcam->getPosition().v );
     fvec3_self_normalize( vfwd.v );
 
-    fvec3_sub( vfwd_ref.v, pinst->ref_pos.v, pcam->pos.v );
+    fvec3_sub( vfwd_ref.v, pinst->ref_pos.v, pcam->getPosition().v );
     fvec3_self_normalize( vfwd_ref.v );
 
     // set the up and right vectors
@@ -763,7 +763,7 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
     else if ( ORIENTATION_B == pinst->orientation )
     {
         // use the camera up vector
-        vup = pcam->vup;
+        vup = pcam->getVUP();
         fvec3_self_normalize( vup.v );
 
         // get the correct "right" vector
@@ -785,7 +785,7 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
         fvec3_t vup_cam;
 
         // use the camera up vector
-        vup_cam = pcam->vup;
+        vup_cam = pcam->getVUP();
 
         // use the global up vector
         vup.x = vup.y = 0;
@@ -856,11 +856,11 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
             // use the camera directions?
             switch ( pinst->orientation )
             {
-                case ORIENTATION_X: vup = pcam->vfw; break;
-                case ORIENTATION_Y: vup = pcam->vrt; break;
+                case ORIENTATION_X: vup = pcam->getVFW(); break;
+                case ORIENTATION_Y: vup = pcam->getVRT(); break;
 
                 default:
-                case ORIENTATION_Z: vup = pcam->vup; break;
+                case ORIENTATION_Z: vup = pcam->getVUP(); break;
             }
         }
 
@@ -877,7 +877,7 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
     else
     {
         // use the camera up vector
-        vup = pcam->vup;
+        vup = pcam->getVUP();
         fvec3_self_normalize( vup.v );
 
         // get the correct "right" vector
@@ -1097,7 +1097,7 @@ gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv prt_instance_update( const camera_t * pcam, const PRT_REF particle, Uint8 trans, bool do_lighting )
+gfx_rv prt_instance_update( std::shared_ptr<Camera> pcam, const PRT_REF particle, Uint8 trans, bool do_lighting )
 {
     prt_t          * pprt;
     prt_instance_t * pinst;
@@ -1182,12 +1182,12 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 
 static void   render_all_particles( struct s_camera * pcam );
-static size_t render_all_prt_begin( const camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count );
-static void   render_all_prt_solid( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle );
-static void   render_all_prt_trans( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle );
+static size_t render_all_prt_begin( std::shared_ptr<Camera> pcam, prt_registry_entity_t reg[], size_t reg_count );
+static void   render_all_prt_solid( std::shared_ptr<Camera> pcam, const prt_registry_entity_t reg[], const size_t numparticle );
+static void   render_all_prt_trans( std::shared_ptr<Camera> pcam, const prt_registry_entity_t reg[], const size_t numparticle );
 
 //--------------------------------------------------------------------------------------------
-void render_all_particles( camera_t * pcam )
+void render_all_particles( std::shared_ptr<Camera> pcam )
 {
     /// @author ZZ
     /// @details This function draws the sprites for particle systems
@@ -1202,15 +1202,15 @@ void render_all_particles( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t render_all_prt_begin( const camera_t * pcam,  prt_registry_entity_t reg[], size_t reg_count )
+size_t render_all_prt_begin( std::shared_ptr<Camera> pcam,  prt_registry_entity_t reg[], size_t reg_count )
 {
     fvec3_t vfwd, vcam;
     size_t  numparticle;
 
     update_all_prt_instance( pcam );
 
-    mat_getCamForward( pcam->mView.v, vfwd.v );
-    vcam = pcam->pos;
+    mat_getCamForward( pcam->getView().v, vfwd.v );
+    vcam = pcam->getPosition();
 
     // Original points
     numparticle = 0;
@@ -1252,7 +1252,7 @@ size_t render_all_prt_begin( const camera_t * pcam,  prt_registry_entity_t reg[]
 }
 
 //--------------------------------------------------------------------------------------------
-void render_all_prt_solid( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle )
+void render_all_prt_solid( std::shared_ptr<Camera> pcam, const prt_registry_entity_t reg[], const size_t numparticle )
 {
     /// @author BB
     /// @details do solid sprites first
@@ -1275,7 +1275,7 @@ void render_all_prt_solid( const camera_t * pcam, const prt_registry_entity_t re
 }
 
 //--------------------------------------------------------------------------------------------
-void render_all_prt_trans( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle )
+void render_all_prt_trans( std::shared_ptr<Camera> pcam, const prt_registry_entity_t reg[], const size_t numparticle )
 {
     /// @author BB
     /// @details do all kinds of transparent sprites next
@@ -1300,12 +1300,12 @@ void render_all_prt_trans( const camera_t * pcam, const prt_registry_entity_t re
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static void   render_all_prt_ref( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle );
-static size_t render_all_prt_ref_begin( const camera_t * pcam,  prt_registry_entity_t reg[],  size_t reg_count );
-static void   render_prt_ref( const camera_t * pcam );
+static void   render_all_prt_ref( std::shared_ptr<Camera> pcam, const prt_registry_entity_t reg[], const size_t numparticle );
+static size_t render_all_prt_ref_begin( std::shared_ptr<Camera> pcam,  prt_registry_entity_t reg[],  size_t reg_count );
+static void   render_prt_ref( std::shared_ptr<Camera> pcam );
 
 //--------------------------------------------------------------------------------------------
-void render_prt_ref( const camera_t * pcam )
+void render_prt_ref( std::shared_ptr<Camera> pcam )
 {
     /// @author ZZ
     /// @details This function draws sprites reflected in the floor
@@ -1318,15 +1318,15 @@ void render_prt_ref( const camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t render_all_prt_ref_begin( const camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
+size_t render_all_prt_ref_begin( std::shared_ptr<Camera> pcam, prt_registry_entity_t reg[], size_t reg_count )
 {
     fvec3_t vfwd, vcam;
     size_t  numparticle;
 
     update_all_prt_instance( pcam );
 
-    mat_getCamForward( pcam->mView.v, vfwd.v );
-    vcam = pcam->pos;
+    mat_getCamForward( pcam->getView().v, vfwd.v );
+    vcam = pcam->getPosition();
 
     // Original points
     numparticle = 0;
@@ -1362,7 +1362,7 @@ size_t render_all_prt_ref_begin( const camera_t * pcam, prt_registry_entity_t re
 }
 
 //--------------------------------------------------------------------------------------------
-void render_all_prt_ref( const camera_t * pcam, const prt_registry_entity_t reg[], const size_t numparticle )
+void render_all_prt_ref( std::shared_ptr<Camera> pcam, const prt_registry_entity_t reg[], const size_t numparticle )
 {
     size_t cnt;
     PRT_REF prt;

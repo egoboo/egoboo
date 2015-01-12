@@ -37,7 +37,6 @@
 #include "game/player.h"
 #include "game/collision.h"
 #include "game/script.h"
-#include "game/camera_system.h"
 #include "game/input.h"
 #include "game/menu.h"
 #include "game/script_compile.h"
@@ -51,6 +50,7 @@
 #include "game/profile.inl"
 #include "game/mesh.inl"
 #include "game/module/PassageHandler.hpp" //only for getPassageCount()
+#include "game/graphics/CameraSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -110,7 +110,7 @@ gfx_rv renderlist_lst_push( renderlist_lst_t *, Uint32 index, float distance );
 struct s_renderlist
 {
     ego_mesh_t * pmesh;
-    const camera_t   * pcam;
+    std::shared_ptr<Camera> pcam;
 
     renderlist_lst_t  all;     ///< List of which to render, total
     renderlist_lst_t  ref;     ///< ..., is reflected in the floor
@@ -120,7 +120,7 @@ struct s_renderlist
     renderlist_lst_t  wat;     ///< ..., draws a water tile
 };
 
-static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mesh_t * pmesh, const camera_t * pcam );
+static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mesh_t * pmesh, std::shared_ptr<Camera> pcam );
 static gfx_rv         renderlist_reset( renderlist_t * prlist );
 static gfx_rv         renderlist_insert( renderlist_t * prlist, const Uint32 index );
 static ego_mesh_t *   renderlist_get_pmesh( const renderlist_t * ptr );
@@ -181,7 +181,7 @@ struct s_dolist
 
 static dolist_t * dolist_init( dolist_t * pdolist, const size_t index );
 static gfx_rv     dolist_reset( dolist_t * pdolist, const size_t index );
-static gfx_rv     dolist_sort( dolist_t * pdolist, const camera_t * pcam, const bool do_reflect );
+static gfx_rv     dolist_sort( dolist_t * pdolist, std::shared_ptr<Camera> pcam, const bool do_reflect );
 static gfx_rv     dolist_test_chr( dolist_t * pdolist, const chr_t * pchr );
 static gfx_rv     dolist_add_chr_raw( dolist_t * pdolist, chr_t * pchr );
 static gfx_rv     dolist_test_prt( dolist_t * pdolist, const prt_t * pprt );
@@ -245,7 +245,7 @@ struct s_dynalist
 #define DYNALIST_INIT { -1 /* frame */, 0 /* count */ }
 
 static gfx_rv dynalist_init( dynalist_t * pdylist );
-static gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const camera_t * pcam );
+static gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam );
 
 //--------------------------------------------------------------------------------------------
 // special functions and data related to tiled texture "optimization"
@@ -399,28 +399,28 @@ static void gfx_update_fps();
 
 static gfx_rv light_fans( renderlist_t * prlist );
 
-static gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, const camera_t * pcam );
-static gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist );
-static gfx_rv render_scene_mesh_drf_back( const camera_t * pcam, const renderlist_t * prlist );
-static gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist, const dolist_t * pdolist );
-static gfx_rv render_scene_mesh_ref_chr( const camera_t * pcam, const renderlist_t * prlist );
-static gfx_rv render_scene_mesh_drf_solid( const camera_t * pcam, const renderlist_t * prlist );
-static gfx_rv render_scene_mesh_render_shadows( const camera_t * pcam, const dolist_t * pdolist );
-static gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, const dolist_t * pdolist );
-static gfx_rv render_scene_solid( const camera_t * pcam, dolist_t * pdolist );
-static gfx_rv render_scene_trans( const camera_t * pcam, dolist_t * pdolist );
-static gfx_rv render_scene( const camera_t * pcam, const int render_list_index, const int dolist_index );
+static gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam );
+static gfx_rv render_scene_mesh_ndr( const renderlist_t * prlist );
+static gfx_rv render_scene_mesh_drf_back( const renderlist_t * prlist );
+static gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist );
+static gfx_rv render_scene_mesh_ref_chr( const renderlist_t * prlist );
+static gfx_rv render_scene_mesh_drf_solid( const renderlist_t * prlist );
+static gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist );
+static gfx_rv render_scene_mesh( std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist );
+static gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist );
+static gfx_rv render_scene_trans( std::shared_ptr<Camera> pcam, dolist_t * pdolist );
+static gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, const int dolist_index );
 static gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * rlst );
 static void   render_shadow( const CHR_REF character );
 static void   render_bad_shadow( const CHR_REF character );
 static gfx_rv render_water( renderlist_t * prlist );
 static void   render_shadow_sprite( float intensity, GLvertex v[] );
-static gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture );
-static gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture );
+static gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF texture );
+static gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture );
 
-static gfx_rv gfx_make_dolist( dolist_t * pdolist, const camera_t * pcam );
-static gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam );
-static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam );
+static gfx_rv gfx_make_dolist( dolist_t * pdolist, std::shared_ptr<Camera> pcam );
+static gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam );
+static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam );
 
 static float draw_one_xp_bar( float x, float y, Uint8 ticks );
 static float draw_character_xp_bar( const CHR_REF character, float x, float y );
@@ -506,7 +506,7 @@ gfx_rv renderlist_lst_push( renderlist_lst_t * ary, Uint32 index, float distance
 // renderlist implementation
 //--------------------------------------------------------------------------------------------
 
-renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh, const camera_t * pcam )
+renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh, std::shared_ptr<Camera> pcam )
 {
     if ( NULL == plst )
     {
@@ -614,8 +614,8 @@ gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index )
 
         ix = index % pmesh->info.tiles_x;
         iy = index / pmesh->info.tiles_x;
-        dx = ( ix + TILE_FSIZE * 0.5f ) - plst->pcam->center.x;
-        dy = ( iy + TILE_FSIZE * 0.5f ) - plst->pcam->center.y;
+        dx = ( ix + TILE_FSIZE * 0.5f ) - plst->pcam->getCenter().x;
+        dy = ( iy + TILE_FSIZE * 0.5f ) - plst->pcam->getCenter().y;
         distance = dx * dx + dy * dy;
     }
 
@@ -676,7 +676,7 @@ gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_attach_camera( renderlist_t * ptr, const camera_t * pcam )
+gfx_rv renderlist_attach_camera( renderlist_t * ptr, std::shared_ptr<Camera> pcam )
 {
     if ( NULL == ptr )
     {
@@ -1218,7 +1218,7 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_sort( dolist_t * pdlist, const camera_t * pcam, const bool do_reflect )
+gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool do_reflect )
 {
     /// @author ZZ
     /// @details This function orders the dolist based on distance from camera,
@@ -1247,7 +1247,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, const camera_t * pcam, const bool do_refl
         return gfx_error;
     }
 
-    mat_getCamForward( pcam->mView.v, vcam.v );
+    mat_getCamForward( pcam->getView().v, vcam.v );
 
     // Figure the distance of each
     count = 0;
@@ -1272,7 +1272,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, const camera_t * pcam, const bool do_refl
                 mat_getTranslate( ChrList.lst[ichr].inst.matrix.v, pos_tmp.v );
             }
 
-            fvec3_sub( vtmp.v, pos_tmp.v, pcam->pos.v );
+            fvec3_sub( vtmp.v, pos_tmp.v, pcam->getPosition().v );
         }
         else if ( INVALID_CHR_REF == pdlist->lst[cnt].ichr && VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
         {
@@ -1280,11 +1280,11 @@ gfx_rv dolist_sort( dolist_t * pdlist, const camera_t * pcam, const bool do_refl
 
             if ( do_reflect )
             {
-                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.pos.v, pcam->pos.v );
+                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.pos.v, pcam->getPosition().v );
             }
             else
             {
-                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.ref_pos.v, pcam->pos.v );
+                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.ref_pos.v, pcam->getPosition().v );
             }
         }
         else
@@ -1788,7 +1788,7 @@ void gfx_system_init_SDL_graphics()
 }
 
 //--------------------------------------------------------------------------------------------
-void gfx_system_render_world( const camera_t * pcam, const int render_list_index, const int dolist_index )
+void gfx_system_render_world( std::shared_ptr<Camera> pcam, const int render_list_index, const int dolist_index )
 {
     gfx_error_state_t * err_tmp;
 
@@ -1812,15 +1812,15 @@ void gfx_system_render_world( const camera_t * pcam, const int render_list_index
             render_world_overlay( pcam, ( TX_REF )TX_WATER_TOP );
         }
 
-        if ( pcam->motion_blur > 0 )
+        if ( pcam->getMotionBlur() > 0 )
         {
-            if (pcam->motion_blur_old < 0.001f)
+            if (pcam->getMotionBlurOld() < 0.001f)
                 GL_DEBUG(glAccum)(GL_LOAD, 1);
             //Do motion blur
             if (!GProc->mod_paused)
             {
-                GL_DEBUG( glAccum )( GL_MULT, pcam->motion_blur );
-                GL_DEBUG( glAccum )( GL_ACCUM, 1.0f - pcam->motion_blur );
+                GL_DEBUG( glAccum )( GL_MULT, pcam->getMotionBlur() );
+                GL_DEBUG( glAccum )( GL_ACCUM, 1.0f - pcam->getMotionBlur() );
             }
             GL_DEBUG( glAccum )( GL_RETURN, 1.0f );
         }
@@ -1858,7 +1858,7 @@ void gfx_system_main()
     /// @author ZZ
     /// @details This function does all the drawing stuff
 
-    camera_system_render_all( gfx_system_render_world );
+    _cameraSystem.renderAll(gfx_system_render_world);
 
     draw_hud();
 
@@ -1902,7 +1902,7 @@ bool gfx_system_set_virtual_screen( gfx_config_t * pgfx )
 }
 
 //--------------------------------------------------------------------------------------------
-renderlist_mgr_t * gfx_system_get_renderlist_mgr( const camera_t * pcam )
+renderlist_mgr_t * gfx_system_get_renderlist_mgr()
 {
     if ( gfx_success != renderlist_mgr_begin( &_renderlist_mgr_data ) )
     {
@@ -2711,27 +2711,21 @@ void draw_all_status()
     status_list_update_cameras( &StatusList );
 
     // get the camera list
-    ext_camera_list_t *pclst = camera_system_get_list();
+    const std::vector<std::shared_ptr<Camera>> &cameraList = _cameraSystem.getCameraList();
 
-    for ( size_t cnt = 0; cnt < MAX_CAMERAS; cnt++ )
+    for(size_t i = 0; i < cameraList.size(); ++i)
     {
-        // find the camera
-        ext_camera_t * pext = camera_list_get_ext_camera_index( pclst, cnt );
-        if ( NULL == pext ) continue;
-
-        // grab the screen
-		ego_frect_t screen;
-        if ( !ext_camera_get_screen( pext, &screen ) ) continue;
+        const std::shared_ptr<Camera> &camera = cameraList[i];
 
         // draw all attached status
-        int y = screen.ymin;
+        int y = camera->getScreen().ymin;
         for ( size_t tnc = 0; tnc < StatusList.count; tnc++ )
         {
             status_list_element_t * pelem = StatusList.lst + tnc;
 
-            if ( cnt == pelem->camera_index )
+            if ( i == pelem->camera_index )
             {
-                y = draw_status( pelem->who, screen.xmax - BARX, y );
+                y = draw_status( pelem->who, camera->getScreen().xmax - BARX, y );
             }
         }
     }
@@ -2836,7 +2830,7 @@ void draw_map()
         //        camera_t * pcam = camera_list_iterator_get_camera(it);
         //        if( NULL == pcam ) continue;
 
-        //        draw_blip( 0.75f, COLOR_PURPLE, pcam->pos.x, pcam->pos.y, true );
+        //        draw_blip( 0.75f, COLOR_PURPLE, pcam->getPosition().x, pcam->getPosition().y, true );
         //    }
         //    it = camera_list_iterator_end(it);
         //}
@@ -2966,7 +2960,7 @@ float draw_debug( float y )
 
         // Debug information
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-5!!!" );
-        y = draw_string_raw( 0, y, "~~CAM %f %f %f", PCamera->pos.x, PCamera->pos.y, PCamera->pos.z );
+        y = draw_string_raw( 0, y, "~~CAM %f %f %f", _cameraSystem.getMainCamera()->getPosition().x, _cameraSystem.getMainCamera()->getPosition().y, _cameraSystem.getMainCamera()->getPosition().z );
         ipla = ( PLA_REF )0;
         ichr = PlaStack.lst[ipla].index;
         y = draw_string_raw( 0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
@@ -3008,14 +3002,16 @@ float draw_debug( float y )
 
     if ( SDL_KEYDOWN( keyb, SDLK_F7 ) )
     {
+        std::shared_ptr<Camera> camera = _cameraSystem.getMainCamera();
+
         // White debug mode
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-7!!!" );
-        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 0 ), PCamera->mView.CNV( 1, 0 ), PCamera->mView.CNV( 2, 0 ), PCamera->mView.CNV( 3, 0 ) );
-        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 1 ), PCamera->mView.CNV( 1, 1 ), PCamera->mView.CNV( 2, 1 ), PCamera->mView.CNV( 3, 1 ) );
-        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 2 ), PCamera->mView.CNV( 1, 2 ), PCamera->mView.CNV( 2, 2 ), PCamera->mView.CNV( 3, 2 ) );
-        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 3 ), PCamera->mView.CNV( 1, 3 ), PCamera->mView.CNV( 2, 3 ), PCamera->mView.CNV( 3, 3 ) );
-        y = draw_string_raw( 0, y, "CAM center <%f, %f>", PCamera->center.x, PCamera->center.y );
-        y = draw_string_raw( 0, y, "CAM turn %d %d", PCamera->turn_mode, PCamera->turn_time );
+        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV( 0, 0 ), camera->getView().CNV( 1, 0 ), camera->getView().CNV( 2, 0 ), camera->getView().CNV( 3, 0 ) );
+        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV( 0, 1 ), camera->getView().CNV( 1, 1 ), camera->getView().CNV( 2, 1 ), camera->getView().CNV( 3, 1 ) );
+        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV( 0, 2 ), camera->getView().CNV( 1, 2 ), camera->getView().CNV( 2, 2 ), camera->getView().CNV( 3, 2 ) );
+        y = draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", camera->getView().CNV( 0, 3 ), camera->getView().CNV( 1, 3 ), camera->getView().CNV( 2, 3 ), camera->getView().CNV( 3, 3 ) );
+        y = draw_string_raw( 0, y, "CAM center <%f, %f>", camera->getCenter().x, camera->getCenter().y );
+        y = draw_string_raw( 0, y, "CAM turn %d %d", camera->getTurnMode(), camera->getTurnTime() );
     }
 
     return y;
@@ -3686,7 +3682,7 @@ gfx_rv render_fans_by_list( const ego_mesh_t * pmesh, const renderlist_lst_t * r
 //--------------------------------------------------------------------------------------------
 // render_scene FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, const camera_t * pcam )
+gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
 {
     gfx_rv retval;
     ego_mesh_t * pmesh;
@@ -3782,7 +3778,7 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist )
+gfx_rv render_scene_mesh_ndr( const renderlist_t * prlist )
 {
     /// @author BB
     /// @details draw all tiles that do not reflect characters
@@ -3831,7 +3827,7 @@ gfx_rv render_scene_mesh_ndr( const camera_t * pcam, const renderlist_t * prlist
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_drf_back( const camera_t * pcam, const renderlist_t * prlist )
+gfx_rv render_scene_mesh_drf_back( const renderlist_t * prlist )
 {
     /// @author BB
     /// @details draw the reflective tiles, but turn off the depth buffer
@@ -3880,7 +3876,7 @@ gfx_rv render_scene_mesh_drf_back( const camera_t * pcam, const renderlist_t * p
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist, const dolist_t * pdolist )
+gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist )
 {
     /// @author BB
     /// @details Render all reflected objects
@@ -3993,7 +3989,7 @@ gfx_rv render_scene_mesh_ref( const camera_t * pcam, const renderlist_t * prlist
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_ref_chr( const camera_t * pcam, const renderlist_t * prlist )
+gfx_rv render_scene_mesh_ref_chr( const renderlist_t * prlist )
 {
     /// @brief   BB@> Render the shadow floors ( let everything show through )
     /// @author BB
@@ -4038,7 +4034,7 @@ gfx_rv render_scene_mesh_ref_chr( const camera_t * pcam, const renderlist_t * pr
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_drf_solid( const camera_t * pcam, const renderlist_t * prlist )
+gfx_rv render_scene_mesh_drf_solid( const renderlist_t * prlist )
 {
     /// @brief BB@> Render the shadow floors as normal solid floors
 
@@ -4085,7 +4081,7 @@ gfx_rv render_scene_mesh_drf_solid( const camera_t * pcam, const renderlist_t * 
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh_render_shadows( const camera_t * pcam, const dolist_t * pdolist )
+gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
 {
     /// @author BB
     /// @details Render the shadows
@@ -4152,7 +4148,7 @@ gfx_rv render_scene_mesh_render_shadows( const camera_t * pcam, const dolist_t *
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, const dolist_t * pdolist )
+gfx_rv render_scene_mesh( std::shared_ptr<Camera> pcam, const renderlist_t * prlist, const dolist_t * pdolist )
 {
     /// @author BB
     /// @details draw the mesh and any reflected objects
@@ -4174,7 +4170,7 @@ gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, co
     PROFILE_BEGIN( render_scene_mesh_ndr );
     {
         // draw all tiles that do not reflect characters
-        if ( gfx_error == render_scene_mesh_ndr( pcam, prlist ) )
+        if ( gfx_error == render_scene_mesh_ndr( prlist ) )
         {
             retval = gfx_error;
         }
@@ -4189,7 +4185,7 @@ gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, co
         {
             // blank out the background behind reflective tiles
 
-            if ( gfx_error == render_scene_mesh_drf_back( pcam, prlist ) )
+            if ( gfx_error == render_scene_mesh_drf_back( prlist ) )
             {
                 retval = gfx_error;
             }
@@ -4209,7 +4205,7 @@ gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, co
         PROFILE_BEGIN( render_scene_mesh_ref_chr );
         {
             // Render the shadow floors
-            if ( gfx_error == render_scene_mesh_ref_chr( pcam, prlist ) )
+            if ( gfx_error == render_scene_mesh_ref_chr( prlist ) )
             {
                 retval = gfx_error;
             }
@@ -4221,7 +4217,7 @@ gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, co
         PROFILE_BEGIN( render_scene_mesh_drf_solid );
         {
             // Render the shadow floors as normal solid floors
-            if ( gfx_error == render_scene_mesh_drf_solid( pcam, prlist ) )
+            if ( gfx_error == render_scene_mesh_drf_solid( prlist ) )
             {
                 retval = gfx_error;
             }
@@ -4248,7 +4244,7 @@ gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, co
     PROFILE_BEGIN( render_scene_mesh_render_shadows );
     {
         // Render the shadows
-        if ( gfx_error == render_scene_mesh_render_shadows( pcam, pdolist ) )
+        if ( gfx_error == render_scene_mesh_render_shadows( pdolist ) )
         {
             retval = gfx_error;
         }
@@ -4259,7 +4255,7 @@ gfx_rv render_scene_mesh( const camera_t * pcam, const renderlist_t * prlist, co
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_solid( const camera_t * pcam, dolist_t * pdolist )
+gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
 {
     /// @detaile BB@> Render all solid objects
 
@@ -4321,7 +4317,7 @@ gfx_rv render_scene_solid( const camera_t * pcam, dolist_t * pdolist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene_trans( const camera_t * pcam, dolist_t * pdolist )
+gfx_rv render_scene_trans( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
 {
     /// @author BB
     /// @details draw transparent objects
@@ -4381,7 +4377,7 @@ gfx_rv render_scene_trans( const camera_t * pcam, dolist_t * pdolist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_scene( const camera_t * pcam, const int render_list_index, const int dolist_index )
+gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, const int dolist_index )
 {
     /// @author ZZ
     /// @details This function draws 3D objects
@@ -4514,7 +4510,7 @@ gfx_rv render_scene( const camera_t * pcam, const int render_list_index, const i
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture )
+gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF texture )
 {
     /// @author ZZ
     /// @details This function draws the large background
@@ -4552,46 +4548,46 @@ gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture )
 
     // determine the constants for the x-coordinate
     xmag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.x ) / GRID_FSIZE;
-    Cx_0 = xmag * ( 1.0f +  pcam->pos.z       * ilayer->dist.x );
-    Cx_1 = -xmag * ( 1.0f + ( pcam->pos.z - z0 ) * ilayer->dist.x );
+    Cx_0 = xmag * ( 1.0f +  pcam->getPosition().z       * ilayer->dist.x );
+    Cx_1 = -xmag * ( 1.0f + ( pcam->getPosition().z - z0 ) * ilayer->dist.x );
 
     // determine the constants for the y-coordinate
     ymag = water.backgroundrepeat / 4 / ( 1.0f + z0 * ilayer->dist.y ) / GRID_FSIZE;
-    Cy_0 = ymag * ( 1.0f +  pcam->pos.z       * ilayer->dist.y );
-    Cy_1 = -ymag * ( 1.0f + ( pcam->pos.z - z0 ) * ilayer->dist.y );
+    Cy_0 = ymag * ( 1.0f +  pcam->getPosition().z       * ilayer->dist.y );
+    Cy_1 = -ymag * ( 1.0f + ( pcam->getPosition().z - z0 ) * ilayer->dist.y );
 
     // Figure out the coordinates of its corners
     Qx = -pgmem->edge_x;
     Qy = -pgmem->edge_y;
     vtlist[0].pos[XX] = Qx;
     vtlist[0].pos[YY] = Qy;
-    vtlist[0].pos[ZZ] = pcam->pos.z - z0;
-    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->pos.x + ilayer->tx.x;
-    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->pos.y + ilayer->tx.y;
+    vtlist[0].pos[ZZ] = pcam->getPosition().z - z0;
+    vtlist[0].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->getPosition().x + ilayer->tx.x;
+    vtlist[0].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->getPosition().y + ilayer->tx.y;
 
     Qx = 2 * pgmem->edge_x;
     Qy = -pgmem->edge_y;
     vtlist[1].pos[XX] = Qx;
     vtlist[1].pos[YY] = Qy;
-    vtlist[1].pos[ZZ] = pcam->pos.z - z0;
-    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->pos.x + ilayer->tx.x;
-    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->pos.y + ilayer->tx.y;
+    vtlist[1].pos[ZZ] = pcam->getPosition().z - z0;
+    vtlist[1].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->getPosition().x + ilayer->tx.x;
+    vtlist[1].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->getPosition().y + ilayer->tx.y;
 
     Qx = 2 * pgmem->edge_x;
     Qy = 2 * pgmem->edge_y;
     vtlist[2].pos[XX] = Qx;
     vtlist[2].pos[YY] = Qy;
-    vtlist[2].pos[ZZ] = pcam->pos.z - z0;
-    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->pos.x + ilayer->tx.x;
-    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->pos.y + ilayer->tx.y;
+    vtlist[2].pos[ZZ] = pcam->getPosition().z - z0;
+    vtlist[2].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->getPosition().x + ilayer->tx.x;
+    vtlist[2].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->getPosition().y + ilayer->tx.y;
 
     Qx = -pgmem->edge_x;
     Qy = 2 * pgmem->edge_y;
     vtlist[3].pos[XX] = Qx;
     vtlist[3].pos[YY] = Qy;
-    vtlist[3].pos[ZZ] = pcam->pos.z - z0;
-    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->pos.x + ilayer->tx.x;
-    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->pos.y + ilayer->tx.y;
+    vtlist[3].pos[ZZ] = pcam->getPosition().z - z0;
+    vtlist[3].tex[SS] = Cx_0 * Qx + Cx_1 * pcam->getPosition().x + ilayer->tx.x;
+    vtlist[3].tex[TT] = Cy_0 * Qy + Cy_1 * pcam->getPosition().y + ilayer->tx.y;
 
     light = water.light ? 1.0f : 0.0f;
     alpha = ilayer->alpha * INV_FF;
@@ -4687,7 +4683,7 @@ gfx_rv render_world_background( const camera_t * pcam, const TX_REF texture )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture )
+gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture )
 {
     /// @author ZZ
     /// @details This function draws the large foreground
@@ -4711,7 +4707,7 @@ gfx_rv render_world_overlay( const camera_t * pcam, const TX_REF texture )
     vforw_wind.z = 0;
     fvec3_self_normalize( vforw_wind.v );
 
-    mat_getCamForward( pcam->mView.v, vforw_cam.v );
+    mat_getCamForward( pcam->getView().v, vforw_cam.v );
     fvec3_self_normalize( vforw_cam.v );
 
     // make the texture begin to disappear if you are not looking straight down
@@ -5934,7 +5930,7 @@ gfx_rv dynalist_init( dynalist_t * pdylist )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam )
+gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
 {
     /// @author ZZ
     /// @details This function figures out which particles are visible, and it sets up dynamic
@@ -5976,7 +5972,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam )
         plight = NULL;
 
         // find the distance to the camera
-        fvec3_sub( vdist.v, prt_get_pos_v_const( prt_bdl.prt_ptr ), pcam->track_pos.v );
+        fvec3_sub( vdist.v, prt_get_pos_v_const( prt_bdl.prt_ptr ), pcam->getTrackPosition().v );
         distance = vdist.x * vdist.x + vdist.y * vdist.y + vdist.z * vdist.z;
 
         // insert the dynalight
@@ -6034,7 +6030,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, const camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const camera_t * pcam )
+gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
 {
     /// @author ZZ
     /// @details Do all tile lighting, dynamic and global
@@ -6178,18 +6174,18 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
             pdyna = pdylist->lst + cnt;
 
             // evaluate the intensity at the camera
-            diff.x = pdyna->pos.x - pcam->center.x;
-            diff.y = pdyna->pos.y - pcam->center.y;
-            diff.z = pdyna->pos.z - pcam->center.z - 90.0f;   // evaluated at the "head height" of a character
+            diff.x = pdyna->pos.x - pcam->getCenter().x;
+            diff.y = pdyna->pos.y - pcam->getCenter().y;
+            diff.z = pdyna->pos.z - pcam->getCenter().z - 90.0f;   // evaluated at the "head height" of a character
 
             dyna_weight = ABS( dyna_lighting_intensity( pdyna, diff.v ) );
 
             fake_dynalight.distance += dyna_weight * pdyna->distance;
             fake_dynalight.falloff  += dyna_weight * pdyna->falloff;
             fake_dynalight.level    += dyna_weight * pdyna->level;
-            fake_dynalight.pos.x    += dyna_weight * ( pdyna->pos.x - pcam->center.x );
-            fake_dynalight.pos.y    += dyna_weight * ( pdyna->pos.y - pcam->center.y );
-            fake_dynalight.pos.z    += dyna_weight * ( pdyna->pos.z - pcam->center.z );
+            fake_dynalight.pos.x    += dyna_weight * ( pdyna->pos.x - pcam->getCenter().x );
+            fake_dynalight.pos.y    += dyna_weight * ( pdyna->pos.y - pcam->getCenter().y );
+            fake_dynalight.pos.z    += dyna_weight * ( pdyna->pos.z - pcam->getCenter().z );
 
             dyna_weight_sum         += dyna_weight;
         }
@@ -6203,9 +6199,9 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, const came
             fake_dynalight.distance /= dyna_weight_sum;
             fake_dynalight.falloff  /= dyna_weight_sum;
             fake_dynalight.level    /= dyna_weight_sum;
-            fake_dynalight.pos.x    = fake_dynalight.pos.x / dyna_weight_sum + pcam->center.x;
-            fake_dynalight.pos.y    = fake_dynalight.pos.y / dyna_weight_sum + pcam->center.y;
-            fake_dynalight.pos.z    = fake_dynalight.pos.z / dyna_weight_sum + pcam->center.z;
+            fake_dynalight.pos.x    = fake_dynalight.pos.x / dyna_weight_sum + pcam->getCenter().x;
+            fake_dynalight.pos.y    = fake_dynalight.pos.y / dyna_weight_sum + pcam->getCenter().y;
+            fake_dynalight.pos.z    = fake_dynalight.pos.z / dyna_weight_sum + pcam->getCenter().z;
 
             radius = std::sqrt( fake_dynalight.falloff * 765.0f * 0.5f );
 
@@ -6383,7 +6379,7 @@ gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
+gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam )
 {
     gfx_rv      retval;
     bool      local_allocation;
@@ -6434,7 +6430,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, const camera_t * pcam )
 
     // get the tiles in the center of the view
     _renderlist_colst.top = 0;
-    mesh_BSP_collide_frustum(getMeshBSP(), &( pcam->frustum ), NULL, &_renderlist_colst );
+    mesh_BSP_collide_frustum(getMeshBSP(), &( pcam->getFrustum() ), NULL, &_renderlist_colst );
 
     // transfer valid _renderlist_colst entries to the dolist
     if ( gfx_error == renderlist_add_colst( prlist, &_renderlist_colst ) )
@@ -6455,7 +6451,7 @@ gfx_make_renderlist_exit:
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv gfx_make_dolist( dolist_t * pdlist, const camera_t * pcam )
+gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
 {
     /// @author ZZ
     /// @details This function finds the characters that need to be drawn and puts them in the list
@@ -6496,7 +6492,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, const camera_t * pcam )
 
     // collide the characters with the frustum
     _dolist_colst.top = 0;
-	obj_BSP_collide_frustum(getChrBSP(), &(pcam->frustum), chr_BSP_is_visible, &_dolist_colst);
+	obj_BSP_collide_frustum(getChrBSP(), &(pcam->getFrustum()), chr_BSP_is_visible, &_dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
     if ( gfx_error == dolist_add_colst( pdlist, &_dolist_colst ) )
@@ -6507,7 +6503,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, const camera_t * pcam )
 
     // collide the particles with the frustum
     _dolist_colst.top = 0;
-    obj_BSP_collide_frustum(getPtrBSP(), &( pcam->frustum ), prt_BSP_is_visible, &_dolist_colst);
+    obj_BSP_collide_frustum(getPtrBSP(), &( pcam->getFrustum() ), prt_BSP_is_visible, &_dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
     if (gfx_error == dolist_add_colst(pdlist, &_dolist_colst))
@@ -7059,7 +7055,7 @@ gfx_rv chr_instance_flash( chr_instance_t * pinst, Uint8 value )
 //    {
 //        // ...from the camera
 //        proj = pcam->mProjection_big.v;
-//        modl = pcam->mView.v;
+//        modl = pcam->getView().v;
 //    }
 //    else
 //    {

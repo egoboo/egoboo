@@ -22,7 +22,6 @@
 /// @details
 
 #include "game/link.h"
-#include "game/camera_system.h"
 #include "game/menu.h"
 #include "game/graphic.h"
 #include "game/game.h"

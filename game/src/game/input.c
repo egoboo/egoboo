@@ -27,7 +27,6 @@
 #include "game/network.h"
 #include "game/menu.h"
 #include "game/graphic.h"
-#include "game/camera_system.h"
 #include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------

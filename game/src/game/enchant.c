@@ -24,7 +24,6 @@
 #include "game/enchant.inl"
 
 #include "game/sound.h"
-#include "game/camera_system.h"
 #include "game/game.h"
 #include "game/script_functions.h"
 #include "game/egoboo.h"

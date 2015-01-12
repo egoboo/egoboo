@@ -18,7 +18,6 @@
 //********************************************************************************************
 
 %{
-#include "camera.h"
 #include "char.h"
 #include "enchant.h"
 #include "game.h"
@@ -69,7 +68,6 @@ typedef GLfloat GLXvector3f[3];
 %include "input.h"
 %include "link.h"
 
-%include "camera.h"
 %include "char.h"
 %include "enchant.h"
 %include "mad.h"

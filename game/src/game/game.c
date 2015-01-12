@@ -37,13 +37,14 @@
 #include "game/menu.h"
 #include "game/network_client.h"
 #include "game/network_server.h"
-#include "game/camera_system.h"
 #include "game/collision.h"
 #include "game/bsp.h"
 #include "game/script.h"
 #include "game/script_compile.h"
 #include "game/egoboo.h"
+
 #include "game/module/PassageHandler.hpp"
+#include "game/graphics/CameraSystem.hpp"
 
 #include "game/char.inl"
 #include "game/particle.inl"
@@ -85,7 +86,7 @@ status_list_t StatusList = STATUS_LIST_INIT;
 ego_mesh_t         * PMesh   = _mesh + 0;
 game_module_t     * PMod    = &_gmod;
 game_process_t    * GProc   = &_gproc;
-camera_t          * PCamera = NULL;
+CameraSystem      _cameraSystem;
 
 pit_info_t pits = PIT_INFO_INIT;
 
@@ -914,7 +915,7 @@ int update_game()
                 //---- end the code for updating in-game objects
 
                 // put the camera movement inside here
-                camera_system_move( PMesh );
+                _cameraSystem.updateAll(PMesh);
 
                 // Timers
                 clock_wld += UPDATE_SKIP;
@@ -1213,18 +1214,10 @@ int game_process_do_begin( game_process_t * gproc )
 
     // set up the cameras *after* game_begin_module() or the player devices will not be initialized
     // and camera_system_begin() will not set up thte correct view
-    if ( camera_system_is_started() )
-    {
-        camera_system_init( local_stats.player_count );
-    }
-    else
-    {
-        camera_system_begin( local_stats.player_count );
-    }
-    set_PCamera( camera_system_get_main() );
+    _cameraSystem.begin(local_stats.player_count);
 
     // make sure the cameras are centered on something or there will be a graphics error
-    camera_system_reset_targets( PMesh );
+    _cameraSystem.resetAllTargets(PMesh);
 
     // Initialize the process
     gproc->base.valid = true;
@@ -1498,8 +1491,7 @@ int game_process_do_leaving( game_process_t * gproc )
     MadStack_release_all();
 
     // free the cameras
-    camera_system_end();
-    set_PCamera( NULL );
+    _cameraSystem.end();
 
     // reset the fps counter
     game_fps_clock             = 0;
@@ -2075,9 +2067,7 @@ void set_one_player_latch( const PLA_REF ipla )
     fvec2_t joy_pos, joy_new;
 
     player_t       * ppla;
-    camera_t       * pcam;
     input_device_t * pdevice;
-    ext_camera_list_t * plst;
 
     // skip invalid players
     if ( INVALID_PLA( ipla ) ) return;
@@ -2090,15 +2080,12 @@ void set_one_player_latch( const PLA_REF ipla )
     //No need to continue if device is not enabled
     if ( !input_device_is_enabled( pdevice ) ) return;
 
-    // get the camera list
-    plst = camera_system_get_list();
-
     // find the camera that is pointing at this character
-    pcam = camera_list_find_target( plst, ppla->index );
-    if ( NULL == pcam ) return;
+    std::shared_ptr<Camera> pcam = _cameraSystem.getCameraByChrID(ppla->index);
+    if ( nullptr == pcam ) return;
 
     // fast camera turn if it is enabled and there is only 1 local player
-    fast_camera_turn = ( 1 == local_stats.player_count ) && ( CAM_TURN_GOOD == pcam->turn_mode );
+    fast_camera_turn = ( 1 == local_stats.player_count ) && ( CAM_TURN_GOOD == pcam->getTurnMode() );
 
     // Clear the player's latch buffers
     latch_init( &( sum ) );
@@ -2107,7 +2094,7 @@ void set_one_player_latch( const PLA_REF ipla )
 
     // generate the transforms relative to the camera
     // this needs to be changed for multicamera
-    turnsin = TO_TURN( pcam->ori.facing_z );
+    turnsin = TO_TURN( pcam->getOrientation().facing_z );
     fsin    = turntosin[ turnsin ];
     fcos    = turntocos[ turnsin ];
 
@@ -3524,7 +3511,7 @@ bool game_begin_module( const char * modname, Uint32 seed )
     initialize_all_objects();
     input_cursor_reset();
     game_module_reset( PMod, seed );
-    camera_system_reset( PMesh );
+    _cameraSystem.resetAll(PMesh);
     update_all_character_matrices();
     attach_all_particles();
 
@@ -3811,16 +3798,6 @@ ego_mesh_t * set_PMesh( ego_mesh_t * pmpd )
     PMesh = pmpd;
 
     return pmpd_old;
-}
-
-//--------------------------------------------------------------------------------------------
-camera_t * set_PCamera( camera_t * pcam )
-{
-    camera_t * pcam_old = PCamera;
-
-    PCamera = pcam;
-
-    return pcam_old;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4483,9 +4460,9 @@ bool upload_camera_data( const wawalite_camera_t * pdata )
 {
     if ( NULL == pdata ) return false;
 
-    cam_options.swing     = pdata->swing;
-    cam_options.swing_rate = pdata->swing_rate;
-    cam_options.swing_amp  = pdata->swing_amp;
+    _cameraSystem.getCameraOptions().swing     = pdata->swing;
+    _cameraSystem.getCameraOptions().swingRate = pdata->swing_rate;
+    _cameraSystem.getCameraOptions().swingAmp  = pdata->swing_amp;
 
     return true;
 }
@@ -5750,40 +5727,14 @@ float water_instance_layer_get_level( water_instance_layer_t * ptr )
 //--------------------------------------------------------------------------------------------
 bool status_list_update_cameras( status_list_t * plst )
 {
-    int cnt, index, base_index;
-    ext_camera_list_t * pclst;
-
     if ( NULL == plst ) return false;
 
     if ( !plst->on || 0 == plst->count ) return true;
 
-    // get the camera list
-    pclst = camera_system_get_list();
-
-    base_index = -1;
-    for ( cnt = 0; cnt < plst->count; cnt++ )
+    for ( size_t cnt = 0; cnt < plst->count; cnt++ )
     {
         status_list_element_t * pelem = StatusList.lst + cnt;
-
-        index = camera_list_find_target_index( pclst, pelem->who );
-
-        if (( -1 == base_index ) && ( -1 != index ) )
-        {
-            base_index = index;
-        }
-
-        pelem->camera_index = index;
-    }
-
-    // fill in any bad camera indices
-    for ( cnt = 0; cnt < plst->count; cnt++ )
-    {
-        status_list_element_t * pelem = StatusList.lst + cnt;
-
-        if ( -1 == pelem->camera_index )
-        {
-            pelem->camera_index = base_index;
-        }
+        pelem->camera_index = _cameraSystem.getCameraIndexByID(pelem->who);
     }
 
     return true;
