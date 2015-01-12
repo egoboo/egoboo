@@ -27,7 +27,7 @@
 #include "cartman_functions.h"
 #include "cartman_select.h"
 
-#include "cartman_math.inl"
+#include "cartman_math.h"
 
 #include "SDL_Pixel.h"
 
@@ -47,6 +47,8 @@ Font * gfx_font_ptr = NULL;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+camera_t cam;
 
 Sint16          damagetileparttype;
 short           damagetilepartand;
