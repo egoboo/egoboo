@@ -29,6 +29,8 @@
 //Forward declarations
 struct chr_t;
 
+#define constexpr const
+
 class Passage
 {
 public:

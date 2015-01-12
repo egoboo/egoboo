@@ -833,7 +833,7 @@ void ego_mesh_make_twist()
 
     int     cnt;
     float   gdot;
-    fvec3_t grav = ZERO_VECT3;
+    fvec3_t grav = fvec3_t::zero;
 
     grav.z = gravity;
 
@@ -1760,7 +1760,7 @@ fvec2_t ego_mesh_get_diff( const ego_mesh_t * pmesh, const float pos[], float ra
     const float jitter_size = GRID_FSIZE * 0.5f;
     float pressure_ary[9];
     float fx, fy;
-    fvec2_t diff = ZERO_VECT2;
+    fvec2_t diff = fvec2_t::zero;
     float   sum_diff = 0.0f;
     float   dpressure;
 

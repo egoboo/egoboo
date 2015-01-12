@@ -1930,7 +1930,7 @@ bool bump_all_collisions( CoNode_ary_t * pcn_ary )
 //--------------------------------------------------------------------------------------------
 bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    fvec3_t vdiff = ZERO_VECT3;
+    fvec3_t vdiff = fvec3_t::zero;
 
     oct_vec_t apos, bpos;
 

@@ -695,8 +695,8 @@ gfx_rv prt_instance_update_vertices( const camera_t * pcam, prt_instance_t * pin
 {
     pip_t * ppip;
 
-    fvec3_t   vfwd, vup = VECT3( 0.0f, 0.0f, 1.0f ), vright;
-    fvec3_t   vfwd_ref, vup_ref = VECT3( 0.0f, 0.0f, 1.0f ), vright_ref;
+    fvec3_t   vfwd, vup = fvec3_t(0.0f, 0.0f, 1.0f), vright;
+    fvec3_t   vfwd_ref, vup_ref = fvec3_t(0.0f, 0.0f, 1.0f), vright_ref;
 
     if ( NULL == pinst )
     {

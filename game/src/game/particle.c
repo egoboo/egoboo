@@ -1097,12 +1097,12 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
 //--------------------------------------------------------------------------------------------
 fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure )
 {
-    fvec2_t     retval = ZERO_VECT2;
-    float       radius;
-    BIT_FIELD   stoppedby;
-    pip_t      * ppip;
-    ego_tile_info_t * ptile = NULL;
-    const float * loc_test_pos = NULL;
+    fvec2_t retval = fvec2_t::zero;
+    float radius;
+    BIT_FIELD stoppedby;
+    pip_t *ppip;
+    ego_tile_info_t *ptile = NULL;
+    const float *loc_test_pos = NULL;
 
     if ( !DEFINED_PPRT( pprt ) ) return retval;
 
@@ -2924,7 +2924,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
     {
         bool  spawn_valid     = false;
         int     global_pip_index = -1;
-        fvec3_t vtmp            = VECT3( pbdl_prt->prt_ptr->pos.x, pbdl_prt->prt_ptr->pos.y, water.surface_level );
+        fvec3_t vtmp            = fvec3_t( pbdl_prt->prt_ptr->pos.x, pbdl_prt->prt_ptr->pos.y, water.surface_level );
 
         if ( INVALID_CHR_REF == pbdl_prt->prt_ptr->owner_ref && ( PIP_SPLASH == pbdl_prt->prt_ptr->pip_ref || PIP_RIPPLE == pbdl_prt->prt_ptr->pip_ref ) )
         {

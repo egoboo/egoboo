@@ -939,8 +939,8 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
 //--------------------------------------------------------------------------------------------
 fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure )
 {
-    fvec2_t retval = ZERO_VECT2;
-    float   radius;
+    fvec2_t retval = fvec2_t::zero;
+    float radius;
     const float * loc_test_pos = NULL;
 
     if ( !DEFINED_PCHR( pchr ) ) return retval;
@@ -5739,7 +5739,7 @@ void move_one_character_get_environment( chr_t * pchr )
         // unfortunately platforms are attached in the collision section
         // which occurs after the movement section.
 
-        fvec3_t   platform_up = VECT3( 0.0f, 0.0f, 1.0f );
+        fvec3_t   platform_up = fvec3_t( 0.0f, 0.0f, 1.0f );
 
         chr_getMatUp( pplatform, platform_up.v );
         fvec3_self_normalize( platform_up.v );
@@ -6896,10 +6896,10 @@ bool move_one_character_integrate_motion( chr_t * pchr )
             {
                 bool         found_nrm  = false;
                 bool         found_safe = false;
-                fvec3_t        safe_pos   = ZERO_VECT3;
+                fvec3_t      safe_pos   = fvec3_t::zero;
 
                 bool         found_diff = false;
-                fvec2_t        diff       = ZERO_VECT2;
+                fvec2_t      diff       = fvec2_t::zero;
 
                 breadcrumb_t * bc         = NULL;
 
@@ -7019,8 +7019,8 @@ bool move_one_character_integrate_motion( chr_t * pchr )
                     fvec3_t save_pos;
                     float nrm2;
 
-                    fvec2_t v_perp = ZERO_VECT2;
-                    fvec2_t diff_perp = ZERO_VECT2;
+                    fvec2_t v_perp = fvec2_t::zero;
+                    fvec2_t diff_perp = fvec2_t::zero;
 
                     nrm2 = fvec2_dot_product( nrm.v, nrm.v );
 

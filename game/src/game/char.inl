@@ -457,7 +457,7 @@ static INLINE void chr_init_size( chr_t * pchr, cap_t * pcap )
 //--------------------------------------------------------------------------------------------
 static INLINE const float * chr_get_pos_v_const( const chr_t * pchr )
 {
-    static fvec3_t vtmp = ZERO_VECT3;
+    static fvec3_t vtmp = fvec3_t::zero;
 
     if ( !ALLOCATED_PCHR( pchr ) ) return vtmp.v;
 
@@ -467,7 +467,7 @@ static INLINE const float * chr_get_pos_v_const( const chr_t * pchr )
 //--------------------------------------------------------------------------------------------
 static INLINE float * chr_get_pos_v( chr_t * pchr )
 {
-    static fvec3_t vtmp = ZERO_VECT3;
+    static fvec3_t vtmp = fvec3_t::zero;
 
     if ( !ALLOCATED_PCHR( pchr ) ) return vtmp.v;
 

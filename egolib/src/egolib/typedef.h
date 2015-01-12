@@ -189,12 +189,70 @@
 
 //--------------------------------------------------------------------------------------------
 // RECTANGLE
+
+	namespace Ego
+	{
+		/**
+		 * @brief A rectangle in a 2 dimensional Cartesian coordinate system.
+		 * @invariant
+		 */
+		template <typename Type>
+		struct Rectangle
+		{
+			Type _left;   ///< @brief The coordinate of the left side   of the rectangle.
+			              ///< @invariant <tt>left <= right</tt>.
+			Type _bottom; ///< @brief The coordinate of the bottom side of the rectangle.
+			              ///< @invariant <tt>bottom <= top</tt>.
+			Type _right;  ///< @brief The coordinate of the right side  of the rectangle.
+			Type _top;    ///< @brief The coordinate of the top side    of the rectangle.
+			/**
+			 * @brief
+			 *	Construct an empty rectangle.
+			 */
+			Rectangle() : _left(), _bottom(), _right(), _top()
+			{
+			}
+			/**
+			 * @brief
+			 *	Construct this rectangle with the specified sides.
+			 * @param left
+			 *	the coordinate of the left side
+			 * @param bottom
+			 *	the coordinate of the bottom side
+			 * @param right
+			 *	the coordinate of the right side
+			 * @param top
+			 *	the coordinate of the top side
+			 * @throws std::domain_error
+			 *	if <tt>left > right</tt> or <tt>bottom > top</tt>
+			 */
+			Rectangle(const Type& left, const Type& bottom, const Type& right, const Type& top)
+			{
+				if (left > right)
+				{
+					throw std:domain_error("the coordinate of the left side must be smaller than or equal to the coordinate of the right side");
+				}
+				if (bottom > top)
+				{
+					throw std::domain_error("the coordinate of the bottom side must be smaller than or equal to the coordinate of the top side");
+				}
+				_left = left;
+				_bottom = bottom;
+				_right = right;
+				_top = top;
+			}
+		};
+	};
+
     struct irect_t
     {
         int left;
         int right;
         int top;
         int bottom;
+		irect_t() :left(0), right(0), top(0), bottom(0)
+		{
+		}
     };
 
     bool irect_point_inside( irect_t *prect, int ix, int iy );

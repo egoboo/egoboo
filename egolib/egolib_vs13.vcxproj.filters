@@ -96,9 +96,6 @@
     <ClCompile Include="src\egolib\strutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\threads.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\throttle.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -172,9 +169,6 @@
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\file_formats\module_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\passage_file.c">
       <Filter>File Formats</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\file_formats\pip_file.c">
@@ -405,9 +399,6 @@
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\file_formats\module_file.h">
-      <Filter>File Formats</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\passage_file.h">
       <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\file_formats\pip_file.h">

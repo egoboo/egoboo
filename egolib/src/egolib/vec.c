@@ -22,6 +22,9 @@
 #include "egolib/vec.h"
 #include "egolib/log.h"
 
+const fvec2_t fvec2_t::zero(0.0f,0.0f);
+const fvec3_t fvec3_t::zero(0.0f,0.0f,0.0f);
+
 bool fvec2_valid(const fvec2_base_t A)
 {
 	int cnt;

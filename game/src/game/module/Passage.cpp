@@ -28,7 +28,7 @@
 #include "game/mesh.inl"
 
 Passage::Passage() :
-    _area{0, 0, 0, 0},
+    _area(),
     _music(NO_MUSIC),
     _mask(MAPFX_IMPASS | MAPFX_WALL),
     _open(true),

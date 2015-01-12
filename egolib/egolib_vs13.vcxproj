@@ -171,7 +171,6 @@
     <ClCompile Include="src\egolib\file_formats\map_file.c" />
     <ClCompile Include="src\egolib\file_formats\map_tile_dictionary.c" />
     <ClCompile Include="src\egolib\file_formats\module_file.c" />
-    <ClCompile Include="src\egolib\file_formats\passage_file.c" />
     <ClCompile Include="src\egolib\file_formats\pip_file.c" />
     <ClCompile Include="src\egolib\file_formats\quest_file.c" />
     <ClCompile Include="src\egolib\file_formats\scancode_file.c" />
@@ -217,7 +216,6 @@
     <ClCompile Include="src\egolib\scancode.c" />
     <ClCompile Include="src\egolib\sphere.c" />
     <ClCompile Include="src\egolib\strutil.c" />
-    <ClCompile Include="src\egolib\threads.c" />
     <ClCompile Include="src\egolib\throttle.c" />
     <ClCompile Include="src\egolib\timer.c" />
     <ClCompile Include="src\egolib\typedef.c" />
@@ -261,7 +259,6 @@
     <ClInclude Include="src\egolib\file_formats\map_file.h" />
     <ClInclude Include="src\egolib\file_formats\map_tile_dictionary.h" />
     <ClInclude Include="src\egolib\file_formats\module_file.h" />
-    <ClInclude Include="src\egolib\file_formats\passage_file.h" />
     <ClInclude Include="src\egolib\file_formats\pip_file.h" />
     <ClInclude Include="src\egolib\file_formats\quest_file.h" />
     <ClInclude Include="src\egolib\file_formats\scancode_file.h" />

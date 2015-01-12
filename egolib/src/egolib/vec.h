@@ -29,18 +29,6 @@ typedef float fvec2_base_t[2];           ///< the basic floating point 2-vector 
 typedef float fvec3_base_t[3];           ///< the basic floating point 3-vector type
 typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector type
 
-struct fvec2_t;
-#if 0
-typedef union u_fvec2 fvec2_t;
-#endif
-struct fvec3_t;
-#if 0
-typedef union u_fvec3 fvec3_t;
-#endif
-struct fvec4_t;
-#if 0
-typedef union u_fvec4 fvec4_t;
-#endif
 /// A 2-vector type that allows more than one form of access
 struct fvec2_t
 {
@@ -50,6 +38,34 @@ struct fvec2_t
 		struct { float x, y; };
 		struct { float s, t; };
 	};
+	const static fvec2_t zero;
+	fvec2_t() : x(), y()
+	{
+	}
+	fvec2_t(const fvec2_t& other) : x(other.x), y(other.y)
+	{
+	}
+	fvec2_t(float x, float y)
+	{
+		this->x = x;
+		this->y = y;
+	}
+	const fvec2_t& operator=(const fvec2_t& other)
+	{
+		x = other.x;
+		y = other.y;
+		return *this;
+	}
+	float& operator[](size_t const& index)
+	{
+		EGOBOO_ASSERT(index < 2);
+		return this->v[index];
+	}
+	const float &operator[](size_t const& index) const
+	{
+		EGOBOO_ASSERT(index < 2);
+		return this->v[index];
+	}
 };
 
 /// A 3-vector type that allows more than one form of access
@@ -61,6 +77,26 @@ struct fvec3_t
 		struct { float x, y, z; };
 		struct { float r, g, b; };
 	};
+	const static fvec3_t zero;
+	fvec3_t() : x(), y(), z()
+	{
+	}
+	fvec3_t(float x, float y, float z)
+	{
+		this->x = x;
+		this->y = y;
+		this->z = z;
+	}
+	fvec3_t(const fvec3_t& other) : x(other.x), y(other.y), z(other.z)
+	{
+	}
+	const fvec3_t& operator=(const fvec3_t& other)
+	{
+		x = other.x;
+		y = other.y;
+		z = other.z;
+		return *this;
+	}
 	float& operator[](size_t const& index)
 	{
 		EGOBOO_ASSERT(index < 3);
@@ -82,10 +118,37 @@ struct fvec4_t
 		struct { float x, y, z, w; };
 		struct { float r, g, b, a; };
 	};
+	const static fvec3_t zero;
+	fvec4_t() : x(), y(), z(), w()
+	{
+	}
+	fvec4_t(const fvec4_t& other) : x(other.x), y(other.y), z(other.z), w(other.w)
+	{
+	}
+	const fvec4_t& operator=(const fvec4_t& other)
+	{
+		x = other.x;
+		y = other.y;
+		z = other.z;
+		w = other.w;
+		return *this;
+	}
+	float& operator[](size_t const& index)
+	{
+		EGOBOO_ASSERT(index < 4);
+		return this->v[index];
+	}
+	const float &operator[](size_t const& index) const
+	{
+		EGOBOO_ASSERT(index < 4);
+		return this->v[index];
+	}
 };
 
 // macros for initializing vectors to zero
+#if 0
 #define ZERO_VECT2   { {0.0f,0.0f} }
+#endif
 #define ZERO_VECT3   { {0.0f,0.0f,0.0f} }
 #define ZERO_VECT4   { {0.0f,0.0f,0.0f,0.0f} }
 #define ZERO_MAT_4X4 { {0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f} }

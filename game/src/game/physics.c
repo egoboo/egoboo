@@ -36,8 +36,8 @@ float   waterfriction   =  0.80f;
 float   noslipfriction  =  0.91f;
 float   gravity         = -1.00f;
 float   platstick       =  0.01f;
-fvec3_t windspeed       = ZERO_VECT3;
-fvec3_t waterspeed      = ZERO_VECT3;
+fvec3_t windspeed       = fvec3_t::zero;
+fvec3_t waterspeed      = fvec3_t::zero;
 
 static int breadcrumb_guid = 0;
 

@@ -35,15 +35,6 @@ struct sphere_t
 	float   radius;
 };
 
-#if 0
-/** @todo Remove this. sphere_ctor must be used. */
-#define SPHERE_INIT_VALS                \
-    {                                   \
-        ZERO_VECT3, /*fvec3_t pos    */ \
-        -1.0f       /*float   radius */ \
-    }
-#endif
-
 /**
  * @brief
  *	Construct a sphere.

@@ -380,7 +380,7 @@ struct s_pit_info
     fvec3_t    teleport_pos;
 };
 
-#define PIT_INFO_INIT { false /* kill */, false /* teleport */, ZERO_VECT3 /* teleport_pos */ }
+#define PIT_INFO_INIT { false /* kill */, false /* teleport */, fvec3_t::zero /* teleport_pos */ }
 
 //--------------------------------------------------------------------------------------------
 

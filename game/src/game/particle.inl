@@ -305,7 +305,7 @@ bool prt_get_pos( const prt_t * pprt, fvec3_base_t pos )
 //--------------------------------------------------------------------------------------------
 static INLINE const float * prt_get_pos_v_const( const prt_t * pprt )
 {
-    static fvec3_t vtmp = ZERO_VECT3;
+    static fvec3_t vtmp = fvec3_t::zero;
 
     if ( !ALLOCATED_PPRT( pprt ) ) return vtmp.v;
 
@@ -315,7 +315,7 @@ static INLINE const float * prt_get_pos_v_const( const prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 static INLINE float * prt_get_pos_v( prt_t * pprt )
 {
-    static fvec3_t vtmp = ZERO_VECT3;
+    static fvec3_t vtmp = fvec3_t::zero;
 
     if ( !ALLOCATED_PPRT( pprt ) ) return vtmp.v;
 

@@ -62,12 +62,8 @@ const char * undo_idsz( IDSZ idsz )
 bool irect_point_inside(irect_t * prect, int   ix, int   iy)
 {
     if ( NULL == prect ) return false;
-
-	/* @todo Remove +1. */
-    if ( ix < prect->left || ix > prect->right  + 1 ) return false;
-	/* @todo Remove +1. */
-    if ( iy < prect->top  || iy > prect->bottom + 1 ) return false;
-
+    if ( ix < prect->left || ix > prect->right ) return false;
+    if ( iy < prect->top  || iy > prect->bottom ) return false;
     return true;
 }
 
