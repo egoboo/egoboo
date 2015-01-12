@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------
 
 // Forward declaration.
-struct camera_t;
+class Camera;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -271,7 +271,7 @@ bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float floor_l
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad( const camera_t *pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
-gfx_rv render_one_mad_ref( const camera_t *pcam, const CHR_REF ichr );
-gfx_rv render_one_mad_trans( const camera_t *pcam, const CHR_REF ichr );
-gfx_rv render_one_mad_solid( const camera_t *pcam, const CHR_REF ichr );
+gfx_rv render_one_mad( std::shared_ptr<Camera> pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr );
+gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr );
+gfx_rv render_one_mad_solid( std::shared_ptr<Camera> pcam, const CHR_REF ichr );

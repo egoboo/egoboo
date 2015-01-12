@@ -34,7 +34,7 @@
 #include "game/renderer_3d.h"
 #include "game/menu.h"
 #include "game/sound.h"
-#include "game/camera_system.h"
+//#include "game/camera_system.h"
 #include "game/input.h"
 #include "game/game.h"
 #include "game/ui.h"

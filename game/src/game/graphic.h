@@ -25,7 +25,7 @@
 
 #include "game/mesh.h"
 #include "game/mad.h"
-#include "game/camera_system.h"
+#include "game/graphics/CameraSystem.hpp"
 #include "game/egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -34,7 +34,6 @@
 
 // Forward declarations.
 struct chr_t;
-struct camera_t;
 struct egoboo_config_t;
 struct s_chr_instance;
 struct s_oglx_texture_parameters;
@@ -87,7 +86,7 @@ typedef struct s_gfx_config gfx_config_t;
 #define ICON_SIZE 32
 
 /// the max number of do lists that can exist
-#define MAX_DO_LISTS MAX_CAMERAS
+constexpr size_t MAX_DO_LISTS = MAX_CAMERAS;
 
 /// the max number of render lists that can exist
 #define MAX_RENDER_LISTS 4
@@ -308,11 +307,11 @@ void   gfx_system_delete_all_graphics();
 void   gfx_system_load_assets();
 void   gfx_system_load_basic_textures();
 
-renderlist_mgr_t * gfx_system_get_renderlist_mgr( const camera_t *pcam );
+renderlist_mgr_t * gfx_system_get_renderlist_mgr();
 dolist_mgr_t * gfx_system_get_dolist_mgr();
 
 // the render engine callback
-void   gfx_system_render_world( const camera_t * pcam, const int render_list_index, const int dolist_index );
+void   gfx_system_render_world( const std::shared_ptr<Camera> pcam, const int render_list_index, const int dolist_index );
 
 void gfx_request_clear_screen();
 void gfx_do_clear_screen();
@@ -359,7 +358,7 @@ gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, size_t index );
 dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, size_t index );
 
 gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh );
-gfx_rv renderlist_attach_camera( renderlist_t * ptr, const camera_t *pcam );
+gfx_rv renderlist_attach_camera( renderlist_t * ptr, std::shared_ptr<Camera> pcam );
 
 bool oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, egoboo_config_t * pcfg );
 

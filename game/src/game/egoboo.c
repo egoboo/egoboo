@@ -724,7 +724,7 @@ bool config_download( egoboo_config_t * pcfg, bool synch_from_file )
     }
 
     // camera options
-    cam_options.turn_mode = pcfg->autoturncamera;
+    _cameraSystem.getCameraOptions().turnMode = pcfg->autoturncamera;
 
     // sound options
     sound_system_download_from_config( &snd, pcfg );
@@ -743,7 +743,7 @@ bool config_upload( egoboo_config_t * pcfg )
 {
     if ( NULL == pcfg ) return false;
 
-    pcfg->autoturncamera = cam_options.turn_mode;
+    pcfg->autoturncamera = _cameraSystem.getCameraOptions().turnMode;
     pcfg->fps_allowed    = TO_C_BOOL( fpson );
 
     // number of particles

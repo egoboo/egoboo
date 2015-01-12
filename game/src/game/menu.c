@@ -32,7 +32,6 @@
 #include "game/game.h"
 #include "game/sound.h"
 #include "game/input.h"
-#include "game/camera_system.h"
 #include "game/egoboo.h"
 #include "game/particle.inl"
 #include "game/char.inl"
