@@ -24,6 +24,7 @@
 
 #include "egolib/_math.h"
 #include "egolib/vec.h"
+#include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -183,3 +184,42 @@
 
     int    oct_bb_to_points( const oct_bb_t * pbmp, fvec4_t pos[], size_t pos_count );
     void   points_to_oct_bb( oct_bb_t * pbmp, const fvec4_t pos[], const size_t pos_count );
+
+//--------------------------------------------------------------------------------------------
+//inline
+//--------------------------------------------------------------------------------------------
+
+bool oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos );
+bool oct_vec_self_clear( oct_vec_t * ovec );
+bool oct_vec_add_fvec3( const oct_vec_t osrc, const fvec3_base_t fvec, oct_vec_t odst );
+bool oct_vec_self_add_fvec3( oct_vec_t osrc, const fvec3_base_t fvec );
+
+oct_bb_t * oct_bb_ctor( oct_bb_t * pobb );
+egolib_rv oct_bb_set_bumper( oct_bb_t * pobb, const bumper_t src );
+egolib_rv oct_bb_copy( oct_bb_t * pdst, const oct_bb_t * psrc );
+egolib_rv oct_bb_validate( oct_bb_t * pobb );
+bool oct_bb_empty_raw( const oct_bb_t * pbb );
+bool oct_bb_empty( const oct_bb_t * pbb );
+egolib_rv  oct_bb_set_ovec( oct_bb_t * pobb, const oct_vec_t ovec );
+oct_bb_t * oct_bb_ctor_index( oct_bb_t * pobb, int index );
+egolib_rv oct_bb_copy_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
+egolib_rv oct_bb_validate_index( oct_bb_t * pobb, int index );
+bool oct_bb_empty_index_raw( const oct_bb_t * pbb, int index );
+bool oct_bb_empty_index( const oct_bb_t * pbb, int index );
+egolib_rv oct_bb_union_index( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst, int index );
+egolib_rv oct_bb_intersection_index( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, int index );
+egolib_rv oct_bb_self_union_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
+egolib_rv oct_bb_self_intersection_index( oct_bb_t * pdst, const oct_bb_t * psrc, int index );
+egolib_rv oct_bb_union( const oct_bb_t * psrc1, const oct_bb_t  * psrc2, oct_bb_t * pdst );
+egolib_rv oct_bb_intersection( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst );
+egolib_rv oct_bb_self_union( oct_bb_t * pdst, const oct_bb_t * psrc );
+egolib_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_t * psrc );
+egolib_rv oct_bb_add_fvec3( const oct_bb_t * psrc, const fvec3_base_t vec, oct_bb_t * pdst );
+egolib_rv oct_bb_self_add_fvec3( oct_bb_t * pdst, const fvec3_base_t vec );
+egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t ovec, oct_bb_t * pdst );
+egolib_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
+egolib_rv oct_bb_self_sum_ovec( oct_bb_t * pdst, const oct_vec_t ovec );
+egolib_rv oct_bb_self_grow( oct_bb_t * pdst, const oct_vec_t ovec );
+bool oct_bb_point_inside( const oct_bb_t * pobb, const oct_vec_t ovec );
+bool oct_bb_lhs_contains_rhs( const oct_bb_t * plhs, const oct_bb_t * prhs );
+bool oct_bb_get_mids( const oct_bb_t * pbb, oct_vec_t mids );

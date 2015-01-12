@@ -21,17 +21,20 @@
 /// @brief handles enchantments attached to objects
 /// @details
 
-#include "game/enchant.inl"
+#include "game/enchant.h"
 
 #include "game/sound.h"
 #include "game/game.h"
 #include "game/script_functions.h"
 #include "game/egoboo.h"
 
-#include "game/char.inl"
+#include "game/char.h"
 #include "game/mad.h"
-#include "game/particle.inl"
-#include "game/profile.inl"
+#include "game/particle.h"
+#include "game/profile.h"
+
+#include "game/EncList.h"
+#include "game/ChrList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -2107,4 +2110,111 @@ bool enc_request_terminate( enc_t * penc )
     POBJ_REQUEST_TERMINATE( penc );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------
+// IMPLEMENTATION (inline)
+//--------------------------------------------------------------------------------------------
+CHR_REF enc_get_iowner( const ENC_REF ienc )
+{
+    enc_t * penc;
+
+    if ( !DEFINED_ENC( ienc ) ) return INVALID_CHR_REF;
+    penc = EncList_get_ptr( ienc );
+
+    if ( !INGAME_CHR( penc->owner_ref ) ) return INVALID_CHR_REF;
+
+    return penc->owner_ref;
+}
+
+//--------------------------------------------------------------------------------------------
+chr_t * enc_get_powner( const ENC_REF ienc )
+{
+    enc_t * penc;
+
+    if ( !DEFINED_ENC( ienc ) ) return NULL;
+    penc = EncList_get_ptr( ienc );
+
+    if ( !INGAME_CHR( penc->owner_ref ) ) return NULL;
+
+    return ChrList_get_ptr( penc->owner_ref );
+}
+
+//--------------------------------------------------------------------------------------------
+EVE_REF enc_get_ieve( const ENC_REF ienc )
+{
+    enc_t * penc;
+
+    if ( !DEFINED_ENC( ienc ) ) return INVALID_EVE_REF;
+    penc = EncList_get_ptr( ienc );
+
+    if ( !LOADED_EVE( penc->eve_ref ) ) return INVALID_EVE_REF;
+
+    return penc->eve_ref;
+}
+
+//--------------------------------------------------------------------------------------------
+eve_t * enc_get_peve( const ENC_REF ienc )
+{
+    enc_t * penc;
+
+    if ( !DEFINED_ENC( ienc ) ) return NULL;
+    penc = EncList_get_ptr( ienc );
+
+    if ( !LOADED_EVE( penc->eve_ref ) ) return NULL;
+
+    return EveStack_get_ptr( penc->eve_ref );
+}
+
+//--------------------------------------------------------------------------------------------
+PRO_REF  enc_get_ipro( const ENC_REF ienc )
+{
+    enc_t * penc;
+
+    if ( !DEFINED_ENC( ienc ) ) return INVALID_PRO_REF;
+    penc = EncList_get_ptr( ienc );
+
+    if ( !LOADED_PRO( penc->profile_ref ) ) return INVALID_PRO_REF;
+
+    return penc->profile_ref;
+}
+
+//--------------------------------------------------------------------------------------------
+pro_t * enc_get_ppro( const ENC_REF ienc )
+{
+    enc_t * penc;
+
+    if ( !DEFINED_ENC( ienc ) ) return NULL;
+    penc = EncList_get_ptr( ienc );
+
+    if ( !LOADED_PRO( penc->profile_ref ) ) return NULL;
+
+    return ProList_get_ptr( penc->profile_ref );
+}
+
+//--------------------------------------------------------------------------------------------
+IDSZ enc_get_idszremove( const ENC_REF ienc )
+{
+    eve_t * peve = enc_get_peve( ienc );
+    if ( NULL == peve ) return IDSZ_NONE;
+
+    return peve->removedbyidsz;
+}
+
+//--------------------------------------------------------------------------------------------
+bool enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile )
+{
+    IDSZ idsz_remove;
+
+    if ( !INGAME_ENC( ienc ) ) return false;
+    idsz_remove = enc_get_idszremove( ienc );
+
+    // if nothing can remove it, just go on with your business
+    if ( IDSZ_NONE == idsz_remove ) return false;
+
+    // check vs. every IDSZ that could have something to do with cancelling the enchant
+    if ( idsz_remove == pro_get_idsz( test_profile, IDSZ_TYPE ) ) return true;
+    if ( idsz_remove == pro_get_idsz( test_profile, IDSZ_PARENT ) ) return true;
+
+    return false;
 }

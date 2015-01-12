@@ -21,7 +21,7 @@
 /// @brief A quake-style console that can be used for anything.
 /// @details
 
-#include "egolib/console.inl"
+#include "egolib/console.h"
 
 #include "egolib/file_common.h"
 #include "egolib/scancode.h"
@@ -36,7 +36,7 @@
 #include "egolib/lua/lua_console.h"
 #endif
 
-#include "egolib/_math.inl"
+#include "egolib/_math.h"
 
 // this include must be the absolute last include
 #include "egolib/mem.h"

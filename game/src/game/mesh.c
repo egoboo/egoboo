@@ -21,9 +21,9 @@
 /// @brief Functions for creating, reading, and writing Egoboo's .mpd mesh file
 /// @details
 
-#include "egolib/_math.inl"
-#include "egolib/bbox.inl"
-#include "game/mesh.inl"
+#include "egolib/_math.h"
+#include "egolib/bbox.h"
+#include "game/mesh.h"
 #include "game/mesh_functions.h"
 #include "game/graphic.h"
 #include "game/graphic_texture.h"
@@ -2625,4 +2625,340 @@ bool mpdfx_lists_synch( mpdfx_lists_t * plst, const grid_mem_t * pgmem, bool for
     plst->dirty = false;
 
     return true;
+}
+
+
+//--------------------------------------------------------------------------------------------
+//Previously inlined
+//--------------------------------------------------------------------------------------------
+bool ego_mesh_tile_has_bits( const ego_mesh_t * pmesh, const int ix, const int iy, const BIT_FIELD bits )
+{
+    int          itile;
+    GRID_FX_BITS fx;
+
+    //figure out which tile we are on
+    itile = ego_mesh_get_tile_int( pmesh, ix, iy );
+
+    //everything outside the map bounds is wall and impassable
+    if ( !ego_mesh_grid_is_valid( pmesh, itile ) )
+    {
+        return HAS_SOME_BITS(( MAPFX_IMPASS | MAPFX_WALL ), bits );
+    }
+
+    // since we KNOW that this is in range, allow raw access to the data strucutre
+    fx = ego_grid_info_get_all_fx( pmesh->gmem.grid_list + itile );
+
+    return HAS_SOME_BITS( fx, bits );
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_FIELD test )
+{
+    mesh_mpdfx_tests++;
+    return HAS_SOME_BITS( mpdfx, test );
+}
+
+//--------------------------------------------------------------------------------------------
+bool ego_mesh_grid_is_valid( const ego_mesh_t * pmpd, Uint32 id )
+{
+    if ( NULL == pmpd ) return false;
+
+    mesh_bound_tests++;
+
+    if ( INVALID_TILE == id ) return false;
+
+    return id < pmpd->info.tiles_count;
+}
+
+//--------------------------------------------------------------------------------------------
+float ego_mesh_get_level( const ego_mesh_t * pmesh, float x, float y )
+{
+    /// @author ZZ
+    /// @details This function returns the height of a point within a mesh fan, precisely
+
+    Uint32 tile;
+    int ix, iy;
+
+    float z0, z1, z2, z3;         // Height of each fan corner
+    float zleft, zright, zdone;   // Weighted height of each side
+
+    tile = ego_mesh_get_grid( pmesh, x, y );
+    if ( !ego_mesh_grid_is_valid( pmesh, tile ) ) return 0;
+
+    ix = x;
+    iy = y;
+
+    ix &= GRID_MASK;
+    iy &= GRID_MASK;
+
+    z0 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 0 ][ZZ];
+    z1 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 1 ][ZZ];
+    z2 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 2 ][ZZ];
+    z3 = pmesh->tmem.plst[ pmesh->tmem.tile_list[tile].vrtstart + 3 ][ZZ];
+
+    zleft  = ( z0 * ( GRID_FSIZE - iy ) + z3 * iy ) / GRID_FSIZE;
+    zright = ( z1 * ( GRID_FSIZE - iy ) + z2 * iy ) / GRID_FSIZE;
+    zdone  = ( zleft * ( GRID_FSIZE - ix ) + zright * ix ) / GRID_FSIZE;
+
+    return zdone;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 ego_mesh_get_block( const ego_mesh_t * pmesh, float pos_x, float pos_y )
+{
+    Uint32 block = INVALID_BLOCK;
+
+    if ( pos_x >= 0.0f && pos_x <= pmesh->gmem.edge_x && pos_y >= 0.0f && pos_y <= pmesh->gmem.edge_y )
+    {
+        int ix, iy;
+
+        ix = pos_x;
+        iy = pos_y;
+
+        ix /= BLOCK_ISIZE;
+        iy /= BLOCK_ISIZE;
+
+        block = ego_mesh_get_block_int( pmesh, ix, iy );
+    }
+
+    return block;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 ego_mesh_get_grid( const ego_mesh_t * pmesh, float pos_x, float pos_y )
+{
+    Uint32 tile = INVALID_TILE;
+
+    if ( pos_x >= 0.0f && pos_x < pmesh->gmem.edge_x && pos_y >= 0.0f && pos_y < pmesh->gmem.edge_y )
+    {
+        int ix, iy;
+
+        ix = pos_x;
+        iy = pos_y;
+
+        // these are known to be positive, so >> is not a problem
+        ix >>= GRID_BITS;
+        iy >>= GRID_BITS;
+
+        tile = ego_mesh_get_tile_int( pmesh, ix, iy );
+    }
+
+    return tile;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 ego_mesh_get_block_int( const ego_mesh_t * pmesh, int block_x, int block_y )
+{
+    if ( NULL == pmesh ) return INVALID_BLOCK;
+
+    if ( block_x < 0 || block_x >= pmesh->gmem.blocks_x )  return INVALID_BLOCK;
+    if ( block_y < 0 || block_y >= pmesh->gmem.blocks_y )  return INVALID_BLOCK;
+
+    return block_x + pmesh->gmem.blockstart[block_y];
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 ego_mesh_get_tile_int( const ego_mesh_t * pmesh, int grid_x,  int grid_y )
+{
+    if ( NULL == pmesh ) return INVALID_TILE;
+
+    if ( grid_x < 0 || grid_x >= pmesh->info.tiles_x )  return INVALID_TILE;
+    if ( grid_y < 0 || grid_y >= pmesh->info.tiles_y )  return INVALID_TILE;
+
+    return grid_x + pmesh->gmem.tilestart[grid_y];
+}
+
+//--------------------------------------------------------------------------------------------
+bool ego_mesh_clear_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags )
+{
+    bool retval;
+
+    // test for mesh
+    if ( NULL == pmesh ) return false;
+
+    // test for invalid tile
+    mesh_bound_tests++;
+    if ( itile > pmesh->info.tiles_count ) return false;
+
+    mesh_mpdfx_tests++;
+    retval = ego_grid_info_sub_pass_fx( pmesh->gmem.grid_list + itile, flags );
+
+    if ( retval )
+    {
+        pmesh->fxlists.dirty = true;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool ego_mesh_add_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags )
+{
+    bool retval;
+
+    // test for mesh
+    if ( NULL == pmesh ) return false;
+
+    // test for invalid tile
+    mesh_bound_tests++;
+    if ( itile > pmesh->info.tiles_count ) return false;
+
+    // succeed only of something actually changed
+    mesh_mpdfx_tests++;
+    retval = ego_grid_info_add_pass_fx( pmesh->gmem.grid_list + itile, flags );
+
+    if ( retval )
+    {
+        pmesh->fxlists.dirty = true;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 ego_mesh_test_fx( const ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags )
+{
+    // test for mesh
+    if ( NULL == pmesh ) return 0;
+
+    // test for a trivial value of flags
+    if ( EMPTY_BIT_FIELD == flags ) return 0;
+
+    // test for invalid tile
+    mesh_bound_tests++;
+    if ( itile > pmesh->info.tiles_count )
+    {
+        return flags & ( MAPFX_WALL | MAPFX_IMPASS );
+    }
+
+    // if the tile is actually labelled as MAP_FANOFF, ignore it completely
+    if ( TILE_IS_FANOFF( pmesh->tmem.tile_list[itile] ) )
+    {
+        return 0;
+    }
+
+    mesh_mpdfx_tests++;
+    return ego_grid_info_test_all_fx( pmesh->gmem.grid_list + itile, flags );
+}
+
+//--------------------------------------------------------------------------------------------
+ego_tile_info_t * ego_mesh_get_ptile( const ego_mesh_t * pmesh, const Uint32 itile )
+{
+    // valid parameters?
+    if ( NULL == pmesh || itile >= pmesh->info.tiles_count ) return NULL;
+
+    // a double check in case the tiles aren't allocated
+    if ( NULL == pmesh->tmem.tile_list || itile >= pmesh->tmem.tile_count ) return NULL;
+
+    return pmesh->tmem.tile_list + itile;
+}
+
+//--------------------------------------------------------------------------------------------
+ego_grid_info_t * ego_mesh_get_pgrid( const ego_mesh_t * pmesh, const Uint32 igrid )
+{
+    // valid parameters?
+    if ( NULL == pmesh || igrid >= pmesh->info.tiles_count ) return NULL;
+
+    // a double check in case the grids aren't allocated
+    if ( NULL == pmesh->gmem.grid_list || igrid >= pmesh->gmem.grid_count ) return NULL;
+
+    return pmesh->gmem.grid_list + igrid;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 ego_mesh_get_twist( ego_mesh_t * pmesh, const Uint32 igrid )
+{
+    // valid parameters?
+    if ( NULL == pmesh || igrid >= pmesh->info.tiles_count ) return TWIST_FLAT;
+
+    // a double check in case the grids aren't allocated
+    if ( NULL == pmesh->gmem.grid_list || igrid >= pmesh->gmem.grid_count ) return TWIST_FLAT;
+
+    return pmesh->gmem.grid_list[igrid].twist;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+GRID_FX_BITS ego_grid_info_get_all_fx( const ego_grid_info_t * pgrid )
+{
+    if ( NULL == pgrid ) return MAPFX_WALL | MAPFX_IMPASS;
+
+    return pgrid->wall_fx | pgrid->pass_fx;
+}
+
+//--------------------------------------------------------------------------------------------
+GRID_FX_BITS ego_grid_info_test_all_fx( const ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
+{
+    GRID_FX_BITS grid_bits;
+
+    if ( NULL == pgrid )
+    {
+        grid_bits = MAPFX_WALL | MAPFX_IMPASS;
+    }
+    else
+    {
+        grid_bits = ego_grid_info_get_all_fx( pgrid );
+    }
+
+    return grid_bits & bits;
+}
+
+//--------------------------------------------------------------------------------------------
+bool ego_grid_info_add_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
+{
+    GRID_FX_BITS old_bits, new_bits;
+
+    if ( NULL == pgrid ) return false;
+
+    // save the old bits
+    old_bits = ego_grid_info_get_all_fx( pgrid );
+
+    // set the bits that we can modify
+    SET_BIT( pgrid->pass_fx, bits );
+
+    // get the new bits
+    new_bits = ego_grid_info_get_all_fx( pgrid );
+
+    // let the caller know if they changed anything
+    return old_bits != new_bits;
+}
+
+//--------------------------------------------------------------------------------------------
+bool ego_grid_info_sub_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
+{
+    GRID_FX_BITS old_bits, new_bits;
+
+    if ( NULL == pgrid ) return false;
+
+    // save the old bits
+    old_bits = ego_grid_info_get_all_fx( pgrid );
+
+    // set the bits that we can modify
+    UNSET_BIT( pgrid->pass_fx, bits );
+
+    // get the new bits
+    new_bits = ego_grid_info_get_all_fx( pgrid );
+
+    // let the caller know if they changed anything
+    return old_bits != new_bits;
+}
+
+//--------------------------------------------------------------------------------------------
+bool ego_grid_info_set_pass_fx( ego_grid_info_t * pgrid, const GRID_FX_BITS bits )
+{
+    GRID_FX_BITS old_bits, new_bits;
+
+    if ( NULL == pgrid ) return false;
+
+    // save the old bits
+    old_bits = ego_grid_info_get_all_fx( pgrid );
+
+    // set the bits that we can modify
+    pgrid->pass_fx = bits;
+
+    // get the new bits
+    new_bits = ego_grid_info_get_all_fx( pgrid );
+
+    // let the caller know if they changed anything
+    return old_bits != new_bits;
 }

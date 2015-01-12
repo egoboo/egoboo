@@ -21,14 +21,18 @@
 /// @brief
 /// @details
 
-#include "egolib/_math.inl"
+#include "egolib/_math.h"
 #include "game/graphic_billboard.h"
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/graphics/Camera.hpp"
-#include "game/char.inl"
-#include "game/particle.inl"
+#include "game/char.h"
+#include "game/particle.h"
+
+#include "game/ChrList.h"
+#include "game/EncList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

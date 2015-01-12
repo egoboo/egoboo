@@ -26,7 +26,7 @@
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
 
-#include "egolib/_math.inl"      //For randomization
+#include "egolib/_math.h"      //For randomization
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

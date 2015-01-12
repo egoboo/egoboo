@@ -40,7 +40,7 @@ extern "C"
 #include "egolib/typedef.h"
 #include "egolib/file_common.h"
 
-#include "egolib/console.inl"
+#include "egolib/console.h"
 
 // this include must be the absolute last include
 #include "egolib/mem.h"

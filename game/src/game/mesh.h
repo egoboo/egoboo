@@ -334,3 +334,30 @@ bool ego_mesh_update_water_level( ego_mesh_t * pmesh );
 
 void mesh_texture_invalidate();
 struct s_oglx_texture * mesh_texture_bind( const ego_tile_info_t * ptile );
+
+//Previously inlined
+float  ego_mesh_get_level( const ego_mesh_t * pmesh, float pos_x, float pos_y );
+Uint32 ego_mesh_get_block( const ego_mesh_t * pmesh, float pos_x, float pos_y );
+Uint32 ego_mesh_get_grid( const ego_mesh_t * pmesh, float pos_x, float pos_y );
+
+Uint32 ego_mesh_get_block_int( const ego_mesh_t * pmesh, int block_x, int block_y );
+Uint32 ego_mesh_get_tile_int( const ego_mesh_t * pmesh, int grid_x,  int grid_y );
+
+Uint32 ego_mesh_test_fx( const ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
+bool ego_mesh_clear_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
+bool ego_mesh_add_fx( ego_mesh_t * pmesh, Uint32 itile, const BIT_FIELD flags );
+
+Uint32 ego_mesh_has_some_mpdfx( const BIT_FIELD mpdfx, const BIT_FIELD test );
+bool ego_mesh_grid_is_valid( const ego_mesh_t *, Uint32 id );
+
+bool ego_mesh_tile_has_bits( const ego_mesh_t *, const int ix, const int iy, const BIT_FIELD bits );
+
+ego_tile_info_t * ego_mesh_get_ptile( const ego_mesh_t *, const Uint32 itile );
+ego_grid_info_t * ego_mesh_get_pgrid( const ego_mesh_t *, const Uint32 itile );
+Uint8             ego_mesh_get_twist( ego_mesh_t * pmesh, const Uint32 igrid );
+
+GRID_FX_BITS ego_grid_info_get_all_fx( const ego_grid_info_t * );
+GRID_FX_BITS ego_grid_info_test_all_fx( const ego_grid_info_t *, const GRID_FX_BITS bits );
+bool       ego_grid_info_add_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
+bool       ego_grid_info_sub_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );
+bool       ego_grid_info_set_pass_fx( ego_grid_info_t *, const GRID_FX_BITS bits );

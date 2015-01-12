@@ -21,7 +21,7 @@
 /// @brief Particle system drawing and management code.
 /// @details
 
-#include "egolib/bbox.inl"
+#include "egolib/bbox.h"
 #include "game/graphic_prt.h"
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
@@ -30,10 +30,13 @@
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/particle.inl"
-#include "game/char.inl"
-#include "game/profile.inl"
+#include "game/particle.h"
+#include "game/char.h"
+#include "game/profile.h"
 #include "game/graphics/CameraSystem.hpp"
+
+#include "game/ChrList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

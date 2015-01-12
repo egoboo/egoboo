@@ -33,9 +33,12 @@
 #include "game/sound.h"
 #include "game/input.h"
 #include "game/egoboo.h"
-#include "game/particle.inl"
-#include "game/char.inl"
-#include "game/profile.inl"
+#include "game/particle.h"
+#include "game/char.h"
+#include "game/profile.h"
+
+#include "game/ChrList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

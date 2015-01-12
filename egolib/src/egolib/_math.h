@@ -23,6 +23,12 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/vec.h"
+#include "egolib/platform.h"
+#include "egolib/log.h"
+
+#include "egolib/extensions/ogl_include.h"
+#include "egolib/extensions/ogl_debug.h"
 
 #if !defined(ABS)
 	#define ABS(x) std::abs(x)
@@ -69,6 +75,8 @@ bool   ieee32_bad(float f);
 extern "C"
 {
 #endif
+
+#define FACE_RANDOM  ((FACING_T)generate_randmask(0, 0xFFFF))
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -288,6 +296,24 @@ extern "C"
 
     void make_turntosin( void );
     void make_randie( void );
+
+// conversion functions
+    FACING_T vec_to_facing( const float dx, const float dy );
+    void     facing_to_vec( const FACING_T facing, float * dx, float * dy );
+
+// rotation functions
+    int terp_dir( const FACING_T majordir, const FACING_T minordir, const int weight );
+
+// limiting functions
+    void getadd_int( const int min, const int value, const int max, int* valuetoadd );
+    void getadd_flt( const float min, const float value, const float max, float* valuetoadd );
+
+// random functions
+    int generate_irand_pair( const IPair num );
+    int generate_irand_range( const FRange num );
+    int generate_randmask( const int base, const Uint32 mask );
+
+// matrix functions
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

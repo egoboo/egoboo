@@ -23,7 +23,7 @@
 
 #include "game/EncList.h"
 #include "game/egoboo_object.h"
-#include "game/enchant.inl"
+#include "game/enchant.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -711,3 +711,26 @@ bool EncList_remove_free_ref( const ENC_REF ienc )
 
     return EncList_remove_free_idx( index );
 }
+
+//--------------------------------------------------------------------------------------------
+//inlined before
+bool _VALID_ENC_RANGE( const ENC_REF IENC ) { return VALID_ENC_RANGE( IENC ); }
+bool _DEFINED_ENC( const ENC_REF IENC )     { return DEFINED_ENC( IENC );     }
+bool _ALLOCATED_ENC( const ENC_REF IENC )   { return ALLOCATED_ENC( IENC );   }
+bool _ACTIVE_ENC( const ENC_REF IENC )      { return ACTIVE_ENC( IENC );      }
+bool _WAITING_ENC( const ENC_REF IENC )     { return WAITING_ENC( IENC );     }
+bool _TERMINATED_ENC( const ENC_REF IENC )  { return TERMINATED_ENC( IENC );  }
+
+size_t  _GET_INDEX_PENC( const enc_t * PENC )  { return _GET_INDEX_PENC( PENC );  }
+ENC_REF _GET_REF_PENC( const enc_t * PENC )    { return _GET_REF_PENC( PENC );    }
+bool  _DEFINED_PENC( const enc_t * PENC )    { return _DEFINED_PENC( PENC );    }
+bool  _VALID_ENC_PTR( const enc_t * PENC )   { return _VALID_ENC_PTR( PENC );   }
+bool  _ALLOCATED_PENC( const enc_t * PENC )  { return _ALLOCATED_PENC( PENC );  }
+bool  _ACTIVE_PENC( const enc_t * PENC )     { return _ACTIVE_PENC( PENC );     }
+bool  _TERMINATED_PENC( const enc_t * PENC ) { return _TERMINATED_PENC( PENC ); }
+
+bool _INGAME_ENC_BASE( const ENC_REF IENC )  { return _INGAME_ENC_BASE( IENC );  }
+bool _INGAME_PENC_BASE( const enc_t * PENC ) { return _INGAME_PENC_BASE( PENC ); }
+
+bool _INGAME_ENC( const ENC_REF IENC )       { return _INGAME_ENC( IENC );  }
+bool _INGAME_PENC( const enc_t * PENC )      { return _INGAME_PENC( PENC ); }

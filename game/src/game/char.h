@@ -33,6 +33,10 @@
 #include "game/physics.h"
 #include "game/egoboo.h"
 
+#include "game/profile.h"
+#include "game/enchant.h"
+#include "game/particle.h"
+
 //--------------------------------------------------------------------------------------------
 // external structs
 //--------------------------------------------------------------------------------------------
@@ -45,6 +49,7 @@ struct billboard_data_t;
 struct mesh_wall_data_t;
 
 struct s_prt;
+struct pro_t;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -721,3 +726,53 @@ const char* describe_damage( float value, float maxval, int * rank_ptr );
 const char* describe_wounds( float max, float current );
 
 billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt, const SDL_Color text_color, const GLXvector4f tint, int lifetime_secs, const BIT_FIELD opt_bits );
+
+
+//--------------------------------------------------------------------------------------------
+// PREVIOUSLY INLINE FUNCTIONS
+//--------------------------------------------------------------------------------------------
+// cap_t accessor functions
+bool cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz );
+bool cap_has_idsz( const CAP_REF icap, IDSZ idsz );
+
+//--------------------------------------------------------------------------------------------
+// team_t accessor functions
+CHR_REF team_get_ileader( const TEAM_REF iteam );
+chr_t  *team_get_pleader( const TEAM_REF iteam );
+
+bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team );
+
+//--------------------------------------------------------------------------------------------
+// chr_t accessor functions
+PRO_REF  chr_get_ipro( const CHR_REF ichr );
+CAP_REF  chr_get_icap( const CHR_REF ichr );
+EVE_REF  chr_get_ieve( const CHR_REF ichr );
+PIP_REF  chr_get_ipip( const CHR_REF ichr, int ipip );
+TEAM_REF chr_get_iteam( const CHR_REF ichr );
+TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
+
+pro_t *chr_get_ppro( const CHR_REF ichr );
+cap_t *chr_get_pcap( const CHR_REF ichr );
+eve_t *chr_get_peve( const CHR_REF ichr );
+pip_t *chr_get_ppip( const CHR_REF ichr, int ipip );
+
+Mix_Chunk      *chr_get_chunk_ptr( chr_t * pchr, int index );
+Mix_Chunk      *chr_get_chunk( const CHR_REF ichr, int index );
+team_t         *chr_get_pteam( const CHR_REF ichr );
+team_t         *chr_get_pteam_base( const CHR_REF ichr );
+ai_state_t     *chr_get_pai( const CHR_REF ichr );
+chr_instance_t *chr_get_pinstance( const CHR_REF ichr );
+
+IDSZ chr_get_idsz( const CHR_REF ichr, int type );
+
+void chr_update_size( chr_t * pchr );
+void chr_init_size( chr_t * pchr, cap_t * pcap );
+
+
+bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
+bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
+bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
+
+const float *chr_get_pos_v_const( const chr_t * pchr );
+float       *chr_get_pos_v( chr_t * pchr );
+bool         chr_get_pos( const chr_t * pchr, fvec3_base_t pos );

@@ -28,9 +28,13 @@
 #include "game/game.h"
 #include "game/network.h"
 #include "game/player.h"
-#include "game/profile.inl"
-#include "game/char.inl"
+#include "game/profile.h"
+#include "game/char.h"
 #include "game/graphics/CameraSystem.hpp"
+
+#include "game/ChrList.h"
+#include "game/EncList.h"
+#include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -24,9 +24,9 @@
 ///          Creating/destroying objects of this class is done in the same fashion as
 ///          Textures, so see Texture.h for details.
 
-#include "game/md2.inl"
-#include "egolib/_math.inl"
-#include "egolib/bbox.inl"
+#include "game/md2.h"
+#include "egolib/_math.h"
+#include "egolib/bbox.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -537,3 +537,48 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
 }
 
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+EGO_CONST int md2_get_numVertices( MD2_Model_t * m )  { return m->m_numVertices;  }
+EGO_CONST int md2_get_numTexCoords( MD2_Model_t * m ) { return m->m_numTexCoords; }
+EGO_CONST int md2_get_numTriangles( MD2_Model_t * m ) { return m->m_numTriangles; }
+EGO_CONST int md2_get_numSkins( MD2_Model_t * m )     { return m->m_numSkins;     }
+EGO_CONST int md2_get_numFrames( MD2_Model_t * m )    { return m->m_numFrames;    }
+EGO_CONST int md2_get_numCommands( MD2_Model_t * m )  { return m->m_numCommands;  }
+
+EGO_CONST MD2_SkinName_t  *md2_get_SkinNames( MD2_Model_t * m ) { return m->m_skins;     }
+EGO_CONST MD2_TexCoord_t  *md2_get_TexCoords( MD2_Model_t * m ) { return m->m_texCoords; }
+EGO_CONST MD2_Triangle_t  *md2_get_Triangles( MD2_Model_t * m ) { return m->m_triangles; }
+EGO_CONST MD2_Frame_t     *md2_get_Frames( MD2_Model_t * m ) { return m->m_frames;    }
+EGO_CONST MD2_GLCommand_t *md2_get_Commands( MD2_Model_t * m ) { return m->m_commands;  }
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+EGO_CONST MD2_SkinName_t *md2_get_Skin( MD2_Model_t * m, int index )
+{
+    if ( index >= 0 && index < m->m_numSkins )
+    {
+        return m->m_skins + index;
+    }
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------
+EGO_CONST MD2_Frame_t *md2_get_Frame( MD2_Model_t * m, int index )
+{
+    if ( index >= 0 && index < m->m_numFrames )
+    {
+        return m->m_frames + index;
+    }
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------
+EGO_CONST MD2_Triangle_t  *md2_get_Triangle( MD2_Model_t * m, int index )
+{
+    if ( index >= 0 && index < m->m_numTriangles )
+    {
+        return m->m_triangles + index;
+    }
+    return NULL;
+}

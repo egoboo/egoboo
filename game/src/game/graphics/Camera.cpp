@@ -3,8 +3,9 @@
 #include "game/graphic.h"
 #include "game/player.h"
 
-#include "game/char.inl"
-#include "game/mesh.inl"
+#include "game/char.h"
+#include "game/mesh.h"
+#include "game/ChrList.h"
 
 Camera::Camera(const CameraOptions &options) :
 	_options(options),
