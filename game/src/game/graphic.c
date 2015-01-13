@@ -114,7 +114,6 @@ gfx_rv renderlist_lst_push( renderlist_lst_t *, Uint32 index, float distance );
 struct s_renderlist
 {
     ego_mesh_t * pmesh;
-    std::shared_ptr<Camera> pcam;
 
     renderlist_lst_t  all;     ///< List of which to render, total
     renderlist_lst_t  ref;     ///< ..., is reflected in the floor
@@ -124,11 +123,11 @@ struct s_renderlist
     renderlist_lst_t  wat;     ///< ..., draws a water tile
 };
 
-static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mesh_t * pmesh, std::shared_ptr<Camera> pcam );
+static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mesh_t * pmesh );
 static gfx_rv         renderlist_reset( renderlist_t * prlist );
-static gfx_rv         renderlist_insert( renderlist_t * prlist, const Uint32 index );
+static gfx_rv         renderlist_insert( renderlist_t * prlist, const Uint32 index, const std::shared_ptr<Camera> &camera );
 static ego_mesh_t *   renderlist_get_pmesh( const renderlist_t * ptr );
-static gfx_rv         renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst );
+static gfx_rv         renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst, const std::shared_ptr<Camera> &camera );
 
 //--------------------------------------------------------------------------------------------
 // the renderlist manager
@@ -510,7 +509,7 @@ gfx_rv renderlist_lst_push( renderlist_lst_t * ary, Uint32 index, float distance
 // renderlist implementation
 //--------------------------------------------------------------------------------------------
 
-renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh, std::shared_ptr<Camera> pcam )
+renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh )
 {
     if ( NULL == plst )
     {
@@ -529,7 +528,6 @@ renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh, std::sh
     renderlist_lst_reset( &( plst->wat ) );
 
     plst->pmesh = pmesh;
-    plst->pcam  = pcam;
 
     return plst;
 }
@@ -569,13 +567,13 @@ gfx_rv renderlist_reset( renderlist_t * plst )
     }
 
     // re-initialize the renderlist
-    renderlist_init( plst, plst->pmesh, plst->pcam );
+    renderlist_init( plst, plst->pmesh );
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index )
+gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index, const std::shared_ptr<Camera> &camera )
 {
     // aliases
     ego_mesh_t      * pmesh = NULL;
@@ -596,12 +594,6 @@ gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index )
     }
     pmesh = plst->pmesh;
 
-    if ( NULL == plst->pcam )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist not connected to a camera" );
-        return gfx_error;
-    }
-
     // check for a valid tile
     if ( NULL == pmesh->gmem.grid_list || 0 == pmesh->gmem.grid_count || index >= pmesh->gmem.grid_count )
     {
@@ -618,8 +610,8 @@ gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index )
 
         ix = index % pmesh->info.tiles_x;
         iy = index / pmesh->info.tiles_x;
-        dx = ( ix + TILE_FSIZE * 0.5f ) - plst->pcam->getCenter().x;
-        dy = ( iy + TILE_FSIZE * 0.5f ) - plst->pcam->getCenter().y;
+        dx = ( ix + TILE_FSIZE * 0.5f ) - camera->getCenter().x;
+        dy = ( iy + TILE_FSIZE * 0.5f ) - camera->getCenter().y;
         distance = dx * dx + dy * dy;
     }
 
@@ -679,22 +671,9 @@ gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh )
     return gfx_success;
 }
 
-//--------------------------------------------------------------------------------------------
-gfx_rv renderlist_attach_camera( renderlist_t * ptr, std::shared_ptr<Camera> pcam )
-{
-    if ( NULL == ptr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
-        return gfx_error;
-    }
-
-    ptr->pcam = pcam;
-
-    return gfx_success;
-}
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst )
+gfx_rv renderlist_add_colst(renderlist_t * prlist, const BSP_leaf_pary_t * pcolst, const std::shared_ptr<Camera> &camera)
 {
     size_t       colst_size, colst_top;
     BSP_leaf_t * pleaf;
@@ -761,7 +740,7 @@ gfx_rv renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcol
                 break;
             }
 
-            if ( gfx_error == renderlist_insert( prlist, ifan ) )
+            if ( gfx_error == renderlist_insert( prlist, ifan, camera ) )
             {
                 retval = gfx_error;
                 break;
@@ -793,7 +772,7 @@ renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr )
     for ( size_t cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
     {
         ptr->free_lst[cnt] = cnt;
-        renderlist_init( ptr->lst + cnt, NULL, NULL );
+        renderlist_init( ptr->lst + cnt, NULL );
     }
     ptr->free_count = MAX_RENDER_LISTS;
 
@@ -817,7 +796,7 @@ renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr )
     for ( size_t cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
     {
         ptr->free_lst[cnt] = -1;
-        renderlist_init( ptr->lst + cnt, NULL, NULL );
+        renderlist_init( ptr->lst + cnt, NULL );
     }
 
     ptr->started = false;
@@ -6396,7 +6375,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam 
     }
 
     // make sure that we have a valid camera
-    if ( NULL == pcam )
+    if ( nullptr == pcam )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "cannot find a valid camera" );
         return gfx_error;
@@ -6437,7 +6416,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam 
     mesh_BSP_collide_frustum(getMeshBSP(), &( pcam->getFrustum() ), NULL, &_renderlist_colst );
 
     // transfer valid _renderlist_colst entries to the dolist
-    if ( gfx_error == renderlist_add_colst( prlist, &_renderlist_colst ) )
+    if ( gfx_error == renderlist_add_colst( prlist, &_renderlist_colst, pcam ) )
     {
         retval = gfx_error;
         goto gfx_make_renderlist_exit;

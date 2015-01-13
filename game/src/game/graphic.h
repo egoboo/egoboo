@@ -358,7 +358,6 @@ gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, size_t index );
 dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, size_t index );
 
 gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh );
-gfx_rv renderlist_attach_camera( renderlist_t * ptr, std::shared_ptr<Camera> pcam );
 
 bool oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, egoboo_config_t * pcfg );
 

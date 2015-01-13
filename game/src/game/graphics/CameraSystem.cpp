@@ -31,35 +31,9 @@ void CameraSystem::begin(const size_t numberOfCameras)
     	return;
     }
 
-    //Get renderlist manager pointer
-    renderlist_mgr_t *rmgr_ptr = gfx_system_get_renderlist_mgr();
-    if ( nullptr == rmgr_ptr ) {
-        throw "Failed to get renderlist manager";
-    }
-
-    //Get dolist manager pointer
-    dolist_mgr_t     *dmgr_ptr = gfx_system_get_dolist_mgr();
-    if ( nullptr == dmgr_ptr ) {
-        throw "Failed toget dolist manager";
-    }
-
     //Create cameras (allow for 0 cameras)
     for(size_t i = 0; i < std::min(numberOfCameras, MAX_CAMERAS); ++i) {
-        std::shared_ptr<Camera> camera = std::make_shared<Camera>(_cameraOptions);
-
-        // lock a renderlist for this camera
-        const int renderList = renderlist_mgr_get_free_idx( rmgr_ptr );
-
-        // connect the renderlist to a mesh
-        renderlist_t *rlst_ptr = renderlist_mgr_get_ptr( rmgr_ptr, renderList );
-        renderlist_attach_mesh( rlst_ptr, PMesh );
-        renderlist_attach_camera( rlst_ptr, camera );
-
-        // lock a dolist for this camera
-        const int doList = dolist_mgr_get_free_idx( dmgr_ptr );    
-
-        camera->initialize(renderList, doList);
-    	_cameraList.push_back(camera);
+    	_cameraList.push_back( std::make_shared<Camera>(_cameraOptions) );
     }
 
     // we're initialized.
