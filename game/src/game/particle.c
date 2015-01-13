@@ -21,7 +21,7 @@
 /// @brief Manages particle systems.
 
 #include "game/particle.h"
-#include "game/sound.h"
+#include "game/audio/AudioSystem.hpp"
 #include "game/game.h"
 #include "game/mesh.h"
 #include "game/obj_BSP.h"
@@ -186,15 +186,14 @@ void prt_play_sound( const PRT_REF particle, Sint8 sound )
     if ( !DEFINED_PRT( particle ) ) return;
     pprt = PrtList_get_ptr( particle );
 
-    if ( !VALID_SND( sound ) ) return;
-
     if ( LOADED_PRO( pprt->profile_ref ) )
     {
-        sound_play_chunk( prt_get_pos_v_const( pprt ), pro_get_chunk( pprt->profile_ref, sound ) );
+        _audioSystem.playSound( pprt->pos, ProList_get_ptr(pprt->profile_ref)->getSoundID(sound) );
     }
-    else
+    else if (sound >= 0 && sound < GSND_COUNT)
     {
-        sound_play_chunk( prt_get_pos_v_const( pprt ), g_wavelist[sound] );
+        GlobalSound globalSound = static_cast<GlobalSound>(sound);
+        _audioSystem.playSound(pprt->pos, _audioSystem.getGlobalSound(globalSound));
     }
 }
 
@@ -247,6 +246,7 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
             }
         }
 
+        //Play end sound
         if ( NULL != ppip )
         {
             prt_play_sound( particle, ppip->end_sound );
@@ -561,9 +561,6 @@ prt_t * prt_config_do_init( prt_t * pprt )
     pprt->endspawn_facingadd = ppip->endspawn_facingadd;
     pprt->endspawn_lpip      = ppip->endspawn_lpip;
 
-    // Sound effect
-    prt_play_sound( iprt, ppip->soundspawn );
-
     // set up the particle transparency
     pprt->inst.alpha = 0xFF;
     switch ( pprt->inst.type )
@@ -649,6 +646,9 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
         attach_one_particle( &prt_bdl );
     }
+
+    // Sound effect
+    prt_play_sound(iprt, ppip->soundspawn);
 
     return pprt;
 }
@@ -2493,8 +2493,8 @@ PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
         return INVALID_PIP_REF;
     }
 
-    ppip->end_sound = CLIP<Sint8>( ppip->end_sound, INVALID_SOUND, MAX_WAVE );
-    ppip->soundspawn = CLIP<Sint8>( ppip->soundspawn, INVALID_SOUND, MAX_WAVE );
+    ppip->end_sound = CLIP<Sint8>( ppip->end_sound, INVALID_SOUND_ID, MAX_WAVE );
+    ppip->soundspawn = CLIP<Sint8>( ppip->soundspawn, INVALID_SOUND_ID, MAX_WAVE );
 
     return ipip;
 }

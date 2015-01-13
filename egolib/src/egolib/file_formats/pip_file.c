@@ -27,9 +27,6 @@
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
 
-// includes for egoboo constants
-#include "game/sound.h"                 // for INVALID_SOUND
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 particle_direction_t prt_direction[256] =
@@ -61,9 +58,9 @@ pip_t * pip_init( pip_t * ppip )
     // clear the pip
     BLANK_STRUCT_PTR( ppip )
 
-    ppip->end_sound       = INVALID_SOUND;
-    ppip->end_sound_floor = INVALID_SOUND;
-    ppip->end_sound_wall  = INVALID_SOUND;
+    ppip->end_sound       = -1;
+    ppip->end_sound_floor = -1;
+    ppip->end_sound_wall  = -1;
     ppip->damfx           = DAMFX_TURN;
 
     ppip->allowpush = true;

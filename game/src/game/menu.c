@@ -30,7 +30,7 @@
 #include "game/ui.h"
 #include "game/link.h"
 #include "game/game.h"
-#include "game/sound.h"
+#include "game/audio/AudioSystem.hpp"
 #include "game/input.h"
 #include "game/egoboo.h"
 #include "game/particle.h"
@@ -425,7 +425,7 @@ int menu_process_do_begin( menu_process_t * mproc )
     stabilized_menu_fps_weight = STABILIZED_COVER;
 
     // play some music
-    sound_play_song( MENU_SONG, 0, -1 );
+    _audioSystem.playMusic(AudioSystem::MENU_SONG);
 
     // initialize all these structures
     menu_system_begin();        // start the menu menu
@@ -490,7 +490,7 @@ int menu_process_do_leaving( menu_process_t * mproc )
     menu_system_end();
 
     // finish the menu song
-    sound_finish_song( 500 );
+    _audioSystem.stopMusic();
 
     // reset the fps counter
     menu_fps_clock        = 0;
@@ -3348,14 +3348,7 @@ int doAudioOptions( float deltaTime )
                 setup_write_vfs();
 
                 // Reload the sound system
-                sound_system_restart();
-
-                // Do we restart the music?
-                if ( cfg.music_allowed )
-                {
-                    sound_load_all_music_sounds_vfs();
-                    fade_in_music( musictracksloaded[songplaying] );
-                }
+                _audioSystem.reset();
 
                 menuState = MM_Leaving;
             }
