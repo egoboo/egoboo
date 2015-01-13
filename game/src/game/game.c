@@ -27,7 +27,6 @@
 #include "game/player.h"
 #include "game/link.h"
 #include "game/ui.h"
-//#include "game/sound.h"
 #include "game/graphic.h"
 #include "game/graphic_fan.h"
 #include "game/graphic_texture.h"
@@ -45,6 +44,7 @@
 
 #include "game/module/PassageHandler.hpp"
 #include "game/graphics/CameraSystem.hpp"
+#include "game/audio/AudioSystem.hpp"
 
 #include "game/char.h"
 #include "game/particle.h"
@@ -77,6 +77,11 @@ PROFILE_DECLARE( set_local_latches );
 PROFILE_DECLARE( cl_talkToHost );
 
 //--------------------------------------------------------------------------------------------
+//Game engine globals
+CameraSystem      _cameraSystem;
+AudioSystem       _audioSystem;
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool  overrideslots      = false;
 
@@ -90,7 +95,6 @@ status_list_t StatusList = STATUS_LIST_INIT;
 ego_mesh_t         * PMesh   = _mesh + 0;
 game_module_t     * PMod    = &_gmod;
 game_process_t    * GProc   = &_gproc;
-CameraSystem      _cameraSystem;
 
 pit_info_t pits = PIT_INFO_INIT;
 
@@ -894,7 +898,7 @@ int update_game()
                     BillboardList_update_all();
                     animate_tiles();
                     water_instance_move( &water );
-                    looped_update_all_sound();
+                    _audioSystem.updateLoopingSounds();
                     do_damage_tiles();
                     update_pits();
                     do_weather_spawn_particles();
@@ -1962,11 +1966,11 @@ void update_pits()
                         // Play sound effect
                         if ( VALID_PLA( pchr->is_which_player ) )
                         {
-                            sound_play_chunk_full( g_wavelist[GSND_PITFALL] );
+                            _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_PITFALL));
                         }
                         else
                         {
-                            sound_play_chunk( pchr->pos.v, g_wavelist[GSND_PITFALL] );
+                            _audioSystem.playSound(pchr->pos, _audioSystem.getGlobalSound(GSND_PITFALL));
                         }
 
                         // Do some damage (same as damage tile)
@@ -3257,7 +3261,7 @@ egolib_rv game_load_global_assets()
 void game_load_module_assets( const char *modname )
 {
     // load a bunch of assets that are used in the module
-    sound_load_global_waves_vfs();
+    _audioSystem.loadGlobalSounds();
     PrtList_reset_all();
 
     if ( NULL == read_wawalite_vfs() )
@@ -3472,7 +3476,7 @@ void game_quit_module()
     game_reset_module_data();
 
     // finish whatever in-game song is playing
-    sound_finish_sound();
+    _audioSystem.fadeAllSounds();
 
     // remove the module-dependent mount points from the vfs
     setup_clear_module_vfs_paths();
@@ -3768,7 +3772,7 @@ void game_finish_module()
     game_update_imports();
 
     // restart the menu song
-    sound_play_song( MENU_SONG, 0, -1 );
+    _audioSystem.playMusic(AudioSystem::MENU_SONG);
 
     // turn off networking
     net_end();
@@ -4350,7 +4354,7 @@ bool upload_damagetile_data( damagetile_instance_t * pinst, const wawalite_damag
 
         pinst->part_gpip    = pdata->part_gpip;
         pinst->partand      = pdata->partand;
-        pinst->sound_index  = CLIP( pdata->sound_index, INVALID_SOUND, MAX_WAVE );
+        pinst->sound_index  = CLIP( pdata->sound_index, INVALID_SOUND_ID, MAX_WAVE );
     }
 
     return true;

@@ -45,6 +45,7 @@
 
 #include "game/module/PassageHandler.hpp"
 #include "game/graphics/CameraSystem.hpp"
+#include "game/audio/AudioSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -2160,9 +2161,9 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( pchr->pos_old.z > PITNOSOUND && VALID_SND( pstate->argument ) )
+    if ( pchr->pos_old.z > PITNOSOUND )
     {
-        sound_play_chunk( pchr->pos_old.v, chr_get_chunk_ptr( pchr, pstate->argument ) );
+        _audioSystem.playSound(pchr->pos_old, ppro->getSoundID(pstate->argument));
     }
 
     SCRIPT_FUNCTION_END();
@@ -4269,31 +4270,23 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function starts playing a continuous sound
 
-    Mix_Chunk * new_chunk;
-
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = false;
 
-    new_chunk = chr_get_chunk_ptr( pchr, pstate->argument );
-
-    if ( NULL == new_chunk )
+    SoundID sound = ppro->getSoundID(pstate->argument);
+    
+    if ( INVALID_SOUND_ID == sound )
     {
-        looped_stop_object_sounds( pself->index );       // Stop existing sound loop (if any)
+        // Stop existing sound loop (if any)
+        _audioSystem.stopObjectLoopingSounds(pself->index);
     }
     else
     {
-        Mix_Chunk * playing_chunk = NULL;
-
         // check whatever might be playing on the channel now
-        if ( INVALID_SOUND_CHANNEL != pchr->loopedsound_channel )
+        if ( INVALID_SOUND_CHANNEL == pchr->loopedsound_channel )
         {
-            playing_chunk = Mix_GetChunk( pchr->loopedsound_channel );
-        }
-
-        if ( playing_chunk != new_chunk )
-        {
-            pchr->loopedsound_channel = sound_play_chunk_looped( pchr->pos_old.v, new_chunk, -1, pself->index );
+            _audioSystem.playSoundLooped(sound, pself->index);
         }
     }
 
@@ -4311,7 +4304,7 @@ Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    looped_stop_object_sounds( pself->index );
+    _audioSystem.stopObjectLoopingSounds(pself->index, ppro->getSoundID(pstate->argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -4715,15 +4708,11 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
 
     if ( pstate->distance > 0 )
     {
-        if ( VALID_SND( pstate->argument ) )
-        {
-            int channel;
-            channel = sound_play_chunk( pchr->pos_old.v, chr_get_chunk_ptr( pchr, pstate->argument ) );
+        int channel = _audioSystem.playSound(pchr->pos_old, ppro->getSoundID(pstate->argument));
 
-            if ( channel != INVALID_SOUND_CHANNEL )
-            {
-                Mix_Volume( channel, ( 128*pstate->distance ) / 100 );
-            }
+        if ( channel != INVALID_SOUND_CHANNEL )
+        {
+            Mix_Volume( channel, ( 128*pstate->distance ) / 100 );
         }
     }
 
@@ -5657,10 +5646,7 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( VALID_SND( pstate->argument ) )
-    {
-        sound_play_chunk_full( chr_get_chunk_ptr( pchr, pstate->argument ) );
-    }
+    _audioSystem.playSoundFull(ppro->getSoundID(pstate->argument));
 
     SCRIPT_FUNCTION_END();
 }
@@ -6354,10 +6340,10 @@ Uint8 scr_PlayMusic( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( snd.musicvalid && ( songplaying != pstate->argument ) )
-    {
-        sound_play_song( pstate->argument, pstate->distance, -1 );
-    }
+    int fadeTime = pstate->distance;
+    if(fadeTime < 0) fadeTime = 0;
+
+    _audioSystem.playMusic(pstate->argument, fadeTime);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6404,7 +6390,7 @@ Uint8 scr_StopMusic( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sound_stop_song();
+    _audioSystem.stopMusic();
 
     SCRIPT_FUNCTION_END();
 }
@@ -7172,7 +7158,7 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 
     if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return false;
 
-    returncode = link_follow_modname( ppro->message_ary[pstate->argument], true );
+    returncode = link_follow_modname( ppro->getMessage(pstate->argument).c_str(), true );
     if ( !returncode )
     {
         DisplayMsg_printf( "That's too scary for %s", pchr->Name );
@@ -7844,7 +7830,10 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     ///use message.txt to send the module name
     if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return false;
 
-    returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, ppro->message_ary[pstate->argument] );
+    STRING buffer;
+    strncpy(buffer, ppro->getMessage(pstate->argument).c_str(), SDL_arraysize(buffer));
+
+    returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, buffer);
 
     SCRIPT_FUNCTION_END();
 }
@@ -8155,7 +8144,7 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
         case COLOR_BLUE:    do_tint = tint_blue;    break;
     }
 
-    returncode = NULL != chr_make_text_billboard( pself->index, ppro->message_ary[pstate->argument], text_color, do_tint, pstate->distance, bb_opt_fade );
+    returncode = NULL != chr_make_text_billboard( pself->index, ppro->getMessage(pstate->argument).c_str(), text_color, do_tint, pstate->distance, bb_opt_fade );
 
     SCRIPT_FUNCTION_END();
 }

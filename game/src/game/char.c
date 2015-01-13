@@ -214,7 +214,8 @@ bool chr_free( chr_t * pchr )
     // deallocate
     BillboardList_free_one( REF_TO_INT( pchr->ibillboard ) );
 
-    _audioSystem.stopLoopingSoundByChannel(pchr->loopedsound_channel);
+    //Stop any looped sounds allocated to this character
+    _audioSystem.stopObjectLoopingSounds(GET_REF_PCHR(pchr));
 
     chr_instance_dtor( &( pchr->inst ) );
     ai_state_dtor( &( pchr->ai ) );
@@ -267,7 +268,7 @@ chr_t * chr_ctor( chr_t * pchr )
     // IMPORTANT!!!
     pchr->ibillboard = INVALID_BILLBOARD_REF;
     pchr->sparkle = NOSPARKLE;
-    pchr->loopedsound_channel = AudioSystem::INVALID_SOUND_CHANNEL;
+    pchr->loopedsound_channel = INVALID_SOUND_CHANNEL;
 
     // Set up model stuff
     pchr->inwhich_slot = SLOT_LEFT;
@@ -3270,8 +3271,8 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool req
     }
 
     // limit the wave indices to rational values
-    pcap->sound_index[SOUND_FOOTFALL] = CLIP( pcap->sound_index[SOUND_FOOTFALL], AudioSystem::INVALID_SOUND, MAX_WAVE );
-    pcap->sound_index[SOUND_JUMP]     = CLIP( pcap->sound_index[SOUND_JUMP], AudioSystem::INVALID_SOUND, MAX_WAVE );
+    pcap->sound_index[SOUND_FOOTFALL] = CLIP( pcap->sound_index[SOUND_FOOTFALL], -1, MAX_WAVE );
+    pcap->sound_index[SOUND_JUMP]     = CLIP( pcap->sound_index[SOUND_JUMP], -1, MAX_WAVE );
 
     //0 == bumpdampenmeans infinite mass, and causes some problems
     pcap->bumpdampen = std::max( INV_FF, pcap->bumpdampen );
@@ -3517,7 +3518,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
 
     // Stop any looped sounds
     _audioSystem.stopObjectLoopingSounds( ichr );
-    pchr->loopedsound_channel = AudioSystem::INVALID_SOUND;
+    pchr->loopedsound_channel = INVALID_SOUND_ID;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6430,10 +6431,8 @@ bool chr_do_latch_button( chr_t * pchr )
             if ( NULL != pcap )
             {
                 ijump = pro_get_pcap( pchr->profile_ref )->sound_index[SOUND_JUMP];
-                if ( _audioSystem.validSoundID( ijump ) )
-                {
-                    _audioSystem.playSound(pchr->pos.v, ijump);
-                }
+
+                _audioSystem.playSound(pchr->pos, ProList_get_ptr(pchr->profile_ref)->getSoundID(ijump) );
             }
 
         }
@@ -6471,10 +6470,7 @@ bool chr_do_latch_button( chr_t * pchr )
                 if ( NULL != pcap )
                 {
                     ijump = pcap->sound_index[SOUND_JUMP];
-                    if ( _audioSystem.validSoundID( ijump ) )
-                    {
-                        _audioSystem.playSound( pchr->pos.v, ijump);
-                    }
+                    _audioSystem.playSound( pchr->pos, ProList_get_ptr(pchr->profile_ref)->getSoundID(ijump));
                 }
             }
         }
@@ -7188,7 +7184,7 @@ bool chr_handle_madfx( chr_t * pchr )
         cap_t * pcap = pro_get_pcap( pchr->profile_ref );
         if ( NULL != pcap )
         {
-            _audioSystem.playSound(pchr->pos.v, pcap->sound_index[SOUND_FOOTFALL]);
+            _audioSystem.playSound(pchr->pos, ProList_get_ptr( pchr->profile_ref )->getSoundID(pcap->sound_index[SOUND_FOOTFALL]) );
         }
     }
 

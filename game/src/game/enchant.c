@@ -23,7 +23,7 @@
 
 #include "game/enchant.h"
 
-//#include "game/sound.h"
+#include "game/audio/AudioSystem.hpp"
 #include "game/game.h"
 #include "game/script_functions.h"
 #include "game/egoboo.h"
@@ -348,20 +348,17 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     if ( NULL != peve )
     {
         // Play the end sound
-        iwave = peve->endsound_index;
-        if ( VALID_SND( iwave ) )
+        PRO_REF imodel = penc->spawnermodel_ref;
+        if ( LOADED_PRO( imodel ) )
         {
-            PRO_REF imodel = penc->spawnermodel_ref;
-            if ( LOADED_PRO( imodel ) )
+            iwave = peve->endsound_index;
+            if ( nullptr != target_ptr )
             {
-                if ( NULL != target_ptr )
-                {
-                    sound_play_chunk( target_ptr->pos_old.v, pro_get_chunk( imodel, iwave ) );
-                }
-                else
-                {
-                    sound_play_chunk_full( pro_get_chunk( imodel, iwave ) );
-                }
+                _audioSystem.playSound( target_ptr->pos_old, ProList_get_ptr(imodel)->getSoundID(iwave) );
+            }
+            else
+            {
+                _audioSystem.playSoundFull( ProList_get_ptr(imodel)->getSoundID(iwave) );
             }
         }
 
@@ -1611,7 +1608,7 @@ EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF ieve )
             retval = ieve;
 
             // limit the endsound_index
-            peve->endsound_index = CLIP<Sint16>( peve->endsound_index, INVALID_SOUND, MAX_WAVE );
+            peve->endsound_index = CLIP<Sint16>( peve->endsound_index, INVALID_SOUND_ID, MAX_WAVE );
         }
     }
 

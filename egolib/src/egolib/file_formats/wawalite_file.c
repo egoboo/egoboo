@@ -32,9 +32,6 @@
 
 #include "egolib/_math.h"
 
-// includes for egoboo constants
-#include "game/sound.h"                 // for INVALID_SOUND
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -628,7 +625,7 @@ bool wawalite_damagetile_init( wawalite_damagetile_t * pdata )
 
     pdata->part_gpip    = -1;
     pdata->partand     = 255;
-    pdata->sound_index = INVALID_SOUND;
+    pdata->sound_index = -1;
     pdata->damagetype  = DAMAGE_FIRE;
     pdata->amount      = 256;
 
@@ -644,7 +641,7 @@ wawalite_data_t *  wawalite_limit( wawalite_data_t * pdata )
     if ( NULL == pdata ) pdata = &_wawalite_file;
 
     // limit some values
-    pdata->damagetile.sound_index = CLIP( pdata->damagetile.sound_index, INVALID_SOUND, MAX_WAVE );
+    pdata->damagetile.sound_index = CLIP( pdata->damagetile.sound_index, -1, 30 );
 
     for ( cnt = 0; cnt < MAXWATERLAYER; cnt++ )
     {
