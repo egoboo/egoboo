@@ -110,6 +110,9 @@ void AudioSystem::loadGlobalSounds()
     //Load global sounds
     for(size_t i = 0; i < GSND_COUNT; ++i) {
         _globalSounds[i] = loadSound(std::string("mp_data/") + wavenames[i]);
+        if(_globalSounds[i] == INVALID_SOUND_ID) {
+            log_warning("global sound not loaded: %s\n", wavenames[i]);
+        }
     }
 
     //Load any override sounds in local .mod folder
@@ -157,7 +160,6 @@ void AudioSystem::reset()
             {
                 _initialized = true;
                 Mix_AllocateChannels( _audioConfig.maxsoundchannel );
-                Mix_VolumeMusic( _audioConfig.musicvolume );
             }
             else
             {
@@ -237,15 +239,18 @@ SoundID AudioSystem::loadSound(const std::string &fileName)
         }
     }
 
-    if ( fileExists && nullptr == loadedSound )
+    if ( nullptr == loadedSound )
     {
         // there is an error only if the file exists and can't be loaded
-        log_warning( "Sound file not found/loaded %s.\n", fileName.c_str() );
+        if(fileExists) {
+            log_warning( "Sound file not found/loaded %s.\n", fileName.c_str() );
+        }
+
         return INVALID_SOUND_ID;
     }
 
+    //Sound loaded!
     _soundsLoaded.push_back(loadedSound);
-
     return _soundsLoaded.size()-1;
 }
 
@@ -288,6 +293,9 @@ void AudioSystem::playMusic(const int musicID, const uint16_t fadetime)
     if(musicID < 0 || musicID >= _musicLoaded.size()) {
     	return;
     }
+
+    //Set music volume
+    Mix_VolumeMusic( _audioConfig.musicvolume );
 
     // Mix_FadeOutMusic(fadetime);      // Stops the game too
     if(Mix_FadeInMusic(_musicLoaded[musicID], -1, fadetime) == -1) {

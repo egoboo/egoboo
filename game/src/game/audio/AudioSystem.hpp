@@ -93,14 +93,14 @@ private:
 /// Pre defined global particle sounds
 enum GlobalSound : uint8_t
 {
-    GSND_GETCOIN = 0,
-    GSND_DEFEND,
-    GSND_WEATHER1,
-    GSND_WEATHER2,
-    GSND_COINFALL,
-    GSND_LEVELUP,
-    GSND_PITFALL,
-    GSND_SHIELDBLOCK,
+    GSND_GETCOIN = 0,	//Grab money
+    GSND_DEFEND,		//Immune clink
+    GSND_SPLISH,		//Raindrop
+    GSND_SPLOSH,		//Hit water
+    GSND_COINFALL,		//Coin hits ground
+    GSND_LEVELUP,		//Character gains level
+    GSND_PITFALL,		//Character falls down a pit
+    GSND_SHIELDBLOCK,	//Shield block sound
     GSND_COUNT
 };
 
