@@ -5186,7 +5186,7 @@ bool attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     ///  move_one_character() function, so the environment has already been determined this round
 
     cap_t * pchr_cap;
-    fvec3_t   platform_up = VECT3( 0, 0, 1 );
+    fvec3_t   platform_up = fvec3_t( 0, 0, 1 );
 
     // verify that we do not have two dud pointers
     if ( !ACTIVE_PCHR( pchr ) ) return false;

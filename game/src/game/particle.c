@@ -1909,7 +1909,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     LOG_NAN( tmp_pos.z );
     if ( tmp_pos.z < loc_level )
     {
-        fvec3_t floor_nrm = VECT3( 0, 0, 1 );
+        fvec3_t floor_nrm = fvec3_t( 0, 0, 1 );
         float vel_dot;
         fvec3_t vel_perp, vel_para;
         Uint8 tmp_twist = TWIST_FLAT;
@@ -3677,7 +3677,7 @@ bool prt_get_pos( const prt_t * pprt, fvec3_base_t pos )
 //--------------------------------------------------------------------------------------------
 const float * prt_get_pos_v_const( const prt_t * pprt )
 {
-    static fvec3_t vtmp = ZERO_VECT3;
+    static fvec3_t vtmp = fvec3_t::zero;
 
     if ( !ALLOCATED_PPRT( pprt ) ) return vtmp.v;
 
@@ -3687,7 +3687,7 @@ const float * prt_get_pos_v_const( const prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 float * prt_get_pos_v( prt_t * pprt )
 {
-    static fvec3_t vtmp = ZERO_VECT3;
+    static fvec3_t vtmp = fvec3_t::zero;
 
     if ( !ALLOCATED_PPRT( pprt ) ) return vtmp.v;
 
