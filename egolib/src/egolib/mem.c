@@ -17,7 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/DynamicAray.cpp
-/// @brief generic dynamic array structure
+/// @file egolib/mem.c
+/// @details Allocation, reallocation, deallocation and manipulation of memory blocks and array memory blocks
 
-#include "egolib/DynamicArray.hpp"
+#include "egolib/mem.h"
+
+#include <cstdlib>
+
+void *EgoNew(size_t sz) {
+	if (sz == 0) {
+		return malloc(1);    // circumvent implementation defined behaviour
+	} else {
+		return malloc(sz);
+	}
+}
+
+void *EgoNew(size_t sz, size_t esz) {
+	if (sz == 0 || esz == 0) {
+		return calloc(1, 1); // circumvent implementation defined behaviour
+	} else {
+		return calloc(sz, esz);
+	}
+}

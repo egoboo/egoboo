@@ -38,17 +38,8 @@ struct bv_t
 	aabb_t aabb;
 };
 
-#if 0
-/* @todo Remove this. bv_ctor must be used. */
-#define BV_INIT_VALS                            \
-    {                                           \
-        SPHERE_INIT_VALS, /* sphere_t sphere */ \
-        AABB_INIT_VALS    /* aabb_t aabb   */   \
-    }
-#endif
-
-bv_t *bv_ctor(bv_t *);
-bv_t *bv_dtor(bv_t *);
+bv_t *bv_ctor(bv_t& self);
+bv_t *bv_dtor(bv_t& self);
 bool  bv_self_clear(bv_t *);
 bool  bv_is_clear(const bv_t * pdst);
 

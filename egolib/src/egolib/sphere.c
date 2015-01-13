@@ -21,34 +21,34 @@
 /// @brief Spheres.
 #include "egolib/sphere.h"
 
-sphere_t *sphere_ctor(sphere_t *self)
+sphere_t *sphere_ctor(sphere_t& self)
 {
-	if (nullptr == self) return self;
-	self->radius = -1.0f;
-	fvec3_ctor(self->origin.v);
-	return self;
+	self.radius = 0.0f;
+	fvec3_ctor(self.origin);
+	return &self;
 }
 
-sphere_t *sphere_dtor(sphere_t *self)
+sphere_t *sphere_dtor(sphere_t& self)
 {
-	if (nullptr == self) return self;
-	fvec3_dtor(self->origin.v);
-	self->radius = 0.0f;
-	return self;
+	fvec3_dtor(self.origin);
+	self.radius = 0.0f;
+	return &self;
 }
 
-
-bool sphere_self_clear(sphere_t *self)
+bool sphere_self_clear(sphere_t& self)
 {
-	if (nullptr == self) return false;
-	fvec3_self_clear(self->origin.v);
-	self->radius = 0.0f;
+	fvec3_self_clear(self.origin.v);
+	self.radius = 0.0f;
 	return true;
 }
 
-bool sphere_self_is_clear(const sphere_t *self)
+float sphere_get_radius(const sphere_t& self)
 {
-	if (nullptr == self) return true;
-	return 0.0f == self->radius
-		&& fvec3_self_is_clear(self->origin.v);
+	return self.radius;
+}
+
+bool sphere_self_is_clear(const sphere_t& self)
+{
+	return 0.0f == self.radius
+		&& fvec3_self_is_clear(self.origin.v);
 }

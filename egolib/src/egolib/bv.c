@@ -24,26 +24,19 @@
 #include "egolib/bbox.h"
 
 //--------------------------------------------------------------------------------------------
-bv_t *bv_ctor(bv_t *self)
+bv_t *bv_ctor(bv_t& self)
 {
-	EGOBOO_ASSERT(NULL != self);
-	if (NULL == self) return self;
-
-	sphere_ctor(&(self->sphere));
-	aabb_ctor(&(self->aabb));
-	return self;
+	sphere_ctor(self.sphere);
+	aabb_ctor(self.aabb);
+	return &self;
 }
 
 //--------------------------------------------------------------------------------------------
-bv_t *bv_dtor(bv_t *self)
+bv_t *bv_dtor(bv_t& self)
 {
-	EGOBOO_ASSERT(NULL != self);
-	if (NULL == self) return self;
-
-	aabb_dtor(&(self->aabb));
-	sphere_dtor(&(self->sphere));
-
-	return self;
+	aabb_dtor(self.aabb);
+	sphere_dtor(self.sphere);
+	return &self;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -54,7 +47,7 @@ bool bv_self_clear(bv_t *self)
 
 	aabb_self_clear(&(self->aabb));
 
-	sphere_self_clear(&(self->sphere));
+	sphere_self_clear(self->sphere);
 
 	return true;
 }
@@ -190,7 +183,7 @@ bool bv_validate(bv_t * rhs)
 	}
 
 	fvec3_sub(vtmp.v, rhs->aabb.mins, rhs->sphere.origin.v);
-	radius_2 = fvec3_length_2(vtmp.v);
+	radius_2 = fvec3_length_2(vtmp);
 	if (0.0f == radius_2)
 	{
 		rhs->sphere.radius = 0.0f;

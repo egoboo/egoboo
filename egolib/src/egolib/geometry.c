@@ -561,7 +561,7 @@ geometry_rv sphere_intersects_sphere( const sphere_t * lhs, const sphere_t * rhs
     fvec3_sub( vdiff.v, lhs->origin.v, rhs->origin.v );
 
     // get the distance squared
-    dist2 = fvec3_length_2( vdiff.v );
+    dist2 = fvec3_length_2( vdiff );
 
     if ( rhs->radius < lhs->radius )
     {
@@ -622,7 +622,7 @@ geometry_rv cone_intersects_point( const cone_t * K, const fvec3_base_t P )
         float dist_2, perp_dist_2, para_dist_2;
 
         // the square of the total distance
-        dist_2 = fvec3_length_2( dist_vec.v );
+        dist_2 = fvec3_length_2( dist_vec );
 
         // the square of the parallel distance
         para_dist_2 = para_dist * para_dist;

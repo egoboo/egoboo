@@ -187,11 +187,3 @@ namespace Ego
 // avoid subtraction from unsigned values
 #define DYNAMIC_ARY_CAN_ADD_ELEMENTS_RAW(PARY) ( ((PARY)->cp > 0) && ((PARY)->top >= 0) && (((size_t)(PARY)->top) + 1 < (PARY)->cp) )
 #define DYNAMIC_ARY_CAN_ADD_ELEMENTS(PARY) ( (NULL != (PARY)) && DYNAMIC_ARY_CAN_ADD_ELEMENTS_RAW(PARY) )
-
-
-// Declarations of dynamic arrays of value types.
-DECLARE_DYNAMIC_ARY(char_ary, char)
-DECLARE_DYNAMIC_ARY(short_ary, short)
-DECLARE_DYNAMIC_ARY(int_ary, int)
-DECLARE_DYNAMIC_ARY(float_ary, float)
-DECLARE_DYNAMIC_ARY(double_ary, double)

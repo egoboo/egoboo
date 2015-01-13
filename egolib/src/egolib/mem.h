@@ -18,12 +18,37 @@
 //********************************************************************************************
 
 /// @file egolib/mem.h
-/// @details Macros to control allocation and deallocation of memory
+/// @details Allocation, reallocation, deallocation and manipulation of memory blocks and array memory blocks
 
 #pragma once
 
-#define EGOBOO_NEW( TYPE ) (TYPE *)calloc(1, sizeof(TYPE))
-#define EGOBOO_NEW_ARY( TYPE, COUNT ) (TYPE *)calloc(COUNT, sizeof(TYPE))
+/**
+ * @brief
+ *	Allocate a memory block of @a sz Bytes.
+ * @param sz
+ *	the size, in Bytes, of the memory block
+ * @return
+ *	a pointer to the memory block on success, @a NULL on failure
+ * @remark
+ *	@a 0 is a valid value for @a sz.
+ *  This corresponds to C++ semantics where <tt>new T[0]</tt> for some type @a T returns a non-null pointer.
+ */
+void *EgoNew(size_t sz);
+
+/**
+ * @brief
+ *	Allocate an array memory block of @a sz*esz Bytes.
+ * @param sz the number of elements in the array
+ * @param esz the size, in Bytes, of an element of the array
+ * @return a pointer to the memory block on success, @a NULL on failure
+ * @remark
+ *	@a 0 is a valid value for @a sz and/or @a esz.
+ *  This corresponds to C++ semantics where <tt>new T[0]</tt> for some type @a T returns a non-null pointer.
+ */
+void *EgoNew(size_t sz, size_t esz);
+
+#define EGOBOO_NEW(TYPE) (TYPE *)EgoNew(1, sizeof(TYPE))
+#define EGOBOO_NEW_ARY(TYPE,COUNT) (TYPE *)EgoNew(COUNT, sizeof(TYPE))
 
 #define EGOBOO_DELETE(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }
 #define EGOBOO_DELETE_ARY(PTR) if(NULL != PTR) { free(PTR); PTR = NULL; }

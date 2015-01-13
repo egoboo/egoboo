@@ -1496,7 +1496,7 @@ float grid_get_mix( float u0, float u, float v0, float v )
 }
 
 //--------------------------------------------------------------------------------------------
-BIT_FIELD ego_mesh_test_wall( const ego_mesh_t * pmesh, const float pos[], const float radius, const BIT_FIELD bits, mesh_wall_data_t * pdata )
+BIT_FIELD ego_mesh_test_wall( const ego_mesh_t *pmesh, const float pos[], const float radius, const BIT_FIELD bits, mesh_wall_data_t * pdata )
 {
     /// @author BB
     /// @details an abstraction of the functions of chr_hit_wall() and prt_hit_wall()
@@ -1504,10 +1504,8 @@ BIT_FIELD ego_mesh_test_wall( const ego_mesh_t * pmesh, const float pos[], const
     mesh_wall_data_t loc_data;
 
     BIT_FIELD pass;
-    int   ix, iy;
+    int ix, iy;
     float loc_radius;
-
-    ego_irect_t bound;
 
     // deal with the optional parameters
     if ( NULL == pdata ) pdata = &loc_data;
@@ -1551,6 +1549,7 @@ BIT_FIELD ego_mesh_test_wall( const ego_mesh_t * pmesh, const float pos[], const
 
     // find an integer bound.
     // we need to know about out of range values below clamp these to valid values
+	ego_irect_t bound;
     bound.xmin = FLOOR( pdata->fx_min / GRID_FSIZE );
     bound.xmax = FLOOR( pdata->fx_max / GRID_FSIZE );
     bound.ymin = FLOOR( pdata->fy_min / GRID_FSIZE );

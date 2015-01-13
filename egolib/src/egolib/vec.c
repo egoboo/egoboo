@@ -390,9 +390,12 @@ bool fvec3_self_sum(fvec3_base_t A, const fvec3_base_t B)
 //--------------------------------------------------------------------------------------------
 float fvec3_length_abs(const fvec3_t& v)
 {
+	return v.length_abs();
+#if 0
 	float l_abs = std::abs(v[kX]) + std::abs(v[kY]) + std::abs(v[kZ]);
 	LOG_NAN(l_abs);
 	return l_abs;
+#endif
 }
 float fvec3_length_abs(const fvec3_base_t v)
 {
@@ -404,9 +407,7 @@ float fvec3_length_abs(const fvec3_base_t v)
 //--------------------------------------------------------------------------------------------
 float fvec3_length_2(const fvec3_t& v)
 {
-	float l2 = v[kX] * v[kX] + v[kY] * v[kY] + v[kZ] * v[kZ];
-	LOG_NAN(l2);
-	return l2;
+	return v.squaredLength();
 }
 
 float fvec3_length_2(const fvec3_base_t v)
@@ -422,14 +423,18 @@ float fvec3_length_2(const fvec3_base_t v)
 //--------------------------------------------------------------------------------------------
 float fvec3_length(const fvec3_t& v)
 {
-	return std::sqrt(fvec3_length_2(v));
+	return v.length();
 }
 float fvec3_length(const fvec3_base_t v)
 {
 	return std::sqrt(fvec3_length_2(v));
 }
 //--------------------------------------------------------------------------------------------
-float * fvec3_add(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS)
+fvec3_t fvec3_add(const fvec3_t& u, const fvec3_t& v)
+{
+	return fvec3_t(u.x + v.x, u.y + v.y, u.z + v.z);
+}
+float *fvec3_add(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS)
 {
 	if (NULL == DST)
 	{
@@ -465,7 +470,11 @@ float * fvec3_add(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t R
 }
 
 //--------------------------------------------------------------------------------------------
-float * fvec3_sub(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS)
+fvec3_t fvec3_sub(const fvec3_t& u, const fvec3_t& v)
+{
+	return fvec3_t(u.x - v.x, u.y - v.y, u.z - v.z);
+}
+float *fvec3_sub(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS)
 {
 	if (NULL == DST)
 	{
@@ -505,7 +514,11 @@ float * fvec3_sub(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t R
 }
 
 //--------------------------------------------------------------------------------------------
-float * fvec3_scale(fvec3_base_t DST, const fvec3_base_t SRC, const float B)
+fvec3_t fvec3_scale(const fvec3_t& v, float s)
+{
+	return fvec3_t(v.x * s, v.y * s, v.z * s);
+}
+float *fvec3_scale(fvec3_base_t DST, const fvec3_base_t SRC, const float B)
 {
 
 	if (NULL == DST)
@@ -534,7 +547,7 @@ float * fvec3_scale(fvec3_base_t DST, const fvec3_base_t SRC, const float B)
 }
 
 //--------------------------------------------------------------------------------------------
-float * fvec3_normalize(fvec3_base_t DST, const fvec3_base_t SRC)
+float *fvec3_normalize(fvec3_base_t DST, const fvec3_base_t SRC)
 {
 	if (NULL == DST)
 	{
@@ -570,6 +583,10 @@ float * fvec3_normalize(fvec3_base_t DST, const fvec3_base_t SRC)
 }
 
 //--------------------------------------------------------------------------------------------
+float fvec3_self_normalize(fvec3_t& v)
+{
+	return v.normalize();
+}
 float fvec3_self_normalize(fvec3_base_t A)
 {
 	float len = -1.0f;

@@ -23,7 +23,7 @@
 
 #include "egolib/vec.h"
 
-typedef float  fmat_4x4_base_t[16];      ///< the basic 4x4 single precision floating point ("float")  matrix type
+typedef float fmat_4x4_base_t[16];      ///< the basic 4x4 single precision floating point ("float")  matrix type
 #if 0
 typedef double dmat_4x4_base_t[16];      ///< the basic 4x4 double precision floating point ("double") matrix type
 #endif

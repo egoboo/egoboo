@@ -37,31 +37,29 @@ struct sphere_t
 
 /**
  * @brief
- *	Construct a sphere.
+ *	Construct a sphere assigning it a sphere's default values.
  * @param self
- *	a pointer to the uninitialized sphere_t object
- * @post
- *	the sphere_t object pointed by @a self is initialized with a sphere's default values
+ *	this sphere
  * @remark
- *	The default values of a sphere are a radius of @a -1 and a position of @a (0,0,0).
+ *	The default values of a sphere are a radius of @a 0 and a position of @a (0,0,0).
  */
-sphere_t *sphere_ctor(sphere_t *self);
+sphere_t *sphere_ctor(sphere_t& self);
 
 /**
  * @brief
- *	Destruct a sphere.
+ *	Destruct this sphere.
  * @param self
- *	a pointer to the sphere
+ *	this sphere
  */
-sphere_t *sphere_dtor(sphere_t *self);
+sphere_t *sphere_dtor(sphere_t& self);
 
 /**
  * @brief
- *	"Clear" a sphere i.e. assign it its default values.
+ *	Assign this sphere the default values of a sphere.
  * @param self
- *	a pointer to the sphere
+ *	this sphere
  */
-bool sphere_self_clear(sphere_t *self);
+bool sphere_self_clear(sphere_t& self);
 
 /**
  * @brief

@@ -250,7 +250,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // vector definitions
 
-    enum { kX = 0, kY, kZ, kW };             ///< Enumerated indices for the elements of the base vector types
 
 #if 0
     typedef double dvec2_base_t[2];          ///< the basic double precision 2-vector type

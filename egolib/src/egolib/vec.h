@@ -25,11 +25,18 @@
 #include "egolib/typedef.h"
 #include "egolib/_math.h"
 
+/**
+ * @brief
+ *	Enumerated indices for the elements of vectors.
+ */
+enum { kX = 0, kY, kZ, kW };
+
+
 typedef float fvec2_base_t[2];           ///< the basic floating point 2-vector type
 typedef float fvec3_base_t[3];           ///< the basic floating point 3-vector type
 typedef float fvec4_base_t[4];           ///< the basic floating point 4-vector type
 
-/// A 2-vector type that allows more than one form of access
+/// A 2-vector type that allows more than one form of access.
 struct fvec2_t
 {
 	union
@@ -66,9 +73,89 @@ struct fvec2_t
 		EGOBOO_ASSERT(index < 2);
 		return this->v[index];
 	}
+	/**
+	 * @brief
+	 *	Multiply this vector by a scalar.
+	 * @param scalar
+	 *	the scalar
+	 * @post
+	 *	The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
+	 */
+	void multiply(float scalar)
+	{
+		this->v[kX] *= scalar;
+		this->v[kY] *= scalar;
+	}
+	/**
+	 * @brief
+	 *	Normalize this vector.
+	 * @return
+	 *	the old length of this vector
+	 * @post
+	 *	If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
+	 *	and is assigned <tt>(*this) / l</tt> (where @a l is the old length of <tt>(*this)</tt>) otherwise.
+	 */
+	float normalize()
+	{
+		float l = length();
+		if (l > 0.0f)
+		{
+			multiply(1.0f / l);
+		}
+		return l;
+	}
+	/**
+	 * @brief
+	 *	Get if this vector equals another vectors.
+	 * @param other
+	 *	the other vector
+	 * @return
+	 *	@a true if this vector equals the other vector
+	 */
+	bool equals(const fvec2_t& other)
+	{
+		return this->x == other.x
+			&& this->y == other.y
+			;
+	}
+	/**
+	 * @brief
+	 *	Get the squared length of this vector
+	 *	(using the Euclidian metric).
+	 * @return
+	 *	the squared length of this vector
+	 */
+	float squaredLength() const
+	{
+		return this->v[kX] * this->v[kX]
+	 		 + this->v[kY] * this->v[kY]
+			 ;
+	}
+	/**
+	 * @brief
+	 *	Get the length of this vector
+	 *	(using the Euclidian metric).
+	 * @return
+	 *	the length of this vector
+	 */
+	float length() const
+	{
+		return std::sqrt(squaredLength());
+	}
+	/**
+	 * @brief
+	 *	Get the length of this vector
+	 *	(using the taxicab metric).
+	 * @return
+	 *	the length of this vector
+	 */
+	float length_abs() const
+	{
+		return std::abs(this->v[kX]) + std::abs(this->v[kY]);
+	}
 };
 
-/// A 3-vector type that allows more than one form of access
+/// A 3-vector type that allows more than one form of access.
 struct fvec3_t
 {
 	union
@@ -107,9 +194,92 @@ struct fvec3_t
 		EGOBOO_ASSERT(index < 3);
 		return this->v[index];
 	}
+	/**
+	 * @brief
+	 *	Multiply this vector by a scalar.
+	 * @param scalar
+	 *	the scalar
+	 * @post
+	 *	The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
+	 */
+	void multiply(float scalar)
+	{
+		this->v[kX] *= scalar;
+		this->v[kY] *= scalar;
+		this->v[kZ] *= scalar;
+	}
+	/**
+	 * @brief
+	 *	Normalize this vector.
+	 * @return
+	 *	the old length of this vector
+	 * @post
+	 *	If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
+	 *	and is assigned <tt>(*this) / l</tt> (where @a l is the old length of <tt>(*this)</tt>) otherwise.
+	 */
+	float normalize()
+	{
+		float l = length();
+		if (l > 0.0f)
+		{
+			multiply(1.0f / l);
+		}
+		return l;
+	}
+	/**
+	* @brief
+	*	Get if this vector equals another vectors.
+	* @param other
+	*	the other vector
+	* @return
+	*	@a true if this vector equals the other vector
+	*/
+	bool equals(const fvec3_t& other)
+	{
+		return this->x == other.x
+			&& this->y == other.y
+			&& this->z == other.z
+			;
+	}
+	/**
+ 	 * @brief
+	 *	Get the squared length of this vector
+	 *	(using the Euclidian metric).
+	 * @return
+	 *	the squared length of this vector
+	 */
+	float squaredLength() const
+	{
+		return this->v[kX] * this->v[kX]
+			 + this->v[kY] * this->v[kY]
+			 + this->v[kZ] * this->v[kZ]
+			 ;
+	}
+	/**
+	 * @brief
+	 *	Get the length of this vector
+	 *	(using the Euclidian metric).
+	 * @return
+	 *	the length of this vector
+	 */
+	float length() const
+	{
+		return std::sqrt(squaredLength());
+	}
+	/**
+	 * @brief
+	 *	Get the length of this vector
+	 *	(using the taxicab metric).
+	 * @return
+	 *	the length of this vector
+	 */
+	float length_abs() const
+	{
+		return std::abs(this->v[kX]) + std::abs(this->v[kY]) + std::abs(this->v[kZ]);
+	}
 };
 
-/// A 4-vector type that allows more than one form of access
+/// A 4-vector type that allows more than one form of access.
 struct fvec4_t
 {
 	union
@@ -143,21 +313,96 @@ struct fvec4_t
 		EGOBOO_ASSERT(index < 4);
 		return this->v[index];
 	}
+	/**
+	 * @brief
+	 *	Multiply this vector by a scalar.
+	 * @param scalar
+	 *	the scalar
+	 * @post
+	 *	The product <tt>scalar * (*this)</tt> was assigned to <tt>*this</tt>.
+	 */
+	void multiply(float scalar)
+	{
+		this->v[kX] *= scalar;
+		this->v[kY] *= scalar;
+		this->v[kZ] *= scalar;
+		this->v[kW] *= scalar;
+	}
+	/**
+	 * @brief
+	 *	Normalize this vector.
+	 * @return
+	 *	the old length of this vector
+	 * @post
+	 *	If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
+	 *	and is assigned <tt>(*this) / l</tt> (where @a l is the old length of <tt>(*this)</tt>) otherwise.
+	 */
+	float normalize()
+	{
+		float l = length();
+		if (l > 0.0f)
+		{
+			multiply(1.0f / l);
+		}
+		return l;
+	}
+	/**
+	 * @brief
+	 *	Get if this vector equals another vectors.
+	 * @param other
+	 *	the other vector
+	 * @return
+	 *	@a true if this vector equals the other vector
+	 */
+	bool equals(const fvec4_t& other)
+	{
+		return this->x == other.x
+			&& this->y == other.y
+			&& this->z == other.z
+			&& this->w == other.w
+			;
+	}
+	/**
+	 * @brief
+	 *	Get the squared length of this vector
+	 *	(using the Euclidian metric).
+	 * @return
+	 *	the squared length of this vector
+	 */
+	float squaredLength() const
+	{
+		return this->v[kX] * this->v[kX]
+			 + this->v[kY] * this->v[kY]
+			 + this->v[kZ] * this->v[kZ]
+			 + this->v[kW] * this->v[kW]
+			 ;
+	}
+	/**
+	 * @brief
+	 *	Get the length of this vector
+	 *	(using the Euclidian metric).
+	 * @return
+	 *	the length of this vector
+	 */
+	float length() const
+	{
+		return std::sqrt(squaredLength());
+	}
+	/**
+	 * @brief
+	 *	Get the length of this vector
+	 *	(using the taxicab metric).
+	 * @return
+	 *	the length of this vector
+	 */
+	float length_abs() const
+	{
+		return std::abs(this->v[kX]) + std::abs(this->v[kY]) + std::abs(this->v[kZ]) + std::abs(this->v[kW]);
+	}
 };
 
-// macros for initializing vectors to zero
-#if 0
-#define ZERO_VECT2   { {0.0f,0.0f} }
-#endif
-#define ZERO_VECT3   { {0.0f,0.0f,0.0f} }
-#define ZERO_VECT4   { {0.0f,0.0f,0.0f,0.0f} }
+/// @todo Move to <tt>matrix.h</tt>.
 #define ZERO_MAT_4X4 { {0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f} }
-
-// Macros for initializing vectors to specific values.
-// Most C compilers will allow you to initialize to non-constant values, but they do complain.
-#define VECT2(XX,YY) { {XX,YY} }
-#define VECT3(XX,YY,ZZ) { {XX,YY,ZZ} }
-#define VECT4(XX,YY,ZZ,WW) { {XX,YY,ZZ,WW} }
 
 #if defined(TEST_NAN_RESULT)
 	#define LOG_NAN_FVEC2(XX)      if( !fvec2_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
@@ -231,7 +476,8 @@ bool   fvec3_self_scale(fvec3_t& v, const float s);
 bool   fvec3_self_scale(fvec3_base_t v, const float s); // @todo Remove this.
 
 bool   fvec3_self_sum(fvec3_base_t A, const fvec3_base_t RHS);
-float  fvec3_self_normalize(fvec3_base_t A);
+float  fvec3_self_normalize(const fvec3_t& v);
+float  fvec3_self_normalize(fvec3_base_t v);
 float  fvec3_self_normalize_to(fvec3_base_t A, const float B);
 /**
  * @brief
@@ -282,10 +528,15 @@ float fvec3_dot_product(const fvec3_t& u, const fvec3_t& v);
 float  fvec3_dist_abs(const fvec3_base_t LHS, const fvec3_base_t RHS);
 float  fvec3_dist_2(const fvec3_base_t LHS, const fvec3_base_t RHS);
 float *fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC);
+fvec3_t fvec3_scale(const fvec3_t& v, float s);
 float *fvec3_scale(fvec3_base_t DST, const fvec3_base_t SRC, const float B);
 float *fvec3_normalize(fvec3_base_t DST, const fvec3_base_t SRC);
+
+fvec3_t fvec3_add(const fvec3_t& u, const fvec3_t& v);
 float *fvec3_add(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS);
+fvec3_t fvec3_sub(const fvec3_t& u, const fvec3_t& v);
 float *fvec3_sub(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS);
+
 float *fvec3_cross_product(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS);
 float  fvec3_decompose(const fvec3_base_t src, const fvec3_base_t vnrm, fvec3_base_t vpara, fvec3_base_t vperp);
 

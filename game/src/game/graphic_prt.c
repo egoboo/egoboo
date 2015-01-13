@@ -817,7 +817,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
     }
     else if ( ORIENTATION_H == pinst->orientation )
     {
-        fvec3_t vert = VECT3( 0, 0, 1 );
+        fvec3_t vert = fvec3_t(0.0f, 0.0f, 1.0f);
 
         // force right to be horizontal
         fvec3_cross_product( vright.v, vfwd.v, vert.v );

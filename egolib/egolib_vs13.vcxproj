@@ -139,6 +139,7 @@
     </Xdcmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\mem.c" />
     <ClCompile Include="src\egolib\bv.c" />
     <ClCompile Include="src\egolib\DynamicArray.cpp" />
     <ClCompile Include="src\egolib\aabb.c" />

@@ -41,10 +41,28 @@ struct aabb_t
 	float maxs[3]; /**< @todo Use fvec3_t. */
 };
 
-aabb_t *aabb_ctor(aabb_t *self);
-aabb_t *aabb_dtor(aabb_t *self);
-bool aabb_copy(aabb_t * pdst, const aabb_t * psrc);
+/**
+ * @brief
+ *	Construct this bounding box.
+ * @param self
+ *	the bounding box
+ * @post
+ *	This bounding box is set to an empty set.
+ */
+aabb_t *aabb_ctor(aabb_t& self);
+/**
+ * @brief
+ *	Destruct a bounding box.
+ * @param self
+ *	the bounding box
+ */
+aabb_t *aabb_dtor(aabb_t& self);
+bool aabb_copy(aabb_t& self, const aabb_t& other);
 bool aabb_self_clear(aabb_t * pdst);
+/**
+ * @brief
+ *	Get if
+ */
 bool aabb_is_clear(const aabb_t * pdst);
 
 bool aabb_from_oct_bb(aabb_t * dst, const struct oct_bb_t * src);

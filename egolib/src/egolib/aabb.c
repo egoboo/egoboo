@@ -22,42 +22,33 @@
 #include "egolib/bbox.h"
 
 //--------------------------------------------------------------------------------------------
-aabb_t *aabb_ctor(aabb_t *self)
+aabb_t *aabb_ctor(aabb_t& self)
 {
-	if (nullptr == self) return self;
 	for (size_t i = 0; i < 3; ++i)
 	{
-		self->mins[i] = self->maxs[i] = 0.0f;
+		self.mins[i] = self.maxs[i] = 0.0f;
 	}
-	return self;
+	return &self;
 }
 
 //--------------------------------------------------------------------------------------------
-aabb_t *aabb_dtor(aabb_t *self)
+aabb_t *aabb_dtor(aabb_t& self)
 {
-	if (nullptr == self) return self;
 	for (size_t i = 0; i < 3; ++i)
 	{
-		self->mins[i] = self->maxs[i] = 0.0f;
+		self.mins[i] = self.maxs[i] = 0.0f;
 	}
-	return self;
+	return &self;
 }
 
 //--------------------------------------------------------------------------------------------
 
-bool aabb_copy(aabb_t * pdst, const aabb_t * psrc)
+bool aabb_copy(aabb_t& dst, const aabb_t& src)
 {
-	size_t cnt;
-
-	if (NULL == pdst || NULL == psrc)
+	for (size_t cnt = 0; cnt < 3; cnt++)
 	{
-		return false;
-	}
-
-	for (cnt = 0; cnt < 3; cnt++)
-	{
-		pdst->mins[cnt] = psrc->mins[cnt];
-		pdst->maxs[cnt] = psrc->maxs[cnt];
+		dst.mins[cnt] = src.mins[cnt];
+		dst.maxs[cnt] = src.maxs[cnt];
 	}
 
 	return true;
@@ -68,12 +59,9 @@ bool aabb_self_clear(aabb_t * psrc)
 {
 	/// @author BB
 	/// @details Return this bounding box to an empty state.
-
-	Uint32 cnt;
-
 	if (NULL == psrc) return false;
 
-	for (cnt = 0; cnt < 3; cnt++)
+	for (size_t cnt = 0; cnt < 3; cnt++)
 	{
 		psrc->mins[cnt] = psrc->maxs[cnt] = 0.0f;
 	}

@@ -130,7 +130,7 @@ bool obj_BSP_ctor(obj_BSP_t *self, int bsp_dim, const mesh_BSP_t *mesh_bsp)
         obj_tree->bsp_bbox.mids.ary[cnt] = 0.5f * ( obj_tree->bsp_bbox.mins.ary[cnt] + obj_tree->bsp_bbox.maxs.ary[cnt] );
     }
 
-    BSP_aabb_validate( &( obj_tree->bsp_bbox ) );
+    BSP_aabb_validate(obj_tree->bsp_bbox);
 
     return true;
 }

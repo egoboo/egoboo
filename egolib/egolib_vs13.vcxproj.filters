@@ -234,6 +234,9 @@
     <ClCompile Include="src\egolib\DynamicArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\mem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">

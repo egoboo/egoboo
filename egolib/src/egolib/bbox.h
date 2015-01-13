@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include "egolib/_math.h"
 #include "egolib/vec.h"
 #include "egolib/platform.h"
 

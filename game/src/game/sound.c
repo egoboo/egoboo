@@ -1184,9 +1184,9 @@ void looped_update_all_sound()
         if ( !INGAME_CHR( plooped->object ) )
         {
             // not a valid object
-            fvec3_t   diff_tmp   = VECT3( 0, 0, 0 );
-            fvec3_t   cam_pos_tmp = VECT3( 0, 0, 0 );
-            fvec3_t   cam_center_tmp = VECT3( 0, 0, 0 );
+            fvec3_t diff_tmp   = fvec3_t::zero;
+            fvec3_t cam_pos_tmp = fvec3_t::zero;
+            fvec3_t cam_center_tmp = fvec3_t::zero;
 
             _update_stereo_channel( plooped->channel, cam_pos_tmp.v, cam_center_tmp.v, diff_tmp.v, 0.0f );
         }
