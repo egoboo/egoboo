@@ -104,15 +104,10 @@
 //--------------------------------------------------------------------------------------------
 // SDL.
 #include <SDL.h>
-#include <SDL_endian.h>
-#include <SDL_stdinc.h>
-#include <SDL_types.h>
-#include <SDL_rwops.h>
-#include <SDL_thread.h>
 #include <SDL_image.h>
-#include <SDL_ttf.h>
-#include <SDL_opengl.h>
 #include <SDL_mixer.h>
+#include <SDL_opengl.h>
+#include <SDL_ttf.h>
 
 //--------------------------------------------------------------------------------------------
 // Fast file I/O. This is available under Windows, Linux and Mac OS X. 
