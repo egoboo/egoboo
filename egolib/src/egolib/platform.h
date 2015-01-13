@@ -115,8 +115,10 @@
 
 //--------------------------------------------------------------------------------------------
 // Exclusive C++ headers from here on.
+#include <array>
 #include <algorithm>
 #include <functional>
+#include <string>
 #include <vector>
 
 

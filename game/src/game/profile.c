@@ -178,7 +178,7 @@ pro_t::pro_t() :
     imad(INVALID_MAD_REF),
     ieve(INVALID_EVE_REF),
     ai_script(),
-    prtpip({0}),
+    prtpip{0},
     skin_gfx_cnt(0),
 //    tex_ref({INVALID_TX_REF}),
 //    ico_ref({INVALID_TX_REF})
