@@ -27,6 +27,7 @@
 #include "game/char.h"
 #include "game/mesh.h"
 #include "game/ChrList.h"
+#include "game/audio/AudioSystem.hpp"
 
 Passage::Passage() :
     _area(),
@@ -259,7 +260,7 @@ bool Passage::isPointInside( float xpos, float ypos ) const
 
 bool Passage::checkPassageMusic(const chr_t * pchr) const
 {
-    if ( _music == NO_MUSIC || _music == get_current_song_playing() ) {
+    if ( _music == INVALID_SOUND_ID || _music == _audioSystem.getCurrentMusicPlaying() ) {
        return false; 
     } 
 
@@ -268,7 +269,7 @@ bool Passage::checkPassageMusic(const chr_t * pchr) const
     }
 
     // character is inside, start music track
-    sound_play_song( _music, 0, -1 );
+    _audioSystem.playMusic(_music);
     return true;
 }
 

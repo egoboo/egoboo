@@ -21,7 +21,7 @@
 /// @brief Manages particle systems.
 
 #include "game/particle.h"
-//#include "game/sound.h"
+#include "game/audio/AudioSystem.hpp"
 #include "game/game.h"
 #include "game/mesh.h"
 #include "game/obj_BSP.h"
@@ -186,15 +186,17 @@ void prt_play_sound( const PRT_REF particle, Sint8 sound )
     if ( !DEFINED_PRT( particle ) ) return;
     pprt = PrtList_get_ptr( particle );
 
-    if ( !VALID_SND( sound ) ) return;
+    if(sound < 0 || sound > MAX_WAVE) {
+        return;
+    }
 
     if ( LOADED_PRO( pprt->profile_ref ) )
     {
-        sound_play_chunk( prt_get_pos_v_const( pprt ), pro_get_chunk( pprt->profile_ref, sound ) );
+        _audioSystem.playSound( pprt->pos, ProList_get_ptr(pprt->profile_ref)->getSoundID(sound) );
     }
-    else
+    else if (sound < GSND_COUNT)
     {
-        sound_play_chunk( prt_get_pos_v_const( pprt ), g_wavelist[sound] );
+        _audioSystem.playSound( pprt->pos, _audioSystem.getGlobalSound(static_cast<GlobalSound>(sound)) );
     }
 }
 
@@ -2493,8 +2495,8 @@ PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
         return INVALID_PIP_REF;
     }
 
-    ppip->end_sound = CLIP<Sint8>( ppip->end_sound, INVALID_SOUND, MAX_WAVE );
-    ppip->soundspawn = CLIP<Sint8>( ppip->soundspawn, INVALID_SOUND, MAX_WAVE );
+    ppip->end_sound = CLIP<Sint8>( ppip->end_sound, INVALID_SOUND_ID, MAX_WAVE );
+    ppip->soundspawn = CLIP<Sint8>( ppip->soundspawn, INVALID_SOUND_ID, MAX_WAVE );
 
     return ipip;
 }

@@ -29,9 +29,6 @@
 
 #include "egolib/_math.h"
 
-// includes for egoboo constants
-#include "game/sound.h"       // for INVALID_SOUND
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 eve_t * eve_init( eve_t * peve )
@@ -40,7 +37,7 @@ eve_t * eve_init( eve_t * peve )
 
     BLANK_STRUCT_PTR( peve )
 
-    peve->endsound_index = INVALID_SOUND;
+    peve->endsound_index = -1;
 
     return peve;
 }
@@ -390,7 +387,7 @@ bool save_one_enchant_file_vfs( const char* szLoadName, const char * szTemplateN
         vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'F', 'A', 'C', 'E' ), peve->contspawn_delay );
     }
 
-    if ( INVALID_SOUND != peve->endsound_index )
+    if ( -1 != peve->endsound_index )
     {
         vfs_put_expansion( filewrite, "", MAKE_IDSZ( 'S', 'E', 'N', 'D' ), peve->endsound_index );
     }

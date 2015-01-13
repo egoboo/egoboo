@@ -24,8 +24,6 @@
 #include "game/egoboo.h"
 #include "game/script.h"     //for script_info_t
 #include "game/char.h"
-//#include "game/particle.h"
-//#include "game/enchant.h"
 #include "game/mad.h"
 
 //--------------------------------------------------------------------------------------------
@@ -37,10 +35,10 @@ struct mad_t;
 struct eve_t;
 struct s_pip;
 
-struct Mix_Chunk;
-
 struct s_mpd_BSP;
 struct s_prt_bundle;
+
+typedef int SoundID;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -116,9 +114,29 @@ chop_definition_t * chop_definition_init( chop_definition_t * pdefinition );
 //--------------------------------------------------------------------------------------------
 
 /// a wrapper for all the datafiles in the *.obj dir
-struct pro_t
+class pro_t
 {
-    EGO_PROFILE_STUFF
+public:
+    pro_t();
+
+    /// @author ZF
+    /// @details This adds one string to the list of messages associated with a profile. The function will
+    //              dynamically allocate more memory if there are more messages than array size
+    //  @param filterDuplicates don't add it if it already exists
+    void addMessage(const std::string &message, const bool filterDuplicates = false);
+
+    /**
+    * @return a string loaded into the specified index, or an empty string if the index is not valid
+    **/
+    const std::string& getMessage(size_t index) const;
+
+    SoundID getSoundID(int index) const;
+
+public:
+    bool loaded;                    /** Was the data read in? */
+    STRING name;                    /** Usually the source filename */
+    int    request_count;           /** the number of attempted spawnx */
+    int    create_count;            /** the number of successful spawns */
 
     // the sub-profiles
     CAP_REF icap;                             ///< the cap for this profile
@@ -134,16 +152,14 @@ struct pro_t
     TX_REF  tex_ref[MAX_SKIN];                ///< References to the icon textures
     TX_REF  ico_ref[MAX_SKIN];                ///< References to the skin textures
 
-    // the profile message info
-    ego_message_t * message_ary;              ///< Dynamic array of messages
-    size_t          message_count;            ///< Actual number of messages in the array
-    size_t          message_length;           ///< Length of the dynamic array
-
     /// the random naming info
     chop_definition_t chop;
 
+    // the profile message info
+    std::vector<std::string> _messageList;   ///< Dynamic array of messages
+
     // sounds
-    struct Mix_Chunk *  wavelist[MAX_WAVE];             ///< sounds in a object
+    std::array<SoundID, 30> _soundList;             ///< sounds in a object
 };
 
 //--------------------------------------------------------------------------------------------
@@ -163,7 +179,7 @@ bool  ProList_free_one( const PRO_REF object_ref );
 // utility macros
 #define VALID_PRO_RANGE( IPRO ) ( ((IPRO) >= 0) && ((IPRO) < MAX_PROFILE) )
 #define LOADED_PRO( IPRO )       ( VALID_PRO_RANGE( IPRO ) && LOADED_PRO_RAW( IPRO ) )
-#define IS_VALID_MESSAGE_PRO( IPRO, MESSAGE ) ( LOADED_PRO(IPRO) && MESSAGE > 0 && MESSAGE < ProList.lst[IPRO].message_count )
+#define IS_VALID_MESSAGE_PRO( IPRO, MESSAGE ) ( LOADED_PRO(IPRO) && MESSAGE >= 0 && MESSAGE < ProList.lst[IPRO]._messageList.size() )
 
 // utility macros without range checking
 #define LOADED_PRO_RAW( IPRO )   ( ProList.lst[IPRO].loaded )
@@ -192,7 +208,6 @@ bool release_one_pro( const PRO_REF object_ref );
 bool release_one_local_pips( const PRO_REF object_ref );
 
 int load_one_profile_vfs( const char* tmploadname, int slot_override );
-void profile_add_one_message( pro_t *pobject, const ego_message_t add_message );
 
 const char *  chop_create( chop_data_t * pdata, chop_definition_t * pdef );
 bool        chop_load_vfs( chop_data_t * pchop_data, const char *szLoadname, chop_definition_t * pchop_definition );
@@ -208,4 +223,3 @@ cap_t *     pro_get_pcap( const PRO_REF iobj );
 mad_t *     pro_get_pmad( const PRO_REF iobj );
 eve_t *     pro_get_peve( const PRO_REF iobj );
 pip_t *     pro_get_ppip( const PRO_REF iobj, int pip_index );
-Mix_Chunk * pro_get_chunk( const PRO_REF iobj, int index );

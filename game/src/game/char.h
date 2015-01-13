@@ -49,7 +49,7 @@ struct billboard_data_t;
 struct mesh_wall_data_t;
 
 struct s_prt;
-struct pro_t;
+class pro_t;
 
 //--------------------------------------------------------------------------------------------
 // internal structs

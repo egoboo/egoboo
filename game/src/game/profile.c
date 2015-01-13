@@ -31,6 +31,7 @@
 #include "game/PrtList.h"
 #include "game/mesh.h"
 #include "game/particle.h"
+#include "game/audio/AudioSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -168,31 +169,66 @@ void profile_system_end()
     }
 }
 
+pro_t::pro_t() :
+    loaded(false),
+ //   name({'\0'}),
+    request_count(0),
+    create_count(0),
+    icap(INVALID_CAP_REF),
+    imad(INVALID_MAD_REF),
+    ieve(INVALID_EVE_REF),
+    ai_script(),
+    prtpip({0}),
+    skin_gfx_cnt(0),
+//    tex_ref({INVALID_TX_REF}),
+//    ico_ref({INVALID_TX_REF})
+    _messageList(),
+    _soundList(),
+    chop()
+{
+    for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
+    {
+        tex_ref[cnt] = INVALID_TX_REF;
+        ico_ref[cnt] = INVALID_TX_REF;
+    }
+
+    for (size_t cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ ) {
+        prtpip[cnt] = INVALID_PIP_REF;
+    }
+
+    _soundList.fill(INVALID_SOUND_ID);
+
+    chop_definition_init( &( chop ) );
+    strncpy( name, "*NONE*", SDL_arraysize( name ) );
+    memset(&ai_script, 0, sizeof(script_info_t));
+}
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool pro_init( pro_t * pobj )
 {
     int cnt;
 
-    if ( NULL == pobj ) return false;
+    if ( nullptr == pobj ) return false;
 
     if ( pobj->loaded )
     {
         log_warning( "pro_init() - trying to init an object in use" );
     }
 
-    //Free any dynamically allocated memory
-    if ( NULL != pobj->message_ary ) free( pobj->message_ary );
-
     //---- reset everything to safe values
-    BLANK_STRUCT_PTR( pobj )
+    pobj->request_count = 0;
+    pobj->create_count = 0;
+    memset(&(pobj->ai_script), 0, sizeof(script_info_t));
+    pobj->_messageList.clear();
+    pobj->_soundList.fill(INVALID_SOUND_ID);
 
+    // the sub-profiles
     pobj->icap = INVALID_CAP_REF;
     pobj->imad = INVALID_MAD_REF;
     pobj->ieve = INVALID_EVE_REF;
 
-    for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
-    {
+    for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ ) {
         pobj->prtpip[cnt] = INVALID_PIP_REF;
     }
 
@@ -203,6 +239,7 @@ bool pro_init( pro_t * pobj )
     strncpy( pobj->name, "*NONE*", SDL_arraysize( pobj->name ) );
 
     // clear out the textures
+    pobj->skin_gfx_cnt = 0;
     for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
         pobj->tex_ref[cnt] = INVALID_TX_REF;
@@ -554,21 +591,13 @@ bool release_one_pro_data( const PRO_REF iobj )
     pobj = ProList.lst + iobj;
 
     // free all sounds
-    for ( cnt = 0; cnt < MAX_WAVE; cnt++ )
-    {
-        sound_free_chunk( pobj->wavelist[cnt] );
-        pobj->wavelist[cnt] = NULL;
-    }
+    pobj->_soundList.fill(INVALID_SOUND_ID);
 
     // release whatever textures are being used
     release_one_profile_textures( iobj );
     
     // release messages
-    if ( NULL != pobj->message_ary )
-    {
-        free( pobj->message_ary );
-        pobj->message_ary = NULL;
-    }
+    pobj->_messageList.clear();
 
     return true;
 }
@@ -735,45 +764,35 @@ int load_profile_skins_vfs( const char * tmploadname, const PRO_REF object )
 }
 
 //--------------------------------------------------------------------------------------------
-void profile_add_one_message( pro_t *pobject, const ego_message_t add_message )
+void pro_t::addMessage(const std::string &message, const bool filterDuplicates)
 {
-    /// @author ZF
-    /// @details This adds one string to the list of messages associated with a profile. The function will
-    //              dynamically allocate more memory if there are more messages than array size
-
-    size_t cnt, length;
-
-    if ( NULL == pobject ) return;
-
-    //Is this the first message that is added? Then we need to allocate an dynamic array!
-    if ( NULL == pobject->message_ary )
-    {
-        pobject->message_count = 0;
-        pobject->message_length = 10;
-        pobject->message_ary = ( ego_message_t * ) malloc( pobject->message_length * sizeof( ego_message_t ) );
-    }
-
-    //Do we need to increase the size of the array?
-    if ( pobject->message_count + 1 >= pobject->message_length )
-    {
-        pobject->message_length += 10;
-        pobject->message_ary = ( ego_message_t* ) realloc( pobject->message_ary, pobject->message_length * sizeof( ego_message_t ) );
-    }
-
-    length = strlen( add_message );
-    //if( length >= EGO_MESSAGE_SIZE ) log_warning("Trying to add message for %s - message is too long: \"%s\", length is %d while max is %d\n", pobject->name, add_message, length, EGO_MESSAGE_SIZE);
+    std::string parsedMessage = message;
 
     //replace underscore with whitespace
-    for ( cnt = 0; cnt < length; cnt++ )
-    {
-        pobject->message_ary[pobject->message_count][cnt] = ( add_message[cnt] == '_' ) ? ' ' : add_message[cnt];
+    std::replace(parsedMessage.begin(), parsedMessage.end(), '_', ' ');
+
+    //Don't add the same message twice
+    if(filterDuplicates) {
+        for(const std::string& msg : _messageList) {
+            if(msg == parsedMessage) {
+                return;
+            }
+        }
     }
 
-    //Make sure it is null terminated
-    pobject->message_ary[pobject->message_count][length] = CSTR_END;
+    //Add it to the list!
+    _messageList.push_back(parsedMessage);
+}
 
-    //Keep track of number of messages in array
-    pobject->message_count++;
+const std::string& pro_t::getMessage(size_t index) const
+{
+    static const std::string EMPTY_STRING;
+
+    if(index > _messageList.size()) {
+        return EMPTY_STRING;
+    }
+
+    return _messageList[index];
 }
 
 //--------------------------------------------------------------------------------------------
@@ -793,7 +812,7 @@ void profile_load_all_messages_vfs( const char *loadname, pro_t *pobject )
         {
             //Load one line
             vfs_get_string( fileread, line, SDL_arraysize( line ) );
-            profile_add_one_message( pobject, line );
+            pobject->addMessage(line);
         }
 
         vfs_close( fileread );
@@ -1018,7 +1037,7 @@ int load_one_profile_vfs( const char* tmploadname, int slot_override )
 
         snprintf( wavename, SDL_arraysize( wavename ), "/sound%d", cnt );
         make_newloadname( tmploadname, wavename, szLoadName );
-        pobj->wavelist[cnt] = sound_load_chunk_vfs( szLoadName );
+        pobj->_soundList[cnt] = _audioSystem.loadSound(szLoadName);
     }
 
     // Load the random naming table for this icap
@@ -1456,14 +1475,13 @@ pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index )
 }
 
 //--------------------------------------------------------------------------------------------
-Mix_Chunk * pro_get_chunk( const PRO_REF iobj, int index )
+SoundID pro_t::getSoundID( int index ) const
 {
-    pro_t * pobj;
+    if(!loaded) return INVALID_SOUND_ID;
 
-    if ( !VALID_SND( index ) ) return NULL;
+    if ( index < 0 || index >= _soundList.size() ) {
+        return INVALID_SOUND_ID;
+    }
 
-    if ( !LOADED_PRO( iobj ) ) return NULL;
-    pobj = ProList.lst + iobj;
-
-    return pobj->wavelist[index];
+    return _soundList[index];
 }
