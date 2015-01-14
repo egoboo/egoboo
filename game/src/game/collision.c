@@ -29,9 +29,10 @@
 #include "game/char.h"
 #include "game/particle.h"
 #include "game/enchant.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/physics.h"
 #include "game/audio/AudioSystem.hpp"
+#include "game/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/PrtList.h"
@@ -868,7 +869,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
         // keep track of how many objects use reaffirmation, and what kinds of reaffirmation
         if ( pchr_a->reaffirm_damagetype < DAMAGE_COUNT )
         {
-            cap_t * pcap = pro_get_pcap( pchr_a->profile_ref );
+            cap_t * pcap = _profileSystem.pro_get_pcap( pchr_a->profile_ref );
             if ( NULL != pcap && pcap->attachedprt_amount > 0 )
             {
                 // we COULD use number_of_attached_particles() to determin if the
@@ -3135,7 +3136,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     if ( INGAME_CHR( pdata->pprt->owner_ref ) )
     {
         powner = ChrList_get_ptr( pdata->pprt->owner_ref );
-        powner_cap = pro_get_pcap( powner->profile_ref );
+        powner_cap = _profileSystem.pro_get_pcap( powner->profile_ref );
     }
 
     // clean up the enchant list before doing anything
@@ -3478,7 +3479,7 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
     pdata->pchr = ChrList_get_ptr( ichr );
 
     // initialize the collision data
-    pdata->pcap = pro_get_pcap( pdata->pchr->profile_ref );
+    pdata->pcap = _profileSystem.pro_get_pcap( pdata->pchr->profile_ref );
     if ( NULL == pdata->pcap ) return false;
 
     if ( !LOADED_PIP( pdata->pprt->pip_ref ) ) return false;

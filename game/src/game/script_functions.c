@@ -37,7 +37,6 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/ai/astar.h"
-#include "game/profile.h"
 #include "game/enchant.h"
 #include "game/char.h"
 #include "game/particle.h"
@@ -46,6 +45,8 @@
 #include "game/module/PassageHandler.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
+#include "game/ProfileSystem.hpp"
+#include "game/Profile.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -60,12 +61,11 @@
 
 #define SCRIPT_FUNCTION_BEGIN() \
     chr_t * pchr; \
-    pro_t * ppro; \
     Uint8 returncode = true; \
     if( NULL == pstate || NULL == pself || !ALLOCATED_CHR(pself->index) ) return false; \
     pchr = ChrList_get_ptr( pself->index ); \
-    if( !LOADED_PRO(pchr->profile_ref) ) return false; \
-    ppro = ProList_get_ptr( pchr->profile_ref );
+    const std::shared_ptr<ObjectProfile> &ppro = _profileSystem.getProfile( pchr->profile_ref ); \
+    if(!ppro) return false;
 
 #define SCRIPT_FUNCTION_END() \
     return returncode;
@@ -968,7 +968,7 @@ Uint8 scr_Else( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( ppro->ai_script.indent >= ppro->ai_script.indent_last );
+    returncode = ( ppro->getAIScript().indent >= ppro->getAIScript().indent_last );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3676,7 +3676,7 @@ Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
 
     returncode = false;
     if ( NULL != pcap )
@@ -3903,7 +3903,7 @@ Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
 
     returncode = false;
     if ( NULL != pcap )
@@ -3970,7 +3970,7 @@ Uint8 scr_MakeUsageKnown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
 
     returncode = false;
     if ( NULL != pcap )
@@ -5086,7 +5086,7 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap_chr = pro_get_pcap( pchr->profile_ref );
+    pcap_chr = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap_chr ) return false;
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr_test )
@@ -5587,7 +5587,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
-            cap_t * pcap = pro_get_pcap( pchr->profile_ref );
+            cap_t * pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
 
             log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, NULL == pcap ? "INVALID" : pcap->classname, pstate->argument );
         }
@@ -6893,10 +6893,10 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return false;
 
-    ppip = pro_get_ppip( pchr->profile_ref, pcap->gopoofprt_lpip );
+    ppip = _profileSystem.pro_get_ppip( pchr->profile_ref, pcap->gopoofprt_lpip );
     if ( NULL == ppip ) return false;
 
     returncode = false;
@@ -7156,7 +7156,7 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return false;
+    if ( !ppro->isValidMessageID(pstate->argument) ) return false;
 
     returncode = link_follow_modname( ppro->getMessage(pstate->argument).c_str(), true );
     if ( !returncode )
@@ -7234,7 +7234,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     for ( iTmp = 0; iTmp < MAX_PIP_PER_PROFILE; iTmp++ )
     {
-        pip_t * ppip = pro_get_ppip( pchr->profile_ref, iTmp );
+        pip_t * ppip = _profileSystem.pro_get_ppip( pchr->profile_ref, iTmp );
         if ( NULL == ppip ) continue;
 
         if ( ppip->intdamagebonus || ppip->wisdamagebonus )
@@ -7553,7 +7553,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
-            cap_t * pcap = pro_get_pcap( pchr->profile_ref );
+            cap_t * pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
 
             log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, NULL == pcap ? "INVALID" : pcap->classname, pstate->argument );
         }
@@ -7828,7 +7828,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     ///use message.txt to send the module name
-    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return false;
+    if ( !ppro->isValidMessageID(pstate->argument) ) return false;
 
     STRING buffer;
     strncpy(buffer, ppro->getMessage(pstate->argument).c_str(), SDL_arraysize(buffer));
@@ -8130,7 +8130,7 @@ Uint8 scr_DrawBillboard( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, pstate->argument ) ) return false;
+    if ( !ppro->isValidMessageID(pstate->argument) ) return false;
 
     //Figure out which color to use
     switch ( pstate->turn )

@@ -32,7 +32,7 @@
 #include "game/egoboo.h"
 #include "game/particle.h"
 #include "game/char.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/graphics/CameraSystem.hpp"
 
 #include "game/ChrList.h"
@@ -637,7 +637,7 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
     if ( !INGAME_CHR( loc_pprt->attachedto_ref ) ) return;
     pholder = ChrList_get_ptr( loc_pprt->attachedto_ref );
 
-    pholder_cap = pro_get_pcap( pholder->profile_ref );
+    pholder_cap = chr_get_pcap(pholder->profile_ref);
     if ( NULL == pholder_cap ) return;
 
     pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );

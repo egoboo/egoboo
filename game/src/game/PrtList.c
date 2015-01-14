@@ -798,7 +798,7 @@ void PrtList_reset_all()
 
     const char *loadpath;
 
-    release_all_local_pips();
+    //release_all_local_pips();
     PipStack_release_all();
 
     // Load in the standard global particles ( the coins for example )

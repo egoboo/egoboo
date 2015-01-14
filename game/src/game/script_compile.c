@@ -26,6 +26,8 @@
 #include "game/renderer_2d.h"
 #include "game/egoboo.h"
 
+#include "game/ProfileSystem.hpp"
+
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
@@ -532,9 +534,9 @@ static size_t       fix_operators( char buffer[], size_t buffer_size, const size
 
 static size_t       load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript );
 static int          get_indentation( parser_state_t * ps, script_info_t *pscript );
-static size_t       parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, size_t read );
+static size_t       parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, script_info_t *pscript, size_t read );
 static void         emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscript );
-static void         parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscript );
+static void         parse_line_by_line( parser_state_t * ps, ObjectProfile *ppro, script_info_t *pscript );
 static Uint32       jump_goto( int index, int index_end, script_info_t *pscript );
 static void         parse_jumps( script_info_t *pscript );
 static egolib_rv    ai_script_upload_default( script_info_t *pscript );
@@ -898,7 +900,7 @@ size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max
 }
 
 //--------------------------------------------------------------------------------------------
-size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, size_t read )
+size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, script_info_t *pscript, size_t read )
 {
     /// @author ZZ
     /// @details This function tells what code is being indexed by read, it
@@ -1065,23 +1067,22 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
             ptok->iValue = INVALID_PRO_REF;
 
             // Convert reference to slot number
-            for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
+            for(const auto &element : _profileSystem.getLoadedProfiles())
             {
-                pro_t *ppro_tmp;
+                const std::shared_ptr<ObjectProfile> &profile = element.second;
+                if(profile == nullptr) continue;
 
-                if ( !LOADED_PRO( ipro ) ) continue;
-                ppro_tmp = ProList_get_ptr( ipro );
 
                 //is this the object we are looking for?
-                if ( 0 == strcmp( obj_name, strrchr( ppro_tmp->name, '/' ) + 1 ) )
+                if ( 0 == strcmp( obj_name, strrchr( profile->getName().c_str(), '/' ) + 1 ) )
                 {
-                    ptok->iValue = REF_TO_INT( ppro_tmp->icap );
+                    ptok->iValue = REF_TO_INT( profile->getCapRef() );
                     break;
                 }
             }
 
             // Do we need to load the object?
-            if ( !LOADED_PRO(( PRO_REF ) ptok->iValue ) )
+            if ( !_profileSystem.isValidProfileID(( PRO_REF ) ptok->iValue ) )
             {
                 STRING loadname;
                 snprintf( loadname, SDL_arraysize( loadname ), "mp_objects/%s", obj_name );
@@ -1090,15 +1091,15 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
                 for ( ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < MAX_PROFILE; ipro++ )
                 {
                     //skip loaded profiles
-                    if ( LOADED_PRO( ipro ) ) continue;
+                    if ( _profileSystem.isValidProfileID( ipro ) ) continue;
 
                     //found a free slot
-                    ptok->iValue = load_one_profile_vfs( loadname, REF_TO_INT( ipro ) );
+                    ptok->iValue = _profileSystem.loadOneProfile( loadname, REF_TO_INT( ipro ) );
                 }
             }
 
             // Failed to load object!
-            if ( !LOADED_PRO(( PRO_REF ) ptok->iValue ) )
+            if ( !_profileSystem.isValidProfileID(( PRO_REF ) ptok->iValue ) )
             {
                 log_message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, ptok->szWord, pscript->name, ptok->iLine );
             }
@@ -1190,7 +1191,7 @@ void emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscri
 }
 
 //--------------------------------------------------------------------------------------------
-void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscript )
+void parse_line_by_line( parser_state_t * ps, ObjectProfile *ppro, script_info_t *pscript )
 {
     /// @author ZF
     /// @details This parses an AI script line by line
@@ -1542,7 +1543,7 @@ egolib_rv ai_script_upload_default( script_info_t * pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript )
+egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, ObjectProfile *ppro, script_info_t *pscript )
 {
     /// @author ZZ
     /// @details This function loads a script to memory

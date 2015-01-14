@@ -16,6 +16,8 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+/// @author Johan Jansen
+
 #include "game/audio/AudioSystem.hpp"
 
 #include <cfloat>
@@ -212,6 +214,7 @@ SoundID AudioSystem::loadSound(const std::string &fileName)
 
     //Valid filename?
     if(fileName.empty()) {
+        log_warning("trying to load empty string sound");
     	return INVALID_SOUND_ID;
     }
 
