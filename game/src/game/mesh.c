@@ -1191,12 +1191,15 @@ bool grid_light_one_corner( const ego_mesh_t * pmesh, int fan, float height, flo
         return false;
     }
 
+#if 0
+    // ignore caching for now
     // max update speed is once per game frame
     if ( pgrid->cache_frame >= 0 && ( Uint32 )pgrid->cache_frame >= game_frame_all )
     {
         // not updated
         return false;
     }
+#endif
 
     // get the grid lighting
     lighting = &( pgrid->cache );

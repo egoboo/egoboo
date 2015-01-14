@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include "egolib/platform.h"
+
 /**
  * @brief
  *	Allocate a memory block of @a sz Bytes.
