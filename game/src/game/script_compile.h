@@ -23,7 +23,7 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/script.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -617,4 +617,4 @@ parser_state_t * script_compiler_get_state();
 bool           script_compiler_error( parser_state_t * );
 bool           script_compiler_clear_error( parser_state_t * );
 
-egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript );
+egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, ObjectProfile *ppro, script_info_t *pscript );

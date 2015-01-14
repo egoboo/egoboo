@@ -532,9 +532,9 @@ static size_t       fix_operators( char buffer[], size_t buffer_size, const size
 
 static size_t       load_one_line( parser_state_t * ps, size_t read, script_info_t *pscript );
 static int          get_indentation( parser_state_t * ps, script_info_t *pscript );
-static size_t       parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, size_t read );
+static size_t       parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, script_info_t *pscript, size_t read );
 static void         emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscript );
-static void         parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscript );
+static void         parse_line_by_line( parser_state_t * ps, ObjectProfile *ppro, script_info_t *pscript );
 static Uint32       jump_goto( int index, int index_end, script_info_t *pscript );
 static void         parse_jumps( script_info_t *pscript );
 static egolib_rv    ai_script_upload_default( script_info_t *pscript );
@@ -898,7 +898,7 @@ size_t fix_operators( char buffer[], size_t buffer_size, const size_t buffer_max
 }
 
 //--------------------------------------------------------------------------------------------
-size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_info_t *pscript, size_t read )
+size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, script_info_t *pscript, size_t read )
 {
     /// @author ZZ
     /// @details This function tells what code is being indexed by read, it
@@ -1067,7 +1067,7 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, pro_t *ppro, script_inf
             // Convert reference to slot number
             for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
             {
-                pro_t *ppro_tmp;
+                ObjectProfile *ppro_tmp;
 
                 if ( !LOADED_PRO( ipro ) ) continue;
                 ppro_tmp = ProList_get_ptr( ipro );
@@ -1190,7 +1190,7 @@ void emit_opcode( token_t * ptok, const BIT_FIELD highbits, script_info_t *pscri
 }
 
 //--------------------------------------------------------------------------------------------
-void parse_line_by_line( parser_state_t * ps, pro_t *ppro, script_info_t *pscript )
+void parse_line_by_line( parser_state_t * ps, ObjectProfile *ppro, script_info_t *pscript )
 {
     /// @author ZF
     /// @details This parses an AI script line by line
@@ -1542,7 +1542,7 @@ egolib_rv ai_script_upload_default( script_info_t * pscript )
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, pro_t *ppro, script_info_t *pscript )
+egolib_rv load_ai_script_vfs( parser_state_t * ps, const char *loadname, ObjectProfile *ppro, script_info_t *pscript )
 {
     /// @author ZZ
     /// @details This function loads a script to memory

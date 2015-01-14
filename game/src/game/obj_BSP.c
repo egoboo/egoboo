@@ -298,7 +298,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     {
         if ( !LOADED_PRO( pprt->profile_ref ) )
         {
-            pro_t * ppro = ProList_get_ptr( pprt->profile_ref );
+            ObjectProfile * ppro = ProList_get_ptr( pprt->profile_ref );
             has_enchant = LOADED_EVE( ppro->ieve );
         }
     }

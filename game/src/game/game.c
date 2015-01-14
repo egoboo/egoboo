@@ -49,7 +49,7 @@
 #include "game/char.h"
 #include "game/particle.h"
 #include "game/enchant.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/mesh.h"
 #include "game/physics.h"
 
@@ -214,7 +214,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     /// @details This function exports a character
 
     cap_t * pcap;
-    pro_t * pobj;
+    ObjectProfile * pobj;
 
     STRING fromdir;
     STRING todir;
@@ -1737,8 +1737,9 @@ bool chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const B
     }
     else
     {
-        bool match_idsz = ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_PARENT ) ) ||
-                            ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_TYPE ) );
+        ObjectProfile *profile = chr_get_ppro(ichr_test);
+        bool match_idsz = ( idsz == profile->getIDSZ(IDSZ_PARENT) ) ||
+                            ( idsz == profile->getIDSZ(IDSZ_TYPE) );
 
         if ( match_idsz )
         {
@@ -2781,7 +2782,7 @@ void game_load_profile_ai()
 
     for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
     {
-        pro_t *ppro;
+        ObjectProfile *ppro;
 
         if ( !LOADED_PRO( ipro ) ) continue;
         ppro = ProList_get_ptr( ipro );

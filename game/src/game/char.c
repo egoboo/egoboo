@@ -3909,7 +3909,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     int      tnc, iteam, kursechance;
 
     cap_t * pcap;
-    pro_t * ppro;
+    ObjectProfile * ppro;
     chr_spawn_data_t * spawn_ptr;
     fvec3_t pos_tmp;
 
@@ -4602,7 +4602,7 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
     CHR_REF   ichr;
     chr_t   * pchr;
     cap_t   * pcap;
-    pro_t   * ppro;
+    ObjectProfile   * ppro;
 
     // fix a "bad" name
     if ( NULL == name ) name = "";
@@ -4764,7 +4764,7 @@ void respawn_character( const CHR_REF character )
 int chr_change_skin( const CHR_REF character, const SKIN_T skin )
 {
     chr_t * pchr;
-    pro_t * ppro;
+    ObjectProfile * ppro;
     mad_t * pmad;
     chr_instance_t * pinst;
     TX_REF new_texture = ( TX_REF )TX_WATER_TOP;
@@ -5047,7 +5047,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     CHR_REF item_ref, item;
     chr_t * pchr;
 
-    pro_t * pobj_new;
+    ObjectProfile * pobj_new;
     cap_t * pcap_new;
     mad_t * pmad_new;
 
@@ -8059,7 +8059,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
     }
     else
     {
-        pro_t * ppro = ProList_get_ptr( pchr->profile_ref );
+        ObjectProfile * ppro = ProList_get_ptr( pchr->profile_ref );
 
         // copy the character's data.txt path
         strncpy( buffer, ppro->name, SDL_arraysize( buffer ) );
@@ -8323,7 +8323,7 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 
     cap_t * pitem_cap;
     chr_t * pitem;
-    pro_t * pitem_pro;
+    ObjectProfile * pitem_pro;
 
     if ( !DEFINED_CHR( item ) ) return icon_ref;
     pitem = ChrList_get_ptr( item );
@@ -10398,7 +10398,7 @@ TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-pro_t * chr_get_ppro( const CHR_REF ichr )
+ObjectProfile * chr_get_ppro( const CHR_REF ichr )
 {
     chr_t * pchr;
 
@@ -10538,10 +10538,11 @@ bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
 
     // not vulnerable if there is no specific weakness
     if ( IDSZ_NONE == vulnie ) return false;
+    ObjectProfile *profile = chr_get_ppro(test_profile);
 
     // check vs. every IDSZ that could have something to do with attacking
-    if ( vulnie == pro_get_idsz( test_profile, IDSZ_TYPE ) ) return true;
-    if ( vulnie == pro_get_idsz( test_profile, IDSZ_PARENT ) ) return true;
+    if ( vulnie == profile->getIDSZ(IDSZ_TYPE) ) return true;
+    if ( vulnie == profile->getIDSZ(IDSZ_PARENT) ) return true;
 
     return false;
 }

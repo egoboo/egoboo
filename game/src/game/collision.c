@@ -29,7 +29,7 @@
 #include "game/char.h"
 #include "game/particle.h"
 #include "game/enchant.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/physics.h"
 #include "game/audio/AudioSystem.hpp"
 

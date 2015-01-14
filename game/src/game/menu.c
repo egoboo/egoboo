@@ -35,7 +35,7 @@
 #include "game/egoboo.h"
 #include "game/particle.h"
 #include "game/char.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 
 #include "game/ChrList.h"
 #include "game/PrtList.h"
@@ -5631,7 +5631,7 @@ egolib_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
 {
     int ipla;
     chr_t * pchr;
-    pro_t * ppro;
+    ObjectProfile * ppro;
     player_t * ppla;
 
     int                    lp_idx;

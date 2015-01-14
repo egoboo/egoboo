@@ -28,7 +28,7 @@
 #include "game/game.h"
 #include "game/network.h"
 #include "game/player.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/char.h"
 #include "game/graphics/CameraSystem.hpp"
 
@@ -1813,7 +1813,7 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank )
 {
     chr_t * pchr;
-    pro_t * ppro;
+    ObjectProfile * ppro;
     cap_t * pcap;
 
     pself = ai_state_ctor( pself );

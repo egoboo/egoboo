@@ -31,7 +31,7 @@
 #include "game/renderer_2d.h"
 #include "game/ChrList.h"
 #include "game/mesh.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/char.h"
 
 #include "game/module/PassageHandler.hpp"
@@ -647,7 +647,7 @@ Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pst
 
     size_t length;
     CHR_REF ichr;
-    pro_t *ppro;
+    ObjectProfile *ppro;
     char * dst, * dst_end;
 
     Uint8 returncode = true;
@@ -742,7 +742,7 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
     int slot;
     char * dst, * dst_end;
     size_t length;
-    pro_t *ppro;
+    ObjectProfile *ppro;
 
     if ( !IS_VALID_MESSAGE_PRO( iprofile, message ) ) return false;
     ppro = ProList_get_ptr( iprofile );

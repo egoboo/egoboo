@@ -1,0 +1,296 @@
+#include "game/ProfileSystem.hpp"
+
+pro_import_t import_data;
+
+
+ProfileSystem::ProfileSystem() :
+	_initialized(false),
+	_bookIcons()
+{
+	//ctor
+}
+
+void ProfileSystem::begin()
+{
+
+    if (_initialized)
+    {
+        // release all profile data and reinitialize the profile list
+        releaseAllProfiles();
+
+        // initialize the models
+        model_system_end();
+
+        _initialized = false;
+    }
+
+    // initialize all the sub-profile lists
+    PipStack_init_all();
+    EveStack_init_all();
+    CapStack_init_all();
+    MadStack_reconstruct_all();
+
+    // fix the book icon list
+    _bookIcons.clear();
+
+    // initialize the models
+    model_system_begin();
+
+    // initialize the script compiler
+    script_compiler_init();
+
+    // necessary for loading up the copy.txt file
+    load_action_names_vfs( "mp_data/actions.txt" );
+
+    // necessary for properly reading the "message.txt"
+    DisplayMsg_reset();
+
+    // necessary for reading "naming.txt" properly
+    chop_data_init( &chop_mem );
+
+    // something that is used in the game that is somewhat related to the profile stuff
+    init_slot_idsz();
+
+    // let the code know that everything is initialized
+    _initialized = true;
+}
+
+void ProfileSystem::end()
+{
+    if (_initialized)
+    {
+        // release all profile data and reinitialize the profile list
+        releaseAllProfiles();
+
+        // initialize the models
+        model_system_end();
+
+        _initialized = false;
+    }
+
+    // reset the bookicon stuff
+    _bookIcons.clear();
+}
+
+void ProfileSystem::releaseAllProfiles()
+{
+    /// @author ZZ
+    /// @details This function clears out all of the model data
+
+    // release the allocated data in all profiles (sounds, textures, etc.)
+    _profilesLoaded.clear();
+
+    // relese every type of sub-profile and re-initalize the lists
+    PipStack_release_all();
+    EveStack_release_all();
+    CapStack_release_all();
+    MadStack_release_all();
+}
+
+void ProfileSystem::loadSpellBooks()
+{
+	/*
+    // do the icon
+    snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%d", tmploadname, cnt );
+
+    tmp_tx = TxList_load_one_vfs( newloadname, INVALID_TX_REF, INVALID_KEY );
+    if ( VALID_TX_RANGE( tmp_tx ) )
+    {
+        pobj->ico_ref[cnt] = tmp_tx;
+        max_icon = cnt;
+
+        if ( !VALID_TX_RANGE( min_icon_tx ) )
+        {
+            min_icon_tx = tmp_tx;
+        }
+
+        if ( SPELLBOOK == _slotNumber )
+        {
+            if ( bookicon_count < MAX_SKIN )
+            {
+                bookicon_ref[bookicon_count] = tmp_tx;
+                bookicon_count++;
+            }
+        }
+    }
+    */
+}
+
+//--------------------------------------------------------------------------------------------
+//inline
+//--------------------------------------------------------------------------------------------
+CAP_REF ProfileSystem::pro_get_icap( const PRO_REF iobj )
+{
+    if ( !isValidProfileID( iobj ) ) return INVALID_CAP_REF;
+
+    return LOADED_CAP( pobj->icap ) ? pobj->icap : INVALID_CAP_REF;
+}
+
+//--------------------------------------------------------------------------------------------
+MAD_REF ProfileSystem::pro_get_imad( const PRO_REF iobj )
+{
+    if ( !isValidProfileID( iobj ) ) return INVALID_MAD_REF;
+
+    return LOADED_MAD( pobj->imad ) ? pobj->imad : INVALID_MAD_REF;
+}
+
+//--------------------------------------------------------------------------------------------
+EVE_REF ProfileSystem::pro_get_ieve( const PRO_REF iobj )
+{
+    if ( !isValidProfileID( iobj ) ) return INVALID_EVE_REF;
+    pobj = ProList.lst + iobj;
+
+    return LOADED_EVE( pobj->ieve ) ? pobj->ieve : INVALID_EVE_REF;
+}
+
+//--------------------------------------------------------------------------------------------
+PIP_REF ProfileSystem::pro_get_ipip( const PRO_REF iobj, int pip_index )
+{
+    PIP_REF found_pip = INVALID_PIP_REF;
+
+    if ( !isValidProfileID( iobj ) )
+    {
+        // check for a global pip
+        PIP_REF global_pip = (( pip_index < 0 ) || ( pip_index > MAX_PIP ) ) ? MAX_PIP : ( PIP_REF )pip_index;
+        if ( LOADED_PIP( global_pip ) )
+        {
+            found_pip = global_pip;
+        }
+    }
+    else if ( pip_index < MAX_PIP_PER_PROFILE )
+    {
+        // this is a local pip
+        PIP_REF itmp;
+
+        // this pip is relative to a certain object
+        pobj = ProList.lst + iobj;
+
+        // grab the local pip
+        itmp = pobj->prtpip[pip_index];
+        if ( VALID_PIP_RANGE( itmp ) )
+        {
+            found_pip = itmp;
+        }
+    }
+
+    return found_pip;
+}
+
+//--------------------------------------------------------------------------------------------
+cap_t * ProfileSystem::pro_get_pcap( const PRO_REF iobj )
+{
+    if ( !isValidProfileID( iobj ) ) return nullptr;
+
+    if ( !LOADED_CAP( pobj->icap ) ) return nullptr;
+
+    return CapStack_get_ptr( pobj->icap );
+}
+
+//--------------------------------------------------------------------------------------------
+mad_t * ProfileSystem::pro_get_pmad( const PRO_REF iobj )
+{
+    if ( !isValidProfileID( iobj ) ) return nullptr;
+    pobj = ProList.lst + iobj;
+
+    if ( !LOADED_MAD( pobj->imad ) ) return nullptr;
+
+    return MadStack_get_ptr( pobj->imad );
+}
+
+//--------------------------------------------------------------------------------------------
+eve_t * ProfileSystem::pro_get_peve( const PRO_REF iobj )
+{
+    if ( !isValidProfileID( iobj ) ) return nullptr;
+
+    if ( !LOADED_EVE( pobj->ieve ) ) return nullptr;
+
+    return EveStack_get_ptr( pobj->ieve );
+}
+
+//--------------------------------------------------------------------------------------------
+pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
+{
+    ObjectProfile * pobj;
+    PIP_REF global_pip, local_pip;
+
+    if ( !isValidProfileID( iobj ) )
+    {
+        // check for a global pip
+        global_pip = (( pip_index < 0 ) || ( pip_index > MAX_PIP ) ) ? MAX_PIP : ( PIP_REF )pip_index;
+        if ( LOADED_PIP( global_pip ) )
+        {
+            return PipStack_get_ptr( global_pip );
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    // find the local pip if it exists
+    local_pip = INVALID_PIP_REF;
+    if ( pip_index < MAX_PIP_PER_PROFILE )
+    {
+        local_pip = pobj->prtpip[pip_index];
+    }
+
+    return LOADED_PIP( local_pip ) ? PipStack.lst + local_pip : nullptr;
+}
+
+int ProfileSystem::loadOneProfile(const char* tmploadname, int slot_override )
+{
+	/// @author ZZ
+    /// @details This function loads one object and returns the object slot
+    STRING newloadname;
+
+    bool required = !VALID_CAP_RANGE( slot_override );
+
+    // get a slot value
+    int islot = pro_get_slot_vfs( tmploadname, slot_override );
+
+    // throw an error code if the slot is invalid of if the file doesn't exist
+    if ( islot < 0 || islot > MAX_PROFILE )
+    {
+        // The data file wasn't found
+        if ( required )
+        {
+            log_debug( "load_one_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", tmploadname );
+        }
+        else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAX_IMPORT_PER_PLAYER )
+        {
+            log_debug( "load_one_profile_vfs() - Not able to open file \"%s\"\n", tmploadname );
+        }
+
+        return MAX_PROFILE;
+    }
+
+    // convert the slot to a profile reference
+    PRO_REF iobj = ( PRO_REF )islot;
+
+    // throw an error code if we are trying to load over an existing profile
+    // without permission
+    if (_profilesLoaded[iobj] != nullptr)
+    {
+        std::shared_pointer<ObjectProfile> profile = _profilesLoaded[iobj];
+
+        // Make sure global objects don't load over existing models
+        if ( required && SPELLBOOK == iobj )
+        {
+            log_error( "load_one_profile_vfs() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, tmploadname );
+        }
+        else if ( required && overrideslots )
+        {
+            log_error( "load_one_profile_vfs() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), profile->_name.c_str(), tmploadname );
+        }
+        else
+        {
+            // Stop, we don't want to override it
+            return MAX_PROFILE;
+        }
+    }
+
+    //Actually allocate the object and create it
+    _profilesLoaded[iobj] = std::make_shared<ObjectProfile>(tmploadname);
+
+    return iobj;
+}

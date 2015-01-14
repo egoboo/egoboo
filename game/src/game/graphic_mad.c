@@ -32,7 +32,7 @@
 #include "game/lighting.h"
 #include "game/egoboo.h"
 #include "game/graphics/CameraSystem.hpp"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/char.h"
 #include "game/md2.h"
 
@@ -2170,7 +2170,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
-    pro_t * pobj;
+    ObjectProfile * pobj;
     cap_t * pcap;
     SKIN_T  loc_skin;
 

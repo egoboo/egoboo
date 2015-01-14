@@ -31,7 +31,7 @@
 #include "game/egoboo.h"
 #include "game/mesh.h"
 #include "game/enchant.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/PrtList.h"
 #include "game/ChrList.h"
 

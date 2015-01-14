@@ -34,7 +34,7 @@ SDLCONF_L := $(shell sdl-config --static-libs)
 # the compiler options
 
 CXX      := g++
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -Weffc++ -std=c++11 -Og
+CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -Weffc++ -std=c++11 -O0
 #-Wall
 
 #debug options

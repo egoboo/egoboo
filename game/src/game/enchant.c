@@ -31,7 +31,7 @@
 #include "game/char.h"
 #include "game/mad.h"
 #include "game/particle.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 
 #include "game/EncList.h"
 #include "game/ChrList.h"
@@ -2177,7 +2177,7 @@ PRO_REF  enc_get_ipro( const ENC_REF ienc )
 }
 
 //--------------------------------------------------------------------------------------------
-pro_t * enc_get_ppro( const ENC_REF ienc )
+ObjectProfile * enc_get_ppro( const ENC_REF ienc )
 {
     enc_t * penc;
 
@@ -2210,8 +2210,8 @@ bool enc_is_removed( const ENC_REF ienc, const PRO_REF test_profile )
     if ( IDSZ_NONE == idsz_remove ) return false;
 
     // check vs. every IDSZ that could have something to do with cancelling the enchant
-    if ( idsz_remove == pro_get_idsz( test_profile, IDSZ_TYPE ) ) return true;
-    if ( idsz_remove == pro_get_idsz( test_profile, IDSZ_PARENT ) ) return true;
+    if ( idsz_remove == enc_get_ppro(ienc)->getIDSZ(IDSZ_TYPE) ) return true;
+    if ( idsz_remove == enc_get_ppro(ienc)->getIDSZ(IDSZ_PARENT) ) return true;
 
     return false;
 }

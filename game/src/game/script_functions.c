@@ -37,7 +37,7 @@
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
 #include "game/ai/astar.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/enchant.h"
 #include "game/char.h"
 #include "game/particle.h"
@@ -60,7 +60,7 @@
 
 #define SCRIPT_FUNCTION_BEGIN() \
     chr_t * pchr; \
-    pro_t * ppro; \
+    ObjectProfile * ppro; \
     Uint8 returncode = true; \
     if( NULL == pstate || NULL == pself || !ALLOCATED_CHR(pself->index) ) return false; \
     pchr = ChrList_get_ptr( pself->index ); \

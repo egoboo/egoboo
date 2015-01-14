@@ -38,7 +38,7 @@
 #include "game/particle.h"
 #include "game/enchant.h"
 #include "game/collision.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
