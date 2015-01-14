@@ -73,11 +73,11 @@ namespace Ego
 		/// The BSP leaf for this object.
 		/// Moved to here so that is is not destroyed in the destructor of the inherited object.
 		BSP_leaf_t     bsp_leaf;
+
+		static Ego::Entity *ctor(Ego::Entity *pbase, void *child_data, bsp_type_t child_type, size_t child_index);
+		static Ego::Entity *dtor(Ego::Entity *pbase);
 	};
 };
-
-Ego::Entity *ego_object_ctor(Ego::Entity *pbase, void *child_data, int child_type, size_t child_index);
-Ego::Entity *ego_object_dtor(Ego::Entity *pbase);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

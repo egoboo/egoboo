@@ -3304,12 +3304,12 @@ void game_setup_module( const char *smallname )
 }
 
 //--------------------------------------------------------------------------------------------
+/// @details This function loads a module
 bool game_load_module_data( const char *smallname )
 {
-    /// @author ZZ
-    /// @details This function loads a module
-
+#if 0
     egolib_rv mesh_BSP_retval;
+#endif
     STRING modname;
     ego_mesh_t * pmesh_rv;
 

@@ -23,109 +23,83 @@
 #pragma once
 
 #include "egolib/aabb.h"
-
-struct oct_bb_t;
+#include "egolib/DynamicArray.hpp"
 
 /**
- * @brief
- *	An axis-aligned bounding box for a binary space partition tree.
+ * @brief An n-dimensional axis-aligned bounding box.
  */
 struct BSP_aabb_t
 {
-	bool valid;
+	bool valid; ///< @brief @a true if this axis-aligned bounding box is valid, @a false otherwise.
+	size_t dim; ///< @brief The dimension of this axis-aligned bounding box.
 
-	/// The dimensionality of the AABB.
-	size_t dim;
+	Ego::DynamicArray<float> mins; ///< @brief The minimum.
+	Ego::DynamicArray<float> mids; ///< @brief The medium.
+	Ego::DynamicArray<float> maxs; ///< @brief The maximum.
 
-	/// An array of @a dim floats, the @a dim dimensional min vector of the AABB.
-	float_ary_t mins;
-	/// An array of @a dim floats, the @a dim dimensional mid vector of the AABB.
-	float_ary_t mids;
-	/// An array of @a dim floats, the @a dim dimensional max vector of the AABB.
-	float_ary_t maxs;
+	/**
+	 * @brief
+	 *	Construct a BSP AABB.
+	 * @param self
+	 *	the BSP AABB
+	 * @param dim
+	 *	the dimensionality
+	 * @return
+	 *	@a self on success, @a NULL on failure
+	 */
+	static BSP_aabb_t *ctor(BSP_aabb_t *self, size_t dim);
+	/**
+	 * @brief
+	 *	Destruct a BSP ABB.
+	 * @param self
+	 *	the BSP AABB
+	 */
+	static void dtor(BSP_aabb_t *self);
+	/**
+	 * @brief
+	 *	Get if this bounding box is in the empty state.
+	 * @param self
+	 *	this bounding box
+	 * @return
+	 *	@a true if this bounding box in the empty state, @a false otherwise
+	 * @remark
+	 *	The empty bounding box has a size of @a 0 along all axes and is centered around the origin.
+	 */
+	static bool is_empty(const BSP_aabb_t *self);
+	/**
+	 * @brief
+	 *	Assign this bounding box to the empty state.
+	 * @param self
+	 *	this bounding box
+	 * @remark
+	 *	The empty bounding box has a size of @a 0 along all axes and is centered around the origin.
+	 */
+	static bool set_empty(BSP_aabb_t *self);
+	/**
+	 * @brief
+	 *	Get if this BSP AABB and and another BSP AABB overlap.
+	 * @param self
+	 *	this BSP AABB
+	 * @param other
+	 *	the other BSP AABB
+	 * @return
+	 *	@a true if this BSP AABB and the other BSP AABB overlap, @a false otherwise
+	 * @remark
+	 *	If the dimensionality of @a self and @a other are different,
+	 *		check the lowest common dimensionality.
+	 */
+	static bool overlap_with_BSP_aabb(const BSP_aabb_t *self, const BSP_aabb_t *other);
+	static bool contains_BSP_aabb(const BSP_aabb_t *self, const BSP_aabb_t *other);
+	static bool overlap_with_aabb(const BSP_aabb_t *self, const aabb_t *other);
+	static bool contains_aabb(const BSP_aabb_t *self, const aabb_t *other);
 };
 
-//--------------------------------------------------------------------------------------------
 
+BSP_aabb_t *BSP_aabb_alloc(BSP_aabb_t *self, size_t dim); ///< @todo Remove this.
+BSP_aabb_t *BSP_aabb_dealloc(BSP_aabb_t *self); ///< @todo Remove this.
+bool BSP_aabb_validate(BSP_aabb_t& self); ///< @todo Remove this.
 
-
-
-bool BSP_aabb_invalidate(BSP_aabb_t * psrc);
-bool BSP_aabb_self_clear(BSP_aabb_t * psrc);
-
-bool BSP_aabb_overlap_with_BSP_aabb(const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr);
-bool BSP_aabb_contains_BSP_aabb(const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr);
-
-bool BSP_aabb_overlap_with_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr);
-bool BSP_aabb_contains_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr);
-
-bool BSP_aabb_empty(const BSP_aabb_t * psrc);
-bool BSP_aabb_empty(const BSP_aabb_t * psrc);
-bool BSP_aabb_invalidate(BSP_aabb_t * psrc);
-bool BSP_aabb_self_clear(BSP_aabb_t * psrc);
-
-bool BSP_aabb_overlap_with_BSP_aabb(const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr);
-bool BSP_aabb_contains_BSP_aabb(const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr);
-
-bool BSP_aabb_overlap_with_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr);
-bool BSP_aabb_contains_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr);
-
-
-
-//--------------------------------------------------------------------------------------------
-
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-/// @author BB
-/// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
-///               than lhs_ptr, just check the lowest common dimensions.
-bool BSP_aabb_overlap_with_BSP_aabb(const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr);
-
-
-//--------------------------------------------------------------------------------------------
-/// @author BB
-/// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
-///               than lhs_ptr, just check the lowest common dimensions.
-bool BSP_aabb_contains_BSP_aabb(const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr);
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-/// @author BB
-/// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
-///               than lhs_ptr, just check the lowest common dimensions.
-bool BSP_aabb_overlap_with_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr);
-
-//--------------------------------------------------------------------------------------------
-/// @author BB
-/// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
-///               than lhs_ptr, just check the lowest common dimensions.
-bool BSP_aabb_contains_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr);
-
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_empty(const BSP_aabb_t * psrc);
-
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_invalidate(BSP_aabb_t * psrc);
-
-//--------------------------------------------------------------------------------------------
-/**
-* @brief
-*	Set a BSP AABB to an empty state.
-* @param self
-*	the BSP AABB
-*/
-bool BSP_aabb_self_clear(BSP_aabb_t * psrc);
-
-bool BSP_aabb_ctor(BSP_aabb_t& self, size_t dim);
-void BSP_aabb_dtor(BSP_aabb_t& self);
-
-bool BSP_aabb_alloc(BSP_aabb_t& self, size_t dim);
-void BSP_aabb_dealloc(BSP_aabb_t& self);
-
-bool BSP_aabb_from_oct_bb(BSP_aabb_t * pdst, const oct_bb_t * psrc);
-
-bool BSP_aabb_validate(BSP_aabb_t * pbb);
-bool BSP_aabb_copy(BSP_aabb_t * pdst, const BSP_aabb_t * psrc);
-
-bool BSP_aabb_self_union(BSP_aabb_t * pdst, const BSP_aabb_t * psrc);
+bool BSP_aabb_from_oct_bb(BSP_aabb_t *self, const oct_bb_t *source);
+bool BSP_aabb_copy(BSP_aabb_t& dst, const BSP_aabb_t& source);
+bool BSP_aabb_self_union(BSP_aabb_t& dst, const BSP_aabb_t& source);
+bool BSP_aabb_invalidate(BSP_aabb_t& self);

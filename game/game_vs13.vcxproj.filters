@@ -11,9 +11,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Game Inline Files">
-      <UniqueIdentifier>{88939e8d-df88-4e25-b172-f4a616046801}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
@@ -24,20 +21,17 @@
     <Filter Include="Script System Source Files">
       <UniqueIdentifier>{c1b579e3-b99d-46d8-8691-8bf064a39910}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core Source Files">
-      <UniqueIdentifier>{a06fd31b-d61d-4ee1-a70d-1310e17996bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core Header Files">
-      <UniqueIdentifier>{aefe3701-fec9-4327-a980-9d26e9cc5fc1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="AI">
-      <UniqueIdentifier>{11288bae-a7e3-44df-8037-f8f2d71c16ee}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game Sources\Graphics">
       <UniqueIdentifier>{e1e429c1-25c1-46c1-aac1-f0a9df44e3a0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Game Header Files\Graphics">
       <UniqueIdentifier>{7af9834c-1fa2-416f-8bce-52ab1a6b566a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Sources\AI">
+      <UniqueIdentifier>{181e006f-51cd-4162-90a8-8cb0c89cd51f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Header Files\AI">
+      <UniqueIdentifier>{7be3487a-b5a6-4722-8fca-4c2d47ebbb4e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -167,12 +161,6 @@
     <ClCompile Include="src\game\bsp.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\ai\AStar.c">
-      <Filter>AI</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\ai\WaypointList.c">
-      <Filter>AI</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\Passage.cpp">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -184,6 +172,12 @@
     </ClCompile>
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\CameraSystem.cpp">
       <Filter>Game Sources\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\ai\AStar.c">
+      <Filter>Game Sources\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\ai\WaypointList.c">
+      <Filter>Game Sources\AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -322,12 +316,6 @@
     <ClInclude Include="src\game\bsp.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\ai\AStar.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\ai\WaypointList.h">
-      <Filter>AI</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\Passage.hpp">
       <Filter>Game Header Files</Filter>
     </ClInclude>
@@ -339,6 +327,12 @@
     </ClInclude>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\CameraSystem.hpp">
       <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\ai\AStar.h">
+      <Filter>Game Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\ai\WaypointList.h">
+      <Filter>Game Header Files\AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -365,6 +359,9 @@
     </None>
     <None Include="src\game\PrtList.inl">
       <Filter>Game Header Files</Filter>
+    </None>
+    <None Include="..\..\egoboo%40egoboo%40github.com\Doxyfile">
+      <Filter>Doxygen</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

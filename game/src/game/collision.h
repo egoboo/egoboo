@@ -34,9 +34,7 @@ struct s_prt;
 //--------------------------------------------------------------------------------------------
 
 struct CoNode_t;
-#if 0
-typedef struct s_CoNode CoNode_t;
-#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -67,26 +65,21 @@ Uint8      CoNode_generate_hash( CoNode_t * coll );
 int        CoNode_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
-// a template-like definition of a dynamically allocated array of CoNode_t elements
-DECLARE_DYNAMIC_ARY( CoNode_ary, CoNode_t );
-
-//--------------------------------------------------------------------------------------------
-// a template-like definition of a dynamically allocated array of hash_node_t elements
-DECLARE_DYNAMIC_ARY( HashNode_ary, hash_node_t );
-
-//--------------------------------------------------------------------------------------------
 
 /// a useful re-typing of the CHashList_t, in case we need to add more variables or functionality later
-typedef hash_list_t CHashList_t;
+typedef hash_list_t CoHashList_t;
 
-CHashList_t * CHashList_ctor( CHashList_t * pchlst, int size );
-CHashList_t * CHashList_dtor( CHashList_t * pchlst );
-bool        CHashList_insert_unique( CHashList_t * pchlst, CoNode_t * pdata, CoNode_ary_t * cdata, HashNode_ary_t * hnlst );
+/// Insert a collision into a collision hash list if it does not exist yet.
+/// @param self the collision hash list
+/// @param collision the collision
+/// @param collisions the list of collisions
+/// @param hashNodes the list of hash nodes
+bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *coNode, Ego::DynamicArray<CoNode_t> *coNodeAry, Ego::DynamicArray<hash_node_t> *hashNodeAry);
 
-CHashList_t * CHashList_get_Instance( int size );
+CoHashList_t *CoHashList_getInstance(size_t capacity);
 
 //--------------------------------------------------------------------------------------------
-extern int CHashList_inserted;
+extern int CoHashList_inserted;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -4,9 +4,6 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{a101d3d2-7683-4e16-922a-5f200fee2a68}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Inline Files">
-      <UniqueIdentifier>{701bd0f3-d242-40dd-b88c-88a3275dcfed}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{186c3fa2-a2d8-4321-b2c1-b80d1aeb0304}</UniqueIdentifier>
     </Filter>
@@ -237,6 +234,7 @@
     <ClCompile Include="src\egolib\mem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\egolib\bsp_aabb.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -461,6 +459,7 @@
     <ClInclude Include="src\egolib\Stack.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\bsp_aabb.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="enet.props" />
@@ -474,21 +473,6 @@
     <None Include="enet-debug.props" />
     <None Include="lua-debug.props" />
     <None Include="physfs-debug.props" />
-    <None Include="src\egolib\_math.inl">
-      <Filter>Inline Files</Filter>
-    </None>
-    <None Include="src\egolib\bbox.inl">
-      <Filter>Inline Files</Filter>
-    </None>
-    <None Include="src\egolib\bsp.inl">
-      <Filter>Inline Files</Filter>
-    </None>
-    <None Include="src\egolib\console.inl">
-      <Filter>Inline Files</Filter>
-    </None>
-    <None Include="src\egolib\egolib.inl">
-      <Filter>Inline Files</Filter>
-    </None>
     <None Include="src\egolib\file_formats\id_normals.inl">
       <Filter>File Formats</Filter>
     </None>

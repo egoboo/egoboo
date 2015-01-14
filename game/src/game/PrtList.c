@@ -85,7 +85,7 @@ void PrtList_ctor()
         BLANK_STRUCT_PTR( pprt )
 
         // initialize the particle's parent
-        ego_object_ctor( POBJ_GET_PBASE( pprt ), pprt, BSP_LEAF_PRT, cnt );
+        Ego::Entity::ctor( POBJ_GET_PBASE( pprt ), pprt, BSP_LEAF_PRT, cnt );
 
         // initialize particle
         prt_ctor( pprt );
@@ -107,7 +107,7 @@ void PrtList_dtor()
         prt_dtor( pprt );
 
         // destruct the parent
-        ego_object_dtor( POBJ_GET_PBASE( pprt ) );
+        Ego::Entity::dtor( POBJ_GET_PBASE( pprt ) );
     }
 
     // initialize particle

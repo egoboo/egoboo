@@ -42,7 +42,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// a hash type for "efficiently" storing data
+	/**
+	 * @brief
+	 *	A node in a hash list.
+	 */
     struct hash_node_t
     {
         hash_node_t *next;
@@ -51,7 +54,7 @@
 
     hash_node_t *hash_node_create( void * data );
     bool         hash_node_destroy( hash_node_t ** );
-    hash_node_t *hash_node_ctor( hash_node_t * n, void * data );
+    hash_node_t *hash_node_ctor(hash_node_t *self, void * data);
     hash_node_t *hash_node_insert_after( hash_node_t lst[], hash_node_t * n );
     hash_node_t *hash_node_insert_before( hash_node_t lst[], hash_node_t * n );
     hash_node_t *hash_node_remove_after( hash_node_t lst[] );
@@ -60,27 +63,72 @@
 //--------------------------------------------------------------------------------------------
     struct hash_list_t
     {
-        int            allocated;
-        int         *  subcount;
-        hash_node_t ** sublist;
+		size_t capacity; /**< @brief The capacity of the hash list. */
+        int *subcount;
+        hash_node_t **sublist;
     };
 
-    hash_list_t *hash_list_create( int size );
-    bool         hash_list_destroy( hash_list_t ** );
-    hash_list_t *hash_list_ctor( hash_list_t * lst, int size );
-    hash_list_t *hash_list_dtor( hash_list_t * lst );
-    bool         hash_list_free( hash_list_t * lst );
-    bool         hash_list_alloc( hash_list_t * lst, int size );
-    bool         hash_list_renew( hash_list_t * lst );
+	/**
+	 * @brief
+	 *	Heap-allocate and construct a hash list.
+	 * @param capacity
+	 *	the initial capacity of the hash list
+	 * @return
+	 *	a pointer to the hash list on success, @a NULL on failure
+	 */
+    hash_list_t *hash_list_create(size_t capacity);
+	/**
+	 * @brief
+	 *	Destruct and heap-deallocate a hash list.
+	 * @param self
+	 *	the hash list
+	 */
+	void hash_list_destroy(hash_list_t *self);
+	/**
+	 * @brief
+	 *	Construct a hash list.
+	 * @param self
+	 *	the hash list
+	 * @param capacity
+	 *	the initial capacity of the hash list
+	 * @return
+	 *	the hash list on success, @ NULL on failure
+	 */
+    hash_list_t *hash_list_ctor(hash_list_t *self, size_t capacity);
+	/**
+	 * @brief
+	 *	Destruct a hash list.
+	 * @param self
+	 *	the hash list
+	 */
+    void hash_list_dtor(hash_list_t *self);
+    bool hash_list_free(hash_list_t *self);
+    bool hash_list_alloc(hash_list_t *self, size_t capacity);
+	/// @author BB
+	/// @details renew the CoNode_t hash table.
+	///
+	/// Since we are filling this list with pre-allocated CoNode_t's,
+	/// there is no need to delete any of the existing pchlst->sublist elements
+    bool hash_list_renew(hash_list_t *self);
 
-    size_t       hash_list_count_nodes( hash_list_t *plst );
-    int          hash_list_get_allocd( hash_list_t *plst );
-    size_t       hash_list_get_count( hash_list_t *plst, int i );
-    hash_node_t *hash_list_get_node( hash_list_t *plst, int i );
-
-    bool        hash_list_set_allocd( hash_list_t *plst,        int );
-    bool        hash_list_set_count( hash_list_t *plst, int i, int );
-    bool        hash_list_set_node( hash_list_t *plst, int i, hash_node_t * );
+	/**
+	 * @brief
+	 *	Count the total number of nodes in the hash list.
+	 * @param self
+	 *	the hash list
+	 * @return
+	 *	the number of nodes
+	 */
+    size_t hash_list_count_nodes(hash_list_t *self);
+    int hash_list_get_allocd(hash_list_t *self);
+    size_t hash_list_get_count(hash_list_t *self, size_t index);
+    hash_node_t *hash_list_get_node(hash_list_t *self, size_t index);
+#if 0
+	/// @todo Remove this.
+    bool hash_list_set_allocd( hash_list_t *plst,        int );
+#endif
+    bool hash_list_set_count(hash_list_t *self, size_t index, size_t count);
+    bool hash_list_set_node(hash_list_t *self, size_t index, hash_node_t *node);
 
     bool        hash_list_insert_unique( hash_list_t * phash, hash_node_t * pnode );
 

@@ -82,7 +82,7 @@ void EncList_ctor()
         BLANK_STRUCT_PTR( penc )
 
         // construct the base object
-        ego_object_ctor( POBJ_GET_PBASE( penc ), penc, BSP_LEAF_ENC, cnt );
+        Ego::Entity::ctor( POBJ_GET_PBASE( penc ), penc, BSP_LEAF_ENC, cnt );
 
         // construct the object
         enc_ctor( penc );
@@ -104,7 +104,7 @@ void EncList_dtor()
         enc_dtor( penc );
 
         // destruct the parent
-        ego_object_dtor( POBJ_GET_PBASE( penc ) );
+        Ego::Entity::dtor( POBJ_GET_PBASE( penc ) );
     }
 
     // initialize particle

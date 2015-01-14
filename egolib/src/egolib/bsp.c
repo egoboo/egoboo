@@ -39,15 +39,7 @@
 // special arrays
 //--------------------------------------------------------------------------------------------
 
-#if 0
-IMPLEMENT_DYNAMIC_ARY(BSP_leaf_ary, BSP_leaf_t);
-#endif
 IMPLEMENT_DYNAMIC_ARY(BSP_leaf_pary, BSP_leaf_t *);
-
-#if 0
-IMPLEMENT_DYNAMIC_ARY(BSP_branch_ary, BSP_branch_t);
-IMPLEMENT_DYNAMIC_ARY(BSP_branch_pary, BSP_branch_t *);
-#endif
 
 //--------------------------------------------------------------------------------------------
 // special functions
@@ -107,8 +99,8 @@ bool _generate_BSP_aabb_child(BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst)
 	// make sure that the destination type matches the source type
 	if (pdst->dim != psrc->dim)
 	{
-		BSP_aabb_dtor(pdst);
-		BSP_aabb_ctor(pdst, psrc->dim);
+		BSP_aabb_t::dtor(pdst);
+		BSP_aabb_t::ctor(pdst, psrc->dim);
 	}
 
 	// determine the bounds
@@ -203,218 +195,17 @@ int _find_child_index(const BSP_aabb_t * pbranch_aabb, const aabb_t * pleaf_aabb
 	return index;
 }
 
-//--------------------------------------------------------------------------------------------
-// BSP_aabb_t
-//--------------------------------------------------------------------------------------------
-BSP_aabb_t * BSP_aabb_ctor(BSP_aabb_t * pbb, size_t dim)
-{
-	if (NULL == pbb) return NULL;
 
-	// initialize the memory
-	BLANK_STRUCT_PTR(pbb);
 
-	// allocate memory and clear it
-	BSP_aabb_alloc(pbb, dim);
-
-	return pbb;
-}
-
-//--------------------------------------------------------------------------------------------
-BSP_aabb_t * BSP_aabb_dtor(BSP_aabb_t * pbb)
-{
-	if (NULL == pbb) return NULL;
-
-	// deallocate everything
-	pbb = BSP_aabb_dealloc(pbb);
-
-	// wipe it
-	BLANK_STRUCT_PTR(pbb);
-
-	return pbb;
-}
-
-//--------------------------------------------------------------------------------------------
-BSP_aabb_t * BSP_aabb_alloc(BSP_aabb_t * pbb, size_t dim)
-{
-	if (NULL == pbb) return pbb;
-
-	pbb->dim = 0;
-
-	pbb->mins.ctor(dim);
-	pbb->mids.ctor(dim);
-	pbb->maxs.ctor(dim);
-
-	if (dim != pbb->mins.cp || dim != pbb->mids.cp || dim != pbb->maxs.cp)
-	{
-		BSP_aabb_dealloc(pbb);
-	}
-	else
-	{
-		pbb->dim = dim;
-		BSP_aabb_self_clear(pbb);
-	}
-
-	BSP_aabb_validate(*pbb);
-
-	return pbb;
-}
-
-//--------------------------------------------------------------------------------------------
-BSP_aabb_t * BSP_aabb_dealloc(BSP_aabb_t * pbb)
-{
-	if (NULL == pbb) return pbb;
-
-	// deallocate everything
-	pbb->mins.dtor();
-	pbb->mids.dtor();
-	pbb->maxs.dtor();
-
-	pbb->dim = 0;
-	pbb->valid = false;
-
-	return pbb;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_from_oct_bb(BSP_aabb_t * pdst, const oct_bb_t * psrc)
-{
-	/// @author BB
-	/// @details do an automatic conversion from an oct_bb_t to a BSP_aabb_t
-
-	Uint32 cnt;
-
-	if (NULL == pdst || NULL == psrc) return false;
-
-	BSP_aabb_invalidate(*pdst);
-
-	if (pdst->dim <= 0) return false;
-
-	// this process is a little bit complicated because the
-	// order to the OCT_* indices is optimized for a different test.
-	if (1 == pdst->dim)
-	{
-		pdst->mins.ary[kX] = psrc->mins[OCT_X];
-
-		pdst->maxs.ary[kX] = psrc->maxs[OCT_X];
-	}
-	else if (2 == pdst->dim)
-	{
-		pdst->mins.ary[kX] = psrc->mins[OCT_X];
-		pdst->mins.ary[kY] = psrc->mins[OCT_Y];
-
-		pdst->maxs.ary[kX] = psrc->maxs[OCT_X];
-		pdst->maxs.ary[kY] = psrc->maxs[OCT_Y];
-	}
-	else if (pdst->dim >= 3)
-	{
-		pdst->mins.ary[kX] = psrc->mins[OCT_X];
-		pdst->mins.ary[kY] = psrc->mins[OCT_Y];
-		pdst->mins.ary[kZ] = psrc->mins[OCT_Z];
-
-		pdst->maxs.ary[kX] = psrc->maxs[OCT_X];
-		pdst->maxs.ary[kY] = psrc->maxs[OCT_Y];
-		pdst->maxs.ary[kZ] = psrc->maxs[OCT_Z];
-
-		// blank any extended dimensions
-		for (cnt = 3; cnt < pdst->dim; cnt++)
-		{
-			pdst->mins.ary[cnt] = pdst->maxs.ary[cnt] = 0.0f;
-		}
-	}
-
-	// find the mid values
-	for (cnt = 0; cnt < pdst->dim; cnt++)
-	{
-		pdst->mids.ary[cnt] = 0.5f * (pdst->mins.ary[cnt] + pdst->maxs.ary[cnt]);
-	}
-
-	BSP_aabb_validate(*pdst);
-
-	return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_validate(BSP_aabb_t& src)
-{
-	// set it to valid
-	src.valid = true;
-
-	// check to see if any dimension is inverted
-	for (size_t cnt = 0; cnt < src.dim; cnt++)
-	{
-		if (src.maxs.ary[cnt] < src.mids.ary[cnt])
-		{
-			src.valid = false;
-			break;
-		}
-		if (src.maxs.ary[cnt] < src.mins.ary[cnt])
-		{
-			src.valid = false;
-			break;
-		}
-		if (src.mids.ary[cnt] < src.mins.ary[cnt])
-		{
-			src.valid = false;
-			break;
-		}
-	}
-
-	return src.valid;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_copy(BSP_aabb_t * pdst, const BSP_aabb_t * psrc)
-{
-	size_t cnt;
-
-	if (NULL == pdst) return false;
-
-	if (NULL == psrc)
-	{
-		BSP_aabb_dtor(pdst);
-		return false;
-	}
-
-	// ensure that they have the same dimensions
-	if (pdst->dim != psrc->dim)
-	{
-		BSP_aabb_dealloc(pdst);
-		BSP_aabb_alloc(pdst, psrc->dim);
-	}
-
-	for (cnt = 0; cnt < psrc->dim; cnt++)
-	{
-		pdst->mins.ary[cnt] = psrc->mins.ary[cnt];
-		pdst->mids.ary[cnt] = psrc->mids.ary[cnt];
-		pdst->maxs.ary[cnt] = psrc->maxs.ary[cnt];
-	}
-
-	BSP_aabb_validate(*pdst);
-
-	return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_self_union(BSP_aabb_t& dst, const BSP_aabb_t& src)
-{
-	size_t min_dim = std::min(src.dim, dst.dim);
-	for (size_t cnt = 0; cnt < min_dim; cnt++)
-	{
-		dst.mins.ary[cnt] = std::min(dst.mins.ary[cnt], src.mins.ary[cnt]);
-		dst.maxs.ary[cnt] = std::max(dst.maxs.ary[cnt], src.maxs.ary[cnt]);
-		dst.mids.ary[cnt] = 0.5f * (dst.mins.ary[cnt] + dst.maxs.ary[cnt]);
-	}
-	return BSP_aabb_validate(dst);
-}
-
+#if 0
 //--------------------------------------------------------------------------------------------
 // BSP_leaf_t
 //--------------------------------------------------------------------------------------------
-BSP_leaf_t *BSP_leaf_create(void * data, int type, int index)
+BSP_leaf_t *BSP_leaf_create(void * data, bsp_type_t type, int index)
 {
 	BSP_leaf_t *rv = EGOBOO_NEW(BSP_leaf_t);
 	if (NULL == rv) return rv;
-	return BSP_leaf_ctor(rv, data, type, index);
+	return BSP_leaf_t::ctor(rv, data, type, index);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -422,15 +213,16 @@ bool BSP_leaf_destroy(BSP_leaf_t ** ppleaf)
 {
 	if (NULL == ppleaf || NULL == *ppleaf) return false;
 
-	BSP_leaf_dtor(*ppleaf);
+	BSP_leaf_t::dtor(*ppleaf);
 
 	EGOBOO_DELETE(*ppleaf);
 
 	return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
-BSP_leaf_t *BSP_leaf_ctor(BSP_leaf_t * L, void * data, int type, int index)
+BSP_leaf_t *BSP_leaf_t::ctor(BSP_leaf_t * L, void * data, bsp_type_t type, int index)
 {
 	if (NULL == L) return L;
 
@@ -448,12 +240,12 @@ BSP_leaf_t *BSP_leaf_ctor(BSP_leaf_t * L, void * data, int type, int index)
 }
 
 //--------------------------------------------------------------------------------------------
-BSP_leaf_t * BSP_leaf_dtor(BSP_leaf_t *L)
+BSP_leaf_t * BSP_leaf_t::dtor(BSP_leaf_t *L)
 {
 	if (NULL == L) return L;
 
 	L->inserted = false;
-	L->data_type = -1;
+	L->data_type = BSP_LEAF_NONE;
 	L->data = NULL;
 
 	return L;
@@ -516,73 +308,73 @@ bool BSP_leaf_copy(BSP_leaf_t * dst, const BSP_leaf_t * src)
 //--------------------------------------------------------------------------------------------
 // BSP_branch_t
 //--------------------------------------------------------------------------------------------
-BSP_branch_t *BSP_branch_ctor(BSP_branch_t *B, size_t dim)
+BSP_branch_t *BSP_branch_t::ctor(BSP_branch_t *self, size_t dim)
 {
-	if (NULL == B) return B;
 
-	BLANK_STRUCT_PTR(B);
+	if (NULL == self)
+	{
+		return self;
+	}
 
-	BSP_branch_alloc(B, dim);
+	BLANK_STRUCT_PTR(self);
 
-	return B;
+	// Construct the list of children.
+	if (!BSP_branch_list_t::ctor(&(self->children), dim))
+	{
+		return NULL;
+	}
+
+	// Construct the list of nodes.
+	if (!BSP_leaf_list_t::ctor(&(self->nodes)))
+	{
+		BSP_branch_list_t::dtor(&(self->children));
+		return NULL;
+	}
+
+	// Construct the list of unsorted nodes.
+	if (!BSP_leaf_list_t::ctor(&(self->unsorted)))
+	{
+		BSP_leaf_list_t::dtor(&(self->nodes));
+		BSP_branch_list_t::dtor(&(self->children));
+		return NULL;
+	}
+
+	// Construct the bounding box.
+	if (!BSP_aabb_t::ctor(&(self->bsp_bbox), dim))
+	{
+		BSP_leaf_list_t::dtor(&(self->unsorted));
+		BSP_leaf_list_t::dtor(&(self->nodes));
+		BSP_branch_list_t::dtor(&(self->children));
+		return NULL;
+	}
+
+	return self;
+
 }
 
 //--------------------------------------------------------------------------------------------
-BSP_branch_t *BSP_branch_dtor(BSP_branch_t *B)
+void BSP_branch_t::dtor(BSP_branch_t *self)
 {
-	if (NULL == B) return B;
 
-	BSP_branch_dealloc(B);
+	if (NULL == self)
+	{
+		return;
+	}
 
-	BLANK_STRUCT_PTR(B);
+	// Destruct the list of children.
+	BSP_branch_list_t::dtor(&(self->children));
 
-	return B;
-}
+	// Destruct the list of unsorted nodes.
+	BSP_leaf_list_t::dtor(&(self->unsorted));
 
-//--------------------------------------------------------------------------------------------
-bool BSP_branch_alloc(BSP_branch_t * B, size_t dim)
-{
-	if (NULL == B) return false;
+	// Destruct the list of nodes.
+	BSP_leaf_list_t::dtor(&(self->nodes));
 
-	// allocate the branch's children
-	bool child_rv = BSP_branch_list_alloc(&(B->children), dim);
+	// Destruct the bounding box.
+	BSP_aabb_t::dtor(&(self->bsp_bbox));
 
-	// allocate the branch's nodes
-	bool nodes_rv = BSP_leaf_list_alloc(&(B->nodes));
+	BLANK_STRUCT_PTR(self);
 
-	// allocate the branch's nodes
-	bool unsorted_rv = BSP_leaf_list_alloc(&(B->unsorted));
-
-	// allocate the branch's bounding box
-	BSP_aabb_alloc(&(B->bsp_bbox), dim);
-
-	return child_rv && nodes_rv && unsorted_rv && (dim == B->bsp_bbox.dim);
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_branch_dealloc(BSP_branch_t * B)
-{
-	if (NULL == B) return false;
-
-	// deallocate the list of children
-	BSP_branch_list_dtor(&(B->children));
-
-	// deallocate the branch's nodes
-	BSP_leaf_list_dealloc(&(B->nodes));
-
-	// deallocate the list of nodes
-	BSP_leaf_list_dtor(&(B->nodes));
-
-	// deallocate the branch's unsorted nodes
-	BSP_leaf_list_dealloc(&(B->unsorted));
-
-	// deallocate the list of unsorted nodes
-	BSP_leaf_list_dtor(&(B->unsorted));
-
-	// deallocate the bounding box
-	BSP_aabb_dtor(&(B->bsp_bbox));
-
-	return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1640,8 +1432,8 @@ BSP_tree_t * BSP_tree_ctor(BSP_tree_t * t, Sint32 req_dim, Sint32 req_depth)
 	BLANK_STRUCT_PTR(t)
 
 	bv_ctor(t->bbox);
-	BSP_aabb_ctor(&(t->bsp_bbox), req_dim);
-	BSP_leaf_list_ctor(&(t->infinite));
+	BSP_aabb_t::ctor(&(t->bsp_bbox), req_dim);
+	BSP_leaf_list_t::ctor(&(t->infinite));
 
 	node_count = BSP_tree_count_nodes(req_dim, req_depth);
 	if (node_count < 0) return t;
@@ -1692,9 +1484,9 @@ bool BSP_tree_alloc(BSP_tree_t * t, size_t count, size_t dim)
 	if (NULL == t->branch_all.ary || 0 == t->branch_all.cp) return false;
 
 	// initialize the array branches
-	for (size_t cnt = 0; cnt < count; cnt++)
+	for (size_t index = 0; index < count; ++index)
 	{
-		BSP_branch_ctor(t->branch_all.ary + cnt, dim);
+		BSP_branch_t::ctor(t->branch_all.ary + index, dim);
 	}
 
 	// allocate the aux arrays
@@ -1702,7 +1494,7 @@ bool BSP_tree_alloc(BSP_tree_t * t, size_t count, size_t dim)
 	t->branch_free.ctor(count);
 
 	// initialize the root bounding box
-	BSP_aabb_ctor(&(t->bsp_bbox), dim);
+	BSP_aabb_t::ctor(&(t->bsp_bbox), dim);
 
 	// set the variables
 	t->dimensions = dim;
@@ -1721,9 +1513,9 @@ bool BSP_tree_dealloc(BSP_tree_t * t)
 	BSP_leaf_list_dealloc(&(t->infinite));
 
 	// destruct the branches
-	for (size_t i = 0; i < t->branch_all.cp; i++)
+	for (size_t index = 0; index < t->branch_all.cp; index++)
 	{
-		BSP_branch_dtor(t->branch_all.ary + i);
+		BSP_branch_t::dtor(t->branch_all.ary + index);
 	}
 
 	// deallocate the branches
@@ -1734,7 +1526,7 @@ bool BSP_tree_dealloc(BSP_tree_t * t)
 	t->branch_free.dtor();
 
 	// deallocate the root bounding box
-	BSP_aabb_dtor(&(t->bsp_bbox));
+	BSP_aabb_t::dtor(&(t->bsp_bbox));
 
 	return true;
 }
@@ -1917,7 +1709,7 @@ bool BSP_tree_insert_leaf(BSP_tree_t * ptree, BSP_leaf_t * pleaf)
 
 	if (NULL == ptree || NULL == pleaf) return false;
 
-	if (!BSP_aabb_contains_aabb(&(ptree->bsp_bbox), &(pleaf->bbox.aabb)))
+	if (!BSP_aabb_t::contains_aabb(&(ptree->bsp_bbox), &(pleaf->bbox.aabb)))
 	{
 		// put the leaf at the head of the infinite list
 		retval = BSP_tree_insert_infinite(ptree, pleaf);
@@ -1996,7 +1788,7 @@ bool BSP_tree_prune_branch(BSP_tree_t * t, size_t cnt)
 		BSP_leaf_list_clear(&(B->nodes));
 		BSP_leaf_list_clear(&(B->unsorted));
 		B->depth = -1;
-		BSP_aabb_self_clear(&(B->bsp_bbox));
+		BSP_aabb_t::set_empty(&(B->bsp_bbox));
 
 		// move the branch that we found to the top of the list
 		SWAP(BSP_branch_t *, t->branch_used.ary[cnt], t->branch_used.ary[t->branch_used.top]);
@@ -2051,29 +1843,28 @@ size_t BSP_tree_collide_frustum(const BSP_tree_t * tree, const egolib_frustum_t 
 //--------------------------------------------------------------------------------------------
 // BSP_leaf_list_t
 //--------------------------------------------------------------------------------------------
-BSP_leaf_list_t * BSP_leaf_list_ctor(BSP_leaf_list_t * LL)
+BSP_leaf_list_t *BSP_leaf_list_t::ctor(BSP_leaf_list_t *self)
 {
-	if (NULL == LL) return LL;
-
-	BLANK_STRUCT_PTR(LL)
-
-	BSP_leaf_list_alloc(LL);
-
-	bv_ctor(LL->bbox);
-
-	return LL;
+	if (NULL == self)
+	{
+		return self;
+	}
+	BLANK_STRUCT_PTR(self)
+	BSP_leaf_list_alloc(self);
+	bv_ctor(self->bbox);
+	return self;
 }
 
 //--------------------------------------------------------------------------------------------
-BSP_leaf_list_t * BSP_leaf_list_dtor(BSP_leaf_list_t *  LL)
+BSP_leaf_list_t *BSP_leaf_list_t::dtor(BSP_leaf_list_t *self)
 {
-	if (NULL == LL) return LL;
-
-	BSP_leaf_list_dealloc(LL);
-
-	BLANK_STRUCT_PTR(LL)
-
-		return LL;
+	if (NULL == self)
+	{
+		return self;
+	}
+	BSP_leaf_list_dealloc(self);
+	BLANK_STRUCT_PTR(self)
+	return self;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2465,67 +2256,45 @@ bool BSP_leaf_list_collide_frustum(const BSP_leaf_list_t * LL, const egolib_frus
 //--------------------------------------------------------------------------------------------
 // BSP_branch_list_t
 //--------------------------------------------------------------------------------------------
-BSP_branch_list_t * BSP_branch_list_ctor(BSP_branch_list_t * BL, size_t dim)
+BSP_branch_list_t *BSP_branch_list_t::ctor(BSP_branch_list_t *self, size_t dim)
 {
-	if (NULL == BL) return BL;
-
-	BLANK_STRUCT_PTR(BL)
-
-	BSP_branch_list_alloc(BL, dim);
-
-	bv_ctor(BL->bbox);
-
-	return BL;
-}
-
-//--------------------------------------------------------------------------------------------
-BSP_branch_list_t * BSP_branch_list_dtor(BSP_branch_list_t *  BL)
-{
-	if (NULL == BL) return BL;
-
-	BSP_branch_list_dealloc(BL);
-
-	BLANK_STRUCT_PTR(BL)
-
-		return BL;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_branch_list_alloc(BSP_branch_list_t * BL, size_t dim)
-{
-	// determine the number of children from the number of dimensions
-	size_t child_count = (0 == dim) ? 0 : (2 << (dim - 1));
-
-	if (NULL == BL) return false;
-
-	BSP_branch_list_dealloc(BL);
-
-	if (0 == child_count) return false;
-
-	// allocate the child list
-	BL->lst = EGOBOO_NEW_ARY(BSP_branch_t*, child_count);
-	if (NULL != BL->lst)
+	if (NULL == self)
 	{
-		size_t cnt;
-		for (cnt = 0; cnt < child_count; cnt++)
-		{
-			BL->lst[cnt] = NULL;
-		}
-		BL->lst_size = child_count;
+		return self;
 	}
-
-	return (NULL != BL->lst) && (child_count == BL->lst_size);
+	BLANK_STRUCT_PTR(self)
+	// Determine the number of children from the dimensionality.
+	size_t child_count = (0 == dim) ? 0 : (2 << (dim - 1));
+	if (0 == child_count)
+	{
+		return NULL;
+	}
+	// Allocate the child list.
+	self->lst = EGOBOO_NEW_ARY(BSP_branch_t*, child_count);
+	if (!self->lst)
+	{
+		return NULL;
+	}
+	self->lst_size = child_count;
+	for (size_t index = 0; index < child_count; ++index)
+	{
+		self->lst[index] = NULL;
+	}
+	bv_ctor(self->bbox);
+	return self;
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_branch_list_dealloc(BSP_branch_list_t * BL)
+BSP_branch_list_t *BSP_branch_list_t::dtor(BSP_branch_list_t *self)
 {
-	if (NULL == BL) return false;
-
-	EGOBOO_DELETE_ARY(BL->lst);
-	BL->lst_size = 0;
-
-	return true;
+	if (NULL == self)
+	{
+		return self;
+	}
+	EGOBOO_DELETE_ARY(self->lst);
+	self->lst_size = 0;
+	BLANK_STRUCT_PTR(self);
+	return self;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2872,190 +2641,6 @@ bool BSP_leaf_valid( BSP_leaf_t * L )
 
     if ( NULL == L->data ) return false;
     if ( L->data_type < 0 ) return false;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_empty( const BSP_aabb_t * psrc )
-{
-    Uint32 cnt;
-
-    if ( NULL == psrc || 0 == psrc->dim  || !psrc->valid ) return true;
-
-    for ( cnt = 0; cnt < psrc->dim; cnt++ )
-    {
-        if ( psrc->maxs.ary[cnt] <= psrc->mins.ary[cnt] )
-            return true;
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_invalidate(BSP_aabb_t& src)
-{
-    // set it to valid
-    src.valid = false;
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-/**
- * @brief
- *	Return this bounding box to an empty state.
- * @param psrc
- *	the bounding box
- */
-bool BSP_aabb_self_clear( BSP_aabb_t * psrc )
-{
-    if ( NULL == psrc ) return false;
-
-    if ( psrc->dim <= 0 || NULL == psrc->mins.ary || NULL == psrc->mids.ary || NULL == psrc->maxs.ary )
-    {
-        BSP_aabb_invalidate(*psrc);
-        return false;
-    }
-
-    for ( size_t cnt = 0; cnt < psrc->dim; cnt++ )
-    {
-        psrc->mins.ary[cnt] = psrc->mids.ary[cnt] = psrc->maxs.ary[cnt] = 0.0f;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_overlap_with_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr )
-{
-    /// @author BB
-    /// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
-    ///               than lhs_ptr, just check the lowest common dimensions.
-
-    size_t cnt, min_dim;
-
-    const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
-
-    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
-    if ( NULL == rhs_ptr || !rhs_ptr->valid ) return false;
-
-    min_dim = std::min( rhs_ptr->dim, lhs_ptr->dim );
-    if ( 0 == min_dim ) return false;
-
-    // the optomizer is supposed to do this stuff all by itself,
-    // but isn't
-    rhs_mins = rhs_ptr->mins.ary;
-    rhs_maxs = rhs_ptr->maxs.ary;
-    lhs_mins = lhs_ptr->mins.ary;
-    lhs_maxs = lhs_ptr->maxs.ary;
-
-    for ( cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
-    {
-        if (( *rhs_maxs ) < ( *lhs_mins ) ) return false;
-        if (( *rhs_mins ) > ( *lhs_maxs ) ) return false;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_contains_BSP_aabb( const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr )
-{
-    /// @author BB
-    /// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
-    ///               than lhs_ptr, just check the lowest common dimensions.
-
-    size_t cnt, min_dim;
-
-    const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
-
-    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
-    if ( NULL == rhs_ptr || !rhs_ptr->valid ) return false;
-
-    min_dim = std::min( rhs_ptr->dim, lhs_ptr->dim );
-    if ( 0 == min_dim ) return false;
-
-    // the optomizer is supposed to do this stuff all by itself,
-    // but isn't
-    rhs_mins = rhs_ptr->mins.ary;
-    rhs_maxs = rhs_ptr->maxs.ary;
-    lhs_mins = lhs_ptr->mins.ary;
-    lhs_maxs = lhs_ptr->maxs.ary;
-
-    for ( cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
-    {
-        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return false;
-        if (( *rhs_mins ) < ( *lhs_mins ) ) return false;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_overlap_with_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
-{
-    /// @author BB
-    /// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
-    ///               than lhs_ptr, just check the lowest common dimensions.
-
-    size_t cnt, min_dim;
-
-    const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
-
-    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
-    if ( NULL == rhs_ptr /* || !rhs_ptr->valid */ ) return false;
-
-	min_dim = std::min((size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim);
-    if ( 0 == min_dim ) return false;
-
-    // the optomizer is supposed to do this stuff all by itself,
-    // but isn't
-    rhs_mins = rhs_ptr->mins + 0;
-    rhs_maxs = rhs_ptr->maxs + 0;
-    lhs_mins = lhs_ptr->mins.ary;
-    lhs_maxs = lhs_ptr->maxs.ary;
-
-    for ( cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
-    {
-        if (( *rhs_maxs ) < ( *lhs_mins ) ) return false;
-        if (( *rhs_mins ) > ( *lhs_maxs ) ) return false;
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_aabb_contains_aabb( const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr )
-{
-    /// @author BB
-    /// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
-    ///               than lhs_ptr, just check the lowest common dimensions.
-
-    size_t cnt, min_dim;
-
-    const float * rhs_mins, * rhs_maxs, * lhs_mins, * lhs_maxs;
-
-    if ( NULL == lhs_ptr || !lhs_ptr->valid ) return false;
-    if ( NULL == rhs_ptr /* || !rhs_ptr->valid */ ) return false;
-
-    min_dim = std::min( (size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim );
-    if ( 0 == min_dim ) return false;
-
-    // the optomizer is supposed to do this stuff all by itself,
-    // but isn't
-    rhs_mins = rhs_ptr->mins + 0;
-    rhs_maxs = rhs_ptr->maxs + 0;
-    lhs_mins = lhs_ptr->mins.ary;
-    lhs_maxs = lhs_ptr->maxs.ary;
-
-    for ( cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++ )
-    {
-        if (( *rhs_maxs ) > ( *lhs_maxs ) ) return false;
-        if (( *rhs_mins ) < ( *lhs_mins ) ) return false;
-    }
 
     return true;
 }

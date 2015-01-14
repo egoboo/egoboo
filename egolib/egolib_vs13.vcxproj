@@ -139,6 +139,7 @@
     </Xdcmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\bsp_aabb.c" />
     <ClCompile Include="src\egolib\mem.c" />
     <ClCompile Include="src\egolib\bv.c" />
     <ClCompile Include="src\egolib\DynamicArray.cpp" />
@@ -225,6 +226,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\bsp_aabb.h" />
     <ClInclude Include="src\egolib\bv.h" />
     <ClInclude Include="src\egolib\DynamicArray.hpp" />
     <ClInclude Include="src\egolib\Stack.hpp" />
@@ -328,10 +330,6 @@
     <None Include="libraries.props" />
     <None Include="lua-debug.props" />
     <None Include="physfs-debug.props" />
-    <None Include="src\egolib\bbox.inl" />
-    <None Include="src\egolib\bsp.inl" />
-    <None Include="src\egolib\console.inl" />
-    <None Include="src\egolib\egolib.inl" />
     <None Include="src\egolib\file_formats\id_normals.inl" />
     <None Include="src\egolib\platform\file_mac.m">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -345,7 +343,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </None>
-    <None Include="src\egolib\_math.inl" />
     <None Include="lua.props" />
     <None Include="multithreaded_debug_dll.props" />
     <None Include="multithreaded_dll.props" />

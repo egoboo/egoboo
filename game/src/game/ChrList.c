@@ -77,7 +77,7 @@ void ChrList_ctor()
         BLANK_STRUCT_PTR( pchr )
 
         // initialize the particle's character
-        ego_object_ctor( POBJ_GET_PBASE( pchr ), pchr, BSP_LEAF_CHR, cnt );
+        Ego::Entity::ctor( POBJ_GET_PBASE( pchr ), pchr, BSP_LEAF_CHR, cnt );
 
         // initialize character
         chr_ctor( pchr );
@@ -96,7 +96,7 @@ void ChrList_dtor()
         chr_dtor( pchr );
 
         // destruct the parent
-        ego_object_dtor( POBJ_GET_PBASE( pchr ) );
+        Ego::Entity::dtor( POBJ_GET_PBASE( pchr ) );
     }
 
     // initialize particle

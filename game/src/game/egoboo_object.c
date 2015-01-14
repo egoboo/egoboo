@@ -31,34 +31,35 @@ Uint32 ego_object_guid = 0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-Ego::Entity *ego_object_ctor(Ego::Entity *pbase, void *child_data, int child_type, size_t child_index)
+Ego::Entity *Ego::Entity::ctor(Ego::Entity *self, void *child_data, bsp_type_t child_type, size_t child_index)
 {
-    if ( NULL == pbase ) return pbase;
+	if (NULL == self)
+	{
+		return self;
+	}
+    BLANK_STRUCT_PTR(self)
 
-    BLANK_STRUCT_PTR( pbase )
+    self->_name[0] = CSTR_END;
+    self->state = Ego::Entity::State::Invalid;
+    self->index = child_index;
 
-    pbase->_name[0] = CSTR_END;
-    pbase->state    = Ego::Entity::State::Invalid;
-    pbase->index    = child_index;
+    // Construct the BSP node for this character.
+    BSP_leaf_t::ctor(&(self->bsp_leaf), child_data, child_type, child_index);
 
-    // initialize the bsp node for this character
-    BSP_leaf_ctor( &( pbase->bsp_leaf ), child_data, child_type, child_index );
-
-    return pbase;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-Ego::Entity *ego_object_dtor(Ego::Entity *pbase)
+Ego::Entity *Ego::Entity::dtor(Ego::Entity *self)
 {
-    if ( NULL == pbase ) return pbase;
-
-    BLANK_STRUCT_PTR( pbase )
-
-    pbase->_name[0] = CSTR_END;
-    pbase->state    = Ego::Entity::State::Invalid;
-
-    // initialize the bsp node for this character
-    BSP_leaf_dtor( &( pbase->bsp_leaf ) );
-
-    return pbase;
+	if (NULL == self)
+	{
+		return self;
+	}
+    self->_name[0] = CSTR_END;
+    self->state = Ego::Entity::State::Invalid;
+    // Destruct the BSP node for this character.
+    BSP_leaf_t::dtor(&(self->bsp_leaf));
+	BLANK_STRUCT_PTR(self)
+	return self;
 }
