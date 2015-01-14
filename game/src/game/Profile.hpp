@@ -22,8 +22,6 @@
 
 #include <unordered_map>
 
-#include "game/egoboo_typedef.h"
-#include "game/egoboo.h"
 #include "game/script.h"     //for script_info_t
 #include "game/char.h"
 #include "game/mad.h"
@@ -32,15 +30,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //Forward declarations
-struct s_prt;
-struct s_cap;
-struct mad_t;
-struct eve_t;
-struct s_pip;
-
-struct s_mpd_BSP;
-struct s_prt_bundle;
-
 typedef int SoundID;
 
 //--------------------------------------------------------------------------------------------
@@ -126,9 +115,3 @@ private:
     // sounds
     std::array<SoundID, 30> _soundList;             ///< sounds in a object
 };
-
-
-int          pro_get_slot_vfs( const char * tmploadname, int slot_override );
-const char * pro_create_chop( const PRO_REF profile_ref );
-bool       pro_load_chop_vfs( const PRO_REF profile_ref, const char *szLoadname );
-

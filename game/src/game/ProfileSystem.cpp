@@ -1,3 +1,26 @@
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
+/// @file  game/ProfileSystem.cpp
+/// @brief Implementation of functions for controlling and accessing object profiles
+/// @details
+
 #include "game/ProfileSystem.hpp"
 
 pro_import_t import_data;
@@ -89,6 +112,7 @@ void ProfileSystem::releaseAllProfiles()
 
 void ProfileSystem::loadSpellBooks()
 {
+	//ZF> TODO: not implemented
 	/*
     // do the icon
     snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%d", tmploadname, cnt );
@@ -114,6 +138,46 @@ void ProfileSystem::loadSpellBooks()
         }
     }
     */
+}
+
+//--------------------------------------------------------------------------------------------
+int ProfileSystem::getProfileSlotNumber(const char * tmploadname, int slot_override)
+{
+    if ( VALID_PRO_RANGE( slot_override ) )
+    {
+        // just use the slot that was provided
+        return slot_override;
+    }
+
+    // grab the slot from the file
+    STRING szLoadName;
+    make_newloadname( tmploadname, "/data.txt", szLoadName );
+
+    if ( 0 == vfs_exists( szLoadName ) ) {
+
+        return -1;
+    }
+
+    // Open the file
+    vfs_FILE* fileread = vfs_openRead( szLoadName );
+    if ( NULL == fileread ) return -1;
+
+    // load the slot's slot no matter what
+    int slot = vfs_get_next_int( fileread );
+
+    vfs_close( fileread );
+
+    // set the slot slot
+    if ( slot >= 0 )
+    {
+        return slot;
+    }
+    else if ( import_data.slot >= 0 )
+    {
+        return import_data.slot;
+    }
+
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -237,16 +301,12 @@ pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
     return LOADED_PIP( local_pip ) ? PipStack.lst + local_pip : nullptr;
 }
 
-int ProfileSystem::loadOneProfile(const char* tmploadname, int slot_override )
+int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
 {
-	/// @author ZZ
-    /// @details This function loads one object and returns the object slot
-    STRING newloadname;
-
     bool required = !VALID_CAP_RANGE( slot_override );
 
     // get a slot value
-    int islot = pro_get_slot_vfs( tmploadname, slot_override );
+    int islot = getProfileSlotNumber( pathName, slot_override );
 
     // throw an error code if the slot is invalid of if the file doesn't exist
     if ( islot < 0 || islot > MAX_PROFILE )
@@ -254,11 +314,11 @@ int ProfileSystem::loadOneProfile(const char* tmploadname, int slot_override )
         // The data file wasn't found
         if ( required )
         {
-            log_debug( "load_one_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", tmploadname );
+            log_debug( "load_one_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", pathName );
         }
         else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
-            log_debug( "load_one_profile_vfs() - Not able to open file \"%s\"\n", tmploadname );
+            log_warning( "load_one_profile_vfs() - Not able to open file \"%s\"\n", pathName );
         }
 
         return MAX_PROFILE;
@@ -276,11 +336,11 @@ int ProfileSystem::loadOneProfile(const char* tmploadname, int slot_override )
         // Make sure global objects don't load over existing models
         if ( required && SPELLBOOK == iobj )
         {
-            log_error( "load_one_profile_vfs() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, tmploadname );
+            log_error( "load_one_profile_vfs() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, pathName );
         }
         else if ( required && overrideslots )
         {
-            log_error( "load_one_profile_vfs() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), profile->_name.c_str(), tmploadname );
+            log_error( "load_one_profile_vfs() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), profile->_name.c_str(), pathName );
         }
         else
         {

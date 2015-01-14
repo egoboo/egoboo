@@ -19,6 +19,7 @@
 /// @file game/ProfileSystem.hpp
 #pragma once
 #include <vector>
+#include <unordered_map>
 
 /// Placeholders used while importing profiles
 struct pro_import_t
@@ -41,6 +42,9 @@ public:
     ///     necessary for the the profile loading code to work
 	begin();
 
+	/**
+	* Unloads all object profiles
+	**/
 	end();
 
 	void releaseAllProfiles();
@@ -57,10 +61,19 @@ public:
 
 	inline bool isValidProfileID(PRO_REF id) const {return id >= 0 && id < _profilesLoaded.size();}
 
+    /**
+    *  @details This function loads one object and returns the object slot
+    **/
 	int loadOneProfile( const char* tmploadname, int slot_override );
+
+	/**
+	* @brief Loads only the slot number from data.txt
+	*        If slot_override is valid, then that is used indead
+	**/
+	int getProfileSlotNumber(const char* tmploadname, int slot_override = -1);
 
 private:
 	bool _initialized;
-	std::vector<TX_REF> _bookIcons;
-	std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded;
+	std::vector<TX_REF> _bookIcons;													//List of all book icons loaded
+	std::unordered_map<PRO_REF, std::shared_ptr<ObjectProfile>> _profilesLoaded;	//Maps slot numbers to ObjectProfiles
 };

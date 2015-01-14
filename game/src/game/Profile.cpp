@@ -17,10 +17,11 @@
 //*
 //********************************************************************************************
 
-/// @file  game/profile.c
-/// @brief Implementation of functions for controlling and accessing object profiles
+/// @file  game/Profile.cpp
+/// @brief ObjectProfile handling
 /// @details
 
+//ZF> TODO: check which headers can be removed
 #include "egolib/bsp.h"
 #include "game/Profile.hpp"
 #include "game/graphic_texture.h"
@@ -32,12 +33,6 @@
 #include "game/mesh.h"
 #include "game/particle.h"
 #include "game/audio/AudioSystem.hpp"
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static bool obj_verify_file_vfs( const char * tmploadname );
-static int obj_read_slot_vfs( const char * tmploadname );
 
 ObjectProfile::ObjectProfile() :
     _fileName("*NONE*"),
@@ -144,7 +139,6 @@ ObjectProfile::~ObjectProfile()
     }
 }
 
-//--------------------------------------------------------------------------------------------
 int ObjectProfile::loadTextures(const std::string &folderPath)
 {
     //Clear texture references
@@ -190,7 +184,6 @@ int ObjectProfile::loadTextures(const std::string &folderPath)
     }
 }
 
-//--------------------------------------------------------------------------------------------
 void ObjectProfile::addMessage(const std::string &message, const bool filterDuplicates)
 {
     std::string parsedMessage = message;
@@ -211,7 +204,6 @@ void ObjectProfile::addMessage(const std::string &message, const bool filterDupl
     _messageList.push_back(parsedMessage);
 }
 
-//--------------------------------------------------------------------------------------------
 const std::string& ObjectProfile::getMessage(size_t index) const
 {
     static const std::string EMPTY_STRING;
@@ -223,7 +215,6 @@ const std::string& ObjectProfile::getMessage(size_t index) const
     return _messageList[index];
 }
 
-//--------------------------------------------------------------------------------------------
 void ObjectProfile::loadAllMessages(const std::string &filePath)
 {
     /// @author ZF
@@ -243,76 +234,6 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
 
         vfs_close( fileread );
     }
-}
-
-
-//--------------------------------------------------------------------------------------------
-int obj_read_slot_vfs( const char * tmploadname )
-{
-    vfs_FILE* fileread;
-    int slot;
-    STRING szLoadName;
-
-    make_newloadname( tmploadname, "/data.txt", szLoadName );
-
-    // Open the file
-    fileread = vfs_openRead( szLoadName );
-    if ( NULL == fileread ) return -1;
-
-    // load the slot's slot no matter what
-    slot = vfs_get_next_int( fileread );
-
-    vfs_close( fileread );
-
-    return slot;
-}
-
-//--------------------------------------------------------------------------------------------
-bool obj_verify_file_vfs( const char * tmploadname )
-{
-    STRING szLoadName;
-
-    make_newloadname( tmploadname, "/data.txt", szLoadName );
-
-    // Open the file
-    return ( 0 != vfs_exists( szLoadName ) );
-}
-
-//--------------------------------------------------------------------------------------------
-int pro_get_slot_vfs( const char * tmploadname, int slot_override )
-{
-    int slot;
-
-    slot = -1;
-    if ( VALID_PRO_RANGE( slot_override ) )
-    {
-        // just use the slot that was provided
-        slot = slot_override;
-    }
-
-    // grab the slot from the file
-    else
-    {
-        int tmp_slot = obj_read_slot_vfs( tmploadname );
-
-        // set the slot slot
-        if ( tmp_slot >= 0 )
-        {
-            slot = tmp_slot;
-        }
-        else if ( import_data.slot >= 0 )
-        {
-            slot = import_data.slot;
-        }
-    }
-
-    // return an error value if the file does not exist
-    if ( !obj_verify_file_vfs( tmploadname ) )
-    {
-        slot = -1;
-    }
-
-    return slot;
 }
 
 const char * ObjectProfile::generateRandomName()
