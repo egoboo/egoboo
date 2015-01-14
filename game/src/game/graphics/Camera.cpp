@@ -125,7 +125,7 @@ Camera::~Camera()
     dolist_mgr_t *dmgr_ptr = gfx_system_get_dolist_mgr();
     if ( -1 != _doList )
     {
-        dolist_mgr_free_one( dmgr_ptr, _renderList ); //TODO: check is this correct? or should _renderList be _doList?
+        dolist_mgr_free_one( dmgr_ptr, _doList );
         _doList = -1;
     }
 }

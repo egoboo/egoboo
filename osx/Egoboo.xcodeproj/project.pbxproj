@@ -55,7 +55,6 @@
 		CD39B4931A37506100B377BE /* script_functions.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B44A1A37506100B377BE /* script_functions.c */; };
 		CD39B4941A37506100B377BE /* script_implementation.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B44C1A37506100B377BE /* script_implementation.c */; };
 		CD39B4951A37506100B377BE /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B44E1A37506100B377BE /* script.c */; };
-		CD39B4961A37506100B377BE /* sound.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4501A37506100B377BE /* sound.c */; };
 		CD39B4971A37506100B377BE /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4521A37506100B377BE /* ui.c */; };
 		CD39B4AC1A37629C00B377BE /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD39B4A81A37629B00B377BE /* SDL_image.framework */; };
 		CD39B4AD1A37629C00B377BE /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD39B4A91A37629B00B377BE /* SDL_mixer.framework */; };
@@ -81,6 +80,8 @@
 		CD5B0CB41A62054300F076F9 /* DynamicArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */; };
 		CD97C1651A629E2500179A2C /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1611A629E2500179A2C /* Passage.cpp */; };
 		CD97C1661A629E2500179A2C /* PassageHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1631A629E2500179A2C /* PassageHandler.cpp */; };
+		CDB3DC981A659EF30098D3B9 /* mem.c in Sources */ = {isa = PBXBuildFile; fileRef = CDB3DC961A659ED40098D3B9 /* mem.c */; };
+		CDB3DC9C1A65D0760098D3B9 /* AudioSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB3DC9A1A65D0760098D3B9 /* AudioSystem.cpp */; };
 		CDBDE3EC1A43A3EF008E5FD1 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3A81A43A2CC008E5FD1 /* lapi.c */; };
 		CDBDE3EE1A43A3EF008E5FD1 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3AA1A43A2CC008E5FD1 /* lauxlib.c */; };
 		CDBDE3F01A43A3EF008E5FD1 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3AC1A43A2CC008E5FD1 /* lbaselib.c */; };
@@ -530,8 +531,6 @@
 		CD39B44D1A37506100B377BE /* script_implementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = script_implementation.h; sourceTree = "<group>"; };
 		CD39B44E1A37506100B377BE /* script.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = script.c; sourceTree = "<group>"; };
 		CD39B44F1A37506100B377BE /* script.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = script.h; sourceTree = "<group>"; };
-		CD39B4501A37506100B377BE /* sound.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = sound.c; sourceTree = "<group>"; };
-		CD39B4511A37506100B377BE /* sound.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sound.h; sourceTree = "<group>"; };
 		CD39B4521A37506100B377BE /* ui.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = ui.c; sourceTree = "<group>"; };
 		CD39B4531A37506100B377BE /* ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ui.h; sourceTree = "<group>"; };
 		CD39B4A81A37629B00B377BE /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = ../../../../../Library/Frameworks/SDL_image.framework; sourceTree = "<group>"; };
@@ -553,6 +552,9 @@
 		CD97C1621A629E2500179A2C /* Passage.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Passage.hpp; sourceTree = "<group>"; };
 		CD97C1631A629E2500179A2C /* PassageHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PassageHandler.cpp; sourceTree = "<group>"; };
 		CD97C1641A629E2500179A2C /* PassageHandler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PassageHandler.hpp; sourceTree = "<group>"; };
+		CDB3DC961A659ED40098D3B9 /* mem.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mem.c; sourceTree = "<group>"; };
+		CDB3DC9A1A65D0760098D3B9 /* AudioSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioSystem.cpp; sourceTree = "<group>"; };
+		CDB3DC9B1A65D0760098D3B9 /* AudioSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AudioSystem.hpp; sourceTree = "<group>"; };
 		CDBDE3A31A43726C008E5FD1 /* file_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_linux.c; sourceTree = "<group>"; };
 		CDBDE3A41A43726C008E5FD1 /* file_win.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_win.c; sourceTree = "<group>"; };
 		CDBDE3A51A43726C008E5FD1 /* sys_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = sys_linux.c; sourceTree = "<group>"; };
@@ -794,6 +796,7 @@
 			isa = PBXGroup;
 			children = (
 				CD5B0CAA1A6204EC00F076F9 /* ai */,
+				CDB3DC991A65D0760098D3B9 /* audio */,
 				CDCE21281A6404770084D934 /* graphics */,
 				CDBDE4291A43A65E008E5FD1 /* lua */,
 				CD97C1601A629E2500179A2C /* module */,
@@ -882,8 +885,6 @@
 				CD39B44D1A37506100B377BE /* script_implementation.h */,
 				CD39B44E1A37506100B377BE /* script.c */,
 				CD39B44F1A37506100B377BE /* script.h */,
-				CD39B4501A37506100B377BE /* sound.c */,
-				CD39B4511A37506100B377BE /* sound.h */,
 				CD39B4521A37506100B377BE /* ui.c */,
 				CD39B4531A37506100B377BE /* ui.h */,
 			);
@@ -1056,6 +1057,7 @@
 				CD39B3691A374B6000B377BE /* map_functions.h */,
 				CDD8806D1A44A8EF007177F3 /* matrix.c */,
 				CDD8806E1A44A8EF007177F3 /* matrix.h */,
+				CDB3DC961A659ED40098D3B9 /* mem.c */,
 				CD39B36A1A374B6000B377BE /* mem.h */,
 				CD39B36D1A374B6000B377BE /* network_file.c */,
 				CD39B36E1A374B6000B377BE /* network_file.h */,
@@ -1206,6 +1208,15 @@
 				CD97C1641A629E2500179A2C /* PassageHandler.hpp */,
 			);
 			path = module;
+			sourceTree = "<group>";
+		};
+		CDB3DC991A65D0760098D3B9 /* audio */ = {
+			isa = PBXGroup;
+			children = (
+				CDB3DC9A1A65D0760098D3B9 /* AudioSystem.cpp */,
+				CDB3DC9B1A65D0760098D3B9 /* AudioSystem.hpp */,
+			);
+			path = audio;
 			sourceTree = "<group>";
 		};
 		CDBDE3A71A43A2CC008E5FD1 /* lua */ = {
@@ -1557,7 +1568,6 @@
 				CD97C1661A629E2500179A2C /* PassageHandler.cpp in Sources */,
 				CDCE212D1A6404770084D934 /* Camera.cpp in Sources */,
 				CD39B45D1A37506100B377BE /* ChrList.c in Sources */,
-				CD39B4961A37506100B377BE /* sound.c in Sources */,
 				CD39B48D1A37506100B377BE /* PrtList.c in Sources */,
 				CD39B4941A37506100B377BE /* script_implementation.c in Sources */,
 				CDCE212E1A6404770084D934 /* CameraSystem.cpp in Sources */,
@@ -1574,6 +1584,7 @@
 				CD39B4721A37506100B377BE /* link.c in Sources */,
 				CD39B46A1A37506100B377BE /* graphic_billboard.c in Sources */,
 				CD39B45B1A37506100B377BE /* char.c in Sources */,
+				CDB3DC9C1A65D0760098D3B9 /* AudioSystem.cpp in Sources */,
 				CD39B4631A37506100B377BE /* enchant.c in Sources */,
 				CD39B4611A37506100B377BE /* egoboo_typedef.c in Sources */,
 				CD39B45F1A37506100B377BE /* collision.c in Sources */,
@@ -1661,6 +1672,7 @@
 				CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */,
 				CDD931A41A428D970004A8B2 /* sphere.c in Sources */,
 				CDCA1FA91A3F57D000002E76 /* bsp.c in Sources */,
+				CDB3DC981A659EF30098D3B9 /* mem.c in Sources */,
 				CDCA1FCC1A3F57D000002E76 /* wawalite_file.c in Sources */,
 				CDCA1FD41A3F57D000002E76 /* input_device.c in Sources */,
 				CDD8806F1A44A8EF007177F3 /* bv.c in Sources */,
@@ -1808,7 +1820,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
-				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -1829,7 +1840,6 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
-				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
@@ -2178,6 +2188,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = Cartman;
 				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../cartman/src $(PROJECT_DIR)/../egolib/src";
 				WRAPPER_EXTENSION = app;

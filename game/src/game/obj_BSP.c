@@ -277,6 +277,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     bool       does_status_effect;
     bool       does_special_effect;
     bool       can_push;
+    bool       has_bump;
 
     // make sure we have a character leaf
     if ( NULL == pprt_leaf || NULL == pprt_leaf->data || BSP_LEAF_PRT != pprt_leaf->data_type )
@@ -314,9 +315,13 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
 
     // according to v1.0, only particles that cause damage can push
     can_push            = does_damage && ppip->allowpush;
+    
+    /// @todo this is a stopgap solution, figure out if this is the correct place or
+    ///       we need to fix the loop in fill_interaction_list instead
+    has_bump            = ppip->bump_height && ppip->bump_size;
 
     // particles with no effect
-    if ( !can_push && !has_enchant && !does_damage && !does_status_effect && !does_special_effect ) return false;
+    if ( !can_push && !has_enchant && !does_damage && !does_status_effect && !does_special_effect && !has_bump ) return false;
 
     return true;
 }

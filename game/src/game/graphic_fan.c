@@ -416,7 +416,7 @@ gfx_rv render_water_fan( const ego_mesh_t * pmesh, const Uint32 itile, const Uin
         float alight;
 
         alight = get_ambient_level() + water.layer->light_add;
-        alight = CLIP( alight, 0.0f, 1.0f );
+        alight = CLIP( alight / 255.0f, 0.0f, 1.0f );
 
         for ( cnt = 0; cnt < 4; cnt++ )
         {

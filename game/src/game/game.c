@@ -1189,6 +1189,14 @@ int game_do_menu( menu_process_t * mproc )
 //--------------------------------------------------------------------------------------------
 int game_process_do_begin( game_process_t * gproc )
 {
+    // clean up
+    /// @todo find a better way to do this
+    if (_cameraSystem.isInitialized())
+    {
+        game_process_do_leaving(gproc);
+        process_pause(PROC_PBASE(MProc));
+    }
+    
     BillboardList_init_all();
 
     gproc->escape_latch = false;

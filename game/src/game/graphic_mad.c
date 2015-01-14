@@ -212,10 +212,11 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
                     }
 
                     // apply the tint
-                    col[RR] *= tint[RR] * curr_color[RR];
-                    col[GG] *= tint[GG] * curr_color[GG];
-                    col[BB] *= tint[BB] * curr_color[BB];
-                    col[AA] *= tint[AA] * curr_color[AA];
+                    /// @todo not sure why curr_color is important, removing it fixes phong
+                    col[RR] *= tint[RR];// * curr_color[RR];
+                    col[GG] *= tint[GG];// * curr_color[GG];
+                    col[BB] *= tint[BB];// * curr_color[BB];
+                    col[AA] *= tint[AA];// * curr_color[AA];
 
                     tex[0] = pvrt->env[XX] + uoffset;
                     tex[1] = CLIP( cmax, 0.0f, 1.0f );
