@@ -629,7 +629,7 @@
 		<Unit filename="src/game/profile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/game/profile.h" />
+		<Unit filename="src/game/Profile.hpp" />
 		<Unit filename="src/game/profile.inl" />
 		<Unit filename="src/game/renderer_2d.c">
 			<Option compilerVar="CC" />

@@ -31,10 +31,11 @@
 #include "game/renderer_2d.h"
 #include "game/ChrList.h"
 #include "game/mesh.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/char.h"
 
 #include "game/module/PassageHandler.hpp"
+#include "game/ProfileSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 // wrap generic bitwise conversion macros
@@ -524,7 +525,7 @@ int GetArmorPrice( chr_t * pchr, const int skin )
     cap_t * pcap;
     int loc_skin = 0;
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return -1;
 
     loc_skin = skin % MAX_SKIN;
@@ -647,15 +648,14 @@ Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pst
 
     size_t length;
     CHR_REF ichr;
-    pro_t *ppro;
     char * dst, * dst_end;
 
     Uint8 returncode = true;
 
     if ( !ALLOCATED_PCHR( pchr ) ) return false;
 
-    if ( !IS_VALID_MESSAGE_PRO( pchr->profile_ref, message_index ) ) return false;
-    ppro = ProList_get_ptr( pchr->profile_ref );
+    const std::shared_ptr<ObjectProfile> &ppro = _profileSystem.getProfile( pchr->profile_ref );
+    if ( !ppro->isValidMessageID( message_index ) ) return false;
 
     ichr           = GET_REF_PCHR( pchr );
     length = ppro->getMessage(message_index).length();
@@ -742,10 +742,9 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
     int slot;
     char * dst, * dst_end;
     size_t length;
-    pro_t *ppro;
 
-    if ( !IS_VALID_MESSAGE_PRO( iprofile, message ) ) return false;
-    ppro = ProList_get_ptr( iprofile );
+    const std::shared_ptr<ObjectProfile> &ppro = _profileSystem.getProfile( iprofile );
+    if ( !ppro->isValidMessageID( message ) ) return false;
 
     slot = DisplayMsg_get_free();
     DisplayMsg.ary[slot].time = cfg.message_duration;

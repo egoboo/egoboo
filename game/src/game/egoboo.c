@@ -38,7 +38,8 @@
 #include "game/particle.h"
 #include "game/enchant.h"
 #include "game/collision.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
+#include "game/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -153,7 +154,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     game_module_init( PMod );
     ego_mesh_ctor( PMesh );
     gfx_system_init_all_graphics();
-    profile_system_begin();
+    _profileSystem.begin();
 
     // setup the system gui
     ui_begin( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 24 );

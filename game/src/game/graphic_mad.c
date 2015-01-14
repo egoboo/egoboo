@@ -31,10 +31,12 @@
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/graphics/CameraSystem.hpp"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/char.h"
 #include "game/md2.h"
+
+#include "game/graphics/CameraSystem.hpp"
+#include "game/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -1008,7 +1010,7 @@ void draw_chr_attached_grip( chr_t * pchr )
     if ( !INGAME_CHR( pchr->attachedto ) ) return;
     pholder = ChrList_get_ptr( pchr->attachedto );
 
-    pholder_cap = pro_get_pcap( pholder->profile_ref );
+    pholder_cap = _profileSystem.pro_get_pcap( pholder->profile_ref );
     if ( NULL == pholder_cap ) return;
 
     pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
@@ -1030,7 +1032,7 @@ void draw_chr_grips( chr_t * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return;
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
@@ -2170,7 +2172,6 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
-    pro_t * pobj;
     cap_t * pcap;
     SKIN_T  loc_skin;
 
@@ -2188,10 +2189,10 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     // clear the instance
     chr_instance_ctor( pinst );
 
-    if ( !LOADED_PRO( profile ) ) return gfx_fail;
-    pobj = ProList_get_ptr( profile );
+    if ( !_profileSystem.isValidProfileID( profile ) ) return gfx_fail;
+    std::shared_ptr<ObjectProfile> pobj = _profileSystem.getProfile( profile );
 
-    pcap = pro_get_pcap( profile );
+    pcap = _profileSystem.pro_get_pcap( profile );
 
     loc_skin = 0;
     if ( skin >= 0 )
@@ -2200,7 +2201,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     }
 
     // lighting parameters
-    chr_instance_set_texture( pinst, pobj->tex_ref[loc_skin] );
+    chr_instance_set_texture( pinst, pobj->getSkin(loc_skin) );
     pinst->enviro    = pcap->enviro;
     pinst->alpha     = pcap->alpha;
     pinst->light     = pcap->light;
@@ -2211,7 +2212,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     pinst->dont_cull_backfaces = pcap->dont_cull_backfaces;
 
     // model parameters
-    chr_instance_set_mad( pinst, pro_get_imad( profile ) );
+    chr_instance_set_mad( pinst, _profileSystem.pro_get_imad( profile ) );
 
     // set the initial action, all actions override it
     chr_instance_play_action( pinst, ACTION_DA, true );

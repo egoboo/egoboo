@@ -45,11 +45,12 @@
 #include "game/module/PassageHandler.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
+#include "game/ProfileSystem.hpp"
 
 #include "game/char.h"
 #include "game/particle.h"
 #include "game/enchant.h"
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/mesh.h"
 #include "game/physics.h"
 
@@ -214,7 +215,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     /// @details This function exports a character
 
     cap_t * pcap;
-    pro_t * pobj;
+    ObjectProfile * pobj;
 
     STRING fromdir;
     STRING todir;
@@ -274,7 +275,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     }
 
     // modules/advent.mod/objects/advent.obj
-    snprintf( fromdir, SDL_arraysize( fromdir ), "%s", pobj->name );
+    snprintf( fromdir, SDL_arraysize( fromdir ), "%s", pobj->getName().c_str() );
 
     // Build the DATA.TXT file
     snprintf( tofile, SDL_arraysize( tofile ), "%s/data.txt", todir ); /*DATA.TXT*/
@@ -434,10 +435,10 @@ void log_madused_vfs( const char *savename )
 
         for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
         {
-            if ( LOADED_PRO( cnt ) )
+            if ( _profileSystem.isValidProfileID( cnt ) )
             {
-                CAP_REF icap = pro_get_icap( cnt );
-                MAD_REF imad = pro_get_imad( cnt );
+                CAP_REF icap = _profileSystem.pro_get_icap( cnt );
+                MAD_REF imad = _profileSystem.pro_get_imad( cnt );
 
                 vfs_printf( hFileWrite, "%3d %32s %s\n", REF_TO_INT( cnt ), CapStack.lst[icap].classname, MadStack.lst[imad].name );
             }
@@ -1213,8 +1214,11 @@ int game_process_do_begin( game_process_t * gproc )
     // initialize the collision system
     collision_system_begin();
 
+    //Ready message display
+    DisplayMsg_reset();
+
     // intialize the "profile system"
-    profile_system_begin();
+    _profileSystem.begin();
 
     // do some graphics initialization
     //make_lightdirectionlookup();
@@ -1495,7 +1499,7 @@ int game_process_do_leaving( game_process_t * gproc )
     collision_system_end();
 
     // deallocate any data used by the profile system
-    profile_system_end();
+    _profileSystem.end();
 
     // deallocate the obj_BSP
     obj_BSP_system_end();
@@ -1737,8 +1741,9 @@ bool chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const B
     }
     else
     {
-        bool match_idsz = ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_PARENT ) ) ||
-                            ( idsz == pro_get_idsz( ptst->profile_ref, IDSZ_TYPE ) );
+        ObjectProfile *profile = chr_get_ppro(ichr_test);
+        bool match_idsz = ( idsz == profile->getIDSZ(IDSZ_PARENT) ) ||
+                            ( idsz == profile->getIDSZ(IDSZ_TYPE) );
 
         if ( match_idsz )
         {
@@ -1855,7 +1860,7 @@ void do_damage_tiles()
     {
         cap_t * pcap;
 
-        pcap = pro_get_pcap( pchr->profile_ref );
+        pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
         if ( NULL == pcap ) continue;
 
         // if the object is not really in the game, do nothing
@@ -2343,7 +2348,7 @@ void check_stats()
         {
             Uint32 xpgain;
             chr_t * pchr = ChrList_get_ptr( PlaStack.lst[docheat].index );
-            cap_t * pcap = pro_get_pcap( pchr->profile_ref );
+            cap_t * pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
 
             //Give 10% of XP needed for next level
             xpgain = 0.1f * ( pcap->experience_forlevel[std::min( pchr->experiencelevel+1, MAXLEVEL )] - pcap->experience_forlevel[pchr->experiencelevel] );
@@ -2367,7 +2372,7 @@ void check_stats()
         {
             cap_t * pcap;
             chr_t * pchr = ChrList_get_ptr( PlaStack.lst[docheat].index );
-            pcap = pro_get_pcap( pchr->profile_ref );
+            pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
 
             //Heal 1 life
             heal_character( pchr->ai.index, pchr->ai.index, 256, true );
@@ -2447,7 +2452,7 @@ void show_stat( int statindex )
             cap_t * pcap;
             chr_t * pchr = ChrList_get_ptr( character );
 
-            pcap = pro_get_pcap( pchr->profile_ref );
+            pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
 
             // Name
             DisplayMsg_printf( "=%s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
@@ -2737,7 +2742,7 @@ void import_dir_profiles_vfs( const char * dirname )
             import_data.slot = cnt;
 
             // load it
-            import_data.slot_lst[cnt] = load_one_profile_vfs( filename, MAX_PROFILE );
+            import_data.slot_lst[cnt] = _profileSystem.loadOneProfile(filename);
             import_data.max_slot      = std::max( import_data.max_slot, cnt );
         }
     }
@@ -2779,17 +2784,17 @@ void game_load_profile_ai()
     // ensure that the script parser exists
     parser_state_t * ps = script_compiler_get_state();
 
-    for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
+    for(const auto &element : _profileSystem.getLoadedProfiles())
     {
-        pro_t *ppro;
+        const std::shared_ptr<ObjectProfile> &profile = element.second;
 
-        if ( !LOADED_PRO( ipro ) ) continue;
-        ppro = ProList_get_ptr( ipro );
+        //Guard agains null elements
+        if(profile == nullptr) continue;
 
         // Load the AI script for this iobj
-        make_newloadname( ppro->name, "/script.txt", loadname );
+        std::string filePath = profile->getName() + "/script.txt";
 
-        load_ai_script_vfs( ps, loadname, ppro, &ppro->ai_script );
+        load_ai_script_vfs( ps, filePath.c_str(), profile.get(), &profile->getAIScript() );
     }
 }
 
@@ -2811,7 +2816,7 @@ void game_load_module_profiles( const char *modname )
 
     while ( NULL != ctxt && VALID_CSTR( filehandle ) )
     {
-        load_one_profile_vfs( filehandle, MAX_PROFILE );
+        _profileSystem.loadOneProfile( filehandle, MAX_PROFILE );
 
         ctxt = vfs_findNext( &ctxt );
         filehandle = vfs_search_context_get_current( ctxt );
@@ -2823,7 +2828,7 @@ void game_load_module_profiles( const char *modname )
 void game_load_global_profiles()
 {
     // load all special objects
-    load_one_profile_vfs( "mp_data/globalobjects/book.obj", SPELLBOOK );
+    _profileSystem.loadOneProfile( "mp_data/globalobjects/book.obj", SPELLBOOK );
 
     // load the objects from various import directories
     load_all_profiles_import();
@@ -2842,7 +2847,7 @@ void game_load_all_profiles( const char *modname )
     script_compiler_clear_error( ps );
 
     // clear out any old object definitions
-    release_all_pro();
+    _profileSystem.releaseAllProfiles();
 
     // load the global objects
     game_load_global_profiles();
@@ -2966,7 +2971,7 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
 
     //Is it already loaded?
     ipro = ( PRO_REF )psp_info->slot;
-    if ( LOADED_PRO( ipro ) ) return false;
+    if ( _profileSystem.isValidProfileID( ipro ) ) return false;
 
     // do the loading
     if ( CSTR_END != psp_info->spawn_coment[0] )
@@ -2975,10 +2980,10 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
         // the vfs/PHYSFS file naming conventions
         snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info->spawn_coment );
 
-        psp_info->slot = load_one_profile_vfs( filename, psp_info->slot );
+        psp_info->slot = _profileSystem.loadOneProfile( filename, psp_info->slot );
     }
 
-    return LOADED_PRO(( PRO_REF ) psp_info->slot );
+    return _profileSystem.isValidProfileID(( PRO_REF ) psp_info->slot );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3036,7 +3041,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
             local_index = -1;
             for ( size_t tnc = 0; tnc < ImportList.count; tnc++ )
             {
-                if ( pobject->profile_ref <= import_data.max_slot && VALID_PRO_RANGE( pobject->profile_ref ) )
+                if ( pobject->profile_ref <= import_data.max_slot && _profileSystem.isValidProfileID( pobject->profile_ref ) )
                 {
                     int islot = REF_TO_INT( pobject->profile_ref );
 
@@ -3179,7 +3184,7 @@ void activate_spawn_file_vfs()
             if ( sp_info->attach != ATTACH_NONE ) sp_info->parent = parent;
 
             // If nothing is already in that slot, try to load it.
-            if ( !LOADED_PRO(( PRO_REF ) sp_info->slot ) )
+            if ( !_profileSystem.isValidProfileID(( PRO_REF ) sp_info->slot ) )
             {
                 bool import_object = sp_info->slot > PMod->importamount * MAX_IMPORT_PER_PLAYER;
 
@@ -3224,7 +3229,7 @@ void game_reset_module_data()
 
     // unload a lot of data
     reset_teams();
-    release_all_profiles();
+    _profileSystem.releaseAllProfiles();
     free_all_objects();
     DisplayMsg_reset();
     chop_data_init( &chop_mem );
@@ -3431,7 +3436,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     if ( !INGAME_CHR( character ) ) return 0;
     pchr = ChrList_get_ptr( character );
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return 0;
 
     amount = pcap->attachedprt_amount;
@@ -3591,7 +3596,7 @@ void game_release_module_data()
 
     // deal with dynamically allocated game assets
     gfx_system_release_all_graphics();
-    release_all_profiles();
+    _profileSystem.releaseAllProfiles();
 
     // free passages
     Passages::clearPassages();
@@ -5204,7 +5209,7 @@ bool attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     if ( !ACTIVE_PCHR( pchr ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    pchr_cap = pro_get_pcap( pchr->profile_ref );
+    pchr_cap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pchr_cap ) return false;
 
     // check if they can be connected
@@ -5268,7 +5273,7 @@ bool detach_character_from_platform( chr_t * pchr )
     // verify that we do not have two dud pointers
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
-    pchr_cap = pro_get_pcap( pchr->profile_ref );
+    pchr_cap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pchr_cap ) return false;
 
     // save some values

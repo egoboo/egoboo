@@ -27,13 +27,12 @@
 #include "game/egoboo_object.h"
 #include "game/graphic.h"
 #include "game/graphic_mad.h"
-//#include "game/sound.h"
 #include "game/script.h"
 #include "game/md2.h"
 #include "game/physics.h"
 #include "game/egoboo.h"
 
-#include "game/profile.h"
+#include "game/Profile.hpp"
 #include "game/enchant.h"
 #include "game/particle.h"
 
@@ -49,7 +48,7 @@ struct billboard_data_t;
 struct mesh_wall_data_t;
 
 struct s_prt;
-class pro_t;
+class ObjectProfile;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -751,7 +750,7 @@ PIP_REF  chr_get_ipip( const CHR_REF ichr, int ipip );
 TEAM_REF chr_get_iteam( const CHR_REF ichr );
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
 
-pro_t *chr_get_ppro( const CHR_REF ichr );
+ObjectProfile *chr_get_ppro( const CHR_REF ichr );
 cap_t *chr_get_pcap( const CHR_REF ichr );
 eve_t *chr_get_peve( const CHR_REF ichr );
 pip_t *chr_get_ppip( const CHR_REF ichr, int ipip );

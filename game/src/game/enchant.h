@@ -23,19 +23,19 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/egoboo_object.h"
-//#include "game/profile.h"
+//#include "game/Profile.hpp"
 
 //#include "game/EncList.h"
 //#include "game/ChrList.h"
 //
 //#include "game/char.h"
-//#include "game/profile.h"
+//#include "game/Profile.hpp"
 
 //--------------------------------------------------------------------------------------------
 // external structs
 //--------------------------------------------------------------------------------------------
 struct s_object_profile;
-class pro_t;
+class ObjectProfile;
 struct chr_t;
 
 //--------------------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ enc_t * enc_config_deconstruct( enc_t * penc, int max_iterations );
 // FORWARD DECLARARIONS (inline)
 //--------------------------------------------------------------------------------------------
 PRO_REF   enc_get_ipro( const ENC_REF ienc );
-pro_t   * enc_get_ppro( const ENC_REF ienc );
+ObjectProfile   * enc_get_ppro( const ENC_REF ienc );
 
 CHR_REF   enc_get_iowner( const ENC_REF ienc );
 chr_t   * enc_get_powner( const ENC_REF ienc );
