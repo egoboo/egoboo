@@ -29,6 +29,8 @@
 #include "game/particle.h" /** @todo Remove. */
 #include "egolib/bsp.h"
 
+#include "game/ProfileSystem.hpp"
+
 #include "game/ChrList.h"
 #include "game/PrtList.h"
 
@@ -296,11 +298,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     has_enchant = false;
     if ( ppip->spawnenchant )
     {
-        if ( !LOADED_PRO( pprt->profile_ref ) )
-        {
-            ObjectProfile * ppro = ProList_get_ptr( pprt->profile_ref );
-            has_enchant = LOADED_EVE( ppro->ieve );
-        }
+        has_enchant = LOADED_EVE( _profileSystem.pro_get_ieve(pprt->profile_ref) );
     }
 
     // any possible damage?

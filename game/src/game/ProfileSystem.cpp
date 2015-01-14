@@ -20,10 +20,22 @@
 /// @file  game/ProfileSystem.cpp
 /// @brief Implementation of functions for controlling and accessing object profiles
 /// @details
+/// @author Johan Jansen
 
 #include "game/ProfileSystem.hpp"
+#include "game/Profile.hpp"
+#include "game/particle.h"
+#include "game/enchant.h"
+#include "game/char.h"
+#include "game/game.h"
+#include "game/script_compile.h"
+#include "game/graphic_texture.h"
 
+//Globals
 pro_import_t import_data;
+ProfileSystem _profileSystem;
+
+static const std::shared_ptr<ObjectProfile> NULL_PROFILE = nullptr;
 
 
 ProfileSystem::ProfileSystem() :
@@ -64,9 +76,6 @@ void ProfileSystem::begin()
 
     // necessary for loading up the copy.txt file
     load_action_names_vfs( "mp_data/actions.txt" );
-
-    // necessary for properly reading the "message.txt"
-    DisplayMsg_reset();
 
     // necessary for reading "naming.txt" properly
     chop_data_init( &chop_mem );
@@ -110,40 +119,16 @@ void ProfileSystem::releaseAllProfiles()
     MadStack_release_all();
 }
 
-void ProfileSystem::loadSpellBooks()
-{
-	//ZF> TODO: not implemented
-	/*
-    // do the icon
-    snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%d", tmploadname, cnt );
-
-    tmp_tx = TxList_load_one_vfs( newloadname, INVALID_TX_REF, INVALID_KEY );
-    if ( VALID_TX_RANGE( tmp_tx ) )
-    {
-        pobj->ico_ref[cnt] = tmp_tx;
-        max_icon = cnt;
-
-        if ( !VALID_TX_RANGE( min_icon_tx ) )
-        {
-            min_icon_tx = tmp_tx;
-        }
-
-        if ( SPELLBOOK == _slotNumber )
-        {
-            if ( bookicon_count < MAX_SKIN )
-            {
-                bookicon_ref[bookicon_count] = tmp_tx;
-                bookicon_count++;
-            }
-        }
-    }
-    */
+const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumber) const {
+    auto foundElement = _profilesLoaded.find(slotNumber);
+    if(foundElement == _profilesLoaded.end()) return NULL_PROFILE;
+    return foundElement->second;
 }
 
 //--------------------------------------------------------------------------------------------
 int ProfileSystem::getProfileSlotNumber(const char * tmploadname, int slot_override)
 {
-    if ( VALID_PRO_RANGE( slot_override ) )
+    if ( slot_override > 0 && slot_override != INVALID_PRO_REF )
     {
         // just use the slot that was provided
         return slot_override;
@@ -187,7 +172,7 @@ CAP_REF ProfileSystem::pro_get_icap( const PRO_REF iobj )
 {
     if ( !isValidProfileID( iobj ) ) return INVALID_CAP_REF;
 
-    return LOADED_CAP( pobj->icap ) ? pobj->icap : INVALID_CAP_REF;
+    return LOADED_CAP( _profilesLoaded[iobj]->getCapRef() ) ? _profilesLoaded[iobj]->getCapRef() : INVALID_CAP_REF;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -195,16 +180,15 @@ MAD_REF ProfileSystem::pro_get_imad( const PRO_REF iobj )
 {
     if ( !isValidProfileID( iobj ) ) return INVALID_MAD_REF;
 
-    return LOADED_MAD( pobj->imad ) ? pobj->imad : INVALID_MAD_REF;
+    return LOADED_MAD( _profilesLoaded[iobj]->getModelRef() ) ? _profilesLoaded[iobj]->getModelRef() : INVALID_MAD_REF;
 }
 
 //--------------------------------------------------------------------------------------------
 EVE_REF ProfileSystem::pro_get_ieve( const PRO_REF iobj )
 {
     if ( !isValidProfileID( iobj ) ) return INVALID_EVE_REF;
-    pobj = ProList.lst + iobj;
 
-    return LOADED_EVE( pobj->ieve ) ? pobj->ieve : INVALID_EVE_REF;
+    return LOADED_EVE( _profilesLoaded[iobj]->getEnchantRef() ) ? _profilesLoaded[iobj]->getEnchantRef() : INVALID_EVE_REF;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -226,11 +210,8 @@ PIP_REF ProfileSystem::pro_get_ipip( const PRO_REF iobj, int pip_index )
         // this is a local pip
         PIP_REF itmp;
 
-        // this pip is relative to a certain object
-        pobj = ProList.lst + iobj;
-
         // grab the local pip
-        itmp = pobj->prtpip[pip_index];
+        itmp = _profilesLoaded[iobj]->getParticleProfile(pip_index);
         if ( VALID_PIP_RANGE( itmp ) )
         {
             found_pip = itmp;
@@ -245,20 +226,19 @@ cap_t * ProfileSystem::pro_get_pcap( const PRO_REF iobj )
 {
     if ( !isValidProfileID( iobj ) ) return nullptr;
 
-    if ( !LOADED_CAP( pobj->icap ) ) return nullptr;
+    if ( !LOADED_CAP( _profilesLoaded[iobj]->getCapRef() ) ) return nullptr;
 
-    return CapStack_get_ptr( pobj->icap );
+    return CapStack_get_ptr( _profilesLoaded[iobj]->getCapRef() );
 }
 
 //--------------------------------------------------------------------------------------------
 mad_t * ProfileSystem::pro_get_pmad( const PRO_REF iobj )
 {
     if ( !isValidProfileID( iobj ) ) return nullptr;
-    pobj = ProList.lst + iobj;
 
-    if ( !LOADED_MAD( pobj->imad ) ) return nullptr;
+    if ( !LOADED_MAD( _profilesLoaded[iobj]->getModelRef() ) ) return nullptr;
 
-    return MadStack_get_ptr( pobj->imad );
+    return MadStack_get_ptr( _profilesLoaded[iobj]->getModelRef() );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -266,9 +246,9 @@ eve_t * ProfileSystem::pro_get_peve( const PRO_REF iobj )
 {
     if ( !isValidProfileID( iobj ) ) return nullptr;
 
-    if ( !LOADED_EVE( pobj->ieve ) ) return nullptr;
+    if ( !LOADED_EVE( _profilesLoaded[iobj]->getEnchantRef() ) ) return nullptr;
 
-    return EveStack_get_ptr( pobj->ieve );
+    return EveStack_get_ptr( _profilesLoaded[iobj]->getEnchantRef() );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -295,7 +275,7 @@ pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
     local_pip = INVALID_PIP_REF;
     if ( pip_index < MAX_PIP_PER_PROFILE )
     {
-        local_pip = pobj->prtpip[pip_index];
+        local_pip = _profilesLoaded[iobj]->getParticleProfile(pip_index);
     }
 
     return LOADED_PIP( local_pip ) ? PipStack.lst + local_pip : nullptr;
@@ -329,10 +309,8 @@ int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
 
     // throw an error code if we are trying to load over an existing profile
     // without permission
-    if (_profilesLoaded[iobj] != nullptr)
+    if (_profilesLoaded.find(iobj) != _profilesLoaded.end())
     {
-        std::shared_pointer<ObjectProfile> profile = _profilesLoaded[iobj];
-
         // Make sure global objects don't load over existing models
         if ( required && SPELLBOOK == iobj )
         {
@@ -340,7 +318,7 @@ int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
         }
         else if ( required && overrideslots )
         {
-            log_error( "load_one_profile_vfs() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), profile->_name.c_str(), pathName );
+            log_error( "load_one_profile_vfs() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), _profilesLoaded[iobj]->getName().c_str(), pathName );
         }
         else
         {
@@ -350,7 +328,23 @@ int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
     }
 
     //Actually allocate the object and create it
-    _profilesLoaded[iobj] = std::make_shared<ObjectProfile>(tmploadname);
+    _profilesLoaded[iobj] = std::make_shared<ObjectProfile>(pathName, islot);
+
+    //ZF> TODO: This is kind of a dirty hack and could be done cleaner. If this item is the book object, 
+    //    then the icons are also loaded into the global book icon array
+    if ( SPELLBOOK == islot )
+    {
+        for(const auto &element : _profilesLoaded[iobj]->getAllIcons())
+        {
+            _bookIcons.push_back(element.second);
+        }
+    }
 
     return iobj;
+}
+
+TX_REF ProfileSystem::getSpellBookIcon(size_t index) const
+{
+    if(_bookIcons.empty()) return INVALID_TX_REF;
+    return _bookIcons[index % _bookIcons.size()];
 }

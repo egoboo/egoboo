@@ -28,14 +28,14 @@ INCLUDES += -I../../physfs-2.0.3/
 #---------------------
 # the SDL configuration
 SDLCONF_C := $(shell sdl-config --cflags)
-SDLCONF_L := $(shell sdl-config --static-libs)
+#SDLCONF_L := $(shell sdl-config --static-libs)
 
 #---------------------
 # the compiler options
 
 CXX      := g++
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -Weffc++ -std=c++11 -O0
-#-Wall
+CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_CONSOLE
+#-Wall -Weffc++
 
 #debug options
 CXXFLAGS += -ggdb -fdiagnostics-color=always
@@ -44,7 +44,7 @@ CXXFLAGS += -ggdb -fdiagnostics-color=always
 
 LINKER_LIBS := -lmingw32 -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lSHFolder -lAdvapi32
 LINKER_LIBS += -L../egolib/ -legoboo
-LINKER_LIBS += $(SDLCONF_L) -lSDL_mixer -lSDL_ttf -lSDL_image
+LINKER_LIBS += -L/usr/local/lib -lSDLmain -lSDL -lSDL_mixer -lSDL_ttf -lSDL_image
 LINKER_LIBS += -lphysfs
 LINKER_LIBS += -lenet -lwsock32 -lws2_32
 LINKER_LIBS += -lopengl32 -lglu32 -lShlwapi -lwinmm

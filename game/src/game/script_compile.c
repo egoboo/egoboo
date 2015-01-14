@@ -26,6 +26,8 @@
 #include "game/renderer_2d.h"
 #include "game/egoboo.h"
 
+#include "game/ProfileSystem.hpp"
+
 //--------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 
@@ -1065,23 +1067,22 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
             ptok->iValue = INVALID_PRO_REF;
 
             // Convert reference to slot number
-            for ( ipro = 0; ipro < MAX_PROFILE; ipro++ )
+            for(const auto &element : _profileSystem.getLoadedProfiles())
             {
-                ObjectProfile *ppro_tmp;
+                const std::shared_ptr<ObjectProfile> &profile = element.second;
+                if(profile == nullptr) continue;
 
-                if ( !LOADED_PRO( ipro ) ) continue;
-                ppro_tmp = ProList_get_ptr( ipro );
 
                 //is this the object we are looking for?
-                if ( 0 == strcmp( obj_name, strrchr( ppro_tmp->name, '/' ) + 1 ) )
+                if ( 0 == strcmp( obj_name, strrchr( profile->getName().c_str(), '/' ) + 1 ) )
                 {
-                    ptok->iValue = REF_TO_INT( ppro_tmp->icap );
+                    ptok->iValue = REF_TO_INT( profile->getCapRef() );
                     break;
                 }
             }
 
             // Do we need to load the object?
-            if ( !LOADED_PRO(( PRO_REF ) ptok->iValue ) )
+            if ( !_profileSystem.isValidProfileID(( PRO_REF ) ptok->iValue ) )
             {
                 STRING loadname;
                 snprintf( loadname, SDL_arraysize( loadname ), "mp_objects/%s", obj_name );
@@ -1090,15 +1091,15 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
                 for ( ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < MAX_PROFILE; ipro++ )
                 {
                     //skip loaded profiles
-                    if ( LOADED_PRO( ipro ) ) continue;
+                    if ( _profileSystem.isValidProfileID( ipro ) ) continue;
 
                     //found a free slot
-                    ptok->iValue = load_one_profile_vfs( loadname, REF_TO_INT( ipro ) );
+                    ptok->iValue = _profileSystem.loadOneProfile( loadname, REF_TO_INT( ipro ) );
                 }
             }
 
             // Failed to load object!
-            if ( !LOADED_PRO(( PRO_REF ) ptok->iValue ) )
+            if ( !_profileSystem.isValidProfileID(( PRO_REF ) ptok->iValue ) )
             {
                 log_message( "SCRIPT ERROR: %s() - Failed to load object: %s through an AI script. %s (line %d)\n", __FUNCTION__, ptok->szWord, pscript->name, ptok->iLine );
             }

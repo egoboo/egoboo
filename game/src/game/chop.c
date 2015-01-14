@@ -17,7 +17,11 @@
 //*
 //********************************************************************************************
 #include "chop.h"
+#include "egolib\strutil.h"
+#include "egolib\_math.h"
+#include "egolib\fileutil.h"
 
+static constexpr size_t MAXCAPNAMESIZE = 32; ///< Character class names
 chop_data_t  chop_mem = {0, 0};
 
 //--------------------------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 
 #include "game/particle.h"
 #include "game/audio/AudioSystem.hpp"
+#include "game/ProfileSystem.hpp"
 #include "game/game.h"
 #include "game/mesh.h"
 #include "game/obj_BSP.h"
@@ -186,9 +187,9 @@ void prt_play_sound( const PRT_REF particle, Sint8 sound )
     if ( !DEFINED_PRT( particle ) ) return;
     pprt = PrtList_get_ptr( particle );
 
-    if ( LOADED_PRO( pprt->profile_ref ) )
+    if ( _profileSystem.isValidProfileID( pprt->profile_ref ) )
     {
-        _audioSystem.playSound( pprt->pos, ProList_get_ptr(pprt->profile_ref)->getSoundID(sound) );
+        _audioSystem.playSound( pprt->pos, _profileSystem.getProfile(pprt->profile_ref)->getSoundID(sound) );
     }
     else if (sound >= 0 && sound < GSND_COUNT)
     {
@@ -289,7 +290,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
                    REF_TO_INT( pdata->ipip ), REF_TO_INT( pdata->chr_origin ), DEFINED_CHR( pdata->chr_origin ) ? ChrList.lst[pdata->chr_origin].Name : "INVALID",
-                   REF_TO_INT( pdata->iprofile ), LOADED_PRO( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
+                   REF_TO_INT( pdata->iprofile ), _profileSystem.isValidProfileID( pdata->iprofile ) ? _profileSystem.getProfile(pdata->iprofile)->getName().c_str() : "INVALID" );
 
         return NULL;
     }
@@ -635,7 +636,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                update_wld, pprt->lifetime, game_frame_all, pprt->safe_time,
                loc_chr_origin, DEFINED_CHR( loc_chr_origin ) ? ChrList.lst[loc_chr_origin].Name : "INVALID",
                pdata->ipip, ( NULL != ppip ) ? ppip->name : "INVALID", ( NULL != ppip ) ? ppip->comment : "",
-               pdata->iprofile, LOADED_PRO( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
+               pdata->iprofile, _profileSystem.isValidProfileID( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
 #endif
 
     if ( INVALID_CHR_REF != pprt->attachedto_ref )
@@ -1004,13 +1005,13 @@ PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_R
     pip_t * ppip;
 
     // Convert from local ipip to global ipip
-    ipip = pro_get_ipip( iprofile, pip_index );
+    ipip = _profileSystem.pro_get_ipip( iprofile, pip_index );
 
     if ( !LOADED_PIP( ipip ) )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
                    REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
-                   REF_TO_INT( iprofile ), LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
+                   REF_TO_INT( iprofile ), _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getName().c_str() : "INVALID" );
 
         return INVALID_PRT_REF;
     }
@@ -1026,7 +1027,7 @@ PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_R
         log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
                    chr_origin, INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
                    ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
-                   iprofile, LOADED_PRO( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
+                   iprofile, _profileSystem.isValidProfileID( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
 #endif
 
         return INVALID_PRT_REF;
@@ -2266,7 +2267,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     pmad = chr_get_pmad( character );
     if ( NULL == pmad ) return 0;
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return 0;
 
     bs_count = 0;
@@ -2627,7 +2628,7 @@ int prt_do_end_spawn( const PRT_REF iprt )
     pprt = PrtList_get_ptr( iprt );
 
     // Spawn new particles if time for old one is up
-    if ( pprt->endspawn_amount > 0 && LOADED_PRO( pprt->profile_ref ) && pprt->endspawn_lpip > -1 )
+    if ( pprt->endspawn_amount > 0 && _profileSystem.isValidProfileID( pprt->profile_ref ) && pprt->endspawn_lpip > -1 )
     {
         FACING_T facing;
         int      tnc;

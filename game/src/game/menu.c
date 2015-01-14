@@ -30,12 +30,14 @@
 #include "game/ui.h"
 #include "game/link.h"
 #include "game/game.h"
-#include "game/audio/AudioSystem.hpp"
 #include "game/input.h"
 #include "game/egoboo.h"
 #include "game/particle.h"
 #include "game/char.h"
 #include "game/Profile.hpp"
+
+#include "game/audio/AudioSystem.hpp"
+#include "game/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/PrtList.h"
@@ -1617,10 +1619,10 @@ bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, Cho
     memmove( &( chooseplayer_ptr->chop ), &( loadplayer_ptr->chop ), sizeof( chooseplayer_ptr->chop ) );
 
     // make sure the book data is loaded
-    if ( 0 == bookicon_count )
-    {
-        load_one_profile_vfs( "mp_data/globalobjects/book.obj", SPELLBOOK );
-    }
+    //if ( 0 == bookicon_count )
+    //{
+    //    load_one_profile_vfs( "mp_data/globalobjects/book.obj", SPELLBOOK );
+    //}
 
     // grab the inventory data
     for ( i = 0; i < MAX_IMPORT_OBJECTS; i++ )
@@ -4926,7 +4928,7 @@ MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_r
     // what do we need to draw?
     is_spell_fx = ( pitem_cap->spelleffect_type >= 0 );
     is_book     = ( SPELLBOOK == icap );
-    draw_book   = ( is_book || is_spell_fx ) && ( bookicon_count > 0 );
+    draw_book   = ( is_book || is_spell_fx );
 
     if ( !draw_book )
     {
@@ -4936,9 +4938,7 @@ MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_r
     {
         SKIN_T iskin = cap_get_skin_overide( pitem_cap );
 
-        iskin = CLIP<SKIN_T>( iskin, 0, bookicon_count );
-
-        icon_ref = bookicon_ref[ iskin ];
+        icon_ref = _profileSystem.getSpellBookIcon(iskin);
     }
 
     return icon_ref;
@@ -5631,7 +5631,6 @@ egolib_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
 {
     int ipla;
     chr_t * pchr;
-    ObjectProfile * ppro;
     player_t * ppla;
 
     int                    lp_idx;
@@ -5647,8 +5646,8 @@ egolib_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
         if ( !INGAME_CHR( ppla->index ) ) continue;
         pchr = ChrList_get_ptr( ppla->index );
 
-        if ( !LOADED_PRO( pchr->profile_ref ) )continue;
-        ppro = ProList_get_ptr( pchr->profile_ref );
+        if ( !_profileSystem.isValidProfileID( pchr->profile_ref ) )continue;
+        std::shared_ptr<ObjectProfile> ppro = _profileSystem.getProfile( pchr->profile_ref );
 
         // grab a free LoadPlayer_element_t
         lp_idx = LoadPlayer_list_get_free( lst );
@@ -5660,12 +5659,12 @@ egolib_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
         strncpy( lp_ptr->name, pchr->Name, SDL_arraysize( lp_ptr->name ) );
         strncpy( lp_ptr->dir, pchr->obj_base._name, SDL_arraysize( lp_ptr->name ) );
 
-        lp_ptr->cap_ref  = pro_get_icap( pchr->profile_ref );
+        lp_ptr->cap_ref  = ppro->getCapRef();
         lp_ptr->skin_ref = pchr->skin;
         lp_ptr->tx_ref   = pchr->inst.texture;
 
         memmove( lp_ptr->quest_log, ppla->quest_log, sizeof( lp_ptr->quest_log ) );
-        memmove( &( lp_ptr->chop ), &( ppro->chop ), sizeof( lp_ptr->chop ) );
+        memmove( &( lp_ptr->chop ), &ppro->getRandomNameData(), sizeof( lp_ptr->chop ) );
     }
 
     return ( lst->count > 0 ) ? rv_success : rv_fail;

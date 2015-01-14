@@ -2592,7 +2592,7 @@ float draw_character_xp_bar( const CHR_REF character, float x, float y )
     if ( !INGAME_CHR( character ) ) return y;
     pchr = ChrList_get_ptr( character );
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = chr_get_pcap(character);
     if ( NULL == pcap ) return y;
 
     //Draw the small XP progress bar

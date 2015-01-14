@@ -41,6 +41,7 @@
 #include "game/egoboo.h"
 #include "game/module/PassageHandler.hpp"
 #include "game/audio/AudioSystem.hpp"
+#include "game/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -680,7 +681,7 @@ void free_one_character_in_game( const CHR_REF character )
     if ( !DEFINED_CHR( character ) ) return;
     pchr = ChrList_get_ptr( character );
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return;
 
     // Remove from stat list
@@ -1285,7 +1286,7 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
             PRO_REF ipro = enc_get_ipro( ienc_now );
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-            if ( LOADED_PRO( ipro ) )
+            if ( _profileSystem.isValidProfileID( ipro ) )
             {
                 enc_apply_set( ienc_now, SETALPHABLEND, ipro );
                 enc_apply_set( ienc_now, SETLIGHTBLEND, ipro );
@@ -1375,7 +1376,7 @@ void reset_character_alpha( const CHR_REF character )
 
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-            if ( LOADED_PRO( ipro ) )
+            if ( _profileSystem.isValidProfileID( ipro ) )
             {
                 enc_apply_set( ienc_now, SETALPHABLEND, ipro );
                 enc_apply_set( ienc_now, SETLIGHTBLEND, ipro );
@@ -2034,7 +2035,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     if ( !INGAME_CHR( ichr_a ) ) return false;
     pchr_a = ChrList_get_ptr( ichr_a );
 
-    pcap_a = pro_get_pcap( pchr_a->profile_ref );
+    pcap_a = _profileSystem.pro_get_pcap( pchr_a->profile_ref );
     if ( NULL == pcap_a ) return false;
 
     // find the slot from the grip
@@ -3162,7 +3163,7 @@ bool export_one_character_profile_vfs( const char *szSaveName, const CHR_REF cha
     if ( INVALID_CSTR( szSaveName ) && !DEFINED_CHR( character ) ) return false;
     pchr = ChrList_get_ptr( character );
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return false;
 
     // load up the temporary cap
@@ -3206,13 +3207,13 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool req
     cap_t * pcap;
     STRING  szLoadName;
 
-    if ( VALID_PRO_RANGE( slot_override ) )
+    if ( slot_override > 0 && slot_override < INVALID_PRO_REF )
     {
         icap = ( CAP_REF )slot_override;
     }
     else
     {
-        int itmp = pro_get_slot_vfs( tmploadname, MAX_PROFILE );
+        int itmp = _profileSystem.getProfileSlotNumber( tmploadname, MAX_PROFILE );
         icap = VALID_CAP_RANGE( itmp ) ? itmp : MAX_CAP;
     }
 
@@ -3415,7 +3416,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
     //No need to continue is there?
     if ( !pchr->alive || ( pchr->invictus && !ignore_invictus ) ) return;
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return;
 
     //Fix who is actually the killer if needed
@@ -3546,7 +3547,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
     if ( !INGAME_CHR( character ) ) return 0;
     pchr = ChrList_get_ptr( character );
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return 0;
 
     // make a special exception for DAMAGE_NONE
@@ -3875,7 +3876,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profile )
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList_get_ptr( character );
 
-    pcap = pro_get_pcap( profile );
+    pcap = _profileSystem.pro_get_pcap( profile );
     if ( NULL == pcap ) return;
 
     origin = pchr->ai.owner;
@@ -3909,7 +3910,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     int      tnc, iteam, kursechance;
 
     cap_t * pcap;
-    ObjectProfile * ppro;
+    std::shared_ptr<ObjectProfile> ppro;
     chr_spawn_data_t * spawn_ptr;
     fvec3_t pos_tmp;
 
@@ -3918,7 +3919,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     spawn_ptr = &( pchr->spawn_data );
 
     // get the character profile pointer
-    pcap = pro_get_pcap( spawn_ptr->profile );
+    pcap = _profileSystem.pro_get_pcap( spawn_ptr->profile );
     if ( NULL == pcap )
     {
         log_debug( "chr_config_do_init() - cannot initialize character.\n" );
@@ -3927,10 +3928,10 @@ chr_t * chr_config_do_init( chr_t * pchr )
     }
 
     // get the character profile index
-    icap = pro_get_icap( spawn_ptr->profile );
+    icap = _profileSystem.pro_get_icap( spawn_ptr->profile );
 
     // get a pointer to the character profile
-    ppro = ProList_get_ptr( spawn_ptr->profile );
+    ppro = _profileSystem.getProfile( spawn_ptr->profile );
     if ( NULL == ppro )
     {
         log_debug( "chr_config_do_init() - cannot initialize character.\n" );
@@ -4049,7 +4050,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     if ( CSTR_END == spawn_ptr->name[0] )
     {
         // Generate a random spawn_ptr->name
-        snprintf( pchr->Name, SDL_arraysize( pchr->Name ), "%s", pro_create_chop( spawn_ptr->profile ) );
+        snprintf( pchr->Name, SDL_arraysize( pchr->Name ), "%s", ppro->generateRandomName() );
     }
     else
     {
@@ -4134,7 +4135,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
     //Don't do items that are in inventory
     if ( INGAME_CHR( pchr->inwhich_inventory ) ) return pchr;
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return pchr;
 
     water_level = water_instance_get_water_level( &water );
@@ -4602,7 +4603,6 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
     CHR_REF   ichr;
     chr_t   * pchr;
     cap_t   * pcap;
-    ObjectProfile   * ppro;
 
     // fix a "bad" name
     if ( NULL == name ) name = "";
@@ -4613,7 +4613,7 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
         return INVALID_CHR_REF;
     }
 
-    if ( !LOADED_PRO( profile ) )
+    if ( !_profileSystem.isValidProfileID( profile ) )
     {
         if ( profile > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
@@ -4621,14 +4621,14 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
         }
         return INVALID_CHR_REF;
     }
-    ppro = ProList_get_ptr( profile );
+    std::shared_ptr<ObjectProfile> ppro = _profileSystem.getProfile( profile );
 
-    if ( !LOADED_CAP( ppro->icap ) )
+    if ( !LOADED_CAP( ppro->getCapRef() ) )
     {
-        log_debug( "spawn_one_character() - invalid character profile %d\n", ppro->icap );
+        log_debug( "spawn_one_character() - invalid character profile %d\n", ppro->getCapRef() );
         return INVALID_CHR_REF;
     }
-    pcap = CapStack_get_ptr( ppro->icap );
+    pcap = CapStack_get_ptr( ppro->getCapRef() );
 
     // count all the requests for this character type
     pcap->request_count++;
@@ -4665,7 +4665,7 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
 
 #if defined(DEBUG_OBJECT_SPAWN) && defined(_DEBUG)
     {
-        CAP_REF icap = pro_get_icap( profile );
+        CAP_REF icap = _profileSystem.pro_get_icap( profile );
         log_debug( "spawn_one_character() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( ichr ), name, CapStack.lst[icap].classname );
     }
 #endif
@@ -4776,13 +4776,13 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
 
     ppro = chr_get_ppro( character );
 
-    pmad = pro_get_pmad( pchr->profile_ref );
+    pmad = _profileSystem.pro_get_pmad( pchr->profile_ref );
     if ( NULL == pmad )
     {
         // make sure that the instance has a valid imad
         if ( NULL != ppro && !LOADED_MAD( pinst->imad ) )
         {
-            if ( chr_instance_set_mad( pinst, ppro->imad ) )
+            if ( chr_instance_set_mad( pinst, ppro->getModelRef() ) )
             {
                 chr_update_collision_size( pchr, true );
             }
@@ -4817,19 +4817,10 @@ int chr_change_skin( const CHR_REF character, const SKIN_T skin )
             // should never happen
             /* do nothing */
         }
-        else if ( 0 == ppro->skin_gfx_cnt )
-        {
-            // should never happen if the profile loading is working
-
-            // fix the tex_ref and ico_ref
-            ppro->skin_gfx_cnt = 1;
-            ppro->tex_ref[0] = TX_WATER_TOP;
-            ppro->ico_ref[0] = TX_ICON_NULL;
-        }
         else
         {
             // the normal thing to happen
-            new_texture = ppro->tex_ref[loc_skin];
+            new_texture = ppro->getSkin(loc_skin);
         }
 
         pchr->skin = skin;
@@ -4911,9 +4902,9 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
 
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
-        if ( LOADED_PRO( ipro ) )
+        if ( _profileSystem.isValidProfileID( ipro ) )
         {
-            EVE_REF ieve = pro_get_ieve( ipro );
+            EVE_REF ieve = _profileSystem.pro_get_ieve( ipro );
 
             enc_apply_set( ienc_now, SETSLASHMODIFIER, ipro );
             enc_apply_set( ienc_now, SETCRUSHMODIFIER, ipro );
@@ -4953,9 +4944,9 @@ void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int
 
     MAD_REF imad_old, imad_new;
 
-    if ( !LOADED_PRO( profile ) ) return;
+    if ( !_profileSystem.isValidProfileID( profile ) ) return;
 
-    imad_new = pro_get_imad( profile );
+    imad_new = _profileSystem.pro_get_imad( profile );
     if ( !LOADED_MAD( imad_new ) ) return;
 
     imad_old = chr_get_imad( ichr );
@@ -5047,22 +5038,21 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     CHR_REF item_ref, item;
     chr_t * pchr;
 
-    ObjectProfile * pobj_new;
     cap_t * pcap_new;
     mad_t * pmad_new;
 
     int old_attached_prt_count, new_attached_prt_count;
 
-    if ( !LOADED_PRO( profile_new ) || !INGAME_CHR( ichr ) ) return;
+    if ( !_profileSystem.isValidProfileID( profile_new ) || !INGAME_CHR( ichr ) ) return;
     pchr = ChrList_get_ptr( ichr );
 
     old_attached_prt_count = number_of_attached_particles( ichr );
 
-    if ( !LOADED_PRO( profile_new ) ) return;
-    pobj_new = ProList_get_ptr( profile_new );
+    if ( !_profileSystem.isValidProfileID( profile_new ) ) return;
+    std::shared_ptr<ObjectProfile> pobj_new = _profileSystem.getProfile( profile_new );
 
-    pcap_new = pro_get_pcap( profile_new );
-    pmad_new = pro_get_pmad( profile_new );
+    pcap_new = _profileSystem.pro_get_pcap( profile_new );
+    pmad_new = _profileSystem.pro_get_pmad( profile_new );
 
     // Drop left weapon
     item_ref = pchr->holdingwhich[SLOT_LEFT];
@@ -6427,12 +6417,12 @@ bool chr_do_latch_button( chr_t * pchr )
                 pchr->jumpnumber--;
 
             // Play the jump sound
-            pcap = pro_get_pcap( pchr->profile_ref );
+            pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
             if ( NULL != pcap )
             {
-                ijump = pro_get_pcap( pchr->profile_ref )->sound_index[SOUND_JUMP];
+                ijump = _profileSystem.pro_get_pcap( pchr->profile_ref )->sound_index[SOUND_JUMP];
 
-                _audioSystem.playSound(pchr->pos, ProList_get_ptr(pchr->profile_ref)->getSoundID(ijump) );
+                _audioSystem.playSound(pchr->pos, _profileSystem.getProfile(pchr->profile_ref)->getSoundID(ijump) );
             }
 
         }
@@ -6466,11 +6456,11 @@ bool chr_do_latch_button( chr_t * pchr )
                 }
 
                 // Play the jump sound (Boing!)
-                pcap = pro_get_pcap( pchr->profile_ref );
+                pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
                 if ( NULL != pcap )
                 {
                     ijump = pcap->sound_index[SOUND_JUMP];
-                    _audioSystem.playSound( pchr->pos, ProList_get_ptr(pchr->profile_ref)->getSoundID(ijump));
+                    _audioSystem.playSound( pchr->pos, _profileSystem.getProfile(pchr->profile_ref)->getSoundID(ijump));
                 }
             }
         }
@@ -7181,10 +7171,10 @@ bool chr_handle_madfx( chr_t * pchr )
     //Do footfall sound effect
     if ( cfg.sound_footfall && HAS_SOME_BITS( framefx, MADFX_FOOTFALL ) )
     {
-        cap_t * pcap = pro_get_pcap( pchr->profile_ref );
+        cap_t * pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
         if ( NULL != pcap )
         {
-            _audioSystem.playSound(pchr->pos, ProList_get_ptr( pchr->profile_ref )->getSoundID(pcap->sound_index[SOUND_FOOTFALL]) );
+            _audioSystem.playSound(pchr->pos, _profileSystem.getProfile( pchr->profile_ref )->getSoundID(pcap->sound_index[SOUND_FOOTFALL]) );
         }
     }
 
@@ -7977,7 +7967,7 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buff
     else
     {
         chr_t * pchr = ChrList_get_ptr( ichr );
-        cap_t * pcap = pro_get_pcap( pchr->profile_ref );
+        cap_t * pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
 
         if ( pchr->nameknown )
         {
@@ -8042,7 +8032,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return buffer;
     pchr = ChrList_get_ptr( ichr );
 
-    if ( !LOADED_PRO( pchr->profile_ref ) )
+    if ( !_profileSystem.isValidProfileID( pchr->profile_ref ) )
     {
         char * sztmp;
 
@@ -8059,10 +8049,10 @@ const char * chr_get_dir_name( const CHR_REF ichr )
     }
     else
     {
-        ObjectProfile * ppro = ProList_get_ptr( pchr->profile_ref );
+        std::shared_ptr<ObjectProfile> ppro = _profileSystem.getProfile( pchr->profile_ref );
 
         // copy the character's data.txt path
-        strncpy( buffer, ppro->name, SDL_arraysize( buffer ) );
+        strncpy( buffer, ppro->getName().c_str(), SDL_arraysize( buffer ) );
     }
 
     return buffer;
@@ -8102,7 +8092,7 @@ egolib_rv chr_update_collision_size( chr_t * pchr, bool update_matrix )
         oct_bb_ctor( pchr->slot_cv + cnt );
     }
 
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL == pcap ) return rv_error;
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
@@ -8323,27 +8313,26 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
 
     cap_t * pitem_cap;
     chr_t * pitem;
-    ObjectProfile * pitem_pro;
 
     if ( !DEFINED_CHR( item ) ) return icon_ref;
     pitem = ChrList_get_ptr( item );
 
-    if ( !LOADED_PRO( pitem->profile_ref ) ) return icon_ref;
-    pitem_pro = ProList_get_ptr( pitem->profile_ref );
+    if ( !_profileSystem.isValidProfileID( pitem->profile_ref ) ) return icon_ref;
+    std::shared_ptr<ObjectProfile> pitem_pro = _profileSystem.getProfile( pitem->profile_ref );
 
-    pitem_cap = pro_get_pcap( pitem->profile_ref );
+    pitem_cap = _profileSystem.pro_get_pcap( pitem->profile_ref );
     if ( NULL == pitem_cap ) return icon_ref;
 
     // what do we need to draw?
     is_spell_fx = ( pitem_cap->spelleffect_type >= 0 );     // the value of spelleffect_type == the skin of the book or -1 for not a spell effect
     is_book     = ( SPELLBOOK == pitem->profile_ref );
-    draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && INVALID_CHR_REF != pitem->attachedto )*/ ) && ( bookicon_count > 0 ); /// ZF@> uncommented a part because this caused a icon bug when you were morphed and mounted
+    draw_book   = ( is_book || ( is_spell_fx && !pitem->draw_icon ) /*|| ( is_spell_fx && INVALID_CHR_REF != pitem->attachedto )*/ ); /// ZF@> uncommented a part because this caused a icon bug when you were morphed and mounted
 
     if ( !draw_book )
     {
         iskin = pitem->skin;
 
-        icon_ref = pitem_pro->ico_ref[iskin];
+        icon_ref = pitem_pro->getIcon(iskin);
     }
     else if ( draw_book )
     {
@@ -8353,12 +8342,11 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
         {
             // no book info
             iskin = pitem->skin;
-            icon_ref = pitem_pro->ico_ref[iskin];
+            icon_ref = pitem_pro->getIcon(iskin);
         }
         else
         {
-            iskin = CLIP( iskin, (size_t)0, bookicon_count );
-            icon_ref = bookicon_ref[ iskin ];
+            icon_ref = _profileSystem.getSpellBookIcon(iskin);
         }
     }
 
@@ -9316,7 +9304,7 @@ bool chr_can_see_dark( const chr_t * pchr, const chr_t * pobj )
     // Scenery, spells and quest objects can always see through darkness
     // Checking pchr->invictus is not enough, since that could be temporary
     // and not indicate the appropriate objects
-    pcap = pro_get_pcap( pchr->profile_ref );
+    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
     if ( NULL != pcap )
     {
         if ( pcap->invictus ) light = INVISIBLE;
@@ -9363,12 +9351,12 @@ int chr_get_price( const CHR_REF ichr )
     // Make sure spell books are priced according to their spell and not the book itself
     if ( pchr->profile_ref == SPELLBOOK )
     {
-        icap = pro_get_icap( pchr->basemodel_ref );
+        icap = _profileSystem.pro_get_icap( pchr->basemodel_ref );
         iskin = 0;
     }
     else
     {
-        icap  = pro_get_icap( pchr->profile_ref );
+        icap  = _profileSystem.pro_get_icap( pchr->profile_ref );
         iskin = pchr->skin;
     }
 
@@ -9965,7 +9953,7 @@ bool chr_heal_mad( chr_t * pchr )
     if ( LOADED_MAD( pinst->imad ) ) return true;
 
     // get whatever mad index the profile says to use
-    imad_tmp = pro_get_imad( pchr->profile_ref );
+    imad_tmp = _profileSystem.pro_get_imad( pchr->profile_ref );
 
     // set the mad index to whatever the profile says, even if it is wrong,
     // since we know that our current one is invalid
@@ -10329,7 +10317,7 @@ PRO_REF chr_get_ipro( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return INVALID_PRO_REF;
     pchr = ChrList_get_ptr( ichr );
 
-    if ( !LOADED_PRO( pchr->profile_ref ) ) return INVALID_PRO_REF;
+    if ( !_profileSystem.isValidProfileID( pchr->profile_ref ) ) return INVALID_PRO_REF;
 
     return pchr->profile_ref;
 }
@@ -10342,7 +10330,7 @@ CAP_REF chr_get_icap( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return INVALID_CAP_REF;
     pchr = ChrList_get_ptr( ichr );
 
-    return pro_get_icap( pchr->profile_ref );
+    return _profileSystem.pro_get_icap( pchr->profile_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -10353,7 +10341,7 @@ EVE_REF chr_get_ieve( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return INVALID_EVE_REF;
     pchr = ChrList_get_ptr( ichr );
 
-    return pro_get_ieve( pchr->profile_ref );
+    return _profileSystem.pro_get_ieve( pchr->profile_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -10364,7 +10352,7 @@ PIP_REF chr_get_ipip( const CHR_REF ichr, int ipip )
     if ( !DEFINED_CHR( ichr ) ) return INVALID_PIP_REF;
     pchr = ChrList_get_ptr( ichr );
 
-    return pro_get_ipip( pchr->profile_ref, ipip );
+    return _profileSystem.pro_get_ipip( pchr->profile_ref, ipip );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -10405,9 +10393,9 @@ ObjectProfile * chr_get_ppro( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList_get_ptr( ichr );
 
-    if ( !LOADED_PRO( pchr->profile_ref ) ) return NULL;
+    if ( !_profileSystem.isValidProfileID( pchr->profile_ref ) ) return NULL;
 
-    return ProList_get_ptr( pchr->profile_ref );
+    return _profileSystem.getProfile( pchr->profile_ref ).get();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -10418,7 +10406,7 @@ cap_t * chr_get_pcap( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList_get_ptr( ichr );
 
-    return pro_get_pcap( pchr->profile_ref );
+    return _profileSystem.pro_get_pcap( pchr->profile_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -10429,7 +10417,7 @@ eve_t * chr_get_peve( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList_get_ptr( ichr );
 
-    return pro_get_peve( pchr->profile_ref );
+    return _profileSystem.pro_get_peve( pchr->profile_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -10440,7 +10428,7 @@ pip_t * chr_get_ppip( const CHR_REF ichr, int ipip )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList_get_ptr( ichr );
 
-    return pro_get_ppip( pchr->profile_ref, ipip );
+    return _profileSystem.pro_get_ppip( pchr->profile_ref, ipip );
 }
 
 //--------------------------------------------------------------------------------------------

@@ -31,6 +31,7 @@
 #include "game/Profile.hpp"
 #include "game/char.h"
 #include "game/graphics/CameraSystem.hpp"
+#include "game/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -135,7 +136,7 @@ void scr_run_chr_script( const CHR_REF character )
     if ( !INGAME_CHR( character ) )  return;
     pchr  = ChrList_get_ptr( character );
     pself = &( pchr->ai );
-    pscript = &( chr_get_ppro( character )->ai_script );
+    pscript = &( chr_get_ppro( character )->getAIScript() );
 
     // has the time for this character to die come and gone?
     if ( pself->poof_time >= 0 && pself->poof_time <= ( Sint32 )update_wld ) return;
@@ -160,7 +161,7 @@ void scr_run_chr_script( const CHR_REF character )
     script_error_model     = pchr->profile_ref;
     if ( script_error_model < MAX_PROFILE )
     {
-        CAP_REF icap = pro_get_icap( script_error_model );
+        CAP_REF icap = _profileSystem.pro_get_icap( script_error_model );
 
         script_error_classname = CapStack.lst[ icap ].classname;
     }
@@ -1813,7 +1814,6 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank )
 {
     chr_t * pchr;
-    ObjectProfile * ppro;
     cap_t * pcap;
 
     pself = ai_state_ctor( pself );
@@ -1821,12 +1821,8 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj
     if ( NULL == pself || !DEFINED_CHR( index ) ) return;
     pchr = ChrList_get_ptr( index );
 
-    // a character cannot be spawned without a valid profile
-    if ( !LOADED_PRO( iobj ) ) return;
-    ppro = ProList.lst + iobj;
-
     // a character cannot be spawned without a valid cap
-    pcap = pro_get_pcap( iobj );
+    pcap = _profileSystem.pro_get_pcap( iobj );
     if ( NULL == pcap ) return;
 
     pself->index      = index;

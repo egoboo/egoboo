@@ -32,6 +32,7 @@
 #include "game/mad.h"
 #include "game/particle.h"
 #include "game/Profile.hpp"
+#include "game/ProfileSystem.hpp"
 
 #include "game/EncList.h"
 #include "game/ChrList.h"
@@ -349,16 +350,16 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     {
         // Play the end sound
         PRO_REF imodel = penc->spawnermodel_ref;
-        if ( LOADED_PRO( imodel ) )
+        if ( _profileSystem.isValidProfileID( imodel ) )
         {
             iwave = peve->endsound_index;
             if ( nullptr != target_ptr )
             {
-                _audioSystem.playSound( target_ptr->pos_old, ProList_get_ptr(imodel)->getSoundID(iwave) );
+                _audioSystem.playSound( target_ptr->pos_old, _profileSystem.getProfile(imodel)->getSoundID(iwave) );
             }
             else
             {
-                _audioSystem.playSoundFull( ProList_get_ptr(imodel)->getSoundID(iwave) );
+                _audioSystem.playSoundFull( _profileSystem.getProfile(imodel)->getSoundID(iwave) );
             }
         }
 
@@ -472,7 +473,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
     if ( !DEFINED_ENC( ienc ) ) return;
     penc = EncList_get_ptr( ienc );
 
-    peve = pro_get_peve( profile );
+    peve = _profileSystem.pro_get_peve( profile );
     if ( NULL == peve ) return;
 
     penc->setyesno[value_idx] = false;
@@ -1473,7 +1474,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     // you should be able to enchant dead stuff to raise the dead...
     // if( !ptarget->alive ) return INVALID_ENC_REF;
 
-    if ( LOADED_PRO( modeloptional ) )
+    if ( _profileSystem.isValidProfileID( modeloptional ) )
     {
         // The enchantment type is given explicitly
         loc_profile = modeloptional;
@@ -1483,17 +1484,17 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
         // The enchantment type is given by the spawner
         loc_profile = chr_get_ipro( spawner );
 
-        if ( !LOADED_PRO( loc_profile ) )
+        if ( !_profileSystem.isValidProfileID( loc_profile ) )
         {
             log_warning( "spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", ChrList.lst[spawner].obj_base._name, REF_TO_INT( spawner ) );
             return INVALID_ENC_REF;
         }
     }
 
-    eve_ref = pro_get_ieve( loc_profile );
+    eve_ref = _profileSystem.pro_get_ieve( loc_profile );
     if ( !LOADED_EVE( eve_ref ) )
     {
-        log_warning( "spawn_one_enchant() - the object \"%s\"(%d) does not have an enchant profile.\n", ProList.lst[loc_profile].name, REF_TO_INT( loc_profile ) );
+        log_warning( "spawn_one_enchant() - the object \"%s\"(%d) does not have an enchant profile.\n", _profileSystem.getProfile(loc_profile)->getName().c_str(), REF_TO_INT( loc_profile ) );
 
         return INVALID_ENC_REF;
     }
@@ -2171,7 +2172,7 @@ PRO_REF  enc_get_ipro( const ENC_REF ienc )
     if ( !DEFINED_ENC( ienc ) ) return INVALID_PRO_REF;
     penc = EncList_get_ptr( ienc );
 
-    if ( !LOADED_PRO( penc->profile_ref ) ) return INVALID_PRO_REF;
+    if ( !_profileSystem.isValidProfileID( penc->profile_ref ) ) return INVALID_PRO_REF;
 
     return penc->profile_ref;
 }
@@ -2184,9 +2185,9 @@ ObjectProfile * enc_get_ppro( const ENC_REF ienc )
     if ( !DEFINED_ENC( ienc ) ) return NULL;
     penc = EncList_get_ptr( ienc );
 
-    if ( !LOADED_PRO( penc->profile_ref ) ) return NULL;
+    if ( !_profileSystem.isValidProfileID( penc->profile_ref ) ) return NULL;
 
-    return ProList_get_ptr( penc->profile_ref );
+    return _profileSystem.getProfile( penc->profile_ref ).get();
 }
 
 //--------------------------------------------------------------------------------------------

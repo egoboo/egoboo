@@ -23,9 +23,10 @@
 #include <unordered_map>
 
 #include "game/script.h"     //for script_info_t
-#include "game/char.h"
+//#include "game/char.h"
 #include "game/mad.h"
 #include "game/chop.h"
+#include "egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -39,7 +40,15 @@ typedef int SoundID;
 class ObjectProfile
 {
 public:
+    /**
+    * @brief Loads and parses a profile folder and builds a profile object from it.
+    **/
     ObjectProfile(const std::string &folderPath, size_t slotNumber);
+
+    /**
+    * @brief Deconstructor
+    **/
+    ~ObjectProfile();
 
     /// @author ZF
     /// @details This adds one string to the list of messages associated with a profile. The function will
@@ -59,7 +68,7 @@ public:
     inline bool isValidMessageID(int id) const {return id > 0 && id < _messageList.size();}
 
     /// @author BB
-    /// @details use the profile's chop to generate a name. Return "*NONE*" on a falure.
+    /// @details use the profile's chop to generate a name. Return "*NONE*" on a failure.
     const char* generateRandomName();
 
     /**
@@ -72,18 +81,49 @@ public:
     **/
     TX_REF getIcon(size_t index);
 
+    inline const std::unordered_map<size_t, TX_REF> &getAllIcons() const {return _iconsLoaded;}
+
+    inline const std::string& getName() const {return _fileName;}
+
+    inline MAD_REF getModelRef() const {return _imad;}
+    inline CAP_REF getCapRef() const {return _icap;}
+    inline EVE_REF getEnchantRef() const {return _ieve;}
+
+    /**
+    * Gets the particle profile loaded into the specified index number
+    **/
+    PIP_REF getParticleProfile(size_t index) const;
+
+    /**
+    * Write access getter
+    **/
+    inline script_info_t& getAIScript() {return _aiScript;}
+    inline chop_definition_t& getRandomNameData() {return _randomName;}
+
 private:
     /**
     * Private default constructor
     **/
     ObjectProfile();
 
-    void loadModel(const std::string &filePath);
+    /**
+    * @brief Loads the md2 model for this profile
+    **/
+    //void loadModel(const std::string &filePath);
 
+    /**
+    * @brief Parses message.txt and loads all messages from it
+    **/
     void loadAllMessages(const std::string &filePath);
 
+    /**
+    * @brief load all tris*.bmp or tris*.png skin and icons
+    **/
     void loadTextures(const std::string &folderPath);
 
+    /**
+    * @brief Loads naming.txt and builds a random name list
+    **/
     bool loadRandomNames(const std::string &filePath);
 
 private:
@@ -93,8 +133,8 @@ private:
 
     // the sub-profiles
     CAP_REF _icap;                             ///< the cap for this profile
-    MAD_REF _imad;                             ///< the mad for this profile
-    EVE_REF _ieve;                             ///< the eve for this profile
+    MAD_REF _imad;                             ///< the md2 model for this profile
+    EVE_REF _ieve;                             ///< the enchant profile for this profile
     int _slotNumber;
 
     /// the random naming info

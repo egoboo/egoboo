@@ -17,25 +17,27 @@
 //*
 //********************************************************************************************
 #pragma once
+#include <cstddef>
+#include <cstdint>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // This is for random naming
 
 #define CHOPPERMODEL                    32
-#define MAXCHOP                         (MAX_PROFILE*CHOPPERMODEL)
+#define MAXCHOP                         (256*CHOPPERMODEL)
 #define CHOPSIZE                        8
 #define CHOPDATACHUNK                   (MAXCHOP*CHOPSIZE)
 #define MAXSECTION                      4              ///< T-wi-n-k...  Most of 4 sections
 
 /// The buffer for the random naming data
-struct s_chop_data
+struct chop_data_t
 {
-    size_t  chop_count;             ///< The global number of name parts
+    size_t    chop_count;             ///< The global number of name parts
 
-    Uint32  carat;                  ///< The data pointer
-    char    buffer[CHOPDATACHUNK];  ///< The name parts
-    int     start[MAXCHOP];         ///< The first character of each part
+    uint32_t  carat;                  ///< The data pointer
+    char      buffer[CHOPDATACHUNK];  ///< The name parts
+    int       start[MAXCHOP];         ///< The first character of each part
 };
 
 chop_data_t * chop_data_init( chop_data_t * pdata );
@@ -45,7 +47,7 @@ bool        chop_export_vfs( const char *szSaveName, const char * szChop );
 //--------------------------------------------------------------------------------------------
 
 /// Defintion of a single chop section
-struct s_chop_section
+struct chop_section_t
 {
     int size;     ///< Number of choices, 0
     int start;    ///< A reference to a specific offset in the chop_data_t buffer
@@ -54,7 +56,7 @@ struct s_chop_section
 //--------------------------------------------------------------------------------------------
 
 /// Defintion of the chop info needed to create a name
-struct s_chop_definition
+struct chop_definition_t
 {
     chop_section_t  section[MAXSECTION];
 };

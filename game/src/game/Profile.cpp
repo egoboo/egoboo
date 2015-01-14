@@ -20,6 +20,7 @@
 /// @file  game/Profile.cpp
 /// @brief ObjectProfile handling
 /// @details
+/// @author Johan Jansen
 
 //ZF> TODO: check which headers can be removed
 #include "egolib/bsp.h"
@@ -32,6 +33,7 @@
 #include "game/PrtList.h"
 #include "game/mesh.h"
 #include "game/particle.h"
+#include "game/mad.h"       //for loading md2
 #include "game/audio/AudioSystem.hpp"
 
 ObjectProfile::ObjectProfile() :
@@ -56,32 +58,32 @@ ObjectProfile::ObjectProfile() :
     _particleProfiles.fill(INVALID_PIP_REF);
     _soundList.fill(INVALID_SOUND_ID);
 
-    chop_definition_init( &( chop ) );
-    memset(&ai_script, 0, sizeof(script_info_t));
+    chop_definition_init( &_randomName );
+    memset(&_aiScript, 0, sizeof(script_info_t));
 }
 
 ObjectProfile::ObjectProfile(const std::string &folderPath, size_t slotNumber) : ObjectProfile()
 {
     //Set some data
-    _name = folderPath;
+    _fileName = folderPath;
     _slotNumber = slotNumber;
 
     // load the character profile
-    _icap = CapStack_load_one( folderPath.c_str(), islot, false );
+    _icap = CapStack_load_one( folderPath.c_str(), slotNumber, false );
 
-    // Load the model for this iobj
-    _imad = loadModelVFS(folderPath, ( MAD_REF )_slotNumber);
+    // Load the model for this profile
+    _imad = load_one_model_profile_vfs(folderPath.c_str(), slotNumber);
 
-    // Load the enchantment for this iobj
+    // Load the enchantment for this profile
     STRING newloadname;
     make_newloadname( folderPath.c_str(), "/enchant.txt", newloadname );
     _ieve = EveStack_losd_one( newloadname, ( EVE_REF )_slotNumber );
 
-    // Load the messages for this iobj, do this before loading the AI script
+    // Load the messages for this profile, do this before loading the AI script
     // to ensure any dynamic loaded messages get loaded last
-    loadAllMessages(folderPath + "/message.txt", pobj );
+    loadAllMessages(folderPath + "/message.txt");
 
-    // Load the particles for this iobj
+    // Load the particles for this profile
     for (size_t cnt = 0; cnt < _particleProfiles.size(); cnt++ )
     {
         const std::string particleName = folderPath + "/part" + std::to_string(cnt) + ".txt";
@@ -96,7 +98,7 @@ ObjectProfile::ObjectProfile(const std::string &folderPath, size_t slotNumber) :
     for ( size_t cnt = 0; cnt < _soundList.size(); cnt++ )
     {
         const std::string soundName = folderPath + "/sound" + std::to_string(cnt);
-        _soundList[cnt] = _audioSystem.loadSound(folderPath);
+        _soundList[cnt] = _audioSystem.loadSound(soundName);
     }
 
     // Load the random naming table for this icap
@@ -117,29 +119,29 @@ ObjectProfile::~ObjectProfile()
     //EveStack_release_one( pobj->ieve );
 
     //Release particle profiles
-    for(PIP_REF ref : _particleProfiles) {
-        PipStack_release_one( ref );
+    for(PRO_REF particle : _particleProfiles) {
+        PipStack_release_one(particle);
     }
 
     // release whatever textures are being used
-    for(TX_REF texture : _texturesLoaded)
+    for(const auto &element : _texturesLoaded)
     {
-        if ( texture > TX_SPECIAL_LAST )
+        if ( element.second > TX_SPECIAL_LAST )
         {
-            TxList_free_one( texture );
+            TxList_free_one( element.second );
         }
     }
 
-    for(TX_REF icon : _iconsLoaded)
+    for(const auto &element : _iconsLoaded)
     {
-        if ( icon > TX_SPECIAL_LAST )
+        if ( element.second > TX_SPECIAL_LAST )
         {
-            TxList_free_one( icon );
+            TxList_free_one( element.second );
         }
     }
 }
 
-int ObjectProfile::loadTextures(const std::string &folderPath)
+void ObjectProfile::loadTextures(const std::string &folderPath)
 {
     //Clear texture references
     _texturesLoaded.clear();
@@ -151,7 +153,7 @@ int ObjectProfile::loadTextures(const std::string &folderPath)
         STRING newloadname;
 
         // do the texture
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/tris%d", tmploadname, cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/tris%d", folderPath.c_str(), cnt );
 
         TX_REF skin = TxList_load_one_vfs( newloadname, INVALID_TX_REF, TRANSCOLOR );
         if ( VALID_TX_RANGE( skin ) )
@@ -160,7 +162,7 @@ int ObjectProfile::loadTextures(const std::string &folderPath)
         }
 
         // do the icon
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%d", tmploadname, cnt );
+        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/icon%d", folderPath.c_str(), cnt );
 
         TX_REF icon = TxList_load_one_vfs( newloadname, INVALID_TX_REF, INVALID_KEY );
         if ( VALID_TX_RANGE( icon ) )
@@ -238,15 +240,15 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
 
 const char * ObjectProfile::generateRandomName()
 {
-    if ( !LOADED_CAP( ppro->icap ) ) return "*NONE*";
-    cap_t * pcap = CapStack_get_ptr( ppro->icap );
+    if ( !LOADED_CAP( _icap ) ) return "*NONE*";
+    cap_t * pcap = CapStack_get_ptr( _icap );
 
     //If no random names loaded, return class name instead
     if ( 0 == _randomName.section[0].size ) {
         return pcap->classname;
     }
 
-    const char* randomName = chop_create( &chop_mem, &( ppro->chop ) );
+    const char* randomName = chop_create( &chop_mem, &_randomName );
 
     if (!randomName) {
         return "*NONE*";
@@ -255,19 +257,17 @@ const char * ObjectProfile::generateRandomName()
     return randomName;
 }
 
-bool ObjectProfile::loadRandomNames( const char *szLoadname )
+bool ObjectProfile::loadRandomNames( const std::string &fileName )
 {
     // clear out any current definition
     chop_definition_init( &_randomName );
 
-    return chop_load_vfs( &chop_mem, szLoadname, &_randomName);
+    return chop_load_vfs( &chop_mem, fileName.c_str(), &_randomName);
 }
 
 
 SoundID ObjectProfile::getSoundID( int index ) const
 {
-    if(!loaded) return INVALID_SOUND_ID;
-
     if ( index < 0 || index >= _soundList.size() ) {
         return INVALID_SOUND_ID;
     }
@@ -281,7 +281,7 @@ IDSZ ObjectProfile::getIDSZ(size_t type) const
         return IDSZ_NONE;
     }
 
-    cap_t * pcap = CapStack_get_ptr(icap);
+    cap_t * pcap = CapStack_get_ptr(_icap);
     if ( !pcap ) {
         return IDSZ_NONE;
     }
@@ -305,4 +305,12 @@ TX_REF ObjectProfile::getIcon(size_t index)
     }
 
     return _iconsLoaded[index];
+}
+
+PIP_REF ObjectProfile::getParticleProfile(size_t index) const
+{
+    if(index > _particleProfiles.size()) {
+        return INVALID_PIP_REF;
+    }
+    return _particleProfiles[index];
 }
