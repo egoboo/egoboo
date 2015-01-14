@@ -3,6 +3,8 @@
 #include "game/graphic.h"
 #include "game/player.h"
 
+#include "game/game.h" //TODO: remove only needed for PMesh
+
 #include "game/char.h"
 #include "game/mesh.h"
 #include "game/ChrList.h"
@@ -82,7 +84,28 @@ Camera::Camera(const CameraOptions &options) :
     _ori.facing_z = ONE_TO_TURN( _turnZOne ) ;
 
     resetView();
-    //updateProjection(DEFAULT_FOV, static_cast<float>(sdl_scr.x) / static_cast<float>(sdl_scr.y) );
+
+    //Get renderlist manager pointer
+    renderlist_mgr_t *rmgr_ptr = gfx_system_get_renderlist_mgr();
+    if ( nullptr == rmgr_ptr ) {
+        throw "Failed to get renderlist manager";
+    }
+
+    //Get dolist manager pointer
+    dolist_mgr_t     *dmgr_ptr = gfx_system_get_dolist_mgr();
+    if ( nullptr == dmgr_ptr ) {
+        throw "Failed toget dolist manager";
+    }
+
+    // lock a renderlist for this camera
+    _renderList = renderlist_mgr_get_free_idx( rmgr_ptr );
+
+    // connect the renderlist to a mesh
+    renderlist_t *rlst_ptr = renderlist_mgr_get_ptr( rmgr_ptr, _renderList );
+    renderlist_attach_mesh( rlst_ptr, PMesh );
+
+    // lock a dolist for this camera
+    _doList = dolist_mgr_get_free_idx( dmgr_ptr );    
 
     // assume that the camera is fullscreen
     setScreen(0, 0, sdl_scr.x, sdl_scr.y);

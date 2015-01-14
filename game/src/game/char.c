@@ -33,8 +33,6 @@
 #include "game/renderer_2d.h"
 #include "game/renderer_3d.h"
 #include "game/menu.h"
-#include "game/sound.h"
-//#include "game/camera_system.h"
 #include "game/input.h"
 #include "game/game.h"
 #include "game/ui.h"
@@ -42,6 +40,7 @@
 #include "game/obj_BSP.h"
 #include "game/egoboo.h"
 #include "game/module/PassageHandler.hpp"
+#include "game/audio/AudioSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -215,7 +214,8 @@ bool chr_free( chr_t * pchr )
     // deallocate
     BillboardList_free_one( REF_TO_INT( pchr->ibillboard ) );
 
-    LoopedList_remove( pchr->loopedsound_channel );
+    //Stop any looped sounds allocated to this character
+    _audioSystem.stopObjectLoopingSounds(GET_REF_PCHR(pchr));
 
     chr_instance_dtor( &( pchr->inst ) );
     ai_state_dtor( &( pchr->ai ) );
@@ -2643,7 +2643,7 @@ void do_level_up( const CHR_REF character )
             if ( VALID_PLA( pchr->is_which_player ) )
             {
                 DisplayMsg_printf( "%s gained a level!!!", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ) );
-                sound_play_chunk_full( g_wavelist[GSND_LEVELUP] );
+                _audioSystem.playSoundFull(_audioSystem.getGlobalSound(GSND_LEVELUP));
             }
 
             // Size
@@ -3271,8 +3271,8 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool req
     }
 
     // limit the wave indices to rational values
-    pcap->sound_index[SOUND_FOOTFALL] = CLIP( pcap->sound_index[SOUND_FOOTFALL], INVALID_SOUND, MAX_WAVE );
-    pcap->sound_index[SOUND_JUMP]     = CLIP( pcap->sound_index[SOUND_JUMP], INVALID_SOUND, MAX_WAVE );
+    pcap->sound_index[SOUND_FOOTFALL] = CLIP( pcap->sound_index[SOUND_FOOTFALL], -1, MAX_WAVE );
+    pcap->sound_index[SOUND_JUMP]     = CLIP( pcap->sound_index[SOUND_JUMP], -1, MAX_WAVE );
 
     //0 == bumpdampenmeans infinite mass, and causes some problems
     pcap->bumpdampen = std::max( INV_FF, pcap->bumpdampen );
@@ -3393,7 +3393,7 @@ void cleanup_one_character( chr_t * pchr )
     }
 
     // Stop all sound loops for this object
-    looped_stop_object_sounds( ichr );
+    _audioSystem.stopObjectLoopingSounds(ichr);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3517,8 +3517,8 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
     scr_run_chr_script( ichr );
 
     // Stop any looped sounds
-    looped_stop_object_sounds( ichr );
-    pchr->loopedsound_channel = INVALID_SOUND;
+    _audioSystem.stopObjectLoopingSounds( ichr );
+    pchr->loopedsound_channel = INVALID_SOUND_ID;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6431,10 +6431,8 @@ bool chr_do_latch_button( chr_t * pchr )
             if ( NULL != pcap )
             {
                 ijump = pro_get_pcap( pchr->profile_ref )->sound_index[SOUND_JUMP];
-                if ( VALID_SND( ijump ) )
-                {
-                    sound_play_chunk( pchr->pos.v, chr_get_chunk_ptr( pchr, ijump ) );
-                }
+
+                _audioSystem.playSound(pchr->pos, ProList_get_ptr(pchr->profile_ref)->getSoundID(ijump) );
             }
 
         }
@@ -6472,10 +6470,7 @@ bool chr_do_latch_button( chr_t * pchr )
                 if ( NULL != pcap )
                 {
                     ijump = pcap->sound_index[SOUND_JUMP];
-                    if ( VALID_SND( ijump ) )
-                    {
-                        sound_play_chunk( pchr->pos.v, chr_get_chunk_ptr( pchr, ijump ) );
-                    }
+                    _audioSystem.playSound( pchr->pos, ProList_get_ptr(pchr->profile_ref)->getSoundID(ijump));
                 }
             }
         }
@@ -7189,11 +7184,7 @@ bool chr_handle_madfx( chr_t * pchr )
         cap_t * pcap = pro_get_pcap( pchr->profile_ref );
         if ( NULL != pcap )
         {
-            int ifoot = pcap->sound_index[SOUND_FOOTFALL];
-            if ( VALID_SND( ifoot ) )
-            {
-                sound_play_chunk( pchr->pos.v, chr_get_chunk_ptr( pchr, ifoot ) );
-            }
+            _audioSystem.playSound(pchr->pos, ProList_get_ptr( pchr->profile_ref )->getSoundID(pcap->sound_index[SOUND_FOOTFALL]) );
         }
     }
 
@@ -10450,25 +10441,6 @@ pip_t * chr_get_ppip( const CHR_REF ichr, int ipip )
     pchr = ChrList_get_ptr( ichr );
 
     return pro_get_ppip( pchr->profile_ref, ipip );
-}
-
-//--------------------------------------------------------------------------------------------
-Mix_Chunk * chr_get_chunk( const CHR_REF ichr, int index )
-{
-    chr_t * pchr;
-
-    if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList_get_ptr( ichr );
-
-    return pro_get_chunk( pchr->profile_ref, index );
-}
-
-//--------------------------------------------------------------------------------------------
-Mix_Chunk * chr_get_chunk_ptr( chr_t * pchr, int index )
-{
-    if ( !DEFINED_PCHR( pchr ) ) return NULL;
-
-    return pro_get_chunk( pchr->profile_ref, index );
 }
 
 //--------------------------------------------------------------------------------------------

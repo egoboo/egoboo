@@ -31,6 +31,7 @@
 #include "game/enchant.h"
 #include "game/profile.h"
 #include "game/physics.h"
+#include "game/audio/AudioSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/PrtList.h"
@@ -2965,7 +2966,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                         // Attacker broke the block and batters away the shield
                         // Time to raise shield again = 40/50 (0.8 seconds)
                         pdata->pchr->reload_timer += 40;
-                        sound_play_chunk( pdata->pchr->pos.v, g_wavelist[GSND_SHIELDBLOCK] );
+                        _audioSystem.playSound(pdata->pchr->pos, _audioSystem.getGlobalSound(GSND_SHIELDBLOCK));
                     }
                 }
             }

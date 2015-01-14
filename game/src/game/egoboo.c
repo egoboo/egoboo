@@ -25,7 +25,7 @@
 #include "game/egoboo.h"
 #include "egolib/egolib.h"
 #include "game/network.h"
-#include "game/sound.h"
+#include "game/audio/AudioSystem.hpp"
 #include "game/ui.h"
 #include "game/input.h"
 #include "game/game.h"
@@ -99,11 +99,11 @@ int do_ego_proc_begin( ego_process_t * eproc )
     setup_init_base_vfs_paths();
 
     // Initialize logging next, so that we can use it everywhere.
-    log_init( vfs_resolveWriteFilename( "/debug/log.txt" ) );
+    log_init(vfs_resolveWriteFilename( "/debug/log.txt" ) );
     log_setLoggingLevel( 3 );
 
     // start initializing the various subsystems
-    log_message( "Starting Egoboo " VERSION " ...\n" );
+    log_message( "Starting Egoboo " VERSION " ...\n"  );
     log_info( "PhysFS file system version %s has been initialized...\n", vfs_getVersion() );
 
     sys_initialize();
@@ -142,8 +142,8 @@ int do_ego_proc_begin( ego_process_t * eproc )
     net_initialize();
 
     // initialize the sound system
-    sound_system_initialize();
-    sound_load_all_music_sounds_vfs();
+    _audioSystem.initialize(cfg);
+    _audioSystem.loadAllMusic();
 
     // initialize the random treasure system
     init_random_treasure_tables_vfs( "mp_data/randomtreasure.txt" );
@@ -731,7 +731,7 @@ bool config_download( egoboo_config_t * pcfg, bool synch_from_file )
     _cameraSystem.getCameraOptions().turnMode = pcfg->autoturncamera;
 
     // sound options
-    sound_system_download_from_config( &snd, pcfg );
+    _audioSystem.setConfiguration(*pcfg);
 
     // renderer options
     gfx_config_download_from_egoboo_config( &gfx, pcfg );

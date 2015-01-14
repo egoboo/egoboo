@@ -658,12 +658,15 @@ Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pst
     ppro = ProList_get_ptr( pchr->profile_ref );
 
     ichr           = GET_REF_PCHR( pchr );
-    length = strlen( ppro->message_ary[message_index] );
+    length = ppro->getMessage(message_index).length();
 
     dst     = endtext + endtext_carat;
     dst_end = endtext + MAXENDTEXT - 1;
 
-    expand_escape_codes( ichr, pstate, ppro->message_ary[message_index], ppro->message_ary[message_index] + length, dst, dst_end );
+    char buffer[256];
+    strncpy(buffer, ppro->getMessage(message_index).c_str(), 256);
+
+    expand_escape_codes( ichr, pstate, buffer, buffer + length, dst, dst_end );
     endtext_carat = strlen( endtext );
 
     str_add_linebreaks( endtext, strlen( endtext ), 30 );
@@ -747,12 +750,15 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
     slot = DisplayMsg_get_free();
     DisplayMsg.ary[slot].time = cfg.message_duration;
 
-    length = strlen( ppro->message_ary[message] );
+    length = ppro->getMessage(message).length();
 
     dst     = DisplayMsg.ary[slot].textdisplay;
     dst_end = DisplayMsg.ary[slot].textdisplay + EGO_MESSAGE_SIZE - 1;
 
-    expand_escape_codes( ichr, pstate, ppro->message_ary[message], ppro->message_ary[message] + length, dst, dst_end );
+    char buffer[256];
+    strncpy(buffer, ppro->getMessage(message).c_str(), 256);
+
+    expand_escape_codes( ichr, pstate, buffer, buffer+length, dst, dst_end );
 
     *dst_end = CSTR_END;
 
