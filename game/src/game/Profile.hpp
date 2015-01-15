@@ -25,7 +25,7 @@
 #include "game/script.h"     //for script_info_t
 #include "game/mad.h"
 #include "game/chop.h"
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -80,7 +80,7 @@ static void setConsoleColor(ConsoleColor color)
 #endif
 
     //unix implementation to set console colour
-#if defined(__unix__) || defined(__APPLE__) || defined(macintosh)
+#if defined(__unix__)
     switch(color)
     {
         case CONSOLE_TEXT_RED:

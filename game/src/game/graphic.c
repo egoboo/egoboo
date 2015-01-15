@@ -5929,6 +5929,10 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dynalist" );
         return gfx_error;
     }
+    
+    // HACK: if dynalist is ahead of the game by 30 frames or more, reset and force an update
+    if ((Uint32) (pdylist->frame + 30) >= game_frame_all)
+        pdylist->frame = -1;
 
     // do not update the dynalist more than once a frame
     if ( pdylist->frame >= 0 && ( Uint32 )pdylist->frame >= game_frame_all )

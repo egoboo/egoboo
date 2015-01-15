@@ -24,4 +24,4 @@
 
 #include "egolib/egolib.h"
 
-#include "cartman_config.h"
+#include "cartman/cartman_config.h"

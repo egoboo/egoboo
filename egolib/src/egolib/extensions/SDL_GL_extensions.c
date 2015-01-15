@@ -23,7 +23,7 @@
 /// @brief Implementation of the OpenGL extensions to SDL
 /// @details
 
-#include "SDL_GL_extensions.h"
+#include "egolib/extensions/SDL_GL_extensions.h"
 #include "egolib/tx_filter.h"
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/ogl_texture.h"

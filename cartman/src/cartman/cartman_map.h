@@ -21,7 +21,7 @@
 
 #include "egolib/egolib.h"
 
-#include "cartman_typedef.h"
+#include "cartman/cartman_typedef.h"
 
 #include "egolib/file_formats/map_tile_dictionary.h"
 

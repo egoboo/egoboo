@@ -161,16 +161,16 @@
     <ClCompile Include="src\game\bsp.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\Passage.cpp">
+    <ClCompile Include="src\game\module\Passage.cpp">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\PassageHandler.cpp">
+    <ClCompile Include="src\game\module\PassageHandler.cpp">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\Camera.cpp">
+    <ClCompile Include="src\game\graphics\Camera.cpp">
       <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\CameraSystem.cpp">
+    <ClCompile Include="src\game\graphics\CameraSystem.cpp">
       <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="src\game\ai\AStar.c">
@@ -179,16 +179,16 @@
     <ClCompile Include="src\game\ai\WaypointList.c">
       <Filter>Game Sources\AI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\audio\AudioSystem.cpp">
+    <ClCompile Include="src\game\audio\AudioSystem.cpp">
       <Filter>Game Sources\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\Profile.cpp">
+    <ClCompile Include="src\game\Profile.cpp">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\ProfileSystem.cpp">
+    <ClCompile Include="src\game\ProfileSystem.cpp">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\chop.c">
+    <ClCompile Include="src\game\chop.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -322,16 +322,16 @@
     <ClInclude Include="src\game\bsp.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\Passage.hpp">
+    <ClInclude Include="src\game\module\Passage.hpp">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\PassageHandler.hpp">
+    <ClInclude Include="src\game\module\PassageHandler.hpp">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\Camera.hpp">
+    <ClInclude Include="src\game\graphics\Camera.hpp">
       <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\CameraSystem.hpp">
+    <ClInclude Include="src\game\graphics\CameraSystem.hpp">
       <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\game\ai\AStar.h">
@@ -340,16 +340,16 @@
     <ClInclude Include="src\game\ai\WaypointList.h">
       <Filter>Game Header Files\AI</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\audio\AudioSystem.hpp">
+    <ClInclude Include="src\game\audio\AudioSystem.hpp">
       <Filter>Game Header Files\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\Profile.hpp">
+    <ClInclude Include="src\game\Profile.hpp">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\ProfileSystem.hpp">
+    <ClInclude Include="src\game\ProfileSystem.hpp">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\chop.h">
+    <ClInclude Include="src\game\chop.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -363,7 +363,7 @@
     <None Include="..\res\old-egoboo.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\..\egoboo%40egoboo%40github.com\Doxyfile">
+    <None Include="..\Doxyfile">
       <Filter>Doxygen</Filter>
     </None>
   </ItemGroup>

@@ -33,20 +33,19 @@ static NSDate * _sys_startdate;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void sys_initialize(void)
+void sys_initialize()
 {
-    _sys_startdate = [NSDate date];
-    [_sys_startdate retain];
+    _sys_startdate = [[NSDate alloc] init];
 }
 
 //--------------------------------------------------------------------------------------------
-double sys_getTime(void)
+double sys_getTime()
 {
-    return [[NSDate date] timeIntervalSinceDate:_sys_startdate];
+    return -[_sys_startdate timeIntervalSinceNow];
 }
 
 //--------------------------------------------------------------------------------------------
-void sys_popup( const char * popup_title, const char * warning, const char * format, va_list args )
+void sys_popup(const char * popup_title, const char * warning, const char * format, va_list args)
 {
     /// @author PF5
     /// @details Show error message to Mac users instead of just closing for no reason

@@ -19,16 +19,16 @@
 
 #include "egolib/egolib.h"
 
-#include "cartman.h"
+#include "cartman/cartman.h"
 
-#include "cartman_map.h"
-#include "cartman_functions.h"
-#include "cartman_input.h"
-#include "cartman_gui.h"
-#include "cartman_gfx.h"
-#include "cartman_select.h"
+#include "cartman/cartman_map.h"
+#include "cartman/cartman_functions.h"
+#include "cartman/cartman_input.h"
+#include "cartman/cartman_gui.h"
+#include "cartman/cartman_gfx.h"
+#include "cartman/cartman_select.h"
 
-#include "cartman_math.h"
+#include "cartman/cartman_math.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -212,7 +212,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#include "standard.inl"           // Some functions that I always use
+#include "cartman/standard.inl"           // Some functions that I always use
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

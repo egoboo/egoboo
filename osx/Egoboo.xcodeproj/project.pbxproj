@@ -47,7 +47,6 @@
 		CD39B4841A37506100B377BE /* particle.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4311A37506100B377BE /* particle.c */; };
 		CD39B4881A37506100B377BE /* physics.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4371A37506100B377BE /* physics.c */; };
 		CD39B48A1A37506100B377BE /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B43A1A37506100B377BE /* player.c */; };
-		CD39B48B1A37506100B377BE /* profile.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B43C1A37506100B377BE /* profile.c */; };
 		CD39B48D1A37506100B377BE /* PrtList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B43F1A37506100B377BE /* PrtList.c */; };
 		CD39B48F1A37506100B377BE /* renderer_2d.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4421A37506100B377BE /* renderer_2d.c */; };
 		CD39B4901A37506100B377BE /* renderer_3d.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4441A37506100B377BE /* renderer_3d.c */; };
@@ -199,6 +198,10 @@
 		CDD931A31A428D970004A8B2 /* cube.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319C1A428D970004A8B2 /* cube.c */; };
 		CDD931A41A428D970004A8B2 /* sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319E1A428D970004A8B2 /* sphere.c */; };
 		CDD931A51A428D970004A8B2 /* vec.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD931A01A428D970004A8B2 /* vec.c */; };
+		CDF01D7B1A67E3EE001BC1EF /* chop.c in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D751A67E3EE001BC1EF /* chop.c */; };
+		CDF01D7C1A67E3EE001BC1EF /* Profile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D771A67E3EE001BC1EF /* Profile.cpp */; };
+		CDF01D7D1A67E3EE001BC1EF /* ProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D791A67E3EE001BC1EF /* ProfileSystem.cpp */; };
+		CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */; };
 		CDFB85201A3FB85100CFB956 /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85141A3FB85100CFB956 /* basicdat */; };
 		CDFB85211A3FB85100CFB956 /* BUGS.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85151A3FB85100CFB956 /* BUGS.txt */; };
 		CDFB85221A3FB85100CFB956 /* Changelog.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85161A3FB85100CFB956 /* Changelog.txt */; };
@@ -515,8 +518,6 @@
 		CD39B4381A37506100B377BE /* physics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = physics.h; sourceTree = "<group>"; };
 		CD39B43A1A37506100B377BE /* player.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = player.c; sourceTree = "<group>"; };
 		CD39B43B1A37506100B377BE /* player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player.h; sourceTree = "<group>"; };
-		CD39B43C1A37506100B377BE /* profile.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = profile.c; sourceTree = "<group>"; };
-		CD39B43D1A37506100B377BE /* profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = profile.h; sourceTree = "<group>"; };
 		CD39B43F1A37506100B377BE /* PrtList.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = PrtList.c; sourceTree = "<group>"; };
 		CD39B4401A37506100B377BE /* PrtList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrtList.h; sourceTree = "<group>"; };
 		CD39B4421A37506100B377BE /* renderer_2d.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = renderer_2d.c; sourceTree = "<group>"; };
@@ -655,6 +656,14 @@
 		CDD9319F1A428D970004A8B2 /* sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sphere.h; sourceTree = "<group>"; };
 		CDD931A01A428D970004A8B2 /* vec.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = vec.c; sourceTree = "<group>"; };
 		CDD931A11A428D970004A8B2 /* vec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
+		CDF01D751A67E3EE001BC1EF /* chop.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = chop.c; sourceTree = "<group>"; };
+		CDF01D761A67E3EE001BC1EF /* chop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chop.h; sourceTree = "<group>"; };
+		CDF01D771A67E3EE001BC1EF /* Profile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Profile.cpp; sourceTree = "<group>"; };
+		CDF01D781A67E3EE001BC1EF /* Profile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Profile.hpp; sourceTree = "<group>"; };
+		CDF01D791A67E3EE001BC1EF /* ProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfileSystem.cpp; sourceTree = "<group>"; };
+		CDF01D7A1A67E3EE001BC1EF /* ProfileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ProfileSystem.hpp; sourceTree = "<group>"; };
+		CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bsp_aabb.c; sourceTree = "<group>"; };
+		CDF01D7F1A67E532001BC1EF /* bsp_aabb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bsp_aabb.h; sourceTree = "<group>"; };
 		CDFB85141A3FB85100CFB956 /* basicdat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = basicdat; sourceTree = "<group>"; };
 		CDFB85151A3FB85100CFB956 /* BUGS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BUGS.txt; sourceTree = "<group>"; };
 		CDFB85161A3FB85100CFB956 /* Changelog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Changelog.txt; sourceTree = "<group>"; };
@@ -804,6 +813,8 @@
 				CD44DD7F1A476046005E6DF0 /* bsp.h */,
 				CD39B3E61A37506100B377BE /* char.c */,
 				CD39B3E71A37506100B377BE /* char.h */,
+				CDF01D751A67E3EE001BC1EF /* chop.c */,
+				CDF01D761A67E3EE001BC1EF /* chop.h */,
 				CD39B3E91A37506100B377BE /* ChrList.c */,
 				CD39B3EA1A37506100B377BE /* ChrList.h */,
 				CD39B3EC1A37506100B377BE /* collision.c */,
@@ -869,8 +880,10 @@
 				CD39B4381A37506100B377BE /* physics.h */,
 				CD39B43A1A37506100B377BE /* player.c */,
 				CD39B43B1A37506100B377BE /* player.h */,
-				CD39B43C1A37506100B377BE /* profile.c */,
-				CD39B43D1A37506100B377BE /* profile.h */,
+				CDF01D771A67E3EE001BC1EF /* Profile.cpp */,
+				CDF01D781A67E3EE001BC1EF /* Profile.hpp */,
+				CDF01D791A67E3EE001BC1EF /* ProfileSystem.cpp */,
+				CDF01D7A1A67E3EE001BC1EF /* ProfileSystem.hpp */,
 				CD39B43F1A37506100B377BE /* PrtList.c */,
 				CD39B4401A37506100B377BE /* PrtList.h */,
 				CD39B4421A37506100B377BE /* renderer_2d.c */,
@@ -1017,6 +1030,8 @@
 				CDCA1F901A3F56AB00002E76 /* bbox.h */,
 				CDCA1F921A3F56AB00002E76 /* bsp.c */,
 				CDCA1F931A3F56AB00002E76 /* bsp.h */,
+				CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */,
+				CDF01D7F1A67E532001BC1EF /* bsp_aabb.h */,
 				CDD8806B1A44A8EF007177F3 /* bv.c */,
 				CDD8806C1A44A8EF007177F3 /* bv.h */,
 				CD39B3041A374B6000B377BE /* clock.c */,
@@ -1575,6 +1590,7 @@
 				CD39B46E1A37506100B377BE /* graphic_texture.c in Sources */,
 				CD39B4681A37506100B377BE /* game.c in Sources */,
 				CD39B48A1A37506100B377BE /* player.c in Sources */,
+				CDF01D7B1A67E3EE001BC1EF /* chop.c in Sources */,
 				CD97C1651A629E2500179A2C /* Passage.cpp in Sources */,
 				CD39B46C1A37506100B377BE /* graphic_mad.c in Sources */,
 				CD39B47B1A37506100B377BE /* menu.c in Sources */,
@@ -1595,7 +1611,6 @@
 				CD39B4601A37506100B377BE /* egoboo_object.c in Sources */,
 				CD39B46D1A37506100B377BE /* graphic_prt.c in Sources */,
 				CD39B4B01A3762A500B377BE /* SDLMain.m in Sources */,
-				CD39B48B1A37506100B377BE /* profile.c in Sources */,
 				CD39B4971A37506100B377BE /* ui.c in Sources */,
 				CD39B4701A37506100B377BE /* input.c in Sources */,
 				CD39B4791A37506100B377BE /* md2.c in Sources */,
@@ -1605,10 +1620,12 @@
 				CD39B4831A37506100B377BE /* obj_BSP.c in Sources */,
 				CD39B4621A37506100B377BE /* egoboo.c in Sources */,
 				CD39B46B1A37506100B377BE /* graphic_fan.c in Sources */,
+				CDF01D7C1A67E3EE001BC1EF /* Profile.cpp in Sources */,
 				CD39B4881A37506100B377BE /* physics.c in Sources */,
 				CD39B4651A37506100B377BE /* EncList.c in Sources */,
 				CD39B4821A37506100B377BE /* network.c in Sources */,
 				CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */,
+				CDF01D7D1A67E3EE001BC1EF /* ProfileSystem.cpp in Sources */,
 				CD39B47E1A37506100B377BE /* mesh.c in Sources */,
 				CD39B4781A37506100B377BE /* mad.c in Sources */,
 			);
@@ -1686,6 +1703,7 @@
 				CDCA1FC21A3F57D000002E76 /* map_tile_dictionary.c in Sources */,
 				CDD880701A44A8EF007177F3 /* matrix.c in Sources */,
 				CDCA1FC11A3F57D000002E76 /* map_file.c in Sources */,
+				CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */,
 				CDCA1FC91A3F57D000002E76 /* spawn_file.c in Sources */,
 				CDCA1FD21A3F57D000002E76 /* hash.c in Sources */,
 				CDCA1FDC1A3F57D000002E76 /* process.c in Sources */,
