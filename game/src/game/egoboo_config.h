@@ -35,9 +35,6 @@
 #define MAX_TEXTURE         (MAX_CHR * 4)     ///< Maximum number of textures
 #define MAX_ICON            (MAX_TEXTURE + 4) ///< Maximum number of icons
 
-/// profile pre-allocations
-#define MAX_PROFILE         256       ///< Maximum number of object profiles
-
 /// per-object pre-allocations
 #define MAX_WAVE            30        ///< Maximum number of *.wav/*.ogg per object
 #define MAX_PIP_PER_PROFILE 13        ///< Maximum number of part*.txt per object

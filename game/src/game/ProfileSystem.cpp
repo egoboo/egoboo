@@ -282,7 +282,7 @@ pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
 
 int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
 {
-    bool required = !VALID_CAP_RANGE( slot_override );
+    bool required = !(slot_override < 0 || slot_override >= INVALID_PRO_REF);
 
     // get a slot value
     int islot = getProfileSlotNumber( pathName, slot_override );

@@ -33,7 +33,7 @@ struct pro_import_t
 {
     int   slot;
     int   player;
-    int   slot_lst[MAX_PROFILE];
+    std::array<int, 10*4> slot_lst; //MAX_IMPORT_PER_PLAYER * MAX_PLAYER;
     int   max_slot;
 };
 

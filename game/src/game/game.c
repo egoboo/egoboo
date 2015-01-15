@@ -107,8 +107,6 @@ weather_instance_t    weather;
 water_instance_t      water;
 fog_instance_t        fog;
 
-bool activate_spawn_file_active = false;
-
 import_list_t ImportList  = IMPORT_LIST_INIT;
 
 Sint32          clock_wld        = 0;
@@ -2759,10 +2757,7 @@ void load_all_profiles_import()
     int cnt;
 
     // Clear the import slots...
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
-    {
-        import_data.slot_lst[cnt] = INVALID_PRO_REF;
-    }
+    import_data.slot_lst.fill(INVALID_PRO_REF);
     import_data.max_slot = -1;
 
     // This overwrites existing loaded slots that are loaded globally
@@ -3083,76 +3078,70 @@ void activate_spawn_file_vfs()
 {
     /// @author ZZ
     /// @details This function sets up character data, loaded from "SPAWN.TXT"
-
-    const char          *newloadname;
-    vfs_FILE            *fileread;
-
-    spawn_file_info_t   spawn_list[MAX_CHR];                //The full list of objects to be spawned
-    STRING              reserved_slot[MAX_PROFILE];               
-    size_t              numberOfObjectsToSpawn = 0;
-
     std::unordered_map<int, std::string> reservedSlots;     //Keep track of which slot numbers are reserved by their load name
-    std::vector<int> dynamicObjectList;                     //references to slots that need to be dynamically loaded later
-
-    // tell everyone we are spawning a module
-    activate_spawn_file_active = true;
+    std::vector<int>                     dynamicObjectList; //references to slots that need to be dynamically loaded later
+    std::vector<spawn_file_info_t>       objectsToSpawn;    //The full list of objects to be spawned 
 
     // Turn some back on
-    newloadname = "mp_data/spawn.txt";
-    fileread = vfs_openRead( newloadname );
+    const char* filePath = "mp_data/spawn.txt";
+    vfs_FILE  *fileread = vfs_openRead( filePath );
 
     PlaStack.count = 0;
     if ( NULL == fileread )
     {
-        log_error( "Cannot read file: %s\n", newloadname );
+        log_error( "Cannot read file: %s\n", filePath );
     }
     else
     {
         CHR_REF parent = INVALID_CHR_REF;
 
         //First load spawn data of every object
-        while ( spawn_file_scan( fileread, &spawn_list[numberOfObjectsToSpawn] ) )
+        while(!vfs_eof(fileread))
         {
-            spawn_file_info_t * pspawn;
+            spawn_file_info_t entry;
+
+            //Read next entry
+            if(!spawn_file_scan(fileread, &entry)) {
+                break; //no more entries
+            }
 
             //Spit out a warning if they break the limit
-            if ( numberOfObjectsToSpawn >= MAX_CHR )
+            if ( objectsToSpawn.size() >= MAX_CHR )
             {
                 log_warning( "Too many objects in spawn.txt! Maximum number of objects is %d\n", MAX_CHR );
                 break;
             }
-            pspawn = spawn_list + numberOfObjectsToSpawn;
 
             // check to see if the slot is valid
-            if ( pspawn->slot >= INVALID_PRO_REF )
+            if ( entry.slot >= INVALID_PRO_REF )
             {
-                log_warning( "Invalid slot %d for \"%s\" in file \"%s\"\n", pspawn->slot, pspawn->spawn_coment, newloadname );
+                log_warning( "Invalid slot %d for \"%s\" in file \"%s\"\n", entry.slot, entry.spawn_coment, filePath );
                 continue;
             }
 
             //convert the spawn name into a format we like
-            convert_spawn_file_load_name( pspawn );
+            convert_spawn_file_load_name(&entry);
 
             // If it is a dynamic slot, remember to dynamically allocate it for later
-            if ( pspawn->slot <= -1 )
+            if ( entry.slot <= -1 )
             {
-                dynamicObjectList.push_back(numberOfObjectsToSpawn);
+                dynamicObjectList.push_back(objectsToSpawn.empty() ? 0 : objectsToSpawn.size()-1);
             }
 
             //its a static slot number, mark it as reserved if it isnt already
-            else if ( reservedSlots[pspawn->slot].empty() )
+            else if ( reservedSlots[entry.slot].empty() )
             {
-                reservedSlots[pspawn->slot] = pspawn->spawn_coment;
+                reservedSlots[entry.slot] = entry.spawn_coment;
             }
 
             //Finished with this object for now
-            numberOfObjectsToSpawn++;
+            objectsToSpawn.push_back(entry);
         }
 
         //Next we dynamically find slot numbers for each of the objects in the dynamic list
         for(int index : dynamicObjectList)
         {
-            spawn_file_info_t &spawnDynamic = spawn_list[index];
+            spawn_file_info_t &spawnDynamic = objectsToSpawn[index];
 
             //Find first free slot that is not the spellbook slot
             for ( spawnDynamic.slot = MAX_IMPORT_PER_PLAYER * MAX_PLAYER; spawnDynamic.slot < INVALID_PRO_REF; spawnDynamic.slot++ )
@@ -3179,10 +3168,8 @@ void activate_spawn_file_vfs()
         }
 
         //Now spawn each object in order
-        for (size_t i = 0; i < numberOfObjectsToSpawn; i++ )
+        for(spawn_file_info_t &spawnInfo : objectsToSpawn)
         {
-            spawn_file_info_t &spawnInfo = spawn_list[i];
-
             //Do we have a parent?
             if ( spawnInfo.attach != ATTACH_NONE && parent != INVALID_CHR_REF ) spawnInfo.parent = parent;
 
@@ -3196,7 +3183,7 @@ void activate_spawn_file_vfs()
                     // no, give a warning if it is useful
                     if ( import_object )
                     {
-                        log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", spawnInfo.spawn_coment, spawnInfo.slot, newloadname );
+                        log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", spawnInfo.spawn_coment, spawnInfo.slot, filePath );
                     }
                     continue;
                 }
@@ -3219,9 +3206,6 @@ void activate_spawn_file_vfs()
 
     // Fix tilting trees problem
     tilt_characters_to_terrain();
-
-    // done spawning
-    activate_spawn_file_active = false;
 }
 
 //--------------------------------------------------------------------------------------------
