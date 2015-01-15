@@ -29,42 +29,144 @@
 #include "egolib/platform.h"
 #include "egolib/system.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#define MAX_LOG_MESSAGE 1024
+#ifdef __WINDOWS__
+#include <windows.h>
+#endif
 
-static FILE *logFile = NULL;
-static char  logBuffer[MAX_LOG_MESSAGE] = EMPTY_CSTR;
-static int   logLevel = 1;
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static constexpr size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages
+
+static FILE *logFile = nullptr;
+static LogLevel   _logLevel = LOG_WARNING;   ///default log level
 
 static int _atexit_registered = 0;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static void writeLogMessage(const char *prefix, const char *format, va_list args)
+enum ConsoleColor
 {
-    if (NULL != logFile)
-    {
-        vsnprintf(logBuffer, MAX_LOG_MESSAGE - 1, format, args);
-        fputs(prefix, logFile);
-        fputs(logBuffer, logFile);
+    CONSOLE_TEXT_RED,
+    CONSOLE_TEXT_YELLOW,
+    CONSOLE_TEXT_WHITE,
+    CONSOLE_TEXT_GRAY
+};
 
-#if defined(_CONSOLE) && defined(LOG_TO_CONSOLE)
-        fputs(prefix, stdout);
-        fputs(logBuffer, stdout);
+/**
+* Setting console colours is not cross-platform, so we have to do it with macros
+**/
+static void setConsoleColor(ConsoleColor color)
+{
+
+    //Windows implementation to set console colour
+#ifdef __WINDOWS__
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    switch(color)
+    {
+        case CONSOLE_TEXT_RED:
+            SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_INTENSITY);
+        break;
+
+        case CONSOLE_TEXT_YELLOW:
+            SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+        break;
+
+        case CONSOLE_TEXT_WHITE:
+            SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+        break;
+
+        case CONSOLE_TEXT_GRAY:
+            SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN);
+        break;
+    }
 #endif
 
-        fflush(logFile);
+    //unix implementation to set console colour
+#if defined(__unix__) || defined(__APPLE__) || defined(macintosh)
+    switch(color)
+    {
+        case CONSOLE_TEXT_RED:
+            fputs("\e[0;31m", stdout);
+        break;
+        
+        case CONSOLE_TEXT_YELLOW:
+            fputs("\e[1;33m", stdout);
+        break;
+
+        case CONSOLE_TEXT_WHITE:
+            fputs("\e[0;37m", stdout);
+        break;
+
+        case CONSOLE_TEXT_GRAY:
+            fputs("\e[0;30m", stdout);
+        break;
     }
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
-void log_init(const char *logname)
+//--------------------------------------------------------------------------------------------
+static void writeLogMessage(LogLevel logLevel, const char *format, va_list args)
 {
-    if (NULL == logFile)
+    char  logBuffer[MAX_LOG_MESSAGE] = EMPTY_CSTR;
+
+    //Add prefix
+    const char *prefix;
+    switch(logLevel)
+    {
+        case LOG_ERROR:
+            setConsoleColor(CONSOLE_TEXT_RED);
+            prefix = "FATAL ERROR: ";
+        break;
+
+        case LOG_WARNING:
+            setConsoleColor(CONSOLE_TEXT_YELLOW);
+            prefix = "WARNING: ";
+        break;
+
+        case LOG_INFO:
+            setConsoleColor(CONSOLE_TEXT_WHITE);
+            prefix = "INFO: ";
+        break;
+
+        case LOG_DEBUG:
+            setConsoleColor(CONSOLE_TEXT_GRAY);
+            prefix = "DEBUG: ";
+        break;
+
+        default:
+        case LOG_NONE:
+            setConsoleColor(CONSOLE_TEXT_WHITE);
+            prefix = "";//no prefix
+        break;
+    }
+
+    //Build log message
+    vsnprintf(logBuffer, MAX_LOG_MESSAGE - 1, format, args);
+
+    if (nullptr != logFile)
+    {
+        //Log to file
+        fputs(prefix, logFile);
+        fputs(logBuffer, logFile);
+        fflush(logFile);
+    }
+
+    //Log to console
+    fputs(prefix, stdout);
+    fputs(logBuffer, stdout);
+
+    //Restore default color
+    setConsoleColor(CONSOLE_TEXT_GRAY);
+}
+
+//--------------------------------------------------------------------------------------------
+void log_init(const char *logname, LogLevel logLevel)
+{
+    _logLevel = logLevel;
+
+    if (nullptr == logFile)
     {
         logFile = fopen(logname, "wt");
-        if (NULL != logFile && !_atexit_registered)
+        if (nullptr != logFile && !_atexit_registered)
         {
             _atexit_registered = 1;
             atexit( log_shutdown );
@@ -75,19 +177,10 @@ void log_init(const char *logname)
 //--------------------------------------------------------------------------------------------
 void log_shutdown()
 {
-    if (NULL != logFile)
+    if (nullptr != logFile)
     {
         fclose(logFile);
-        logFile = NULL;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void log_setLoggingLevel(int level)
-{
-    if (level > 0)
-    {
-        logLevel = level;
+        logFile = nullptr;
     }
 }
 
@@ -97,7 +190,7 @@ void log_message(const char *format, ...)
     va_list args;
 
     va_start(args, format);
-    writeLogMessage("", format, args);
+    writeLogMessage(LOG_NONE, format, args);
     va_end(args);
 }
 
@@ -110,9 +203,9 @@ void log_debug(const char *format, ...)
     if (!cfg.dev_mode) return;
 
     va_start(args, format);
-    if (logLevel >= 3)
+    if (_logLevel >= LOG_DEBUG)
     {
-        writeLogMessage("DEBUG: ", format, args);
+        writeLogMessage(LOG_DEBUG, format, args);
     }
     va_end(args);
 }
@@ -121,10 +214,10 @@ void log_debug(const char *format, ...)
 void log_info(const char *format, ...)
 {
     va_list args;
-    if (logLevel >= 2)
+    if (_logLevel >= LOG_INFO)
     {
         va_start(args, format);
-        writeLogMessage("INFO: ", format, args);
+        writeLogMessage(LOG_INFO, format, args);
         va_end(args);
     }
 }
@@ -133,10 +226,10 @@ void log_info(const char *format, ...)
 void log_warning(const char *format, ...)
 {
     va_list args;
-    if (logLevel >= 1)
+    if (_logLevel >= LOG_WARNING)
     {
         va_start(args, format);
-        writeLogMessage("WARN: ", format, args);
+        writeLogMessage(LOG_WARNING, format, args);
         va_end(args);
     }
 }
@@ -148,9 +241,9 @@ void log_error(const char *format, ...)
 
     va_start( args, format );
     va_copy( args2, args );
-    writeLogMessage( "FATAL ERROR: ", format, args );
+    writeLogMessage(LOG_ERROR, format, args );
 
-    // Windows users get a proper error message popup box
+    //Display an OS messagebox
     sys_popup( "Egoboo: Fatal Error", "Egoboo has encountered a problem and is exiting. \nThis is the error report: \n", format, args2 );
 
     va_end( args );
