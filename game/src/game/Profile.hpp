@@ -23,7 +23,6 @@
 #include <unordered_map>
 
 #include "game/script.h"     //for script_info_t
-//#include "game/char.h"
 #include "game/mad.h"
 #include "game/chop.h"
 #include "egoboo_typedef.h"
@@ -88,6 +87,11 @@ public:
     inline MAD_REF getModelRef() const {return _imad;}
     inline CAP_REF getCapRef() const {return _icap;}
     inline EVE_REF getEnchantRef() const {return _ieve;}
+
+    /**
+    * @return get which slot number this profile is loaded with
+    **/
+    inline int getSlotNumber() const {return _slotNumber;}
 
     /**
     * Gets the particle profile loaded into the specified index number

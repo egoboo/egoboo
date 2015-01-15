@@ -23,13 +23,6 @@
 
 #include "game/egoboo_typedef.h"
 #include "game/egoboo_object.h"
-//#include "game/Profile.hpp"
-
-//#include "game/EncList.h"
-//#include "game/ChrList.h"
-//
-//#include "game/char.h"
-//#include "game/Profile.hpp"
 
 //--------------------------------------------------------------------------------------------
 // external structs
@@ -52,7 +45,7 @@ typedef struct s_enc_spawn_data enc_spawn_data_t;
 #define ENC_LEAVE_FIRST              1
 #define ENC_LEAVE_NONE               2
 
-#define MAX_EVE                 MAX_PROFILE    ///< One enchant type per model
+#define MAX_EVE                 256    ///< One enchant type per model
 
 #define INVALID_EVE_REF ((EVE_REF)MAX_EVE)
 

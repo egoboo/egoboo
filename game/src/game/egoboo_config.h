@@ -41,13 +41,13 @@
 /// per-object pre-allocations
 #define MAX_WAVE            30        ///< Maximum number of *.wav/*.ogg per object
 #define MAX_PIP_PER_PROFILE 13        ///< Maximum number of part*.txt per object
-#define MAX_PIP             (MAX_PROFILE * MAX_PIP_PER_PROFILE)
+#define MAX_PIP             (256 * MAX_PIP_PER_PROFILE)
 
 // special values
 #define INVALID_CHR_IDX     MAX_CHR
 #define INVALID_ENC_IDX     MAX_ENC
 #define INVALID_PRT_IDX     MAX_PRT
-#define INVALID_PRO_IDX     MAX_PROFILE
+#define INVALID_PRO_IDX     0xFFFF
 #define INVALID_PIP_IDX     MAX_PIP
 
 #define INVALID_CHR_REF     (( CHR_REF ) INVALID_CHR_IDX)
