@@ -86,8 +86,8 @@ static prt_bundle_t * move_one_particle_do_z_motion( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt );
 static prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt );
-static fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure );
-static float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] );
+//static fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure );
+//static float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1064,7 +1064,7 @@ PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_R
 }
 
 //--------------------------------------------------------------------------------------------
-float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
+/*float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
 {
     float retval = 0.0f;
     BIT_FIELD  stoppedby;
@@ -1093,10 +1093,10 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     prt_pressure_tests += mesh_pressure_tests;
 
     return retval;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
-fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure )
+/*fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure )
 {
     fvec2_t retval = fvec2_t::zero;
     float radius;
@@ -1136,6 +1136,7 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
 
     return retval;
 }
+*/
 
 //--------------------------------------------------------------------------------------------
 BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
