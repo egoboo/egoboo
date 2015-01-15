@@ -34,7 +34,7 @@ SDLCONF_C := $(shell sdl-config --cflags)
 # the compiler options
 
 CXX      := g++
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_CONSOLE
+CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_DEBUG 
 #-Wall -Weffc++
 
 #debug options
@@ -42,12 +42,13 @@ CXXFLAGS += -ggdb -fdiagnostics-color=always
 #CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 #CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 
-LINKER_LIBS := -lmingw32 -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lSHFolder -lAdvapi32
+LINKER_LIBS := -lmingw32 -mconsole -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lSHFolder -lAdvapi32
 LINKER_LIBS += -L../egolib/ -legoboo
 LINKER_LIBS += -L/usr/local/lib -lSDLmain -lSDL -lSDL_mixer -lSDL_ttf -lSDL_image
 LINKER_LIBS += -lphysfs
 LINKER_LIBS += -lenet -lwsock32 -lws2_32
-LINKER_LIBS += -lopengl32 -lglu32 -lShlwapi -lwinmm
+LINKER_LIBS += -lopengl32 -lglu32 -lShlwapi -lwinmm 
+#-static
 
 
 #------------------------------------
