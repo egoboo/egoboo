@@ -196,6 +196,22 @@ struct fvec3_t
 	}
 	/**
 	 * @brief
+	 *	Compute the dot product of this vector and another vector.
+	 * @param other
+	 *	the other vector
+	 * @return
+	 *	the dot product <tt>(*this) * other</tt> of this vector and the other vector
+	 */
+	float dot(const fvec3_t& other) const
+	{
+		return this->v[kX] * this->v[kX]
+			 + this->v[kY] * this->v[kY]
+			 + this->v[kZ] * this->v[kZ]
+			 ;
+	}
+
+	/**
+	 * @brief
 	 *	Multiply this vector by a scalar.
 	 * @param scalar
 	 *	the scalar
@@ -210,30 +226,44 @@ struct fvec3_t
 	}
 	/**
 	 * @brief
-	 *	Normalize this vector.
-	 * @return
-	 *	the old length of this vector
+	 *	Normalize this vector to the specified length.
+	 * @param length
+	 *	the length
 	 * @post
 	 *	If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
-	 *	and is assigned <tt>(*this) / l</tt> (where @a l is the old length of <tt>(*this)</tt>) otherwise.
+	 *	and is assigned <tt>length * (*this) / |(*this)|</tt> otherwise.
 	 */
-	float normalize()
+	void normalize(float length)
 	{
-		float l = length();
+		float l = this->length();
+		if (l > 0.0f)
+		{
+			multiply(length / l);
+		}
+	}
+	/**
+	 * @brief
+	 *	Normalize this vector.
+	 * @post
+	 *	If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
+	 *	and is assigned <tt>(*this) / |(*this)|</tt> otherwise.
+	 */
+	void normalize()
+	{
+		float l = this->length();
 		if (l > 0.0f)
 		{
 			multiply(1.0f / l);
 		}
-		return l;
 	}
 	/**
-	* @brief
-	*	Get if this vector equals another vectors.
-	* @param other
-	*	the other vector
-	* @return
-	*	@a true if this vector equals the other vector
-	*/
+	 * @brief
+	 *	Get if this vector equals another vectors.
+	 * @param other
+	 *	the other vector
+	 * @return
+	 *	@a true if this vector equals the other vector
+	 */
 	bool equals(const fvec3_t& other)
 	{
 		return this->x == other.x
@@ -420,7 +450,8 @@ bool   fvec2_self_is_clear(const fvec2_base_t A);
 bool   fvec2_base_copy(fvec2_base_t A, const fvec2_base_t B);
 float  fvec2_length(const fvec2_base_t A);
 float  fvec2_length_abs(const fvec2_base_t A);
-float  fvec2_length_2(const fvec2_base_t A);
+float  fvec2_length_2(const fvec2_t& v);
+float  fvec2_length_2(const fvec2_base_t v);
 bool   fvec2_self_scale(fvec2_base_t A, const float B);
 bool   fvec2_self_sum(fvec2_base_t A, const fvec2_base_t B);
 bool   fvec2_self_normalize(fvec2_base_t A);
@@ -440,7 +471,9 @@ float *fvec2_scale(fvec2_base_t DST, const fvec2_base_t SRC, const float B);
  * @post
  *	the vector represents the null vector
  */
-void fvec3_ctor(fvec3_base_t v);                 // @todo Remove this.
+#if 0
+void fvec3_ctor(fvec3_base_t v); ///< @todo Remove this.
+#endif
 void fvec3_ctor(fvec3_t& v);
 /**
  * @brief
@@ -448,7 +481,9 @@ void fvec3_ctor(fvec3_t& v);
  * @param v
  *	the vector
  */
-void fvec3_dtor(fvec3_base_t v);                 // @todo Remove this.
+#if 0
+void fvec3_dtor(fvec3_base_t v);  ///< @todo Remove this.
+#endif
 void fvec3_dtor(fvec3_t& v);
 
 bool fvec3_valid(const fvec3_base_t A);
@@ -460,8 +495,11 @@ bool fvec3_valid(const fvec3_base_t A);
  * @post
  *	@a v was assigned the null vector
  */
-bool fvec3_self_clear(fvec3_base_t v);
+bool fvec3_self_clear(fvec3_t& v);
+bool fvec3_self_clear(fvec3_base_t v); ///< @todo Remove this.
+
 bool fvec3_self_is_clear(const fvec3_base_t A);
+
 /**
  * @brief
  *	Multiply a vector by a scalar.
@@ -473,12 +511,21 @@ bool fvec3_self_is_clear(const fvec3_base_t A);
  *	@a v was assigned the product <tt>s*v</tt>.
  */
 bool   fvec3_self_scale(fvec3_t& v, const float s);
-bool   fvec3_self_scale(fvec3_base_t v, const float s); // @todo Remove this.
+#if 0
+bool fvec3_self_scale(fvec3_base_t v, const float s); ///< @todo Remove this.
+#endif
+bool  fvec3_self_sum(fvec3_base_t A, const fvec3_base_t RHS);
 
-bool   fvec3_self_sum(fvec3_base_t A, const fvec3_base_t RHS);
-float  fvec3_self_normalize(const fvec3_t& v);
-float  fvec3_self_normalize(fvec3_base_t v);
-float  fvec3_self_normalize_to(fvec3_base_t A, const float B);
+void fvec3_self_normalize(fvec3_t& v);
+#if 1
+float fvec3_self_normalize(fvec3_base_t v); ///< @todo Remove this.
+#endif
+
+void fvec3_self_normalize_to(fvec3_t& v, const float s);
+#if 0
+float fvec3_self_normalize_to(fvec3_base_t v, const float s); ///< @todo Remove this.
+#endif
+
 /**
  * @brief
  *	Get the squared length of a vector
@@ -489,7 +536,7 @@ float  fvec3_self_normalize_to(fvec3_base_t A, const float B);
  *	the squared length of the vector
  */
 float fvec3_length_2(const fvec3_t& v);
-float fvec3_length_2(const fvec3_base_t v);      // Remove this.
+float fvec3_length_2(const fvec3_base_t v); ///< @todo Remove this.
 
 /**
  * @brief
@@ -501,7 +548,7 @@ float fvec3_length_2(const fvec3_base_t v);      // Remove this.
  *	the length of the vector
  */
 float fvec3_length(const fvec3_t& v);
-float fvec3_length(const fvec3_base_t v);        // Remove this.
+float fvec3_length(const fvec3_base_t v); ///< @todo Remove this.
 
 /**
  * @brief
@@ -513,7 +560,8 @@ float fvec3_length(const fvec3_base_t v);        // Remove this.
  *	the length of the vector
  */
 float fvec3_length_abs(const fvec3_t& v);
-float fvec3_length_abs(const fvec3_base_t v);    // Remove this.
+float fvec3_length_abs(const fvec3_base_t v); ///< @todo Remove this.
+
 /**
  * @brief
  *	Get the dot product of vectors.
@@ -522,11 +570,35 @@ float fvec3_length_abs(const fvec3_base_t v);    // Remove this.
  * @return
  *	the dot product <tt>u x v</tt>
  */
-float fvec3_dot_product(const fvec3_base_t u, const fvec3_base_t v);
 float fvec3_dot_product(const fvec3_t& u, const fvec3_t& v);
+float fvec3_dot_product(const fvec3_base_t u, const fvec3_base_t v); ///< @todo Remove this.
 
-float  fvec3_dist_abs(const fvec3_base_t LHS, const fvec3_base_t RHS);
-float  fvec3_dist_2(const fvec3_base_t LHS, const fvec3_base_t RHS);
+/**
+ * @brief
+ *	Get the distance between to points
+ *	(using the taxicab metric).
+ * @param u,v
+ *	the points
+ * @return
+ *	the distance between the points
+ */
+float fvec3_dist_abs(const fvec3_t& u, const fvec3_t& v);
+#if 0
+float fvec3_dist_abs(const fvec3_base_t u, const fvec3_base_t v); ///< @todo Remove this.
+#endif
+
+/**
+ * @brief
+ *	Get the squared distance between two points
+ *	(using the Euclidian metric).
+ * @param u,v
+ *	the points
+ * @return
+ *	the squared distance between the points
+ */
+float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v);
+float fvec3_dist_2(const fvec3_base_t u, const fvec3_base_t v);
+
 float *fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC);
 fvec3_t fvec3_scale(const fvec3_t& v, float s);
 float *fvec3_scale(fvec3_base_t DST, const fvec3_base_t SRC, const float B);
@@ -537,9 +609,11 @@ float *fvec3_add(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RH
 fvec3_t fvec3_sub(const fvec3_t& u, const fvec3_t& v);
 float *fvec3_sub(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS);
 
+fvec3_t fvec3_cross_product(const fvec3_t& u, const fvec3_t& v);
 float *fvec3_cross_product(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS);
+
 float  fvec3_decompose(const fvec3_base_t src, const fvec3_base_t vnrm, fvec3_base_t vpara, fvec3_base_t vperp);
 
 bool   fvec4_valid(const fvec4_base_t A);
-bool   fvec4_self_clear(fvec4_base_t A);
+bool   fvec4_self_clear(fvec4_base_t v);
 bool   fvec4_self_scale(fvec4_base_t A, const float B);

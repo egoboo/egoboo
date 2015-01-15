@@ -259,9 +259,9 @@ void md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float sc
             pframe->vertex_lst[tnc].nrm.y *= SGN( scale_y );
             pframe->vertex_lst[tnc].nrm.z *= SGN( scale_z );
 
-            fvec3_self_normalize( pframe->vertex_lst[tnc].nrm.v );
+            fvec3_self_normalize( pframe->vertex_lst[tnc].nrm );
 
-            oct_vec_ctor( opos, pframe->vertex_lst[tnc].pos.v );
+            oct_vec_ctor( opos, pframe->vertex_lst[tnc].pos );
 
             // Re-calculate the bounding box for this frame
             if ( !bfound )
@@ -446,7 +446,7 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
             pframe->vertex_lst[v].nrm.z = kMd2Normals[frame_vert.normalIndex][2];
 
             // Calculate the bounding box for this frame
-            oct_vec_ctor( ovec, pframe->vertex_lst[v].pos.v );
+            oct_vec_ctor( ovec, pframe->vertex_lst[v].pos );
             if ( !bfound )
             {
                 oct_bb_set_ovec( &( pframe->bb ), ovec );

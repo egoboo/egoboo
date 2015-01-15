@@ -1254,7 +1254,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
                 mat_getTranslate( ChrList.lst[ichr].inst.matrix.v, pos_tmp.v );
             }
 
-            fvec3_sub( vtmp.v, pos_tmp.v, pcam->getPosition().v );
+            vtmp = fvec3_sub(pos_tmp, pcam->getPosition());
         }
         else if ( INVALID_CHR_REF == pdlist->lst[cnt].ichr && VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
         {
@@ -1262,11 +1262,11 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
 
             if ( do_reflect )
             {
-                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.pos.v, pcam->getPosition().v );
+                vtmp = fvec3_sub(PrtList.lst[iprt].inst.pos, pcam->getPosition());
             }
             else
             {
-                fvec3_sub( vtmp.v, PrtList.lst[iprt].inst.ref_pos.v, pcam->getPosition().v );
+                vtmp = fvec3_sub(PrtList.lst[iprt].inst.ref_pos, pcam->getPosition());
             }
         }
         else
@@ -1274,7 +1274,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
             continue;
         }
 
-        dist = fvec3_dot_product( vtmp.v, vcam.v );
+        dist = fvec3_dot_product( vtmp, vcam );
         if ( dist > 0 )
         {
             pdlist->lst[count].ichr = pdlist->lst[cnt].ichr;
@@ -4687,13 +4687,13 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
     vforw_wind.x = ilayer->tx_add.x;
     vforw_wind.y = ilayer->tx_add.y;
     vforw_wind.z = 0;
-    fvec3_self_normalize( vforw_wind.v );
+    fvec3_self_normalize(vforw_wind);
 
     mat_getCamForward( pcam->getView().v, vforw_cam.v );
-    fvec3_self_normalize( vforw_cam.v );
+    fvec3_self_normalize(vforw_cam);
 
     // make the texture begin to disappear if you are not looking straight down
-    ftmp = fvec3_dot_product( vforw_wind.v, vforw_cam.v );
+    ftmp = fvec3_dot_product(vforw_wind, vforw_cam);
 
     alpha = ( 1.0f - ftmp * ftmp ) * ( ilayer->alpha * INV_FF );
 
@@ -5018,7 +5018,7 @@ float grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff,
 }
 
 //--------------------------------------------------------------------------------------------
-bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos )
+bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_t& pos )
 {
     int ix, iy, cnt;
     Uint32 fan[4];
@@ -5041,14 +5041,8 @@ bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst
         return false;
     }
 
-    if ( NULL == pos )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "no valid position" );
-        return false;
-    }
-
     // calculate the "tile position"
-    fvec2_scale( tpos.v, pos, 1.0f / GRID_FSIZE );
+    fvec2_scale( tpos.v, pos.v, 1.0f / GRID_FSIZE );
 
     // grab this tile's coordinates
     ix = FLOOR( tpos.x );
@@ -5956,8 +5950,8 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
         plight = NULL;
 
         // find the distance to the camera
-        fvec3_sub( vdist.v, prt_get_pos_v_const( prt_bdl.prt_ptr ), pcam->getTrackPosition().v );
-        distance = vdist.x * vdist.x + vdist.y * vdist.y + vdist.z * vdist.z;
+        vdist = fvec3_sub(prt_get_pos_v_const(prt_bdl.prt_ptr), pcam->getTrackPosition());
+        distance = fvec3_length_2(vdist);
 
         // insert the dynalight
         if ( pdylist->count < gfx.dynalist_max &&  pdylist->count < TOTAL_MAX_DYNA )
@@ -6162,7 +6156,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
             diff.y = pdyna->pos.y - pcam->getCenter().y;
             diff.z = pdyna->pos.z - pcam->getCenter().z - 90.0f;   // evaluated at the "head height" of a character
 
-            dyna_weight = ABS( dyna_lighting_intensity( pdyna, diff.v ) );
+            dyna_weight = ABS( dyna_lighting_intensity( pdyna, diff ) );
 
             fake_dynalight.distance += dyna_weight * pdyna->distance;
             fake_dynalight.falloff  += dyna_weight * pdyna->falloff;
@@ -6303,10 +6297,10 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
                         nrm.x = pdyna->pos.x - x0;
                         nrm.y = pdyna->pos.y - y0;
                         nrm.z = pdyna->pos.z - ptmem->bbox.mins[ZZ];
-                        sum_dyna_lighting( pdyna, cache_new.low.lighting, nrm.v );
+                        sum_dyna_lighting( pdyna, cache_new.low.lighting, nrm );
 
                         nrm.z = pdyna->pos.z - ptmem->bbox.maxs[ZZ];
-                        sum_dyna_lighting( pdyna, cache_new.hgh.lighting, nrm.v );
+                        sum_dyna_lighting( pdyna, cache_new.hgh.lighting, nrm );
                     }
                 }
             }

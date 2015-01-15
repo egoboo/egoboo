@@ -331,8 +331,8 @@ void  draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map 
 
 //void   make_lightdirectionlookup();
 
-bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_base_t pos );
-float  grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
+bool grid_lighting_interpolate( const ego_mesh_t * pmesh, lighting_cache_t * dst, const fvec2_t& pos );
+float grid_lighting_test( ego_mesh_t * pmesh, GLXvector3f pos, float * low_diff, float * hgh_diff );
 
 void release_all_profile_textures();
 

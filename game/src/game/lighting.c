@@ -24,21 +24,25 @@
 #include "game/lighting.h"
 
 #include "egolib/_math.h"
+#include "egolib/vec.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float            light_a = 0.0f, light_d = 0.0f;
+float light_a = 0.0f,
+      light_d = 0.0f;
+fvec3_t light_nrm = fvec3_t::zero;
+#if 0
 float            light_nrm[3] = {0.0f, 0.0f, 0.0f};
+#endif
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_t& vec, const int dir );
+
+static float  lighting_evaluate_cache_base( const lighting_cache_base_t * lvec, const fvec3_t& nrm, float * amb );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_base_t vec, const int dir );
-
-static float  lighting_evaluate_cache_base( const lighting_cache_base_t * lvec, const fvec3_base_t nrm, float * amb );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void lighting_vector_evaluate( const lighting_vector_t lvec, const fvec3_base_t nrm, float * dir, float * amb )
+void lighting_vector_evaluate( const lighting_vector_t lvec, const fvec3_t& nrm, float * dir, float * amb )
 {
     float loc_dir, loc_amb;
 
@@ -82,7 +86,7 @@ void lighting_vector_evaluate( const lighting_vector_t lvec, const fvec3_base_t 
 }
 
 //--------------------------------------------------------------------------------------------
-void lighting_vector_sum( lighting_vector_t lvec, const fvec3_base_t nrm, const float direct, const float ambient )
+void lighting_vector_sum( lighting_vector_t lvec, const fvec3_t& nrm, const float direct, const float ambient )
 {
     if ( nrm[kX] > 0.0f )
     {
@@ -255,14 +259,14 @@ bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * sr
     mat_getChrRight( mat, right.v );          // along body-fixed +x-axis
     mat_getChrUp( mat, up.v );                    // along body-fixed +z axis
 
-    fvec3_self_normalize( fwd.v );
-    fvec3_self_normalize( right.v );
-    fvec3_self_normalize( up.v );
+    fvec3_self_normalize( fwd );
+    fvec3_self_normalize( right );
+    fvec3_self_normalize( up );
 
     // split the lighting cache up
-    lighting_sum_project( dst, src, right.v, 0 );
-    lighting_sum_project( dst, src, fwd.v,   2 );
-    lighting_sum_project( dst, src, up.v,    4 );
+    lighting_sum_project( dst, src, right, 0 );
+    lighting_sum_project( dst, src, fwd,   2 );
+    lighting_sum_project( dst, src, up,    4 );
 
     // determine the lighting extents
     lighting_cache_max_light( dst );
@@ -427,9 +431,9 @@ float lighting_cache_test( const lighting_cache_t * src[], const float u, const 
 }
 
 //--------------------------------------------------------------------------------------------
-bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_base_t vec, const int dir )
+bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_t& vec, const int dir )
 {
-    if ( NULL == src || NULL == dst || NULL == vec ) return false;
+    if ( NULL == src || NULL == dst ) return false;
 
     if ( dir < 0 || dir > 4 || 0 != ( dir&1 ) )
         return false;
@@ -489,7 +493,7 @@ bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src,
 }
 
 //--------------------------------------------------------------------------------------------
-float lighting_evaluate_cache_base( const lighting_cache_base_t * lcache, const fvec3_base_t nrm, float * amb )
+float lighting_evaluate_cache_base( const lighting_cache_base_t * lcache, const fvec3_t& nrm, float * amb )
 {
     float dir;
     float local_amb;
@@ -520,14 +524,14 @@ float lighting_evaluate_cache_base( const lighting_cache_base_t * lcache, const 
 }
 
 //--------------------------------------------------------------------------------------------
-float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_base_t nrm, const float z, const aabb_t bbox, float * light_amb, float * light_dir )
+float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_t& nrm, const float z, const aabb_t bbox, float * light_amb, float * light_dir )
 {
     float loc_light_amb = 0.0f, loc_light_dir = 0.0f;
     float light_tot;
     float hgh_wt, low_wt, amb ;
 
     // check for valid parameters
-    if ( NULL == src || NULL == nrm ) return 0.0f;
+    if ( NULL == src ) return 0.0f;
 
     // handle optional arguments
     if ( NULL == light_amb ) light_amb = &loc_light_amb;
@@ -564,78 +568,43 @@ float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_base_t 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_base_t diff )
+float dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_t& diff )
 {
-    /// @author BB
-    /// @details In the Aaron's lighting, the falloff function was
-    ///                  light = (255 - r^2 / falloff) / 255.0f
-    ///              this has a definite max radius for the light, rmax = sqrt(falloff*255),
-    ///              which was good because we could have a definite range for a given light
-    ///
-    ///              This is not ideal because the light cuts off too abruptly. The new form of the
-    ///              function is (in semi-maple notation)
-    ///
-    ///              f(n,r) = integral( (1+y)^n * y * (1-y)^n, y = -1 .. r )
-    ///
-    ///              this has the advantage that it forms a bell-shaped curve that approaches 0 smoothly
-    ///              at r = -1 and r = 1. The lowest order term will always be quadratic in r, just like
-    ///              Aaron's function. To eliminate terms like r^4 and higher order even terms, you can
-    ///              various f(n,r) with different n's. But combining terms with larger and larger
-    ///              n means that the left-over terms that make the function approach zero smoothly
-    ///              will have higher and higher powers of r (more expensive) and the cutoff will
-    ///              be sharper and sharper (which is against the whole point of this type of function).
-    ///
-    ///              Eliminating just the r^4 term gives the function
-    ///                  f(y) = 1 - y^2 * ( 3.0f - y^4 ) / 2
-    ///              to make it match Aaron's function best, you have to scale the function by
-    ///                  y^2 = r^2 * 2 / 765 / falloff
-    ///
-    ///              I have previously tried rational polynomial functions like
-    ///                  f(r) = k0 / (1 + k1 * r^2 ) + k2 / (1 + k3 * r^4 )
-    ///              where the second term is to cancel make the function behave like Aaron's
-    ///              at small r, and to make the function approximate same "size" of lighting area
-    ///              as Aarons. An added benefit is that this function automatically has the right
-    ///              "physics" behavior at large distances (falls off like 1/r^2). But that is the
-    ///              exact problem because the infinite range means that it can potentally affect
-    ///              the entire mesh, causing problems with computing a large number of lights
-
-    float rho_sqr;
-    float y2;
-    float level = 0.0f;
-
-    if ( NULL == diff ) return 0.0f;
-
     if ( NULL == pdyna || 0.0f == pdyna->level ) return 0.0f;
 
-    rho_sqr  = diff[kX] * diff[kX] + diff[kY] * diff[kY];
-    y2       = rho_sqr * 2.0f / 765.0f / pdyna->falloff;
+    float rho_sqr  = diff[kX] * diff[kX] + diff[kY] * diff[kY];
+    float y2 = rho_sqr * 2.0f / 765.0f / pdyna->falloff;
 
     if ( y2 > 1.0f ) return false;
 
-    level = 1.0f - 0.5f * y2 * ( 3.0f - y2 * y2 );
+    float level = 1.0f - 0.5f * y2 * ( 3.0f - y2 * y2 );
     level *= pdyna->level;
 
     return level;
 }
 
 //--------------------------------------------------------------------------------------------
-bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_base_t nrm )
+bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_t& nrm )
 {
+#if 0
     fvec3_base_t local_nrm;
+#endif
+#if 0
+    float rad_sqr;
+#endif
+    if ( NULL == pdyna || NULL == lighting) return false;
 
-    float rad_sqr, level;
-
-    if ( NULL == pdyna || NULL == lighting || NULL == nrm ) return false;
-
-    level = 255 * dyna_lighting_intensity( pdyna, nrm );
+    float level = 255 * dyna_lighting_intensity( pdyna, nrm );
     if ( 0.0f == level ) return true;
 
     // allow negative lighting, or blind spots will not work properly
-    rad_sqr = nrm[kX] * nrm[kX] + nrm[kY] * nrm[kY] + nrm[kZ] * nrm[kZ];
+	float rad_sqr = fvec3_length_2(nrm);
 
     // make a local copy of the normal so we do not normalize the data in the calling function
+	fvec3_t local_nrm = nrm;
+#if 0
     memcpy( local_nrm, nrm, sizeof( local_nrm ) );
-
+#endif
     // do the normalization
     if ( 1.0f != rad_sqr && 0.0f != rad_sqr )
     {

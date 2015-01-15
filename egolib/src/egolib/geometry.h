@@ -138,7 +138,7 @@ struct aabb_t;
 
     geometry_rv sphere_intersects_sphere( const sphere_t * lhs, const sphere_t * rhs );
 
-    geometry_rv cone_intersects_point( const cone_t * lhs, const fvec3_base_t rhs );
+    geometry_rv cone_intersects_point( const cone_t * lhs, const fvec3_t& rhs );
     geometry_rv cone_intersects_sphere( const cone_t * lhs, const sphere_t * rhs );
 
     geometry_rv frustum_intersects_point( const frustum_base_t pf, const fvec3_base_t pos, const bool do_ends );

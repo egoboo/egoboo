@@ -258,7 +258,7 @@ bool two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const p
     // the direction of the intersection is given by the cross product of the normals
     fvec3_cross_product( dst_dir, p0, p1 );
 
-    if ( fvec3_self_normalize( dst_dir ) < 0.0f )
+    if (fvec3_self_normalize(dst_dir) < 0.0f)
     {
         retval = false;
         fvec3_self_clear( dst_pos );
@@ -558,7 +558,7 @@ geometry_rv sphere_intersects_sphere( const sphere_t * lhs, const sphere_t * rhs
     float   dist2;
 
     // get the separating axis
-    fvec3_sub( vdiff.v, lhs->origin.v, rhs->origin.v );
+    vdiff = fvec3_sub(lhs->origin, rhs->origin);
 
     // get the distance squared
     dist2 = fvec3_length_2( vdiff );
@@ -596,22 +596,18 @@ geometry_rv sphere_intersects_sphere( const sphere_t * lhs, const sphere_t * rhs
 // cone functions
 //--------------------------------------------------------------------------------------------
 
-geometry_rv cone_intersects_point( const cone_t * K, const fvec3_base_t P )
+geometry_rv cone_intersects_point(const cone_t *K, const fvec3_t& P)
 {
-    /// @desceiption determine whether a point is inside a cone
-
-    fvec3_t dist_vec;
-    float para_dist;
-
+    /// @brief determine whether a point is inside a cone
     geometry_rv retval = geometry_error;
 
-    if ( NULL == K || NULL == P ) return geometry_error;
+    if (NULL == K) return geometry_error;
 
     // move the cone origin to the origin of coordinates
-    fvec3_sub( dist_vec.v, P, K->origin.v );
+    fvec3_t dist_vec = fvec3_sub(P, K->origin);
 
     // project the point's position onto the cone's axis
-    para_dist = fvec3_dot_product( K->axis.v, dist_vec.v );
+    float para_dist = fvec3_dot_product(K->axis, dist_vec);
 
     if ( para_dist < 0.0f )
     {
@@ -742,10 +738,10 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 
         // Shift the origin by the offset in the positive sense.
         memcpy( &K_new, K, sizeof( K_new ) );
-        fvec3_add( K_new.origin.v, K->origin.v, offset_vec.v );
+        K_new.origin = fvec3_add(K->origin, offset_vec);
 
         // If the center of the sphere is inside this cone, it must be competely inside the original cone
-        switch ( cone_intersects_point( &K_new, S->origin.v ) )
+        switch ( cone_intersects_point( &K_new, S->origin ) )
         {
             case geometry_error:
                 retval = geometry_error;
@@ -773,11 +769,11 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 
         // Shift the origin by the offset in the negative sense.
         memcpy( &K_new, K, sizeof( K_new ) );
-        fvec3_sub( K_new.origin.v, K->origin.v, offset_vec.v );
+        K_new.origin = fvec3_sub(K->origin, offset_vec);
 
         // If the center of the sphere is inside this cone, it must be intersecting the original cone.
         // Since it failed test with the foreward cone, it must be merely intersecting the cone.
-        switch ( cone_intersects_point( &K_new, S->origin.v ) )
+        switch ( cone_intersects_point( &K_new, S->origin ) )
         {
             case geometry_error:
                 retval = geometry_error;

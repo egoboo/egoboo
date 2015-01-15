@@ -821,8 +821,8 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_
         }
 
         //check distance
-        fvec3_sub( diff.v, pchr->pos.v, pweapon->pos.v );
-        dist = fvec3_dot_product( diff.v, diff.v );
+		diff = fvec3_sub(pchr->pos, pweapon->pos);
+        dist = fvec3_dot_product(diff, diff);
         if ( dist < best_dist )
         {
             //finally, check line of sight. we only care for weapons we can see

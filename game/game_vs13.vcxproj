@@ -282,9 +282,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\egoboo%40egoboo%40github.com\Doxyfile" />
-    <None Include="src\game\mesh.inl" />
-    <None Include="src\game\particle.inl" />
-    <None Include="src\game\PrtList.inl" />
     <None Include="..\res\egoboo.ico" />
     <None Include="..\res\egoboo3.ico" />
     <None Include="..\res\old-egoboo.ico" />

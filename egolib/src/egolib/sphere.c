@@ -21,20 +21,6 @@
 /// @brief Spheres.
 #include "egolib/sphere.h"
 
-sphere_t *sphere_ctor(sphere_t& self)
-{
-	self.radius = 0.0f;
-	fvec3_ctor(self.origin);
-	return &self;
-}
-
-sphere_t *sphere_dtor(sphere_t& self)
-{
-	fvec3_dtor(self.origin);
-	self.radius = 0.0f;
-	return &self;
-}
-
 bool sphere_self_clear(sphere_t& self)
 {
 	fvec3_self_clear(self.origin.v);

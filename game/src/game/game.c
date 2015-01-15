@@ -1823,8 +1823,8 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
 
         if ( !chr_check_target( psrc, ichr_test, idsz, targeting_bits ) ) continue;
 
-        fvec3_sub( diff.v, psrc->pos.v, ptst->pos.v );
-        dist2 = fvec3_dot_product( diff.v, diff.v );
+        diff = fvec3_sub(psrc->pos, ptst->pos);
+        dist2 = fvec3_dot_product(diff, diff);
 
         if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
         {
@@ -1903,7 +1903,7 @@ void do_damage_tiles()
 
             if (( actual_damage > 0 ) && ( -1 != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
             {
-                spawn_one_particle_global( pchr->pos.v, ATK_FRONT, damagetile.part_gpip, 0 );
+                spawn_one_particle_global( pchr->pos, ATK_FRONT, damagetile.part_gpip, 0 );
             }
         }
     }
@@ -2034,7 +2034,7 @@ void do_weather_spawn_particles()
                     chr_t * pchr = ChrList_get_ptr( ichr );
 
                     // Yes, so spawn over that character
-                    PRT_REF particle = spawn_one_particle_global( pchr->pos.v, ATK_FRONT, weather.part_gpip, 0 );
+                    PRT_REF particle = spawn_one_particle_global( pchr->pos, ATK_FRONT, weather.part_gpip, 0 );
                     if ( DEFINED_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList_get_ptr( particle );
@@ -2999,13 +2999,13 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     iprofile = ( PRO_REF )psp_info->slot;
 
     // Spawn the character
-    new_object = spawn_one_character( psp_info->pos.v, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF );
-    if ( !DEFINED_CHR( new_object ) ) return false;
+    new_object = spawn_one_character(psp_info->pos, iprofile, psp_info->team, psp_info->skin, psp_info->facing, psp_info->pname, INVALID_CHR_REF);
+    if (!DEFINED_CHR(new_object)) return false;
 
-    pobject = ChrList_get_ptr( new_object );
+    pobject = ChrList_get_ptr(new_object);
 
     // determine the attachment
-    if ( psp_info->attach == ATTACH_NONE )
+    if (psp_info->attach == ATTACH_NONE)
     {
         // Free character
         psp_info->parent = new_object;
@@ -3448,7 +3448,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached, INVALID_CHR_REF );
+        particle = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached, INVALID_CHR_REF );
         if ( DEFINED_PRT( particle ) )
         {
             prt_t * pprt = PrtList_get_ptr( particle );
@@ -5090,7 +5090,7 @@ float get_chr_level( ego_mesh_t * pmesh, chr_t * pchr )
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    oct_bb_add_fvec3( &( pchr->chr_min_cv ), pchr->pos.v, &bump );
+    oct_bb_add_fvec3( &( pchr->chr_min_cv ), pchr->pos, &bump );
 
     // determine the size of this object in tiles
     ixmin = bump.mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
@@ -5245,7 +5245,7 @@ bool attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // what to do about traction if the platform is tilted... hmmm?
     chr_getMatUp( pplat, platform_up.v );
-    fvec3_self_normalize( platform_up.v );
+    fvec3_self_normalize(platform_up);
 
     pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
 

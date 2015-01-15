@@ -741,11 +741,11 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
     pinst->ref_pos.z    = 2 * pprt->enviro.floor_level - pinst->pos.z;
 
     // get the vector from the camera to the particle
-    fvec3_sub( vfwd.v, pinst->pos.v, pcam->getPosition().v );
-    fvec3_self_normalize( vfwd.v );
+    vfwd = fvec3_sub(pinst->pos, pcam->getPosition());
+    fvec3_self_normalize(vfwd);
 
-    fvec3_sub( vfwd_ref.v, pinst->ref_pos.v, pcam->getPosition().v );
-    fvec3_self_normalize( vfwd_ref.v );
+	vfwd_ref = fvec3_sub(pinst->ref_pos, pcam->getPosition());
+    fvec3_self_normalize(vfwd_ref);
 
     // set the up and right vectors
     if ( ppip->rotatetoface && !INGAME_CHR( pprt->attachedto_ref ) && ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0 ) )
@@ -753,29 +753,29 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         // the particle points along its direction of travel
 
         vup = pprt->vel;
-        fvec3_self_normalize( vup.v );
+        fvec3_self_normalize(vup);
 
         // get the correct "right" vector
         fvec3_cross_product( vright.v, vfwd.v, vup.v );
-        fvec3_self_normalize( vright.v );
+        fvec3_self_normalize(vright);
 
         vup_ref    = vup;
         fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
-        fvec3_self_normalize( vright_ref.v );
+        fvec3_self_normalize(vright_ref);
     }
     else if ( ORIENTATION_B == pinst->orientation )
     {
         // use the camera up vector
         vup = pcam->getVUP();
-        fvec3_self_normalize( vup.v );
+        fvec3_self_normalize(vup);
 
         // get the correct "right" vector
-        fvec3_cross_product( vright.v, vfwd.v, vup.v );
-        fvec3_self_normalize( vright.v );
+        fvec3_cross_product(vright.v, vfwd.v, vup.v);
+        fvec3_self_normalize(vright);
 
-        vup_ref    = vup;
-        fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
-        fvec3_self_normalize( vright_ref.v );
+        vup_ref = vup;
+        fvec3_cross_product(vright_ref.v, vfwd_ref.v, vup.v);
+        fvec3_self_normalize(vright_ref);
     }
     else if ( ORIENTATION_V == pinst->orientation )
     {
@@ -802,18 +802,18 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         vup.x = vup.x + weight * vup_cam.x;
         vup.y = vup.y + weight * vup_cam.y;
         vup.z = vup.z + weight * vup_cam.z;
-        fvec3_self_normalize( vup.v );
+        fvec3_self_normalize(vup);
 
         // get the correct "right" vector
-        fvec3_cross_product( vright.v, vfwd.v, vup.v );
-        fvec3_self_normalize( vright.v );
+        fvec3_cross_product(vright.v, vfwd.v, vup.v);
+        fvec3_self_normalize(vright);
 
-        fvec3_cross_product( vright_ref.v, vfwd.v, vup_ref.v );
-        fvec3_self_normalize( vright_ref.v );
+        fvec3_cross_product(vright_ref.v, vfwd.v, vup_ref.v);
+        fvec3_self_normalize(vright_ref);
 
-        vup_ref    = vup;
-        fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
-        fvec3_self_normalize( vright_ref.v );
+        vup_ref = vup;
+        fvec3_cross_product(vright_ref.v, vfwd_ref.v, vup.v);
+        fvec3_self_normalize(vright_ref);
     }
     else if ( ORIENTATION_H == pinst->orientation )
     {
@@ -827,8 +827,8 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         fvec3_cross_product( vup_ref.v, vert.v, vright_ref.v );
 
         // normalize them
-        fvec3_self_normalize( vright.v );
-        fvec3_self_normalize( vup.v );
+        fvec3_self_normalize(vright);
+        fvec3_self_normalize(vup);
 
         vright_ref = vright;
         vup_ref    = vup;
@@ -852,7 +852,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
                 case ORIENTATION_Z: mat_getChrUp( cinst->matrix.v, vup.v ); break;
             }
 
-            fvec3_self_normalize( vup.v );
+            fvec3_self_normalize(vup);
         }
         else
         {
@@ -867,29 +867,29 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
             }
         }
 
-        fvec3_self_normalize( vup.v );
+        fvec3_self_normalize(vup);
 
         // get the correct "right" vector
-        fvec3_cross_product( vright.v, vfwd.v, vup.v );
-        fvec3_self_normalize( vright.v );
+        fvec3_cross_product(vright.v, vfwd.v, vup.v);
+        fvec3_self_normalize(vright);
 
-        vup_ref    = vup;
-        fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
-        fvec3_self_normalize( vright_ref.v );
+        vup_ref = vup;
+        fvec3_cross_product(vright_ref.v, vfwd_ref.v, vup.v);
+        fvec3_self_normalize(vright_ref);
     }
     else
     {
         // use the camera up vector
         vup = pcam->getVUP();
-        fvec3_self_normalize( vup.v );
+        fvec3_self_normalize(vup);
 
         // get the correct "right" vector
-        fvec3_cross_product( vright.v, vfwd.v, vup.v );
-        fvec3_self_normalize( vright.v );
+        fvec3_cross_product(vright.v, vfwd.v, vup.v);
+        fvec3_self_normalize(vright);
 
-        vup_ref    = vup;
-        fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
-        fvec3_self_normalize( vright_ref.v );
+        vup_ref = vup;
+        fvec3_cross_product(vright_ref.v, vfwd_ref.v, vup.v);
+        fvec3_self_normalize(vright_ref);
     }
 
     // calculate the actual vectors using the particle rotation
@@ -931,7 +931,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
     fvec3_cross_product( pinst->nrm.v, pinst->right.v, pinst->up.v );
 
     // flip the normal so that the front front of the quad is toward the camera
-    if ( fvec3_dot_product( vfwd.v, pinst->nrm.v ) < 0 )
+    if ( fvec3_dot_product( vfwd, pinst->nrm ) < 0 )
     {
         pinst->nrm.x *= -1;
         pinst->nrm.y *= -1;
@@ -966,7 +966,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 
         // the following statement could be optimized
         // since we know the only non-zero component of world_up is z
-        ndot = fvec3_dot_product( pinst->nrm.v, world_up.v );
+        ndot = fvec3_dot_product( pinst->nrm, world_up );
 
         // do nothing if the quad is basically horizontal
         if ( ndot < 1.0f - 1e-6 )
@@ -975,7 +975,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
             {
                 // the following statement could be optimized
                 // since we know the only non-zero component of world_up is z
-                zdot = fvec3_dot_product( pinst->ref_right.v, world_up.v );
+                zdot = fvec3_dot_product( pinst->ref_right, world_up );
 
                 if ( ABS( zdot ) > 1e-6 )
                 {
@@ -991,7 +991,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
             {
                 // the following statement could be optimized
                 // since we know the only non-zero component of world_up is z
-                zdot = fvec3_dot_product( pinst->ref_up.v, world_up.v );
+                zdot = fvec3_dot_product( pinst->ref_up, world_up );
 
                 if ( ABS( zdot ) > 1e-6 )
                 {
@@ -1062,14 +1062,14 @@ gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8
     alpha = trans;
 
     // interpolate the lighting for the origin of the object
-    grid_lighting_interpolate( PMesh, &global_light, pinst->pos.v );
+    grid_lighting_interpolate( PMesh, &global_light, fvec2_t(pinst->pos[kX],pinst->pos[kY]) );
 
     // rotate the lighting data to body_centered coordinates
     mat = prt_instance_make_matrix( pinst );
     lighting_project_cache( &loc_light, &global_light, mat.v );
 
     // determine the normal dependent amount of light
-    lighting_evaluate_cache( &loc_light, pinst->nrm.v, pinst->pos.z, PMesh->tmem.bbox, &amb, &dir );
+    lighting_evaluate_cache( &loc_light, pinst->nrm, pinst->pos.z, PMesh->tmem.bbox, &amb, &dir );
 
     // LIGHT-blended sprites automatically glow. ALPHA-blended and SOLID
     // sprites need to convert the light channel into additional alpha
@@ -1163,10 +1163,10 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
         //}
 
         // determine the expanded collision volumes for both objects
-        phys_expand_oct_bb( &tmp_bb, loc_pprt->vel.v, 0, 1, &exp_bb );
+        phys_expand_oct_bb( &tmp_bb, loc_pprt->vel, 0, 1, &exp_bb );
 
         // shift the source bounding boxes to be centered on the given positions
-        oct_bb_add_fvec3( &exp_bb, loc_pprt->pos.v, &loc_bb );
+        oct_bb_add_fvec3( &exp_bb, loc_pprt->pos, &loc_bb );
 
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {
@@ -1236,7 +1236,7 @@ size_t render_all_prt_begin( std::shared_ptr<Camera> pcam,  prt_registry_entity_
             vpos.y = pinst->pos.y - vcam.y;
             vpos.z = pinst->pos.z - vcam.z;
 
-            dist = fvec3_dot_product( vfwd.v, vpos.v );
+            dist = fvec3_dot_product( vfwd, vpos );
 
             if ( dist > 0 )
             {
@@ -1345,8 +1345,8 @@ size_t render_all_prt_ref_begin( std::shared_ptr<Camera> pcam, prt_registry_enti
 
         if ( !pinst->indolist ) continue;
 
-        fvec3_sub( vpos.v, pinst->ref_pos.v, vcam.v );
-        dist = fvec3_dot_product( vfwd.v, vpos.v );
+        vpos = fvec3_sub(pinst->ref_pos, vcam);
+        dist = fvec3_dot_product( vfwd, vpos );
 
         if ( dist > 0 )
         {

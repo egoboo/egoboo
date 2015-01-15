@@ -497,7 +497,7 @@ void keep_weapons_with_holders()
             }
             else
             {
-                chr_set_pos( pchr, chr_get_pos_v_const( pattached ) );
+                chr_set_pos(pchr, chr_get_pos_v_const(pattached).v);
             }
 
             pchr->ori.facing_z = pattached->ori.facing_z;
@@ -553,7 +553,7 @@ void keep_weapons_with_holders()
                 PACK_BEGIN_LOOP( pchr->inventory, pitem, iitem )
                 {
 
-                    chr_set_pos( pitem, chr_get_pos_v_const( pchr ) );
+                    chr_set_pos( pitem, chr_get_pos_v_const( pchr ).v );
 
                     // Copy olds to make SendMessageNear work
                     pitem->pos_old = pchr->pos_old;
@@ -589,7 +589,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         {
             chr_t * ptarget = ChrList_get_ptr( pchr->ai.target );
 
-            chr_set_pos( pchr, chr_get_pos_v_const( ptarget ) );
+            chr_set_pos(pchr, chr_get_pos_v_const(ptarget).v);
 
             // copy the matrix
             CopyMatrix( &( pinst->matrix ), &( ptarget->inst.matrix ) );
@@ -821,7 +821,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
             tmp_pos.y = pchr->inst.matrix.CNV( 3, 1 );
             tmp_pos.z = pchr->inst.matrix.CNV( 3, 2 );
 
-            prt_set_pos( pprt, tmp_pos.v );
+            prt_set_pos(pprt, tmp_pos);
 
             return pprt;
         }
@@ -851,12 +851,12 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
         // Do the transform
         mat_TransformVertices( pchr->inst.matrix.v, point, nupoint, 1 );
 
-        prt_set_pos( pprt, nupoint[0].v );
+        prt_set_pos(pprt, fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
     }
     else
     {
         // No matrix, so just wing it...
-        prt_set_pos( pprt, chr_get_pos_v_const( pchr ) );
+        prt_set_pos(pprt, chr_get_pos_v_const(pchr));
     }
 
     return pprt;
@@ -905,14 +905,14 @@ float chr_get_mesh_pressure( chr_t * pchr, float test_pos[] )
 {
     float retval = 0.0f;
     float radius = 0.0f;
-    const float * loc_test_pos = NULL;
+    const float *loc_test_pos = NULL;
 
     if ( !DEFINED_PCHR( pchr ) ) return retval;
 
     if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return retval;
 
     // deal with the optional parameters
-    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ) : test_pos;
+    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ).v : test_pos;
     if ( NULL == loc_test_pos ) return 0;
 
     // calculate the radius based on whether the character is on camera
@@ -951,7 +951,7 @@ fvec2_t chr_get_mesh_diff( chr_t * pchr, float test_pos[], float center_pressure
     if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return retval;
 
     // deal with the optional parameters
-    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ) : test_pos;
+    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ).v : test_pos;
     if ( NULL == loc_test_pos ) return retval;
 
     // calculate the radius based on whether the character is on camera
@@ -994,7 +994,7 @@ BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float
     if ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) return 0;
 
     // deal with the optional parameters
-    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ) : test_pos;
+    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ).v : test_pos;
     if ( NULL == loc_test_pos ) return 0;
 
     // calculate the radius based on whether the character is on camera
@@ -1041,14 +1041,13 @@ BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t 
     if ( cfg.dev_mode && !SDL_KEYDOWN( keyb, SDLK_F8 ) )
     {
         ego_tile_info_t * ptile = ego_mesh_get_ptile( PMesh, pchr->onwhichgrid );
-
         if ( NULL != ptile && ptile->inrenderlist )
         {
             radius = pchr->bump_1.size;
         }
     }
 
-    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ) : test_pos;
+    loc_test_pos = ( NULL == test_pos ) ? chr_get_pos_v_const( pchr ).v : test_pos;
     if ( NULL == loc_test_pos ) return 0;
 
     // do the wall test
@@ -1195,7 +1194,7 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
     }
     else
     {
-        chr_set_pos( pchr, chr_get_pos_v_const( pmount ) );
+        chr_set_pos(pchr, chr_get_pos_v_const(pmount).v);
     }
 
     // Make sure it's not dropped in a wall...
@@ -1880,7 +1879,7 @@ void drop_keys( const CHR_REF character )
 
         // do some more complicated things
         SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
-        chr_set_pos( pkey, chr_get_pos_v_const( pchr ) );
+        chr_set_pos( pkey, chr_get_pos_v_const( pchr ).v );
         move_one_character_get_environment( pkey );
         chr_set_floor_level( pkey, pchr->enviro.floor_level );
     }
@@ -1950,7 +1949,7 @@ bool drop_all_items( const CHR_REF character )
 
         // do some more complicated things
         SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
-        chr_set_pos( pitem, chr_get_pos_v_const( pchr ) );
+        chr_set_pos( pitem, chr_get_pos_v_const( pchr ).v );
         move_one_character_get_environment( pitem );
         chr_set_floor_level( pitem, pchr->enviro.floor_level );
 
@@ -2051,7 +2050,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     slot_pos.x = mids[OCT_X];
     slot_pos.y = mids[OCT_Y];
     slot_pos.z = mids[OCT_Z];
-    fvec3_self_sum( slot_pos.v, chr_get_pos_v_const( pchr_a ) );
+    fvec3_self_sum( slot_pos.v, chr_get_pos_v_const( pchr_a ).v );
 
     // get the size of object a
     bump_size2_a = SQR( 1.5f * pchr_a->bump.size );
@@ -2104,7 +2103,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         too_invis = !chr_can_see_invis( pchr_a, pchr_c );
 
         // calculate the distance
-        fvec3_sub( diff.v, chr_get_pos_v_const( pchr_c ), slot_pos.v );
+        diff = fvec3_sub(chr_get_pos_v_const(pchr_c), slot_pos);
         diff.z += pchr_c->bump.height * 0.5f;
 
         // find the squared difference horizontal and vertical
@@ -2384,8 +2383,8 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !unarmed_attack && (( pweapon_cap->isstackable && pweapon->ammo > 1 ) || ACTION_IS_TYPE( pweapon->inst.action_which, F ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        ithrown = spawn_one_character( pchr->pos.v, pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF );
-        if ( DEFINED_CHR( ithrown ) )
+        ithrown = spawn_one_character(pchr->pos, pweapon->profile_ref, chr_get_iteam( iholder ), 0, pchr->ori.facing_z, pweapon->Name, INVALID_CHR_REF);
+        if (DEFINED_CHR(ithrown))
         {
             chr_t * pthrown = ChrList_get_ptr( ithrown );
 
@@ -2436,7 +2435,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                iparticle = spawn_one_particle( pweapon->pos.v, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_lpip, iholder, spawn_vrt_offset, chr_get_iteam( iholder ), iweapon, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, pweapon_cap->attack_lpip, iholder, spawn_vrt_offset, chr_get_iteam( iholder ), iweapon, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
                 if ( DEFINED_PRT( iparticle ) )
                 {
@@ -2495,7 +2494,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     // Initial particles get an enchantment bonus
                     pprt->damage.base += pweapon->damage_boost;
 
-                    prt_set_pos( pprt, tmp_pos.v );
+                    prt_set_pos(pprt, tmp_pos);
                 }
             }
         }
@@ -2519,14 +2518,17 @@ void drop_money( const CHR_REF character, int money )
         PIP_GEM200, PIP_GEM500, PIP_GEM1000, PIP_GEM2000
     };
 
-    chr_t * pchr;
+    chr_t *pchr;
+#if 0
     fvec3_t loc_pos;
-
+#endif
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList_get_ptr( character );
 
-    fvec3_base_copy( loc_pos.v, chr_get_pos_v_const( pchr ) );
-
+	fvec3_t loc_pos = chr_get_pos_v_const(pchr);
+#if 0
+	fvec3_base_copy(loc_pos.v, chr_get_pos_v_const(pchr).v);
+#endif
     // limit the about of money to the character's actual money
     if ( money > ChrList.lst[character].money )
     {
@@ -2556,7 +2558,7 @@ void drop_money( const CHR_REF character, int money )
 
             for ( tnc = 0; tnc < count; tnc++ )
             {
-                spawn_one_particle_global( loc_pos.v, ATK_FRONT, pips[cnt], tnc );
+                spawn_one_particle_global( loc_pos, ATK_FRONT, pips[cnt], tnc );
             }
         }
     }
@@ -3682,7 +3684,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
                 {
                     if ( pcap->blud_valid == ULTRABLUDY || ( base_damage > HURTDAMAGE && DAMAGE_IS_PHYSICAL( damagetype ) ) )
                     {
-                        spawn_one_particle( pchr->pos.v, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_lpip,
+                        spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->profile_ref, pcap->blud_lpip,
                                             INVALID_CHR_REF, GRIP_LAST, pchr->team, character, INVALID_PRT_REF, 0, INVALID_CHR_REF );
                     }
                 }
@@ -3853,7 +3855,7 @@ void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker )
     /// @details Spawn a defend particle
     if ( 0 != pchr->damage_timer ) return;
 
-    spawn_one_particle_global( pchr->pos.v, pchr->ori.facing_z, PIP_DEFEND, 0 );
+    spawn_one_particle_global( pchr->pos, pchr->ori.facing_z, PIP_DEFEND, 0 );
 
     pchr->damage_timer    = DEFENDTIME;
     SET_BIT( pchr->ai.alert, ALERTIF_BLOCKED );
@@ -3883,7 +3885,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profile )
     facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < pcap->gopoofprt_amount; cnt++ )
     {
-        spawn_one_particle( pchr->pos_old.v, facing_z, profile, pcap->gopoofprt_lpip,
+        spawn_one_particle( pchr->pos_old, facing_z, profile, pcap->gopoofprt_lpip,
                             INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt, INVALID_CHR_REF );
 
         facing_z += pcap->gopoofprt_facingadd;
@@ -4069,7 +4071,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // Particle attachments
     for ( tnc = 0; tnc < pcap->attachedprt_amount; tnc++ )
     {
-        spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip,
+        spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip,
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, INVALID_PRT_REF, tnc, INVALID_CHR_REF );
     }
 
@@ -4153,7 +4155,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
             vtmp.y = pchr->pos.y;
             vtmp.z = water_level + RAISE;
 
-            spawn_one_particle_global( vtmp.v, ATK_FRONT, PIP_SPLASH, 0 );
+            spawn_one_particle_global( vtmp, ATK_FRONT, PIP_SPLASH, 0 );
 
             if ( water.is_water )
             {
@@ -4186,13 +4188,13 @@ chr_t * chr_config_do_active( chr_t * pchr )
 
                 if ( 0 == (( update_wld + pchr->obj_base.guid ) & ripand ) && pchr->pos.z < water_level && pchr->alive )
                 {
-                    fvec3_t   vtmp;
+                    fvec3_t vtmp;
 
                     vtmp.x = pchr->pos.x;
                     vtmp.y = pchr->pos.y;
                     vtmp.z = water_level;
 
-                    spawn_one_particle_global( vtmp.v, ATK_FRONT, PIP_RIPPLE, 0 );
+                    spawn_one_particle_global( vtmp, ATK_FRONT, PIP_RIPPLE, 0 );
                 }
             }
 
@@ -4593,12 +4595,10 @@ chr_t * chr_config_dtor( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team,
+CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team,
                              const int skin, const FACING_T facing, const char *name, const CHR_REF override )
 {
-    /// @author ZZ
-    /// @details This function spawns a character and returns the character's index number
-    ///               if it worked, MAX_CHR otherwise
+
 
     CHR_REF   ichr;
     chr_t   * pchr;
@@ -4645,7 +4645,10 @@ CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, cons
     POBJ_BEGIN_SPAWN( pchr );
 
     // just set the spawn info
-    fvec3_base_copy( pchr->spawn_data.pos.v, pos );
+	pchr->spawn_data.pos = pos;
+#if 0
+    fvec3_base_copy( pchr->spawn_data.pos, pos );
+#endif
     pchr->spawn_data.profile  = profile;
     pchr->spawn_data.team     = team;
     pchr->spawn_data.skin     = skin;
@@ -5731,10 +5734,10 @@ void move_one_character_get_environment( chr_t * pchr )
         // unfortunately platforms are attached in the collision section
         // which occurs after the movement section.
 
-        fvec3_t   platform_up = fvec3_t( 0.0f, 0.0f, 1.0f );
+        fvec3_t platform_up = fvec3_t( 0.0f, 0.0f, 1.0f );
 
-        chr_getMatUp( pplatform, platform_up.v );
-        fvec3_self_normalize( platform_up.v );
+        chr_getMatUp(pplatform, platform_up.v);
+        fvec3_self_normalize(platform_up);
 
         penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
@@ -5890,18 +5893,18 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         }
     }
 
-    fvec3_sub( floor_acc.v, penviro->floor_speed.v, pchr->vel.v );
-    fvec3_self_scale( floor_acc.v, ( 1.0f - penviro->zlerp ) );
+    floor_acc = fvec3_sub(penviro->floor_speed, pchr->vel);
+    fvec3_self_scale(floor_acc,(1.0f - penviro->zlerp));
 
     // reduce the volountary acceleration peopendicular to the direction of motion?
-    if ( fvec3_length_abs( floor_acc.v ) > 0.0f )
+    if (fvec3_length_abs(floor_acc) > 0.0f)
     {
         fvec3_t acc_para, acc_perp;
-        fvec3_t   vfront;
+        fvec3_t vfront;
 
         // get the direction of motion
         mat_getChrForward( pchr->inst.matrix.v, vfront.v );
-        fvec3_self_normalize( vfront.v );
+        fvec3_self_normalize(vfront);
 
         // decompose the acceleration into parallel and perpendicular components
         fvec3_decompose( floor_acc.v, vfront.v, acc_para.v, acc_perp.v );
@@ -5915,12 +5918,12 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     fvec3_scale( fric_floor.v, floor_acc.v, penviro->traction *( 1.0f - temp_friction_xy ) );
 
     // the total "friction" with to the floor
-    fvec3_add( fric.v, fric_floor.v, penviro->acc.v );
+    fric = fvec3_add(fric_floor, penviro->acc);
 
     // limit the friction to whatever is horizontal to the mesh
     if ( 1.0f == ABS( vup.z ) )
     {
-        fric.z      = 0.0f;
+        fric.z = 0.0f;
         floor_acc.z = 0.0f;
     }
     else
@@ -6643,7 +6646,7 @@ bool chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
     /// by fixing it I broke other stuff like specific objects spawning after parsing spawn.txt, I've tried a hotfix here instead
     if ( HAS_SOME_BITS( ALERTIF_SPAWNED, pchr->ai.alert ) )
     {
-        fvec3_base_copy( pos_v, chr_get_pos_v_const( pchr ) );
+        fvec3_base_copy(pos_v, chr_get_pos_v_const(pchr).v);
         return true;
     }
 
@@ -7591,8 +7594,8 @@ void move_one_character( chr_t * pchr )
     if ( INGAME_CHR( pchr->inwhich_inventory ) ) return;
 
     // save the velocity and acceleration from the last time-step
-    fvec3_sub( pchr->enviro.vel.v, pchr->pos.v, pchr->pos_old.v );
-    fvec3_sub( pchr->enviro.acc.v, pchr->vel.v, pchr->vel_old.v );
+    pchr->enviro.vel = fvec3_sub( pchr->pos, pchr->pos_old );
+    pchr->enviro.acc = fvec3_sub( pchr->vel, pchr->vel_old );
 
     // Character's old location
     chr_get_pos( pchr, pchr->pos_old.v );
@@ -9658,7 +9661,7 @@ bool chr_getMatTranslate(chr_t *pchr, fvec3_base_t vtrans)
 
 	if (!rv)
 	{
-		fvec3_base_copy(vtrans, chr_get_pos_v_const(pchr));
+		fvec3_base_copy(vtrans, chr_get_pos_v_const(pchr).v);
 	}
 
 	return true;
@@ -10197,7 +10200,8 @@ bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, 
         // determine the grip vectors
         for ( cnt = 0; cnt < 3; cnt++ )
         {
-            fvec3_sub( grip_vecs[cnt].v, grip_nupoints[cnt + 1].v, grip_nupoints[0].v );
+            grip_vecs[cnt] = fvec3_sub(fvec3_t(grip_nupoints[cnt + 1][kX],grip_nupoints[cnt + 1][kY],grip_nupoints[cnt + 1][kZ]),
+				                       fvec3_t(grip_nupoints[0][kX],grip_nupoints[0][kY],grip_nupoints[0][kZ]));
         }
 
         // grab the grip's "up" vector
@@ -10214,7 +10218,7 @@ bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, 
     // add in the "origin" of the grip, if necessary
     if ( NULL != grip_cv_ptr )
     {
-        oct_bb_add_fvec3( &tmp_cv, grip_nupoints[0].v, grip_cv_ptr );
+        oct_bb_add_fvec3( &tmp_cv, fvec3_t(grip_nupoints[0][kX],grip_nupoints[0][kY],grip_nupoints[0][kZ]), grip_cv_ptr );
     }
 
     return true;
@@ -10579,13 +10583,10 @@ void chr_init_size( chr_t * pchr, cap_t * pcap )
 
 
 //--------------------------------------------------------------------------------------------
-const float * chr_get_pos_v_const( const chr_t * pchr )
+const fvec3_t& chr_get_pos_v_const(const chr_t *pchr)
 {
-    static fvec3_t vtmp = fvec3_t::zero;
-
-    if ( !ALLOCATED_PCHR( pchr ) ) return vtmp.v;
-
-    return pchr->pos.v;
+    if (!ALLOCATED_PCHR(pchr)) return fvec3_t::zero;
+    return pchr->pos;
 }
 
 //--------------------------------------------------------------------------------------------

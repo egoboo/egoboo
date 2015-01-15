@@ -57,8 +57,8 @@ enum
 
 typedef float lighting_vector_t[LIGHTING_VEC_SIZE];
 
-void lighting_vector_evaluate( const lighting_vector_t lvec, const fvec3_base_t nrm, float * direct, float * amb );
-void lighting_vector_sum( lighting_vector_t lvec, const fvec3_base_t nrm, const float direct, const float ambient );
+void lighting_vector_evaluate( const lighting_vector_t lvec, const fvec3_t& nrm, float * direct, float * amb );
+void lighting_vector_sum( lighting_vector_t lvec, const fvec3_t& nrm, const float direct, const float ambient );
 
 //--------------------------------------------------------------------------------------------
 struct s_lighting_cache_base
@@ -103,7 +103,9 @@ dynalight_data_t * dynalight_data__init( dynalight_data_t * );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern float  light_a, light_d, light_nrm[3];
+extern float   light_a,
+               light_d;
+extern fvec3_t light_nrm;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -111,7 +113,40 @@ bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * sr
 bool lighting_cache_interpolate( lighting_cache_t * dst, const lighting_cache_t * src[], const float u, const float v );
 float lighting_cache_test( const lighting_cache_t * src[], const float u, const float v, float * low_max_diff, float * hgh_max_diff );
 
-float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_base_t nrm, const float z, const aabb_t bbox, float * light_amb, float * light_dir );
+float lighting_evaluate_cache( const lighting_cache_t * src, const fvec3_t& nrm, const float z, const aabb_t bbox, float * light_amb, float * light_dir );
 
-bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_base_t nrm );
-float  dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_base_t diff );
+bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_t& nrm );
+
+/// @author BB
+/// @details In the Aaron's lighting, the falloff function was
+///                  light = (255 - r^2 / falloff) / 255.0f
+///              this has a definite max radius for the light, rmax = sqrt(falloff*255),
+///              which was good because we could have a definite range for a given light
+///
+///              This is not ideal because the light cuts off too abruptly. The new form of the
+///              function is (in semi-maple notation)
+///
+///              f(n,r) = integral( (1+y)^n * y * (1-y)^n, y = -1 .. r )
+///
+///              this has the advantage that it forms a bell-shaped curve that approaches 0 smoothly
+///              at r = -1 and r = 1. The lowest order term will always be quadratic in r, just like
+///              Aaron's function. To eliminate terms like r^4 and higher order even terms, you can
+///              various f(n,r) with different n's. But combining terms with larger and larger
+///              n means that the left-over terms that make the function approach zero smoothly
+///              will have higher and higher powers of r (more expensive) and the cutoff will
+///              be sharper and sharper (which is against the whole point of this type of function).
+///
+///              Eliminating just the r^4 term gives the function
+///                  f(y) = 1 - y^2 * ( 3.0f - y^4 ) / 2
+///              to make it match Aaron's function best, you have to scale the function by
+///                  y^2 = r^2 * 2 / 765 / falloff
+///
+///              I have previously tried rational polynomial functions like
+///                  f(r) = k0 / (1 + k1 * r^2 ) + k2 / (1 + k3 * r^4 )
+///              where the second term is to cancel make the function behave like Aaron's
+///              at small r, and to make the function approximate same "size" of lighting area
+///              as Aarons. An added benefit is that this function automatically has the right
+///              "physics" behavior at large distances (falls off like 1/r^2). But that is the
+///              exact problem because the infinite range means that it can potentally affect
+///              the entire mesh, causing problems with computing a large number of lights
+float  dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_t& diff );

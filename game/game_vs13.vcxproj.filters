@@ -363,15 +363,6 @@
     <None Include="..\res\old-egoboo.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="src\game\mesh.inl">
-      <Filter>Game Header Files</Filter>
-    </None>
-    <None Include="src\game\particle.inl">
-      <Filter>Game Header Files</Filter>
-    </None>
-    <None Include="src\game\PrtList.inl">
-      <Filter>Game Header Files</Filter>
-    </None>
     <None Include="..\..\egoboo%40egoboo%40github.com\Doxyfile">
       <Filter>Doxygen</Filter>
     </None>

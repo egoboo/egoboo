@@ -219,8 +219,10 @@ prt_t * prt_dtor( prt_t * pprt );
 bool  prt_request_terminate( prt_t * pprt );
 
 void   prt_set_level( prt_t * pprt, const float level );
-bool prt_set_pos( prt_t * pprt, const fvec3_base_t pos );
-
+bool prt_set_pos(prt_t *pprt, const fvec3_t& pos);
+#if 0
+bool prt_set_pos(prt_t *pprt, const fvec3_base_t pos); /// @todo Remove this.
+#endif
 //--------------------------------------------------------------------------------------------
 struct s_prt_bundle
 {
@@ -254,7 +256,13 @@ void move_all_particles();
 void cleanup_all_particles();
 void bump_all_particles_update_counters();
 
-PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
+/**
+ * @brief
+ *	Spawn a particle.
+ * @return
+ *	the index of the particle on success, #MAX_PRT on failure
+ */
+PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget );
 
@@ -293,6 +301,6 @@ prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
 prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle );
 prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt );
 
-const float *prt_get_pos_v_const( const prt_t * pprt );
-float       *prt_get_pos_v( prt_t * pprt );
-bool     prt_get_pos( const prt_t * pprt, fvec3_base_t pos );
+const fvec3_t& prt_get_pos_v_const(const prt_t *pprt);
+float *prt_get_pos_v( prt_t * pprt );
+bool prt_get_pos( const prt_t * pprt, fvec3_base_t pos );

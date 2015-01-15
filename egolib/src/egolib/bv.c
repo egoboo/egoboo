@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------
 bv_t *bv_ctor(bv_t& self)
 {
-	sphere_ctor(self.sphere);
+	self.sphere.ctor(self.sphere);
 	aabb_ctor(self.aabb);
 	return &self;
 }
@@ -35,7 +35,7 @@ bv_t *bv_ctor(bv_t& self)
 bv_t *bv_dtor(bv_t& self)
 {
 	aabb_dtor(self.aabb);
-	sphere_dtor(self.sphere);
+	self.sphere.dtor(self.sphere);
 	return &self;
 }
 

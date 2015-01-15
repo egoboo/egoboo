@@ -162,41 +162,46 @@ egolib_rv egolib_frustum_calculate( egolib_frustum_t * pf, const float proj[], c
         float dist;
 
         // extract the view direction from the modelview matrix
-        mat_getCamForward( modl, vlook.v );
+        mat_getCamForward(modl, vlook.v);
 
         // one far corner of the frustum
-        three_plane_intersection( pt1.v, pf->data[FRUST_PLANE_TOP], pf->data[FRUST_PLANE_RIGHT], pf->data[FRUST_PLANE_BACK] );
+        three_plane_intersection(pt1.v, pf->data[FRUST_PLANE_TOP], pf->data[FRUST_PLANE_RIGHT], pf->data[FRUST_PLANE_BACK]);
 
         // get the distance from the origin to the far plane
-        dist = plane_point_distance( pf->data[FRUST_PLANE_BACK], pf->origin.v );
+        dist = plane_point_distance(pf->data[FRUST_PLANE_BACK], pf->origin.v);
 
         // calculate the center of the sphere
-        fvec3_add( pf->sphere.origin.v, pf->origin.v, fvec3_scale( vtmp.v, vlook.v, dist * 0.5f ) );
+		fvec3_add(pf->sphere.origin.v, pf->origin.v, fvec3_scale(vtmp.v, vlook.v, dist * 0.5f));
 
         // the vector between the center of the sphere and and pt1
-        fvec3_sub( vDiff.v, pf->sphere.origin.v, pt1.v );
+        vDiff = fvec3_sub(pf->sphere.origin, pt1);
 
         // the radius becomes the length of this vector
-        pf->sphere.radius = fvec3_length( vDiff.v );
+        pf->sphere.radius = fvec3_length(vDiff);
     }
 
     //---- construct the cone
     {
         float cos_half_fov;
 
+		pf->cone.origin = pf->origin;
+#if 0
         fvec3_base_copy( pf->cone.origin.v, pf->origin.v );
+#endif
+		pf->cone.axis = vlook;
+#if 0
         fvec3_base_copy( pf->cone.axis.v, vlook.v );
-
+#endif
         // the vector from the origin to the far corner
-        fvec3_sub( vfar.v, pt1.v, pf->cone.origin.v );
+        vfar = fvec3_sub(pt1, pf->cone.origin);
 
         // the cosine between the view direction and the
-        cos_half_fov = fvec3_dot_product( vfar.v, vlook.v ) / fvec3_length( vfar.v );
+        cos_half_fov = fvec3_dot_product(vfar, vlook) / fvec3_length(vfar);
 
         // calculate the required trig functions
         pf->cone.cos_2 = cos_half_fov * cos_half_fov;
         pf->cone.sin_2 = 1.0f - pf->cone.cos_2;
-        pf->cone.inv_sin = 1.0f / std::sqrt( pf->cone.sin_2 );
+        pf->cone.inv_sin = 1.0f / std::sqrt(pf->cone.sin_2);
     }
 
     return rv_success;
@@ -216,7 +221,6 @@ geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t * self,const bv_
     /// geometry_inside    - the bounding volume is completely inside the frustum
 
     geometry_rv retval = geometry_error;
-    geometry_rv intersect_rv;
     bool finished;
 
     if ( NULL == self || NULL == bv ) return geometry_error;

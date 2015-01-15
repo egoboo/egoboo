@@ -266,9 +266,9 @@ float * mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_
 	vFor.y = frw[kY] - ori[kY];
 	vFor.z = frw[kZ] - ori[kZ];
 
-	fvec3_self_normalize(vWid.v);
-	fvec3_self_normalize(vUp.v);
-	fvec3_self_normalize(vFor.v);
+	fvec3_self_normalize(vWid);
+	fvec3_self_normalize(vUp);
+	fvec3_self_normalize(vFor);
 
 	DST[MAT_IDX(0, 0)] = -scale * vWid.x;  // HUK
 	DST[MAT_IDX(0, 1)] = -scale * vWid.y;  // HUK
@@ -313,8 +313,8 @@ float * mat_View(fmat_4x4_base_t DST,
 	fvec3_normalize(view_dir.v, fvec3_sub(temp.v, at, from));
 	fvec3_cross_product(right.v, world_up, view_dir.v);
 	fvec3_cross_product(up.v, view_dir.v, right.v);
-	fvec3_self_normalize(right.v);
-	fvec3_self_normalize(up.v);
+	fvec3_self_normalize(right);
+	fvec3_self_normalize(up);
 
 	DST[MAT_IDX(0, 0)] = right.x;
 	DST[MAT_IDX(1, 0)] = right.y;

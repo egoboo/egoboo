@@ -50,10 +50,12 @@ const float ice_friction = 0.9738f;  // the square of air_friction
 static egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
 static egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, const oct_vec_t ovel1, const oct_bb_t *  src2, const oct_vec_t ovel2, int test_platform, float *tmin, float *tmax );
 
-static bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
-static bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_base_t nrm, float * depth );
-static float phys_get_depth( const oct_vec_t * podepth, const fvec3_base_t nrm );
-static bool phys_warp_normal( const float exponent, fvec3_base_t nrm );
+/// @brief A test to determine whether two "fast moving" objects are interacting within a frame.
+///        Designed to determine whether a bullet particle will interact with character.
+static bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
+static bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_t& nrm, float * depth );
+static float phys_get_depth( const oct_vec_t * podepth, const fvec3_t& nrm );
+static bool phys_warp_normal( const float exponent, fvec3_t& nrm );
 static bool phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth );
 static bool phys_get_collision_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oct_vec_t * podepth );
 
@@ -163,7 +165,7 @@ bool phys_get_pressure_depth( const oct_bb_t * pbb_a, const oct_bb_t * pbb_b, oc
 }
 
 //--------------------------------------------------------------------------------------------
-bool phys_warp_normal( const float exponent, fvec3_base_t nrm )
+bool phys_warp_normal( const float exponent, fvec3_t& nrm )
 {
     // use the exponent to warp the normal into a cylinder-like shape, if needed
 
@@ -171,9 +173,9 @@ bool phys_warp_normal( const float exponent, fvec3_base_t nrm )
 
     if ( 1.0f == exponent ) return true;
 
-    if ( NULL == nrm || 0.0f == fvec3_length_abs( nrm ) ) return false;
+    if ( 0.0f == fvec3_length_abs( nrm ) ) return false;
 
-    length_hrz_2 = fvec2_length_2( nrm );
+    length_hrz_2 = fvec2_length_2( fvec2_t(nrm[kX],nrm[kY]) );
     length_vrt_2 = fvec3_length_2( nrm ) - length_hrz_2;
 
     nrm[kX] = nrm[kX] * POW( length_hrz_2, 0.5f * ( exponent - 1.0f ) );
@@ -181,11 +183,12 @@ bool phys_warp_normal( const float exponent, fvec3_base_t nrm )
     nrm[kZ] = nrm[kZ] * POW( length_vrt_2, 0.5f * ( exponent - 1.0f ) );
 
     // normalize the normal
-    return ( fvec3_self_normalize( nrm ) >= 0.0f );
+	fvec3_self_normalize(nrm);
+    return fvec3_length(nrm) >= 0.0f;
 }
 
 //--------------------------------------------------------------------------------------------
-float phys_get_depth( const oct_vec_t * podepth, const fvec3_base_t nrm )
+float phys_get_depth( const oct_vec_t * podepth, const fvec3_t& nrm )
 {
     const float max_val = 1e6;
 
@@ -195,7 +198,7 @@ float phys_get_depth( const oct_vec_t * podepth, const fvec3_base_t nrm )
 
     if ( NULL == podepth || NULL == *podepth ) return 0.0f;
 
-    if ( NULL == nrm || 0.0f == fvec3_length_abs( nrm ) ) return max_val;
+    if ( 0.0f == fvec3_length_abs( nrm ) ) return max_val;
 
     // convert the normal into an oct_vec_t
     oct_vec_ctor( onrm, nrm );
@@ -229,7 +232,7 @@ float phys_get_depth( const oct_vec_t * podepth, const fvec3_base_t nrm )
 }
 
 //--------------------------------------------------------------------------------------------
-bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_base_t nrm, float * depth )
+bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3_t& nrm, float * depth )
 {
     // use the given (signed) podepth info to make a normal vector, and measure
     // the shortest distance to the border
@@ -250,11 +253,11 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
 
     if ( 1.0f == exponent )
     {
-        fvec3_self_normalize( nrm_aa.v );
+        fvec3_self_normalize( nrm_aa );
     }
     else
     {
-        phys_warp_normal( exponent, nrm_aa.v );
+        phys_warp_normal( exponent, nrm_aa );
     }
 
     // find a minimum distance
@@ -292,11 +295,11 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
 
     if ( 1.0f == exponent )
     {
-        fvec3_self_normalize( nrm_diag.v );
+        fvec3_self_normalize( nrm_diag );
     }
     else
     {
-        phys_warp_normal( exponent, nrm_diag.v );
+        phys_warp_normal( exponent, nrm_diag );
     }
 
     // find a minimum distance
@@ -328,7 +331,10 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
     if ( tmin_aa < tmin_diag )
     {
         tmin = tmin_aa;
+		nrm = nrm_aa;
+#if 0
         fvec3_base_copy( nrm, nrm_aa.v );
+#endif
     }
     else
     {
@@ -341,7 +347,8 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
     }
 
     // normalize this normal
-    rv = ( fvec3_self_normalize( nrm ) > 0.0f );
+	fvec3_self_normalize(nrm);
+    rv = fvec3_length(nrm) > 0.0f;
 
     // find the depth in the direction of the normal, if possible
     if ( rv && NULL != depth )
@@ -353,7 +360,7 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
 }
 
 //--------------------------------------------------------------------------------------------
-bool phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth )
+bool phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_t& nrm, float * depth )
 {
     // estimate the normal for collision volumes that are partially overlapping
 
@@ -391,7 +398,7 @@ bool phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * p
 }
 
 //--------------------------------------------------------------------------------------------
-bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_base_t nrm, float * depth )
+bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_t& nrm, float * depth )
 {
     // use a more robust algorithm to get the normal no matter how the 2 volumes are
     // related
@@ -404,7 +411,9 @@ bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * po
 
     // handle "optional" parameters
     if ( NULL == depth ) depth = &loc_tmin;
+#if 0
     if ( NULL == nrm ) nrm = loc_nrm.v;
+#endif
     if ( NULL == podepth || NULL == *podepth ) podepth = &loc_odepth;
 
     if ( NULL == pobb_a || NULL == pobb_b ) return false;
@@ -572,11 +581,12 @@ egolib_rv phys_intersect_oct_bb_index( int index, const oct_bb_t * src1, const o
 }
 
 //--------------------------------------------------------------------------------------------
-bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t * src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
+bool phys_intersect_oct_bb( const oct_bb_t * src1_orig, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t * src2_orig, const fvec3_t& pos2, const fvec3_t& vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
 {
     /// @author BB
-    /// @details A test to determine whether two "fast moving" objects are interacting within a frame.
-    ///               Designed to determine whether a bullet particle will interact with character.
+	/// @details A test to determine whether two "fast moving" objects are interacting within a frame.
+	///               Designed to determine whether a bullet particle will interact with character.
+
 
     oct_bb_t src1, src2;
     oct_bb_t exp1, exp2;
@@ -893,12 +903,8 @@ egolib_rv phys_intersect_oct_bb_close_index( int index, const oct_bb_t * src1, c
 }
 
 //--------------------------------------------------------------------------------------------
-bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t pos1, const fvec3_base_t vel1, const oct_bb_t *  src2_orig, const fvec3_base_t pos2, const fvec3_base_t vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
+bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t *  src2_orig, const fvec3_t& pos2, const fvec3_t& vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax )
 {
-    /// @author BB
-    /// @details A test to determine whether two "fast moving" objects are interacting within a frame.
-    ///               Designed to determine whether a bullet particle will interact with character.
-
     oct_bb_t src1, src2;
     oct_bb_t exp1, exp2;
 
@@ -990,17 +996,11 @@ bool phys_intersect_oct_bb_close( const oct_bb_t * src1_orig, const fvec3_base_t
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const float tmin, const float tmax, oct_bb_t * pdst )
+bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_t& vel, const float tmin, const float tmax, oct_bb_t * pdst )
 {
-    /// @author BB
-    /// @details use the velocity of an object and its oct_bb_t to determine the
-    ///               amount of territory that an object will cover in the range [tmin,tmax].
-    ///               One update equals [tmin,tmax] == [0,1].
-
-    float abs_vel;
     oct_bb_t tmp_min, tmp_max;
 
-    abs_vel = fvec3_length_abs( vel );
+    float abs_vel = fvec3_length_abs( vel );
     if ( 0.0f == abs_vel )
     {
         return oct_bb_copy( pdst, psrc ) ? true : false;
@@ -1020,7 +1020,7 @@ bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const fl
         tmp_diff.z = vel[kZ] * tmin;
 
         // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_fvec3( psrc, tmp_diff.v, &tmp_min ) ) return false;
+        if ( !oct_bb_add_fvec3( psrc, tmp_diff, &tmp_min ) ) return false;
     }
 
     // determine the bounding volume at t == tmax
@@ -1037,7 +1037,7 @@ bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const fl
         tmp_diff.z = vel[kZ] * tmax;
 
         // adjust the bounding box to take in the position at the next step
-        if ( !oct_bb_add_fvec3( psrc, tmp_diff.v, &tmp_max ) ) return false;
+        if ( !oct_bb_add_fvec3( psrc, tmp_diff, &tmp_max ) ) return false;
     }
 
     // determine bounding box for the range of times
@@ -1049,10 +1049,7 @@ bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_base_t vel, const fl
 //--------------------------------------------------------------------------------------------
 bool phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst )
 {
-    /// @author BB
-    /// @details use the object velocity to figure out where the volume that the character will
-    ///               occupy during this update. Use the loser chr_max_cv and include extra height if
-    ///               it is a platform.
+
 
     oct_bb_t tmp_oct1, tmp_oct2;
 
@@ -1062,10 +1059,10 @@ bool phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst )
     oct_bb_copy( &tmp_oct1, &( pchr->chr_max_cv ) );
 
     // add in the current position to the bounding volume
-    oct_bb_add_fvec3( &( tmp_oct1 ), pchr->pos.v, &tmp_oct2 );
+    oct_bb_add_fvec3( &( tmp_oct1 ), pchr->pos, &tmp_oct2 );
 
     // streach the bounging volume to cover the path of the object
-    return phys_expand_oct_bb( &tmp_oct2, pchr->vel.v, tmin, tmax, pdst );
+    return phys_expand_oct_bb( &tmp_oct2, pchr->vel, tmin, tmax, pdst );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1083,10 +1080,10 @@ bool phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst )
     oct_bb_copy( &tmp_oct1, &( pprt->prt_max_cv ) );
 
     // add in the current position to the bounding volume
-    oct_bb_add_fvec3( &tmp_oct1, pprt->pos.v, &tmp_oct2 );
+    oct_bb_add_fvec3( &tmp_oct1, pprt->pos, &tmp_oct2 );
 
     // streach the bounging volume to cover the path of the object
-    return phys_expand_oct_bb( &tmp_oct2, pprt->vel.v, tmin, tmax, pdst );
+    return phys_expand_oct_bb( &tmp_oct2, pprt->vel, tmin, tmax, pdst );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1716,12 +1713,8 @@ phys_data_t * phys_data_sum_avel_index( phys_data_t * pphys, const float val, co
 //--------------------------------------------------------------------------------------------
 //Inline below
 //--------------------------------------------------------------------------------------------
-bool test_interaction_close_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform )
+bool test_interaction_close_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, int test_platform )
 {
-    /// @author BB
-    /// @details Test whether two objects could interact based on the "collision bounding box"
-    ///               This version is for character-particle collisions
-
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
@@ -1732,12 +1725,8 @@ bool test_interaction_close_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper
 }
 
 //--------------------------------------------------------------------------------------------
-bool test_interaction_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform )
+bool test_interaction_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, int test_platform )
 {
-    /// @author BB
-    /// @details Test whether two objects could interact based on the "collision bounding box"
-    ///               This version is for character-particle collisions
-
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
@@ -1748,12 +1737,8 @@ bool test_interaction_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bum
 }
 
 //--------------------------------------------------------------------------------------------
-bool test_interaction_close_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform )
+bool test_interaction_close_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, int test_platform )
 {
-    /// @author BB
-    /// @details Test whether two objects could interact based on the "collision bounding box"
-    ///               This version is for character-particle collisions
-
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
@@ -1763,12 +1748,8 @@ bool test_interaction_close_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, 
 }
 
 //--------------------------------------------------------------------------------------------
-bool test_interaction_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, int test_platform )
+bool test_interaction_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, int test_platform )
 {
-    /// @author BB
-    /// @details Test whether two objects could interact based on the "collision bounding box"
-    ///               This version is for character-particle collisions
-
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
@@ -1778,12 +1759,8 @@ bool test_interaction_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper
 }
 
 //--------------------------------------------------------------------------------------------
-bool test_interaction_close_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const oct_bb_t * cv_b, const fvec3_base_t pos_b, int test_platform )
+bool test_interaction_close_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_bb_t * cv_b, const fvec3_t& pos_b, int test_platform )
 {
-    /// @author BB
-    /// @details Test whether two objects could interact based on the "collision bounding box"
-    ///               This version is for character-character collisions
-
     int cnt;
     float depth;
     oct_vec_t oa, ob;
@@ -1811,11 +1788,9 @@ bool test_interaction_close_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, 
 }
 
 //--------------------------------------------------------------------------------------------
-bool test_interaction_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const oct_bb_t * cv_b, const fvec3_base_t pos_b, int test_platform )
+bool test_interaction_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_bb_t * cv_b, const fvec3_t& pos_b, int test_platform )
 {
-    /// @author BB
-    /// @details Test whether two objects could interact based on the "collision bounding box"
-    ///               This version is for character-character collisions
+
 
     int cnt;
     oct_vec_t oa, ob;
@@ -1845,12 +1820,8 @@ bool test_interaction_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool get_depth_close_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth )
+bool get_depth_close_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_t depth )
 {
-    /// @author BB
-    /// @details Estimate the depth of collision based on the "collision bounding box"
-    ///               This version is for character-particle collisions
-
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
@@ -1865,12 +1836,8 @@ bool get_depth_close_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump
 }
 
 //--------------------------------------------------------------------------------------------
-bool get_depth_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth )
+bool get_depth_0( bumper_t bump_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_t depth )
 {
-    /// @author BB
-    /// @details Estimate the depth of collision based on the "collision bounding box"
-    ///               This version is for character-particle collisions
-
     oct_bb_t cv_a, cv_b;
 
     // convert the bumpers to the correct format
@@ -1884,12 +1851,8 @@ bool get_depth_0( bumper_t bump_a, const fvec3_base_t pos_a, bumper_t bump_b, co
 }
 
 //--------------------------------------------------------------------------------------------
-bool get_depth_close_1( const oct_bb_t * cv_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth )
+bool get_depth_close_1( const oct_bb_t * cv_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_t depth )
 {
-    /// @author BB
-    /// @details Estimate the depth of collision based on the "collision bounding box"
-    ///               This version is for character-particle collisions
-
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
@@ -1902,12 +1865,8 @@ bool get_depth_close_1( const oct_bb_t * cv_a, bumper_t bump_b, const fvec3_base
 }
 
 //--------------------------------------------------------------------------------------------
-bool get_depth_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth )
+bool get_depth_1( const oct_bb_t * cv_a, const fvec3_t& pos_a, bumper_t bump_b, const fvec3_t& pos_b, bool break_out, oct_vec_t depth )
 {
-    /// @author BB
-    /// @details Estimate the depth of collision based on the "collision bounding box"
-    ///               This version is for character-particle collisions
-
     oct_bb_t cv_b;
 
     // convert the bumper to the correct format
@@ -1919,10 +1878,6 @@ bool get_depth_1( const oct_bb_t * cv_a, const fvec3_base_t pos_a, bumper_t bump
 //--------------------------------------------------------------------------------------------
 bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv_b, bool break_out, oct_vec_t depth )
 {
-    /// @author BB
-    /// @details Estimate the depth of collision based on the "collision bounding box"
-    ///               This version is for character-character collisions
-
     int cnt;
     bool valid;
     float ftmp1, ftmp2;
@@ -1970,17 +1925,13 @@ bool get_depth_close_2( const oct_bb_t * cv_a, const oct_bb_t * cv_b, bool break
 }
 
 //--------------------------------------------------------------------------------------------
-bool get_depth_2( const oct_bb_t * cv_a, const fvec3_base_t pos_a, const oct_bb_t * cv_b, const fvec3_base_t pos_b, bool break_out, oct_vec_t depth )
+bool get_depth_2( const oct_bb_t * cv_a, const fvec3_t& pos_a, const oct_bb_t * cv_b, const fvec3_t& pos_b, bool break_out, oct_vec_t depth )
 {
-    /// @author BB
-    /// @details Estimate the depth of collision based on the "collision bounding box"
-    ///               This version is for character-character collisions
-
     int cnt;
     oct_vec_t oa, ob;
     bool valid;
 
-    if ( NULL == cv_a || NULL == pos_a || NULL == cv_b || NULL == pos_b ) return false;
+    if ( NULL == cv_a || NULL == cv_b) return false;
 
     if ( NULL == depth ) return false;
 

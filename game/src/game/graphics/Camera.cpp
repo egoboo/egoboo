@@ -73,9 +73,14 @@ Camera::Camera(const CameraOptions &options) :
     _doList(-1)
 {
     // derived values
-    fvec3_base_copy( _trackPos.v, _center.v );
+	_trackPos = _center;
+#if 0
+	fvec3_base_copy( _trackPos.v, _center.v );
+#endif
+	_pos = _center;
+#if 0
     fvec3_base_copy( _pos.v,       _center.v );
-
+#endif
     _pos.x += _zoom * SIN( _turnZRad );
     _pos.y += _zoom * COS( _turnZRad );
     _pos.z += CAM_ZADD_MAX;
@@ -267,13 +272,13 @@ void Camera::makeMatrix()
 
     //--- pre-compute some camera vectors
     mat_getCamForward( _mView.v, _vfw.v );
-    fvec3_self_normalize( _vfw.v );
+    fvec3_self_normalize(_vfw);
 
     mat_getCamUp( _mView.v, _vup.v );
-    fvec3_self_normalize( _vup.v );
+    fvec3_self_normalize(_vup);
 
     mat_getCamRight( _mView.v, _vrt.v );
-    fvec3_self_normalize( _vrt.v );
+    fvec3_self_normalize(_vrt);
 }
 
 void Camera::updateZoom()
@@ -322,11 +327,11 @@ void Camera::updateCenter()
         fvec3_t track_vec;
 
         // what is the distance to the track position?
-        fvec3_sub( track_vec.v, _trackPos.v, _pos.v );
+        track_vec = fvec3_sub(_trackPos, _pos);
 
         // determine the size of the dead zone
         track_fov = DEFAULT_FOV * 0.25f;
-        track_dist = fvec3_length( track_vec.v );
+        track_dist = fvec3_length( track_vec );
         track_size = track_dist * TAN( track_fov );
         track_size_x = track_size;
         track_size_y = track_size;  /// @todo adjust this based on the camera viewing angle
@@ -532,7 +537,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 
 	                // weight it by the character's velocity^2, so that
 	                // inactive characters don't control the camera
-	                weight1 = fvec3_dot_product( pchr->vel.v, pchr->vel.v );
+	                weight1 = fvec3_dot_product( pchr->vel, pchr->vel );
 
 	                // make another weight based on button-pushing
 	                weight2 = ( 0 == pchr->latch.b ) ? 0 : 127;

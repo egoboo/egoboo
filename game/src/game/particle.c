@@ -237,7 +237,7 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
 
         if ( SPAWNNOCHARACTER != pprt->endspawn_characterstate )
         {
-            child = spawn_one_character( prt_get_pos_v_const( pprt ), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF );
+            child = spawn_one_character(prt_get_pos_v_const(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF );
             if ( DEFINED_CHR( child ) )
             {
                 chr_t * pchild = ChrList_get_ptr( child );
@@ -442,7 +442,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     tmp_pos.x = CLIP( tmp_pos.x, 0.0f, PMesh->gmem.edge_x - 2.0f );
     tmp_pos.y = CLIP( tmp_pos.y, 0.0f, PMesh->gmem.edge_y - 2.0f );
 
-    prt_set_pos( pprt, tmp_pos.v );
+    prt_set_pos(pprt, tmp_pos);
     pprt->pos_old  = tmp_pos;
     pprt->pos_stt  = tmp_pos;
 
@@ -990,14 +990,10 @@ prt_t * prt_config_dtor( prt_t * pprt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
+PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget )
 {
-    /// @author ZZ
-    /// @details This function spawns a new particle.
-    ///               Returns the index of that particle or MAX_PRT on a failure.
-
     PIP_REF ipip;
     PRT_REF iprt;
 
@@ -1036,7 +1032,10 @@ PRT_REF spawn_one_particle( const fvec3_base_t pos, FACING_T facing, const PRO_R
 
     POBJ_BEGIN_SPAWN( pprt );
 
-    fvec3_base_copy( pprt->spawn_data.pos.v, pos );
+	pprt->spawn_data.pos = pos;
+#if 0
+    fvec3_base_copy(pprt->spawn_data.pos, pos);
+#endif
     pprt->spawn_data.facing     = facing;
     pprt->spawn_data.iprofile   = iprofile;
     pprt->spawn_data.ipip       = ipip;
@@ -1080,7 +1079,7 @@ float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
 
     // deal with the optional parameters
-    loc_test_pos = ( NULL == test_pos ) ? prt_get_pos_v_const( pprt ) : test_pos;
+    loc_test_pos = ( NULL == test_pos ) ? prt_get_pos_v_const( pprt ).v : test_pos;
     if ( NULL == test_pos ) return 0;
 
     mesh_mpdfx_tests = 0;
@@ -1114,7 +1113,7 @@ fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
 
     // deal with the optional parameters
-    loc_test_pos = ( NULL == test_pos ) ? prt_get_pos_v_const( pprt ) : test_pos;
+    loc_test_pos = ( NULL == test_pos ) ? prt_get_pos_v_const( pprt ).v : test_pos;
     if ( NULL == test_pos ) return retval;
 
     // calculate the radius based on whether the particle is on camera
@@ -1157,7 +1156,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
 
     // deal with the optional parameters
-    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const( pprt );
+    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const(pprt).v;
     if ( NULL == test_pos ) return EMPTY_BIT_FIELD;
 
     mesh_mpdfx_tests = 0;
@@ -1192,7 +1191,7 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
 
     // handle optional parameters
-    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const( pprt );
+    if ( NULL == test_pos ) test_pos = prt_get_pos_v_const(pprt).v;
     if ( NULL == test_pos ) return EMPTY_BIT_FIELD;
 
     // do the wall test
@@ -1320,7 +1319,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
         fvec3_t   platform_up;
 
         chr_getMatUp( ChrList_get_ptr( loc_pprt->onwhichplatform_ref ), platform_up.v );
-        fvec3_self_normalize( platform_up.v );
+        fvec3_self_normalize(platform_up);
 
         penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
@@ -1405,11 +1404,11 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
     // get the speed relative to the fluid
     if ( loc_pprt->enviro.inwater )
     {
-        fvec3_sub( fluid_acc.v, waterspeed.v, loc_pprt->vel.v );
+        fluid_acc = fvec3_sub(waterspeed, loc_pprt->vel);
     }
     else
     {
-        fvec3_sub( fluid_acc.v, windspeed.v, loc_pprt->vel.v );
+		fluid_acc = fvec3_sub(windspeed, loc_pprt->vel);
     }
 
     // get the fluid friction
@@ -1423,11 +1422,11 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
         {
             float water_friction = POW( loc_buoyancy_friction, 2.0f );
 
-            fvec3_self_scale( fluid_acc.v, 1.0f - water_friction );
+            fvec3_self_scale( fluid_acc, 1.0f - water_friction );
         }
         else
         {
-            fvec3_self_scale( fluid_acc.v, 1.0f - loc_buoyancy_friction );
+            fvec3_self_scale( fluid_acc, 1.0f - loc_buoyancy_friction );
         }
     }
     else
@@ -1539,19 +1538,19 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
     {
         float ftmp;
 
-        ftmp = fvec3_dot_product( floor_acc.v, vup.v );
+        ftmp = fvec3_dot_product( floor_acc, vup );
         floor_acc.x -= ftmp * vup.x;
         floor_acc.y -= ftmp * vup.y;
         floor_acc.z -= ftmp * vup.z;
 
-        ftmp = fvec3_dot_product( fric.v, vup.v );
+        ftmp = fvec3_dot_product( fric, vup );
         fric.x -= ftmp * vup.x;
         fric.y -= ftmp * vup.y;
         fric.z -= ftmp * vup.z;
     }
 
     // test to see if the player has any more friction left?
-    penviro->is_slipping = ( ABS( fric.x ) + ABS( fric.y ) + ABS( fric.z ) > penviro->friction_hrz );
+    penviro->is_slipping = fvec3_length_abs(fric) > penviro->friction_hrz;
 
     if ( penviro->is_slipping )
     {
@@ -1564,7 +1563,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
         fric_floor.y = floor_acc.y * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
         fric_floor.z = floor_acc.z * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
 
-        ftmp = fvec3_dot_product( fric_floor.v, vup.v );
+        ftmp = fvec3_dot_product(fric_floor, vup);
         fric_floor.x -= ftmp * vup.x;
         fric_floor.y -= ftmp * vup.y;
         fric_floor.z -= ftmp * vup.z;
@@ -1610,7 +1609,7 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     // grab a pointer to the target
     ptarget = ChrList_get_ptr( loc_pprt->target_ref );
 
-    fvec3_sub( vdiff.v, ptarget->pos.v, prt_get_pos_v_const( loc_pprt ) );
+    vdiff = fvec3_sub(ptarget->pos, prt_get_pos_v_const(loc_pprt));
     vdiff.z += ptarget->bump.height * 0.5f;
 
     min_length = 2 * 5 * 256 * ( ChrList.lst[loc_pprt->owner_ref].wisdom / ( float )PERFECTBIG );
@@ -1628,10 +1627,10 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     vdither.z = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
 
     // take away any dithering along the direction of motion of the particle
-    vlen = fvec3_dot_product( loc_pprt->vel.v, loc_pprt->vel.v );
+    vlen = fvec3_dot_product(loc_pprt->vel, loc_pprt->vel);
     if ( vlen > 0.0f )
     {
-        float vdot = fvec3_dot_product( vdither.v, loc_pprt->vel.v ) / vlen;
+        float vdot = fvec3_dot_product(vdither, loc_pprt->vel) / vlen;
 
         vdither.x -= vdot * vdiff.x / vlen;
         vdither.y -= vdot * vdiff.y / vlen;
@@ -1855,7 +1854,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
         return NULL;
     }
 
-    prt_set_pos( loc_pprt, tmp_pos.v );
+    prt_set_pos(loc_pprt, tmp_pos);
 
     return pbdl_prt;
 }
@@ -1924,7 +1923,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
             floor_nrm = map_twist_nrm[penviro->twist];
         }
 
-        vel_dot = fvec3_dot_product( floor_nrm.v, loc_pprt->vel.v );
+        vel_dot = fvec3_dot_product( floor_nrm, loc_pprt->vel );
         if ( 0.0f == vel_dot )
         {
             fvec3_self_clear( vel_perp.v );
@@ -2041,9 +2040,9 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
             float vdot;
             fvec3_t   vpara, vperp;
 
-            fvec3_self_normalize( nrm_total.v );
+            fvec3_self_normalize(nrm_total);
 
-            vdot  = fvec3_dot_product( nrm_total.v, loc_pprt->vel.v );
+            vdot  = fvec3_dot_product( nrm_total, loc_pprt->vel );
 
             vperp.x = nrm_total.x * vdot;
             vperp.y = nrm_total.y * vdot;
@@ -2133,7 +2132,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         }
     }
 
-    prt_set_pos( loc_pprt, tmp_pos.v );
+    prt_set_pos(loc_pprt, tmp_pos);
 
     return pbdl_prt;
 }
@@ -2157,12 +2156,12 @@ bool move_one_particle( prt_bundle_t * pbdl_prt )
     if ( loc_pprt->is_hidden ) return false;
 
     // save the acceleration from the last time-step
-    fvec3_sub( penviro->acc.v, loc_pprt->vel.v, loc_pprt->vel_old.v );
+    penviro->acc = fvec3_sub(loc_pprt->vel, loc_pprt->vel_old);
 
     // determine the actual velocity for attached particles
     if ( INGAME_CHR( loc_pprt->attachedto_ref ) )
     {
-        fvec3_sub( loc_pprt->vel.v, prt_get_pos_v_const( loc_pprt ), loc_pprt->pos_old.v );
+        loc_pprt->vel = fvec3_sub(prt_get_pos_v_const(loc_pprt), loc_pprt->pos_old);
     }
 
     // Particle's old location
@@ -2336,7 +2335,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
-                dist = fvec3_dist_abs( prt_get_pos_v_const( pprt ), chr_get_pos_v_const( pchr ) );
+                dist = fvec3_dist_abs(prt_get_pos_v_const(pprt), chr_get_pos_v_const(pchr));
 
                 // clear the occupied list
                 z = pprt->pos.z - pchr->pos.z;
@@ -2392,7 +2391,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
                         }
                     }
 
-                    bs_part = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
+                    bs_part = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
                                                   character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character );
 
                     if ( DEFINED_PRT( bs_part ) )
@@ -2639,7 +2638,7 @@ int prt_do_end_spawn( const PRT_REF iprt )
             // we have determined the absolute pip reference when the particle was spawned
             // so, set the profile reference to INVALID_PRO_REF, so that the
             // value of pprt->endspawn_lpip will be used directly
-            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old.v, facing, pprt->profile_ref, pprt->endspawn_lpip,
+            PRT_REF spawned_prt = spawn_one_particle( pprt->pos_old, facing, pprt->profile_ref, pprt->endspawn_lpip,
                                   INVALID_CHR_REF, GRIP_LAST, pprt->team, prt_get_iowner( iprt, 0 ), iprt, tnc, pprt->target_ref );
 
             if ( DEFINED_PRT( spawned_prt ) )
@@ -2968,7 +2967,7 @@ prt_bundle_t * prt_update_do_water( prt_bundle_t * pbdl_prt )
         if ( spawn_valid )
         {
             // Splash for particles is just a ripple
-            spawn_one_particle_global( vtmp.v, 0, global_pip_index, 0 );
+            spawn_one_particle_global( vtmp, 0, global_pip_index, 0 );
         }
 
         pbdl_prt->prt_ptr->enviro.inwater  = true;
@@ -3395,25 +3394,38 @@ bool prt_update_pos( prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_set_pos( prt_t * pprt, const fvec3_base_t pos )
+bool prt_set_pos(prt_t *pprt, const fvec3_t& pos)
+{
+	bool retval = false;
+	if (!ALLOCATED_PPRT(pprt)) return retval;
+	retval = true;
+	/// @todo Use overloaded != operator.
+	if ((pos[kX] != pprt->pos.v[kX]) || (pos[kY] != pprt->pos.v[kY]) || (pos[kZ] != pprt->pos.v[kZ]))
+	{
+		pprt->pos = pos;
+		retval = prt_update_pos(pprt);
+	}
+	return retval;
+}
+#if 0
+bool prt_set_pos(prt_t * pprt, const fvec3_base_t pos)
 {
     bool retval = false;
 
-    if ( !ALLOCATED_PPRT( pprt ) ) return retval;
+    if (!ALLOCATED_PPRT(pprt)) return retval;
 
     retval = true;
 
     LOG_NAN_FVEC3( pos );
 
-    if (( pos[kX] != pprt->pos.v[kX] ) || ( pos[kY] != pprt->pos.v[kY] ) || ( pos[kZ] != pprt->pos.v[kZ] ) )
+    if ((pos[kX] != pprt->pos.v[kX]) || (pos[kY] != pprt->pos.v[kY]) || (pos[kZ] != pprt->pos.v[kZ]))
     {
-        fvec3_base_copy( pprt->pos.v, pos );
-
-        retval = prt_update_pos( pprt );
+        fvec3_base_copy(pprt->pos.v, pos);
+        retval = prt_update_pos(pprt);
     }
-
     return retval;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 //Inline below
@@ -3676,21 +3688,16 @@ bool prt_get_pos( const prt_t * pprt, fvec3_base_t pos )
 }
 
 //--------------------------------------------------------------------------------------------
-const float * prt_get_pos_v_const( const prt_t * pprt )
+const fvec3_t& prt_get_pos_v_const(const prt_t *pprt)
 {
-    static fvec3_t vtmp = fvec3_t::zero;
-
-    if ( !ALLOCATED_PPRT( pprt ) ) return vtmp.v;
-
-    return pprt->pos.v;
+    if (!ALLOCATED_PPRT(pprt)) return fvec3_t::zero;
+    return pprt->pos;
 }
 
 //--------------------------------------------------------------------------------------------
-float * prt_get_pos_v( prt_t * pprt )
+float *prt_get_pos_v(prt_t *pprt)
 {
     static fvec3_t vtmp = fvec3_t::zero;
-
-    if ( !ALLOCATED_PPRT( pprt ) ) return vtmp.v;
-
+    if (!ALLOCATED_PPRT(pprt)) return vtmp.v;
     return pprt->pos.v;
 }

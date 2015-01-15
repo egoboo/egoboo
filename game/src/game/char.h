@@ -625,7 +625,13 @@ void move_one_character_get_environment( chr_t * pchr );
 BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata );
 BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t * pdata );
 
-CHR_REF spawn_one_character( const fvec3_base_t pos, const PRO_REF profile, const TEAM_REF team, const int skin, const FACING_T facing, const char *name, const CHR_REF override );
+/**
+ * @brief
+ *	Spawn a character.
+ * @return
+ *	the index of the character on success success, #MAX_CHR on failure
+ */
+CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TEAM_REF team, const int skin, const FACING_T facing, const char *name, const CHR_REF override );
 void    respawn_character( const CHR_REF character );
 
 // inventory functions
@@ -770,6 +776,6 @@ bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
 
-const float *chr_get_pos_v_const( const chr_t * pchr );
+const fvec3_t& chr_get_pos_v_const(const chr_t *pchr);
 float       *chr_get_pos_v( chr_t * pchr );
 bool         chr_get_pos( const chr_t * pchr, fvec3_base_t pos );

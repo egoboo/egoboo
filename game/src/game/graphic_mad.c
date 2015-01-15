@@ -833,7 +833,7 @@ void draw_chr_bbox( chr_t * pchr )
         {
             oct_bb_t bb;
 
-            oct_bb_add_fvec3( &( pchr->slot_cv[SLOT_LEFT] ), pchr->pos.v, &bb );
+            oct_bb_add_fvec3( &( pchr->slot_cv[SLOT_LEFT] ), pchr->pos, &bb );
 
             GL_DEBUG( glColor4fv )( white_vec );
             render_oct_bb( &bb, true, true );
@@ -1123,7 +1123,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     pinst->vrt_count = pinst->vrt_count;
 
     // interpolate the lighting for the origin of the object
-    grid_lighting_interpolate( PMesh, &global_light, pchr->pos.v );
+    grid_lighting_interpolate( PMesh, &global_light, fvec2_t(pchr->pos[kX],pchr->pos[kY]) );
 
     // rotate the lighting data to body_centered coordinates
     lighting_project_cache( &loc_light, &global_light, pinst->matrix.v );
@@ -1144,20 +1144,22 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
         if ( pvert->nrm[0] == 0.0f && pvert->nrm[1] == 0.0f && pvert->nrm[2] == 0.0f )
         {
             // this is the "ambient only" index, but it really means to sum up all the light
+#if 0
             GLfloat tnrm[3];
-
             tnrm[0] = tnrm[1] = tnrm[2] = 1.0f;
-            lite  = lighting_evaluate_cache( &loc_light, tnrm, hgt, PMesh->tmem.bbox, NULL, NULL );
-
+#endif
+            lite  = lighting_evaluate_cache( &loc_light, fvec3_t(+1.0f,+1.0f,+1.0f), hgt, PMesh->tmem.bbox, NULL, NULL );
+#if 0
             tnrm[0] = tnrm[1] = tnrm[2] = -1.0f;
-            lite += lighting_evaluate_cache( &loc_light, tnrm, hgt, PMesh->tmem.bbox, NULL, NULL );
+#endif
+            lite += lighting_evaluate_cache( &loc_light, fvec3_t(-1.0f,-1.0f,-1.0f), hgt, PMesh->tmem.bbox, NULL, NULL );
 
             // average all the directions
             lite /= 6;
         }
         else
         {
-            lite  = lighting_evaluate_cache( &loc_light, pvert->nrm, hgt, PMesh->tmem.bbox, NULL, NULL );
+            lite  = lighting_evaluate_cache( &loc_light, fvec3_t(pvert->nrm[0],pvert->nrm[1],pvert->nrm[2]), hgt, PMesh->tmem.bbox, NULL, NULL );
         }
 
         pvert->color_dir = 0.9f * pvert->color_dir + 0.1f * lite;

@@ -28,12 +28,46 @@ typedef float fmat_4x4_base_t[16];      ///< the basic 4x4 single precision floa
 typedef double dmat_4x4_base_t[16];      ///< the basic 4x4 double precision floating point ("double") matrix type
 #endif
 
+#if 0
 struct s_fmat_4x4;
 typedef struct s_fmat_4x4  fmat_4x4_t;
+#endif
 
 /// A wrapper for fmat_4x4_base_t.
 /// Necessary in C so that the function return can be assigned to another matrix more simply.
-struct s_fmat_4x4 { fmat_4x4_base_t  v; };
+struct fmat_4x4_t
+{
+	fmat_4x4_base_t v;
+#if 0
+	static const fmat_4x4_t identity;
+	static const fmat_4x4_t zero;
+#endif
+	fmat_4x4_t()
+	{
+		for (size_t i = 0; i < 16; ++i)
+		{
+			this->v[i] = 0.0f;
+		}
+	}
+	fmat_4x4_t(const fmat_4x4_t& other)
+	{
+		for (size_t i = 0; i < 16; ++i)
+		{
+			this->v[i] = other.v[i];
+		}
+	}
+	const fmat_4x4_t& operator=(const fmat_4x4_t& other)
+	{
+		if (this != &other)
+		{
+			for (size_t i = 0; i < 16; ++i)
+			{
+				this->v[i] = other.v[i];
+			}
+		}
+		return *this;
+	}
+};
 
 #if 0
 // A wrapper for dmat_4x4_base_t.

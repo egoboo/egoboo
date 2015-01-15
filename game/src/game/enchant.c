@@ -964,11 +964,11 @@ enc_t * enc_config_do_init( enc_t * penc )
     // Create an overlay character?
     if ( peve->spawn_overlay && NULL != ptarget )
     {
-        overlay = spawn_one_character( ptarget->pos.v, pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, INVALID_CHR_REF );
+        overlay = spawn_one_character(ptarget->pos, pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, INVALID_CHR_REF );
         if ( DEFINED_CHR( overlay ) )
         {
-            chr_t * povl;
-            mad_t * povl_mad;
+            chr_t *povl;
+            mad_t *povl_mad;
             int action;
 
             povl     = ChrList_get_ptr( overlay );
@@ -1048,7 +1048,7 @@ enc_t * enc_config_do_active( enc_t * penc )
         facing = ptarget->ori.facing_z;
         for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
         {
-            spawn_one_particle( ptarget->pos.v, facing, penc->profile_ref, peve->contspawn_lpip,
+            spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_lpip,
                                 INVALID_CHR_REF, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, INVALID_PRT_REF, tnc, INVALID_CHR_REF );
 
             facing += peve->contspawn_facingadd;

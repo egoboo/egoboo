@@ -1909,7 +1909,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = 0;
 
-    ichr = spawn_one_character( pos.v, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
+    ichr = spawn_one_character(pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF);
     returncode = DEFINED_CHR( ichr );
 
     if ( !returncode )
@@ -2193,7 +2193,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->holdingwhich[SLOT_LEFT];
     }
 
-    iprt = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
     returncode = DEFINED_PRT( iprt );
     if ( returncode )
@@ -2223,7 +2223,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
             }
         }
 
-        prt_set_pos( pprt, tmp_pos.v );
+        prt_set_pos(pprt, tmp_pos);
     }
 
     SCRIPT_FUNCTION_END();
@@ -4087,7 +4087,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = iholder;
     }
 
-    iprt = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     returncode = DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
@@ -4117,7 +4117,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
         vtmp.x = pstate->x;
         vtmp.y = pstate->y;
         vtmp.z = pstate->distance;
-        iprt = spawn_one_particle( vtmp.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     }
 
     returncode = DEFINED_PRT( iprt );
@@ -4627,7 +4627,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
     returncode = DEFINED_PRT( iprt );
 
@@ -4739,7 +4739,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos.v, CLIP_TO_16BITS( pstate->turn ), pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+    iprt = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
     returncode = DEFINED_PRT( iprt );
 
@@ -5134,7 +5134,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ichr, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ichr, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
     returncode = DEFINED_PRT( iprt );
 
@@ -5525,7 +5525,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    ichr = spawn_one_character( pos.v, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
+    ichr = spawn_one_character( pos, pchr->profile_ref, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
     returncode = DEFINED_CHR( ichr );
 
     if ( !returncode )
@@ -5580,8 +5580,8 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    ichr = spawn_one_character( pos.v, ( PRO_REF )pstate->argument, pchr->team, 0, CLIP_TO_16BITS( pstate->turn ), NULL, INVALID_CHR_REF );
-    returncode = DEFINED_CHR( ichr );
+    ichr = spawn_one_character(pos, (PRO_REF)pstate->argument, pchr->team, 0, CLIP_TO_16BITS(pstate->turn), NULL, INVALID_CHR_REF);
+    returncode = DEFINED_CHR(ichr);
 
     if ( !returncode )
     {
@@ -5677,7 +5677,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
         vtmp.y = pstate->y;
         vtmp.z = pstate->distance;
 
-        iprt = spawn_one_particle( vtmp.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     }
 
     returncode = DEFINED_PRT( iprt );
@@ -6862,7 +6862,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
         vtmp.y = pstate->y;
         vtmp.z = pstate->distance;
 
-        iprt = spawn_one_particle( vtmp.v, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+        iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     }
 
     returncode = DEFINED_PRT( iprt );
@@ -7546,7 +7546,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     pos.y = pstate->y;
     pos.z = pstate->distance;
 
-    ichr = spawn_one_character( pos.v, ( PRO_REF )pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF );
+    ichr = spawn_one_character(pos, (PRO_REF)pstate->argument, pchr->team, 0, FACE_NORTH, NULL, INVALID_CHR_REF);
     returncode = DEFINED_CHR( ichr );
 
     if ( !returncode )

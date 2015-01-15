@@ -68,7 +68,7 @@ static bool ego_mesh_recalc_twist( ego_mesh_t * pmesh );
 static bool ego_mesh_make_texture( ego_mesh_t * pmesh );
 static ego_mesh_t * ego_mesh_finalize( ego_mesh_t * pmesh );
 static bool ego_mesh_test_one_corner( ego_mesh_t * pmesh, GLXvector3f pos, float * pdelta );
-static bool ego_mesh_light_one_corner( const ego_mesh_t * pmesh, ego_tile_info_t * ptile, const bool reflective, const fvec3_base_t pos, fvec3_base_t nrm, float * plight );
+static bool ego_mesh_light_one_corner( const ego_mesh_t * pmesh, ego_tile_info_t * ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight );
 
 static oglx_texture_t * ego_mesh_get_texture( Uint8 image, Uint8 size );
 
@@ -896,35 +896,35 @@ bool ego_mesh_make_bbox( ego_mesh_t * pmesh )
     ptmem->bbox.mins[YY] = ptmem->bbox.maxs[YY] = ptmem->plst[0][YY];
     ptmem->bbox.mins[ZZ] = ptmem->bbox.maxs[ZZ] = ptmem->plst[0][ZZ];
 
-    for ( cnt = 0; cnt < pmesh->info.tiles_count; cnt++ )
-    {
-        oct_bb_t       * poct;
-        ego_tile_info_t * ptile;
-        Uint16 vertices;
-        Uint8 type;
-        oct_vec_t ovec;
+	for (cnt = 0; cnt < pmesh->info.tiles_count; cnt++)
+	{
+		oct_bb_t       * poct;
+		ego_tile_info_t * ptile;
+		Uint16 vertices;
+		Uint8 type;
+		oct_vec_t ovec;
 
-        ptile = ptmem->tile_list + cnt;
-        poct   = &( ptile->oct );
+		ptile = ptmem->tile_list + cnt;
+		poct = &(ptile->oct);
 
-        type = ptile->type;
-        type &= 0x3F;
+		type = ptile->type;
+		type &= 0x3F;
 
-        pdef = TILE_DICT_PTR( tile_dict, type );
-        if ( NULL == pdef ) continue;
+		pdef = TILE_DICT_PTR(tile_dict, type);
+		if (NULL == pdef) continue;
 
-        mesh_vrt = ptmem->tile_list[cnt].vrtstart;    // Number of vertices
-        vertices = pdef->numvertices;                 // Number of vertices
+		mesh_vrt = ptmem->tile_list[cnt].vrtstart;    // Number of vertices
+		vertices = pdef->numvertices;                 // Number of vertices
 
-        // initialize the bounding box
-        oct_vec_ctor( ovec, ptmem->plst[mesh_vrt] );
+		// initialize the bounding box
+		oct_vec_ctor(ovec, fvec3_t(ptmem->plst[mesh_vrt][0], ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
         oct_bb_set_ovec( poct, ovec );
         mesh_vrt++;
 
         // add the rest of the points into the bounding box
         for ( tile_vrt = 1; tile_vrt < vertices; tile_vrt++, mesh_vrt++ )
         {
-            oct_vec_ctor( ovec, ptmem->plst[mesh_vrt] );
+            oct_vec_ctor( ovec, fvec3_t(ptmem->plst[mesh_vrt][0],ptmem->plst[mesh_vrt][1],ptmem->plst[mesh_vrt][2]));
             oct_bb_self_sum_ovec( poct, ovec );
         }
 
@@ -1061,11 +1061,11 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
                     float vdot;
                     int m = ( j + 1 ) % 4;
 
-                    vdot = fvec3_dot_product( nrm_lst[j].v, nrm_lst[m].v );
+                    vdot = fvec3_dot_product( nrm_lst[j], nrm_lst[m] );
 
                     edge_is_crease[j] = ( vdot < INV_SQRT_TWO );
 
-                    weight_lst[j] = fvec3_dot_product( nrm_lst[j].v, nrm_lst[0].v );
+                    weight_lst[j] = fvec3_dot_product( nrm_lst[j], nrm_lst[0] );
                 }
 
                 weight_lst[0] = 1.0f;
@@ -1099,7 +1099,7 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
                     }
                 }
 
-                fvec3_self_normalize( vec_sum.v );
+                fvec3_self_normalize(vec_sum);
 
                 ptmem->tile_list[fan0].ncache[i][XX] = vec_sum.x;
                 ptmem->tile_list[fan0].ncache[i][YY] = vec_sum.y;
@@ -1107,65 +1107,6 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
             }
         }
     }
-
-    //            dy_min = iy_off[i] - 1;
-    //            dy_max = iy_off[i];
-
-    //            wt_cnt = 0;
-    //            vec_sum.x = vec_sum.y = vec_sum.z = 0.0f;
-    //            for (dy = dy_min; dy <= dy_max; dy++)
-    //            {
-    //                jy = iy + dy;
-    //                for (dx = dx_min; dx <= dx_max; dx++)
-    //                {
-    //                    jx = ix + dx;
-
-    //                    fan1 = ego_mesh_get_tile_int(pmesh, jx, jy);
-    //                    if ( ego_mesh_grid_is_valid(pmesh, fan1) )
-    //                    {
-    //                        float wt;
-
-    //                        vec1.x = ptmem->nlst[fan1][XX];
-    //                        vec1.y = ptmem->nlst[fan1][YY];
-    //                        vec1.z = ptmem->nlst[fan1][ZZ];
-    //                        if ( vec1.z < 0 )
-    //                        {
-    //                            vec1.x *= -1.0f;
-    //                            vec1.y *= -1.0f;
-    //                            vec1.z *= -1.0f;
-    //                        }
-
-    //                        wt = fvec3_dot_product( vec0.v, vec1.v );
-    //                        if ( wt > 0 )
-    //                        {
-    //                            vec_sum.x += wt * vec1.x;
-    //                            vec_sum.y += wt * vec1.y;
-    //                            vec_sum.z += wt * vec1.z;
-
-    //                            wt_cnt += 1;
-    //                        }
-    //                    }
-    //                }
-    //            }
-
-    //            if ( wt_cnt > 1 )
-    //            {
-    //                fvec3_self_normalize( vec_sum.v );
-
-    //                ptmem->ncache[fan0][i][XX] = vec_sum.x;
-    //                ptmem->ncache[fan0][i][YY] = vec_sum.y;
-    //                ptmem->ncache[fan0][i][ZZ] = vec_sum.z;
-    //            }
-    //            else
-    //            {
-    //                ptmem->ncache[fan0][i][XX] = vec0.x;
-    //                ptmem->ncache[fan0][i][YY] = vec0.y;
-    //                ptmem->ncache[fan0][i][ZZ] = vec0.z;
-    //            }
-    //        }
-    //    }
-    //}
-
     return true;
 }
 
@@ -1211,14 +1152,14 @@ bool grid_light_one_corner( const ego_mesh_t * pmesh, int fan, float height, flo
     {
         float light_dir, light_amb;
 
-        lighting_evaluate_cache( lighting, nrm, height, pmesh->tmem.bbox, &light_amb, &light_dir );
+        lighting_evaluate_cache( lighting, fvec3_t(nrm[0],nrm[1],nrm[2]), height, pmesh->tmem.bbox, &light_amb, &light_dir );
 
         // make ambient light only illuminate 1/2
         ( *plight ) = light_amb + 0.5f * light_dir;
     }
     else
     {
-        ( *plight ) = lighting_evaluate_cache( lighting, nrm, height, pmesh->tmem.bbox, NULL, NULL );
+        ( *plight ) = lighting_evaluate_cache( lighting, fvec3_t(nrm[0],nrm[1],nrm[2]), height, pmesh->tmem.bbox, NULL, NULL );
     }
 
     // clip the light to a reasonable value
@@ -1255,14 +1196,14 @@ bool ego_mesh_test_one_corner( ego_mesh_t * pmesh, GLXvector3f pos, float * pdel
 }
 
 //--------------------------------------------------------------------------------------------
-bool ego_mesh_light_one_corner( const ego_mesh_t * pmesh, ego_tile_info_t * ptile, const bool reflective, const fvec3_base_t pos, fvec3_base_t nrm, float * plight )
+bool ego_mesh_light_one_corner( const ego_mesh_t * pmesh, ego_tile_info_t * ptile, const bool reflective, const fvec3_t& pos, const fvec3_t& nrm, float * plight )
 {
     lighting_cache_t grid_light;
 
     if ( NULL == pmesh || NULL == ptile ) return false;
 
     // interpolate the lighting for the given corner of the mesh
-    grid_lighting_interpolate( pmesh, &grid_light, pos );
+    grid_lighting_interpolate( pmesh, &grid_light, fvec2_t(pos[kX],pos[kY]) );
 
     if ( reflective )
     {
@@ -1389,7 +1330,8 @@ float ego_mesh_light_corners( ego_mesh_t * pmesh, ego_tile_info_t * ptile, bool 
         ppos    = ptmem->plst + ptile->vrtstart + corner;
 
         light_new = 0.0f;
-        ego_mesh_light_one_corner( pmesh, ptile, reflective, *ppos, *pnrm, &light_new );
+        ego_mesh_light_one_corner( pmesh, ptile, reflective, fvec3_t((*ppos)[0],(*ppos)[1],(*ppos)[2]),
+			                                                 fvec3_t((*pnrm)[0],(*pnrm)[1],(*pnrm)[2]), &light_new );
 
         if ( *plight != light_new )
         {
