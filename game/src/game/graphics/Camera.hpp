@@ -156,6 +156,11 @@ public:
      */
     void resetTarget( const ego_mesh_t * pmesh);
 
+    /**
+    * @brief Changes the camera mode
+    **/
+    void setCameraMode(CameraMode mode) {_moveMode = mode;}
+
 protected:
     /**
     * @brief This function makes the camera turn to face the character
