@@ -91,5 +91,5 @@ obj_BSP_t *obj_BSP_new(int dim,const mesh_BSP_t *mesh_bsp);
  */
 void obj_BSP_delete(obj_BSP_t *self);
 
-int obj_BSP_collide_aabb( const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-int obj_BSP_collide_frustum( const obj_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+int obj_BSP_collide_aabb(const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> * colst);
+int obj_BSP_collide_frustum(const obj_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> * colst);

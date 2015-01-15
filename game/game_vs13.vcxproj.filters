@@ -33,6 +33,12 @@
     <Filter Include="Game Header Files\AI">
       <UniqueIdentifier>{7be3487a-b5a6-4722-8fca-4c2d47ebbb4e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Header Files\Audio">
+      <UniqueIdentifier>{77452109-c555-43f5-83ea-a0791849bbd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Sources\Audio">
+      <UniqueIdentifier>{abe11988-e20e-4cef-8451-8404aadadc8e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\char.c">
@@ -128,9 +134,6 @@
     <ClCompile Include="src\game\player.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\profile.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\PrtList.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -150,9 +153,6 @@
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\script_implementation.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\sound.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\ui.c">
@@ -178,6 +178,18 @@
     </ClCompile>
     <ClCompile Include="src\game\ai\WaypointList.c">
       <Filter>Game Sources\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\audio\AudioSystem.cpp">
+      <Filter>Game Sources\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\Profile.cpp">
+      <Filter>Game Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\ProfileSystem.cpp">
+      <Filter>Game Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\chop.c">
+      <Filter>Game Sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -283,9 +295,6 @@
     <ClInclude Include="src\game\player.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\profile.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\PrtList.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
@@ -305,9 +314,6 @@
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\script_implementation.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\sound.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\ui.h">
@@ -334,6 +340,18 @@
     <ClInclude Include="src\game\ai\WaypointList.h">
       <Filter>Game Header Files\AI</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\audio\AudioSystem.hpp">
+      <Filter>Game Header Files\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\Profile.hpp">
+      <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\ProfileSystem.hpp">
+      <Filter>Game Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\chop.h">
+      <Filter>Game Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\res\egoboo.ico">
@@ -349,12 +367,6 @@
       <Filter>Game Header Files</Filter>
     </None>
     <None Include="src\game\particle.inl">
-      <Filter>Game Header Files</Filter>
-    </None>
-    <None Include="src\game\physics.inl">
-      <Filter>Game Header Files</Filter>
-    </None>
-    <None Include="src\game\profile.inl">
       <Filter>Game Header Files</Filter>
     </None>
     <None Include="src\game\PrtList.inl">

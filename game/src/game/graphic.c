@@ -127,7 +127,7 @@ static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mesh_t * pmesh
 static gfx_rv         renderlist_reset( renderlist_t * prlist );
 static gfx_rv         renderlist_insert( renderlist_t * prlist, const Uint32 index, const std::shared_ptr<Camera> &camera );
 static ego_mesh_t *   renderlist_get_pmesh( const renderlist_t * ptr );
-static gfx_rv         renderlist_add_colst( renderlist_t * prlist, const BSP_leaf_pary_t * pcolst, const std::shared_ptr<Camera> &camera );
+static gfx_rv         renderlist_add_colst(renderlist_t * prlist, const Ego::DynamicArray<BSP_leaf_t *> *pcolst, const std::shared_ptr<Camera> &camera);
 
 //--------------------------------------------------------------------------------------------
 // the renderlist manager
@@ -189,7 +189,7 @@ static gfx_rv     dolist_test_chr( dolist_t * pdolist, const chr_t * pchr );
 static gfx_rv     dolist_add_chr_raw( dolist_t * pdolist, chr_t * pchr );
 static gfx_rv     dolist_test_prt( dolist_t * pdolist, const prt_t * pprt );
 static gfx_rv     dolist_add_prt_raw( dolist_t * pdolist, prt_t * pprt );
-static gfx_rv     dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst );
+static gfx_rv     dolist_add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_t *> *pcolst );
 
 //--------------------------------------------------------------------------------------------
 // the dolist manager
@@ -373,10 +373,10 @@ static egolib_throttle_t gfx_throttle = EGOLIB_THROTTLE_INIT;
 static dynalist_t _dynalist = DYNALIST_INIT;
 
 static renderlist_mgr_t _renderlist_mgr_data = RENDERLIST_MGR_INIT_VALS;
-static BSP_leaf_pary_t  _renderlist_colst    = DYNAMIC_ARY_INIT_VALS;
-
 static dolist_mgr_t     _dolist_mgr_data = DOLIST_MGR_INIT_VALS;
-static BSP_leaf_pary_t  _dolist_colst    = DYNAMIC_ARY_INIT_VALS;
+
+static BSP_leaf_pary_t  _renderlist_colst = DYNAMIC_ARY_INIT_VALS;
+static BSP_leaf_pary_t  _dolist_colst = DYNAMIC_ARY_INIT_VALS;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -673,12 +673,12 @@ gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh )
 
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_add_colst(renderlist_t * prlist, const BSP_leaf_pary_t * pcolst, const std::shared_ptr<Camera> &camera)
+gfx_rv renderlist_add_colst(renderlist_t *prlist, const Ego::DynamicArray<BSP_leaf_t *> *pcolst, const std::shared_ptr<Camera> &camera)
 {
-    size_t       colst_size, colst_top;
-    BSP_leaf_t * pleaf;
-    ego_mesh_t  * pmesh  = NULL;
-    gfx_rv       retval = gfx_error;
+    size_t colst_cp, colst_sz;
+    BSP_leaf_t *pleaf;
+    ego_mesh_t *pmesh  = NULL;
+    gfx_rv retval = gfx_error;
 
     if ( NULL == prlist )
     {
@@ -690,14 +690,14 @@ gfx_rv renderlist_add_colst(renderlist_t * prlist, const BSP_leaf_pary_t * pcols
         return gfx_error;
     }
 
-    colst_size = BSP_leaf_pary_get_cp( pcolst );
-    if ( 0 == colst_size )
+    colst_cp = pcolst->capacity();
+    if ( 0 == colst_cp )
     {
         return gfx_error;
     }
 
-    colst_top  = BSP_leaf_pary_get_top( pcolst );
-    if ( 0 == colst_top )
+    colst_sz  = pcolst->size();
+    if ( 0 == colst_sz )
     {
         return gfx_fail;
     }
@@ -713,7 +713,7 @@ gfx_rv renderlist_add_colst(renderlist_t * prlist, const BSP_leaf_pary_t * pcols
     retval = gfx_success;
 
     // transfer valid pcolst entries to the renderlist
-    for ( size_t j = 0; j < colst_top; j++ )
+    for ( size_t j = 0; j < colst_sz; j++ )
     {
         pleaf = pcolst->ary[j];
 
@@ -1107,10 +1107,9 @@ gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
+gfx_rv dolist_add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_t *> *pcolst )
 {
     BSP_leaf_t * pleaf;
-    size_t colst_size, colst_top;
     gfx_rv retval;
 
     if ( NULL == pdlist )
@@ -1123,14 +1122,14 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
         return gfx_error;
     }
 
-    colst_size = BSP_leaf_pary_get_cp( pcolst );
-    if ( 0 == colst_size )
+	size_t colst_cp = pcolst->capacity();
+    if ( 0 == colst_cp )
     {
         return gfx_error;
     }
 
-    colst_top  = BSP_leaf_pary_get_top( pcolst );
-    if ( 0 == colst_top )
+	size_t colst_sz  = pcolst->size();
+    if ( 0 == colst_sz )
     {
         return gfx_fail;
     }
@@ -1138,7 +1137,7 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const BSP_leaf_pary_t * pcolst )
     // assume the best
     retval = gfx_success;
 
-    for ( size_t j = 0; j < colst_top; j++ )
+    for ( size_t j = 0; j < colst_sz; j++ )
     {
         pleaf = pcolst->ary[j];
 
@@ -1529,12 +1528,12 @@ void gfx_system_begin()
     gfx_reset_timers();
 
     // allocate the specailized "collistion lists"
-    if ( NULL == BSP_leaf_pary_ctor( &_dolist_colst, DOLIST_SIZE ) )
+    if ( NULL == _dolist_colst.ctor(DOLIST_SIZE))
     {
         log_error( "%s-%s-%d - Could not allocate dolist collision list", __FILE__, __FUNCTION__, __LINE__ );
     }
 
-    if ( NULL == BSP_leaf_pary_ctor( &_renderlist_colst, MAXMESHRENDER ) )
+    if ( NULL == _renderlist_colst.ctor(MAXMESHRENDER))
     {
         log_error( "%s-%s-%d - Could not allocate renderlist collision list", __FILE__, __FUNCTION__, __LINE__ );
     }
@@ -1585,12 +1584,12 @@ void gfx_system_end()
     gfx_reset_timers();
 
     // deallocate the specailized "collistion lists"
-    if ( NULL == BSP_leaf_pary_dtor( &_dolist_colst ) )
+    if (NULL == _dolist_colst.dtor())
     {
         log_warning( "%s-%s-%d - Could not deallocate dolist collision list", __FILE__, __FUNCTION__, __LINE__ );
     }
 
-    if ( NULL == BSP_leaf_pary_dtor( &_renderlist_colst ) )
+    if (NULL == _renderlist_colst.dtor())
     {
         log_warning( "%s-%s-%d - Could not deallocate renderlist collision list", __FILE__, __FUNCTION__, __LINE__ );
     }
@@ -6399,11 +6398,11 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam 
 
     // has the colst been allocated?
     local_allocation = false;
-    if ( 0 == BSP_leaf_pary_get_cp( &_renderlist_colst ) )
+    if ( 0 == _renderlist_colst.capacity())
     {
         // allocate a BSP_leaf_pary to return the detected nodes
         local_allocation = true;
-        if ( NULL == BSP_leaf_pary_ctor( &_renderlist_colst, MAXMESHRENDER ) )
+        if ( NULL == _renderlist_colst.ctor(MAXMESHRENDER))
         {
             gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list" );
             return gfx_error;
@@ -6429,7 +6428,7 @@ gfx_make_renderlist_exit:
     // if there was a local allocation, make sure to deallocate
     if ( local_allocation )
     {
-        BSP_leaf_pary_dtor( &_renderlist_colst );
+        _renderlist_colst.dtor();
     }
 
     return retval;
@@ -6464,11 +6463,11 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
 
     // has the colst been allocated?
     local_allocation = false;
-    if ( 0 == BSP_leaf_pary_get_cp( &_dolist_colst ) )
+    if ( 0 == _dolist_colst.capacity() )
     {
         // allocate a BSP_leaf_pary to return the detected nodes
         local_allocation = true;
-        if ( NULL == BSP_leaf_pary_ctor( &_dolist_colst, DOLIST_SIZE ) )
+        if ( NULL == _dolist_colst.ctor(DOLIST_SIZE))
         {
             gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list" );
             return gfx_error;
@@ -6502,7 +6501,7 @@ gfx_make_dolist_exit:
     // if there was a local allocation, make sure to deallocate
     if ( local_allocation )
     {
-        BSP_leaf_pary_dtor( &_dolist_colst );
+        _dolist_colst.dtor();
     }
 
     return retval;

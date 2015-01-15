@@ -254,7 +254,6 @@ eve_t * ProfileSystem::pro_get_peve( const PRO_REF iobj )
 //--------------------------------------------------------------------------------------------
 pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
 {
-    ObjectProfile * pobj;
     PIP_REF global_pip, local_pip;
 
     if ( !isValidProfileID( iobj ) )

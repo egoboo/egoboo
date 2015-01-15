@@ -134,7 +134,9 @@ namespace Ego
 
 #define DYNAMIC_ARY_INIT_VALS {0,0,NULL}
 
+#if 0
 #define INSTANTIATE_DYNAMIC_ARY(ARY_T, NAME) ARY_T##_t NAME = DYNAMIC_ARY_INIT_VALS;
+#endif
 
 #define IMPLEMENT_DYNAMIC_ARY(ARY_T, ELEM_T) \
     ARY_T##_t *ARY_T##_ctor(ARY_T##_t *self, size_t initialCapacity) \

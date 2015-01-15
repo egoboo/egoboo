@@ -92,5 +92,5 @@ bool        mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh);
 bool        mesh_BSP_can_collide( BSP_leaf_t * pleaf );
 bool        mesh_BSP_is_visible( BSP_leaf_t * pleaf );
 
-int         mesh_BSP_collide_aabb( const mesh_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-int         mesh_BSP_collide_frustum( const mesh_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+int         mesh_BSP_collide_aabb( const mesh_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> * colst );
+int         mesh_BSP_collide_frustum(const mesh_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> * colst);

@@ -174,10 +174,14 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\audio\AudioSystem.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\chop.c" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\Camera.cpp" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\CameraSystem.cpp" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\Passage.cpp" />
     <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\PassageHandler.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\Profile.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\ProfileSystem.cpp" />
     <ClCompile Include="src\game\ai\AStar.c" />
     <ClCompile Include="src\game\ai\WaypointList.c" />
     <ClCompile Include="src\game\bsp.c" />
@@ -212,7 +216,6 @@
     <ClCompile Include="src\game\particle.c" />
     <ClCompile Include="src\game\physics.c" />
     <ClCompile Include="src\game\player.c" />
-    <ClCompile Include="src\game\profile.c" />
     <ClCompile Include="src\game\PrtList.c" />
     <ClCompile Include="src\game\renderer_2d.c" />
     <ClCompile Include="src\game\renderer_3d.c" />
@@ -220,14 +223,17 @@
     <ClCompile Include="src\game\script_compile.c" />
     <ClCompile Include="src\game\script_functions.c" />
     <ClCompile Include="src\game\script_implementation.c" />
-    <ClCompile Include="src\game\sound.c" />
     <ClCompile Include="src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\audio\AudioSystem.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\chop.h" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\Camera.hpp" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\CameraSystem.hpp" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\Passage.hpp" />
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\PassageHandler.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\Profile.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\ProfileSystem.hpp" />
     <ClInclude Include="src\game\ai\AStar.h" />
     <ClInclude Include="src\game\ai\WaypointList.h" />
     <ClInclude Include="src\game\bsp.h" />
@@ -265,7 +271,6 @@
     <ClInclude Include="src\game\particle.h" />
     <ClInclude Include="src\game\physics.h" />
     <ClInclude Include="src\game\player.h" />
-    <ClInclude Include="src\game\profile.h" />
     <ClInclude Include="src\game\PrtList.h" />
     <ClInclude Include="src\game\renderer_2d.h" />
     <ClInclude Include="src\game\renderer_3d.h" />
@@ -273,15 +278,12 @@
     <ClInclude Include="src\game\script_compile.h" />
     <ClInclude Include="src\game\script_functions.h" />
     <ClInclude Include="src\game\script_implementation.h" />
-    <ClInclude Include="src\game\sound.h" />
     <ClInclude Include="src\game\ui.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\egoboo%40egoboo%40github.com\Doxyfile" />
     <None Include="src\game\mesh.inl" />
     <None Include="src\game\particle.inl" />
-    <None Include="src\game\physics.inl" />
-    <None Include="src\game\profile.inl" />
     <None Include="src\game\PrtList.inl" />
     <None Include="..\res\egoboo.ico" />
     <None Include="..\res\egoboo3.ico" />

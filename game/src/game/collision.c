@@ -198,7 +198,7 @@ static int CoNode_cmp_unique( const void * vleft, const void * vright );
 static CoHashList_t *_CoHashList_ptr = NULL;
 static Ego::DynamicArray<hash_node_t> _hn_ary; ///< the available hash_node_t collision nodes for the CHashList_t
 static Ego::DynamicArray<CoNode_t> _co_ary;    ///< the available CoNode_t data pointed to by the hash_node_t nodes
-static BSP_leaf_pary_t _coll_leaf_lst;
+static Ego::DynamicArray<BSP_leaf_t *> _coll_leaf_lst;
 static Ego::DynamicArray<CoNode_t> _coll_node_lst;
 
 static bool _collision_hash_initialized = false;
@@ -216,7 +216,7 @@ bool collision_system_begin()
 
         if ( NULL == _hn_ary.ctor( COLLISION_HASH_NODES ) ) goto collision_system_begin_fail;
 
-        if ( NULL == BSP_leaf_pary_ctor( &_coll_leaf_lst, COLLISION_LIST_SIZE ) ) goto collision_system_begin_fail;
+        if ( NULL == _coll_leaf_lst.ctor( COLLISION_LIST_SIZE ) ) goto collision_system_begin_fail;
 
         if ( NULL == _coll_node_lst.ctor( COLLISION_LIST_SIZE ) ) goto collision_system_begin_fail;
 
@@ -229,7 +229,7 @@ collision_system_begin_fail:
 
 	_co_ary.dtor();
 	_hn_ary.dtor();
-    BSP_leaf_pary_dtor( &_coll_leaf_lst );
+    _coll_leaf_lst.dtor();
 	_coll_node_lst.dtor();
 
     _collision_system_initialized = false;

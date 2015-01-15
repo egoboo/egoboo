@@ -47,7 +47,7 @@ ObjectProfile::ObjectProfile() :
 
     _randomName(),
     _aiScript(),
-    _particleProfiles{0},
+    _particleProfiles{},
 
     _texturesLoaded(),
     _iconsLoaded(),
