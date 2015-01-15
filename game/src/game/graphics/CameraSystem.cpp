@@ -31,9 +31,14 @@ void CameraSystem::begin(const size_t numberOfCameras)
     	return;
     }
 
-    //Create cameras (allow for 0 cameras)
-    for(size_t i = 0; i < std::min(numberOfCameras, MAX_CAMERAS); ++i) {
+    //Create cameras
+    for(size_t i = 0; i < CLIP<size_t>(numberOfCameras, 1, MAX_CAMERAS); ++i) {
     	_cameraList.push_back( std::make_shared<Camera>(_cameraOptions) );
+    }
+
+    //If there are no valid players then make free movement camera
+    if(numberOfCameras == 0) {
+        _cameraList[0].setCameraMode(CAM_FREE);
     }
 
     // we're initialized.
