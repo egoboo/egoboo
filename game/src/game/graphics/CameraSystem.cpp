@@ -38,7 +38,7 @@ void CameraSystem::begin(const size_t numberOfCameras)
 
     //If there are no valid players then make free movement camera
     if(numberOfCameras == 0) {
-        _cameraList[0].setCameraMode(CAM_FREE);
+        _cameraList[0]->setCameraMode(CAM_FREE);
     }
 
     // we're initialized.
