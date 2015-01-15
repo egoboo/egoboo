@@ -128,7 +128,7 @@ const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumb
 //--------------------------------------------------------------------------------------------
 int ProfileSystem::getProfileSlotNumber(const char * tmploadname, int slot_override)
 {
-    if ( slot_override > 0 && slot_override != INVALID_PRO_REF )
+    if ( slot_override >= 0 && slot_override != INVALID_PRO_REF )
     {
         // just use the slot that was provided
         return slot_override;

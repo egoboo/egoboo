@@ -1412,6 +1412,11 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
     if ( !DEFINED_CHR( imount ) ) return rv_error;
     pmount = ChrList_get_ptr( imount );
 
+    //Don't attach a character to itself!
+    if(irider == imount) {
+        return rv_fail;
+    }
+
     pmount_cap = chr_get_pcap( imount );
     if ( NULL == pmount_cap ) return rv_error;
 

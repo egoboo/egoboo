@@ -28,16 +28,24 @@ extern "C"
 {
 #endif
 
+enum LogLevel : uint8_t
+{
+    LOG_NONE,       ///< No log level, always printed directly to output
+    LOG_ERROR,      ///< Fatal unrecoverable error (also terminates program)
+    LOG_WARNING,    ///< Warning, something went wrong but nothing critical
+    LOG_INFO,       ///< Information logging, default level
+    LOG_DEBUG       ///< Verbose debug logging, useful for developers and debugging
+};
+
 //--------------------------------------------------------------------------------------------
 // FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    void   log_init( const char * logname );
+    void   log_init(const char * logname, LogLevel logLevel);
     void   log_shutdown( void );
 
     FILE * log_get_file( void );
 
-    void   log_setLoggingLevel( int level );
     void   log_message( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
     void   log_debug( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
     void   log_info( const char *format, ... ) GCC_PRINTF_FUNC( 1 );

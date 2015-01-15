@@ -28,8 +28,6 @@
 
 #undef  USE_LUA_CONSOLE       ///< LUA support for the console
 
-#define LOG_TO_CONSOLE        ///< dump all log info to file and to the console. Only useful if your compiler generates console for program output. Otherwise the results will end up in a file called stdout.txt
-
 /// How much script debugging.
 ///    0 -- debugging off ( requires defined(_DEBUG) )
 /// >= 1 -- Log the amount of script time that every object uses (requires defined(_DEBUG) and DEBUG_PROFILE)

@@ -147,8 +147,8 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 // windows definitions
 
-#if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__)
-
+#if defined(WIN32) || defined(_WIN32) || defined (__WIN32) || defined(__WIN32__) || defined(__WIN64__) || defined(WIN64) || defined(_WIN64) || defined(__WIN64)
+#define __WINDOWS__
 // map all of these possibilities to WIN32
 #    if !defined(WIN32)
 #        define WIN32
@@ -186,22 +186,6 @@ extern "C"
 
 #endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//amiga definitions
-#if defined(__amigaos4__)
-
-/// amigaos uses __unix__
-#    if !defined(__unix__)
-#        define __unix__
-#    endif
-
-#    include <unistd.h>
-
-/// make this function work cross-platform
-#    define stricmp  strcasecmp
-
-#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

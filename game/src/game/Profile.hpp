@@ -65,7 +65,7 @@ public:
 
     IDSZ getIDSZ(size_t type) const;
 
-    inline bool isValidMessageID(int id) const {return id > 0 && id < _messageList.size();}
+    inline bool isValidMessageID(int id) const {return id >= 0 && id < _messageList.size();}
 
     /// @author BB
     /// @details use the profile's chop to generate a name. Return "*NONE*" on a failure.
