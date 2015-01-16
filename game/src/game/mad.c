@@ -931,12 +931,12 @@ mad_t * mad_rip_actions( mad_t * pmad )
         action_now = action_number( frame_list[iframe].name );
         
         if (action_now == NOACTION) {
-            log_warning("Got no action for frame name '%s', ignoring", frame_list[iframe].name);
+            log_warning("Got no action for frame name '%s', ignoring\n", frame_list[iframe].name);
             continue;
         }
 
 		if (action_now == NOACTION) {
-			log_warning("Got no action for frame name '%s', ignoring", frame_list[iframe].name);
+			log_warning("Got no action for frame name '%s', ignoring\n", frame_list[iframe].name);
 			continue;
 		}
 

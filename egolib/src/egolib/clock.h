@@ -30,8 +30,7 @@
 // TYPEDEFS
 //--------------------------------------------------------------------------------------------
 
-    struct s_ClockState;
-    typedef struct s_ClockState ClockState_t;
+    struct ClockState_t;
 
     typedef double( *clock_source_ptr_t )( void );
 
@@ -81,10 +80,8 @@
 #endif
 
 //--------------------------------------------------------------------------------------------
-// struct s_ClockState
+// struct ClockState_t
 //--------------------------------------------------------------------------------------------
-
-struct s_ClockState;
 
 /**
  * @brief

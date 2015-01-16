@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------
 
 /// The description of a single clock
-struct s_ClockState
+struct ClockState_t
 {
     // Clock data
     char *name;
