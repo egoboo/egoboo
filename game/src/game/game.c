@@ -3219,7 +3219,6 @@ void game_reset_module_data()
     _profileSystem.releaseAllProfiles();
     free_all_objects();
     DisplayMsg_reset();
-    chop_data_init( &chop_mem );
     game_reset_players();
 
     reset_end_text();

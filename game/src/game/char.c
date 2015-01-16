@@ -2881,7 +2881,7 @@ bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF charac
 
     if ( !INGAME_CHR( character ) ) return false;
 
-    return chop_export_vfs( szSaveName, ChrList.lst[character].Name );
+    return RandomName::exportName(szSaveName, ChrList.lst[character].Name);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4057,7 +4057,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     if ( CSTR_END == spawn_ptr->name[0] )
     {
         // Generate a random spawn_ptr->name
-        snprintf( pchr->Name, SDL_arraysize( pchr->Name ), "%s", ppro->generateRandomName() );
+        snprintf( pchr->Name, SDL_arraysize( pchr->Name ), "%s", ppro->generateRandomName().c_str() );
     }
     else
     {
@@ -10337,28 +10337,6 @@ CAP_REF chr_get_icap( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-EVE_REF chr_get_ieve( const CHR_REF ichr )
-{
-    chr_t * pchr;
-
-    if ( !DEFINED_CHR( ichr ) ) return INVALID_EVE_REF;
-    pchr = ChrList_get_ptr( ichr );
-
-    return _profileSystem.pro_get_ieve( pchr->profile_ref );
-}
-
-//--------------------------------------------------------------------------------------------
-PIP_REF chr_get_ipip( const CHR_REF ichr, int ipip )
-{
-    chr_t * pchr;
-
-    if ( !DEFINED_CHR( ichr ) ) return INVALID_PIP_REF;
-    pchr = ChrList_get_ptr( ichr );
-
-    return _profileSystem.pro_get_ipip( pchr->profile_ref, ipip );
-}
-
-//--------------------------------------------------------------------------------------------
 TEAM_REF chr_get_iteam( const CHR_REF ichr )
 {
     chr_t * pchr;
@@ -10410,28 +10388,6 @@ cap_t * chr_get_pcap( const CHR_REF ichr )
     pchr = ChrList_get_ptr( ichr );
 
     return _profileSystem.pro_get_pcap( pchr->profile_ref );
-}
-
-//--------------------------------------------------------------------------------------------
-eve_t * chr_get_peve( const CHR_REF ichr )
-{
-    chr_t * pchr;
-
-    if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList_get_ptr( ichr );
-
-    return _profileSystem.pro_get_peve( pchr->profile_ref );
-}
-
-//--------------------------------------------------------------------------------------------
-pip_t * chr_get_ppip( const CHR_REF ichr, int ipip )
-{
-    chr_t * pchr;
-
-    if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList_get_ptr( ichr );
-
-    return _profileSystem.pro_get_ppip( pchr->profile_ref, ipip );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -10587,16 +10543,6 @@ const fvec3_t& chr_get_pos_v_const(const chr_t *pchr)
 {
     if (!ALLOCATED_PCHR(pchr)) return fvec3_t::zero;
     return pchr->pos;
-}
-
-//--------------------------------------------------------------------------------------------
-float * chr_get_pos_v( chr_t * pchr )
-{
-    static fvec3_t vtmp = fvec3_t::zero;
-
-    if ( !ALLOCATED_PCHR( pchr ) ) return vtmp.v;
-
-    return pchr->pos.v;
 }
 
 //--------------------------------------------------------------------------------------------
