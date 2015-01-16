@@ -159,7 +159,7 @@ void scr_run_chr_script( const CHR_REF character )
     // Make life easier
     script_error_classname = "UNKNOWN";
     script_error_model     = pchr->profile_ref;
-    if ( script_error_model < MAX_PROFILE )
+    if ( script_error_model < INVALID_PRO_REF )
     {
         CAP_REF icap = _profileSystem.pro_get_icap( script_error_model );
 

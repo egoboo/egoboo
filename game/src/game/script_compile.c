@@ -1056,8 +1056,6 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
         else if ( '#' == str[0] )
         {
             // an object reference
-
-            PRO_REF ipro = 0;
             STRING obj_name;
 
             //remove the reference symbol to figure out the actual folder name we are looking for
@@ -1088,10 +1086,10 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
                 snprintf( loadname, SDL_arraysize( loadname ), "mp_objects/%s", obj_name );
 
                 //find first free slot number
-                for ( ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < MAX_PROFILE; ipro++ )
+                for (PRO_REF ipro = MAX_IMPORT_PER_PLAYER * 4; ipro < INVALID_PRO_REF; ipro++ )
                 {
                     //skip loaded profiles
-                    if ( _profileSystem.isValidProfileID( ipro ) ) continue;
+                    if ( _profileSystem.isValidProfileID(ipro) ) continue;
 
                     //found a free slot
                     ptok->iValue = _profileSystem.loadOneProfile( loadname, REF_TO_INT( ipro ) );

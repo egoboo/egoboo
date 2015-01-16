@@ -282,13 +282,13 @@ pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
 
 int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
 {
-    bool required = !VALID_CAP_RANGE( slot_override );
+    bool required = !(slot_override < 0 || slot_override >= INVALID_PRO_REF);
 
     // get a slot value
     int islot = getProfileSlotNumber( pathName, slot_override );
 
     // throw an error code if the slot is invalid of if the file doesn't exist
-    if ( islot < 0 || islot > MAX_PROFILE )
+    if ( islot < 0 || islot >= INVALID_PRO_REF )
     {
         // The data file wasn't found
         if ( required )
@@ -300,7 +300,7 @@ int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
             log_warning( "load_one_profile_vfs() - Not able to open file \"%s\"\n", pathName );
         }
 
-        return MAX_PROFILE;
+        return INVALID_PRO_REF;
     }
 
     // convert the slot to a profile reference
@@ -322,7 +322,7 @@ int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
         else
         {
             // Stop, we don't want to override it
-            return MAX_PROFILE;
+            return INVALID_PRO_REF;
         }
     }
 

@@ -63,7 +63,7 @@ static IDSZ    inventory_idsz[INVEN_COUNT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INSTANTIATE_STACK( ACCESS_TYPE_NONE, cap_t, CapStack, MAX_PROFILE );
+INSTANTIATE_STACK( ACCESS_TYPE_NONE, cap_t, CapStack, MAX_CAP );
 INSTANTIATE_STACK( ACCESS_TYPE_NONE, team_t, TeamStack, TEAM_MAX );
 
 int chr_stoppedby_tests = 0;
@@ -179,7 +179,7 @@ static breadcrumb_t * chr_get_last_breadcrumb( chr_t * pchr );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-IMPLEMENT_STACK( cap_t, CapStack, MAX_PROFILE );
+IMPLEMENT_STACK( cap_t, CapStack, MAX_CAP );
 IMPLEMENT_STACK( team_t, TeamStack, TEAM_MAX );
 
 //--------------------------------------------------------------------------------------------
@@ -3214,13 +3214,13 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool req
     cap_t * pcap;
     STRING  szLoadName;
 
-    if ( slot_override > 0 && slot_override < INVALID_PRO_REF )
+    if ( slot_override >= 0 && slot_override < INVALID_PRO_REF )
     {
         icap = ( CAP_REF )slot_override;
     }
     else
     {
-        int itmp = _profileSystem.getProfileSlotNumber( tmploadname, MAX_PROFILE );
+        int itmp = _profileSystem.getProfileSlotNumber(tmploadname);
         icap = VALID_CAP_RANGE( itmp ) ? itmp : MAX_CAP;
     }
 
@@ -4611,12 +4611,6 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
 
     // fix a "bad" name
     if ( NULL == name ) name = "";
-
-    if ( profile >= MAX_PROFILE )
-    {
-        log_warning( "spawn_one_character() - profile value too large %d out of %d\n", REF_TO_INT( profile ), MAX_PROFILE );
-        return INVALID_CHR_REF;
-    }
 
     if ( !_profileSystem.isValidProfileID( profile ) )
     {
@@ -8370,7 +8364,7 @@ void CapStack_init_all()
 
     CAP_REF cnt;
 
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    for ( cnt = 0; cnt < MAX_CAP; cnt++ )
     {
         cap_init( CapStack_get_ptr( cnt ) );
     }
@@ -8384,7 +8378,7 @@ void CapStack_release_all()
 
     CAP_REF cnt;
 
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    for ( cnt = 0; cnt < MAX_CAP; cnt++ )
     {
         CapStack_release_one( cnt );
     };

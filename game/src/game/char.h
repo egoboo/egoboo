@@ -74,7 +74,7 @@ struct chr_t;
 #define MAXMONEY        9999                        ///< Maximum money
 #define SHOP_IDENTIFY   200                         ///< Maximum value for identifying shop items
 
-#define MAX_CAP         MAX_PROFILE
+#define MAX_CAP         256
 #define INVALID_CAP_REF ((CAP_REF) MAX_CAP)
 
 #define CHR_INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
@@ -585,7 +585,7 @@ DECLARE_STACK_EXTERN( team_t, TeamStack, TEAM_MAX );
 
 #define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < TEAM_MAX) )
 
-DECLARE_STACK_EXTERN( cap_t,  CapStack,  MAX_PROFILE );
+DECLARE_STACK_EXTERN( cap_t,  CapStack,  MAX_CAP );
 
 #define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_CAP) )
 #define LOADED_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapStack.lst[ICAP].loaded )

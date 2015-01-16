@@ -107,8 +107,6 @@ weather_instance_t    weather;
 water_instance_t      water;
 fog_instance_t        fog;
 
-bool activate_spawn_file_active = false;
-
 import_list_t ImportList  = IMPORT_LIST_INIT;
 
 Sint32          clock_wld        = 0;
@@ -425,7 +423,6 @@ void log_madused_vfs( const char *savename )
     /// @details This is a debug function for checking model loads
 
     vfs_FILE* hFileWrite;
-    PRO_REF cnt;
 
     hFileWrite = vfs_openWrite( savename );
     if ( hFileWrite )
@@ -433,17 +430,23 @@ void log_madused_vfs( const char *savename )
         vfs_printf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
         //vfs_printf( hFileWrite, "%d of %d frames used...\n", Md2FrameList_index, MAXFRAME );
 
-        for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+        PRO_REF lastSlotNumber = 0;
+        for(const auto &element : _profileSystem.getLoadedProfiles())
         {
-            if ( _profileSystem.isValidProfileID( cnt ) )
-            {
-                CAP_REF icap = _profileSystem.pro_get_icap( cnt );
-                MAD_REF imad = _profileSystem.pro_get_imad( cnt );
+            const std::shared_ptr<ObjectProfile> &profile = element.second;
 
-                vfs_printf( hFileWrite, "%3d %32s %s\n", REF_TO_INT( cnt ), CapStack.lst[icap].classname, MadStack.lst[imad].name );
+            //ZF> ugh, import objects are currently handled in a weird special way.
+            for(size_t i = lastSlotNumber; i < profile->getSlotNumber() && i <= 36; ++i)
+            {
+                if ( !_profileSystem.isValidProfileID(i) ) {
+                    vfs_printf( hFileWrite, "%3d  %32s.\n", i, "Slot reserved for import players" );
+                }
             }
-            else if ( cnt <= 36 )    vfs_printf( hFileWrite, "%3d  %32s.\n", REF_TO_INT( cnt ), "Slot reserved for import players" );
-            else                    vfs_printf( hFileWrite, "%3d  %32s.\n", REF_TO_INT( cnt ), "Slot Unused" );
+            lastSlotNumber = profile->getSlotNumber();
+
+            CAP_REF icap = profile->getCapRef();
+            MAD_REF imad = profile->getModelRef();
+            vfs_printf( hFileWrite, "%3d %32s %s\n", profile->getSlotNumber(), CapStack.lst[icap].classname, MadStack.lst[imad].name );
         }
 
         vfs_close( hFileWrite );
@@ -2754,10 +2757,7 @@ void load_all_profiles_import()
     int cnt;
 
     // Clear the import slots...
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
-    {
-        import_data.slot_lst[cnt] = 10000;
-    }
+    import_data.slot_lst.fill(INVALID_PRO_REF);
     import_data.max_slot = -1;
 
     // This overwrites existing loaded slots that are loaded globally
@@ -2816,7 +2816,7 @@ void game_load_module_profiles( const char *modname )
 
     while ( NULL != ctxt && VALID_CSTR( filehandle ) )
     {
-        _profileSystem.loadOneProfile( filehandle, MAX_PROFILE );
+        _profileSystem.loadOneProfile(filehandle);
 
         ctxt = vfs_findNext( &ctxt );
         filehandle = vfs_search_context_get_current( ctxt );
@@ -3078,132 +3078,122 @@ void activate_spawn_file_vfs()
 {
     /// @author ZZ
     /// @details This function sets up character data, loaded from "SPAWN.TXT"
-
-    const char          *newloadname;
-    vfs_FILE            *fileread;
-
-    spawn_file_info_t   spawn_list[MAX_CHR];                //The full list of objects to be spawned
-    STRING              reserved_slot[MAX_PROFILE];         //Keep track of which slot numbers are reserved by their load name
-    int                 dynamic_list[MAX_CHR];              //references to slots that need to be dynamically loaded later
-    size_t              spawn_count = 0;
-    size_t              dynamic_count = 0;
-
-    // tell everyone we are spawning a module
-    activate_spawn_file_active = true;
+    std::unordered_map<int, std::string> reservedSlots;     //Keep track of which slot numbers are reserved by their load name
+    std::vector<int>                     dynamicObjectList; //references to slots that need to be dynamically loaded later
+    std::vector<spawn_file_info_t>       objectsToSpawn;    //The full list of objects to be spawned 
 
     // Turn some back on
-    newloadname = "mp_data/spawn.txt";
-    fileread = vfs_openRead( newloadname );
+    const char* filePath = "mp_data/spawn.txt";
+    vfs_FILE  *fileread = vfs_openRead( filePath );
 
     PlaStack.count = 0;
     if ( NULL == fileread )
     {
-        log_error( "Cannot read file: %s\n", newloadname );
+        log_error( "Cannot read file: %s\n", filePath );
     }
     else
     {
         CHR_REF parent = INVALID_CHR_REF;
-        size_t i;
-
-        // Mark each slot as free with the string termination character
-        memset( reserved_slot, CSTR_END, sizeof( reserved_slot ) );
 
         //First load spawn data of every object
-        while ( spawn_file_scan( fileread, &spawn_list[spawn_count] ) )
+        while(!vfs_eof(fileread))
         {
-            spawn_file_info_t * pspawn;
+            spawn_file_info_t entry;
+
+            //Read next entry
+            if(!spawn_file_scan(fileread, &entry)) {
+                break; //no more entries
+            }
 
             //Spit out a warning if they break the limit
-            if ( spawn_count >= MAX_CHR )
+            if ( objectsToSpawn.size() >= MAX_CHR )
             {
                 log_warning( "Too many objects in spawn.txt! Maximum number of objects is %d\n", MAX_CHR );
                 break;
             }
-            pspawn = spawn_list + spawn_count;
 
             // check to see if the slot is valid
-            if ( pspawn->slot >= MAX_PROFILE )
+            if ( entry.slot >= INVALID_PRO_REF )
             {
-                log_warning( "Invalid slot %d for \"%s\" in file \"%s\"\n", pspawn->slot, pspawn->spawn_coment, newloadname );
+                log_warning( "Invalid slot %d for \"%s\" in file \"%s\"\n", entry.slot, entry.spawn_coment, filePath );
                 continue;
             }
 
             //convert the spawn name into a format we like
-            convert_spawn_file_load_name( pspawn );
+            convert_spawn_file_load_name(&entry);
 
             // If it is a dynamic slot, remember to dynamically allocate it for later
-            if ( pspawn->slot <= -1 )
+            if ( entry.slot <= -1 )
             {
-                dynamic_list[dynamic_count] = spawn_count;
-                dynamic_count++;
+                dynamicObjectList.push_back(objectsToSpawn.empty() ? 0 : objectsToSpawn.size()-1);
             }
 
             //its a static slot number, mark it as reserved if it isnt already
-            else if ( reserved_slot[pspawn->slot][0] == CSTR_END )
+            else if ( reservedSlots[entry.slot].empty() )
             {
-                strncpy( reserved_slot[pspawn->slot], pspawn->spawn_coment, SDL_arraysize( reserved_slot[pspawn->slot] ) );
+                reservedSlots[entry.slot] = entry.spawn_coment;
             }
 
             //Finished with this object for now
-            spawn_count++;
+            objectsToSpawn.push_back(entry);
         }
 
         //Next we dynamically find slot numbers for each of the objects in the dynamic list
-        for ( i = 0; i < dynamic_count; i++ )
+        for(int index : dynamicObjectList)
         {
-            spawn_file_info_t * sp_dynamic = spawn_list + dynamic_list[i];
+            spawn_file_info_t &spawnDynamic = objectsToSpawn[index];
 
             //Find first free slot that is not the spellbook slot
-            for ( sp_dynamic->slot = MAX_IMPORT_PER_PLAYER * MAX_PLAYER; sp_dynamic->slot < MAX_PROFILE; sp_dynamic->slot++ )
+            for ( spawnDynamic.slot = MAX_IMPORT_PER_PLAYER * MAX_PLAYER; spawnDynamic.slot < INVALID_PRO_REF; spawnDynamic.slot++ )
             {
                 //dont try to grab the spellbook slot
-                if ( sp_dynamic->slot == SPELLBOOK ) continue;
+                if ( spawnDynamic.slot == SPELLBOOK ) continue;
 
                 //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
-                if ( 0 == strcmp( reserved_slot[sp_dynamic->slot], sp_dynamic->spawn_coment ) ) break;
+                if(reservedSlots[spawnDynamic.slot] == spawnDynamic.spawn_coment) break;
 
                 //found a completely free slot
-                if ( reserved_slot[sp_dynamic->slot][0] == CSTR_END )
+                if (reservedSlots[spawnDynamic.slot].empty())
                 {
                     //Reserve this one for us
-                    strncpy( reserved_slot[sp_dynamic->slot], sp_dynamic->spawn_coment, SDL_arraysize( reserved_slot[sp_dynamic->slot] ) );
+                    reservedSlots[spawnDynamic.slot] = spawnDynamic.spawn_coment;
                     break;
                 }
             }
 
-            //If all slots are reserved, spit out a warning
-            if ( sp_dynamic->slot == INVALID_PRO_REF ) log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", sp_dynamic->spawn_coment, INVALID_PRO_REF );
+            //If all slots are reserved, spit out a warning (very unlikely unless there is a bug somewhere)
+            if ( spawnDynamic.slot == INVALID_PRO_REF ) {
+                log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", spawnDynamic.spawn_coment, INVALID_PRO_REF );
+            }
         }
 
         //Now spawn each object in order
-        for ( i = 0; i < spawn_count; i++ )
+        for(spawn_file_info_t &spawnInfo : objectsToSpawn)
         {
-            spawn_file_info_t *sp_info = spawn_list + i;
-
             //Do we have a parent?
-            if ( sp_info->attach != ATTACH_NONE ) sp_info->parent = parent;
+            if ( spawnInfo.attach != ATTACH_NONE && parent != INVALID_CHR_REF ) spawnInfo.parent = parent;
 
             // If nothing is already in that slot, try to load it.
-            if ( !_profileSystem.isValidProfileID(( PRO_REF ) sp_info->slot ) )
+            if ( !_profileSystem.isValidProfileID(spawnInfo.slot) )
             {
-                bool import_object = sp_info->slot > PMod->importamount * MAX_IMPORT_PER_PLAYER;
+                bool import_object = spawnInfo.slot > (PMod->importamount * MAX_IMPORT_PER_PLAYER);
 
-                if ( !activate_spawn_file_load_object( sp_info ) )
+                if ( !activate_spawn_file_load_object( &spawnInfo ) )
                 {
                     // no, give a warning if it is useful
                     if ( import_object )
                     {
-                        log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", sp_info->spawn_coment, sp_info->slot, newloadname );
+                        log_warning( "The object \"%s\"(slot %d) in file \"%s\" does not exist on this machine\n", spawnInfo.spawn_coment, spawnInfo.slot, filePath );
                     }
                     continue;
                 }
             }
 
             // we only reach this if everything was loaded properly
-            activate_spawn_file_spawn( sp_info );
+            activate_spawn_file_spawn( &spawnInfo );
 
             //We might become the new parent
-            if ( sp_info->attach == ATTACH_NONE ) parent = sp_info->parent;
+            if ( spawnInfo.attach == ATTACH_NONE ) parent = spawnInfo.parent;
         }
 
         vfs_close( fileread );
@@ -3216,9 +3206,6 @@ void activate_spawn_file_vfs()
 
     // Fix tilting trees problem
     tilt_characters_to_terrain();
-
-    // done spawning
-    activate_spawn_file_active = false;
 }
 
 //--------------------------------------------------------------------------------------------

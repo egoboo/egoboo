@@ -438,8 +438,6 @@ extern pit_info_t pits;
 extern bool    overrideslots;          ///< Override existing slots?
 extern FACING_T  glouseangle;            ///< global return value from prt_find_target() - actually still used
 
-extern bool activate_spawn_file_active;
-
 extern import_list_t ImportList;
 
 // various clocks and timers
