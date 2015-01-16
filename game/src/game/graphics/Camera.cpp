@@ -152,44 +152,16 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
 {
     const float fov_mag = SQRT_TWO;
 
-    float fov_big   = fov_deg;
-    float fov_small = fov_deg;
-    GLint matrix_mode[1];
-
-    // save the matrix mode
-    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
-
-    // switch to the projection mode
-    GL_DEBUG( glMatrixMode )( GL_PROJECTION );
-    GL_DEBUG( glPushMatrix )();
-
-    // do the actual glu call
-    GL_DEBUG( glLoadIdentity )();
-    gluPerspective( fov_deg, aspect_ratio, frustum_near, frustum_far );
-
-    // grab the matrix
-    GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, _mProjection.v );
-
-    // do another glu call
-    fov_big = multiplyFOV( DEFAULT_FOV, fov_mag );
-    GL_DEBUG( glLoadIdentity )();
-    gluPerspective( fov_big, aspect_ratio, frustum_near, frustum_far );
-
-    // grab the big matrix
-    GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, _mProjectionBig.v );
-
-    // do another glu call
-    fov_small = multiplyFOV( DEFAULT_FOV, 1.0f / fov_mag );
-    GL_DEBUG( glLoadIdentity )();
-    gluPerspective( fov_small, aspect_ratio, frustum_near, frustum_far );
-
-    // grab the small matrix
-    GL_DEBUG( glGetFloatv )( GL_PROJECTION_MATRIX, _mProjectionSmall.v );
-
-    // restore the matrix mode(s)
-    GL_DEBUG( glPopMatrix )();
-    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
-
+    float fov_big   = multiplyFOV( DEFAULT_FOV, fov_mag );
+    float fov_small = multiplyFOV( DEFAULT_FOV, 1.0f / fov_mag );
+    
+    fmat_4x4_t identity;
+    mat_Identity(identity.v);
+    
+    mat_gluPerspective(_mProjection.v, identity.v, fov_deg, aspect_ratio, frustum_near, frustum_far);
+    mat_gluPerspective(_mProjectionBig.v, identity.v, fov_big, aspect_ratio, frustum_near, frustum_far);
+    mat_gluPerspective(_mProjectionSmall.v, identity.v, fov_small, aspect_ratio, frustum_near, frustum_far);
+    
     // recalculate the frustum, too
     egolib_frustum_calculate( &( _frustum ), _mProjection.v, _mView.v );
     egolib_frustum_calculate( &( _frustumBig ), _mProjectionBig.v, _mView.v );
@@ -200,38 +172,18 @@ void Camera::resetView()
 {
 	float roll_deg = RAD_TO_DEG(_roll);
 
-    GLint matrix_mode[1];
-
-    // save the matrix mode
-    GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
-
-    // switch to the projection mode
-    GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
-    GL_DEBUG( glPushMatrix )();
-    GL_DEBUG( glLoadIdentity )();
-
-    // get the correct coordinate system
-    GL_DEBUG( glScalef )( -1, 1, 1 );
-
     // check for stupidity
     if (( _pos.x != _center.x ) || ( _pos.y != _center.y ) || ( _pos.z != _center.z ) )
     {
-        // do the camera roll
-        glRotatef( roll_deg, 0, 0, 1 );
-
-        // do the actual glu call
-        gluLookAt(
+        fmat_4x4_t tmp1, tmp2;
+        
+        mat_ScaleXYZ(tmp1.v, -1, 1, 1);
+        mat_glRotate(tmp2.v, tmp1.v, roll_deg, 0, 0, 1);
+        mat_gluLookAt(_mView.v, tmp2.v,
             _pos.x, _pos.y, _pos.z,
             _center.x, _center.y, _center.z,
-            0.0f, 0.0f, 1.0f );
+            0.0f, 0.0f, 1.0f);
     }
-
-    // grab the matrix
-    GL_DEBUG( glGetFloatv )( GL_MODELVIEW_MATRIX, _mView.v );
-
-    // restore the matrix mode(s)
-    GL_DEBUG( glPopMatrix )();
-    GL_DEBUG( glMatrixMode )( matrix_mode[0] );
 
     // the view matrix was updated, so update the frustum
     egolib_frustum_calculate( &( _frustum ), _mProjection.v, _mView.v );

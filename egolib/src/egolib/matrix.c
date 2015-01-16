@@ -553,6 +553,90 @@ void  mat_TransformVertices(const fmat_4x4_base_t Matrix, const fvec4_t pSourceV
 	}
 }
 
+ void mat_gluPerspective(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float fovy, const float aspect, const float zNear, const float zFar)
+{
+    EGOBOO_ASSERT(aspect != 0.0f);
+    EGOBOO_ASSERT((zNear - zFar) != 0.0f);
+    fmat_4x4_base_t M;
+    mat_Zero(M);
+
+    float tan = std::tan(DEG_TO_RAD(fovy) / 2);
+    EGOBOO_ASSERT(tan != 0.0f);
+    float f = 1 / tan;
+    
+    M[MAT_IDX(0, 0)] = f / aspect;
+    M[MAT_IDX(1, 1)] = f;
+    M[MAT_IDX(2, 2)] = (zFar + zNear) / (zNear - zFar);
+    M[MAT_IDX(3, 2)] = (2 * zFar * zNear) / (zNear - zFar);
+    M[MAT_IDX(2, 3)] = -1;
+    
+    mat_Multiply(DST, src, M);
+}
+
+void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float eyeX, const float eyeY, const float eyeZ, const float centerX, const float centerY, const float centerZ, const float upX, const float upY, const float upZ)
+{
+    fmat_4x4_base_t M, eyeTranslate, tmp;
+    fvec3_t f(centerX - eyeX, centerY - eyeY, centerZ - eyeZ);
+    fvec3_t up(upX, upY, upZ);
+    fvec3_t s;
+    fvec3_t u;
+    
+    f.normalize();
+    up.normalize();
+    
+    s = fvec3_cross_product(f, up);
+    s.normalize();
+    
+    u = fvec3_cross_product(s, f);
+    
+    mat_Zero(M);
+    mat_Translate(eyeTranslate, -eyeX, -eyeY, -eyeZ);
+    
+    M[MAT_IDX(0, 0)] = s.x;
+    M[MAT_IDX(1, 0)] = s.y;
+    M[MAT_IDX(2, 0)] = s.z;
+    
+    M[MAT_IDX(0, 1)] = u.x;
+    M[MAT_IDX(1, 1)] = u.y;
+    M[MAT_IDX(2, 1)] = u.z;
+    
+    M[MAT_IDX(0, 2)] = -f.x;
+    M[MAT_IDX(1, 2)] = -f.y;
+    M[MAT_IDX(2, 2)] = -f.z;
+    
+    M[MAT_IDX(3, 3)] = 1;
+    
+    mat_Multiply(tmp, src, M);
+    mat_Multiply(DST, tmp, eyeTranslate);
+}
+
+void mat_glRotate(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float angle, const float x, const float y, const float z)
+{
+    fmat_4x4_base_t M;
+    fvec3_t vec(x, y, z);
+    float s = std::sin(DEG_TO_RAD(angle));
+    float c = std::cos(DEG_TO_RAD(angle));
+    
+    mat_Zero(M);
+    vec.normalize();
+    
+    M[MAT_IDX(0, 0)] = vec.x * vec.x * (1 - c) + c;
+    M[MAT_IDX(1, 0)] = vec.x * vec.y * (1 - c) - vec.z * s;
+    M[MAT_IDX(2, 0)] = vec.x * vec.z * (1 - c) + vec.y * s;
+    
+    M[MAT_IDX(0, 1)] = vec.y * vec.x * (1 - c) + vec.z * s;
+    M[MAT_IDX(1, 1)] = vec.y * vec.y * (1 - c) + c;
+    M[MAT_IDX(2, 1)] = vec.y * vec.z * (1 - c) - vec.x * s;
+    
+    M[MAT_IDX(0, 2)] = vec.z * vec.x * (1 - c) - vec.y * s;
+    M[MAT_IDX(1, 2)] = vec.z * vec.y * (1 - c) + vec.x * s;
+    M[MAT_IDX(2, 2)] = vec.z * vec.z * (1 - c) + c;
+    
+    M[MAT_IDX(3, 3)] = 1;
+    
+    mat_Multiply(DST, src, M);
+}
+
 void dump_matrix(const fmat_4x4_base_t a)
 {
 	if (NULL == a) return;
