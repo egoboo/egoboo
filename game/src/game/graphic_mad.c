@@ -2399,7 +2399,7 @@ gfx_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst )
+MD2_Frame_t * chr_instance_get_frame_nxt( chr_instance_t * pinst )
 {
     mad_t       * pmad;
     MD2_Model_t * pmd2;

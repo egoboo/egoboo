@@ -476,9 +476,6 @@ void statlist_add( const CHR_REF character )
 //--------------------------------------------------------------------------------------------
 void statlist_move_to_top( const CHR_REF character )
 {
-    /// @author ZZ
-    /// @details This function puts the character on top of the StatusList
-
     int cnt, oldloc;
     status_list_element_t tmp;
 

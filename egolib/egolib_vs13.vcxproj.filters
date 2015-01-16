@@ -234,7 +234,9 @@
     <ClCompile Include="src\egolib\mem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\bsp_aabb.c" />
+    <ClCompile Include="src\egolib\bsp_aabb.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\egolib\vfs.h">
@@ -459,7 +461,9 @@
     <ClInclude Include="src\egolib\Stack.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\bsp_aabb.h" />
+    <ClInclude Include="src\egolib\bsp_aabb.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="enet.props" />

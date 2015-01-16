@@ -38,10 +38,52 @@ namespace Ego
 		ElementType *ary;  ///< @brief A pointer to an array of @a cp @a ElementType elements.
 		                   ///< @todo  Rename to @a _elements.
 
-		/// @todo   Make this a C+++ constructor.
-		/// @param  initialCapacity the initial capacity of the array
-		/// @return a pointer to this array on success, @a NULL on failure
-		/// @todo   Return type should be egolib_rv.
+		/**
+		 * @brief
+		 *	Create a dynamic array.
+		 * @param initialCapacity
+		 *	the initial capacity of the array
+		 * @return
+		 *	a pointer to the array on success, @a NULL on failure
+		 */
+		DynamicArray<ElementType> *create(size_t initialCapacity)
+		{
+			DynamicArray<ElementType> *self;
+			self = EGOBOO_NEW(sizeof(DynamicArray < ElementType));
+			if (!self)
+			{
+				return NULL;
+			}
+			if (!self->ctor(initialCapacity))
+			{
+				EGOBOO_DELETE(self);
+				return NULL;
+			}
+			return self;
+		}
+
+		/**
+		 * @brief
+		 *	Destroy this dynamic array.
+		 */
+		void destroy()
+		{
+			this->dtor();
+			EGOBOO_DELETE(this);
+		}
+
+		/**
+		 * @brief
+		 *	Construct a dynamic array.
+		 * @param initialCapacity
+		 *	the initial capacity of the array
+		 * @return
+		 *	a pointer to this array on success, @a NULL on failure
+		 * @todo
+		 *	Return type should be egolib_rv.
+		 * @todo
+		 *	Make this a C++ constructor.
+		 */
 		DynamicArray<ElementType> *ctor(size_t initialCapacity)
 		{
 			this->top = 0;
@@ -54,14 +96,19 @@ namespace Ego
 			return this;
 		}
 
-		/// @todo Make this a C++ destructor.
-		/// @todo Return type should be egolib_rv.
-		DynamicArray<ElementType> *dtor()
+		/**
+		 * @brief
+		 *	Destruct this dynamic array.
+		 * @todo
+		 *	Make this a C++ destructor.
+		 * @todo
+		 *	Return type should be egolib_rv.
+		 */
+		void dtor()
 		{
 			EGOBOO_DELETE_ARY(this->ary);
 			this->cp = 0;
 			this->top = 0;
-			return this;
 		}
 
 		/// @brief Remove all elements from this array.
@@ -125,7 +172,7 @@ namespace Ego
 	typedef Ego::DynamicArray<ELEM_T> ARY_T##_t;             \
 	                                                         \
     ARY_T##_t *ARY_T##_ctor(ARY_T##_t *pary, size_t cp);     \
-    ARY_T##_t *ARY_T##_dtor(ARY_T##_t *pary);                \
+    void ARY_T##_dtor(ARY_T##_t *pary);                      \
     void ARY_T##_clear(ARY_T##_t *pary);                     \
     size_t ARY_T##_get_top(const ARY_T##_t *pary);           \
     size_t ARY_T##_get_cp(const ARY_T##_t *pary);            \
@@ -147,13 +194,13 @@ namespace Ego
 		} \
 		return self->ctor(initialCapacity); \
 	} \
-    ARY_T##_t *ARY_T##_dtor(ARY_T##_t *self) \
+    void ARY_T##_dtor(ARY_T##_t *self) \
 	{ \
 		if (NULL == self) \
 		{ \
-			return NULL; \
+			return; \
 		} \
-		return self->dtor(); \
+		self->dtor(); \
 	} \
     void ARY_T##_clear(ARY_T##_t *self) \
 	{ \

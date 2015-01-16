@@ -35,7 +35,7 @@
 // Forward declarations.
 struct chr_t;
 struct egoboo_config_t;
-struct s_chr_instance;
+struct chr_instance_t;
 struct s_oglx_texture_parameters;
 struct s_Font;
 
@@ -43,26 +43,13 @@ struct s_Font;
 // internal structs
 //--------------------------------------------------------------------------------------------
 
-struct s_renderlist;
-typedef struct s_renderlist     renderlist_t;
-
-struct s_renderlist_ary;
-typedef struct s_renderlist_ary renderlist_ary_t;
-
-struct s_renderlist_mgr;
-typedef struct s_renderlist_mgr renderlist_mgr_t;
-
-struct s_dolist_data;
-typedef struct s_dolist_data dolist_data_t;
-
-struct s_dolist;
-typedef struct s_dolist      dolist_t;
-
-struct s_dolist_ary;
-typedef struct s_dolist_ary  dolist_ary_t;
-
-struct s_dolist_mgr;
-typedef struct s_dolist_mgr  dolist_mgr_t;
+struct renderlist_t;
+struct renderlist_ary_t;
+struct renderlist_mgr_t;
+struct dolist_data_t;
+struct dolist_t;
+struct dolist_ary_t;
+struct dolist_mgr_t;
 
 struct s_gfx_error_state;
 typedef struct s_gfx_error_state gfx_error_state_t;
@@ -70,8 +57,7 @@ typedef struct s_gfx_error_state gfx_error_state_t;
 struct s_gfx_error_stack;
 typedef struct s_gfx_error_stack gfx_error_stack_t;
 
-struct s_obj_registry_entity;
-typedef struct s_obj_registry_entity obj_registry_entity_t;
+struct obj_registry_entity_t;
 
 struct s_GLvertex;
 typedef struct s_GLvertex GLvertex;
@@ -186,7 +172,7 @@ enum e_color
 //--------------------------------------------------------------------------------------------
 
 /// An element of the do-list, an all encompassing list of all objects to be drawn by the renderer
-struct s_dolist_data
+struct dolist_data_t
 {
     float   dist;
     CHR_REF chr;
@@ -195,7 +181,7 @@ struct s_dolist_data
 //--------------------------------------------------------------------------------------------
 
 /// Structure for sorting both particles and characters based on their position from the camera
-struct s_obj_registry_entity
+struct obj_registry_entity_t
 {
     CHR_REF ichr;
     PRT_REF iprt;
@@ -204,8 +190,8 @@ struct s_obj_registry_entity
 
 #define OBJ_REGISTRY_ENTITY_INIT { MAX_CHR, MAX_PRT, 0.0f }
 
-obj_registry_entity_t * obj_registry_entity_init( obj_registry_entity_t * ptr );
-int                     obj_registry_entity_cmp( const void * pleft, const void * pright );
+obj_registry_entity_t *obj_registry_entity_init( obj_registry_entity_t * ptr );
+int obj_registry_entity_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
 // encapsulation of all graphics options
@@ -292,26 +278,26 @@ extern float           lighttoenviroy[256];                                ///< 
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 
-void   gfx_system_begin();
-void   gfx_system_end();
+void gfx_system_begin();
+void gfx_system_end();
 
-int    gfx_system_init_OpenGL();
-void   gfx_system_uninit_OpenGL();
+int gfx_system_init_OpenGL();
+void gfx_system_uninit_OpenGL();
 
-void   gfx_system_main();
-void   gfx_system_reload_all_textures();
-void   gfx_system_make_enviro();
-void   gfx_system_init_all_graphics();
-void   gfx_system_release_all_graphics();
-void   gfx_system_delete_all_graphics();
-void   gfx_system_load_assets();
-void   gfx_system_load_basic_textures();
+void gfx_system_main();
+void gfx_system_reload_all_textures();
+void gfx_system_make_enviro();
+void gfx_system_init_all_graphics();
+void gfx_system_release_all_graphics();
+void gfx_system_delete_all_graphics();
+void gfx_system_load_assets();
+void gfx_system_load_basic_textures();
 
-renderlist_mgr_t * gfx_system_get_renderlist_mgr();
-dolist_mgr_t * gfx_system_get_dolist_mgr();
+renderlist_mgr_t *gfx_system_get_renderlist_mgr();
+dolist_mgr_t *gfx_system_get_dolist_mgr();
 
 // the render engine callback
-void   gfx_system_render_world( const std::shared_ptr<Camera> pcam, const int render_list_index, const int dolist_index );
+void gfx_system_render_world(const std::shared_ptr<Camera> cam, const int render_list_index, const int dolist_index);
 
 void gfx_request_clear_screen();
 void gfx_do_clear_screen();
@@ -345,7 +331,7 @@ float  get_ambient_level();
 
 void   draw_mouse_cursor();
 
-gfx_rv chr_instance_flash( struct s_chr_instance * pinst, Uint8 value );
+gfx_rv chr_instance_flash(chr_instance_t *inst, Uint8 value);
 
 //void gfx_calc_rotmesh();
 
@@ -361,5 +347,5 @@ gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh );
 
 bool oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, egoboo_config_t * pcfg );
 
-struct s_oglx_texture * gfx_get_mesh_tx_sml( int which );
-struct s_oglx_texture * gfx_get_mesh_tx_big( int which );
+s_oglx_texture * gfx_get_mesh_tx_sml( int which );
+s_oglx_texture * gfx_get_mesh_tx_big( int which );

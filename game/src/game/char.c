@@ -7444,7 +7444,7 @@ float set_character_animation_rate( chr_t * pchr )
         return pinst->rate;
     }
 
-    pframe_nxt  = chr_instnce_get_frame_nxt( &( pchr->inst ) );
+    pframe_nxt  = chr_instance_get_frame_nxt( &( pchr->inst ) );
 
     if ( ACTION_DA == action )
     {

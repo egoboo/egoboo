@@ -60,11 +60,8 @@
 // internal structs
 //--------------------------------------------------------------------------------------------
 
-struct s_dynalight_registry;
-typedef struct s_dynalight_registry dynalight_registry_t;
-
-struct s_dynalist;
-typedef struct s_dynalist dynalist_t;
+struct dynalight_registry_t;
+struct dynalist_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -84,7 +81,7 @@ typedef struct s_dynalist dynalist_t;
 //--------------------------------------------------------------------------------------------
 
 /// Structure for keeping track of which dynalights are visible
-struct s_dynalight_registry
+struct dynalight_registry_t
 {
     int         reference;
     ego_frect_t bound;
@@ -93,25 +90,23 @@ struct s_dynalight_registry
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_renderlist_element
+struct renderlist_element_t
 {
     Uint32 index;             ///< which tile
     float  distance;          ///< how far it is
 };
-typedef struct s_renderlist_element renderlist_element_t;
 
-struct s_renderlist_lst
+struct renderlist_lst_t
 {
     size_t               count;               ///< how many in the list
     renderlist_element_t lst[MAXMESHRENDER];  ///< the list
 };
-typedef struct s_renderlist_lst renderlist_lst_t;
 
 gfx_rv renderlist_lst_reset( renderlist_lst_t * );
 gfx_rv renderlist_lst_push( renderlist_lst_t *, Uint32 index, float distance );
 
 /// Which tiles are to be drawn, arranged by MAPFX_* bits
-struct s_renderlist
+struct renderlist_t
 {
     ego_mesh_t * pmesh;
 
@@ -133,7 +128,7 @@ static gfx_rv         renderlist_add_colst(renderlist_t * prlist, const Ego::Dyn
 // the renderlist manager
 //--------------------------------------------------------------------------------------------
 
-struct s_renderlist_ary
+struct renderlist_ary_t
 {
     bool       started;
 
@@ -155,9 +150,9 @@ static renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr );
 static renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr );
 
 //--------------------------------------------------------------------------------------------
-struct s_renderlist_mgr
+struct renderlist_mgr_t
 {
-    bool           started;
+    bool started;
     renderlist_ary_t ary;
 };
 
@@ -173,7 +168,7 @@ static gfx_rv         renderlist_mgr_end( renderlist_mgr_t * pmgr );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_dolist
+struct dolist_t
 {
     int                   index;                ///< A "name" for the dolist
     size_t                count;                ///< How many in the list
@@ -195,12 +190,11 @@ static gfx_rv     dolist_add_colst( dolist_t * pdlist, const Ego::DynamicArray<B
 // the dolist manager
 //--------------------------------------------------------------------------------------------
 
-struct s_dolist_ary
+struct dolist_ary_t
 {
-    bool       started;
-
-    size_t       free_count;
-    int          free_lst[MAX_DO_LISTS];
+    bool started;
+    size_t free_count;
+    int free_lst[MAX_DO_LISTS];
 
     dolist_t lst[MAX_DO_LISTS];
 };
@@ -217,9 +211,9 @@ static dolist_ary_t * dolist_ary_begin( dolist_ary_t * ptr );
 static dolist_ary_t * dolist_ary_end( dolist_ary_t * ptr );
 
 //--------------------------------------------------------------------------------------------
-struct s_dolist_mgr
+struct dolist_mgr_t
 {
-    bool       started;
+    bool started;
     dolist_ary_t ary;
 };
 
@@ -237,7 +231,7 @@ static gfx_rv dolist_mgr_end( dolist_mgr_t * pmgr );
 //--------------------------------------------------------------------------------------------
 
 /// The active dynamic lights
-struct s_dynalist
+struct dynalist_t
 {
     int         frame;                    ///< the last frame in shich the list was updated
 
@@ -1584,15 +1578,8 @@ void gfx_system_end()
     gfx_reset_timers();
 
     // deallocate the specailized "collistion lists"
-    if (NULL == _dolist_colst.dtor())
-    {
-        log_warning( "%s-%s-%d - Could not deallocate dolist collision list", __FILE__, __FUNCTION__, __LINE__ );
-    }
-
-    if (NULL == _renderlist_colst.dtor())
-    {
-        log_warning( "%s-%s-%d - Could not deallocate renderlist collision list", __FILE__, __FUNCTION__, __LINE__ );
-    }
+	_dolist_colst.dtor();
+	_renderlist_colst.dtor();
 	
 	gfx_system_uninit_OpenGL();
 	gfx_system_uninit_SDL_graphics();

@@ -483,6 +483,7 @@ int     reaffirm_attached_particles( const CHR_REF character );
 
 /// Statlist
 void statlist_add( const CHR_REF character );
+/// @brief This function puts the character on top of the status list.
 void statlist_move_to_top( const CHR_REF character );
 void statlist_sort();
 
