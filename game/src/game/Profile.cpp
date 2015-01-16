@@ -58,7 +58,6 @@ ObjectProfile::ObjectProfile() :
     _particleProfiles.fill(INVALID_PIP_REF);
     _soundList.fill(INVALID_SOUND_ID);
 
-    chop_definition_init( &_randomName );
     memset(&_aiScript, 0, sizeof(script_info_t));
 }
 
@@ -102,7 +101,7 @@ ObjectProfile::ObjectProfile(const std::string &folderPath, size_t slotNumber) :
     }
 
     // Load the random naming table for this icap
-    loadRandomNames(folderPath + "/naming.txt");
+    _randomName.loadFromFile(folderPath + "/naming.txt");
 
     // Fix lighting if need be
     if ( CapStack.lst[_icap].uniformlit )
@@ -238,31 +237,16 @@ void ObjectProfile::loadAllMessages(const std::string &filePath)
     }
 }
 
-const char * ObjectProfile::generateRandomName()
+const std::string ObjectProfile::generateRandomName()
 {
     if ( !LOADED_CAP( _icap ) ) return "*NONE*";
-    cap_t * pcap = CapStack_get_ptr( _icap );
 
     //If no random names loaded, return class name instead
-    if ( 0 == _randomName.section[0].size ) {
-        return pcap->classname;
+    if (!_randomName.isLoaded()) {
+        return CapStack_get_ptr(_icap)->classname;
     }
 
-    const char* randomName = chop_create( &chop_mem, &_randomName );
-
-    if (!randomName) {
-        return "*NONE*";
-    }
-
-    return randomName;
-}
-
-bool ObjectProfile::loadRandomNames( const std::string &fileName )
-{
-    // clear out any current definition
-    chop_definition_init( &_randomName );
-
-    return chop_load_vfs( &chop_mem, fileName.c_str(), &_randomName);
+    return _randomName.generateRandomName();
 }
 
 

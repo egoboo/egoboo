@@ -24,7 +24,7 @@
 
 #include "game/script.h"     //for script_info_t
 #include "game/mad.h"
-#include "game/chop.h"
+#include "game/RandomName.hpp"
 #include "game/egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
@@ -66,9 +66,12 @@ public:
 
     inline bool isValidMessageID(int id) const {return id >= 0 && id < _messageList.size();}
 
-    /// @author BB
-    /// @details use the profile's chop to generate a name. Return "*NONE*" on a failure.
-    const char* generateRandomName();
+    /**
+    * @details use the profile's RandomName to generate a new random name. 
+    * @return A new string instance containing the name. Return "*NONE*" on a failure or the Class name
+    *         if no random names have been loaded for this profile.
+    **/
+    const std::string generateRandomName();
 
     /**
     * @return get the skin of the specified index number (or skin 0 if index is invalid)
@@ -102,7 +105,7 @@ public:
     * Write access getter
     **/
     inline script_info_t& getAIScript() {return _aiScript;}
-    inline chop_definition_t& getRandomNameData() {return _randomName;}
+    inline RandomName& getRandomNameData() {return _randomName;}
 
 private:
     /**
@@ -125,11 +128,6 @@ private:
     **/
     void loadTextures(const std::string &folderPath);
 
-    /**
-    * @brief Loads naming.txt and builds a random name list
-    **/
-    bool loadRandomNames(const std::string &filePath);
-
 private:
     std::string _fileName;                      ///< Usually the source filename
     size_t _requestCount;                       ///< the number of attempted spawns
@@ -142,7 +140,7 @@ private:
     int _slotNumber;
 
     /// the random naming info
-    chop_definition_t _randomName;
+    RandomName _randomName;
     
     script_info_t _aiScript;                    ///< the AI script for this profile
 

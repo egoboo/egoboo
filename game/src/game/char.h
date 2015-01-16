@@ -751,15 +751,11 @@ bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
 // chr_t accessor functions
 PRO_REF  chr_get_ipro( const CHR_REF ichr );
 CAP_REF  chr_get_icap( const CHR_REF ichr );
-EVE_REF  chr_get_ieve( const CHR_REF ichr );
-PIP_REF  chr_get_ipip( const CHR_REF ichr, int ipip );
 TEAM_REF chr_get_iteam( const CHR_REF ichr );
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
 
 ObjectProfile *chr_get_ppro( const CHR_REF ichr );
 cap_t *chr_get_pcap( const CHR_REF ichr );
-eve_t *chr_get_peve( const CHR_REF ichr );
-pip_t *chr_get_ppip( const CHR_REF ichr, int ipip );
 
 team_t         *chr_get_pteam( const CHR_REF ichr );
 team_t         *chr_get_pteam_base( const CHR_REF ichr );
@@ -777,5 +773,4 @@ bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
 
 const fvec3_t& chr_get_pos_v_const(const chr_t *pchr);
-float       *chr_get_pos_v( chr_t * pchr );
 bool         chr_get_pos( const chr_t * pchr, fvec3_base_t pos );

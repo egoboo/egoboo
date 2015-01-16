@@ -102,29 +102,3 @@ int ChrList_count_used();
 #define ACTIVE_PCHR_RAW( PCHR )         ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) )
 #define WAITING_PCHR_RAW( PCHR )        WAITING_PBASE   ( POBJ_GET_PBASE(PCHR) )
 #define TERMINATED_PCHR_RAW( PCHR )     TERMINATED_PBASE( POBJ_GET_PBASE(PCHR) )
-
-//--------------------------------------------------------------------------------------------
-// testing functions (inlined before)
-//--------------------------------------------------------------------------------------------
-
-bool _VALID_CHR_RANGE( const CHR_REF ICHR );
-bool _DEFINED_CHR( const CHR_REF ICHR );
-bool _ALLOCATED_CHR( const CHR_REF ICHR );
-bool _ACTIVE_CHR( const CHR_REF ICHR );
-bool _WAITING_CHR( const CHR_REF ICHR );
-bool _TERMINATED_CHR( const CHR_REF ICHR );
-
-size_t  _GET_INDEX_PCHR( const chr_t * PCHR );
-CHR_REF _GET_REF_PCHR( const chr_t * PCHR );
-bool  _DEFINED_PCHR( const chr_t * PCHR );
-bool  _VALID_CHR_PTR( const chr_t * PCHR );
-bool  _ALLOCATED_PCHR( const chr_t * PCHR );
-bool  _ACTIVE_PCHR( const chr_t * PCHR );
-bool  _TERMINATED_PCHR( const chr_t * PCHR );
-
-bool _INGAME_CHR_BASE( const CHR_REF ICHR );
-bool _INGAME_PCHR_BASE( const chr_t * PCHR );
-
-bool _INGAME_CHR( const CHR_REF ICHR );
-bool _INGAME_PCHR( const chr_t * PCHR );
-

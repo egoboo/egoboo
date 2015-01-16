@@ -539,22 +539,22 @@ MD2_Model_t* md2_load( const char * szFilename, MD2_Model_t* mdl )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-EGO_CONST int md2_get_numVertices( MD2_Model_t * m )  { return m->m_numVertices;  }
-EGO_CONST int md2_get_numTexCoords( MD2_Model_t * m ) { return m->m_numTexCoords; }
-EGO_CONST int md2_get_numTriangles( MD2_Model_t * m ) { return m->m_numTriangles; }
-EGO_CONST int md2_get_numSkins( MD2_Model_t * m )     { return m->m_numSkins;     }
-EGO_CONST int md2_get_numFrames( MD2_Model_t * m )    { return m->m_numFrames;    }
-EGO_CONST int md2_get_numCommands( MD2_Model_t * m )  { return m->m_numCommands;  }
+int md2_get_numVertices( MD2_Model_t * m )  { return m->m_numVertices;  }
+int md2_get_numTexCoords( MD2_Model_t * m ) { return m->m_numTexCoords; }
+int md2_get_numTriangles( MD2_Model_t * m ) { return m->m_numTriangles; }
+int md2_get_numSkins( MD2_Model_t * m )     { return m->m_numSkins;     }
+int md2_get_numFrames( MD2_Model_t * m )    { return m->m_numFrames;    }
+int md2_get_numCommands( MD2_Model_t * m )  { return m->m_numCommands;  }
 
-EGO_CONST MD2_SkinName_t  *md2_get_SkinNames( MD2_Model_t * m ) { return m->m_skins;     }
-EGO_CONST MD2_TexCoord_t  *md2_get_TexCoords( MD2_Model_t * m ) { return m->m_texCoords; }
-EGO_CONST MD2_Triangle_t  *md2_get_Triangles( MD2_Model_t * m ) { return m->m_triangles; }
-EGO_CONST MD2_Frame_t     *md2_get_Frames( MD2_Model_t * m ) { return m->m_frames;    }
-EGO_CONST MD2_GLCommand_t *md2_get_Commands( MD2_Model_t * m ) { return m->m_commands;  }
+const MD2_SkinName_t  *md2_get_SkinNames( MD2_Model_t * m ) { return m->m_skins;     }
+const MD2_TexCoord_t  *md2_get_TexCoords( MD2_Model_t * m ) { return m->m_texCoords; }
+const MD2_Triangle_t  *md2_get_Triangles( MD2_Model_t * m ) { return m->m_triangles; }
+const MD2_Frame_t     *md2_get_Frames( MD2_Model_t * m ) { return m->m_frames;    }
+const MD2_GLCommand_t *md2_get_Commands( MD2_Model_t * m ) { return m->m_commands;  }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-EGO_CONST MD2_SkinName_t *md2_get_Skin( MD2_Model_t * m, int index )
+const MD2_SkinName_t *md2_get_Skin( MD2_Model_t * m, int index )
 {
     if ( index >= 0 && index < m->m_numSkins )
     {
@@ -564,7 +564,7 @@ EGO_CONST MD2_SkinName_t *md2_get_Skin( MD2_Model_t * m, int index )
 }
 
 //--------------------------------------------------------------------------------------------
-EGO_CONST MD2_Frame_t *md2_get_Frame( MD2_Model_t * m, int index )
+const MD2_Frame_t *md2_get_Frame( MD2_Model_t * m, int index )
 {
     if ( index >= 0 && index < m->m_numFrames )
     {
@@ -574,7 +574,7 @@ EGO_CONST MD2_Frame_t *md2_get_Frame( MD2_Model_t * m, int index )
 }
 
 //--------------------------------------------------------------------------------------------
-EGO_CONST MD2_Triangle_t  *md2_get_Triangle( MD2_Model_t * m, int index )
+const MD2_Triangle_t  *md2_get_Triangle( MD2_Model_t * m, int index )
 {
     if ( index >= 0 && index < m->m_numTriangles )
     {
