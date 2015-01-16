@@ -132,7 +132,7 @@ extern "C"
 // osx definitions
 
 #if defined(__APPLE__) || defined(macintosh)
-
+#define __OSX__
 // trap non-osx mac builds
 #    if !defined(__MACH__)
 #        error Only OS X builds are supported
@@ -173,7 +173,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //*nix definitions
 #if defined(__unix__) || defined(__unix) || defined(_unix) || defined(unix)
-
+#define __LINUX__
 /// map all of these to __unix__
 #    if !defined(__unix__)
 #        define __unix__
@@ -219,11 +219,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Compiler-specific definitions
-
-//------------
-// Deal with gcc's the warnings about const on return types in C.
-// @todo Remove this.
-#define EGO_CONST
 
 //------------
 // Fix how MSVC handles throw specifications on member functions.

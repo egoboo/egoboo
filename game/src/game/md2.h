@@ -166,19 +166,19 @@ MD2_Model_t * md2_load( const char * szFilename, MD2_Model_t* m );
 void          md2_free( MD2_Model_t * m );
 void          md2_scale_model( MD2_Model_t * pmd2, float scale_x, float scale_y, float scale_z );
 
-EGO_CONST MD2_SkinName_t  *md2_get_Skin( MD2_Model_t * m, int index );
-EGO_CONST MD2_Frame_t     *md2_get_Frame( MD2_Model_t * m, int index );
-EGO_CONST MD2_Triangle_t  *md2_get_Triangle( MD2_Model_t * m, int index );
+const MD2_SkinName_t  *md2_get_Skin( MD2_Model_t * m, int index );
+const MD2_Frame_t     *md2_get_Frame( MD2_Model_t * m, int index );
+const MD2_Triangle_t  *md2_get_Triangle( MD2_Model_t * m, int index );
 
-EGO_CONST int md2_get_numVertices( MD2_Model_t * m );
-EGO_CONST int md2_get_numTexCoords( MD2_Model_t * m );
-EGO_CONST int md2_get_numTriangles( MD2_Model_t * m );
-EGO_CONST int md2_get_numSkins( MD2_Model_t * m );
-EGO_CONST int md2_get_numFrames( MD2_Model_t * m );
-EGO_CONST int md2_get_numCommands( MD2_Model_t * m );
+int md2_get_numVertices( MD2_Model_t * m );
+int md2_get_numTexCoords( MD2_Model_t * m );
+int md2_get_numTriangles( MD2_Model_t * m );
+int md2_get_numSkins( MD2_Model_t * m );
+int md2_get_numFrames( MD2_Model_t * m );
+int md2_get_numCommands( MD2_Model_t * m );
 
-EGO_CONST MD2_SkinName_t  *md2_get_SkinNames( MD2_Model_t * m );
-EGO_CONST MD2_TexCoord_t  *md2_get_TexCoords( MD2_Model_t * m );
-EGO_CONST MD2_Triangle_t  *md2_get_Triangles( MD2_Model_t * m );
-EGO_CONST MD2_Frame_t     *md2_get_Frames( MD2_Model_t * m );
-EGO_CONST MD2_GLCommand_t *md2_get_Commands( MD2_Model_t * m );
+const MD2_SkinName_t  *md2_get_SkinNames( MD2_Model_t * m );
+const MD2_TexCoord_t  *md2_get_TexCoords( MD2_Model_t * m );
+const MD2_Triangle_t  *md2_get_Triangles( MD2_Model_t * m );
+const MD2_Frame_t     *md2_get_Frames( MD2_Model_t * m );
+const MD2_GLCommand_t *md2_get_Commands( MD2_Model_t * m );

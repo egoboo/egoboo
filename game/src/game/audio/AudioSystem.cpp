@@ -428,6 +428,8 @@ bool AudioSystem::stopObjectLoopingSounds(const CHR_REF ichr, const SoundID soun
     std::forward_list<std::shared_ptr<LoopingSound>> removeLoops;
 	for(const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
     {
+        //Either the sound id must match or if INVALID_SOUND_ID is given,
+        //stop all sounds that this character owns
         if(soundID != INVALID_SOUND_ID && sound->getSoundID() != soundID) {
             continue;
         }

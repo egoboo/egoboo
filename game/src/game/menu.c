@@ -111,7 +111,7 @@ struct s_ChoosePlayer_element
     CAP_REF           cap_ref;  ///< the character profile reference from "data.txt"
     TX_REF            tx_ref;   ///< the index of the icon texture
     SKIN_T            skin_ref; ///< the index of the object skin from "skin.txt"
-    chop_definition_t chop;     ///< the chop data from "naming.txt". put this here so we can generate a name without loading an entire profile
+    STRING            name;
 };
 
 static ChoosePlayer_element_t * ChoosePlayer_ctor( ChoosePlayer_element_t * ptr );
@@ -1616,7 +1616,7 @@ bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, Cho
     chooseplayer_ptr->tx_ref = loadplayer_ptr->tx_ref;
 
     // copy the chop info
-    memmove( &( chooseplayer_ptr->chop ), &( loadplayer_ptr->chop ), sizeof( chooseplayer_ptr->chop ) );
+    memmove( &( chooseplayer_ptr->name ), &( loadplayer_ptr->name ), sizeof( chooseplayer_ptr->name ) );
 
     // make sure the book data is loaded
     //if ( 0 == bookicon_count )
@@ -1651,9 +1651,11 @@ bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, Cho
             snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer_ptr->dir, i, chooseplayer_ptr->skin_ref );
             chooseplayer_ptr->tx_ref = TxList_load_one_vfs( szFilename, INVALID_TX_REF, INVALID_KEY );
 
-            // load the chop info from "naming.txt"
+            // load the name from "naming.txt"
             snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/naming.txt", loadplayer_ptr->dir, i );
-            chop_load_vfs( &chop_mem, szFilename, &( chooseplayer_ptr->chop ) );
+            RandomName randomName;
+            randomName.loadFromFile(szFilename);
+            strncpy(loadplayer_ptr->name, randomName.generateRandomName().c_str(), SDL_arraysize(loadplayer_ptr->name));
         }
     }
 
@@ -1798,9 +1800,9 @@ bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mo
                         MNU_TX_REF  icon_ref;
                         cap_t * loc_pcap = CapStack_get_ptr( icap );
 
-                        STRING itemname;
-                        if ( loc_pcap->nameknown ) strncpy( itemname, chop_create( &chop_mem, &( chooseplayer_ptr->chop ) ), SDL_arraysize( itemname ) );
-                        else                   strncpy( itemname, loc_pcap->classname,   SDL_arraysize( itemname ) );
+                        STRING itemname; //ZF> TODO: could be a item name bug here
+                        if ( loc_pcap->nameknown ) strncpy(itemname, chooseplayer_ptr->name, SDL_arraysize( itemname ) );
+                        else                       strncpy(itemname, loc_pcap->classname, SDL_arraysize( itemname ) );
 
                         //draw the icon for this item
                         icon_ref = mnu_get_txtexture_ref( icap, chooseplayer_ptr->tx_ref );
@@ -5404,8 +5406,6 @@ bool ChoosePlayer_init( ChoosePlayer_element_t * ptr )
     ptr->tx_ref   = INVALID_MNU_TX_REF;
     ptr->skin_ref = MAX_SKIN;
 
-    chop_definition_init( &( ptr->chop ) );
-
     return true;
 }
 
@@ -5467,8 +5467,6 @@ egolib_rv LoadPlayer_list_init( LoadPlayer_list_t * lst )
 
     // restart from nothing
     LoadPlayer_list_dealloc( lst );
-
-    chop_data_init( &chop_mem );
 
     return rv_success;
 }
@@ -5540,10 +5538,11 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
 
     // load the chop data from "naming.txt" to generate the character name
     snprintf( filename, SDL_arraysize( filename ), "%s/naming.txt", foundfile );
-    chop_load_vfs( &chop_mem, filename, &( ptr->chop ) );
-
+    RandomName randomName;
+    randomName.loadFromFile(filename);
+    
     // generate the name from the chop
-    snprintf( ptr->name, SDL_arraysize( ptr->name ), "%s", chop_create( &chop_mem, &( ptr->chop ) ) );
+    snprintf(ptr->name, SDL_arraysize( ptr->name ), "%s", randomName.generateRandomName().c_str());
 
     return rv_success;
 }
@@ -5664,7 +5663,6 @@ egolib_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
         lp_ptr->tx_ref   = pchr->inst.texture;
 
         memmove( lp_ptr->quest_log, ppla->quest_log, sizeof( lp_ptr->quest_log ) );
-        memmove( &( lp_ptr->chop ), &ppro->getRandomNameData(), sizeof( lp_ptr->chop ) );
     }
 
     return ( lst->count > 0 ) ? rv_success : rv_fail;
@@ -5726,7 +5724,6 @@ bool LoadPlayer_element_init( LoadPlayer_element_t * ptr )
     ptr->tx_ref = INVALID_MNU_TX_REF;
 
     idsz_map_init( ptr->quest_log, MAX_IDSZ_MAP_SIZE );
-    chop_definition_init( &( ptr->chop ) );
 
     return true;
 }

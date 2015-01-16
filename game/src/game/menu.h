@@ -137,7 +137,6 @@ struct s_LoadPlayer_element
     TX_REF  tx_ref;           ///< the index of the texture
 
     IDSZ_node_t       quest_log[MAX_IDSZ_MAP_SIZE]; ///< all the quests this player has
-    chop_definition_t chop;                         ///< put this here so we can generate a name without loading an entire profile
 };
 
 LoadPlayer_element_t * LoadPlayer_element_ctor( LoadPlayer_element_t * );
