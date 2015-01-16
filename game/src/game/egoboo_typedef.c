@@ -21,4 +21,4 @@
 /// @brief Implementation of the support functions for Egoboo's special datatypes
 /// @details
 
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"

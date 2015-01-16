@@ -22,7 +22,7 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
-#include "egoboo_typedef.h"
+#include "game/egoboo_typedef.h"
 
 //Forward declarations
 class ObjectProfile;

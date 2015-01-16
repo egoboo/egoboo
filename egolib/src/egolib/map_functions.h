@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "typedef.h"
+#include "egolib/typedef.h"
 
 #if defined(__cplusplus)
 extern "C"

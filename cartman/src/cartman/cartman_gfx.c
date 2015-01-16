@@ -19,17 +19,17 @@
 
 #include "egolib/egolib.h"
 
-#include "cartman_gfx.h"
+#include "cartman/cartman_gfx.h"
 
-#include "cartman.h"
-#include "cartman_map.h"
-#include "cartman_gui.h"
-#include "cartman_functions.h"
-#include "cartman_select.h"
+#include "cartman/cartman.h"
+#include "cartman/cartman_map.h"
+#include "cartman/cartman_gui.h"
+#include "cartman/cartman_functions.h"
+#include "cartman/cartman_select.h"
 
-#include "cartman_math.h"
+#include "cartman/cartman_math.h"
 
-#include "SDL_Pixel.h"
+#include "cartman/SDL_Pixel.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

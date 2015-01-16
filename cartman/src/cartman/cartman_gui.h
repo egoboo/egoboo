@@ -21,8 +21,8 @@
 
 #include "egolib/egolib.h"
 
-#include "cartman_typedef.h"
-#include "cartman_map.h"
+#include "cartman/cartman_typedef.h"
+#include "cartman/cartman_map.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

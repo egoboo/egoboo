@@ -10529,7 +10529,8 @@ bool chr_has_vulnie( const CHR_REF item, const PRO_REF test_profile )
 
     // not vulnerable if there is no specific weakness
     if ( IDSZ_NONE == vulnie ) return false;
-    ObjectProfile *profile = chr_get_ppro(test_profile);
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(test_profile);
+    if (nullptr == profile) return false;
 
     // check vs. every IDSZ that could have something to do with attacking
     if ( vulnie == profile->getIDSZ(IDSZ_TYPE) ) return true;

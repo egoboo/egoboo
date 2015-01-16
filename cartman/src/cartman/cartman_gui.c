@@ -19,10 +19,10 @@
 
 #include "egolib/egolib.h"
 
-#include "cartman_gui.h"
-#include "cartman_input.h"
-#include "cartman_math.h"
-#include "cartman_gfx.h"
+#include "cartman/cartman_gui.h"
+#include "cartman/cartman_input.h"
+#include "cartman/cartman_math.h"
+#include "cartman/cartman_gfx.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
