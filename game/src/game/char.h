@@ -32,7 +32,7 @@
 #include "game/physics.h"
 #include "game/egoboo.h"
 
-#include "game/Profile.hpp"
+#include "game/profiles/Profile.hpp"
 #include "game/enchant.h"
 #include "game/particle.h"
 

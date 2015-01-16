@@ -34,10 +34,10 @@
 #include "game/egoboo.h"
 #include "game/particle.h"
 #include "game/char.h"
-#include "game/Profile.hpp"
+#include "game/profiles/Profile.hpp"
 
 #include "game/audio/AudioSystem.hpp"
-#include "game/ProfileSystem.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/PrtList.h"

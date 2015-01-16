@@ -19,8 +19,8 @@
 /// @file  game/RandomName.hpp
 /// @brief This class is used for random name generation
 /// @author Johan Jansen
-
 #pragma once
+
 #include <vector>
 #include <string>
 
@@ -47,6 +47,9 @@ public:
     **/
 	static bool exportName(const std::string &name, const std::string &filePath);
 
+	/**
+	* Return true if at least 1 name was loaded
+	**/
 	inline bool isLoaded() const {return !_randomNameBlocks.empty();}
 
 private:

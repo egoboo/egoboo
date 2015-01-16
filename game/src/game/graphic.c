@@ -47,7 +47,7 @@
 #include "game/char.h"
 #include "game/particle.h"
 #include "game/enchant.h"
-#include "game/Profile.hpp"
+#include "game/profiles/Profile.hpp"
 #include "game/mesh.h"
 #include "game/module/PassageHandler.hpp" //only for getPassageCount()
 #include "game/graphics/CameraSystem.hpp"

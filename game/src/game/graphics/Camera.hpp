@@ -16,6 +16,8 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+/// @file game/Camera.hpp
+/// @author Johan Jansen
 
 #pragma once
 

@@ -22,8 +22,8 @@
 /// @details
 /// @author Johan Jansen
 
-#include "game/ProfileSystem.hpp"
-#include "game/Profile.hpp"
+#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/Profile.hpp"
 #include "game/particle.h"
 #include "game/enchant.h"
 #include "game/char.h"

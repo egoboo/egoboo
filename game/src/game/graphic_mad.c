@@ -31,12 +31,12 @@
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/Profile.hpp"
+#include "game/profiles/Profile.hpp"
 #include "game/char.h"
 #include "game/md2.h"
 
 #include "game/graphics/CameraSystem.hpp"
-#include "game/ProfileSystem.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"

@@ -45,8 +45,8 @@
 #include "game/module/PassageHandler.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
-#include "game/ProfileSystem.hpp"
-#include "game/Profile.hpp"
+#include "game/profiles/ProfileSystem.hpp"
+#include "game/profiles/Profile.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"

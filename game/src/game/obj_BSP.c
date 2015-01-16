@@ -29,7 +29,7 @@
 #include "game/particle.h" /** @todo Remove. */
 #include "egolib/bsp.h"
 
-#include "game/ProfileSystem.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/PrtList.h"
