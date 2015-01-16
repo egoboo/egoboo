@@ -312,7 +312,7 @@ float * mat_View(fmat_4x4_base_t DST,
 
 	fvec3_normalize(view_dir.v, fvec3_sub(temp.v, at, from));
 	fvec3_cross_product(right.v, world_up, view_dir.v);
-	fvec3_cross_product(up.v, view_dir.v, right.v);
+	up = fvec3_cross_product(view_dir, right);
 	fvec3_self_normalize(right);
 	fvec3_self_normalize(up);
 

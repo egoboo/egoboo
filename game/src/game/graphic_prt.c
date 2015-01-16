@@ -756,11 +756,11 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         fvec3_self_normalize(vup);
 
         // get the correct "right" vector
-        fvec3_cross_product( vright.v, vfwd.v, vup.v );
+		vright = fvec3_cross_product(vfwd, vup);
         fvec3_self_normalize(vright);
 
-        vup_ref    = vup;
-        fvec3_cross_product( vright_ref.v, vfwd_ref.v, vup.v );
+        vup_ref = vup;
+        vright_ref = fvec3_cross_product(vfwd_ref, vup);
         fvec3_self_normalize(vright_ref);
     }
     else if ( ORIENTATION_B == pinst->orientation )
@@ -770,11 +770,11 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         fvec3_self_normalize(vup);
 
         // get the correct "right" vector
-        fvec3_cross_product(vright.v, vfwd.v, vup.v);
+        vright = fvec3_cross_product(vfwd, vup);
         fvec3_self_normalize(vright);
 
         vup_ref = vup;
-        fvec3_cross_product(vright_ref.v, vfwd_ref.v, vup.v);
+		vright_ref = fvec3_cross_product(vfwd_ref, vup);
         fvec3_self_normalize(vright_ref);
     }
     else if ( ORIENTATION_V == pinst->orientation )
@@ -805,14 +805,14 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         fvec3_self_normalize(vup);
 
         // get the correct "right" vector
-        fvec3_cross_product(vright.v, vfwd.v, vup.v);
+        vright = fvec3_cross_product(vfwd, vup);
         fvec3_self_normalize(vright);
 
-        fvec3_cross_product(vright_ref.v, vfwd.v, vup_ref.v);
+        vright_ref = fvec3_cross_product(vfwd, vup_ref);
         fvec3_self_normalize(vright_ref);
 
         vup_ref = vup;
-        fvec3_cross_product(vright_ref.v, vfwd_ref.v, vup.v);
+		vright_ref = fvec3_cross_product(vfwd_ref, vup);
         fvec3_self_normalize(vright_ref);
     }
     else if ( ORIENTATION_H == pinst->orientation )
@@ -820,11 +820,11 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         fvec3_t vert = fvec3_t(0.0f, 0.0f, 1.0f);
 
         // force right to be horizontal
-        fvec3_cross_product( vright.v, vfwd.v, vert.v );
+        vright = fvec3_cross_product(vfwd, vert);
 
         // force "up" to be close to the camera forward, but horizontal
-        fvec3_cross_product( vup.v, vert.v, vright.v );
-        fvec3_cross_product( vup_ref.v, vert.v, vright_ref.v );
+        vup = fvec3_cross_product(vert, vright);
+		vup_ref = fvec3_cross_product(vert, vright_ref);
 
         // normalize them
         fvec3_self_normalize(vright);
@@ -870,11 +870,11 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         fvec3_self_normalize(vup);
 
         // get the correct "right" vector
-        fvec3_cross_product(vright.v, vfwd.v, vup.v);
+		vright = fvec3_cross_product(vfwd, vup);
         fvec3_self_normalize(vright);
 
         vup_ref = vup;
-        fvec3_cross_product(vright_ref.v, vfwd_ref.v, vup.v);
+        vright_ref = fvec3_cross_product(vfwd_ref, vup);
         fvec3_self_normalize(vright_ref);
     }
     else
@@ -884,11 +884,11 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         fvec3_self_normalize(vup);
 
         // get the correct "right" vector
-        fvec3_cross_product(vright.v, vfwd.v, vup.v);
+        vright = fvec3_cross_product(vfwd, vup);
         fvec3_self_normalize(vright);
 
         vup_ref = vup;
-        fvec3_cross_product(vright_ref.v, vfwd_ref.v, vup.v);
+		vright_ref = fvec3_cross_product(vfwd_ref, vup);
         fvec3_self_normalize(vright_ref);
     }
 
@@ -928,7 +928,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
     }
 
     // calculate the billboard normal
-    fvec3_cross_product( pinst->nrm.v, pinst->right.v, pinst->up.v );
+    pinst->nrm = fvec3_cross_product(pinst->right, pinst->up);
 
     // flip the normal so that the front front of the quad is toward the camera
     if ( fvec3_dot_product( vfwd, pinst->nrm ) < 0 )
