@@ -28,10 +28,10 @@
 #include "game/graphic.h"
 #include "game/graphic_mad.h"
 #include "game/script.h"
-#include "game/md2.h"
 #include "game/physics.h"
 #include "game/egoboo.h"
 
+#include "game/graphics/MD2Model.hpp"
 #include "game/profiles/Profile.hpp"
 #include "game/enchant.h"
 #include "game/particle.h"

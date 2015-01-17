@@ -22,11 +22,11 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
-#include "game/md2.h"
+#include "game/graphics/MD2Model.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
+//Forward declarations
 struct mad_t;
 
 //--------------------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ struct mad_t
     //---- per-object data ----
 
     // model data
-    MD2_Model_t * md2_ptr;                       ///< the pointer that will eventually be used
+    std::shared_ptr<MD2Model> md2_ptr;         ///< the pointer that will eventually be used
 };
 
 #define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_MAD) )
