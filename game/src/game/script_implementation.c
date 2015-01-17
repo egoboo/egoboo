@@ -31,11 +31,11 @@
 #include "game/renderer_2d.h"
 #include "game/ChrList.h"
 #include "game/mesh.h"
-#include "game/Profile.hpp"
+#include "game/profiles/Profile.hpp"
 #include "game/char.h"
 
 #include "game/module/PassageHandler.hpp"
-#include "game/ProfileSystem.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 // wrap generic bitwise conversion macros

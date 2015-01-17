@@ -33,10 +33,17 @@ class Camera;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct chr_instance_t;
-struct vlst_cache_t;
-struct matrix_cache_t;
-struct chr_reflection_cache_t;
+struct s_chr_instance;
+typedef struct s_chr_instance chr_instance_t;
+
+struct s_vlst_cache;
+typedef struct s_vlst_cache vlst_cache_t;
+
+struct s_matrix_cache;
+typedef struct s_matrix_cache matrix_cache_t;
+
+typedef struct s_chr_reflection_cache chr_reflection_cache_t;
+struct s_chr_reflection_cache;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -71,15 +78,18 @@ enum e_chr_render_bits
 //--------------------------------------------------------------------------------------------
 
 /// Bits that tell you which variables to look at
-enum matrix_cache_type_t
+enum e_matrix_cache_type
 {
     MAT_UNKNOWN   = 0,
     MAT_CHARACTER = ( 1 << 0 ),
     MAT_WEAPON    = ( 1 << 1 )
 };
 
+// this typedef must be after the enum definition or gcc has a fit
+typedef enum e_matrix_cache_type matrix_cache_type_t;
+
 /// the data necessary to cache the last values required to create the character matrix
-struct matrix_cache_t
+struct s_matrix_cache
 {
     // is the cache data valid?
     bool valid;
@@ -114,7 +124,7 @@ struct matrix_cache_t
 //--------------------------------------------------------------------------------------------
 
 /// some pre-computed parameters for reflection
-struct chr_reflection_cache_t
+struct s_chr_reflection_cache
 {
     fmat_4x4_t matrix;
     bool     matrix_valid;
@@ -131,7 +141,7 @@ struct chr_reflection_cache_t
 //--------------------------------------------------------------------------------------------
 
 /// the data to determine whether re-calculation of vlst is necessary
-struct vlst_cache_t
+struct s_vlst_cache
 {
     bool valid;             ///< do we know whether this cache is valid or not?
 
@@ -148,7 +158,7 @@ struct vlst_cache_t
 //--------------------------------------------------------------------------------------------
 
 /// All the data that the renderer needs to draw the character
-struct chr_instance_t
+struct s_chr_instance
 {
     int update_frame;                ///< the last frame that the instance was calculated in
 
@@ -187,28 +197,28 @@ struct chr_instance_t
     float          rate;
 
     // action info
-    bool action_ready;                  ///< Ready to play a new one
-    int action_which;                   ///< Character's action
-    bool action_keep;                   ///< Keep the action playing
-    bool action_loop;                   ///< Loop it too
-    int action_next;                    ///< Character's action to play next
+    bool         action_ready;                   ///< Ready to play a new one
+    int            action_which;                   ///< Character's action
+    bool         action_keep;                    ///< Keep the action playing
+    bool         action_loop;                    ///< Loop it too
+    int            action_next;                    ///< Character's action to play next
 
     // lighting info
-    Sint32 color_amb;
-    fvec4_t col_amb;
-    int max_light, min_light;
-    int lighting_update_wld;            ///< update some lighting info no more than once an update
-    int lighting_frame_all;             ///< update some lighting info no more than once a frame
+    Sint32         color_amb;
+    fvec4_t        col_amb;
+    int            max_light, min_light;
+    int            lighting_update_wld;            ///< update some lighting info no more than once an update
+    int            lighting_frame_all;             ///< update some lighting info no more than once a frame
 
     // linear interpolated frame vertices
-    size_t vrt_count;
-    GLvertex *vrt_lst;
-    oct_bb_t bbox;               ///< the bounding box for this frame
+    size_t         vrt_count;
+    GLvertex     * vrt_lst;
+    oct_bb_t       bbox;                           ///< the bounding box for this frame
 
     // graphical optimizations
-    bool indolist;               ///< Has it been added yet?
-    vlst_cache_t save;           ///< Do we need to re-calculate all or part of the vertex list
-    chr_reflection_cache_t ref;  ///< pre-computing some reflection parameters
+    bool                 indolist;               ///< Has it been added yet?
+    vlst_cache_t           save;                   ///< Do we need to re-calculate all or part of the vertex list
+    chr_reflection_cache_t ref;                    ///< pre-computing some reflection parameters
 
     // OBSOLETE
     // lighting
@@ -217,51 +227,51 @@ struct chr_instance_t
     // Uint8          lightlevel_dir;  ///< 0-255, terrain light
 };
 
-chr_instance_t *chr_instance_ctor(chr_instance_t *inst);
-chr_instance_t *chr_instance_dtor(chr_instance_t *inst);
+chr_instance_t * chr_instance_ctor( chr_instance_t * pinst );
+chr_instance_t * chr_instance_dtor( chr_instance_t * pinst );
 
-gfx_rv chr_instance_spawn(chr_instance_t *inst, const PRO_REF profile, const int skin);
-gfx_rv chr_instance_set_mad(chr_instance_t *inst, const MAD_REF imad);
+gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const int skin );
+gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad );
 
-gfx_rv chr_instance_update_ref(chr_instance_t *inst, float grid_level, bool need_matrix);
+gfx_rv chr_instance_update_ref( chr_instance_t * pinst, float grid_level, bool need_matrix );
 
-gfx_rv chr_instance_update_bbox(chr_instance_t * inst);
-gfx_rv chr_instance_update_vertices( chr_instance_t *inst, int vmin, int vmax, bool force);
-gfx_rv chr_instance_update_grip_verts( chr_instance_t *inst, Uint16 vrt_lst[], size_t vrt_count);
+gfx_rv chr_instance_update_bbox( chr_instance_t * pinst );
+gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool force );
+gfx_rv chr_instance_update_grip_verts( chr_instance_t * pinst, Uint16 vrt_lst[], size_t vrt_count );
 
-gfx_rv chr_instance_set_action(chr_instance_t *inst, int action, bool action_ready, bool override_action);
-gfx_rv chr_instance_start_anim(chr_instance_t *inst, int action, bool action_ready, bool override_action);
-gfx_rv chr_instance_set_anim(chr_instance_t *inst, int action, int frame, bool action_ready, bool override_action);
+gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool action_ready, bool override_action );
+gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool action_ready, bool override_action );
+gfx_rv chr_instance_set_anim( chr_instance_t * pinst, int action, int frame, bool action_ready, bool override_action );
 
-gfx_rv chr_instance_increment_action(chr_instance_t *inst);
-gfx_rv chr_instance_increment_frame(chr_instance_t *inst, mad_t *mad, const CHR_REF imount, const int mount_action);
-gfx_rv chr_instance_play_action(chr_instance_t *inst, int action, bool actionready);
+gfx_rv chr_instance_increment_action( chr_instance_t * pinst );
+gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const CHR_REF imount, const int mount_action );
+gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool actionready );
 
-gfx_rv chr_instance_remove_interpolation(chr_instance_t *inst);
-BIT_FIELD chr_instance_get_framefx(chr_instance_t *inst);
+gfx_rv    chr_instance_remove_interpolation( chr_instance_t * pinst );
+BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst );
 
-gfx_rv chr_instance_set_frame_full(chr_instance_t *inst, int frame_along, int ilip, const MAD_REF mad_override);
+gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int ilip, const MAD_REF mad_override );
 
-gfx_rv chr_instance_set_action_keep(chr_instance_t *inst, bool val);
-gfx_rv chr_instance_set_action_ready(chr_instance_t *inst, bool val);
-gfx_rv chr_instance_set_action_loop(chr_instance_t *inst, bool val);
-gfx_rv chr_instance_set_action_next(chr_instance_t *inst, int val);
+gfx_rv chr_instance_set_action_keep( chr_instance_t * pinst, bool val );
+gfx_rv chr_instance_set_action_ready( chr_instance_t * pinst, bool val );
+gfx_rv chr_instance_set_action_loop( chr_instance_t * pinst, bool val );
+gfx_rv chr_instance_set_action_next( chr_instance_t * pinst, int val );
 
-gfx_rv chr_instance_set_texture(chr_instance_t *inst, const TX_REF itex);
+gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex );
 
-MD2_Frame_t *chr_instance_get_frame_nxt(chr_instance_t *inst);
-MD2_Frame_t *chr_instance_get_frame_lst(chr_instance_t *inst);
+const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst);
+const MD2_Frame& chr_instnce_get_frame_lst(chr_instance_t * pinst);
 
-float chr_instance_get_remaining_flip(chr_instance_t *inst);
-gfx_rv chr_instance_update_one_lip(chr_instance_t *inst);
-gfx_rv chr_instance_update_one_flip(chr_instance_t *inst, float dflip);
-void chr_instance_update_lighting_base(chr_instance_t *inst, chr_t *chr, bool force);
-void chr_instance_get_tint(chr_instance_t *inst, GLfloat *tint, const BIT_FIELD bits);
-bool chr_instance_apply_reflection_matrix(chr_instance_t *inst, float floor_level);
+float  chr_instance_get_remaining_flip( chr_instance_t * pinst );
+gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst );
+gfx_rv chr_instance_update_one_flip( chr_instance_t * pinst, float dflip );
+void   chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bool force );
+void   chr_instance_get_tint( chr_instance_t * pinst, GLfloat * tint, const BIT_FIELD bits );
+bool chr_instance_apply_reflection_matrix( chr_instance_t * pinst, float floor_level );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-gfx_rv render_one_mad(std::shared_ptr<Camera> cam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits);
-gfx_rv render_one_mad_ref(std::shared_ptr<Camera> cam, const CHR_REF ichr);
-gfx_rv render_one_mad_trans(std::shared_ptr<Camera> cam, const CHR_REF ichr);
-gfx_rv render_one_mad_solid( std::shared_ptr<Camera> cam, const CHR_REF ichr);
+gfx_rv render_one_mad( std::shared_ptr<Camera> pcam, const CHR_REF ichr, GLXvector4f tint, const BIT_FIELD bits );
+gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr );
+gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr );
+gfx_rv render_one_mad_solid( std::shared_ptr<Camera> pcam, const CHR_REF ichr );

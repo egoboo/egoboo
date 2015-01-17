@@ -24,7 +24,7 @@
 
 //ZF> TODO: check which headers can be removed
 #include "egolib/bsp.h"
-#include "game/Profile.hpp"
+#include "game/profiles/Profile.hpp"
 #include "game/graphic_texture.h"
 #include "game/renderer_2d.h"
 #include "game/script_compile.h"

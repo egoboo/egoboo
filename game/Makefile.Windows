@@ -35,10 +35,10 @@ SDLCONF_C := $(shell sdl-config --cflags)
 
 CXX      := g++
 CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_DEBUG 
-#-Wall -Weffc++
+#-Wall -Weffc++ -Wunused-function
 
 #debug options
-CXXFLAGS += -ggdb -fdiagnostics-color=always -Wunused-function
+CXXFLAGS += -ggdb -fdiagnostics-color=always
 #CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 #CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 

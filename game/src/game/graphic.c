@@ -47,7 +47,7 @@
 #include "game/char.h"
 #include "game/particle.h"
 #include "game/enchant.h"
-#include "game/Profile.hpp"
+#include "game/profiles/Profile.hpp"
 #include "game/mesh.h"
 #include "game/module/PassageHandler.hpp" //only for getPassageCount()
 #include "game/graphics/CameraSystem.hpp"
@@ -2086,8 +2086,8 @@ void gfx_system_make_enviro()
     // Find the environment map positions
     for ( cnt = 0; cnt < EGO_NORMAL_COUNT; cnt++ )
     {
-        x = kMd2Normals[cnt][0];
-        y = kMd2Normals[cnt][1];
+        x = MD2Model::getMD2Normal(cnt, 0);
+        y = MD2Model::getMD2Normal(cnt, 1);
         indextoenvirox[cnt] = ATAN2( y, x ) * INV_TWO_PI;
     }
 
@@ -6502,9 +6502,9 @@ float calc_light_rotation( int rotation, int normal )
     fvec3_t   nrm, nrm2;
     float sinrot, cosrot;
 
-    nrm.x = kMd2Normals[normal][0];
-    nrm.y = kMd2Normals[normal][1];
-    nrm.z = kMd2Normals[normal][2];
+    nrm.x = MD2Model::getMD2Normal(normal, 0);
+    nrm.y = MD2Model::getMD2Normal(normal, 1);
+    nrm.z = MD2Model::getMD2Normal(normal, 2);
 
     sinrot = sinlut[rotation];
     cosrot = coslut[rotation];
@@ -6525,9 +6525,9 @@ float calc_light_global( int rotation, int normal, float lx, float ly, float lz 
     fvec3_t   nrm, nrm2;
     float sinrot, cosrot;
 
-    nrm.x = kMd2Normals[normal][0];
-    nrm.y = kMd2Normals[normal][1];
-    nrm.z = kMd2Normals[normal][2];
+    nrm.x = MD2Model::getMD2Normal(normal, 0);
+    nrm.y = MD2Model::getMD2Normal(normal, 1);
+    nrm.z = MD2Model::getMD2Normal(normal, 2);
 
     sinrot = sinlut[rotation];
     cosrot = coslut[rotation];

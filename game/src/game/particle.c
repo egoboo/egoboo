@@ -22,7 +22,7 @@
 
 #include "game/particle.h"
 #include "game/audio/AudioSystem.hpp"
-#include "game/ProfileSystem.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 #include "game/game.h"
 #include "game/mesh.h"
 #include "game/obj_BSP.h"
@@ -32,7 +32,7 @@
 #include "game/egoboo.h"
 #include "game/mesh.h"
 #include "game/enchant.h"
-#include "game/Profile.hpp"
+#include "game/profiles/Profile.hpp"
 #include "game/PrtList.h"
 #include "game/ChrList.h"
 
