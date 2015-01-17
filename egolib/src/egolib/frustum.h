@@ -26,6 +26,7 @@
 #include "egolib/bbox.h"
 #include "egolib/aabb.h"
 #include "egolib/bv.h"
+#include "egolib/matrix.h"
 
 // Forward declaration.
 struct s_oct_bb;
@@ -46,7 +47,7 @@ struct egolib_frustum_t
 };
 
 /// Call this every time the camera moves to update the frustum
-egolib_rv egolib_frustum_calculate(egolib_frustum_t * pfrust, const float proj[], const float modl[]);
+egolib_rv egolib_frustum_calculate(egolib_frustum_t * pfrust, const fmat_4x4_base_t proj, const fmat_4x4_base_t modl);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

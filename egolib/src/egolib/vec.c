@@ -669,6 +669,16 @@ float fvec3_self_normalize_to(fvec3_base_t vec, const float B)
 #endif
 
 //--------------------------------------------------------------------------------------------
+fvec3_t fvec3_cross_product(const fvec3_t& u, const fvec3_t& v)
+{
+    return
+        fvec3_t
+            (
+             u[kY] * v[kZ] - u[kZ] * v[kY],
+             u[kZ] * v[kX] - u[kX] * v[kZ],
+             u[kX] * v[kY] - u[kY] * v[kX]
+            );
+}
 float *fvec3_cross_product(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS)
 {
 	if (NULL == DST)
