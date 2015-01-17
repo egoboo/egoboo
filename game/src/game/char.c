@@ -41,7 +41,7 @@
 #include "game/egoboo.h"
 #include "game/module/PassageHandler.hpp"
 #include "game/audio/AudioSystem.hpp"
-#include "game/ProfileSystem.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -7234,8 +7234,6 @@ float set_character_animation_rate( chr_t * pchr )
 
     chr_anim_data_t anim_info[CHR_MOVEMENT_COUNT];
 
-    MD2_Frame_t * pframe_nxt;
-
     chr_instance_t * pinst;
     mad_t          * pmad;
     CHR_REF          ichr;
@@ -7444,8 +7442,6 @@ float set_character_animation_rate( chr_t * pchr )
         return pinst->rate;
     }
 
-    pframe_nxt  = chr_instnce_get_frame_nxt( &( pchr->inst ) );
-
     if ( ACTION_DA == action )
     {
         // Do standstill
@@ -7484,7 +7480,8 @@ float set_character_animation_rate( chr_t * pchr )
         {
             if ( pinst->action_which != tmp_action )
             {
-                chr_set_anim( pchr, tmp_action, pmad->framelip_to_walkframe[lip][pframe_nxt->framelip], true, true );
+                const MD2_Frame &nextFrame  = chr_instnce_get_frame_nxt( &( pchr->inst ) );
+                chr_set_anim( pchr, tmp_action, pmad->framelip_to_walkframe[lip][nextFrame.framelip], true, true );
             }
 
             // "loop" the action

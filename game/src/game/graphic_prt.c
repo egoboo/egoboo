@@ -32,7 +32,7 @@
 #include "game/egoboo.h"
 #include "game/particle.h"
 #include "game/char.h"
-#include "game/Profile.hpp"
+#include "game/profiles/Profile.hpp"
 #include "game/graphics/CameraSystem.hpp"
 
 #include "game/ChrList.h"

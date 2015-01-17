@@ -31,12 +31,12 @@
 #include "game/input.h"
 #include "game/lighting.h"
 #include "game/egoboo.h"
-#include "game/Profile.hpp"
+#include "game/profiles/Profile.hpp"
 #include "game/char.h"
-#include "game/md2.h"
+#include "game/graphics/MD2Model.hpp"
 
 #include "game/graphics/CameraSystem.hpp"
-#include "game/ProfileSystem.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -69,7 +69,7 @@ static gfx_rv chr_instance_update_vlst_cache( chr_instance_t * pinst, int vmax, 
 static gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bool *verts_match, bool *frames_match );
 static gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame );
 static void   chr_instance_clear_cache( chr_instance_t * pinst );
-static void   chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], MD2_Vertex_t lst_ary[], MD2_Vertex_t nxt_ary[], int vmin, int vmax, float flip );
+static void chr_instance_interpolate_vertices_raw(GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip);
 
 // private vlst_cache_t methods
 static vlst_cache_t * vlst_cache_init( vlst_cache_t * );
@@ -90,12 +90,11 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
 
     GLint matrix_mode[1];
     Uint16 cnt;
-    Uint16 vertex;
     float  uoffset, voffset;
 
     chr_t          * pchr;
     mad_t          * pmad;
-    MD2_Model_t    * pmd2;
+    std::shared_ptr<MD2Model> pmd2;
     chr_instance_t * pinst;
     oglx_texture_t   * ptex;
 
@@ -167,33 +166,23 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
 
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {
-        int cmd_count;
-        MD2_GLCommand_t * glcommand;
-
         GLXvector4f curr_color;
 
         GL_DEBUG( glGetFloatv )( GL_CURRENT_COLOR, curr_color );
 
         // Render each command
-        cmd_count   = md2_get_numCommands( pmd2 );
-        glcommand   = ( MD2_GLCommand_t * )md2_get_Commands( pmd2 );
-
-        for ( cnt = 0; cnt < cmd_count && NULL != glcommand; cnt++ )
+        for(const MD2_GLCommand &glcommand : pmd2->getGLCommands())
         {
-            int count = glcommand->command_count;
-
-            GL_DEBUG( glBegin )( glcommand->gl_mode );
+            GL_DEBUG( glBegin )(glcommand.glMode);
             {
-                int tnc;
-
-                for ( tnc = 0; tnc < count; tnc++ )
+                for(const id_glcmd_packed_t& cmd : glcommand.data)
                 {
                     GLfloat     cmax;
                     GLXvector4f col;
                     GLfloat     tex[2];
                     GLvertex   *pvrt;
 
-                    vertex = glcommand->data[tnc].index;
+                    uint16_t vertex = cmd.index;
                     if ( vertex >= pinst->vrt_count ) continue;
 
                     pvrt   = pinst->vrt_lst + vertex;
@@ -238,8 +227,6 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
 
             }
             GL_DEBUG_END();
-
-            glcommand = glcommand->next;
         }
     }
     ATTRIB_POP( __FUNCTION__ );
@@ -313,7 +300,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
 
     chr_t          * pchr;
     mad_t          * pmad;
-    MD2_Model_t    * pmd2;
+    std::shared_ptr<MD2Model> pmd2;
     chr_instance_t * pinst;
     oglx_texture_t   * ptex;
 
@@ -338,7 +325,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
     }
     pmad = MadStack_get_ptr( pinst->imad );
 
-    if ( NULL == pmad->md2_ptr )
+    if ( nullptr == pmad->md2_ptr )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL md2" );
         return gfx_error;
@@ -373,7 +360,6 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT );
     {
         float             base_amb;
-        MD2_GLCommand_t * glcommand;
 
         // set the basic tint. if the object is marked with CHR_LIGHT
         // the color will not be set again inside the loop
@@ -388,30 +374,23 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
         }
 
         // Render each command
-        cmd_count   = md2_get_numCommands( pmd2 );
-        glcommand   = ( MD2_GLCommand_t * )md2_get_Commands( pmd2 );
-
-        for ( cnt = 0; cnt < cmd_count && NULL != glcommand; cnt++ )
+        for(const MD2_GLCommand& glcommand : pmd2->getGLCommands())
         {
-            int count = glcommand->command_count;
-
-            GL_DEBUG( glBegin )( glcommand->gl_mode );
+            GL_DEBUG( glBegin )( glcommand.glMode );
             {
-                int tnc;
-
-                for ( tnc = 0; tnc < count; tnc++ )
+                for(const id_glcmd_packed_t &cmd : glcommand.data)
                 {
                     GLXvector2f tex;
                     GLvertex * pvrt;
 
-                    vertex = glcommand->data[tnc].index;
+                    vertex = cmd.index;
                     if ( vertex >= pinst->vrt_count ) continue;
 
                     pvrt = pinst->vrt_lst + vertex;
 
                     // determine the texture coordinates
-                    tex[0] = glcommand->data[tnc].s + uoffset;
-                    tex[1] = glcommand->data[tnc].t + voffset;
+                    tex[0] = cmd.s + uoffset;
+                    tex[1] = cmd.t + voffset;
 
                     // no per-vertex lighting for CHR_LIGHT objects
                     if ( HAS_NO_BITS( bits, CHR_LIGHT ) )
@@ -460,8 +439,6 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
                 }
             }
             GL_DEBUG_END();
-
-            glcommand = glcommand->next;
         }
     }
     ATTRIB_POP( __FUNCTION__ );
@@ -1179,8 +1156,6 @@ gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
     int           frame_count;
 
     mad_t       * pmad;
-    MD2_Model_t * pmd2;
-    MD2_Frame_t * frame_list, * pframe_nxt, * pframe_lst;
 
     if ( NULL == pinst )
     {
@@ -1196,35 +1171,20 @@ gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
     }
     pmad = MadStack_get_ptr( pinst->imad );
 
-    if ( NULL == pmad->md2_ptr )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL md2" );
-        return gfx_error;
-    }
-    pmd2 = pmad->md2_ptr;
-
-    frame_count = md2_get_numFrames( pmd2 );
-    if ( pinst->frame_nxt >= frame_count ||  pinst->frame_lst >= frame_count )
-    {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid frame range" );
-        return gfx_error;
-    }
-
-    frame_list = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
-    pframe_lst = frame_list + pinst->frame_lst;
-    pframe_nxt = frame_list + pinst->frame_nxt;
+    const MD2_Frame &lastFrame = chr_instnce_get_frame_lst(pinst);
+    const MD2_Frame &nextFrame = chr_instnce_get_frame_nxt(pinst);
 
     if ( pinst->frame_nxt == pinst->frame_lst || pinst->flip == 0.0f )
     {
-        oct_bb_copy( &( pinst->bbox ), &( pframe_lst->bb ) );
+        oct_bb_copy( &( pinst->bbox ), &lastFrame.bb);
     }
     else if ( pinst->flip == 1.0f )
     {
-        oct_bb_copy( &( pinst->bbox ), &( pframe_nxt->bb ) );
+        oct_bb_copy( &( pinst->bbox ), &nextFrame.bb );
     }
     else
     {
-        oct_bb_interpolate( &( pinst->bbox ), &( pframe_lst->bb ), &( pframe_nxt->bb ), pinst->flip );
+        oct_bb_interpolate(&lastFrame.bb, &nextFrame.bb, &pinst->bbox, pinst->flip );
     }
 
     return gfx_success;
@@ -1299,29 +1259,27 @@ gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bo
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], MD2_Vertex_t lst_ary[], MD2_Vertex_t nxt_ary[], int vmin, int vmax, float flip )
+void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], const std::vector<MD2_Vertex> &lst_ary, const std::vector<MD2_Vertex> &nxt_ary, int vmin, int vmax, float flip )
 {
     /// raw indicates no bounds checking, so be careful
 
     int i;
 
     GLvertex     * dst;
-    MD2_Vertex_t * src_lst;
-    MD2_Vertex_t * src_nxt;
 
     if ( 0.0f == flip )
     {
         for ( i = vmin; i <= vmax; i++ )
         {
             dst     = dst_ary + i;
-            src_lst = lst_ary + i;
+            const MD2_Vertex &srcLast = lst_ary[i];
 
-            fvec3_base_copy( dst->pos, src_lst->pos.v );
+            fvec3_base_copy( dst->pos, srcLast.pos.v );
             dst->pos[WW] = 1.0f;
 
-            fvec3_base_copy( dst->nrm, src_lst->nrm.v );
+            fvec3_base_copy( dst->nrm, srcLast.nrm.v );
 
-            dst->env[XX] = indextoenvirox[src_lst->normal];
+            dst->env[XX] = indextoenvirox[srcLast.normal];
             dst->env[YY] = 0.5f * ( 1.0f + dst->nrm[ZZ] );
         }
     }
@@ -1330,14 +1288,14 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], MD2_Vertex_t lst
         for ( i = vmin; i <= vmax; i++ )
         {
             dst     = dst_ary + i;
-            src_nxt = nxt_ary + i;
+            const MD2_Vertex &srcNext = nxt_ary[i];
 
-            fvec3_base_copy( dst->pos, src_nxt->pos.v );
+            fvec3_base_copy( dst->pos, srcNext.pos.v );
             dst->pos[WW] = 1.0f;
 
-            fvec3_base_copy( dst->nrm, src_nxt->nrm.v );
+            fvec3_base_copy( dst->nrm, srcNext.nrm.v );
 
-            dst->env[XX] = indextoenvirox[src_nxt->normal];
+            dst->env[XX] = indextoenvirox[srcNext.normal];
             dst->env[YY] = 0.5f * ( 1.0f + dst->nrm[ZZ] );
         }
     }
@@ -1348,20 +1306,20 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], MD2_Vertex_t lst
         for ( i = vmin; i <= vmax; i++ )
         {
             dst     = dst_ary + i;
-            src_lst = lst_ary + i;
-            src_nxt = nxt_ary + i;
+            const MD2_Vertex &srcLast = lst_ary[i];
+            const MD2_Vertex &srcNext = nxt_ary[i];
 
-            dst->pos[XX] = src_lst->pos.x + ( src_nxt->pos.x - src_lst->pos.x ) * flip;
-            dst->pos[YY] = src_lst->pos.y + ( src_nxt->pos.y - src_lst->pos.y ) * flip;
-            dst->pos[ZZ] = src_lst->pos.z + ( src_nxt->pos.z - src_lst->pos.z ) * flip;
+            dst->pos[XX] = srcLast.pos.x + ( srcNext.pos.x - srcLast.pos.x ) * flip;
+            dst->pos[YY] = srcLast.pos.y + ( srcNext.pos.y - srcLast.pos.y ) * flip;
+            dst->pos[ZZ] = srcLast.pos.z + ( srcNext.pos.z - srcLast.pos.z ) * flip;
             dst->pos[WW] = 1.0f;
 
-            dst->nrm[XX] = src_lst->nrm.x + ( src_nxt->nrm.x - src_lst->nrm.x ) * flip;
-            dst->nrm[YY] = src_lst->nrm.y + ( src_nxt->nrm.y - src_lst->nrm.y ) * flip;
-            dst->nrm[ZZ] = src_lst->nrm.z + ( src_nxt->nrm.z - src_lst->nrm.z ) * flip;
+            dst->nrm[XX] = srcLast.nrm.x + ( srcNext.nrm.x - srcLast.nrm.x ) * flip;
+            dst->nrm[YY] = srcLast.nrm.y + ( srcNext.nrm.y - srcLast.nrm.y ) * flip;
+            dst->nrm[ZZ] = srcLast.nrm.z + ( srcNext.nrm.z - srcLast.nrm.z ) * flip;
 
-            vrta_lst = src_lst->normal;
-            vrta_nxt = src_nxt->normal;
+            vrta_lst = srcLast.normal;
+            vrta_nxt = srcNext.normal;
 
             dst->env[XX] = indextoenvirox[vrta_lst] + ( indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst] ) * flip;
             dst->env[YY] = 0.5f * ( 1.0f + dst->nrm[ZZ] );
@@ -1381,8 +1339,7 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
     vlst_cache_t * psave;
 
     mad_t       * pmad;
-    MD2_Model_t * pmd2;
-    MD2_Frame_t * frame_list, * pframe_nxt, * pframe_lst;
+    std::shared_ptr<MD2Model> pmd2;
 
     int vdirty1_min = -1, vdirty1_max = -1;
     int vdirty2_min = -1, vdirty2_max = -1;
@@ -1415,8 +1372,7 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
     pmd2 = pmad->md2_ptr;
 
     // make sure we have valid data
-    md2_verts = md2_get_numVertices( pmd2 );
-    if ( md2_verts < 0 || pinst->vrt_count != ( size_t )md2_verts )
+    if (pinst->vrt_count != pmd2->getVertexCount())
     {
         log_error( "chr_instance_update_vertices() - character instance vertex data does not match its md2\n" );
     }
@@ -1481,16 +1437,15 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
     }
 
     // make sure the frames are in the valid range
-    frame_count = md2_get_numFrames( pmd2 );
-    if ( pinst->frame_nxt >= frame_count || pinst->frame_lst >= frame_count )
+    const std::vector<MD2_Frame> &frameList = pmd2->getFrames();
+    if ( pinst->frame_nxt >= frameList.size() || pinst->frame_lst >= frameList.size() )
     {
         log_error( "chr_instance_update_vertices() - character instance frame is outside the range of its md2\n" );
     }
 
     // grab the frame data from the correct model
-    frame_list = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
-    pframe_nxt = frame_list + pinst->frame_nxt;
-    pframe_lst = frame_list + pinst->frame_lst;
+    const MD2_Frame &nextFrame = frameList[pinst->frame_nxt];
+    const MD2_Frame &lastFrame = frameList[pinst->frame_lst];
 
     // fix the flip for objects that are not animating
     loc_flip = pinst->flip;
@@ -1499,13 +1454,13 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
     // interpolate the 1st dirty region
     if ( vdirty1_min >= 0 && vdirty1_max >= 0 )
     {
-        chr_instance_interpolate_vertices_raw( pinst->vrt_lst, pframe_lst->vertex_lst, pframe_nxt->vertex_lst, vdirty1_min, vdirty1_max, loc_flip );
+        chr_instance_interpolate_vertices_raw( pinst->vrt_lst, lastFrame.vertexList, nextFrame.vertexList, vdirty1_min, vdirty1_max, loc_flip );
     }
 
     // interpolate the 2nd dirty region
     if ( vdirty2_min >= 0 && vdirty2_max >= 0 )
     {
-        chr_instance_interpolate_vertices_raw( pinst->vrt_lst, pframe_lst->vertex_lst, pframe_nxt->vertex_lst, vdirty2_min, vdirty2_max, loc_flip );
+        chr_instance_interpolate_vertices_raw( pinst->vrt_lst, lastFrame.vertexList, nextFrame.vertexList, vdirty2_min, vdirty2_max, loc_flip );
     }
 
     // update the saved parameters
@@ -2073,7 +2028,6 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
 
     mad_t * pmad;
     bool updated = false;
-    size_t vlst_size;
 
     if ( NULL == pinst )
     {
@@ -2098,7 +2052,7 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     }
 
     // set the vertex size
-    vlst_size = md2_get_numVertices( pmad->md2_ptr );
+    size_t vlst_size = pmad->md2_ptr->getVertexCount();
     if ( pinst->vrt_count != vlst_size )
     {
         updated = true;
@@ -2228,29 +2182,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
 //--------------------------------------------------------------------------------------------
 BIT_FIELD chr_instance_get_framefx( chr_instance_t * pinst )
 {
-    int           frame_count;
-    MD2_Frame_t * frame_list, * pframe_nxt;
-    mad_t       * pmad;
-    MD2_Model_t * pmd2;
-
-    if ( NULL == pinst ) return 0;
-
-    if ( !LOADED_MAD( pinst->imad ) ) return 0;
-    pmad = MadStack_get_ptr( pinst->imad );
-
-    if ( NULL == pmad->md2_ptr ) return 0;
-    pmd2 = pmad->md2_ptr;
-
-    frame_count = md2_get_numFrames( pmd2 );
-    if ( pinst->frame_nxt > frame_count )
-    {
-        log_error( "chr_instance_get_framefx() - invalid frame %d/%d\n", pinst->frame_nxt, frame_count );
-    }
-
-    frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
-    pframe_nxt  = frame_list + pinst->frame_nxt;
-
-    return pframe_nxt->framefx;
+    return chr_instnce_get_frame_nxt(pinst).framefx;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2399,51 +2331,27 @@ gfx_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst )
+const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst)
 {
-    mad_t       * pmad;
-    MD2_Model_t * pmd2;
-    MD2_Frame_t * frame_list;
-    int           frame_count;
+    mad_t * pmad = MadStack_get_ptr( pinst->imad );
+    if ( pinst->frame_nxt > pmad->md2_ptr->getFrames().size() )
+    {
+        log_error( "chr_instnce_get_frame_nxt() - invalid frame %d/%llu\n", pinst->frame_nxt, pmad->md2_ptr->getFrames().size() );
+    }
 
-    if ( NULL == pinst ) return NULL;
-
-    if ( !LOADED_MAD( pinst->imad ) ) return NULL;
-    pmad = MadStack_get_ptr( pinst->imad );
-
-    if ( NULL == pmad->md2_ptr ) return NULL;
-    pmd2 = pmad->md2_ptr;
-
-    frame_count = md2_get_numFrames( pmd2 );
-    if ( pinst->frame_nxt < 0 || pinst->frame_nxt > frame_count ) return NULL;
-
-    frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
-
-    return frame_list + pinst->frame_nxt;
+    return pmad->md2_ptr->getFrames()[pinst->frame_nxt];
 }
 
 //--------------------------------------------------------------------------------------------
-MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst )
+const MD2_Frame& chr_instnce_get_frame_lst(chr_instance_t * pinst)
 {
-    mad_t       * pmad;
-    MD2_Model_t * pmd2;
-    MD2_Frame_t * frame_list;
-    int           frame_count;
+    mad_t * pmad = MadStack_get_ptr( pinst->imad );
+    if ( pinst->frame_lst > pmad->md2_ptr->getFrames().size() )
+    {
+        log_error( "chr_instnce_get_frame_lst() - invalid frame %d/%llu\n", pinst->frame_lst, pmad->md2_ptr->getFrames().size() );
+    }
 
-    if ( NULL == pinst ) return NULL;
-
-    if ( !LOADED_MAD( pinst->imad ) ) return NULL;
-    pmad = MadStack_get_ptr( pinst->imad );
-
-    if ( NULL == pmad->md2_ptr ) return NULL;
-    pmd2 = pmad->md2_ptr;
-
-    frame_count = md2_get_numFrames( pmd2 );
-    if ( pinst->frame_lst < 0 || pinst->frame_lst > frame_count ) return NULL;
-
-    frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
-
-    return frame_list + pinst->frame_lst;
+    return pmad->md2_ptr->getFrames()[pinst->frame_lst];
 }
 
 //--------------------------------------------------------------------------------------------

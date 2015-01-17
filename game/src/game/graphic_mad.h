@@ -259,8 +259,8 @@ gfx_rv chr_instance_set_action_next( chr_instance_t * pinst, int val );
 
 gfx_rv chr_instance_set_texture( chr_instance_t * pinst, const TX_REF itex );
 
-MD2_Frame_t * chr_instnce_get_frame_nxt( chr_instance_t * pinst );
-MD2_Frame_t * chr_instnce_get_frame_lst( chr_instance_t * pinst );
+const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst);
+const MD2_Frame& chr_instnce_get_frame_lst(chr_instance_t * pinst);
 
 float  chr_instance_get_remaining_flip( chr_instance_t * pinst );
 gfx_rv chr_instance_update_one_lip( chr_instance_t * pinst );

@@ -16,6 +16,8 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+/// @file game/CameraSystem.hpp
+/// @author Johan Jansen
 #pragma once
 
 #include "game/egoboo_typedef.h"

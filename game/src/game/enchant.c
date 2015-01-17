@@ -31,8 +31,8 @@
 #include "game/char.h"
 #include "game/mad.h"
 #include "game/particle.h"
-#include "game/Profile.hpp"
-#include "game/ProfileSystem.hpp"
+#include "game/profiles/Profile.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 
 #include "game/EncList.h"
 #include "game/ChrList.h"

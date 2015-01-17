@@ -25,8 +25,7 @@
 #include "game/graphic.h"
 #include "game/graphic_texture.h"
 #include "game/script_compile.h"
-//#include "game/sound.h"
-#include "game/md2.h"
+#include "game/graphics/MD2Model.hpp"
 #include "game/particle.h"
 
 //--------------------------------------------------------------------------------------------
@@ -53,10 +52,6 @@ static mad_t * mad_make_equally_lit( mad_t * pmad );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-//static void md2_fix_normals( const MAD_REF imad );
-//static void md2_get_transvertices( const MAD_REF imad );
-// static int  vertexconnected( md2_ogl_commandlist_t * pclist, int vertex );
-
 static mad_t * mad_ctor( mad_t * pmad );
 static mad_t * mad_dtor( mad_t * pmad );
 static mad_t * mad_reconstruct( mad_t * pmad );
@@ -308,29 +303,22 @@ int mad_get_action( mad_t * pmad, int action )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mad_get_madfx( mad_t * pmad, int action )
+BIT_FIELD mad_get_madfx( mad_t * pmad, int action )
 {
     BIT_FIELD retval = EMPTY_BIT_FIELD;
-    int cnt;
-
-    MD2_Model_t * md2;
-    MD2_Frame_t * frame_lst, * pframe;
 
     if ( NULL == pmad ) return 0;
 
-    md2 = pmad->md2_ptr;
-    if ( NULL == md2 ) return 0;
+    if ( nullptr == pmad->md2_ptr ) return 0;
 
     if ( action < 0 || action >= ACTION_COUNT ) return 0;
 
     if ( !pmad->action_valid[action] ) return 0;
 
-    frame_lst = ( MD2_Frame_t * )md2_get_Frames( md2 );
-    for ( cnt = pmad->action_stt[action]; cnt <= pmad->action_end[action]; cnt++ )
+    const std::vector<MD2_Frame> &frames = pmad->md2_ptr->getFrames();
+    for (int cnt = pmad->action_stt[action]; cnt <= pmad->action_end[action]; cnt++)
     {
-        pframe = frame_lst + cnt;
-
-        SET_BIT( retval, pframe->framefx );
+        SET_BIT(retval, frames[cnt].framefx);
     }
 
     return retval;
@@ -410,18 +398,15 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
     const char * ptmp, * ptmp_end;
     char *paction, *paction_end;
 
-    MD2_Model_t * md2;
-    MD2_Frame_t * pframe;
-
     if ( NULL == pmad ) return pmad;
 
-    md2 = pmad->md2_ptr;
-    if ( NULL == md2 ) return pmad;
+    if ( pmad->md2_ptr == nullptr ) return pmad;
 
     // check for a valid frame number
-    if ( frame >= md2_get_numFrames( md2 ) ) return pmad;
-    pframe = ( MD2_Frame_t * )md2_get_Frames( md2 );
-    pframe = pframe + frame;
+    if(frame >= pmad->md2_ptr->getFrames().size()){
+        return pmad; 
+    }
+    MD2_Frame &pframe = pmad->md2_ptr->getFrames()[frame];
 
     // this should only be initializwd the first time through
     if ( token_count < 0 )
@@ -432,7 +417,7 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
 
     // set the default values
     fx = 0;
-    pframe->framefx = fx;
+    pframe.framefx = fx;
 
     // check for a non-trivial frame name
     if ( !VALID_CSTR( cFrameName ) ) return pmad;
@@ -592,7 +577,7 @@ mad_t * mad_get_framefx( mad_t * pmad, const char * cFrameName, int frame )
         }
     }
 
-    pframe->framefx = fx;
+    pframe.framefx = fx;
 
     return pmad;
 }
@@ -603,46 +588,31 @@ mad_t * mad_make_framelip( mad_t * pmad, int action )
     /// @author ZZ
     /// @details This helps make walking look right
 
-    int action_stt, action_end, action_count;
-    int framelip, frame;
-
-    MD2_Model_t * md2_ptr;
-    int           md2_frame_count;
-    MD2_Frame_t * md2_frame_list, * md2_frame_ptr;
-
-    if ( NULL == pmad ) return pmad;
-
-    if ( NULL == pmad->md2_ptr ) return pmad;
-    md2_ptr = pmad->md2_ptr;
+    if ( NULL == pmad || nullptr == pmad->md2_ptr ) return pmad;
 
     action = mad_get_action( pmad, action );
     if ( ACTION_COUNT == action ) return pmad;
 
     if ( !pmad->action_valid[action] ) return pmad;
 
-    // grab the md2 info
-    md2_frame_count = md2_get_numFrames( md2_ptr );
-    md2_frame_list  = ( MD2_Frame_t * )md2_get_Frames( md2_ptr );
-
     // grab the animation info
-    action_stt = pmad->action_stt[action];
-    action_end = pmad->action_end[action];
-    action_count = 1 + ( action_end - action_stt );
+    int action_stt = pmad->action_stt[action];
+    int action_end = pmad->action_end[action];
+    int action_count = 1 + ( action_end - action_stt );
 
     // scan through all the frames of the action
-    for ( frame = action_stt; frame <= action_end; frame++ )
+    for (int frame = action_stt; frame <= action_end; frame++)
     {
         // grab a valid frame
-        if ( frame > md2_frame_count ) break;
-        md2_frame_ptr = md2_frame_list + frame;
+        if (frame >= pmad->md2_ptr->getFrames().size()) break;
 
         // calculate the framelip.
         // this should produce a number between 0 and FRAMELIP_COUNT-1, but
         // watch out for possible rounding errors
-        framelip = (( frame - action_stt ) * FRAMELIP_COUNT ) / action_count;
+        int framelip = (( frame - action_stt ) * FRAMELIP_COUNT ) / action_count;
 
         // limit the framelip to the valid range
-        md2_frame_ptr->framelip = std::min( framelip, FRAMELIP_COUNT - 1 );
+        pmad->md2_ptr->getFrames()[frame].framelip = std::min(framelip, FRAMELIP_COUNT - 1);
     }
 
     return pmad;
@@ -654,26 +624,9 @@ mad_t * mad_make_equally_lit( mad_t * pmad )
     /// @author ZZ
     /// @details This function makes ultra low poly models look better
 
-    int cnt, vert;
-    MD2_Model_t * md2;
-    int frame_count, vert_count;
+    if ( NULL == pmad || pmad->md2_ptr == nullptr ) return pmad;
 
-    if ( NULL == pmad ) return pmad;
-
-    md2 = pmad->md2_ptr;
-    if ( NULL == md2 ) return pmad;
-
-    frame_count = md2_get_numFrames( md2 );
-    vert_count  = md2_get_numVertices( md2 );
-
-    for ( cnt = 0; cnt < frame_count; cnt++ )
-    {
-        MD2_Frame_t * pframe = ( MD2_Frame_t * )md2_get_Frames( md2 );
-        for ( vert = 0; vert < vert_count; vert++ )
-        {
-            pframe->vertex_lst[vert].normal = EGO_AMBIENT_INDEX;
-        }
-    }
+    pmad->md2_ptr->makeEquallyLit();
 
     return pmad;
 }
@@ -755,13 +708,13 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad 
     //pmad->md2_ref = imad;
 
     // load the model from the file
-    pmad->md2_ptr = md2_load( vfs_resolveReadFilename( newloadname ), NULL );
+    pmad->md2_ptr = MD2Model::loadFromFile(vfs_resolveReadFilename(newloadname));
 
     // set the model's file name
     szModelName[0] = CSTR_END;
-    if ( NULL != pmad->md2_ptr )
+    if (pmad->md2_ptr != nullptr)
     {
-        strncpy( szModelName, vfs_resolveReadFilename( newloadname ), SDL_arraysize( szModelName ) );
+        strncpy(szModelName, vfs_resolveReadFilename(newloadname), SDL_arraysize(szModelName));
 
         /// @author BB
         /// @details Egoboo md2 models were designed with 1 tile = 32x32 units, but internally Egoboo uses
@@ -769,7 +722,7 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad 
         ///      commands that multiplied various quantities by 4 or by 4.125 throughout the code.
         ///      It was very counterintuitive, and caused me no end of headaches...  Of course the
         ///      solution is to scale the model!
-        md2_scale_model( pmad->md2_ptr, -3.5f, 3.5f, 3.5f );
+        pmad->md2_ptr->scaleModel(-3.5f, 3.5f, 3.5f);
     }
 
     // Create the actions table for this imad
@@ -850,24 +803,15 @@ mad_t * mad_heal_actions( mad_t * pmad, const char * tmploadname )
 //--------------------------------------------------------------------------------------------
 mad_t * mad_finalize( mad_t * pmad )
 {
-    int frame, frame_count;
-
-    MD2_Model_t * pmd2;
-    MD2_Frame_t * frame_list;
-
     if ( NULL == pmad ) return pmad;
 
-    if ( NULL == pmad->md2_ptr ) return pmad;
-    pmd2 = pmad->md2_ptr;
-
-    frame_count = md2_get_numFrames( pmd2 );
-    frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
+    if (nullptr == pmad->md2_ptr) return pmad;
 
     // Create table for doing transition from one type of walk to another...
     // Clear 'em all to start
-    for ( frame = 0; frame < frame_count; frame++ )
+    for(MD2_Frame &frame : pmad->md2_ptr->getFrames())
     {
-        frame_list[frame].framelip = 0;
+        frame.framelip = 0;
     }
 
     // Need to figure out how far into action each frame is
@@ -891,16 +835,12 @@ mad_t * mad_rip_actions( mad_t * pmad )
     /// \details  This function creates the iframe lists for each action_now based on the
     ///    name of each md2 iframe in the model
 
-    int frame_count, iframe;
+    int frame_count;
     int action_now, last_action;
-
-    MD2_Model_t * pmd2;
-    MD2_Frame_t * frame_list;
 
     if ( NULL == pmad ) return pmad;
 
-    pmd2 = pmad->md2_ptr;
-    if ( NULL == pmd2 ) return pmad;
+    if ( nullptr == pmad->md2_ptr ) return pmad;
 
     // Clear out all actions and reset to invalid
     for ( action_now = 0; action_now < ACTION_COUNT; action_now++ )
@@ -911,12 +851,9 @@ mad_t * mad_rip_actions( mad_t * pmad )
         pmad->action_valid[action_now] = false;
     }
 
-    // grab the frame info from the md2
-    frame_count = md2_get_numFrames( pmd2 );
-    frame_list  = ( MD2_Frame_t * )md2_get_Frames( pmd2 );
 
     // is there anything to do?
-    if ( 0 == frame_count ) return pmad;
+    if ( pmad->md2_ptr->getFrames().empty() ) return pmad;
 
     // Make a default dance action (ACTION_DA) to be the 1st frame of the animation
     pmad->action_map[ACTION_DA]   = ACTION_DA;
@@ -926,17 +863,20 @@ mad_t * mad_rip_actions( mad_t * pmad )
 
     // Now go huntin' to see what each iframe is, look for runs of same action_now
     last_action = ACTION_COUNT;
-    for ( iframe = 0; iframe < frame_count; iframe++ )
+    int iframe = 0;
+    for(const MD2_Frame &frame : pmad->md2_ptr->getFrames())
     {
-        action_now = action_number( frame_list[iframe].name );
+        action_now = action_number(frame.name);
         
         if (action_now == NOACTION) {
-            log_warning("Got no action for frame name '%s', ignoring\n", frame_list[iframe].name);
+            log_warning("Got no action for frame name '%s', ignoring\n", frame.name);
+            iframe++;
             continue;
         }
 
 		if (action_now == NOACTION) {
-			log_warning("Got no action for frame name '%s', ignoring\n", frame_list[iframe].name);
+			log_warning("Got no action for frame name '%s', ignoring\n", frame.name);
+            iframe++;
 			continue;
 		}
 
@@ -956,7 +896,8 @@ mad_t * mad_rip_actions( mad_t * pmad )
             pmad->action_end[action_now] = iframe;
         }
 
-        mad_get_framefx( pmad, frame_list[iframe].name, iframe );
+        mad_get_framefx(pmad, frame.name, iframe);
+        iframe++;
     }
 
     return pmad;
@@ -970,7 +911,7 @@ bool mad_free( mad_t * pmad )
 
     if ( !LOADED_PMAD( pmad ) ) return false;
 
-    MD2_Model_destroy( &( pmad->md2_ptr ) );
+    pmad->md2_ptr = nullptr;
 
     return true;
 }
@@ -1167,7 +1108,10 @@ void mad_make_equally_lit_ref( const MAD_REF imad )
 {
     if ( LOADED_MAD( imad ) )
     {
-        mad_make_equally_lit( MadStack_get_ptr( imad ) );
+        mad_t *mad = MadStack_get_ptr(imad);
+        if(mad->md2_ptr != nullptr) {
+            mad->md2_ptr->makeEquallyLit();
+        }
     }
 }
 

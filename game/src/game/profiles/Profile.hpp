@@ -24,7 +24,7 @@
 
 #include "game/script.h"     //for script_info_t
 #include "game/mad.h"
-#include "game/RandomName.hpp"
+#include "game/profiles/RandomName.hpp"
 #include "game/egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
