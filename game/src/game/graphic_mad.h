@@ -33,17 +33,10 @@ class Camera;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_chr_instance;
-typedef struct s_chr_instance chr_instance_t;
-
-struct s_vlst_cache;
-typedef struct s_vlst_cache vlst_cache_t;
-
-struct s_matrix_cache;
-typedef struct s_matrix_cache matrix_cache_t;
-
-typedef struct s_chr_reflection_cache chr_reflection_cache_t;
-struct s_chr_reflection_cache;
+struct chr_instance_t;
+struct vlst_cache_t;
+struct matrix_cache_t;
+struct chr_reflection_cache_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -78,18 +71,15 @@ enum e_chr_render_bits
 //--------------------------------------------------------------------------------------------
 
 /// Bits that tell you which variables to look at
-enum e_matrix_cache_type
+enum matrix_cache_type_t
 {
     MAT_UNKNOWN   = 0,
     MAT_CHARACTER = ( 1 << 0 ),
     MAT_WEAPON    = ( 1 << 1 )
 };
 
-// this typedef must be after the enum definition or gcc has a fit
-typedef enum e_matrix_cache_type matrix_cache_type_t;
-
 /// the data necessary to cache the last values required to create the character matrix
-struct s_matrix_cache
+struct matrix_cache_t
 {
     // is the cache data valid?
     bool valid;
@@ -124,7 +114,7 @@ struct s_matrix_cache
 //--------------------------------------------------------------------------------------------
 
 /// some pre-computed parameters for reflection
-struct s_chr_reflection_cache
+struct chr_reflection_cache_t
 {
     fmat_4x4_t matrix;
     bool     matrix_valid;
@@ -141,7 +131,7 @@ struct s_chr_reflection_cache
 //--------------------------------------------------------------------------------------------
 
 /// the data to determine whether re-calculation of vlst is necessary
-struct s_vlst_cache
+struct vlst_cache_t
 {
     bool valid;             ///< do we know whether this cache is valid or not?
 
@@ -158,7 +148,7 @@ struct s_vlst_cache
 //--------------------------------------------------------------------------------------------
 
 /// All the data that the renderer needs to draw the character
-struct s_chr_instance
+struct chr_instance_t
 {
     int update_frame;                ///< the last frame that the instance was calculated in
 

@@ -219,10 +219,7 @@ prt_t * prt_dtor( prt_t * pprt );
 bool  prt_request_terminate( prt_t * pprt );
 
 void   prt_set_level( prt_t * pprt, const float level );
-bool prt_set_pos(prt_t *pprt, const fvec3_t& pos);
-#if 0
-bool prt_set_pos(prt_t *pprt, const fvec3_base_t pos); /// @todo Remove this.
-#endif
+
 //--------------------------------------------------------------------------------------------
 struct s_prt_bundle
 {
@@ -301,6 +298,11 @@ prt_bundle_t * prt_bundle_ctor( prt_bundle_t * pbundle );
 prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle );
 prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt );
 
-const fvec3_t& prt_get_pos_v_const(const prt_t *pprt);
-float *prt_get_pos_v( prt_t * pprt );
-bool prt_get_pos( const prt_t * pprt, fvec3_base_t pos );
+const fvec3_t& prt_get_pos_v_const(const prt_t *self);
+float *prt_get_pos_v(prt_t *self);
+bool prt_set_pos(prt_t *self, const fvec3_t& position);
+bool prt_get_pos(const prt_t *self,fvec3_t& position);
+#if 0
+bool prt_get_pos(const prt_t *self, fvec3_base_t position); ///< @todo Remove this.
+bool prt_set_pos(prt_t *pprt, const fvec3_base_t position); ///< @todo Remove this.
+#endif

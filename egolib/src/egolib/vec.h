@@ -514,7 +514,6 @@ bool   fvec3_self_scale(fvec3_t& v, const float s);
 #if 0
 bool fvec3_self_scale(fvec3_base_t v, const float s); ///< @todo Remove this.
 #endif
-bool  fvec3_self_sum(fvec3_base_t A, const fvec3_base_t RHS);
 
 void fvec3_self_normalize(fvec3_t& v);
 #if 1
@@ -597,13 +596,18 @@ float fvec3_dist_abs(const fvec3_base_t u, const fvec3_base_t v); ///< @todo Rem
  *	the squared distance between the points
  */
 float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v);
-float fvec3_dist_2(const fvec3_base_t u, const fvec3_base_t v);
+#if 0
+float fvec3_dist_2(const fvec3_base_t u, const fvec3_base_t v); ///< @todo Remove this.
+#endif
 
 float *fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC);
 fvec3_t fvec3_scale(const fvec3_t& v, float s);
 float *fvec3_scale(fvec3_base_t DST, const fvec3_base_t SRC, const float B);
 float *fvec3_normalize(fvec3_base_t DST, const fvec3_base_t SRC);
 
+#if 0
+bool fvec3_self_sum(fvec3_base_t A, const fvec3_base_t RHS);
+#endif
 fvec3_t fvec3_add(const fvec3_t& u, const fvec3_t& v);
 float *fvec3_add(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS);
 fvec3_t fvec3_sub(const fvec3_t& u, const fvec3_t& v);

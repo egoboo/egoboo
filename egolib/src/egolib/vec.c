@@ -391,6 +391,7 @@ bool fvec3_self_scale(fvec3_base_t v, const float s)
 #endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool fvec3_self_sum(fvec3_base_t A, const fvec3_base_t B)
 {
 	if (NULL == A || NULL == B) return false;
@@ -403,6 +404,7 @@ bool fvec3_self_sum(fvec3_base_t A, const fvec3_base_t B)
 
 	return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 float fvec3_length_abs(const fvec3_t& v)
@@ -818,6 +820,24 @@ float fvec3_dist_abs(const fvec3_base_t A, const fvec3_base_t B)
 }
 #endif
 //--------------------------------------------------------------------------------------------
+float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v)
+{
+	float retval = 0.0f, ftmp;
+
+	ftmp = u[kX] - v[kX];
+	retval += ftmp * ftmp;
+
+	ftmp = u[kY] - v[kY];
+	retval += ftmp * ftmp;
+
+	ftmp = u[kZ] - v[kZ];
+	retval += ftmp * ftmp;
+
+	LOG_NAN(retval);
+
+	return retval;
+}
+#if 0
 float fvec3_dist_2(const fvec3_base_t LHS, const fvec3_base_t RHS)
 {
 	float retval = 0.0f, ftmp;
@@ -837,6 +857,7 @@ float fvec3_dist_2(const fvec3_base_t LHS, const fvec3_base_t RHS)
 
 	return retval;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 float fvec3_dot_product(const fvec3_t& u, const fvec3_t& v)

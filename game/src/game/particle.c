@@ -363,7 +363,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
             const int PERFECT_AIM = 45 * 256;   // 45 dex is perfect aim
 
             // Find a target
-            pprt->target_ref = prt_find_target( pdata->pos.v, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
+            pprt->target_ref = prt_find_target( pdata->pos, loc_facing, pdata->ipip, pdata->team, loc_chr_origin, pdata->oldtarget );
             if ( DEFINED_CHR( pprt->target_ref ) && !ppip->homing )
             {
                 /// @note ZF@> ?What does this do?!
@@ -1317,9 +1317,9 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
         // unfortunately platforms are attached in the collision section
         // which occurs after the movement section.
 
-        fvec3_t   platform_up;
+        fvec3_t platform_up;
 
-        chr_getMatUp( ChrList_get_ptr( loc_pprt->onwhichplatform_ref ), platform_up.v );
+        chr_getMatUp(ChrList_get_ptr(loc_pprt->onwhichplatform_ref), platform_up);
         fvec3_self_normalize(platform_up);
 
         penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
@@ -1499,7 +1499,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
         floor_acc.y = pplat->vel.y - pplat->vel_old.y;
         floor_acc.z = pplat->vel.z - pplat->vel_old.z;
 
-        chr_getMatUp( pplat, vup.v );
+        chr_getMatUp(pplat, vup);
     }
     else
     {
@@ -1788,7 +1788,7 @@ prt_bundle_t * move_one_particle_integrate_motion_attached( prt_bundle_t * pbdl_
     if ( !DISPLAY_PPRT( loc_pprt ) ) return pbdl_prt;
 
     // capture the particle position
-    prt_get_pos( loc_pprt, tmp_pos.v );
+    prt_get_pos(loc_pprt, tmp_pos);
 
     // only deal with attached particles
     if ( INVALID_CHR_REF == loc_pprt->attachedto_ref ) return pbdl_prt;
@@ -1888,7 +1888,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
     if ( !DISPLAY_PPRT( loc_pprt ) ) return pbdl_prt;
 
     // capture the position
-    prt_get_pos( loc_pprt, tmp_pos.v );
+    prt_get_pos(loc_pprt, tmp_pos);
 
     // no point in doing this if the particle thinks it's attached
     if ( INVALID_CHR_REF != loc_pprt->attachedto_ref )
@@ -2166,7 +2166,7 @@ bool move_one_particle( prt_bundle_t * pbdl_prt )
     }
 
     // Particle's old location
-    prt_get_pos( loc_pprt, loc_pprt->pos_old.v );
+    prt_get_pos(loc_pprt, loc_pprt->pos_old);
     loc_pprt->vel_old = loc_pprt->vel;
 
     // what is the local environment like?
@@ -3327,7 +3327,7 @@ bool prt_update_safe_raw( prt_t * pprt )
     if (( 0 == hit_a_wall ) && ( 0.0f == pressure ) )
     {
         pprt->safe_valid = true;
-        prt_get_pos( pprt, pprt->safe_pos.v );
+        prt_get_pos(pprt, pprt->safe_pos);
         pprt->safe_time  = update_wld;
         pprt->safe_grid  = ego_mesh_get_grid( PMesh, pprt->pos.x, pprt->pos.y );
 
@@ -3677,13 +3677,27 @@ prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool prt_get_pos( const prt_t * pprt, fvec3_base_t pos )
+bool prt_get_pos(const prt_t *self, fvec3_t& position)
 {
-    float * copy_rv;
+#if 0
+	float *copy_rv;
+#endif
+	if (!ALLOCATED_PPRT(self)) return false;
+	position = self->pos;
+#if 0
+	copy_rv = fvec3_base_copy(position, self->pos.v);
 
-    if ( !ALLOCATED_PPRT( pprt ) ) return false;
+	return (NULL == copy_rv) ? false : true;
+#endif
+	return true;
+}
+bool prt_get_pos(const prt_t *self, fvec3_base_t position)
+{
+    float *copy_rv;
 
-    copy_rv = fvec3_base_copy( pos, pprt->pos.v );
+    if (!ALLOCATED_PPRT(self)) return false;
+
+    copy_rv = fvec3_base_copy(position, self->pos.v);
 
     return ( NULL == copy_rv ) ? false : true;
 }

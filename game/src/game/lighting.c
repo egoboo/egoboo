@@ -255,9 +255,9 @@ bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * sr
     if ( src->max_light == 0.0f ) return true;
 
     // grab the character directions
-    mat_getChrForward( mat, fwd.v );          // along body-fixed +y-axis
-    mat_getChrRight( mat, right.v );          // along body-fixed +x-axis
-    mat_getChrUp( mat, up.v );                    // along body-fixed +z axis
+    mat_getChrForward(mat, fwd);  // along body-fixed +y-axis
+    mat_getChrRight(mat, right);  // along body-fixed +x-axis
+    mat_getChrUp(mat, up);        // along body-fixed +z axis
 
     fvec3_self_normalize( fwd );
     fvec3_self_normalize( right );

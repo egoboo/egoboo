@@ -1714,7 +1714,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         }
 
         // do the "integration" of the accumulated accelerations
-        fvec3_self_sum( pchr->vel.v, pchr->phys.avel.v );
+        pchr->vel = fvec3_add(pchr->vel, pchr->phys.avel);
 
         position_updated = false;
 
@@ -1730,7 +1730,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             apos_self_union( &apos_tmp, &( pchr->phys.acoll ) );
 
             // turn this into a vector
-            apos_evaluate( &apos_tmp, max_apos.v );
+            apos_evaluate(&apos_tmp, max_apos);
         }
 
         // limit the size of the displacement
@@ -1813,7 +1813,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         fvec3_t tmp_pos;
 
-        prt_get_pos( bdl.prt_ptr, tmp_pos.v );
+        prt_get_pos(bdl.prt_ptr, tmp_pos);
 
         bump_str = 1.0f;
         if ( INGAME_CHR( bdl.prt_ptr->attachedto_ref ) )
@@ -1822,7 +1822,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         }
 
         // do the "integration" of the accumulated accelerations
-        fvec3_self_sum( bdl.prt_ptr->vel.v, bdl.prt_ptr->phys.avel.v );
+		bdl.prt_ptr->vel = fvec3_add(bdl.prt_ptr->vel, bdl.prt_ptr->phys.avel);
 
         position_updated = false;
 
@@ -1838,7 +1838,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
             apos_self_union( &apos_tmp, &( bdl.prt_ptr->phys.acoll ) );
 
             // turn this into a vector
-            apos_evaluate( &apos_tmp, max_apos.v );
+            apos_evaluate(&apos_tmp, max_apos);
         }
 
         max_apos.x = CLIP( max_apos.x, -GRID_FSIZE, GRID_FSIZE );
@@ -2454,7 +2454,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
                     fvec3_scale( vimp_a.v, vdiff_perp_a.v, recoil_a *( 1.0f + cr ) * interaction_strength );
 
-                    phys_data_sum_avel( &( pchr_a->phys ), vimp_a.v );
+                    phys_data_sum_avel(&(pchr_a->phys), vimp_a);
                 }
 
                 if ( recoil_b > 0.0f )
@@ -2463,7 +2463,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
                     fvec3_scale( vimp_b.v, vdiff_perp_a.v, -recoil_b *( 1.0f + cr ) * interaction_strength );
 
-                    phys_data_sum_avel( &( pchr_b->phys ), vimp_b.v );
+                    phys_data_sum_avel(&(pchr_b->phys), vimp_b);
                 }
 
                 // this was definitely a bump
@@ -2496,7 +2496,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
                         fvec3_scale( vimp_a.v, vdiff_a.v, recoil_a * pressure_strength );
 
-                        phys_data_sum_avel( &( pchr_a->phys ), vimp_a.v );
+                        phys_data_sum_avel(&(pchr_a->phys), vimp_a);
                     }
 
                     if ( recoil_b > 0.0f )
@@ -2505,7 +2505,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
                         fvec3_scale( vimp_b.v, vdiff_a.v, -recoil_b * pressure_strength );
 
-                        phys_data_sum_avel( &( pchr_b->phys ), vimp_b.v );
+                        phys_data_sum_avel(&(pchr_b->phys), vimp_b);
                     }
                 }
 
@@ -2525,7 +2525,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
                 fvec3_scale( pimp_a.v, pdiff_a.v, recoil_a * pressure_strength );
 
-                phys_data_sum_acoll( &( pchr_a->phys ), pimp_a.v );
+                phys_data_sum_acoll(&(pchr_a->phys), pimp_a);
             }
 
             if ( recoil_b > 0.0f )
@@ -2534,7 +2534,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
                 fvec3_scale( pimp_b.v, pdiff_a.v,  -recoil_b * pressure_strength );
 
-                phys_data_sum_acoll( &( pchr_b->phys ), pimp_b.v );
+                phys_data_sum_acoll(&(pchr_b->phys), pimp_b);
             }
         }
 
@@ -3002,10 +3002,10 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 
         // calculate the "impulse" to the character
         fvec3_scale( tmp_impulse.v, pdata->vimpulse.v, -chr_recoil * attack_factor * pdata->block_factor );
-        phys_data_sum_avel( &( pdata->pchr->phys ), tmp_impulse.v );
+        phys_data_sum_avel(&(pdata->pchr->phys), tmp_impulse);
 
         fvec3_scale( tmp_impulse.v, pdata->pimpulse.v, -chr_recoil * attack_factor * pdata->block_factor );
-        phys_data_sum_acoll( &( pdata->pchr->phys ), tmp_impulse.v );
+        phys_data_sum_acoll(&(pdata->pchr->phys), tmp_impulse);
     }
 
     // if the particle is attached to a weapon, the particle can force the
@@ -3065,10 +3065,10 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 
             // in the SAME direction as the particle
             fvec3_scale( tmp_impulse.v, pdata->vimpulse.v, holder_recoil );
-            phys_data_sum_avel( &( pholder->phys ), tmp_impulse.v );
+            phys_data_sum_avel(&(pholder->phys), tmp_impulse);
 
             fvec3_scale( tmp_impulse.v, pdata->pimpulse.v, holder_recoil );
-            phys_data_sum_acoll( &( pholder->phys ), tmp_impulse.v );
+            phys_data_sum_acoll(&(pholder->phys), tmp_impulse);
         }
     }
 
@@ -3078,10 +3078,10 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
         fvec3_t tmp_impulse;
 
         fvec3_scale( tmp_impulse.v, pdata->vimpulse.v, prt_recoil );
-        phys_data_sum_avel( &( pdata->pprt->phys ), tmp_impulse.v );
+        phys_data_sum_avel(&(pdata->pprt->phys), tmp_impulse);
 
         fvec3_scale( tmp_impulse.v, pdata->pimpulse.v, prt_recoil );
-        phys_data_sum_acoll( &( pdata->pprt->phys ), tmp_impulse.v );
+        phys_data_sum_acoll(&(pdata->pprt->phys), tmp_impulse);
     }
 
     return true;
@@ -3310,7 +3310,7 @@ bool do_chr_prt_collision_impulse( chr_prt_collsion_data_t * pdata )
         // is the normal reversed?
         fvec3_scale( tmp_imp.v, pdata->nrm.v, pdata->depth_min );
 
-        fvec3_self_sum( pdata->pimpulse.v, tmp_imp.v );
+        pdata->pimpulse = fvec3_add(pdata->pimpulse, tmp_imp);
 
         did_something = true;
     }

@@ -174,14 +174,15 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\MD2Model.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\Profile.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\ProfileSystem.cpp" />
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\RandomName.cpp" />
     <ClCompile Include="src\game\audio\AudioSystem.cpp" />
-    <ClCompile Include="src\game\chop.c" />
     <ClCompile Include="src\game\graphics\Camera.cpp" />
     <ClCompile Include="src\game\graphics\CameraSystem.cpp" />
     <ClCompile Include="src\game\module\Passage.cpp" />
     <ClCompile Include="src\game\module\PassageHandler.cpp" />
-    <ClCompile Include="src\game\Profile.cpp" />
-    <ClCompile Include="src\game\ProfileSystem.cpp" />
     <ClCompile Include="src\game\ai\AStar.c" />
     <ClCompile Include="src\game\ai\WaypointList.c" />
     <ClCompile Include="src\game\bsp.c" />
@@ -204,7 +205,6 @@
     <ClCompile Include="src\game\lighting.c" />
     <ClCompile Include="src\game\link.c" />
     <ClCompile Include="src\game\mad.c" />
-    <ClCompile Include="src\game\md2.c" />
     <ClCompile Include="src\game\menu.c" />
     <ClCompile Include="src\game\mesh.c" />
     <ClCompile Include="src\game\mesh_BSP.c" />
@@ -226,14 +226,15 @@
     <ClCompile Include="src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\MD2Model.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\Profile.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\ProfileSystem.hpp" />
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\RandomName.hpp" />
     <ClInclude Include="src\game\audio\AudioSystem.hpp" />
-    <ClInclude Include="src\game\chop.h" />
     <ClInclude Include="src\game\graphics\Camera.hpp" />
     <ClInclude Include="src\game\graphics\CameraSystem.hpp" />
     <ClInclude Include="src\game\module\Passage.hpp" />
     <ClInclude Include="src\game\module\PassageHandler.hpp" />
-    <ClInclude Include="src\game\Profile.hpp" />
-    <ClInclude Include="src\game\ProfileSystem.hpp" />
     <ClInclude Include="src\game\ai\AStar.h" />
     <ClInclude Include="src\game\ai\WaypointList.h" />
     <ClInclude Include="src\game\bsp.h" />
@@ -259,7 +260,6 @@
     <ClInclude Include="src\game\lighting.h" />
     <ClInclude Include="src\game\link.h" />
     <ClInclude Include="src\game\mad.h" />
-    <ClInclude Include="src\game\md2.h" />
     <ClInclude Include="src\game\menu.h" />
     <ClInclude Include="src\game\mesh.h" />
     <ClInclude Include="src\game\mesh_BSP.h" />

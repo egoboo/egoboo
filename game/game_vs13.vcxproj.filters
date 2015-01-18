@@ -39,6 +39,18 @@
     <Filter Include="Game Sources\Audio">
       <UniqueIdentifier>{abe11988-e20e-4cef-8451-8404aadadc8e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Sources\Module">
+      <UniqueIdentifier>{5463cfca-f30f-407c-8ff2-ae1aa2e51c75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Header Files\Module">
+      <UniqueIdentifier>{1accc5db-f411-4529-9de2-32673d2f5e0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Header Files\Profile">
+      <UniqueIdentifier>{3440c846-e122-4fea-99e5-9d94f9339c2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Sources\Profile">
+      <UniqueIdentifier>{e50c923b-71df-411d-a997-f995da596bca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game\char.c">
@@ -96,9 +108,6 @@
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\mad.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\md2.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
     <ClCompile Include="src\game\menu.c">
@@ -161,12 +170,6 @@
     <ClCompile Include="src\game\bsp.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\module\Passage.cpp">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\module\PassageHandler.cpp">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\graphics\Camera.cpp">
       <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
@@ -182,14 +185,23 @@
     <ClCompile Include="src\game\audio\AudioSystem.cpp">
       <Filter>Game Sources\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\Profile.cpp">
-      <Filter>Game Sources</Filter>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\Profile.cpp">
+      <Filter>Game Sources\Profile</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\ProfileSystem.cpp">
-      <Filter>Game Sources</Filter>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\ProfileSystem.cpp">
+      <Filter>Game Sources\Profile</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\chop.c">
-      <Filter>Game Sources</Filter>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\RandomName.cpp">
+      <Filter>Game Sources\Profile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\module\PassageHandler.cpp">
+      <Filter>Game Sources\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\module\Passage.cpp">
+      <Filter>Game Sources\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\MD2Model.cpp">
+      <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -259,9 +271,6 @@
     <ClInclude Include="src\game\mad.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\md2.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\menu.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
@@ -322,12 +331,6 @@
     <ClInclude Include="src\game\bsp.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\module\Passage.hpp">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\module\PassageHandler.hpp">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\graphics\Camera.hpp">
       <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
@@ -343,14 +346,23 @@
     <ClInclude Include="src\game\audio\AudioSystem.hpp">
       <Filter>Game Header Files\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\Profile.hpp">
-      <Filter>Game Header Files</Filter>
+    <ClInclude Include="src\game\module\PassageHandler.hpp">
+      <Filter>Game Header Files\Module</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\ProfileSystem.hpp">
-      <Filter>Game Header Files</Filter>
+    <ClInclude Include="src\game\module\Passage.hpp">
+      <Filter>Game Header Files\Module</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\chop.h">
-      <Filter>Game Header Files</Filter>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\Profile.hpp">
+      <Filter>Game Header Files\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\ProfileSystem.hpp">
+      <Filter>Game Header Files\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\RandomName.hpp">
+      <Filter>Game Header Files\Profile</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\MD2Model.hpp">
+      <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

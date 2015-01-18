@@ -493,11 +493,11 @@ void keep_weapons_with_holders()
             // Keep in hand weapons with iattached
             if ( chr_matrix_valid( pchr ) )
             {
-                chr_set_pos( pchr, mat_getTranslate_v( pchr->inst.matrix.v ) );
+                chr_set_pos(pchr, mat_getTranslate_v(pchr->inst.matrix.v));
             }
             else
             {
-                chr_set_pos(pchr, chr_get_pos_v_const(pattached).v);
+                chr_set_pos(pchr, chr_get_pos_v_const(pattached));
             }
 
             pchr->ori.facing_z = pattached->ori.facing_z;
@@ -553,7 +553,7 @@ void keep_weapons_with_holders()
                 PACK_BEGIN_LOOP( pchr->inventory, pitem, iitem )
                 {
 
-                    chr_set_pos( pitem, chr_get_pos_v_const( pchr ).v );
+                    chr_set_pos(pitem, chr_get_pos_v_const(pchr));
 
                     // Copy olds to make SendMessageNear work
                     pitem->pos_old = pchr->pos_old;
@@ -589,7 +589,7 @@ void make_one_character_matrix( const CHR_REF ichr )
         {
             chr_t * ptarget = ChrList_get_ptr( pchr->ai.target );
 
-            chr_set_pos(pchr, chr_get_pos_v_const(ptarget).v);
+            chr_set_pos(pchr, chr_get_pos_v_const(ptarget));
 
             // copy the matrix
             CopyMatrix( &( pinst->matrix ), &( ptarget->inst.matrix ) );
@@ -1194,11 +1194,11 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
     }
     else
     {
-        chr_set_pos(pchr, chr_get_pos_v_const(pmount).v);
+        chr_set_pos(pchr, chr_get_pos_v_const(pmount));
     }
 
     // Make sure it's not dropped in a wall...
-    if ( EMPTY_BIT_FIELD != chr_test_wall( pchr, NULL, NULL ) )
+    if (EMPTY_BIT_FIELD != chr_test_wall(pchr, NULL, NULL))
     {
         fvec3_t pos_tmp;
 
@@ -1206,9 +1206,9 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
         pos_tmp.y = pmount->pos.y;
         pos_tmp.z = pchr->pos.z;
 
-        chr_set_pos( pchr, pos_tmp.v );
+        chr_set_pos(pchr, pos_tmp);
 
-        chr_update_breadcrumb( pchr, true );
+        chr_update_breadcrumb(pchr, true);
     }
 
     // Check for shop passages
@@ -1884,7 +1884,7 @@ void drop_keys( const CHR_REF character )
 
         // do some more complicated things
         SET_BIT( pkey->ai.alert, ALERTIF_DROPPED );
-        chr_set_pos( pkey, chr_get_pos_v_const( pchr ).v );
+        chr_set_pos(pkey, chr_get_pos_v_const(pchr));
         move_one_character_get_environment( pkey );
         chr_set_floor_level( pkey, pchr->enviro.floor_level );
     }
@@ -1953,10 +1953,10 @@ bool drop_all_items( const CHR_REF character )
         pitem->vel.z                  += DROPZVEL;
 
         // do some more complicated things
-        SET_BIT( pitem->ai.alert, ALERTIF_DROPPED );
-        chr_set_pos( pitem, chr_get_pos_v_const( pchr ).v );
-        move_one_character_get_environment( pitem );
-        chr_set_floor_level( pitem, pchr->enviro.floor_level );
+        SET_BIT(pitem->ai.alert, ALERTIF_DROPPED);
+        chr_set_pos(pitem, chr_get_pos_v_const(pchr));
+        move_one_character_get_environment(pitem);
+        chr_set_floor_level(pitem, pchr->enviro.floor_level);
 
         //drop out evenly in all directions
         direction = ( int )direction + diradd;
@@ -2055,7 +2055,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     slot_pos.x = mids[OCT_X];
     slot_pos.y = mids[OCT_Y];
     slot_pos.z = mids[OCT_Z];
-    fvec3_self_sum( slot_pos.v, chr_get_pos_v_const( pchr_a ).v );
+	slot_pos = fvec3_add(slot_pos, chr_get_pos_v_const(pchr_a));
 
     // get the size of object a
     bump_size2_a = SQR( 1.5f * pchr_a->bump.size );
@@ -2285,7 +2285,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         //---- if you can't grab anything, activate something using ALERTIF_BUMPED
         if ( VALID_PLA( pchr_a->is_which_player ) && ungrab_count > 0 )
         {
-            chr_getMatForward( pchr_a, vforward.v );
+            chr_getMatForward(pchr_a, vforward);
 
             // sort the ungrab list
             if ( ungrab_count > 1 )
@@ -2447,7 +2447,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                     fvec3_t tmp_pos;
                     prt_t * pprt = PrtList_get_ptr( iparticle );
 
-                    prt_get_pos( pprt, tmp_pos.v );
+                    prt_get_pos(pprt, tmp_pos);
 
                     if ( pweapon_cap->attack_attached )
                     {
@@ -4702,7 +4702,7 @@ void respawn_character( const CHR_REF character )
     pchr->careful_timer = CAREFULTIME;
     pchr->life = pchr->life_max;
     pchr->mana = pchr->mana_max;
-    chr_set_pos( pchr, pchr->pos_stt.v );
+    chr_set_pos(pchr, pchr->pos_stt);
     pchr->vel.x = 0;
     pchr->vel.y = 0;
     pchr->vel.z = 0;
@@ -5070,9 +5070,9 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
             ChrList.lst[item_ref].vel.z    = DISMOUNTZVEL;
             ChrList.lst[item_ref].jump_timer = JUMPDELAY;
 
-            chr_get_pos( ChrList_get_ptr( item_ref ), tmp_pos.v );
+            chr_get_pos(ChrList_get_ptr(item_ref), tmp_pos);
             tmp_pos.z += DISMOUNTZVEL;
-            chr_set_pos( ChrList_get_ptr( item_ref ), tmp_pos.v );
+            chr_set_pos(ChrList_get_ptr(item_ref), tmp_pos);
         }
     }
 
@@ -5090,9 +5090,9 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
             ChrList.lst[item_ref].vel.z    = DISMOUNTZVEL;
             ChrList.lst[item_ref].jump_timer = JUMPDELAY;
 
-            chr_get_pos( ChrList_get_ptr( item_ref ), tmp_pos.v );
+            chr_get_pos(ChrList_get_ptr(item_ref), tmp_pos);
             tmp_pos.z += DISMOUNTZVEL;
-            chr_set_pos( ChrList_get_ptr( item_ref ), tmp_pos.v );
+            chr_set_pos(ChrList_get_ptr(item_ref), tmp_pos);
         }
     }
 
@@ -5735,7 +5735,7 @@ void move_one_character_get_environment( chr_t * pchr )
 
         fvec3_t platform_up = fvec3_t( 0.0f, 0.0f, 1.0f );
 
-        chr_getMatUp(pplatform, platform_up.v);
+        chr_getMatUp(pplatform, platform_up);
         fvec3_self_normalize(platform_up);
 
         penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
@@ -5870,7 +5870,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
 
         temp_friction_xy = platstick;
 
-        chr_getMatUp( pplat, vup.v );
+        chr_getMatUp(pplat, vup);
     }
     else if ( !pchr->alive || pchr->isitem )
     {
@@ -5902,15 +5902,15 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         fvec3_t vfront;
 
         // get the direction of motion
-        mat_getChrForward( pchr->inst.matrix.v, vfront.v );
+        mat_getChrForward(pchr->inst.matrix.v, vfront);
         fvec3_self_normalize(vfront);
 
         // decompose the acceleration into parallel and perpendicular components
         fvec3_decompose( floor_acc.v, vfront.v, acc_para.v, acc_perp.v );
 
         // re-compose the acceleration with 1/2 of the perpendicular taken away
-        fvec3_scale( floor_acc.v, acc_perp.v, 0.5f );
-        fvec3_self_sum( floor_acc.v, acc_para.v );
+        fvec3_scale(floor_acc.v, acc_perp.v, 0.5f);
+        floor_acc = fvec3_add(floor_acc, acc_para);
     }
 
     // the first guess about the floor friction
@@ -5949,7 +5949,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     }
 
     //apply the floor friction
-    fvec3_self_sum( pchr->vel.v, fric_floor.v );
+	pchr->vel = fvec3_add(pchr->vel, fric_floor);
 
     // Apply fluid friction from last time
     pchr->vel.x += -pchr->vel.x * ( 1.0f - penviro->fluid_friction_hrz );
@@ -6411,9 +6411,9 @@ bool chr_do_latch_button( chr_t * pchr )
                 pchr->vel.z += DISMOUNTZVEL;
             }
 
-            chr_get_pos( pchr, tmp_pos.v );
+            chr_get_pos(pchr, tmp_pos);
             tmp_pos.z += pchr->vel.z;
-            chr_set_pos( pchr, tmp_pos.v );
+            chr_set_pos(pchr, tmp_pos);
 
             if ( pchr->jumpnumberreset != JUMPINFINITE && 0 != pchr->jumpnumber )
                 pchr->jumpnumber--;
@@ -7088,7 +7088,7 @@ bool move_one_character_integrate_motion( chr_t * pchr )
         }
     }
 
-    chr_set_pos( pchr, tmp_pos.v );
+    chr_set_pos(pchr, tmp_pos);
 
     // we need to test the validity of the current position every 8 frames or so,
     // no matter what
@@ -8464,7 +8464,7 @@ bool chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T facin
     if ( chr_hit_wall( pchr, pos_new.v, NULL, NULL, NULL ) )
     {
         // No it didn't...
-        chr_set_pos( pchr, pos_old.v );
+        chr_set_pos(pchr, pos_old);
         pchr->ori.facing_z = facing_old;
 
         retval = false;
@@ -8478,7 +8478,7 @@ bool chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T facin
         pchr->ori_old.facing_z = facing_new;
 
         // update the new position
-        chr_set_pos( pchr, pos_new.v );
+        chr_set_pos(pchr, pos_new);
         pchr->ori.facing_z = facing_new;
 
         if ( !detach_character_from_mount( ichr, true, false ) )
@@ -9534,16 +9534,42 @@ void chr_set_shadow(chr_t *chr, const float size)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_getMatUp(chr_t *pchr, fvec3_base_t vup)
+bool chr_getMatUp(chr_t *pchr, fvec3_t& up)
 {
-	/// @author BB
-	/// @details MAKE SURE the value it calculated relative to a valid matrix
+	bool rv;
 
+	if (!ALLOCATED_PCHR(pchr)) return false;
+#if 0
+	if (NULL == vup) return false;
+#endif
+	if (!chr_matrix_valid(pchr))
+	{
+		chr_update_matrix(pchr, true);
+	}
+
+	rv = false;
+	if (chr_matrix_valid(pchr))
+	{
+		rv = mat_getChrUp(pchr->inst.matrix.v, up);
+	}
+
+	if (!rv)
+	{
+		// assume default Up is +z
+		up[kZ] = 1.0f;
+		up[kX] = up[kY] = 0.0f;
+	}
+
+	return true;
+}
+#if 0
+bool chr_getMatUp(chr_t *pchr, fvec3_base_t up)
+{
 	bool rv;
 
 	if (!ALLOCATED_PCHR(pchr)) return false;
 
-	if (NULL == vup) return false;
+	if (NULL == up) return false;
 
 	if (!chr_matrix_valid(pchr))
 	{
@@ -9553,25 +9579,52 @@ bool chr_getMatUp(chr_t *pchr, fvec3_base_t vup)
 	rv = false;
 	if (chr_matrix_valid(pchr))
 	{
-		rv = mat_getChrUp(pchr->inst.matrix.v, vup);
+		rv = mat_getChrUp(pchr->inst.matrix.v, up);
 	}
 
 	if (!rv)
 	{
 		// assume default Up is +z
-		vup[kZ] = 1.0f;
-		vup[kX] = vup[kY] = 0.0f;
+		up[kZ] = 1.0f;
+		up[kX] = up[kY] = 0.0f;
 	}
 
 	return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+bool chr_getMatRight(chr_t *pchr, fvec3_t& right)
+{
+	bool rv;
+
+	if (!ALLOCATED_PCHR(pchr)) return false;
+#if 0
+	if (NULL == vright) return false;
+#endif
+	if (!chr_matrix_valid(pchr))
+	{
+		chr_update_matrix(pchr, true);
+	}
+
+	rv = false;
+	if (chr_matrix_valid(pchr))
+	{
+		rv = mat_getChrRight(pchr->inst.matrix.v, right);
+	}
+
+	if (!rv)
+	{
+		// assume default Right is +y
+		right[kY] = 1.0f;
+		right[kX] = right[kZ] = 0.0f;
+	}
+
+	return true;
+}
+#if 0
 bool chr_getMatRight(chr_t *pchr, fvec3_base_t vright)
 {
-	/// @author BB
-	/// @details MAKE SURE the value it calculated relative to a valid matrix
-
 	bool rv;
 
 	if (!ALLOCATED_PCHR(pchr)) return false;
@@ -9592,24 +9645,50 @@ bool chr_getMatRight(chr_t *pchr, fvec3_base_t vright)
 	if (!rv)
 	{
 		// assume default Right is +y
-		vright[kY] = 1.0f;
-		vright[kX] = vright[kZ] = 0.0f;
+		right[kY] = 1.0f;
+		right[kX] = right[kZ] = 0.0f;
 	}
 
 	return true;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
-bool chr_getMatForward(chr_t *pchr, fvec3_base_t vfwd)
+bool chr_getMatForward(chr_t *pchr, fvec3_t& forward)
 {
-	/// @author BB
-	/// @details MAKE SURE the value it calculated relative to a valid matrix
+	bool rv;
 
+	if (!ALLOCATED_PCHR(pchr)) return false;
+#if 0
+	if (NULL == forward) return false;
+#endif
+	if (!chr_matrix_valid(pchr))
+	{
+		chr_update_matrix(pchr, true);
+	}
+
+	rv = false;
+	if (chr_matrix_valid(pchr))
+	{
+		rv = mat_getChrForward(pchr->inst.matrix.v, forward);
+	}
+
+	if (!rv)
+	{
+		// assume default Forward is +x
+		forward[kX] = 1.0f;
+		forward[kY] = forward[kZ] = 0.0f;
+	}
+
+	return true;
+}
+#if 0
+bool chr_getMatForward(chr_t *pchr, fvec3_base_t forward)
+{
 	bool rv;
 
 	if (!ALLOCATED_PCHR(pchr)) return false;
 
-	if (NULL == vfwd) return false;
+	if (NULL == forward) return false;
 
 	if (!chr_matrix_valid(pchr))
 	{
@@ -9619,25 +9698,53 @@ bool chr_getMatForward(chr_t *pchr, fvec3_base_t vfwd)
 	rv = false;
 	if (chr_matrix_valid(pchr))
 	{
-		rv = mat_getChrForward(pchr->inst.matrix.v, vfwd);
+		rv = mat_getChrForward(pchr->inst.matrix.v, forward);
 	}
 
 	if (!rv)
 	{
 		// assume default Forward is +x
-		vfwd[kX] = 1.0f;
-		vfwd[kY] = vfwd[kZ] = 0.0f;
+		forward[kX] = 1.0f;
+		forward[kY] = forward[kZ] = 0.0f;
 	}
 
 	return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+bool chr_getMatTranslate(chr_t *pchr, fvec3_t& translate)
+{
+	bool rv;
+
+	if (!ALLOCATED_PCHR(pchr)) return false;
+#if 0
+	if (NULL == vtrans) return false;
+#endif
+	if (!chr_matrix_valid(pchr))
+	{
+		chr_update_matrix(pchr, true);
+	}
+
+	rv = false;
+	if (chr_matrix_valid(pchr))
+	{
+		rv = mat_getTranslate(pchr->inst.matrix.v, translate);
+	}
+
+	if (!rv)
+	{
+		translate = chr_get_pos_v_const(pchr);
+#if 0
+		fvec3_base_copy(translate, chr_get_pos_v_const(pchr));
+#endif
+	}
+
+	return true;
+}
+#if 0
 bool chr_getMatTranslate(chr_t *pchr, fvec3_base_t vtrans)
 {
-	/// @author BB
-	/// @details MAKE SURE the value it calculated relative to a valid matrix
-
 	bool rv;
 
 	if (!ALLOCATED_PCHR(pchr)) return false;
@@ -9662,6 +9769,7 @@ bool chr_getMatTranslate(chr_t *pchr, fvec3_base_t vtrans)
 
 	return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
@@ -10010,21 +10118,43 @@ bool chr_update_pos( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_set_pos( chr_t * pchr, const fvec3_base_t pos )
+bool chr_set_pos(chr_t *self, const fvec3_t& position)
+{
+	bool retval = false;
+
+	if (!ALLOCATED_PCHR(self)) return retval;
+
+	retval = true;
+
+	LOG_NAN_FVEC3(position);
+
+	if ((position[kX] != self->pos.v[kX]) || (position[kY] != self->pos.v[kY]) || (position[kZ] != self->pos.v[kZ]))
+	{
+		self->pos = position;
+#if 0
+		fvec3_base_copy(self->pos.v, position);
+#endif
+		retval = chr_update_pos(self);
+	}
+
+	return retval;
+}
+
+bool chr_set_pos(chr_t *self, const fvec3_base_t position)
 {
     bool retval = false;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return retval;
+    if (!ALLOCATED_PCHR(self)) return retval;
 
     retval = true;
 
-    LOG_NAN_FVEC3( pos );
+    LOG_NAN_FVEC3(position);
 
-    if (( pos[kX] != pchr->pos.v[kX] ) || ( pos[kY] != pchr->pos.v[kY] ) || ( pos[kZ] != pchr->pos.v[kZ] ) )
+    if ((position[kX] != self->pos.v[kX]) || (position[kY] != self->pos.v[kY]) || (position[kZ] != self->pos.v[kZ]))
     {
-        fvec3_base_copy( pchr->pos.v, pos );
+        fvec3_base_copy(self->pos.v, position);
 
-        retval = chr_update_pos( pchr );
+        retval = chr_update_pos(self);
     }
 
     return retval;
@@ -10543,13 +10673,25 @@ const fvec3_t& chr_get_pos_v_const(const chr_t *pchr)
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_get_pos( const chr_t * pchr, fvec3_base_t pos )
+bool chr_get_pos(const chr_t *self, fvec3_t& position)
 {
-    float * copy_retval;
+	if (!ALLOCATED_PCHR(self)) return false;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return false;
+	position = self->pos;
+#if 0
+	copy_retval = fvec3_base_copy(position, self->pos.v);
 
-    copy_retval = fvec3_base_copy( pos, pchr->pos.v );
+	return NULL != copy_retval;
+#endif
+	return true;
+}
+bool chr_get_pos(const chr_t *self, fvec3_base_t position)
+{
+    float *copy_retval;
+
+    if (!ALLOCATED_PCHR(self)) return false;
+
+    copy_retval = fvec3_base_copy(position, self->pos.v);
 
     return NULL != copy_retval;
 }

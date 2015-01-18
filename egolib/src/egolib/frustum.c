@@ -162,7 +162,7 @@ egolib_rv egolib_frustum_calculate( egolib_frustum_t * pf, const float proj[], c
         float dist;
 
         // extract the view direction from the modelview matrix
-        mat_getCamForward(modl, vlook.v);
+        mat_getCamForward(modl, vlook);
 
         // one far corner of the frustum
         three_plane_intersection(pt1.v, pf->data[FRUST_PLANE_TOP], pf->data[FRUST_PLANE_RIGHT], pf->data[FRUST_PLANE_BACK]);

@@ -733,11 +733,11 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
     pinst->image_ref = UFP8_TO_UINT( pprt->image_stt + pprt->image_off );
 
     // set the position
-    prt_get_pos( pprt, pinst->pos.v );
+    prt_get_pos(pprt, pinst->pos);
     pinst->orientation = ppip->orientation;
 
     // calculate the billboard vectors for the reflecions
-    prt_get_pos( pprt, pinst->ref_pos.v );
+    prt_get_pos(pprt, pinst->ref_pos);
     pinst->ref_pos.z    = 2 * pprt->enviro.floor_level - pinst->pos.z;
 
     // get the vector from the camera to the particle
@@ -845,11 +845,10 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 
             switch ( pinst->orientation )
             {
-                case ORIENTATION_X: mat_getChrForward( cinst->matrix.v, vup.v ); break;
-                case ORIENTATION_Y: mat_getChrRight( cinst->matrix.v, vup.v ); break;
-
+                case ORIENTATION_X: mat_getChrForward(cinst->matrix.v, vup); break;
+                case ORIENTATION_Y: mat_getChrRight(cinst->matrix.v, vup);   break;
                 default:
-                case ORIENTATION_Z: mat_getChrUp( cinst->matrix.v, vup.v ); break;
+                case ORIENTATION_Z: mat_getChrUp(cinst->matrix.v, vup);      break;
             }
 
             fvec3_self_normalize(vup);
@@ -1212,7 +1211,7 @@ size_t render_all_prt_begin( std::shared_ptr<Camera> pcam,  prt_registry_entity_
 
     update_all_prt_instance( pcam );
 
-    mat_getCamForward( pcam->getView().v, vfwd.v );
+    mat_getCamForward(pcam->getView().v, vfwd);
     vcam = pcam->getPosition();
 
     // Original points
@@ -1328,7 +1327,7 @@ size_t render_all_prt_ref_begin( std::shared_ptr<Camera> pcam, prt_registry_enti
 
     update_all_prt_instance( pcam );
 
-    mat_getCamForward( pcam->getView().v, vfwd.v );
+    mat_getCamForward(pcam->getView().v, vfwd);
     vcam = pcam->getPosition();
 
     // Original points

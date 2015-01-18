@@ -1223,7 +1223,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
         return gfx_error;
     }
 
-    mat_getCamForward( pcam->getView().v, vcam.v );
+    mat_getCamForward(pcam->getView().v, vcam);
 
     // Figure the distance of each
     count = 0;
@@ -1241,11 +1241,11 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
 
             if ( do_reflect )
             {
-                mat_getTranslate( ChrList.lst[ichr].inst.ref.matrix.v, pos_tmp.v );
+                mat_getTranslate(ChrList.lst[ichr].inst.ref.matrix.v, pos_tmp);
             }
             else
             {
-                mat_getTranslate( ChrList.lst[ichr].inst.matrix.v, pos_tmp.v );
+                mat_getTranslate(ChrList.lst[ichr].inst.matrix.v, pos_tmp);
             }
 
             vtmp = fvec3_sub(pos_tmp, pcam->getPosition());
@@ -4676,7 +4676,7 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
     vforw_wind.z = 0;
     fvec3_self_normalize(vforw_wind);
 
-    mat_getCamForward( pcam->getView().v, vforw_cam.v );
+    mat_getCamForward(pcam->getView().v, vforw_cam);
     fvec3_self_normalize(vforw_cam);
 
     // make the texture begin to disappear if you are not looking straight down
@@ -5985,7 +5985,7 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
         if ( NULL != plight )
         {
             plight->distance = distance;
-            prt_get_pos( prt_bdl.prt_ptr, plight->pos.v );
+            prt_get_pos(prt_bdl.prt_ptr, plight->pos);
             plight->level    = pprt_dyna->level;
             plight->falloff  = pprt_dyna->falloff;
         }

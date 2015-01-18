@@ -271,13 +271,13 @@ void Camera::makeMatrix()
     resetView();
 
     //--- pre-compute some camera vectors
-    mat_getCamForward( _mView.v, _vfw.v );
+    mat_getCamForward(_mView.v, _vfw);
     fvec3_self_normalize(_vfw);
 
-    mat_getCamUp( _mView.v, _vup.v );
+    mat_getCamUp(_mView.v, _vup);
     fvec3_self_normalize(_vup);
 
-    mat_getCamRight( _mView.v, _vrt.v );
+    mat_getCamRight(_mView.v, _vrt);
     fvec3_self_normalize(_vrt);
 }
 

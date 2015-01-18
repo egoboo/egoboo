@@ -1133,7 +1133,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
     bc->bits   = bits;
     bc->radius = pprt->bump_real.size;
 
-    prt_get_pos( pprt, bc->pos.v );
+    prt_get_pos(pprt, bc->pos);
     bc->pos.x  = ( FLOOR( bc->pos.x / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
     bc->pos.y  = ( FLOOR( bc->pos.y / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
 
@@ -1557,14 +1557,11 @@ bool apos_self_union( apos_t * lhs, apos_t * rhs )
 }
 
 //--------------------------------------------------------------------------------------------
-bool apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs )
+bool apos_self_union_fvec3( apos_t * lhs, const fvec3_t& rhs )
 {
     int cnt;
 
     if ( NULL == lhs ) return false;
-    if ( NULL == rhs ) return true;
-
-    LOG_NAN_FVEC3( rhs );
 
     // scan through the components of the vector and find the
     // maximum displacement
@@ -1615,18 +1612,14 @@ bool apos_self_union_index( apos_t * lhs, const float val, const int index )
 }
 
 //--------------------------------------------------------------------------------------------
-bool apos_evaluate( const apos_t * src, fvec3_base_t dst )
+bool apos_evaluate(const apos_t *src, fvec3_t& dst)
 {
-    int cnt;
-
-    if ( NULL == dst ) return false;
-
     if ( NULL == src )
     {
-        return fvec3_self_clear( dst );
+        return fvec3_self_clear(dst);
     }
 
-    for ( cnt = 0; cnt < 3; cnt ++ )
+    for (size_t cnt = 0; cnt < 3; cnt ++ )
     {
         dst[cnt] = src->maxs.v[cnt] + src->mins.v[cnt];
     }
@@ -1636,11 +1629,9 @@ bool apos_evaluate( const apos_t * src, fvec3_base_t dst )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-phys_data_t * phys_data_sum_aplat( phys_data_t * pphys, const fvec3_base_t vec )
+phys_data_t * phys_data_sum_aplat( phys_data_t * pphys, const fvec3_t& vec )
 {
     if ( NULL == pphys ) return pphys;
-
-    LOG_NAN_FVEC3( vec );
 
     apos_self_union_fvec3( &( pphys->aplat ), vec );
 
@@ -1648,11 +1639,9 @@ phys_data_t * phys_data_sum_aplat( phys_data_t * pphys, const fvec3_base_t vec )
 }
 
 //--------------------------------------------------------------------------------------------
-phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_base_t vec )
+phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_t& vec )
 {
     if ( NULL == pphys ) return pphys;
-
-    LOG_NAN_FVEC3( vec );
 
     apos_self_union_fvec3( &( pphys->acoll ), vec );
 
@@ -1660,13 +1649,11 @@ phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_base_t vec )
 }
 
 //--------------------------------------------------------------------------------------------
-phys_data_t * phys_data_sum_avel( phys_data_t * pphys, const fvec3_base_t vec )
+phys_data_t * phys_data_sum_avel( phys_data_t * pphys, const fvec3_t& vec )
 {
     if ( NULL == pphys ) return pphys;
 
-    LOG_NAN_FVEC3( vec );
-
-    fvec3_self_sum( pphys->avel.v, vec );
+    pphys->avel = fvec3_add(pphys->avel, vec);
 
     return pphys;
 }

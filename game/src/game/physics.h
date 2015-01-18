@@ -79,9 +79,9 @@ struct s_apos
 };
 
 bool apos_self_union( apos_t * lhs, apos_t * rhs );
-bool apos_self_union_fvec3( apos_t * lhs, const fvec3_base_t rhs );
+bool apos_self_union_fvec3( apos_t * lhs, const fvec3_t& rhs );
 bool apos_self_union_index( apos_t * lhs, const float val, const int index );
-bool apos_evaluate( const apos_t * src, fvec3_base_t dst );
+bool apos_evaluate( const apos_t * src, fvec3_t& dst );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -101,9 +101,9 @@ struct s_phys_data
 phys_data_t * phys_data_clear( phys_data_t * pphys );
 phys_data_t * phys_data_ctor( phys_data_t * pphys );
 
-phys_data_t * phys_data_sum_aplat( phys_data_t * pphys, const fvec3_base_t vec );
-phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_base_t vec );
-phys_data_t * phys_data_sum_avel( phys_data_t * pphys, const fvec3_base_t vec );
+phys_data_t * phys_data_sum_aplat( phys_data_t * pphys, const fvec3_t& vec );
+phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_t& vec );
+phys_data_t * phys_data_sum_avel( phys_data_t * pphys, const fvec3_t& vec );
 
 phys_data_t * phys_data_sum_aplat_index( phys_data_t * pphys, const float val, const int index );
 phys_data_t * phys_data_sum_acoll_index( phys_data_t * pphys, const float val, const int index );

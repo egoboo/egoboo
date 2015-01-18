@@ -20,6 +20,21 @@
 /// @details matrices
 #include "egolib/matrix.h"
 
+const fmat_4x4_t fmat_4x4_t::identity
+	(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	);
+const fmat_4x4_t fmat_4x4_t::zero
+	(
+		0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f
+	);
+
 float * mat_Copy(fmat_4x4_base_t DST, const fmat_4x4_base_t src)
 {
 	float * retval = NULL;
@@ -397,105 +412,190 @@ float * mat_Projection_orig(
 }
 
 //--------------------------------------------------------------------------------------------
-bool mat_getTranslate(const fmat_4x4_base_t mat, fvec3_base_t vpos)
+bool mat_getTranslate(const fmat_4x4_base_t mat, fvec3_t& translate)
 {
-	if (NULL == mat || NULL == vpos) return false;
+	if (NULL == mat) return false;
 
-	vpos[kX] = mat[MAT_IDX(3, 0)];
-	vpos[kY] = mat[MAT_IDX(3, 1)];
-	vpos[kZ] = mat[MAT_IDX(3, 2)];
+	translate[kX] = mat[MAT_IDX(3, 0)];
+	translate[kY] = mat[MAT_IDX(3, 1)];
+	translate[kZ] = mat[MAT_IDX(3, 2)];
 
 	return true;
 }
+#if 0
+bool mat_getTranslate(const fmat_4x4_base_t mat, fvec3_base_t translate)
+{
+	if (NULL == mat || NULL == translate) return false;
+
+	translate[kX] = mat[MAT_IDX(3, 0)];
+	translate[kY] = mat[MAT_IDX(3, 1)];
+	translate[kZ] = mat[MAT_IDX(3, 2)];
+
+	return true;
+}
+#endif
 
 //--------------------------------------------------------------------------------------------
-bool mat_getChrUp(const fmat_4x4_base_t mat, fvec3_base_t vup)
+bool mat_getChrUp(const fmat_4x4_base_t mat, fvec3_t& up)
 {
-	if (NULL == mat || NULL == vup) return false;
+	if (NULL == mat) return false;
 
 	// for a character
-	vup[kX] = mat[MAT_IDX(2, 0)];
-	vup[kY] = mat[MAT_IDX(2, 1)];
-	vup[kZ] = mat[MAT_IDX(2, 2)];
+	up[kX] = mat[MAT_IDX(2, 0)];
+	up[kY] = mat[MAT_IDX(2, 1)];
+	up[kZ] = mat[MAT_IDX(2, 2)];
 
 	return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool mat_getChrForward(const fmat_4x4_base_t mat, fvec3_base_t vright)
+bool mat_getChrUp(const fmat_4x4_base_t mat, fvec3_base_t up)
 {
-	if (NULL == mat || NULL == vright) return false;
+	if (NULL == mat || NULL == up) return false;
 
 	// for a character
-	vright[kX] = -mat[MAT_IDX(0, 0)];
-	vright[kY] = -mat[MAT_IDX(0, 1)];
-	vright[kZ] = -mat[MAT_IDX(0, 2)];
+	up[kX] = mat[MAT_IDX(2, 0)];
+	up[kY] = mat[MAT_IDX(2, 1)];
+	up[kZ] = mat[MAT_IDX(2, 2)];
 
 	return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool mat_getChrRight(const fmat_4x4_base_t mat, fvec3_base_t vfrw)
+bool mat_getChrForward(const fmat_4x4_base_t mat, fvec3_t& forward)
 {
-	if (NULL == mat || NULL == vfrw) return false;
+	if (NULL == mat) return false;
+
+	// for a character
+	forward[kX] = -mat[MAT_IDX(0, 0)];
+	forward[kY] = -mat[MAT_IDX(0, 1)];
+	forward[kZ] = -mat[MAT_IDX(0, 2)];
+
+	return true;
+}
+bool mat_getChrForward(const fmat_4x4_base_t mat, fvec3_base_t forward)
+{
+	if (NULL == mat || NULL == forward) return false;
+
+	// for a character
+	forward[kX] = -mat[MAT_IDX(0, 0)];
+	forward[kY] = -mat[MAT_IDX(0, 1)];
+	forward[kZ] = -mat[MAT_IDX(0, 2)];
+
+	return true;
+}
+
+//--------------------------------------------------------------------------------------------
+bool mat_getChrRight(const fmat_4x4_base_t mat, fvec3_t& right)
+{
+	if (NULL == mat) return false;
 
 	// for a character's matrix
-	vfrw[kX] = mat[MAT_IDX(1, 0)];
-	vfrw[kY] = mat[MAT_IDX(1, 1)];
-	vfrw[kZ] = mat[MAT_IDX(1, 2)];
+	right[kX] = mat[MAT_IDX(1, 0)];
+	right[kY] = mat[MAT_IDX(1, 1)];
+	right[kZ] = mat[MAT_IDX(1, 2)];
+
+	return true;
+}
+bool mat_getChrRight(const fmat_4x4_base_t mat, fvec3_base_t right)
+{
+	if (NULL == mat || NULL == right) return false;
+
+	// for a character's matrix
+	right[kX] = mat[MAT_IDX(1, 0)];
+	right[kY] = mat[MAT_IDX(1, 1)];
+	right[kZ] = mat[MAT_IDX(1, 2)];
 
 	return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool mat_getCamUp(const fmat_4x4_base_t mat, fvec3_base_t vup)
+bool mat_getCamUp(const fmat_4x4_base_t mat, fvec3_t& up)
 {
-	if (NULL == mat || NULL == vup) return false;
+	if (nullptr == mat) return false;
 
 	// for the camera
-	vup[kX] = mat[MAT_IDX(0, 1)];
-	vup[kY] = mat[MAT_IDX(1, 1)];
-	vup[kZ] = mat[MAT_IDX(2, 1)];
+	up[kX] = mat[MAT_IDX(0, 1)];
+	up[kY] = mat[MAT_IDX(1, 1)];
+	up[kZ] = mat[MAT_IDX(2, 1)];
 
 	return true;
 }
-
-//--------------------------------------------------------------------------------------------
-bool mat_getCamRight(const fmat_4x4_base_t mat, fvec3_base_t vright)
+#if 0
+bool mat_getCamUp(const fmat_4x4_base_t mat, fvec3_base_t up)
 {
-	if (NULL == mat || NULL == vright) return false;
+	if (nullptr == mat || nullptr == up) return false;
 
 	// for the camera
-	vright[kX] = -mat[MAT_IDX(0, 0)];
-	vright[kY] = -mat[MAT_IDX(1, 0)];
-	vright[kZ] = -mat[MAT_IDX(2, 0)];
+	up[kX] = mat[MAT_IDX(0, 1)];
+	up[kY] = mat[MAT_IDX(1, 1)];
+	up[kZ] = mat[MAT_IDX(2, 1)];
 
 	return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
-bool mat_getCamForward(const fmat_4x4_base_t mat, fvec3_base_t vfrw)
+bool mat_getCamRight(const fmat_4x4_base_t mat, fvec3_t& right)
 {
-	if (NULL == mat || NULL == vfrw) return false;
+	if (NULL == mat) return false;
 
 	// for the camera
-	vfrw[kX] = -mat[MAT_IDX(0, 2)];
-	vfrw[kY] = -mat[MAT_IDX(1, 2)];
-	vfrw[kZ] = -mat[MAT_IDX(2, 2)];
+	right[kX] = -mat[MAT_IDX(0, 0)];
+	right[kY] = -mat[MAT_IDX(1, 0)];
+	right[kZ] = -mat[MAT_IDX(2, 0)];
 
 	return true;
 }
+#if 0
+bool mat_getCamRight(const fmat_4x4_base_t mat, fvec3_base_t right)
+{
+	if (NULL == mat || NULL == right) return false;
+
+	// for the camera
+	right[kX] = -mat[MAT_IDX(0, 0)];
+	right[kY] = -mat[MAT_IDX(1, 0)];
+	right[kZ] = -mat[MAT_IDX(2, 0)];
+
+	return true;
+}
+#endif
 
 //--------------------------------------------------------------------------------------------
-float * mat_getTranslate_v(const fmat_4x4_base_t mat)
+bool mat_getCamForward(const fmat_4x4_base_t mat, fvec3_t& forward)
 {
-	static fvec3_t pos;
+	if (nullptr == mat) return false;
+
+	// for the camera
+	forward[kX] = -mat[MAT_IDX(0, 2)];
+	forward[kY] = -mat[MAT_IDX(1, 2)];
+	forward[kZ] = -mat[MAT_IDX(2, 2)];
+
+	return true;
+}
+#if 0
+bool mat_getCamForward(const fmat_4x4_base_t mat, fvec3_base_t forward)
+{
+	if (nullptr == mat || nullptr == forward) return false;
+
+	// for the camera
+	forward[kX] = -mat[MAT_IDX(0, 2)];
+	forward[kY] = -mat[MAT_IDX(1, 2)];
+	forward[kZ] = -mat[MAT_IDX(2, 2)];
+
+	return true;
+}
+#endif
+
+//--------------------------------------------------------------------------------------------
+fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat)
+{
+	fvec3_t pos;
 
 	pos.x = mat[MAT_IDX(3, 0)];
 	pos.y = mat[MAT_IDX(3, 1)];
 	pos.z = mat[MAT_IDX(3, 2)];
 
-	return pos.v;
+	return pos;
 }
 
 //--------------------------------------------------------------------------------------------

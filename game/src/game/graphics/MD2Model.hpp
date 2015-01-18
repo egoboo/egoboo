@@ -79,7 +79,9 @@ class MD2_Frame
 {
 public:
 	MD2_Frame() :
+#if 0
 		name(),
+#endif
 		vertexList(),
 		bb(),
 		framelip(0),
@@ -88,13 +90,13 @@ public:
 		name[0] = '\0';
 	}
 
-    char          name[16];
+    char name[16];
 
     std::vector<MD2_Vertex> vertexList;
 
-    oct_bb_t      bb;             ///< axis-aligned octagonal bounding box limits
-    int           framelip;       ///< the position in the current animation
-    BIT_FIELD     framefx;        ///< the special effects associated with this frame
+    oct_bb_t bb;        ///< axis-aligned octagonal bounding box limits
+    int framelip;       ///< the position in the current animation
+    BIT_FIELD framefx;  ///< the special effects associated with this frame
 };
 
 class MD2Model

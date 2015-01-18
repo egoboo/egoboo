@@ -541,7 +541,8 @@ bool chr_update_safe_raw( chr_t * pchr );
 bool chr_update_safe( chr_t * pchr, bool force );
 bool chr_get_safe( chr_t * pchr, fvec3_base_t pos );
 
-bool  chr_set_pos( chr_t * pchr, const fvec3_base_t pos );
+bool chr_set_pos(chr_t *self, const fvec3_t& position);
+bool chr_set_pos(chr_t *self, const fvec3_base_t position); ///< @todo Remove this.
 
 bool chr_set_maxaccel( chr_t * pchr, float new_val );
 bool character_is_attacking( chr_t * pchr );
@@ -560,11 +561,26 @@ void chr_set_width(chr_t *chr, const float width);
 void chr_set_size(chr_t *chr, const float size);
 void chr_set_shadow(chr_t *chr, const float width);
 
-bool chr_getMatUp(chr_t *pchr, fvec3_base_t vec);
-bool chr_getMatRight(chr_t *pchr, fvec3_base_t vec);
-bool chr_getMatForward(chr_t *pchr, fvec3_base_t vec);
-bool chr_getMatTranslate(chr_t *pchr, fvec3_base_t vec);
-
+/// @details Make sure the value it calculated relative to a valid matrix.
+bool chr_getMatUp(chr_t *self, fvec3_t& up);
+#if 0
+bool chr_getMatUp(chr_t *self, fvec3_base_t up); ///< @todo Remove this.
+#endif
+/// @details Make sure the value it calculated relative to a valid matrix.
+bool chr_getMatRight(chr_t *self, fvec3_t& right);
+#if 0
+bool chr_getMatRight(chr_t *self, fvec3_base_t right); ///< @todo Remove this.
+#endif
+/// @details Make sure the value it calculated relative to a valid matrix.
+bool chr_getMatForward(chr_t *self, fvec3_t& forward);
+#if 0
+bool chr_getMatForward(chr_t *self, fvec3_base_t forward); ///< @todo Remove this.
+#endif
+/// @details Make sure the value it calculated relative to a valid matrix.
+bool chr_getMatTranslate(chr_t *self, fvec3_t& translate);
+#if 0
+bool chr_getMatTranslate(chr_t *self, fvec3_base_t translate); ///< @todo Remove this.
+#endif
 
 const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size );
 const char * chr_get_dir_name( const CHR_REF ichr );
@@ -773,4 +789,5 @@ bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
 
 const fvec3_t& chr_get_pos_v_const(const chr_t *pchr);
-bool         chr_get_pos( const chr_t * pchr, fvec3_base_t pos );
+bool chr_get_pos(const chr_t *self, fvec3_t& position);
+bool chr_get_pos(const chr_t *self, fvec3_base_t position); ///< @todo Remove this.

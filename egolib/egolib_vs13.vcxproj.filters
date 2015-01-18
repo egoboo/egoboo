@@ -235,7 +235,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\bsp_aabb.c">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Random.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -462,7 +465,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\bsp_aabb.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Random.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

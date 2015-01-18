@@ -1600,7 +1600,7 @@ int game_process_run( game_process_t * gproc, double frameDuration )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing,
+CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
                          const PIP_REF particletype, const TEAM_REF team, const CHR_REF donttarget, const CHR_REF oldtarget )
 {
     /// @author ZF
@@ -1646,7 +1646,7 @@ CHR_REF prt_find_target( fvec3_base_t pos, FACING_T facing,
             // Only proceed if we are facing the target
             if ( angle < ppip->targetangle || angle > ( 0xFFFF - ppip->targetangle ) )
             {
-                float dist2 = fvec3_dist_2( pchr->pos.v, pos );
+                float dist2 = fvec3_dist_2(pchr->pos, pos);
 
                 if ( dist2 < longdist2 && dist2 <= max_dist2 )
                 {
@@ -2751,8 +2751,9 @@ void import_dir_profiles_vfs( const char * dirname )
 //--------------------------------------------------------------------------------------------
 void load_all_profiles_import()
 {
+#if 0
     int cnt;
-
+#endif
     // Clear the import slots...
     import_data.slot_lst.fill(INVALID_PRO_REF);
     import_data.max_slot = -1;
@@ -2775,9 +2776,10 @@ void game_load_profile_ai()
     /// @author ZF
     /// @details load the AI for each profile, done last so that all reserved slot numbers are already set
     /// since AI scripts can dynamically load new objects if they require it
+#if 0
     PRO_REF ipro;
     STRING loadname;
-
+#endif
     // ensure that the script parser exists
     parser_state_t * ps = script_compiler_get_state();
 
@@ -5227,7 +5229,7 @@ bool attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     }
 
     // what to do about traction if the platform is tilted... hmmm?
-    chr_getMatUp( pplat, platform_up.v );
+    chr_getMatUp(pplat, platform_up);
     fvec3_self_normalize(platform_up);
 
     pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
