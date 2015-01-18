@@ -359,10 +359,6 @@ struct chr_t
     SFP8_T         damage_boost;                  ///< Add to swipe damage (8.8 fixed point)
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
 
-    // sound stuff
-    int            sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
-    int            loopedsound_channel;           ///< Which sound channel it is looping on, -1 is none.
-
     // missle handling
     Uint8          missiletreatment;              ///< For deflection, etc.
     Uint8          missilecost;                   ///< Mana cost for each one
@@ -631,7 +627,6 @@ bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF char
 bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
 bool  export_one_character_profile_vfs( const char *szSaveName, const CHR_REF character );
 bool  export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character );
-CAP_REF CapStack_load_one( const char *szLoadName, int slot_override, bool required );
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
@@ -658,8 +653,8 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
 void drop_money( const CHR_REF character, int money );
 void call_for_help( const CHR_REF character );
-void give_experience( const CHR_REF character, int amount, xp_type xptype, bool override_invictus );
-void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype );
+void give_experience( const CHR_REF character, int amount, XPType xptype, bool override_invictus );
+void give_team_experience( const TEAM_REF team, int amount, XPType xptype );
 int  damage_character( const CHR_REF character, const FACING_T direction,
                        const IPair damage, const Uint8 damagetype, const TEAM_REF team,
                        const CHR_REF attacker, const BIT_FIELD effects, const bool ignore_invictus );

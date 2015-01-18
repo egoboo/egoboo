@@ -3126,14 +3126,14 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     }
 
     // Do grog
-    if ( pdata->ppip->grog_time > 0 && _profileSystem->getProfile(pdata->pchr->profile_ref)->canBeGrogged() )
+    if ( pdata->ppip->grog_time > 0 && _profileSystem.getProfile(pdata->pchr->profile_ref)->canBeGrogged() )
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->grog_timer = std::max( (int)pdata->pchr->grog_timer, pdata->ppip->grog_time );
     }
 
     // Do daze
-    if ( pdata->ppip->daze_time > 0 && _profileSystem->getProfile(pdata->pchr->profile_ref)->canBeDazed()  )
+    if ( pdata->ppip->daze_time > 0 && _profileSystem.getProfile(pdata->pchr->profile_ref)->canBeDazed()  )
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->daze_timer = std::max( (int)pdata->pchr->daze_timer, pdata->ppip->daze_time );
@@ -3145,8 +3145,8 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
 
         prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || INGAME_CHR( pdata->pprt->attachedto_ref ) );
 
-        ObjectProfile *ownerProfile = _profileSystem.getProfile(powner->profile_ref);
-        if ( ownerProfile != nullptr && ownerProfile->isRanged() ) prt_needs_impact = true;
+        const std::shared_ptr<ObjectProfile> &ownerProfile = _profileSystem.getProfile(powner->profile_ref);
+        if ( ownerProfile != nullptr && ownerProfile->isRangedWeapon() ) prt_needs_impact = true;
 
         // DAMFX_ARRO means that it only does damage to the one it's attached to
         if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && ( !prt_needs_impact || pdata->is_impact ) )

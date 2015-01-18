@@ -62,7 +62,6 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#include "egolib/file_formats/cap_file.h"
 #include "egolib/file_formats/configfile.h"
 #include "egolib/file_formats/controls_file.h"
 #include "egolib/file_formats/eve_file.h"

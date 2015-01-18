@@ -87,7 +87,7 @@ struct enc_t
     CHR_REF target_ref;              ///< Who it enchants
     CHR_REF owner_ref;               ///< Who cast the enchant
     CHR_REF spawner_ref;             ///< The spellbook character
-    PRO_REF spawnermodel_ref;        ///< The spellbook character's CapStack index
+    PRO_REF spawnermodel_ref;        ///< The spellbook character's profile index
     CHR_REF overlay_ref;             ///< The overlay character
 
     int     owner_mana;               ///< Boost values

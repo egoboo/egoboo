@@ -36,9 +36,6 @@ typedef int SoundID;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //Constants
-
-#define MAX_SKIN             4               ///< The maxumum number of skins per model. This must remain hard coded at 4 for the moment.
-#define NO_SKIN_OVERRIDE    -1                      ///< For import
 #define NOHIDE              127                        ///< Don't hide
 
 /// Stats
@@ -51,19 +48,10 @@ typedef int SoundID;
 #define MAXBASELEVEL            6                 ///< Basic Levels 0-5
 #define MAXLEVEL               20                 ///< Absolute max level
 
-#define GRIP_VERTS             4
-
 #define CAP_INFINITE_WEIGHT   0xFF
 #define CAP_MAX_WEIGHT        0xFE
 
 #define ULTRABLUDY           2          ///< This makes any damage draw blud
-
-//Damage shifts
-#define DAMAGEINVICTUS      (1 << 5)                      ///< 00x00000 Invictus to this type of damage
-#define DAMAGEMANA          (1 << 4)                      ///< 000x0000 Deals damage to mana
-#define DAMAGECHARGE        (1 << 3)                       ///< 0000x000 Converts damage to mana
-#define DAMAGEINVERT        (1 << 2)                       ///< 00000x00 Makes damage heal
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -103,17 +91,6 @@ typedef int SoundID;
     SPEECH_END   = SPEECH_SELECT
 };*/
 
-
-/// What gender a character can be spawned with
-enum CharacterGender : uint8_t
-{
-    GENDER_FEMALE = 0,
-    GENDER_MALE,
-    GENDER_OTHER,
-    GENDER_RANDOM,
-    GENDER_COUNT
-};
-
 /// The various ID strings that every character has
 enum IDSZTypes : uint8_t
 {
@@ -124,22 +101,6 @@ enum IDSZTypes : uint8_t
     IDSZ_HATE,                                   ///< Hate index
     IDSZ_VULNERABILITY,                          ///< Vulnerability index
     IDSZ_COUNT                                   ///< ID strings per character
-};
-
-/// The possible damage types
-enum DamageType : uint8_t
-{
-    DAMAGE_SLASH = 0,
-    DAMAGE_CRUSH,
-    DAMAGE_POKE,
-    DAMAGE_HOLY,                             ///< (Most invert Holy damage )
-    DAMAGE_EVIL,
-    DAMAGE_FIRE,
-    DAMAGE_ICE,
-    DAMAGE_ZAP,
-    DAMAGE_COUNT,
-
-    DAMAGE_NONE      = 255
 };
 
 #define DAMAGE_IS_PHYSICAL( TYPE )  (TYPE < DAMAGE_HOLY)    //Damage types slash, crush or poke are physical
@@ -158,15 +119,6 @@ enum XPType : uint8_t
     XP_COUNT,                                   ///< Number of ways to get experience
 
     XP_DIRECT     = 255                         ///< No modification
-};
-
-
-/// Where an item is being held
-enum slot_t : uint8_t
-{
-    SLOT_LEFT  = 0,
-    SLOT_RIGHT,
-    SLOT_COUNT
 };
 
 /// The possible extended slots that an object might be equipped in
@@ -193,13 +145,13 @@ struct ProfileStat
 
 struct SkinInfo
 {
-    std::string  name;               ///< Skin name
-    uint16_t     cost;               ///< Store prices
-    float        maxAccel;           ///< Acceleration for each skin
-    bool         dressy;             ///< True if this is light armour
-    uint8_t      defence;            ///< Damage reduction
-    uint8_t      damageModifier;     ///< Invictus, inverse, mana burn etc.
-    uint8_t      damageResistance;   ///< Shift damage
+    std::string  name;                             ///< Skin name
+    uint16_t     cost;                             ///< Store prices
+    float        maxAccel;                         ///< Acceleration for each skin
+    bool         dressy;                           ///< True if this is light armour
+    uint8_t      defence;                          ///< Damage reduction
+    uint8_t      damageModifier[DAMAGE_COUNT];     ///< Invictus, inverse, mana burn etc.
+    uint8_t      damageResistance[DAMAGE_COUNT];   ///< Shift damage
 };
 
 //--------------------------------------------------------------------------------------------
@@ -256,7 +208,7 @@ public:
     /**
     *@return the folder path where this profile was loaded
     **/
-    inline const std::string& getFileName() const {return _fileName;}
+    inline const std::string& getFilePath() const {return _fileName;}
 
     inline MAD_REF getModelRef() const {return _imad;}
     inline EVE_REF getEnchantRef() const {return _ieve;}
@@ -307,6 +259,8 @@ public:
     **/
     bool isSlotValid(slot_t slot) const;
 
+    inline bool canCarryToNextModule() const {return _canCarryToNextModule;}
+
     inline bool hasResistBumpSpawn() const {return _resistBumpSpawn;}
 
     inline bool canBeDazed() const {return _canBeDazed;}
@@ -314,10 +268,9 @@ public:
     inline bool canBeGrogged() const {return _canBeGrogged;}
 
     inline bool isBigItem() const {return _isBigItem;}
+    inline bool isItem() const {return _isItem;}
 
-    inline bool usageIsKnown() const {return _usageIsKnown;}
-
-    inline void setUsageKnown(bool value) const {_usageIsKnown = value;}
+    inline bool isUsageKnown() const {return _usageIsKnown;}
 
     inline bool isEquipment() const {return _isEquipment;}
 
@@ -329,16 +282,25 @@ public:
 
     inline uint8_t getKurseChance() const {return _kurseChance;}
 
-    inline uint8_t getAttachParticleAmount() const {return _attachedParticleAmount;}
+    inline uint8_t getAttachedParticleAmount() const {return _attachedParticleAmount;}
 
     inline PIP_REF getAttachedParticleProfile() const {return _attachedParticleProfile;}
 
     inline bool causesRipples() const {return _causesRipples;}
 
     inline uint8_t getLight() const {return _light;}
+
     inline uint8_t getAlpha() const {return _alpha;}
 
-    uint32_t getXPNeededForLevel(size_t level) const;
+    inline bool isPhongMapped() const {return _phongMapping;}
+
+    inline uint8_t getSheen() const {return _sheen;}
+
+    /**
+    *@brief If this is true, then draw textures on the inside of characters as well
+    **/
+    inline bool isDontCullBackfaces() const {return _dontCullBackfaces;}
+
 
     inline const float getSizeGainPerLevel() const {return _sizePerLevel;}
 
@@ -435,33 +397,33 @@ public:
     /**
     * @return true if only use pchr->bump.size if it was overridden in data.txt through the [MODL] expansion
     **/
-    inline bool bumpOverrideSize() const {return _bumpOverrideSize;}
+    inline bool getBumpOverrideSize() const {return _bumpOverrideSize;}
 
     /**
     * @return true if only use pchr->bump.height if it was overridden in data.txt through the [MODL] expansion
     **/
-    inline bool bumpOverrideHeight() const {return _bumpOverrideHeight;}
+    inline bool getBumpOverrideHeight() const {return _bumpOverrideHeight;}
     
     /**
     * @return true if only use pchr->bump.size_big if it was overridden in data.txt through the [MODL] expansion
     **/
-    inline bool bumpOverrideSizeBig() const {return _bumpOverrideSizeBig;}
+    inline bool getBumpOverrideSizeBig() const {return _bumpOverrideSizeBig;}
 
     /**
     * @return the SoundID for jumping when this object profile jumps
     **/
-    inline SoundID getJumpSound() const {return getSoundID(_jumpSound)};
+    inline SoundID getJumpSound() const {return getSoundID(_jumpSound);}
 
     /**
     * @return the SoundID for footfall effects for this object profile
     **/
-    inline SoundID getFootFallSound() const {return getSoundID(_footFallSound)};
+    inline SoundID getFootFallSound() const {return getSoundID(_footFallSound);}
 
     /**
     * @return true if this object should transfer its blending effect upon any
     *         items it might be holding or its rider (if it is a mount)
     **/ 
-    inline bool transerBlending() const {return _isEquipment;}
+    inline bool transferBlending() const {return _isEquipment;}
 
     /**
     * @brief If this character should spawn blood particles when it gets hurt
@@ -471,7 +433,7 @@ public:
     /**
     * @brief If this character should spawn blood particles when it gets hurt
     **/ 
-    inline PIP_REF getBloodParticleProfile() const {return _bludParticleProfile;}
+    inline PIP_REF getBludParticleProfile() const {return _bludParticleProfile;}
 
     /**
     * @brief experience multiplies for a given kind of experience type
@@ -490,6 +452,11 @@ public:
     inline float getExperienceExchangeRate() const {return _experienceExchange;}
 
     /**
+    * @return the amount of experience needed to obtain a given character level
+    **/
+    uint32_t getXPNeededForLevel(uint8_t level) const;
+
+    /**
     * @brief Damage bonus on attack particles from a given stat
     *        E.g if this object is a sword and has 0.5f strength factor, the user
     *        gets to add 50% of her strength to all attacks with it.
@@ -505,7 +472,8 @@ public:
     inline FRange getIntelligenceGainPerLevel() const  {return _startingIntellignece.perlevel;}
     inline FRange getDexterityGainPerLevel() const     {return _startingDexterity.perlevel;}
     inline FRange getLifeGainPerLevel() const          {return _startingLife.perlevel;}
-    inline FRange getLifeRegenerationGainPerLevel() const  {return 0;}
+    inline FRange getManaGainPerLevel() const          {return _startingMana.perlevel;}
+    //inline FRange getLifeRegenerationGainPerLevel() const  {return 0;} //ZF> TODO: not implemented yet
     inline FRange getManaRegenerationGainPerLevel() const  {return _startingManaRegeneration.perlevel;}
     inline FRange getManaFlowGainPerLevel() const      {return _startingManaFlow.perlevel;}
 
@@ -515,11 +483,16 @@ public:
     inline FRange getBaseIntelligence() const      {return _startingIntellignece.val;}
     inline FRange getBaseDexterity() const         {return _startingDexterity.val;}
     inline FRange getBaseLife() const              {return _startingLife.val;}
-    inline FRange getBaseLifeRegeneration() const  {return _startingLifeReturn;}
+    inline UFP8_T getBaseLifeRegeneration() const  {return _startingLifeReturn;} //ZF> TODO: should be range
     inline FRange getBaseManaRegeneration() const  {return _startingManaRegeneration.val;}
     inline FRange getBaseManaFlow() const          {return _startingManaFlow.val;}
+    inline FRange getBaseMana() const              {return _startingMana.val;}
 
-    inline std::unordered_map<IDSZ, int>& getSkillMap() const {return _skills;}
+    inline const std::unordered_map<IDSZ, int>& getSkillMap() const {return _skills;}
+
+    inline uint8_t getManaColor() const {return _manaColor;}
+
+    inline uint8_t getLifeColor() const {return _lifeColor;}
 
     /**
     * @brief Moving textures effect
@@ -557,6 +530,11 @@ public:
     bool hasIDSZ(const IDSZ idsz) const;
 
     IDSZ getIDSZ(size_t type) const;
+
+    /**
+    * @brief makes the usage of this type of object known to all players
+    **/
+    void makeUsageKnown() {_usageIsKnown = true;}
 
     //ZF> TODO: these should not be public
     size_t requestCount;                       ///< the number of attempted spawns
@@ -690,7 +668,7 @@ private:
     uint8_t      _flyHeight;                    ///< Fly height
     bool         _waterWalking;                 ///< Walk on water?
     int          _jumpSound;
-    int          _footFallSound
+    int          _footFallSound;
 
     // status graphics
     uint8_t      _lifeColor;                     ///< Life bar color
@@ -724,7 +702,7 @@ private:
     bool           _resistBumpSpawn;             ///< Don't catch fire
 
     // xp
-    std::array<uint32_t, MAX_LEVEL> _experienceForLevel;  ///< Experience needed for next level
+    std::array<uint32_t, MAXLEVEL> _experienceForLevel;  ///< Experience needed for next level
     FRange                          _startingExperience;  ///< Starting experience
     uint16_t                        _experienceWorth;     ///< Amount given to killer/user
     float                           _experienceExchange;  ///< Adds to worth
@@ -747,7 +725,7 @@ private:
     bool       _nameIsKnown;                   ///< Is the class name known?
     bool       _usageIsKnown;                  ///< Is its usage known
     bool       _canCarryToNextModule;          ///< Take it with you?
-    uint8_t    _damageTargetDamageType;        ///< For AI DamageTarget
+    DamageType _damageTargetDamageType;        ///< For AI DamageTarget
     std::array<bool, SLOT_COUNT> _slotsValid;  ///< Left/Right hands valid
     bool       _riderCanAttack;                ///< Rider attack?
     uint8_t    _kurseChance;                   ///< Chance of being kursed (0 to 100%)
@@ -769,12 +747,12 @@ private:
 
     // special particle effects
     uint8_t      _attachedParticleAmount;              ///< Number of sticky particles
-    uint8_t      _attachedParticleReaffirmDamageType; ///< Re-attach sticky particles? Relight that torch...
-    int          _attachedParticleProfile;                ///< Which kind of sticky particle
+    DamageType   _attachedParticleReaffirmDamageType; ///< Re-attach sticky particles? Relight that torch...
+    PIP_REF      _attachedParticleProfile;                ///< Which kind of sticky particle
 
     uint8_t      _goPoofParticleAmount;           ///< Amount of poof particles
     int16_t      _goPoofParticleFacingAdd;        ///< Angular spread of poof particles
-    int          _goPoofParticleProfile;          ///< Which poof particle
+    PIP_REF      _goPoofParticleProfile;          ///< Which poof particle
 
     //Blood
     uint8_t      _bludValid;                      ///< Has blud? ( yuck )

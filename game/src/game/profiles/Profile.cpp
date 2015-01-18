@@ -194,7 +194,7 @@ ObjectProfile::ObjectProfile() :
     _needSkillIDToUse(false),
     _weaponAction(0),
     _attackAttached(0),
-    _attackParticleProfile(0),
+    _attackParticleProfile(INVALID_PIP_REF),
     _attackFast(false),
 
     _strengthBonus(0.0f),
@@ -205,15 +205,15 @@ ObjectProfile::ObjectProfile() :
     // special particle effects
     _attachedParticleAmount(0),
     _attachedParticleReaffirmDamagetype(0),
-    _attachedParticleProfile(0),
+    _attachedParticleProfile(INVALID_PIP_REF),
 
     _goPoofParticleAmount(0),
     _goPoofParticleFacingAdd(0),
-    _goPoofParticleProfile(0),
+    _goPoofParticleProfile(INVALID_PIP_REF),
 
     //Blood
     _bludValid(0),
-    _bludParticleProfile(0),
+    _bludParticleProfile(INVALID_PIP_REF),
 
     // skill system
     _skills(),
@@ -226,6 +226,7 @@ ObjectProfile::ObjectProfile() :
 
     _experienceRate.fill(0.0f);
     _idsz.fill(IDSZ_NONE);
+    _experienceForLevel.fill(UINT32_MAX);
 
     memset(&_aiScript, 0, sizeof(script_info_t));
 }
@@ -722,7 +723,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     // Particle attachments
     _attachedParticleAmount              = vfs_get_next_int( fileRead );
     _attachedParticleReaffirmDamagetype = vfs_get_next_damage_type( fileRead );
-    _attachedParticleProfile                = vfs_get_next_int( fileRead );
+    _attachedParticleProfile  = getParticleProfile( vfs_get_next_int(fileRead) );
 
     // Character hands
     _slotsValid[SLOT_LEFT]  = vfs_get_next_bool( fileRead );
@@ -730,12 +731,12 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
 
     // Attack order ( weapon )
     _attackAttached = vfs_get_next_bool( fileRead );
-    _attackParticleProfile  = vfs_get_next_int( fileRead );
+    _attackParticleProfile  = getParticleProfile( vfs_get_next_int(fileRead) );
 
     // GoPoof
     _goPoofParticleAmount    = vfs_get_next_int( fileRead );
     _goPoofParticleFacingAdd = vfs_get_next_int( fileRead );
-    _goPoofParticleProfile      = vfs_get_next_int( fileRead );
+    _goPoofParticleProfile   = getParticleProfile( vfs_get_next_int(fileRead) );
 
     // Blud
     switch( char_toupper(vfs_get_next_char(fileRead)) )
@@ -803,7 +804,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
         switch(idsz)
         {
             case MAKE_IDSZ( 'D', 'R', 'E', 'S' ):
-                SET_BIT( skin_info.dressy, 1 << vfs_get_int( fileRead ) );
+                getSkinInfo(vfs_get_int(fileRead)).dressy = true;
             break;
 
             case MAKE_IDSZ( 'G', 'O', 'L', 'D' ):
@@ -1369,7 +1370,6 @@ bool ObjectProfile::hasTypeIDSZ(const IDSZ idsz)
     return false;
 }
 
-//--------------------------------------------------------------------------------------------
 bool ObjectProfile::hasIDSZ(IDSZ idsz)
 {
     for(IDSZ compare : _idsz)

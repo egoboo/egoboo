@@ -160,9 +160,7 @@ void scr_run_chr_script( const CHR_REF character )
     script_error_model     = pchr->profile_ref;
     if ( script_error_model < INVALID_PRO_REF )
     {
-        CAP_REF icap = _profileSystem.pro_get_icap( script_error_model );
-
-        script_error_classname = CapStack.lst[ icap ].classname;
+        script_error_classname = _profileSystem.getProfile(script_error_model)->getClassName().c_str();
     }
 
     if (debug_scripts && debug_script_file)
@@ -1617,7 +1615,7 @@ void set_alerts( const CHR_REF character )
             // if the object can be alerted to last waypoint, do it
             // this test needs to be done because the ALERTIF_ATLASTWAYPOINT
             // doubles for "at last waypoint" and "not put away"
-            if ( !chr_get_pcap( character )->isequipment )
+            if ( !chr_get_ppro(character)->isEquipment() )
             {
                 SET_BIT( pai->alert, ALERTIF_ATLASTWAYPOINT );
             }
@@ -1813,8 +1811,8 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj
 
     pself->index      = index;
     pself->alert      = ALERTIF_SPAWNED;
-    pself->state      = _profileSystem->getProfile(iobj)->getStateOverride();
-    pself->content    = _profileSystem->getProfile(iobj)->getContentOverride();
+    pself->state      = _profileSystem.getProfile(iobj)->getStateOverride();
+    pself->content    = _profileSystem.getProfile(iobj)->getContentOverride();
     pself->passage    = 0;
     pself->target     = index;
     pself->owner      = index;

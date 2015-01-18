@@ -286,7 +286,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
                    REF_TO_INT( pdata->ipip ), REF_TO_INT( pdata->chr_origin ), DEFINED_CHR( pdata->chr_origin ) ? ChrList.lst[pdata->chr_origin].Name : "INVALID",
-                   REF_TO_INT( pdata->iprofile ), _profileSystem.isValidProfileID( pdata->iprofile ) ? _profileSystem.getProfile(pdata->iprofile)->getName().c_str() : "INVALID" );
+                   REF_TO_INT( pdata->iprofile ), _profileSystem.isValidProfileID( pdata->iprofile ) ? _profileSystem.getProfile(pdata->iprofile)->getFilePath().c_str() : "INVALID" );
 
         return NULL;
     }
@@ -1003,7 +1003,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
                    REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
-                   REF_TO_INT( iprofile ), _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getName().c_str() : "INVALID" );
+                   REF_TO_INT( iprofile ), _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
 
         return INVALID_PRT_REF;
     }
@@ -1019,7 +1019,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
         log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
                    chr_origin, INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
                    ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
-                   iprofile, _profileSystem.isValidProfileID( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
+                   iprofile, _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
 #endif
 
         return INVALID_PRT_REF;

@@ -29,7 +29,6 @@
 #include "egolib/egoboo_setup.h"
 
 #include "egolib/extensions/ogl_texture.h"
-#include "egolib/file_formats/cap_file.h"
 
 #include "egolib/_math.h"
 

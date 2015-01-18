@@ -24,6 +24,7 @@
 #include "game/char.h"
 
 #include "egolib/_math.h"
+#include "egolib/math/Random.hpp"
 
 #include "game/mad.h"
 #include "game/player.h"
@@ -258,7 +259,6 @@ chr_t * chr_t::ctor( chr_t * pchr )
     // IMPORTANT!!!
     pchr->ibillboard = INVALID_BILLBOARD_REF;
     pchr->sparkle = NOSPARKLE;
-    pchr->loopedsound_channel = INVALID_SOUND_CHANNEL;
 
     // Set up model stuff
     pchr->inwhich_slot = SLOT_LEFT;
@@ -1576,10 +1576,10 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
         }
 
         // reveal the usage of the item or the stack
-        if ( itemProfile->usageIsKnown() || stackProfile->usageIsKnown() )
+        if ( itemProfile->isUsageKnown() || stackProfile->isUsageKnown() )
         {
-            itemProfile->setUsageKnown(true);
-            stackProfile->setUsageKnown(true);
+            itemProfile->makeUsageKnown();
+            stackProfile->makeUsageKnown();
         }
 
         // add the item ammo to the stack
@@ -2338,8 +2338,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
     if ( !INGAME_CHR( iweapon ) ) return;
     pweapon = ChrList_get_ptr( iweapon );
 
-    ObjectPofile *weaponProfile = chr_get_ppro( iweapon );
-    if ( nullptr == weaponProfile ) return;
+    const ObjectProfile *weaponProfile = chr_get_ppro( iweapon );
 
     // find the 1st non-item that is holding the weapon
     iholder = chr_get_lowest_attachment( iweapon, true );
@@ -2661,7 +2660,7 @@ void do_level_up( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-void give_experience( const CHR_REF character, int amount, xp_type xptype, bool override_invictus )
+void give_experience( const CHR_REF character, int amount, XPType xptype, bool override_invictus )
 {
     /// @author ZZ
     /// @details This function gives a character experience
@@ -2712,7 +2711,7 @@ void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype )
     {
         if ( pchr->team == team )
         {
-            give_experience( cnt, amount, ( xp_type )xptype, false );
+            give_experience( cnt, amount, ( XPType )xptype, false );
         }
     }
     CHR_END_LOOP();
@@ -2734,8 +2733,6 @@ chr_t * resize_one_character( chr_t * pchr )
     if ( NULL == pchr ) return pchr;
 
     ichr = GET_REF_PCHR( pchr );
-
-    ObjectProfile* profile = chr_get_ppro( character );
 
     if ( pchr->fat_goto_time < 0 ) return pchr;
 
@@ -2773,6 +2770,8 @@ chr_t * resize_one_character( chr_t * pchr )
 
             // Make it that big...
             chr_set_fat( pchr, newsize );
+
+            const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
             if ( CAP_INFINITE_WEIGHT == profile->getWeight() )
             {
@@ -2842,13 +2841,6 @@ bool chr_download_profile(chr_t * pchr, const std::shared_ptr<ObjectProfile> &pr
 
     if (!DEFINED_PCHR( pchr ) || !profile ) return false;
 
-    // sound stuff...  copy from the cap
-    //for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
-    //{
-    //    pchr->sound_index[tnc] = pcap->sound_index[tnc];
-    //}
-    //ZF> TODO: really needed?
-
     // Set up model stuff
     pchr->stoppedby = profile->getStoppedByMask();
     pchr->nameknown = profile->isNameKnown();
@@ -2856,14 +2848,14 @@ bool chr_download_profile(chr_t * pchr, const std::shared_ptr<ObjectProfile> &pr
     pchr->draw_icon = profile->isDrawIcon();
 
     // calculate a base kurse state. this may be overridden later
-    if ( pcap->isitem )
+    if ( profile->isItem() )
     {
         pchr->iskursed = Random::getPercent() <= profile->getKurseChance();
     }
 
     // Skillz
-    idsz_map_clear(pchr->skills);
-    for(const auto &element : newProfile->getSkillMap())
+    idsz_map_init(pchr->skills, SDL_arraysize(pchr->skills));
+    for(const auto &element : profile->getSkillMap())
     {
         idsz_map_add(pchr->skills, SDL_arraysize(pchr->skills), element.first, element.second);
     }
@@ -2894,7 +2886,7 @@ bool chr_download_profile(chr_t * pchr, const std::shared_ptr<ObjectProfile> &pr
     pchr->life_color = profile->getLifeColor();
     pchr->mana_color = profile->getManaColor();
     pchr->life_max = generate_irand_range( profile->getBaseLife() );
-    pchr->life_return = profile->getLifeRegeneration();
+    pchr->life_return = profile->getBaseLifeRegeneration();
     pchr->mana_max = generate_irand_range( profile->getBaseMana() );
     pchr->mana_flow = generate_irand_range( profile->getBaseManaFlow() );
     pchr->mana_return = generate_irand_range( profile->getBaseManaRegeneration());
@@ -2919,8 +2911,8 @@ bool chr_download_profile(chr_t * pchr, const std::shared_ptr<ObjectProfile> &pr
     pchr->damagetarget_damagetype = profile->getDamageTargetType();
     for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
     {
-        pchr->damage_modifier[tnc] = skin->damageModifier[tnc];
-        pchr->damage_resistance[tnc] = skin->damageResistance[tnc];
+        pchr->damage_modifier[tnc] = skin.damageModifier[tnc];
+        pchr->damage_resistance[tnc] = skin.damageResistance[tnc];
     }
 
     // Flags
@@ -2958,7 +2950,7 @@ bool chr_download_profile(chr_t * pchr, const std::shared_ptr<ObjectProfile> &pr
     }
     else
     {
-        Uint32 itmp = profile->getWeight() * pcap->size * pcap->size * pcap->size;
+        Uint32 itmp = profile->getWeight() * profile->getSize() * profile->getSize() * profile->getSize();
         pchr->phys.weight = std::min( itmp, CHR_MAX_WEIGHT );
     }
 
@@ -3245,7 +3237,6 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
 
     // Stop any looped sounds
     _audioSystem.stopObjectLoopingSounds( ichr );
-    pchr->loopedsound_channel = INVALID_SOUND_ID;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3586,7 +3577,7 @@ void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker )
 }
 
 //--------------------------------------------------------------------------------------------
-void spawn_poof( const CHR_REF character, const PRO_REF profile )
+void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
 {
     /// @author ZZ
     /// @details This function spawns a character poof
@@ -3600,14 +3591,14 @@ void spawn_poof( const CHR_REF character, const PRO_REF profile )
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList_get_ptr( character );
 
-    std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile( profile );
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(profileRef);
     if (!profile) return;
 
     origin = pchr->ai.owner;
     facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < profile->getParticlePoofAmount(); cnt++ )
     {
-        spawn_one_particle( pchr->pos_old, facing_z, profile, profile->getParticlePoofProfile(),
+        spawn_one_particle( pchr->pos_old, facing_z, profileRef, profile->getParticlePoofProfile(),
                             INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt, INVALID_CHR_REF );
 
         facing_z += profile->getParticlePoofFacingAdd();
@@ -3724,11 +3715,11 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // the spawn_ptr->skin from the data.txt file
     {
         const SkinInfo &skin = ppro->getSkinInfo(pchr->skin);
-        pchr->defense = ppro.defence;
+        pchr->defense = skin.defence;
         for ( tnc = 0; tnc < DAMAGE_COUNT; tnc++ )
         {
             pchr->damage_modifier[tnc] = skin.damageModifier[tnc];
-            pchr->damage_resistance[tnc] = skin.damageResitance[tnc];
+            pchr->damage_resistance[tnc] = skin.damageResistance[tnc];
         }
 
         chr_set_maxaccel( pchr, skin.maxAccel );
@@ -3767,7 +3758,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
         // A spawn_ptr->name has been given
         tnc = 0;
 
-        while ( tnc < MAXCAPNAMESIZE - 1 )
+        while ( spawn_ptr->name[tnc] != '\0' ) //ZF> TODO: dangerous copy here! no bounds check
         {
             pchr->Name[tnc] = spawn_ptr->name[tnc];
             tnc++;
@@ -4376,8 +4367,7 @@ void respawn_character( const CHR_REF character )
     if ( !INGAME_CHR( character ) || ChrList.lst[character].alive ) return;
     pchr = ChrList_get_ptr( character );
 
-    std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile( profile );
-    if (!profile) return;
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
     old_attached_prt_count = number_of_attached_particles( character );
 
@@ -4412,7 +4402,7 @@ void respawn_character( const CHR_REF character )
 
     pchr->platform        = profile->isPlatform();
     pchr->canuseplatforms = profile->canUsePlatforms();
-    pchr->flyheight       = profile->getFlyhHeight();
+    pchr->flyheight       = profile->getFlyHeight();
     pchr->phys.bumpdampen = profile->getBumpDampen();
 
     pchr->ai.alert = ALERTIF_CLEANEDUP;
@@ -4564,19 +4554,19 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile( pchr->profile_ref );
     loc_skin = chr_change_skin( character, loc_skin );
 
-    const SkinInfo &skin = profile->getSkinInfo(loc_skin);
+    const SkinInfo &skinInfo = profile->getSkinInfo(loc_skin);
 
     // Change stats associated with skin
-    pchr->defense = skin.defence;
+    pchr->defense = skinInfo.defence;
 
     for ( iTmp = 0; iTmp < DAMAGE_COUNT; iTmp++ )
     {
-        pchr->damage_modifier[iTmp] = skin.damageModifier;
-        pchr->damage_resistance[iTmp] = skin.damageResitance;
+        pchr->damage_modifier[iTmp] = skinInfo.damageModifier[iTmp];
+        pchr->damage_resistance[iTmp] = skinInfo.damageResistance[iTmp];
     }
 
     // set the character's maximum acceleration
-    chr_set_maxaccel( pchr, skin.maxAccel );
+    chr_set_maxaccel( pchr, skinInfo.maxAccel );
 
     // cleanup the enchant list
     cleanup_character_enchants( pchr );
@@ -4833,12 +4823,6 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
         pchr->gender = newProfile->getGender();
     }
 
-    // Sound effects
-    for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
-    {
-        pchr->sound_index[tnc] = pcap_new->sound_index[tnc];
-    }
-
     // AI stuff
     chr_set_ai_state( pchr, 0 );
     pchr->ai.timer          = 0;
@@ -4861,7 +4845,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pchr->light_base      = newProfile->getLight();
 
     // change the skillz, too, jack!
-    idsz_map_clear(pchr->skills);
+    idsz_map_init(pchr->skills, SDL_arraysize(pchr->skills));
     for(const auto &element : newProfile->getSkillMap())
     {
         idsz_map_add(pchr->skills, SDL_arraysize(pchr->skills), element.first, element.second);
@@ -5939,7 +5923,7 @@ bool chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
         if ( INGAME_CHR( mount ) )
         {
             chr_t * pmount = ChrList_get_ptr( mount );
-            const ObjectProfile *mountProfile = chr_getppro(mount);
+            const ObjectProfile *mountProfile = chr_get_ppro(mount);
 
             // let the mount steal the rider's attack
             if ( !mountProfile->riderCanAttack() ) allowedtoattack = false;
@@ -5968,16 +5952,8 @@ bool chr_do_latch_attack( chr_t * pchr, slot_t which_slot )
     {
         if ( pchr->inst.action_ready && action_valid )
         {
-            // Check mana cost
-            bool mana_paid = cost_mana( ichr, pweapon->manacost, iweapon );
-
-            if ( mana_paid )
             {
                 Uint32 action_madfx = 0;
-
-                // Check life healing
-                pchr->life += pweapon->life_heal;
-                if ( pchr->life > pchr->life_max )  pchr->life = pchr->life_max;
 
                 // randomize the action
                 action = randomize_action( action, which_slot );
@@ -6355,7 +6331,7 @@ bool chr_get_safe( chr_t * pchr, fvec3_base_t pos_v )
     // maybe there is one last fallback after this? we could check the character's current position?
     if ( !found )
     {
-        log_debug( "Uh oh! We could not find a valid non-wall position for %s!\n", chr_get_pcap( pchr->ai.index )->name );
+        log_debug( "Uh oh! We could not find a valid non-wall position for %s!\n", chr_get_ppro( pchr->ai.index )->getClassName().c_str() );
     }
 
     return found;
@@ -6744,7 +6720,7 @@ bool move_one_character_integrate_motion( chr_t * pchr )
                     {
                         float loc_bumpdampen;
    
-                        loc_bumpdampen = _profileSystem->getProfile(pchr->profile_ref)->getBumpDampen();
+                        loc_bumpdampen = _profileSystem.getProfile(pchr->profile_ref)->getBumpDampen();
 
                         v_perp.x = v_perp.y = 0.0f;
                         if ( 0.0f != nrm2 )
@@ -6846,7 +6822,7 @@ bool chr_handle_madfx( chr_t * pchr )
     //Do footfall sound effect
     if ( cfg.sound_footfall && HAS_SOME_BITS( framefx, MADFX_FOOTFALL ) )
     {
-        _audioSystem.playSound(pchr->pos, _profileSystem->getProfile(pchr->profile_ref)->getFootFallSound());
+        _audioSystem.playSound(pchr->pos, _profileSystem.getProfile(pchr->profile_ref)->getFootFallSound());
     }
 
     return true;
@@ -7415,7 +7391,7 @@ bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIE
             {
                 // Check right hand
                 const ObjectProfile *shieldProfile = chr_get_ppro(pchr->holdingwhich[SLOT_LEFT]);
-                if ( NULL != pcap )
+                if (shieldProfile)
                 {
                     left = static_cast<FACING_T>( static_cast<int>(0x00010000L) - static_cast<int>(shieldProfile->getInvictusFrameAngle()) );
                     right = shieldProfile->getInvictusFrameAngle();
@@ -7673,10 +7649,6 @@ const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buff
                 snprintf( loc_buffer, loc_buffer_size, "%s", profile->getClassName().c_str() );
             }
         }
-        else
-        {
-            strncpy( loc_buffer, "Invalid", loc_buffer_size );
-        }
     }
 
     if ( 0 != ( bits & CHRNAME_CAPITAL ) )
@@ -7719,7 +7691,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
         std::shared_ptr<ObjectProfile> ppro = _profileSystem.getProfile( pchr->profile_ref );
 
         // copy the character's data.txt path
-        strncpy( buffer, ppro->getName().c_str(), SDL_arraysize( buffer ) );
+        strncpy( buffer, ppro->getFilePath().c_str(), SDL_arraysize( buffer ) );
     }
 
     return buffer;
@@ -7997,7 +7969,7 @@ TX_REF chr_get_txtexture_icon_ref( const CHR_REF item )
     }
     else if ( draw_book )
     {
-        iskin = profile->getSkinOverride();
+        iskin = itemProfile->getSkinOverride();
 
         if ( iskin < 0 || iskin >= MAX_SKIN )
         {
@@ -9305,7 +9277,7 @@ bool chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     // make sure that B is valid
     if ( !INGAME_CHR( ichr_b ) ) return false;
     pchr_b = ChrList_get_ptr( ichr_b );
-    const std::shared_ptr<ObjectProfile> &mountProfile = _profileSystem(pchr_b->profile_ref);
+    const std::shared_ptr<ObjectProfile> &mountProfile = _profileSystem.getProfile(pchr_b->profile_ref);
 
     action_mi = mad_get_action_ref( chr_get_imad( ichr_a ), ACTION_MI );
     has_ride_anim = ( ACTION_COUNT != action_mi && !ACTION_IS_TYPE( action_mi, D ) );
@@ -9866,17 +9838,6 @@ PRO_REF chr_get_ipro( const CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-CAP_REF chr_get_icap( const CHR_REF ichr )
-{
-    chr_t * pchr;
-
-    if ( !DEFINED_CHR( ichr ) ) return INVALID_CAP_REF;
-    pchr = ChrList_get_ptr( ichr );
-
-    return _profileSystem.pro_get_icap( pchr->profile_ref );
-}
-
-//--------------------------------------------------------------------------------------------
 TEAM_REF chr_get_iteam( const CHR_REF ichr )
 {
     chr_t * pchr;
@@ -9909,14 +9870,15 @@ TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 ObjectProfile * chr_get_ppro( const CHR_REF ichr )
 {
-    chr_t * pchr;
+    //This function should -never- return nullptr
+    assert( DEFINED_CHR(ichr) );
 
-    if ( !DEFINED_CHR( ichr ) ) return NULL;
-    pchr = ChrList_get_ptr( ichr );
+    chr_t * pchr = ChrList_get_ptr( ichr );
 
-    if ( !_profileSystem.isValidProfileID( pchr->profile_ref ) ) return NULL;
+    //This function should -never- return nullptr
+    assert(_profileSystem.isValidProfileID(pchr->profile_ref));
 
-    return _profileSystem.getProfile( pchr->profile_ref ).get();
+    return _profileSystem.getProfile(pchr->profile_ref).get();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9975,7 +9937,7 @@ bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz )
     /// @author BB
     /// @details a wrapper for cap_has_idsz
 
-    return chr_get_ppro(ichr)->hasIDSZ(type);
+    return chr_get_ppro(ichr)->hasIDSZ(idsz);
 }
 
 //--------------------------------------------------------------------------------------------

@@ -300,7 +300,7 @@ static const char *mnu_Tips_get_hint( GameTips_t * pglobal, GameTips_t * plocal 
 static void mnu_load_all_module_info();
 
 // "private" asset function
-static MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_ref );
+static MNU_TX_REF mnu_get_txtexture_ref( const std::shared_ptr<ObjectProfile> &profile, const MNU_TX_REF default_ref );
 
 // implementation of the autoformatting
 static void autoformat_init_slidy_buttons();
@@ -1618,7 +1618,7 @@ bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, Cho
         snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj", loadplayer_ptr->dir, i );
 
         // load the profile
-        std::shared_ptr<ObjectProfile> profile = ObjectProfiles::loadFromFile(szFilename, slot)
+        std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(szFilename, slot);
         if ( profile )
         {
             // go to the next element in the list
@@ -1691,7 +1691,7 @@ bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mo
         if ( profile )
         {
             STRING  temp_string;
-            SKIN_T  skin = cap_get_skin_overide( pcap );
+            SKIN_T  skin = profile->getSkinOverride();
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
@@ -1709,7 +1709,7 @@ bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mo
             const SkinInfo &skinInfo = profile->getSkinInfo(skin);
             GL_DEBUG( glColor4fv )( white_vec );
             snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s",
-                      !skinInfo.empty() ? skinInfo.name : "UNKNOWN",
+                      !skinInfo.name.empty() ? skinInfo.name.c_str() : "UNKNOWN",
                       skinInfo.dressy ? "(Light)" : "(Heavy)" );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
             y1 += section_spacing;
@@ -1774,27 +1774,26 @@ bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mo
                 {
                     chooseplayer_ptr = objects.lst + i;
 
-                    icap = chooseplayer_ptr->cap_ref;
-                    if ( LOADED_CAP( icap ) )
+                    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(chooseplayer_ptr->cap_ref);
+                    if ( profile )
                     {
                         MNU_TX_REF  icon_ref;
-                        cap_t * loc_pcap = CapStack.get_ptr( icap );
 
                         STRING itemname; //ZF> TODO: could be a item name bug here
-                        if ( loc_pcap->nameknown ) strncpy(itemname, chooseplayer_ptr->name, SDL_arraysize( itemname ) );
-                        else                       strncpy(itemname, loc_pcap->classname, SDL_arraysize( itemname ) );
+                        if ( profile->isNameKnown() ) strncpy(itemname, chooseplayer_ptr->name, SDL_arraysize( itemname ) );
+                        else                          strncpy(itemname, profile->getClassName().c_str(), SDL_arraysize( itemname ) );
 
                         //draw the icon for this item
-                        icon_ref = mnu_get_txtexture_ref( icap, chooseplayer_ptr->tx_ref );
+                        icon_ref = mnu_get_txtexture_ref(profile, chooseplayer_ptr->tx_ref );
                         ui_drawImage( 0, TxList_get_valid_ptr( icon_ref ), x1, y1, icon_hgt, icon_hgt, NULL );
 
-                        if ( icap == SLOT_LEFT + 1 )
+                        if ( profile->getSlotNumber() == SLOT_LEFT + 1 )
                         {
                             snprintf( temp_string, SDL_arraysize( temp_string ), "  Left: %s", itemname );
                             ui_drawTextBox( menuFont, temp_string, x1 + icon_hgt, y1 + text_vert_centering, 0, 0, text_hgt );
                             y1 += icon_hgt;
                         }
-                        else if ( icap == SLOT_RIGHT + 1 )
+                        else if ( profile->getSlotNumber() == SLOT_RIGHT + 1 )
                         {
                             snprintf( temp_string, SDL_arraysize( temp_string ), "  Right: %s", itemname );
                             ui_drawTextBox( menuFont, temp_string, x1 + icon_hgt, y1 + text_vert_centering, 0, 0, text_hgt );
@@ -4889,7 +4888,7 @@ void mnu_load_all_module_images_vfs( LoadPlayer_list_t * lp_lst )
 }
 
 //--------------------------------------------------------------------------------------------
-MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_ref )
+MNU_TX_REF mnu_get_txtexture_ref( const std::shared_ptr<ObjectProfile> &profile, const MNU_TX_REF default_ref )
 {
     /// @author BB
     /// @details This function gets the proper icon for a an object profile.
@@ -4902,14 +4901,10 @@ MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_r
     MNU_TX_REF icon_ref = ( MNU_TX_REF )TX_ICON_NULL;
     bool is_spell_fx, is_book, draw_book;
 
-    cap_t * pitem_cap;
-
-    if ( !LOADED_CAP( icap ) ) return icon_ref;
-    pitem_cap = CapStack.get_ptr( icap );
 
     // what do we need to draw?
-    is_spell_fx = ( pitem_cap->spelleffect_type >= 0 );
-    is_book     = ( SPELLBOOK == icap );
+    is_spell_fx = ( profile->getSpellEffectType() >= 0 );
+    is_book     = ( SPELLBOOK == profile->getSlotNumber() );
     draw_book   = ( is_book || is_spell_fx );
 
     if ( !draw_book )
@@ -4918,7 +4913,7 @@ MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_r
     }
     else if ( draw_book )
     {
-        SKIN_T iskin = cap_get_skin_overide( pitem_cap );
+        SKIN_T iskin = profile->getSkinOverride();
 
         icon_ref = _profileSystem.getSpellBookIcon(iskin);
     }
@@ -5382,7 +5377,7 @@ bool ChoosePlayer_init( ChoosePlayer_element_t * ptr )
 
     BLANK_STRUCT_PTR( ptr )
 
-    ptr->cap_ref  = INVALID_CAP_REF;
+    ptr->cap_ref  = INVALID_PRO_REF;
     ptr->tx_ref   = INVALID_MNU_TX_REF;
     ptr->skin_ref = MAX_SKIN;
 
@@ -5393,12 +5388,6 @@ bool ChoosePlayer_init( ChoosePlayer_element_t * ptr )
 bool ChoosePlayer_dealloc( ChoosePlayer_element_t * ptr )
 {
     // release all allocated resources
-
-    if ( MAX_CAP != ptr->cap_ref )
-    {
-        CapStack_release_one( ptr->cap_ref );
-    }
-    ptr->cap_ref = INVALID_CAP_REF;
 
     if ( VALID_TX_RANGE( ptr->tx_ref ) )
     {
@@ -5457,9 +5446,6 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     STRING  filename;
     int     slot;
 
-    CAP_REF  icap = INVALID_CAP_REF;
-    cap_t  * pcap = NULL;
-
     LoadPlayer_element_t * ptr = NULL;
     int                    idx = MAX_LOADPLAYER;
 
@@ -5479,9 +5465,10 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     slot = ( MAX_IMPORT_OBJECTS + 2 ) + lst->count;
 
     // try to load the character profile
-    icap = CapStack_load_one( foundfile, slot, false );
-    if ( !LOADED_CAP( icap ) ) return rv_fail;
-    pcap = CapStack.get_ptr( icap );
+    std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(foundFile, slot);
+    if(!profile) {
+        return rv_fail;
+    }
 
     // get the next index
     idx = LoadPlayer_list_get_free( lst );
@@ -5494,7 +5481,7 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     snprintf( ptr->dir, SDL_arraysize( ptr->dir ), "%s", str_convert_slash_net(( char* )foundfile, strlen( foundfile ) ) );
 
     // set the loaded character profile for this object
-    ptr->cap_ref = icap;
+    ptr->cap_ref = profile->getSlotNumber();
 
     // read in the skin from "skin.txt"
     // We are no longer supporting skin.txt. Use the [SKIN] expansion, instead
@@ -5502,7 +5489,7 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     //ptr->skin_ref = read_skin_vfs( filename );
 
     // get the skin from the [SKIN] expansion in the character profile
-    ptr->skin_ref = cap_get_skin_overide( pcap );
+    ptr->skin_ref = profile->getSkinOverride();
 
     // don't load in the md2 at this time
     //snprintf( filename, SDL_arraysize(filename), "%s" SLASH_STR "tris.md2", foundfile );
@@ -5557,6 +5544,8 @@ LoadPlayer_element_t * LoadPlayer_list_get_ptr( LoadPlayer_list_t * lst, int idx
 egolib_rv LoadPlayer_list_dealloc( LoadPlayer_list_t * lst )
 {
     int i;
+
+    _profileSystem.releaseAllProfiles();
 
     if ( NULL == lst ) return rv_error;
 
@@ -5638,7 +5627,7 @@ egolib_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
         strncpy( lp_ptr->name, pchr->Name, SDL_arraysize( lp_ptr->name ) );
         strncpy( lp_ptr->dir, pchr->obj_base._name, SDL_arraysize( lp_ptr->name ) );
 
-        lp_ptr->cap_ref  = ppro->getCapRef();
+        lp_ptr->cap_ref  = ppro->getSlotNumber();
         lp_ptr->skin_ref = pchr->skin;
         lp_ptr->tx_ref   = pchr->inst.texture;
 
@@ -5675,13 +5664,6 @@ bool LoadPlayer_element_dealloc( LoadPlayer_element_t * ptr )
 {
     if ( NULL == ptr ) return false;
 
-    // release the cap
-    if ( MAX_CAP != ptr->cap_ref )
-    {
-        CapStack_release_one( ptr->cap_ref );
-    }
-    ptr->cap_ref = INVALID_CAP_REF;
-
     // release the texture
     if ( VALID_TX_RANGE( ptr->tx_ref ) )
     {
@@ -5700,7 +5682,7 @@ bool LoadPlayer_element_init( LoadPlayer_element_t * ptr )
     BLANK_STRUCT_PTR( ptr )
 
     // set the non-zero, non-null values
-    ptr->cap_ref = INVALID_CAP_REF;
+    ptr->cap_ref = INVALID_PRO_REF;
     ptr->tx_ref = INVALID_MNU_TX_REF;
 
     idsz_map_init( ptr->quest_log, MAX_IDSZ_MAP_SIZE );

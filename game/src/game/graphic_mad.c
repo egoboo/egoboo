@@ -975,16 +975,12 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 void draw_chr_attached_grip( chr_t * pchr )
 {
     mad_t * pholder_mad;
-    cap_t * pholder_cap;
     chr_t * pholder;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
     if ( !INGAME_CHR( pchr->attachedto ) ) return;
     pholder = ChrList_get_ptr( pchr->attachedto );
-
-    pholder_cap = _profileSystem.pro_get_pcap( pholder->profile_ref );
-    if ( NULL == pholder_cap ) return;
 
     pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
@@ -996,17 +992,13 @@ void draw_chr_attached_grip( chr_t * pchr )
 void draw_chr_grips( chr_t * pchr )
 {
     mad_t * pmad;
-    cap_t * pcap;
-
-    int slot;
 
     GLint matrix_mode[1];
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pcap ) return;
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
     if ( NULL == pmad ) return;
@@ -1027,16 +1019,14 @@ void draw_chr_grips( chr_t * pchr )
     GL_DEBUG( glPushMatrix )();
 	Egoboo_Renderer_OpenGL_multMatrix(&(pchr->inst.matrix));
 
-    slot = SLOT_LEFT;
-    if ( pcap->slotvalid[slot] )
+    if ( profile->isSlotValid(SLOT_LEFT) )
     {
-        _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
+        _draw_one_grip_raw( &( pchr->inst ), pmad, SLOT_LEFT );
     }
 
-    slot = SLOT_RIGHT;
-    if ( pcap->slotvalid[slot] )
+    if ( profile->isSlotValid(SLOT_RIGHT) )
     {
-        _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
+        _draw_one_grip_raw( &( pchr->inst ), pmad, SLOT_RIGHT );
     }
 
     // Restore the GL_MODELVIEW matrix
@@ -2115,7 +2105,6 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
-    cap_t * pcap;
     SKIN_T  loc_skin;
 
     if ( NULL == pinst )
@@ -2132,10 +2121,10 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     // clear the instance
     chr_instance_ctor( pinst );
 
-    if ( !_profileSystem.isValidProfileID( profile ) ) return gfx_fail;
-    std::shared_ptr<ObjectProfile> pobj = _profileSystem.getProfile( profile );
-
-    pcap = _profileSystem.pro_get_pcap( profile );
+    const std::shared_ptr<ObjectProfile> &pobj = _profileSystem.getProfile( profile );
+    if(!pobj) {
+        return gfx_fail;
+    }
 
     loc_skin = 0;
     if ( skin >= 0 )
@@ -2145,14 +2134,14 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
 
     // lighting parameters
     chr_instance_set_texture( pinst, pobj->getSkin(loc_skin) );
-    pinst->enviro    = pcap->enviro;
-    pinst->alpha     = pcap->alpha;
-    pinst->light     = pcap->light;
-    pinst->sheen     = pcap->sheen;
+    pinst->enviro    = pobj->isPhongMapped();
+    pinst->alpha     = pobj->getAlpha();
+    pinst->light     = pobj->getLight();
+    pinst->sheen     = pobj->getSheen();
     pinst->grnshift  = greensave;
     pinst->redshift  = redsave;
     pinst->blushift  = bluesave;
-    pinst->dont_cull_backfaces = pcap->dont_cull_backfaces;
+    pinst->dont_cull_backfaces = pobj->isDontCullBackfaces();
 
     // model parameters
     chr_instance_set_mad( pinst, _profileSystem.pro_get_imad( profile ) );

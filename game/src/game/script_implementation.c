@@ -799,7 +799,7 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_
         if ( !chr_has_idsz( iweapon, weap_idsz ) ) continue;
 
         // ignore ranged weapons
-        if ( !find_ranged && weaponProfile->isRanged() ) continue;
+        if ( !find_ranged && weaponProfile->isRangedWeapon() ) continue;
 
         // see if the character can use this weapon (we assume everyone has a left grip here)
         if ( ACTION_COUNT == mad_get_action_ref( imad, randomize_action( weaponProfile->getWeaponAction(), SLOT_LEFT ) ) ) continue;

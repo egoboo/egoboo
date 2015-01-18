@@ -1067,9 +1067,9 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
 
 
                 //is this the object we are looking for?
-                if ( 0 == strcmp( obj_name, strrchr( profile->getName().c_str(), '/' ) + 1 ) )
+                if ( 0 == strcmp( obj_name, strrchr( profile->getFilePath().c_str(), '/' ) + 1 ) )
                 {
-                    ptok->iValue = REF_TO_INT( profile->getCapRef() );
+                    ptok->iValue = profile->getSlotNumber();
                     break;
                 }
             }
