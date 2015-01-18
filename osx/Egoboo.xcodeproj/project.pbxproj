@@ -77,6 +77,8 @@
 		CD5B0CAF1A6204EC00F076F9 /* AStar.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAB1A6204EC00F076F9 /* AStar.c */; };
 		CD5B0CB01A6204EC00F076F9 /* WaypointList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAD1A6204EC00F076F9 /* WaypointList.c */; };
 		CD5B0CB41A62054300F076F9 /* DynamicArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */; };
+		CD9059301A69A41600DC425D /* RandomName.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD90592E1A69A41600DC425D /* RandomName.cpp */; };
+		CD9059341A69A67C00DC425D /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD9059321A69A67C00DC425D /* Random.cpp */; };
 		CD97C1651A629E2500179A2C /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1611A629E2500179A2C /* Passage.cpp */; };
 		CD97C1661A629E2500179A2C /* PassageHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1631A629E2500179A2C /* PassageHandler.cpp */; };
 		CDB3DC981A659EF30098D3B9 /* mem.c in Sources */ = {isa = PBXBuildFile; fileRef = CDB3DC961A659ED40098D3B9 /* mem.c */; };
@@ -198,7 +200,6 @@
 		CDD931A31A428D970004A8B2 /* cube.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319C1A428D970004A8B2 /* cube.c */; };
 		CDD931A41A428D970004A8B2 /* sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319E1A428D970004A8B2 /* sphere.c */; };
 		CDD931A51A428D970004A8B2 /* vec.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD931A01A428D970004A8B2 /* vec.c */; };
-		CDF01D7B1A67E3EE001BC1EF /* chop.c in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D751A67E3EE001BC1EF /* chop.c */; };
 		CDF01D7C1A67E3EE001BC1EF /* Profile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D771A67E3EE001BC1EF /* Profile.cpp */; };
 		CDF01D7D1A67E3EE001BC1EF /* ProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D791A67E3EE001BC1EF /* ProfileSystem.cpp */; };
 		CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */; };
@@ -547,6 +548,10 @@
 		CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicArray.cpp; sourceTree = "<group>"; };
 		CD5B0CB21A62054300F076F9 /* DynamicArray.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DynamicArray.hpp; sourceTree = "<group>"; };
 		CD5B0CB31A62054300F076F9 /* Stack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Stack.hpp; sourceTree = "<group>"; };
+		CD90592E1A69A41600DC425D /* RandomName.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomName.cpp; sourceTree = "<group>"; };
+		CD90592F1A69A41600DC425D /* RandomName.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RandomName.hpp; sourceTree = "<group>"; };
+		CD9059321A69A67C00DC425D /* Random.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Random.cpp; sourceTree = "<group>"; };
+		CD9059331A69A67C00DC425D /* Random.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Random.hpp; sourceTree = "<group>"; };
 		CD97C15D1A629E1C00179A2C /* PhysicalConstants.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicalConstants.cpp; sourceTree = "<group>"; };
 		CD97C15E1A629E1C00179A2C /* PhysicalConstants.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PhysicalConstants.hpp; sourceTree = "<group>"; };
 		CD97C1611A629E2500179A2C /* Passage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Passage.cpp; sourceTree = "<group>"; };
@@ -656,8 +661,6 @@
 		CDD9319F1A428D970004A8B2 /* sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sphere.h; sourceTree = "<group>"; };
 		CDD931A01A428D970004A8B2 /* vec.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = vec.c; sourceTree = "<group>"; };
 		CDD931A11A428D970004A8B2 /* vec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
-		CDF01D751A67E3EE001BC1EF /* chop.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = chop.c; sourceTree = "<group>"; };
-		CDF01D761A67E3EE001BC1EF /* chop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chop.h; sourceTree = "<group>"; };
 		CDF01D771A67E3EE001BC1EF /* Profile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Profile.cpp; sourceTree = "<group>"; };
 		CDF01D781A67E3EE001BC1EF /* Profile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Profile.hpp; sourceTree = "<group>"; };
 		CDF01D791A67E3EE001BC1EF /* ProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfileSystem.cpp; sourceTree = "<group>"; };
@@ -813,8 +816,6 @@
 				CD44DD7F1A476046005E6DF0 /* bsp.h */,
 				CD39B3E61A37506100B377BE /* char.c */,
 				CD39B3E71A37506100B377BE /* char.h */,
-				CDF01D751A67E3EE001BC1EF /* chop.c */,
-				CDF01D761A67E3EE001BC1EF /* chop.h */,
 				CD39B3E91A37506100B377BE /* ChrList.c */,
 				CD39B3EA1A37506100B377BE /* ChrList.h */,
 				CD39B3EC1A37506100B377BE /* collision.c */,
@@ -886,6 +887,8 @@
 				CDF01D7A1A67E3EE001BC1EF /* ProfileSystem.hpp */,
 				CD39B43F1A37506100B377BE /* PrtList.c */,
 				CD39B4401A37506100B377BE /* PrtList.h */,
+				CD90592E1A69A41600DC425D /* RandomName.cpp */,
+				CD90592F1A69A41600DC425D /* RandomName.hpp */,
 				CD39B4421A37506100B377BE /* renderer_2d.c */,
 				CD39B4431A37506100B377BE /* renderer_2d.h */,
 				CD39B4441A37506100B377BE /* renderer_3d.c */,
@@ -1020,6 +1023,7 @@
 				CD39B3121A374B6000B377BE /* extensions */,
 				CD39B3211A374B6000B377BE /* file_formats */,
 				CD39B3621A374B6000B377BE /* lua */,
+				CD9059311A69A67C00DC425D /* math */,
 				CDD931881A4232480004A8B2 /* opengl */,
 				CD39B3711A374B6000B377BE /* platform */,
 				CD39B3011A374B6000B377BE /* _math.c */,
@@ -1212,6 +1216,15 @@
 				CD5B0CAE1A6204EC00F076F9 /* WaypointList.h */,
 			);
 			path = ai;
+			sourceTree = "<group>";
+		};
+		CD9059311A69A67C00DC425D /* math */ = {
+			isa = PBXGroup;
+			children = (
+				CD9059321A69A67C00DC425D /* Random.cpp */,
+				CD9059331A69A67C00DC425D /* Random.hpp */,
+			);
+			path = math;
 			sourceTree = "<group>";
 		};
 		CD97C1601A629E2500179A2C /* module */ = {
@@ -1590,7 +1603,6 @@
 				CD39B46E1A37506100B377BE /* graphic_texture.c in Sources */,
 				CD39B4681A37506100B377BE /* game.c in Sources */,
 				CD39B48A1A37506100B377BE /* player.c in Sources */,
-				CDF01D7B1A67E3EE001BC1EF /* chop.c in Sources */,
 				CD97C1651A629E2500179A2C /* Passage.cpp in Sources */,
 				CD39B46C1A37506100B377BE /* graphic_mad.c in Sources */,
 				CD39B47B1A37506100B377BE /* menu.c in Sources */,
@@ -1625,6 +1637,7 @@
 				CD39B4651A37506100B377BE /* EncList.c in Sources */,
 				CD39B4821A37506100B377BE /* network.c in Sources */,
 				CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */,
+				CD9059301A69A41600DC425D /* RandomName.cpp in Sources */,
 				CDF01D7D1A67E3EE001BC1EF /* ProfileSystem.cpp in Sources */,
 				CD39B47E1A37506100B377BE /* mesh.c in Sources */,
 				CD39B4781A37506100B377BE /* mad.c in Sources */,
@@ -1728,6 +1741,7 @@
 				CDCA1FAD1A3F57D000002E76 /* endian.c in Sources */,
 				CDCA1FB41A3F57D000002E76 /* file_common.c in Sources */,
 				CDCA1FDD1A3F57D000002E76 /* scancode.c in Sources */,
+				CD9059341A69A67C00DC425D /* Random.cpp in Sources */,
 				CDCA1FC31A3F57D000002E76 /* module_file.c in Sources */,
 				CDCA1FD61A3F57D000002E76 /* map_functions.c in Sources */,
 				CDCA1FBF1A3F57D000002E76 /* map_file-v3.c in Sources */,

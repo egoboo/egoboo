@@ -29,116 +29,64 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// use OpenGL to multiply matrices
-static INLINE bool ogl_matrix_mult( GLXmatrix clip, const GLXmatrix proj, const GLXmatrix modl );
-
 /// Call this every time the camera moves to update the frustum
-static void frustum_calculate( frustum_base_t pf, const float proj[], const float modl[] );
+static void frustum_calculate(frustum_base_t pf, const fmat_4x4_base_t proj, const fmat_4x4_base_t modl);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-static INLINE bool ogl_matrix_mult( GLXmatrix clip, const GLXmatrix proj, const GLXmatrix modl )
-{
-    // a helper function to harness opengl to do our matrix multiplications for us
-
-    if ( NULL == clip )
-    {
-        // nothing to do
-        return false;
-    }
-
-    if ( NULL == proj || NULL == modl )
-    {
-        // treat one of both matrices as the zero matrix
-        memset( clip, 0, sizeof( float )*16 );
-    }
-    else
-    {
-        // use opengl to multiply the matrices so it is self-consistent
-        GLint matrix_mode[1];
-
-        // save the matrix mode
-        GL_DEBUG( glGetIntegerv )( GL_MATRIX_MODE, matrix_mode );
-
-        // do the work in the projection matrix stack
-        glMatrixMode( GL_PROJECTION );
-        glPushMatrix();
-
-        // load the given projection matrix
-        glLoadMatrixf( proj );
-
-        // multiply model matrix with this
-        glMultMatrixf( modl );
-
-        // grab the resultant matrix and place it in clip
-        glGetFloatv( GL_PROJECTION_MATRIX, ( GLfloat * )clip );
-
-        // restore the old projection matrix
-        glPopMatrix();
-
-        // restore the matrix mode
-        glMatrixMode( matrix_mode[0] );
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void frustum_calculate( frustum_base_t planes, const float proj[], const float modl[] )
+void frustum_calculate(frustum_base_t planes, const fmat_4x4_base_t proj, const fmat_4x4_base_t modl)
 {
     float clip[16];        // This will hold the clipping planes
 
-    ogl_matrix_mult( clip, proj, modl );
+    mat_Multiply(clip, proj, modl);
 
     // This will extract the FRUST_PLANE_RIGHT side of the frustum
     planes[FRUST_PLANE_RIGHT][kX] = clip[ 3] - clip[ 0];
     planes[FRUST_PLANE_RIGHT][kY] = clip[ 7] - clip[ 4];
     planes[FRUST_PLANE_RIGHT][kZ] = clip[11] - clip[ 8];
     planes[FRUST_PLANE_RIGHT][kW] = clip[15] - clip[12];
-    plane_base_normalize( planes + FRUST_PLANE_RIGHT );
+    plane_base_normalize(planes + FRUST_PLANE_RIGHT);
 
     // This will extract the FRUST_PLANE_LEFT side of the frustum
     planes[FRUST_PLANE_LEFT][kX] = clip[ 3] + clip[ 0];
     planes[FRUST_PLANE_LEFT][kY] = clip[ 7] + clip[ 4];
     planes[FRUST_PLANE_LEFT][kZ] = clip[11] + clip[ 8];
     planes[FRUST_PLANE_LEFT][kW] = clip[15] + clip[12];
-    plane_base_normalize( planes + FRUST_PLANE_LEFT );
+    plane_base_normalize(planes + FRUST_PLANE_LEFT);
 
     // This will extract the FRUST_PLANE_BOTTOM side of the frustum
     planes[FRUST_PLANE_BOTTOM][kX] = clip[ 3] + clip[ 1];
     planes[FRUST_PLANE_BOTTOM][kY] = clip[ 7] + clip[ 5];
     planes[FRUST_PLANE_BOTTOM][kZ] = clip[11] + clip[ 9];
     planes[FRUST_PLANE_BOTTOM][kW] = clip[15] + clip[13];
-    plane_base_normalize( planes + FRUST_PLANE_BOTTOM );
+    plane_base_normalize(planes + FRUST_PLANE_BOTTOM);
 
     // This will extract the FRUST_PLANE_TOP side of the frustum
     planes[FRUST_PLANE_TOP][kX] = clip[ 3] - clip[ 1];
     planes[FRUST_PLANE_TOP][kY] = clip[ 7] - clip[ 5];
     planes[FRUST_PLANE_TOP][kZ] = clip[11] - clip[ 9];
     planes[FRUST_PLANE_TOP][kW] = clip[15] - clip[13];
-    plane_base_normalize( planes + FRUST_PLANE_TOP );
+    plane_base_normalize(planes + FRUST_PLANE_TOP);
 
     // This will extract the FRUST_PLANE_BACK side of the frustum
     planes[FRUST_PLANE_BACK][kX] = clip[ 3] - clip[ 2];
     planes[FRUST_PLANE_BACK][kY] = clip[ 7] - clip[ 6];
     planes[FRUST_PLANE_BACK][kZ] = clip[11] - clip[10];
     planes[FRUST_PLANE_BACK][kW] = clip[15] - clip[14];
-    plane_base_normalize( planes + FRUST_PLANE_BACK );
+    plane_base_normalize(planes + FRUST_PLANE_BACK);
 
     // This will extract the FRUST_PLANE_FRONT side of the frustum
     planes[FRUST_PLANE_FRONT][kX] = clip[ 3] + clip[ 2];
     planes[FRUST_PLANE_FRONT][kY] = clip[ 7] + clip[ 6];
     planes[FRUST_PLANE_FRONT][kZ] = clip[11] + clip[10];
     planes[FRUST_PLANE_FRONT][kW] = clip[15] + clip[14];
-    plane_base_normalize( planes + FRUST_PLANE_FRONT );
+    plane_base_normalize(planes + FRUST_PLANE_FRONT);
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-egolib_rv egolib_frustum_calculate( egolib_frustum_t * pf, const float proj[], const float modl[] )
+egolib_rv egolib_frustum_calculate(egolib_frustum_t * pf, const fmat_4x4_base_t proj, const fmat_4x4_base_t modl)
 {
     fvec3_t pt1;
     fvec3_t vlook, vfar;
@@ -147,13 +95,13 @@ egolib_rv egolib_frustum_calculate( egolib_frustum_t * pf, const float proj[], c
 
     //---- construct the basic frustum
     {
-        frustum_calculate( pf->data, proj, modl );
+        frustum_calculate(pf->data, proj, modl);
     }
 
     //---- construct the camera location
     {
         // the origin of the frustum (should be the camera position)
-        three_plane_intersection( pf->origin.v, pf->data[FRUST_PLANE_RIGHT], pf->data[FRUST_PLANE_LEFT], pf->data[FRUST_PLANE_BOTTOM] );
+        three_plane_intersection(pf->origin.v, pf->data[FRUST_PLANE_RIGHT], pf->data[FRUST_PLANE_LEFT], pf->data[FRUST_PLANE_BOTTOM]);
     }
 
     //---- construct the sphere
