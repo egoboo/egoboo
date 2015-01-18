@@ -9852,7 +9852,7 @@ ObjectProfile * chr_get_ppro( const CHR_REF ichr )
 {
     //This function should -never- return nullptr
     if(!DEFINED_CHR(ichr)) {
-        raise(SIGTRAP);
+        //throw error
         return nullptr;
     }
 
@@ -9860,7 +9860,7 @@ ObjectProfile * chr_get_ppro( const CHR_REF ichr )
 
     //This function should -never- return nullptr
     if(!_profileSystem.isValidProfileID(pchr->profile_ref)) {
-        raise(SIGTRAP);
+        //throw error
         return nullptr;
     }
 

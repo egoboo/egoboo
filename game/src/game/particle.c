@@ -990,14 +990,20 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget )
 {
-    PIP_REF ipip;
+    PIP_REF ipip = _profileSystem.pro_get_ipip( iprofile, pip_index );
+    return spawn_one_particle(pos, facing, iprofile, ipip, chr_attach, vrt_offset, team, chr_origin, prt_origin, multispawn, oldtarget);
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, PIP_REF ipip,
+                            const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                            const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget )
+{
     PRT_REF iprt;
 
     prt_t * pprt;
     pip_t * ppip;
-
-    // Convert from local ipip to global ipip
-    ipip = _profileSystem.pro_get_ipip( iprofile, pip_index );
 
     if ( !LOADED_PIP( ipip ) )
     {

@@ -3870,7 +3870,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                         {
                             strncpy(cppToCBuffer, chr_get_ppro(ichr)->getClassName().c_str(), 256);
                             ebuffer     = cppToCBuffer;
-                            ebuffer_end = ebuffer + chr_get_ppro(ichr)->getClassName().length()-1;
+                            ebuffer_end = ebuffer + chr_get_ppro(ichr)->getClassName().length();
                         }
                     }
                     break;
@@ -3899,7 +3899,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                         {
                             strncpy(cppToCBuffer, chr_get_ppro(pai->target)->getClassName().c_str(), 256);
                             ebuffer     = cppToCBuffer;
-                            ebuffer_end = ebuffer + chr_get_ppro(pai->target)->getClassName().length()-1;
+                            ebuffer_end = ebuffer + chr_get_ppro(pai->target)->getClassName().length();
                         }
                     }
                     break;
@@ -3919,7 +3919,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                         {
                             strncpy(cppToCBuffer, chr_get_ppro(pai->target)->getSkinInfo((*src)-'0').name.c_str(), 256);
                             ebuffer = cppToCBuffer;
-                            ebuffer_end = ebuffer + chr_get_ppro(pai->target)->getSkinInfo((*src)-'0').name.length()-1;
+                            ebuffer_end = ebuffer + chr_get_ppro(pai->target)->getSkinInfo((*src)-'0').name.length();
                         }
                     }
                     break;
