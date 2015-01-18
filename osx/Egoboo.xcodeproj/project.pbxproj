@@ -35,7 +35,6 @@
 		CD39B4711A37506100B377BE /* lighting.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4111A37506100B377BE /* lighting.c */; };
 		CD39B4721A37506100B377BE /* link.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4131A37506100B377BE /* link.c */; };
 		CD39B4781A37506100B377BE /* mad.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B41B1A37506100B377BE /* mad.c */; };
-		CD39B4791A37506100B377BE /* md2.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B41D1A37506100B377BE /* md2.c */; };
 		CD39B47B1A37506100B377BE /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4201A37506100B377BE /* menu.c */; };
 		CD39B47C1A37506100B377BE /* mesh_BSP.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4221A37506100B377BE /* mesh_BSP.c */; };
 		CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B4241A37506100B377BE /* mesh_functions.c */; };
@@ -77,12 +76,15 @@
 		CD5B0CAF1A6204EC00F076F9 /* AStar.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAB1A6204EC00F076F9 /* AStar.c */; };
 		CD5B0CB01A6204EC00F076F9 /* WaypointList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CAD1A6204EC00F076F9 /* WaypointList.c */; };
 		CD5B0CB41A62054300F076F9 /* DynamicArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */; };
-		CD9059301A69A41600DC425D /* RandomName.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD90592E1A69A41600DC425D /* RandomName.cpp */; };
 		CD9059341A69A67C00DC425D /* Random.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD9059321A69A67C00DC425D /* Random.cpp */; };
 		CD97C1651A629E2500179A2C /* Passage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1611A629E2500179A2C /* Passage.cpp */; };
 		CD97C1661A629E2500179A2C /* PassageHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD97C1631A629E2500179A2C /* PassageHandler.cpp */; };
 		CDB3DC981A659EF30098D3B9 /* mem.c in Sources */ = {isa = PBXBuildFile; fileRef = CDB3DC961A659ED40098D3B9 /* mem.c */; };
 		CDB3DC9C1A65D0760098D3B9 /* AudioSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDB3DC9A1A65D0760098D3B9 /* AudioSystem.cpp */; };
+		CDBD89411A6C02AF00250CE2 /* MD2Model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */; };
+		CDBD89491A6C02C100250CE2 /* Profile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD89431A6C02C100250CE2 /* Profile.cpp */; };
+		CDBD894A1A6C02C100250CE2 /* ProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */; };
+		CDBD894B1A6C02C100250CE2 /* RandomName.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDBD89471A6C02C100250CE2 /* RandomName.cpp */; };
 		CDBDE3EC1A43A3EF008E5FD1 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3A81A43A2CC008E5FD1 /* lapi.c */; };
 		CDBDE3EE1A43A3EF008E5FD1 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3AA1A43A2CC008E5FD1 /* lauxlib.c */; };
 		CDBDE3F01A43A3EF008E5FD1 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3AC1A43A2CC008E5FD1 /* lbaselib.c */; };
@@ -200,8 +202,6 @@
 		CDD931A31A428D970004A8B2 /* cube.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319C1A428D970004A8B2 /* cube.c */; };
 		CDD931A41A428D970004A8B2 /* sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319E1A428D970004A8B2 /* sphere.c */; };
 		CDD931A51A428D970004A8B2 /* vec.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD931A01A428D970004A8B2 /* vec.c */; };
-		CDF01D7C1A67E3EE001BC1EF /* Profile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D771A67E3EE001BC1EF /* Profile.cpp */; };
-		CDF01D7D1A67E3EE001BC1EF /* ProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D791A67E3EE001BC1EF /* ProfileSystem.cpp */; };
 		CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */; };
 		CDFB85201A3FB85100CFB956 /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85141A3FB85100CFB956 /* basicdat */; };
 		CDFB85211A3FB85100CFB956 /* BUGS.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85151A3FB85100CFB956 /* BUGS.txt */; };
@@ -495,8 +495,6 @@
 		CD39B4141A37506100B377BE /* link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = link.h; sourceTree = "<group>"; };
 		CD39B41B1A37506100B377BE /* mad.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mad.c; sourceTree = "<group>"; };
 		CD39B41C1A37506100B377BE /* mad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mad.h; sourceTree = "<group>"; };
-		CD39B41D1A37506100B377BE /* md2.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = md2.c; sourceTree = "<group>"; };
-		CD39B41E1A37506100B377BE /* md2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = md2.h; sourceTree = "<group>"; };
 		CD39B4201A37506100B377BE /* menu.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = menu.c; sourceTree = "<group>"; };
 		CD39B4211A37506100B377BE /* menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = menu.h; sourceTree = "<group>"; };
 		CD39B4221A37506100B377BE /* mesh_BSP.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mesh_BSP.c; sourceTree = "<group>"; };
@@ -548,8 +546,6 @@
 		CD5B0CB11A62054300F076F9 /* DynamicArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicArray.cpp; sourceTree = "<group>"; };
 		CD5B0CB21A62054300F076F9 /* DynamicArray.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DynamicArray.hpp; sourceTree = "<group>"; };
 		CD5B0CB31A62054300F076F9 /* Stack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Stack.hpp; sourceTree = "<group>"; };
-		CD90592E1A69A41600DC425D /* RandomName.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomName.cpp; sourceTree = "<group>"; };
-		CD90592F1A69A41600DC425D /* RandomName.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RandomName.hpp; sourceTree = "<group>"; };
 		CD9059321A69A67C00DC425D /* Random.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Random.cpp; sourceTree = "<group>"; };
 		CD9059331A69A67C00DC425D /* Random.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Random.hpp; sourceTree = "<group>"; };
 		CD97C15D1A629E1C00179A2C /* PhysicalConstants.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicalConstants.cpp; sourceTree = "<group>"; };
@@ -561,6 +557,14 @@
 		CDB3DC961A659ED40098D3B9 /* mem.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = mem.c; sourceTree = "<group>"; };
 		CDB3DC9A1A65D0760098D3B9 /* AudioSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AudioSystem.cpp; sourceTree = "<group>"; };
 		CDB3DC9B1A65D0760098D3B9 /* AudioSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AudioSystem.hpp; sourceTree = "<group>"; };
+		CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MD2Model.cpp; sourceTree = "<group>"; };
+		CDBD89401A6C02AF00250CE2 /* MD2Model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MD2Model.hpp; sourceTree = "<group>"; };
+		CDBD89431A6C02C100250CE2 /* Profile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Profile.cpp; sourceTree = "<group>"; };
+		CDBD89441A6C02C100250CE2 /* Profile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Profile.hpp; sourceTree = "<group>"; };
+		CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfileSystem.cpp; sourceTree = "<group>"; };
+		CDBD89461A6C02C100250CE2 /* ProfileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ProfileSystem.hpp; sourceTree = "<group>"; };
+		CDBD89471A6C02C100250CE2 /* RandomName.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RandomName.cpp; sourceTree = "<group>"; };
+		CDBD89481A6C02C100250CE2 /* RandomName.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = RandomName.hpp; sourceTree = "<group>"; };
 		CDBDE3A31A43726C008E5FD1 /* file_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_linux.c; sourceTree = "<group>"; };
 		CDBDE3A41A43726C008E5FD1 /* file_win.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = file_win.c; sourceTree = "<group>"; };
 		CDBDE3A51A43726C008E5FD1 /* sys_linux.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; path = sys_linux.c; sourceTree = "<group>"; };
@@ -661,10 +665,6 @@
 		CDD9319F1A428D970004A8B2 /* sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sphere.h; sourceTree = "<group>"; };
 		CDD931A01A428D970004A8B2 /* vec.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = vec.c; sourceTree = "<group>"; };
 		CDD931A11A428D970004A8B2 /* vec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
-		CDF01D771A67E3EE001BC1EF /* Profile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Profile.cpp; sourceTree = "<group>"; };
-		CDF01D781A67E3EE001BC1EF /* Profile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Profile.hpp; sourceTree = "<group>"; };
-		CDF01D791A67E3EE001BC1EF /* ProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfileSystem.cpp; sourceTree = "<group>"; };
-		CDF01D7A1A67E3EE001BC1EF /* ProfileSystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ProfileSystem.hpp; sourceTree = "<group>"; };
 		CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bsp_aabb.c; sourceTree = "<group>"; };
 		CDF01D7F1A67E532001BC1EF /* bsp_aabb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bsp_aabb.h; sourceTree = "<group>"; };
 		CDFB85141A3FB85100CFB956 /* basicdat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = basicdat; sourceTree = "<group>"; };
@@ -812,6 +812,7 @@
 				CDCE21281A6404770084D934 /* graphics */,
 				CDBDE4291A43A65E008E5FD1 /* lua */,
 				CD97C1601A629E2500179A2C /* module */,
+				CDBD89421A6C02C100250CE2 /* profiles */,
 				CD44DD7E1A476046005E6DF0 /* bsp.c */,
 				CD44DD7F1A476046005E6DF0 /* bsp.h */,
 				CD39B3E61A37506100B377BE /* char.c */,
@@ -855,8 +856,6 @@
 				CD39B4141A37506100B377BE /* link.h */,
 				CD39B41B1A37506100B377BE /* mad.c */,
 				CD39B41C1A37506100B377BE /* mad.h */,
-				CD39B41D1A37506100B377BE /* md2.c */,
-				CD39B41E1A37506100B377BE /* md2.h */,
 				CD39B4201A37506100B377BE /* menu.c */,
 				CD39B4211A37506100B377BE /* menu.h */,
 				CD39B4221A37506100B377BE /* mesh_BSP.c */,
@@ -881,14 +880,8 @@
 				CD39B4381A37506100B377BE /* physics.h */,
 				CD39B43A1A37506100B377BE /* player.c */,
 				CD39B43B1A37506100B377BE /* player.h */,
-				CDF01D771A67E3EE001BC1EF /* Profile.cpp */,
-				CDF01D781A67E3EE001BC1EF /* Profile.hpp */,
-				CDF01D791A67E3EE001BC1EF /* ProfileSystem.cpp */,
-				CDF01D7A1A67E3EE001BC1EF /* ProfileSystem.hpp */,
 				CD39B43F1A37506100B377BE /* PrtList.c */,
 				CD39B4401A37506100B377BE /* PrtList.h */,
-				CD90592E1A69A41600DC425D /* RandomName.cpp */,
-				CD90592F1A69A41600DC425D /* RandomName.hpp */,
 				CD39B4421A37506100B377BE /* renderer_2d.c */,
 				CD39B4431A37506100B377BE /* renderer_2d.h */,
 				CD39B4441A37506100B377BE /* renderer_3d.c */,
@@ -1247,6 +1240,19 @@
 			path = audio;
 			sourceTree = "<group>";
 		};
+		CDBD89421A6C02C100250CE2 /* profiles */ = {
+			isa = PBXGroup;
+			children = (
+				CDBD89431A6C02C100250CE2 /* Profile.cpp */,
+				CDBD89441A6C02C100250CE2 /* Profile.hpp */,
+				CDBD89451A6C02C100250CE2 /* ProfileSystem.cpp */,
+				CDBD89461A6C02C100250CE2 /* ProfileSystem.hpp */,
+				CDBD89471A6C02C100250CE2 /* RandomName.cpp */,
+				CDBD89481A6C02C100250CE2 /* RandomName.hpp */,
+			);
+			path = profiles;
+			sourceTree = "<group>";
+		};
 		CDBDE3A71A43A2CC008E5FD1 /* lua */ = {
 			isa = PBXGroup;
 			children = (
@@ -1330,6 +1336,8 @@
 				CDCE212A1A6404770084D934 /* Camera.hpp */,
 				CDCE212B1A6404770084D934 /* CameraSystem.cpp */,
 				CDCE212C1A6404770084D934 /* CameraSystem.hpp */,
+				CDBD893F1A6C02AF00250CE2 /* MD2Model.cpp */,
+				CDBD89401A6C02AF00250CE2 /* MD2Model.hpp */,
 			);
 			path = graphics;
 			sourceTree = "<group>";
@@ -1594,6 +1602,7 @@
 				CD39B48F1A37506100B377BE /* renderer_2d.c in Sources */,
 				CD5B0CAF1A6204EC00F076F9 /* AStar.c in Sources */,
 				CD97C1661A629E2500179A2C /* PassageHandler.cpp in Sources */,
+				CDBD894A1A6C02C100250CE2 /* ProfileSystem.cpp in Sources */,
 				CDCE212D1A6404770084D934 /* Camera.cpp in Sources */,
 				CD39B45D1A37506100B377BE /* ChrList.c in Sources */,
 				CD39B48D1A37506100B377BE /* PrtList.c in Sources */,
@@ -1603,6 +1612,7 @@
 				CD39B46E1A37506100B377BE /* graphic_texture.c in Sources */,
 				CD39B4681A37506100B377BE /* game.c in Sources */,
 				CD39B48A1A37506100B377BE /* player.c in Sources */,
+				CDBD89491A6C02C100250CE2 /* Profile.cpp in Sources */,
 				CD97C1651A629E2500179A2C /* Passage.cpp in Sources */,
 				CD39B46C1A37506100B377BE /* graphic_mad.c in Sources */,
 				CD39B47B1A37506100B377BE /* menu.c in Sources */,
@@ -1623,22 +1633,20 @@
 				CD39B4601A37506100B377BE /* egoboo_object.c in Sources */,
 				CD39B46D1A37506100B377BE /* graphic_prt.c in Sources */,
 				CD39B4B01A3762A500B377BE /* SDLMain.m in Sources */,
+				CDBD89411A6C02AF00250CE2 /* MD2Model.cpp in Sources */,
 				CD39B4971A37506100B377BE /* ui.c in Sources */,
 				CD39B4701A37506100B377BE /* input.c in Sources */,
-				CD39B4791A37506100B377BE /* md2.c in Sources */,
 				CD39B4811A37506100B377BE /* network_server.c in Sources */,
 				CD44DD801A476046005E6DF0 /* bsp.c in Sources */,
 				CD39B4931A37506100B377BE /* script_functions.c in Sources */,
 				CD39B4831A37506100B377BE /* obj_BSP.c in Sources */,
 				CD39B4621A37506100B377BE /* egoboo.c in Sources */,
 				CD39B46B1A37506100B377BE /* graphic_fan.c in Sources */,
-				CDF01D7C1A67E3EE001BC1EF /* Profile.cpp in Sources */,
 				CD39B4881A37506100B377BE /* physics.c in Sources */,
 				CD39B4651A37506100B377BE /* EncList.c in Sources */,
 				CD39B4821A37506100B377BE /* network.c in Sources */,
+				CDBD894B1A6C02C100250CE2 /* RandomName.cpp in Sources */,
 				CD39B47D1A37506100B377BE /* mesh_functions.c in Sources */,
-				CD9059301A69A41600DC425D /* RandomName.cpp in Sources */,
-				CDF01D7D1A67E3EE001BC1EF /* ProfileSystem.cpp in Sources */,
 				CD39B47E1A37506100B377BE /* mesh.c in Sources */,
 				CD39B4781A37506100B377BE /* mad.c in Sources */,
 			);

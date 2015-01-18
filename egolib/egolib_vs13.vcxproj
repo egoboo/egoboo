@@ -139,8 +139,8 @@
     </Xdcmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Plane.c" />
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Random.cpp" />
+    <ClCompile Include="src\egolib\math\Plane.c" />
+    <ClCompile Include="src\egolib\math\Random.cpp" />
     <ClCompile Include="src\egolib\bsp_aabb.c" />
     <ClCompile Include="src\egolib\mem.c" />
     <ClCompile Include="src\egolib\bv.c" />
@@ -228,8 +228,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Plane.h" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Random.hpp" />
+    <ClInclude Include="src\egolib\math\Plane.h" />
+    <ClInclude Include="src\egolib\math\Random.hpp" />
     <ClInclude Include="src\egolib\bsp_aabb.h" />
     <ClInclude Include="src\egolib\bv.h" />
     <ClInclude Include="src\egolib\DynamicArray.hpp" />

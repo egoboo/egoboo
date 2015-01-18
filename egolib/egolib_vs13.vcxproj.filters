@@ -243,10 +243,10 @@
     <ClCompile Include="src\egolib\bsp_aabb.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Random.cpp">
+    <ClCompile Include="src\egolib\math\Random.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Plane.c">
+    <ClCompile Include="src\egolib\math\Plane.c">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
@@ -476,10 +476,10 @@
     <ClInclude Include="src\egolib\bsp_aabb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Random.hpp">
+    <ClInclude Include="src\egolib\math\Random.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Plane.h">
+    <ClInclude Include="src\egolib\math\Plane.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
