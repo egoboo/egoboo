@@ -196,7 +196,7 @@ struct SkinInfo
     std::string  name;               ///< Skin name
     uint16_t     cost;               ///< Store prices
     float        maxAccel;           ///< Acceleration for each skin
-    uint8_t      dressy;             ///< Bits to tell whether the skins are "dressy"
+    bool         dressy;             ///< True if this is light armour
     uint8_t      defence;            ///< Damage reduction
     uint8_t      damageModifier;     ///< Invictus, inverse, mana burn etc.
     uint8_t      damageResistance;   ///< Shift damage
@@ -231,8 +231,6 @@ public:
     const std::string& getMessage(size_t index) const;
 
     SoundID getSoundID(int index) const;
-
-    IDSZ getIDSZ(size_t type) const;
 
     inline bool isValidMessageID(int id) const {return id >= 0 && id < _messageList.size();}
 
@@ -309,6 +307,12 @@ public:
     **/
     bool isSlotValid(slot_t slot) const;
 
+    inline bool hasResistBumpSpawn() const {return _resistBumpSpawn;}
+
+    inline bool canBeDazed() const {return _canBeDazed;}
+
+    inline bool canBeGrogged() const {return _canBeGrogged;}
+
     inline bool isBigItem() const {return _isBigItem;}
 
     inline bool usageIsKnown() const {return _usageIsKnown;}
@@ -354,6 +358,8 @@ public:
 
     inline float getBumpDampen() const  {return _bumpDampen;}
 
+    inline float getBounciness() const  {return _dampen;}
+
     inline float getSize() const        {return _size;}
     inline float getShadowSize() const  {return _shadowSize;}
     inline float getBumpSize() const    {return _bumpSize;}
@@ -361,6 +367,28 @@ public:
     inline float getBumpHeight() const  {return _bumpHeight;}
 
     inline bool isMount() const {return _isMount;}
+    inline bool riderCanAttack() const {return  _riderCanAttack;}
+
+    inline uint8_t getFlashAND() const {return _flashAND;}
+
+    inline UFP8_T getSpawnLife() const {return _spawnLife;}
+    inline UFP8_T getSpawnMana() const {return _spawnMana;}
+
+    inline uint16_t getStartingMoney() const {return _money;}
+
+    inline FRange getStartingExperience() const {return _startingExperience;}
+
+    inline uint8_t getStartingLevel() const {return _levelOverride;}
+
+    /**
+    * @brief how high can it jump?
+    **/
+    inline float getJumpPower() const  {return _jumpPower;}
+
+    /**
+    * @brief number of jumps character can do before hitting the ground
+    **/
+    inline uint8_t getJumpNumber() const  {return _jumpNumber;}
 
     inline uint8_t getStoppedByMask() const {return _stoppedBy;}
 
@@ -377,6 +405,57 @@ public:
     inline bool canGrabMoney() const {return _canGrabMoney;}
 
     inline bool canSeeInvisible() const {return _seeInvisibleLevel > 0;}
+
+    inline uint8_t getWeaponAction() const {return _weaponAction;}
+
+    inline uint8_t requiresSkillIDToUse() const {return _needSkillIDToUse;}
+
+    inline int getStateOverride() const {return _stateOverride;}
+    inline int getContentOverride() const {return _contentOverride;}
+
+    inline bool hasFastAttack() const {return  _attackFast;}
+
+    inline int getSpellEffectType() const {return _spellEffectType;}
+
+    inline bool isRangedWeapon() const {return  _isRanged;}
+
+    inline bool isDrawIcon() const {return _drawIcon;}
+
+    inline bool isNameKnown() const {return _nameIsKnown;}
+
+    inline DamageType getDamageTargetType() const {return _damageTargetDamageType;}
+
+    inline bool canWalkOnWater() const {return _waterWalking;}
+
+    /**
+    * @return hide this character (don't draw) if AI state is equal to this value (returns NOHIDE for never hide)
+    **/
+    inline int8_t getHideState() const {return _hideState;}
+
+    /**
+    * @return true if only use pchr->bump.size if it was overridden in data.txt through the [MODL] expansion
+    **/
+    inline bool bumpOverrideSize() const {return _bumpOverrideSize;}
+
+    /**
+    * @return true if only use pchr->bump.height if it was overridden in data.txt through the [MODL] expansion
+    **/
+    inline bool bumpOverrideHeight() const {return _bumpOverrideHeight;}
+    
+    /**
+    * @return true if only use pchr->bump.size_big if it was overridden in data.txt through the [MODL] expansion
+    **/
+    inline bool bumpOverrideSizeBig() const {return _bumpOverrideSizeBig;}
+
+    /**
+    * @return the SoundID for jumping when this object profile jumps
+    **/
+    inline SoundID getJumpSound() const {return getSoundID(_jumpSound)};
+
+    /**
+    * @return the SoundID for footfall effects for this object profile
+    **/
+    inline SoundID getFootFallSound() const {return getSoundID(_footFallSound)};
 
     /**
     * @return true if this object should transfer its blending effect upon any
@@ -416,19 +495,29 @@ public:
     *        gets to add 50% of her strength to all attacks with it.
     *        Same goes for unarmed attacks if this object is actually a character
     **/
-    inline float getStrengthDamageFactor()      {return _strengthBonus;}
-    inline float getWisdomDamageFactor()        {return _wisdomBonus;}
-    inline float getIntelligenceDamageFactor()  {return _intelligenceBonus;}
-    inline float getDexterityDamageFactor()     {return _dexterityBonus;}
+    inline float getStrengthDamageFactor() const      {return _strengthBonus;}
+    inline float getWisdomDamageFactor() const        {return _wisdomBonus;}
+    inline float getIntelligenceDamageFactor() const  {return _intelligenceBonus;}
+    inline float getDexterityDamageFactor() const     {return _dexterityBonus;}
 
-    inline float getStrengthGainPerLevel()      {return _startingStrength.perlevel;}
-    inline float getWisdomGainPerLevel()        {return _startingWisdom.perlevel;}
-    inline float getIntelligenceGainPerLevel()  {return _startingIntellignece.perlevel;}
-    inline float getDexterityGainPerLevel()     {return _startingDexterity.perlevel;}
-    inline float getLifeGainPerLevel()          {return _startingLife.perlevel;}
-    inline float getLifeRegenerationGainPerLevel()  {return _startingLifeReturn.perlevel;}
-    inline float getManaRegenerationGainPerLevel()  {return _startingManaRegeneration.perlevel;}
-    inline float getManaFlowGainPerLEvel()      {return _startingManaFlow.perlevel;}
+    inline FRange getStrengthGainPerLevel() const      {return _startingStrength.perlevel;}
+    inline FRange getWisdomGainPerLevel() const        {return _startingWisdom.perlevel;}
+    inline FRange getIntelligenceGainPerLevel() const  {return _startingIntellignece.perlevel;}
+    inline FRange getDexterityGainPerLevel() const     {return _startingDexterity.perlevel;}
+    inline FRange getLifeGainPerLevel() const          {return _startingLife.perlevel;}
+    inline FRange getLifeRegenerationGainPerLevel() const  {return 0;}
+    inline FRange getManaRegenerationGainPerLevel() const  {return _startingManaRegeneration.perlevel;}
+    inline FRange getManaFlowGainPerLevel() const      {return _startingManaFlow.perlevel;}
+
+
+    inline FRange getBaseStrength() const          {return _startingStrength.val;}
+    inline FRange getBaseWisdom() const            {return _startingWisdom.val;}
+    inline FRange getBaseIntelligence() const      {return _startingIntellignece.val;}
+    inline FRange getBaseDexterity() const         {return _startingDexterity.val;}
+    inline FRange getBaseLife() const              {return _startingLife.val;}
+    inline FRange getBaseLifeRegeneration() const  {return _startingLifeReturn;}
+    inline FRange getBaseManaRegeneration() const  {return _startingManaRegeneration.val;}
+    inline FRange getBaseManaFlow() const          {return _startingManaFlow.val;}
 
     inline std::unordered_map<IDSZ, int>& getSkillMap() const {return _skills;}
 
@@ -442,11 +531,32 @@ public:
     inline float getWalkAnimationSpeed() const {return _animationSpeedWalk;}
     inline float getRunAnimationSpeed() const {return _animationSpeedRun;}
 
+    inline uint16_t getNormalFrameAngle() const {return nframeangle;}
+    inline uint16_t getNormalFrameFacing() const {return nframefacing;}
+    inline uint16_t getInvictusFrameAngle() const {return iframeangle;}
+    inline uint16_t getInvictusFrameFacing() const {return iframefacing;}
+
     /**
     * @brief ZF> I'm not sure what this is. 
     *            Something to do with particles reaffirming if it gets hurt by this damage type
     **/
     inline DamageType getReaffirmDamageType() const {return _attachedParticleReaffirmDamageType;}
+
+    /**
+    * @author BB
+    * @brief check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
+    *        picky (i.e. IDSZ_NONE == idsz), then it matches any valid item.
+    **/
+    bool hasTypeIDSZ(const IDSZ idsz) const;
+
+    /**
+    * @author BB
+    * @brief does idsz match any of the stored values in pcap->idsz[]?
+    *        Matches anything if not picky (idsz == IDSZ_NONE)
+    **/
+    bool hasIDSZ(const IDSZ idsz) const;
+
+    IDSZ getIDSZ(size_t type) const;
 
     //ZF> TODO: these should not be public
     size_t requestCount;                       ///< the number of attempted spawns
@@ -548,7 +658,6 @@ private:
     ProfileStat  _startingManaRegeneration;               ///< Mana regeneration statistics
     UFP8_T       _spawnMana;                    ///< Mana left from last module (8.8 fixed point)
 
-    UFP8_T       life_heal;                     ///< (8.8 fixed point) @todo Find out what this is used for.
     ProfileStat  _startingManaFlow;             ///< How much mana the character can channel in one go (magic strength)
 
     ProfileStat  _startingStrength;             ///< Strength.    Initial range or current value + per-level increase.
@@ -640,16 +749,15 @@ private:
     bool       _canCarryToNextModule;          ///< Take it with you?
     uint8_t    _damageTargetDamageType;        ///< For AI DamageTarget
     std::array<bool, SLOT_COUNT> _slotsValid;  ///< Left/Right hands valid
-    bool       _riderCanAttack;                 ///< Rider attack?
+    bool       _riderCanAttack;                ///< Rider attack?
     uint8_t    _kurseChance;                   ///< Chance of being kursed (0 to 100%)
-    Sint8      _hideState;                     ///< Don't draw when...
-    Sint8      _isValuable;                    ///< Force to be valuable
+    int8_t     _hideState;                     ///< Don't draw when...
+    int8_t     _isValuable;                    ///< Force to be valuable
     int        _spellEffectType;               ///< is the object that a spellbook generates
 
     // item usage
     bool         _needSkillIDToUse;              ///< Check IDSZ first?
     uint8_t      _weaponAction;                  ///< Animation needed to swing
-    int16_t      _manaCost;                      ///< How much mana to use this object?
     uint8_t      _attackAttached;                ///< Do we have attack particles?
     int          _attackParticleProfile;         ///< What kind of attack particles?
     bool         _attackFast;                    ///< Ignores the default reload time?

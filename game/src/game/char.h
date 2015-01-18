@@ -298,7 +298,6 @@ struct chr_t
     SFP8_T         mana_return;     ///< (8.8 fixed point)
 
 	SFP8_T         mana_flow;       ///< (8.8 fixed point)
-	UFP8_T         life_heal;       ///< (8.8 fixed point)
 
     SFP8_T         strength;        ///< Strength     - (8.8 fixed point)
     SFP8_T         wisdom;          ///< Wisdom       - (8.8 fixed point)
@@ -391,7 +390,6 @@ struct chr_t
     bool         ismount;                       ///< Can you ride it?
     bool         canbecrushed;                  ///< Crush in a door?
     bool         canchannel;                    ///< Can it convert life to mana?
-    Sint16         manacost;                      ///< Mana cost to use
 
     // misc timers
     Sint16         grog_timer;                    ///< Grog timer
@@ -720,10 +718,6 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
 //--------------------------------------------------------------------------------------------
 // PREVIOUSLY INLINE FUNCTIONS
 //--------------------------------------------------------------------------------------------
-// cap_t accessor functions
-bool cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz );
-bool cap_has_idsz( const CAP_REF icap, IDSZ idsz );
-
 //--------------------------------------------------------------------------------------------
 // team_t accessor functions
 CHR_REF team_get_ileader( const TEAM_REF iteam );
@@ -739,7 +733,6 @@ TEAM_REF chr_get_iteam( const CHR_REF ichr );
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
 
 ObjectProfile *chr_get_ppro( const CHR_REF ichr );
-cap_t *chr_get_pcap( const CHR_REF ichr );
 
 team_t         *chr_get_pteam( const CHR_REF ichr );
 team_t         *chr_get_pteam_base( const CHR_REF ichr );

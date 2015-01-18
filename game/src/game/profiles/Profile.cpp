@@ -81,7 +81,6 @@ ObjectProfile::ObjectProfile() :
 
     // life
     _startingLife(),
-    life_heal(0),
     _spawnLife(PERFECTBIG),
 
     // mana
@@ -194,7 +193,6 @@ ObjectProfile::ObjectProfile() :
     // item usage
     _needSkillIDToUse(false),
     _weaponAction(0),
-    _manaCost(0),
     _attackAttached(0),
     _attackParticleProfile(0),
     _attackFast(false),
@@ -541,6 +539,10 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     // Read in the class name
     char buffer[128];
     vfs_get_next_name(fileRead, buffer, SDL_arraysize(buffer));
+
+    // fix class name capitalization
+    buffer[0] = char_toupper(buffer[0]);
+
     _className = buffer;
 
     // Light cheat
@@ -749,8 +751,8 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     dampen    = vfs_get_next_float( fileRead );
 
     // More stuff I forgot
-    _startingLifeRegeneration    = vfs_get_next_float( fileRead ) * 0xff;
-    _manaCost     = vfs_get_next_float( fileRead ) * 0xff;
+    vfs_get_next_float( fileRead );  //ZF> deprecated value LifeReturn (no longer used)
+    fs_get_next_float( fileRead );  //ZF> deprecated value ManaCost (no longer used)
     _startingLifeRegeneration  = vfs_get_next_int( fileRead );
     _stoppedBy   |= vfs_get_next_int( fileRead );
 
@@ -1356,4 +1358,27 @@ float ObjectProfile::getExperienceRate(XPType type) const
     }
 
     return _experienceRate[type];
+}
+
+bool ObjectProfile::hasTypeIDSZ(const IDSZ idsz)
+{
+    if ( IDSZ_NONE == idsz ) return true;
+    if ( idsz == _idsz[IDSZ_TYPE  ] ) return true;
+    if ( idsz == _idsz[IDSZ_PARENT] ) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------
+bool ObjectProfile::hasIDSZ(IDSZ idsz)
+{
+    for(IDSZ compare : _idsz)
+    {
+        if(compare == idsz)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

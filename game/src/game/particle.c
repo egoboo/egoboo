@@ -2236,7 +2236,6 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     chr_t * pchr;
     mad_t * pmad;
     prt_t * pprt;
-    cap_t * pcap;
 
     if ( !INGAME_PRT( particle ) ) return 0;
     pprt = PrtList_get_ptr( particle );
@@ -2254,8 +2253,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     pmad = chr_get_pmad( character );
     if ( NULL == pmad ) return 0;
 
-    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pcap ) return 0;
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
     bs_count = 0;
 
@@ -2290,14 +2288,14 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
             if ( generate_irand_pair( loc_rand ) <= damage_resistance ) amount--;
         }
 
-        if ( amount > 0 && !pcap->resistbumpspawn && !pchr->invictus )
+        if ( amount > 0 && !profile->hasResistBumpSpawn() && !pchr->invictus )
         {
             int grip_verts, vertices;
             int slot_count;
 
             slot_count = 0;
-            if ( pcap->slotvalid[SLOT_LEFT] ) slot_count++;
-            if ( pcap->slotvalid[SLOT_RIGHT] ) slot_count++;
+            if ( profile->isSlotValid(SLOT_LEFT) ) slot_count++;
+            if ( profile->isSlotValid(SLOT_RIGHT) ) slot_count++;
 
             if ( 0 == slot_count )
             {

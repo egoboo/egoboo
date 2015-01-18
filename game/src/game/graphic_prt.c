@@ -624,7 +624,6 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
 void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 {
     mad_t * pholder_mad;
-    cap_t * pholder_cap;
     chr_t * pholder;
 
     prt_t * loc_pprt;
@@ -636,9 +635,6 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 
     if ( !INGAME_CHR( loc_pprt->attachedto_ref ) ) return;
     pholder = ChrList_get_ptr( loc_pprt->attachedto_ref );
-
-    pholder_cap = chr_get_pcap(pholder->profile_ref);
-    if ( NULL == pholder_cap ) return;
 
     pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;

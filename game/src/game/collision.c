@@ -85,7 +85,6 @@ struct s_chr_prt_collsion_data
     // object parameters
     CHR_REF ichr;
     chr_t * pchr;
-    cap_t * pcap;
 
     PRT_REF iprt;
     prt_t * pprt;
@@ -129,7 +128,6 @@ struct s_chr_prt_collsion_data
     {\
         INVALID_CHR_REF, /* CHR_REF ichr */ \
         NULL,            /* chr_t * pchr */ \
-        NULL,            /* cap_t * pcap */ \
         INVALID_PRT_REF, /* PRT_REF iprt */ \
         NULL,            /* prt_t * pprt */ \
         NULL             /* pip_t * ppip */ \
@@ -869,8 +867,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
         // keep track of how many objects use reaffirmation, and what kinds of reaffirmation
         if ( pchr_a->reaffirm_damagetype < DAMAGE_COUNT )
         {
-            cap_t * pcap = _profileSystem.pro_get_pcap( pchr_a->profile_ref );
-            if ( NULL != pcap && pcap->attachedprt_amount > 0 )
+            if ( _profileSystem.getProfile(pchr_a->profile_ref)->getAttachedParticleAmount() > 0 )
             {
                 // we COULD use number_of_attached_particles() to determin if the
                 // character is full of particles, BUT since it scans through the
@@ -922,7 +919,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
                         CoNode_ctor( &tmp_codata );
 
-                        // do a simple test, since I do not want to resolve the cap_t for these objects here
+                        // do a simple test, since I do not want to resolve the ObjectPRofile for these objects here
                         test_platform = EMPTY_BIT_FIELD;
                         if ( pchr_a->platform && pchr_b->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
                         if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
@@ -983,7 +980,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
                         CoNode_ctor( &tmp_codata );
 
-                        // do a simple test, since I do not want to resolve the cap_t for these objects here
+                        // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
 
                         // detect a when the possible collision occurred
@@ -1133,7 +1130,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                     {
                         CoNode_ctor( &tmp_codata );
 
-                        // do a simple test, since I do not want to resolve the cap_t for these objects here
+                        // do a simple test, since I do not want to resolve the ObjectProfile for these objects here
                         test_platform = EMPTY_BIT_FIELD;
                         if ( pchr_a->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
 
@@ -1781,11 +1778,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
                 tmp_pos.z = pchr->enviro.floor_level;
                 if ( pchr->vel.z < 0 )
                 {
-                    cap_t * pcap = chr_get_pcap( ichr );
-                    if ( NULL != pcap )
-                    {
-                        pchr->vel.z += -( 1.0f + pcap->dampen ) * pchr->vel.z;
-                    }
+                    pchr->vel.z += -( 1.0f + _profileSystem.getProfile(pchr->profile_ref)->getBounciness() ) * pchr->vel.z;
                 }
                 position_updated = true;
             }
@@ -2195,7 +2188,6 @@ bool do_chr_chr_collision( CoNode_t * d )
 {
     CHR_REF ichr_a, ichr_b;
     chr_t * pchr_a, * pchr_b;
-    cap_t * pcap_a, * pcap_b;
 
     float depth_min;
     float interaction_strength = 1.0f;
@@ -2220,15 +2212,9 @@ bool do_chr_chr_collision( CoNode_t * d )
     if ( !INGAME_CHR( ichr_a ) ) return false;
     pchr_a = ChrList_get_ptr( ichr_a );
 
-    pcap_a = chr_get_pcap( ichr_a );
-    if ( NULL == pcap_a ) return false;
-
     // make sure that it is on
     if ( !INGAME_CHR( ichr_b ) ) return false;
     pchr_b = ChrList_get_ptr( ichr_b );
-
-    pcap_b = chr_get_pcap( ichr_b );
-    if ( NULL == pcap_b ) return false;
 
     // skip objects that are inside inventories
     if ( INGAME_CHR( pchr_a->inwhich_inventory ) || INGAME_CHR( pchr_b->inwhich_inventory ) ) return false;
@@ -3078,14 +3064,12 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     bool prt_needs_impact;
 
     chr_t * powner = NULL;
-    cap_t * powner_cap = NULL;
 
     if ( NULL == pdata ) return false;
 
     if ( INGAME_CHR( pdata->pprt->owner_ref ) )
     {
         powner = ChrList_get_ptr( pdata->pprt->owner_ref );
-        powner_cap = _profileSystem.pro_get_pcap( powner->profile_ref );
     }
 
     // clean up the enchant list before doing anything
@@ -3142,14 +3126,14 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     }
 
     // Do grog
-    if ( pdata->ppip->grog_time > 0 && pdata->pcap->canbegrogged )
+    if ( pdata->ppip->grog_time > 0 && _profileSystem->getProfile(pdata->pchr->profile_ref)->canBeGrogged() )
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->grog_timer = std::max( (int)pdata->pchr->grog_timer, pdata->ppip->grog_time );
     }
 
     // Do daze
-    if ( pdata->ppip->daze_time > 0 && pdata->pcap->canbedazed )
+    if ( pdata->ppip->daze_time > 0 && _profileSystem->getProfile(pdata->pchr->profile_ref)->canBeDazed()  )
     {
         SET_BIT( pdata->pchr->ai.alert, ALERTIF_CONFUSED );
         pdata->pchr->daze_timer = std::max( (int)pdata->pchr->daze_timer, pdata->ppip->daze_time );
@@ -3158,8 +3142,11 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     //---- Damage the character, if necessary
     if ( 0 != ABS( pdata->pprt->damage.base ) + ABS( pdata->pprt->damage.rand ) )
     {
+
         prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || INGAME_CHR( pdata->pprt->attachedto_ref ) );
-        if ( NULL != powner_cap && powner_cap->isranged ) prt_needs_impact = true;
+
+        ObjectProfile *ownerProfile = _profileSystem.getProfile(powner->profile_ref);
+        if ( ownerProfile != nullptr && ownerProfile->isRanged() ) prt_needs_impact = true;
 
         // DAMFX_ARRO means that it only does damage to the one it's attached to
         if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && ( !prt_needs_impact || pdata->is_impact ) )
@@ -3424,10 +3411,6 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
     pdata->ichr = ichr;
     pdata->pchr = ChrList_get_ptr( ichr );
 
-    // initialize the collision data
-    pdata->pcap = _profileSystem.pro_get_pcap( pdata->pchr->profile_ref );
-    if ( NULL == pdata->pcap ) return false;
-
     if ( !LOADED_PIP( pdata->pprt->pip_ref ) ) return false;
     pdata->ppip = PipStack.get_ptr( pdata->pprt->pip_ref );
 
@@ -3633,7 +3616,6 @@ chr_prt_collsion_data_t * chr_prt_collsion_data__init( chr_prt_collsion_data_t *
     //---- invalidate the object parameters
     ptr->ichr = INVALID_CHR_REF;
     ptr->pchr = NULL;
-    ptr->pcap = NULL;
 
     ptr->iprt = INVALID_PRT_REF;
     ptr->pprt = NULL;

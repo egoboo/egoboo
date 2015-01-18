@@ -1576,7 +1576,6 @@ bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, Cho
     STRING  szFilename;
 
     CAP_REF   cap_ref;
-    cap_t   * cap_ptr = NULL;
 
     ChoosePlayer_element_t * chooseplayer_ptr;
 
@@ -1584,13 +1583,6 @@ bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, Cho
     ChoosePlayer_list_dealloc( chooseplayer );
 
     if ( NULL == loadplayer_ptr ) return false;
-
-    // grab the loadplayer_idx data
-    if ( !LOADED_CAP( loadplayer_ptr->cap_ref ) )
-    {
-        return false;
-    }
-    cap_ptr = CapStack.get_ptr( loadplayer_ptr->cap_ref );
 
     // go to the next element in the list
     chooseplayer_ptr = chooseplayer->lst + chooseplayer->count;
@@ -1626,20 +1618,18 @@ bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, Cho
         snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj", loadplayer_ptr->dir, i );
 
         // load the profile
-        cap_ref = CapStack_load_one( szFilename, slot, false );
-        if ( LOADED_CAP( cap_ref ) )
+        std::shared_ptr<ObjectProfile> profile = ObjectProfiles::loadFromFile(szFilename, slot)
+        if ( profile )
         {
-            cap_ptr = CapStack.get_ptr( cap_ref );
-
             // go to the next element in the list
             chooseplayer_ptr = chooseplayer->lst + chooseplayer->count;
             chooseplayer->count++;
 
             // sace the cap reference
-            chooseplayer_ptr->cap_ref = cap_ref;
+            chooseplayer_ptr->cap_ref = profile->getSlotNumber();
 
             // get the skin info
-            chooseplayer_ptr->skin_ref = cap_get_skin_overide( cap_ptr );
+            chooseplayer_ptr->skin_ref = profile->getSkinOverride();
 
             // load the icon of the skin
             snprintf( szFilename, SDL_arraysize( szFilename ), "%s/%d.obj/icon%d", loadplayer_ptr->dir, i, chooseplayer_ptr->skin_ref );
@@ -1697,18 +1687,13 @@ bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mo
         const int text_vert_centering = ( icon_hgt - text_hgt ) / 2;
         const int section_spacing = 10;
 
-        CAP_REF icap = objects.lst[0].cap_ref;
-
-        if ( LOADED_CAP( icap ) )
+        std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile(objects.lst[0].cap_ref);
+        if ( profile )
         {
             STRING  temp_string;
-            cap_t * pcap = CapStack.get_ptr( icap );
             SKIN_T  skin = cap_get_skin_overide( pcap );
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
-
-            // fix class name capitalization
-            pcap->classname[0] = char_toupper(( unsigned )pcap->classname[0] );
 
             //Character level and class
             GL_DEBUG( glColor4fv )( white_vec );
@@ -1717,14 +1702,15 @@ bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mo
 
             //Character level and class
             GL_DEBUG( glColor4fv )( white_vec );
-            snprintf( temp_string, SDL_arraysize( temp_string ), "A level %d %s", pcap->level_override + 1, pcap->classname );
+            snprintf( temp_string, SDL_arraysize( temp_string ), "A level %d %s", profile->getStartingLevel() + 1, profile->getClassName().c_str() );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
             // Armor
+            const SkinInfo &skinInfo = profile->getSkinInfo(skin);
             GL_DEBUG( glColor4fv )( white_vec );
             snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s",
-                      skin < MAX_SKIN ? pcap->skin_info.name[skin] : "UNKNOWN",
-                      HAS_SOME_BITS( pcap->skin_info.dressy, 1 << skin ) ? "(Light)" : "(Heavy)" );
+                      !skinInfo.empty() ? skinInfo.name : "UNKNOWN",
+                      skinInfo.dressy ? "(Light)" : "(Heavy)" );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
             y1 += section_spacing;
 
@@ -1732,31 +1718,31 @@ bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mo
             if ( cfg.difficulty >= GAME_NORMAL )
             {
                 snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d/%d",
-					      std::min( (int)UFP8_TO_UINT( pcap->life_spawn ), ( int )pcap->life_stat.val.from ), ( int )pcap->life_stat.val.from );
+					      std::min( (int)UFP8_TO_UINT( profile->getSpawnLife() ), ( int )profile->getBaseLife().from ), ( int )profile->getBaseLife().from );
                 y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
-                y1 = ui_drawBar( x1, y1, UFP8_TO_UINT( pcap->life_spawn ), ( int )pcap->life_stat.val.from, pcap->life_color );
+                y1 = ui_drawBar( x1, y1, UFP8_TO_UINT( profile->getSpawnLife() ), ( int )profile->getBaseLife().from, profile->getLifeColor() );
 
-                if ( pcap->mana_stat.val.from > 0 )
+                if ( profile->getBaseMana().from > 0 )
                 {
                     snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d/%d",
-						      std::min( (int)UFP8_TO_UINT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from ), ( int )pcap->mana_stat.val.from );
+						      std::min( (int)UFP8_TO_UINT( profile->getSpawnLife() ), ( int )profile->getBaseMana().from ), ( int )profile->getBaseMana().from );
                     y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
-                    y1 = ui_drawBar( x1, y1, UFP8_TO_UINT( pcap->mana_spawn ), ( int )pcap->mana_stat.val.from, pcap->mana_color );
+                    y1 = ui_drawBar( x1, y1, UFP8_TO_UINT( profile->getSpawnMana() ), ( int )profile->getBaseMana().from, profile->getManaColor() );
                 }
             }
             else
             {
-                snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d", ( int )pcap->life_stat.val.from );
+                snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d", ( int )profile->getBaseLife().from );
                 y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
-                y1 = ui_drawBar( x1, y1, ( int )pcap->life_stat.val.from, ( int )pcap->life_stat.val.from, pcap->life_color );
+                y1 = ui_drawBar( x1, y1, ( int )profile->getBaseLife().from, ( int )profile->getBaseLife().from, profile->getLifeColor() );
 
-                if ( pcap->mana_stat.val.from > 0 )
+                if ( profile->getBaseMana().from > 0 )
                 {
-                    snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d", ( int )pcap->mana_stat.val.from );
+                    snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d", ( int )profile->getBaseMana().from );
                     y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
-                    y1 = ui_drawBar( x1, y1, ( int )pcap->mana_stat.val.from, ( int )pcap->mana_stat.val.from, pcap->mana_color );
+                    y1 = ui_drawBar( x1, y1, ( int )profile->getBaseMana().from, ( int )profile->getBaseMana().from, profile->getManaColor() );
                 }
             }
             y1 += section_spacing;
@@ -1764,16 +1750,16 @@ bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mo
             //SWID
             y1 = ui_drawTextBox( menuFont, "Stats", x1, y1, 0, 0, text_hgt );
 
-            snprintf( temp_string, SDL_arraysize( temp_string ), "  Str: %s (%d)", describe_value( pcap->strength_stat.val.from,     60, NULL ), ( int )pcap->strength_stat.val.from );
+            snprintf( temp_string, SDL_arraysize( temp_string ), "  Str: %s (%d)", describe_value( profile->getBaseStrength().from,     60, NULL ), ( int )profile->getBaseStrength().from );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
-            snprintf( temp_string, SDL_arraysize( temp_string ), "  Wis: %s (%d)", describe_value( pcap->wisdom_stat.val.from,       60, NULL ), ( int )pcap->wisdom_stat.val.from );
+            snprintf( temp_string, SDL_arraysize( temp_string ), "  Wis: %s (%d)", describe_value( profile->getBaseWisdom().from,       60, NULL ), ( int )profile->getBaseWisdom().from );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
-            snprintf( temp_string, SDL_arraysize( temp_string ), "  Int: %s (%d)", describe_value( pcap->intelligence_stat.val.from, 60, NULL ), ( int )pcap->intelligence_stat.val.from );
+            snprintf( temp_string, SDL_arraysize( temp_string ), "  Int: %s (%d)", describe_value( profile->getBaseIntelligence().from, 60, NULL ), ( int )profile->getBaseIntelligence().from );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
-            snprintf( temp_string, SDL_arraysize( temp_string ), "  Dex: %s (%d)", describe_value( pcap->dexterity_stat.val.from,    60, NULL ), ( int )pcap->dexterity_stat.val.from );
+            snprintf( temp_string, SDL_arraysize( temp_string ), "  Dex: %s (%d)", describe_value( profile->getBaseDexterity().from,    60, NULL ), ( int )profile->getBaseDexterity().from );
             y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
             y1 += section_spacing;
 
