@@ -195,7 +195,7 @@ struct SkinInfo
 {
     std::string  name;               ///< Skin name
     uint16_t     cost;               ///< Store prices
-    float        maxaccel;           ///< Acceleration for each skin
+    float        maxAccel;           ///< Acceleration for each skin
     uint8_t      dressy;             ///< Bits to tell whether the skins are "dressy"
     uint8_t      defence;            ///< Damage reduction
     uint8_t      damageModifier;     ///< Invictus, inverse, mana burn etc.
@@ -255,6 +255,9 @@ public:
 
     inline const std::unordered_map<size_t, TX_REF> &getAllIcons() const {return _iconsLoaded;}
 
+    /**
+    *@return the folder path where this profile was loaded
+    **/
     inline const std::string& getFileName() const {return _fileName;}
 
     inline MAD_REF getModelRef() const {return _imad;}
@@ -281,11 +284,173 @@ public:
     **/
     static bool saveToFile(const std::string &filePath, const std::string &templateName);
 
+    /**
+    * @brief
+    **/
     uint16_t getSkinOverride() const;
 
-    const std::string& getClassName() const {return _className};
+    /**
+    * @brief get the class name of this object profile (e.g Sword, Healer or Lumpkin)
+    **/
+    inline const std::string& getClassName() const {return _className;}
 
+    /**
+    * @brief
+    **/
     const SkinInfo& getSkinInfo(size_t index) const;
+
+    /**
+    * @brief return true if this character is immune to all damage
+    **/
+    inline const bool isInvincible() const {return _isInvincible;}
+
+    /**
+    * @return true if the specified grip slot is valid for this profile
+    **/
+    bool isSlotValid(slot_t slot) const;
+
+    inline bool isBigItem() const {return _isBigItem;}
+
+    inline bool usageIsKnown() const {return _usageIsKnown;}
+
+    inline void setUsageKnown(bool value) const {_usageIsKnown = value;}
+
+    inline bool isEquipment() const {return _isEquipment;}
+
+    inline bool isStackable() const {return _isStackable;}
+
+    inline PIP_REF getAttackParticleProfile() const {return _attackParticleProfile;}
+
+    inline bool hasAttackAttached() const {return _attackAttached;}
+
+    inline uint8_t getKurseChance() const {return _kurseChance;}
+
+    inline uint8_t getAttachParticleAmount() const {return _attachedParticleAmount;}
+
+    inline PIP_REF getAttachedParticleProfile() const {return _attachedParticleProfile;}
+
+    inline bool causesRipples() const {return _causesRipples;}
+
+    inline uint8_t getLight() const {return _light;}
+    inline uint8_t getAlpha() const {return _alpha;}
+
+    uint32_t getXPNeededForLevel(size_t level) const;
+
+    inline const float getSizeGainPerLevel() const {return _sizePerLevel;}
+
+    inline uint8_t getWeight() const {return _weight;}
+
+    inline uint8_t getParticlePoofAmount() const {return _goPoofParticleAmount;}
+
+    inline PIP_REF getParticlePoofProfile() const {return _goPoofParticleProfile;}
+
+    inline int16_t getParticlePoofFacingAdd() const {return _goPoofParticleFacingAdd;}
+
+    inline bool isPlatform() const      {return _isPlatform;}
+
+    inline bool canUsePlatforms() const {return _canUsePlatforms;}
+
+    inline uint8_t getFlyHeight() const {return _flyHeight;}
+
+    inline float getBumpDampen() const  {return _bumpDampen;}
+
+    inline float getSize() const        {return _size;}
+    inline float getShadowSize() const  {return _shadowSize;}
+    inline float getBumpSize() const    {return _bumpSize;}
+    inline float getBumpSizeBig() const {return _bumpSizeBig;}
+    inline float getBumpHeight() const  {return _bumpHeight;}
+
+    inline bool isMount() const {return _isMount;}
+
+    inline uint8_t getStoppedByMask() const {return _stoppedBy;}
+
+    inline uint16_t getMaxAmmo() const {return _maxAmmo;}
+
+    inline uint16_t getAmmo() const {return _ammo;}
+
+    inline CharacterGender getGender() const {return _gender;}
+
+    inline bool hasStickyButt() const {return _stickyButt;}
+
+    inline bool canOpenStuff() const {return _canOpenStuff;}
+
+    inline bool canGrabMoney() const {return _canGrabMoney;}
+
+    inline bool canSeeInvisible() const {return _seeInvisibleLevel > 0;}
+
+    /**
+    * @return true if this object should transfer its blending effect upon any
+    *         items it might be holding or its rider (if it is a mount)
+    **/ 
+    inline bool transerBlending() const {return _isEquipment;}
+
+    /**
+    * @brief If this character should spawn blood particles when it gets hurt
+    **/ 
+    inline uint8_t getBludType() const {return _bludValid;}
+
+    /**
+    * @brief If this character should spawn blood particles when it gets hurt
+    **/ 
+    inline PIP_REF getBloodParticleProfile() const {return _bludParticleProfile;}
+
+    /**
+    * @brief experience multiplies for a given kind of experience type
+    *        e.g a Wizard learns more from reading books than a Soldier
+    **/
+    float getExperienceRate(XPType type) const;
+
+    /**
+    * @return how much xp this is worth
+    **/
+    inline uint16_t getExperienceValue() const {return _experienceWorth;}
+
+    /**
+    * @return how much of this characters xp is transferred upon it's killer
+    **/
+    inline float getExperienceExchangeRate() const {return _experienceExchange;}
+
+    /**
+    * @brief Damage bonus on attack particles from a given stat
+    *        E.g if this object is a sword and has 0.5f strength factor, the user
+    *        gets to add 50% of her strength to all attacks with it.
+    *        Same goes for unarmed attacks if this object is actually a character
+    **/
+    inline float getStrengthDamageFactor()      {return _strengthBonus;}
+    inline float getWisdomDamageFactor()        {return _wisdomBonus;}
+    inline float getIntelligenceDamageFactor()  {return _intelligenceBonus;}
+    inline float getDexterityDamageFactor()     {return _dexterityBonus;}
+
+    inline float getStrengthGainPerLevel()      {return _startingStrength.perlevel;}
+    inline float getWisdomGainPerLevel()        {return _startingWisdom.perlevel;}
+    inline float getIntelligenceGainPerLevel()  {return _startingIntellignece.perlevel;}
+    inline float getDexterityGainPerLevel()     {return _startingDexterity.perlevel;}
+    inline float getLifeGainPerLevel()          {return _startingLife.perlevel;}
+    inline float getLifeRegenerationGainPerLevel()  {return _startingLifeReturn.perlevel;}
+    inline float getManaRegenerationGainPerLevel()  {return _startingManaRegeneration.perlevel;}
+    inline float getManaFlowGainPerLEvel()      {return _startingManaFlow.perlevel;}
+
+    inline std::unordered_map<IDSZ, int>& getSkillMap() const {return _skills;}
+
+    /**
+    * @brief Moving textures effect
+    **/
+    inline SFP8_T getUOffVel() const {return uoffvel;}
+    inline SFP8_T getVOffVel() const {return voffvel;}
+ 
+    inline float getSneakAnimationSpeed() const {return _animationSpeedSneak;}
+    inline float getWalkAnimationSpeed() const {return _animationSpeedWalk;}
+    inline float getRunAnimationSpeed() const {return _animationSpeedRun;}
+
+    /**
+    * @brief ZF> I'm not sure what this is. 
+    *            Something to do with particles reaffirming if it gets hurt by this damage type
+    **/
+    inline DamageType getReaffirmDamageType() const {return _attachedParticleReaffirmDamageType;}
+
+    //ZF> TODO: these should not be public
+    size_t requestCount;                       ///< the number of attempted spawns
+    size_t spawnCount;                         ///< the number of successful spawns
 
 private:
     /**
@@ -315,10 +480,14 @@ private:
 
     bool exportToDataFile(const std::string &filePath);
 
+    /**
+    * @author ZF
+    * @details This calculates the xp needed to reach next level and stores it in an array for later use
+    **/
+    void setupXPTable();
+
 private:
     std::string _fileName;                      ///< Usually the source filename
-    size_t _requestCount;                       ///< the number of attempted spawns
-    size_t _spawnCount;                         ///< the number of successful spawns
 
     // the sub-profiles
     MAD_REF _imad;                             ///< the md2 model for this profile
@@ -370,45 +539,45 @@ private:
     CharacterGender _gender;                    ///< Gender
 
     // life
-    ProfileStat  life_stat;                     ///< Life statistics. Base range/current value + by-level bonus.
-    UFP8_T       life_return;                   ///< Life regeneration (8.8 fixed point). @todo Should be a cap_stat too.
-    UFP8_T       life_spawn;                    ///< Life left from last module (8.8 fixed point)
+    ProfileStat  _startingLife;                     ///< Life statistics. Base range/current value + by-level bonus.
+    UFP8_T       _startingLifeReturn;                   ///< Life regeneration (8.8 fixed point). @todo Should be a ProfileStat too.
+    UFP8_T       _spawnLife;                    ///< Life left from last module (8.8 fixed point)
 
     // mana
-    ProfileStat  mana_stat;                     ///< Mana statistics. Base range/current value + by-level bonus.
-    ProfileStat  manareturn_stat;               ///< Mana regeneration statistics
-    UFP8_T       mana_spawn;                    ///< Mana left from last module (8.8 fixed point)
+    ProfileStat  _startingMana;                     ///< Mana statistics. Base range/current value + by-level bonus.
+    ProfileStat  _startingManaRegeneration;               ///< Mana regeneration statistics
+    UFP8_T       _spawnMana;                    ///< Mana left from last module (8.8 fixed point)
 
     UFP8_T       life_heal;                     ///< (8.8 fixed point) @todo Find out what this is used for.
-    ProfileStat  manaflow_stat;                 ///< Mana channeling   @todo Find out what this is used for.
+    ProfileStat  _startingManaFlow;             ///< How much mana the character can channel in one go (magic strength)
 
-    ProfileStat  strength_stat;                 ///< Strength.    Initial range or current value + per-level increase.
-    ProfileStat  wisdom_stat;                   ///< Wisdom.      Initial range or current value + per-level increase.
-    ProfileStat  intelligence_stat    ;         ///< Intlligence. Initial range or current value + per-level increase.
-    ProfileStat  dexterity_stat;                ///< Dexterity.   Initial range or current value + per-level increase.
+    ProfileStat  _startingStrength;             ///< Strength.    Initial range or current value + per-level increase.
+    ProfileStat  _startingWisdom;               ///< Wisdom.      Initial range or current value + per-level increase.
+    ProfileStat  _startingIntellignece;         ///< Intlligence. Initial range or current value + per-level increase.
+    ProfileStat  _startingDexterity;            ///< Dexterity.   Initial range or current value + per-level increase.
 
     // physics
-    uint8_t      weight;                        ///< Weight
-    float        dampen;                        ///< Bounciness
-    float        bumpdampen;                    ///< Mass
+    uint8_t      _weight;                        ///< Weight
+    float        _dampen;                        ///< Bounciness
+    float        _bumpDampen;                    ///< Mass
 
-    float        size;                          ///< Scale of model
-    float        size_perlevel;                 ///< Scale increases
-    Uint32       shadow_size;                   ///< Shadow size
-    Uint32       bump_size;                     ///< Bounding octagon
-    bool         bump_override_size;            ///< let bump_size override the measured object size
-    Uint32       bump_sizebig;                  ///< For octagonal bumpers
-    bool         bump_override_sizebig;         ///< let bump_sizebig override the measured object size
-    Uint32       bump_height;                   ///< the height of the object
-    bool         bump_override_height;          ///< let bump_height overrride the measured height of the object
+    float        _size;                         ///< Scale of model
+    float        _sizePerLevel;                 ///< Scale increases
+    uint32_t     _shadowSize;                   ///< Shadow size
+    uint32_t     _bumpSize;                     ///< Bounding octagon
+    bool         _bumpOverrideSize;             ///< let bump_size override the measured object size
+    uint32_t     _bumpSizeBig;                  ///< For octagonal bumpers
+    bool         _bumpOverrideSizeBig;          ///< let bump_sizebig override the measured object size
+    uint32_t     _bumpHeight;                   ///< the height of the object
+    bool         _bumpOverrideHeight;           ///< let bump_height overrride the measured height of the object
     uint8_t      _stoppedBy;                    ///< Collision Mask
 
     // movement
     float        _jumpPower;                    ///< Jump power
     uint8_t      _jumpNumber;                   ///< Number of jumps ( Ninja )
-    float        anim_speed_sneak;              ///< Sneak threshold
-    float        anim_speed_walk;               ///< Walk threshold
-    float        anim_speed_run;                ///< Run threshold
+    float        _animationSpeedSneak;          ///< Sneak threshold
+    float        _animationSpeedWalk;           ///< Walk threshold
+    float        _animationSpeedRun;            ///< Run threshold
     uint8_t      _flyHeight;                    ///< Fly height
     bool         _waterWalking;                 ///< Walk on water?
     int          _jumpSound;
@@ -462,52 +631,52 @@ private:
     bool       _canUsePlatforms;               ///< Can use platforms?
     bool       _canGrabMoney;                  ///< Collect money?
     bool       _canOpenStuff;                  ///< Open chests/doors?
-    bool       canbedazed;                     ///< Can it be dazed?
-    bool       canbegrogged;                   ///< Can it be grogged?
-    bool       istoobig;                       ///< Can't be put in pack
-    bool       isranged;                       ///< Flag for ranged weapon
-    bool       nameknown;                      ///< Is the class name known?
-    bool       usageknown;                     ///< Is its usage known
-    bool       cancarrytonextmodule;           ///< Take it with you?
-    uint8_t    damagetarget_damagetype;        ///< For AI DamageTarget
-    bool       slotvalid[SLOT_COUNT];          ///< Left/Right hands valid
-    bool       ridercanattack;                 ///< Rider attack?
+    bool       _canBeDazed;                    ///< Can it be dazed?
+    bool       _canBeGrogged;                  ///< Can it be grogged?
+    bool       _isBigItem;                     ///< Can't be put in pack
+    bool       _isRanged;                      ///< Flag for ranged weapon
+    bool       _nameIsKnown;                   ///< Is the class name known?
+    bool       _usageIsKnown;                  ///< Is its usage known
+    bool       _canCarryToNextModule;          ///< Take it with you?
+    uint8_t    _damageTargetDamageType;        ///< For AI DamageTarget
+    std::array<bool, SLOT_COUNT> _slotsValid;  ///< Left/Right hands valid
+    bool       _riderCanAttack;                 ///< Rider attack?
     uint8_t    _kurseChance;                   ///< Chance of being kursed (0 to 100%)
     Sint8      _hideState;                     ///< Don't draw when...
     Sint8      _isValuable;                    ///< Force to be valuable
     int        _spellEffectType;               ///< is the object that a spellbook generates
 
     // item usage
-    bool         needskillidtouse;               ///< Check IDSZ first?
-    uint8_t      weaponaction;                   ///< Animation needed to swing
-    int16_t      manacost;                       ///< How much mana to use this object?
-    uint8_t      attack_attached;                ///< Do we have attack particles?
-    int          attack_lpip;                    ///< What kind of attack particles?
-    bool         attack_fast;                    ///< Ignores the default reload time?
+    bool         _needSkillIDToUse;              ///< Check IDSZ first?
+    uint8_t      _weaponAction;                  ///< Animation needed to swing
+    int16_t      _manaCost;                      ///< How much mana to use this object?
+    uint8_t      _attackAttached;                ///< Do we have attack particles?
+    int          _attackParticleProfile;         ///< What kind of attack particles?
+    bool         _attackFast;                    ///< Ignores the default reload time?
 
-    float        str_bonus;                      ///< Strength     damage factor
-    float        wis_bonus;                      ///< Wisdom       damage factor
-    float        int_bonus;                      ///< Intelligence damage factor
-    float        dex_bonus;                      ///< dexterity    damage factor
+    float        _strengthBonus;                      ///< Strength     damage factor
+    float        _wisdomBonus;                      ///< Wisdom       damage factor
+    float        _intelligenceBonus;                      ///< Intelligence damage factor
+    float        _dexterityBonus;                      ///< dexterity    damage factor
 
     // special particle effects
-    uint8_t      attachedprt_amount;              ///< Number of sticky particles
-    uint8_t      attachedprt_reaffirm_damagetype; ///< Re-attach sticky particles? Relight that torch...
-    int          attachedprt_lpip;                ///< Which kind of sticky particle
+    uint8_t      _attachedParticleAmount;              ///< Number of sticky particles
+    uint8_t      _attachedParticleReaffirmDamageType; ///< Re-attach sticky particles? Relight that torch...
+    int          _attachedParticleProfile;                ///< Which kind of sticky particle
 
-    uint8_t      gopoofprt_amount;                ///< Amount of poof particles
-    int16_t      gopoofprt_facingadd;             ///< Angular spread of poof particles
-    int          gopoofprt_lpip;                  ///< Which poof particle
+    uint8_t      _goPoofParticleAmount;           ///< Amount of poof particles
+    int16_t      _goPoofParticleFacingAdd;        ///< Angular spread of poof particles
+    int          _goPoofParticleProfile;          ///< Which poof particle
 
     //Blood
-    uint8_t      blud_valid;                      ///< Has blud? ( yuck )
-    int          blud_lpip;                       ///< What kind of blud?
+    uint8_t      _bludValid;                      ///< Has blud? ( yuck )
+    int          _bludParticleProfile;            ///< What kind of blud?
 
     // skill system
-    std::unordered_set<IDSZ> _skills;             ///< Set of skills this character posesses
-    int          see_invisible_level;             ///< Can it see invisible?
+    std::unordered_map<IDSZ, int> _skills;        ///< Set of skills this character posesses
+    int          _seeInvisibleLevel;              ///< Can it see invisible?
 
     // random stuff
-    bool       stickybutt;                    ///< Stick to the ground?
-
+    bool       _stickyButt;                       ///< Stick to the ground?
 };
+

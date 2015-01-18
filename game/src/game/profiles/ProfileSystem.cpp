@@ -219,16 +219,6 @@ PIP_REF ProfileSystem::pro_get_ipip( const PRO_REF iobj, int pip_index )
 }
 
 //--------------------------------------------------------------------------------------------
-cap_t * ProfileSystem::pro_get_pcap( const PRO_REF iobj )
-{
-    if ( !isValidProfileID( iobj ) ) return nullptr;
-
-    if ( !LOADED_CAP( _profilesLoaded[iobj]->getCapRef() ) ) return nullptr;
-
-    return CapStack.get_ptr( _profilesLoaded[iobj]->getCapRef() );
-}
-
-//--------------------------------------------------------------------------------------------
 mad_t * ProfileSystem::pro_get_pmad( const PRO_REF iobj )
 {
     if ( !isValidProfileID( iobj ) ) return nullptr;

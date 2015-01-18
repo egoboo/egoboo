@@ -74,9 +74,6 @@ struct chr_t;
 #define MAXMONEY        9999                        ///< Maximum money
 #define SHOP_IDENTIFY   200                         ///< Maximum value for identifying shop items
 
-#define MAX_CAP         256
-#define INVALID_CAP_REF ((CAP_REF) MAX_CAP)
-
 #define CHR_INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
 #define CHR_MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
 
@@ -583,13 +580,6 @@ extern Stack<team_t, TEAM_MAX> TeamStack;
 
 #define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < TEAM_MAX) )
 
-extern Stack<cap_t, MAX_CAP> CapStack;
-
-
-#define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_CAP) )
-#define LOADED_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapStack.lst[ICAP].loaded )
-
-#define LOADED_PCAP( PCAP )       ( (NULL != (PCAP)) && (PCAP)->loaded )
 
 #define IS_ATTACHED_CHR_RAW(ICHR) ( (DEFINED_CHR(ChrList.lst[ICHR].attachedto) || DEFINED_CHR(ChrList.lst[ICHR].inwhich_inventory)) )
 #define IS_ATTACHED_CHR(ICHR) LAMBDA( !DEFINED_CHR(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
@@ -656,11 +646,6 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 bool chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
 
 bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_vec, fvec3_base_t grip_up_vec, const bool shift_origin );
-
-// CapStack functions
-void CapStack_init_all();
-void CapStack_release_all();
-bool CapStack_release_one( const CAP_REF icap );
 
 // character state machine functions
 chr_t * chr_run_config( chr_t * pchr );
@@ -764,7 +749,6 @@ chr_instance_t *chr_get_pinstance( const CHR_REF ichr );
 IDSZ chr_get_idsz( const CHR_REF ichr, int type );
 
 void chr_update_size( chr_t * pchr );
-void chr_init_size( chr_t * pchr, cap_t * pcap );
 
 
 bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );

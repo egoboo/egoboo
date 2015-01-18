@@ -38,9 +38,9 @@
 #include "egolib/file_formats/template.h"
 
 ObjectProfile::ObjectProfile() :
-    _fileName("*NONE*"),
     _requestCount(0),
     _spawnCount(0),
+    _fileName("*NONE*"),
     _imad(INVALID_MAD_REF),
     _ieve(INVALID_EVE_REF),
     _slotNumber(-1),
@@ -80,45 +80,45 @@ ObjectProfile::ObjectProfile() :
     _gender(GENDER_OTHER),
 
     // life
-    life_stat(),
-    life_return(),
-    life_spawn(PERFECTBIG),
+    _startingLife(),
+    life_heal(0),
+    _spawnLife(PERFECTBIG),
 
     // mana
-    mana_stat(),
-    manareturn_stat(),
-    mana_spawn(PERFECTBIG),
+    _startingMana(),
+    _startingManaRegeneration(),
+    _spawnMana(PERFECTBIG),
 
-    life_heal(),
-    manaflow_stat(),
+    _startingLifeRegeneration(),
+    _startingManaFlow(),
 
-    strength_stat(),
-    wisdom_stat(),
-    intelligence_stat(),
-    dexterity_stat(),
+    _startingStrength(),
+    _startingWisdom(),
+    _startingIntelligence(),
+    _startingDexterity(),
 
     // physics
-    weight(0),
-    dampen(0.0f),
-    bumpdampen(0.0f),
+    _weight(0),
+    _dampen(0.0f),
+    _bumpDampen(INV_FF),
 
-    size(1.0f),
-    size_perlevel(0.0f),
-    shadow_size(0),
-    bump_size(0),
-    bump_override_size(false),
-    bump_sizebig(0),
-    bump_override_sizebig(false),
-    bump_height(0),
-    bump_override_height(false),
+    _size(1.0f),
+    _sizeGainPerLevel(0.0f),
+    _shadowSize(0),
+    _bumpSize(0),
+    _bumpOverrideSize(false),
+    _bumpSizeBig(0),
+    _bumpOverrideSizeBig(false),
+    _bumpHeight(0),
+    _bumpOverrideHeight(false),
     _stoppedBy(MAPFX_IMPASS),
 
     // movement
     _jumpPower(0.0f),            
     _jumpNumber(0),         
-    anim_speed_sneak(0.0f),
-    anim_speed_walk(0.0f), 
-    anim_speed_run(0.0f),  
+    _animationSpeedSneak(0.0f),
+    _animationSpeedWalk(0.0f), 
+    _animationSpeedRun(0.0f),  
     _flyHeight(0),          
     _waterWalking(false),
     _jumpSound(-1),
@@ -166,7 +166,7 @@ ObjectProfile::ObjectProfile() :
     _experienceRate(),
 
     // flags
-    isequipment(false),
+    _isEquipment(false),
     _isItem(false),
     _isMount(false),
     _isStackable(false),
@@ -175,54 +175,54 @@ ObjectProfile::ObjectProfile() :
     _canUsePlatforms(false),
     _canGrabMoney(false),
     _canOpenStuff(false),
-    canbedazed(false),
-    canbegrogged(false),
-    istoobig(false),
-    isranged(false),
-    nameknown(false),
-    usageknown(false),
-    cancarrytonextmodule(false),
+    _canBeDazed(false),
+    _canBeGrogged(false),
+    _isBigItem(false),
+    _isRanged(false),
+    _nameIsKnown(false),
+    _usageIsKnown(false),
+    _canCarryToNextModule(false),
 
-    damagetarget_damagetype(0),
-    slotvalid(),
-    ridercanattack(false),
+    _damageTargetDamageType(0),
+    _slotsValid(),
+    _riderCanAttack(false),
     _kurseChance(0),
     _hideState(NO_HIDE),
     _isValuable(-1),
     _spellEffectType(NO_SKIN_OVERRIDE),
 
     // item usage
-    needskillidtouse(false),
-    weaponaction(0),
-    manacost(0),
-    attack_attached(0),
-    attack_lpip(0),
-    attack_fast(false),
+    _needSkillIDToUse(false),
+    _weaponAction(0),
+    _manaCost(0),
+    _attackAttached(0),
+    _attackParticleProfile(0),
+    _attackFast(false),
 
-    str_bonus(0.0f),
-    wis_bonus(0.0f),
-    int_bonus(0.0f),
-    dex_bonus(0.0f),
+    _strengthBonus(0.0f),
+    _wisdomBonus(0.0f),
+    _intelligenceBonus(0.0f),
+    _dexterityBonus(0.0f),
 
     // special particle effects
-    attachedprt_amount(0),
-    attachedprt_reaffirm_damagetype(0),
-    attachedprt_lpip(0),
+    _attachedParticleAmount(0),
+    _attachedParticleReaffirmDamagetype(0),
+    _attachedParticleProfile(0),
 
-    gopoofprt_amount(0),
-    gopoofprt_facingadd(0),
-    gopoofprt_lpip(0),
+    _goPoofParticleAmount(0),
+    _goPoofParticleFacingAdd(0),
+    _goPoofParticleProfile(0),
 
     //Blood
-    blud_valid(0),
-    blud_lpip(0),
+    _bludValid(0),
+    _bludParticleProfile(0),
 
     // skill system
     _skills(),
-    see_invisible_level(0),
+    _seeInvisibleLevel(0),
 
     // random stuff
-    stickybutt(false)
+    _stickyButt(false)
 {
     _particleProfiles.fill(INVALID_PIP_REF);
 
@@ -279,7 +279,7 @@ ObjectProfile::ObjectProfile(const std::string &folderPath, size_t slotNumber) :
     _randomName.loadFromFile(folderPath + "/naming.txt");
 
     // Fix lighting if need be
-    if (_uniformLit)
+    if (_uniformLit && cfg.gouraud_req)
     {
         mad_make_equally_lit_ref( _imad );
     }
@@ -312,6 +312,15 @@ ObjectProfile::~ObjectProfile()
             TxList_free_one( element.second );
         }
     }
+}
+
+uint32_t ObjectProfile::getXPNeededForLevel(size_t level)
+{
+    if(level >= _experienceForLevel.size()) {
+        return UINT32_MAX;
+    }
+
+    return _experienceForLevel[level];
 }
 
 void ObjectProfile::loadTextures(const std::string &folderPath)
@@ -504,6 +513,17 @@ uint16_t ObjectProfile::getSkinOverride() const
     return retval;
 }
 
+void ObjectProfile::setupXPTable()
+{
+    for (size_t level = MAXBASELEVEL; level < MAXLEVEL; level++ )
+    {
+        Uint32 xpneeded = _experienceForLevel[MAXBASELEVEL - 1];
+        xpneeded += ( level * level * level * 15 );
+        xpneeded -= (( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * ( MAXBASELEVEL - 1 ) * 15 );
+        _experienceForLevel[level] = xpneeded;
+    }
+}
+
 void ObjectProfile::loadDataFile(const std::string &filePath)
 {
     // Open the file
@@ -543,43 +563,47 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     _lifeColor = vfs_get_next_int( fileRead );
     _manaColor = vfs_get_next_int( fileRead );
 
-    vfs_get_next_range(fileRead, &( life_stat.val));
-    vfs_get_next_range(fileRead, &( life_stat.perlevel));
+    vfs_get_next_range(fileRead, &( _startingLife.val));
+    vfs_get_next_range(fileRead, &( _startingLife.perlevel));
 
-    vfs_get_next_range(fileRead, &( mana_stat.val));
-    vfs_get_next_range(fileRead, &( mana_stat.perlevel));
+    vfs_get_next_range(fileRead, &( _startingMana.val));
+    vfs_get_next_range(fileRead, &( _startingMana.perlevel));
 
-    vfs_get_next_range(fileRead, &( manareturn_stat.val));
-    vfs_get_next_range(fileRead, &( manareturn_stat.perlevel));
+    vfs_get_next_range(fileRead, &( _startingManaRegeneration.val));
+    vfs_get_next_range(fileRead, &( _startingManaRegeneration.perlevel));
 
-    vfs_get_next_range(fileRead, &( manaflow_stat.val));
-    vfs_get_next_range(fileRead, &( manaflow_stat.perlevel));
+    vfs_get_next_range(fileRead, &( _startingManaFlow.val));
+    vfs_get_next_range(fileRead, &( _startingManaFlow.perlevel));
 
-    vfs_get_next_range(fileRead, &( strength_stat.val));
-    vfs_get_next_range(fileRead, &( strength_stat.perlevel));
+    vfs_get_next_range(fileRead, &( _startingStrength.val));
+    vfs_get_next_range(fileRead, &( _startingStrength.perlevel));
 
-    vfs_get_next_range(fileRead, &( wisdom_stat.val));
-    vfs_get_next_range(fileRead, &( wisdom_stat.perlevel));
+    vfs_get_next_range(fileRead, &( _startingWisdom.val));
+    vfs_get_next_range(fileRead, &( _startingWisdom.perlevel));
 
-    vfs_get_next_range(fileRead, &( intelligence_stat.val));
-    vfs_get_next_range(fileRead, &( intelligence_stat.perlevel));
+    vfs_get_next_range(fileRead, &( _startingIntelligence.val));
+    vfs_get_next_range(fileRead, &( _startingIntelligence.perlevel));
 
-    vfs_get_next_range(fileRead, &( dexterity_stat.val));
-    vfs_get_next_range(fileRead, &( dexterity_stat.perlevel));
+    vfs_get_next_range(fileRead, &( _startingDexterity.val));
+    vfs_get_next_range(fileRead, &( _startingDexterity.perlevel));
 
     // More physical attributes
     size = vfs_get_next_float(fileRead);
-    size_perlevel = vfs_get_next_float(fileRead );
-    shadow_size = vfs_get_next_int(fileRead);
-    bump_size = vfs_get_next_int(fileRead);
-    bump_height = vfs_get_next_int(fileRead);
-    bumpdampen = vfs_get_next_float(fileRead );
+    _sizeGainPerLevel = vfs_get_next_float(fileRead );
+    _shadowSize = vfs_get_next_int(fileRead);
+    _bumpSize = vfs_get_next_int(fileRead);
+    _bumpHeight = vfs_get_next_int(fileRead);
+    _bumpDampen = vfs_get_next_float(fileRead );
+
+    //0 == bumpdampenmeans infinite mass, and causes some problems
+    _bumpDampen = std::max( INV_FF, _bumpDampen );
+
     weight = vfs_get_next_int(fileRead);
-    jump = vfs_get_next_float(fileRead );
-    jumpnumber = vfs_get_next_int(fileRead);
-    anim_speed_sneak = vfs_get_next_float(fileRead );
-    anim_speed_walk = vfs_get_next_float(fileRead );
-    anim_speed_run = vfs_get_next_float(fileRead );
+    _jumpPower = vfs_get_next_float(fileRead );
+    _jumpNumber = vfs_get_next_int(fileRead);
+    _animationSpeedSneak = vfs_get_next_float(fileRead );
+    _animationSpeedWalk = vfs_get_next_float(fileRead );
+    _animationSpeedRun = vfs_get_next_float(fileRead );
     _waterWalking = vfs_get_next_int(fileRead);
     _flashAND = vfs_get_next_int(fileRead);
     _alpha = vfs_get_next_int(fileRead);
@@ -591,7 +615,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
 
     uoffvel    = FLOAT_TO_FFFF( vfs_get_next_float(fileRead) );
     voffvel    = FLOAT_TO_FFFF( vfs_get_next_float(fileRead) );
-    stickybutt = vfs_get_next_bool(fileRead);
+    _stickyButt = vfs_get_next_bool(fileRead);
 
     // Invulnerability data
     _isInvincible  = vfs_get_next_bool(fileRead);
@@ -657,6 +681,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     {
         _experienceForLevel[level] = vfs_get_next_int(fileRead);
     }
+    setupXPTable();
 
     vfs_get_next_range( fileRead, &( _startingExperience ) );
     _startingExperience.from /= 256.0f;
@@ -679,54 +704,54 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     // Item and damage flags
     _isItem              = vfs_get_next_bool(fileRead);
     _isMount             = vfs_get_next_bool(fileRead);
-    _isStackable          = vfs_get_next_bool(fileRead);
-    nameknown            = vfs_get_next_bool(fileRead);
-    usageknown           = vfs_get_next_bool(fileRead);
-    cancarrytonextmodule = vfs_get_next_bool(fileRead);
-    needskillidtouse     = vfs_get_next_bool(fileRead);
+    _isStackable         = vfs_get_next_bool(fileRead);
+    _nameIsKnown            = vfs_get_next_bool(fileRead);
+    _usageIsKnown           = vfs_get_next_bool(fileRead);
+    _canCarryToNextModule = vfs_get_next_bool(fileRead);
+    _needSkillIDToUse     = vfs_get_next_bool(fileRead);
     _isPlatform          = vfs_get_next_bool(fileRead);
     _canGrabMoney        = vfs_get_next_bool(fileRead);
     _canOpenStuff        = vfs_get_next_bool(fileRead);
 
     // More item and damage stuff
-    damagetarget_damagetype = vfs_get_next_damage_type( fileRead );
-    weaponaction            = action_which( vfs_get_next_char( fileRead ) );
+    _damageTargetDamageType = vfs_get_next_damage_type( fileRead );
+    _weaponAction            = action_which( vfs_get_next_char( fileRead ) );
 
     // Particle attachments
-    attachedprt_amount              = vfs_get_next_int( fileRead );
-    attachedprt_reaffirm_damagetype = vfs_get_next_damage_type( fileRead );
-    attachedprt_lpip                = vfs_get_next_int( fileRead );
+    _attachedParticleAmount              = vfs_get_next_int( fileRead );
+    _attachedParticleReaffirmDamagetype = vfs_get_next_damage_type( fileRead );
+    _attachedParticleProfile                = vfs_get_next_int( fileRead );
 
     // Character hands
-    slotvalid[SLOT_LEFT]  = vfs_get_next_bool( fileRead );
-    slotvalid[SLOT_RIGHT] = vfs_get_next_bool( fileRead );
+    _slotsValid[SLOT_LEFT]  = vfs_get_next_bool( fileRead );
+    _slotsValid[SLOT_RIGHT] = vfs_get_next_bool( fileRead );
 
     // Attack order ( weapon )
-    attack_attached = vfs_get_next_bool( fileRead );
-    attack_lpip  = vfs_get_next_int( fileRead );
+    _attackAttached = vfs_get_next_bool( fileRead );
+    _attackParticleProfile  = vfs_get_next_int( fileRead );
 
     // GoPoof
-    gopoofprt_amount    = vfs_get_next_int( fileRead );
-    gopoofprt_facingadd = vfs_get_next_int( fileRead );
-    gopoofprt_lpip      = vfs_get_next_int( fileRead );
+    _goPoofParticleAmount    = vfs_get_next_int( fileRead );
+    _goPoofParticleFacingAdd = vfs_get_next_int( fileRead );
+    _goPoofParticleProfile      = vfs_get_next_int( fileRead );
 
     // Blud
     switch( char_toupper(vfs_get_next_char(fileRead)) )
     {
-        case 'T': blud_valid = true;        break;
-        case 'U': blud_valid = ULTRABLUDY;  break;
-        default:  blud_valid = false;       break;
+        case 'T': _bludValid = true;        break;
+        case 'U': _bludValid = ULTRABLUDY;  break;
+        default:  _bludValid = false;       break;
     }
-    blud_lpip = vfs_get_next_int(fileRead);
+    _bludParticleProfile = vfs_get_next_int(fileRead);
 
     // Stuff I forgot
     _waterWalking = vfs_get_next_bool( fileRead );
     dampen    = vfs_get_next_float( fileRead );
 
     // More stuff I forgot
-    life_heal    = vfs_get_next_float( fileRead ) * 0xff;
-    manacost     = vfs_get_next_float( fileRead ) * 0xff;
-    life_return  = vfs_get_next_int( fileRead );
+    _startingLifeRegeneration    = vfs_get_next_float( fileRead ) * 0xff;
+    _manaCost     = vfs_get_next_float( fileRead ) * 0xff;
+    _startingLifeRegeneration  = vfs_get_next_int( fileRead );
     _stoppedBy   |= vfs_get_next_int( fileRead );
 
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
@@ -739,17 +764,17 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
         skin_info.cost[cnt] = vfs_get_next_int( fileRead );
     }
 
-    str_bonus = vfs_get_next_float( fileRead );          //ZF> Deprecated, but keep here for backwards compatability
+    _strengthBonus = vfs_get_next_float( fileRead );          //ZF> Deprecated, but keep here for backwards compatability
 
     // Another memory lapse
-    ridercanattack = !vfs_get_next_bool(fileRead);
-    canbedazed     =  vfs_get_next_bool(fileRead);
-    canbegrogged   =  vfs_get_next_bool(fileRead);
+    _riderCanAttack = !vfs_get_next_bool(fileRead);
+    _canBeDazed     =  vfs_get_next_bool(fileRead);
+    _canBeGrogged   =  vfs_get_next_bool(fileRead);
 
     goto_colon_vfs( NULL, fileRead, false );  // Depracated, no longer used (life add)
     goto_colon_vfs( NULL, fileRead, false );  // Depracated, no longer used (mana add)
     if ( vfs_get_next_bool(fileRead) ) {
-        see_invisible_level = 1;
+        _seeInvisibleLevel = 1;
     }
 
     _kurseChance    = vfs_get_next_int(fileRead);
@@ -760,10 +785,10 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     _causesRipples = !_isItem;
 
     // assume a round object
-    bump_sizebig = bump_size * SQRT_TWO;
+    _bumpSizeBig = _bumpSize * SQRT_TWO;
 
     // assume the normal icon usage
-    _drawIcon = usageknown;
+    _drawIcon = _usageIsKnown;
 
     // assume normal platform usage
     _canUsePlatforms = !platform;
@@ -788,7 +813,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'P', 'A', 'C', 'K' ):
-                istoobig = !( 0 != vfs_get_int( fileRead ) );
+                _isBigItem = !( 0 != vfs_get_int( fileRead ) );
             break;
 
             case MAKE_IDSZ( 'V', 'A', 'M', 'P' ):
@@ -800,7 +825,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'R', 'A', 'N', 'G' ):
-                isranged = ( 0 != vfs_get_int( fileRead ) );
+                _isRanged = ( 0 != vfs_get_int( fileRead ) );
             break;
 
             case MAKE_IDSZ( 'H', 'I', 'D', 'E' ):
@@ -808,11 +833,11 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'E', 'Q', 'U', 'I' ):
-                isequipment = ( 0 != vfs_get_int( fileRead ) );
+                _isEquipment = ( 0 != vfs_get_int( fileRead ) );
             break;
 
             case MAKE_IDSZ( 'S', 'Q', 'U', 'A' ):
-                bump_sizebig = bump_size * 2;
+                _bumpSizeBig = _bumpSize * 2;
             break;
 
             case MAKE_IDSZ( 'I', 'C', 'O', 'N' ):
@@ -862,11 +887,11 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'L', 'I', 'F', 'E' ): 
-                life_spawn = 0xff * vfs_get_float( fileRead );
+                _spawnLife = 0xff * vfs_get_float( fileRead );
             break;
 
             case MAKE_IDSZ( 'M', 'A', 'N', 'A' ): 
-                mana_spawn = 0xff * vfs_get_float( fileRead );
+                _spawnMana = 0xff * vfs_get_float( fileRead );
             break;
 
             case MAKE_IDSZ( 'B', 'O', 'O', 'K' ):
@@ -885,23 +910,23 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
 
             //Damage bonuses from stats
             case MAKE_IDSZ( 'F', 'A', 'S', 'T' ):
-                attack_fast = ( 0 != vfs_get_int(fileRead) );
+                _attackFast = ( 0 != vfs_get_int(fileRead) );
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'R', 'D' ):
-                str_bonus = vfs_get_float( fileRead );
+                _strengthBonus = vfs_get_float( fileRead );
             break;
 
             case MAKE_IDSZ( 'I', 'N', 'T', 'D' ):
-                int_bonus = vfs_get_float( fileRead );
+                _intelligenceBonus = vfs_get_float( fileRead );
             break;
 
             case MAKE_IDSZ( 'W', 'I', 'S', 'D' ):
-                wis_bonus = vfs_get_float( fileRead );
+                _wisdomBonus = vfs_get_float( fileRead );
             break;
 
             case MAKE_IDSZ( 'D', 'E', 'X', 'D' ):
-                dex_bonus = vfs_get_float( fileRead );
+                _dexterityBonus = vfs_get_float( fileRead );
             break;
 
             case MAKE_IDSZ( 'M', 'O', 'D', 'L' ):
@@ -916,15 +941,15 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
                     {
                         if ( 'S' == *ptr )
                         {
-                            bump_override_size = true;
+                            _bumpOverrideSize = true;
                         }
                         else if ( 'B' == *ptr )
                         {
-                            bump_override_sizebig = true;
+                            _bumpOverrideSizeBig = true;
                         }
                         else if ( 'H' == *ptr )
                         {
-                            bump_override_height = true;
+                            _bumpOverrideHeight = true;
                         }
                         else if ( 'C' == *ptr )
                         {
@@ -1006,36 +1031,36 @@ bool ObjectProfile::exportToDataFile( const std::string &filePath, const char * 
     // Object stats
     template_put_int( filetemp, fileWrite, pcap->life_color );
     template_put_int( filetemp, fileWrite, pcap->mana_color );
-    template_put_range( filetemp, fileWrite, pcap->life_stat.val );
-    template_put_range( filetemp, fileWrite, pcap->life_stat.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->mana_stat.val );
-    template_put_range( filetemp, fileWrite, pcap->mana_stat.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->manareturn_stat.val );
-    template_put_range( filetemp, fileWrite, pcap->manareturn_stat.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->manaflow_stat.val );
-    template_put_range( filetemp, fileWrite, pcap->manaflow_stat.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->strength_stat.val );
-    template_put_range( filetemp, fileWrite, pcap->strength_stat.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->wisdom_stat.val );
-    template_put_range( filetemp, fileWrite, pcap->wisdom_stat.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->intelligence_stat.val );
-    template_put_range( filetemp, fileWrite, pcap->intelligence_stat.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->dexterity_stat.val );
-    template_put_range( filetemp, fileWrite, pcap->dexterity_stat.perlevel );
+    template_put_range( filetemp, fileWrite, pcap->_startingLife.val );
+    template_put_range( filetemp, fileWrite, pcap->_startingLife.perlevel );
+    template_put_range( filetemp, fileWrite, pcap->_startingMana.val );
+    template_put_range( filetemp, fileWrite, pcap->_startingMana.perlevel );
+    template_put_range( filetemp, fileWrite, pcap->_startingManaRegeneration.val );
+    template_put_range( filetemp, fileWrite, pcap->_startingManaRegeneration.perlevel );
+    template_put_range( filetemp, fileWrite, pcap->_startingManaFlow.val );
+    template_put_range( filetemp, fileWrite, pcap->_startingManaFlow.perlevel );
+    template_put_range( filetemp, fileWrite, pcap->_startingStrength.val );
+    template_put_range( filetemp, fileWrite, pcap->_startingStrength.perlevel );
+    template_put_range( filetemp, fileWrite, pcap->_startingWisdom.val );
+    template_put_range( filetemp, fileWrite, pcap->_startingWisdom.perlevel );
+    template_put_range( filetemp, fileWrite, pcap->_startingIntelligence.val );
+    template_put_range( filetemp, fileWrite, pcap->_startingIntelligence.perlevel );
+    template_put_range( filetemp, fileWrite, pcap->_startingDexterity.val );
+    template_put_range( filetemp, fileWrite, pcap->_startingDexterity.perlevel );
 
     // More physical attributes
     template_put_float( filetemp, fileWrite, pcap->size );
-    template_put_float( filetemp, fileWrite, pcap->size_perlevel );
-    template_put_int( filetemp, fileWrite, pcap->shadow_size );
-    template_put_int( filetemp, fileWrite, pcap->bump_size );
-    template_put_int( filetemp, fileWrite, pcap->bump_height );
-    template_put_float( filetemp, fileWrite, pcap->bumpdampen );
+    template_put_float( filetemp, fileWrite, pcap->_sizeGainPerLevel );
+    template_put_int( filetemp, fileWrite, pcap->_shadowSize );
+    template_put_int( filetemp, fileWrite, pcap->_bumpSize );
+    template_put_int( filetemp, fileWrite, pcap->_bumpHeight );
+    template_put_float( filetemp, fileWrite, pcap->_bumpDampen );
     template_put_int( filetemp, fileWrite, pcap->weight );
     template_put_float( filetemp, fileWrite, pcap->jump );
     template_put_int( filetemp, fileWrite, pcap->jumpnumber );
-    template_put_float( filetemp, fileWrite, pcap->anim_speed_sneak );
-    template_put_float( filetemp, fileWrite, pcap->anim_speed_walk );
-    template_put_float( filetemp, fileWrite, pcap->anim_speed_run );
+    template_put_float( filetemp, fileWrite, pcap->_animationSpeedSneak );
+    template_put_float( filetemp, fileWrite, pcap->_animationSpeedWalk );
+    template_put_float( filetemp, fileWrite, pcap->_animationSpeedRun );
     template_put_int( filetemp, fileWrite, pcap->flyheight );
     template_put_int( filetemp, fileWrite, pcap->flashand );
     template_put_int( filetemp, fileWrite, pcap->alpha );
@@ -1045,7 +1070,7 @@ bool ObjectProfile::exportToDataFile( const std::string &filePath, const char * 
     template_put_bool( filetemp, fileWrite, pcap->enviro );
     template_put_float( filetemp, fileWrite, FFFF_TO_FLOAT( pcap->uoffvel ) );
     template_put_float( filetemp, fileWrite, FFFF_TO_FLOAT( pcap->voffvel ) );
-    template_put_bool( filetemp, fileWrite, pcap->stickybutt );
+    template_put_bool( filetemp, fileWrite, pcap->_stickyButt );
 
     // Invulnerability data
     template_put_bool( filetemp, fileWrite, pcap->invictus );
@@ -1134,48 +1159,48 @@ bool ObjectProfile::exportToDataFile( const std::string &filePath, const char * 
     template_put_bool( filetemp, fileWrite, pcap->isitem );
     template_put_bool( filetemp, fileWrite, pcap->ismount );
     template_put_bool( filetemp, fileWrite, pcap->isstackable );
-    template_put_bool( filetemp, fileWrite, pcap->nameknown );
-    template_put_bool( filetemp, fileWrite, pcap->usageknown );
-    template_put_bool( filetemp, fileWrite, pcap->cancarrytonextmodule );
-    template_put_bool( filetemp, fileWrite, pcap->needskillidtouse );
+    template_put_bool( filetemp, fileWrite, pcap->_nameIsKnown );
+    template_put_bool( filetemp, fileWrite, pcap->_usageIsKnown );
+    template_put_bool( filetemp, fileWrite, pcap->_canCarryToNextModule );
+    template_put_bool( filetemp, fileWrite, pcap->_needSkillIDToUse );
     template_put_bool( filetemp, fileWrite, pcap->platform );
     template_put_bool( filetemp, fileWrite, pcap->cangrabmoney );
     template_put_bool( filetemp, fileWrite, pcap->canopenstuff );
 
     // Other item and damage stuff
-    template_put_damage_type( filetemp, fileWrite, pcap->damagetarget_damagetype );
-    template_put_action( filetemp, fileWrite, pcap->weaponaction );
+    template_put_damage_type( filetemp, fileWrite, pcap->_damageTargetDamageType );
+    template_put_action( filetemp, fileWrite, pcap->_weaponAction );
 
     // Particle attachments
-    template_put_int( filetemp, fileWrite, pcap->attachedprt_amount );
-    template_put_damage_type( filetemp, fileWrite, pcap->attachedprt_reaffirm_damagetype );
-    template_put_int( filetemp, fileWrite, pcap->attachedprt_lpip );
+    template_put_int( filetemp, fileWrite, pcap->_attachedParticleAmount );
+    template_put_damage_type( filetemp, fileWrite, pcap->_attachedParticleReaffirmDamagetype );
+    template_put_int( filetemp, fileWrite, pcap->_attachedParticleProfile );
 
     // Character hands
-    template_put_bool( filetemp, fileWrite, pcap->slotvalid[SLOT_LEFT] );
-    template_put_bool( filetemp, fileWrite, pcap->slotvalid[SLOT_RIGHT] );
+    template_put_bool( filetemp, fileWrite, pcap->_slotsValid[SLOT_LEFT] );
+    template_put_bool( filetemp, fileWrite, pcap->_slotsValid[SLOT_RIGHT] );
 
     // Particle spawning on attack
-    template_put_bool( filetemp, fileWrite, 0 != pcap->attack_attached );
-    template_put_int( filetemp, fileWrite, pcap->attack_lpip );
+    template_put_bool( filetemp, fileWrite, 0 != pcap->_attackAttached );
+    template_put_int( filetemp, fileWrite, pcap->_attackParticleProfile );
 
     // Particle spawning for GoPoof
-    template_put_int( filetemp, fileWrite, pcap->gopoofprt_amount );
-    template_put_int( filetemp, fileWrite, pcap->gopoofprt_facingadd );
-    template_put_int( filetemp, fileWrite, pcap->gopoofprt_lpip );
+    template_put_int( filetemp, fileWrite, pcap->_goPoofParticleAmount );
+    template_put_int( filetemp, fileWrite, pcap->_goPoofParticleFacingAdd );
+    template_put_int( filetemp, fileWrite, pcap->_goPoofParticleProfile );
 
     // Particle spawning for blud
-    template_put_bool( filetemp, fileWrite, 0 != pcap->blud_valid );
-    template_put_int( filetemp, fileWrite, pcap->blud_lpip );
+    template_put_bool( filetemp, fileWrite, 0 != pcap->_bludValid );
+    template_put_int( filetemp, fileWrite, pcap->_bludParticleProfile );
 
     // Extra stuff
     template_put_bool( filetemp, fileWrite, pcap->waterwalk );
     template_put_float( filetemp, fileWrite, pcap->dampen );
 
     // More stuff
-    template_put_float( filetemp, fileWrite, FP8_TO_FLOAT( pcap->life_heal ) );     // These two are seriously outdated
-    template_put_float( filetemp, fileWrite, FP8_TO_FLOAT( pcap->manacost ) );     // and shouldnt be used. Use scripts instead.
-    template_put_int( filetemp, fileWrite, pcap->life_return );
+    template_put_float( filetemp, fileWrite, FP8_TO_FLOAT( pcap->_startingLifeRegeneration ) );     // These two are seriously outdated
+    template_put_float( filetemp, fileWrite, FP8_TO_FLOAT( pcap->_manaCost ) );     // and shouldnt be used. Use scripts instead.
+    template_put_int( filetemp, fileWrite, pcap->_startingLifeRegeneration );
     template_put_int( filetemp, fileWrite, pcap->stoppedby );
     template_put_string_under( filetemp, fileWrite, pcap->skin_info.name[0] );
     template_put_string_under( filetemp, fileWrite, pcap->skin_info.name[1] );
@@ -1185,15 +1210,15 @@ bool ObjectProfile::exportToDataFile( const std::string &filePath, const char * 
     template_put_int( filetemp, fileWrite, pcap->skin_info.cost[1] );
     template_put_int( filetemp, fileWrite, pcap->skin_info.cost[2] );
     template_put_int( filetemp, fileWrite, pcap->skin_info.cost[3] );
-    template_put_float( filetemp, fileWrite, pcap->str_bonus );
+    template_put_float( filetemp, fileWrite, pcap->_strengthBonus );
 
     // Another memory lapse
-    template_put_bool( filetemp, fileWrite, !pcap->ridercanattack );
-    template_put_bool( filetemp, fileWrite, pcap->canbedazed );
-    template_put_bool( filetemp, fileWrite, pcap->canbegrogged );
+    template_put_bool( filetemp, fileWrite, !pcap->_riderCanAttack );
+    template_put_bool( filetemp, fileWrite, pcap->_canBeDazed );
+    template_put_bool( filetemp, fileWrite, pcap->_canBeGrogged );
     template_put_int( filetemp, fileWrite, 0 );
     template_put_int( filetemp, fileWrite, 0 );
-    template_put_bool( filetemp, fileWrite, pcap->see_invisible_level > 0 );
+    template_put_bool( filetemp, fileWrite, pcap->_seeInvisibleLevel > 0 );
     template_put_int( filetemp, fileWrite, pcap->kursechance );
     template_put_int( filetemp, fileWrite, pcap->sound_index[SOUND_FOOTFALL] );
     template_put_int( filetemp, fileWrite, pcap->sound_index[SOUND_JUMP] );
@@ -1219,7 +1244,7 @@ bool ObjectProfile::exportToDataFile( const std::string &filePath, const char * 
     if ( pcap->resistbumpspawn )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'U', 'K' ), 0 );
 
-    if ( pcap->istoobig )
+    if ( pcap->_isBigItem )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'P', 'A', 'C', 'K' ), 0 );
 
     if ( !pcap->reflect )
@@ -1228,19 +1253,19 @@ bool ObjectProfile::exportToDataFile( const std::string &filePath, const char * 
     if ( pcap->alwaysdraw )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'D', 'R', 'A', 'W' ), 1 );
 
-    if ( pcap->isranged )
+    if ( pcap->_isRanged )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'R', 'A', 'N', 'G' ), 1 );
 
     if ( pcap->hidestate != NOHIDE )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'H', 'I', 'D', 'E' ), pcap->hidestate );
 
-    if ( pcap->isequipment )
+    if ( pcap->_isEquipment )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'E', 'Q', 'U', 'I' ), 1 );
 
-    if ( pcap->bump_sizebig >= pcap->bump_size * 2 )
+    if ( pcap->_bumpSizeBig >= pcap->_bumpSize * 2 )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'Q', 'U', 'A' ), 1 );
 
-    if ( pcap->draw_icon != pcap->usageknown )
+    if ( pcap->draw_icon != pcap->_usageIsKnown )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'I', 'C', 'O', 'N' ), pcap->draw_icon );
 
     if ( pcap->forceshadow )
@@ -1255,28 +1280,28 @@ bool ObjectProfile::exportToDataFile( const std::string &filePath, const char * 
     if ( pcap->spelleffect_type >= 0 )
         vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), pcap->spelleffect_type );
 
-    if ( pcap->attack_fast )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'F', 'A', 'S', 'T' ), pcap->attack_fast );
+    if ( pcap->_attackFast )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'F', 'A', 'S', 'T' ), pcap->_attackFast );
 
-    if ( pcap->str_bonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'R', 'D' ), pcap->str_bonus );
+    if ( pcap->_strengthBonus > 0 )
+        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'R', 'D' ), pcap->_strengthBonus );
 
-    if ( pcap->int_bonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'I', 'N', 'T', 'D' ), pcap->int_bonus );
+    if ( pcap->_intelligenceBonus > 0 )
+        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'I', 'N', 'T', 'D' ), pcap->_intelligenceBonus );
 
-    if ( pcap->dex_bonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'D', 'E', 'X', 'D' ), pcap->dex_bonus );
+    if ( pcap->_dexterityBonus > 0 )
+        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'D', 'E', 'X', 'D' ), pcap->_dexterityBonus );
 
-    if ( pcap->wis_bonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'W', 'I', 'S', 'D' ), pcap->wis_bonus );
+    if ( pcap->_wisdomBonus > 0 )
+        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'W', 'I', 'S', 'D' ), pcap->_wisdomBonus );
 
-    if ( pcap->bump_override_size || pcap->bump_override_sizebig ||  pcap->bump_override_height )
+    if ( pcap->_bumpOverrideSize || pcap->_bumpOverrideSizeBig ||  pcap->_bumpOverrideHeight )
     {
         STRING sz_tmp = EMPTY_CSTR;
 
-        if ( pcap->bump_override_size ) strcat( sz_tmp, "S" );
-        if ( pcap->bump_override_sizebig ) strcat( sz_tmp, "B" );
-        if ( pcap->bump_override_height ) strcat( sz_tmp, "H" );
+        if ( pcap->_bumpOverrideSize ) strcat( sz_tmp, "S" );
+        if ( pcap->_bumpOverrideSizeBig ) strcat( sz_tmp, "B" );
+        if ( pcap->_bumpOverrideHeight ) strcat( sz_tmp, "H" );
         if ( pcap->dont_cull_backfaces ) strcat( sz_tmp, "C" );
         if ( pcap->skin_has_transparency ) strcat( sz_tmp, "T" );
 
@@ -1293,8 +1318,8 @@ bool ObjectProfile::exportToDataFile( const std::string &filePath, const char * 
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'C', 'O', 'N', 'T' ), pcap->content_override );
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), pcap->state_override );
     vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), pcap->level_override );
-    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( pcap->life_spawn ) );
-    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( pcap->mana_spawn ) );
+    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( pcap->_spawnLife ) );
+    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( pcap->_spawnMana ) );
 
     // Copy all skill expansions
     {
@@ -1323,3 +1348,12 @@ bool ObjectProfile::exportToDataFile( const std::string &filePath, const char * 
     return true;
 }
 */
+
+float ObjectProfile::getExperienceRate(XPType type) const
+{
+    if(type >= _experienceRate.size()) {
+        return 0.0f;
+    }
+
+    return _experienceRate[type];
+}

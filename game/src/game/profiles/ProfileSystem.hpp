@@ -59,7 +59,6 @@ public:
 	MAD_REF pro_get_imad( const PRO_REF iobj );
 	EVE_REF pro_get_ieve( const PRO_REF iobj );
 	PIP_REF pro_get_ipip( const PRO_REF iobj, int ipip );
-	cap_t * pro_get_pcap( const PRO_REF iobj );
 	mad_t * pro_get_pmad( const PRO_REF iobj );
 	eve_t * pro_get_peve( const PRO_REF iobj );
 	pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index );
