@@ -35,20 +35,9 @@ static bool  mesh_BSP_insert(mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int ind
 mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh)
 {
     int grids_x, grids_y;
-#if 0
-    float x_min, x_max, y_min, y_max, bsp_size;
-#endif
-#if 0
-    int depth;
-#endif
 	EGOBOO_ASSERT(NULL != self && NULL != mesh);
-#if 0
-    if (NULL == self) return NULL;
-#endif
     BLANK_STRUCT_PTR(self)
-#if 0
-    if (NULL == self) return self;
-#endif
+
     // get the nominal physical size of the mesh
     float x_min = 0.0f;
     float x_max = mesh->gmem.edge_x;

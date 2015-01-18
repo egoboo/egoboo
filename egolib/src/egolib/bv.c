@@ -115,35 +115,18 @@ bool bv_is_clear(const bv_t * pdst)
 bool bv_self_union(bv_t * pdst, const bv_t * psrc)
 {
 	bool retval = false;
-
 	if (NULL == pdst) return false;
 	if (NULL == psrc) return true;
-
 	if (pdst->sphere.radius < 0.0f)
 	{
 		bv_validate(pdst);
 	}
-
 	if (psrc->sphere.radius < 0.0f)
 	{
 		return true;
 	}
-
 	aabb_self_union(pdst->aabb, psrc->aabb);
-#if 0
-	if (retval)
-	{
-		retval = bv_validate(pdst);
-	}
-	else
-	{
-		sphere_self_clear(&(pdst->sphere));
-	}
-#endif
 	return true;
-#if 0
-	return retval;
-#endif
 }
 
 //--------------------------------------------------------------------------------------------

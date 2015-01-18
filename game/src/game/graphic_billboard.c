@@ -392,40 +392,35 @@ bool billboard_system_init()
 }
 
 //--------------------------------------------------------------------------------------------
-bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt )
+bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt )
 {
     int i;
     GLvertex vtlist[4];
     float x1, y1;
-    float w, h;
-    fvec3_t vec_up, vec_rgt;
 
-    oglx_texture_t     * ptex;
-    chr_t * pchr;
+    if (NULL == pbb || !pbb->valid) return false;
 
-    if ( NULL == pbb || !pbb->valid ) return false;
-
-    if ( !INGAME_CHR( pbb->ichr ) ) return false;
-    pchr = ChrList_get_ptr( pbb->ichr );
+    if (!INGAME_CHR( pbb->ichr)) return false;
+    chr_t *pchr = ChrList_get_ptr(pbb->ichr);
 
     // do not display for objects that are mounted or being held
-    if ( IS_ATTACHED_CHR_RAW( pbb->ichr ) ) return false;
+    if (IS_ATTACHED_CHR_RAW(pbb->ichr)) return false;
 
-    ptex = TxList_get_valid_ptr( pbb->tex_ref );
+    oglx_texture_t *ptex = TxList_get_valid_ptr(pbb->tex_ref);
 
-    oglx_texture_Bind( ptex );
+    oglx_texture_Bind(ptex);
 
-    w = oglx_texture_getImageWidth( ptex );
-    h = oglx_texture_getImageHeight( ptex );
+	float w = oglx_texture_getImageWidth(ptex);
+    float h = oglx_texture_getImageHeight(ptex);
 
-    x1 = w  / ( float ) oglx_texture_getTextureWidth( ptex );
-    y1 = h  / ( float ) oglx_texture_getTextureHeight( ptex );
+    x1 = w  / (float)oglx_texture_getTextureWidth(ptex);
+    y1 = h  / (float)oglx_texture_getTextureHeight(ptex);
 
     // @todo this billboard stuff needs to be implemented as a OpenGL transform
 
     // scale the camera vectors
-    fvec3_scale( vec_rgt.v, cam_rgt, w * scale * pbb->size );
-    fvec3_scale( vec_up.v, cam_up, h * scale * pbb->size );
+	fvec3_t vec_rgt = cam_rgt * (w * scale * pbb->size);
+	fvec3_t vec_up  = cam_up  * (h * scale * pbb->size);
 
     // bottom left
     vtlist[0].pos[XX] = pbb->offset[XX] + pbb->pos.x + ( -vec_rgt.x - 0 * vec_up.x );
@@ -518,7 +513,7 @@ gfx_rv billboard_system_render_all( std::shared_ptr<Camera> pcam )
                 pbb = BillboardList_get_ptr( cnt );
                 if ( NULL == pbb || !pbb->valid ) continue;
 
-                billboard_system_render_one( pbb, 0.75f, pcam->getVUP().v, pcam->getVRT().v );
+                billboard_system_render_one(pbb, 0.75f, pcam->getVUP(), pcam->getVRT());
             }
         }
         ATTRIB_POP( __FUNCTION__ );

@@ -17,17 +17,10 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/state_machine.h
+/// @file  egolib/math/Plane.h
+/// @brief Planes.
 
 #pragma once
 
-/// The various states that an egoboo state machine can occupy.
-enum ego_state_t
-{
-    ego_state_invalid = 0,  ///< A state to set the machine in if it is not valid.
-    ego_state_begin,        ///< The creation of the machine. Should be run once.
-    ego_state_entering,     ///< The initialization of the machine. An entry point for re-initializing an already created machine. Run as many times as needed.
-    ego_state_running,      ///< The normal state of a running machine. Run as many times as desired.
-    ego_state_leaving,      ///< The deinitialization of the machine. Run as many times as needed.
-    ego_state_finish        ///< The final destruction of the machine. Should be run once.
-};
+#include "egolib/typedef.h"
+#include "egolib/_math.h"

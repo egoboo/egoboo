@@ -834,9 +834,6 @@ mad_t * mad_rip_actions( mad_t * pmad )
     /// \author ZZ
     /// \details  This function creates the iframe lists for each action_now based on the
     ///    name of each md2 iframe in the model
-#if 0
-    int frame_count;
-#endif
     int action_now, last_action;
 
     if ( NULL == pmad ) return pmad;

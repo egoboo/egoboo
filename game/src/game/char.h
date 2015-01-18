@@ -159,11 +159,6 @@ enum turn_mode_t
     TURNMODE_COUNT
 };
 
-#if 0
-// this typedef must be after the enum definition or gcc has a fit
-typedef enum turn_mode_t TURN_MODE;
-#endif
-
 /// The vertex offsets for the various grips
 enum grip_offset_t
 {
@@ -176,11 +171,6 @@ enum grip_offset_t
     GRIP_INVENTORY =               GRIP_ORIGIN,
     GRIP_ONLY      =               GRIP_LEFT
 };
-
-#if 0
-// this typedef must be after the enum definition or gcc has a fit
-typedef enum e_grip_offset grip_offset_t;
-#endif
 
 /// Bits used to control options for the chr_get_name() function
 enum e_chr_name_bits
@@ -563,24 +553,15 @@ void chr_set_shadow(chr_t *chr, const float width);
 
 /// @details Make sure the value it calculated relative to a valid matrix.
 bool chr_getMatUp(chr_t *self, fvec3_t& up);
-#if 0
-bool chr_getMatUp(chr_t *self, fvec3_base_t up); ///< @todo Remove this.
-#endif
+
 /// @details Make sure the value it calculated relative to a valid matrix.
 bool chr_getMatRight(chr_t *self, fvec3_t& right);
-#if 0
-bool chr_getMatRight(chr_t *self, fvec3_base_t right); ///< @todo Remove this.
-#endif
+
 /// @details Make sure the value it calculated relative to a valid matrix.
 bool chr_getMatForward(chr_t *self, fvec3_t& forward);
-#if 0
-bool chr_getMatForward(chr_t *self, fvec3_base_t forward); ///< @todo Remove this.
-#endif
+
 /// @details Make sure the value it calculated relative to a valid matrix.
 bool chr_getMatTranslate(chr_t *self, fvec3_t& translate);
-#if 0
-bool chr_getMatTranslate(chr_t *self, fvec3_base_t translate); ///< @todo Remove this.
-#endif
 
 const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size );
 const char * chr_get_dir_name( const CHR_REF ichr );

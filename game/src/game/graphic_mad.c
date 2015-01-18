@@ -89,9 +89,6 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
     /// @details This function draws an environment mapped model
 
     GLint matrix_mode[1];
-#if 0
-    Uint16 cnt;
-#endif
     float  uoffset, voffset;
 
     chr_t          * pchr;
@@ -294,10 +291,6 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
     /// @details This function draws a model
 
     GLint matrix_mode[1];
-#if 0
-    int    cmd_count;
-    int    cnt;
-#endif
     Uint16 vertex;
     float  uoffset, voffset;
 
@@ -1124,14 +1117,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
         if ( pvert->nrm[0] == 0.0f && pvert->nrm[1] == 0.0f && pvert->nrm[2] == 0.0f )
         {
             // this is the "ambient only" index, but it really means to sum up all the light
-#if 0
-            GLfloat tnrm[3];
-            tnrm[0] = tnrm[1] = tnrm[2] = 1.0f;
-#endif
             lite  = lighting_evaluate_cache( &loc_light, fvec3_t(+1.0f,+1.0f,+1.0f), hgt, PMesh->tmem.bbox, NULL, NULL );
-#if 0
-            tnrm[0] = tnrm[1] = tnrm[2] = -1.0f;
-#endif
             lite += lighting_evaluate_cache( &loc_light, fvec3_t(-1.0f,-1.0f,-1.0f), hgt, PMesh->tmem.bbox, NULL, NULL );
 
             // average all the directions
@@ -1156,10 +1142,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 //--------------------------------------------------------------------------------------------
 gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
 {
-#if 0
-    int           frame_count;
-#endif
-    mad_t       * pmad;
+    mad_t       *pmad;
 
     if ( NULL == pinst )
     {
@@ -1335,12 +1318,6 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], const std::vecto
 gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax, bool force )
 {
 	int maxvert;
-#if 0
-	int frame_count;
-#endif
-#if 0
-	int md2_verts;
-#endif
     bool vertices_match, frames_match;
     float  loc_flip;
 

@@ -2055,7 +2055,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
     slot_pos.x = mids[OCT_X];
     slot_pos.y = mids[OCT_Y];
     slot_pos.z = mids[OCT_Z];
-	slot_pos = fvec3_add(slot_pos, chr_get_pos_v_const(pchr_a));
+	slot_pos += chr_get_pos_v_const(pchr_a);
 
     // get the size of object a
     bump_size2_a = SQR( 1.5f * pchr_a->bump.size );
@@ -2524,16 +2524,11 @@ void drop_money( const CHR_REF character, int money )
     };
 
     chr_t *pchr;
-#if 0
-    fvec3_t loc_pos;
-#endif
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList_get_ptr( character );
 
 	fvec3_t loc_pos = chr_get_pos_v_const(pchr);
-#if 0
-	fvec3_base_copy(loc_pos.v, chr_get_pos_v_const(pchr).v);
-#endif
+
     // limit the about of money to the character's actual money
     if ( money > ChrList.lst[character].money )
     {
@@ -4645,9 +4640,6 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
 
     // just set the spawn info
 	pchr->spawn_data.pos = pos;
-#if 0
-    fvec3_base_copy( pchr->spawn_data.pos, pos );
-#endif
     pchr->spawn_data.profile  = profile;
     pchr->spawn_data.team     = team;
     pchr->spawn_data.skin     = skin;
@@ -5892,8 +5884,8 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         }
     }
 
-    floor_acc = fvec3_sub(penviro->floor_speed, pchr->vel);
-    fvec3_self_scale(floor_acc,(1.0f - penviro->zlerp));
+    floor_acc = penviro->floor_speed - pchr->vel;
+	floor_acc *= 1.0f - penviro->zlerp;
 
     // reduce the volountary acceleration peopendicular to the direction of motion?
     if (fvec3_length_abs(floor_acc) > 0.0f)
@@ -5909,15 +5901,15 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         fvec3_decompose( floor_acc.v, vfront.v, acc_para.v, acc_perp.v );
 
         // re-compose the acceleration with 1/2 of the perpendicular taken away
-        fvec3_scale(floor_acc.v, acc_perp.v, 0.5f);
-        floor_acc = fvec3_add(floor_acc, acc_para);
+		floor_acc = acc_perp * 0.5f;
+        floor_acc += acc_para;
     }
 
     // the first guess about the floor friction
-    fvec3_scale( fric_floor.v, floor_acc.v, penviro->traction *( 1.0f - temp_friction_xy ) );
+	fric_floor = floor_acc * (penviro->traction *(1.0f - temp_friction_xy));
 
     // the total "friction" with to the floor
-    fric = fvec3_add(fric_floor, penviro->acc);
+    fric = fric_floor + penviro->acc;
 
     // limit the friction to whatever is horizontal to the mesh
     if ( 1.0f == ABS( vup.z ) )
@@ -5942,14 +5934,14 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     if ( penviro->is_slipping )
     {
         penviro->traction *= 0.5f;
-        temp_friction_xy  = std::sqrt( temp_friction_xy );
+        temp_friction_xy = std::sqrt( temp_friction_xy );
 
         // the first guess about the floor friction
-        fvec3_scale( fric_floor.v, floor_acc.v, penviro->traction *( 1.0f - temp_friction_xy ) );
+		fric_floor = floor_acc *  (penviro->traction * (1.0f - temp_friction_xy));
     }
 
-    //apply the floor friction
-	pchr->vel = fvec3_add(pchr->vel, fric_floor);
+    // Apply the floor friction
+	pchr->vel += fric_floor;
 
     // Apply fluid friction from last time
     pchr->vel.x += -pchr->vel.x * ( 1.0f - penviro->fluid_friction_hrz );
@@ -7590,8 +7582,8 @@ void move_one_character( chr_t * pchr )
     if ( INGAME_CHR( pchr->inwhich_inventory ) ) return;
 
     // save the velocity and acceleration from the last time-step
-    pchr->enviro.vel = fvec3_sub( pchr->pos, pchr->pos_old );
-    pchr->enviro.acc = fvec3_sub( pchr->vel, pchr->vel_old );
+    pchr->enviro.vel = pchr->pos - pchr->pos_old;
+    pchr->enviro.acc = pchr->vel - pchr->vel_old;
 
     // Character's old location
     chr_get_pos( pchr, pchr->pos_old.v );
@@ -9539,37 +9531,6 @@ bool chr_getMatUp(chr_t *pchr, fvec3_t& up)
 	bool rv;
 
 	if (!ALLOCATED_PCHR(pchr)) return false;
-#if 0
-	if (NULL == vup) return false;
-#endif
-	if (!chr_matrix_valid(pchr))
-	{
-		chr_update_matrix(pchr, true);
-	}
-
-	rv = false;
-	if (chr_matrix_valid(pchr))
-	{
-		rv = mat_getChrUp(pchr->inst.matrix.v, up);
-	}
-
-	if (!rv)
-	{
-		// assume default Up is +z
-		up[kZ] = 1.0f;
-		up[kX] = up[kY] = 0.0f;
-	}
-
-	return true;
-}
-#if 0
-bool chr_getMatUp(chr_t *pchr, fvec3_base_t up)
-{
-	bool rv;
-
-	if (!ALLOCATED_PCHR(pchr)) return false;
-
-	if (NULL == up) return false;
 
 	if (!chr_matrix_valid(pchr))
 	{
@@ -9591,7 +9552,6 @@ bool chr_getMatUp(chr_t *pchr, fvec3_base_t up)
 
 	return true;
 }
-#endif
 
 //--------------------------------------------------------------------------------------------
 bool chr_getMatRight(chr_t *pchr, fvec3_t& right)
@@ -9599,9 +9559,7 @@ bool chr_getMatRight(chr_t *pchr, fvec3_t& right)
 	bool rv;
 
 	if (!ALLOCATED_PCHR(pchr)) return false;
-#if 0
-	if (NULL == vright) return false;
-#endif
+
 	if (!chr_matrix_valid(pchr))
 	{
 		chr_update_matrix(pchr, true);
@@ -9622,73 +9580,13 @@ bool chr_getMatRight(chr_t *pchr, fvec3_t& right)
 
 	return true;
 }
-#if 0
-bool chr_getMatRight(chr_t *pchr, fvec3_base_t vright)
-{
-	bool rv;
 
-	if (!ALLOCATED_PCHR(pchr)) return false;
-
-	if (NULL == vright) return false;
-
-	if (!chr_matrix_valid(pchr))
-	{
-		chr_update_matrix(pchr, true);
-	}
-
-	rv = false;
-	if (chr_matrix_valid(pchr))
-	{
-		rv = mat_getChrRight(pchr->inst.matrix.v, vright);
-	}
-
-	if (!rv)
-	{
-		// assume default Right is +y
-		right[kY] = 1.0f;
-		right[kX] = right[kZ] = 0.0f;
-	}
-
-	return true;
-}
-#endif
 //--------------------------------------------------------------------------------------------
 bool chr_getMatForward(chr_t *pchr, fvec3_t& forward)
 {
 	bool rv;
 
 	if (!ALLOCATED_PCHR(pchr)) return false;
-#if 0
-	if (NULL == forward) return false;
-#endif
-	if (!chr_matrix_valid(pchr))
-	{
-		chr_update_matrix(pchr, true);
-	}
-
-	rv = false;
-	if (chr_matrix_valid(pchr))
-	{
-		rv = mat_getChrForward(pchr->inst.matrix.v, forward);
-	}
-
-	if (!rv)
-	{
-		// assume default Forward is +x
-		forward[kX] = 1.0f;
-		forward[kY] = forward[kZ] = 0.0f;
-	}
-
-	return true;
-}
-#if 0
-bool chr_getMatForward(chr_t *pchr, fvec3_base_t forward)
-{
-	bool rv;
-
-	if (!ALLOCATED_PCHR(pchr)) return false;
-
-	if (NULL == forward) return false;
 
 	if (!chr_matrix_valid(pchr))
 	{
@@ -9710,7 +9608,6 @@ bool chr_getMatForward(chr_t *pchr, fvec3_base_t forward)
 
 	return true;
 }
-#endif
 
 //--------------------------------------------------------------------------------------------
 bool chr_getMatTranslate(chr_t *pchr, fvec3_t& translate)
@@ -9718,9 +9615,7 @@ bool chr_getMatTranslate(chr_t *pchr, fvec3_t& translate)
 	bool rv;
 
 	if (!ALLOCATED_PCHR(pchr)) return false;
-#if 0
-	if (NULL == vtrans) return false;
-#endif
+
 	if (!chr_matrix_valid(pchr))
 	{
 		chr_update_matrix(pchr, true);
@@ -9735,41 +9630,10 @@ bool chr_getMatTranslate(chr_t *pchr, fvec3_t& translate)
 	if (!rv)
 	{
 		translate = chr_get_pos_v_const(pchr);
-#if 0
-		fvec3_base_copy(translate, chr_get_pos_v_const(pchr));
-#endif
 	}
 
 	return true;
 }
-#if 0
-bool chr_getMatTranslate(chr_t *pchr, fvec3_base_t vtrans)
-{
-	bool rv;
-
-	if (!ALLOCATED_PCHR(pchr)) return false;
-
-	if (NULL == vtrans) return false;
-
-	if (!chr_matrix_valid(pchr))
-	{
-		chr_update_matrix(pchr, true);
-	}
-
-	rv = false;
-	if (chr_matrix_valid(pchr))
-	{
-		rv = mat_getTranslate(pchr->inst.matrix.v, vtrans);
-	}
-
-	if (!rv)
-	{
-		fvec3_base_copy(vtrans, chr_get_pos_v_const(pchr).v);
-	}
-
-	return true;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
@@ -10131,9 +9995,6 @@ bool chr_set_pos(chr_t *self, const fvec3_t& position)
 	if ((position[kX] != self->pos.v[kX]) || (position[kY] != self->pos.v[kY]) || (position[kZ] != self->pos.v[kZ]))
 	{
 		self->pos = position;
-#if 0
-		fvec3_base_copy(self->pos.v, position);
-#endif
 		retval = chr_update_pos(self);
 	}
 
@@ -10676,13 +10537,7 @@ const fvec3_t& chr_get_pos_v_const(const chr_t *pchr)
 bool chr_get_pos(const chr_t *self, fvec3_t& position)
 {
 	if (!ALLOCATED_PCHR(self)) return false;
-
 	position = self->pos;
-#if 0
-	copy_retval = fvec3_base_copy(position, self->pos.v);
-
-	return NULL != copy_retval;
-#endif
 	return true;
 }
 bool chr_get_pos(const chr_t *self, fvec3_base_t position)

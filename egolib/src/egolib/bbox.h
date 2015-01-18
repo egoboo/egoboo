@@ -188,19 +188,8 @@
 //inline
 //--------------------------------------------------------------------------------------------
 
-#if 0
-bool oct_vec_ctor(oct_vec_t ovec, const fvec3_base_t pos); /// @todo Remove this.
-#endif
 bool oct_vec_ctor(oct_vec_t ovec, const fvec3_t& pos);
-
-#if 0
-bool oct_vec_add_fvec3(const oct_vec_t osrc, const fvec3_base_t fvec, oct_vec_t odst); /// @todo Remove this.
-#endif
 bool oct_vec_add_fvec3(const oct_vec_t osrc, const fvec3_t& fvec, oct_vec_t odst);
-
-#if 0
-bool oct_vec_self_add_fvec3(oct_vec_t osrc, const fvec3_base_t fvec); /// @todo Remove this.
-#endif
 bool oct_vec_self_add_fvec3(oct_vec_t osrc, const fvec3_t& fvec);
 
 bool oct_vec_self_clear( oct_vec_t * ovec );
@@ -237,9 +226,6 @@ egolib_rv oct_bb_self_intersection( oct_bb_t * pdst, const oct_bb_t * psrc );
  *	the target bounding box
  */
 egolib_rv oct_bb_add_fvec3(const oct_bb_t *src, const fvec3_t& t, oct_bb_t *dst);
-#if 0
-egolib_rv oct_bb_add_fvec3(const oct_bb_t *src, const fvec3_base_t t, oct_bb_t *dst); /// @todo Remove this.
-#endif
 
 /**
  * @brief
@@ -250,9 +236,6 @@ egolib_rv oct_bb_add_fvec3(const oct_bb_t *src, const fvec3_base_t t, oct_bb_t *
  *	the translation vector
  */
 egolib_rv oct_bb_self_add_fvec3(oct_bb_t *dst, const fvec3_t& t);
-#if 0
-egolib_rv oct_bb_self_add_fvec3(oct_bb_t *dst, const fvec3_base_t t); /// @todo Remove this.
-#endif
 
 egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t ovec, oct_bb_t * pdst );
 egolib_rv oct_bb_self_add_ovec( oct_bb_t * pdst, const oct_vec_t ovec );

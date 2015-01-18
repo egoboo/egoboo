@@ -2327,11 +2327,6 @@ bool BSP_branch_list_clear_rec(BSP_branch_list_t * BL)
 //--------------------------------------------------------------------------------------------
 bool BSP_branch_list_collide_aabb(const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst)
 {
-#if 0
-	size_t cnt;
-	int collisions;
-	BSP_branch_t * pchild;
-#endif
 	if (NULL == BL) return false;
 
 	// scan the child branches and collide with them recursively
@@ -2355,11 +2350,6 @@ bool BSP_branch_list_collide_aabb(const BSP_branch_list_t * BL, const aabb_t * p
 //--------------------------------------------------------------------------------------------
 bool BSP_branch_list_collide_frustum(const BSP_branch_list_t * BL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst)
 {
-#if 0
-	size_t cnt;
-	int collisions;
-	BSP_branch_t * pchild;
-#endif
 	if (NULL == BL) return false;
 
 	// scan the child branches and collide with them recursively

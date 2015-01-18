@@ -247,18 +247,6 @@ hash_node_t *hash_list_get_node(hash_list_t *self, size_t index)
 }
 
 //--------------------------------------------------------------------------------------------
-#if 0
-bool hash_list_set_allocd( hash_list_t *plst, size_t capacity)
-{
-    if ( NULL == plst ) return false;
-
-    plst->capacity = capacity;
-
-    return true;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
 bool hash_list_set_count(hash_list_t *self, size_t index, size_t count)
 {
     if ( NULL == self || NULL == self->subcount ) return false;

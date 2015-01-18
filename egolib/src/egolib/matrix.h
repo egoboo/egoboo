@@ -228,33 +228,13 @@ float *mat_Projection_orig(fmat_4x4_base_t DST, const float near_plane, const fl
 void   mat_TransformVertices(const fmat_4x4_base_t Matrix, const fvec4_t pSourceV[], fvec4_t pDestV[], const Uint32 NumVertor);
 
 bool mat_getChrUp(const fmat_4x4_base_t mat, fvec3_t& up);
-#if 0
-bool mat_getChrUp(const fmat_4x4_base_t mat, fvec3_base_t up); ///< @todo Remove this.
-#endif
 bool mat_getChrForward(const fmat_4x4_base_t mat, fvec3_t& forward);
-#if 0
-bool mat_getChrForward(const fmat_4x4_base_t mat, fvec3_base_t forward); ///< @todo Remove this.
-#endif
 bool mat_getChrRight(const fmat_4x4_base_t mat, fvec3_t& right);
-#if 0
-bool mat_getChrRight(const fmat_4x4_base_t mat, fvec3_base_t right); ///< @todo Remove this.
-#endif
 bool mat_getCamUp(const fmat_4x4_base_t mat, fvec3_t& up);
-#if 0
-bool mat_getCamUp(const fmat_4x4_base_t mat, fvec3_base_t up); ///< @todo Remove this.
-#endif
 bool mat_getCamRight(const fmat_4x4_base_t mat, fvec3_t& right);
-#if 0
-bool mat_getCamRight(const fmat_4x4_base_t mat, fvec3_base_t right); ///< @todo Remove this.
-#endif
 bool mat_getCamForward(const fmat_4x4_base_t mat, fvec3_t& forward);
-#if 0
-bool mat_getCamForward(const fmat_4x4_base_t mat, fvec3_base_t forward); ///< @todo Remove this.
-#endif
 bool mat_getTranslate(const fmat_4x4_base_t mat, fvec3_t& translate);
-#if 0
-bool mat_getTranslate(const fmat_4x4_base_t mat, fvec3_base_t translate); ///< @todo Remove this.
-#endif
+
 
 fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat);
 

@@ -37,9 +37,7 @@ class Camera;
 //--------------------------------------------------------------------------------------------
 
 struct billboard_data_t;
-#if 0
-typedef struct s_billboard_data billboard_data_t;
-#endif
+
 //--------------------------------------------------------------------------------------------
 // constants
 //--------------------------------------------------------------------------------------------
@@ -112,7 +110,7 @@ bool billboard_system_begin();
 bool billboard_system_end();
 bool billboard_system_init();
 
-bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_base_t cam_up, const fvec3_base_t cam_rgt );
+bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fvec3_t& cam_up, const fvec3_t& cam_rgt );
 gfx_rv billboard_system_render_all( std::shared_ptr<Camera> pcam );
 
 

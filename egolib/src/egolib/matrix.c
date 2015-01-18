@@ -572,19 +572,6 @@ bool mat_getCamForward(const fmat_4x4_base_t mat, fvec3_t& forward)
 
 	return true;
 }
-#if 0
-bool mat_getCamForward(const fmat_4x4_base_t mat, fvec3_base_t forward)
-{
-	if (nullptr == mat || nullptr == forward) return false;
-
-	// for the camera
-	forward[kX] = -mat[MAT_IDX(0, 2)];
-	forward[kY] = -mat[MAT_IDX(1, 2)];
-	forward[kZ] = -mat[MAT_IDX(2, 2)];
-
-	return true;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat)

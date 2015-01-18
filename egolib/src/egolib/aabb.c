@@ -126,13 +126,6 @@ bool aabb_from_oct_bb(aabb_t * dst, const oct_bb_t * src)
 //--------------------------------------------------------------------------------------------
 bool aabb_lhs_contains_rhs(const aabb_t& self, const aabb_t& other)
 {
-#if 0
-	if (NULL == self || NULL == other)
-	{
-		return false;
-	}
-#endif
-
 	// The optimizer is supposed to do this stuff all by itself, but isn't.
 	const float *rhs_mins = other.mins + 0;
 	const float *rhs_maxs = other.maxs + 0;
@@ -151,32 +144,16 @@ bool aabb_lhs_contains_rhs(const aabb_t& self, const aabb_t& other)
 //--------------------------------------------------------------------------------------------
 void aabb_self_union(aabb_t& self, const aabb_t& other)
 {
-#if 0
-	if (NULL == self || NULL == other)
-	{
-		return false;
-	}
-#endif
 	for (size_t cnt = 0; cnt < 3; cnt++)
 	{
 		self.mins[cnt] = std::min(self.mins[cnt], other.mins[cnt]);
 		self.maxs[cnt] = std::max(self.maxs[cnt], other.maxs[cnt]);
 	}
-#if 0
-	return true;
-#endif
 }
 
 //--------------------------------------------------------------------------------------------
 bool aabb_overlap(const aabb_t& self, const aabb_t& other)
 {
-#if 0
-	if (NULL == self || NULL == other)
-	{
-		return false;
-	}
-#endif
-
 	// The optimizer is supposed to do this stuff all by itself, but isn't.
 	const float *rhs_mins = other.mins + 0;
 	const float *rhs_maxs = other.maxs + 0;

@@ -1033,9 +1033,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
     POBJ_BEGIN_SPAWN( pprt );
 
 	pprt->spawn_data.pos = pos;
-#if 0
-    fvec3_base_copy(pprt->spawn_data.pos, pos);
-#endif
+
     pprt->spawn_data.facing     = facing;
     pprt->spawn_data.iprofile   = iprofile;
     pprt->spawn_data.ipip       = ipip;
@@ -1423,11 +1421,11 @@ prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt )
         {
             float water_friction = POW( loc_buoyancy_friction, 2.0f );
 
-            fvec3_self_scale( fluid_acc, 1.0f - water_friction );
+            fluid_acc *= 1.0f - water_friction;
         }
         else
         {
-            fvec3_self_scale( fluid_acc, 1.0f - loc_buoyancy_friction );
+            fluid_acc *= 1.0f - loc_buoyancy_friction;
         }
     }
     else
@@ -1539,12 +1537,12 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
     {
         float ftmp;
 
-        ftmp = fvec3_dot_product( floor_acc, vup );
+		ftmp = floor_acc.dot(vup);
         floor_acc.x -= ftmp * vup.x;
         floor_acc.y -= ftmp * vup.y;
         floor_acc.z -= ftmp * vup.z;
 
-        ftmp = fvec3_dot_product( fric, vup );
+        ftmp = fric.dot(vup);
         fric.x -= ftmp * vup.x;
         fric.y -= ftmp * vup.y;
         fric.z -= ftmp * vup.z;
@@ -1555,25 +1553,18 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
 
     if ( penviro->is_slipping )
     {
-        float ftmp;
-
         penviro->traction *= 0.5f;
         temp_friction_xy  = std::sqrt( temp_friction_xy );
 
-        fric_floor.x = floor_acc.x * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
-        fric_floor.y = floor_acc.y * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
-        fric_floor.z = floor_acc.z * ( 1.0f - penviro->zlerp ) * ( 1.0f - temp_friction_xy ) * penviro->traction;
-
-        ftmp = fvec3_dot_product(fric_floor, vup);
+		fric_floor = floor_acc * ((1.0f - penviro->zlerp) * (1.0f - temp_friction_xy) * penviro->traction);
+		float ftmp = fric_floor.dot(vup);
         fric_floor.x -= ftmp * vup.x;
         fric_floor.y -= ftmp * vup.y;
         fric_floor.z -= ftmp * vup.z;
     }
 
-    //apply the floor friction
-    loc_pprt->vel.x += fric_floor.x;
-    loc_pprt->vel.y += fric_floor.y;
-    loc_pprt->vel.z += fric_floor.z;
+    // Apply the floor friction
+	loc_pprt->vel += fric_floor;
 
     return pbdl_prt;
 }
@@ -3408,25 +3399,6 @@ bool prt_set_pos(prt_t *pprt, const fvec3_t& pos)
 	}
 	return retval;
 }
-#if 0
-bool prt_set_pos(prt_t * pprt, const fvec3_base_t pos)
-{
-    bool retval = false;
-
-    if (!ALLOCATED_PPRT(pprt)) return retval;
-
-    retval = true;
-
-    LOG_NAN_FVEC3( pos );
-
-    if ((pos[kX] != pprt->pos.v[kX]) || (pos[kY] != pprt->pos.v[kY]) || (pos[kZ] != pprt->pos.v[kZ]))
-    {
-        fvec3_base_copy(pprt->pos.v, pos);
-        retval = prt_update_pos(pprt);
-    }
-    return retval;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 //Inline below
@@ -3679,16 +3651,8 @@ prt_bundle_t * prt_bundle_set( prt_bundle_t * pbundle, prt_t * pprt )
 //--------------------------------------------------------------------------------------------
 bool prt_get_pos(const prt_t *self, fvec3_t& position)
 {
-#if 0
-	float *copy_rv;
-#endif
 	if (!ALLOCATED_PPRT(self)) return false;
 	position = self->pos;
-#if 0
-	copy_rv = fvec3_base_copy(position, self->pos.v);
-
-	return (NULL == copy_rv) ? false : true;
-#endif
 	return true;
 }
 bool prt_get_pos(const prt_t *self, fvec3_base_t position)

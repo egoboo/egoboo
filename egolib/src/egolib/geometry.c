@@ -45,7 +45,7 @@ bool plane_base_normalize( plane_base_t * plane )
 
     if ( NULL == plane ) return false;
 
-    magnitude2 = fvec3_length_2(( *plane ) );
+    magnitude2 = fvec3_length_2(plane_get_normal(*plane));
 
     if ( 0.0f == magnitude2 )
     {
@@ -248,17 +248,20 @@ plane_intersects_aabb_done:
 }
 
 //--------------------------------------------------------------------------------------------
-bool two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const plane_base_t p0, const plane_base_t p1 )
+fvec3_t plane_get_normal(const plane_base_t self)
+{
+	return fvec3_t(self[kX],self[kY],self[kZ]);
+}
+bool two_plane_intersection(fvec3_t& dst_pos, fvec3_t& dst_dir, const plane_base_t p0, const plane_base_t p1)
 {
     bool retval = false;
 
-    if ( NULL == dst_pos || NULL == dst_dir ) return false;
     if ( NULL == p0 || NULL == p1 ) return false;
 
     // the direction of the intersection is given by the cross product of the normals
-    fvec3_cross_product( dst_dir, p0, p1 );
+    dst_dir = plane_get_normal(p0).cross(plane_get_normal(p1));
 
-    if (fvec3_self_normalize(dst_dir) < 0.0f)
+    if (dst_dir.normalize() < 0.0f)
     {
         retval = false;
         fvec3_self_clear( dst_pos );
@@ -276,12 +279,10 @@ bool two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const p
 }
 
 //--------------------------------------------------------------------------------------------
-bool three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 )
+bool three_plane_intersection( fvec3_t& dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 )
 {
     float det;
     float tmp;
-
-    if ( NULL == dst_pos ) return false;
 
     if ( NULL == p0 || NULL == p1 || NULL == p2 ) return false;
 
@@ -636,9 +637,6 @@ geometry_rv cone_intersects_point(const cone_t *K, const fvec3_t& P)
         }
         else
         {
-#if 0
-			float test1, test2;
-#endif
 			float test3;
 
             // the test for being inside:
@@ -724,7 +722,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
     // this is the distance that the origin of the cone must be moved to
     // produce a new cone with an offset equal to the radius of the sphere
     offset_length = S->radius * K->inv_sin;
-    fvec3_scale( offset_vec.v, K->axis.v, offset_length );
+	offset_vec = K->axis * offset_length;
 
     // assume the worst
     retval = geometry_error;
@@ -738,7 +736,7 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
 
         // Shift the origin by the offset in the positive sense.
         memcpy( &K_new, K, sizeof( K_new ) );
-        K_new.origin = fvec3_add(K->origin, offset_vec);
+        K_new.origin = K->origin + offset_vec;
 
         // If the center of the sphere is inside this cone, it must be competely inside the original cone
         switch ( cone_intersects_point( &K_new, S->origin ) )

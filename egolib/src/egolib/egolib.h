@@ -78,12 +78,6 @@
 #include "egolib/file_formats/treasure_table_file.h"
 #include "egolib/file_formats/wawalite_file.h"
 
-#if 0
-#if defined(USE_LUA_CONSOLE)
-	#include "egolib/lua/lua_console.h"
-#endif
-#endif
-
 #if defined(USE_LUA_CONSOLE)
 	#include "egolib/lua/lua_console.h"
 #else

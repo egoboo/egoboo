@@ -149,24 +149,22 @@ lua_console_t * lua_console_create( lua_console_t * pcon, SDL_Rect Con_rect )
 }
 
 //--------------------------------------------------------------------------------------------
-lua_console_t * lua_console_dtor( lua_console_t * pcon )
+lua_console_t *lua_console_dtor(lua_console_t *self)
 {
-    egolib_console_t * ptr;
-
-    if ( NULL == pcon ) return NULL;
+    if (nullptr == self) return nullptr;
 
     // uninitialize our own data
-    if ( NULL != global_L && NULL != pcon->L )
+    if (nullptr != global_L && nullptr != self->L)
     {
         bool removed = false;
-        int top = lua_gettop( global_L );
+        int top = lua_gettop(global_L);
         
-        for ( int i = top; i > 0; i++ )
+        for (int i = top; i > 0; i++)
         {
-            lua_State *state = lua_tothread( global_L, i );
-            if ( state == pcon->L )
+            lua_State *state = lua_tothread(global_L, i);
+            if (state == self->L)
             {
-                lua_remove( global_L, i );
+                lua_remove(global_L, i);
                 removed = true;
                 break;
             }
@@ -176,31 +174,29 @@ lua_console_t * lua_console_dtor( lua_console_t * pcon )
     }
 
     // delete the "base class", but tell it not to actuall free the data
-    ptr = &( pcon->base );
-    egolib_console_destroy( &ptr, SDL_FALSE );
+	/// @todo Shouldn't we just call the dtor of the base class?
+    egolib_console_t *base = &(self->base);
+    egolib_console_destroy(&base, SDL_FALSE);
 
-    return pcon;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool lua_console_destroy( lua_console_t ** pcon )
+SDL_bool lua_console_destroy(lua_console_t **pcon)
 {
-    if ( NULL == pcon ) return SDL_FALSE;
-
-    if ( NULL == lua_console_dtor( *pcon ) ) return SDL_FALSE;
-
+    if (nullptr == pcon) return SDL_FALSE;
+    if (nullptr == lua_console_dtor(*pcon)) return SDL_FALSE;
     // do the free-ing here
-    EGOBOO_DELETE( *pcon );
-
+    EGOBOO_DELETE(*pcon);
     return SDL_TRUE;
 }
 
 //--------------------------------------------------------------------------------------------
-egolib_console_t * lua_console_get_base( lua_console_t * pcon )
+egolib_console_t *lua_console_get_base(lua_console_t *self)
 {
-    if ( NULL == pcon ) return NULL;
+    if (nullptr == self) return nullptr;
 
-    return &( pcon->base );
+    return &(self->base);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -228,17 +224,16 @@ int lua_console_report( lua_console_t * pcon, int status )
 SDL_bool lua_console_run( egolib_console_t * ego_con, void * data )
 {
     int status;
-    lua_console_t * lua_con;
 
-    if ( NULL == ego_con || NULL == data ) return SDL_FALSE;
+    if (nullptr == ego_con || nullptr == data) return SDL_FALSE;
 
-    lua_con = ( lua_console_t * )data;
+	lua_console_t *lua_con = ( lua_console_t * )data;
     
-    if ( NULL == lua_con->L ) return SDL_FALSE;
-    EGOBOO_ASSERT( global_L );
+    if (nullptr == lua_con->L ) return SDL_FALSE;
+    EGOBOO_ASSERT( nullptr != global_L );
 
-	if (NULL == lua_con->L) return SDL_FALSE;
-	EGOBOO_ASSERT( global_L );
+	if (nullptr == lua_con->L) return SDL_FALSE;
+	EGOBOO_ASSERT( nullptr != global_L );
 
     status = luaL_loadbuffer( lua_con->L, ego_con->buffer, strlen( ego_con->buffer ), "lua_console" );
 

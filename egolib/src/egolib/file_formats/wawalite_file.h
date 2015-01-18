@@ -25,56 +25,20 @@
 #include "egolib/_math.h"
 #include "egolib/vec.h"
 
-#if 0
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
     struct wawalite_water_layer_t;
-#if 0
-    typedef struct s_wawalite_water_layer wawalite_water_layer_t;
-#endif
     struct wawalite_water_t;
-#if 0
-    typedef struct s_wawalite_water wawalite_water_t;
-#endif
     struct wawalite_physics_t;
-#if 0
-    typedef struct s_wawalite_physics wawalite_physics_t;
-#endif
     struct wawalite_animtile_t;
-#if 0
-    typedef struct s_wawalite_animtile wawalite_animtile_t;
-#endif
     struct wawalite_damagetile_t;
-#if 0
-    typedef struct s_wawalite_damagetile wawalite_damagetile_t;
-#endif
     struct wawalite_weather_t;
-#if 0
-    typedef struct s_wawalite_weather wawalite_weather_t;
-#endif
     struct wawalite_graphics_t;
-#if 0
-    typedef struct s_wawalite_graphics wawalite_graphics_t;
-#endif
     struct wawalite_camera_t;
-#if 0
-    typedef struct s_wawalite_camera wawalite_camera_t;
-#endif
     struct wawalite_fog_t;
-#if 0
-    typedef struct s_wawalite_fog wawalite_fog_t;
-#endif
     struct wawalite_data_t;
-#if 0
-    typedef struct s_wawalite_data wawalite_data_t;
-#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -236,11 +200,3 @@ extern "C"
     wawalite_data_t * read_wawalite_file_vfs( const char *filename, wawalite_data_t * pdata );
 
     wawalite_data_t * wawalite_limit( wawalite_data_t * pdata );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#if 0
-#if defined(__cplusplus)
-}
-#endif
-#endif

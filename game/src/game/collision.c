@@ -580,7 +580,7 @@ bool get_prt_mass( prt_t * pprt, chr_t * pchr, float * wt )
             float prt_ke;
             fvec3_t vdiff;
 
-            vdiff = fvec3_sub(pprt->vel, pchr->vel);
+            vdiff = pprt->vel - pchr->vel;
 
             // the damage is basically like the kinetic energy of the particle
             prt_vel2 = fvec3_dot_product( vdiff, vdiff );
@@ -1714,7 +1714,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         }
 
         // do the "integration" of the accumulated accelerations
-        pchr->vel = fvec3_add(pchr->vel, pchr->phys.avel);
+        pchr->vel += pchr->phys.avel;
 
         position_updated = false;
 
@@ -1822,7 +1822,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         }
 
         // do the "integration" of the accumulated accelerations
-		bdl.prt_ptr->vel = fvec3_add(bdl.prt_ptr->vel, bdl.prt_ptr->phys.avel);
+		bdl.prt_ptr->vel += bdl.prt_ptr->phys.avel;
 
         position_updated = false;
 
@@ -2417,11 +2417,11 @@ bool do_chr_chr_collision( CoNode_t * d )
             // the function will actually separate the objects in a finite number
             // of iterations
             need_displacement = TO_C_BOOL(( recoil_a > 0.0f ) || ( recoil_b > 0.0f ) );
-            fvec3_scale( pdiff_a.v, nrm.v, depth_min + 1.0f );
+			pdiff_a = nrm * (depth_min + 1.0f);
         }
 
         // find the relative velocity
-        vdiff_a = fvec3_sub(pchr_b->vel, pchr_a->vel);
+        vdiff_a = pchr_b->vel - pchr_a->vel;
 
         need_velocity = false;
         if (fvec3_length_abs(vdiff_a) > 1e-6)
@@ -2448,21 +2448,15 @@ bool do_chr_chr_collision( CoNode_t * d )
                 // decompose this relative to the collision normal
                 fvec3_decompose( vdiff_a.v, nrm.v, vdiff_perp_a.v, vdiff_para_a.v );
 
-                if ( recoil_a > 0.0f )
+                if (recoil_a > 0.0f)
                 {
-                    fvec3_t vimp_a;
-
-                    fvec3_scale( vimp_a.v, vdiff_perp_a.v, recoil_a *( 1.0f + cr ) * interaction_strength );
-
+					fvec3_t vimp_a = vdiff_perp_a * +(recoil_a * (1.0f + cr) * interaction_strength);
                     phys_data_sum_avel(&(pchr_a->phys), vimp_a);
                 }
 
-                if ( recoil_b > 0.0f )
+                if (recoil_b > 0.0f)
                 {
-                    fvec3_t vimp_b;
-
-                    fvec3_scale( vimp_b.v, vdiff_perp_a.v, -recoil_b *( 1.0f + cr ) * interaction_strength );
-
+                    fvec3_t vimp_b = vdiff_perp_a * -(recoil_b * (1.0f + cr) * interaction_strength);
                     phys_data_sum_avel(&(pchr_b->phys), vimp_b);
                 }
 
@@ -2490,21 +2484,15 @@ bool do_chr_chr_collision( CoNode_t * d )
 
                 if ( vdot < 0.0f )
                 {
-                    if ( recoil_a > 0.0f )
+                    if (recoil_a > 0.0f)
                     {
-                        fvec3_t vimp_a;
-
-                        fvec3_scale( vimp_a.v, vdiff_a.v, recoil_a * pressure_strength );
-
+                        fvec3_t vimp_a = vdiff_a * +(recoil_a * pressure_strength);
                         phys_data_sum_avel(&(pchr_a->phys), vimp_a);
                     }
 
-                    if ( recoil_b > 0.0f )
+                    if (recoil_b > 0.0f)
                     {
-                        fvec3_t vimp_b;
-
-                        fvec3_scale( vimp_b.v, vdiff_a.v, -recoil_b * pressure_strength );
-
+						fvec3_t vimp_b = vdiff_a * -(recoil_b * pressure_strength);
                         phys_data_sum_avel(&(pchr_b->phys), vimp_b);
                     }
                 }
@@ -2521,19 +2509,13 @@ bool do_chr_chr_collision( CoNode_t * d )
         {
             if ( recoil_a > 0.0f )
             {
-                fvec3_t pimp_a;
-
-                fvec3_scale( pimp_a.v, pdiff_a.v, recoil_a * pressure_strength );
-
+                fvec3_t pimp_a = pdiff_a * +(recoil_a * pressure_strength);
                 phys_data_sum_acoll(&(pchr_a->phys), pimp_a);
             }
 
             if ( recoil_b > 0.0f )
             {
-                fvec3_t pimp_b;
-
-                fvec3_scale( pimp_b.v, pdiff_a.v,  -recoil_b * pressure_strength );
-
+				fvec3_t pimp_b = pdiff_a * -(recoil_b * pressure_strength);
                 phys_data_sum_acoll(&(pchr_b->phys), pimp_b);
             }
         }
@@ -3001,10 +2983,10 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
         fvec3_t tmp_impulse;
 
         // calculate the "impulse" to the character
-        fvec3_scale( tmp_impulse.v, pdata->vimpulse.v, -chr_recoil * attack_factor * pdata->block_factor );
+        tmp_impulse = pdata->vimpulse * -(chr_recoil * attack_factor * pdata->block_factor);
         phys_data_sum_avel(&(pdata->pchr->phys), tmp_impulse);
 
-        fvec3_scale( tmp_impulse.v, pdata->pimpulse.v, -chr_recoil * attack_factor * pdata->block_factor );
+        tmp_impulse = pdata->pimpulse * -(chr_recoil * attack_factor * pdata->block_factor);
         phys_data_sum_acoll(&(pdata->pchr->phys), tmp_impulse);
     }
 
@@ -3064,10 +3046,10 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
             holder_recoil = tmp_holder_recoil * attack_factor;
 
             // in the SAME direction as the particle
-            fvec3_scale( tmp_impulse.v, pdata->vimpulse.v, holder_recoil );
+			tmp_impulse = pdata->vimpulse * holder_recoil;
             phys_data_sum_avel(&(pholder->phys), tmp_impulse);
 
-            fvec3_scale( tmp_impulse.v, pdata->pimpulse.v, holder_recoil );
+			tmp_impulse = pdata->pimpulse * holder_recoil;
             phys_data_sum_acoll(&(pholder->phys), tmp_impulse);
         }
     }
@@ -3077,10 +3059,10 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
     {
         fvec3_t tmp_impulse;
 
-        fvec3_scale( tmp_impulse.v, pdata->vimpulse.v, prt_recoil );
+        tmp_impulse = pdata->vimpulse * prt_recoil;
         phys_data_sum_avel(&(pdata->pprt->phys), tmp_impulse);
 
-        fvec3_scale( tmp_impulse.v, pdata->pimpulse.v, prt_recoil );
+		tmp_impulse = pdata->pimpulse * prt_recoil;
         phys_data_sum_acoll(&(pdata->pprt->phys), tmp_impulse);
     }
 
@@ -3305,12 +3287,9 @@ bool do_chr_prt_collision_impulse( chr_prt_collsion_data_t * pdata )
     // the "pressure" impulse due to overlap
     if ( pdata->int_min && pdata->depth_min > 0.0f && pdata->ichr != pdata->pprt->owner_ref )
     {
-        fvec3_t tmp_imp;
-
         // is the normal reversed?
-        fvec3_scale( tmp_imp.v, pdata->nrm.v, pdata->depth_min );
-
-        pdata->pimpulse = fvec3_add(pdata->pimpulse, tmp_imp);
+		fvec3_t tmp_imp = pdata->nrm * pdata->depth_min;
+        pdata->pimpulse += tmp_imp;
 
         did_something = true;
     }

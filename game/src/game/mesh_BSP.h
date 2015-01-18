@@ -47,15 +47,6 @@ struct mesh_BSP_t
     BSP_tree_t     tree;
 };
 
-#if 0
-#define MESH_BSP_INIT \
-    {\
-        0,                 /* count  */ \
-        OCT_BB_INIT_VALS,  /* volume */ \
-        BSP_TREE_INIT_VALS /* tree   */ \
-    }
-#endif
-
 /** @todo Should return @a bool. */
 mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh);
 /** @todo Should return @a void. */

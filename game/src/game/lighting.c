@@ -31,9 +31,7 @@
 float light_a = 0.0f,
       light_d = 0.0f;
 fvec3_t light_nrm = fvec3_t::zero;
-#if 0
-float            light_nrm[3] = {0.0f, 0.0f, 0.0f};
-#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static bool lighting_sum_project( lighting_cache_t * dst, const lighting_cache_t * src, const fvec3_t& vec, const int dir );
@@ -586,12 +584,6 @@ float dyna_lighting_intensity( const dynalight_data_t * pdyna, const fvec3_t& di
 //--------------------------------------------------------------------------------------------
 bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighting, const fvec3_t& nrm )
 {
-#if 0
-    fvec3_base_t local_nrm;
-#endif
-#if 0
-    float rad_sqr;
-#endif
     if ( NULL == pdyna || NULL == lighting) return false;
 
     float level = 255 * dyna_lighting_intensity( pdyna, nrm );
@@ -602,9 +594,7 @@ bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighti
 
     // make a local copy of the normal so we do not normalize the data in the calling function
 	fvec3_t local_nrm = nrm;
-#if 0
-    memcpy( local_nrm, nrm, sizeof( local_nrm ) );
-#endif
+
     // do the normalization
     if ( 1.0f != rad_sqr && 0.0f != rad_sqr )
     {

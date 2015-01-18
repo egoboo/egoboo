@@ -2751,9 +2751,6 @@ void import_dir_profiles_vfs( const char * dirname )
 //--------------------------------------------------------------------------------------------
 void load_all_profiles_import()
 {
-#if 0
-    int cnt;
-#endif
     // Clear the import slots...
     import_data.slot_lst.fill(INVALID_PRO_REF);
     import_data.max_slot = -1;
@@ -2776,12 +2773,8 @@ void game_load_profile_ai()
     /// @author ZF
     /// @details load the AI for each profile, done last so that all reserved slot numbers are already set
     /// since AI scripts can dynamically load new objects if they require it
-#if 0
-    PRO_REF ipro;
-    STRING loadname;
-#endif
     // ensure that the script parser exists
-    parser_state_t * ps = script_compiler_get_state();
+    parser_state_t *ps = script_compiler_get_state();
 
     for(const auto &element : _profileSystem.getLoadedProfiles())
     {
@@ -3309,9 +3302,6 @@ void game_setup_module( const char *smallname )
 /// @details This function loads a module
 bool game_load_module_data( const char *smallname )
 {
-#if 0
-    egolib_rv mesh_BSP_retval;
-#endif
     STRING modname;
     ego_mesh_t * pmesh_rv;
 

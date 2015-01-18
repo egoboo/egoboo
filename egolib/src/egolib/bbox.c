@@ -1065,22 +1065,6 @@ bool oct_vec_ctor(oct_vec_t ovec, const fvec3_t& pos)
 	return true;
 }
 
-#if 0
-bool oct_vec_ctor( oct_vec_t ovec, const fvec3_base_t pos )
-{
-	if (NULL == ovec)
-	{
-		return false;
-	}
-    ovec[OCT_X ] =  pos[kX];
-    ovec[OCT_Y ] =  pos[kY];
-    ovec[OCT_Z ] =  pos[kZ];
-    ovec[OCT_XY] =  pos[kX] + pos[kY];
-    ovec[OCT_YX] = -pos[kX] + pos[kY];
-    return true;
-}
-#endif
-
 //--------------------------------------------------------------------------------------------
 bool oct_vec_self_clear( oct_vec_t * ovec )
 {
@@ -1113,43 +1097,6 @@ bool oct_vec_add_fvec3(const oct_vec_t osrc, const fvec3_t& fvec, oct_vec_t odst
 	}
 	return true;
 }
-
-#if 0
-bool oct_vec_add_fvec3( const oct_vec_t osrc, const fvec3_base_t fvec, oct_vec_t odst )
-{
-	if (NULL == odst)
-	{
-		return false;
-	}
-    oct_vec_ctor(odst, fvec);
-    if (NULL != osrc)
-    {
-        for (size_t cnt = 0; cnt < OCT_COUNT; cnt++)
-        {
-            odst[cnt] += osrc[cnt];
-        }
-    }
-    return true;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-#if 0
-bool oct_vec_self_add_fvec3( oct_vec_t osrc, const fvec3_base_t fvec )
-{
-	if (NULL == osrc)
-	{
-		return false;
-	}
-	oct_vec_t otmp;
-    oct_vec_ctor( otmp, fvec );
-    for (size_t cnt = 0; cnt < OCT_COUNT; cnt++)
-    {
-        osrc[cnt] += otmp[cnt];
-    }
-    return true;
-}
-#endif
 
 bool oct_vec_self_add_fvec3(oct_vec_t osrc, const fvec3_t& fvec)
 {
@@ -1622,39 +1569,6 @@ egolib_rv oct_bb_add_fvec3(const oct_bb_t *psrc, const fvec3_t& vec, oct_bb_t *p
 	return oct_bb_validate(pdst);
 }
 
-#if 0
-egolib_rv oct_bb_add_fvec3( const oct_bb_t * psrc, const fvec3_base_t vec, oct_bb_t * pdst )
-{
-    if ( NULL == pdst ) return rv_error;
-
-    if ( NULL == psrc )
-    {
-        oct_bb_ctor( pdst );
-    }
-    else
-    {
-        oct_bb_copy( pdst, psrc );
-    }
-
-    pdst->mins[OCT_X]  += vec[kX];
-    pdst->maxs[OCT_X]  += vec[kX];
-
-    pdst->mins[OCT_Y]  += vec[kY];
-    pdst->maxs[OCT_Y]  += vec[kY];
-
-    pdst->mins[OCT_XY] += vec[kX] + vec[kY];
-    pdst->maxs[OCT_XY] += vec[kX] + vec[kY];
-
-    pdst->mins[OCT_YX] += -vec[kX] + vec[kY];
-    pdst->maxs[OCT_YX] += -vec[kX] + vec[kY];
-
-    pdst->mins[OCT_Z]  += vec[kZ];
-    pdst->maxs[OCT_Z]  += vec[kZ];
-
-    return oct_bb_validate( pdst );
-}
-#endif
-
 //--------------------------------------------------------------------------------------------
 egolib_rv oct_bb_self_add_fvec3(oct_bb_t * pdst, const fvec3_t& vec)
 {
@@ -1677,31 +1591,6 @@ egolib_rv oct_bb_self_add_fvec3(oct_bb_t * pdst, const fvec3_t& vec)
 
 	return rv_success;
 }
-#if 0
-egolib_rv oct_bb_self_add_fvec3( oct_bb_t * pdst, const fvec3_base_t vec )
-{
-    if ( NULL == pdst ) return rv_error;
-
-    if ( NULL == vec ) return rv_success;
-
-    pdst->mins[OCT_X]  += vec[kX];
-    pdst->maxs[OCT_X]  += vec[kX];
-
-    pdst->mins[OCT_Y]  += vec[kY];
-    pdst->maxs[OCT_Y]  += vec[kY];
-
-    pdst->mins[OCT_XY] += vec[kX] + vec[kY];
-    pdst->maxs[OCT_XY] += vec[kX] + vec[kY];
-
-    pdst->mins[OCT_YX] += -vec[kX] + vec[kY];
-    pdst->maxs[OCT_YX] += -vec[kX] + vec[kY];
-
-    pdst->mins[OCT_Z]  += vec[kZ];
-    pdst->maxs[OCT_Z]  += vec[kZ];
-
-    return rv_success;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 egolib_rv oct_bb_add_ovec( const oct_bb_t * psrc, const oct_vec_t ovec, oct_bb_t * pdst )

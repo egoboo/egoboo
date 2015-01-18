@@ -302,7 +302,3 @@ const fvec3_t& prt_get_pos_v_const(const prt_t *self);
 float *prt_get_pos_v(prt_t *self);
 bool prt_set_pos(prt_t *self, const fvec3_t& position);
 bool prt_get_pos(const prt_t *self,fvec3_t& position);
-#if 0
-bool prt_get_pos(const prt_t *self, fvec3_base_t position); ///< @todo Remove this.
-bool prt_set_pos(prt_t *pprt, const fvec3_base_t position); ///< @todo Remove this.
-#endif

@@ -74,13 +74,7 @@ Camera::Camera(const CameraOptions &options) :
 {
     // derived values
 	_trackPos = _center;
-#if 0
-	fvec3_base_copy( _trackPos.v, _center.v );
-#endif
 	_pos = _center;
-#if 0
-    fvec3_base_copy( _pos.v,       _center.v );
-#endif
     _pos.x += _zoom * SIN( _turnZRad );
     _pos.y += _zoom * COS( _turnZRad );
     _pos.z += CAM_ZADD_MAX;
@@ -279,7 +273,7 @@ void Camera::updateCenter()
         fvec3_t track_vec;
 
         // what is the distance to the track position?
-        track_vec = fvec3_sub(_trackPos, _pos);
+        track_vec = _trackPos - _pos;
 
         // determine the size of the dead zone
         track_fov = DEFAULT_FOV * 0.25f;

@@ -39,13 +39,8 @@ struct aabb_t;
     typedef struct s_intersection_info intersection_info_t;
 
     struct cube_t;
-#if 0
-    typedef struct s_cube cube_t;
-#endif
     struct cone_t;
-#if 0
-    typedef struct s_cone cone_t;
-#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -150,11 +145,23 @@ struct aabb_t;
 // misc routines
 //--------------------------------------------------------------------------------------------
 
+/**
+ * @brief
+ *	Get the plane normal vector of this plane.
+ * @param self
+ *	this plane
+ * @return
+ *	the normal vector of this plane
+ * @remark
+ *	The normal vector of a plane is a unit vector.
+ */
+fvec3_t plane_get_normal(const plane_base_t self);
+
 /// The distance between a point and a plane
-    float plane_point_distance( const plane_base_t plane, const point_base_t pos );
+float plane_point_distance( const plane_base_t plane, const point_base_t pos );
 
 /// find the parametric line where two planes intersect
-    bool two_plane_intersection( fvec3_base_t dst_pos, fvec3_base_t dst_dir, const plane_base_t p0, const plane_base_t p1 );
+bool two_plane_intersection( fvec3_t& dst_pos, fvec3_t& dst_dir, const plane_base_t p0, const plane_base_t p1 );
 
 /// find the point where 3 planes intersect
-    bool three_plane_intersection( fvec3_base_t dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 );
+bool three_plane_intersection( fvec3_t& dst_pos, const plane_base_t p0, const plane_base_t p1, const plane_base_t p2 );

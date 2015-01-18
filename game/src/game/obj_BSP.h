@@ -29,9 +29,6 @@
 
 struct chr_t;
 struct s_prt_bundle;
-#if 0
-struct s_egolib_frustum;
-#endif
 struct mesh_BSP_t;
 
 //--------------------------------------------------------------------------------------------
@@ -53,11 +50,6 @@ struct s_obj_BSP
     /// the BSP of characters for character-character and character-particle interactions
     BSP_tree_t   tree;
 };
-
-#if 0
-/** @todo Remove this. obj_BSP_ctor must be used. */
-#define OBJ_BSP_INIT_VALS { 0, BSP_TREE_INIT_VALS }
-#endif
 
 /**
  * @todo

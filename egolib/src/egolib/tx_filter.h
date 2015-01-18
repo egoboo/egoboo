@@ -46,8 +46,3 @@ enum tx_filter_t
 	TX_FILTER_COUNT,
 
 };
-
-#if 0
-/** @todo Remove this alias. */
-typedef enum e_tx_filters TX_FILTERS;
-#endif

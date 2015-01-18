@@ -184,6 +184,28 @@ struct fvec3_t
 		z = other.z;
 		return *this;
 	}
+	fvec3_t operator+(const fvec3_t& other) const
+	{
+		return fvec3_t(x + other.x, y + other.y, z + other.z);
+	}
+	fvec3_t& operator+=(const fvec3_t& other)
+	{
+		x += other.x;
+		y += other.y;
+		z += other.z;
+		return *this;
+	}
+	fvec3_t operator-(const fvec3_t& other) const 
+	{
+		return fvec3_t(x - other.x, y - other.y, z - other.z);
+	}
+	fvec3_t& operator-=(const fvec3_t& other)
+	{
+		x -= other.x;
+		y -= other.y;
+		z -= other.z;
+		return *this;
+	}
 	float& operator[](size_t const& index)
 	{
 		EGOBOO_ASSERT(index < 3);
@@ -193,6 +215,24 @@ struct fvec3_t
 	{
 		EGOBOO_ASSERT(index < 3);
 		return this->v[index];
+	}
+	/**
+	 * @brief
+	 *	Compute the cross product of this vector and another vector.
+	 * @param other
+	 *	the other vector
+	 * @return
+	 *	the cross product <tt>(*this) x other</tt> of this vector and the other vector
+	 */
+	fvec3_t cross(const fvec3_t& other) const
+	{
+		return
+			fvec3_t
+			(
+				this->v[kY] * other.v[kZ] - this->v[kZ] * other.v[kY],
+				this->v[kZ] * other.v[kX] - this->v[kX] * other.v[kZ],
+				this->v[kX] * other.v[kY] - this->v[kY] * other.v[kX]
+			);
 	}
 	/**
 	 * @brief
@@ -224,6 +264,15 @@ struct fvec3_t
 		this->v[kY] *= scalar;
 		this->v[kZ] *= scalar;
 	}
+	fvec3_t operator*(const float other) const
+	{
+		return fvec3_t(other * v[kX], other * v[kY], other * v[kZ]);
+	}
+	fvec3_t& operator*=(float scalar)
+	{
+		multiply(scalar);
+		return *this;
+	}
 	/**
 	 * @brief
 	 *	Normalize this vector to the specified length.
@@ -244,17 +293,20 @@ struct fvec3_t
 	/**
 	 * @brief
 	 *	Normalize this vector.
+	 * @return
+	 *	the <em>old</em> length of the vector
 	 * @post
 	 *	If <tt>*this</tt> is the null/zero vector, then <tt>*this</tt> was assigned the null/zero vector
 	 *	and is assigned <tt>(*this) / |(*this)|</tt> otherwise.
 	 */
-	void normalize()
+	float normalize()
 	{
 		float l = this->length();
 		if (l > 0.0f)
 		{
 			multiply(1.0f / l);
 		}
+		return l;
 	}
 	/**
 	 * @brief
@@ -278,7 +330,7 @@ struct fvec3_t
 	 * @return
 	 *	the squared length of this vector
 	 */
-	float squaredLength() const
+	float length_2() const
 	{
 		return this->v[kX] * this->v[kX]
 			 + this->v[kY] * this->v[kY]
@@ -294,7 +346,7 @@ struct fvec3_t
 	 */
 	float length() const
 	{
-		return std::sqrt(squaredLength());
+		return std::sqrt(length_2());
 	}
 	/**
 	 * @brief
@@ -399,7 +451,7 @@ struct fvec4_t
 	 * @return
 	 *	the squared length of this vector
 	 */
-	float squaredLength() const
+	float length_2() const
 	{
 		return this->v[kX] * this->v[kX]
 			 + this->v[kY] * this->v[kY]
@@ -416,7 +468,7 @@ struct fvec4_t
 	 */
 	float length() const
 	{
-		return std::sqrt(squaredLength());
+		return std::sqrt(length_2());
 	}
 	/**
 	 * @brief
@@ -471,9 +523,6 @@ float *fvec2_scale(fvec2_base_t DST, const fvec2_base_t SRC, const float B);
  * @post
  *	the vector represents the null vector
  */
-#if 0
-void fvec3_ctor(fvec3_base_t v); ///< @todo Remove this.
-#endif
 void fvec3_ctor(fvec3_t& v);
 /**
  * @brief
@@ -481,9 +530,6 @@ void fvec3_ctor(fvec3_t& v);
  * @param v
  *	the vector
  */
-#if 0
-void fvec3_dtor(fvec3_base_t v);  ///< @todo Remove this.
-#endif
 void fvec3_dtor(fvec3_t& v);
 
 bool fvec3_valid(const fvec3_base_t A);
@@ -500,30 +546,7 @@ bool fvec3_self_clear(fvec3_base_t v); ///< @todo Remove this.
 
 bool fvec3_self_is_clear(const fvec3_base_t A);
 
-/**
- * @brief
- *	Multiply a vector by a scalar.
- * @param v
- *	the vector
- * @param s
- *	the scalar
- * @post
- *	@a v was assigned the product <tt>s*v</tt>.
- */
-bool   fvec3_self_scale(fvec3_t& v, const float s);
-#if 0
-bool fvec3_self_scale(fvec3_base_t v, const float s); ///< @todo Remove this.
-#endif
-
-void fvec3_self_normalize(fvec3_t& v);
-#if 1
-float fvec3_self_normalize(fvec3_base_t v); ///< @todo Remove this.
-#endif
-
-void fvec3_self_normalize_to(fvec3_t& v, const float s);
-#if 0
-float fvec3_self_normalize_to(fvec3_base_t v, const float s); ///< @todo Remove this.
-#endif
+float fvec3_self_normalize(fvec3_t& v);
 
 /**
  * @brief
@@ -535,7 +558,6 @@ float fvec3_self_normalize_to(fvec3_base_t v, const float s); ///< @todo Remove 
  *	the squared length of the vector
  */
 float fvec3_length_2(const fvec3_t& v);
-float fvec3_length_2(const fvec3_base_t v); ///< @todo Remove this.
 
 /**
  * @brief
@@ -547,7 +569,6 @@ float fvec3_length_2(const fvec3_base_t v); ///< @todo Remove this.
  *	the length of the vector
  */
 float fvec3_length(const fvec3_t& v);
-float fvec3_length(const fvec3_base_t v); ///< @todo Remove this.
 
 /**
  * @brief
@@ -559,7 +580,6 @@ float fvec3_length(const fvec3_base_t v); ///< @todo Remove this.
  *	the length of the vector
  */
 float fvec3_length_abs(const fvec3_t& v);
-float fvec3_length_abs(const fvec3_base_t v); ///< @todo Remove this.
 
 /**
  * @brief
@@ -574,42 +594,30 @@ float fvec3_dot_product(const fvec3_base_t u, const fvec3_base_t v); ///< @todo 
 
 /**
  * @brief
- *	Get the distance between to points
+ *	Get the distance between to vectors
  *	(using the taxicab metric).
  * @param u,v
- *	the points
+ *	the vectors
  * @return
- *	the distance between the points
+ *	the distance between the vectors
  */
 float fvec3_dist_abs(const fvec3_t& u, const fvec3_t& v);
-#if 0
-float fvec3_dist_abs(const fvec3_base_t u, const fvec3_base_t v); ///< @todo Remove this.
-#endif
 
 /**
  * @brief
- *	Get the squared distance between two points
+ *	Get the squared distance between two vectors
  *	(using the Euclidian metric).
  * @param u,v
- *	the points
+ *	the vectors
  * @return
- *	the squared distance between the points
+ *	the squared distance between the vectors
  */
 float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v);
-#if 0
-float fvec3_dist_2(const fvec3_base_t u, const fvec3_base_t v); ///< @todo Remove this.
-#endif
 
 float *fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC);
 fvec3_t fvec3_scale(const fvec3_t& v, float s);
-float *fvec3_scale(fvec3_base_t DST, const fvec3_base_t SRC, const float B);
 float *fvec3_normalize(fvec3_base_t DST, const fvec3_base_t SRC);
 
-#if 0
-bool fvec3_self_sum(fvec3_base_t A, const fvec3_base_t RHS);
-#endif
-fvec3_t fvec3_add(const fvec3_t& u, const fvec3_t& v);
-float *fvec3_add(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS);
 fvec3_t fvec3_sub(const fvec3_t& u, const fvec3_t& v);
 float *fvec3_sub(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS);
 

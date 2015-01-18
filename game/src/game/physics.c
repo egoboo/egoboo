@@ -295,7 +295,7 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
 
     if ( 1.0f == exponent )
     {
-        fvec3_self_normalize( nrm_diag );
+        fvec3_self_normalize(nrm_diag);
     }
     else
     {
@@ -332,9 +332,6 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
     {
         tmin = tmin_aa;
 		nrm = nrm_aa;
-#if 0
-        fvec3_base_copy( nrm, nrm_aa.v );
-#endif
     }
     else
     {
@@ -411,11 +408,7 @@ bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * po
 
     // handle "optional" parameters
     if ( NULL == depth ) depth = &loc_tmin;
-#if 0
-    if ( NULL == nrm ) nrm = loc_nrm.v;
-#endif
     if ( NULL == podepth || NULL == *podepth ) podepth = &loc_odepth;
-
     if ( NULL == pobb_a || NULL == pobb_b ) return false;
 
     // calculate the direction of the nearest way out for each octagonal axis
@@ -1649,11 +1642,11 @@ phys_data_t * phys_data_sum_acoll( phys_data_t * pphys, const fvec3_t& vec )
 }
 
 //--------------------------------------------------------------------------------------------
-phys_data_t * phys_data_sum_avel( phys_data_t * pphys, const fvec3_t& vec )
+phys_data_t *phys_data_sum_avel(phys_data_t * pphys, const fvec3_t& vec)
 {
-    if ( NULL == pphys ) return pphys;
+    if (NULL == pphys) return pphys;
 
-    pphys->avel = fvec3_add(pphys->avel, vec);
+    pphys->avel += vec;
 
     return pphys;
 }
@@ -1662,7 +1655,7 @@ phys_data_t * phys_data_sum_avel( phys_data_t * pphys, const fvec3_t& vec )
 //--------------------------------------------------------------------------------------------
 phys_data_t * phys_data_sum_aplat_index( phys_data_t * pphys, const float val, const int index )
 {
-    if ( NULL == pphys ) return pphys;
+    if (NULL == pphys) return pphys;
 
     LOG_NAN( val );
 
