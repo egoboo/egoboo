@@ -271,13 +271,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     snprintf( fromdir, SDL_arraysize( fromdir ), "%s", pobj->getFilePath().c_str() );
 
     // Build the DATA.TXT file
-    snprintf( tofile, SDL_arraysize( tofile ), "%s/data.txt", todir ); /*DATA.TXT*/
-    export_one_character_profile_vfs( tofile, character );
-
-    // Build the SKIN.TXT file
-    // this is now handled by the [SKIN] expansion in data.txt
-    //snprintf( tofile, SDL_arraysize( tofile ), "%s/skin.txt", todir ); /*SKIN.TXT*/
-    //export_one_character_skin_vfs( tofile, character );
+    _profileSystem.exportProfileToFile(todir, character);
 
     // Build the NAMING.TXT file
     snprintf( tofile, SDL_arraysize( tofile ), "%s/naming.txt", todir ); /*NAMING.TXT*/

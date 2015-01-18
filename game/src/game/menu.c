@@ -5465,7 +5465,7 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     slot = ( MAX_IMPORT_OBJECTS + 2 ) + lst->count;
 
     // try to load the character profile
-    std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(foundFile, slot);
+    std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(foundfile, slot);
     if(!profile) {
         return rv_fail;
     }

@@ -39,6 +39,7 @@
 //--------------------------------------------------------------------------------------------
 
 const char *parse_filename  = NULL;
+int parse_line_number = 0;
 
 IPair   pair;
 FRange  range;
@@ -154,8 +155,10 @@ bool goto_delimiter_vfs( char * buffer, vfs_FILE* fileread, char delim, bool opt
 
     if ( !optional && delim != iTmp )
     {
+        throw std::runtime_error(std::string("There are not enough ") + std::to_string(delim) + "'s in file! (" + parse_filename + ":" + std::to_string(parse_line_number) + ")\n");
+
         // not enough colons in file!
-        log_error( "There are not enough %c's in file! (%s)\n", delim, parse_filename );
+        log_error( "There are not enough %c's in file! (%s:%d)\n", delim, parse_filename, parse_line_number);
     }
 
     return ( delim == iTmp );
@@ -230,7 +233,7 @@ bool goto_colon_vfs( char * buffer, vfs_FILE* fileread, bool optional )
 {
     /// @author BB
     /// @details the two functions goto_colon_vfs and goto_colon_yesno have been combined
-
+    parse_line_number++;
     return goto_delimiter_vfs( buffer, fileread, ':', optional );
 }
 

@@ -625,8 +625,6 @@ bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t
 // save character functions
 bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character );
 bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
-bool  export_one_character_profile_vfs( const char *szSaveName, const CHR_REF character );
-bool  export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character );
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
 

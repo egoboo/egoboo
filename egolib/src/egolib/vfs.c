@@ -654,6 +654,7 @@ vfs_FILE * vfs_openRead( const char * filename )
     if ( NULL == vfs_file ) return NULL;
 
     parse_filename = filename;
+    parse_line_number = 1;
 
     vfs_file->type  = vfs_cfile;
     vfs_file->ptr.c = ftmp;

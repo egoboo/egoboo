@@ -36,10 +36,11 @@
 #include "game/mad.h"       //for loading md2
 #include "game/audio/AudioSystem.hpp"
 #include "egolib/file_formats/template.h"
+#include "egolib/math/Random.hpp"
 
 ObjectProfile::ObjectProfile() :
-    _requestCount(0),
-    _spawnCount(0),
+    requestCount(0),
+    spawnCount(0),
     _fileName("*NONE*"),
     _imad(INVALID_MAD_REF),
     _ieve(INVALID_EVE_REF),
@@ -47,7 +48,7 @@ ObjectProfile::ObjectProfile() :
 
     _randomName(),
     _aiScript(),
-    _particleProfiles{},
+    _particleProfiles(),
 
     _texturesLoaded(),
     _iconsLoaded(),
@@ -65,22 +66,23 @@ ObjectProfile::ObjectProfile() :
 
     // overrides
     _skinOverride(NO_SKIN_OVERRIDE),
-    _levelOverride(0)
+    _levelOverride(0),
     _stateOverride(0),
     _contentOverride(0),
 
     _idsz(),
 
     // inventory
-    _maxAmmo(0)
-    _ammo(0)
-    _money(0)
+    _maxAmmo(0),
+    _ammo(0),
+    _money(0),
 
     // characer stats
     _gender(GENDER_OTHER),
 
     // life
     _startingLife(),
+    _startingLifeRegeneration(),
     _spawnLife(PERFECTBIG),
 
     // mana
@@ -88,7 +90,6 @@ ObjectProfile::ObjectProfile() :
     _startingManaRegeneration(),
     _spawnMana(PERFECTBIG),
 
-    _startingLifeRegeneration(),
     _startingManaFlow(),
 
     _startingStrength(),
@@ -97,8 +98,8 @@ ObjectProfile::ObjectProfile() :
     _startingDexterity(),
 
     // physics
-    _weight(0),
-    _dampen(0.0f),
+    _weight(1),
+    _bounciness(0.0f),
     _bumpDampen(INV_FF),
 
     _size(1.0f),
@@ -135,8 +136,8 @@ ObjectProfile::ObjectProfile() :
     _transferBlending(false),
     _sheen(0),
     _phongMapping(false),
-    uoffvel(0),
-    voffvel(0),
+    _textureMovementRateX(0),
+    _textureMovementRateY(0),
     _uniformLit(false),
     _hasReflection(false),
     _alwaysDraw(false),
@@ -153,13 +154,10 @@ ObjectProfile::ObjectProfile() :
 
     // defense
     _resistBumpSpawn(false),
-    _defence(),
-    _damageModifier(),
-    _damageResistance(),
 
     // xp
     _experienceForLevel(),
-    _startingExperience()
+    _startingExperience(),
     _experienceWorth(0),
     _experienceExchange(0.0f),
     _experienceRate(),
@@ -182,11 +180,11 @@ ObjectProfile::ObjectProfile() :
     _usageIsKnown(false),
     _canCarryToNextModule(false),
 
-    _damageTargetDamageType(0),
+    _damageTargetDamageType(DAMAGE_CRUSH),
     _slotsValid(),
     _riderCanAttack(false),
     _kurseChance(0),
-    _hideState(NO_HIDE),
+    _hideState(NOHIDE),
     _isValuable(-1),
     _spellEffectType(NO_SKIN_OVERRIDE),
 
@@ -204,7 +202,7 @@ ObjectProfile::ObjectProfile() :
 
     // special particle effects
     _attachedParticleAmount(0),
-    _attachedParticleReaffirmDamagetype(0),
+    _attachedParticleReaffirmDamageType(DAMAGE_FIRE),
     _attachedParticleProfile(INVALID_PIP_REF),
 
     _goPoofParticleAmount(0),
@@ -222,66 +220,11 @@ ObjectProfile::ObjectProfile() :
     // random stuff
     _stickyButt(false)
 {
-    _particleProfiles.fill(INVALID_PIP_REF);
-
     _experienceRate.fill(0.0f);
     _idsz.fill(IDSZ_NONE);
     _experienceForLevel.fill(UINT32_MAX);
 
     memset(&_aiScript, 0, sizeof(script_info_t));
-}
-
-ObjectProfile::ObjectProfile(const std::string &folderPath, size_t slotNumber) : ObjectProfile()
-{
-    //Set some data
-    _fileName = folderPath;
-    _slotNumber = slotNumber;
-
-    // load the character profile
-    loadDataFile(folderPath + "/data.txt");
-
-    // Load the model for this profile
-    _imad = load_one_model_profile_vfs(folderPath.c_str(), slotNumber);
-
-    // Load the enchantment for this profile
-    STRING newloadname;
-    make_newloadname( folderPath.c_str(), "/enchant.txt", newloadname );
-    _ieve = EveStack_losd_one( newloadname, ( EVE_REF )_slotNumber );
-
-    // Load the messages for this profile, do this before loading the AI script
-    // to ensure any dynamic loaded messages get loaded last
-    loadAllMessages(folderPath + "/message.txt");
-
-    // Load the particles for this profile
-    for (size_t cnt = 0; cnt < _particleProfiles.size(); cnt++ )
-    {
-        const std::string particleName = folderPath + "/part" + std::to_string(cnt) + ".txt";
-
-        // Make sure it's referenced properly
-        _particleProfiles[cnt] = PipStack_load_one(particleName.c_str(), INVALID_PIP_REF);
-    }
-
-    loadTextures(folderPath);
-
-    // Load the waves for this iobj
-    for ( size_t cnt = 0; cnt < 30; cnt++ ) //TODO: make better search than just 30 (list files?)
-    {
-        const std::string soundName = folderPath + "/sound" + std::to_string(cnt);
-        SoundID soundID = _audioSystem.loadSound(soundName);
-
-        if(soundID != INVALID_SOUND_ID) {
-            _soundMap[cnt] = soundID
-        }
-    }
-
-    // Load the random naming table for this icap
-    _randomName.loadFromFile(folderPath + "/naming.txt");
-
-    // Fix lighting if need be
-    if (_uniformLit && cfg.gouraud_req)
-    {
-        mad_make_equally_lit_ref( _imad );
-    }
 }
 
 ObjectProfile::~ObjectProfile()
@@ -291,8 +234,8 @@ ObjectProfile::~ObjectProfile()
     //EveStack_release_one( pobj->ieve );
 
     //Release particle profiles
-    for(PRO_REF particle : _particleProfiles) {
-        PipStack_release_one(particle);
+    for(const auto &element : _particleProfiles) {
+        PipStack_release_one(element.second);
     }
 
     // release whatever textures are being used
@@ -313,7 +256,7 @@ ObjectProfile::~ObjectProfile()
     }
 }
 
-uint32_t ObjectProfile::getXPNeededForLevel(size_t level)
+uint32_t ObjectProfile::getXPNeededForLevel(uint8_t level) const
 {
     if(level >= _experienceForLevel.size()) {
         return UINT32_MAX;
@@ -435,14 +378,14 @@ SoundID ObjectProfile::getSoundID( int index ) const
     if(index < 0) return INVALID_SOUND_ID;
 
     //Try to find a SoundID that this number is mapped to
-    auto result = _soundMap.find(index);
+    const auto &result = _soundMap.find(index);
 
     //Not found?
     if(result == _soundMap.end()) {
         return INVALID_SOUND_ID;
     }
 
-    return *result;
+    return (*result).second;
 }
 
 IDSZ ObjectProfile::getIDSZ(size_t type) const
@@ -474,10 +417,14 @@ TX_REF ObjectProfile::getIcon(size_t index)
 
 PIP_REF ObjectProfile::getParticleProfile(size_t index) const
 {
-    if(index > _particleProfiles.size()) {
+    const auto &result = _particleProfiles.find(index);
+
+    //Not found in map?
+    if(result == _particleProfiles.end()) {
         return INVALID_PIP_REF;
     }
-    return _particleProfiles[index];
+
+    return (*result).second;
 }
 
 uint16_t ObjectProfile::getSkinOverride() const
@@ -523,14 +470,12 @@ void ObjectProfile::setupXPTable()
     }
 }
 
-void ObjectProfile::loadDataFile(const std::string &filePath)
+bool ObjectProfile::loadDataFile(const std::string &filePath)
 {
     // Open the file
     vfs_FILE* fileRead = vfs_openRead( filePath.c_str() );
-    if (!fileRead)
-    {
-        log_warning("Unable to load data.txt for profile: %s\n", filePath.c_str());
-        return;
+    if (!fileRead) {
+        return false;
     }
 
     //read slot number (ignored for now)
@@ -538,7 +483,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     //_slotNumber = vfs_get_next_int(fileRead);
 
     // Read in the class name
-    char buffer[128];
+    char buffer[256];
     vfs_get_next_name(fileRead, buffer, SDL_arraysize(buffer));
 
     // fix class name capitalization
@@ -591,33 +536,27 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     vfs_get_next_range(fileRead, &( _startingDexterity.perlevel));
 
     // More physical attributes
-    size = vfs_get_next_float(fileRead);
+    _size = vfs_get_next_float(fileRead);
     _sizeGainPerLevel = vfs_get_next_float(fileRead );
     _shadowSize = vfs_get_next_int(fileRead);
     _bumpSize = vfs_get_next_int(fileRead);
     _bumpHeight = vfs_get_next_int(fileRead);
-    _bumpDampen = vfs_get_next_float(fileRead );
-
-    //0 == bumpdampenmeans infinite mass, and causes some problems
-    _bumpDampen = std::max( INV_FF, _bumpDampen );
-
-    weight = vfs_get_next_int(fileRead);
+    _bumpDampen = std::max(INV_FF, vfs_get_next_float(fileRead));    //0 == bumpdampenmeans infinite mass, and causes some problems
+    _weight = vfs_get_next_int(fileRead);
     _jumpPower = vfs_get_next_float(fileRead );
     _jumpNumber = vfs_get_next_int(fileRead);
     _animationSpeedSneak = vfs_get_next_float(fileRead );
     _animationSpeedWalk = vfs_get_next_float(fileRead );
     _animationSpeedRun = vfs_get_next_float(fileRead );
-    _waterWalking = vfs_get_next_int(fileRead);
+    _flyHeight = vfs_get_next_int(fileRead);
     _flashAND = vfs_get_next_int(fileRead);
     _alpha = vfs_get_next_int(fileRead);
     _light = vfs_get_next_int(fileRead);
     _transferBlending = vfs_get_next_bool(fileRead);
-
     _sheen = vfs_get_next_int(fileRead);
     _phongMapping = vfs_get_next_bool(fileRead);
-
-    uoffvel    = FLOAT_TO_FFFF( vfs_get_next_float(fileRead) );
-    voffvel    = FLOAT_TO_FFFF( vfs_get_next_float(fileRead) );
+    _textureMovementRateX = FLOAT_TO_FFFF( vfs_get_next_float(fileRead) );
+    _textureMovementRateY = FLOAT_TO_FFFF( vfs_get_next_float(fileRead) );
     _stickyButt = vfs_get_next_bool(fileRead);
 
     // Invulnerability data
@@ -628,43 +567,40 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     iframeangle    = vfs_get_next_int(fileRead);
 
     // Resist burning and stuck arrows with nframe angle of 1 or more
-    if ( nframeangle > 0 )
+    if ( 1 == nframeangle )
     {
-        if ( 1 == nframeangle )
-        {
-            nframeangle = 0;
-        }
+        nframeangle = 0;
     }
 
     // Skin defenses ( 4 skins )
     goto_colon_vfs( NULL, fileRead, false );
-    for (size_t  cnt = 0; cnt < MAX_SKIN; cnt++ )
+    for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        iTmp = 0xFF - vfs_get_int( fileRead );
-        defense[cnt] = CLIP( iTmp, 0, 0xFF );
+        int iTmp = 0xFF - vfs_get_int( fileRead );
+        _skinInfo[cnt].defence = CLIP( iTmp, 0, 0xFF );
     }
 
-    for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
+    for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         goto_colon_vfs( NULL, fileRead, false );
         for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
-            damage_resistance[damagetype][cnt] = vfs_get_damage_resist( fileRead );
+            _skinInfo[cnt].damageResistance[damagetype] = vfs_get_damage_resist( fileRead );
         }
     }
 
-    for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
+    for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
     {
         goto_colon_vfs( NULL, fileRead, false );
 
-        for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
+        for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
         {
             switch ( char_toupper(vfs_get_first_letter(fileRead)) )
             {
-                case 'T': damage_modifier[damagetype][cnt] |= DAMAGEINVERT;   break;
-                case 'C': damage_modifier[damagetype][cnt] |= DAMAGECHARGE;   break;
-                case 'M': damage_modifier[damagetype][cnt] |= DAMAGEMANA;     break;
-                case 'I': damage_modifier[damagetype][cnt] |= DAMAGEINVICTUS; break;
+                case 'T': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGEINVERT;   break;
+                case 'C': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGECHARGE;   break;
+                case 'M': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGEMANA;     break;
+                case 'I': _skinInfo[cnt].damageModifier[damagetype] |= DAMAGEINVICTUS; break;
 
                     //F is nothing
                 default: break;
@@ -672,15 +608,15 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
         }
     }
 
-    goto_colon_vfs( NULL, fileRead, false );
-    for ( cnt = 0; cnt < MAX_SKIN; cnt++ )
+    goto_colon_vfs(NULL, fileRead, false);
+    for (size_t cnt = 0; cnt < MAX_SKIN; cnt++)
     {
-        skin_info.maxaccel[cnt] = vfs_get_float( fileRead ) / 80.0f;
+        _skinInfo[cnt].maxAccel = vfs_get_float( fileRead ) / 80.0f;
     }
 
     // Experience and level data
     _experienceForLevel[0] = 0;
-    for ( size_t level = 1; level < _experienceForLevel.size(); level++ )
+    for ( size_t level = 1; level < MAXBASELEVEL; level++ )
     {
         _experienceForLevel[level] = vfs_get_next_int(fileRead);
     }
@@ -717,12 +653,12 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     _canOpenStuff        = vfs_get_next_bool(fileRead);
 
     // More item and damage stuff
-    _damageTargetDamageType = vfs_get_next_damage_type( fileRead );
+    _damageTargetDamageType = static_cast<DamageType>(vfs_get_next_damage_type(fileRead));
     _weaponAction            = action_which( vfs_get_next_char( fileRead ) );
 
     // Particle attachments
     _attachedParticleAmount              = vfs_get_next_int( fileRead );
-    _attachedParticleReaffirmDamagetype = vfs_get_next_damage_type( fileRead );
+    _attachedParticleReaffirmDamageType = static_cast<DamageType>(vfs_get_next_damage_type(fileRead));
     _attachedParticleProfile  = getParticleProfile( vfs_get_next_int(fileRead) );
 
     // Character hands
@@ -745,37 +681,39 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
         case 'U': _bludValid = ULTRABLUDY;  break;
         default:  _bludValid = false;       break;
     }
-    _bludParticleProfile = vfs_get_next_int(fileRead);
+    _bludParticleProfile = getParticleProfile(vfs_get_next_int(fileRead));
 
     // Stuff I forgot
     _waterWalking = vfs_get_next_bool( fileRead );
-    dampen    = vfs_get_next_float( fileRead );
+    _bounciness   = vfs_get_next_float( fileRead );
 
     // More stuff I forgot
     vfs_get_next_float( fileRead );  //ZF> deprecated value LifeReturn (no longer used)
-    fs_get_next_float( fileRead );  //ZF> deprecated value ManaCost (no longer used)
+    vfs_get_next_float( fileRead );  //ZF> deprecated value ManaCost (no longer used)
     _startingLifeRegeneration  = vfs_get_next_int( fileRead );
     _stoppedBy   |= vfs_get_next_int( fileRead );
 
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        vfs_get_next_name( fileRead, skin_info.name[cnt], sizeof( skin_info.name[cnt] ) );
+        char skinName[256];
+        vfs_get_next_name(fileRead, skinName, 256);
+        _skinInfo[cnt].name = skinName;
     }
 
     for (size_t cnt = 0; cnt < MAX_SKIN; cnt++ )
     {
-        skin_info.cost[cnt] = vfs_get_next_int( fileRead );
+        _skinInfo[cnt].cost = vfs_get_next_int( fileRead );
     }
 
     _strengthBonus = vfs_get_next_float( fileRead );          //ZF> Deprecated, but keep here for backwards compatability
 
     // Another memory lapse
-    _riderCanAttack = !vfs_get_next_bool(fileRead);
+    _riderCanAttack = !vfs_get_next_bool(fileRead);     //ZF> note value is inverted intentionally
     _canBeDazed     =  vfs_get_next_bool(fileRead);
     _canBeGrogged   =  vfs_get_next_bool(fileRead);
 
-    goto_colon_vfs( NULL, fileRead, false );  // Depracated, no longer used (life add)
-    goto_colon_vfs( NULL, fileRead, false );  // Depracated, no longer used (mana add)
+    goto_colon_vfs( NULL, fileRead, false );  // Depracated, no longer used (permanent life add)
+    goto_colon_vfs( NULL, fileRead, false );  // Depracated, no longer used (permanent mana add)
     if ( vfs_get_next_bool(fileRead) ) {
         _seeInvisibleLevel = 1;
     }
@@ -794,7 +732,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
     _drawIcon = _usageIsKnown;
 
     // assume normal platform usage
-    _canUsePlatforms = !platform;
+    _canUsePlatforms = !_isPlatform;
 
     // Read expansions
     while ( goto_colon_vfs(NULL, fileRead, true) )
@@ -804,11 +742,11 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
         switch(idsz)
         {
             case MAKE_IDSZ( 'D', 'R', 'E', 'S' ):
-                getSkinInfo(vfs_get_int(fileRead)).dressy = true;
+                _skinInfo[vfs_get_int(fileRead)].dressy = true;
             break;
 
             case MAKE_IDSZ( 'G', 'O', 'L', 'D' ):
-                money = vfs_get_int( fileRead );
+                _money = vfs_get_int( fileRead );
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'U', 'K' ):
@@ -820,7 +758,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'V', 'A', 'M', 'P' ):
-                reflect = !( 0 != vfs_get_int( fileRead ) );
+                _hasReflection = !( 0 != vfs_get_int( fileRead ) );
             break;
 
             case MAKE_IDSZ( 'D', 'R', 'A', 'W' ):
@@ -832,7 +770,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'H', 'I', 'D', 'E' ):
-                hidestate = vfs_get_int( fileRead );
+                _hideState = vfs_get_int( fileRead );
             break;
 
             case MAKE_IDSZ( 'E', 'Q', 'U', 'I' ):
@@ -861,20 +799,20 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
                 iTmp = ( iTmp > MAX_SKIN ) ? MAX_SKIN : iTmp;
-                skin_override = iTmp;  
+                _skinOverride = iTmp;  
             }          
             break;
 
             case MAKE_IDSZ( 'C', 'O', 'N', 'T' ): 
-                content_override = vfs_get_int( fileRead );
+                _contentOverride = vfs_get_int( fileRead );
             break;
 
             case MAKE_IDSZ( 'S', 'T', 'A', 'T' ): 
-                state_override = vfs_get_int( fileRead );
+                _stateOverride = vfs_get_int( fileRead );
             break;
 
             case MAKE_IDSZ( 'L', 'E', 'V', 'L' ): 
-                level_override = vfs_get_int( fileRead );
+                _levelOverride = vfs_get_int( fileRead );
             break;
 
             case MAKE_IDSZ( 'P', 'L', 'A', 'T' ): 
@@ -886,7 +824,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
             break;
 
             case MAKE_IDSZ( 'V', 'A', 'L', 'U' ): 
-                isvaluable = vfs_get_int( fileRead );
+                _isValuable = vfs_get_int( fileRead );
             break;
 
             case MAKE_IDSZ( 'L', 'I', 'F', 'E' ): 
@@ -907,7 +845,7 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
 
                 iTmp = ( iTmp < 0 ) ? NO_SKIN_OVERRIDE : iTmp;
                 iTmp = ( iTmp > MAX_SKIN ) ? MAX_SKIN : iTmp;
-                spelleffect_type = iTmp;
+                _spellEffectType = iTmp;
             }
             break;
 
@@ -973,384 +911,19 @@ void ObjectProfile::loadDataFile(const std::string &filePath)
 
             default:
                 //If it is none of the predefined IDSZ extensions then add it as a new skill
-                _skills.insert(idsz);
+                _skills[idsz] = vfs_get_int(fileRead);
             break;
         }
-
     }
 
     vfs_close( fileRead );
-    return pcap;
+    return true;
 }
 
-const SkinInfo& ObjectProfile::getSkinInfo(size_t index) const
+const SkinInfo& ObjectProfile::getSkinInfo(size_t index)
 {
     return _skinInfo[index];
 }
-
-//--------------------------------------------------------------------------------------------
-/*
-bool ObjectProfile::exportToDataFile( const std::string &filePath, const char * szTemplateName, cap_t * pcap )
-{
-    /// @author BB
-    /// @details export one cap_t struct to a "data.txt" file
-    ///     converted to using the template file
-    int damagetype, skin;
-
-    // Open the file
-    vfs_FILE* fileWrite = vfs_openWrite( filePath.c_str() );
-    if ( NULL == fileWrite ) return false;
-
-    // open the template file
-    vfs_FILE* filetemp = nullptr;
-
-    // try the given template file
-    if ( VALID_CSTR( szTemplateName ) )
-    {
-        filetemp = template_open_vfs( szTemplateName );
-    }
-
-    // try a default template file
-    if ( NULL == filetemp )
-    {
-        filetemp = template_open_vfs( "mp_data/templates/data.txt" );
-    }
-
-    //did we find a template file?
-    if ( NULL == filetemp )
-    {
-        vfs_close( fileWrite );
-        return false;
-    }
-
-    // Real general data
-    template_put_int( filetemp, fileWrite, -1 );     // -1 signals a flexible load thing
-    template_put_string_under( filetemp, fileWrite, pcap->classname );
-    template_put_bool( filetemp, fileWrite, pcap->uniformlit );
-    template_put_int( filetemp, fileWrite, pcap->ammomax );
-    template_put_int( filetemp, fileWrite, pcap->ammo );
-    template_put_gender( filetemp, fileWrite, pcap->gender );
-
-    // Object stats
-    template_put_int( filetemp, fileWrite, pcap->life_color );
-    template_put_int( filetemp, fileWrite, pcap->mana_color );
-    template_put_range( filetemp, fileWrite, pcap->_startingLife.val );
-    template_put_range( filetemp, fileWrite, pcap->_startingLife.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->_startingMana.val );
-    template_put_range( filetemp, fileWrite, pcap->_startingMana.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->_startingManaRegeneration.val );
-    template_put_range( filetemp, fileWrite, pcap->_startingManaRegeneration.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->_startingManaFlow.val );
-    template_put_range( filetemp, fileWrite, pcap->_startingManaFlow.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->_startingStrength.val );
-    template_put_range( filetemp, fileWrite, pcap->_startingStrength.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->_startingWisdom.val );
-    template_put_range( filetemp, fileWrite, pcap->_startingWisdom.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->_startingIntelligence.val );
-    template_put_range( filetemp, fileWrite, pcap->_startingIntelligence.perlevel );
-    template_put_range( filetemp, fileWrite, pcap->_startingDexterity.val );
-    template_put_range( filetemp, fileWrite, pcap->_startingDexterity.perlevel );
-
-    // More physical attributes
-    template_put_float( filetemp, fileWrite, pcap->size );
-    template_put_float( filetemp, fileWrite, pcap->_sizeGainPerLevel );
-    template_put_int( filetemp, fileWrite, pcap->_shadowSize );
-    template_put_int( filetemp, fileWrite, pcap->_bumpSize );
-    template_put_int( filetemp, fileWrite, pcap->_bumpHeight );
-    template_put_float( filetemp, fileWrite, pcap->_bumpDampen );
-    template_put_int( filetemp, fileWrite, pcap->weight );
-    template_put_float( filetemp, fileWrite, pcap->jump );
-    template_put_int( filetemp, fileWrite, pcap->jumpnumber );
-    template_put_float( filetemp, fileWrite, pcap->_animationSpeedSneak );
-    template_put_float( filetemp, fileWrite, pcap->_animationSpeedWalk );
-    template_put_float( filetemp, fileWrite, pcap->_animationSpeedRun );
-    template_put_int( filetemp, fileWrite, pcap->flyheight );
-    template_put_int( filetemp, fileWrite, pcap->flashand );
-    template_put_int( filetemp, fileWrite, pcap->alpha );
-    template_put_int( filetemp, fileWrite, pcap->light );
-    template_put_bool( filetemp, fileWrite, pcap->transferblend );
-    template_put_int( filetemp, fileWrite, pcap->sheen );
-    template_put_bool( filetemp, fileWrite, pcap->enviro );
-    template_put_float( filetemp, fileWrite, FFFF_TO_FLOAT( pcap->uoffvel ) );
-    template_put_float( filetemp, fileWrite, FFFF_TO_FLOAT( pcap->voffvel ) );
-    template_put_bool( filetemp, fileWrite, pcap->_stickyButt );
-
-    // Invulnerability data
-    template_put_bool( filetemp, fileWrite, pcap->invictus );
-    template_put_int( filetemp, fileWrite, pcap->nframefacing );
-    template_put_int( filetemp, fileWrite, pcap->nframeangle );
-    template_put_int( filetemp, fileWrite, pcap->iframefacing );
-    template_put_int( filetemp, fileWrite, pcap->iframeangle );
-
-    // Skin defenses
-    template_put_int( filetemp, fileWrite, 255 - pcap->defense[0] );
-    template_put_int( filetemp, fileWrite, 255 - pcap->defense[1] );
-    template_put_int( filetemp, fileWrite, 255 - pcap->defense[2] );
-    template_put_int( filetemp, fileWrite, 255 - pcap->defense[3] );
-
-    for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
-    {
-        template_put_float( filetemp, fileWrite, pcap->damage_resistance[damagetype][0] );
-        template_put_float( filetemp, fileWrite, pcap->damage_resistance[damagetype][1] );
-        template_put_float( filetemp, fileWrite, pcap->damage_resistance[damagetype][2] );
-        template_put_float( filetemp, fileWrite, pcap->damage_resistance[damagetype][3] );
-    }
-
-    for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
-    {
-        char code;
-
-        for ( skin = 0; skin < MAX_SKIN; skin++ )
-        {
-            if ( HAS_SOME_BITS( pcap->damage_modifier[damagetype][skin], DAMAGEMANA ) )
-            {
-                code = 'M';
-            }
-            else if ( HAS_SOME_BITS( pcap->damage_modifier[damagetype][skin], DAMAGECHARGE ) )
-            {
-                code = 'C';
-            }
-            else if ( HAS_SOME_BITS( pcap->damage_modifier[damagetype][skin], DAMAGEINVERT ) )
-            {
-                code = 'T';
-            }
-            else if ( HAS_SOME_BITS( pcap->damage_modifier[damagetype][skin], DAMAGEINVICTUS ) )
-            {
-                code = 'I';
-            }
-            else
-            {
-                code = 'F';
-            }
-
-            template_put_char( filetemp, fileWrite, code );
-        }
-    }
-
-    template_put_float( filetemp, fileWrite, pcap->skin_info.maxaccel[0]*80 );
-    template_put_float( filetemp, fileWrite, pcap->skin_info.maxaccel[1]*80 );
-    template_put_float( filetemp, fileWrite, pcap->skin_info.maxaccel[2]*80 );
-    template_put_float( filetemp, fileWrite, pcap->skin_info.maxaccel[3]*80 );
-
-    // Experience and level data
-    template_put_int( filetemp, fileWrite, pcap->experience_forlevel[1] );
-    template_put_int( filetemp, fileWrite, pcap->experience_forlevel[2] );
-    template_put_int( filetemp, fileWrite, pcap->experience_forlevel[3] );
-    template_put_int( filetemp, fileWrite, pcap->experience_forlevel[4] );
-    template_put_int( filetemp, fileWrite, pcap->experience_forlevel[5] );
-    template_put_float( filetemp, fileWrite, FLOAT_TO_FP8( pcap->experience.from ) );
-    template_put_int( filetemp, fileWrite, pcap->experience_worth );
-    template_put_float( filetemp, fileWrite, pcap->experience_exchange );
-    template_put_float( filetemp, fileWrite, pcap->experience_rate[0] );
-    template_put_float( filetemp, fileWrite, pcap->experience_rate[1] );
-    template_put_float( filetemp, fileWrite, pcap->experience_rate[2] );
-    template_put_float( filetemp, fileWrite, pcap->experience_rate[3] );
-    template_put_float( filetemp, fileWrite, pcap->experience_rate[4] );
-    template_put_float( filetemp, fileWrite, pcap->experience_rate[5] );
-    template_put_float( filetemp, fileWrite, pcap->experience_rate[6] );
-    template_put_float( filetemp, fileWrite, pcap->experience_rate[7] );
-
-    // IDSZ identification tags
-    template_put_idsz( filetemp, fileWrite, pcap->idsz[IDSZ_PARENT] );
-    template_put_idsz( filetemp, fileWrite, pcap->idsz[IDSZ_TYPE] );
-    template_put_idsz( filetemp, fileWrite, pcap->idsz[IDSZ_SKILL] );
-    template_put_idsz( filetemp, fileWrite, pcap->idsz[IDSZ_SPECIAL] );
-    template_put_idsz( filetemp, fileWrite, pcap->idsz[IDSZ_HATE] );
-    template_put_idsz( filetemp, fileWrite, pcap->idsz[IDSZ_VULNERABILITY] );
-
-    // Item and damage flags
-    template_put_bool( filetemp, fileWrite, pcap->isitem );
-    template_put_bool( filetemp, fileWrite, pcap->ismount );
-    template_put_bool( filetemp, fileWrite, pcap->isstackable );
-    template_put_bool( filetemp, fileWrite, pcap->_nameIsKnown );
-    template_put_bool( filetemp, fileWrite, pcap->_usageIsKnown );
-    template_put_bool( filetemp, fileWrite, pcap->_canCarryToNextModule );
-    template_put_bool( filetemp, fileWrite, pcap->_needSkillIDToUse );
-    template_put_bool( filetemp, fileWrite, pcap->platform );
-    template_put_bool( filetemp, fileWrite, pcap->cangrabmoney );
-    template_put_bool( filetemp, fileWrite, pcap->canopenstuff );
-
-    // Other item and damage stuff
-    template_put_damage_type( filetemp, fileWrite, pcap->_damageTargetDamageType );
-    template_put_action( filetemp, fileWrite, pcap->_weaponAction );
-
-    // Particle attachments
-    template_put_int( filetemp, fileWrite, pcap->_attachedParticleAmount );
-    template_put_damage_type( filetemp, fileWrite, pcap->_attachedParticleReaffirmDamagetype );
-    template_put_int( filetemp, fileWrite, pcap->_attachedParticleProfile );
-
-    // Character hands
-    template_put_bool( filetemp, fileWrite, pcap->_slotsValid[SLOT_LEFT] );
-    template_put_bool( filetemp, fileWrite, pcap->_slotsValid[SLOT_RIGHT] );
-
-    // Particle spawning on attack
-    template_put_bool( filetemp, fileWrite, 0 != pcap->_attackAttached );
-    template_put_int( filetemp, fileWrite, pcap->_attackParticleProfile );
-
-    // Particle spawning for GoPoof
-    template_put_int( filetemp, fileWrite, pcap->_goPoofParticleAmount );
-    template_put_int( filetemp, fileWrite, pcap->_goPoofParticleFacingAdd );
-    template_put_int( filetemp, fileWrite, pcap->_goPoofParticleProfile );
-
-    // Particle spawning for blud
-    template_put_bool( filetemp, fileWrite, 0 != pcap->_bludValid );
-    template_put_int( filetemp, fileWrite, pcap->_bludParticleProfile );
-
-    // Extra stuff
-    template_put_bool( filetemp, fileWrite, pcap->waterwalk );
-    template_put_float( filetemp, fileWrite, pcap->dampen );
-
-    // More stuff
-    template_put_float( filetemp, fileWrite, FP8_TO_FLOAT( pcap->_startingLifeRegeneration ) );     // These two are seriously outdated
-    template_put_float( filetemp, fileWrite, FP8_TO_FLOAT( pcap->_manaCost ) );     // and shouldnt be used. Use scripts instead.
-    template_put_int( filetemp, fileWrite, pcap->_startingLifeRegeneration );
-    template_put_int( filetemp, fileWrite, pcap->stoppedby );
-    template_put_string_under( filetemp, fileWrite, pcap->skin_info.name[0] );
-    template_put_string_under( filetemp, fileWrite, pcap->skin_info.name[1] );
-    template_put_string_under( filetemp, fileWrite, pcap->skin_info.name[2] );
-    template_put_string_under( filetemp, fileWrite, pcap->skin_info.name[3] );
-    template_put_int( filetemp, fileWrite, pcap->skin_info.cost[0] );
-    template_put_int( filetemp, fileWrite, pcap->skin_info.cost[1] );
-    template_put_int( filetemp, fileWrite, pcap->skin_info.cost[2] );
-    template_put_int( filetemp, fileWrite, pcap->skin_info.cost[3] );
-    template_put_float( filetemp, fileWrite, pcap->_strengthBonus );
-
-    // Another memory lapse
-    template_put_bool( filetemp, fileWrite, !pcap->_riderCanAttack );
-    template_put_bool( filetemp, fileWrite, pcap->_canBeDazed );
-    template_put_bool( filetemp, fileWrite, pcap->_canBeGrogged );
-    template_put_int( filetemp, fileWrite, 0 );
-    template_put_int( filetemp, fileWrite, 0 );
-    template_put_bool( filetemp, fileWrite, pcap->_seeInvisibleLevel > 0 );
-    template_put_int( filetemp, fileWrite, pcap->kursechance );
-    template_put_int( filetemp, fileWrite, pcap->sound_index[SOUND_FOOTFALL] );
-    template_put_int( filetemp, fileWrite, pcap->sound_index[SOUND_JUMP] );
-
-    vfs_flush( fileWrite );
-
-    // copy the template file to the next free output section
-    template_seek_free( filetemp, fileWrite );
-
-    // Expansions
-    if ( pcap->skin_info.dressy&1 )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 0 );
-
-    if ( pcap->skin_info.dressy&2 )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 1 );
-
-    if ( pcap->skin_info.dressy&4 )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 2 );
-
-    if ( pcap->skin_info.dressy&8 )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), 3 );
-
-    if ( pcap->resistbumpspawn )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'U', 'K' ), 0 );
-
-    if ( pcap->_isBigItem )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'P', 'A', 'C', 'K' ), 0 );
-
-    if ( !pcap->reflect )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'V', 'A', 'M', 'P' ), 1 );
-
-    if ( pcap->alwaysdraw )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'D', 'R', 'A', 'W' ), 1 );
-
-    if ( pcap->_isRanged )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'R', 'A', 'N', 'G' ), 1 );
-
-    if ( pcap->hidestate != NOHIDE )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'H', 'I', 'D', 'E' ), pcap->hidestate );
-
-    if ( pcap->_isEquipment )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'E', 'Q', 'U', 'I' ), 1 );
-
-    if ( pcap->_bumpSizeBig >= pcap->_bumpSize * 2 )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'Q', 'U', 'A' ), 1 );
-
-    if ( pcap->draw_icon != pcap->_usageIsKnown )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'I', 'C', 'O', 'N' ), pcap->draw_icon );
-
-    if ( pcap->forceshadow )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'H', 'A', 'D' ), 1 );
-
-    if ( pcap->ripple == pcap->isitem )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'R', 'I', 'P', 'P' ), pcap->ripple );
-
-    if ( -1 != pcap->isvaluable )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'V', 'A', 'L', 'U' ), pcap->isvaluable );
-
-    if ( pcap->spelleffect_type >= 0 )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), pcap->spelleffect_type );
-
-    if ( pcap->_attackFast )
-        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'F', 'A', 'S', 'T' ), pcap->_attackFast );
-
-    if ( pcap->_strengthBonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'R', 'D' ), pcap->_strengthBonus );
-
-    if ( pcap->_intelligenceBonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'I', 'N', 'T', 'D' ), pcap->_intelligenceBonus );
-
-    if ( pcap->_dexterityBonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'D', 'E', 'X', 'D' ), pcap->_dexterityBonus );
-
-    if ( pcap->_wisdomBonus > 0 )
-        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'W', 'I', 'S', 'D' ), pcap->_wisdomBonus );
-
-    if ( pcap->_bumpOverrideSize || pcap->_bumpOverrideSizeBig ||  pcap->_bumpOverrideHeight )
-    {
-        STRING sz_tmp = EMPTY_CSTR;
-
-        if ( pcap->_bumpOverrideSize ) strcat( sz_tmp, "S" );
-        if ( pcap->_bumpOverrideSizeBig ) strcat( sz_tmp, "B" );
-        if ( pcap->_bumpOverrideHeight ) strcat( sz_tmp, "H" );
-        if ( pcap->dont_cull_backfaces ) strcat( sz_tmp, "C" );
-        if ( pcap->skin_has_transparency ) strcat( sz_tmp, "T" );
-
-        if ( CSTR_END != sz_tmp[0] )
-        {
-            vfs_put_expansion_string( fileWrite, "", MAKE_IDSZ( 'M', 'O', 'D', 'L' ), sz_tmp );
-        }
-    }
-
-    // Basic stuff that is always written
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'G', 'O', 'L', 'D' ), pcap->money );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'P', 'L', 'A', 'T' ), pcap->canuseplatforms );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'K', 'I', 'N' ), pcap->skin_override );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'C', 'O', 'N', 'T' ), pcap->content_override );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), pcap->state_override );
-    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), pcap->level_override );
-    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( pcap->_spawnLife ) );
-    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( pcap->_spawnMana ) );
-
-    // Copy all skill expansions
-    {
-        IDSZ_node_t *pidsz;
-        int iterator;
-
-        iterator = 0;
-        pidsz = idsz_map_iterate( pcap->skills, SDL_arraysize( pcap->skills ), &iterator );
-        while ( pidsz != NULL )
-        {
-            //Write that skill into the file
-            vfs_put_expansion( fileWrite, "", pidsz->id, pidsz->level );
-
-            //Get the next IDSZ from the map
-            pidsz = idsz_map_iterate( pcap->skills, SDL_arraysize( pcap->skills ), &iterator );
-        }
-    }
-
-    // dump the rest of the template file
-    template_flush( filetemp, fileWrite );
-
-    // The end
-    vfs_close( fileWrite );
-    template_close_vfs( filetemp );
-
-    return true;
-}
-*/
 
 float ObjectProfile::getExperienceRate(XPType type) const
 {
@@ -1361,7 +934,7 @@ float ObjectProfile::getExperienceRate(XPType type) const
     return _experienceRate[type];
 }
 
-bool ObjectProfile::hasTypeIDSZ(const IDSZ idsz)
+bool ObjectProfile::hasTypeIDSZ(const IDSZ idsz) const
 {
     if ( IDSZ_NONE == idsz ) return true;
     if ( idsz == _idsz[IDSZ_TYPE  ] ) return true;
@@ -1370,7 +943,7 @@ bool ObjectProfile::hasTypeIDSZ(const IDSZ idsz)
     return false;
 }
 
-bool ObjectProfile::hasIDSZ(IDSZ idsz)
+bool ObjectProfile::hasIDSZ(IDSZ idsz) const
 {
     for(IDSZ compare : _idsz)
     {
@@ -1381,4 +954,98 @@ bool ObjectProfile::hasIDSZ(IDSZ idsz)
     }
 
     return false;
+}
+
+std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &folderPath, const PRO_REF slotNumber)
+{
+    //Make sure slot number is valid
+    if(slotNumber == INVALID_PRO_REF)
+    {
+        log_warning("ObjectProfile::loadFromFile() - Invalid PRO_REF (%d)\n", slotNumber);
+        return nullptr;
+    }
+
+    //Allocate memory
+    std::shared_ptr<ObjectProfile> profile = std::make_shared<ObjectProfile>();
+
+    //Set some data
+    profile->_fileName = folderPath;
+    profile->_slotNumber = slotNumber;
+
+    // Load the model for this profile
+    profile->_imad = load_one_model_profile_vfs(folderPath.c_str(), profile->_slotNumber);
+    if(profile->_imad == INVALID_MAD_REF)
+    {
+        log_warning("ObjectProfile::loadFromFile() - Unable to load model (%s)\n", folderPath.c_str());
+        return nullptr;
+    }
+
+    // Load the enchantment for this profile (optional)
+    STRING newloadname;
+    make_newloadname( folderPath.c_str(), "/enchant.txt", newloadname );
+    profile->_ieve = EveStack_losd_one( newloadname, static_cast<EVE_REF>(slotNumber) );
+
+    // Load the messages for this profile, do this before loading the AI script
+    // to ensure any dynamic loaded messages get loaded last (optional)
+    profile->loadAllMessages(folderPath + "/message.txt");
+
+    // Load the particles for this profile (optional)
+    for (size_t cnt = 0; cnt < 30; cnt++ ) //TODO: find better way of listing files
+    {
+        const std::string particleName = folderPath + "/part" + std::to_string(cnt) + ".txt";
+        PIP_REF particleProfile = PipStack_load_one(particleName.c_str(), INVALID_PIP_REF);
+
+        // Make sure it's referenced properly
+        if(particleProfile != INVALID_PIP_REF) {
+            profile->_particleProfiles[cnt] = particleProfile; 
+        }
+    }
+
+    //Load profile graphics (optional)
+    profile->loadTextures(folderPath);
+
+    // Load the waves for this iobj
+    for ( size_t cnt = 0; cnt < 30; cnt++ ) //TODO: make better search than just 30 (list files?)
+    {
+        const std::string soundName = folderPath + "/sound" + std::to_string(cnt);
+        SoundID soundID = _audioSystem.loadSound(soundName);
+
+        if(soundID != INVALID_SOUND_ID) {
+            profile->_soundMap[cnt] = soundID;
+        }
+    }
+
+    // Load the random naming table for this icap (optional)
+    profile->_randomName.loadFromFile(folderPath + "/naming.txt");
+
+    // Finally load the character profile
+    // Do after loading particle and sound profiles
+    try {
+        if(!profile->loadDataFile(folderPath + "/data.txt")) {
+            log_warning("Unable to load data.txt for profile: %s\n", folderPath.c_str());
+            return nullptr;
+        }
+    }
+    catch (const std::runtime_error &ex) {
+        log_warning("ProfileSystem::loadFromFile() - Failed to parse (%s/data.txt): (%s)\n", folderPath.c_str(), ex.what());
+        return nullptr;
+    }
+
+    // Fix lighting if need be
+    if (profile->_uniformLit && cfg.gouraud_req)
+    {
+        mad_make_equally_lit_ref(profile->_imad);
+    }
+
+    return profile;
+}
+
+
+bool ObjectProfile::isSlotValid(slot_t slot) const
+{
+    if(slot >= _slotsValid.size()) {
+        return false;
+    }
+
+    return _slotsValid[slot];
 }

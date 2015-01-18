@@ -71,7 +71,9 @@ public:
     /**
     *  @details This function loads one object and returns the object slot
     **/
-	int loadOneProfile( const char* tmploadname, int slot_override = -1 );
+	PRO_REF loadOneProfile( const char* tmploadname, int slot_override = -1 );
+
+	bool exportProfileToFile(const std::string &filePath, const CHR_REF character);
 
 	/**
 	* @brief Loads only the slot number from data.txt

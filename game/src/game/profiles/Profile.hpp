@@ -162,9 +162,9 @@ class ObjectProfile
 {
 public:
     /**
-    * @brief Loads and parses a profile folder and builds a profile object from it.
+    * Default constructor
     **/
-    ObjectProfile(const std::string &folderPath, size_t slotNumber);
+    ObjectProfile();
 
     /**
     * @brief Deconstructor
@@ -247,7 +247,7 @@ public:
     /**
     * @brief
     **/
-    const SkinInfo& getSkinInfo(size_t index) const;
+    const SkinInfo& getSkinInfo(size_t index);
 
     /**
     * @brief return true if this character is immune to all damage
@@ -302,7 +302,7 @@ public:
     inline bool isDontCullBackfaces() const {return _dontCullBackfaces;}
 
 
-    inline const float getSizeGainPerLevel() const {return _sizePerLevel;}
+    inline const float getSizeGainPerLevel() const {return _sizeGainPerLevel;}
 
     inline uint8_t getWeight() const {return _weight;}
 
@@ -320,7 +320,7 @@ public:
 
     inline float getBumpDampen() const  {return _bumpDampen;}
 
-    inline float getBounciness() const  {return _dampen;}
+    inline float getBounciness() const  {return _bounciness;}
 
     inline float getSize() const        {return _size;}
     inline float getShadowSize() const  {return _shadowSize;}
@@ -469,7 +469,7 @@ public:
 
     inline FRange getStrengthGainPerLevel() const      {return _startingStrength.perlevel;}
     inline FRange getWisdomGainPerLevel() const        {return _startingWisdom.perlevel;}
-    inline FRange getIntelligenceGainPerLevel() const  {return _startingIntellignece.perlevel;}
+    inline FRange getIntelligenceGainPerLevel() const  {return _startingIntelligence.perlevel;}
     inline FRange getDexterityGainPerLevel() const     {return _startingDexterity.perlevel;}
     inline FRange getLifeGainPerLevel() const          {return _startingLife.perlevel;}
     inline FRange getManaGainPerLevel() const          {return _startingMana.perlevel;}
@@ -480,10 +480,10 @@ public:
 
     inline FRange getBaseStrength() const          {return _startingStrength.val;}
     inline FRange getBaseWisdom() const            {return _startingWisdom.val;}
-    inline FRange getBaseIntelligence() const      {return _startingIntellignece.val;}
+    inline FRange getBaseIntelligence() const      {return _startingIntelligence.val;}
     inline FRange getBaseDexterity() const         {return _startingDexterity.val;}
     inline FRange getBaseLife() const              {return _startingLife.val;}
-    inline UFP8_T getBaseLifeRegeneration() const  {return _startingLifeReturn;} //ZF> TODO: should be range
+    inline UFP8_T getBaseLifeRegeneration() const  {return _startingLifeRegeneration;} //ZF> TODO: should be range
     inline FRange getBaseManaRegeneration() const  {return _startingManaRegeneration.val;}
     inline FRange getBaseManaFlow() const          {return _startingManaFlow.val;}
     inline FRange getBaseMana() const              {return _startingMana.val;}
@@ -497,8 +497,8 @@ public:
     /**
     * @brief Moving textures effect
     **/
-    inline SFP8_T getUOffVel() const {return uoffvel;}
-    inline SFP8_T getVOffVel() const {return voffvel;}
+    inline SFP8_T getTextureMovementRateX() const {return _textureMovementRateX;}
+    inline SFP8_T getTextureMovementRateY() const {return _textureMovementRateY;}
  
     inline float getSneakAnimationSpeed() const {return _animationSpeedSneak;}
     inline float getWalkAnimationSpeed() const {return _animationSpeedWalk;}
@@ -536,15 +536,16 @@ public:
     **/
     void makeUsageKnown() {_usageIsKnown = true;}
 
+    /**
+    * @brief Loads a new ObjectProfile object by loading all data specified in the folder path
+    **/
+    static std::shared_ptr<ObjectProfile> loadFromFile(const std::string &folderPath, const PRO_REF slotOverride);
+
     //ZF> TODO: these should not be public
     size_t requestCount;                       ///< the number of attempted spawns
     size_t spawnCount;                         ///< the number of successful spawns
 
 private:
-    /**
-    * Private default constructor
-    **/
-    ObjectProfile();
 
     /**
     * @brief Loads the md2 model for this profile
@@ -563,8 +564,9 @@ private:
 
     /**
     * @brief Loads profile data from a datafile (data.txt)
+    * @return true if it was successfully parsed and loaded
     **/
-    void loadDataFile(const std::string &filePath);
+    bool loadDataFile(const std::string &filePath);
 
     bool exportToDataFile(const std::string &filePath);
 
@@ -588,7 +590,7 @@ private:
     script_info_t _aiScript;                    ///< the AI script for this profile
 
     //Particles
-    std::array<PIP_REF, MAX_PIP_PER_PROFILE> _particleProfiles;
+    std::unordered_map<size_t, PIP_REF> _particleProfiles;
 
     // the profile skins
     std::unordered_map<size_t, TX_REF> _texturesLoaded;
@@ -628,7 +630,7 @@ private:
 
     // life
     ProfileStat  _startingLife;                     ///< Life statistics. Base range/current value + by-level bonus.
-    UFP8_T       _startingLifeReturn;                   ///< Life regeneration (8.8 fixed point). @todo Should be a ProfileStat too.
+    UFP8_T       _startingLifeRegeneration;     ///< Life regeneration (8.8 fixed point). @todo Should be a ProfileStat too.
     UFP8_T       _spawnLife;                    ///< Life left from last module (8.8 fixed point)
 
     // mana
@@ -640,16 +642,16 @@ private:
 
     ProfileStat  _startingStrength;             ///< Strength.    Initial range or current value + per-level increase.
     ProfileStat  _startingWisdom;               ///< Wisdom.      Initial range or current value + per-level increase.
-    ProfileStat  _startingIntellignece;         ///< Intlligence. Initial range or current value + per-level increase.
+    ProfileStat  _startingIntelligence;         ///< Intlligence. Initial range or current value + per-level increase.
     ProfileStat  _startingDexterity;            ///< Dexterity.   Initial range or current value + per-level increase.
 
     // physics
     uint8_t      _weight;                        ///< Weight
-    float        _dampen;                        ///< Bounciness
+    float        _bounciness;                        ///< Bounciness
     float        _bumpDampen;                    ///< Mass
 
     float        _size;                         ///< Scale of model
-    float        _sizePerLevel;                 ///< Scale increases
+    float        _sizeGainPerLevel;             ///< Scale increases
     uint32_t     _shadowSize;                   ///< Shadow size
     uint32_t     _bumpSize;                     ///< Bounding octagon
     bool         _bumpOverrideSize;             ///< let bump_size override the measured object size
@@ -682,8 +684,8 @@ private:
     bool         _transferBlending;             ///< Transfer blending to rider/weapons
     uint8_t      _sheen;                        ///< How shiny it is ( 0-15 )
     bool         _phongMapping;                 ///< Phong map this baby?
-    SFP8_T       uoffvel;                       ///< "horizontal" texture movement rate (8.8 fixed point)
-    SFP8_T       voffvel;                       ///< "vertical" texture movement rate (8.8 fixed point)
+    SFP8_T       _textureMovementRateX;         ///< "horizontal" texture movement rate (8.8 fixed point)
+    SFP8_T       _textureMovementRateY;         ///< "vertical" texture movement rate (8.8 fixed point)
     bool         _uniformLit;                   ///< Bad lighting?
     bool         _hasReflection;                ///< Draw the reflection
     bool         _alwaysDraw;                   ///< Always render
@@ -763,6 +765,6 @@ private:
     int          _seeInvisibleLevel;              ///< Can it see invisible?
 
     // random stuff
-    bool       _stickyButt;                       ///< Stick to the ground?
+    bool       _stickyButt;                       ///< Stick to the ground? (conform to hills like chair)
 };
 

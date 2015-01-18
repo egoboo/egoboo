@@ -142,7 +142,7 @@ static void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool heali
 static void chr_set_enviro_grid_level( chr_t * pchr, const float level );
 static void chr_log_script_time( const CHR_REF ichr );
 
-static bool chr_download_cap(chr_t * pchr, const std::shared_ptr<ObjectProfile> &profile);
+static bool chr_download_profile(chr_t * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
 static bool chr_get_environment( chr_t * pchr );
 
@@ -2702,7 +2702,7 @@ void give_experience( const CHR_REF character, int amount, XPType xptype, bool o
 }
 
 //--------------------------------------------------------------------------------------------
-void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype )
+void give_team_experience( const TEAM_REF team, int amount, XPType xptype )
 {
     /// @author ZZ
     /// @details This function gives every character on a team experience
@@ -2955,8 +2955,8 @@ bool chr_download_profile(chr_t * pchr, const std::shared_ptr<ObjectProfile> &pr
     }
 
     // Image rendering
-    pchr->uoffvel = profile->getUOffVel();
-    pchr->voffvel = profile->getVOffVel();
+    pchr->uoffvel = profile->getTextureMovementRateX();
+    pchr->voffvel = profile->getTextureMovementRateY();
 
     // Movement
     pchr->anim_speed_sneak = profile->getSneakAnimationSpeed();
@@ -2977,26 +2977,6 @@ bool chr_download_profile(chr_t * pchr, const std::shared_ptr<ObjectProfile> &pr
     // Character size and bumping
     chr_init_size(pchr, profile);
 
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character )
-{
-    /// @author ZZ
-    /// @details This function creates a skin.txt file for the given character.
-
-    vfs_FILE* filewrite;
-
-    if ( !INGAME_CHR( character ) ) return false;
-
-    // Open the file
-    filewrite = vfs_openWrite( szSaveName );
-    if ( NULL == filewrite ) return false;
-
-    vfs_printf( filewrite, "// This file is used only by the import menu\n" );
-    vfs_printf( filewrite, ": %d\n", ChrList.lst[character].skin );
-    vfs_close( filewrite );
     return true;
 }
 
@@ -3646,7 +3626,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     pos_tmp = spawn_ptr->pos;
 
     // download all the values from the character spawn_ptr->profile
-    chr_download_cap( pchr, ppro );
+    chr_download_profile( pchr, ppro );
 
     // Make sure the spawn_ptr->team is valid
     loc_team = spawn_ptr->team;
@@ -4910,8 +4890,8 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     }
 
     // Image rendering
-    pchr->uoffvel = newProfile->getUOffVel();
-    pchr->voffvel = newProfile->getVOffVel();
+    pchr->uoffvel = newProfile->getTextureMovementRateX();
+    pchr->voffvel = newProfile->getTextureMovementRateY();
 
     // Movement
     pchr->anim_speed_sneak = newProfile->getSneakAnimationSpeed();
@@ -9871,12 +9851,18 @@ TEAM_REF chr_get_iteam_base( const CHR_REF ichr )
 ObjectProfile * chr_get_ppro( const CHR_REF ichr )
 {
     //This function should -never- return nullptr
-    assert( DEFINED_CHR(ichr) );
+    if(!DEFINED_CHR(ichr)) {
+        raise(SIGTRAP);
+        return nullptr;
+    }
 
     chr_t * pchr = ChrList_get_ptr( ichr );
 
     //This function should -never- return nullptr
-    assert(_profileSystem.isValidProfileID(pchr->profile_ref));
+    if(!_profileSystem.isValidProfileID(pchr->profile_ref)) {
+        raise(SIGTRAP);
+        return nullptr;
+    }
 
     return _profileSystem.getProfile(pchr->profile_ref).get();
 }
@@ -9928,6 +9914,7 @@ chr_instance_t * chr_get_pinstance( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 IDSZ chr_get_idsz( const CHR_REF ichr, int type )
 {
+    if ( !DEFINED_CHR( ichr ) ) return IDSZ_NONE;
     return chr_get_ppro(ichr)->getIDSZ(type);
 }
 
@@ -9937,6 +9924,7 @@ bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz )
     /// @author BB
     /// @details a wrapper for cap_has_idsz
 
+    if ( !DEFINED_CHR( ichr ) ) return IDSZ_NONE;
     return chr_get_ppro(ichr)->hasIDSZ(idsz);
 }
 
