@@ -24,22 +24,6 @@
 #include "egolib/bbox.h"
 
 //--------------------------------------------------------------------------------------------
-bv_t *bv_ctor(bv_t& self)
-{
-	self.sphere.ctor(self.sphere);
-	aabb_ctor(self.aabb);
-	return &self;
-}
-
-//--------------------------------------------------------------------------------------------
-bv_t *bv_dtor(bv_t& self)
-{
-	aabb_dtor(self.aabb);
-	self.sphere.dtor(self.sphere);
-	return &self;
-}
-
-//--------------------------------------------------------------------------------------------
 bool bv_self_clear(bv_t *self)
 {
 	EGOBOO_ASSERT(NULL != self);

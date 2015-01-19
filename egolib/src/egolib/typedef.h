@@ -53,9 +53,9 @@
     void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 );
 
 #if defined(_DEBUG)
-#   define C_EGOBOO_ASSERT(X) assert(X)
+	#define C_EGOBOO_ASSERT(expression) assert(expression)
 #else
-#   define C_EGOBOO_ASSERT(X) non_fatal_assert( X, "%s - failed an assert \"%s\"\n", __FUNCTION__, #X )
+	#define C_EGOBOO_ASSERT(expression) non_fatal_assert(expression, "%s - failed an assert \"%s\"\n", __FUNCTION__, #expression)
 #endif
 
 //--------------------------------------------------------------------------------------------

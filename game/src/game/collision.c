@@ -1798,7 +1798,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         if ( position_updated )
         {
-            chr_set_pos( pchr, tmp_pos.v );
+            chr_set_pos(pchr, tmp_pos);
         }
     }
     CHR_END_LOOP();

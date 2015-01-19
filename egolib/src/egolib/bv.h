@@ -36,10 +36,34 @@ struct bv_t
 {
 	sphere_t sphere;
 	aabb_t aabb;
+	/**
+	 * @brief
+	 *	Construct this convex bounding volume assigning the default values of a convex bounding volume.
+	 * @return
+	 *	a pointer to this convex bounding volume on success, @a nullptr on failure
+	 * @post
+	 *	This convex bounding volume was assigned the default values of a convex bounding volume.
+	 * @remark
+	 *	The default values of a convex bounding volume are the default values of an axis-aligned bounding box and the smallest sphere enclosing that AABB.
+	 */
+	bv_t *ctor()
+	{
+		sphere.ctor();
+		aabb.ctor();
+		return this;
+	}
+	/**
+	 * @brief
+	 *	Destruct this convex bounding volume.
+	 */
+	void dtor()
+	{
+		aabb.dtor();
+		sphere.dtor();
+	}
 };
 
-bv_t *bv_ctor(bv_t& self);
-bv_t *bv_dtor(bv_t& self);
+
 bool  bv_self_clear(bv_t *);
 bool  bv_is_clear(const bv_t * pdst);
 

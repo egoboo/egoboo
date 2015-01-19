@@ -39,24 +39,69 @@ struct aabb_t
 {
 	float mins[3]; /**< @todo Use fvec3_t. */
 	float maxs[3]; /**< @todo Use fvec3_t. */
+	/**
+	 * @brief
+	 *	Construct this bounding box assigning it the default values of a bounding box.
+	 * @return
+	 *	a pointer to this bounding box on success, @a nullptr on failure
+	 * @post
+	 *	This bounding box was assigned the default values of a bounding box.
+	 * @remark
+	 *	The default values of a bounding box are the center of @a (0,0,0) and the size of @a 0 along all axes
+	 */
+	aabb_t *ctor()
+	{
+		for (size_t i = 0; i < 3; ++i)
+		{
+			mins[i] = maxs[i] = 0.0f;
+		}
+		return this;
+	}
+	/**
+	 * @brief
+	 *	Destruct this bounding box.
+	 */
+	void dtor()
+	{
+		for (size_t i = 0; i < 3; ++i)
+		{
+			mins[i] = maxs[i] = 0.0f;
+		}
+	}
+	/**
+	 * @brief
+	 *	Assign this bounding box the values of another bounding box.
+	 * @param other
+	 *	the other bounding box
+	 * @post
+	 *	This bounding box was assigned the values of the other bounding box.
+	 */
+	void assign(const aabb_t& other)
+	{
+		for (size_t cnt = 0; cnt < 3; cnt++)
+		{
+			mins[cnt] = other.mins[cnt];
+			maxs[cnt] = other.maxs[cnt];
+		}
+	}
+	/**
+	 * @brief
+	 *	Assign this bounding box the values of another bounding box.
+	 * @param other
+	 *	the other bounding box
+	 * @return
+	 *	this bounding box
+	 * @post
+	 *	This bounding box was assigned the values of the other bounding box.
+	 */
+	aabb_t& operator=(const aabb_t& other)
+	{
+		assign(other);
+		return *this;
+	}
 };
 
-/**
- * @brief
- *	Construct this bounding box.
- * @param self
- *	the bounding box
- * @post
- *	This bounding box is set to an empty set.
- */
-aabb_t *aabb_ctor(aabb_t& self);
-/**
- * @brief
- *	Destruct a bounding box.
- * @param self
- *	the bounding box
- */
-aabb_t *aabb_dtor(aabb_t& self);
+
 bool aabb_copy(aabb_t& self, const aabb_t& other);
 bool aabb_self_clear(aabb_t * pdst);
 /**

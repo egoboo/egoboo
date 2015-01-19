@@ -195,60 +195,32 @@ int _find_child_index(const BSP_aabb_t * pbranch_aabb, const aabb_t * pleaf_aabb
 	return index;
 }
 
-
-
-#if 0
 //--------------------------------------------------------------------------------------------
-// BSP_leaf_t
-//--------------------------------------------------------------------------------------------
-BSP_leaf_t *BSP_leaf_create(void * data, bsp_type_t type, int index)
+BSP_leaf_t *BSP_leaf_t::ctor(BSP_leaf_t *self, void * data, bsp_type_t type, int index)
 {
-	BSP_leaf_t *rv = EGOBOO_NEW(BSP_leaf_t);
-	if (NULL == rv) return rv;
-	return BSP_leaf_t::ctor(rv, data, type, index);
+	if (nullptr == self)
+	{
+		return self;
+	}
+	self->next = nullptr;
+	self->inserted = false;
+	self->data_type = type;
+	self->index = index;
+	self->data = data;
+	self->bbox.ctor();
+	return self;
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_leaf_destroy(BSP_leaf_t ** ppleaf)
+void BSP_leaf_t::dtor(BSP_leaf_t *self)
 {
-	if (NULL == ppleaf || NULL == *ppleaf) return false;
-
-	BSP_leaf_t::dtor(*ppleaf);
-
-	EGOBOO_DELETE(*ppleaf);
-
-	return true;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-BSP_leaf_t *BSP_leaf_t::ctor(BSP_leaf_t * L, void * data, bsp_type_t type, int index)
-{
-	if (NULL == L) return L;
-
-	BLANK_STRUCT_PTR(L)
-
-	if (NULL == data) return L;
-
-	L->data_type = type;
-	L->data = data;
-	L->index = index;
-
-	bv_ctor(L->bbox);
-
-	return L;
-}
-
-//--------------------------------------------------------------------------------------------
-BSP_leaf_t * BSP_leaf_t::dtor(BSP_leaf_t *L)
-{
-	if (NULL == L) return L;
-
-	L->inserted = false;
-	L->data_type = BSP_LEAF_NONE;
-	L->data = NULL;
-
-	return L;
+	if (nullptr == self)
+	{
+		return;
+	}
+	self->inserted = false;
+	self->data_type = BSP_LEAF_NONE;
+	self->data = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1434,7 +1406,7 @@ BSP_tree_t * BSP_tree_ctor(BSP_tree_t * t, Sint32 req_dim, Sint32 req_depth)
 
 	BLANK_STRUCT_PTR(t)
 
-	bv_ctor(t->bbox);
+	t->bbox.ctor();
 	BSP_aabb_t::ctor(&(t->bsp_bbox), req_dim);
 	BSP_leaf_list_t::ctor(&(t->infinite));
 
@@ -1854,7 +1826,7 @@ BSP_leaf_list_t *BSP_leaf_list_t::ctor(BSP_leaf_list_t *self)
 	}
 	BLANK_STRUCT_PTR(self)
 	BSP_leaf_list_alloc(self);
-	bv_ctor(self->bbox);
+	self->bbox.ctor();
 	return self;
 }
 
@@ -2283,7 +2255,7 @@ BSP_branch_list_t *BSP_branch_list_t::ctor(BSP_branch_list_t *self, size_t dim)
 	{
 		self->lst[index] = NULL;
 	}
-	bv_ctor(self->bbox);
+	self->bbox.ctor();
 	return self;
 }
 

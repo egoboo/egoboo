@@ -86,6 +86,7 @@ struct fvec2_t
 		this->v[kX] *= scalar;
 		this->v[kY] *= scalar;
 	}
+
 	/**
 	 * @brief
 	 *	Normalize this vector.
@@ -176,6 +177,73 @@ struct fvec3_t
 	}
 	fvec3_t(const fvec3_t& other) : x(other.x), y(other.y), z(other.z)
 	{
+	}
+	/**
+	 * @brief
+	 *	Get the component-wise absolute of this vector.
+	 * @return
+	 *	the component-wise absolute of this vector
+	 * @remark
+	 *	The component-wise absolute of a vector \f$v\in\mathbb{R}^n,n>0\f$ is defined as
+	 *	\f[
+	 *	abs(\vec{v}) = (abs(v_1),\ldots,abs(v_n))
+	 *	\f]
+	 */
+	fvec3_t abs() const
+	{
+		return
+			fvec3_t
+			(
+				std::abs(v[kX]),
+				std::abs(v[kY]),
+				std::abs(v[kZ])
+			);
+	}
+	/**
+	 * @brief
+	 *	Get the component-wise minimum of this vector and another vector.
+	 * @param other
+	 *	the other vector
+	 * @return
+	 *	the component-wise minimum
+	 * @remark
+	 *	For two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^n,n>0\f$ the component-wise minimum is defined as
+	 *	\f[
+	 *	min\left(\vec{u},\vec{v}\right)=left(min(u_1,v_1),\ldots,min(u_n,v_n)\right)
+	 *	\f]
+	 */
+	fvec3_t min(const fvec3_t& other) const
+	{
+		return
+			fvec3_t
+				(
+					std::min(this->v[kX],other.v[kX]),
+					std::min(this->v[kY],other.v[kY]),
+					std::min(this->v[kZ],other.v[kZ])
+				);
+	}
+	/**
+	 * @brief
+	 *	Get the component-wise maximum of this vector and another vector.
+	 * @param other
+	 *	the other vector
+	 * @return
+	 *	the component-wise maximum
+	 * @remark
+	 *	For two vectors \f$\vec{u},\vec{v}\in\mathbb{R}^n,n>0\f$ the component-wise maximum is defined as
+	 *	\f[
+	 *	max\left(\vec{u},\vec{v}\right)=left(max(u_1,v_1),\ldots,max(u_n,v_n)\right)
+	 *	\f]
+	 */
+	fvec3_t max(const fvec3_t& other) const
+	{
+		return
+			fvec3_t
+			(
+				std::max(this->v[kX], other.v[kX]),
+				std::max(this->v[kY], other.v[kY]),
+				std::max(this->v[kZ], other.v[kZ])
+			);
 	}
 	const fvec3_t& operator=(const fvec3_t& other)
 	{

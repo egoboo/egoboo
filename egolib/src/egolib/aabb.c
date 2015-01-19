@@ -22,26 +22,6 @@
 #include "egolib/bbox.h"
 
 //--------------------------------------------------------------------------------------------
-aabb_t *aabb_ctor(aabb_t& self)
-{
-	for (size_t i = 0; i < 3; ++i)
-	{
-		self.mins[i] = self.maxs[i] = 0.0f;
-	}
-	return &self;
-}
-
-//--------------------------------------------------------------------------------------------
-aabb_t *aabb_dtor(aabb_t& self)
-{
-	for (size_t i = 0; i < 3; ++i)
-	{
-		self.mins[i] = self.maxs[i] = 0.0f;
-	}
-	return &self;
-}
-
-//--------------------------------------------------------------------------------------------
 
 bool aabb_copy(aabb_t& dst, const aabb_t& src)
 {

@@ -31,35 +31,47 @@
 */
 struct sphere_t
 {
+	/**
+	 * @brief
+	 *	The center of the sphere.
+	 * @todo
+	 *	Rename to @a center.
+	 */
 	fvec3_t origin;
-	float   radius;
+	/**
+	 * @brief
+	 *	The radius of the sphere.
+	 * @invariant
+	 *	Greater than or equal to @a 0.
+	 */
+	float radius;
 
 	/**
 	* @brief
-	*	Construct a sphere assigning it a sphere's default values.
-	* @param self
-	*	this sphere
+	*	Construct this sphere assigning it the default values of a sphere.
+	* @return
+	*	a pointer to this sphere on success, @a nullptr on failure
+	* @post
+	*	This sphere was assigned the default values of a sphere.
 	* @remark
-	*	The default values of a sphere are a radius of @a 0 and a position of @a (0,0,0).
+	*	The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
 	*/
-	static sphere_t *ctor(sphere_t& self)
+	sphere_t *ctor()
 	{
-		self.radius = 0.0f;
-		fvec3_ctor(self.origin);
-		return &self;
+		radius = 0.0f;
+		fvec3_ctor(origin);
+		return this;
 	}
 
 	/**
-	* @brief
-	*	Destruct this sphere.
-	* @param self
-	*	this sphere
-	*/
-	static sphere_t *dtor(sphere_t& self)
+	 * @brief
+	 *	Destruct this sphere.
+	 */
+	sphere_t *dtor()
 	{
-		fvec3_dtor(self.origin);
-		self.radius = 0.0f;
-		return &self;
+		fvec3_dtor(origin);
+		radius = 0.0f;
+		return this;
 	}
 };
 

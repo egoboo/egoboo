@@ -4040,7 +4040,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // grab all of the environment information
     chr_get_environment( pchr );
 
-    chr_set_pos( pchr, pos_tmp.v );
+    chr_set_pos(pchr, pos_tmp);
 
     pchr->pos_stt  = pos_tmp;
     pchr->pos_old  = pos_tmp;

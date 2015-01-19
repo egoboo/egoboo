@@ -80,8 +80,8 @@
         void *data;
         size_t index;
         bv_t bbox;
-		static BSP_leaf_t *ctor(BSP_leaf_t * L, void * data, bsp_type_t type, int index);
-		static BSP_leaf_t *dtor(BSP_leaf_t * L);
+		static BSP_leaf_t *ctor(BSP_leaf_t * self, void * data, bsp_type_t type, int index);
+		static void dtor(BSP_leaf_t * self);
     };
 
 
@@ -89,11 +89,6 @@
     bool BSP_leaf_remove_link( BSP_leaf_t * L );
     bool BSP_leaf_copy( BSP_leaf_t * L_dst, const BSP_leaf_t * L_src );
 
-#if 0
-// ?OBSOLETE?
-    BSP_leaf_t *BSP_leaf_create( void * data, bsp_type_t type, int index );
-    bool BSP_leaf_destroy( BSP_leaf_t ** pL );
-#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
     struct BSP_leaf_list_t
