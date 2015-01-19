@@ -1696,7 +1696,7 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     // That just makes the particle slooooowww down when it approaches the target.
     // Do a real kludge here. this should be a lot faster than a square root, but ...
     vlen = ABS( vdiff.x ) + ABS( vdiff.y ) + ABS( vdiff.z );
-    if ( vlen != 0.0f )
+    if ( vlen > FLT_EPSILON )
     {
         float factor = min_length / vlen;
 
