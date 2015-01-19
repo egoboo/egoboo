@@ -174,10 +174,10 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\MD2Model.cpp" />
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\Profile.cpp" />
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\ProfileSystem.cpp" />
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\RandomName.cpp" />
+    <ClCompile Include="src\game\graphics\MD2Model.cpp" />
+    <ClCompile Include="src\game\profiles\Profile.cpp" />
+    <ClCompile Include="src\game\profiles\ProfileSystem.cpp" />
+    <ClCompile Include="src\game\profiles\RandomName.cpp" />
     <ClCompile Include="src\game\audio\AudioSystem.cpp" />
     <ClCompile Include="src\game\graphics\Camera.cpp" />
     <ClCompile Include="src\game\graphics\CameraSystem.cpp" />
@@ -226,10 +226,10 @@
     <ClCompile Include="src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\graphics\MD2Model.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\Profile.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\ProfileSystem.hpp" />
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\profiles\RandomName.hpp" />
+    <ClInclude Include="src\game\graphics\MD2Model.hpp" />
+    <ClInclude Include="src\game\profiles\Profile.hpp" />
+    <ClInclude Include="src\game\profiles\ProfileSystem.hpp" />
+    <ClInclude Include="src\game\profiles\RandomName.hpp" />
     <ClInclude Include="src\game\audio\AudioSystem.hpp" />
     <ClInclude Include="src\game\graphics\Camera.hpp" />
     <ClInclude Include="src\game\graphics\CameraSystem.hpp" />

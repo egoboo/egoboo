@@ -49,7 +49,7 @@ namespace Ego
 		DynamicArray<ElementType> *create(size_t initialCapacity)
 		{
 			DynamicArray<ElementType> *self;
-			self = EGOBOO_NEW(DynamicArray < ElementType);
+			self = EGOBOO_NEW(DynamicArray<ElementType>);
 			if (!self)
 			{
 				return NULL;
