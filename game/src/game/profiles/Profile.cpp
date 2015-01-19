@@ -191,7 +191,7 @@ ObjectProfile::ObjectProfile() :
     // item usage
     _needSkillIDToUse(false),
     _weaponAction(0),
-    _attackAttached(0),
+    _spawnsAttackParticle(false),
     _attackParticleProfile(INVALID_PIP_REF),
     _attackFast(false),
 
@@ -666,7 +666,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     _slotsValid[SLOT_RIGHT] = vfs_get_next_bool( fileRead );
 
     // Attack order ( weapon )
-    _attackAttached = vfs_get_next_bool( fileRead );
+    _spawnsAttackParticle = vfs_get_next_bool( fileRead );
     _attackParticleProfile  = getParticleProfile( vfs_get_next_int(fileRead) );
 
     // GoPoof

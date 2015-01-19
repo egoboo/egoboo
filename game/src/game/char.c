@@ -2414,11 +2414,11 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
             }
 
             // Spawn an attack particle
-            if ( -1 != weaponProfile->getAttackParticleProfile() )
+            if ( INVALID_PIP_REF != weaponProfile->getAttackParticleProfile() )
             {
                 // make the weapon's holder the owner of the attack particle?
                 // will this mess up wands?
-                iparticle = spawn_one_particle( pweapon->pos, pchr->ori.facing_z, pweapon->profile_ref, weaponProfile->getAttackParticleProfile(), iholder, spawn_vrt_offset, chr_get_iteam( iholder ), iweapon, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+                iparticle = spawnOneParticle(pweapon->pos, pchr->ori.facing_z, weaponProfile->getSlotNumber(), weaponProfile->getAttackParticleProfile(), iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
 
                 if ( DEFINED_PRT( iparticle ) )
                 {
@@ -2427,7 +2427,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
 
                     prt_get_pos(pprt, tmp_pos);
 
-                    if ( weaponProfile->hasAttackAttached() )
+                    if ( weaponProfile->spawnsAttackParticle() )
                     {
                         // attached particles get a strength bonus for reeling...
                         // dampen = REELBASE + ( pchr->strength / REEL );
@@ -3243,8 +3243,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
     if ( !INGAME_CHR( character ) ) return 0;
     pchr = ChrList_get_ptr( character );
 
-    std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile( pchr->profile_ref );
-    if ( nullptr == profile ) return 0;
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
     // make a special exception for DAMAGE_NONE
     damage_modifier = ( damagetype >= DAMAGE_COUNT ) ? 0 : pchr->damage_modifier[damagetype];
@@ -3296,7 +3295,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
     {
         // Only if actually in the water
         if ( pchr->pos.z <= water.surface_level )
-            actual_damage = actual_damage << 1;     /// @note ZF> Is double damage too much?
+            actual_damage *= 2.0f;     /// @note ZF> Is double damage too much?
     }
 
     // Allow actual_damage to be dealt to mana (mana shield spell)
@@ -3378,8 +3377,8 @@ int damage_character( const CHR_REF character, const FACING_T direction,
                 {
                     if ( profile->getBludType() == ULTRABLUDY || ( base_damage > HURTDAMAGE && DAMAGE_IS_PHYSICAL( damagetype ) ) )
                     {
-                        spawn_one_particle( pchr->pos, pchr->ori.facing_z + direction, pchr->profile_ref, profile->getBludParticleProfile(),
-                                            INVALID_CHR_REF, GRIP_LAST, pchr->team, character, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+                        spawnOneParticle( pchr->pos, pchr->ori.facing_z + direction, profile->getSlotNumber(), profile->getBludParticleProfile(),
+                                            INVALID_CHR_REF, GRIP_LAST, pchr->team, character);
                     }
                 }
 
@@ -3578,7 +3577,7 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
     facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < profile->getParticlePoofAmount(); cnt++ )
     {
-        spawn_one_particle( pchr->pos_old, facing_z, profileRef, profile->getParticlePoofProfile(),
+        spawn_one_particle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
                             INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt, INVALID_CHR_REF );
 
         facing_z += profile->getParticlePoofFacingAdd();
@@ -3750,8 +3749,8 @@ chr_t * chr_config_do_init( chr_t * pchr )
     // Particle attachments
     for ( tnc = 0; tnc < ppro->getAttachedParticleAmount(); tnc++ )
     {
-        spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, ppro->getAttachedParticleProfile(),
-                            ichr, GRIP_LAST + tnc, pchr->team, ichr, INVALID_PRT_REF, tnc, INVALID_CHR_REF );
+        spawnOneParticle( pchr->pos, pchr->ori.facing_z, ppro->getSlotNumber(), ppro->getAttachedParticleProfile(),
+                            ichr, GRIP_LAST + tnc, pchr->team, ichr, INVALID_PRT_REF, tnc);
     }
 
     // is the object part of a shop's inventory?
@@ -9820,16 +9819,11 @@ PRO_REF chr_get_ipro( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 TEAM_REF chr_get_iteam( const CHR_REF ichr )
 {
-    chr_t * pchr;
-    int iteam;
 
-    if ( !DEFINED_CHR( ichr ) ) return ( TEAM_REF )TEAM_DAMAGE;
-    pchr = ChrList_get_ptr( ichr );
+    if ( !DEFINED_CHR( ichr ) ) return static_cast<TEAM_REF>(TEAM_DAMAGE);
+    chr_t * pchr = ChrList_get_ptr( ichr );
 
-    iteam = REF_TO_INT( pchr->team );
-    iteam = CLIP( iteam, 0, (int)TEAM_MAX );
-
-    return ( TEAM_REF )iteam;
+    return static_cast<TEAM_REF>(pchr->team);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -9935,6 +9929,7 @@ bool chr_is_type_idsz( const CHR_REF item, IDSZ test_idsz )
     /// @details check IDSZ_PARENT and IDSZ_TYPE to see if the test_idsz matches. If we are not
     ///     picky (i.e. IDSZ_NONE == test_idsz), then it matches any valid item.
 
+    if ( !DEFINED_CHR( item ) ) return IDSZ_NONE;
     return chr_get_ppro(item)->hasTypeIDSZ(test_idsz);
 }
 

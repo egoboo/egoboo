@@ -986,17 +986,68 @@ prt_t * prt_config_dtor( prt_t * pprt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
+PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const PIP_REF ipip,
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
-                            const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget )
+                            const CHR_REF chr_origin, const PRT_REF prt_origin, const int multispawn, const CHR_REF oldtarget)
 {
-    PIP_REF ipip = _profileSystem.pro_get_ipip( iprofile, pip_index );
-    return spawn_one_particle(pos, facing, iprofile, ipip, chr_attach, vrt_offset, team, chr_origin, prt_origin, multispawn, oldtarget);
+    if ( !LOADED_PIP( ipip ) )
+    {
+        log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
+                   REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
+                   REF_TO_INT( iprofile ), _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
+
+        return INVALID_PRT_REF;
+    }
+    pip_t *ppip = PipStack_get_ptr( ipip );
+
+    // count all the requests for this particle type
+    ppip->request_count++;
+
+    PRT_REF iprt = PrtList_allocate( ppip->force );
+    if ( !DEFINED_PRT( iprt ) )
+    {
+        log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
+                   chr_origin, INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
+                   ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
+                   iprofile, _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
+
+        return INVALID_PRT_REF;
+    }
+    prt_t *pprt = PrtList_get_ptr( iprt );
+
+    POBJ_BEGIN_SPAWN( pprt );
+
+    pprt->spawn_data.pos = pos;
+
+    pprt->spawn_data.facing     = facing;
+    pprt->spawn_data.iprofile   = iprofile;
+    pprt->spawn_data.ipip       = ipip;
+
+    pprt->spawn_data.chr_attach = chr_attach;
+    pprt->spawn_data.vrt_offset = vrt_offset;
+    pprt->spawn_data.team       = team;
+
+    pprt->spawn_data.chr_origin = chr_origin;
+    pprt->spawn_data.prt_origin = prt_origin;
+    pprt->spawn_data.multispawn = multispawn;
+    pprt->spawn_data.oldtarget  = oldtarget;
+
+    // actually force the character to spawn
+    pprt = prt_config_activate( pprt, 100 );
+
+    // count all the successful spawns of this particle
+    if ( NULL != pprt )
+    {
+        POBJ_END_SPAWN( pprt );
+        ppip->create_count++;
+    }
+
+    return iprt;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, PIP_REF ipip,
+PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget )
 {
@@ -1004,6 +1055,8 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
 
     prt_t * pprt;
     pip_t * ppip;
+
+    PIP_REF ipip = _profileSystem.pro_get_ipip( iprofile, pip_index );
 
     if ( !LOADED_PIP( ipip ) )
     {
@@ -1063,7 +1116,8 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
 }
 
 //--------------------------------------------------------------------------------------------
-/*float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
+#if 0
+float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
 {
     float retval = 0.0f;
     BIT_FIELD  stoppedby;
@@ -1092,10 +1146,12 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
     prt_pressure_tests += mesh_pressure_tests;
 
     return retval;
-}*/
+}
+#endif
 
 //--------------------------------------------------------------------------------------------
-/*fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure )
+#if 0
+fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure )
 {
     fvec2_t retval = fvec2_t::zero;
     float radius;
@@ -1135,7 +1191,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
 
     return retval;
 }
-*/
+#endif
 
 //--------------------------------------------------------------------------------------------
 BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
