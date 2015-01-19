@@ -28,6 +28,7 @@
 #include "egolib/egoboo_setup.h"
 #include "egolib/platform.h"
 #include "egolib/system.h"
+#include "egolib/vfs.h"
 
 #ifdef __WINDOWS__
 #include <windows.h>
@@ -37,7 +38,7 @@
 //--------------------------------------------------------------------------------------------
 static constexpr size_t MAX_LOG_MESSAGE = 1024; ///< Max length of log messages
 
-static FILE *logFile = nullptr;
+static vfs_FILE *logFile = nullptr;
 static LogLevel   _logLevel = LOG_WARNING;   ///default log level
 
 static int _atexit_registered = 0;
@@ -145,9 +146,8 @@ static void writeLogMessage(LogLevel logLevel, const char *format, va_list args)
     if (nullptr != logFile)
     {
         //Log to file
-        fputs(prefix, logFile);
-        fputs(logBuffer, logFile);
-        fflush(logFile);
+        vfs_puts(prefix, logFile);
+        vfs_puts(logBuffer, logFile);
     }
 
     //Log to console
@@ -165,7 +165,7 @@ void log_init(const char *logname, LogLevel logLevel)
 
     if (nullptr == logFile)
     {
-        logFile = fopen(logname, "wt");
+        logFile = vfs_openWriteB(logname);
         if (nullptr != logFile && !_atexit_registered)
         {
             _atexit_registered = 1;
@@ -179,7 +179,7 @@ void log_shutdown()
 {
     if (nullptr != logFile)
     {
-        fclose(logFile);
+        vfs_close(logFile);
         logFile = nullptr;
     }
 }
@@ -249,12 +249,11 @@ void log_error(const char *format, ...)
     va_end( args );
     va_end( args2 );
 
-    fflush(logFile);
     exit(EXIT_FAILURE);
 }
 
 //--------------------------------------------------------------------------------------------
-FILE *log_get_file()
+vfs_FILE *log_get_file()
 {
     return logFile;
 }

@@ -192,6 +192,7 @@ bool setup_begin( void )
     egoboo_config__init( &cfg_default );
 
     // Read the local setup.txt
+#if 0
     if ( fs_ensureUserFile( "setup.txt", true ) )
     {
         snprintf( _config_filename, SDL_arraysize( _config_filename ), "%s" SLASH_STR "setup.txt", fs_getUserDirectory() );
@@ -200,6 +201,9 @@ bool setup_begin( void )
         // linux if the directory is read-only
         _lpConfigSetup = ConfigFile_Load( _config_filename, false );
     }
+#endif
+    strncpy(_config_filename, "setup.txt", SDL_arraysize(_config_filename));
+    _lpConfigSetup = ConfigFile_Load("setup.txt", false);
 
     if ( NULL != _lpConfigSetup )
     {

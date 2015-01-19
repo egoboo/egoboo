@@ -62,14 +62,6 @@ extern "C"
 /// Set the OpenGL screen mode using SDL
     SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new, SDL_bool has_valid_mode );
 
-/// Set the FILE that SDL_GL_extensions will dump debugging information to.
-/// If not set, it will default to stdout.
-    FILE * SDL_GL_set_stdout( FILE * pfile );
-
-/// Set the FILE that SDL_GL_extensions will dump debugging errors to.
-/// If not set, it will default to stderr.
-    FILE * SDL_GL_set_stderr( FILE * pfile );
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

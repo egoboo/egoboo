@@ -32,6 +32,7 @@
 #include "egolib/typedef.h"
 #include "egolib/strutil.h"
 #include "egolib/platform.h"
+#include "egolib/vfs.h"
 
 // this include must be the absolute last include
 #include "egolib/mem.h"
@@ -111,7 +112,14 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
     }
 
     // Try and open the font
-    ttfFont = TTF_OpenFont( fileName, pointSize );
+    SDL_RWops *rwops = vfs_openRWopsRead(fileName);
+    if (NULL == rwops)
+    {
+        // SDL_ttf crashes when passed a NULL RWops pointer
+        // it's fixed in SDL2_ttf
+        return NULL;
+    }
+    ttfFont = TTF_OpenFontRW(rwops, 1, pointSize);
     if ( NULL == ttfFont )
     {
         // couldn't open it, for one reason or another

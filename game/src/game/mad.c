@@ -708,13 +708,13 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad 
     //pmad->md2_ref = imad;
 
     // load the model from the file
-    pmad->md2_ptr = MD2Model::loadFromFile(vfs_resolveReadFilename(newloadname));
+    pmad->md2_ptr = MD2Model::loadFromFile(newloadname);
 
     // set the model's file name
     szModelName[0] = CSTR_END;
     if (pmad->md2_ptr != nullptr)
     {
-        strncpy(szModelName, vfs_resolveReadFilename(newloadname), SDL_arraysize(szModelName));
+        strncpy(szModelName, newloadname, SDL_arraysize(szModelName));
 
         /// @author BB
         /// @details Egoboo md2 models were designed with 1 tile = 32x32 units, but internally Egoboo uses

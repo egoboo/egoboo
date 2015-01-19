@@ -25,16 +25,11 @@
 
 #include "egolib/extensions/ogl_extensions.h"
 #include "egolib/extensions/ogl_debug.h"
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#define LOCAL_STDOUT ((NULL == _oglx_stdout) ? stdout : _oglx_stdout)
+#include "egolib/log.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 oglx_caps_t ogl_caps;
-
-static FILE * _oglx_stdout = NULL;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -42,62 +37,60 @@ void oglx_report_caps( void )
 {
     oglx_Get_Screen_Info( &ogl_caps );
 
-    fprintf( LOCAL_STDOUT, "\nOpenGL state parameters\n" );
-    fprintf( LOCAL_STDOUT, "\tgl_version    == %s\n", ogl_caps.gl_version );
-    fprintf( LOCAL_STDOUT, "\tgl_vendor     == %s\n", ogl_caps.gl_vendor );
-    fprintf( LOCAL_STDOUT, "\tgl_renderer   == %s\n", ogl_caps.gl_renderer );
-    fprintf( LOCAL_STDOUT, "\tgl_extensions == %s\n", ogl_caps.gl_extensions );
+    log_message("\nOpenGL state parameters\n");
+    log_message("\tgl_version    == %s\n", ogl_caps.gl_version);
+    log_message("\tgl_vendor     == %s\n", ogl_caps.gl_vendor);
+    log_message("\tgl_renderer   == %s\n", ogl_caps.gl_renderer);
+    log_message("\tgl_extensions == %s\n", ogl_caps.gl_extensions);
 
-    fprintf( LOCAL_STDOUT, "\tglu_version    == %s\n", ogl_caps.glu_version );
-    fprintf( LOCAL_STDOUT, "\tglu_extensions == %s\n\n", ogl_caps.glu_extensions );
+    log_message("\tglu_version    == %s\n", ogl_caps.glu_version);
+    log_message("\tglu_extensions == %s\n\n", ogl_caps.glu_extensions);
 
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_MODELVIEW_STACK_DEPTH     == %d\n", ogl_caps.max_modelview_stack_depth );
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_PROJECTION_STACK_DEPTH    == %d\n", ogl_caps.max_projection_stack_depth );
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_TEXTURE_STACK_DEPTH       == %d\n", ogl_caps.max_texture_stack_depth );
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_NAME_STACK_DEPTH          == %d\n", ogl_caps.max_name_stack_depth );
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_ATTRIB_STACK_DEPTH        == %d\n", ogl_caps.max_attrib_stack_depth );
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_CLIENT_ATTRIB_STACK_DEPTH == %d\n\n", ogl_caps.max_client_attrib_stack_depth );
+    log_message("\tGL_MAX_MODELVIEW_STACK_DEPTH     == %d\n", ogl_caps.max_modelview_stack_depth);
+    log_message("\tGL_MAX_PROJECTION_STACK_DEPTH    == %d\n", ogl_caps.max_projection_stack_depth);
+    log_message("\tGL_MAX_TEXTURE_STACK_DEPTH       == %d\n", ogl_caps.max_texture_stack_depth);
+    log_message("\tGL_MAX_NAME_STACK_DEPTH          == %d\n", ogl_caps.max_name_stack_depth);
+    log_message("\tGL_MAX_ATTRIB_STACK_DEPTH        == %d\n", ogl_caps.max_attrib_stack_depth);
+    log_message("\tGL_MAX_CLIENT_ATTRIB_STACK_DEPTH == %d\n\n", ogl_caps.max_client_attrib_stack_depth);
 
-    fprintf( LOCAL_STDOUT, "\tGL_SUBPIXEL_BITS          == %d\n",      ogl_caps.subpixel_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_POINT_SIZE_RANGE       == %f - %f\n", ogl_caps.point_size_range[0], ogl_caps.point_size_range[1] );
-    fprintf( LOCAL_STDOUT, "\tGL_POINT_SIZE_GRANULARITY == %f\n",      ogl_caps.point_size_granularity );
-    fprintf( LOCAL_STDOUT, "\tGL_LINE_WIDTH_RANGE       == %f - %f\n", ogl_caps.line_width_range[0], ogl_caps.line_width_range[1] );
-    fprintf( LOCAL_STDOUT, "\tGL_LINE_WIDTH_GRANULARITY == %f\n\n",    ogl_caps.line_width_granularity );
+    log_message("\tGL_SUBPIXEL_BITS          == %d\n",      ogl_caps.subpixel_bits);
+    log_message("\tGL_POINT_SIZE_RANGE       == %f - %f\n", ogl_caps.point_size_range[0], ogl_caps.point_size_range[1]);
+    log_message("\tGL_POINT_SIZE_GRANULARITY == %f\n",      ogl_caps.point_size_granularity);
+    log_message("\tGL_LINE_WIDTH_RANGE       == %f - %f\n", ogl_caps.line_width_range[0], ogl_caps.line_width_range[1]);
+    log_message("\tGL_LINE_WIDTH_GRANULARITY == %f\n\n",    ogl_caps.line_width_granularity);
 
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_VIEWPORT_DIMS == %d, %d\n", ogl_caps.max_viewport_dims[0], ogl_caps.max_viewport_dims[1] );
-    fprintf( LOCAL_STDOUT, "\tGL_AUX_BUFFERS       == %d\n", ogl_caps.aux_buffers );
-    fprintf( LOCAL_STDOUT, "\tGL_RGBA_MODE         == %s\n", ogl_caps.rgba_mode ? "TRUE" : "FALSE" );
-    fprintf( LOCAL_STDOUT, "\tGL_INDEX_MODE        == %s\n", ogl_caps.index_mode ? "TRUE" : "FALSE" );
-    fprintf( LOCAL_STDOUT, "\tGL_DOUBLEBUFFER      == %s\n", ogl_caps.doublebuffer ? "TRUE" : "FALSE" );
-    fprintf( LOCAL_STDOUT, "\tGL_STEREO            == %s\n", ogl_caps.stereo ? "TRUE" : "FALSE" );
-    fprintf( LOCAL_STDOUT, "\tGL_RED_BITS          == %d\n", ogl_caps.red_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_GREEN_BITS        == %d\n", ogl_caps.green_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_BLUE_BITS         == %d\n", ogl_caps.blue_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_ALPHA_BITS        == %d\n", ogl_caps.alpha_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_INDEX_BITS        == %d\n", ogl_caps.index_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_DEPTH_BITS        == %d\n", ogl_caps.depth_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_STENCIL_BITS      == %d\n", ogl_caps.stencil_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_ACCUM_RED_BITS    == %d\n", ogl_caps.accum_red_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_ACCUM_GREEN_BITS  == %d\n", ogl_caps.accum_green_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_ACCUM_BLUE_BITS   == %d\n", ogl_caps.accum_blue_bits );
-    fprintf( LOCAL_STDOUT, "\tGL_ACCUM_ALPHA_BITS  == %d\n\n", ogl_caps.accum_alpha_bits );
+    log_message("\tGL_MAX_VIEWPORT_DIMS == %d, %d\n", ogl_caps.max_viewport_dims[0], ogl_caps.max_viewport_dims[1]);
+    log_message("\tGL_AUX_BUFFERS       == %d\n", ogl_caps.aux_buffers);
+    log_message("\tGL_RGBA_MODE         == %s\n", ogl_caps.rgba_mode ? "TRUE" : "FALSE");
+    log_message("\tGL_INDEX_MODE        == %s\n", ogl_caps.index_mode ? "TRUE" : "FALSE");
+    log_message("\tGL_DOUBLEBUFFER      == %s\n", ogl_caps.doublebuffer ? "TRUE" : "FALSE");
+    log_message("\tGL_STEREO            == %s\n", ogl_caps.stereo ? "TRUE" : "FALSE");
+    log_message("\tGL_RED_BITS          == %d\n", ogl_caps.red_bits);
+    log_message("\tGL_GREEN_BITS        == %d\n", ogl_caps.green_bits);
+    log_message("\tGL_BLUE_BITS         == %d\n", ogl_caps.blue_bits);
+    log_message("\tGL_ALPHA_BITS        == %d\n", ogl_caps.alpha_bits);
+    log_message("\tGL_INDEX_BITS        == %d\n", ogl_caps.index_bits);
+    log_message("\tGL_DEPTH_BITS        == %d\n", ogl_caps.depth_bits);
+    log_message("\tGL_STENCIL_BITS      == %d\n", ogl_caps.stencil_bits);
+    log_message("\tGL_ACCUM_RED_BITS    == %d\n", ogl_caps.accum_red_bits);
+    log_message("\tGL_ACCUM_GREEN_BITS  == %d\n", ogl_caps.accum_green_bits);
+    log_message("\tGL_ACCUM_BLUE_BITS   == %d\n", ogl_caps.accum_blue_bits);
+    log_message("\tGL_ACCUM_ALPHA_BITS  == %d\n\n", ogl_caps.accum_alpha_bits);
 
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_LIGHTS        == %d\n",   ogl_caps.max_lights );
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_CLIP_PLANES   == %d\n",   ogl_caps.max_clip_planes );
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_TEXTURE_SIZE  == %d\n\n", ogl_caps.max_texture_size );
+    log_message("\tGL_MAX_LIGHTS        == %d\n",   ogl_caps.max_lights);
+    log_message("\tGL_MAX_CLIP_PLANES   == %d\n",   ogl_caps.max_clip_planes);
+    log_message("\tGL_MAX_TEXTURE_SIZE  == %d\n\n", ogl_caps.max_texture_size);
 
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_PIXEL_MAP_TABLE == %d\n",   ogl_caps.max_pixel_map_table );
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_LIST_NESTING    == %d\n",   ogl_caps.max_list_nesting );
-    fprintf( LOCAL_STDOUT, "\tGL_MAX_EVAL_ORDER      == %d\n\n", ogl_caps.max_eval_order );
+    log_message("\tGL_MAX_PIXEL_MAP_TABLE == %d\n",   ogl_caps.max_pixel_map_table);
+    log_message("\tGL_MAX_LIST_NESTING    == %d\n",   ogl_caps.max_list_nesting);
+    log_message("\tGL_MAX_EVAL_ORDER      == %d\n\n", ogl_caps.max_eval_order);
 
     if ( ogl_caps.anisotropic_supported )
     {
-        fprintf( LOCAL_STDOUT, "\tGL_MAX_TEXTURE_MAX_ANISOTROPY_EXT == %f\n", ogl_caps.maxAnisotropy );
+        log_message("\tGL_MAX_TEXTURE_MAX_ANISOTROPY_EXT == %f\n", ogl_caps.maxAnisotropy);
     }
 
-    fprintf( LOCAL_STDOUT, "==============================================================\n" );
-
-    fflush( LOCAL_STDOUT );
+    log_message("==============================================================\n");
 }
 
 //--------------------------------------------------------------------------------------------
@@ -240,24 +233,6 @@ GLboolean oglx_video_parameters_default( oglx_video_parameters_t * pvid )
     pvid->userAnisotropy  = 0.0f;
 
     return GL_TRUE;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-FILE * oglx_set_stdout( FILE * pfile )
-{
-    FILE * pfile_old = _oglx_stdout;
-
-    if ( NULL == pfile )
-    {
-        _oglx_stdout = stdout;
-    }
-    else
-    {
-        _oglx_stdout = pfile;
-    }
-
-    return pfile_old;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -243,7 +243,7 @@ egolib_console_t * egolib_console_ctor( egolib_console_t * pcon, SDL_Rect Con_re
     BLANK_STRUCT_PTR( pcon )
 
     // set the console's font
-    pcon->pfont = fnt_loadFont( vfs_resolveReadFilename( "mp_data/pc8x8.fon" ), 12 );
+    pcon->pfont = fnt_loadFont( "mp_data/pc8x8.fon", 12 );
 
     // set the console's rectangle
     pcon->rect = Con_rect;

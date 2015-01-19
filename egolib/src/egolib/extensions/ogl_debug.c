@@ -25,14 +25,7 @@
 
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/file_common.h"
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#define LOCAL_STDERR ((NULL == _ogl_debug_stderr) ? stderr : _ogl_debug_stderr)
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-FILE * _ogl_debug_stderr = NULL;
+#include "egolib/log.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -48,14 +41,14 @@ void handle_gl_error( void )
     if ( GL_NO_ERROR != err )
     {
         const GLubyte * err_str = gluErrorString( err );
-        fprintf( LOCAL_STDERR, "%s (\"%s\" - %d)- %s\n", next_cmd, next_file, next_line, err_str );
+        log_warning("%s (\"%s\" - %d)- %s\n", next_cmd, next_file, next_line, err_str);
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void print_gl_command( void )
 {
-    fprintf( LOCAL_STDERR, "%s (\"%s\" - %d)\n", next_cmd, next_file, next_line );
+    log_warning("%s (\"%s\" - %d)\n", next_cmd, next_file, next_line);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -691,22 +684,4 @@ void gl_grab_buffer_state( gl_buffer_t * pb )
     GL_DEBUG( glGetFloatv )( GL_RED_BIAS,   pb->red_bias );
     GL_DEBUG( glGetFloatv )( GL_GREEN_BIAS, pb->green_bias );
     GL_DEBUG( glGetFloatv )( GL_BLUE_BIAS,  pb->blue_bias );
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-FILE * set_ogl_debug_stderr( FILE * pfile )
-{
-    FILE * pfile_old = _ogl_debug_stderr;
-
-    if ( NULL == pfile )
-    {
-        _ogl_debug_stderr  = stdout;
-    }
-    else
-    {
-        _ogl_debug_stderr  = pfile;
-    }
-
-    return pfile_old;
 }

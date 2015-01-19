@@ -114,14 +114,14 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     id_md2_header_t md2Header;
 
     // Open up the file, and make sure it's a MD2 model
-    FILE *f = fopen(fileName.c_str(), "rb");
+    vfs_FILE *f = vfs_openReadB(fileName.c_str());
     if(!f)
     {
         log_warning("MD2Model::loadFromFile() - could not open model (%s)\n", fileName.c_str());
         return nullptr;
     }
 
-    fread(&md2Header, sizeof(md2Header), 1, f);
+    vfs_read(&md2Header, sizeof(md2Header), 1, f);
 
     // Convert the byte ordering in the md2Header, if we need to
     md2Header.ident            = ENDIAN_TO_SYS_INT32( md2Header.ident );
@@ -144,7 +144,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
 
     if (md2Header.ident != MD2_MAGIC_NUMBER || md2Header.version != MD2_VERSION)
     {
-        fclose( f );
+        vfs_close( f );
         log_warning( "MD2Model::loadFromFile() - model does not have valid header or identifier (%s)\n", fileName.c_str() );
         return NULL;
     }
@@ -170,11 +170,11 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     }
 
     // Load the texture coordinates from the file, normalizing them as we go
-    fseek(f, md2Header.offset_st, SEEK_SET);
+    vfs_seek(f, md2Header.offset_st);
     for(MD2_TexCoord& texCoord : model->_texCoords)
     {
         id_md2_texcoord_t tc;
-        fread(&tc, sizeof(tc), 1, f);
+        vfs_read(&tc, sizeof(tc), 1, f);
 
         // auto-convert the byte ordering of the texture coordinates
         tc.s = ENDIAN_TO_SYS_INT16( tc.s );
@@ -186,8 +186,8 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
 
     // Load triangles from the file.  I use the same memory layout as the file
     // on a little endian machine, so they can just be read directly
-    fseek(f, md2Header.offset_tris, SEEK_SET);
-    fread(model->_triangles.data(), sizeof(id_md2_triangle_t), md2Header.num_tris, f);
+    vfs_seek(f, md2Header.offset_tris);
+    vfs_read(model->_triangles.data(), sizeof(id_md2_triangle_t), md2Header.num_tris, f);
 
     // auto-convert the byte ordering on the triangles
     for(MD2_Triangle &tris : model->_triangles)
@@ -200,17 +200,17 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     }
 
     // Load the skin names.  Again, I can load them directly
-    fseek(f, md2Header.offset_skins, SEEK_SET);
-    fread(model->_skins.data(), sizeof(id_md2_skin_t), md2Header.num_skins, f);
+    vfs_seek(f, md2Header.offset_skins);
+    vfs_read(model->_skins.data(), sizeof(id_md2_skin_t), md2Header.num_skins, f);
 
     // Load the frames of animation
-    fseek( f, md2Header.offset_frames, SEEK_SET );
+    vfs_seek(f, md2Header.offset_frames);
     for(MD2_Frame &frame : model->_frames)
     {
         id_md2_frame_header_t frame_header;
 
         // read the current frame
-        fread(&frame_header, sizeof(frame_header), 1, f);
+        vfs_read(&frame_header, sizeof(frame_header), 1, f);
 
         // Convert the byte ordering on the scale & translate vectors, if necessary
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
@@ -231,7 +231,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             id_md2_vertex_t frame_vert;
 
             // read vertex_lst one-by-one. I hope this is not endian dependent, but I have no way to check it.
-            fread(&frame_vert, sizeof( id_md2_vertex_t ), 1, f);
+            vfs_read(&frame_vert, sizeof( id_md2_vertex_t ), 1, f);
 
             // grab the vertex position
             vertex.pos.x = frame_vert.v[0] * frame_header.scale[0] + frame_header.translate[0];
@@ -273,7 +273,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
         int32_t  cmd_size = 0;
 
         // seek to the ogl command offset
-        fseek(f, md2Header.offset_glcmds, SEEK_SET);
+        vfs_seek(f, md2Header.offset_glcmds);
 
         //count the commands
         cmd_size = 0;
@@ -281,7 +281,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
         {
             int32_t commands;
 
-            fread( &commands, sizeof(int32_t), 1, f );
+            vfs_read( &commands, sizeof(int32_t), 1, f );
             cmd_size += sizeof(int32_t) / sizeof(int32_t);
 
             // auto-convert the byte ordering
@@ -307,7 +307,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
             cmd.data.resize(cmd.commandCount);
 
             //read in the data
-            fread(cmd.data.data(), sizeof(id_glcmd_packed_t), cmd.commandCount, f);
+            vfs_read(cmd.data.data(), sizeof(id_glcmd_packed_t), cmd.commandCount, f);
             cmd_size += (sizeof(id_glcmd_packed_t) * cmd.commandCount) / sizeof(uint32_t);
 
             //translate the data, if necessary
@@ -330,7 +330,7 @@ std::shared_ptr<MD2Model> MD2Model::loadFromFile(const std::string &fileName)
     }
 
     // Close the file, we're done with it
-    fclose(f);
+    vfs_close(f);
 
     return model;
 }

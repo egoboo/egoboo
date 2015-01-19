@@ -109,13 +109,26 @@ extern "C"
 
 // binary reading and writing
     size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile );
-    size_t vfs_write( void * buffer, size_t size, size_t count, vfs_FILE * pfile );
+    int    vfs_read_Sint8(vfs_FILE *pfile, Sint8 *val);
+    int    vfs_read_Uint8(vfs_FILE *pfile, Uint8 *val);
     int    vfs_read_Sint16( vfs_FILE * pfile, Sint16 * val );
     int    vfs_read_Uint16( vfs_FILE * pfile, Uint16 * val );
     int    vfs_read_Sint32( vfs_FILE * pfile, Sint32 * val );
     int    vfs_read_Uint32( vfs_FILE * pfile, Uint32 * val );
     int    vfs_read_Sint64( vfs_FILE * pfile, Sint64 * val );
     int    vfs_read_Uint64( vfs_FILE * pfile, Uint64 * val );
+    int    vfs_read_float( vfs_FILE * pfile, float * val );
+    
+    size_t vfs_write( const void * buffer, size_t size, size_t count, vfs_FILE * pfile );
+    int    vfs_write_Sint8(vfs_FILE *pfile, const Sint8 val);
+    int    vfs_write_Uint8(vfs_FILE *pfile, const Uint8 val);
+    int    vfs_write_Sint16( vfs_FILE * pfile, const Sint16 val );
+    int    vfs_write_Uint16( vfs_FILE * pfile, const Uint16 val );
+    int    vfs_write_Sint32( vfs_FILE * pfile, const Sint32 val );
+    int    vfs_write_Uint32( vfs_FILE * pfile, const Uint32 val );
+    int    vfs_write_Sint64( vfs_FILE * pfile, const Sint64 val );
+    int    vfs_write_Uint64( vfs_FILE * pfile, const Uint64 val );
+    int    vfs_write_float(vfs_FILE *pfile, const float val);
 
 /// the file searching routines
     char ** vfs_enumerateFiles( const char * dir_name );
@@ -138,7 +151,6 @@ extern "C"
     int          vfs_ungetc( int c, vfs_FILE * pfile );
     int          vfs_puts( const char * , vfs_FILE * );
     char *       vfs_gets( char *, int, vfs_FILE * );
-    int          vfs_read_float( vfs_FILE * pfile, float * val );
 
     void         vfs_empty_temp_directories( void );
 
@@ -163,7 +175,13 @@ extern "C"
     const char * vfs_mount_info_strip_path( const char * some_path );
 
     void vfs_listSearchPaths( void );
-
+    
+    // Wrap vfs into SDL_RWops
+    struct SDL_RWops;
+    
+    SDL_RWops *vfs_openRWopsRead( const char * filename );
+    SDL_RWops *vfs_openRWopsWrite( const char * filename );
+    SDL_RWops *vfs_openRWopsAppend( const char * filename );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

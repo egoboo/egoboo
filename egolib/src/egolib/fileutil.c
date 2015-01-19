@@ -1153,7 +1153,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
         for ( type = 0; type < maxformattypes; type++ )
         {
             snprintf( fullname, SDL_arraysize( fullname ), "%s%s", filename, TxFormatSupported[type] );
-            retval = oglx_texture_Load( texture, vfs_resolveReadFilename( fullname ), key );
+            retval = oglx_texture_Load( texture, fullname, key );
             if ( INVALID_GL_ID != retval ) break;
         }
     }
@@ -1163,7 +1163,7 @@ Uint32  ego_texture_load_vfs( oglx_texture_t *texture, const char *filename, Uin
 
         // normal SDL only supports bmp
         snprintf( fullname, SDL_arraysize( fullname ), "%s.bmp", filename );
-        image = SDL_LoadBMP( vfs_resolveReadFilename( fullname ) );
+        image = SDL_LoadBMP_RW(vfs_openRWopsRead(fullname), 1);
 
         // We could not load the image
         if ( NULL == image ) return INVALID_GL_ID;

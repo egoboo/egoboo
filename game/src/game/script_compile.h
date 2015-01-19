@@ -55,7 +55,7 @@ typedef struct s_opcode_data opcode_data_t;
 //--------------------------------------------------------------------------------------------
 
 extern bool debug_scripts;
-extern FILE * debug_script_file;
+extern vfs_FILE * debug_script_file;
 
 /// temporary data describing a single egoscript opcode
 struct s_opcode_data

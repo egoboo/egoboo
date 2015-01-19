@@ -2235,7 +2235,7 @@ int main( int argcnt, char* argtext[] )
     setup_init_base_vfs_paths();
 
     // register the logging code
-    log_init(vfs_resolveWriteFilename( "/debug/log.txt" ), LOG_INFO);
+    log_init("/debug/log.txt", LOG_INFO);
 
     if ( !setup_read_vfs() )
     {

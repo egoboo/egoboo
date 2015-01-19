@@ -294,7 +294,7 @@ cartman_mpd_t * cartman_mpd_load_vfs( /* const char *modname, */ cartman_mpd_t *
 
         // load a raw mpd
         map_ctor( &local_mpd );
-        pmpd = map_load( vfs_resolveReadFilename( "mp_data/level.mpd" ), &local_mpd );
+        pmpd = map_load( "mp_data/level.mpd", &local_mpd );
 
         // convert it into a convenient version for cartman
         pmesh = cartman_mpd_convert( pmesh, pmpd );
@@ -326,7 +326,7 @@ cartman_mpd_t * cartman_mpd_save_vfs( /*const char *modname,*/ cartman_mpd_t * p
 
         // convert it into a convenient version for Egoboo
         pmpd = cartman_mpd_revert( pmpd, pmesh );
-        pmpd = map_save( vfs_resolveReadFilename( "mp_data/level.mpd" ), pmpd );
+        pmpd = map_save( "mp_data/level.mpd", pmpd );
 
         // delete the now useless mpd data
         map_dtor( &local_mpd );
