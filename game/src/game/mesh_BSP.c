@@ -34,7 +34,6 @@ static bool  mesh_BSP_insert(mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int ind
 //--------------------------------------------------------------------------------------------
 mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh)
 {
-    int grids_x, grids_y;
 	EGOBOO_ASSERT(NULL != self && NULL != mesh);
     BLANK_STRUCT_PTR(self)
 
@@ -46,8 +45,8 @@ mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh)
     float bsp_size = std::max( x_max - x_min, y_max - y_min );
 
     // determine the number of bifurcations necessary to get cells the size of the "blocks"
-    grids_x = mesh->gmem.grids_x;
-    grids_y = mesh->gmem.grids_y;
+    int grids_x = mesh->gmem.grids_x;
+    int grids_y = mesh->gmem.grids_y;
     int depth = CEIL(std::log( 0.5f * std::max( grids_x, grids_y ) ) / std::log( 2.0f ) );
 
     // make a 2D BSP tree with "max depth" depth
@@ -76,9 +75,12 @@ mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh)
 }
 
 //--------------------------------------------------------------------------------------------
-mesh_BSP_t *mesh_BSP_dtor(mesh_BSP_t *self)
+void mesh_BSP_dtor(mesh_BSP_t *self)
 {
-    if (NULL == self) return NULL;
+	if (NULL == self)
+	{
+		return;
+	}
 
     // destroy the tree
     BSP_tree_dtor(&(self->tree));
@@ -87,8 +89,6 @@ mesh_BSP_t *mesh_BSP_dtor(mesh_BSP_t *self)
     mesh_BSP_free(self);
 
     BLANK_STRUCT_PTR(self)
-
-    return self;
 }
 
 mesh_BSP_t *mesh_BSP_new(const ego_mesh_t *mesh)

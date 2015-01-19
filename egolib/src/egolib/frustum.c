@@ -147,125 +147,229 @@ egolib_rv egolib_frustum_calculate(egolib_frustum_t * pf, const fmat_4x4_base_t 
     return rv_success;
 }
 
-//--------------------------------------------------------------------------------------------
-geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t * self,const bv_t *bv)
+geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t *self, const bv_t *bv,bool doEnds)
 {
-    /// @author BB
-    /// @details determine the geometric relationship between the given frustum a bounding volume.
-    ///
-    /// @notes the return values deal with the aabb being inside the frustum or not
-    ///
-    /// geometry_error     - obvious
-    /// geometry_outside   - the bounding volume is outside the frustum
-    /// geometry_intersect - the bounding volume and the frustum partially overlap
-    /// geometry_inside    - the bounding volume is completely inside the frustum
-
-    geometry_rv retval = geometry_error;
-    bool finished;
-
-    if ( NULL == self || NULL == bv ) return geometry_error;
-
-    finished = false;
-
-    /// @todo PF@> Something's wrong; this returns intersect/inside for tiles not actually being
-    ///            in the frustum, just force the complete calc for now.
-#if 0
-    if ( !finished )
-    {
-        intersect_rv = point_intersects_aabb( self->origin.v, bv->aabb.mins, bv->aabb.maxs );
-
-        switch ( intersect_rv )
-        {
-            case geometry_error:
-                // an error occured in this function
-                retval = geometry_error;
-                break;
-
-            case geometry_outside:
-                // the camera being outside the bounding volume means nothing by itself
-                /* do nothing */
-                break;
-
-            case geometry_intersect:
-                // this is not emitted by point_intersects_aabb() at this time
-                // merge with the next case
-
-            case geometry_inside:
-                // The camera is inside the bounding box, so it must intersect with it.
-                // As a speedup, don't try to further refine this answer.
-                retval = geometry_intersect;
-                finished = true;
-                break;
-        }
-    }
-
-    // ... this calculation takes too much time ...
-    //if ( !finished )
-    //{
-    //    intersect_rv = sphere_intersects_sphere( &( pfrust->sphere ), &( paabb->sphere ) );
-
-    //    switch ( intersect_rv )
-    //    {
-    //        case geometry_error:
-    //            // an error occured in this function
-    //            retval = intersect_rv;
-    //            finished = true;
-    //            break;
-
-    //        case geometry_outside:
-    //            // the sphere surrounding the camera frustum does not intersect the sphere surrounding the aabb
-    //            retval = intersect_rv;
-    //            finished = true;
-    //            break;
-
-    //        case geometry_intersect:
-    //        case geometry_inside:
-    //            /* do nothing */
-    //            break;
-
-    //    }
-    //}
-
-    if ( !finished )
-    {
-        intersect_rv = cone_intersects_sphere( &( self->cone ), &( bv->sphere ) );
-
-        switch ( intersect_rv )
-        {
-            case geometry_error:
-                // an error occured in this function
-                retval = geometry_error;
-                break;
-
-            case geometry_outside:
-                // the cone representing the camera frustum does not intersect the sphere surrounding the aabb
-                // since the cone is bigger than the frustum, we are done
-                retval = geometry_outside;
-                finished = true;
-                break;
-
-            case geometry_intersect:
-                retval = geometry_intersect;
-                finished = true;
-                break;
-
-            case geometry_inside:
-                retval = geometry_inside;
-                finished = true;
-                break;
-        }
-    }
-#endif
-
-    if ( !finished )
-    {
-        // do the complete calculation. whatever it returns is what it is.
-        // do not check the front and back of the frustum
-        retval = frustum_intersects_aabb( self->data, bv->aabb.mins, bv->aabb.maxs, false );
-        finished = true;
-    }
-
-    return retval;
+	// Validate arguments.
+	if (nullptr == self || nullptr == bv)
+	{
+		return geometry_error;
+	}
+	return egolib_frustum_intersects_aabb(self->data, bv->aabb.mins, bv->aabb.maxs, doEnds);
 }
 
 //--------------------------------------------------------------------------------------------
+geometry_rv egolib_frustum_intersects_point(const frustum_base_t self, const fvec3_base_t point, const bool doEnds)
+{
+	// error trap
+	if (nullptr == self || nullptr == point)
+	{
+		return geometry_error;
+	}
+
+	// Handle optional parameters.
+	int i_stt, i_end;
+	if (doEnds)
+	{
+		i_stt = 0;
+		i_end = FRUST_PLANE_END;
+	}
+	else
+	{
+		i_stt = 0;
+		i_end = FRUST_SIDES_END;
+	}
+
+	// Assume the point is inside the frustum.
+	bool inside = true;
+
+	// Scan through the frustum's planes:
+	for (int i = i_stt; i <= i_end; i++)
+	{
+		if (plane_point_distance(self[i], point) <= 0.0f)
+		{
+			inside = false;
+			break;
+		}
+	}
+
+	return inside ? geometry_inside : geometry_outside;
+}
+
+//--------------------------------------------------------------------------------------------
+geometry_rv egolib_frustum_intersects_sphere(const frustum_base_t self, const fvec3_base_t center, const float radius, const bool doEnds)
+{
+	// error trap
+	if (nullptr == self || nullptr == center)
+	{
+		return geometry_error;
+	}
+	/// @todo The radius of a sphere shall preserve the invariant to be non-negative.
+	/// The test below would then reduce to radius == 0.0f. In that case, the simple
+	/// frustum - center test is sufficient.
+	if (radius <= 0.0f)
+	{
+		return egolib_frustum_intersects_point(self, center, doEnds);
+	}
+
+	// Assume the sphere is completely inside the frustum.
+	geometry_rv retval = geometry_inside;
+
+	// Handle optional parameters.
+	int i_stt, i_end;
+	if (doEnds)
+	{
+		i_stt = 0;
+		i_end = FRUST_PLANE_END;
+	}
+	else
+	{
+		i_stt = 0;
+		i_end = FRUST_SIDES_END;
+	}
+
+	// scan each plane
+	for (int i = i_stt; i <= i_end; i++)
+	{
+		float dist = plane_point_distance(self[i], center);
+
+		// If the sphere is completely behind the current plane, it is outside the frustum.
+		if (dist <= -radius)
+		{
+			retval = geometry_outside;
+			break;
+		}
+		// If it is not completely in front of the current plane, it intersects the frustum.
+		else if (dist < radius)
+		{
+			retval = geometry_intersect;
+		}
+	}
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+geometry_rv egolib_frustum_intersects_cube(const frustum_base_t self, const fvec3_base_t center, const float size, const bool do_ends)
+{
+	fvec3_base_t vmin, vmax;
+
+	if (nullptr == self || nullptr == center)
+	{
+		return geometry_error;
+	}
+
+	// Assume the cube is inside the frustum.
+	geometry_rv retval = geometry_inside;
+
+	// Handle optional parameters.
+	int i_stt, i_end;
+	if (do_ends)
+	{
+		i_stt = 0;
+		i_end = FRUST_PLANE_END;
+	}
+	else
+	{
+		i_stt = 0;
+		i_end = FRUST_SIDES_END;
+	}
+
+	for (int i = i_stt; i <= i_end; i++)
+	{
+		const plane_base_t * plane = self + i;
+
+		// find the most-positive and most-negative points of the aabb
+		for (int j = 0; j < 3; j++)
+		{
+			if ((*plane)[j] > 0.0f)
+			{
+				vmin[j] = center[j] - size;
+				vmax[j] = center[j] + size;
+			}
+			else
+			{
+				vmin[j] = center[j] + size;
+				vmax[j] = center[j] - size;
+			}
+		}
+
+		// If the cube is completely on the negative half-space of the plane,
+		// then it is completely outside.
+		/// @todo This is wrong!
+		if (plane_point_distance(*plane, vmin) > 0.0f)
+		{
+			retval = geometry_outside;
+			break;
+		}
+
+		// if vmin is inside and vmax is outside, then it is not completely inside
+		/// @todo This is wrong.
+		if (plane_point_distance(*plane, vmax) >= 0.0f)
+		{
+			retval = geometry_intersect;
+		}
+	}
+
+	return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+geometry_rv egolib_frustum_intersects_aabb(const frustum_base_t self, const fvec3_base_t mins, const fvec3_base_t maxs, const bool doEnds)
+{
+	if (nullptr == self || nullptr == mins || nullptr == maxs)
+	{
+		return geometry_error;
+	}
+
+	// Handle optional parameters.
+	int i_stt, i_end;
+	if (doEnds)
+	{
+		i_stt = 0;
+		i_end = FRUST_PLANE_END;
+	}
+	else
+	{
+		i_stt = 0;
+		i_end = FRUST_SIDES_END;
+	}
+
+	// Assume the AABB is inside the frustum.
+	geometry_rv retval = geometry_inside;
+
+	// scan through the planes until something happens
+	int i;
+	for (i = i_stt; i <= i_end; i++)
+	{
+		if (geometry_outside == plane_intersects_aabb_max(self[i], mins, maxs))
+		{
+			retval = geometry_outside;
+			break;
+		}
+
+		if (geometry_outside == plane_intersects_aabb_min(self[i], mins, maxs))
+		{
+			retval = geometry_intersect;
+			break;
+		}
+	}
+
+	// continue on if there is something to do
+	if (geometry_intersect == retval)
+	{
+		// If we are in geometry_intersect mode, we only need to check for
+		// the geometry_outside condition.
+
+		// This eliminates a geometry_inside == retval test in every iteration of the loop
+		for ( /* nothing */; i <= i_end; i++)
+		{
+			if (geometry_outside == plane_intersects_aabb_max(self[i], mins, maxs))
+			{
+				retval = geometry_outside;
+				break;
+			}
+		}
+	}
+
+	return retval;
+}

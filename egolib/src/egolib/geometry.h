@@ -104,23 +104,6 @@ struct aabb_t;
 // a datatype for frustums
 //--------------------------------------------------------------------------------------------
 
-    enum e_frustum_planes
-    {
-        FRUST_PLANE_RIGHT = 0,
-        FRUST_PLANE_LEFT,
-        FRUST_PLANE_BOTTOM,
-        FRUST_PLANE_TOP,
-        FRUST_PLANE_BACK,
-        FRUST_PLANE_FRONT,
-        FRUST_PLANE_COUNT,
-
-        // some aliases
-        FRUST_PLANE_END   = FRUST_PLANE_FRONT,
-        FRUST_SIDES_END   = FRUST_PLANE_TOP
-    };
-
-    typedef plane_base_t frustum_base_t[FRUST_PLANE_COUNT];
-
 //--------------------------------------------------------------------------------------------
 // intersection routines
 //--------------------------------------------------------------------------------------------
@@ -129,17 +112,35 @@ struct aabb_t;
 
     geometry_rv aabb_intersects_aabb( const aabb_t * lhs, const aabb_t * rhs );
 
-    geometry_rv plane_intersects_aabb( const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs );
+	geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs);
+	geometry_rv plane_intersects_aabb_max(const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs);
+/**
+ * @brief
+ *	Get if a plane and an AABB intersect.
+ * @param plane
+ *	the plane
+ * @param mins, maxs
+ *	the AABB
+ * @todo
+ *	Replace <tt>const fvec3_base_t mins</tt> and <tt>const fvec3_base_t maxs</tt> by <tt>const aabb_t& aabb</tt>.
+ * @todo
+ *	Rename <tt>plane</tt> to <tt>lhs</tt> and <tt>aabb</tt> to <tt>rhs</tt>.
+ */
+geometry_rv plane_intersects_aabb(const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs);
 
-    geometry_rv sphere_intersects_sphere( const sphere_t * lhs, const sphere_t * rhs );
+/**
+ * @brief
+ *	Get if two spheres intersect.
+ * @param lhs
+ *	a sphere
+ * @param rhs
+ *	the other sphere
+ */
+geometry_rv sphere_intersects_sphere(const sphere_t *lhs, const sphere_t *rhs);
 
-    geometry_rv cone_intersects_point( const cone_t * lhs, const fvec3_t& rhs );
+geometry_rv cone_intersects_point( const cone_t * lhs, const fvec3_t& rhs );
     geometry_rv cone_intersects_sphere( const cone_t * lhs, const sphere_t * rhs );
 
-    geometry_rv frustum_intersects_point( const frustum_base_t pf, const fvec3_base_t pos, const bool do_ends );
-    geometry_rv frustum_intersects_sphere( const frustum_base_t pf, const fvec3_base_t pos, const float radius, const bool do_ends );
-    geometry_rv frustum_intersects_cube( const frustum_base_t pf, const fvec3_base_t pos, const float size, const bool do_ends );
-    geometry_rv frustum_intersects_aabb( const frustum_base_t pf, const fvec3_base_t corner1, const fvec3_base_t corner2, const bool do_ends );
 
 //--------------------------------------------------------------------------------------------
 // misc routines

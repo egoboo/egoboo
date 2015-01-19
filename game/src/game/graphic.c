@@ -6561,7 +6561,7 @@ bool gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * p
     if ( aabb_from_oct_bb( &aabb, poct ) )
     {
         // ignore the ends of the frustum for a little bit of a speed-up
-        geometry_rv frustum_rv = frustum_intersects_aabb( pf->data, aabb.mins, aabb.maxs, do_ends );
+        geometry_rv frustum_rv = egolib_frustum_intersects_aabb( pf->data, aabb.mins, aabb.maxs, do_ends );
 
         retval = ( frustum_rv > geometry_outside );
     }

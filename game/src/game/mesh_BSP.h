@@ -42,15 +42,20 @@ struct egolib_frustum_t;
  */
 struct mesh_BSP_t
 {
-    size_t         count;
-    oct_bb_t       volume;
-    BSP_tree_t     tree;
+    size_t count;
+    oct_bb_t volume;
+    BSP_tree_t tree;
 };
 
 /** @todo Should return @a bool. */
 mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh);
-/** @todo Should return @a void. */
-mesh_BSP_t *mesh_BSP_dtor(mesh_BSP_t *self);
+/**
+ * @brief
+ *	Destuct a mesh BSP.
+ * @param self
+ *	the mesh BSP
+ */
+void mesh_BSP_dtor(mesh_BSP_t *self);
  
 /**
  * @brief

@@ -1056,7 +1056,7 @@ bool BSP_branch_collide_frustum(const BSP_branch_t * pbranch, const egolib_frust
 		}
 		else
 		{
-			geom_unsorted = egolib_frustum_intersects_bv(pfrust, &(unsorted_ptr->bbox));
+			geom_unsorted = egolib_frustum_intersects_bv(pfrust, &(unsorted_ptr->bbox), true);
 		}
 	}
 
@@ -1077,7 +1077,7 @@ bool BSP_branch_collide_frustum(const BSP_branch_t * pbranch, const egolib_frust
 		}
 		else
 		{
-			geom_nodes = egolib_frustum_intersects_bv(pfrust, &(nodes_ptr->bbox));
+			geom_nodes = egolib_frustum_intersects_bv(pfrust, &(nodes_ptr->bbox), true);
 		}
 	}
 
@@ -1098,7 +1098,7 @@ bool BSP_branch_collide_frustum(const BSP_branch_t * pbranch, const egolib_frust
 		}
 		else
 		{
-			geom_children = egolib_frustum_intersects_bv(pfrust, &(children_ptr->bbox));
+			geom_children = egolib_frustum_intersects_bv(pfrust, &(children_ptr->bbox), true);
 		}
 	}
 
@@ -2155,7 +2155,7 @@ bool BSP_leaf_list_collide_frustum(const BSP_leaf_list_t *LL, const egolib_frust
 	if (EMPTY_BSP_LEAF_LIST(LL)) return true;
 
 	// we already have the bounding box of all the leafs
-	if (!egolib_frustum_intersects_bv(pfrust, &(LL->bbox)))
+	if (!egolib_frustum_intersects_bv(pfrust, &(LL->bbox),true))
 	{
 		return false;
 	}
@@ -2190,7 +2190,7 @@ bool BSP_leaf_list_collide_frustum(const BSP_leaf_list_t *LL, const egolib_frust
 		}
 
 		// test the geometry
-		geometry_test = egolib_frustum_intersects_bv(pfrust, pleaf_bb);
+		geometry_test = egolib_frustum_intersects_bv(pfrust, pleaf_bb, true);
 
 		// determine what action to take
 		do_insert = false;
