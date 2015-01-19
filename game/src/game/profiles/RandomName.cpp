@@ -129,7 +129,7 @@ bool RandomName::exportName(const std::string &name, const std::string &filePath
     }
 
     //finished!
-    vfs_printf(fileWrite, "%s\n", name.c_str());
+    vfs_printf(fileWrite, "\n");
     vfs_printf(fileWrite, ":STOP\n\n");
     vfs_close(fileWrite);
     return true;
