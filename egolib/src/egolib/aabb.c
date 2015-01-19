@@ -16,23 +16,11 @@
 //*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+
 /// @file egolib/aabb.c
 /// @brief axis-aligned bounding boxes
 #include "egolib/aabb.h"
 #include "egolib/bbox.h"
-
-//--------------------------------------------------------------------------------------------
-
-bool aabb_copy(aabb_t& dst, const aabb_t& src)
-{
-	for (size_t cnt = 0; cnt < 3; cnt++)
-	{
-		dst.mins[cnt] = src.mins[cnt];
-		dst.maxs[cnt] = src.maxs[cnt];
-	}
-
-	return true;
-}
 
 //--------------------------------------------------------------------------------------------
 bool aabb_self_clear(aabb_t * psrc)

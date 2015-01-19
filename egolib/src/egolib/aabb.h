@@ -101,16 +101,14 @@ struct aabb_t
 	}
 };
 
+/** @todo Remove this. */
+bool aabb_self_clear(aabb_t *dst);
 
-bool aabb_copy(aabb_t& self, const aabb_t& other);
-bool aabb_self_clear(aabb_t * pdst);
-/**
- * @brief
- *	Get if
- */
-bool aabb_is_clear(const aabb_t * pdst);
+/** @todo Remove this. */
+bool aabb_is_clear(const aabb_t *dst);
 
-bool aabb_from_oct_bb(aabb_t * dst, const struct oct_bb_t * src);
+/** @todo Add documentation. */
+bool aabb_from_oct_bb(aabb_t *self, const oct_bb_t *src);
 
 /**
  * @brief

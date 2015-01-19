@@ -77,7 +77,7 @@ egolib_rv egolib_frustum_calculate(egolib_frustum_t * pfrust, const fmat_4x4_bas
  *	If a point is behind one of the frustum planes (i.e. its distance to the plane is
  *	negative), then the point is outside the frustum, otherwise it is inside the frustum.
  */
-geometry_rv egolib_frustum_intersects_point(const frustum_base_t pf, const fvec3_base_t pos, const bool do_ends);
+geometry_rv egolib_frustum_intersects_point(const frustum_base_t self, const fvec3_base_t point, const bool doEnds);
 
 /**
  * @brief

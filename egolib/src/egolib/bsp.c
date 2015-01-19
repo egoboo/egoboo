@@ -1346,7 +1346,10 @@ bool BSP_branch_insert_leaf_rec(BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_
 				cnt = 0;
 				if (NULL != tmp_leaf)
 				{
+					unsorted_ptr->bbox.aabb = tmp_leaf->bbox.aabb;
+#if 0
 					aabb_copy(unsorted_ptr->bbox.aabb, tmp_leaf->bbox.aabb);
+#endif
 					tmp_leaf = tmp_leaf->next;
 					cnt++;
 				}

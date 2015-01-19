@@ -27,27 +27,19 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
+#if 0
     struct s_OVolume;
     struct s_CVolume;
-
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-    struct s_bumper;
-    typedef struct s_bumper bumper_t;
-
-    typedef struct oct_bb_t oct_bb_t;
-
-    struct s_OVolume;
-    typedef struct s_OVolume OVolume_t;
-
-    struct s_OVolume_Tree;
-    typedef struct s_OVolume_Tree OVolume_Tree_t;
-
-    struct s_CVolume;
-    typedef struct s_CVolume CVolume_t;
-
+#if 0
+    struct bumper_t;
+	struct oct_bb_t;
+    struct OVolume_t;
+    struct OVolume_Tree_t;
+    struct CVolume_t;
+#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -58,7 +50,7 @@
 /// Level 0 character "bumper"
 /// The simplest collision volume, equivalent to the old-style collision data
 /// stored in data.txt
-    struct s_bumper
+    struct bumper_t
     {
         float  size;        ///< Size of bumpers
         float  size_big;    ///< For octagonal bumpers
@@ -97,46 +89,10 @@
 #define OCT_BB_INIT_VALS { true, OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
 
 //--------------------------------------------------------------------------------------------
-//struct s_bv
-//{
-//    int    sub_used;
-//    float  weight;
-//
-//    bool used;
-//    int    level;
-//    int    address;
-//
-//    aabb_t  bb;
-//};
-
-//--------------------------------------------------------------------------------------------
-//struct s_aabb_lst
-//{
-//    int       count;
-//    bv_t * list;
-//};
-//
-//EGO_CONST aabb_lst_t * aabb_lst_ctor( aabb_lst_t * lst );
-//EGO_CONST aabb_lst_t * aabb_lst_dtor( aabb_lst_t * lst );
-//EGO_CONST aabb_lst_t * aabb_lst_renew( aabb_lst_t * lst );
-//EGO_CONST aabb_lst_t * aabb_lst_alloc( aabb_lst_t * lst, int count );
-
-//--------------------------------------------------------------------------------------------
-//struct s_aabb_ary
-//{
-//    int         count;
-//    aabb_lst_t * list;
-//};
-//
-//EGO_CONST aabb_ary_t * bbox_ary_ctor( aabb_ary_t * ary );
-//EGO_CONST aabb_ary_t * bbox_ary_dtor( aabb_ary_t * ary );
-//EGO_CONST aabb_ary_t * bbox_ary_renew( aabb_ary_t * ary );
-//EGO_CONST aabb_ary_t * bbox_ary_alloc( aabb_ary_t * ary, int count );
-
 //--------------------------------------------------------------------------------------------
 
 /// @details A convex poly representation of an object volume
-    struct s_OVolume
+    struct OVolume_t
     {
         int        lod;             ///< the level of detail (LOD) of this volume
         bool   needs_shape;     ///< is the shape data valid?
@@ -156,12 +112,12 @@
 
 //--------------------------------------------------------------------------------------------
 
-    struct s_OVolume_Tree { OVolume_t leaf[8]; };
+    struct OVolume_Tree_t { OVolume_t leaf[8]; };
 
 //--------------------------------------------------------------------------------------------
 
 /// @details A convex polygon representation of the collision of two objects
-    struct s_CVolume
+    struct CVolume_t
     {
         float            volume;
         fvec3_t          center;
