@@ -513,7 +513,7 @@ void AudioSystem::playSoundLooped(const SoundID soundID, const CHR_REF owner)
     //Only allow one looping sound instance per character
     for(const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
     {
-        if(sound->getOwner() == ichr && sound->getSoundID() == soundID) {
+        if(sound->getOwner() == owner && sound->getSoundID() == soundID) {
             return;
         }
     }
