@@ -271,7 +271,10 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     snprintf( fromdir, SDL_arraysize( fromdir ), "%s", pobj->getFilePath().c_str() );
 
     // Build the DATA.TXT file
-    _profileSystem.exportProfileToFile(todir, character);
+    if(!ObjectProfile::exportCharacterToFile(std::string(todir) + "/data.txt", ChrList_get_ptr(character))) {
+        log_warning( "export_one_character() - unable to save data.txt \"%s/data.txt\"\n", todir );
+        return rv_error;
+    }
 
     // Build the NAMING.TXT file
     snprintf( tofile, SDL_arraysize( tofile ), "%s/naming.txt", todir ); /*NAMING.TXT*/

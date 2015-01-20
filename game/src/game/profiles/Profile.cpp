@@ -38,6 +38,8 @@
 #include "egolib/file_formats/template.h"
 #include "egolib/math/Random.hpp"
 
+static const SkinInfo INVALID_SKIN = SkinInfo();
+
 ObjectProfile::ObjectProfile() :
     requestCount(0),
     spawnCount(0),
@@ -920,9 +922,14 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     return true;
 }
 
-const SkinInfo& ObjectProfile::getSkinInfo(size_t index)
+const SkinInfo& ObjectProfile::getSkinInfo(size_t index) const
 {
-    return _skinInfo[index];
+    const auto &result = _skinInfo.find(index);
+    if(result == _skinInfo.end()) {
+        return INVALID_SKIN; //empty skin (dont construct new element in map)
+    }
+
+    return (*result).second;
 }
 
 float ObjectProfile::getExperienceRate(XPType type) const
@@ -1048,4 +1055,378 @@ bool ObjectProfile::isSlotValid(slot_t slot) const
     }
 
     return _slotsValid[slot];
+}
+
+
+bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const chr_t *character)
+{
+    if (!DEFINED_PCHR(character)) {
+        return false;
+    }
+
+    // Open the file
+    vfs_FILE *fileWrite = vfs_openWrite( filePath.c_str() );
+    if (!fileWrite) {
+        return false;  
+    } 
+
+    // open the template file
+    vfs_FILE *fileTemp = template_open_vfs( "mp_data/templates/data.txt" );
+
+    //did we find a template file?
+    if (!fileTemp)
+    {
+        vfs_close( fileWrite );
+        return false;
+    }
+
+    const ObjectProfile *profile = chr_get_ppro(GET_INDEX_PCHR(character));
+
+    // Real general data
+    template_put_int( fileTemp, fileWrite, -1 );     // -1 signals a flexible load thing
+    template_put_string_under( fileTemp, fileWrite, profile->_className.c_str() );
+    template_put_bool( fileTemp, fileWrite, profile->_uniformLit );
+    template_put_int( fileTemp, fileWrite, character->ammomax );     //Note: overridden by chr
+    template_put_int( fileTemp, fileWrite, character->ammo );        //Note: overridden by chr
+    template_put_gender( fileTemp, fileWrite, character->gender );   //Note: overridden by chr
+
+     // SWID
+    ProfileStat strength = profile->_startingStrength;
+    ints_to_range( character->strength    , 0, &strength.val);
+    ProfileStat wisdom = profile->_startingWisdom;
+    ints_to_range( character->wisdom      , 0, &wisdom.val);
+    ProfileStat intelligence = profile->_startingIntelligence;
+    ints_to_range( character->intelligence, 0, &intelligence.val);
+    ProfileStat dexterity = profile->_startingStrength;
+    ints_to_range( character->dexterity   , 0, &dexterity.val);
+
+    // Life and Mana
+    ProfileStat maxLife = profile->_startingLife;
+    ints_to_range( character->life_max     , 0, &maxLife.val);
+    ProfileStat maxMana = profile->_startingMana;
+    ints_to_range( character->mana_max     , 0, &maxMana.val);
+    ProfileStat manaRegeneration = profile->_startingManaRegeneration;
+    ints_to_range( character->mana_return  , 0, &manaRegeneration.val);
+    ProfileStat manaFlow = profile->_startingManaFlow;
+    ints_to_range( character->mana_flow    , 0, &manaFlow.val);
+
+    // Object stats
+    template_put_int( fileTemp, fileWrite, character->life_color );              //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, character->mana_color );              //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, maxLife.val );                          //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->_startingLife.perlevel );
+    template_put_range( fileTemp, fileWrite, maxMana.val );                          //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->_startingMana.perlevel );
+    template_put_range( fileTemp, fileWrite, manaRegeneration.val );             //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->_startingManaRegeneration.perlevel );
+    template_put_range( fileTemp, fileWrite, manaFlow.val );                     //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->_startingManaFlow.perlevel );
+    template_put_range( fileTemp, fileWrite, strength.val );                     //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->_startingStrength.perlevel );
+    template_put_range( fileTemp, fileWrite, wisdom.val );                       //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->_startingWisdom.perlevel );
+    template_put_range( fileTemp, fileWrite, intelligence.val );                 //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->_startingIntelligence.perlevel );
+    template_put_range( fileTemp, fileWrite, dexterity.val );                    //Note: overriden by chr
+    template_put_range( fileTemp, fileWrite, profile->_startingDexterity.perlevel );
+
+    // More physical attributes
+    template_put_float( fileTemp, fileWrite, character->fat_goto );                   //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, profile->_sizeGainPerLevel );
+    template_put_int( fileTemp, fileWrite, profile->_shadowSize );
+    template_put_int( fileTemp, fileWrite, profile->_bumpSize );
+    template_put_int( fileTemp, fileWrite, profile->_bumpHeight );
+    template_put_float( fileTemp, fileWrite, character->phys.bumpdampen );           //Note: overriden by chr
+
+    //Weight
+    if ( CHR_INFINITE_WEIGHT == character->phys.weight || 0.0f == character->fat )
+    {
+        template_put_int( fileTemp, fileWrite, CAP_INFINITE_WEIGHT );           //Note: overriden by chr
+    }
+    else
+    {
+        uint32_t weight = character->phys.weight / character->fat / character->fat / character->fat;
+        template_put_int( fileTemp, fileWrite, std::min(weight, static_cast<uint32_t>(CAP_MAX_WEIGHT)) );   //Note: overriden by chr
+    }
+
+    template_put_float( fileTemp, fileWrite, character->jump_power );                 //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, character->jumpnumberreset );              //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->anim_speed_sneak );          //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->anim_speed_walk );           //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->anim_speed_run );            //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, character->flyheight );                    //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, character->flashand );                     //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, character->alpha_base);                    //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, character->light_base );                   //Note: overriden by chr
+    template_put_bool( fileTemp, fileWrite, character->transferblend  );              //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, profile->_sheen );
+    template_put_bool( fileTemp, fileWrite, profile->_phongMapping );
+    template_put_float( fileTemp, fileWrite, FFFF_TO_FLOAT( profile->_textureMovementRateX ) );
+    template_put_float( fileTemp, fileWrite, FFFF_TO_FLOAT( profile->_textureMovementRateY ) );
+    template_put_bool( fileTemp, fileWrite, character->stickybutt );                  //Note: overridden by chr
+
+    // Invulnerability data
+    template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->invictus) );
+    template_put_int( fileTemp, fileWrite, profile->nframefacing );
+    template_put_int( fileTemp, fileWrite, profile->nframeangle );
+    template_put_int( fileTemp, fileWrite, profile->iframefacing );
+    template_put_int( fileTemp, fileWrite, profile->iframeangle );
+
+    // Skin defenses (TODO: add support for more than 4)
+    template_put_int( fileTemp, fileWrite, 255 - profile->getSkinInfo(0).defence );
+    template_put_int( fileTemp, fileWrite, 255 - profile->getSkinInfo(1).defence );
+    template_put_int( fileTemp, fileWrite, 255 - profile->getSkinInfo(2).defence );
+    template_put_int( fileTemp, fileWrite, 255 - profile->getSkinInfo(3).defence );
+
+    for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
+    {
+        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(0).damageResistance[damagetype] );
+        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(1).damageResistance[damagetype] );
+        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(2).damageResistance[damagetype] );
+        template_put_float( fileTemp, fileWrite, profile->getSkinInfo(3).damageResistance[damagetype] );
+    }
+
+    for (size_t damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
+    {
+        char code;
+
+        for (size_t skin = 0; skin < MAX_SKIN; skin++ )
+        {
+            if ( HAS_SOME_BITS( profile->getSkinInfo(skin).damageModifier[damagetype], DAMAGEMANA ) )
+            {
+                code = 'M';
+            }
+            else if ( HAS_SOME_BITS( profile->getSkinInfo(skin).damageModifier[damagetype], DAMAGECHARGE ) )
+            {
+                code = 'C';
+            }
+            else if ( HAS_SOME_BITS( profile->getSkinInfo(skin).damageModifier[damagetype], DAMAGEINVERT ) )
+            {
+                code = 'T';
+            }
+            else if ( HAS_SOME_BITS( profile->getSkinInfo(skin).damageModifier[damagetype], DAMAGEINVICTUS ) )
+            {
+                code = 'I';
+            }
+            else
+            {
+                code = 'F';
+            }
+
+            template_put_char( fileTemp, fileWrite, code );
+        }
+    }
+
+    template_put_float( fileTemp, fileWrite, profile->getSkinInfo(0).maxAccel*80 );
+    template_put_float( fileTemp, fileWrite, profile->getSkinInfo(1).maxAccel*80 );
+    template_put_float( fileTemp, fileWrite, profile->getSkinInfo(2).maxAccel*80 );
+    template_put_float( fileTemp, fileWrite, profile->getSkinInfo(3).maxAccel*80 );
+
+    // Experience and level data
+    template_put_int( fileTemp, fileWrite, profile->_experienceForLevel[1] );
+    template_put_int( fileTemp, fileWrite, profile->_experienceForLevel[2] );
+    template_put_int( fileTemp, fileWrite, profile->_experienceForLevel[3] );
+    template_put_int( fileTemp, fileWrite, profile->_experienceForLevel[4] );
+    template_put_int( fileTemp, fileWrite, profile->_experienceForLevel[5] );
+    template_put_float( fileTemp, fileWrite, FLOAT_TO_FP8( character->experience ) );    //Note overriden by chr
+    template_put_int( fileTemp, fileWrite, profile->_experienceWorth );
+    template_put_float( fileTemp, fileWrite, profile->_experienceExchange );
+    template_put_float( fileTemp, fileWrite, profile->_experienceRate[0] );
+    template_put_float( fileTemp, fileWrite, profile->_experienceRate[1] );
+    template_put_float( fileTemp, fileWrite, profile->_experienceRate[2] );
+    template_put_float( fileTemp, fileWrite, profile->_experienceRate[3] );
+    template_put_float( fileTemp, fileWrite, profile->_experienceRate[4] );
+    template_put_float( fileTemp, fileWrite, profile->_experienceRate[5] );
+    template_put_float( fileTemp, fileWrite, profile->_experienceRate[6] );
+    template_put_float( fileTemp, fileWrite, profile->_experienceRate[7] );
+
+    // IDSZ identification tags
+    template_put_idsz( fileTemp, fileWrite, profile->_idsz[IDSZ_PARENT] );
+    template_put_idsz( fileTemp, fileWrite, profile->_idsz[IDSZ_TYPE] );
+    template_put_idsz( fileTemp, fileWrite, profile->_idsz[IDSZ_SKILL] );
+    template_put_idsz( fileTemp, fileWrite, profile->_idsz[IDSZ_SPECIAL] );
+    template_put_idsz( fileTemp, fileWrite, profile->_idsz[IDSZ_HATE] );
+    template_put_idsz( fileTemp, fileWrite, profile->_idsz[IDSZ_VULNERABILITY] );
+
+    // Item and damage flags
+    template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->isitem) );  //Note overriden by chr
+    template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->ismount) ); //Note overriden by chr
+    template_put_bool( fileTemp, fileWrite, profile->_isStackable );
+    template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->nameknown || character->ammoknown)); // make sure that identified items are saved as identified );
+    template_put_bool( fileTemp, fileWrite, profile->_usageIsKnown );
+    template_put_bool( fileTemp, fileWrite, profile->_canCarryToNextModule );
+    template_put_bool( fileTemp, fileWrite, profile->_needSkillIDToUse );
+    template_put_bool( fileTemp, fileWrite, character->platform );       //Note overriden by chr
+    template_put_bool( fileTemp, fileWrite, character->cangrabmoney );   //Note overriden by chr
+    template_put_bool( fileTemp, fileWrite, character->openstuff );   //Note overriden by chr
+
+    // Other item and damage stuff
+    template_put_damage_type( fileTemp, fileWrite, character->damagetarget_damagetype ); //Note overriden by chr
+    template_put_action( fileTemp, fileWrite, profile->_weaponAction );
+
+    // Particle attachments
+    template_put_int( fileTemp, fileWrite, profile->_attachedParticleAmount );
+    template_put_damage_type(fileTemp, fileWrite, character->reaffirm_damagetype);
+    template_put_int( fileTemp, fileWrite, profile->_attachedParticleProfile );
+
+    // Character hands
+    template_put_bool( fileTemp, fileWrite, profile->_slotsValid[SLOT_LEFT] );
+    template_put_bool( fileTemp, fileWrite, profile->_slotsValid[SLOT_RIGHT] );
+
+    // Particle spawning on attack
+    template_put_bool( fileTemp, fileWrite, 0 != profile->_spawnsAttackParticle );
+    template_put_int( fileTemp, fileWrite, profile->_attackParticleProfile );
+
+    // Particle spawning for GoPoof
+    template_put_int( fileTemp, fileWrite, profile->_goPoofParticleAmount );
+    template_put_int( fileTemp, fileWrite, profile->_goPoofParticleFacingAdd );
+    template_put_int( fileTemp, fileWrite, profile->_goPoofParticleProfile );
+
+    // Particle spawning for blud
+    template_put_bool( fileTemp, fileWrite, 0 != profile->_bludValid );
+    template_put_int( fileTemp, fileWrite, profile->_bludParticleProfile );
+
+    // Extra stuff
+    template_put_bool( fileTemp, fileWrite, TO_C_BOOL( character->waterwalk ) ); //Note: overriden by chr
+    template_put_float( fileTemp, fileWrite, character->phys.dampen );   //Note: overriden by chr
+
+    // More stuff
+    template_put_float(fileTemp, fileWrite, 0); //unused
+    template_put_float(fileTemp, fileWrite, 0); //unused
+    template_put_int( fileTemp, fileWrite, profile->_startingLifeRegeneration );
+    template_put_int( fileTemp, fileWrite, character->stoppedby );   //Note: overridden by chr
+    template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(0).name.c_str() );
+    template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(1).name.c_str() );
+    template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(2).name.c_str() );
+    template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(3).name.c_str() );
+    template_put_int( fileTemp, fileWrite, profile->getSkinInfo(0).cost );
+    template_put_int( fileTemp, fileWrite, profile->getSkinInfo(1).cost );
+    template_put_int( fileTemp, fileWrite, profile->getSkinInfo(2).cost );
+    template_put_int( fileTemp, fileWrite, profile->getSkinInfo(3).cost );
+    template_put_float( fileTemp, fileWrite, 0); //unused
+
+    // Another memory lapse
+    template_put_bool( fileTemp, fileWrite, !profile->_riderCanAttack );
+    template_put_bool( fileTemp, fileWrite, profile->_canBeDazed );
+    template_put_bool( fileTemp, fileWrite, profile->_canBeGrogged );
+    template_put_int( fileTemp, fileWrite, 0 );
+    template_put_int( fileTemp, fileWrite, 0 );
+    template_put_bool( fileTemp, fileWrite, character->see_invisible_level > 0 ); //Note: Overridden by chr
+    template_put_int( fileTemp, fileWrite, character->iskursed ? 100 : 0 );  //Note: overridden by chr
+    template_put_int( fileTemp, fileWrite, -1);//_sound[SOUND_FOOTFALL] ); //TODO: not implemented
+    template_put_int( fileTemp, fileWrite, -1);//sound_index[SOUND_JUMP] );
+
+    vfs_flush( fileWrite );
+
+    // copy the template file to the next free output section
+    template_seek_free( fileTemp, fileWrite );
+
+    // Expansions
+    for(int i = 0; i < 4; ++i) {
+        if (profile->getSkinInfo(i).dressy) {
+            vfs_put_expansion(fileWrite, "", MAKE_IDSZ( 'D', 'R', 'E', 'S' ), i);
+        }
+    }
+
+    if ( profile->_resistBumpSpawn )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'U', 'K' ), 0 );
+
+    if ( profile->_isBigItem )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'P', 'A', 'C', 'K' ), 0 );
+
+    if ( !profile->_hasReflection )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'V', 'A', 'M', 'P' ), 1 );
+
+    if ( profile->_alwaysDraw )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'D', 'R', 'A', 'W' ), 1 );
+
+    if ( profile->_isRanged )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'R', 'A', 'N', 'G' ), 1 );
+
+    if ( profile->_hideState != NOHIDE )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'H', 'I', 'D', 'E' ), profile->_hideState );
+
+    if ( profile->_isEquipment )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'E', 'Q', 'U', 'I' ), 1 );
+
+    if ( profile->_bumpSizeBig >= profile->_bumpSize * 2 )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'Q', 'U', 'A' ), 1 );
+
+    if ( profile->_drawIcon != profile->_usageIsKnown )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'I', 'C', 'O', 'N' ), TO_C_BOOL( character->draw_icon ) ); //note: overridden by chr
+
+    if ( profile->_forceShadow )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'H', 'A', 'D' ), 1 );
+
+    if ( profile->_causesRipples == profile->_isItem )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'R', 'I', 'P', 'P' ), profile->_causesRipples );
+
+    if ( -1 != profile->_isValuable )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'V', 'A', 'L', 'U' ), profile->_isValuable );
+
+    if ( profile->_spellEffectType >= 0 )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'B', 'O', 'O', 'K' ), profile->_spellEffectType );
+
+    if ( profile->_attackFast )
+        vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'F', 'A', 'S', 'T' ), profile->_attackFast );
+
+    if ( profile->_strengthBonus > 0 )
+        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'R', 'D' ), profile->_strengthBonus );
+
+    if ( profile->_intelligenceBonus > 0 )
+        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'I', 'N', 'T', 'D' ), profile->_intelligenceBonus );
+
+    if ( profile->_dexterityBonus > 0 )
+        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'D', 'E', 'X', 'D' ), profile->_dexterityBonus );
+
+    if ( profile->_wisdomBonus > 0 )
+        vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'W', 'I', 'S', 'D' ), profile->_wisdomBonus );
+
+    if ( profile->_bumpOverrideSize || profile->_bumpOverrideSizeBig ||  profile->_bumpOverrideHeight )
+    {
+        STRING sz_tmp = EMPTY_CSTR;
+
+        if ( profile->_bumpOverrideSize ) strcat( sz_tmp, "S" );
+        if ( profile->_bumpOverrideSizeBig ) strcat( sz_tmp, "B" );
+        if ( profile->_bumpOverrideHeight ) strcat( sz_tmp, "H" );
+        if ( profile->_dontCullBackfaces ) strcat( sz_tmp, "C" );
+        if ( profile->_skinHasTransparency ) strcat( sz_tmp, "T" );
+
+        if ( CSTR_END != sz_tmp[0] )
+        {
+            vfs_put_expansion_string( fileWrite, "", MAKE_IDSZ( 'M', 'O', 'D', 'L' ), sz_tmp );
+        }
+    }
+
+    // Basic stuff that is always written
+    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'G', 'O', 'L', 'D' ), character->money );
+    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'P', 'L', 'A', 'T' ), character->canuseplatforms );
+    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'K', 'I', 'N' ), character->skin );
+    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'C', 'O', 'N', 'T' ), character->ai.content );
+    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'S', 'T', 'A', 'T' ), character->ai.state );
+    vfs_put_expansion( fileWrite, "", MAKE_IDSZ( 'L', 'E', 'V', 'L' ), character->experiencelevel );
+    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'L', 'I', 'F', 'E' ), FP8_TO_FLOAT( character->life ) );
+    vfs_put_expansion_float( fileWrite, "", MAKE_IDSZ( 'M', 'A', 'N', 'A' ), FP8_TO_FLOAT( character->mana ) );
+
+    // write down any skills that have been learned
+    IDSZ_node_t *pidsz;
+    int iterator = 0;
+    pidsz = idsz_map_iterate(character->skills, SDL_arraysize(character->skills), &iterator);
+    while ( pidsz != nullptr )
+    {
+        //Write that skill into the file
+        vfs_put_expansion(fileWrite, "", pidsz->id, pidsz->level);
+
+        //Get the next IDSZ from the map
+        pidsz = idsz_map_iterate(character->skills, SDL_arraysize(character->skills), &iterator);
+    }
+
+    // dump the rest of the template file
+    template_flush( fileTemp, fileWrite );
+
+    // The end
+    vfs_close( fileWrite );
+    template_close_vfs( fileTemp );
+
+    return true;
 }

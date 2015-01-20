@@ -230,11 +230,6 @@ public:
     inline RandomName& getRandomNameData() {return _randomName;}
 
     /**
-    * @brief Exports profile info to a data file
-    **/
-    static bool saveToFile(const std::string &filePath, const std::string &templateName);
-
-    /**
     * @brief
     **/
     uint16_t getSkinOverride() const;
@@ -247,7 +242,7 @@ public:
     /**
     * @brief
     **/
-    const SkinInfo& getSkinInfo(size_t index);
+    const SkinInfo& getSkinInfo(size_t index) const;
 
     /**
     * @brief return true if this character is immune to all damage
@@ -541,6 +536,11 @@ public:
     **/
     static std::shared_ptr<ObjectProfile> loadFromFile(const std::string &folderPath, const PRO_REF slotOverride);
 
+    /**
+    * @brief Writes the contents of this character instance to a profile data.txt file
+    **/
+    static bool exportCharacterToFile(const std::string &filePath, const chr_t *character);
+
     //ZF> TODO: these should not be public
     size_t requestCount;                       ///< the number of attempted spawns
     size_t spawnCount;                         ///< the number of successful spawns
@@ -567,8 +567,6 @@ private:
     * @return true if it was successfully parsed and loaded
     **/
     bool loadDataFile(const std::string &filePath);
-
-    bool exportToDataFile(const std::string &filePath);
 
     /**
     * @author ZF

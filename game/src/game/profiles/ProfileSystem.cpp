@@ -331,9 +331,3 @@ TX_REF ProfileSystem::getSpellBookIcon(size_t index) const
     if(_bookIcons.empty()) return INVALID_TX_REF;
     return _bookIcons[index % _bookIcons.size()];
 }
-
-bool ProfileSystem::exportProfileToFile(const std::string &filePath, const CHR_REF character)
-{
-    //TODO: not implemented
-    log_error("ProfileSystem::exportProfileToFile() - unimplemented function, not ported yet\n");
-}
