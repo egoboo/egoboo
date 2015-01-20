@@ -2876,7 +2876,7 @@ bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF charac
 
     if ( !INGAME_CHR( character ) ) return false;
 
-    return RandomName::exportName(szSaveName, ChrList.lst[character].Name);
+    return RandomName::exportName(ChrList.lst[character].Name, szSaveName);
 }
 
 //--------------------------------------------------------------------------------------------
