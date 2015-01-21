@@ -312,9 +312,9 @@ struct fvec3_t
 	 */
 	float dot(const fvec3_t& other) const
 	{
-		return this->v[kX] * this->v[kX]
-			 + this->v[kY] * this->v[kY]
-			 + this->v[kZ] * this->v[kZ]
+		return this->v[kX] * other.v[kX]
+			 + this->v[kY] * other.v[kY]
+			 + this->v[kZ] * other.v[kZ]
 			 ;
 	}
 
