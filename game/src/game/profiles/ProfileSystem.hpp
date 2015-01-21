@@ -55,7 +55,6 @@ public:
 	void releaseAllProfiles();
 
 	//ZF> TODO: These C-like functions need to be removed
-	CAP_REF pro_get_icap( const PRO_REF iobj );
 	MAD_REF pro_get_imad( const PRO_REF iobj );
 	EVE_REF pro_get_ieve( const PRO_REF iobj );
 	PIP_REF pro_get_ipip( const PRO_REF iobj, int ipip );

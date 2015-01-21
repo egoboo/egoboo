@@ -721,7 +721,6 @@ bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
 //--------------------------------------------------------------------------------------------
 // chr_t accessor functions
 PRO_REF  chr_get_ipro( const CHR_REF ichr );
-CAP_REF  chr_get_icap( const CHR_REF ichr );
 TEAM_REF chr_get_iteam( const CHR_REF ichr );
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
 

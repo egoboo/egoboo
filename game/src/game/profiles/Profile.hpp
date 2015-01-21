@@ -208,7 +208,8 @@ public:
     /**
     *@return the folder path where this profile was loaded
     **/
-    inline const std::string& getFilePath() const {return _fileName;}
+    inline const std::string& getFilePath() const {return _fileName;} //TODO remove this duplicate below
+    inline const std::string& getFolderPath() const {return _fileName;}
 
     inline MAD_REF getModelRef() const {return _imad;}
     inline EVE_REF getEnchantRef() const {return _ieve;}
