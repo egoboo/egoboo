@@ -259,7 +259,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     /// @author ZZ
     /// @details This function loads the level.mpd file
 
-    FILE* fileread = NULL;
+    vfs_FILE* fileread = NULL;
 
     int map_version;
     Uint32 tiles_count;
@@ -284,7 +284,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
         goto map_load_fail;
     }
 
-    fileread = fopen( loadname, "rb" );
+    fileread = vfs_openReadB(loadname);
     if ( NULL == fileread )
     {
         log_warning( "%s - cannot find \"%s\"!!\n", __FUNCTION__, loadname );
@@ -292,7 +292,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     }
 
     // read the file version
-    endian_fread_uint32( fileread, &ui32_tmp );
+    vfs_read_Uint32( fileread, &ui32_tmp );
 
     // this number is backwards for our purpose
     ui32_tmp = SDL_Swap32( ui32_tmp );
@@ -310,7 +310,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     }
 
     // read the rest of the "header"
-    endian_fread_uint32( fileread, &ui32_tmp );
+    vfs_read_Uint32( fileread, &ui32_tmp );
     if ( test_limits && ( ui32_tmp >= MAP_VERTICES_MAX ) )
     {
         log_warning( "%s - unknown version and out of range vertex count (%d/%d)!!\n", __FUNCTION__, ui32_tmp, MAP_VERTICES_MAX );
@@ -318,7 +318,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     }
     loc_info.vertcount = ui32_tmp;
 
-    endian_fread_uint32( fileread, &ui32_tmp );
+    vfs_read_Uint32( fileread, &ui32_tmp );
     if ( test_limits && ( ui32_tmp >= MAP_TILEY_MAX ) )
     {
         log_warning( "%s - unknown version and mesh too large in the x direction (%d/%d)!!\n", __FUNCTION__, ui32_tmp, MAP_TILEY_MAX );
@@ -326,7 +326,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     }
     loc_info.tiles_x = ui32_tmp;
 
-    endian_fread_uint32( fileread, &ui32_tmp );
+    vfs_read_Uint32( fileread, &ui32_tmp );
     if ( test_limits && ( ui32_tmp >= MAP_TILEY_MAX ) )
     {
         log_warning( "%s - unknown version and mesh too large in the y direction (%d/%d)!!\n", __FUNCTION__, ui32_tmp, MAP_TILEY_MAX );
@@ -382,7 +382,7 @@ map_t * map_load( const char *loadname, map_t * pmesh )
         pmesh = map_read_v4( fileread, pmesh );
     }
 
-    fclose( fileread );
+    vfs_close( fileread );
 
     EGOBOO_DELETE_ARY( tmp_bitmap );
 
@@ -394,7 +394,7 @@ map_load_fail:
 
     if ( NULL != fileread )
     {
-        fclose( fileread );
+        vfs_close( fileread );
         fileread = NULL;
     }
 
@@ -406,7 +406,7 @@ map_load_fail:
 //--------------------------------------------------------------------------------------------
 map_t * map_save( const char * savename, map_t * pmesh )
 {
-    FILE* filewrite;
+    vfs_FILE *filewrite;
     int map_version = CURRENT_MAP_VERSION_NUMBER;
 
     map_info_t * pinfo;
@@ -423,20 +423,20 @@ map_t * map_save( const char * savename, map_t * pmesh )
     // a valid number of vertices?
     if ( 0 == pmem->vcount || NULL == pmem->vlst ) return NULL;
 
-    filewrite = fopen( savename, "wb" );
+    filewrite = vfs_openWriteB(savename);
     if ( NULL == filewrite ) return NULL;
 
     // write the file identifier
-    endian_fwrite_uint32( filewrite, CURRENT_MAP_ID );
+    vfs_write_Uint32( filewrite, CURRENT_MAP_ID );
 
     // write the file vertex count
-    endian_fwrite_uint32( filewrite, pinfo->vertcount );
+    vfs_write_Uint32( filewrite, pinfo->vertcount );
 
     // write the tiles in the x direction
-    endian_fwrite_uint32( filewrite, pinfo->tiles_x );
+    vfs_write_Uint32( filewrite, pinfo->tiles_x );
 
     // write the tiles in the y direction
-    endian_fwrite_uint32( filewrite, pinfo->tiles_y );
+    vfs_write_Uint32( filewrite, pinfo->tiles_y );
 
     if ( map_version > 0 )
     {
@@ -458,7 +458,7 @@ map_t * map_save( const char * savename, map_t * pmesh )
         map_write_v4( filewrite, pmesh );
     }
 
-    fclose( filewrite );
+    vfs_close( filewrite );
 
     return pmesh;
 }

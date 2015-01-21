@@ -100,7 +100,7 @@ static script_info_t default_ai_script;
 INSTANTIATE_STATIC_ARY(opcode_data_t, OpList, MAX_OPCODE);
 
 bool debug_scripts     = false;
-FILE * debug_script_file = NULL;
+vfs_FILE * debug_script_file = NULL;
 
 const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
 {
@@ -567,7 +567,7 @@ parser_state_t *  script_compiler_init()
 
     load_ai_codes_vfs( "mp_data/aicodes.txt" );
 
-    debug_script_file = fopen( vfs_resolveWriteFilename( "/debug/script_debug.txt" ), "wt" );
+    debug_script_file = vfs_openWrite("/debug/script_debug.txt");
 
     // find the singleton
     _parser_state_ptr = script_compiler_get_state();

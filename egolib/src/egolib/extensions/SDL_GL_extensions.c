@@ -30,14 +30,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define LOCAL_STDOUT ((NULL == _SDL_GL_stdout) ? stdout : _SDL_GL_stdout)
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static FILE * _SDL_GL_stdout = NULL;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // create the mask
 // this will work if both endian systems think they have "RGBA" graphics
 // if you need a different pixel format (ARGB or BGRA or whatever) this section
@@ -202,16 +194,12 @@ void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
 {
     SDL_Surface * surface = ( NULL == retval ) ? NULL : retval->surface;
 
-    SDLX_set_stdout( LOCAL_STDOUT );
     SDLX_report_mode( surface, retval );
 
     if ( NULL != retval && retval->flags.opengl )
     {
-        oglx_set_stdout( LOCAL_STDOUT );
         oglx_report_caps();
     }
-
-    fflush( LOCAL_STDOUT );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -262,24 +250,6 @@ SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-FILE * SDL_GL_set_stdout( FILE * pfile )
-{
-    FILE * pfile_old = _SDL_GL_stdout;
-
-    if ( NULL == pfile )
-    {
-        _SDL_GL_stdout = stdout;
-    }
-    else
-    {
-        _SDL_GL_stdout = pfile;
-    }
-
-    return pfile_old;
 }
 
 //--------------------------------------------------------------------------------------------

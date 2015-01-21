@@ -617,12 +617,12 @@ bool dump_screenshot()
     if ( !savefound ) return false;
 
     // convert the file path to the correct write path
-    strncpy( szResolvedFilename, vfs_resolveWriteFilename( szFilename ), SDL_arraysize( szFilename ) );
+    strncpy( szResolvedFilename, szFilename, SDL_arraysize( szFilename ) );
 
     // if we are not using OpenGL, use SDL to dump the screen
     if ( HAS_NO_BITS( sdl_scr.pscreen->flags, SDL_OPENGL ) )
     {
-        SDL_SaveBMP( sdl_scr.pscreen, szResolvedFilename );
+        SDL_SaveBMP_RW( sdl_scr.pscreen, vfs_openRWopsWrite(szResolvedFilename), 1 );
         return false;
     }
 
@@ -686,7 +686,7 @@ bool dump_screenshot()
             SDL_UnlockSurface( temp );
 
             // Save the file as a .bmp
-            saved = ( -1 != SDL_SaveBMP( temp, szResolvedFilename ) );
+            saved = ( -1 != SDL_SaveBMP_RW( temp, vfs_openRWopsWrite(szResolvedFilename), 1 ) );
         }
 
         // free the SDL surface

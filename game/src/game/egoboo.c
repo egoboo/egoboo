@@ -100,7 +100,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     setup_init_base_vfs_paths();
 
     // Initialize logging next, so that we can use it everywhere.
-    log_init(vfs_resolveWriteFilename("/debug/log.txt"), LOG_DEBUG);
+    log_init("/debug/log.txt", LOG_DEBUG);
 
     // start initializing the various subsystems
     log_message( "Starting Egoboo " VERSION " ...\n"  );
@@ -156,7 +156,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     _profileSystem.begin();
 
     // setup the system gui
-    ui_begin( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 24 );
+    ui_begin( "mp_data/Bo_Chen.ttf", 24 );
 
     // clear out the import and remote directories
     vfs_empty_temp_directories();

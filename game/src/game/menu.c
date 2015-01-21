@@ -648,7 +648,7 @@ bool menu_system_init()
     font_bmp_load_vfs( mnu_TxList_get_valid_ptr(( MNU_TX_REF )MENU_TX_FONT_BMP ), "mp_data/font_new_shadow", "mp_data/font.txt" );  // must be done after gfx_system_init_all_graphics()
 
     // load the ttf font
-    menuFont = ui_loadFont( vfs_resolveReadFilename( "mp_data/Bo_Chen.ttf" ), 18 );
+    menuFont = ui_loadFont("mp_data/Bo_Chen.ttf", 18);
     if ( NULL == menuFont )
     {
         log_error( "Could not load the menu font! (\"mp_data/Bo_Chen.ttf\")\n" );

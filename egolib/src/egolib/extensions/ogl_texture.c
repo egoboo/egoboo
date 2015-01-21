@@ -30,6 +30,7 @@
 
 #include "egolib/egoboo_setup.h"
 #include "egolib/strutil.h"
+#include "egolib/vfs.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -407,7 +408,7 @@ GLuint oglx_texture_Load( oglx_texture_t *ptex, const char *filename, Uint32 key
         if ( NULL == ptex ) return INVALID_GL_ID;
     }
 
-    image = IMG_Load( filename );
+    image = IMG_Load_RW(vfs_openRWopsRead(filename), 1);
     if ( NULL == image ) return INVALID_GL_ID;
 
     // test to see if the image requires alpha blanding

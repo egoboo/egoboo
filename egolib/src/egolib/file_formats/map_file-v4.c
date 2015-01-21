@@ -28,7 +28,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-map_t * map_read_v4( FILE * fileread, map_t * pmesh )
+map_t * map_read_v4( vfs_FILE * fileread, map_t * pmesh )
 {
     /// @author ZZ
     /// @details This function loads the level.mpd file
@@ -57,7 +57,7 @@ map_t * map_read_v4( FILE * fileread, map_t * pmesh )
     {
         pvert = pmem->vlst + ivert;
 
-        endian_fread_uint08( fileread, &ui08_tmp );
+        vfs_read_Uint8(fileread, &ui08_tmp);
 
         pvert->a = ui08_tmp;
     }
@@ -66,7 +66,7 @@ map_t * map_read_v4( FILE * fileread, map_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-map_t * map_write_v4( FILE * filewrite, map_t * pmesh )
+map_t * map_write_v4( vfs_FILE * filewrite, map_t * pmesh )
 {
     size_t ivert, vert_count;
 
@@ -88,7 +88,7 @@ map_t * map_write_v4( FILE * filewrite, map_t * pmesh )
     {
         pvert = pmem->vlst + ivert;
 
-        endian_fwrite_uint08( filewrite, pvert->a );
+        vfs_write_Uint8(filewrite, pvert->a);
     }
 
     return pmesh;

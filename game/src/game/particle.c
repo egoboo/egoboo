@@ -2527,23 +2527,21 @@ void PipStack_release_all()
 
     if ( tnc > 0 && max_request > 0 )
     {
-        FILE * ftmp = fopen( vfs_resolveWriteFilename( "/debug/pip_usage.txt" ), "w" );
+        vfs_FILE * ftmp = vfs_openWriteB("/debug/pip_usage.txt");
         if ( NULL != ftmp )
         {
-            fprintf( ftmp, "List of used pips\n\n" );
+            vfs_printf( ftmp, "List of used pips\n\n" );
 
             for ( cnt = 0; cnt < MAX_PIP; cnt++ )
             {
                 if ( LOADED_PIP( cnt ) )
                 {
                     pip_t * ppip = PipStack_get_ptr( cnt );
-                    fprintf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", REF_TO_INT( cnt ), ppip->name, ppip->create_count, ppip->request_count );
+                    vfs_printf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", REF_TO_INT( cnt ), ppip->name, ppip->create_count, ppip->request_count );
                 }
             }
 
-            fflush( ftmp );
-
-            fclose( ftmp );
+            vfs_close( ftmp );
 
             for ( cnt = 0; cnt < MAX_PIP; cnt++ )
             {

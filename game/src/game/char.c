@@ -645,7 +645,7 @@ void chr_log_script_time( const CHR_REF ichr )
 
     chr_t * pchr;
     cap_t * pcap;
-    FILE * ftmp;
+    vfs_FILE * ftmp;
 
     if ( !DEFINED_CHR( ichr ) ) return;
     pchr = ChrList_get_ptr( ichr );
@@ -655,14 +655,13 @@ void chr_log_script_time( const CHR_REF ichr )
     pcap = chr_get_pcap( ichr );
     if ( NULL == pcap ) return;
 
-    ftmp = fopen( vfs_resolveWriteFilename( "/debug/script_timing.txt" ), "a+" );
+    ftmp = vfs_openAppendB("/debug/script_timing.txt");
     if ( NULL != ftmp )
     {
-        fprintf( ftmp, "update == %d\tindex == %d\tname == \"%s\"\tclassname == \"%s\"\ttotal_time == %e\ttotal_calls == %f\n",
+        vfs_printf( ftmp, "update == %d\tindex == %d\tname == \"%s\"\tclassname == \"%s\"\ttotal_time == %e\ttotal_calls == %f\n",
                  update_wld, REF_TO_INT( ichr ), pchr->Name, pcap->classname,
                  pchr->ai._clktime, pchr->ai._clkcount );
-        fflush( ftmp );
-        fclose( ftmp );
+        vfs_close( ftmp );
     }
 }
 
@@ -2876,7 +2875,7 @@ bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF charac
 
     if ( !INGAME_CHR( character ) ) return false;
 
-    return RandomName::exportName(szSaveName, ChrList.lst[character].Name);
+    return RandomName::exportName(ChrList.lst[character].Name, szSaveName);
 }
 
 //--------------------------------------------------------------------------------------------

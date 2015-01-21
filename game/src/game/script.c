@@ -93,7 +93,7 @@ void scripting_system_end()
 
 #if (DEBUG_SCRIPT_LEVEL > 1 ) && defined(DEBUG_PROFILE) && defined(_DEBUG)
         {
-            FILE * ftmp = fopen( vfs_resolveWriteFilename( "/debug/script_function_timing.txt" ), "a+" );
+            vfs_FILE * ftmp = vfs_openAppendB( "/debug/script_function_timing.txt" );
 
             if ( NULL != ftmp )
             {
@@ -103,13 +103,12 @@ void scripting_system_end()
                 {
                     if ( _script_function_calls[cnt] > 0 )
                     {
-                        fprintf( ftmp, "function == %d\tname == \"%s\"\tcalls == %d\ttime == %lf\n",
+                        vfs_printf( ftmp, "function == %d\tname == \"%s\"\tcalls == %d\ttime == %lf\n",
                                  cnt, script_function_names[cnt], _script_function_calls[cnt], _script_function_times[cnt] );
                     }
                 }
 
-                fflush( ftmp );
-                fclose( ftmp );
+                vfs_close( ftmp );
             }
         }
 #endif
@@ -166,42 +165,42 @@ void scr_run_chr_script( const CHR_REF character )
         script_error_classname = CapStack.lst[ icap ].classname;
     }
 
-    if ( debug_scripts )
+    if (debug_scripts && debug_script_file)
     {
-        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
+        vfs_FILE * scr_file = debug_script_file;
 
-        fprintf( scr_file,  "\n\n--------\n%s\n", pscript->name );
-        fprintf( scr_file,  "%d - %s\n", REF_TO_INT( script_error_model ), script_error_classname );
+        vfs_printf( scr_file,  "\n\n--------\n%s\n", pscript->name );
+        vfs_printf( scr_file,  "%d - %s\n", REF_TO_INT( script_error_model ), script_error_classname );
 
         // who are we related to?
-        fprintf( scr_file,  "\tindex  == %d\n", REF_TO_INT( pself->index ) );
-        fprintf( scr_file,  "\ttarget == %d\n", REF_TO_INT( pself->target ) );
-        fprintf( scr_file,  "\towner  == %d\n", REF_TO_INT( pself->owner ) );
-        fprintf( scr_file,  "\tchild  == %d\n", REF_TO_INT( pself->child ) );
+        vfs_printf( scr_file,  "\tindex  == %d\n", REF_TO_INT( pself->index ) );
+        vfs_printf( scr_file,  "\ttarget == %d\n", REF_TO_INT( pself->target ) );
+        vfs_printf( scr_file,  "\towner  == %d\n", REF_TO_INT( pself->owner ) );
+        vfs_printf( scr_file,  "\tchild  == %d\n", REF_TO_INT( pself->child ) );
 
         // some local storage
-        fprintf( scr_file,  "\talert     == %x\n", pself->alert );
-        fprintf( scr_file,  "\tstate     == %d\n", pself->state );
-        fprintf( scr_file,  "\tcontent   == %d\n", pself->content );
-        fprintf( scr_file,  "\ttimer     == %d\n", pself->timer );
-        fprintf( scr_file,  "\tupdate_wld == %d\n", update_wld );
+        vfs_printf( scr_file,  "\talert     == %x\n", pself->alert );
+        vfs_printf( scr_file,  "\tstate     == %d\n", pself->state );
+        vfs_printf( scr_file,  "\tcontent   == %d\n", pself->content );
+        vfs_printf( scr_file,  "\ttimer     == %d\n", pself->timer );
+        vfs_printf( scr_file,  "\tupdate_wld == %d\n", update_wld );
 
         // ai memory from the last event
-        fprintf( scr_file,  "\tbumplast       == %d\n", REF_TO_INT( pself->bumplast ) );
-        fprintf( scr_file,  "\tattacklast     == %d\n", REF_TO_INT( pself->attacklast ) );
-        fprintf( scr_file,  "\thitlast        == %d\n", REF_TO_INT( pself->hitlast ) );
-        fprintf( scr_file,  "\tdirectionlast  == %d\n", pself->directionlast );
-        fprintf( scr_file,  "\tdamagetypelast == %d\n", pself->damagetypelast );
-        fprintf( scr_file,  "\tlastitemused   == %d\n", REF_TO_INT( pself->lastitemused ) );
-        fprintf( scr_file,  "\ttarget_old     == %d\n", REF_TO_INT( pself->target_old ) );
+        vfs_printf( scr_file,  "\tbumplast       == %d\n", REF_TO_INT( pself->bumplast ) );
+        vfs_printf( scr_file,  "\tattacklast     == %d\n", REF_TO_INT( pself->attacklast ) );
+        vfs_printf( scr_file,  "\thitlast        == %d\n", REF_TO_INT( pself->hitlast ) );
+        vfs_printf( scr_file,  "\tdirectionlast  == %d\n", pself->directionlast );
+        vfs_printf( scr_file,  "\tdamagetypelast == %d\n", pself->damagetypelast );
+        vfs_printf( scr_file,  "\tlastitemused   == %d\n", REF_TO_INT( pself->lastitemused ) );
+        vfs_printf( scr_file,  "\ttarget_old     == %d\n", REF_TO_INT( pself->target_old ) );
 
         // message handling
-        fprintf( scr_file,  "\torder == %d\n", pself->order_value );
-        fprintf( scr_file,  "\tcounter == %d\n", pself->order_counter );
+        vfs_printf( scr_file,  "\torder == %d\n", pself->order_value );
+        vfs_printf( scr_file,  "\tcounter == %d\n", pself->order_counter );
 
         // waypoints
-        fprintf( scr_file,  "\twp_tail == %d\n", pself->wp_lst.tail );
-        fprintf( scr_file,  "\twp_head == %d\n\n", pself->wp_lst.head );
+        vfs_printf( scr_file,  "\twp_tail == %d\n", pself->wp_lst.tail );
+        vfs_printf( scr_file,  "\twp_head == %d\n\n", pself->wp_lst.head );
     }
 
     // Clear the button latches
@@ -347,11 +346,10 @@ bool scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_info_
 
     // debug stuff
     variable = "UNKNOWN";
-    if ( debug_scripts )
+    if ( debug_scripts && debug_script_file )
     {
-        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
 
-        for ( i = 0; i < pscript->indent; i++ ) { fprintf( scr_file, "  " ); }
+        for ( i = 0; i < pscript->indent; i++ ) { vfs_printf( debug_script_file, "  " ); }
 
         for ( i = 0; i < MAX_OPCODE; i++ )
         {
@@ -362,7 +360,7 @@ bool scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_info_
             };
         }
 
-        fprintf( scr_file, "%s = ", variable );
+        vfs_printf( debug_script_file, "%s = ", variable );
     }
 
     // Get the number of operands
@@ -376,10 +374,9 @@ bool scr_run_operation( script_state_t * pstate, ai_state_t *pself, script_info_
         scr_increment_pos( pscript );
         scr_run_operand( pstate, pself, pscript );
     }
-    if ( debug_scripts )
+    if ( debug_scripts && debug_script_file )
     {
-        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
-        fprintf( scr_file, " == %d \n", pstate->operationsum );
+        vfs_printf( debug_script_file, " == %d \n", pstate->operationsum );
     }
 
     // Save the results in the register that called the arithmetic
@@ -409,18 +406,17 @@ Uint8 scr_run_function( script_state_t * pstate, ai_state_t *pself, script_info_
     }
 
     // debug stuff
-    if ( debug_scripts )
+    if ( debug_scripts && debug_script_file )
     {
         Uint32 i;
-        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
 
-        for ( i = 0; i < pscript->indent; i++ ) { fprintf( scr_file,  "  " ); }
+        for ( i = 0; i < pscript->indent; i++ ) { vfs_printf( debug_script_file,  "  " ); }
 
         for ( i = 0; i < MAX_OPCODE; i++ )
         {
             if ( 'F' == OpList.ary[i].cType && valuecode == OpList.ary[i].iValue )
             {
-                fprintf( scr_file,  "%s\n", OpList.ary[i].cName );
+                vfs_printf( debug_script_file,  "%s\n", OpList.ary[i].cName );
                 break;
             };
         }
@@ -1523,10 +1519,9 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
             break;
     }
 
-    if ( debug_scripts )
+    if ( debug_scripts && debug_script_file )
     {
-        FILE * scr_file = ( NULL == debug_script_file ) ? stdout : debug_script_file;
-        fprintf( scr_file, "%s %s(%d) ", op, varname, iTmp );
+        vfs_printf( debug_script_file, "%s %s(%d) ", op, varname, iTmp );
     }
 }
 

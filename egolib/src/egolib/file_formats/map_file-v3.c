@@ -28,7 +28,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-map_t * map_read_v3( FILE * fileread, map_t * pmesh )
+map_t * map_read_v3( vfs_FILE * fileread, map_t * pmesh )
 {
     /// @author ZZ
     /// @details This function loads the level.mpd file
@@ -57,7 +57,7 @@ map_t * map_read_v3( FILE * fileread, map_t * pmesh )
     {
         pvert = pmem->vlst + ivert;
 
-        endian_fread_ieee32( fileread, &ieee32_tmp );
+        vfs_read_float( fileread, &ieee32_tmp );
 
         pvert->pos.x = ieee32_tmp;
     }
@@ -67,7 +67,7 @@ map_t * map_read_v3( FILE * fileread, map_t * pmesh )
     {
         pvert = pmem->vlst + ivert;
 
-        endian_fread_ieee32( fileread, &ieee32_tmp );
+        vfs_read_float( fileread, &ieee32_tmp );
 
         pvert->pos.y = ieee32_tmp;
     }
@@ -77,7 +77,7 @@ map_t * map_read_v3( FILE * fileread, map_t * pmesh )
     {
         pvert = pmem->vlst + ivert;
 
-        endian_fread_ieee32( fileread, &ieee32_tmp );
+        vfs_read_float( fileread, &ieee32_tmp );
 
         pvert->pos.z = ieee32_tmp / 16.0f;
     }
@@ -86,7 +86,7 @@ map_t * map_read_v3( FILE * fileread, map_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-map_t * map_write_v3( FILE * filewrite, map_t * pmesh )
+map_t * map_write_v3( vfs_FILE * filewrite, map_t * pmesh )
 {
     size_t ivert, vert_count;
 
@@ -109,7 +109,7 @@ map_t * map_write_v3( FILE * filewrite, map_t * pmesh )
     {
         pvert = pmem->vlst + ivert;
 
-        endian_fwrite_ieee32( filewrite, pvert->pos.x );
+        vfs_write_float( filewrite, pvert->pos.x );
     }
 
     // write the y-coordinate data for each vertex
@@ -117,7 +117,7 @@ map_t * map_write_v3( FILE * filewrite, map_t * pmesh )
     {
         pvert = pmem->vlst + ivert;
 
-        endian_fwrite_ieee32( filewrite, pvert->pos.y );
+        vfs_write_float( filewrite, pvert->pos.y );
     }
 
     // write the y-coordinate data for each vertex
@@ -126,7 +126,7 @@ map_t * map_write_v3( FILE * filewrite, map_t * pmesh )
         pvert = pmem->vlst + ivert;
 
         // cartman scales the z-axis based off of a 4 bit fixed precision number
-        endian_fwrite_ieee32( filewrite, pvert->pos.z * 16.0f );
+        vfs_write_float( filewrite, pvert->pos.z * 16.0f );
     }
 
     return pmesh;
