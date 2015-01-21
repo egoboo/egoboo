@@ -2549,7 +2549,7 @@ int vfs_puts( const char * str , vfs_FILE * pfile )
     {
         size_t len = strlen( str );
 
-        retval = PHYSFS_write( pfile->ptr.p, str, len + 1, sizeof( char ) );
+        retval = PHYSFS_write( pfile->ptr.p, str, len, sizeof( char ) );
     }
 
     return retval;
