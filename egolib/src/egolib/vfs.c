@@ -1697,10 +1697,10 @@ int vfs_write_float( vfs_FILE * pfile, const float val )
 //--------------------------------------------------------------------------------------------
 static int fake_physfs_vscanf_read_char( PHYSFS_File * pfile )
 {
-    char ch = '\0';
+    char ch;
     int retval = PHYSFS_read( pfile, &ch, sizeof( char ), 1);
-    if ( 1 == retval ) retval = ch;
-    return retval;
+	if (1 != retval) return -1;
+	return ch;
 }
 
 static void fake_physfs_vscanf_eat_whitespace( PHYSFS_File * pfile )
