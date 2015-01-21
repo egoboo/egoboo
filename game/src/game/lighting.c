@@ -237,7 +237,7 @@ bool lighting_cache_blend( lighting_cache_t * cache, lighting_cache_t * cnew, fl
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * src, const fmat_4x4_base_t mat )
+bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * src, const fmat_4x4_t& mat )
 {
     fvec3_t   fwd, right, up;
 

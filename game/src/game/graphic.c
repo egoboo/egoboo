@@ -369,8 +369,8 @@ static dynalist_t _dynalist = DYNALIST_INIT;
 static renderlist_mgr_t _renderlist_mgr_data = RENDERLIST_MGR_INIT_VALS;
 static dolist_mgr_t     _dolist_mgr_data = DOLIST_MGR_INIT_VALS;
 
-static BSP_leaf_pary_t  _renderlist_colst = DYNAMIC_ARY_INIT_VALS;
-static BSP_leaf_pary_t  _dolist_colst = DYNAMIC_ARY_INIT_VALS;
+static Ego::DynamicArray<BSP_leaf_t *> _renderlist_colst = DYNAMIC_ARY_INIT_VALS;
+static Ego::DynamicArray<BSP_leaf_t *> _dolist_colst = DYNAMIC_ARY_INIT_VALS;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -415,7 +415,16 @@ static void   render_shadow_sprite( float intensity, GLvertex v[] );
 static gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF texture );
 static gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture );
 
-static gfx_rv gfx_make_dolist( dolist_t * pdolist, std::shared_ptr<Camera> pcam );
+
+/**
+ * @brief
+ *	Find characters that need to be drawn and put them in the list.
+ * @param dolist
+ *	the list to add characters to
+ * @param camera
+ *	the camera
+ */
+static gfx_rv gfx_make_dolist(dolist_t *dolist, std::shared_ptr<Camera> camera);
 static gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam );
 static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam );
 
@@ -432,7 +441,7 @@ static void  draw_hud();
 static void  draw_inventory();
 
 static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
-static bool gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct, const bool do_ends );
+
 
 static void gfx_reload_decimated_textures();
 
@@ -1223,7 +1232,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
         return gfx_error;
     }
 
-    mat_getCamForward(pcam->getView().v, vcam);
+    mat_getCamForward(pcam->getView(), vcam);
 
     // Figure the distance of each
     count = 0;
@@ -1241,11 +1250,11 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
 
             if ( do_reflect )
             {
-                mat_getTranslate(ChrList.lst[ichr].inst.ref.matrix.v, pos_tmp);
+                mat_getTranslate(ChrList.lst[ichr].inst.ref.matrix, pos_tmp);
             }
             else
             {
-                mat_getTranslate(ChrList.lst[ichr].inst.matrix.v, pos_tmp);
+                mat_getTranslate(ChrList.lst[ichr].inst.matrix, pos_tmp);
             }
 
             vtmp = fvec3_sub(pos_tmp, pcam->getPosition());
@@ -4676,7 +4685,7 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
     vforw_wind.z = 0;
     fvec3_self_normalize(vforw_wind);
 
-    mat_getCamForward(pcam->getView().v, vforw_cam);
+    mat_getCamForward(pcam->getView(), vforw_cam);
     fvec3_self_normalize(vforw_cam);
 
     // make the texture begin to disappear if you are not looking straight down
@@ -6385,7 +6394,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam 
     local_allocation = false;
     if ( 0 == _renderlist_colst.capacity())
     {
-        // allocate a BSP_leaf_pary to return the detected nodes
+        // allocate a BSP leaf pointer array to return the detected nodes
         local_allocation = true;
         if ( NULL == _renderlist_colst.ctor(MAXMESHRENDER))
         {
@@ -6422,9 +6431,6 @@ gfx_make_renderlist_exit:
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
 {
-    /// @author ZZ
-    /// @details This function finds the characters that need to be drawn and puts them in the list
-
     gfx_rv retval;
     bool local_allocation;
 
@@ -6450,7 +6456,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
     local_allocation = false;
     if ( 0 == _dolist_colst.capacity() )
     {
-        // allocate a BSP_leaf_pary to return the detected nodes
+        // allocate a BSP leaf pointer array to return the detected nodes
         local_allocation = true;
         if ( NULL == _dolist_colst.ctor(DOLIST_SIZE))
         {
@@ -6547,26 +6553,6 @@ void gfx_reset_timers()
 {
     egolib_throttle_reset( &gfx_throttle );
     gfx_clear_loops = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-bool gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct, const bool do_ends )
-{
-    bool retval = false;
-    aabb_t aabb;
-
-    if ( NULL == pf || NULL == poct ) return false;
-
-    retval = false;
-    if ( aabb_from_oct_bb( &aabb, poct ) )
-    {
-        // ignore the ends of the frustum for a little bit of a speed-up
-        geometry_rv frustum_rv = egolib_frustum_intersects_aabb( pf->data, aabb.mins, aabb.maxs, do_ends );
-
-        retval = ( frustum_rv > geometry_outside );
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

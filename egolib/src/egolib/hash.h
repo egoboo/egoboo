@@ -28,17 +28,9 @@
 //--------------------------------------------------------------------------------------------
 
     struct hash_node_t;
-#if 0
-    typedef struct s_hash_node hash_node_t;
-#endif
     struct hash_list_t;
-#if 0
-    typedef struct s_hash_list hash_list_t;
-#endif
     struct hash_list_iterator_t;
-#if 0
-    typedef struct s_hash_list_iterator hash_list_iterator_t;
-#endif
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -123,14 +115,11 @@
     int hash_list_get_allocd(hash_list_t *self);
     size_t hash_list_get_count(hash_list_t *self, size_t index);
     hash_node_t *hash_list_get_node(hash_list_t *self, size_t index);
-#if 0
-	/// @todo Remove this.
-    bool hash_list_set_allocd( hash_list_t *plst,        int );
-#endif
+
     bool hash_list_set_count(hash_list_t *self, size_t index, size_t count);
     bool hash_list_set_node(hash_list_t *self, size_t index, hash_node_t *node);
 
-    bool        hash_list_insert_unique( hash_list_t * phash, hash_node_t * pnode );
+    bool hash_list_insert_unique( hash_list_t * phash, hash_node_t * pnode );
 
 //--------------------------------------------------------------------------------------------
 

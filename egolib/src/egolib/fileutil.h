@@ -31,7 +31,7 @@
 // TYPEDEFS
 //--------------------------------------------------------------------------------------------
 
-    struct s_oglx_texture;
+    struct oglx_texture_t;
 
 //--------------------------------------------------------------------------------------------
 // MACROS
@@ -169,5 +169,5 @@
     void vfs_put_range_raw( vfs_FILE* filewrite, FRange val );
     int read_skin_vfs( const char *filename );
 
-    void    GLSetup_SupportedFormats( void );
-    Uint32  ego_texture_load_vfs( struct s_oglx_texture *texture, const char *filename, Uint32 key );
+    void    GLSetup_SupportedFormats();
+    Uint32  ego_texture_load_vfs(oglx_texture_t *texture, const char *filename, Uint32 key);

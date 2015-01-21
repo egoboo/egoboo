@@ -174,7 +174,7 @@ bool mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh)
  * @author
  *	BB
  */
-int mesh_BSP_collide_aabb(const mesh_BSP_t *self, const aabb_t *aabb, BSP_leaf_test_t *ptest, BSP_leaf_pary_t *colst)
+int mesh_BSP_collide_aabb(const mesh_BSP_t *self, const aabb_t *aabb, BSP_leaf_test_t *ptest, Ego::DynamicArray<BSP_leaf_t *> *colst)
 {
     if (NULL == self || NULL == aabb || NULL == colst) return 0;
 
@@ -189,7 +189,7 @@ int mesh_BSP_collide_aabb(const mesh_BSP_t *self, const aabb_t *aabb, BSP_leaf_t
  * @author
  *	BB
  */
-int mesh_BSP_collide_frustum(const mesh_BSP_t *self, const egolib_frustum_t *frustum, BSP_leaf_test_t *ptest, BSP_leaf_pary_t * colst)
+int mesh_BSP_collide_frustum(const mesh_BSP_t *self, const egolib_frustum_t *frustum, BSP_leaf_test_t *ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst)
 {
     if (NULL == self || NULL == frustum || NULL == colst) return 0;
 

@@ -39,22 +39,18 @@ struct BSP_aabb_t
 
 	/**
 	 * @brief
-	 *	Construct a BSP AABB.
-	 * @param self
-	 *	the BSP AABB
+	 *	Construct this BSP AABB.
 	 * @param dim
 	 *	the dimensionality
 	 * @return
-	 *	@a self on success, @a NULL on failure
+	 *	a pointer to this BSP AABB on success, @a NULL on failure
 	 */
-	static BSP_aabb_t *ctor(BSP_aabb_t *self, size_t dim);
+	BSP_aabb_t *ctor(size_t dim);
 	/**
 	 * @brief
-	 *	Destruct a BSP ABB.
-	 * @param self
-	 *	the BSP AABB
+	 *	Destruct this BSP ABB.
 	 */
-	static void dtor(BSP_aabb_t *self);
+	void dtor();
 	/**
 	 * @brief
 	 *	Get if this bounding box is in the empty state.
@@ -90,6 +86,8 @@ struct BSP_aabb_t
 	 */
 	static bool overlap_with_BSP_aabb(const BSP_aabb_t *self, const BSP_aabb_t *other);
 	static bool contains_BSP_aabb(const BSP_aabb_t *self, const BSP_aabb_t *other);
+	/// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
+	///               than lhs_ptr, just check the lowest common dimensions.
 	static bool overlap_with_aabb(const BSP_aabb_t *self, const aabb_t *other);
 	static bool contains_aabb(const BSP_aabb_t *self, const aabb_t *other);
 };

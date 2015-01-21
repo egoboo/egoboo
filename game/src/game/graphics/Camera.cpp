@@ -152,14 +152,14 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
     fmat_4x4_t identity;
     mat_Identity(identity.v);
     
-    mat_gluPerspective(_mProjection.v, identity.v, fov_deg, aspect_ratio, frustum_near, frustum_far);
-    mat_gluPerspective(_mProjectionBig.v, identity.v, fov_big, aspect_ratio, frustum_near, frustum_far);
-    mat_gluPerspective(_mProjectionSmall.v, identity.v, fov_small, aspect_ratio, frustum_near, frustum_far);
+    mat_gluPerspective(_mProjection, identity, fov_deg, aspect_ratio, frustum_near, frustum_far);
+    mat_gluPerspective(_mProjectionBig, identity, fov_big, aspect_ratio, frustum_near, frustum_far);
+    mat_gluPerspective(_mProjectionSmall, identity, fov_small, aspect_ratio, frustum_near, frustum_far);
     
     // recalculate the frustum, too
-    egolib_frustum_calculate( &( _frustum ), _mProjection.v, _mView.v );
-    egolib_frustum_calculate( &( _frustumBig ), _mProjectionBig.v, _mView.v );
-    egolib_frustum_calculate( &( _frustumSmall ), _mProjectionSmall.v, _mView.v );
+    egolib_frustum_calculate(&( _frustum ), _mProjection, _mView);
+    egolib_frustum_calculate(&( _frustumBig ), _mProjectionBig, _mView);
+    egolib_frustum_calculate(&( _frustumSmall ), _mProjectionSmall, _mView);
 }
 
 void Camera::resetView()
@@ -180,9 +180,9 @@ void Camera::resetView()
     }
 
     // the view matrix was updated, so update the frustum
-    egolib_frustum_calculate( &( _frustum ), _mProjection.v, _mView.v );
-    egolib_frustum_calculate( &( _frustumBig ), _mProjectionBig.v, _mView.v );
-    egolib_frustum_calculate( &( _frustumSmall ), _mProjectionSmall.v, _mView.v );	
+    egolib_frustum_calculate(&(_frustum), _mProjection, _mView);
+    egolib_frustum_calculate(&(_frustumBig), _mProjectionBig, _mView);
+    egolib_frustum_calculate(&(_frustumSmall), _mProjectionSmall, _mView);	
 }
 
 void Camera::updatePosition()
@@ -217,13 +217,13 @@ void Camera::makeMatrix()
     resetView();
 
     //--- pre-compute some camera vectors
-    mat_getCamForward(_mView.v, _vfw);
+    mat_getCamForward(_mView, _vfw);
     fvec3_self_normalize(_vfw);
 
-    mat_getCamUp(_mView.v, _vup);
+    mat_getCamUp(_mView, _vup);
     fvec3_self_normalize(_vup);
 
-    mat_getCamRight(_mView.v, _vrt);
+    mat_getCamRight(_mView, _vrt);
     fvec3_self_normalize(_vrt);
 }
 

@@ -1099,7 +1099,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     grid_lighting_interpolate( PMesh, &global_light, fvec2_t(pchr->pos[kX],pchr->pos[kY]) );
 
     // rotate the lighting data to body_centered coordinates
-    lighting_project_cache( &loc_light, &global_light, pinst->matrix.v );
+    lighting_project_cache(&loc_light, &global_light, pinst->matrix);
 
     pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * ( loc_light.hgh.lighting[LVEC_AMB] + loc_light.low.lighting[LVEC_AMB] ) * 0.5f;
 

@@ -5894,7 +5894,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
         fvec3_t vfront;
 
         // get the direction of motion
-        mat_getChrForward(pchr->inst.matrix.v, vfront);
+        mat_getChrForward(pchr->inst.matrix, vfront);
         fvec3_self_normalize(vfront);
 
         // decompose the acceleration into parallel and perpendicular components
@@ -9540,7 +9540,7 @@ bool chr_getMatUp(chr_t *pchr, fvec3_t& up)
 	rv = false;
 	if (chr_matrix_valid(pchr))
 	{
-		rv = mat_getChrUp(pchr->inst.matrix.v, up);
+		rv = mat_getChrUp(pchr->inst.matrix, up);
 	}
 
 	if (!rv)
@@ -9568,7 +9568,7 @@ bool chr_getMatRight(chr_t *pchr, fvec3_t& right)
 	rv = false;
 	if (chr_matrix_valid(pchr))
 	{
-		rv = mat_getChrRight(pchr->inst.matrix.v, right);
+		rv = mat_getChrRight(pchr->inst.matrix, right);
 	}
 
 	if (!rv)
@@ -9596,7 +9596,7 @@ bool chr_getMatForward(chr_t *pchr, fvec3_t& forward)
 	rv = false;
 	if (chr_matrix_valid(pchr))
 	{
-		rv = mat_getChrForward(pchr->inst.matrix.v, forward);
+		rv = mat_getChrForward(pchr->inst.matrix, forward);
 	}
 
 	if (!rv)
@@ -9624,7 +9624,7 @@ bool chr_getMatTranslate(chr_t *pchr, fvec3_t& translate)
 	rv = false;
 	if (chr_matrix_valid(pchr))
 	{
-		rv = mat_getTranslate(pchr->inst.matrix.v, translate);
+		rv = mat_getTranslate(pchr->inst.matrix, translate);
 	}
 
 	if (!rv)

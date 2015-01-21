@@ -182,7 +182,7 @@ void obj_BSP_delete(obj_BSP_t *self)
  * @author
  *	BB
  */
-int obj_BSP_collide_aabb(const obj_BSP_t *self, const aabb_t *aabb, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst)
+int obj_BSP_collide_aabb(const obj_BSP_t *self, const aabb_t *aabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst)
 {
     if (NULL == self || NULL == aabb || NULL == colst) return 0;
 
@@ -197,7 +197,7 @@ int obj_BSP_collide_aabb(const obj_BSP_t *self, const aabb_t *aabb, BSP_leaf_tes
  *	the number of collisions found
  * @author BB
  */
-int obj_BSP_collide_frustum(const obj_BSP_t *self, const egolib_frustum_t * frustum, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst)
+int obj_BSP_collide_frustum(const obj_BSP_t *self, const egolib_frustum_t * frustum, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst)
 {
     if (NULL == self || NULL == frustum || NULL == colst) return 0;
 

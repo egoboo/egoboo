@@ -59,6 +59,7 @@ const char * undo_idsz( IDSZ idsz )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 bool irect_point_inside(irect_t * prect, int   ix, int   iy)
 {
     if ( NULL == prect ) return false;
@@ -66,17 +67,18 @@ bool irect_point_inside(irect_t * prect, int   ix, int   iy)
     if ( iy < prect->top  || iy > prect->bottom ) return false;
     return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 bool frect_point_inside(frect_t * prect, float fx, float fy)
 {
     if ( NULL == prect ) return false;
-
     if ( fx < prect->left || fx > prect->right ) return false;
     if ( fy < prect->top  || fy > prect->bottom ) return false;
-
     return true;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

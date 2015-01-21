@@ -156,7 +156,7 @@ bool Passage::objectIsInPassage( float xpos, float ypos, float radius ) const
     tmp_rect.right  = (( _area.right + 1 )  * GRID_FSIZE ) + radius;
     tmp_rect.bottom = (( _area.bottom + 1 ) * GRID_FSIZE ) + radius;
 
-    return frect_point_inside( &tmp_rect, xpos, ypos );
+    return tmp_rect.point_inside(xpos, ypos);
 }
 
 CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const
@@ -255,7 +255,7 @@ bool Passage::isPointInside( float xpos, float ypos ) const
     tmp_rect.right  = ( _area.right + 1 ) * GRID_FSIZE;
     tmp_rect.bottom = ( _area.bottom + 1 ) * GRID_FSIZE;
 
-    return frect_point_inside( &tmp_rect, xpos, ypos );
+    return tmp_rect.point_inside(xpos, ypos );
 }
 
 bool Passage::checkPassageMusic(const chr_t * pchr) const

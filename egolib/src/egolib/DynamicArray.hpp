@@ -166,69 +166,9 @@ namespace Ego
 	};
 };
 
-
-/// A template-like declaration of a dynamically allocated array.
-#define DECLARE_DYNAMIC_ARY(ARY_T, ELEM_T)                   \
-	typedef Ego::DynamicArray<ELEM_T> ARY_T##_t;             \
-	                                                         \
-    ARY_T##_t *ARY_T##_ctor(ARY_T##_t *pary, size_t cp);     \
-    void ARY_T##_dtor(ARY_T##_t *pary);                      \
-    void ARY_T##_clear(ARY_T##_t *pary);                     \
-    size_t ARY_T##_get_top(const ARY_T##_t *pary);           \
-    size_t ARY_T##_get_cp(const ARY_T##_t *pary);            \
-    ELEM_T *ARY_T##_pop_back(ARY_T##_t *pary);               \
-    egolib_rv ARY_T##_push_back(ARY_T##_t *pary , ELEM_T val);
-
 #define DYNAMIC_ARY_INIT_VALS {0,0,NULL}
 
-#define IMPLEMENT_DYNAMIC_ARY(ARY_T, ELEM_T) \
-    ARY_T##_t *ARY_T##_ctor(ARY_T##_t *self, size_t initialCapacity) \
-	{ \
-		if (NULL == self) \
-		{ \
-			return NULL; \
-		} \
-		return self->ctor(initialCapacity); \
-	} \
-    void ARY_T##_dtor(ARY_T##_t *self) \
-	{ \
-		if (NULL == self) \
-		{ \
-			return; \
-		} \
-		self->dtor(); \
-	} \
-    void ARY_T##_clear(ARY_T##_t *self) \
-	{ \
-		if (NULL != self) \
-		{ \
-			self->clear(); \
-		} \
-	} \
-    size_t ARY_T##_get_top(const ARY_T##_t *self) \
-	{ \
-		if (NULL == self) \
-		{ \
-			return 0; \
-		} \
-		return (NULL == self->ary) ? 0 : self->size(); \
-	} \
-    size_t ARY_T##_get_cp(const ARY_T##_t *pary)          { return (NULL == pary->ary) ? 0 : pary->capacity(); }     \
-    \
-    ELEM_T *ARY_T##_pop_back(ARY_T##_t *pary)             { if (NULL == pary) return NULL; return pary->pop_back(); } \
-    egolib_rv ARY_T##_push_back(ARY_T##_t *pary, ELEM_T value) { if (NULL == pary) return rv_fail; return pary->push_back(value); }
-
+#if 0
 #define DYNAMIC_ARY_INVALID_RAW(PARY) ( (0 == (PARY)->cp) || ((PARY)->top < 0) || ((size_t)(PARY)->top >= (PARY)->cp) )
 #define DYNAMIC_ARY_INVALID(PARY) ( (NULL == (PARY)) || DYNAMIC_ARY_INVALID_RAW(PARY) )
-
-#define DYNAMIC_ARY_VALID_RAW(PARY) ( ((PARY)->cp > 0) && ((PARY)->top >= 0) && ((size_t)(PARY)->top < (PARY)->cp) )
-#define DYNAMIC_ARY_VALID(PARY) ( (NULL != (PARY)) && DYNAMIC_ARY_VALID_RAW(PARY) )
-
-// a NULL, invalid, or empty list are all "empty"
-#define DYNAMIC_ARY_HAS_ELEMENTS_RAW(PARY) ( ((PARY)->cp > 0) && ((PARY)->top > 0) && (((size_t)(PARY)->top) < (PARY)->cp) )
-#define DYNAMIC_ARY_HAS_ELEMENTS(PARY) ( (NULL != (PARY)) && DYNAMIC_ARY_HAS_ELEMENTS_RAW(PARY) )
-
-// only valid lists can be full
-// avoid subtraction from unsigned values
-#define DYNAMIC_ARY_CAN_ADD_ELEMENTS_RAW(PARY) ( ((PARY)->cp > 0) && ((PARY)->top >= 0) && (((size_t)(PARY)->top) + 1 < (PARY)->cp) )
-#define DYNAMIC_ARY_CAN_ADD_ELEMENTS(PARY) ( (NULL != (PARY)) && DYNAMIC_ARY_CAN_ADD_ELEMENTS_RAW(PARY) )
+#endif

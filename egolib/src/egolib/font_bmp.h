@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_oglx_texture;
+    struct oglx_texture_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -51,6 +51,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-    void font_bmp_init( void );
-    void font_bmp_load_vfs( struct s_oglx_texture * tx_font, const char* szBitmap, const char* szSpacing );
-    int  font_bmp_length_of_word( const char *szText );
+    void font_bmp_init();
+    void font_bmp_load_vfs(oglx_texture_t * tx_font, const char* szBitmap, const char* szSpacing );
+    int  font_bmp_length_of_word(const char *szText);

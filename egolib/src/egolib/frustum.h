@@ -59,87 +59,96 @@ struct egolib_frustum_t
     fvec3_t origin;
     sphere_t sphere;
     cone_t cone;
+	/**
+	 * @brief
+	 *	Get the relation of a point to this frustum.
+	 * @param self
+	 *	this frustum
+	 * @param point
+	 *	the point
+	 * @param doEnds
+	 *	if @a false, the far and the near plane are ignored
+	 * @remark
+	 *	If a point is behind one of the frustum planes (i.e. its distance to the plane is
+	 *	negative), then the point is outside the frustum, otherwise it is inside the frustum.
+	 */
+	geometry_rv intersects_point(const fvec3_t& point, const bool doEnds) const;
+
+	/**
+	 * @brief
+	 *	Get the relation of a sphere to this frustum.
+	 * @param sphere
+	 *	the sphere
+	 * @param doEnds
+	 *	if @a false, the far and the near plane are ignored
+	 * @return
+	 *	wether the sphere is inside the frustum, partially overlaps with the frustum or is outside the frustum.
+	 *	<ul>
+	 *		<li>geometry_error     - an error occured</li>
+	 *		<li>geometry_outside   - the sphere is outside the frustum</li>
+	 *		<li>geometry_intersect - the sphere and the frustum partially overlap</li>
+	 *		<li>geometry_inside    - the sphere is completely inside the frustum</li>
+	 *	</ul>
+	 * @remark
+	 *	If a the sphere is outside one plane farther than its radius, it is outside the frustum.
+	 */
+	geometry_rv intersects_sphere(const sphere_t& sphere, const bool doEnds) const;
+
+	/**
+	 * @brief
+	 *	Get the relation of a cube to this frustum.
+	 * @param self
+	 *	this frustum
+	 * @param position, size
+	 * 	the cube
+	 * @param doEnds
+	 *	if @a false, the far and the near plane are ignored
+	 * @return
+	 *	wether the cube is inside the frustum, partially overlaps with the frustum or is outside the frustum.
+	 *	<ul>
+	 *		<li>geometry_error     - an error occured</li>
+	 *		<li>geometry_outside   - the cube is outside the frustum</li>
+	 *		<li>geometry_intersect - the cube and the frustum partially overlap</li>
+	 *		<li>geometry_inside    - the cube is completely inside the frustum</li>
+	 *	</ul>
+	 * @todo
+	 *	Replace <tt>const fvec3_base_t position</tt> and <tt>const float size</tt> by <tt>const cube_t& cube</tt>.
+	 */
+	geometry_rv intersects_cube(const fvec3_base_t center, const float size, const bool doEnds) const;
+
+	/**
+	 * @brief
+	 *	Get the relation of an AABB to this frustum.
+	 * @warning
+	 *	This is not optimized.
+	 * @return
+	 *	wether the AABB is inside the frustum, partially overlaps with the frustum or is outside the frustum.
+	 *	<ul>
+	 *		<li>geometry_error     - an error occured</li>
+	 *		<li>geometry_outside   - the AABB is outside the frustum</li>
+	 *		<li>geometry_intersect - the AABB and the frustum partially overlap</li>
+	 *		<li>geometry_inside    - the AABB is completely inside the frustum</li>
+	 *	</ul>
+	 */
+	 geometry_rv intersects_aabb(const fvec3_base_t corner1, const fvec3_base_t corner2, const bool doEnds) const;
+
+	/**
+	 * @brief
+	 *	Get the relation of a BV to this frustum.
+	 * @return
+	 *	wether the BV is inside the frustum, intersects with the frustum or is outside the frustum.
+	 *	<ul>
+	 *		<li>geometry_error     - an error occured</li>
+	 *		<li>geometry_outside   - the BV volume is outside the frustum</li>
+	 *		<li>geometry_intersect - the BV and the frustum partially overlap</li>
+	 *		<li>geometry_inside    - the bounding volume is completely inside the frustum</li>
+	 */
+	geometry_rv intersects_bv(const bv_t *bv, bool doEnds) const;
+
+	/// @todo Should return geometry_rv.
+	bool intersects_oct(const oct_bb_t *oct, const bool doEnds) const;
 };
 
 /// Call this every time the camera moves to update the frustum
-egolib_rv egolib_frustum_calculate(egolib_frustum_t * pfrust, const fmat_4x4_base_t proj, const fmat_4x4_base_t modl);
+egolib_rv egolib_frustum_calculate(egolib_frustum_t *self, const fmat_4x4_t& proj, const fmat_4x4_t& modl);
 
-/**
- * @brief
- *	Get the relation of a point to this frustum.
- * @param self
- *	this frustum
- * @param point
- *	the point
- * @param doEnds
- *	if @a false, the far and the near plane are ignored
- * @remark
- *	If a point is behind one of the frustum planes (i.e. its distance to the plane is
- *	negative), then the point is outside the frustum, otherwise it is inside the frustum.
- */
-geometry_rv egolib_frustum_intersects_point(const frustum_base_t self, const fvec3_base_t point, const bool doEnds);
-
-/**
- * @brief
- *	Get the relation of a sphere to this frustum.
- * @param center, radius
- *	the sphere
- * @param doEnds
- *	if @a false, the far and the near plane are ignored
- * @remark
- *	If a the sphere is outside one plane farther than its radius, it is outside the frustum.
- * @todo
- *	Replace <tt>const fvec3_base_t center</tt> and <tt>const float radius</tt> by <tt>const sphere_t& sphere</tt>.
- */
-geometry_rv egolib_frustum_intersects_sphere(const frustum_base_t self, const fvec3_base_t center, const float radius, const bool doEnds);
-
-/**
- * @brief
- *	Get the relation of a cube to this frustum.
- * @param self
- *	this frustum
- * @param position, size
- *	the cube
- * @param doEnds
- *	if @a false, the far and the near plane are ignored
- * @return
- *	wether the cube is inside the frustum, partially overlaps with the frustum or is outside the frustum.
- *	<ul>
- *		<li>geometry_error     - an error occured</li>
- *		<li>geometry_outside   - the cube is outside the frustum</li>
- *		<li>geometry_intersect - the cube and the frustum partially overlap</li>
- *		<li>geometry_inside    - the cube is completely inside the frustum</li>
- *	</ul>
- * @todo
- *	Replace <tt>const fvec3_base_t position</tt> and <tt>const float size</tt> by <tt>const cube_t& cube</tt>.
- */
-geometry_rv egolib_frustum_intersects_cube(const frustum_base_t self, const fvec3_base_t center, const float size, const bool doEnds);
-
-/**
- * @brief
- *	Test the relation of an AABB to a frustum.
- * @warning
- *	This is not optimized.
- * @return
- *	wether the AABB is inside the frustum, partially overlaps with the frustum or is outside the frustum.
- *	<ul>
- *		<li>geometry_error - an error occured</li>
- *		<li>geometry_outside   - the AABB is outside the frustum</li>
- *		<li>geometry_intersect - the AABB and the frustum partially overlap</li>
- *		<li>geometry_inside    - the AABB is completely inside the frustum</li>
- *	</ul>
- */
-geometry_rv egolib_frustum_intersects_aabb(const frustum_base_t self, const fvec3_base_t corner1, const fvec3_base_t corner2, const bool doEnds);
-
-/**
- * @brief
- *	Test the relation of a BV to a frustum.
- * @return
- *	wether the BV is inside the frustum, intersects with the frustum or is outside the frustum.
- *	<ul>
- *		<li>geometry_error     - an error occured</li>
- *		<li>geometry_outside   - the BV volume is outside the frustum</li>
- *		<li>geometry_intersect - the BV and the frustum partially overlap</li>
- *		<li>geometry_inside    - the bounding volume is completely inside the frustum</li>
- */
-geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t *self, const bv_t *bv,bool doEnds);

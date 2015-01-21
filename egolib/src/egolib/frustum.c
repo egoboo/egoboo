@@ -30,15 +30,15 @@
 //--------------------------------------------------------------------------------------------
 
 /// Call this every time the camera moves to update the frustum
-static void frustum_calculate(frustum_base_t pf, const fmat_4x4_base_t proj, const fmat_4x4_base_t modl);
+static void frustum_calculate(frustum_base_t pf, const fmat_4x4_t& proj, const fmat_4x4_t& modl);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void frustum_calculate(frustum_base_t planes, const fmat_4x4_base_t proj, const fmat_4x4_base_t modl)
+void frustum_calculate(frustum_base_t planes, const fmat_4x4_t& proj, const fmat_4x4_t& modl)
 {
     float clip[16];        // This will hold the clipping planes
 
-    mat_Multiply(clip, proj, modl);
+    mat_Multiply(clip, proj.v, modl.v);
 
     // This will extract the FRUST_PLANE_RIGHT side of the frustum
     planes[FRUST_PLANE_RIGHT][kX] = clip[ 3] - clip[ 0];
@@ -86,12 +86,12 @@ void frustum_calculate(frustum_base_t planes, const fmat_4x4_base_t proj, const 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-egolib_rv egolib_frustum_calculate(egolib_frustum_t * pf, const fmat_4x4_base_t proj, const fmat_4x4_base_t modl)
+egolib_rv egolib_frustum_calculate(egolib_frustum_t * pf, const fmat_4x4_t& proj, const fmat_4x4_t& modl)
 {
     fvec3_t pt1;
     fvec3_t vlook, vfar;
 
-    if ( NULL == pf || NULL == proj || NULL == modl ) return rv_error;
+    if ( NULL == pf) return rv_error;
 
     //---- construct the basic frustum
     {
@@ -147,25 +147,19 @@ egolib_rv egolib_frustum_calculate(egolib_frustum_t * pf, const fmat_4x4_base_t 
     return rv_success;
 }
 
-geometry_rv egolib_frustum_intersects_bv(const egolib_frustum_t *self, const bv_t *bv,bool doEnds)
+geometry_rv egolib_frustum_t::intersects_bv(const bv_t *bv,bool doEnds) const
 {
 	// Validate arguments.
-	if (nullptr == self || nullptr == bv)
+	if (nullptr == bv)
 	{
 		return geometry_error;
 	}
-	return egolib_frustum_intersects_aabb(self->data, bv->aabb.mins, bv->aabb.maxs, doEnds);
+	return intersects_aabb(bv->aabb.mins.v, bv->aabb.maxs.v, doEnds);
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv egolib_frustum_intersects_point(const frustum_base_t self, const fvec3_base_t point, const bool doEnds)
+geometry_rv egolib_frustum_t::intersects_point(const fvec3_t& point, const bool doEnds) const
 {
-	// error trap
-	if (nullptr == self || nullptr == point)
-	{
-		return geometry_error;
-	}
-
 	// Handle optional parameters.
 	int i_stt, i_end;
 	if (doEnds)
@@ -185,7 +179,7 @@ geometry_rv egolib_frustum_intersects_point(const frustum_base_t self, const fve
 	// Scan through the frustum's planes:
 	for (int i = i_stt; i <= i_end; i++)
 	{
-		if (plane_point_distance(self[i], point) <= 0.0f)
+		if (plane_point_distance(data[i], point.v) <= 0.0f)
 		{
 			inside = false;
 			break;
@@ -196,19 +190,14 @@ geometry_rv egolib_frustum_intersects_point(const frustum_base_t self, const fve
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv egolib_frustum_intersects_sphere(const frustum_base_t self, const fvec3_base_t center, const float radius, const bool doEnds)
+geometry_rv egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bool doEnds) const
 {
-	// error trap
-	if (nullptr == self || nullptr == center)
-	{
-		return geometry_error;
-	}
 	/// @todo The radius of a sphere shall preserve the invariant to be non-negative.
 	/// The test below would then reduce to radius == 0.0f. In that case, the simple
 	/// frustum - center test is sufficient.
-	if (radius <= 0.0f)
+	if (sphere.radius <= 0.0f)
 	{
-		return egolib_frustum_intersects_point(self, center, doEnds);
+		return this->intersects_point(sphere.origin, doEnds);
 	}
 
 	// Assume the sphere is completely inside the frustum.
@@ -230,16 +219,16 @@ geometry_rv egolib_frustum_intersects_sphere(const frustum_base_t self, const fv
 	// scan each plane
 	for (int i = i_stt; i <= i_end; i++)
 	{
-		float dist = plane_point_distance(self[i], center);
+		float dist = plane_point_distance(this->data[i], sphere.origin.v);
 
 		// If the sphere is completely behind the current plane, it is outside the frustum.
-		if (dist <= -radius)
+		if (dist <= -sphere.radius)
 		{
 			retval = geometry_outside;
 			break;
 		}
 		// If it is not completely in front of the current plane, it intersects the frustum.
-		else if (dist < radius)
+		else if (dist < sphere.radius)
 		{
 			retval = geometry_intersect;
 		}
@@ -249,11 +238,11 @@ geometry_rv egolib_frustum_intersects_sphere(const frustum_base_t self, const fv
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv egolib_frustum_intersects_cube(const frustum_base_t self, const fvec3_base_t center, const float size, const bool do_ends)
+geometry_rv egolib_frustum_t::intersects_cube(const fvec3_base_t center, const float size, const bool doEnds) const
 {
 	fvec3_base_t vmin, vmax;
 
-	if (nullptr == self || nullptr == center)
+	if (nullptr == center)
 	{
 		return geometry_error;
 	}
@@ -263,7 +252,7 @@ geometry_rv egolib_frustum_intersects_cube(const frustum_base_t self, const fvec
 
 	// Handle optional parameters.
 	int i_stt, i_end;
-	if (do_ends)
+	if (doEnds)
 	{
 		i_stt = 0;
 		i_end = FRUST_PLANE_END;
@@ -276,7 +265,7 @@ geometry_rv egolib_frustum_intersects_cube(const frustum_base_t self, const fvec
 
 	for (int i = i_stt; i <= i_end; i++)
 	{
-		const plane_base_t * plane = self + i;
+		const plane_base_t *plane = this->data + i;
 
 		// find the most-positive and most-negative points of the aabb
 		for (int j = 0; j < 3; j++)
@@ -314,9 +303,9 @@ geometry_rv egolib_frustum_intersects_cube(const frustum_base_t self, const fvec
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv egolib_frustum_intersects_aabb(const frustum_base_t self, const fvec3_base_t mins, const fvec3_base_t maxs, const bool doEnds)
+geometry_rv egolib_frustum_t::intersects_aabb(const fvec3_base_t mins, const fvec3_base_t maxs, const bool doEnds) const
 {
-	if (nullptr == self || nullptr == mins || nullptr == maxs)
+	if (nullptr == mins || nullptr == maxs)
 	{
 		return geometry_error;
 	}
@@ -341,13 +330,13 @@ geometry_rv egolib_frustum_intersects_aabb(const frustum_base_t self, const fvec
 	int i;
 	for (i = i_stt; i <= i_end; i++)
 	{
-		if (geometry_outside == plane_intersects_aabb_max(self[i], mins, maxs))
+		if (geometry_outside == plane_intersects_aabb_max(this->data[i], mins, maxs))
 		{
 			retval = geometry_outside;
 			break;
 		}
 
-		if (geometry_outside == plane_intersects_aabb_min(self[i], mins, maxs))
+		if (geometry_outside == plane_intersects_aabb_min(this->data[i], mins, maxs))
 		{
 			retval = geometry_intersect;
 			break;
@@ -363,12 +352,30 @@ geometry_rv egolib_frustum_intersects_aabb(const frustum_base_t self, const fvec
 		// This eliminates a geometry_inside == retval test in every iteration of the loop
 		for ( /* nothing */; i <= i_end; i++)
 		{
-			if (geometry_outside == plane_intersects_aabb_max(self[i], mins, maxs))
+			if (geometry_outside == plane_intersects_aabb_max(this->data[i], mins, maxs))
 			{
 				retval = geometry_outside;
 				break;
 			}
 		}
+	}
+
+	return retval;
+}
+
+bool egolib_frustum_t::intersects_oct(const oct_bb_t *oct, const bool doEnds) const
+{
+	if (nullptr == oct)
+	{
+		return false;
+	}
+	bool retval = false;
+	aabb_t aabb;
+	if (aabb_from_oct_bb(&aabb, oct))
+	{
+		geometry_rv frustum_rv = this->intersects_aabb(aabb.mins.v, aabb.maxs.v, doEnds);
+
+		retval = (frustum_rv > geometry_outside);
 	}
 
 	return retval;

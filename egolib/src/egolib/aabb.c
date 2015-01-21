@@ -95,10 +95,10 @@ bool aabb_from_oct_bb(aabb_t * dst, const oct_bb_t * src)
 bool aabb_lhs_contains_rhs(const aabb_t& self, const aabb_t& other)
 {
 	// The optimizer is supposed to do this stuff all by itself, but isn't.
-	const float *rhs_mins = other.mins + 0;
-	const float *rhs_maxs = other.maxs + 0;
-	const float *lhs_mins = self.mins + 0;
-	const float *lhs_maxs = self.maxs + 0;
+	const float *rhs_mins = other.mins.v + 0;
+	const float *rhs_maxs = other.maxs.v + 0;
+	const float *lhs_mins = self.mins.v + 0;
+	const float *lhs_maxs = self.maxs.v + 0;
 
 	for (size_t cnt = 0; cnt < 3; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
 	{
@@ -123,10 +123,10 @@ void aabb_self_union(aabb_t& self, const aabb_t& other)
 bool aabb_overlap(const aabb_t& self, const aabb_t& other)
 {
 	// The optimizer is supposed to do this stuff all by itself, but isn't.
-	const float *rhs_mins = other.mins + 0;
-	const float *rhs_maxs = other.maxs + 0;
-	const float *lhs_mins = self.mins + 0;
-	const float *lhs_maxs = self.maxs + 0;
+	const float *rhs_mins = other.mins.v + 0;
+	const float *rhs_maxs = other.maxs.v + 0;
+	const float *lhs_mins = self.mins.v + 0;
+	const float *lhs_maxs = self.maxs.v + 0;
 
 	for (size_t cnt = 0; cnt < 3; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
 	{

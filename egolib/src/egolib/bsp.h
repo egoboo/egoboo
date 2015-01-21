@@ -111,12 +111,8 @@
 		 */
 		static BSP_leaf_list_t *dtor(BSP_leaf_list_t *self);
     };
-#if 0
-	BSP_leaf_list_t *BSP_leaf_list_ctor(BSP_leaf_list_t *self);
-    BSP_leaf_list_t *BSP_leaf_list_dtor(BSP_leaf_list_t *self);
-#endif
-    BSP_leaf_list_t *BSP_leaf_list_clear(BSP_leaf_list_t *self);
 
+	BSP_leaf_list_t *BSP_leaf_list_clear(BSP_leaf_list_t *self);
     bool BSP_leaf_list_alloc(BSP_leaf_list_t *self);
     bool BSP_leaf_list_dealloc(BSP_leaf_list_t *self);
     bool BSP_leaf_list_reset(BSP_leaf_list_t *self);
@@ -145,7 +141,7 @@
 
     bool BSP_branch_list_clear_rec( BSP_branch_list_t * );
 
-#if 1
+#if 0
 	DECLARE_DYNAMIC_ARY(BSP_leaf_pary, BSP_leaf_t *)
 #endif
 
@@ -201,10 +197,10 @@ bool BSP_branch_unlink_children( BSP_branch_t * B );
 bool BSP_branch_unlink_nodes( BSP_branch_t * B );
 bool BSP_branch_update_depth_rec( BSP_branch_t * B, int depth );
 
-bool BSP_branch_add_all_rec( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-bool BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-bool BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-bool BSP_branch_add_all_children( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+bool BSP_branch_add_all_rec(const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst);
+bool BSP_branch_add_all_nodes(const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst);
+bool BSP_branch_add_all_unsorted(const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst);
+bool BSP_branch_add_all_children(const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -28,7 +28,7 @@
 // EXTERNAL VARIABLES
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_STATIC_ARY( DisplayMsgAry, DisplayMsg );
+INSTANTIATE_STATIC_ARY(msg_t, DisplayMsg, EGO_MESSAGE_MAX);
 
 int DisplayMsg_timechange = 0;
 int DisplayMsg_count = EGO_MESSAGE_MAX;
@@ -123,8 +123,9 @@ int draw_string_raw( float x, float y, const char *format, ... )
 // DisplayMsg IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
-IMPLEMENT_STATIC_ARY( DisplayMsgAry, EGO_MESSAGE_MAX );
-
+#if 0
+IMPLEMENT_STATIC_ARY(DisplayMsgAry, EGO_MESSAGE_MAX );
+#endif
 //--------------------------------------------------------------------------------------------
 void DisplayMsg_clear()
 {
@@ -198,7 +199,7 @@ void DisplayMsg_print( const char *text )
 
     // Get a "free" message
     slot = DisplayMsg_get_free();
-    pmsg = DisplayMsgAry_get_ptr( &DisplayMsg, slot );
+    pmsg = DisplayMsg.get_ptr(slot);
 
     // Copy the message
     for ( src = text, dst = pmsg->textdisplay, dst_end = dst + EGO_MESSAGE_SIZE;

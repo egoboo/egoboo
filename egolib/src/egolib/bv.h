@@ -61,6 +61,34 @@ struct bv_t
 		aabb.dtor();
 		sphere.dtor();
 	}
+	/**
+	 * @brief
+	 *	Assign this convex bounding volume the values of another convex bounding volume.
+	 * @param other
+	 *	the other convex bounding volume
+	 * @post
+	 *	This convex bounding volume box was assigned the values of the other convex bounding box.
+	 */
+	void assign(const bv_t& other)
+	{
+		aabb = other.aabb;
+		sphere = other.sphere;
+	}
+	/**
+	 * @brief
+	 *	Assign this convex bounding volume the values of another convex bounding volume.
+	 * @param other
+	 *	the other convex bounding volume
+	 * @return
+	 *	this convex bounding volume
+	 * @post
+	 *	This convex bounding volume box was assigned the values of the other convex bounding box.
+	 */
+	bv_t& operator=(const bv_t& other)
+	{
+		assign(other);
+		return *this;
+	}
 };
 
 
@@ -71,7 +99,6 @@ bool  bv_self_union(bv_t * pdst, const bv_t * psrc);
 bool  bv_lhs_contains_rhs(const bv_t * lhs_ptr, const bv_t * rhs_ptr);
 bool  bv_overlap(const bv_t * lhs_ptr, const bv_t * rhs_ptr);
 
-bool  bv_copy(bv_t * pdst, const bv_t * psrc);
 bool  bv_from_oct_bb(bv_t * dst, const oct_bb_t * src);
 
 bool  bv_validate(bv_t * rhs);
