@@ -125,14 +125,14 @@ struct fmat_4x4_t
 	const float& operator()(const size_t i) const
 	{
 #ifdef _DEBUG
-		EGOBOO_ASSERT(i < 4);
+		EGOBOO_ASSERT(i < 16);
 #endif
 		return this->v[i];
 	}
 	float& operator()(const size_t i)
 	{
 #ifdef _DEBUG
-		EGOBOO_ASSERT(i < 4);
+		EGOBOO_ASSERT(i < 16);
 #endif
 		return this->v[i];
 	}
