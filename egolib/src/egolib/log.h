@@ -22,6 +22,7 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#include "egolib/vfs.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -44,7 +45,7 @@ enum LogLevel : uint8_t
     void   log_init(const char * logname, LogLevel logLevel);
     void   log_shutdown( void );
 
-    FILE * log_get_file( void );
+    vfs_FILE * log_get_file( void );
 
     void   log_message( const char *format, ... ) GCC_PRINTF_FUNC( 1 );
     void   log_debug( const char *format, ... ) GCC_PRINTF_FUNC( 1 );

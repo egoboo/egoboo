@@ -228,7 +228,7 @@ SoundID AudioSystem::loadSound(const std::string &fileName)
     if ( vfs_exists( fullFileName.c_str() ) )
     {
         fileExists = true;
-        loadedSound = Mix_LoadWAV( vfs_resolveReadFilename( fullFileName.c_str() ) );
+        loadedSound = Mix_LoadWAV_RW(vfs_openRWopsRead(fullFileName.c_str()), 1);
     }
 
     //OGG failed, try WAV instead
@@ -238,7 +238,7 @@ SoundID AudioSystem::loadSound(const std::string &fileName)
         if ( vfs_exists( fullFileName.c_str() ) )
         {
             fileExists = true;
-            loadedSound = Mix_LoadWAV( vfs_resolveReadFilename( fullFileName.c_str() ) );
+            loadedSound = Mix_LoadWAV_RW(vfs_openRWopsRead(fullFileName.c_str()), 1);
         }
     }
 
@@ -269,7 +269,7 @@ MusicID AudioSystem::loadMusic(const std::string &fileName)
     	return INVALID_SOUND_ID;
     }
 
-    Mix_Music* loadedMusic = Mix_LoadMUS( fileName.c_str() );
+    Mix_Music* loadedMusic = Mix_LoadMUSType_RW(vfs_openRWopsRead(fileName.c_str()), MUS_NONE, 1);
 
     if(!loadedMusic) {
         log_warning( "Failed to load music (%s): %s.\n", fileName.c_str(), Mix_GetError() );
@@ -329,20 +329,20 @@ void AudioSystem::loadAllMusic()
 
             std::string path = std::string("mp_data/music/") + songName;
 
-            loadMusic( vfs_resolveReadFilename(path.c_str()) );
+            loadMusic(path.c_str());
         }
     }
 
     //Special xmas theme, override the default menu theme song
     if ( check_time( SEASON_CHRISTMAS ) )
     {
-        MusicID specialSong = loadMusic( vfs_resolveReadFilename("mp_data/music/special/xmas.ogg") );
+        MusicID specialSong = loadMusic("mp_data/music/special/xmas.ogg");
         if(specialSong != INVALID_SOUND_ID)
         	_musicLoaded[MENU_SONG] = _musicLoaded[specialSong];
     }
     else if ( check_time( SEASON_HALLOWEEN ) )
     {
-        MusicID specialSong = loadMusic( vfs_resolveReadFilename("mp_data/music/special/halloween.ogg") );
+        MusicID specialSong = loadMusic("mp_data/music/special/halloween.ogg");
         if(specialSong != INVALID_SOUND_ID)
             _musicLoaded[MENU_SONG] = _musicLoaded[specialSong];
     }

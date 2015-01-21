@@ -1414,7 +1414,7 @@ void gfx_system_init_SDL_graphics()
 
         snprintf( fileload, SDL_arraysize( fileload ), "mp_data/%s", fname );
 
-        theSurface = IMG_Load( vfs_resolveReadFilename( fileload ) );
+        theSurface = IMG_Load_RW( vfs_openRWopsRead( fileload ), 1 );
         if ( NULL == theSurface )
         {
             log_warning( "Unable to load icon (%s)\n", fname );
@@ -1461,9 +1461,6 @@ void gfx_system_init_SDL_graphics()
     ogl_vparam.userAnisotropy = 16.0f * std::max( 0, cfg.texturefilter_req - TX_TRILINEAR_2 );
 
     log_info( "Opening SDL Video Mode...\n" );
-
-    // redirect the output of the SDL_GL_* debug functions
-    SDL_GL_set_stdout( log_get_file() );
 
     // actually set the video mode
     if ( NULL == SDL_GL_set_mode( NULL, &sdl_vparam, &ogl_vparam, _sdl_initialized_graphics ) )

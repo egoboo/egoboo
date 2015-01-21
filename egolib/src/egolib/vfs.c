@@ -269,7 +269,7 @@ vfs_FILE * vfs_openWriteB( const char * filename )
     // make sure that the output directory exists
     if ( !_vfs_ensure_write_directory( local_filename, false ) ) return NULL;
 
-    ftmp = PHYSFS_openRead( local_filename );
+    ftmp = PHYSFS_openWrite( local_filename );
     if ( NULL == ftmp ) return NULL;
 
     vfs_file = EGOBOO_NEW( vfs_FILE );
@@ -632,6 +632,8 @@ const char * vfs_resolveWriteFilename( const char * src_filename )
 //--------------------------------------------------------------------------------------------
 vfs_FILE * vfs_openRead( const char * filename )
 {
+    return vfs_openReadB(filename);
+#if 0
     // open a file for reading in text mode, using c stdio
 
     const char  * real_filename;
@@ -657,6 +659,7 @@ vfs_FILE * vfs_openRead( const char * filename )
     vfs_file->ptr.c = ftmp;
 
     return vfs_file;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -711,6 +714,8 @@ int _vfs_ensure_write_directory( const char * filename, bool is_directory )
 //--------------------------------------------------------------------------------------------
 vfs_FILE * vfs_openWrite( const char * filename )
 {
+    return vfs_openWriteB(filename);
+#if 0
     // open a file for writing in text mode,  using c stdio
 
     VFS_PATH      local_filename = EMPTY_CSTR;
@@ -743,6 +748,7 @@ vfs_FILE * vfs_openWrite( const char * filename )
     vfs_file->ptr.c = ftmp;
 
     return vfs_file;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -769,6 +775,9 @@ bool _vfs_ensure_destination_file(const char * filename)
 
     // be a bit carefil here, in case the file exists in the read path and not in the write
     // directory
+    
+    return vfs_copyFile(filename, filename);
+#if 0
 
     sys_src_name  = vfs_resolveReadFilename( local_filename );
     read_exists   = fs_fileExists( sys_src_name ) > 0;
@@ -786,11 +795,14 @@ bool _vfs_ensure_destination_file(const char * filename)
     }
 
     return write_exists;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
 vfs_FILE * vfs_openAppend( const char * filename )
 {
+    return vfs_openAppendB(filename);
+#if 0
     // open a file for appending in text mode,  using c stdio
 
     vfs_FILE    * vfs_file;
@@ -819,6 +831,7 @@ vfs_FILE * vfs_openAppend( const char * filename )
     vfs_file->ptr.c = ftmp;
 
     return vfs_file;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -930,7 +943,8 @@ int vfs_error( vfs_FILE * pfile )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        retval = ( NULL != PHYSFS_getLastError() );
+        retval = 0;
+        //retval = ( NULL != PHYSFS_getLastError() );
     }
 
     return retval;
@@ -1087,7 +1101,7 @@ size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
 
         if ( retval < 0 ) { error = true; pfile->flags |= VFS_ERROR; }
 
-        if ( !error ) read_length = count;
+        if ( !error ) read_length = retval;
     }
 
     if ( error ) _vfs_translate_error( pfile );
@@ -1096,8 +1110,9 @@ size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
 }
 
 //--------------------------------------------------------------------------------------------
-size_t vfs_write( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
+size_t vfs_write( const void * buffer, size_t size, size_t count, vfs_FILE * pfile )
 {
+    bool error = false;
     size_t retval;
 
     BAIL_IF_NOT_INIT();
@@ -1111,9 +1126,73 @@ size_t vfs_write( void * buffer, size_t size, size_t count, vfs_FILE * pfile )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        retval = PHYSFS_write( pfile->ptr.p, buffer, size, count );
+        PHYSFS_sint64 write_length = PHYSFS_write( pfile->ptr.p, buffer, size, count );
+        
+        if ( write_length < 0 ) { error = true; pfile->flags |= VFS_ERROR; }
+        
+        if ( !error ) retval = write_length;
     }
+    
+    if ( error ) _vfs_translate_error( pfile );
 
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_read_Sint8( vfs_FILE * pfile, Sint8 * val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        retval = fread( val, 1, sizeof( Sint8 ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        retval = PHYSFS_read(pfile->ptr.p, val, 1, sizeof(Sint8));
+        
+        error = ( 1 != retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_read_Uint8( vfs_FILE * pfile, Uint8 * val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        retval = fread( val, 1, sizeof( Uint8 ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        retval = PHYSFS_read(pfile->ptr.p, val, 1, sizeof(Sint8));
+        
+        error = ( 1 != retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
     return retval;
 }
 
@@ -1130,8 +1209,8 @@ int vfs_read_Sint16( vfs_FILE * pfile, Sint16 * val )
     retval = 0;
     if ( vfs_cfile == pfile->type )
     {
-        Uint16 itmp;
-        retval = fread( &itmp, 1, sizeof( Uint16 ), pfile->ptr.c );
+        Sint16 itmp;
+        retval = fread( &itmp, 1, sizeof( Sint16 ), pfile->ptr.c );
 
         error = ( 1 != retval );
 
@@ -1345,78 +1424,461 @@ int vfs_read_float( vfs_FILE * pfile, float * val )
 }
 
 //--------------------------------------------------------------------------------------------
+int vfs_write_Sint8( vfs_FILE * pfile, const Sint8 val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        retval = fwrite( &val, 1, sizeof( Sint8 ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        retval = PHYSFS_write(pfile->ptr.p, &val, 1, sizeof(Sint8));
+        
+        error = ( 1 != retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
+    return retval;
+}
+
 //--------------------------------------------------------------------------------------------
-//int fake_physfs_vscanf( PHYSFS_File * pfile, const char *format, va_list args )
-//{
-//    // UGH! Just break the format code into pieces and call fscanf on each piece
-//
-//    char   sub_format[256] = EMPTY_CSTR;
-//    char * format_end, * format_next;
-//    int    argcount = 0;
-//    void * ptr;
-//
-//    if( NULL == file || INVALID_CSTR(format) ) return 0;
-//
-//    format_end = (char *)(format + strlen(format));
-//
-//    // scan throuh the format string looking for formats
-//    argcount = 0;
-//    while( format < format_end )
-//    {
-//        bool found_format;
-//        char * format_tmp;
-//
-//        // find everything up to the first valid format code in the format string
-//        found_format = false;
-//        format_tmp   = (char *)format;
-//        format_next  = format_tmp;
-//        while( format_next < format_end )
-//        {
-//            format_next = strchr( format_tmp, '%' );
-//
-//            // handle the occurrence of "%%"
-//            if( '%' == *(format_next + 1) )
-//            {
-//                format_tmp = format_next + 1;
-//            }
-//            else
-//            {
-//                found_format = true;
-//                break;
-//            }
-//        }
-//
-//        // copy the format string fragment
-//        if( found_format && format_next < format_end )
-//        {
-//            // scan the valid format code
-//            format_next += strcspn( format_next, "cCsSdioxXnueEfgG" ) + 1;
-//        }
-//        strncpy( sub_format, format, format_next - format );
-//
-//        // get a pointer to the variable to be filled
-//        ptr = NULL;
-//        if( found_format )
-//        {
-//            ptr = va_arg( args, void * );
-//        }
-//
-//        // do the call to fscanf()
-//        if( NULL == ptr )
-//        {
-//            PHYSFS_scanf( file, sub_format );
-//        }
-//        else
-//        {
-//            argcount += PHYSFS_scanf( file, sub_format, ptr );
-//        }
-//
-//        format = format_next;
-//    }
-//
-//    return argcount;
-//}
-//
+int vfs_write_Uint8( vfs_FILE * pfile, const Uint8 val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        retval = fwrite( &val, 1, sizeof( Uint8 ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        retval = PHYSFS_write(pfile->ptr.p, &val, 1, sizeof(Sint8));
+        
+        error = ( 1 != retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_write_Sint16( vfs_FILE * pfile, const Sint16 val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        Sint16 itmp = ENDIAN_TO_FILE_INT16(val);
+        retval = fwrite( &itmp, 1, sizeof( Sint16 ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        retval = PHYSFS_writeSLE16( pfile->ptr.p, val );
+        
+        error = ( 0 == retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_write_Uint16( vfs_FILE * pfile, const Uint16 val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        Uint16 itmp = ENDIAN_TO_FILE_INT16(val);
+        retval = fwrite( &itmp, 1, sizeof( Uint16 ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        retval = PHYSFS_writeULE16( pfile->ptr.p, val );
+        
+        error = ( 0 == retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_write_Sint32( vfs_FILE * pfile, const Sint32 val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        Sint32 itmp = ENDIAN_TO_FILE_INT32(val);
+        retval = fwrite( &itmp, 1, sizeof( Sint32 ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        retval = PHYSFS_writeSLE32( pfile->ptr.p, val );
+        
+        error = ( 0 == retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_write_Uint32( vfs_FILE * pfile, const Uint32 val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        Uint32 itmp = ENDIAN_TO_FILE_INT32(val);
+        retval = fwrite( &itmp, 1, sizeof( Uint32 ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        retval = PHYSFS_writeULE32( pfile->ptr.p, val );
+        
+        error = ( 0 == retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_write_Sint64( vfs_FILE * pfile, const Sint64 val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        Sint64 itmp = ENDIAN_TO_FILE_INT64(val);
+        retval = fwrite( &itmp, 1, sizeof( Sint64 ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        retval = PHYSFS_writeSLE64( pfile->ptr.p, val );
+        
+        error = ( 0 == retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_write_Uint64( vfs_FILE * pfile, const Uint64 val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        Uint64 itmp = ENDIAN_TO_FILE_INT64(val);
+        retval = fwrite( &itmp, 1, sizeof( Uint64 ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        retval = PHYSFS_writeULE64( pfile->ptr.p, val );
+        
+        error = ( 0 == retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+int vfs_write_float( vfs_FILE * pfile, const float val )
+{
+    int retval;
+    bool error = false;
+    
+    BAIL_IF_NOT_INIT();
+    
+    if ( NULL == pfile ) return 0;
+    
+    retval = 0;
+    if ( vfs_cfile == pfile->type )
+    {
+        float ftmp = ENDIAN_TO_FILE_IEEE32(val);
+        retval = fread( &ftmp, 1, sizeof( float ), pfile->ptr.c );
+        
+        error = ( 1 != retval );
+    }
+    else if ( vfs_physfs == pfile->type )
+    {
+        union { float f; Uint32 i; } convert;
+        convert.f = val;
+        retval = PHYSFS_writeULE32( pfile->ptr.p, convert.i );
+        
+        error = ( 0 == retval );
+    }
+    
+    if ( error ) _vfs_translate_error( pfile );
+    
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static int fake_physfs_vscanf_read_char( PHYSFS_File * pfile )
+{
+    char ch = '\0';
+    int retval = PHYSFS_read( pfile, &ch, sizeof( char ), 1);
+    if ( 1 == retval ) retval = ch;
+    return retval;
+}
+
+static void fake_physfs_vscanf_eat_whitespace( PHYSFS_File * pfile )
+{
+    int ch;
+    do
+    {
+        ch = fake_physfs_vscanf_read_char( pfile );
+    } while ( ch == -1 || isspace( ch ) );
+    PHYSFS_seek( pfile, PHYSFS_tell( pfile ) - 1 );
+}
+
+static void fake_physfs_vscanf_read_word( PHYSFS_File * pfile, char * buffer, const int max_length )
+{
+    int length = 0;
+    while ( max_length <= 0 || length < max_length )
+    {
+        int ch = fake_physfs_vscanf_read_char( pfile );
+        if ( ch == -1 || isspace( ch ) )
+        {
+            PHYSFS_seek( pfile, PHYSFS_tell( pfile ) - 1 );
+            break;
+        }
+        buffer[length] = (char)(ch);
+        length++;
+    }
+    buffer[length] = CSTR_END;
+}
+
+int fake_physfs_vscanf( PHYSFS_File * pfile, const char *format, va_list args )
+{
+    int argcount = 0;
+    const char * format_start = format;
+    const char * format_end = format + strlen(format);
+    
+    while ( format < format_end )
+    {
+        char format_tmp = *format;
+        format++;
+        
+        if ( format_tmp == ' ' )
+        {
+            fake_physfs_vscanf_eat_whitespace( pfile );
+        }
+        else if ( format_tmp == '%' )
+        {
+            STRING buffer = EMPTY_CSTR;
+            int buffer_size = 0;
+            int max_width = -1;
+            char format_spec = CSTR_END;
+            bool ignore_argument = false;
+            bool invalid = false;
+            
+            if ( format >= format_end ) break;
+            
+            if ( *format == '*' )
+            {
+                ignore_argument = true;
+                format++;
+            }
+            if ( format >= format_end ) break;
+            
+            while ( isdigit( *format ) && buffer_size < sizeof(buffer) )
+            {
+                buffer[buffer_size] = *format;
+                buffer_size++;
+                format++;
+            }
+            if ( format >= format_end ) break;
+            
+            if ( buffer_size )
+            {
+                buffer[buffer_size] = CSTR_END;
+                max_width = strtol(buffer, NULL, 10);
+                
+                buffer_size = 0;
+                buffer[buffer_size] = CSTR_END;
+            }
+            
+            while ( format < format_end && format_spec == CSTR_END && !invalid )
+            {
+                char spec = *format;
+                format++;
+                
+                switch (spec)
+                {
+                        // specifiers
+                    case '%':
+                    case 'c':
+                    case 's':
+                    case 'd':
+                    case 'f':
+                        format_spec = spec;
+                        break;
+                        
+                        // length modifiers
+                        
+                        // invalid?
+                    default:
+                        invalid = true;
+                        log_error("got an invalid format '%s', currently at '%s'", format_start, format - 1);
+                }
+            }
+            
+            EGOBOO_ASSERT( format < format_end || format_spec != CSTR_END );
+            
+            if ( 'c' == format_spec )
+            {
+                int ch = fake_physfs_vscanf_read_char( pfile );
+                if ( !ignore_argument )
+                {
+                    char * arg_ptr = va_arg( args, char * );
+                    *arg_ptr = ch;
+                    argcount++;
+                }
+            }
+            else
+            {
+                fake_physfs_vscanf_eat_whitespace( pfile );
+                if ( '%' == format_spec )
+                {
+                    int tmp = fake_physfs_vscanf_read_char( pfile );
+                    if ( '%' != tmp ) break;
+                }
+                else if ( 's' == format_spec )
+                {
+                    fake_physfs_vscanf_read_word( pfile, buffer, max_width );
+                    if ( !ignore_argument )
+                    {
+                        char * arg_ptr = va_arg( args, char * );
+                        int length = strlen( buffer );
+                        strncpy( arg_ptr, buffer, length );
+                        arg_ptr[length] = CSTR_END;
+                        argcount++;
+                    }
+                }
+                else if ( 'd' == format_spec )
+                {
+                    char * buffer_end;
+                    int arg;
+                    fake_physfs_vscanf_read_word( pfile, buffer, sizeof(buffer) );
+                    buffer_size = strlen( buffer );
+                    arg = strtol( buffer, &buffer_end, 10 );
+                    PHYSFS_seek( pfile, PHYSFS_tell( pfile ) - (buffer_size - (buffer_end - buffer)) );
+                    if ( !ignore_argument )
+                    {
+                        int * arg_ptr = va_arg( args, int * );
+                        *arg_ptr = arg;
+                        argcount++;
+                    }
+                }
+                else if ( 'f' == format_spec )
+                {
+                    char * buffer_end;
+                    float arg;
+                    fake_physfs_vscanf_read_word( pfile, buffer, sizeof(buffer) );
+                    buffer_size = strlen( buffer );
+                    arg = strtof( buffer, &buffer_end );
+                    PHYSFS_seek( pfile, PHYSFS_tell( pfile ) - (buffer_size - (buffer_end - buffer)) );
+                    if ( !ignore_argument )
+                    {
+                        float * arg_ptr = va_arg( args, float * );
+                        *arg_ptr = arg;
+                        argcount++;
+                    }
+                }
+            }
+        }
+        else
+        {
+            int pfile_in = fake_physfs_vscanf_read_char( pfile );
+            if ( pfile_in != format_tmp )
+                break;
+        }
+    }
+    
+    return argcount;
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1481,12 +1943,12 @@ int vfs_scanf( vfs_FILE * pfile, const char *format, ... )
     va_start( args, format );
     if ( vfs_cfile == pfile->type )
     {
-        retval = _vfs_vfscanf( pfile->ptr.c, format, args );
+        retval = vfscanf( pfile->ptr.c, format, args );
     }
-    //else if( vfs_physfs == pfile->type )
-    //{
-    //    retval = fake_physfs_vscanf( pfile->ptr.p, format, args );
-    //}
+    else if( vfs_physfs == pfile->type )
+    {
+        retval = fake_physfs_vscanf( pfile->ptr.p, format, args );
+    }
     va_end( args );
 
     return retval;
@@ -1883,6 +2345,20 @@ _vfs_copyFile_end:
 //--------------------------------------------------------------------------------------------
 int vfs_copyFile( const char *source, const char *dest )
 {
+    vfs_FILE * src = vfs_openReadB(source);
+    vfs_FILE * dst = vfs_openWriteB(dest);
+    EGOBOO_ASSERT(src != NULL && dst != NULL);
+    char buffer[1024];
+    while (!vfs_eof(src))
+    {
+        size_t read = vfs_read(buffer, 1, sizeof(buffer), src);
+        // @todo this doesn't account for write not writing everything
+        vfs_write(buffer, 1, read, dst);
+    }
+    vfs_close(src);
+    vfs_close(dst);
+    return VFS_TRUE;
+#if 0
     // buffer the directory delete through PHYSFS, so that we so not access functions that
     // we have no right to! :)
 
@@ -1923,6 +2399,7 @@ int vfs_copyFile( const char *source, const char *dest )
     if ( !fs_copyFile( real_src, real_dst ) ) return VFS_FALSE;
 
     return VFS_TRUE;
+#endif
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1933,7 +2410,7 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     VFS_PATH srcPath = EMPTY_CSTR, destPath = EMPTY_CSTR;
     const char *fileName;
 
-    VFS_PATH     szDst = EMPTY_CSTR;
+    //VFS_PATH     szDst = EMPTY_CSTR;
     //const char * real_dst;
 
     vfs_search_context_t * ctxt;
@@ -1952,7 +2429,7 @@ int vfs_copyDirectory( const char *sourceDir, const char *destDir )
     }
 
     // get the a filename that we are allowed to write to
-    snprintf( szDst, SDL_arraysize( szDst ), "%s",  vfs_resolveWriteFilename( destDir ) );
+    //snprintf( szDst, SDL_arraysize( szDst ), "%s",  vfs_resolveWriteFilename( destDir ) );
     //real_dst = szDst;
 
     // List all the files in the directory
@@ -1996,7 +2473,9 @@ int vfs_ungetc( int c, vfs_FILE * pfile )
     }
     else if ( vfs_physfs == pfile->type )
     {
-        retval = 0;
+        // fake it
+        PHYSFS_seek(pfile->ptr.p, PHYSFS_tell(pfile->ptr.p) - 1);
+        retval = c;
         //retval = PHYSFS_write( pfile->ptr.p, &c, 1, sizeof(char) );
     }
 
@@ -2025,6 +2504,7 @@ int vfs_getc( vfs_FILE * pfile )
 
         if ( -1 == retval ) pfile->flags |= VFS_ERROR;
         if ( 0 == retval ) pfile->flags |= VFS_EOF;
+        if ( 0 == retval ) retval = EOF;
         if ( 1 == retval ) retval = cTmp;
     }
 
@@ -2629,4 +3109,86 @@ void vfs_set_base_search_paths( void )
 
     // Put base path on search path...
     PHYSFS_addToSearchPath( fs_getDataDirectory(), 1 );
+    
+    // Put config path on search path...
+    PHYSFS_addToSearchPath(fs_getConfigDirectory(), 1);
+}
+
+static int vfs_rwops_seek( SDL_RWops * context, int offset, int whence )
+{
+    vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
+    long pos = vfs_tell(pfile);
+    if (SEEK_CUR == whence)
+    {
+        pos += offset;
+    }
+    else if (SEEK_END == whence)
+    {
+        pos = vfs_fileLength(pfile) + offset;
+    }
+    else if (SEEK_SET == whence)
+    {
+        pos = offset;
+    }
+    vfs_seek(pfile, pos);
+    return vfs_tell( pfile );
+}
+
+static int vfs_rwops_read( SDL_RWops * context, void * ptr, int size, int maxnum )
+{
+    int retval = -1;
+    if (context->type)
+        return -1;
+    vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
+    retval = vfs_read(ptr, size, maxnum, pfile);
+    return retval;
+}
+
+static int vfs_rwops_write( SDL_RWops * context, const void * ptr, int size, int num )
+{
+    if (!context->type)
+        return -1;
+    vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
+    return vfs_write(ptr, size, num, pfile);
+}
+
+static int vfs_rwops_close( SDL_RWops * context )
+{
+    vfs_FILE * pfile = static_cast<vfs_FILE *>(context->hidden.unknown.data1);
+    vfs_close(pfile);
+    EGOBOO_DELETE(context);
+    return 0;
+}
+
+static SDL_RWops * vfs_rwops_create( vfs_FILE * pfile, bool writable )
+{
+    SDL_RWops * prwops = EGOBOO_NEW(SDL_RWops);
+    prwops->type = writable;
+    prwops->seek = vfs_rwops_seek;
+    prwops->read = vfs_rwops_read;
+    prwops->write = vfs_rwops_write;
+    prwops->close = vfs_rwops_close;
+    prwops->hidden.unknown.data1 = pfile;
+    return prwops;
+}
+
+SDL_RWops * vfs_openRWopsRead( const char * filename )
+{
+    vfs_FILE * pfile = vfs_openRead(filename);
+    if (NULL == pfile) return NULL;
+    return vfs_rwops_create(pfile, false);
+}
+
+SDL_RWops * vfs_openRWopsWrite( const char * filename )
+{
+    vfs_FILE * pfile = vfs_openWrite(filename);
+    if (NULL == pfile) return NULL;
+    return vfs_rwops_create(pfile, true);
+}
+
+SDL_RWops * vfs_openRWopsAppend( const char * filename )
+{
+    vfs_FILE * pfile = vfs_openAppend(filename);
+    if (NULL == pfile) return NULL;
+    return vfs_rwops_create(pfile, true);
 }

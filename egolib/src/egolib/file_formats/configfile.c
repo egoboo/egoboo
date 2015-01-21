@@ -134,13 +134,13 @@ static size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileVal
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static INLINE ConfigFile_retval ConfigFile_fgetc( FILE * pf, char * pch )
+static INLINE ConfigFile_retval ConfigFile_fgetc( vfs_FILE * pf, char * pch )
 {
     ConfigFile_retval retval;
     int lc;
     char ch;
 
-    lc = fgetc( pf );
+    lc = vfs_getc( pf );
 
     if ( EOF == lc )
     {
@@ -404,13 +404,13 @@ ConfigFile_retval ConfigFile_PassOverCommentary( ConfigFilePtr_t pConfigFile )
     char ch;
     ConfigFile_retval retval;
 
-    if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
+    if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || vfs_eof( pConfigFile->f ) )
     {
         return ConfigFile_fail;
     }
 
     retval = ConfigFile_succeed;
-    while ( C_CARRIAGE_RETURN_CHAR != ch && ASCII_LINEFEED_CHAR != ch && !feof( pConfigFile->f ) )
+    while ( C_CARRIAGE_RETURN_CHAR != ch && ASCII_LINEFEED_CHAR != ch && !vfs_eof( pConfigFile->f ) )
     {
         if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
         {
@@ -434,14 +434,14 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
     size_t lLengthName = 0;
     char ch;
 
-    if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
+    if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || vfs_eof( pConfigFile->f ) )
     {
         return 0;
     }
 
     memset( pSection->SectionName, 0, sizeof( pSection->SectionName ) );
 
-    while ( '}' != ch && 0 == feof( pConfigFile->f ) )
+    while ( '}' != ch && 0 == vfs_eof( pConfigFile->f ) )
     {
         if ( lLengthName < MAX_CONFIG_SECTION_LENGTH )
         {
@@ -457,7 +457,7 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
             lLengthName++;
         }
     }
-    if ( feof( pConfigFile->f ) )
+    if ( vfs_eof( pConfigFile->f ) )
     {
         return 0;
     }
@@ -477,14 +477,14 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
     size_t lLengthName = 0;
     char ch;
 
-    if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || feof( pConfigFile->f ) )
+    if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 || vfs_eof( pConfigFile->f ) )
     {
         return 0;
     }
 
     memset( szValue->KeyName, 0, sizeof( szValue->KeyName ) );
 
-    while ( ']' != ch && 0 == feof( pConfigFile->f ) )
+    while ( ']' != ch && 0 == vfs_eof( pConfigFile->f ) )
     {
         if ( lLengthName < MAX_CONFIG_KEY_LENGTH )
         {
@@ -500,7 +500,7 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
             lLengthName++;
         }
     }
-    if ( feof( pConfigFile->f ) )
+    if ( vfs_eof( pConfigFile->f ) )
     {
         return ConfigFile_fail;
     }
@@ -525,7 +525,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
 
     memset( lTempStr, 0, sizeof( lTempStr ) );
 
-    while ( 0 == lEndScan && !feof( pConfigFile->f ) )
+    while ( 0 == lEndScan && !vfs_eof( pConfigFile->f ) )
     {
         if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
         {
@@ -542,7 +542,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
                     // state change :
                     lState = 1;
                 }
-                else if ( C_CARRIAGE_RETURN_CHAR == ch || ASCII_LINEFEED_CHAR == ch || feof( pConfigFile->f ) )
+                else if ( C_CARRIAGE_RETURN_CHAR == ch || ASCII_LINEFEED_CHAR == ch || vfs_eof( pConfigFile->f ) )
                 {
                     // error
                     lEndScan = 1;
@@ -576,7 +576,7 @@ ConfigFile_retval ConfigFile_ReadValue( ConfigFilePtr_t pConfigFile, ConfigFileV
                 else
                 {
                     // restore the char for next scan
-                    ungetc( ch, pConfigFile->f );
+                    vfs_ungetc( ch, pConfigFile->f );
                     // succesfull scan
                     // allocate memory for value
                     szValue->Value = ConfigFileString_create( lLengthName + 1 );
@@ -620,7 +620,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
 
     memset( lTempStr, 0, sizeof( lTempStr ) );
 
-    while ( 0 == lEndScan && !feof( pConfigFile->f ) )
+    while ( 0 == lEndScan && !vfs_eof( pConfigFile->f ) )
     {
         if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
         {
@@ -636,7 +636,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
                 {
                     // continue scan until a letter appears
                 }
-                else if ( C_CARRIAGE_RETURN_CHAR == ch || ASCII_LINEFEED_CHAR == ch || feof( pConfigFile->f ) )
+                else if ( C_CARRIAGE_RETURN_CHAR == ch || ASCII_LINEFEED_CHAR == ch || vfs_eof( pConfigFile->f ) )
                 {
                     // error
                     lEndScan = 1;
@@ -658,7 +658,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
             case 1:
 
                 // check if really _dtor of string
-                if ( C_CARRIAGE_RETURN_CHAR == ch || ASCII_LINEFEED_CHAR == ch || feof( pConfigFile->f ) )
+                if ( C_CARRIAGE_RETURN_CHAR == ch || ASCII_LINEFEED_CHAR == ch || vfs_eof( pConfigFile->f ) )
                 {
                     // allocate memory for commentary
                     pValue->Commentary = CONFIG_NEW_ARY( char, lLengthName + 1 );
@@ -696,26 +696,13 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
 // ConfigFile_open allocates the memory for the ConfigFile_t. To
 // deallocate the memory, use ConfigFile_close
 
-ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, const char * szAttribute, config_bool_t force )
+ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, config_bool_t openForWrite, config_bool_t force )
 {
     char    local_attribute[32] = EMPTY_CSTR;
-    FILE   *lTempFile;
+    vfs_FILE *lTempFile;
 
     if ( INVALID_CSTR( szFileName ) ) return pConfigFile;
 
-    if ( INVALID_CSTR( szAttribute ) )
-    {
-        strncpy( local_attribute, "rt", CONFIG_ARRAYSIZE( local_attribute ) - 2 );
-    }
-    else
-    {
-        strncpy( local_attribute, szAttribute, CONFIG_ARRAYSIZE( local_attribute ) - 2 );
-    }
-
-    if ( force )
-    {
-        strcat( local_attribute, "+" );
-    }
 
     // make sure that we have a valid, closed ConfigFile
     if ( NULL_PTR( pConfigFile ) )
@@ -728,7 +715,15 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
     }
 
     // open a file stream for access using the szAttribute attribute
-    lTempFile = fopen( szFileName, local_attribute );
+    if (openForWrite)
+    {
+        lTempFile = vfs_openWrite(szFileName);
+    }
+    else
+    {
+        lTempFile = vfs_openRead(szFileName);
+    }
+    
     if ( NULL_PTR( lTempFile ) )
     {
         return pConfigFile;
@@ -754,10 +749,10 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
     char ch;
 
     if ( NULL_PTR( pConfigFile ) ) return ConfigFile_fail;
-    if ( NULL_PTR( pConfigFile->f ) || feof( pConfigFile->f ) ) return ConfigFile_fail;
+    if ( NULL_PTR( pConfigFile->f ) || vfs_eof( pConfigFile->f ) ) return ConfigFile_fail;
 
     // load all values in memory
-    while ( 0 == lError && !feof( pConfigFile->f ) )
+    while ( 0 == lError && !vfs_eof( pConfigFile->f ) )
     {
         if ( ConfigFile_fgetc( pConfigFile->f, &ch ) < 0 )
         {
@@ -1208,7 +1203,7 @@ ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile )
 
     if ( !NULL_PTR( pConfigFile->f ) )
     {
-        fclose( pConfigFile->f );
+        vfs_close( pConfigFile->f );
         pConfigFile->f = NULL;
     }
 
@@ -1219,7 +1214,7 @@ ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile )
 // ConfigValue_write saves the value from szValue at the current position
 // of the pConfigFile file. The DOUBLE_QUOTE_CHAR are doubled.
 
-ConfigFile_retval ConfigValue_write( FILE *pFile, ConfigFileValuePtr_t pValue )
+ConfigFile_retval ConfigValue_write( vfs_FILE *pFile, ConfigFileValuePtr_t pValue )
 {
     int lPos = 0;
 
@@ -1227,21 +1222,21 @@ ConfigFile_retval ConfigValue_write( FILE *pFile, ConfigFileValuePtr_t pValue )
 
     if ( NULL_PTR( pValue ) || INVALID_CSTR( pValue->Value ) ) return ConfigFile_fail;
 
-    fputc( DOUBLE_QUOTE_CHAR, pFile );
+    vfs_putc( DOUBLE_QUOTE_CHAR, pFile );
 
     while ( pValue->Value[lPos] != 0 )
     {
-        fputc( pValue->Value[lPos], pFile );
+        vfs_putc( pValue->Value[lPos], pFile );
         if ( DOUBLE_QUOTE_CHAR == pValue->Value[lPos] )
         {
             // double the DOUBLE_QUOTE_CHAR
-            fputc( DOUBLE_QUOTE_CHAR, pFile );
+            vfs_putc( DOUBLE_QUOTE_CHAR, pFile );
         }
 
         lPos++;
     }
 
-    fputc( DOUBLE_QUOTE_CHAR, pFile );
+    vfs_putc( DOUBLE_QUOTE_CHAR, pFile );
 
     return ConfigFile_succeed;
 }
@@ -1260,32 +1255,32 @@ ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile )
 
     lTempSection = pConfigFile->SectionList;
     // rewrite the file
-    rewind( pConfigFile->f );
+    vfs_seek(pConfigFile->f, 0);
 
     // saves all sections
     while ( !NULL_PTR( lTempSection ) )
     {
-        fprintf( pConfigFile->f, "{%s}\n", lTempSection->SectionName );
+        vfs_printf( pConfigFile->f, "{%s}\n", lTempSection->SectionName );
         // saves all values form the current section
         lTempValue = lTempSection->FirstValuePtr;
 
         while ( !NULL_PTR( lTempValue ) )
         {
-            fprintf( pConfigFile->f, "[%s] : ", lTempValue->KeyName );
+            vfs_printf( pConfigFile->f, "[%s] : ", lTempValue->KeyName );
             if ( VALID_CSTR( lTempValue->Value ) )
             {
                 ConfigValue_write( pConfigFile->f, lTempValue );
             }
             if ( VALID_CSTR( lTempValue->Commentary ) )
             {
-                fprintf( pConfigFile->f, " // %s", lTempValue->Commentary );
+                vfs_printf( pConfigFile->f, " // %s", lTempValue->Commentary );
             }
 
-            fprintf( pConfigFile->f, "\n" );
+            vfs_printf( pConfigFile->f, "\n" );
             lTempValue = lTempValue->NextValue;
         }
 
-        fprintf( pConfigFile->f, "\n" );
+        vfs_printf( pConfigFile->f, "\n" );
         lTempSection = lTempSection->NextSection;
     }
 
@@ -1300,7 +1295,7 @@ ConfigFilePtr_t ConfigFile_Load( const char *szFileName, config_bool_t force )
     ConfigFilePtr_t chonfigFile = NULL;
 
     // try to open a file
-    chonfigFile = ConfigFile_open( NULL, szFileName, "", force );
+    chonfigFile = ConfigFile_open( NULL, szFileName, config_false, force );
     if ( NULL_PTR( chonfigFile ) ) return NULL;
 
     // try to read the data
@@ -1321,7 +1316,7 @@ ConfigFile_retval ConfigFile_Save( ConfigFilePtr_t pConfigFile )
 
     if ( NULL_PTR( pConfigFile ) ) return ConfigFile_succeed;
 
-    if ( !ConfigFile_open( pConfigFile, pConfigFile->filename, "wt", config_true ) )
+    if ( !ConfigFile_open( pConfigFile, pConfigFile->filename, config_true, config_true ) )
     {
         return ConfigFile_fail;
     }
@@ -1349,7 +1344,7 @@ ConfigFile_retval ConfigFile_SaveAs( ConfigFilePtr_t pConfigFile, const char *sz
     strncpy( old_filename, pConfigFile->filename, CONFIG_ARRAYSIZE( old_filename ) );
 
     // try to open the target file
-    if ( !ConfigFile_open( pConfigFile, szFileName, "wt", config_true ) )
+    if ( !ConfigFile_open( pConfigFile, szFileName, config_true, config_true ) )
     {
         return ConfigFile_fail;
     }

@@ -28,7 +28,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-map_t * map_read_v2( FILE * fileread, map_t * pmesh )
+map_t * map_read_v2( vfs_FILE * fileread, map_t * pmesh )
 {
     /// @author ZZ
     /// @details This function loads the level.mpd file
@@ -56,8 +56,8 @@ map_t * map_read_v2( FILE * fileread, map_t * pmesh )
     for ( itile = 0; itile < tile_count; itile++ )
     {
         ptile = pmem->tile_list + itile;
-
-        endian_fread_uint08( fileread, &ui08_tmp );
+        
+        vfs_read_Uint8(fileread, &ui08_tmp);
 
         ptile->twist = ui08_tmp;
     }
@@ -66,7 +66,7 @@ map_t * map_read_v2( FILE * fileread, map_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-map_t * map_write_v2( FILE * filewrite, map_t * pmesh )
+map_t * map_write_v2( vfs_FILE * filewrite, map_t * pmesh )
 {
     size_t itile;
 
@@ -85,7 +85,7 @@ map_t * map_write_v2( FILE * filewrite, map_t * pmesh )
     for ( itile = 0; itile < pmem->tile_count; itile++ )
     {
         ptile = pmem->tile_list + itile;
-        endian_fwrite_uint08( filewrite, ptile->twist );
+        vfs_write_Uint8( filewrite, ptile->twist);
     }
 
     return pmesh;

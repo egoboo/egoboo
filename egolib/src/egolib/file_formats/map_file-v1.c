@@ -28,7 +28,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-map_t * map_read_v1( FILE * fileread, map_t * pmesh )
+map_t * map_read_v1( vfs_FILE * fileread, map_t * pmesh )
 {
     /// @author ZZ
     /// @details This function loads the level.mpd file
@@ -57,7 +57,7 @@ map_t * map_read_v1( FILE * fileread, map_t * pmesh )
     {
         ptile = pmem->tile_list + itile;
 
-        endian_fread_uint32( fileread, &ui32_tmp );
+        vfs_read_Uint32( fileread, &ui32_tmp );
 
         ptile->type = CLIP_TO_08BITS( ui32_tmp >> 24 );
         ptile->fx   = CLIP_TO_08BITS( ui32_tmp >> 16 );
@@ -68,7 +68,7 @@ map_t * map_read_v1( FILE * fileread, map_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-map_t * map_write_v1( FILE * filewrite, map_t * pmesh )
+map_t * map_write_v1( vfs_FILE * filewrite, map_t * pmesh )
 {
     size_t itile, tile_count;
     Uint32 ui32_tmp;
@@ -96,7 +96,7 @@ map_t * map_write_v1( FILE * filewrite, map_t * pmesh )
         ui32_tmp |= CLIP_TO_08BITS( ptile->fx ) << 16;
         ui32_tmp |= CLIP_TO_08BITS( ptile->type ) << 24;
 
-        endian_fwrite_uint32( filewrite, ui32_tmp );
+        vfs_write_Uint32( filewrite, ui32_tmp );
     }
 
     return pmesh;

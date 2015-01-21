@@ -207,10 +207,6 @@ extern "C"
 /// Mostly used to add an alpha channel to a SDL_Surface
     SDL_bool SDLX_ExpandFormat( SDL_PixelFormat * pformat );
 
-/// Set the FILE that SDL_extensions will use to dump debugging information.
-/// If not set, it will default to stdout.
-    FILE * SDLX_set_stdout( FILE * pfile );
-
 /// Dump the info on the given surface to whatever FILE SDL_extensions is using for stdout
     void   SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v );
 

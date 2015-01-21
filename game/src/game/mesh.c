@@ -567,7 +567,7 @@ ego_mesh_t * ego_mesh_load( const char *modname, ego_mesh_t * pmesh )
         // load a raw mpd
         map_ctor( &local_mpd );
         tile_dictionary_load_vfs( "mp_data/fans.txt", &tile_dict, -1 );
-        pmpd = map_load( vfs_resolveReadFilename( "mp_data/level.mpd" ), &local_mpd );
+        pmpd = map_load("mp_data/level.mpd", &local_mpd );
 
         // convert it into a convenient version for Egoboo
         if ( !ego_mesh_convert( pmesh, pmpd ) )

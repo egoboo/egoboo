@@ -24,15 +24,10 @@
 /// @details
 
 #include "egolib/extensions/SDL_extensions.h"
+#include "egolib/log.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define LOCAL_STDOUT ((NULL == _SDLX_stdout) ? stdout : _SDLX_stdout)
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static FILE * _SDLX_stdout = NULL;
 
 SDLX_screen_info_t sdl_scr;
 
@@ -66,14 +61,14 @@ SDL_bool SDLX_Report_Screen_Info( SDLX_screen_info_t * psi )
 
     if ( NULL == psi ) return SDL_FALSE;
 
-    fprintf( LOCAL_STDOUT, "\nSDL using video driver - %s\n", psi->szDriver );
+    log_message("\nSDL using video driver - %s\n", psi->szDriver);
 
     if ( NULL != psi->video_mode_list )
     {
-        fprintf( LOCAL_STDOUT, "\tAvailable full-screen video modes...\n" );
+        log_message("\tAvailable full-screen video modes...\n");
         for ( cnt = 0; NULL != psi->video_mode_list[cnt]; ++cnt )
         {
-            fprintf( LOCAL_STDOUT, "    \tVideo Mode - %d x %d\n", psi->video_mode_list[cnt]->w, psi->video_mode_list[cnt]->h );
+            log_message("    \tVideo Mode - %d x %d\n", psi->video_mode_list[cnt]->w, psi->video_mode_list[cnt]->h);
         }
     }
 
@@ -92,12 +87,12 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
     init_flags = SDL_WasInit( SDL_INIT_EVERYTHING );
     if ( 0 == init_flags )
     {
-        if ( make_report ) fprintf( LOCAL_STDOUT, "ERROR: SDLX_Get_Screen_Info() called before initializing SDL\n" );
+        if ( make_report ) log_message("ERROR: SDLX_Get_Screen_Info() called before initializing SDL\n");
         return SDL_FALSE;
     }
     else if ( HAS_NO_BITS( init_flags, SDL_INIT_VIDEO ) )
     {
-        if ( make_report ) fprintf( LOCAL_STDOUT, "ERROR: SDLX_Get_Screen_Info() called before initializing SDL video driver\n" );
+        if ( make_report ) log_message("ERROR: SDLX_Get_Screen_Info() called before initializing SDL video driver\n");
         return SDL_FALSE;
     }
 
@@ -140,86 +135,82 @@ SDL_bool SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool make_report )
 //--------------------------------------------------------------------------------------------
 void SDLX_output_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
 {
-    fprintf( LOCAL_STDOUT, "\nSDL_GL_Attribtes\n" );
+    log_message("\nSDL_GL_Attribtes\n");
 
 #if !defined(__unix__)
     // Under Unix we cannot specify these, we just get whatever format
     // the framebuffer has, specifying depths > the framebuffer one
     // will cause SDL_SetVideoMode to fail with: "Unable to set video mode: Couldn't find matching GLX visual"
 
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_RED_SIZE           == %d\n", patt->color[0] );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_GREEN_SIZE         == %d\n", patt->color[1] );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_BLUE_SIZE          == %d\n", patt->color[2] );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_ALPHA_SIZE         == %d\n", patt->color[3] );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_BUFFER_SIZE        == %d\n", patt->buffer_size );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_DEPTH_SIZE         == %d\n", patt->depth_size );
+    log_message("\tSDL_GL_RED_SIZE           == %d\n", patt->color[0]);
+    log_message("\tSDL_GL_GREEN_SIZE         == %d\n", patt->color[1]);
+    log_message("\tSDL_GL_BLUE_SIZE          == %d\n", patt->color[2]);
+    log_message("\tSDL_GL_ALPHA_SIZE         == %d\n", patt->color[3]);
+    log_message("\tSDL_GL_BUFFER_SIZE        == %d\n", patt->buffer_size);
+    log_message("\tSDL_GL_DEPTH_SIZE         == %d\n", patt->depth_size);
 #endif
 
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_DOUBLEBUFFER       == %d\n", patt->doublebuffer );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_STENCIL_SIZE       == %d\n", patt->stencil_size );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_RED_SIZE     == %d\n", patt->accum[0] );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", patt->accum[1] );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", patt->accum[2] );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", patt->accum[3] );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_STEREO             == %d\n", patt->stereo );
+    log_message("\tSDL_GL_DOUBLEBUFFER       == %d\n", patt->doublebuffer);
+    log_message("\tSDL_GL_STENCIL_SIZE       == %d\n", patt->stencil_size);
+    log_message("\tSDL_GL_ACCUM_RED_SIZE     == %d\n", patt->accum[0]);
+    log_message("\tSDL_GL_ACCUM_GREEN_SIZE   == %d\n", patt->accum[1]);
+    log_message("\tSDL_GL_ACCUM_BLUE_SIZE    == %d\n", patt->accum[2]);
+    log_message("\tSDL_GL_ACCUM_ALPHA_SIZE   == %d\n", patt->accum[3]);
+    log_message("\tSDL_GL_STEREO             == %d\n", patt->stereo);
 
 #if !defined(__unix__)
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", patt->multi_buffers );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_MULTISAMPLESAMPLES == %d\n", patt->multi_samples );
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_ACCELERATED_VISUAL == %d\n", patt->accelerated_visual );
+    log_message("\tSDL_GL_MULTISAMPLEBUFFERS == %d\n", patt->multi_buffers );
+    log_message("\tSDL_GL_MULTISAMPLESAMPLES == %d\n", patt->multi_samples );
+    log_message("\tSDL_GL_ACCELERATED_VISUAL == %d\n", patt->accelerated_visual);
 
     // Fedora 7 doesn't suuport SDL_GL_SWAP_CONTROL, but we use this nvidia extension instead.
-    fprintf( LOCAL_STDOUT, "\tSDL_GL_SWAP_CONTROL       == %d\n", patt->swap_control );
+    log_message("\tSDL_GL_SWAP_CONTROL       == %d\n", patt->swap_control);
 #endif
-
-    fflush( LOCAL_STDOUT );
 }
 
 //--------------------------------------------------------------------------------------------
 void SDLX_output_sdl_video_flags( SDLX_sdl_video_flags_t flags )
 {
-    fprintf( LOCAL_STDOUT, "\nSDL flags\n" );
+    log_message("\nSDL flags\n");
 
-    fprintf( LOCAL_STDOUT, "    %s\n", flags.full_screen ? "fullscreen"           : "windowed" );
-    fprintf( LOCAL_STDOUT, "    %s\n", flags.hw_surface  ? "SDL hardware surface" : "SDL software surface" );
-    fprintf( LOCAL_STDOUT, "    %s\n", flags.double_buf  ? "SDL double buffer"    : "SDL single buffer" );
+    log_message("    %s\n", flags.full_screen ? "fullscreen"           : "windowed");
+    log_message("    %s\n", flags.hw_surface  ? "SDL hardware surface" : "SDL software surface");
+    log_message("    %s\n", flags.double_buf  ? "SDL double buffer"    : "SDL single buffer");
 
     if ( flags.opengl )
     {
-        fprintf( LOCAL_STDOUT, "\tOpenGL support\n" );
+        log_message("\tOpenGL support\n");
     }
 
     if ( flags.opengl_blit )
     {
-        fprintf( LOCAL_STDOUT, "\tOpenGL-compatible blitting\n" );
+        log_message("\tOpenGL-compatible blitting\n");
     }
 
     if ( flags.async_blit )
     {
-        fprintf( LOCAL_STDOUT, "\tasynchronous blit\n" );
+        log_message("\tasynchronous blit\n");
     }
 
     if ( flags.any_format )
     {
-        fprintf( LOCAL_STDOUT, "\tuse closest format\n" );
+        log_message("\tuse closest format\n");
     }
 
     if ( flags.hw_palette )
     {
-        fprintf( LOCAL_STDOUT, "\texclusive palate access\n" );
+        log_message("\texclusive palate access\n");
     }
 
     if ( flags.resizable )
     {
-        fprintf( LOCAL_STDOUT, "\tresizable window\n" );
+        log_message("\tresizable window\n");
     }
 
     if ( flags.no_frame )
     {
-        fprintf( LOCAL_STDOUT, "\tno external frame\n" );
+        log_message("\tno external frame\n");
     }
-
-    fflush( LOCAL_STDOUT );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -283,7 +274,7 @@ void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
 
     if ( NULL == v ) return;
 
-    fprintf( LOCAL_STDOUT, "\twidth == %d, height == %d, depth == %d\n", v->width, v->height, v->depth );
+    log_message("\twidth == %d, height == %d, depth == %d\n", v->width, v->height, v->depth);
 
     SDLX_output_sdl_video_flags( v->flags );
 
@@ -291,8 +282,6 @@ void SDLX_report_video_parameters( SDLX_video_parameters_t * v )
     {
         SDLX_output_sdl_gl_attrib( &( v->gl_att ) );
     }
-
-    fflush( LOCAL_STDOUT );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -414,7 +403,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
             if ( NULL == ret )
             {
-                fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
+                log_message("SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError());
             }
         }
     }
@@ -475,7 +464,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
             if ( NULL == ret )
             {
-                fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
+                log_message("SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError());
             }
         }
 
@@ -510,7 +499,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
                         ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
                         if ( NULL == ret )
                         {
-                            fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
+                            log_message("SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError());
                         }
                     }
 
@@ -537,7 +526,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
                 ret = SDL_SetVideoMode( v->width, v->height, sdl_nearset_bpp, flags );
                 if ( NULL == ret )
                 {
-                    fprintf( LOCAL_STDOUT, "SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError() );
+                    log_message("SDL WARN: Unable to set SDL video mode: %s\n", SDL_GetError());
                 }
             }
         }
@@ -621,26 +610,24 @@ void SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v )
 
     if ( NULL == surface )
     {
-        fprintf( LOCAL_STDOUT, "\n==============================================================\n" );
-        fprintf( LOCAL_STDOUT, "!!!! SDL unable to set video mode with current parameters !!!! - \n    \"%s\"\n", SDL_GetError() );
+        log_message("\n==============================================================\n");
+        log_message("!!!! SDL unable to set video mode with current parameters !!!! - \n    \"%s\"\n", SDL_GetError());
         SDLX_report_video_parameters( v );
-        fprintf( LOCAL_STDOUT, "==============================================================\n" );
+        log_message("==============================================================\n");
     }
     else
     {
-        fprintf( LOCAL_STDOUT, "\n==============================================================\n" );
-        fprintf( LOCAL_STDOUT, "SDL set video mode to the current parameters\n" );
-        fprintf( LOCAL_STDOUT, "\nSDL window parameters\n" );
+        log_message("\n==============================================================\n");
+        log_message("SDL set video mode to the current parameters\n");
+        log_message("\nSDL window parameters\n");
 
         // report the SDL screen info
         SDLX_Get_Screen_Info( &sdl_scr, SDL_FALSE );
         SDLX_report_video_parameters( v );
         SDLX_Report_Screen_Info( &sdl_scr );
 
-        fprintf( LOCAL_STDOUT, "==============================================================\n" );
+        log_message("==============================================================\n");
     }
-
-    fflush( LOCAL_STDOUT );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -706,7 +693,7 @@ SDLX_video_parameters_t * SDLX_set_mode( SDLX_video_parameters_t * v_old, SDLX_v
 
         if ( NULL == surface )
         {
-            fprintf( LOCAL_STDOUT, "Could not restore the old video mode. Terminating.\n" );
+            log_message("Could not restore the old video mode. Terminating.\n");
             exit( -1 );
         }
         else
@@ -757,22 +744,4 @@ SDL_bool SDLX_ExpandFormat( SDL_PixelFormat * pformat )
     }
 
     return SDL_TRUE;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-FILE * SDLX_set_stdout( FILE * pfile )
-{
-    FILE * pfile_old = _SDLX_stdout;
-
-    if ( NULL == pfile )
-    {
-        _SDLX_stdout = stdout;
-    }
-    else
-    {
-        _SDLX_stdout = pfile;
-    }
-
-    return pfile_old;
 }

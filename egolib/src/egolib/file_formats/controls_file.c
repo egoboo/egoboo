@@ -63,10 +63,13 @@ bool input_settings_load_vfs(const char *szFilename, int required_version)
 	bool retval = false;
 
     // Make sure the file exists, if not copy it from the default folder
+    // should be unneeded, need to test on linux
+#if 0
     if ( !fs_ensureUserFile( "controls.txt", true ) )
     {
         return false;
     }
+#endif
 
     // get the file version
     file_version     = -1;

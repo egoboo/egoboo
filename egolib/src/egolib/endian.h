@@ -49,28 +49,3 @@
 #define ENDIAN_TO_FILE_INT16(X) ENDIAN_TO_SYS_INT16(X)
 #define ENDIAN_TO_FILE_INT32(X) ENDIAN_TO_SYS_INT32(X)
 #define ENDIAN_TO_FILE_INT64(X) ENDIAN_TO_SYS_INT64(X)
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    // automatic endian adjustment to fread basic types
-    size_t endian_fread_ieee32( FILE* fileread, float * val );
-    size_t endian_fread_uint64( FILE* fileread, Uint64 * val );
-    size_t endian_fread_uint32( FILE* fileread, Uint32 * val );
-    size_t endian_fread_uint16( FILE* fileread, Uint16 * val );
-    size_t endian_fread_uint08( FILE* fileread, Uint8  * val );
-    size_t endian_fread_sint64( FILE* fileread, Sint64 * val );
-    size_t endian_fread_sint32( FILE* fileread, Sint32 * val );
-    size_t endian_fread_sint16( FILE* fileread, Sint16 * val );
-    size_t endian_fread_sint08( FILE* fileread, Sint8  * val );
-
-    // automatic endian adjustment to fwrite basic types
-    size_t endian_fwrite_ieee32( FILE* filewrite, float  val );
-    size_t endian_fwrite_uint64( FILE* filewrite, Uint64 val );
-    size_t endian_fwrite_uint32( FILE* filewrite, Uint32 val );
-    size_t endian_fwrite_uint16( FILE* filewrite, Uint16 val );
-    size_t endian_fwrite_uint08( FILE* filewrite, Uint8  val );
-    size_t endian_fwrite_sint64( FILE* filewrite, Sint64 val );
-    size_t endian_fwrite_sint32( FILE* filewrite, Sint32 val );
-    size_t endian_fwrite_sint16( FILE* filewrite, Sint16 val );
-    size_t endian_fwrite_sint08( FILE* filewrite, Sint8  val );

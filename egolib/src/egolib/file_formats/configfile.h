@@ -23,6 +23,7 @@
 #pragma once
 
 #include "egolib/platform.h"
+#include "egolib/vfs.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -131,8 +132,8 @@ extern "C"
     /// The congiguration file
     struct s_ConfigFile
     {
-        FILE  *f;
-        char   filename[256];
+        vfs_FILE *f;
+        char      filename[256];
 
         ConfigFileSectionPtr_t  SectionList;
         ConfigFileCarat_t       Current;
