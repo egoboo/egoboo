@@ -46,9 +46,6 @@ extern "C"
     typedef struct s_oglx_texture_parameters oglx_texture_parameters_t;
 
     struct oglx_texture_t;
-#if 0
-    typedef struct s_oglx_texture oglx_texture_t;
-#endif
     typedef GLfloat oglx_frect_t[4];
 
 //--------------------------------------------------------------------------------------------

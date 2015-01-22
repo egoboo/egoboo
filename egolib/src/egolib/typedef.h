@@ -38,6 +38,16 @@
 // make assert into a warning if _DEBUG is not defined
 void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 );
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// definitions for the compiler environment
+
+#if defined(_DEBUG)
+#define EGOBOO_ASSERT(expression) assert(expression)
+#else
+#define EGOBOO_ASSERT(expression) non_fatal_assert(expression, "%s - failed an assert \"%s\"\n", __FUNCTION__, #expression)
+#endif
+
 
 
 //--------------------------------------------------------------------------------------------
@@ -102,8 +112,8 @@ void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 )
 #   define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )               ///< this  will fail if V1 has bits in the upper 8 bits
 
 //--------------------------------------------------------------------------------------------
-    /// the type for the 16-bit value used to store angles
-    typedef Uint16   FACING_T;
+/// the type for the 16-bit value used to store angles
+typedef Uint16 FACING_T;
 
     /// the type for the 14-bit value used to store angles
     typedef FACING_T TURN_T;
@@ -172,8 +182,9 @@ void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 )
 	namespace Ego
 	{
 		/**
-		 * @brief A rectangle in a 2 dimensional Cartesian coordinate system.
-		 * @invariant
+		 * @brief
+		 *	A rectangle in a 2 dimensional Cartesian coordinate system
+		 *  (positive x-axis from left to right, positive y-axis from top to bottom).
 		 */
 		template <typename Type>
 		struct Rectangle
@@ -181,9 +192,10 @@ void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 )
 			Type _left;   ///< @brief The coordinate of the left side   of the rectangle.
 			              ///< @invariant <tt>left <= right</tt>.
 			Type _bottom; ///< @brief The coordinate of the bottom side of the rectangle.
-			              ///< @invariant <tt>bottom <= top</tt>.
+			              ///< @invariant <tt>top <= bottom</tt>.
 			Type _right;  ///< @brief The coordinate of the right side  of the rectangle.
 			Type _top;    ///< @brief The coordinate of the top side    of the rectangle.
+
 			/**
 			 * @brief
 			 *	Construct an empty rectangle.
@@ -191,6 +203,39 @@ void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 )
 			Rectangle() : _left(), _bottom(), _right(), _top()
 			{
 			}
+
+			/**
+			 * @brief
+			 *	Get left coordinate of this rectangle.
+			 * @return
+			 *	the left coordinate of this rectangle
+			 */
+			inline Type getLeft() const { return _left; }
+
+			/**
+			 * @brief
+			 *	Get top coordinate of this rectangle.
+			 * @return
+			 *	the top coordinate of this rectangle
+			 */
+			inline Type getTop() const { return _top; }
+
+			/**
+			 * @brief
+			 *	Get right coordinate of this rectangle.
+			 * @return
+			 *	the right coordinate of this rectangle
+			 */
+			inline Type getRight() const { return _right; }
+
+			/**
+			 * @brief
+			 *	Get bottom coordinate of this rectangle.
+			 * @return
+			 *	the bottom coordinate of this rectangle
+			 */
+			inline Type getBottom() const { return _bottom; }
+
 			/**
 			 * @brief
 			 *	Construct this rectangle with the specified sides.
@@ -207,61 +252,33 @@ void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 )
 			 */
 			Rectangle(const Type& left, const Type& bottom, const Type& right, const Type& top)
 			{
-				if (left > right)
+				if (!(left <= right))
 				{
 					throw std::domain_error("the coordinate of the left side must be smaller than or equal to the coordinate of the right side");
 				}
-				if (bottom > top)
+				if (!(top <= bottom))
 				{
-					throw std::domain_error("the coordinate of the bottom side must be smaller than or equal to the coordinate of the top side");
+					throw std::domain_error("the coordinate of the top side must be smaller than or equal to the coordinate of the bottom side");
 				}
 				_left = left;
 				_bottom = bottom;
 				_right = right;
 				_top = top;
 			}
+
 			bool point_inside(const Type& x, const Type& y)
 			{
+				EGOBOO_ASSERT(_left <= _right && _top <= _bottom);
 				if (x < _left || x > _right) return false;
 				if (y < _top  || y > _bottom) return false;
 				return true;
 			}
 		};
 	};
-
-    struct irect_t
-    {
-        int left;
-        int right;
-        int top;
-        int bottom;
-		irect_t() :left(0), right(0), top(0), bottom(0)
-		{
-		}
-		bool point_inside(int x, int y)
-		{
-			if (x < left || x > right)  return false;
-			if (y < top  || y > bottom) return false;
-			return true;
-		}
-    };
-
-    struct frect_t
-    {
-        float left;
-        float right;
-        float top;
-        float bottom;
-		frect_t() :left(0.0f), right(0.0f), top(0.0f), bottom(0.0f)
-		{
-		}
-		bool point_inside(float x, float y)
-		{
-			if (x < left || x > right) return false;
-			if (y < top  || y > bottom) return false;
-			return true;
-		}
-    };
+	/** @todo Remove this. */
+	typedef Ego::Rectangle<int> irect_t;
+	/** @todo Remove this. */
+	typedef Ego::Rectangle<float> frect_t;
 
 	struct ego_irect_t
     {
@@ -298,21 +315,30 @@ void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 )
 
 //--------------------------------------------------------------------------------------------
 // IDSZ
-    typedef Uint32 IDSZ;
+typedef Uint32 IDSZ;
 
-#    if !defined(MAKE_IDSZ)
-#       define MAKE_IDSZ(C0,C1,C2,C3) \
-    ((IDSZ)( \
+#if !defined(MAKE_IDSZ)
+#define MAKE_IDSZ(C0,C1,C2,C3)                 \
+    ((IDSZ)(                                   \
              ((((C0)-'A')&0x1F) << 15) |       \
              ((((C1)-'A')&0x1F) << 10) |       \
              ((((C2)-'A')&0x1F) <<  5) |       \
              ((((C3)-'A')&0x1F) <<  0)         \
            ))
-#    endif
+#endif
 
-#   define IDSZ_NONE            MAKE_IDSZ('N','O','N','E')       ///< [NONE]
-
-    const char * undo_idsz( IDSZ idsz );
+#define IDSZ_NONE MAKE_IDSZ('N','O','N','E')       ///< [NONE]
+/**
+ * @brief
+ *	Convert an integer IDSZ to a text IDSZ.
+ * @param idsz
+ *	the integer IDSZ
+ * @return
+ *	a pointer to a text IDSZ
+ * @todo
+ *	This currently uses a static bufer. Change this.
+ */
+const char *undo_idsz(IDSZ idsz);
 
 //--------------------------------------------------------------------------------------------
 // STRING
@@ -352,55 +378,52 @@ void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 )
 //--------------------------------------------------------------------------------------------
 // References
 
-    /// base reference type
-    typedef Uint16 REF_T;
+/// @brief The base reference type, an unsigned integer value.
+typedef Uint16 REF_T;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// definitions for the compiler environment
+/**
+ * @brief
+ *	Macro declaring a new reference type.
+ * @param name
+ *	the name of the reference type
+ */
+#define DECLARE_REF(name) typedef REF_T name
 
-#if defined(_DEBUG)
-#define EGOBOO_ASSERT(expression) assert(expression)
-#else
-#define EGOBOO_ASSERT(expression) non_fatal_assert(expression, "%s - failed an assert \"%s\"\n", __FUNCTION__, #expression)
-#endif
+/**
+ * @brief
+ *	Convert a reference or derived value to a reference value.
+ * @param ref
+ *	the reference or derived value
+ * @todo
+ *	Rename to TO_REF.
+ */
+#define REF_TO_INT(ref) ((REF_T)(ref))
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// definition of the c-type reference
 
-#   define DECLARE_REF( NAME ) typedef REF_T NAME
 
-// define the c implementation always
-#   define REF_TO_INT(X) ((REF_T)(X))
+	//--------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------
+	// a simple list structure that tracks free elements
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// a simple array
 
-#define DECLARE_T_ARY(TYPE, NAME, COUNT)  TYPE   NAME[COUNT]
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// a simple list structure that tracks free elements
-
+/// @tod Remove this.
 #define ACCESS_TYPE_NONE
 
 #define INVALID_UPDATE_GUID ((unsigned)(~((unsigned)0)))
 
 #define DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
-    struct s_c_list__##TYPE__##NAME           \
-    {                                         \
-        unsigned update_guid;                 \
-        int      used_count;                  \
-        int      free_count;                  \
-        size_t   used_ref[COUNT];             \
-        size_t   free_ref[COUNT];             \
-        DECLARE_T_ARY(TYPE, lst, COUNT);    \
+    struct s_c_list__##TYPE__##NAME         \
+    {                                       \
+        unsigned update_guid;               \
+        int used_count;                     \
+        int free_count;                     \
+        size_t used_ref[COUNT];             \
+        size_t free_ref[COUNT];             \
+        TYPE lst[COUNT];                    \
     }
 
-#define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT) \
-    DEFINE_LIST_TYPE(TYPE, NAME, COUNT);       \
+#define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)   \
+    DEFINE_LIST_TYPE(TYPE, NAME, COUNT);         \
     void   NAME##_ctor( void );                  \
     void   NAME##_dtor( void );                  \
     bool NAME##_push_used( const REF_T );        \
@@ -415,7 +438,7 @@ void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 )
     ACCESS struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
 #ifndef IMPLEMENT_LIST
-#define IMPLEMENT_LIST(TYPE, NAME, COUNT)             \
+#define IMPLEMENT_LIST(TYPE, NAME, COUNT)               \
     static int     NAME##_find_free_ref( const REF_T ); \
     static bool  NAME##_push_free( const REF_T );       \
     static size_t  NAME##_pop_free( const int );        \
@@ -426,52 +449,82 @@ void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// A stack with a fixed capacity specified at compile-time (cfg. std::array).
+/**
+ * @brief
+ *	A stack with a fixed capacity specified at compile-time (cfg. std::array).
+ * @todo
+ *	Rename to @a StaticStack.
+ */
 template <typename ElementType,size_t Capacity>
 struct Stack {
+	
 	unsigned update_guid;
-	int count; ///< @todo Rename to @a size.
+	
+	int count; ///< @todo Rename to size. @todo Should be of type @a size_t.
+	
 	ElementType lst[Capacity];
-	size_t get_size() const { return size; }
-	size_t get_capacity() const { return Capacity;  }
-	ElementType *get_ptr(size_t index) { return (index >= Capacity) ? NULL : lst + index; }
+	
+	Stack() : update_guid(INVALID_UPDATE_GUID), count(0)
+	{
+	}
+
+	/**
+	 * @brief
+	 *	Get the size of this stack.
+	 * @return
+	 *	the size of this stack
+	 */
+	inline size_t get_size() const
+	{
+		return count;
+	}
+
+	/**
+	 * @brief
+	 *	Get the capacity of this stack.
+	 * @return
+	 *	the capacity of this stack
+	 */
+	inline size_t get_capacity() const
+	{
+		return Capacity;
+	}
+
+	/**
+	 * @brief
+	 *	Get a pointer to the stack element at the specified index.
+	 * @param index
+	 *	the index
+	 * @return
+	 *	a pointer to the stack element if @a index is within bounds, @a false otherwise
+	 * @todo
+	 *	Raise an exception of @a index is greater than or equal to @a capacity.
+	 */
+	ElementType *get_ptr(size_t index)
+	{
+		return (index >= Capacity) ? NULL : lst + index;
+	}
+
 };
 
-#define DEFINE_STACK_TYPE(ElementType, Name, Capacity)
-
-#define DECLARE_STACK_EXTERN(ElementType, Name, Capacity) \
-	ElementType *Name##_get_ptr(size_t index); \
-    extern Stack<ElementType,Capacity> Name
-
-#define INSTANTIATE_STACK_STATIC(ElementType, Name, Capacity)  \
-    DEFINE_STACK_TYPE(TYPE, NAME, COUNT);            \
-    static Stack<ElementType,Capacity> Name = {0}
-
-#define INSTANTIATE_STACK(ACCESS, ElementType, Name, Capacity) \
-    ACCESS Stack<ElementType,Capacity> Name = {INVALID_UPDATE_GUID, 0}
-
-#define IMPLEMENT_STACK(ElementType, Name, Capacity)  \
-    ElementType * Name##_get_ptr(size_t index) { return Name.get_ptr(index); }
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// a template-like declaration of a statically allocated array
+/**
+ * @brief
+ *	An array with a fixed capacity specified at compile-time (cfg. std::array).
+ * @todo
+ *	Merge with Stack.
+ */
 template <typename ElementType,size_t Capacity>
 struct StaticArray
 {
-	int count;
+	int count; ///< @todo Rename to size. @todo Should be of type @a size_t.
 	ElementType ary[Capacity];
+	StaticArray() : count(0)
+	{
+	}
 	ElementType *get_ptr(size_t index)
 	{
 		return (index >= Capacity) ? NULL : this->ary + index;
 	}
 };
-
-#define STATIC_ARY_INIT_VALS {0}
-
-#define DECLARE_EXTERN_STATIC_ARY(ElementType,Name, Capacity) \
-    extern StaticArray<ElementType,Capacity> Name
-
-#define INSTANTIATE_STATIC_ARY(ElementType, Name, Capacity) \
-    StaticArray<ElementType,Capacity> Name = STATIC_ARY_INIT_VALS;

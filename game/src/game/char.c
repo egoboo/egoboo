@@ -63,9 +63,8 @@ static IDSZ    inventory_idsz[INVEN_COUNT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-INSTANTIATE_STACK( ACCESS_TYPE_NONE, cap_t, CapStack, MAX_CAP );
-INSTANTIATE_STACK( ACCESS_TYPE_NONE, team_t, TeamStack, TEAM_MAX );
-
+Stack<cap_t, MAX_CAP> CapStack;
+Stack<team_t, TEAM_MAX> TeamStack;
 int chr_stoppedby_tests = 0;
 int chr_pressure_tests = 0;
 
@@ -178,12 +177,6 @@ static breadcrumb_t * chr_get_last_breadcrumb( chr_t * pchr );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-IMPLEMENT_STACK( cap_t, CapStack, MAX_CAP );
-IMPLEMENT_STACK( team_t, TeamStack, TEAM_MAX );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 void character_system_begin()
 {
     ChrList_ctor();
@@ -227,7 +220,7 @@ bool chr_free( chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t * chr_ctor( chr_t * pchr )
+chr_t * chr_t::ctor( chr_t * pchr )
 {
     /// @author BB
     /// @details initialize the character data to safe values
@@ -291,17 +284,17 @@ chr_t * chr_ctor( chr_t * pchr )
 
     // Grip info
     pchr->attachedto = INVALID_CHR_REF;
-    for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
+    for (size_t cnt = 0; cnt < SLOT_COUNT; cnt++)
     {
         pchr->holdingwhich[cnt] = INVALID_CHR_REF;
     }
 
     // pack/inventory info
-    for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
+    for (size_t cnt = 0; cnt < INVEN_COUNT; cnt++)
     {
         pchr->equipment[cnt] = INVALID_CHR_REF;
     }
-    for ( cnt = 0; cnt < MAXNUMINPACK; cnt++ )
+    for (size_t cnt = 0; cnt < MAXNUMINPACK; cnt++)
     {
         pchr->inventory[cnt] = INVALID_CHR_REF;
     }
@@ -2596,7 +2589,7 @@ bool setup_xp_table( const CAP_REF icap )
     cap_t * pcap;
 
     if ( !LOADED_CAP( icap ) ) return false;
-    pcap = CapStack_get_ptr( icap );
+    pcap = CapStack.get_ptr( icap );
 
     // Calculate xp needed
     for ( level = MAXBASELEVEL; level < MAXLEVEL; level++ )
@@ -3233,7 +3226,7 @@ CAP_REF CapStack_load_one( const char * tmploadname, int slot_override, bool req
         return INVALID_CAP_REF;
     }
 
-    pcap = CapStack_get_ptr( icap );
+    pcap = CapStack.get_ptr( icap );
 
     // if there is data in this profile, release it
     if ( pcap->loaded )
@@ -4509,7 +4502,7 @@ chr_t * chr_config_ctor( chr_t * pchr )
     // if we aren't in the correct state, abort.
     if ( !STATE_CONSTRUCTING_PBASE( pbase ) ) return pchr;
 
-    pchr = chr_ctor( pchr );
+    pchr = chr_t::ctor( pchr );
     if ( NULL == pchr ) return pchr;
 
     // we are done constructing. move on to initializing.
@@ -4621,7 +4614,7 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
         log_debug( "spawn_one_character() - invalid character profile %d\n", ppro->getCapRef() );
         return INVALID_CHR_REF;
     }
-    pcap = CapStack_get_ptr( ppro->getCapRef() );
+    pcap = CapStack.get_ptr( ppro->getCapRef() );
 
     // count all the requests for this character type
     pcap->request_count++;
@@ -5997,7 +5990,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
     if ( VALID_PLA( pchr->is_which_player ) )
     {
         // determine whether the user is hitting the "sneak button"
-        player_t * ppla = PlaStack_get_ptr( pchr->is_which_player );
+        player_t * ppla = PlaStack.get_ptr( pchr->is_which_player );
         sneak_mode_active = input_device_control_active( ppla->pdevice, CONTROL_SNEAK );
     }
 
@@ -6014,7 +6007,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
 
             float dv = POW( dv2, 0.25f );
 
-            ppla = PlaStack_get_ptr( ipla );
+            ppla = PlaStack.get_ptr( ipla );
 
             // determine whether the character is sneaking
             sneak_mode_active = TO_C_BOOL( dv2 < 1.0f / 9.0f );
@@ -8354,7 +8347,7 @@ void CapStack_init_all()
 
     for ( cnt = 0; cnt < MAX_CAP; cnt++ )
     {
-        cap_init( CapStack_get_ptr( cnt ) );
+        cap_init( CapStack.get_ptr( cnt ) );
     }
 }
 
@@ -8381,7 +8374,7 @@ bool CapStack_release_one( const CAP_REF icap )
     cap_t * pcap;
 
     if ( !VALID_CAP_RANGE( icap ) ) return false;
-    pcap = CapStack_get_ptr( icap );
+    pcap = CapStack.get_ptr( icap );
 
     if ( !pcap->loaded ) return true;
 
@@ -9351,7 +9344,7 @@ int chr_get_price( const CHR_REF ichr )
     }
 
     if ( !LOADED_CAP( icap ) ) return 0;
-    pcap = CapStack_get_ptr( icap );
+    pcap = CapStack.get_ptr( icap );
 
     price = ( float ) pcap->skin_info.cost[iskin];
 
@@ -9959,7 +9952,7 @@ MAD_REF chr_get_imad( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 mad_t * chr_get_pmad( const CHR_REF ichr )
 {
-    return MadStack_get_ptr( chr_get_imad( ichr ) );
+    return MadStack.get_ptr( chr_get_imad( ichr ) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -10222,7 +10215,7 @@ bool cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz )
     cap_t * pcap;
 
     if ( !LOADED_CAP( icap ) ) return false;
-    pcap = CapStack_get_ptr( icap );
+    pcap = CapStack.get_ptr( icap );
 
     if ( IDSZ_NONE == test_idsz ) return true;
     if ( test_idsz == pcap->idsz[IDSZ_TYPE  ] ) return true;
@@ -10243,7 +10236,7 @@ bool cap_has_idsz( const CAP_REF icap, IDSZ idsz )
     bool  retval;
 
     if ( !LOADED_CAP( icap ) ) return false;
-    pcap = CapStack_get_ptr( icap );
+    pcap = CapStack.get_ptr( icap );
 
     if ( IDSZ_NONE == idsz ) return true;
 
@@ -10385,7 +10378,7 @@ team_t * chr_get_pteam( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList_get_ptr( ichr );
 
-    return TeamStack_get_ptr( pchr->team );
+    return TeamStack.get_ptr( pchr->team );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -10396,7 +10389,7 @@ team_t * chr_get_pteam_base( const CHR_REF ichr )
     if ( !DEFINED_CHR( ichr ) ) return NULL;
     pchr = ChrList_get_ptr( ichr );
 
-    return TeamStack_get_ptr( pchr->team_base );
+    return TeamStack.get_ptr( pchr->team_base );
 }
 
 //--------------------------------------------------------------------------------------------

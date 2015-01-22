@@ -29,12 +29,13 @@
 
 struct chr_t;
 struct s_prt;
+struct orientation_t;
+struct breadcrumb_t;
+struct breadcrumb_list_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_orientation;
-typedef struct s_orientation orientation_t;
 
 struct s_apos;
 typedef struct s_apos apos_t;
@@ -42,11 +43,7 @@ typedef struct s_apos apos_t;
 struct s_phys_data;
 typedef struct s_phys_data phys_data_t;
 
-struct s_breadcrumb;
-typedef struct s_breadcrumb breadcrumb_t;
 
-struct s_breadcrumb_list;
-typedef struct s_breadcrumb_list breadcrumb_list_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -62,11 +59,11 @@ enum
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_orientation
+struct orientation_t
 {
-    FACING_T       facing_z;                        ///< Character's z-rotation 0 to 0xFFFF
-    FACING_T       map_twist_facing_y;                    ///< Character's y-rotation 0 to 0xFFFF
-    FACING_T       map_twist_facing_x;                    ///< Character's x-rotation 0 to 0xFFFF
+    FACING_T facing_z;            ///< Character's z-rotation 0 to 0xFFFF
+    FACING_T map_twist_facing_y;  ///< Character's y-rotation 0 to 0xFFFF
+    FACING_T map_twist_facing_x;  ///< Character's x-rotation 0 to 0xFFFF
 };
 
 //--------------------------------------------------------------------------------------------
@@ -110,42 +107,117 @@ phys_data_t * phys_data_sum_acoll_index( phys_data_t * pphys, const float val, c
 phys_data_t * phys_data_sum_avel_index( phys_data_t * pphys, const float val, const int index );
 
 //--------------------------------------------------------------------------------------------
-struct s_breadcrumb
+struct breadcrumb_t
 {
-    bool         valid;                    /// is this position valid
-    fvec3_t        pos;                      ///< A stored safe position
-    Uint32         grid;                     ///< the grid index of this position
-    float          radius;                   ///< the size of the object at this position
-    float          bits;                     ///< the collision buts of the object at this position
-    Uint32         time;                     ///< the time when the breadcrumb was created
-    Uint32         id;                       ///< an id for differentiating the timing of several events at the same "time"
+    bool valid;                    /// is this position valid
+    fvec3_t pos;                      ///< A stored safe position
+    Uint32 grid;                     ///< the grid index of this position
+    float radius;                   ///< the size of the object at this position
+    float bits;                     ///< the collision buts of the object at this position
+    Uint32 time;                     ///< the time when the breadcrumb was created
+    Uint32 id;                       ///< an id for differentiating the timing of several events at the same "time"
 };
 
 breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr );
 breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, struct s_prt * pprt );
 
-int            breadcrumb_cmp( const void * lhs, const void * rhs );
+int breadcrumb_cmp( const void * lhs, const void * rhs );
 
 //--------------------------------------------------------------------------------------------
-#define MAX_BREADCRUMB 32
 
-struct s_breadcrumb_list
+struct breadcrumb_list_t
 {
-    bool       on;
-    int          count;
+	static const size_t MAX_BREADCRUMB = 32;
+    bool on;
+    int count;
     breadcrumb_t lst[MAX_BREADCRUMB];
+	
+	/**
+ 	 * @brief
+	 *	Compact this breadcrumb list.
+	 */
+	void compact()
+	{
+		if (!on) return;
+		size_t total, valid;
+		for (total = 0, valid = 0; total < count; ++total)
+		{
+			breadcrumb_t *source = lst + total;
+			if (source->valid)
+			{
+				if (total != valid)
+				{
+					breadcrumb_t *target = lst + valid;
+					memcpy(target, source, sizeof(breadcrumb_t));
+				}
+				valid++;
+			}
+		}
+		count = valid;
+	}
+
+	/**
+	 * @brief
+	 *	Is this breadcrumb list empty.
+	 * @return
+	 *	@a true if this breadcrumb list is empty or "off", @a false otherwise
+	 */
+	bool empty() const
+	{
+		return (0 == count) || !on;
+	}
+	
+	/**
+	 * @brief
+	 *	Is this breadcrumb list full.
+	 * @return
+	 *	@a true if this breadcrumb list is full or is "off", @a false otherwise.
+	 */
+	bool full() const
+	{
+		return (count >= MAX_BREADCRUMB) || !on;
+	}
+
 };
 
-void           breadcrumb_list_validate( breadcrumb_list_t * lst );
-bool         breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew );
-breadcrumb_t * breadcrumb_list_last_valid( breadcrumb_list_t * lst );
-breadcrumb_t * breadcrumb_list_alloc( breadcrumb_list_t * lst );
-breadcrumb_t * breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 match_grid );
-breadcrumb_t * breadcrumb_list_oldest( breadcrumb_list_t * lst );
-breadcrumb_t * breadcrumb_list_newest( breadcrumb_list_t * lst );
-void           breadcrumb_list_compact( breadcrumb_list_t * lst );
-bool         breadcrumb_list_empty( const breadcrumb_list_t * lst );
-bool         breadcrumb_list_full( const breadcrumb_list_t *  lst );
+void breadcrumb_list_validate( breadcrumb_list_t * lst );
+bool breadcrumb_list_add( breadcrumb_list_t * lst, breadcrumb_t * pnew );
+breadcrumb_t *breadcrumb_list_last_valid( breadcrumb_list_t * lst );
+breadcrumb_t *breadcrumb_list_alloc( breadcrumb_list_t * lst );
+breadcrumb_t *breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 match_grid );
+breadcrumb_t *breadcrumb_list_oldest( breadcrumb_list_t * lst );
+breadcrumb_t *breadcrumb_list_newest( breadcrumb_list_t * lst );
+/**
+ * @brief
+ *	Compact this breadcrumb list.
+ * @param self
+ *	this breakcrumb list
+ * @todo
+ *	Remove this.
+ */
+void breadcrumb_list_compact(breadcrumb_list_t *self);
+/**
+ * @brief
+ *	Is this breadcrumb list empty.
+ * @param self
+ *	this breadcrumb list
+ * @return
+ *	@a true if this breadcrumb list is empty, @a false otherwise
+ * @todo
+ *	Remove this.
+ */
+bool breadcrumb_list_empty(const breadcrumb_list_t *self);
+/**
+ * @brief
+ *	Is this breadcrumb list full.
+ * @param self
+ *	this breadcrumb list
+ * @return
+ *	@a true if this breadcrumb list is full, @a false otherwise
+ * @todo
+ *	Remove this.
+ */
+bool breadcrumb_list_full(const breadcrumb_list_t *self);
 
 //--------------------------------------------------------------------------------------------
 // the global physics/friction values

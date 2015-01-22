@@ -113,7 +113,7 @@ egolib_rv sv_talkToRemotes()
             player_t * ppla;
 
             if ( !PlaStack.lst[player].valid ) continue;
-            ppla = PlaStack_get_ptr( player );
+            ppla = PlaStack.get_ptr( player );
 
             index = ppla->tlatch_count;
             if ( index < MAXLAG )

@@ -22,11 +22,12 @@
 
 #pragma once
 
-#include "egolib/aabb.h"
+#include "egolib/math/AABB.h"
 #include "egolib/DynamicArray.hpp"
 
 /**
- * @brief An n-dimensional axis-aligned bounding box.
+ * @brief
+ *	An n-dimensional axis-aligned bounding box.
  */
 struct BSP_aabb_t
 {

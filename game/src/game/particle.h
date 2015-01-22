@@ -61,7 +61,7 @@ typedef struct s_prt_bundle prt_bundle_t;
 
 #define STOPBOUNCINGPART                5.0f        ///< To make particles stop bouncing
 
-DECLARE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
+extern Stack<pip_t, MAX_PIP> PipStack;
 
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )

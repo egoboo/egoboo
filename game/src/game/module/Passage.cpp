@@ -63,12 +63,12 @@ void Passage::open()
        return; 
     } 
 
-    if ( _area.top <= _area.bottom )
+    if ( _area._top <= _area._bottom )
     {
         _open = true;
-        for ( int y = _area.top; y <= _area.bottom; y++ )
+        for ( int y = _area._top; y <= _area._bottom; y++ )
         {
-            for ( int x = _area.left; x <= _area.right; x++ )
+            for ( int x = _area._left; x <= _area._right; x++ )
             {
                 //clear impassable and wall bits
                 uint32_t fan = ego_mesh_get_tile_int( PMesh, x, y );
@@ -132,9 +132,9 @@ bool Passage::close()
 
     // Close it off
     _open = false;
-    for ( int y = _area.top; y <= _area.bottom; y++ )
+    for ( int y = _area._top; y <= _area._bottom; y++ )
     {
-        for ( int x = _area.left; x <= _area.right; x++ )
+        for ( int x = _area._left; x <= _area._right; x++ )
         {
             Uint32 fan = ego_mesh_get_tile_int( PMesh, x, y );
             ego_mesh_add_fx( PMesh, fan, _mask );
@@ -151,10 +151,10 @@ bool Passage::objectIsInPassage( float xpos, float ypos, float radius ) const
 
     // Passage area
     radius += CLOSE_TOLERANCE;
-    tmp_rect.left   = ( _area.left          * GRID_FSIZE ) - radius;
-    tmp_rect.top    = ( _area.top           * GRID_FSIZE ) - radius;
-    tmp_rect.right  = (( _area.right + 1 )  * GRID_FSIZE ) + radius;
-    tmp_rect.bottom = (( _area.bottom + 1 ) * GRID_FSIZE ) + radius;
+    tmp_rect._left   = ( _area._left          * GRID_FSIZE ) - radius;
+    tmp_rect._top    = ( _area._top           * GRID_FSIZE ) - radius;
+    tmp_rect._right  = (( _area._right + 1 )  * GRID_FSIZE ) + radius;
+    tmp_rect._bottom = (( _area._bottom + 1 ) * GRID_FSIZE ) + radius;
 
     return tmp_rect.point_inside(xpos, ypos);
 }
@@ -223,9 +223,9 @@ CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_
 
 void Passage::flashColor(uint8_t color)
 {
-    for (int y = _area.top; y <= _area.bottom; y++ )
+    for (int y = _area._top; y <= _area._bottom; y++ )
     {
-        for (int x = _area.left; x <= _area.right; x++ )
+        for (int x = _area._left; x <= _area._right; x++ )
         {
             Uint32 fan = ego_mesh_get_tile_int( PMesh, x, y );
 
@@ -250,10 +250,10 @@ bool Passage::isPointInside( float xpos, float ypos ) const
     frect_t tmp_rect;
 
     // Passage area
-    tmp_rect.left   = _area.left * GRID_FSIZE;
-    tmp_rect.top    = _area.top * GRID_FSIZE;
-    tmp_rect.right  = ( _area.right + 1 ) * GRID_FSIZE;
-    tmp_rect.bottom = ( _area.bottom + 1 ) * GRID_FSIZE;
+    tmp_rect._left   = _area._left * GRID_FSIZE;
+    tmp_rect._top    = _area._top * GRID_FSIZE;
+    tmp_rect._right  = ( _area._right + 1 ) * GRID_FSIZE;
+    tmp_rect._bottom = ( _area._bottom + 1 ) * GRID_FSIZE;
 
     return tmp_rect.point_inside(xpos, ypos );
 }

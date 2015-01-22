@@ -7316,7 +7316,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     ipla = pself_target->is_which_player;
     if ( VALID_PLA( ipla ) )
     {
-        player_t * ppla = PlaStack_get_ptr( ipla );
+        player_t * ppla = PlaStack.get_ptr( ipla );
 
         result = quest_log_add( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
     }
@@ -7342,7 +7342,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
-        player_t * ppla = PlaStack_get_ptr( ipla );
+        player_t * ppla = PlaStack.get_ptr( ipla );
 
         if ( !ppla->valid ) continue;
 
@@ -7379,7 +7379,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     ipla = pself_target->is_which_player;
     if ( VALID_PLA( ipla ) )
     {
-        player_t * ppla = PlaStack_get_ptr( ipla );
+        player_t * ppla = PlaStack.get_ptr( ipla );
 
         quest_level = quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument );
     }
@@ -7414,7 +7414,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
     if ( VALID_PLA( ipla ) && 0 != pstate->distance )
     {
         int        quest_level = QUEST_NONE;
-        player_t * ppla        = PlaStack_get_ptr( ipla );
+        player_t * ppla        = PlaStack.get_ptr( ipla );
 
         quest_level = quest_log_adjust_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), pstate->argument, pstate->distance );
 
@@ -7441,7 +7441,7 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     for ( player_count = 0, success_count = 0, ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         int quest_level;
-        player_t * ppla = PlaStack_get_ptr( ipla );
+        player_t * ppla = PlaStack.get_ptr( ipla );
 
         if ( !ppla->valid || !INGAME_CHR( ppla->index ) ) continue;
         player_count++;

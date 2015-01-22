@@ -53,15 +53,10 @@ struct s_msg
 };
 
 //--------------------------------------------------------------------------------------------
-#if 0
-/// array of display messages
-DECLARE_STATIC_ARY_TYPE( DisplayMsgAry, msg_t, EGO_MESSAGE_MAX );
-#endif
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// An array of display messages.
-DECLARE_EXTERN_STATIC_ARY( msg_t, DisplayMsg, EGO_MESSAGE_MAX );
+extern StaticArray<msg_t, EGO_MESSAGE_MAX> DisplayMsg;
 
 extern void  DisplayMsg_clear();
 extern void  DisplayMsg_reset();

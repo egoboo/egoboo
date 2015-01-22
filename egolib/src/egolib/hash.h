@@ -58,6 +58,93 @@
 		size_t capacity; /**< @brief The capacity of the hash list. */
         int *subcount;
         hash_node_t **sublist;
+		/**
+		 * @brief
+		 *	Construct a hash list.
+		 * @param self
+		 *	the hash list
+		 * @param initialCapacity
+		 *	the initial capacity of the hash list
+		 * @return
+		 *	the hash list on success, @ NULL on failure
+		 */
+		static hash_list_t *ctor(hash_list_t *self, size_t initialCapacity)
+		{
+			if (nullptr == self)
+			{
+				return nullptr;
+			}
+			hash_list_t::alloc(self, initialCapacity);
+			return self;
+		}
+		/**
+		 * @brief
+		 *	Destruct a hash list.
+		 * @param self
+		 *	the hash list
+		 */
+		static void dtor(hash_list_t *self)
+		{
+			EGOBOO_ASSERT(NULL != self);
+			hash_list_t::dealloc(self);
+		}
+		/**
+		 * @brief
+		 *	Deallocate the data of a hash list.
+		 * @param self
+		 *	a pointer the hash list
+		 * @return
+		 *	@a true on success, @a false on failure
+		 * @post
+		 *	<tt>self->capacity = 0</tt>, <tt>self->subcount = nullptr</tt>, <tt>self->sublist = nullptr</tt>
+		 */
+		static bool dealloc(hash_list_t *self)
+		{
+			if (nullptr == self)
+			{
+				return false;
+			}
+			if (0 == self->capacity)
+			{
+				return true;
+			}
+			EGOBOO_DELETE_ARY(self->subcount);
+			EGOBOO_DELETE_ARY(self->sublist);
+			self->capacity = 0;
+
+			return true;
+		}
+		static bool alloc(hash_list_t *self, size_t capacity)
+		{
+			if (nullptr == self)
+			{
+				return false;
+			}
+			// Ensure subcount and sublist are null pointers and capacity is zero.
+			dealloc(self);
+
+			self->subcount = EGOBOO_NEW_ARY(int, capacity);
+			if (!self->subcount)
+			{
+				return false;
+			}
+			self->sublist = EGOBOO_NEW_ARY(hash_node_t *, capacity);
+			if (!self->sublist)
+			{
+				EGOBOO_DELETE(self->subcount);
+				self->subcount = nullptr;
+				return false;
+			}
+			else
+			{
+				for (size_t i = 0; i < capacity; ++i)
+				{
+					self->sublist[i] = nullptr;
+				}
+			}
+			self->capacity = capacity;
+			return true;
+		}
     };
 
 	/**
@@ -76,26 +163,7 @@
 	 *	the hash list
 	 */
 	void hash_list_destroy(hash_list_t *self);
-	/**
-	 * @brief
-	 *	Construct a hash list.
-	 * @param self
-	 *	the hash list
-	 * @param capacity
-	 *	the initial capacity of the hash list
-	 * @return
-	 *	the hash list on success, @ NULL on failure
-	 */
-    hash_list_t *hash_list_ctor(hash_list_t *self, size_t capacity);
-	/**
-	 * @brief
-	 *	Destruct a hash list.
-	 * @param self
-	 *	the hash list
-	 */
-    void hash_list_dtor(hash_list_t *self);
-    bool hash_list_free(hash_list_t *self);
-    bool hash_list_alloc(hash_list_t *self, size_t capacity);
+
 	/// @author BB
 	/// @details renew the CoNode_t hash table.
 	///
@@ -126,12 +194,12 @@
 /// An iterator element for traversing the hash_list_t
     struct hash_list_iterator_t
     {
-        int           hash;
+        int hash;
         hash_node_t * pnode;
+		hash_list_iterator_t *ctor();
     };
 
-    hash_list_iterator_t * hash_list_iterator_ctor( hash_list_iterator_t * it );
-    void                 * hash_list_iterator_ptr( hash_list_iterator_t * it );
-    bool                 hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hlst );
-    bool                 hash_list_iterator_done( hash_list_iterator_t * it, hash_list_t * hlst );
-    bool                 hash_list_iterator_next( hash_list_iterator_t * it, hash_list_t * hlst );
+    void *hash_list_iterator_ptr(hash_list_iterator_t * it);
+    bool hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hlst );
+    bool hash_list_iterator_done( hash_list_iterator_t * it, hash_list_t * hlst );
+    bool hash_list_iterator_next( hash_list_iterator_t * it, hash_list_t * hlst );

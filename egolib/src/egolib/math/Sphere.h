@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/sphere.h
+/// @file  egolib/math/Sphere.h
 /// @brief Spheres.
 
 #pragma once

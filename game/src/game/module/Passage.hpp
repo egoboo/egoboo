@@ -64,24 +64,24 @@ public:
 	Passage(const irect_t& area, const uint8_t mask);
 
 	/**
-	* @brief get top left coordinate of passage
+	* @brief get left coordinate of passage
 	**/
-	inline int getLeft() const {return _area.left;}
+	inline int getLeft() const {return _area._left;}
 
 	/**
-	* @brief get top right coordinate of passage
+	* @brief get top coordinate of passage
 	**/
-	inline int getTop() const {return _area.top;}
+	inline int getTop() const {return _area._top;}
 
 	/**
-	* @brief get bottom right coordinate of passage
+	* @brief get right coordinate of passage
 	**/
-	inline int getRight() const {return _area.right;}
+	inline int getRight() const {return _area._right;}
 
 	/**
-	* @brief get bottom left coordinate of passage
+	* @brief get bottom coordinate of passage
 	**/
-	inline int getBottom() const {return _area.bottom;}
+	inline int getBottom() const {return _area._bottom;}
 
 	/**
 	* @brief returns true if this passage is currently open (not impassable)

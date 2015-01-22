@@ -53,7 +53,7 @@ typedef struct s_enc_spawn_data enc_spawn_data_t;
 //--------------------------------------------------------------------------------------------
 
 /// Enchantment template
-DECLARE_STACK_EXTERN( eve_t, EveStack, MAX_EVE );
+extern Stack<eve_t, MAX_EVE> EveStack;
 
 #define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAX_EVE) )
 #define LOADED_EVE( IEVE )      ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )

@@ -351,7 +351,7 @@ egolib_rv export_all_players( bool require_local )
         chr_t    * pchr;
 
         if ( !VALID_PLA( ipla ) ) continue;
-        ppla = PlaStack_get_ptr( ipla );
+        ppla = PlaStack.get_ptr( ipla );
 
         is_local = ( NULL != ppla->pdevice );
         if ( require_local && !is_local ) continue;
@@ -1614,7 +1614,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
     float  longdist2 = max_dist2;
 
     if ( !LOADED_PIP( particletype ) ) return INVALID_CHR_REF;
-    ppip = PipStack_get_ptr( particletype );
+    ppip = PipStack.get_ptr( particletype );
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
@@ -1706,7 +1706,7 @@ bool chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const B
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
         int quest_level = QUEST_NONE;
-        player_t * ppla = PlaStack_get_ptr( ptst->is_which_player );
+        player_t * ppla = PlaStack.get_ptr( ptst->is_which_player );
 
         quest_level = quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz );
 
@@ -2092,7 +2092,7 @@ void set_one_player_latch( const PLA_REF ipla )
 
     // skip invalid players
     if ( INVALID_PLA( ipla ) ) return;
-    ppla = PlaStack_get_ptr( ipla );
+    ppla = PlaStack.get_ptr( ipla );
 
     // is the device a local device or an internet device?
     pdevice = ppla->pdevice;
@@ -3639,7 +3639,7 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
     chr_t    * pchr = NULL;
 
     if ( !VALID_PLA_RANGE( player ) ) return false;
-    ppla = PlaStack_get_ptr( player );
+    ppla = PlaStack.get_ptr( player );
 
     // does the player already exist?
     if ( ppla->valid ) return false;
@@ -5464,7 +5464,7 @@ egolib_rv import_list_from_players( import_list_t * imp_lst )
     for ( player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++ )
     {
         if ( !VALID_PLA( player_idx ) ) continue;
-        player_ptr = PlaStack_get_ptr( player_idx );
+        player_ptr = PlaStack.get_ptr( player_idx );
 
         ichr = player_ptr->index;
         if ( !DEFINED_CHR( ichr ) ) continue;

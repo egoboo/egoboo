@@ -17,24 +17,5 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/sphere.c
-/// @brief Spheres.
-#include "egolib/sphere.h"
-
-bool sphere_self_clear(sphere_t& self)
-{
-	fvec3_self_clear(self.origin.v);
-	self.radius = 0.0f;
-	return true;
-}
-
-float sphere_get_radius(const sphere_t& self)
-{
-	return self.radius;
-}
-
-bool sphere_self_is_clear(const sphere_t& self)
-{
-	return 0.0f == self.radius
-		&& fvec3_self_is_clear(self.origin.v);
-}
+/// @file egolib/math/Cube.cpp
+/// @brief Cubes.

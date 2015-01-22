@@ -289,7 +289,7 @@ bool prt_BSP_can_collide(BSP_leaf_t * pprt_leaf)
     pprt = ( prt_t * )( pprt_leaf->data );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return false;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     // is the particle in-game?
     if ( !INGAME_PPRT_BASE( pprt ) || pprt->is_hidden || pprt->is_ghost ) return false;

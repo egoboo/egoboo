@@ -210,12 +210,6 @@
     <ClCompile Include="src\egolib\opengl\renderer.c">
       <Filter>OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\aabb.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\sphere.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\platform\file_amiga.c">
       <Filter>Platforms</Filter>
     </ClCompile>
@@ -247,6 +241,13 @@
       <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\math\Plane.c">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\math\Sphere.c" />
+    <ClCompile Include="src\egolib\math\AABB.c">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\math\Cube.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
   </ItemGroup>
@@ -449,12 +450,6 @@
     <ClInclude Include="src\egolib\opengl\renderer.h">
       <Filter>OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\aabb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\sphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -480,6 +475,13 @@
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\math\Plane.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\math\Sphere.h" />
+    <ClInclude Include="src\egolib\math\Cube.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\math\AABB.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>

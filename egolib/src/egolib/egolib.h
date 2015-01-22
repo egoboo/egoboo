@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "egolib/aabb.h"
+#include "egolib/math/AABB.h"
 #include "egolib/bsp.h"
 #include "egolib/bbox.h"
 #include "egolib/clock.h"

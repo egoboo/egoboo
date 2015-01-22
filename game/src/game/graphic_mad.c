@@ -116,7 +116,7 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr )
     {
@@ -319,7 +319,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     if ( nullptr == pmad->md2_ptr )
     {
@@ -1092,7 +1092,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     pinst->lighting_frame_all = game_frame_all + (( game_frame_all + pchr->obj_base.guid ) & frame_mask );
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
     pinst->vrt_count = pinst->vrt_count;
 
     // interpolate the lighting for the origin of the object
@@ -1156,7 +1156,7 @@ gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     const MD2_Frame &lastFrame = chr_instnce_get_frame_lst(pinst);
     const MD2_Frame &nextFrame = chr_instnce_get_frame_nxt(pinst);
@@ -1215,7 +1215,7 @@ gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bo
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     // check to see if the vlst_cache has been marked as invalid.
     // in this case, everything needs to be updated
@@ -1349,7 +1349,7 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr )
     {
@@ -1635,7 +1635,7 @@ gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool action_
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     // is the chosen action valid?
     if ( !pmad->action_valid[ action ] ) return gfx_fail;
@@ -1685,7 +1685,7 @@ gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     // is the current action valid?
     if ( !pmad->action_valid[ pinst->action_which ] ) return gfx_fail;
@@ -1746,7 +1746,7 @@ gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool action_
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     return chr_instance_set_anim( pinst, action, pmad->action_stt[action], action_ready, override_action );
 }
@@ -1881,7 +1881,7 @@ gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool action
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     action = mad_get_action_ref( pinst->imad, action );
 
@@ -2023,7 +2023,7 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     }
 
     if ( !LOADED_MAD( imad ) ) return gfx_fail;
-    pmad = MadStack_get_ptr( imad );
+    pmad = MadStack.get_ptr( imad );
 
     if ( NULL == pmad->md2_ptr )
     {
@@ -2202,7 +2202,7 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( imad );
+    pmad = MadStack.get_ptr( imad );
 
     // we have to have a valid action range
     if ( pinst->action_which > ACTION_COUNT ) return gfx_fail;
@@ -2320,7 +2320,7 @@ gfx_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst)
 {
-    mad_t * pmad = MadStack_get_ptr( pinst->imad );
+    mad_t * pmad = MadStack.get_ptr( pinst->imad );
     if ( pinst->frame_nxt > pmad->md2_ptr->getFrames().size() )
     {
         log_error( "chr_instnce_get_frame_nxt() - invalid frame %d/%llu\n", pinst->frame_nxt, pmad->md2_ptr->getFrames().size() );
@@ -2332,7 +2332,7 @@ const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst)
 //--------------------------------------------------------------------------------------------
 const MD2_Frame& chr_instnce_get_frame_lst(chr_instance_t * pinst)
 {
-    mad_t * pmad = MadStack_get_ptr( pinst->imad );
+    mad_t * pmad = MadStack.get_ptr( pinst->imad );
     if ( pinst->frame_lst > pmad->md2_ptr->getFrames().size() )
     {
         log_error( "chr_instnce_get_frame_lst() - invalid frame %d/%llu\n", pinst->frame_lst, pmad->md2_ptr->getFrames().size() );

@@ -2145,13 +2145,13 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map )
     {
         oglx_texture_t * ptex = TxList_get_valid_ptr(( TX_REF )TX_BLIP );
 
-        tx_rect.xmin = ( float )bliprect[color].left   / ( float )oglx_texture_getTextureWidth( ptex );
-        tx_rect.xmax = ( float )bliprect[color].right  / ( float )oglx_texture_getTextureWidth( ptex );
-        tx_rect.ymin = ( float )bliprect[color].top    / ( float )oglx_texture_getTextureHeight( ptex );
-        tx_rect.ymax = ( float )bliprect[color].bottom / ( float )oglx_texture_getTextureHeight( ptex );
+        tx_rect.xmin = ( float )bliprect[color]._left   / ( float )oglx_texture_getTextureWidth( ptex );
+        tx_rect.xmax = ( float )bliprect[color]._right  / ( float )oglx_texture_getTextureWidth( ptex );
+        tx_rect.ymin = ( float )bliprect[color]._top    / ( float )oglx_texture_getTextureHeight( ptex );
+        tx_rect.ymax = ( float )bliprect[color]._bottom / ( float )oglx_texture_getTextureHeight( ptex );
 
-        width  = sizeFactor * ( bliprect[color].right  - bliprect[color].left );
-        height = sizeFactor * ( bliprect[color].bottom - bliprect[color].top );
+        width  = sizeFactor * ( bliprect[color]._right  - bliprect[color]._left );
+        height = sizeFactor * ( bliprect[color]._bottom - bliprect[color]._top );
 
         sc_rect.xmin = loc_x - ( width / 2 );
         sc_rect.xmax = loc_x + ( width / 2 );
@@ -3107,7 +3107,7 @@ void draw_inventory()
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         //valid player?
-        ppla = PlaStack_get_ptr( ipla );
+        ppla = PlaStack.get_ptr( ipla );
         if ( !ppla->valid ) continue;
 
         //draw inventory?
@@ -3143,7 +3143,7 @@ void draw_inventory()
 
         //Figure out who this is
         ipla = draw_list[cnt];
-        ppla = PlaStack_get_ptr( ipla );
+        ppla = PlaStack.get_ptr( ipla );
 
         ichr = ppla->index;
         pchr = ChrList_get_ptr( ichr );
@@ -5241,15 +5241,15 @@ void gfx_init_bar_data()
     // Initialize the life and mana bars
     for ( cnt = 0; cnt < NUMBAR; cnt++ )
     {
-        tabrect[cnt].left = 0;
-        tabrect[cnt].right = TABX;
-        tabrect[cnt].top = cnt * BARY;
-        tabrect[cnt].bottom = ( cnt + 1 ) * BARY;
+        tabrect[cnt]._left = 0;
+        tabrect[cnt]._right = TABX;
+        tabrect[cnt]._top = cnt * BARY;
+        tabrect[cnt]._bottom = ( cnt + 1 ) * BARY;
 
-        barrect[cnt].left = TABX;
-        barrect[cnt].right = BARX;  // This is reset whenever a bar is drawn
-        barrect[cnt].top = tabrect[cnt].top;
-        barrect[cnt].bottom = tabrect[cnt].bottom;
+        barrect[cnt]._left = TABX;
+        barrect[cnt]._right = BARX;  // This is reset whenever a bar is drawn
+        barrect[cnt]._top = tabrect[cnt]._top;
+        barrect[cnt]._bottom = tabrect[cnt]._bottom;
 
     }
 }
@@ -5262,10 +5262,10 @@ void gfx_init_blip_data()
     // Set up the rectangles
     for ( cnt = 0; cnt < COLOR_MAX; cnt++ )
     {
-        bliprect[cnt].left   = cnt * BLIPSIZE;
-        bliprect[cnt].right  = cnt * BLIPSIZE + BLIPSIZE;
-        bliprect[cnt].top    = 0;
-        bliprect[cnt].bottom = BLIPSIZE;
+        bliprect[cnt]._left   = cnt * BLIPSIZE;
+        bliprect[cnt]._right  = cnt * BLIPSIZE + BLIPSIZE;
+        bliprect[cnt]._top    = 0;
+        bliprect[cnt]._bottom = BLIPSIZE;
     }
 
     youarehereon = false;
@@ -5279,10 +5279,10 @@ void gfx_init_map_data()
     /// @details This function releases all the map images
 
     // Set up the rectangles
-    maprect.left   = 0;
-    maprect.right  = MAPSIZE;
-    maprect.top    = 0;
-    maprect.bottom = MAPSIZE;
+    maprect._left   = 0;
+    maprect._right  = MAPSIZE;
+    maprect._top    = 0;
+    maprect._bottom = MAPSIZE;
 
     mapvalid = false;
     mapon    = false;

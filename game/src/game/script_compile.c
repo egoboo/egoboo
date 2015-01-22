@@ -97,9 +97,9 @@ static script_info_t default_ai_script;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_STATIC_ARY(opcode_data_t, OpList, MAX_OPCODE);
+StaticArray<opcode_data_t, MAX_OPCODE> OpList;
 
-bool debug_scripts     = false;
+bool debug_scripts = false;
 vfs_FILE * debug_script_file = NULL;
 
 const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
@@ -552,11 +552,6 @@ static void print_line();
 #   define print_line()
 #endif
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-#if 0
-IMPLEMENT_STATIC_ARY( OpListAry, MAX_OPCODE );
-#endif
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 

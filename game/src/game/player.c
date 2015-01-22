@@ -28,26 +28,19 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_STACK( ACCESS_TYPE_NONE, player_t, PlaStack, MAX_PLAYER );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-IMPLEMENT_STACK( player_t, PlaStack, MAX_PLAYER );
+Stack<player_t, MAX_PLAYER> PlaStack;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 void PlaStack_reset_all()
 {
-    PLA_REF cnt;
-
-    // Reset the initial player data and latches
-    for ( cnt = 0; cnt < MAX_PLAYER; cnt++ )
+    // Reset the initial player data and latches.
+    for (PLA_REF cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
-        pla_reinit( PlaStack_get_ptr( cnt ) );
+        pla_reinit( PlaStack.get_ptr( cnt ) );
     }
-    PlaStack.count        = 0;
+    PlaStack.count = 0;
 
     nexttimestamp = (( Uint32 )~0 );
     numplatimes   = 0;
@@ -55,25 +48,23 @@ void PlaStack_reset_all()
 
 //--------------------------------------------------------------------------------------------
 
-CHR_REF PlaStack_get_ichr( const PLA_REF iplayer )
+CHR_REF PlaStack_get_ichr(const PLA_REF iplayer)
 {
-    player_t * pplayer;
+    if (iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid) return INVALID_CHR_REF;
+    player_t *player = PlaStack.get_ptr( iplayer );
 
-    if ( iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid ) return INVALID_CHR_REF;
-    pplayer = PlaStack_get_ptr( iplayer );
+    if (!INGAME_CHR(player->index)) return INVALID_CHR_REF;
 
-    if ( !INGAME_CHR( pplayer->index ) ) return INVALID_CHR_REF;
-
-    return pplayer->index;
+    return player->index;
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t  * PlaStack_get_pchr( const PLA_REF iplayer )
+chr_t *PlaStack_get_pchr(const PLA_REF iplayer)
 {
     player_t * pplayer;
 
     if ( iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid ) return NULL;
-    pplayer = PlaStack_get_ptr( iplayer );
+    pplayer = PlaStack.get_ptr( iplayer );
 
     if ( !INGAME_CHR( pplayer->index ) ) return NULL;
 
@@ -81,21 +72,18 @@ chr_t  * PlaStack_get_pchr( const PLA_REF iplayer )
 }
 
 //--------------------------------------------------------------------------------------------
-void PlaStack_add_tlatch( const PLA_REF iplayer, Uint32 time, latch_t net_latch )
+void PlaStack_add_tlatch(const PLA_REF iplayer, Uint32 time, latch_t net_latch)
 {
-    player_t * ppla;
+    if (!VALID_PLA(iplayer)) return;
+    player_t *player = PlaStack.get_ptr(iplayer);
 
-    if ( !VALID_PLA( iplayer ) ) return;
-    ppla = PlaStack_get_ptr( iplayer );
+    if (player->tlatch_count >= MAXLAG) return;
 
-    if ( ppla->tlatch_count >= MAXLAG ) return;
-
-    ppla->tlatch[ ppla->tlatch_count ].button = net_latch.b;
-    ppla->tlatch[ ppla->tlatch_count ].x      = net_latch.x;
-    ppla->tlatch[ ppla->tlatch_count ].y      = net_latch.y;
-    ppla->tlatch[ ppla->tlatch_count ].time   = time;
-
-    ppla->tlatch_count++;
+    player->tlatch[player->tlatch_count ].button = net_latch.b;
+    player->tlatch[player->tlatch_count ].x      = net_latch.x;
+    player->tlatch[player->tlatch_count ].y      = net_latch.y;
+    player->tlatch[player->tlatch_count ].time   = time;
+    player->tlatch_count++;
 }
 
 //--------------------------------------------------------------------------------------------

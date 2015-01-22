@@ -24,7 +24,7 @@
 
 #include "egolib/geometry.h"
 #include "egolib/bbox.h"
-#include "egolib/aabb.h"
+#include "egolib/math/AABB.h"
 #include "egolib/bv.h"
 #include "egolib/matrix.h"
 

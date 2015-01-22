@@ -17,12 +17,12 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/aabb.h
+/// @file  egolib/math/AABB.h
 /// @brief Axis-aligned bounding boxes.
 
 #pragma once
 
-#include "egolib/sphere.h"
+#include "egolib/math/Sphere.h"
 
 // Forward declaration.
 struct oct_bb_t;

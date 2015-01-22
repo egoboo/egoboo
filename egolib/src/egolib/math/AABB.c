@@ -17,9 +17,9 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/aabb.c
-/// @brief axis-aligned bounding boxes
-#include "egolib/aabb.h"
+/// @file egolib/math/AABB.c
+/// @brief Axis-aligned bounding boxes.
+#include "egolib/math/AABB.h"
 #include "egolib/bbox.h"
 
 //--------------------------------------------------------------------------------------------

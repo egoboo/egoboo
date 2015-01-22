@@ -47,7 +47,7 @@ const float buoyancy_friction = 0.2f;          // how fast does a "cloud-like" o
 int prt_stoppedby_tests = 0;
 int prt_pressure_tests = 0;
 
-INSTANTIATE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack, MAX_PIP );
+Stack<pip_t, MAX_PIP> PipStack;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -88,10 +88,6 @@ static prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_p
 static prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt );
 //static fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure );
 //static float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-IMPLEMENT_STACK( pip_t, PipStack, MAX_PIP );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -294,7 +290,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
         return NULL;
     }
-    ppip = PipStack_get_ptr( pdata->ipip );
+    ppip = PipStack.get_ptr( pdata->ipip );
 
     // let the object be activated
     POBJ_ACTIVATE( pprt, ppip->name );
@@ -1011,7 +1007,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
 
         return INVALID_PRT_REF;
     }
-    ppip = PipStack_get_ptr( ipip );
+    ppip = PipStack.get_ptr( ipip );
 
     // count all the requests for this particle type
     ppip->request_count++;
@@ -1149,7 +1145,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
     if ( !DEFINED_PPRT( pprt ) ) return EMPTY_BIT_FIELD;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return EMPTY_BIT_FIELD;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     stoppedby = MAPFX_IMPASS;
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
@@ -1184,7 +1180,7 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
     if ( !ACTIVE_PPRT( pprt ) ) return EMPTY_BIT_FIELD;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return EMPTY_BIT_FIELD;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     stoppedby = MAPFX_IMPASS;
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
@@ -2246,7 +2242,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     pprt = PrtList_get_ptr( particle );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return 0;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     // no point in going on, is there?
     if ( 0 == ppip->bumpspawn_amount && !ppip->spawnenchant ) return 0;
@@ -2478,7 +2474,7 @@ PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
     {
         return INVALID_PIP_REF;
     }
-    ppip = PipStack_get_ptr( ipip );
+    ppip = PipStack.get_ptr( ipip );
 
     if ( NULL == load_one_pip_file_vfs( szLoadName, ppip ) )
     {
@@ -2499,7 +2495,7 @@ void PipStack_init_all()
 
     for ( cnt = 0; cnt < MAX_PIP; cnt++ )
     {
-        pip_init( PipStack_get_ptr( cnt ) );
+        pip_init( PipStack.get_ptr( cnt ) );
     }
 
     // Reset the pip stack "pointer"
@@ -2518,7 +2514,7 @@ void PipStack_release_all()
     {
         if ( LOADED_PIP( cnt ) )
         {
-            pip_t * ppip = PipStack_get_ptr( cnt );
+            pip_t * ppip = PipStack.get_ptr( cnt );
 
             max_request = std::max( max_request, ppip->request_count );
             tnc++;
@@ -2536,7 +2532,7 @@ void PipStack_release_all()
             {
                 if ( LOADED_PIP( cnt ) )
                 {
-                    pip_t * ppip = PipStack_get_ptr( cnt );
+                    pip_t * ppip = PipStack.get_ptr( cnt );
                     vfs_printf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", REF_TO_INT( cnt ), ppip->name, ppip->create_count, ppip->request_count );
                 }
             }
@@ -2557,7 +2553,7 @@ bool PipStack_release_one( const PIP_REF ipip )
     pip_t * ppip;
 
     if ( !VALID_PIP_RANGE( ipip ) ) return false;
-    ppip = PipStack_get_ptr( ipip );
+    ppip = PipStack.get_ptr( ipip );
 
     if ( !ppip->loaded ) return true;
 
@@ -3424,7 +3420,7 @@ pip_t * prt_get_ppip( const PRT_REF iprt )
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return NULL;
 
-    return PipStack_get_ptr( pprt->pip_ref );
+    return PipStack.get_ptr( pprt->pip_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3435,7 +3431,7 @@ bool prt_set_size( prt_t * pprt, int size )
     if ( !DEFINED_PPRT( pprt ) ) return false;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return false;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     // set the graphical size
     pprt->size = size;
@@ -3616,7 +3612,7 @@ prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
 
     if ( LOADED_PIP( pbundle->pip_ref ) )
     {
-        pbundle->pip_ptr = PipStack_get_ptr( pbundle->pip_ref );
+        pbundle->pip_ptr = PipStack.get_ptr( pbundle->pip_ref );
     }
     else
     {

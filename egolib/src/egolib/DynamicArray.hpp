@@ -166,9 +166,5 @@ namespace Ego
 	};
 };
 
+/** @todo Remove this. */
 #define DYNAMIC_ARY_INIT_VALS {0,0,NULL}
-
-#if 0
-#define DYNAMIC_ARY_INVALID_RAW(PARY) ( (0 == (PARY)->cp) || ((PARY)->top < 0) || ((size_t)(PARY)->top >= (PARY)->cp) )
-#define DYNAMIC_ARY_INVALID(PARY) ( (NULL == (PARY)) || DYNAMIC_ARY_INVALID_RAW(PARY) )
-#endif

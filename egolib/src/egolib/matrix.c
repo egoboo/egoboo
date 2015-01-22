@@ -328,10 +328,7 @@ float * mat_View(fmat_4x4_base_t DST,
 	up = fvec3_cross_product(view_dir, right);
 	right.normalize();
 	up.normalize();
-#if 0
-	fvec3_self_normalize(right);
-	fvec3_self_normalize(up);
-#endif
+
 	DST[MAT_IDX(0, 0)] = right.x;
 	DST[MAT_IDX(1, 0)] = right.y;
 	DST[MAT_IDX(2, 0)] = right.z;
@@ -597,23 +594,8 @@ namespace Ego {
 
 void mat_gluPerspective(fmat_4x4_t &dst, const fmat_4x4_t& src, const float fovy, const float aspect, const float zNear, const float zFar)
 {
-#if 0
-    EGOBOO_ASSERT(aspect != 0.0f);
-    EGOBOO_ASSERT((zNear - zFar) != 0.0f);
-#endif
     fmat_4x4_t M;
 	M.makePerspective(fovy, aspect, zNear, zFar);
-#if 0
-    float tan = std::tan(DEG_TO_RAD(fovy) * 0.5f);
-    EGOBOO_ASSERT(tan != 0.0f);
-    float f = 1 / tan;
-    
-    M(0, 0) = f / aspect;
-    M(1, 1) = f;
-    M(2, 2) = (zFar + zNear) / (zNear - zFar);
-    M(2, 3) = (2 * zFar * zNear) / (zNear - zFar);
-    M(3, 2) = -1;
-#endif
     mat_Multiply(dst.v, src.v, M.v);
 }
 

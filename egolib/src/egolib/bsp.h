@@ -28,13 +28,6 @@
 #include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
-#if 0
-	// Forward declaration.
-	struct egolib_frustum_t;
-#endif
-//--------------------------------------------------------------------------------------------
 // internal structs
 //--------------------------------------------------------------------------------------------
 
@@ -142,10 +135,6 @@
 	};
 
     bool BSP_branch_list_clear_rec( BSP_branch_list_t * );
-
-#if 0
-	DECLARE_DYNAMIC_ARY(BSP_leaf_pary, BSP_leaf_t *)
-#endif
 
 	bool BSP_branch_list_collide_frustum(const BSP_branch_list_t * BL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst);
     bool BSP_branch_list_collide_aabb( const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst );

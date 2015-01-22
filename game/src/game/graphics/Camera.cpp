@@ -578,7 +578,7 @@ void Camera::update(const ego_mesh_t * pmesh)
 
         //Don't do invalid players
         if ( INVALID_PLA( ipla ) ) continue;
-        ppla = PlaStack_get_ptr( ipla );
+        ppla = PlaStack.get_ptr( ipla );
 
         //Handle camera control from this player
         readInput( ppla->pdevice );

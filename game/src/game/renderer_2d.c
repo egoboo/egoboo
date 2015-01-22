@@ -28,7 +28,7 @@
 // EXTERNAL VARIABLES
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_STATIC_ARY(msg_t, DisplayMsg, EGO_MESSAGE_MAX);
+StaticArray<msg_t, EGO_MESSAGE_MAX> DisplayMsg;
 
 int DisplayMsg_timechange = 0;
 int DisplayMsg_count = EGO_MESSAGE_MAX;
@@ -123,9 +123,6 @@ int draw_string_raw( float x, float y, const char *format, ... )
 // DisplayMsg IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
-#if 0
-IMPLEMENT_STATIC_ARY(DisplayMsgAry, EGO_MESSAGE_MAX );
-#endif
 //--------------------------------------------------------------------------------------------
 void DisplayMsg_clear()
 {

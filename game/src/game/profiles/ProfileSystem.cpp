@@ -225,7 +225,7 @@ cap_t * ProfileSystem::pro_get_pcap( const PRO_REF iobj )
 
     if ( !LOADED_CAP( _profilesLoaded[iobj]->getCapRef() ) ) return nullptr;
 
-    return CapStack_get_ptr( _profilesLoaded[iobj]->getCapRef() );
+    return CapStack.get_ptr( _profilesLoaded[iobj]->getCapRef() );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -235,7 +235,7 @@ mad_t * ProfileSystem::pro_get_pmad( const PRO_REF iobj )
 
     if ( !LOADED_MAD( _profilesLoaded[iobj]->getModelRef() ) ) return nullptr;
 
-    return MadStack_get_ptr( _profilesLoaded[iobj]->getModelRef() );
+    return MadStack.get_ptr( _profilesLoaded[iobj]->getModelRef() );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -245,7 +245,7 @@ eve_t * ProfileSystem::pro_get_peve( const PRO_REF iobj )
 
     if ( !LOADED_EVE( _profilesLoaded[iobj]->getEnchantRef() ) ) return nullptr;
 
-    return EveStack_get_ptr( _profilesLoaded[iobj]->getEnchantRef() );
+    return EveStack.get_ptr( _profilesLoaded[iobj]->getEnchantRef() );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -259,7 +259,7 @@ pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
         global_pip = (( pip_index < 0 ) || ( pip_index > MAX_PIP ) ) ? MAX_PIP : ( PIP_REF )pip_index;
         if ( LOADED_PIP( global_pip ) )
         {
-            return PipStack_get_ptr( global_pip );
+            return PipStack.get_ptr( global_pip );
         }
         else
         {

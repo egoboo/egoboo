@@ -491,10 +491,11 @@ struct chr_t
     Uint32         safe_grid;                     ///< the last "safe" grid
 
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
+
+	static chr_t * ctor(chr_t * pchr);
 };
 
-chr_t * chr_ctor( chr_t * pchr );
-chr_t * chr_dtor( chr_t * pchr );
+chr_t *chr_dtor(chr_t * pchr);
 bool  chr_request_terminate( chr_t * pchr );
 
 bool    chr_matrix_valid( const chr_t * pchr );
@@ -578,11 +579,12 @@ chr_t * chr_set_ai_state( chr_t * pchr, int state );
 // list definitions
 //--------------------------------------------------------------------------------------------
 
-DECLARE_STACK_EXTERN( team_t, TeamStack, TEAM_MAX );
+extern Stack<team_t, TEAM_MAX> TeamStack;
 
 #define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < TEAM_MAX) )
 
-DECLARE_STACK_EXTERN( cap_t,  CapStack,  MAX_CAP );
+extern Stack<cap_t, MAX_CAP> CapStack;
+
 
 #define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_CAP) )
 #define LOADED_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapStack.lst[ICAP].loaded )

@@ -36,13 +36,6 @@
 #define BRANCH_NODE_THRESHOLD 5
 
 //--------------------------------------------------------------------------------------------
-// special arrays
-//--------------------------------------------------------------------------------------------
-
-#if 0
-IMPLEMENT_DYNAMIC_ARY(BSP_leaf_pary, BSP_leaf_t *);
-#endif
-//--------------------------------------------------------------------------------------------
 // special functions
 
 static bool _generate_BSP_aabb_child(BSP_aabb_t * psrc, int index, BSP_aabb_t * pdst);
@@ -1378,10 +1371,6 @@ bool BSP_branch_insert_leaf_rec(BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_
 //--------------------------------------------------------------------------------------------
 BSP_tree_t * BSP_tree_ctor(BSP_tree_t *self, Sint32 req_dim, Sint32 req_depth)
 {
-	int    node_count;
-#if 0
-	size_t cnt;
-#endif
 	if (nullptr == self)
 	{
 		return nullptr;
@@ -1392,7 +1381,7 @@ BSP_tree_t * BSP_tree_ctor(BSP_tree_t *self, Sint32 req_dim, Sint32 req_depth)
 	self->bsp_bbox.ctor(req_dim);
 	self->infinite.ctor();
 
-	node_count = BSP_tree_count_nodes(req_dim, req_depth);
+	int node_count = node_count = BSP_tree_count_nodes(req_dim, req_depth);
 	if (node_count < 0) return self;
 
 	if (!BSP_tree_alloc(self, node_count, req_dim))

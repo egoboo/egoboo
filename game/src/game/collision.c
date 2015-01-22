@@ -406,13 +406,13 @@ int CoNode_matches( CoNode_t * pleft, CoNode_t * pright )
 //--------------------------------------------------------------------------------------------
 static CoHashList_t *CoHashList_ctor(CoHashList_t *self, size_t initialCapacity)
 {
-    return hash_list_ctor(self,initialCapacity);
+    return hash_list_t::ctor(self,initialCapacity);
 }
 
 //--------------------------------------------------------------------------------------------
 static void CoHashList_dtor(CoHashList_t *self)
 {
-    return hash_list_dtor(self);
+    return hash_list_t::dtor(self);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1482,7 +1482,7 @@ void bump_all_objects()
 
         _coll_node_lst.top = 0;
 
-        hash_list_iterator_ctor(&it);
+		it.ctor();
         hash_list_iterator_set_begin(&it, coHashList);
         for (/* Nothing. */; !hash_list_iterator_done(&it, coHashList); hash_list_iterator_next(&it, coHashList))
         {
@@ -1890,7 +1890,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
                 {
                     if ( LOADED_PIP( bdl.prt_ptr->pip_ref ) )
                     {
-                        pip_t * ppip = PipStack_get_ptr( bdl.prt_ptr->pip_ref );
+                        pip_t * ppip = PipStack.get_ptr( bdl.prt_ptr->pip_ref );
                         bdl.prt_ptr->vel.z += -( 1.0f + ppip->dampen ) * bdl.prt_ptr->vel.z;
                     }
                     else
@@ -3429,7 +3429,7 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
     if ( NULL == pdata->pcap ) return false;
 
     if ( !LOADED_PIP( pdata->pprt->pip_ref ) ) return false;
-    pdata->ppip = PipStack_get_ptr( pdata->pprt->pip_ref );
+    pdata->ppip = PipStack.get_ptr( pdata->pprt->pip_ref );
 
     // estimate the maximum possible "damage" from this particle
     // other effects can magnify this number, like vulnerabilities

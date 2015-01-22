@@ -34,16 +34,16 @@ namespace Passages
 	    {
 	    	//read passage area
 	    	irect_t area;
-	        area.left   = vfs_get_int( fileread );
-	        area.top    = vfs_get_int( fileread );
-	        area.right  = vfs_get_int( fileread );
-	        area.bottom = vfs_get_int( fileread );
+	        area._left   = vfs_get_int( fileread );
+	        area._top    = vfs_get_int( fileread );
+	        area._right  = vfs_get_int( fileread );
+	        area._bottom = vfs_get_int( fileread );
 
 	        //constrain passage area within the level
-	        area.left    = CLIP( area.left,   0, PMesh->info.tiles_x - 1 );
-    		area.top     = CLIP( area.top,    0, PMesh->info.tiles_y - 1 );
-    		area.right   = CLIP( area.right,  0, PMesh->info.tiles_x - 1 );
-    		area.bottom  = CLIP( area.bottom, 0, PMesh->info.tiles_y - 1 );
+	        area._left    = CLIP( area._left,   0, PMesh->info.tiles_x - 1 );
+    		area._top     = CLIP( area._top,    0, PMesh->info.tiles_y - 1 );
+    		area._right   = CLIP( area._right,  0, PMesh->info.tiles_x - 1 );
+    		area._bottom  = CLIP( area._bottom, 0, PMesh->info.tiles_y - 1 );
 
 	        //Read if open by default
 	        bool open = vfs_get_bool( fileread );

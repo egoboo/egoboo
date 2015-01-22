@@ -40,7 +40,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_STACK( ACCESS_TYPE_NONE, eve_t, EveStack, MAX_EVE );
+Stack<eve_t, MAX_EVE> EveStack;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -59,11 +59,6 @@ static enc_t * enc_config_do_init( enc_t * penc );
 //--------------------------------------------------------------------------------------------
 
 static bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-IMPLEMENT_STACK( eve_t, EveStack, MAX_EVE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -655,7 +650,7 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
     penc = EncList_get_ptr( ienc );
 
     if ( ieve >= MAX_EVE || !EveStack.lst[ieve].loaded ) return;
-    peve = EveStack_get_ptr( ieve );
+    peve = EveStack.get_ptr( ieve );
 
     if ( !peve->addyesno[value_idx] )
     {
@@ -887,7 +882,7 @@ enc_t * enc_config_do_init( enc_t * penc )
         return NULL;
     }
     penc->eve_ref = pdata->eve_ref;
-    peve = EveStack_get_ptr( pdata->eve_ref );
+    peve = EveStack.get_ptr( pdata->eve_ref );
 
     // turn the enchant on here. you can't fail to spawn after this point.
     POBJ_ACTIVATE( penc, peve->name );
@@ -1498,7 +1493,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 
         return INVALID_ENC_REF;
     }
-    peve = EveStack_get_ptr( eve_ref );
+    peve = EveStack.get_ptr( eve_ref );
 
     // count all the requests for this enchantment type
     peve->request_count++;
@@ -1602,7 +1597,7 @@ EVE_REF EveStack_losd_one( const char* szLoadName, const EVE_REF ieve )
 
     if ( VALID_EVE_RANGE( ieve ) )
     {
-        eve_t * peve = EveStack_get_ptr( ieve );
+        eve_t * peve = EveStack.get_ptr( ieve );
 
         if ( NULL != load_one_enchant_file_vfs( szLoadName, peve ) )
         {
@@ -1895,7 +1890,7 @@ void EveStack_init_all()
 
     for ( cnt = 0; cnt < MAX_EVE; cnt++ )
     {
-        eve_init( EveStack_get_ptr( cnt ) );
+        eve_init( EveStack.get_ptr( cnt ) );
     }
 }
 
@@ -1916,7 +1911,7 @@ bool EveStack_release_one( const EVE_REF ieve )
     eve_t * peve;
 
     if ( !VALID_EVE_RANGE( ieve ) ) return false;
-    peve = EveStack_get_ptr( ieve );
+    peve = EveStack.get_ptr( ieve );
 
     if ( !peve->loaded ) return true;
 
@@ -2051,7 +2046,7 @@ void cleanup_all_enchants()
             EGOBOO_ASSERT( false );
             continue;
         }
-        peve = EveStack_get_ptr( penc->eve_ref );
+        peve = EveStack.get_ptr( penc->eve_ref );
 
         do_remove = false;
         if ( WAITING_PBASE( POBJ_GET_PBASE( penc ) ) )
@@ -2161,7 +2156,7 @@ eve_t * enc_get_peve( const ENC_REF ienc )
 
     if ( !LOADED_EVE( penc->eve_ref ) ) return NULL;
 
-    return EveStack_get_ptr( penc->eve_ref );
+    return EveStack.get_ptr( penc->eve_ref );
 }
 
 //--------------------------------------------------------------------------------------------

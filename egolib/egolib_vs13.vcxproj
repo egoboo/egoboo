@@ -139,13 +139,15 @@
     </Xdcmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\egolib\math\AABB.c" />
+    <ClCompile Include="src\egolib\math\Cube.cpp" />
+    <ClCompile Include="src\egolib\math\Sphere.c" />
     <ClCompile Include="src\egolib\math\Plane.c" />
     <ClCompile Include="src\egolib\math\Random.cpp" />
     <ClCompile Include="src\egolib\bsp_aabb.c" />
     <ClCompile Include="src\egolib\mem.c" />
     <ClCompile Include="src\egolib\bv.c" />
     <ClCompile Include="src\egolib\DynamicArray.cpp" />
-    <ClCompile Include="src\egolib\aabb.c" />
     <ClCompile Include="src\egolib\bbox.c" />
     <ClCompile Include="src\egolib\bsp.c" />
     <ClCompile Include="src\egolib\clock.c" />
@@ -218,7 +220,6 @@
     </ClCompile>
     <ClCompile Include="src\egolib\process.c" />
     <ClCompile Include="src\egolib\scancode.c" />
-    <ClCompile Include="src\egolib\sphere.c" />
     <ClCompile Include="src\egolib\strutil.c" />
     <ClCompile Include="src\egolib\throttle.c" />
     <ClCompile Include="src\egolib\timer.c" />
@@ -228,13 +229,15 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\math\AABB.h" />
+    <ClInclude Include="src\egolib\math\Cube.hpp" />
+    <ClInclude Include="src\egolib\math\Sphere.h" />
     <ClInclude Include="src\egolib\math\Plane.h" />
     <ClInclude Include="src\egolib\math\Random.hpp" />
     <ClInclude Include="src\egolib\bsp_aabb.h" />
     <ClInclude Include="src\egolib\bv.h" />
     <ClInclude Include="src\egolib\DynamicArray.hpp" />
     <ClInclude Include="src\egolib\Stack.hpp" />
-    <ClInclude Include="src\egolib\aabb.h" />
     <ClInclude Include="src\egolib\bbox.h" />
     <ClInclude Include="src\egolib\bsp.h" />
     <ClInclude Include="src\egolib\clock.h" />
@@ -296,7 +299,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\process.h" />
     <ClInclude Include="src\egolib\scancode.h" />
-    <ClInclude Include="src\egolib\sphere.h" />
     <ClInclude Include="src\egolib\state_machine.h" />
     <ClInclude Include="src\egolib\strutil.h" />
     <ClInclude Include="src\egolib\system.h" />

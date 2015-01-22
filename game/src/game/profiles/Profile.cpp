@@ -243,7 +243,7 @@ const std::string ObjectProfile::generateRandomName()
 
     //If no random names loaded, return class name instead
     if (!_randomName.isLoaded()) {
-        return CapStack_get_ptr(_icap)->classname;
+        return CapStack.get_ptr(_icap)->classname;
     }
 
     return _randomName.generateRandomName();
@@ -265,7 +265,7 @@ IDSZ ObjectProfile::getIDSZ(size_t type) const
         return IDSZ_NONE;
     }
 
-    cap_t * pcap = CapStack_get_ptr(_icap);
+    cap_t * pcap = CapStack.get_ptr(_icap);
     if ( !pcap ) {
         return IDSZ_NONE;
     }

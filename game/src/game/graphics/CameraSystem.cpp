@@ -340,7 +340,7 @@ void CameraSystem::autoSetTargets()
     for ( size_t cnt = 0; cnt < MAX_PLAYER; cnt++ )
     {
         // only look at valid players
-        player_t * ppla = PlaStack_get_ptr( cnt );
+        player_t * ppla = PlaStack.get_ptr( cnt );
         if ( !ppla->valid || !VALID_CHR_RANGE( ppla->index ) ) continue;
 
         // only look at local players

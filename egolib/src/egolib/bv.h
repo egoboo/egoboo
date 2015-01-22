@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include "egolib/sphere.h"
-#include "egolib/aabb.h"
+#include "egolib/math/Sphere.h"
+#include "egolib/math/AABB.h"
 
 // Forward declaration.
 struct oct_bb_t;

@@ -237,7 +237,8 @@ static SelectedPlayer_list_t mnu_SelectedList = SELECTED_PLAYER_LIST_INIT;
 
 INSTANTIATE_LIST( ACCESS_TYPE_NONE, oglx_texture_t, mnu_TxList, MENU_TX_COUNT );
 
-INSTANTIATE_STACK_STATIC( mnu_module_t, mnu_ModList, MAX_MODULE );
+static Stack<mnu_module_t, MAX_MODULE> mnu_ModList;
+//INSTANTIATE_STACK_STATIC( mnu_module_t, mnu_ModList, MAX_MODULE );
 //INSTANTIATE_STACK_STATIC( oglx_texture_t, TxTitleImage, TITLE_TEXTURE_COUNT ); // OpenGL title image surfaces
 
 #define INVALID_MOD_IDX MAX_MODULE
@@ -351,13 +352,6 @@ static bool mnu_TxList_free_one( const MNU_TX_REF  itex );
 static void   mnu_TxList_reset_freelist();
 static void   mnu_TxList_release_one( const MNU_TX_REF index );
 static void   mnu_TxList_release_all();
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-IMPLEMENT_STACK( mnu_module_t, mnu_ModList, MAX_MODULE );
-
-//IMPLEMENT_STACK( oglx_texture_t, TxTitleImage, TITLE_TEXTURE_COUNT );
 
 //--------------------------------------------------------------------------------------------
 // implementation of the menu stack
@@ -1596,7 +1590,7 @@ bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, Cho
     {
         return false;
     }
-    cap_ptr = CapStack_get_ptr( loadplayer_ptr->cap_ref );
+    cap_ptr = CapStack.get_ptr( loadplayer_ptr->cap_ref );
 
     // go to the next element in the list
     chooseplayer_ptr = chooseplayer->lst + chooseplayer->count;
@@ -1635,7 +1629,7 @@ bool doChooseCharacter_load_profiles( LoadPlayer_element_t * loadplayer_ptr, Cho
         cap_ref = CapStack_load_one( szFilename, slot, false );
         if ( LOADED_CAP( cap_ref ) )
         {
-            cap_ptr = CapStack_get_ptr( cap_ref );
+            cap_ptr = CapStack.get_ptr( cap_ref );
 
             // go to the next element in the list
             chooseplayer_ptr = chooseplayer->lst + chooseplayer->count;
@@ -1708,7 +1702,7 @@ bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mo
         if ( LOADED_CAP( icap ) )
         {
             STRING  temp_string;
-            cap_t * pcap = CapStack_get_ptr( icap );
+            cap_t * pcap = CapStack.get_ptr( icap );
             SKIN_T  skin = cap_get_skin_overide( pcap );
 
             ui_drawButton( UI_Nothing, x, y, width, height, NULL );
@@ -1798,7 +1792,7 @@ bool doChooseCharacter_show_stats( LoadPlayer_element_t * loadplayer_ptr, int mo
                     if ( LOADED_CAP( icap ) )
                     {
                         MNU_TX_REF  icon_ref;
-                        cap_t * loc_pcap = CapStack_get_ptr( icap );
+                        cap_t * loc_pcap = CapStack.get_ptr( icap );
 
                         STRING itemname; //ZF> TODO: could be a item name bug here
                         if ( loc_pcap->nameknown ) strncpy(itemname, chooseplayer_ptr->name, SDL_arraysize( itemname ) );
@@ -4925,7 +4919,7 @@ MNU_TX_REF mnu_get_txtexture_ref( const CAP_REF icap, const MNU_TX_REF default_r
     cap_t * pitem_cap;
 
     if ( !LOADED_CAP( icap ) ) return icon_ref;
-    pitem_cap = CapStack_get_ptr( icap );
+    pitem_cap = CapStack.get_ptr( icap );
 
     // what do we need to draw?
     is_spell_fx = ( pitem_cap->spelleffect_type >= 0 );
@@ -4978,7 +4972,7 @@ bool mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumb
     bool         allowed;
 
     if ( INVALID_MOD( modnumber ) ) return false;
-    pmod = mnu_ModList_get_ptr( modnumber );
+    pmod = mnu_ModList.get_ptr(modnumber);
 
     // First check if we are in developers mode or that the right module has been beaten before
     allowed = false;
@@ -5076,7 +5070,7 @@ void mnu_load_all_module_info()
 
     while ( NULL != ctxt && VALID_CSTR( vfs_ModPath ) && mnu_ModList.count < MAX_MODULE )
     {
-        mnu_module_t * pmod = mnu_ModList_get_ptr( mnu_ModList.count );
+        mnu_module_t * pmod = mnu_ModList.get_ptr(mnu_ModList.count);
 
         // clear the module
         mnu_module_init( pmod );
@@ -5121,7 +5115,7 @@ void mnu_release_one_module( const MOD_REF imod )
     mnu_module_t * pmod;
 
     if ( !VALID_MOD( imod ) ) return;
-    pmod = mnu_ModList_get_ptr( imod );
+    pmod = mnu_ModList.get_ptr( imod );
 
     mnu_TxList_release_one( pmod->tex_index );
     pmod->tex_index = INVALID_TITLE_TEXTURE;
@@ -5501,7 +5495,7 @@ egolib_rv LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foun
     // try to load the character profile
     icap = CapStack_load_one( foundfile, slot, false );
     if ( !LOADED_CAP( icap ) ) return rv_fail;
-    pcap = CapStack_get_ptr( icap );
+    pcap = CapStack.get_ptr( icap );
 
     // get the next index
     idx = LoadPlayer_list_get_free( lst );
@@ -5639,7 +5633,7 @@ egolib_rv LoadPlayer_list_from_players( LoadPlayer_list_t * lst )
 
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        ppla = PlaStack_get_ptr( ipla );
+        ppla = PlaStack.get_ptr( ipla );
         if ( !ppla->valid ) continue;
 
         if ( !INGAME_CHR( ppla->index ) ) continue;

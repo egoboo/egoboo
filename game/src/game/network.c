@@ -107,7 +107,7 @@ void net_unbuffer_player_latches()
         time_latch_t * tlatch_list;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
-        ppla = PlaStack_get_ptr( ipla );
+        ppla = PlaStack.get_ptr( ipla );
         tlatch_list = ppla->tlatch;
 
         // copy the latch from last time
@@ -209,7 +209,7 @@ void net_unbuffer_player_latches()
         player_t * ppla;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
-        ppla = PlaStack_get_ptr( ipla );
+        ppla = PlaStack.get_ptr( ipla );
 
         character = PlaStack.lst[ipla].index;
         if ( !INGAME_CHR( character ) ) continue;
@@ -335,7 +335,7 @@ player_t* chr_get_ppla( const CHR_REF ichr )
 
     if ( !VALID_PLA( iplayer ) ) return NULL;
 
-    return PlaStack_get_ptr( iplayer );
+    return PlaStack.get_ptr( iplayer );
 }
 
 //--------------------------------------------------------------------------------------------

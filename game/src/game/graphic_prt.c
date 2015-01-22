@@ -726,7 +726,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pprt->pip_ref, "invalid pip" );
         return gfx_error;
     }
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     pinst->type = pprt->type;
 
