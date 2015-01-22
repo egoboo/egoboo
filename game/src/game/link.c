@@ -308,11 +308,13 @@ bool link_load_parent( const char * modname, fvec3_t pos )
 //--------------------------------------------------------------------------------------------
 bool link_test_module( const char * modname )
 {
+    if ( !VALID_CSTR( modname ) ) return false;
+
+    //ZF> Not supported yet, needs porting
+/*
     bool retval = false;
 
     LoadPlayer_list_t tmp_loadplayer = LOADPLAYER_LIST_INIT;
-
-    if ( !VALID_CSTR( modname ) ) return false;
 
     // generate a temporary list of loadplayers
     LoadPlayer_list_from_players( &tmp_loadplayer );
@@ -324,4 +326,6 @@ bool link_test_module( const char * modname )
     LoadPlayer_list_init( &tmp_loadplayer );
 
     return retval;
+*/
+    return false;
 }

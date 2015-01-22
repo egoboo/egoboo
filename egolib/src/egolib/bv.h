@@ -34,6 +34,13 @@ struct oct_bb_t;
  */
 struct bv_t
 {
+	bv_t() :
+		sphere(),
+		aabb()
+	{
+		//ctor
+	}
+
 	sphere_t sphere;
 	aabb_t aabb;
 	/**

@@ -172,8 +172,6 @@ public:
     /// @details This function plays a specified sound at full possible volume and returns which channel it's using
 	int playSoundFull(SoundID soundID);
 
-	void stopLoopingSoundByChannel(int channel);
-
 	inline SoundID getGlobalSound(GlobalSound id) const {return _globalSounds[id];}
 
 	inline MusicID getCurrentMusicPlaying() const {return _currentSongPlaying;}

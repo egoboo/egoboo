@@ -47,10 +47,12 @@
 #include "game/char.h"
 #include "game/particle.h"
 #include "game/enchant.h"
-#include "game/profiles/Profile.hpp"
 #include "game/mesh.h"
+
+#include "game/profiles/Profile.hpp"
 #include "game/module/PassageHandler.hpp" //only for getPassageCount()
 #include "game/graphics/CameraSystem.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -2564,9 +2566,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
     {
         if ( 0 != pitem->ammomax && pitem->ammoknown )
         {
-            cap_t * pitem_cap = chr_get_pcap( item );
-
-            if (( NULL != pitem_cap && !pitem_cap->isstackable ) || pitem->ammo > 1 )
+            if (( !chr_get_ppro(item)->isStackable() ) || pitem->ammo > 1 )
             {
                 // Show amount of ammo left
                 draw_string_raw( x, y - 8, "%2d", pitem->ammo );
@@ -2579,27 +2579,25 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
 float draw_character_xp_bar( const CHR_REF character, float x, float y )
 {
     chr_t * pchr;
-    cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return y;
     pchr = ChrList_get_ptr( character );
 
-    pcap = chr_get_pcap(character);
-    if ( NULL == pcap ) return y;
-
     //Draw the small XP progress bar
     if ( pchr->experiencelevel < MAXLEVEL - 1 )
     {
-        Uint8  curlevel    = pchr->experiencelevel + 1;
-        Uint32 xplastlevel = pcap->experience_forlevel[curlevel-1];
-        Uint32 xpneed      = pcap->experience_forlevel[curlevel];
+        std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile(pchr->profile_ref);
+
+        uint8_t  curlevel    = pchr->experiencelevel + 1;
+        uint32_t xplastlevel = profile->getXPNeededForLevel(curlevel-1);
+        uint32_t xpneed      = profile->getXPNeededForLevel(curlevel);
         
         while (pchr->experience < xplastlevel && curlevel > 1) {
             curlevel--;
-            xplastlevel = pcap->experience_forlevel[curlevel-1];
+            xplastlevel = profile->getXPNeededForLevel(curlevel-1);
         }
 
-		float fraction = ((float)(pchr->experience - xplastlevel)) / (float)std::max<unsigned int>( xpneed - xplastlevel, 1 );
+		float fraction = ((float)(pchr->experience - xplastlevel)) / (float)std::max<uint32_t>( xpneed - xplastlevel, 1 );
         int   numticks = fraction * NUMTICK;
 
         y = draw_one_xp_bar( x, y, CLIP( numticks, 0, NUMTICK ) );
@@ -2620,13 +2618,9 @@ float draw_status( const CHR_REF character, float x, float y )
     int mana_pips, mana_pips_max;
 
     chr_t * pchr;
-    cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return y;
     pchr = ChrList_get_ptr( character );
-
-    pcap = chr_get_pcap( character );
-    if ( NULL == pcap ) return y;
 
     life_pips      = SFP8_TO_SINT( pchr->life );
     life_pips_max  = SFP8_TO_SINT( pchr->life_max );
@@ -2733,21 +2727,19 @@ void draw_map()
             for ( ichr = 0; ichr < MAX_CHR && blip_count < MAXBLIP; ichr++ )
             {
                 chr_t * pchr;
-                cap_t * pcap;
 
                 if ( !INGAME_CHR( ichr ) ) continue;
                 pchr = ChrList_get_ptr( ichr );
 
-                pcap = chr_get_pcap( ichr );
-                if ( NULL == pcap ) continue;
+                const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
 
                 // Show only teams that will attack the player
                 if ( team_hates_team( pchr->team, local_stats.sense_enemies_team ) )
                 {
                     // Only if they match the required IDSZ ([NONE] always works)
                     if ( local_stats.sense_enemies_idsz == IDSZ_NONE ||
-                         local_stats.sense_enemies_idsz == pcap->idsz[IDSZ_PARENT] ||
-                         local_stats.sense_enemies_idsz == pcap->idsz[IDSZ_TYPE  ] )
+                         local_stats.sense_enemies_idsz == profile->getIDSZ(IDSZ_PARENT) ||
+                         local_stats.sense_enemies_idsz == profile->getIDSZ(IDSZ_TYPE  ) )
                     {
                         // Inside the map?
                         if ( pchr->pos.x < PMesh->gmem.edge_x && pchr->pos.y < PMesh->gmem.edge_y )
@@ -3183,7 +3175,7 @@ void draw_inventory()
             CHR_REF item = pchr->inventory[i];
 
             //calculate the sum of the weight of all items in inventory
-            if ( INGAME_CHR( item ) ) weight_sum += chr_get_pcap( item )->weight;
+            if ( INGAME_CHR( item ) ) weight_sum += chr_get_ppro(item)->getWeight();
 
             //draw icon
             draw_one_character_icon( item, x, y, true, ( item_count == ppla->inventory_slot ) ? COLOR_WHITE : NOSPARKLE );

@@ -47,7 +47,7 @@
 #   define CURRENT_MAP_VERSION_LETTER 'D'
 
 // mesh constants
-#   define MAP_ID_BASE               'MapA'                   ///< The string... MapA
+#   define MAP_ID_BASE               0x4D617041 //'MapA'        ///< The string... MapA
 #   define MAP_TILEY_MAX             1024                       ///< Max tiles in y direction
 #   define MAP_TILE_MAX              (512*512)                  ///< Terrain mesh size
 #   define MAP_VERTICES_MAX          (MAP_TILE_MAX*MAP_FAN_VERTICES_MAX)
