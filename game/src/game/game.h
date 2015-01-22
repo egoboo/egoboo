@@ -42,7 +42,7 @@ struct wawalite_fog_t;
 struct menu_process_t;
 
 struct chr_t;
-struct s_prt;
+struct prt_t;
 struct s_prt_bundle;
 
 struct s_import_list;
@@ -477,7 +477,7 @@ void reset_end_text();
 /// Particles
 int     number_of_attached_particles( const CHR_REF character );
 int     spawn_bump_particles( const CHR_REF character, const PRT_REF particle );
-struct s_prt * place_particle_at_vertex( struct s_prt * pprt, const CHR_REF character, int vertex_offset );
+prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int vertex_offset );
 void    disaffirm_attached_particles( const CHR_REF character );
 int     reaffirm_attached_particles( const CHR_REF character );
 
@@ -532,10 +532,10 @@ void cleanup_character_enchants( chr_t * pchr );
 bool attach_one_particle( struct s_prt_bundle * pbdl_prt );
 
 bool attach_chr_to_platform( chr_t * pchr, chr_t * pplat );
-bool attach_prt_to_platform( struct s_prt * pprt, chr_t * pplat );
+bool attach_prt_to_platform( prt_t * pprt, chr_t * pplat );
 
 bool detach_character_from_platform( chr_t * pchr );
-bool detach_particle_from_platform( struct s_prt * pprt );
+bool detach_particle_from_platform( prt_t * pprt );
 
 egolib_rv game_copy_imports( struct s_import_list * imp_lst );
 

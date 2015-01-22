@@ -197,9 +197,39 @@ bool BSP_branch_add_all_children(const BSP_branch_t * pbranch, BSP_leaf_test_t *
 //--------------------------------------------------------------------------------------------
 struct BSP_tree_t
 {
+	/**
+	 * @brief
+	 *    The minimum dimensionality of a BSP tree.
+	 *    ("binary" should already suggest that this is the minimum dimensionality).
+	 */
+	static const size_t DIMENSIONALITY_MIN = 2;
+
+	/**
+	 * @brief
+	 *    The number of dimensions used by this BSP tree.
+	 */
+	size_t dimensions;
+	/**
+	 * @brief
+	 *    The maximum depth this BSP tree supports.
+	 * @todo
+	 *    Should be of type @a size_t.
+	 */
+	int max_depth;
+	/**
+	 * @brief
+	 *    The maximum depth of this BSP tree actually has.
+	 * @remark
+	 *    The maximum depth (of a BSP tree) is the maximum of the lengths of its branches.
+	 * @todo
+	 *    Should be of type @a size_t.
+	 */
+	int depth;
+
+#if 0
     size_t dimensions;          ///< the number of dimensions used by the tree
     int max_depth;              ///< the maximum depth that the BSP supports
-
+#endif
 	Ego::DynamicArray < BSP_branch_t>    branch_all;  ///< the list of pre-allocated branches
 	Ego::DynamicArray < BSP_branch_t * > branch_used; ///< a linked list of all used pre-allocated branches
 	Ego::DynamicArray < BSP_branch_t * > branch_free; ///< a linked list of all free pre-allocated branches
@@ -207,9 +237,59 @@ struct BSP_tree_t
     BSP_branch_t *finite;      ///< the root node of the ordinary BSP tree
     BSP_leaf_list_t infinite;  ///< all nodes which do not fit inside the BSP tree
 
+#if 0
     int depth;           ///< the maximum actual depth of the tree
+#endif
     bv_t bbox;           ///< the actual size of everything in the tree
     BSP_aabb_t bsp_bbox; ///< the root-size of the tree
+
+	/**
+	 * @brief
+	 *    Construct a BSP tree.
+	 * @param self
+	 *     the BSP tree
+	 * @param dimensionality
+	 *    the dimensionality the BSP tree shall have
+	 * @param maximumDepth
+	 *    the maximum depth the BSP tree shall support
+	 * @pre
+	 *    <tt>dimensionality >= BSP_tree_t::DIMENSIONALITY_MIN</tt> (dynamically checked)
+	 * @return
+	 *     the BSP tree on success, @a NULL on failure
+	 */
+	BSP_tree_t *ctor(size_t dimensionality, size_t depth);
+	/**
+	 * @brief
+	 *     Destruct a BSP tree.
+	 * @param self
+	 *    the BSP tree
+	 */
+	void dtor();
+
+	/**
+	 * @brief
+	 *    Fill the collision list with references to objects that the AABB may overlap.
+	 * @param aabb
+	 *    the AABB
+	 * @param collisions
+	 *    the collision list
+	 * @return
+	 *    the number of collisions found
+	 */
+	size_t collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	
+	/**
+	 * @brief
+	 *    Fill the collision list with references to objects that the frustum may overlap.
+	 * @param frustum
+	 *    the frustum
+	 * @param collisions
+	 *    the collision list
+	 * @return
+	 *    the number of collisions found
+	 */
+	size_t collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+
 
     BSP_tree_t() :
         dimensions(0),
@@ -227,8 +307,7 @@ struct BSP_tree_t
     }
 };
 
-BSP_tree_t *BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );
-BSP_tree_t *BSP_tree_dtor( BSP_tree_t * t );
+
 bool BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim );
 bool BSP_tree_dealloc( BSP_tree_t * t );
 
@@ -240,9 +319,6 @@ BSP_branch_t *BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int inde
 Sint32 BSP_tree_count_nodes( Sint32 dim, Sint32 depth );
 bool BSP_tree_insert_leaf( BSP_tree_t * ptree, BSP_leaf_t * pleaf );
 bool BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt );
-
-size_t BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> *colst );
-size_t BSP_tree_collide_frustum(const BSP_tree_t * tree, const egolib_frustum_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> *colst);
 
 
 //inline

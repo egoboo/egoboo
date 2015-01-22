@@ -129,9 +129,6 @@
     <ClCompile Include="src\egolib\extensions\SDL_GL_extensions.c">
       <Filter>Extensions</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\file_formats\cap_file.c">
-      <Filter>File Formats</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\file_formats\configfile.c">
       <Filter>File Formats</Filter>
     </ClCompile>
@@ -373,9 +370,6 @@
     </ClInclude>
     <ClInclude Include="src\egolib\extensions\SDL_GL_extensions.h">
       <Filter>Extensions</Filter>
-    </ClInclude>
-    <ClInclude Include="src\egolib\file_formats\cap_file.h">
-      <Filter>File Formats</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\file_formats\configfile.h">
       <Filter>File Formats</Filter>

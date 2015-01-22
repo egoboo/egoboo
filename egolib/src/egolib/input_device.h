@@ -25,25 +25,12 @@
 #include "egolib/typedef.h"
 #include "egolib/network.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
+struct s_control_tag;
+typedef struct s_control_tag control_tag_t;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct s_control;
-    typedef struct s_control control_t;
-
-    struct s_control_tag;
-    typedef struct s_control_tag control_tag_t;
-
-    struct s_input_device;
-    typedef struct s_input_device input_device_t;
-
-    struct s_device_list;
-    typedef struct s_device_list device_list_t;
+struct control_t;
+struct input_device_t;
+struct device_list_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -176,7 +163,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// the basic definition of a single control
-    struct s_control
+    struct control_t
     {
         bool loaded;
 
@@ -194,7 +181,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 /// The mapping between the hardware inputs and the in-game inputs
 
-    struct s_input_device
+    struct input_device_t
     {
         float                   sustain;                            ///< Falloff rate for old movement
         float                   cover;                              ///< For falloff
@@ -217,7 +204,7 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 
-    struct s_device_list
+    struct device_list_t
     {
         size_t         count;
         input_device_t lst[MAX_LOCAL_PLAYERS];      // up to MAX_LOCAL_PLAYERS input controllers
@@ -236,11 +223,3 @@ extern "C"
 
     char        get_device_char_from_device_type( Uint32 device_type );
     Uint32      get_device_type_from_device_char( char tag_type );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif

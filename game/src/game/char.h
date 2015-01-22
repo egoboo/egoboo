@@ -47,7 +47,7 @@ struct s_object_profile;
 struct billboard_data_t;
 struct mesh_wall_data_t;
 
-struct s_prt;
+struct prt_t;
 class ObjectProfile;
 
 //--------------------------------------------------------------------------------------------

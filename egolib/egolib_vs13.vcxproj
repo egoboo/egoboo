@@ -162,7 +162,6 @@
     <ClCompile Include="src\egolib\extensions\SDL_GL_extensions.c" />
     <ClCompile Include="src\egolib\fileutil.c" />
     <ClCompile Include="src\egolib\file_common.c" />
-    <ClCompile Include="src\egolib\file_formats\cap_file.c" />
     <ClCompile Include="src\egolib\file_formats\configfile.c" />
     <ClCompile Include="src\egolib\file_formats\controls_file-v1.c" />
     <ClCompile Include="src\egolib\file_formats\controls_file-v2.c" />
@@ -255,7 +254,6 @@
     <ClInclude Include="src\egolib\extensions\SDL_GL_extensions.h" />
     <ClInclude Include="src\egolib\fileutil.h" />
     <ClInclude Include="src\egolib\file_common.h" />
-    <ClInclude Include="src\egolib\file_formats\cap_file.h" />
     <ClInclude Include="src\egolib\file_formats\configfile.h" />
     <ClInclude Include="src\egolib\file_formats\controls_file-v1.h" />
     <ClInclude Include="src\egolib\file_formats\controls_file-v2.h" />

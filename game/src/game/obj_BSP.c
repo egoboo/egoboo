@@ -147,13 +147,13 @@ void obj_BSP_delete(obj_BSP_t *self)
 
 size_t obj_BSP_t::collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
 {
-    return BSP_tree_t::collide_aabb(&tree, aabb, test, collisions);
+    return tree.collide_aabb(aabb, test, collisions);
 }
 
 
 size_t obj_BSP_t::collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
 {
-    return BSP_tree_t::collide_frustum(&tree, frustum, test, collisions);
+    return tree.collide_frustum(frustum, test, collisions);
 }
 
 /**

@@ -1712,33 +1712,33 @@ bool BSP_tree_prune_branch(BSP_tree_t * t, size_t cnt)
 
 //--------------------------------------------------------------------------------------------
 
-size_t BSP_tree_t::collide_aabb(const BSP_tree_t *self, const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions)
+size_t BSP_tree_t::collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const
 {
-	if (nullptr == self || nullptr == aabb || nullptr == collisions)
+	if (nullptr == aabb || nullptr == collisions)
 	{
 		return 0;
 	}
 	// Collide with any "infinite" nodes.
-	BSP_leaf_list_collide_aabb(&(self->infinite), aabb, test, collisions);
+	BSP_leaf_list_collide_aabb(&(infinite), aabb, test, collisions);
 
 	// Collide with the rest of the BSP tree.
-	BSP_branch_collide_aabb(self->finite, aabb, test, collisions);
+	BSP_branch_collide_aabb(finite, aabb, test, collisions);
 
 	return collisions->size();
 }
 
 //--------------------------------------------------------------------------------------------
-size_t BSP_tree_t::collide_frustum(const BSP_tree_t *self, const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions)
+size_t BSP_tree_t::collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const
 {
-	if (nullptr == self || nullptr == frustum || nullptr == collisions)
+	if (nullptr == frustum || nullptr == collisions)
 	{
 		return 0;
 	}
 	// Collide with any "infinite" nodes.
-	BSP_leaf_list_collide_frustum(&(self->infinite), frustum, test, collisions);
+	BSP_leaf_list_collide_frustum(&(infinite), frustum, test, collisions);
 
 	// Collide with the rest of the BSP tree.
-	BSP_branch_collide_frustum(self->finite, frustum, test, collisions);
+	BSP_branch_collide_frustum(finite, frustum, test, collisions);
 
 	return collisions->size();
 }

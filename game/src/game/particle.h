@@ -45,8 +45,7 @@ typedef struct s_prt_environment prt_environment_t;
 struct s_prt_spawn_data;
 typedef struct s_prt_spawn_data prt_spawn_data_t;
 
-struct s_prt;
-typedef struct s_prt prt_t;
+struct prt_t;
 
 struct s_prt_bundle;
 typedef struct s_prt_bundle prt_bundle_t;
@@ -117,7 +116,7 @@ struct s_prt_spawn_data
 
 /// The definition of the particle object
 /// @extends Ego::Entity
-struct s_prt
+struct prt_t
 {
     Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
     bool is_ghost;                   ///< the particla has been killed, but is hanging around a while...

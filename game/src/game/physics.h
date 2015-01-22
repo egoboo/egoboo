@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------
 
 struct chr_t;
-struct s_prt;
+struct prt_t;
 struct orientation_t;
 struct breadcrumb_t;
 struct breadcrumb_list_t;
@@ -119,7 +119,7 @@ struct breadcrumb_t
 };
 
 breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr );
-breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, struct s_prt * pprt );
+breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt );
 
 int breadcrumb_cmp( const void * lhs, const void * rhs );
 
@@ -247,7 +247,7 @@ bool phys_expand_oct_bb( const oct_bb_t * src, const fvec3_t& vel, const float t
 ///               occupy during this update. Use the loser chr_max_cv and include extra height if
 ///               it is a platform.
 bool phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst );
-bool phys_expand_prt_bb( struct s_prt * pprt, float tmin, float tmax, oct_bb_t * pdst );
+bool phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst );
 
 bool phys_estimate_collision_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_t& nrm, float * tmin );
 bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * pobb_b, const float exponent, oct_vec_t * podepth, fvec3_t& nrm, float * depth );
@@ -255,7 +255,7 @@ bool phys_estimate_pressure_normal( const oct_bb_t * pobb_a, const oct_bb_t * po
 bool phys_intersect_oct_bb( const oct_bb_t * src1, const fvec3_t& pos1, const fvec3_t& vel1, const oct_bb_t * src2, const fvec3_t& pos2, const fvec3_t& vel2, int test_platform, oct_bb_t * pdst, float *tmin, float *tmax );
 
 bool get_chr_mass( chr_t * pchr, float * wt );
-bool get_prt_mass( struct s_prt * pprt, chr_t * pchr, float * wt );
+bool get_prt_mass( prt_t * pprt, chr_t * pchr, float * wt );
 void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_b );
 
 //Inline below

@@ -27,30 +27,24 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_control;
-struct s_input_device;
-struct s_device_list;
+struct control_t;
+struct input_device_t;
+struct device_list_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_cursor;
-typedef struct s_cursor input_cursor_t;
+struct cursor_t;
+struct mouse_data_t;
+struct keyboard_data_t;
+struct joystick_data_t;
 
-struct s_mouse_data;
-typedef struct s_mouse_data mouse_data_t;
-
-struct s_keyboard_data;
-typedef struct s_keyboard_data keyboard_data_t;
-
-typedef struct s_joystick_data joystick_data_t;
-struct s_joystick_data;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// old user interface variables
-struct s_cursor
+struct cursor_t
 {
     int   x;
     int   y;
@@ -61,6 +55,9 @@ struct s_cursor
     bool  wheel_event;
 };
 
+/** @todo Remove this. */
+typedef cursor_t input_cursor_t;
+
 //--------------------------------------------------------------------------------------------
 // DEVICE DATA
 //--------------------------------------------------------------------------------------------
@@ -69,7 +66,7 @@ struct s_cursor
 // MOUSE
 
 /// The internal representation of the mouse data
-struct s_mouse_data
+struct mouse_data_t
 {
     bool                  on;              ///< Is it alive?
     float                   sense;           ///< Sensitivity threshold
@@ -97,7 +94,7 @@ mouse_data_t * mouse_data__init( mouse_data_t * ptr );
 // KEYBOARD
 
 /// The internal representation of the keyboard data
-struct s_keyboard_data
+struct keyboard_data_t
 {
     bool  on;                        ///< Is the keyboard alive?
 
@@ -126,7 +123,7 @@ keyboard_data_t * keyboard_data__init( keyboard_data_t * ptr );
 #define JOYBUTTON           32                      ///< Maximum number of joystick buttons
 
 /// The internal representation of the joystick data
-struct s_joystick_data
+struct joystick_data_t
 {
     bool  on;                ///< Is the holy joystick alive?
 
