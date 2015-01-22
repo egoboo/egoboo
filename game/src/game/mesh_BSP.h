@@ -45,25 +45,50 @@ struct mesh_BSP_t
     size_t count;
     oct_bb_t volume;
     BSP_tree_t tree;
+	/**
+	 * @brief
+	 *	Construct a mesh BSP tree.
+	 * @param mesh
+	 *	the mesh
+	 * @return
+	 *	a pointer to this mesh BSP tree on success, @a NULL on failure
+	 */
+	static mesh_BSP_t *ctor(mesh_BSP_t *self, const ego_mesh_t *mesh);
+
+	/**
+	 * @brief
+	 *	Destuct a mesh BSP.
+	 * @param self
+	 *	the mesh BSP
+	 */
+	static void dtor(mesh_BSP_t *self);
+
+	/**
+	 * @brief
+	 *	Fill the collision list with references to tiles that the object volume may overlap.
+	 * @return
+	 *	the number of collisions found
+	 */
+	size_t collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+
+	/**
+	 * @brief
+	 * 	Fill the collision list with references to tiles that the object volume may overlap.
+	 * @return
+	 *	the number of collisions found
+	 */
+	size_t collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+
 };
 
-/** @todo Should return @a bool. */
-mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh);
+
 /**
  * @brief
- *	Destuct a mesh BSP.
- * @param self
- *	the mesh BSP
- */
-void mesh_BSP_dtor(mesh_BSP_t *self);
- 
-/**
- * @brief
- *	Create a new mesh BSP for a mesh.
+ *	Create a new mesh BSP tree for a mesh.
  * @param mesh
  *	the mesh used in initialization
  * @return
- *	the mesh BSP on success, @a NULL failure
+ *	the mesh BSP tree on success, @a NULL failure
  * @author
  *	BB
  * @author
@@ -79,14 +104,8 @@ mesh_BSP_t *mesh_BSP_new(const ego_mesh_t *mesh);
  * @param self
  *	the mesh BSP
  */
-void mesh_BSP_delete(mesh_BSP_t *mesh_bsp);
+void mesh_BSP_delete(mesh_BSP_t *self);
 
-bool        mesh_BSP_alloc(mesh_BSP_t *self);
-bool        mesh_BSP_free(mesh_BSP_t *self);
-bool        mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh);
-
-bool        mesh_BSP_can_collide( BSP_leaf_t * pleaf );
-bool        mesh_BSP_is_visible( BSP_leaf_t * pleaf );
-
-int         mesh_BSP_collide_aabb( const mesh_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> * colst );
-int         mesh_BSP_collide_frustum(const mesh_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> * colst);
+bool mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh);
+bool mesh_BSP_can_collide(BSP_leaf_t *leaf);
+bool mesh_BSP_is_visible(BSP_leaf_t *leaf);

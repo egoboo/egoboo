@@ -32,7 +32,7 @@ static bool  mesh_BSP_insert(mesh_BSP_t * pbsp, ego_tile_info_t * ptile, int ind
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh)
+mesh_BSP_t *mesh_BSP_t::ctor(mesh_BSP_t *self, const ego_mesh_t *mesh)
 {
 	EGOBOO_ASSERT(NULL != self && NULL != mesh);
     BLANK_STRUCT_PTR(self)
@@ -51,7 +51,7 @@ mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh)
 
     // make a 2D BSP tree with "max depth" depth
     // this automatically allocates all data
-    BSP_tree_ctor(&(self->tree), 2, depth);
+    self->tree.ctor(2, depth);
 
     // !!!!SET THE BSP SIZE HERE!!!!
     // enlarge it a bit
@@ -67,27 +67,18 @@ mesh_BSP_t *mesh_BSP_ctor(mesh_BSP_t *self, const ego_mesh_t *mesh)
 	// @todo Error handling.
     oct_bb_ctor(&(self->volume));
 
-    // Do any additional allocation.
-	// @todo Error handling.
-    mesh_BSP_alloc(self);
-
     return self;
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_BSP_dtor(mesh_BSP_t *self)
+void mesh_BSP_t::dtor(mesh_BSP_t *self)
 {
-	if (NULL == self)
+	if (nullptr == self)
 	{
 		return;
 	}
-
-    // destroy the tree
-    BSP_tree_dtor(&(self->tree));
-
-    // free any other allocated memory
-    mesh_BSP_free(self);
-
+    // Destruct the BSP tree.
+    self->tree.dtor();
     BLANK_STRUCT_PTR(self)
 }
 
@@ -97,12 +88,12 @@ mesh_BSP_t *mesh_BSP_new(const ego_mesh_t *mesh)
 	if (!self)
 	{
 		log_error("%s:%d: unable to allocate %zu Bytes\n", __FILE__, __LINE__, sizeof(mesh_BSP_t));
-		return NULL;
+		return nullptr;
 	}
-	if (!mesh_BSP_ctor(self, mesh))
+	if (!mesh_BSP_t::ctor(self, mesh))
 	{
 		free(self);
-		return NULL;
+		return nullptr;
 	}
 	return self;
 }
@@ -110,26 +101,8 @@ mesh_BSP_t *mesh_BSP_new(const ego_mesh_t *mesh)
 void mesh_BSP_delete(mesh_BSP_t *self)
 {
 	EGOBOO_ASSERT(NULL != self);
-	mesh_BSP_dtor(self);
+	mesh_BSP_t::dtor(self);
 	free(self);
-}
-
-//--------------------------------------------------------------------------------------------
-bool mesh_BSP_alloc(mesh_BSP_t *self)
-{
-    if (NULL == self) return false;
-
-    // BSP_tree_alloc() is called by BSP_tree_ctor(), so there is no need to do any allocation here.
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool mesh_BSP_free(mesh_BSP_t *self)
-{
-    if (NULL == self) return false;
-
-    // no other data allocated, so nothing else to do
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -166,34 +139,15 @@ bool mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh)
     return self->count > 0;
 }
 
-/**
- * @brief
- *	Fill the collision list with references to tiles that the object volume may overlap.
- * @return
- *	the number of collisions found
- * @author
- *	BB
- */
-int mesh_BSP_collide_aabb(const mesh_BSP_t *self, const aabb_t *aabb, BSP_leaf_test_t *ptest, Ego::DynamicArray<BSP_leaf_t *> *colst)
+size_t mesh_BSP_t::collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const
 {
-    if (NULL == self || NULL == aabb || NULL == colst) return 0;
-
-    return BSP_tree_collide_aabb(&(self->tree), aabb, ptest, colst);
+    return BSP_tree_t::collide_aabb(&(tree), aabb, test, collisions);
 }
 
-/**
- * @brief
- *	Fill the collision list with references to tiles that the object volume may overlap.
- * @return
- *	the number of collisions found
- * @author
- *	BB
- */
-int mesh_BSP_collide_frustum(const mesh_BSP_t *self, const egolib_frustum_t *frustum, BSP_leaf_test_t *ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst)
-{
-    if (NULL == self || NULL == frustum || NULL == colst) return 0;
 
-    return BSP_tree_collide_frustum(&(self->tree), frustum, ptest, colst);
+size_t mesh_BSP_t::collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
+{
+    return BSP_tree_t::collide_frustum(&(tree), frustum, test, collisions);
 }
 
 /**

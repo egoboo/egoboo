@@ -67,7 +67,6 @@
     struct BSP_leaf_t
     {
         bool inserted;
-
         BSP_leaf_t *next;
         bsp_type_t data_type;
         void *data;
@@ -77,10 +76,11 @@
 		void dtor();
     };
 
-
-    bool BSP_leaf_clear( BSP_leaf_t * L );
-    bool BSP_leaf_remove_link( BSP_leaf_t * L );
-    bool BSP_leaf_copy( BSP_leaf_t * L_dst, const BSP_leaf_t * L_src );
+	bool BSP_leaf_valid(BSP_leaf_t *self);
+    bool BSP_leaf_clear(BSP_leaf_t *self);
+    bool BSP_leaf_remove_link(BSP_leaf_t *self);
+	/// @todo Rename to BSP_leaf_assign.
+    bool BSP_leaf_copy(BSP_leaf_t * L_dst, const BSP_leaf_t * L_src);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -101,12 +101,10 @@
 		 *	Destruct this leaf list.
 		 * @param self
 		 *	this leaf list
+		 * @todo
+		 *	Should return @a void.
 		 */
 		BSP_leaf_list_t *dtor();
-		/// Allocate a leaf list.
-		static bool alloc(BSP_leaf_list_t *self);
-		/// Deallocate a leaf list.
-		static bool dealloc(BSP_leaf_list_t *self);
     };
 
 	BSP_leaf_list_t *BSP_leaf_list_clear(BSP_leaf_list_t *self);
@@ -173,13 +171,23 @@ struct BSP_branch_t
 	static void dtor(BSP_branch_t *self);
 };
 
-/// @brief Get if this branch is empty.
-/// @param self this branch
-/// @return @a true on success, @a false on failure
+/**
+ * @brief
+ *	Get if this branch is empty.
+ * @param self
+ *	this branch
+ * @return
+ *	@a true on success, @a false on failure
+ */
 bool BSP_branch_empty(const BSP_branch_t *self);
-/// @brief Clear this branch.
-/// @param self this branch
-/// @param recursive if @a true, recursively clear this branch
+/**
+ * @brief
+ *	Clear this branch.
+ * @param self
+ *	this branch
+ * @param recursive
+ *	if @a true, recursively clear this branch
+ */
 bool BSP_branch_clear(BSP_branch_t *self, bool recursive);
 bool BSP_branch_free_nodes( BSP_branch_t * B, bool recursive );
 bool BSP_branch_unlink_all( BSP_branch_t * B );
@@ -197,8 +205,34 @@ bool BSP_branch_add_all_children(const BSP_branch_t * pbranch, BSP_leaf_test_t *
 //--------------------------------------------------------------------------------------------
 struct BSP_tree_t
 {
-    size_t dimensions;          ///< the number of dimensions used by the tree
-    int max_depth;              ///< the maximum depth that the BSP supports
+	/**
+	 * @brief
+	 *	The minimum dimensionality of a BSP tree.
+	 *	("binary" should already suggest that this is the minimum dimensionality).
+	 */
+	static const size_t DIMENSIONALITY_MIN = 2;
+
+	/**
+	 * @brief
+	 *	The number of dimensions used by this BSP tree.
+	 */
+    size_t dimensions;
+	/**
+	 * @brief
+	 *	The maximum depth this BSP tree supports.
+	 * @todo
+	 *	Should be of type @a size_t.
+	 */
+    int max_depth;
+	/**
+	 * @brief
+	 *	The maximum depth of this BSP tree actually has.
+	 * @remark
+	 *	The maximum depth (of a BSP tree) is the maximum of the lengths of its branches.
+	 * @todo
+	 *	Should be of type @a size_t.
+	 */
+	int depth;
 
 	Ego::DynamicArray < BSP_branch_t>    branch_all;  ///< the list of pre-allocated branches
 	Ego::DynamicArray < BSP_branch_t * > branch_used; ///< a linked list of all used pre-allocated branches
@@ -207,28 +241,70 @@ struct BSP_tree_t
     BSP_branch_t *finite;      ///< the root node of the ordinary BSP tree
     BSP_leaf_list_t infinite;  ///< all nodes which do not fit inside the BSP tree
 
-    int depth;           ///< the maximum actual depth of the tree
+
     bv_t bbox;           ///< the actual size of everything in the tree
     BSP_aabb_t bsp_bbox; ///< the root-size of the tree
+
+	/**
+	 * @brief
+	 *	Construct a BSP tree.
+	 * @param self
+	 * 	the BSP tree
+	 * @param dimensionality
+	 *	the dimensionality the BSP tree shall have
+	 * @param maximumDepth
+	 *	the maximum depth the BSP tree shall support
+	 * @pre
+	 *	<tt>dimensionality >= BSP_tree_t::DIMENSIONALITY_MIN</tt> (dynamically checked)
+	 * @return
+	 * 	the BSP tree on success, @a NULL on failure
+	 */
+	BSP_tree_t *ctor(size_t dimensionality, size_t maximumDepth);
+	
+	/**
+	 * @brief
+	 * 	Destruct a BSP tree.
+	 * @param self
+	 *	the BSP tree
+	 */
+	void dtor();
+
+	/**
+	 * @brief
+	 *	Fill the collision list with references to objects that the AABB may overlap.
+	 * @param self
+	 *	this BSP tree
+	 * @param aabb
+	 *	the AABB
+	 * @param collisions
+	 *	the collision list
+	 * @return
+	 *	the number of collisions found
+	 */
+	static size_t collide_aabb(const BSP_tree_t *self, const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+
+	/**
+	 * @brief
+	 *	Fill the collision list with references to objects that the frustum may overlap.
+	 * @param self
+	 *	this BSP tree
+	 * @param frustum
+	 *	the frustum
+	 * @param collisions
+	 *	the collision list
+	 * @return
+	 *	the number of collisions found
+	 */
+	static size_t collide_frustum(const BSP_tree_t *self, const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+
 };
 
-BSP_tree_t *BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );
-BSP_tree_t *BSP_tree_dtor( BSP_tree_t * t );
-bool BSP_tree_alloc( BSP_tree_t * t, size_t count, size_t dim );
-bool BSP_tree_dealloc( BSP_tree_t * t );
 
-bool BSP_tree_clear_rec( BSP_tree_t * t );
-bool BSP_tree_prune( BSP_tree_t * t );
-BSP_branch_t *BSP_tree_get_free( BSP_tree_t * t );
-BSP_branch_t *BSP_tree_ensure_root( BSP_tree_t * t );
-BSP_branch_t *BSP_tree_ensure_branch( BSP_tree_t * t, BSP_branch_t * B, int index );
-Sint32 BSP_tree_count_nodes( Sint32 dim, Sint32 depth );
-bool BSP_tree_insert_leaf( BSP_tree_t * ptree, BSP_leaf_t * pleaf );
-bool BSP_tree_prune_branch( BSP_tree_t * t, size_t cnt );
-
-size_t BSP_tree_collide_aabb( const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> *colst );
-size_t BSP_tree_collide_frustum(const BSP_tree_t * tree, const egolib_frustum_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> *colst);
-
-
-//inline
-bool BSP_leaf_valid(BSP_leaf_t *self);
+bool BSP_tree_clear_rec(BSP_tree_t *self);
+bool BSP_tree_prune(BSP_tree_t *self);
+BSP_branch_t *BSP_tree_get_free(BSP_tree_t *self);
+BSP_branch_t *BSP_tree_ensure_root(BSP_tree_t *self);
+BSP_branch_t *BSP_tree_ensure_branch(BSP_tree_t *self, BSP_branch_t *branch, int index);
+Sint32 BSP_tree_count_nodes(Sint32 dim, Sint32 depth);
+bool BSP_tree_insert_leaf(BSP_tree_t *self, BSP_leaf_t *leaf);
+bool BSP_tree_prune_branch(BSP_tree_t * t, size_t cnt);

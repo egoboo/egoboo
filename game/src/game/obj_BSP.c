@@ -34,74 +34,48 @@
 #include "game/ChrList.h"
 #include "game/PrtList.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-static bool obj_BSP_allocTree(obj_BSP_t *self, int dim, int depth);
-static void obj_BSP_deallocTree(obj_BSP_t *self);
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static bool obj_BSP_allocTree(obj_BSP_t *self, int dim, int depth)
+obj_BSP_t *obj_BSP_t::ctor(size_t bsp_dim, const mesh_BSP_t *mesh_bsp)
 {
-	EGOBOO_ASSERT(NULL != self);
-    BSP_tree_t *rv = BSP_tree_ctor(&(self->tree), dim, depth);
-	return (NULL != rv);
-}
-
-//--------------------------------------------------------------------------------------------
-static void obj_BSP_deallocTree(obj_BSP_t *self)
-{
-	EGOBOO_ASSERT(NULL != self);
-    BSP_tree_dealloc(&(self->tree));
-}
-
-//--------------------------------------------------------------------------------------------
-/// @brief Construct a BSP tree for game object.
-/// @remark The used parameters duplicate the maximum resolution of the old system.
-/// @author BB
-/// @author MH
-bool obj_BSP_ctor(obj_BSP_t *self, int bsp_dim, const mesh_BSP_t *mesh_bsp)
-{
-    int          cnt;
-    int          mesh_dim, min_dim;
-    float        bsp_size;
-    BSP_tree_t * obj_tree;
-    const BSP_tree_t * mesh_tree;
-
-    if ( bsp_dim < 2 )
+    if (bsp_dim < 2)
     {
-        log_error( "obj_BSP_ctor() - cannot construct an object BSP with less than 2 dimensions\n" );
+        log_error("obj_BSP_t::ctor() - cannot construct an object BSP with less than 2 dimensions\n");
+		return nullptr;
     }
-    else if ( bsp_dim > 3 )
+    else if (bsp_dim > 3)
     {
-        log_error( "obj_BSP_ctor() - cannot construct an object BSP with more than than 3 dimensions\n" );
+        log_error("obj_BSP_t::ctor() - cannot construct an object BSP with more than than 3 dimensions\n");
+		return nullptr;
     }
+	if (nullptr == mesh_bsp)
+	{
+		return nullptr;
+	}
+	const BSP_tree_t *mesh_tree = &(mesh_bsp->tree);
+    size_t mesh_dim = mesh_bsp->tree.dimensions;
 
-    if ( NULL == mesh_bsp ) return false;
-    mesh_tree = &(mesh_bsp->tree);
-    mesh_dim = mesh_bsp->tree.dimensions;
+	BLANK_STRUCT_PTR(this);
 
-    if ( NULL == self ) return false;
-    obj_tree = &(self->tree);
+    // Construct the BSP tree.
+	if (!tree.ctor(bsp_dim, mesh_tree->max_depth))
+	{
+		return nullptr;
+	}
+	// Take the minimum of the requested dimensionality and dimensionality
+	// of the mesh BSP tree as the dimensionality of the resulting BSP tree.
+	size_t min_dim = std::min(bsp_dim, mesh_dim);
 
-    BLANK_STRUCT_PTR(self)
-
-    // allocate the data
-	if (!obj_BSP_allocTree(self, bsp_dim, mesh_tree->max_depth)) return false;
-
-    // find the maximum extent of the bsp
-    bsp_size = 0.0f;
-    min_dim = std::min( bsp_dim, mesh_dim );
-
-    for ( cnt = 0; cnt < min_dim; cnt ++ )
+	float bsp_size = 0.0f;
+	// Find the maximum extent of the BSP tree from the size of the bounding box of the mesh tree.
+    for (size_t cnt = 0; cnt < min_dim; ++cnt)
     {
         float tmp_size = std::abs( mesh_tree->bsp_bbox.maxs.ary[cnt] - mesh_tree->bsp_bbox.mins.ary[cnt] );
-        bsp_size = std::max( bsp_size, tmp_size );
+        bsp_size = std::max(bsp_size, tmp_size);
     }
 
-    // copy the volume from the mesh
-    for ( int cnt = 0; cnt < min_dim; cnt++ )
+	BSP_tree_t *obj_tree = &(tree);
+
+    // Copy the volume from the mesh.
+    for (size_t cnt = 0; cnt < min_dim; ++cnt)
     {
         // get the size
         obj_tree->bsp_bbox.mins.ary[cnt] = std::min( mesh_tree->bsp_bbox.mins.ary[cnt], mesh_tree->bbox.aabb.mins[cnt] );
@@ -112,45 +86,41 @@ bool obj_BSP_ctor(obj_BSP_t *self, int bsp_dim, const mesh_BSP_t *mesh_bsp)
         obj_tree->bsp_bbox.maxs.ary[cnt] += bsp_size * 0.25f;
     }
 
-    // calculate a "reasonable size" for all dimensions that are not in the mesh
-    for ( /* nothing */; cnt < bsp_dim; cnt++ )
+    // Calculate a "reasonable size" for all dimensions that are not in the mesh.
+    for (size_t cnt = min_dim; cnt < bsp_dim; cnt++ )
     {
         obj_tree->bsp_bbox.mins.ary[cnt] = -bsp_size * 0.5f;
         obj_tree->bsp_bbox.maxs.ary[cnt] =  bsp_size * 0.5f;
     }
 
-    if ( bsp_dim > 2 )
+    if (bsp_dim > 2)
     {
-        // make some extra special space in the z direction
-        obj_tree->bsp_bbox.mins.ary[kZ] = std::min( -bsp_size, obj_tree->bsp_bbox.mins.ary[kZ] );
-        obj_tree->bsp_bbox.maxs.ary[kZ] = std::max( bsp_size, obj_tree->bsp_bbox.maxs.ary[kZ] );
+        // Make some extra special space in the z direction.
+        obj_tree->bsp_bbox.mins.ary[kZ] = std::min(-bsp_size, obj_tree->bsp_bbox.mins.ary[kZ]);
+        obj_tree->bsp_bbox.maxs.ary[kZ] = std::max(+bsp_size, obj_tree->bsp_bbox.maxs.ary[kZ]);
     }
 
-    // calculate the mid positions
-    for ( cnt = 0; cnt < bsp_dim; cnt++ )
+    // Calculate the mid positions
+    for (size_t cnt = 0; cnt < bsp_dim; ++cnt)
     {
-        obj_tree->bsp_bbox.mids.ary[cnt] = 0.5f * ( obj_tree->bsp_bbox.mins.ary[cnt] + obj_tree->bsp_bbox.maxs.ary[cnt] );
+		/// @todo Use BSP_aabb_t::getCenter();
+        obj_tree->bsp_bbox.mids.ary[cnt] = 0.5f * (obj_tree->bsp_bbox.mins.ary[cnt] + obj_tree->bsp_bbox.maxs.ary[cnt]);
     }
 
     BSP_aabb_validate(obj_tree->bsp_bbox);
 
-    return true;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
-void obj_BSP_dtor(obj_BSP_t *self)
+void obj_BSP_t::dtor()
 {
-	EGOBOO_ASSERT(NULL != self);
-
-    // Deallocate everything.
-    obj_BSP_deallocTree(self);
-
-    // Run the destructors on all of the sub-objects.
-    BSP_tree_dtor(&(self->tree ));
+    // Destruct the BSP tree.
+	tree.dtor();
 }
 
 //--------------------------------------------------------------------------------------------
-obj_BSP_t *obj_BSP_new(int dim, const mesh_BSP_t *mesh_bsp)
+obj_BSP_t *obj_BSP_new(size_t dim, const mesh_BSP_t *mesh_bsp)
 {
 	EGOBOO_ASSERT(NULL != mesh_bsp);
 	obj_BSP_t *self = (obj_BSP_t *)malloc(sizeof(obj_BSP_t));
@@ -159,7 +129,7 @@ obj_BSP_t *obj_BSP_new(int dim, const mesh_BSP_t *mesh_bsp)
 		log_error("%s:%d: unable to allocate %zu Bytes\n",__FILE__,__LINE__,sizeof(obj_BSP_t));
 		return NULL;
 	}
-	if (!obj_BSP_ctor(self, dim, mesh_bsp))
+	if (!self->ctor(dim, mesh_bsp))
 	{
 		free(self);
 		return NULL;
@@ -170,39 +140,20 @@ obj_BSP_t *obj_BSP_new(int dim, const mesh_BSP_t *mesh_bsp)
 void obj_BSP_delete(obj_BSP_t *self)
 {
 	EGOBOO_ASSERT(NULL != self);
-	obj_BSP_dtor(self);
+	self->dtor();
 	free(self);
 }
 
-/**
- * @brief
- *	Fill the collision list with references to tiles that the object volume may overlap.
- * @return
- *	return the number of collisions found
- * @author
- *	BB
- */
-int obj_BSP_collide_aabb(const obj_BSP_t *self, const aabb_t *aabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst)
-{
-    if (NULL == self || NULL == aabb || NULL == colst) return 0;
 
-    // Infinite nodes.
-    return BSP_tree_collide_aabb(&(self->tree), aabb, ptest, colst);
+size_t obj_BSP_t::collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
+{
+    return BSP_tree_t::collide_aabb(&tree, aabb, test, collisions);
 }
 
-/**
- * @brief
- *	Fill the collision list with references to tiles that the object volume may overlap.
- * @return
- *	the number of collisions found
- * @author BB
- */
-int obj_BSP_collide_frustum(const obj_BSP_t *self, const egolib_frustum_t * frustum, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst)
-{
-    if (NULL == self || NULL == frustum || NULL == colst) return 0;
 
-    // Infinite nodes.
-    return BSP_tree_collide_frustum(&(self->tree), frustum, ptest, colst);
+size_t obj_BSP_t::collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
+{
+    return BSP_tree_t::collide_frustum(&tree, frustum, test, collisions);
 }
 
 /**
@@ -381,182 +332,3 @@ bool prt_BSP_is_visible(BSP_leaf_t * pprt_leaf)
 
     return true;
 }
-
-//--------------------------------------------------------------------------------------------
-// OBSOLETE
-//--------------------------------------------------------------------------------------------
-
-////--------------------------------------------------------------------------------------------
-//bool obj_BSP_insert_leaf( obj_BSP_t * pbsp, BSP_leaf_t * pleaf, int depth, int address_x[], int address_y[], int address_z[] )
-//{
-//    int i;
-//    bool retval;
-//    Uint32 index;
-//    BSP_branch_t * pbranch, * pbranch_new;
-//    BSP_tree_t * ptree = &( pbsp->tree );
-//
-//    retval = false;
-//    if ( depth < 0 )
-//    {
-//        // this can only happen if the node does not intersect the BSP bounding box
-//        pleaf->next = ptree->infinite;
-//        ptree->infinite = pleaf;
-//        retval = true;
-//    }
-//    else if ( 0 == depth )
-//    {
-//        // this can only happen if the object should be in the root node list
-//        pleaf->next = ptree->root->nodes;
-//        ptree->root->nodes = pleaf;
-//        retval = true;
-//    }
-//    else
-//    {
-//        // insert the node into the tree at this point
-//        pbranch = ptree->root;
-//        for ( i = 0; i < depth; i++ )
-//        {
-//            index = (( Uint32 )address_x[i] ) | ((( Uint32 )address_y[i] ) << 1 ) | ((( Uint32 )address_z[i] ) << 2 ) ;
-//
-//            pbranch_new = BSP_tree_ensure_branch( ptree, pbranch, index );
-//            if ( NULL == pbranch_new ) break;
-//
-//            pbranch = pbranch_new;
-//        };
-//
-//        // insert the node in this branch
-//        retval = BSP_tree_insert( ptree, pbranch, pleaf, -1 );
-//    }
-//
-//    return retval;
-//}
-//
-
-////--------------------------------------------------------------------------------------------
-//bool obj_BSP_collide_branch( BSP_branch_t * pbranch, oct_bb_t * pvbranch, oct_bb_t * pvobj, int_ary_t * colst )
-//{
-//    /// @author BB
-/// @details Recursively search the BSP tree for collisions with the pvobj
-//    //      Return false if we need to break out of the recursive search for any reson.
-//
-//    Uint32 i;
-//    oct_bb_t    int_ov, tmp_ov;
-//    float x_mid, y_mid, z_mid;
-//    int address_x, address_y, address_z;
-//
-//    if ( NULL == colst ) return false;
-//    if ( NULL == pvbranch || oct_bb_empty( *pvbranch ) ) return false;
-//    if ( NULL == pvobj  || oct_bb_empty( *pvobj ) ) return false;
-//
-//    // return if the object does not intersect the branch
-//    if ( !oct_bb_intersection( pvobj, pvbranch, &int_ov ) )
-//    {
-//        return false;
-//    }
-//
-//    if ( !obj_BSP_collide_nodes( pbranch->nodes, pvobj, colst ) )
-//    {
-//        return false;
-//    };
-//
-//    // check for collisions with any of the children
-//    x_mid = ( pvbranch->maxs[OCT_X] + pvbranch->mins[OCT_X] ) * 0.5f;
-//    y_mid = ( pvbranch->maxs[OCT_Y] + pvbranch->mins[OCT_Y] ) * 0.5f;
-//    z_mid = ( pvbranch->maxs[OCT_Z] + pvbranch->mins[OCT_Z] ) * 0.5f;
-//    for ( i = 0; i < pbranch->child_count; i++ )
-//    {
-//        // scan all the children
-//        if ( NULL == pbranch->children[i] ) continue;
-//
-//        // create the volume of this node
-//        address_x = i & ( 1 << 0 );
-//        address_y = i & ( 1 << 1 );
-//        address_z = i & ( 1 << 2 );
-//
-//        tmp_ov = *( pvbranch );
-//
-//        if ( 0 == address_x )
-//        {
-//            tmp_ov.maxs[OCT_X] = x_mid;
-//        }
-//        else
-//        {
-//            tmp_ov.mins[OCT_X] = x_mid;
-//        }
-//
-//        if ( 0 == address_y )
-//        {
-//            tmp_ov.maxs[OCT_Y] = y_mid;
-//        }
-//        else
-//        {
-//            tmp_ov.mins[OCT_X] = y_mid;
-//        }
-//
-//        if ( 0 == address_z )
-//        {
-//            tmp_ov.maxs[OCT_Z] = z_mid;
-//        }
-//        else
-//        {
-//            tmp_ov.mins[OCT_Z] = z_mid;
-//        }
-//
-//        if ( oct_bb_intersection( pvobj, &tmp_ov, &int_ov ) )
-//        {
-//            // potential interaction with the child. go recursive!
-//            bool ret = obj_BSP_collide_branch( pbranch->children[i], &( tmp_ov ), pvobj, colst );
-//            if ( !ret ) return ret;
-//        }
-//    }
-//
-//    return true;
-//}
-//
-
-////--------------------------------------------------------------------------------------------
-//bool obj_BSP_collide_nodes( BSP_leaf_t leaf_lst[], oct_bb_t * pvobj, int_ary_t * colst )
-//{
-//    /// @author BB
-//    /// @details check for collisions with the given node list
-//
-//    BSP_leaf_t * pleaf;
-//    oct_bb_t    int_ov, * pnodevol;
-//
-//    if ( NULL == leaf_lst || NULL == pvobj ) return false;
-//
-//    if ( 0 == int_ary_get_size( colst ) || int_ary_get_top( colst ) >= int_ary_get_size( colst ) ) return false;
-//
-//    // check for collisions with any of the nodes of this branch
-//    for ( pleaf = leaf_lst; NULL != pleaf; pleaf = pleaf->next )
-//    {
-//        if ( NULL == pleaf ) EGOBOO_ASSERT( false );
-//
-//        // get the volume of the node
-//        pnodevol = NULL;
-//        if ( BSP_LEAF_CHR == pleaf->data_type )
-//        {
-//            chr_t * pchr = ( chr_t* )pleaf->data;
-//            pnodevol = &( pchr->chr_max_cv );
-//        }
-//        else if ( BSP_LEAF_PRT == pleaf->data_type )
-//        {
-//            prt_t * pprt = ( prt_t* )pleaf->data;
-//            pnodevol = &( pprt->prt_max_cv );
-//        }
-//        else
-//        {
-//            continue;
-//        }
-//
-//        if ( oct_bb_intersection( pvobj, pnodevol, &int_ov ) )
-//        {
-//            // we have a possible intersection
-//            int_ary_push_back( colst, pleaf->index *(( BSP_LEAF_CHR == pleaf->data_type ) ? 1 : -1 ) );
-//
-//            if ( int_ary_get_top( colst ) >= int_ary_get_size( colst ) )
-//            {
-//                // too many nodes. break out of the search.
-//                return false;
-//            };
-//        }

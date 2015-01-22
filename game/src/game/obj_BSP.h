@@ -43,23 +43,54 @@ typedef struct s_obj_BSP obj_BSP_t;
 // the BSP structure housing the object
 struct s_obj_BSP
 {
-    /// the number of objects in this obj_BSP.
-	/// @todo This should be unsigned.
+    /**
+	 * @brief
+	 *	The number of characters in this obj_BSP.
+	 * @todo
+	 *	The type should be @a size_t.
+	 */
     int count;
 
-    /// the BSP of characters for character-character and character-particle interactions
-    BSP_tree_t   tree;
-};
+    /**
+	 * The BSP tree of characters for character-character and character-particle interactions.
+	 */
+    BSP_tree_t tree;
 
-/**
- * @todo
- *	Make private.
- * @todo
- *	If @a dim can not be negative, then it should be of type @a size_t.
- */
-bool obj_BSP_ctor(obj_BSP_t *self, int dim, const mesh_BSP_t *mesh_bsp);
-/* @todo Make private*/
-void obj_BSP_dtor(obj_BSP_t *self);
+	/**
+	 * @brief
+	 *	Construct this object BSP tree.
+	 * @param dimensionality
+	 *	the dimensionality the object BSP tree shall have
+	 * @param mesh_bsp
+	 *	the mesh BSP the object BSP tree shall use
+	 * @return
+	 *	a pointer to this object BSP tree on success, @a NULL on failure
+	 */
+	obj_BSP_t *ctor(size_t dimensionality, const mesh_BSP_t *mesh_bsp);
+	
+	/**
+	 * @brief
+	 *	Destruct this object BSP tree.
+	 */
+	void dtor();
+
+	/**
+	 * @brief
+	 *	Fill the collision list with references to tiles that the object volume may overlap.
+	 * @return
+	 *	return the number of collisions found
+	 */
+	size_t collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+
+	/**
+	 * @brief
+	 *	Fill the collision list with references to tiles that the object volume may overlap.
+	 * @return
+	 *	the number of collisions found
+	 */
+	size_t collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+
+};
 
 /**
  * @brief
@@ -73,7 +104,7 @@ void obj_BSP_dtor(obj_BSP_t *self);
  * @todo
  *	If @a dim can not be negative, then it should be of type @a size_t.
  */
-obj_BSP_t *obj_BSP_new(int dim,const mesh_BSP_t *mesh_bsp);
+obj_BSP_t *obj_BSP_new(size_t dimensionality,const mesh_BSP_t *mesh_bsp);
 
 /**
  * @brief
@@ -82,6 +113,3 @@ obj_BSP_t *obj_BSP_new(int dim,const mesh_BSP_t *mesh_bsp);
  *	the object BSP
  */
 void obj_BSP_delete(obj_BSP_t *self);
-
-int obj_BSP_collide_aabb(const obj_BSP_t * pbsp, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> * colst);
-int obj_BSP_collide_frustum(const obj_BSP_t * pbsp, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> * colst);

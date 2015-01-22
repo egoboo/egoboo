@@ -48,10 +48,6 @@ static BSP_branch_t * BSP_tree_alloc_branch(BSP_tree_t * t);
 
 static bool BSP_tree_insert_infinite(BSP_tree_t * ptree, BSP_leaf_t * pleaf);
 
-//static bool         BSP_tree_free_branch( BSP_tree_t * t, BSP_branch_t * B );
-//static bool         BSP_tree_remove_used( BSP_tree_t * t, BSP_branch_t * B );
-//static bool         BSP_tree_free_branches( BSP_tree_t * t );
-
 //--------------------------------------------------------------------------------------------
 // BSP_branch_t private functions
 
@@ -67,10 +63,8 @@ static int BSP_branch_insert_leaf_rec_1(BSP_tree_t * ptree, BSP_branch_t * pbran
 //--------------------------------------------------------------------------------------------
 // BSP_leaf_t private functions
 
-static bool BSP_leaf_list_collide_aabb(const BSP_leaf_list_t * LL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> *colst);
-static bool BSP_leaf_list_collide_frustum(const BSP_leaf_list_t * LL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> *colst);
-//static BSP_leaf_t * BSP_leaf_create( void * data, int type, int index );
-//static bool BSP_leaf_destroy( BSP_leaf_t ** ppleaf );
+static bool BSP_leaf_list_collide_aabb(const BSP_leaf_list_t * LL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+static bool BSP_leaf_list_collide_frustum(const BSP_leaf_list_t * LL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> *collisions);
 
 //--------------------------------------------------------------------------------------------
 // Generic BSP functions
@@ -1369,111 +1363,82 @@ bool BSP_branch_insert_leaf_rec(BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_
 //--------------------------------------------------------------------------------------------
 // BSP_tree_t
 //--------------------------------------------------------------------------------------------
-BSP_tree_t * BSP_tree_ctor(BSP_tree_t *self, Sint32 req_dim, Sint32 req_depth)
+BSP_tree_t *BSP_tree_t::ctor(size_t dimensionality, size_t maximumDepth)
 {
-	if (nullptr == self)
+	if (dimensionality < BSP_tree_t::DIMENSIONALITY_MIN)
 	{
+		log_error("%s: %d: cannot construct a BSP tree with less than 2 dimensions (dimensionality %zu given)\n", \
+			__FILE__, __LINE__, dimensionality);
 		return nullptr;
 	}
-	BLANK_STRUCT_PTR(self);
 
-	self->bbox.ctor();
-	self->bsp_bbox.ctor(req_dim);
-	self->infinite.ctor();
+	BLANK_STRUCT_PTR(this);
 
-	int node_count = node_count = BSP_tree_count_nodes(req_dim, req_depth);
-	if (node_count < 0) return self;
+	bbox.ctor();
+	bsp_bbox.ctor(dimensionality);
+	infinite.ctor();
 
-	if (!BSP_tree_alloc(self, node_count, req_dim))
+	int node_count = node_count = BSP_tree_count_nodes(dimensionality, maximumDepth);
+	if (node_count < 0) return this; ///< @todo Shouldn't this be an error?
+	/********************************************************************************/
+	// Construct the infinite node list
+	infinite.ctor();
+
+	// Construct the branches
+	if (!branch_all.ctor(node_count))
 	{
-		/* @todo Destruct bbox, bsp_bbox and infinite, then return @a nullptr.*/
-		return self;
+		// @todo Destruct.
+		return nullptr;
 	}
-	self->max_depth = req_depth;
-
-	// initialize the free list
-	self->branch_free.top = 0;
-	self->branch_used.top = 0;
-	for (size_t cnt = 0; cnt < self->branch_all.cp; cnt++)
-	{
-		self->branch_free.push_back(self->branch_all.ary + cnt);
-	}
-	return self;
-}
-
-//--------------------------------------------------------------------------------------------
-BSP_tree_t * BSP_tree_dtor(BSP_tree_t * t)
-{
-	if (NULL == t) return NULL;
-
-	BSP_tree_dealloc(t);
-
-	return t;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_tree_alloc(BSP_tree_t * t, size_t count, size_t dim)
-{
-	if (NULL == t) return false;
-
-	if (NULL != t->branch_all.ary || t->branch_all.cp > 0) return false;
-
-	// re-initialize the variables
-	t->dimensions = 0;
-
-	// allocate the infinite node list
-	BSP_leaf_list_t::alloc(&(t->infinite));
-
-	// allocate the branches
-	t->branch_all.ctor(count);
-	if (NULL == t->branch_all.ary || 0 == t->branch_all.cp) return false;
-
 	// initialize the array branches
-	for (size_t index = 0; index < count; ++index)
+	for (size_t index = 0; index < node_count; ++index)
 	{
-		BSP_branch_t::ctor(t->branch_all.ary + index, dim);
+		if (!BSP_branch_t::ctor(branch_all.ary + index, dimensionality))
+		{
+			// @todo Destruct.
+			return nullptr;
+		}
 	}
 
-	// allocate the aux arrays
-	t->branch_used.ctor(count);
-	t->branch_free.ctor(count);
+	// Construct the auxiliary array.
+	branch_used.ctor(node_count);
+	branch_free.ctor(node_count);
 
-	// initialize the root bounding box
-	t->bsp_bbox.ctor(dim);
+	// Set the variables.
+	this->dimensions = dimensionality;
+	this->max_depth = maximumDepth;
+	this->depth = 0;
 
-	// set the variables
-	t->dimensions = dim;
-
-	return true;
+	// Initialize the free list.
+	branch_free.top = 0;
+	branch_used.top = 0;
+	for (size_t cnt = 0; cnt < branch_all.cp; cnt++)
+	{
+		branch_free.push_back(branch_all.ary + cnt);
+	}
+	return this;
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_tree_dealloc(BSP_tree_t * t)
+void BSP_tree_t::dtor()
 {
-	if (NULL == t) return false;
+	// Destruct the infinite node list.
+	infinite.dtor();
 
-	if (NULL == t->branch_all.ary || 0 == t->branch_all.cp) return true;
-
-	// allocate the infinite node list
-	BSP_leaf_list_t::dealloc(&(t->infinite));
-
-	// destruct the branches
-	for (size_t index = 0; index < t->branch_all.cp; index++)
+	// Destruct the branches.
+	for (size_t index = 0; index < branch_all.cp; index++)
 	{
-		BSP_branch_t::dtor(t->branch_all.ary + index);
+		BSP_branch_t::dtor(branch_all.ary + index);
 	}
+	// Destruct the all branches list.
+	branch_all.dtor();
 
-	// deallocate the branches
-	t->branch_all.dtor();
+	// Destruct the auxiliary arrays.
+	branch_used.dtor();
+	branch_free.dtor();
 
-	// deallocate the aux arrays
-	t->branch_used.dtor();
-	t->branch_free.dtor();
-
-	// deallocate the root bounding box
-	t->bsp_bbox.dtor();
-
-	return true;
+	// Destruct the root bounding box.
+	bsp_bbox.dtor();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1746,48 +1711,42 @@ bool BSP_tree_prune_branch(BSP_tree_t * t, size_t cnt)
 }
 
 //--------------------------------------------------------------------------------------------
-/**
- * @brief
- *	Fill the collision list with references to objects that the aabb may overlap.
- * @return
- *	the number of collisions found
- */
-size_t BSP_tree_collide_aabb(const BSP_tree_t * tree, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst)
+
+size_t BSP_tree_t::collide_aabb(const BSP_tree_t *self, const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions)
 {
-	if (NULL == tree || NULL == paabb) return 0;
+	if (nullptr == self || nullptr == aabb || nullptr == collisions)
+	{
+		return 0;
+	}
+	// Collide with any "infinite" nodes.
+	BSP_leaf_list_collide_aabb(&(self->infinite), aabb, test, collisions);
 
-	// collide with any "infinite" nodes
-	BSP_leaf_list_collide_aabb(&(tree->infinite), paabb, ptest, colst);
+	// Collide with the rest of the BSP tree.
+	BSP_branch_collide_aabb(self->finite, aabb, test, collisions);
 
-	// collide with the rest of the tree
-	BSP_branch_collide_aabb(tree->finite, paabb, ptest, colst);
-
-	return colst->size();
+	return collisions->size();
 }
 
 //--------------------------------------------------------------------------------------------
-size_t BSP_tree_collide_frustum(const BSP_tree_t * tree, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst)
+size_t BSP_tree_t::collide_frustum(const BSP_tree_t *self, const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions)
 {
-	/// @author BB
-	/// @details fill the collision list with references to objects that the frustum may overlap.
-	///      Return the number of collisions found.
+	if (nullptr == self || nullptr == frustum || nullptr == collisions)
+	{
+		return 0;
+	}
+	// Collide with any "infinite" nodes.
+	BSP_leaf_list_collide_frustum(&(self->infinite), frustum, test, collisions);
 
-	if (NULL == tree || NULL == pfrust) return 0;
+	// Collide with the rest of the BSP tree.
+	BSP_branch_collide_frustum(self->finite, frustum, test, collisions);
 
-	// collide with any "infinite" nodes
-	BSP_leaf_list_collide_frustum(&(tree->infinite), pfrust, ptest, colst);
-
-	// collide with the rest of the tree
-	BSP_branch_collide_frustum(tree->finite, pfrust, ptest, colst);
-
-	return colst->size();
+	return collisions->size();
 }
 
 //--------------------------------------------------------------------------------------------
 BSP_leaf_list_t *BSP_leaf_list_t::ctor()
 {
 	BLANK_STRUCT_PTR(this);
-	BSP_leaf_list_t::alloc(this);
 	this->bbox.ctor();
 	return this;
 }
@@ -1795,25 +1754,9 @@ BSP_leaf_list_t *BSP_leaf_list_t::ctor()
 //--------------------------------------------------------------------------------------------
 BSP_leaf_list_t *BSP_leaf_list_t::dtor()
 {
-	BSP_leaf_list_t::dealloc(this);
 	this->bbox.dtor();
 	BLANK_STRUCT_PTR(this)
 	return this;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_leaf_list_t::alloc(BSP_leaf_list_t *self)
-{
-	if (nullptr == self) return false;
-	BSP_leaf_list_t::dealloc(self);
-	return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BSP_leaf_list_t::dealloc(BSP_leaf_list_t *self)
-{
-	if (nullptr == self) return false;
-	return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2289,261 +2232,6 @@ bool BSP_branch_list_collide_frustum(const BSP_branch_list_t * BL, const egolib_
 
 	return collisions > 0;
 }
-
-//--------------------------------------------------------------------------------------------
-// OBSOLETE
-//--------------------------------------------------------------------------------------------
-
-//BSP_branch_t * BSP_branch_create( size_t dim )
-//{
-//    BSP_branch_t * rv;
-//
-//    rv = EGOBOO_NEW( BSP_branch_t );
-//    if ( NULL == rv ) return rv;
-//
-//    return BSP_branch_ctor( rv, dim );
-//}
-
-////--------------------------------------------------------------------------------------------
-//bool BSP_branch_destroy( BSP_branch_t ** ppbranch )
-//{
-//    if ( NULL == ppbranch || NULL == *ppbranch ) return false;
-//
-//    BSP_branch_dtor( *ppbranch );
-//
-//    EGOBOO_DELETE( *ppbranch );
-//
-//    return true;
-//}
-
-////--------------------------------------------------------------------------------------------
-//BSP_branch_t * BSP_branch_create_ary( size_t ary_size, size_t dim )
-//{
-//    size_t         cnt;
-//    BSP_branch_t * lst;
-//
-//    lst = EGOBOO_NEW_ARY( BSP_branch_t, ary_size );
-//    if ( NULL == lst ) return lst;
-//
-//    for ( cnt = 0; cnt < ary_size; cnt++ )
-//    {
-//        BSP_branch_ctor( lst + cnt, dim );
-//    }
-//
-//    return lst;
-//}
-
-////--------------------------------------------------------------------------------------------
-//bool BSP_branch_destroy_ary( size_t ary_size, BSP_branch_t ** lst )
-//{
-//    size_t cnt;
-//
-//    if ( NULL == lst || NULL == *lst || 0 == ary_size ) return false;
-//
-//    for ( cnt = 0; cnt < ary_size; cnt++ )
-//    {
-//        BSP_branch_dtor(( *lst ) + cnt );
-//    }
-//
-//    EGOBOO_DELETE_ARY( *lst );
-//
-//    return true;
-//}
-
-////--------------------------------------------------------------------------------------------
-//bool BSP_tree_init_0( BSP_tree_t * t )
-//{
-//    /// @author BB
-/// @details reset the tree to the "empty" state. Assume we do not own the nodes.lst or children.lst.
-//
-//    size_t i;
-//    BSP_branch_t * pbranch;
-//
-//    // free any the nodes in the tree
-//    BSP_tree_free_nodes( t, false );
-//
-//    // initialize the leaves.
-//    t->branch_free.top = 0;
-//    t->branch_used.top = 0;
-//    for ( i = 0; i < t->branch_all.alloc; i++ )
-//    {
-//        // grab a branch off of the static list
-//        pbranch = t->branch_all.ary + i;
-//
-//        if ( NULL == pbranch ) continue;
-//
-//        // completely unlink the branch
-//        BSP_branch_unlink_all( pbranch );
-//
-//        // push it onto the "stack"
-//        BSP_branch_pary_push_back( &( t->branch_free ), pbranch );
-//    };
-//
-//    return true;
-//}
-
-////--------------------------------------------------------------------------------------------
-//bool BSP_tree_add_free( BSP_tree_t * t, BSP_branch_t * B )
-//{
-//    if ( NULL == t || NULL == B ) return false;
-//
-//    // remove any links to other leaves
-//    BSP_branch_unlink_all( B );
-//
-//    return BSP_tree_free_branch( t, B );
-//}
-
-////--------------------------------------------------------------------------------------------
-//bool BSP_tree_free_all( BSP_tree_t * t )
-//{
-//    if ( !BSP_tree_free_nodes( t, false ) ) return false;
-//
-//    if ( !BSP_tree_free_branches( t ) ) return false;
-//
-//    return true;
-//}
-
-////--------------------------------------------------------------------------------------------
-//bool BSP_tree_free_nodes( BSP_tree_t * t, bool recursive )
-//{
-//    if ( NULL == t ) return false;
-//
-//    if ( recursive )
-//    {
-//        BSP_branch_free_nodes( t->root, true );
-//    }
-//
-//    // free the infinite nodes of the tree
-//    BSP_leaf_list_reset( &( t->infinite ) );
-//
-//    return true;
-//}
-
-//--------------------------------------------------------------------------------------------
-//bool BSP_tree_insert( BSP_tree_t * t, BSP_branch_t * B, BSP_leaf_t * n, int index )
-//{
-//    bool retval;
-//
-//    if (( NULL == t ) || ( NULL == B ) || ( NULL == n ) ) return false;
-//    if (( signed )index > ( signed )B->children.lst_size ) return false;
-//
-//    if ( index >= 0 && NULL != B->children.lst[index] )
-//    {
-//        // inserting a node into the child
-//        retval = BSP_branch_insert_leaf_list( B->children.lst[index], n );
-//    }
-//    else if ( index < 0 || 0 == t->branch_free.top )
-//    {
-//        // inserting a node into this branch node
-//        // this can either occur because someone requested it (index < 0)
-//        // OR because there are no more free nodes
-//        retval = BSP_branch_insert_leaf_list( B, n );
-//    }
-//    else
-//    {
-//        // the requested B->children.lst[index] slot is empty. grab a pre-allocated
-//        // BSP_branch_t from the free list in the BSP_tree_t structure an insert it in
-//        // this child node
-//
-//        BSP_branch_t * pbranch = BSP_tree_ensure_branch( t, B, index );
-//
-//        retval = BSP_branch_insert_leaf_list( pbranch, n );
-//    }
-//
-//    // do some book keeping
-//    if( retval )
-//    {
-//        if( 0 == B->children.inserted )
-//        {
-//            BSP_aabb_copy( &(B->children.bbox), &(n->bbox) );
-//        }
-//        else
-//        {
-//            BSP_aabb_self_union( &(B->children.bbox), &(n->bbox) );
-//        }
-//
-//        B->children.inserted++;
-//    }
-//
-//    // something went wrong ?
-//    return retval;
-//}
-
-////--------------------------------------------------------------------------------------------
-//bool BSP_tree_free_branch( BSP_tree_t * t, BSP_branch_t * B )
-//{
-//    bool retval;
-//
-//    if ( NULL == t || NULL == B ) return false;
-//
-//    retval = false;
-//    if ( BSP_tree_remove_used( t, B ) )
-//    {
-//        // add it to the used list
-//        retval =  BSP_branch_pary_push_back( &( t->branch_free ), B );
-//    }
-//
-//    return retval;
-//}
-//
-
-////--------------------------------------------------------------------------------------------
-//bool BSP_tree_free_branches( BSP_tree_t * t )
-//{
-//    int cnt;
-//
-//    if ( NULL == t ) return false;
-//
-//    // transfer all the "used" branches back to the "free" branches
-//    for ( cnt = 0; cnt < t->branch_used.top; cnt++ )
-//    {
-//        // grab a used branch
-//        BSP_branch_t * pbranch = t->branch_used.ary[cnt];
-//        if ( NULL == pbranch ) continue;
-//
-//        // completely unlink the branch
-//        BSP_branch_unlink_all( pbranch );
-//
-//        // return the branch to the free list
-//        BSP_branch_pary_push_back( &( t->branch_free ), pbranch );
-//    }
-//
-//    // reset the used list
-//    t->branch_used.top = 0;
-//
-//    // remove the tree root
-//    t->finite = NULL;
-//
-//    return true;
-//}
-//
-
-////--------------------------------------------------------------------------------------------
-//bool BSP_tree_remove_used( BSP_tree_t * t, BSP_branch_t * B )
-//{
-//    int cnt;
-//
-//    if ( NULL == t || 0 == t->branch_used.top ) return false;
-//
-//    if ( NULL == B ) return false;
-//
-//    // scan the used list for the branch
-//    for ( cnt = 0; cnt < t->branch_used.top; cnt++ )
-//    {
-//        if ( B == t->branch_used.ary[cnt] ) break;
-//    }
-//
-//    // did we find the branch in the used list?
-//    if ( cnt == t->branch_used.top ) return false;
-//
-//    // reduce the size of the list
-//    t->branch_used.top--;
-//
-//    // move the branch that we found to the top of the list
-//    SWAP( BSP_branch_t *, t->branch_used.ary[cnt], t->branch_used.ary[t->branch_used.top] );
-//
-//    return true;
-//}
 
 //--------------------------------------------------------------------------------------------
 //inline below

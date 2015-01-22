@@ -299,6 +299,57 @@ struct fmat_4x4_t
 	}
 	/**
 	 * @brief
+	 *	Assign this matrix the values of a viewing transformation (~ world space -> camera space) matrix.
+	 * @param eye
+	 *	the position of the eye point
+	 * @param center
+	 *	the position of the reference point
+	 * @param up
+	 *	the direction of the up vector
+	 * @pre
+	 *	eye != center (debug & release)
+	 *	up  != 0
+	 */
+	void lookAt(const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up)
+	{
+		fvec3_t f = center - eye;
+		fvec3_t u = up;
+
+		f.normalize();
+		u.normalize();
+
+		fvec3_t s = f.cross(u);
+		s.normalize();
+
+		u = s.cross(f);
+
+		/* Row 0. */
+		(*this)(0, 0) = s.x;
+		(*this)(0, 1) = s.y;
+		(*this)(0, 2) = s.z;
+		(*this)(0, 2) = 0.0f;
+
+		/* Row 1. */
+		(*this)(1, 0) = u.x;
+		(*this)(1, 1) = u.y;
+		(*this)(1, 2) = u.z;
+		(*this)(1, 3) = 0.0f;
+
+		/* Row 2. */
+		(*this)(2, 0) = -f.x;
+		(*this)(2, 1) = -f.y;
+		(*this)(2, 2) = -f.z;
+		(*this)(2, 3) = 0.0f;
+
+		/* Row 3. */
+		(*this)(3, 0) = 0.0f;
+		(*this)(3, 1) = 0.0f;
+		(*this)(3, 2) = 0.0f;
+		(*this)(3, 3) = 1.0f;
+	}
+
+	/**
+	 * @brief
 	 *	Assign this matrix the values of a perspective projection matrix.
 	 * @param fovy
 	 *	the field of view angle, in degrees, in the y direction
@@ -313,6 +364,9 @@ struct fmat_4x4_t
 	 *	@a aspect must not be @a 0.
 	 * @remark
 	 *	The aspect ratio specifies the field of view in the x direction and is the ratio of the x (width) / y (height).
+	 * @remark
+	 *	\f[
+	 *	\f]
 	 */
 	void makePerspective(const float fovy, const float aspect, const float zNear, const float zFar)
 	{

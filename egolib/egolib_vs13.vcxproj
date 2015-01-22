@@ -229,6 +229,7 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\DynamicVector.hpp" />
     <ClInclude Include="src\egolib\math\AABB.h" />
     <ClInclude Include="src\egolib\math\Cube.hpp" />
     <ClInclude Include="src\egolib\math\Sphere.h" />

@@ -890,7 +890,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
         // find all collisions with other characters and particles
         _coll_leaf_lst.top = 0;
-        obj_BSP_collide_aabb(getChrBSP(), &tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
+		getChrBSP()->collide_aabb(&tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
@@ -954,7 +954,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
         }
 
         _coll_leaf_lst.top = 0;
-        obj_BSP_collide_aabb(getPtrBSP(), &tmp_aabb, prt_BSP_can_collide, &_coll_leaf_lst );
+		getPtrBSP()->collide_aabb(&tmp_aabb, prt_BSP_can_collide, &_coll_leaf_lst);
         if ( _coll_leaf_lst.top > 0 )
         {
             int j;
@@ -1046,7 +1046,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
         // find all collisions with characters
         _coll_leaf_lst.top = 0;
-        obj_BSP_collide_aabb(getChrBSP(), &tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
+		getChrBSP()->collide_aabb(&tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
