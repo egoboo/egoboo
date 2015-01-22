@@ -40,6 +40,7 @@
 #include "game/collision.h"
 #include "game/profiles/Profile.hpp"
 #include "game/profiles/ProfileSystem.hpp"
+#include "game/module/Module.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -150,7 +151,6 @@ int do_ego_proc_begin( ego_process_t * eproc )
 
     // make sure that a bunch of stuff gets initialized properly
     object_systems_begin();
-    game_module_init( PMod );
     ego_mesh_ctor( PMesh );
     gfx_system_init_all_graphics();
     _profileSystem.begin();

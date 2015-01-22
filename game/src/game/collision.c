@@ -3140,13 +3140,16 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     }
 
     //---- Damage the character, if necessary
-    if ( 0 != ABS( pdata->pprt->damage.base ) + ABS( pdata->pprt->damage.rand ) )
+    if ( 0 != std::abs( pdata->pprt->damage.base ) + std::abs( pdata->pprt->damage.rand ) )
     {
 
         prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || INGAME_CHR( pdata->pprt->attachedto_ref ) );
 
-        const std::shared_ptr<ObjectProfile> &ownerProfile = _profileSystem.getProfile(powner->profile_ref);
-        if ( ownerProfile != nullptr && ownerProfile->isRangedWeapon() ) prt_needs_impact = true;
+        if(powner != nullptr) {
+            const std::shared_ptr<ObjectProfile> &ownerProfile = _profileSystem.getProfile(powner->profile_ref);
+            if ( ownerProfile != nullptr && ownerProfile->isRangedWeapon() ) prt_needs_impact = true;            
+        }
+
 
         // DAMFX_ARRO means that it only does damage to the one it's attached to
         if ( HAS_NO_BITS( pdata->ppip->damfx, DAMFX_ARRO ) && ( !prt_needs_impact || pdata->is_impact ) )

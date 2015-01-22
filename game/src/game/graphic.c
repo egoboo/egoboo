@@ -53,6 +53,7 @@
 #include "game/module/PassageHandler.hpp" //only for getPassageCount()
 #include "game/graphics/CameraSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
+#include "game/module/Module.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -2951,15 +2952,11 @@ float draw_debug( float y )
     if ( SDL_KEYDOWN( keyb, SDLK_F6 ) )
     {
         // More debug information
-        STRING text;
-
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
         y = draw_string_raw( 0, y, "~~FREEPRT %d", PrtList_count_free() );
         y = draw_string_raw( 0, y, "~~FREECHR %d", ChrList_count_free() );
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
-        if ( PMod->exportvalid ) snprintf( text, SDL_arraysize( text ), "~~EXPORT: TRUE" );
-        else                    snprintf( text, SDL_arraysize( text ), "~~EXPORT: FALSE" );
-        y = draw_string_raw( 0, y, text, PMod->exportvalid );
+        y = draw_string_raw( 0, y, PMod->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE" );
         y = draw_string_raw( 0, y, "~~PASS %d", Passages::getPassageCount() );
         y = draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
         y = draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.part_gpip );
