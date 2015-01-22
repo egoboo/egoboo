@@ -150,7 +150,7 @@ prt_t * prt_ctor( prt_t * pprt )
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // initialize the bsp node for this particle
-    BSP_leaf_t::ctor( POBJ_GET_PLEAF( pprt ), pprt, BSP_LEAF_PRT, GET_INDEX_PPRT( pprt ) );
+    POBJ_GET_PLEAF(pprt)->ctor(pprt, BSP_LEAF_PRT, GET_INDEX_PPRT(pprt));
 
     // initialize the physics
     phys_data_ctor( &( pprt->phys ) );

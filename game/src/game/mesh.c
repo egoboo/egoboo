@@ -2021,7 +2021,7 @@ ego_tile_info_t * ego_tile_info_ctor( ego_tile_info_t * ptr, int index )
     ptr->request_clst_update     = false;
     ptr->clst_frame            = -1;
 
-    BSP_leaf_t::ctor( &( ptr->bsp_leaf ), ptr, BSP_LEAF_TILE, index );
+    ptr->bsp_leaf.ctor(ptr, BSP_LEAF_TILE, index);
 
     return ptr;
 }

@@ -1120,9 +1120,9 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
             ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
             ChrList.lst[ichr].jump_timer = JUMPDELAY;
 
-            chr_get_pos( ChrList_get_ptr( ichr ), tmp_pos.v );
+            chr_get_pos(ChrList_get_ptr(ichr), tmp_pos);
             tmp_pos.z += DISMOUNTZVEL;
-            chr_set_pos( ChrList_get_ptr( ichr ), tmp_pos.v );
+            chr_set_pos(ChrList_get_ptr(ichr), tmp_pos);
         }
     }
 

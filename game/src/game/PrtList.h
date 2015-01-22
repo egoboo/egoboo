@@ -99,8 +99,8 @@ int     PrtList_count_free();
 #define INGAME_PRT_BASE(IPRT)       ( VALID_PRT_RANGE( IPRT ) && INGAME_PPRT_BASE_RAW( PrtList.lst + (IPRT) ) )
 #define INGAME_PPRT_BASE(PPRT)      ( VALID_PRT_PTR( PPRT ) && INGAME_PPRT_BASE_RAW( PPRT ) )
 
-#define INGAME_PRT(IPRT)            LAMBDA( ego_object_spawn_depth > 0, DEFINED_PRT(IPRT), INGAME_PRT_BASE(IPRT) && (!PrtList.lst[IPRT].is_ghost) )
-#define INGAME_PPRT(PPRT)           LAMBDA( ego_object_spawn_depth > 0, INGAME_PPRT_BASE(PPRT), DISPLAY_PPRT(PPRT) && ( !(PPRT)->is_ghost ) )
+#define INGAME_PRT(IPRT)            LAMBDA( Ego::Entities::spawnDepth > 0, DEFINED_PRT(IPRT), INGAME_PRT_BASE(IPRT) && (!PrtList.lst[IPRT].is_ghost) )
+#define INGAME_PPRT(PPRT)           LAMBDA( Ego::Entities::spawnDepth > 0, INGAME_PPRT_BASE(PPRT), DISPLAY_PPRT(PPRT) && ( !(PPRT)->is_ghost ) )
 
 #define DISPLAY_PRT(IPRT)           INGAME_PRT_BASE(IPRT)
 #define DISPLAY_PPRT(PPRT)          INGAME_PPRT_BASE(PPRT)

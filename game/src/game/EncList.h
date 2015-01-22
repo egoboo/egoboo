@@ -94,8 +94,8 @@ bool EncList_request_terminate( const ENC_REF ienc );
 #define INGAME_ENC_BASE(IENC)       ( VALID_ENC_RANGE( IENC ) && INGAME_PENC_BASE_RAW( EncList.lst + (IENC) ) )
 #define INGAME_PENC_BASE(PENC)      ( VALID_ENC_PTR( PENC ) && INGAME_PENC_BASE_RAW( PENC ) )
 
-#define INGAME_ENC(IENC)            LAMBDA( ego_object_spawn_depth > 0, DEFINED_ENC(IENC), INGAME_ENC_BASE(IENC) )
-#define INGAME_PENC(PENC)           LAMBDA( ego_object_spawn_depth > 0, DEFINED_PENC(PENC), INGAME_PENC_BASE(PENC) )
+#define INGAME_ENC(IENC)            LAMBDA( Ego::Entities::spawnDepth > 0, DEFINED_ENC(IENC), INGAME_ENC_BASE(IENC) )
+#define INGAME_PENC(PENC)           LAMBDA( Ego::Entities::spawnDepth > 0, DEFINED_PENC(PENC), INGAME_PENC_BASE(PENC) )
 
 // macros without range checking
 #define INGAME_PENC_BASE_RAW(PENC)      ( ACTIVE_PBASE( POBJ_GET_PBASE(PENC) ) && ON_PBASE( POBJ_GET_PBASE(PENC) ) )

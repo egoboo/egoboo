@@ -26,8 +26,11 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-Uint32 ego_object_spawn_depth = 0;
-Uint32 ego_object_guid = 0;
+namespace Ego {
+	Uint32 Ego::Entities::spawnDepth = 0;
+	Uint32 Ego::Entities::nextGUID = 0;
+};
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -43,8 +46,8 @@ Ego::Entity *Ego::Entity::ctor(Ego::Entity *self, void *child_data, bsp_type_t c
     self->state = Ego::Entity::State::Invalid;
     self->index = child_index;
 
-    // Construct the BSP node for this character.
-    BSP_leaf_t::ctor(&(self->bsp_leaf), child_data, child_type, child_index);
+    // Construct the BSP node for this entity.
+	self->bsp_leaf.ctor(child_data, child_type, child_index);
 
     return self;
 }
@@ -58,8 +61,8 @@ Ego::Entity *Ego::Entity::dtor(Ego::Entity *self)
 	}
     self->_name[0] = CSTR_END;
     self->state = Ego::Entity::State::Invalid;
-    // Destruct the BSP node for this character.
-    BSP_leaf_t::dtor(&(self->bsp_leaf));
+    // Destruct the BSP node for this entity.
+    self->bsp_leaf.dtor();
 	BLANK_STRUCT_PTR(self)
 	return self;
 }

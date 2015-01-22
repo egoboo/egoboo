@@ -30,10 +30,10 @@
 //--------------------------------------------------------------------------------------------
 // external structs
 //--------------------------------------------------------------------------------------------
-
+#if 0
 	// Forward declaration.
 	struct egolib_frustum_t;
-
+#endif
 //--------------------------------------------------------------------------------------------
 // internal structs
 //--------------------------------------------------------------------------------------------
@@ -80,8 +80,8 @@
         void *data;
         size_t index;
         bv_t bbox;
-		static BSP_leaf_t *ctor(BSP_leaf_t * self, void * data, bsp_type_t type, int index);
-		static void dtor(BSP_leaf_t * self);
+		BSP_leaf_t *ctor(void *data, bsp_type_t type, size_t index);
+		void dtor();
     };
 
 
@@ -102,19 +102,21 @@
 		 * @param self
 		 *	this leaf list
 		 */
-		static BSP_leaf_list_t *ctor(BSP_leaf_list_t *self);
+		BSP_leaf_list_t *ctor();
 		/**
 		 * @brief
 		 *	Destruct this leaf list.
 		 * @param self
 		 *	this leaf list
 		 */
-		static BSP_leaf_list_t *dtor(BSP_leaf_list_t *self);
+		BSP_leaf_list_t *dtor();
+		/// Allocate a leaf list.
+		static bool alloc(BSP_leaf_list_t *self);
+		/// Deallocate a leaf list.
+		static bool dealloc(BSP_leaf_list_t *self);
     };
 
 	BSP_leaf_list_t *BSP_leaf_list_clear(BSP_leaf_list_t *self);
-    bool BSP_leaf_list_alloc(BSP_leaf_list_t *self);
-    bool BSP_leaf_list_dealloc(BSP_leaf_list_t *self);
     bool BSP_leaf_list_reset(BSP_leaf_list_t *self);
 
 	/**
@@ -135,8 +137,8 @@
         BSP_branch_t **lst;
         size_t inserted;
         bv_t bbox;
-		static BSP_branch_list_t *ctor(BSP_branch_list_t *self, size_t dim);
-		static BSP_branch_list_t *dtor(BSP_branch_list_t *self);
+		BSP_branch_list_t *ctor(size_t dim);
+		BSP_branch_list_t *dtor();
 	};
 
     bool BSP_branch_list_clear_rec( BSP_branch_list_t * );

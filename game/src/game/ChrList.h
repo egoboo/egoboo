@@ -88,12 +88,12 @@ int ChrList_count_used();
 #define TERMINATED_PCHR( PCHR )     ( VALID_CHR_PTR( PCHR ) && TERMINATED_PCHR_RAW( PCHR ) )
 
 // Macros to determine whether the character is in the game or not.
-// If objects are being spawned, then any object that is just "defined" is treated as "in game"
+// If objects are being spawned, then any object that is just "defined" is treated as "in game".
 #define INGAME_CHR_BASE(ICHR)       ( VALID_CHR_RANGE( ICHR ) && INGAME_PCHR_BASE_RAW( ChrList.lst + (ICHR) ) )
 #define INGAME_PCHR_BASE(PCHR)      ( VALID_CHR_PTR( PCHR ) && INGAME_PCHR_BASE_RAW( PCHR ) )
 
-#define INGAME_CHR(ICHR)            LAMBDA( ego_object_spawn_depth > 0, DEFINED_CHR(ICHR), INGAME_CHR_BASE(ICHR) )
-#define INGAME_PCHR(PCHR)           LAMBDA( ego_object_spawn_depth > 0, DEFINED_PCHR(PCHR), INGAME_PCHR_BASE(PCHR) )
+#define INGAME_CHR(ICHR)            LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_CHR(ICHR), INGAME_CHR_BASE(ICHR) )
+#define INGAME_PCHR(PCHR)           LAMBDA(Ego::Entities::spawnDepth > 0, DEFINED_PCHR(PCHR), INGAME_PCHR_BASE(PCHR) )
 
 // macros without range checking
 #define INGAME_PCHR_BASE_RAW(PCHR)      ( ACTIVE_PBASE( POBJ_GET_PBASE(PCHR) ) && ON_PBASE( POBJ_GET_PBASE(PCHR) ) )

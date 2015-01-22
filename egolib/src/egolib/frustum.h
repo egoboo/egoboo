@@ -99,8 +99,8 @@ struct egolib_frustum_t
 	 *	Get the relation of a cube to this frustum.
 	 * @param self
 	 *	this frustum
-	 * @param position, size
-	 * 	the cube
+	 * @param center, size
+	 * 	the center and the size of the cube
 	 * @param doEnds
 	 *	if @a false, the far and the near plane are ignored
 	 * @return
@@ -112,9 +112,9 @@ struct egolib_frustum_t
 	 *		<li>geometry_inside    - the cube is completely inside the frustum</li>
 	 *	</ul>
 	 * @todo
-	 *	Replace <tt>const fvec3_base_t position</tt> and <tt>const float size</tt> by <tt>const cube_t& cube</tt>.
+	 *	Replace <tt>const fvec3_t& position</tt> and <tt>const float size</tt> by <tt>const cube_t& cube</tt>.
 	 */
-	geometry_rv intersects_cube(const fvec3_base_t center, const float size, const bool doEnds) const;
+	geometry_rv intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const;
 
 	/**
 	 * @brief

@@ -24,6 +24,26 @@
 
 #include "game/egoboo_typedef.h"
 
+namespace Ego {
+	/**
+	 * @brief
+	 *	Data related to the totality of entities.
+	 */
+	struct Entities {
+		/**
+		 * @brief
+		 *	The number of entities currently being spawned.
+		 */
+		static Uint32 spawnDepth;
+		/**
+		 * @brief
+		 *	The next free entity GUID.
+		 */
+		static Uint32 nextGUID;
+
+	};
+};
+
 namespace Ego
 {
 	/// Entities are mutable elements of the game. Any mutable element of the game
@@ -74,8 +94,8 @@ namespace Ego
 		/// Moved to here so that is is not destroyed in the destructor of the inherited object.
 		BSP_leaf_t     bsp_leaf;
 
-		static Ego::Entity *ctor(Ego::Entity *pbase, void *child_data, bsp_type_t child_type, size_t child_index);
-		static Ego::Entity *dtor(Ego::Entity *pbase);
+		static Ego::Entity *ctor(Ego::Entity *self, void *child_data, bsp_type_t child_type, size_t child_index);
+		static Ego::Entity *dtor(Ego::Entity *self);
 	};
 };
 
@@ -94,7 +114,7 @@ namespace Ego
         (PDATA)->obj_base.spawning   = false; \
         (PDATA)->obj_base.index      = INDEX;  \
         (PDATA)->obj_base.state      = Ego::Entity::State::Constructing; \
-        (PDATA)->obj_base.guid       = ego_object_guid++; \
+        (PDATA)->obj_base.guid       = Ego::Entities::nextGUID++; \
 	    }
 
 /// Turn on an entity.
@@ -134,7 +154,7 @@ namespace Ego
         if( !(PDATA)->obj_base.spawning )\
         {\
             (PDATA)->obj_base.spawning = true;\
-            ego_object_spawn_depth++;\
+            Ego::Entities::spawnDepth++;\
         }\
     }\
 
@@ -144,7 +164,7 @@ namespace Ego
         if( (PDATA)->obj_base.spawning )\
         {\
             (PDATA)->obj_base.spawning = false;\
-            ego_object_spawn_depth--;\
+            Ego::Entities::spawnDepth--;\
         }\
     }\
 
@@ -216,7 +236,8 @@ namespace Ego
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 /// A variable to hold the object guid counter.
 extern Uint32 ego_object_guid;
-
 extern Uint32 ego_object_spawn_depth;
+#endif

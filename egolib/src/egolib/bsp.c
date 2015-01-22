@@ -194,31 +194,26 @@ int _find_child_index(const BSP_aabb_t * pbranch_aabb, const aabb_t * pleaf_aabb
 }
 
 //--------------------------------------------------------------------------------------------
-BSP_leaf_t *BSP_leaf_t::ctor(BSP_leaf_t *self, void * data, bsp_type_t type, int index)
+BSP_leaf_t *BSP_leaf_t::ctor(void *data, bsp_type_t type, size_t index)
 {
-	if (nullptr == self)
-	{
-		return self;
-	}
-	self->next = nullptr;
-	self->inserted = false;
-	self->data_type = type;
-	self->index = index;
-	self->data = data;
-	self->bbox.ctor();
-	return self;
+	this->next = nullptr;
+	this->inserted = false;
+	this->data_type = type;
+	this->index = index;
+	this->data = data;
+	this->bbox.ctor();
+	return this;
 }
 
 //--------------------------------------------------------------------------------------------
-void BSP_leaf_t::dtor(BSP_leaf_t *self)
+void BSP_leaf_t::dtor()
 {
-	if (nullptr == self)
-	{
-		return;
-	}
-	self->inserted = false;
-	self->data_type = BSP_LEAF_NONE;
-	self->data = nullptr;
+	this->bbox.dtor();
+	this->data = nullptr;
+	this->index = 0;
+	this->data_type = BSP_LEAF_NONE;
+	this->inserted = false;
+	this->next = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -289,32 +284,32 @@ BSP_branch_t *BSP_branch_t::ctor(BSP_branch_t *self, size_t dim)
 	BLANK_STRUCT_PTR(self);
 
 	// Construct the list of children.
-	if (!BSP_branch_list_t::ctor(&(self->children), dim))
+	if (!self->children.ctor(dim))
 	{
 		return NULL;
 	}
 
 	// Construct the list of leaves.
-	if (!BSP_leaf_list_t::ctor(&(self->leaves)))
+	if (!self->leaves.ctor())
 	{
-		BSP_branch_list_t::dtor(&(self->children));
+		self->children.dtor();
 		return NULL;
 	}
 
 	// Construct the list of unsorted leaves.
-	if (!BSP_leaf_list_t::ctor(&(self->unsorted)))
+	if (!self->unsorted.ctor())
 	{
-		BSP_leaf_list_t::dtor(&(self->leaves));
-		BSP_branch_list_t::dtor(&(self->children));
+		self->leaves.dtor();
+		self->children.dtor();
 		return NULL;
 	}
 
 	// Construct the bounding box.
 	if (!self->bsp_bbox.ctor(dim))
 	{
-		BSP_leaf_list_t::dtor(&(self->unsorted));
-		BSP_leaf_list_t::dtor(&(self->leaves));
-		BSP_branch_list_t::dtor(&(self->children));
+		self->unsorted.dtor();
+		self->leaves.dtor();
+		self->children.dtor();
 		return NULL;
 	}
 
@@ -332,13 +327,13 @@ void BSP_branch_t::dtor(BSP_branch_t *self)
 	}
 
 	// Destruct the list of children.
-	BSP_branch_list_t::dtor(&(self->children));
+	self->children.dtor();
 
 	// Destruct the list of unsorted leaves.
-	BSP_leaf_list_t::dtor(&(self->unsorted));
+	self->unsorted.dtor();
 
 	// Destruct the list of nodes.
-	BSP_leaf_list_t::dtor(&(self->leaves));
+	self->leaves.dtor();
 
 	// Destruct the bounding box.
 	self->bsp_bbox.dtor();
@@ -1395,7 +1390,7 @@ BSP_tree_t * BSP_tree_ctor(BSP_tree_t *self, Sint32 req_dim, Sint32 req_depth)
 
 	self->bbox.ctor();
 	self->bsp_bbox.ctor(req_dim);
-	BSP_leaf_list_t::ctor(&(self->infinite));
+	self->infinite.ctor();
 
 	node_count = BSP_tree_count_nodes(req_dim, req_depth);
 	if (node_count < 0) return self;
@@ -1438,7 +1433,7 @@ bool BSP_tree_alloc(BSP_tree_t * t, size_t count, size_t dim)
 	t->dimensions = 0;
 
 	// allocate the infinite node list
-	BSP_leaf_list_alloc(&(t->infinite));
+	BSP_leaf_list_t::alloc(&(t->infinite));
 
 	// allocate the branches
 	t->branch_all.ctor(count);
@@ -1471,7 +1466,7 @@ bool BSP_tree_dealloc(BSP_tree_t * t)
 	if (NULL == t->branch_all.ary || 0 == t->branch_all.cp) return true;
 
 	// allocate the infinite node list
-	BSP_leaf_list_dealloc(&(t->infinite));
+	BSP_leaf_list_t::dealloc(&(t->infinite));
 
 	// destruct the branches
 	for (size_t index = 0; index < t->branch_all.cp; index++)
@@ -1800,47 +1795,35 @@ size_t BSP_tree_collide_frustum(const BSP_tree_t * tree, const egolib_frustum_t 
 }
 
 //--------------------------------------------------------------------------------------------
-// BSP_leaf_list_t
-//--------------------------------------------------------------------------------------------
-BSP_leaf_list_t *BSP_leaf_list_t::ctor(BSP_leaf_list_t *self)
+BSP_leaf_list_t *BSP_leaf_list_t::ctor()
 {
-	if (NULL == self)
-	{
-		return self;
-	}
-	BLANK_STRUCT_PTR(self)
-	BSP_leaf_list_alloc(self);
-	self->bbox.ctor();
-	return self;
+	BLANK_STRUCT_PTR(this);
+	BSP_leaf_list_t::alloc(this);
+	this->bbox.ctor();
+	return this;
 }
 
 //--------------------------------------------------------------------------------------------
-BSP_leaf_list_t *BSP_leaf_list_t::dtor(BSP_leaf_list_t *self)
+BSP_leaf_list_t *BSP_leaf_list_t::dtor()
 {
-	if (NULL == self)
-	{
-		return self;
-	}
-	BSP_leaf_list_dealloc(self);
-	BLANK_STRUCT_PTR(self)
-	return self;
+	BSP_leaf_list_t::dealloc(this);
+	this->bbox.dtor();
+	BLANK_STRUCT_PTR(this)
+	return this;
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_leaf_list_alloc(BSP_leaf_list_t * LL)
+bool BSP_leaf_list_t::alloc(BSP_leaf_list_t *self)
 {
-	if (NULL == LL) return false;
-
-	BSP_leaf_list_dealloc(LL);
-
+	if (nullptr == self) return false;
+	BSP_leaf_list_t::dealloc(self);
 	return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_leaf_list_dealloc(BSP_leaf_list_t *  LL)
+bool BSP_leaf_list_t::dealloc(BSP_leaf_list_t *self)
 {
-	if (NULL == LL) return false;
-
+	if (nullptr == self) return false;
 	return true;
 }
 
@@ -2215,45 +2198,37 @@ bool BSP_leaf_list_collide_frustum(const BSP_leaf_list_t *LL, const egolib_frust
 //--------------------------------------------------------------------------------------------
 // BSP_branch_list_t
 //--------------------------------------------------------------------------------------------
-BSP_branch_list_t *BSP_branch_list_t::ctor(BSP_branch_list_t *self, size_t dim)
+BSP_branch_list_t *BSP_branch_list_t::ctor(size_t dim)
 {
-	if (NULL == self)
-	{
-		return self;
-	}
-	BLANK_STRUCT_PTR(self)
+	BLANK_STRUCT_PTR(this)
 	// Determine the number of children from the dimensionality.
 	size_t child_count = (0 == dim) ? 0 : (2 << (dim - 1));
 	if (0 == child_count)
 	{
-		return NULL;
+		return nullptr;
 	}
 	// Allocate the child list.
-	self->lst = EGOBOO_NEW_ARY(BSP_branch_t*, child_count);
-	if (!self->lst)
+	this->lst = EGOBOO_NEW_ARY(BSP_branch_t*, child_count);
+	if (!this->lst)
 	{
-		return NULL;
+		return nullptr;
 	}
-	self->lst_size = child_count;
+	this->lst_size = child_count;
 	for (size_t index = 0; index < child_count; ++index)
 	{
-		self->lst[index] = NULL;
+		this->lst[index] = nullptr;
 	}
-	self->bbox.ctor();
-	return self;
+	this->bbox.ctor();
+	return this;
 }
 
 //--------------------------------------------------------------------------------------------
-BSP_branch_list_t *BSP_branch_list_t::dtor(BSP_branch_list_t *self)
+BSP_branch_list_t *BSP_branch_list_t::dtor()
 {
-	if (NULL == self)
-	{
-		return self;
-	}
-	EGOBOO_DELETE_ARY(self->lst);
-	self->lst_size = 0;
-	BLANK_STRUCT_PTR(self);
-	return self;
+	EGOBOO_DELETE_ARY(this->lst);
+	this->lst_size = 0;
+	BLANK_STRUCT_PTR(this);
+	return this;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -238,14 +238,9 @@ geometry_rv egolib_frustum_t::intersects_sphere(const sphere_t& sphere, const bo
 }
 
 //--------------------------------------------------------------------------------------------
-geometry_rv egolib_frustum_t::intersects_cube(const fvec3_base_t center, const float size, const bool doEnds) const
+geometry_rv egolib_frustum_t::intersects_cube(const fvec3_t& center, const float size, const bool doEnds) const
 {
 	fvec3_base_t vmin, vmax;
-
-	if (nullptr == center)
-	{
-		return geometry_error;
-	}
 
 	// Assume the cube is inside the frustum.
 	geometry_rv retval = geometry_inside;
