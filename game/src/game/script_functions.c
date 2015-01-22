@@ -36,7 +36,7 @@
 #include "game/menu.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
-#include "game/ai/astar.h"
+#include "game/ai/AStar.h"
 #include "game/enchant.h"
 #include "game/char.h"
 #include "game/particle.h"

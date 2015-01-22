@@ -1619,33 +1619,47 @@ bool doChooseCharacter_show_stats( std::shared_ptr<LoadPlayerElement> loadPlayer
     // Life and mana (can be less than maximum if not in easy mode)
     if ( cfg.difficulty >= GAME_NORMAL )
     {
+        // life
+        int x2 = x1;
+        int y2 = y1;
+        // mana
+        int x3 = x1 + 128;
+        int y3 = y1;
         snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d/%d",
 			      std::min( (int)UFP8_TO_UINT( profile->getSpawnLife() ), ( int )profile->getBaseLife().from ), ( int )profile->getBaseLife().from );
-        y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
+        y2 = ui_drawTextBox( menuFont, temp_string, x2, y2, 0, 0, text_hgt );
 
-        y1 = ui_drawBar( x1, y1, UFP8_TO_UINT( profile->getSpawnLife() ), ( int )profile->getBaseLife().from, profile->getLifeColor() );
+        y2 = ui_drawBar( x2, y2, UFP8_TO_UINT( profile->getSpawnLife() ), ( int )profile->getBaseLife().from, profile->getLifeColor() );
 
         if ( profile->getBaseMana().from > 0 )
         {
             snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d/%d",
-				      std::min( (int)UFP8_TO_UINT( profile->getSpawnLife() ), ( int )profile->getBaseMana().from ), ( int )profile->getBaseMana().from );
-            y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
+				      std::min( (int)UFP8_TO_UINT( profile->getSpawnMana() ), ( int )profile->getBaseMana().from ), ( int )profile->getBaseMana().from );
+            y3 = ui_drawTextBox( menuFont, temp_string, x3, y3, 0, 0, text_hgt );
 
-            y1 = ui_drawBar( x1, y1, UFP8_TO_UINT( profile->getSpawnMana() ), ( int )profile->getBaseMana().from, profile->getManaColor() );
+            y3 = ui_drawBar( x3, y3, UFP8_TO_UINT( profile->getSpawnMana() ), ( int )profile->getBaseMana().from, profile->getManaColor() );
         }
+        y1 = std::max(y2, y3);
     }
     else
     {
+        // life
+        int x2 = x1;
+        int y2 = y1;
+        // mana
+        int x3 = x1 + 128;
+        int y3 = y1;
         snprintf( temp_string, SDL_arraysize( temp_string ), "Life: %d", ( int )profile->getBaseLife().from );
-        y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
-        y1 = ui_drawBar( x1, y1, ( int )profile->getBaseLife().from, ( int )profile->getBaseLife().from, profile->getLifeColor() );
+        y2 = ui_drawTextBox( menuFont, temp_string, x2, y2, 0, 0, text_hgt );
+        y2 = ui_drawBar( x2, y2, ( int )profile->getBaseLife().from, ( int )profile->getBaseLife().from, profile->getLifeColor() );
 
         if ( profile->getBaseMana().from > 0 )
         {
             snprintf( temp_string, SDL_arraysize( temp_string ), "Mana: %d", ( int )profile->getBaseMana().from );
-            y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
-            y1 = ui_drawBar( x1, y1, ( int )profile->getBaseMana().from, ( int )profile->getBaseMana().from, profile->getManaColor() );
+            y3 = ui_drawTextBox( menuFont, temp_string, x3, y3, 0, 0, text_hgt );
+            y3 = ui_drawBar( x3, y3, ( int )profile->getBaseMana().from, ( int )profile->getBaseMana().from, profile->getManaColor() );
         }
+        y1 = std::max(y2, y3);
     }
     y1 += section_spacing;
 
@@ -2057,7 +2071,7 @@ int doChooseCharacter( float deltaTime )
 
                         //Select new
                         _selectedPlayerList.push_back(_loadPlayerList[newSelection]);
-                        _loadPlayerList[newSelection]->setSelectedByPlayer(newSelection);
+                        _loadPlayerList[newSelection]->setSelectedByPlayer(currentSelectingPlayer);
                         selectedCharacter = newSelection;
                     }
                     else if ( HAS_NO_BITS( mnu_widgetList[m].state, UI_BITS_CLICKED ) )

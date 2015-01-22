@@ -24,7 +24,7 @@
 #include <cstdint>
 #include <vector>
 #include <forward_list>
-#include <SDL_Mixer.h>
+#include <SDL_mixer.h>
 
 #include "game/ChrList.h"
 

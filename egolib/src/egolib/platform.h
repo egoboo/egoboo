@@ -173,7 +173,6 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //*nix definitions
 #if defined(__unix__) || defined(__unix) || defined(_unix) || defined(unix)
-#define __LINUX__
 /// map all of these to __unix__
 #    if !defined(__unix__)
 #        define __unix__

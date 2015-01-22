@@ -36,29 +36,25 @@ endif
 #------------------------------------
 # definitions of the target projects
 
-.PHONY: all clean
+.PHONY: all clean egolib egoboo egolib_lua egoboo_lua
 
-$(EGOLIB_DIR)/$(EGOLIB_TARGET):
-	make -C $(EGOLIB_DIR) all PREFIX=$(PREFIX) EGOLIB_TARGET=$(EGOLIB_TARGET)
-
-egolib:   $(EGOLIB_DIR)/$(EGOLIB_TARGET)
+egolib:
+	make -C $(EGOLIB_DIR) PREFIX=$(PREFIX) EGOLIB_TARGET=$(EGOLIB_TARGET)
 
 egoboo: egolib
-	make -C $(EGO_DIR) all PREFIX=$(PREFIX) EGO_TARGET=$(EGO_TARGET) EGOLIB_DIR=$(EGOLIB_DIR)
+	make -C $(EGO_DIR) PREFIX=$(PREFIX) EGO_TARGET=$(EGO_TARGET) EGOLIB_TARGET=$(EGOLIB_TARGET)
 
-$(EGOLIB_DIR)/$(EGOLIB_TARGET_LUA):
-	make -C $(EGOLIB_DIR) -F Makefile.lua all PREFIX=$(PREFIX) EGOLIB_TARGET=$(EGOLIB_TARGET_LUA) 
-
-egolib_lua:   $(EGOLIB_DIR)/$(EGOLIB_TARGET_LUA)
+egolib_lua:
+	make -C $(EGOLIB_DIR) -F Makefile.lua PREFIX=$(PREFIX) EGOLIB_TARGET=$(EGOLIB_TARGET_LUA)
 	
 egoboo_lua: egolib_lua
-	make -C $(EGO_DIR) -F Makefile.lua all PREFIX=$(PREFIX) EGO_TARGET=$(EGO_TARGET) EGOLIB_DIR=$(EGOLIB_DIR)
+	make -C $(EGO_DIR) -F Makefile.lua PREFIX=$(PREFIX) EGO_TARGET=$(EGO_TARGET) EGOLIB_TARGET=$(EGOLIB_TARGET_LUA)
 
 all: egolib egoboo
 
 clean:
 	make -C $(EGOLIB_DIR) clean EGOLIB_TARGET=$(EGOLIB_TARGET)
-	make -C $(EGO_DIR) clean EGOLIB_TARGET=$(EGOLIB_TARGET)
+	make -C $(EGO_DIR) clean EGO_TARGET=$(EGOLIB_TARGET)
 
 install: egoboo
 
@@ -72,7 +68,7 @@ install: egoboo
 	install -m 755 $(EGO_DIR)/$(EGO_TARGET) $(PREFIX)/games
 
 #	call the installer in the required install directory
-	make -C $(INSTALL_DIR) install
+	make -C $(INSTALL_DIR) install PREFIX=$(PREFIX) PROJ_NAME=$(EGO_TARGET)
 
 	#####################################
 	# Egoboo installation is finished

@@ -9,16 +9,16 @@
 #include "game/mesh.h"
 #include "game/ChrList.h"
 
-constexpr float Camera::DEFAULT_FOV = 60.0f;
+const float Camera::DEFAULT_FOV = 60.0f;
 
-constexpr float Camera::DEFAULT_TURN_JOY = 64;
+const float Camera::DEFAULT_TURN_JOY = 64;
 
-constexpr float Camera::DEFAULT_TURN_KEY = DEFAULT_TURN_JOY;
+const float Camera::DEFAULT_TURN_KEY = DEFAULT_TURN_JOY;
 
-constexpr uint8_t Camera::DEFAULT_TURN_TIME = 16;
+const uint8_t Camera::DEFAULT_TURN_TIME = 16;
 
-constexpr float Camera::CAM_ZADD_AVG = (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX));
-constexpr float Camera::CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
+const float Camera::CAM_ZADD_AVG = (0.5f * (CAM_ZADD_MIN + CAM_ZADD_MAX));
+const float Camera::CAM_ZOOM_AVG = (0.5f * (CAM_ZOOM_MIN + CAM_ZOOM_MAX));
 
 Camera::Camera(const CameraOptions &options) :
 	_options(options),
