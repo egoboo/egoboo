@@ -28,6 +28,7 @@
 #include "game/player.h"
 #include "game/egoboo.h"
 #include "game/char.h"
+#include "game/module/Module.hpp"
 
 #include "game/ChrList.h"
 

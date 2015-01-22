@@ -37,6 +37,7 @@
 #include "game/char.h"
 #include "game/profiles/Profile.hpp"
 #include "game/profiles/ProfileSystem.hpp"
+#include "game/module/Module.hpp"
 
 #include "game/audio/AudioSystem.hpp"
 
@@ -1389,7 +1390,7 @@ int doChooseModule( float deltaTime )
                     }
                     else
                     {
-                        if ( 0 != pmod->importamount )
+                        if ( 0 != PMod->getImportAmount() )
                         {
                             carat += snprintf( carat, carat_end - carat - 1, "Single Player\n" );
                         }
@@ -1512,7 +1513,7 @@ int doChooseModule( float deltaTime )
                 else
                 {
                     pickedmodule_ready = true;
-                    result = ( PMod->importamount > 0 ) ? 1 : 2;
+                    result = ( PMod->getImportAmount() > 0 ) ? 1 : 2;
                 }
             }
 
@@ -4198,8 +4199,8 @@ int doGamePaused( float deltaTime )
             menuChoice = 0;
             menuState = MM_Entering;
 
-            if ( PMod->exportvalid && !local_stats.allpladead ) buttons[0] = "Save and Exit";
-            else                                                buttons[0] = "Quit Module";
+            if ( PMod->isExportValid() && !local_stats.allpladead ) buttons[0] = "Save and Exit";
+            else                                                    buttons[0] = "Quit Module";
 
             mnu_SlidyButton_init( 1.0f, buttons );
 
@@ -4293,7 +4294,7 @@ int doShowEndgame( float deltaTime )
 
             mnu_SlidyButton_init( 1.0f, buttons );
 
-            if ( PMod->exportvalid )
+            if ( PMod->isExportValid() )
             {
                 buttons[0] = "Save and Exit";
             }

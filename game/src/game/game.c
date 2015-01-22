@@ -49,6 +49,7 @@
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
+#include "game/module/Module.hpp"
 
 #include "game/char.h"
 #include "game/particle.h"
@@ -66,7 +67,6 @@
 static ego_mesh_t         _mesh[2];
 
 static game_process_t    _gproc;
-static game_module_t     _gmod;
 
 static egolib_throttle_t     game_throttle = EGOLIB_THROTTLE_INIT;
 
@@ -84,6 +84,7 @@ PROFILE_DECLARE( cl_talkToHost );
 //Game engine globals
 CameraSystem      _cameraSystem;
 AudioSystem       _audioSystem;
+static GameModule _gmod;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -97,8 +98,8 @@ size_t endtext_carat = 0;
 status_list_t StatusList = STATUS_LIST_INIT;
 
 ego_mesh_t         * PMesh   = _mesh + 0;
-game_module_t     * PMod    = &_gmod;
-game_process_t    * GProc   = &_gproc;
+GameModule         * PMod    = &_gmod;
+game_process_t     * GProc   = &_gproc;
 
 pit_info_t pits = PIT_INFO_INIT;
 
@@ -229,7 +230,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     pobj = chr_get_ppro( character );
     if ( NULL == pobj ) return rv_error;
 
-    if ( !PMod->exportvalid || ( pobj->isItem() && !pobj->canCarryToNextModule() ) )
+    if ( !PMod->isExportValid() || ( pobj->isItem() && !pobj->canCarryToNextModule() ) )
     {
         return rv_fail;
     }
@@ -333,7 +334,7 @@ egolib_rv export_all_players( bool require_local )
     if ( !process_running( PROC_PBASE( GProc ) ) ) return rv_fail;
 
     // Stop if export isnt valid
-    if ( !PMod->exportvalid ) return rv_fail;
+    if ( !PMod->isExportValid() ) return rv_fail;
 
     // assume the best
     retval = rv_success;
@@ -851,9 +852,6 @@ int update_game()
             PROFILE_BEGIN( game_single_update );
             {
                 // do important stuff to keep in sync inside this loop
-
-                srand( PMod->randsave );
-                PMod->randsave = rand();
 
                 // keep the mpdfx lists up-to-date. No calculation is done unless one
                 // of the mpdfx values was changed during the last update
@@ -2701,9 +2699,9 @@ void import_dir_profiles_vfs( const std::string &dirname )
 {
     if ( NULL == PMod || dirname.empty() ) return;
 
-    if ( !PMod->importvalid || 0 == PMod->importamount ) return;
+    if ( !PMod->importvalid ) return;
 
-    for (int cnt = 0; cnt < PMod->importamount*MAX_IMPORT_PER_PLAYER; cnt++ )
+    for (int cnt = 0; cnt < PMod->getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
     {
         std::ostringstream pathFormat;
         pathFormat << dirname << "/temp" << std::setw(4) << std::setfill('0') << cnt << ".obj";
@@ -2995,7 +2993,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     if ( psp_info->stat )
     {
         // what we do depends on what kind of module we're loading
-        if ( 0 == PMod->importamount && PlaStack.count < PMod->playeramount )
+        if ( 0 == PMod->getImportAmount() && PlaStack.count < PMod->playeramount )
         {
             // a single player module
 
@@ -3009,7 +3007,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 pobject->nameknown = true;
             }
         }
-        else if ( PlaStack.count < PMod->importamount && PlaStack.count < PMod->playeramount && PlaStack.count < ImportList.count )
+        else if ( PlaStack.count < PMod->getImportAmount() && PlaStack.count < PMod->playeramount && PlaStack.count < ImportList.count )
         {
             // A multiplayer module
 
@@ -3153,7 +3151,7 @@ void activate_spawn_file_vfs()
             // If nothing is already in that slot, try to load it.
             if ( !_profileSystem.isValidProfileID(spawnInfo.slot) )
             {
-                bool import_object = spawnInfo.slot > (PMod->importamount * MAX_IMPORT_PER_PLAYER);
+                bool import_object = spawnInfo.slot > (PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER);
 
                 if ( !activate_spawn_file_load_object( &spawnInfo ) )
                 {
@@ -3432,7 +3430,7 @@ void game_quit_module()
     /// @details all of the de-initialization code after the module actually ends
 
     // stop the module
-    game_module_stop( PMod );
+    PMod->stop();
 
     // get rid of the game/module data
     game_release_module_data();
@@ -3477,7 +3475,7 @@ bool game_begin_module( const char * modname, Uint32 seed )
     srand( seed );
     if ( !game_load_module_data( modname ) )
     {
-        game_module_stop( PMod );
+        PMod->stop();
         return false;
     };
 
@@ -3489,7 +3487,7 @@ bool game_begin_module( const char * modname, Uint32 seed )
     // initialize the game objects
     initialize_all_objects();
     input_cursor_reset();
-    game_module_reset( PMod, seed );
+    PMod->reset(seed);
     _cameraSystem.resetAll(PMesh);
     update_all_character_matrices();
     attach_all_particles();
@@ -3502,7 +3500,7 @@ bool game_begin_module( const char * modname, Uint32 seed )
     net_sayHello();
 
     // start the module
-    game_module_start( PMod );
+    PMod->start();
 
     // initialize the timers as the very last thing
     timeron = false;
@@ -3519,7 +3517,7 @@ bool game_update_imports()
     ///    and also copies them into the imports dir to prepare for the next module
 
     // save the players and their inventories to their original directory
-    if ( PMod->exportvalid )
+    if ( PMod->isExportValid() )
     {
         // export the players
         export_all_players( false );
@@ -4137,9 +4135,7 @@ bool game_choose_module( int imod, int seed )
 
     if ( seed < 0 ) seed = ( int )time( NULL );
 
-    if ( NULL == PMod ) PMod = &_gmod;
-
-    retval = game_module_setup( PMod, mnu_ModList_get_base( imod ), mnu_ModList_get_vfs_path( imod ), seed );
+    retval = PMod->setup(mnu_ModList_get_base(imod), mnu_ModList_get_vfs_path(imod), seed);
 
     if ( retval )
     {
@@ -4470,89 +4466,6 @@ void upload_wawalite()
     upload_animtile_data( animtile, &( pdata->animtile ), SDL_arraysize( animtile ) );
 }
 
-//--------------------------------------------------------------------------------------------
-bool game_module_setup( game_module_t * pinst, const mod_file_t * pdata, const char * loadname, const Uint32 seed )
-{
-    //Prepeares a module to be played
-    if ( NULL == pdata ) return false;
-
-    if ( !game_module_init( pinst ) ) return false;
-
-    pinst->importamount   = pdata->importamount;
-    pinst->exportvalid    = pdata->allowexport;
-    pinst->exportreset    = pdata->allowexport;
-    pinst->playeramount   = pdata->maxplayers;
-    pinst->importvalid    = ( pinst->importamount > 0 );
-    pinst->respawnvalid   = ( false != pdata->respawnvalid );
-    pinst->respawnanytime = ( RESPAWN_ANYTIME == pdata->respawnvalid );
-
-    strncpy( pinst->loadname, loadname, SDL_arraysize( pinst->loadname ) );
-
-    pinst->active = false;
-    pinst->beat   = false;
-    pinst->seed   = seed;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool game_module_init( game_module_t * pinst )
-{
-    if ( NULL == pinst ) return false;
-
-    BLANK_STRUCT_PTR( pinst )
-
-    pinst->seed = ( Uint32 )~0;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool game_module_reset( game_module_t * pinst, const Uint32 seed )
-{
-    if ( NULL == pinst ) return false;
-
-    pinst->beat        = false;
-    pinst->exportvalid = pinst->exportreset;
-    pinst->seed        = seed;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool game_module_start( game_module_t * pinst )
-{
-    /// @author BB
-    /// @details Let the module go
-
-    if ( NULL == pinst ) return false;
-
-    pinst->active = true;
-
-    srand( pinst->seed );
-    pinst->randsave = rand();
-    randindex = rand() % RANDIE_COUNT;
-
-    egonet_set_hostactive( true ); // very important or the input will not work
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool game_module_stop( game_module_t * pinst )
-{
-    /// @author BB
-    /// @details stop the module
-
-    if ( NULL == pinst ) return false;
-
-    pinst->active      = false;
-
-    // network stuff
-    egonet_set_hostactive( false );
-
-    return true;
-}
 
 //--------------------------------------------------------------------------------------------
 wawalite_data_t * read_wawalite_vfs( void /* const char *modname */ )
