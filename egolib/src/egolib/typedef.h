@@ -528,3 +528,56 @@ struct StaticArray
 		return (index >= Capacity) ? NULL : this->ary + index;
 	}
 };
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// some common data types and enums in egoboo
+
+typedef uint16_t SKIN_T;
+
+/// The possible damage types
+enum DamageType : uint8_t
+{
+    DAMAGE_SLASH = 0,
+    DAMAGE_CRUSH,
+    DAMAGE_POKE,
+    DAMAGE_HOLY,                             ///< (Most invert Holy damage )
+    DAMAGE_EVIL,
+    DAMAGE_FIRE,
+    DAMAGE_ICE,
+    DAMAGE_ZAP,
+    DAMAGE_COUNT,
+
+    DAMAGE_NONE      = 255
+};
+
+/// What gender a character can be spawned with
+enum CharacterGender : uint8_t
+{
+    GENDER_FEMALE = 0,
+    GENDER_MALE,
+    GENDER_OTHER,
+    GENDER_RANDOM,
+    GENDER_COUNT
+};
+
+//Damage shifts
+enum DamageShift
+{
+    DAMAGEINVICTUS = (1 << 5),      ///< 00x00000 Invictus to this type of damage
+    DAMAGEMANA =     (1 << 4),      ///< 000x0000 Deals damage to mana
+    DAMAGECHARGE =   (1 << 3),      ///< 0000x000 Converts damage to mana
+    DAMAGEINVERT =   (1 << 2)       ///< 00000x00 Makes damage heal
+};
+
+/// Where an item is being held
+enum slot_t : uint8_t
+{
+    SLOT_LEFT  = 0,
+    SLOT_RIGHT,
+    SLOT_COUNT
+};
+
+#define NO_SKIN_OVERRIDE    -1                      ///< For import
+#define MAX_SKIN             4               ///< The maxumum number of skins per model. This must remain hard coded at 4 for the moment.

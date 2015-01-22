@@ -4,7 +4,7 @@ EGOLIB_TARGET := libegoboo.a
 
 #---------------------
 # the source files
-SOURCES := $(wildcard ./src/egolib/*.c) $(wildcard ./src/egolib/file_formats/*.c) $(wildcard ./src/egolib/extensions/*.c) $(wildcard ./src/egolib/opengl/*.c)
+SOURCES := $(wildcard ./src/egolib/*.c)  $(wildcard ./src/egolib/*/*.c)
 SOURCES += $(wildcard ./src/egolib/*.cpp) $(wildcard ./src/egolib/*/*.cpp)
 
 SOURCES     += ./src/egolib/platform/sys_win32.c
@@ -14,6 +14,7 @@ SOURCES     += ./src/egolib/platform/file_win.c
 SOURCES := $(filter-out ./src/egolib/bsp_leaf.c, $(SOURCES))
 SOURCES := $(filter-out ./src/egolib/platform/sys_linux.c, $(SOURCES))
 SOURCES := $(filter-out ./src/egolib/platform/file_linux.c, $(SOURCES))
+SOURCES := $(filter-out ./src/egolib/lua/lua_console.c, $(SOURCES))
 
 
 #-------------------

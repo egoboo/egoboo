@@ -55,11 +55,9 @@ public:
 	void releaseAllProfiles();
 
 	//ZF> TODO: These C-like functions need to be removed
-	CAP_REF pro_get_icap( const PRO_REF iobj );
 	MAD_REF pro_get_imad( const PRO_REF iobj );
 	EVE_REF pro_get_ieve( const PRO_REF iobj );
 	PIP_REF pro_get_ipip( const PRO_REF iobj, int ipip );
-	cap_t * pro_get_pcap( const PRO_REF iobj );
 	mad_t * pro_get_pmad( const PRO_REF iobj );
 	eve_t * pro_get_peve( const PRO_REF iobj );
 	pip_t * pro_get_ppip( const PRO_REF iobj, int pip_index );
@@ -72,13 +70,13 @@ public:
     /**
     *  @details This function loads one object and returns the object slot
     **/
-	int loadOneProfile( const char* tmploadname, int slot_override = -1 );
+	PRO_REF loadOneProfile(const std::string &folderPath, int slot_override = -1);
 
 	/**
 	* @brief Loads only the slot number from data.txt
 	*        If slot_override is valid, then that is used indead
 	**/
-	int getProfileSlotNumber(const char* tmploadname, int slot_override = -1);
+	int getProfileSlotNumber(const std::string &folderPath, int slot_override = -1);
 
 	/**
 	* @return Returns the ObjectProfile loaded into the specified slot number

@@ -50,17 +50,30 @@
 /// A wrapper for the water layer data in "wawalite.txt"
     struct wawalite_water_layer_t
     {
-        Uint32  frame_add;      ///< Speed
+        uint32_t  frame_add;      ///< Speed
 
         float   z;                ///< Base height of water
         float   amp;            ///< Amplitude of waves
 
         fvec2_t dist;            ///< For distant backgrounds
-        Uint32  light_dir;        ///< direct  reflectivity 0 - 63
-        Uint32  light_add;        ///< ambient reflectivity 0 - 63
+        uint32_t  light_dir;        ///< direct  reflectivity 0 - 63
+        uint32_t  light_add;        ///< ambient reflectivity 0 - 63
 
         fvec2_t tx_add;            ///< Texture movement
-        Uint8   alpha;            ///< Transparency
+        uint8_t   alpha;            ///< Transparency
+
+        wawalite_water_layer_t() :
+            frame_add(0),
+            z(0.0f),
+            amp(0.0f),
+            dist(0, 0),
+            light_dir(0),
+            light_add(0),
+            tx_add(0, 0),
+            alpha(0)
+        {
+            //default ctor
+        }
     };
 
 //--------------------------------------------------------------------------------------------
@@ -73,8 +86,8 @@
 
         float  surface_level;    ///< Surface level for water striders
         float  douse_level;         ///< Surface level for torches
-        Uint8  spek_start;         ///< Specular begins at which light value
-        Uint8  spek_level;         ///< General specular amount (0-255)
+        uint8_t  spek_start;         ///< Specular begins at which light value
+        uint8_t  spek_level;         ///< General specular amount (0-255)
         bool is_water;         ///< Is it water?  ( Or lava... )
         bool overlay_req;
         bool background_req;
@@ -83,6 +96,23 @@
 
         float  foregroundrepeat;
         float  backgroundrepeat;
+
+        wawalite_water_t() :
+            layer_count(0),
+            layer(),
+            surface_level(0.0f),
+            douse_level(0.0f),
+            spek_start(0),
+            spek_level(0),
+            is_water(true),
+            overlay_req(false),
+            background_req(false),
+            light(false),
+            foregroundrepeat(0.0f),
+            backgroundrepeat(0.0f)
+        {
+            //default ctor            
+        }
     };
 
 //--------------------------------------------------------------------------------------------
@@ -96,6 +126,17 @@
         float waterfriction;
         float noslipfriction;
         float gravity;
+
+        wawalite_physics_t() :
+            hillslide(0.0f),
+            slippyfriction(0.0f),
+            airfriction(0.0f),
+            waterfriction(0.0f),
+            noslipfriction(0.0f),
+            gravity(0.0f)
+        {
+            //default ctor
+        }
     };
 
 //--------------------------------------------------------------------------------------------
@@ -103,8 +144,15 @@
 /// A wrapper for the animated tile data in "wawalite.txt"
     struct wawalite_animtile_t
     {
-        Uint32 update_and;
-        Uint32 frame_and;
+        uint32_t update_and;
+        uint32_t frame_and;
+
+        wawalite_animtile_t() :
+            update_and(0),
+            frame_and(0)
+        {
+            //default ctor
+        }
     };
 
 //--------------------------------------------------------------------------------------------
@@ -112,12 +160,22 @@
 /// A wrapper for the damagetile data in "wawalite.txt"
     struct wawalite_damagetile_t
     {
-        Uint32 amount;
+        uint32_t amount;
         int    damagetype;
 
         int    part_gpip;
-        Uint32 partand;
+        uint32_t partand;
         int    sound_index;
+
+        wawalite_damagetile_t() :
+            amount(0),
+            damagetype(0),
+            part_gpip(-1),
+            partand(0),
+            sound_index(-1)
+        {
+            //default ctor
+        }
     };
 
 //--------------------------------------------------------------------------------------------
@@ -129,6 +187,15 @@
         int     timer_reset;
         int     part_gpip;           ///< Which particle to spawn?
         STRING  weather_name;
+
+        wawalite_weather_t() :
+            over_water(false),
+            timer_reset(0),
+            part_gpip(-1),
+            weather_name()
+        {
+            //default ctor
+        }
     };
 
 //--------------------------------------------------------------------------------------------
@@ -138,6 +205,13 @@
     {
         bool exploremode;
         bool usefaredge;
+
+        wawalite_graphics_t() :
+            exploremode(false),
+            usefaredge(false)
+        {
+            //default ctor   
+        }
     };
 
 //--------------------------------------------------------------------------------------------
@@ -148,6 +222,14 @@
         bool swing;
         float  swing_rate;
         float  swing_amp;
+
+        wawalite_camera_t() :
+            swing(false),
+            swing_rate(0.0f),
+            swing_amp(0.0f)
+        {
+            //default ctor
+        }
     };
 
 //--------------------------------------------------------------------------------------------
@@ -162,6 +244,18 @@
         float  grn;
         float  blu;
         bool affects_water;
+
+        wawalite_fog_t() :
+            found(false),
+            top(0),
+            bottom(0),
+            red(0),
+            grn(0),
+            blu(0),
+            affects_water(false)
+        {
+            //default ctor
+        }
     };
 
 //--------------------------------------------------------------------------------------------
@@ -169,7 +263,7 @@
 /// An internal representation of the data in "wawalite.txt"
     struct wawalite_data_t
     {
-        Uint32 seed;
+        uint32_t seed;
         Sint8 version;
 
         wawalite_water_t      water;
@@ -186,6 +280,25 @@
         float light_y;
         float light_z;
         float light_a;
+
+        wawalite_data_t() :
+            seed(0),
+            version(0),
+            water(),
+            phys(),
+            animtile(),
+            damagetile(),
+            weather(),
+            graphics(),
+            camera(),
+            fog(),
+            light_x(0.0f),
+            light_y(0.0f),
+            light_z(0.0f),
+            light_a(0.0f)
+        {
+            //default ctor
+        }
     };
 
 //--------------------------------------------------------------------------------------------

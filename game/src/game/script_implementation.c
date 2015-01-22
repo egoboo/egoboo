@@ -372,7 +372,6 @@ bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y
     if ( NULL == plst ) return false;
 
 #if defined(_DEBUG) && defined(DEBUG_WAYPOINTS)
-    cap_t * pcap;
     fvec2_t loc_pos;
     fvec3_t nrm;
     float   pressure;
@@ -384,10 +383,10 @@ bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y
     // is this a safe position?
     returncode = false;
 
-    pcap = chr_get_pcap( ichr );
-    if ( NULL != pcap )
+    ObjectProfile * profile = chr_get_ppro( ichr );
+    if ( nullptr != profile )
     {
-        if ( CAP_INFINITE_WEIGHT == pcap->weight || !ego_mesh_hit_wall( PMesh, loc_pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
+        if ( CAP_INFINITE_WEIGHT == profile->getWeight() || !ego_mesh_hit_wall( PMesh, loc_pos.v, pchr->bump.size, pchr->stoppedby, nrm.v, &pressure, NULL ) )
         {
             // yes it is safe. add it.
             returncode = waypoint_list_push( plst, pos_x, pos_y );
@@ -404,7 +403,7 @@ bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y
                          "\tWall normal <%1.4f,%1.4f>\n"
                          "\tPressure %f\n",
                          __FUNCTION__,
-                         ichr, pchr->Name, pcap->name,
+                         ichr, pchr->Name, profile->getClassName().c_str(),
                          plst->head,
                          loc_pos.x / GRID_FSIZE, loc_pos.y / GRID_FSIZE,
                          nrm.x, nrm.y,
@@ -522,15 +521,7 @@ int GetArmorPrice( chr_t * pchr, const int skin )
     /// @details This function returns the cost of the desired skin upgrade, setting
     /// tmpx to the price
 
-    cap_t * pcap;
-    int loc_skin = 0;
-
-    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pcap ) return -1;
-
-    loc_skin = skin % MAX_SKIN;
-
-    return pcap->skin_info.cost[loc_skin];
+    return _profileSystem.getProfile(pchr->profile_ref)->getSkinInfo(skin).cost;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -797,25 +788,24 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_
 
     CHR_BEGIN_LOOP_ACTIVE( iweapon, pweapon )
     {
-        cap_t *pweapon_cap;
         float dist;
         fvec3_t diff;
 
         //only do items on the ground
         if ( INGAME_CHR( pweapon->attachedto ) || !pweapon->isitem ) continue;
-        pweapon_cap = chr_get_pcap( iweapon );
+        ObjectProfile *weaponProfile = chr_get_ppro( iweapon );
 
         // only target those with a the given IDSZ
         if ( !chr_has_idsz( iweapon, weap_idsz ) ) continue;
 
         // ignore ranged weapons
-        if ( !find_ranged && pweapon_cap->isranged ) continue;
+        if ( !find_ranged && weaponProfile->isRangedWeapon() ) continue;
 
         // see if the character can use this weapon (we assume everyone has a left grip here)
-        if ( ACTION_COUNT == mad_get_action_ref( imad, randomize_action( pweapon_cap->weaponaction, SLOT_LEFT ) ) ) continue;
+        if ( ACTION_COUNT == mad_get_action_ref( imad, randomize_action( weaponProfile->getWeaponAction(), SLOT_LEFT ) ) ) continue;
 
         // then check if a skill is needed
-        if ( pweapon_cap->needskillidtouse )
+        if ( weaponProfile->requiresSkillIDToUse() )
         {
             if ( !chr_get_skill( pchr, chr_get_idsz( iweapon, IDSZ_SKILL ) ) ) continue;
         }

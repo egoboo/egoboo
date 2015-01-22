@@ -23,7 +23,8 @@
 #include "Random.hpp"
 
 //Static data initializer
-std::mt19937 Random::generator;
+std::random_device rd;
+std::mt19937 Random::generator = std::mt19937(rd());
 
 void Random::setSeed(const long seed)
 {

@@ -39,7 +39,7 @@ struct wawalite_weather_t;
 struct wawalite_water_t;
 struct wawalite_fog_t;
 
-struct s_menu_process;
+struct menu_process_t;
 
 struct chr_t;
 struct s_prt;
@@ -506,7 +506,7 @@ float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk );
 
 bool game_choose_module( int imod, int seed );
 
-int    game_do_menu( struct s_menu_process * mproc );
+int    game_do_menu( struct menu_process_t * mproc );
 
 void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * src, char * src_end, char * dst, char * dst_end );
 

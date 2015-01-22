@@ -24,7 +24,7 @@
 #include <cstdint>
 #include <vector>
 #include <forward_list>
-#include <SDL_Mixer.h>
+#include <SDL_mixer.h>
 
 #include "game/ChrList.h"
 
@@ -171,8 +171,6 @@ public:
     /// @author ZF
     /// @details This function plays a specified sound at full possible volume and returns which channel it's using
 	int playSoundFull(SoundID soundID);
-
-	void stopLoopingSoundByChannel(int channel);
 
 	inline SoundID getGlobalSound(GlobalSound id) const {return _globalSounds[id];}
 

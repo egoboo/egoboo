@@ -3,15 +3,18 @@
 #---------------------
 # the source files
 
-EGOLIB_SRC          := $(wildcard ./src/egolib/*.c)
-EGOLIB_PLATFORM     := $(wildcard ./src/egolib/platform/*_linux.c)
-EGOLIB_FILE_FORMAT  := $(wildcard ./src/egolib/file_formats/*.c)
-EGOLIB_EXTENSIONS   := $(wildcard ./src/egolib/extensions/*.c)
-EGOLIB_OPENGL       := $(wildcard ./src/egolib/opengl/*.c)
-EGOLIB_CPPSRC       := ./src/egolib/DynamicArray.cpp
+EGOLIB_SOURCE := $(wildcard src/egolib/*.c)
+EGOLIB_SOURCE += $(wildcard src/egolib/platform/*_linux.c)
+EGOLIB_SOURCE += $(wildcard src/egolib/file_formats/*.c)
+EGOLIB_SOURCE += $(wildcard src/egolib/extensions/*.c)
+EGOLIB_SOURCE += $(wildcard src/egolib/opengl/*.c)
+EGOLIB_CPPSRC := $(wildcard src/egolib/*.cpp)
+EGOLIB_CPPSRC += $(wildcard src/egolib/*/*.cpp)
 
-EGOLIB_OBJ := ${EGOLIB_SRC:.c=.lo} ${EGOLIB_FILE_FORMAT:.c=.lo} ${EGOLIB_EXTENSIONS:.c=.lo} \
-                ${EGOLIB_PLATFORM:.c=.lo} ${EGOLIB_OPENGL:.c=.lo} ${EGOLIB_CPPSRC:.cpp:.lo}
+# remove some files
+EGOLIB_SOURCE := $(filter-out src/egolib/bsp_leaf.c, $(EGOLIB_SOURCE))
+
+EGOLIB_OBJ := ${EGOLIB_SOURCE:.c=.lo} ${EGOLIB_CPPSRC:.cpp=.lo}
 
 #---------------------
 # the SDL configuration
@@ -22,7 +25,7 @@ SDLCONF_C := $(shell ${SDL_CONF} --cflags)
 #---------------------
 # the compiler options
 
-CC	:= gcc
+CC	:= g++
 INC	:= -Isrc -I../game/src
 
 # use different options if the environmental variable PREFIX is defined
@@ -56,6 +59,9 @@ endef
 # definitions of the target projects
 
 .PHONY: all clean
+
+%.lo: %.cpp
+	$(call compile_rule)
 
 %.lo: %.c
 	$(call compile_rule)

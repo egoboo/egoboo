@@ -36,7 +36,7 @@
 #include "game/menu.h"
 #include "game/graphic_billboard.h"
 #include "game/renderer_2d.h"
-#include "game/ai/astar.h"
+#include "game/ai/AStar.h"
 #include "game/enchant.h"
 #include "game/char.h"
 #include "game/particle.h"
@@ -2055,17 +2055,9 @@ Uint8 scr_TargetHasVulnerabilityID( script_state_t * pstate, ai_state_t * pself 
     /// @author ZZ
     /// @details This function proceeds if the target is vulnerable to the given IDSZ.
 
-    cap_t * pcap;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = false;
-
-    pcap = chr_get_pcap( pself->target );
-    if ( NULL != pcap )
-    {
-        returncode = ( pcap->idsz[IDSZ_VULNERABILITY] == ( IDSZ ) pstate->argument );
-    }
+    returncode = ppro->getIDSZ(IDSZ_VULNERABILITY) == static_cast<IDSZ>(pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2419,7 +2411,6 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     /// TOO COMPLICATED TO EXPLAIN.  SHOULDN'T EVER BE NEEDED BY YOU.
 
     int iskin;
-    cap_t * pcap;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2437,6 +2428,8 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
     chr_update_hide( pchr );
 
     // set the book icon of the spell effect if it is not already set
+    /*
+    //ZF> TODO: is this needed? what does it actually do?
     pcap = chr_get_pcap( pself->index );
     if ( NULL != pcap )
     {
@@ -2445,6 +2438,7 @@ Uint8 scr_BecomeSpell( script_state_t * pstate, ai_state_t * pself )
 
         pcap->spelleffect_type = iskin;
     }
+    */
 
     SCRIPT_FUNCTION_END();
 }
@@ -2461,16 +2455,12 @@ Uint8 scr_BecomeSpellbook( script_state_t * pstate, ai_state_t * pself )
 
     PRO_REF  old_profile;
     mad_t * pmad;
-    cap_t * pcap;
     int iskin;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = chr_get_pcap( pself->index );
-    if ( NULL == pcap ) return false;
-
     // Figure out what this spellbook looks like
-    iskin = pcap->spelleffect_type;
+    iskin = ppro->getSpellEffectType();
     if ( iskin < 0 ) iskin = 0;
 
     // convert the spell effect to a spellbook
@@ -2716,17 +2706,9 @@ Uint8 scr_TargetHasSpecialID( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the character has a special IDSZ ( in data.txt )
 
-    cap_t * pcap;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = false;
-
-    pcap = chr_get_pcap( pself->target );
-    if ( NULL != pcap )
-    {
-        returncode = ( pcap->idsz[IDSZ_SPECIAL] == ( IDSZ ) pstate->argument );
-    }
+    returncode = ppro->getIDSZ(IDSZ_SPECIAL) == static_cast<IDSZ>(pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -2913,7 +2895,7 @@ Uint8 scr_add_TargetExperience( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    give_experience( pself->target, pstate->argument, ( xp_type )pstate->distance, false );
+    give_experience( pself->target, pstate->argument, static_cast<XPType>(pstate->distance), false );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2961,7 +2943,9 @@ Uint8 scr_add_TargetTeamExperience( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    give_team_experience( chr_get_iteam( pself->target ), pstate->argument, pstate->distance );
+    if(pstate->distance < XP_COUNT && pstate->distance >= 0) {
+        give_team_experience(chr_get_iteam(pself->target), pstate->argument, static_cast<XPType>(pstate->distance) );
+    }
 
     SCRIPT_FUNCTION_END();
 }
@@ -3672,17 +3656,9 @@ Uint8 scr_UsageIsKnown( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the character's usage is known
 
-    cap_t * pcap;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-
-    returncode = false;
-    if ( NULL != pcap )
-    {
-        returncode = pcap->usageknown;
-    }
+    returncode = ppro->isUsageKnown();
 
     SCRIPT_FUNCTION_END();
 }
@@ -3725,9 +3701,9 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     ichr = pchr->holdingwhich[SLOT_RIGHT];
     if ( INGAME_CHR( ichr ) )
     {
-        cap_t * pcap = chr_get_pcap( ichr );
+        ObjectProfile *item = chr_get_ppro( ichr );
 
-        if ( NULL != pcap && pcap->isranged && ( 0 == ChrList.lst[ichr].ammomax || ( 0 != ChrList.lst[ichr].ammo && ChrList.lst[ichr].ammoknown ) ) )
+        if ( item->isRangedWeapon() && ( 0 == ChrList.lst[ichr].ammomax || ( 0 != ChrList.lst[ichr].ammo && ChrList.lst[ichr].ammoknown ) ) )
         {
             if ( 0 == pstate->argument || ( update_wld & 1 ) )
             {
@@ -3743,9 +3719,9 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->holdingwhich[SLOT_LEFT];
         if ( INGAME_CHR( ichr ) )
         {
-            cap_t * pcap = chr_get_pcap( ichr );
+            ObjectProfile *item = chr_get_ppro( ichr );
 
-            if ( NULL != pcap && pcap->isranged && ( 0 == ChrList.lst[ichr].ammomax || ( 0 != ChrList.lst[ichr].ammo && ChrList.lst[ichr].ammoknown ) ) )
+            if ( item->isRangedWeapon() && ( 0 == ChrList.lst[ichr].ammomax || ( 0 != ChrList.lst[ichr].ammo && ChrList.lst[ichr].ammoknown ) ) )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = true;
@@ -3778,9 +3754,9 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->holdingwhich[SLOT_RIGHT];
         if ( INGAME_CHR( ichr ) )
         {
-            cap_t * pcap = chr_get_pcap( ichr );
+            ObjectProfile *item = chr_get_ppro(ichr);
 
-            if ( NULL != pcap && !pcap->isranged && pcap->weaponaction != ACTION_PA )
+            if ( !item->isRangedWeapon() && item->getWeaponAction() != ACTION_PA )
             {
                 if ( 0 == pstate->argument || ( update_wld & 1 ) )
                 {
@@ -3797,9 +3773,9 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->holdingwhich[SLOT_LEFT];
         if ( INGAME_CHR( ichr ) )
         {
-            cap_t * pcap = chr_get_pcap( ichr );
+            ObjectProfile *item = chr_get_ppro(ichr);
 
-            if ( NULL != pcap && !pcap->isranged && pcap->weaponaction != ACTION_PA )
+            if ( !item->isRangedWeapon() && item->getWeaponAction() != ACTION_PA )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = true;
@@ -3831,9 +3807,9 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->holdingwhich[SLOT_RIGHT];
         if ( INGAME_CHR( ichr ) )
         {
-            cap_t * pcap = chr_get_pcap( ichr );
+            const ObjectProfile *item = chr_get_ppro(ichr);
 
-            if ( NULL != pcap && pcap->weaponaction == ACTION_PA )
+            if ( item->getWeaponAction() == ACTION_PA )
             {
                 pstate->argument = LATCHBUTTON_RIGHT;
                 returncode = true;
@@ -3846,10 +3822,10 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
         // Check left hand
         ichr = pchr->holdingwhich[SLOT_LEFT];
         if ( INGAME_CHR( ichr ) )
-        {
-            cap_t * pcap = chr_get_pcap( ichr );
+        {            
+            const ObjectProfile *item = chr_get_ppro(ichr);
 
-            if ( NULL != pcap && pcap->weaponaction == ACTION_PA )
+            if ( item->getWeaponAction() == ACTION_PA )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = true;
@@ -3899,17 +3875,9 @@ Uint8 scr_TargetIsDressedUp( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the target is dressed in fancy clothes
 
-    cap_t * pcap;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-
-    returncode = false;
-    if ( NULL != pcap )
-    {
-        returncode = HAS_SOME_BITS( pcap->skin_info.dressy, 1 << pchr->skin );
-    }
+    returncode = ppro->getSkinInfo(pchr->skin).dressy;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3966,18 +3934,9 @@ Uint8 scr_MakeUsageKnown( script_state_t * pstate, ai_state_t * pself )
     /// @details This function makes the usage known for this type of object
     /// For XP gains from using an unknown potion or such
 
-    cap_t * pcap;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-
-    returncode = false;
-    if ( NULL != pcap )
-    {
-        pcap->usageknown = true;
-        returncode       = true;
-    }
+    ppro->makeUsageKnown();
 
     SCRIPT_FUNCTION_END();
 }
@@ -4272,8 +4231,6 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = false;
-
     SoundID sound = ppro->getSoundID(pstate->argument);
     
     if ( INVALID_SOUND_ID == sound )
@@ -4284,13 +4241,9 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
     else
     {
         // check whatever might be playing on the channel now
-        if ( INVALID_SOUND_CHANNEL == pchr->loopedsound_channel )
-        {
-            _audioSystem.playSoundLooped(sound, pself->index);
-        }
+        //ZF> TODO: check if character is already playing a looped sound first!
+        _audioSystem.playSoundLooped(sound, pself->index);
     }
-
-    returncode = ( INVALID_SOUND_CHANNEL != pchr->loopedsound_channel );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5082,24 +5035,17 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
 
     int tTmp;
     Uint16 sTmp = 0;
-    cap_t * pcap_chr;
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap_chr = _profileSystem.pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pcap_chr ) return false;
-
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr_test )
     {
-        cap_t * pcap_test;
-
-        pcap_test = chr_get_pcap( cnt );
-        if ( NULL == pcap_test ) continue;
+        const ObjectProfile *otherProfile = chr_get_ppro( cnt );
 
         sTmp = true;
         for ( tTmp = 0; tTmp < IDSZ_COUNT; tTmp++ )
         {
-            if ( pcap_chr->idsz[tTmp] != pcap_test->idsz[tTmp] )
+            if ( ppro->getIDSZ(tTmp) != otherProfile->getIDSZ(tTmp) )
             {
                 sTmp = false;
             }
@@ -5587,9 +5533,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
-            cap_t * pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, NULL == pcap ? "INVALID" : pcap->classname, pstate->argument );
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, ppro->getClassName().c_str(), pstate->argument );
         }
     }
     else
@@ -6102,7 +6046,6 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
     /// @details This function reveals the target's name, ammo, and usage
     /// Proceeds if the target was unknown
 
-    cap_t * pcap;
     CHR_REF ichr;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6110,17 +6053,11 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     ichr = pself->target;
     if ( ChrList.lst[ichr].ammomax != 0 )  ChrList.lst[ichr].ammoknown = true;
-    if ( 0 == strcmp( "Blah", ChrList.lst[ichr].Name ) )
-    {
-        returncode = !ChrList.lst[ichr].nameknown;
-        ChrList.lst[ichr].nameknown = true;
-    }
 
-    pcap = chr_get_pcap( pself->target );
-    if ( NULL != pcap )
-    {
-        pcap->usageknown = true;
-    }
+
+    returncode = !ChrList.lst[ichr].nameknown;
+    ChrList.lst[ichr].nameknown = true;
+    ppro->makeUsageKnown();
 
     SCRIPT_FUNCTION_END();
 }
@@ -6699,7 +6636,6 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
     /// skin tmpx is set to amount needed after trade-in ( 0 for pass ).
 
     int iTmp;
-    cap_t * pcap;
     chr_t * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -6710,13 +6646,11 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
 
     pself_target = ChrList_get_ptr( pself->target );
 
-    pcap = chr_get_pcap( pself->target );         // The Target's model
-    if ( NULL == pcap )  return false;
 
-    iTmp = pcap->skin_info.cost[pstate->argument&3];
-    pstate->y = iTmp;                             // Cost of new skin
+    iTmp = ppro->getSkinInfo(pstate->argument).cost;
+    pstate->y = iTmp;                                       // Cost of new skin
 
-    iTmp -= pcap->skin_info.cost[pself_target->skin];        // Refund
+    iTmp -= ppro->getSkinInfo(pself_target->skin).cost;     // Refund for old skin
 
     if ( iTmp > pself_target->money )
     {
@@ -6888,16 +6822,11 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
     int   tTmp, iTmp;
     float fTmp;
 
-    cap_t * pcap;
-    pip_t * ppip;
-
     SCRIPT_FUNCTION_BEGIN();
 
-    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pcap ) return false;
-
-    ppip = _profileSystem.pro_get_ppip( pchr->profile_ref, pcap->gopoofprt_lpip );
-    if ( NULL == ppip ) return false;
+    PIP_REF particleRef = ppro->getParticlePoofProfile();
+    if ( INVALID_PRT_REF == particleRef ) return false;
+    pip_t * ppip = PipStack.get_ptr(particleRef);
 
     returncode = false;
     if ( NULL != ppip )
@@ -6941,7 +6870,11 @@ Uint8 scr_add_GoodTeamExperience( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    give_team_experience(( TEAM_REF )TEAM_GOOD, pstate->argument, pstate->distance );
+    if(pstate->distance < XP_COUNT)
+    {
+        give_team_experience(static_cast<TEAM_REF>(TEAM_GOOD), pstate->argument, static_cast<XPType>(pstate->distance) );
+    }
+
 
     SCRIPT_FUNCTION_END();
 }
@@ -6964,17 +6897,16 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function grogs the Target for a duration equal to tmpargument
 
-    cap_t * pcap;
     chr_t * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pcap = chr_get_pcap( pself->target );
+    const ObjectProfile *targetProfile = chr_get_ppro( pself->target );
 
     returncode = false;
-    if ( NULL != pcap && pcap->canbegrogged )
+    if ( targetProfile->canBeGrogged() )
     {
         int timer_val = pself_target->grog_timer + pstate->argument;
         pself_target->grog_timer = std::max( 0, timer_val );
@@ -6991,18 +6923,17 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function dazes the Target for a duration equal to tmpargument
 
-    cap_t * pcap;
     chr_t * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    pcap = chr_get_pcap( pself->target );
+    const ObjectProfile *targetProfile = chr_get_ppro(pself->target);
 
-    // Characters who manage to daze themselves are ignore their daze immunity
+    // Characters who manage to daze themselves are to ignore their daze immunity
     returncode = false;
-    if ( NULL != pcap && ( pcap->canbedazed || pself->index == pself->target ) )
+    if ( targetProfile->canBeDazed() || pself->index == pself->target )
     {
         int timer_val = pself_target->daze_timer + pstate->argument;
         pself_target->daze_timer = std::max( 0, timer_val );
@@ -7192,16 +7123,13 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details Proceeds if the AI Target Is a melee or ranged weapon
 
-    cap_t * pcap;
-
     SCRIPT_FUNCTION_BEGIN();
 
     if ( !INGAME_CHR( pself->target ) ) return false;
 
-    pcap = chr_get_pcap( pself->target );
-    if ( NULL == pcap ) return false;
+    const ObjectProfile *targetProfile = chr_get_ppro( pself->target );
 
-    returncode = pcap->isranged || chr_has_idsz( pself->target, MAKE_IDSZ( 'X', 'W', 'E', 'P' ) );
+    returncode = targetProfile->isRangedWeapon() || chr_has_idsz(pself->target, MAKE_IDSZ('X', 'W', 'E', 'P'));
 
     SCRIPT_FUNCTION_END();
 }
@@ -7553,9 +7481,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
-            cap_t * pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, NULL == pcap ? "INVALID" : pcap->classname, pstate->argument );
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, _profileSystem.getProfile(pchr->profile_ref)->getClassName().c_str(), pstate->argument );
         }
     }
     else
@@ -7706,10 +7632,13 @@ Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
+    //ZF> no longer supported
+#if 0
     for ( sTmp = SPEECH_BEGIN; sTmp <= SPEECH_END; sTmp++ )
     {
         pchr->sound_index[sTmp] = pstate->argument;
     }
+#endif
 
     SCRIPT_FUNCTION_END();
 }
@@ -7723,7 +7652,10 @@ Uint8 scr_set_MoveSpeech( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
+    //ZF> no longer supported
+#if 0
     pchr->sound_index[SPEECH_MOVE] = pstate->argument;
+#endif
 
     SCRIPT_FUNCTION_END();
 }
@@ -7736,8 +7668,10 @@ Uint8 scr_set_SecondMoveSpeech( script_state_t * pstate, ai_state_t * pself )
     /// @details This function sets the RTS movealt speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
-
+    //ZF> no longer supported
+#if 0
     pchr->sound_index[SPEECH_MOVEALT] = pstate->argument;
+#endif
 
     SCRIPT_FUNCTION_END();
 }
@@ -7750,8 +7684,10 @@ Uint8 scr_set_AttackSpeech( script_state_t * pstate, ai_state_t * pself )
     /// @details This function sets the RTS attack speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
-
+    //ZF> no longer supported
+#if 0
     pchr->sound_index[SPEECH_ATTACK] = pstate->argument;
+#endif
 
     SCRIPT_FUNCTION_END();
 }
@@ -7764,8 +7700,10 @@ Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself )
     /// @details This function sets the RTS assist speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
-
+    //ZF> no longer supported
+#if 0
     pchr->sound_index[SPEECH_ASSIST] = pstate->argument;
+#endif
 
     SCRIPT_FUNCTION_END();
 }
@@ -7778,8 +7716,10 @@ Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself )
     /// @details This function sets the RTS terrain speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
-
+    //ZF> no longer supported
+#if 0
     pchr->sound_index[SPEECH_TERRAIN] = pstate->argument;
+#endif
 
     SCRIPT_FUNCTION_END();
 }
@@ -7792,8 +7732,10 @@ Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
     /// @details This function sets the RTS select speech register to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
-
+    //ZF> no longer supported
+#if 0
     pchr->sound_index[SPEECH_SELECT] = pstate->argument;
+#endif
 
     SCRIPT_FUNCTION_END();
 }

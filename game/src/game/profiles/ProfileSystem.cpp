@@ -62,7 +62,6 @@ void ProfileSystem::begin()
     // initialize all the sub-profile lists
     PipStack_init_all();
     EveStack_init_all();
-    CapStack_init_all();
     MadStack_reconstruct_all();
 
     // fix the book icon list
@@ -112,7 +111,6 @@ void ProfileSystem::releaseAllProfiles()
     // relese every type of sub-profile and re-initalize the lists
     PipStack_release_all();
     EveStack_release_all();
-    CapStack_release_all();
     MadStack_release_all();
 }
 
@@ -123,7 +121,7 @@ const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumb
 }
 
 //--------------------------------------------------------------------------------------------
-int ProfileSystem::getProfileSlotNumber(const char * tmploadname, int slot_override)
+int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_override)
 {
     if ( slot_override >= 0 && slot_override != INVALID_PRO_REF )
     {
@@ -132,16 +130,15 @@ int ProfileSystem::getProfileSlotNumber(const char * tmploadname, int slot_overr
     }
 
     // grab the slot from the file
-    STRING szLoadName;
-    make_newloadname( tmploadname, "/data.txt", szLoadName );
+    std::string dataFilePath = folderPath + "/data.txt";
 
-    if ( 0 == vfs_exists( szLoadName ) ) {
+    if ( 0 == vfs_exists( dataFilePath.c_str() ) ) {
 
         return -1;
     }
 
     // Open the file
-    vfs_FILE* fileread = vfs_openRead( szLoadName );
+    vfs_FILE* fileread = vfs_openRead( dataFilePath.c_str() );
     if ( NULL == fileread ) return -1;
 
     // load the slot's slot no matter what
@@ -164,14 +161,6 @@ int ProfileSystem::getProfileSlotNumber(const char * tmploadname, int slot_overr
 
 //--------------------------------------------------------------------------------------------
 //inline
-//--------------------------------------------------------------------------------------------
-CAP_REF ProfileSystem::pro_get_icap( const PRO_REF iobj )
-{
-    if ( !isValidProfileID( iobj ) ) return INVALID_CAP_REF;
-
-    return LOADED_CAP( _profilesLoaded[iobj]->getCapRef() ) ? _profilesLoaded[iobj]->getCapRef() : INVALID_CAP_REF;
-}
-
 //--------------------------------------------------------------------------------------------
 MAD_REF ProfileSystem::pro_get_imad( const PRO_REF iobj )
 {
@@ -216,16 +205,6 @@ PIP_REF ProfileSystem::pro_get_ipip( const PRO_REF iobj, int pip_index )
     }
 
     return found_pip;
-}
-
-//--------------------------------------------------------------------------------------------
-cap_t * ProfileSystem::pro_get_pcap( const PRO_REF iobj )
-{
-    if ( !isValidProfileID( iobj ) ) return nullptr;
-
-    if ( !LOADED_CAP( _profilesLoaded[iobj]->getCapRef() ) ) return nullptr;
-
-    return CapStack.get_ptr( _profilesLoaded[iobj]->getCapRef() );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -277,7 +256,7 @@ pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
     return LOADED_PIP( local_pip ) ? PipStack.lst + local_pip : nullptr;
 }
 
-int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
+PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_override )
 {
     bool required = !(slot_override < 0 || slot_override >= INVALID_PRO_REF);
 
@@ -290,18 +269,18 @@ int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
         // The data file wasn't found
         if ( required )
         {
-            log_debug( "load_one_profile_vfs() - \"%s\" was not found. Overriding a global object?\n", pathName );
+            log_debug( "ProfileSystem::loadOneProfile() - \"%s\" was not found. Overriding a global object?\n", pathName.c_str() );
         }
-        else if ( VALID_CAP_RANGE( slot_override ) && slot_override > PMod->importamount * MAX_IMPORT_PER_PLAYER )
+        else if ( required && slot_override > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
-            log_warning( "load_one_profile_vfs() - Not able to open file \"%s\"\n", pathName );
+            log_warning( "ProfileSystem::loadOneProfile() - Not able to open file \"%s\"\n", pathName.c_str() );
         }
 
         return INVALID_PRO_REF;
     }
 
     // convert the slot to a profile reference
-    PRO_REF iobj = ( PRO_REF )islot;
+    PRO_REF iobj = static_cast<PRO_REF>(islot);
 
     // throw an error code if we are trying to load over an existing profile
     // without permission
@@ -310,11 +289,11 @@ int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
         // Make sure global objects don't load over existing models
         if ( required && SPELLBOOK == iobj )
         {
-            log_error( "load_one_profile_vfs() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, pathName );
+            log_error( "ProfileSystem::loadOneProfile() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, pathName.c_str() );
         }
         else if ( required && overrideslots )
         {
-            log_error( "load_one_profile_vfs() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), _profilesLoaded[iobj]->getName().c_str(), pathName );
+            log_error( "ProfileSystem::loadOneProfile() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), _profilesLoaded[iobj]->getFilePath().c_str(), pathName.c_str() );
         }
         else
         {
@@ -323,8 +302,15 @@ int ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
         }
     }
 
-    //Actually allocate the object and create it
-    _profilesLoaded[iobj] = std::make_shared<ObjectProfile>(pathName, islot);
+    std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(pathName, iobj);
+    if(!profile)
+    {
+        log_warning("ProfileSystem::loadOneProfile() - Failed to load (%s) into slot number %d\n", pathName.c_str(), iobj);
+        return INVALID_PRO_REF;
+    }
+
+    //Success! Store object into the loaded profile map
+    _profilesLoaded[iobj] = profile;
 
     //ZF> TODO: This is kind of a dirty hack and could be done cleaner. If this item is the book object, 
     //    then the icons are also loaded into the global book icon array

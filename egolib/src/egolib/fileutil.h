@@ -98,6 +98,7 @@
 //--------------------------------------------------------------------------------------------
 
     extern const char *parse_filename;          ///< For debuggin' goto_colon_vfs
+    extern int parse_line_number;               ///< For debuggin' goto_colon_vfs
 
     extern  STRING     TxFormatSupported[20]; ///< OpenGL icon surfaces
     extern  Uint8      maxformattypes;
