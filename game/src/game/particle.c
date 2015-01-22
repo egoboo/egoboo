@@ -258,7 +258,7 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
 
 prt_t * prt_config_do_init( prt_t * pprt )
 {
-    const int INFINITE_UPDATES = INT32_MAX;
+    const int INFINITE_UPDATES = std::numeric_limits<int>::max();
 
     PRT_REF            iprt;
     pip_t            * ppip;

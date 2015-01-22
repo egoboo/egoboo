@@ -3,8 +3,10 @@
 #---------------------
 # the source files
 
-EGO_SRC := ${wildcard ./src/game/*.c} ${wildcard ./src/game/ai/*.c}
-EGO_OBJ := ${EGO_SRC:.c=.o}
+EGO_SRC    := ${wildcard src/game/*.c} ${wildcard ./src/game/ai/*.c}
+EGO_CPPSRC := ${wildcard src/game/*.cpp} ${wildcard src/game/*/*.cpp}
+EGO_CPPSRC := $(filter-out src/game/PhysicalConstants.cpp, $(EGO_CPPSRC))
+EGO_OBJ    := ${EGO_SRC:.c=.o} ${EGO_CPPSRC:.cpp=.o}
 
 #---------------------
 # the SDL configuration
@@ -21,7 +23,7 @@ EGOLIB_L      := ../egolib/$(EGOLIB_TARGET)
 #---------------------
 # the compiler options
 
-CC      := gcc
+CC      := g++
 INC     := -Isrc -I../egolib/src
 LDFLAGS := ${SDLCONF_L} ${EGOLIB_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -lGL -lGLU
 
@@ -39,6 +41,7 @@ define link_rule
 endef
 
 CFLAGS  := ${INC} ${OPT} ${SDLCONF_C} -x c++ -std=c++11
+CXXFLAGS:= ${CFLAGS}
 
 #------------------------------------
 # definitions of the target projects
