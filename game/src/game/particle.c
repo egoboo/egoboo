@@ -998,7 +998,7 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
 
         return INVALID_PRT_REF;
     }
-    pip_t *ppip = PipStack_get_ptr( ipip );
+    pip_t *ppip = PipStack.get_ptr( ipip );
 
     // count all the requests for this particle type
     ppip->request_count++;

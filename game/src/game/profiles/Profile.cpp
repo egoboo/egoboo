@@ -194,7 +194,7 @@ ObjectProfile::ObjectProfile() :
     _needSkillIDToUse(false),
     _weaponAction(0),
     _spawnsAttackParticle(false),
-    _attackParticleProfile(INVALID_PIP_REF),
+    _attackParticle(-1),
     _attackFast(false),
 
     _strengthBonus(0.0f),
@@ -205,15 +205,15 @@ ObjectProfile::ObjectProfile() :
     // special particle effects
     _attachedParticleAmount(0),
     _attachedParticleReaffirmDamageType(DAMAGE_FIRE),
-    _attachedParticleProfile(INVALID_PIP_REF),
+    _attachedParticle(-1),
 
     _goPoofParticleAmount(0),
     _goPoofParticleFacingAdd(0),
-    _goPoofParticleProfile(INVALID_PIP_REF),
+    _goPoofParticle(-1),
 
     //Blood
     _bludValid(0),
-    _bludParticleProfile(INVALID_PIP_REF),
+    _bludParticle(-1),
 
     // skill system
     _skills(),
@@ -417,8 +417,12 @@ TX_REF ObjectProfile::getIcon(size_t index)
     return _iconsLoaded[index];
 }
 
-PIP_REF ObjectProfile::getParticleProfile(size_t index) const
+PIP_REF ObjectProfile::getParticleProfile(int index) const
 {
+    if(index <= -1) {
+        return INVALID_PIP_REF;
+    } 
+
     const auto &result = _particleProfiles.find(index);
 
     //Not found in map?
@@ -661,7 +665,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
     // Particle attachments
     _attachedParticleAmount              = vfs_get_next_int( fileRead );
     _attachedParticleReaffirmDamageType = static_cast<DamageType>(vfs_get_next_damage_type(fileRead));
-    _attachedParticleProfile  = getParticleProfile( vfs_get_next_int(fileRead) );
+    _attachedParticle  = vfs_get_next_int(fileRead);
 
     // Character hands
     _slotsValid[SLOT_LEFT]  = vfs_get_next_bool( fileRead );
@@ -669,12 +673,12 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     // Attack order ( weapon )
     _spawnsAttackParticle = vfs_get_next_bool( fileRead );
-    _attackParticleProfile  = getParticleProfile( vfs_get_next_int(fileRead) );
+    _attackParticle  = vfs_get_next_int(fileRead);
 
     // GoPoof
     _goPoofParticleAmount    = vfs_get_next_int( fileRead );
     _goPoofParticleFacingAdd = vfs_get_next_int( fileRead );
-    _goPoofParticleProfile   = getParticleProfile( vfs_get_next_int(fileRead) );
+    _goPoofParticle          = vfs_get_next_int(fileRead);
 
     // Blud
     switch( char_toupper(vfs_get_next_char(fileRead)) )
@@ -683,7 +687,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
         case 'U': _bludValid = ULTRABLUDY;  break;
         default:  _bludValid = false;       break;
     }
-    _bludParticleProfile = getParticleProfile(vfs_get_next_int(fileRead));
+    _bludParticle = vfs_get_next_int(fileRead);
 
     // Stuff I forgot
     _waterWalking = vfs_get_next_bool( fileRead );
@@ -1271,7 +1275,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const chr
     // Particle attachments
     template_put_int( fileTemp, fileWrite, profile->_attachedParticleAmount );
     template_put_damage_type(fileTemp, fileWrite, character->reaffirm_damagetype);
-    template_put_int( fileTemp, fileWrite, profile->_attachedParticleProfile );
+    template_put_int( fileTemp, fileWrite, profile->_attachedParticle );
 
     // Character hands
     template_put_bool( fileTemp, fileWrite, profile->_slotsValid[SLOT_LEFT] );
@@ -1279,16 +1283,16 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const chr
 
     // Particle spawning on attack
     template_put_bool( fileTemp, fileWrite, 0 != profile->_spawnsAttackParticle );
-    template_put_int( fileTemp, fileWrite, profile->_attackParticleProfile );
+    template_put_int( fileTemp, fileWrite, profile->_attackParticle );
 
     // Particle spawning for GoPoof
     template_put_int( fileTemp, fileWrite, profile->_goPoofParticleAmount );
     template_put_int( fileTemp, fileWrite, profile->_goPoofParticleFacingAdd );
-    template_put_int( fileTemp, fileWrite, profile->_goPoofParticleProfile );
+    template_put_int( fileTemp, fileWrite, profile->_goPoofParticle );
 
     // Particle spawning for blud
     template_put_bool( fileTemp, fileWrite, 0 != profile->_bludValid );
-    template_put_int( fileTemp, fileWrite, profile->_bludParticleProfile );
+    template_put_int( fileTemp, fileWrite, profile->_bludParticle );
 
     // Extra stuff
     template_put_bool( fileTemp, fileWrite, TO_C_BOOL( character->waterwalk ) ); //Note: overriden by chr
@@ -1317,8 +1321,8 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const chr
     template_put_int( fileTemp, fileWrite, 0 );
     template_put_bool( fileTemp, fileWrite, character->see_invisible_level > 0 ); //Note: Overridden by chr
     template_put_int( fileTemp, fileWrite, character->iskursed ? 100 : 0 );  //Note: overridden by chr
-    template_put_int( fileTemp, fileWrite, -1);//_sound[SOUND_FOOTFALL] ); //TODO: not implemented
-    template_put_int( fileTemp, fileWrite, -1);//sound_index[SOUND_JUMP] );
+    template_put_int( fileTemp, fileWrite, profile->_footFallSound);
+    template_put_int( fileTemp, fileWrite, profile->_jumpSound);
 
     vfs_flush( fileWrite );
 

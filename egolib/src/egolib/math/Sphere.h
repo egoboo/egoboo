@@ -103,6 +103,13 @@ struct sphere_t
 		assign(other);
 		return *this;
 	}
+
+	sphere_t() :
+		origin(0, 0, 0),
+		radius(0.0f)
+	{
+
+	}
 };
 
 /**

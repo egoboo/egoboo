@@ -6826,7 +6826,7 @@ Uint8 scr_SpawnPoofSpeedSpacingDamage( script_state_t * pstate, ai_state_t * pse
 
     PIP_REF particleRef = ppro->getParticlePoofProfile();
     if ( INVALID_PRT_REF == particleRef ) return false;
-    pip_t * ppip = PipStack_get_ptr(particleRef);
+    pip_t * ppip = PipStack.get_ptr(particleRef);
 
     returncode = false;
     if ( NULL != ppip )

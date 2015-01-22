@@ -210,6 +210,21 @@ struct BSP_tree_t
     int depth;           ///< the maximum actual depth of the tree
     bv_t bbox;           ///< the actual size of everything in the tree
     BSP_aabb_t bsp_bbox; ///< the root-size of the tree
+
+    BSP_tree_t() :
+        dimensions(0),
+        max_depth(0),
+        branch_all(),
+        branch_used(),
+        branch_free(),
+        finite(nullptr),
+        infinite(),
+        depth(0),
+        bbox(),
+        bsp_bbox()
+    {
+        //ctor
+    }
 };
 
 BSP_tree_t *BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );

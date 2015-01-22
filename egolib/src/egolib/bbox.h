@@ -35,6 +35,14 @@
         float  size;        ///< Size of bumpers
         float  size_big;    ///< For octagonal bumpers
         float  height;      ///< Distance from head to toe
+
+        bumper_t() :
+            size(0.0f),
+            size_big(0.0f),
+            height(0.0f)
+        {
+            //ctor
+        }
     };
 
 //--------------------------------------------------------------------------------------------

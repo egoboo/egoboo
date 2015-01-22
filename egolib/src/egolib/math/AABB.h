@@ -35,6 +35,13 @@ struct oct_bb_t;
  */
 struct aabb_t
 {
+	aabb_t() :
+		mins(0.0f, 0.0f, 0.0f),
+		maxs(0.0f, 0.0f, 0.0f)
+	{
+		//ctor
+	}
+
 	/// @brief The minimum of the bounding box.
 	fvec3_t mins;
 	/// @brief The maximum of the bounding box.

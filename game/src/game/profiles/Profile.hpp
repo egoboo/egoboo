@@ -222,7 +222,7 @@ public:
     /**
     * Gets the particle profile loaded into the specified index number
     **/
-    PIP_REF getParticleProfile(size_t index) const;
+    PIP_REF getParticleProfile(int index) const;
 
     /**
     * Write access getter
@@ -272,7 +272,7 @@ public:
 
     inline bool isStackable() const {return _isStackable;}
 
-    inline PIP_REF getAttackParticleProfile() const {return _attackParticleProfile;}
+    inline PIP_REF getAttackParticleProfile() const {return getParticleProfile(_attackParticle);}
 
     inline bool spawnsAttackParticle() const {return _spawnsAttackParticle;}
 
@@ -280,7 +280,7 @@ public:
 
     inline uint8_t getAttachedParticleAmount() const {return _attachedParticleAmount;}
 
-    inline PIP_REF getAttachedParticleProfile() const {return _attachedParticleProfile;}
+    inline PIP_REF getAttachedParticleProfile() const {return getParticleProfile(_attachedParticle);}
 
     inline bool causesRipples() const {return _causesRipples;}
 
@@ -304,7 +304,7 @@ public:
 
     inline uint8_t getParticlePoofAmount() const {return _goPoofParticleAmount;}
 
-    inline PIP_REF getParticlePoofProfile() const {return _goPoofParticleProfile;}
+    inline PIP_REF getParticlePoofProfile() const {return getParticleProfile(_goPoofParticle);}
 
     inline int16_t getParticlePoofFacingAdd() const {return _goPoofParticleFacingAdd;}
 
@@ -429,7 +429,7 @@ public:
     /**
     * @brief If this character should spawn blood particles when it gets hurt
     **/ 
-    inline PIP_REF getBludParticleProfile() const {return _bludParticleProfile;}
+    inline PIP_REF getBludParticleProfile() const {return getParticleProfile(_bludParticle);}
 
     /**
     * @brief experience multiplies for a given kind of experience type
@@ -591,7 +591,7 @@ private:
     script_info_t _aiScript;                    ///< the AI script for this profile
 
     //Particles
-    std::unordered_map<size_t, PIP_REF> _particleProfiles;
+    std::unordered_map<int, PIP_REF> _particleProfiles;
 
     // the profile skins
     std::unordered_map<size_t, TX_REF> _texturesLoaded;
@@ -740,7 +740,7 @@ private:
     bool         _needSkillIDToUse;              ///< Check IDSZ first?
     uint8_t      _weaponAction;                  ///< Animation needed to swing
     bool         _spawnsAttackParticle;          ///< Do we have attack particles?
-    int          _attackParticleProfile;         ///< What kind of attack particles?
+    int          _attackParticle;         ///< What kind of attack particles?
     bool         _attackFast;                    ///< Ignores the default reload time?
 
     float        _strengthBonus;                      ///< Strength     damage factor
@@ -751,15 +751,15 @@ private:
     // special particle effects
     uint8_t      _attachedParticleAmount;              ///< Number of sticky particles
     DamageType   _attachedParticleReaffirmDamageType; ///< Re-attach sticky particles? Relight that torch...
-    PIP_REF      _attachedParticleProfile;                ///< Which kind of sticky particle
+    int          _attachedParticle;                ///< Which kind of sticky particle
 
     uint8_t      _goPoofParticleAmount;           ///< Amount of poof particles
     int16_t      _goPoofParticleFacingAdd;        ///< Angular spread of poof particles
-    PIP_REF      _goPoofParticleProfile;          ///< Which poof particle
+    int          _goPoofParticle;          ///< Which poof particle
 
     //Blood
     uint8_t      _bludValid;                      ///< Has blud? ( yuck )
-    int          _bludParticleProfile;            ///< What kind of blud?
+    int          _bludParticle;                   ///< What kind of blud?
 
     // skill system
     std::unordered_map<IDSZ, int> _skills;        ///< Set of skills this character posesses

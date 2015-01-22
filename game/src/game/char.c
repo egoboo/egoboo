@@ -3577,8 +3577,8 @@ void spawn_poof( const CHR_REF character, const PRO_REF profileRef )
     facing_z   = pchr->ori.facing_z;
     for ( cnt = 0; cnt < profile->getParticlePoofAmount(); cnt++ )
     {
-        spawn_one_particle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
-                            INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt, INVALID_CHR_REF );
+        spawnOneParticle( pchr->pos_old, facing_z, profile->getSlotNumber(), profile->getParticlePoofProfile(),
+                            INVALID_CHR_REF, GRIP_LAST, pchr->team, origin, INVALID_PRT_REF, cnt);
 
         facing_z += profile->getParticlePoofFacingAdd();
     }
