@@ -43,6 +43,7 @@
 #include "game/module/PassageHandler.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
+#include "game/module/Module.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -4283,7 +4284,7 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
 
     if ( !_profileSystem.isValidProfileID( profile ) )
     {
-        if ( profile > PMod->importamount * MAX_IMPORT_PER_PLAYER )
+        if ( profile > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "spawn_one_character() - trying to spawn using invalid profile %d\n", REF_TO_INT( profile ) );
         }

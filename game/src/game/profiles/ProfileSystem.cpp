@@ -271,7 +271,7 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
         {
             log_debug( "ProfileSystem::loadOneProfile() - \"%s\" was not found. Overriding a global object?\n", pathName.c_str() );
         }
-        else if ( required && slot_override > PMod->importamount * MAX_IMPORT_PER_PLAYER )
+        else if ( required && slot_override > 4 * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "ProfileSystem::loadOneProfile() - Not able to open file \"%s\"\n", pathName.c_str() );
         }

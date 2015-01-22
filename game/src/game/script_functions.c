@@ -47,6 +47,7 @@
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/profiles/Profile.hpp"
+#include "game/module/Module.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -1914,7 +1915,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 
     if ( !returncode )
     {
-        if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
+        if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object %s failed to spawn a copy of itself\n", pchr->obj_base._name );
         }
@@ -5476,7 +5477,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     if ( !returncode )
     {
-        if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
+        if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object %s failed to spawn a copy of itself\n", pchr->obj_base._name );
         }
@@ -5531,7 +5532,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     if ( !returncode )
     {
-        if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
+        if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, ppro->getClassName().c_str(), pstate->argument );
         }
@@ -6100,7 +6101,7 @@ Uint8 scr_DisableExport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->exportvalid = false;
+    PMod->setExportValid(false);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6114,7 +6115,7 @@ Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->exportvalid = true;
+    PMod->setExportValid(true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -7479,7 +7480,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 
     if ( !returncode )
     {
-        if ( ichr > PMod->importamount * MAX_IMPORT_PER_PLAYER )
+        if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
             log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, _profileSystem.getProfile(pchr->profile_ref)->getClassName().c_str(), pstate->argument );
         }
@@ -7775,7 +7776,7 @@ Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     STRING buffer;
     strncpy(buffer, ppro->getMessage(pstate->argument).c_str(), SDL_arraysize(buffer));
 
-    returncode = module_has_idsz_vfs( PMod->loadname, pstate->distance, 0, buffer);
+    returncode = module_has_idsz_vfs( PMod->getName().c_str(), pstate->distance, 0, buffer);
 
     SCRIPT_FUNCTION_END();
 }

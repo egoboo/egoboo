@@ -48,6 +48,7 @@ struct s_prt_bundle;
 struct s_import_list;
 class CameraSystem;
 class AudioSystem;
+class GameModule;
 
 //--------------------------------------------------------------------------------------------
 // forward declaration of internal structs
@@ -73,9 +74,6 @@ typedef struct s_water_instance water_instance_t;
 
 struct s_fog_instance;
 typedef struct s_fog_instance fog_instance_t;
-
-struct s_game_module;
-typedef struct s_game_module game_module_t;
 
 struct s_import_element;
 typedef struct s_import_element import_element_t;
@@ -317,33 +315,6 @@ struct s_fog_instance
 bool upload_fog_data( fog_instance_t * dst, const struct s_wawalite_fog * src );
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-/// the module data that the game needs
-struct s_game_module
-{
-    Uint8   importamount;               ///< Number of imports for this module
-    bool  exportvalid;                ///< Can it export?
-    bool  exportreset;                ///< Allow to export when module is reset?
-    Uint8   playeramount;               ///< How many players?
-    bool  importvalid;                ///< Can it import?
-    bool  respawnvalid;               ///< Can players respawn with Spacebar?
-    bool  respawnanytime;             ///< True if it's a small level...
-    STRING  loadname;                     ///< Module load names
-
-    bool  active;                     ///< Is the control loop still going?
-    bool  beat;                       ///< Show Module Ended text?
-    Uint32  seed;                       ///< The module seed
-    Uint32  randsave;
-};
-
-bool game_module_setup( game_module_t * pinst, const mod_file_t * pdata, const char * loadname, const Uint32 seed );
-bool game_module_init( game_module_t * pinst );
-bool game_module_reset( game_module_t * pinst, const Uint32 seed );
-bool game_module_start( game_module_t * pinst );
-bool game_module_stop( game_module_t * pinst );
-
-//--------------------------------------------------------------------------------------------
 // Imports
 struct s_import_element
 {
@@ -414,11 +385,11 @@ bool status_list_update_cameras( status_list_t * plst );
 // various global pointers
 extern game_process_t  *GProc;
 extern ego_mesh_t *PMesh;
-extern struct s_game_module * PMod;
 
 //TODO: remove this global
 extern CameraSystem _cameraSystem;
 extern AudioSystem  _audioSystem;
+extern GameModule *PMod;
 
 // special terrain and wawalite-related data structs
 extern animtile_instance_t animtile[2];
