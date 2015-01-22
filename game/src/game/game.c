@@ -21,6 +21,9 @@
 /// @brief The code for controlling the game
 /// @details
 
+#include <sstream>
+#include <iomanip>
+
 #include "game/game.h"
 
 #include "game/mad.h"
@@ -191,7 +194,7 @@ static egolib_rv game_load_global_assets();
 static void      game_load_module_assets( const char *modname );
 
 static void load_all_profiles_import();
-static void import_dir_profiles_vfs( const char * dirname );
+static void import_dir_profiles_vfs( const std::string &importDirectory );
 static void game_load_global_profiles();
 static void game_load_module_profiles( const char *modname );
 
@@ -2694,23 +2697,22 @@ void tilt_characters_to_terrain()
 }
 
 //--------------------------------------------------------------------------------------------
-void import_dir_profiles_vfs( const char * dirname )
+void import_dir_profiles_vfs( const std::string &dirname )
 {
-    STRING newloadname;
-    STRING filename;
-    int cnt;
-
-    if ( NULL == PMod || INVALID_CSTR( dirname ) ) return;
+    if ( NULL == PMod || dirname.empty() ) return;
 
     if ( !PMod->importvalid || 0 == PMod->importamount ) return;
 
-    for ( cnt = 0; cnt < PMod->importamount*MAX_IMPORT_PER_PLAYER; cnt++ )
+    for (int cnt = 0; cnt < PMod->importamount*MAX_IMPORT_PER_PLAYER; cnt++ )
     {
-        // Make sure the object exists...
-        snprintf( filename, SDL_arraysize( filename ), "%s/temp%04d.obj", dirname, cnt );
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/data.txt", filename );
+        std::ostringstream pathFormat;
+        pathFormat << dirname << "/temp" << std::setw(4) << std::setfill('0') << cnt << ".obj";
 
-        if ( vfs_exists( newloadname ) )
+        // Make sure the object exists...
+        const std::string importPath = pathFormat.str();
+        const std::string dataFilePath = importPath + "/data.txt";
+
+        if ( vfs_exists( dataFilePath.c_str() ) )
         {
             // new player found
             if ( 0 == ( cnt % MAX_IMPORT_PER_PLAYER ) ) import_data.player++;
@@ -2719,7 +2721,7 @@ void import_dir_profiles_vfs( const char * dirname )
             import_data.slot = cnt;
 
             // load it
-            import_data.slot_lst[cnt] = _profileSystem.loadOneProfile(filename);
+            import_data.slot_lst[cnt] = _profileSystem.loadOneProfile(importPath);
             import_data.max_slot      = std::max( import_data.max_slot, cnt );
         }
     }
@@ -2946,6 +2948,14 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
         // we are relying on the virtual mount point "mp_objects", so use
         // the vfs/PHYSFS file naming conventions
         snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info->spawn_coment );
+
+        if(!vfs_exists(filename)) {
+            if(psp_info->slot > MAX_IMPORT_PER_PLAYER * MAX_PLAYER) {
+                log_warning("activate_spawn_file_load_object() - Object does not exist: %s\n", filename);
+            }
+
+            return false;
+        }
 
         psp_info->slot = _profileSystem.loadOneProfile( filename, psp_info->slot );
     }

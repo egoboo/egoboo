@@ -121,7 +121,7 @@ const std::shared_ptr<ObjectProfile>& ProfileSystem::getProfile(PRO_REF slotNumb
 }
 
 //--------------------------------------------------------------------------------------------
-int ProfileSystem::getProfileSlotNumber(const char * tmploadname, int slot_override)
+int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_override)
 {
     if ( slot_override >= 0 && slot_override != INVALID_PRO_REF )
     {
@@ -130,16 +130,15 @@ int ProfileSystem::getProfileSlotNumber(const char * tmploadname, int slot_overr
     }
 
     // grab the slot from the file
-    STRING szLoadName;
-    make_newloadname( tmploadname, "/data.txt", szLoadName );
+    std::string dataFilePath = folderPath + "/data.txt";
 
-    if ( 0 == vfs_exists( szLoadName ) ) {
+    if ( 0 == vfs_exists( dataFilePath.c_str() ) ) {
 
         return -1;
     }
 
     // Open the file
-    vfs_FILE* fileread = vfs_openRead( szLoadName );
+    vfs_FILE* fileread = vfs_openRead( dataFilePath.c_str() );
     if ( NULL == fileread ) return -1;
 
     // load the slot's slot no matter what
@@ -257,7 +256,7 @@ pip_t * ProfileSystem::pro_get_ppip( const PRO_REF iobj, int pip_index )
     return LOADED_PIP( local_pip ) ? PipStack.lst + local_pip : nullptr;
 }
 
-PRO_REF ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
+PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_override )
 {
     bool required = !(slot_override < 0 || slot_override >= INVALID_PRO_REF);
 
@@ -270,11 +269,11 @@ PRO_REF ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
         // The data file wasn't found
         if ( required )
         {
-            log_debug( "ProfileSystem::loadOneProfile() - \"%s\" was not found. Overriding a global object?\n", pathName );
+            log_debug( "ProfileSystem::loadOneProfile() - \"%s\" was not found. Overriding a global object?\n", pathName.c_str() );
         }
         else if ( required && slot_override > PMod->importamount * MAX_IMPORT_PER_PLAYER )
         {
-            log_warning( "ProfileSystem::loadOneProfile() - Not able to open file \"%s\"\n", pathName );
+            log_warning( "ProfileSystem::loadOneProfile() - Not able to open file \"%s\"\n", pathName.c_str() );
         }
 
         return INVALID_PRO_REF;
@@ -290,11 +289,11 @@ PRO_REF ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
         // Make sure global objects don't load over existing models
         if ( required && SPELLBOOK == iobj )
         {
-            log_error( "ProfileSystem::loadOneProfile() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, pathName );
+            log_error( "ProfileSystem::loadOneProfile() - object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, pathName.c_str() );
         }
         else if ( required && overrideslots )
         {
-            log_error( "ProfileSystem::loadOneProfile() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), _profilesLoaded[iobj]->getFilePath().c_str(), pathName );
+            log_error( "ProfileSystem::loadOneProfile() - object slot %i used twice (%s, %s)\n", REF_TO_INT( iobj ), _profilesLoaded[iobj]->getFilePath().c_str(), pathName.c_str() );
         }
         else
         {
@@ -306,7 +305,7 @@ PRO_REF ProfileSystem::loadOneProfile(const char* pathName, int slot_override )
     std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(pathName, iobj);
     if(!profile)
     {
-        log_warning("ProfileSystem::loadOneProfile() - Failed to load (%s) into slot number %d\n", pathName, iobj);
+        log_warning("ProfileSystem::loadOneProfile() - Failed to load (%s) into slot number %d\n", pathName.c_str(), iobj);
         return INVALID_PRO_REF;
     }
 

@@ -70,13 +70,13 @@ public:
     /**
     *  @details This function loads one object and returns the object slot
     **/
-	PRO_REF loadOneProfile( const char* tmploadname, int slot_override = -1 );
+	PRO_REF loadOneProfile(const std::string &folderPath, int slot_override = -1);
 
 	/**
 	* @brief Loads only the slot number from data.txt
 	*        If slot_override is valid, then that is used indead
 	**/
-	int getProfileSlotNumber(const char* tmploadname, int slot_override = -1);
+	int getProfileSlotNumber(const std::string &folderPath, int slot_override = -1);
 
 	/**
 	* @return Returns the ObjectProfile loaded into the specified slot number

@@ -963,7 +963,7 @@ bool ObjectProfile::hasIDSZ(IDSZ idsz) const
     return false;
 }
 
-std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &folderPath, const PRO_REF slotNumber)
+std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &folderPath, const PRO_REF slotNumber, const bool lightWeight)
 {
     //Make sure slot number is valid
     if(slotNumber == INVALID_PRO_REF)
@@ -979,48 +979,52 @@ std::shared_ptr<ObjectProfile> ObjectProfile::loadFromFile(const std::string &fo
     profile->_fileName = folderPath;
     profile->_slotNumber = slotNumber;
 
-    // Load the model for this profile
-    profile->_imad = load_one_model_profile_vfs(folderPath.c_str(), profile->_slotNumber);
-    if(profile->_imad == INVALID_MAD_REF)
+    //Don't load 3d model, enchant, messages, sounds or particle effects for lightweight profiles
+    if(!lightWeight)
     {
-        log_warning("ObjectProfile::loadFromFile() - Unable to load model (%s)\n", folderPath.c_str());
-        return nullptr;
-    }
+        // Load the model for this profile
+        profile->_imad = load_one_model_profile_vfs(folderPath.c_str(), profile->_slotNumber);
+        if(profile->_imad == INVALID_MAD_REF)
+        {
+            log_warning("ObjectProfile::loadFromFile() - Unable to load model (%s)\n", folderPath.c_str());
+            return nullptr;
+        }
 
-    // Load the enchantment for this profile (optional)
-    STRING newloadname;
-    make_newloadname( folderPath.c_str(), "/enchant.txt", newloadname );
-    profile->_ieve = EveStack_losd_one( newloadname, static_cast<EVE_REF>(slotNumber) );
+        // Load the enchantment for this profile (optional)
+        STRING newloadname;
+        make_newloadname( folderPath.c_str(), "/enchant.txt", newloadname );
+        profile->_ieve = EveStack_losd_one( newloadname, static_cast<EVE_REF>(slotNumber) );
 
-    // Load the messages for this profile, do this before loading the AI script
-    // to ensure any dynamic loaded messages get loaded last (optional)
-    profile->loadAllMessages(folderPath + "/message.txt");
+        // Load the messages for this profile, do this before loading the AI script
+        // to ensure any dynamic loaded messages get loaded last (optional)
+        profile->loadAllMessages(folderPath + "/message.txt");
 
-    // Load the particles for this profile (optional)
-    for (size_t cnt = 0; cnt < 30; cnt++ ) //TODO: find better way of listing files
-    {
-        const std::string particleName = folderPath + "/part" + std::to_string(cnt) + ".txt";
-        PIP_REF particleProfile = PipStack_load_one(particleName.c_str(), INVALID_PIP_REF);
+        // Load the particles for this profile (optional)
+        for (size_t cnt = 0; cnt < 30; cnt++ ) //TODO: find better way of listing files
+        {
+            const std::string particleName = folderPath + "/part" + std::to_string(cnt) + ".txt";
+            PIP_REF particleProfile = PipStack_load_one(particleName.c_str(), INVALID_PIP_REF);
 
-        // Make sure it's referenced properly
-        if(particleProfile != INVALID_PIP_REF) {
-            profile->_particleProfiles[cnt] = particleProfile; 
+            // Make sure it's referenced properly
+            if(particleProfile != INVALID_PIP_REF) {
+                profile->_particleProfiles[cnt] = particleProfile; 
+            }
+        }
+
+        // Load the waves for this iobj
+        for ( size_t cnt = 0; cnt < 30; cnt++ ) //TODO: make better search than just 30 (list files?)
+        {
+            const std::string soundName = folderPath + "/sound" + std::to_string(cnt);
+            SoundID soundID = _audioSystem.loadSound(soundName);
+
+            if(soundID != INVALID_SOUND_ID) {
+                profile->_soundMap[cnt] = soundID;
+            }
         }
     }
 
     //Load profile graphics (optional)
     profile->loadTextures(folderPath);
-
-    // Load the waves for this iobj
-    for ( size_t cnt = 0; cnt < 30; cnt++ ) //TODO: make better search than just 30 (list files?)
-    {
-        const std::string soundName = folderPath + "/sound" + std::to_string(cnt);
-        SoundID soundID = _audioSystem.loadSound(soundName);
-
-        if(soundID != INVALID_SOUND_ID) {
-            profile->_soundMap[cnt] = soundID;
-        }
-    }
 
     // Load the random naming table for this icap (optional)
     profile->_randomName.loadFromFile(folderPath + "/naming.txt");

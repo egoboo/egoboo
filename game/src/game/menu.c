@@ -1551,8 +1551,8 @@ bool doChooseCharacter_load_inventory(std::shared_ptr<LoadPlayerElement> loadPla
             continue;
         }
 
-        // load the profile
-        std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(itemFolder, slot);
+        // load the lightweight profile
+        std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(itemFolder, slot, true);
         if ( profile )
         {
             items.push_back(profile);
@@ -5242,10 +5242,10 @@ void loadAllImportPlayers(const std::string &saveGameDirectory)
         }
 
         // offset the slots so that ChoosePlayer will have space to load the inventory objects
-        int slot = ( MAX_IMPORT_OBJECTS + 2 ) + _loadPlayerList.size();
+        int slot = ( MAX_IMPORT_OBJECTS + 2 ) * _loadPlayerList.size();
 
         // try to load the character profile
-        std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(folderPath, slot);
+        std::shared_ptr<ObjectProfile> profile = ObjectProfile::loadFromFile(folderPath, slot, true);
         if(!profile) {
             continue;
         }
@@ -5283,8 +5283,8 @@ egolib_rv mnu_set_local_import_list( import_list_t * imp_lst )
         import_ptr->local_player_num = player->getSelectedByPlayer();
 
         // set the import info
-        import_ptr->slot            = (import_ptr->local_player_num-1) * MAX_IMPORT_PER_PLAYER;
-        import_ptr->player          = (import_ptr->local_player_num-1) ;
+        import_ptr->slot            = (import_ptr->local_player_num) * MAX_IMPORT_PER_PLAYER;
+        import_ptr->player          = (import_ptr->local_player_num) ;
 
         strncpy( import_ptr->srcDir, player->getProfile()->getFolderPath().c_str(), SDL_arraysize( import_ptr->srcDir ) );
         import_ptr->dstDir[0] = CSTR_END;
