@@ -400,27 +400,6 @@ void AudioSystem::updateLoopingSounds()
     }
 }
 
-void AudioSystem::stopLoopingSoundByChannel(int channel)
-{
-	if(channel < 0) {
-		return;
-	}
-
-    std::forward_list<std::shared_ptr<LoopingSound>> removeLoops;
-	for(const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
-    {
-    	if(sound->getChannel() == channel) {
-    		removeLoops.push_front(sound);
-    	}
-    }
-
-    //Remove all looping sounds from list
-    for(const std::shared_ptr<LoopingSound> &sound : removeLoops) {
-    	_loopingSounds.remove(sound);
-    	Mix_HaltChannel(sound->getChannel());
-    }
-}
-
 bool AudioSystem::stopObjectLoopingSounds(const CHR_REF ichr, const SoundID soundID)
 {
     if ( !ALLOCATED_CHR( ichr ) ) return false;
@@ -524,6 +503,19 @@ void AudioSystem::playSoundLooped(const SoundID soundID, const CHR_REF owner)
     //Avoid invalid characters
     if(!INGAME_CHR(owner)) {
         return;
+    }
+
+    //Check for invalid sounds
+    if(soundID < 0 || soundID >= _soundsLoaded.size()) {
+        return;
+    }
+
+    //Only allow one looping sound instance per character
+    for(const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
+    {
+        if(sound->getOwner() == owner && sound->getSoundID() == soundID) {
+            return;
+        }
     }
 
     //Create new looping sound

@@ -17,30 +17,25 @@
 //*
 //********************************************************************************************
 
-/// @file    game/egoboo_typedef.h
-/// @details Base type definitions and config options.
+/// @file  egolib/math/Sphere.c
+/// @brief Spheres.
 
-#pragma once
+#include "egolib/math/Sphere.h"
 
-#include "egolib/egolib.h"
+bool sphere_self_clear(sphere_t& self)
+{
+	fvec3_self_clear(self.origin.v);
+	self.radius = 0.0f;
+	return true;
+}
 
-#include "game/egoboo_config.h"
+float sphere_get_radius(const sphere_t& self)
+{
+	return self.radius;
+}
 
-DECLARE_REF( CHR_REF );
-DECLARE_REF( TEAM_REF );
-DECLARE_REF( EVE_REF );
-DECLARE_REF( ENC_REF );
-DECLARE_REF( MAD_REF );
-DECLARE_REF( PLA_REF );
-DECLARE_REF( PIP_REF );
-DECLARE_REF( PRT_REF );
-DECLARE_REF( PASS_REF );
-DECLARE_REF( SHOP_REF );
-DECLARE_REF( PRO_REF );
-DECLARE_REF( TX_REF );
-DECLARE_REF( MNU_TX_REF );
-DECLARE_REF( BBOARD_REF );
-DECLARE_REF( LOOP_REF );
-DECLARE_REF( MOD_REF );
-DECLARE_REF( TREQ_REF );
-DECLARE_REF( MOD_REF_REF );
+bool sphere_self_is_clear(const sphere_t& self)
+{
+	return 0.0f == self.radius
+		&& fvec3_self_is_clear(self.origin.v);
+}

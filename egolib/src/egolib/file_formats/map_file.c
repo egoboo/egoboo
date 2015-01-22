@@ -44,7 +44,7 @@
 
 #define CURRENT_MAP_VERSION_NUMBER (( CURRENT_MAP_VERSION_LETTER - 'A' ) + 1 )
 #define CURRENT_MAP_ID             ( MAP_ID_BASE + (CURRENT_MAP_VERSION_LETTER - 'A') )
-#define GET_MAP_VERSION_NUMBER(VAL) LAMBDA( ((Uint32)(VAL)) >= ((Uint32)MAP_ID_BASE), ((Uint32)(VAL)) - ((Uint32)MAP_ID_BASE) + 1, -1 )
+#define GET_MAP_VERSION_NUMBER(VAL) LAMBDA( (static_cast<uint32_t>(VAL)) >= (static_cast<uint32_t>(MAP_ID_BASE)), (static_cast<uint32_t>(VAL)) - (static_cast<uint32_t>(MAP_ID_BASE)) + 1, -1 )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

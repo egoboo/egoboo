@@ -179,7 +179,7 @@ struct mad_t
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-DECLARE_STACK_EXTERN( mad_t, MadStack, MAX_MAD );
+extern Stack<mad_t, MAX_MAD> MadStack;
 
 void MadStack_ctor();
 void MadStack_dtor();

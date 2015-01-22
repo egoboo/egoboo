@@ -61,7 +61,7 @@ typedef struct s_prt_bundle prt_bundle_t;
 
 #define STOPBOUNCINGPART                5.0f        ///< To make particles stop bouncing
 
-DECLARE_STACK_EXTERN( pip_t, PipStack, MAX_PIP );
+extern Stack<pip_t, MAX_PIP> PipStack;
 
 #define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define LOADED_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipStack.lst[IPIP].loaded )
@@ -257,11 +257,21 @@ void bump_all_particles_update_counters();
  * @brief
  *	Spawn a particle.
  * @return
- *	the index of the particle on success, #MAX_PRT on failure
+ *	the index of the particle on success, INVALID_PRT_REF on failure
  */
 PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget );
+
+/**
+* @brief Spawns a particle
+*        This function is slightly different than spawn_one_particle because it takes a PIP_REF rather than a pip_index
+* @return the PRT_REF of the spawned particle or INVALID_PRT_REF on failure
+**/
+PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const PIP_REF ipip,
+                            const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                            const CHR_REF chr_origin, const PRT_REF prt_origin = INVALID_PRT_REF, const int multispawn = 0, 
+                            const CHR_REF oldtarget = INVALID_CHR_REF);
 
 #define spawn_one_particle_global( pos, facing, gpip_index, multispawn ) spawn_one_particle( pos, facing, INVALID_PRO_REF, gpip_index, INVALID_CHR_REF, GRIP_LAST, (TEAM_REF)TEAM_NULL, INVALID_CHR_REF, INVALID_PRT_REF, multispawn, INVALID_CHR_REF );
 

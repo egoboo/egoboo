@@ -84,37 +84,35 @@ float * mat_Zero(fmat_4x4_base_t DST)
 }
 
 //--------------------------------------------------------------------------------------------
-float * mat_Multiply(fmat_4x4_base_t DST, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2)
+float *mat_Multiply(fmat_4x4_base_t dst, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2)
 {
-	int i, j, k;
+	if (NULL == mat_Zero(dst)) return NULL;
 
-	if (NULL == mat_Zero(DST)) return NULL;
-
-	//===============================================================================
-	// the multiplocation code is the equivalent of the following function calls
-	//    GLint matrix_mode[1];
-	//    glGetIntegerv( GL_MATRIX_MODE, matrix_mode );
-	//        glMatrixMode( GL_MODELVIEW );                   // or whatever matrix mode you want to use
-	//        glPushMatrix( void );
-	//            glLoadMatrixf( src1 );
-	//            glMultMatrixf( src2 );
-	//            glGetFloatv( GL_MODELVIEW_MATRIX, DST );    // use the correct argument here to grab the resultant matrix
-	//        glPopMatrix( void );
-	//    glMatrixMode( matrix_mode[0] );
-	//===============================================================================
-
-	for (i = 0; i < 4; i++)
+#if fmat_4x4_layout == fmat_4x4_layout_RowMajor
+	/* \f$ C_{i,j} = \sum_{i=0}^4 A_{i,k} * B_{k,j}\f$ */
+	for (size_t i = 0; i < 4; ++i)
 	{
-		for (j = 0; j < 4; j++)
+		for (size_t j = 0; j < 4; ++j)
 		{
-			for (k = 0; k < 4; k++)
+			for (size_t k = 0; k < 4; ++k)
 			{
-				DST[MAT_IDX(i, j)] += src1[MAT_IDX(k, j)] * src2[MAT_IDX(i, k)];
+				dst[MAT_IDX(i, j)] += src1[MAT_IDX(i, k)] * src2[MAT_IDX(k, j)];
 			}
 		}
 	}
-
-	return DST;
+#else
+	for (size_t i = 0; i < 4; ++i)
+	{
+		for (size_t j = 0; j < 4; ++j)
+		{
+			for (size_t k = 0; k < 4; ++k)
+			{
+				dst[MAT_IDX(i, j)] += src1[MAT_IDX(k, j)] * src2[MAT_IDX(i, k)];
+			}
+		}
+	}
+#endif
+	return dst;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -328,8 +326,8 @@ float * mat_View(fmat_4x4_base_t DST,
 	fvec3_normalize(view_dir.v, fvec3_sub(temp.v, at, from));
 	fvec3_cross_product(right.v, world_up, view_dir.v);
 	up = fvec3_cross_product(view_dir, right);
-	fvec3_self_normalize(right);
-	fvec3_self_normalize(up);
+	right.normalize();
+	up.normalize();
 
 	DST[MAT_IDX(0, 0)] = right.x;
 	DST[MAT_IDX(1, 0)] = right.y;
@@ -412,163 +410,77 @@ float * mat_Projection_orig(
 }
 
 //--------------------------------------------------------------------------------------------
-bool mat_getTranslate(const fmat_4x4_base_t mat, fvec3_t& translate)
+bool mat_getTranslate(const fmat_4x4_t& mat, fvec3_t& translate)
 {
-	if (NULL == mat) return false;
-
-	translate[kX] = mat[MAT_IDX(3, 0)];
-	translate[kY] = mat[MAT_IDX(3, 1)];
-	translate[kZ] = mat[MAT_IDX(3, 2)];
-
-	return true;
-}
-#if 0
-bool mat_getTranslate(const fmat_4x4_base_t mat, fvec3_base_t translate)
-{
-	if (NULL == mat || NULL == translate) return false;
-
-	translate[kX] = mat[MAT_IDX(3, 0)];
-	translate[kY] = mat[MAT_IDX(3, 1)];
-	translate[kZ] = mat[MAT_IDX(3, 2)];
-
-	return true;
-}
-#endif
-
-//--------------------------------------------------------------------------------------------
-bool mat_getChrUp(const fmat_4x4_base_t mat, fvec3_t& up)
-{
-	if (NULL == mat) return false;
-
-	// for a character
-	up[kX] = mat[MAT_IDX(2, 0)];
-	up[kY] = mat[MAT_IDX(2, 1)];
-	up[kZ] = mat[MAT_IDX(2, 2)];
-
-	return true;
-}
-
-bool mat_getChrUp(const fmat_4x4_base_t mat, fvec3_base_t up)
-{
-	if (NULL == mat || NULL == up) return false;
-
-	// for a character
-	up[kX] = mat[MAT_IDX(2, 0)];
-	up[kY] = mat[MAT_IDX(2, 1)];
-	up[kZ] = mat[MAT_IDX(2, 2)];
+	translate[kX] = mat.v[MAT_IDX(3, 0)];
+	translate[kY] = mat.v[MAT_IDX(3, 1)];
+	translate[kZ] = mat.v[MAT_IDX(3, 2)];
 
 	return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool mat_getChrForward(const fmat_4x4_base_t mat, fvec3_t& forward)
+bool mat_getChrUp(const fmat_4x4_t& mat, fvec3_t& up)
 {
-	if (NULL == mat) return false;
-
 	// for a character
-	forward[kX] = -mat[MAT_IDX(0, 0)];
-	forward[kY] = -mat[MAT_IDX(0, 1)];
-	forward[kZ] = -mat[MAT_IDX(0, 2)];
-
-	return true;
-}
-bool mat_getChrForward(const fmat_4x4_base_t mat, fvec3_base_t forward)
-{
-	if (NULL == mat || NULL == forward) return false;
-
-	// for a character
-	forward[kX] = -mat[MAT_IDX(0, 0)];
-	forward[kY] = -mat[MAT_IDX(0, 1)];
-	forward[kZ] = -mat[MAT_IDX(0, 2)];
+	up[kX] = mat.v[MAT_IDX(2, 0)];
+	up[kY] = mat.v[MAT_IDX(2, 1)];
+	up[kZ] = mat.v[MAT_IDX(2, 2)];
 
 	return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool mat_getChrRight(const fmat_4x4_base_t mat, fvec3_t& right)
+bool mat_getChrForward(const fmat_4x4_t& mat, fvec3_t& forward)
 {
-	if (NULL == mat) return false;
+	// for a character
+	forward[kX] = -mat.v[MAT_IDX(0, 0)];
+	forward[kY] = -mat.v[MAT_IDX(0, 1)];
+	forward[kZ] = -mat.v[MAT_IDX(0, 2)];
 
+	return true;
+}
+
+//--------------------------------------------------------------------------------------------
+bool mat_getChrRight(const fmat_4x4_t& mat, fvec3_t& right)
+{
 	// for a character's matrix
-	right[kX] = mat[MAT_IDX(1, 0)];
-	right[kY] = mat[MAT_IDX(1, 1)];
-	right[kZ] = mat[MAT_IDX(1, 2)];
-
-	return true;
-}
-bool mat_getChrRight(const fmat_4x4_base_t mat, fvec3_base_t right)
-{
-	if (NULL == mat || NULL == right) return false;
-
-	// for a character's matrix
-	right[kX] = mat[MAT_IDX(1, 0)];
-	right[kY] = mat[MAT_IDX(1, 1)];
-	right[kZ] = mat[MAT_IDX(1, 2)];
+	right[kX] = mat.v[MAT_IDX(1, 0)];
+	right[kY] = mat.v[MAT_IDX(1, 1)];
+	right[kZ] = mat.v[MAT_IDX(1, 2)];
 
 	return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool mat_getCamUp(const fmat_4x4_base_t mat, fvec3_t& up)
+bool mat_getCamUp(const fmat_4x4_t& mat, fvec3_t& up)
 {
-	if (nullptr == mat) return false;
-
 	// for the camera
-	up[kX] = mat[MAT_IDX(0, 1)];
-	up[kY] = mat[MAT_IDX(1, 1)];
-	up[kZ] = mat[MAT_IDX(2, 1)];
+	up[kX] = mat.v[MAT_IDX(0, 1)];
+	up[kY] = mat.v[MAT_IDX(1, 1)];
+	up[kZ] = mat.v[MAT_IDX(2, 1)];
 
 	return true;
 }
-#if 0
-bool mat_getCamUp(const fmat_4x4_base_t mat, fvec3_base_t up)
-{
-	if (nullptr == mat || nullptr == up) return false;
-
-	// for the camera
-	up[kX] = mat[MAT_IDX(0, 1)];
-	up[kY] = mat[MAT_IDX(1, 1)];
-	up[kZ] = mat[MAT_IDX(2, 1)];
-
-	return true;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
-bool mat_getCamRight(const fmat_4x4_base_t mat, fvec3_t& right)
+bool mat_getCamRight(const fmat_4x4_t& mat, fvec3_t& right)
 {
-	if (NULL == mat) return false;
-
 	// for the camera
-	right[kX] = -mat[MAT_IDX(0, 0)];
-	right[kY] = -mat[MAT_IDX(1, 0)];
-	right[kZ] = -mat[MAT_IDX(2, 0)];
+	right[kX] = -mat.v[MAT_IDX(0, 0)];
+	right[kY] = -mat.v[MAT_IDX(1, 0)];
+	right[kZ] = -mat.v[MAT_IDX(2, 0)];
 
 	return true;
 }
-#if 0
-bool mat_getCamRight(const fmat_4x4_base_t mat, fvec3_base_t right)
-{
-	if (NULL == mat || NULL == right) return false;
-
-	// for the camera
-	right[kX] = -mat[MAT_IDX(0, 0)];
-	right[kY] = -mat[MAT_IDX(1, 0)];
-	right[kZ] = -mat[MAT_IDX(2, 0)];
-
-	return true;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
-bool mat_getCamForward(const fmat_4x4_base_t mat, fvec3_t& forward)
+bool mat_getCamForward(const fmat_4x4_t& mat, fvec3_t& forward)
 {
-	if (nullptr == mat) return false;
-
 	// for the camera
-	forward[kX] = -mat[MAT_IDX(0, 2)];
-	forward[kY] = -mat[MAT_IDX(1, 2)];
-	forward[kZ] = -mat[MAT_IDX(2, 2)];
+	forward[kX] = -mat.v[MAT_IDX(0, 2)];
+	forward[kY] = -mat.v[MAT_IDX(1, 2)];
+	forward[kZ] = -mat.v[MAT_IDX(2, 2)];
 
 	return true;
 }
@@ -640,24 +552,51 @@ void  mat_TransformVertices(const fmat_4x4_base_t Matrix, const fvec4_t pSourceV
 	}
 }
 
- void mat_gluPerspective(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float fovy, const float aspect, const float zNear, const float zFar)
-{
-    EGOBOO_ASSERT(aspect != 0.0f);
-    EGOBOO_ASSERT((zNear - zFar) != 0.0f);
-    fmat_4x4_base_t M;
-    mat_Zero(M);
+#if 0
+namespace Ego {
+	namespace Math {
 
-    float tan = std::tan(DEG_TO_RAD(fovy) / 2);
-    EGOBOO_ASSERT(tan != 0.0f);
-    float f = 1 / tan;
-    
-    M[MAT_IDX(0, 0)] = f / aspect;
-    M[MAT_IDX(1, 1)] = f;
-    M[MAT_IDX(2, 2)] = (zFar + zNear) / (zNear - zFar);
-    M[MAT_IDX(3, 2)] = (2 * zFar * zNear) / (zNear - zFar);
-    M[MAT_IDX(2, 3)] = -1;
-    
-    mat_Multiply(DST, src, M);
+		template <typename Type>
+		Type pi();
+
+		template <typename Type>
+		Type deg_to_rad(const Type& x);
+
+		template <>
+		float pi()
+		{
+			return 0.0f;
+		}
+
+		template <>
+		double pi()
+		{
+			return 0.0;
+		}
+
+		template<>
+		float deg_to_rad(const float& x)
+		{
+			return 0.0f;
+		}
+
+		template<>
+		double deg_to_rad(const double& x)
+		{
+			return 0.0;
+		}
+
+	};
+};
+#endif
+
+
+
+void mat_gluPerspective(fmat_4x4_t &dst, const fmat_4x4_t& src, const float fovy, const float aspect, const float zNear, const float zFar)
+{
+    fmat_4x4_t M;
+	M.makePerspective(fovy, aspect, zNear, zFar);
+    mat_Multiply(dst.v, src.v, M.v);
 }
 
 void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float eyeX, const float eyeY, const float eyeZ, const float centerX, const float centerY, const float centerZ, const float upX, const float upY, const float upZ)

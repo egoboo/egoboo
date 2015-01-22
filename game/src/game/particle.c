@@ -47,7 +47,7 @@ const float buoyancy_friction = 0.2f;          // how fast does a "cloud-like" o
 int prt_stoppedby_tests = 0;
 int prt_pressure_tests = 0;
 
-INSTANTIATE_STACK( ACCESS_TYPE_NONE, pip_t, PipStack, MAX_PIP );
+Stack<pip_t, MAX_PIP> PipStack;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -88,10 +88,6 @@ static prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_p
 static prt_bundle_t * move_one_particle_do_fluid_friction( prt_bundle_t * pbdl_prt );
 //static fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure );
 //static float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-IMPLEMENT_STACK( pip_t, PipStack, MAX_PIP );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -150,7 +146,7 @@ prt_t * prt_ctor( prt_t * pprt )
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // initialize the bsp node for this particle
-    BSP_leaf_t::ctor( POBJ_GET_PLEAF( pprt ), pprt, BSP_LEAF_PRT, GET_INDEX_PPRT( pprt ) );
+    POBJ_GET_PLEAF(pprt)->ctor(pprt, BSP_LEAF_PRT, GET_INDEX_PPRT(pprt));
 
     // initialize the physics
     phys_data_ctor( &( pprt->phys ) );
@@ -290,11 +286,11 @@ prt_t * prt_config_do_init( prt_t * pprt )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
                    REF_TO_INT( pdata->ipip ), REF_TO_INT( pdata->chr_origin ), DEFINED_CHR( pdata->chr_origin ) ? ChrList.lst[pdata->chr_origin].Name : "INVALID",
-                   REF_TO_INT( pdata->iprofile ), _profileSystem.isValidProfileID( pdata->iprofile ) ? _profileSystem.getProfile(pdata->iprofile)->getName().c_str() : "INVALID" );
+                   REF_TO_INT( pdata->iprofile ), _profileSystem.isValidProfileID( pdata->iprofile ) ? _profileSystem.getProfile(pdata->iprofile)->getFilePath().c_str() : "INVALID" );
 
         return NULL;
     }
-    ppip = PipStack_get_ptr( pdata->ipip );
+    ppip = PipStack.get_ptr( pdata->ipip );
 
     // let the object be activated
     POBJ_ACTIVATE( pprt, ppip->name );
@@ -990,28 +986,87 @@ prt_t * prt_config_dtor( prt_t * pprt )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, const PIP_REF ipip,
+                            const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
+                            const CHR_REF chr_origin, const PRT_REF prt_origin, const int multispawn, const CHR_REF oldtarget)
+{
+    if ( !LOADED_PIP( ipip ) )
+    {
+        log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
+                   REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
+                   REF_TO_INT( iprofile ), _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
+
+        return INVALID_PRT_REF;
+    }
+    pip_t *ppip = PipStack.get_ptr( ipip );
+
+    // count all the requests for this particle type
+    ppip->request_count++;
+
+    PRT_REF iprt = PrtList_allocate( ppip->force );
+    if ( !DEFINED_PRT( iprt ) )
+    {
+        log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
+                   chr_origin, INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
+                   ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
+                   iprofile, _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
+
+        return INVALID_PRT_REF;
+    }
+    prt_t *pprt = PrtList_get_ptr( iprt );
+
+    POBJ_BEGIN_SPAWN( pprt );
+
+    pprt->spawn_data.pos = pos;
+
+    pprt->spawn_data.facing     = facing;
+    pprt->spawn_data.iprofile   = iprofile;
+    pprt->spawn_data.ipip       = ipip;
+
+    pprt->spawn_data.chr_attach = chr_attach;
+    pprt->spawn_data.vrt_offset = vrt_offset;
+    pprt->spawn_data.team       = team;
+
+    pprt->spawn_data.chr_origin = chr_origin;
+    pprt->spawn_data.prt_origin = prt_origin;
+    pprt->spawn_data.multispawn = multispawn;
+    pprt->spawn_data.oldtarget  = oldtarget;
+
+    // actually force the character to spawn
+    pprt = prt_config_activate( pprt, 100 );
+
+    // count all the successful spawns of this particle
+    if ( NULL != pprt )
+    {
+        POBJ_END_SPAWN( pprt );
+        ppip->create_count++;
+    }
+
+    return iprt;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF iprofile, int pip_index,
                             const CHR_REF chr_attach, Uint16 vrt_offset, const TEAM_REF team,
                             const CHR_REF chr_origin, const PRT_REF prt_origin, int multispawn, const CHR_REF oldtarget )
 {
-    PIP_REF ipip;
     PRT_REF iprt;
 
     prt_t * pprt;
     pip_t * ppip;
 
-    // Convert from local ipip to global ipip
-    ipip = _profileSystem.pro_get_ipip( iprofile, pip_index );
+    PIP_REF ipip = _profileSystem.pro_get_ipip( iprofile, pip_index );
 
     if ( !LOADED_PIP( ipip ) )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
                    REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
-                   REF_TO_INT( iprofile ), _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getName().c_str() : "INVALID" );
+                   REF_TO_INT( iprofile ), _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
 
         return INVALID_PRT_REF;
     }
-    ppip = PipStack_get_ptr( ipip );
+    ppip = PipStack.get_ptr( ipip );
 
     // count all the requests for this particle type
     ppip->request_count++;
@@ -1023,7 +1078,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
         log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
                    chr_origin, INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
                    ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
-                   iprofile, _profileSystem.isValidProfileID( iprofile ) ? ProList.lst[iprofile].name : "INVALID" );
+                   iprofile, _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
 #endif
 
         return INVALID_PRT_REF;
@@ -1061,7 +1116,8 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
 }
 
 //--------------------------------------------------------------------------------------------
-/*float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
+#if 0
+float prt_get_mesh_pressure( prt_t * pprt, float test_pos[] )
 {
     float retval = 0.0f;
     BIT_FIELD  stoppedby;
@@ -1090,10 +1146,12 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
     prt_pressure_tests += mesh_pressure_tests;
 
     return retval;
-}*/
+}
+#endif
 
 //--------------------------------------------------------------------------------------------
-/*fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure )
+#if 0
+fvec2_t prt_get_mesh_diff( prt_t * pprt, float test_pos[], float center_pressure )
 {
     fvec2_t retval = fvec2_t::zero;
     float radius;
@@ -1133,7 +1191,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
 
     return retval;
 }
-*/
+#endif
 
 //--------------------------------------------------------------------------------------------
 BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata )
@@ -1149,7 +1207,7 @@ BIT_FIELD prt_hit_wall( prt_t * pprt, const float test_pos[], float nrm[], float
     if ( !DEFINED_PPRT( pprt ) ) return EMPTY_BIT_FIELD;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return EMPTY_BIT_FIELD;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     stoppedby = MAPFX_IMPASS;
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
@@ -1184,7 +1242,7 @@ BIT_FIELD prt_test_wall( prt_t * pprt, const float test_pos[], mesh_wall_data_t 
     if ( !ACTIVE_PPRT( pprt ) ) return EMPTY_BIT_FIELD;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return EMPTY_BIT_FIELD;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     stoppedby = MAPFX_IMPASS;
     if ( 0 != ppip->bump_money ) SET_BIT( stoppedby, MAPFX_WALL );
@@ -1638,7 +1696,7 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     // That just makes the particle slooooowww down when it approaches the target.
     // Do a real kludge here. this should be a lot faster than a square root, but ...
     vlen = ABS( vdiff.x ) + ABS( vdiff.y ) + ABS( vdiff.z );
-    if ( vlen != 0.0f )
+    if ( vlen > FLT_EPSILON )
     {
         float factor = min_length / vlen;
 
@@ -2240,13 +2298,12 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     chr_t * pchr;
     mad_t * pmad;
     prt_t * pprt;
-    cap_t * pcap;
 
     if ( !INGAME_PRT( particle ) ) return 0;
     pprt = PrtList_get_ptr( particle );
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return 0;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     // no point in going on, is there?
     if ( 0 == ppip->bumpspawn_amount && !ppip->spawnenchant ) return 0;
@@ -2258,8 +2315,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     pmad = chr_get_pmad( character );
     if ( NULL == pmad ) return 0;
 
-    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pcap ) return 0;
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
     bs_count = 0;
 
@@ -2294,14 +2350,14 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
             if ( generate_irand_pair( loc_rand ) <= damage_resistance ) amount--;
         }
 
-        if ( amount > 0 && !pcap->resistbumpspawn && !pchr->invictus )
+        if ( amount > 0 && !profile->hasResistBumpSpawn() && !pchr->invictus )
         {
             int grip_verts, vertices;
             int slot_count;
 
             slot_count = 0;
-            if ( pcap->slotvalid[SLOT_LEFT] ) slot_count++;
-            if ( pcap->slotvalid[SLOT_RIGHT] ) slot_count++;
+            if ( profile->isSlotValid(SLOT_LEFT) ) slot_count++;
+            if ( profile->isSlotValid(SLOT_RIGHT) ) slot_count++;
 
             if ( 0 == slot_count )
             {
@@ -2478,7 +2534,7 @@ PIP_REF PipStack_load_one( const char *szLoadName, const PIP_REF pip_override )
     {
         return INVALID_PIP_REF;
     }
-    ppip = PipStack_get_ptr( ipip );
+    ppip = PipStack.get_ptr( ipip );
 
     if ( NULL == load_one_pip_file_vfs( szLoadName, ppip ) )
     {
@@ -2499,7 +2555,7 @@ void PipStack_init_all()
 
     for ( cnt = 0; cnt < MAX_PIP; cnt++ )
     {
-        pip_init( PipStack_get_ptr( cnt ) );
+        pip_init( PipStack.get_ptr( cnt ) );
     }
 
     // Reset the pip stack "pointer"
@@ -2518,7 +2574,7 @@ void PipStack_release_all()
     {
         if ( LOADED_PIP( cnt ) )
         {
-            pip_t * ppip = PipStack_get_ptr( cnt );
+            pip_t * ppip = PipStack.get_ptr( cnt );
 
             max_request = std::max( max_request, ppip->request_count );
             tnc++;
@@ -2536,7 +2592,7 @@ void PipStack_release_all()
             {
                 if ( LOADED_PIP( cnt ) )
                 {
-                    pip_t * ppip = PipStack_get_ptr( cnt );
+                    pip_t * ppip = PipStack.get_ptr( cnt );
                     vfs_printf( ftmp, "index == %d\tname == \"%s\"\tcreate_count == %d\trequest_count == %d\n", REF_TO_INT( cnt ), ppip->name, ppip->create_count, ppip->request_count );
                 }
             }
@@ -2557,7 +2613,7 @@ bool PipStack_release_one( const PIP_REF ipip )
     pip_t * ppip;
 
     if ( !VALID_PIP_RANGE( ipip ) ) return false;
-    ppip = PipStack_get_ptr( ipip );
+    ppip = PipStack.get_ptr( ipip );
 
     if ( !ppip->loaded ) return true;
 
@@ -3424,7 +3480,7 @@ pip_t * prt_get_ppip( const PRT_REF iprt )
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return NULL;
 
-    return PipStack_get_ptr( pprt->pip_ref );
+    return PipStack.get_ptr( pprt->pip_ref );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3435,7 +3491,7 @@ bool prt_set_size( prt_t * pprt, int size )
     if ( !DEFINED_PPRT( pprt ) ) return false;
 
     if ( !LOADED_PIP( pprt->pip_ref ) ) return false;
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     // set the graphical size
     pprt->size = size;
@@ -3616,7 +3672,7 @@ prt_bundle_t * prt_bundle_validate( prt_bundle_t * pbundle )
 
     if ( LOADED_PIP( pbundle->pip_ref ) )
     {
-        pbundle->pip_ptr = PipStack_get_ptr( pbundle->pip_ref );
+        pbundle->pip_ptr = PipStack.get_ptr( pbundle->pip_ref );
     }
     else
     {

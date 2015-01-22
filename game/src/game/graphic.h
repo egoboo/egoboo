@@ -347,5 +347,5 @@ gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh );
 
 bool oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, egoboo_config_t * pcfg );
 
-s_oglx_texture * gfx_get_mesh_tx_sml( int which );
-s_oglx_texture * gfx_get_mesh_tx_big( int which );
+oglx_texture_t *gfx_get_mesh_tx_sml( int which );
+oglx_texture_t *gfx_get_mesh_tx_big( int which );

@@ -17,17 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/aabb.h
+/// @file  egolib/math/AABB.h
 /// @brief Axis-aligned bounding boxes.
 
 #pragma once
 
-#include "egolib/sphere.h"
+#include "egolib/math/Sphere.h"
 
 // Forward declaration.
 struct oct_bb_t;
-
-//--------------------------------------------------------------------------------------------
 
 /**
  * @brief
@@ -37,8 +35,18 @@ struct oct_bb_t;
  */
 struct aabb_t
 {
-	float mins[3]; /**< @todo Use fvec3_t. */
-	float maxs[3]; /**< @todo Use fvec3_t. */
+	aabb_t() :
+		mins(0.0f, 0.0f, 0.0f),
+		maxs(0.0f, 0.0f, 0.0f)
+	{
+		//ctor
+	}
+
+	/// @brief The minimum of the bounding box.
+	fvec3_t mins;
+	/// @brief The maximum of the bounding box.
+	fvec3_t maxs;
+
 	/**
 	 * @brief
 	 *	Construct this bounding box assigning it the default values of a bounding box.

@@ -37,27 +37,6 @@ bool bv_self_clear(bv_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-bool bv_copy(bv_t * pdst, const bv_t * psrc)
-{
-	bool retval = false;
-
-	if (NULL == pdst)
-	{
-		retval = false;
-	}
-	else if (NULL == psrc)
-	{
-		retval = bv_self_clear(pdst);
-	}
-	else
-	{
-		memmove(pdst, psrc, sizeof(*pdst));
-	}
-
-	return true;
-}
-
-//--------------------------------------------------------------------------------------------
 bool bv_from_oct_bb(bv_t * dst, const oct_bb_t * src)
 {
 	bool retval;
@@ -149,8 +128,7 @@ bool bv_validate(bv_t * rhs)
 		rhs->sphere.origin.v[cnt] = 0.5f * (rhs->aabb.mins[cnt] + rhs->aabb.maxs[cnt]);
 	}
 
-	fvec3_sub(vtmp.v, rhs->aabb.mins, rhs->sphere.origin.v);
-	radius_2 = fvec3_length_2(vtmp);
+	radius_2 = (rhs->aabb.mins - rhs->sphere.origin).length_2();
 	if (0.0f == radius_2)
 	{
 		rhs->sphere.radius = 0.0f;

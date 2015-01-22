@@ -53,7 +53,7 @@ typedef struct s_enc_spawn_data enc_spawn_data_t;
 //--------------------------------------------------------------------------------------------
 
 /// Enchantment template
-DECLARE_STACK_EXTERN( eve_t, EveStack, MAX_EVE );
+extern Stack<eve_t, MAX_EVE> EveStack;
 
 #define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAX_EVE) )
 #define LOADED_EVE( IEVE )      ( VALID_EVE_RANGE( IEVE ) && EveStack.lst[IEVE].loaded )
@@ -87,7 +87,7 @@ struct enc_t
     CHR_REF target_ref;              ///< Who it enchants
     CHR_REF owner_ref;               ///< Who cast the enchant
     CHR_REF spawner_ref;             ///< The spellbook character
-    PRO_REF spawnermodel_ref;        ///< The spellbook character's CapStack index
+    PRO_REF spawnermodel_ref;        ///< The spellbook character's profile index
     CHR_REF overlay_ref;             ///< The overlay character
 
     int     owner_mana;               ///< Boost values

@@ -30,22 +30,10 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
+//Forward declarations
 struct mod_file_t;
 struct s_gfx_config;
 struct s_Font;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-struct s_menu_process;
-typedef struct s_menu_process menu_process_t;
-
-struct s_LoadPlayer_element;
-typedef struct s_LoadPlayer_element LoadPlayer_element_t;
-
-struct s_LoadPlayer_list;
-typedef struct s_LoadPlayer_list LoadPlayer_list_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -78,7 +66,7 @@ enum e_menu_retvals
 };
 
 /// All the possible Egoboo menus.  yay!
-enum e_which_menu
+enum which_menu_t
 {
     emnu_Main,
     emnu_SinglePlayer,
@@ -101,18 +89,12 @@ enum e_which_menu
     emnu_NotImplemented
 };
 
-// this typedef must be after the enum definition or gcc has a fit
-typedef enum e_which_menu which_menu_t;
-
-/// the maxumum number of player items that can be loaded
-#define MAX_LOADPLAYER     100
-
 //--------------------------------------------------------------------------------------------
 // menu_process
 //--------------------------------------------------------------------------------------------
 
 /// a process that controls the menu system
-struct s_menu_process
+struct menu_process_t
 {
     process_t base;
 
@@ -121,49 +103,6 @@ struct s_menu_process
 
     egolib_timer_t gui_timer;
 };
-
-//--------------------------------------------------------------------------------------------
-// LoadPlayer_element
-//--------------------------------------------------------------------------------------------
-
-/// data for caching the which players may be loaded
-struct s_LoadPlayer_element
-{
-    STRING name;              ///< the object's name
-    STRING dir;               ///< the object's full path
-
-    CAP_REF cap_ref;          ///< the character profile index
-    SKIN_T  skin_ref;         ///< the index of the object's skin
-    TX_REF  tx_ref;           ///< the index of the texture
-
-    IDSZ_node_t       quest_log[MAX_IDSZ_MAP_SIZE]; ///< all the quests this player has
-};
-
-LoadPlayer_element_t * LoadPlayer_element_ctor( LoadPlayer_element_t * );
-LoadPlayer_element_t * LoadPlayer_element_dtor( LoadPlayer_element_t * );
-
-bool LoadPlayer_element_dealloc( LoadPlayer_element_t * );
-bool LoadPlayer_element_init( LoadPlayer_element_t * );
-
-//--------------------------------------------------------------------------------------------
-// LoadPlayer_list
-//--------------------------------------------------------------------------------------------
-struct s_LoadPlayer_list
-{
-    int                  count;
-    LoadPlayer_element_t lst[MAX_LOADPLAYER];
-};
-
-egolib_rv              LoadPlayer_list_init( LoadPlayer_list_t * lst );
-egolib_rv              LoadPlayer_list_import_one( LoadPlayer_list_t * lst, const char * foundfile );
-LoadPlayer_element_t * LoadPlayer_list_get_ptr( LoadPlayer_list_t * lst, int idx );
-egolib_rv              LoadPlayer_list_dealloc( LoadPlayer_list_t * lst );
-int                    LoadPlayer_list_get_free( LoadPlayer_list_t * lst );
-egolib_rv              LoadPlayer_list_import_all( LoadPlayer_list_t * lst, const char *dirname, bool initialize );
-egolib_rv              LoadPlayer_list_from_players( LoadPlayer_list_t * lst );
-
-#define LOADPLAYER_LIST_INIT { 0 }
-#define VALID_LOADPLAYER_IDX(LST, IDX) ( ((IDX) >= 0) && ((IDX)<(LST).count) && ((IDX)<MAX_LOADPLAYER) )
 
 //--------------------------------------------------------------------------------------------
 // "public" mnu_TxList functions
@@ -217,8 +156,8 @@ const char * mnu_ModList_get_name( int imod );
 
 // "public" module utilities
 int    mnu_get_mod_number( const char *szModName );
-bool mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModName );
-bool mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumber, size_t buffer_len, char * buffer );
+//bool mnu_test_module_by_name( LoadPlayer_list_t * lp_lst, const char *szModName );
+//bool mnu_test_module_by_index( LoadPlayer_list_t * lp_lst, const MOD_REF modnumber, size_t buffer_len, char * buffer );
 
 // "public" menu process hooks
 int                  menu_process_run( menu_process_t * mproc, double frameDuration );

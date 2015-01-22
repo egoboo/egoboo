@@ -65,8 +65,7 @@ struct s_opcode_data
     char   cName[MAXCODENAMESIZE];
 };
 
-DECLARE_STATIC_ARY_TYPE( OpListAry, opcode_data_t, MAX_OPCODE );
-DECLARE_EXTERN_STATIC_ARY( OpListAry, OpList );
+extern StaticArray<opcode_data_t, MAX_OPCODE> OpList;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

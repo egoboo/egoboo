@@ -26,8 +26,6 @@
 #include "egolib/strutil.h"
 #include "egolib/fileutil.h"
 
-#include "egolib/file_formats/cap_file.h"
-
 // includes for egoboo constants
 #include "game/mad.h"                     // for ACTION_* constants
 

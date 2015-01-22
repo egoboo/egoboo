@@ -28,13 +28,6 @@
 #include "egolib/platform.h"
 
 //--------------------------------------------------------------------------------------------
-// external structs
-//--------------------------------------------------------------------------------------------
-
-	// Forward declaration.
-	struct egolib_frustum_t;
-
-//--------------------------------------------------------------------------------------------
 // internal structs
 //--------------------------------------------------------------------------------------------
 
@@ -80,8 +73,8 @@
         void *data;
         size_t index;
         bv_t bbox;
-		static BSP_leaf_t *ctor(BSP_leaf_t * self, void * data, bsp_type_t type, int index);
-		static void dtor(BSP_leaf_t * self);
+		BSP_leaf_t *ctor(void *data, bsp_type_t type, size_t index);
+		void dtor();
     };
 
 
@@ -102,23 +95,21 @@
 		 * @param self
 		 *	this leaf list
 		 */
-		static BSP_leaf_list_t *ctor(BSP_leaf_list_t *self);
+		BSP_leaf_list_t *ctor();
 		/**
 		 * @brief
 		 *	Destruct this leaf list.
 		 * @param self
 		 *	this leaf list
 		 */
-		static BSP_leaf_list_t *dtor(BSP_leaf_list_t *self);
+		BSP_leaf_list_t *dtor();
+		/// Allocate a leaf list.
+		static bool alloc(BSP_leaf_list_t *self);
+		/// Deallocate a leaf list.
+		static bool dealloc(BSP_leaf_list_t *self);
     };
-#if 0
-	BSP_leaf_list_t *BSP_leaf_list_ctor(BSP_leaf_list_t *self);
-    BSP_leaf_list_t *BSP_leaf_list_dtor(BSP_leaf_list_t *self);
-#endif
-    BSP_leaf_list_t *BSP_leaf_list_clear(BSP_leaf_list_t *self);
 
-    bool BSP_leaf_list_alloc(BSP_leaf_list_t *self);
-    bool BSP_leaf_list_dealloc(BSP_leaf_list_t *self);
+	BSP_leaf_list_t *BSP_leaf_list_clear(BSP_leaf_list_t *self);
     bool BSP_leaf_list_reset(BSP_leaf_list_t *self);
 
 	/**
@@ -139,15 +130,11 @@
         BSP_branch_t **lst;
         size_t inserted;
         bv_t bbox;
-		static BSP_branch_list_t *ctor(BSP_branch_list_t *self, size_t dim);
-		static BSP_branch_list_t *dtor(BSP_branch_list_t *self);
+		BSP_branch_list_t *ctor(size_t dim);
+		BSP_branch_list_t *dtor();
 	};
 
     bool BSP_branch_list_clear_rec( BSP_branch_list_t * );
-
-#if 1
-	DECLARE_DYNAMIC_ARY(BSP_leaf_pary, BSP_leaf_t *)
-#endif
 
 	bool BSP_branch_list_collide_frustum(const BSP_branch_list_t * BL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst);
     bool BSP_branch_list_collide_aabb( const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst );
@@ -201,10 +188,10 @@ bool BSP_branch_unlink_children( BSP_branch_t * B );
 bool BSP_branch_unlink_nodes( BSP_branch_t * B );
 bool BSP_branch_update_depth_rec( BSP_branch_t * B, int depth );
 
-bool BSP_branch_add_all_rec( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-bool BSP_branch_add_all_nodes( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-bool BSP_branch_add_all_unsorted( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
-bool BSP_branch_add_all_children( const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, BSP_leaf_pary_t * colst );
+bool BSP_branch_add_all_rec(const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst);
+bool BSP_branch_add_all_nodes(const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst);
+bool BSP_branch_add_all_unsorted(const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst);
+bool BSP_branch_add_all_children(const BSP_branch_t * pbranch, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *>  *colst);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -223,6 +210,21 @@ struct BSP_tree_t
     int depth;           ///< the maximum actual depth of the tree
     bv_t bbox;           ///< the actual size of everything in the tree
     BSP_aabb_t bsp_bbox; ///< the root-size of the tree
+
+    BSP_tree_t() :
+        dimensions(0),
+        max_depth(0),
+        branch_all(),
+        branch_used(),
+        branch_free(),
+        finite(nullptr),
+        infinite(),
+        depth(0),
+        bbox(),
+        bsp_bbox()
+    {
+        //ctor
+    }
 };
 
 BSP_tree_t *BSP_tree_ctor( BSP_tree_t * t, Sint32 dim, Sint32 depth );

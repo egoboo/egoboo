@@ -31,7 +31,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_STACK( ACCESS_TYPE_NONE, mad_t, MadStack, MAX_MAD );
+Stack<mad_t, MAX_MAD> MadStack;
 
 static STRING  szModelName     = EMPTY_CSTR;      ///< MD2 Model name
 static char    cActionName[ACTION_COUNT][2];      ///< Two letter name code
@@ -59,11 +59,6 @@ static bool  mad_free( mad_t * pmad );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-IMPLEMENT_STACK( mad_t, MadStack, MAX_MAD );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 void model_system_begin()
 {
     MadStack_ctor();
@@ -84,7 +79,7 @@ void MadStack_ctor()
 
     for ( cnt = 0; cnt < MAX_MAD; cnt++ )
     {
-        mad_ctor( MadStack_get_ptr( cnt ) );
+        mad_ctor( MadStack.get_ptr( cnt ) );
     }
 }
 
@@ -95,24 +90,22 @@ void MadStack_dtor()
 
     for ( cnt = 0; cnt < MAX_MAD; cnt++ )
     {
-        mad_dtor( MadStack_get_ptr( cnt ) );
+        mad_dtor( MadStack.get_ptr( cnt ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------
 void MadStack_reinit()
 {
-    MAD_REF cnt;
-
-    // initialize all mad_t
-    for ( cnt = 0; cnt < MAX_MAD; cnt++ )
+    // Re-initialize all mad_t.
+    for (MAD_REF i = 0; i < MAX_MAD; i++)
     {
-        mad_t * pmad = MadStack_get_ptr( cnt );
+        mad_t *mad = MadStack.get_ptr(i);
 
-        // blank out all the data, including the obj_base data
-        BLANK_STRUCT_PTR( pmad )
+        // Blank out all the data, including the entity data.
+		BLANK_STRUCT_PTR(mad);
 
-        mad_reconstruct( pmad );
+        mad_reconstruct(mad);
     }
 }
 
@@ -689,7 +682,7 @@ MAD_REF load_one_model_profile_vfs( const char* tmploadname, const MAD_REF imad 
     STRING  newloadname;
 
     if ( !VALID_MAD_RANGE( imad ) ) return INVALID_MAD_REF;
-    pmad = MadStack_get_ptr( imad );
+    pmad = MadStack.get_ptr( imad );
 
     // clear out the mad
     mad_reconstruct( pmad );
@@ -976,7 +969,7 @@ void MadStack_reconstruct_all()
 
     for ( cnt = 0; cnt < MAX_MAD; cnt++ )
     {
-        mad_reconstruct( MadStack_get_ptr( cnt ) );
+        mad_reconstruct( MadStack.get_ptr( cnt ) );
     }
 }
 
@@ -997,7 +990,7 @@ bool MadStack_release_one( const MAD_REF imad )
     mad_t * pmad;
 
     if ( !VALID_MAD_RANGE( imad ) ) return false;
-    pmad = MadStack_get_ptr( imad );
+    pmad = MadStack.get_ptr( imad );
 
     if ( !pmad->loaded ) return true;
 
@@ -1090,7 +1083,7 @@ int mad_get_action_ref( const MAD_REF imad, int action )
 
     if ( !LOADED_MAD( imad ) ) return ACTION_COUNT;
 
-    return mad_get_action( MadStack_get_ptr( imad ), action );
+    return mad_get_action( MadStack.get_ptr( imad ), action );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1098,7 +1091,7 @@ Uint32 mad_get_madfx_ref( const MAD_REF imad, int action )
 {
     if ( !LOADED_MAD( imad ) ) return 0;
 
-    return mad_get_madfx( MadStack_get_ptr( imad ), action );
+    return mad_get_madfx( MadStack.get_ptr( imad ), action );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1106,7 +1099,7 @@ void mad_make_equally_lit_ref( const MAD_REF imad )
 {
     if ( LOADED_MAD( imad ) )
     {
-        mad_t *mad = MadStack_get_ptr(imad);
+        mad_t *mad = MadStack.get_ptr(imad);
         if(mad->md2_ptr != nullptr) {
             mad->md2_ptr->makeEquallyLit();
         }

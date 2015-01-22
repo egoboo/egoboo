@@ -33,11 +33,9 @@ static void va_non_fatal_assert( const char *format, va_list args );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
 const char * undo_idsz( IDSZ idsz )
 {
-    /// @author ZZ
-    /// @details This function takes an integer and makes a text IDSZ out of it.
-
     static char value_string[5] = {"NONE"};
 
     if ( idsz == IDSZ_NONE )
@@ -55,27 +53,6 @@ const char * undo_idsz( IDSZ idsz )
     }
 
     return value_string;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool irect_point_inside(irect_t * prect, int   ix, int   iy)
-{
-    if ( NULL == prect ) return false;
-    if ( ix < prect->left || ix > prect->right ) return false;
-    if ( iy < prect->top  || iy > prect->bottom ) return false;
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool frect_point_inside(frect_t * prect, float fx, float fy)
-{
-    if ( NULL == prect ) return false;
-
-    if ( fx < prect->left || fx > prect->right ) return false;
-    if ( fy < prect->top  || fy > prect->bottom ) return false;
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------

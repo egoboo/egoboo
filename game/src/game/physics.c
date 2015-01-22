@@ -1158,59 +1158,34 @@ int breadcrumb_cmp( const void * lhs, const void * rhs )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool breadcrumb_list_full( const breadcrumb_list_t *  lst )
+bool breadcrumb_list_full(const breadcrumb_list_t *self)
 {
-    if ( NULL == lst || !lst->on ) return true;
+    if (nullptr == self) return true;
+	return self->full();
+}
 
-    return ( lst->count >= MAX_BREADCRUMB );
+bool breadcrumb_list_empty(const breadcrumb_list_t *self)
+{
+    if (nullptr == self) return true;
+	return self->empty();
+}
+
+void breadcrumb_list_compact(breadcrumb_list_t *self)
+{
+    if (nullptr == self) return;
+	return self->compact();
 }
 
 //--------------------------------------------------------------------------------------------
-bool breadcrumb_list_empty( const breadcrumb_list_t * lst )
+void breadcrumb_list_validate(breadcrumb_list_t * lst)
 {
-    if ( NULL == lst || !lst->on ) return true;
-
-    return ( 0 == lst->count );
-}
-
-//--------------------------------------------------------------------------------------------
-void breadcrumb_list_compact( breadcrumb_list_t * lst )
-{
-    int cnt, tnc;
-
-    if ( NULL == lst || !lst->on ) return;
-
-    // compact the list of breadcrumbs
-    for ( cnt = 0, tnc = 0; cnt < lst->count; cnt ++ )
-    {
-        breadcrumb_t * bc_src = lst->lst + cnt;
-        breadcrumb_t * bc_dst = lst->lst + tnc;
-
-        if ( bc_src->valid )
-        {
-            if ( bc_src != bc_dst )
-            {
-                memcpy( bc_dst, bc_src, sizeof( breadcrumb_t ) );
-            }
-
-            tnc++;
-        }
-    }
-    lst->count = tnc;
-}
-
-//--------------------------------------------------------------------------------------------
-void breadcrumb_list_validate( breadcrumb_list_t * lst )
-{
-    int cnt, invalid_cnt;
-
     if ( NULL == lst || !lst->on ) return;
 
     // invalidate all bad breadcrumbs
-    for ( cnt = 0, invalid_cnt = 0; cnt < lst->count; cnt ++ )
+	size_t cnt, invalid_cnt;
+    for (cnt = 0, invalid_cnt = 0; cnt < lst->count; cnt ++ )
     {
-        breadcrumb_t * bc = lst->lst + cnt;
+        breadcrumb_t *bc = lst->lst + cnt;
 
         if ( !bc->valid )
         {
@@ -1218,7 +1193,7 @@ void breadcrumb_list_validate( breadcrumb_list_t * lst )
         }
         else
         {
-            if ( 0 != ego_mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) )
+            if (0 != ego_mesh_test_wall(PMesh, bc->pos.v, bc->radius, bc->bits, NULL))
             {
                 bc->valid = false;
                 invalid_cnt++;
@@ -1227,15 +1202,15 @@ void breadcrumb_list_validate( breadcrumb_list_t * lst )
     }
 
     // clean up the list
-    if ( invalid_cnt > 0 )
+    if (invalid_cnt > 0)
     {
-        breadcrumb_list_compact( lst );
+        breadcrumb_list_compact(lst);
     }
 
     // sort the values from lowest to highest
-    if ( lst->count > 1 )
+    if (lst->count > 1)
     {
-        qsort( lst->lst, lst->count, sizeof( breadcrumb_t ), breadcrumb_cmp );
+        qsort(lst->lst, lst->count, sizeof( breadcrumb_t ), breadcrumb_cmp);
     }
 }
 
@@ -1303,7 +1278,7 @@ breadcrumb_t * breadcrumb_list_newest( breadcrumb_list_t * lst )
 }
 
 //--------------------------------------------------------------------------------------------
-breadcrumb_t * breadcrumb_list_oldest( breadcrumb_list_t * lst )
+breadcrumb_t *breadcrumb_list_oldest( breadcrumb_list_t * lst )
 {
     int cnt;
 
@@ -1349,7 +1324,7 @@ breadcrumb_t * breadcrumb_list_oldest( breadcrumb_list_t * lst )
 }
 
 //--------------------------------------------------------------------------------------------
-breadcrumb_t * breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 match_grid )
+breadcrumb_t *breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 match_grid )
 {
     int cnt;
 
@@ -1396,7 +1371,7 @@ breadcrumb_t * breadcrumb_list_oldest_grid( breadcrumb_list_t * lst, Uint32 matc
 }
 
 //--------------------------------------------------------------------------------------------
-breadcrumb_t * breadcrumb_list_alloc( breadcrumb_list_t * lst )
+breadcrumb_t *breadcrumb_list_alloc( breadcrumb_list_t * lst )
 {
     breadcrumb_t * retval = NULL;
 

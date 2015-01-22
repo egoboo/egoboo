@@ -624,7 +624,6 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
 void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 {
     mad_t * pholder_mad;
-    cap_t * pholder_cap;
     chr_t * pholder;
 
     prt_t * loc_pprt;
@@ -636,9 +635,6 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 
     if ( !INGAME_CHR( loc_pprt->attachedto_ref ) ) return;
     pholder = ChrList_get_ptr( loc_pprt->attachedto_ref );
-
-    pholder_cap = chr_get_pcap(pholder->profile_ref);
-    if ( NULL == pholder_cap ) return;
 
     pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
@@ -726,7 +722,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pprt->pip_ref, "invalid pip" );
         return gfx_error;
     }
-    ppip = PipStack_get_ptr( pprt->pip_ref );
+    ppip = PipStack.get_ptr( pprt->pip_ref );
 
     pinst->type = pprt->type;
 
@@ -845,10 +841,10 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 
             switch ( pinst->orientation )
             {
-                case ORIENTATION_X: mat_getChrForward(cinst->matrix.v, vup); break;
-                case ORIENTATION_Y: mat_getChrRight(cinst->matrix.v, vup);   break;
+                case ORIENTATION_X: mat_getChrForward(cinst->matrix, vup); break;
+                case ORIENTATION_Y: mat_getChrRight(cinst->matrix, vup);   break;
                 default:
-                case ORIENTATION_Z: mat_getChrUp(cinst->matrix.v, vup);      break;
+                case ORIENTATION_Z: mat_getChrUp(cinst->matrix, vup);      break;
             }
 
             fvec3_self_normalize(vup);
@@ -1065,7 +1061,7 @@ gfx_rv prt_instance_update_lighting( prt_instance_t * pinst, prt_t * pprt, Uint8
 
     // rotate the lighting data to body_centered coordinates
     mat = prt_instance_make_matrix( pinst );
-    lighting_project_cache( &loc_light, &global_light, mat.v );
+    lighting_project_cache( &loc_light, &global_light, mat );
 
     // determine the normal dependent amount of light
     lighting_evaluate_cache( &loc_light, pinst->nrm, pinst->pos.z, PMesh->tmem.bbox, &amb, &dir );
@@ -1211,7 +1207,7 @@ size_t render_all_prt_begin( std::shared_ptr<Camera> pcam,  prt_registry_entity_
 
     update_all_prt_instance( pcam );
 
-    mat_getCamForward(pcam->getView().v, vfwd);
+    mat_getCamForward(pcam->getView(), vfwd);
     vcam = pcam->getPosition();
 
     // Original points
@@ -1327,7 +1323,7 @@ size_t render_all_prt_ref_begin( std::shared_ptr<Camera> pcam, prt_registry_enti
 
     update_all_prt_instance( pcam );
 
-    mat_getCamForward(pcam->getView().v, vfwd);
+    mat_getCamForward(pcam->getView(), vfwd);
     vcam = pcam->getPosition();
 
     // Original points

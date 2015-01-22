@@ -74,9 +74,6 @@ struct chr_t;
 #define MAXMONEY        9999                        ///< Maximum money
 #define SHOP_IDENTIFY   200                         ///< Maximum value for identifying shop items
 
-#define MAX_CAP         256
-#define INVALID_CAP_REF ((CAP_REF) MAX_CAP)
-
 #define CHR_INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
 #define CHR_MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
 
@@ -301,7 +298,6 @@ struct chr_t
     SFP8_T         mana_return;     ///< (8.8 fixed point)
 
 	SFP8_T         mana_flow;       ///< (8.8 fixed point)
-	UFP8_T         life_heal;       ///< (8.8 fixed point)
 
     SFP8_T         strength;        ///< Strength     - (8.8 fixed point)
     SFP8_T         wisdom;          ///< Wisdom       - (8.8 fixed point)
@@ -363,10 +359,6 @@ struct chr_t
     SFP8_T         damage_boost;                  ///< Add to swipe damage (8.8 fixed point)
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
 
-    // sound stuff
-    int            sound_index[SOUND_COUNT];       ///< a map for soundX.wav to sound types
-    int            loopedsound_channel;           ///< Which sound channel it is looping on, -1 is none.
-
     // missle handling
     Uint8          missiletreatment;              ///< For deflection, etc.
     Uint8          missilecost;                   ///< Mana cost for each one
@@ -394,7 +386,6 @@ struct chr_t
     bool         ismount;                       ///< Can you ride it?
     bool         canbecrushed;                  ///< Crush in a door?
     bool         canchannel;                    ///< Can it convert life to mana?
-    Sint16         manacost;                      ///< Mana cost to use
 
     // misc timers
     Sint16         grog_timer;                    ///< Grog timer
@@ -491,10 +482,11 @@ struct chr_t
     Uint32         safe_grid;                     ///< the last "safe" grid
 
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
+
+	static chr_t * ctor(chr_t * pchr);
 };
 
-chr_t * chr_ctor( chr_t * pchr );
-chr_t * chr_dtor( chr_t * pchr );
+chr_t *chr_dtor(chr_t * pchr);
 bool  chr_request_terminate( chr_t * pchr );
 
 bool    chr_matrix_valid( const chr_t * pchr );
@@ -578,16 +570,10 @@ chr_t * chr_set_ai_state( chr_t * pchr, int state );
 // list definitions
 //--------------------------------------------------------------------------------------------
 
-DECLARE_STACK_EXTERN( team_t, TeamStack, TEAM_MAX );
+extern Stack<team_t, TEAM_MAX> TeamStack;
 
 #define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < TEAM_MAX) )
 
-DECLARE_STACK_EXTERN( cap_t,  CapStack,  MAX_CAP );
-
-#define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_CAP) )
-#define LOADED_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapStack.lst[ICAP].loaded )
-
-#define LOADED_PCAP( PCAP )       ( (NULL != (PCAP)) && (PCAP)->loaded )
 
 #define IS_ATTACHED_CHR_RAW(ICHR) ( (DEFINED_CHR(ChrList.lst[ICHR].attachedto) || DEFINED_CHR(ChrList.lst[ICHR].inwhich_inventory)) )
 #define IS_ATTACHED_CHR(ICHR) LAMBDA( !DEFINED_CHR(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
@@ -639,9 +625,6 @@ bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t
 // save character functions
 bool  export_one_character_quest_vfs( const char *szSaveName, const CHR_REF character );
 bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF character );
-bool  export_one_character_profile_vfs( const char *szSaveName, const CHR_REF character );
-bool  export_one_character_skin_vfs( const char *szSaveName, const CHR_REF character );
-CAP_REF CapStack_load_one( const char *szLoadName, int slot_override, bool required );
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
@@ -654,11 +637,6 @@ CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 bool chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
 
 bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_vec, fvec3_base_t grip_up_vec, const bool shift_origin );
-
-// CapStack functions
-void CapStack_init_all();
-void CapStack_release_all();
-bool CapStack_release_one( const CAP_REF icap );
 
 // character state machine functions
 chr_t * chr_run_config( chr_t * pchr );
@@ -673,8 +651,8 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
 void drop_money( const CHR_REF character, int money );
 void call_for_help( const CHR_REF character );
-void give_experience( const CHR_REF character, int amount, xp_type xptype, bool override_invictus );
-void give_team_experience( const TEAM_REF team, int amount, Uint8 xptype );
+void give_experience( const CHR_REF character, int amount, XPType xptype, bool override_invictus );
+void give_team_experience( const TEAM_REF team, int amount, XPType xptype );
 int  damage_character( const CHR_REF character, const FACING_T direction,
                        const IPair damage, const Uint8 damagetype, const TEAM_REF team,
                        const CHR_REF attacker, const BIT_FIELD effects, const bool ignore_invictus );
@@ -733,10 +711,6 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
 //--------------------------------------------------------------------------------------------
 // PREVIOUSLY INLINE FUNCTIONS
 //--------------------------------------------------------------------------------------------
-// cap_t accessor functions
-bool cap_is_type_idsz( const CAP_REF icap, IDSZ test_idsz );
-bool cap_has_idsz( const CAP_REF icap, IDSZ idsz );
-
 //--------------------------------------------------------------------------------------------
 // team_t accessor functions
 CHR_REF team_get_ileader( const TEAM_REF iteam );
@@ -747,12 +721,10 @@ bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team )
 //--------------------------------------------------------------------------------------------
 // chr_t accessor functions
 PRO_REF  chr_get_ipro( const CHR_REF ichr );
-CAP_REF  chr_get_icap( const CHR_REF ichr );
 TEAM_REF chr_get_iteam( const CHR_REF ichr );
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
 
 ObjectProfile *chr_get_ppro( const CHR_REF ichr );
-cap_t *chr_get_pcap( const CHR_REF ichr );
 
 team_t         *chr_get_pteam( const CHR_REF ichr );
 team_t         *chr_get_pteam_base( const CHR_REF ichr );
@@ -762,7 +734,6 @@ chr_instance_t *chr_get_pinstance( const CHR_REF ichr );
 IDSZ chr_get_idsz( const CHR_REF ichr, int type );
 
 void chr_update_size( chr_t * pchr );
-void chr_init_size( chr_t * pchr, cap_t * pcap );
 
 
 bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );

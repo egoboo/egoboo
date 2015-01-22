@@ -23,10 +23,7 @@
 
 #include "egolib/bbox.h"
 #include "egolib/_math.h"
-#include "egolib/aabb.h"
-
-// this include must be the absolute last include
-#include "egolib/mem.h"
+#include "egolib/math/AABB.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

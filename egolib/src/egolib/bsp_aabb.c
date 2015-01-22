@@ -23,57 +23,48 @@
 #include "egolib/bsp_aabb.h"
 #include "egolib/bbox.h"
 
-BSP_aabb_t *BSP_aabb_t::ctor(BSP_aabb_t *self, size_t dim)
+BSP_aabb_t *BSP_aabb_t::ctor(size_t dim)
 {
-	if (NULL == self)
-	{
-		return NULL;
-	}
 	// Construct the vectors.
-	if (!self->mins.ctor(dim))
+	if (!mins.ctor(dim))
 	{
 		return NULL;
 	}
-	if (!self->mids.ctor(dim))
+	if (!mids.ctor(dim))
 	{
-		self->mins.dtor();
+		mins.dtor();
 		return NULL;
 	}
-	if (!self->maxs.ctor(dim))
+	if (!maxs.ctor(dim))
 	{
-		self->mids.dtor();
-		self->mins.dtor();
+		mids.dtor();
+		mins.dtor();
 		return NULL;
 	}
 	// Set the dimensionality.
-	self->dim = dim;
+	dim = dim;
 	// Center the BSP AABB around the origin and set its size along all axes to zero.
-	for (size_t index = 0; index < self->dim; ++index)
+	for (size_t index = 0; index < dim; ++index)
 	{
-		self->mins.ary[index] = self->mids.ary[index] = self->maxs.ary[index] = 0.0f;
+		mins.ary[index] = mids.ary[index] = maxs.ary[index] = 0.0f;
 	}
 	// Mark this BSP AABB as valid.
-	self->valid = true;
+	valid = true;
 
-	return self;
+	return this;
 }
 
 //--------------------------------------------------------------------------------------------
-void BSP_aabb_t::dtor(BSP_aabb_t *self)
+void BSP_aabb_t::dtor()
 {
-	if (NULL == self)
-	{
-		return;
-	}
-
 	// Deallocate the vectors.
-	self->mins.dtor();
-	self->mids.dtor();
-	self->maxs.dtor();
+	mins.dtor();
+	mids.dtor();
+	maxs.dtor();
 	// Set the dimenionality to zero.
-	self->dim = 0;
+	dim = 0;
 	// Mark this BSP AABB as invalid.
-	self->valid = false;
+	valid = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -222,7 +213,7 @@ bool BSP_aabb_copy(BSP_aabb_t * pdst, const BSP_aabb_t * psrc)
 
 	if (NULL == psrc)
 	{
-		BSP_aabb_t::dtor(pdst);
+		pdst->dtor();
 		return false;
 	}
 
@@ -367,28 +358,19 @@ bool BSP_aabb_t::contains_BSP_aabb(const BSP_aabb_t * lhs_ptr, const BSP_aabb_t 
 //--------------------------------------------------------------------------------------------
 bool BSP_aabb_t::overlap_with_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr)
 {
-	/// @author BB
-	/// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
-	///               than lhs_ptr, just check the lowest common dimensions.
+	if (nullptr == lhs_ptr || nullptr == rhs_ptr) return false;
+	if (!lhs_ptr->valid) return false;
 
-	size_t cnt, min_dim;
-
-	const float * rhs_mins, *rhs_maxs, *lhs_mins, *lhs_maxs;
-
-	if (NULL == lhs_ptr || !lhs_ptr->valid) return false;
-	if (NULL == rhs_ptr /* || !rhs_ptr->valid */) return false;
-
-	min_dim = std::min((size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim);
+	size_t min_dim = std::min((size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim);
 	if (0 == min_dim) return false;
 
-	// the optomizer is supposed to do this stuff all by itself,
-	// but isn't
-	rhs_mins = rhs_ptr->mins + 0;
-	rhs_maxs = rhs_ptr->maxs + 0;
-	lhs_mins = lhs_ptr->mins.ary;
-	lhs_maxs = lhs_ptr->maxs.ary;
+	// The optimizer is supposed to do this stuff all by itself, but isn't.
+	const float *rhs_mins = rhs_ptr->mins.v + 0;
+	const float *rhs_maxs = rhs_ptr->maxs.v + 0;
+	const float *lhs_mins = lhs_ptr->mins.ary;
+	const float *lhs_maxs = lhs_ptr->maxs.ary;
 
-	for (cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
+	for (size_t cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
 	{
 		if ((*rhs_maxs) < (*lhs_mins)) return false;
 		if ((*rhs_mins) > (*lhs_maxs)) return false;
@@ -414,10 +396,9 @@ bool BSP_aabb_t::contains_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_pt
 	min_dim = std::min((size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim);
 	if (0 == min_dim) return false;
 
-	// the optomizer is supposed to do this stuff all by itself,
-	// but isn't
-	rhs_mins = rhs_ptr->mins + 0;
-	rhs_maxs = rhs_ptr->maxs + 0;
+	// The optimizer is supposed to do this stuff all by itself, but isn't.
+	rhs_mins = rhs_ptr->mins.v + 0;
+	rhs_maxs = rhs_ptr->maxs.v + 0;
 	lhs_mins = lhs_ptr->mins.ary;
 	lhs_maxs = lhs_ptr->maxs.ary;
 

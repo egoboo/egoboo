@@ -97,9 +97,9 @@ static script_info_t default_ai_script;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-INSTANTIATE_STATIC_ARY( OpListAry, OpList );
+StaticArray<opcode_data_t, MAX_OPCODE> OpList;
 
-bool debug_scripts     = false;
+bool debug_scripts = false;
 vfs_FILE * debug_script_file = NULL;
 
 const char * script_function_names[SCRIPT_FUNCTIONS_COUNT] =
@@ -551,11 +551,6 @@ static void print_line();
 #   define print_token()
 #   define print_line()
 #endif
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-IMPLEMENT_STATIC_ARY( OpListAry, MAX_OPCODE );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1072,9 +1067,9 @@ size_t parse_token( parser_state_t * ps, token_t * ptok, ObjectProfile *ppro, sc
 
 
                 //is this the object we are looking for?
-                if ( 0 == strcmp( obj_name, strrchr( profile->getName().c_str(), '/' ) + 1 ) )
+                if ( 0 == strcmp( obj_name, strrchr( profile->getFilePath().c_str(), '/' ) + 1 ) )
                 {
-                    ptok->iValue = REF_TO_INT( profile->getCapRef() );
+                    ptok->iValue = profile->getSlotNumber();
                     break;
                 }
             }

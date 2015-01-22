@@ -116,7 +116,7 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr )
     {
@@ -319,7 +319,7 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     if ( nullptr == pmad->md2_ptr )
     {
@@ -975,16 +975,12 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
 void draw_chr_attached_grip( chr_t * pchr )
 {
     mad_t * pholder_mad;
-    cap_t * pholder_cap;
     chr_t * pholder;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
     if ( !INGAME_CHR( pchr->attachedto ) ) return;
     pholder = ChrList_get_ptr( pchr->attachedto );
-
-    pholder_cap = _profileSystem.pro_get_pcap( pholder->profile_ref );
-    if ( NULL == pholder_cap ) return;
 
     pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
@@ -996,17 +992,13 @@ void draw_chr_attached_grip( chr_t * pchr )
 void draw_chr_grips( chr_t * pchr )
 {
     mad_t * pmad;
-    cap_t * pcap;
-
-    int slot;
 
     GLint matrix_mode[1];
     GLboolean texture_1d_enabled, texture_2d_enabled;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pcap ) return;
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
     pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
     if ( NULL == pmad ) return;
@@ -1027,16 +1019,14 @@ void draw_chr_grips( chr_t * pchr )
     GL_DEBUG( glPushMatrix )();
 	Egoboo_Renderer_OpenGL_multMatrix(&(pchr->inst.matrix));
 
-    slot = SLOT_LEFT;
-    if ( pcap->slotvalid[slot] )
+    if ( profile->isSlotValid(SLOT_LEFT) )
     {
-        _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
+        _draw_one_grip_raw( &( pchr->inst ), pmad, SLOT_LEFT );
     }
 
-    slot = SLOT_RIGHT;
-    if ( pcap->slotvalid[slot] )
+    if ( profile->isSlotValid(SLOT_RIGHT) )
     {
-        _draw_one_grip_raw( &( pchr->inst ), pmad, slot );
+        _draw_one_grip_raw( &( pchr->inst ), pmad, SLOT_RIGHT );
     }
 
     // Restore the GL_MODELVIEW matrix
@@ -1092,14 +1082,14 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
     pinst->lighting_frame_all = game_frame_all + (( game_frame_all + pchr->obj_base.guid ) & frame_mask );
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
     pinst->vrt_count = pinst->vrt_count;
 
     // interpolate the lighting for the origin of the object
     grid_lighting_interpolate( PMesh, &global_light, fvec2_t(pchr->pos[kX],pchr->pos[kY]) );
 
     // rotate the lighting data to body_centered coordinates
-    lighting_project_cache( &loc_light, &global_light, pinst->matrix.v );
+    lighting_project_cache(&loc_light, &global_light, pinst->matrix);
 
     pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * ( loc_light.hgh.lighting[LVEC_AMB] + loc_light.low.lighting[LVEC_AMB] ) * 0.5f;
 
@@ -1156,7 +1146,7 @@ gfx_rv chr_instance_update_bbox( chr_instance_t * pinst )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     const MD2_Frame &lastFrame = chr_instnce_get_frame_lst(pinst);
     const MD2_Frame &nextFrame = chr_instnce_get_frame_nxt(pinst);
@@ -1215,7 +1205,7 @@ gfx_rv chr_instance_needs_update( chr_instance_t * pinst, int vmin, int vmax, bo
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     // check to see if the vlst_cache has been marked as invalid.
     // in this case, everything needs to be updated
@@ -1349,7 +1339,7 @@ gfx_rv chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax,
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     if ( NULL == pmad->md2_ptr )
     {
@@ -1635,7 +1625,7 @@ gfx_rv chr_instance_set_action( chr_instance_t * pinst, int action, bool action_
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     // is the chosen action valid?
     if ( !pmad->action_valid[ action ] ) return gfx_fail;
@@ -1685,7 +1675,7 @@ gfx_rv chr_instance_set_frame( chr_instance_t * pinst, int frame )
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     // is the current action valid?
     if ( !pmad->action_valid[ pinst->action_which ] ) return gfx_fail;
@@ -1746,7 +1736,7 @@ gfx_rv chr_instance_start_anim( chr_instance_t * pinst, int action, bool action_
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     return chr_instance_set_anim( pinst, action, pmad->action_stt[action], action_ready, override_action );
 }
@@ -1881,7 +1871,7 @@ gfx_rv chr_instance_play_action( chr_instance_t * pinst, int action, bool action
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, pinst->imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( pinst->imad );
+    pmad = MadStack.get_ptr( pinst->imad );
 
     action = mad_get_action_ref( pinst->imad, action );
 
@@ -2023,7 +2013,7 @@ gfx_rv chr_instance_set_mad( chr_instance_t * pinst, const MAD_REF imad )
     }
 
     if ( !LOADED_MAD( imad ) ) return gfx_fail;
-    pmad = MadStack_get_ptr( imad );
+    pmad = MadStack.get_ptr( imad );
 
     if ( NULL == pmad->md2_ptr )
     {
@@ -2115,7 +2105,6 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
 {
     Sint8 greensave = 0, redsave = 0, bluesave = 0;
 
-    cap_t * pcap;
     SKIN_T  loc_skin;
 
     if ( NULL == pinst )
@@ -2132,10 +2121,10 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     // clear the instance
     chr_instance_ctor( pinst );
 
-    if ( !_profileSystem.isValidProfileID( profile ) ) return gfx_fail;
-    std::shared_ptr<ObjectProfile> pobj = _profileSystem.getProfile( profile );
-
-    pcap = _profileSystem.pro_get_pcap( profile );
+    const std::shared_ptr<ObjectProfile> &pobj = _profileSystem.getProfile( profile );
+    if(!pobj) {
+        return gfx_fail;
+    }
 
     loc_skin = 0;
     if ( skin >= 0 )
@@ -2145,14 +2134,14 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
 
     // lighting parameters
     chr_instance_set_texture( pinst, pobj->getSkin(loc_skin) );
-    pinst->enviro    = pcap->enviro;
-    pinst->alpha     = pcap->alpha;
-    pinst->light     = pcap->light;
-    pinst->sheen     = pcap->sheen;
+    pinst->enviro    = pobj->isPhongMapped();
+    pinst->alpha     = pobj->getAlpha();
+    pinst->light     = pobj->getLight();
+    pinst->sheen     = pobj->getSheen();
     pinst->grnshift  = greensave;
     pinst->redshift  = redsave;
     pinst->blushift  = bluesave;
-    pinst->dont_cull_backfaces = pcap->dont_cull_backfaces;
+    pinst->dont_cull_backfaces = pobj->isDontCullBackfaces();
 
     // model parameters
     chr_instance_set_mad( pinst, _profileSystem.pro_get_imad( profile ) );
@@ -2202,7 +2191,7 @@ gfx_rv chr_instance_set_frame_full( chr_instance_t * pinst, int frame_along, int
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, imad, "invalid mad" );
         return gfx_error;
     }
-    pmad = MadStack_get_ptr( imad );
+    pmad = MadStack.get_ptr( imad );
 
     // we have to have a valid action range
     if ( pinst->action_which > ACTION_COUNT ) return gfx_fail;
@@ -2320,7 +2309,7 @@ gfx_rv chr_instance_remove_interpolation( chr_instance_t * pinst )
 //--------------------------------------------------------------------------------------------
 const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst)
 {
-    mad_t * pmad = MadStack_get_ptr( pinst->imad );
+    mad_t * pmad = MadStack.get_ptr( pinst->imad );
     if ( pinst->frame_nxt > pmad->md2_ptr->getFrames().size() )
     {
         log_error( "chr_instnce_get_frame_nxt() - invalid frame %d/%llu\n", pinst->frame_nxt, pmad->md2_ptr->getFrames().size() );
@@ -2332,7 +2321,7 @@ const MD2_Frame& chr_instnce_get_frame_nxt(chr_instance_t * pinst)
 //--------------------------------------------------------------------------------------------
 const MD2_Frame& chr_instnce_get_frame_lst(chr_instance_t * pinst)
 {
-    mad_t * pmad = MadStack_get_ptr( pinst->imad );
+    mad_t * pmad = MadStack.get_ptr( pinst->imad );
     if ( pinst->frame_lst > pmad->md2_ptr->getFrames().size() )
     {
         log_error( "chr_instnce_get_frame_lst() - invalid frame %d/%llu\n", pinst->frame_lst, pmad->md2_ptr->getFrames().size() );

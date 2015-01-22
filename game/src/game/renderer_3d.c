@@ -344,8 +344,8 @@ bool render_aabb( aabb_t * pbbox )
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
     {
-        pmin = &( pbbox->mins );
-        pmax = &( pbbox->maxs );
+        pmin = &( pbbox->mins.v );
+        pmax = &( pbbox->maxs.v );
 
         // !!!! there must be an optimized way of doing this !!!!
 

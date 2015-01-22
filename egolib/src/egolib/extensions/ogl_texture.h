@@ -45,9 +45,7 @@ extern "C"
     struct s_oglx_texture_parameters;
     typedef struct s_oglx_texture_parameters oglx_texture_parameters_t;
 
-    struct s_oglx_texture;
-    typedef struct s_oglx_texture oglx_texture_t;
-
+    struct oglx_texture_t;
     typedef GLfloat oglx_frect_t[4];
 
 //--------------------------------------------------------------------------------------------
@@ -61,7 +59,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_oglx_texture
+    struct oglx_texture_t
     {
         GLboolean    base_valid;
         gl_texture_t base;

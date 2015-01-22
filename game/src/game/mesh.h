@@ -28,7 +28,7 @@
 // external types
 //--------------------------------------------------------------------------------------------
 
-struct s_oglx_texture;
+struct oglx_texture_t;
 
 //--------------------------------------------------------------------------------------------
 // internal types
@@ -333,7 +333,7 @@ float ego_mesh_get_pressure( const ego_mesh_t * pmesh, const float pos[], float 
 bool ego_mesh_update_water_level( ego_mesh_t * pmesh );
 
 void mesh_texture_invalidate();
-struct s_oglx_texture * mesh_texture_bind( const ego_tile_info_t * ptile );
+oglx_texture_t * mesh_texture_bind( const ego_tile_info_t * ptile );
 
 //Previously inlined
 float  ego_mesh_get_level( const ego_mesh_t * pmesh, float pos_x, float pos_y );

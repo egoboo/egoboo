@@ -24,7 +24,6 @@
 #include "egolib/file_formats/wawalite_file.h"
 
 #include "egolib/file_formats/pip_file.h"
-#include "egolib/file_formats/cap_file.h"
 
 #include "egolib/log.h"
 #include "egolib/fileutil.h"

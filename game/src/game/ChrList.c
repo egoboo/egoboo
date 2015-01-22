@@ -65,22 +65,20 @@ IMPLEMENT_LIST( chr_t, ChrList, MAX_CHR );
 //--------------------------------------------------------------------------------------------
 void ChrList_ctor()
 {
-    // initialize the list
+    // Initialize the list.
     ChrList_init();
 
-    // construct the sub-objects
-    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
+    // Construct the sub-objects.
+    for (CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        chr_t *pchr = ChrList.lst + cnt;
+        chr_t *chr = ChrList.lst + cnt;
 
-        // blank out all the data, including the obj_base data
-        BLANK_STRUCT_PTR( pchr )
-
-        // initialize the particle's character
-        Ego::Entity::ctor( POBJ_GET_PBASE( pchr ), pchr, BSP_LEAF_CHR, cnt );
-
-        // initialize character
-        chr_ctor( pchr );
+        // Blank out all the data, including the entity data.
+		BLANK_STRUCT_PTR(chr);
+        // Initialize the entity.
+        Ego::Entity::ctor(POBJ_GET_PBASE(chr), chr, BSP_LEAF_CHR, cnt);
+        // Initialize character.
+        chr_t::ctor(chr);
     }
 }
 

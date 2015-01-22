@@ -23,8 +23,6 @@
 
 #include "egolib/file_formats/spawn_file.h"
 
-#include "egolib/file_formats/cap_file.h"
-
 #include "egolib/fileutil.h"
 #include "egolib/strutil.h"
 

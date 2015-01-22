@@ -28,11 +28,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if 0
-static bool hash_node_dtor( hash_node_t * n );
-#endif
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 bool hash_node_dtor(hash_node_t *self)
 {
 	if (NULL == self)
@@ -150,25 +145,6 @@ hash_node_t * hash_node_remove( hash_node_t lst[] )
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-hash_list_t *hash_list_ctor(hash_list_t *self, size_t hash_size)
-{
-	if (NULL == self)
-	{
-		return NULL;
-	}
-    hash_list_alloc(self,hash_size);
-    return self;
-}
-
-//--------------------------------------------------------------------------------------------
-void hash_list_dtor(hash_list_t *self)
-{
-	EGOBOO_ASSERT(NULL != self);
-    hash_list_free(self);
-}
-
-//--------------------------------------------------------------------------------------------
 size_t hash_list_count_nodes(hash_list_t *self)
 {
 	if (NULL == self)
@@ -187,22 +163,22 @@ size_t hash_list_count_nodes(hash_list_t *self)
 }
 
 //--------------------------------------------------------------------------------------------
-hash_list_t *hash_list_create(size_t capacity)
+hash_list_t *hash_list_create(size_t initialCapacity)
 {
     hash_list_t *self = EGOBOO_NEW(hash_list_t);
-	if (NULL == self)
+	if (nullptr == self)
 	{
-		return NULL;
+		return nullptr;
 	}
-    BLANK_STRUCT_PTR(self)
-    return hash_list_ctor(self,capacity);
+	BLANK_STRUCT_PTR(self);
+	return self->ctor(self, initialCapacity);
 }
 
 //--------------------------------------------------------------------------------------------
 void hash_list_destroy(hash_list_t *self)
 {
 	EGOBOO_ASSERT(NULL != self);
-    hash_list_dtor(self);
+	self->dtor(self);
     EGOBOO_DELETE(self);
 }
 
@@ -274,51 +250,6 @@ bool hash_list_set_node(hash_list_t *self, size_t index, hash_node_t *node)
 }
 
 //--------------------------------------------------------------------------------------------
-bool hash_list_free( hash_list_t * lst )
-{
-    if ( NULL == lst ) return false;
-    if ( 0 == lst->capacity ) return true;
-
-    EGOBOO_DELETE_ARY( lst->subcount );
-    EGOBOO_DELETE_ARY( lst->sublist );
-    lst->capacity = 0;
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool hash_list_alloc(hash_list_t *self, size_t size)
-{
-	if (NULL == self)
-	{
-		return false;
-	}
-    hash_list_free(self);
-
-    self->subcount = EGOBOO_NEW_ARY(int, size);
-	if (!self->subcount)
-	{
-		return false;
-	}
-    self->sublist = EGOBOO_NEW_ARY(hash_node_t *, size);
-    if (!self->sublist)
-    {
-        EGOBOO_DELETE(self->subcount);
-		self->subcount = NULL;
-        return false;
-    }
-    else
-    {
-		for (size_t cnt = 0; cnt < size; cnt++)
-		{
-			self->sublist[cnt] = NULL;
-		}
-    }
-    self->capacity = size;
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
 bool hash_list_renew( hash_list_t * lst )
 {
     if ( NULL == lst ) return false;
@@ -334,20 +265,18 @@ bool hash_list_renew( hash_list_t * lst )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-hash_list_iterator_t * hash_list_iterator_ctor( hash_list_iterator_t * it )
+hash_list_iterator_t *hash_list_iterator_t::ctor()
 {
-    if ( NULL == it ) return NULL;
-
-    BLANK_STRUCT_PTR( it )
-
-    return it;
+	this->hash = 0;
+	this->pnode = nullptr;
+    return this;
 }
 
 //--------------------------------------------------------------------------------------------
 bool hash_list_iterator_set_begin( hash_list_iterator_t * it, hash_list_t * hlst )
 {
-    it = hash_list_iterator_ctor( it );
-
+	if (nullptr == it) return false;
+	it = it->ctor();
     if ( NULL == it || NULL == hlst ) return false;
 
     // find the first non-null hash element

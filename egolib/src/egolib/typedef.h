@@ -30,39 +30,28 @@
 #include "egolib/mem.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct irect_t;
-    struct frect_t;
-    struct ego_irect_t;
-    struct ego_frect_t;
-    struct s_pair;
-    typedef struct s_pair IPair;
-
-    struct s_range;
-    typedef struct s_range FRange;
-
-//--------------------------------------------------------------------------------------------
 // place the definition of the lambda operator in a macro
 #define LAMBDA(AA,BB,CC) ((AA) ? (BB) : (CC))
 
 //--------------------------------------------------------------------------------------------
 // portable definition of assert. the c++ version can be activated below.
 // make assert into a warning if _DEBUG is not defined
+void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 );
 
-    void non_fatal_assert( bool val, const char * format, ... ) GCC_PRINTF_FUNC( 2 );
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// definitions for the compiler environment
 
 #if defined(_DEBUG)
-	#define C_EGOBOO_ASSERT(expression) assert(expression)
+#define EGOBOO_ASSERT(expression) assert(expression)
 #else
-	#define C_EGOBOO_ASSERT(expression) non_fatal_assert(expression, "%s - failed an assert \"%s\"\n", __FUNCTION__, #expression)
+#define EGOBOO_ASSERT(expression) non_fatal_assert(expression, "%s - failed an assert \"%s\"\n", __FUNCTION__, #expression)
 #endif
+
+
 
 //--------------------------------------------------------------------------------------------
 // a replacement for memset()
-#    if !defined(BLANK_STRUCT)
-#       define BLANK_STRUCT(XX)  memset( &(XX), 0, sizeof(XX) );
-#    endif
 
 #    if !defined(BLANK_STRUCT_PTR)
 #       define BLANK_STRUCT_PTR(XX)  memset( XX, 0, sizeof( *(XX) ) );
@@ -123,8 +112,8 @@
 #   define FP8_DIV(V1, V2)    ( ((V1)<<8) / (V2) )               ///< this  will fail if V1 has bits in the upper 8 bits
 
 //--------------------------------------------------------------------------------------------
-    /// the type for the 16-bit value used to store angles
-    typedef Uint16   FACING_T;
+/// the type for the 16-bit value used to store angles
+typedef Uint16 FACING_T;
 
     /// the type for the 14-bit value used to store angles
     typedef FACING_T TURN_T;
@@ -193,8 +182,9 @@
 	namespace Ego
 	{
 		/**
-		 * @brief A rectangle in a 2 dimensional Cartesian coordinate system.
-		 * @invariant
+		 * @brief
+		 *	A rectangle in a 2 dimensional Cartesian coordinate system
+		 *  (positive x-axis from left to right, positive y-axis from top to bottom).
 		 */
 		template <typename Type>
 		struct Rectangle
@@ -202,9 +192,10 @@
 			Type _left;   ///< @brief The coordinate of the left side   of the rectangle.
 			              ///< @invariant <tt>left <= right</tt>.
 			Type _bottom; ///< @brief The coordinate of the bottom side of the rectangle.
-			              ///< @invariant <tt>bottom <= top</tt>.
+			              ///< @invariant <tt>top <= bottom</tt>.
 			Type _right;  ///< @brief The coordinate of the right side  of the rectangle.
 			Type _top;    ///< @brief The coordinate of the top side    of the rectangle.
+
 			/**
 			 * @brief
 			 *	Construct an empty rectangle.
@@ -212,6 +203,39 @@
 			Rectangle() : _left(), _bottom(), _right(), _top()
 			{
 			}
+
+			/**
+			 * @brief
+			 *	Get left coordinate of this rectangle.
+			 * @return
+			 *	the left coordinate of this rectangle
+			 */
+			inline Type getLeft() const { return _left; }
+
+			/**
+			 * @brief
+			 *	Get top coordinate of this rectangle.
+			 * @return
+			 *	the top coordinate of this rectangle
+			 */
+			inline Type getTop() const { return _top; }
+
+			/**
+			 * @brief
+			 *	Get right coordinate of this rectangle.
+			 * @return
+			 *	the right coordinate of this rectangle
+			 */
+			inline Type getRight() const { return _right; }
+
+			/**
+			 * @brief
+			 *	Get bottom coordinate of this rectangle.
+			 * @return
+			 *	the bottom coordinate of this rectangle
+			 */
+			inline Type getBottom() const { return _bottom; }
+
 			/**
 			 * @brief
 			 *	Construct this rectangle with the specified sides.
@@ -228,49 +252,35 @@
 			 */
 			Rectangle(const Type& left, const Type& bottom, const Type& right, const Type& top)
 			{
-				if (left > right)
+				if (!(left <= right))
 				{
 					throw std::domain_error("the coordinate of the left side must be smaller than or equal to the coordinate of the right side");
 				}
-				if (bottom > top)
+				if (!(top <= bottom))
 				{
-					throw std::domain_error("the coordinate of the bottom side must be smaller than or equal to the coordinate of the top side");
+					throw std::domain_error("the coordinate of the top side must be smaller than or equal to the coordinate of the bottom side");
 				}
 				_left = left;
 				_bottom = bottom;
 				_right = right;
 				_top = top;
 			}
+
+			bool point_inside(const Type& x, const Type& y)
+			{
+				EGOBOO_ASSERT(_left <= _right && _top <= _bottom);
+				if (x < _left || x > _right) return false;
+				if (y < _top  || y > _bottom) return false;
+				return true;
+			}
 		};
 	};
+	/** @todo Remove this. */
+	typedef Ego::Rectangle<int> irect_t;
+	/** @todo Remove this. */
+	typedef Ego::Rectangle<float> frect_t;
 
-    struct irect_t
-    {
-        int left;
-        int right;
-        int top;
-        int bottom;
-		irect_t() :left(0), right(0), top(0), bottom(0)
-		{
-		}
-    };
-
-    bool irect_point_inside( irect_t *prect, int ix, int iy );
-
-    struct frect_t
-    {
-        float left;
-        float right;
-        float top;
-        float bottom;
-		frect_t() :left(0.0f), right(0.0f), top(0.0f), bottom(0.0f)
-		{
-		}
-    };
-
-    bool frect_point_inside( frect_t * prect, float fx, float fy );
-
-    struct ego_irect_t
+	struct ego_irect_t
     {
         int xmin, ymin;
         int xmax, ymax;
@@ -286,13 +296,13 @@
 // PAIR AND RANGE
 
     /// Specifies a value between "base" and "base + rand"
-    struct s_pair
+    struct IPair
     {
         int base, rand;
     };
 
     /// Specifies a value from "from" to "to"
-    struct s_range
+    struct FRange
     {
         float from, to;
     };
@@ -305,21 +315,30 @@
 
 //--------------------------------------------------------------------------------------------
 // IDSZ
-    typedef Uint32 IDSZ;
+typedef Uint32 IDSZ;
 
-#    if !defined(MAKE_IDSZ)
-#       define MAKE_IDSZ(C0,C1,C2,C3) \
-    ((IDSZ)( \
+#if !defined(MAKE_IDSZ)
+#define MAKE_IDSZ(C0,C1,C2,C3)                 \
+    ((IDSZ)(                                   \
              ((((C0)-'A')&0x1F) << 15) |       \
              ((((C1)-'A')&0x1F) << 10) |       \
              ((((C2)-'A')&0x1F) <<  5) |       \
              ((((C3)-'A')&0x1F) <<  0)         \
            ))
-#    endif
+#endif
 
-#   define IDSZ_NONE            MAKE_IDSZ('N','O','N','E')       ///< [NONE]
-
-    const char * undo_idsz( IDSZ idsz );
+#define IDSZ_NONE MAKE_IDSZ('N','O','N','E')       ///< [NONE]
+/**
+ * @brief
+ *	Convert an integer IDSZ to a text IDSZ.
+ * @param idsz
+ *	the integer IDSZ
+ * @return
+ *	a pointer to a text IDSZ
+ * @todo
+ *	This currently uses a static bufer. Change this.
+ */
+const char *undo_idsz(IDSZ idsz);
 
 //--------------------------------------------------------------------------------------------
 // STRING
@@ -359,70 +378,67 @@
 //--------------------------------------------------------------------------------------------
 // References
 
-    /// base reference type
-    typedef Uint16 REF_T;
+/// @brief The base reference type, an unsigned integer value.
+typedef Uint16 REF_T;
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// definitions for the compiler environment
+/**
+ * @brief
+ *	Macro declaring a new reference type.
+ * @param name
+ *	the name of the reference type
+ */
+#define DECLARE_REF(name) typedef REF_T name
 
-#   define EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
-#   define _EGOBOO_ASSERT(X) C_EGOBOO_ASSERT(X)
+/**
+ * @brief
+ *	Convert a reference or derived value to a reference value.
+ * @param ref
+ *	the reference or derived value
+ * @todo
+ *	Rename to TO_REF.
+ */
+#define REF_TO_INT(ref) ((REF_T)(ref))
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// definition of the c-type reference
 
-#   define C_DECLARE_REF( NAME ) typedef REF_T NAME
+	//--------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------
+	// a simple list structure that tracks free elements
 
-// define the c implementation always
-#   define C_REF_TO_INT(X) ((REF_T)(X))
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// a simple array
-
-#define C_DECLARE_T_ARY(TYPE, NAME, COUNT)  TYPE   NAME[COUNT]
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// a simple list structure that tracks free elements
-
+/// @tod Remove this.
 #define ACCESS_TYPE_NONE
 
 #define INVALID_UPDATE_GUID ((unsigned)(~((unsigned)0)))
 
-#define C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
-    struct s_c_list__##TYPE__##NAME           \
-    {                                         \
-        unsigned update_guid;                 \
-        int      used_count;                  \
-        int      free_count;                  \
-        size_t   used_ref[COUNT];             \
-        size_t   free_ref[COUNT];             \
-        C_DECLARE_T_ARY(TYPE, lst, COUNT);    \
+#define DEFINE_LIST_TYPE(TYPE, NAME, COUNT) \
+    struct s_c_list__##TYPE__##NAME         \
+    {                                       \
+        unsigned update_guid;               \
+        int used_count;                     \
+        int free_count;                     \
+        size_t used_ref[COUNT];             \
+        size_t free_ref[COUNT];             \
+        TYPE lst[COUNT];                    \
     }
 
-#define C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT) \
-    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);       \
+#define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)   \
+    DEFINE_LIST_TYPE(TYPE, NAME, COUNT);         \
     void   NAME##_ctor( void );                  \
     void   NAME##_dtor( void );                  \
     bool NAME##_push_used( const REF_T );        \
     TYPE * NAME##_get_ptr( const size_t );       \
     extern struct s_c_list__##TYPE__##NAME NAME
 
-#define C_INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT) \
-    C_DEFINE_LIST_TYPE(TYPE, NAME, COUNT);           \
+#define INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT) \
+    DEFINE_LIST_TYPE(TYPE, NAME, COUNT);           \
     static struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
-#define C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) \
+#define INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT) \
     ACCESS struct s_c_list__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0, 0}
 
-#ifndef C_IMPLEMENT_LIST
-#define C_IMPLEMENT_LIST(TYPE, NAME, COUNT)             \
+#ifndef IMPLEMENT_LIST
+#define IMPLEMENT_LIST(TYPE, NAME, COUNT)               \
     static int     NAME##_find_free_ref( const REF_T ); \
     static bool  NAME##_push_free( const REF_T );       \
     static size_t  NAME##_pop_free( const int );        \
@@ -433,82 +449,135 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// a simple stack structure
+/**
+ * @brief
+ *	A stack with a fixed capacity specified at compile-time (cfg. std::array).
+ * @todo
+ *	Rename to @a StaticStack.
+ */
+template <typename ElementType,size_t Capacity>
+struct Stack {
+	
+	unsigned update_guid;
+	
+	int count; ///< @todo Rename to size. @todo Should be of type @a size_t.
+	
+	ElementType lst[Capacity];
+	
+	Stack() : update_guid(INVALID_UPDATE_GUID), count(0)
+	{
+	}
 
-#define C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT) \
-    struct s_c_stack__##TYPE__##NAME           \
-    {                                          \
-        unsigned update_guid;                  \
-        int  count;                            \
-        C_DECLARE_T_ARY(TYPE, lst, COUNT);     \
-    }
+	/**
+	 * @brief
+	 *	Get the size of this stack.
+	 * @return
+	 *	the size of this stack
+	 */
+	inline size_t get_size() const
+	{
+		return count;
+	}
 
-#define C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT) \
-    C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT);       \
-    TYPE * NAME##_get_ptr( size_t );              \
-    extern struct s_c_stack__##TYPE__##NAME NAME
+	/**
+	 * @brief
+	 *	Get the capacity of this stack.
+	 * @return
+	 *	the capacity of this stack
+	 */
+	inline size_t get_capacity() const
+	{
+		return Capacity;
+	}
 
-#define C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  \
-    C_DEFINE_STACK_TYPE(TYPE, NAME, COUNT);            \
-    static struct s_c_stack__##TYPE__##NAME NAME = {0}
+	/**
+	 * @brief
+	 *	Get a pointer to the stack element at the specified index.
+	 * @param index
+	 *	the index
+	 * @return
+	 *	a pointer to the stack element if @a index is within bounds, @a false otherwise
+	 * @todo
+	 *	Raise an exception of @a index is greater than or equal to @a capacity.
+	 */
+	ElementType *get_ptr(size_t index)
+	{
+		return (index >= Capacity) ? NULL : lst + index;
+	}
 
-#define C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) \
-    ACCESS struct s_c_stack__##TYPE__##NAME NAME = {INVALID_UPDATE_GUID, 0}
+};
 
-#define C_IMPLEMENT_STACK(TYPE, NAME, COUNT)  \
-    TYPE * NAME##_get_ptr( size_t index )   { return (index >= COUNT) ? NULL : NAME.lst + index; }
+//--------------------------------------------------------------------------------------------
+
+/**
+ * @brief
+ *	An array with a fixed capacity specified at compile-time (cfg. std::array).
+ * @todo
+ *	Merge with Stack.
+ */
+template <typename ElementType,size_t Capacity>
+struct StaticArray
+{
+	int count; ///< @todo Rename to size. @todo Should be of type @a size_t.
+	ElementType ary[Capacity];
+	StaticArray() : count(0)
+	{
+	}
+	ElementType *get_ptr(size_t index)
+	{
+		return (index >= Capacity) ? NULL : this->ary + index;
+	}
+};
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// some common data types and enums in egoboo
 
-/// a template-like declaration of a statically allocated array
+typedef uint16_t SKIN_T;
 
-#   define DECLARE_STATIC_ARY_TYPE(ARY_T, ELEM_T, SIZE) \
-    struct s_STATIC_ARY_##ARY_T \
-    { \
-        int    count;     \
-        ELEM_T ary[SIZE]; \
-    }; \
-    typedef ELEM_T ARY_T##ELEM_t; \
-    typedef struct s_STATIC_ARY_##ARY_T ARY_T##_t
+/// The possible damage types
+enum DamageType : uint8_t
+{
+    DAMAGE_SLASH = 0,
+    DAMAGE_CRUSH,
+    DAMAGE_POKE,
+    DAMAGE_HOLY,                             ///< (Most invert Holy damage )
+    DAMAGE_EVIL,
+    DAMAGE_FIRE,
+    DAMAGE_ICE,
+    DAMAGE_ZAP,
+    DAMAGE_COUNT,
 
-#   define STATIC_ARY_INIT_VALS {0}
+    DAMAGE_NONE      = 255
+};
 
-#   define DECLARE_EXTERN_STATIC_ARY(ARY_T, NAME)       \
-    ARY_T##ELEM_t * ARY_T##_get_ptr( ARY_T##_t *, size_t ); \
-    extern ARY_T##_t NAME
+/// What gender a character can be spawned with
+enum CharacterGender : uint8_t
+{
+    GENDER_FEMALE = 0,
+    GENDER_MALE,
+    GENDER_OTHER,
+    GENDER_RANDOM,
+    GENDER_COUNT
+};
 
-#   define INSTANTIATE_STATIC_ARY(ARY_T, NAME) \
-    ARY_T##_t NAME = STATIC_ARY_INIT_VALS;
+//Damage shifts
+enum DamageShift
+{
+    DAMAGEINVICTUS = (1 << 5),      ///< 00x00000 Invictus to this type of damage
+    DAMAGEMANA =     (1 << 4),      ///< 000x0000 Deals damage to mana
+    DAMAGECHARGE =   (1 << 3),      ///< 0000x000 Converts damage to mana
+    DAMAGEINVERT =   (1 << 2)       ///< 00000x00 Makes damage heal
+};
 
-#   define IMPLEMENT_STATIC_ARY(ARY_T, SIZE) \
-    ARY_T##ELEM_t * ARY_T##_get_ptr( ARY_T##_t * pary, size_t index ) { if(NULL == pary) return NULL; return ( index >= SIZE ) ? NULL : pary->ary + index; }
+/// Where an item is being held
+enum slot_t : uint8_t
+{
+    SLOT_LEFT  = 0,
+    SLOT_RIGHT,
+    SLOT_COUNT
+};
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// implementation of forward declaration of references
-
-#   define REF_TO_INT(X)  C_REF_TO_INT(X)
-
-#   define DECLARE_T_ARY(TYPE, NAME, COUNT)             C_DECLARE_T_ARY(TYPE, NAME, COUNT)
-
-#   define DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)       C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
-#   define INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT)   C_INSTANTIATE_LIST_STATIC(TYPE, NAME, COUNT)
-#   define INSTANTIATE_LIST(ACCESS, TYPE, NAME, COUNT)  C_INSTANTIATE_LIST(ACCESS, TYPE, NAME, COUNT)
-#   define IMPLEMENT_LIST(TYPE, NAME, COUNT)            C_IMPLEMENT_LIST(TYPE, NAME, COUNT)
-
-#   define DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
-#   define INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
-#   define INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
-#   define IMPLEMENT_STACK(TYPE, NAME, COUNT)           C_IMPLEMENT_STACK(TYPE, NAME, COUNT)
-
-// use an underscore to force the c implementation
-#   define _DECLARE_T_ARY(TYPE, NAME, COUNT)            C_DECLARE_T_ARY(TYPE, NAME, COUNT)
-
-#   define _DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_LIST_EXTERN(TYPE, NAME, COUNT)
-#   define _INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)   C_INSTANTIATE_LIST_STATIC(TYPE,NAME, COUNT)
-#   define _INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)   C_INSTANTIATE_LIST(ACCESS,TYPE,NAME, COUNT)
-
-#   define _DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)      C_DECLARE_STACK_EXTERN(TYPE, NAME, COUNT)
-#   define _INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)  C_INSTANTIATE_STACK_STATIC(TYPE, NAME, COUNT)
-#   define _INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT) C_INSTANTIATE_STACK(ACCESS, TYPE, NAME, COUNT)
+#define NO_SKIN_OVERRIDE    -1                      ///< For import
+#define MAX_SKIN             4               ///< The maxumum number of skins per model. This must remain hard coded at 4 for the moment.

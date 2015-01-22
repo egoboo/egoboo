@@ -654,6 +654,7 @@ vfs_FILE * vfs_openRead( const char * filename )
     if ( NULL == vfs_file ) return NULL;
 
     parse_filename = filename;
+    parse_line_number = 1;
 
     vfs_file->type  = vfs_cfile;
     vfs_file->ptr.c = ftmp;
@@ -1697,10 +1698,10 @@ int vfs_write_float( vfs_FILE * pfile, const float val )
 //--------------------------------------------------------------------------------------------
 static int fake_physfs_vscanf_read_char( PHYSFS_File * pfile )
 {
-    char ch = '\0';
+    char ch;
     int retval = PHYSFS_read( pfile, &ch, sizeof( char ), 1);
-    if ( 1 == retval ) retval = ch;
-    return retval;
+	if (1 != retval) return -1;
+	return ch;
 }
 
 static void fake_physfs_vscanf_eat_whitespace( PHYSFS_File * pfile )
@@ -2549,7 +2550,7 @@ int vfs_puts( const char * str , vfs_FILE * pfile )
     {
         size_t len = strlen( str );
 
-        retval = PHYSFS_write( pfile->ptr.p, str, len + 1, sizeof( char ) );
+        retval = PHYSFS_write( pfile->ptr.p, str, len, sizeof( char ) );
     }
 
     return retval;

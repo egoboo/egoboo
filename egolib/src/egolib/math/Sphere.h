@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/sphere.h
+/// @file  egolib/math/Sphere.h
 /// @brief Spheres.
 
 #pragma once
@@ -72,6 +72,43 @@ struct sphere_t
 		fvec3_dtor(origin);
 		radius = 0.0f;
 		return this;
+	}
+
+	/**
+	 * @brief
+	 *	Assign this sphere values of another sphere.
+	 * @param other
+	 *	the other sphere
+	 * @post
+	 * 	This sphere was assigned the values of the sphere.
+	 */
+	void assign(const sphere_t& other)
+	{
+		radius = other.radius;
+		origin = other.origin;
+	}
+
+	/**
+	 * @brief
+	 *	Assign this sphere the values of another sphere.
+	 * @param other
+	 *	the other sphere
+	 * @return
+	 *	this sphere
+	 * @post
+	 *	This sphere was assigned the values of the other sphere.
+	 */
+	sphere_t& operator=(const sphere_t& other)
+	{
+		assign(other);
+		return *this;
+	}
+
+	sphere_t() :
+		origin(0, 0, 0),
+		radius(0.0f)
+	{
+
 	}
 };
 

@@ -21,6 +21,9 @@
 /// @brief The code for controlling the game
 /// @details
 
+#include <sstream>
+#include <iomanip>
+
 #include "game/game.h"
 
 #include "game/mad.h"
@@ -191,7 +194,7 @@ static egolib_rv game_load_global_assets();
 static void      game_load_module_assets( const char *modname );
 
 static void load_all_profiles_import();
-static void import_dir_profiles_vfs( const char * dirname );
+static void import_dir_profiles_vfs( const std::string &importDirectory );
 static void game_load_global_profiles();
 static void game_load_module_profiles( const char *modname );
 
@@ -211,8 +214,6 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
 {
     /// @author ZZ
     /// @details This function exports a character
-
-    cap_t * pcap;
     ObjectProfile * pobj;
 
     STRING fromdir;
@@ -228,10 +229,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     pobj = chr_get_ppro( character );
     if ( NULL == pobj ) return rv_error;
 
-    pcap = chr_get_pcap( character );
-    if ( NULL == pcap ) return rv_error;
-
-    if ( !PMod->exportvalid || ( pcap->isitem && !pcap->cancarrytonextmodule ) )
+    if ( !PMod->exportvalid || ( pobj->isItem() && !pobj->canCarryToNextModule() ) )
     {
         return rv_fail;
     }
@@ -273,16 +271,13 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     }
 
     // modules/advent.mod/objects/advent.obj
-    snprintf( fromdir, SDL_arraysize( fromdir ), "%s", pobj->getName().c_str() );
+    snprintf( fromdir, SDL_arraysize( fromdir ), "%s", pobj->getFilePath().c_str() );
 
     // Build the DATA.TXT file
-    snprintf( tofile, SDL_arraysize( tofile ), "%s/data.txt", todir ); /*DATA.TXT*/
-    export_one_character_profile_vfs( tofile, character );
-
-    // Build the SKIN.TXT file
-    // this is now handled by the [SKIN] expansion in data.txt
-    //snprintf( tofile, SDL_arraysize( tofile ), "%s/skin.txt", todir ); /*SKIN.TXT*/
-    //export_one_character_skin_vfs( tofile, character );
+    if(!ObjectProfile::exportCharacterToFile(std::string(todir) + "/data.txt", ChrList_get_ptr(character))) {
+        log_warning( "export_one_character() - unable to save data.txt \"%s/data.txt\"\n", todir );
+        return rv_error;
+    }
 
     // Build the NAMING.TXT file
     snprintf( tofile, SDL_arraysize( tofile ), "%s/naming.txt", todir ); /*NAMING.TXT*/
@@ -351,7 +346,7 @@ egolib_rv export_all_players( bool require_local )
         chr_t    * pchr;
 
         if ( !VALID_PLA( ipla ) ) continue;
-        ppla = PlaStack_get_ptr( ipla );
+        ppla = PlaStack.get_ptr( ipla );
 
         is_local = ( NULL != ppla->pdevice );
         if ( require_local && !is_local ) continue;
@@ -444,9 +439,8 @@ void log_madused_vfs( const char *savename )
             }
             lastSlotNumber = profile->getSlotNumber();
 
-            CAP_REF icap = profile->getCapRef();
             MAD_REF imad = profile->getModelRef();
-            vfs_printf( hFileWrite, "%3d %32s %s\n", profile->getSlotNumber(), CapStack.lst[icap].classname, MadStack.lst[imad].name );
+            vfs_printf( hFileWrite, "%3d %32s %s\n", profile->getSlotNumber(), profile->getClassName().c_str(), MadStack.lst[imad].name );
         }
 
         vfs_close( hFileWrite );
@@ -1614,7 +1608,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
     float  longdist2 = max_dist2;
 
     if ( !LOADED_PIP( particletype ) ) return INVALID_CHR_REF;
-    ppip = PipStack_get_ptr( particletype );
+    ppip = PipStack.get_ptr( particletype );
 
     CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
     {
@@ -1706,7 +1700,7 @@ bool chr_check_target( chr_t * psrc, const CHR_REF ichr_test, IDSZ idsz, const B
     if ( HAS_SOME_BITS( targeting_bits, TARGET_QUEST ) )
     {
         int quest_level = QUEST_NONE;
-        player_t * ppla = PlaStack_get_ptr( ptst->is_which_player );
+        player_t * ppla = PlaStack.get_ptr( ptst->is_which_player );
 
         quest_level = quest_log_get_level( ppla->quest_log, SDL_arraysize( ppla->quest_log ), idsz );
 
@@ -1858,11 +1852,6 @@ void do_damage_tiles()
 
     CHR_BEGIN_LOOP_ACTIVE( character, pchr )
     {
-        cap_t * pcap;
-
-        pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-        if ( NULL == pcap ) continue;
-
         // if the object is not really in the game, do nothing
         if ( pchr->is_hidden || !pchr->alive ) continue;
 
@@ -2092,7 +2081,7 @@ void set_one_player_latch( const PLA_REF ipla )
 
     // skip invalid players
     if ( INVALID_PLA( ipla ) ) return;
-    ppla = PlaStack_get_ptr( ipla );
+    ppla = PlaStack.get_ptr( ipla );
 
     // is the device a local device or an internet device?
     pdevice = ppla->pdevice;
@@ -2348,10 +2337,10 @@ void check_stats()
         {
             Uint32 xpgain;
             chr_t * pchr = ChrList_get_ptr( PlaStack.lst[docheat].index );
-            cap_t * pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
+            const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
             //Give 10% of XP needed for next level
-            xpgain = 0.1f * ( pcap->experience_forlevel[std::min( pchr->experiencelevel+1, MAXLEVEL )] - pcap->experience_forlevel[pchr->experiencelevel] );
+            xpgain = 0.1f * ( profile->getXPNeededForLevel( std::min( pchr->experiencelevel+1, MAXLEVEL) ) - profile->getXPNeededForLevel(pchr->experiencelevel));
             give_experience( pchr->ai.index, xpgain, XP_DIRECT, true );
             stat_check_delay = 1;
         }
@@ -2370,9 +2359,7 @@ void check_stats()
         //Apply the cheat if valid
         if ( INGAME_CHR( PlaStack.lst[docheat].index ) )
         {
-            cap_t * pcap;
             chr_t * pchr = ChrList_get_ptr( PlaStack.lst[docheat].index );
-            pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
 
             //Heal 1 life
             heal_character( pchr->ai.index, pchr->ai.index, 256, true );
@@ -2449,10 +2436,9 @@ void show_stat( int statindex )
 
         if ( INGAME_CHR( character ) )
         {
-            cap_t * pcap;
             chr_t * pchr = ChrList_get_ptr( character );
 
-            pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
+            const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
 
             // Name
             DisplayMsg_printf( "=%s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_CAPITAL, NULL, 0 ) );
@@ -2475,24 +2461,24 @@ void show_stat( int statindex )
                 itmp = level % 10;
                 if ( 1 == itmp )
                 {
-                    DisplayMsg_printf( "~%dst level %s%s", level, gender_str, pcap->classname );
+                    DisplayMsg_printf( "~%dst level %s%s", level, gender_str, profile->getClassName().c_str() );
                 }
                 else if ( 2 == itmp )
                 {
-                    DisplayMsg_printf( "~%dnd level %s%s", level, gender_str, pcap->classname );
+                    DisplayMsg_printf( "~%dnd level %s%s", level, gender_str, profile->getClassName().c_str() );
                 }
                 else if ( 3 == itmp )
                 {
-                    DisplayMsg_printf( "~%drd level %s%s", level, gender_str, pcap->classname );
+                    DisplayMsg_printf( "~%drd level %s%s", level, gender_str, profile->getClassName().c_str() );
                 }
                 else
                 {
-                    DisplayMsg_printf( "~%dth level %s%s", level, gender_str, pcap->classname );
+                    DisplayMsg_printf( "~%dth level %s%s", level, gender_str, profile->getClassName().c_str() );
                 }
             }
             else
             {
-                DisplayMsg_printf( "~Dead %s", pcap->classname );
+                DisplayMsg_printf( "~Dead %s", profile->getClassName().c_str() );
             }
 
             // Stats
@@ -2513,7 +2499,6 @@ void show_armor( int statindex )
 
     SKIN_T  skinlevel;
 
-    cap_t * pcap;
     chr_t * pchr;
 
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
@@ -2524,39 +2509,39 @@ void show_armor( int statindex )
     pchr = ChrList_get_ptr( ichr );
     skinlevel = pchr->skin;
 
-    pcap = chr_get_pcap( ichr );
-    if ( NULL == pcap ) return;
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
+    const SkinInfo &skinInfo = profile->getSkinInfo(skinlevel);
 
     // Armor Name
-    DisplayMsg_printf( "=%s=", pcap->skin_info.name[skinlevel] );
+    DisplayMsg_printf( "=%s=", skinInfo.name.c_str() );
 
     // Armor Stats
-    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
-                       pcap->damage_resistance[DAMAGE_SLASH][skinlevel]*100,
-                       pcap->damage_resistance[DAMAGE_CRUSH][skinlevel]*100,
-                       pcap->damage_resistance[DAMAGE_POKE ][skinlevel]*100 );
+    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - skinInfo.defence,
+                       skinInfo.damageResistance[DAMAGE_SLASH]*100,
+                       skinInfo.damageResistance[DAMAGE_CRUSH]*100,
+                       skinInfo.damageResistance[DAMAGE_POKE ]*100 );
 
     DisplayMsg_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
-                       pcap->damage_resistance[DAMAGE_HOLY][skinlevel]*100,
-                       pcap->damage_resistance[DAMAGE_EVIL][skinlevel]*100,
-                       pcap->damage_resistance[DAMAGE_FIRE][skinlevel]*100,
-                       pcap->damage_resistance[DAMAGE_ICE ][skinlevel]*100,
-                       pcap->damage_resistance[DAMAGE_ZAP ][skinlevel]*100 );
+                       skinInfo.damageResistance[DAMAGE_HOLY]*100,
+                       skinInfo.damageResistance[DAMAGE_EVIL]*100,
+                       skinInfo.damageResistance[DAMAGE_FIRE]*100,
+                       skinInfo.damageResistance[DAMAGE_ICE ]*100,
+                       skinInfo.damageResistance[DAMAGE_ZAP ]*100 );
 
-    DisplayMsg_printf( "~Type: %s", ( pcap->skin_info.dressy & ( 1 << skinlevel ) ) ? "Light Armor" : "Heavy Armor" );
+    DisplayMsg_printf( "~Type: %s", skinInfo.dressy ? "Light Armor" : "Heavy Armor" );
 
     // jumps
     tmps[0] = CSTR_END;
-    switch ( pcap->jumpnumber )
+    switch ( profile->getJumpNumber() )
     {
-        case 0:  snprintf( tmps, SDL_arraysize( tmps ), "None    (%i)", pchr->jumpnumberreset ); break;
-        case 1:  snprintf( tmps, SDL_arraysize( tmps ), "Novice  (%i)", pchr->jumpnumberreset ); break;
-        case 2:  snprintf( tmps, SDL_arraysize( tmps ), "Skilled (%i)", pchr->jumpnumberreset ); break;
-        case 3:  snprintf( tmps, SDL_arraysize( tmps ), "Adept   (%i)", pchr->jumpnumberreset ); break;
-        default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%i)", pchr->jumpnumberreset ); break;
+        case 0:  snprintf( tmps, SDL_arraysize( tmps ), "None    (%d)", pchr->jumpnumberreset ); break;
+        case 1:  snprintf( tmps, SDL_arraysize( tmps ), "Novice  (%d)", pchr->jumpnumberreset ); break;
+        case 2:  snprintf( tmps, SDL_arraysize( tmps ), "Skilled (%d)", pchr->jumpnumberreset ); break;
+        case 3:  snprintf( tmps, SDL_arraysize( tmps ), "Adept   (%d)", pchr->jumpnumberreset ); break;
+        default: snprintf( tmps, SDL_arraysize( tmps ), "Master  (%d)", pchr->jumpnumberreset ); break;
     };
 
-    DisplayMsg_printf( "~Speed:~%3.0f~Jump Skill:~%s", pchr->maxaccel_reset*80, tmps );
+    DisplayMsg_printf( "~Speed:~%3.0f~Jump Skill:~%s", skinInfo.maxAccel*80, tmps );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2606,19 +2591,14 @@ void show_full_status( int statindex )
 
     CHR_REF character;
     int manaregen, liferegen;
-    cap_t * pcap;
     chr_t * pchr;
-    SKIN_T  skinlevel;
 
     if ( statindex < 0 || ( size_t )statindex >= StatusList.count ) return;
     character = StatusList.lst[statindex].who;
 
     if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList_get_ptr( character );
-    skinlevel = pchr->skin;
-
-    pcap = chr_get_pcap( character );
-    if ( NULL == pcap ) return;
+    SKIN_T skinlevel = pchr->skin;
 
     // clean up the enchant list
     cleanup_character_enchants( pchr );
@@ -2627,7 +2607,7 @@ void show_full_status( int statindex )
     DisplayMsg_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
-    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - pcap->defense[skinlevel],
+    DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - chr_get_ppro(character)->getSkinInfo(skinlevel).defence,
                        pchr->damage_resistance[DAMAGE_SLASH]*100,
                        pchr->damage_resistance[DAMAGE_CRUSH]*100,
                        pchr->damage_resistance[DAMAGE_POKE ]*100 );
@@ -2717,23 +2697,22 @@ void tilt_characters_to_terrain()
 }
 
 //--------------------------------------------------------------------------------------------
-void import_dir_profiles_vfs( const char * dirname )
+void import_dir_profiles_vfs( const std::string &dirname )
 {
-    STRING newloadname;
-    STRING filename;
-    int cnt;
-
-    if ( NULL == PMod || INVALID_CSTR( dirname ) ) return;
+    if ( NULL == PMod || dirname.empty() ) return;
 
     if ( !PMod->importvalid || 0 == PMod->importamount ) return;
 
-    for ( cnt = 0; cnt < PMod->importamount*MAX_IMPORT_PER_PLAYER; cnt++ )
+    for (int cnt = 0; cnt < PMod->importamount*MAX_IMPORT_PER_PLAYER; cnt++ )
     {
-        // Make sure the object exists...
-        snprintf( filename, SDL_arraysize( filename ), "%s/temp%04d.obj", dirname, cnt );
-        snprintf( newloadname, SDL_arraysize( newloadname ), "%s/data.txt", filename );
+        std::ostringstream pathFormat;
+        pathFormat << dirname << "/temp" << std::setw(4) << std::setfill('0') << cnt << ".obj";
 
-        if ( vfs_exists( newloadname ) )
+        // Make sure the object exists...
+        const std::string importPath = pathFormat.str();
+        const std::string dataFilePath = importPath + "/data.txt";
+
+        if ( vfs_exists( dataFilePath.c_str() ) )
         {
             // new player found
             if ( 0 == ( cnt % MAX_IMPORT_PER_PLAYER ) ) import_data.player++;
@@ -2742,7 +2721,7 @@ void import_dir_profiles_vfs( const char * dirname )
             import_data.slot = cnt;
 
             // load it
-            import_data.slot_lst[cnt] = _profileSystem.loadOneProfile(filename);
+            import_data.slot_lst[cnt] = _profileSystem.loadOneProfile(importPath);
             import_data.max_slot      = std::max( import_data.max_slot, cnt );
         }
     }
@@ -2784,7 +2763,7 @@ void game_load_profile_ai()
         if(profile == nullptr) continue;
 
         // Load the AI script for this iobj
-        std::string filePath = profile->getName() + "/script.txt";
+        std::string filePath = profile->getFilePath() + "/script.txt";
 
         load_ai_script_vfs( ps, filePath.c_str(), profile.get(), &profile->getAIScript() );
     }
@@ -2852,14 +2831,12 @@ void game_load_all_profiles( const char *modname )
 bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
 {
     chr_t * pchr, *pparent;
-    cap_t *pcap;
 
     // trap bad pointers
     if ( NULL == pinfo ) return false;
 
     if ( !INGAME_CHR( ichr ) ) return false;
     pchr = ChrList_get_ptr( ichr );
-    pcap = chr_get_pcap( ichr );
 
     pparent = NULL;
     if ( INGAME_CHR( pinfo->parent ) ) pparent = ChrList_get_ptr( pinfo->parent );
@@ -2895,7 +2872,7 @@ bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
     {
         if ( pchr->experiencelevel < pinfo->level )
         {
-            pchr->experience = pcap->experience_forlevel[pinfo->level];
+            pchr->experience = chr_get_ppro(ichr)->getXPNeededForLevel(pinfo->level);
             do_level_up( ichr );
         }
     }
@@ -2971,6 +2948,14 @@ bool activate_spawn_file_load_object( spawn_file_info_t * psp_info )
         // we are relying on the virtual mount point "mp_objects", so use
         // the vfs/PHYSFS file naming conventions
         snprintf( filename, SDL_arraysize( filename ), "mp_objects/%s", psp_info->spawn_coment );
+
+        if(!vfs_exists(filename)) {
+            if(psp_info->slot > MAX_IMPORT_PER_PLAYER * MAX_PLAYER) {
+                log_warning("activate_spawn_file_load_object() - Object does not exist: %s\n", filename);
+            }
+
+            return false;
+        }
 
         psp_info->slot = _profileSystem.loadOneProfile( filename, psp_info->slot );
     }
@@ -3406,15 +3391,13 @@ int reaffirm_attached_particles( const CHR_REF character )
     int     amount, attempts;
     PRT_REF particle;
     chr_t * pchr;
-    cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return 0;
     pchr = ChrList_get_ptr( character );
 
-    pcap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pcap ) return 0;
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
-    amount = pcap->attachedprt_amount;
+    amount = profile->getAttachedParticleAmount();
     if ( 0 == amount ) return 0;
 
     number_attached = number_of_attached_particles( character );
@@ -3423,7 +3406,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pcap->attachedprt_lpip, character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached, INVALID_CHR_REF );
+        particle = spawnOneParticle( pchr->pos, pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
         if ( DEFINED_PRT( particle ) )
         {
             prt_t * pprt = PrtList_get_ptr( particle );
@@ -3639,7 +3622,7 @@ bool add_player( const CHR_REF character, const PLA_REF player, input_device_t *
     chr_t    * pchr = NULL;
 
     if ( !VALID_PLA_RANGE( player ) ) return false;
-    ppla = PlaStack_get_ptr( player );
+    ppla = PlaStack.get_ptr( player );
 
     // does the player already exist?
     if ( ppla->valid ) return false;
@@ -3691,19 +3674,14 @@ void let_all_characters_think()
 
     CHR_BEGIN_LOOP_ACTIVE( character, pchr )
     {
-        cap_t * pcap;
-
-        bool is_crushed, is_cleanedup, can_think;
-
-        pcap = chr_get_pcap( character );
-        if ( NULL == pcap ) continue;
+        bool is_crushed, is_cleanedup, can_think;        
 
         // check for actions that must always be handled
         is_cleanedup = HAS_SOME_BITS( pchr->ai.alert, ALERTIF_CLEANEDUP );
         is_crushed   = HAS_SOME_BITS( pchr->ai.alert, ALERTIF_CRUSHED );
 
         // let the script run sometimes even if the item is in your backpack
-        can_think = !INGAME_CHR( pchr->inwhich_inventory ) || pcap->isequipment;
+        can_think = !INGAME_CHR( pchr->inwhich_inventory ) || chr_get_ppro(character)->isEquipment();
 
         // only let dead/destroyed things think if they have beem crushed/cleanedup
         if (( pchr->alive && can_think ) || is_crushed || is_cleanedup )
@@ -3872,6 +3850,7 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
     {
         if ( '%' == *src )
         {
+            char cppToCBuffer[256];
             char * ebuffer, * ebuffer_end;
 
             // go to the escape character
@@ -3902,8 +3881,9 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != pchr )
                         {
-                            ebuffer     = chr_get_pcap( ichr )->classname;
-                            ebuffer_end = ebuffer + SDL_arraysize( chr_get_pcap( ichr )->classname );
+                            strncpy(cppToCBuffer, chr_get_ppro(ichr)->getClassName().c_str(), 256);
+                            ebuffer     = cppToCBuffer;
+                            ebuffer_end = ebuffer + chr_get_ppro(ichr)->getClassName().length();
                         }
                     }
                     break;
@@ -3930,8 +3910,9 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                     {
                         if ( NULL != ptarget )
                         {
-                            ebuffer     = chr_get_pcap( pai->target )->classname;
-                            ebuffer_end = ebuffer + SDL_arraysize( chr_get_pcap( pai->target )->classname );
+                            strncpy(cppToCBuffer, chr_get_ppro(pai->target)->getClassName().c_str(), 256);
+                            ebuffer     = cppToCBuffer;
+                            ebuffer_end = ebuffer + chr_get_ppro(pai->target)->getClassName().length();
                         }
                     }
                     break;
@@ -3939,12 +3920,19 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
                 case '0':
                 case '1':
                 case '2':
-                case '3': // Target's skin name
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9': // Target's skin name
                     {
                         if ( NULL != ptarget )
                         {
-                            ebuffer = chr_get_pcap( pai->target )->skin_info.name[( *src )-'0'];
-                            ebuffer_end = ebuffer + SDL_arraysize( chr_get_pcap( pai->target )->skin_info.name[( *src )-'0'] );
+                            strncpy(cppToCBuffer, chr_get_ppro(pai->target)->getSkinInfo((*src)-'0').name.c_str(), 256);
+                            ebuffer = cppToCBuffer;
+                            ebuffer_end = ebuffer + chr_get_ppro(pai->target)->getSkinInfo((*src)-'0').name.length();
                         }
                     }
                     break;
@@ -5177,18 +5165,16 @@ bool attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
 
-    cap_t *pchr_cap;
     fvec3_t platform_up = fvec3_t( 0.0f, 0.0f, 1.0f );
 
     // verify that we do not have two dud pointers
     if ( !ACTIVE_PCHR( pchr ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    pchr_cap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pchr_cap ) return false;
+    const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
     // check if they can be connected
-    if ( !pchr_cap->canuseplatforms || ( 0 != pchr->flyheight ) ) return false;
+    if ( !profile->canUsePlatforms() || ( 0 != pchr->flyheight ) ) return false;
     if ( !pplat->platform ) return false;
 
     // do the attachment
@@ -5240,16 +5226,12 @@ bool detach_character_from_platform( chr_t * pchr )
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
 
-    cap_t * pchr_cap;
     CHR_REF old_platform_ref;
     chr_t * old_platform_ptr;
     float   old_level, old_zlerp;
 
     // verify that we do not have two dud pointers
     if ( !ACTIVE_PCHR( pchr ) ) return false;
-
-    pchr_cap = _profileSystem.pro_get_pcap( pchr->profile_ref );
-    if ( NULL == pchr_cap ) return false;
 
     // save some values
     old_platform_ref = pchr->onwhichplatform_ref;
@@ -5464,7 +5446,7 @@ egolib_rv import_list_from_players( import_list_t * imp_lst )
     for ( player_idx = 0, player = 0; player_idx < MAX_PLAYER; player_idx++ )
     {
         if ( !VALID_PLA( player_idx ) ) continue;
-        player_ptr = PlaStack_get_ptr( player_idx );
+        player_ptr = PlaStack.get_ptr( player_idx );
 
         ichr = player_ptr->index;
         if ( !DEFINED_CHR( ichr ) ) continue;

@@ -17,30 +17,52 @@
 //*
 //********************************************************************************************
 
-/// @file    game/egoboo_typedef.h
-/// @details Base type definitions and config options.
+/// @file egolib/math/cube.h
+/// @brief Cubes.
 
 #pragma once
 
-#include "egolib/egolib.h"
+#include "egolib/vec.h"
 
-#include "game/egoboo_config.h"
+struct cube_t
+{
+	/**
+	 * @brief
+	 *	The center of the cube.
+	 * @todo
+	 *	Rename to @a center.
+	 */
+	fvec3_t pos;
+	/**
+	 * @brief
+	 *	The size of the cube.
+	 */
+	float size;
+	/**
+	 * @brief
+	 *	Assign this cube the values of another cube.
+	 * @param other
+	 *	the other cube
+	 * @post
+	 *	This cube was assigned the values of the other cube.
+	 */
+	void assign(const cube_t& other)
+	{
+		pos = other.pos;
+		size = other.size;
+	}
+	/**
+	 * @brief
+	 *	Assign this cube the values of another cube.
+	 * @param other
+	 *	the other cube
+	 * @return
+	 *	this cube
+	 * @post
+	 *	This cube was assigned the values of the other cube.
+	 */
+	cube_t& operator=(const cube_t& other)
+	{
 
-DECLARE_REF( CHR_REF );
-DECLARE_REF( TEAM_REF );
-DECLARE_REF( EVE_REF );
-DECLARE_REF( ENC_REF );
-DECLARE_REF( MAD_REF );
-DECLARE_REF( PLA_REF );
-DECLARE_REF( PIP_REF );
-DECLARE_REF( PRT_REF );
-DECLARE_REF( PASS_REF );
-DECLARE_REF( SHOP_REF );
-DECLARE_REF( PRO_REF );
-DECLARE_REF( TX_REF );
-DECLARE_REF( MNU_TX_REF );
-DECLARE_REF( BBOARD_REF );
-DECLARE_REF( LOOP_REF );
-DECLARE_REF( MOD_REF );
-DECLARE_REF( TREQ_REF );
-DECLARE_REF( MOD_REF_REF );
+	}
+};

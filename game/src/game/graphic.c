@@ -47,10 +47,12 @@
 #include "game/char.h"
 #include "game/particle.h"
 #include "game/enchant.h"
-#include "game/profiles/Profile.hpp"
 #include "game/mesh.h"
+
+#include "game/profiles/Profile.hpp"
 #include "game/module/PassageHandler.hpp" //only for getPassageCount()
 #include "game/graphics/CameraSystem.hpp"
+#include "game/profiles/ProfileSystem.hpp"
 
 #include "game/ChrList.h"
 #include "game/EncList.h"
@@ -369,8 +371,8 @@ static dynalist_t _dynalist = DYNALIST_INIT;
 static renderlist_mgr_t _renderlist_mgr_data = RENDERLIST_MGR_INIT_VALS;
 static dolist_mgr_t     _dolist_mgr_data = DOLIST_MGR_INIT_VALS;
 
-static BSP_leaf_pary_t  _renderlist_colst = DYNAMIC_ARY_INIT_VALS;
-static BSP_leaf_pary_t  _dolist_colst = DYNAMIC_ARY_INIT_VALS;
+static Ego::DynamicArray<BSP_leaf_t *> _renderlist_colst = DYNAMIC_ARY_INIT_VALS;
+static Ego::DynamicArray<BSP_leaf_t *> _dolist_colst = DYNAMIC_ARY_INIT_VALS;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -415,7 +417,16 @@ static void   render_shadow_sprite( float intensity, GLvertex v[] );
 static gfx_rv render_world_background( std::shared_ptr<Camera> pcam, const TX_REF texture );
 static gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture );
 
-static gfx_rv gfx_make_dolist( dolist_t * pdolist, std::shared_ptr<Camera> pcam );
+
+/**
+ * @brief
+ *	Find characters that need to be drawn and put them in the list.
+ * @param dolist
+ *	the list to add characters to
+ * @param camera
+ *	the camera
+ */
+static gfx_rv gfx_make_dolist(dolist_t *dolist, std::shared_ptr<Camera> camera);
 static gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam );
 static gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam );
 
@@ -432,7 +443,7 @@ static void  draw_hud();
 static void  draw_inventory();
 
 static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
-static bool gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct, const bool do_ends );
+
 
 static void gfx_reload_decimated_textures();
 
@@ -1223,7 +1234,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
         return gfx_error;
     }
 
-    mat_getCamForward(pcam->getView().v, vcam);
+    mat_getCamForward(pcam->getView(), vcam);
 
     // Figure the distance of each
     count = 0;
@@ -1241,11 +1252,11 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
 
             if ( do_reflect )
             {
-                mat_getTranslate(ChrList.lst[ichr].inst.ref.matrix.v, pos_tmp);
+                mat_getTranslate(ChrList.lst[ichr].inst.ref.matrix, pos_tmp);
             }
             else
             {
-                mat_getTranslate(ChrList.lst[ichr].inst.matrix.v, pos_tmp);
+                mat_getTranslate(ChrList.lst[ichr].inst.matrix, pos_tmp);
             }
 
             vtmp = fvec3_sub(pos_tmp, pcam->getPosition());
@@ -2136,13 +2147,13 @@ void draw_blip( float sizeFactor, Uint8 color, float x, float y, bool mini_map )
     {
         oglx_texture_t * ptex = TxList_get_valid_ptr(( TX_REF )TX_BLIP );
 
-        tx_rect.xmin = ( float )bliprect[color].left   / ( float )oglx_texture_getTextureWidth( ptex );
-        tx_rect.xmax = ( float )bliprect[color].right  / ( float )oglx_texture_getTextureWidth( ptex );
-        tx_rect.ymin = ( float )bliprect[color].top    / ( float )oglx_texture_getTextureHeight( ptex );
-        tx_rect.ymax = ( float )bliprect[color].bottom / ( float )oglx_texture_getTextureHeight( ptex );
+        tx_rect.xmin = ( float )bliprect[color]._left   / ( float )oglx_texture_getTextureWidth( ptex );
+        tx_rect.xmax = ( float )bliprect[color]._right  / ( float )oglx_texture_getTextureWidth( ptex );
+        tx_rect.ymin = ( float )bliprect[color]._top    / ( float )oglx_texture_getTextureHeight( ptex );
+        tx_rect.ymax = ( float )bliprect[color]._bottom / ( float )oglx_texture_getTextureHeight( ptex );
 
-        width  = sizeFactor * ( bliprect[color].right  - bliprect[color].left );
-        height = sizeFactor * ( bliprect[color].bottom - bliprect[color].top );
+        width  = sizeFactor * ( bliprect[color]._right  - bliprect[color]._left );
+        height = sizeFactor * ( bliprect[color]._bottom - bliprect[color]._top );
 
         sc_rect.xmin = loc_x - ( width / 2 );
         sc_rect.xmax = loc_x + ( width / 2 );
@@ -2555,9 +2566,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
     {
         if ( 0 != pitem->ammomax && pitem->ammoknown )
         {
-            cap_t * pitem_cap = chr_get_pcap( item );
-
-            if (( NULL != pitem_cap && !pitem_cap->isstackable ) || pitem->ammo > 1 )
+            if (( !chr_get_ppro(item)->isStackable() ) || pitem->ammo > 1 )
             {
                 // Show amount of ammo left
                 draw_string_raw( x, y - 8, "%2d", pitem->ammo );
@@ -2570,27 +2579,25 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
 float draw_character_xp_bar( const CHR_REF character, float x, float y )
 {
     chr_t * pchr;
-    cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return y;
     pchr = ChrList_get_ptr( character );
 
-    pcap = chr_get_pcap(character);
-    if ( NULL == pcap ) return y;
-
     //Draw the small XP progress bar
     if ( pchr->experiencelevel < MAXLEVEL - 1 )
     {
-        Uint8  curlevel    = pchr->experiencelevel + 1;
-        Uint32 xplastlevel = pcap->experience_forlevel[curlevel-1];
-        Uint32 xpneed      = pcap->experience_forlevel[curlevel];
+        std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile(pchr->profile_ref);
+
+        uint8_t  curlevel    = pchr->experiencelevel + 1;
+        uint32_t xplastlevel = profile->getXPNeededForLevel(curlevel-1);
+        uint32_t xpneed      = profile->getXPNeededForLevel(curlevel);
         
         while (pchr->experience < xplastlevel && curlevel > 1) {
             curlevel--;
-            xplastlevel = pcap->experience_forlevel[curlevel-1];
+            xplastlevel = profile->getXPNeededForLevel(curlevel-1);
         }
 
-		float fraction = ((float)(pchr->experience - xplastlevel)) / (float)std::max<unsigned int>( xpneed - xplastlevel, 1 );
+		float fraction = ((float)(pchr->experience - xplastlevel)) / (float)std::max<uint32_t>( xpneed - xplastlevel, 1 );
         int   numticks = fraction * NUMTICK;
 
         y = draw_one_xp_bar( x, y, CLIP( numticks, 0, NUMTICK ) );
@@ -2611,13 +2618,9 @@ float draw_status( const CHR_REF character, float x, float y )
     int mana_pips, mana_pips_max;
 
     chr_t * pchr;
-    cap_t * pcap;
 
     if ( !INGAME_CHR( character ) ) return y;
     pchr = ChrList_get_ptr( character );
-
-    pcap = chr_get_pcap( character );
-    if ( NULL == pcap ) return y;
 
     life_pips      = SFP8_TO_SINT( pchr->life );
     life_pips_max  = SFP8_TO_SINT( pchr->life_max );
@@ -2724,21 +2727,19 @@ void draw_map()
             for ( ichr = 0; ichr < MAX_CHR && blip_count < MAXBLIP; ichr++ )
             {
                 chr_t * pchr;
-                cap_t * pcap;
 
                 if ( !INGAME_CHR( ichr ) ) continue;
                 pchr = ChrList_get_ptr( ichr );
 
-                pcap = chr_get_pcap( ichr );
-                if ( NULL == pcap ) continue;
+                const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
 
                 // Show only teams that will attack the player
                 if ( team_hates_team( pchr->team, local_stats.sense_enemies_team ) )
                 {
                     // Only if they match the required IDSZ ([NONE] always works)
                     if ( local_stats.sense_enemies_idsz == IDSZ_NONE ||
-                         local_stats.sense_enemies_idsz == pcap->idsz[IDSZ_PARENT] ||
-                         local_stats.sense_enemies_idsz == pcap->idsz[IDSZ_TYPE  ] )
+                         local_stats.sense_enemies_idsz == profile->getIDSZ(IDSZ_PARENT) ||
+                         local_stats.sense_enemies_idsz == profile->getIDSZ(IDSZ_TYPE  ) )
                     {
                         // Inside the map?
                         if ( pchr->pos.x < PMesh->gmem.edge_x && pchr->pos.y < PMesh->gmem.edge_y )
@@ -3098,7 +3099,7 @@ void draw_inventory()
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         //valid player?
-        ppla = PlaStack_get_ptr( ipla );
+        ppla = PlaStack.get_ptr( ipla );
         if ( !ppla->valid ) continue;
 
         //draw inventory?
@@ -3134,7 +3135,7 @@ void draw_inventory()
 
         //Figure out who this is
         ipla = draw_list[cnt];
-        ppla = PlaStack_get_ptr( ipla );
+        ppla = PlaStack.get_ptr( ipla );
 
         ichr = ppla->index;
         pchr = ChrList_get_ptr( ichr );
@@ -3174,7 +3175,7 @@ void draw_inventory()
             CHR_REF item = pchr->inventory[i];
 
             //calculate the sum of the weight of all items in inventory
-            if ( INGAME_CHR( item ) ) weight_sum += chr_get_pcap( item )->weight;
+            if ( INGAME_CHR( item ) ) weight_sum += chr_get_ppro(item)->getWeight();
 
             //draw icon
             draw_one_character_icon( item, x, y, true, ( item_count == ppla->inventory_slot ) ? COLOR_WHITE : NOSPARKLE );
@@ -4673,7 +4674,7 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
     vforw_wind.z = 0;
     fvec3_self_normalize(vforw_wind);
 
-    mat_getCamForward(pcam->getView().v, vforw_cam);
+    mat_getCamForward(pcam->getView(), vforw_cam);
     fvec3_self_normalize(vforw_cam);
 
     // make the texture begin to disappear if you are not looking straight down
@@ -5232,15 +5233,15 @@ void gfx_init_bar_data()
     // Initialize the life and mana bars
     for ( cnt = 0; cnt < NUMBAR; cnt++ )
     {
-        tabrect[cnt].left = 0;
-        tabrect[cnt].right = TABX;
-        tabrect[cnt].top = cnt * BARY;
-        tabrect[cnt].bottom = ( cnt + 1 ) * BARY;
+        tabrect[cnt]._left = 0;
+        tabrect[cnt]._right = TABX;
+        tabrect[cnt]._top = cnt * BARY;
+        tabrect[cnt]._bottom = ( cnt + 1 ) * BARY;
 
-        barrect[cnt].left = TABX;
-        barrect[cnt].right = BARX;  // This is reset whenever a bar is drawn
-        barrect[cnt].top = tabrect[cnt].top;
-        barrect[cnt].bottom = tabrect[cnt].bottom;
+        barrect[cnt]._left = TABX;
+        barrect[cnt]._right = BARX;  // This is reset whenever a bar is drawn
+        barrect[cnt]._top = tabrect[cnt]._top;
+        barrect[cnt]._bottom = tabrect[cnt]._bottom;
 
     }
 }
@@ -5253,10 +5254,10 @@ void gfx_init_blip_data()
     // Set up the rectangles
     for ( cnt = 0; cnt < COLOR_MAX; cnt++ )
     {
-        bliprect[cnt].left   = cnt * BLIPSIZE;
-        bliprect[cnt].right  = cnt * BLIPSIZE + BLIPSIZE;
-        bliprect[cnt].top    = 0;
-        bliprect[cnt].bottom = BLIPSIZE;
+        bliprect[cnt]._left   = cnt * BLIPSIZE;
+        bliprect[cnt]._right  = cnt * BLIPSIZE + BLIPSIZE;
+        bliprect[cnt]._top    = 0;
+        bliprect[cnt]._bottom = BLIPSIZE;
     }
 
     youarehereon = false;
@@ -5270,10 +5271,10 @@ void gfx_init_map_data()
     /// @details This function releases all the map images
 
     // Set up the rectangles
-    maprect.left   = 0;
-    maprect.right  = MAPSIZE;
-    maprect.top    = 0;
-    maprect.bottom = MAPSIZE;
+    maprect._left   = 0;
+    maprect._right  = MAPSIZE;
+    maprect._top    = 0;
+    maprect._bottom = MAPSIZE;
 
     mapvalid = false;
     mapon    = false;
@@ -6382,7 +6383,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam 
     local_allocation = false;
     if ( 0 == _renderlist_colst.capacity())
     {
-        // allocate a BSP_leaf_pary to return the detected nodes
+        // allocate a BSP leaf pointer array to return the detected nodes
         local_allocation = true;
         if ( NULL == _renderlist_colst.ctor(MAXMESHRENDER))
         {
@@ -6419,9 +6420,6 @@ gfx_make_renderlist_exit:
 //--------------------------------------------------------------------------------------------
 gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
 {
-    /// @author ZZ
-    /// @details This function finds the characters that need to be drawn and puts them in the list
-
     gfx_rv retval;
     bool local_allocation;
 
@@ -6447,7 +6445,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
     local_allocation = false;
     if ( 0 == _dolist_colst.capacity() )
     {
-        // allocate a BSP_leaf_pary to return the detected nodes
+        // allocate a BSP leaf pointer array to return the detected nodes
         local_allocation = true;
         if ( NULL == _dolist_colst.ctor(DOLIST_SIZE))
         {
@@ -6544,26 +6542,6 @@ void gfx_reset_timers()
 {
     egolib_throttle_reset( &gfx_throttle );
     gfx_clear_loops = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-bool gfx_frustum_intersects_oct( const egolib_frustum_t * pf, const oct_bb_t * poct, const bool do_ends )
-{
-    bool retval = false;
-    aabb_t aabb;
-
-    if ( NULL == pf || NULL == poct ) return false;
-
-    retval = false;
-    if ( aabb_from_oct_bb( &aabb, poct ) )
-    {
-        // ignore the ends of the frustum for a little bit of a speed-up
-        geometry_rv frustum_rv = egolib_frustum_intersects_aabb( pf->data, aabb.mins, aabb.maxs, do_ends );
-
-        retval = ( frustum_rv > geometry_outside );
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
