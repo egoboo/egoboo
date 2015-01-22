@@ -350,7 +350,7 @@ struct fmat_4x4_t
 
 	/**
 	 * @brief
-	 *	Assign this matrix the values of a perspective projection matrix.
+	 *	Assign this matrix the values of a perspective projection (~ camera space -> screen space) matrix.
 	 * @param fovy
 	 *	the field of view angle, in degrees, in the y direction
 	 * @param aspect
