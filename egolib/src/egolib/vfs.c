@@ -760,9 +760,12 @@ bool _vfs_ensure_destination_file(const char * filename)
     ///     the write directory, but do not overwrite any existing file
 
     VFS_PATH local_filename = EMPTY_CSTR;
-    const char *sys_src_name, * sys_dst_name;
-	bool read_exists, write_exists;
-
+#if 0
+	const char *sys_src_name;
+	const char *sys_dst_name;
+	bool read_exists;
+	bool write_exists;
+#endif
     BAIL_IF_NOT_INIT();
 
     if ( INVALID_CSTR( filename ) ) return false;

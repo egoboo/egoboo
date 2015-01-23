@@ -1532,11 +1532,11 @@ int doChooseModule( float deltaTime )
 //--------------------------------------------------------------------------------------------
 bool doChooseCharacter_load_inventory(std::shared_ptr<LoadPlayerElement> loadPlayer, std::vector<std::shared_ptr<ObjectProfile>> &items)
 {
-    int    i;
-    STRING  szFilename;
-
-    PRO_REF   pro_ref;
-
+    int i;
+#if 0
+    STRING szFilename;
+    PRO_REF pro_ref;
+#endif
     if (!loadPlayer) {
         return false;
     }
@@ -1566,7 +1566,9 @@ bool doChooseCharacter_load_inventory(std::shared_ptr<LoadPlayerElement> loadPla
 //--------------------------------------------------------------------------------------------
 bool doChooseCharacter_show_stats( std::shared_ptr<LoadPlayerElement> loadPlayer, bool loadItems, const int x, const int y, const int width, const int height )
 {
+#if 0
     int   i;
+#endif
     float x1, y1;
 
     static std::vector<std::shared_ptr<ObjectProfile>> objects;
@@ -1727,7 +1729,10 @@ int doChoosePlayer( float deltaTime )
     static int sparkle_counter = 0;
 
     int result = 0;
-    int i, x, y;
+#if 0
+	int i;
+#endif
+	int x, y;
 
     const int text_hgt = 20;
     const int icon_hgt = 32;
@@ -5278,7 +5283,10 @@ void loadAllImportPlayers(const std::string &saveGameDirectory)
 //--------------------------------------------------------------------------------------------
 egolib_rv mnu_set_local_import_list( import_list_t * imp_lst )
 {
-    int                import_idx, i;
+    int import_idx;
+#if 0
+	int i;
+#endif
     import_element_t * import_ptr = NULL;
 
     if ( NULL == imp_lst ) return rv_error;

@@ -507,9 +507,9 @@ int fnt_vprintf_OGL( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloat * t
     if ( vsnprintf_rv < 0 ) return -1;
 
     rv = fnt_print_raw_OGL( font, fnt_color, tex_id, tex_coords, szText, ppTmpSurface );
-
+#if 0
 fnt_vprintf_OGL_exit:
-
+#endif
     if ( !gl_id_external && INVALID_GL_ID != tex_id )
     {
         glDeleteTextures( 1, &tex_id );
@@ -662,9 +662,9 @@ void fnt_drawText_OGL_va( Font *font, SDL_Color fnt_color, GLuint tex_id, GLfloa
         }
         GL_DEBUG_END();
     }
-
+#if 0
 fnt_drawText_OGL_va_exit:
-
+#endif
     if ( !gl_id_external && INVALID_GL_ID != tex_id )
     {
         glDeleteTextures( 1, &tex_id );
@@ -796,9 +796,9 @@ void fnt_streamText_OGL( Font * font, SDL_Color fnt_color, GLuint tex_id, GLfloa
 
         y += spacing;
     }
-
+#if 0
 fnt_streamText_OGL_exit:
-
+#endif
     EGOBOO_DELETE_ARY( buffer );
 
     if ( !gl_id_external && INVALID_GL_ID != tex_id )

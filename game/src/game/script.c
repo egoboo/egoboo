@@ -1660,9 +1660,9 @@ void issue_special_order( Uint32 value, IDSZ idsz )
 {
     /// @author ZZ
     /// @details This function issues an order to all characters with the a matching special IDSZ
-
-    int     counter;
-
+#if 0
+    int counter;
+#endif
     for (CHR_REF cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
     {
         if ( !INGAME_CHR( cnt ) ) continue;

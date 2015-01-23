@@ -4693,8 +4693,9 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 {
     /// @author ZZ
     /// @details This function polymorphs a character, changing stats, dropping weapons
-
+#if 0
     int tnc;
+#endif
     CHR_REF item_ref, item;
     chr_t * pchr;
 
@@ -6037,8 +6038,9 @@ bool chr_do_latch_button( chr_t * pchr )
 
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) && 0 == pchr->jump_timer )
     {
+#if 0
         int ijump;
-
+#endif
         //Jump from our mount
         if ( INGAME_CHR( pchr->attachedto ) )
         {

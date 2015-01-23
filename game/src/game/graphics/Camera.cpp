@@ -173,10 +173,8 @@ void Camera::resetView()
         
         mat_ScaleXYZ(tmp1.v, -1, 1, 1);
         mat_glRotate(tmp2.v, tmp1.v, roll_deg, 0, 0, 1);
-        mat_gluLookAt(_mView.v, tmp2.v,
-            _pos.x, _pos.y, _pos.z,
-            _center.x, _center.y, _center.z,
-            0.0f, 0.0f, 1.0f);
+        mat_gluLookAt(_mView.v, tmp2.v, _pos.x, _pos.y, _pos.z,
+                      _center.x, _center.y, _center.z, 0.0f, 0.0f, 1.0f);
     }
 
     // the view matrix was updated, so update the frustum
