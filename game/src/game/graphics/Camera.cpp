@@ -216,13 +216,13 @@ void Camera::makeMatrix()
 
     //--- pre-compute some camera vectors
     mat_getCamForward(_mView, _vfw);
-    fvec3_self_normalize(_vfw);
+	_vfw.normalize();
 
     mat_getCamUp(_mView, _vup);
-    fvec3_self_normalize(_vup);
+	_vup.normalize();
 
     mat_getCamRight(_mView, _vrt);
-    fvec3_self_normalize(_vrt);
+	_vrt.normalize();
 }
 
 void Camera::updateZoom()
@@ -275,14 +275,14 @@ void Camera::updateCenter()
 
         // determine the size of the dead zone
         track_fov = DEFAULT_FOV * 0.25f;
-        track_dist = fvec3_length( track_vec );
+        track_dist = track_vec.length();
         track_size = track_dist * TAN( track_fov );
         track_size_x = track_size;
         track_size_y = track_size;  /// @todo adjust this based on the camera viewing angle
 
         // calculate the difference between the _center of the tracked characters
         // and the _center of the camera look_at
-        fvec2_sub( diff.v, _trackPos.v, _center.v );
+		diff = fvec2_t(_trackPos[kX],_trackPos[kY]) - fvec2_t(_center[kX],_center[kY]);
 
         // get 2d versions of the camera's right and up vectors
         fvec2_base_copy( _vrt.v, _vrt.v );
@@ -396,7 +396,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 
 	        sum_wt    = 0.0f;
 	        sum_level = 0.0f;
-	        fvec3_self_clear( sum_pos.v );
+			sum_pos = fvec3_t::zero;
 
 	        for(CHR_REF ichr : _trackList)
 	        {
@@ -469,7 +469,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 
 	            sum_wt    = 0.0f;
 	            sum_level = 0.0f;
-	            fvec3_self_clear( sum_pos.v );
+				sum_pos = fvec3_t::zero;
 
 	            for ( int cnt = 0; cnt < local_chr_count; cnt++ )
 	            {
@@ -481,7 +481,7 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 
 	                // weight it by the character's velocity^2, so that
 	                // inactive characters don't control the camera
-	                weight1 = fvec3_dot_product( pchr->vel, pchr->vel );
+	                weight1 = pchr->vel.dot(pchr->vel);
 
 	                // make another weight based on button-pushing
 	                weight2 = ( 0 == pchr->latch.b ) ? 0 : 127;
@@ -736,8 +736,8 @@ void Camera::reset( const ego_mesh_t * pmesh )
     _center.y     = pmesh->gmem.edge_y * 0.5f;
     _center.z     = 0.0f;
 
-    fvec3_base_copy( _trackPos.v, _center.v );
-    fvec3_base_copy( _pos.v,       _center.v );
+	_trackPos = _center;
+	_pos = _center;
 
     _pos.x += _zoom * SIN( _turnZRad );
     _pos.y += _zoom * COS( _turnZRad );

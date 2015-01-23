@@ -292,7 +292,7 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     pd[cnt].pos.y = -pov->oct.maxs[OCT_X] + pov->oct.maxs[OCT_XY];
 
     // which points are outside both volumes
-    fvec3_self_clear( center.v );
+	center = fvec3_t::zero;
     count = 0;
     for ( cnt = 0; cnt < 16; cnt++ )
     {
@@ -346,7 +346,7 @@ bool OVolume_refine( OVolume_t * pov, fvec3_t * pcenter, float * pvolume )
     qsort(( void * )pd, count, sizeof( cv_point_data_t ), cv_point_data_cmp );
 
     // now we can use geometry to find the area of the planar collision area
-    fvec3_self_clear( centroid.v );
+	centroid = fvec3_t::zero;
     {
         fvec3_t diff1, diff2;
         oct_vec_t opd;

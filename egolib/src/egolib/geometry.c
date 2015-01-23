@@ -44,7 +44,7 @@ bool plane_base_normalize( plane_base_t * plane )
 
     if ( NULL == plane ) return false;
 
-    magnitude2 = fvec3_length_2(plane_get_normal(*plane));
+    magnitude2 = plane_get_normal(*plane).length();
 
     if ( 0.0f == magnitude2 )
     {
@@ -71,7 +71,8 @@ float plane_point_distance( const plane_base_t plane, const point_base_t pos )
 
     if ( NULL == plane || NULL == pos ) return 0.0f;
 
-    return fvec3_dot_product( plane, pos ) + plane[kW];
+	/// @todo Use plane_t::get_normal(). Use point3_t::tovec3().
+    return fvec3_t(plane[0],plane[1],plane[2]).dot(fvec3_t(pos[0],pos[1],pos[2])) + plane[kW];
 }
 
 //--------------------------------------------------------------------------------------------
@@ -112,39 +113,33 @@ geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_base_t co
 // aabb functions
 //--------------------------------------------------------------------------------------------
 
-geometry_rv aabb_intersects_aabb( const aabb_t * lhs, const aabb_t * rhs )
+geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs)
 {
-    const int dimensions = 3;
+    const size_t dimensions = 3;
 
-    int         cnt;
-    bool      not_inside = false;
-    geometry_rv retval     = geometry_error;
+    // Assume RHS is inside LHS.
+	geometry_rv retval = geometry_inside;
+    bool not_inside = false;
 
-    if ( NULL == lhs || NULL == rhs ) return geometry_error;
-
-    // assume rhs is inside lhs
-    retval     = geometry_inside;
-    not_inside = false;
-
-    // scan all the coordinates
-    for ( cnt = 0; cnt < dimensions; cnt++ )
+    // Scan all the coordinates.
+    for (size_t cnt = 0; cnt < dimensions; ++cnt)
     {
-        if ( rhs->mins[cnt] > lhs->maxs[cnt] )
+        if (rhs.mins[cnt] > lhs.maxs[cnt])
         {
             retval = geometry_outside;
             not_inside = true;
             break;
         }
-        else if ( rhs->maxs[cnt] < lhs->mins[cnt] )
+        else if (rhs.maxs[cnt] < lhs.mins[cnt])
         {
             retval = geometry_outside;
             not_inside = true;
             break;
         }
-        else if ( !not_inside )
+        else if (!not_inside)
         {
-            if ( rhs->maxs[cnt] > lhs->maxs[cnt] ||
-                 rhs->mins[cnt] < lhs->maxs[cnt] )
+            if (rhs.maxs[cnt] > lhs.maxs[cnt] ||
+                rhs.mins[cnt] < lhs.maxs[cnt])
             {
                 // one of the sides is hanging over the edge
                 retval = geometry_intersect;
@@ -263,7 +258,7 @@ bool two_plane_intersection(fvec3_t& dst_pos, fvec3_t& dst_dir, const plane_base
     if (dst_dir.normalize() < 0.0f)
     {
         retval = false;
-        fvec3_self_clear( dst_pos );
+		dst_pos = fvec3_t::zero;
     }
     else
     {
@@ -323,17 +318,17 @@ bool three_plane_intersection( fvec3_t& dst_pos, const plane_base_t p0, const pl
 // sphere functions
 //--------------------------------------------------------------------------------------------
 
-geometry_rv sphere_intersects_sphere( const sphere_t * lhs, const sphere_t * rhs )
+geometry_rv sphere_intersects_sphere(const sphere_t *lhs, const sphere_t *rhs)
 {
     geometry_rv retval = geometry_error;
     fvec3_t vdiff;
     float   dist2;
 
     // get the separating axis
-    vdiff = fvec3_sub(lhs->origin, rhs->origin);
+    vdiff = lhs->origin - rhs->origin;
 
     // get the distance squared
-    dist2 = fvec3_length_2( vdiff );
+    dist2 = vdiff.length_2();
 
     if ( rhs->radius < lhs->radius )
     {
@@ -376,10 +371,10 @@ geometry_rv cone_intersects_point(const cone_t *K, const fvec3_t& P)
     if (NULL == K) return geometry_error;
 
     // move the cone origin to the origin of coordinates
-    fvec3_t dist_vec = fvec3_sub(P, K->origin);
+    fvec3_t dist_vec = P - K->origin;
 
     // project the point's position onto the cone's axis
-    float para_dist = fvec3_dot_product(K->axis, dist_vec);
+    float para_dist = K->axis.dot(dist_vec);
 
     if ( para_dist < 0.0f )
     {
@@ -390,7 +385,7 @@ geometry_rv cone_intersects_point(const cone_t *K, const fvec3_t& P)
         float dist_2, perp_dist_2, para_dist_2;
 
         // the square of the total distance
-        dist_2 = fvec3_length_2( dist_vec );
+        dist_2 = dist_vec.length_2();
 
         // the square of the parallel distance
         para_dist_2 = para_dist * para_dist;
@@ -534,11 +529,11 @@ geometry_rv cone_intersects_sphere( const cone_t * K, const sphere_t * S )
     // test for intersection with the back cone.
     if ( !done )
     {
-        cone_t  K_new;
+        cone_t K_new;
 
         // Shift the origin by the offset in the negative sense.
-        memcpy( &K_new, K, sizeof( K_new ) );
-        K_new.origin = fvec3_sub(K->origin, offset_vec);
+		K_new = *K;
+        K_new.origin = K->origin - offset_vec;
 
         // If the center of the sphere is inside this cone, it must be intersecting the original cone.
         // Since it failed test with the foreward cone, it must be merely intersecting the cone.

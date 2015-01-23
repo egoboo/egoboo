@@ -455,7 +455,7 @@ float *mat_RotateY(fmat_4x4_base_t DST, const float rads);
 float *mat_RotateZ(fmat_4x4_base_t DST, const float rads);
 float *mat_ScaleXYZ(fmat_4x4_base_t DST, const float sizex, const float sizey, const float sizez);
 float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_base_t wid, const fvec4_base_t frw, const fvec4_base_t upx, const float scale);
-float *mat_View(fmat_4x4_base_t DST, const fvec3_base_t   from, const fvec3_base_t   at, const fvec3_base_t   world_up, const float roll);
+float *mat_View(fmat_4x4_base_t DST, const fvec3_t& from, const fvec3_t& at, const fvec3_t& world_up, const float roll);
 float *mat_Projection(fmat_4x4_base_t DST, const float near_plane, const float far_plane, const float fov, const float ar);
 float *mat_Projection_orig(fmat_4x4_base_t DST, const float near_plane, const float far_plane, const float fov);
 void   mat_TransformVertices(const fmat_4x4_base_t Matrix, const fvec4_t pSourceV[], fvec4_t pDestV[], const Uint32 NumVertor);

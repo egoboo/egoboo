@@ -100,6 +100,23 @@ namespace Ego {
 				result.sub(other);
 				return result;
 			}
+			void mul(const Type& scalar) {
+				for (size_t i = 0; i < Dimensionality; ++i)
+				{
+					components[i] *= scalar;
+				}
+			}
+			Vector<Type, Dimensionality>& operator*=(const Type& scalar)
+			{
+				mul(scalar);
+				return *this;
+			}
+			Vector<Type, Dimensionality> operator*(const Type& scalar) const
+			{
+				Vector<Type, Dimensionality> result(*this);
+				result.mul(scalar);
+				return result;
+			}
 			Type& operator()(size_t index)
 			{
 				return components[index];

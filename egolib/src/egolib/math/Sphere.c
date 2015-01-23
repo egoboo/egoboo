@@ -24,7 +24,7 @@
 
 bool sphere_self_clear(sphere_t& self)
 {
-	fvec3_self_clear(self.origin.v);
+	self.origin = fvec3_t::zero;
 	self.radius = 0.0f;
 	return true;
 }

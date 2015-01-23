@@ -257,9 +257,9 @@ bool lighting_project_cache( lighting_cache_t * dst, const lighting_cache_t * sr
     mat_getChrRight(mat, right);  // along body-fixed +x-axis
     mat_getChrUp(mat, up);        // along body-fixed +z axis
 
-    fvec3_self_normalize( fwd );
-    fvec3_self_normalize( right );
-    fvec3_self_normalize( up );
+    fwd.normalize();
+    right.normalize();
+    up.normalize();
 
     // split the lighting cache up
     lighting_sum_project( dst, src, right, 0 );
@@ -590,7 +590,7 @@ bool sum_dyna_lighting( const dynalight_data_t * pdyna, lighting_vector_t lighti
     if ( 0.0f == level ) return true;
 
     // allow negative lighting, or blind spots will not work properly
-	float rad_sqr = fvec3_length_2(nrm);
+	float rad_sqr = nrm.length_2();
 
     // make a local copy of the normal so we do not normalize the data in the calling function
 	fvec3_t local_nrm = nrm;
@@ -617,9 +617,9 @@ dynalight_data_t * dynalight_data__init( dynalight_data_t * ptr )
     if ( NULL == ptr ) return ptr;
 
     ptr->distance = 1000.0f;
-    ptr->falloff  = 255.0f;
-    ptr->level    = 0.0f;
-    fvec3_self_clear( ptr->pos.v );
+    ptr->falloff = 255.0f;
+    ptr->level = 0.0f;
+	ptr->pos = fvec3_t::zero;
 
     return ptr;
 }

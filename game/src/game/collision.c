@@ -292,7 +292,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
     {
         AA = REF_TO_INT( coll->chra );
     }
-    else if ( VALID_PRT_RANGE( coll->prta ) )
+    else if ( _VALID_PRT_RANGE( coll->prta ) )
     {
         AA = REF_TO_INT( coll->prta );
     }
@@ -302,7 +302,7 @@ Uint8 CoNode_generate_hash( CoNode_t * coll )
     {
         BB = REF_TO_INT( coll->chrb );
     }
-    else if ( VALID_PRT_RANGE( coll->prtb ) )
+    else if ( _VALID_PRT_RANGE( coll->prtb ) )
     {
         BB = REF_TO_INT( coll->prtb );
     }
@@ -581,7 +581,7 @@ bool get_prt_mass( prt_t * pprt, chr_t * pchr, float * wt )
             vdiff = pprt->vel - pchr->vel;
 
             // the damage is basically like the kinetic energy of the particle
-            prt_vel2 = fvec3_dot_product( vdiff, vdiff );
+            prt_vel2 = vdiff.dot(vdiff);
 
             // It can happen that a damage particle can hit something
             // at almost zero velocity, which would make for a huge "effective mass".
@@ -689,7 +689,7 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
     pchr_a = ChrList_get_ptr( ichr_a );
 
     // Ignore invalid characters
-    if ( !INGAME_PRT( iprt_b ) ) return false;
+    if ( !_INGAME_PRT( iprt_b ) ) return false;
     pprt_b = PrtList_get_ptr( iprt_b );
 
     // reject characters that are hidden
@@ -1024,7 +1024,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
         if ( NULL == pleaf ) continue;
 
         // if the particle is in the BSP, then it has already had it's chance to collide
-        if ( pleaf->inserted ) continue;
+        if (pleaf->isInList()) continue;
 
         // does the particle potentially reaffirm a character?
         can_reaffirm = TO_C_BOOL(( bdl.prt_ptr->damagetype < DAMAGE_COUNT ) && ( 0 != reaffirmation_list[bdl.prt_ptr->damagetype] ) );
@@ -1386,7 +1386,7 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     pchr_a = ChrList_get_ptr( ichr_a );
 
     // make sure that B is valid
-    if ( !INGAME_PRT( iprt_b ) ) return false;
+    if ( !_INGAME_PRT( iprt_b ) ) return false;
     pprt_b = PrtList_get_ptr( iprt_b );
 
     // if you are mounted, only your mount is affected by platforms
@@ -1580,7 +1580,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
         }
         else if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
         {
-            if ( INGAME_CHR( d->chra ) && INGAME_PRT( d->prtb ) )
+            if ( INGAME_CHR( d->chra ) && _INGAME_PRT( d->prtb ) )
             {
                 if ( PrtList.lst[d->prtb].targetplatform_ref == d->chra )
                 {
@@ -1590,7 +1590,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
         }
         else if ( INVALID_CHR_REF != d->chrb && INVALID_PRT_REF != d->prta )
         {
-            if ( INGAME_CHR( d->chrb ) && INGAME_PRT( d->prta ) )
+            if ( INGAME_CHR( d->chrb ) && _INGAME_PRT( d->prta ) )
             {
                 if ( PrtList.lst[d->prta].targetplatform_ref == d->chrb )
                 {
@@ -1953,7 +1953,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     pchr_b = ChrList_get_ptr( ichr_b );
 
     // find the difference in velocities
-    vdiff = fvec3_sub(pchr_b->vel, pchr_a->vel);
+    vdiff = pchr_b->vel - pchr_a->vel;
 
     // can either of these objects mount the other?
     mount_a = chr_can_mount( ichr_b, ichr_a );
@@ -1989,7 +1989,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
             pdiff.y = saddle_pos[OCT_Y] - apos[OCT_Y];
             pdiff.z = saddle_pos[OCT_Z] - apos[OCT_Z];
 
-            if ( fvec3_dot_product( pdiff, vdiff ) >= 0.0f )
+            if (pdiff.dot(vdiff) >= 0.0f)
             {
                 // the rider is in a mountable position, don't do any more collisions
                 // even if the object is doesn't actually mount
@@ -2026,7 +2026,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
             pdiff.y = bpos[OCT_Y] - saddle_pos[OCT_Y];
             pdiff.z = bpos[OCT_Z] - saddle_pos[OCT_Z];
 
-            if ( fvec3_dot_product( pdiff, vdiff ) >= 0.0f )
+            if (pdiff.dot(vdiff ) >= 0.0f)
             {
                 // the rider is in a mountable position, don't do any more collisions
                 // even if the object is doesn't actually mount
@@ -2123,7 +2123,7 @@ float estimate_chr_prt_normal( const chr_t * pchr, const prt_t * pprt, fvec3_t& 
     vdiff[kX] = pchr->vel.x - pprt->vel.x;
     vdiff[kY] = pchr->vel.y - pprt->vel.y;
     vdiff[kZ] = pchr->vel.z - pprt->vel.z;
-    dot       = fvec3_dot_product( vdiff, nrm );
+    dot       = vdiff.dot(nrm);
 
     // we really never should have the condition that dot > 0, unless the particle is "fast"
     if ( dot >= 0.0f )
@@ -2160,13 +2160,13 @@ float estimate_chr_prt_normal( const chr_t * pchr, const prt_t * pprt, fvec3_t& 
     dot = 0.0f;
 
     // does the normal exist?
-    if ( ABS( nrm[kX] ) + ABS( nrm[kY] ) + ABS( nrm[kZ] ) > 0.0f )
+    if (nrm.length_abs() > 0.0f )
     {
         // Make the normal a unit normal
-        fvec3_self_normalize( nrm );
+		nrm.normalize();
 
         // determine the actual dot product
-        dot = fvec3_dot_product( vdiff, nrm );
+        dot = vdiff.dot(nrm);
     }
 
     return dot;
@@ -2395,7 +2395,7 @@ bool do_chr_chr_collision( CoNode_t * d )
         if ( depth_min <= 0.0f || collision )
         {
             need_displacement = false;
-            fvec3_self_clear( pdiff_a.v );
+			pdiff_a = fvec3_t::zero;
         }
         else
         {
@@ -2410,7 +2410,7 @@ bool do_chr_chr_collision( CoNode_t * d )
         vdiff_a = pchr_b->vel - pchr_a->vel;
 
         need_velocity = false;
-        if (fvec3_length_abs(vdiff_a) > 1e-6)
+        if (vdiff_a.length_abs() > 1e-6)
         {
             need_velocity = TO_C_BOOL(( recoil_a > 0.0f ) || ( recoil_b > 0.0f ) );
         }
@@ -2432,7 +2432,7 @@ bool do_chr_chr_collision( CoNode_t * d )
                 float cr = pchr_a->phys.dampen * pchr_b->phys.dampen;
 
                 // decompose this relative to the collision normal
-                fvec3_decompose( vdiff_a.v, nrm.v, vdiff_perp_a.v, vdiff_para_a.v );
+                fvec3_decompose(vdiff_a, nrm, vdiff_perp_a, vdiff_para_a);
 
                 if (recoil_a > 0.0f)
                 {
@@ -2466,7 +2466,7 @@ bool do_chr_chr_collision( CoNode_t * d )
                 float     vdot;
 
                 // are the objects moving towards each other, or appart?
-                vdot = fvec3_dot_product( vdiff_a, nrm );
+                vdot = vdiff_a.dot(nrm);
 
                 if ( vdot < 0.0f )
                 {
@@ -2484,8 +2484,8 @@ bool do_chr_chr_collision( CoNode_t * d )
                 }
 
                 // you could "bump" something if you changed your velocity, even if you were still touching
-                bump = TO_C_BOOL(( fvec3_dot_product( pchr_a->vel, nrm ) * fvec3_dot_product( pchr_a->vel_old, nrm ) < 0 ) ||
-                                 ( fvec3_dot_product( pchr_b->vel, nrm ) * fvec3_dot_product( pchr_b->vel_old, nrm ) < 0 ) );
+                bump = TO_C_BOOL(( pchr_a->vel.dot(nrm) * pchr_a->vel_old.dot(nrm) < 0 ) ||
+                                 ( pchr_b->vel.dot(nrm) * pchr_b->vel_old.dot(nrm) < 0 ) );
             }
 
         }
@@ -2926,8 +2926,8 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 
     if ( NULL == pdata ) return false;
 
-    if (0.0f == fvec3_length_abs(pdata->vimpulse) &&
-        0.0f == fvec3_length_abs(pdata->pimpulse))
+    if (0.0f == pdata->vimpulse.length_abs() &&
+        0.0f == pdata->pimpulse.length_abs())
     {
         return true;
     }
@@ -3078,7 +3078,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     // Check all enchants to see if they are removed
     ienc_now = pdata->pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -3314,7 +3314,7 @@ bool do_chr_prt_collision_bump( chr_prt_collsion_data_t * pdata )
     if ( !prt_belongs_to_chr )
     {
         // no simple owner relationship. Check for something deeper.
-        CHR_REF prt_owner = prt_get_iowner( GET_REF_PPRT( pdata->pprt ), 0 );
+        CHR_REF prt_owner = prt_get_iowner( _GET_REF_PPRT( pdata->pprt ), 0 );
         if ( INGAME_CHR( prt_owner ) )
         {
             CHR_REF chr_wielder = chr_get_lowest_attachment( GET_REF_PCHR( pdata->pchr ), true );
@@ -3358,7 +3358,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
     if ( !pdata->prt_bumps_chr ) return false;
 
     // Catch on fire
-    spawn_bump_particles( GET_REF_PCHR( pdata->pchr ), GET_REF_PPRT( pdata->pprt ) );
+    spawn_bump_particles( GET_REF_PCHR( pdata->pchr ), _GET_REF_PPRT( pdata->pprt ) );
 
     // handle some special particle interactions
     if ( pdata->ppip->end_bump )
@@ -3405,7 +3405,7 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
 
     BLANK_STRUCT_PTR( pdata )
 
-    if ( !INGAME_PRT( iprt ) ) return false;
+    if ( !_INGAME_PRT( iprt ) ) return false;
     pdata->iprt = iprt;
     pdata->pprt = PrtList_get_ptr( iprt );
 
@@ -3518,10 +3518,10 @@ bool do_chr_prt_collision( CoNode_t * d )
     }
 
     // find the relative velocity
-	cn_data.vdiff = fvec3_sub(cn_data.pchr->vel, cn_data.pprt->vel);
+	cn_data.vdiff = cn_data.pchr->vel - cn_data.pprt->vel;
 
     // decompose the relative velocity parallel and perpendicular to the surface normal
-    cn_data.dot = fvec3_decompose( cn_data.vdiff.v, cn_data.nrm.v, cn_data.vdiff_perp.v, cn_data.vdiff_para.v );
+    cn_data.dot = fvec3_decompose(cn_data.vdiff, cn_data.nrm, cn_data.vdiff_perp, cn_data.vdiff_para);
 
     // handle particle deflection
     prt_deflected = false;
@@ -3575,8 +3575,8 @@ bool do_chr_prt_collision( CoNode_t * d )
     }
 
     // make the character and particle recoil from the collision
-    if (fvec3_length_abs( cn_data.vimpulse) > 0.0f ||
-        fvec3_length_abs( cn_data.pimpulse) > 0.0f)
+    if (cn_data.vimpulse.length_abs() > 0.0f ||
+        cn_data.pimpulse.length_abs() > 0.0f)
     {
         if ( do_chr_prt_collision_recoil( &cn_data ) )
         {
@@ -3648,14 +3648,14 @@ chr_prt_collsion_data_t * chr_prt_collsion_data__init( chr_prt_collsion_data_t *
     //---- collision modifications
     ptr->mana_paid = false;
     ptr->max_damage = ptr->actual_damage = 0;
-    fvec3_self_clear( ptr->vdiff.v );
-    fvec3_self_clear( ptr->vdiff_para.v );
-    fvec3_self_clear( ptr->vdiff_perp.v );
+	ptr->vdiff = fvec3_t::zero;
+	ptr->vdiff_para = fvec3_t::zero;
+	ptr->vdiff_perp = fvec3_t::zero;
     ptr->block_factor = 0.0f;
 
     //---- collision reaction
-    fvec3_self_clear( ptr->vimpulse.v );
-    fvec3_self_clear( ptr->pimpulse.v );
+	ptr->vimpulse = fvec3_t::zero;
+	ptr->pimpulse = fvec3_t::zero;
     ptr->terminate_particle = false;
     ptr->prt_bumps_chr = false;
     ptr->prt_damages_chr = false;

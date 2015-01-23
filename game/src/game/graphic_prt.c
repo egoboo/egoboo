@@ -145,7 +145,7 @@ gfx_rv render_one_prt_solid( const PRT_REF iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !DISPLAY_PRT( iprt ) )
+    if ( !_DISPLAY_PRT( iprt ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
@@ -217,7 +217,7 @@ gfx_rv render_one_prt_trans( const PRT_REF iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !DISPLAY_PRT( iprt ) )
+    if ( !_DISPLAY_PRT( iprt ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
@@ -352,7 +352,7 @@ gfx_rv render_one_prt_ref( const PRT_REF iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if ( !DISPLAY_PRT( iprt ) )
+    if ( !_DISPLAY_PRT( iprt ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, iprt, "invalid particle" );
         return gfx_error;
@@ -631,7 +631,7 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
     if ( NULL == pbdl_prt || NULL == pbdl_prt->prt_ptr ) return;
     loc_pprt = pbdl_prt->prt_ptr;
 
-    if ( !DISPLAY_PPRT( loc_pprt ) ) return;
+    if ( !_DISPLAY_PPRT( loc_pprt ) ) return;
 
     if ( !INGAME_CHR( loc_pprt->attachedto_ref ) ) return;
     pholder = ChrList_get_ptr( loc_pprt->attachedto_ref );
@@ -711,9 +711,9 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         return gfx_error;
     }
 
-    if ( !DISPLAY_PPRT( pprt ) )
+    if ( !_DISPLAY_PPRT( pprt ) )
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, GET_INDEX_PPRT( pprt ), "invalid particle" );
+        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, _GET_INDEX_PPRT( pprt ), "invalid particle" );
         return gfx_error;
     }
 
@@ -734,14 +734,14 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 
     // calculate the billboard vectors for the reflecions
     prt_get_pos(pprt, pinst->ref_pos);
-    pinst->ref_pos.z    = 2 * pprt->enviro.floor_level - pinst->pos.z;
+    pinst->ref_pos.z = 2 * pprt->enviro.floor_level - pinst->pos.z;
 
     // get the vector from the camera to the particle
-    vfwd = fvec3_sub(pinst->pos, pcam->getPosition());
-    fvec3_self_normalize(vfwd);
+    vfwd = pinst->pos - pcam->getPosition();
+	vfwd.normalize();
 
-	vfwd_ref = fvec3_sub(pinst->ref_pos, pcam->getPosition());
-    fvec3_self_normalize(vfwd_ref);
+	vfwd_ref = pinst->ref_pos - pcam->getPosition();
+	vfwd_ref.normalize();
 
     // set the up and right vectors
     if ( ppip->rotatetoface && !INGAME_CHR( pprt->attachedto_ref ) && ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0 ) )
@@ -749,29 +749,29 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         // the particle points along its direction of travel
 
         vup = pprt->vel;
-        fvec3_self_normalize(vup);
+		vup.normalize();
 
         // get the correct "right" vector
-		vright = fvec3_cross_product(vfwd, vup);
-        fvec3_self_normalize(vright);
+		vright = vfwd.cross(vup);
+		vright.normalize();
 
         vup_ref = vup;
-        vright_ref = fvec3_cross_product(vfwd_ref, vup);
-        fvec3_self_normalize(vright_ref);
+        vright_ref = vfwd_ref.cross(vup);
+		vright_ref.normalize();
     }
     else if ( ORIENTATION_B == pinst->orientation )
     {
         // use the camera up vector
         vup = pcam->getVUP();
-        fvec3_self_normalize(vup);
+		vup.normalize();
 
         // get the correct "right" vector
-        vright = fvec3_cross_product(vfwd, vup);
-        fvec3_self_normalize(vright);
+        vright = vfwd.cross(vup);
+		vright.normalize();
 
         vup_ref = vup;
-		vright_ref = fvec3_cross_product(vfwd_ref, vup);
-        fvec3_self_normalize(vright_ref);
+		vright_ref = vfwd_ref.cross(vup);
+		vright_ref.normalize();
     }
     else if ( ORIENTATION_V == pinst->orientation )
     {
@@ -798,33 +798,33 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         vup.x = vup.x + weight * vup_cam.x;
         vup.y = vup.y + weight * vup_cam.y;
         vup.z = vup.z + weight * vup_cam.z;
-        fvec3_self_normalize(vup);
+		vup.normalize();
 
         // get the correct "right" vector
-        vright = fvec3_cross_product(vfwd, vup);
-        fvec3_self_normalize(vright);
+        vright = vfwd.cross(vup);
+		vright.normalize();
 
-        vright_ref = fvec3_cross_product(vfwd, vup_ref);
-        fvec3_self_normalize(vright_ref);
+        vright_ref = vfwd.cross(vup_ref);
+		vright_ref.normalize();
 
         vup_ref = vup;
-		vright_ref = fvec3_cross_product(vfwd_ref, vup);
-        fvec3_self_normalize(vright_ref);
+		vright_ref = vfwd_ref.cross(vup);
+		vright_ref.normalize();
     }
     else if ( ORIENTATION_H == pinst->orientation )
     {
         fvec3_t vert = fvec3_t(0.0f, 0.0f, 1.0f);
 
         // force right to be horizontal
-        vright = fvec3_cross_product(vfwd, vert);
+        vright = vfwd.cross(vert);
 
         // force "up" to be close to the camera forward, but horizontal
-        vup = fvec3_cross_product(vert, vright);
-		vup_ref = fvec3_cross_product(vert, vright_ref);
+        vup = vert.cross(vright);
+		vup_ref = vert.cross(vright_ref);
 
         // normalize them
-        fvec3_self_normalize(vright);
-        fvec3_self_normalize(vup);
+		vright.normalize();
+		vup.normalize();
 
         vright_ref = vright;
         vup_ref    = vup;
@@ -847,7 +847,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
                 case ORIENTATION_Z: mat_getChrUp(cinst->matrix, vup);      break;
             }
 
-            fvec3_self_normalize(vup);
+			vup.normalize();
         }
         else
         {
@@ -862,29 +862,29 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
             }
         }
 
-        fvec3_self_normalize(vup);
+		vup.normalize();
 
         // get the correct "right" vector
-		vright = fvec3_cross_product(vfwd, vup);
-        fvec3_self_normalize(vright);
+		vright = vfwd.cross(vup);
+        vright.normalize();
 
         vup_ref = vup;
-        vright_ref = fvec3_cross_product(vfwd_ref, vup);
-        fvec3_self_normalize(vright_ref);
+        vright_ref = vfwd_ref.cross(vup);
+        vright_ref.normalize();
     }
     else
     {
         // use the camera up vector
         vup = pcam->getVUP();
-        fvec3_self_normalize(vup);
+		vup.normalize();
 
         // get the correct "right" vector
-        vright = fvec3_cross_product(vfwd, vup);
-        fvec3_self_normalize(vright);
+        vright = vfwd.cross(vup);
+		vright.normalize();
 
         vup_ref = vup;
-		vright_ref = fvec3_cross_product(vfwd_ref, vup);
-        fvec3_self_normalize(vright_ref);
+		vright_ref = vfwd_ref.cross(vup);
+		vright_ref.normalize();
     }
 
     // calculate the actual vectors using the particle rotation
@@ -923,10 +923,10 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
     }
 
     // calculate the billboard normal
-    pinst->nrm = fvec3_cross_product(pinst->right, pinst->up);
+    pinst->nrm = pinst->right.cross(pinst->up);
 
     // flip the normal so that the front front of the quad is toward the camera
-    if ( fvec3_dot_product( vfwd, pinst->nrm ) < 0 )
+    if (vfwd.dot(pinst->nrm) < 0)
     {
         pinst->nrm.x *= -1;
         pinst->nrm.y *= -1;
@@ -961,7 +961,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 
         // the following statement could be optimized
         // since we know the only non-zero component of world_up is z
-        ndot = fvec3_dot_product( pinst->nrm, world_up );
+        ndot = pinst->nrm.dot(world_up);
 
         // do nothing if the quad is basically horizontal
         if ( ndot < 1.0f - 1e-6 )
@@ -970,7 +970,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
             {
                 // the following statement could be optimized
                 // since we know the only non-zero component of world_up is z
-                zdot = fvec3_dot_product( pinst->ref_right, world_up );
+                zdot = pinst->ref_right.dot(world_up);
 
                 if ( ABS( zdot ) > 1e-6 )
                 {
@@ -986,7 +986,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
             {
                 // the following statement could be optimized
                 // since we know the only non-zero component of world_up is z
-                zdot = fvec3_dot_product( pinst->ref_up, world_up );
+                zdot = pinst->ref_up.dot(world_up);
 
                 if ( ABS( zdot ) > 1e-6 )
                 {
@@ -1101,7 +1101,7 @@ gfx_rv prt_instance_update( std::shared_ptr<Camera> pcam, const PRT_REF particle
     prt_instance_t * pinst;
     gfx_rv        retval;
 
-    if ( !DISPLAY_PRT( particle ) )
+    if ( !_DISPLAY_PRT( particle ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, particle, "invalid particle" );
         return gfx_error;
@@ -1140,7 +1140,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
     // only draw bullets
     //if ( 50 != loc_ppip->vel_hrz_pair.base ) return;
 
-    if ( !DISPLAY_PPRT( loc_pprt ) ) return;
+    if ( !_DISPLAY_PPRT( loc_pprt ) ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
     if (( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F7 ) ) || single_frame_mode )
@@ -1231,7 +1231,7 @@ size_t render_all_prt_begin( std::shared_ptr<Camera> pcam,  prt_registry_entity_
             vpos.y = pinst->pos.y - vcam.y;
             vpos.z = pinst->pos.z - vcam.z;
 
-            dist = fvec3_dot_product( vfwd, vpos );
+            dist = vfwd.dot(vpos);
 
             if ( dist > 0 )
             {
@@ -1340,8 +1340,8 @@ size_t render_all_prt_ref_begin( std::shared_ptr<Camera> pcam, prt_registry_enti
 
         if ( !pinst->indolist ) continue;
 
-        vpos = fvec3_sub(pinst->ref_pos, vcam);
-        dist = fvec3_dot_product( vfwd, vpos );
+        vpos = pinst->ref_pos - vcam;
+        dist = vfwd.dot(vpos);
 
         if ( dist > 0 )
         {

@@ -124,6 +124,13 @@ namespace Ego
 			return 0 == size();
 		}
 
+		/// @brief Get if this array is full.
+		/// @return @a true if this array is full, @a false otherwise
+		bool full() const
+		{
+			return size() == capacity();
+		}
+
 		/// @brief  Get the size of this array.
 		/// @return the size of this array
 		size_t size() const

@@ -1061,11 +1061,11 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
                     float vdot;
                     int m = ( j + 1 ) % 4;
 
-                    vdot = fvec3_dot_product( nrm_lst[j], nrm_lst[m] );
+                    vdot = nrm_lst[j].dot(nrm_lst[m]);
 
                     edge_is_crease[j] = ( vdot < INV_SQRT_TWO );
 
-                    weight_lst[j] = fvec3_dot_product( nrm_lst[j], nrm_lst[0] );
+                    weight_lst[j] = nrm_lst[j].dot(nrm_lst[0]);
                 }
 
                 weight_lst[0] = 1.0f;
@@ -1099,7 +1099,7 @@ bool ego_mesh_make_normals( ego_mesh_t * pmesh )
                     }
                 }
 
-                fvec3_self_normalize(vec_sum);
+				vec_sum.normalize();
 
                 ptmem->tile_list[fan0].ncache[i][XX] = vec_sum.x;
                 ptmem->tile_list[fan0].ncache[i][YY] = vec_sum.y;

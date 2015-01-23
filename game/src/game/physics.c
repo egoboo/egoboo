@@ -173,18 +173,18 @@ bool phys_warp_normal( const float exponent, fvec3_t& nrm )
 
     if ( 1.0f == exponent ) return true;
 
-    if ( 0.0f == fvec3_length_abs( nrm ) ) return false;
+    if ( 0.0f == nrm.length_abs() ) return false;
 
     length_hrz_2 = fvec2_length_2( fvec2_t(nrm[kX],nrm[kY]) );
-    length_vrt_2 = fvec3_length_2( nrm ) - length_hrz_2;
+    length_vrt_2 = nrm.length_2() - length_hrz_2;
 
     nrm[kX] = nrm[kX] * POW( length_hrz_2, 0.5f * ( exponent - 1.0f ) );
     nrm[kY] = nrm[kY] * POW( length_hrz_2, 0.5f * ( exponent - 1.0f ) );
     nrm[kZ] = nrm[kZ] * POW( length_vrt_2, 0.5f * ( exponent - 1.0f ) );
 
     // normalize the normal
-	fvec3_self_normalize(nrm);
-    return fvec3_length(nrm) >= 0.0f;
+	nrm.normalize();
+    return nrm.length() >= 0.0f;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -198,7 +198,7 @@ float phys_get_depth( const oct_vec_t * podepth, const fvec3_t& nrm )
 
     if ( NULL == podepth || NULL == *podepth ) return 0.0f;
 
-    if ( 0.0f == fvec3_length_abs( nrm ) ) return max_val;
+    if ( 0.0f == nrm.length_abs() ) return max_val;
 
     // convert the normal into an oct_vec_t
     oct_vec_ctor( onrm, nrm );
@@ -242,10 +242,10 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
 
     bool rv;
 
-    if ( NULL == podepth )
+	if (NULL == podepth)
 
-        // first do the aa axes
-        fvec3_self_clear( nrm_aa.v );
+		// first do the aa axes
+		nrm_aa = fvec3_t::zero;
 
     if ( 0.0f != ( *podepth )[OCT_X] ) nrm_aa.x = 1.0f / ( *podepth )[OCT_X];
     if ( 0.0f != ( *podepth )[OCT_Y] ) nrm_aa.y = 1.0f / ( *podepth )[OCT_Y];
@@ -253,7 +253,7 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
 
     if ( 1.0f == exponent )
     {
-        fvec3_self_normalize( nrm_aa );
+        nrm_aa.normalize();
     }
     else
     {
@@ -287,7 +287,7 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
     if ( tmin_aa <= 0.0f || tmin_aa >= 1e6 ) return false;
 
     // next do the diagonal axes
-    fvec3_self_clear( nrm_diag.v );
+	nrm_diag = fvec3_t::zero;
 
     if ( 0.0f != ( *podepth )[OCT_XY] ) nrm_diag.x = 1.0f / (( *podepth )[OCT_XY] * INV_SQRT_TWO );
     if ( 0.0f != ( *podepth )[OCT_YX] ) nrm_diag.y = 1.0f / (( *podepth )[OCT_YX] * INV_SQRT_TWO );
@@ -295,7 +295,7 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
 
     if ( 1.0f == exponent )
     {
-        fvec3_self_normalize(nrm_diag);
+        nrm_diag.normalize();
     }
     else
     {
@@ -344,8 +344,8 @@ bool phys_estimate_depth( const oct_vec_t * podepth, const float exponent, fvec3
     }
 
     // normalize this normal
-	fvec3_self_normalize(nrm);
-    rv = fvec3_length(nrm) > 0.0f;
+	nrm.normalize();
+    rv = nrm.length() > 0.0f;
 
     // find the depth in the direction of the normal, if possible
     if ( rv && NULL != depth )
@@ -993,7 +993,7 @@ bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_t& vel, const float 
 {
     oct_bb_t tmp_min, tmp_max;
 
-    float abs_vel = fvec3_length_abs( vel );
+    float abs_vel = vel.length_abs();
     if ( 0.0f == abs_vel )
     {
         return oct_bb_copy( pdst, psrc ) ? true : false;
@@ -1067,7 +1067,7 @@ bool phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst )
 
     oct_bb_t tmp_oct1, tmp_oct2;
 
-    if ( !ACTIVE_PPRT( pprt ) ) return false;
+    if ( !_ACTIVE_PPRT( pprt ) ) return false;
 
     // copy the volume
     oct_bb_copy( &tmp_oct1, &( pprt->prt_max_cv ) );
@@ -1117,7 +1117,7 @@ breadcrumb_t * breadcrumb_init_prt( breadcrumb_t * bc, prt_t * pprt )
 
     if ( NULL == pprt ) return bc;
 
-    ppip = prt_get_ppip( GET_REF_PPRT( pprt ) );
+    ppip = prt_get_ppip( _GET_REF_PPRT( pprt ) );
     if ( NULL == ppip ) return bc;
 
     bits = MAPFX_IMPASS;
@@ -1485,7 +1485,7 @@ phys_data_t * phys_data_clear( phys_data_t * pphys )
 
     apos_self_clear( &( pphys->aplat ) );
     apos_self_clear( &( pphys->acoll ) );
-    fvec3_self_clear( pphys->avel.v );
+	pphys->avel = fvec3_t::zero;
 
     return pphys;
 }
@@ -1584,7 +1584,8 @@ bool apos_evaluate(const apos_t *src, fvec3_t& dst)
 {
     if ( NULL == src )
     {
-        return fvec3_self_clear(dst);
+		dst = fvec3_t::zero;
+		return true;
     }
 
     for (size_t cnt = 0; cnt < 3; cnt ++ )

@@ -479,7 +479,7 @@
     <ClInclude Include="src\egolib\math\AABB.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\DynamicVector.hpp">
+    <ClInclude Include="src\egolib\math\DynamicVector.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\egolib\math\Sphere.h">

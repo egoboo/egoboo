@@ -22,8 +22,21 @@
 #include "egolib/vec.h"
 #include "egolib/log.h"
 
-const fvec2_t fvec2_t::zero(0.0f,0.0f);
-const fvec3_t fvec3_t::zero(0.0f,0.0f,0.0f);
+const fvec2_t fvec2_t::zero(0.0f, 0.0f);
+const fvec3_t fvec3_t::zero(0.0f, 0.0f, 0.0f);
+const fvec4_t fvec4_t::zero(0.0f, 0.0f, 0.0f, 0.0f);
+fvec2_t operator-(const fvec2_t& v)
+{
+	return fvec2_t(-v.x, -v.y);
+}
+fvec3_t operator-(const fvec3_t& v)
+{
+	return fvec3_t(-v.x, -v.y, -v.z);
+}
+fvec4_t operator-(const fvec4_t& v)
+{
+	return fvec4_t(-v.x, -v.y, -v.z, -v.w);
+}
 
 bool fvec2_valid(const fvec2_base_t A)
 {
@@ -273,11 +286,10 @@ float fvec2_cross_product(const fvec2_base_t A, const fvec2_base_t B)
 }
 
 //--------------------------------------------------------------------------------------------
-float   fvec2_dot_product(const fvec2_base_t A, const fvec2_base_t B)
+float fvec2_dot_product(const fvec2_base_t A, const fvec2_base_t B)
 {
 	return A[kX] * B[kX] + A[kY] * B[kY];
 }
-
 //--------------------------------------------------------------------------------------------
 void fvec3_ctor(fvec3_t& v)
 {
@@ -291,29 +303,23 @@ void fvec3_dtor(fvec3_t& v)
 }
 
 //--------------------------------------------------------------------------------------------
-bool fvec3_valid(const fvec3_base_t A)
+bool fvec3_valid(const fvec3_base_t v)
 {
-	int cnt;
-
-	if (NULL == A) return false;
-
-	for (cnt = 0; cnt < 3; cnt++)
+	if (nullptr == v)
 	{
-		if (ieee32_bad(A[cnt])) return false;
+		return false;
 	}
-
+	for (size_t cnt = 0; cnt < 3; cnt++)
+	{
+		if (ieee32_bad(v[cnt])) return false;
+	}
 	return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool fvec3_self_clear(fvec3_t& v)
-{
-	v[kX] = v[kY] = v[kZ] = 0.0f;
-	return true;
-}
 bool fvec3_self_clear(fvec3_base_t v)
 {
-	if (NULL == v)
+	if (nullptr == v)
 	{
 		return false;
 	}
@@ -324,7 +330,7 @@ bool fvec3_self_clear(fvec3_base_t v)
 //--------------------------------------------------------------------------------------------
 bool fvec3_self_is_clear(const fvec2_base_t v)
 {
-	if (NULL == v)
+	if (nullptr == v)
 	{
 		return true;
 	}
@@ -335,7 +341,7 @@ bool fvec3_self_is_clear(const fvec2_base_t v)
 
 
 //--------------------------------------------------------------------------------------------
-float * fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC)
+float *fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC)
 {
 	if (NULL == DST) return NULL;
 
@@ -354,162 +360,28 @@ float * fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC)
 
 	return DST;
 }
-
-//--------------------------------------------------------------------------------------------
-float fvec3_length_abs(const fvec3_t& v)
-{
-	return v.length_abs();
-}
-
-//--------------------------------------------------------------------------------------------
-float fvec3_length_2(const fvec3_t& v)
-{
-	return v.length_2();
-}
-
-//--------------------------------------------------------------------------------------------
-float fvec3_length(const fvec3_t& v)
-{
-	return v.length();
-}
-
-//--------------------------------------------------------------------------------------------
-fvec3_t fvec3_sub(const fvec3_t& u, const fvec3_t& v)
-{
-	return fvec3_t(u.x - v.x, u.y - v.y, u.z - v.z);
-}
-float *fvec3_sub(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS)
-{
-	if (NULL == DST)
-	{
-		return NULL;
-	}
-
-	if (NULL == LHS && NULL == RHS)
-	{
-		fvec2_self_clear(DST);
-	}
-	else if (NULL == LHS)
-	{
-		DST[kX] = -RHS[kX];
-		DST[kY] = -RHS[kY];
-		DST[kZ] = -RHS[kZ];
-
-		LOG_NAN_FVEC3(DST);
-	}
-	else if (NULL == RHS)
-	{
-		DST[kX] = LHS[kX];
-		DST[kY] = LHS[kY];
-		DST[kZ] = LHS[kZ];
-
-		LOG_NAN_FVEC3(DST);
-	}
-	else
-	{
-		DST[kX] = LHS[kX] - RHS[kX];
-		DST[kY] = LHS[kY] - RHS[kY];
-		DST[kZ] = LHS[kZ] - RHS[kZ];
-
-		LOG_NAN_FVEC3(DST);
-	}
-
-	return DST;
-}
-
 //--------------------------------------------------------------------------------------------
 fvec3_t fvec3_scale(const fvec3_t& v, float s)
 {
 	return fvec3_t(v.x * s, v.y * s, v.z * s);
 }
-
 //--------------------------------------------------------------------------------------------
-float *fvec3_normalize(fvec3_base_t DST, const fvec3_base_t SRC)
-{
-	if (NULL == DST)
-	{
-		return NULL;
-	}
-
-	if (NULL == SRC)
-	{
-		fvec3_self_clear(DST);
-	}
-	else
-	{
-		float len2 = SRC[kX] * SRC[kX] + SRC[kY] * SRC[kY] + SRC[kZ] * SRC[kZ];
-
-		if (0.0f == len2)
-		{
-			fvec3_self_clear(DST);
-		}
-		else
-		{
-			float inv_len = 1.0f / std::sqrt(len2);
-			LOG_NAN(inv_len);
-
-			DST[kX] = SRC[kX] * inv_len;
-			DST[kY] = SRC[kY] * inv_len;
-			DST[kZ] = SRC[kZ] * inv_len;
-
-			LOG_NAN_FVEC3(DST);
-		}
-	}
-
-	return DST;
-}
-
-//--------------------------------------------------------------------------------------------
-float fvec3_self_normalize(fvec3_t& v)
-{
-	return v.normalize();
-}
-
-//--------------------------------------------------------------------------------------------
-fvec3_t fvec3_cross_product(const fvec3_t& u, const fvec3_t& v)
-{
-	return u.cross(v);
-}
-
-float *fvec3_cross_product(fvec3_base_t DST, const fvec3_base_t LHS, const fvec3_base_t RHS)
-{
-	if (NULL == DST)
-	{
-		return NULL;
-	}
-
-	if (NULL == LHS || NULL == RHS)
-	{
-		fvec3_self_clear(DST);
-	}
-	else
-	{
-		DST[kX] = LHS[kY] * RHS[kZ] - LHS[kZ] * RHS[kY];
-		DST[kY] = LHS[kZ] * RHS[kX] - LHS[kX] * RHS[kZ];
-		DST[kZ] = LHS[kX] * RHS[kY] - LHS[kY] * RHS[kX];
-
-		LOG_NAN_FVEC3(DST);
-	}
-
-	return DST;
-}
-
-//--------------------------------------------------------------------------------------------
-float fvec3_decompose(const fvec3_base_t A, const fvec3_base_t vnrm, fvec3_base_t vpara, fvec3_base_t vperp)
+float fvec3_decompose(const fvec3_t& A, const fvec3_t& vnrm, fvec3_t& vpara, fvec3_t& vperp)
 {
 	/// @author BB
 	/// @details the normal (vnrm) is assumed to be normalized. Try to get this as optimized as possible.
 
 	float dot;
-
+#if 0
 	// error trapping
 	if (NULL == A || NULL == vnrm) return 0.0f;
-
+#endif
 	// if this is true, there is no reason to run this function
-	dot = fvec3_dot_product(A, vnrm);
+	dot = A.dot(vnrm);
 
 	if (0.0f == dot)
 	{
+#if 0
 		// handle optional parameters
 		if (NULL == vpara && NULL == vperp)
 		{
@@ -533,6 +405,7 @@ float fvec3_decompose(const fvec3_base_t A, const fvec3_base_t vnrm, fvec3_base_
 			LOG_NAN_FVEC3(vpara);
 		}
 		else
+#endif
 		{
 			vpara[kX] = 0.0f;
 			vpara[kY] = 0.0f;
@@ -547,6 +420,7 @@ float fvec3_decompose(const fvec3_base_t A, const fvec3_base_t vnrm, fvec3_base_
 	}
 	else
 	{
+#if 0
 		// handle optional parameters
 		if (NULL == vpara && NULL == vperp)
 		{
@@ -570,6 +444,7 @@ float fvec3_decompose(const fvec3_base_t A, const fvec3_base_t vnrm, fvec3_base_
 			LOG_NAN_FVEC3(vpara);
 		}
 		else
+#endif
 		{
 			vpara[kX] = dot * vnrm[kX];
 			vpara[kY] = dot * vnrm[kY];
@@ -614,64 +489,47 @@ float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v)
 
 	return retval;
 }
-
 //--------------------------------------------------------------------------------------------
-float fvec3_dot_product(const fvec3_t& u, const fvec3_t& v)
+bool fvec4_valid(const fvec4_base_t v)
 {
-	return u.dot(v);
-}
-
-float fvec3_dot_product(const fvec3_base_t A, const fvec3_base_t B)
-{
-	float retval;
-
-	if (NULL == A || NULL == B) return 0.0f;
-
-	retval = A[kX] * B[kX] + A[kY] * B[kY] + A[kZ] * B[kZ];
-
-	LOG_NAN(retval);
-
-	return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool fvec4_valid(const fvec4_base_t A)
-{
-	int cnt;
-
-	if (NULL == A) return false;
-
-	for (cnt = 0; cnt < 4; cnt++)
+	if (nullptr == v)
 	{
-		if (ieee32_bad(A[cnt])) return false;
+		return false;
 	}
+	for (size_t cnt = 0; cnt < 4; cnt++)
+	{
+		if (ieee32_bad(v[cnt]))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+//--------------------------------------------------------------------------------------------
+bool fvec4_self_clear(fvec4_base_t v)
+{
+	if (nullptr == v)
+	{
+		return false;
+	}
+	v[kX] = v[kY] = v[kZ] = 0.0f;
+	v[kW] = 1.0f;
 
 	return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool fvec4_self_clear(fvec4_base_t A)
+bool fvec4_self_scale(fvec4_base_t v, const float s)
 {
-	if (NULL == A) return false;
-
-	A[kX] = A[kY] = A[kZ] = 0.0f;
-	A[kW] = 1.0f;
-
-	return true;
-}
-
-//--------------------------------------------------------------------------------------------
-bool fvec4_self_scale(fvec4_base_t A, const float B)
-{
-	if (NULL == A) return false;
-
-	A[kX] *= B;
-	A[kY] *= B;
-	A[kZ] *= B;
-	A[kW] *= B;
-
-	LOG_NAN_FVEC4(A);
-
+	if (nullptr == v)
+	{
+		return false;
+	}
+	v[kX] *= s;
+	v[kY] *= s;
+	v[kZ] *= s;
+	v[kW] *= s;
+	LOG_NAN_FVEC4(v);
 	return true;
 }

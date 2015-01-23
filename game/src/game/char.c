@@ -774,7 +774,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
 
     chr_t * pchr;
 
-    if ( !DEFINED_PPRT( pprt ) ) return pprt;
+    if ( !_DEFINED_PPRT( pprt ) ) return pprt;
 
     if ( !INGAME_CHR( character ) )
     {
@@ -1082,7 +1082,7 @@ void reset_character_accel( const CHR_REF character )
     // Okay, remove all acceleration enchants
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1108,7 +1108,7 @@ void reset_character_accel( const CHR_REF character )
     // Put the acceleration enchants back on
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1246,7 +1246,7 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
         // Okay, reset transparency
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1267,7 +1267,7 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
         // apply the blend enchants
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
@@ -1336,7 +1336,7 @@ void reset_character_alpha( const CHR_REF character )
         // Okay, reset transparency
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -1356,7 +1356,7 @@ void reset_character_alpha( const CHR_REF character )
 
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             PRO_REF ipro = enc_get_ipro( ienc_now );
 
@@ -2089,7 +2089,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         too_invis = !chr_can_see_invis( pchr_a, pchr_c );
 
         // calculate the distance
-        diff = fvec3_sub(chr_get_pos_v_const(pchr_c), slot_pos);
+        diff = chr_get_pos_v_const(pchr_c) - slot_pos;
         diff.z += pchr_c->bump.height * 0.5f;
 
         // find the squared difference horizontal and vertical
@@ -2421,7 +2421,7 @@ void character_swipe( const CHR_REF ichr, slot_t slot )
                 // will this mess up wands?
                 iparticle = spawnOneParticle(pweapon->pos, pchr->ori.facing_z, weaponProfile->getSlotNumber(), weaponProfile->getAttackParticleProfile(), iweapon, spawn_vrt_offset, chr_get_iteam(iholder), iweapon);
 
-                if ( DEFINED_PRT( iparticle ) )
+                if ( _DEFINED_PRT( iparticle ) )
                 {
                     fvec3_t tmp_pos;
                     prt_t * pprt = PrtList_get_ptr( iparticle );
@@ -3077,7 +3077,7 @@ void cleanup_one_character( chr_t * pchr )
         // remove all invalid enchants
         ienc_now = pchr->firstenchant;
         ienc_count = 0;
-        while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+        while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
         {
             ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -4512,7 +4512,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     // Remove armor enchantments
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -4556,7 +4556,7 @@ int change_armor( const CHR_REF character, const SKIN_T skin )
     /// I don't care at this point !!!BAD!!!
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         PRO_REF ipro = enc_get_ipro( ienc_now );
 
@@ -4772,7 +4772,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
 
             ienc_now = EncList.lst[pchr->firstenchant].nextenchant_ref;
             ienc_count = 0;
-            while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+            while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
             {
                 ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
 
@@ -5247,7 +5247,7 @@ bool update_chr_darkvision( const CHR_REF character )
     // clean up the enchant list before doing anything
     ienc_now = pchr->firstenchant;
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
+    while ( _VALID_ENC_RANGE( ienc_now ) && ( ienc_count < MAX_ENC ) )
     {
         ienc_nxt = EncList.lst[ienc_now].nextenchant_ref;
         peve = enc_get_peve( ienc_now );
@@ -5391,7 +5391,7 @@ void move_one_character_get_environment( chr_t * pchr )
         fvec3_t platform_up = fvec3_t( 0.0f, 0.0f, 1.0f );
 
         chr_getMatUp(pplatform, platform_up);
-        fvec3_self_normalize(platform_up);
+		platform_up.normalize();
 
         penviro->traction = ABS( platform_up.z ) * ( 1.0f - penviro->zlerp ) + 0.25f * penviro->zlerp;
 
@@ -5489,11 +5489,11 @@ void move_one_character_get_environment( chr_t * pchr )
     // add in something for the "ground speed"
     if ( NULL == pplatform )
     {
-        fvec3_self_clear( penviro->floor_speed.v );
+		penviro->floor_speed = fvec3_t::zero;
     }
     else
     {
-        fvec3_base_copy( penviro->floor_speed.v, pplatform->vel.v );
+		penviro->floor_speed = pplatform->vel;
     }
 
 }
@@ -5514,7 +5514,7 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     if ( 0 != pchr->flyheight ) return;
 
     // assume the best
-    fvec3_self_clear( floor_acc.v );
+	floor_acc = fvec3_t::zero;
     temp_friction_xy = 1.0f;
     vup.x = 0.0f; vup.y = 0.0f; vup.z = 1.0f;
 
@@ -5551,17 +5551,17 @@ void move_one_character_do_floor_friction( chr_t * pchr )
 	floor_acc *= 1.0f - penviro->zlerp;
 
     // reduce the volountary acceleration peopendicular to the direction of motion?
-    if (fvec3_length_abs(floor_acc) > 0.0f)
+    if (floor_acc.length_abs() > 0.0f)
     {
         fvec3_t acc_para, acc_perp;
         fvec3_t vfront;
 
         // get the direction of motion
         mat_getChrForward(pchr->inst.matrix, vfront);
-        fvec3_self_normalize(vfront);
+		vfront.normalize();
 
         // decompose the acceleration into parallel and perpendicular components
-        fvec3_decompose( floor_acc.v, vfront.v, acc_para.v, acc_perp.v );
+		fvec3_decompose(floor_acc, vfront, acc_para, acc_perp);
 
         // re-compose the acceleration with 1/2 of the perpendicular taken away
 		floor_acc = acc_perp * 0.5f;
@@ -5584,10 +5584,10 @@ void move_one_character_do_floor_friction( chr_t * pchr )
     {
         fvec3_t acc_perp, acc_para;
 
-        fvec3_decompose( fric.v, vup.v, acc_perp.v, acc_para.v );
+        fvec3_decompose(fric, vup, acc_perp, acc_para);
         fric = acc_para;
 
-        fvec3_decompose( floor_acc.v, vup.v, acc_perp.v, acc_para.v );
+        fvec3_decompose(floor_acc, vup, acc_perp, acc_para);
         floor_acc = acc_para;
     }
 
@@ -9742,13 +9742,13 @@ bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, 
         // determine the grip vectors
         for ( cnt = 0; cnt < 3; cnt++ )
         {
-            grip_vecs[cnt] = fvec3_sub(fvec3_t(grip_nupoints[cnt + 1][kX],grip_nupoints[cnt + 1][kY],grip_nupoints[cnt + 1][kZ]),
-				                       fvec3_t(grip_nupoints[0][kX],grip_nupoints[0][kY],grip_nupoints[0][kZ]));
+            grip_vecs[cnt] = fvec3_t(grip_nupoints[cnt + 1][kX],grip_nupoints[cnt + 1][kY],grip_nupoints[cnt + 1][kZ])
+				           - fvec3_t(grip_nupoints[0][kX],grip_nupoints[0][kY],grip_nupoints[0][kZ]);
         }
 
         // grab the grip's "up" vector
-        fvec3_normalize( vtmp.v, grip_vecs[2].v );
-        fvec3_base_copy( grip_up, vtmp.v );
+		vtmp = grip_vecs[2]; vtmp.normalize();
+        fvec3_base_copy(grip_up, vtmp.v);
     }
 
     // save the origin, if necessary

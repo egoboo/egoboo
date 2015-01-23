@@ -122,7 +122,7 @@ egolib_rv egolib_frustum_calculate(egolib_frustum_t * pf, const fmat_4x4_t& proj
         fvec3_t vDiff = pf->sphere.origin - pt1;
 
         // the radius becomes the length of this vector
-        pf->sphere.radius = fvec3_length(vDiff);
+		pf->sphere.radius = vDiff.length();
     }
 
     //---- construct the cone
@@ -136,7 +136,7 @@ egolib_rv egolib_frustum_calculate(egolib_frustum_t * pf, const fmat_4x4_t& proj
         vfar = pt1 - pf->cone.origin;
 
         // the cosine between the view direction and the
-        cos_half_fov = fvec3_dot_product(vfar, vlook) / vfar.length();
+        cos_half_fov = vfar.dot(vlook) / vfar.length();
 
         // calculate the required trig functions
         pf->cone.cos_2 = cos_half_fov * cos_half_fov;

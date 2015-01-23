@@ -203,6 +203,9 @@
     <ClCompile Include="src\game\graphics\MD2Model.cpp">
       <Filter>Game Sources\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\module\Module.cpp">
+      <Filter>Game Sources\Module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
@@ -363,6 +366,9 @@
     </ClInclude>
     <ClInclude Include="src\game\graphics\MD2Model.hpp">
       <Filter>Game Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\module\Module.hpp">
+      <Filter>Game Header Files\Module</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

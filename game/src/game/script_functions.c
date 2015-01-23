@@ -2188,7 +2188,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 
     iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = _DEFINED_PRT( iprt );
     if ( returncode )
     {
         fvec3_t tmp_pos;
@@ -2847,7 +2847,7 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = spawn_one_enchant( pself->owner, pself->target, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
-    returncode = DEFINED_ENC( iTmp );
+    returncode = _DEFINED_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2866,7 +2866,7 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = spawn_one_enchant( pself->owner, pself->child, pself->index, INVALID_ENC_REF, INVALID_PRO_REF );
-    returncode = DEFINED_ENC( iTmp );
+    returncode = _DEFINED_ENC( iTmp );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3254,7 +3254,7 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    if ( INGAME_ENC( pchr->undoenchant ) )
+    if ( _INGAME_ENC( pchr->undoenchant ) )
     {
         returncode = remove_enchant( pchr->undoenchant, NULL );
     }
@@ -4048,7 +4048,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     }
 
     iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
-    returncode = DEFINED_PRT( iprt );
+    returncode = _DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4080,7 +4080,7 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     }
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = _DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4583,7 +4583,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
 
     iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = _DEFINED_PRT( iprt );
 
     if ( returncode )
     {
@@ -4695,7 +4695,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
 
     iprt = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = _DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5083,7 +5083,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
 
     iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ichr, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = _DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5443,7 +5443,7 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
     iTmp = pchr->undoenchant;
 
     returncode = false;
-    if ( INGAME_ENC( iTmp ) )
+    if ( _INGAME_ENC( iTmp ) )
     {
         EncList.lst[iTmp].owner_mana = pstate->argument;
         EncList.lst[iTmp].owner_life = pstate->distance;
@@ -5625,7 +5625,7 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     }
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = _DEFINED_PRT( iprt );
 
     if ( returncode )
     {
@@ -6800,7 +6800,7 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
         iprt = spawn_one_particle( vtmp, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, INVALID_CHR_REF, 0, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     }
 
-    returncode = DEFINED_PRT( iprt );
+    returncode = _DEFINED_PRT( iprt );
 
     if ( returncode )
     {

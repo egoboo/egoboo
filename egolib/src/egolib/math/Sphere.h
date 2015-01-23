@@ -47,15 +47,15 @@ struct sphere_t
 	float radius;
 
 	/**
-	* @brief
-	*	Construct this sphere assigning it the default values of a sphere.
-	* @return
-	*	a pointer to this sphere on success, @a nullptr on failure
-	* @post
-	*	This sphere was assigned the default values of a sphere.
-	* @remark
-	*	The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
-	*/
+	 * @brief
+	 *	Construct this sphere assigning it the default values of a sphere.
+	 * @return
+	 *	a pointer to this sphere on success, @a nullptr on failure
+	 * @post
+	 *	This sphere was assigned the default values of a sphere.
+	 * @remark
+	 *	The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
+	 */
 	sphere_t *ctor()
 	{
 		radius = 0.0f;
@@ -104,12 +104,32 @@ struct sphere_t
 		return *this;
 	}
 
+	/**
+	 * @brief
+	 *	Construct this sphere assigning it the default values of a sphere.
+	 * @post
+	 *	This sphere was assigned the default values of a sphere.
+	 * @remark
+	 *	The default values of a sphere are the center of @a (0,0,0) and the radius of @a 0.
+	 */
 	sphere_t() :
-		origin(0, 0, 0),
+		origin(fvec3_t::zero),
 		radius(0.0f)
 	{
-
 	}
+
+	/**
+	 * @brief
+	 *	Construct this sphere assigning it the values of another sphere.
+	 * @post
+	 *	This sphere was assigned the default values of another sphere.
+	 */
+	sphere_t(const sphere_t& other) :
+		origin(other.origin),
+		radius(other.radius)
+	{
+	}
+
 };
 
 /**

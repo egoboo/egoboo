@@ -279,9 +279,9 @@ float * mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_
 	vFor.y = frw[kY] - ori[kY];
 	vFor.z = frw[kZ] - ori[kZ];
 
-	fvec3_self_normalize(vWid);
-	fvec3_self_normalize(vUp);
-	fvec3_self_normalize(vFor);
+	vWid.normalize();
+	vUp.normalize();
+	vFor.normalize();
 
 	DST[MAT_IDX(0, 0)] = -scale * vWid.x;  // HUK
 	DST[MAT_IDX(0, 1)] = -scale * vWid.y;  // HUK
@@ -308,9 +308,9 @@ float * mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_
 
 //--------------------------------------------------------------------------------------------
 float * mat_View(fmat_4x4_base_t DST,
-	const fvec3_base_t   from,     // camera location
-	const fvec3_base_t   at,        // camera look-at target
-	const fvec3_base_t   world_up,  // world’s up, usually 0, 0, 1
+	const fvec3_t&   from,     // camera location
+	const fvec3_t&   at,        // camera look-at target
+	const fvec3_t&   world_up,  // world’s up, usually 0, 0, 1
 	const float roll)         // clockwise roll around
 	//   viewing direction,
 	//   in radians
@@ -323,9 +323,10 @@ float * mat_View(fmat_4x4_base_t DST,
 
 	if (NULL == mat_Identity(DST)) return NULL;
 
-	fvec3_normalize(view_dir.v, fvec3_sub(temp.v, at, from));
-	fvec3_cross_product(right.v, world_up, view_dir.v);
-	up = fvec3_cross_product(view_dir, right);
+	view_dir = at - from;
+	view_dir.normalize();
+	right = world_up.cross(view_dir);
+	up = view_dir.cross(right);
 	right.normalize();
 	up.normalize();
 
@@ -341,9 +342,9 @@ float * mat_View(fmat_4x4_base_t DST,
 	DST[MAT_IDX(1, 2)] = view_dir.y;
 	DST[MAT_IDX(2, 2)] = view_dir.z;
 
-	DST[MAT_IDX(3, 0)] = -fvec3_dot_product(right.v, from);
-	DST[MAT_IDX(3, 1)] = -fvec3_dot_product(up.v, from);
-	DST[MAT_IDX(3, 2)] = -fvec3_dot_product(view_dir.v, from);
+	DST[MAT_IDX(3, 0)] = -right.dot(from);
+	DST[MAT_IDX(3, 1)] = -up.dot(from);
+	DST[MAT_IDX(3, 2)] = -view_dir.dot(from);
 
 	if (roll != 0.0f)
 	{
@@ -610,10 +611,10 @@ void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float
     f.normalize();
     up.normalize();
     
-    s = fvec3_cross_product(f, up);
+    s = f.cross(up);
     s.normalize();
     
-    u = fvec3_cross_product(s, f);
+    u = s.cross(f);
     
     mat_Zero(M);
     mat_Translate(eyeTranslate, -eyeX, -eyeY, -eyeZ);

@@ -978,7 +978,7 @@ gfx_rv dolist_reset( dolist_t * plist, const size_t index )
         obj_registry_entity_t * pent = plist->lst + cnt;
 
         // tell all valid objects that they are removed from this dolist
-        if ( INVALID_CHR_REF == pent->ichr && VALID_PRT_RANGE( pent->iprt ) )
+        if ( INVALID_CHR_REF == pent->ichr && _VALID_PRT_RANGE( pent->iprt ) )
         {
             PrtList.lst[pent->iprt].inst.indolist = false;
         }
@@ -1079,7 +1079,7 @@ gfx_rv dolist_test_prt( dolist_t * pdlist, const prt_t * pprt )
         return gfx_fail;
     }
 
-    if ( !DISPLAY_PPRT( pprt ) )
+    if ( !_DISPLAY_PPRT( pprt ) )
     {
         return gfx_fail;
     }
@@ -1104,7 +1104,7 @@ gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
     //}
 
     pdlist->lst[pdlist->count].ichr = INVALID_CHR_REF;
-    pdlist->lst[pdlist->count].iprt = GET_REF_PPRT( pprt );
+    pdlist->lst[pdlist->count].iprt = _GET_REF_PPRT( pprt );
     pdlist->count++;
 
     pprt->inst.indolist = true;
@@ -1181,7 +1181,7 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_t *
             iprt = ( PRT_REF )( pleaf->index );
 
             // is it in the array?
-            if ( !VALID_PRT_RANGE( iprt ) ) continue;
+            if ( !_VALID_PRT_RANGE( iprt ) ) continue;
             pprt = PrtList_get_ptr( iprt );
 
             // do some more obvious tests before testing the frustum
@@ -1260,19 +1260,19 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
                 mat_getTranslate(ChrList.lst[ichr].inst.matrix, pos_tmp);
             }
 
-            vtmp = fvec3_sub(pos_tmp, pcam->getPosition());
+            vtmp = pos_tmp - pcam->getPosition();
         }
-        else if ( INVALID_CHR_REF == pdlist->lst[cnt].ichr && VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
+        else if ( INVALID_CHR_REF == pdlist->lst[cnt].ichr && _VALID_PRT_RANGE( pdlist->lst[cnt].iprt ) )
         {
             PRT_REF iprt = pdlist->lst[cnt].iprt;
 
             if ( do_reflect )
             {
-                vtmp = fvec3_sub(PrtList.lst[iprt].inst.pos, pcam->getPosition());
+                vtmp = PrtList.lst[iprt].inst.pos - pcam->getPosition();
             }
             else
             {
-                vtmp = fvec3_sub(PrtList.lst[iprt].inst.ref_pos, pcam->getPosition());
+                vtmp = PrtList.lst[iprt].inst.ref_pos - pcam->getPosition();
             }
         }
         else
@@ -1280,7 +1280,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
             continue;
         }
 
-        dist = fvec3_dot_product( vtmp, vcam );
+        dist = vtmp.dot(vcam);
         if ( dist > 0 )
         {
             pdlist->lst[count].ichr = pdlist->lst[cnt].ichr;
@@ -4263,7 +4263,7 @@ gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
                     retval = gfx_error;
                 }
             }
-            else if ( INVALID_CHR_REF == pdolist->lst[cnt].ichr && VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
+            else if ( INVALID_CHR_REF == pdolist->lst[cnt].ichr && _VALID_PRT_RANGE( pdolist->lst[cnt].iprt ) )
             {
                 // draw draw front and back faces of polygons
                 oglx_end_culling();              // GL_ENABLE_BIT
@@ -4669,13 +4669,13 @@ gfx_rv render_world_overlay( std::shared_ptr<Camera> pcam, const TX_REF texture 
     vforw_wind.x = ilayer->tx_add.x;
     vforw_wind.y = ilayer->tx_add.y;
     vforw_wind.z = 0;
-    fvec3_self_normalize(vforw_wind);
+	vforw_wind.normalize();
 
     mat_getCamForward(pcam->getView(), vforw_cam);
-    fvec3_self_normalize(vforw_cam);
+	vforw_cam.normalize();
 
     // make the texture begin to disappear if you are not looking straight down
-    ftmp = fvec3_dot_product(vforw_wind, vforw_cam);
+    ftmp = vforw_wind.dot(vforw_cam);
 
     alpha = ( 1.0f - ftmp * ftmp ) * ( ilayer->alpha * INV_FF );
 
@@ -5936,8 +5936,8 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
         plight = NULL;
 
         // find the distance to the camera
-        vdist = fvec3_sub(prt_get_pos_v_const(prt_bdl.prt_ptr), pcam->getTrackPosition());
-        distance = fvec3_length_2(vdist);
+        vdist = prt_get_pos_v_const(prt_bdl.prt_ptr) - pcam->getTrackPosition();
+        distance = vdist.length_2();
 
         // insert the dynalight
         if ( pdylist->count < gfx.dynalist_max &&  pdylist->count < TOTAL_MAX_DYNA )

@@ -83,6 +83,37 @@ struct aabb_t;
         {
             //ctor
         }
+		/**
+		 * @brief
+		 *	Assign this cone the values of another cone.
+		 * @param other
+		 *	the other cone
+		 * @post
+		 *	This cone was assigned the values of the other cone.
+		 */
+		void assign(const cone_t& other)
+		{
+			origin = other.origin;
+			axis = other.axis;
+			inv_sin = other.inv_sin;
+			sin_2 = other.sin_2;
+			cos_2 = other.cos_2;
+		}
+		/**
+		 * @brief
+		 *	Assign this cone the values of another cone.
+		 * @param other
+		 *	the other cone
+		 * @return
+		 *	this cone
+		 * @post
+		 *	This cone was assigned the values of the other cone.
+		 */
+		cone_t& operator=(const cone_t& other)
+		{
+			assign(other);
+			return *this;
+		}
     };
 
 //--------------------------------------------------------------------------------------------
@@ -95,7 +126,7 @@ struct aabb_t;
 
     geometry_rv point_intersects_aabb( const point_base_t pos, const fvec3_base_t corner1, const fvec3_base_t corner2 );
 
-    geometry_rv aabb_intersects_aabb( const aabb_t * lhs, const aabb_t * rhs );
+    geometry_rv aabb_intersects_aabb(const aabb_t& lhs, const aabb_t& rhs);
 
 	geometry_rv plane_intersects_aabb_min(const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs);
 	geometry_rv plane_intersects_aabb_max(const plane_base_t plane, const fvec3_base_t mins, const fvec3_base_t maxs);
@@ -123,8 +154,16 @@ geometry_rv plane_intersects_aabb(const plane_base_t plane, const fvec3_base_t m
  */
 geometry_rv sphere_intersects_sphere(const sphere_t *lhs, const sphere_t *rhs);
 
-geometry_rv cone_intersects_point( const cone_t * lhs, const fvec3_t& rhs );
-    geometry_rv cone_intersects_sphere( const cone_t * lhs, const sphere_t * rhs );
+/**
+ * @brief
+ *	Get if a cone and a point intersect.
+ * @param lhs
+ *	a cone
+ * @param rhs
+ *	a point
+ */
+geometry_rv cone_intersects_point(const cone_t * lhs, const fvec3_t& rhs);
+geometry_rv cone_intersects_sphere(const cone_t * lhs, const sphere_t * rhs);
 
 
 //--------------------------------------------------------------------------------------------

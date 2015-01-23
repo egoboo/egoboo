@@ -1815,8 +1815,8 @@ CHR_REF chr_find_target( chr_t * psrc, float max_dist, IDSZ idsz, const BIT_FIEL
 
         if ( !chr_check_target( psrc, ichr_test, idsz, targeting_bits ) ) continue;
 
-        diff = fvec3_sub(psrc->pos, ptst->pos);
-        dist2 = fvec3_dot_product(diff, diff);
+        diff = psrc->pos - ptst->pos;
+		dist2 = diff.length_2();
 
         if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
         {
@@ -2022,7 +2022,7 @@ void do_weather_spawn_particles()
 
                     // Yes, so spawn over that character
                     PRT_REF particle = spawn_one_particle_global( pchr->pos, ATK_FRONT, weather.part_gpip, 0 );
-                    if ( DEFINED_PRT( particle ) )
+                    if ( _DEFINED_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList_get_ptr( particle );
 
@@ -2602,7 +2602,7 @@ void show_full_status( int statindex )
     cleanup_character_enchants( pchr );
 
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), _INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - chr_get_ppro(character)->getSkinInfo(skinlevel).defence,
@@ -2643,7 +2643,7 @@ void show_magic_status( int statindex )
     cleanup_character_enchants( pchr );
 
     // Enchanted?
-    DisplayMsg_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
+    DisplayMsg_printf( "=%s is %s=", chr_get_name( GET_REF_PCHR( pchr ), CHRNAME_ARTICLE | CHRNAME_DEFINITE | CHRNAME_CAPITAL, NULL, 0 ), _INGAME_ENC( pchr->firstenchant ) ? "enchanted" : "unenchanted" );
 
     // Enchantment status
     DisplayMsg_printf( "~See Invisible: %s~~See Kurses: %s",
@@ -3405,7 +3405,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
         particle = spawnOneParticle( pchr->pos, pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
-        if ( DEFINED_PRT( particle ) )
+        if ( _DEFINED_PRT( particle ) )
         {
             prt_t * pprt = PrtList_get_ptr( particle );
 
@@ -3584,7 +3584,7 @@ bool attach_one_particle( prt_bundle_t * pbdl_prt )
     if ( NULL == pprt ) return false;
 
     // the previous function can inactivate a particle
-    if ( ACTIVE_PPRT( pprt ) )
+    if ( _ACTIVE_PPRT( pprt ) )
     {
         // Correct facing so swords knock characters in the right direction...
         if ( NULL != pbdl_prt->pip_ptr && HAS_SOME_BITS( pbdl_prt->pip_ptr->damfx, DAMFX_TURN ) )
@@ -4530,10 +4530,10 @@ bool wawalite_finalize( wawalite_data_t * pdata )
     }
 
     windspeed_count = 0;
-    fvec3_self_clear( windspeed.v );
+	windspeed = fvec3_t::zero;
 
     waterspeed_count = 0;
-    fvec3_self_clear( waterspeed.v );
+	waterspeed = fvec3_t::zero;
 
     ilayer = wawalite_data.water.layer + 0;
     if ( wawalite_data.water.background_req )
@@ -5046,7 +5046,7 @@ void disenchant_character( const CHR_REF cnt )
     pchr = ChrList_get_ptr( cnt );
 
     ienc_count = 0;
-    while ( VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
+    while ( _VALID_ENC_RANGE( pchr->firstenchant ) && ( ienc_count < MAX_ENC ) )
     {
         // do not let disenchant_character() get stuck in an infinite loop if there is an error
         if ( !remove_enchant( pchr->firstenchant, &( pchr->firstenchant ) ) )
@@ -5119,7 +5119,7 @@ bool attach_chr_to_platform( chr_t * pchr, chr_t * pplat )
 
     // what to do about traction if the platform is tilted... hmmm?
     chr_getMatUp(pplat, platform_up);
-    fvec3_self_normalize(platform_up);
+	platform_up.normalize();
 
     pchr->enviro.traction = ABS( platform_up.z ) * ( 1.0f - pchr->enviro.zlerp ) + 0.25f * pchr->enviro.zlerp;
 
@@ -5190,10 +5190,10 @@ bool attach_prt_to_platform( prt_t * pprt, chr_t * pplat )
     pip_t   * pprt_pip;
 
     // verify that we do not have two dud pointers
-    if ( !ACTIVE_PPRT( pprt ) ) return false;
+    if ( !_ACTIVE_PPRT( pprt ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    pprt_pip = prt_get_ppip( GET_REF_PPRT( pprt ) );
+    pprt_pip = prt_get_ppip( _GET_REF_PPRT( pprt ) );
     if ( NULL == pprt_pip ) return false;
 
     // check if they can be connected
@@ -5219,7 +5219,7 @@ bool detach_particle_from_platform( prt_t * pprt )
     prt_bundle_t bdl_prt;
 
     // verify that we do not have two dud pointers
-    if ( !DEFINED_PPRT( pprt ) ) return false;
+    if ( !_DEFINED_PPRT( pprt ) ) return false;
 
     // grab all of the particle info
     prt_bundle_set( &bdl_prt, pprt );

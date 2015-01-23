@@ -29,21 +29,13 @@
 
 struct chr_t;
 struct prt_t;
+#if 0
 struct orientation_t;
 struct breadcrumb_t;
 struct breadcrumb_list_t;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-
-struct s_apos;
-typedef struct s_apos apos_t;
-
-struct s_phys_data;
-typedef struct s_phys_data phys_data_t;
-
-
+struct apos_t;
+struct phys_data_t;
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -68,7 +60,7 @@ struct orientation_t
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_apos
+struct apos_t
 {
     fvec3_t mins;
     fvec3_t maxs;
@@ -85,7 +77,7 @@ bool apos_evaluate( const apos_t * src, fvec3_t& dst );
 
 /// Data for doing the physics in bump_all_objects()
 /// @details should prevent you from being bumped into a wall
-struct s_phys_data
+struct phys_data_t
 {
     apos_t         aplat, acoll;
     fvec3_t        avel;
