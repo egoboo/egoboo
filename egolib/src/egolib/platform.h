@@ -101,6 +101,12 @@
 #include <errno.h>
 #endif
 
+#if defined(__cplusplus)
+#include <cstdint>
+#else
+#include <stdint.h>
+#endif
+
 //--------------------------------------------------------------------------------------------
 // SDL.
 #include <SDL.h>

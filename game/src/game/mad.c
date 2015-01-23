@@ -865,12 +865,6 @@ mad_t * mad_rip_actions( mad_t * pmad )
             continue;
         }
 
-		if (action_now == NOACTION) {
-			log_warning("Got no action for frame name '%s', ignoring\n", frame.name);
-            iframe++;
-			continue;
-		}
-
         if ( last_action != action_now )
         {
             // start a new action
