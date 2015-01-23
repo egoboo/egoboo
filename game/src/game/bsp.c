@@ -175,7 +175,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	ptree = &(prt_BSP_root->tree);
 
 	// is the particle in-game?
-	if (!INGAME_PPRT_BASE(loc_pprt) || loc_pprt->is_hidden || loc_pprt->is_ghost) return false;
+	if (!_INGAME_PPRT_BASE(loc_pprt) || loc_pprt->is_hidden || loc_pprt->is_ghost) return false;
 
 	// heal the leaf if necessary
 	pleaf = POBJ_GET_PLEAF(loc_pprt);
@@ -183,7 +183,7 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 	{
 		// some kind of error. re-initialize the data.
 		pleaf->data = loc_pprt;
-		pleaf->index = GET_INDEX_PPRT(loc_pprt);
+		pleaf->index = _GET_INDEX_PPRT(loc_pprt);
 		pleaf->data_type = BSP_LEAF_PRT;
 	};
 
@@ -215,7 +215,7 @@ bool chr_BSP_clear()
 	// unlink all used character nodes
 	for (ichr = 0; ichr < MAX_CHR; ichr++)
 	{
-		BSP_leaf_remove_link(POBJ_GET_PLEAF(ChrList.lst + ichr));
+		BSP_leaf_t::remove_link(POBJ_GET_PLEAF(ChrList.lst + ichr));
 	}
 
 	return true;
@@ -233,7 +233,7 @@ bool prt_BSP_clear()
 	// unlink all used particle nodes
 	for (iprt = 0; iprt < maxparticles; iprt++)
 	{
-		BSP_leaf_remove_link(POBJ_GET_PLEAF(PrtList.lst + iprt));
+		BSP_leaf_t::remove_link(POBJ_GET_PLEAF(PrtList.lst + iprt));
 	}
 
 	return true;
