@@ -432,10 +432,10 @@ struct fmat_4x4_t
 		(*this)(2, 2) = 1.0f;
 		(*this)(3, 2) = 0.0f;
 		// Column 3.
-		(*this)(0, 1) = t.x;
-		(*this)(1, 1) = t.y;
-		(*this)(2, 1) = t.z;
-		(*this)(3, 1) = 1.0f;
+		(*this)(0, 3) = t.x;
+		(*this)(1, 3) = t.y;
+		(*this)(2, 3) = t.z;
+		(*this)(3, 3) = 1.0f;
 	}
 };
 
