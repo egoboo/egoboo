@@ -2855,7 +2855,7 @@ int doGameOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Game Difficulty:", buttonLeft, 50, 0, 0, 20 );
 
             // Buttons
-            if ( !PMod->active && BUTTON_UP == ui_doButton( 1, sz_buttons[0], menuFont, buttonLeft + 150, 50, 150, 30 ) )
+            if ( PMod == nullptr && BUTTON_UP == ui_doButton( 1, sz_buttons[0], menuFont, buttonLeft + 150, 50, 150, 30 ) )
             {
                 // Increase difficulty
                 cfg.difficulty++;
@@ -3912,7 +3912,7 @@ int doVideoOptions( float deltaTime )
             // Max particles
             ui_drawTextBox( menuFont, "Max Particles:", buttonLeft + 300, GFX_HEIGHT - 180, 0, 0, 20 );
 
-            if ( PMod->active )
+            if ( PMod != nullptr )
             {
                 snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i (%i currently used)", maxparticles, maxparticles - PrtList_count_free() );
                 ui_drawTextBox( menuFont, Cmaxparticles, buttonLeft + 450, GFX_HEIGHT - 180, 0, 100, 30 );
@@ -4398,7 +4398,7 @@ int doShowEndgame( float deltaTime )
                 // }
 
                 // fix the menu that is returned when you break out of the game
-                if ( PMod->beat && start_new_player )
+                if ( PMod->isBeaten() && start_new_player )
                 {
                     // we started with a new player and beat the module... yay!
                     // now we want to graduate to the ChoosePlayer menu to

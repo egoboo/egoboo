@@ -6072,7 +6072,7 @@ Uint8 scr_BeatModule( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->beat = true;
+    PMod->beatModule();
 
     SCRIPT_FUNCTION_END();
 }

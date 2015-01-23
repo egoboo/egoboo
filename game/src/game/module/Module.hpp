@@ -58,6 +58,26 @@ public:
 	**/
 	inline uint8_t getImportAmount() const {return _importAmount;}
 
+	inline uint8_t getPlayerAmount() const {return _playerAmount;}
+
+	inline bool isImportValid() const {return _importAmount > 0;}
+
+	/**
+	* @return true if the players have won
+	**/
+	inline bool isBeaten() const {return _isBeaten;}
+
+	/**
+	* @brief Make the players win the module. If they press ESC the game ends and 
+	*		 the end screen is shown instead of going to the pause menu
+	**/
+	void beatModule() {_isBeaten = true;}
+
+	/**
+	* @return true if the players are allowed to respawn upon death
+	**/
+	inline bool isRespawnValid() const {return _isRespawnValid;}
+
 	/**
 	* @return true if the players are allowed to export (save) their progress in this 
 	*		  module upon exit
@@ -66,21 +86,19 @@ public:
 
 	void setExportValid(bool valid) {_exportValid = valid;}
 
-public:
-    bool  exportreset;                
-    uint8_t   playeramount;               ///< How many players?
-    bool  importvalid;                ///< Can it import?
-    bool  respawnvalid;               ///< Can players respawn with Spacebar?
-    bool  respawnanytime;             ///< True if it's a small level...
 
-    bool  active;                     ///< Is the control loop still going?
-    bool  beat;                       ///< Show Module Ended text?
-    uint32_t  seed;                       ///< The module seed
+	inline bool canRespawnAnyTime() const {return _canRespawnAnyTime;}
 
 private:
     std::string  _name;               ///< Module load names
     uint8_t   _importAmount;          ///< Number of imports for this module
     bool _exportValid;				  ///< Allow to export when module is reset?
+    bool  _exportReset;               ///< Remember original export mode if the module is restarted
+    uint8_t _playerAmount;            ///< How many players?
+    bool  _canRespawnAnyTime;         ///< True if it's a small level...
+    bool _isRespawnValid;			  ///< Can players respawn with Spacebar?
+    bool _isBeaten;				 	  ///< Have the players won?
+    uint32_t  _seed;                  ///< The module seed
 
 };
 

@@ -107,7 +107,7 @@ bool link_follow_modname( const char * modname, bool push_current_module )
     game_finish_module();
 
     // try to load the new module
-    retval = game_begin_module( modname, PMod->seed );
+    retval = game_begin_module(modname);
 
     if ( !retval )
     {

@@ -430,7 +430,7 @@ void   game_quit_module();
 /// the hook for exporting all the current players and reloading them
 bool game_update_imports();
 void   game_finish_module();
-bool game_begin_module( const char * modname, Uint32 seed );
+bool game_begin_module(const char * modname);
 
 /// Exporting stuff
 egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool is_local );

@@ -3018,7 +3018,7 @@ float draw_game_status( float y )
                 y = draw_string_raw( 0, y, "PRESS ESCAPE TO QUIT" );
             }
         }
-        else if ( PMod->beat )
+        else if ( PMod->isBeaten() )
         {
             y = draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
         }

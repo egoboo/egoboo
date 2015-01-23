@@ -53,7 +53,7 @@ egolib_rv cl_talkToHost()
 
     // Let the players respawn
     if ( SDL_KEYDOWN( keyb, SDLK_SPACE )
-         && ( local_stats.allpladead || PMod->respawnanytime )
+         && ( local_stats.allpladead || PMod->canRespawnAnyTime() )
          && PMod->respawnvalid
          && cfg.difficulty < GAME_HARD
          && !keyb.chat_mode )
@@ -191,7 +191,7 @@ egolib_rv cl_handlePacket( enet_packet_t * enet_pkt )
             log_info( "TO_REMOTE_MODULE\n" );
             if ( !egonet_get_hostactive() && !egonet_get_readytostart() )
             {
-                enet_packet_readUint32( enet_pkt, &PMod->seed );
+                //enet_packet_readUint32( enet_pkt, &PMod->seed );
                 enet_packet_readString( enet_pkt,  filename, sizeof( filename ) );
 
                 pickedmodule_index         = -1;

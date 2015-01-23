@@ -26,19 +26,15 @@
 #include "egolib/math/Random.hpp"
 
 GameModule::GameModule() :
-		_exportValid(false),
-		exportreset(false),
-		playeramount(1),
-		importvalid(false),
-		respawnvalid(false),
-		respawnanytime(false),
-
-		active(false),
-		beat(false),
-		seed(std::numeric_limits<uint32_t>::max()),
-
 		_name("*NONE*"),
-        _importAmount(0)
+        _importAmount(0),
+        _exportValid(false),
+        _exportReset(false),
+        _playerAmount(1),
+        _canRespawnAnyTime(false),
+        _isRespawnValid(false),
+        _isBeaten(false),
+        _seed(std::numeric_limits<uint32_t>::max())
 {
 	//ctor
 }
@@ -50,17 +46,13 @@ bool GameModule::setup( const mod_file_t * pdata, const std::string& name, const
 
     _importAmount   = pdata->importamount;
     _exportValid    = pdata->allowexport;
-    exportreset    = pdata->allowexport;
-    playeramount   = pdata->maxplayers;
-    importvalid    = _importAmount > 0;
-    respawnvalid   = ( false != pdata->respawnvalid );
-    respawnanytime = ( RESPAWN_ANYTIME == pdata->respawnvalid );
-
+    _exportReset    = pdata->allowexport;
+    _playerAmount   = pdata->maxplayers;
+    _isRespawnValid   = ( false != pdata->respawnvalid );
+    _canRespawnAnyTime = (RESPAWN_ANYTIME == pdata->respawnvalid);
     _name = name;
-
-    active = false;
-    beat   = false;
-    this->seed = seed;
+    _isBeaten = false;
+    _seed = seed;
 
     return true;
 }
@@ -69,9 +61,9 @@ bool GameModule::setup( const mod_file_t * pdata, const std::string& name, const
 //--------------------------------------------------------------------------------------------
 bool GameModule::reset( const uint32_t seed )
 {
-    beat        = false;
-    _exportValid = exportreset;
-    this->seed  = seed;
+    _isBeaten    = false;
+    _exportValid = _exportReset;
+    _seed        = seed;
 
     return true;
 }
@@ -81,8 +73,8 @@ bool GameModule::start()
 {
     active = true;
 
-    srand( seed );
-    Random::setSeed(seed);
+    srand( _seed );
+    Random::setSeed(_seed);
     randindex = rand() % RANDIE_COUNT;
 
     egonet_set_hostactive( true ); // very important or the input will not work
@@ -93,9 +85,6 @@ bool GameModule::start()
 //--------------------------------------------------------------------------------------------
 bool GameModule::stop()
 {
-
-    active      = false;
-
     // network stuff
     egonet_set_hostactive( false );
 

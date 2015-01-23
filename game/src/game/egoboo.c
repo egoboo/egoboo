@@ -266,7 +266,7 @@ int do_ego_proc_running( ego_process_t * eproc )
         screenshot_requested = true;
     }
 
-    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F9 ) && NULL != PMod && PMod->active )
+    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F9 ) && nullptr != PMod )
     {
         // super secret "I win" button
         //PMod->beat        = true;

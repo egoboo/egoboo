@@ -1217,7 +1217,7 @@ int game_process_do_begin( game_process_t * gproc )
     gfx_system_make_enviro();
 
     // try to start a new module
-    if ( !game_begin_module( pickedmodule_path, ( Uint32 )~0 ) )
+    if ( !game_begin_module(pickedmodule_path) )
     {
         // failure - kill the game process
         process_kill( PROC_PBASE( gproc ) );
@@ -1459,7 +1459,7 @@ int game_process_do_running( game_process_t * gproc )
 
         if ( !gproc->escape_latch )
         {
-            if ( PMod->beat )
+            if ( PMod->isBeaten() )
             {
                 game_begin_menu( MProc, emnu_ShowEndgame );
             }
@@ -2699,7 +2699,7 @@ void import_dir_profiles_vfs( const std::string &dirname )
 {
     if ( NULL == PMod || dirname.empty() ) return;
 
-    if ( !PMod->importvalid ) return;
+    if ( !PMod->isImportValid() ) return;
 
     for (int cnt = 0; cnt < PMod->getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
     {
@@ -2993,7 +2993,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     if ( psp_info->stat )
     {
         // what we do depends on what kind of module we're loading
-        if ( 0 == PMod->getImportAmount() && PlaStack.count < PMod->playeramount )
+        if ( 0 == PMod->getImportAmount() && PlaStack.count < PMod->getPlayerAmount() )
         {
             // a single player module
 
@@ -3007,7 +3007,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 pobject->nameknown = true;
             }
         }
-        else if ( PlaStack.count < PMod->getImportAmount() && PlaStack.count < PMod->playeramount && PlaStack.count < ImportList.count )
+        else if ( PlaStack.count < PMod->getImportAmount() && PlaStack.count < PMod->getPlayerAmount() && PlaStack.count < ImportList.count )
         {
             // A multiplayer module
 
@@ -3455,12 +3455,10 @@ void game_quit_module()
 }
 
 //--------------------------------------------------------------------------------------------
-bool game_begin_module( const char * modname, Uint32 seed )
+bool game_begin_module(const char * modname)
 {
     /// @author BB
     /// @details all of the initialization code before the module actually starts
-
-    if ((( Uint32 )( ~0 ) ) == seed ) seed = ( Uint32 )time( NULL );
 
     // make sure the old game has been quit
     game_quit_module();
@@ -3472,7 +3470,6 @@ bool game_begin_module( const char * modname, Uint32 seed )
     if ( !setup_init_module_vfs_paths( modname ) ) return false;
 
     // load all the in-game module data
-    srand( seed );
     if ( !game_load_module_data( modname ) )
     {
         PMod->stop();
@@ -3487,7 +3484,6 @@ bool game_begin_module( const char * modname, Uint32 seed )
     // initialize the game objects
     initialize_all_objects();
     input_cursor_reset();
-    PMod->reset(seed);
     _cameraSystem.resetAll(PMesh);
     update_all_character_matrices();
     attach_all_particles();
