@@ -1,20 +1,11 @@
 before_install:
 - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 - sudo apt-get update -qq
-- if [ "$CC" = "gcc" ];  then sudo apt-get install -qq gcc-4.8; fi
+- if [ "$CC" = "gcc" ];  then sudo apt-get install -qq -y gcc-4.8; fi
 - if [ "$CC" = "gcc" ];  then export CC="gcc-4.8" CC="gcc-4.8"; fi
-- if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+- if [ "$CXX" = "g++" ]; then sudo apt-get install -qq -y g++-4.8; fi
 - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-- sudo apt-get install libphysfs-dev
-- sudo apt-get install libsdl1.2-dev
-- sudo apt-get install libsdl-image1.2-dev
-- sudo apt-get install libsdl-mixer1.2-dev
-- sudo apt-get install libsdl-ttf2.0-dev
-- sudo apt-get install libenet-dev
-- sudo apt-get install liblua5.2-dev
-- sudo apt-get install doxygen
-- sudo apt-get install valgrind
-- sudo apt-get install graphviz
-language: c
+- sudo apt-get install -y libphysfs-dev libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libenet-dev liblua5.2-dev doxygen valgrind graphviz
+language: cpp
 script:
 - make PREFIX=/usr/local egoboo

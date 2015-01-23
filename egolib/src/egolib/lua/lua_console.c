@@ -228,9 +228,6 @@ SDL_bool lua_console_run( egolib_console_t * ego_con, void * data )
     if (nullptr == ego_con || nullptr == data) return SDL_FALSE;
 
 	lua_console_t *lua_con = ( lua_console_t * )data;
-    
-    if (nullptr == lua_con->L ) return SDL_FALSE;
-    EGOBOO_ASSERT( nullptr != global_L );
 
 	if (nullptr == lua_con->L) return SDL_FALSE;
 	EGOBOO_ASSERT( nullptr != global_L );

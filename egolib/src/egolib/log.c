@@ -48,7 +48,8 @@ enum ConsoleColor
     CONSOLE_TEXT_RED,
     CONSOLE_TEXT_YELLOW,
     CONSOLE_TEXT_WHITE,
-    CONSOLE_TEXT_GRAY
+    CONSOLE_TEXT_GRAY,
+    CONSOLE_TEXT_DEFAULT
 };
 
 /**
@@ -75,6 +76,7 @@ static void setConsoleColor(ConsoleColor color)
         break;
 
         case CONSOLE_TEXT_GRAY:
+        case CONSOLE_TEXT_DEFAULT:
             SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN);
         break;
     }
@@ -98,6 +100,10 @@ static void setConsoleColor(ConsoleColor color)
 
         case CONSOLE_TEXT_GRAY:
             fputs("\e[0;30m", stdout);
+        break;
+        
+        case CONSOLE_TEXT_DEFAULT:
+            fputs("\e[0m", stdout);
         break;
     }
 #endif
@@ -155,7 +161,7 @@ static void writeLogMessage(LogLevel logLevel, const char *format, va_list args)
     fputs(logBuffer, stdout);
 
     //Restore default color
-    setConsoleColor(CONSOLE_TEXT_GRAY);
+    setConsoleColor(CONSOLE_TEXT_DEFAULT);
 }
 
 //--------------------------------------------------------------------------------------------

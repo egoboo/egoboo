@@ -224,7 +224,7 @@ ObjectProfile::ObjectProfile() :
 {
     _experienceRate.fill(0.0f);
     _idsz.fill(IDSZ_NONE);
-    _experienceForLevel.fill(UINT32_MAX);
+    _experienceForLevel.fill(std::numeric_limits<uint32_t>::max());
 
     memset(&_aiScript, 0, sizeof(script_info_t));
 }
@@ -261,7 +261,7 @@ ObjectProfile::~ObjectProfile()
 uint32_t ObjectProfile::getXPNeededForLevel(uint8_t level) const
 {
     if(level >= _experienceForLevel.size()) {
-        return UINT32_MAX;
+        return std::numeric_limits<uint32_t>::max();
     }
 
     return _experienceForLevel[level];

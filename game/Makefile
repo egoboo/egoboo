@@ -23,12 +23,11 @@ EGOLIB_L      := ../egolib/$(EGOLIB_TARGET)
 #---------------------
 # the compiler options
 
-CC      := g++
 INC     := -Isrc -I../egolib/src
 LDFLAGS := ${SDLCONF_L} ${EGOLIB_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -lGL -lGLU
 
 # use different options if the environmental variable PREFIX is defined
-ifeq ($(PREFIX),"")
+ifeq ($(PREFIX),)
 	OPT := -D_NO_PREFIX
 else
 	OPT := -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX

@@ -23,15 +23,17 @@ EGOLIB_TARGET_LUA := lib$(PROJ_NAME)-lua.la
 #------------------------------------
 # user defined macros
 
-ifndef ($(PREFIX),"")
+ifeq ($(PREFIX),)
 	# define a value for prefix assuming that the program will be installed in the root directory
 	PREFIX := /usr
 endif
 
-ifndef ($(INSTALL_DIR),"")
+ifeq ($(INSTALL_DIR),)
 	# the user can specify a non-standard location for "install"
 	INSTALL_DIR := game/data
 endif
+
+export PREFIX EGOLIB_TARGET EGO_TARGET
 
 #------------------------------------
 # definitions of the target projects
@@ -39,10 +41,10 @@ endif
 .PHONY: all clean egolib egoboo egolib_lua egoboo_lua
 
 egolib:
-	make -C $(EGOLIB_DIR) PREFIX=$(PREFIX) EGOLIB_TARGET=$(EGOLIB_TARGET)
+	make -C $(EGOLIB_DIR)
 
 egoboo: egolib
-	make -C $(EGO_DIR) PREFIX=$(PREFIX) EGO_TARGET=$(EGO_TARGET) EGOLIB_TARGET=$(EGOLIB_TARGET)
+	make -C $(EGO_DIR)
 
 egolib_lua:
 	make -C $(EGOLIB_DIR) -F Makefile.lua PREFIX=$(PREFIX) EGOLIB_TARGET=$(EGOLIB_TARGET_LUA)
@@ -53,8 +55,8 @@ egoboo_lua: egolib_lua
 all: egolib egoboo
 
 clean:
-	make -C $(EGOLIB_DIR) clean EGOLIB_TARGET=$(EGOLIB_TARGET)
-	make -C $(EGO_DIR) clean EGO_TARGET=$(EGOLIB_TARGET)
+	make -C $(EGOLIB_DIR) clean
+	make -C $(EGO_DIR) clean
 
 install: egoboo
 
@@ -68,7 +70,7 @@ install: egoboo
 	install -m 755 $(EGO_DIR)/$(EGO_TARGET) $(PREFIX)/games
 
 #	call the installer in the required install directory
-	make -C $(INSTALL_DIR) install PREFIX=$(PREFIX) PROJ_NAME=$(EGO_TARGET)
+	make -C $(INSTALL_DIR) install PROJ_NAME=$(EGO_TARGET)
 
 	#####################################
 	# Egoboo installation is finished

@@ -295,7 +295,9 @@ vfs_FILE * vfs_openAppendB( const char * filename )
 
     // make sure that the destination directory exists, and that a data is copied
     // from the source file in the read path, if necessary
-    if ( !_vfs_ensure_destination_file( filename ) ) return NULL;
+    
+    // the one place that uses this function for this already copies the file anyway
+    //if ( !_vfs_ensure_destination_file( filename ) ) return NULL;
 
     ftmp = PHYSFS_openAppend( filename );
     if ( NULL == ftmp ) return NULL;

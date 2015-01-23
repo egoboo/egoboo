@@ -203,6 +203,7 @@
 		CDE4EC601A7167CD00A4BC62 /* Cube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC591A7167CD00A4BC62 /* Cube.cpp */; };
 		CDE4EC611A7167CD00A4BC62 /* Plane.c in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC5B1A7167CD00A4BC62 /* Plane.c */; };
 		CDE4EC621A7167CD00A4BC62 /* Sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC5D1A7167CD00A4BC62 /* Sphere.c */; };
+		CDE4EC651A71AEFC00A4BC62 /* Module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC631A71AEFC00A4BC62 /* Module.cpp */; };
 		CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */; };
 		CDFB85201A3FB85100CFB956 /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85141A3FB85100CFB956 /* basicdat */; };
 		CDFB85211A3FB85100CFB956 /* BUGS.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85151A3FB85100CFB956 /* BUGS.txt */; };
@@ -668,6 +669,8 @@
 		CDE4EC5C1A7167CD00A4BC62 /* Plane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
 		CDE4EC5D1A7167CD00A4BC62 /* Sphere.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = Sphere.c; sourceTree = "<group>"; };
 		CDE4EC5E1A7167CD00A4BC62 /* Sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sphere.h; sourceTree = "<group>"; };
+		CDE4EC631A71AEFC00A4BC62 /* Module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Module.cpp; sourceTree = "<group>"; };
+		CDE4EC641A71AEFC00A4BC62 /* Module.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Module.hpp; sourceTree = "<group>"; };
 		CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bsp_aabb.c; sourceTree = "<group>"; };
 		CDF01D7F1A67E532001BC1EF /* bsp_aabb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bsp_aabb.h; sourceTree = "<group>"; };
 		CDFB85141A3FB85100CFB956 /* basicdat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = basicdat; sourceTree = "<group>"; };
@@ -1228,6 +1231,8 @@
 		CD97C1601A629E2500179A2C /* module */ = {
 			isa = PBXGroup;
 			children = (
+				CDE4EC631A71AEFC00A4BC62 /* Module.cpp */,
+				CDE4EC641A71AEFC00A4BC62 /* Module.hpp */,
 				CD97C1611A629E2500179A2C /* Passage.cpp */,
 				CD97C1621A629E2500179A2C /* Passage.hpp */,
 				CD97C1631A629E2500179A2C /* PassageHandler.cpp */,
@@ -1624,6 +1629,7 @@
 				CD39B4901A37506100B377BE /* renderer_3d.c in Sources */,
 				CD39B4921A37506100B377BE /* script_compile.c in Sources */,
 				CD39B4841A37506100B377BE /* particle.c in Sources */,
+				CDE4EC651A71AEFC00A4BC62 /* Module.cpp in Sources */,
 				CD39B4721A37506100B377BE /* link.c in Sources */,
 				CD39B46A1A37506100B377BE /* graphic_billboard.c in Sources */,
 				CD39B45B1A37506100B377BE /* char.c in Sources */,

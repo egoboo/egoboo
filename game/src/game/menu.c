@@ -1470,6 +1470,7 @@ int doChooseModule( float deltaTime )
                             default:
                             case FILTER_OFF:       filterText = "All Modules";      break;
                         }
+                        validModules.clear();
                     }
                 }
 
