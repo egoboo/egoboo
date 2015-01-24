@@ -406,7 +406,7 @@ size_t PrtList_pop_free( const int idx )
 
     if ( loops > 0 )
     {
-        log_warning( "%s - there is something wrong with the free stack. %d loops.\n", __FUNCTION__, loops );
+        log_warning( "%s - there is something wrong with the free stack. %lu loops.\n", __FUNCTION__, loops );
     }
 
     return retval;

@@ -30,14 +30,14 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static GLfloat ui_white_color[]  = {1.00f, 1.00f, 1.00f, 1.00f};
+//static GLfloat ui_white_color[]  = {1.00f, 1.00f, 1.00f, 1.00f};
 
 static GLfloat ui_active_color[]  = {0.00f, 0.00f, 0.90f, 0.60f};
 static GLfloat ui_hot_color[]     = {0.54f, 0.00f, 0.00f, 1.00f};
 static GLfloat ui_normal_color[]  = {0.66f, 0.00f, 0.00f, 0.60f};
 
-static GLfloat ui_active_color2[] = {0.00f, 0.45f, 0.45f, 0.60f};
-static GLfloat ui_hot_color2[]    = {0.00f, 0.28f, 0.28f, 1.00f};
+//static GLfloat ui_active_color2[] = {0.00f, 0.45f, 0.45f, 0.60f};
+//static GLfloat ui_hot_color2[]    = {0.00f, 0.28f, 0.28f, 1.00f};
 static GLfloat ui_normal_color2[] = {0.33f, 0.00f, 0.33f, 0.60f};
 
 static const SDL_Color ui_text_color = { 0xFF, 0xFF, 0xFF, 0x00 };

@@ -3914,7 +3914,7 @@ int doVideoOptions( float deltaTime )
 
             if ( PMod != nullptr )
             {
-                snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i (%i currently used)", maxparticles, maxparticles - PrtList_count_free() );
+                snprintf(Cmaxparticles, SDL_arraysize(Cmaxparticles), "%i (%i currently used)", maxparticles, maxparticles - PrtList_count_free());
                 ui_drawTextBox( menuFont, Cmaxparticles, buttonLeft + 450, GFX_HEIGHT - 180, 0, 100, 30 );
             }
             else if ( BUTTON_UP == ui_doButton( 15, sz_buttons[but_maxparticles], menuFont, buttonLeft + 450, GFX_HEIGHT - 180, 100, 30 ) )

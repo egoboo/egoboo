@@ -165,8 +165,6 @@ static int game_process_do_leaving( game_process_t * gproc );
 static bool game_begin_menu( menu_process_t * mproc, which_menu_t which );
 static void   game_end_menu( menu_process_t * mproc );
 
-static void   do_game_hud();
-
 // place the object lists in the initial state
 void reset_all_object_lists();
 
@@ -436,7 +434,7 @@ void log_madused_vfs( const char *savename )
             for(size_t i = lastSlotNumber; i < profile->getSlotNumber() && i <= 36; ++i)
             {
                 if ( !_profileSystem.isValidProfileID(i) ) {
-                    vfs_printf( hFileWrite, "%3d  %32s.\n", i, "Slot reserved for import players" );
+                    vfs_printf( hFileWrite, "%3lu  %32s.\n", i, "Slot reserved for import players" );
                 }
             }
             lastSlotNumber = profile->getSlotNumber();
@@ -2519,16 +2517,16 @@ void show_armor( int statindex )
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - skinInfo.defence,
-                       skinInfo.damageResistance[DAMAGE_SLASH]*100,
-                       skinInfo.damageResistance[DAMAGE_CRUSH]*100,
-                       skinInfo.damageResistance[DAMAGE_POKE ]*100 );
+                       skinInfo.damageResistance[DAMAGE_SLASH]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_CRUSH]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_POKE ]*100.0f );
 
     DisplayMsg_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
-                       skinInfo.damageResistance[DAMAGE_HOLY]*100,
-                       skinInfo.damageResistance[DAMAGE_EVIL]*100,
-                       skinInfo.damageResistance[DAMAGE_FIRE]*100,
-                       skinInfo.damageResistance[DAMAGE_ICE ]*100,
-                       skinInfo.damageResistance[DAMAGE_ZAP ]*100 );
+                       skinInfo.damageResistance[DAMAGE_HOLY]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_EVIL]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_FIRE]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_ICE ]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_ZAP ]*100.0f );
 
     DisplayMsg_printf( "~Type: %s", skinInfo.dressy ? "Light Armor" : "Heavy Armor" );
 
@@ -3216,6 +3214,7 @@ egolib_rv game_load_global_assets()
     {
         case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
         case gfx_error:  retval = rv_error; break;
+        default: /*nothing*/ break;
     }
 
     load_rv = gfx_load_bars();
@@ -3223,6 +3222,7 @@ egolib_rv game_load_global_assets()
     {
         case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
         case gfx_error:  retval = rv_error; break;
+        default: /*nothing*/ break;
     }
 
     load_rv = gfx_load_icons();
@@ -3230,6 +3230,7 @@ egolib_rv game_load_global_assets()
     {
         case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
         case gfx_error:  retval = rv_error; break;
+        default: /*nothing*/ break;
     }
 
     return retval;
@@ -4159,6 +4160,7 @@ game_process_t * game_process_init( game_process_t * gproc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 void do_game_hud()
 {
     int y = 0;
@@ -4176,6 +4178,7 @@ void do_game_hud()
         y = draw_string( 0, y, "Menu time %f", MProc->base.frameDuration );
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
