@@ -50,7 +50,6 @@
 #include "game/mesh.h"
 
 #include "game/profiles/Profile.hpp"
-#include "game/module/PassageHandler.hpp" //only for getPassageCount()
 #include "game/graphics/CameraSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
@@ -2957,7 +2956,7 @@ float draw_debug( float y )
         y = draw_string_raw( 0, y, "~~FREECHR %d", ChrList_count_free() );
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
         y = draw_string_raw( 0, y, PMod->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE" );
-        y = draw_string_raw( 0, y, "~~PASS %d", Passages::getPassageCount() );
+        y = draw_string_raw( 0, y, "~~PASS %d", PMod->getPassageCount() );
         y = draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
         y = draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.part_gpip );
 
@@ -3007,9 +3006,9 @@ float draw_game_status( float y )
     }
     else if ( ServerState.player_count > 0 )
     {
-        if ( local_stats.allpladead || PMod->respawnanytime )
+        if ( local_stats.allpladead || PMod->canRespawnAnyTime() )
         {
-            if ( PMod->respawnvalid && cfg.difficulty < GAME_HARD )
+            if ( PMod->isRespawnValid() && cfg.difficulty < GAME_HARD )
             {
                 y = draw_string_raw( 0, y, "PRESS SPACE TO RESPAWN" );
             }
@@ -3018,7 +3017,7 @@ float draw_game_status( float y )
                 y = draw_string_raw( 0, y, "PRESS ESCAPE TO QUIT" );
             }
         }
-        else if ( PMod->beat )
+        else if ( PMod->isBeaten() )
         {
             y = draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
         }

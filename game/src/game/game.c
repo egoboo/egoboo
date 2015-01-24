@@ -45,7 +45,7 @@
 #include "game/script_compile.h"
 #include "game/egoboo.h"
 
-#include "game/module/PassageHandler.hpp"
+#include "game/module/Passage.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
@@ -84,7 +84,6 @@ PROFILE_DECLARE( cl_talkToHost );
 //Game engine globals
 CameraSystem      _cameraSystem;
 AudioSystem       _audioSystem;
-static GameModule _gmod;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -98,7 +97,7 @@ size_t endtext_carat = 0;
 status_list_t StatusList = STATUS_LIST_INIT;
 
 ego_mesh_t         * PMesh   = _mesh + 0;
-GameModule         * PMod    = &_gmod;
+std::unique_ptr<GameModule> PMod = nullptr;
 game_process_t     * GProc   = &_gproc;
 
 pit_info_t pits = PIT_INFO_INIT;
@@ -121,6 +120,8 @@ Uint32          update_wld       = 0;
 Uint32          true_update      = 0;
 Uint32          true_frame       = 0;
 int             update_lag       = 0;
+
+static MOD_REF _currentModuleID = -1;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -799,7 +800,7 @@ int update_game()
 
         if ( !pchr->alive )
         {
-            if ( cfg.difficulty < GAME_HARD && local_stats.allpladead && SDL_KEYDOWN( keyb, SDLK_SPACE ) && PMod->respawnvalid && 0 == local_stats.revivetimer )
+            if ( cfg.difficulty < GAME_HARD && local_stats.allpladead && SDL_KEYDOWN( keyb, SDLK_SPACE ) && PMod->isRespawnValid() && 0 == local_stats.revivetimer )
             {
                 respawn_character( ichr );
                 pchr->experience *= EXPKEEP;        // Apply xp Penality
@@ -1189,6 +1190,9 @@ int game_process_do_begin( game_process_t * gproc )
         game_process_do_leaving(gproc);
         process_pause(PROC_PBASE(MProc));
     }
+
+    //Make sure all data is cleared first
+    game_quit_module();
     
     BillboardList_init_all();
 
@@ -1217,7 +1221,7 @@ int game_process_do_begin( game_process_t * gproc )
     gfx_system_make_enviro();
 
     // try to start a new module
-    if ( !game_begin_module( pickedmodule_path, ( Uint32 )~0 ) )
+    if ( !game_begin_module(pickedmodule_path) )
     {
         // failure - kill the game process
         process_kill( PROC_PBASE( gproc ) );
@@ -1374,7 +1378,7 @@ int game_process_do_running( game_process_t * gproc )
                 }
                 PROFILE_END2( check_stats );
 
-                Passages::checkPassageMusic();
+                PMod->checkPassageMusic();
 
                 if ( egonet_get_waitingforclients() )
                 {
@@ -1459,7 +1463,7 @@ int game_process_do_running( game_process_t * gproc )
 
         if ( !gproc->escape_latch )
         {
-            if ( PMod->beat )
+            if ( PMod->isBeaten() )
             {
                 game_begin_menu( MProc, emnu_ShowEndgame );
             }
@@ -2697,9 +2701,9 @@ void tilt_characters_to_terrain()
 //--------------------------------------------------------------------------------------------
 void import_dir_profiles_vfs( const std::string &dirname )
 {
-    if ( NULL == PMod || dirname.empty() ) return;
+    if ( nullptr == PMod || dirname.empty() ) return;
 
-    if ( !PMod->importvalid ) return;
+    if ( !PMod->isImportValid() ) return;
 
     for (int cnt = 0; cnt < PMod->getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
     {
@@ -2993,7 +2997,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     if ( psp_info->stat )
     {
         // what we do depends on what kind of module we're loading
-        if ( 0 == PMod->getImportAmount() && PlaStack.count < PMod->playeramount )
+        if ( 0 == PMod->getImportAmount() && PlaStack.count < PMod->getPlayerAmount() )
         {
             // a single player module
 
@@ -3007,7 +3011,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 pobject->nameknown = true;
             }
         }
-        else if ( PlaStack.count < PMod->getImportAmount() && PlaStack.count < PMod->playeramount && PlaStack.count < ImportList.count )
+        else if ( PlaStack.count < PMod->getImportAmount() && PlaStack.count < PMod->getPlayerAmount() && PlaStack.count < ImportList.count )
         {
             // A multiplayer module
 
@@ -3260,20 +3264,15 @@ void game_load_all_assets( const char *modname )
 //--------------------------------------------------------------------------------------------
 void game_setup_module( const char *smallname )
 {
+    //TODO: ZF> Move to Module.cpp
+
     /// @author ZZ
     /// @details This runst the setup functions for a module
-
-    STRING modname;
 
     // make sure the object lists are empty
     free_all_objects();
 
-    // generate the module directory
-    strncpy( modname, smallname, SDL_arraysize( modname ) );
-    str_append_slash_net( modname, SDL_arraysize( modname ) );
-
     // just the information in these files to load the module
-    Passages::loadAllPassages();         // read and implement the "passage script" passages.txt
     activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
     activate_alliance_file_vfs();        // set up the non-default team interactions
 
@@ -3430,7 +3429,7 @@ void game_quit_module()
     /// @details all of the de-initialization code after the module actually ends
 
     // stop the module
-    PMod->stop();
+    PMod.reset(nullptr);
 
     // get rid of the game/module data
     game_release_module_data();
@@ -3455,15 +3454,18 @@ void game_quit_module()
 }
 
 //--------------------------------------------------------------------------------------------
-bool game_begin_module( const char * modname, Uint32 seed )
+bool game_begin_module(const char * modname)
 {
     /// @author BB
     /// @details all of the initialization code before the module actually starts
 
-    if ((( Uint32 )( ~0 ) ) == seed ) seed = ( Uint32 )time( NULL );
+    const mod_file_t * moduleData = mnu_ModList_get_base(_currentModuleID);
+    if(!moduleData) {
+        return false;
+    }
 
-    // make sure the old game has been quit
-    game_quit_module();
+    // start the module
+    PMod = std::unique_ptr<GameModule>(new GameModule(moduleData, mnu_ModList_get_vfs_path(_currentModuleID), time(NULL)));
 
     // make sure that the object lists are in a good state
     reset_all_object_lists();
@@ -3472,10 +3474,9 @@ bool game_begin_module( const char * modname, Uint32 seed )
     if ( !setup_init_module_vfs_paths( modname ) ) return false;
 
     // load all the in-game module data
-    srand( seed );
     if ( !game_load_module_data( modname ) )
     {
-        PMod->stop();
+        PMod.reset(nullptr);
         return false;
     };
 
@@ -3487,7 +3488,6 @@ bool game_begin_module( const char * modname, Uint32 seed )
     // initialize the game objects
     initialize_all_objects();
     input_cursor_reset();
-    PMod->reset(seed);
     _cameraSystem.resetAll(PMesh);
     update_all_character_matrices();
     attach_all_particles();
@@ -3498,9 +3498,6 @@ bool game_begin_module( const char * modname, Uint32 seed )
     // initialize the network
     net_begin();
     net_sayHello();
-
-    // start the module
-    PMod->start();
 
     // initialize the timers as the very last thing
     timeron = false;
@@ -3553,9 +3550,6 @@ void game_release_module_data()
     // deal with dynamically allocated game assets
     gfx_system_release_all_graphics();
     _profileSystem.releaseAllProfiles();
-
-    // free passages
-    Passages::clearPassages();
 
     // delete the mesh data
     ptmp = PMesh;
@@ -4129,21 +4123,12 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 }
 
 //--------------------------------------------------------------------------------------------
-bool game_choose_module( int imod, int seed )
+bool game_choose_module( MOD_REF imod )
 {
-    bool retval;
-
-    if ( seed < 0 ) seed = ( int )time( NULL );
-
-    retval = PMod->setup(mnu_ModList_get_base(imod), mnu_ModList_get_vfs_path(imod), seed);
-
-    if ( retval )
-    {
-        // give everyone virtual access to the game directories
-        setup_init_module_vfs_paths( pickedmodule_path );
-    }
-
-    return retval;
+    // give everyone virtual access to the game directories
+    setup_init_module_vfs_paths( pickedmodule_path );
+    _currentModuleID = imod;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4674,7 +4659,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = Passages::getShopOwner(pitem->pos.x, pitem->pos.y);
+        iowner = PMod->getShopOwner(pitem->pos.x, pitem->pos.y);
         if ( INGAME_CHR( iowner ) )
         {
             int price;
@@ -4727,7 +4712,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = Passages::getShopOwner( pitem->pos.x, pitem->pos.y );
+        iowner = PMod->getShopOwner( pitem->pos.x, pitem->pos.y );
         if ( INGAME_CHR( iowner ) )
         {
             chr_t * powner = ChrList_get_ptr( iowner );
@@ -4803,7 +4788,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = Passages::getShopOwner( pitem->pos.x, pitem->pos.y );
+        iowner = PMod->getShopOwner( pitem->pos.x, pitem->pos.y );
         if ( INGAME_CHR( iowner ) )
         {
             IPair  tmp_rand = {1, 100};
@@ -4843,7 +4828,7 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     can_grab = true;
 
     // check if we are doing this inside a shop
-    shop_keeper = Passages::getShopOwner(pitem->pos.x, pitem->pos.y);
+    shop_keeper = PMod->getShopOwner(pitem->pos.x, pitem->pos.y);
     pkeeper = ChrList_get_ptr( shop_keeper );
     if ( INGAME_PCHR( pkeeper ) )
     {

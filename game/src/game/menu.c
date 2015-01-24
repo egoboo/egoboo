@@ -1390,7 +1390,7 @@ int doChooseModule( float deltaTime )
                     }
                     else
                     {
-                        if ( 0 != PMod->getImportAmount() )
+                        if ( 0 != pmod->importamount )
                         {
                             carat += snprintf( carat, carat_end - carat - 1, "Single Player\n" );
                         }
@@ -1505,7 +1505,7 @@ int doChooseModule( float deltaTime )
                 strncpy( pickedmodule_name,       mnu_ModList_get_name( pickedmodule_index ), SDL_arraysize( pickedmodule_name ) );
                 strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
 
-                if ( !game_choose_module( ext_module, -1 ) )
+                if ( !game_choose_module(ext_module) )
                 {
                     log_warning( "Tried to select an invalid module. index == %d\n", ext_module );
                     result = -1;
@@ -1513,7 +1513,7 @@ int doChooseModule( float deltaTime )
                 else
                 {
                     pickedmodule_ready = true;
-                    result = ( PMod->getImportAmount() > 0 ) ? 1 : 2;
+                    result = (mnu_ModList.lst[ext_module].base.importamount > 0) ? 1 : 2;
                 }
             }
 
@@ -2855,7 +2855,7 @@ int doGameOptions( float deltaTime )
             ui_drawTextBox( menuFont, "Game Difficulty:", buttonLeft, 50, 0, 0, 20 );
 
             // Buttons
-            if ( !PMod->active && BUTTON_UP == ui_doButton( 1, sz_buttons[0], menuFont, buttonLeft + 150, 50, 150, 30 ) )
+            if ( PMod == nullptr && BUTTON_UP == ui_doButton( 1, sz_buttons[0], menuFont, buttonLeft + 150, 50, 150, 30 ) )
             {
                 // Increase difficulty
                 cfg.difficulty++;
@@ -3912,7 +3912,7 @@ int doVideoOptions( float deltaTime )
             // Max particles
             ui_drawTextBox( menuFont, "Max Particles:", buttonLeft + 300, GFX_HEIGHT - 180, 0, 0, 20 );
 
-            if ( PMod->active )
+            if ( PMod != nullptr )
             {
                 snprintf( Cmaxparticles, SDL_arraysize( Cmaxparticles ), "%i (%i currently used)", maxparticles, maxparticles - PrtList_count_free() );
                 ui_drawTextBox( menuFont, Cmaxparticles, buttonLeft + 450, GFX_HEIGHT - 180, 0, 100, 30 );
@@ -4398,7 +4398,7 @@ int doShowEndgame( float deltaTime )
                 // }
 
                 // fix the menu that is returned when you break out of the game
-                if ( PMod->beat && start_new_player )
+                if ( PMod->isBeaten() && start_new_player )
                 {
                     // we started with a new player and beat the module... yay!
                     // now we want to graduate to the ChoosePlayer menu to
@@ -4602,17 +4602,19 @@ int doMenu( float deltaTime )
 
                     result = MENU_QUIT;
                 }
+
+                // "Restart Module"
                 else if ( 2 == result )
                 {
-                    // "Restart Module"
                     mnu_end_menu();
+                    mnu_begin_menu(emnu_ShowMenuResults);
 
                     //Simply quit the current module and begin it again
-                    game_quit_module();
                     process_terminate( PROC_PBASE( GProc ) );
-                    process_start( PROC_PBASE( GProc ) );
 
-                    retval = MENU_END;
+                    // post the selected module
+                    selectedModule = pickedmodule_index;
+                    pickedmodule_ready = true;
                 }
                 else if ( 3 == result )
                 {
