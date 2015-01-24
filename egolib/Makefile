@@ -8,6 +8,7 @@ EGOLIB_SOURCE += $(wildcard src/egolib/platform/*_linux.c)
 EGOLIB_SOURCE += $(wildcard src/egolib/file_formats/*.c)
 EGOLIB_SOURCE += $(wildcard src/egolib/extensions/*.c)
 EGOLIB_SOURCE += $(wildcard src/egolib/opengl/*.c)
+EGOLIB_SOURCE += $(wildcard src/egolib/math/*.c)
 EGOLIB_CPPSRC := $(wildcard src/egolib/*.cpp)
 EGOLIB_CPPSRC += $(wildcard src/egolib/*/*.cpp)
 
@@ -25,11 +26,10 @@ SDLCONF_C := $(shell ${SDL_CONF} --cflags)
 #---------------------
 # the compiler options
 
-CC	:= g++
 INC	:= -Isrc -I../game/src
 
 # use different options if the environmental variable PREFIX is defined
-ifeq ($(PREFIX),"")
+ifeq ($(PREFIX),)
 	OPT := -D_NO_PREFIX
 else
 	OPT := -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
