@@ -7,7 +7,7 @@
 #---------------------
 # some project definitions
 
-PROJ_NAME		:= egoboo
+PROJ_NAME	:= egoboo
 PROJ_VERSION	:= 2.x
 
 #---------------------
@@ -17,44 +17,47 @@ EGO_DIR           := ./game
 EGO_TARGET        := $(PROJ_NAME)-$(PROJ_VERSION)
 
 EGOLIB_DIR        := ./egolib
-EGOLIB_TARGET     := lib$(PROJ_NAME).la
-EGOLIB_TARGET_LUA := lib$(PROJ_NAME)-lua.la
+EGOLIB_TARGET     := lib$(PROJ_NAME).a
+
+ifneq ($(USE_LUA),)
+    EGOLIB_TARGET := lib$(PROJ_NAME)-lua.a
+endif
 
 #------------------------------------
 # user defined macros
 
-ifndef ($(PREFIX),"")
+ifeq ($(PREFIX),)
 	# define a value for prefix assuming that the program will be installed in the root directory
 	PREFIX := /usr
 endif
 
-ifndef ($(INSTALL_DIR),"")
+ifeq ($(INSTALL_DIR),)
 	# the user can specify a non-standard location for "install"
 	INSTALL_DIR := game/data
 endif
 
+export PREFIX EGOLIB_TARGET EGO_TARGET USE_LUA
+
 #------------------------------------
 # definitions of the target projects
 
-.PHONY: all clean egolib egoboo egolib_lua egoboo_lua
+.PHONY: all clean egolib egoboo
 
-egolib:
-	make -C $(EGOLIB_DIR) PREFIX=$(PREFIX) EGOLIB_TARGET=$(EGOLIB_TARGET)
+all: egoboo
 
-egoboo: egolib
-	make -C $(EGO_DIR) PREFIX=$(PREFIX) EGO_TARGET=$(EGO_TARGET) EGOLIB_TARGET=$(EGOLIB_TARGET)
+$(EGOLIB_TARGET):
+	make -C $(EGOLIB_DIR)
 
-egolib_lua:
-	make -C $(EGOLIB_DIR) -F Makefile.lua PREFIX=$(PREFIX) EGOLIB_TARGET=$(EGOLIB_TARGET_LUA)
-	
-egoboo_lua: egolib_lua
-	make -C $(EGO_DIR) -F Makefile.lua PREFIX=$(PREFIX) EGO_TARGET=$(EGO_TARGET) EGOLIB_TARGET=$(EGOLIB_TARGET_LUA)
+egolib: $(EGOLIB_TARGET)
 
-all: egolib egoboo
+$(EGO_TARGET): $(EGOLIB_TARGET)
+	make -C $(EGO_DIR)
+
+egoboo: $(EGO_TARGET)
 
 clean:
-	make -C $(EGOLIB_DIR) clean EGOLIB_TARGET=$(EGOLIB_TARGET)
-	make -C $(EGO_DIR) clean EGO_TARGET=$(EGOLIB_TARGET)
+	make -C $(EGOLIB_DIR) clean
+	make -C $(EGO_DIR) clean
 
 install: egoboo
 
@@ -68,7 +71,7 @@ install: egoboo
 	install -m 755 $(EGO_DIR)/$(EGO_TARGET) $(PREFIX)/games
 
 #	call the installer in the required install directory
-	make -C $(INSTALL_DIR) install PREFIX=$(PREFIX) PROJ_NAME=$(EGO_TARGET)
+	make -C $(INSTALL_DIR) install PROJ_NAME=$(EGO_TARGET)
 
 	#####################################
 	# Egoboo installation is finished

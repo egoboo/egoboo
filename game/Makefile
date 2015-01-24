@@ -23,22 +23,21 @@ EGOLIB_L      := ../egolib/$(EGOLIB_TARGET)
 #---------------------
 # the compiler options
 
-CC      := g++
 INC     := -Isrc -I../egolib/src
-LDFLAGS := ${SDLCONF_L} ${EGOLIB_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -lGL -lGLU
+LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -lGL -lGLU
+
+ifneq ($(USE_LUA),)
+# use pkg-config for this?
+	INC += -I/usr/include/lua5.2
+	LDFLAGS += -llua5.2
+endif
 
 # use different options if the environmental variable PREFIX is defined
-ifeq ($(PREFIX),"")
+ifeq ($(PREFIX),)
 	OPT := -D_NO_PREFIX
 else
 	OPT := -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
 endif
-
-
-define link_rule
-	libtool --mode=link \
-	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-endef
 
 CFLAGS  := ${INC} ${OPT} ${SDLCONF_C} -x c++ -std=c++11
 CXXFLAGS:= ${CFLAGS}
@@ -50,8 +49,9 @@ CXXFLAGS:= ${CFLAGS}
 
 all: $(EGO_TARGET)
 
-$(EGO_TARGET): ${EGO_OBJ} 
-	$(call link_rule)
+$(EGO_TARGET): ${EGO_OBJ} ${EGOLIB_L}
+	$(CC) -o $@ $^ $(LDFLAGS)
+#	$(call link_rule)
 
 clean:
 	rm -f ${EGO_OBJ} $(EGO_TARGET)

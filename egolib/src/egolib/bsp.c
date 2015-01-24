@@ -772,17 +772,17 @@ bool BSP_branch_add_all_rec(const BSP_branch_t * pbranch, BSP_leaf_test_t * ptes
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_branch_empty(const BSP_branch_t * pbranch)
+bool BSP_branch_t::empty() const
 {
 	size_t cnt;
 	bool empty;
 	const BSP_branch_list_t * children_ptr;
 	const BSP_leaf_list_t * nodes_ptr, *unsorted_ptr;
 
-	if (NULL == pbranch) return false;
-	children_ptr = &(pbranch->children);
-	unsorted_ptr = &(pbranch->unsorted);
-	nodes_ptr = &(pbranch->leaves);
+	if (NULL == this) return false;
+	children_ptr = &(this->children);
+	unsorted_ptr = &(this->unsorted);
+	nodes_ptr = &(this->leaves);
 
 	// assume the worst
 	empty = true;
@@ -1759,7 +1759,7 @@ bool BSP_tree_prune_branch(BSP_tree_t * t, size_t cnt)
 	if (B == t->finite) return true;
 
 	remove = false;
-	if (BSP_branch_empty(B))
+	if (B->empty())
 	{
 		bool found = BSP_branch_unlink_all(B);
 

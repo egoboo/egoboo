@@ -250,7 +250,9 @@ SDL_bool IMG_test_alpha( SDL_Surface * psurf )
     int ix, iy;
     const char * row_ptr;
     const char * char_ptr;
+#if 0
     Uint32     * ui32_ptr;
+#endif
 
     if ( NULL == psurf ) return SDL_FALSE;
 
@@ -284,8 +286,17 @@ SDL_bool IMG_test_alpha( SDL_Surface * psurf )
         char_ptr = row_ptr;
         for ( ix = 0; ix < w; ix++ )
         {
+            pix_value = 0;
+            for (int i = 0; i < bypp; i++)
+            {
+                if (pix_value) pix_value <<= 8;
+                pix_value |= *((uint8_t *)char_ptr);
+                char_ptr++;
+            }
+#if 0
             ui32_ptr = ( Uint32 * )char_ptr;
             pix_value = ( *ui32_ptr ) & bit_mask;
+#endif
 
             SDL_GetRGBA( pix_value, pformat, &r, &g, &b, &a );
 
@@ -294,8 +305,10 @@ SDL_bool IMG_test_alpha( SDL_Surface * psurf )
                 return SDL_TRUE;
             }
 
+#if 0
             // advance to the next entry
             char_ptr += bypp;
+#endif
         }
         row_ptr += pitch;
     }
