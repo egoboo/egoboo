@@ -121,6 +121,8 @@ Uint32          true_update      = 0;
 Uint32          true_frame       = 0;
 int             update_lag       = 0;
 
+static MOD_REF _currentModuleID = -1;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -1188,6 +1190,9 @@ int game_process_do_begin( game_process_t * gproc )
         game_process_do_leaving(gproc);
         process_pause(PROC_PBASE(MProc));
     }
+
+    //Make sure all data is cleared first
+    game_quit_module();
     
     BillboardList_init_all();
 
@@ -3454,6 +3459,14 @@ bool game_begin_module(const char * modname)
     /// @author BB
     /// @details all of the initialization code before the module actually starts
 
+    const mod_file_t * moduleData = mnu_ModList_get_base(_currentModuleID);
+    if(!moduleData) {
+        return false;
+    }
+
+    // start the module
+    PMod = std::unique_ptr<GameModule>(new GameModule(moduleData, mnu_ModList_get_vfs_path(_currentModuleID), time(NULL)));
+
     // make sure that the object lists are in a good state
     reset_all_object_lists();
 
@@ -4110,25 +4123,11 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 }
 
 //--------------------------------------------------------------------------------------------
-bool game_choose_module( int imod, int seed )
+bool game_choose_module( MOD_REF imod )
 {
-    const mod_file_t * moduleData = mnu_ModList_get_base(imod);
-
-    if(!moduleData) {
-        return false;
-    }
-
-    if ( seed < 0 ) seed = ( int )time( NULL );
-
-    // make sure the old game has been quit
-    game_quit_module();
-
-    // start the module
-    PMod = std::unique_ptr<GameModule>(new GameModule(moduleData, mnu_ModList_get_vfs_path(imod), seed));
-
     // give everyone virtual access to the game directories
     setup_init_module_vfs_paths( pickedmodule_path );
-
+    _currentModuleID = imod;
     return true;
 }
 

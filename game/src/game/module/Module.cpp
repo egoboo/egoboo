@@ -59,16 +59,6 @@ GameModule::~GameModule()
     egonet_set_hostactive( false );
 }
 
-//--------------------------------------------------------------------------------------------
-bool GameModule::reset( const uint32_t seed )
-{
-    _isBeaten    = false;
-    _exportValid = _exportReset;
-    _seed        = seed;
-
-    return true;
-}
-
 void GameModule::loadAllPassages()
 {
     // Reset all of the old passages

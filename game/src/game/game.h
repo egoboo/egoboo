@@ -475,7 +475,7 @@ ego_mesh_t *set_PMesh( ego_mesh_t * pmpd );
 
 float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk );
 
-bool game_choose_module( int imod, int seed );
+bool game_choose_module( MOD_REF imod );
 
 int    game_do_menu( struct menu_process_t * mproc );
 

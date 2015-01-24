@@ -43,8 +43,6 @@ public:
 	**/
 	~GameModule();
 
-	bool reset(const uint32_t seed);
-
 	/**
 	* @return name of the module
 	**/
@@ -88,9 +86,6 @@ public:
 
 	void setRespawnValid(bool valid) {_isRespawnValid = valid;}
 
-	//Load all passages from file
-	void loadAllPassages();
-
 	//clear passage memory
 	void clearPassages();
 
@@ -118,6 +113,10 @@ public:
 	* @return nullptr if the id is invalid else the Passage located in the ordered index number
 	**/
 	std::shared_ptr<Passage> getPassageByID(int id);
+
+private:
+	//Load all passages from file
+	void loadAllPassages();
 
 private:
     std::string  _name;               ///< Module load names

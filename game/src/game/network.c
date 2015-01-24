@@ -232,7 +232,7 @@ void net_unbuffer_player_latches()
         if ( !INGAME_CHR( character ) ) continue;
         pchr = ChrList_get_ptr( character );
 
-        if ( cfg.difficulty < GAME_HARD && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
+        if ( cfg.difficulty < GAME_HARD && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RESPAWN ) && PMod->isRespawnValid() )
         {
             if ( !pchr->alive && 0 == local_stats.revivetimer )
             {

@@ -1505,7 +1505,7 @@ int doChooseModule( float deltaTime )
                 strncpy( pickedmodule_name,       mnu_ModList_get_name( pickedmodule_index ), SDL_arraysize( pickedmodule_name ) );
                 strncpy( pickedmodule_write_path, mnu_ModList_get_dest_path( pickedmodule_index ), SDL_arraysize( pickedmodule_write_path ) );
 
-                if ( !game_choose_module( ext_module, -1 ) )
+                if ( !game_choose_module(ext_module) )
                 {
                     log_warning( "Tried to select an invalid module. index == %d\n", ext_module );
                     result = -1;
@@ -1513,7 +1513,7 @@ int doChooseModule( float deltaTime )
                 else
                 {
                     pickedmodule_ready = true;
-                    result = ( PMod->getImportAmount() > 0 ) ? 1 : 2;
+                    result = (mnu_ModList.lst[ext_module].base.importamount > 0) ? 1 : 2;
                 }
             }
 
@@ -4602,17 +4602,19 @@ int doMenu( float deltaTime )
 
                     result = MENU_QUIT;
                 }
+
+                // "Restart Module"
                 else if ( 2 == result )
                 {
-                    // "Restart Module"
                     mnu_end_menu();
+                    mnu_begin_menu(emnu_ShowMenuResults);
 
                     //Simply quit the current module and begin it again
-                    game_quit_module();
                     process_terminate( PROC_PBASE( GProc ) );
-                    process_start( PROC_PBASE( GProc ) );
 
-                    retval = MENU_END;
+                    // post the selected module
+                    selectedModule = pickedmodule_index;
+                    pickedmodule_ready = true;
                 }
                 else if ( 3 == result )
                 {
