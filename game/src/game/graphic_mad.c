@@ -2144,7 +2144,7 @@ gfx_rv chr_instance_spawn( chr_instance_t * pinst, const PRO_REF profile, const 
     pinst->dont_cull_backfaces = pobj->isDontCullBackfaces();
 
     // model parameters
-    chr_instance_set_mad( pinst, _profileSystem.pro_get_imad( profile ) );
+    chr_instance_set_mad( pinst, pobj->getModelRef() );
 
     // set the initial action, all actions override it
     chr_instance_play_action( pinst, ACTION_DA, true );
