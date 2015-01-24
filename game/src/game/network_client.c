@@ -54,7 +54,7 @@ egolib_rv cl_talkToHost()
     // Let the players respawn
     if ( SDL_KEYDOWN( keyb, SDLK_SPACE )
          && ( local_stats.allpladead || PMod->canRespawnAnyTime() )
-         && PMod->respawnvalid
+         && PMod->isRespawnValid()
          && cfg.difficulty < GAME_HARD
          && !keyb.chat_mode )
     {

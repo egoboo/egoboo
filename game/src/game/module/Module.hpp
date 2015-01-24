@@ -23,30 +23,27 @@
 
 #include <string>
 #include <cstdint>
+#include <vector>
+#include "game/egoboo_typedef.h"
 
+//Forward declarations
 struct mod_file_t;
+class Passage;
 
 
 /// the module data that the game needs
 class GameModule
 {
 public:
-	GameModule();
-
-public:
-
     //Prepeares a module to be played
-	bool setup(const mod_file_t * pdata, const std::string& loadname, const uint32_t seed);
+	GameModule(const mod_file_t * pdata, const std::string& loadname, const uint32_t seed);
+
+	/**
+	* Deconstructor
+	**/
+	~GameModule();
 
 	bool reset(const uint32_t seed);
-
-    /// @author BB
-    /// @details Let the module go
-	bool start();
-
-    /// @author BB
-    /// @details stop the module
-	bool stop();
 
 	/**
 	* @return name of the module
@@ -89,6 +86,39 @@ public:
 
 	inline bool canRespawnAnyTime() const {return _canRespawnAnyTime;}
 
+	void setRespawnValid(bool valid) {_isRespawnValid = valid;}
+
+	//Load all passages from file
+	void loadAllPassages();
+
+	//clear passage memory
+	void clearPassages();
+
+    /// @author ZF
+    /// @details This function checks all passages if there is a player in it, if it is, it plays a specified
+    /// song set in by the AI script functions
+	void checkPassageMusic();
+
+    /// @author ZZ
+    /// @details This function returns the owner of a item in a shop
+	CHR_REF getShopOwner(const float x, const float y);
+
+	/**
+	* @brief Mark all shop passages having this owner as no longer a shop
+	**/
+	void removeShopOwner(CHR_REF owner);
+
+	/**
+	* @return number of passages currently loaded
+	**/
+	int getPassageCount();
+
+	/**
+	* @brief Get Passage by index number
+	* @return nullptr if the id is invalid else the Passage located in the ordered index number
+	**/
+	std::shared_ptr<Passage> getPassageByID(int id);
+
 private:
     std::string  _name;               ///< Module load names
     uint8_t   _importAmount;          ///< Number of imports for this module
@@ -100,5 +130,6 @@ private:
     bool _isBeaten;				 	  ///< Have the players won?
     uint32_t  _seed;                  ///< The module seed
 
+    std::vector<std::shared_ptr<Passage>> _passages;	///< All passages in this module
 };
 

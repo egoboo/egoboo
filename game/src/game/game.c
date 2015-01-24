@@ -45,7 +45,7 @@
 #include "game/script_compile.h"
 #include "game/egoboo.h"
 
-#include "game/module/PassageHandler.hpp"
+#include "game/module/Passage.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
@@ -84,7 +84,6 @@ PROFILE_DECLARE( cl_talkToHost );
 //Game engine globals
 CameraSystem      _cameraSystem;
 AudioSystem       _audioSystem;
-static GameModule _gmod;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -98,7 +97,7 @@ size_t endtext_carat = 0;
 status_list_t StatusList = STATUS_LIST_INIT;
 
 ego_mesh_t         * PMesh   = _mesh + 0;
-GameModule         * PMod    = &_gmod;
+std::unique_ptr<GameModule> PMod = nullptr;
 game_process_t     * GProc   = &_gproc;
 
 pit_info_t pits = PIT_INFO_INIT;
@@ -799,7 +798,7 @@ int update_game()
 
         if ( !pchr->alive )
         {
-            if ( cfg.difficulty < GAME_HARD && local_stats.allpladead && SDL_KEYDOWN( keyb, SDLK_SPACE ) && PMod->respawnvalid && 0 == local_stats.revivetimer )
+            if ( cfg.difficulty < GAME_HARD && local_stats.allpladead && SDL_KEYDOWN( keyb, SDLK_SPACE ) && PMod->isRespawnValid() && 0 == local_stats.revivetimer )
             {
                 respawn_character( ichr );
                 pchr->experience *= EXPKEEP;        // Apply xp Penality
@@ -1374,7 +1373,7 @@ int game_process_do_running( game_process_t * gproc )
                 }
                 PROFILE_END2( check_stats );
 
-                Passages::checkPassageMusic();
+                PMod->checkPassageMusic();
 
                 if ( egonet_get_waitingforclients() )
                 {
@@ -2697,7 +2696,7 @@ void tilt_characters_to_terrain()
 //--------------------------------------------------------------------------------------------
 void import_dir_profiles_vfs( const std::string &dirname )
 {
-    if ( NULL == PMod || dirname.empty() ) return;
+    if ( nullptr == PMod || dirname.empty() ) return;
 
     if ( !PMod->isImportValid() ) return;
 
@@ -3260,20 +3259,15 @@ void game_load_all_assets( const char *modname )
 //--------------------------------------------------------------------------------------------
 void game_setup_module( const char *smallname )
 {
+    //TODO: ZF> Move to Module.cpp
+
     /// @author ZZ
     /// @details This runst the setup functions for a module
-
-    STRING modname;
 
     // make sure the object lists are empty
     free_all_objects();
 
-    // generate the module directory
-    strncpy( modname, smallname, SDL_arraysize( modname ) );
-    str_append_slash_net( modname, SDL_arraysize( modname ) );
-
     // just the information in these files to load the module
-    Passages::loadAllPassages();         // read and implement the "passage script" passages.txt
     activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
     activate_alliance_file_vfs();        // set up the non-default team interactions
 
@@ -3430,7 +3424,7 @@ void game_quit_module()
     /// @details all of the de-initialization code after the module actually ends
 
     // stop the module
-    PMod->stop();
+    PMod.reset(nullptr);
 
     // get rid of the game/module data
     game_release_module_data();
@@ -3460,9 +3454,6 @@ bool game_begin_module(const char * modname)
     /// @author BB
     /// @details all of the initialization code before the module actually starts
 
-    // make sure the old game has been quit
-    game_quit_module();
-
     // make sure that the object lists are in a good state
     reset_all_object_lists();
 
@@ -3472,7 +3463,7 @@ bool game_begin_module(const char * modname)
     // load all the in-game module data
     if ( !game_load_module_data( modname ) )
     {
-        PMod->stop();
+        PMod.reset(nullptr);
         return false;
     };
 
@@ -3494,9 +3485,6 @@ bool game_begin_module(const char * modname)
     // initialize the network
     net_begin();
     net_sayHello();
-
-    // start the module
-    PMod->start();
 
     // initialize the timers as the very last thing
     timeron = false;
@@ -3549,9 +3537,6 @@ void game_release_module_data()
     // deal with dynamically allocated game assets
     gfx_system_release_all_graphics();
     _profileSystem.releaseAllProfiles();
-
-    // free passages
-    Passages::clearPassages();
 
     // delete the mesh data
     ptmp = PMesh;
@@ -4127,19 +4112,24 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 //--------------------------------------------------------------------------------------------
 bool game_choose_module( int imod, int seed )
 {
-    bool retval;
+    const mod_file_t * moduleData = mnu_ModList_get_base(imod);
+
+    if(!moduleData) {
+        return false;
+    }
 
     if ( seed < 0 ) seed = ( int )time( NULL );
 
-    retval = PMod->setup(mnu_ModList_get_base(imod), mnu_ModList_get_vfs_path(imod), seed);
+    // make sure the old game has been quit
+    game_quit_module();
 
-    if ( retval )
-    {
-        // give everyone virtual access to the game directories
-        setup_init_module_vfs_paths( pickedmodule_path );
-    }
+    // start the module
+    PMod = std::unique_ptr<GameModule>(new GameModule(moduleData, mnu_ModList_get_vfs_path(imod), seed));
 
-    return retval;
+    // give everyone virtual access to the game directories
+    setup_init_module_vfs_paths( pickedmodule_path );
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4670,7 +4660,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = Passages::getShopOwner(pitem->pos.x, pitem->pos.y);
+        iowner = PMod->getShopOwner(pitem->pos.x, pitem->pos.y);
         if ( INGAME_CHR( iowner ) )
         {
             int price;
@@ -4723,7 +4713,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = Passages::getShopOwner( pitem->pos.x, pitem->pos.y );
+        iowner = PMod->getShopOwner( pitem->pos.x, pitem->pos.y );
         if ( INGAME_CHR( iowner ) )
         {
             chr_t * powner = ChrList_get_ptr( iowner );
@@ -4799,7 +4789,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = Passages::getShopOwner( pitem->pos.x, pitem->pos.y );
+        iowner = PMod->getShopOwner( pitem->pos.x, pitem->pos.y );
         if ( INGAME_CHR( iowner ) )
         {
             IPair  tmp_rand = {1, 100};
@@ -4839,7 +4829,7 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     can_grab = true;
 
     // check if we are doing this inside a shop
-    shop_keeper = Passages::getShopOwner(pitem->pos.x, pitem->pos.y);
+    shop_keeper = PMod->getShopOwner(pitem->pos.x, pitem->pos.y);
     pkeeper = ChrList_get_ptr( shop_keeper );
     if ( INGAME_PCHR( pkeeper ) )
     {

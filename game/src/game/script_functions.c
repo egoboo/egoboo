@@ -42,7 +42,7 @@
 #include "game/particle.h"
 #include "game/mesh.h"
 
-#include "game/module/PassageHandler.hpp"
+#include "game/module/Passage.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
@@ -1172,7 +1172,7 @@ Uint8 scr_OpenPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
     
     returncode = false;
     if(passage) {
@@ -1194,7 +1194,7 @@ Uint8 scr_ClosePassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
 
     returncode = false;
     if(passage) {
@@ -1214,7 +1214,7 @@ Uint8 scr_PassageOpen( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
 
     returncode = false;
     if(passage) {
@@ -5393,7 +5393,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
 
     returncode = false;
     if(passage)
@@ -5926,7 +5926,7 @@ Uint8 scr_FlashPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
     if(passage) {
         passage->flashColor(pstate->distance);
     }
@@ -6232,7 +6232,7 @@ Uint8 scr_ClearMusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
     if(passage) {
         passage->setMusic(Passage::NO_MUSIC);
     }
@@ -6297,7 +6297,7 @@ Uint8 scr_set_MusicPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
     if(passage) {
         passage->setMusic(pstate->distance);
     }
@@ -6613,7 +6613,7 @@ Uint8 scr_AddShopPassage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
     if(passage) {
         passage->makeShop(pself->index);
         returncode = true;
@@ -6739,7 +6739,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
 
     returncode = false;
     if(passage) {
@@ -6954,7 +6954,7 @@ Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->respawnvalid = true;
+    PMod->setRespawnValid(true);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6968,7 +6968,7 @@ Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    PMod->respawnvalid = false;
+    PMod->setRespawnValid(false);
 
     SCRIPT_FUNCTION_END();
 }
@@ -8102,7 +8102,7 @@ Uint8 scr_set_TargetToBlahInPassage( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(pstate->argument);
+    std::shared_ptr<Passage> passage = PMod->getPassageByID(pstate->argument);
     returncode = false;
     if(passage) {
         CHR_REF ichr = passage->whoIsBlockingPassage(pself->index, pstate->turn, TARGET_SELF | pstate->distance, IDSZ_NONE );

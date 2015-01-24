@@ -40,7 +40,7 @@
 #include "game/collision.h"                  //Only or detach_character_from_platform()
 #include "game/obj_BSP.h"
 #include "game/egoboo.h"
-#include "game/module/PassageHandler.hpp"
+#include "game/module/Passage.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
@@ -3035,7 +3035,7 @@ void cleanup_one_character( chr_t * pchr )
     }
 
     // Clear all shop passages that it owned..
-    Passages::removeShopOwner(ichr);
+    PMod->removeShopOwner(ichr);
 
     // detach from any mount
     if ( INGAME_CHR( pchr->attachedto ) )
@@ -3759,7 +3759,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     {
         // Items that are spawned inside shop passages are more expensive than normal
 
-        CHR_REF shopOwner = Passages::getShopOwner(pchr->pos.x, pchr->pos.y);
+        CHR_REF shopOwner = PMod->getShopOwner(pchr->pos.x, pchr->pos.y);
         if(shopOwner != Passage::SHOP_NOOWNER) {
             pchr->isshopitem = true;               // Full value
             pchr->iskursed   = false;              // Shop items are never kursed

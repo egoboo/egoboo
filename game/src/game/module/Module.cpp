@@ -22,41 +22,42 @@
 /// @author Johan Jansen
 
 #include "game/module/Module.hpp"
-#include "game/network.h"
 #include "egolib/math/Random.hpp"
+#include "game/module/Passage.hpp"
+#include "game/game.h"
+#include "game/network.h"
+#include "game/player.h"
+#include "game/mesh.h"
+#include "game/ChrList.h"
 
-GameModule::GameModule() :
-		_name("*NONE*"),
-        _importAmount(0),
-        _exportValid(false),
-        _exportReset(false),
-        _playerAmount(1),
-        _canRespawnAnyTime(false),
-        _isRespawnValid(false),
-        _isBeaten(false),
-        _seed(std::numeric_limits<uint32_t>::max())
+GameModule::GameModule(const mod_file_t * pdata, const std::string& name, const uint32_t seed) :
+    _name(name),
+    _importAmount(pdata->importamount),
+    _exportValid(pdata->allowexport),
+    _exportReset(pdata->allowexport),
+    _playerAmount(pdata->maxplayers),
+    _canRespawnAnyTime(RESPAWN_ANYTIME == pdata->respawnvalid),
+    _isRespawnValid(false != pdata->respawnvalid),
+    _isBeaten(false),
+    _seed(seed),
+    _passages()
 {
-	//ctor
+    srand( _seed );
+    Random::setSeed(_seed);
+    randindex = rand() % RANDIE_COUNT;
+
+    // very important or the input will not work
+    egonet_set_hostactive( true ); 
+
+    // read and implement the "passage script" passages.txt
+    loadAllPassages();         
 }
 
-//--------------------------------------------------------------------------------------------
-bool GameModule::setup( const mod_file_t * pdata, const std::string& name, const uint32_t seed )
+GameModule::~GameModule()
 {
-    if ( nullptr == pdata ) return false;
-
-    _importAmount   = pdata->importamount;
-    _exportValid    = pdata->allowexport;
-    _exportReset    = pdata->allowexport;
-    _playerAmount   = pdata->maxplayers;
-    _isRespawnValid   = ( false != pdata->respawnvalid );
-    _canRespawnAnyTime = (RESPAWN_ANYTIME == pdata->respawnvalid);
-    _name = name;
-    _isBeaten = false;
-    _seed = seed;
-
-    return true;
+    // network stuff
+    egonet_set_hostactive( false );
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool GameModule::reset( const uint32_t seed )
@@ -68,25 +69,125 @@ bool GameModule::reset( const uint32_t seed )
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool GameModule::start()
+void GameModule::loadAllPassages()
 {
-    active = true;
+    // Reset all of the old passages
+    _passages.clear();
 
-    srand( _seed );
-    Random::setSeed(_seed);
-    randindex = rand() % RANDIE_COUNT;
+    // Load the file
+    vfs_FILE *fileread = vfs_openRead( "mp_data/passage.txt" );
+    if ( NULL == fileread ) return;
 
-    egonet_set_hostactive( true ); // very important or the input will not work
+    //Load all passages in file
+    while ( goto_colon_vfs( NULL, fileread, true ) )
+    {
+        //read passage area
+        irect_t area;
+        area._left   = vfs_get_int( fileread );
+        area._top    = vfs_get_int( fileread );
+        area._right  = vfs_get_int( fileread );
+        area._bottom = vfs_get_int( fileread );
 
-    return true;
+        //constrain passage area within the level
+        area._left    = CLIP( area._left,   0, PMesh->info.tiles_x - 1 );
+        area._top     = CLIP( area._top,    0, PMesh->info.tiles_y - 1 );
+        area._right   = CLIP( area._right,  0, PMesh->info.tiles_x - 1 );
+        area._bottom  = CLIP( area._bottom, 0, PMesh->info.tiles_y - 1 );
+
+        //Read if open by default
+        bool open = vfs_get_bool( fileread );
+
+        //Read mask (optional)
+        uint8_t mask = MAPFX_IMPASS | MAPFX_WALL;
+        if ( vfs_get_bool( fileread ) ) mask = MAPFX_IMPASS;
+        if ( vfs_get_bool( fileread ) ) mask = MAPFX_SLIPPY;
+
+        std::shared_ptr<Passage> passage = std::make_shared<Passage>(area, mask);
+
+        //check if we need to close the passage
+        if(!open) {
+            passage->close();
+        }
+
+        //finished loading this one!
+        _passages.push_back(passage);
+    }
+
+    //all done!
+    vfs_close( fileread );
 }
 
-//--------------------------------------------------------------------------------------------
-bool GameModule::stop()
+void GameModule::checkPassageMusic()
 {
-    // network stuff
-    egonet_set_hostactive( false );
+    // Look at each player
+    for ( PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
+    {
+        CHR_REF character = PlaStack.lst[ipla].index;
+        if ( !INGAME_CHR( character ) ) continue;
 
-    return true;
+        //dont do items in hands or inventory
+        if ( IS_ATTACHED_CHR( character ) ) continue;
+
+        chr_t * pchr = ChrList_get_ptr( character );
+        if ( !pchr->alive || !VALID_PLA( pchr->is_which_player ) ) continue;
+
+        //Loop through every passage
+        for(const std::shared_ptr<Passage> &passage : _passages)
+        {
+            if(passage->checkPassageMusic(pchr)) {
+                return;
+            }
+        }   
+    }
+}
+
+CHR_REF GameModule::getShopOwner(const float x, const float y)
+{
+    //Loop through every passage
+    for(const std::shared_ptr<Passage> &passage : _passages)
+    {
+        //Only check actual shops
+        if(!passage->isShop()) {
+            continue;
+        }
+
+        //Is item inside this shop?
+        if(passage->isPointInside(x, y)) {
+            return passage->getShopOwner();
+        }
+    }
+
+    return Passage::SHOP_NOOWNER;       
+}
+
+void GameModule::removeShopOwner(CHR_REF owner)
+{
+    //Loop through every passage
+    for(const std::shared_ptr<Passage> &passage : _passages)
+    {
+        //Only check actual shops
+        if(!passage->isShop()) {
+            continue;
+        }
+
+        if(passage->getShopOwner() == owner) {
+            passage->removeShop();
+        }
+
+        //TODO: mark all items in shop as normal items again
+    }
+}
+
+int GameModule::getPassageCount()
+{
+    return _passages.size();
+}
+
+std::shared_ptr<Passage> GameModule::getPassageByID(int id)
+{
+    if(id < 0 || id >= _passages.size()) {
+        return nullptr;
+    }
+
+    return _passages[id];
 }

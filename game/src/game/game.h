@@ -389,7 +389,7 @@ extern ego_mesh_t *PMesh;
 //TODO: remove this global
 extern CameraSystem _cameraSystem;
 extern AudioSystem  _audioSystem;
-extern GameModule *PMod;
+extern std::unique_ptr<GameModule> PMod;
 
 // special terrain and wawalite-related data structs
 extern animtile_instance_t animtile[2];

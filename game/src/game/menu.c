@@ -1390,7 +1390,7 @@ int doChooseModule( float deltaTime )
                     }
                     else
                     {
-                        if ( 0 != PMod->getImportAmount() )
+                        if ( 0 != pmod->importamount )
                         {
                             carat += snprintf( carat, carat_end - carat - 1, "Single Player\n" );
                         }

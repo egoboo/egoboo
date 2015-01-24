@@ -34,7 +34,8 @@
 #include "game/profiles/Profile.hpp"
 #include "game/char.h"
 
-#include "game/module/PassageHandler.hpp"
+#include "game/module/Module.hpp"
+#include "game/module/Passage.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -560,7 +561,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     ego_tile_info_t * ptile = NULL;
     int loc_starttile;
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(passageID);
+    const std::shared_ptr<Passage> &passage = PMod->getPassageByID(passageID);
 
     if ( !passage ) return false;
 
@@ -677,7 +678,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     Uint32 fan;
     ego_tile_info_t * ptile = NULL;
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(passageID);
+    const std::shared_ptr<Passage> &passage = PMod->getPassageByID(passageID);
     if ( !passage ) return false;
 
     // Do the first row
