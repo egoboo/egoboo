@@ -36,6 +36,14 @@ typedef struct s_cv_point_data cv_point_data_t;
 //--------------------------------------------------------------------------------------------
 struct s_cv_point_data
 {
+    s_cv_point_data() :
+        inside(false),
+        pos(0, 0, 0),
+        rads(0.0f)
+    {
+        //ctor
+    }
+
     bool  inside;
     fvec3_t   pos;
     float   rads;

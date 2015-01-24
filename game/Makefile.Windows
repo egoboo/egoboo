@@ -34,7 +34,7 @@ SDLCONF_C := $(shell sdl-config --cflags)
 # the compiler options
 
 CXX      := g++
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_DEBUG 
+CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_DEBUG -Wall -Wno-sign-compare
 #-Wall -Weffc++ -Wunused-function
 
 #debug options

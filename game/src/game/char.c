@@ -9623,7 +9623,7 @@ bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, 
 
     int              cnt;
     chr_instance_t * pmount_inst;
-    oct_bb_t         tmp_cv = OCT_BB_INIT_VALS;
+    oct_bb_t         tmp_cv;
 
     int     grip_count;
     Uint16  grip_verts[GRIP_VERTS];
