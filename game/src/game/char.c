@@ -4606,7 +4606,7 @@ void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int
 
     if ( !_profileSystem.isValidProfileID( profile ) ) return;
 
-    imad_new = _profileSystem.pro_get_imad( profile );
+    imad_new = _profileSystem.getProfile( profile )->getModelRef();
     if ( !LOADED_MAD( imad_new ) ) return;
 
     imad_old = chr_get_imad( ichr );
@@ -9479,7 +9479,7 @@ bool chr_heal_mad( chr_t * pchr )
     if ( LOADED_MAD( pinst->imad ) ) return true;
 
     // get whatever mad index the profile says to use
-    imad_tmp = _profileSystem.pro_get_imad( pchr->profile_ref );
+    imad_tmp = _profileSystem.getProfile( pchr->profile_ref )->getModelRef();
 
     // set the mad index to whatever the profile says, even if it is wrong,
     // since we know that our current one is invalid
@@ -9623,7 +9623,7 @@ bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, 
 
     int              cnt;
     chr_instance_t * pmount_inst;
-    oct_bb_t         tmp_cv = OCT_BB_INIT_VALS;
+    oct_bb_t         tmp_cv;
 
     int     grip_count;
     Uint16  grip_verts[GRIP_VERTS];

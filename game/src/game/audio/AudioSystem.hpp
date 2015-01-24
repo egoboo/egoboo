@@ -54,9 +54,9 @@ public:
 
 	SoundConfiguration() :
     	soundvalid(false),
+    	soundvolume(75),  
     	musicvalid(false),
     	musicvolume(50),  
-    	soundvolume(75),  
     	maxsoundchannel(16),
     	buffersize(2048),
     	highquality(false)

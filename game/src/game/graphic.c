@@ -5065,19 +5065,6 @@ void gfx_update_fps_clock()
 
     int gfx_clock_diff;
 
-    bool free_running = true;
-
-    // are the graphics updates free running?
-    free_running = true;
-    if ( process_running( PROC_PBASE( GProc ) ) )
-    {
-        free_running = GProc->fps_timer.free_running;
-    }
-    else if ( process_running( PROC_PBASE( MProc ) ) )
-    {
-        free_running = MProc->gui_timer.free_running;
-    }
-
     // make sure at least one tick has passed
     if ( !egolib_timer__throttle( &gfx_update_timer, 1 ) ) return;
 
@@ -5561,8 +5548,6 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
     const float delta_threshold = 0.05f;
 
     ego_mesh_t      * pmesh;
-    tile_mem_t     * ptmem;
-    grid_mem_t     * pgmem;
 
     if ( NULL == prlist )
     {
@@ -5581,9 +5566,6 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
     // update all visible fans once every 4 frames
     if ( 0 != ( game_frame_all & frame_mask ) ) return gfx_success;
 #endif
-
-    ptmem = &( pmesh->tmem );
-    pgmem = &( pmesh->gmem );
 
 #if !defined(CLIP_LIGHT_FANS)
     // update only every frame

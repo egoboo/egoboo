@@ -134,18 +134,6 @@ bool    BIT_FIELD_has_no_bits( BIT_FIELD val, BIT_FIELD test );
 bool    BIT_FIELD_missing_bits( BIT_FIELD val, BIT_FIELD test );
 
 /// @ingroup _bitwise_functions_
-/// @details set the given bit
-BIT_FIELD BIT_FIELD_set_one_bit( BIT_FIELD val, size_t which );
-
-/// @ingroup _bitwise_functions_
-/// @details clear the given bit
-BIT_FIELD BIT_FIELD_clear_one_bit( BIT_FIELD val, size_t which );
-
-/// @ingroup _bitwise_functions_
-/// @details test the given bit
-bool    BIT_FIELD_test_one_bit( BIT_FIELD val, size_t which );
-
-/// @ingroup _bitwise_functions_
 /// @details adds all bits values to val
 BIT_FIELD BIT_FIELD_set_all_bits( BIT_FIELD val, BIT_FIELD bits );
 

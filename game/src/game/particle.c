@@ -1055,8 +1055,19 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
 
     prt_t * pprt;
     pip_t * ppip;
+ 
+    PIP_REF ipip = INVALID_PIP_REF;
 
-    PIP_REF ipip = _profileSystem.pro_get_ipip( iprofile, pip_index );
+    if(!_profileSystem.isValidProfileID(iprofile))
+    {
+        // check for a global pip
+        ipip = ( (pip_index < 0) || (pip_index > MAX_PIP) ) ? MAX_PIP : static_cast<PIP_REF>(pip_index);
+    }
+    else 
+    {
+        //Local character pip
+        ipip = _profileSystem.getProfile(iprofile)->getParticleProfile(pip_index);
+    }
 
     if ( !LOADED_PIP( ipip ) )
     {

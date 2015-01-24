@@ -7629,12 +7629,11 @@ Uint8 scr_set_Speech( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function sets all of the RTS speech registers to tmpargument
 
-    Uint16 sTmp = 0;
-
     SCRIPT_FUNCTION_BEGIN();
 
     //ZF> no longer supported
 #if 0
+    Uint16 sTmp = 0;
     for ( sTmp = SPEECH_BEGIN; sTmp <= SPEECH_END; sTmp++ )
     {
         pchr->sound_index[sTmp] = pstate->argument;
