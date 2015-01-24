@@ -3465,14 +3465,11 @@ bool game_begin_module(const char * modname)
         return false;
     }
 
-    // start the module
-    PMod = std::unique_ptr<GameModule>(new GameModule(moduleData, mnu_ModList_get_vfs_path(_currentModuleID), time(NULL)));
+    // set up the virtual file system for the module (Do before loading the module)
+    if ( !setup_init_module_vfs_paths( modname ) ) return false;
 
     // make sure that the object lists are in a good state
     reset_all_object_lists();
-
-    // set up the virtual file system for the module
-    if ( !setup_init_module_vfs_paths( modname ) ) return false;
 
     // load all the in-game module data
     if ( !game_load_module_data( modname ) )
@@ -3480,6 +3477,9 @@ bool game_begin_module(const char * modname)
         PMod.reset(nullptr);
         return false;
     };
+
+    // start the module
+    PMod = std::unique_ptr<GameModule>(new GameModule(moduleData, mnu_ModList_get_vfs_path(_currentModuleID), time(NULL)));
 
     game_setup_module( modname );
 
