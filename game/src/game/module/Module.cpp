@@ -47,10 +47,7 @@ GameModule::GameModule(const mod_file_t * pdata, const std::string& name, const 
     randindex = rand() % RANDIE_COUNT;
 
     // very important or the input will not work
-    egonet_set_hostactive( true ); 
-
-    // read and implement the "passage script" passages.txt
-    loadAllPassages();         
+    egonet_set_hostactive( true );  
 }
 
 GameModule::~GameModule()
