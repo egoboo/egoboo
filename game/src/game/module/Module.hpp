@@ -114,7 +114,6 @@ public:
 	**/
 	std::shared_ptr<Passage> getPassageByID(int id);
 
-private:
 	//Load all passages from file
 	void loadAllPassages();
 

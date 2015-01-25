@@ -189,7 +189,6 @@ static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
 static void game_setup_module( const char *smallname );
 static void game_reset_module_data();
 
-static void      game_load_all_assets( const char *modname );
 static egolib_rv game_load_global_assets();
 static void      game_load_module_assets( const char *modname );
 
@@ -2806,28 +2805,6 @@ void game_load_global_profiles()
 }
 
 //--------------------------------------------------------------------------------------------
-void game_load_all_profiles( const char *modname )
-{
-    /// @author ZZ
-    /// @details This function loads a module's local objects and overrides the global ones already loaded
-
-    // ensure that the script parser exists
-    parser_state_t * ps = script_compiler_get_state();
-
-    // Log all of the script errors
-    script_compiler_clear_error( ps );
-
-    // clear out any old object definitions
-    _profileSystem.releaseAllProfiles();
-
-    // load the global objects
-    game_load_global_profiles();
-
-    // load the objects from the module's directory
-    game_load_module_profiles( modname );
-}
-
-//--------------------------------------------------------------------------------------------
 bool chr_setup_apply( const CHR_REF ichr, spawn_file_info_t *pinfo )
 {
     chr_t * pchr, *pparent;
@@ -3255,14 +3232,6 @@ void game_load_module_assets( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-void game_load_all_assets( const char *modname )
-{
-    game_load_global_assets();
-
-    game_load_module_assets( modname );
-}
-
-//--------------------------------------------------------------------------------------------
 void game_setup_module( const char *smallname )
 {
     //TODO: ZF> Move to Module.cpp
@@ -3285,56 +3254,52 @@ void game_setup_module( const char *smallname )
 /// @details This function loads a module
 bool game_load_module_data( const char *smallname )
 {
-    STRING modname;
-    ego_mesh_t * pmesh_rv;
+    //TODO: ZF> this should be moved to Module.cpp
+    log_info( "Loading module \"%s\"\n", smallname );
 
     // ensure that the script parser exists
     parser_state_t * ps = script_compiler_get_state();
-
-    log_info( "Loading module \"%s\"\n", smallname );
-
+    script_compiler_clear_error(ps);
     if ( load_ai_script_vfs( ps, "mp_data/script.txt", NULL, NULL ) != rv_success )
     {
         log_warning( "game_load_module_data() - cannot load the default script\n" );
-        goto game_load_module_data_fail;
+        return false;
     }
 
     // generate the module directory
+    STRING modname;
     strncpy( modname, smallname, SDL_arraysize( modname ) );
     str_append_slash( modname, SDL_arraysize( modname ) );
 
     // load all module assets
-    game_load_all_assets( modname );
+    game_load_global_assets();
+    game_load_module_assets( modname );
 
     // load all module objects
-    game_load_all_profiles( modname );
+    game_load_global_profiles();            // load the global objects
+    game_load_module_profiles( modname );   // load the objects from the module's directory
 
-    pmesh_rv = ego_mesh_load( modname, PMesh );
-    if ( NULL == pmesh_rv )
+    ego_mesh_t * pmesh_rv = ego_mesh_load( modname, PMesh );
+    if ( nullptr == pmesh_rv )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
         // just return a failure value and log a warning message for debugging purposes
         log_warning( "game_load_module_data() - Uh oh! Problems loading the mesh! (%s)\n", modname );
-
-        goto game_load_module_data_fail;
+        return false;
     }
+
+    //Load passage.txt
+    PMod->loadAllPassages();
 
     // start the mesh_BSP_system
     if (!mesh_BSP_system_begin(pmesh_rv))
     {
-        goto game_load_module_data_fail;
+        return false;
     }
     // if it is started, populate the map_BSP
     mesh_BSP_fill(getMeshBSP(), pmesh_rv);
 
     return true;
-
-game_load_module_data_fail:
-
-    // release any data that might have been allocated
-    game_release_module_data();
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3471,16 +3436,19 @@ bool game_begin_module(const char * modname)
     // make sure that the object lists are in a good state
     reset_all_object_lists();
 
+    // start the module
+    PMod = std::unique_ptr<GameModule>(new GameModule(moduleData, mnu_ModList_get_vfs_path(_currentModuleID), time(NULL)));
+
     // load all the in-game module data
     if ( !game_load_module_data( modname ) )
-    {
+    {    
+        // release any data that might have been allocated
+        game_release_module_data();
         PMod.reset(nullptr);
         return false;
     };
 
-    // start the module
-    PMod = std::unique_ptr<GameModule>(new GameModule(moduleData, mnu_ModList_get_vfs_path(_currentModuleID), time(NULL)));
-
+    //After loading, spawn all the data and initialize everything
     game_setup_module( modname );
 
     // make sure the per-module configuration settings are correct
