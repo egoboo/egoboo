@@ -50,7 +50,6 @@
 #include "game/mesh.h"
 
 #include "game/profiles/Profile.hpp"
-#include "game/module/PassageHandler.hpp" //only for getPassageCount()
 #include "game/graphics/CameraSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
@@ -2957,7 +2956,7 @@ float draw_debug( float y )
         y = draw_string_raw( 0, y, "~~FREECHR %d", ChrList_count_free() );
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
         y = draw_string_raw( 0, y, PMod->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE" );
-        y = draw_string_raw( 0, y, "~~PASS %d", Passages::getPassageCount() );
+        y = draw_string_raw( 0, y, "~~PASS %d", PMod->getPassageCount() );
         y = draw_string_raw( 0, y, "~~NETPLAYERS %d", egonet_get_client_count() );
         y = draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile.part_gpip );
 
@@ -3007,9 +3006,9 @@ float draw_game_status( float y )
     }
     else if ( ServerState.player_count > 0 )
     {
-        if ( local_stats.allpladead || PMod->respawnanytime )
+        if ( local_stats.allpladead || PMod->canRespawnAnyTime() )
         {
-            if ( PMod->respawnvalid && cfg.difficulty < GAME_HARD )
+            if ( PMod->isRespawnValid() && cfg.difficulty < GAME_HARD )
             {
                 y = draw_string_raw( 0, y, "PRESS SPACE TO RESPAWN" );
             }
@@ -3018,7 +3017,7 @@ float draw_game_status( float y )
                 y = draw_string_raw( 0, y, "PRESS ESCAPE TO QUIT" );
             }
         }
-        else if ( PMod->beat )
+        else if ( PMod->isBeaten() )
         {
             y = draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
         }
@@ -5066,19 +5065,6 @@ void gfx_update_fps_clock()
 
     int gfx_clock_diff;
 
-    bool free_running = true;
-
-    // are the graphics updates free running?
-    free_running = true;
-    if ( process_running( PROC_PBASE( GProc ) ) )
-    {
-        free_running = GProc->fps_timer.free_running;
-    }
-    else if ( process_running( PROC_PBASE( MProc ) ) )
-    {
-        free_running = MProc->gui_timer.free_running;
-    }
-
     // make sure at least one tick has passed
     if ( !egolib_timer__throttle( &gfx_update_timer, 1 ) ) return;
 
@@ -5562,8 +5548,6 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
     const float delta_threshold = 0.05f;
 
     ego_mesh_t      * pmesh;
-    tile_mem_t     * ptmem;
-    grid_mem_t     * pgmem;
 
     if ( NULL == prlist )
     {
@@ -5582,9 +5566,6 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
     // update all visible fans once every 4 frames
     if ( 0 != ( game_frame_all & frame_mask ) ) return gfx_success;
 #endif
-
-    ptmem = &( pmesh->tmem );
-    pgmem = &( pmesh->gmem );
 
 #if !defined(CLIP_LIGHT_FANS)
     // update only every frame

@@ -45,7 +45,7 @@
 #include "game/script_compile.h"
 #include "game/egoboo.h"
 
-#include "game/module/PassageHandler.hpp"
+#include "game/module/Passage.hpp"
 #include "game/graphics/CameraSystem.hpp"
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
@@ -84,7 +84,6 @@ PROFILE_DECLARE( cl_talkToHost );
 //Game engine globals
 CameraSystem      _cameraSystem;
 AudioSystem       _audioSystem;
-static GameModule _gmod;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -98,7 +97,7 @@ size_t endtext_carat = 0;
 status_list_t StatusList = STATUS_LIST_INIT;
 
 ego_mesh_t         * PMesh   = _mesh + 0;
-GameModule         * PMod    = &_gmod;
+std::unique_ptr<GameModule> PMod = nullptr;
 game_process_t     * GProc   = &_gproc;
 
 pit_info_t pits = PIT_INFO_INIT;
@@ -121,6 +120,8 @@ Uint32          update_wld       = 0;
 Uint32          true_update      = 0;
 Uint32          true_frame       = 0;
 int             update_lag       = 0;
+
+static MOD_REF _currentModuleID = -1;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -164,8 +165,6 @@ static int game_process_do_leaving( game_process_t * gproc );
 static bool game_begin_menu( menu_process_t * mproc, which_menu_t which );
 static void   game_end_menu( menu_process_t * mproc );
 
-static void   do_game_hud();
-
 // place the object lists in the initial state
 void reset_all_object_lists();
 
@@ -190,7 +189,6 @@ static void convert_spawn_file_load_name( spawn_file_info_t * psp_info );
 static void game_setup_module( const char *smallname );
 static void game_reset_module_data();
 
-static void      game_load_all_assets( const char *modname );
 static egolib_rv game_load_global_assets();
 static void      game_load_module_assets( const char *modname );
 
@@ -435,7 +433,7 @@ void log_madused_vfs( const char *savename )
             for(size_t i = lastSlotNumber; i < profile->getSlotNumber() && i <= 36; ++i)
             {
                 if ( !_profileSystem.isValidProfileID(i) ) {
-                    vfs_printf( hFileWrite, "%3d  %32s.\n", i, "Slot reserved for import players" );
+                    vfs_printf( hFileWrite, "%3lu  %32s.\n", i, "Slot reserved for import players" );
                 }
             }
             lastSlotNumber = profile->getSlotNumber();
@@ -799,7 +797,7 @@ int update_game()
 
         if ( !pchr->alive )
         {
-            if ( cfg.difficulty < GAME_HARD && local_stats.allpladead && SDL_KEYDOWN( keyb, SDLK_SPACE ) && PMod->respawnvalid && 0 == local_stats.revivetimer )
+            if ( cfg.difficulty < GAME_HARD && local_stats.allpladead && SDL_KEYDOWN( keyb, SDLK_SPACE ) && PMod->isRespawnValid() && 0 == local_stats.revivetimer )
             {
                 respawn_character( ichr );
                 pchr->experience *= EXPKEEP;        // Apply xp Penality
@@ -1189,6 +1187,9 @@ int game_process_do_begin( game_process_t * gproc )
         game_process_do_leaving(gproc);
         process_pause(PROC_PBASE(MProc));
     }
+
+    //Make sure all data is cleared first
+    game_quit_module();
     
     BillboardList_init_all();
 
@@ -1217,7 +1218,7 @@ int game_process_do_begin( game_process_t * gproc )
     gfx_system_make_enviro();
 
     // try to start a new module
-    if ( !game_begin_module( pickedmodule_path, ( Uint32 )~0 ) )
+    if ( !game_begin_module(pickedmodule_path) )
     {
         // failure - kill the game process
         process_kill( PROC_PBASE( gproc ) );
@@ -1374,7 +1375,7 @@ int game_process_do_running( game_process_t * gproc )
                 }
                 PROFILE_END2( check_stats );
 
-                Passages::checkPassageMusic();
+                PMod->checkPassageMusic();
 
                 if ( egonet_get_waitingforclients() )
                 {
@@ -1459,7 +1460,7 @@ int game_process_do_running( game_process_t * gproc )
 
         if ( !gproc->escape_latch )
         {
-            if ( PMod->beat )
+            if ( PMod->isBeaten() )
             {
                 game_begin_menu( MProc, emnu_ShowEndgame );
             }
@@ -2515,16 +2516,16 @@ void show_armor( int statindex )
 
     // Armor Stats
     DisplayMsg_printf( "~DEF: %d  SLASH:%3.0f%%~CRUSH:%3.0f%% POKE:%3.0f%%", 255 - skinInfo.defence,
-                       skinInfo.damageResistance[DAMAGE_SLASH]*100,
-                       skinInfo.damageResistance[DAMAGE_CRUSH]*100,
-                       skinInfo.damageResistance[DAMAGE_POKE ]*100 );
+                       skinInfo.damageResistance[DAMAGE_SLASH]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_CRUSH]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_POKE ]*100.0f );
 
     DisplayMsg_printf( "~HOLY:%3.0f%%~EVIL:%3.0f%%~FIRE:%3.0f%%~ICE:%3.0f%%~ZAP:%3.0f%%",
-                       skinInfo.damageResistance[DAMAGE_HOLY]*100,
-                       skinInfo.damageResistance[DAMAGE_EVIL]*100,
-                       skinInfo.damageResistance[DAMAGE_FIRE]*100,
-                       skinInfo.damageResistance[DAMAGE_ICE ]*100,
-                       skinInfo.damageResistance[DAMAGE_ZAP ]*100 );
+                       skinInfo.damageResistance[DAMAGE_HOLY]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_EVIL]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_FIRE]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_ICE ]*100.0f,
+                       skinInfo.damageResistance[DAMAGE_ZAP ]*100.0f );
 
     DisplayMsg_printf( "~Type: %s", skinInfo.dressy ? "Light Armor" : "Heavy Armor" );
 
@@ -2697,9 +2698,9 @@ void tilt_characters_to_terrain()
 //--------------------------------------------------------------------------------------------
 void import_dir_profiles_vfs( const std::string &dirname )
 {
-    if ( NULL == PMod || dirname.empty() ) return;
+    if ( nullptr == PMod || dirname.empty() ) return;
 
-    if ( !PMod->importvalid ) return;
+    if ( !PMod->isImportValid() ) return;
 
     for (int cnt = 0; cnt < PMod->getImportAmount()*MAX_IMPORT_PER_PLAYER; cnt++ )
     {
@@ -2801,28 +2802,6 @@ void game_load_global_profiles()
 
     // load the objects from various import directories
     load_all_profiles_import();
-}
-
-//--------------------------------------------------------------------------------------------
-void game_load_all_profiles( const char *modname )
-{
-    /// @author ZZ
-    /// @details This function loads a module's local objects and overrides the global ones already loaded
-
-    // ensure that the script parser exists
-    parser_state_t * ps = script_compiler_get_state();
-
-    // Log all of the script errors
-    script_compiler_clear_error( ps );
-
-    // clear out any old object definitions
-    _profileSystem.releaseAllProfiles();
-
-    // load the global objects
-    game_load_global_profiles();
-
-    // load the objects from the module's directory
-    game_load_module_profiles( modname );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2993,7 +2972,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
     if ( psp_info->stat )
     {
         // what we do depends on what kind of module we're loading
-        if ( 0 == PMod->getImportAmount() && PlaStack.count < PMod->playeramount )
+        if ( 0 == PMod->getImportAmount() && PlaStack.count < PMod->getPlayerAmount() )
         {
             // a single player module
 
@@ -3007,7 +2986,7 @@ bool activate_spawn_file_spawn( spawn_file_info_t * psp_info )
                 pobject->nameknown = true;
             }
         }
-        else if ( PlaStack.count < PMod->getImportAmount() && PlaStack.count < PMod->playeramount && PlaStack.count < ImportList.count )
+        else if ( PlaStack.count < PMod->getImportAmount() && PlaStack.count < PMod->getPlayerAmount() && PlaStack.count < ImportList.count )
         {
             // A multiplayer module
 
@@ -3212,6 +3191,7 @@ egolib_rv game_load_global_assets()
     {
         case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
         case gfx_error:  retval = rv_error; break;
+        default: /*nothing*/ break;
     }
 
     load_rv = gfx_load_bars();
@@ -3219,6 +3199,7 @@ egolib_rv game_load_global_assets()
     {
         case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
         case gfx_error:  retval = rv_error; break;
+        default: /*nothing*/ break;
     }
 
     load_rv = gfx_load_icons();
@@ -3226,6 +3207,7 @@ egolib_rv game_load_global_assets()
     {
         case gfx_fail:   if ( rv_error != retval ) retval = rv_fail; break;
         case gfx_error:  retval = rv_error; break;
+        default: /*nothing*/ break;
     }
 
     return retval;
@@ -3250,30 +3232,17 @@ void game_load_module_assets( const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-void game_load_all_assets( const char *modname )
-{
-    game_load_global_assets();
-
-    game_load_module_assets( modname );
-}
-
-//--------------------------------------------------------------------------------------------
 void game_setup_module( const char *smallname )
 {
+    //TODO: ZF> Move to Module.cpp
+
     /// @author ZZ
     /// @details This runst the setup functions for a module
-
-    STRING modname;
 
     // make sure the object lists are empty
     free_all_objects();
 
-    // generate the module directory
-    strncpy( modname, smallname, SDL_arraysize( modname ) );
-    str_append_slash_net( modname, SDL_arraysize( modname ) );
-
     // just the information in these files to load the module
-    Passages::loadAllPassages();         // read and implement the "passage script" passages.txt
     activate_spawn_file_vfs();           // read and implement the "spawn script" spawn.txt
     activate_alliance_file_vfs();        // set up the non-default team interactions
 
@@ -3285,56 +3254,52 @@ void game_setup_module( const char *smallname )
 /// @details This function loads a module
 bool game_load_module_data( const char *smallname )
 {
-    STRING modname;
-    ego_mesh_t * pmesh_rv;
+    //TODO: ZF> this should be moved to Module.cpp
+    log_info( "Loading module \"%s\"\n", smallname );
 
     // ensure that the script parser exists
     parser_state_t * ps = script_compiler_get_state();
-
-    log_info( "Loading module \"%s\"\n", smallname );
-
+    script_compiler_clear_error(ps);
     if ( load_ai_script_vfs( ps, "mp_data/script.txt", NULL, NULL ) != rv_success )
     {
         log_warning( "game_load_module_data() - cannot load the default script\n" );
-        goto game_load_module_data_fail;
+        return false;
     }
 
     // generate the module directory
+    STRING modname;
     strncpy( modname, smallname, SDL_arraysize( modname ) );
     str_append_slash( modname, SDL_arraysize( modname ) );
 
     // load all module assets
-    game_load_all_assets( modname );
+    game_load_global_assets();
+    game_load_module_assets( modname );
 
     // load all module objects
-    game_load_all_profiles( modname );
+    game_load_global_profiles();            // load the global objects
+    game_load_module_profiles( modname );   // load the objects from the module's directory
 
-    pmesh_rv = ego_mesh_load( modname, PMesh );
-    if ( NULL == pmesh_rv )
+    ego_mesh_t * pmesh_rv = ego_mesh_load( modname, PMesh );
+    if ( nullptr == pmesh_rv )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
         // just return a failure value and log a warning message for debugging purposes
         log_warning( "game_load_module_data() - Uh oh! Problems loading the mesh! (%s)\n", modname );
-
-        goto game_load_module_data_fail;
+        return false;
     }
+
+    //Load passage.txt
+    PMod->loadAllPassages();
 
     // start the mesh_BSP_system
     if (!mesh_BSP_system_begin(pmesh_rv))
     {
-        goto game_load_module_data_fail;
+        return false;
     }
     // if it is started, populate the map_BSP
     mesh_BSP_fill(getMeshBSP(), pmesh_rv);
 
     return true;
-
-game_load_module_data_fail:
-
-    // release any data that might have been allocated
-    game_release_module_data();
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3430,7 +3395,7 @@ void game_quit_module()
     /// @details all of the de-initialization code after the module actually ends
 
     // stop the module
-    PMod->stop();
+    PMod.reset(nullptr);
 
     // get rid of the game/module data
     game_release_module_data();
@@ -3455,30 +3420,35 @@ void game_quit_module()
 }
 
 //--------------------------------------------------------------------------------------------
-bool game_begin_module( const char * modname, Uint32 seed )
+bool game_begin_module(const char * modname)
 {
     /// @author BB
     /// @details all of the initialization code before the module actually starts
 
-    if ((( Uint32 )( ~0 ) ) == seed ) seed = ( Uint32 )time( NULL );
+    const mod_file_t * moduleData = mnu_ModList_get_base(_currentModuleID);
+    if(!moduleData) {
+        return false;
+    }
 
-    // make sure the old game has been quit
-    game_quit_module();
+    // set up the virtual file system for the module (Do before loading the module)
+    if ( !setup_init_module_vfs_paths( modname ) ) return false;
 
     // make sure that the object lists are in a good state
     reset_all_object_lists();
 
-    // set up the virtual file system for the module
-    if ( !setup_init_module_vfs_paths( modname ) ) return false;
+    // start the module
+    PMod = std::unique_ptr<GameModule>(new GameModule(moduleData, mnu_ModList_get_vfs_path(_currentModuleID), time(NULL)));
 
     // load all the in-game module data
-    srand( seed );
     if ( !game_load_module_data( modname ) )
-    {
-        PMod->stop();
+    {    
+        // release any data that might have been allocated
+        game_release_module_data();
+        PMod.reset(nullptr);
         return false;
     };
 
+    //After loading, spawn all the data and initialize everything
     game_setup_module( modname );
 
     // make sure the per-module configuration settings are correct
@@ -3487,7 +3457,6 @@ bool game_begin_module( const char * modname, Uint32 seed )
     // initialize the game objects
     initialize_all_objects();
     input_cursor_reset();
-    PMod->reset(seed);
     _cameraSystem.resetAll(PMesh);
     update_all_character_matrices();
     attach_all_particles();
@@ -3498,9 +3467,6 @@ bool game_begin_module( const char * modname, Uint32 seed )
     // initialize the network
     net_begin();
     net_sayHello();
-
-    // start the module
-    PMod->start();
 
     // initialize the timers as the very last thing
     timeron = false;
@@ -3553,9 +3519,6 @@ void game_release_module_data()
     // deal with dynamically allocated game assets
     gfx_system_release_all_graphics();
     _profileSystem.releaseAllProfiles();
-
-    // free passages
-    Passages::clearPassages();
 
     // delete the mesh data
     ptmp = PMesh;
@@ -4129,21 +4092,12 @@ void expand_escape_codes( const CHR_REF ichr, script_state_t * pstate, char * sr
 }
 
 //--------------------------------------------------------------------------------------------
-bool game_choose_module( int imod, int seed )
+bool game_choose_module( MOD_REF imod )
 {
-    bool retval;
-
-    if ( seed < 0 ) seed = ( int )time( NULL );
-
-    retval = PMod->setup(mnu_ModList_get_base(imod), mnu_ModList_get_vfs_path(imod), seed);
-
-    if ( retval )
-    {
-        // give everyone virtual access to the game directories
-        setup_init_module_vfs_paths( pickedmodule_path );
-    }
-
-    return retval;
+    // give everyone virtual access to the game directories
+    setup_init_module_vfs_paths( pickedmodule_path );
+    _currentModuleID = imod;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4174,6 +4128,7 @@ game_process_t * game_process_init( game_process_t * gproc )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 void do_game_hud()
 {
     int y = 0;
@@ -4191,6 +4146,7 @@ void do_game_hud()
         y = draw_string( 0, y, "Menu time %f", MProc->base.frameDuration );
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -4674,7 +4630,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = Passages::getShopOwner(pitem->pos.x, pitem->pos.y);
+        iowner = PMod->getShopOwner(pitem->pos.x, pitem->pos.y);
         if ( INGAME_CHR( iowner ) )
         {
             int price;
@@ -4727,7 +4683,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = Passages::getShopOwner( pitem->pos.x, pitem->pos.y );
+        iowner = PMod->getShopOwner( pitem->pos.x, pitem->pos.y );
         if ( INGAME_CHR( iowner ) )
         {
             chr_t * powner = ChrList_get_ptr( iowner );
@@ -4803,7 +4759,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = Passages::getShopOwner( pitem->pos.x, pitem->pos.y );
+        iowner = PMod->getShopOwner( pitem->pos.x, pitem->pos.y );
         if ( INGAME_CHR( iowner ) )
         {
             IPair  tmp_rand = {1, 100};
@@ -4843,7 +4799,7 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     can_grab = true;
 
     // check if we are doing this inside a shop
-    shop_keeper = Passages::getShopOwner(pitem->pos.x, pitem->pos.y);
+    shop_keeper = PMod->getShopOwner(pitem->pos.x, pitem->pos.y);
     pkeeper = ChrList_get_ptr( shop_keeper );
     if ( INGAME_PCHR( pkeeper ) )
     {

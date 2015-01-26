@@ -26,17 +26,17 @@
 #include "egolib/frustum.h"
 #include "egolib/bv.h"
 #include "egolib/platform.h"
+#include "egolib/bsp_aabb.h"
 
 //--------------------------------------------------------------------------------------------
-// internal structs
+// forward declarations
 //--------------------------------------------------------------------------------------------
-
-    struct BSP_aabb_t;
-    struct BSP_leaf_t;
-    struct BSP_branch_t;
-    struct BSP_branch_list_t;
-    struct BSP_leaf_list_t;
-    struct BSP_tree_t;
+class BSP_aabb_t;
+class BSP_leaf_t;
+class BSP_branch_t;
+class BSP_branch_list_t;
+class BSP_leaf_list_t;
+class BSP_tree_t;
 
 //--------------------------------------------------------------------------------------------
 // BSP types
@@ -47,140 +47,183 @@
 //--------------------------------------------------------------------------------------------
 // known BSP types
 //--------------------------------------------------------------------------------------------
+enum bsp_type_t
+{
+    BSP_LEAF_NONE = -1,
+    BSP_LEAF_CHR,
+    BSP_LEAF_ENC,
+    BSP_LEAF_PRT,
+    BSP_LEAF_TILE
+};
 
-    enum bsp_type_t
-    {
-        BSP_LEAF_NONE = -1,
-        BSP_LEAF_CHR,
-        BSP_LEAF_ENC,
-        BSP_LEAF_PRT,
-        BSP_LEAF_TILE
-    };
+//--------------------------------------------------------------------------------------------
+class BSP_leaf_t
+{
+public:
+	BSP_leaf_t() :
+		next(nullptr),
+		data_type(BSP_LEAF_NONE),
+		data(nullptr),
+		index(0),
+		bbox(),
+		inserted(false)
+	{
+		//ctor
+	}
+
+    BSP_leaf_t *next;
+    bsp_type_t data_type;
+    void *data;
+    size_t index;
+    bv_t bbox;
+
+	/**
+	 * @brief
+	 *	Is this leaf in a leaf list.
+	 * @return
+	 *	@a true if this leaf is in a leaf list, @a false otherwise
+	 */
+	bool isInList() const
+	{
+		return inserted;
+	}
+
+	BSP_leaf_t *ctor(void *data, bsp_type_t type, size_t index);
+	void dtor();
+
+	static bool clear(BSP_leaf_t * L);
+	static bool remove_link(BSP_leaf_t * L);
+	static bool copy(BSP_leaf_t * L_dst, const BSP_leaf_t * L_src);
+
+protected:
+	bool inserted;
+
+	friend struct BSP_leaf_list_t;
+};
+
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+class BSP_leaf_list_t
+{
+public:
+	BSP_leaf_list_t() :
+		count(0),
+		lst(nullptr),
+		bbox()
+	{
 
-#include "egolib/bsp_aabb.h"
+	}
 
+    size_t count;
 
-//--------------------------------------------------------------------------------------------
-    struct BSP_leaf_t
-    {
-		friend struct BSP_leaf_list_t;
-	protected:
-		bool inserted;
-	public:
-		/**
-		 * @brief
-		 *	Is this leaf in a leaf list.
-		 * @return
-		 *	@a true if this leaf is in a leaf list, @a false otherwise
-		 */
-		bool isInList() const
-		{
-			return inserted;
-		}
-        BSP_leaf_t *next;
-        bsp_type_t data_type;
-        void *data;
-        size_t index;
-        bv_t bbox;
-		BSP_leaf_t *ctor(void *data, bsp_type_t type, size_t index);
-		void dtor();
+    BSP_leaf_t *lst;
 
-		static bool clear(BSP_leaf_t * L);
-		static bool remove_link(BSP_leaf_t * L);
-		static bool copy(BSP_leaf_t * L_dst, const BSP_leaf_t * L_src);
-    };
+    bv_t bbox;
 
+	/**
+	 * @brief
+	 *	Get if this leaf list is empty.
+	 * @return
+	 *	@a true if this leaf list is empty, @a false otherwise
+	 */
+	bool empty() const
+	{
+		return 0 == count;
+	}
+	/**
+	 * @brief
+	 *	Construct this leaf list.
+	 * @param self
+	 *	this leaf list
+	 */
+	BSP_leaf_list_t *ctor();
+	/**
+	 * @brief
+	 *	Destruct this leaf list.
+	 * @param self
+	 *	this leaf list
+	 */
+	void dtor();
+	/**
+	 * @brief
+	 *	Insert a leaf in the list.
+	 * @pre
+	 *	The leaf must not be in a leaf list (checked).
+	 * @post
+	 *	The leaf is in this leaf list.
+	 */
+	bool push_front(BSP_leaf_t *leaf);
 
+	/**
+	 * @brief
+	 *	Pop the head of this leaf list.
+	 * @return
+	 *	the head of the leaf list if the leaf list is not empty, @a nullptr otherwise
+	 * @warning
+	 *	This function does not update the bounding box of this leaf list.
+	 */
+	BSP_leaf_t *pop_front();
 
+	/**
+	 * @brief
+	 *	Clear the leaf list.
+	 * @warning
+	 *	This function does not update the bounding box of this leaf list.
+	 */
+	void clear();
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-    struct BSP_leaf_list_t
-    {
-        size_t count;
-        BSP_leaf_t *lst;
-        bv_t bbox;
-		/**
-		 * @brief
-		 *	Get if this leaf list is empty.
-		 * @return
-		 *	@a true if this leaf list is empty, @a false otherwise
-		 */
-		bool empty() const
-		{
-			return 0 == count;
-		}
-		/**
-		 * @brief
-		 *	Construct this leaf list.
-		 * @param self
-		 *	this leaf list
-		 */
-		BSP_leaf_list_t *ctor();
-		/**
-		 * @brief
-		 *	Destruct this leaf list.
-		 * @param self
-		 *	this leaf list
-		 */
-		void dtor();
-		/**
-		 * @brief
-		 *	Insert a leaf in the list.
-		 * @pre
-		 *	The leaf must not be in a leaf list (checked).
-		 * @post
-		 *	The leaf is in this leaf list.
-		 */
-		bool push_front(BSP_leaf_t *leaf);
-
-		/**
-		 * @brief
-		 *	Pop the head of this leaf list.
-		 * @return
-		 *	the head of the leaf list if the leaf list is not empty, @a nullptr otherwise
-		 * @warning
-		 *	This function does not update the bounding box of this leaf list.
-		 */
-		BSP_leaf_t *pop_front();
-
-		/**
-		 * @brief
-		 *	Clear the leaf list.
-		 * @warning
-		 *	This function does not update the bounding box of this leaf list.
-		 */
-		void clear();
-
-		bool collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const;
-		bool collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
-		
-    };
+	bool collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const;
+	bool collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+};
 
 //--------------------------------------------------------------------------------------------
-    struct BSP_branch_list_t
-    {
-        size_t lst_size;
-        BSP_branch_t **lst;
-        size_t inserted;
-        bv_t bbox;
-		BSP_branch_list_t *ctor(size_t dim);
-		BSP_branch_list_t *dtor();
-	};
+class BSP_branch_list_t
+{
+public:
 
-    bool BSP_branch_list_clear_rec( BSP_branch_list_t * );
+	BSP_branch_list_t() :
+		lst_size(0),
+		lst(nullptr),
+		inserted(0),
+		bbox()
+	{
+		//ctor
+	}
 
-	bool BSP_branch_list_collide_frustum(const BSP_branch_list_t * BL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst);
-    bool BSP_branch_list_collide_aabb( const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst );
+	BSP_branch_list_t *ctor(size_t dim);
+	BSP_branch_list_t *dtor();
+
+    size_t lst_size;
+    BSP_branch_t **lst;
+    size_t inserted;
+    bv_t bbox;
+};
+
+bool BSP_branch_list_clear_rec( BSP_branch_list_t * );
+
+bool BSP_branch_list_collide_frustum(const BSP_branch_list_t * BL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst);
+bool BSP_branch_list_collide_aabb( const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst );
 
 #define INVALID_BSP_BRANCH_LIST(BL) ( (NULL == (BL)) || (NULL == (BL)->lst) || (0 == (BL)->lst_size) )
 
 //--------------------------------------------------------------------------------------------
-struct BSP_branch_t
+class BSP_branch_t
 {
+public:
+	BSP_branch_t() :
+		parent(nullptr),
+		unsorted(),
+		children(),
+		leaves(),
+		bsp_bbox(),
+		depth(0)
+	{
+		//ctor
+	}
+
 	/**
 	 * @brief
 	 *	The parent branch of this branch.
@@ -242,8 +285,24 @@ bool BSP_branch_add_all_children(const BSP_branch_t *self, BSP_leaf_test_t *test
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct BSP_tree_t
+class BSP_tree_t
 {
+public:
+	BSP_tree_t() :
+		dimensions(0),
+		max_depth(0),
+		depth(0),
+		branch_all(),
+		branch_used(),
+		branch_free(),
+		finite(nullptr),
+		infinite(),
+		bbox(),
+		bsp_bbox()
+	{
+		//ctor
+	}
+
 	/**
 	 * @brief
 	 *    The minimum dimensionality of a BSP tree.
@@ -334,22 +393,6 @@ struct BSP_tree_t
 	 *    the number of collisions found
 	 */
 	size_t collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
-
-
-    BSP_tree_t() :
-        dimensions(0),
-        max_depth(0),
-        branch_all(),
-        branch_used(),
-        branch_free(),
-        finite(nullptr),
-        infinite(),
-        depth(0),
-        bbox(),
-        bsp_bbox()
-    {
-        //ctor
-    }
 };
 
 bool BSP_tree_clear_rec(BSP_tree_t *self);

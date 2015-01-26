@@ -23,30 +23,25 @@
 
 #include <string>
 #include <cstdint>
+#include <vector>
+#include "game/egoboo_typedef.h"
 
+//Forward declarations
 struct mod_file_t;
+class Passage;
 
 
 /// the module data that the game needs
 class GameModule
 {
 public:
-	GameModule();
-
-public:
-
     //Prepeares a module to be played
-	bool setup(const mod_file_t * pdata, const std::string& loadname, const uint32_t seed);
+	GameModule(const mod_file_t * pdata, const std::string& loadname, const uint32_t seed);
 
-	bool reset(const uint32_t seed);
-
-    /// @author BB
-    /// @details Let the module go
-	bool start();
-
-    /// @author BB
-    /// @details stop the module
-	bool stop();
+	/**
+	* Deconstructor
+	**/
+	~GameModule();
 
 	/**
 	* @return name of the module
@@ -58,6 +53,26 @@ public:
 	**/
 	inline uint8_t getImportAmount() const {return _importAmount;}
 
+	inline uint8_t getPlayerAmount() const {return _playerAmount;}
+
+	inline bool isImportValid() const {return _importAmount > 0;}
+
+	/**
+	* @return true if the players have won
+	**/
+	inline bool isBeaten() const {return _isBeaten;}
+
+	/**
+	* @brief Make the players win the module. If they press ESC the game ends and 
+	*		 the end screen is shown instead of going to the pause menu
+	**/
+	void beatModule() {_isBeaten = true;}
+
+	/**
+	* @return true if the players are allowed to respawn upon death
+	**/
+	inline bool isRespawnValid() const {return _isRespawnValid;}
+
 	/**
 	* @return true if the players are allowed to export (save) their progress in this 
 	*		  module upon exit
@@ -66,21 +81,53 @@ public:
 
 	void setExportValid(bool valid) {_exportValid = valid;}
 
-public:
-    bool  exportreset;                
-    uint8_t   playeramount;               ///< How many players?
-    bool  importvalid;                ///< Can it import?
-    bool  respawnvalid;               ///< Can players respawn with Spacebar?
-    bool  respawnanytime;             ///< True if it's a small level...
 
-    bool  active;                     ///< Is the control loop still going?
-    bool  beat;                       ///< Show Module Ended text?
-    uint32_t  seed;                       ///< The module seed
+	inline bool canRespawnAnyTime() const {return _canRespawnAnyTime;}
+
+	void setRespawnValid(bool valid) {_isRespawnValid = valid;}
+
+	//clear passage memory
+	void clearPassages();
+
+    /// @author ZF
+    /// @details This function checks all passages if there is a player in it, if it is, it plays a specified
+    /// song set in by the AI script functions
+	void checkPassageMusic();
+
+    /// @author ZZ
+    /// @details This function returns the owner of a item in a shop
+	CHR_REF getShopOwner(const float x, const float y);
+
+	/**
+	* @brief Mark all shop passages having this owner as no longer a shop
+	**/
+	void removeShopOwner(CHR_REF owner);
+
+	/**
+	* @return number of passages currently loaded
+	**/
+	int getPassageCount();
+
+	/**
+	* @brief Get Passage by index number
+	* @return nullptr if the id is invalid else the Passage located in the ordered index number
+	**/
+	std::shared_ptr<Passage> getPassageByID(int id);
+
+	//Load all passages from file
+	void loadAllPassages();
 
 private:
     std::string  _name;               ///< Module load names
     uint8_t   _importAmount;          ///< Number of imports for this module
     bool _exportValid;				  ///< Allow to export when module is reset?
+    bool  _exportReset;               ///< Remember original export mode if the module is restarted
+    uint8_t _playerAmount;            ///< How many players?
+    bool  _canRespawnAnyTime;         ///< True if it's a small level...
+    bool _isRespawnValid;			  ///< Can players respawn with Spacebar?
+    bool _isBeaten;				 	  ///< Have the players won?
+    uint32_t  _seed;                  ///< The module seed
 
+    std::vector<std::shared_ptr<Passage>> _passages;	///< All passages in this module
 };
 

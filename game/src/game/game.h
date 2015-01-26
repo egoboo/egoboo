@@ -389,7 +389,7 @@ extern ego_mesh_t *PMesh;
 //TODO: remove this global
 extern CameraSystem _cameraSystem;
 extern AudioSystem  _audioSystem;
-extern GameModule *PMod;
+extern std::unique_ptr<GameModule> PMod;
 
 // special terrain and wawalite-related data structs
 extern animtile_instance_t animtile[2];
@@ -430,7 +430,7 @@ void   game_quit_module();
 /// the hook for exporting all the current players and reloading them
 bool game_update_imports();
 void   game_finish_module();
-bool game_begin_module( const char * modname, Uint32 seed );
+bool game_begin_module(const char * modname);
 
 /// Exporting stuff
 egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, int chr_obj_index, bool is_local );
@@ -475,7 +475,7 @@ ego_mesh_t *set_PMesh( ego_mesh_t * pmpd );
 
 float get_mesh_level( ego_mesh_t * pmesh, float x, float y, bool waterwalk );
 
-bool game_choose_module( int imod, int seed );
+bool game_choose_module( MOD_REF imod );
 
 int    game_do_menu( struct menu_process_t * mproc );
 

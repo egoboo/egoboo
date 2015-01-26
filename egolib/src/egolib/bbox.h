@@ -57,8 +57,6 @@
     typedef float * oct_vec_base_t;
     typedef float oct_vec_t[OCT_COUNT];
 
-#define OCT_VEC_INIT_VALS { 0,0,0,0,0 }
-
 //--------------------------------------------------------------------------------------------
 
 /// generic octagonal bounding box
@@ -67,6 +65,14 @@
 /// values in data.txt. Computed on the fly.
     struct oct_bb_t
     {
+        oct_bb_t() :
+            empty(true),
+            mins{ 0,0,0,0,0 },
+            maxs{ 0,0,0,0,0 }
+        {
+            //ctor
+        }
+
         bool  empty;
         oct_vec_t mins,
 		          maxs;
@@ -74,14 +80,21 @@
 
     egolib_rv  oct_bb_interpolate( const oct_bb_t * psrc1, const oct_bb_t * psrc2, oct_bb_t * pdst, float flip );
 
-#define OCT_BB_INIT_VALS { true, OCT_VEC_INIT_VALS, OCT_VEC_INIT_VALS }
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 /// @details A convex poly representation of an object volume
     struct OVolume_t
     {
+        OVolume_t() :
+            lod(0),
+            needs_shape(false),
+            needs_position(false),
+            oct()
+        {
+            //ctor
+        }
+
         int        lod;             ///< the level of detail (LOD) of this volume
         bool   needs_shape;     ///< is the shape data valid?
         bool   needs_position;  ///< Is the position data valid?
@@ -107,6 +120,15 @@
 /// @details A convex polygon representation of the collision of two objects
     struct CVolume_t
     {
+        CVolume_t() :
+            volume(0.0f),
+            center(0, 0, 0),
+            ov(),
+            tree(nullptr)
+        {
+            //ctor
+        }
+
         float            volume;
         fvec3_t          center;
         OVolume_t        ov;

@@ -841,8 +841,6 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
     if ( NULL == coHashList || NULL == cn_lst || NULL == hn_lst ) return false;
 
-	ego_mesh_info_t *mi = &(PMesh->info);
-
     // renew the CoNode_t hash table.
     hash_list_renew(coHashList);
 

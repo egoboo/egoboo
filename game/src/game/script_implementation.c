@@ -34,7 +34,8 @@
 #include "game/profiles/Profile.hpp"
 #include "game/char.h"
 
-#include "game/module/PassageHandler.hpp"
+#include "game/module/Module.hpp"
+#include "game/module/Passage.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
@@ -120,52 +121,6 @@ bool BIT_FIELD_has_no_bits( BIT_FIELD val, BIT_FIELD test )
 bool BIT_FIELD_missing_bits( BIT_FIELD val, BIT_FIELD test )
 {
     return HAS_SOME_BITS( val, test ) && !HAS_ALL_BITS( val, test );
-}
-
-//--------------------------------------------------------------------------------------------
-BIT_FIELD BIT_FIELD_set_one_bit( BIT_FIELD val, size_t which )
-{
-    const size_t bit_count = 8 * sizeof( BIT_FIELD );
-
-    BIT_FIELD new_val = val;
-
-    new_val = 0;
-    if ( which >= 0 && which < bit_count )
-    {
-        new_val = SET_BIT( new_val, 1 << which );
-    }
-
-    return new_val;
-}
-
-//--------------------------------------------------------------------------------------------
-BIT_FIELD BIT_FIELD_clear_one_bit( BIT_FIELD val, size_t which )
-{
-    const size_t bit_count = 8 * sizeof( BIT_FIELD );
-
-    BIT_FIELD new_val = val;
-
-    if ( which >= 0 && which < bit_count )
-    {
-        new_val = UNSET_BIT( new_val, 1 << which );
-    }
-
-    return new_val;
-}
-
-//--------------------------------------------------------------------------------------------
-bool BIT_FIELD_test_one_bit( BIT_FIELD val, size_t which )
-{
-    const size_t bit_count = 8 * sizeof( BIT_FIELD );
-
-    bool retval = false;
-
-    if ( which >= 0 && which < bit_count )
-    {
-        retval = HAS_ALL_BITS( val, 1 << which );
-    }
-
-    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -560,7 +515,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     ego_tile_info_t * ptile = NULL;
     int loc_starttile;
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(passageID);
+    const std::shared_ptr<Passage> &passage = PMod->getPassageByID(passageID);
 
     if ( !passage ) return false;
 
@@ -677,7 +632,7 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
     Uint32 fan;
     ego_tile_info_t * ptile = NULL;
 
-    std::shared_ptr<Passage> passage = Passages::getPassageByID(passageID);
+    const std::shared_ptr<Passage> &passage = PMod->getPassageByID(passageID);
     if ( !passage ) return false;
 
     // Do the first row

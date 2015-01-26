@@ -401,7 +401,6 @@ bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fve
     if (NULL == pbb || !pbb->valid) return false;
 
     if (!INGAME_CHR( pbb->ichr)) return false;
-    chr_t *pchr = ChrList_get_ptr(pbb->ichr);
 
     // do not display for objects that are mounted or being held
     if (IS_ATTACHED_CHR_RAW(pbb->ichr)) return false;

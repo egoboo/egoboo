@@ -162,49 +162,12 @@ int ProfileSystem::getProfileSlotNumber(const std::string &folderPath, int slot_
 //--------------------------------------------------------------------------------------------
 //inline
 //--------------------------------------------------------------------------------------------
-MAD_REF ProfileSystem::pro_get_imad( const PRO_REF iobj )
-{
-    if ( !isValidProfileID( iobj ) ) return INVALID_MAD_REF;
 
-    return LOADED_MAD( _profilesLoaded[iobj]->getModelRef() ) ? _profilesLoaded[iobj]->getModelRef() : INVALID_MAD_REF;
-}
-
-//--------------------------------------------------------------------------------------------
 EVE_REF ProfileSystem::pro_get_ieve( const PRO_REF iobj )
 {
     if ( !isValidProfileID( iobj ) ) return INVALID_EVE_REF;
 
     return LOADED_EVE( _profilesLoaded[iobj]->getEnchantRef() ) ? _profilesLoaded[iobj]->getEnchantRef() : INVALID_EVE_REF;
-}
-
-//--------------------------------------------------------------------------------------------
-PIP_REF ProfileSystem::pro_get_ipip( const PRO_REF iobj, int pip_index )
-{
-    PIP_REF found_pip = INVALID_PIP_REF;
-
-    if ( !isValidProfileID( iobj ) )
-    {
-        // check for a global pip
-        PIP_REF global_pip = (( pip_index < 0 ) || ( pip_index > MAX_PIP ) ) ? MAX_PIP : ( PIP_REF )pip_index;
-        if ( LOADED_PIP( global_pip ) )
-        {
-            found_pip = global_pip;
-        }
-    }
-    else if ( pip_index < MAX_PIP_PER_PROFILE )
-    {
-        // this is a local pip
-        PIP_REF itmp;
-
-        // grab the local pip
-        itmp = _profilesLoaded[iobj]->getParticleProfile(pip_index);
-        if ( VALID_PIP_RANGE( itmp ) )
-        {
-            found_pip = itmp;
-        }
-    }
-
-    return found_pip;
 }
 
 //--------------------------------------------------------------------------------------------
