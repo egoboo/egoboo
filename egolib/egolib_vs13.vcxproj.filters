@@ -207,9 +207,6 @@
     <ClCompile Include="src\egolib\opengl\renderer.c">
       <Filter>OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\platform\file_amiga.c">
-      <Filter>Platforms</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\platform\file_linux.c">
       <Filter>Platforms</Filter>
     </ClCompile>
@@ -489,15 +486,9 @@
   <ItemGroup>
     <None Include="enet.props" />
     <None Include="libraries.props" />
-    <None Include="multithreaded_debug_dll.props" />
-    <None Include="multithreaded_dll.props" />
     <None Include="opengl.props" />
     <None Include="physfs.props" />
     <None Include="sdl.props" />
-    <None Include="sdl-debug.props" />
-    <None Include="enet-debug.props" />
-    <None Include="lua-debug.props" />
-    <None Include="physfs-debug.props" />
     <None Include="src\egolib\file_formats\id_normals.inl">
       <Filter>File Formats</Filter>
     </None>
@@ -511,5 +502,7 @@
       <Filter>Platforms</Filter>
     </None>
     <None Include="lua.props" />
+    <None Include="multithreaded.props" />
+    <None Include="multithreaded_debug.props" />
   </ItemGroup>
 </Project>

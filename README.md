@@ -1,7 +1,7 @@
 # Egoboo
 
 Egoboo is a working cool 3D dungeon crawling game in the spirit of NetHack.
-It supports Windows, Linux and Mac
+It supports Windows, Linux and Mac.
 
 ### License
 Egoboo is made available publicly under the

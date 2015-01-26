@@ -14,10 +14,10 @@
       <AdditionalDependencies>enet.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Link>
-      <AdditionalLibraryDirectories>$(ExternalDependenciesDir)\enet-master\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\product\enet\$(Configuration)\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>$(ExternalDependenciesDir)\enet-master\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\product\enet\$(Configuration)\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ClCompile>
       <AdditionalIncludeDirectories>$(ExternalDependenciesDir)\enet-master\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

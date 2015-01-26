@@ -5,9 +5,17 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -23,7 +31,18 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v120</PlatformToolset>
@@ -40,36 +59,70 @@
     <Import Project="$(SolutionDir)\egolib\sdl.props" />
     <Import Project="$(SolutionDir)\egolib\lua.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)\egolib\libraries.props" />
+    <Import Project="$(SolutionDir)\egolib\enet.props" />
+    <Import Project="$(SolutionDir)\egolib\physfs.props" />
+    <Import Project="$(SolutionDir)\egolib\opengl.props" />
+    <Import Project="$(SolutionDir)\egolib\sdl.props" />
+    <Import Project="$(SolutionDir)\egolib\lua.props" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(SolutionDir)\egolib\libraries.props" />
-    <Import Project="$(SolutionDir)\egolib\enet-debug.props" />
-    <Import Project="$(SolutionDir)\egolib\physfs-debug.props" />
+    <Import Project="$(SolutionDir)\egolib\enet.props" />
+    <Import Project="$(SolutionDir)\egolib\physfs.props" />
     <Import Project="$(SolutionDir)\egolib\opengl.props" />
-    <Import Project="$(SolutionDir)\egolib\sdl-debug.props" />
-    <Import Project="$(SolutionDir)\egolib\lua-debug.props" />
+    <Import Project="$(SolutionDir)\egolib\sdl.props" />
+    <Import Project="$(SolutionDir)\egolib\lua.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)\egolib\libraries.props" />
+    <Import Project="$(SolutionDir)\egolib\enet.props" />
+    <Import Project="$(SolutionDir)\egolib\physfs.props" />
+    <Import Project="$(SolutionDir)\egolib\opengl.props" />
+    <Import Project="$(SolutionDir)\egolib\sdl.props" />
+    <Import Project="$(SolutionDir)\egolib\lua.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_vs13-Debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_vs13-Debug\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)_vs13-Release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)_vs13-Release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">egoboo-2.x-d</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">egoboo-2.x</TargetName>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectName)</TargetName>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(LibraryPath)</LibraryPath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)\product\$(ProjectName)\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)\intermediate\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/game/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
@@ -92,7 +145,73 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <StringPooling>false</StringPooling>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <OpenMPSupport>false</OpenMPSupport>
+      <CompileAsManaged>false</CompileAsManaged>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
+      <IgnoreSpecificDefaultLibraries>libc.lib;libcmt.lib;msvcrt.lib;libcd.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+    </Link>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <PostBuildEvent>
+      <Command>xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>$(SolutionDir)/game/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <PreprocessKeepComments>false</PreprocessKeepComments>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BrowseInformation>true</BrowseInformation>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4820%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ShowIncludes>false</ShowIncludes>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling>false</StringPooling>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -109,15 +228,94 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(ProjectName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
-      <TargetMachine>MachineX86</TargetMachine>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-      <Profile>true</Profile>
     </Link>
     <ProjectReference>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
+    <PostBuildEvent>
+      <Command>xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)/game/src;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <PreprocessKeepComments>false</PreprocessKeepComments>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4820;4668;4255;4738;4710;4711;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ShowIncludes>false</ShowIncludes>
+      <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <CompileAsManaged>false</CompileAsManaged>
+      <OpenMPSupport>false</OpenMPSupport>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MinimalRebuild>true</MinimalRebuild>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <IgnoreSpecificDefaultLibraries>libc.lib;msvcrt.lib;libcd.lib;libcmtd.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+    <ProjectReference />
+    <PostBuildEvent>
+      <Command>xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <Optimization>Full</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -133,45 +331,53 @@
       <PreprocessKeepComments>false</PreprocessKeepComments>
       <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <BrowseInformation>true</BrowseInformation>
-      <WarningLevel>Level3</WarningLevel>
+      <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>CompileAsCpp</CompileAs>
       <DisableSpecificWarnings>4820;4668;4255;4738;4710;4711;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ShowIncludes>false</ShowIncludes>
       <UndefinePreprocessorDefinitions>_DEBUG;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
-      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <StringPooling>true</StringPooling>
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
       <CompileAsManaged>false</CompileAsManaged>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <UseUnicodeForAssemblerListing>false</UseUnicodeForAssemblerListing>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
-      <FloatingPointExceptions>true</FloatingPointExceptions>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <FloatingPointModel>Precise</FloatingPointModel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <MinimalRebuild>true</MinimalRebuild>
+      <SDLCheck>false</SDLCheck>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Advapi32.lib;User32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(TargetFileName)</OutputFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <TargetMachine>MachineX86</TargetMachine>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-      <Profile>true</Profile>
+      <IgnoreSpecificDefaultLibraries>libc.lib;msvcrt.lib;libcd.lib;libcmtd.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
     </Link>
-    <ProjectReference>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
-    </ProjectReference>
+    <ProjectReference />
+    <PostBuildEvent>
+      <Command>xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\game\module\Module.cpp" />

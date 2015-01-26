@@ -17,7 +17,7 @@
       <AdditionalIncludeDirectories>$(ExternalDependenciesDir)\physfs-2.1.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <link>
-      <AdditionalLibraryDirectories>$(ExternalDependenciesDir)\physfs-2.1.1\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\product\physfs-static\$(Configuration)\$(Platform)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </link>
   </ItemDefinitionGroup>
   <ItemGroup />

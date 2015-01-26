@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
-    <Filter Include="Extensions">
-      <UniqueIdentifier>{e6606188-44b9-445a-a3c8-dd1dfd536ced}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Inline Files">
       <UniqueIdentifier>{2f277393-d4e2-406c-9b06-3f86b2a38e56}</UniqueIdentifier>
     </Filter>

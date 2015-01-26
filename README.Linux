@@ -1,18 +1,56 @@
-Egoboo is set up to use the Linux make command to build and install Egoboo. Simply type
+= Linux
 
-    make all
-    sudo make install
+This document describes the process of building and installing Egoboo under
+Linux. 
 
-and the game will be built and installed. This method works essentially the same as downloading and installing the files using a package manager, and similarly requires super-user password.
+== Requirements
+Building Egoboo on Linux requires a recent version of GCC (4.9.2 >=) and
+GNU Make (3.81 >=). Furthermore the runtime and development version of the
+following libraries need to be installed:
 
-If you do not have a sudo password, you can install Egoboo to a local directory by defining a PREFIX environmental variable on the command-line. A common usage would be
+	- SDL
+	- SDL_mixer
+	- SDL_image
+	- SDL_ttf
+	- OpenGL
+	- enet
+	- PhysicsFS >= 2.0.1 (see Remarks below)
+	- Lua => 5.2.1
 
-    make all PREFIX=$HOME/.local
-    make install PREFIX=$HOME/.local
+Install the runtime and development versions of those libraries from the
+package manager of your distribution.  The latest1 version of the PhysicsFS
+library is not generally available via a package manager, but its source
+files can be obtained from http://icculus.org/physfs/. For convenience, the
+source of the library in `external/physfs-2.1.1`. Building PhysicsFS requires
+CMake which is usually available through your package manager.
 
-which will build and install the game into your own home folder. To start the game, execute the shell script called egoboo-2.x in the home folder.
+==  Building and Installing
+
+To build Egoboo enter
+```
+suo make all
+sudo make install
+````
+which will build and install the game into the default installation prefix.
+
+=== Remarks
+To install Egoboo using a different installation prefix, enter
+```
+sudo make all PREFIX=$HOME/.local
+sudo make install PREFIX=$HOME/.local
+```
+In particular, if super-user permissions are not available, Egoboo can be
+installed to a local directory by defining a PREFIX environmental variable
+on the command-line. A common usage would be
+```
+make all PREFIX=$HOME/.local
+make install PREFIX=$HOME/.local
+````
+which will build and install the game into the home folder.
+
+== Launching
+To start the game, execute `<PREFIX/games/egoboo-2.x>`.
 
 
-The program requires certain packages and other settings to build. A comprehensive list can be found in the DEPENDENCIES file.
-
-If you experience problems, please ask in the Egoboo Forums at http://egoboo.sourceforge.net/forum/. Thank you. 
+If you experience problems, please ask in the Egoboo Forums at
+http://egoboo.sourceforge.net/forum/. Thank you. 

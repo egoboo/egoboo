@@ -367,8 +367,8 @@
     <ClInclude Include="src\game\graphics\MD2Model.hpp">
       <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\module\Module.hpp">
-      <Filter>Game Header Files\Module</Filter>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\Module.hpp">
+      <Filter>Game Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
