@@ -194,9 +194,6 @@
     <ClCompile Include="src\game\profiles\RandomName.cpp">
       <Filter>Game Sources\Profile</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\module\PassageHandler.cpp">
-      <Filter>Game Sources\Module</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\module\Passage.cpp">
       <Filter>Game Sources\Module</Filter>
     </ClCompile>
@@ -349,9 +346,6 @@
     <ClInclude Include="src\game\audio\AudioSystem.hpp">
       <Filter>Game Header Files\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\module\PassageHandler.hpp">
-      <Filter>Game Header Files\Module</Filter>
-    </ClInclude>
     <ClInclude Include="src\game\module\Passage.hpp">
       <Filter>Game Header Files\Module</Filter>
     </ClInclude>
@@ -368,7 +362,7 @@
       <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\Module.hpp">
-      <Filter>Game Header Files</Filter>
+      <Filter>Game Header Files\Module</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -389,7 +389,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\graphics\Camera.cpp" />
     <ClCompile Include="src\game\graphics\CameraSystem.cpp" />
     <ClCompile Include="src\game\module\Passage.cpp" />
-    <ClCompile Include="src\game\module\PassageHandler.cpp" />
     <ClCompile Include="src\game\ai\AStar.c" />
     <ClCompile Include="src\game\ai\WaypointList.c" />
     <ClCompile Include="src\game\bsp.c" />
@@ -442,7 +441,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\graphics\Camera.hpp" />
     <ClInclude Include="src\game\graphics\CameraSystem.hpp" />
     <ClInclude Include="src\game\module\Passage.hpp" />
-    <ClInclude Include="src\game\module\PassageHandler.hpp" />
     <ClInclude Include="src\game\ai\AStar.h" />
     <ClInclude Include="src\game\ai\WaypointList.h" />
     <ClInclude Include="src\game\bsp.h" />
