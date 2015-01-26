@@ -581,7 +581,6 @@ void activate_alliance_file_vfs()
 //--------------------------------------------------------------------------------------------
 void update_used_lists()
 {
-    ChrList_update_used();
     PrtList_update_used();
     EncList_update_used();
 }
@@ -3720,7 +3719,7 @@ void free_all_objects()
 void reset_all_object_lists()
 {
     PrtList_reinit();
-    ChrList_reinit();
+    _characterList.clear();
     EncList_reinit();
 }
 

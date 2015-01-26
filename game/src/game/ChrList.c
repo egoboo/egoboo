@@ -23,16 +23,15 @@
 #include "game/ChrList.h"
 #include "game/char.h"
 
+std::unordered_map<CHR_REF, std::shared_ptr<chr_t>> _characterList;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 INSTANTIATE_LIST( ACCESS_TYPE_NONE, chr_t, ChrList, MAX_CHR );
 
-static size_t  chr_termination_count = 0;
-static CHR_REF chr_termination_list[MAX_CHR];
-
-static size_t  chr_activation_count = 0;
-static CHR_REF chr_activation_list[MAX_CHR];
+static std::vector<CHR_REF> chr_termination_list;
+static std::vector<CHR_REF> chr_activation_list;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -41,10 +40,6 @@ int chr_loop_depth = 0;
 //--------------------------------------------------------------------------------------------
 // private ChrList_t functions
 //--------------------------------------------------------------------------------------------
-
-static void ChrList_clear();
-static void ChrList_init();
-static void ChrList_deinit();
 
 static bool ChrList_add_free_ref( const CHR_REF ichr );
 static bool ChrList_remove_free_ref( const CHR_REF ichr );
@@ -60,98 +55,6 @@ static void ChrList_prune_free_list();
 //--------------------------------------------------------------------------------------------
 
 IMPLEMENT_LIST( chr_t, ChrList, MAX_CHR );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void ChrList_ctor()
-{
-    // Initialize the list.
-    ChrList_init();
-
-    // Construct the sub-objects.
-    for (CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        chr_t *chr = ChrList.lst + cnt;
-
-        // Blank out all the data, including the entity data.
-		BLANK_STRUCT_PTR(chr);
-        // Initialize the entity.
-        Ego::Entity::ctor(POBJ_GET_PBASE(chr), chr, BSP_LEAF_CHR, cnt);
-        // Initialize character.
-        chr_t::ctor(chr);
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_dtor()
-{
-    // construct the sub-objects
-    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        chr_t *pchr = ChrList.lst + cnt;
-
-        // destruct the object
-        chr_dtor( pchr );
-
-        // destruct the parent
-        Ego::Entity::dtor( POBJ_GET_PBASE( pchr ) );
-    }
-
-    // initialize particle
-    ChrList_init();
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_clear()
-{
-    // clear out the list
-    ChrList.free_count = 0;
-    ChrList.used_count = 0;
-    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        // blank out the list
-        ChrList.free_ref[cnt] = INVALID_CHR_IDX;
-        ChrList.used_ref[cnt] = INVALID_CHR_IDX;
-
-        // let the particle data know that it is not in a list
-        ChrList.lst[cnt].obj_base.in_free_list = false;
-        ChrList.lst[cnt].obj_base.in_used_list = false;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_init()
-{
-    ChrList_clear();
-
-    // place all the characters on the free list
-    for ( size_t cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        CHR_REF ichr = ( MAX_CHR - 1 ) - cnt;
-
-        ChrList_add_free_ref( ichr );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_deinit()
-{
-    // request that the sub-objects deconstruct themselves
-    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        chr_config_deconstruct( ChrList_get_ptr( cnt ), 100 );
-    }
-
-    // initialize the list
-    ChrList_init();
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_reinit()
-{
-    ChrList_deinit();
-    ChrList_init();
-}
 
 //--------------------------------------------------------------------------------------------
 void ChrList_prune_used_list()
@@ -194,46 +97,6 @@ void ChrList_prune_free_list()
         {
             ChrList_push_used( ichr );
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_update_used()
-{
-    ChrList_prune_used_list();
-    ChrList_prune_free_list();
-
-    // go through the character list to see if there are any dangling characters
-    for ( CHR_REF ichr = 0; ichr < MAX_CHR; ichr++ )
-    {
-        if ( !ALLOCATED_CHR( ichr ) ) continue;
-
-        if ( INGAME_CHR( ichr ) )
-        {
-            if ( !ChrList.lst[ichr].obj_base.in_used_list )
-            {
-                ChrList_push_used( ichr );
-            }
-        }
-        else if ( !DEFINED_CHR( ichr ) )
-        {
-            if ( !ChrList.lst[ichr].obj_base.in_free_list )
-            {
-                ChrList_add_free_ref( ichr );
-            }
-        }
-    }
-
-    // blank out the unused elements of the used list
-    for ( size_t cnt = ChrList.used_count; cnt < MAX_CHR; cnt++ )
-    {
-        ChrList.used_ref[cnt] = INVALID_CHR_IDX;
-    }
-
-    // blank out the unused elements of the free list
-    for ( size_t cnt = ChrList.free_count; cnt < MAX_CHR; cnt++ )
-    {
-        ChrList.free_ref[cnt] = INVALID_CHR_IDX;
     }
 }
 
@@ -337,15 +200,6 @@ size_t ChrList_pop_free( const int idx )
     }
 
     return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void ChrList_free_all()
-{
-    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
-    {
-        ChrList_free_one( cnt );
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -645,22 +499,12 @@ bool ChrList_add_activation( const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 bool ChrList_add_termination( const CHR_REF ichr )
 {
-    bool retval = false;
-
-    if ( !VALID_CHR_RANGE( ichr ) ) return false;
-
-    if ( chr_termination_count < MAX_CHR )
-    {
-        chr_termination_list[chr_termination_count] = ichr;
-        chr_termination_count++;
-
-        retval = true;
-    }
+    chr_termination_list.push_back(ichr);
 
     // at least mark the object as "waiting to be terminated"
     POBJ_REQUEST_TERMINATE( ChrList.lst + ichr );
 
-    return retval;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------

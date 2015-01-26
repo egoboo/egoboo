@@ -2831,7 +2831,7 @@ float draw_fps( float y )
         {
 
 #    if defined(DEBUG_BSP)
-            y = draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%lu", getChrBSP()->count, MAX_CHR - ChrList_count_free(), getPtrBSP()->count, maxparticles - PrtList_count_free() );
+            y = draw_string_raw( 0, y, "BSP chr %d/%d - BSP prt %d/%lu", getChrBSP()->count, _characterList.size(), getPtrBSP()->count, maxparticles - PrtList_count_free() );
             y = draw_string_raw( 0, y, "BSP infinite %lu", getChrBSP()->tree.infinite.count + getPtrBSP()->tree.infinite.count );
             y = draw_string_raw( 0, y, "BSP collisions %d", CHashList_inserted );
             //y = draw_string_raw( 0, y, "chr-mesh tests %04d - prt-mesh tests %04d", chr_stoppedby_tests + chr_pressure_tests, prt_stoppedby_tests + prt_pressure_tests );

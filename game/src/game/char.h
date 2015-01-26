@@ -273,8 +273,9 @@ struct chr_spawn_data_t
 
 /// The definition of the character object.
 /// @extends Ego::Entity
-struct chr_t
+class chr_t
 {
+public:
     Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
 
     chr_spawn_data_t  spawn_data;
@@ -585,10 +586,6 @@ extern int chr_pressure_tests;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
-
-// character_system functions
-void character_system_begin();
-void character_system_end();
 
 void update_all_character_matrices();
 

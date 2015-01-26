@@ -177,19 +177,6 @@ static void chr_init_size( chr_t * pchr, const std::shared_ptr<ObjectProfile> &p
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void character_system_begin()
-{
-    ChrList_ctor();
-}
-
-//--------------------------------------------------------------------------------------------
-void character_system_end()
-{
-    ChrList_dtor();
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 bool chr_free( chr_t * pchr )
 {
     /// Free all allocated memory
@@ -876,7 +863,7 @@ void free_all_chraracters()
     /// @details This function resets the character allocation list
 
     // free all the characters
-    ChrList_free_all();
+    _characterList.clear();
 
     // free_all_players
     PlaStack.count = 0;

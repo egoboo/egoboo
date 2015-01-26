@@ -43,20 +43,14 @@ DECLARE_LIST_EXTERN( chr_t, ChrList, MAX_CHR );
 
 extern int chr_loop_depth;
 
+extern std::unordered_map<CHR_REF, std::shared_ptr<chr_t>> _characterList; //List of all objects currently in the game
+
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 //--------------------------------------------------------------------------------------------
-
-void    ChrList_ctor();
-void    ChrList_dtor();
-void    ChrList_reinit();
-
 CHR_REF ChrList_allocate( const CHR_REF override );
 
 bool  ChrList_free_one( const CHR_REF ichr );
-void    ChrList_free_all();
-
-void    ChrList_update_used();
 
 void    ChrList_cleanup();
 

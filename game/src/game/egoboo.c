@@ -627,7 +627,6 @@ void object_systems_begin()
 
     particle_system_begin();
     enchant_system_begin();
-    character_system_begin();
     model_system_begin();
 }
 
@@ -639,7 +638,7 @@ void object_systems_end()
 
     particle_system_end();
     enchant_system_end();
-    character_system_end();
+    _characterList.clear();
     model_system_end();
 }
 
