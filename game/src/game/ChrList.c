@@ -52,19 +52,10 @@ bool ChrList_free_one( const CHR_REF ichr )
 
     // if we are inside a ChrList loop, do not actually change the length of the
     // list. This will cause some problems later.
-    if ( chr_loop_depth > 0 )
-    {
-        retval = ChrList_add_termination( ichr );
-    }
-    else
-    {
-        // deallocate any dynamically allocated memory
-        //chr_config_deinitialize( ChrList_get_ptr(ichr), 100 );
-        _characterList.erase(ichr);
-        retval = true;
-    }
+    retval = ChrList_add_termination( ichr );
+    _characterList[ichr]->terminateRequested = true;
 
-    return retval;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -119,7 +110,10 @@ CHR_REF ChrList_allocate( const PRO_REF profile, const CHR_REF override )
         }
 
         // allocate the new one
-        _characterList[ichr] = object;
+        if(_characterList.emplace(ichr, object).second == false) {
+            log_warning( "ChrList_allocate() - Failed character allocation, object already exists\n" );
+            return INVALID_CHR_REF;
+        }
 
         // construct the new structure
         //chr_config_construct(object.get(), 100 );
@@ -150,7 +144,7 @@ void ChrList_cleanup()
     for(CHR_REF ichr : chr_termination_list)
     {
         _characterList.erase(ichr);
-        log_debug("erased char");
+        log_debug("erased char %d\n", ichr);
     }
     chr_termination_list.clear();
 }

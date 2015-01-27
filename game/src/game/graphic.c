@@ -6600,6 +6600,11 @@ gfx_rv gfx_update_all_chr_instance()
     {
         chr_t * pchr = chr.second.get();
 
+        //Dont do terminated characters
+        if(pchr->terminateRequested) {
+            continue;
+        }
+
         if ( !ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
 
         tmp_rv = update_one_chr_instance( pchr );

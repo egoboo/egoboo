@@ -36,8 +36,8 @@
  										  for(const auto &IT##_internal : _characterList) \
  										  	{ \
  										  		CHR_REF IT = IT##_internal.first; \
- 										  		chr_t * PCHR = IT##_internal.second.get();
- 										  		//if(!ACTIVE_PBASE(POBJ_GET_PBASE(PCHR))) continue;
+ 										  		chr_t * PCHR = IT##_internal.second.get(); \
+ 										  		if(!ACTIVE_PCHR(PCHR)) continue;
 
 #define CHR_END_LOOP() } chr_loop_depth--; EGOBOO_ASSERT(chr_loop_start_depth == chr_loop_depth); ChrList_cleanup(); }
 

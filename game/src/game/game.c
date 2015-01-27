@@ -616,7 +616,7 @@ void cleanup_all_objects()
 //--------------------------------------------------------------------------------------------
 void bump_all_update_counters()
 {
-    bump_all_characters_update_counters();
+    //bump_all_characters_update_counters();
     //bump_all_particles_update_counters();
     bump_all_enchants_update_counters();
 }

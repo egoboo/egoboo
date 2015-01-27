@@ -380,14 +380,8 @@ chr_t::~chr_t()
 {
     /// Free all allocated memory
 
-    // do some list clean-up
-    disenchant_character(characterID);
-
     // deallocate
     BillboardList_free_one(ibillboard);
-
-    //Stop any looped sounds allocated to this character
-    _audioSystem.stopObjectLoopingSounds(characterID);
 
     chr_instance_dtor( &inst );
     ai_state_dtor( &ai );
@@ -770,6 +764,9 @@ void free_one_character_in_game( const CHR_REF character )
 
     // actually get rid of the character
     ChrList_free_one( character );
+
+    //Stop any looped sounds allocated to this character
+    _audioSystem.stopObjectLoopingSounds(character);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -909,6 +906,12 @@ void free_all_chraracters()
 {
     /// @author ZZ
     /// @details This function resets the character allocation list
+
+    //Remove all enchants
+    for (size_t iTmp = 0; iTmp < MAX_ENC; iTmp++ )
+    {
+        remove_enchant( iTmp, nullptr );
+    }
 
     // free all the characters
     _characterList.clear();
@@ -7345,16 +7348,18 @@ void cleanup_all_characters()
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 void bump_all_characters_update_counters()
 {
-//    for(const auto &chr : _characterList)
-//    {
-//        Ego::Entity *pbase = POBJ_GET_PBASE( chr.second.get() );
-//        if ( !ACTIVE_PBASE( pbase ) ) continue;
-//
-//        pbase->update_count++;
-//    }
+    for(const auto &chr : _characterList)
+    {
+        Ego::Entity *pbase = POBJ_GET_PBASE( chr.second.get() );
+        if ( !ACTIVE_PBASE( pbase ) ) continue;
+
+        pbase->update_count++;
+    }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects )
