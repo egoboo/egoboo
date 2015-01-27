@@ -110,7 +110,6 @@ static chr_t * resize_one_character( chr_t * pchr );
 
 static bool  chr_free( chr_t * pchr );
 
-static chr_t * chr_config_ctor( chr_t * pchr );
 static chr_t * chr_config_init( chr_t * pchr );
 static chr_t * chr_config_deinit( chr_t * pchr );
 static chr_t * chr_config_active( chr_t * pchr );
@@ -147,7 +146,7 @@ static bool chr_download_profile(chr_t * pchr, const std::shared_ptr<ObjectProfi
 
 static bool chr_get_environment( chr_t * pchr );
 
-static chr_t * chr_config_do_init( chr_t * pchr );
+chr_t * chr_config_do_init( chr_t * pchr );
 static chr_t * chr_config_do_active( chr_t * pchr );
 static int chr_change_skin( const CHR_REF character, const SKIN_T skin );
 static void switch_team_base( const CHR_REF character, const TEAM_REF team_new, const bool permanent );
@@ -176,195 +175,225 @@ static breadcrumb_t * chr_get_last_breadcrumb( chr_t * pchr );
 static void chr_init_size( chr_t * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void character_system_begin()
-{
-    ChrList_ctor();
-}
+chr_t::chr_t(const PRO_REF profile, const CHR_REF id) : 
+    terminateRequested(false),
+    characterID(id),
+    bsp_leaf(),
+    spawn_data(),
+    ai(),
+    latch(),
+    Name(),
+    gender(GENDER_MALE),
+    life_color(0),
+    life(0),
+    life_max(0),
+    life_return(0),
+    mana_color(0),
+    mana(0),
+    mana_max(0),
+    mana_return(0),
+    mana_flow(0),
+    strength(0),
+    wisdom(0),
+    intelligence(0),
+    dexterity(0),
+    experience(0),
+    experiencelevel(0),
+    money(0),
+    ammomax(0),
+    ammo(0),
+    holdingwhich(),
+    equipment(),
+    inventory(),
+    team(TEAM_NULL),
+    team_base(TEAM_NULL),
+    firstenchant(INVALID_ENC_REF),
+    undoenchant(INVALID_ENC_REF), 
+    fat_stt(0.0f),
+    fat(0.0f),
+    fat_goto(0.0f),
+    fat_goto_time(0),
+    jump_power(0.0f),
+    jump_timer(JUMPDELAY),
+    jumpnumber(0),
+    jumpnumberreset(0),
+    jumpready(0),
+    attachedto(INVALID_CHR_REF),
+    inwhich_slot(SLOT_LEFT),
+    inwhich_inventory(INVALID_CHR_REF),
+    platform(false),
+    canuseplatforms(false),
+    holdingweight(0),
+    targetplatform_level(0.0f),
+    targetplatform_ref(INVALID_CHR_REF),
+    onwhichplatform_ref(INVALID_CHR_REF),
+    onwhichplatform_update(0),
+    damagetarget_damagetype(0),
+    reaffirm_damagetype(0),
+    damage_modifier(),
+    damage_resistance(),
+    defense(0),
+    damage_boost(0),
+    damage_threshold(0),
+    missiletreatment(MISSILE_NORMAL),
+    missilecost(0),
+    missilehandler(INVALID_CHR_REF),
+    is_hidden(false),
+    alive(true),
+    waskilled(false),
+    is_which_player(INVALID_PLAYER_REF),
+    islocalplayer(false),
+    invictus(false),
+    iskursed(false),
+    nameknown(false),
+    ammoknown(false),
+    hitready(true),
+    isequipped(false),
+    isitem(false),
+    cangrabmoney(false),
+    openstuff(false),
+    stickybutt(false),
+    isshopitem(false),
+    ismount(false),
+    canbecrushed(false),
+    canchannel(false),
+    grog_timer(0),
+    daze_timer(0),
+    bore_timer(BORETIME),
+    careful_timer(CAREFULTIME),
+    reload_timer(0),
+    damage_timer(0),
+    flashand(0),
+    transferblend(false),
+    draw_icon(false),
+    sparkle(NOSPARKLE),
+    show_stats(false),
+    uoffvel(0),
+    voffvel(0),
+    shadow_size_stt(0.0f),
+    shadow_size(0),
+    shadow_size_save(0),
+    ibillboard(INVALID_BILLBOARD_REF),
+    is_overlay(false),
+    skin(0),
+    profile_ref(profile),
+    basemodel_ref(profile),
+    alpha_base(0),
+    light_base(0),
+    inst(),
+    darkvision_level(0),
+    see_kurse_level(0),
+    see_invisible_level(0),
+    skills(),
 
-//--------------------------------------------------------------------------------------------
-void character_system_end()
-{
-    ChrList_dtor();
-}
+    bump_stt(),
+    bump(),
+    bump_save(),
+    bump_1(),      
+    chr_max_cv(),  
+    chr_min_cv(),  
+    slot_cv(),
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-bool chr_free( chr_t * pchr )
-{
-    /// Free all allocated memory
+    stoppedby(0),
+    pos_stt(0, 0, 0),
+    pos(0, 0, 0),
+    vel(0, 0, 0),
 
-    if ( !ALLOCATED_PCHR( pchr ) )
-    {
-        EGOBOO_ASSERT( NULL == pchr->inst.vrt_lst );
-        return false;
-    }
+    ori(),
+    pos_old(0, 0, 0), 
+    vel_old(0, 0, 0),
+    ori_old(),
+    onwhichgrid(0),
+    onwhichblock(0),
+    bumplist_next(INVALID_CHR_REF),
 
-    // do some list clean-up
-    disenchant_character( GET_REF_PCHR( pchr ) );
+    waterwalk(false),
+    turnmode(TURNMODE_VELOCITY),
+    movement_bits(( unsigned )(~0)),    // all movements valid
+    anim_speed_sneak(0.0f),
+    anim_speed_walk(0.0f),
+    anim_speed_run(0.0f),
+    maxaccel(0.0f),
+    maxaccel_reset(0.0f),
 
-    // deallocate
-    BillboardList_free_one( REF_TO_INT( pchr->ibillboard ) );
+    flyheight(0),
+    phys(),
+    enviro(),
+    dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
+    dismount_object(INVALID_CHR_REF),
+    safe_valid(false),
+    safe_pos(0, 0, 0),
+    safe_time(0),
+    safe_grid(0),
+    crumbs()
 
-    //Stop any looped sounds allocated to this character
-    _audioSystem.stopObjectLoopingSounds(GET_REF_PCHR(pchr));
-
-    chr_instance_dtor( &( pchr->inst ) );
-    ai_state_dtor( &( pchr->ai ) );
-
-    EGOBOO_ASSERT( NULL == pchr->inst.vrt_lst );
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------
-chr_t * chr_t::ctor( chr_t * pchr )
 {
     /// @author BB
     /// @details initialize the character data to safe values
 
-    int cnt;
-    Ego::Entity save_base;
-    Ego::Entity *pbase;
-
-    if ( NULL == pchr ) return pchr;
-
     // grab the base object
-    pbase = POBJ_GET_PBASE( pchr );
-    if ( NULL == pbase ) return NULL;
+    //Ego::Entity::ctor(&obj_base, this, BSP_LEAF_CHR, characterID);
 
-    //---- construct the character object
+    // Construct the BSP node for this entity.
+    bsp_leaf.ctor(&bsp_leaf, BSP_LEAF_CHR, characterID);
 
-    // save the base object data
-    memcpy( &save_base, pbase, sizeof( Ego::Entity ) );
-
-    if ( ALLOCATED_PCHR( pchr ) )
-    {
-        // deallocate any existing data
-        chr_free( pchr );
-
-        EGOBOO_ASSERT( NULL == pchr->inst.vrt_lst );
-    }
-
-    // clear out all data
-    // all = 0, = false, and = 0.0f statements are redundant
-    BLANK_STRUCT_PTR( pchr )
-
-    // restore the base object data
-    memcpy( pbase, &save_base, sizeof( Ego::Entity ) );
+    //POBJ_ALLOCATE(this, characterID);
 
     // reset the base counters
-    pbase->update_count = 0;
-    pbase->frame_count = 0;
-
-    // IMPORTANT!!!
-    pchr->ibillboard = INVALID_BILLBOARD_REF;
-    pchr->sparkle = NOSPARKLE;
-
-    // Set up model stuff
-    pchr->inwhich_slot = SLOT_LEFT;
-    pchr->hitready = true;
-    pchr->bore_timer = BORETIME;
-    pchr->careful_timer = CAREFULTIME;
-
-    // Enchant stuff
-    pchr->firstenchant = INVALID_ENC_REF;
-    pchr->undoenchant  = INVALID_ENC_REF;
-    pchr->missiletreatment = MISSILE_NORMAL;
-
-    // Character stuff
-    pchr->turnmode = TURNMODE_VELOCITY;
-    pchr->alive = true;
-
-    // Jumping
-    pchr->jump_timer = JUMPDELAY;
+    //obj_base.on = true;
+    //obj_base.spawning = true;
+    //obj_base.update_count = 0;
+    //obj_base.frame_count = 0;
+    //obj_base.state = Ego::Entity::State::Active;
 
     // Grip info
-    pchr->attachedto = INVALID_CHR_REF;
-    for (size_t cnt = 0; cnt < SLOT_COUNT; cnt++)
-    {
-        pchr->holdingwhich[cnt] = INVALID_CHR_REF;
-    }
+    holdingwhich.fill(INVALID_CHR_REF);
+
+    //Damage resistance
+    damage_modifier.fill(0);
+    damage_resistance.fill(0);
 
     // pack/inventory info
-    for (size_t cnt = 0; cnt < INVEN_COUNT; cnt++)
-    {
-        pchr->equipment[cnt] = INVALID_CHR_REF;
-    }
-    for (size_t cnt = 0; cnt < MAXNUMINPACK; cnt++)
-    {
-        pchr->inventory[cnt] = INVALID_CHR_REF;
-    }
+    equipment.fill(INVALID_CHR_REF);
+    inventory.fill(INVALID_CHR_REF);
 
     // Set up position
-    pchr->ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    pchr->ori.map_twist_facing_x = MAP_TURN_OFFSET;
-
-    // start the character out in the "dance" animation
-    chr_start_anim( pchr, ACTION_DA, true, true );
-
-    // I think we have to set the dismount timer, otherwise objects that
-    // are spawned by chests will behave strangely...
-    // nope this did not fix it
-    pchr->dismount_timer  = 0;                        /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
-    pchr->dismount_object = INVALID_CHR_REF;
-
-    // set all of the integer references to invalid values
-    pchr->firstenchant = INVALID_ENC_REF;
-    pchr->undoenchant  = INVALID_ENC_REF;
-    for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
-    {
-        pchr->holdingwhich[cnt] = INVALID_CHR_REF;
-    }
-
-    //clear inventory
-    pchr->inwhich_inventory = INVALID_CHR_REF;
-    for ( cnt = 0; cnt < INVEN_COUNT; cnt++ )
-    {
-        pchr->equipment[cnt] = INVALID_CHR_REF;
-    }
-    for ( cnt = 0; cnt < MAXINVENTORY; cnt++ )
-    {
-        pchr->inventory[cnt] = INVALID_CHR_REF;
-    }
-
-    pchr->onwhichplatform_ref    = INVALID_CHR_REF;
-    pchr->onwhichplatform_update = 0;
-    pchr->targetplatform_ref     = INVALID_CHR_REF;
-
-    // all movements valid
-    pchr->movement_bits   = ( unsigned )( ~0 );
-
-    // not a player
-    pchr->is_which_player = INVALID_PLAYER_REF;
+    ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
+    ori.map_twist_facing_x = MAP_TURN_OFFSET;
 
     //---- call the constructors of the "has a" classes
 
     // set the insance values to safe values
-    chr_instance_ctor( &( pchr->inst ) );
+    chr_instance_ctor( &inst );
 
     // intialize the ai_state
-    ai_state_ctor( &( pchr->ai ) );
+    ai_state_ctor( &ai );
 
     // initialize the physics
-    phys_data_ctor( &( pchr->phys ) );
+    phys_data_ctor( &phys );
 
-    return pchr;
+   // obj_base.spawning = false;
 }
 
 //--------------------------------------------------------------------------------------------
-chr_t * chr_dtor( chr_t * pchr )
+chr_t::~chr_t()
 {
-    if ( NULL == pchr ) return pchr;
+    /// Free all allocated memory
 
-    // destruct/free any allocated data
-    chr_free( pchr );
+    // deallocate
+    BillboardList_free_one(ibillboard);
+
+    chr_instance_dtor( &inst );
+    ai_state_dtor( &ai );
+
+    EGOBOO_ASSERT( NULL == inst.vrt_lst );
 
     // Destroy the base object.
     // Sets the state to ego_object_terminated automatically.
-    POBJ_TERMINATE( pchr );
+    //POBJ_TERMINATE( this );
 
-    return pchr;
+    // destruct the parent
+    //Ego::Entity::dtor( POBJ_GET_PBASE(this) );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -735,6 +764,9 @@ void free_one_character_in_game( const CHR_REF character )
 
     // actually get rid of the character
     ChrList_free_one( character );
+
+    //Stop any looped sounds allocated to this character
+    _audioSystem.stopObjectLoopingSounds(character);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -749,7 +781,7 @@ void free_inventory_in_game( const CHR_REF character )
 
     if ( !DEFINED_CHR( character ) ) return;
 
-    PACK_BEGIN_LOOP( ChrList.lst[character].inventory, pitem, iitem )
+    PACK_BEGIN_LOOP( ChrList_get_ptr(character)->inventory, pitem, iitem )
     {
         free_one_character_in_game( iitem );
     }
@@ -758,7 +790,7 @@ void free_inventory_in_game( const CHR_REF character )
     // set the inventory to the "empty" state
     for ( i = 0; i < MAXINVENTORY; i++ )
     {
-        ChrList.lst[character].inventory[i] = INVALID_CHR_REF;
+        ChrList_get_ptr(character)->inventory[i] = INVALID_CHR_REF;
     }
 }
 
@@ -875,8 +907,14 @@ void free_all_chraracters()
     /// @author ZZ
     /// @details This function resets the character allocation list
 
+    //Remove all enchants
+    for (size_t iTmp = 0; iTmp < MAX_ENC; iTmp++ )
+    {
+        remove_enchant( iTmp, nullptr );
+    }
+
     // free all the characters
-    ChrList_free_all();
+    _characterList.clear();
 
     // free_all_players
     PlaStack.count = 0;
@@ -1136,7 +1174,7 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
     pchr = ChrList_get_ptr( character );
 
     // Make sure the character is mounted
-    mount = ChrList.lst[character].attachedto;
+    mount = ChrList_get_ptr(character)->attachedto;
     if ( !INGAME_CHR( mount ) ) return false;
     pmount = ChrList_get_ptr( mount );
 
@@ -1321,7 +1359,7 @@ void reset_character_alpha( const CHR_REF character )
     pchr = ChrList_get_ptr( character );
 
     // Make sure the character is mounted
-    mount = ChrList.lst[character].attachedto;
+    mount = ChrList_get_ptr(character)->attachedto;
     if ( !INGAME_CHR( mount ) ) return;
     pmount = ChrList_get_ptr( mount );
 
@@ -1761,7 +1799,7 @@ CHR_REF chr_pack_has_a_stack( const CHR_REF item, const CHR_REF character )
 
     if ( objectProfile->isStackable() )
     {
-        PACK_BEGIN_LOOP( ChrList.lst[character].inventory, pstack, istack_new )
+        PACK_BEGIN_LOOP( ChrList_get_ptr(character)->inventory, pstack, istack_new )
         {
             ObjectProfile *stackProfile = chr_get_ppro( istack_new );
 
@@ -2032,7 +2070,7 @@ bool character_grab_stuff( const CHR_REF ichr_a, grip_offset_t grip_off, bool gr
         return false;
 
     //Determine the position of the grip
-    oct_bb_get_mids( pchr_a->slot_cv + slot, mids );
+    oct_bb_get_mids( &pchr_a->slot_cv[slot], mids );
     slot_pos.x = mids[OCT_X];
     slot_pos.y = mids[OCT_Y];
     slot_pos.z = mids[OCT_Z];
@@ -2509,9 +2547,9 @@ void drop_money( const CHR_REF character, int money )
 	fvec3_t loc_pos = chr_get_pos_v_const(pchr);
 
     // limit the about of money to the character's actual money
-    if ( money > ChrList.lst[character].money )
+    if ( money > ChrList_get_ptr(character)->money )
     {
-        money = ChrList.lst[character].money;
+        money = ChrList_get_ptr(character)->money;
     }
 
     if ( money > 0 && loc_pos.z > -2 )
@@ -2829,7 +2867,7 @@ bool export_one_character_name_vfs( const char *szSaveName, const CHR_REF charac
 
     if ( !INGAME_CHR( character ) ) return false;
 
-    return RandomName::exportName(ChrList.lst[character].Name, szSaveName);
+    return RandomName::exportName(ChrList_get_ptr(character)->Name, szSaveName);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3045,14 +3083,14 @@ void cleanup_one_character( chr_t * pchr )
 
     // drop your left item
     itmp = pchr->holdingwhich[SLOT_LEFT];
-    if ( INGAME_CHR( itmp ) && ChrList.lst[itmp].isitem )
+    if ( INGAME_CHR( itmp ) && ChrList_get_ptr(itmp)->isitem )
     {
         detach_character_from_mount( itmp, true, false );
     }
 
     // drop your right item
     itmp = pchr->holdingwhich[SLOT_RIGHT];
-    if ( INGAME_CHR( itmp ) && ChrList.lst[itmp].isitem )
+    if ( INGAME_CHR( itmp ) && ChrList_get_ptr(itmp)->isitem )
     {
         detach_character_from_mount( itmp, true, false );
     }
@@ -3125,7 +3163,7 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
         chr_t *pkiller = ChrList_get_ptr( actual_killer );
 
         //If we are a held item, try to figure out who the actual killer is
-        if ( DEFINED_CHR( pkiller->attachedto ) && !ChrList.lst[pkiller->attachedto].ismount )
+        if ( DEFINED_CHR( pkiller->attachedto ) && !ChrList_get_ptr(pkiller->attachedto)->ismount )
         {
             actual_killer = pkiller->attachedto;
         }
@@ -3273,7 +3311,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
         }
 
         // don't show feedback from random objects hitting each other
-        if ( !ChrList.lst[attacker].show_stats )
+        if ( !ChrList_get_ptr(attacker)->show_stats )
         {
             do_feedback = false;
         }
@@ -3355,13 +3393,13 @@ int damage_character( const CHR_REF character, const FACING_T direction,
         if ( 0 == pchr->damage_timer || ignore_invictus )
         {
             // Normal mode reduces damage dealt by monsters with 30%!
-            if ( cfg.difficulty == GAME_NORMAL && VALID_PLA( pchr->is_which_player ) /*&& !VALID_PLA( ChrList.lst[attacker].is_which_player )*/ ) actual_damage *= 0.70f;
+            if ( cfg.difficulty == GAME_NORMAL && VALID_PLA( pchr->is_which_player ) /*&& !VALID_PLA( ChrList_get_ptr(attacker)->is_which_player )*/ ) actual_damage *= 0.70f;
 
             // Easy mode deals 25% extra actual damage by players and 50% less to players
             if ( cfg.difficulty <= GAME_EASY )
             {
-                if ( VALID_PLA( ChrList.lst[attacker].is_which_player ) && !VALID_PLA( pchr->is_which_player ) ) actual_damage *= 1.25f;
-                if ( !VALID_PLA( ChrList.lst[attacker].is_which_player ) &&  VALID_PLA( pchr->is_which_player ) ) actual_damage *= 0.5f;
+                if ( VALID_PLA( ChrList_get_ptr(attacker)->is_which_player ) && !VALID_PLA( pchr->is_which_player ) ) actual_damage *= 1.25f;
+                if ( !VALID_PLA( ChrList_get_ptr(attacker)->is_which_player ) &&  VALID_PLA( pchr->is_which_player ) ) actual_damage *= 0.5f;
             }
 
             if ( 0 != actual_damage )
@@ -3524,7 +3562,7 @@ void chr_update_attacker( chr_t *pchr, const CHR_REF attacker, bool healing )
         if ( pattacker->attachedto == pchr->ai.index ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
-        if ( INGAME_CHR( pattacker->attachedto ) && !ChrList.lst[pattacker->attachedto].ismount )
+        if ( INGAME_CHR( pattacker->attachedto ) && !ChrList_get_ptr(pattacker->attachedto)->ismount )
         {
             actual_attacker = pattacker->attachedto;
         }
@@ -3620,7 +3658,7 @@ chr_t * chr_config_do_init( chr_t * pchr )
     }
 
     // turn the character on here. you can't fail to spawn after this point.
-    POBJ_ACTIVATE( pchr, ppro->getClassName().c_str() );
+//    POBJ_ACTIVATE( pchr, ppro->getClassName().c_str() );
 
     // make a copy of the data in spawn_ptr->pos
     pos_tmp = spawn_ptr->pos;
@@ -3864,7 +3902,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
                     ripand = RIPPLEAND >> ( -ripple_suppression );
                 }
 
-                if ( 0 == (( update_wld + pchr->obj_base.guid ) & ripand ) && pchr->pos.z < water_level && pchr->alive )
+                if ( 0 == ( (update_wld + pchr->characterID) & ripand ) && pchr->pos.z < water_level && pchr->alive )
                 {
                     fvec3_t vtmp;
 
@@ -3962,6 +4000,7 @@ chr_t * chr_config_do_active( chr_t * pchr )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 chr_t * chr_config_construct( chr_t * pchr, int max_iterations )
 {
     if ( NULL == pchr ) return NULL;
@@ -3986,8 +4025,9 @@ chr_t * chr_config_construct( chr_t * pchr, int max_iterations )
 
     return pchr;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
+#if 0
 chr_t * chr_config_initialize( chr_t * pchr, int max_iterations )
 {
     int iterations;
@@ -4015,8 +4055,10 @@ chr_t * chr_config_initialize( chr_t * pchr, int max_iterations )
 
     return pchr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
 {
     int iterations;
@@ -4043,15 +4085,17 @@ chr_t * chr_config_activate( chr_t * pchr, int max_iterations )
     }
 
     EGOBOO_ASSERT( pbase->state == Ego::Entity::State::Active );
-    if ( pbase->state == Ego::Entity::State::Active )
-    {
-        ChrList_push_used( GET_INDEX_PCHR( pchr ) );
-    }
+    //if ( pbase->state == Ego::Entity::State::Active )
+    //{
+    //    ChrList_push_used( GET_INDEX_PCHR( pchr ) );
+    //}
 
     return pchr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations )
 {
     if ( NULL == pchr ) return NULL;
@@ -4079,8 +4123,10 @@ chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations )
 
     return pchr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations )
 {
     if ( NULL == pchr ) return NULL;
@@ -4109,9 +4155,11 @@ chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations )
 
     return pchr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 chr_t * chr_run_config( chr_t * pchr )
 {
     if ( NULL == pchr ) return NULL;
@@ -4138,7 +4186,7 @@ chr_t * chr_run_config( chr_t * pchr )
             break;
 
 		case Ego::Entity::State::Constructing:
-            pchr = chr_config_ctor( pchr );
+            pchr->obj_base.state = Ego::Entity::State::Initializing;
             break;
 
 		case Ego::Entity::State::Initializing:
@@ -4159,7 +4207,7 @@ chr_t * chr_run_config( chr_t * pchr )
 
 		case Ego::Entity::State::Waiting:
 		case Ego::Entity::State::Terminated:
-            /* do nothing */
+            //do nothing
             break;
     }
 
@@ -4167,37 +4215,17 @@ chr_t * chr_run_config( chr_t * pchr )
     {
         pbase->update_guid = INVALID_UPDATE_GUID;
     }
-    else if ( Ego::Entity::State::Active == pbase->state )
-    {
-        pbase->update_guid = ChrList.update_guid;
-    }
+    //else if ( Ego::Entity::State::Active == pbase->state )
+    //{
+    //    pbase->update_guid = ChrList.update_guid;
+    //}
 
     return pchr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
-chr_t * chr_config_ctor( chr_t * pchr )
-{
-    /// @author BB
-    /// @details initialize the character data to safe values
-
-    // grab the base object
-    if ( NULL == pchr ) return NULL;
-    Ego::Entity *pbase = POBJ_GET_PBASE( pchr );
-
-    // if we aren't in the correct state, abort.
-    if ( !STATE_CONSTRUCTING_PBASE( pbase ) ) return pchr;
-
-    pchr = chr_t::ctor( pchr );
-    if ( NULL == pchr ) return pchr;
-
-    // we are done constructing. move on to initializing.
-    pchr->obj_base.state = Ego::Entity::State::Initializing;
-
-    return pchr;
-}
-
-//--------------------------------------------------------------------------------------------
+#if 0
 chr_t * chr_config_init( chr_t * pchr )
 {
     if ( NULL == pchr ) return NULL;
@@ -4221,8 +4249,10 @@ chr_t * chr_config_init( chr_t * pchr )
 
     return pchr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 chr_t * chr_config_active( chr_t * pchr )
 {
     // there's nothing to configure if the object is active...
@@ -4239,8 +4269,10 @@ chr_t * chr_config_active( chr_t * pchr )
 
     return pchr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 /// DeInitialize the character data.
 chr_t * chr_config_deinit( chr_t * pchr )
 {
@@ -4256,8 +4288,10 @@ chr_t * chr_config_deinit( chr_t * pchr )
 
     return pchr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
+#if 0
 /// @brief Destruct the character data.
 chr_t * chr_config_dtor( chr_t * pchr )
 {
@@ -4268,8 +4302,9 @@ chr_t * chr_config_dtor( chr_t * pchr )
 
     POBJ_END_SPAWN( pchr );
 
-    return chr_dtor( pchr );
+    return nullptr;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -4296,7 +4331,7 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
     ppro->requestCount++;
 
     // allocate a new character
-    ichr = ChrList_allocate( override );
+    ichr = ChrList_allocate( profile, override );
     if ( !DEFINED_CHR( ichr ) )
     {
         log_warning( "spawn_one_character() - failed to spawn character (invalid index number %d?)\n", REF_TO_INT( ichr ) );
@@ -4304,7 +4339,7 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
     }
     pchr = ChrList_get_ptr( ichr );
 
-    POBJ_BEGIN_SPAWN( pchr );
+//    POBJ_BEGIN_SPAWN( pchr );
 
     // just set the spawn info
 	pchr->spawn_data.pos = pos;
@@ -4315,13 +4350,18 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
     strncpy( pchr->spawn_data.name, name, SDL_arraysize( pchr->spawn_data.name ) );
     pchr->spawn_data.override = override;
 
+    chr_config_do_init(pchr);
+
+    // start the character out in the "dance" animation
+    chr_start_anim( pchr, ACTION_DA, true, true );
+
     // actually force the character to spawn
-    pchr = chr_config_activate( pchr, 100 );
+ //   pchr = chr_config_activate( pchr, 100 );
 
     // count all the successful spawns of this character
     if ( NULL != pchr )
     {
-        POBJ_END_SPAWN( pchr );
+       // POBJ_END_SPAWN( pchr );
         ppro->spawnCount++;
     }
 
@@ -4344,8 +4384,13 @@ void respawn_character( const CHR_REF character )
 
     chr_t * pchr;
 
-    if ( !INGAME_CHR( character ) || ChrList.lst[character].alive ) return;
+    if ( !INGAME_CHR( character ) ) return;
     pchr = ChrList_get_ptr( character );
+
+    //already alive?
+    if(pchr->alive) {
+        return;
+    }
 
     const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
@@ -4395,9 +4440,9 @@ void respawn_character( const CHR_REF character )
     // Let worn items come back
     PACK_BEGIN_LOOP( pchr->inventory, pitem, item )
     {
-        if ( ChrList.lst[item].isequipped )
+        if ( ChrList_get_ptr(item)->isequipped )
         {
-            ChrList.lst[item].isequipped = false;
+            ChrList_get_ptr(item)->isequipped = false;
             SET_BIT( pchr->ai.alert, ALERTIF_PUTAWAY ); // same as ALERTIF_ATLASTWAYPOINT
         }
     }
@@ -4619,7 +4664,7 @@ void change_character_full( const CHR_REF ichr, const PRO_REF profile, const int
     change_character( ichr, profile, skin, leavewhich );
 
     // set the base model to the new model, too
-    ChrList.lst[ichr].basemodel_ref = profile;
+    ChrList_get_ptr(ichr)->basemodel_ref = profile;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4726,8 +4771,8 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
         {
             fvec3_t tmp_pos;
 
-            ChrList.lst[item_ref].vel.z    = DISMOUNTZVEL;
-            ChrList.lst[item_ref].jump_timer = JUMPDELAY;
+            ChrList_get_ptr(item_ref)->vel.z    = DISMOUNTZVEL;
+            ChrList_get_ptr(item_ref)->jump_timer = JUMPDELAY;
 
             chr_get_pos(ChrList_get_ptr(item_ref), tmp_pos);
             tmp_pos.z += DISMOUNTZVEL;
@@ -4746,8 +4791,8 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
         {
             fvec3_t tmp_pos;
 
-            ChrList.lst[item_ref].vel.z    = DISMOUNTZVEL;
-            ChrList.lst[item_ref].jump_timer = JUMPDELAY;
+            ChrList_get_ptr(item_ref)->vel.z    = DISMOUNTZVEL;
+            ChrList_get_ptr(item_ref)->jump_timer = JUMPDELAY;
 
             chr_get_pos(ChrList_get_ptr(item_ref), tmp_pos);
             tmp_pos.z += DISMOUNTZVEL;
@@ -4929,14 +4974,14 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     item = pchr->holdingwhich[SLOT_LEFT];
     if ( INGAME_CHR( item ) )
     {
-        EGOBOO_ASSERT( ChrList.lst[item].attachedto == ichr );
+        EGOBOO_ASSERT( ChrList_get_ptr(item)->attachedto == ichr );
         set_weapongrip( item, ichr, GRIP_LEFT );
     }
 
     item = pchr->holdingwhich[SLOT_RIGHT];
     if ( INGAME_CHR( item ) )
     {
-        EGOBOO_ASSERT( ChrList.lst[item].attachedto == ichr );
+        EGOBOO_ASSERT( ChrList_get_ptr(item)->attachedto == ichr );
         set_weapongrip( item, ichr, GRIP_RIGHT );
     }
 
@@ -5160,10 +5205,10 @@ int restock_ammo( const CHR_REF character, IDSZ idsz )
     amount = 0;
     if ( chr_is_type_idsz( character, idsz ) )
     {
-        if ( ChrList.lst[character].ammo < ChrList.lst[character].ammomax )
+        if ( ChrList_get_ptr(character)->ammo < ChrList_get_ptr(character)->ammomax )
         {
-            amount = ChrList.lst[character].ammomax - ChrList.lst[character].ammo;
-            ChrList.lst[character].ammo = ChrList.lst[character].ammomax;
+            amount = ChrList_get_ptr(character)->ammomax - ChrList_get_ptr(character)->ammo;
+            ChrList_get_ptr(character)->ammo = ChrList_get_ptr(character)->ammomax;
         }
     }
 
@@ -5282,11 +5327,9 @@ void update_all_characters()
     /// @author ZZ
     /// @details This function updates stats and such for every character
 
-    CHR_REF ichr;
-
-    for ( ichr = 0; ichr < MAX_CHR; ichr++ )
+    for(const auto &chr : _characterList)
     {
-        chr_run_config( ChrList_get_ptr( ichr ) );
+        chr_config_do_active(chr.second.get());
     }
 
     // fix the stat timer
@@ -5775,7 +5818,7 @@ void move_one_character_do_voluntary( chr_t * pchr )
                 {
                     if ( ichr != pchr->ai.target )
                     {
-                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( ChrList.lst[pchr->ai.target].pos.x - pchr->pos.x , ChrList.lst[pchr->ai.target].pos.y - pchr->pos.y ), 8 );
+                        pchr->ori.facing_z = ( int )pchr->ori.facing_z + terp_dir( pchr->ori.facing_z, vec_to_facing( ChrList_get_ptr(pchr->ai.target)->pos.x - pchr->pos.x , ChrList_get_ptr(pchr->ai.target)->pos.y - pchr->pos.y ), 8 );
                     }
                 }
                 break;
@@ -6403,7 +6446,7 @@ bool move_one_character_integrate_motion_attached( chr_t * pchr )
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
     // make a timer that is individual for each object
-    chr_update = pchr->obj_base.guid + update_wld;
+    chr_update = pchr->characterID + update_wld;
 
     if ( 0 == ( chr_update & 7 ) )
     {
@@ -6726,7 +6769,7 @@ bool move_one_character_integrate_motion( chr_t * pchr )
     if ( !needs_test )
     {
         // make a timer that is individual for each object
-        Uint32 chr_update = pchr->obj_base.guid + update_wld;
+        Uint32 chr_update = pchr->characterID + update_wld;
 
         needs_test = ( 0 == ( chr_update & 7 ) );
     }
@@ -6883,7 +6926,7 @@ float set_character_animation_rate( chr_t * pchr )
     if ( INGAME_CHR( pchr->attachedto ) && (( ACTION_MI == pinst->action_which ) || ( ACTION_MH == pinst->action_which ) ) )
     {
         // just copy the rate from the mount
-        pinst->rate = ChrList.lst[pchr->attachedto].inst.rate;
+        pinst->rate = ChrList_get_ptr(pchr->attachedto)->inst.rate;
         return pinst->rate;
     }
 
@@ -7284,42 +7327,39 @@ void move_all_characters()
 //--------------------------------------------------------------------------------------------
 void cleanup_all_characters()
 {
-    CHR_REF cnt;
-
     // Do poofing
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for(const auto &chr : _characterList)
     {
-        chr_t * pchr;
+        chr_t * pchr = chr.second.get();
         bool time_out;
 
-        if ( !ALLOCATED_CHR( cnt ) ) continue;
-        pchr = ChrList_get_ptr( cnt );
-
-        time_out = ( pchr->ai.poof_time >= 0 ) && ( pchr->ai.poof_time <= ( Sint32 )update_wld );
-        if ( !WAITING_PBASE( POBJ_GET_PBASE( pchr ) ) && !time_out ) continue;
+        time_out = ( pchr->ai.poof_time >= 0 ) && ( pchr->ai.poof_time <= static_cast<int32_t>(update_wld) );
+        if ( !time_out ) continue;
 
         // detach the character from the game
         cleanup_one_character( pchr );
 
         // free the character's inventory
-        free_inventory_in_game( cnt );
+        free_inventory_in_game( chr.first );
 
         // free the character
-        free_one_character_in_game( cnt );
+        free_one_character_in_game( chr.first );
     }
 }
 
 //--------------------------------------------------------------------------------------------
+#if 0
 void bump_all_characters_update_counters()
 {
-    for ( CHR_REF cnt = 0; cnt < MAX_CHR; cnt++ )
+    for(const auto &chr : _characterList)
     {
-        Ego::Entity *pbase = POBJ_GET_PBASE( ChrList.lst + cnt );
+        Ego::Entity *pbase = POBJ_GET_PBASE( chr.second.get() );
         if ( !ACTIVE_PBASE( pbase ) ) continue;
 
         pbase->update_count++;
     }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 bool is_invictus_direction( FACING_T direction, const CHR_REF character, BIT_FIELD effects )
@@ -7660,7 +7700,7 @@ const char * chr_get_dir_name( const CHR_REF ichr )
         EGOBOO_ASSERT( false );
 
         // copy the character's data.txt path
-        strncpy( buffer, pchr->obj_base._name, SDL_arraysize( buffer ) );
+        strncpy( buffer, "*INVALID*", SDL_arraysize( buffer ) );
 
         // the name should be "...some path.../data.txt"
         // grab the path
@@ -7709,7 +7749,7 @@ egolib_rv chr_update_collision_size( chr_t * pchr, bool update_matrix )
     oct_bb_ctor( &( pchr->chr_max_cv ) );
     for ( cnt = 0; cnt < SLOT_COUNT; cnt++ )
     {
-        oct_bb_ctor( pchr->slot_cv + cnt );
+        oct_bb_ctor( &pchr->slot_cv[cnt] );
     }
 
     std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile( pchr->profile_ref );
@@ -7791,9 +7831,9 @@ egolib_rv chr_update_collision_size( chr_t * pchr, bool update_matrix )
     {
         if ( !profile->isSlotValid( static_cast<slot_t>(cnt) ) ) continue;
 
-        chr_calc_grip_cv( pchr, GRIP_LEFT, pchr->slot_cv + cnt, NULL, NULL, false );
+        chr_calc_grip_cv( pchr, GRIP_LEFT, &pchr->slot_cv[cnt], NULL, NULL, false );
 
-        oct_bb_self_union( &( pchr->chr_max_cv ), pchr->slot_cv + cnt );
+        oct_bb_self_union( &( pchr->chr_max_cv ), &pchr->slot_cv[cnt] );
     }
 
     // convert the level 1 bounding box to a level 0 bounding box
@@ -8070,7 +8110,7 @@ bool chr_request_terminate( chr_t * pchr )
         return false;
     }
 
-    POBJ_REQUEST_TERMINATE( pchr );
+    //POBJ_REQUEST_TERMINATE( pchr ); //TODO: ZF> not implemented
 
     return true;
 }
@@ -9206,7 +9246,7 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
     ///               You should be able to find the holder of a weapon by specifying non_item == true
     ///
     ///               To prevent possible loops in the data structures, use a counter to limit
-    ///               the depth of the search, and make sure that ichr != ChrList.lst[object].attachedto
+    ///               the depth of the search, and make sure that ichr != ChrList_get_ptr(object)->attachedto
 
     int cnt;
     CHR_REF original_object, object, object_next;
@@ -9217,13 +9257,13 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
     for ( cnt = 0, object = ichr; cnt < MAX_CHR; cnt++ )
     {
         // check for one of the ending condiitons
-        if ( non_item && !ChrList.lst[object].isitem )
+        if ( non_item && !ChrList_get_ptr(object)->isitem )
         {
             break;
         }
 
         // grab the next object in the list
-        object_next = ChrList.lst[object].attachedto;
+        object_next = ChrList_get_ptr(object)->attachedto;
 
         // check for an end of the list
         if ( !INGAME_CHR( object_next ) )
@@ -9295,7 +9335,7 @@ egolib_rv chr_invalidate_child_instances( chr_t * pchr )
         if ( !INGAME_CHR( iitem ) ) continue;
 
         // invalidate the matrix_cache
-        ChrList.lst[iitem].inst.matrix_cache.valid = false;
+        ChrList_get_ptr(iitem)->inst.matrix_cache.valid = false;
     }
 
     return rv_success;

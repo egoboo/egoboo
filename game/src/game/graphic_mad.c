@@ -1079,7 +1079,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     // reduce the amount of updates to one every frame_skip frames, but dither
     // the updating so that not all objects update on the same frame
-    pinst->lighting_frame_all = game_frame_all + (( game_frame_all + pchr->obj_base.guid ) & frame_mask );
+    pinst->lighting_frame_all = game_frame_all + (( game_frame_all + pchr->characterID ) & frame_mask );
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
     pmad = MadStack.get_ptr( pinst->imad );

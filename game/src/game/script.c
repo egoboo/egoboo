@@ -261,8 +261,8 @@ void scr_run_chr_script( const CHR_REF character )
         if ( pchr->ismount && INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
         {
             // Mount
-            pchr->latch.x = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latch.x;
-            pchr->latch.y = ChrList.lst[pchr->holdingwhich[SLOT_LEFT]].latch.y;
+            pchr->latch.x = ChrList_get_ptr(pchr->holdingwhich[SLOT_LEFT])->latch.x;
+            pchr->latch.y = ChrList_get_ptr(pchr->holdingwhich[SLOT_LEFT])->latch.y;
         }
         else if ( pself->wp_valid )
         {
@@ -870,7 +870,7 @@ void scr_set_operand( script_state_t * pstate, Uint8 variable )
             break;
 
         default:
-            log_warning( "scr_set_operand() - cannot assign a number to index %d", variable );
+            log_warning( "scr_set_operand() - cannot assign a number to index %d\n", variable );
             break;
     }
 }
@@ -1639,17 +1639,15 @@ void issue_order( const CHR_REF character, Uint32 value )
 {
     /// @author ZZ
     /// @details This function issues an value for help to all teammates
+    int counter = 0;
 
-    CHR_REF cnt;
-    int     counter;
-
-    for ( cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
+    for(const auto &element : _characterList)
     {
-        if ( !INGAME_CHR( cnt ) ) continue;
+        if ( !INGAME_CHR( element.first ) ) continue;
 
-        if ( chr_get_iteam( cnt ) == chr_get_iteam( character ) )
+        if ( chr_get_iteam(element.first) == chr_get_iteam( character ) )
         {
-            ai_add_order( chr_get_pai( cnt ), value, counter );
+            ai_add_order( chr_get_pai(element.first), value, counter );
             counter++;
         }
     }
@@ -1660,18 +1658,17 @@ void issue_special_order( Uint32 value, IDSZ idsz )
 {
     /// @author ZZ
     /// @details This function issues an order to all characters with the a matching special IDSZ
-#if 0
-    int counter;
-#endif
-    for (CHR_REF cnt = 0, counter = 0; cnt < MAX_CHR; cnt++ )
-    {
-        if ( !INGAME_CHR( cnt ) ) continue;
+    int counter = 0;
 
-        ObjectProfile *profile = chr_get_ppro( cnt );
+    for(const auto &element : _characterList)
+    {
+        if ( !INGAME_CHR( element.first ) ) continue;
+
+        ObjectProfile *profile = chr_get_ppro( element.first );
 
         if ( idsz == profile->getIDSZ(IDSZ_SPECIAL) )
         {
-            ai_add_order( chr_get_pai(cnt), value, counter );
+            ai_add_order( chr_get_pai(element.first), value, counter );
             counter++;
         }
     }
