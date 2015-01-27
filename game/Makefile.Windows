@@ -19,7 +19,6 @@ CXX_OBJ := $(CPP_FILES:.cpp=.o)
 
 OBJECTS :=  $(C_OBJ)
 OBJECTS +=  $(CXX_OBJ)
-$(info object list = $(OBJECTS))
 
 #Binary file
 BIN = ./data/egoboo.exe
@@ -37,18 +36,18 @@ SDLCONF_C := $(shell sdl-config --cflags)
 
 #---------------------
 # the compiler options
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_DEBUG -Wall -Wfatal-errors
+CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_DEBUG -Wall -fno-builtin -Wfatal-errors -static-libstdc++
 #-Wextra -Weffc++
 
 #hush some warnings we dont care about
-CXXFLAGS += -Wno-format -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-function
+CXXFLAGS += -Wno-format -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-function -Wno-unused-variable
 
 #debug options
 CXXFLAGS += -ggdb -fdiagnostics-color=always
 #CXXFLAGS += -fsanitize=undefined -fsanitize=leak -fsanitize=address
 #CXXFLAGS += -fsanitize=integer-divide-by-zero -fsanitize=null -fsanitize=vla-bound -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=enum
 
-LINKER_LIBS := -lmingw32 -mconsole -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc -lSHFolder -lAdvapi32
+LINKER_LIBS := -lmingw32 -mconsole -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -lSHFolder -lAdvapi32
 LINKER_LIBS += -L../egolib/ -legoboo
 LINKER_LIBS += -L/usr/local/lib -lSDLmain -lSDL -lSDL_mixer -lSDL_ttf -lSDL_image
 LINKER_LIBS += -lphysfs

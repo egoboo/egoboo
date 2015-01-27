@@ -234,7 +234,7 @@ egolib_rv export_one_character( const CHR_REF character, const CHR_REF owner, in
     }
 
     // TWINK_BO.OBJ
-    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( ChrList.lst[owner].Name ) );
+    snprintf( todirname, SDL_arraysize( todirname ), "%s", str_encode_path( ChrList_get_ptr(owner)->Name ) );
 
     // Is it a character or an item?
     if ( chr_obj_index < 0 )
@@ -581,7 +581,6 @@ void activate_alliance_file_vfs()
 //--------------------------------------------------------------------------------------------
 void update_used_lists()
 {
-    ChrList_update_used();
     PrtList_update_used();
     EncList_update_used();
 }
@@ -617,7 +616,7 @@ void cleanup_all_objects()
 //--------------------------------------------------------------------------------------------
 void bump_all_update_counters()
 {
-    bump_all_characters_update_counters();
+    //bump_all_characters_update_counters();
     //bump_all_particles_update_counters();
     bump_all_enchants_update_counters();
 }
@@ -661,7 +660,7 @@ void blah_billboard()
 
     CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
     {
-        if ( INVALID_CHR_REF != ChrList.lst[ichr].attachedto ) continue;
+        if ( INVALID_CHR_REF != ChrList_get_ptr(ichr)->attachedto ) continue;
 
         needs_new = false;
 
@@ -2017,7 +2016,7 @@ void do_weather_spawn_particles()
             {
                 // Yes, but is the character valid?
                 CHR_REF ichr = PlaStack.lst[weather.iplayer].index;
-                if ( INGAME_CHR( ichr ) && !INGAME_CHR( ChrList.lst[ichr].inwhich_inventory ) )
+                if ( INGAME_CHR( ichr ) && !INGAME_CHR( ChrList_get_ptr(ichr)->inwhich_inventory ) )
                 {
                     chr_t * pchr = ChrList_get_ptr( ichr );
 
@@ -3320,7 +3319,7 @@ void disaffirm_attached_particles( const CHR_REF character )
     if ( INGAME_CHR( character ) )
     {
         // Set the alert for disaffirmation ( wet torch )
-        SET_BIT( ChrList.lst[character].ai.alert, ALERTIF_DISAFFIRMED );
+        SET_BIT( ChrList_get_ptr(character)->ai.alert, ALERTIF_DISAFFIRMED );
     }
 }
 
@@ -3720,7 +3719,7 @@ void free_all_objects()
 void reset_all_object_lists()
 {
     PrtList_reinit();
-    ChrList_reinit();
+    _characterList.clear();
     EncList_reinit();
 }
 

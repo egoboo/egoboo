@@ -173,7 +173,6 @@ bool link_pop_module()
     if ( retval )
     {
         int i;
-        CHR_REF j;
 
         // restore the heroes' positions before jumping out of the module
         for ( i = 0; i < pentry->hero_count; i++ )
@@ -182,13 +181,13 @@ bool link_pop_module()
             hero_spawn_data_t * phero = pentry->hero + i;
 
             pchr = NULL;
-            for ( j = 0; j < MAX_CHR; j++ )
+            for(const auto &chr : _characterList)
             {
-                if ( !INGAME_CHR( j ) ) continue;
+                if ( !INGAME_CHR( chr.first ) ) continue;
 
-                if ( phero->object_index == ChrList.lst[j].profile_ref )
+                if ( phero->object_index == chr.second->profile_ref )
                 {
-                    pchr = ChrList_get_ptr( j );
+                    pchr = ChrList_get_ptr( chr.first );
                     break;
                 };
             }

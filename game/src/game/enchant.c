@@ -924,7 +924,7 @@ enc_t * enc_config_do_init( enc_t * penc )
         penc->spawner_ref = pdata->spawner_ref;
         penc->spawnermodel_ref = chr_get_ipro( pdata->spawner_ref );
 
-        ChrList.lst[penc->spawner_ref].undoenchant = ienc;
+        ChrList_get_ptr(penc->spawner_ref)->undoenchant = ienc;
     }
 
     //recuce enchant duration with damage resistance
@@ -1068,20 +1068,20 @@ enc_t * enc_config_do_active( enc_t * penc )
             eve    = enc_get_ieve( ienc );
 
             // Do drains
-            if ( ChrList.lst[owner].alive )
+            if ( ChrList_get_ptr(owner)->alive )
             {
 
                 // Change life
                 if ( 0 != penc->owner_life )
                 {
-                    ChrList.lst[owner].life += penc->owner_life;
-                    if ( ChrList.lst[owner].life <= 0 )
+                    ChrList_get_ptr(owner)->life += penc->owner_life;
+                    if ( ChrList_get_ptr(owner)->life <= 0 )
                     {
                         kill_character( owner, target, false );
                     }
-                    if ( ChrList.lst[owner].life > ChrList.lst[owner].life_max )
+                    if ( ChrList_get_ptr(owner)->life > ChrList_get_ptr(owner)->life_max )
                     {
-                        ChrList.lst[owner].life = ChrList.lst[owner].life_max;
+                        ChrList_get_ptr(owner)->life = ChrList_get_ptr(owner)->life_max;
                     }
                 }
 
@@ -1105,20 +1105,20 @@ enc_t * enc_config_do_active( enc_t * penc )
             // check it again
             if ( _INGAME_ENC( ienc ) )
             {
-                if ( ChrList.lst[target].alive )
+                if ( ChrList_get_ptr(target)->alive )
                 {
 
                     // Change life
                     if ( 0 != penc->target_life )
                     {
-                        ChrList.lst[target].life += penc->target_life;
-                        if ( ChrList.lst[target].life <= 0 )
+                        ChrList_get_ptr(target)->life += penc->target_life;
+                        if ( ChrList_get_ptr(target)->life <= 0 )
                         {
                             kill_character( target, owner, false );
                         }
-                        if ( ChrList.lst[target].life > ChrList.lst[target].life_max )
+                        if ( ChrList_get_ptr(target)->life > ChrList_get_ptr(target)->life_max )
                         {
-                            ChrList.lst[target].life = ChrList.lst[target].life_max;
+                            ChrList_get_ptr(target)->life = ChrList_get_ptr(target)->life_max;
                         }
                     }
 
@@ -1481,7 +1481,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 
         if ( !_profileSystem.isValidProfileID( loc_profile ) )
         {
-            log_warning( "spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", ChrList.lst[spawner].obj_base._name, REF_TO_INT( spawner ) );
+            log_warning( "spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", ChrList_get_ptr(spawner)->Name, REF_TO_INT( spawner ) );
             return INVALID_ENC_REF;
         }
     }
@@ -1499,7 +1499,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     peve->request_count++;
 
     // Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
-    if ( !peve->stayifnoowner && ( !INGAME_CHR( owner ) || !ChrList.lst[owner].alive ) )
+    if ( !peve->stayifnoowner && ( !INGAME_CHR( owner ) || !ChrList_get_ptr(owner)->alive ) )
     {
         log_warning( "spawn_one_enchant() - failed because the required enchant owner cannot be found.\n" );
         return INVALID_ENC_REF;
@@ -2027,17 +2027,17 @@ void cleanup_all_enchants()
         valid_target = false;
         if ( INGAME_CHR( penc->target_ref ) )
         {
-            valid_target = ChrList.lst[penc->target_ref].alive;
+            valid_target = ChrList_get_ptr(penc->target_ref)->alive;
 
             // this is linked to a known character
-            enc_lst = &( ChrList.lst[penc->target_ref].firstenchant );
+            enc_lst = &( ChrList_get_ptr(penc->target_ref)->firstenchant );
         }
 
         //try to determine if the owner exists and is alive
         valid_owner = false;
         if ( INGAME_CHR( penc->owner_ref ) )
         {
-            valid_owner = ChrList.lst[penc->owner_ref].alive;
+            valid_owner = ChrList_get_ptr(penc->owner_ref)->alive;
         }
 
         if ( !LOADED_EVE( penc->eve_ref ) )
@@ -2067,7 +2067,7 @@ void cleanup_all_enchants()
         else if ( valid_owner && peve->endifcantpay )
         {
             // Undo enchants that cannot be sustained anymore
-            if ( 0 == ChrList.lst[penc->owner_ref].mana ) do_remove = true;
+            if ( 0 == ChrList_get_ptr(penc->owner_ref)->mana ) do_remove = true;
         }
         else
         {

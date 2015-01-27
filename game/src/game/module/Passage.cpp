@@ -97,12 +97,12 @@ bool Passage::close()
         std::forward_list<CHR_REF> crushedCharacters;
 
         // Make sure it isn't blocked
-        for ( CHR_REF character = 0; character < MAX_CHR; character++ )
+        for(const auto &chr : _characterList)
         {
-            chr_t *pchr;
+            const std::shared_ptr<chr_t> &pchr = chr.second;
+            CHR_REF character = chr.first;
 
             if ( !INGAME_CHR( character ) ) continue;
-            pchr = ChrList_get_ptr( character );
 
             //Don't do held items
             if ( IS_ATTACHED_CHR( character ) ) continue;
@@ -295,17 +295,19 @@ CHR_REF Passage::getShopOwner() const
 void Passage::makeShop(CHR_REF owner)
 {
     //Make sure owner is valid
-    if ( !INGAME_CHR( owner ) || !ChrList.lst[owner].alive ) return;
+    if ( !INGAME_CHR( owner ) || !ChrList_get_ptr(owner)->alive ) return;
 
     //Mark as shop
     _isShop = true;
     _shopOwner = owner;
 
     // flag every item in the shop as a shop item
-    for ( CHR_REF ichr = 0; ichr < MAX_CHR; ichr++ )
+    for(const auto &element : _characterList)
     {
+        CHR_REF ichr = element.first;
+        const std::shared_ptr<chr_t> &pchr = element.second;
+
         if ( !INGAME_CHR( ichr ) ) continue;
-        chr_t * pchr = ChrList_get_ptr( ichr );
 
         if ( pchr->isitem )
         {

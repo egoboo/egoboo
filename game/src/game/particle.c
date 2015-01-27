@@ -285,7 +285,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
     if ( !LOADED_PIP( pdata->ipip ) )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-                   REF_TO_INT( pdata->ipip ), REF_TO_INT( pdata->chr_origin ), DEFINED_CHR( pdata->chr_origin ) ? ChrList.lst[pdata->chr_origin].Name : "INVALID",
+                   REF_TO_INT( pdata->ipip ), REF_TO_INT( pdata->chr_origin ), DEFINED_CHR( pdata->chr_origin ) ? ChrList_get_ptr(pdata->chr_origin)->Name : "INVALID",
                    REF_TO_INT( pdata->iprofile ), _profileSystem.isValidProfileID( pdata->iprofile ) ? _profileSystem.getProfile(pdata->iprofile)->getFilePath().c_str() : "INVALID" );
 
         return NULL;
@@ -369,11 +369,11 @@ prt_t * prt_config_do_init( prt_t * pprt )
 
             // Correct loc_facing for dexterity...
             offsetfacing = 0;
-            if ( ChrList.lst[loc_chr_origin].dexterity < PERFECT_AIM )
+            if ( ChrList_get_ptr(loc_chr_origin)->dexterity < PERFECT_AIM )
             {
                 // Correct loc_facing for randomness
                 offsetfacing  = generate_irand_pair( ppip->facing_pair ) - ( ppip->facing_pair.base + ppip->facing_pair.rand / 2 );
-                offsetfacing  = ( offsetfacing * ( PERFECT_AIM - ChrList.lst[loc_chr_origin].dexterity ) ) / PERFECT_AIM;
+                offsetfacing  = ( offsetfacing * ( PERFECT_AIM - ChrList_get_ptr(loc_chr_origin)->dexterity ) ) / PERFECT_AIM;
             }
 
             if ( 0.0f != ppip->zaimspd )
@@ -383,13 +383,13 @@ prt_t * prt_config_do_init( prt_t * pprt )
                     // These aren't velocities...  This is to do aiming on the Z axis
                     if ( velocity > 0 )
                     {
-                        vel.x = ChrList.lst[pprt->target_ref].pos.x - pdata->pos.x;
-                        vel.y = ChrList.lst[pprt->target_ref].pos.y - pdata->pos.y;
+                        vel.x = ChrList_get_ptr(pprt->target_ref)->pos.x - pdata->pos.x;
+                        vel.y = ChrList_get_ptr(pprt->target_ref)->pos.y - pdata->pos.y;
                         tvel = std::sqrt( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
                         if ( tvel > 0.0f )
                         {
                             // This is the vel.z alteration
-                            vel.z = ( ChrList.lst[pprt->target_ref].pos.z + ( ChrList.lst[pprt->target_ref].bump.height * 0.5f ) - tmp_pos.z ) / tvel;
+                            vel.z = ( ChrList_get_ptr(pprt->target_ref)->pos.z + ( ChrList_get_ptr(pprt->target_ref)->bump.height * 0.5f ) - tmp_pos.z ) / tvel;
                         }
                     }
                 }
@@ -412,8 +412,8 @@ prt_t * prt_config_do_init( prt_t * pprt )
         // Start on top of target
         if ( DEFINED_CHR( pprt->target_ref ) && ppip->startontarget )
         {
-            tmp_pos.x = ChrList.lst[pprt->target_ref].pos.x;
-            tmp_pos.y = ChrList.lst[pprt->target_ref].pos.y;
+            tmp_pos.x = ChrList_get_ptr(pprt->target_ref)->pos.x;
+            tmp_pos.y = ChrList_get_ptr(pprt->target_ref)->pos.y;
         }
     }
     else
@@ -630,7 +630,7 @@ prt_t * prt_config_do_init( prt_t * pprt )
                "\n",
                iprt,
                update_wld, pprt->lifetime, game_frame_all, pprt->safe_time,
-               loc_chr_origin, DEFINED_CHR( loc_chr_origin ) ? ChrList.lst[loc_chr_origin].Name : "INVALID",
+               loc_chr_origin, DEFINED_CHR( loc_chr_origin ) ? ChrList_get_ptr(loc_chr_origin)->Name : "INVALID",
                pdata->ipip, ( NULL != ppip ) ? ppip->name : "INVALID", ( NULL != ppip ) ? ppip->comment : "",
                pdata->iprofile, _profileSystem.isValidProfileID( pdata->iprofile ) ? ProList.lst[pdata->iprofile].name : "INVALID" );
 #endif
@@ -993,7 +993,7 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
     if ( !LOADED_PIP( ipip ) )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-                   REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
+                   REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList_get_ptr(chr_origin)->Name : "INVALID",
                    REF_TO_INT( iprofile ), _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
 
         return INVALID_PRT_REF;
@@ -1007,7 +1007,7 @@ PRT_REF spawnOneParticle(const fvec3_t& pos, FACING_T facing, const PRO_REF ipro
     if ( !_DEFINED_PRT( iprt ) )
     {
         log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-                   chr_origin, INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
+                   chr_origin, INGAME_CHR( chr_origin ) ? ChrList_get_ptr(chr_origin)->Name : "INVALID",
                    ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
                    iprofile, _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
 
@@ -1072,7 +1072,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
     if ( !LOADED_PIP( ipip ) )
     {
         log_debug( "spawn_one_particle() - cannot spawn particle with invalid pip == %d (owner == %d(\"%s\"), profile == %d(\"%s\"))\n",
-                   REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
+                   REF_TO_INT( ipip ), REF_TO_INT( chr_origin ), INGAME_CHR( chr_origin ) ? ChrList_get_ptr(chr_origin)->Name : "INVALID",
                    REF_TO_INT( iprofile ), _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
 
         return INVALID_PRT_REF;
@@ -1087,7 +1087,7 @@ PRT_REF spawn_one_particle( const fvec3_t& pos, FACING_T facing, const PRO_REF i
     {
 #if defined(_DEBUG) && defined(DEBUG_PRT_LIST)
         log_debug( "spawn_one_particle() - cannot allocate a particle owner == %d(\"%s\"), pip == %d(\"%s\"), profile == %d(\"%s\")\n",
-                   chr_origin, INGAME_CHR( chr_origin ) ? ChrList.lst[chr_origin].Name : "INVALID",
+                   chr_origin, INGAME_CHR( chr_origin ) ? ChrList_get_ptr(chr_origin)->Name : "INVALID",
                    ipip, LOADED_PIP( ipip ) ? PipStack.lst[ipip].name : "INVALID",
                    iprofile, _profileSystem.isValidProfileID( iprofile ) ? _profileSystem.getProfile(iprofile)->getFilePath().c_str() : "INVALID" );
 #endif
@@ -1348,7 +1348,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
     loc_level = penviro->floor_level;
     if ( INGAME_CHR( loc_pprt->onwhichplatform_ref ) )
     {
-        loc_level = std::max( penviro->floor_level, ChrList.lst[loc_pprt->onwhichplatform_ref].pos.z + ChrList.lst[loc_pprt->onwhichplatform_ref].chr_min_cv.maxs[OCT_Z] );
+        loc_level = std::max( penviro->floor_level, ChrList_get_ptr(loc_pprt->onwhichplatform_ref)->pos.z + ChrList_get_ptr(loc_pprt->onwhichplatform_ref)->chr_min_cv.maxs[OCT_Z] );
     }
     prt_set_level( loc_pprt, loc_level );
 
@@ -1358,7 +1358,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
     if ( INGAME_CHR( loc_pprt->onwhichplatform_ref ) )
     {
         // this only works for 1 level of attachment
-        itile = ChrList.lst[loc_pprt->onwhichplatform_ref].onwhichgrid;
+        itile = ChrList_get_ptr(loc_pprt->onwhichplatform_ref)->onwhichgrid;
     }
     else
     {
@@ -1673,10 +1673,10 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     vdiff = ptarget->pos - prt_get_pos_v_const(loc_pprt);
     vdiff.z += ptarget->bump.height * 0.5f;
 
-    min_length = 2 * 5 * 256 * ( ChrList.lst[loc_pprt->owner_ref].wisdom / ( float )PERFECTBIG );
+    min_length = 2 * 5 * 256 * ( ChrList_get_ptr(loc_pprt->owner_ref)->wisdom / ( float )PERFECTBIG );
 
     // make a little incertainty about the target
-    uncertainty = 256.0f * ( 1.0f - ChrList.lst[loc_pprt->owner_ref].intelligence  / ( float )PERFECTBIG );
+    uncertainty = 256.0f * ( 1.0f - ChrList_get_ptr(loc_pprt->owner_ref)->intelligence  / ( float )PERFECTBIG );
 
     ival = RANDIE;
     vdither.x = ((( float ) ival / 0x8000 ) - 1.0f )  * uncertainty;
@@ -2865,8 +2865,8 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
     if ( loc_ppip->allowpush && 0 == loc_ppip->vel_hrz_pair.base )
     {
         // Make character limp
-        ChrList.lst[ichr].vel.x *= 0.5f;
-        ChrList.lst[ichr].vel.y *= 0.5f;
+        ChrList_get_ptr(ichr)->vel.x *= 0.5f;
+        ChrList_get_ptr(ichr)->vel.y *= 0.5f;
     }
 
     //---- do the damage
@@ -3201,7 +3201,7 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
     loc_pprt->is_hidden = false;
     if ( INGAME_CHR( loc_pprt->attachedto_ref ) )
     {
-        loc_pprt->is_hidden = ChrList.lst[loc_pprt->attachedto_ref].is_hidden;
+        loc_pprt->is_hidden = ChrList_get_ptr(loc_pprt->attachedto_ref)->is_hidden;
     }
 
     // nothing to do if the particle is hidden
@@ -3219,7 +3219,7 @@ prt_bundle_t * prt_update_ingame( prt_bundle_t * pbdl_prt )
         loc_pprt->is_hidden = false;
         if ( INGAME_CHR( loc_pprt->attachedto_ref ) )
         {
-            loc_pprt->is_hidden = ChrList.lst[loc_pprt->attachedto_ref].is_hidden;
+            loc_pprt->is_hidden = ChrList_get_ptr(loc_pprt->attachedto_ref)->is_hidden;
         }
 
         loc_pprt->is_homing = loc_ppip->homing && !INGAME_CHR( loc_pprt->attachedto_ref ) && INGAME_CHR( loc_pprt->target_ref );
@@ -3300,7 +3300,7 @@ prt_bundle_t * prt_update_ghost( prt_bundle_t * pbdl_prt )
     loc_pprt->is_hidden = false;
     if ( INGAME_CHR( loc_pprt->attachedto_ref ) )
     {
-        loc_pprt->is_hidden = ChrList.lst[loc_pprt->attachedto_ref].is_hidden;
+        loc_pprt->is_hidden = ChrList_get_ptr(loc_pprt->attachedto_ref)->is_hidden;
     }
 
     loc_pprt->is_homing = loc_ppip->homing && !INGAME_CHR( loc_pprt->attachedto_ref ) && INGAME_CHR( loc_pprt->target_ref );
