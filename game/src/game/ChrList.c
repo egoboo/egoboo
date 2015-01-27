@@ -110,9 +110,6 @@ CHR_REF ChrList_allocate( const PRO_REF profile, const CHR_REF override )
             log_warning( "ChrList_allocate() - Failed character allocation, object already exists\n" );
             return INVALID_CHR_REF;
         }
-
-        // construct the new structure
-        //chr_config_construct(object.get(), 100 );
     }
 
     return ichr;
