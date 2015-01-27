@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\callbacks.c">
+    <ClCompile Include="$(ProjectDir)\win32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\compress.c">
+    <ClCompile Include="$(ProjectDir)\compress.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\host.c">
+    <ClCompile Include="$(ProjectDir)\host.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\list.c">
+    <ClCompile Include="$(ProjectDir)\list.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\packet.c">
+    <ClCompile Include="$(ProjectDir)\packet.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\peer.c">
+    <ClCompile Include="$(ProjectDir)\peer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\protocol.c">
+    <ClCompile Include="$(ProjectDir)\protocol.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\unix.c">
+    <ClCompile Include="$(ProjectDir)\unix.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\enet-master\win32.c">
+    <ClCompile Include="$(ProjectDir)\callbacks.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

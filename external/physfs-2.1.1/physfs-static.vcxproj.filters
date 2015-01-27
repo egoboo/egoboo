@@ -1,124 +1,124 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\physfs.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\Archive\7z\7zBuffer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\physfs_byteorder.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\7zCrc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\physfs_unicode.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\Archive\7z\7zDecode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\os2.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\Archive\7z\7zExtract.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\pocketpc.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\Archive\7z\7zHeader.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\posix.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\Archive\7z\7zIn.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\unix.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\Archive\7z\7zItem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\macosx.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\Archive\7z\7zMethodID.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\platform\windows.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\adler32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\dir.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\Compress\Branch\BranchX86.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\grp.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\Compress\Branch\BranchX86_2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\hog.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\compress.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\lzma.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\crc32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\mvl.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\deflate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\qpak.c">
+    <ClCompile Include="$(ProjectDir)\archivers\dir.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\wad.c">
+    <ClCompile Include="$(ProjectDir)\archivers\grp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\archivers\zip.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\gzio.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\7zCrc.c">
+    <ClCompile Include="$(ProjectDir)\archivers\hog.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zBuffer.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\infback.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zDecode.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\inffast.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zExtract.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\inflate.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zHeader.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\inftrees.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zIn.c">
+    <ClCompile Include="$(ProjectDir)\archivers\lzma.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zItem.c">
+    <ClCompile Include="$(ProjectDir)\lzma\C\Compress\Lzma\LzmaDecode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Archive\7z\7zMethodID.c">
+    <ClCompile Include="$(ProjectDir)\platform\macosx.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Compress\Branch\BranchX86.c">
+    <ClCompile Include="$(ProjectDir)\archivers\mvl.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Compress\Branch\BranchX86_2.c">
+    <ClCompile Include="$(ProjectDir)\platform\os2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\lzma\C\Compress\Lzma\LzmaDecode.c">
+    <ClCompile Include="$(ProjectDir)\physfs.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\adler32.c">
+    <ClCompile Include="$(ProjectDir)\physfs_byteorder.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\compress.c">
+    <ClCompile Include="$(ProjectDir)\physfs_unicode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\crc32.c">
+    <ClCompile Include="$(ProjectDir)\platform\pocketpc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\deflate.c">
+    <ClCompile Include="$(ProjectDir)\platform\posix.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\gzio.c">
+    <ClCompile Include="$(ProjectDir)\archivers\qpak.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\infback.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\trees.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\inffast.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\uncompr.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\inflate.c">
+    <ClCompile Include="$(ProjectDir)\platform\unix.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\inftrees.c">
+    <ClCompile Include="$(ProjectDir)\archivers\wad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\trees.c">
+    <ClCompile Include="$(ProjectDir)\platform\windows.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\uncompr.c">
+    <ClCompile Include="$(ProjectDir)\archivers\zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\michaelheilmann\Desktop\Arbeitsplatz\egoboo@egoboo@github.com\external\physfs-2.1.1\zlib123\zutil.c">
+    <ClCompile Include="$(ProjectDir)\zlib123\zutil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
