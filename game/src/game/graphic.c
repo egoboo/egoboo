@@ -983,7 +983,7 @@ gfx_rv dolist_reset( dolist_t * plist, const size_t index )
         }
         else if ( INVALID_PRT_REF == pent->iprt && VALID_CHR_RANGE( pent->ichr ) )
         {
-            ChrList.lst[pent->ichr].inst.indolist = false;
+            ChrList_get_ptr(pent->ichr)->inst.indolist = false;
         }
     }
     plist->count = 0;
@@ -1252,11 +1252,11 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
 
             if ( do_reflect )
             {
-                mat_getTranslate(ChrList.lst[ichr].inst.ref.matrix, pos_tmp);
+                mat_getTranslate(ChrList_get_ptr(ichr)->inst.ref.matrix, pos_tmp);
             }
             else
             {
-                mat_getTranslate(ChrList.lst[ichr].inst.matrix, pos_tmp);
+                mat_getTranslate(ChrList_get_ptr(ichr)->inst.matrix, pos_tmp);
             }
 
             vtmp = pos_tmp - pcam->getPosition();
@@ -2778,9 +2778,9 @@ void draw_map()
                 if ( NULL == PlaStack.lst[iplayer].pdevice ) continue;
 
                 ichr = PlaStack.lst[iplayer].index;
-                if ( INGAME_CHR( ichr ) && ChrList.lst[ichr].alive )
+                if ( INGAME_CHR( ichr ) && ChrList_get_ptr(ichr)->alive )
                 {
-                    draw_blip( 0.75f, COLOR_WHITE, ChrList.lst[ichr].pos.x, ChrList.lst[ichr].pos.y, true );
+                    draw_blip( 0.75f, COLOR_WHITE, ChrList_get_ptr(ichr)->pos.x, ChrList_get_ptr(ichr)->pos.y, true );
                 }
             }
         }
@@ -2931,21 +2931,21 @@ float draw_debug( float y )
         ipla = ( PLA_REF )0;
         ichr = PlaStack.lst[ipla].index;
         y = draw_string_raw( 0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
-                             ChrList.lst[ichr].damage_resistance[DAMAGE_SLASH],
-                             ChrList.lst[ichr].damage_resistance[DAMAGE_CRUSH],
-                             ChrList.lst[ichr].damage_resistance[DAMAGE_POKE ],
-                             ChrList.lst[ichr].damage_resistance[DAMAGE_HOLY ],
-                             ChrList.lst[ichr].damage_resistance[DAMAGE_EVIL ],
-                             ChrList.lst[ichr].damage_resistance[DAMAGE_FIRE ],
-                             ChrList.lst[ichr].damage_resistance[DAMAGE_ICE  ],
-                             ChrList.lst[ichr].damage_resistance[DAMAGE_ZAP  ] );
+                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_SLASH],
+                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_CRUSH],
+                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_POKE ],
+                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_HOLY ],
+                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_EVIL ],
+                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_FIRE ],
+                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_ICE  ],
+                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_ZAP  ] );
 
         ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_FSIZE, ChrList.lst[ichr].pos.y / GRID_FSIZE );
+        y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList_get_ptr(ichr)->pos.x / GRID_FSIZE, ChrList_get_ptr(ichr)->pos.y / GRID_FSIZE );
 
         ipla = ( PLA_REF )1;
         ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList.lst[ichr].pos.x / GRID_FSIZE, ChrList.lst[ichr].pos.y / GRID_FSIZE );
+        y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList_get_ptr(ichr)->pos.x / GRID_FSIZE, ChrList_get_ptr(ichr)->pos.y / GRID_FSIZE );
     }
 
     if ( SDL_KEYDOWN( keyb, SDLK_F6 ) )
@@ -2953,7 +2953,7 @@ float draw_debug( float y )
         // More debug information
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
         y = draw_string_raw( 0, y, "~~FREEPRT %d", PrtList_count_free() );
-        y = draw_string_raw( 0, y, "~~FREECHR %d", ChrList_count_free() );
+        y = draw_string_raw( 0, y, "~~FREECHR %d", MAX_CHR - _characterList.size() );
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
         y = draw_string_raw( 0, y, PMod->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE" );
         y = draw_string_raw( 0, y, "~~PASS %d", PMod->getPassageCount() );
@@ -3905,7 +3905,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
                 ichr  = pdolist->lst[cnt].ichr;
-                itile = ChrList.lst[ichr].onwhichgrid;
+                itile = ChrList_get_ptr(ichr)->onwhichgrid;
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
@@ -4086,7 +4086,7 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
             CHR_REF ichr = pdolist->lst[cnt].ichr;
             if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
-            if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
+            if ( 0 == ChrList_get_ptr(ichr)->shadow_size ) continue;
 
             render_bad_shadow( ichr );
             tnc++;
@@ -4100,7 +4100,7 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
             CHR_REF ichr = pdolist->lst[cnt].ichr;
             if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
-            if ( 0 == ChrList.lst[ichr].shadow_size ) continue;
+            if ( 0 == ChrList_get_ptr(ichr)->shadow_size ) continue;
 
             render_shadow( ichr );
             tnc++;
@@ -6591,16 +6591,14 @@ gfx_rv gfx_update_all_chr_instance()
 {
     CHR_REF cnt;
     gfx_rv retval;
-    chr_t * pchr;
     gfx_rv tmp_rv;
 
     // assume the best
     retval = gfx_success;
 
-    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
+    for(const auto &chr : _characterList)
     {
-        if ( !ALLOCATED_CHR( cnt ) ) continue;
-        pchr = ChrList_get_ptr( cnt );
+        chr_t * pchr = chr.second.get();
 
         if ( !ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
 

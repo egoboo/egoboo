@@ -213,9 +213,9 @@ bool chr_BSP_clear()
 	chr_BSP_root->count = 0;
 
 	// unlink all used character nodes
-	for (ichr = 0; ichr < MAX_CHR; ichr++)
+	for(const auto &chr : _characterList)
 	{
-		BSP_leaf_t::remove_link(POBJ_GET_PLEAF(ChrList.lst + ichr));
+		BSP_leaf_t::remove_link(&chr.second.get()->bsp_leaf);
 	}
 
 	return true;
@@ -257,7 +257,7 @@ bool chr_BSP_insert(chr_t * pchr)
 	if (pchr->is_hidden) return false;
 
 	// heal the leaf if it needs it
-	pleaf = POBJ_GET_PLEAF(pchr);
+	pleaf = &pchr->bsp_leaf;
 	if (pchr != (chr_t *)(pleaf->data))
 	{
 		// some kind of error. re-initialize the data.

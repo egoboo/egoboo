@@ -79,7 +79,7 @@
     return returncode;
 
 #define SET_TARGET_0(ITARGET)         pself->target = ITARGET;
-#define SET_TARGET_1(ITARGET,PTARGET) if( NULL != PTARGET ) { PTARGET = LAMBDA(INGAME_CHR(ITARGET), ChrList.lst + ITARGET, NULL); }
+#define SET_TARGET_1(ITARGET,PTARGET) if( NULL != PTARGET ) { PTARGET = ChrList_get_ptr(ITARGET); }
 #define SET_TARGET(ITARGET,PTARGET)   SET_TARGET_0( ITARGET ); SET_TARGET_1(ITARGET,PTARGET)
 
 #define SCRIPT_REQUIRE_TARGET(PTARGET) \
@@ -1101,8 +1101,8 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         {
             fvec3_t tmp_pos;
 
-            ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
-            ChrList.lst[ichr].jump_timer = JUMPDELAY;
+            ChrList_get_ptr(ichr)->vel.z    = DISMOUNTZVEL;
+            ChrList_get_ptr(ichr)->jump_timer = JUMPDELAY;
 
             chr_get_pos(ChrList_get_ptr( ichr ), tmp_pos);
             tmp_pos.z += DISMOUNTZVEL;
@@ -1118,8 +1118,8 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         {
             fvec3_t tmp_pos;
 
-            ChrList.lst[ichr].vel.z    = DISMOUNTZVEL;
-            ChrList.lst[ichr].jump_timer = JUMPDELAY;
+            ChrList_get_ptr(ichr)->vel.z    = DISMOUNTZVEL;
+            ChrList_get_ptr(ichr)->jump_timer = JUMPDELAY;
 
             chr_get_pos(ChrList_get_ptr(ichr), tmp_pos);
             tmp_pos.z += DISMOUNTZVEL;
@@ -1472,7 +1472,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
         if ( DEFINED_CHR( iheld ) )
         {
             // can the rider open the
-            returncode = ChrList.lst[iheld].openstuff;
+            returncode = ChrList_get_ptr(iheld)->openstuff;
         }
     }
 
@@ -1697,7 +1697,7 @@ Uint8 scr_set_TargetToTargetOfLeader( script_state_t * pstate, ai_state_t * psel
 
         if ( TEAM_NOLEADER != ileader && INGAME_CHR( ileader ) )
         {
-            CHR_REF itarget = ChrList.lst[ileader].ai.target;
+            CHR_REF itarget = ChrList_get_ptr(ileader)->ai.target;
 
             if ( INGAME_CHR( itarget ) )
             {
@@ -1917,7 +1917,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
-            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->obj_base._name );
+            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
         }
     }
     else
@@ -2503,15 +2503,15 @@ Uint8 scr_ScoredAHit( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // Proceed only if the character scored a hit
-//    if ( !INGAME_CHR( pchr->attachedto ) || ChrList.lst[pchr->attachedto].ismount )
+//    if ( !INGAME_CHR( pchr->attachedto ) || ChrList_get_ptr(pchr->attachedto).ismount )
 //    {
     returncode = HAS_SOME_BITS( pself->alert, ALERTIF_SCOREDAHIT );
 //    }
 
     // Proceed only if the holder scored a hit with the character
-    /*    else if ( ChrList.lst[pchr->attachedto].ai.lastitemused == pself->index )
+    /*    else if ( ChrList_get_ptr(pchr->attachedto).ai.lastitemused == pself->index )
         {
-            returncode = HAS_SOME_BITS( ChrList.lst[pchr->attachedto].ai.alert, ALERTIF_SCOREDAHIT );
+            returncode = HAS_SOME_BITS( ChrList_get_ptr(pchr->attachedto).ai.alert, ALERTIF_SCOREDAHIT );
         }
         else returncode = false;*/
 
@@ -2680,7 +2680,7 @@ Uint8 scr_Grogged( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ChrList.lst[pself->index].grog_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
+    returncode = ChrList_get_ptr(pself->index)->grog_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2695,7 +2695,7 @@ Uint8 scr_Dazed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ChrList.lst[pself->index].daze_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
+    returncode = ChrList_get_ptr(pself->index)->daze_timer > 0 && HAS_SOME_BITS( pself->alert, ALERTIF_CONFUSED );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3234,7 +3234,7 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
     ichr = pself->index;
 
     //Weapons don't kill people, people kill people...
-    if ( INGAME_CHR( pchr->attachedto ) && !ChrList.lst[pchr->attachedto].ismount )
+    if ( INGAME_CHR( pchr->attachedto ) && !ChrList_get_ptr(pchr->attachedto)->ismount )
     {
         ichr = pchr->attachedto;
     }
@@ -3704,7 +3704,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     {
         ObjectProfile *item = chr_get_ppro( ichr );
 
-        if ( item->isRangedWeapon() && ( 0 == ChrList.lst[ichr].ammomax || ( 0 != ChrList.lst[ichr].ammo && ChrList.lst[ichr].ammoknown ) ) )
+        if ( item->isRangedWeapon() && ( 0 == ChrList_get_ptr(ichr)->ammomax || ( 0 != ChrList_get_ptr(ichr)->ammo && ChrList_get_ptr(ichr)->ammoknown ) ) )
         {
             if ( 0 == pstate->argument || ( update_wld & 1 ) )
             {
@@ -3722,7 +3722,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
         {
             ObjectProfile *item = chr_get_ppro( ichr );
 
-            if ( item->isRangedWeapon() && ( 0 == ChrList.lst[ichr].ammomax || ( 0 != ChrList.lst[ichr].ammo && ChrList.lst[ichr].ammoknown ) ) )
+            if ( item->isRangedWeapon() && ( 0 == ChrList_get_ptr(ichr)->ammomax || ( 0 != ChrList_get_ptr(ichr)->ammo && ChrList_get_ptr(ichr)->ammoknown ) ) )
             {
                 pstate->argument = LATCHBUTTON_LEFT;
                 returncode = true;
@@ -5254,7 +5254,7 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
     ichr = pself_target->attachedto;
     if ( INGAME_CHR( ichr ) )
     {
-        returncode = ChrList.lst[ichr].ismount;
+        returncode = ChrList_get_ptr(ichr)->ismount;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5479,7 +5479,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
-            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->obj_base._name );
+            log_warning( "Object %s failed to spawn a copy of itself\n", pchr->Name );
         }
     }
     else
@@ -5534,7 +5534,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, ppro->getClassName().c_str(), pstate->argument );
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, ppro->getClassName().c_str(), pstate->argument );
         }
     }
     else
@@ -5690,13 +5690,13 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
     ichr = pself_target->holdingwhich[SLOT_LEFT];
     if ( INGAME_CHR( ichr ) )
     {
-        ChrList.lst[ichr].iskursed = false;
+        ChrList_get_ptr(ichr)->iskursed = false;
     }
 
     ichr = pself_target->holdingwhich[SLOT_RIGHT];
     if ( INGAME_CHR( ichr ) )
     {
-        ChrList.lst[ichr].iskursed = false;
+        ChrList_get_ptr(ichr)->iskursed = false;
     }
 
     PACK_BEGIN_LOOP( pself_target->inventory, pitem, item )
@@ -5970,7 +5970,7 @@ Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
     ichr = pchr->attachedto;
     if ( INGAME_CHR( ichr ) )
     {
-        returncode = ( ChrList.lst[ichr].holdingwhich[SLOT_LEFT] == pself->index );
+        returncode = ( ChrList_get_ptr(ichr)->holdingwhich[SLOT_LEFT] == pself->index );
     }
 
     SCRIPT_FUNCTION_END();
@@ -6000,7 +6000,7 @@ Uint8 scr_set_ChildAmmo( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ChrList.lst[pself->child].ammo = CLIP( pstate->argument, 0, 0xFFFF );
+    ChrList_get_ptr(pself->child)->ammo = CLIP( pstate->argument, 0, 0xFFFF );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6053,11 +6053,11 @@ Uint8 scr_IdentifyTarget( script_state_t * pstate, ai_state_t * pself )
 
     returncode = false;
     ichr = pself->target;
-    if ( ChrList.lst[ichr].ammomax != 0 )  ChrList.lst[ichr].ammoknown = true;
+    if ( ChrList_get_ptr(ichr)->ammomax != 0 )  ChrList_get_ptr(ichr)->ammoknown = true;
 
 
-    returncode = !ChrList.lst[ichr].nameknown;
-    ChrList.lst[ichr].nameknown = true;
+    returncode = !ChrList_get_ptr(ichr)->nameknown;
+    ChrList_get_ptr(ichr)->nameknown = true;
     ppro->makeUsageKnown();
 
     SCRIPT_FUNCTION_END();
@@ -6573,6 +6573,8 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
+    //ZF> TODO: Not implemented
+
     /*PORT
     if(moduleactive && pstate->distance >= 0)
     {
@@ -6988,11 +6990,11 @@ Uint8 scr_HolderBlocked( script_state_t * pstate, ai_state_t * pself )
 
     if ( INGAME_CHR( iattached ) )
     {
-        BIT_FIELD bits = ChrList.lst[iattached].ai.alert;
+        BIT_FIELD bits = ChrList_get_ptr(iattached)->ai.alert;
 
         if ( HAS_SOME_BITS( bits, ALERTIF_BLOCKED ) )
         {
-            CHR_REF iattacked = ChrList.lst[iattached].ai.attacklast;
+            CHR_REF iattacked = ChrList_get_ptr(iattached)->ai.attacklast;
 
             if ( INGAME_CHR( iattacked ) )
             {
@@ -7482,7 +7484,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ichr > PMod->getImportAmount() * MAX_IMPORT_PER_PLAYER )
         {
-            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->obj_base._name, _profileSystem.getProfile(pchr->profile_ref)->getClassName().c_str(), pstate->argument );
+            log_warning( "Object \"%s\"(\"%s\") failed to spawn profile index %d\n", pchr->Name, _profileSystem.getProfile(pchr->profile_ref)->getClassName().c_str(), pstate->argument );
         }
     }
     else
@@ -7944,7 +7946,7 @@ Uint8 scr_set_ChildContent( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ChrList.lst[pself->child].ai.content = pstate->argument;
+    ChrList_get_ptr(pself->child)->ai.content = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }

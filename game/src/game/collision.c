@@ -1565,11 +1565,11 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             if ( INGAME_CHR( d->chra ) && INGAME_CHR( d->chrb ) )
             {
-                if ( ChrList.lst[d->chra].targetplatform_ref == d->chrb )
+                if ( ChrList_get_ptr(d->chra)->targetplatform_ref == d->chrb )
                 {
                     attach_chr_to_platform( ChrList_get_ptr( d->chra ), ChrList_get_ptr( d->chrb ) );
                 }
-                else if ( ChrList.lst[d->chrb].targetplatform_ref == d->chra )
+                else if ( ChrList_get_ptr(d->chrb)->targetplatform_ref == d->chra )
                 {
                     attach_chr_to_platform( ChrList_get_ptr( d->chrb ), ChrList_get_ptr( d->chra ) );
                 }
@@ -1974,7 +1974,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         //---- find out whether the object is overlapping with the saddle
 
         // the position of the saddle over the frame
-        oct_bb_add_fvec3( pchr_b->slot_cv + SLOT_LEFT, chr_get_pos_v_const( pchr_b ), &tmp_cv );
+        oct_bb_add_fvec3( &pchr_b->slot_cv[SLOT_LEFT], chr_get_pos_v_const( pchr_b ), &tmp_cv );
         phys_expand_oct_bb( &tmp_cv, pchr_b->vel, 0.0f, 1.0f, &saddle_cv );
 
         if ( oct_bb_point_inside( &saddle_cv, apos ) )
@@ -2009,7 +2009,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         //---- find out whether the object is overlapping with the saddle
 
         // the position of the saddle over the frame
-        oct_bb_add_fvec3( pchr_a->slot_cv + SLOT_LEFT, chr_get_pos_v_const( pchr_a ), &tmp_cv );
+        oct_bb_add_fvec3( &pchr_a->slot_cv[SLOT_LEFT], chr_get_pos_v_const( pchr_a ), &tmp_cv );
         phys_expand_oct_bb( &tmp_cv, pchr_a->vel, 0.0f, 1.0f, &saddle_cv );
 
         if ( oct_bb_point_inside( &saddle_cv, bpos ) )
@@ -3191,15 +3191,15 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
                 item = powner->holdingwhich[SLOT_LEFT];
                 if ( INGAME_CHR( item ) )
                 {
-                    ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pdata->pchr );
-                    if ( powner->ai.lastitemused == item ) SET_BIT( ChrList.lst[item].ai.alert, ALERTIF_SCOREDAHIT );
+                    ChrList_get_ptr(item)->ai.hitlast = GET_REF_PCHR( pdata->pchr );
+                    if ( powner->ai.lastitemused == item ) SET_BIT( ChrList_get_ptr(item)->ai.alert, ALERTIF_SCOREDAHIT );
                 }
 
                 item = powner->holdingwhich[SLOT_RIGHT];
                 if ( INGAME_CHR( item ) )
                 {
-                    ChrList.lst[item].ai.hitlast = GET_REF_PCHR( pdata->pchr );
-                    if ( powner->ai.lastitemused == item ) SET_BIT( ChrList.lst[item].ai.alert, ALERTIF_SCOREDAHIT );
+                    ChrList_get_ptr(item)->ai.hitlast = GET_REF_PCHR( pdata->pchr );
+                    if ( powner->ai.lastitemused == item ) SET_BIT( ChrList_get_ptr(item)->ai.alert, ALERTIF_SCOREDAHIT );
                 }
             }
 

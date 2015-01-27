@@ -276,7 +276,23 @@ struct chr_spawn_data_t
 class chr_t
 {
 public:
-    Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
+    /**
+    * Default constructor
+    **/
+    chr_t(const PRO_REF profile, const CHR_REF id);
+
+    /**
+    * Deconstructor
+    **/
+    virtual ~chr_t();
+
+public:
+    //Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
+    bool terminateRequested;
+
+    CHR_REF characterID;             ///< Our CHR_REF mapping key
+
+    BSP_leaf_t     bsp_leaf;
 
     chr_spawn_data_t  spawn_data;
 
@@ -313,9 +329,9 @@ public:
     Uint16         ammo;
 
     // equipment and inventory
-    CHR_REF        holdingwhich[SLOT_COUNT]; ///< != INVALID_CHR_REF if character is holding something
-    CHR_REF        equipment[INVEN_COUNT];   ///< != INVALID_CHR_REF if character has equipped something
-    CHR_REF        inventory[MAXNUMINPACK];  ///< != INVALID_CHR_REF if character has something in the inventory
+    std::array<CHR_REF, SLOT_COUNT> holdingwhich; ///< != INVALID_CHR_REF if character is holding something
+    std::array<CHR_REF, INVEN_COUNT> equipment;   ///< != INVALID_CHR_REF if character has equipped something
+    std::array<CHR_REF, MAXNUMINPACK> inventory;  ///< != INVALID_CHR_REF if character has something in the inventory
 
     // team stuff
     TEAM_REF       team;            ///< Character's team
@@ -354,8 +370,8 @@ public:
     // combat stuff
     Uint8          damagetarget_damagetype;       ///< Type of damage for AI DamageTarget
     Uint8          reaffirm_damagetype;           ///< For relighting torches
-    Uint8          damage_modifier[DAMAGE_COUNT]; ///< Damage inversion
-    float          damage_resistance[DAMAGE_COUNT]; ///< Damage Resistances
+    std::array<Uint8, DAMAGE_COUNT> damage_modifier; ///< Damage inversion
+    std::array<float, DAMAGE_COUNT> damage_resistance; ///< Damage Resistances
     Uint8          defense;                       ///< Base defense rating
     SFP8_T         damage_boost;                  ///< Add to swipe damage (8.8 fixed point)
     SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
@@ -440,7 +456,7 @@ public:
     oct_bb_t     chr_max_cv;   ///< a looser collision volume for chr-prt interactions
     oct_bb_t     chr_min_cv;   ///< the tightest collision volume for chr-chr interactions
 
-    oct_bb_t     slot_cv[SLOT_COUNT];  ///< the cv's for the object's slots
+    std::array<oct_bb_t, SLOT_COUNT>     slot_cv;  ///< the cv's for the object's slots
 
     Uint8        stoppedby;                     ///< Collision mask
 
@@ -483,11 +499,8 @@ public:
     Uint32         safe_grid;                     ///< the last "safe" grid
 
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
-
-	static chr_t * ctor(chr_t * pchr);
 };
 
-chr_t *chr_dtor(chr_t * pchr);
 bool  chr_request_terminate( chr_t * pchr );
 
 bool    chr_matrix_valid( const chr_t * pchr );
@@ -576,7 +589,7 @@ extern Stack<team_t, TEAM_MAX> TeamStack;
 #define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < TEAM_MAX) )
 
 
-#define IS_ATTACHED_CHR_RAW(ICHR) ( (DEFINED_CHR(ChrList.lst[ICHR].attachedto) || DEFINED_CHR(ChrList.lst[ICHR].inwhich_inventory)) )
+#define IS_ATTACHED_CHR_RAW(ICHR) ( (DEFINED_CHR(ChrList_get_ptr(ICHR)->attachedto) || DEFINED_CHR(ChrList_get_ptr(ICHR)->inwhich_inventory)) )
 #define IS_ATTACHED_CHR(ICHR) LAMBDA( !DEFINED_CHR(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
 
 // counters for debugging wall collisions
@@ -636,12 +649,13 @@ bool chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
 bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_vec, fvec3_base_t grip_up_vec, const bool shift_origin );
 
 // character state machine functions
-chr_t * chr_run_config( chr_t * pchr );
-chr_t * chr_config_construct( chr_t * pchr, int max_iterations );
-chr_t * chr_config_initialize( chr_t * pchr, int max_iterations );
-chr_t * chr_config_activate( chr_t * pchr, int max_iterations );
-chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations );
-chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations );
+//chr_t * chr_run_config( chr_t * pchr );
+//chr_t * chr_config_construct( chr_t * pchr, int max_iterations );
+//chr_t * chr_config_initialize( chr_t * pchr, int max_iterations );
+//chr_t * chr_config_activate( chr_t * pchr, int max_iterations );
+//chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations );
+//chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations );
+chr_t * chr_config_do_init( chr_t * pchr );
 
 bool  chr_can_see_object( const chr_t * pchr, const chr_t * pobj );
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );

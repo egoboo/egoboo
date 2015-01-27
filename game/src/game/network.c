@@ -133,7 +133,7 @@ void net_unbuffer_player_latches()
             tmp_latch.y = tlatch_list[0].y;
             tmp_latch.b = tlatch_list[0].button;
 
-            //log_info( "<<%1.4f, %1.4f>, 0x%x>, Just one latch for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, ChrList.lst[ppla->index].Name );
+            //log_info( "<<%1.4f, %1.4f>, 0x%x>, Just one latch for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, ChrList_get_ptr(ppla->index)->Name );
         }
         else if ( latch_count > 1 )
         {
@@ -168,7 +168,7 @@ void net_unbuffer_player_latches()
                 tmp_latch.y /= ( float )weight_sum;
             }
 
-            //log_info( "<<%1.4f, %1.4f>, 0x%x>, %d, multiple latches for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, latch_count, ChrList.lst[ppla->index].Name );
+            //log_info( "<<%1.4f, %1.4f>, 0x%x>, %d, multiple latches for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, latch_count, ChrList_get_ptr(ppla->index)->Name );
         }
         else
         {
@@ -176,7 +176,7 @@ void net_unbuffer_player_latches()
             // do nothing. this lets the old value of the latch persist.
             // this might be a decent guess as to what to do if a packet was
             // dropped?
-            //log_info( "<<%1.4f, %1.4f>, 0x%x>, latch dead reckoning for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, ChrList.lst[ppla->index].Name );
+            //log_info( "<<%1.4f, %1.4f>, 0x%x>, latch dead reckoning for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, ChrList_get_ptr(ppla->index)->Name );
         }
 
         if ( latch_count >= ppla->tlatch_count )
@@ -332,7 +332,7 @@ player_t* chr_get_ppla( const CHR_REF ichr )
     PLA_REF iplayer;
 
     if ( !INGAME_CHR( ichr ) ) return NULL;
-    iplayer = ChrList.lst[ichr].is_which_player;
+    iplayer = ChrList_get_ptr(ichr)->is_which_player;
 
     if ( !VALID_PLA( iplayer ) ) return NULL;
 

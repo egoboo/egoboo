@@ -40,7 +40,7 @@ CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_DEBUG -Wall -fno-builtin
 #-Wextra -Weffc++
 
 #hush some warnings we dont care about
-CXXFLAGS += -Wno-format -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-function
+CXXFLAGS += -Wno-format -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-function -Wno-unused-variable
 
 #debug options
 CXXFLAGS += -ggdb -fdiagnostics-color=always

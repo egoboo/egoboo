@@ -205,7 +205,7 @@ void BillboardList_update_all()
             is_invalid = true;
         }
 
-        if ( !INGAME_CHR( pbb->ichr ) || INGAME_CHR( ChrList.lst[pbb->ichr].attachedto ) )
+        if ( !INGAME_CHR( pbb->ichr ) || INGAME_CHR( ChrList_get_ptr(pbb->ichr)->attachedto ) )
         {
             is_invalid = true;
         }
@@ -217,7 +217,7 @@ void BillboardList_update_all()
             // unlink it from the character
             if ( INGAME_CHR( pbb->ichr ) )
             {
-                ChrList.lst[pbb->ichr].ibillboard = INVALID_BILLBOARD_REF;
+                ChrList_get_ptr(pbb->ichr)->ibillboard = INVALID_BILLBOARD_REF;
             }
 
             // deallocate the billboard
