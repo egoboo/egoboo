@@ -46,8 +46,12 @@ struct s_Font;
 struct renderlist_t;
 struct renderlist_ary_t;
 struct renderlist_mgr_t;
+#if 0
 struct dolist_data_t;
+#endif
+#if 0
 struct dolist_t;
+#endif
 struct dolist_ary_t;
 struct dolist_mgr_t;
 
@@ -122,7 +126,9 @@ void                gfx_error_clear();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#if 0
 #define DOLIST_SIZE (MAX_CHR + MAX_PRT)
+#endif
 
 #define MAXMESHRENDER             1024                       ///< Max number of tiles to draw
 
@@ -171,27 +177,63 @@ enum e_color
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// An element of the do-list, an all encompassing list of all objects to be drawn by the renderer
+#if 0
 struct dolist_data_t
 {
     float   dist;
     CHR_REF chr;
 };
+#endif
 
 //--------------------------------------------------------------------------------------------
 
-/// Structure for sorting both particles and characters based on their position from the camera
-struct obj_registry_entity_t
+#if 0
+#define OBJ_REGISTRY_ENTITY_INIT { INVALID_CHR_REF, INVALID_PRT_REF, 0.0f }
+#endif
+
+/**
+ * @brief
+ *	List of character and particle entities to be draw by a renderer.
+ *
+ *	Entities in a do list are sorted based on their position from the camera before drawing.
+ */
+struct dolist_t
 {
-    CHR_REF ichr;
-    PRT_REF iprt;
-    float   dist;
+	/**
+	 * @brief
+	 *	The (fixed) capacity of a do list.
+	 */
+	static const size_t CAPACITY = (MAX_CHR + MAX_PRT);
+	/**
+	 * @brief
+	 *	An eleemnt of a do list.
+	 */
+	struct element_t
+	{
+		CHR_REF ichr;
+		PRT_REF iprt;
+		float dist;
+		
+		element_t() : ichr(INVALID_CHR_REF), iprt(INVALID_PRT_REF), dist(0.0f) { }
+
+		element_t *init();
+		static int cmp(const void *left, const void *right);
+	};
+
+	size_t index;            /**< A "name" for the dolist. */
+	size_t size;             /**< The size of the do list:
+							      How many character and particle entities are in the do list. */
+	element_t lst[CAPACITY]; /**< List of which objects to draw. */
+	static dolist_t *init(dolist_t *self, const size_t index);
+	static gfx_rv reset(dolist_t *self, const size_t index);
+	static gfx_rv sort(dolist_t *self, std::shared_ptr<Camera> camera, const bool reflect);
+	static gfx_rv test_chr(dolist_t *self, const chr_t *pchr);
+	static gfx_rv add_chr_raw(dolist_t *self, chr_t *pchr);
+	static gfx_rv test_prt(dolist_t *self, const prt_t *pprt);
+	static gfx_rv add_prt_raw(dolist_t *self, prt_t *pprt);
+	static gfx_rv add_colst(dolist_t *self, const Ego::DynamicArray<BSP_leaf_t *> *collisions);
 };
 
-#define OBJ_REGISTRY_ENTITY_INIT { MAX_CHR, MAX_PRT, 0.0f }
-
-obj_registry_entity_t *obj_registry_entity_init( obj_registry_entity_t * ptr );
-int obj_registry_entity_cmp( const void * pleft, const void * pright );
 
 //--------------------------------------------------------------------------------------------
 // encapsulation of all graphics options

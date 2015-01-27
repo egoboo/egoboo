@@ -437,6 +437,210 @@ struct fmat_4x4_t
 		(*this)(2, 3) = t.z;
 		(*this)(3, 3) = 1.0f;
 	}
+
+	/**
+	 * @brief
+	 *	Assign this matrix the values of a translation matrix.
+	 * @param self
+	 *	this matrix
+	 * @param t
+	 *	the translation vector
+	 * @remark
+	 *	\f[
+	 *	\left[\begin{matrix}
+	 *	1 & 0 & 0 & t_x \\
+	 *	0 & 1 & 0 & t_y \\
+	 *	0 & 0 & 1 & t_z \\
+	 *	0 & 0 & 0 &   1 \\
+	 *	\end{matrix}\right]
+	 *	\f]
+	 */
+	static void makeTranslation(fmat_4x4_t& self, const fvec3_t& t)
+	{
+		self = fmat_4x4_t::identity;
+		self(0, 3) = t.x;
+		self(1, 3) = t.y;
+		self(2, 3) = t.z;
+	}
+
+	/**
+	 * @brief
+	 *	Assign this matrix the values of a rotation matrix for counter-clockwise rotation around the x-axis.
+	 * @param self
+	 *	this matrix
+	 * @param a
+	 *	the angle of rotation, in Radians
+	 * @remark
+	 *	\f[
+	 *	\left[\begin{matrix}
+	 *	1 & 0 &  0 & 0 \\
+	 *	0 & c & -s & 0 \\
+	 *	0 & s &  c & 0 \\
+	 *	0 & 0 &  0 & 1 \\
+	 *	\end{matrix}\right]
+	 *	\f]
+	 *	where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
+	 */
+	static void makeRotationX(fmat_4x4_t& self, const float a)
+	{
+		float c = COS(a), s = SIN(a);
+		self = fmat_4x4_t::identity;
+		// 1st column.
+		self(1, 1) = +c;
+		self(2, 1) = +s;
+		// 2nd column.
+		self(1, 2) = -s;
+		self(2, 2) = +c;
+	}
+
+	/**
+	 * @brief
+	 *	Assign this matrix the values of a rotation matrix for counter-clockwise rotation around the y-axis.
+	 * @param self
+	 *	this matrix
+	 * @param a
+	 *	the angle of rotation, in Radians
+	 * @remark
+	 *	\f[
+	 *	\left[\begin{matrix}
+	 *	 c & 0 & s & 0 \\
+	 *	 0 & 1 & 0 & 0 \\
+	 *	-s & 0 & c & 0 \\
+	 *	 0 & 0 & 0 & 1 \\
+	 *	\end{matrix}\right]
+	 *	\f]
+	 *	where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
+	 */
+	static void makeRotationY(fmat_4x4_t& self, const float a)
+	{
+		float c = COS(a), s = SIN(a);
+		self = fmat_4x4_t::identity;
+		// 0th column.
+		self(0, 0) = +c;
+		self(2, 0) = -s;
+		// 2nd column.
+		self(0, 2) = +s;
+		self(2, 2) = +c;
+	}
+
+	/**
+	 * @brief
+	 *	Assign this matrix the values of a rotation matrix for counter-clockwise rotation around the z-axis.
+	 * @param self
+	 *	this matrix
+	 * @param a
+	 *	the angle of rotation, in Radians
+	 * @remark
+	 *	\f[
+	 *	\left[\begin{matrix}
+	 *	c & -s & 0 & 0 \\
+	 *	s &  c & 0 & 0 \\
+	 *	0 &  0 & 1 & 0 \\
+	 *	0 &  0 & 0 & 1 \\
+	 *	\end{matrix}\right]
+	 *	\f]
+	 *	where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
+	 */
+	static void makeRotationZ(fmat_4x4_t& self, const float a)
+	{
+		float c = COS(a), s = SIN(a);
+		self = fmat_4x4_t::identity;
+		// 0th column.
+		self(0, 0) = +c;
+		self(1, 0) = +s;
+		// 1st column.
+		self(0, 1) = -s;
+		self(1, 1) = +c;
+	}
+
+	/**
+	 * @brief
+	 *	Assign this matrix the values of a scaling matrix.
+	 * @param self
+	 *	this matrix
+	 * @param s
+	 *	a scaling vector
+	 * @remark
+	 *	\f[
+	 *	\left[\begin{matrix}
+	 *	s_x &  0   & 0   & 0 \\
+	 *	0   &  s_y & 0   & 0 \\
+	 *	0   &  0   & s_z & 0 \\
+	 *	0   &  0   & 0   & 1 \\
+	 *	\end{matrix}\right]
+	 *	\f]
+	 */
+	static void makeScaling(fmat_4x4_t& self, const fvec3_t& s)
+	{
+		self = fmat_4x4_t::identity;
+		self(0, 0) = s.x;
+		self(1, 1) = s.y;
+		self(2, 2) = s.z;
+	}
+
+	/**
+	 * @brief
+	 *	Transform vector.
+	 * @param m
+	 *	the transformation matrix
+	 * @param source
+	 *	the source vector
+	 * @param [out] target
+	 *	a vector which is assigned the transformation result
+	 * @remark
+	 *	\f[
+	 *	\left[\begin{matrix}
+	 *	m_{0,0} & m_{0,1} & m_{0,2} & m_{0,3} \\
+	 *	m_{1,0} & m_{1,1} & m_{1,2} & m_{1,3} \\
+	 *	m_{2,0} & m_{2,1} & m_{2,2} & m_{2,3} \\
+	 *	m_{3,0} & m_{3,1} & m_{3,2} & m_{3,3} \\
+	 *	\end{matrix}\right]
+	 *	\cdot
+	 * 	\left[\begin{matrix}
+	 * 	v_{0} \\
+	 *	v_{1} \\
+	 *	v_{2} \\
+	 *	v_{3} \\
+	 *	\end{matrix}\right]
+	 *	=
+	 *	\left[\begin{matrix}
+	 *	m_{0,0} \cdot v_{0} + m_{0,1} \cdot v_1 + m_{0,2} \cdot v_2 + m_{0,3} \cdot v_3 \\
+	 *	m_{1,0} \cdot v_{0} + m_{1,1} \cdot v_1 + m_{1,2} \cdot v_2 + m_{1,3} \cdot v_3  \\
+	 *	m_{2,0} \cdot v_{0} + m_{2,1} \cdot v_1 + m_{2,2} \cdot v_2 + m_{2,3} \cdot v_3  \\
+	 *	m_{3,0} \cdot v_{0} + m_{3,1} \cdot v_1 + m_{3,2} \cdot v_2 + m_{3,3} \cdot v_3  \\
+	 *	\end{matrix}\right]
+	 *	\f]
+	 */
+	void transform(const fvec4_t& source, fvec4_t& target) const
+	{
+		target.x = (*this)(0, 0) * source.x + (*this)(0, 1) * source.y + (*this)(0, 2) * source.z + (*this)(0, 3) * source.w;
+		target.y = (*this)(1, 0) * source.x + (*this)(1, 1) * source.y + (*this)(1, 2) * source.z + (*this)(1, 3) * source.w;
+		target.z = (*this)(2, 0) * source.x + (*this)(2, 1) * source.y + (*this)(2, 2) * source.z + (*this)(2, 3) * source.w;
+		target.w = (*this)(3, 0) * source.x + (*this)(3, 1) * source.y + (*this)(3, 2) * source.z + (*this)(3, 3) * source.w;
+	}
+
+	/**
+	 * @brief
+	 *	Transform vectors.
+	 * @param m
+	 *	the transformation matrix
+	 * @param sources
+	 *	the source vectors
+	 * @param [out] targets
+	 *	an array of vectors which are assigned the transformation results
+	 * @see
+	 *	fmat_4x4_t::transform(const fmat_4x4_t& const fvec4_t&, fvec4_t&)
+	 */
+	void transform(const fvec4_t sources[], fvec4_t targets[], const size_t size) const
+	{
+		const fvec4_t *source = sources;
+		fvec4_t *target = targets;
+		for (size_t index = 0; index < size; index++) {
+			transform(*source, *target);
+			source++;
+			target++;
+		}
+	}
 };
 
 #if 0
@@ -449,16 +653,22 @@ float *mat_Copy(fmat_4x4_base_t DST, const fmat_4x4_base_t src);
 float *mat_Identity(fmat_4x4_base_t DST);
 float *mat_Zero(fmat_4x4_base_t DST);
 float *mat_Multiply(fmat_4x4_base_t DST, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2);
-float *mat_Translate(fmat_4x4_base_t DST, const float dx, const float dy, const float dz);
-float *mat_RotateX(fmat_4x4_base_t DST, const float rads);
-float *mat_RotateY(fmat_4x4_base_t DST, const float rads);
-float *mat_RotateZ(fmat_4x4_base_t DST, const float rads);
-float *mat_ScaleXYZ(fmat_4x4_base_t DST, const float sizex, const float sizey, const float sizez);
+
 float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_base_t wid, const fvec4_base_t frw, const fvec4_base_t upx, const float scale);
-float *mat_View(fmat_4x4_base_t DST, const fvec3_t& from, const fvec3_t& at, const fvec3_t& world_up, const float roll);
-float *mat_Projection(fmat_4x4_base_t DST, const float near_plane, const float far_plane, const float fov, const float ar);
+/// @param from viewer position
+/// @param at look at position
+/// @param world's up, usually 0,0,1
+/// @param roll clockwise roll around viewing direction in Radians
+float *mat_View(fmat_4x4_t& DST, const fvec3_t& from, const fvec3_t& at, const fvec3_t& world_up, const float roll);
+/// @param near distance to near clipping plane
+/// @param far distance to far clipping plane
+/// @param fov vertical field of view angle, in Radians
+/// @param ar aspect ratio
+float *mat_Projection(fmat_4x4_base_t DST, const float near, const float far, const float fov, const float ar);
+/// @param near distance to the near clipping plane
+/// @param far distance to the far clipping plane
+/// @param fov field of view angle, in Radians
 float *mat_Projection_orig(fmat_4x4_base_t DST, const float near_plane, const float far_plane, const float fov);
-void   mat_TransformVertices(const fmat_4x4_base_t Matrix, const fvec4_t pSourceV[], fvec4_t pDestV[], const Uint32 NumVertor);
 
 bool mat_getChrUp(const fmat_4x4_t& mat, fvec3_t& up);
 bool mat_getChrForward(const fmat_4x4_t& mat, fvec3_t& forward);

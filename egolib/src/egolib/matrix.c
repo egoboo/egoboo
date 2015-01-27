@@ -114,79 +114,6 @@ float *mat_Multiply(fmat_4x4_base_t dst, const fmat_4x4_base_t src1, const fmat_
 #endif
 	return dst;
 }
-
-//--------------------------------------------------------------------------------------------
-float * mat_Translate(fmat_4x4_base_t DST, const float dx, const float dy, const float dz)
-{
-	if (NULL == mat_Identity(DST)) return NULL;
-
-	DST[MAT_IDX(3, 0)] = dx;
-	DST[MAT_IDX(3, 1)] = dy;
-	DST[MAT_IDX(3, 2)] = dz;
-
-	return DST;
-}
-
-//--------------------------------------------------------------------------------------------
-float * mat_RotateX(fmat_4x4_base_t DST, const float rads)
-{
-	float cosine = COS(rads);
-	float sine = SIN(rads);
-
-	if (NULL == mat_Identity(DST)) return NULL;
-
-	DST[MAT_IDX(1, 1)] = cosine;
-	DST[MAT_IDX(2, 2)] = cosine;
-	DST[MAT_IDX(1, 2)] = -sine;
-	DST[MAT_IDX(2, 1)] = sine;
-
-	return DST;
-}
-
-//--------------------------------------------------------------------------------------------
-float * mat_RotateY(fmat_4x4_base_t DST, const float rads)
-{
-	float cosine = COS(rads);
-	float sine = SIN(rads);
-
-	if (NULL == mat_Identity(DST)) return NULL;
-
-	DST[MAT_IDX(0, 0)] = cosine;
-	DST[MAT_IDX(2, 2)] = cosine;
-	DST[MAT_IDX(0, 2)] = sine;
-	DST[MAT_IDX(2, 0)] = -sine;
-
-	return DST;
-}
-
-//--------------------------------------------------------------------------------------------
-float * mat_RotateZ(fmat_4x4_base_t DST, const float rads)
-{
-	float cosine = COS(rads);
-	float sine = SIN(rads);
-
-	if (NULL == mat_Identity(DST)) return NULL;
-
-	DST[MAT_IDX(0, 0)] = cosine;
-	DST[MAT_IDX(1, 1)] = cosine;
-	DST[MAT_IDX(0, 1)] = -sine;
-	DST[MAT_IDX(1, 0)] = sine;
-
-	return DST;
-}
-
-//--------------------------------------------------------------------------------------------
-float * mat_ScaleXYZ(fmat_4x4_base_t DST, const float sizex, const float sizey, const float sizez)
-{
-	if (NULL == mat_Identity(DST)) return NULL;
-
-	DST[MAT_IDX(0, 0)] = sizex;
-	DST[MAT_IDX(1, 1)] = sizey;
-	DST[MAT_IDX(2, 2)] = sizez;
-
-	return DST;
-}
-
 //--------------------------------------------------------------------------------------------
 float * mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t DST, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z)
 {
@@ -307,22 +234,11 @@ float * mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_
 }
 
 //--------------------------------------------------------------------------------------------
-float * mat_View(fmat_4x4_base_t DST,
-	const fvec3_t&   from,     // camera location
-	const fvec3_t&   at,        // camera look-at target
-	const fvec3_t&   world_up,  // world’s up, usually 0, 0, 1
-	const float roll)         // clockwise roll around
-	//   viewing direction,
-	//   in radians
+float * mat_View(fmat_4x4_t& DST,const fvec3_t& from,const fvec3_t& at,const fvec3_t& world_up,const float roll)
 {
-	/// @author MN
-	/// @details This probably should be replaced by a call to gluLookAt(),
-	///          don't see why we need to make our own...
-
 	fvec3_t up, right, view_dir, temp;
 
-	if (NULL == mat_Identity(DST)) return NULL;
-
+	DST = fmat_4x4_t::identity;
 	view_dir = at - from;
 	view_dir.normalize();
 	right = world_up.cross(view_dir);
@@ -330,31 +246,33 @@ float * mat_View(fmat_4x4_base_t DST,
 	right.normalize();
 	up.normalize();
 
-	DST[MAT_IDX(0, 0)] = right.x;
-	DST[MAT_IDX(1, 0)] = right.y;
-	DST[MAT_IDX(2, 0)] = right.z;
+	// 0th row.
+	DST(0, 0) = right.x;
+	DST(0, 1) = right.y;
+	DST(0, 2) = right.z;
 
-	DST[MAT_IDX(0, 1)] = up.x;
-	DST[MAT_IDX(1, 1)] = up.y;
-	DST[MAT_IDX(2, 1)] = up.z;
+	// 1st row.
+	DST(1, 0) = up.x;
+	DST(1, 1) = up.y;
+	DST(1, 2) = up.z;
 
-	DST[MAT_IDX(0, 2)] = view_dir.x;
-	DST[MAT_IDX(1, 2)] = view_dir.y;
-	DST[MAT_IDX(2, 2)] = view_dir.z;
+	// 2nd row.
+	DST(2,0) = view_dir.x;
+	DST(2,1) = view_dir.y;
+	DST(2,2) = view_dir.z;
 
-	DST[MAT_IDX(3, 0)] = -right.dot(from);
-	DST[MAT_IDX(3, 1)] = -up.dot(from);
-	DST[MAT_IDX(3, 2)] = -view_dir.dot(from);
+	// 3rd row.
+	DST(3,0) = -right.dot(from);
+	DST(3,1) = -up.dot(from);
+	DST(3,2) = -view_dir.dot(from);
 
 	if (roll != 0.0f)
 	{
 		// mat_Multiply function shown above
 		fmat_4x4_t tmp1, tmp2;
-
-		mat_Multiply(DST, mat_RotateZ(tmp1.v, -roll), mat_Copy(tmp2.v, DST));
+		fmat_4x4_t::makeRotationZ(tmp1, -roll);
+		mat_Multiply(DST.v, tmp1.v, mat_Copy(tmp2.v, DST.v));
 	}
-
-	return DST;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -499,59 +417,6 @@ fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat)
 }
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void  mat_TransformVertices(const fmat_4x4_base_t Matrix, const fvec4_t pSourceV[], fvec4_t pDestV[], const Uint32 NumVertor)
-{
-	/// @author GS
-	/// @details This is just a MulVectorMatrix for now. The W division and screen size multiplication
-	///                must be done afterward.
-	/// @author BB
-	/// @details the matrix transformation for OpenGL vertices. Some minor optimizations.
-	///      The value pSourceV->w is assumed to be constant for all of the elements of pSourceV
-
-	Uint32    cnt;
-	fvec4_t * SourceIt = (fvec4_t *)pSourceV;
-
-	if (1.0f == SourceIt->w)
-	{
-		for (cnt = 0; cnt < NumVertor; cnt++)
-		{
-			pDestV->x = SourceIt->x * Matrix[0] + SourceIt->y * Matrix[4] + SourceIt->z * Matrix[8] + Matrix[12];
-			pDestV->y = SourceIt->x * Matrix[1] + SourceIt->y * Matrix[5] + SourceIt->z * Matrix[9] + Matrix[13];
-			pDestV->z = SourceIt->x * Matrix[2] + SourceIt->y * Matrix[6] + SourceIt->z * Matrix[10] + Matrix[14];
-			pDestV->w = SourceIt->x * Matrix[3] + SourceIt->y * Matrix[7] + SourceIt->z * Matrix[11] + Matrix[15];
-
-			pDestV++;
-			SourceIt++;
-		}
-	}
-	else if (0.0f == SourceIt->w)
-	{
-		for (cnt = 0; cnt < NumVertor; cnt++)
-		{
-			pDestV->x = SourceIt->x * Matrix[0] + SourceIt->y * Matrix[4] + SourceIt->z * Matrix[8];
-			pDestV->y = SourceIt->x * Matrix[1] + SourceIt->y * Matrix[5] + SourceIt->z * Matrix[9];
-			pDestV->z = SourceIt->x * Matrix[2] + SourceIt->y * Matrix[6] + SourceIt->z * Matrix[10];
-			pDestV->w = SourceIt->x * Matrix[3] + SourceIt->y * Matrix[7] + SourceIt->z * Matrix[11];
-
-			pDestV++;
-			SourceIt++;
-		}
-	}
-	else
-	{
-		for (cnt = 0; cnt < NumVertor; cnt++)
-		{
-			pDestV->x = SourceIt->x * Matrix[0] + SourceIt->y * Matrix[4] + SourceIt->z * Matrix[8] + SourceIt->w * Matrix[12];
-			pDestV->y = SourceIt->x * Matrix[1] + SourceIt->y * Matrix[5] + SourceIt->z * Matrix[9] + SourceIt->w * Matrix[13];
-			pDestV->z = SourceIt->x * Matrix[2] + SourceIt->y * Matrix[6] + SourceIt->z * Matrix[10] + SourceIt->w * Matrix[14];
-			pDestV->w = SourceIt->x * Matrix[3] + SourceIt->y * Matrix[7] + SourceIt->z * Matrix[11] + SourceIt->w * Matrix[15];
-
-			pDestV++;
-			SourceIt++;
-		}
-	}
-}
 
 #if 0
 namespace Ego {
@@ -602,7 +467,7 @@ void mat_gluPerspective(fmat_4x4_t &dst, const fmat_4x4_t& src, const float fovy
 
 void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float eyeX, const float eyeY, const float eyeZ, const float centerX, const float centerY, const float centerZ, const float upX, const float upY, const float upZ)
 {
-    fmat_4x4_base_t M, eyeTranslate, tmp;
+    fmat_4x4_base_t M, tmp;
     fvec3_t f(centerX - eyeX, centerY - eyeY, centerZ - eyeZ);
     fvec3_t up(upX, upY, upZ);
     fvec3_t s;
@@ -617,7 +482,8 @@ void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float
     u = s.cross(f);
     
     mat_Zero(M);
-    mat_Translate(eyeTranslate, -eyeX, -eyeY, -eyeZ);
+	fmat_4x4_t eyeTranslate;
+    fmat_4x4_t::makeTranslation(eyeTranslate, fvec3_t(-eyeX, -eyeY, -eyeZ));
     
     M[MAT_IDX(0, 0)] = s.x;
     M[MAT_IDX(1, 0)] = s.y;
@@ -634,7 +500,7 @@ void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float
     M[MAT_IDX(3, 3)] = 1;
     
     mat_Multiply(tmp, src, M);
-    mat_Multiply(DST, tmp, eyeTranslate);
+    mat_Multiply(DST, tmp, eyeTranslate.v);
 }
 
 void mat_glRotate(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float angle, const float x, const float y, const float z)

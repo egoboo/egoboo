@@ -191,10 +191,9 @@
         wawalite_weather_t() :
             over_water(false),
             timer_reset(0),
-            part_gpip(-1),
-            weather_name()
+            part_gpip(-1)
         {
-            //default ctor
+			weather_name[0] = '\0';
         }
     };
 

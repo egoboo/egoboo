@@ -102,7 +102,6 @@ public:
         _name("*NONE*"),
         _profile(profile),
         _skinRef(profile->getSkinOverride()),
-        _questLog(),
         _selectedByPlayer(-1),
         _inputDevice(INPUT_DEVICE_UNKNOWN)
     {

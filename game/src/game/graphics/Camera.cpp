@@ -101,7 +101,7 @@ Camera::Camera(const CameraOptions &options) :
 
     // connect the renderlist to a mesh
     renderlist_t *rlst_ptr = renderlist_mgr_get_ptr( rmgr_ptr, _renderList );
-    renderlist_attach_mesh( rlst_ptr, PMesh );
+	renderlist_attach_mesh(rlst_ptr, PMesh);
 
     // lock a dolist for this camera
     _doList = dolist_mgr_get_free_idx( dmgr_ptr );    
@@ -171,7 +171,7 @@ void Camera::resetView()
     {
         fmat_4x4_t tmp1, tmp2;
         
-        mat_ScaleXYZ(tmp1.v, -1, 1, 1);
+        fmat_4x4_t::makeScaling(tmp1, fvec3_t(-1, 1, 1));
         mat_glRotate(tmp2.v, tmp1.v, roll_deg, 0, 0, 1);
         mat_gluLookAt(_mView.v, tmp2.v, _pos.x, _pos.y, _pos.z,
                       _center.x, _center.y, _center.z, 0.0f, 0.0f, 1.0f);

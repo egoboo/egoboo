@@ -836,7 +836,7 @@ prt_t * place_particle_at_vertex( prt_t * pprt, const CHR_REF character, int ver
         }
 
         // Do the transform
-        mat_TransformVertices( pchr->inst.matrix.v, point, nupoint, 1 );
+        pchr->inst.matrix.transform(point, nupoint, 1);
 
         prt_set_pos(pprt, fvec3_t(nupoint[0][kX],nupoint[0][kY],nupoint[0][kZ]));
     }
@@ -7741,7 +7741,7 @@ egolib_rv chr_update_collision_size( chr_t * pchr, bool update_matrix )
     vcount = oct_bb_to_points( &bsrc, src, 16 );
 
     // transform the new point cloud
-    mat_TransformVertices( pchr->inst.matrix.v, src, dst, vcount );
+    pchr->inst.matrix.transform(src, dst, vcount);
 
     // convert the new point cloud into a level 1 bounding box
     points_to_oct_bb( &bdst, dst, vcount );
@@ -8327,7 +8327,7 @@ int convert_grip_to_global_points( const CHR_REF iholder, Uint16 grip_verts[], f
     if ( 0 == point_count ) return 0;
 
     // use the math function instead of rolling out own
-    mat_TransformVertices( pholder->inst.matrix.v, src_point, dst_point, point_count );
+    pholder->inst.matrix.transform(src_point, dst_point, point_count );
 
     return point_count;
 }
@@ -9725,12 +9725,12 @@ bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, 
     if ( NULL == grip_up )
     {
         // we only need one vertex
-        mat_TransformVertices( pmount_inst->matrix.v, grip_points, grip_nupoints, 1 );
+        pmount_inst->matrix.transform(grip_points, grip_nupoints, 1);
     }
     else
     {
         // transform all the vertices
-        mat_TransformVertices( pmount_inst->matrix.v, grip_points, grip_nupoints, GRIP_VERTS );
+        pmount_inst->matrix.transform(grip_points, grip_nupoints, GRIP_VERTS );
     }
 
     // find the up vector, if needed

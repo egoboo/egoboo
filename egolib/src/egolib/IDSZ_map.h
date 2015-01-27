@@ -45,6 +45,8 @@
     {
         IDSZ id;
         int  level;
+		IDSZ_node_t() : id(IDSZ_NONE), level(0) {
+		}
     };
 
     IDSZ_node_t * IDSZ_node__init( IDSZ_node_t * );

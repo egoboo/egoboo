@@ -66,11 +66,13 @@
     struct oct_bb_t
     {
         oct_bb_t() :
-            empty(true),
-            mins{ 0,0,0,0,0 },
-            maxs{ 0,0,0,0,0 }
+            empty(true)
         {
-            //ctor
+			for (size_t i = 0; i < 5; ++i)
+			{
+				mins[i] = 0.0f;
+				maxs[i] = 0.0f;
+			}
         }
 
         bool  empty;
