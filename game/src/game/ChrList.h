@@ -54,11 +54,10 @@ extern std::unordered_map<CHR_REF, std::shared_ptr<chr_t>> _characterList; //Lis
 //--------------------------------------------------------------------------------------------
 CHR_REF ChrList_allocate( const PRO_REF profile, const CHR_REF override );
 
-bool  ChrList_free_one( const CHR_REF ichr );
+bool ChrList_free_one( const CHR_REF ichr );
 
-void    ChrList_cleanup();
+void ChrList_cleanup();
 
-bool ChrList_add_activation( const CHR_REF ichr );
 bool ChrList_add_termination( const CHR_REF ichr );
 bool ChrList_request_terminate( const CHR_REF ichr );
 

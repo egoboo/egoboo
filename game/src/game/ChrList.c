@@ -20,15 +20,12 @@
 /// @file  game/ChrList.c
 /// @brief Implementation of the ChrList_* functions
 
-#include <utility>
-
 #include "game/ChrList.h"
 #include "game/char.h"
 #include "game/profiles/ProfileSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 static std::vector<CHR_REF> chr_termination_list;
-static std::vector<CHR_REF> chr_activation_list;
 
 int chr_loop_depth = 0;
 std::unordered_map<CHR_REF, std::shared_ptr<chr_t>> _characterList;
@@ -53,7 +50,6 @@ bool ChrList_free_one( const CHR_REF ichr )
     // if we are inside a ChrList loop, do not actually change the length of the
     // list. This will cause some problems later.
     retval = ChrList_add_termination( ichr );
-    _characterList[ichr]->terminateRequested = true;
 
     return true;
 }
@@ -125,43 +121,19 @@ CHR_REF ChrList_allocate( const PRO_REF profile, const CHR_REF override )
 //--------------------------------------------------------------------------------------------
 void ChrList_cleanup()
 {
-    // go through the list and activate all the characters that
-    // were created while the list was iterating
-    //for(CHR_REF ichr : chr_activation_list)
-//    //{
-//    //    if ( !ALLOCATED_CHR( ichr ) ) continue;
-//    //    chr_t * pchr = ChrList_get_ptr( ichr );
-//
-//    //    if ( !pchr->obj_base.turn_me_on ) continue;
-//
-    //    pchr->obj_base.on         = true;
-    //    pchr->obj_base.turn_me_on = false;
-    //}
-    //chr_activation_list.clear();
+    if(chr_loop_depth > 0) {
+        return;
+    }
 
     // go through and delete any characters that were
     // supposed to be deleted while the list was iterating
     for(CHR_REF ichr : chr_termination_list)
     {
         _characterList.erase(ichr);
-        log_debug("erased char %d\n", ichr);
     }
     chr_termination_list.clear();
 }
 
-//--------------------------------------------------------------------------------------------
-bool ChrList_add_activation( const CHR_REF ichr )
-{
-    // put this character into the activation list so that it can be activated right after
-    // the ChrList loop is completed
-
-    if ( !VALID_CHR_RANGE( ichr ) ) return false;
-
-    chr_activation_list.push_back(ichr);
-    //ChrList_get_ptr(ichr)->obj_base.turn_me_on = true;
-
-    return true;
-}
 
 //--------------------------------------------------------------------------------------------
 bool ChrList_add_termination( const CHR_REF ichr )
