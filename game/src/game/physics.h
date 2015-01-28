@@ -101,13 +101,18 @@ phys_data_t * phys_data_sum_avel_index( phys_data_t * pphys, const float val, co
 //--------------------------------------------------------------------------------------------
 struct breadcrumb_t
 {
-    bool valid;                    /// is this position valid
-    fvec3_t pos;                      ///< A stored safe position
-    Uint32 grid;                     ///< the grid index of this position
-    float radius;                   ///< the size of the object at this position
-    float bits;                     ///< the collision buts of the object at this position
-    Uint32 time;                     ///< the time when the breadcrumb was created
-    Uint32 id;                       ///< an id for differentiating the timing of several events at the same "time"
+    bool valid;     /// is this position valid
+    fvec3_t pos;    ///< A stored safe position
+    Uint32 grid;    ///< the grid index of this position
+    float radius;   ///< the size of the object at this position
+    float bits;     ///< the collision buts of the object at this position
+    Uint32 time;    ///< the time when the breadcrumb was created
+    Uint32 id;      ///< an id for differentiating the timing of several events at the same "time"
+
+	breadcrumb_t()
+		: valid(false)
+	{
+	}
 };
 
 breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr );
@@ -123,6 +128,11 @@ struct breadcrumb_list_t
     bool on;
     int count;
     breadcrumb_t lst[MAX_BREADCRUMB];
+
+	breadcrumb_list_t()
+		: on(false), count(0)
+	{
+	}
 	
 	/**
  	 * @brief
