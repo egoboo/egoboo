@@ -36,16 +36,16 @@ static point_data_t point_list[POINT_COUNT];
 //--------------------------------------------------------------------------------------------
 // MODE CONTROL
 //--------------------------------------------------------------------------------------------
-void gfx_begin_3d( std::shared_ptr<Camera> camera )
+void gfx_begin_3d(std::shared_ptr<Camera> camera)
 {
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
-	Egoboo_Renderer_OpenGL_loadMatrix( &camera->getProjection() );
+	Ego::Renderer_OpenGL_loadMatrix(camera->getProjection());
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Egoboo_Renderer_OpenGL_loadMatrix( &camera->getView() );
+	Ego::Renderer_OpenGL_loadMatrix(camera->getView());
 }
 
 //--------------------------------------------------------------------------------------------

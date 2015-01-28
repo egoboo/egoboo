@@ -97,14 +97,14 @@ Camera::Camera(const CameraOptions &options) :
     }
 
     // lock a renderlist for this camera
-    _renderList = renderlist_mgr_get_free_idx( rmgr_ptr );
+    _renderList = renderlist_mgr_t::get_free_idx( rmgr_ptr );
 
     // connect the renderlist to a mesh
-    renderlist_t *rlst_ptr = renderlist_mgr_get_ptr( rmgr_ptr, _renderList );
-	renderlist_attach_mesh(rlst_ptr, PMesh);
+    renderlist_t *rlst_ptr = renderlist_mgr_t::get_ptr( rmgr_ptr, _renderList );
+	renderlist_t::setMesh(rlst_ptr, PMesh);
 
     // lock a dolist for this camera
-    _doList = dolist_mgr_get_free_idx( dmgr_ptr );    
+    _doList = dolist_mgr_t::get_free_idx( dmgr_ptr );    
 
     // assume that the camera is fullscreen
     setScreen(0, 0, sdl_scr.x, sdl_scr.y);
@@ -116,7 +116,7 @@ Camera::~Camera()
     renderlist_mgr_t *rmgr_ptr = gfx_system_get_renderlist_mgr();
     if ( -1 != _renderList )
     {
-        renderlist_mgr_free_one( rmgr_ptr, _renderList );
+        renderlist_mgr_t::free_one( rmgr_ptr, _renderList );
         _renderList = -1;
     }
 
@@ -124,7 +124,7 @@ Camera::~Camera()
     dolist_mgr_t *dmgr_ptr = gfx_system_get_dolist_mgr();
     if ( -1 != _doList )
     {
-        dolist_mgr_free_one( dmgr_ptr, _doList );
+        dolist_mgr_t::free_one( dmgr_ptr, _doList );
         _doList = -1;
     }
 }
@@ -149,8 +149,7 @@ void Camera::updateProjection(const float fov_deg, const float aspect_ratio, con
     float fov_big   = multiplyFOV( DEFAULT_FOV, fov_mag );
     float fov_small = multiplyFOV( DEFAULT_FOV, 1.0f / fov_mag );
     
-    fmat_4x4_t identity;
-    mat_Identity(identity.v);
+	fmat_4x4_t identity = fmat_4x4_t::identity;
     
     mat_gluPerspective(_mProjection, identity, fov_deg, aspect_ratio, frustum_near, frustum_far);
     mat_gluPerspective(_mProjectionBig, identity, fov_big, aspect_ratio, frustum_near, frustum_far);
@@ -171,7 +170,7 @@ void Camera::resetView()
     {
         fmat_4x4_t tmp1, tmp2;
         
-        fmat_4x4_t::makeScaling(tmp1, fvec3_t(-1, 1, 1));
+        tmp1.setScaling(fvec3_t(-1, 1, 1));
         mat_glRotate(tmp2.v, tmp1.v, roll_deg, 0, 0, 1);
         mat_gluLookAt(_mView.v, tmp2.v, _pos.x, _pos.y, _pos.z,
                       _center.x, _center.y, _center.z, 0.0f, 0.0f, 1.0f);

@@ -505,7 +505,7 @@ gfx_rv billboard_system_render_all( std::shared_ptr<Camera> pcam )
             GL_DEBUG( glEnable )( GL_ALPHA_TEST );                                // GL_ENABLE_BIT
             GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );                          // GL_COLOR_BUFFER_BIT
 
-            GL_DEBUG( glColor4fv )( white_vec );                                  // GL_CURRENT_BIT
+            GL_DEBUG( glColor4fv )( Ego::white_vec );                             // GL_CURRENT_BIT
 
             for ( cnt = 0; cnt < BILLBOARD_COUNT; cnt++ )
             {

@@ -59,13 +59,6 @@
 #include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
-// internal structs
-//--------------------------------------------------------------------------------------------
-
-struct dynalight_registry_t;
-struct dynalist_t;
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 #define SPARKLE_SIZE ICON_SIZE
@@ -90,142 +83,56 @@ struct dynalight_registry_t
 };
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-struct renderlist_element_t
-{
-    Uint32 index;             ///< which tile
-    float  distance;          ///< how far it is
-};
-
-struct renderlist_lst_t
-{
-    size_t               count;               ///< how many in the list
-    renderlist_element_t lst[MAXMESHRENDER];  ///< the list
-};
-
-gfx_rv renderlist_lst_reset( renderlist_lst_t * );
-gfx_rv renderlist_lst_push( renderlist_lst_t *, Uint32 index, float distance );
-
-/// Which tiles are to be drawn, arranged by MAPFX_* bits
-struct renderlist_t
-{
-    ego_mesh_t * pmesh;
-
-    renderlist_lst_t  all;     ///< List of which to render, total
-    renderlist_lst_t  ref;     ///< ..., is reflected in the floor
-    renderlist_lst_t  sha;     ///< ..., is not reflected in the floor
-    renderlist_lst_t  drf;     ///< ..., draws character reflections
-    renderlist_lst_t  ndr;     ///< ..., draws no character reflections
-    renderlist_lst_t  wat;     ///< ..., draws a water tile
-};
-
-static renderlist_t * renderlist_init( renderlist_t * prlist, ego_mesh_t * pmesh );
-static gfx_rv         renderlist_reset( renderlist_t * prlist );
-static gfx_rv         renderlist_insert( renderlist_t * prlist, const Uint32 index, const std::shared_ptr<Camera> &camera );
-static ego_mesh_t *   renderlist_get_pmesh( const renderlist_t * ptr );
-static gfx_rv         renderlist_add_colst(renderlist_t * prlist, const Ego::DynamicArray<BSP_leaf_t *> *pcolst, const std::shared_ptr<Camera> &camera);
-
-//--------------------------------------------------------------------------------------------
 // the renderlist manager
 //--------------------------------------------------------------------------------------------
 
-struct renderlist_ary_t
-{
-    bool       started;
-
-    size_t       free_count;
-    int          free_lst[MAX_RENDER_LISTS];
-
-    renderlist_t lst[MAX_RENDER_LISTS];
-};
-
-#define RENDERLIST_ARY_INIT_VALS                                 \
+#define RENDERLIST_ARY_INIT_VALS                                     \
     {                                                                \
-        false,         /* bool       started                   */ \
+        false,          /* bool         started                   */ \
         0,              /* size_t       free_count                */ \
         /*nothing */    /* int          free_lst[MAX_RENDER_LISTS]*/ \
         /*nothing */    /* renderlist_t lst[MAX_RENDER_LISTS]     */ \
     }
 
-static renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr );
-static renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr );
-
-//--------------------------------------------------------------------------------------------
-struct renderlist_mgr_t
-{
-    bool started;
-    renderlist_ary_t ary;
-};
-
-#define RENDERLIST_MGR_INIT_VALS                            \
+#define RENDERLIST_MGR_INIT_VALS                                \
     {                                                           \
-        false,                  /* bool           started */ \
+        false,                   /* bool             started */ \
         RENDERLIST_ARY_INIT_VALS /* renderlist_ary_t ary     */ \
     }
 
-static gfx_rv         renderlist_mgr_begin( renderlist_mgr_t * pmgr );
-static gfx_rv         renderlist_mgr_end( renderlist_mgr_t * pmgr );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 
 #if 0
-struct dolist_t
+renderlist_mgr_t::renderlist_mgr_t()
+	: started(false), ary()
 {
-    int                   index;                ///< A "name" for the dolist
-    size_t                count;                ///< How many in the list
-    obj_registry_entity_t lst[DOLIST_SIZE];     ///< List of which objects to draw
-};
-#define DOLIST_INIT { 0, OBJ_REGISTRY_ENTITY_INIT }
-static dolist_t * dolist_init( dolist_t * pdolist, const size_t index );
-static gfx_rv     dolist_reset( dolist_t * pdolist, const size_t index );
-static gfx_rv     dolist_sort( dolist_t * pdolist, std::shared_ptr<Camera> pcam, const bool do_reflect );
-static gfx_rv     dolist_test_chr( dolist_t * pdolist, const chr_t * pchr );
-static gfx_rv     dolist_add_chr_raw( dolist_t * pdolist, chr_t * pchr );
-static gfx_rv     dolist_test_prt( dolist_t * pdolist, const prt_t * pprt );
-static gfx_rv     dolist_add_prt_raw( dolist_t * pdolist, prt_t * pprt );
-static gfx_rv     dolist_add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_t *> *pcolst );
+}
 #endif
+
 //--------------------------------------------------------------------------------------------
 // the dolist manager
 //--------------------------------------------------------------------------------------------
 
-struct dolist_ary_t
-{
-    bool started;
-    size_t free_count;
-    int free_lst[MAX_DO_LISTS];
-
-    dolist_t lst[MAX_DO_LISTS];
-};
-
-#define DOLIST_ARY_INIT_VALS                              \
+#define DOLIST_ARY_INIT_VALS                                  \
     {                                                         \
-        false,         /* bool   started                */ \
+        false,          /* bool     started                */ \
         0,              /* size_t   free_count             */ \
         /*nothing */    /* int      free_lst[MAX_DO_LISTS] */ \
         /*nothing */    /* dolist_t lst[MAX_DO_LISTS]      */ \
     }
 
-static dolist_ary_t * dolist_ary_begin( dolist_ary_t * ptr );
-static dolist_ary_t * dolist_ary_end( dolist_ary_t * ptr );
-
-//--------------------------------------------------------------------------------------------
-struct dolist_mgr_t
-{
-    bool started;
-    dolist_ary_t ary;
-};
-
-#define DOLIST_MGR_INIT_VALS                        \
+#define DOLIST_MGR_INIT_VALS                            \
     {                                                   \
-        false,              /* bool       started */ \
+        false,               /* bool         started */ \
         DOLIST_ARY_INIT_VALS /* dolist_ary_t ary     */ \
     }
 
-static gfx_rv dolist_mgr_begin( dolist_mgr_t * pmgr );
-static gfx_rv dolist_mgr_end( dolist_mgr_t * pmgr );
+#if 0
+dolist_mgr_t::dolist_mgr_t()
+	: started(false), ary()
+{
+}
+#endif
+
 
 //--------------------------------------------------------------------------------------------
 // dynalist
@@ -234,16 +141,17 @@ static gfx_rv dolist_mgr_end( dolist_mgr_t * pmgr );
 /// The active dynamic lights
 struct dynalist_t
 {
-    int         frame;                    ///< the last frame in shich the list was updated
-
-    size_t      count;                    ///< the count
-    dynalight_data_t lst[TOTAL_MAX_DYNA];      ///< the list
+    int frame; ///< The last frame in shich the list was updated. @a -1 if there was no update yet.
+    size_t size; ///< The size of the list.
+    dynalight_data_t lst[TOTAL_MAX_DYNA];  ///< The list.
 };
+
+static gfx_rv dynalist_init(dynalist_t *self);
+static gfx_rv do_grid_lighting(renderlist_t *self, dynalist_t *dynalist, std::shared_ptr<Camera> camera);
 
 #define DYNALIST_INIT { -1 /* frame */, 0 /* count */ }
 
-static gfx_rv dynalist_init( dynalist_t * pdylist );
-static gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::shared_ptr<Camera> pcam );
+
 
 //--------------------------------------------------------------------------------------------
 // special functions and data related to tiled texture "optimization"
@@ -261,7 +169,7 @@ static oglx_texture_t mesh_tx_big[MESH_IMG_COUNT];
 static int mesh_tx_big_cnt = 0;
 
 // actually break up a texture
-static int  gfx_decimate_one_mesh_texture( oglx_texture_t * src_tx, oglx_texture_t * tx_lst, size_t tx_lst_cnt, int minification );
+static int  gfx_decimate_one_mesh_texture(oglx_texture_t *src_tx, oglx_texture_t *tx_lst, size_t tx_lst_cnt, int minification);
 static void gfx_decimate_all_mesh_textures();
 
 // control the state of the textures
@@ -462,49 +370,52 @@ static void   gfx_init_bar_data();
 static void   gfx_init_blip_data();
 static void   gfx_init_map_data();
 
-static SDL_Surface * gfx_create_SDL_Surface( int w, int h );
+static SDL_Surface *gfx_create_SDL_Surface(int w, int h);
 
 //--------------------------------------------------------------------------------------------
 // Utility functions
 //--------------------------------------------------------------------------------------------
-SDL_Surface * gfx_create_SDL_Surface( int w, int h )
+SDL_Surface *gfx_create_SDL_Surface(int width, int height)
 {
-    SDL_PixelFormat   tmpformat;
+    SDL_PixelFormat pixelFormat;
+	if (nullptr == sdl_scr.pscreen)
+	{
+		return nullptr;
+	}
+	// Same format as the screen extended by an alpha channel.
+    memcpy(&pixelFormat, sdl_scr.pscreen->format, sizeof(SDL_PixelFormat));
+    SDLX_ExpandFormat(&pixelFormat);
 
-    if ( NULL == sdl_scr.pscreen ) return NULL;
-
-    // expand the screen format to support alpha
-    memcpy( &tmpformat, sdl_scr.pscreen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
-    SDLX_ExpandFormat( &tmpformat );
-
-    return SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, tmpformat.BitsPerPixel, tmpformat.Rmask, tmpformat.Gmask, tmpformat.Bmask, tmpformat.Amask );
+	return SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, pixelFormat.BitsPerPixel, pixelFormat.Rmask, pixelFormat.Gmask, pixelFormat.Bmask, pixelFormat.Amask);
 }
 
 //--------------------------------------------------------------------------------------------
 // renderlist_ary implementation
 //--------------------------------------------------------------------------------------------
 
-gfx_rv renderlist_lst_reset( renderlist_lst_t * ary )
+gfx_rv renderlist_lst_t::reset(renderlist_lst_t *self)
 {
-    if ( NULL == ary ) return gfx_error;
-
-    ary->count = 0;
-    ary->lst[0].index = INVALID_TILE;
+	if (nullptr == self)
+	{
+		return gfx_error;
+	}
+    self->count = 0;
+    self->lst[0].index = INVALID_TILE; /// @todo This is redundant.
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_lst_push( renderlist_lst_t * ary, Uint32 index, float distance )
+gfx_rv renderlist_lst_t::push(renderlist_lst_t *self, Uint32 index, float distance)
 {
-    if ( NULL == ary ) return gfx_error;
+    if (nullptr == self) return gfx_error;
 
-    if ( ary->count >= MAXMESHRENDER ) return gfx_fail;
+    if (self->count >= renderlist_lst_t::CAPACITY) return gfx_fail;
 
-    ary->lst[ary->count].index    = index;
-    ary->lst[ary->count].distance = distance;
+	self->lst[self->count].index = index;
+	self->lst[self->count].distance = distance;
 
-    ary->count++;
+	self->count++;
 
     return gfx_success;
 }
@@ -513,71 +424,64 @@ gfx_rv renderlist_lst_push( renderlist_lst_t * ary, Uint32 index, float distance
 // renderlist implementation
 //--------------------------------------------------------------------------------------------
 
-renderlist_t * renderlist_init( renderlist_t * plst, ego_mesh_t * pmesh )
+renderlist_t *renderlist_t::init(renderlist_t *self, ego_mesh_t *mesh)
 {
-    if ( NULL == plst )
+    if (nullptr == self)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist initializer" );
-        return NULL;
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == self");
+        return nullptr;
     }
 
-    BLANK_STRUCT_PTR( plst )
+    // Initialize the render list lists.
+    renderlist_lst_t::reset(&(self->all));
+    renderlist_lst_t::reset(&(self->ref));
+    renderlist_lst_t::reset(&(self->sha));
+    renderlist_lst_t::reset(&(self->drf));
+    renderlist_lst_t::reset(&(self->ndr));
+    renderlist_lst_t::reset(&(self->wat));
 
-    // init the 1st element of the array
-    renderlist_lst_reset( &( plst->all ) );
-    renderlist_lst_reset( &( plst->ref ) );
-    renderlist_lst_reset( &( plst->sha ) );
-    renderlist_lst_reset( &( plst->drf ) );
-    renderlist_lst_reset( &( plst->ndr ) );
-    renderlist_lst_reset( &( plst->wat ) );
+    self->mesh = mesh;
 
-    plst->pmesh = pmesh;
-
-    return plst;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_reset( renderlist_t * plst )
+gfx_rv renderlist_t::reset(renderlist_t *self)
 {
-    /// @author BB
-    /// @details Clear old render lists
-
-    ego_mesh_t * pmesh;
-    ego_tile_info_t * tlist;
-    if ( NULL == plst )
+    if (nullptr == self)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == self");
         return gfx_error;
     }
 
-    pmesh = renderlist_get_pmesh( plst );
-    if ( NULL == pmesh )
+    ego_mesh_t *mesh = renderlist_t::getMesh(self);
+    if (nullptr == mesh)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist does not contain a mesh" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "renderlist not attached to a mesh");
         return gfx_error;
     }
 
-    // clear out the inrenderlist flag for the old mesh
-    tlist = pmesh->tmem.tile_list;
+    // Clear out the "in render list" flag for the old mesh.
+	ego_tile_info_t *tlist = mesh->tmem.tile_list;
 
-    for ( size_t cnt = 0; cnt < plst->all.count; cnt++ )
+    for (size_t i = 0; i < self->all.count; ++i)
     {
-        Uint32 fan = plst->all.lst[cnt].index;
-        if ( fan < pmesh->info.tiles_count )
+        Uint32 fan = self->all.lst[i].index;
+        if (fan < mesh->info.tiles_count)
         {
-            tlist[fan].inrenderlist       = false;
+            tlist[fan].inrenderlist = false;
             tlist[fan].inrenderlist_frame = 0;
         }
     }
 
-    // re-initialize the renderlist
-    renderlist_init( plst, plst->pmesh );
+    // Re-initialize the renderlist.
+    renderlist_t::init(self, self->mesh);
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index, const std::shared_ptr<Camera> &camera )
+gfx_rv renderlist_t::insert(renderlist_t * plst, const Uint32 index, const std::shared_ptr<Camera> &camera)
 {
     // aliases
     ego_mesh_t      * pmesh = NULL;
@@ -591,12 +495,12 @@ gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index, const std::sh
         return gfx_error;
     }
 
-    if ( NULL == plst->pmesh )
+    if ( NULL == plst->mesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist not connected to a mesh" );
         return gfx_error;
     }
-    pmesh = plst->pmesh;
+    pmesh = plst->mesh;
 
     // check for a valid tile
     if ( NULL == pmesh->gmem.grid_list || 0 == pmesh->gmem.grid_count || index >= pmesh->gmem.grid_count )
@@ -606,7 +510,7 @@ gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index, const std::sh
     pgrid = pmesh->gmem.grid_list + index;
 
     // we can only accept so many tiles
-    if ( plst->all.count >= MAXMESHRENDER ) return gfx_fail;
+    if ( plst->all.count >= renderlist_lst_t::CAPACITY) return gfx_fail;
 
     {
         int ix, iy;
@@ -620,96 +524,92 @@ gfx_rv renderlist_insert( renderlist_t * plst, const Uint32 index, const std::sh
     }
 
     // Put each tile in basic list
-    renderlist_lst_push( &( plst->all ), index, distance );
+    renderlist_lst_t::push( &( plst->all ), index, distance );
 
     // Put each tile in one other list, for shadows and relections
     if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_SHA ) )
     {
-        renderlist_lst_push( &( plst->sha ), index, distance );
+        renderlist_lst_t::push( &( plst->sha ), index, distance );
     }
     else
     {
-        renderlist_lst_push( &( plst->ref ), index, distance );
+        renderlist_lst_t::push( &( plst->ref ), index, distance );
     }
 
     if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_DRAWREF ) )
     {
-        renderlist_lst_push( &( plst->drf ), index, distance );
+        renderlist_lst_t::push( &( plst->drf ), index, distance );
     }
     else
     {
-        renderlist_lst_push( &( plst->ndr ), index, distance );
+        renderlist_lst_t::push( &( plst->ndr ), index, distance );
     }
 
     if ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_WATER ) )
     {
-        renderlist_lst_push( &( plst->wat ), index, distance );
+        renderlist_lst_t::push( &( plst->wat ), index, distance );
     }
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-ego_mesh_t * renderlist_get_pmesh( const renderlist_t * ptr )
+ego_mesh_t *renderlist_t::getMesh(const renderlist_t *self)
 {
-    if ( NULL == ptr )
+    if (nullptr == self)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
-        return NULL;
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == self");
+        return nullptr;
     }
-
-    return ptr->pmesh;
+    return self->mesh;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh )
+gfx_rv renderlist_t::setMesh(renderlist_t *self, ego_mesh_t *mesh)
 {
-    if ( NULL == ptr )
+    if (nullptr == self)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist pointer" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == self");
         return gfx_error;
     }
-
-    ptr->pmesh = pmesh;
-
+	self->mesh = mesh;
     return gfx_success;
 }
 
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_add_colst(renderlist_t *prlist, const Ego::DynamicArray<BSP_leaf_t *> *pcolst, const std::shared_ptr<Camera> &camera)
+gfx_rv renderlist_t::add(renderlist_t *self, const Ego::DynamicArray<BSP_leaf_t *> *leaves, const std::shared_ptr<Camera> &camera)
 {
     size_t colst_cp, colst_sz;
-    BSP_leaf_t *pleaf;
     ego_mesh_t *pmesh  = NULL;
     gfx_rv retval = gfx_error;
 
-    if ( NULL == prlist )
+    if (NULL == self)
     {
         return gfx_error;
     }
 
-    if ( NULL == pcolst )
+    if (NULL == leaves)
     {
         return gfx_error;
     }
 
-    colst_cp = pcolst->capacity();
+    colst_cp = leaves->capacity();
     if ( 0 == colst_cp )
     {
         return gfx_error;
     }
 
-    colst_sz  = pcolst->size();
+    colst_sz  = leaves->size();
     if ( 0 == colst_sz )
     {
         return gfx_fail;
     }
 
-    pmesh = renderlist_get_pmesh( prlist );
-    if ( NULL == pmesh )
+    pmesh = renderlist_t::getMesh(self);
+    if (NULL == pmesh)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "renderlist is not attached to a mesh" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "render list is not attached to a mesh");
         return gfx_error;
     }
 
@@ -717,34 +617,36 @@ gfx_rv renderlist_add_colst(renderlist_t *prlist, const Ego::DynamicArray<BSP_le
     retval = gfx_success;
 
     // transfer valid pcolst entries to the renderlist
-    for ( size_t j = 0; j < colst_sz; j++ )
+    for (size_t j = 0; j < colst_sz; j++)
     {
-        pleaf = pcolst->ary[j];
+		BSP_leaf_t *leaf = leaves->ary[j];
 
-        if ( !BSP_leaf_valid( pleaf ) ) continue;
+        if (!BSP_leaf_valid(leaf)) continue;
 
-        if ( BSP_LEAF_TILE == pleaf->data_type )
+        if (BSP_LEAF_TILE == leaf->data_type)
         {
             Uint32 ifan;
             ego_tile_info_t * ptile;
             ego_grid_info_t * pgrid;
 
-            // collided with a character
-            ifan = ( Uint32 )( pleaf->index );
+            // Get fan index.
+            ifan = (Uint32)(leaf->index);
 
+			// Get tile for fan index.
             ptile = ego_mesh_get_ptile( pmesh, ifan );
             if ( NULL == ptile ) continue;
 
+			// Get grid for fan index.
             pgrid = ego_mesh_get_pgrid( pmesh, ifan );
             if ( NULL == pgrid ) continue;
 
-            if ( gfx_error == gfx_capture_mesh_tile( ptile ) )
+            if (gfx_error == gfx_capture_mesh_tile(ptile))
             {
                 retval = gfx_error;
                 break;
             }
 
-            if ( gfx_error == renderlist_insert( prlist, ifan, camera ) )
+            if (gfx_error == renderlist_t::insert(self, ifan, camera))
             {
                 retval = gfx_error;
                 break;
@@ -763,12 +665,12 @@ gfx_rv renderlist_add_colst(renderlist_t *prlist, const Ego::DynamicArray<BSP_le
 //--------------------------------------------------------------------------------------------
 // renderlist array implementation
 //--------------------------------------------------------------------------------------------
-renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr )
+renderlist_ary_t *renderlist_ary_t::begin(renderlist_ary_t * ptr)
 {
-    if ( NULL == ptr )
+    if (nullptr == ptr)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to renderlist array" );
-        return NULL;
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == self");
+        return nullptr;
     }
 
     if ( ptr->started ) return ptr;
@@ -776,7 +678,7 @@ renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr )
     for ( size_t cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
     {
         ptr->free_lst[cnt] = cnt;
-        renderlist_init( ptr->lst + cnt, NULL );
+        renderlist_t::init( ptr->lst + cnt, NULL );
     }
     ptr->free_count = MAX_RENDER_LISTS;
 
@@ -786,7 +688,7 @@ renderlist_ary_t * renderlist_ary_begin( renderlist_ary_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr )
+renderlist_ary_t *renderlist_ary_t::end( renderlist_ary_t * ptr )
 {
     if ( NULL == ptr )
     {
@@ -800,7 +702,7 @@ renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr )
     for ( size_t cnt = 0; cnt < MAX_RENDER_LISTS; cnt++ )
     {
         ptr->free_lst[cnt] = -1;
-        renderlist_init( ptr->lst + cnt, NULL );
+        renderlist_t::init( ptr->lst + cnt, NULL );
     }
 
     ptr->started = false;
@@ -811,7 +713,7 @@ renderlist_ary_t * renderlist_ary_end( renderlist_ary_t * ptr )
 //--------------------------------------------------------------------------------------------
 // renderlist manager implementation
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_mgr_begin( renderlist_mgr_t * pmgr )
+gfx_rv renderlist_mgr_t::begin( renderlist_mgr_t * pmgr )
 {
     // valid pointer?
     if ( NULL == pmgr )
@@ -822,7 +724,7 @@ gfx_rv renderlist_mgr_begin( renderlist_mgr_t * pmgr )
 
     if ( pmgr->started ) return gfx_success;
 
-    renderlist_ary_begin( &( pmgr->ary ) );
+    renderlist_ary_t::begin( &( pmgr->ary ) );
 
     pmgr->started = true;
 
@@ -830,7 +732,7 @@ gfx_rv renderlist_mgr_begin( renderlist_mgr_t * pmgr )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_mgr_end( renderlist_mgr_t * pmgr )
+gfx_rv renderlist_mgr_t::end( renderlist_mgr_t * pmgr )
 {
     // valid pointer?
     if ( NULL == pmgr )
@@ -841,7 +743,7 @@ gfx_rv renderlist_mgr_end( renderlist_mgr_t * pmgr )
 
     if ( !pmgr->started ) return gfx_success;
 
-    renderlist_ary_end( &( pmgr->ary ) );
+    renderlist_ary_t::end( &( pmgr->ary ) );
 
     // the manager is no longer running
     pmgr->started = false;
@@ -850,12 +752,12 @@ gfx_rv renderlist_mgr_end( renderlist_mgr_t * pmgr )
 }
 
 //--------------------------------------------------------------------------------------------
-int renderlist_mgr_get_free_idx( renderlist_mgr_t * pmgr )
+int renderlist_mgr_t::get_free_idx( renderlist_mgr_t * pmgr )
 {
     int retval = -1;
 
     // renderlist manager started?
-    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
+    if ( gfx_success != renderlist_mgr_t::begin( pmgr ) )
     {
         return -1;
     }
@@ -878,12 +780,12 @@ int renderlist_mgr_get_free_idx( renderlist_mgr_t * pmgr )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv renderlist_mgr_free_one( renderlist_mgr_t * pmgr, size_t index )
+gfx_rv renderlist_mgr_t::free_one( renderlist_mgr_t * pmgr, size_t index )
 {
     gfx_rv retval = gfx_error;
 
     // renderlist manager started?
-    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
+    if ( gfx_success != renderlist_mgr_t::begin( pmgr ) )
     {
         return gfx_error;
     }
@@ -913,10 +815,10 @@ gfx_rv renderlist_mgr_free_one( renderlist_mgr_t * pmgr, size_t index )
 }
 
 //--------------------------------------------------------------------------------------------
-renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, size_t index )
+renderlist_t * renderlist_mgr_t::get_ptr( renderlist_mgr_t * pmgr, size_t index )
 {
     // renderlist manager started?
-    if ( gfx_success != renderlist_mgr_begin( pmgr ) )
+    if ( gfx_success != renderlist_mgr_t::begin( pmgr ) )
     {
         return NULL;
     }
@@ -933,80 +835,92 @@ renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, size_t index )
 //--------------------------------------------------------------------------------------------
 // dolist implementation
 //--------------------------------------------------------------------------------------------
-dolist_t * dolist_t::init( dolist_t * plist, const size_t index )
+dolist_t::dolist_t() : index(0), size(0), lst()  {
+
+}
+dolist_t * dolist_t::init(dolist_t *self, const size_t index)
 {
-    if ( NULL == plist ) return NULL;
+	if (nullptr == self)
+	{
+		return nullptr;
+	}
+#if 0
+	BLANK_STRUCT_PTR(self);
+#endif
+	for (size_t i = 0; i < dolist_t::CAPACITY; ++i)
+	{
+		dolist_t::element_t::init(&(self->lst[i]));
+	}
+	self->size = 0;
 
-    BLANK_STRUCT_PTR( plist )
+    // Give the dolist its "name".
+    self->index = index;
 
-    dolist_t::element_t::init( plist->lst + 0 );
-
-    // give the dolist a "name"
-    plist->index = index;
-
-    return plist;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::reset( dolist_t * plist, const size_t index )
+gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
 {
     size_t entries;
 
-    if ( NULL == plist )
+    if (nullptr == self)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == self");
         return gfx_error;
     }
 
-    if ( plist->index >= MAX_DO_LISTS )
+    if (self->index >= MAX_DO_LISTS)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist index" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist index");
         return gfx_error;
     }
 
-    // if there is nothing in the dolist, we are done
-    if ( 0 == plist->size )
+	self->index = index;
+
+	// If there is nothing in the dolist, we are done.
+	if (0 == self->size)
     {
         return gfx_success;
     }
 
-    entries = std::min( plist->size, dolist_t::CAPACITY );
-    for ( size_t cnt = 0; cnt < entries; cnt++ )
+	size_t size = std::min(self->size, dolist_t::CAPACITY); /// @todo This is redundant. Just use self->size.
+    for (size_t i = 0; i < size; i++)
     {
-        dolist_t::element_t * pent = plist->lst + cnt;
+        dolist_t::element_t *element = self->lst + i;
 
-        // tell all valid objects that they are removed from this dolist
-        if ( INVALID_CHR_REF == pent->ichr && _VALID_PRT_RANGE( pent->iprt ) )
+        // Tell all valid objects that they are removed from this dolist.
+        if (INVALID_CHR_REF == element->ichr && _VALID_PRT_RANGE(element->iprt))
         {
-            PrtList.lst[pent->iprt].inst.indolist = false;
+            PrtList.lst[element->iprt].inst.indolist = false;
         }
-        else if ( INVALID_PRT_REF == pent->iprt && VALID_CHR_RANGE( pent->ichr ) )
+        else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
         {
-            ChrList_get_ptr(pent->ichr)->inst.indolist = false;
+            ChrList_get_ptr(element->ichr)->inst.indolist = false;
         }
     }
-    plist->size = 0;
-
+    self->size = 0;
+#if 0
     // reset the dolist
-    dolist_t::init( plist, index );
-
+    dolist_t::init(self, index);
+#endif
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::test_chr( dolist_t * pdlist, const chr_t * pchr )
+gfx_rv dolist_t::test_chr(dolist_t *self, const chr_t *pchr)
 {
-    if ( NULL == pdlist )
+    if (nullptr == self)
     {
         return gfx_error;
     }
 
-    if ( pdlist->size >= dolist_t::CAPACITY )
+    if (self->size >= dolist_t::CAPACITY) /// @todo Proper encapsulation will allow me to show that '>' is not possible.
     {
         return gfx_fail;
     }
 
-    if ( !INGAME_PCHR( pchr ) )
+    if (!INGAME_PCHR(pchr))
     {
         return gfx_fail;
     }
@@ -1015,74 +929,78 @@ gfx_rv dolist_t::test_chr( dolist_t * pdlist, const chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::add_chr_raw( dolist_t * pdlist, chr_t * pchr )
+gfx_rv dolist_t::add_chr_raw(dolist_t *self, chr_t *pchr)
 {
     /// @author ZZ
     /// @details This function puts a character in the list
 
-    if ( NULL == pdlist )
+    if (nullptr == self)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL dolist pointer" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == self");
         return gfx_error;
     }
 
-    if ( NULL == pchr )
+    if (nullptr == pchr)
     {
         return gfx_fail;
     }
 
-    //// don't do anything if it's already in the list
-    //if ( pchr->inst.indolist[pdlist->index] )
-    //{
-    //    return gfx_success;
-    //}
+	/*
+    // Don't do anything if it's already in this(!) list.
+    if (pchr->inst.indolist[self->index])
+    {
+		return gfx_success;
+    }
+	*/
 
-    // don't add if it is hidden
+    // Don't add if it is hidden.
     if ( pchr->is_hidden )
     {
         return gfx_fail;
     }
 
-    // don't add if it's in another character's inventory
-    if ( INGAME_CHR( pchr->inwhich_inventory ) )
+    // Don't add if it's in another character's inventory.
+    if (INGAME_CHR(pchr->inwhich_inventory))
     {
         return gfx_fail;
     }
 
-    // fix the dolist
-    pdlist->lst[pdlist->size].ichr = GET_REF_PCHR( pchr );
-    pdlist->lst[pdlist->size].iprt = INVALID_PRT_REF;
-    pdlist->size++;
+    // Add!
+    self->lst[self->size].ichr = GET_REF_PCHR(pchr);
+    self->lst[self->size].iprt = INVALID_PRT_REF;
+    self->size++;
 
-    // fix the instance
+    // Notify it that it is in a do list.
     pchr->inst.indolist = true;
 
-    // Add any weapons
-    dolist_t::add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_LEFT] ) );
-    dolist_t::add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_RIGHT] ) );
+    // Add any weapons it is holding.
+    dolist_t::add_chr_raw(self, ChrList_get_ptr(pchr->holdingwhich[SLOT_LEFT]));
+    dolist_t::add_chr_raw(self, ChrList_get_ptr(pchr->holdingwhich[SLOT_RIGHT]));
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::test_prt( dolist_t * pdlist, const prt_t * pprt )
+gfx_rv dolist_t::test_prt(dolist_t *self, const prt_t *pprt)
 {
-    if ( NULL == pdlist )
+    if (nullptr == self)
     {
         return gfx_error;
     }
 
-    if ( pdlist->size >= dolist_t::CAPACITY )
+    if (self->size >= dolist_t::CAPACITY) /// @todo Proper encapsulation will allow me to show that '>' is not possible.
     {
         return gfx_fail;
     }
 
-    if ( !_DISPLAY_PPRT( pprt ) )
+	/// @todo I can't explain why it's reject until someone explains to me what _DISPLAY_PPRT determines.
+    if (!_DISPLAY_PPRT(pprt))
     {
         return gfx_fail;
     }
 
-    if ( pprt->is_hidden || 0 == pprt->size )
+	// Don't add if it's explicitly or implicitly hidden.
+    if (pprt->is_hidden || 0 == pprt->size)
     {
         return gfx_fail;
     }
@@ -1091,19 +1009,22 @@ gfx_rv dolist_t::test_prt( dolist_t * pdlist, const prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::add_prt_raw( dolist_t * pdlist, prt_t * pprt )
+gfx_rv dolist_t::add_prt_raw(dolist_t *self, prt_t * pprt)
 {
     /// @author ZZ
     /// @details This function puts a character in the list
 
-    //if ( pprt->inst.indolist[pdlist->index] )
-    //{
-    //    return gfx_success;
-    //}
+	/*
+	// Don't do anything if it's already in this(!) list.
+    if (pprt->inst.indolist[pdlist->index])
+    {
+		return gfx_success;
+    }
+	*/
 
-    pdlist->lst[pdlist->size].ichr = INVALID_CHR_REF;
-    pdlist->lst[pdlist->size].iprt = _GET_REF_PPRT( pprt );
-    pdlist->size++;
+    self->lst[self->size].ichr = INVALID_CHR_REF;
+    self->lst[self->size].iprt = _GET_REF_PPRT(pprt);
+    self->size++;
 
     pprt->inst.indolist = true;
 
@@ -1301,7 +1222,7 @@ gfx_rv dolist_t::sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bo
 //--------------------------------------------------------------------------------------------
 // dolist array implementation
 //--------------------------------------------------------------------------------------------
-dolist_ary_t * dolist_ary_begin( dolist_ary_t * ptr )
+dolist_ary_t * dolist_ary_t::begin( dolist_ary_t * ptr )
 {
     int cnt;
 
@@ -1326,7 +1247,7 @@ dolist_ary_t * dolist_ary_begin( dolist_ary_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-dolist_ary_t * dolist_ary_end( dolist_ary_t * ptr )
+dolist_ary_t *dolist_ary_t::end( dolist_ary_t * ptr )
 {
     int cnt;
 
@@ -1353,79 +1274,84 @@ dolist_ary_t * dolist_ary_end( dolist_ary_t * ptr )
 //--------------------------------------------------------------------------------------------
 // dolist manager implementation
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_mgr_begin( dolist_mgr_t * pmgr )
+gfx_rv dolist_mgr_t::begin(dolist_mgr_t *self)
 {
-    // valid pointer?
-    if ( NULL == pmgr )
+    if (nullptr == self)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist manager" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == self");
         return gfx_error;
     }
 
-    if ( pmgr->started ) return gfx_success;
+	// If it's already started, do nothing.
+	if (self->started)
+	{
+		return gfx_success;
+	}
+    dolist_ary_t::begin(&(self->ary));
 
-    dolist_ary_begin( &( pmgr->ary ) );
-
-    pmgr->started = true;
+	// The manager is now running.
+    self->started = true;
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_mgr_end( dolist_mgr_t * pmgr )
+gfx_rv dolist_mgr_t::end(dolist_mgr_t *self)
 {
-    // valid pointer?
-    if ( NULL == pmgr )
+    if (nullptr == self)
     {
-        gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL pointer to dolist manager" );
+        gfx_error_add(__FILE__, __FUNCTION__, __LINE__, 0, "nullptr == self");
         return gfx_error;
     }
 
-    if ( !pmgr->started ) return gfx_success;
+	// If it's not started, do nothing.
+    if (!self->started) return gfx_success;
 
-    dolist_ary_end( &( pmgr->ary ) );
+    dolist_ary_t::end(&(self->ary));
 
-    // the manager is no longer running
-    pmgr->started = false;
+    // The manager is no longer running.
+    self->started = false;
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-int dolist_mgr_get_free_idx( dolist_mgr_t * pmgr )
+int dolist_mgr_t::get_free_idx(dolist_mgr_t *self)
 {
     int retval = -1;
 
-    // dolist manager started?
-    if ( gfx_success != dolist_mgr_begin( pmgr ) )
+    // Ensure dolist manager is started.
+    if (gfx_success != dolist_mgr_t::begin(self))
     {
+		// If starting the dolist manager fails, return -1.
         return -1;
     }
 
-    if ( pmgr->ary.free_count <= 0 ) return -1;
+	// If no free do lists are available, return -1.
+    if (self->ary.free_count <= 0 ) return -1;
 
-    // resduce the count
-    pmgr->ary.free_count--;
+    // Reduce the number of available dolists by 1.
+	self->ary.free_count--;
 
     // grab the index
-    retval = pmgr->ary.free_count;
+    int index = self->ary.free_count;
 
     // blank the free list
-    if ( retval >= 0 && retval < MAX_DO_LISTS )
+    if (index >= 0 && index < MAX_DO_LISTS)
     {
-        pmgr->ary.free_lst[ retval ] = -1;
+        self->ary.free_lst[index] = -1;
     }
 
-    return retval;
+    return index;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_mgr_free_one( dolist_mgr_t * pmgr, size_t index )
+gfx_rv dolist_mgr_t::free_one(dolist_mgr_t *self, size_t index )
 {
     gfx_rv retval = gfx_error;
 
     // dolist manager started?
-    if ( gfx_success != dolist_mgr_begin( pmgr ) )
+    if (gfx_success != dolist_mgr_t::begin(self))
     {
         return gfx_error;
     }
@@ -1434,9 +1360,9 @@ gfx_rv dolist_mgr_free_one( dolist_mgr_t * pmgr, size_t index )
     if ( index >= MAX_DO_LISTS ) return gfx_error;
 
     // is the index already freed?
-    for ( size_t cnt = 0; cnt < pmgr->ary.free_count; cnt++ )
+    for ( size_t cnt = 0; cnt < self->ary.free_count; cnt++ )
     {
-        if ( index == pmgr->ary.free_lst[cnt] )
+        if ( index == self->ary.free_lst[cnt] )
         {
             return gfx_fail;
         }
@@ -1444,10 +1370,10 @@ gfx_rv dolist_mgr_free_one( dolist_mgr_t * pmgr, size_t index )
 
     // push it on the list
     retval = gfx_fail;
-    if ( pmgr->ary.free_count < MAX_DO_LISTS )
+    if ( self->ary.free_count < MAX_DO_LISTS )
     {
-        pmgr->ary.free_lst[pmgr->ary.free_count] = index;
-        pmgr->ary.free_count++;
+        self->ary.free_lst[self->ary.free_count] = index;
+        self->ary.free_count++;
         retval = gfx_success;
     }
 
@@ -1455,21 +1381,21 @@ gfx_rv dolist_mgr_free_one( dolist_mgr_t * pmgr, size_t index )
 }
 
 //--------------------------------------------------------------------------------------------
-dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, int index )
+dolist_t *dolist_mgr_t::get_ptr(dolist_mgr_t *self, size_t index)
 {
     // dolist manager started?
-    if ( gfx_success != dolist_mgr_begin( pmgr ) )
+    if (gfx_success != dolist_mgr_t::begin(self))
     {
         return NULL;
     }
 
     // valid index range?
-    if ( index < 0 || index >= MAX_DO_LISTS )
+    if (index < 0 || index >= MAX_DO_LISTS)
     {
         return NULL;
     }
 
-    return pmgr->ary.lst + index;
+    return self->ary.lst + index;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1482,16 +1408,16 @@ void gfx_system_begin()
 	gfx_system_init_OpenGL();       /* @todo Error handling. */
 
     // initialize the renderlist manager
-    renderlist_mgr_begin( &_renderlist_mgr_data );
+    renderlist_mgr_t::begin( &_renderlist_mgr_data );
 
     // initialize the dolist manager
-    dolist_mgr_begin( &_dolist_mgr_data );
+    dolist_mgr_t::begin( &_dolist_mgr_data );
 
     // initialize the dynalist frame
     // otherwise, it will not update until the frame count reaches whatever
     // left over or random value is in this counter
     _dynalist.frame = -1;
-    _dynalist.count = 0;
+    _dynalist.size = 0;
 
     // begin the billboard system
     billboard_system_begin();
@@ -1537,7 +1463,7 @@ void gfx_system_begin()
         log_error( "%s-%s-%d - Could not allocate dolist collision list", __FILE__, __FUNCTION__, __LINE__ );
     }
 
-    if ( NULL == _renderlist_colst.ctor(MAXMESHRENDER))
+    if ( NULL == _renderlist_colst.ctor(renderlist_lst_t::CAPACITY))
     {
         log_error( "%s-%s-%d - Could not allocate renderlist collision list", __FILE__, __FUNCTION__, __LINE__ );
     }
@@ -1580,10 +1506,10 @@ void gfx_system_end()
     TxList_release_all();
 
     // de-initialize the renderlist manager
-    renderlist_mgr_end( &_renderlist_mgr_data );
+    renderlist_mgr_t::end( &_renderlist_mgr_data );
 
     // de-initialize the dolist manager
-    dolist_mgr_end( &_dolist_mgr_data );
+    dolist_mgr_t::end( &_dolist_mgr_data );
 
     gfx_reset_timers();
 
@@ -1599,13 +1525,13 @@ void gfx_system_end()
 //--------------------------------------------------------------------------------------------
 void gfx_system_uninit_OpenGL()
 {
-	Egoboo_Renderer_OpenGL_uninitialize();
+	Ego::Renderer_OpenGL_uninitialize();
 }
 
 //--------------------------------------------------------------------------------------------
 int gfx_system_init_OpenGL()
 {
-	Egoboo_Renderer_OpenGL_initialize(); /* @todo Add error handling. */
+	Ego::Renderer_OpenGL_initialize(); /* @todo Add error handling. */
 
     // GL_DEBUG(glClear)) stuff
     GL_DEBUG( glClearColor )( 0.0f, 0.0f, 0.0f, 0.0f ); // Set the background black
@@ -1880,7 +1806,7 @@ bool gfx_system_set_virtual_screen( gfx_config_t * pgfx )
 //--------------------------------------------------------------------------------------------
 renderlist_mgr_t * gfx_system_get_renderlist_mgr()
 {
-    if ( gfx_success != renderlist_mgr_begin( &_renderlist_mgr_data ) )
+    if ( gfx_success != renderlist_mgr_t::begin( &_renderlist_mgr_data ) )
     {
         return NULL;
     }
@@ -1891,7 +1817,7 @@ renderlist_mgr_t * gfx_system_get_renderlist_mgr()
 //--------------------------------------------------------------------------------------------
 dolist_mgr_t * gfx_system_get_dolist_mgr()
 {
-    if ( gfx_success != dolist_mgr_begin( &_dolist_mgr_data ) )
+    if ( gfx_success != dolist_mgr_t::begin( &_dolist_mgr_data ) )
     {
         return NULL;
     }
@@ -2285,7 +2211,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     ticks = std::min( ticks, (Uint8)NUMTICK );
 
     gfx_enable_texturing();               // Enable texture mapping
-    GL_DEBUG( glColor4fv )( white_vec );
+    GL_DEBUG( glColor4fv )( Ego::white_vec );
 
     //---- Draw the tab (always colored)
 
@@ -2713,7 +2639,7 @@ void draw_map()
         GL_DEBUG( glEnable )( GL_BLEND );                               // GL_COLOR_BUFFER_BIT
         GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
-        GL_DEBUG( glColor4fv )( white_vec );
+        GL_DEBUG( glColor4fv )( Ego::white_vec );
         draw_map_texture( 0, sdl_scr.y - MAPSIZE );
 
         GL_DEBUG( glBlendFunc )( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
@@ -3502,14 +3428,15 @@ void render_bad_shadow( const CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-struct s_by_element
+struct by_element_t
 {
     float  dist;
     Uint32 tile;
     Uint32 texture;
 };
+#if 0
 typedef struct s_by_element by_element_t;
-
+#endif
 int by_element_cmp( const void *lhs, const void *rhs )
 {
     int retval = 0;
@@ -3549,13 +3476,14 @@ int by_element_cmp( const void *lhs, const void *rhs )
     return retval;
 }
 
-struct s_by_list
+struct by_list_t
 {
     size_t       count;
-    by_element_t lst[MAXMESHRENDER];
+    by_element_t lst[renderlist_lst_t::CAPACITY];
 };
+#if 0
 typedef struct s_by_list by_list_t;
-
+#endif
 by_list_t * by_list_qsort( by_list_t * lst )
 {
     if ( NULL == lst ) return lst;
@@ -3662,7 +3590,7 @@ gfx_rv render_scene_init( renderlist_t * prlist, dolist_t * pdolist, dynalist_t 
     }
     PROFILE_END( gfx_make_renderlist );
 
-    pmesh = renderlist_get_pmesh( prlist );
+    pmesh = renderlist_t::getMesh( prlist );
     if ( NULL == pmesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
@@ -3778,7 +3706,7 @@ gfx_rv render_scene_mesh_ndr( const renderlist_t * prlist )
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, &( prlist->ndr ) ) )
+        if ( gfx_error == render_fans_by_list( prlist->mesh, &( prlist->ndr ) ) )
         {
             retval = gfx_error;
         }
@@ -3827,7 +3755,7 @@ gfx_rv render_scene_mesh_drf_back( const renderlist_t * prlist )
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );   // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, &( prlist->drf ) ) )
+        if ( gfx_error == render_fans_by_list( prlist->mesh, &( prlist->drf ) ) )
         {
             retval = gfx_error;
         }
@@ -3866,7 +3794,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
         return gfx_error;
     }
 
-    pmesh = renderlist_get_pmesh( prlist );
+    pmesh = renderlist_t::getMesh( prlist );
     if ( NULL == pmesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
@@ -3908,7 +3836,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
-                    GL_DEBUG( glColor4fv )( white_vec );          // GL_CURRENT_BIT
+                    GL_DEBUG( glColor4fv )( Ego::white_vec );          // GL_CURRENT_BIT
 
                     if ( gfx_error == render_one_mad_ref( pcam, ichr ) )
                     {
@@ -3935,7 +3863,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
-                    GL_DEBUG( glColor4fv )( white_vec );          // GL_CURRENT_BIT
+                    GL_DEBUG( glColor4fv )( Ego::white_vec );          // GL_CURRENT_BIT
 
                     if ( gfx_error == render_one_prt_ref( iprt ) )
                     {
@@ -3985,7 +3913,7 @@ gfx_rv render_scene_mesh_ref_chr( const renderlist_t * prlist )
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, &( prlist->drf ) ) )
+        if ( gfx_error == render_fans_by_list( prlist->mesh, &( prlist->drf ) ) )
         {
             retval = gfx_error;
         }
@@ -4032,7 +3960,7 @@ gfx_rv render_scene_mesh_drf_solid( const renderlist_t * prlist )
         GL_DEBUG( glAlphaFunc )( GL_GREATER, 0.0f );          // GL_COLOR_BUFFER_BIT
 
         // reduce texture hashing by loading up each texture only once
-        if ( gfx_error == render_fans_by_list( prlist->pmesh, &( prlist->drf ) ) )
+        if ( gfx_error == render_fans_by_list( prlist->mesh, &( prlist->drf ) ) )
         {
             retval = gfx_error;
         }
@@ -4127,7 +4055,7 @@ gfx_rv render_scene_mesh( std::shared_ptr<Camera> pcam, const renderlist_t * prl
     retval = gfx_success;
 
     // advance the animation of all animated tiles
-    animate_all_tiles( prlist->pmesh );
+    animate_all_tiles( prlist->mesh );
 
     PROFILE_BEGIN( render_scene_mesh_ndr );
     {
@@ -4355,14 +4283,14 @@ gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, 
         return gfx_error;
     }
 
-    prlist = renderlist_mgr_get_ptr( &_renderlist_mgr_data, render_list_index );
+    prlist = renderlist_mgr_t::get_ptr( &_renderlist_mgr_data, render_list_index );
     if ( NULL == prlist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "could lock a renderlist" );
         return gfx_error;
     }
 
-    pdlist = dolist_mgr_get_ptr( &_dolist_mgr_data, dolist_index );
+    pdlist = dolist_mgr_t::get_ptr( &_dolist_mgr_data, dolist_index );
     if ( NULL == prlist )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "could lock a dolist" );
@@ -4789,7 +4717,7 @@ gfx_rv render_water( renderlist_t * prlist )
     {
         for ( size_t cnt = 0; cnt < prlist->wat.count; cnt++ )
         {
-            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat.lst[cnt].index, 1 ) )
+            if ( gfx_error == render_water_fan( prlist->mesh, prlist->wat.lst[cnt].index, 1 ) )
             {
                 retval = gfx_error;
             }
@@ -4801,7 +4729,7 @@ gfx_rv render_water( renderlist_t * prlist )
     {
         for ( size_t cnt = 0; cnt < prlist->wat.count; cnt++ )
         {
-            if ( gfx_error == render_water_fan( prlist->pmesh, prlist->wat.lst[cnt].index, 0 ) )
+            if ( gfx_error == render_water_fan( prlist->mesh, prlist->wat.lst[cnt].index, 0 ) )
             {
                 retval = gfx_error;
             }
@@ -5554,7 +5482,7 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
         return gfx_error;
     }
 
-    pmesh = renderlist_get_pmesh( prlist );
+    pmesh = renderlist_t::getMesh( prlist );
     if ( NULL == pmesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
@@ -5620,7 +5548,7 @@ gfx_rv light_fans_update_lcache( renderlist_t * prlist )
         reflective = ( 0 != ego_grid_info_test_all_fx( pgrid, MAPFX_DRAWREF ) );
 
         // light the corners of this tile
-        delta = ego_mesh_light_corners( prlist->pmesh, ptile, reflective, local_mesh_lighting_keep );
+        delta = ego_mesh_light_corners( prlist->mesh, ptile, reflective, local_mesh_lighting_keep );
 
 #if defined(CLIP_LIGHT_FANS)
         // use the actual maximum change in the intensity at a tile corner to
@@ -5658,7 +5586,7 @@ gfx_rv light_fans_update_clst( renderlist_t * prlist )
         return gfx_error;
     }
 
-    pmesh = renderlist_get_pmesh( prlist );
+    pmesh = renderlist_t::getMesh( prlist );
     if ( NULL == pmesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
@@ -5864,7 +5792,7 @@ gfx_rv dynalist_init( dynalist_t * pdylist )
         return gfx_error;
     }
 
-    pdylist->count        = 0;
+    pdylist->size = 0;
 
     return gfx_success;
 }
@@ -5920,9 +5848,9 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
         distance = vdist.length_2();
 
         // insert the dynalight
-        if ( pdylist->count < gfx.dynalist_max &&  pdylist->count < TOTAL_MAX_DYNA )
+        if (pdylist->size < gfx.dynalist_max &&  pdylist->size < TOTAL_MAX_DYNA)
         {
-            if ( 0 == pdylist->count )
+            if (0 == pdylist->size)
             {
                 distance_max = distance;
             }
@@ -5932,8 +5860,8 @@ gfx_rv gfx_make_dynalist( dynalist_t * pdylist, std::shared_ptr<Camera> pcam )
             }
 
             // grab a new light from the list
-            plight = pdylist->lst + pdylist->count;
-            pdylist->count++;
+            plight = pdylist->lst + pdylist->size;
+            pdylist->size++;
 
             if ( distance_max == distance )
             {
@@ -6013,7 +5941,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
         return gfx_error;
     }
 
-    pmesh = renderlist_get_pmesh( prlist );
+    pmesh = renderlist_t::getMesh( prlist );
     if ( NULL == pmesh )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "NULL renderlist mesh" );
@@ -6067,7 +5995,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
     // make bounding boxes for each dynamic light
     if ( GL_FLAT != gfx.shading )
     {
-        for ( cnt = 0; cnt < pdylist->count; cnt++ )
+        for ( cnt = 0; cnt < pdylist->size; cnt++ )
         {
             float radius;
             ego_frect_t ftmp;
@@ -6113,7 +6041,7 @@ gfx_rv do_grid_lighting( renderlist_t * prlist, dynalist_t * pdylist, std::share
         dynalight_data_t * pdyna;
 
         // evaluate all the lights at the camera position
-        for ( cnt = 0; cnt < pdylist->count; cnt++ )
+        for ( cnt = 0; cnt < pdylist->size; cnt++ )
         {
             pdyna = pdylist->lst + cnt;
 
@@ -6351,7 +6279,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam 
     }
 
     // reset the renderlist
-    if ( gfx_error == renderlist_reset( prlist ) )
+    if ( gfx_error == renderlist_t::reset( prlist ) )
     {
         return gfx_error;
     }
@@ -6362,7 +6290,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam 
     {
         // allocate a BSP leaf pointer array to return the detected nodes
         local_allocation = true;
-        if ( NULL == _renderlist_colst.ctor(MAXMESHRENDER))
+        if ( NULL == _renderlist_colst.ctor(renderlist_lst_t::CAPACITY))
         {
             gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list" );
             return gfx_error;
@@ -6377,7 +6305,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam 
 	getMeshBSP()->collide_frustum(&(pcam->getFrustum()), NULL, &_renderlist_colst);
 
     // transfer valid _renderlist_colst entries to the dolist
-    if ( gfx_error == renderlist_add_colst( prlist, &_renderlist_colst, pcam ) )
+    if ( gfx_error == renderlist_t::add( prlist, &_renderlist_colst, pcam ) )
     {
         retval = gfx_error;
         goto gfx_make_renderlist_exit;

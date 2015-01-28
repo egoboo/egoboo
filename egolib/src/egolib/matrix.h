@@ -92,6 +92,7 @@ struct fmat_4x4_t
 			this->v[i] = 0.0f;
 		}
 	}
+
 	fmat_4x4_t
 		(
 			float m00, float m01, float m02, float m03,
@@ -105,6 +106,7 @@ struct fmat_4x4_t
 		v2[2][0] = m20; v2[2][1] = m21; v2[2][2] = m22; v2[2][3] = m23;
 		v2[3][0] = m30; v2[3][1] = m31; v2[3][2] = m32; v2[3][3] = m33;
 	}
+
 	fmat_4x4_t(const fmat_4x4_t& other)
 	{
 		for (size_t i = 0; i < 16; ++i)
@@ -112,6 +114,7 @@ struct fmat_4x4_t
 			this->v[i] = other.v[i];
 		}
 	}
+
 	/**
 	 * @brief
 	 *	Get the translation vector of this matrix i.e. the vector \f$(m_{0,3},m_{1,3},m_{2,3})\f$.
@@ -122,6 +125,7 @@ struct fmat_4x4_t
 	{
 		return fvec3_t((*this)(0, 3), (*this)(1, 3), (*this)(2, 3));
 	}
+
 	const float& operator()(const size_t i) const
 	{
 #ifdef _DEBUG
@@ -164,6 +168,7 @@ struct fmat_4x4_t
 		#error(fmat_4x4_layout must be either fmat_4x4_layout_RowMajor or fmat_4x4_layout_ColumnMajor)
 #endif
 	}
+
 	/**
 	 * @brief
 	 *	Compute the product of this matrix and another matrix.
@@ -192,6 +197,7 @@ struct fmat_4x4_t
 		}
 		return result;
 	}
+
 	/**
 	* @brief
 	*	Compute the product of this matrix and another matrix.
@@ -204,6 +210,7 @@ struct fmat_4x4_t
 	{
 		return multiply(other);
 	}
+
 	/**
 	 * @brief
 	 *	Compute the transpose of a matrix.
@@ -211,16 +218,24 @@ struct fmat_4x4_t
 	 *	the matrix
 	 * @return
 	 *	the transpose <tt>a^T</tt>
-	 * @todo
-	 *	Add implementation.
+	 * @remark
+	 *	The transpose \f$M^T\f$ of a matrix \f$M\f$ is defined as
+	 *	\f[
+	 *	M^T_{i,j} = M_{j,i}
+	 *	\f]
 	 */
-#if 0
-	fmat_4x4_t transpose() const
+	fmat_4x4_t getTranspose() const
 	{
-		fmat_4x4_t result;
-		return result;
+		return
+			fmat_4x4_t
+			(
+				(*this)(0, 0), (*this)(1, 0), (*this)(2, 0), (*this)(3,0),
+				(*this)(0, 1), (*this)(1, 1), (*this)(2, 1), (*this)(3,1),
+				(*this)(0, 2), (*this)(1, 2), (*this)(2, 2), (*this)(3,2),
+				(*this)(0, 3), (*this)(1, 3), (*this)(2, 3), (*this)(3,3)
+			);
 	}
-#endif
+
 	/**
 	 * @brief
 	 *	Overloaded assignment addition operator.
@@ -233,6 +248,7 @@ struct fmat_4x4_t
 		}
 		return *this;
 	}
+
 	/**
 	 * @brief
 	 *	Overloaded assignment subtraction operator.
@@ -245,6 +261,7 @@ struct fmat_4x4_t
 		}
 		return *this;
 	}
+
 	/**
 	 * @brief
 	 *	Assign this matrix the values of another matrix.
@@ -263,6 +280,7 @@ struct fmat_4x4_t
 			}
 		}
 	}
+
 	/**
 	 * @brief
 	 *	Assign this matrix the values of another matrix.
@@ -281,6 +299,46 @@ struct fmat_4x4_t
 
 	/**
 	 * @brief
+	 *	Get if this matrix is equal to another matrix.
+	 * @param other
+	 *	the other matrix
+	 * @return
+	 *	@a true if this matrix is equal to the other matrix
+	 */
+	bool operator==(const fmat_4x4_t& other) const
+	{
+		for (size_t i = 0; i < 16; ++i)
+		{
+			if ((*this)(i) != other(i))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @brief
+	 *	Get if this matrix is not equal to another matrix
+	 * @param other
+	 *	the other matrix
+	 * @return
+	 *	@a true if this matrix is not equal to the other matrix
+	 */
+	bool operator!=(const fmat_4x4_t& other) const
+	{
+		for (size_t i = 0; i < 16; ++i)
+		{
+			if ((*this)(i) != other(i))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @brief
 	 *	Set this matrix to the zero matrix.
 	 * @see fmat_4x4_t::zero
 	 */
@@ -288,6 +346,7 @@ struct fmat_4x4_t
 	{
 		(*this) = fmat_4x4_t::zero;
 	}
+
 	/**
 	 * @brief
 	 *	Set this matrix to the identity/multiplicative neutral matrix.
@@ -297,6 +356,7 @@ struct fmat_4x4_t
 	{
 		(*this) = fmat_4x4_t::identity;
 	}
+
 	/**
 	 * @brief
 	 *	Assign this matrix the values of a viewing transformation (~ world space -> camera space) matrix.
@@ -310,7 +370,7 @@ struct fmat_4x4_t
 	 *	eye != center (debug & release)
 	 *	up  != 0
 	 */
-	void lookAt(const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up)
+	void setLookAt(const fvec3_t& eye, const fvec3_t& center, const fvec3_t& up)
 	{
 		fvec3_t f = center - eye;
 		fvec3_t u = up;
@@ -350,6 +410,57 @@ struct fmat_4x4_t
 
 	/**
 	 * @brief
+	 *	Assign this matrix the values of a orthographic projection (~ camera space -> screen space) matrix.
+	 * @param left, right
+	 *	the coordinates of the left and right vertical clipping planes
+	 * @param bottom, top
+	 *	the coordinates of the bottom and top horizontal clipping planes
+	 * @param zNear, zFar
+	 *	the distance to the nearer and farther depth clipping planes.
+	 *  These values are negative if the plane is to be behind the viewer.
+	 * @remark
+	 *	The orthographic projection matrix is
+	 *	\f[
+	 *	\left[\begin{matrix}
+	 *	\frac{2}{right-left} & 0                    &  0                    & t_x \\
+	 *	0                    & \frac{2}{top-bottom} &  0                    & t_y \\
+	 *	0                    & 0                    &  \frac{2}{zFar-zNear} & t_z \\
+	 *  0                    & 0                    &  0                    & 1 \\
+	 *	\end{matrix}\right]
+	 *	\f]
+	 *	where \f$t_x = -\frac{right+left}{right-left}\f$,
+	 *        \f$t_y = -\frac{top+bottom}{top-bottom}\f$,
+	 *        \f$t_z = -\frac{zFar+zNear}{zFar-zNear}\f$.
+	 */
+	void setOrtho(const float left, const float right, const float bottom, const float top, const float zNear, const float zFar)
+	{
+		float dx = right - left, dy = top - bottom, dz = zFar - zNear;
+		EGOBOO_ASSERT(dx != 0.0f && dy != 0.0f && dz != 0.0f);
+		float tx = -(right + left) / dx, ty = -(top + bottom) / dy, tz = -(zFar + zNear) / (dz);
+
+		(*this)(0, 0) = 2.0f * dx;
+		(*this)(1, 0) = 0.0f;
+		(*this)(2, 0) = 0.0f;
+		(*this)(3, 0) = 0.0f;
+
+		(*this)(0, 1) = 0.0f;
+		(*this)(1, 1) = 2.0f * dy;
+		(*this)(2, 1) = 0.0f;
+		(*this)(3, 1) = 0.0f;
+
+		(*this)(0, 2) = 0.0f;
+		(*this)(1, 2) = 0.0f;
+		(*this)(2, 2) = 2.0f * dz;
+		(*this)(3, 2) = 1.0f;
+
+		(*this)(0, 3) = tx;
+		(*this)(1, 3) = ty;
+		(*this)(2, 3) = tz;
+		(*this)(3, 3) = 1.0f;
+	}
+
+	/**
+	 * @brief
 	 *	Assign this matrix the values of a perspective projection (~ camera space -> screen space) matrix.
 	 * @param fovy
 	 *	the field of view angle, in degrees, in the y direction
@@ -365,10 +476,18 @@ struct fmat_4x4_t
 	 * @remark
 	 *	The aspect ratio specifies the field of view in the x direction and is the ratio of the x (width) / y (height).
 	 * @remark
+	 *	The perspective projection matrix is
 	 *	\f[
+	 *	\left[\begin{matrix}
+	 *	\frac{f}{aspect} & 0 &  0                                     & 0 \\
+	 *	0                & f &  0                                     & 0 \\
+	 *	0                & 0 &  \frac{(zFar + zNear)}{(zNear - zFar)} & \frac{(2 * zFar * zNear)}{(zNear - zFar)} \\
+	 *  0                & 0 & -1                                     & 1 \\
+	 *	\end{matrix}\right]
 	 *	\f]
+	 *	where \f$f = cot(0.5 fovy)\f$.
 	 */
-	void makePerspective(const float fovy, const float aspect, const float zNear, const float zFar)
+	void setPerspective(const float fovy, const float aspect, const float zNear, const float zFar)
 	{
 		EGOBOO_ASSERT(aspect != 0.0f);
 		EGOBOO_ASSERT(zFar > 0.0f && zNear > 0.0f);
@@ -398,6 +517,7 @@ struct fmat_4x4_t
 		(*this)(2, 3) = (2.0f * zFar * zNear) / (zNear - zFar);
 		(*this)(3, 3) = 0.0f;
 	}
+
 	/**
 	 * @brief
 	 *	Assign this matrix the values of a translation matrix.
@@ -414,7 +534,7 @@ struct fmat_4x4_t
 	 *	\end{matrix}\right]
 	 *	\f]
 	 */
-	void makeTranslation(const fvec3_t& t)
+	void setTranslation(const fvec3_t& t)
 	{
 		// Column 0.
 		(*this)(0, 0) = 1.0f;
@@ -440,34 +560,22 @@ struct fmat_4x4_t
 
 	/**
 	 * @brief
-	 *	Assign this matrix the values of a translation matrix.
-	 * @param self
-	 *	this matrix
+	 *	Assign a matrix the values of a translation matrix.
+	 * @param M
+	 *	the matrix
 	 * @param t
 	 *	the translation vector
-	 * @remark
-	 *	\f[
-	 *	\left[\begin{matrix}
-	 *	1 & 0 & 0 & t_x \\
-	 *	0 & 1 & 0 & t_y \\
-	 *	0 & 0 & 1 & t_z \\
-	 *	0 & 0 & 0 &   1 \\
-	 *	\end{matrix}\right]
-	 *	\f]
+	 * @see
+	 *	fmat_4x4_t::setTransation(const fvec3_t&)
 	 */
-	static void makeTranslation(fmat_4x4_t& self, const fvec3_t& t)
+	static void setTranslation(fmat_4x4_t& M, const fvec3_t& t)
 	{
-		self = fmat_4x4_t::identity;
-		self(0, 3) = t.x;
-		self(1, 3) = t.y;
-		self(2, 3) = t.z;
+		M.setTranslation(t);
 	}
 
 	/**
 	 * @brief
 	 *	Assign this matrix the values of a rotation matrix for counter-clockwise rotation around the x-axis.
-	 * @param self
-	 *	this matrix
 	 * @param a
 	 *	the angle of rotation, in Radians
 	 * @remark
@@ -481,23 +589,36 @@ struct fmat_4x4_t
 	 *	\f]
 	 *	where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
 	 */
-	static void makeRotationX(fmat_4x4_t& self, const float a)
+	void setRotationX(const float a)
 	{
 		float c = COS(a), s = SIN(a);
-		self = fmat_4x4_t::identity;
+		(*this) = fmat_4x4_t::identity;
 		// 1st column.
-		self(1, 1) = +c;
-		self(2, 1) = +s;
+		(*this)(1, 1) = +c;
+		(*this)(2, 1) = +s;
 		// 2nd column.
-		self(1, 2) = -s;
-		self(2, 2) = +c;
+		(*this)(1, 2) = -s;
+		(*this)(2, 2) = +c;
+	}
+
+	/**
+	 * @brief
+	 *	Assign a matrix the values of a rotation matrix for counter-clockwise rotation around the x-axis.
+	 * @param M
+	 *	the matrix
+	 * @param a
+	 *	the angle of rotation, in Radians
+	 * @see
+	 *	fmat_4x4_t::setRotationX(const float)
+	 */
+	static void setRotationX(fmat_4x4_t& M, const float a)
+	{
+		M.setRotationX(a);
 	}
 
 	/**
 	 * @brief
 	 *	Assign this matrix the values of a rotation matrix for counter-clockwise rotation around the y-axis.
-	 * @param self
-	 *	this matrix
 	 * @param a
 	 *	the angle of rotation, in Radians
 	 * @remark
@@ -511,23 +632,36 @@ struct fmat_4x4_t
 	 *	\f]
 	 *	where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
 	 */
-	static void makeRotationY(fmat_4x4_t& self, const float a)
+	void setRotationY(const float a)
 	{
 		float c = COS(a), s = SIN(a);
-		self = fmat_4x4_t::identity;
+		(*this) = fmat_4x4_t::identity;
 		// 0th column.
-		self(0, 0) = +c;
-		self(2, 0) = -s;
+		(*this)(0, 0) = +c;
+		(*this)(2, 0) = -s;
 		// 2nd column.
-		self(0, 2) = +s;
-		self(2, 2) = +c;
+		(*this)(0, 2) = +s;
+		(*this)(2, 2) = +c;
+	}
+
+	/**
+	 * @brief
+	 *	Assign a matrix the values of a rotation matrix for counter-clockwise rotation around the y-axis.
+	 * @param M
+	 *	the matrix
+	 * @param a
+	 *	the angle of rotation, in Radians
+	 * @see
+	 *	fmat_4x4_t::setRotationY(const float)
+	 */
+	static void setRotationY(fmat_4x4_t& M, const float a)
+	{
+		M.setRotationY(a);
 	}
 
 	/**
 	 * @brief
 	 *	Assign this matrix the values of a rotation matrix for counter-clockwise rotation around the z-axis.
-	 * @param self
-	 *	this matrix
 	 * @param a
 	 *	the angle of rotation, in Radians
 	 * @remark
@@ -541,16 +675,31 @@ struct fmat_4x4_t
 	 *	\f]
 	 *	where \f$c=cos(a)\f$ and \f$s=sin(a)\f$.
 	 */
-	static void makeRotationZ(fmat_4x4_t& self, const float a)
+	void setRotationZ(const float a)
 	{
 		float c = COS(a), s = SIN(a);
-		self = fmat_4x4_t::identity;
+		(*this) = fmat_4x4_t::identity;
 		// 0th column.
-		self(0, 0) = +c;
-		self(1, 0) = +s;
+		(*this)(0, 0) = +c;
+		(*this)(1, 0) = +s;
 		// 1st column.
-		self(0, 1) = -s;
-		self(1, 1) = +c;
+		(*this)(0, 1) = -s;
+		(*this)(1, 1) = +c;
+	}
+
+	/**
+	 * @brief
+	 *	Assign a matrix the values of a rotation matrix for counter-clockwise rotation around the z-axis.
+	 * @param M
+	 *	the matrix
+	 * @param a
+	 *	the angle of rotation, in Radians
+	 * @see
+	 *	fmat_4x4_t::setRotationZ
+	 */
+	static void setRotationZ(fmat_4x4_t& M, const float a)
+	{
+		M.setRotationZ(a);
 	}
 
 	/**
@@ -570,12 +719,27 @@ struct fmat_4x4_t
 	 *	\end{matrix}\right]
 	 *	\f]
 	 */
-	static void makeScaling(fmat_4x4_t& self, const fvec3_t& s)
+	void setScaling(const fvec3_t& s)
 	{
-		self = fmat_4x4_t::identity;
-		self(0, 0) = s.x;
-		self(1, 1) = s.y;
-		self(2, 2) = s.z;
+		(*this) = fmat_4x4_t::identity;
+		(*this)(0, 0) = s.x;
+		(*this)(1, 1) = s.y;
+		(*this)(2, 2) = s.z;
+	}
+
+	/**
+	 * @brief
+	 *	Assign a matrix the values of a scaling matrix.
+	 * @param M
+	 *	the matrix
+	 * @param s
+	 *	a scaling vector
+	 * @see
+	 *	fmat_4x4_t::setScaling(const fvec3_t& s)
+	 */
+	static void setScaling(fmat_4x4_t& M, const fvec3_t& s)
+	{
+		M.setScaling(s);
 	}
 
 	/**
@@ -635,7 +799,8 @@ struct fmat_4x4_t
 	{
 		const fvec4_t *source = sources;
 		fvec4_t *target = targets;
-		for (size_t index = 0; index < size; index++) {
+		for (size_t index = 0; index < size; index++)
+		{
 			transform(*source, *target);
 			source++;
 			target++;
@@ -648,9 +813,6 @@ struct fmat_4x4_t
 /// Necessary in C so that the function return can be assigned to another matrix more simply.
 struct s_dmat_4x4 { dmat_4x4_base_t v;  };
 #endif
-
-float *mat_Copy(fmat_4x4_base_t DST, const fmat_4x4_base_t src);
-float *mat_Identity(fmat_4x4_base_t DST);
 float *mat_Zero(fmat_4x4_base_t DST);
 float *mat_Multiply(fmat_4x4_base_t DST, const fmat_4x4_base_t src1, const fmat_4x4_base_t src2);
 
@@ -659,16 +821,12 @@ float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_b
 /// @param at look at position
 /// @param world's up, usually 0,0,1
 /// @param roll clockwise roll around viewing direction in Radians
-void mat_View(fmat_4x4_t& DST, const fvec3_t& from, const fvec3_t& at, const fvec3_t& world_up, const float roll);
-/// @param near distance to near clipping plane
-/// @param far distance to far clipping plane
-/// @param fov vertical field of view angle, in Radians
-/// @param ar aspect ratio
-float *mat_Projection(fmat_4x4_base_t DST, const float near, const float far, const float fov, const float ar);
-/// @param near distance to the near clipping plane
-/// @param far distance to the far clipping plane
-/// @param fov field of view angle, in Radians
-float *mat_Projection_orig(fmat_4x4_base_t DST, const float near_plane, const float far_plane, const float fov);
+void mat_View(fmat_4x4_t& self, const fvec3_t& from, const fvec3_t& at, const fvec3_t& world_up, const float roll);
+// gl matrix support
+void mat_gluPerspective(fmat_4x4_t& dst, const fmat_4x4_t& src, const float fovy, const float aspect, const float zNear, const float zFar);
+void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float eyeX, const float eyeY, const float eyeZ, const float centerX, const float centerY, const float centerZ, const float upX, const float upY, const float upZ);
+void mat_glRotate(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float angle, const float x, const float y, const float z);
+
 
 bool mat_getChrUp(const fmat_4x4_t& mat, fvec3_t& up);
 bool mat_getChrForward(const fmat_4x4_t& mat, fvec3_t& forward);
@@ -684,10 +842,6 @@ fvec3_t mat_getTranslate_v(const fmat_4x4_base_t mat);
 float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_SpaceFixed(fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z);
 float *mat_ScaleXYZ_RotateXYZ_TranslateXYZ_BodyFixed(fmat_4x4_base_t mat, const float scale_x, const float scale_y, const float scale_z, const TURN_T turn_z, const TURN_T turn_x, const TURN_T turn_y, const float translate_x, const float translate_y, const float translate_z);
 
-// gl matrix support
-void mat_gluPerspective(fmat_4x4_t& dst, const fmat_4x4_t& src, const float fovy, const float aspect, const float zNear, const float zFar);
-void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float eyeX, const float eyeY, const float eyeZ, const float centerX, const float centerY, const float centerZ, const float upX, const float upY, const float upZ);
-void mat_glRotate(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float angle, const float x, const float y, const float z);
 
 /**
  * @brief

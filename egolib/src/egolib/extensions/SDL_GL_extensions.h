@@ -28,11 +28,6 @@
 #include "egolib/extensions/ogl_extensions.h"
 #include "egolib/extensions/SDL_extensions.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -61,11 +56,3 @@ extern "C"
 
 /// Set the OpenGL screen mode using SDL
     SDLX_video_parameters_t * SDL_GL_set_mode( SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, oglx_video_parameters_t * gl_new, SDL_bool has_valid_mode );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif

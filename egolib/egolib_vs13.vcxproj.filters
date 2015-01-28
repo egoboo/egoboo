@@ -482,6 +482,12 @@
     <ClInclude Include="src\egolib\math\Sphere.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\egolib\math\Colour4f.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\math\Colour3f.hpp">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="enet.props" />

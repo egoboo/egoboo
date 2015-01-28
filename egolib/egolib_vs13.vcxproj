@@ -342,6 +342,8 @@
     <ClCompile Include="src\egolib\_math.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\egolib\math\Colour3f.hpp" />
+    <ClInclude Include="src\egolib\math\Colour4f.hpp" />
     <ClInclude Include="src\egolib\math\DynamicVector.hpp" />
     <ClInclude Include="src\egolib\math\AABB.h" />
     <ClInclude Include="src\egolib\math\Cube.hpp" />

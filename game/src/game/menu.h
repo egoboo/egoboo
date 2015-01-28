@@ -30,9 +30,9 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-//Forward declarations
+// Forward declarations
 struct mod_file_t;
-struct s_gfx_config;
+struct gfx_config_t;
 struct s_Font;
 
 //--------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ int                  menu_process_run( menu_process_t * mproc, double frameDurat
 menu_process_t     * menu_process_init( menu_process_t * mproc );
 
 // "public" reset of the autoformatting
-void autoformat_init( struct s_gfx_config * pgfx );
+void autoformat_init(gfx_config_t * pgfx);
 
 bool mnu_load_cursor();
 bool mnu_load_all_global_icons();

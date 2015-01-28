@@ -106,7 +106,7 @@ SDL_bool SDL_GL_uploadSurface( SDL_Surface *surface, GLuint tx_id, GLfloat *texC
 }
 
 //--------------------------------------------------------------------------------------------
-SDL_bool SDL_GL_set_gl_mode( struct s_oglx_video_parameters * v )
+SDL_bool SDL_GL_set_gl_mode( oglx_video_parameters_t * v )
 {
     /// @author BB
     /// @details this function applies OpenGL settings. Must have a valid SDL_Surface to do any good.

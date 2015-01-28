@@ -29,30 +29,14 @@
 
 #include "egolib/file_common.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_oglx_video_parameters;
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct s_SDLX_sdl_video_flags;
-    typedef struct s_SDLX_sdl_video_flags SDLX_sdl_video_flags_t;
-
-    struct s_SDLX_sdl_gl_attrib;
-    typedef struct s_SDLX_sdl_gl_attrib SDLX_sdl_gl_attrib_t;
-
-    struct s_SDLX_screen_info;
-    typedef struct s_SDLX_screen_info SDLX_screen_info_t;
-
-    struct s_SDLX_video_parameters;
-    typedef struct s_SDLX_video_parameters SDLX_video_parameters_t;
+    struct oglx_video_parameters_t;
+    struct SDLX_sdl_video_flags_t;
+    struct SDLX_sdl_gl_attrib_t;
+    struct SDLX_screen_info_t;
+    struct SDLX_video_parameters_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -84,7 +68,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// A structure holding some of SDL's video data
-    struct s_SDLX_sdl_video_flags
+    struct SDLX_sdl_video_flags_t
     {
         unsigned hw_surface: 1;       ///< SDL_HWSURFACE   - Surface is in video memory
         unsigned async_blit: 1;       ///< SDL_ASYNCBLIT   - Use asynchronous blits if possible
@@ -111,7 +95,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A structure holding all of the OpenGL data that can be queried through SDL
-    struct s_SDLX_sdl_gl_attrib
+    struct SDLX_sdl_gl_attrib_t
     {
         // SDL_GL_* attribute data
         int color[4];           ///< SDL_GL_RED_SIZE, SDL_GL_GREEN_SIZE, SDL_GL_BLUE_SIZE, SDL_GL_ALPHA_SIZE
@@ -131,7 +115,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// A representation of a SDL Screen state
-    struct s_SDLX_screen_info
+    struct SDLX_screen_info_t
     {
         // JF - Added so that the video mode might be determined outside of the graphics code
         SDL_Surface * pscreen;
@@ -165,7 +149,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// Parameters for setting an SDL video state
-    struct s_SDLX_video_parameters
+    struct SDLX_video_parameters_t
     {
         int    width;
         int    height;
@@ -209,11 +193,3 @@ extern "C"
 
 /// Dump the info on the given surface to whatever FILE SDL_extensions is using for stdout
     void   SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif

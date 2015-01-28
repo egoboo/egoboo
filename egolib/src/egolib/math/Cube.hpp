@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/math/cube.h
+/// @file egolib/math/Cube.h
 /// @brief Cubes.
 
 #pragma once

@@ -860,7 +860,7 @@ int doMainMenu( float deltaTime )
             // Do normal run
             // Background
 
-            GL_DEBUG( glColor4fv )( white_vec );
+            GL_DEBUG( glColor4fv )( Ego::white_vec );
 
             if ( mnu_draw_background )
             {
@@ -1246,7 +1246,7 @@ int doChooseModule( float deltaTime )
                 }
 
                 // Draw the background
-                GL_DEBUG( glColor4fv )( white_vec );
+                GL_DEBUG( glColor4fv )( Ego::white_vec );
                 x = ( GFX_WIDTH  / 2 ) - ( background.imgW / 2 );
                 y = GFX_HEIGHT - background.imgH;
 
@@ -1360,7 +1360,7 @@ int doChooseModule( float deltaTime )
 
                     mod_file_t * pmod = &( mnu_ModList.lst[ext_module].base );
 
-                    GL_DEBUG( glColor4fv )( white_vec );
+                    GL_DEBUG( glColor4fv )( Ego::white_vec );
 
                     name_string = "Unnamed";
                     if ( CSTR_END != pmod->longname[0] )
@@ -1431,7 +1431,7 @@ int doChooseModule( float deltaTime )
                 {
                     bool click_button;
 
-                    GL_DEBUG( glColor4fv )( white_vec );
+                    GL_DEBUG( glColor4fv )( Ego::white_vec );
                     ui_drawTextBox( menuFont, "Module Filter:", moduleMenuOffsetX + 257, moduleMenuOffsetY - 27, 0, 0, 20 );
 
                     // unly display the filter name
@@ -1474,7 +1474,7 @@ int doChooseModule( float deltaTime )
                 }
 
                 // the tool-tip text
-                GL_DEBUG( glColor4fv )( white_vec );
+                GL_DEBUG( glColor4fv )( Ego::white_vec );
                 ui_drawTextBox( menuFont, tipText, tipTextLeft, tipTextTop, 0, 0, 20 );
             }
             break;
@@ -1601,18 +1601,18 @@ bool doChooseCharacter_show_stats( std::shared_ptr<LoadPlayerElement> loadPlayer
     ui_drawButton( UI_Nothing, x, y, width, height, NULL );
 
     //Character level and class
-    GL_DEBUG( glColor4fv )( white_vec );
+    GL_DEBUG( glColor4fv )( Ego::white_vec );
     y1 = ui_drawTextBox( NULL, loadPlayer->getName().c_str(), x1, y1, 0, 0, text_hgt );
     y1 += section_spacing;
 
     //Character level and class
-    GL_DEBUG( glColor4fv )( white_vec );
+    GL_DEBUG( glColor4fv )( Ego::white_vec );
     snprintf( temp_string, SDL_arraysize( temp_string ), "A level %d %s", profile->getStartingLevel() + 1, profile->getClassName().c_str() );
     y1 = ui_drawTextBox( menuFont, temp_string, x1, y1, 0, 0, text_hgt );
 
     // Armor
     const SkinInfo &skinInfo = profile->getSkinInfo(skin);
-    GL_DEBUG( glColor4fv )( white_vec );
+    GL_DEBUG( glColor4fv )( Ego::white_vec );
     snprintf( temp_string, SDL_arraysize( temp_string ), "Wearing %s %s",
               !skinInfo.name.empty() ? skinInfo.name.c_str() : "UNKNOWN",
               skinInfo.dressy ? "(Light)" : "(Heavy)" );
@@ -1810,7 +1810,7 @@ int doChoosePlayer( float deltaTime )
                 }
 
                 // reset the base color each time
-                GL_DEBUG( glColor4fv )( white_vec );
+                GL_DEBUG( glColor4fv )( Ego::white_vec );
 
                 const std::string text = "Player " + std::to_string(i + 1);
                 ui_drawTextBox( menuFont, text.c_str(), buttonLeft + butt_spc, y1 + text_vert_centering, 0, 0, icon_hgt );
@@ -2206,7 +2206,7 @@ int doOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( white_vec );
+            GL_DEBUG( glColor4fv )( Ego::white_vec );
 
             if ( mnu_draw_background )
             {
@@ -2472,7 +2472,7 @@ int doInputOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( white_vec );
+            GL_DEBUG( glColor4fv )( Ego::white_vec );
 
             //Detect if input is availible and update the input type button accordingly
             if ( update_input_type )
@@ -2845,7 +2845,7 @@ int doGameOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( white_vec );
+            GL_DEBUG( glColor4fv )( Ego::white_vec );
 
             if ( mnu_draw_background )
             {
@@ -3127,7 +3127,7 @@ int doAudioOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( white_vec );
+            GL_DEBUG( glColor4fv )( Ego::white_vec );
 
             if ( mnu_draw_background )
             {
@@ -3644,7 +3644,7 @@ int doVideoOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( white_vec );
+            GL_DEBUG( glColor4fv )( Ego::white_vec );
 
             if ( mnu_draw_background )
             {
@@ -4129,7 +4129,7 @@ int doShowLoadingScreen( float deltaTime )
                 int text_h, text_w;
                 ui_drawButton( UI_Nothing, 30, 30, GFX_WIDTH  - 60, GFX_HEIGHT - 65, NULL );
 
-                GL_DEBUG( glColor4fv )( white_vec );
+                GL_DEBUG( glColor4fv )( Ego::white_vec );
 
                 // the module name
                 ui_drawTextBox( font, mnu_ModList.lst[( MOD_REF )selectedModule].base.longname, 50, 80, 291, 230, 20 );
@@ -4237,7 +4237,7 @@ int doGamePaused( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( white_vec );
+            GL_DEBUG( glColor4fv )( Ego::white_vec );
 
             // Buttons
             for ( cnt = 0; cnt < 4; cnt ++ )
@@ -4344,7 +4344,7 @@ int doShowEndgame( float deltaTime )
             break;
 
         case MM_Running:
-            GL_DEBUG( glColor4fv )( white_vec );
+            GL_DEBUG( glColor4fv )( Ego::white_vec );
 
             // Buttons
             for ( cnt = 0; cnt < 1; cnt ++ )

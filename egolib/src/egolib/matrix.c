@@ -35,41 +35,8 @@ const fmat_4x4_t fmat_4x4_t::zero
 		0.0f, 0.0f, 0.0f, 0.0f
 	);
 
-float * mat_Copy(fmat_4x4_base_t DST, const fmat_4x4_base_t src)
-{
-	float * retval = NULL;
-
-	if (NULL == DST)
-	{
-		retval = NULL;
-	}
-	else if (NULL == src)
-	{
-		retval = mat_Zero(DST);
-	}
-	else
-	{
-		retval = (float *)memmove(DST, src, sizeof(fmat_4x4_base_t));
-	}
-
-	return retval;
-}
-
 //--------------------------------------------------------------------------------------------
-float * mat_Identity(fmat_4x4_base_t DST)
-{
-	if (NULL == DST) return NULL;
-
-	DST[MAT_IDX(0, 0)] = 1; DST[MAT_IDX(1, 0)] = 0; DST[MAT_IDX(2, 0)] = 0; DST[MAT_IDX(3, 0)] = 0;
-	DST[MAT_IDX(0, 1)] = 0; DST[MAT_IDX(1, 1)] = 1; DST[MAT_IDX(2, 1)] = 0; DST[MAT_IDX(3, 1)] = 0;
-	DST[MAT_IDX(0, 2)] = 0; DST[MAT_IDX(1, 2)] = 0; DST[MAT_IDX(2, 2)] = 1; DST[MAT_IDX(3, 2)] = 0;
-	DST[MAT_IDX(0, 3)] = 0; DST[MAT_IDX(1, 3)] = 0; DST[MAT_IDX(2, 3)] = 0; DST[MAT_IDX(3, 3)] = 1;
-
-	return DST;
-}
-
-//--------------------------------------------------------------------------------------------
-float * mat_Zero(fmat_4x4_base_t DST)
+float *mat_Zero(fmat_4x4_base_t DST)
 {
 	// initializes matrix to zero
 
@@ -270,64 +237,11 @@ void mat_View(fmat_4x4_t& DST,const fvec3_t& from,const fvec3_t& at,const fvec3_
 	{
 		// mat_Multiply function shown above
 		fmat_4x4_t tmp1, tmp2;
-		fmat_4x4_t::makeRotationZ(tmp1, -roll);
-		mat_Multiply(DST.v, tmp1.v, mat_Copy(tmp2.v, DST.v));
+		tmp1.setRotationZ(-roll);
+		tmp2 = DST;
+		mat_Multiply(DST.v, tmp1.v, tmp2.v);
 	}
 }
-
-//--------------------------------------------------------------------------------------------
-float * mat_Projection(
-	fmat_4x4_base_t DST,
-	const float near_plane,    // distance to near clipping plane
-	const float far_plane,     // distance to far clipping plane
-	const float fov,           // vertical field of view angle, in radians
-	const float ar)           // aspect ratio
-{
-	/// @author MN
-	/// @details Again, there is a gl function for this, glFrustum or gluPerspective...
-	///          does this account for viewport ratio?
-
-	float inv_h = 1 / TAN(fov * 0.5f);
-	float inv_w = inv_h / ar;
-	float Q = far_plane / (far_plane - near_plane);
-
-	if (NULL == mat_Zero(DST)) return NULL;
-
-	DST[MAT_IDX(0, 0)] = inv_h;         // 0,0
-	DST[MAT_IDX(1, 1)] = inv_w;         // 1,1
-	DST[MAT_IDX(2, 2)] = Q;         // 2,2
-	DST[MAT_IDX(3, 2)] = -1.0f; // 3,2
-	DST[MAT_IDX(2, 3)] = Q * near_plane;         // 2,3
-
-	return DST;
-}
-
-//--------------------------------------------------------------------------------------------
-float * mat_Projection_orig(
-	fmat_4x4_base_t DST,
-	const float near_plane,    // distance to near clipping plane
-	const float far_plane,      // distance to far clipping plane
-	const float fov)           // field of view angle, in radians
-{
-	/// @author MN
-	/// @details Again, there is a gl function for this, glFrustum or gluPerspective...
-	///          does this account for viewport ratio?
-
-	float c = COS(fov * 0.5f);
-	float s = SIN(fov * 0.5f);
-	float Q = far_plane / (far_plane - near_plane);
-
-	if (NULL == mat_Zero(DST)) return NULL;
-
-	DST[MAT_IDX(0, 0)] = c / s;       // 0,0
-	DST[MAT_IDX(1, 1)] = c / s;       // 1,1
-	DST[MAT_IDX(2, 2)] = Q;         // 2,2
-	DST[MAT_IDX(3, 2)] = -Q * near_plane; // 3,2
-	DST[MAT_IDX(2, 3)] = 1.0f;         // 2,3
-
-	return DST;
-}
-
 //--------------------------------------------------------------------------------------------
 bool mat_getTranslate(const fmat_4x4_t& mat, fvec3_t& translate)
 {
@@ -461,7 +375,7 @@ namespace Ego {
 void mat_gluPerspective(fmat_4x4_t &dst, const fmat_4x4_t& src, const float fovy, const float aspect, const float zNear, const float zFar)
 {
     fmat_4x4_t M;
-	M.makePerspective(fovy, aspect, zNear, zFar);
+	M.setPerspective(fovy, aspect, zNear, zFar);
     mat_Multiply(dst.v, src.v, M.v);
 }
 
@@ -483,7 +397,7 @@ void mat_gluLookAt(fmat_4x4_base_t &DST, const fmat_4x4_base_t &src, const float
     
     mat_Zero(M);
 	fmat_4x4_t eyeTranslate;
-    fmat_4x4_t::makeTranslation(eyeTranslate, fvec3_t(-eyeX, -eyeY, -eyeZ));
+	eyeTranslate.setTranslation(fvec3_t(-eyeX, -eyeY, -eyeZ));
     
     M[MAT_IDX(0, 0)] = s.x;
     M[MAT_IDX(1, 0)] = s.y;

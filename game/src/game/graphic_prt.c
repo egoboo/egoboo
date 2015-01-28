@@ -602,7 +602,7 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Egoboo_Renderer_OpenGL_multMatrix(&(pinst->matrix));
+	Ego::Renderer_OpenGL_multMatrix(pinst->matrix);
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
         GL_DEBUG( glVertex3fv )( pinst->vrt_lst[vrt].pos );
@@ -1014,9 +1014,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 //--------------------------------------------------------------------------------------------
 fmat_4x4_t prt_instance_make_matrix( prt_instance_t * pinst )
 {
-    fmat_4x4_t mat;
-
-    mat_Identity( mat.v );
+    fmat_4x4_t mat = fmat_4x4_t::identity;
 
     mat.CNV( 0, 1 ) = -pinst->up.x;
     mat.CNV( 1, 1 ) = -pinst->up.y;
@@ -1165,7 +1163,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
 
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {
-            GL_DEBUG( glColor4fv )( white_vec );
+            GL_DEBUG( glColor4fv )( Ego::white_vec );
 
             render_oct_bb( &loc_bb, true, true );
         }

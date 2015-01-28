@@ -29,22 +29,12 @@
 
 #include "egolib/file_common.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_oglx_caps;
-    typedef struct s_oglx_caps oglx_caps_t;
-
-    struct s_oglx_video_parameters;
-    typedef struct s_oglx_video_parameters oglx_video_parameters_t;
-
-    struct s_oglx_culling_data;
-    typedef struct s_oglx_culling_data oglx_culling_data_t;
+    struct oglx_caps_t;
+    struct oglx_video_parameters_t;
+    struct oglx_culling_data_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -59,7 +49,7 @@ extern "C"
 //--------------------------------------------------------------------------------------------
 
 /// OpenGL graphics info
-    struct s_oglx_caps
+    struct oglx_caps_t
     {
         const GLubyte * gl_version;
         const GLubyte * gl_vendor;
@@ -124,7 +114,7 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-    struct s_oglx_video_parameters
+    struct oglx_video_parameters_t
     {
         GLboolean antialiasing;            ///< current antialiasing value
         GLboolean multisample;             ///< whether multisampling is being supported through GL_MULTISAMPLE
@@ -139,7 +129,7 @@ extern "C"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-    struct s_oglx_culling_data
+    struct oglx_culling_data_t
     {
         GLboolean enabled;
         GLint     face[1];
@@ -149,11 +139,3 @@ extern "C"
     void oglx_set_culling( oglx_culling_data_t * new_data, oglx_culling_data_t * old_data );
     void oglx_begin_culling( GLenum which, GLenum mode );
     void oglx_end_culling( void );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif

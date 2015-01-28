@@ -335,7 +335,7 @@ void gfx_begin_text()
     // draw draw front and back faces of polygons
     oglx_end_culling();                                                  // GL_ENABLE_BIT
 
-    GL_DEBUG( glColor4fv )( white_vec );                                 // GL_CURRENT_BIT
+    GL_DEBUG( glColor4fv )( Ego::white_vec );                                 // GL_CURRENT_BIT
 }
 
 //--------------------------------------------------------------------------------------------
@@ -377,7 +377,7 @@ void draw_quad_2d( oglx_texture_t * ptex, const ego_frect_t scr_rect, const ego_
     const GLfloat * tint = NULL;
 
     // handle optional parameters
-    tint = LAMBDA( NULL == quad_tint, white_vec, quad_tint );
+    tint = LAMBDA( NULL == quad_tint, Ego::white_vec, quad_tint );
 
     ATTRIB_PUSH( __FUNCTION__, GL_CURRENT_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT )
     {

@@ -36,38 +36,19 @@
 struct chr_t;
 struct egoboo_config_t;
 struct chr_instance_t;
+#if 0
 struct s_oglx_texture_parameters;
+#endif
 struct s_Font;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
 //--------------------------------------------------------------------------------------------
 
-struct renderlist_t;
-struct renderlist_ary_t;
-struct renderlist_mgr_t;
-#if 0
-struct dolist_data_t;
-#endif
-#if 0
-struct dolist_t;
-#endif
-struct dolist_ary_t;
-struct dolist_mgr_t;
-
-struct s_gfx_error_state;
-typedef struct s_gfx_error_state gfx_error_state_t;
-
-struct s_gfx_error_stack;
-typedef struct s_gfx_error_stack gfx_error_stack_t;
-
-struct obj_registry_entity_t;
-
 struct s_GLvertex;
 typedef struct s_GLvertex GLvertex;
 
-struct s_gfx_config;
-typedef struct s_gfx_config gfx_config_t;
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -75,11 +56,11 @@ typedef struct s_gfx_config gfx_config_t;
 /// the default icon size in pixels
 #define ICON_SIZE 32
 
-/// the max number of do lists that can exist
+/// The maximum number of dolists that can exist.
 constexpr size_t MAX_DO_LISTS = MAX_CAMERAS;
 
-/// the max number of render lists that can exist
-#define MAX_RENDER_LISTS 4
+/// The maximum number of renderlists that can exist.
+constexpr size_t MAX_RENDER_LISTS = MAX_CAMERAS;
 
 /// max number of blips on the minimap
 #define MAXBLIP        128                          ///<Max blips on the screen
@@ -88,19 +69,16 @@ constexpr size_t MAX_DO_LISTS = MAX_CAMERAS;
 //--------------------------------------------------------------------------------------------
 
 /// special return values
-enum e_gfx_rv
+enum gfx_rv
 {
     gfx_error   = -1,
     gfx_fail    = false,
     gfx_success = true
 };
 
-// this typedef must be after the enum definition or gcc has a fit
-typedef enum e_gfx_rv gfx_rv;
-
 #define GFX_ERROR_MAX 256
 
-struct s_gfx_error_state
+struct gfx_error_state_t
 {
     STRING file;
     STRING function;
@@ -112,7 +90,7 @@ struct s_gfx_error_state
 
 #define GFX_ERROR_STATE_INIT { "UNKNOWN", "UNKNOWN", -1, -1, "NONE" }
 
-struct s_gfx_error_stack
+struct gfx_error_stack_t
 {
     size_t count;
     gfx_error_state_t lst[GFX_ERROR_MAX];
@@ -126,11 +104,6 @@ void                gfx_error_clear();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#if 0
-#define DOLIST_SIZE (MAX_CHR + MAX_PRT)
-#endif
-
-#define MAXMESHRENDER             1024                       ///< Max number of tiles to draw
 
 #define MAPSIZE 96
 
@@ -177,19 +150,66 @@ enum e_color
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#if 0
-struct dolist_data_t
+struct renderlist_lst_t
 {
-    float   dist;
-    CHR_REF chr;
+	struct element_t
+	{
+		Uint32 index;             ///< which tile
+		float  distance;          ///< how far it is
+	};
+	/**
+	* @brief
+	*	The maximum capacity of a renderlist
+	*	i.e. the maximum number of tiles in a render list
+	*	i.e. the maximum number of tiles to draw.
+	*/
+	static const size_t CAPACITY = 1024;
+	size_t count;               ///< how many in the list
+	element_t lst[CAPACITY];  ///< the list
+
+	static gfx_rv reset(renderlist_lst_t *self);
+	static gfx_rv push(renderlist_lst_t *self, Uint32 index, float distance);
 };
-#endif
+
+/// Which tiles are to be drawn, arranged by MAPFX_* bits
+struct renderlist_t
+{
+	ego_mesh_t *mesh;
+
+	renderlist_lst_t  all;     ///< List of which to render, total
+	renderlist_lst_t  ref;     ///< ..., is reflected in the floor
+	renderlist_lst_t  sha;     ///< ..., is not reflected in the floor
+	renderlist_lst_t  drf;     ///< ..., draws character reflections
+	renderlist_lst_t  ndr;     ///< ..., draws no character reflections
+	renderlist_lst_t  wat;     ///< ..., draws a water tile
+
+	static renderlist_t *init(renderlist_t *self, ego_mesh_t *mesh);
+	/// @brief Clear a render list
+	static gfx_rv reset(renderlist_t *self);
+	/// @brief Insert a tile into this render list.
+	/// @param index the tile index
+	/// @param camera the camera
+	static gfx_rv insert(renderlist_t *self, const Uint32 index, const std::shared_ptr<Camera>& camera);
+	/// @brief Get mesh this render list is attached to.
+	/// @return the mesh or @a nullptr
+	/// @post If the render list is attached to a mesh, that mesh is returned.
+	///       Otherwise a null pointer is returned.
+	static ego_mesh_t *getMesh(const renderlist_t *self);
+	/// @brief Set mesh this render list is attached to.
+	/// @param mesh the mesh or @a nullptr
+	/// @post If @a mesh is not a null pointer, then this render list is attached to that mesh.
+	///       Otherwise it is detached.
+	static gfx_rv setMesh(renderlist_t *self, ego_mesh_t *mesh);
+	/// @brief Insert tiles into this render list.
+	/// @param leaves a list of tile BSP leaves
+	/// @param camera the camera
+	/// @remark A tile
+	static gfx_rv add(renderlist_t *self, const Ego::DynamicArray<BSP_leaf_t *> *leaves, const std::shared_ptr<Camera>& camera);
+};
+
+
 
 //--------------------------------------------------------------------------------------------
-
-#if 0
-#define OBJ_REGISTRY_ENTITY_INIT { INVALID_CHR_REF, INVALID_PRT_REF, 0.0f }
-#endif
 
 /**
  * @brief
@@ -224,20 +244,78 @@ struct dolist_t
 	size_t size;             /**< The size of the do list:
 							      How many character and particle entities are in the do list. */
 	element_t lst[CAPACITY]; /**< List of which objects to draw. */
-	static dolist_t *init(dolist_t *self, const size_t index);
+	dolist_t();
+	static dolist_t *init(dolist_t *self, const size_t index = 0);
 	static gfx_rv reset(dolist_t *self, const size_t index);
 	static gfx_rv sort(dolist_t *self, std::shared_ptr<Camera> camera, const bool reflect);
 	static gfx_rv test_chr(dolist_t *self, const chr_t *pchr);
 	static gfx_rv add_chr_raw(dolist_t *self, chr_t *pchr);
 	static gfx_rv test_prt(dolist_t *self, const prt_t *pprt);
 	static gfx_rv add_prt_raw(dolist_t *self, prt_t *pprt);
+	/// @brief Insert character or particle entities into this dolist.
+	/// @param leaves
 	static gfx_rv add_colst(dolist_t *self, const Ego::DynamicArray<BSP_leaf_t *> *collisions);
 };
 
+//--------------------------------------------------------------------------------------------
+
+struct dolist_ary_t
+{
+	bool started;
+	size_t free_count;
+	int free_lst[MAX_DO_LISTS];
+	dolist_t lst[MAX_DO_LISTS];
+	static dolist_ary_t *begin(dolist_ary_t *self);
+	static dolist_ary_t *end(dolist_ary_t *self);
+	static int get_free_idx(dolist_ary_t *self);
+	static gfx_rv free_one(dolist_ary_t *self, size_t index);
+	static dolist_t *get_ptr(dolist_ary_t *self, size_t index);
+};
+
+struct renderlist_ary_t
+{
+	bool started;
+	size_t free_count;
+	int free_lst[MAX_RENDER_LISTS];
+	renderlist_t lst[MAX_RENDER_LISTS];
+	static renderlist_ary_t *begin(renderlist_ary_t *self);
+	static renderlist_ary_t *end(renderlist_ary_t *self);
+	static int get_free_idx(renderlist_ary_t *self);
+	static gfx_rv free_one(renderlist_ary_t *self, size_t index);
+	static renderlist_t *get_ptr(renderlist_ary_t *self, size_t index);
+};
+
+struct dolist_mgr_t
+{
+	bool started;
+	dolist_ary_t ary;
+	static gfx_rv begin(dolist_mgr_t *self);
+	static gfx_rv end(dolist_mgr_t *self);
+	static int get_free_idx(dolist_mgr_t *self);
+	static gfx_rv free_one(dolist_mgr_t *self, size_t index);
+	static dolist_t *get_ptr(dolist_mgr_t *self, size_t index);
+#if 0
+	dolist_mgr_t();
+#endif
+};
+
+struct renderlist_mgr_t
+{
+	bool started;
+	renderlist_ary_t ary;
+	static gfx_rv begin(renderlist_mgr_t *self);
+	static gfx_rv end(renderlist_mgr_t *self);
+	static int get_free_idx(renderlist_mgr_t *self);
+	static gfx_rv free_one(renderlist_mgr_t *self, size_t index);
+	static renderlist_t *get_ptr(renderlist_mgr_t *self, size_t index);
+#if 0
+	renderlist_mgr_t();
+#endif
+};
 
 //--------------------------------------------------------------------------------------------
 // encapsulation of all graphics options
-struct s_gfx_config
+struct gfx_config_t
 {
     GLuint shading;
     bool refon;
@@ -377,17 +455,9 @@ gfx_rv chr_instance_flash(chr_instance_t *inst, Uint8 value);
 
 //void gfx_calc_rotmesh();
 
-int            renderlist_mgr_get_free_idx( renderlist_mgr_t * ptr );
-gfx_rv         renderlist_mgr_free_one( renderlist_mgr_t * ptr, size_t index );
-renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, size_t index );
 
-int        dolist_mgr_get_free_idx( dolist_mgr_t * ptr );
-gfx_rv     dolist_mgr_free_one( dolist_mgr_t * ptr, size_t index );
-dolist_t * dolist_mgr_get_ptr( dolist_mgr_t * pmgr, size_t index );
 
-gfx_rv renderlist_attach_mesh( renderlist_t * ptr, ego_mesh_t * pmesh );
-
-bool oglx_texture_parameters_download_gfx( struct s_oglx_texture_parameters * ptex, egoboo_config_t * pcfg );
+bool oglx_texture_parameters_download_gfx( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg );
 
 oglx_texture_t *gfx_get_mesh_tx_sml( int which );
 oglx_texture_t *gfx_get_mesh_tx_big( int which );

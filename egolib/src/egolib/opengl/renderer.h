@@ -30,6 +30,8 @@
 #include "egolib/_math.h"
 #include "egolib/matrix.h"
 
+
+
 /**
  * @ingroup egoboo-opengl
  * @brief
@@ -37,42 +39,59 @@
  * @author
  *	Michael Heilmann
  */
+namespace Ego
+{
+	/// The color "white" to be used with glColor4f.
+	extern const GLXvector4f white_vec;
+	/// The color "black" to be used with glColor4f.
+	extern const GLXvector4f black_vec;
+	/// The color "red"   to be used with glColor4f.
+	extern const GLXvector4f red_vec;
+	/// The color "green" to be used with glColor4f.
+	extern const GLXvector4f green_vec;
+	/// The color "blue"  to be used with glColor4f.
+	extern const GLXvector4f blue_vec;
+	/**
+	 * @ingroup egoboo-opengl
+	 * @brief
+	 *	Initialize the OpenGL back-end.
+	 * @return
+	 *	@a 0 on success, a non-zero value on failure
+	 */
+	int Renderer_OpenGL_initialize();
 
-/// The color "white" to be used with glColor4f.
-extern const GLXvector4f white_vec;
-/// The color "black" to be used with glColor4f.
-extern const GLXvector4f black_vec;
+	/**
+	 * @ingroup egoboo-opengl
+	 * @brief
+	 *	Uninitialize the OpenGL back-end.
+	 */
+	void Renderer_OpenGL_uninitialize();
 
-/**
- * @ingroup egoboo-opengl
- * @brief
- *	Initialize the OpenGL back-end.
- * @return
- *	@a 0 on success, a non-zero value on failure
- */
-int Egoboo_Renderer_OpenGL_initialize();
+	/**
+	 * @ingroup egoboo-opengl
+	 * @brief
+	 *	Multiply the OpenGL matrix with the given matrix (using glMultMatrix).
+	 * @param m
+	 *	the matrix
+	 */
+	void Renderer_OpenGL_multMatrix(const fmat_4x4_t& m);
 
-/**
- * @ingroup egoboo-opengl
- * @brief
- *	Uninitialize the OpenGL back-end.
- */
-void Egoboo_Renderer_OpenGL_uninitialize();
-
-/**
- * @ingroup egoboo-opengl
- * @brief
- *	Multiply the OpenGL matrix with the given matrix (using glMultMatrix).
- * @param m
- *	the matrix
- */
-void Egoboo_Renderer_OpenGL_multMatrix(const fmat_4x4_t *m);
-
-/**
- * @ingroup egoboo-opengl
- * @brief
- *	Set the OpenGL matrix to the given matrix (using glLoadMatrix).
- * @param m
- *	the matrix
- */
-void Egoboo_Renderer_OpenGL_loadMatrix(const fmat_4x4_t *m);
+	/**
+	 * @ingroup egoboo-opengl
+	 * @brief
+	 *	Set the OpenGL matrix to the given matrix (using glLoadMatrix).
+	 * @param m
+	 *	the matrix
+	 */
+	void Renderer_OpenGL_loadMatrix(const fmat_4x4_t& m);
+#if 0
+	/**
+	 * @ingroup egolib-opengl
+	 * @brief
+	 *	Set the colour.
+	 * @param c
+	 *	the colour
+	 */
+	void Renderer_OpenGL_setColour(const Colour4f& c);
+#endif
+};

@@ -34,18 +34,12 @@
 
 #include "egolib/typedef.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_oglx_texture_parameters;
-    typedef struct s_oglx_texture_parameters oglx_texture_parameters_t;
-
+    struct oglx_texture_parameters_t;
     struct oglx_texture_t;
+
     typedef GLfloat oglx_frect_t[4];
 
 //--------------------------------------------------------------------------------------------
@@ -72,27 +66,27 @@ extern "C"
         SDL_bool      has_alpha;       ///< the alpha for the texture
     };
 
-    oglx_texture_t * oglx_texture_ctor( oglx_texture_t * texture );
-    void             oglx_texture_dtor( oglx_texture_t * texture );
+    oglx_texture_t *oglx_texture_ctor(oglx_texture_t * texture);
+    void oglx_texture_dtor(oglx_texture_t * texture);
 
-    GLuint  oglx_texture_Convert( oglx_texture_t *texture, SDL_Surface * pimage, Uint32 key );
-    GLuint  oglx_texture_Load( oglx_texture_t *texture, const char *filename, Uint32 key );
-    void    oglx_texture_Release( oglx_texture_t *texture );
-    void    oglx_texture_Bind( oglx_texture_t * texture );
+    GLuint oglx_texture_Convert(oglx_texture_t *texture, SDL_Surface *pimage, Uint32 key);
+    GLuint oglx_texture_Load(oglx_texture_t *texture, const char *filename, Uint32 key);
+    void oglx_texture_Release(oglx_texture_t *texture);
+    void oglx_texture_Bind(oglx_texture_t * texture);
 
-    GLuint    oglx_texture_getTextureID( const oglx_texture_t *texture );
-    GLsizei   oglx_texture_getImageHeight( const oglx_texture_t *texture );
-    GLsizei   oglx_texture_getImageWidth( const oglx_texture_t *texture );
-    GLsizei   oglx_texture_getTextureWidth( const oglx_texture_t *texture );
-    GLsizei   oglx_texture_getTextureHeight( const oglx_texture_t *texture );
-    void      oglx_texture_setAlpha( oglx_texture_t *texture, GLfloat alpha );
-    GLfloat   oglx_texture_getAlpha( const oglx_texture_t *texture );
-    GLboolean oglx_texture_getSize( const oglx_texture_t *texture, oglx_frect_t tx_rect, oglx_frect_t img_rect );
+    GLuint oglx_texture_getTextureID( const oglx_texture_t *texture);
+    GLsizei oglx_texture_getImageHeight( const oglx_texture_t *texture);
+    GLsizei oglx_texture_getImageWidth( const oglx_texture_t *texture);
+    GLsizei oglx_texture_getTextureWidth( const oglx_texture_t *texture);
+    GLsizei oglx_texture_getTextureHeight( const oglx_texture_t *texture);
+    void oglx_texture_setAlpha(oglx_texture_t *texture, GLfloat alpha);
+    GLfloat oglx_texture_getAlpha(const oglx_texture_t *texture);
+    GLboolean oglx_texture_getSize(const oglx_texture_t *texture, oglx_frect_t tx_rect, oglx_frect_t img_rect);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-    struct s_oglx_texture_parameters
+    struct oglx_texture_parameters_t
     {
         tx_filter_t texturefilter;
         GLfloat userAnisotropy;
@@ -113,11 +107,3 @@ extern "C"
 
     void      ErrorImage_bind( GLenum target, GLuint id );
     GLuint    ErrorImage_get_binding( void );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif
