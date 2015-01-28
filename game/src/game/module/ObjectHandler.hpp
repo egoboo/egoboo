@@ -28,6 +28,7 @@
 #include <list>
 #include <exception>
 #include <mutex>
+#include <atomic>
 #include "game/egoboo_typedef.h"
 
 //Forward declarations
@@ -77,14 +78,13 @@ public:
 	**/
 	size_t getObjectCount() const {return _characterList.size();}
 
-
-	inline std::const_iterator cbegin() const 
+	inline std::list<std::shared_ptr<chr_t>>::const_iterator cbegin() const 
 	{
 		if(_semaphore == 0) throw new std::logic_error("ObjectHandler not locked before iteration");
 		return _characterList.cbegin();
 	}
 
-	inline std::const_iterator cend() const 
+	inline std::list<std::shared_ptr<chr_t>>::const_iterator cend() const 
 	{
 		return _characterList.cend();
 	}
@@ -111,6 +111,6 @@ private:
 
 	std::vector<CHR_REF> _terminationList;									///< List of all objects that should be terminated
 
-	std::recusive_mutex _modificationLock;
+	mutable std::recursive_mutex _modificationLock;
 	std::atomic_size_t _semaphore;
 };

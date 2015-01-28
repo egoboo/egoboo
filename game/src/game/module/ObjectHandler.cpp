@@ -2,9 +2,11 @@
 #include "game/char.h"
 #include "game/profiles/ProfileSystem.hpp"
 
+const static std::shared_ptr<chr_t> NULL_OBJ = nullptr;
+
 ObjectHandler::ObjectHandler() :
-	_characterList(),
 	_characterMap(),
+    _characterList(),
 	_terminationList(),
     _modificationLock(),
     _semaphore(0)
@@ -128,7 +130,6 @@ const std::shared_ptr<chr_t>& ObjectHandler::get(const PRO_REF index) const
 
     if(result == _characterMap.end())
     {
-    	const static std::shared_ptr<chr_t> NULL_OBJ = nullptr;
         return NULL_OBJ;
     }
 
