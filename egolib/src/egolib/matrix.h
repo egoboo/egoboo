@@ -659,7 +659,7 @@ float *mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_b
 /// @param at look at position
 /// @param world's up, usually 0,0,1
 /// @param roll clockwise roll around viewing direction in Radians
-float *mat_View(fmat_4x4_t& DST, const fvec3_t& from, const fvec3_t& at, const fvec3_t& world_up, const float roll);
+void mat_View(fmat_4x4_t& DST, const fvec3_t& from, const fvec3_t& at, const fvec3_t& world_up, const float roll);
 /// @param near distance to near clipping plane
 /// @param far distance to far clipping plane
 /// @param fov vertical field of view angle, in Radians

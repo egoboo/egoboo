@@ -216,7 +216,7 @@ struct dolist_t
 		
 		element_t() : ichr(INVALID_CHR_REF), iprt(INVALID_PRT_REF), dist(0.0f) { }
 
-		element_t *init();
+		static element_t *init(element_t *self);
 		static int cmp(const void *left, const void *right);
 	};
 

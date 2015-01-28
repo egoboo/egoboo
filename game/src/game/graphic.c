@@ -170,15 +170,14 @@ static gfx_rv         renderlist_mgr_end( renderlist_mgr_t * pmgr );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+#if 0
 struct dolist_t
 {
     int                   index;                ///< A "name" for the dolist
     size_t                count;                ///< How many in the list
     obj_registry_entity_t lst[DOLIST_SIZE];     ///< List of which objects to draw
 };
-
 #define DOLIST_INIT { 0, OBJ_REGISTRY_ENTITY_INIT }
-
 static dolist_t * dolist_init( dolist_t * pdolist, const size_t index );
 static gfx_rv     dolist_reset( dolist_t * pdolist, const size_t index );
 static gfx_rv     dolist_sort( dolist_t * pdolist, std::shared_ptr<Camera> pcam, const bool do_reflect );
@@ -187,7 +186,7 @@ static gfx_rv     dolist_add_chr_raw( dolist_t * pdolist, chr_t * pchr );
 static gfx_rv     dolist_test_prt( dolist_t * pdolist, const prt_t * pprt );
 static gfx_rv     dolist_add_prt_raw( dolist_t * pdolist, prt_t * pprt );
 static gfx_rv     dolist_add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_t *> *pcolst );
-
+#endif
 //--------------------------------------------------------------------------------------------
 // the dolist manager
 //--------------------------------------------------------------------------------------------
@@ -934,13 +933,13 @@ renderlist_t * renderlist_mgr_get_ptr( renderlist_mgr_t * pmgr, size_t index )
 //--------------------------------------------------------------------------------------------
 // dolist implementation
 //--------------------------------------------------------------------------------------------
-dolist_t * dolist_init( dolist_t * plist, const size_t index )
+dolist_t * dolist_t::init( dolist_t * plist, const size_t index )
 {
     if ( NULL == plist ) return NULL;
 
     BLANK_STRUCT_PTR( plist )
 
-    obj_registry_entity_init( plist->lst + 0 );
+    dolist_t::element_t::init( plist->lst + 0 );
 
     // give the dolist a "name"
     plist->index = index;
@@ -949,7 +948,7 @@ dolist_t * dolist_init( dolist_t * plist, const size_t index )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_reset( dolist_t * plist, const size_t index )
+gfx_rv dolist_t::reset( dolist_t * plist, const size_t index )
 {
     size_t entries;
 
@@ -966,15 +965,15 @@ gfx_rv dolist_reset( dolist_t * plist, const size_t index )
     }
 
     // if there is nothing in the dolist, we are done
-    if ( 0 == plist->count )
+    if ( 0 == plist->size )
     {
         return gfx_success;
     }
 
-    entries = std::min( plist->count, (size_t)DOLIST_SIZE );
+    entries = std::min( plist->size, dolist_t::CAPACITY );
     for ( size_t cnt = 0; cnt < entries; cnt++ )
     {
-        obj_registry_entity_t * pent = plist->lst + cnt;
+        dolist_t::element_t * pent = plist->lst + cnt;
 
         // tell all valid objects that they are removed from this dolist
         if ( INVALID_CHR_REF == pent->ichr && _VALID_PRT_RANGE( pent->iprt ) )
@@ -986,23 +985,23 @@ gfx_rv dolist_reset( dolist_t * plist, const size_t index )
             ChrList_get_ptr(pent->ichr)->inst.indolist = false;
         }
     }
-    plist->count = 0;
+    plist->size = 0;
 
     // reset the dolist
-    dolist_init( plist, index );
+    dolist_t::init( plist, index );
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_test_chr( dolist_t * pdlist, const chr_t * pchr )
+gfx_rv dolist_t::test_chr( dolist_t * pdlist, const chr_t * pchr )
 {
     if ( NULL == pdlist )
     {
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdlist->size >= dolist_t::CAPACITY )
     {
         return gfx_fail;
     }
@@ -1016,7 +1015,7 @@ gfx_rv dolist_test_chr( dolist_t * pdlist, const chr_t * pchr )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_add_chr_raw( dolist_t * pdlist, chr_t * pchr )
+gfx_rv dolist_t::add_chr_raw( dolist_t * pdlist, chr_t * pchr )
 {
     /// @author ZZ
     /// @details This function puts a character in the list
@@ -1051,29 +1050,29 @@ gfx_rv dolist_add_chr_raw( dolist_t * pdlist, chr_t * pchr )
     }
 
     // fix the dolist
-    pdlist->lst[pdlist->count].ichr = GET_REF_PCHR( pchr );
-    pdlist->lst[pdlist->count].iprt = INVALID_PRT_REF;
-    pdlist->count++;
+    pdlist->lst[pdlist->size].ichr = GET_REF_PCHR( pchr );
+    pdlist->lst[pdlist->size].iprt = INVALID_PRT_REF;
+    pdlist->size++;
 
     // fix the instance
     pchr->inst.indolist = true;
 
     // Add any weapons
-    dolist_add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_LEFT] ) );
-    dolist_add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_RIGHT] ) );
+    dolist_t::add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_LEFT] ) );
+    dolist_t::add_chr_raw( pdlist, ChrList_get_ptr( pchr->holdingwhich[SLOT_RIGHT] ) );
 
     return gfx_success;
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_test_prt( dolist_t * pdlist, const prt_t * pprt )
+gfx_rv dolist_t::test_prt( dolist_t * pdlist, const prt_t * pprt )
 {
     if ( NULL == pdlist )
     {
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+    if ( pdlist->size >= dolist_t::CAPACITY )
     {
         return gfx_fail;
     }
@@ -1092,7 +1091,7 @@ gfx_rv dolist_test_prt( dolist_t * pdlist, const prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
+gfx_rv dolist_t::add_prt_raw( dolist_t * pdlist, prt_t * pprt )
 {
     /// @author ZZ
     /// @details This function puts a character in the list
@@ -1102,9 +1101,9 @@ gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
     //    return gfx_success;
     //}
 
-    pdlist->lst[pdlist->count].ichr = INVALID_CHR_REF;
-    pdlist->lst[pdlist->count].iprt = _GET_REF_PPRT( pprt );
-    pdlist->count++;
+    pdlist->lst[pdlist->size].ichr = INVALID_CHR_REF;
+    pdlist->lst[pdlist->size].iprt = _GET_REF_PPRT( pprt );
+    pdlist->size++;
 
     pprt->inst.indolist = true;
 
@@ -1112,7 +1111,7 @@ gfx_rv dolist_add_prt_raw( dolist_t * pdlist, prt_t * pprt )
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_t *> *pcolst )
+gfx_rv dolist_t::add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_t *> *pcolst )
 {
     BSP_leaf_t * pleaf;
     gfx_rv retval;
@@ -1161,10 +1160,10 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_t *
             pchr = ChrList_get_ptr( ichr );
 
             // do some more obvious tests before testing the frustum
-            if ( dolist_test_chr( pdlist, pchr ) )
+            if ( dolist_t::test_chr( pdlist, pchr ) )
             {
                 // Add the character
-                if ( gfx_error == dolist_add_chr_raw( pdlist, pchr ) )
+                if ( gfx_error == dolist_t::add_chr_raw( pdlist, pchr ) )
                 {
                     retval = gfx_error;
                     break;
@@ -1184,10 +1183,10 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_t *
             pprt = PrtList_get_ptr( iprt );
 
             // do some more obvious tests before testing the frustum
-            if ( dolist_test_prt( pdlist, pprt ) )
+            if ( dolist_t::test_prt( pdlist, pprt ) )
             {
                 // Add the particle
-                if ( gfx_error == dolist_add_prt_raw( pdlist, pprt ) )
+                if ( gfx_error == dolist_t::add_prt_raw( pdlist, pprt ) )
                 {
                     retval = gfx_error;
                     break;
@@ -1205,7 +1204,7 @@ gfx_rv dolist_add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_t *
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool do_reflect )
+gfx_rv dolist_t::sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool do_reflect )
 {
     /// @author ZZ
     /// @details This function orders the dolist based on distance from camera,
@@ -1222,7 +1221,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+	if (pdlist->size >= dolist_t::CAPACITY)
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -1238,7 +1237,7 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
 
     // Figure the distance of each
     count = 0;
-    for ( cnt = 0; cnt < pdlist->count; cnt++ )
+    for ( cnt = 0; cnt < pdlist->size; cnt++ )
     {
         fvec3_t   vtmp;
         float dist;
@@ -1288,12 +1287,12 @@ gfx_rv dolist_sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bool 
             count++;
         }
     }
-    pdlist->count = count;
+    pdlist->size = count;
 
     // use qsort to sort the list in-place
-    if ( pdlist->count > 1 )
+    if ( pdlist->size > 1 )
     {
-        qsort( pdlist->lst, pdlist->count, sizeof( obj_registry_entity_t ), obj_registry_entity_cmp );
+		qsort(pdlist->lst, pdlist->size, sizeof(dolist_t::element_t), dolist_t::element_t::cmp);
     }
 
     return gfx_success;
@@ -1317,7 +1316,7 @@ dolist_ary_t * dolist_ary_begin( dolist_ary_t * ptr )
     for ( cnt = 0; cnt < MAX_DO_LISTS; cnt++ )
     {
         ptr->free_lst[cnt] = cnt;
-        dolist_init( ptr->lst + cnt, cnt );
+        dolist_t::init( ptr->lst + cnt, cnt );
     }
     ptr->free_count = MAX_DO_LISTS;
 
@@ -1343,7 +1342,7 @@ dolist_ary_t * dolist_ary_end( dolist_ary_t * ptr )
     for ( cnt = 0; cnt < MAX_DO_LISTS; cnt++ )
     {
         ptr->free_lst[cnt] = -1;
-        dolist_init( ptr->lst + cnt, cnt );
+        dolist_t::init( ptr->lst + cnt, cnt );
     }
 
     ptr->started = false;
@@ -1532,8 +1531,8 @@ void gfx_system_begin()
 
     gfx_reset_timers();
 
-    // allocate the specailized "collistion lists"
-    if ( NULL == _dolist_colst.ctor(DOLIST_SIZE))
+    // allocate the specailized "collision lists"
+    if ( NULL == _dolist_colst.ctor(dolist_t::CAPACITY))
     {
         log_error( "%s-%s-%d - Could not allocate dolist collision list", __FILE__, __FUNCTION__, __LINE__ );
     }
@@ -3861,7 +3860,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
         return gfx_error;
     }
 
-    if ( pdolist->count >= DOLIST_SIZE )
+    if ( pdolist->size >= dolist_t::CAPACITY )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -3888,7 +3887,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
         // surfaces must be closer to the camera to be drawn
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );     // GL_DEPTH_BUFFER_BIT
 
-        for ( cnt = (( int )pdolist->count ) - 1; cnt >= 0; cnt-- )
+        for ( cnt = (( int )pdolist->size ) - 1; cnt >= 0; cnt-- )
         {
             if ( INVALID_PRT_REF == pdolist->lst[cnt].iprt && INVALID_CHR_REF != pdolist->lst[cnt].ichr )
             {
@@ -4058,7 +4057,7 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
         return gfx_error;
     }
 
-    if ( pdolist->count >= DOLIST_SIZE )
+    if ( pdolist->size >= dolist_t::CAPACITY )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -4081,7 +4080,7 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
     if ( gfx.shasprite )
     {
         // Bad shadows
-        for ( cnt = 0; cnt < pdolist->count; cnt++ )
+        for ( cnt = 0; cnt < pdolist->size; cnt++ )
         {
             CHR_REF ichr = pdolist->lst[cnt].ichr;
             if ( !VALID_CHR_RANGE( ichr ) ) continue;
@@ -4095,7 +4094,7 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
     else
     {
         // Good shadows for me
-        for ( cnt = 0; cnt < pdolist->count; cnt++ )
+        for ( cnt = 0; cnt < pdolist->size; cnt++ )
         {
             CHR_REF ichr = pdolist->lst[cnt].ichr;
             if ( !VALID_CHR_RANGE( ichr ) ) continue;
@@ -4231,7 +4230,7 @@ gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
         return gfx_error;
     }
 
-    if ( pdolist->count >= DOLIST_SIZE )
+    if ( pdolist->size >= dolist_t::CAPACITY )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -4243,7 +4242,7 @@ gfx_rv render_scene_solid( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
     ATTRIB_PUSH( __FUNCTION__, GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT )
     {
         // scan for solid objects
-        for ( cnt = 0; cnt < pdolist->count; cnt++ )
+        for ( cnt = 0; cnt < pdolist->size; cnt++ )
         {
             // solid objects draw into the depth buffer for hidden surface removal
             GL_DEBUG( glDepthMask )( GL_TRUE );                     // GL_ENABLE_BIT
@@ -4294,7 +4293,7 @@ gfx_rv render_scene_trans( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
         return gfx_error;
     }
 
-    if ( pdolist->count >= DOLIST_SIZE )
+    if ( pdolist->size >= dolist_t::CAPACITY )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
@@ -4315,7 +4314,7 @@ gfx_rv render_scene_trans( std::shared_ptr<Camera> pcam, dolist_t * pdolist )
         GL_DEBUG( glDepthFunc )( GL_LEQUAL );                 // GL_DEPTH_BUFFER_BIT
 
         // Now render all transparent and light objects
-        for ( cnt = (( int )pdolist->count ) - 1; cnt >= 0; cnt-- )
+        for ( cnt = (( int )pdolist->size ) - 1; cnt >= 0; cnt-- )
         {
             if ( INVALID_PRT_REF == pdolist->lst[cnt].iprt && INVALID_CHR_REF != pdolist->lst[cnt].ichr )
             {
@@ -4388,7 +4387,7 @@ gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, 
         {
             // sort the dolist for reflected objects
             // reflected characters and objects are drawn in this pass
-            if ( gfx_error == dolist_sort( pdlist, pcam, true ) )
+            if ( gfx_error == dolist_t::sort( pdlist, pcam, true ) )
             {
                 retval = gfx_error;
             }
@@ -4414,7 +4413,7 @@ gfx_rv render_scene( std::shared_ptr<Camera> pcam, const int render_list_index, 
     PROFILE_BEGIN( render_scene_solid );
     {
         // sort the dolist for non-reflected objects
-        if ( gfx_error == dolist_sort( pdlist, pcam, false ) )
+        if ( gfx_error == dolist_t::sort( pdlist, pcam, false ) )
         {
             retval = gfx_error;
         }
@@ -5166,7 +5165,7 @@ void gfx_update_fps()
 // obj_registry_entity_t IMPLEMENTATION
 //--------------------------------------------------------------------------------------------
 
-obj_registry_entity_t * obj_registry_entity_init( obj_registry_entity_t * ptr )
+dolist_t::element_t *dolist_t::element_t::init( dolist_t::element_t * ptr )
 {
     if ( NULL == ptr ) return NULL;
 
@@ -5179,10 +5178,10 @@ obj_registry_entity_t * obj_registry_entity_init( obj_registry_entity_t * ptr )
 }
 
 //--------------------------------------------------------------------------------------------
-int obj_registry_entity_cmp( const void * pleft, const void * pright )
+int dolist_t::element_t::cmp( const void * pleft, const void * pright )
 {
-    obj_registry_entity_t * dleft  = ( obj_registry_entity_t * ) pleft;
-    obj_registry_entity_t * dright = ( obj_registry_entity_t * ) pright;
+	dolist_t::element_t * dleft = (dolist_t::element_t *)pleft;
+	dolist_t::element_t * dright = (dolist_t::element_t *)pright;
 
     int   rv;
     float diff;
@@ -6410,14 +6409,14 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
         return gfx_error;
     }
 
-    if ( pdlist->count >= DOLIST_SIZE )
+	if (pdlist->size >= dolist_t::CAPACITY)
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
     }
 
     // Remove everyone from the dolist
-    dolist_reset( pdlist, pdlist->index );
+    dolist_t::reset( pdlist, pdlist->index );
 
     // has the colst been allocated?
     local_allocation = false;
@@ -6425,7 +6424,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
     {
         // allocate a BSP leaf pointer array to return the detected nodes
         local_allocation = true;
-        if ( NULL == _dolist_colst.ctor(DOLIST_SIZE))
+        if ( NULL == _dolist_colst.ctor(dolist_t::CAPACITY))
         {
             gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "Could not allocate collision list" );
             return gfx_error;
@@ -6437,7 +6436,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
 	getChrBSP()->collide_frustum(&(pcam->getFrustum()), chr_BSP_is_visible, &_dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
-    if ( gfx_error == dolist_add_colst( pdlist, &_dolist_colst ) )
+    if ( gfx_error == dolist_t::add_colst( pdlist, &_dolist_colst ) )
     {
         retval = gfx_error;
         goto gfx_make_dolist_exit;
@@ -6448,7 +6447,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
 	getPtrBSP()->collide_frustum(&(pcam->getFrustum()), prt_BSP_is_visible, &_dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
-    if (gfx_error == dolist_add_colst(pdlist, &_dolist_colst))
+    if (gfx_error == dolist_t::add_colst(pdlist, &_dolist_colst))
     {
         retval = gfx_error;
         goto gfx_make_dolist_exit;
@@ -6534,14 +6533,14 @@ gfx_rv gfx_update_flashing( dolist_t * pdolist )
         return gfx_error;
     }
 
-    if ( pdolist->count >= DOLIST_SIZE )
+    if ( pdolist->size >= dolist_t::CAPACITY )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, 0, "invalid dolist size" );
         return gfx_error;
     }
 
     retval = gfx_success;
-    for ( i = 0; i < pdolist->count; i++ )
+    for ( i = 0; i < pdolist->size; i++ )
     {
         float tmp_seekurse_level;
 

@@ -234,7 +234,7 @@ float * mat_FourPoints(fmat_4x4_base_t DST, const fvec4_base_t ori, const fvec4_
 }
 
 //--------------------------------------------------------------------------------------------
-float * mat_View(fmat_4x4_t& DST,const fvec3_t& from,const fvec3_t& at,const fvec3_t& world_up,const float roll)
+void mat_View(fmat_4x4_t& DST,const fvec3_t& from,const fvec3_t& at,const fvec3_t& world_up,const float roll)
 {
 	fvec3_t up, right, view_dir, temp;
 
