@@ -14,7 +14,7 @@ following libraries need to be installed:
 	- SDL_ttf
 	- OpenGL
 	- enet
-	- PhysFS 2.0 or later (see Remarks below)
+	- PhysFS 2.0 or later
 	- Lua 5.2 or later
 
 Install the runtime and development versions of those libraries from the
