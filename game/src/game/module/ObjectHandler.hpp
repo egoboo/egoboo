@@ -25,6 +25,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <list>
 #include "game/egoboo_typedef.h"
 
 //Forward declarations
@@ -74,6 +75,14 @@ public:
 
 	//void forEach(std::function<void>() predicate);
 
+	inline std::const_iterator cbegin() const {return _characterList.cbegin();}
+	inline std::const_iterator cend() const {return _characterList.cend();};
+
+	/**
+	* @brief Removes and de-allocates all game objects contained in this ObjectHandler
+	**/
+	void clear();
+
 private:
 	/**
 	* @brief removes all objects marked for removal
@@ -81,7 +90,8 @@ private:
 	void cleanup();
 
 private:
-	std::vector<CHR_REF> _terminationList;		///< List of all objects that should be terminated
-	std::unordered_map<CHR_REF, std::shared_ptr<chr_t>> _characterList;
+	std::unordered_map<CHR_REF, std::shared_ptr<chr_t>> _characterMap;		///< Maps CHR_REF to a chr_t pointer
+	std::list<std::shared_ptr<chr_t>> _characterList;						///< For iterating
 	int _loopDepth;
+	std::vector<CHR_REF> _terminationList;									///< List of all objects that should be terminated
 };

@@ -3,9 +3,10 @@
 #include "game/profiles/ProfileSystem.hpp"
 
 ObjectHandler::ObjectHandler() :
-	_terminationList(),
 	_characterList(),
-	_loopDepth(0)
+	_characterMap(),
+	_loopDepth(0),
+	_terminationList()
 {
 	//ctor
 }
@@ -33,9 +34,9 @@ bool ObjectHandler::remove(const CHR_REF ichr)
 
 bool ObjectHandler::exists(const CHR_REF character) const
 {
-    const auto &result = _characterList.find(character);
+    const auto &result = _characterMap.find(character);
 
-	if(result == _characterList.end()) {
+	if(result == _characterMap.end()) {
 		return false;
 	}
 
@@ -56,7 +57,7 @@ CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
 
     if(override != INVALID_CHR_REF)
     {
-        if(_characterList.find(override) == _characterList.end())
+        if(_characterMap.find(override) == _characterMap.end())
         {
             ichr = override;
         }
@@ -70,7 +71,7 @@ CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
         //Find first unused CHR_REF slot
         for(CHR_REF i = 0; i < MAX_CHR; ++i)
         {
-            if(_characterList.find(i) == _characterList.end())
+            if(_characterMap.find(i) == _characterMap.end())
             {
                 ichr = i;
                 break;
@@ -94,10 +95,11 @@ CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
         }
 
         // allocate the new one
-        if(_characterList.emplace(ichr, object).second == false) {
+        if(_characterMap.emplace(ichr, object).second == false) {
             log_warning( "ChrList_allocate() - Failed character allocation, object already exists\n" );
             return INVALID_CHR_REF;
         }
+        _characterList.push_back(object);
     }
 
     return ichr;
@@ -113,16 +115,22 @@ void ObjectHandler::cleanup()
     // supposed to be deleted while the list was iterating
     for(CHR_REF ichr : _terminationList)
     {
-        _characterList.erase(ichr);
+        _characterMap.erase(ichr);
     }
     _terminationList.clear();
+
+    _characterList.remove_if(
+    	[](const std::shared_ptr<chr_t> &element) 
+        {
+        	return element->terminateRequested;
+        });
 }
 
 chr_t* ObjectHandler::operator[] (const PRO_REF index)
 {
-    const auto &result = _characterList.find(index);
+    const auto &result = _characterMap.find(index);
 
-    if(result == _characterList.end())
+    if(result == _characterMap.end())
     {
         return nullptr;
     }
@@ -132,9 +140,9 @@ chr_t* ObjectHandler::operator[] (const PRO_REF index)
 
 const std::shared_ptr<chr_t>& ObjectHandler::get(const PRO_REF index) const
 {
-    const auto &result = _characterList.find(index);
+    const auto &result = _characterMap.find(index);
 
-    if(result == _characterList.end())
+    if(result == _characterMap.end())
     {
     	const static std::shared_ptr<chr_t> NULL_OBJ = nullptr;
         return NULL_OBJ;
@@ -147,9 +155,15 @@ const std::shared_ptr<chr_t>& ObjectHandler::get(const PRO_REF index) const
 void ObjectHandler::forEach(std::function<void>() predicate)
 {
 	_loopDepth++;
-	std::for_each(_characterList.begin(), _characterList.end(), predicate);
+	std::for_each(_characterMap.begin(), _characterMap.end(), predicate);
 	_loopDepth--;
 
 	cleanup();
 }
 */
+
+void ObjectHandler::clear()
+{
+	_characterMap.clear();
+	_characterList.clear();
+}
