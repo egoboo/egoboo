@@ -50,6 +50,7 @@
 #include "game/audio/AudioSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
+#include "game/module/ObjectHandler.hpp"
 
 #include "game/char.h"
 #include "game/particle.h"
@@ -82,8 +83,10 @@ PROFILE_DECLARE( cl_talkToHost );
 
 //--------------------------------------------------------------------------------------------
 //Game engine globals
-CameraSystem      _cameraSystem;
-AudioSystem       _audioSystem;
+CameraSystem        _cameraSystem;
+AudioSystem         _audioSystem;
+ObjectHandler       _gameObjects;
+std::unique_ptr<GameModule> PMod = nullptr;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -97,7 +100,6 @@ size_t endtext_carat = 0;
 status_list_t StatusList = STATUS_LIST_INIT;
 
 ego_mesh_t         * PMesh   = _mesh + 0;
-std::unique_ptr<GameModule> PMod = nullptr;
 game_process_t     * GProc   = &_gproc;
 
 pit_info_t pits = PIT_INFO_INIT;

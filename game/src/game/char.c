@@ -321,25 +321,9 @@ chr_t::chr_t(const PRO_REF profile, const CHR_REF id) :
     safe_time(0),
     safe_grid(0),
     crumbs()
-
 {
-    /// @author BB
-    /// @details initialize the character data to safe values
-
-    // grab the base object
-    //Ego::Entity::ctor(&obj_base, this, BSP_LEAF_CHR, characterID);
-
     // Construct the BSP node for this entity.
     bsp_leaf.ctor(&bsp_leaf, BSP_LEAF_CHR, characterID);
-
-    //POBJ_ALLOCATE(this, characterID);
-
-    // reset the base counters
-    //obj_base.on = true;
-    //obj_base.spawning = true;
-    //obj_base.update_count = 0;
-    //obj_base.frame_count = 0;
-    //obj_base.state = Ego::Entity::State::Active;
 
     // Grip info
     holdingwhich.fill(INVALID_CHR_REF);
@@ -366,8 +350,6 @@ chr_t::chr_t(const PRO_REF profile, const CHR_REF id) :
 
     // initialize the physics
     phys_data_ctor( &phys );
-
-   // obj_base.spawning = false;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -382,13 +364,6 @@ chr_t::~chr_t()
     ai_state_dtor( &ai );
 
     EGOBOO_ASSERT( NULL == inst.vrt_lst );
-
-    // Destroy the base object.
-    // Sets the state to ego_object_terminated automatically.
-    //POBJ_TERMINATE( this );
-
-    // destruct the parent
-    //Ego::Entity::dtor( POBJ_GET_PBASE(this) );
 }
 
 //--------------------------------------------------------------------------------------------

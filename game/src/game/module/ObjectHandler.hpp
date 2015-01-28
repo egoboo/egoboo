@@ -23,12 +23,6 @@
 
 #pragma once
 
-#include <unordered_map>
-#include <vector>
-#include <list>
-#include <exception>
-#include <mutex>
-#include <atomic>
 #include "game/egoboo_typedef.h"
 
 //Forward declarations

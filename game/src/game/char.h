@@ -24,7 +24,6 @@
 #pragma once
 
 #include "game/egoboo_typedef.h"
-#include "game/egoboo_object.h"
 #include "game/graphic.h"
 #include "game/graphic_mad.h"
 #include "game/script.h"
@@ -272,7 +271,6 @@ struct chr_spawn_data_t
 //--------------------------------------------------------------------------------------------
 
 /// The definition of the character object.
-/// @extends Ego::Entity
 class chr_t
 {
 public:
@@ -287,8 +285,7 @@ public:
     virtual ~chr_t();
 
 public:
-    //Ego::Entity obj_base;            ///< The "inheritance" from Ego::Entity.
-    bool terminateRequested;
+    bool terminateRequested;         ///< True if this character no longer exists in the game and should be destructed
 
     CHR_REF characterID;             ///< Our CHR_REF mapping key
 

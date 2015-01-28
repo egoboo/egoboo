@@ -49,6 +49,7 @@ struct s_import_list;
 class CameraSystem;
 class AudioSystem;
 class GameModule;
+class ObjectHandler;
 
 //--------------------------------------------------------------------------------------------
 // forward declaration of internal structs
@@ -390,6 +391,7 @@ extern ego_mesh_t *PMesh;
 extern CameraSystem _cameraSystem;
 extern AudioSystem  _audioSystem;
 extern std::unique_ptr<GameModule> PMod;
+extern ObjectHandler _gameObjects;
 
 // special terrain and wawalite-related data structs
 extern animtile_instance_t animtile[2];
