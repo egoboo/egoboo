@@ -5,8 +5,9 @@
 ObjectHandler::ObjectHandler() :
 	_characterList(),
 	_characterMap(),
-	_loopDepth(0),
-	_terminationList()
+	_terminationList(),
+    _modificationLock(),
+    _semaphore(0)
 {
 	//ctor
 }
@@ -46,6 +47,8 @@ bool ObjectHandler::exists(const CHR_REF character) const
 
 CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
 {
+    std::lock_guard<std::recursive_mutex> lock(_modificationLock);
+
 	//Make sure the profile is valid
     if(!_profileSystem.isValidProfileID(profile))
     {
@@ -105,29 +108,9 @@ CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
     return ichr;
 }
 
-void ObjectHandler::cleanup()
-{
-    if(_loopDepth > 0) {
-        return;
-    }
-
-    // go through and delete any characters that were
-    // supposed to be deleted while the list was iterating
-    for(CHR_REF ichr : _terminationList)
-    {
-        _characterMap.erase(ichr);
-    }
-    _terminationList.clear();
-
-    _characterList.remove_if(
-    	[](const std::shared_ptr<chr_t> &element) 
-        {
-        	return element->terminateRequested;
-        });
-}
-
 chr_t* ObjectHandler::operator[] (const PRO_REF index)
 {
+    std::lock_guard<std::recursive_mutex> lock(_modificationLock);
     const auto &result = _characterMap.find(index);
 
     if(result == _characterMap.end())
@@ -140,6 +123,7 @@ chr_t* ObjectHandler::operator[] (const PRO_REF index)
 
 const std::shared_ptr<chr_t>& ObjectHandler::get(const PRO_REF index) const
 {
+    std::lock_guard<std::recursive_mutex> lock(_modificationLock);
     const auto &result = _characterMap.find(index);
 
     if(result == _characterMap.end())
@@ -151,19 +135,47 @@ const std::shared_ptr<chr_t>& ObjectHandler::get(const PRO_REF index) const
     return (*result).second;
 }
 
-/*
-void ObjectHandler::forEach(std::function<void>() predicate)
-{
-	_loopDepth++;
-	std::for_each(_characterMap.begin(), _characterMap.end(), predicate);
-	_loopDepth--;
-
-	cleanup();
-}
-*/
-
 void ObjectHandler::clear()
 {
+    std::lock_guard<std::recursive_mutex> lock(_modificationLock);
 	_characterMap.clear();
 	_characterList.clear();
+    _terminationList.clear();
+}
+
+void ObjectHandler::lock()
+{
+     std::lock_guard<std::recursive_mutex> lock(_modificationLock);
+    _semaphore++;
+}
+
+void ObjectHandler::unlock()
+{
+    std::lock_guard<std::recursive_mutex> lock(_modificationLock);
+
+    if(_semaphore == 0) 
+    {
+        throw new std::logic_error("ObjectHandler calling unlock() without lock()");
+    }
+
+    //Release one lock
+    _semaphore--;
+
+    //No remaining locks?
+    if(_semaphore == 0)
+    {
+        // go through and delete any characters that were
+        // supposed to be deleted while the list was iterating
+        for(CHR_REF ichr : _terminationList)
+        {
+            _characterMap.erase(ichr);
+        }
+        _terminationList.clear();
+
+        _characterList.remove_if(
+            [](const std::shared_ptr<chr_t> &element) 
+            {
+                return element->terminateRequested;
+            });
+    }
 }

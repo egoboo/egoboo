@@ -26,11 +26,16 @@
 #include <unordered_map>
 #include <vector>
 #include <list>
+#include <exception>
+#include <mutex>
 #include "game/egoboo_typedef.h"
 
 //Forward declarations
 class chr_t;
 
+/**
+* @brief A completely thread safe container for accessing instances of in-game objects
+**/
 class ObjectHandler
 {
 public:
@@ -65,7 +70,7 @@ public:
 	* @return A pointer object for the specified CHR_REF
 	*		  Return a nullptr object if CHR_REF was not found
 	**/
-	const std::shared_ptr<chr_t>&  get(const CHR_REF index) const;
+	const std::shared_ptr<chr_t>& get(const CHR_REF index) const;
 
 	/**
 	* @return Number of objects currently active in the game
@@ -73,10 +78,27 @@ public:
 	size_t getObjectCount() const {return _characterList.size();}
 
 
-	//void forEach(std::function<void>() predicate);
+	inline std::const_iterator cbegin() const 
+	{
+		if(_semaphore == 0) throw new std::logic_error("ObjectHandler not locked before iteration");
+		return _characterList.cbegin();
+	}
 
-	inline std::const_iterator cbegin() const {return _characterList.cbegin();}
-	inline std::const_iterator cend() const {return _characterList.cend();};
+	inline std::const_iterator cend() const 
+	{
+		return _characterList.cend();
+	}
+
+	/**
+	* @brief Locks all object containers to ensure no modification will happen.
+	*		 Must be called before iterating.
+	**/
+	void lock();
+
+	/**
+	* @brief unlocks all object containers for modifications
+	**/
+	void unlock();
 
 	/**
 	* @brief Removes and de-allocates all game objects contained in this ObjectHandler
@@ -84,14 +106,11 @@ public:
 	void clear();
 
 private:
-	/**
-	* @brief removes all objects marked for removal
-	**/
-	void cleanup();
-
-private:
 	std::unordered_map<CHR_REF, std::shared_ptr<chr_t>> _characterMap;		///< Maps CHR_REF to a chr_t pointer
 	std::list<std::shared_ptr<chr_t>> _characterList;						///< For iterating
-	int _loopDepth;
+
 	std::vector<CHR_REF> _terminationList;									///< List of all objects that should be terminated
+
+	std::recusive_mutex _modificationLock;
+	std::atomic_size_t _semaphore;
 };
