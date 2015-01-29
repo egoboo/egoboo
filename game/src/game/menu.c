@@ -2845,7 +2845,7 @@ int doGameOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            GL_DEBUG( glColor4fv )( Ego::white_vec );
+			Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);
 
             if ( mnu_draw_background )
             {

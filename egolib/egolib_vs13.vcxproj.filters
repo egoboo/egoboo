@@ -19,14 +19,23 @@
     <Filter Include="Lua">
       <UniqueIdentifier>{159266bb-db21-41e6-9989-7b420b223573}</UniqueIdentifier>
     </Filter>
-    <Filter Include="OpenGL">
-      <UniqueIdentifier>{64b06b6c-4104-43af-8294-33f28825a826}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Math">
       <UniqueIdentifier>{a74381e6-c46a-4aef-ab17-99f2ff4e5172}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Math">
       <UniqueIdentifier>{b190a38a-6106-4e2a-b561-005a92d2bbb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer">
+      <UniqueIdentifier>{ee6f09ff-012d-429b-b020-d14e52e19c38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer">
+      <UniqueIdentifier>{469cf522-2d8e-4029-9429-429f4d628d46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\OpenGL">
+      <UniqueIdentifier>{60d77a64-06f2-4089-b130-ef541b0916fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Renderer\OpenGL">
+      <UniqueIdentifier>{64b06b6c-4104-43af-8294-33f28825a826}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -204,9 +213,6 @@
     <ClCompile Include="src\egolib\lua\lua_console.c">
       <Filter>Lua</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\opengl\renderer.c">
-      <Filter>OpenGL</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\platform\file_linux.c">
       <Filter>Platforms</Filter>
     </ClCompile>
@@ -234,17 +240,29 @@
     <ClCompile Include="src\egolib\math\Random.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\math\Plane.c">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\egolib\math\AABB.c">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
     <ClCompile Include="src\egolib\math\Cube.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\egolib\math\Sphere.c">
+    <ClCompile Include="src\egolib\math\Colour4f.cpp">
       <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\math\Colour3f.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\Renderer.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\math\Plane.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Sphere.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\math\AABB.cpp">
+      <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\egolib\Renderer\OpenGL\Renderer.cpp">
+      <Filter>Source Files\Renderer\OpenGL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -440,9 +458,6 @@
     <ClInclude Include="src\egolib\lua\lua_console.h">
       <Filter>Lua</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\opengl\renderer.h">
-      <Filter>OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -487,6 +502,12 @@
     </ClInclude>
     <ClInclude Include="src\egolib\math\Colour3f.hpp">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\Renderer.hpp">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp">
+      <Filter>Header Files\Renderer\OpenGL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

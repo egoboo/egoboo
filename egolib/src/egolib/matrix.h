@@ -438,19 +438,19 @@ struct fmat_4x4_t
 		EGOBOO_ASSERT(dx != 0.0f && dy != 0.0f && dz != 0.0f);
 		float tx = -(right + left) / dx, ty = -(top + bottom) / dy, tz = -(zFar + zNear) / (dz);
 
-		(*this)(0, 0) = 2.0f * dx;
+		(*this)(0, 0) = 2.0f/dx;
 		(*this)(1, 0) = 0.0f;
 		(*this)(2, 0) = 0.0f;
 		(*this)(3, 0) = 0.0f;
 
 		(*this)(0, 1) = 0.0f;
-		(*this)(1, 1) = 2.0f * dy;
+		(*this)(1, 1) = 2.0f/dy;
 		(*this)(2, 1) = 0.0f;
 		(*this)(3, 1) = 0.0f;
 
 		(*this)(0, 2) = 0.0f;
 		(*this)(1, 2) = 0.0f;
-		(*this)(2, 2) = 2.0f * dz;
+		(*this)(2, 2) = 2.0f/dz;
 		(*this)(3, 2) = 1.0f;
 
 		(*this)(0, 3) = tx;

@@ -135,6 +135,22 @@
       <IgnoreSpecificDefaultLibraries>libc.lib;libcmt.lib;msvcrt.lib;libcd.lib;msvcrtd.lib</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -178,6 +194,22 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -185,11 +217,36 @@
       <CompileAs>CompileAsCpp</CompileAs>
       <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
+      <WarningLevel>Level4</WarningLevel>
+      <CompileAsManaged>false</CompileAsManaged>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>false</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;SHFolder.lib;Shell32.lib;ws2_32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -223,6 +280,22 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libFLAC-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libmikmod-2.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libogg-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbis-0.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\libvorbisfile-3.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_mixer-1.2.12\VisualC\external\lib\$(PlatformTarget)\smpeg.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libjpeg-8.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libpng15-15.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libtiff-5.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_image-1.2.12\VisualC\external\lib\$(PlatformTarget)\libwebp-2.dll" "$(TargetDir)"
+
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\libfreetype-6.dll" "$(TargetDir)"
+xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformTarget)\zlib1.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\cartman\cartman.c" />

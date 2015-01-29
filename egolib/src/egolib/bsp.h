@@ -98,7 +98,7 @@ public:
 protected:
 	bool inserted;
 
-	friend struct BSP_leaf_list_t;
+	friend class BSP_leaf_list_t;
 };
 
 

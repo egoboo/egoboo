@@ -275,14 +275,20 @@ void gfx_begin_2d()
     GL_DEBUG( glPushMatrix )();
 	/* @todo Remove glLoadIdentity and glOrtho. Use fmat_4x4_t API to build an ortho projection matrix,
 	         use Egoboo_Renderer_OpenGL_loadMatrix to load the matrix. */
+	fmat_4x4_t projection;
+	projection.setOrtho(0.0, sdl_scr.x, sdl_scr.y, 0.0, -1.0f, +1.0f);
+	Ego::Renderer::getSingleton()->loadMatrix(projection);
+#if 0
 	GL_DEBUG( glLoadIdentity )();
     GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
-
+#endif
     // Reset the Modelview Matrix
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
+	Ego::Renderer::getSingleton()->loadMatrix(fmat_4x4_t::identity);
+#if 0
     GL_DEBUG( glLoadIdentity )();
-
+#endif
     // remove any scissor test
     GL_DEBUG( glDisable )( GL_SCISSOR_TEST );
 
@@ -335,7 +341,7 @@ void gfx_begin_text()
     // draw draw front and back faces of polygons
     oglx_end_culling();                                                  // GL_ENABLE_BIT
 
-    GL_DEBUG( glColor4fv )( Ego::white_vec );                                 // GL_CURRENT_BIT
+	Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);// GL_CURRENT_BIT
 }
 
 //--------------------------------------------------------------------------------------------

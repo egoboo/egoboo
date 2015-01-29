@@ -1318,8 +1318,9 @@ gfx_rv dolist_mgr_t::end(dolist_mgr_t *self)
 //--------------------------------------------------------------------------------------------
 int dolist_mgr_t::get_free_idx(dolist_mgr_t *self)
 {
+#if 0
     int retval = -1;
-
+#endif
     // Ensure dolist manager is started.
     if (gfx_success != dolist_mgr_t::begin(self))
     {
@@ -1525,13 +1526,13 @@ void gfx_system_end()
 //--------------------------------------------------------------------------------------------
 void gfx_system_uninit_OpenGL()
 {
-	Ego::Renderer_OpenGL_uninitialize();
+	Ego::Renderer::shutDown();
 }
 
 //--------------------------------------------------------------------------------------------
 int gfx_system_init_OpenGL()
 {
-	Ego::Renderer_OpenGL_initialize(); /* @todo Add error handling. */
+	Ego::Renderer::startUp(); /* @todo Add error handling. */
 
     // GL_DEBUG(glClear)) stuff
     GL_DEBUG( glClearColor )( 0.0f, 0.0f, 0.0f, 0.0f ); // Set the background black
@@ -2211,7 +2212,7 @@ float draw_one_xp_bar( float x, float y, Uint8 ticks )
     ticks = std::min( ticks, (Uint8)NUMTICK );
 
     gfx_enable_texturing();               // Enable texture mapping
-    GL_DEBUG( glColor4fv )( Ego::white_vec );
+	Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);
 
     //---- Draw the tab (always colored)
 

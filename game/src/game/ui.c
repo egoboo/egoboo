@@ -213,9 +213,13 @@ void ui_beginFrame( float deltaTime )
     // store the GL_PROJECTION matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_PROJECTION );
     GL_DEBUG( glPushMatrix )();
+	fmat_4x4_t projection;
+	projection.setOrtho(0.0f, sdl_scr.x, sdl_scr.y, 0.0f, -1.0f, +1.0f);
+	Ego::Renderer::getSingleton()->loadMatrix(projection);
+#if 0
     GL_DEBUG( glLoadIdentity )();
     GL_DEBUG( glOrtho )( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
-
+#endif
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glLoadIdentity )();

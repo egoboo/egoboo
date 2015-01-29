@@ -17,9 +17,15 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/opengl/renderer.h
+/// @file   egolib/Renderer/Renderer.hpp
+/// @brief  Common interface of all renderers
+/// @author Michael Heilmann
 #pragma once
 
+#include "egolib/_math.h"
+#include "egolib/math/Colour4f.hpp"
+#include "egolib/matrix.h"
+#include "egolib/platform.h"
 #include "egolib/typedef.h"
 #include "egolib/extensions/ogl_debug.h"
 #include "egolib/extensions/ogl_extensions.h"
@@ -28,19 +34,11 @@
 #include "egolib/extensions/SDL_extensions.h"
 #include "egolib/extensions/SDL_GL_extensions.h"
 #include "egolib/_math.h"
+#include "egolib/math/Colour4f.hpp"
 #include "egolib/matrix.h"
 
-
-
-/**
- * @ingroup egoboo-opengl
- * @brief
- *	The Egoboo OpenGL back-end.
- * @author
- *	Michael Heilmann
- */
-namespace Ego
-{
+namespace Ego {
+	using namespace Math;
 	/// The color "white" to be used with glColor4f.
 	extern const GLXvector4f white_vec;
 	/// The color "black" to be used with glColor4f.
@@ -51,47 +49,51 @@ namespace Ego
 	extern const GLXvector4f green_vec;
 	/// The color "blue"  to be used with glColor4f.
 	extern const GLXvector4f blue_vec;
-	/**
-	 * @ingroup egoboo-opengl
-	 * @brief
-	 *	Initialize the OpenGL back-end.
-	 * @return
-	 *	@a 0 on success, a non-zero value on failure
-	 */
-	int Renderer_OpenGL_initialize();
-
-	/**
-	 * @ingroup egoboo-opengl
-	 * @brief
-	 *	Uninitialize the OpenGL back-end.
-	 */
-	void Renderer_OpenGL_uninitialize();
-
-	/**
-	 * @ingroup egoboo-opengl
-	 * @brief
-	 *	Multiply the OpenGL matrix with the given matrix (using glMultMatrix).
-	 * @param m
-	 *	the matrix
-	 */
-	void Renderer_OpenGL_multMatrix(const fmat_4x4_t& m);
-
-	/**
-	 * @ingroup egoboo-opengl
-	 * @brief
-	 *	Set the OpenGL matrix to the given matrix (using glLoadMatrix).
-	 * @param m
-	 *	the matrix
-	 */
-	void Renderer_OpenGL_loadMatrix(const fmat_4x4_t& m);
-#if 0
-	/**
-	 * @ingroup egolib-opengl
-	 * @brief
-	 *	Set the colour.
-	 * @param c
-	 *	the colour
-	 */
-	void Renderer_OpenGL_setColour(const Colour4f& c);
-#endif
+	class Renderer {
+	public:
+		/**
+		 * @brief
+		 *	Set the current colour.
+		 * @param colour
+		 *	the current colour
+		 */
+		virtual void setColour(const Colour4f& colour) = 0;
+		/**
+		 * @brief
+		 *	Replace the current matrix with the given matrix.
+		 * @param matrix
+		 *	the matrix
+		 */
+		virtual void loadMatrix(const fmat_4x4_t& matrix) = 0;
+		/**
+		 * @brief
+		 *	Multiply the current matrix with the given matrix.
+		 * @param matrix
+		 *	the matrix
+		 */
+		virtual void multiplyMatrix(const fmat_4x4_t& matrix) = 0;
+		/**
+		 * @brief
+		 *	Start-up the renderer.
+		 */
+		static void startUp();
+		/**
+		 * @brief
+		 *	Get the renderer.
+		 * @return
+		 *	the renderer
+		 * @pre
+		 *	The renderer must be started-up.
+		 * @warning
+		 *	Shutting-down the renderer will invalidate any pointers returned by calls to this function prior to shut-down.
+		 */
+		static Renderer *getSingleton();
+		/**
+		 * @brief
+		 *	Shut-down the renderer.
+		 * @remark
+		 *	If the renderer is not started-up, this function is a no-op.
+		 */
+		static void shutDown();
+	};
 };

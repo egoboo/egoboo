@@ -602,7 +602,7 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer_OpenGL_multMatrix(pinst->matrix);
+	Ego::Renderer::getSingleton()->multiplyMatrix(pinst->matrix);
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
         GL_DEBUG( glVertex3fv )( pinst->vrt_lst[vrt].pos );
@@ -1163,7 +1163,7 @@ void render_prt_bbox( prt_bundle_t * pbdl_prt )
 
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {
-            GL_DEBUG( glColor4fv )( Ego::white_vec );
+			Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);
 
             render_oct_bb( &loc_bb, true, true );
         }

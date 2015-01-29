@@ -35,6 +35,33 @@ namespace Ego {
 		 */
 		struct Colour4f
 		{
+
+			/**
+			 * @brief The colour "red" (255,0,0,255).
+			 */
+			static const Colour4f RED;
+
+			/**
+			 * @brief The colour "green" (0,255,0,255).
+			 */
+			static const Colour4f GREEN;
+
+			/**
+			 * @brief The colour "blue" (0,0,255,255).
+			 */
+			static const Colour4f BLUE;
+
+			/**
+			 * @brief The colour "white" (255,255,255,255).
+			 */
+			static const Colour4f WHITE;
+
+			/**
+			 * @brief The colour "black" (0,0,0,255).
+			 */
+			static const Colour4f BLACK;
+
+		private:
 			/**
 			 * @brief
 			 *	The red component.
@@ -42,6 +69,7 @@ namespace Ego {
 			 *	0.0f <= r <= 1.0f
 			 */
 			float _r;
+			
 			/**
 			 * @brief
 			 *	The green component.
@@ -49,13 +77,15 @@ namespace Ego {
 			 *	0.0f <= r <= 1.0f
 			 */
 			float _g;
+			
 			/**
-			* @brief
-			*	The blue component.
-			* @invariant
-			*	0.0f <= r <= 1.0f
-			*/
+ 			 * @brief
+			 *	The blue component.
+			 * @invariant
+			 *	0.0f <= r <= 1.0f
+			 */
 			float _b;
+
 			/**
 			 * @brief
 			 *	The alpha component.
@@ -65,6 +95,50 @@ namespace Ego {
 			 *	0.0f is completely transparent, 1.0f is completely opaque.
 			 */
 			float _a;
+		
+		public:
+			/**
+			 * @brief
+			 *	Get the value of the red component.
+			 * @return
+			 *	the value of the red component
+			 */
+			float getRed() const {
+				return _r;
+			}
+
+			/**
+			 * @brief
+			 *	Get the value of the green component.
+			 * @return
+			 *	the value of the green component
+			 */
+			float getGreen() const {
+				return _g;
+			}
+
+			/**
+			 * @brief
+			 *	Get the value of the blue component.
+			 * @return
+			 *	the value of the blue component
+			 */
+			float getBlue() const {
+				return _b;
+			}
+
+			/**
+			 * @brief
+			 *	Get the value of the blue component.
+			 * @return
+			 *	the value of the blue component
+			 */
+			float getAlpha() const {
+				return _a;
+			}
+
+
+
 			/**
 			 * @brief
 			 *	Create a colour.

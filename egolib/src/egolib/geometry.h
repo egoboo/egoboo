@@ -26,6 +26,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/_math.h"
+#include "egolib/math/Plane.h"
 #include "egolib/math/Sphere.h"
 
 // Forward declaration.
@@ -50,15 +51,6 @@ struct aabb_t;
 //--------------------------------------------------------------------------------------------
 
     typedef fvec3_base_t point_base_t;
-
-//--------------------------------------------------------------------------------------------
-// a datatype for planes
-//--------------------------------------------------------------------------------------------
-
-// the base type of the plane data
-    typedef fvec4_base_t plane_base_t;
-
-    bool plane_base_normalize( plane_base_t * plane );
 
 //--------------------------------------------------------------------------------------------
 // a datatype for cones

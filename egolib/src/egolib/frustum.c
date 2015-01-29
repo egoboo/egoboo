@@ -23,7 +23,7 @@
 ///          Mark Morely (through the now vanished tutorial at http://www.markmorley.com/opengl/frustumculling.html)
 
 #include "egolib/frustum.h"
-#include "egolib/opengl/renderer.h"
+#include "egolib/Renderer/Renderer.hpp"
 #include "egolib/_math.h"
 
 //--------------------------------------------------------------------------------------------

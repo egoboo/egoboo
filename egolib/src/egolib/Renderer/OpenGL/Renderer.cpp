@@ -17,18 +17,58 @@
 //*
 //********************************************************************************************
 
-/// @file egolib/opengl/renderer.c
-#include "egolib/opengl/renderer.h"
+/// @file   egolib/Renderer/OpenGL/Renderer.cpp
+/// @brief  OpenGL 2.1 based renderer
+/// @author Michael Heilmann
+#include "egolib/Renderer/OpenGL/Renderer.hpp"
 
 
 
 namespace Ego
 {
+	namespace OpenGL
+	{
+		void Renderer::multiplyMatrix(const fmat_4x4_t& matrix)
+		{
+			// fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
+			// to the OpenGL API. However, currently this code is redundant.
+			GLXmatrix t;
+			for (size_t i = 0; i < 4; ++i)
+			{
+				for (size_t j = 0; j < 4; ++j)
+				{
+					t[i * 4 + j] = matrix.v[i * 4 + j];
+				}
+			}
+			GL_DEBUG(glMultMatrixf)(t);
+		}
+		void Renderer::loadMatrix(const fmat_4x4_t& matrix)
+		{
+			// fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
+			// to the OpenGL API. However, currently this code is redundant.
+			GLXmatrix t;
+			for (size_t i = 0; i < 4; ++i)
+			{
+				for (size_t j = 0; j < 4; ++j)
+				{
+					t[i * 4 + j] = matrix.v[i * 4 + j];
+				}
+			}
+			GL_DEBUG(glLoadMatrixf)(t);
+		}
+		void Renderer::setColour(const Colour4f& colour)
+		{
+			GL_DEBUG(glColor4f(colour.getRed(), colour.getGreen(),
+				               colour.getBlue(), colour.getAlpha()));
+		}
+	};
+
 	const GLXvector4f white_vec = { 1.0f, 1.0f, 1.0f, 1.0f };
 	const GLXvector4f black_vec = { 0.0f, 0.0f, 0.0f, 1.0f };
 	const GLXvector4f red_vec   = { 1.0f, 0.0f, 0.0f, 1.0f };
 	const GLXvector4f green_vec = { 0.0f, 1.0f, 0.0f, 1.0f };
 	const GLXvector4f blue_vec  = { 0.0f, 0.0f, 1.0f, 1.0f };
+#if 0
 	/**
 	 * @brief
 	 *	Was the OpenGL renderer initialized?
@@ -76,4 +116,11 @@ namespace Ego
 		}
 		GL_DEBUG(glLoadMatrixf)(t);
 	}
+
+
+	void Renderer_OpenGL_setColour(const Colour4f& c)
+	{
+		GL_DEBUG(glColor4f(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()));
+	}
+#endif
 };

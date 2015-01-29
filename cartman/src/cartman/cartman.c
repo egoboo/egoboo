@@ -2231,18 +2231,25 @@ int main( int argcnt, char* argtext[] )
     }
 
     // initialize the virtual file system
-    vfs_init( egoboo_path );
+    vfs_init(egoboo_path);
+	/*
+	// Uncomment to display the search paths.
+	vfs_listSearchPaths();
+	*/
     setup_init_base_vfs_paths();
 
     // register the logging code
     log_init("/debug/log.txt", LOG_INFO);
 
-    if ( !setup_read_vfs() )
+    if (!setup_read_vfs())
     {
         log_error( "Cannot load the setup file \"%s\".\n", fname );
     }
-    config_download( &cfg );
-
+    config_download(&cfg);
+	/*
+	// Uncomment to display the search paths.
+	vfs_listSearchPaths();
+	*/
     // initialize the SDL elements
     cartman_init_SDL_base();
     gfx_system_begin();

@@ -17,29 +17,17 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Plane.h
-/// @brief Planes.
+/// @file  egolib/math/Colour4f.cpp
+/// @brief Colours in real-valued, normalized RGBA space.
 
-#pragma once
+#include "egolib/math/Colour4f.hpp"
 
-#include "egolib/vec.h"
-#if 0
-#include "egolib/typedef.h"
-#include "egolib/_math.h"
-#endif
-
-// The base type of the plane data.
-// @todo Remove this.
-typedef fvec4_base_t plane_base_t;
-
-/// @todo Remove this.
-bool plane_base_normalize(plane_base_t * plane);
-
-#if 0
-struct plane_t
-{
-	plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c);
-	plane_t(const fvec3_t& p, const fvec3_t& n);
-	plane_t(const plane_t& other);
+namespace Ego {
+	namespace Math {
+		const Colour4f Colour4f::RED = Colour4f(1.0f, 0.0f, 0.0f, 1.0f);
+		const Colour4f Colour4f::GREEN = Colour4f(0.0f, 1.0f, 0.0f, 1.0f);
+		const Colour4f Colour4f::BLUE = Colour4f(0.0f, 0.0f, 1.0f, 1.0f);
+		const Colour4f Colour4f::WHITE = Colour4f(1.0f, 1.0f, 1.0f, 1.0f);
+		const Colour4f Colour4f::BLACK = Colour4f(0.0f, 0.0f, 0.0f, 1.0f);
+	};
 };
-#endif

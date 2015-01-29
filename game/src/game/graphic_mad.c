@@ -153,11 +153,11 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
 
     if ( HAS_SOME_BITS( bits, CHR_REFLECT ) )
     {
-		Ego::Renderer_OpenGL_multMatrix(pinst->ref.matrix);
+		Ego::Renderer::getSingleton()->multiplyMatrix(pinst->ref.matrix);
     }
     else
     {
-		Ego::Renderer_OpenGL_multMatrix(pinst->matrix);
+		Ego::Renderer::getSingleton()->multiplyMatrix(pinst->matrix);
     }
 
     // Choose texture and matrix
@@ -343,11 +343,11 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
 
     if ( 0 != ( bits & CHR_REFLECT ) )
     {
-		Ego::Renderer_OpenGL_multMatrix(pinst->ref.matrix);
+		Ego::Renderer::getSingleton()->multiplyMatrix(pinst->ref.matrix);
     }
     else
     {
-		Ego::Renderer_OpenGL_multMatrix(pinst->matrix);
+		Ego::Renderer::getSingleton()->multiplyMatrix(pinst->matrix);
     }
 
     // Choose texture and matrix
@@ -808,7 +808,7 @@ void draw_chr_bbox( chr_t * pchr )
 
             oct_bb_add_fvec3( &( pchr->slot_cv[SLOT_LEFT] ), pchr->pos, &bb );
 
-            GL_DEBUG( glColor4fv )( Ego::white_vec );
+			Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);
             render_oct_bb( &bb, true, true );
         }
         GL_DEBUG( glEnable )( GL_TEXTURE_2D );
@@ -864,7 +864,7 @@ void draw_chr_verts( chr_t * pchr, int vrt_offset, int verts )
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer_OpenGL_multMatrix(pchr->inst.matrix);
+	Ego::Renderer::getSingleton()->multiplyMatrix(pchr->inst.matrix);
     GL_DEBUG( glBegin( GL_POINTS ) );
     {
         for ( cnt = vmin; cnt < vmax; cnt++ )
@@ -905,7 +905,7 @@ void draw_one_grip( chr_instance_t * pinst, mad_t * pmad, int slot )
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer_OpenGL_multMatrix(pinst->matrix);
+	Ego::Renderer::getSingleton()->multiplyMatrix(pinst->matrix);
 
     _draw_one_grip_raw( pinst, pmad, slot );
 
@@ -968,7 +968,7 @@ void _draw_one_grip_raw( chr_instance_t * pinst, mad_t * pmad, int slot )
         GL_DEBUG_END();
     }
 
-    GL_DEBUG( glColor4fv )( Ego::white_vec );
+	Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1017,7 +1017,7 @@ void draw_chr_grips( chr_t * pchr )
     // store the GL_MODELVIEW matrix (this stack has a finite depth, minimum of 32)
     GL_DEBUG( glMatrixMode )( GL_MODELVIEW );
     GL_DEBUG( glPushMatrix )();
-	Ego::Renderer_OpenGL_multMatrix(pchr->inst.matrix);
+	Ego::Renderer::getSingleton()->multiplyMatrix(pchr->inst.matrix);
 
     if ( profile->isSlotValid(SLOT_LEFT) )
     {

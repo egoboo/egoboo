@@ -17,29 +17,30 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Plane.h
-/// @brief Planes.
+/// @file   egolib/Renderer/Renderer.cpp
+/// @brief  Common interface of all renderers
+/// @author Michael Heilmann
 
-#pragma once
+#include "egolib/Renderer/Renderer.hpp"
+#include "egolib/Renderer/OpenGL/Renderer.hpp"
 
-#include "egolib/vec.h"
-#if 0
-#include "egolib/typedef.h"
-#include "egolib/_math.h"
+namespace Ego {
+#if 1
+	static Renderer *singleton = nullptr;
+	void Renderer::startUp() {
+		if (!singleton) {
+			singleton = new OpenGL::Renderer();
+		}
+	}
+	Renderer *Renderer::getSingleton() {
+		EGOBOO_ASSERT(nullptr != singleton);
+		return singleton;
+	}
+	void Renderer::shutDown() {
+		if (singleton) {
+			delete singleton;
+			singleton = nullptr;
+		}
+	}
 #endif
-
-// The base type of the plane data.
-// @todo Remove this.
-typedef fvec4_base_t plane_base_t;
-
-/// @todo Remove this.
-bool plane_base_normalize(plane_base_t * plane);
-
-#if 0
-struct plane_t
-{
-	plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c);
-	plane_t(const fvec3_t& p, const fvec3_t& n);
-	plane_t(const plane_t& other);
 };
-#endif

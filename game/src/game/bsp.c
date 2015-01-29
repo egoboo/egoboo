@@ -206,8 +206,9 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 //--------------------------------------------------------------------------------------------
 bool chr_BSP_clear()
 {
+#if 0
 	CHR_REF ichr;
-
+#endif
 	// unlink all the BSP nodes
 	BSP_tree_clear_rec(&(chr_BSP_root->tree));
 	chr_BSP_root->count = 0;
