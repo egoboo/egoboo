@@ -180,3 +180,8 @@ void ObjectHandler::unlock()
             });
     }
 }
+
+ObjectHandler::ObjectIterator ObjectHandler::getAllObjects()
+{
+    return ObjectIterator(this);
+}

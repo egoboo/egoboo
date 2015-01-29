@@ -34,10 +34,60 @@ class chr_t;
 class ObjectHandler
 {
 public:
+
+	class ObjectIterator
+	{
+	public:
+
+		inline std::list<std::shared_ptr<chr_t>>::const_iterator cbegin() const 
+		{
+			return _handler->_characterList.cbegin();
+		}
+
+		inline std::list<std::shared_ptr<chr_t>>::const_iterator cend() const 
+		{
+			return _handler->_characterList.cend();
+		}
+
+		inline std::list<std::shared_ptr<chr_t>>::const_iterator begin()
+		{
+			return _handler->_characterList.begin();
+		}
+
+		inline std::list<std::shared_ptr<chr_t>>::const_iterator end()
+		{
+			return _handler->_characterList.end();
+		}	
+
+	private:
+		ObjectIterator(ObjectHandler *handler) :
+			_handler(handler)
+		{
+			//Ensure the ObjectHandler is locked as long as we are in existance
+			_handler->lock();
+		}
+
+		~ObjectIterator()
+		{
+			//Free the ObjectHandler lock
+			_handler->unlock();
+		}
+
+		ObjectHandler *_handler;
+
+		friend class ObjectHandler;
+	};
+
+public:
 	/**
 	* @brief default constructor
 	**/
 	ObjectHandler();
+
+	/**
+	* @brief Returns a safe deferred iterator that ensure nothing is modified while iterating
+	**/
+	ObjectIterator getAllObjects();
 
 	/**
 	* @brief removes the specified CHR_REF for the game. 
@@ -72,6 +122,7 @@ public:
 	**/
 	size_t getObjectCount() const {return _characterList.size();}
 
+/*
 	inline std::list<std::shared_ptr<chr_t>>::const_iterator cbegin() const 
 	{
 		if(_semaphore == 0) throw new std::logic_error("ObjectHandler not locked before iteration");
@@ -82,6 +133,7 @@ public:
 	{
 		return _characterList.cend();
 	}
+*/
 
 	/**
 	* @brief Locks all object containers to ensure no modification will happen.
@@ -107,4 +159,6 @@ private:
 
 	mutable std::recursive_mutex _modificationLock;
 	std::atomic_size_t _semaphore;
+
+	friend class ObjectIterator;
 };
