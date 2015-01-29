@@ -110,7 +110,7 @@ CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
     return ichr;
 }
 
-chr_t* ObjectHandler::operator[] (const PRO_REF index)
+chr_t* ObjectHandler::get(const PRO_REF index) const
 {
     std::lock_guard<std::recursive_mutex> lock(_modificationLock);
     const auto &result = _characterMap.find(index);
@@ -123,7 +123,7 @@ chr_t* ObjectHandler::operator[] (const PRO_REF index)
     return (*result).second.get();
 }
 
-const std::shared_ptr<chr_t>& ObjectHandler::get(const PRO_REF index) const
+const std::shared_ptr<chr_t>& ObjectHandler::operator[] (const PRO_REF index)
 {
     std::lock_guard<std::recursive_mutex> lock(_modificationLock);
     const auto &result = _characterMap.find(index);

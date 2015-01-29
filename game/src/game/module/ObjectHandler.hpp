@@ -107,15 +107,15 @@ public:
 	CHR_REF insert(const PRO_REF profile, const CHR_REF override = INVALID_CHR_REF);
 
 	/**
-	* @return a raw pointer referenced by CHR_REF
-	**/
-	chr_t* operator[] (const CHR_REF index);
-
-	/**
 	* @return A pointer object for the specified CHR_REF
 	*		  Return a nullptr object if CHR_REF was not found
 	**/
-	const std::shared_ptr<chr_t>& get(const CHR_REF index) const;
+	const std::shared_ptr<chr_t>& operator[] (const CHR_REF index);
+
+	/**
+	* @return a raw pointer referenced by CHR_REF
+	**/
+	chr_t* get(const CHR_REF index) const;
 
 	/**
 	* @return Number of objects currently active in the game
