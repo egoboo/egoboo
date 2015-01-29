@@ -1,0 +1,50 @@
+= MinGW Windows
+
+This document describes the process of building and installing Egoboo under
+Windows using the MinGW compiler. 
+
+== Compile toolchain setup
+Building Egoboo on Windows requires a recent version of MinGW (4.9.2 or later) and
+Msys (1.0.11 or later). It is recommended to use tdm-gcc to install and setup mingw
+for your system. 
+
+To make your life easier you should make a copy of make-mingw32.exe
+and rename it to make.exe (which will allow you to use make normally without the
+mingw32 extension). make-mingw32.exe is located in c:/TDM-GCC-64/bin if you used the
+default install.
+
+Msys: http://www.mingw.org/wiki/MSYS
+tdm-gcc: http://tdm-gcc.tdragon.net/  (use the 64-bit version)
+
+
+== Library Dependencies
+Furthermore the runtime and development version of the following libraries need to be 
+installed (SDL version 1 not 2!):
+
+	- SDL 1.2.15 or later
+	- SDL_mixer 1.2.12 or later
+	- SDL_image 1.2.12 or later
+	- SDL_ttf 2.0.11 or later
+	- enet 1.3.12 or later
+	- PhysFS 2.0 or later
+	- Lua 5.2 or later (optional)
+
+You will need to download each of these libraries, then compile and install each of them
+using msys and run these two commands in each folder:
+
+./configure
+make install
+
+Each library dependency should now be compiled and installed.
+
+== Compiling Egoboo
+After all dependencies have been installed, you can finally compile the game itself!
+Use msys to find your main Egoboo folder (where both egolib and game folders are) and
+run the following command:
+
+make -f Makefile.Windows -j
+
+The -j is optional but can dramatically increase compile speed by utilizing parallelism.
+If everything compiles as it should, then the binary (egoboo.exe) should be located in
+".../egoboo/game/data". Remember that you need all the SDL DLL's you compiled earlier
+in the same folder as the binary executable.
