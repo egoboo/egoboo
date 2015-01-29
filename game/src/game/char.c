@@ -3973,7 +3973,6 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
                              const int skin, const FACING_T facing, const char *name, const CHR_REF override )
 {
     CHR_REF   ichr;
-    chr_t   * pchr;
 
     // fix a "bad" name
     if ( NULL == name ) name = "";
@@ -3992,15 +3991,12 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
     ppro->requestCount++;
 
     // allocate a new character
-    ichr = _gameObjects.insert(profile, override);
-    if ( !_gameObjects.exists( ichr ) )
+    std::shared_ptr<chr_t> pchr = _gameObjects.insert(profile, override);
+    if (!pchr)
     {
-        log_warning( "spawn_one_character() - failed to spawn character (invalid index number %d?)\n", REF_TO_INT( ichr ) );
+        log_warning( "spawn_one_character() - failed to spawn character (invalid index number %d?)\n", REF_TO_INT( pchr->getCharacterID() ) );
         return INVALID_CHR_REF;
     }
-    pchr = _gameObjects.get( ichr );
-
-//    POBJ_BEGIN_SPAWN( pchr );
 
     // just set the spawn info
 	pchr->spawn_data.pos = pos;
@@ -4011,28 +4007,21 @@ CHR_REF spawn_one_character( const fvec3_t& pos, const PRO_REF profile, const TE
     strncpy( pchr->spawn_data.name, name, SDL_arraysize( pchr->spawn_data.name ) );
     pchr->spawn_data.override = override;
 
-    chr_config_do_init(pchr);
+    chr_config_do_init(pchr.get());
 
     // start the character out in the "dance" animation
-    chr_start_anim( pchr, ACTION_DA, true, true );
-
-    // actually force the character to spawn
- //   pchr = chr_config_activate( pchr, 100 );
+    chr_start_anim( pchr.get(), ACTION_DA, true, true );
 
     // count all the successful spawns of this character
-    if ( NULL != pchr )
-    {
-       // POBJ_END_SPAWN( pchr );
-        ppro->spawnCount++;
-    }
+    ppro->spawnCount++;
 
 #if defined(DEBUG_OBJECT_SPAWN) && defined(_DEBUG)
     {
-        log_debug( "spawn_one_character() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( ichr ), name, ppro->getClassName().c_str() );
+        log_debug( "spawn_one_character() - slot: %i, index: %i, name: %s, class: %s\n", REF_TO_INT( profile ), REF_TO_INT( pchr->getCharacterID() ), name, ppro->getClassName().c_str() );
     }
 #endif
 
-    return ichr;
+    return pchr->getCharacterID();
 }
 
 //--------------------------------------------------------------------------------------------

@@ -8,6 +8,7 @@ ObjectHandler::ObjectHandler() :
 	_characterMap(),
     _characterList(),
 	_terminationList(),
+    _allocateList(),
     _modificationLock(),
     _semaphore(0),
     _totalCharactersSpawned(0)
@@ -25,14 +26,16 @@ bool ObjectHandler::remove(const CHR_REF ichr)
     chr_log_script_time( ichr );
 #endif
 
-    // if we are inside a ChrList loop, do not actually change the length of the
-    // list. This will cause some problems later.
-   
+    // if we are inside a list loop, do not actually change the length of the
+    // list. Else this can cause some problems later.
     _terminationList.push_back(ichr);
 
     // at least mark the object as "waiting to be terminated"
     get(ichr)->terminateRequested = true;
 
+    //We can safely modify the map, it is not iterable from the outside
+    _characterMap.erase(ichr);
+    
     return true;
 }
 
@@ -52,7 +55,7 @@ bool ObjectHandler::exists(const CHR_REF character) const
 }
 
 
-CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
+std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
 {
     std::lock_guard<std::recursive_mutex> lock(_modificationLock);
 
@@ -60,13 +63,13 @@ CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
     if(!_profileSystem.isValidProfileID(profile))
     {
         log_warning("ObjectHandler - Tried to spawn character with invalid ProfileID: %d\n", profile);
-        return INVALID_CHR_REF;
+        return nullptr;
     }
 
     //Limit total number of characters active at the same time
     if(getObjectCount() > MAX_CHR) {
         log_warning( "ObjectHandler - No free character slots available\n" );
-        return INVALID_CHR_REF;
+        return nullptr;
     }
 
     CHR_REF ichr = INVALID_CHR_REF;
@@ -90,22 +93,25 @@ CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
 
     if (ichr != INVALID_CHR_REF)
     {
-        std::shared_ptr<chr_t> object = std::make_shared<chr_t>(profile, ichr);
+        const std::shared_ptr<chr_t> object = std::make_shared<chr_t>(profile, ichr);
 
         if(!object) {
             log_warning( "ObjectHandler - Unable to allocate object memory\n" );
-            return INVALID_CHR_REF;
+            return nullptr;
         }
 
-        // allocate the new one
+        // allocate the new one (we can safely modify the map, it isn't iterable from outside)
         if(_characterMap.emplace(ichr, object).second == false) {
             log_warning( "ObjectHandler - Failed character allocation, object already exists\n" );
-            return INVALID_CHR_REF;
+            return nullptr;
         }
-        _characterList.push_back(object);
+
+        //Wait to adding it to the iterable list
+        _allocateList.push_back(object);
+        return object;
     }
 
-    return ichr;
+    return nullptr;
 }
 
 chr_t* ObjectHandler::get(const PRO_REF index) const
@@ -166,17 +172,24 @@ void ObjectHandler::unlock()
     {
         // go through and delete any characters that were
         // supposed to be deleted while the list was iterating
-        for(CHR_REF ichr : _terminationList)
+        for(const CHR_REF ichr : _terminationList)
         {
-            _characterMap.erase(ichr);
+            _characterList.erase(
+                std::remove_if(_characterList.begin(), _characterList.end(),
+                [ichr](const std::shared_ptr<chr_t> &element) 
+                {
+                    return element->terminateRequested || element->getCharacterID() == ichr;
+                })
+            );
         }
         _terminationList.clear();
 
-        _characterList.remove_if(
-            [](const std::shared_ptr<chr_t> &element) 
-            {
-                return element->terminateRequested;
-            });
+        //Add any allocated objects to the containers
+        for(const std::shared_ptr<chr_t> &object : _allocateList)
+        {
+            _characterList.push_back(object);
+        }
+        _allocateList.clear();
     }
 }
 

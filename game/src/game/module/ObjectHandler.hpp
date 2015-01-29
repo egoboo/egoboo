@@ -46,22 +46,22 @@ public:
 	{
 	public:
 
-		inline std::list<std::shared_ptr<chr_t>>::const_iterator cbegin() const 
+		inline std::vector<std::shared_ptr<chr_t>>::const_iterator cbegin() const 
 		{
 			return _handler->_characterList.cbegin();
 		}
 
-		inline std::list<std::shared_ptr<chr_t>>::const_iterator cend() const 
+		inline std::vector<std::shared_ptr<chr_t>>::const_iterator cend() const 
 		{
 			return _handler->_characterList.cend();
 		}
 
-		inline std::list<std::shared_ptr<chr_t>>::const_iterator begin()
+		inline std::vector<std::shared_ptr<chr_t>>::const_iterator begin()
 		{
 			return _handler->_characterList.begin();
 		}
 
-		inline std::list<std::shared_ptr<chr_t>>::const_iterator end()
+		inline std::vector<std::shared_ptr<chr_t>>::const_iterator end()
 		{
 			return _handler->_characterList.end();
 		}	
@@ -109,9 +109,9 @@ public:
 
 	/**
 	* @brief Allocates and creates new chr_t object. A valid PRO_REF is required to spawn a object
-	* @return the CHR_REF for that object or INVALID_CHR_REF if it failed
+	* @return the std::shared_ptr<chr_t> for that object or nullptr if it failed
 	**/
-	CHR_REF insert(const PRO_REF profile, const CHR_REF override = INVALID_CHR_REF);
+	std::shared_ptr<chr_t> insert(const PRO_REF profile, const CHR_REF override = INVALID_CHR_REF);
 
 	/**
 	* @return A pointer object for the specified CHR_REF
@@ -130,6 +130,12 @@ public:
 	size_t getObjectCount() const {return _characterList.size();}
 
 	/**
+	* @brief Removes and de-allocates all game objects contained in this ObjectHandler
+	**/
+	void clear();
+
+private:
+	/**
 	* @brief Locks all object containers to ensure no modification will happen.
 	*		 Must be called before iterating.
 	**/
@@ -139,17 +145,13 @@ public:
 	* @brief unlocks all object containers for modifications
 	**/
 	void unlock();
-
-	/**
-	* @brief Removes and de-allocates all game objects contained in this ObjectHandler
-	**/
-	void clear();
-
+	
 private:
 	std::unordered_map<CHR_REF, std::shared_ptr<chr_t>> _characterMap;		///< Maps CHR_REF to a chr_t pointer
-	std::list<std::shared_ptr<chr_t>> _characterList;						///< For iterating
+	std::vector<std::shared_ptr<chr_t>> _characterList;						///< For iterating
 
 	std::vector<CHR_REF> _terminationList;									///< List of all objects that should be terminated
+	std::vector<std::shared_ptr<chr_t>> _allocateList;						///< List of all objects that should be added
 
 	mutable std::recursive_mutex _modificationLock;
 	std::atomic_size_t _semaphore;

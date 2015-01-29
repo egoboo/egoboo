@@ -22,12 +22,15 @@
 /// @author Michael Heilmann
 #include "egolib/Renderer/OpenGL/Renderer.hpp"
 
-
-
 namespace Ego
 {
 	namespace OpenGL
 	{
+		Renderer::~Renderer()
+		{
+			//dtor
+		}
+
 		void Renderer::multiplyMatrix(const fmat_4x4_t& matrix)
 		{
 			// fmat_4x4_t will not remain a simple array, hence the data must be packed explicitly to be passed
