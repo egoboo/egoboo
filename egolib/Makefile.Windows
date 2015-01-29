@@ -4,11 +4,8 @@ EGOLIB_TARGET := libegoboo.a
 
 #---------------------
 # the source files
-SOURCES := $(wildcard ./src/egolib/*.c)  $(wildcard ./src/egolib/*/*.c)
-SOURCES += $(wildcard ./src/egolib/*.cpp) $(wildcard ./src/egolib/*/*.cpp)
-
-SOURCES     += ./src/egolib/platform/sys_win32.c
-SOURCES     += ./src/egolib/platform/file_win.c
+SOURCES := $(wildcard ./src/egolib/*.c)  $(wildcard ./src/egolib/*/*.c) $(wildcard ./src/egolib/*/*/*.c)
+SOURCES += $(wildcard ./src/egolib/*.cpp) $(wildcard ./src/egolib/*/*.cpp) $(wildcard ./src/egolib/*/*/*.cpp)
 
 #Exclude these files
 SOURCES := $(filter-out ./src/egolib/bsp_leaf.c, $(SOURCES))
