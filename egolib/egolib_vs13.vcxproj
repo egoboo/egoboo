@@ -253,7 +253,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Sphere.cpp" />
+    <ClCompile Include="src\egolib\math\Sphere.cpp" />
     <ClCompile Include="src\egolib\Renderer\OpenGL\Renderer.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)Renderer\OpenGL\Renderer.o</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)Renderer\OpenGL\Renderer.o</ObjectFileName>

@@ -94,10 +94,10 @@ ego_process_t     * EProc   = &_eproc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int do_ego_proc_begin( ego_process_t * eproc )
+int do_ego_proc_begin(ego_process_t *self)
 {
     // initialize the virtual filesystem first
-    vfs_init( NULL );
+    vfs_init(self->argv[0]);
     setup_init_base_vfs_paths();
 
     // Initialize logging next, so that we can use it everywhere.
@@ -116,7 +116,7 @@ int do_ego_proc_begin( ego_process_t * eproc )
     setup_read_vfs();
 
     // download the "setup.txt" values into the cfg struct
-    config_download( &cfg, true );
+    config_download(&cfg, true);
 
     // do basic system initialization
     ego_init_SDL();
@@ -125,16 +125,16 @@ int do_ego_proc_begin( ego_process_t * eproc )
     // synchronize the config values with the various game subsystems
     // do this after the ego_init_SDL() and gfx_system_init_OpenGL() in case the config values are clamped
     // to valid values
-    config_download( &cfg, true );
+    config_download(&cfg, true);
 
-    log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL );
+    log_info("Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL);
     GLSetup_SupportedFormats();
 
     // read all the scantags
-    scantag_read_all_vfs( "mp_data/scancode.txt" );
+    scantag_read_all_vfs("mp_data/scancode.txt");
 
     // load input
-    input_settings_load_vfs( "/controls.txt", -1 );
+    input_settings_load_vfs("/controls.txt", -1);
 
     // initialize the console
     egolib_console_begin();
@@ -147,11 +147,11 @@ int do_ego_proc_begin( ego_process_t * eproc )
     _audioSystem.loadAllMusic();
 
     // initialize the random treasure system
-    init_random_treasure_tables_vfs( "mp_data/randomtreasure.txt" );
+    init_random_treasure_tables_vfs("mp_data/randomtreasure.txt");
 
     // make sure that a bunch of stuff gets initialized properly
     object_systems_begin();
-    ego_mesh_ctor( PMesh );
+    ego_mesh_ctor(PMesh);
     gfx_system_init_all_graphics();
     _profileSystem.begin();
 
@@ -162,17 +162,17 @@ int do_ego_proc_begin( ego_process_t * eproc )
     vfs_empty_temp_directories();
 
     // register the memory_cleanUp function to automatically run whenever the program exits
-    atexit( memory_cleanUp );
+    atexit(memory_cleanUp);
 
     // initialize the game process (not active)
-    game_process_init( GProc );
+    game_process_init(GProc);
 
     // initialize the menu process (active)
-    menu_process_init( MProc );
-    process_start( PROC_PBASE( MProc ) );
+    menu_process_init(MProc);
+    process_t::start(PROC_PBASE(MProc));
 
     // Initialize the process
-    process_start( PROC_PBASE( eproc ) );
+    process_t::start(PROC_PBASE(self));
 
     return 1;
 }
@@ -182,21 +182,21 @@ int do_ego_proc_running( ego_process_t * eproc )
 {
     bool menu_valid, game_valid;
 
-    if ( !process_validate( PROC_PBASE( eproc ) ) ) return -1;
+    if (!process_t::validate(PROC_PBASE(eproc))) return -1;
 
     eproc->was_active  = eproc->base.valid;
 
-    menu_valid = process_validate( PROC_PBASE( MProc ) );
-    game_valid = process_validate( PROC_PBASE( GProc ) );
+    menu_valid = process_t::validate( PROC_PBASE( MProc ) );
+    game_valid = process_t::validate( PROC_PBASE( GProc ) );
     if ( !menu_valid && !game_valid )
     {
-        process_kill( PROC_PBASE( eproc ) );
+        process_t::kill( PROC_PBASE( eproc ) );
         return 1;
     }
 
     if ( eproc->base.paused ) return 0;
 
-    if ( process_running( PROC_PBASE( MProc ) ) )
+    if ( process_t::running( PROC_PBASE( MProc ) ) )
     {
         // menu settings
         SDL_WM_GrabInput( SDL_GRAB_OFF );
@@ -216,7 +216,7 @@ int do_ego_proc_running( ego_process_t * eproc )
     // read the input values
     input_read_all_devices();
 
-    if ( pickedmodule_ready && !process_running( PROC_PBASE( MProc ) ) )
+    if ( pickedmodule_ready && !process_t::running( PROC_PBASE( MProc ) ) )
     {
         // a new module has been picked
 
@@ -224,14 +224,14 @@ int do_ego_proc_running( ego_process_t * eproc )
         pickedmodule_ready = false;
 
         // start the game process
-        process_start( PROC_PBASE( GProc ) );
+        process_t::start( PROC_PBASE( GProc ) );
     }
 
     // Test the panic button
     if ( SDL_KEYDOWN( keyb, SDLK_q ) && SDL_KEYDOWN( keyb, SDLK_LCTRL ) )
     {
         // terminate the program
-        process_kill( PROC_PBASE( eproc ) );
+        process_t::kill(PROC_PBASE(eproc));
     }
 
     if ( cfg.dev_mode )
@@ -290,12 +290,12 @@ int do_ego_proc_running( ego_process_t * eproc )
         // use the escape key to get out of single frame mode
         single_frame_mode = false;
 
-        if ( process_running( PROC_PBASE( GProc ) ) )
+        if ( process_t::running( PROC_PBASE( GProc ) ) )
         {
             GProc->escape_requested = true;
         }
 
-        if ( process_running( PROC_PBASE( MProc ) ) )
+        if ( process_t::running( PROC_PBASE( MProc ) ) )
         {
             MProc->escape_requested = true;
         }
@@ -346,7 +346,7 @@ int do_ego_proc_running( ego_process_t * eproc )
 //--------------------------------------------------------------------------------------------
 int do_ego_proc_leaving( ego_process_t * eproc )
 {
-    if ( !process_validate( PROC_PBASE( eproc ) ) ) return -1;
+    if ( !process_t::validate( PROC_PBASE( eproc ) ) ) return -1;
 
     // make sure that the game is terminated
     if ( !GProc->base.terminated )
@@ -362,7 +362,7 @@ int do_ego_proc_leaving( ego_process_t * eproc )
 
     if ( GProc->base.terminated && MProc->base.terminated )
     {
-        process_terminate( PROC_PBASE( eproc ) );
+        process_t::terminate( PROC_PBASE( eproc ) );
     }
 
     if ( eproc->base.terminated )
@@ -384,7 +384,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
-    if ( !process_validate( PROC_PBASE( eproc ) ) ) return -1;
+    if ( !process_t::validate( PROC_PBASE( eproc ) ) ) return -1;
     eproc->base.frameDuration = frameDuration;
 
     if ( !eproc->base.paused ) return 0;
@@ -431,7 +431,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
             break;
 
         case proc_finish:
-            process_terminate( PROC_PBASE( eproc ) );
+            process_t::terminate( PROC_PBASE( eproc ) );
             break;
 
         default:
@@ -500,11 +500,11 @@ int SDL_main( int argc, char **argv )
     }
 
     // terminate the game and menu processes
-    process_kill( PROC_PBASE( GProc ) );
-    process_kill( PROC_PBASE( MProc ) );
-    while ( !EProc->base.terminated )
+    process_t::kill(PROC_PBASE(GProc));
+    process_t::kill(PROC_PBASE(MProc));
+    while (!EProc->base.terminated)
     {
-        result = do_ego_proc_leaving( EProc );
+        result = do_ego_proc_leaving(EProc);
     }
 
     return result;
@@ -648,30 +648,31 @@ void _quit_game( ego_process_t * pgame )
     /// @author ZZ
     /// @details This function exits the game entirely
 
-    if ( process_running( PROC_PBASE( pgame ) ) )
+    if ( process_t::running( PROC_PBASE( pgame ) ) )
     {
         game_quit_module();
     }
 
     // tell the game to kill itself
-    process_kill( PROC_PBASE( pgame ) );
+    process_t::kill( PROC_PBASE( pgame ) );
 
     // clear out the import and remote directories
     vfs_empty_temp_directories();
 }
 
 //--------------------------------------------------------------------------------------------
-ego_process_t * ego_process_init( ego_process_t * eproc, int argc, char **argv )
+ego_process_t *ego_process_init(ego_process_t *self, int argc, char **argv)
 {
-    if ( NULL == eproc ) return NULL;
+    if (nullptr == self || 0 == argc || nullptr == argv) return nullptr;
 
-    BLANK_STRUCT_PTR( eproc )
+	BLANK_STRUCT_PTR(self);
 
-    process_init( PROC_PBASE( eproc ) );
+    process_t::init(PROC_PBASE(self));
 
-    eproc->argv0 = ( argc > 0 ) ? argv[0] : NULL;
+	self->argc = argc;
+	self->argv = argv;
 
-    return eproc;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------

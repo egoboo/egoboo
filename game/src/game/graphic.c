@@ -5012,13 +5012,13 @@ void gfx_update_fps_clock()
     gfx_clock_diff = gfx_throttle.time_now - gfx_throttle.time_lst;
 
     // update the game fps
-    if ( process_running( PROC_PBASE( GProc ) ) )
+    if (process_t::running(PROC_PBASE(GProc)))
     {
         game_fps_clock += gfx_clock_diff;
     }
 
     // update the menu fps
-    if ( process_running( PROC_PBASE( MProc ) ) )
+    if (process_t::running(PROC_PBASE( MProc)))
     {
         menu_fps_clock += gfx_clock_diff;
     }
@@ -5036,7 +5036,7 @@ void gfx_update_fps()
     gfx_update_fps_clock();
 
     // update the game fps
-    if ( process_running( PROC_PBASE( GProc ) ) )
+    if (process_t::running(PROC_PBASE(GProc)))
     {
         if ( game_fps_loops > 0 && game_fps_clock > 0 )
         {
@@ -5058,7 +5058,7 @@ void gfx_update_fps()
     }
 
     // update the menu fps
-    if ( process_running( PROC_PBASE( MProc ) ) )
+    if (process_t::running(PROC_PBASE(MProc)))
     {
         if ( menu_fps_loops > 0 && menu_fps_clock > 0 )
         {
@@ -5080,11 +5080,11 @@ void gfx_update_fps()
     }
 
     // choose the correct fps to display
-    if ( process_running( PROC_PBASE( GProc ) ) )
+    if ( process_t::running( PROC_PBASE( GProc ) ) )
     {
         stabilized_fps = stabilized_game_fps;
     }
-    else if ( process_running( PROC_PBASE( MProc ) ) )
+    else if ( process_t::running( PROC_PBASE( MProc ) ) )
     {
         stabilized_fps = stabilized_menu_fps;
     }
@@ -5312,14 +5312,14 @@ void gfx_do_clear_screen()
 
     // does the game need a clear?
     game_needs_clear = false;
-    if ( process_running( PROC_PBASE( GProc ) ) && PROC_PBASE( GProc )->state > proc_begin )
+    if (process_t::running(PROC_PBASE(GProc)) && PROC_PBASE(GProc)->state > proc_begin)
     {
         game_needs_clear = gfx.clearson;
     }
 
     // does the menu need a clear?
     menu_needs_clear = false;
-    if ( process_running( PROC_PBASE( MProc ) ) && PROC_PBASE( MProc )->state > proc_begin )
+    if ( process_t::running(PROC_PBASE(MProc)) && PROC_PBASE(MProc)->state > proc_begin)
     {
         menu_needs_clear = mnu_draw_background;
     }
@@ -5341,11 +5341,11 @@ void gfx_do_flip_pages()
     bool try_flip;
 
     try_flip = false;
-    if ( process_running( PROC_PBASE( GProc ) ) && PROC_PBASE( GProc )->state > proc_begin )
+    if (process_t::running(PROC_PBASE(GProc)) && PROC_PBASE(GProc)->state > proc_begin )
     {
         try_flip = gfx_page_flip_requested;
     }
-    else if ( process_running( PROC_PBASE( MProc ) ) && PROC_PBASE( MProc )->state > proc_begin )
+    else if (process_t::running(PROC_PBASE(MProc)) && PROC_PBASE(MProc)->state > proc_begin )
     {
         try_flip = gfx_page_flip_requested;
     }
@@ -5381,13 +5381,13 @@ void _flip_pages()
 
     SDL_GL_SwapBuffers();
 
-    if ( process_running( PROC_PBASE( MProc ) ) )
+    if ( process_t::running( PROC_PBASE( MProc ) ) )
     {
         menu_fps_loops++;
         menu_frame_all++;
     }
 
-    if ( process_running( PROC_PBASE( GProc ) ) )
+    if ( process_t::running( PROC_PBASE( GProc ) ) )
     {
         game_fps_loops++;
         game_frame_all++;

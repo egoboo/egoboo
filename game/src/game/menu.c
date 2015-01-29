@@ -437,26 +437,26 @@ int menu_process_do_running( menu_process_t * mproc )
 {
     int menuResult;
 
-    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
+    if ( !process_t::validate( PROC_PBASE( mproc ) ) ) return -1;
 
     mproc->was_active = TO_C_BOOL( mproc->base.valid );
 
     if ( mproc->base.paused ) return 0;
 
     // play the menu music
-    mnu_draw_background = !process_running( PROC_PBASE( GProc ) );
+    mnu_draw_background = !process_t::running( PROC_PBASE( GProc ) );
     menuResult          = game_do_menu( mproc );
 
     switch ( menuResult )
     {
         case MENU_SELECT:
             // go ahead and start the game
-            process_pause( PROC_PBASE( mproc ) );
+            process_t::pause(PROC_PBASE(mproc));
             break;
 
         case MENU_QUIT:
             // the user selected "quit"
-            process_kill( PROC_PBASE( mproc ) );
+            process_t::kill(PROC_PBASE(mproc));
             break;
     }
 
@@ -467,7 +467,7 @@ int menu_process_do_running( menu_process_t * mproc )
 
         // We have exited the menu and restarted the game
         GProc->mod_paused = false;
-        process_pause( PROC_PBASE( MProc ) );
+        process_t::pause( PROC_PBASE( MProc ) );
     }
 
     return 0;
@@ -476,7 +476,7 @@ int menu_process_do_running( menu_process_t * mproc )
 //--------------------------------------------------------------------------------------------
 int menu_process_do_leaving( menu_process_t * mproc )
 {
-    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
+    if ( !process_t::validate( PROC_PBASE( mproc ) ) ) return -1;
 
     // terminate the menu system
     menu_system_end();
@@ -500,7 +500,7 @@ int menu_process_run( menu_process_t * mproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
-    if ( !process_validate( PROC_PBASE( mproc ) ) ) return -1;
+    if (!process_t::validate(PROC_PBASE(mproc))) return -1;
     mproc->base.frameDuration = frameDuration;
 
     if ( mproc->base.paused ) return 0;
@@ -547,7 +547,7 @@ int menu_process_run( menu_process_t * mproc, double frameDuration )
             break;
 
         case proc_finish:
-            process_terminate( PROC_PBASE( mproc ) );
+            process_t::terminate( PROC_PBASE( mproc ) );
             break;
 
         default:
@@ -563,9 +563,9 @@ menu_process_t *menu_process_init( menu_process_t * mproc )
 {
     if ( NULL == mproc ) return NULL;
 
-    BLANK_STRUCT_PTR( mproc )
+	BLANK_STRUCT_PTR(mproc);
 
-    process_init( PROC_PBASE( mproc ) );
+    process_t::init(PROC_PBASE(mproc));
 
     return mproc;
 }
@@ -4420,7 +4420,7 @@ int doShowEndgame( float deltaTime )
                 {
                     game_finish_module();
                     pickedmodule_index = -1;
-                    process_kill( PROC_PBASE( GProc ) );
+                    process_t::kill( PROC_PBASE( GProc ) );
 
                     /// @note ZF@> Reload all players since their quest logs may have changed and new modules unlocked
                     loadAllImportPlayers("mp_players");
@@ -4597,7 +4597,7 @@ int doMenu( float deltaTime )
                     if ( !reloaded )
                     {
                         game_finish_module();
-                        process_kill( PROC_PBASE( GProc ) );
+                        process_t::kill( PROC_PBASE( GProc ) );
                     }
 
                     result = MENU_QUIT;
@@ -4609,8 +4609,8 @@ int doMenu( float deltaTime )
                     mnu_end_menu();
                     mnu_begin_menu(emnu_ShowMenuResults);
 
-                    //Simply quit the current module and begin it again
-                    process_terminate( PROC_PBASE( GProc ) );
+                    // Simply quit the current module and begin it again.
+                    process_t::terminate( PROC_PBASE( GProc ) );
 
                     // post the selected module
                     selectedModule = pickedmodule_index;

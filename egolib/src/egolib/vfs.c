@@ -153,28 +153,29 @@ static int fake_physfs_vprintf(PHYSFS_File * pfile, const char *format, va_list 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void vfs_init( const char * root_dir )
+void vfs_init(const char * root_dir)
 {
     VFS_PATH tmp_path;
 
-    fs_init( root_dir );
+    fs_init(root_dir);
 
     if ( _vfs_initialized ) return;
 
-    // set the root path to be the Data Directory, regardless of the executable's path
-    snprintf( tmp_path, SDL_arraysize( tmp_path ), "%s" SLASH_STR, fs_getDataDirectory() );
-    PHYSFS_init( tmp_path );
+	PHYSFS_init(root_dir);
+	// Append the data directory to the search directories.
+    snprintf(tmp_path, SDL_arraysize(tmp_path), "%s" SLASH_STR, fs_getDataDirectory());
+	PHYSFS_mount(tmp_path, "/", 1);
 
     //---- !!!! make sure the basic directories exist !!!!
 
-    // ensure that the /user dierectory exists
-    if ( !fs_fileIsDirectory( fs_getUserDirectory() ) )
+    // Ensure that the /user directory exists.
+    if (!fs_fileIsDirectory(fs_getUserDirectory()))
     {
-        fs_createDirectory( fs_getUserDirectory() );
+        fs_createDirectory(fs_getUserDirectory());
     }
 
-    // ensure that the /user/debug directory exists
-    if ( !fs_fileIsDirectory( fs_getUserDirectory() ) )
+    // Ensure that the /user/debug directory exists.
+    if (!fs_fileIsDirectory(fs_getUserDirectory()))
     {
         printf( "WARNING: Cannot create write directory %s\n", fs_getUserDirectory() );
     }
@@ -188,10 +189,10 @@ void vfs_init( const char * root_dir )
         fs_createDirectory( loc_path );
     }
 
-    // set the write directory to the root user directory
-    PHYSFS_setWriteDir( fs_getUserDirectory() );
+    // Set the write directory to the root user directory.
+    PHYSFS_setWriteDir(fs_getUserDirectory());
 
-    if ( !_vfs_atexit_registered )
+    if (!_vfs_atexit_registered)
     {
         atexit( _vfs_exit );
         _vfs_atexit_registered = true;

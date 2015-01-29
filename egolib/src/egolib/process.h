@@ -25,11 +25,6 @@
 #include "egolib/state_machine.h"
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-    struct process_t;
-
-//--------------------------------------------------------------------------------------------
 // MACROS AND ENUMS
 //--------------------------------------------------------------------------------------------
 
@@ -37,41 +32,37 @@
 #define PROC_PBASE(PTR) (&( (PTR)->base ))
 
 // The various states that a process can occupy
-    enum e_process_states
-    {
-        proc_invalid  = ego_state_invalid,
-        proc_begin    = ego_state_begin,
-        proc_entering = ego_state_entering,
-        proc_running  = ego_state_running,
-        proc_leaving  = ego_state_leaving,
-        proc_finish   = ego_state_finish
-    };
+enum process_state_t
+{
+    proc_invalid  = ego_state_invalid,
+    proc_begin    = ego_state_begin,
+    proc_entering = ego_state_entering,
+    proc_running  = ego_state_running,
+    proc_leaving  = ego_state_leaving,
+    proc_finish   = ego_state_finish
+};
 
-// this typedef must be after the enum definition or gcc has a fit
-    typedef enum e_process_states process_state_t;
-
-//--------------------------------------------------------------------------------------------
-// CLASS DEFINITIONS
-//--------------------------------------------------------------------------------------------
 
 /// A rudimantary implementation of "non-preemptive multitasking" in Egoboo.
 /// @details All other process types "inherit" from this one
+struct process_t
+{
 
-    struct process_t
-    {
-        bool          valid;
-        bool          paused;
-        bool          killme;
-        bool          terminated;
-        process_state_t state;
-        double          frameDuration;
-    };
+    bool valid;
+    bool paused;
+    bool killme;
+    bool terminated;
+    process_state_t state;
+    double frameDuration;
 
-    process_t * process_init( process_t * proc );
-    bool      process_start( process_t * proc );
-    bool      process_kill( process_t * proc );
-    bool      process_validate( process_t * proc );
-    bool      process_terminate( process_t * proc );
-    bool      process_pause( process_t * proc );
-    bool      process_resume( process_t * proc );
-    bool      process_running( process_t * proc );
+	static process_t *init(process_t *self);
+	static bool start(process_t *self);
+	static bool kill(process_t *self);
+	static bool validate(process_t *self);
+	static bool terminate(process_t *self);
+	static bool pause(process_t *self);
+	static bool resume(process_t *self);
+	static bool running(process_t *self);
+
+};
+

@@ -41,11 +41,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_local_stats;
-typedef struct s_local_stats local_stats_t;
-
-struct s_ego_process;
-typedef struct s_ego_process ego_process_t;
+#if 0
+struct local_stats_t;
+struct ego_process_t;
+#endif
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -137,7 +136,7 @@ EXTERN bool          fpson          EQ( true );         ///< Show FPS?
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-struct s_local_stats
+struct local_stats_t
 {
     bool  noplayers;          ///< Are there any local players?
     int     player_count;
@@ -165,8 +164,8 @@ EXTERN local_stats_t local_stats;
 
 #include "egolib/egolib.h"
 
-/// a process that controls the master loop of the program
-struct s_ego_process
+/// A process that controls the master loop of the program.
+struct ego_process_t
 {
     process_t base;
 
@@ -181,7 +180,10 @@ struct s_ego_process
     bool free_running_latch_requested;
     bool free_running_latch;
 
-    char * argv0;
+	/// @brief The number of command-line arguments.
+	int argc;
+	/// @brief The command-line arguments.
+	char **argv;
 };
 
 void ego_init_SDL_base();

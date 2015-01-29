@@ -255,7 +255,7 @@
     <ClCompile Include="src\egolib\math\Plane.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\egolib\src\egolib\math\Sphere.cpp">
+    <ClCompile Include="src\egolib\math\Sphere.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
     <ClCompile Include="src\egolib\math\AABB.cpp">

@@ -329,7 +329,7 @@ egolib_rv export_all_players( bool require_local )
     CHR_REF character;
 
     // Don't export if the module isn't running
-    if ( !process_running( PROC_PBASE( GProc ) ) ) return rv_fail;
+    if ( !process_t::running( PROC_PBASE( GProc ) ) ) return rv_fail;
 
     // Stop if export isnt valid
     if ( !PMod->isExportValid() ) return rv_fail;
@@ -983,7 +983,7 @@ void game_update_timers()
     is_paused = false;
     if ( !egonet_on() )
     {
-        is_paused  = !process_running( PROC_PBASE( GProc ) ) || GProc->mod_paused;
+        is_paused  = !process_t::running(PROC_PBASE(GProc)) || GProc->mod_paused;
     }
 
     // check to make sure that the game is running
@@ -1138,7 +1138,7 @@ int game_do_menu( menu_process_t * mproc )
     int menuResult;
     bool need_menu = false;
 
-    if ( process_running( PROC_PBASE( mproc ) ) )
+    if ( process_t::running( PROC_PBASE( mproc ) ) )
     {
         loc_frameDuration += mproc->base.frameDuration;
 
@@ -1184,7 +1184,7 @@ int game_process_do_begin( game_process_t * gproc )
     if (_cameraSystem.isInitialized())
     {
         game_process_do_leaving(gproc);
-        process_pause(PROC_PBASE(MProc));
+        process_t::pause(PROC_PBASE(MProc));
     }
 
     //Make sure all data is cleared first
@@ -1220,8 +1220,8 @@ int game_process_do_begin( game_process_t * gproc )
     if ( !game_begin_module(pickedmodule_path) )
     {
         // failure - kill the game process
-        process_kill( PROC_PBASE( gproc ) );
-        process_resume( PROC_PBASE( MProc ) );
+        process_t::kill(PROC_PBASE(gproc));
+        process_t::resume(PROC_PBASE(MProc));
     }
 
     // set up the cameras *after* game_begin_module() or the player devices will not be initialized
@@ -1292,11 +1292,11 @@ int game_process_do_running( game_process_t * gproc )
     bool ups_free_running = false;
     bool fps_free_running = false;
 
-    if ( !process_validate( PROC_PBASE( gproc ) ) ) return -1;
+    if (!process_t::validate(PROC_PBASE(gproc))) return -1;
 
     gproc->was_active  = gproc->base.valid;
 
-    if ( !process_running( PROC_PBASE( gproc ) ) ) return 0;
+    if ( !process_t::running(PROC_PBASE(gproc))) return 0;
 
     // are the updates free running?
     ups_free_running = gproc->ups_timer.free_running && !egonet_on();
@@ -1479,13 +1479,13 @@ int game_process_do_running( game_process_t * gproc )
 //--------------------------------------------------------------------------------------------
 int game_process_do_leaving( game_process_t * gproc )
 {
-    if ( !process_validate( PROC_PBASE( gproc ) ) ) return -1;
+    if (!process_t::validate(PROC_PBASE(gproc))) return -1;
 
     // get rid of all module data
     game_quit_module();
 
     // resume the menu
-    process_resume( PROC_PBASE( MProc ) );
+    process_t::resume(PROC_PBASE(MProc));
 
     // deallocate any dynamically allocated collision memory
     collision_system_end();
@@ -1531,7 +1531,7 @@ int game_process_run( game_process_t * gproc, double frameDuration )
 {
     int result = 0, proc_result = 0;
 
-    if ( !process_validate( PROC_PBASE( gproc ) ) ) return -1;
+    if ( !process_t::validate( PROC_PBASE( gproc ) ) ) return -1;
     gproc->base.frameDuration = frameDuration;
 
     if ( gproc->base.paused ) return 0;
@@ -1578,8 +1578,8 @@ int game_process_run( game_process_t * gproc, double frameDuration )
             break;
 
         case proc_finish:
-            process_terminate( PROC_PBASE( gproc ) );
-            process_resume( PROC_PBASE( MProc ) );
+            process_t::terminate( PROC_PBASE( gproc ) );
+            process_t::resume( PROC_PBASE( MProc ) );
             break;
 
         default:
@@ -3666,14 +3666,14 @@ bool game_begin_menu( menu_process_t * mproc, which_menu_t which )
 {
     if ( NULL == mproc ) return false;
 
-    if ( !process_running( PROC_PBASE( mproc ) ) )
+    if ( !process_t::running(PROC_PBASE(mproc)))
     {
         GProc->menu_depth = mnu_get_menu_depth();
     }
 
     if ( mnu_begin_menu( which ) )
     {
-        process_start( PROC_PBASE( mproc ) );
+        process_t::start(PROC_PBASE(mproc));
     }
 
     return true;
@@ -3686,7 +3686,7 @@ void game_end_menu( menu_process_t * mproc )
 
     if ( mnu_get_menu_depth() <= GProc->menu_depth )
     {
-        process_resume( PROC_PBASE( MProc ) );
+        process_t::resume( PROC_PBASE( MProc ) );
         GProc->menu_depth = -1;
     }
 }
@@ -4106,7 +4106,7 @@ game_process_t * game_process_init( game_process_t * gproc )
 
     BLANK_STRUCT_PTR( gproc )
 
-    process_init( PROC_PBASE( gproc ) );
+    process_t::init( PROC_PBASE( gproc ) );
 
     gproc->menu_depth = -1;
     gproc->pause_key_ready = true;

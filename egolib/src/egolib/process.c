@@ -23,115 +23,109 @@
 
 #include "egolib/process.h"
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-process_t * process_init( process_t * proc )
+process_t *process_t::init(process_t * self)
 {
-    if ( NULL == proc ) return proc;
+    if (nullptr == self) return nullptr;
 
-    BLANK_STRUCT_PTR( proc )
+	BLANK_STRUCT_PTR(self);
 
-    proc->terminated = true;
+    self->terminated = true;
 
-    return proc;
+    return self;
 }
 
 //--------------------------------------------------------------------------------------------
-bool process_start(process_t * proc)
+bool process_t::start(process_t *self)
 {
-    if ( NULL == proc ) return false;
+    if (nullptr == self) return false;
 
     // choose the correct proc->state
-    if ( proc->terminated || proc->state > proc_leaving )
+    if (self->terminated || self->state > proc_leaving)
     {
         // must re-initialize the process
-        proc->state = proc_begin;
+        self->state = proc_begin;
     }
 
-    if ( proc->state > proc_entering )
+    if (self->state > proc_entering)
     {
-        // the process is already initialized, just put it back in
-        // proc_entering mode
-        proc->state = proc_entering;
+        // the process is already initialized,
+		// just put it back in proc_entering mode
+        self->state = proc_entering;
     }
 
     // tell it to run
-    proc->terminated = false;
-    proc->valid      = true;
-    proc->paused     = false;
+    self->terminated = false;
+    self->valid      = true;
+    self->paused     = false;
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool process_kill(process_t * proc)
+bool process_t::kill(process_t *self)
 {
-    if ( NULL == proc ) return false;
+    if (nullptr == self) return false;
 
-    if ( !process_validate( proc ) ) return true;
+    if (!process_t::validate(self)) return true;
 
-    // turn the process back on with an order to commit suicide
-    proc->paused = false;
-    proc->killme = true;
+    // Turn the process back on with an order to commit suicide.
+	self->paused = false;
+	self->killme = true;
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------
-bool process_validate(process_t * proc)
+bool process_t::validate(process_t *self)
 {
-    if ( NULL == proc ) return false;
+    if (nullptr == self) return false;
 
-    if ( !proc->valid || proc->terminated )
+    if (!self->valid || self->terminated)
     {
-        process_terminate( proc );
+        process_t::terminate(self);
     }
 
-    return proc->valid;
+    return self->valid;
 }
 
-//--------------------------------------------------------------------------------------------
-bool process_terminate(process_t * proc)
+bool process_t::terminate(process_t *self)
 {
-    if ( NULL == proc ) return false;
+    if (nullptr == self) return false;
 
-    proc->valid      = false;
-    proc->terminated = true;
-    proc->state      = proc_begin;
+    self->valid      = false;
+    self->terminated = true;
+    self->state      = proc_begin;
 
     return true;
 }
 
-//--------------------------------------------------------------------------------------------
-bool process_pause(process_t * proc)
+bool process_t::pause(process_t *self)
 {
 	bool old_value;
 
-    if ( !process_validate( proc ) ) return false;
+    if (!process_t::validate(self)) return false;
 
-    old_value    = proc->paused;
-    proc->paused = true;
+    old_value    = self->paused;
+    self->paused = true;
 
-    return old_value != proc->paused;
+    return old_value != self->paused;
 }
 
-//--------------------------------------------------------------------------------------------
-bool process_resume(process_t * proc)
+bool process_t::resume(process_t *self)
 {
 	bool old_value;
 
-    if ( !process_validate( proc ) ) return false;
+    if (!process_t::validate(self)) return false;
 
-    old_value    = proc->paused;
-    proc->paused = false;
+    old_value    = self->paused;
+    self->paused = false;
 
-    return old_value != proc->paused;
+    return old_value != self->paused;
 }
 
-//--------------------------------------------------------------------------------------------
-bool process_running(process_t * proc)
+bool process_t::running(process_t *self)
 {
-    if ( !process_validate( proc ) ) return false;
+    if (!process_t::validate(self)) return false;
 
-    return !proc->paused;
+    return !self->paused;
 }
