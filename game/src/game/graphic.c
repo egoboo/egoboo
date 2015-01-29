@@ -5312,14 +5312,14 @@ void gfx_do_clear_screen()
 
     // does the game need a clear?
     game_needs_clear = false;
-    if (process_t::running(PROC_PBASE(GProc)) && PROC_PBASE(GProc)->state > proc_begin)
+    if (process_t::running(PROC_PBASE(GProc)) && PROC_PBASE(GProc)->state > process_t::State::Begin)
     {
         game_needs_clear = gfx.clearson;
     }
 
     // does the menu need a clear?
     menu_needs_clear = false;
-    if ( process_t::running(PROC_PBASE(MProc)) && PROC_PBASE(MProc)->state > proc_begin)
+    if (process_t::running(PROC_PBASE(MProc)) && PROC_PBASE(MProc)->state > process_t::State::Begin)
     {
         menu_needs_clear = mnu_draw_background;
     }
@@ -5341,11 +5341,11 @@ void gfx_do_flip_pages()
     bool try_flip;
 
     try_flip = false;
-    if (process_t::running(PROC_PBASE(GProc)) && PROC_PBASE(GProc)->state > proc_begin )
+    if (process_t::running(PROC_PBASE(GProc)) && PROC_PBASE(GProc)->state > process_t::State::Begin )
     {
         try_flip = gfx_page_flip_requested;
     }
-    else if (process_t::running(PROC_PBASE(MProc)) && PROC_PBASE(MProc)->state > proc_begin )
+    else if (process_t::running(PROC_PBASE(MProc)) && PROC_PBASE(MProc)->state > process_t::State::Begin )
     {
         try_flip = gfx_page_flip_requested;
     }

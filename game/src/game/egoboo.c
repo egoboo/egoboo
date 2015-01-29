@@ -391,46 +391,46 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 
     if ( eproc->base.killme )
     {
-        eproc->base.state = proc_leaving;
+        eproc->base.state = process_t::State::Leaving;
     }
 
     switch ( eproc->base.state )
     {
-        case proc_begin:
+	case process_t::State::Begin:
             proc_result = do_ego_proc_begin( eproc );
 
             if ( 1 == proc_result )
             {
-                eproc->base.state = proc_entering;
+                eproc->base.state = process_t::State::Entering;
             }
             break;
 
-        case proc_entering:
+	case process_t::State::Entering:
             // proc_result = do_ego_proc_entering( eproc );
 
-            eproc->base.state = proc_running;
+            eproc->base.state = process_t::State::Running;
             break;
 
-        case proc_running:
+	case process_t::State::Running:
             proc_result = do_ego_proc_running( eproc );
 
             if ( 1 == proc_result )
             {
-                eproc->base.state = proc_leaving;
+                eproc->base.state = process_t::State::Leaving;
             }
             break;
 
-        case proc_leaving:
+	case process_t::State::Leaving:
             proc_result = do_ego_proc_leaving( eproc );
 
             if ( 1 == proc_result )
             {
-                eproc->base.state  = proc_finish;
+                eproc->base.state  = process_t::State::Finish;
                 eproc->base.killme = false;
             }
             break;
 
-        case proc_finish:
+		case process_t::State::Finish:
             process_t::terminate( PROC_PBASE( eproc ) );
             break;
 
@@ -444,7 +444,7 @@ int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int SDL_main( int argc, char **argv )
+int SDL_main(int argc, char **argv)
 {
     /// @author ZZ
     /// @details This is where the program starts and all the high level stuff happens

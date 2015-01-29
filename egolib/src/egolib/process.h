@@ -24,35 +24,40 @@
 #include "egolib/typedef.h"
 #include "egolib/state_machine.h"
 
-//--------------------------------------------------------------------------------------------
-// MACROS AND ENUMS
-//--------------------------------------------------------------------------------------------
-
-/// grab a pointer to the process_t of any object that "inherits" this type
+/**
+ * @brief
+ *	Get a pointer to the process_t of any object that "inherits" this type.
+ * @todo
+ *	Remove this.
+ */
 #define PROC_PBASE(PTR) (&( (PTR)->base ))
 
-// The various states that a process can occupy
-enum process_state_t
-{
-    proc_invalid  = ego_state_invalid,
-    proc_begin    = ego_state_begin,
-    proc_entering = ego_state_entering,
-    proc_running  = ego_state_running,
-    proc_leaving  = ego_state_leaving,
-    proc_finish   = ego_state_finish
-};
-
-
-/// A rudimantary implementation of "non-preemptive multitasking" in Egoboo.
-/// @details All other process types "inherit" from this one
+/**
+ * @brief
+ *	A rudimantary implementation of "non-preemptive multitasking" in Egoboo.
+ * @details
+ *	All other process types "inherit" from this one.
+ */
 struct process_t
 {
-
+	/**
+	 * @brief
+	 *	The various states that a process can occupy.
+	 */
+	enum State
+	{
+		Invalid = ego_state_invalid,
+		Begin = ego_state_begin,
+		Entering = ego_state_entering,
+		Running = ego_state_running,
+		Leaving = ego_state_leaving,
+		Finish = ego_state_finish
+	};
     bool valid;
     bool paused;
     bool killme;
     bool terminated;
-    process_state_t state;
+    State state;
     double frameDuration;
 
 	static process_t *init(process_t *self);

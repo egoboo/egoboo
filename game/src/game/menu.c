@@ -507,51 +507,51 @@ int menu_process_run( menu_process_t * mproc, double frameDuration )
 
     if ( mproc->base.killme )
     {
-        mproc->base.state = proc_leaving;
+        mproc->base.state = process_t::State::Leaving;
     }
 
     switch ( mproc->base.state )
     {
-        case proc_begin:
+	case process_t::State::Begin:
             proc_result = menu_process_do_begin( mproc );
 
             if ( 1 == proc_result )
             {
-                mproc->base.state = proc_entering;
+                mproc->base.state = process_t::State::Entering;
             }
             break;
 
-        case proc_entering:
+	case process_t::State::Entering:
             // proc_result = menu_process_do_entering( mproc );
 
-            mproc->base.state = proc_running;
+            mproc->base.state = process_t::State::Running;
             break;
 
-        case proc_running:
+	case process_t::State::Running:
             proc_result = menu_process_do_running( mproc );
 
             if ( 1 == proc_result )
             {
-                mproc->base.state = proc_leaving;
+                mproc->base.state = process_t::State::Leaving;
             }
             break;
 
-        case proc_leaving:
+	case process_t::State::Leaving:
             proc_result = menu_process_do_leaving( mproc );
 
             if ( 1 == proc_result )
             {
-                mproc->base.state  = proc_finish;
+                mproc->base.state  = process_t::State::Finish;
                 mproc->base.killme = false;
             }
             break;
 
-        case proc_finish:
+	case process_t::State::Finish:
             process_t::terminate( PROC_PBASE( mproc ) );
             break;
 
         default:
-        case proc_invalid:
+	case process_t::State::Invalid:
             break;
     }
 

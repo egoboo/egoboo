@@ -1538,46 +1538,46 @@ int game_process_run( game_process_t * gproc, double frameDuration )
 
     if ( gproc->base.killme )
     {
-        gproc->base.state = proc_leaving;
+        gproc->base.state = process_t::State::Leaving;
     }
 
     switch ( gproc->base.state )
     {
-        case proc_begin:
+	case process_t::State::Begin:
             proc_result = game_process_do_begin( gproc );
 
             if ( 1 == proc_result )
             {
-                gproc->base.state = proc_entering;
+                gproc->base.state = process_t::State::Entering;
             }
             break;
 
-        case proc_entering:
+		case process_t::State::Entering:
             // proc_result = do_game_proc_entering( gproc );
 
-            gproc->base.state = proc_running;
+            gproc->base.state = process_t::State::Running;
             break;
 
-        case proc_running:
+		case process_t::State::Running:
             proc_result = game_process_do_running( gproc );
 
             if ( 1 == proc_result )
             {
-                gproc->base.state = proc_leaving;
+                gproc->base.state = process_t::State::Leaving;
             }
             break;
 
-        case proc_leaving:
+		case process_t::State::Leaving:
             proc_result = game_process_do_leaving( gproc );
 
             if ( 1 == proc_result )
             {
-                gproc->base.state  = proc_finish;
+                gproc->base.state  = process_t::State::Finish;
                 gproc->base.killme = false;
             }
             break;
 
-        case proc_finish:
+		case process_t::State::Finish:
             process_t::terminate( PROC_PBASE( gproc ) );
             process_t::resume( PROC_PBASE( MProc ) );
             break;

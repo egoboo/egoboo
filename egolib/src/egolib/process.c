@@ -40,17 +40,17 @@ bool process_t::start(process_t *self)
     if (nullptr == self) return false;
 
     // choose the correct proc->state
-    if (self->terminated || self->state > proc_leaving)
+    if (self->terminated || self->state > State::Leaving)
     {
         // must re-initialize the process
-        self->state = proc_begin;
+        self->state = State::Begin;
     }
 
-    if (self->state > proc_entering)
+    if (self->state > State::Entering)
     {
         // the process is already initialized,
 		// just put it back in proc_entering mode
-        self->state = proc_entering;
+        self->state = State::Entering;
     }
 
     // tell it to run
@@ -94,7 +94,7 @@ bool process_t::terminate(process_t *self)
 
     self->valid      = false;
     self->terminated = true;
-    self->state      = proc_begin;
+    self->state      = State::Begin;
 
     return true;
 }

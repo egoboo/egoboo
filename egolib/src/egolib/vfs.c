@@ -153,13 +153,13 @@ static int fake_physfs_vprintf(PHYSFS_File * pfile, const char *format, va_list 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void vfs_init(const char * root_dir)
+void vfs_init(const char *root_dir)
 {
     VFS_PATH tmp_path;
 
     fs_init(root_dir);
 
-    if ( _vfs_initialized ) return;
+    if (_vfs_initialized) return;
 
 	PHYSFS_init(root_dir);
 	// Append the data directory to the search directories.
@@ -177,16 +177,16 @@ void vfs_init(const char * root_dir)
     // Ensure that the /user/debug directory exists.
     if (!fs_fileIsDirectory(fs_getUserDirectory()))
     {
-        printf( "WARNING: Cannot create write directory %s\n", fs_getUserDirectory() );
+        printf("WARNING: Cannot create write directory %s\n", fs_getUserDirectory());
     }
     else
     {
         char loc_path[1024] = EMPTY_CSTR;
 
-        snprintf( loc_path, SDL_arraysize( loc_path ), "%s/debug", fs_getUserDirectory() );
+        snprintf(loc_path, SDL_arraysize( loc_path ), "%s/debug", fs_getUserDirectory());
 
-        str_convert_slash_sys( loc_path, SDL_arraysize( loc_path ) );
-        fs_createDirectory( loc_path );
+        str_convert_slash_sys(loc_path, SDL_arraysize(loc_path));
+        fs_createDirectory(loc_path);
     }
 
     // Set the write directory to the root user directory.
@@ -202,13 +202,13 @@ void vfs_init(const char * root_dir)
 }
 
 //--------------------------------------------------------------------------------------------
-void _vfs_exit( void )
+void _vfs_exit()
 {
     PHYSFS_deinit();
 }
 
 //--------------------------------------------------------------------------------------------
-const char* vfs_getVersion( void )
+const char *vfs_getVersion()
 {
     /// @author ZF
     /// @details  returns the current version of the PhysFS library which was used for compiling the binary
@@ -224,7 +224,7 @@ const char* vfs_getVersion( void )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-vfs_FILE * vfs_openReadB( const char * filename )
+vfs_FILE *vfs_openReadB(const char *filename)
 {
     // open a file for reading in binary mode, using PhysFS
 
@@ -233,7 +233,7 @@ vfs_FILE * vfs_openReadB( const char * filename )
 
     BAIL_IF_NOT_INIT();
 
-    if ( INVALID_CSTR( filename ) ) return NULL;
+    if (INVALID_CSTR(filename)) return NULL;
 
     // make sure that PHYSFS gets the filename with the slashes it wants
     //filename = vfs_resolveReadFilename( filename );

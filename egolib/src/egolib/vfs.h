@@ -28,46 +28,43 @@
 
 #include "egolib/typedef.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
 //--------------------------------------------------------------------------------------------
 // MACROS
 //--------------------------------------------------------------------------------------------
 
-#   define VFS_TRUE  ((int)(1==1))
-#   define VFS_FALSE ((int)(!VFS_TRUE))
+/// @todo Remove this, use @a true.
+#define VFS_TRUE  ((int)(1==1))
+/// @todo Remove this, use @a false.
+#define VFS_FALSE ((int)(!VFS_TRUE))
 
 //--------------------------------------------------------------------------------------------
 // TYPEDEFS
 //--------------------------------------------------------------------------------------------
 
-    struct s_vfs_search_context;
-    typedef struct s_vfs_search_context vfs_search_context_t;
+struct s_vfs_search_context;
+typedef struct s_vfs_search_context vfs_search_context_t;
 
 // use this ugly thing, since there is no other way to hide the actual structure of the vfs_FILE...
-    struct s_vfs_FILE;
-    typedef struct s_vfs_FILE vfs_FILE;
+struct s_vfs_FILE;
+typedef struct s_vfs_FILE vfs_FILE;
 
 //--------------------------------------------------------------------------------------------
 // CONSTANTS
 //--------------------------------------------------------------------------------------------
 
 /// What type of things are we searching for?
-    enum e_vfs_serach_bits
-    {
-        // file types
-        VFS_SEARCH_NONE = 0,                ///< NONE == ALL
-        VFS_SEARCH_DIR  = ( 1 << 0 ),
-        VFS_SEARCH_FILE = ( 1 << 1 ),
+enum e_vfs_serach_bits
+{
+    // file types
+    VFS_SEARCH_NONE = 0,               ///< NONE == ALL
+    VFS_SEARCH_DIR  = ( 1 << 0 ),
+    VFS_SEARCH_FILE = ( 1 << 1 ),
 
-        // search options
-        VFS_SEARCH_BARE = ( 1 << 2 ),      ///< return only the bare filename, not the whole relative path
+    // search options
+    VFS_SEARCH_BARE = ( 1 << 2 ),      ///< return only the bare filename, not the whole relative path
 
-        VFS_SEARCH_ALL  = VFS_SEARCH_DIR | VFS_SEARCH_FILE
-    };
+    VFS_SEARCH_ALL  = VFS_SEARCH_DIR | VFS_SEARCH_FILE
+};
 
 /// physfs does not distinguish between these functions
 /// but if we change the package we are using, it might care...
@@ -79,33 +76,33 @@ extern "C"
 
 /// the initlization routing. there is no need to call the de-initialization. That
 /// will be called automatically at program termination
-    void vfs_init( const char * root_dir );
+void vfs_init(const char *root_dir);
 
 /// these functions open in "binary mode" this means that they are reading using
 /// physfs and not using the c stdio routines
-    vfs_FILE * vfs_openReadB( const char * filename );
-    vfs_FILE * vfs_openWriteB( const char * filename );
-    vfs_FILE * vfs_openAppendB( const char * filename );
+vfs_FILE *vfs_openReadB(const char *filename);
+vfs_FILE *vfs_openWriteB(const char *filename);
+vfs_FILE *vfs_openAppendB(const char *filename);
 
 // these functions open in "text mode" this means that they are reading using
 // the c stdio routines. we use physfs to resolve the actual filename
-    vfs_FILE * vfs_openRead( const char * filename );
-    vfs_FILE * vfs_openWrite( const char * filename );
-    vfs_FILE * vfs_openAppend( const char * filename );
+vfs_FILE *vfs_openRead(const char *filename);
+vfs_FILE *vfs_openWrite(const char *filename);
+vfs_FILE *vfs_openAppend(const char *filename);
 
-    int        vfs_close( vfs_FILE * pfile );
-    int        vfs_flush( vfs_FILE * pfile );
+int vfs_close(vfs_FILE *file);
+int vfs_flush(vfs_FILE *file);
 
-    int  vfs_eof( vfs_FILE * pfile );
-    int  vfs_error( vfs_FILE * pfile );
-    long vfs_tell( vfs_FILE * pfile );
-    int  vfs_seek( vfs_FILE * pfile , long offset );
+int vfs_eof(vfs_FILE *file);
+int vfs_error(vfs_FILE *file);
+long vfs_tell(vfs_FILE *file);
+int vfs_seek(vfs_FILE *file , long offset);
 
-    int vfs_mkdir( const char *dirName );
-    int vfs_delete_file( const char *filename );
+int vfs_mkdir(const char *dirName);
+int vfs_delete_file(const char *filename);
 
-    int vfs_exists( const char *fname );
-    int vfs_isDirectory( const char *fname );
+int vfs_exists(const char *fname);
+int vfs_isDirectory(const char *fname);
 
 // binary reading and writing
     size_t vfs_read( void * buffer, size_t size, size_t count, vfs_FILE * pfile );
@@ -152,40 +149,33 @@ extern "C"
     int          vfs_puts( const char * , vfs_FILE * );
     char *       vfs_gets( char *, int, vfs_FILE * );
 
-    void         vfs_empty_temp_directories( void );
+    void         vfs_empty_temp_directories();
 
     int          vfs_copyFile( const char *source, const char *dest );
     int          vfs_copyDirectory( const char *sourceDir, const char *destDir );
 
     int    vfs_removeDirectoryAndContents( const char * dirname, int recursive );
 
-    const char * vfs_resolveReadFilename( const char * src_filename );
-    const char * vfs_resolveWriteFilename( const char * src_filename );
+const char *vfs_resolveReadFilename(const char *src_filename);
+const char *vfs_resolveWriteFilename(const char *src_filename);
 
-    const char* vfs_getError( void );
-    const char* vfs_getVersion( void );
+const char *vfs_getError();
+const char *vfs_getVersion();
 
-    int vfs_add_mount_point( const char * dirname, const char * relative_path, const char * mount_point, int append );
-    int vfs_remove_mount_point( const char * mount_point );
+int vfs_add_mount_point(const char *dirname, const char *relative_path, const char *mount_point, int append);
+int vfs_remove_mount_point(const char *mount_point);
 
-    const char * vfs_convert_fname( const char * fname );
-    const char * vfs_convert_fname_sys( const char * fname );
+const char *vfs_convert_fname(const char *fname);
+const char *vfs_convert_fname_sys(const char *fname);
 
-    void vfs_set_base_search_paths( void );
-    const char * vfs_mount_info_strip_path( const char * some_path );
+void vfs_set_base_search_paths();
+const char *vfs_mount_info_strip_path(const char * some_path);
 
-    void vfs_listSearchPaths( void );
+void vfs_listSearchPaths();
     
-    // Wrap vfs into SDL_RWops
-    struct SDL_RWops;
+// Wrap vfs into SDL_RWops
+struct SDL_RWops;
     
-    SDL_RWops *vfs_openRWopsRead( const char * filename );
-    SDL_RWops *vfs_openRWopsWrite( const char * filename );
-    SDL_RWops *vfs_openRWopsAppend( const char * filename );
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-#if defined(__cplusplus)
-}
-
-#endif
+SDL_RWops *vfs_openRWopsRead(const char *filename);
+SDL_RWops *vfs_openRWopsWrite(const char *filename);
+SDL_RWops *vfs_openRWopsAppend(const char *filename);
