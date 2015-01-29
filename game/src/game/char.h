@@ -55,7 +55,6 @@ class ObjectProfile;
 struct team_t;
 struct chr_environment_t;
 struct chr_spawn_data_t;
-struct chr_t;
 
 
 //--------------------------------------------------------------------------------------------
@@ -139,7 +138,7 @@ struct chr_t;
 // team constants
 #define TEAM_NOLEADER       0xFFFF                        ///< If the team has no leader...
 
-#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<MAXNUMINPACK;IT##_internal++) { CHR_REF IT; chr_t * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!ACTIVE_CHR (IT)) continue; PITEM = ChrList_get_ptr( IT );
+#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<MAXNUMINPACK;IT##_internal++) { CHR_REF IT; chr_t * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!_gameObjects.exists (IT)) continue; PITEM = _gameObjects.get( IT );
 #define PACK_END_LOOP() } }
 
 //--------------------------------------------------------------------------------------------
@@ -275,19 +274,33 @@ class chr_t
 {
 public:
     /**
-    * Default constructor
+    * @brief Default constructor
     **/
     chr_t(const PRO_REF profile, const CHR_REF id);
 
     /**
-    * Deconstructor
+    * @brief Deconstructor
     **/
     virtual ~chr_t();
 
+    /**
+    * @brief Gets a shared_ptr to the current ObjectProfile associated with this character.
+    *        The ObjectProfile can change for polymorphing objects.
+    **/
+    const std::shared_ptr<ObjectProfile>& getProfile() const;
+
+    /**
+    * @return the unique CHR_REF associated with this character
+    **/
+    inline CHR_REF getCharacterID() const {return _characterID;}
+
+    /**
+    * @return the current team this object is on. This can change in-game (mounts or pets for example)
+    **/
+    inline TEAM_REF getTeam() const {return team;}
+
 public:
     bool terminateRequested;         ///< True if this character no longer exists in the game and should be destructed
-
-    CHR_REF characterID;             ///< Our CHR_REF mapping key
 
     BSP_leaf_t     bsp_leaf;
 
@@ -496,6 +509,10 @@ public:
     Uint32         safe_grid;                     ///< the last "safe" grid
 
     breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
+
+private:
+    CHR_REF _characterID;             ///< Our CHR_REF mapping key
+
 };
 
 bool  chr_request_terminate( chr_t * pchr );
@@ -586,8 +603,8 @@ extern Stack<team_t, TEAM_MAX> TeamStack;
 #define VALID_TEAM_RANGE( ITEAM ) ( ((ITEAM) >= 0) && ((ITEAM) < TEAM_MAX) )
 
 
-#define IS_ATTACHED_CHR_RAW(ICHR) ( (DEFINED_CHR(ChrList_get_ptr(ICHR)->attachedto) || DEFINED_CHR(ChrList_get_ptr(ICHR)->inwhich_inventory)) )
-#define IS_ATTACHED_CHR(ICHR) LAMBDA( !DEFINED_CHR(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
+#define IS_ATTACHED_CHR_RAW(ICHR) ( (_gameObjects.exists(_gameObjects.get(ICHR)->attachedto) || _gameObjects.exists(_gameObjects.get(ICHR)->inwhich_inventory)) )
+#define IS_ATTACHED_CHR(ICHR) LAMBDA( !_gameObjects.exists(ICHR), false, IS_ATTACHED_CHR_RAW(ICHR) )
 
 // counters for debugging wall collisions
 extern int chr_stoppedby_tests;

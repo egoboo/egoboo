@@ -31,7 +31,7 @@
 
 #include "game/profiles/ProfileSystem.hpp"
 
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 #include "game/PrtList.h"
 
 obj_BSP_t *obj_BSP_t::ctor(size_t bsp_dim, const mesh_BSP_t *mesh_bsp)

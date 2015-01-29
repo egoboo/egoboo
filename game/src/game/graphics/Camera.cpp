@@ -7,7 +7,7 @@
 
 #include "game/char.h"
 #include "game/mesh.h"
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 
 const float Camera::DEFAULT_FOV = 60.0f;
 
@@ -401,8 +401,8 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 	        {
 	            chr_t * pchr = NULL;
 
-	            if ( !ACTIVE_CHR( ichr ) ) continue;
-	            pchr = ChrList_get_ptr( ichr );
+	            if ( !_gameObjects.exists( ichr ) ) continue;
+	            pchr = _gameObjects.get( ichr );
 
 	            if ( !pchr->alive ) continue;
 
@@ -437,8 +437,8 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 	        {
 	            chr_t * pchr = NULL;
 
-	            if ( !ACTIVE_CHR( ichr ) ) continue;
-	            pchr = ChrList_get_ptr( ichr );
+	            if ( !_gameObjects.exists( ichr ) ) continue;
+	            pchr = _gameObjects.get( ichr );
 
 	            if ( !pchr->alive ) continue;
 
@@ -544,7 +544,7 @@ std::forward_list<CHR_REF> Camera::createTrackList()
     {
         player_t * ppla = PlaStack_get_ptr( ipla );
 
-        if ( !ppla->valid || !ACTIVE_CHR( ppla->index ) ) continue;
+        if ( !ppla->valid || !_gameObjects.exists( ppla->index ) ) continue;
 
         // add in a valid character
         trackList.push_front(ppla->index);

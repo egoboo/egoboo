@@ -9,7 +9,8 @@ ObjectHandler::ObjectHandler() :
     _characterList(),
 	_terminationList(),
     _modificationLock(),
-    _semaphore(0)
+    _semaphore(0),
+    _totalCharactersSpawned(0)
 {
 	//ctor
 }
@@ -37,6 +38,10 @@ bool ObjectHandler::remove(const CHR_REF ichr)
 
 bool ObjectHandler::exists(const CHR_REF character) const
 {
+    if(character == INVALID_CHR_REF) {
+        return false;
+    }
+
     const auto &result = _characterMap.find(character);
 
 	if(result == _characterMap.end()) {
@@ -54,7 +59,13 @@ CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
 	//Make sure the profile is valid
     if(!_profileSystem.isValidProfileID(profile))
     {
-        log_warning("ChrList_allocate() - Tried to spawn character with invalid ProfileID: %d\n", profile);
+        log_warning("ObjectHandler - Tried to spawn character with invalid ProfileID: %d\n", profile);
+        return INVALID_CHR_REF;
+    }
+
+    //Limit total number of characters active at the same time
+    if(getObjectCount() > MAX_CHR) {
+        log_warning( "ObjectHandler - No free character slots available\n" );
         return INVALID_CHR_REF;
     }
 
@@ -68,26 +79,13 @@ CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
         }
         else
         {
-            log_warning( "ChrList_allocate() - failed to override a character? character %d already spawned? \n", REF_TO_INT( override ) );
+            log_warning( "ObjectHandler - failed to override a character? character %d already spawned? \n", REF_TO_INT( override ) );
         }
     }
     else
     {
-        //Find first unused CHR_REF slot
-        for(CHR_REF i = 0; i < MAX_CHR; ++i)
-        {
-            if(_characterMap.find(i) == _characterMap.end())
-            {
-                ichr = i;
-                break;
-            }
-        }
-
-        //No free slots remaining?
-        if(ichr == INVALID_CHR_REF)
-        {
-            log_warning( "ChrList_allocate() - No free character slots available\n" );
-        }
+        //Increment counter
+        ichr = _totalCharactersSpawned++;
     }
 
     if (ichr != INVALID_CHR_REF)
@@ -95,13 +93,13 @@ CHR_REF ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
         std::shared_ptr<chr_t> object = std::make_shared<chr_t>(profile, ichr);
 
         if(!object) {
-            log_warning( "ChrList_allocate() - Unable to allocate object memory\n" );
+            log_warning( "ObjectHandler - Unable to allocate object memory\n" );
             return INVALID_CHR_REF;
         }
 
         // allocate the new one
         if(_characterMap.emplace(ichr, object).second == false) {
-            log_warning( "ChrList_allocate() - Failed character allocation, object already exists\n" );
+            log_warning( "ObjectHandler - Failed character allocation, object already exists\n" );
             return INVALID_CHR_REF;
         }
         _characterList.push_back(object);
@@ -142,6 +140,7 @@ void ObjectHandler::clear()
 	_characterMap.clear();
 	_characterList.clear();
     _terminationList.clear();
+    _totalCharactersSpawned = 0;
 }
 
 void ObjectHandler::lock()
@@ -181,7 +180,7 @@ void ObjectHandler::unlock()
     }
 }
 
-ObjectHandler::ObjectIterator ObjectHandler::getAllObjects()
+ObjectHandler::ObjectIterator ObjectHandler::iterator()
 {
     return ObjectIterator(this);
 }

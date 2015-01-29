@@ -30,9 +30,10 @@
 #include "game/char.h"
 #include "game/particle.h"
 
-#include "game/ChrList.h"
 #include "game/EncList.h"
 #include "game/PrtList.h"
+#include "game/module/ObjectHandler.hpp"
+#include "game/game.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -97,8 +98,8 @@ bool billboard_data_update( billboard_data_t * pbb )
 
     if ( NULL == pbb || !pbb->valid ) return false;
 
-    if ( !INGAME_CHR( pbb->ichr ) ) return false;
-    pchr = ChrList_get_ptr( pbb->ichr );
+    if ( !_gameObjects.exists( pbb->ichr ) ) return false;
+    pchr = _gameObjects.get( pbb->ichr );
 
     // determine where the new position should be
     chr_getMatUp(pchr, vup);
@@ -205,7 +206,7 @@ void BillboardList_update_all()
             is_invalid = true;
         }
 
-        if ( !INGAME_CHR( pbb->ichr ) || INGAME_CHR( ChrList_get_ptr(pbb->ichr)->attachedto ) )
+        if ( !_gameObjects.exists( pbb->ichr ) || _gameObjects.exists( _gameObjects.get(pbb->ichr)->attachedto ) )
         {
             is_invalid = true;
         }
@@ -215,9 +216,9 @@ void BillboardList_update_all()
             // the billboard has expired
 
             // unlink it from the character
-            if ( INGAME_CHR( pbb->ichr ) )
+            if ( _gameObjects.exists( pbb->ichr ) )
             {
-                ChrList_get_ptr(pbb->ichr)->ibillboard = INVALID_BILLBOARD_REF;
+                _gameObjects.get(pbb->ichr)->ibillboard = INVALID_BILLBOARD_REF;
             }
 
             // deallocate the billboard
@@ -400,7 +401,7 @@ bool billboard_system_render_one( billboard_data_t * pbb, float scale, const fve
 
     if (NULL == pbb || !pbb->valid) return false;
 
-    if (!INGAME_CHR( pbb->ichr)) return false;
+    if (!_gameObjects.exists( pbb->ichr)) return false;
 
     // do not display for objects that are mounted or being held
     if (IS_ATTACHED_CHR_RAW(pbb->ichr)) return false;

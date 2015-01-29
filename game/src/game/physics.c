@@ -27,7 +27,7 @@
 #include "game/particle.h"
 #include "game/mesh.h"
 
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 #include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------

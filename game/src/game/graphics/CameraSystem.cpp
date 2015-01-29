@@ -25,8 +25,9 @@
 #include "game/graphic.h"
 #include "game/game.h"
 #include "game/player.h"
+#include "game/char.h"
 
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 
 CameraSystem::CameraSystem() :
 	_initialized(false),
@@ -367,7 +368,7 @@ void CameraSystem::autoSetTargets()
 
             // get a pointer, if allowed
             if ( !VALID_CHR_RANGE( blah ) ) continue;
-            chr_t *pchr = ChrList_get_ptr( blah );
+            chr_t *pchr = _gameObjects.get( blah );
 
             // ignore local players
             if ( pchr->islocalplayer ) continue;

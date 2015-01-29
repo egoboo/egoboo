@@ -35,7 +35,7 @@
 #include "game/profiles/ProfileSystem.hpp"
 
 #include "game/EncList.h"
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -148,9 +148,9 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     penc = EncList_get_ptr( ienc );
 
     // Unlink it from the spawner (if possible)
-    if ( ALLOCATED_CHR( penc->spawner_ref ) )
+    if ( _gameObjects.exists( penc->spawner_ref ) )
     {
-        chr_t * pspawner = ChrList_get_ptr( penc->spawner_ref );
+        chr_t * pspawner = _gameObjects.get( penc->spawner_ref );
 
         if ( ienc == pspawner->undoenchant )
         {
@@ -159,14 +159,14 @@ bool unlink_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
     }
 
     // find the parent reference for the enchant
-    if ( NULL == enc_parent && ALLOCATED_CHR( penc->target_ref ) )
+    if ( NULL == enc_parent && _gameObjects.exists( penc->target_ref ) )
     {
         ENC_REF ienc_last, ienc_now, ienc_nxt;
         size_t ienc_count;
 
         chr_t * ptarget;
 
-        ptarget = ChrList_get_ptr( penc->target_ref );
+        ptarget = _gameObjects.get( penc->target_ref );
 
         if ( ptarget->firstenchant == ienc )
         {
@@ -223,8 +223,8 @@ bool remove_all_enchants_with_idsz( const CHR_REF ichr, IDSZ remove_idsz )
     chr_t *pchr;
 
     // Stop invalid pointers
-    if ( !ACTIVE_CHR( ichr ) ) return false;
-    pchr = ChrList_get_ptr( ichr );
+    if ( !_gameObjects.exists( ichr ) ) return false;
+    pchr = _gameObjects.get( ichr );
 
     // clean up the enchant list before doing anything
     cleanup_character_enchants( pchr );
@@ -271,26 +271,26 @@ bool remove_enchant( const ENC_REF ienc, ENC_REF * enc_parent )
 
     target_ref = INVALID_CHR_REF;
     target_ptr = NULL;
-    if ( DEFINED_CHR( penc->target_ref ) )
+    if ( _gameObjects.exists( penc->target_ref ) )
     {
         target_ref = penc->target_ref;
-        target_ptr = ChrList_get_ptr( penc->target_ref );
+        target_ptr = _gameObjects.get( penc->target_ref );
     }
 
     spawner_ref = INVALID_CHR_REF;
     spawner_ptr = NULL;
-    if ( DEFINED_CHR( penc->spawner_ref ) )
+    if ( _gameObjects.exists( penc->spawner_ref ) )
     {
         spawner_ref = penc->spawner_ref;
-        spawner_ptr = ChrList_get_ptr( penc->spawner_ref );
+        spawner_ptr = _gameObjects.get( penc->spawner_ref );
     }
 
     overlay_ref = INVALID_CHR_REF;
     overlay_ptr = NULL;
-    if ( DEFINED_CHR( penc->overlay_ref ) )
+    if ( _gameObjects.exists( penc->overlay_ref ) )
     {
         overlay_ref = penc->overlay_ref;
-        overlay_ptr = ChrList_get_ptr( penc->overlay_ref );
+        overlay_ptr = _gameObjects.get( penc->overlay_ref );
     }
 
     // Unsparkle the spellbook
@@ -425,8 +425,8 @@ ENC_REF enc_value_filled( const ENC_REF  ienc, int value_idx )
     if ( !_INGAME_ENC( ienc ) ) return INVALID_ENC_REF;
 
     character = EncList.lst[ienc].target_ref;
-    if ( !INGAME_CHR( character ) ) return INVALID_ENC_REF;
-    pchr = ChrList_get_ptr( character );
+    if ( !_gameObjects.exists( character ) ) return INVALID_ENC_REF;
+    pchr = _gameObjects.get( character );
 
     // cleanup the enchant list
     cleanup_character_enchants( pchr );
@@ -494,10 +494,10 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
             }
 
             // Set the value, and save the character's real stat
-            if ( DEFINED_CHR( penc->target_ref ) )
+            if ( _gameObjects.exists( penc->target_ref ) )
             {
                 character = penc->target_ref;
-                ptarget = ChrList_get_ptr( character );
+                ptarget = _gameObjects.get( character );
 
                 penc->setyesno[value_idx] = true;
 
@@ -659,9 +659,9 @@ void enc_apply_add( const ENC_REF ienc, int value_idx, const EVE_REF ieve )
         return;
     }
 
-    if ( !DEFINED_CHR( penc->target_ref ) ) return;
+    if ( !_gameObjects.exists( penc->target_ref ) ) return;
     character = penc->target_ref;
-    ptarget = ChrList_get_ptr( character );
+    ptarget = _gameObjects.get( character );
 
     valuetoadd  = 0;
     fvaluetoadd = 0.0f;
@@ -888,7 +888,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     POBJ_ACTIVATE( penc, peve->name );
 
     // does the target exist?
-    if ( !DEFINED_CHR( pdata->target_ref ) )
+    if ( !_gameObjects.exists( pdata->target_ref ) )
     {
         penc->target_ref   = INVALID_CHR_REF;
         ptarget            = NULL;
@@ -896,13 +896,13 @@ enc_t * enc_config_do_init( enc_t * penc )
     else
     {
         penc->target_ref = pdata->target_ref;
-        ptarget = ChrList_get_ptr( penc->target_ref );
+        ptarget = _gameObjects.get( penc->target_ref );
     }
     penc->target_mana  = peve->target_mana;
     penc->target_life  = peve->target_life;
 
     // does the owner exist?
-    if ( !DEFINED_CHR( pdata->owner_ref ) )
+    if ( !_gameObjects.exists( pdata->owner_ref ) )
     {
         penc->owner_ref = INVALID_CHR_REF;
     }
@@ -914,7 +914,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     penc->owner_life = peve->owner_life;
 
     // does the spawner exist?
-    if ( !DEFINED_CHR( pdata->spawner_ref ) )
+    if ( !_gameObjects.exists( pdata->spawner_ref ) )
     {
         penc->spawner_ref      = INVALID_CHR_REF;
         penc->spawnermodel_ref = INVALID_PRO_REF;
@@ -924,7 +924,7 @@ enc_t * enc_config_do_init( enc_t * penc )
         penc->spawner_ref = pdata->spawner_ref;
         penc->spawnermodel_ref = chr_get_ipro( pdata->spawner_ref );
 
-        ChrList_get_ptr(penc->spawner_ref)->undoenchant = ienc;
+        _gameObjects.get(penc->spawner_ref)->undoenchant = ienc;
     }
 
     //recuce enchant duration with damage resistance
@@ -960,13 +960,13 @@ enc_t * enc_config_do_init( enc_t * penc )
     if ( peve->spawn_overlay && NULL != ptarget )
     {
         overlay = spawn_one_character(ptarget->pos, pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, INVALID_CHR_REF );
-        if ( DEFINED_CHR( overlay ) )
+        if ( _gameObjects.exists( overlay ) )
         {
             chr_t *povl;
             mad_t *povl_mad;
             int action;
 
-            povl     = ChrList_get_ptr( overlay );
+            povl     = _gameObjects.get( overlay );
             povl_mad = chr_get_pmad( overlay );
 
             penc->overlay_ref = overlay;  // Kill this character on end...
@@ -1038,7 +1038,7 @@ enc_t * enc_config_do_active( enc_t * penc )
         int      tnc;
         FACING_T facing;
         penc->spawn_timer = peve->contspawn_delay;
-        ptarget = ChrList_get_ptr( penc->target_ref );
+        ptarget = _gameObjects.get( penc->target_ref );
 
         facing = ptarget->ori.facing_z;
         for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
@@ -1068,20 +1068,20 @@ enc_t * enc_config_do_active( enc_t * penc )
             eve    = enc_get_ieve( ienc );
 
             // Do drains
-            if ( ChrList_get_ptr(owner)->alive )
+            if ( _gameObjects.get(owner)->alive )
             {
 
                 // Change life
                 if ( 0 != penc->owner_life )
                 {
-                    ChrList_get_ptr(owner)->life += penc->owner_life;
-                    if ( ChrList_get_ptr(owner)->life <= 0 )
+                    _gameObjects.get(owner)->life += penc->owner_life;
+                    if ( _gameObjects.get(owner)->life <= 0 )
                     {
                         kill_character( owner, target, false );
                     }
-                    if ( ChrList_get_ptr(owner)->life > ChrList_get_ptr(owner)->life_max )
+                    if ( _gameObjects.get(owner)->life > _gameObjects.get(owner)->life_max )
                     {
-                        ChrList_get_ptr(owner)->life = ChrList_get_ptr(owner)->life_max;
+                        _gameObjects.get(owner)->life = _gameObjects.get(owner)->life_max;
                     }
                 }
 
@@ -1105,20 +1105,20 @@ enc_t * enc_config_do_active( enc_t * penc )
             // check it again
             if ( _INGAME_ENC( ienc ) )
             {
-                if ( ChrList_get_ptr(target)->alive )
+                if ( _gameObjects.get(target)->alive )
                 {
 
                     // Change life
                     if ( 0 != penc->target_life )
                     {
-                        ChrList_get_ptr(target)->life += penc->target_life;
-                        if ( ChrList_get_ptr(target)->life <= 0 )
+                        _gameObjects.get(target)->life += penc->target_life;
+                        if ( _gameObjects.get(target)->life <= 0 )
                         {
                             kill_character( target, owner, false );
                         }
-                        if ( ChrList_get_ptr(target)->life > ChrList_get_ptr(target)->life_max )
+                        if ( _gameObjects.get(target)->life > _gameObjects.get(target)->life_max )
                         {
-                            ChrList_get_ptr(target)->life = ChrList_get_ptr(target)->life_max;
+                            _gameObjects.get(target)->life = _gameObjects.get(target)->life_max;
                         }
                     }
 
@@ -1459,12 +1459,12 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 
     // Target must both be alive and on and valid
     loc_target = target;
-    if ( !DEFINED_CHR( loc_target ) )
+    if ( !_gameObjects.exists( loc_target ) )
     {
         log_warning( "spawn_one_enchant() - failed because the target does not exist.\n" );
         return INVALID_ENC_REF;
     }
-    ptarget = ChrList_get_ptr( loc_target );
+    ptarget = _gameObjects.get( loc_target );
 
     // you should be able to enchant dead stuff to raise the dead...
     // if( !ptarget->alive ) return INVALID_ENC_REF;
@@ -1481,7 +1481,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
 
         if ( !_profileSystem.isValidProfileID( loc_profile ) )
         {
-            log_warning( "spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", ChrList_get_ptr(spawner)->Name, REF_TO_INT( spawner ) );
+            log_warning( "spawn_one_enchant() - no valid profile for the spawning character \"%s\"(%d).\n", _gameObjects.get(spawner)->Name, REF_TO_INT( spawner ) );
             return INVALID_ENC_REF;
         }
     }
@@ -1499,7 +1499,7 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     peve->request_count++;
 
     // Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
-    if ( !peve->stayifnoowner && ( !INGAME_CHR( owner ) || !ChrList_get_ptr(owner)->alive ) )
+    if ( !peve->stayifnoowner && ( !_gameObjects.exists( owner ) || !_gameObjects.get(owner)->alive ) )
     {
         log_warning( "spawn_one_enchant() - failed because the required enchant owner cannot be found.\n" );
         return INVALID_ENC_REF;
@@ -1510,12 +1510,12 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     if ( peve->retarget )
     {
         // Left, right, or both are valid
-        if ( INGAME_CHR( ptarget->holdingwhich[SLOT_LEFT] ) )
+        if ( _gameObjects.exists( ptarget->holdingwhich[SLOT_LEFT] ) )
         {
             // Only right hand is valid
             loc_target = ptarget->holdingwhich[SLOT_RIGHT];
         }
-        else if ( INGAME_CHR( ptarget->holdingwhich[SLOT_LEFT] ) )
+        else if ( _gameObjects.exists( ptarget->holdingwhich[SLOT_LEFT] ) )
         {
             // Pick left hand
             loc_target = ptarget->holdingwhich[SLOT_LEFT];
@@ -1528,12 +1528,12 @@ ENC_REF spawn_one_enchant( const CHR_REF owner, const CHR_REF target, const CHR_
     }
 
     // make sure the loc_target is alive
-    if ( !DEFINED_PCHR( ptarget ) || !ptarget->alive )
+    if ( nullptr == ( ptarget ) || !ptarget->alive )
     {
         log_warning( "spawn_one_enchant() - failed because the target is not alive.\n" );
         return INVALID_ENC_REF;
     }
-    ptarget = ChrList_get_ptr( loc_target );
+    ptarget = _gameObjects.get( loc_target );
 
     // Check peve->required_damagetype, 90% damage resistance is enough to resist the enchant
     if ( peve->required_damagetype < DAMAGE_COUNT )
@@ -1627,9 +1627,9 @@ void enc_remove_set( const ENC_REF ienc, int value_idx )
 
     if ( value_idx >= MAX_ENCHANT_SET || !penc->setyesno[value_idx] ) return;
 
-    if ( !INGAME_CHR( penc->target_ref ) ) return;
+    if ( !_gameObjects.exists( penc->target_ref ) ) return;
     character = penc->target_ref;
-    ptarget   = ChrList_get_ptr( penc->target_ref );
+    ptarget   = _gameObjects.get( penc->target_ref );
 
     switch ( value_idx )
     {
@@ -1748,9 +1748,9 @@ void enc_remove_add( const ENC_REF ienc, int value_idx )
     if ( !_ALLOCATED_ENC( ienc ) ) return;
     penc = EncList_get_ptr( ienc );
 
-    if ( !INGAME_CHR( penc->target_ref ) ) return;
+    if ( !_gameObjects.exists( penc->target_ref ) ) return;
     character = penc->target_ref;
-    ptarget = ChrList_get_ptr( penc->target_ref );
+    ptarget = _gameObjects.get( penc->target_ref );
 
     if ( penc->addyesno[value_idx] )
     {
@@ -1979,7 +1979,7 @@ ENC_REF cleanup_enchant_list( const ENC_REF ienc, ENC_REF * enc_parent )
             break;
         }
 
-        //( !INGAME_CHR( EncList.lst[ienc_now].target_ref ) && !EveStack.lst[EncList.lst[ienc_now].eve_ref].stayiftargetdead )
+        //( !_gameObjects.exists( EncList.lst[ienc_now].target_ref ) && !EveStack.lst[EncList.lst[ienc_now].eve_ref].stayiftargetdead )
 
         // remove any expired enchants
         if ( !_INGAME_ENC( ienc_now ) )
@@ -2025,19 +2025,19 @@ void cleanup_all_enchants()
         // try to determine something about the parent
         enc_lst = NULL;
         valid_target = false;
-        if ( INGAME_CHR( penc->target_ref ) )
+        if ( _gameObjects.exists( penc->target_ref ) )
         {
-            valid_target = ChrList_get_ptr(penc->target_ref)->alive;
+            valid_target = _gameObjects.get(penc->target_ref)->alive;
 
             // this is linked to a known character
-            enc_lst = &( ChrList_get_ptr(penc->target_ref)->firstenchant );
+            enc_lst = &( _gameObjects.get(penc->target_ref)->firstenchant );
         }
 
         //try to determine if the owner exists and is alive
         valid_owner = false;
-        if ( INGAME_CHR( penc->owner_ref ) )
+        if ( _gameObjects.exists( penc->owner_ref ) )
         {
-            valid_owner = ChrList_get_ptr(penc->owner_ref)->alive;
+            valid_owner = _gameObjects.get(penc->owner_ref)->alive;
         }
 
         if ( !LOADED_EVE( penc->eve_ref ) )
@@ -2067,7 +2067,7 @@ void cleanup_all_enchants()
         else if ( valid_owner && peve->endifcantpay )
         {
             // Undo enchants that cannot be sustained anymore
-            if ( 0 == ChrList_get_ptr(penc->owner_ref)->mana ) do_remove = true;
+            if ( 0 == _gameObjects.get(penc->owner_ref)->mana ) do_remove = true;
         }
         else
         {
@@ -2115,7 +2115,7 @@ CHR_REF enc_get_iowner( const ENC_REF ienc )
     if ( !_DEFINED_ENC( ienc ) ) return INVALID_CHR_REF;
     penc = EncList_get_ptr( ienc );
 
-    if ( !INGAME_CHR( penc->owner_ref ) ) return INVALID_CHR_REF;
+    if ( !_gameObjects.exists( penc->owner_ref ) ) return INVALID_CHR_REF;
 
     return penc->owner_ref;
 }
@@ -2128,9 +2128,9 @@ chr_t * enc_get_powner( const ENC_REF ienc )
     if ( !_DEFINED_ENC( ienc ) ) return NULL;
     penc = EncList_get_ptr( ienc );
 
-    if ( !INGAME_CHR( penc->owner_ref ) ) return NULL;
+    if ( !_gameObjects.exists( penc->owner_ref ) ) return NULL;
 
-    return ChrList_get_ptr( penc->owner_ref );
+    return _gameObjects.get( penc->owner_ref );
 }
 
 //--------------------------------------------------------------------------------------------

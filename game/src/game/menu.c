@@ -41,7 +41,7 @@
 
 #include "game/audio/AudioSystem.hpp"
 
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 #include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------

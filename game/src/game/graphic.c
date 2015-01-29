@@ -54,7 +54,7 @@
 #include "game/profiles/ProfileSystem.hpp"
 #include "game/module/Module.hpp"
 
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 #include "game/EncList.h"
 #include "game/PrtList.h"
 
@@ -898,7 +898,7 @@ gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
         }
         else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
         {
-            ChrList_get_ptr(element->ichr)->inst.indolist = false;
+            _gameObjects.get(element->ichr)->inst.indolist = false;
         }
     }
     self->size = 0;
@@ -962,13 +962,13 @@ gfx_rv dolist_t::add_chr_raw(dolist_t *self, chr_t *pchr)
     }
 
     // Don't add if it's in another character's inventory.
-    if (INGAME_CHR(pchr->inwhich_inventory))
+    if (_gameObjects.exists(pchr->inwhich_inventory))
     {
         return gfx_fail;
     }
 
     // Add!
-    self->lst[self->size].ichr = GET_REF_PCHR(pchr);
+    self->lst[self->size].ichr = GET_INDEX_PCHR(pchr);
     self->lst[self->size].iprt = INVALID_PRT_REF;
     self->size++;
 
@@ -976,8 +976,8 @@ gfx_rv dolist_t::add_chr_raw(dolist_t *self, chr_t *pchr)
     pchr->inst.indolist = true;
 
     // Add any weapons it is holding.
-    dolist_t::add_chr_raw(self, ChrList_get_ptr(pchr->holdingwhich[SLOT_LEFT]));
-    dolist_t::add_chr_raw(self, ChrList_get_ptr(pchr->holdingwhich[SLOT_RIGHT]));
+    dolist_t::add_chr_raw(self, _gameObjects.get(pchr->holdingwhich[SLOT_LEFT]));
+    dolist_t::add_chr_raw(self, _gameObjects.get(pchr->holdingwhich[SLOT_RIGHT]));
 
     return gfx_success;
 }
@@ -1080,7 +1080,7 @@ gfx_rv dolist_t::add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_
 
             // is it in the array?
             if ( !VALID_CHR_RANGE( ichr ) ) continue;
-            pchr = ChrList_get_ptr( ichr );
+            pchr = _gameObjects.get( ichr );
 
             // do some more obvious tests before testing the frustum
             if ( dolist_t::test_chr( pdlist, pchr ) )
@@ -1174,11 +1174,11 @@ gfx_rv dolist_t::sort( dolist_t * pdlist, std::shared_ptr<Camera> pcam, const bo
 
             if ( do_reflect )
             {
-                mat_getTranslate(ChrList_get_ptr(ichr)->inst.ref.matrix, pos_tmp);
+                mat_getTranslate(_gameObjects.get(ichr)->inst.ref.matrix, pos_tmp);
             }
             else
             {
-                mat_getTranslate(ChrList_get_ptr(ichr)->inst.matrix, pos_tmp);
+                mat_getTranslate(_gameObjects.get(ichr)->inst.matrix, pos_tmp);
             }
 
             vtmp = pos_tmp - pcam->getPosition();
@@ -2480,7 +2480,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
 
     TX_REF icon_ref;
 
-    chr_t * pitem = !INGAME_CHR( item ) ? NULL : ChrList_get_ptr( item );
+    chr_t * pitem = !_gameObjects.exists( item ) ? NULL : _gameObjects.get( item );
 
     // grab the icon reference
     icon_ref = chr_get_txtexture_icon_ref( item );
@@ -2508,8 +2508,8 @@ float draw_character_xp_bar( const CHR_REF character, float x, float y )
 {
     chr_t * pchr;
 
-    if ( !INGAME_CHR( character ) ) return y;
-    pchr = ChrList_get_ptr( character );
+    if ( !_gameObjects.exists( character ) ) return y;
+    pchr = _gameObjects.get( character );
 
     //Draw the small XP progress bar
     if ( pchr->experiencelevel < MAXLEVEL - 1 )
@@ -2547,8 +2547,8 @@ float draw_status( const CHR_REF character, float x, float y )
 
     chr_t * pchr;
 
-    if ( !INGAME_CHR( character ) ) return y;
-    pchr = ChrList_get_ptr( character );
+    if ( !_gameObjects.exists( character ) ) return y;
+    pchr = _gameObjects.get( character );
 
     life_pips      = SFP8_TO_SINT( pchr->life );
     life_pips_max  = SFP8_TO_SINT( pchr->life_max );
@@ -2656,8 +2656,8 @@ void draw_map()
             {
                 chr_t * pchr;
 
-                if ( !INGAME_CHR( ichr ) ) continue;
-                pchr = ChrList_get_ptr( ichr );
+                if ( !_gameObjects.exists( ichr ) ) continue;
+                pchr = _gameObjects.get( ichr );
 
                 const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile(pchr->profile_ref);
 
@@ -2706,9 +2706,9 @@ void draw_map()
                 if ( NULL == PlaStack.lst[iplayer].pdevice ) continue;
 
                 ichr = PlaStack.lst[iplayer].index;
-                if ( INGAME_CHR( ichr ) && ChrList_get_ptr(ichr)->alive )
+                if ( _gameObjects.exists( ichr ) && _gameObjects.get(ichr)->alive )
                 {
-                    draw_blip( 0.75f, COLOR_WHITE, ChrList_get_ptr(ichr)->pos.x, ChrList_get_ptr(ichr)->pos.y, true );
+                    draw_blip( 0.75f, COLOR_WHITE, _gameObjects.get(ichr)->pos.x, _gameObjects.get(ichr)->pos.y, true );
                 }
             }
         }
@@ -2859,21 +2859,21 @@ float draw_debug( float y )
         ipla = ( PLA_REF )0;
         ichr = PlaStack.lst[ipla].index;
         y = draw_string_raw( 0, y, "~~PLA0DEF %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f",
-                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_SLASH],
-                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_CRUSH],
-                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_POKE ],
-                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_HOLY ],
-                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_EVIL ],
-                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_FIRE ],
-                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_ICE  ],
-                             ChrList_get_ptr(ichr)->damage_resistance[DAMAGE_ZAP  ] );
+                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_SLASH],
+                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_CRUSH],
+                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_POKE ],
+                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_HOLY ],
+                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_EVIL ],
+                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_FIRE ],
+                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_ICE  ],
+                             _gameObjects.get(ichr)->damage_resistance[DAMAGE_ZAP  ] );
 
         ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList_get_ptr(ichr)->pos.x / GRID_FSIZE, ChrList_get_ptr(ichr)->pos.y / GRID_FSIZE );
+        y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", _gameObjects.get(ichr)->pos.x / GRID_FSIZE, _gameObjects.get(ichr)->pos.y / GRID_FSIZE );
 
         ipla = ( PLA_REF )1;
         ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList_get_ptr(ichr)->pos.x / GRID_FSIZE, ChrList_get_ptr(ichr)->pos.y / GRID_FSIZE );
+        y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", _gameObjects.get(ichr)->pos.x / GRID_FSIZE, _gameObjects.get(ichr)->pos.y / GRID_FSIZE );
     }
 
     if ( SDL_KEYDOWN( keyb, SDLK_F6 ) )
@@ -2881,7 +2881,7 @@ float draw_debug( float y )
         // More debug information
         y = draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
         y = draw_string_raw( 0, y, "~~FREEPRT %d", PrtList_count_free() );
-        y = draw_string_raw( 0, y, "~~FREECHR %d", MAX_CHR - _characterList.size() );
+        y = draw_string_raw( 0, y, "~~FREECHR %d", MAX_CHR - _gameObjects.getObjectCount() );
         y = draw_string_raw( 0, y, "~~MACHINE %d", egonet_get_local_machine() );
         y = draw_string_raw( 0, y, PMod->isExportValid() ? "~~EXPORT: TRUE" : "~~EXPORT: FALSE" );
         y = draw_string_raw( 0, y, "~~PASS %d", PMod->getPassageCount() );
@@ -3031,8 +3031,8 @@ void draw_inventory()
         ichr = ppla->index;
 
         //valid character?
-        if ( !INGAME_CHR( ichr ) ) continue;
-        pchr = ChrList_get_ptr( ichr );
+        if ( !_gameObjects.exists( ichr ) ) continue;
+        pchr = _gameObjects.get( ichr );
 
         //don't draw inventories of network players
         if ( !pchr->islocalplayer ) continue;
@@ -3062,7 +3062,7 @@ void draw_inventory()
         ppla = PlaStack.get_ptr( ipla );
 
         ichr = ppla->index;
-        pchr = ChrList_get_ptr( ichr );
+        pchr = _gameObjects.get( ichr );
 
         //handle inventories sliding into view
         ppla->inventory_lerp = std::min( ppla->inventory_lerp, width );
@@ -3099,7 +3099,7 @@ void draw_inventory()
             CHR_REF item = pchr->inventory[i];
 
             //calculate the sum of the weight of all items in inventory
-            if ( INGAME_CHR( item ) ) weight_sum += chr_get_ppro(item)->getWeight();
+            if ( _gameObjects.exists( item ) ) weight_sum += chr_get_ppro(item)->getWeight();
 
             //draw icon
             draw_one_character_icon( item, x, y, true, ( item_count == ppla->inventory_slot ) ? COLOR_WHITE : NOSPARKLE );
@@ -3216,7 +3216,7 @@ void render_shadow( const CHR_REF character )
     ego_tile_info_t * ptile;
 
     if ( IS_ATTACHED_CHR( character ) ) return;
-    pchr = ChrList_get_ptr( character );
+    pchr = _gameObjects.get( character );
 
     // if the character is hidden, not drawn at all, so no shadow
     if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
@@ -3350,7 +3350,7 @@ void render_bad_shadow( const CHR_REF character )
     ego_tile_info_t * ptile;
 
     if ( IS_ATTACHED_CHR( character ) ) return;
-    pchr = ChrList_get_ptr( character );
+    pchr = _gameObjects.get( character );
 
     // if the character is hidden, not drawn at all, so no shadow
     if ( pchr->is_hidden || 0 == pchr->shadow_size ) return;
@@ -3835,7 +3835,7 @@ gfx_rv render_scene_mesh_ref( std::shared_ptr<Camera> pcam, const renderlist_t *
                 GL_DEBUG( glBlendFunc )( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // GL_COLOR_BUFFER_BIT
 
                 ichr  = pdolist->lst[cnt].ichr;
-                itile = ChrList_get_ptr(ichr)->onwhichgrid;
+                itile = _gameObjects.get(ichr)->onwhichgrid;
 
                 if ( ego_mesh_grid_is_valid( pmesh, itile ) && ( 0 != ego_mesh_test_fx( pmesh, itile, MAPFX_DRAWREF ) ) )
                 {
@@ -4016,7 +4016,7 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
             CHR_REF ichr = pdolist->lst[cnt].ichr;
             if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
-            if ( 0 == ChrList_get_ptr(ichr)->shadow_size ) continue;
+            if ( 0 == _gameObjects.get(ichr)->shadow_size ) continue;
 
             render_bad_shadow( ichr );
             tnc++;
@@ -4030,7 +4030,7 @@ gfx_rv render_scene_mesh_render_shadows( const dolist_t * pdolist )
             CHR_REF ichr = pdolist->lst[cnt].ichr;
             if ( !VALID_CHR_RANGE( ichr ) ) continue;
 
-            if ( 0 == ChrList_get_ptr(ichr)->shadow_size ) continue;
+            if ( 0 == _gameObjects.get(ichr)->shadow_size ) continue;
 
             render_shadow( ichr );
             tnc++;
@@ -6480,8 +6480,8 @@ gfx_rv gfx_update_flashing( dolist_t * pdolist )
 
         CHR_REF ichr = pdolist->lst[i].ichr;
 
-        pchr = ChrList_get_ptr( ichr );
-        if ( !DEFINED_PCHR( pchr ) ) continue;
+        pchr = _gameObjects.get( ichr );
+        if ( nullptr == ( pchr ) ) continue;
 
         pinst = &( pchr->inst );
 
@@ -6526,10 +6526,8 @@ gfx_rv gfx_update_all_chr_instance()
     // assume the best
     retval = gfx_success;
 
-    for(const auto &chr : _characterList)
+    for(const std::shared_ptr<chr_t> &pchr : _gameObjects.iterator())
     {
-        chr_t * pchr = chr.second.get();
-
         //Dont do terminated characters
         if(pchr->terminateRequested) {
             continue;
@@ -6537,7 +6535,7 @@ gfx_rv gfx_update_all_chr_instance()
 
         if ( !ego_mesh_grid_is_valid( PMesh, pchr->onwhichgrid ) ) continue;
 
-        tmp_rv = update_one_chr_instance( pchr );
+        tmp_rv = update_one_chr_instance( pchr.get() );
 
         // deal with return values
         if ( gfx_error == tmp_rv )
@@ -6547,7 +6545,7 @@ gfx_rv gfx_update_all_chr_instance()
         else if ( gfx_success == tmp_rv )
         {
             // the instance has changed, refresh the collision bound
-            chr_update_collision_size( pchr, true );
+            chr_update_collision_size( pchr.get(), true );
         }
     }
 

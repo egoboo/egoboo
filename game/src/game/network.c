@@ -33,8 +33,7 @@
 #include "game/egoboo.h"
 #include "game/char.h"
 #include "game/module/Module.hpp"
-
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -133,7 +132,7 @@ void net_unbuffer_player_latches()
             tmp_latch.y = tlatch_list[0].y;
             tmp_latch.b = tlatch_list[0].button;
 
-            //log_info( "<<%1.4f, %1.4f>, 0x%x>, Just one latch for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, ChrList_get_ptr(ppla->index)->Name );
+            //log_info( "<<%1.4f, %1.4f>, 0x%x>, Just one latch for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, _gameObjects.get(ppla->index)->Name );
         }
         else if ( latch_count > 1 )
         {
@@ -168,7 +167,7 @@ void net_unbuffer_player_latches()
                 tmp_latch.y /= ( float )weight_sum;
             }
 
-            //log_info( "<<%1.4f, %1.4f>, 0x%x>, %d, multiple latches for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, latch_count, ChrList_get_ptr(ppla->index)->Name );
+            //log_info( "<<%1.4f, %1.4f>, 0x%x>, %d, multiple latches for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, latch_count, _gameObjects.get(ppla->index)->Name );
         }
         else
         {
@@ -176,7 +175,7 @@ void net_unbuffer_player_latches()
             // do nothing. this lets the old value of the latch persist.
             // this might be a decent guess as to what to do if a packet was
             // dropped?
-            //log_info( "<<%1.4f, %1.4f>, 0x%x>, latch dead reckoning for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, ChrList_get_ptr(ppla->index)->Name );
+            //log_info( "<<%1.4f, %1.4f>, 0x%x>, latch dead reckoning for %s\n", tmp_latch.x, tmp_latch.y, tmp_latch.b, _gameObjects.get(ppla->index)->Name );
         }
 
         if ( latch_count >= ppla->tlatch_count )
@@ -213,8 +212,8 @@ void net_unbuffer_player_latches()
         ppla = PlaStack.get_ptr( ipla );
 
         character = PlaStack.lst[ipla].index;
-        if ( !INGAME_CHR( character ) ) continue;
-        pchr = ChrList_get_ptr( character );
+        if ( !_gameObjects.exists( character ) ) continue;
+        pchr = _gameObjects.get( character );
 
         pchr->latch = ppla->net_latch;
     }
@@ -229,8 +228,8 @@ void net_unbuffer_player_latches()
         //ppla = PlaStack_get_ptr( ipla );
 
         character = PlaStack.lst[ipla].index;
-        if ( !INGAME_CHR( character ) ) continue;
-        pchr = ChrList_get_ptr( character );
+        if ( !_gameObjects.exists( character ) ) continue;
+        pchr = _gameObjects.get( character );
 
         if ( cfg.difficulty < GAME_HARD && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RESPAWN ) && PMod->isRespawnValid() )
         {
@@ -331,8 +330,8 @@ player_t* chr_get_ppla( const CHR_REF ichr )
 {
     PLA_REF iplayer;
 
-    if ( !INGAME_CHR( ichr ) ) return NULL;
-    iplayer = ChrList_get_ptr(ichr)->is_which_player;
+    if ( !_gameObjects.exists( ichr ) ) return NULL;
+    iplayer = _gameObjects.get(ichr)->is_which_player;
 
     if ( !VALID_PLA( iplayer ) ) return NULL;
 

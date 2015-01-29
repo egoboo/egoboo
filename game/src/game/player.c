@@ -22,8 +22,9 @@
 /// @details
 
 #include "game/player.h"
+#include "game/game.h"
 
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ CHR_REF PlaStack_get_ichr(const PLA_REF iplayer)
     if (iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid) return INVALID_CHR_REF;
     player_t *player = PlaStack.get_ptr( iplayer );
 
-    if (!INGAME_CHR(player->index)) return INVALID_CHR_REF;
+    if (!_gameObjects.exists(player->index)) return INVALID_CHR_REF;
 
     return player->index;
 }
@@ -66,9 +67,9 @@ chr_t *PlaStack_get_pchr(const PLA_REF iplayer)
     if ( iplayer >= MAX_PLAYER || !PlaStack.lst[iplayer].valid ) return NULL;
     pplayer = PlaStack.get_ptr( iplayer );
 
-    if ( !INGAME_CHR( pplayer->index ) ) return NULL;
+    if ( !_gameObjects.exists( pplayer->index ) ) return NULL;
 
-    return ChrList_get_ptr( pplayer->index );
+    return _gameObjects.get( pplayer->index );
 }
 
 //--------------------------------------------------------------------------------------------

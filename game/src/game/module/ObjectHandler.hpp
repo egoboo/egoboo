@@ -28,6 +28,13 @@
 //Forward declarations
 class chr_t;
 
+//ZF> Some macros from C Egoboo (TODO: remove these macros)
+#define VALID_CHR_RANGE( ICHR )    ( static_cast<CHR_REF>(ICHR) < MAX_CHR && ICHR != INVALID_CHR_REF )
+#define GET_INDEX_PCHR( PCHR )      ((nullptr == (PCHR)) ? INVALID_CHR_IDX : PCHR->getCharacterID())
+#define ACTIVE_PCHR( PCHR )         ( nullptr != (PCHR) && !PCHR->terminateRequested )
+#define TERMINATED_PCHR( PCHR )     ( nullptr != (PCHR) && PCHR->terminateRequested )
+#define INGAME_PCHR(PCHR)           ( nullptr != (PCHR) && !PCHR->terminateRequested )
+
 /**
 * @brief A completely thread safe container for accessing instances of in-game objects
 **/
@@ -59,18 +66,18 @@ public:
 			return _handler->_characterList.end();
 		}	
 
+		~ObjectIterator()
+		{
+			//Free the ObjectHandler lock
+			_handler->unlock();
+		}
+
 	private:
 		ObjectIterator(ObjectHandler *handler) :
 			_handler(handler)
 		{
 			//Ensure the ObjectHandler is locked as long as we are in existance
 			_handler->lock();
-		}
-
-		~ObjectIterator()
-		{
-			//Free the ObjectHandler lock
-			_handler->unlock();
 		}
 
 		ObjectHandler *_handler;
@@ -87,7 +94,7 @@ public:
 	/**
 	* @brief Returns a safe deferred iterator that ensure nothing is modified while iterating
 	**/
-	ObjectIterator getAllObjects();
+	ObjectIterator iterator();
 
 	/**
 	* @brief removes the specified CHR_REF for the game. 
@@ -122,19 +129,6 @@ public:
 	**/
 	size_t getObjectCount() const {return _characterList.size();}
 
-/*
-	inline std::list<std::shared_ptr<chr_t>>::const_iterator cbegin() const 
-	{
-		if(_semaphore == 0) throw new std::logic_error("ObjectHandler not locked before iteration");
-		return _characterList.cbegin();
-	}
-
-	inline std::list<std::shared_ptr<chr_t>>::const_iterator cend() const 
-	{
-		return _characterList.cend();
-	}
-*/
-
 	/**
 	* @brief Locks all object containers to ensure no modification will happen.
 	*		 Must be called before iterating.
@@ -159,6 +153,8 @@ private:
 
 	mutable std::recursive_mutex _modificationLock;
 	std::atomic_size_t _semaphore;
+
+	CHR_REF _totalCharactersSpawned;										///< Total count of characters spawned (includes removed)
 
 	friend class ObjectIterator;
 };

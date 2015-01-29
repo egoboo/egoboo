@@ -28,7 +28,8 @@
 #include "game/network.h"
 #include "game/player.h"
 #include "game/mesh.h"
-#include "game/ChrList.h"
+#include "game/char.h"
+#include "game/module/ObjectHandler.hpp"
 
 GameModule::GameModule(const mod_file_t * pdata, const std::string& name, const uint32_t seed) :
     _name(name),
@@ -110,12 +111,12 @@ void GameModule::checkPassageMusic()
     for ( PLA_REF ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF character = PlaStack.lst[ipla].index;
-        if ( !INGAME_CHR( character ) ) continue;
+        if ( !_gameObjects.exists( character ) ) continue;
 
         //dont do items in hands or inventory
         if ( IS_ATTACHED_CHR( character ) ) continue;
 
-        chr_t * pchr = ChrList_get_ptr( character );
+        chr_t * pchr = _gameObjects.get( character );
         if ( !pchr->alive || !VALID_PLA( pchr->is_which_player ) ) continue;
 
         //Loop through every passage

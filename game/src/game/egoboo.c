@@ -25,7 +25,6 @@
 #include "game/egoboo.h"
 #include "egolib/egolib.h"
 #include "game/network.h"
-#include "game/audio/AudioSystem.hpp"
 #include "game/ui.h"
 #include "game/input.h"
 #include "game/game.h"
@@ -38,13 +37,15 @@
 #include "game/particle.h"
 #include "game/enchant.h"
 #include "game/collision.h"
-#include "game/profiles/Profile.hpp"
-#include "game/profiles/ProfileSystem.hpp"
-#include "game/module/Module.hpp"
 
-#include "game/ChrList.h"
 #include "game/EncList.h"
 #include "game/PrtList.h"
+
+#include "game/module/Module.hpp"
+#include "game/module/ObjectHandler.hpp"
+#include "game/profiles/Profile.hpp"
+#include "game/profiles/ProfileSystem.hpp"
+#include "game/audio/AudioSystem.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -272,14 +273,13 @@ int do_ego_proc_running( ego_process_t * eproc )
         //PMod->beat        = true;
         //PMod->exportvalid = true;
 
-        CHR_BEGIN_LOOP_ACTIVE( cnt, pchr )
+        for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
         {
-            if ( !VALID_PLA( pchr->is_which_player ) )
+            if ( !VALID_PLA( object->is_which_player ) )
             {
-                kill_character( cnt, ( CHR_REF )511, false );
+                kill_character( object->getCharacterID(), static_cast<CHR_REF>(MAX_CHR), false );
             }
         }
-        CHR_END_LOOP();
     }
 
     // handle an escape by passing it on to all active sub-processes
@@ -638,7 +638,7 @@ void object_systems_end()
 
     particle_system_end();
     enchant_system_end();
-    _characterList.clear();
+    _gameObjects.clear();
     model_system_end();
 }
 
