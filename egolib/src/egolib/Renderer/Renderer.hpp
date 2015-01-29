@@ -49,8 +49,11 @@ namespace Ego {
 	extern const GLXvector4f green_vec;
 	/// The color "blue"  to be used with glColor4f.
 	extern const GLXvector4f blue_vec;
+	
 	class Renderer {
 	public:
+		virtual ~Renderer();
+
 		/**
 		 * @brief
 		 *	Set the current colour.
@@ -58,6 +61,7 @@ namespace Ego {
 		 *	the current colour
 		 */
 		virtual void setColour(const Colour4f& colour) = 0;
+
 		/**
 		 * @brief
 		 *	Replace the current matrix with the given matrix.
@@ -65,6 +69,7 @@ namespace Ego {
 		 *	the matrix
 		 */
 		virtual void loadMatrix(const fmat_4x4_t& matrix) = 0;
+
 		/**
 		 * @brief
 		 *	Multiply the current matrix with the given matrix.
@@ -72,11 +77,13 @@ namespace Ego {
 		 *	the matrix
 		 */
 		virtual void multiplyMatrix(const fmat_4x4_t& matrix) = 0;
+
 		/**
 		 * @brief
 		 *	Start-up the renderer.
 		 */
 		static void startUp();
+
 		/**
 		 * @brief
 		 *	Get the renderer.
@@ -88,6 +95,7 @@ namespace Ego {
 		 *	Shutting-down the renderer will invalidate any pointers returned by calls to this function prior to shut-down.
 		 */
 		static Renderer *getSingleton();
+
 		/**
 		 * @brief
 		 *	Shut-down the renderer.

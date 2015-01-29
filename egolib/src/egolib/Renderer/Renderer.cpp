@@ -43,4 +43,9 @@ namespace Ego {
 		}
 	}
 #endif
+
+	Renderer::~Renderer()
+	{
+		//dtor
+	}
 };
