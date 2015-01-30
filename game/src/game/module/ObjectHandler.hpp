@@ -76,7 +76,7 @@ public:
 		ObjectIterator(ObjectHandler *handler) :
 			_handler(handler)
 		{
-			//Ensure the ObjectHandler is locked as long as we are in existance
+			// Ensure the ObjectHandler is locked as long as we are in existance.
 			_handler->lock();
 		}
 
@@ -87,63 +87,68 @@ public:
 
 public:
 	/**
-	* @brief default constructor
-	**/
+	 * @brief Default constructor.
+	 */
 	ObjectHandler();
 
 	/**
-	* @brief Returns a safe deferred iterator that ensure nothing is modified while iterating
-	**/
+	 * @brief Returns a safe deferred iterator that ensure nothing is modified while iterating.
+	 */
 	ObjectIterator iterator();
 
 	/**
-	* @brief removes the specified CHR_REF for the game. 
-	* @return false if it didnt exist or was already removed, true otherwise
-	**/
+	 * @brief Remove the specified CHR_REF for the game. 
+	 * @return false if it didnt exist or was already removed, true otherwise
+	 */
 	bool remove(const CHR_REF ichr);
 
 	/**
-	* @return true if the specified CHR_REF exists and is not terminated yet
-	**/
+	 * @brief Get if the specified CHR_REF exists and is not terminated yet.
+	 * @return true if the specified CHR_REF exists and is not terminated yet
+	 */
 	bool exists(const CHR_REF ichr) const;
 
 	/**
-	* @brief Allocates and creates new chr_t object. A valid PRO_REF is required to spawn a object
-	* @return the std::shared_ptr<chr_t> for that object or nullptr if it failed
-	**/
+	 * @brief Allocates and creates new chr_t object. A valid PRO_REF is required to spawn a object.
+	 * @return the std::shared_ptr<chr_t> for that object or nullptr if it failed
+	 */
 	std::shared_ptr<chr_t> insert(const PRO_REF profile, const CHR_REF override = INVALID_CHR_REF);
 
 	/**
-	* @return A pointer object for the specified CHR_REF
-	*		  Return a nullptr object if CHR_REF was not found
-	**/
+	 * @brief Return a pointer object for the specifiec CHR_REF.
+	 * @return a pointer object for the specified CHR_REF.
+	 *		   Return nullptr object if CHR_REF was not found.
+	 */
 	const std::shared_ptr<chr_t>& operator[] (const CHR_REF index);
 
 	/**
-	* @return a raw pointer referenced by CHR_REF
-	**/
-	chr_t* get(const CHR_REF index) const;
-
-	/**
-	* @return Number of objects currently active in the game
-	**/
+	 * @brief Return number of object currently active in the game.
+	 * @return number of objects currently active in the game
+	 */
 	size_t getObjectCount() const {return _characterList.size();}
 
 	/**
-	* @brief Removes and de-allocates all game objects contained in this ObjectHandler
-	**/
+	 * @brief Removes and de-allocates all game objects contained in this ObjectHandler.
+	 */
 	void clear();
 
-private:
 	/**
-	* @brief Locks all object containers to ensure no modification will happen.
-	*		 Must be called before iterating.
-	**/
+	 * @brief Return a raw pointer referenced by CHR_REF
+	 * @return a raw pointer referenced by CHR_REF
+	 */
+	chr_t* get(const CHR_REF index) const;
+
+private:
+
+	/**
+	 * @brief Locks all object containers to ensure no modification will happen.
+	 *		  Must be called before iterating.
+	 */
 	void lock();
 
 	/**
-	* @brief unlocks all object containers for modifications
-	**/
+	 * @brief Unlocks all object containers for modifications.
+	 */
 	void unlock();
 	
 private:
@@ -158,4 +163,21 @@ private:
 	CHR_REF _totalCharactersSpawned;										///< Total count of characters spawned (includes removed)
 
 	friend class ObjectIterator;
+
+#if defined(_DEBUG)
+	/**
+	 * @brief
+	 *	Dump the allocate list to standard output.
+	 */
+	void dumpAllocateList();
+#endif
+
+#if defined(_DEBUG)
+	/**
+	 * @brief
+	 *	Dump the termination list to standard output.
+	 */
+	void dumpTerminationList();
+#endif
+
 };
