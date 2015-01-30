@@ -215,6 +215,43 @@ void ObjectHandler::dumpTerminationList()
 }
 #endif
 
+void ObjectHandler::maybeRunDeferred()
+{
+	// If locked ...
+	if (_semaphore != 0)
+	{
+		// ... return.
+		return;
+	}
+	// Add any allocated objects to the containers (do first, in case they get removed again).
+	for (const std::shared_ptr<chr_t> &object : _allocateList)
+	{
+		_characterList.push_back(object);
+	}
+	_allocateList.clear();
+
+	// Go through and delete any characters that were
+	// supposed to be deleted while the list was iterating.
+	for (const CHR_REF ichr : _terminationList)
+	{
+		_characterList.erase
+			(
+			std::remove_if
+			(
+			_characterList.begin(), _characterList.end(),
+			[ichr](const std::shared_ptr<chr_t> &element)
+		{
+			if (element->bsp_leaf.isInList()) return false;
+			return element->terminateRequested || element->getCharacterID() == ichr;
+		}
+			),
+			_characterList.end()
+			);
+	}
+	_terminationList.clear();
+}
+
+
 void ObjectHandler::unlock()
 {
     if(_semaphore == 0) 
@@ -225,35 +262,8 @@ void ObjectHandler::unlock()
     // Release one lock.
     _semaphore--;
 
-    // No remaining locks?
-    if(_semaphore == 0)
-    {
-        // Add any allocated objects to the containers (do first, in case they get removed again).
-        for(const std::shared_ptr<chr_t> &object : _allocateList)
-        {
-            _characterList.push_back(object);
-        }
-        _allocateList.clear();
-
-        // Go through and delete any characters that were
-        // supposed to be deleted while the list was iterating.
-        for(const CHR_REF ichr : _terminationList)
-        {
-            _characterList.erase
-			(
-                std::remove_if
-				(
-					_characterList.begin(), _characterList.end(),
-					[ichr](const std::shared_ptr<chr_t> &element) 
-					{
-						return element->terminateRequested || element->getCharacterID() == ichr;
-					}
-				),
-				_characterList.end()
-			);
-        }
-        _terminationList.clear();
-    }
+    // Run deferred updates if the object list is not locked.
+	maybeRunDeferred();
 }
 
 ObjectHandler::ObjectIterator ObjectHandler::iterator()

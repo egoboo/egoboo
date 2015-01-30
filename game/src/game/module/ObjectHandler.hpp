@@ -138,6 +138,12 @@ public:
 	 */
 	chr_t* get(const CHR_REF index) const;
 
+	/**
+	 * @brief
+	 *	Run all deferred updates if the object list is not locked.
+	 */
+	void maybeRunDeferred();
+
 private:
 
 	/**
@@ -150,7 +156,7 @@ private:
 	 * @brief Unlocks all object containers for modifications.
 	 */
 	void unlock();
-	
+
 private:
 	std::unordered_map<CHR_REF, std::shared_ptr<chr_t>> _characterMap;		///< Maps CHR_REF to a chr_t pointer
 	std::vector<std::shared_ptr<chr_t>> _characterList;						///< For iterating
