@@ -898,7 +898,8 @@ gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
         }
         else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
         {
-            _gameObjects.get(element->ichr)->inst.indolist = false;
+            chr_t *character = _gameObjects.get(element->ichr);
+            if (nullptr != character) character->inst.indolist = false;
         }
     }
     self->size = 0;
