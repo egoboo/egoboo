@@ -63,7 +63,7 @@ struct sphere_t
 	 * @return
 	 *	the radius of this sphere
 	 */
-	float sphere_t::getRadius() const
+	float getRadius() const
 	{
 		return radius;
 	}
