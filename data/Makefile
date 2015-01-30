@@ -25,9 +25,7 @@ install:
 	mkdir -p ${PREFIX}/share/games/${PROJ_NAME}
 	cp -rdf ./basicdat ${PREFIX}/share/games/${PROJ_NAME}
 	cp -rdf ./modules ${PREFIX}/share/games/${PROJ_NAME}
-
-#	copy the players to the user's data folder
-	mkdir -p ${HOME}/.${PROJ_NAME}/players
+	cp -rdf ./editor ${PREFIX}/share/games/${PROJ_NAME}
 
 #	copy the basic configuration files to the config directory
 	mkdir -p ${PREFIX}/etc/${PROJ_NAME}
