@@ -6365,18 +6365,18 @@ bool move_one_character_integrate_motion( chr_t * pchr )
                     }
 
                     // normalize the diff_perp so that it is at most tile_fraction of a grid in any direction
-                    ftmp = std::max( ABS( diff_perp.x ), ABS( diff_perp.y ) );
+                    ftmp = std::max(ABS(diff_perp.x), ABS(diff_perp.y));
 
                     // protect us from a virtual divide by zero
-                    if ( ftmp < 1e-6 ) ftmp = 1.00f;
+                    if (ftmp < 1e-6) ftmp = 1.00f;
 
-                    fvec2_self_scale( diff_perp.v, tile_fraction * GRID_FSIZE / ftmp );
+					diff_perp *= tile_fraction * GRID_FSIZE / ftmp;
 
                     // scale the diff_perp by the pressure
-                    fvec2_self_scale( diff_perp.v, pressure );
+					diff_perp *= pressure;
 
                     // try moving the character
-                    fvec2_self_sum( tmp_pos.v, diff_perp.v );
+					tmp_pos += fvec3_t(diff_perp[kX],diff_perp[kY], 0.0f);
 
                     // determine whether the pressure is less at this location
                     pressure_old = chr_get_mesh_pressure( pchr, save_pos.v );

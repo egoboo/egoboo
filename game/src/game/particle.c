@@ -3720,6 +3720,7 @@ bool prt_get_pos(const prt_t *self, fvec3_t& position)
 	position = self->pos;
 	return true;
 }
+#if 0
 bool prt_get_pos(const prt_t *self, fvec3_base_t position)
 {
     float *copy_rv;
@@ -3730,7 +3731,7 @@ bool prt_get_pos(const prt_t *self, fvec3_base_t position)
 
     return ( NULL == copy_rv ) ? false : true;
 }
-
+#endif
 //--------------------------------------------------------------------------------------------
 const fvec3_t& prt_get_pos_v_const(const prt_t *pprt)
 {
