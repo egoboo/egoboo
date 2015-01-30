@@ -13,35 +13,52 @@ PROJ_VERSION	:= 2.x
 #---------------------
 # the target names
 
-EGO_DIR           := ./game
+EGO_DIR           := game
 EGO_TARGET        := $(PROJ_NAME)-$(PROJ_VERSION)
 
-EGOLIB_DIR        := ./egolib
+EGOLIB_DIR        := egolib
 EGOLIB_TARGET     := lib$(PROJ_NAME).a
 
-ifneq ($(USE_LUA),)
-    EGOLIB_TARGET := lib$(PROJ_NAME)-lua.a
-endif
+CARTMAN_DIR       := cartman
+CARTMAN_TARGET    := $(PROJ_NAME)-cartman
 
-#------------------------------------
-# user defined macros
+INSTALL_DIR       := data
 
+#---------------------
+# the SDL configuration
+
+SDL_CONF  := sdl-config
+TMPFLAGS  := $(shell ${SDL_CONF} --cflags)
+SDLCONF_L := $(shell ${SDL_CONF} --libs)
+
+#---------------------
+# the compiler options
+# todo: use pkg-config for lua?
+TMPFLAGS += -I/usr/include/lua5.2
+TMPFLAGS += -x c++ -std=c++11
+
+# for now, find a better way to do this?
 ifeq ($(PREFIX),)
-	# define a value for prefix assuming that the program will be installed in the root directory
 	PREFIX := /usr
 endif
 
-ifeq ($(INSTALL_DIR),)
-	# the user can specify a non-standard location for "install"
-	INSTALL_DIR := game/data
+# use different options if the environmental variable PREFIX is defined
+ifeq ($(PREFIX),)
+	TMPFLAGS += -D_NO_PREFIX
+else
+	TMPFLAGS += -DPREFIX=\"$(PREFIX)\" -D_NIX_PREFIX
 endif
 
-export PREFIX EGOLIB_TARGET EGO_TARGET USE_LUA
+CFLAGS   += $(TMPFLAGS)
+CXXFLAGS += $(TMPFLAGS)
+LDFLAGS  := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lSDL_image -lphysfs -lenet -llua5.2 -lGL -lGLU
+
+export PREFIX CFLAGS CXXFLAGS LDFLAGS EGOLIB_TARGET EGO_TARGET CARTMAN_TARGET
 
 #------------------------------------
 # definitions of the target projects
 
-.PHONY: all clean egolib egoboo
+.PHONY: all clean egolib egoboo cartman
 
 all: egoboo
 
@@ -55,9 +72,15 @@ $(EGO_TARGET): $(EGOLIB_TARGET)
 
 egoboo: $(EGO_TARGET)
 
+$(CARTMAN_TARGET): $(EGOLIB_TARGET)
+	make -C $(CARTMAN_DIR)
+
+cartman: $(CARTMAN_TARGET)
+
 clean:
 	make -C $(EGOLIB_DIR) clean
 	make -C $(EGO_DIR) clean
+	make -C $(CARTMAN_DIR) clean
 
 install: egoboo
 

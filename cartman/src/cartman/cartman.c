@@ -2177,7 +2177,7 @@ void main_end( void )
 }
 
 //--------------------------------------------------------------------------------------------
-int main( int argcnt, char* argtext[] )
+int SDL_main( int argcnt, char* argtext[] )
 {
     char modulename[100];
     STRING fname;

@@ -15,8 +15,34 @@
 		27D3913612EEA51D0093D60A /* hat.icns in Resources */ = {isa = PBXBuildFile; fileRef = 27D3913112EEA51D0093D60A /* hat.icns */; };
 		27D3913812EEA51D0093D60A /* skull.icns in Resources */ = {isa = PBXBuildFile; fileRef = 27D3913312EEA51D0093D60A /* skull.icns */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		CD0FE12F1A7B091300F3392B /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11A1A7B091300F3392B /* basicdat */; };
+		CD0FE1301A7B091300F3392B /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11A1A7B091300F3392B /* basicdat */; };
+		CD0FE1331A7B091300F3392B /* BUGS.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11C1A7B091300F3392B /* BUGS.txt */; };
+		CD0FE1341A7B091300F3392B /* BUGS.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11C1A7B091300F3392B /* BUGS.txt */; };
+		CD0FE1391A7B091300F3392B /* Changelog.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11F1A7B091300F3392B /* Changelog.txt */; };
+		CD0FE13A1A7B091300F3392B /* Changelog.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE11F1A7B091300F3392B /* Changelog.txt */; };
+		CD0FE13B1A7B091300F3392B /* controls.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1201A7B091300F3392B /* controls.txt */; };
+		CD0FE13C1A7B091300F3392B /* controls.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1201A7B091300F3392B /* controls.txt */; };
+		CD0FE13D1A7B091300F3392B /* doc in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1211A7B091300F3392B /* doc */; };
+		CD0FE13E1A7B091300F3392B /* doc in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1211A7B091300F3392B /* doc */; };
+		CD0FE13F1A7B091300F3392B /* editor in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1221A7B091300F3392B /* editor */; };
+		CD0FE1401A7B091300F3392B /* editor in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1221A7B091300F3392B /* editor */; };
+		CD0FE1411A7B091300F3392B /* egoboo1.ico in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1231A7B091300F3392B /* egoboo1.ico */; };
+		CD0FE1421A7B091300F3392B /* egoboo1.ico in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1231A7B091300F3392B /* egoboo1.ico */; };
+		CD0FE1431A7B091300F3392B /* egoboo2.ico in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1241A7B091300F3392B /* egoboo2.ico */; };
+		CD0FE1441A7B091300F3392B /* egoboo2.ico in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1241A7B091300F3392B /* egoboo2.ico */; };
+		CD0FE1451A7B091300F3392B /* egoboo3.ico in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1251A7B091300F3392B /* egoboo3.ico */; };
+		CD0FE1461A7B091300F3392B /* egoboo3.ico in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1251A7B091300F3392B /* egoboo3.ico */; };
+		CD0FE1471A7B091300F3392B /* license.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1261A7B091300F3392B /* license.txt */; };
+		CD0FE1481A7B091300F3392B /* license.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1261A7B091300F3392B /* license.txt */; };
+		CD0FE14B1A7B091300F3392B /* modules in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1281A7B091300F3392B /* modules */; };
+		CD0FE14C1A7B091300F3392B /* modules in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE1281A7B091300F3392B /* modules */; };
+		CD0FE14F1A7B091300F3392B /* setup.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE12A1A7B091300F3392B /* setup.txt */; };
+		CD0FE1501A7B091300F3392B /* setup.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD0FE12A1A7B091300F3392B /* setup.txt */; };
+		CD0FE1531A7B096800F3392B /* ObjectHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1511A7B096800F3392B /* ObjectHandler.cpp */; };
+		CD0FE15A1A7B09AD00F3392B /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1561A7B09AD00F3392B /* Renderer.cpp */; };
+		CD0FE15B1A7B09AD00F3392B /* Renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD0FE1581A7B09AD00F3392B /* Renderer.cpp */; };
 		CD39B45B1A37506100B377BE /* char.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3E61A37506100B377BE /* char.c */; };
-		CD39B45D1A37506100B377BE /* ChrList.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3E91A37506100B377BE /* ChrList.c */; };
 		CD39B45F1A37506100B377BE /* collision.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3EC1A37506100B377BE /* collision.c */; };
 		CD39B4601A37506100B377BE /* egoboo_object.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F01A37506100B377BE /* egoboo_object.c */; };
 		CD39B4611A37506100B377BE /* egoboo_typedef.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3F31A37506100B377BE /* egoboo_typedef.c */; };
@@ -147,6 +173,8 @@
 		CDBDE4231A43A3EF008E5FD1 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = CDBDE3E11A43A2CC008E5FD1 /* lzio.c */; };
 		CDBDE4251A43A51F008E5FD1 /* lua_console.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3631A374B6000B377BE /* lua_console.c */; };
 		CDBDE4281A43A539008E5FD1 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CDBDE3E81A43A329008E5FD1 /* liblua.a */; };
+		CDC1871B1A7B08BC001E69ED /* Colour3f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDC187141A7B08B4001E69ED /* Colour3f.cpp */; };
+		CDC1871C1A7B08BC001E69ED /* Colour4f.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDC187161A7B08B4001E69ED /* Colour4f.cpp */; };
 		CDCA1FA71A3F57D000002E76 /* _math.c in Sources */ = {isa = PBXBuildFile; fileRef = CD39B3011A374B6000B377BE /* _math.c */; };
 		CDCA1FA81A3F57D000002E76 /* bbox.c in Sources */ = {isa = PBXBuildFile; fileRef = CDCA1F8F1A3F56AB00002E76 /* bbox.c */; };
 		CDCA1FA91A3F57D000002E76 /* bsp.c in Sources */ = {isa = PBXBuildFile; fileRef = CDCA1F921A3F56AB00002E76 /* bsp.c */; };
@@ -212,38 +240,14 @@
 		CDCE212E1A6404770084D934 /* CameraSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDCE212B1A6404770084D934 /* CameraSystem.cpp */; };
 		CDD8806F1A44A8EF007177F3 /* bv.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD8806B1A44A8EF007177F3 /* bv.c */; };
 		CDD880701A44A8EF007177F3 /* matrix.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD8806D1A44A8EF007177F3 /* matrix.c */; };
-		CDD9318C1A4232480004A8B2 /* renderer.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD931891A4232480004A8B2 /* renderer.c */; };
-		CDD9318D1A423C960004A8B2 /* BUGS.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85151A3FB85100CFB956 /* BUGS.txt */; };
-		CDD9318E1A423C960004A8B2 /* Changelog.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85161A3FB85100CFB956 /* Changelog.txt */; };
-		CDD9318F1A423C960004A8B2 /* controls.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85171A3FB85100CFB956 /* controls.txt */; };
-		CDD931901A423C960004A8B2 /* egoboo1.ico in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85191A3FB85100CFB956 /* egoboo1.ico */; };
-		CDD931911A423C960004A8B2 /* egoboo2.ico in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851A1A3FB85100CFB956 /* egoboo2.ico */; };
-		CDD931921A423C960004A8B2 /* egoboo3.ico in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851B1A3FB85100CFB956 /* egoboo3.ico */; };
-		CDD931931A423C960004A8B2 /* license.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851C1A3FB85100CFB956 /* license.txt */; };
-		CDD931941A423C960004A8B2 /* setup.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851F1A3FB85100CFB956 /* setup.txt */; };
-		CDD931951A423C9A0004A8B2 /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85141A3FB85100CFB956 /* basicdat */; };
-		CDD931961A423C9A0004A8B2 /* doc in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85181A3FB85100CFB956 /* doc */; };
-		CDD931971A423C9A0004A8B2 /* modules in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851E1A3FB85100CFB956 /* modules */; };
-		CDD931991A42434E0004A8B2 /* data in Resources */ = {isa = PBXBuildFile; fileRef = CDD931981A42434E0004A8B2 /* data */; };
 		CDD931A31A428D970004A8B2 /* cube.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD9319C1A428D970004A8B2 /* cube.c */; };
 		CDD931A51A428D970004A8B2 /* vec.c in Sources */ = {isa = PBXBuildFile; fileRef = CDD931A01A428D970004A8B2 /* vec.c */; };
-		CDE4EC5F1A7167CD00A4BC62 /* AABB.c in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC571A7167CD00A4BC62 /* AABB.c */; };
+		CDE4EC5F1A7167CD00A4BC62 /* AABB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC571A7167CD00A4BC62 /* AABB.cpp */; };
 		CDE4EC601A7167CD00A4BC62 /* Cube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC591A7167CD00A4BC62 /* Cube.cpp */; };
-		CDE4EC611A7167CD00A4BC62 /* Plane.c in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC5B1A7167CD00A4BC62 /* Plane.c */; };
-		CDE4EC621A7167CD00A4BC62 /* Sphere.c in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC5D1A7167CD00A4BC62 /* Sphere.c */; };
+		CDE4EC611A7167CD00A4BC62 /* Plane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC5B1A7167CD00A4BC62 /* Plane.cpp */; };
+		CDE4EC621A7167CD00A4BC62 /* Sphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC5D1A7167CD00A4BC62 /* Sphere.cpp */; };
 		CDE4EC651A71AEFC00A4BC62 /* Module.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE4EC631A71AEFC00A4BC62 /* Module.cpp */; };
 		CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */ = {isa = PBXBuildFile; fileRef = CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */; };
-		CDFB85201A3FB85100CFB956 /* basicdat in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85141A3FB85100CFB956 /* basicdat */; };
-		CDFB85211A3FB85100CFB956 /* BUGS.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85151A3FB85100CFB956 /* BUGS.txt */; };
-		CDFB85221A3FB85100CFB956 /* Changelog.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85161A3FB85100CFB956 /* Changelog.txt */; };
-		CDFB85231A3FB85100CFB956 /* controls.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85171A3FB85100CFB956 /* controls.txt */; };
-		CDFB85241A3FB85100CFB956 /* doc in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85181A3FB85100CFB956 /* doc */; };
-		CDFB85251A3FB85100CFB956 /* egoboo1.ico in Resources */ = {isa = PBXBuildFile; fileRef = CDFB85191A3FB85100CFB956 /* egoboo1.ico */; };
-		CDFB85261A3FB85100CFB956 /* egoboo2.ico in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851A1A3FB85100CFB956 /* egoboo2.ico */; };
-		CDFB85271A3FB85100CFB956 /* egoboo3.ico in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851B1A3FB85100CFB956 /* egoboo3.ico */; };
-		CDFB85281A3FB85100CFB956 /* license.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851C1A3FB85100CFB956 /* license.txt */; };
-		CDFB852A1A3FB85100CFB956 /* modules in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851E1A3FB85100CFB956 /* modules */; };
-		CDFB852B1A3FB85100CFB956 /* setup.txt in Resources */ = {isa = PBXBuildFile; fileRef = CDFB851F1A3FB85100CFB956 /* setup.txt */; };
 		CDFE07711A3F68A5005395E7 /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = 27D3912F12EEA51D0093D60A /* SDLMain.nib */; };
 		CDFE077A1A3F68A5005395E7 /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = 27D3913212EEA51D0093D60A /* SDLMain.nib */; };
 		CDFE07B31A3F68A5005395E7 /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD39B4A81A37629B00B377BE /* SDL_image.framework */; };
@@ -372,6 +376,24 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107320486CEB800E47090 /* Egoboo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Egoboo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD0FE11A1A7B091300F3392B /* basicdat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = basicdat; sourceTree = "<group>"; };
+		CD0FE11C1A7B091300F3392B /* BUGS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BUGS.txt; sourceTree = "<group>"; };
+		CD0FE11F1A7B091300F3392B /* Changelog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Changelog.txt; sourceTree = "<group>"; };
+		CD0FE1201A7B091300F3392B /* controls.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = controls.txt; sourceTree = "<group>"; };
+		CD0FE1211A7B091300F3392B /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = doc; sourceTree = "<group>"; };
+		CD0FE1221A7B091300F3392B /* editor */ = {isa = PBXFileReference; lastKnownFileType = folder; path = editor; sourceTree = "<group>"; };
+		CD0FE1231A7B091300F3392B /* egoboo1.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo1.ico; sourceTree = "<group>"; };
+		CD0FE1241A7B091300F3392B /* egoboo2.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo2.ico; sourceTree = "<group>"; };
+		CD0FE1251A7B091300F3392B /* egoboo3.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo3.ico; sourceTree = "<group>"; };
+		CD0FE1261A7B091300F3392B /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
+		CD0FE1281A7B091300F3392B /* modules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = modules; sourceTree = "<group>"; };
+		CD0FE12A1A7B091300F3392B /* setup.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = setup.txt; sourceTree = "<group>"; };
+		CD0FE1511A7B096800F3392B /* ObjectHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ObjectHandler.cpp; sourceTree = "<group>"; };
+		CD0FE1521A7B096800F3392B /* ObjectHandler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ObjectHandler.hpp; sourceTree = "<group>"; };
+		CD0FE1561A7B09AD00F3392B /* Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = "<group>"; };
+		CD0FE1571A7B09AD00F3392B /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = "<group>"; };
+		CD0FE1581A7B09AD00F3392B /* Renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Renderer.cpp; sourceTree = "<group>"; };
+		CD0FE1591A7B09AD00F3392B /* Renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Renderer.hpp; sourceTree = "<group>"; };
 		CD39B3011A374B6000B377BE /* _math.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = _math.c; sourceTree = "<group>"; };
 		CD39B3021A374B6000B377BE /* _math.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _math.h; sourceTree = "<group>"; };
 		CD39B3041A374B6000B377BE /* clock.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = clock.c; sourceTree = "<group>"; };
@@ -489,8 +511,6 @@
 		CD39B38D1A374B6000B377BE /* vfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vfs.h; sourceTree = "<group>"; };
 		CD39B3E61A37506100B377BE /* char.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = char.c; sourceTree = "<group>"; };
 		CD39B3E71A37506100B377BE /* char.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = char.h; sourceTree = "<group>"; };
-		CD39B3E91A37506100B377BE /* ChrList.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = ChrList.c; sourceTree = "<group>"; };
-		CD39B3EA1A37506100B377BE /* ChrList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChrList.h; sourceTree = "<group>"; };
 		CD39B3EC1A37506100B377BE /* collision.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = collision.c; sourceTree = "<group>"; };
 		CD39B3ED1A37506100B377BE /* collision.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = collision.h; sourceTree = "<group>"; };
 		CD39B3EE1A37506100B377BE /* egoboo_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo_config.h; sourceTree = "<group>"; };
@@ -707,6 +727,11 @@
 		CDBDE3E81A43A329008E5FD1 /* liblua.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblua.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDBDE42A1A43A65E008E5FD1 /* ego.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = ego.i; sourceTree = "<group>"; };
 		CDBDE4321A43A696008E5FD1 /* ego_wrap.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = ego_wrap.c; sourceTree = "<group>"; };
+		CDC187141A7B08B4001E69ED /* Colour3f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Colour3f.cpp; sourceTree = "<group>"; };
+		CDC187151A7B08B4001E69ED /* Colour3f.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Colour3f.hpp; sourceTree = "<group>"; };
+		CDC187161A7B08B4001E69ED /* Colour4f.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Colour4f.cpp; sourceTree = "<group>"; };
+		CDC187171A7B08B4001E69ED /* Colour4f.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Colour4f.hpp; sourceTree = "<group>"; };
+		CDC187181A7B08B4001E69ED /* DynamicVector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DynamicVector.hpp; sourceTree = "<group>"; };
 		CDCA1F8F1A3F56AB00002E76 /* bbox.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bbox.c; sourceTree = "<group>"; };
 		CDCA1F901A3F56AB00002E76 /* bbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bbox.h; sourceTree = "<group>"; };
 		CDCA1F921A3F56AB00002E76 /* bsp.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bsp.c; sourceTree = "<group>"; };
@@ -729,37 +754,23 @@
 		CDD8806C1A44A8EF007177F3 /* bv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bv.h; sourceTree = "<group>"; };
 		CDD8806D1A44A8EF007177F3 /* matrix.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = matrix.c; sourceTree = "<group>"; };
 		CDD8806E1A44A8EF007177F3 /* matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = matrix.h; sourceTree = "<group>"; };
-		CDD931891A4232480004A8B2 /* renderer.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = renderer.c; sourceTree = "<group>"; };
-		CDD9318A1A4232480004A8B2 /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = renderer.h; sourceTree = "<group>"; };
 		CDD9318B1A4232480004A8B2 /* tx_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tx_filter.h; sourceTree = "<group>"; };
-		CDD931981A42434E0004A8B2 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = data; sourceTree = "<group>"; };
 		CDD9319C1A428D970004A8B2 /* cube.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = cube.c; sourceTree = "<group>"; };
 		CDD9319D1A428D970004A8B2 /* cube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cube.h; sourceTree = "<group>"; };
 		CDD931A01A428D970004A8B2 /* vec.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = vec.c; sourceTree = "<group>"; };
 		CDD931A11A428D970004A8B2 /* vec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
-		CDE4EC571A7167CD00A4BC62 /* AABB.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = AABB.c; sourceTree = "<group>"; };
+		CDE4EC571A7167CD00A4BC62 /* AABB.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = AABB.cpp; sourceTree = "<group>"; };
 		CDE4EC581A7167CD00A4BC62 /* AABB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AABB.h; sourceTree = "<group>"; };
 		CDE4EC591A7167CD00A4BC62 /* Cube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cube.cpp; sourceTree = "<group>"; };
 		CDE4EC5A1A7167CD00A4BC62 /* Cube.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Cube.hpp; sourceTree = "<group>"; };
-		CDE4EC5B1A7167CD00A4BC62 /* Plane.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = Plane.c; sourceTree = "<group>"; };
+		CDE4EC5B1A7167CD00A4BC62 /* Plane.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = Plane.cpp; sourceTree = "<group>"; };
 		CDE4EC5C1A7167CD00A4BC62 /* Plane.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Plane.h; sourceTree = "<group>"; };
-		CDE4EC5D1A7167CD00A4BC62 /* Sphere.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = Sphere.c; sourceTree = "<group>"; };
+		CDE4EC5D1A7167CD00A4BC62 /* Sphere.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = Sphere.cpp; sourceTree = "<group>"; };
 		CDE4EC5E1A7167CD00A4BC62 /* Sphere.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sphere.h; sourceTree = "<group>"; };
 		CDE4EC631A71AEFC00A4BC62 /* Module.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Module.cpp; sourceTree = "<group>"; };
 		CDE4EC641A71AEFC00A4BC62 /* Module.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Module.hpp; sourceTree = "<group>"; };
 		CDF01D7E1A67E532001BC1EF /* bsp_aabb.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = bsp_aabb.c; sourceTree = "<group>"; };
 		CDF01D7F1A67E532001BC1EF /* bsp_aabb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bsp_aabb.h; sourceTree = "<group>"; };
-		CDFB85141A3FB85100CFB956 /* basicdat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = basicdat; sourceTree = "<group>"; };
-		CDFB85151A3FB85100CFB956 /* BUGS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BUGS.txt; sourceTree = "<group>"; };
-		CDFB85161A3FB85100CFB956 /* Changelog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Changelog.txt; sourceTree = "<group>"; };
-		CDFB85171A3FB85100CFB956 /* controls.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = controls.txt; sourceTree = "<group>"; };
-		CDFB85181A3FB85100CFB956 /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = doc; sourceTree = "<group>"; };
-		CDFB85191A3FB85100CFB956 /* egoboo1.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo1.ico; sourceTree = "<group>"; };
-		CDFB851A1A3FB85100CFB956 /* egoboo2.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo2.ico; sourceTree = "<group>"; };
-		CDFB851B1A3FB85100CFB956 /* egoboo3.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo3.ico; sourceTree = "<group>"; };
-		CDFB851C1A3FB85100CFB956 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
-		CDFB851E1A3FB85100CFB956 /* modules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = modules; sourceTree = "<group>"; };
-		CDFB851F1A3FB85100CFB956 /* setup.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = setup.txt; sourceTree = "<group>"; };
 		CDFE07C61A3F68A5005395E7 /* Cartman.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cartman.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDFE07C71A3F68A6005395E7 /* Cartman-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Cartman-Info.plist"; path = "/Users/neptunium/egoboo/egoboo-git/osx/Cartman-Info.plist"; sourceTree = "<absolute>"; };
 		CDFE08381A3F6978005395E7 /* cartman_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cartman_config.h; sourceTree = "<group>"; };
@@ -906,8 +917,6 @@
 				CD44DD7F1A476046005E6DF0 /* bsp.h */,
 				CD39B3E61A37506100B377BE /* char.c */,
 				CD39B3E71A37506100B377BE /* char.h */,
-				CD39B3E91A37506100B377BE /* ChrList.c */,
-				CD39B3EA1A37506100B377BE /* ChrList.h */,
 				CD39B3EC1A37506100B377BE /* collision.c */,
 				CD39B3ED1A37506100B377BE /* collision.h */,
 				CD39B3EE1A37506100B377BE /* egoboo_config.h */,
@@ -1056,19 +1065,30 @@
 			path = English.lproj;
 			sourceTree = "<group>";
 		};
-		27D3915F12EEA6730093D60A /* Resources */ = {
+		27D3915F12EEA6730093D60A /* data */ = {
 			isa = PBXGroup;
 			children = (
-				CDFE07C91A3F6903005395E7 /* Cartman */,
-				CDFE07CA1A3F6917005395E7 /* Egoboo */,
+				CD0FE11A1A7B091300F3392B /* basicdat */,
+				CD0FE11C1A7B091300F3392B /* BUGS.txt */,
+				CD0FE11F1A7B091300F3392B /* Changelog.txt */,
+				CD0FE1201A7B091300F3392B /* controls.txt */,
+				CD0FE1211A7B091300F3392B /* doc */,
+				CD0FE1221A7B091300F3392B /* editor */,
+				CD0FE1231A7B091300F3392B /* egoboo1.ico */,
+				CD0FE1241A7B091300F3392B /* egoboo2.ico */,
+				CD0FE1251A7B091300F3392B /* egoboo3.ico */,
+				CD0FE1261A7B091300F3392B /* license.txt */,
+				CD0FE1281A7B091300F3392B /* modules */,
+				CD0FE12A1A7B091300F3392B /* setup.txt */,
 			);
-			name = Resources;
+			name = data;
+			path = ../data;
 			sourceTree = "<group>";
 		};
 		29B97314FDCFA39411CA2CEA /* Egoboo */ = {
 			isa = PBXGroup;
 			children = (
-				27D3915F12EEA6730093D60A /* Resources */,
+				27D3915F12EEA6730093D60A /* data */,
 				CDFE07C81A3F68EC005395E7 /* cartman */,
 				CD39B2EF1A374AD600B377BE /* egolib */,
 				27085AC112ED47930051AF5F /* game */,
@@ -1089,6 +1109,25 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		CD0FE1541A7B09AD00F3392B /* Renderer */ = {
+			isa = PBXGroup;
+			children = (
+				CD0FE1551A7B09AD00F3392B /* OpenGL */,
+				CD0FE1581A7B09AD00F3392B /* Renderer.cpp */,
+				CD0FE1591A7B09AD00F3392B /* Renderer.hpp */,
+			);
+			path = Renderer;
+			sourceTree = "<group>";
+		};
+		CD0FE1551A7B09AD00F3392B /* OpenGL */ = {
+			isa = PBXGroup;
+			children = (
+				CD0FE1561A7B09AD00F3392B /* Renderer.cpp */,
+				CD0FE1571A7B09AD00F3392B /* Renderer.hpp */,
+			);
+			path = OpenGL;
+			sourceTree = "<group>";
+		};
 		CD39B2EF1A374AD600B377BE /* egolib */ = {
 			isa = PBXGroup;
 			children = (
@@ -1096,8 +1135,8 @@
 				CD39B3211A374B6000B377BE /* file_formats */,
 				CD39B3621A374B6000B377BE /* lua */,
 				CD9059311A69A67C00DC425D /* math */,
-				CDD931881A4232480004A8B2 /* opengl */,
 				CD39B3711A374B6000B377BE /* platform */,
+				CD0FE1541A7B09AD00F3392B /* Renderer */,
 				CD39B3011A374B6000B377BE /* _math.c */,
 				CD39B3021A374B6000B377BE /* _math.h */,
 				CDCA1F8F1A3F56AB00002E76 /* bbox.c */,
@@ -1421,15 +1460,20 @@
 		CD9059311A69A67C00DC425D /* math */ = {
 			isa = PBXGroup;
 			children = (
-				CDE4EC571A7167CD00A4BC62 /* AABB.c */,
+				CDE4EC571A7167CD00A4BC62 /* AABB.cpp */,
 				CDE4EC581A7167CD00A4BC62 /* AABB.h */,
+				CDC187141A7B08B4001E69ED /* Colour3f.cpp */,
+				CDC187151A7B08B4001E69ED /* Colour3f.hpp */,
+				CDC187161A7B08B4001E69ED /* Colour4f.cpp */,
+				CDC187171A7B08B4001E69ED /* Colour4f.hpp */,
 				CDE4EC591A7167CD00A4BC62 /* Cube.cpp */,
 				CDE4EC5A1A7167CD00A4BC62 /* Cube.hpp */,
-				CDE4EC5B1A7167CD00A4BC62 /* Plane.c */,
+				CDC187181A7B08B4001E69ED /* DynamicVector.hpp */,
+				CDE4EC5B1A7167CD00A4BC62 /* Plane.cpp */,
 				CDE4EC5C1A7167CD00A4BC62 /* Plane.h */,
 				CD9059321A69A67C00DC425D /* Random.cpp */,
 				CD9059331A69A67C00DC425D /* Random.hpp */,
-				CDE4EC5D1A7167CD00A4BC62 /* Sphere.c */,
+				CDE4EC5D1A7167CD00A4BC62 /* Sphere.cpp */,
 				CDE4EC5E1A7167CD00A4BC62 /* Sphere.h */,
 			);
 			path = math;
@@ -1440,6 +1484,8 @@
 			children = (
 				CDE4EC631A71AEFC00A4BC62 /* Module.cpp */,
 				CDE4EC641A71AEFC00A4BC62 /* Module.hpp */,
+				CD0FE1511A7B096800F3392B /* ObjectHandler.cpp */,
+				CD0FE1521A7B096800F3392B /* ObjectHandler.hpp */,
 				CD97C1611A629E2500179A2C /* Passage.cpp */,
 				CD97C1621A629E2500179A2C /* Passage.hpp */,
 			);
@@ -1557,15 +1603,6 @@
 			path = graphics;
 			sourceTree = "<group>";
 		};
-		CDD931881A4232480004A8B2 /* opengl */ = {
-			isa = PBXGroup;
-			children = (
-				CDD931891A4232480004A8B2 /* renderer.c */,
-				CDD9318A1A4232480004A8B2 /* renderer.h */,
-			);
-			path = opengl;
-			sourceTree = "<group>";
-		};
 		CDFE07C81A3F68EC005395E7 /* cartman */ = {
 			isa = PBXGroup;
 			children = (
@@ -1596,34 +1633,6 @@
 			);
 			name = cartman;
 			path = ../cartman/src/cartman;
-			sourceTree = "<group>";
-		};
-		CDFE07C91A3F6903005395E7 /* Cartman */ = {
-			isa = PBXGroup;
-			children = (
-				CDD931981A42434E0004A8B2 /* data */,
-			);
-			name = Cartman;
-			path = ../cartman;
-			sourceTree = "<group>";
-		};
-		CDFE07CA1A3F6917005395E7 /* Egoboo */ = {
-			isa = PBXGroup;
-			children = (
-				CDFB85141A3FB85100CFB956 /* basicdat */,
-				CDFB85151A3FB85100CFB956 /* BUGS.txt */,
-				CDFB85161A3FB85100CFB956 /* Changelog.txt */,
-				CDFB85171A3FB85100CFB956 /* controls.txt */,
-				CDFB85181A3FB85100CFB956 /* doc */,
-				CDFB85191A3FB85100CFB956 /* egoboo1.ico */,
-				CDFB851A1A3FB85100CFB956 /* egoboo2.ico */,
-				CDFB851B1A3FB85100CFB956 /* egoboo3.ico */,
-				CDFB851C1A3FB85100CFB956 /* license.txt */,
-				CDFB851E1A3FB85100CFB956 /* modules */,
-				CDFB851F1A3FB85100CFB956 /* setup.txt */,
-			);
-			name = Egoboo;
-			path = ../game/data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1786,22 +1795,23 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDFB85251A3FB85100CFB956 /* egoboo1.ico in Resources */,
-				CDFB85261A3FB85100CFB956 /* egoboo2.ico in Resources */,
+				CD0FE13D1A7B091300F3392B /* doc in Resources */,
+				CD0FE1431A7B091300F3392B /* egoboo2.ico in Resources */,
 				27D3913412EEA51D0093D60A /* InfoPlist.strings in Resources */,
 				27D3913512EEA51D0093D60A /* SDLMain.nib in Resources */,
 				27D3913612EEA51D0093D60A /* hat.icns in Resources */,
-				CDFB85221A3FB85100CFB956 /* Changelog.txt in Resources */,
-				CDFB85211A3FB85100CFB956 /* BUGS.txt in Resources */,
-				CDFB85241A3FB85100CFB956 /* doc in Resources */,
-				CDFB852B1A3FB85100CFB956 /* setup.txt in Resources */,
+				CD0FE14B1A7B091300F3392B /* modules in Resources */,
+				CD0FE1451A7B091300F3392B /* egoboo3.ico in Resources */,
+				CD0FE13B1A7B091300F3392B /* controls.txt in Resources */,
+				CD0FE1411A7B091300F3392B /* egoboo1.ico in Resources */,
+				CD0FE12F1A7B091300F3392B /* basicdat in Resources */,
+				CD0FE1331A7B091300F3392B /* BUGS.txt in Resources */,
+				CD0FE14F1A7B091300F3392B /* setup.txt in Resources */,
 				27D3913812EEA51D0093D60A /* skull.icns in Resources */,
-				CDFB85271A3FB85100CFB956 /* egoboo3.ico in Resources */,
-				CDFB85281A3FB85100CFB956 /* license.txt in Resources */,
+				CD0FE1391A7B091300F3392B /* Changelog.txt in Resources */,
 				CD39B4B11A3762A800B377BE /* SDLMain.nib in Resources */,
-				CDFB852A1A3FB85100CFB956 /* modules in Resources */,
-				CDFB85231A3FB85100CFB956 /* controls.txt in Resources */,
-				CDFB85201A3FB85100CFB956 /* basicdat in Resources */,
+				CD0FE1471A7B091300F3392B /* license.txt in Resources */,
+				CD0FE13F1A7B091300F3392B /* editor in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1809,21 +1819,21 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDD931931A423C960004A8B2 /* license.txt in Resources */,
-				CDD931911A423C960004A8B2 /* egoboo2.ico in Resources */,
-				CDD9318F1A423C960004A8B2 /* controls.txt in Resources */,
-				CDD931971A423C9A0004A8B2 /* modules in Resources */,
-				CDD931901A423C960004A8B2 /* egoboo1.ico in Resources */,
-				CDD9318D1A423C960004A8B2 /* BUGS.txt in Resources */,
-				CDD931941A423C960004A8B2 /* setup.txt in Resources */,
-				CDD931961A423C9A0004A8B2 /* doc in Resources */,
+				CD0FE13E1A7B091300F3392B /* doc in Resources */,
+				CD0FE14C1A7B091300F3392B /* modules in Resources */,
+				CD0FE1441A7B091300F3392B /* egoboo2.ico in Resources */,
+				CD0FE1421A7B091300F3392B /* egoboo1.ico in Resources */,
+				CD0FE1501A7B091300F3392B /* setup.txt in Resources */,
 				CDFE07711A3F68A5005395E7 /* SDLMain.nib in Resources */,
+				CD0FE1461A7B091300F3392B /* egoboo3.ico in Resources */,
 				CDFE085F1A3F6A8D005395E7 /* egomap.icns in Resources */,
+				CD0FE1401A7B091300F3392B /* editor in Resources */,
 				CDFE077A1A3F68A5005395E7 /* SDLMain.nib in Resources */,
-				CDD931991A42434E0004A8B2 /* data in Resources */,
-				CDD931951A423C9A0004A8B2 /* basicdat in Resources */,
-				CDD931921A423C960004A8B2 /* egoboo3.ico in Resources */,
-				CDD9318E1A423C960004A8B2 /* Changelog.txt in Resources */,
+				CD0FE1481A7B091300F3392B /* license.txt in Resources */,
+				CD0FE1301A7B091300F3392B /* basicdat in Resources */,
+				CD0FE1341A7B091300F3392B /* BUGS.txt in Resources */,
+				CD0FE13C1A7B091300F3392B /* controls.txt in Resources */,
+				CD0FE13A1A7B091300F3392B /* Changelog.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1839,7 +1849,6 @@
 				CD5B0CAF1A6204EC00F076F9 /* AStar.c in Sources */,
 				CDBD894A1A6C02C100250CE2 /* ProfileSystem.cpp in Sources */,
 				CDCE212D1A6404770084D934 /* Camera.cpp in Sources */,
-				CD39B45D1A37506100B377BE /* ChrList.c in Sources */,
 				CD39B48D1A37506100B377BE /* PrtList.c in Sources */,
 				CD39B4941A37506100B377BE /* script_implementation.c in Sources */,
 				CDCE212E1A6404770084D934 /* CameraSystem.cpp in Sources */,
@@ -1849,6 +1858,7 @@
 				CD39B48A1A37506100B377BE /* player.c in Sources */,
 				CDBD89491A6C02C100250CE2 /* Profile.cpp in Sources */,
 				CD97C1651A629E2500179A2C /* Passage.cpp in Sources */,
+				CD0FE1531A7B096800F3392B /* ObjectHandler.cpp in Sources */,
 				CD39B46C1A37506100B377BE /* graphic_mad.c in Sources */,
 				CD39B47B1A37506100B377BE /* menu.c in Sources */,
 				CD39B4901A37506100B377BE /* renderer_3d.c in Sources */,
@@ -1972,7 +1982,7 @@
 				CDCA1FDA1A3F57D000002E76 /* NSFileManager+DirectoryLocations.m in Sources */,
 				CDCA1FB81A3F57D000002E76 /* controls_file-v2.c in Sources */,
 				CDCA1FB01A3F57D000002E76 /* ogl_include.c in Sources */,
-				CDE4EC5F1A7167CD00A4BC62 /* AABB.c in Sources */,
+				CDE4EC5F1A7167CD00A4BC62 /* AABB.cpp in Sources */,
 				CDCA1FBA1A3F57D000002E76 /* controls_file.c in Sources */,
 				CDE4EC601A7167CD00A4BC62 /* Cube.cpp in Sources */,
 				CDCA1FC01A3F57D000002E76 /* map_file-v4.c in Sources */,
@@ -1984,15 +1994,17 @@
 				CDCA1FE01A3F57D000002E76 /* throttle.c in Sources */,
 				CDCA1FA91A3F57D000002E76 /* bsp.c in Sources */,
 				CDB3DC981A659EF30098D3B9 /* mem.c in Sources */,
+				CDC1871C1A7B08BC001E69ED /* Colour4f.cpp in Sources */,
 				CDCA1FCC1A3F57D000002E76 /* wawalite_file.c in Sources */,
-				CDE4EC621A7167CD00A4BC62 /* Sphere.c in Sources */,
+				CDE4EC621A7167CD00A4BC62 /* Sphere.cpp in Sources */,
+				CDC1871B1A7B08BC001E69ED /* Colour3f.cpp in Sources */,
 				CDCA1FD41A3F57D000002E76 /* input_device.c in Sources */,
 				CDD8806F1A44A8EF007177F3 /* bv.c in Sources */,
 				CDCA1FD11A3F57D000002E76 /* geometry.c in Sources */,
-				CDD9318C1A4232480004A8B2 /* renderer.c in Sources */,
+				CD0FE15A1A7B09AD00F3392B /* Renderer.cpp in Sources */,
 				CDCA1FD71A3F57D000002E76 /* network_file.c in Sources */,
 				CDCA1FCA1A3F57D000002E76 /* template.c in Sources */,
-				CDE4EC611A7167CD00A4BC62 /* Plane.c in Sources */,
+				CDE4EC611A7167CD00A4BC62 /* Plane.cpp in Sources */,
 				CDCA1FDE1A3F57D000002E76 /* strutil.c in Sources */,
 				CDCA1FBE1A3F57D000002E76 /* map_file-v2.c in Sources */,
 				CDCA1FD01A3F57D000002E76 /* frustum.c in Sources */,
@@ -2001,6 +2013,7 @@
 				CDCA1FC11A3F57D000002E76 /* map_file.c in Sources */,
 				CDF01D801A67E532001BC1EF /* bsp_aabb.c in Sources */,
 				CDCA1FC91A3F57D000002E76 /* spawn_file.c in Sources */,
+				CD0FE15B1A7B09AD00F3392B /* Renderer.cpp in Sources */,
 				CDCA1FD21A3F57D000002E76 /* hash.c in Sources */,
 				CDCA1FDC1A3F57D000002E76 /* process.c in Sources */,
 				CDCA1FA81A3F57D000002E76 /* bbox.c in Sources */,

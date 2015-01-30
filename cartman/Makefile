@@ -2,11 +2,8 @@
 
 #---------------------
 # the source files
-
-EGO_SRC    := ${wildcard src/game/*.c} ${wildcard ./src/game/ai/*.c}
-EGO_CPPSRC := ${wildcard src/game/*.cpp} ${wildcard src/game/*/*.cpp}
-EGO_CPPSRC := $(filter-out src/game/PhysicalConstants.cpp, $(EGO_CPPSRC))
-EGO_OBJ    := ${EGO_SRC:.c=.o} ${EGO_CPPSRC:.cpp=.o}
+CARTMAN_SRC := ${wildcard src/cartman/*.c}
+CARTMAN_OBJ := ${CARTMAN_SRC:.c=.o}
 
 #---------------------
 # the egolib configuration
@@ -17,20 +14,20 @@ EGOLIB_L := ../egolib/$(EGOLIB_TARGET)
 # the compiler options
 
 INC      := -Isrc -I../egolib/src
-LDFLAGS  += ${EGOLIB_L}
 
 CFLAGS   += $(INC)
 CXXFLAGS += $(INC)
+LDFLAGS  += ${EGOLIB_L}
 
 #------------------------------------
 # definitions of the target projects
 
 .PHONY: all clean
 
-all: $(EGO_TARGET)
+all: $(CARTMAN_TARGET)
 
-$(EGO_TARGET): ${EGO_OBJ} ${EGOLIB_L}
+$(CARTMAN_TARGET): ${CARTMAN_OBJ} ${EGOLIB_L}
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f ${EGO_OBJ} $(EGO_TARGET)
+	rm -f ${CARTMAN_OBJ} $(CARTMAN_TARGET)
