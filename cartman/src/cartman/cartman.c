@@ -776,10 +776,10 @@ void load_all_windows( cartman_mpd_t * pmesh )
         oglx_texture_Release( &( window_lst[cnt].tex ) );
     }
 
-    load_window( window_lst + 0, 0, "data" SLASH_STR "window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, pmesh );
-    load_window( window_lst + 1, 1, "data" SLASH_STR "window.png", 410, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   pmesh );
-    load_window( window_lst + 2, 2, "data" SLASH_STR "window.png", 180, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   pmesh );
-    load_window( window_lst + 3, 3, "data" SLASH_STR "window.png", 410, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     pmesh );
+    load_window( window_lst + 0, 0, "editor/window.png", 180, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_VERTEX, pmesh );
+    load_window( window_lst + 1, 1, "editor/window.png", 410, 16,  7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_TILE,   pmesh );
+    load_window( window_lst + 2, 2, "editor/window.png", 180, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_SIDE,   pmesh );
+    load_window( window_lst + 3, 3, "editor/window.png", 410, 248, 7, 9, DEFAULT_WINDOW_W, DEFAULT_WINDOW_H, WINMODE_FX,     pmesh );
 }
 
 //--------------------------------------------------------------------------------------------

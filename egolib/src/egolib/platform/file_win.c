@@ -51,7 +51,7 @@ typedef struct s_win32_find_context win32_find_context_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern void sys_fs_init(const char * root_dir);
+extern void sys_fs_init(const char * argv0);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -66,9 +66,8 @@ static char win32_configPath[MAX_PATH] = EMPTY_CSTR;
 // File Routines -----------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 /// @brief Get the user data path.
-/// @param rootDir (currently not used) the root dir or @a nullptr
 /// @return @a true on success, @a false on failure
-static bool computeUserDataPath(const char *rootDir)
+static bool computeUserDataPath()
 {
 	// The save path goes into the user's ApplicationData directory,
 	// according to Microsoft's standards.  Will people like this, or
@@ -78,32 +77,17 @@ static bool computeUserDataPath(const char *rootDir)
 	return true;
 }
 /// @brief Compute the binary path.
-/// @param rootDir (currently not used) the root dir or @a nullptr
 /// @return @a true on success, @a false on failure
-static bool computeBinaryPath(const char *rootDir) {
+static bool computeBinaryPath() {
 	GetModuleFileName(NULL, win32_binaryPath, MAX_PATH);
 	PathRemoveFileSpec(win32_binaryPath);
 	return true;
 }
 /// @brief Compute the basicdata path.
-/// @param rootDir the root dir or @a nullptr
 /// @return @a true on success, @a false on failure
-static bool computeBasicDataPath(const char *rootDir) {
+static bool computeBasicDataPath() {
 	char temporary[MAX_PATH];
-	// (1)
-	// IF    the root dir is defined
-	// THEN  check for data in the root dir.
-	if (VALID_CSTR(rootDir))
-	{
-		snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", rootDir, MAX_PATH);
-		DWORD attrib = GetFileAttributes(temporary);
-		if (HAS_ATTRIBS(FILE_ATTRIBUTE_DIRECTORY, attrib)) {
-			strncpy(win32_dataPath, rootDir, MAX_PATH);
-			return true;
-		}
-	}
-	// IF   (1) failed
-	// THEN check for data in the working directory
+	// (1) Check for data in the working directory
 	char workingDirectory[MAX_PATH] = EMPTY_CSTR;
 	GetCurrentDirectory(MAX_PATH, workingDirectory);
 	snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", workingDirectory, MAX_PATH);
@@ -112,7 +96,7 @@ static bool computeBasicDataPath(const char *rootDir) {
 		strncpy(win32_dataPath, workingDirectory, MAX_PATH);
 		return true;
 	}
-	// IF   (1) and (2) failed
+	// IF (1) failed
 	// THEN check for data in the binary directory
 	snprintf(temporary, MAX_PATH, "%s" SLASH_STR "basicdat", win32_binaryPath, MAX_PATH);
 	attrib = GetFileAttributes(temporary);
@@ -124,29 +108,27 @@ static bool computeBasicDataPath(const char *rootDir) {
 	return false;
 }
 
-void sys_fs_init(const char * root_dir)
+void sys_fs_init(const char *argv0)
 {
-	/// @author JF
-	/// @details This function determines the temporary, import,
-	/// game data and save paths
+
 	printf("Initializing filesystem services ...");
 
-	if (!computeUserDataPath(root_dir))
+	if (!computeUserDataPath())
 	{
 		// Fatal error here, we can't find the user data path.
 		printf(" FAILURE: could not find user data path!\n");
 		exit(EXIT_FAILURE);
 	}
-	if (!computeBinaryPath(root_dir))
+	if (!computeBinaryPath())
 	{
 		// Fatal error here, we can't find the binary path.
 		printf(" FAILURE: could not find binary path!\n");
 		exit(EXIT_FAILURE);
 	}
-	if (!computeBasicDataPath(root_dir))
+	if (!computeBasicDataPath())
 	{
         // Fatal error here, we can't find the basic data path.
-		printf(" FAILURE: could not find basic data path!\n");
+		printf(" FAILURE: could not find data path!\n");
         exit(EXIT_FAILURE);
     }
 	printf(" SUCCESS\n");

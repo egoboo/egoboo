@@ -309,43 +309,13 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\cartman\SDL_GetPixel.c" />
     <ClCompile Include="src\cartman\SDL_PutPixel.c" />
     <ClCompile Include="src\cartman\SDL_rotozoom.c" />
-    <None Include="cartman\standard.inl">
-      <FileType>Document</FileType>
-    </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\cartman\standard.inl" />
     <None Include="src\cartman\cartman_math.inl" />
-    <None Include="res\cartman_vs10.rc" />
-    <None Include="res\cartman.ico" />
-    <None Include="data\anim.pcx" />
-    <None Include="data\anim.png" />
-    <None Include="data\backdrop.pcx" />
-    <None Include="data\backdrop.png" />
-    <None Include="data\bestpal.pcx" />
-    <None Include="data\damage.pcx" />
-    <None Include="data\damage.png" />
-    <None Include="data\drawref.pcx" />
-    <None Include="data\drawref.png" />
-    <None Include="data\egomap_icon.bmp" />
-    <None Include="data\impass.pcx" />
-    <None Include="data\impass.png" />
-    <None Include="data\pc8x8.fon" />
-    <None Include="data\point.pcx" />
-    <None Include="data\point.png" />
-    <None Include="data\pointon.pcx" />
-    <None Include="data\pointon.png" />
-    <None Include="data\ref.pcx" />
-    <None Include="data\ref.png" />
-    <None Include="data\slippy.pcx" />
-    <None Include="data\slippy.png" />
-    <None Include="data\slit.pcx" />
-    <None Include="data\slit.png" />
-    <None Include="data\water.pcx" />
-    <None Include="data\water.png" />
-    <None Include="data\window.pcx" />
-    <None Include="data\window.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\cartman\res\resource.h" />
     <ClInclude Include="src\cartman\cartman.h" />
     <ClInclude Include="src\cartman\cartman_config.h" />
     <ClInclude Include="src\cartman\cartman_functions.h" />
@@ -363,6 +333,12 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ProjectReference Include="..\egolib\egolib_vs13.vcxproj">
       <Project>{0f32dd35-a264-4906-8fc9-2d0fe0613230}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src\cartman\res\cartman_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src\cartman\res\cartman_vs13.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

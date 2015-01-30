@@ -146,22 +146,22 @@ static int          _vfs_mount_info_matches(const char * mount_point, const char
 static bool       _vfs_mount_info_remove(int cnt);
 static int          _vfs_mount_info_search(const char * some_path);
 
-//static const char * _vfs_potential_mount_point(const char * some_path, const char ** pstripped_pos);
-static void _vfs_findClose(vfs_search_context_t * ctxt);
+//static const char *_vfs_potential_mount_point(const char *some_path, const char **pstripped_pos);
+static void _vfs_findClose(vfs_search_context_t *ctxt);
 
-static int fake_physfs_vprintf(PHYSFS_File * pfile, const char *format, va_list args);
+static int fake_physfs_vprintf(PHYSFS_File *pfile, const char *format, va_list args);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void vfs_init(const char *root_dir)
+void vfs_init(const char *argv0)
 {
     VFS_PATH tmp_path;
 
-    fs_init(root_dir);
+    fs_init(argv0);
 
     if (_vfs_initialized) return;
 
-	PHYSFS_init(root_dir);
+	PHYSFS_init(argv0);
 	// Append the data directory to the search directories.
     snprintf(tmp_path, SDL_arraysize(tmp_path), "%s" SLASH_STR, fs_getDataDirectory());
 	PHYSFS_mount(tmp_path, "/", 1);

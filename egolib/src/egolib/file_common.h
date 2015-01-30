@@ -73,17 +73,34 @@
 // GLOBAL FUNCTION PROTOTYPES
 //--------------------------------------------------------------------------------------------
 
-    void fs_init( const char * root_dir );
+	/**
+	 * @brief
+	 *	Initialize the file system.
+	 * @param argv0
+	 *	the first argument of the command-line
+	 * @remark
+	 *	Among other things, it determines the paths returned by
+	 *	fs_getBinarDirectory(), fs_getDataDirectory(), fs_getUserDirectory()
+	 *	and fs_getConfigDirectory().
+	 */
+    void fs_init(const char *argv0);
 
-    const char * fs_getBinaryDirectory( void );
-    const char * fs_getDataDirectory( void );
-    const char * fs_getUserDirectory( void );
-    const char * fs_getConfigDirectory( void );
+	/**
+	 * @brief
+	 *	Get the binary directory
+	 *	(i.e. the directory in which the executable of this process is located in).
+	 * @return
+	 *	the binary directory as a constant static string
+	 */
+    const char *fs_getBinaryDirectory();
+    const char *fs_getDataDirectory();
+    const char *fs_getUserDirectory();
+    const char *fs_getConfigDirectory();
 
-    const char * fs_createBinaryDirectoryFilename( const char * relative_pathname );
-    const char * fs_createDataDirectoryFilename( const char * relative_pathname );
-    const char * fs_createUserDirectoryFilename( const char * relative_pathname );
-    const char * fs_createConfigDirectoryFilename( const char * relative_pathname );
+    const char *fs_createBinaryDirectoryFilename(const char *relative_pathname);
+    const char *fs_createDataDirectoryFilename(const char *relative_pathname);
+    const char *fs_createUserDirectoryFilename(const char *relative_pathname);
+    const char *fs_createConfigDirectoryFilename(const char *relative_pathname);
 
     FILE * fs_openBinaryDirectoryFile( const char * relative_pathname, const char * mode );
     FILE * fs_openDataDirectoryFile( const char * relative_pathname, const char * mode );

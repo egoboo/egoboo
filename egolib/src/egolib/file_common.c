@@ -40,15 +40,21 @@ static bool _fs_initialized = false;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void sys_fs_init( const char * root_dir );
+/**
+ * @brief
+ *	Initialize the file system.
+ * @param argv0 the first argument of the command-line
+ */
+void sys_fs_init(const char *argv0);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void fs_init( const char * root_dir )
+
+void fs_init(const char *argv0)
 {
-    if ( _fs_initialized ) return;
+    if (_fs_initialized) return;
 
-    sys_fs_init( root_dir );
+    sys_fs_init(argv0);
 
     _fs_initialized = true;
 }

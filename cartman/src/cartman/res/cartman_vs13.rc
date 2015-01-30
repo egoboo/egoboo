@@ -1,0 +1,45 @@
+
+//// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// ///
+
+// Icon
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON                    "cartman_icon.ico"
+
+//// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// ///
+
+// Version
+
+VS_VERSION_INFO VERSIONINFO
+ FILEFLAGSMASK 0x17L
+#if _DEBUG
+ FILEFLAGS 0x3L
+#else
+ FILEFLAGS 0x2L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080004b0"
+        BEGIN
+            VALUE "CompanyName", "Egoboo Community"
+            VALUE "FileDescription", "Cartman"
+            VALUE "InternalName", "cartman"
+            VALUE "LegalCopyright", "Copyright (C) 1999"
+            VALUE "OriginalFilename", "cartman.rc"
+            VALUE "ProductName", " cartman"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x800, 1200
+    END
+END
+
+//// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// ///
+
+

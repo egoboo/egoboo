@@ -112,7 +112,7 @@ void gfx_system_begin()
 
     theSurface = SDL_GetVideoSurface();
 
-    gfx_font_ptr = fnt_loadFont( "data" SLASH_STR "pc8x8.fon", 12 );
+    gfx_font_ptr = fnt_loadFont("editor/pc8x8.fon", 12);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1234,54 +1234,54 @@ void create_imgcursor( void )
 //--------------------------------------------------------------------------------------------
 void load_img( void )
 {
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_point, "data" SLASH_STR "point.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_Load( &tx_point, "editor/point.png", INVALID_KEY ) )
     {
-        log_warning( "Cannot load image \"%s\".\n", "point.png" );
+        log_warning( "Cannot load image \"%s\".\n", "editor/point.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_pointon, "data" SLASH_STR "pointon.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_Load( &tx_pointon, "editor/pointon.png", INVALID_KEY ) )
     {
-        log_warning( "Cannot load image \"%s\".\n", "pointon.png" );
+        log_warning( "Cannot load image \"%s\".\n", "editor/pointon.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_ref, "data" SLASH_STR "ref.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_Load( &tx_ref, "editor/ref.png", INVALID_KEY ) )
     {
-        log_warning( "Cannot load image \"%s\".\n", "ref.png" );
+        log_warning( "Cannot load image \"%s\".\n", "editor/ref.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_drawref, "data" SLASH_STR "drawref.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_Load( &tx_drawref, "editor/drawref.png", INVALID_KEY ) )
     {
-        log_warning( "Cannot load image \"%s\".\n", "drawref.png" );
+        log_warning( "Cannot load image \"%s\".\n", "editor/drawref.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_anim, "data" SLASH_STR "anim.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_Load( &tx_anim, "editor/anim.png", INVALID_KEY ) )
     {
-        log_warning( "Cannot load image \"%s\".\n", "anim.png" );
+        log_warning( "Cannot load image \"%s\".\n", "editor/anim.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_water, "data" SLASH_STR "water.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_Load( &tx_water, "editor/water.png", INVALID_KEY ) )
     {
-        log_warning( "Cannot load image \"%s\".\n", "water.png" );
+        log_warning( "Cannot load image \"%s\".\n", "editor/water.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_wall, "data" SLASH_STR "slit.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_Load( &tx_wall, "editor/slit.png", INVALID_KEY ) )
     {
-        log_warning( "Cannot load image \"%s\".\n", "slit.png" );
+        log_warning( "Cannot load image \"%s\".\n", "editor/slit.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_impass, "data" SLASH_STR "impass.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_Load( &tx_impass, "editor/impass.png", INVALID_KEY ) )
     {
-        log_warning( "Cannot load image \"%s\".\n", "impass.png" );
+        log_warning( "Cannot load image \"%s\".\n", "editor/impass.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_damage, "data" SLASH_STR "damage.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_Load( &tx_damage, "editor/damage.png", INVALID_KEY ) )
     {
-        log_warning( "Cannot load image \"%s\".\n", "damage.png" );
+        log_warning( "Cannot load image \"%s\".\n", "editor/damage.png" );
     }
 
-    if ( INVALID_GL_ID == oglx_texture_Load( &tx_slippy, "data" SLASH_STR "slippy.png", INVALID_KEY ) )
+    if ( INVALID_GL_ID == oglx_texture_Load( &tx_slippy, "editor/slippy.png", INVALID_KEY ) )
     {
-        log_warning( "Cannot load image \"%s\".\n", "slippy.png" );
+        log_warning( "Cannot load image \"%s\".\n", "editor/slippy.png" );
     }
 }
 
