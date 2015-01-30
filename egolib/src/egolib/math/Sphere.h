@@ -48,6 +48,29 @@ struct sphere_t
 
 	/**
 	 * @brief
+	 *	Get the center of this sphere.
+	 * @return
+	 *	the center of this sphere
+	 */
+	const fvec3_t& getCenter() const
+	{
+		return origin;
+	}
+
+	/**
+	 * @brief
+	 *	Get the radius of this  sphere.
+	 * @return
+	 *	the radius of this sphere
+	 */
+	float sphere_t::getRadius() const
+	{
+		return radius;
+	}
+
+
+	/**
+	 * @brief
 	 *	Construct this sphere assigning it the default values of a sphere.
 	 * @return
 	 *	a pointer to this sphere on success, @a nullptr on failure

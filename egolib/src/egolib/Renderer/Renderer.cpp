@@ -24,28 +24,40 @@
 #include "egolib/Renderer/Renderer.hpp"
 #include "egolib/Renderer/OpenGL/Renderer.hpp"
 
-namespace Ego {
-#if 1
-	static Renderer *singleton = nullptr;
-	void Renderer::startUp() {
-		if (!singleton) {
+namespace Ego
+{
+
+	Renderer *Renderer::singleton = nullptr;
+
+	void Renderer::startUp()
+	{
+		if (!singleton)
+		{
 			singleton = new OpenGL::Renderer();
 		}
 	}
-	Renderer *Renderer::getSingleton() {
+
+	Renderer *Renderer::getSingleton()
+	{
 		EGOBOO_ASSERT(nullptr != singleton);
 		return singleton;
 	}
-	void Renderer::shutDown() {
-		if (singleton) {
+
+	void Renderer::shutDown()
+	{
+		if (singleton)
+		{
 			delete singleton;
 			singleton = nullptr;
 		}
 	}
-#endif
+
+	Renderer::Renderer()
+	{
+	}
 
 	Renderer::~Renderer()
 	{
-		//dtor
 	}
+
 };

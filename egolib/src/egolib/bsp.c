@@ -513,7 +513,7 @@ bool BSP_branch_clear(BSP_branch_t *B, bool recursive)
 
 	if (recursive)
 	{
-		BSP_branch_list_clear_rec(&(B->children));
+		BSP_branch_list_t::clear_rec(&(B->children));
 	}
 	else
 	{
@@ -953,7 +953,7 @@ bool BSP_branch_collide_aabb(const BSP_branch_t *pbranch, const aabb_t *paabb, B
 	{
 	case geometry_intersect:
 		// The aabb and branch partially overlap. Test each item.
-		BSP_retval = BSP_branch_list_collide_aabb(&(pbranch->children), paabb, ptest, colst);
+		BSP_retval = BSP_branch_list_t::collide_aabb(&(pbranch->children), paabb, ptest, colst);
 		if (BSP_retval) retval = true;
 		break;
 
@@ -1105,7 +1105,7 @@ bool BSP_branch_collide_frustum(const BSP_branch_t * pbranch, const egolib_frust
 	{
 	case geometry_intersect:
 		// The frustum and branch partially overlap. Test each item.
-		BSP_retval = BSP_branch_list_collide_frustum(&(pbranch->children), pfrust, ptest, colst);
+		BSP_retval = BSP_branch_list_t::collide_frustum(&(pbranch->children), pfrust, ptest, colst);
 		if (BSP_retval) retval = true;
 		break;
 
@@ -2126,7 +2126,7 @@ BSP_branch_list_t *BSP_branch_list_t::dtor()
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_branch_list_clear_rec(BSP_branch_list_t * BL)
+bool BSP_branch_list_t::clear_rec(BSP_branch_list_t * BL)
 {
 	size_t cnt;
 
@@ -2150,7 +2150,7 @@ bool BSP_branch_list_clear_rec(BSP_branch_list_t * BL)
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_branch_list_collide_aabb(const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst)
+bool BSP_branch_list_t::collide_aabb(const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst)
 {
 	if (NULL == BL) return false;
 
@@ -2173,7 +2173,7 @@ bool BSP_branch_list_collide_aabb(const BSP_branch_list_t * BL, const aabb_t * p
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_branch_list_collide_frustum(const BSP_branch_list_t * BL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst)
+bool BSP_branch_list_t::collide_frustum(const BSP_branch_list_t * BL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst)
 {
 	if (NULL == BL) return false;
 

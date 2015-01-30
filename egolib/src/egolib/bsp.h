@@ -200,12 +200,12 @@ public:
     BSP_branch_t **lst;
     size_t inserted;
     bv_t bbox;
+
+	static bool clear_rec(BSP_branch_list_t * self);
+	static bool collide_frustum(const BSP_branch_list_t *self, const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+	static bool collide_aabb(const BSP_branch_list_t *self, const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
 };
 
-bool BSP_branch_list_clear_rec( BSP_branch_list_t * );
-
-bool BSP_branch_list_collide_frustum(const BSP_branch_list_t * BL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst);
-bool BSP_branch_list_collide_aabb( const BSP_branch_list_t * BL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray< BSP_leaf_t * > * colst );
 
 #define INVALID_BSP_BRANCH_LIST(BL) ( (NULL == (BL)) || (NULL == (BL)->lst) || (0 == (BL)->lst_size) )
 
@@ -271,12 +271,12 @@ public:
 /// @param self this branch
 /// @param recursive if @a true, recursively clear this branch
 bool BSP_branch_clear(BSP_branch_t *self, bool recursive);
-bool BSP_branch_free_nodes( BSP_branch_t * B, bool recursive );
-bool BSP_branch_unlink_all( BSP_branch_t * B );
-bool BSP_branch_unlink_parent( BSP_branch_t * B );
-bool BSP_branch_unlink_children( BSP_branch_t * B );
-bool BSP_branch_unlink_nodes( BSP_branch_t * B );
-bool BSP_branch_update_depth_rec( BSP_branch_t * B, int depth );
+bool BSP_branch_free_nodes(BSP_branch_t *self, bool recursive);
+bool BSP_branch_unlink_all(BSP_branch_t *self);
+bool BSP_branch_unlink_parent( BSP_branch_t *self);
+bool BSP_branch_unlink_children( BSP_branch_t *self);
+bool BSP_branch_unlink_nodes( BSP_branch_t *self);
+bool BSP_branch_update_depth_rec(BSP_branch_t *self, int depth);
 
 bool BSP_branch_add_all_rec(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions);
 bool BSP_branch_add_all_nodes(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions);

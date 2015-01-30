@@ -379,6 +379,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\ObjectHandler.cpp" />
     <ClCompile Include="src\game\module\Module.cpp" />
     <ClCompile Include="src\game\graphics\MD2Model.cpp" />
     <ClCompile Include="src\game\profiles\Profile.cpp" />
@@ -392,7 +393,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\ai\WaypointList.c" />
     <ClCompile Include="src\game\bsp.c" />
     <ClCompile Include="src\game\char.c" />
-    <ClCompile Include="src\game\ChrList.c" />
     <ClCompile Include="src\game\collision.c" />
     <ClCompile Include="src\game\egoboo.c" />
     <ClCompile Include="src\game\egoboo_object.c" />
@@ -431,6 +431,7 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClCompile Include="src\game\ui.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\ObjectHandler.hpp" />
     <ClInclude Include="src\game\module\Module.hpp" />
     <ClInclude Include="src\game\graphics\MD2Model.hpp" />
     <ClInclude Include="src\game\profiles\Profile.hpp" />
@@ -444,7 +445,6 @@ xcopy /y "$(SolutionDir)external\SDL_ttf-2.0.11\VisualC\external\lib\$(PlatformT
     <ClInclude Include="src\game\ai\WaypointList.h" />
     <ClInclude Include="src\game\bsp.h" />
     <ClInclude Include="src\game\char.h" />
-    <ClInclude Include="src\game\ChrList.h" />
     <ClInclude Include="src\game\collision.h" />
     <ClInclude Include="src\game\egoboo.h" />
     <ClInclude Include="src\game\egoboo_config.h" />

@@ -27,7 +27,7 @@
 // external structs
 //--------------------------------------------------------------------------------------------
 
-struct chr_t;
+class chr_t;
 struct s_prt_bundle;
 struct mesh_BSP_t;
 

@@ -27,7 +27,7 @@
 #include "game/egoboo_typedef.h"
 
 //Forward declarations
-struct chr_t;
+class chr_t;
 
 #define constexpr const
 

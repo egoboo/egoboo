@@ -37,7 +37,8 @@
 #include "egolib/math/Colour4f.hpp"
 #include "egolib/matrix.h"
 
-namespace Ego {
+namespace Ego
+{
 	using namespace Math;
 	/// The color "white" to be used with glColor4f.
 	extern const GLXvector4f white_vec;
@@ -50,9 +51,38 @@ namespace Ego {
 	/// The color "blue"  to be used with glColor4f.
 	extern const GLXvector4f blue_vec;
 	
-	class Renderer {
-	public:
+	class Renderer
+	{
+
+	private:
+
+		/**
+		 * @brief
+		 *	The singleton instance of this renderer.
+		 * @remark
+		 *	Intentionally private.
+		 */
+		static Renderer *singleton;
+
+	protected:
+
+		/**
+		 * @brief
+		 *	Construct this renderer.
+		 * @remark
+		 *	Intentionally protected.
+		 */
+		Renderer();
+
+		/**
+		 * @brief
+		 *	Destruct this renderer.
+		 * @remark
+		 *	Intentionally protected
+		 */
 		virtual ~Renderer();
+
+	public:
 
 		/**
 		 * @brief
@@ -103,5 +133,6 @@ namespace Ego {
 		 *	If the renderer is not started-up, this function is a no-op.
 		 */
 		static void shutDown();
+
 	};
 };

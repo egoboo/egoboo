@@ -31,7 +31,8 @@ bool bv_self_clear(bv_t *self)
 
 	aabb_self_clear(&(self->aabb));
 
-	sphere_self_clear(self->sphere);
+	self->sphere.radius = 0.0f;
+	self->sphere.origin = fvec3_t::zero;
 
 	return true;
 }

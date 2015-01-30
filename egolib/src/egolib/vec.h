@@ -686,11 +686,6 @@ struct fvec4_t
 
 fvec4_t operator-(const fvec4_t& v);
 
-#if 0
-/// @todo Move to <tt>matrix.h</tt>.
-#define ZERO_MAT_4X4 { {0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,0.0f} }
-#endif
-
 #if defined(TEST_NAN_RESULT)
 	#define LOG_NAN_FVEC2(XX)      if( !fvec2_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
 	#define LOG_NAN_FVEC3(XX)      if( !fvec3_valid(XX) ) log_error( "**** A math operation resulted in an invalid vector result (NAN) ****\n    (\"%s\" - %d)\n", __FILE__, __LINE__ );
@@ -705,7 +700,9 @@ bool   fvec2_valid(const fvec2_base_t A);
 bool   fvec2_self_clear(fvec2_base_t A);
 bool   fvec2_self_is_clear(const fvec2_base_t A);
 bool   fvec2_base_copy(fvec2_base_t A, const fvec2_base_t B);
+#if 0
 float  fvec2_length(const fvec2_base_t A);
+#endif
 float  fvec2_length_abs(const fvec2_base_t A);
 float  fvec2_length_2(const fvec2_t& v);
 float  fvec2_length_2(const fvec2_base_t v);
@@ -714,9 +711,12 @@ bool   fvec2_self_sum(fvec2_base_t A, const fvec2_base_t B);
 bool   fvec2_self_normalize(fvec2_base_t A);
 float  fvec2_cross_product(const fvec2_base_t A, const fvec2_base_t B);
 float  fvec2_dot_product(const fvec2_base_t A, const fvec2_base_t B);
-float  fvec2_dist_abs(const fvec2_base_t A, const fvec2_base_t B);
+#if 0
 float *fvec2_sub(fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS);
+#endif
+#if 0
 float *fvec2_add(fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS);
+#endif
 float *fvec2_normalize(fvec2_base_t DST, const fvec2_base_t SRC);
 float *fvec2_scale(fvec2_base_t DST, const fvec2_base_t SRC, const float B);
 
@@ -737,7 +737,9 @@ void fvec3_ctor(fvec3_t& v);
  *	the vector
  */
 void fvec3_dtor(fvec3_t& v);
-
+#if 0
+fvec3_t fvec3_scale(const fvec3_t& v, float s); ///< @todo Remove this.
+#endif
 bool fvec3_valid(const fvec3_base_t A); ///< @todo Remove this.
 bool fvec3_self_clear(fvec3_base_t v); ///< @todo Remove this.
 float *fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC); ///< @todo Remove this.
@@ -745,18 +747,21 @@ bool fvec3_self_is_clear(const fvec3_base_t A); ///< @todo Remove this.
 
 /**
  * @brief
- *	Get the distance between to vectors
+ *	Get the distance between to points
  *	(using the taxicab metric).
- * @param u,v
- *	the vectors
+ * @param x,y
+ *	the points
  * @return
- *	the distance between the vectors
+ *	the distance between the points
  */
 float fvec3_dist_abs(const fvec3_t& u, const fvec3_t& v);
+#if 0
+float fvec2_dist_abs(const fvec2_base_t u, const fvec2_base_t v);
+#endif
 
 /**
  * @brief
- *	Get the squared distance between two vectors
+ *	Get the squared distance between two points.
  *	(using the Euclidian metric).
  * @param u,v
  *	the vectors
@@ -765,7 +770,8 @@ float fvec3_dist_abs(const fvec3_t& u, const fvec3_t& v);
  */
 float fvec3_dist_2(const fvec3_t& u, const fvec3_t& v);
 
-fvec3_t fvec3_scale(const fvec3_t& v, float s);
+
+
 
 
 float  fvec3_decompose(const fvec3_t& src, const fvec3_t& vnrm, fvec3_t& vpara, fvec3_t& vperp);

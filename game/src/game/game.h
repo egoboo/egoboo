@@ -41,7 +41,7 @@ struct wawalite_fog_t;
 
 struct menu_process_t;
 
-struct chr_t;
+class chr_t;
 struct prt_t;
 struct s_prt_bundle;
 

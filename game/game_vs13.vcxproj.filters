@@ -56,9 +56,6 @@
     <ClCompile Include="src\game\char.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\ChrList.c">
-      <Filter>Game Sources</Filter>
-    </ClCompile>
     <ClCompile Include="src\game\collision.c">
       <Filter>Game Sources</Filter>
     </ClCompile>
@@ -203,12 +200,12 @@
     <ClCompile Include="src\game\module\Module.cpp">
       <Filter>Game Sources\Module</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\ObjectHandler.cpp">
+      <Filter>Game Sources\Module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game\char.h">
-      <Filter>Game Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\ChrList.h">
       <Filter>Game Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\game\collision.h">
@@ -362,6 +359,9 @@
       <Filter>Game Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\game\module\Module.hpp">
+      <Filter>Game Header Files\Module</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\egoboo%40egoboo%40github.com\game\src\game\module\ObjectHandler.hpp">
       <Filter>Game Header Files\Module</Filter>
     </ClInclude>
   </ItemGroup>

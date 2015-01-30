@@ -33,12 +33,9 @@
 //--------------------------------------------------------------------------------------------
 
 // Forward declarations.
-struct chr_t;
+class chr_t;
 struct egoboo_config_t;
 struct chr_instance_t;
-#if 0
-struct s_oglx_texture_parameters;
-#endif
 struct s_Font;
 
 //--------------------------------------------------------------------------------------------

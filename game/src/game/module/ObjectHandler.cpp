@@ -110,7 +110,7 @@ std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_RE
     return nullptr;
 }
 
-chr_t* ObjectHandler::get(const PRO_REF index) const
+chr_t* ObjectHandler::get(const CHR_REF index) const
 {
     if(index == INVALID_CHR_REF) {
         return nullptr;
@@ -126,7 +126,7 @@ chr_t* ObjectHandler::get(const PRO_REF index) const
     return (*result).second.get();
 }
 
-const std::shared_ptr<chr_t>& ObjectHandler::operator[] (const PRO_REF index)
+const std::shared_ptr<chr_t>& ObjectHandler::operator[] (const CHR_REF index)
 {
     if(index == INVALID_CHR_REF) {
         return NULL_OBJ;

@@ -29,10 +29,6 @@ bool sphere_self_clear(sphere_t& self)
 	return true;
 }
 
-float sphere_get_radius(const sphere_t& self)
-{
-	return self.radius;
-}
 
 bool sphere_self_is_clear(const sphere_t& self)
 {

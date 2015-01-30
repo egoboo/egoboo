@@ -29,8 +29,9 @@
  * @brief
  *	An n-dimensional axis-aligned bounding box.
  */
-struct BSP_aabb_t
+class BSP_aabb_t
 {
+public:
 	bool valid; ///< @brief @a true if this axis-aligned bounding box is valid, @a false otherwise.
 	size_t dim; ///< @brief The dimension of this axis-aligned bounding box.
 
