@@ -71,7 +71,7 @@ static size_t   netfile_transferSize = 0;
 static NetFileTransfer netfile_receiveState;
 
 static int  netfile_count = 0;                                // For network copy
-static int  netfile_sent = 0;                            // For network copy
+//static int  netfile_sent = 0;                            // For network copy
 static int  netfile_expected = 0;                        // For network copy
 static int  netfile_playerrespond = 0;
 

@@ -268,15 +268,10 @@ map_t * map_load( const char *loadname, map_t * pmesh )
     Uint32 ui32_tmp;
     map_info_t loc_info;
 
-    map_info_t * pinfo = NULL;
-    map_mem_t  * pmem = NULL;
-
     Uint32     * tmp_bitmap = NULL;
 
     // if there is no mesh struct, fail
     if ( NULL == pmesh ) return pmesh;
-    pinfo = &( pmesh->info );
-    pmem  = &( pmesh->mem );
 
     // if there is no filename, fail and wipe the mesh struct
     if ( INVALID_CSTR( loadname ) )

@@ -78,7 +78,7 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
     /// @details This function loads the font bitmap and sets up the coordinates
     ///    of each font on that bitmap...  Bitmap must have 16x6 fonts
 
-    int cnt, y, xsize, ysize, xdiv, ydiv;
+    int cnt, xsize, ysize;
     int stt_x, stt_y;
     int xspacing, yspacing;
     char cTmp;
@@ -102,8 +102,8 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
     }
 
     // Figure out the general size of each font
-    ydiv = ysize / NUMFONTY;
-    xdiv = xsize / NUMFONTX;
+    //int ydiv = ysize / NUMFONTY;
+    //int xdiv = xsize / NUMFONTX;
 
     // Figure out where each font is and its spacing
     fileread = vfs_openRead( szSpacing );
@@ -112,7 +112,6 @@ void font_bmp_load_vfs( oglx_texture_t * tx_font, const char* szBitmap, const ch
         log_error( "Font spacing not avalible! (%i, %i)\n", xsize, ysize );
     }
 
-    y = 0;
     stt_x = 0;
     stt_y = 0;
 

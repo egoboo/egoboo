@@ -68,7 +68,7 @@ map_t * map_read_v4( vfs_FILE * fileread, map_t * pmesh )
 //--------------------------------------------------------------------------------------------
 map_t * map_write_v4( vfs_FILE * filewrite, map_t * pmesh )
 {
-    size_t ivert, vert_count;
+    size_t ivert;
 
     map_mem_t    * pmem  = NULL;
     map_vertex_t * pvert = NULL;
@@ -80,9 +80,6 @@ map_t * map_write_v4( vfs_FILE * filewrite, map_t * pmesh )
 
     // a valid number of vertices?
     if ( 0 == pmem->vcount || NULL == pmem->vlst ) return NULL;
-
-    // count the vertices
-    vert_count = pmem->vcount;
 
     for ( ivert = 0; ivert < pmem->vcount; ivert++ )
     {

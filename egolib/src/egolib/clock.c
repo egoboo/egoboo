@@ -54,7 +54,7 @@ struct ClockState_t
 
 static ClockState_t *clk_ctor(ClockState_t *self,const char * name,size_t window_size);
 static void clk_dtor(ClockState_t *self);
-static int clk_setFrameHistoryWindow(ClockState_t *self,size_t new_window_size);
+//static int clk_setFrameHistoryWindow(ClockState_t *self,size_t new_window_size);
 
 static void   clk_addToFrameHistory( ClockState_t * cs, double frame );
 static double clk_getExactLastFrameDuration( ClockState_t * cs );
@@ -187,6 +187,7 @@ ClockState_t *clk_renew(ClockState_t *self)
  * @post
  *	If this function fails, the state of the clock is not observably modified.
  */
+ #if 0
 int clk_setFrameHistoryWindow(ClockState_t *self,size_t new_window_size)
 {
 	EGOBOO_ASSERT(NULL != self && new_window_size > 0);
@@ -220,6 +221,7 @@ int clk_setFrameHistoryWindow(ClockState_t *self,size_t new_window_size)
     self->frameHistoryWindow = new_window_size;
 	return 0;
 }
+#endif
 
 //--------------------------------------------------------------------------------------------
 

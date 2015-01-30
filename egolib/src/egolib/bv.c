@@ -77,7 +77,6 @@ bool bv_is_clear(const bv_t * pdst)
 //--------------------------------------------------------------------------------------------
 bool bv_self_union(bv_t * pdst, const bv_t * psrc)
 {
-	bool retval = false;
 	if (NULL == pdst) return false;
 	if (NULL == psrc) return true;
 	if (pdst->sphere.radius < 0.0f)

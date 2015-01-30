@@ -99,7 +99,6 @@
 // util
 static void ConfigFileString_Encode( char *pStr );
 
-static ConfigFilePtr_t   ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, const char * szAttribute, config_bool_t force );
 static ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile );
 
 static ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile );
@@ -698,7 +697,6 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
 
 ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, config_bool_t openForWrite, config_bool_t force )
 {
-    char    local_attribute[32] = EMPTY_CSTR;
     vfs_FILE *lTempFile;
 
     if ( INVALID_CSTR( szFileName ) ) return pConfigFile;
