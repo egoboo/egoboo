@@ -2072,7 +2072,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
                 nrm_total.x += nrm.x;
                 nrm_total.y += nrm.y;
 
-                hit_a_wall = ( fvec2_dot_product( loc_pprt->vel.v, nrm.v ) < 0.0f );
+                hit_a_wall = (fvec2_t(loc_pprt->vel[kX],loc_pprt->vel[kY]).dot(nrm) < 0.0f);
             }
         }
     }

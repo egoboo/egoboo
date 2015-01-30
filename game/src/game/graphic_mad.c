@@ -1251,7 +1251,9 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], const std::vecto
             dst     = dst_ary + i;
             const MD2_Vertex &srcLast = lst_ary[i];
 
-            fvec3_base_copy( dst->pos, srcLast.pos.v );
+			dst->pos[XX] = srcLast.pos[kX];
+			dst->pos[YY] = srcLast.pos[kY];
+			dst->pos[ZZ] = srcLast.pos[kZ];
             dst->pos[WW] = 1.0f;
 
             fvec3_base_copy( dst->nrm, srcLast.nrm.v );
@@ -1267,7 +1269,9 @@ void chr_instance_interpolate_vertices_raw( GLvertex dst_ary[], const std::vecto
             dst     = dst_ary + i;
             const MD2_Vertex &srcNext = nxt_ary[i];
 
-            fvec3_base_copy( dst->pos, srcNext.pos.v );
+			dst->pos[XX] = srcNext.pos[kX];
+			dst->pos[YY] = srcNext.pos[kY];
+			dst->pos[ZZ] = srcNext.pos[kZ];
             dst->pos[WW] = 1.0f;
 
             fvec3_base_copy( dst->nrm, srcNext.nrm.v );

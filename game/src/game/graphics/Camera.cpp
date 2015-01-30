@@ -262,66 +262,58 @@ void Camera::updateCenter()
     }
     else
     {
-        fvec2_t scroll;
-        fvec2_t _vup, _vrt, diff;
-        float diff_up, diff_rt;
-
-        float track_fov, track_dist, track_size, track_size_x, track_size_y;
-        fvec3_t track_vec;
-
         // what is the distance to the track position?
-        track_vec = _trackPos - _pos;
+        fvec3_t track_vec = _trackPos - _pos;
 
         // determine the size of the dead zone
-        track_fov = DEFAULT_FOV * 0.25f;
-        track_dist = track_vec.length();
-        track_size = track_dist * TAN( track_fov );
-        track_size_x = track_size;
-        track_size_y = track_size;  /// @todo adjust this based on the camera viewing angle
+        float track_fov = DEFAULT_FOV * 0.25f;
+        float track_dist = track_vec.length();
+        float track_size = track_dist * TAN( track_fov );
+        float track_size_x = track_size;
+        float track_size_y = track_size;  /// @todo adjust this based on the camera viewing angle
 
         // calculate the difference between the _center of the tracked characters
         // and the _center of the camera look_at
-		diff = fvec2_t(_trackPos[kX],_trackPos[kY]) - fvec2_t(_center[kX],_center[kY]);
+		fvec2_t diff = fvec2_t(_trackPos[kX],_trackPos[kY]) - fvec2_t(_center[kX],_center[kY]);
 
         // get 2d versions of the camera's right and up vectors
-        fvec2_base_copy( _vrt.v, _vrt.v );
-        fvec2_self_normalize( _vrt.v );
+		fvec2_t vrt(_vrt[kX],_vrt[kY]);
+		vrt.normalize();
 
-        fvec2_base_copy( _vup.v, _vup.v );
-        fvec2_self_normalize( _vup.v );
+		fvec2_t vup(_vup[kX], _vup[kY]);
+		vup.normalize();
 
         // project the diff vector into this space
-        diff_rt = fvec2_dot_product( _vrt.v, diff.v );
-        diff_up = fvec2_dot_product( _vup.v, diff.v );
+        float diff_rt = vrt.dot(diff);
+        float diff_up = vup.dot(diff);
 
         // Get ready to scroll...
-        scroll.x = 0;
-        scroll.y = 0;
+		fvec2_t scroll;
         if ( diff_rt < -track_size_x )
         {
             // Scroll left
-            scroll.x += _vrt.x * ( diff_rt + track_size_x );
-            scroll.y += _vrt.y * ( diff_rt + track_size_x );
+            scroll.x += vrt.x * ( diff_rt + track_size_x );
+            scroll.y += vrt.y * ( diff_rt + track_size_x );
         }
         if ( diff_rt > track_size_x )
         {
             // Scroll right
-            scroll.x += _vrt.x * ( diff_rt - track_size_x );
-            scroll.y += _vrt.y * ( diff_rt - track_size_x );
+            scroll.x += vrt.x * ( diff_rt - track_size_x );
+            scroll.y += vrt.y * ( diff_rt - track_size_x );
         }
 
         if ( diff_up > track_size_y )
         {
             // Scroll down
-            scroll.x += _vup.x * ( diff_up - track_size_y );
-            scroll.y += _vup.y * ( diff_up - track_size_y );
+            scroll.x += vup.x * ( diff_up - track_size_y );
+            scroll.y += vup.y * ( diff_up - track_size_y );
         }
 
         if ( diff_up < -track_size_y )
         {
             // Scroll up
-            scroll.x += _vup.x * ( diff_up + track_size_y );
-            scroll.y += _vup.y * ( diff_up + track_size_y );
+            scroll.x += vup.x * ( diff_up + track_size_y );
+            scroll.y += vup.y * ( diff_up + track_size_y );
         }
 
         // scroll
