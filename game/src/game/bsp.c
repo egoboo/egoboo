@@ -23,10 +23,11 @@
 #include "game/char.h"
 #include "game/mesh.h"
 #include "game/particle.h"
+#include "game/game.h"
 #include "game/char.h" /** @todo Remove. */
 #include "game/particle.h" /** @todo Remove. */
 #include "game/PrtList.h" /** @todo Remove. */
-#include "game/ChrList.h" /** @todo Remove. */
+#include "game/module/ObjectHandler.hpp" /** @todo Remove. */
 
 //--------------------------------------------------------------------------------------------
 
@@ -214,9 +215,9 @@ bool chr_BSP_clear()
 	chr_BSP_root->count = 0;
 
 	// unlink all used character nodes
-	for(const auto &chr : _characterList)
+	for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
 	{
-		BSP_leaf_t::remove_link(&chr.second.get()->bsp_leaf);
+		BSP_leaf_t::remove_link(&object->bsp_leaf);
 	}
 
 	return true;
@@ -297,7 +298,7 @@ bool chr_BSP_fill()
 {
 	// insert the characters
 	chr_BSP_root->count = 0;
-	CHR_BEGIN_LOOP_ACTIVE(ichr, pchr)
+	for(const std::shared_ptr<chr_t> &pchr : _gameObjects.iterator())
 	{
 		// reset a couple of things here
 		pchr->holdingweight = 0;
@@ -306,11 +307,10 @@ bool chr_BSP_fill()
 		pchr->targetplatform_level = -1e32;
 
 		// try to insert the character
-		chr_BSP_insert(pchr);
+		chr_BSP_insert(pchr.get());
 	}
-	CHR_END_LOOP()
 
-		return true;
+	return true;
 }
 
 //--------------------------------------------------------------------------------------------

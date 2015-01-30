@@ -29,8 +29,7 @@
 #include "game/egoboo.h"
 #include "game/char.h"
 #include "game/module/Module.hpp"
-
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -177,29 +176,31 @@ bool link_pop_module()
         // restore the heroes' positions before jumping out of the module
         for ( i = 0; i < pentry->hero_count; i++ )
         {
-            chr_t * pchr;
+            std::shared_ptr<chr_t> pchr;
             hero_spawn_data_t * phero = pentry->hero + i;
 
             pchr = NULL;
-            for(const auto &chr : _characterList)
+            for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
             {
-                if ( !INGAME_CHR( chr.first ) ) continue;
+                if(object->terminateRequested) {
+                    continue;
+                }
 
-                if ( phero->object_index == chr.second->profile_ref )
+                if ( phero->object_index == object->profile_ref )
                 {
-                    pchr = ChrList_get_ptr( chr.first );
+                    pchr = object;
                     break;
                 };
             }
 
             // is the character is found, restore the old position
-            if ( NULL != pchr )
+            if ( nullptr != pchr )
             {
-                chr_set_pos(pchr, phero->pos);
+                chr_set_pos(pchr.get(), phero->pos);
                 pchr->pos_old  = phero->pos;
                 pchr->pos_stt  = phero->pos_stt;
 
-                chr_update_safe( pchr, true );
+                chr_update_safe( pchr.get(), true );
             }
         };
     }
@@ -236,8 +237,8 @@ bool link_push_module()
 
         // Is it alive?
         ichr = PlaStack.lst[ipla].index;
-        if ( !INGAME_CHR( ichr ) ) continue;
-        pchr = ChrList_get_ptr( ichr );
+        if ( !_gameObjects.exists( ichr ) ) continue;
+        pchr = _gameObjects.get( ichr );
 
         if ( pentry->hero_count < LINK_HEROES_MAX )
         {

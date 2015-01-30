@@ -20,10 +20,12 @@
 
 #include "game/audio/AudioSystem.hpp"
 
-#include <cfloat>
 #include "game/graphics/CameraSystem.hpp"
 #include "game/game.h"
+#include "game/mesh.h"
+#include "game/char.h"
 
+//ZF> TODO: MAX_DISTANCE is 15 tiles away for those with ListeningSkill
 static const float MAX_DISTANCE = GRID_FSIZE * 10.0f;   ///< Max hearing distance (10 tiles)
 
 // text filenames for the global sounds
@@ -355,7 +357,7 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
     int channel = sound->getChannel();
 
     //skip dead stuff
-    if(!INGAME_CHR(sound->getOwner())) {
+    if(!_gameObjects.exists(sound->getOwner())) {
 
         //Stop loop if we just died
         if(channel != INVALID_SOUND_CHANNEL) {
@@ -366,7 +368,7 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
         return;
     }
 
-    const fvec3_t soundPosition = ChrList_get_ptr(sound->getOwner())->pos;
+    const fvec3_t soundPosition = _gameObjects.get(sound->getOwner())->pos;
     const float distance = getSoundDistance(soundPosition);
 
     //Sound is close enough to be heard?
@@ -402,7 +404,7 @@ void AudioSystem::updateLoopingSounds()
 
 bool AudioSystem::stopObjectLoopingSounds(const CHR_REF ichr, const SoundID soundID)
 {
-    if ( !ALLOCATED_CHR( ichr ) ) return false;
+    if ( !_gameObjects.exists( ichr ) ) return false;
 
     std::forward_list<std::shared_ptr<LoopingSound>> removeLoops;
 	for(const std::shared_ptr<LoopingSound> &sound : _loopingSounds)
@@ -501,7 +503,7 @@ void AudioSystem::mixAudioPosition3D(const int channel, float distance, const fv
 void AudioSystem::playSoundLooped(const SoundID soundID, const CHR_REF owner)
 {
     //Avoid invalid characters
-    if(!INGAME_CHR(owner)) {
+    if(!_gameObjects.exists(owner)) {
         return;
     }
 

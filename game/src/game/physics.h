@@ -109,9 +109,16 @@ struct breadcrumb_t
     Uint32 time;    ///< the time when the breadcrumb was created
     Uint32 id;      ///< an id for differentiating the timing of several events at the same "time"
 
-	breadcrumb_t()
-		: valid(false)
+	breadcrumb_t() : 
+		valid(false),
+		pos(0.0f, 0.0f, 0.0f),
+		grid(0),
+		radius(0.0f),
+		bits(0.0f),
+		time(0),
+		id(0)
 	{
+		//ctor
 	}
 };
 

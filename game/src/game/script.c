@@ -33,7 +33,7 @@
 #include "game/graphics/CameraSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 #include "game/EncList.h"
 #include "game/PrtList.h"
 
@@ -132,8 +132,8 @@ void scr_run_chr_script( const CHR_REF character )
     // make sure that this module is initialized
     scripting_system_begin();
 
-    if ( !INGAME_CHR( character ) )  return;
-    pchr  = ChrList_get_ptr( character );
+    if ( !_gameObjects.exists( character ) )  return;
+    pchr  = _gameObjects.get( character );
     pself = &( pchr->ai );
     pscript = &( chr_get_ppro( character )->getAIScript() );
 
@@ -210,7 +210,7 @@ void scr_run_chr_script( const CHR_REF character )
     // Reset the target if it can't be seen
     if ( pself->target != pself->index )
     {
-        chr_t * ptarget = ChrList_get_ptr( pself->target );
+        chr_t * ptarget = _gameObjects.get( pself->target );
 
         if ( !chr_can_see_object( pchr, ptarget ) )
         {
@@ -258,11 +258,11 @@ void scr_run_chr_script( const CHR_REF character )
 
         ai_state_ensure_wp( pself );
 
-        if ( pchr->ismount && INGAME_CHR( pchr->holdingwhich[SLOT_LEFT] ) )
+        if ( pchr->ismount && _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
         {
             // Mount
-            pchr->latch.x = ChrList_get_ptr(pchr->holdingwhich[SLOT_LEFT])->latch.x;
-            pchr->latch.y = ChrList_get_ptr(pchr->holdingwhich[SLOT_LEFT])->latch.y;
+            pchr->latch.x = _gameObjects.get(pchr->holdingwhich[SLOT_LEFT])->latch.x;
+            pchr->latch.y = _gameObjects.get(pchr->holdingwhich[SLOT_LEFT])->latch.y;
         }
         else if ( pself->wp_valid )
         {
@@ -891,17 +891,17 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
     chr_t * pchr = NULL, * ptarget = NULL, * powner = NULL;
 
-    if ( !DEFINED_CHR( pself->index ) ) return;
-    pchr = ChrList_get_ptr( pself->index );
+    if ( !_gameObjects.exists( pself->index ) ) return;
+    pchr = _gameObjects.get( pself->index );
 
-    if ( DEFINED_CHR( pself->target ) )
+    if ( _gameObjects.exists( pself->target ) )
     {
-        ptarget = ChrList_get_ptr( pself->target );
+        ptarget = _gameObjects.get( pself->target );
     }
 
-    if ( DEFINED_CHR( pself->owner ) )
+    if ( _gameObjects.exists( pself->owner ) )
     {
-        powner = ChrList_get_ptr( pself->owner );
+        powner = _gameObjects.get( pself->owner );
     }
 
     // get the operator
@@ -1551,7 +1551,7 @@ bool ai_state_get_wp( ai_state_t * pself )
 {
     // try to load up the top waypoint
 
-    if ( NULL == pself || !INGAME_CHR( pself->index ) ) return false;
+    if ( NULL == pself || !_gameObjects.exists( pself->index ) ) return false;
 
     pself->wp_valid = waypoint_list_peek( &( pself->wp_lst ), pself->wp );
 
@@ -1563,7 +1563,7 @@ bool ai_state_ensure_wp( ai_state_t * pself )
 {
     // is the current waypoint is not valid, try to load up the top waypoint
 
-    if ( NULL == pself || !INGAME_CHR( pself->index ) ) return false;
+    if ( NULL == pself || !_gameObjects.exists( pself->index ) ) return false;
 
     if ( pself->wp_valid ) return true;
 
@@ -1582,8 +1582,8 @@ void set_alerts( const CHR_REF character )
     bool at_waypoint;
 
     // invalid characters do not think
-    if ( !INGAME_CHR( character ) ) return;
-    pchr = ChrList_get_ptr( character );
+    if ( !_gameObjects.exists( character ) ) return;
+    pchr = _gameObjects.get( character );
     pai  = chr_get_pai( character );
 
     if ( waypoint_list_empty( &( pai->wp_lst ) ) ) return;
@@ -1593,7 +1593,7 @@ void set_alerts( const CHR_REF character )
     // waypoints around a track or something
 
     // mounts do not get alerts
-    // if ( INGAME_CHR(pchr->attachedto) ) return;
+    // if ( _gameObjects.exists(pchr->attachedto) ) return;
 
     // is the current waypoint is not valid, try to load up the top waypoint
     ai_state_ensure_wp( pai );
@@ -1641,13 +1641,13 @@ void issue_order( const CHR_REF character, Uint32 value )
     /// @details This function issues an value for help to all teammates
     int counter = 0;
 
-    for(const auto &element : _characterList)
+    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
     {
-        if ( !INGAME_CHR( element.first ) ) continue;
+        if ( object->terminateRequested ) continue;
 
-        if ( chr_get_iteam(element.first) == chr_get_iteam( character ) )
+        if ( object->getTeam() == chr_get_iteam( character ) )
         {
-            ai_add_order( chr_get_pai(element.first), value, counter );
+            ai_add_order( chr_get_pai(object->getCharacterID() ), value, counter );
             counter++;
         }
     }
@@ -1660,15 +1660,13 @@ void issue_special_order( Uint32 value, IDSZ idsz )
     /// @details This function issues an order to all characters with the a matching special IDSZ
     int counter = 0;
 
-    for(const auto &element : _characterList)
+    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
     {
-        if ( !INGAME_CHR( element.first ) ) continue;
+        if ( object->terminateRequested ) continue;
 
-        ObjectProfile *profile = chr_get_ppro( element.first );
-
-        if ( idsz == profile->getIDSZ(IDSZ_SPECIAL) )
+        if ( idsz == object->getProfile()->getIDSZ(IDSZ_SPECIAL) )
         {
-            ai_add_order( chr_get_pai(element.first), value, counter );
+            ai_add_order( chr_get_pai(object->getCharacterID()), value, counter );
             counter++;
         }
     }
@@ -1783,7 +1781,7 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 
     if ( NULL == pself ) return false;
 
-    if ( !INGAME_CHR( ichr ) ) return false;
+    if ( !_gameObjects.exists( ichr ) ) return false;
 
     // 5 bumps per second?
     if ( pself->bumplast != ichr ||  update_wld > pself->bumplast_time + TARGET_UPS / 5 )
@@ -1803,8 +1801,8 @@ void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj
 
     pself = ai_state_ctor( pself );
 
-    if ( NULL == pself || !DEFINED_CHR( index ) ) return;
-    pchr = ChrList_get_ptr( index );
+    if ( NULL == pself || !_gameObjects.exists( index ) ) return;
+    pchr = _gameObjects.get( index );
 
     pself->index      = index;
     pself->alert      = ALERTIF_SPAWNED;

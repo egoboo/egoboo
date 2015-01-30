@@ -26,7 +26,7 @@
 #include "game/game.h"
 #include "game/char.h"
 #include "game/mesh.h"
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 #include "game/audio/AudioSystem.hpp"
 
 Passage::Passage() :
@@ -94,39 +94,38 @@ bool Passage::close()
     // check to see if a wall can close
     if ( 0 != HAS_SOME_BITS( _mask, MAPFX_IMPASS | MAPFX_WALL ) )
     {
-        std::forward_list<CHR_REF> crushedCharacters;
+        std::vector<std::shared_ptr<chr_t>> crushedCharacters;
 
         // Make sure it isn't blocked
-        for(const auto &chr : _characterList)
+        for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
         {
-            const std::shared_ptr<chr_t> &pchr = chr.second;
-            CHR_REF character = chr.first;
-
-            if ( !INGAME_CHR( character ) ) continue;
+            if(object->terminateRequested) {
+                continue;
+            }
 
             //Don't do held items
-            if ( IS_ATTACHED_CHR( character ) ) continue;
+            if ( IS_ATTACHED_CHR( object->getCharacterID() ) ) continue;
 
-            if ( 0.0f != pchr->bump_stt.size )
+            if ( 0.0f != object->bump_stt.size )
             {
-                if ( objectIsInPassage( pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
+                if ( objectIsInPassage( object->pos.x, object->pos.y, object->bump_1.size ) )
                 {
-                    if ( !pchr->canbecrushed || ( pchr->alive && pchr->openstuff ) )
+                    if ( !object->canbecrushed || ( object->alive && object->openstuff ) )
                     {
                         // Someone is blocking who can open stuff, stop here
                         return false;
                     }
                     else
                     {
-                        crushedCharacters.push_front(character);
+                        crushedCharacters.push_back(object);
                     }
                 }
             }
         }
 
         // Crush any unfortunate characters
-        for(CHR_REF character : crushedCharacters) {
-            SET_BIT( chr_get_pai( character )->alert, ALERTIF_CRUSHED );
+        for(const std::shared_ptr<chr_t> &chraracter : crushedCharacters) {
+            SET_BIT( chr_get_pai( chraracter->getCharacterID() )->alert, ALERTIF_CRUSHED );
         }
     }
 
@@ -162,14 +161,14 @@ bool Passage::objectIsInPassage( float xpos, float ypos, float radius ) const
 CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_FIELD targeting_bits, IDSZ require_item ) const
 {
     // Skip if the one who is looking doesn't exist
-    if ( !INGAME_CHR( isrc ) ) return INVALID_CHR_REF;
-    chr_t *psrc = ChrList_get_ptr( isrc );
+    if ( !_gameObjects.exists( isrc ) ) return INVALID_CHR_REF;
+    chr_t *psrc = _gameObjects.get( isrc );
 
     // Look at each character
     for ( CHR_REF character = 0; character < MAX_CHR; character++ )
     {
-        if ( !INGAME_CHR( character ) ) continue;
-        chr_t * pchr = ChrList_get_ptr( character );
+        if ( !_gameObjects.exists( character ) ) continue;
+        chr_t * pchr = _gameObjects.get( character );
 
         // dont do scenery objects unless we allow items
         if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) ) continue;
@@ -295,27 +294,24 @@ CHR_REF Passage::getShopOwner() const
 void Passage::makeShop(CHR_REF owner)
 {
     //Make sure owner is valid
-    if ( !INGAME_CHR( owner ) || !ChrList_get_ptr(owner)->alive ) return;
+    if ( !_gameObjects.exists( owner ) || !_gameObjects.get(owner)->alive ) return;
 
     //Mark as shop
     _isShop = true;
     _shopOwner = owner;
 
     // flag every item in the shop as a shop item
-    for(const auto &element : _characterList)
+    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
     {
-        CHR_REF ichr = element.first;
-        const std::shared_ptr<chr_t> &pchr = element.second;
+        if (object->terminateRequested) continue;
 
-        if ( !INGAME_CHR( ichr ) ) continue;
-
-        if ( pchr->isitem )
+        if ( object->isitem )
         {
-            if ( objectIsInPassage( pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
+            if ( objectIsInPassage( object->pos.x, object->pos.y, object->bump_1.size ) )
             {
-                pchr->isshopitem = true;               // Full value
-                pchr->iskursed   = false;              // Shop items are never kursed
-                pchr->nameknown  = true;
+                object->isshopitem = true;               // Full value
+                object->iskursed   = false;              // Shop items are never kursed
+                object->nameknown  = true;
             }
         }
     }    

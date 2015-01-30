@@ -33,9 +33,9 @@ namespace Ego {
 		 * @author
 		 *	Michael Heilmann
 		 */
-		struct Colour4f
+		class Colour4f
 		{
-
+		public:
 			/**
 			 * @brief The colour "red" (255,0,0,255).
 			 */
@@ -137,7 +137,18 @@ namespace Ego {
 				return _a;
 			}
 
-
+			/**
+			 * @brief
+			 *	Create a colour default constructor (BLACK)
+			 */
+			Colour4f() :
+				_r(0.0f),
+				_g(0.0f),
+				_b(0.0f),
+				_a(0.0f)
+			{
+				//ctor
+			}
 
 			/**
 			 * @brief
@@ -166,24 +177,24 @@ namespace Ego {
 			 * @throws std::domain_error
 			 *	if @a a, @a g, @a b or @a a are not within the range of 0 (inclusive) and 1 (inclusive)
 			 */
-			Colour4f(float r, float g, float b, float a)
+			Colour4f(float r, float g, float b, float a) :
+				_r(r),
+				_g(g),
+				_b(b),
+				_a(a)
 			{
-				if (r < 0.0f || r > 1.0f) {
+				if (_r < 0.0f || _r > 1.0f) {
 					throw std::domain_error("red component outside bounds");
 				}
-				if (g < 0.0f || g > 1.0f) {
+				if (_g < 0.0f || _g > 1.0f) {
 					throw std::domain_error("green component outside bounds");
 				}
-				if (b < 0.0f || b > 1.0f) {
+				if (_b < 0.0f || _b > 1.0f) {
 					throw std::domain_error("blue component outside bounds");
 				}
-				if (a < 0.0f || a > 1.0f) {
+				if (_a < 0.0f || _a > 1.0f) {
 					throw std::domain_error("alpha component outside bounds");
 				}
-				_r = r;
-				_g = g;
-				_b = b;
-				_a = a;
 			}
 			/**
 			 * @brief

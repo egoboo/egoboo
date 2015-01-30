@@ -33,9 +33,9 @@ namespace Ego {
 		 * @author
 		 *	Michael Heilmann
 		 */
-		struct Colour3f
+		class Colour3f
 		{
-
+		public:
 			/**
 			 * @brief The colour "red" (255,0,0).
 			 */
@@ -125,11 +125,22 @@ namespace Ego {
 			 * @param other
 			 *	the other colour
 			 */
-			Colour3f(const Colour3f& other)
-				: _r(other._r),
+			Colour3f(const Colour3f& other) : 
+				_r(other._r),
 				_g(other._g),
 				_b(other._b)
 			{
+			}
+			/**
+			 * @brief
+			 *	Default constructor (BLACK)
+			 */
+			Colour3f() :
+				_r(0.0f),
+				_g(0.0f),
+				_b(0.0f)
+			{
+				//ctor				
 			}
 
 			/**
@@ -144,20 +155,20 @@ namespace Ego {
 			 * @throws std::domain_error
 			 *	if @a a, @a g or @a b a are not within the range of 0 (inclusive) and 1 (inclusive)
 			 */
-			Colour3f(float r, float g, float b)
+			Colour3f(float r, float g, float b) :
+				_r(r),
+				_g(g),
+				_b(b)
 			{
-				if (r < 0.0f || r > 1.0f) {
+				if (_r < 0.0f || _r > 1.0f) {
 					throw std::domain_error("red component outside bounds");
 				}
-				if (g < 0.0f || g > 1.0f) {
+				if (_g < 0.0f || _g > 1.0f) {
 					throw std::domain_error("green component outside bounds");
 				}
-				if (b < 0.0f || b > 1.0f) {
+				if (_b < 0.0f || _b > 1.0f) {
 					throw std::domain_error("blue component outside bounds");
 				}
-				_r = r;
-				_g = g;
-				_b = b;
 			}
 
 			/**

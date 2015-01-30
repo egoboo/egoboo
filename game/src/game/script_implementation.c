@@ -29,7 +29,7 @@
 #include "game/game.h"
 #include "game/ai/AStar.h"
 #include "game/renderer_2d.h"
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 #include "game/mesh.h"
 #include "game/profiles/Profile.hpp"
 #include "game/char.h"
@@ -305,11 +305,7 @@ bool line_of_sight_with_characters( line_of_sight_info_t * plos )
 
     if ( NULL == plos ) return false;
 
-    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
-    {
-        // do line/character intersection
-    }
-    CHR_END_LOOP();
+    //TODO: do line/character intersection
 
     return false;
 }
@@ -527,7 +523,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     endtile = CLIP( endtile, (Uint32)0, (Uint32)255 );
 
     useful = false;
-    CHR_BEGIN_LOOP_ACTIVE( character, pchr )
+    for(const std::shared_ptr<chr_t> &pchr : _gameObjects.iterator())
     {
         float lerp_z;
 
@@ -581,7 +577,6 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
             }
         }
     }
-    CHR_END_LOOP();
 
     return useful;
 }
@@ -598,12 +593,12 @@ Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pst
 
     Uint8 returncode = true;
 
-    if ( !ALLOCATED_PCHR( pchr ) ) return false;
+    if ( nullptr == ( pchr ) ) return false;
 
     const std::shared_ptr<ObjectProfile> &ppro = _profileSystem.getProfile( pchr->profile_ref );
     if ( !ppro->isValidMessageID( message_index ) ) return false;
 
-    ichr           = GET_REF_PCHR( pchr );
+    ichr           = GET_INDEX_PCHR( pchr );
     length = ppro->getMessage(message_index).length();
 
     dst     = endtext + endtext_carat;
@@ -725,7 +720,7 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_
 
     line_of_sight_info_t los;
 
-    if ( !DEFINED_PCHR( pchr ) ) return false;
+    if ( nullptr == ( pchr ) ) return false;
     ichr = GET_INDEX_PCHR( pchr );
 
     //get the model for this character
@@ -741,17 +736,17 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_
     los.z0 = pchr->pos.z;
     los.stopped_by = pchr->stoppedby;
 
-    CHR_BEGIN_LOOP_ACTIVE( iweapon, pweapon )
+    for(const std::shared_ptr<chr_t> &pweapon : _gameObjects.iterator())
     {
         float dist;
         fvec3_t diff;
 
         //only do items on the ground
-        if ( INGAME_CHR( pweapon->attachedto ) || !pweapon->isitem ) continue;
-        ObjectProfile *weaponProfile = chr_get_ppro( iweapon );
+        if ( _gameObjects.exists( pweapon->attachedto ) || !pweapon->isitem ) continue;
+        const std::shared_ptr<ObjectProfile> &weaponProfile = pweapon->getProfile();
 
         // only target those with a the given IDSZ
-        if ( !chr_has_idsz( iweapon, weap_idsz ) ) continue;
+        if ( !chr_has_idsz( pweapon->getCharacterID(), weap_idsz ) ) continue;
 
         // ignore ranged weapons
         if ( !find_ranged && weaponProfile->isRangedWeapon() ) continue;
@@ -762,7 +757,7 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_
         // then check if a skill is needed
         if ( weaponProfile->requiresSkillIDToUse() )
         {
-            if ( !chr_get_skill( pchr, chr_get_idsz( iweapon, IDSZ_SKILL ) ) ) continue;
+            if ( !chr_get_skill( pchr, chr_get_idsz( pweapon->getCharacterID(), IDSZ_SKILL ) ) ) continue;
         }
 
         //check distance
@@ -778,16 +773,15 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_
             if ( !use_line_of_sight || !line_of_sight_blocked( &los ) )
             {
                 //found a valid weapon!
-                best_target = iweapon;
+                best_target = pweapon->getCharacterID();
                 best_dist = dist;
             }
         }
     }
-    CHR_END_LOOP();
 
     //Did we find anything?
     retval = INVALID_CHR_REF;
-    if ( INGAME_CHR( best_target ) )
+    if ( _gameObjects.exists( best_target ) )
     {
         retval = best_target;
     }
@@ -803,7 +797,7 @@ bool FlashObject( chr_t * pchr, Uint8 value )
 
     gfx_rv flash_rv;
 
-    if ( !DEFINED_PCHR( pchr ) ) return false;
+    if ( nullptr == ( pchr ) ) return false;
 
     flash_rv = chr_instance_flash( &( pchr->inst ), value );
 

@@ -19,6 +19,7 @@
 /// @file game/module/Module.hpp
 /// @details Code handling a game module
 /// @author Johan Jansen
+
 #pragma once
 
 #include <string>

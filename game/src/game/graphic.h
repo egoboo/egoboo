@@ -223,7 +223,7 @@ struct dolist_t
 	 * @brief
 	 *	The (fixed) capacity of a do list.
 	 */
-	static const size_t CAPACITY = (MAX_CHR + MAX_PRT);
+	static const size_t CAPACITY = MAX_CHR + MAX_PRT;
 	/**
 	 * @brief
 	 *	An eleemnt of a do list.

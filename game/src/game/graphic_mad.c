@@ -38,7 +38,7 @@
 #include "game/graphics/CameraSystem.hpp"
 #include "game/profiles/ProfileSystem.hpp"
 
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 #include "game/EncList.h"
 #include "game/PrtList.h"
 
@@ -103,12 +103,12 @@ gfx_rv render_one_mad_enviro( std::shared_ptr<Camera> pcam, const CHR_REF charac
         return gfx_fail;
     }
 
-    if ( !INGAME_CHR( character ) )
+    if ( !_gameObjects.exists( character ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
         return gfx_error;
     }
-    pchr  = ChrList_get_ptr( character );
+    pchr  = _gameObjects.get( character );
     pinst = &( pchr->inst );
 
     if ( !LOADED_MAD( pinst->imad ) )
@@ -306,12 +306,12 @@ gfx_rv render_one_mad_tex( std::shared_ptr<Camera> pcam, const CHR_REF character
         return gfx_fail;
     }
 
-    if ( !INGAME_CHR( character ) )
+    if ( !_gameObjects.exists( character ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
         return gfx_error;
     }
-    pchr  = ChrList_get_ptr( character );
+    pchr  = _gameObjects.get( character );
     pinst = &( pchr->inst );
 
     if ( !LOADED_MAD( pinst->imad ) )
@@ -500,14 +500,14 @@ gfx_rv render_one_mad( std::shared_ptr<Camera> pcam, const CHR_REF character, GL
         return gfx_fail;
     }
 
-    if ( !INGAME_CHR( character ) )
+    if ( !_gameObjects.exists( character ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, character, "invalid character" );
         return gfx_error;
     }
-    pchr = ChrList_get_ptr( character );
+    pchr = _gameObjects.get( character );
 
-    if ( pchr->is_hidden || INGAME_CHR( pchr->inwhich_inventory ) ) return gfx_fail;
+    if ( pchr->is_hidden || _gameObjects.exists( pchr->inwhich_inventory ) ) return gfx_fail;
 
     if ( pchr->inst.enviro || HAS_SOME_BITS( bits, CHR_PHONG ) )
     {
@@ -553,12 +553,12 @@ gfx_rv render_one_mad_ref( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
         return gfx_fail;
     }
 
-    if ( !INGAME_CHR( ichr ) )
+    if ( !_gameObjects.exists( ichr ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
         return gfx_error;
     }
-    pchr = ChrList_get_ptr( ichr );
+    pchr = _gameObjects.get( ichr );
     pinst = &( pchr->inst );
 
     if ( pchr->is_hidden ) return gfx_fail;
@@ -646,12 +646,12 @@ gfx_rv render_one_mad_trans( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
         return gfx_fail;
     }
 
-    if ( !INGAME_CHR( ichr ) )
+    if ( !_gameObjects.exists( ichr ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
         return gfx_error;
     }
-    pchr = ChrList_get_ptr( ichr );
+    pchr = _gameObjects.get( ichr );
     pinst = &( pchr->inst );
 
     if ( pchr->is_hidden ) return gfx_fail;
@@ -734,12 +734,12 @@ gfx_rv render_one_mad_solid( std::shared_ptr<Camera> pcam, const CHR_REF ichr )
         return gfx_fail;
     }
 
-    if ( !INGAME_CHR( ichr ) )
+    if ( !_gameObjects.exists( ichr ) )
     {
         gfx_error_add( __FILE__, __FUNCTION__, __LINE__, ichr, "invalid character" );
         return gfx_error;
     }
-    pchr = ChrList_get_ptr( ichr );
+    pchr = _gameObjects.get( ichr );
     pinst = &( pchr->inst );
 
     if ( pchr->is_hidden ) return gfx_fail;
@@ -841,7 +841,7 @@ void draw_chr_verts( chr_t * pchr, int vrt_offset, int verts )
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
+    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
     if ( NULL == pmad ) return;
 
     vmin = vrt_offset;
@@ -979,10 +979,10 @@ void draw_chr_attached_grip( chr_t * pchr )
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
-    if ( !INGAME_CHR( pchr->attachedto ) ) return;
-    pholder = ChrList_get_ptr( pchr->attachedto );
+    if ( !_gameObjects.exists( pchr->attachedto ) ) return;
+    pholder = _gameObjects.get( pchr->attachedto );
 
-    pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
+    pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
 
     draw_one_grip( &( pholder->inst ), pholder_mad, pchr->inwhich_slot );
@@ -1000,7 +1000,7 @@ void draw_chr_grips( chr_t * pchr )
 
     const std::shared_ptr<ObjectProfile> &profile = _profileSystem.getProfile( pchr->profile_ref );
 
-    pmad = chr_get_pmad( GET_REF_PCHR( pchr ) );
+    pmad = chr_get_pmad( GET_INDEX_PCHR( pchr ) );
     if ( NULL == pmad ) return;
 
     texture_1d_enabled = GL_DEBUG( glIsEnabled )( GL_TEXTURE_1D );
@@ -1079,7 +1079,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, chr_t * pchr, bo
 
     // reduce the amount of updates to one every frame_skip frames, but dither
     // the updating so that not all objects update on the same frame
-    pinst->lighting_frame_all = game_frame_all + (( game_frame_all + pchr->characterID ) & frame_mask );
+    pinst->lighting_frame_all = game_frame_all + (( game_frame_all + pchr->getCharacterID() ) & frame_mask );
 
     if ( !LOADED_MAD( pinst->imad ) ) return;
     pmad = MadStack.get_ptr( pinst->imad );
@@ -1821,7 +1821,7 @@ gfx_rv chr_instance_increment_frame( chr_instance_t * pinst, mad_t * pmad, const
         else if ( pinst->action_loop )
         {
             // Convert the action into a riding action if the character is mounted
-            if ( INGAME_CHR( imount ) )
+            if ( _gameObjects.exists( imount ) )
             {
                 chr_instance_start_anim( pinst, mount_action, true, true );
             }

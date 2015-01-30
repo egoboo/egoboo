@@ -126,6 +126,12 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <mutex>
+#include <atomic>
+#include <list>
+#include <forward_list>
+#include <unordered_map>
+#include <exception>
 
 
 #if defined(__cplusplus)

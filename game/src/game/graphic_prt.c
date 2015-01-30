@@ -35,7 +35,7 @@
 #include "game/profiles/Profile.hpp"
 #include "game/graphics/CameraSystem.hpp"
 
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 #include "game/PrtList.h"
 
 //--------------------------------------------------------------------------------------------
@@ -633,10 +633,10 @@ void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 
     if ( !_DISPLAY_PPRT( loc_pprt ) ) return;
 
-    if ( !INGAME_CHR( loc_pprt->attachedto_ref ) ) return;
-    pholder = ChrList_get_ptr( loc_pprt->attachedto_ref );
+    if ( !_gameObjects.exists( loc_pprt->attachedto_ref ) ) return;
+    pholder = _gameObjects.get( loc_pprt->attachedto_ref );
 
-    pholder_mad = chr_get_pmad( GET_REF_PCHR( pholder ) );
+    pholder_mad = chr_get_pmad( GET_INDEX_PCHR( pholder ) );
     if ( NULL == pholder_mad ) return;
 
     draw_one_attachment_point( &( pholder->inst ), pholder_mad, loc_pprt->attachedto_vrt_off );
@@ -744,7 +744,7 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
 	vfwd_ref.normalize();
 
     // set the up and right vectors
-    if ( ppip->rotatetoface && !INGAME_CHR( pprt->attachedto_ref ) && ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0 ) )
+    if ( ppip->rotatetoface && !_gameObjects.exists( pprt->attachedto_ref ) && ( ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0 ) )
     {
         // the particle points along its direction of travel
 
@@ -829,11 +829,11 @@ gfx_rv prt_instance_update_vertices( std::shared_ptr<Camera> pcam, prt_instance_
         vright_ref = vright;
         vup_ref    = vup;
     }
-    else if ( INGAME_CHR( pprt->attachedto_ref ) )
+    else if ( _gameObjects.exists( pprt->attachedto_ref ) )
     {
         chr_instance_t * cinst = chr_get_pinstance( pprt->attachedto_ref );
 
-        if ( chr_matrix_valid( ChrList_get_ptr( pprt->attachedto_ref ) ) )
+        if ( chr_matrix_valid( _gameObjects.get( pprt->attachedto_ref ) ) )
         {
             // use the character matrix to orient the particle
             // assume that the particle "up" is in the z-direction in the object's

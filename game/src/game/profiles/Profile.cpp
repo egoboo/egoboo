@@ -29,7 +29,7 @@
 #include "game/renderer_2d.h"
 #include "game/script_compile.h"
 #include "game/game.h"
-#include "game/ChrList.h"
+#include "game/module/ObjectHandler.hpp"
 #include "game/PrtList.h"
 #include "game/mesh.h"
 #include "game/particle.h"
@@ -1068,7 +1068,7 @@ bool ObjectProfile::isSlotValid(slot_t slot) const
 
 bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const chr_t *character)
 {
-    if (!DEFINED_PCHR(character)) {
+    if (nullptr == (character)) {
         return false;
     }
 

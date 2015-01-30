@@ -29,14 +29,14 @@
 #include "game/char.h"
 #include "game/particle.h"
 #include "game/enchant.h"
-#include "game/profiles/Profile.hpp"
 #include "game/physics.h"
-#include "game/audio/AudioSystem.hpp"
-#include "game/profiles/ProfileSystem.hpp"
-
-#include "game/ChrList.h"
 #include "game/PrtList.h"
 #include "game/EncList.h"
+
+#include "game/audio/AudioSystem.hpp"
+#include "game/profiles/ProfileSystem.hpp"
+#include "game/module/ObjectHandler.hpp"
+#include "game/profiles/Profile.hpp"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -545,7 +545,7 @@ bool get_prt_mass( prt_t * pprt, chr_t * pchr, float * wt )
     {
         *wt = -( float )CHR_INFINITE_WEIGHT;
     }
-    else if ( DEFINED_CHR( pprt->attachedto_ref ) )
+    else if ( _gameObjects.exists( pprt->attachedto_ref ) )
     {
         if ( CHR_INFINITE_WEIGHT == pprt->phys.weight || 0.0f == pprt->phys.bumpdampen )
         {
@@ -651,12 +651,12 @@ bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_
     if ( ichr_a == ichr_b ) return false;
 
     // Ignore invalid characters
-    if ( !INGAME_CHR( ichr_a ) ) return false;
-    pchr_a = ChrList_get_ptr( ichr_a );
+    if ( !_gameObjects.exists( ichr_a ) ) return false;
+    pchr_a = _gameObjects.get( ichr_a );
 
     // Ignore invalid characters
-    if ( !INGAME_CHR( ichr_b ) ) return false;
-    pchr_b = ChrList_get_ptr( ichr_b );
+    if ( !_gameObjects.exists( ichr_b ) ) return false;
+    pchr_b = _gameObjects.get( ichr_b );
 
     // "non-interacting" objects interact with platforms
     if (( 0 == pchr_a->bump.size && !pchr_b->platform ) ||
@@ -685,8 +685,8 @@ bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_
     prt_t * pprt_b;
 
     // Ignore invalid characters
-    if ( !INGAME_CHR( ichr_a ) ) return false;
-    pchr_a = ChrList_get_ptr( ichr_a );
+    if ( !_gameObjects.exists( ichr_a ) ) return false;
+    pchr_a = _gameObjects.get( ichr_a );
 
     // Ignore invalid characters
     if ( !_INGAME_PRT( iprt_b ) ) return false;
@@ -855,17 +855,17 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
     // Find the character-character interactions. Use the ChrList.used_ref, for a change
     CoHashList_inserted = 0;
-    CHR_BEGIN_LOOP_ACTIVE( ichr_a, pchr_a )
+    for(const std::shared_ptr<chr_t> &pchr_a : _gameObjects.iterator())
     {
         oct_bb_t   tmp_oct;
 
         // ignore in-accessible objects
-        if ( INGAME_CHR( pchr_a->inwhich_inventory ) || pchr_a->is_hidden ) continue;
+        if ( _gameObjects.exists( pchr_a->inwhich_inventory ) || pchr_a->is_hidden ) continue;
 
         // keep track of how many objects use reaffirmation, and what kinds of reaffirmation
         if ( pchr_a->reaffirm_damagetype < DAMAGE_COUNT )
         {
-            if ( _profileSystem.getProfile(pchr_a->profile_ref)->getAttachedParticleAmount() > 0 )
+            if ( pchr_a->getProfile()->getAttachedParticleAmount() > 0 )
             {
                 // we COULD use number_of_attached_particles() to determin if the
                 // character is full of particles, BUT since it scans through the
@@ -878,7 +878,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
         // use the object velocity to figure out where the volume that the object will occupy during this
         // update
-        phys_expand_chr_bb( pchr_a, 0.0f, 1.0f, &tmp_oct );
+        phys_expand_chr_bb( pchr_a.get(), 0.0f, 1.0f, &tmp_oct );
 
         // convert the oct_bb_t to a correct BSP_aabb_t
         aabb_from_oct_bb( &tmp_aabb, &tmp_oct );
@@ -911,9 +911,9 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                     CHR_REF ichr_b = ( CHR_REF )( pleaf->index );
 
                     // do some logic on this to determine whether the collision is valid
-                    if ( detect_chr_chr_interaction_valid( ichr_a, ichr_b ) )
+                    if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), ichr_b ) )
                     {
-                        chr_t * pchr_b = ChrList_get_ptr( ichr_b );
+                        chr_t * pchr_b = _gameObjects.get( ichr_b );
 
                         CoNode_ctor( &tmp_codata );
 
@@ -923,9 +923,9 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                         if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v_const( pchr_a ), pchr_a->vel, &( pchr_b->chr_max_cv ), chr_get_pos_v_const( pchr_b ), pchr_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v_const( pchr_a.get() ), pchr_a->vel, &( pchr_b->chr_max_cv ), chr_get_pos_v_const( pchr_b ), pchr_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
-                            tmp_codata.chra = ichr_a;
+                            tmp_codata.chra = pchr_a->getCharacterID();
                             tmp_codata.chrb = ichr_b;
 
                             do_insert = true;
@@ -972,7 +972,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                     PRT_REF iprt_b = ( PRT_REF )( pleaf->index );
 
                     // do some logic on this to determine whether the collision is valid
-                    if ( detect_chr_prt_interaction_valid( ichr_a, iprt_b ) )
+                    if ( detect_chr_prt_interaction_valid( pchr_a->getCharacterID(), iprt_b ) )
                     {
                         prt_t * pprt_b = PrtList_get_ptr( iprt_b );
 
@@ -982,9 +982,9 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v_const( pchr_a ), pchr_a->vel, &( pprt_b->prt_max_cv ), prt_get_pos_v_const( pprt_b ), pprt_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v_const( pchr_a.get() ), pchr_a->vel, &( pprt_b->prt_max_cv ), prt_get_pos_v_const( pprt_b ), pprt_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
-                            tmp_codata.chra = ichr_a;
+                            tmp_codata.chra = pchr_a->getCharacterID();
                             tmp_codata.prtb = iprt_b;
 
                             do_insert = true;
@@ -1007,7 +1007,6 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
             }
         }
     }
-    CHR_END_LOOP();
 
     //---- find some specialized character-particle interactions
     //     namely particles that end-bump or particles that reaffirm characters
@@ -1070,7 +1069,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                     bool loc_needs_bump    = needs_bump;
                     bool interaction_valid = false;
 
-                    chr_t * pchr_a = ChrList_get_ptr( ichr_a );
+                    chr_t * pchr_a = _gameObjects.get( ichr_a );
 
                     // can this particle affect the character through reaffirmation
                     if ( loc_reaffirms )
@@ -1206,15 +1205,15 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     bool chara_on_top;
 
     // make sure that A is valid
-    if ( !INGAME_CHR( ichr_a ) ) return false;
-    pchr_a = ChrList_get_ptr( ichr_a );
+    if ( !_gameObjects.exists( ichr_a ) ) return false;
+    pchr_a = _gameObjects.get( ichr_a );
 
     // make sure that B is valid
-    if ( !INGAME_CHR( ichr_b ) ) return false;
-    pchr_b = ChrList_get_ptr( ichr_b );
+    if ( !_gameObjects.exists( ichr_b ) ) return false;
+    pchr_b = _gameObjects.get( ichr_b );
 
     // if you are mounted, only your mount is affected by platforms
-    if ( INGAME_CHR( pchr_a->attachedto ) || INGAME_CHR( pchr_b->attachedto ) ) return false;
+    if ( _gameObjects.exists( pchr_a->attachedto ) || _gameObjects.exists( pchr_b->attachedto ) ) return false;
 
     // only check possible object-platform interactions
     platform_a = TO_C_BOOL( pchr_b->canuseplatforms && pchr_a->platform );
@@ -1380,15 +1379,15 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     bool collide_z  = false;
 
     // make sure that A is valid
-    if ( !INGAME_CHR( ichr_a ) ) return false;
-    pchr_a = ChrList_get_ptr( ichr_a );
+    if ( !_gameObjects.exists( ichr_a ) ) return false;
+    pchr_a = _gameObjects.get( ichr_a );
 
     // make sure that B is valid
     if ( !_INGAME_PRT( iprt_b ) ) return false;
     pprt_b = PrtList_get_ptr( iprt_b );
 
     // if you are mounted, only your mount is affected by platforms
-    if ( INGAME_CHR( pchr_a->attachedto ) || INGAME_CHR( pprt_b->attachedto_ref ) ) return false;
+    if ( _gameObjects.exists( pchr_a->attachedto ) || _gameObjects.exists( pprt_b->attachedto_ref ) ) return false;
 
     // only check possible object-platform interactions
     platform_a = /* pprt_b->canuseplatforms && */ pchr_a->platform;
@@ -1563,36 +1562,36 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         if ( INVALID_CHR_REF != d->chra && INVALID_CHR_REF != d->chrb )
         {
-            if ( INGAME_CHR( d->chra ) && INGAME_CHR( d->chrb ) )
+            if ( _gameObjects.exists( d->chra ) && _gameObjects.exists( d->chrb ) )
             {
-                if ( ChrList_get_ptr(d->chra)->targetplatform_ref == d->chrb )
+                if ( _gameObjects.get(d->chra)->targetplatform_ref == d->chrb )
                 {
-                    attach_chr_to_platform( ChrList_get_ptr( d->chra ), ChrList_get_ptr( d->chrb ) );
+                    attach_chr_to_platform( _gameObjects.get( d->chra ), _gameObjects.get( d->chrb ) );
                 }
-                else if ( ChrList_get_ptr(d->chrb)->targetplatform_ref == d->chra )
+                else if ( _gameObjects.get(d->chrb)->targetplatform_ref == d->chra )
                 {
-                    attach_chr_to_platform( ChrList_get_ptr( d->chrb ), ChrList_get_ptr( d->chra ) );
+                    attach_chr_to_platform( _gameObjects.get( d->chrb ), _gameObjects.get( d->chra ) );
                 }
 
             }
         }
         else if ( INVALID_CHR_REF != d->chra && INVALID_PRT_REF != d->prtb )
         {
-            if ( INGAME_CHR( d->chra ) && _INGAME_PRT( d->prtb ) )
+            if ( _gameObjects.exists( d->chra ) && _INGAME_PRT( d->prtb ) )
             {
                 if ( PrtList.lst[d->prtb].targetplatform_ref == d->chra )
                 {
-                    attach_prt_to_platform( PrtList_get_ptr( d->prtb ), ChrList_get_ptr( d->chra ) );
+                    attach_prt_to_platform( PrtList_get_ptr( d->prtb ), _gameObjects.get( d->chra ) );
                 }
             }
         }
         else if ( INVALID_CHR_REF != d->chrb && INVALID_PRT_REF != d->prta )
         {
-            if ( INGAME_CHR( d->chrb ) && _INGAME_PRT( d->prta ) )
+            if ( _gameObjects.exists( d->chrb ) && _INGAME_PRT( d->prta ) )
             {
                 if ( PrtList.lst[d->prta].targetplatform_ref == d->chrb )
                 {
-                    attach_prt_to_platform( PrtList_get_ptr( d->prta ), ChrList_get_ptr( d->chrb ) );
+                    attach_prt_to_platform( PrtList_get_ptr( d->prta ), _gameObjects.get( d->chrb ) );
                 }
             }
         }
@@ -1602,14 +1601,13 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
     // attach_prt_to_platform() erases targetplatform_ref, so any character with
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
-    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
+    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
     {
-        if ( INVALID_CHR_REF != pchr->onwhichplatform_ref && pchr->onwhichplatform_update < update_wld )
+        if ( object->onwhichplatform_update < update_wld && _gameObjects.exists(object->onwhichplatform_ref) )
         {
-            detach_character_from_platform( pchr );
+            detach_character_from_platform( object.get() );
         }
     }
-    CHR_END_LOOP();
 
     // attach_prt_to_platform() erases targetplatform_ref, so any particle with
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
@@ -1660,11 +1658,10 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     int        cnt;
 
     // blank the accumulators
-    CHR_BEGIN_LOOP_ACTIVE( tnc, pchr )
+    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
     {
-        phys_data_clear( &( pchr->phys ) );
+        phys_data_clear( &( object->phys ) );
     }
-    CHR_END_LOOP();
 
     PRT_BEGIN_LOOP_ACTIVE( tnc, prt_bdl )
     {
@@ -1691,7 +1688,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     }
 
     // accumulate the accumulators
-    CHR_BEGIN_LOOP_ACTIVE( ichr, pchr )
+    for(const std::shared_ptr<chr_t> &pchr : _gameObjects.iterator())
     {
         float tmpx, tmpy, tmpz;
         float bump_str;
@@ -1700,10 +1697,10 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         fvec3_t tmp_pos;
 
-        chr_get_pos( pchr, tmp_pos.v );
+        chr_get_pos( pchr.get(), tmp_pos.v );
 
         bump_str = 1.0f;
-        if ( INGAME_CHR( pchr->attachedto ) )
+        if ( _gameObjects.exists( pchr->attachedto ) )
         {
             bump_str = 0.0f;
         }
@@ -1738,7 +1735,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpx = tmp_pos.x;
             tmp_pos.x += max_apos.x;
-            if ( EMPTY_BIT_FIELD != chr_test_wall( pchr, tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != chr_test_wall( pchr.get(), tmp_pos.v, NULL ) )
             {
                 // restore the old values
                 tmp_pos.x = tmpx;
@@ -1754,7 +1751,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpy = tmp_pos.y;
             tmp_pos.y += max_apos.y;
-            if ( EMPTY_BIT_FIELD != chr_test_wall( pchr, tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != chr_test_wall( pchr.get(), tmp_pos.v, NULL ) )
             {
                 // restore the old values
                 tmp_pos.y = tmpy;
@@ -1776,7 +1773,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
                 tmp_pos.z = pchr->enviro.floor_level;
                 if ( pchr->vel.z < 0 )
                 {
-                    pchr->vel.z += -( 1.0f + _profileSystem.getProfile(pchr->profile_ref)->getBounciness() ) * pchr->vel.z;
+                    pchr->vel.z += -( 1.0f + pchr->getProfile()->getBounciness() ) * pchr->vel.z;
                 }
                 position_updated = true;
             }
@@ -1789,10 +1786,9 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         if ( position_updated )
         {
-            chr_set_pos(pchr, tmp_pos);
+            chr_set_pos(pchr.get(), tmp_pos);
         }
     }
-    CHR_END_LOOP();
 
     // accumulate the accumulators
     PRT_BEGIN_LOOP_ACTIVE( iprt, bdl )
@@ -1807,7 +1803,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         prt_get_pos(bdl.prt_ptr, tmp_pos);
 
         bump_str = 1.0f;
-        if ( INGAME_CHR( bdl.prt_ptr->attachedto_ref ) )
+        if ( _gameObjects.exists( bdl.prt_ptr->attachedto_ref ) )
         {
             bump_str = 0.0f;
         }
@@ -1913,11 +1909,10 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     PRT_END_LOOP();
 
     // blank the accumulators
-    CHR_BEGIN_LOOP_ACTIVE( tnc, pchr )
+    for(const std::shared_ptr<chr_t> &pchr : _gameObjects.iterator())
     {
         phys_data_clear( &( pchr->phys ) );
     }
-    CHR_END_LOOP();
 
     PRT_BEGIN_LOOP_ACTIVE( tnc, prt_bdl )
     {
@@ -1943,12 +1938,12 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     bool handled = false;
 
     // make sure that A is valid
-    if ( !INGAME_CHR( ichr_a ) ) return false;
-    pchr_a = ChrList_get_ptr( ichr_a );
+    if ( !_gameObjects.exists( ichr_a ) ) return false;
+    pchr_a = _gameObjects.get( ichr_a );
 
     // make sure that B is valid
-    if ( !INGAME_CHR( ichr_b ) ) return false;
-    pchr_b = ChrList_get_ptr( ichr_b );
+    if ( !_gameObjects.exists( ichr_b ) ) return false;
+    pchr_b = _gameObjects.get( ichr_b );
 
     // find the difference in velocities
     vdiff = pchr_b->vel - pchr_a->vel;
@@ -1995,7 +1990,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
                 if ( rv_success == attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY ) )
                 {
-                    mounted = INGAME_CHR( pchr_a->attachedto );
+                    mounted = _gameObjects.exists( pchr_a->attachedto );
                 }
             }
         }
@@ -2032,7 +2027,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
                 if ( rv_success == attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY ) )
                 {
-                    mounted = INGAME_CHR( pchr_b->attachedto );
+                    mounted = _gameObjects.exists( pchr_b->attachedto );
                 }
             }
         }
@@ -2051,7 +2046,7 @@ bool do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
     if ( !ACTIVE_PCHR( pitem ) ) return false;
     if ( !ACTIVE_PCHR( pplat ) ) return false;
 
-    if ( pitem->onwhichplatform_ref != GET_REF_PCHR( pplat ) ) return false;
+    if ( pitem->onwhichplatform_ref != GET_INDEX_PCHR( pplat ) ) return false;
 
     // grab the pre-computed zlerp value, and map it to our needs
     lerp_z = 1.0f - pitem->enviro.zlerp;
@@ -2207,18 +2202,18 @@ bool do_chr_chr_collision( CoNode_t * d )
     ichr_b = d->chrb;
 
     // make sure that it is on
-    if ( !INGAME_CHR( ichr_a ) ) return false;
-    pchr_a = ChrList_get_ptr( ichr_a );
+    if ( !_gameObjects.exists( ichr_a ) ) return false;
+    pchr_a = _gameObjects.get( ichr_a );
 
     // make sure that it is on
-    if ( !INGAME_CHR( ichr_b ) ) return false;
-    pchr_b = ChrList_get_ptr( ichr_b );
+    if ( !_gameObjects.exists( ichr_b ) ) return false;
+    pchr_b = _gameObjects.get( ichr_b );
 
     // skip objects that are inside inventories
-    if ( INGAME_CHR( pchr_a->inwhich_inventory ) || INGAME_CHR( pchr_b->inwhich_inventory ) ) return false;
+    if ( _gameObjects.exists( pchr_a->inwhich_inventory ) || _gameObjects.exists( pchr_b->inwhich_inventory ) ) return false;
 
     // skip all objects that are mounted or attached to something
-    if ( INGAME_CHR( pchr_a->attachedto ) || INGAME_CHR( pchr_b->attachedto ) ) return false;
+    if ( _gameObjects.exists( pchr_a->attachedto ) || _gameObjects.exists( pchr_b->attachedto ) ) return false;
 
     // platform interaction. if the onwhichplatform_ref is set, then
     // all collision tests have been met
@@ -2687,10 +2682,10 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
     if ( !pdata->pchr->platform ) return false;
 
     // can the particle interact with it?
-    if ( INGAME_CHR( pdata->pprt->attachedto_ref ) ) return false;
+    if ( _gameObjects.exists( pdata->pprt->attachedto_ref ) ) return false;
 
     // this is handled elsewhere
-    if ( GET_REF_PCHR( pdata->pchr ) == pdata->pprt->onwhichplatform_ref ) return false;
+    if ( GET_INDEX_PCHR( pdata->pchr ) == pdata->pprt->onwhichplatform_ref ) return false;
 
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
@@ -2778,11 +2773,11 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
     direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
     // shield block?
-    chr_is_invictus = is_invictus_direction( direction, GET_REF_PCHR( pdata->pchr ), pdata->ppip->damfx );
+    chr_is_invictus = is_invictus_direction( direction, GET_INDEX_PCHR( pdata->pchr ), pdata->ppip->damfx );
 
     // determine whether the character is magically protected from missile attacks
     prt_wants_deflection  = TO_C_BOOL(( MISSILE_NORMAL != pdata->pchr->missiletreatment ) &&
-                                      ( pdata->pprt->owner_ref != GET_REF_PCHR( pdata->pchr ) ) && !pdata->ppip->bump_money );
+                                      ( pdata->pprt->owner_ref != GET_INDEX_PCHR( pdata->pchr ) ) && !pdata->ppip->bump_money );
 
     chr_can_deflect = TO_C_BOOL(( 0 != pdata->pchr->damage_timer ) && ( pdata->max_damage > 0 ) );
 
@@ -2830,12 +2825,12 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
 
                 // Change the owner of the missile
                 pdata->pprt->team       = pdata->pchr->team;
-                pdata->pprt->owner_ref  = GET_REF_PCHR( pdata->pchr );
+                pdata->pprt->owner_ref  = GET_INDEX_PCHR( pdata->pchr );
             }
 
             // Blocked!
             spawn_defense_ping( pdata->pchr, pdata->pprt->owner_ref );
-            chr_make_text_billboard( GET_REF_PCHR( pdata->pchr ), "Blocked!", text_color, tint, lifetime, bb_opt_all );
+            chr_make_text_billboard( GET_INDEX_PCHR( pdata->pchr ), "Blocked!", text_color, tint, lifetime, bb_opt_all );
 
             // If the attack was blocked by a shield, then check if the block caused a knockback
             if ( chr_is_invictus && ACTION_IS_TYPE( pdata->pchr->inst.action_which, P ) )
@@ -2851,7 +2846,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                 if ( !using_shield )
                 {
                     item = pdata->pchr->holdingwhich[SLOT_RIGHT];
-                    if ( INGAME_CHR( item ) && pdata->pchr->ai.lastitemused == item )
+                    if ( _gameObjects.exists( item ) && pdata->pchr->ai.lastitemused == item )
                     {
                         using_shield = true;
                     }
@@ -2861,20 +2856,20 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                 if ( !using_shield )
                 {
                     item = pdata->pchr->holdingwhich[SLOT_LEFT];
-                    if ( INGAME_CHR( item ) && pdata->pchr->ai.lastitemused == item )
+                    if ( _gameObjects.exists( item ) && pdata->pchr->ai.lastitemused == item )
                     {
                         using_shield = true;
                     }
                 }
 
                 // Now we have the block rating and know the enemy
-                if ( INGAME_CHR( pdata->pprt->owner_ref ) && using_shield )
+                if ( _gameObjects.exists( pdata->pprt->owner_ref ) && using_shield )
                 {
                     int   total_block_rating;
                     IPair rand_pair;
 
-                    chr_t *pshield   = ChrList_get_ptr( item );
-                    chr_t *pattacker = ChrList_get_ptr( pdata->pprt->owner_ref );
+                    chr_t *pshield   = _gameObjects.get( item );
+                    chr_t *pattacker = _gameObjects.get( pdata->pprt->owner_ref );
 
                     // use the character block skill plus the base block rating of the shield and adjust for strength
                     total_block_rating = chr_get_skill( pdata->pchr, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
@@ -2976,30 +2971,30 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
 
     // if the particle is attached to a weapon, the particle can force the
     // weapon (actually, the weapon's holder) to rebound.
-    if ( INGAME_CHR( pdata->pprt->attachedto_ref ) )
+    if ( _gameObjects.exists( pdata->pprt->attachedto_ref ) )
     {
         chr_t * pholder;
         chr_t * pattached;
         CHR_REF iholder;
 
         // get the attached mass
-        pattached = ChrList_get_ptr( pdata->pprt->attachedto_ref );
+        pattached = _gameObjects.get( pdata->pprt->attachedto_ref );
 
         // assume the worst
         pholder = NULL;
 
         // who is holding the weapon?
         iholder = chr_get_lowest_attachment( pdata->pprt->attachedto_ref, false );
-        if ( INGAME_CHR( iholder ) )
+        if ( _gameObjects.exists( iholder ) )
         {
-            pholder = ChrList_get_ptr( iholder );
+            pholder = _gameObjects.get( iholder );
         }
         else
         {
             iholder = chr_get_lowest_attachment( pdata->pprt->owner_ref, false );
-            if ( INGAME_CHR( iholder ) )
+            if ( _gameObjects.exists( iholder ) )
             {
-                pholder = ChrList_get_ptr( iholder );
+                pholder = _gameObjects.get( iholder );
             }
         }
 
@@ -3065,9 +3060,9 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
 
     if ( NULL == pdata ) return false;
 
-    if ( INGAME_CHR( pdata->pprt->owner_ref ) )
+    if ( _gameObjects.exists( pdata->pprt->owner_ref ) )
     {
-        powner = ChrList_get_ptr( pdata->pprt->owner_ref );
+        powner = _gameObjects.get( pdata->pprt->owner_ref );
     }
 
     // clean up the enchant list before doing anything
@@ -3141,7 +3136,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
     if ( 0 != std::abs( pdata->pprt->damage.base ) + std::abs( pdata->pprt->damage.rand ) )
     {
 
-        prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || INGAME_CHR( pdata->pprt->attachedto_ref ) );
+        prt_needs_impact = TO_C_BOOL( pdata->ppip->rotatetoface || _gameObjects.exists( pdata->pprt->attachedto_ref ) );
 
         if(powner != nullptr) {
             const std::shared_ptr<ObjectProfile> &ownerProfile = _profileSystem.getProfile(powner->profile_ref);
@@ -3185,26 +3180,26 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
 
                 // Notify the attacker of a scored hit
                 SET_BIT( powner->ai.alert, ALERTIF_SCOREDAHIT );
-                powner->ai.hitlast = GET_REF_PCHR( pdata->pchr );
+                powner->ai.hitlast = GET_INDEX_PCHR( pdata->pchr );
 
                 // Tell the weapons who the attacker hit last
                 item = powner->holdingwhich[SLOT_LEFT];
-                if ( INGAME_CHR( item ) )
+                if ( _gameObjects.exists( item ) )
                 {
-                    ChrList_get_ptr(item)->ai.hitlast = GET_REF_PCHR( pdata->pchr );
-                    if ( powner->ai.lastitemused == item ) SET_BIT( ChrList_get_ptr(item)->ai.alert, ALERTIF_SCOREDAHIT );
+                    _gameObjects.get(item)->ai.hitlast = GET_INDEX_PCHR( pdata->pchr );
+                    if ( powner->ai.lastitemused == item ) SET_BIT( _gameObjects.get(item)->ai.alert, ALERTIF_SCOREDAHIT );
                 }
 
                 item = powner->holdingwhich[SLOT_RIGHT];
-                if ( INGAME_CHR( item ) )
+                if ( _gameObjects.exists( item ) )
                 {
-                    ChrList_get_ptr(item)->ai.hitlast = GET_REF_PCHR( pdata->pchr );
-                    if ( powner->ai.lastitemused == item ) SET_BIT( ChrList_get_ptr(item)->ai.alert, ALERTIF_SCOREDAHIT );
+                    _gameObjects.get(item)->ai.hitlast = GET_INDEX_PCHR( pdata->pchr );
+                    if ( powner->ai.lastitemused == item ) SET_BIT( _gameObjects.get(item)->ai.alert, ALERTIF_SCOREDAHIT );
                 }
             }
 
             // handle vulnerabilities, double the damage
-            if ( chr_has_vulnie( GET_REF_PCHR( pdata->pchr ), pdata->pprt->profile_ref ) )
+            if ( chr_has_vulnie( GET_INDEX_PCHR( pdata->pchr ), pdata->pprt->profile_ref ) )
             {
                 // Double the damage
                 loc_damage.base = ( loc_damage.base << 1 );
@@ -3214,7 +3209,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
             }
 
             // Damage the character
-            pdata->actual_damage = damage_character( GET_REF_PCHR( pdata->pchr ), direction, loc_damage, pdata->pprt->damagetype, pdata->pprt->team, pdata->pprt->owner_ref, pdata->ppip->damfx, false );
+            pdata->actual_damage = damage_character( GET_INDEX_PCHR( pdata->pchr ), direction, loc_damage, pdata->pprt->damagetype, pdata->pprt->team, pdata->pprt->owner_ref, pdata->ppip->damfx, false );
         }
     }
 
@@ -3305,21 +3300,21 @@ bool do_chr_prt_collision_bump( chr_prt_collsion_data_t * pdata )
     }
 
     // if the particle was deflected, then it can't bump the character
-    if ( pdata->pchr->invictus || pdata->pprt->attachedto_ref == GET_REF_PCHR( pdata->pchr ) ) return false;
+    if ( pdata->pchr->invictus || pdata->pprt->attachedto_ref == GET_INDEX_PCHR( pdata->pchr ) ) return false;
 
-	prt_belongs_to_chr = TO_C_BOOL(GET_REF_PCHR(pdata->pchr) == pdata->pprt->owner_ref);
+	prt_belongs_to_chr = TO_C_BOOL(GET_INDEX_PCHR(pdata->pchr) == pdata->pprt->owner_ref);
 
     if ( !prt_belongs_to_chr )
     {
         // no simple owner relationship. Check for something deeper.
         CHR_REF prt_owner = prt_get_iowner( _GET_REF_PPRT( pdata->pprt ), 0 );
-        if ( INGAME_CHR( prt_owner ) )
+        if ( _gameObjects.exists( prt_owner ) )
         {
-            CHR_REF chr_wielder = chr_get_lowest_attachment( GET_REF_PCHR( pdata->pchr ), true );
+            CHR_REF chr_wielder = chr_get_lowest_attachment( GET_INDEX_PCHR( pdata->pchr ), true );
             CHR_REF prt_wielder = chr_get_lowest_attachment( prt_owner, true );
 
-            if ( !INGAME_CHR( chr_wielder ) ) chr_wielder = GET_REF_PCHR( pdata->pchr );
-            if ( !INGAME_CHR( prt_wielder ) ) prt_wielder = prt_owner;
+            if ( !_gameObjects.exists( chr_wielder ) ) chr_wielder = GET_INDEX_PCHR( pdata->pchr );
+            if ( !_gameObjects.exists( prt_wielder ) ) prt_wielder = prt_owner;
 
 			prt_belongs_to_chr = TO_C_BOOL(chr_wielder == prt_wielder);
         }
@@ -3356,7 +3351,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
     if ( !pdata->prt_bumps_chr ) return false;
 
     // Catch on fire
-    spawn_bump_particles( GET_REF_PCHR( pdata->pchr ), _GET_REF_PPRT( pdata->pprt ) );
+    spawn_bump_particles( GET_INDEX_PCHR( pdata->pchr ), _GET_REF_PPRT( pdata->pprt ) );
 
     // handle some special particle interactions
     if ( pdata->ppip->end_bump )
@@ -3366,9 +3361,9 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
             chr_t * pcollector = pdata->pchr;
 
             // Let mounts collect money for their riders
-            if ( pdata->pchr->ismount && INGAME_CHR( pdata->pchr->holdingwhich[SLOT_LEFT] ) )
+            if ( pdata->pchr->ismount && _gameObjects.exists( pdata->pchr->holdingwhich[SLOT_LEFT] ) )
             {
-                pcollector = ChrList_get_ptr( pdata->pchr->holdingwhich[SLOT_LEFT] );
+                pcollector = _gameObjects.get( pdata->pchr->holdingwhich[SLOT_LEFT] );
 
                 // if the mount's rider can't get money, the mount gets to keep the money!
                 if ( !pcollector->cangrabmoney )
@@ -3408,9 +3403,9 @@ bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_
     pdata->pprt = PrtList_get_ptr( iprt );
 
     // make sure that it is on
-    if ( !INGAME_CHR( ichr ) ) return false;
+    if ( !_gameObjects.exists( ichr ) ) return false;
     pdata->ichr = ichr;
-    pdata->pchr = ChrList_get_ptr( ichr );
+    pdata->pchr = _gameObjects.get( ichr );
 
     if ( !LOADED_PIP( pdata->pprt->pip_ref ) ) return false;
     pdata->ppip = PipStack.get_ptr( pdata->pprt->pip_ref );
@@ -3471,7 +3466,7 @@ bool do_chr_prt_collision( CoNode_t * d )
     if ( !cn_data.pchr->alive ) return false;
 
     // skip objects that are inside inventories
-    if ( INGAME_CHR( cn_data.pchr->inwhich_inventory ) ) return false;
+    if ( _gameObjects.exists( cn_data.pchr->inwhich_inventory ) ) return false;
 
     // if the particle is attached to this character, ignore a "collision"
     if ( INVALID_CHR_REF != cn_data.pprt->attachedto_ref && cn_data.ichr == cn_data.pprt->attachedto_ref )

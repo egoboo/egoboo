@@ -50,6 +50,8 @@ namespace Ego
 	namespace OpenGL {
 		class Renderer : public Ego::Renderer
 		{
+			virtual ~Renderer();
+
 			/** @copydoc Ego::Renderer::multMatrix */
 			void multiplyMatrix(const fmat_4x4_t& matrix);
 
