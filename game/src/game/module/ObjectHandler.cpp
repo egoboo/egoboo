@@ -168,6 +168,13 @@ void ObjectHandler::unlock()
     //No remaining locks?
     if(_semaphore == 0)
     {
+        //Add any allocated objects to the containers (do first, in case they get removed again)
+        for(const std::shared_ptr<chr_t> &object : _allocateList)
+        {
+            _characterList.push_back(object);
+        }
+        _allocateList.clear();
+
         // go through and delete any characters that were
         // supposed to be deleted while the list was iterating
         for(const CHR_REF ichr : _terminationList)
@@ -181,13 +188,6 @@ void ObjectHandler::unlock()
             );
         }
         _terminationList.clear();
-
-        //Add any allocated objects to the containers
-        for(const std::shared_ptr<chr_t> &object : _allocateList)
-        {
-            _characterList.push_back(object);
-        }
-        _allocateList.clear();
     }
 }
 
