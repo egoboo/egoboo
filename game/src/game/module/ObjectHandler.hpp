@@ -36,7 +36,7 @@ class chr_t;
 #define INGAME_PCHR(PCHR)           ( nullptr != (PCHR) && !PCHR->terminateRequested )
 
 /**
-* @brief A completely thread safe container for accessing instances of in-game objects
+* @brief A completely recursive loop safe container for accessing instances of in-game objects
 **/
 class ObjectHandler
 {
@@ -56,12 +56,12 @@ public:
 			return _handler->_characterList.cend();
 		}
 
-		inline std::vector<std::shared_ptr<chr_t>>::const_iterator begin()
+		inline std::vector<std::shared_ptr<chr_t>>::iterator begin()
 		{
 			return _handler->_characterList.begin();
 		}
 
-		inline std::vector<std::shared_ptr<chr_t>>::const_iterator end()
+		inline std::vector<std::shared_ptr<chr_t>>::iterator end()
 		{
 			return _handler->_characterList.end();
 		}	
@@ -153,8 +153,7 @@ private:
 	std::vector<CHR_REF> _terminationList;									///< List of all objects that should be terminated
 	std::vector<std::shared_ptr<chr_t>> _allocateList;						///< List of all objects that should be added
 
-	mutable std::recursive_mutex _modificationLock;
-	std::atomic_size_t _semaphore;
+	size_t _semaphore;
 
 	CHR_REF _totalCharactersSpawned;										///< Total count of characters spawned (includes removed)
 

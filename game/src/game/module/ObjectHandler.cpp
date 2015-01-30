@@ -9,8 +9,6 @@ ObjectHandler::ObjectHandler() :
     _characterList(),
 	_terminationList(),
     _allocateList(),
-    _modificationLock(),
-    _semaphore(0),
     _totalCharactersSpawned(0)
 {
 	//ctor
@@ -57,8 +55,6 @@ bool ObjectHandler::exists(const CHR_REF character) const
 
 std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
 {
-    std::lock_guard<std::recursive_mutex> lock(_modificationLock);
-
 	//Make sure the profile is valid
     if(!_profileSystem.isValidProfileID(profile))
     {
@@ -116,7 +112,10 @@ std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_RE
 
 chr_t* ObjectHandler::get(const PRO_REF index) const
 {
-    std::lock_guard<std::recursive_mutex> lock(_modificationLock);
+    if(index == INVALID_CHR_REF) {
+        return nullptr;
+    }
+
     const auto &result = _characterMap.find(index);
 
     if(result == _characterMap.end())
@@ -129,7 +128,10 @@ chr_t* ObjectHandler::get(const PRO_REF index) const
 
 const std::shared_ptr<chr_t>& ObjectHandler::operator[] (const PRO_REF index)
 {
-    std::lock_guard<std::recursive_mutex> lock(_modificationLock);
+    if(index == INVALID_CHR_REF) {
+        return NULL_OBJ;
+    }
+
     const auto &result = _characterMap.find(index);
 
     if(result == _characterMap.end())
@@ -142,7 +144,6 @@ const std::shared_ptr<chr_t>& ObjectHandler::operator[] (const PRO_REF index)
 
 void ObjectHandler::clear()
 {
-    std::lock_guard<std::recursive_mutex> lock(_modificationLock);
 	_characterMap.clear();
 	_characterList.clear();
     _terminationList.clear();
@@ -151,14 +152,11 @@ void ObjectHandler::clear()
 
 void ObjectHandler::lock()
 {
-     std::lock_guard<std::recursive_mutex> lock(_modificationLock);
     _semaphore++;
 }
 
 void ObjectHandler::unlock()
 {
-    std::lock_guard<std::recursive_mutex> lock(_modificationLock);
-
     if(_semaphore == 0) 
     {
         throw new std::logic_error("ObjectHandler calling unlock() without lock()");
