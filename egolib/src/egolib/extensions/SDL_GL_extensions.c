@@ -258,7 +258,6 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     int srf_w, srf_h, tx_w, tx_h;
     SDL_Surface *screen,
 		        *local_surface;
-    SDL_PixelFormat *pformat;
     SDL_PixelFormat tmpformat;
     bool use_alpha;
     GLenum target;
@@ -290,7 +289,6 @@ GLuint SDL_GL_convert_surface( GLenum binding, SDL_Surface * surface, GLint wrap
     tx_w = powerOfTwo( local_surface->w );
 
     screen  = SDL_GetVideoSurface();
-    pformat = screen->format;
     memcpy( &tmpformat, screen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
 
     //if( ogl_caps.alpha_bits > 0 )

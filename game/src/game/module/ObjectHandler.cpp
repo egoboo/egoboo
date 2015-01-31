@@ -2,7 +2,7 @@
 #include "game/char.h"
 #include "game/profiles/ProfileSystem.hpp"
 
-const static std::shared_ptr<chr_t> NULL_OBJ = nullptr;
+const static std::shared_ptr<GameObject> NULL_OBJ = nullptr;
 
 ObjectHandler::ObjectHandler() :
 	_internalCharacterList(),
@@ -51,7 +51,7 @@ bool ObjectHandler::exists(const CHR_REF character) const
 }
 
 
-std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
+std::shared_ptr<GameObject> ObjectHandler::insert(const PRO_REF profile, const CHR_REF override)
 {
 	// Make sure the profile is valid.
     if(!_profileSystem.isValidProfileID(profile))
@@ -101,7 +101,7 @@ std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_RE
 
     if (ichr != INVALID_CHR_REF)
     {
-        const std::shared_ptr<chr_t> object = std::make_shared<chr_t>(profile, ichr);
+        const std::shared_ptr<GameObject> object = std::make_shared<GameObject>(profile, ichr);
 
         if(!object)
 		{
@@ -126,19 +126,17 @@ std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_RE
     return nullptr;
 }
 
-chr_t* ObjectHandler::get(const CHR_REF index) const
+GameObject* ObjectHandler::get(const CHR_REF index) const
 {
     if(index == INVALID_CHR_REF || index >= _internalCharacterList.size())
 	{
         return nullptr;
     }
 
-    const std::shared_ptr<chr_t> &result = _internalCharacterList[index];
-
-    return (result == nullptr) ? nullptr : result.get();
+    return _internalCharacterList[index].get();
 }
 
-const std::shared_ptr<chr_t>& ObjectHandler::operator[] (const CHR_REF index)
+const std::shared_ptr<GameObject>& ObjectHandler::operator[] (const CHR_REF index)
 {
     if(index == INVALID_CHR_REF || index >= _internalCharacterList.size())
     {
@@ -205,8 +203,9 @@ void ObjectHandler::maybeRunDeferred()
 	// Add any allocated objects to the containers (do first, in case they get removed again).
     if(!_allocateList.empty())
     {
-        for (const std::shared_ptr<chr_t> &object : _allocateList)
+        for (const std::shared_ptr<GameObject> &object : _allocateList)
         {
+            assert(object != nullptr);
             _iteratorList.push_back(object);
         }
         _allocateList.clear();        
@@ -218,7 +217,7 @@ void ObjectHandler::maybeRunDeferred()
     {
         _iteratorList.erase(
             std::remove_if(_iteratorList.begin(), _iteratorList.end(),
-                [this](const std::shared_ptr<chr_t> &element)
+                [this](const std::shared_ptr<GameObject> &element)
                 {
                     if (element->bsp_leaf.isInList()) return false;
 

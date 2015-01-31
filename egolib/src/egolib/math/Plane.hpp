@@ -42,20 +42,18 @@ bool plane_base_normalize(plane_base_t *self);
  */
 struct plane_t
 {
-private:
-	/**
-	 * @brief
-	 *	The plane normal.
-	 * @invariant
-	 *	The plane normal is a unit vector.
-	 */
-	fvec3_t _n;
-	/**
-	 * @brief
-	 *	The distance of the plane from the origin.
-	 */
-	float _d;
 public:
+
+	/**
+	 * @brief
+	 *	Default constructor
+	 */
+	plane_t() :
+		_n(0.0f, 0.0f, 0.0f),
+		_d(0.0f)
+	{
+		//ctor
+	}
 
 	/**
 	 * @brief
@@ -93,7 +91,7 @@ public:
 	 *	\f]
 	 *	shows that \f$b\f$ is on the plane. The proof for \f$c\f$ is left to the reader.
 	 */
-	plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c)
+	plane_t(const fvec3_t& a, const fvec3_t& b, const fvec3_t& c) : plane_t()
 	{
 		fvec3_t u = b - a;
 		if (u == fvec3_t::zero)
@@ -134,9 +132,10 @@ public:
 	 *	\Rightarrow 0 = 0
 	 *	\f]
 	 */
-	plane_t(const fvec3_t& p, const fvec3_t& n)
+	plane_t(const fvec3_t& p, const fvec3_t& n) :
+		_n(n),
+		_d(0.0f)
 	{
-		_n = n;
 		if (_n.normalize() == 0.0f)
 		{
 			throw std::domain_error("normal vector is zero vector");
@@ -157,4 +156,18 @@ public:
 		_d(other._d)
 	{
 	}
+
+private:
+	/**
+	 * @brief
+	 *	The plane normal.
+	 * @invariant
+	 *	The plane normal is a unit vector.
+	 */
+	fvec3_t _n;
+	/**
+	 * @brief
+	 *	The distance of the plane from the origin.
+	 */
+	float _d;
 };

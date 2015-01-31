@@ -21,7 +21,7 @@ OBJECTS :=  $(C_OBJ)
 OBJECTS +=  $(CXX_OBJ)
 
 #Binary file
-BIN = ./data/egoboo.exe
+BIN = ../data/egoboo.exe
 
 #---------------------
 #Includes
@@ -36,8 +36,8 @@ SDLCONF_C := $(shell sdl-config --cflags)
 
 #---------------------
 # the compiler options
-CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_DEBUG -Wall -fno-builtin -Wfatal-errors -static-libstdc++
-#-Wextra -Weffc++
+CXXFLAGS  := $(INCLUDES) $(SDLCONF_C) -std=c++11 -O0 -D_NDEBUG -Wall -fno-builtin -Wfatal-errors -static-libstdc++
+#-Wextra -Weffc++ -pg
 
 #hush some warnings we dont care about
 CXXFLAGS += -Wno-format -Wno-sign-compare -Wno-unused-but-set-variable -Wno-unused-function -Wno-unused-variable

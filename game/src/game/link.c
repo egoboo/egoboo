@@ -176,11 +176,11 @@ bool link_pop_module()
         // restore the heroes' positions before jumping out of the module
         for ( i = 0; i < pentry->hero_count; i++ )
         {
-            std::shared_ptr<chr_t> pchr;
+            std::shared_ptr<GameObject> pchr;
             hero_spawn_data_t * phero = pentry->hero + i;
 
             pchr = NULL;
-            for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
+            for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
             {
                 if(object->terminateRequested) {
                     continue;
@@ -196,7 +196,7 @@ bool link_pop_module()
             // is the character is found, restore the old position
             if ( nullptr != pchr )
             {
-                chr_set_pos(pchr.get(), phero->pos);
+                pchr->setPosition(phero->pos);
                 pchr->pos_old  = phero->pos;
                 pchr->pos_stt  = phero->pos_stt;
 
@@ -229,7 +229,7 @@ bool link_push_module()
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
         CHR_REF ichr;
-        chr_t * pchr;
+        GameObject * pchr;
 
         hero_spawn_data_t * phero;
 

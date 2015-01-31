@@ -242,7 +242,8 @@ SDL_bool IMG_test_alpha( SDL_Surface * psurf )
     Uint8  r, g, b, a;
 
     // the info necessary to scan the image
-    int bypp, bpp, bit_mask;
+    //int bit_mask;
+    int bypp;
     int w, h;
     int pitch;
 
@@ -273,8 +274,7 @@ SDL_bool IMG_test_alpha( SDL_Surface * psurf )
     }
 
     // grab the info for scanning the surface
-    bpp  = pformat->BitsPerPixel;
-    bit_mask = pformat->Rmask | pformat->Gmask | pformat->Bmask | pformat->Amask;
+    //bit_mask = pformat->Rmask | pformat->Gmask | pformat->Bmask | pformat->Amask;
     bypp = pformat->BytesPerPixel;
     w = psurf->w;
     h = psurf->h;
@@ -329,7 +329,7 @@ SDL_bool IMG_test_alpha_key( SDL_Surface * psurf, Uint32 key )
     Uint8  r, g, b, a;
 
     // the info necessary to scan the image
-    int bypp, bpp, bit_mask;
+    int bypp, bit_mask;
     int w, h;
     int pitch;
 
@@ -338,9 +338,6 @@ SDL_bool IMG_test_alpha_key( SDL_Surface * psurf, Uint32 key )
     const char * row_ptr;
     const char * char_ptr;
     Uint32     * ui32_ptr;
-
-    // flags
-    bool check_index = SDL_FALSE;
 
     if ( NULL == psurf ) return SDL_FALSE;
 
@@ -353,19 +350,11 @@ SDL_bool IMG_test_alpha_key( SDL_Surface * psurf, Uint32 key )
         return IMG_test_alpha( psurf );
     }
 
-    // if it is a colormapped image, there is one more test
-    check_index = SDL_FALSE;
-    if ( NULL != pformat->palette )
-    {
-        check_index = SDL_TRUE;
-    }
-
     // if the surface is tagged as having an alpha value,
     // it is partially transparent
     if ( 0xff != pformat->alpha ) return SDL_TRUE;
 
     // grab the info for scanning the surface
-    bpp  = pformat->BitsPerPixel;
     bit_mask = pformat->Rmask | pformat->Gmask | pformat->Bmask | pformat->Amask;
     bypp = pformat->BytesPerPixel;
     w = psurf->w;

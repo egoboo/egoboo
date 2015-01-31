@@ -1066,7 +1066,7 @@ bool ObjectProfile::isSlotValid(slot_t slot) const
 }
 
 
-bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const chr_t *character)
+bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const GameObject *character)
 {
     if (nullptr == (character)) {
         return false;

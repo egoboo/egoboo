@@ -624,7 +624,7 @@ void draw_one_attachment_point( chr_instance_t * pinst, mad_t * pmad, int vrt_of
 void prt_draw_attached_point( prt_bundle_t * pbdl_prt )
 {
     mad_t * pholder_mad;
-    chr_t * pholder;
+    GameObject * pholder;
 
     prt_t * loc_pprt;
 

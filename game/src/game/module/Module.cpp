@@ -116,7 +116,7 @@ void GameModule::checkPassageMusic()
         //dont do items in hands or inventory
         if ( IS_ATTACHED_CHR( character ) ) continue;
 
-        chr_t * pchr = _gameObjects.get( character );
+        GameObject * pchr = _gameObjects.get( character );
         if ( !pchr->alive || !VALID_PLA( pchr->is_which_player ) ) continue;
 
         //Loop through every passage

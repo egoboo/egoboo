@@ -542,7 +542,7 @@ public:
     /**
     * @brief Writes the contents of this character instance to a profile data.txt file
     **/
-    static bool exportCharacterToFile(const std::string &filePath, const chr_t *character);
+    static bool exportCharacterToFile(const std::string &filePath, const GameObject *character);
 
     //ZF> TODO: these should not be public
     size_t requestCount;                       ///< the number of attempted spawns

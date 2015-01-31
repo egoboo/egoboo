@@ -236,7 +236,7 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
             child = spawn_one_character(prt_get_pos_v_const(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF );
             if ( _gameObjects.exists( child ) )
             {
-                chr_t * pchild = _gameObjects.get( child );
+                GameObject * pchild = _gameObjects.get( child );
 
                 chr_set_ai_state( pchild , pprt->endspawn_characterstate );
                 pchild->ai.owner = pprt->owner_ref;
@@ -383,13 +383,13 @@ prt_t * prt_config_do_init( prt_t * pprt )
                     // These aren't velocities...  This is to do aiming on the Z axis
                     if ( velocity > 0 )
                     {
-                        vel.x = _gameObjects.get(pprt->target_ref)->pos.x - pdata->pos.x;
-                        vel.y = _gameObjects.get(pprt->target_ref)->pos.y - pdata->pos.y;
+                        vel.x = _gameObjects.get(pprt->target_ref)->getPosX() - pdata->pos.x;
+                        vel.y = _gameObjects.get(pprt->target_ref)->getPosY() - pdata->pos.y;
                         tvel = std::sqrt( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
                         if ( tvel > 0.0f )
                         {
                             // This is the vel.z alteration
-                            vel.z = ( _gameObjects.get(pprt->target_ref)->pos.z + ( _gameObjects.get(pprt->target_ref)->bump.height * 0.5f ) - tmp_pos.z ) / tvel;
+                            vel.z = ( _gameObjects.get(pprt->target_ref)->getPosZ() + ( _gameObjects.get(pprt->target_ref)->bump.height * 0.5f ) - tmp_pos.z ) / tvel;
                         }
                     }
                 }
@@ -412,8 +412,8 @@ prt_t * prt_config_do_init( prt_t * pprt )
         // Start on top of target
         if ( _gameObjects.exists( pprt->target_ref ) && ppip->startontarget )
         {
-            tmp_pos.x = _gameObjects.get(pprt->target_ref)->pos.x;
-            tmp_pos.y = _gameObjects.get(pprt->target_ref)->pos.y;
+            tmp_pos.x = _gameObjects.get(pprt->target_ref)->getPosX();
+            tmp_pos.y = _gameObjects.get(pprt->target_ref)->getPosY();
         }
     }
     else
@@ -1348,7 +1348,7 @@ prt_bundle_t * move_one_particle_get_environment( prt_bundle_t * pbdl_prt )
     loc_level = penviro->floor_level;
     if ( _gameObjects.exists( loc_pprt->onwhichplatform_ref ) )
     {
-        loc_level = std::max( penviro->floor_level, _gameObjects.get(loc_pprt->onwhichplatform_ref)->pos.z + _gameObjects.get(loc_pprt->onwhichplatform_ref)->chr_min_cv.maxs[OCT_Z] );
+        loc_level = std::max( penviro->floor_level, _gameObjects.get(loc_pprt->onwhichplatform_ref)->getPosZ() + _gameObjects.get(loc_pprt->onwhichplatform_ref)->chr_min_cv.maxs[OCT_Z] );
     }
     prt_set_level( loc_pprt, loc_level );
 
@@ -1558,7 +1558,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
     temp_friction_xy = 1.0f;
     if ( _gameObjects.exists( loc_pprt->onwhichplatform_ref ) )
     {
-        chr_t * pplat = _gameObjects.get( loc_pprt->onwhichplatform_ref );
+        GameObject * pplat = _gameObjects.get( loc_pprt->onwhichplatform_ref );
 
         temp_friction_xy = platstick;
 
@@ -1641,7 +1641,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
 {
-    chr_t * ptarget;
+    GameObject * ptarget;
 
     prt_t             * loc_pprt;
     PRT_REF             loc_iprt;
@@ -1670,7 +1670,7 @@ prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
     // grab a pointer to the target
     ptarget = _gameObjects.get( loc_pprt->target_ref );
 
-    vdiff = ptarget->pos - prt_get_pos_v_const(loc_pprt);
+    vdiff = ptarget->getPosition() - prt_get_pos_v_const(loc_pprt);
     vdiff.z += ptarget->bump.height * 0.5f;
 
     min_length = 2 * 5 * 256 * ( _gameObjects.get(loc_pprt->owner_ref)->wisdom / ( float )PERFECTBIG );
@@ -2186,10 +2186,10 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         }
         else if ( _gameObjects.exists( loc_pprt->target_ref ) )
         {
-            chr_t * ptarget =  _gameObjects.get( loc_pprt->target_ref );
+            GameObject * ptarget =  _gameObjects.get( loc_pprt->target_ref );
 
             // face your target
-            loc_pprt->facing = vec_to_facing( ptarget->pos.x - tmp_pos.x , ptarget->pos.y - tmp_pos.y );
+            loc_pprt->facing = vec_to_facing( ptarget->getPosX() - tmp_pos.x , ptarget->getPosY() - tmp_pos.y );
         }
     }
 
@@ -2306,7 +2306,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     float    fsin, fcos;
 
     pip_t * ppip;
-    chr_t * pchr;
+    GameObject * pchr;
     mad_t * pmad;
     prt_t * pprt;
 
@@ -2394,10 +2394,10 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
 
                 // this could be done more easily with a quicksort....
                 // but I guess it doesn't happen all the time
-                dist = fvec3_dist_abs(prt_get_pos_v_const(pprt), chr_get_pos_v_const(pchr));
+                dist = fvec3_dist_abs(prt_get_pos_v_const(pprt), pchr->getPosition());
 
                 // clear the occupied list
-                z = pprt->pos.z - pchr->pos.z;
+                z = pprt->pos.z - pchr->getPosition().z;
                 facing = pprt->facing - pchr->ori.facing_z;
                 turn   = TO_TURN( facing );
                 fsin = turntosin[ turn ];
@@ -2450,7 +2450,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
                         }
                     }
 
-                    bs_part = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
+                    bs_part = spawn_one_particle( pchr->getPosition(), pchr->ori.facing_z, pprt->profile_ref, ppip->bumpspawn_lpip,
                                                   character, bestvertex + 1, pprt->team, pprt->owner_ref, particle, cnt, character );
 
                     if ( _DEFINED_PRT( bs_part ) )
@@ -2776,7 +2776,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
 
     prt_t * loc_pprt;
     pip_t * loc_ppip;
-    chr_t * loc_pchr;
+    GameObject * loc_pchr;
 
     bool skewered_by_arrow;
     bool has_vulnie;

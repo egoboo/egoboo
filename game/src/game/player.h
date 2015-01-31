@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-class chr_t;
+class GameObject;
 struct player_t;
 
 //--------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ extern Stack<player_t, MAX_PLAYER> PlaStack; ///< Stack for keeping track of pla
 
 void PlaStack_reset_all();
 CHR_REF PlaStack_get_ichr( const PLA_REF iplayer );
-chr_t *PlaStack_get_pchr( const PLA_REF iplayer );
+GameObject *PlaStack_get_pchr( const PLA_REF iplayer );
 void PlaStack_add_tlatch( const PLA_REF iplayer, Uint32 time, latch_t net_latch );
 
 //--------------------------------------------------------------------------------------------

@@ -1040,7 +1040,7 @@ bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_t& vel, const float 
 }
 
 //--------------------------------------------------------------------------------------------
-bool phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst )
+bool phys_expand_chr_bb( GameObject * pchr, float tmin, float tmax, oct_bb_t * pdst )
 {
 
 
@@ -1052,7 +1052,7 @@ bool phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst )
     oct_bb_copy( &tmp_oct1, &( pchr->chr_max_cv ) );
 
     // add in the current position to the bounding volume
-    oct_bb_add_fvec3( &( tmp_oct1 ), pchr->pos, &tmp_oct2 );
+    oct_bb_add_fvec3( &( tmp_oct1 ), pchr->getPosition(), &tmp_oct2 );
 
     // streach the bounging volume to cover the path of the object
     return phys_expand_oct_bb( &tmp_oct2, pchr->vel, tmin, tmax, pdst );
@@ -1081,7 +1081,7 @@ bool phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr )
+breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, GameObject * pchr )
 {
     if ( NULL == bc ) return bc;
 
@@ -1092,9 +1092,9 @@ breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr )
 
     bc->bits   = pchr->stoppedby;
     bc->radius = pchr->bump_1.size;
-    bc->pos.x  = ( FLOOR( pchr->pos.x / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
-    bc->pos.y  = ( FLOOR( pchr->pos.y / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
-    bc->pos.z  = pchr->pos.z;
+    bc->pos.x  = ( FLOOR( pchr->getPosX() / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
+    bc->pos.y  = ( FLOOR( pchr->getPosY() / GRID_FSIZE ) + 0.5f ) * GRID_FSIZE;
+    bc->pos.z  = pchr->getPosZ();
 
     bc->grid   = ego_mesh_get_grid( PMesh, bc->pos.x, bc->pos.y );
     bc->valid  = ( 0 == ego_mesh_test_wall( PMesh, bc->pos.v, bc->radius, bc->bits, NULL ) );

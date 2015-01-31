@@ -94,10 +94,10 @@ bool Passage::close()
     // check to see if a wall can close
     if ( 0 != HAS_SOME_BITS( _mask, MAPFX_IMPASS | MAPFX_WALL ) )
     {
-        std::vector<std::shared_ptr<chr_t>> crushedCharacters;
+        std::vector<std::shared_ptr<GameObject>> crushedCharacters;
 
         // Make sure it isn't blocked
-        for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
+        for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
         {
             if(object->terminateRequested) {
                 continue;
@@ -108,7 +108,7 @@ bool Passage::close()
 
             if ( 0.0f != object->bump_stt.size )
             {
-                if ( objectIsInPassage( object->pos.x, object->pos.y, object->bump_1.size ) )
+                if ( objectIsInPassage( object->getPosX(), object->getPosY(), object->bump_1.size ) )
                 {
                     if ( !object->canbecrushed || ( object->alive && object->openstuff ) )
                     {
@@ -124,7 +124,7 @@ bool Passage::close()
         }
 
         // Crush any unfortunate characters
-        for(const std::shared_ptr<chr_t> &chraracter : crushedCharacters) {
+        for(const std::shared_ptr<GameObject> &chraracter : crushedCharacters) {
             SET_BIT( chr_get_pai( chraracter->getCharacterID() )->alert, ALERTIF_CRUSHED );
         }
     }
@@ -162,13 +162,13 @@ CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_
 {
     // Skip if the one who is looking doesn't exist
     if ( !_gameObjects.exists( isrc ) ) return INVALID_CHR_REF;
-    chr_t *psrc = _gameObjects.get( isrc );
+    GameObject *psrc = _gameObjects.get( isrc );
 
     // Look at each character
     for ( CHR_REF character = 0; character < MAX_CHR; character++ )
     {
         if ( !_gameObjects.exists( character ) ) continue;
-        chr_t * pchr = _gameObjects.get( character );
+        GameObject * pchr = _gameObjects.get( character );
 
         // dont do scenery objects unless we allow items
         if ( !HAS_SOME_BITS( targeting_bits, TARGET_ITEMS ) && ( CHR_INFINITE_WEIGHT == pchr->phys.weight ) ) continue;
@@ -177,7 +177,7 @@ CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_
         if ( !chr_check_target( psrc, character, idsz, targeting_bits ) ) continue;
 
         //Now check if it actually is inside the passage area
-        if ( objectIsInPassage( pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
+        if ( objectIsInPassage( pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size ) )
         {
             // Found a live one, do we need to check for required items as well?
             if ( IDSZ_NONE == require_item )
@@ -257,13 +257,13 @@ bool Passage::isPointInside( float xpos, float ypos ) const
     return tmp_rect.point_inside(xpos, ypos );
 }
 
-bool Passage::checkPassageMusic(const chr_t * pchr) const
+bool Passage::checkPassageMusic(const GameObject * pchr) const
 {
     if ( _music == INVALID_SOUND_ID || _music == _audioSystem.getCurrentMusicPlaying() ) {
        return false; 
     } 
 
-    if(!objectIsInPassage(pchr->pos.x, pchr->pos.y, pchr->bump_1.size)) {
+    if(!objectIsInPassage(pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size)) {
         return false;
     }
 
@@ -301,13 +301,13 @@ void Passage::makeShop(CHR_REF owner)
     _shopOwner = owner;
 
     // flag every item in the shop as a shop item
-    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
         if (object->terminateRequested) continue;
 
         if ( object->isitem )
         {
-            if ( objectIsInPassage( object->pos.x, object->pos.y, object->bump_1.size ) )
+            if ( objectIsInPassage( object->getPosX(), object->getPosY(), object->bump_1.size ) )
             {
                 object->isshopitem = true;               // Full value
                 object->iskursed   = false;              // Shop items are never kursed

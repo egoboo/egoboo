@@ -369,7 +369,7 @@ bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y
 }
 
 //--------------------------------------------------------------------------------------------
-bool FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y, bool * used_astar_ptr )
+bool FindPath( waypoint_list_t * plst, GameObject * pchr, float dst_x, float dst_y, bool * used_astar_ptr )
 {
     // FindPath
     /// @author ZF
@@ -388,8 +388,8 @@ bool FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y, b
     }
 
     //Our current position
-    src_ix = ( int )pchr->pos.x / GRID_ISIZE;
-    src_iy = ( int )pchr->pos.y / GRID_ISIZE;
+    src_ix = ( int )pchr->getPosX() / GRID_ISIZE;
+    src_iy = ( int )pchr->getPosY() / GRID_ISIZE;
 
     //Destination position
     dst_ix = dst_x / GRID_ISIZE;
@@ -405,8 +405,8 @@ bool FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y, b
 
     //setup line of sight data for source
     los_info.stopped_by = pchr->stoppedby;
-    los_info.x0 = pchr->pos.x;
-    los_info.y0 = pchr->pos.y;
+    los_info.x0 = pchr->getPosX();
+    los_info.y0 = pchr->getPosY();
     los_info.z0 = 0;
 
     //setup line of sight to target
@@ -465,7 +465,7 @@ bool Compass( fvec2_base_t pos, int facing, float distance )
 }
 
 //--------------------------------------------------------------------------------------------
-int GetArmorPrice( chr_t * pchr, const int skin )
+int GetArmorPrice( GameObject * pchr, const int skin )
 {
     // tmpx = GetTargetArmorPrice( tmpargument = "skin" )
     /// @author ZZ
@@ -523,7 +523,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
     endtile = CLIP( endtile, (Uint32)0, (Uint32)255 );
 
     useful = false;
-    for(const std::shared_ptr<chr_t> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
     {
         float lerp_z;
 
@@ -533,12 +533,12 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
         // nothing flying
         if ( 0 != pchr->flyheight ) continue;
 
-        lerp_z = ( pchr->pos.z - pchr->enviro.floor_level ) / DAMAGERAISE;
+        lerp_z = ( pchr->getPosZ() - pchr->enviro.floor_level ) / DAMAGERAISE;
         lerp_z = 1.0f - CLIP( lerp_z, 0.0f, 1.0f );
 
         if ( pchr->phys.weight * lerp_z <= 20 ) continue;
 
-        fan = ego_mesh_get_grid( PMesh, pchr->pos.x, pchr->pos.y );
+        fan = ego_mesh_get_grid( PMesh, pchr->getPosX(), pchr->getPosY() );
 
         ptile = ego_mesh_get_ptile( PMesh, fan );
         if ( NULL != ptile )
@@ -548,11 +548,11 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
             if ( img >= loc_starttile && img < endtile )
             {
-                if ( passage->objectIsInPassage( pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
+                if ( passage->objectIsInPassage( pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size ) )
                 {
                     // Remember where the hit occured.
-                    *ptilex = pchr->pos.x;
-                    *ptiley = pchr->pos.y;
+                    *ptilex = pchr->getPosX();
+                    *ptiley = pchr->getPosY();
 
                     useful = true;
 
@@ -582,7 +582,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pstate )
+Uint8 AddEndMessage( GameObject * pchr, const int message_index, script_state_t * pstate )
 {
     /// @author ZZ
     /// @details This function appends a message to the end-module text
@@ -706,7 +706,7 @@ Uint8 _display_message( const CHR_REF ichr, const PRO_REF iprofile, const int me
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight )
+CHR_REF FindWeapon( GameObject * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight )
 {
     /// @author ZF
     /// @details This function searches the nearby vincinity for a melee weapon the character can use
@@ -731,12 +731,12 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_
     best_dist   = SQR( max_distance );
 
     //setup line of sight data
-    los.x0 = pchr->pos.x;
-    los.y0 = pchr->pos.y;
-    los.z0 = pchr->pos.z;
+    los.x0 = pchr->getPosX();
+    los.y0 = pchr->getPosY();
+    los.z0 = pchr->getPosZ();
     los.stopped_by = pchr->stoppedby;
 
-    for(const std::shared_ptr<chr_t> &pweapon : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &pweapon : _gameObjects.iterator())
     {
         float dist;
         fvec3_t diff;
@@ -761,14 +761,14 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_
         }
 
         //check distance
-		diff = pchr->pos - pweapon->pos;
+		diff = pchr->getPosition() - pweapon->getPosition();
         dist = diff.length_2();
         if ( dist < best_dist )
         {
             //finally, check line of sight. we only care for weapons we can see
-            los.x1 = pweapon->pos.x;
-            los.y1 = pweapon->pos.y;
-            los.z1 = pweapon->pos.z;
+            los.x1 = pweapon->getPosX();
+            los.y1 = pweapon->getPosY();
+            los.z1 = pweapon->getPosZ();
 
             if ( !use_line_of_sight || !line_of_sight_blocked( &los ) )
             {
@@ -790,7 +790,7 @@ CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_
 }
 
 //--------------------------------------------------------------------------------------------
-bool FlashObject( chr_t * pchr, Uint8 value )
+bool FlashObject( GameObject * pchr, Uint8 value )
 {
     /// @author ZZ
     /// @details This function sets a character's lighting

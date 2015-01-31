@@ -356,7 +356,7 @@ static gfx_rv gfx_capture_mesh_tile( ego_tile_info_t * ptile );
 
 static void gfx_reload_decimated_textures();
 
-static gfx_rv update_one_chr_instance( chr_t * pchr );
+static gfx_rv update_one_chr_instance( GameObject * pchr );
 static gfx_rv gfx_update_all_chr_instance();
 static gfx_rv gfx_update_flashing( dolist_t * pdolist );
 
@@ -898,7 +898,7 @@ gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
         }
         else if (INVALID_PRT_REF == element->iprt && VALID_CHR_RANGE(element->ichr))
         {
-            chr_t *character = _gameObjects.get(element->ichr);
+            GameObject *character = _gameObjects.get(element->ichr);
             if (nullptr != character) character->inst.indolist = false;
         }
     }
@@ -911,7 +911,7 @@ gfx_rv dolist_t::reset(dolist_t *self, const size_t index)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::test_chr(dolist_t *self, const chr_t *pchr)
+gfx_rv dolist_t::test_chr(dolist_t *self, const GameObject *pchr)
 {
     if (nullptr == self)
     {
@@ -932,7 +932,7 @@ gfx_rv dolist_t::test_chr(dolist_t *self, const chr_t *pchr)
 }
 
 //--------------------------------------------------------------------------------------------
-gfx_rv dolist_t::add_chr_raw(dolist_t *self, chr_t *pchr)
+gfx_rv dolist_t::add_chr_raw(dolist_t *self, GameObject *pchr)
 {
     /// @author ZZ
     /// @details This function puts a character in the list
@@ -1074,7 +1074,7 @@ gfx_rv dolist_t::add_colst( dolist_t * pdlist, const Ego::DynamicArray<BSP_leaf_
         if ( BSP_LEAF_CHR == pleaf->data_type )
         {
             CHR_REF ichr;
-            chr_t * pchr;
+            GameObject * pchr;
 
             // collided with a character
             ichr = ( CHR_REF )( pleaf->index );
@@ -2481,7 +2481,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
 
     TX_REF icon_ref;
 
-    chr_t * pitem = !_gameObjects.exists( item ) ? NULL : _gameObjects.get( item );
+    GameObject * pitem = !_gameObjects.exists( item ) ? NULL : _gameObjects.get( item );
 
     // grab the icon reference
     icon_ref = chr_get_txtexture_icon_ref( item );
@@ -2507,7 +2507,7 @@ void draw_one_character_icon( const CHR_REF item, float x, float y, bool draw_am
 //--------------------------------------------------------------------------------------------
 float draw_character_xp_bar( const CHR_REF character, float x, float y )
 {
-    chr_t * pchr;
+    GameObject * pchr;
 
     if ( !_gameObjects.exists( character ) ) return y;
     pchr = _gameObjects.get( character );
@@ -2546,7 +2546,7 @@ float draw_status( const CHR_REF character, float x, float y )
     int life_pips, life_pips_max;
     int mana_pips, mana_pips_max;
 
-    chr_t * pchr;
+    GameObject * pchr;
 
     if ( !_gameObjects.exists( character ) ) return y;
     pchr = _gameObjects.get( character );
@@ -2655,7 +2655,7 @@ void draw_map()
 
             for ( ichr = 0; ichr < MAX_CHR && blip_count < MAXBLIP; ichr++ )
             {
-                chr_t * pchr;
+                GameObject * pchr;
 
                 if ( !_gameObjects.exists( ichr ) ) continue;
                 pchr = _gameObjects.get( ichr );
@@ -2671,11 +2671,11 @@ void draw_map()
                          local_stats.sense_enemies_idsz == profile->getIDSZ(IDSZ_TYPE  ) )
                     {
                         // Inside the map?
-                        if ( pchr->pos.x < PMesh->gmem.edge_x && pchr->pos.y < PMesh->gmem.edge_y )
+                        if ( pchr->getPosX() < PMesh->gmem.edge_x && pchr->getPosY() < PMesh->gmem.edge_y )
                         {
                             // Valid colors only
-                            blip_x[blip_count] = pchr->pos.x;
-                            blip_y[blip_count] = pchr->pos.y;
+                            blip_x[blip_count] = pchr->getPosX();
+                            blip_y[blip_count] = pchr->getPosY();
                             blip_c[blip_count] = COLOR_RED; // Red blips
                             blip_count++;
                         }
@@ -2709,7 +2709,7 @@ void draw_map()
                 ichr = PlaStack.lst[iplayer].index;
                 if ( _gameObjects.exists( ichr ) && _gameObjects.get(ichr)->alive )
                 {
-                    draw_blip( 0.75f, COLOR_WHITE, _gameObjects.get(ichr)->pos.x, _gameObjects.get(ichr)->pos.y, true );
+                    draw_blip( 0.75f, COLOR_WHITE, _gameObjects.get(ichr)->getPosX(), _gameObjects.get(ichr)->getPosY(), true );
                 }
             }
         }
@@ -2870,11 +2870,11 @@ float draw_debug( float y )
                              _gameObjects.get(ichr)->damage_resistance[DAMAGE_ZAP  ] );
 
         ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", _gameObjects.get(ichr)->pos.x / GRID_FSIZE, _gameObjects.get(ichr)->pos.y / GRID_FSIZE );
+        y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", _gameObjects.get(ichr)->getPosX() / GRID_FSIZE, _gameObjects.get(ichr)->getPosY() / GRID_FSIZE );
 
         ipla = ( PLA_REF )1;
         ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", _gameObjects.get(ichr)->pos.x / GRID_FSIZE, _gameObjects.get(ichr)->pos.y / GRID_FSIZE );
+        y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", _gameObjects.get(ichr)->getPosY() / GRID_FSIZE, _gameObjects.get(ichr)->getPosY() / GRID_FSIZE );
     }
 
     if ( SDL_KEYDOWN( keyb, SDLK_F6 ) )
@@ -3007,7 +3007,7 @@ void draw_inventory()
     GLXvector4f background_color = { 0.66f, 0.0f, 0.0f, 0.95f };
 
     CHR_REF ichr;
-    chr_t *pchr;
+    GameObject *pchr;
 
     PLA_REF draw_list[MAX_LOCAL_PLAYERS];
     size_t cnt, draw_list_length = 0;
@@ -3213,7 +3213,7 @@ void render_shadow( const CHR_REF character )
     float   level;
     float   height, size_umbra, size_penumbra;
     float   alpha, alpha_umbra, alpha_penumbra;
-    chr_t * pchr;
+    GameObject * pchr;
     ego_tile_info_t * ptile;
 
     if ( IS_ATTACHED_CHR( character ) ) return;
@@ -3347,7 +3347,7 @@ void render_bad_shadow( const CHR_REF character )
     int     itex_style;
     float   size, x, y;
     float   level, height, height_factor, alpha;
-    chr_t * pchr;
+    GameObject * pchr;
     ego_tile_info_t * ptile;
 
     if ( IS_ATTACHED_CHR( character ) ) return;
@@ -6476,7 +6476,7 @@ gfx_rv gfx_update_flashing( dolist_t * pdolist )
     {
         float tmp_seekurse_level;
 
-        chr_t          * pchr;
+        GameObject          * pchr;
         chr_instance_t * pinst;
 
         CHR_REF ichr = pdolist->lst[i].ichr;
@@ -6527,7 +6527,7 @@ gfx_rv gfx_update_all_chr_instance()
     // assume the best
     retval = gfx_success;
 
-    for(const std::shared_ptr<chr_t> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
     {
         //Dont do terminated characters
         if(pchr->terminateRequested) {
@@ -6764,7 +6764,7 @@ void gfx_reload_decimated_textures()
 //--------------------------------------------------------------------------------------------
 // chr_instance_t FUNCTIONS
 //--------------------------------------------------------------------------------------------
-gfx_rv update_one_chr_instance( chr_t * pchr )
+gfx_rv update_one_chr_instance( GameObject * pchr )
 {
     chr_instance_t * pinst;
     gfx_rv retval;

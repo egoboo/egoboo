@@ -125,7 +125,7 @@ void scr_run_chr_script( const CHR_REF character )
     /// @details This function lets one character do AI stuff
 
     script_state_t   my_state;
-    chr_t          * pchr;
+    GameObject          * pchr;
     ai_state_t     * pself;
     script_info_t    * pscript;
 
@@ -210,7 +210,7 @@ void scr_run_chr_script( const CHR_REF character )
     // Reset the target if it can't be seen
     if ( pself->target != pself->index )
     {
-        chr_t * ptarget = _gameObjects.get( pself->target );
+        GameObject * ptarget = _gameObjects.get( pself->target );
 
         if ( !chr_can_see_object( pchr, ptarget ) )
         {
@@ -267,8 +267,8 @@ void scr_run_chr_script( const CHR_REF character )
         else if ( pself->wp_valid )
         {
             // Normal AI
-            pchr->latch.x = ( pself->wp[kX] - pchr->pos.x ) / ( GRID_ISIZE << 1 );
-            pchr->latch.y = ( pself->wp[kY] - pchr->pos.y ) / ( GRID_ISIZE << 1 );
+            pchr->latch.x = ( pself->wp[kX] - pchr->getPosX() ) / ( GRID_ISIZE << 1 );
+            pchr->latch.y = ( pself->wp[kY] - pchr->getPosY() ) / ( GRID_ISIZE << 1 );
         }
         else
         {
@@ -889,7 +889,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
     Uint32 iTmp;
 
-    chr_t * pchr = NULL, * ptarget = NULL, * powner = NULL;
+    GameObject * pchr = NULL, * ptarget = NULL, * powner = NULL;
 
     if ( !_gameObjects.exists( pself->index ) ) return;
     pchr = _gameObjects.get( pself->index );
@@ -953,12 +953,12 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSELFX:
                 varname = "SELFX";
-                iTmp = pchr->pos.x;
+                iTmp = pchr->getPosX();
                 break;
 
             case VARSELFY:
                 varname = "SELFY";
-                iTmp = pchr->pos.y;
+                iTmp = pchr->getPosY();
                 break;
 
             case VARSELFTURN:
@@ -988,50 +988,50 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARTARGETX:
                 varname = "TARGETX";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->pos.x;
+                iTmp = ( nullptr == ptarget ) ? 0 : ptarget->getPosX();
                 break;
 
             case VARTARGETY:
                 varname = "TARGETY";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->pos.y;
+                iTmp = ( nullptr == ptarget ) ? 0 : ptarget->getPosY();
                 break;
 
             case VARTARGETDISTANCE:
                 varname = "TARGETDISTANCE";
-                if ( NULL == ptarget )
+                if ( nullptr == ptarget )
                 {
                     iTmp = 0x7FFFFFFF;
                 }
                 else
                 {
-                    iTmp = ABS( ptarget->pos.x - pchr->pos.x ) + ABS( ptarget->pos.y - pchr->pos.y );
+                    iTmp = ABS( ptarget->getPosX() - pchr->getPosX() ) + ABS( ptarget->getPosY() - pchr->getPosY() );
                 }
                 break;
 
             case VARTARGETTURN:
                 varname = "TARGETTURN";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->ori.facing_z;
+                iTmp = ( nullptr == ptarget ) ? 0 : ptarget->ori.facing_z;
                 break;
 
             case VARLEADERX:
                 varname = "LEADERX";
-                iTmp = pchr->pos.x;
+                iTmp = pchr->getPosX();
                 if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
-                    iTmp = team_get_pleader( pchr->team )->pos.x;
+                    iTmp = team_get_pleader( pchr->team )->getPosX();
 
                 break;
 
             case VARLEADERY:
                 varname = "LEADERY";
-                iTmp = pchr->pos.y;
+                iTmp = pchr->getPosY();
                 if ( TeamStack.lst[pchr->team].leader != TEAM_NOLEADER )
-                    iTmp = team_get_pleader( pchr->team )->pos.y;
+                    iTmp = team_get_pleader( pchr->team )->getPosY();
 
                 break;
 
             case VARLEADERDISTANCE:
                 {
-                    chr_t * pleader;
+                    GameObject * pleader;
                     varname = "LEADERDISTANCE";
 
                     pleader = team_get_pleader( pchr->team );
@@ -1042,7 +1042,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                     }
                     else
                     {
-                        iTmp = ABS( pleader->pos.x - pchr->pos.x ) + ABS( pleader->pos.y - pchr->pos.y );
+                        iTmp = ABS( pleader->getPosX() - pchr->getPosX() ) + ABS( pleader->getPosY() - pchr->getPosY() );
                     }
                 }
                 break;
@@ -1062,7 +1062,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
                 if ( !pself->wp_valid )
                 {
-                    iTmp = pchr->pos.x;
+                    iTmp = pchr->getPosX();
                 }
                 else
                 {
@@ -1077,7 +1077,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
                 if ( !pself->wp_valid )
                 {
-                    iTmp = pchr->pos.y;
+                    iTmp = pchr->getPosY();
                 }
                 else
                 {
@@ -1096,8 +1096,8 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 }
                 else
                 {
-                    iTmp = ABS( pself->wp[kX] - pchr->pos.x ) +
-                           ABS( pself->wp[kY] - pchr->pos.y );
+                    iTmp = ABS( pself->wp[kX] - pchr->getPosX() ) +
+                           ABS( pself->wp[kY] - pchr->getPosY() );
                 }
                 break;
 
@@ -1109,7 +1109,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 }
                 else
                 {
-                    iTmp = vec_to_facing( ptarget->pos.x - pchr->pos.x , ptarget->pos.y - pchr->pos.y );
+                    iTmp = vec_to_facing( ptarget->getPosX() - pchr->getPosX() , ptarget->getPosY() - pchr->getPosY() );
                     iTmp = CLIP_TO_16BITS( iTmp );
                 }
                 break;
@@ -1126,7 +1126,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSELFALTITUDE:
                 varname = "SELFALTITUDE";
-                iTmp = pchr->pos.z - pchr->enviro.floor_level;
+                iTmp = pchr->getPosZ() - pchr->enviro.floor_level;
                 break;
 
             case VARSELFID:
@@ -1280,17 +1280,17 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSELFZ:
                 varname = "SELFZ";
-                iTmp = pchr->pos.z;
+                iTmp = pchr->getPosZ();
                 break;
 
             case VARTARGETALTITUDE:
                 varname = "TARGETALTITUDE";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->pos.z - ptarget->enviro.floor_level;
+                iTmp = ( NULL == ptarget ) ? 0 : ptarget->getPosZ() - ptarget->enviro.floor_level;
                 break;
 
             case VARTARGETZ:
                 varname = "TARGETZ";
-                iTmp = ( NULL == ptarget ) ? 0 : ptarget->pos.z;
+                iTmp = ( NULL == ptarget ) ? 0 : ptarget->getPosZ();
                 break;
 
             case VARSELFINDEX:
@@ -1300,12 +1300,12 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VAROWNERX:
                 varname = "OWNERX";
-                iTmp = ( NULL == powner ) ? 0 : powner->pos.x;
+                iTmp = ( NULL == powner ) ? 0 : powner->getPosX();
                 break;
 
             case VAROWNERY:
                 varname = "OWNERY";
-                iTmp = ( NULL == powner ) ? 0 : powner->pos.y;
+                iTmp = ( NULL == powner ) ? 0 : powner->getPosY();
                 break;
 
             case VAROWNERTURN:
@@ -1321,7 +1321,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 }
                 else
                 {
-                    iTmp = ABS( powner->pos.x - pchr->pos.x ) + ABS( powner->pos.y - pchr->pos.y );
+                    iTmp = ABS( powner->getPosX() - pchr->getPosX() ) + ABS( powner->getPosY() - pchr->getPosY() );
                 }
                 break;
 
@@ -1333,14 +1333,14 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 }
                 else
                 {
-                    iTmp = vec_to_facing( powner->pos.x - pchr->pos.x , powner->pos.y - pchr->pos.y );
+                    iTmp = vec_to_facing( powner->getPosX() - pchr->getPosX() , powner->getPosY() - pchr->getPosY() );
                     iTmp = CLIP_TO_16BITS( iTmp );
                 }
                 break;
 
             case VARXYTURNTO:
                 varname = "XYTURNTO";
-                iTmp = vec_to_facing( pstate->x - pchr->pos.x , pstate->y - pchr->pos.y );
+                iTmp = vec_to_facing( pstate->x - pchr->getPosX() , pstate->y - pchr->getPosY() );
                 iTmp = CLIP_TO_16BITS( iTmp );
                 break;
 
@@ -1382,7 +1382,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
                 }
                 else
                 {
-                    iTmp = vec_to_facing( ptarget->pos.x - pchr->pos.x , ptarget->pos.y - pchr->pos.y );
+                    iTmp = vec_to_facing( ptarget->getPosX() - pchr->getPosX() , ptarget->getPosY() - pchr->getPosY() );
                     iTmp = CLIP_TO_16BITS( iTmp );
                 }
                 break;
@@ -1399,7 +1399,7 @@ void scr_run_operand( script_state_t * pstate, ai_state_t * pself, script_info_t
 
             case VARSPAWNDISTANCE:
                 varname = "SPAWNDISTANCE";
-                iTmp = ABS( pchr->pos_stt.x - pchr->pos.x ) + ABS( pchr->pos_stt.y - pchr->pos.y );
+                iTmp = ABS( pchr->pos_stt.x - pchr->getPosX() ) + ABS( pchr->pos_stt.y - pchr->getPosY() );
                 break;
 
             case VARTARGETMAXLIFE:
@@ -1577,7 +1577,7 @@ void set_alerts( const CHR_REF character )
     /// @author ZZ
     /// @details This function polls some alert conditions
 
-    chr_t      * pchr;
+    GameObject      * pchr;
     ai_state_t * pai;
     bool at_waypoint;
 
@@ -1601,8 +1601,8 @@ void set_alerts( const CHR_REF character )
     at_waypoint = false;
     if ( pai->wp_valid )
     {
-        at_waypoint = ( ABS( pchr->pos.x - pai->wp[kX] ) < WAYTHRESH ) &&
-                      ( ABS( pchr->pos.y - pai->wp[kY] ) < WAYTHRESH );
+        at_waypoint = ( ABS( pchr->getPosX() - pai->wp[kX] ) < WAYTHRESH ) &&
+                      ( ABS( pchr->getPosY() - pai->wp[kY] ) < WAYTHRESH );
     }
 
     if ( at_waypoint )
@@ -1641,7 +1641,7 @@ void issue_order( const CHR_REF character, Uint32 value )
     /// @details This function issues an value for help to all teammates
     int counter = 0;
 
-    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
         if ( object->terminateRequested ) continue;
 
@@ -1660,7 +1660,7 @@ void issue_special_order( Uint32 value, IDSZ idsz )
     /// @details This function issues an order to all characters with the a matching special IDSZ
     int counter = 0;
 
-    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
         if ( object->terminateRequested ) continue;
 
@@ -1797,7 +1797,7 @@ bool ai_state_set_bumplast( ai_state_t * pself, const CHR_REF ichr )
 //--------------------------------------------------------------------------------------------
 void ai_state_spawn( ai_state_t * pself, const CHR_REF index, const PRO_REF iobj, Uint16 rank )
 {
-    chr_t * pchr;
+    GameObject * pchr;
 
     pself = ai_state_ctor( pself );
 

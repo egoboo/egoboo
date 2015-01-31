@@ -84,7 +84,7 @@ struct s_chr_prt_collsion_data
 {
     // object parameters
     CHR_REF ichr;
-    chr_t * pchr;
+    GameObject * pchr;
 
     PRT_REF iprt;
     prt_t * pprt;
@@ -127,7 +127,7 @@ struct s_chr_prt_collsion_data
 #define  CHR_PRT_COLLSION_DATA_INIT  \
     {\
         INVALID_CHR_REF, /* CHR_REF ichr */ \
-        NULL,            /* chr_t * pchr */ \
+        NULL,            /* GameObject * pchr */ \
         INVALID_PRT_REF, /* PRT_REF iprt */ \
         NULL,            /* prt_t * pprt */ \
         NULL             /* pip_t * ppip */ \
@@ -170,8 +170,8 @@ static bool bump_all_mounts( Ego::DynamicArray<CoNode_t> *pcn_ary );
 static bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary );
 
 static bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
-static bool do_chr_platform_physics( chr_t * pitem, chr_t * pplat );
-static float estimate_chr_prt_normal( const chr_t * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff );
+static bool do_chr_platform_physics( GameObject * pitem, GameObject * pplat );
+static float estimate_chr_prt_normal( const GameObject * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff );
 static bool do_chr_chr_collision( CoNode_t * d );
 
 static bool do_chr_prt_collision_init( const CHR_REF ichr, const PRT_REF iprt, chr_prt_collsion_data_t * pdata );
@@ -185,7 +185,7 @@ static bool do_chr_prt_collision( CoNode_t * d );
 
 static bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata );
 static bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * pdata );
-static bool do_chr_chr_collision_pressure_normal(const chr_t *pchr_a, const chr_t *pchr_b, const float exponent, oct_vec_t *podepth, fvec3_t& nrm, float * tmin );
+static bool do_chr_chr_collision_pressure_normal(const GameObject *pchr_a, const GameObject *pchr_b, const float exponent, oct_vec_t *podepth, fvec3_t& nrm, float * tmin );
 
 static int CoNode_matches( CoNode_t * pleft, CoNode_t * pright );
 static int CoNode_cmp_unique( const void * vleft, const void * vright );
@@ -500,7 +500,7 @@ bool CoHashList_insert_unique(CoHashList_t *coHashList, CoNode_t *data, Ego::Dyn
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool get_chr_mass( chr_t * pchr, float * wt )
+bool get_chr_mass( GameObject * pchr, float * wt )
 {
     /// @author BB
     /// @details calculate a "mass" for an object, taking into account possible infinite masses.
@@ -529,7 +529,7 @@ bool get_chr_mass( chr_t * pchr, float * wt )
 }
 
 //--------------------------------------------------------------------------------------------
-bool get_prt_mass( prt_t * pprt, chr_t * pchr, float * wt )
+bool get_prt_mass( prt_t * pprt, GameObject * pchr, float * wt )
 {
     /// @author BB
     /// @details calculate a "mass" for each object, taking into account possible infinite masses.
@@ -645,7 +645,7 @@ void get_recoil_factors( float wta, float wtb, float * recoil_a, float * recoil_
 //--------------------------------------------------------------------------------------------
 bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    chr_t *pchr_a, *pchr_b;
+    GameObject *pchr_a, *pchr_b;
 
     // Don't interact with self
     if ( ichr_a == ichr_b ) return false;
@@ -681,7 +681,7 @@ bool detect_chr_chr_interaction_valid( const CHR_REF ichr_a, const CHR_REF ichr_
 //--------------------------------------------------------------------------------------------
 bool detect_chr_prt_interaction_valid( const CHR_REF ichr_a, const PRT_REF iprt_b )
 {
-    chr_t * pchr_a;
+    GameObject * pchr_a;
     prt_t * pprt_b;
 
     // Ignore invalid characters
@@ -855,7 +855,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
     // Find the character-character interactions. Use the ChrList.used_ref, for a change
     CoHashList_inserted = 0;
-    for(const std::shared_ptr<chr_t> &pchr_a : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &pchr_a : _gameObjects.iterator())
     {
         oct_bb_t   tmp_oct;
 
@@ -911,7 +911,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                     // do some logic on this to determine whether the collision is valid
                     if ( detect_chr_chr_interaction_valid( pchr_a->getCharacterID(), ichr_b ) )
                     {
-                        chr_t * pchr_b = _gameObjects.get( ichr_b );
+                        GameObject * pchr_b = _gameObjects.get( ichr_b );
 
                         CoNode_ctor( &tmp_codata );
 
@@ -921,7 +921,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                         if ( pchr_b->platform && pchr_a->canuseplatforms ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ2 );
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v_const( pchr_a.get() ), pchr_a->vel, &( pchr_b->chr_max_cv ), chr_get_pos_v_const( pchr_b ), pchr_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), pchr_a->getPosition(), pchr_a->vel, &( pchr_b->chr_max_cv ), pchr_b->getPosition(), pchr_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = pchr_a->getCharacterID();
                             tmp_codata.chrb = ichr_b;
@@ -978,7 +978,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                         test_platform = pchr_a->platform ? PHYS_PLATFORM_OBJ1 : 0;
 
                         // detect a when the possible collision occurred
-                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), chr_get_pos_v_const( pchr_a.get() ), pchr_a->vel, &( pprt_b->prt_max_cv ), prt_get_pos_v_const( pprt_b ), pprt_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
+                        if ( phys_intersect_oct_bb( &( pchr_a->chr_max_cv ), pchr_a->getPosition(), pchr_a->vel, &( pprt_b->prt_max_cv ), prt_get_pos_v_const( pprt_b ), pprt_b->vel, test_platform, &( tmp_codata.cv ), &( tmp_codata.tmin ), &( tmp_codata.tmax ) ) )
                         {
                             tmp_codata.chra = pchr_a->getCharacterID();
                             tmp_codata.prtb = iprt_b;
@@ -1064,7 +1064,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                     bool loc_needs_bump    = needs_bump;
                     bool interaction_valid = false;
 
-                    chr_t * pchr_a = _gameObjects.get( ichr_a );
+                    GameObject * pchr_a = _gameObjects.get( ichr_a );
 
                     // can this particle affect the character through reaffirmation
                     if ( loc_reaffirms )
@@ -1127,7 +1127,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
                         if ( pchr_a->platform && ( SPRITE_SOLID == bdl.prt_ptr->type ) ) SET_BIT( test_platform, PHYS_PLATFORM_OBJ1 );
 
                         // detect a when the possible collision occurred
-                        if (phys_intersect_oct_bb(&(pchr_a->chr_min_cv), chr_get_pos_v_const(pchr_a), pchr_a->vel, &(bdl.prt_ptr->prt_max_cv), prt_get_pos_v_const(bdl.prt_ptr), bdl.prt_ptr->vel, test_platform, &(tmp_codata.cv), &(tmp_codata.tmin), &(tmp_codata.tmax)))
+                        if (phys_intersect_oct_bb(&(pchr_a->chr_min_cv), pchr_a->getPosition(), pchr_a->vel, &(bdl.prt_ptr->prt_max_cv), prt_get_pos_v_const(bdl.prt_ptr), bdl.prt_ptr->vel, test_platform, &(tmp_codata.cv), &(tmp_codata.tmin), &(tmp_codata.tmax)))
                         {
 
                             tmp_codata.chra = ichr_a;
@@ -1186,7 +1186,7 @@ bool fill_bumplists()
 //--------------------------------------------------------------------------------------------
 bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
 {
-    chr_t * pchr_a, * pchr_b;
+    GameObject * pchr_a, * pchr_b;
 
     bool platform_a, platform_b;
 
@@ -1220,16 +1220,16 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     //
     //// If we can mount this platform, skip it
     //mount_a = chr_can_mount( ichr_b, ichr_a );
-    //if ( mount_a && pchr_a->enviro.level < pchr_b->pos.z + pchr_b->bump.height + PLATTOLERANCE )
+    //if ( mount_a && pchr_a->enviro.level < pchr_b->getPosZ() + pchr_b->bump.height + PLATTOLERANCE )
     //    return false;
     //
     //// If we can mount this platform, skip it
     //mount_b = chr_can_mount( ichr_a, ichr_b );
-    //if ( mount_b && pchr_b->enviro.level < pchr_a->pos.z + pchr_a->bump.height + PLATTOLERANCE )
+    //if ( mount_b && pchr_b->enviro.level < pchr_a->getPosZ() + pchr_a->bump.height + PLATTOLERANCE )
     //    return false;
 
-	odepth[OCT_Z] = std::min(pchr_b->chr_min_cv.maxs[OCT_Z] + pchr_b->pos.z, pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->pos.z) -
-                    std::max( pchr_b->chr_min_cv.mins[OCT_Z] + pchr_b->pos.z, pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->pos.z );
+	odepth[OCT_Z] = std::min(pchr_b->chr_min_cv.maxs[OCT_Z] + pchr_b->getPosZ(), pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->getPosZ()) -
+                    std::max( pchr_b->chr_min_cv.mins[OCT_Z] + pchr_b->getPosZ(), pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->getPosZ() );
 
     collide_z  = TO_C_BOOL( odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE );
 
@@ -1245,11 +1245,11 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
     {
         float depth_a, depth_b;
 
-        depth_a = ( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z] ) - ( pchr_a->pos.z + pchr_a->chr_min_cv.mins[OCT_Z] );
-        depth_b = ( pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pchr_b->pos.z + pchr_b->chr_min_cv.mins[OCT_Z] );
+        depth_a = ( pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z] ) - ( pchr_a->getPosZ() + pchr_a->chr_min_cv.mins[OCT_Z] );
+        depth_b = ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pchr_b->getPosZ() + pchr_b->chr_min_cv.mins[OCT_Z] );
 
-        odepth[OCT_Z] = std::min( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z], pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] ) -
-                        std::max( pchr_b->pos.z + pchr_b->chr_min_cv.mins[OCT_Z], pchr_a->pos.z + pchr_a->chr_min_cv.mins[OCT_Z] );
+        odepth[OCT_Z] = std::min( pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z], pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) -
+                        std::max( pchr_b->getPosZ() + pchr_b->chr_min_cv.mins[OCT_Z], pchr_a->getPosZ() + pchr_a->chr_min_cv.mins[OCT_Z] );
 
 		chara_on_top = TO_C_BOOL(std::abs(odepth[OCT_Z] - depth_a) < std::abs(odepth[OCT_Z] - depth_b));
 
@@ -1257,71 +1257,71 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
         if ( chara_on_top )
         {
             // size of a doesn't matter
-            odepth[OCT_X]  = std::min(( pchr_b->chr_min_cv.maxs[OCT_X] + pchr_b->pos.x ) - pchr_a->pos.x,
-                                        pchr_a->pos.x - ( pchr_b->chr_min_cv.mins[OCT_X] + pchr_b->pos.x ) );
+            odepth[OCT_X]  = std::min(( pchr_b->chr_min_cv.maxs[OCT_X] + pchr_b->getPosX() ) - pchr_a->getPosX(),
+                                        pchr_a->getPosX() - ( pchr_b->chr_min_cv.mins[OCT_X] + pchr_b->getPosX() ) );
 
-            odepth[OCT_Y]  = std::min(( pchr_b->chr_min_cv.maxs[OCT_Y] + pchr_b->pos.y ) -  pchr_a->pos.y,
-                                        pchr_a->pos.y - ( pchr_b->chr_min_cv.mins[OCT_Y] + pchr_b->pos.y ) );
+            odepth[OCT_Y]  = std::min(( pchr_b->chr_min_cv.maxs[OCT_Y] + pchr_b->getPosY() ) -  pchr_a->getPosY(),
+                                        pchr_a->getPosY() - ( pchr_b->chr_min_cv.mins[OCT_Y] + pchr_b->getPosY() ) );
 
-            odepth[OCT_XY] = std::min(( pchr_b->chr_min_cv.maxs[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) - ( pchr_a->pos.x + pchr_a->pos.y ),
-                                      ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
+            odepth[OCT_XY] = std::min(( pchr_b->chr_min_cv.maxs[OCT_XY] + ( pchr_b->getPosX() + pchr_b->getPosY() ) ) - ( pchr_a->getPosX() + pchr_a->getPosY() ),
+                                      ( pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv.mins[OCT_XY] + ( pchr_b->getPosX() + pchr_b->getPosY() ) ) );
 
-            odepth[OCT_YX] = std::min(( pchr_b->chr_min_cv.maxs[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
-                                      ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
+            odepth[OCT_YX] = std::min(( pchr_b->chr_min_cv.maxs[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) - ( -pchr_a->getPosX() + pchr_a->getPosY() ),
+                                      ( -pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv.mins[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) );
         }
         else
         {
             // size of b doesn't matter
 
-            odepth[OCT_X]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->pos.x ) - pchr_b->pos.x,
-                                        pchr_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
+            odepth[OCT_X]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->getPosX() ) - pchr_b->getPosX(),
+                                        pchr_b->getPosX() - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->getPosX() ) );
 
-            odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pchr_b->pos.y,
-                                        pchr_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
+            odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->getPosY() ) -  pchr_b->getPosY(),
+                                        pchr_b->getPosY() - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->getPosY() ) );
 
-            odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pchr_b->pos.x + pchr_b->pos.y ),
-                                      ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+            odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( pchr_b->getPosX() + pchr_b->getPosY() ),
+                                      ( pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
-            odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pchr_b->pos.x + pchr_b->pos.y ),
-                                      ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+            odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( -pchr_b->getPosX() + pchr_b->getPosY() ),
+                                      ( -pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
         }
     }
     else if ( platform_a )
     {
         chara_on_top = false;
-        odepth[OCT_Z] = ( pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pchr_b->pos.z + pchr_b->chr_min_cv.mins[OCT_Z] );
+        odepth[OCT_Z] = ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pchr_b->getPosZ() + pchr_b->chr_min_cv.mins[OCT_Z] );
 
         // size of b doesn't matter
 
-        odepth[OCT_X]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->pos.x ) - pchr_b->pos.x,
-                                    pchr_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
+        odepth[OCT_X]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->getPosX() ) - pchr_b->getPosX(),
+                                    pchr_b->getPosX() - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->getPosX() ) );
 
-		odepth[OCT_Y] = std::min((pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->pos.y) - pchr_b->pos.y,
-                                  pchr_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
+		odepth[OCT_Y] = std::min((pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->getPosY()) - pchr_b->getPosY(),
+                                  pchr_b->getPosY() - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->getPosY() ) );
 
-		odepth[OCT_XY] = std::min((pchr_a->chr_min_cv.maxs[OCT_XY] + (pchr_a->pos.x + pchr_a->pos.y)) - (pchr_b->pos.x + pchr_b->pos.y),
-                                  ( pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+		odepth[OCT_XY] = std::min((pchr_a->chr_min_cv.maxs[OCT_XY] + (pchr_a->getPosX() + pchr_a->getPosY())) - (pchr_b->getPosX() + pchr_b->getPosY()),
+                                  ( pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
-		odepth[OCT_YX] = std::min((pchr_a->chr_min_cv.maxs[OCT_YX] + (-pchr_a->pos.x + pchr_a->pos.y)) - (-pchr_b->pos.x + pchr_b->pos.y),
-                                  ( -pchr_b->pos.x + pchr_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+		odepth[OCT_YX] = std::min((pchr_a->chr_min_cv.maxs[OCT_YX] + (-pchr_a->getPosX() + pchr_a->getPosY())) - (-pchr_b->getPosX() + pchr_b->getPosY()),
+                                  ( -pchr_b->getPosX() + pchr_b->getPosY() ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
     }
     else if ( platform_b )
     {
         chara_on_top = true;
-        odepth[OCT_Z] = ( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z] ) - ( pchr_a->pos.z + pchr_a->chr_min_cv.mins[OCT_Z] );
+        odepth[OCT_Z] = ( pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z] ) - ( pchr_a->getPosZ() + pchr_a->chr_min_cv.mins[OCT_Z] );
 
         // size of a doesn't matter
-		odepth[OCT_X] = std::min((pchr_b->chr_min_cv.maxs[OCT_X] + pchr_b->pos.x) - pchr_a->pos.x,
-                                  pchr_a->pos.x - ( pchr_b->chr_min_cv.mins[OCT_X] + pchr_b->pos.x ) );
+		odepth[OCT_X] = std::min((pchr_b->chr_min_cv.maxs[OCT_X] + pchr_b->getPosX()) - pchr_a->getPosX(),
+                                  pchr_a->getPosX() - ( pchr_b->chr_min_cv.mins[OCT_X] + pchr_b->getPosX() ) );
 
-		odepth[OCT_Y] = std::min(pchr_b->chr_min_cv.maxs[OCT_Y] + (pchr_b->pos.y - pchr_a->pos.y),
-                                 ( pchr_a->pos.y - pchr_b->chr_min_cv.mins[OCT_Y] ) + pchr_b->pos.y );
+		odepth[OCT_Y] = std::min(pchr_b->chr_min_cv.maxs[OCT_Y] + (pchr_b->getPosY() - pchr_a->getPosY()),
+                                 ( pchr_a->getPosY() - pchr_b->chr_min_cv.mins[OCT_Y] ) + pchr_b->getPosY() );
 
-		odepth[OCT_XY] = std::min((pchr_b->chr_min_cv.maxs[OCT_XY] + (pchr_b->pos.x + pchr_b->pos.y)) - (pchr_a->pos.x + pchr_a->pos.y),
-                                  ( pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_XY] + ( pchr_b->pos.x + pchr_b->pos.y ) ) );
+		odepth[OCT_XY] = std::min((pchr_b->chr_min_cv.maxs[OCT_XY] + (pchr_b->getPosX() + pchr_b->getPosY())) - (pchr_a->getPosX() + pchr_a->getPosY()),
+                                  ( pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv.mins[OCT_XY] + ( pchr_b->getPosX() + pchr_b->getPosY() ) ) );
 
-        odepth[OCT_YX] = std::min(( pchr_b->chr_min_cv.maxs[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) - ( -pchr_a->pos.x + pchr_a->pos.y ),
-                                  ( -pchr_a->pos.x + pchr_a->pos.y ) - ( pchr_b->chr_min_cv.mins[OCT_YX] + ( -pchr_b->pos.x + pchr_b->pos.y ) ) );
+        odepth[OCT_YX] = std::min(( pchr_b->chr_min_cv.maxs[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) - ( -pchr_a->getPosX() + pchr_a->getPosY() ),
+                                  ( -pchr_a->getPosX() + pchr_a->getPosY() ) - ( pchr_b->chr_min_cv.mins[OCT_YX] + ( -pchr_b->getPosX() + pchr_b->getPosY() ) ) );
 
     }
 
@@ -1336,19 +1336,19 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
         // check for the best possible attachment
         if ( chara_on_top )
         {
-            if ( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z] > pchr_a->targetplatform_level )
+            if ( pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z] > pchr_a->targetplatform_level )
             {
                 // set, but do not attach the platforms yet
-                pchr_a->targetplatform_level = pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z];
+                pchr_a->targetplatform_level = pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z];
                 pchr_a->targetplatform_ref   = ichr_b;
             }
         }
         else
         {
-            if ( pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] > pchr_b->targetplatform_level )
+            if ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] > pchr_b->targetplatform_level )
             {
                 // set, but do not attach the platforms yet
-                pchr_b->targetplatform_level = pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z];
+                pchr_b->targetplatform_level = pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z];
                 pchr_b->targetplatform_ref   = ichr_a;
             }
         }
@@ -1360,7 +1360,7 @@ bool do_chr_platform_detection( const CHR_REF ichr_a, const CHR_REF ichr_b )
 //--------------------------------------------------------------------------------------------
 bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
 {
-    chr_t * pchr_a;
+    GameObject * pchr_a;
     prt_t * pprt_b;
 
     bool platform_a;
@@ -1387,8 +1387,8 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     platform_a = /* pprt_b->canuseplatforms && */ pchr_a->platform;
     if ( !platform_a ) return false;
 
-    odepth[OCT_Z]  = std::min( pprt_b->prt_max_cv.maxs[OCT_Z] + pprt_b->pos.z, pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->pos.z ) -
-                     std::max( pprt_b->prt_max_cv.mins[OCT_Z] + pprt_b->pos.z, pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->pos.z );
+    odepth[OCT_Z]  = std::min( pprt_b->prt_max_cv.maxs[OCT_Z] + pprt_b->pos.z, pchr_a->chr_min_cv.maxs[OCT_Z] + pchr_a->getPosZ() ) -
+                     std::max( pprt_b->prt_max_cv.mins[OCT_Z] + pprt_b->pos.z, pchr_a->chr_min_cv.mins[OCT_Z] + pchr_a->getPosZ() );
 
 	collide_z = TO_C_BOOL(odepth[OCT_Z] > -PLATTOLERANCE && odepth[OCT_Z] < PLATTOLERANCE);
 
@@ -1398,21 +1398,21 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     odepth[OCT_X] = odepth[OCT_Y] = odepth[OCT_XY] = odepth[OCT_YX] = 0.0f;
 
     // determine how the characters can be attached
-    odepth[OCT_Z] = ( pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pprt_b->pos.z + pprt_b->prt_max_cv.mins[OCT_Z] );
+    odepth[OCT_Z] = ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) - ( pprt_b->pos.z + pprt_b->prt_max_cv.mins[OCT_Z] );
 
     // size of b doesn't matter
 
-	odepth[OCT_X] = std::min((pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->pos.x) - pprt_b->pos.x,
-                              pprt_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->pos.x ) );
+	odepth[OCT_X] = std::min((pchr_a->chr_min_cv.maxs[OCT_X] + pchr_a->getPosX()) - pprt_b->pos.x,
+                              pprt_b->pos.x - ( pchr_a->chr_min_cv.mins[OCT_X] + pchr_a->getPosX() ) );
 
-    odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->pos.y ) -  pprt_b->pos.y,
-                                pprt_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->pos.y ) );
+    odepth[OCT_Y]  = std::min(( pchr_a->chr_min_cv.maxs[OCT_Y] + pchr_a->getPosY() ) -  pprt_b->pos.y,
+                                pprt_b->pos.y - ( pchr_a->chr_min_cv.mins[OCT_Y] + pchr_a->getPosY() ) );
 
-    odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) - ( pprt_b->pos.x + pprt_b->pos.y ),
-                              ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->pos.x + pchr_a->pos.y ) ) );
+    odepth[OCT_XY] = std::min(( pchr_a->chr_min_cv.maxs[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( pprt_b->pos.x + pprt_b->pos.y ),
+                              ( pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_XY] + ( pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
-    odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) - ( -pprt_b->pos.x + pprt_b->pos.y ),
-                              ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->pos.x + pchr_a->pos.y ) ) );
+    odepth[OCT_YX] = std::min(( pchr_a->chr_min_cv.maxs[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) - ( -pprt_b->pos.x + pprt_b->pos.y ),
+                              ( -pprt_b->pos.x + pprt_b->pos.y ) - ( pchr_a->chr_min_cv.mins[OCT_YX] + ( -pchr_a->getPosX() + pchr_a->getPosY() ) ) );
 
     collide_x  = TO_C_BOOL( odepth[OCT_X]  > 0.0f );
     collide_y  = TO_C_BOOL( odepth[OCT_Y]  > 0.0f );
@@ -1423,10 +1423,10 @@ bool do_prt_platform_detection( const CHR_REF ichr_a, const PRT_REF iprt_b )
     if ( collide_x && collide_y && collide_xy && collide_yx && collide_z )
     {
         // check for the best possible attachment
-        if ( pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] > pprt_b->targetplatform_level )
+        if ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] > pprt_b->targetplatform_level )
         {
             // set, but do not attach the platforms yet
-            pprt_b->targetplatform_level = pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z];
+            pprt_b->targetplatform_level = pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z];
             pprt_b->targetplatform_ref   = ichr_a;
         }
     }
@@ -1557,11 +1557,11 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
             {
                 if ( _gameObjects.get(d->chra)->targetplatform_ref == d->chrb )
                 {
-                    attach_chr_to_platform( _gameObjects.get( d->chra ), _gameObjects.get( d->chrb ) );
+                    attach_GameObjecto_platform( _gameObjects.get( d->chra ), _gameObjects.get( d->chrb ) );
                 }
                 else if ( _gameObjects.get(d->chrb)->targetplatform_ref == d->chra )
                 {
-                    attach_chr_to_platform( _gameObjects.get( d->chrb ), _gameObjects.get( d->chra ) );
+                    attach_GameObjecto_platform( _gameObjects.get( d->chrb ), _gameObjects.get( d->chra ) );
                 }
 
             }
@@ -1592,7 +1592,7 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
     // attach_prt_to_platform() erases targetplatform_ref, so any character with
     // (INVALID_CHR_REF != targetplatform_ref) must not be connected to a platform at all
-    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
         if ( object->onwhichplatform_update < update_wld && _gameObjects.exists(object->onwhichplatform_ref) )
         {
@@ -1643,7 +1643,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     ///               for the mounts and platforms found in the previous steps)
 
     // blank the accumulators
-    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
         phys_data_clear( &( object->phys ) );
     }
@@ -1673,7 +1673,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     }
 
     // accumulate the accumulators
-    for(const std::shared_ptr<chr_t> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
     {
         float tmpx, tmpy, tmpz;
         float bump_str;
@@ -1720,7 +1720,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpx = tmp_pos.x;
             tmp_pos.x += max_apos.x;
-            if ( EMPTY_BIT_FIELD != chr_test_wall( pchr.get(), tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != GameObjectest_wall( pchr.get(), tmp_pos.v, NULL ) )
             {
                 // restore the old values
                 tmp_pos.x = tmpx;
@@ -1736,7 +1736,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
         {
             tmpy = tmp_pos.y;
             tmp_pos.y += max_apos.y;
-            if ( EMPTY_BIT_FIELD != chr_test_wall( pchr.get(), tmp_pos.v, NULL ) )
+            if ( EMPTY_BIT_FIELD != GameObjectest_wall( pchr.get(), tmp_pos.v, NULL ) )
             {
                 // restore the old values
                 tmp_pos.y = tmpy;
@@ -1771,7 +1771,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
 
         if ( position_updated )
         {
-            chr_set_pos(pchr.get(), tmp_pos);
+            pchr->setPosition(tmp_pos);
         }
     }
 
@@ -1894,7 +1894,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     PRT_END_LOOP();
 
     // blank the accumulators
-    for(const std::shared_ptr<chr_t> &pchr : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
     {
         phys_data_clear( &( pchr->phys ) );
     }
@@ -1915,7 +1915,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 
     oct_vec_t apos, bpos;
 
-    chr_t * pchr_a, * pchr_b;
+    GameObject * pchr_a, * pchr_b;
 
     bool mount_a, mount_b;
 
@@ -1940,8 +1940,8 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
     if ( !mount_a && !mount_b ) return false;
 
     // Ready for position calulations
-    oct_vec_ctor( apos, chr_get_pos_v_const( pchr_a ) );
-    oct_vec_ctor( bpos, chr_get_pos_v_const( pchr_b ) );
+    oct_vec_ctor( apos, pchr_a->getPosition() );
+    oct_vec_ctor( bpos, pchr_b->getPosition() );
 
     // assume the worst
     mounted = false;
@@ -1954,7 +1954,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         //---- find out whether the object is overlapping with the saddle
 
         // the position of the saddle over the frame
-        oct_bb_add_fvec3( &pchr_b->slot_cv[SLOT_LEFT], chr_get_pos_v_const( pchr_b ), &tmp_cv );
+        oct_bb_add_fvec3( &pchr_b->slot_cv[SLOT_LEFT], pchr_b->getPosition(), &tmp_cv );
         phys_expand_oct_bb( &tmp_cv, pchr_b->vel, 0.0f, 1.0f, &saddle_cv );
 
         if ( oct_bb_point_inside( &saddle_cv, apos ) )
@@ -1989,7 +1989,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
         //---- find out whether the object is overlapping with the saddle
 
         // the position of the saddle over the frame
-        oct_bb_add_fvec3( &pchr_a->slot_cv[SLOT_LEFT], chr_get_pos_v_const( pchr_a ), &tmp_cv );
+        oct_bb_add_fvec3( &pchr_a->slot_cv[SLOT_LEFT], pchr_a->getPosition(), &tmp_cv );
         phys_expand_oct_bb( &tmp_cv, pchr_a->vel, 0.0f, 1.0f, &saddle_cv );
 
         if ( oct_bb_point_inside( &saddle_cv, bpos ) )
@@ -2022,7 +2022,7 @@ bool bump_one_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
+bool do_chr_platform_physics( GameObject * pitem, GameObject * pplat )
 {
     // we know that ichr_a is a platform and ichr_b is on it
     Sint16 rot_a, rot_b;
@@ -2049,13 +2049,13 @@ bool do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
 
     if ( lerp_z == 1.0f )
     {
-        phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->pos.z ) * 0.125f, kZ );
+        phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f, kZ );
         phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel.z  - pitem->vel.z ) * 0.25f, kZ );
         pitem->ori.facing_z += ( rot_a         - rot_b ) * platstick;
     }
     else
     {
-        phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->pos.z ) * 0.125f * lerp_z * vlerp_z, kZ );
+        phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
         phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel.z  - pitem->vel.z ) * 0.25f * lerp_z * vlerp_z, kZ );
         pitem->ori.facing_z += ( rot_a         - rot_b ) * platstick * lerp_z * vlerp_z;
     };
@@ -2064,7 +2064,7 @@ bool do_chr_platform_physics( chr_t * pitem, chr_t * pplat )
 }
 
 //--------------------------------------------------------------------------------------------
-float estimate_chr_prt_normal( const chr_t * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff )
+float estimate_chr_prt_normal( const GameObject * pchr, const prt_t * pprt, fvec3_t& nrm, fvec3_t& vdiff )
 {
     fvec3_t collision_size;
     float dot;
@@ -2079,9 +2079,9 @@ float estimate_chr_prt_normal( const chr_t * pchr, const prt_t * pprt, fvec3_t& 
     if ( 0.0f == collision_size.z ) return -1.0f;
 
     // estimate the "normal" for the collision, using the center-of-mass difference
-    nrm[kX] = pprt->pos.x - pchr->pos.x;
-    nrm[kY] = pprt->pos.y - pchr->pos.y;
-    nrm[kZ] = pprt->pos.z - ( pchr->pos.z + 0.5f * ( pchr->chr_max_cv.maxs[OCT_Z] + pchr->chr_max_cv.mins[OCT_Z] ) );
+    nrm[kX] = pprt->pos.x - pchr->getPosX();
+    nrm[kY] = pprt->pos.y - pchr->getPosY();
+    nrm[kZ] = pprt->pos.z - ( pchr->getPosZ() + 0.5f * ( pchr->chr_max_cv.maxs[OCT_Z] + pchr->chr_max_cv.mins[OCT_Z] ) );
 
     // scale the collision box
     nrm[kX] /= collision_size.x;
@@ -2151,12 +2151,12 @@ float estimate_chr_prt_normal( const chr_t * pchr, const prt_t * pprt, fvec3_t& 
 }
 
 //--------------------------------------------------------------------------------------------
-bool do_chr_chr_collision_pressure_normal( const chr_t * pchr_a, const chr_t * pchr_b, const float exponent, oct_vec_t * podepth, fvec3_t& nrm, float * tmin )
+bool do_chr_chr_collision_pressure_normal( const GameObject * pchr_a, const GameObject * pchr_b, const float exponent, oct_vec_t * podepth, fvec3_t& nrm, float * tmin )
 {
     oct_bb_t otmp_a, otmp_b;
 
-    oct_bb_add_fvec3( &( pchr_a->chr_min_cv ), chr_get_pos_v_const( pchr_a ), &otmp_a );
-    oct_bb_add_fvec3( &( pchr_b->chr_min_cv ), chr_get_pos_v_const( pchr_b ), &otmp_b );
+    oct_bb_add_fvec3( &( pchr_a->chr_min_cv ), pchr_a->getPosition(), &otmp_a );
+    oct_bb_add_fvec3( &( pchr_b->chr_min_cv ), pchr_b->getPosition(), &otmp_b );
 
     return phys_estimate_pressure_normal( &otmp_a, &otmp_b, exponent, podepth, nrm, tmin );
 }
@@ -2165,7 +2165,7 @@ bool do_chr_chr_collision_pressure_normal( const chr_t * pchr_a, const chr_t * p
 bool do_chr_chr_collision( CoNode_t * d )
 {
     CHR_REF ichr_a, ichr_b;
-    chr_t * pchr_a, * pchr_b;
+    GameObject * pchr_a, * pchr_b;
 
     float depth_min;
     float interaction_strength = 1.0f;
@@ -2264,7 +2264,7 @@ bool do_chr_chr_collision( CoNode_t * d )
     // that are overlapping with the platform you are actually on
     if ( pchr_b->canuseplatforms && pchr_a->platform && INVALID_CHR_REF != pchr_b->onwhichplatform_ref && ichr_a != pchr_b->onwhichplatform_ref )
     {
-        float lerp_z = ( pchr_b->pos.z - ( pchr_a->pos.z + pchr_a->chr_min_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
+        float lerp_z = ( pchr_b->getPosZ() - ( pchr_a->getPosZ() + pchr_a->chr_min_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1.0f, 1.0f );
 
         if ( lerp_z >= 0.0f )
@@ -2279,7 +2279,7 @@ bool do_chr_chr_collision( CoNode_t * d )
 
     if ( pchr_a->canuseplatforms && pchr_b->platform && INVALID_CHR_REF != pchr_a->onwhichplatform_ref && ichr_b != pchr_a->onwhichplatform_ref )
     {
-        float lerp_z = ( pchr_a->pos.z - ( pchr_b->pos.z + pchr_b->chr_min_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
+        float lerp_z = ( pchr_a->getPosZ() - ( pchr_b->getPosZ() + pchr_b->chr_min_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1.0f, +1.0f );
 
         if ( lerp_z >= 0.0f )
@@ -2293,8 +2293,8 @@ bool do_chr_chr_collision( CoNode_t * d )
     }
 
     // shift the character bounding boxes to be centered on their positions
-    oct_bb_add_fvec3(&(pchr_a->chr_min_cv), chr_get_pos_v_const(pchr_a), &map_bb_a );
-    oct_bb_add_fvec3(&(pchr_b->chr_min_cv), chr_get_pos_v_const(pchr_b), &map_bb_b );
+    oct_bb_add_fvec3(&(pchr_a->chr_min_cv), pchr_a->getPosition(), &map_bb_a );
+    oct_bb_add_fvec3(&(pchr_b->chr_min_cv), pchr_b->getPosition(), &map_bb_b );
 
     // make the object more like a table if there is a platform-like interaction
     exponent = 1.0f;
@@ -2563,7 +2563,7 @@ bool do_chr_prt_collision_get_details( CoNode_t * d, chr_prt_collsion_data_t * p
     handled = false;
 
     // shift the source bounding boxes to be centered on the given positions
-    oct_bb_add_fvec3(&(pdata->pchr->chr_min_cv), chr_get_pos_v_const(pdata->pchr), &cv_chr);
+    oct_bb_add_fvec3(&(pdata->pchr->chr_min_cv), pdata->pchr->getPosition(), &cv_chr);
 
     // the smallest particle collision volume
     oct_bb_add_fvec3(&(pdata->pprt->prt_min_cv), prt_get_pos_v_const(pdata->pprt), &cv_prt_min);
@@ -2675,7 +2675,7 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
     // Test to see whether the particle is in the right position to interact with the platform.
     // You have to be closer to a platform to interact with it then for a general object,
     // but the vertical distance is looser.
-    plat_collision = test_interaction_close_1( &( pdata->pchr->chr_max_cv ), chr_get_pos_v_const( pdata->pchr ), pdata->pprt->bump_padded, prt_get_pos_v_const( pdata->pprt ), true );
+    plat_collision = test_interaction_close_1( &( pdata->pchr->chr_max_cv ), pdata->pchr->getPosition(), pdata->pprt->bump_padded, prt_get_pos_v_const( pdata->pprt ), true );
 
     if ( !plat_collision ) return false;
 
@@ -2684,14 +2684,14 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
     // it is a valid platform. now figure out the physics
 
     // are they colliding for the first time?
-    z_collide     = TO_C_BOOL(( pdata->pprt->pos.z < pdata->pchr->pos.z + pdata->pchr->chr_max_cv.maxs[OCT_Z] ) && ( pdata->pprt->pos.z > pdata->pchr->pos.z + pdata->pchr->chr_max_cv.mins[OCT_Z] ) );
-    was_z_collide = TO_C_BOOL(( pdata->pprt->pos.z - pdata->pprt->vel.z < pdata->pchr->pos.z + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pchr->vel.z ) && ( pdata->pprt->pos.z - pdata->pprt->vel.z  > pdata->pchr->pos.z + pdata->pchr->chr_max_cv.mins[OCT_Z] ) );
+    z_collide     = TO_C_BOOL(( pdata->pprt->pos.z < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] ) && ( pdata->pprt->pos.z > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.mins[OCT_Z] ) );
+    was_z_collide = TO_C_BOOL(( pdata->pprt->pos.z - pdata->pprt->vel.z < pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pchr->vel.z ) && ( pdata->pprt->pos.z - pdata->pprt->vel.z  > pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.mins[OCT_Z] ) );
 
     if ( z_collide && !was_z_collide )
     {
         // Particle is falling onto the platform
-        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->pos.z + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos.z, kZ );
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->pos.z - pdata->pprt->vel.z ) *( 1.0f + pdata->ppip->dampen ), kZ );
+        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos.z, kZ );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->getPosZ() - pdata->pprt->vel.z ) *( 1.0f + pdata->ppip->dampen ), kZ );
 
         // This should prevent raindrops from stacking up on the top of trees and other
         // objects
@@ -2705,7 +2705,7 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
     else if ( z_collide && was_z_collide )
     {
         // colliding this time and last time. particle is *embedded* in the platform
-        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->pos.z + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos.z, kZ );
+        phys_data_sum_aplat_index( &( pdata->pprt->phys ), pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] - pdata->pprt->pos.z, kZ );
 
         if ( pdata->pprt->vel.z - pdata->pchr->vel.z < 0 )
         {
@@ -2723,7 +2723,7 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
     else
     {
         // not colliding this time or last time. particle is just near the platform
-        float lerp_z = ( pdata->pprt->pos.z - ( pdata->pchr->pos.z + pdata->pchr->chr_max_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
+        float lerp_z = ( pdata->pprt->pos.z - ( pdata->pchr->getPosZ() + pdata->pchr->chr_max_cv.maxs[OCT_Z] ) ) / PLATTOLERANCE;
         lerp_z = CLIP( lerp_z, -1.0f, +1.0f );
 
         if ( lerp_z > 0.0f )
@@ -2754,7 +2754,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
     if ( pdata->pchr->invictus ) return true;
 
     // find the "attack direction" of the particle
-    direction = vec_to_facing( pdata->pchr->pos.x - pdata->pprt->pos.x, pdata->pchr->pos.y - pdata->pprt->pos.y );
+    direction = vec_to_facing( pdata->pchr->getPosX() - pdata->pprt->pos.x, pdata->pchr->getPosY() - pdata->pprt->pos.y );
     direction = pdata->pchr->ori.facing_z - direction + ATK_BEHIND;
 
     // shield block?
@@ -2853,8 +2853,8 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                     int   total_block_rating;
                     IPair rand_pair;
 
-                    chr_t *pshield   = _gameObjects.get( item );
-                    chr_t *pattacker = _gameObjects.get( pdata->pprt->owner_ref );
+                    GameObject *pshield   = _gameObjects.get( item );
+                    GameObject *pattacker = _gameObjects.get( pdata->pprt->owner_ref );
 
                     // use the character block skill plus the base block rating of the shield and adjust for strength
                     total_block_rating = chr_get_skill( pdata->pchr, MAKE_IDSZ( 'B', 'L', 'O', 'C' ) );
@@ -2880,7 +2880,7 @@ bool do_chr_prt_collision_deflect( chr_prt_collsion_data_t * pdata )
                         // Attacker broke the block and batters away the shield
                         // Time to raise shield again = 40/50 (0.8 seconds)
                         pdata->pchr->reload_timer += 40;
-                        _audioSystem.playSound(pdata->pchr->pos, _audioSystem.getGlobalSound(GSND_SHIELDBLOCK));
+                        _audioSystem.playSound(pdata->pchr->getPosition(), _audioSystem.getGlobalSound(GSND_SHIELDBLOCK));
                     }
                 }
             }
@@ -2958,8 +2958,8 @@ bool do_chr_prt_collision_recoil( chr_prt_collsion_data_t * pdata )
     // weapon (actually, the weapon's holder) to rebound.
     if ( _gameObjects.exists( pdata->pprt->attachedto_ref ) )
     {
-        chr_t * pholder;
-        chr_t * pattached;
+        GameObject * pholder;
+        GameObject * pattached;
         CHR_REF iholder;
 
         // get the attached mass
@@ -3041,7 +3041,7 @@ bool do_chr_prt_collision_damage( chr_prt_collsion_data_t * pdata )
 
     bool prt_needs_impact;
 
-    chr_t * powner = NULL;
+    GameObject * powner = NULL;
 
     if ( NULL == pdata ) return false;
 
@@ -3343,7 +3343,7 @@ bool do_chr_prt_collision_handle_bump( chr_prt_collsion_data_t * pdata )
     {
         if ( pdata->ppip->bump_money )
         {
-            chr_t * pcollector = pdata->pchr;
+            GameObject * pcollector = pdata->pchr;
 
             // Let mounts collect money for their riders
             if ( pdata->pchr->ismount && _gameObjects.exists( pdata->pchr->holdingwhich[SLOT_LEFT] ) )
