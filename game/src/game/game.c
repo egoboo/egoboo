@@ -3084,8 +3084,8 @@ void activate_spawn_file_vfs()
     /// @author ZZ
     /// @details This function sets up character data, loaded from "SPAWN.TXT"
     std::unordered_map<int, std::string> reservedSlots;     //Keep track of which slot numbers are reserved by their load name
-    std::vector<int>                     dynamicObjectList; //references to slots that need to be dynamically loaded later
-    std::vector<spawn_file_info_t>       objectsToSpawn;    //The full list of objects to be spawned 
+    std::unordered_set<std::string>      dynamicObjectList; //references to slots that need to be dynamically loaded later
+    std::vector<spawn_file_info_t> objectsToSpawn;    //The full list of objects to be spawned 
 
     // Turn some back on
     const char* filePath = "mp_data/spawn.txt";
@@ -3130,7 +3130,7 @@ void activate_spawn_file_vfs()
             // If it is a dynamic slot, remember to dynamically allocate it for later
             if ( entry.slot <= -1 )
             {
-                dynamicObjectList.push_back(objectsToSpawn.empty() ? 0 : objectsToSpawn.size()-1);
+                dynamicObjectList.insert(entry.spawn_coment);
             }
 
             //its a static slot number, mark it as reserved if it isnt already
@@ -3144,31 +3144,31 @@ void activate_spawn_file_vfs()
         }
 
         //Next we dynamically find slot numbers for each of the objects in the dynamic list
-        for(int index : dynamicObjectList)
+        for(const std::string &spawnName : dynamicObjectList)
         {
-            spawn_file_info_t &spawnDynamic = objectsToSpawn[index];
+            PRO_REF profileSlot;
 
             //Find first free slot that is not the spellbook slot
-            for ( spawnDynamic.slot = MAX_IMPORT_PER_PLAYER * MAX_PLAYER; spawnDynamic.slot < INVALID_PRO_REF; spawnDynamic.slot++ )
+            for (profileSlot = 1 + MAX_IMPORT_PER_PLAYER * MAX_PLAYER; profileSlot < INVALID_PRO_REF; ++profileSlot)
             {
                 //dont try to grab the spellbook slot
-                if ( spawnDynamic.slot == SPELLBOOK ) continue;
+                if (profileSlot == SPELLBOOK) continue;
 
                 //the slot already dynamically loaded by a different spawn object of the same type that we are, no need to reload in a new slot
-                if(reservedSlots[spawnDynamic.slot] == spawnDynamic.spawn_coment) break;
+                if(reservedSlots[profileSlot] == spawnName) break;
 
                 //found a completely free slot
-                if (reservedSlots[spawnDynamic.slot].empty())
+                if (reservedSlots[profileSlot].empty())
                 {
                     //Reserve this one for us
-                    reservedSlots[spawnDynamic.slot] = spawnDynamic.spawn_coment;
+                    reservedSlots[profileSlot] = spawnName;
                     break;
                 }
             }
 
             //If all slots are reserved, spit out a warning (very unlikely unless there is a bug somewhere)
-            if ( spawnDynamic.slot == INVALID_PRO_REF ) {
-                log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", spawnDynamic.spawn_coment, INVALID_PRO_REF );
+            if ( profileSlot == INVALID_PRO_REF ) {
+                log_warning( "Could not allocate free dynamic slot for object (%s). All %d slots in use?\n", spawnName.c_str(), INVALID_PRO_REF );
             }
         }
 
@@ -3177,6 +3177,18 @@ void activate_spawn_file_vfs()
         {
             //Do we have a parent?
             if ( spawnInfo.attach != ATTACH_NONE && parent != INVALID_CHR_REF ) spawnInfo.parent = parent;
+
+            //Dynamic slot number? Then figure out what slot number is assigned to us
+            if(spawnInfo.slot <= -1) {
+                for(const auto &element : reservedSlots)
+                {
+                    if(element.second == spawnInfo.spawn_coment)
+                    {
+                        spawnInfo.slot = element.first;
+                        break;
+                    }
+                }
+            }
 
             // If nothing is already in that slot, try to load it.
             if ( !_profileSystem.isValidProfileID(spawnInfo.slot) )
