@@ -228,13 +228,17 @@ struct fvec2_t
 
 	float& operator[](size_t const& index)
 	{
+#ifdef _DEBUG
 		EGOBOO_ASSERT(index < 2);
+#endif
 		return this->v[index];
 	}
 
 	const float &operator[](size_t const& index) const
 	{
+#ifdef _DEBUG
 		EGOBOO_ASSERT(index < 2);
+#endif
 		return this->v[index];
 	}
 
@@ -534,13 +538,17 @@ struct fvec3_t
 
 	float& operator[](size_t const& index)
 	{
+#ifdef _DEBUG
 		EGOBOO_ASSERT(index < 3);
+#endif
 		return this->v[index];
 	}
 
 	const float &operator[](size_t const& index) const
 	{
+#ifdef _DEBUG
 		EGOBOO_ASSERT(index < 3);
+#endif
 		return this->v[index];
 	}
 
@@ -588,13 +596,17 @@ struct fvec4_t
 
 	float& operator[](size_t const& index)
 	{
+#ifdef _DEBUG
 		EGOBOO_ASSERT(index < 4);
+#endif
 		return this->v[index];
 	}
 
 	const float &operator[](size_t const& index) const
 	{
+#ifdef _DEBUG
 		EGOBOO_ASSERT(index < 4);
+#endif
 		return this->v[index];
 	}
 
@@ -734,9 +746,6 @@ void fvec3_ctor(fvec3_t& v);
  *	the vector
  */
 void fvec3_dtor(fvec3_t& v);
-#if 0
-fvec3_t fvec3_scale(const fvec3_t& v, float s); ///< @todo Remove this.
-#endif
 bool fvec3_valid(const fvec3_base_t A); ///< @todo Remove this.
 bool fvec3_self_clear(fvec3_base_t v); ///< @todo Remove this.
 float *fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC); ///< @todo Remove this.
@@ -752,9 +761,6 @@ bool fvec3_self_is_clear(const fvec3_base_t A); ///< @todo Remove this.
  *	the distance between the points
  */
 float fvec3_dist_abs(const fvec3_t& u, const fvec3_t& v);
-#if 0
-float fvec2_dist_abs(const fvec2_base_t u, const fvec2_base_t v);
-#endif
 
 /**
  * @brief
