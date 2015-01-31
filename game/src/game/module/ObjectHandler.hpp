@@ -48,22 +48,22 @@ public:
 
 		inline std::vector<std::shared_ptr<chr_t>>::const_iterator cbegin() const 
 		{
-			return _handler->_characterList.cbegin();
+			return _handler->_iteratorList.cbegin();
 		}
 
 		inline std::vector<std::shared_ptr<chr_t>>::const_iterator cend() const 
 		{
-			return _handler->_characterList.cend();
+			return _handler->_iteratorList.cend();
 		}
 
 		inline std::vector<std::shared_ptr<chr_t>>::iterator begin()
 		{
-			return _handler->_characterList.begin();
+			return _handler->_iteratorList.begin();
 		}
 
 		inline std::vector<std::shared_ptr<chr_t>>::iterator end()
 		{
-			return _handler->_characterList.end();
+			return _handler->_iteratorList.end();
 		}	
 
 		~ObjectIterator()
@@ -125,7 +125,7 @@ public:
 	 * @brief Return number of object currently active in the game.
 	 * @return number of objects currently active in the game
 	 */
-	size_t getObjectCount() const {return _characterList.size();}
+	size_t getObjectCount() const;
 
 	/**
 	 * @brief Removes and de-allocates all game objects contained in this ObjectHandler.
@@ -137,12 +137,6 @@ public:
 	 * @return a raw pointer referenced by CHR_REF
 	 */
 	chr_t* get(const CHR_REF index) const;
-
-	/**
-	 * @brief
-	 *	Run all deferred updates if the object list is not locked.
-	 */
-	void maybeRunDeferred();
 
 private:
 
@@ -157,14 +151,21 @@ private:
 	 */
 	void unlock();
 
-private:
-	std::unordered_map<CHR_REF, std::shared_ptr<chr_t>> _characterMap;		///< Maps CHR_REF to a chr_t pointer
-	std::vector<std::shared_ptr<chr_t>> _characterList;						///< For iterating
+	/**
+	 * @brief
+	 *	Run all deferred updates if the object list is not locked.
+	 */
+	void maybeRunDeferred();
 
-	std::vector<CHR_REF> _terminationList;									///< List of all objects that should be terminated
+private:
+	std::vector<std::shared_ptr<chr_t>> _internalCharacterList;				///< Indexes in this character list match CHR_REF
+	std::vector<std::shared_ptr<chr_t>> _iteratorList;						///< For iterating, contains only valid objects (unsorted)
+	std::stack<CHR_REF> 				_unusedChrRefs;						///< Stack of unused CHR_REF
+
 	std::vector<std::shared_ptr<chr_t>> _allocateList;						///< List of all objects that should be added
 
 	size_t _semaphore;
+	size_t _deletedCharacters;
 
 	CHR_REF _totalCharactersSpawned;										///< Total count of characters spawned (includes removed)
 

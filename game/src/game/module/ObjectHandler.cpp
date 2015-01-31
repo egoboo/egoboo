@@ -5,13 +5,17 @@
 const static std::shared_ptr<chr_t> NULL_OBJ = nullptr;
 
 ObjectHandler::ObjectHandler() :
-	_characterMap(),
-    _characterList(),
-	_terminationList(),
+	_internalCharacterList(),
+    _iteratorList(),
+    _unusedChrRefs(),
     _allocateList(),
+
+    _semaphore(0),
+    _deletedCharacters(0),
     _totalCharactersSpawned(0)
 {
-	//ctor
+	_internalCharacterList.reserve(MAX_CHR);
+    _iteratorList.reserve(MAX_CHR);
 }
 
 bool ObjectHandler::remove(const CHR_REF ichr)
@@ -27,32 +31,23 @@ bool ObjectHandler::remove(const CHR_REF ichr)
 
     // If we are inside a list loop, do not actually change the length of the
     // list. Else this can cause some problems later.
-    _terminationList.push_back(ichr);
-
-    // At least mark the object as "waiting to be terminated".
-    get(ichr)->terminateRequested = true;
+    _internalCharacterList[ichr]->terminateRequested = true;
+    _deletedCharacters++;
 
     // We can safely modify the map, it is not iterable from the outside.
-    _characterMap.erase(ichr);
+    _internalCharacterList[ichr] = nullptr;
     
     return true;
 }
 
 bool ObjectHandler::exists(const CHR_REF character) const
 {
-    if(character == INVALID_CHR_REF)
+    if(character == INVALID_CHR_REF || character >= _internalCharacterList.size()) 
 	{
         return false;
     }
 
-    const auto &result = _characterMap.find(character);
-
-	if(result == _characterMap.end())
-	{
-		return false;
-	}
-
-	return !result->second->terminateRequested;
+    return _internalCharacterList[character] != nullptr && !_internalCharacterList[character]->terminateRequested;
 }
 
 
@@ -76,7 +71,7 @@ std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_RE
 
     if(override != INVALID_CHR_REF)
     {
-        if(_characterMap.find(override) == _characterMap.end())
+        if(!exists(override))
         {
             ichr = override;
         }
@@ -86,10 +81,22 @@ std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_RE
 			return nullptr;
 		}
     }
+
+    //No override specified, get first free slot
     else
     {
+        if(!_unusedChrRefs.empty())
+        {
+            ichr = _unusedChrRefs.top();
+            _unusedChrRefs.pop();
+        }
+        else
+        {
+            ichr = _internalCharacterList.size() + 1;
+        }
+
         // Increment counter.
-        ichr = _totalCharactersSpawned++;
+        _totalCharactersSpawned++;
     }
 
     if (ichr != INVALID_CHR_REF)
@@ -102,12 +109,14 @@ std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_RE
             return nullptr;
         }
 
-        // Allocate the new one (we can safely modify the map, it isn't iterable from outside).
-        if(_characterMap.emplace(ichr, object).second == false)
-		{
-            log_warning("ObjectHandler - Failed character allocation, object already exists\n");
-            return nullptr;
+        //Ensure character list is big enough to hold new object
+        if(_internalCharacterList.size() < ichr)
+        {
+            _internalCharacterList.resize(ichr+1);
         }
+
+        // Allocate the new one (we can safely modify the internal list, it isn't iterable from outside).
+        _internalCharacterList[ichr] = object;
 
         // Wait to adding it to the iterable list.
         _allocateList.push_back(object);
@@ -119,43 +128,32 @@ std::shared_ptr<chr_t> ObjectHandler::insert(const PRO_REF profile, const CHR_RE
 
 chr_t* ObjectHandler::get(const CHR_REF index) const
 {
-    if(index == INVALID_CHR_REF)
+    if(index == INVALID_CHR_REF || index >= _internalCharacterList.size())
 	{
         return nullptr;
     }
 
-    const auto &result = _characterMap.find(index);
+    const std::shared_ptr<chr_t> &result = _internalCharacterList[index];
 
-    if(result == _characterMap.end())
-    {
-        return nullptr;
-    }
-
-    return (*result).second.get();
+    return (result == nullptr) ? nullptr : result.get();
 }
 
 const std::shared_ptr<chr_t>& ObjectHandler::operator[] (const CHR_REF index)
 {
-    if(index == INVALID_CHR_REF)
-	{
-        return NULL_OBJ;
-    }
-
-    const auto &result = _characterMap.find(index);
-
-    if(result == _characterMap.end())
+    if(index == INVALID_CHR_REF || index >= _internalCharacterList.size())
     {
         return NULL_OBJ;
     }
 
-    return (*result).second;
+    return _internalCharacterList[index];
 }
 
 void ObjectHandler::clear()
 {
-	_characterMap.clear();
-	_characterList.clear();
-    _terminationList.clear();
+    while(!_unusedChrRefs.empty()) _unusedChrRefs.pop();
+	_internalCharacterList.clear();
+	_iteratorList.clear();
+    _deletedCharacters = 0;
     _totalCharactersSpawned = 0;
 }
 
@@ -195,26 +193,6 @@ void ObjectHandler::dumpAllocateList()
 }
 #endif
 
-#if defined(_DEBUG)
-void ObjectHandler::dumpTerminationList()
-{
-	if (_terminationList.empty())
-	{
-		std::cout << "Termination List = []" << std::endl;
-	}
-	else
-	{
-		std::cout << "Termination List" << std::endl;
-		std::cout << "{" << std::endl;
-		for (const CHR_REF ichr : _terminationList)
-		{
-			std::cout << "  " << ichr << std::endl;
-		}
-		std::cout << "}" << std::endl;
-	}
-}
-#endif
-
 void ObjectHandler::maybeRunDeferred()
 {
 	// If locked ...
@@ -223,32 +201,40 @@ void ObjectHandler::maybeRunDeferred()
 		// ... return.
 		return;
 	}
+
 	// Add any allocated objects to the containers (do first, in case they get removed again).
-	for (const std::shared_ptr<chr_t> &object : _allocateList)
-	{
-		_characterList.push_back(object);
-	}
-	_allocateList.clear();
+    if(!_allocateList.empty())
+    {
+        for (const std::shared_ptr<chr_t> &object : _allocateList)
+        {
+            _iteratorList.push_back(object);
+        }
+        _allocateList.clear();        
+    }
 
 	// Go through and delete any characters that were
 	// supposed to be deleted while the list was iterating.
-	for (const CHR_REF ichr : _terminationList)
-	{
-		_characterList.erase
-			(
-			std::remove_if
-			(
-			_characterList.begin(), _characterList.end(),
-			[ichr](const std::shared_ptr<chr_t> &element)
-		{
-			if (element->bsp_leaf.isInList()) return false;
-			return element->terminateRequested || element->getCharacterID() == ichr;
-		}
-			),
-			_characterList.end()
-			);
-	}
-	_terminationList.clear();
+    if(_deletedCharacters > 0) 
+    {
+        _iteratorList.erase(
+            std::remove_if(_iteratorList.begin(), _iteratorList.end(),
+                [this](const std::shared_ptr<chr_t> &element)
+                {
+                    if (element->bsp_leaf.isInList()) return false;
+
+                    if(element->terminateRequested)
+                    {
+                        //Delete this character
+                        _unusedChrRefs.push(element->getCharacterID());
+                        _deletedCharacters--;
+                        return true;
+                    }
+
+                    return false;
+                }), 
+            _iteratorList.end()
+        );
+    }
 }
 
 
@@ -269,4 +255,9 @@ void ObjectHandler::unlock()
 ObjectHandler::ObjectIterator ObjectHandler::iterator()
 {
     return ObjectIterator(this);
+}
+
+size_t ObjectHandler::getObjectCount() const 
+{
+    return _iteratorList.size() + _allocateList.size() - _deletedCharacters;
 }
