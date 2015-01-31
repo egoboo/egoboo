@@ -312,7 +312,7 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
             float zpos[8];
 
             int cnt, jtile;
-            bool is_column;
+            //bool is_column;
 
             // de-initialize the positions of the "vertices"
             for ( cnt = 0; cnt < 8; cnt++ )
@@ -469,11 +469,11 @@ map_t * map_generate_fan_type_data( map_t * pmesh )
             if ( zpos[6] < 0.0f ) zpos[6] = 0.5f * ( zpos[5] + zpos[7] );
 
             // override the center positions for known tiles
-            is_column = false;
-            if ( (zpos[1] == zpos[3]) && ( zpos[3] == zpos[5] ) && (zpos[5] == zpos[7]) )
-            {
-                is_column = true;
-            }
+            //is_column = false;
+            //if ( (zpos[1] == zpos[3]) && ( zpos[3] == zpos[5] ) && (zpos[5] == zpos[7]) )
+            //{
+            //    is_column = true;
+            //}
         }
     }
 
