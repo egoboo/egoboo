@@ -294,25 +294,21 @@ bool BSP_aabb_t::set_empty(BSP_aabb_t *self)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool BSP_aabb_t::overlap_with_BSP_aabb(const BSP_aabb_t *self, const BSP_aabb_t *other)
+bool BSP_aabb_t::overlap_with_BSP_aabb(const BSP_aabb_t& other) const
 {
-	if (NULL == self || !self->valid)
+	if (!this->valid || !other.valid)
 	{
 		return false;
 	}
-	if (NULL == other || !other->valid)
-	{
-		return false;
-	}
-	size_t min_dim = std::min(self->dim, other->dim);
+	size_t min_dim = std::min(this->dim, other.dim);
 	if (0 == min_dim)
 	{
 		return false;
 	}
-	const float *other_mins = other->mins.ary;
-	const float *other_maxs = other->maxs.ary;
-	const float *self_mins  = self->mins.ary;
-	const float *self_maxs  = self->maxs.ary;
+	const float *other_mins = other.mins.ary;
+	const float *other_maxs = other.maxs.ary;
+	const float *self_mins  = this->mins.ary;
+	const float *self_maxs  = this->maxs.ary;
 	for (size_t cnt = 0; cnt < min_dim; cnt++, self_mins++, self_maxs++, other_mins++, other_maxs++)
 	{
 		if ((*other_maxs) < (*self_mins)) return false;
@@ -322,30 +318,20 @@ bool BSP_aabb_t::overlap_with_BSP_aabb(const BSP_aabb_t *self, const BSP_aabb_t 
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_aabb_t::contains_BSP_aabb(const BSP_aabb_t * lhs_ptr, const BSP_aabb_t * rhs_ptr)
+bool BSP_aabb_t::contains_BSP_aabb(const BSP_aabb_t& rhs_ptr) const
 {
-	/// @author BB
-	/// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
-	///               than lhs_ptr, just check the lowest common dimensions.
+	if (!this->valid || !rhs_ptr.valid) return false;
 
-	size_t cnt, min_dim;
-
-	const float * rhs_mins, *rhs_maxs, *lhs_mins, *lhs_maxs;
-
-	if (NULL == lhs_ptr || !lhs_ptr->valid) return false;
-	if (NULL == rhs_ptr || !rhs_ptr->valid) return false;
-
-	min_dim = std::min(rhs_ptr->dim, lhs_ptr->dim);
+	size_t min_dim = std::min(this->dim, rhs_ptr.dim);
 	if (0 == min_dim) return false;
 
-	// the optomizer is supposed to do this stuff all by itself,
-	// but isn't
-	rhs_mins = rhs_ptr->mins.ary;
-	rhs_maxs = rhs_ptr->maxs.ary;
-	lhs_mins = lhs_ptr->mins.ary;
-	lhs_maxs = lhs_ptr->maxs.ary;
+	// The optimizer is supposed to do this stuff all by itself, but isn't.
+	const float *rhs_mins = rhs_ptr.mins.ary;
+	const float *rhs_maxs = rhs_ptr.maxs.ary;
+	const float *lhs_mins = this->mins.ary;
+	const float *lhs_maxs = this->maxs.ary;
 
-	for (cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
+	for (size_t cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
 	{
 		if ((*rhs_maxs) >(*lhs_maxs)) return false;
 		if ((*rhs_mins) < (*lhs_mins)) return false;
@@ -356,19 +342,18 @@ bool BSP_aabb_t::contains_BSP_aabb(const BSP_aabb_t * lhs_ptr, const BSP_aabb_t 
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool BSP_aabb_t::overlap_with_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr)
+bool BSP_aabb_t::overlap_with_aabb(const aabb_t& rhs_ptr) const
 {
-	if (nullptr == lhs_ptr || nullptr == rhs_ptr) return false;
-	if (!lhs_ptr->valid) return false;
+	if (!this->valid) return false;
 
-	size_t min_dim = std::min((size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim);
+	size_t min_dim = std::min(this->dim,(size_t)3);
 	if (0 == min_dim) return false;
 
 	// The optimizer is supposed to do this stuff all by itself, but isn't.
-	const float *rhs_mins = rhs_ptr->mins.v + 0;
-	const float *rhs_maxs = rhs_ptr->maxs.v + 0;
-	const float *lhs_mins = lhs_ptr->mins.ary;
-	const float *lhs_maxs = lhs_ptr->maxs.ary;
+	const float *rhs_mins = rhs_ptr.mins.v + 0;
+	const float *rhs_maxs = rhs_ptr.maxs.v + 0;
+	const float *lhs_mins = this->mins.ary;
+	const float *lhs_maxs = this->maxs.ary;
 
 	for (size_t cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
 	{
@@ -380,29 +365,20 @@ bool BSP_aabb_t::overlap_with_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rh
 }
 
 //--------------------------------------------------------------------------------------------
-bool BSP_aabb_t::contains_aabb(const BSP_aabb_t * lhs_ptr, const aabb_t * rhs_ptr)
+bool BSP_aabb_t::contains_aabb(const aabb_t& rhs_ptr) const
 {
-	/// @author BB
-	/// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
-	///               than lhs_ptr, just check the lowest common dimensions.
+	if (!this->valid) return false;
 
-	size_t cnt, min_dim;
-
-	const float * rhs_mins, *rhs_maxs, *lhs_mins, *lhs_maxs;
-
-	if (NULL == lhs_ptr || !lhs_ptr->valid) return false;
-	if (NULL == rhs_ptr /* || !rhs_ptr->valid */) return false;
-
-	min_dim = std::min((size_t)3 /* rhs_ptr->dim */, lhs_ptr->dim);
+	size_t min_dim = std::min(this->dim,(size_t)3);
 	if (0 == min_dim) return false;
 
 	// The optimizer is supposed to do this stuff all by itself, but isn't.
-	rhs_mins = rhs_ptr->mins.v + 0;
-	rhs_maxs = rhs_ptr->maxs.v + 0;
-	lhs_mins = lhs_ptr->mins.ary;
-	lhs_maxs = lhs_ptr->maxs.ary;
+	const float *rhs_mins = rhs_ptr.mins.v + 0;
+	const float *rhs_maxs = rhs_ptr.maxs.v + 0;
+	const float *lhs_mins = this->mins.ary;
+	const float *lhs_maxs = this->maxs.ary;
 
-	for (cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
+	for (size_t cnt = 0; cnt < min_dim; cnt++, rhs_mins++, rhs_maxs++, lhs_mins++, lhs_maxs++)
 	{
 		if ((*rhs_maxs) >(*lhs_maxs)) return false;
 		if ((*rhs_mins) < (*lhs_mins)) return false;

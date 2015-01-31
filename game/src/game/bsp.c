@@ -103,7 +103,7 @@ obj_BSP_t *getChrBSP()
 	return chr_BSP_root;
 }
 
-obj_BSP_t *getPtrBSP()
+obj_BSP_t *getPrtBSP()
 {
 	EGOBOO_ASSERT(true == _obj_BSP_system_initialized && NULL != prt_BSP_root);
 	return prt_BSP_root;
@@ -207,9 +207,6 @@ bool prt_BSP_insert(prt_bundle_t * pbdl_prt)
 //--------------------------------------------------------------------------------------------
 bool chr_BSP_clear()
 {
-#if 0
-	CHR_REF ichr;
-#endif
 	// unlink all the BSP nodes
 	BSP_tree_clear_rec(&(chr_BSP_root->tree));
 	chr_BSP_root->count = 0;
@@ -226,14 +223,12 @@ bool chr_BSP_clear()
 //--------------------------------------------------------------------------------------------
 bool prt_BSP_clear()
 {
-	PRT_REF iprt;
-
 	// unlink all the BSP nodes
 	BSP_tree_clear_rec(&(prt_BSP_root->tree));
 	prt_BSP_root->count = 0;
 
 	// unlink all used particle nodes
-	for (iprt = 0; iprt < maxparticles; iprt++)
+	for (PRT_REF iprt = 0; iprt < maxparticles; iprt++)
 	{
 		BSP_leaf_t::remove_link(POBJ_GET_PLEAF(PrtList.lst + iprt));
 	}

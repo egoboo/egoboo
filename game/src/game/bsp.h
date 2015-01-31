@@ -82,7 +82,7 @@ obj_BSP_t *getChrBSP();
  * @pre
  *	the global particle BSP was initialized 
  */
-obj_BSP_t *getPtrBSP();
+obj_BSP_t *getPrtBSP();
 
 /**
  * @brief

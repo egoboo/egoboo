@@ -86,12 +86,16 @@ public:
 	 *	If the dimensionality of @a self and @a other are different,
 	 *		check the lowest common dimensionality.
 	 */
-	static bool overlap_with_BSP_aabb(const BSP_aabb_t *self, const BSP_aabb_t *other);
-	static bool contains_BSP_aabb(const BSP_aabb_t *self, const BSP_aabb_t *other);
+	bool overlap_with_BSP_aabb(const BSP_aabb_t& other) const;
+	/// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
+	///               than lhs_ptr, just check the lowest common dimensions.
+	bool contains_BSP_aabb(const BSP_aabb_t& other) const;
 	/// @details Do lhs_ptr and rhs_ptr overlap? If rhs_ptr has less dimensions
 	///               than lhs_ptr, just check the lowest common dimensions.
-	static bool overlap_with_aabb(const BSP_aabb_t *self, const aabb_t *other);
-	static bool contains_aabb(const BSP_aabb_t *self, const aabb_t *other);
+	bool overlap_with_aabb(const aabb_t& other) const;
+	/// @details Is rhs_ptr contained within lhs_ptr? If rhs_ptr has less dimensions
+	///               than lhs_ptr, just check the lowest common dimensions.
+	bool contains_aabb(const aabb_t& other) const;
 };
 
 

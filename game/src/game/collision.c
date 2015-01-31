@@ -885,7 +885,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
         // find all collisions with other characters and particles
         _coll_leaf_lst.clear();
-		getChrBSP()->collide_aabb(&tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
+		getChrBSP()->collide(&tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
@@ -947,7 +947,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
         }
 
         _coll_leaf_lst.clear();
-		getPtrBSP()->collide_aabb(&tmp_aabb, prt_BSP_can_collide, &_coll_leaf_lst);
+		getPrtBSP()->collide(&tmp_aabb, prt_BSP_can_collide, &_coll_leaf_lst);
         if (!_coll_leaf_lst.empty())
         {
             for (size_t j = 0; j < _coll_leaf_lst.size(); j++ )
@@ -1036,7 +1036,7 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 
         // find all collisions with characters
         _coll_leaf_lst.clear();
-		getChrBSP()->collide_aabb(&tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
+		getChrBSP()->collide(&tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
@@ -1160,11 +1160,10 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
 //--------------------------------------------------------------------------------------------
 bool fill_bumplists()
 {
-    /// @author BB
-    /// @details Fill in the obj_BSP_t for this frame
+    /// @brief Clear, then fill the chr and prt (aka obj) BSPs for this frame.
     ///
-    /// @note do not use obj_BSP_clear every frame, because the number of pre-allocated nodes can be quite large.
-    /// Instead, just remove the nodes from the tree, fill the tree, and then prune any empty branches/leaves
+    /// @note Do not use BSP_tree_t::prune every frame, because the number of pre-allocated branches can be quite
+	/// large. Instead, just remove the leaves from the tree, fill the tree, and then prune any empty branches.
 
     // empty out the BSP node lists
     chr_BSP_clear();
@@ -1177,8 +1176,8 @@ bool fill_bumplists()
     // remove empty branches from the tree
     if (63 == ( game_frame_all & 63))
     {
-        BSP_tree_prune(&(getChrBSP()->tree));
-        BSP_tree_prune(&(getChrBSP()->tree));
+        BSP_tree_t::prune(&(getChrBSP()->tree));
+        BSP_tree_t::prune(&(getPrtBSP()->tree));
     }
 
     return true;

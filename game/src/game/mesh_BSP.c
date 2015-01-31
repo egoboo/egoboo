@@ -139,15 +139,15 @@ bool mesh_BSP_fill(mesh_BSP_t *self, const ego_mesh_t *mesh)
     return self->count > 0;
 }
 
-size_t mesh_BSP_t::collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const
+size_t mesh_BSP_t::collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const
 {
-    return tree.collide_aabb(aabb, test, collisions);
+    return tree.collide(aabb, test, collisions);
 }
 
 
-size_t mesh_BSP_t::collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
+size_t mesh_BSP_t::collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions) const
 {
-    return tree.collide_frustum(frustum, test, collisions);
+    return tree.collide(frustum, test, collisions);
 }
 
 /**

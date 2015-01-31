@@ -67,17 +67,17 @@ struct mesh_BSP_t
 	 * @brief
 	 *	Fill the collision list with references to tiles that the object volume may overlap.
 	 * @return
-	 *	the number of collisions found
+	 *	the new number of collisions in @a collisions
 	 */
-	size_t collide_aabb(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	size_t collide(const aabb_t *aabb, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 	/**
 	 * @brief
 	 * 	Fill the collision list with references to tiles that the object volume may overlap.
 	 * @return
-	 *	the number of collisions found
+	 *	the new number of collisions in @a collisions
 	 */
-	size_t collide_frustum(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
+	size_t collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions) const;
 
 };
 
