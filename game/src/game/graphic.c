@@ -6305,7 +6305,7 @@ gfx_rv gfx_make_renderlist( renderlist_t * prlist, std::shared_ptr<Camera> pcam 
     retval = gfx_success;
 
     // get the tiles in the center of the view
-    _renderlist_colst.top = 0;
+    _renderlist_colst.clear();
 	getMeshBSP()->collide_frustum(&(pcam->getFrustum()), NULL, &_renderlist_colst);
 
     // transfer valid _renderlist_colst entries to the dolist
@@ -6364,7 +6364,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
     }
 
     // collide the characters with the frustum
-    _dolist_colst.top = 0;
+    _dolist_colst.clear();
 	getChrBSP()->collide_frustum(&(pcam->getFrustum()), chr_BSP_is_visible, &_dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist
@@ -6375,7 +6375,7 @@ gfx_rv gfx_make_dolist( dolist_t * pdlist, std::shared_ptr<Camera> pcam )
     }
 
     // collide the particles with the frustum
-    _dolist_colst.top = 0;
+    _dolist_colst.clear();
 	getPtrBSP()->collide_frustum(&(pcam->getFrustum()), prt_BSP_is_visible, &_dolist_colst);
 
     // transfer valid _dolist_colst entries to the dolist

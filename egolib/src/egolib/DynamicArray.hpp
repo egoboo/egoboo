@@ -28,10 +28,9 @@ namespace Ego
 {
 	template <typename ElementType> struct DynamicArray
 	{
-		int top;           ///< @brief The first @a size elements in the array pointed to by @a ary are valid,
-		                   ///<        the remaining <tt>cp-size</tt> elements have unspecified values.
+		size_t sz;         ///< @brief The first @a sz elements in the array pointed to by @a ary are valid,
+		                   ///<        the remaining <tt>cp-sz</tt> elements have unspecified values.
 		                   ///< @todo      Rename to @a _size.
-		                   ///< @todo      Change type to @a size_t.
 		size_t cp;         ///< @brief     The number of elements in the array pointed to by @a ary.
 		                   ///< @invariant Greater than @a 0.
 		                   ///< @todo      Rename to @a _capacity.
@@ -86,7 +85,7 @@ namespace Ego
 		 */
 		DynamicArray<ElementType> *ctor(size_t initialCapacity)
 		{
-			this->top = 0;
+			this->sz = 0;
 			this->ary = EGOBOO_NEW_ARY(ElementType,initialCapacity);
 			if (!this->ary)
 			{
@@ -108,13 +107,13 @@ namespace Ego
 		{
 			EGOBOO_DELETE_ARY(this->ary);
 			this->cp = 0;
-			this->top = 0;
+			this->sz = 0;
 		}
 
 		/// @brief Remove all elements from this array.
 		void clear()
 		{
-			this->top = 0;
+			this->sz = 0;
 		}
 
 		/// @brief  Get if this array is empty.
@@ -135,7 +134,7 @@ namespace Ego
 		/// @return the size of this array
 		size_t size() const
 		{
-			return this->top;
+			return this->sz;
 		}
 
 		/// @brief  Get the capacity of this array.
@@ -154,7 +153,7 @@ namespace Ego
 			{
 				return NULL;
 			}
-			return &(this->ary[--this->top]);
+			return &(this->ary[--this->sz]);
 		}
 		
 		/// @brief  Append an element.
@@ -162,9 +161,9 @@ namespace Ego
 		/// @return #rv_success on success, #rv_fail on failure
 		egolib_rv push_back(ElementType value)
 		{
-			if (this->top >= 0 && (size_t)this->top < this->cp)
+			if (this->sz < this->cp)
 			{
-				this->ary[this->top++] = value;
+				this->ary[this->sz++] = value;
 				return rv_success;
 			}
 			return rv_fail;

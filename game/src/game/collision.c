@@ -884,16 +884,14 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
         aabb_from_oct_bb( &tmp_aabb, &tmp_oct );
 
         // find all collisions with other characters and particles
-        _coll_leaf_lst.top = 0;
+        _coll_leaf_lst.clear();
 		getChrBSP()->collide_aabb(&tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
-        if ( _coll_leaf_lst.top > 0 )
+        if (!_coll_leaf_lst.empty())
         {
-            int j;
-
-            for ( j = 0; j < _coll_leaf_lst.top; j++ )
+            for (size_t j = 0; j < _coll_leaf_lst.size(); j++ )
             {
                 BSP_leaf_t * pleaf;
                 CoNode_t    tmp_codata;
@@ -948,13 +946,11 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
             }
         }
 
-        _coll_leaf_lst.top = 0;
+        _coll_leaf_lst.clear();
 		getPtrBSP()->collide_aabb(&tmp_aabb, prt_BSP_can_collide, &_coll_leaf_lst);
-        if ( _coll_leaf_lst.top > 0 )
+        if (!_coll_leaf_lst.empty())
         {
-            int j;
-
-            for ( j = 0; j < _coll_leaf_lst.top; j++ )
+            for (size_t j = 0; j < _coll_leaf_lst.size(); j++ )
             {
                 BSP_leaf_t * pleaf;
                 CoNode_t    tmp_codata;
@@ -1039,21 +1035,20 @@ bool fill_interaction_list(CoHashList_t *coHashList, Ego::DynamicArray<CoNode_t>
         aabb_from_oct_bb( &tmp_aabb, &tmp_oct );
 
         // find all collisions with characters
-        _coll_leaf_lst.top = 0;
+        _coll_leaf_lst.clear();
 		getChrBSP()->collide_aabb(&tmp_aabb, chr_BSP_can_collide, &_coll_leaf_lst );
 
         // transfer valid _coll_leaf_lst entries to pchlst entries
         // and sort them by their initial times
-        if ( _coll_leaf_lst.top > 0 )
+        if (!_coll_leaf_lst.empty())
         {
-            int          j;
             CoNode_t     tmp_codata;
             BIT_FIELD    test_platform;
             CHR_REF      ichr_a = INVALID_CHR_REF;
             BSP_leaf_t * pleaf = NULL;
             bool       do_insert = false;
 
-            for ( j = 0; j < _coll_leaf_lst.top; j++ )
+            for (size_t j = 0; j < _coll_leaf_lst.size(); j++ )
             {
                 pleaf = _coll_leaf_lst.ary[j];
                 if ( NULL == pleaf ) continue;
@@ -1456,10 +1451,10 @@ void bump_all_objects()
     }
 
     // set up the collision node array
-    _co_ary.top = _co_ary.cp;
+    _co_ary.sz = _co_ary.cp;
 
     // set up the hash node array
-    _hn_ary.top = _hn_ary.cp;
+    _hn_ary.sz = _hn_ary.cp;
 
     // fill up the BSP structures
     fill_bumplists();
@@ -1474,7 +1469,7 @@ void bump_all_objects()
     {
         hash_list_iterator_t it;
 
-        _coll_node_lst.top = 0;
+        _coll_node_lst.clear();
 
 		it.ctor();
         hash_list_iterator_set_begin(&it, coHashList);
@@ -1486,10 +1481,10 @@ void bump_all_objects()
             _coll_node_lst.push_back(*coNode);
         }
 
-        if ( _coll_node_lst.top > 1 )
+        if (_coll_node_lst.size() > 1)
         {
             // arrange the actual nodes by time order
-            qsort( _coll_node_lst.ary, _coll_node_lst.top, sizeof( CoNode_t ), CoNode_cmp );
+            qsort(_coll_node_lst.ary, _coll_node_lst.size(), sizeof(CoNode_t), CoNode_cmp);
         }
 
         // handle interaction with mounts
@@ -1521,15 +1516,12 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
     /// @note the function move_one_character_get_environment() has already been called from within the
     ///  move_one_character() function, so the environment has already been determined this round
 
-    int        cnt;
-    CoNode_t * d;
-
-    if ( NULL == pcn_ary ) return false;
+	if ( NULL == pcn_ary ) return false;
 
     //---- Detect all platform attachments
-    for ( cnt = 0; cnt < pcn_ary->top; cnt++ )
+    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++ )
     {
-        d = pcn_ary->ary + cnt;
+		CoNode_t *d = pcn_ary->ary + cnt;
 
         // only look at character-platform or particle-platform interactions interactions
         if ( INVALID_PRT_REF != d->prta && INVALID_PRT_REF != d->prtb ) continue;
@@ -1553,9 +1545,9 @@ bool bump_all_platforms( Ego::DynamicArray<CoNode_t> *pcn_ary )
     // Doing the attachments after detecting the best platform
     // prevents an object from attaching it to multiple platforms as it
     // is still trying to find the best one
-    for ( cnt = 0; cnt < pcn_ary->top; cnt++ )
+    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++ )
     {
-        d = pcn_ary->ary + cnt;
+		CoNode_t *d = pcn_ary->ary + cnt;
 
         // only look at character-character interactions
         //if ( INVALID_PRT_REF != d->prta && INVALID_PRT_REF != d->prtb ) continue;
@@ -1628,16 +1620,12 @@ bool bump_all_mounts( Ego::DynamicArray<CoNode_t> *pcn_ary )
 {
     /// @author BB
     /// @details Detect all character interactions with mounts, then attach them.
-
-    int        cnt;
-    CoNode_t * d;
-
     if ( NULL == pcn_ary ) return false;
 
     // Do mounts
-    for ( cnt = 0; cnt < pcn_ary->top; cnt++ )
+    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++)
     {
-        d = pcn_ary->ary + cnt;
+		CoNode_t *d = pcn_ary->ary + cnt;
 
         // only look at character-character interactions
         if ( INVALID_CHR_REF == d->chra || INVALID_CHR_REF == d->chrb ) continue;
@@ -1655,8 +1643,6 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     /// @details Detect all character-character and character-particle collsions (with exclusions
     ///               for the mounts and platforms found in the previous steps)
 
-    int        cnt;
-
     // blank the accumulators
     for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
     {
@@ -1670,7 +1656,7 @@ bool bump_all_collisions( Ego::DynamicArray<CoNode_t> *pcn_ary )
     PRT_END_LOOP();
 
     // do all interactions
-    for ( cnt = 0; cnt < pcn_ary->top; cnt++ )
+    for (size_t cnt = 0; cnt < pcn_ary->size(); cnt++ )
     {
         bool handled = false;
 

@@ -44,9 +44,8 @@ static int    _find_child_index(const BSP_aabb_t * pbranch_aabb, const aabb_t * 
 //--------------------------------------------------------------------------------------------
 // BSP_tree_t private functions
 
-static BSP_branch_t * BSP_tree_alloc_branch(BSP_tree_t * t);
-
-static bool BSP_tree_insert_infinite(BSP_tree_t * ptree, BSP_leaf_t * pleaf);
+static BSP_branch_t *BSP_tree_alloc_branch(BSP_tree_t *self);
+static bool BSP_tree_insert_infinite(BSP_tree_t *self, BSP_leaf_t *leaf);
 
 //--------------------------------------------------------------------------------------------
 // BSP_branch_t private functions
@@ -55,17 +54,12 @@ static bool BSP_branch_insert_leaf_rec(BSP_tree_t * ptree, BSP_branch_t * pbranc
 static bool BSP_branch_insert_branch_list_rec(BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int index, int depth);
 static bool BSP_branch_insert_leaf_list(BSP_branch_t * B, BSP_leaf_t * n);
 static bool BSP_branch_insert_branch(BSP_branch_t * B, size_t index, BSP_branch_t * B2);
-
 static bool BSP_branch_prune(BSP_tree_t * t, BSP_branch_t * B, bool recursive);
-
 static int BSP_branch_insert_leaf_rec_1(BSP_tree_t * ptree, BSP_branch_t * pbranch, BSP_leaf_t * pleaf, int depth);
 
 //--------------------------------------------------------------------------------------------
 // BSP_leaf_t private functions
-#if 0
-static bool BSP_leaf_list_collide_aabb(const BSP_leaf_list_t * LL, const aabb_t * paabb, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> *collisions);
-static bool BSP_leaf_list_collide_frustum(const BSP_leaf_list_t * LL, const egolib_frustum_t * pfrust, BSP_leaf_test_t * ptest, Ego::DynamicArray<BSP_leaf_t *> *collisions);
-#endif
+
 //--------------------------------------------------------------------------------------------
 // Generic BSP functions
 //--------------------------------------------------------------------------------------------
@@ -260,6 +254,25 @@ bool BSP_leaf_t::copy(BSP_leaf_t * dst, const BSP_leaf_t * src)
 //--------------------------------------------------------------------------------------------
 // BSP_branch_t
 //--------------------------------------------------------------------------------------------
+BSP_branch_t *BSP_branch_t::create(size_t dimensionality)
+{
+	BSP_branch_t *branch = EGOBOO_NEW(BSP_branch_t);
+	if (!branch)
+	{
+		return nullptr;
+	}
+	if (!branch->ctor(dimensionality))
+	{
+		EGOBOO_DELETE(branch);
+		return nullptr;
+	}
+	return branch;
+}
+void BSP_branch_t::destroy(BSP_branch_t *branch)
+{
+	branch->dtor();
+	EGOBOO_DELETE(branch);
+}
 BSP_branch_t *BSP_branch_t::ctor(size_t dimensionality)
 {
 	// Set actual depth to 0 and parent to nullptr.
@@ -347,10 +360,10 @@ bool BSP_branch_unlink_parent(BSP_branch_t * B)
 	BSP_branch_t *parent_ptr = B->parent;
 	BSP_branch_list_t *children_ptr = &(parent_ptr->children);
 
-	// unlink from the parent_ptr
+	// unlink from the parent
 	B->parent = NULL;
 
-	// unlink the parent_ptr from us
+	// unlink the parent from us
 	if (!INVALID_BSP_BRANCH_LIST(children_ptr))
 	{
 		for (size_t i = 0; i < children_ptr->lst_size; i++)
@@ -363,7 +376,7 @@ bool BSP_branch_unlink_parent(BSP_branch_t * B)
 		}
 	}
 
-	// re-count the parent_ptr's children_ptr
+	// Re-count the parents children.
 	children_ptr->inserted = 0;
 	for (size_t i = 0; i < children_ptr->lst_size; i++)
 	{
@@ -1381,15 +1394,31 @@ BSP_tree_t *BSP_tree_t::ctor(size_t dimensionality, size_t maximumDepth)
 	// Construct the branches
 	if (!branch_all.ctor(node_count))
 	{
-		// @todo Destruct.
+		bbox.dtor();
+		bsp_bbox.dtor();
+		infinite.dtor();
+		/** @todo Destruct. */
 		return nullptr;
 	}
 	// initialize the array branches
 	for (size_t index = 0; index < node_count; ++index)
 	{
-		if (!(branch_all.ary + index)->ctor(dimensionality))
+		BSP_branch_t *branch = BSP_branch_t::create(dimensionality);
+		if (!branch)
 		{
-			// @todo Destruct.
+			bbox.dtor();
+			bsp_bbox.dtor();
+			infinite.dtor();
+			/** @todo Destruct. */
+			return nullptr;
+		}
+		if (!branch_all.push_back(branch))
+		{
+			BSP_branch_t::destroy(branch);
+			bbox.dtor();
+			bsp_bbox.dtor();
+			infinite.dtor();
+			/** @todo Destruct. */
 			return nullptr;
 		}
 	}
@@ -1404,11 +1433,9 @@ BSP_tree_t *BSP_tree_t::ctor(size_t dimensionality, size_t maximumDepth)
 	this->depth = 0;
 
 	// Initialize the free list.
-	branch_free.top = 0;
-	branch_used.top = 0;
-	for (size_t cnt = 0; cnt < branch_all.cp; cnt++)
+	for (size_t i = 0; i < branch_all.size(); i++)
 	{
-		branch_free.push_back(branch_all.ary + cnt);
+		branch_free.push_back(branch_all.ary[i]);
 	}
 	return this;
 }
@@ -1419,17 +1446,19 @@ void BSP_tree_t::dtor()
 	// Destruct the infinite node list.
 	infinite.dtor();
 
-	// Destruct the branches.
-	for (size_t index = 0; index < branch_all.cp; index++)
-	{
-		(branch_all.ary + index)->dtor();
-	}
-	// Destruct the all branches list.
-	branch_all.dtor();
-
 	// Destruct the auxiliary arrays.
 	branch_used.dtor();
 	branch_free.dtor();
+
+	// Destruct the branches.
+	while (!branch_all.empty())
+	{
+		BSP_branch_t *branch = *branch_all.pop_back();
+		BSP_branch_t::destroy(branch);
+	}
+
+	// Destruct the all branches list.
+	branch_all.dtor();
 
 	// Destruct the root bounding box.
 	bsp_bbox.dtor();
@@ -1618,7 +1647,7 @@ bool BSP_tree_prune(BSP_tree_t * t)
 
 	// search through all allocated branches. This will not catch all of the
 	// empty branches every time, but it should catch quite a few
-	for (size_t cnt = 0; cnt < t->branch_used.top; cnt++)
+	for (size_t cnt = 0; cnt < t->branch_used.sz; cnt++)
 	{
 		BSP_tree_prune_branch(t, cnt);
 	}
@@ -1739,18 +1768,13 @@ bool BSP_tree_insert_leaf(BSP_tree_t * ptree, BSP_leaf_t * pleaf)
 //--------------------------------------------------------------------------------------------
 bool BSP_tree_prune_branch(BSP_tree_t * t, size_t cnt)
 {
-	/// @author BB
-	/// @details an optimized version of iterating through the t->branch_used list
-	///          and then calling BSP_branch_prune() on the empty branch. In the old method,
-	///          the t->branch_used list was searched twice to find each empty branch. This
-	///          function does it only once.
-
 	size_t i;
 	bool remove;
 
 	BSP_branch_t * B;
 
-	if (NULL == t || t->branch_used.top <= 0 || cnt >= (size_t)t->branch_used.top) return false;
+	if (NULL == t) return false;
+	if (t->branch_used.empty() || cnt >= t->branch_used.sz) return false;
 
 	B = t->branch_used.ary[cnt];
 	if (NULL == B) return false;
@@ -1775,7 +1799,7 @@ bool BSP_tree_prune_branch(BSP_tree_t * t, size_t cnt)
 	if (remove)
 	{
 		// reduce the size of the list
-		t->branch_used.top--;
+		t->branch_used.sz--;
 
 		// set B's data to "safe" values
 		// this has already been "unlinked", so some of this is redundant
@@ -1790,7 +1814,7 @@ bool BSP_tree_prune_branch(BSP_tree_t * t, size_t cnt)
 		BSP_aabb_t::set_empty(&(B->bsp_bbox));
 
 		// move the branch that we found to the top of the list
-		SWAP(BSP_branch_t *, t->branch_used.ary[cnt], t->branch_used.ary[t->branch_used.top]);
+		SWAP(BSP_branch_t *, t->branch_used.ary[cnt], t->branch_used.ary[t->branch_used.sz]);
 
 		// add the branch to the free list
 		t->branch_free.push_back(B);

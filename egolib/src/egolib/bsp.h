@@ -243,6 +243,24 @@ public:
 
 	/**
 	 * @brief
+	 *	Create a branch.
+	 * @param dimensionality
+	 *	the dimensionality of this branch
+	 * @return
+	 *	a pointer to the branch on success, @a nullptr on failure
+	 */
+	static BSP_branch_t *create(size_t dimensionality);
+	/**
+	 * @brief
+	 *	Destroy a branch.
+	 * @param self
+	 *	the branch
+	 */
+	static void destroy(BSP_branch_t *branch);
+
+protected:
+	/**
+	 * @brief
 	 *	Construct this branch.
 	 * @param dimensionality
 	 *	the dimensionality of this branch
@@ -256,7 +274,7 @@ public:
 	 *	Destruct this branch.
 	 */
 	void dtor();
-
+public:
 	/**
 	 * @brief
 	 *	Get if this branch is empty.
@@ -267,21 +285,34 @@ public:
 };
 
 
-/// @brief Clear this branch.
-/// @param self this branch
-/// @param recursive if @a true, recursively clear this branch
+/**
+ * @brief
+ *	Clear this branch.
+ * @param self
+ *	this branch
+ * @param recursive
+ *	if @a true, recursively clear this branch
+ */
 bool BSP_branch_clear(BSP_branch_t *self, bool recursive);
 bool BSP_branch_free_nodes(BSP_branch_t *self, bool recursive);
 bool BSP_branch_unlink_all(BSP_branch_t *self);
-bool BSP_branch_unlink_parent( BSP_branch_t *self);
-bool BSP_branch_unlink_children( BSP_branch_t *self);
-bool BSP_branch_unlink_nodes( BSP_branch_t *self);
+/**
+ * @brief
+ *	Unlink this branch from its parent.
+ * @param self
+ *	this branch
+ * @remark
+ *	If this branch has no parent, a call to this function is a no-op.
+ */
+bool BSP_branch_unlink_parent(BSP_branch_t *self);
+bool BSP_branch_unlink_children(BSP_branch_t *self);
+bool BSP_branch_unlink_nodes(BSP_branch_t *self);
 bool BSP_branch_update_depth_rec(BSP_branch_t *self, int depth);
 
-bool BSP_branch_add_all_rec(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions);
-bool BSP_branch_add_all_nodes(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions);
-bool BSP_branch_add_all_unsorted(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collision);
-bool BSP_branch_add_all_children(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *>  *collisions);
+bool BSP_branch_add_all_rec(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+bool BSP_branch_add_all_nodes(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
+bool BSP_branch_add_all_unsorted(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collision);
+bool BSP_branch_add_all_children(const BSP_branch_t *self, BSP_leaf_test_t *test, Ego::DynamicArray<BSP_leaf_t *> *collisions);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -337,9 +368,12 @@ public:
 	 */
 	int depth;
 
-	Ego::DynamicArray < BSP_branch_t>    branch_all;  ///< the list of pre-allocated branches
-	Ego::DynamicArray < BSP_branch_t * > branch_used; ///< a linked list of all used pre-allocated branches
-	Ego::DynamicArray < BSP_branch_t * > branch_free; ///< a linked list of all free pre-allocated branches
+	Ego::DynamicArray<BSP_branch_t *> branch_all;  ///< The list of pre-allocated branches.
+	                                               ///< Takes ownership of the branches.
+	Ego::DynamicArray<BSP_branch_t *> branch_used; ///< A linked list of all used pre-allocated branches.
+	                                               ///< Does not take ownership.
+	Ego::DynamicArray<BSP_branch_t *> branch_free; ///< A linked list of all free pre-allocated branches.
+	                                               ///< Does not take ownership.
 
     BSP_branch_t *finite;      ///< the root node of the ordinary BSP tree
     BSP_leaf_list_t infinite;  ///< all nodes which do not fit inside the BSP tree
@@ -419,6 +453,13 @@ BSP_branch_t *BSP_tree_ensure_branch(BSP_tree_t *self, BSP_branch_t *branch, siz
 */
 bool BSP_tree_count_nodes(size_t dimensionality, size_t maximumDepth, size_t& numberOfNodes);
 bool BSP_tree_insert_leaf(BSP_tree_t *self, BSP_leaf_t *leaf);
+/**
+ * @brief
+ *	Iterate through the BSP_tree:t::branch_used list and call BSP_branch_prune on empty branches.
+ * @remark
+ *	An optimized version: In the old method, the t->branch_used list was searched twice to find
+ *  each empty branch. This function does it only once.
+ */
 bool BSP_tree_prune_branch(BSP_tree_t *self, size_t cnt);
 
 
