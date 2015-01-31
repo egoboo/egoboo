@@ -482,9 +482,6 @@
     <ClInclude Include="src\egolib\math\Random.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\egolib\math\Plane.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\egolib\math\Cube.hpp">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -508,6 +505,9 @@
     </ClInclude>
     <ClInclude Include="src\egolib\Renderer\OpenGL\Renderer.hpp">
       <Filter>Header Files\Renderer\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\egolib\math\Plane.hpp">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

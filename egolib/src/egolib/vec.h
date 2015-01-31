@@ -23,7 +23,9 @@
 #pragma once
 
 #include "egolib/typedef.h"
+#if 0
 #include "egolib/_math.h"
+#endif
 
 /**
  * @brief
@@ -525,6 +527,11 @@ struct fvec3_t
 		return *this;
 	}
 
+	bool operator==(const fvec3_t& other)
+	{
+		return equals(other);
+	}
+
 	float& operator[](size_t const& index)
 	{
 		EGOBOO_ASSERT(index < 3);
@@ -700,23 +707,13 @@ bool   fvec2_valid(const fvec2_base_t A);
 bool   fvec2_self_clear(fvec2_base_t A);
 bool   fvec2_self_is_clear(const fvec2_base_t A);
 bool   fvec2_base_copy(fvec2_base_t A, const fvec2_base_t B);
-#if 0
-float  fvec2_length(const fvec2_base_t A);
-#endif
 float  fvec2_length_abs(const fvec2_base_t A);
 float  fvec2_length_2(const fvec2_t& v);
 float  fvec2_length_2(const fvec2_base_t v);
 bool   fvec2_self_scale(fvec2_base_t A, const float B);
-bool   fvec2_self_sum(fvec2_base_t A, const fvec2_base_t B);
 bool   fvec2_self_normalize(fvec2_base_t A);
 float  fvec2_cross_product(const fvec2_base_t A, const fvec2_base_t B);
 float  fvec2_dot_product(const fvec2_base_t A, const fvec2_base_t B);
-#if 0
-float *fvec2_sub(fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS);
-#endif
-#if 0
-float *fvec2_add(fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS);
-#endif
 float *fvec2_normalize(fvec2_base_t DST, const fvec2_base_t SRC);
 float *fvec2_scale(fvec2_base_t DST, const fvec2_base_t SRC, const float B);
 

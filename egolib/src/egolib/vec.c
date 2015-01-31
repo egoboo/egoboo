@@ -21,6 +21,7 @@
 /// @brief 2-,3- and 4-dimensional vectors.
 #include "egolib/vec.h"
 #include "egolib/log.h"
+#include "egolib/_math.h"
 
 const fvec2_t fvec2_t::zero(0.0f, 0.0f);
 const fvec3_t fvec3_t::zero(0.0f, 0.0f, 0.0f);
@@ -92,20 +93,6 @@ bool fvec2_self_scale(fvec2_base_t A, const float B)
 
 	return true;
 }
-
-//--------------------------------------------------------------------------------------------
-bool fvec2_self_sum(fvec2_base_t A, const fvec2_base_t B)
-{
-	if (NULL == A || NULL == B) return false;
-
-	A[kX] += B[kX];
-	A[kY] += B[kY];
-
-	LOG_NAN_FVEC2(A);
-
-	return true;
-}
-
 //--------------------------------------------------------------------------------------------
 float fvec2_length_abs(const fvec2_base_t A)
 {
@@ -132,87 +119,6 @@ float fvec2_length_2(const fvec2_base_t v)
 
 	return l_2;
 }
-
-//--------------------------------------------------------------------------------------------
-#if 0
-float fvec2_length(const fvec2_base_t A)
-{
-	float A2;
-
-	if (NULL == A) return 0.0f;
-
-	A2 = A[kX] * A[kX] + A[kY] * A[kY];
-
-	return std::sqrt(A2);
-}
-#endif
-//--------------------------------------------------------------------------------------------
-#if 0
-float *fvec2_sub(fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS)
-{
-	if (NULL == DST)
-	{
-		return NULL;
-	}
-	else if (NULL == LHS && NULL == RHS)
-	{
-		fvec2_self_clear(DST);
-	}
-	else if (NULL == LHS)
-	{
-		DST[kX] = -RHS[kX];
-		DST[kY] = -RHS[kY];
-	}
-	else if (NULL == RHS)
-	{
-		DST[kX] = LHS[kX];
-		DST[kY] = LHS[kY];
-	}
-	else
-	{
-		DST[kX] = LHS[kX] - RHS[kX];
-		DST[kY] = LHS[kY] - RHS[kY];
-	}
-
-	return DST;
-}
-#endif
-//--------------------------------------------------------------------------------------------
-#if 0
-float *fvec2_add(fvec2_base_t DST, const fvec2_base_t LHS, const fvec2_base_t RHS)
-{
-	if (NULL == DST)
-	{
-		return NULL;
-	}
-	else if (NULL == LHS && NULL == RHS)
-	{
-		fvec2_self_clear(DST);
-	}
-	else if (NULL == LHS)
-	{
-		fvec2_base_copy(DST, RHS);
-	}
-	else if (NULL == RHS)
-	{
-		fvec2_base_copy(DST, LHS);
-	}
-	else
-	{
-		DST[kX] = LHS[kX] - RHS[kX];
-		DST[kY] = LHS[kY] - RHS[kY];
-	}
-
-	return DST;
-}
-#endif
-//--------------------------------------------------------------------------------------------
-#if 0
-float fvec2_dist_abs(const fvec2_base_t A, const fvec2_base_t B)
-{
-	return ABS(A[kX] - B[kX]) + ABS(A[kY] - B[kY]);
-}
-#endif
 //--------------------------------------------------------------------------------------------
 float * fvec2_scale(fvec2_base_t DST, const fvec2_base_t SRC, const float B)
 {
@@ -364,13 +270,6 @@ float *fvec3_base_copy(fvec3_base_t DST, const fvec3_base_t SRC)
 
 	return DST;
 }
-//--------------------------------------------------------------------------------------------
-#if 0
-fvec3_t fvec3_scale(const fvec3_t& v, float s)
-{
-	return fvec3_t(v.x * s, v.y * s, v.z * s);
-}
-#endif
 //--------------------------------------------------------------------------------------------
 float fvec3_decompose(const fvec3_t& A, const fvec3_t& vnrm, fvec3_t& vpara, fvec3_t& vperp)
 {

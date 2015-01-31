@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/// @file  egolib/math/Plane.c
+/// @file  egolib/math/Plane.cpp
 /// @brief Planes.
 
-#include "egolib/math/Plane.h"
+#include "egolib/math/Plane.hpp"

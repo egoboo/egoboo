@@ -95,7 +95,8 @@ namespace Ego {
 			 * @return
 			 *	the value of the red component
 			 */
-			float getRed() const {
+			float getRed() const
+			{
 				return _r;
 			}
 
@@ -105,7 +106,8 @@ namespace Ego {
 			 * @return
 			 *	the value of the green component
 			 */
-			float getGreen() const {
+			float getGreen() const
+			{
 				return _g;
 			}
 
@@ -115,7 +117,8 @@ namespace Ego {
 			 * @return
 			 *	the value of the blue component
 			 */
-			float getBlue() const {
+			float getBlue() const
+			{
 				return _b;
 			}
 
@@ -160,13 +163,16 @@ namespace Ego {
 				_g(g),
 				_b(b)
 			{
-				if (_r < 0.0f || _r > 1.0f) {
+				if (_r < 0.0f || _r > 1.0f)
+				{
 					throw std::domain_error("red component outside bounds");
 				}
-				if (_g < 0.0f || _g > 1.0f) {
+				if (_g < 0.0f || _g > 1.0f)
+				{
 					throw std::domain_error("green component outside bounds");
 				}
-				if (_b < 0.0f || _b > 1.0f) {
+				if (_b < 0.0f || _b > 1.0f)
+				{
 					throw std::domain_error("blue component outside bounds");
 				}
 			}

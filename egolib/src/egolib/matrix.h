@@ -21,6 +21,7 @@
 /// @details matrices
 #pragma once
 
+#include "egolib/_math.h"
 #include "egolib/vec.h"
 
 /// @brief Egoboo currently uses column-major format. This will change to column major.

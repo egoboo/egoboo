@@ -421,7 +421,7 @@
     <ClInclude Include="src\egolib\math\AABB.h" />
     <ClInclude Include="src\egolib\math\Cube.hpp" />
     <ClInclude Include="src\egolib\math\Sphere.h" />
-    <ClInclude Include="src\egolib\math\Plane.h" />
+    <ClInclude Include="src\egolib\math\Plane.hpp" />
     <ClInclude Include="src\egolib\math\Random.hpp" />
     <ClInclude Include="src\egolib\bsp_aabb.h" />
     <ClInclude Include="src\egolib\bv.h" />

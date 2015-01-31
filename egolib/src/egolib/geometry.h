@@ -26,7 +26,7 @@
 
 #include "egolib/typedef.h"
 #include "egolib/_math.h"
-#include "egolib/math/Plane.h"
+#include "egolib/math/Plane.hpp"
 #include "egolib/math/Sphere.h"
 
 // Forward declaration.
