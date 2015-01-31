@@ -236,7 +236,7 @@ PRT_REF end_one_particle_in_game( const PRT_REF particle )
             child = spawn_one_character(prt_get_pos_v_const(pprt), pprt->profile_ref, pprt->team, 0, pprt->facing, NULL, INVALID_CHR_REF );
             if ( _gameObjects.exists( child ) )
             {
-                chr_t * pchild = _gameObjects.get( child );
+                GameObject * pchild = _gameObjects.get( child );
 
                 chr_set_ai_state( pchild , pprt->endspawn_characterstate );
                 pchild->ai.owner = pprt->owner_ref;
@@ -1558,7 +1558,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
     temp_friction_xy = 1.0f;
     if ( _gameObjects.exists( loc_pprt->onwhichplatform_ref ) )
     {
-        chr_t * pplat = _gameObjects.get( loc_pprt->onwhichplatform_ref );
+        GameObject * pplat = _gameObjects.get( loc_pprt->onwhichplatform_ref );
 
         temp_friction_xy = platstick;
 
@@ -1641,7 +1641,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
 //--------------------------------------------------------------------------------------------
 prt_bundle_t * move_one_particle_do_homing( prt_bundle_t * pbdl_prt )
 {
-    chr_t * ptarget;
+    GameObject * ptarget;
 
     prt_t             * loc_pprt;
     PRT_REF             loc_iprt;
@@ -2186,7 +2186,7 @@ prt_bundle_t * move_one_particle_integrate_motion( prt_bundle_t * pbdl_prt )
         }
         else if ( _gameObjects.exists( loc_pprt->target_ref ) )
         {
-            chr_t * ptarget =  _gameObjects.get( loc_pprt->target_ref );
+            GameObject * ptarget =  _gameObjects.get( loc_pprt->target_ref );
 
             // face your target
             loc_pprt->facing = vec_to_facing( ptarget->pos.x - tmp_pos.x , ptarget->pos.y - tmp_pos.y );
@@ -2306,7 +2306,7 @@ int spawn_bump_particles( const CHR_REF character, const PRT_REF particle )
     float    fsin, fcos;
 
     pip_t * ppip;
-    chr_t * pchr;
+    GameObject * pchr;
     mad_t * pmad;
     prt_t * pprt;
 
@@ -2776,7 +2776,7 @@ prt_bundle_t * prt_do_bump_damage( prt_bundle_t * pbdl_prt )
 
     prt_t * loc_pprt;
     pip_t * loc_ppip;
-    chr_t * loc_pchr;
+    GameObject * loc_pchr;
 
     bool skewered_by_arrow;
     bool has_vulnie;

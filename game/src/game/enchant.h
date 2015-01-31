@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------
 struct s_object_profile;
 class ObjectProfile;
-class chr_t;
+class GameObject;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -156,7 +156,7 @@ PRO_REF   enc_get_ipro( const ENC_REF ienc );
 ObjectProfile   * enc_get_ppro( const ENC_REF ienc );
 
 CHR_REF   enc_get_iowner( const ENC_REF ienc );
-chr_t   * enc_get_powner( const ENC_REF ienc );
+GameObject   * enc_get_powner( const ENC_REF ienc );
 
 EVE_REF   enc_get_ieve( const ENC_REF ienc );
 eve_t   * enc_get_peve( const ENC_REF ienc );

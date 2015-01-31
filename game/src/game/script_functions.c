@@ -61,7 +61,7 @@
 #endif
 
 #define SCRIPT_FUNCTION_BEGIN() \
-    chr_t * pchr; \
+    GameObject * pchr; \
     Uint8 returncode = true; \
     if( NULL == pstate || NULL == pself || !_gameObjects.exists(pself->index) ) return false; \
     pchr = _gameObjects.get( pself->index ); \
@@ -468,7 +468,7 @@ Uint8 scr_TargetKilled( script_state_t * pstate, ai_state_t * pself )
     /// @details This function proceeds if the character's target from last update was
     /// killed during this update
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -581,7 +581,7 @@ Uint8 scr_get_TargetArmorPrice( script_state_t * pstate, ai_state_t * pself )
     /// tmpx to the price
 
     int value;
-    chr_t *ptarget;
+    GameObject *ptarget;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -642,7 +642,7 @@ Uint8 scr_JoinTargetTeam( script_state_t * pstate, ai_state_t * pself )
     /// @details This function lets a character join a different team.  Used
     /// mostly for pets
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -692,7 +692,7 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
     /// failing if the target has no left hand item
 
     CHR_REF ichr;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -718,7 +718,7 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
     /// failing if the target has no right hand item
 
     CHR_REF ichr;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -949,7 +949,7 @@ Uint8 scr_TargetHasSkillID( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if ID matches tmpargument
 
-    chr_t *pself_target;
+    GameObject *pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1144,7 +1144,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     returncode = false;
     if ( _gameObjects.exists( pself->target ) )
     {
-        chr_t * pself_target = _gameObjects.get( pself->target );
+        GameObject * pself_target = _gameObjects.get( pself->target );
 
         if ( pself_target->alive )
         {
@@ -1254,7 +1254,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     /// For one use keys and such
 
     CHR_REF item;
-    chr_t *pitem, *ptarget;
+    GameObject *pitem, *ptarget;
     size_t cnt = INVALID_CHR_REF;
     IDSZ idsz;
 
@@ -1458,7 +1458,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
     /// Used by chests and buttons and such so only "smart" creatures can operate
     /// them
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
     returncode = false;
@@ -1638,7 +1638,7 @@ Uint8 scr_TargetIsOnOtherTeam( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the target is on another team
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1656,7 +1656,7 @@ Uint8 scr_TargetIsOnHatedTeam( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the target is on an enemy team
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1759,7 +1759,7 @@ Uint8 scr_ChangeTargetArmor( script_state_t * pstate, ai_state_t * pself )
     /// as tmpargument and the new type as tmpx
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1783,7 +1783,7 @@ Uint8 scr_GiveMoneyToTarget( script_state_t * pstate, ai_state_t * pself )
     /// @note BB@> I would like to use getadd_int() here, but it is not really suited to two variables
 
     int tTmp, iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -1922,7 +1922,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        chr_t * pchild = _gameObjects.get( ichr );
+        GameObject * pchild = _gameObjects.get( ichr );
 
         // was the child spawned in a "safe" spot?
         if ( !chr_get_safe( pchild, NULL ) )
@@ -2114,7 +2114,7 @@ Uint8 scr_TargetIsHurt( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function passes only if the target is hurt and alive
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2133,7 +2133,7 @@ Uint8 scr_TargetIsAPlayer( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the target is controlled by a human ( may not be local )
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2229,7 +2229,7 @@ Uint8 scr_TargetIsAlive( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the target is alive
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2307,7 +2307,7 @@ Uint8 scr_TargetIsMale( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds only if the target is male
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2325,7 +2325,7 @@ Uint8 scr_TargetIsFemale( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the target is female
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2722,7 +2722,7 @@ Uint8 scr_PressTargetLatchButton( script_state_t * pstate, ai_state_t * pself )
     /// @details This function mimics joystick button presses for the target.
     /// For making items force their own usage and such
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2772,7 +2772,7 @@ Uint8 scr_get_TargetGrogTime( script_state_t * pstate, ai_state_t * pself )
     /// @details This function sets tmpargument to the number of updates before the
     /// character is ungrogged, proceeding if the number is greater than 0
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2793,7 +2793,7 @@ Uint8 scr_get_TargetDazeTime( script_state_t * pstate, ai_state_t * pself )
     /// @details This function sets tmpargument to the number of updates before the
     /// character is undazed, proceeding if the number is greater than 0
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2881,7 +2881,7 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = chr_teleport( pself->target, pstate->x, pstate->y, pstate->distance, pstate->turn );
+    returncode = GameObjecteleport( pself->target, pstate->x, pstate->y, pstate->distance, pstate->turn );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2924,7 +2924,7 @@ Uint8 scr_UnkurseTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function unkurses the target
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -2975,7 +2975,7 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
 
     CHR_REF ichr;
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3011,7 +3011,7 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
 
     int     iTmp;
     int     ichr;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3051,7 +3051,7 @@ Uint8 scr_FlashTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function makes the target flash
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3391,7 +3391,7 @@ Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
     /// @details This function proceeds if the target is holding up a shield or similar
     /// defense
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3409,7 +3409,7 @@ Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the target is doing an attack action
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3579,7 +3579,7 @@ Uint8 scr_BlackTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details  The opposite of FlashTarget, causing the target to turn black
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3858,7 +3858,7 @@ Uint8 scr_TargetIsKursed( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the target is kursed
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -3892,7 +3892,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = chr_is_over_water( pchr );
+    returncode = pchr->isOverWater();
 
     SCRIPT_FUNCTION_END();
 }
@@ -3952,7 +3952,7 @@ Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
     /// sets the z velocity to 0 if the character is moving upwards.
     /// This is a special function for the IronBall object
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4092,7 +4092,7 @@ Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function changes the x and y speeds of the target
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4438,7 +4438,7 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
     /// @details This function removes the target from the game, failing if the
     /// target is a player
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4483,7 +4483,7 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
     {
         int action;
 
-        chr_t * pchild = _gameObjects.get( pself->child );
+        GameObject * pchild = _gameObjects.get( pself->child );
 
         action = mad_get_action_ref( pchild->inst.imad, pstate->argument );
 
@@ -4638,7 +4638,7 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
     /// target
 
     FACING_T sTmp = 0;
-    chr_t *  pself_target;
+    GameObject *  pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4750,7 +4750,7 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = chr_teleport( pself->index, pstate->x, pstate->y, pchr->pos.z, pchr->ori.facing_z );
+    returncode = GameObjecteleport( pself->index, pstate->x, pstate->y, pchr->pos.z, pchr->ori.facing_z );
 
     SCRIPT_FUNCTION_END();
 }
@@ -4762,7 +4762,7 @@ Uint8 scr_add_TargetStrength( script_state_t * pstate, ai_state_t * pself )
     // Permanently boost the target's strength
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4785,7 +4785,7 @@ Uint8 scr_add_TargetWisdom( script_state_t * pstate, ai_state_t * pself )
     // Permanently boost the target's wisdom
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4808,7 +4808,7 @@ Uint8 scr_add_TargetIntelligence( script_state_t * pstate, ai_state_t * pself )
     // Permanently boost the target's intelligence
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4831,7 +4831,7 @@ Uint8 scr_add_TargetDexterity( script_state_t * pstate, ai_state_t * pself )
     // Permanently boost the target's dexterity
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4855,7 +4855,7 @@ Uint8 scr_add_TargetLife( script_state_t * pstate, ai_state_t * pself )
     /// @details Permanently boost the target's life
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4885,7 +4885,7 @@ Uint8 scr_add_TargetMana( script_state_t * pstate, ai_state_t * pself )
     /// @details Permanently boost the target's mana
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4994,7 +4994,7 @@ Uint8 scr_PumpTarget( script_state_t * pstate, ai_state_t * pself )
     /// Values are 8.8 fixed point
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5039,7 +5039,7 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
+    for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
     {
 
         sTmp = true;
@@ -5095,7 +5095,7 @@ Uint8 scr_set_TargetReloadTime( script_state_t * pstate, ai_state_t * pself )
     /// @details This function sets the target's reload time
     /// This function stops the target from attacking for a while.
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5241,7 +5241,7 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
     /// @details This function proceeds if the target is riding a mount
 
     CHR_REF ichr;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5361,7 +5361,7 @@ Uint8 scr_OrderTarget( script_state_t * pstate, ai_state_t * pself )
     /// @details This function issues an order to the given target
     /// Be careful in using this, always checking IDSZ first
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5482,7 +5482,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        chr_t * pchild = _gameObjects.get( ichr );
+        GameObject * pchild = _gameObjects.get( ichr );
 
         // was the child spawned in a "safe" spot?
         if ( !chr_get_safe( pchild, NULL ) )
@@ -5537,7 +5537,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        chr_t * pchild = _gameObjects.get( ichr );
+        GameObject * pchild = _gameObjects.get( ichr );
 
         // was the child spawned in a "safe" spot?
         if ( !chr_get_safe( pchild, NULL ) )
@@ -5679,7 +5679,7 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
     /// @details This function unkurses all items held and in the pockets of the target
 
     CHR_REF ichr;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5713,7 +5713,7 @@ Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the target is doing ACTION_WA or ACTION_DA
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -5745,7 +5745,7 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function respawns the target at its current location
 
-    chr_t * pself_target;
+    GameObject * pself_target;
     fvec3_t save_pos;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -5774,7 +5774,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
     if ( _gameObjects.exists( pself->target ) )
     {
         int action;
-        chr_t * pself_target = _gameObjects.get( pself->target );
+        GameObject * pself_target = _gameObjects.get( pself->target );
 
         action = mad_get_action_ref( pself_target->inst.imad, pstate->argument );
 
@@ -5797,7 +5797,7 @@ Uint8 scr_TargetCanSeeInvisible( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the target can see invisible
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6026,7 +6026,7 @@ Uint8 scr_TargetIsFlying( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function proceeds if the character target is flying
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6125,7 +6125,7 @@ Uint8 scr_get_TargetState( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function sets tmpargument to the state of the target
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6168,7 +6168,7 @@ Uint8 scr_get_TargetContent( script_state_t * pstate, ai_state_t * pself )
     // tmpargument = GetTargetContent()
     // This sets tmpargument to the current Target's content value
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6475,7 +6475,7 @@ Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function passes if the Target is a mountable character
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6493,7 +6493,7 @@ Uint8 scr_TargetIsAPlatform( script_state_t * pstate, ai_state_t * pself )
     /// @author ZZ
     /// @details This function passes if the Target is a platform character
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6529,7 +6529,7 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
     /// @details This function removes all enchantments on the Target character, proceeding
     /// if there were any, failing if not
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6637,7 +6637,7 @@ Uint8 scr_TargetPayForArmor( script_state_t * pstate, ai_state_t * pself )
     /// skin tmpx is set to amount needed after trade-in ( 0 for pass ).
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6898,7 +6898,7 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function grogs the Target for a duration equal to tmpargument
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -6924,7 +6924,7 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function dazes the Target for a duration equal to tmpargument
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7023,7 +7023,7 @@ Uint8 scr_TargetHasNotFullMana( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function passes only if the Target is not at max mana and alive
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7191,7 +7191,7 @@ Uint8 scr_Backstabbed( script_state_t * pstate, ai_state_t * pself )
     if ( HAS_SOME_BITS( pself->alert, ALERTIF_ATTACKED ) )
     {
         //Who is the dirty backstabber?
-        chr_t * pattacker = _gameObjects.get( pself->attacklast );
+        GameObject * pattacker = _gameObjects.get( pself->attacklast );
         if ( !ACTIVE_PCHR( pattacker ) ) return false;
 
         //Only if hit from behind
@@ -7216,7 +7216,7 @@ Uint8 scr_get_TargetDamageType( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function gets the last type of damage for the Target
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7235,7 +7235,7 @@ Uint8 scr_AddQuest( script_state_t * pstate, ai_state_t * pself )
     /// @details This function adds a quest idsz set in tmpargument into the targets quest.txt to 0
 
     egolib_rv result = rv_fail;
-    chr_t * pself_target;
+    GameObject * pself_target;
     PLA_REF ipla;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7296,7 +7296,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
     /// and sets tmpdistance to the Quest Level of the specified quest.
 
     int     quest_level = QUEST_NONE;
-    chr_t * pself_target = NULL;
+    GameObject * pself_target = NULL;
     PLA_REF ipla;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7331,7 +7331,7 @@ Uint8 scr_set_QuestLevel( script_state_t * pstate, ai_state_t * pself )
     /// @details This function modifies the quest level for a specific quest IDSZ
     /// tmpargument specifies quest idsz (tmpargument) and the adjustment (tmpdistance, which may be negative)
 
-    chr_t * pself_target;
+    GameObject * pself_target;
     PLA_REF ipla;
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7440,7 +7440,7 @@ Uint8 scr_TargetIsOwner( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function proceeds only if the Target is the character's owner
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7465,7 +7465,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
 
     fvec3_t pos;
     CHR_REF ichr;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7487,7 +7487,7 @@ Uint8 scr_SpawnAttachedCharacter( script_state_t * pstate, ai_state_t * pself )
     }
     else
     {
-        chr_t * pchild = _gameObjects.get( ichr );
+        GameObject * pchild = _gameObjects.get( ichr );
 
         Uint8 grip = CLIP( pstate->distance, (int)ATTACH_INVENTORY, (int)ATTACH_RIGHT );
 
@@ -7788,7 +7788,7 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
     /// @details This morphs the character into the target
     /// Also set size and keeps the previous AI type
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7816,7 +7816,7 @@ Uint8 scr_add_TargetManaFlow( script_state_t * pstate, ai_state_t * pself )
     /// @details Permanently boost the target's mana flow
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7840,7 +7840,7 @@ Uint8 scr_add_TargetManaReturn( script_state_t * pstate, ai_state_t * pself )
     /// @details Permanently boost the target's mana return
 
     int iTmp;
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7877,7 +7877,7 @@ Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details Proceeds if the target can see kursed stuff.
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7895,7 +7895,7 @@ Uint8 scr_DispelTargetEnchantID( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function removes all enchants from the target who match the specified RemovedByIDSZ
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7918,7 +7918,7 @@ Uint8 scr_KurseTarget( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This makes the target kursed
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7956,7 +7956,7 @@ Uint8 scr_AccelerateTargetUp( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function makes the target accelerate up and down
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7974,7 +7974,7 @@ Uint8 scr_set_TargetAmmo( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function sets the ammo of the character's current AI target
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -8040,7 +8040,7 @@ Uint8 scr_set_TargetSize( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This changes the AI target's size
 
-    chr_t * pself_target;
+    GameObject * pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -8123,7 +8123,7 @@ Uint8 scr_TargetIsFacingSelf( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function proceeds if the target is more or less facing the character
     FACING_T sTmp = 0;
-    chr_t *  pself_target;
+    GameObject *  pself_target;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -8156,7 +8156,7 @@ Uint8 scr_add_TargetSkill( script_state_t * pstate, ai_state_t * pself )
     /// @author ZF
     /// @details This function permanently gives the target character a skill
 
-    chr_t *ptarget;
+    GameObject *ptarget;
     egolib_rv rv;
 
     SCRIPT_FUNCTION_BEGIN();

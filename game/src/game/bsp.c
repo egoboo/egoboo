@@ -212,7 +212,7 @@ bool chr_BSP_clear()
 	chr_BSP_root->count = 0;
 
 	// unlink all used character nodes
-	for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
+	for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
 	{
 		BSP_leaf_t::remove_link(&object->bsp_leaf);
 	}
@@ -237,7 +237,7 @@ bool prt_BSP_clear()
 }
 
 //--------------------------------------------------------------------------------------------
-bool chr_BSP_insert(chr_t * pchr)
+bool chr_BSP_insert(GameObject * pchr)
 {
 	/// @author BB
 	/// @details insert a character's BSP_leaf_t into the BSP_tree_t
@@ -255,7 +255,7 @@ bool chr_BSP_insert(chr_t * pchr)
 
 	// heal the leaf if it needs it
 	pleaf = &pchr->bsp_leaf;
-	if (pchr != (chr_t *)(pleaf->data))
+	if (pchr != (GameObject *)(pleaf->data))
 	{
 		// some kind of error. re-initialize the data.
 		pleaf->data = pchr;
@@ -293,7 +293,7 @@ bool chr_BSP_fill()
 {
 	// insert the characters
 	chr_BSP_root->count = 0;
-	for(const std::shared_ptr<chr_t> &pchr : _gameObjects.iterator())
+	for(const std::shared_ptr<GameObject> &pchr : _gameObjects.iterator())
 	{
 		// reset a couple of things here
 		pchr->holdingweight = 0;

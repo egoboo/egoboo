@@ -19,7 +19,7 @@
 
 /// @file game/char.h
 /// @note You will routinely include "char.h" only in headers (*.h) files where you need to declare an
-///       object of team_t or chr_t. In *.inl files or *.c/*.cpp files you will routinely include "char.inl", instead.
+///       object of team_t or GameObject. In *.inl files or *.c/*.cpp files you will routinely include "char.inl", instead.
 
 #pragma once
 
@@ -205,84 +205,82 @@ struct team_t
 //--------------------------------------------------------------------------------------------
 
 
-bool  chr_request_terminate( chr_t * pchr );
+bool  chr_request_terminate( GameObject * pchr );
 
-bool    chr_matrix_valid( const chr_t * pchr );
-egolib_rv chr_update_matrix( chr_t * pchr, bool update_size );
+bool    chr_matrix_valid( const GameObject * pchr );
+egolib_rv chr_update_matrix( GameObject * pchr, bool update_size );
 
-chr_t *   chr_update_hide( chr_t * pchr );
-egolib_rv chr_update_collision_size( chr_t * pchr, bool update_matrix );
-bool    chr_can_see_dark( const chr_t * pchr, const chr_t * pobj );
-bool    chr_can_see_invis( const chr_t * pchr, const chr_t * pobj );
+GameObject *   chr_update_hide( GameObject * pchr );
+egolib_rv chr_update_collision_size( GameObject * pchr, bool update_matrix );
+bool    chr_can_see_dark( const GameObject * pchr, const GameObject * pobj );
+bool    chr_can_see_invis( const GameObject * pchr, const GameObject * pobj );
 int       chr_get_price( const CHR_REF ichr );
 
-bool     chr_heal_mad( chr_t * pchr );
+bool     chr_heal_mad( GameObject * pchr );
 MAD_REF  chr_get_imad( const CHR_REF ichr );
 mad_t   *chr_get_pmad( const CHR_REF ichr );
 TX_REF   chr_get_txtexture_icon_ref( const CHR_REF item );
 
 bool chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
 
-bool chr_is_over_water( chr_t *pchr );
-
-Uint32 chr_get_framefx( chr_t * pchr );
+Uint32 chr_get_framefx( GameObject * pchr );
 
 egolib_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
 
-egolib_rv chr_set_action( chr_t * pchr, int action, bool action_ready, bool override_action );
-egolib_rv chr_start_anim( chr_t * pchr, int action, bool action_ready, bool override_action );
-egolib_rv chr_set_anim( chr_t * pchr, int action, int frame, bool action_ready, bool override_action );
-egolib_rv chr_increment_action( chr_t * pchr );
-egolib_rv chr_increment_frame( chr_t * pchr );
-egolib_rv chr_play_action( chr_t * pchr, int action, bool action_ready );
-bool chr_update_breadcrumb_raw( chr_t * pchr );
-bool chr_update_breadcrumb( chr_t * pchr, bool force );
-bool chr_update_safe_raw( chr_t * pchr );
-bool chr_update_safe( chr_t * pchr, bool force );
-bool chr_get_safe( chr_t * pchr, fvec3_base_t pos );
+egolib_rv chr_set_action( GameObject * pchr, int action, bool action_ready, bool override_action );
+egolib_rv chr_start_anim( GameObject * pchr, int action, bool action_ready, bool override_action );
+egolib_rv chr_set_anim( GameObject * pchr, int action, int frame, bool action_ready, bool override_action );
+egolib_rv chr_increment_action( GameObject * pchr );
+egolib_rv chr_increment_frame( GameObject * pchr );
+egolib_rv chr_play_action( GameObject * pchr, int action, bool action_ready );
+bool chr_update_breadcrumb_raw( GameObject * pchr );
+bool chr_update_breadcrumb( GameObject * pchr, bool force );
+bool chr_update_safe_raw( GameObject * pchr );
+bool chr_update_safe( GameObject * pchr, bool force );
+bool chr_get_safe( GameObject * pchr, fvec3_base_t pos );
 
-bool chr_set_pos(chr_t *self, const fvec3_t& position);
-bool chr_set_pos(chr_t *self, const fvec3_base_t position); ///< @todo Remove this.
+bool chr_set_pos(GameObject *self, const fvec3_t& position);
+bool chr_set_pos(GameObject *self, const fvec3_base_t position); ///< @todo Remove this.
 
-bool chr_set_maxaccel( chr_t * pchr, float new_val );
-bool character_is_attacking( chr_t * pchr );
+bool chr_set_maxaccel( GameObject * pchr, float new_val );
+bool character_is_attacking( GameObject * pchr );
 
-void chr_set_floor_level( chr_t * pchr, const float level );
-void chr_set_redshift( chr_t * pchr, const int rs );
-void chr_set_grnshift( chr_t * pchr, const int gs );
-void chr_set_blushift( chr_t * pchr, const int bs );
-void chr_set_sheen( chr_t * pchr, const int sheen );
-void chr_set_alpha( chr_t * pchr, const int alpha );
-void chr_set_light( chr_t * pchr, const int light );
+void chr_set_floor_level( GameObject * pchr, const float level );
+void chr_set_redshift( GameObject * pchr, const int rs );
+void chr_set_grnshift( GameObject * pchr, const int gs );
+void chr_set_blushift( GameObject * pchr, const int bs );
+void chr_set_sheen( GameObject * pchr, const int sheen );
+void chr_set_alpha( GameObject * pchr, const int alpha );
+void chr_set_light( GameObject * pchr, const int light );
 
-void chr_set_fat(chr_t *chr, const float fat);
-void chr_set_height(chr_t *chr, const float height);
-void chr_set_width(chr_t *chr, const float width);
-void chr_set_size(chr_t *chr, const float size);
-void chr_set_shadow(chr_t *chr, const float width);
-
-/// @details Make sure the value it calculated relative to a valid matrix.
-bool chr_getMatUp(chr_t *self, fvec3_t& up);
+void chr_set_fat(GameObject *chr, const float fat);
+void chr_set_height(GameObject *chr, const float height);
+void chr_set_width(GameObject *chr, const float width);
+void chr_set_size(GameObject *chr, const float size);
+void chr_set_shadow(GameObject *chr, const float width);
 
 /// @details Make sure the value it calculated relative to a valid matrix.
-bool chr_getMatRight(chr_t *self, fvec3_t& right);
+bool chr_getMatUp(GameObject *self, fvec3_t& up);
 
 /// @details Make sure the value it calculated relative to a valid matrix.
-bool chr_getMatForward(chr_t *self, fvec3_t& forward);
+bool chr_getMatRight(GameObject *self, fvec3_t& right);
 
 /// @details Make sure the value it calculated relative to a valid matrix.
-bool chr_getMatTranslate(chr_t *self, fvec3_t& translate);
+bool chr_getMatForward(GameObject *self, fvec3_t& forward);
+
+/// @details Make sure the value it calculated relative to a valid matrix.
+bool chr_getMatTranslate(GameObject *self, fvec3_t& translate);
 
 const char * chr_get_name( const CHR_REF ichr, const BIT_FIELD bits, char * buffer, size_t buffer_size );
 const char * chr_get_dir_name( const CHR_REF ichr );
-int chr_get_skill( chr_t * pchr, IDSZ whichskill );
+int chr_get_skill( GameObject * pchr, IDSZ whichskill );
 
 void reset_character_alpha( const CHR_REF character );
 void reset_character_accel( const CHR_REF character );
 
 // this function is needed because the "hidden" state of an ai is determined by
 // whether  ai.state == cap.hidestate
-chr_t * chr_set_ai_state( chr_t * pchr, int state );
+GameObject * chr_set_ai_state( GameObject * pchr, int state );
 
 //--------------------------------------------------------------------------------------------
 // list definitions
@@ -317,10 +315,10 @@ void free_one_character_in_game( const CHR_REF character );
 void keep_weapons_with_holders();
 
 void make_one_character_matrix( const CHR_REF cnt );
-void move_one_character_get_environment( chr_t * pchr );
+void move_one_character_get_environment( GameObject * pchr );
 
-BIT_FIELD chr_hit_wall( chr_t * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata );
-BIT_FIELD chr_test_wall( chr_t * pchr, const float test_pos[], mesh_wall_data_t * pdata );
+BIT_FIELD chr_hit_wall( GameObject * pchr, const float test_pos[], float nrm[], float * pressure, mesh_wall_data_t * pdata );
+BIT_FIELD GameObjectest_wall( GameObject * pchr, const float test_pos[], mesh_wall_data_t * pdata );
 
 /**
  * @brief
@@ -342,20 +340,20 @@ bool  export_one_character_name_vfs( const char *szSaveName, const CHR_REF chara
 
 void character_swipe( const CHR_REF cnt, slot_t slot );
 
-bool chr_teleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z );
+bool GameObjecteleport( const CHR_REF ichr, float x, float y, float z, FACING_T facing_z );
 
 CHR_REF chr_has_inventory_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 CHR_REF chr_holding_idsz( const CHR_REF ichr, IDSZ idsz );
 CHR_REF chr_has_item_idsz( const CHR_REF ichr, IDSZ idsz, bool equipped );
 
-bool chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
+bool chr_copy_enviro( GameObject * chr_psrc, GameObject * chr_pdst );
 
-bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_vec, fvec3_base_t grip_up_vec, const bool shift_origin );
+bool chr_calc_grip_cv( GameObject * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_vec, fvec3_base_t grip_up_vec, const bool shift_origin );
 
 // character state machine functions
-chr_t * chr_config_do_init( chr_t * pchr );
+GameObject * chr_config_do_init( GameObject * pchr );
 
-bool  chr_can_see_object( const chr_t * pchr, const chr_t * pobj );
+bool  chr_can_see_object( const GameObject * pchr, const GameObject * pobj );
 CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item );
 
 void drop_money( const CHR_REF character, int money );
@@ -378,7 +376,7 @@ void kill_character( const CHR_REF character, const CHR_REF killer, bool ignore_
  */
 bool heal_character( const CHR_REF character, const CHR_REF healer, UFP8_T amount, bool ignore_invictus );
 void spawn_poof( const CHR_REF character, const PRO_REF profile );
-void spawn_defense_ping( chr_t *pchr, const CHR_REF attacker );
+void spawn_defense_ping( GameObject *pchr, const CHR_REF attacker );
 
 bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Uint8 doshop );
 
@@ -423,12 +421,12 @@ billboard_data_t * chr_make_text_billboard( const CHR_REF ichr, const char * txt
 //--------------------------------------------------------------------------------------------
 // team_t accessor functions
 CHR_REF team_get_ileader( const TEAM_REF iteam );
-chr_t  *team_get_pleader( const TEAM_REF iteam );
+GameObject  *team_get_pleader( const TEAM_REF iteam );
 
 bool team_hates_team( const TEAM_REF ipredator_team, const TEAM_REF iprey_team );
 
 //--------------------------------------------------------------------------------------------
-// chr_t accessor functions
+// GameObject accessor functions
 PRO_REF  chr_get_ipro( const CHR_REF ichr );
 TEAM_REF chr_get_iteam( const CHR_REF ichr );
 TEAM_REF chr_get_iteam_base( const CHR_REF ichr );
@@ -442,13 +440,13 @@ chr_instance_t *chr_get_pinstance( const CHR_REF ichr );
 
 IDSZ chr_get_idsz( const CHR_REF ichr, int type );
 
-void chr_update_size( chr_t * pchr );
+void chr_update_size( GameObject * pchr );
 
 
 bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
 
-const fvec3_t& chr_get_pos_v_const(const chr_t *pchr);
-bool chr_get_pos(const chr_t *self, fvec3_t& position);
-bool chr_get_pos(const chr_t *self, fvec3_base_t position); ///< @todo Remove this.
+const fvec3_t& chr_get_pos_v_const(const GameObject *pchr);
+bool chr_get_pos(const GameObject *self, fvec3_t& position);
+bool chr_get_pos(const GameObject *self, fvec3_base_t position); ///< @todo Remove this.

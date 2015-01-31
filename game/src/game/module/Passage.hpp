@@ -27,7 +27,7 @@
 #include "game/egoboo_typedef.h"
 
 //Forward declarations
-class chr_t;
+class GameObject;
 
 #define constexpr const
 
@@ -131,7 +131,7 @@ public:
     * @brief Plays the passage music assigned to this passage if the specified character is inside this passage
     * @return true if a new song is now playing
     **/
-    bool checkPassageMusic(const chr_t * pchr) const;
+    bool checkPassageMusic(const GameObject * pchr) const;
 
     /**
     * @return Sets the MusicID of this passage. If a player character enters this passage, the specified MusicID will be played

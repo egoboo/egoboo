@@ -164,7 +164,7 @@ size_t obj_BSP_t::collide(const egolib_frustum_t *frustum, BSP_leaf_test_t *test
  */
 bool chr_BSP_can_collide(BSP_leaf_t * pchr_leaf)
 {
-    chr_t * pchr;
+    GameObject * pchr;
 
     bool can_be_reaffirmed;
     bool can_grab_money;
@@ -179,7 +179,7 @@ bool chr_BSP_can_collide(BSP_leaf_t * pchr_leaf)
     {
         return false;
     }
-    pchr = ( chr_t * )( pchr_leaf->data );
+    pchr = ( GameObject * )( pchr_leaf->data );
 
     if ( !ACTIVE_PCHR( pchr ) ) return false;
 
@@ -289,7 +289,7 @@ bool chr_BSP_is_visible(BSP_leaf_t * pchr_leaf)
     {
         return false;
     }
-	chr_t *pchr = (chr_t *)(pchr_leaf->data);
+	GameObject *pchr = (GameObject *)(pchr_leaf->data);
 
     if (!ACTIVE_PCHR(pchr)) return false;
 

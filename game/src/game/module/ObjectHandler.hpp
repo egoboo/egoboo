@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /// @file game/module/ObjectHandler.hpp
-/// @details Memory and access managment for instances of in-game egoboo objects (chr_t)
+/// @details Memory and access managment for instances of in-game egoboo objects (GameObject)
 /// @author Johan Jansen
 
 #pragma once
@@ -26,7 +26,7 @@
 #include "game/egoboo_typedef.h"
 
 //Forward declarations
-class chr_t;
+class GameObject;
 
 //ZF> Some macros from C Egoboo (TODO: remove these macros)
 #define VALID_CHR_RANGE( ICHR )    ( static_cast<CHR_REF>(ICHR) < MAX_CHR && ICHR != INVALID_CHR_REF )
@@ -46,22 +46,22 @@ public:
 	{
 	public:
 
-		inline std::vector<std::shared_ptr<chr_t>>::const_iterator cbegin() const 
+		inline std::vector<std::shared_ptr<GameObject>>::const_iterator cbegin() const 
 		{
 			return _handler->_iteratorList.cbegin();
 		}
 
-		inline std::vector<std::shared_ptr<chr_t>>::const_iterator cend() const 
+		inline std::vector<std::shared_ptr<GameObject>>::const_iterator cend() const 
 		{
 			return _handler->_iteratorList.cend();
 		}
 
-		inline std::vector<std::shared_ptr<chr_t>>::iterator begin()
+		inline std::vector<std::shared_ptr<GameObject>>::iterator begin()
 		{
 			return _handler->_iteratorList.begin();
 		}
 
-		inline std::vector<std::shared_ptr<chr_t>>::iterator end()
+		inline std::vector<std::shared_ptr<GameObject>>::iterator end()
 		{
 			return _handler->_iteratorList.end();
 		}	
@@ -109,17 +109,17 @@ public:
 	bool exists(const CHR_REF ichr) const;
 
 	/**
-	 * @brief Allocates and creates new chr_t object. A valid PRO_REF is required to spawn a object.
-	 * @return the std::shared_ptr<chr_t> for that object or nullptr if it failed
+	 * @brief Allocates and creates new GameObject object. A valid PRO_REF is required to spawn a object.
+	 * @return the std::shared_ptr<GameObject> for that object or nullptr if it failed
 	 */
-	std::shared_ptr<chr_t> insert(const PRO_REF profile, const CHR_REF override = INVALID_CHR_REF);
+	std::shared_ptr<GameObject> insert(const PRO_REF profile, const CHR_REF override = INVALID_CHR_REF);
 
 	/**
 	 * @brief Return a pointer object for the specifiec CHR_REF.
 	 * @return a pointer object for the specified CHR_REF.
 	 *		   Return nullptr object if CHR_REF was not found.
 	 */
-	const std::shared_ptr<chr_t>& operator[] (const CHR_REF index);
+	const std::shared_ptr<GameObject>& operator[] (const CHR_REF index);
 
 	/**
 	 * @brief Return number of object currently active in the game.
@@ -136,7 +136,7 @@ public:
 	 * @brief Return a raw pointer referenced by CHR_REF
 	 * @return a raw pointer referenced by CHR_REF
 	 */
-	chr_t* get(const CHR_REF index) const;
+	GameObject* get(const CHR_REF index) const;
 
 private:
 
@@ -158,11 +158,11 @@ private:
 	void maybeRunDeferred();
 
 private:
-	std::vector<std::shared_ptr<chr_t>> _internalCharacterList;				///< Indexes in this character list match CHR_REF
-	std::vector<std::shared_ptr<chr_t>> _iteratorList;						///< For iterating, contains only valid objects (unsorted)
+	std::vector<std::shared_ptr<GameObject>> _internalCharacterList;				///< Indexes in this character list match CHR_REF
+	std::vector<std::shared_ptr<GameObject>> _iteratorList;						///< For iterating, contains only valid objects (unsorted)
 	std::stack<CHR_REF> 				_unusedChrRefs;						///< Stack of unused CHR_REF
 
-	std::vector<std::shared_ptr<chr_t>> _allocateList;						///< List of all objects that should be added
+	std::vector<std::shared_ptr<GameObject>> _allocateList;						///< List of all objects that should be added
 
 	size_t _semaphore;
 	size_t _deletedCharacters;

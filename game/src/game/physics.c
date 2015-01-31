@@ -1040,7 +1040,7 @@ bool phys_expand_oct_bb( const oct_bb_t * psrc, const fvec3_t& vel, const float 
 }
 
 //--------------------------------------------------------------------------------------------
-bool phys_expand_chr_bb( chr_t * pchr, float tmin, float tmax, oct_bb_t * pdst )
+bool phys_expand_chr_bb( GameObject * pchr, float tmin, float tmax, oct_bb_t * pdst )
 {
 
 
@@ -1081,7 +1081,7 @@ bool phys_expand_prt_bb( prt_t * pprt, float tmin, float tmax, oct_bb_t * pdst )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, chr_t * pchr )
+breadcrumb_t * breadcrumb_init_chr( breadcrumb_t * bc, GameObject * pchr )
 {
     if ( NULL == bc ) return bc;
 

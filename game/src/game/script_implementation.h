@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-class chr_t;
+class GameObject;
 struct script_state_t;
 
 //--------------------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ bool AddWaypoint( waypoint_list_t * plst, CHR_REF ichr, float pos_x, float pos_y
 /// @author ZF
 /// @details Ported the A* path finding algorithm by birdsey and heavily modified it
 /// This function adds enough waypoints to get from one point to another
-bool FindPath( waypoint_list_t * plst, chr_t * pchr, float dst_x, float dst_y, bool * used_astar_ptr );
+bool FindPath( waypoint_list_t * plst, GameObject * pchr, float dst_x, float dst_y, bool * used_astar_ptr );
 
 /// @author ZZ
 /// @details This function modifies tmpx and tmpy, depending on the setting of
@@ -172,7 +172,7 @@ bool Compass( fvec2_base_t pos, int facing, float distance );
 /// @details This function returns the cost of the desired skin upgrade
 //
 /// @lua tmpx = GetTargetArmorPrice( tmpargument = "skin" )
-int GetArmorPrice( chr_t * pchr, const int skin );
+int GetArmorPrice( GameObject * pchr, const int skin );
 
 /// @author ZZ
 /// @details This function sets the character's ai timer.  50 clicks per second.
@@ -188,7 +188,7 @@ Uint8 BreakPassage( int mesh_fx_or, const Uint16 become, const int frames, const
 
 /// @author ZZ
 /// @details This function appends a message to the end-module text
-Uint8 AddEndMessage( chr_t * pchr, const int message_index, script_state_t * pstate );
+Uint8 AddEndMessage( GameObject * pchr, const int message_index, script_state_t * pstate );
 
 /// @author ZZ
 /// @details This function finds the next tile in the passage, x0 and y0
@@ -198,11 +198,11 @@ Uint8 FindTileInPassage( const int x0, const int y0, const int tiletype, const i
 
 /// @author ZF
 /// @details This function searches the nearby vincinity for a melee weapon the character can use
-CHR_REF FindWeapon( chr_t * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight );
+CHR_REF FindWeapon( GameObject * pchr, float max_distance, IDSZ weap_idsz, bool find_ranged, bool use_line_of_sight );
 
 /// @author ZZ
 /// @details This function sets an object's lighting
-bool FlashObject( chr_t * pchr, Uint8 value );
+bool FlashObject( GameObject * pchr, Uint8 value );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

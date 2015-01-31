@@ -273,7 +273,7 @@ int do_ego_proc_running( ego_process_t * eproc )
         //PMod->beat        = true;
         //PMod->exportvalid = true;
 
-        for(const std::shared_ptr<chr_t> &object : _gameObjects.iterator())
+        for(const std::shared_ptr<GameObject> &object : _gameObjects.iterator())
         {
             if ( !VALID_PLA( object->is_which_player ) )
             {

@@ -205,7 +205,7 @@ void net_unbuffer_player_latches()
     // set the player latch
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        chr_t * pchr;
+        GameObject * pchr;
         player_t * ppla;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
@@ -221,7 +221,7 @@ void net_unbuffer_player_latches()
     // Let players respawn
     for ( ipla = 0; ipla < MAX_PLAYER; ipla++ )
     {
-        chr_t * pchr;
+        GameObject * pchr;
         //player_t * ppla;
 
         if ( !PlaStack.lst[ipla].valid ) continue;
