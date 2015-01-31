@@ -132,6 +132,7 @@
 #include <forward_list>
 #include <unordered_map>
 #include <exception>
+#include <stack>
 
 
 #if defined(__cplusplus)
