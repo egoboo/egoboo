@@ -221,8 +221,6 @@ MAD_REF  chr_get_imad( const CHR_REF ichr );
 mad_t   *chr_get_pmad( const CHR_REF ichr );
 TX_REF   chr_get_txtexture_icon_ref( const CHR_REF item );
 
-bool chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b );
-
 Uint32 chr_get_framefx( GameObject * pchr );
 
 egolib_rv chr_set_frame( const CHR_REF character, int action, int frame_along, int lip );
@@ -246,9 +244,6 @@ void chr_set_floor_level( GameObject * pchr, const float level );
 void chr_set_redshift( GameObject * pchr, const int rs );
 void chr_set_grnshift( GameObject * pchr, const int gs );
 void chr_set_blushift( GameObject * pchr, const int bs );
-void chr_set_sheen( GameObject * pchr, const int sheen );
-void chr_set_alpha( GameObject * pchr, const int alpha );
-void chr_set_light( GameObject * pchr, const int light );
 
 void chr_set_fat(GameObject *chr, const float fat);
 void chr_set_height(GameObject *chr, const float height);

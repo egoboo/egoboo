@@ -1619,7 +1619,7 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
         if ( !pchr->alive || pchr->isitem || _gameObjects.exists( pchr->inwhich_inventory ) ) continue;
 
         // prefer targeting riders over the mount itself
-        if ( pchr->ismount && ( _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) || _gameObjects.exists( pchr->holdingwhich[SLOT_RIGHT] ) ) ) continue;
+        if ( pchr->isMount() && ( _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) || _gameObjects.exists( pchr->holdingwhich[SLOT_RIGHT] ) ) ) continue;
 
         // ignore invictus
         if ( pchr->invictus ) continue;

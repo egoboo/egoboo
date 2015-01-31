@@ -258,7 +258,7 @@ void scr_run_chr_script( const CHR_REF character )
 
         ai_state_ensure_wp( pself );
 
-        if ( pchr->ismount && _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
+        if ( pchr->isMount() && _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
         {
             // Mount
             pchr->latch.x = _gameObjects.get(pchr->holdingwhich[SLOT_LEFT])->latch.x;

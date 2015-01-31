@@ -800,7 +800,7 @@ void draw_chr_bbox( GameObject * pchr )
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
     // draw the object bounding box as a part of the graphics debug mode F7
-    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F7 ) && pchr->ismount )
+    if ( cfg.dev_mode && SDL_KEYDOWN( keyb, SDLK_F7 ) && pchr->isMount() )
     {
         GL_DEBUG( glDisable )( GL_TEXTURE_2D );
         {

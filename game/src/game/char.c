@@ -299,36 +299,36 @@ void keep_weapons_with_holders()
                 // Items become partially invisible in hands of players
                 if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.alpha )
                 {
-                    chr_set_alpha( pchr.get(), SEEINVISIBLE );
+                    pchr->setAlpha(SEEINVISIBLE);
                 }
                 else
                 {
                     // Only if not naturally transparent
-                    if ( 255 == pchr->alpha_base )
+                    if ( 255 == pchr->getProfile()->getAlpha() )
                     {
-                        chr_set_alpha( pchr.get(), pattached->inst.alpha );
+                        pchr->setAlpha(pattached->inst.alpha);
                     }
                     else
                     {
-                        chr_set_alpha( pchr.get(), pchr->alpha_base );
+                        pchr->setAlpha(pchr->getProfile()->getAlpha());
                     }
                 }
 
                 // Do light too
                 if ( VALID_PLA( pattached->is_which_player ) && 255 != pattached->inst.light )
                 {
-                    chr_set_light( pchr.get(), SEEINVISIBLE );
+                    pchr->setLight(SEEINVISIBLE);
                 }
                 else
                 {
                     // Only if not naturally transparent
                     if ( 255 == pchr->getProfile()->getLight())
                     {
-                        chr_set_light( pchr.get(), pattached->inst.light );
+                        pchr->setLight(pattached->inst.light);
                     }
                     else
                     {
-                        chr_set_light( pchr.get(), pchr->light_base );
+                        pchr->setLight(pchr->getProfile()->getLight());
                     }
                 }
             }
@@ -1015,7 +1015,7 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
     chr_instance_set_action_loop( &( pchr->inst ), false );
 
     // Reset the team if it is a mount
-    if ( pmount->ismount )
+    if ( pmount->isMount() )
     {
         pmount->team = pmount->team_base;
         SET_BIT( pmount->ai.alert, ALERTIF_DROPPED );
@@ -1048,8 +1048,8 @@ bool detach_character_from_mount( const CHR_REF character, Uint8 ignorekurse, Ui
         }
         if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
-        chr_set_alpha( pchr, pchr->alpha_base );
-        chr_set_light( pchr, pchr->light_base );
+        pchr->setAlpha(pchr->getProfile()->getAlpha());
+        pchr->setLight(pchr->getProfile()->getLight());
 
         // cleanup the enchant list
         cleanup_character_enchants( pchr );
@@ -1138,8 +1138,8 @@ void reset_character_alpha( const CHR_REF character )
         }
         if ( ienc_count >= MAX_ENC ) log_error( "%s - bad enchant loop\n", __FUNCTION__ );
 
-        chr_set_alpha( pchr, pchr->alpha_base );
-        chr_set_light( pchr, pchr->light_base );
+        pchr->setAlpha(pchr->getProfile()->getAlpha());
+        pchr->setLight(pchr->getProfile()->getLight());
 
         // cleanup the enchant list
         cleanup_character_enchants( pchr );
@@ -1211,7 +1211,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
     // This is a small fix that allows special grabbable mounts not to be mountable while
     // held by another character (such as the magic carpet for example)
     // ( this is an example of a test that should not be done here )
-    if ( pmount->ismount && _gameObjects.exists( pmount->attachedto ) ) return rv_fail;
+    if ( pmount->isMount() && _gameObjects.exists( pmount->attachedto ) ) return rv_fail;
 
     // Put 'em together
     prider->inwhich_slot       = slot;
@@ -1229,7 +1229,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
     prider->jump_timer = JUMPDELAY * 4;
 
     // Run the held animation
-    if ( pmount->ismount && ( GRIP_ONLY == grip_off ) )
+    if ( pmount->isMount() && ( GRIP_ONLY == grip_off ) )
     {
         // Riding imount
 
@@ -1276,7 +1276,7 @@ egolib_rv attach_character_to_mount( const CHR_REF irider, const CHR_REF imount,
         }
     }
 
-    if ( pmount->ismount )
+    if ( pmount->isMount() )
     {
         pmount->team = prider->team;
 
@@ -2712,7 +2712,6 @@ bool chr_download_profile(GameObject * pchr, const std::shared_ptr<ObjectProfile
     pchr->canuseplatforms = profile->canUsePlatforms();
     pchr->isitem          = profile->isItem();
     pchr->invictus        = profile->isInvincible();
-    pchr->ismount         = profile->isMount();
     pchr->cangrabmoney    = profile->canGrabMoney();
 
     // Jumping
@@ -2722,8 +2721,6 @@ bool chr_download_profile(GameObject * pchr, const std::shared_ptr<ObjectProfile
     // Other junk
     pchr->flyheight   = profile->getFlyHeight();
     pchr->maxaccel    = pchr->maxaccel_reset = skin.maxAccel;
-    pchr->alpha_base  = profile->getAlpha();
-    pchr->light_base  = profile->getLight();
     pchr->flashand    = profile->getFlashAND();
     pchr->phys.dampen = profile->getBounciness();
 
@@ -2912,13 +2909,13 @@ void kill_character( const CHR_REF ichr, const CHR_REF original_killer, bool ign
         GameObject *pkiller = _gameObjects.get( actual_killer );
 
         //If we are a held item, try to figure out who the actual killer is
-        if ( _gameObjects.exists( pkiller->attachedto ) && !_gameObjects.get(pkiller->attachedto)->ismount )
+        if ( _gameObjects.exists( pkiller->attachedto ) && !_gameObjects.get(pkiller->attachedto)->isMount() )
         {
             actual_killer = pkiller->attachedto;
         }
 
         //If the killer is a mount, try to award the kill to the rider
-        else if ( pkiller->ismount && pkiller->holdingwhich[SLOT_LEFT] )
+        else if ( pkiller->isMount() && pkiller->holdingwhich[SLOT_LEFT] )
         {
             actual_killer = pkiller->holdingwhich[SLOT_LEFT];
         }
@@ -3122,7 +3119,7 @@ int damage_character( const CHR_REF character, const FACING_T direction,
 
         //Tell that the character is simply immune to the damage
         //but don't do message and ping for mounts, it's just irritating
-        if ( !pchr->ismount )
+        if ( !pchr->isMount() )
         {
             //Dark green text
             const float lifetime = 3;
@@ -3310,13 +3307,13 @@ void chr_update_attacker( GameObject *pchr, const CHR_REF attacker, bool healing
         if ( pattacker->attachedto == pchr->ai.index ) return;
 
         //If we are held, the holder is the real attacker... unless the holder is a mount
-        if ( _gameObjects.exists( pattacker->attachedto ) && !_gameObjects.get(pattacker->attachedto)->ismount )
+        if ( _gameObjects.exists( pattacker->attachedto ) && !_gameObjects.get(pattacker->attachedto)->isMount() )
         {
             actual_attacker = pattacker->attachedto;
         }
 
         //If the attacker is a mount, try to blame the rider
-        else if ( pattacker->ismount && _gameObjects.exists( pattacker->holdingwhich[SLOT_LEFT] ) )
+        else if ( pattacker->isMount() && _gameObjects.exists( pattacker->holdingwhich[SLOT_LEFT] ) )
         {
             actual_attacker = pattacker->holdingwhich[SLOT_LEFT];
         }
@@ -4193,7 +4190,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
         detach_character_from_mount( item_ref, true, true );
         detach_character_from_platform( _gameObjects.get( item_ref ) );
 
-        if ( pchr->ismount )
+        if ( pchr->isMount() )
         {
             _gameObjects.get(item_ref)->vel.z    = DISMOUNTZVEL;
             _gameObjects.get(item_ref)->jump_timer = JUMPDELAY;
@@ -4208,7 +4205,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
         detach_character_from_mount( item_ref, true, true );
         detach_character_from_platform( _gameObjects.get( item_ref ) );
 
-        if ( pchr->ismount )
+        if ( pchr->isMount() )
         {
             _gameObjects.get(item_ref)->vel.z    = DISMOUNTZVEL;
             _gameObjects.get(item_ref)->jump_timer = JUMPDELAY;
@@ -4280,11 +4277,8 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pchr->canuseplatforms = newProfile->canUsePlatforms();
     pchr->isitem          = newProfile->isItem();
     pchr->invictus        = newProfile->isInvincible();
-    pchr->ismount         = newProfile->isMount();
     pchr->cangrabmoney    = newProfile->canGrabMoney();
     pchr->jump_timer      = JUMPDELAY;
-    pchr->alpha_base      = newProfile->getAlpha();
-    pchr->light_base      = newProfile->getLight();
 
     // change the skillz, too, jack!
     idsz_map_init(pchr->skills, SDL_arraysize(pchr->skills));
@@ -5372,7 +5366,7 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
             if ( !mountProfile->riderCanAttack() ) allowedtoattack = false;
 
             // can the mount do anything?
-            if ( pmount->ismount && pmount->alive )
+            if ( pmount->isMount() && pmount->alive )
             {
                 // can the mount be told what to do?
                 if ( !VALID_PLA( pmount->is_which_player ) && pmount->inst.action_ready )
@@ -8431,39 +8425,6 @@ void chr_set_blushift( GameObject * pchr, const int bs )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_sheen( GameObject * pchr, const int sheen )
-{
-    if ( nullptr == ( pchr ) ) return;
-
-    pchr->inst.sheen = CLIP( sheen, 0, 255 );
-
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_set_alpha( GameObject * pchr, const int alpha )
-{
-    if ( nullptr == ( pchr ) ) return;
-
-    pchr->inst.alpha = CLIP( alpha, 0, 255 );
-
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
-}
-
-//--------------------------------------------------------------------------------------------
-void chr_set_light( GameObject * pchr, const int light )
-{
-    if ( nullptr == ( pchr ) ) return;
-
-    pchr->inst.light = CLIP( light, 0, 255 );
-
-    //This prevents players from becoming completely invisible
-    if ( VALID_PLA( pchr->is_which_player ) )  pchr->inst.light = std::max( (Uint8)128, pchr->inst.light );
-
-    chr_instance_update_ref( &( pchr->inst ), pchr->enviro.grid_level, false );
-}
-
-//--------------------------------------------------------------------------------------------
 /// @brief Set the fat value of a character.
 /// @param chr the character
 /// @param fat the new fat value
@@ -8695,35 +8656,6 @@ CHR_REF chr_get_lowest_attachment( const CHR_REF ichr, bool non_item )
     }
 
     return object;
-}
-
-//--------------------------------------------------------------------------------------------
-bool chr_can_mount( const CHR_REF ichr_a, const CHR_REF ichr_b )
-{
-    bool is_valid_rider_a, is_valid_mount_b, has_ride_anim;
-    int action_mi;
-
-    GameObject * pchr_a, * pchr_b;
-
-    // make sure that A is valid
-    if ( !_gameObjects.exists( ichr_a ) ) return false;
-    pchr_a = _gameObjects.get( ichr_a );
-
-    // make sure that B is valid
-    if ( !_gameObjects.exists( ichr_b ) ) return false;
-    pchr_b = _gameObjects.get( ichr_b );
-    const std::shared_ptr<ObjectProfile> &mountProfile = _profileSystem.getProfile(pchr_b->profile_ref);
-
-    action_mi = mad_get_action_ref( chr_get_imad( ichr_a ), ACTION_MI );
-    has_ride_anim = ( ACTION_COUNT != action_mi && !ACTION_IS_TYPE( action_mi, D ) );
-
-    is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && ( 0 == pchr_a->flyheight ) &&
-                       !_gameObjects.exists( pchr_a->attachedto ) && has_ride_anim;
-
-    is_valid_mount_b = pchr_b->ismount && pchr_b->alive &&
-                       mountProfile->isSlotValid(SLOT_LEFT) && !_gameObjects.exists( pchr_b->holdingwhich[SLOT_LEFT] );
-
-    return is_valid_rider_a && is_valid_mount_b;
 }
 
 //--------------------------------------------------------------------------------------------

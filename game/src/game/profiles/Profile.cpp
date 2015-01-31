@@ -22,16 +22,10 @@
 /// @details
 /// @author Johan Jansen
 
-//ZF> TODO: check which headers can be removed
-#include "egolib/bsp.h"
 #include "game/profiles/Profile.hpp"
 #include "game/graphic_texture.h"
-#include "game/renderer_2d.h"
-#include "game/script_compile.h"
 #include "game/game.h"
 #include "game/module/ObjectHandler.hpp"
-#include "game/PrtList.h"
-#include "game/mesh.h"
 #include "game/particle.h"
 #include "game/mad.h"       //for loading md2
 #include "game/audio/AudioSystem.hpp"
@@ -1164,8 +1158,8 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Gam
     template_put_float( fileTemp, fileWrite, character->anim_speed_run );            //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, character->flyheight );                    //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, character->flashand );                     //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, character->alpha_base);                    //Note: overriden by chr
-    template_put_int( fileTemp, fileWrite, character->light_base );                   //Note: overriden by chr
+    template_put_int( fileTemp, fileWrite, profile->_alpha);
+    template_put_int( fileTemp, fileWrite, profile->_light );
     template_put_bool( fileTemp, fileWrite, character->transferblend  );              //Note: overriden by chr
     template_put_int( fileTemp, fileWrite, profile->_sheen );
     template_put_bool( fileTemp, fileWrite, profile->_phongMapping );
@@ -1258,7 +1252,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Gam
 
     // Item and damage flags
     template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->isitem) );  //Note overriden by chr
-    template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->ismount) ); //Note overriden by chr
+    template_put_bool( fileTemp, fileWrite, profile->_isMount );
     template_put_bool( fileTemp, fileWrite, profile->_isStackable );
     template_put_bool( fileTemp, fileWrite, TO_C_BOOL(character->nameknown || character->ammoknown)); // make sure that identified items are saved as identified );
     template_put_bool( fileTemp, fileWrite, profile->_usageIsKnown );

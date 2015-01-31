@@ -1097,7 +1097,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
     if ( _gameObjects.exists( ichr ) )
     {
         detach_character_from_mount( ichr, true, true );
-        if ( pchr->ismount )
+        if ( pchr->isMount() )
         {
             _gameObjects.get(ichr)->vel.z    = DISMOUNTZVEL;
             _gameObjects.get(ichr)->jump_timer = JUMPDELAY;
@@ -1109,7 +1109,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
     if ( _gameObjects.exists( ichr ) )
     {
         detach_character_from_mount( ichr, true, true );
-        if ( pchr->ismount )
+        if ( pchr->isMount() )
         {
             _gameObjects.get(ichr)->vel.z    = DISMOUNTZVEL;
             _gameObjects.get(ichr)->jump_timer = JUMPDELAY;
@@ -1455,7 +1455,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    if ( pself_target->ismount )
+    if ( pself_target->isMount() )
     {
         CHR_REF iheld = pself_target->holdingwhich[SLOT_LEFT];
 
@@ -2171,7 +2171,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     }
 
     //If we are a mount, our rider is the owner of this particle
-    if ( pchr->ismount && _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
+    if ( pchr->isMount() && _gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
     {
         ichr = pchr->holdingwhich[SLOT_LEFT];
     }
@@ -3107,7 +3107,7 @@ Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_light( pchr, pstate->argument );
+    pchr->setLight(pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3122,7 +3122,7 @@ Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    chr_set_alpha( pchr, pstate->argument );
+    pchr->setAlpha(pstate->argument);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3224,7 +3224,7 @@ Uint8 scr_KillTarget( script_state_t * pstate, ai_state_t * pself )
     ichr = pself->index;
 
     //Weapons don't kill people, people kill people...
-    if ( _gameObjects.exists( pchr->attachedto ) && !_gameObjects.get(pchr->attachedto)->ismount )
+    if ( _gameObjects.exists( pchr->attachedto ) && !_gameObjects.get(pchr->attachedto)->isMount() )
     {
         ichr = pchr->attachedto;
     }
@@ -5242,7 +5242,7 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
     ichr = pself_target->attachedto;
     if ( _gameObjects.exists( ichr ) )
     {
-        returncode = _gameObjects.get(ichr)->ismount;
+        returncode = _gameObjects.get(ichr)->isMount();
     }
 
     SCRIPT_FUNCTION_END();
@@ -6471,7 +6471,7 @@ Uint8 scr_TargetIsAMount( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    returncode = pself_target->ismount;
+    returncode = pself_target->isMount();
 
     SCRIPT_FUNCTION_END();
 }
