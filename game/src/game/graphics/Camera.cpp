@@ -398,9 +398,9 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 
 	            if ( !pchr->alive ) continue;
 
-	            sum_pos.x += pchr->pos.x;
-	            sum_pos.y += pchr->pos.y;
-	            sum_pos.z += pchr->pos.z + pchr->chr_min_cv.maxs[OCT_Z] * 0.9f;
+	            sum_pos.x += pchr->getPosX();
+	            sum_pos.y += pchr->getPosY();
+	            sum_pos.z += pchr->getPosZ() + pchr->chr_min_cv.maxs[OCT_Z] * 0.9f;
 	            sum_level += pchr->enviro.level;
 	            sum_wt    += 1.0f;
 	        }
@@ -446,9 +446,9 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 	        {
 	            // copy from the one character
 
-	            new_track.x = local_chr_ptrs[0]->pos.x;
-	            new_track.y = local_chr_ptrs[0]->pos.y;
-	            new_track.z = local_chr_ptrs[0]->pos.z;
+	            new_track.x = local_chr_ptrs[0]->getPosX();
+	            new_track.y = local_chr_ptrs[0]->getPosY();
+	            new_track.z = local_chr_ptrs[0]->getPosZ();
 	            new_track_level = local_chr_ptrs[0]->enviro.level + 128;
 	        }
 	        else
@@ -484,9 +484,9 @@ void Camera::updateTrack(const ego_mesh_t * pmesh)
 	                weight =  std::max( weight1, weight2 );
 
 	                // The character is on foot
-	                sum_pos.x += pchr->pos.x * weight;
-	                sum_pos.y += pchr->pos.y * weight;
-	                sum_pos.z += pchr->pos.z * weight;
+	                sum_pos.x += pchr->getPosX() * weight;
+	                sum_pos.y += pchr->getPosY() * weight;
+	                sum_pos.z += pchr->getPosZ() * weight;
 	                sum_level += ( pchr->enviro.level + 128 ) * weight;
 	                sum_wt    += weight;
 	            }

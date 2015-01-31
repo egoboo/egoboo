@@ -368,7 +368,7 @@ void AudioSystem::updateLoopingSound(const std::shared_ptr<LoopingSound> &sound)
         return;
     }
 
-    const fvec3_t soundPosition = _gameObjects.get(sound->getOwner())->pos;
+    const fvec3_t soundPosition = _gameObjects.get(sound->getOwner())->getPosition();
     const float distance = getSoundDistance(soundPosition);
 
     //Sound is close enough to be heard?

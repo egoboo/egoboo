@@ -108,7 +108,7 @@ bool Passage::close()
 
             if ( 0.0f != object->bump_stt.size )
             {
-                if ( objectIsInPassage( object->pos.x, object->pos.y, object->bump_1.size ) )
+                if ( objectIsInPassage( object->getPosX(), object->getPosY(), object->bump_1.size ) )
                 {
                     if ( !object->canbecrushed || ( object->alive && object->openstuff ) )
                     {
@@ -177,7 +177,7 @@ CHR_REF Passage::whoIsBlockingPassage( const CHR_REF isrc, IDSZ idsz, const BIT_
         if ( !chr_check_target( psrc, character, idsz, targeting_bits ) ) continue;
 
         //Now check if it actually is inside the passage area
-        if ( objectIsInPassage( pchr->pos.x, pchr->pos.y, pchr->bump_1.size ) )
+        if ( objectIsInPassage( pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size ) )
         {
             // Found a live one, do we need to check for required items as well?
             if ( IDSZ_NONE == require_item )
@@ -263,7 +263,7 @@ bool Passage::checkPassageMusic(const GameObject * pchr) const
        return false; 
     } 
 
-    if(!objectIsInPassage(pchr->pos.x, pchr->pos.y, pchr->bump_1.size)) {
+    if(!objectIsInPassage(pchr->getPosX(), pchr->getPosY(), pchr->bump_1.size)) {
         return false;
     }
 
@@ -307,7 +307,7 @@ void Passage::makeShop(CHR_REF owner)
 
         if ( object->isitem )
         {
-            if ( objectIsInPassage( object->pos.x, object->pos.y, object->bump_1.size ) )
+            if ( objectIsInPassage( object->getPosX(), object->getPosY(), object->bump_1.size ) )
             {
                 object->isshopitem = true;               // Full value
                 object->iskursed   = false;              // Shop items are never kursed

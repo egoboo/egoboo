@@ -1099,14 +1099,9 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         detach_character_from_mount( ichr, true, true );
         if ( pchr->ismount )
         {
-            fvec3_t tmp_pos;
-
             _gameObjects.get(ichr)->vel.z    = DISMOUNTZVEL;
             _gameObjects.get(ichr)->jump_timer = JUMPDELAY;
-
-            chr_get_pos(_gameObjects.get( ichr ), tmp_pos);
-            tmp_pos.z += DISMOUNTZVEL;
-            chr_set_pos(_gameObjects.get( ichr ), tmp_pos);
+            _gameObjects.get(ichr)->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
     }
 
@@ -1116,14 +1111,9 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         detach_character_from_mount( ichr, true, true );
         if ( pchr->ismount )
         {
-            fvec3_t tmp_pos;
-
             _gameObjects.get(ichr)->vel.z    = DISMOUNTZVEL;
             _gameObjects.get(ichr)->jump_timer = JUMPDELAY;
-
-            chr_get_pos(_gameObjects.get(ichr), tmp_pos);
-            tmp_pos.z += DISMOUNTZVEL;
-            chr_set_pos(_gameObjects.get(ichr), tmp_pos);
+            _gameObjects.get(ichr)->movePosition(0.0f, 0.0f, DISMOUNTZVEL);
         }
     }
 
@@ -2186,7 +2176,7 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = pchr->holdingwhich[SLOT_LEFT];
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+    iprt = spawn_one_particle( pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
     returncode = _DEFINED_PRT( iprt );
     if ( returncode )
@@ -4047,7 +4037,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
         ichr = iholder;
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+    iprt = spawn_one_particle( pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
     returncode = _DEFINED_PRT( iprt );
 
     SCRIPT_FUNCTION_END();
@@ -4581,7 +4571,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+    iprt = spawn_one_particle( pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
     returncode = _DEFINED_PRT( iprt );
 
@@ -4644,7 +4634,7 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    sTmp = vec_to_facing( pself_target->pos.x - pchr->pos.x , pself_target->pos.y - pchr->pos.y );
+    sTmp = vec_to_facing( pself_target->getPosX() - pchr->getPosX(), pself_target->getPosY() - pchr->getPosY() );
     sTmp -= pchr->ori.facing_z;
     returncode = ( sTmp > 55535 || sTmp < 10000 );
 
@@ -4693,7 +4683,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos, CLIP_TO_16BITS( pstate->turn ), pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+    iprt = spawn_one_particle( pchr->getPosition(), CLIP_TO_16BITS( pstate->turn ), pchr->profile_ref, pstate->argument, pself->index, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
     returncode = _DEFINED_PRT( iprt );
 
@@ -4750,7 +4740,7 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = GameObjecteleport( pself->index, pstate->x, pstate->y, pchr->pos.z, pchr->ori.facing_z );
+    returncode = GameObjecteleport( pself->index, pstate->x, pstate->y, pchr->getPosZ(), pchr->ori.facing_z );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5079,7 +5069,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
         ichr = pchr->attachedto;
     }
 
-    iprt = spawn_one_particle( pchr->pos, pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ichr, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
+    iprt = spawn_one_particle( pchr->getPosition(), pchr->ori.facing_z, pchr->profile_ref, pstate->argument, ichr, pstate->distance, pchr->team, ichr, INVALID_PRT_REF, 0, INVALID_CHR_REF );
 
     returncode = _DEFINED_PRT( iprt );
 
@@ -5751,9 +5741,9 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     SCRIPT_REQUIRE_TARGET( pself_target );
-    save_pos = pself_target->pos;
+    save_pos = pself_target->getPosition();
     respawn_character( pself->target );
-    pself_target->pos = save_pos;
+    pself_target->setPosition(save_pos);
 
     SCRIPT_FUNCTION_END();
 }
@@ -8129,7 +8119,7 @@ Uint8 scr_TargetIsFacingSelf( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_REQUIRE_TARGET( pself_target );
 
-    sTmp = vec_to_facing( pchr->pos.x - pself_target->pos.x , pchr->pos.y - pself_target->pos.y );
+    sTmp = vec_to_facing( pchr->getPosX() - pself_target->getPosX() , pchr->getPosY() - pself_target->getPosY() );
     sTmp -= pself_target->ori.facing_z;
     returncode = ( sTmp > 55535 || sTmp < 10000 );
 

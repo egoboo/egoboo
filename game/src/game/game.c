@@ -1637,12 +1637,12 @@ CHR_REF prt_find_target( fvec3_t& pos, FACING_T facing,
 
         if ( target_friend || target_enemy )
         {
-            FACING_T angle = - facing + vec_to_facing( pchr->pos.x - pos[kX] , pchr->pos.y - pos[kY] );
+            FACING_T angle = - facing + vec_to_facing( pchr->getPosX() - pos[kX] , pchr->getPosY() - pos[kY] );
 
             // Only proceed if we are facing the target
             if ( angle < ppip->targetangle || angle > ( 0xFFFF - ppip->targetangle ) )
             {
-                float dist2 = fvec3_dist_2(pchr->pos, pos);
+                float dist2 = fvec3_dist_2(pchr->getPosition(), pos);
 
                 if ( dist2 < longdist2 && dist2 <= max_dist2 )
                 {
@@ -1797,9 +1797,9 @@ CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT
     }
 
     // set the line-of-sight source
-    los_info.x0         = psrc->pos.x;
-    los_info.y0         = psrc->pos.y;
-    los_info.z0         = psrc->pos.z + psrc->bump.height;
+    los_info.x0         = psrc->getPosX();
+    los_info.y0         = psrc->getPosY();
+    los_info.z0         = psrc->getPosZ() + psrc->bump.height;
     los_info.stopped_by = psrc->stoppedby;
 
     best_target = INVALID_CHR_REF;
@@ -1815,7 +1815,7 @@ CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT
 
         if ( !chr_check_target( psrc, iGameObjectest, idsz, targeting_bits ) ) continue;
 
-        diff = psrc->pos - ptst->pos;
+        diff = psrc->getPosition() - ptst->getPosition();
 		dist2 = diff.length_2();
 
         if (( 0 == max_dist2 || dist2 <= max_dist2 ) && ( INVALID_CHR_REF == best_target || dist2 < best_dist2 ) )
@@ -1824,9 +1824,9 @@ CHR_REF chr_find_target( GameObject * psrc, float max_dist, IDSZ idsz, const BIT
             if ( !psrc->invictus )
             {
                 // set the line-of-sight source
-                los_info.x1 = ptst->pos.x;
-                los_info.y1 = ptst->pos.y;
-                los_info.z1 = ptst->pos.z + std::max( 1.0f, ptst->bump.height );
+                los_info.x1 = ptst->getPosition().x;
+                los_info.y1 = ptst->getPosition().y;
+                los_info.z1 = ptst->getPosition().z + std::max( 1.0f, ptst->bump.height );
 
                 if ( line_of_sight_blocked( &los_info ) ) continue;
             }
@@ -1861,11 +1861,11 @@ void do_damage_tiles()
         if ( 0 == ego_mesh_test_fx( PMesh, pchr->onwhichgrid, MAPFX_DAMAGE ) ) continue;
 
         // are we low enough?
-        if ( pchr->pos.z > pchr->enviro.floor_level + DAMAGERAISE ) continue;
+        if ( pchr->getPosZ() > pchr->enviro.floor_level + DAMAGERAISE ) continue;
 
         // allow reaffirming damage to things like torches, even if they are being held,
         // but make the tolerance closer so that books won't burn so easily
-        if ( !_gameObjects.exists( pchr->attachedto ) || pchr->pos.z < pchr->enviro.floor_level + DAMAGERAISE )
+        if ( !_gameObjects.exists( pchr->attachedto ) || pchr->getPosZ() < pchr->enviro.floor_level + DAMAGERAISE )
         {
             if ( pchr->reaffirm_damagetype == damagetile.damagetype )
             {
@@ -1890,7 +1890,7 @@ void do_damage_tiles()
 
             if (( actual_damage > 0 ) && ( -1 != damagetile.part_gpip ) && 0 == ( update_wld & damagetile.partand ) )
             {
-                spawn_one_particle_global( pchr->pos, ATK_FRONT, damagetile.part_gpip, 0 );
+                spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, damagetile.part_gpip, 0 );
             }
         }
     }
@@ -1930,7 +1930,7 @@ void update_pits()
                 if ( IS_ATTACHED_CHR( pchr->getCharacterID() ) ) continue;
 
                 // Do we kill it?
-                if ( pits.kill && pchr->pos.z < PITDEPTH )
+                if ( pits.kill && pchr->getPosZ() < PITDEPTH )
                 {
                     // Got one!
                     kill_character( pchr->getCharacterID(), INVALID_CHR_REF, false );
@@ -1943,7 +1943,7 @@ void update_pits()
                 }
 
                 // Do we teleport it?
-                if ( pits.teleport && pchr->pos.z < PITDEPTH * 4 )
+                if ( pits.teleport && pchr->getPosZ() < PITDEPTH * 4 )
                 {
                     bool teleported;
 
@@ -1969,7 +1969,7 @@ void update_pits()
                         }
                         else
                         {
-                            _audioSystem.playSound(pchr->pos, _audioSystem.getGlobalSound(GSND_PITFALL));
+                            _audioSystem.playSound(pchr->getPosition(), _audioSystem.getGlobalSound(GSND_PITFALL));
                         }
 
                         // Do some damage (same as damage tile)
@@ -2019,7 +2019,7 @@ void do_weather_spawn_particles()
                     GameObject * pchr = _gameObjects.get( ichr );
 
                     // Yes, so spawn over that character
-                    PRT_REF particle = spawn_one_particle_global( pchr->pos, ATK_FRONT, weather.part_gpip, 0 );
+                    PRT_REF particle = spawn_one_particle_global( pchr->getPosition(), ATK_FRONT, weather.part_gpip, 0 );
                     if ( _DEFINED_PRT( particle ) )
                     {
                         prt_t * pprt = PrtList_get_ptr( particle );
@@ -3365,7 +3365,7 @@ int reaffirm_attached_particles( const CHR_REF character )
     number_added = 0;
     for ( attempts = 0; attempts < amount && number_attached < amount; attempts++ )
     {
-        particle = spawnOneParticle( pchr->pos, pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
+        particle = spawnOneParticle( pchr->getPosition(), pchr->ori.facing_z, profile->getSlotNumber(), profile->getAttachedParticleProfile(), character, GRIP_LAST + number_attached, chr_get_iteam( character ), character, INVALID_PRT_REF, number_attached);
         if ( _DEFINED_PRT( particle ) )
         {
             prt_t * pprt = PrtList_get_ptr( particle );
@@ -4629,7 +4629,7 @@ bool do_shop_drop( const CHR_REF idropper, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = PMod->getShopOwner(pitem->pos.x, pitem->pos.y);
+        iowner = PMod->getShopOwner(pitem->getPosX(), pitem->getPosY());
         if ( _gameObjects.exists( iowner ) )
         {
             int price;
@@ -4682,7 +4682,7 @@ bool do_shop_buy( const CHR_REF ipicker, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = PMod->getShopOwner( pitem->pos.x, pitem->pos.y );
+        iowner = PMod->getShopOwner( pitem->getPosX(), pitem->getPosY() );
         if ( _gameObjects.exists( iowner ) )
         {
             GameObject * powner = _gameObjects.get( iowner );
@@ -4758,7 +4758,7 @@ bool do_shop_steal( const CHR_REF ithief, const CHR_REF iitem )
     {
         CHR_REF iowner;
 
-        iowner = PMod->getShopOwner( pitem->pos.x, pitem->pos.y );
+        iowner = PMod->getShopOwner( pitem->getPosX(), pitem->getPosY() );
         if ( _gameObjects.exists( iowner ) )
         {
             IPair  tmp_rand = {1, 100};
@@ -4798,7 +4798,7 @@ bool can_grab_item_in_shop( const CHR_REF ichr, const CHR_REF iitem )
     can_grab = true;
 
     // check if we are doing this inside a shop
-    shop_keeper = PMod->getShopOwner(pitem->pos.x, pitem->pos.y);
+    shop_keeper = PMod->getShopOwner(pitem->getPosX(), pitem->getPosY());
     pkeeper = _gameObjects.get( shop_keeper );
     if ( INGAME_PCHR( pkeeper ) )
     {
@@ -4883,8 +4883,8 @@ float get_mesh_max_vertex_2( ego_mesh_t * pmesh, GameObject * pchr )
 
     for ( corner = 0; corner < 4; corner++ )
     {
-        pos_x[corner] = pchr->pos.x + (( 0 == ix_off[corner] ) ? pchr->chr_min_cv.mins[OCT_X] : pchr->chr_min_cv.maxs[OCT_X] );
-        pos_y[corner] = pchr->pos.y + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv.mins[OCT_Y] : pchr->chr_min_cv.maxs[OCT_Y] );
+        pos_x[corner] = pchr->getPosX() + (( 0 == ix_off[corner] ) ? pchr->chr_min_cv.mins[OCT_X] : pchr->chr_min_cv.maxs[OCT_X] );
+        pos_y[corner] = pchr->getPosY() + (( 0 == iy_off[corner] ) ? pchr->chr_min_cv.mins[OCT_Y] : pchr->chr_min_cv.maxs[OCT_Y] );
     }
 
     zmax = get_mesh_level( pmesh, pos_x[0], pos_y[0], pchr->waterwalk );
@@ -4916,12 +4916,12 @@ float get_chr_level( ego_mesh_t * pmesh, GameObject * pchr )
     // collide with the mesh. They all have 0 == pchr->bump.size
     if ( 0.0f == pchr->bump_stt.size )
     {
-        return get_mesh_level( pmesh, pchr->pos.x, pchr->pos.y, pchr->waterwalk );
+        return get_mesh_level( pmesh, pchr->getPosX(), pchr->getPosY(), pchr->waterwalk );
     }
 
     // otherwise, use the small collision volume to determine which tiles the object overlaps
     // move the collision volume so that it surrounds the object
-    oct_bb_add_fvec3( &( pchr->chr_min_cv ), pchr->pos, &bump );
+    oct_bb_add_fvec3( &( pchr->chr_min_cv ), pchr->getPosition(), &bump );
 
     // determine the size of this object in tiles
     ixmin = bump.mins[OCT_X] / GRID_FSIZE; ixmin = CLIP( ixmin, 0, pmesh->info.tiles_x - 1 );
@@ -5051,8 +5051,8 @@ bool attach_GameObjecto_platform( GameObject * pchr, GameObject * pplat )
     pchr->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
-    pchr->enviro.level     = std::max( pchr->enviro.floor_level, pplat->pos.z + pplat->chr_min_cv.maxs[OCT_Z] );
-    pchr->enviro.zlerp     = ( pchr->pos.z - pchr->enviro.level ) / PLATTOLERANCE;
+    pchr->enviro.level     = std::max( pchr->enviro.floor_level, pplat->getPosZ() + pplat->chr_min_cv.maxs[OCT_Z] );
+    pchr->enviro.zlerp     = ( pchr->getPosZ() - pchr->enviro.level ) / PLATTOLERANCE;
     pchr->enviro.zlerp     = CLIP( pchr->enviro.zlerp, 0.0f, 1.0f );
     pchr->enviro.grounded  = ( 0 == pchr->flyheight ) && ( pchr->enviro.zlerp < 0.25f );
 
@@ -5160,7 +5160,7 @@ bool attach_prt_to_platform( prt_t * pprt, GameObject * pplat )
     pprt->targetplatform_ref     = INVALID_CHR_REF;
 
     // update the character's relationship to the ground
-    prt_set_level( pprt, std::max( pprt->enviro.level, pplat->pos.z + pplat->chr_min_cv.maxs[OCT_Z] ) );
+    prt_set_level( pprt, std::max( pprt->enviro.level, pplat->getPosZ() + pplat->chr_min_cv.maxs[OCT_Z] ) );
 
     return true;
 }

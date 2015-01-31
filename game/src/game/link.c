@@ -196,7 +196,7 @@ bool link_pop_module()
             // is the character is found, restore the old position
             if ( nullptr != pchr )
             {
-                chr_set_pos(pchr.get(), phero->pos);
+                pchr->setPosition(phero->pos);
                 pchr->pos_old  = phero->pos;
                 pchr->pos_stt  = phero->pos_stt;
 

@@ -239,9 +239,6 @@ bool chr_update_safe_raw( GameObject * pchr );
 bool chr_update_safe( GameObject * pchr, bool force );
 bool chr_get_safe( GameObject * pchr, fvec3_base_t pos );
 
-bool chr_set_pos(GameObject *self, const fvec3_t& position);
-bool chr_set_pos(GameObject *self, const fvec3_base_t position); ///< @todo Remove this.
-
 bool chr_set_maxaccel( GameObject * pchr, float new_val );
 bool character_is_attacking( GameObject * pchr );
 
@@ -447,6 +444,5 @@ bool chr_has_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_is_type_idsz( const CHR_REF ichr, IDSZ idsz );
 bool chr_has_vulnie( const CHR_REF item, const PRO_REF weapon_profile );
 
-const fvec3_t& chr_get_pos_v_const(const GameObject *pchr);
 bool chr_get_pos(const GameObject *self, fvec3_t& position);
 bool chr_get_pos(const GameObject *self, fvec3_base_t position); ///< @todo Remove this.

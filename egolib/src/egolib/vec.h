@@ -23,9 +23,6 @@
 #pragma once
 
 #include "egolib/typedef.h"
-#if 0
-#include "egolib/_math.h"
-#endif
 
 /**
  * @brief
@@ -139,11 +136,10 @@ struct fvec2_t
 	 * @return
 	 *	@a true if this vector equals the other vector
 	 */
-	bool equals(const fvec2_t& other)
+	bool equals(const fvec2_t& other) const
 	{
 		return this->x == other.x
-			&& this->y == other.y
-			;
+			&& this->y == other.y;
 	}
 
 	/**
@@ -439,12 +435,11 @@ struct fvec3_t
 	 * @return
 	 *	@a true if this vector equals the other vector
 	 */
-	bool equals(const fvec3_t& other)
+	bool equals(const fvec3_t& other) const
 	{
 		return this->x == other.x
 			&& this->y == other.y
-			&& this->z == other.z
-			;
+			&& this->z == other.z;
 	}
 
 	/**
@@ -531,9 +526,14 @@ struct fvec3_t
 		return *this;
 	}
 
-	bool operator==(const fvec3_t& other)
+	bool operator==(const fvec3_t& other) const
 	{
 		return equals(other);
+	}
+
+	bool operator!=(const fvec3_t& other) const
+	{
+		return !equals(other);
 	}
 
 	float& operator[](size_t const& index)
@@ -653,13 +653,12 @@ struct fvec4_t
 	 * @return
 	 *	@a true if this vector equals the other vector
 	 */
-	bool equals(const fvec4_t& other)
+	bool equals(const fvec4_t& other) const
 	{
 		return this->x == other.x
 			&& this->y == other.y
 			&& this->z == other.z
-			&& this->w == other.w
-			;
+			&& this->w == other.w;
 	}
 	/**
 	 * @brief

@@ -107,9 +107,9 @@ bool billboard_data_update( billboard_data_t * pbb )
     height = pchr->bump.height;
     offset = std::min( pchr->bump.height * 0.5f, pchr->bump.size );
 
-    pos_new.x = pchr->pos.x + vup.x * ( height + offset );
-    pos_new.y = pchr->pos.y + vup.y * ( height + offset );
-    pos_new.z = pchr->pos.z + vup.z * ( height + offset );
+    pos_new.x = pchr->getPosX() + vup.x * ( height + offset );
+    pos_new.y = pchr->getPosY() + vup.y * ( height + offset );
+    pos_new.z = pchr->getPosZ() + vup.z * ( height + offset );
 
     // allow the billboards to be a bit bouncy
     pbb->pos.x = pbb->pos.x * 0.5f + pos_new.x * 0.5f;

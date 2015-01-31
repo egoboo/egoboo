@@ -2671,11 +2671,11 @@ void draw_map()
                          local_stats.sense_enemies_idsz == profile->getIDSZ(IDSZ_TYPE  ) )
                     {
                         // Inside the map?
-                        if ( pchr->pos.x < PMesh->gmem.edge_x && pchr->pos.y < PMesh->gmem.edge_y )
+                        if ( pchr->getPosX() < PMesh->gmem.edge_x && pchr->getPosY() < PMesh->gmem.edge_y )
                         {
                             // Valid colors only
-                            blip_x[blip_count] = pchr->pos.x;
-                            blip_y[blip_count] = pchr->pos.y;
+                            blip_x[blip_count] = pchr->getPosX();
+                            blip_y[blip_count] = pchr->getPosY();
                             blip_c[blip_count] = COLOR_RED; // Red blips
                             blip_count++;
                         }
@@ -2709,7 +2709,7 @@ void draw_map()
                 ichr = PlaStack.lst[iplayer].index;
                 if ( _gameObjects.exists( ichr ) && _gameObjects.get(ichr)->alive )
                 {
-                    draw_blip( 0.75f, COLOR_WHITE, _gameObjects.get(ichr)->pos.x, _gameObjects.get(ichr)->pos.y, true );
+                    draw_blip( 0.75f, COLOR_WHITE, _gameObjects.get(ichr)->getPosX(), _gameObjects.get(ichr)->getPosY(), true );
                 }
             }
         }
@@ -2870,11 +2870,11 @@ float draw_debug( float y )
                              _gameObjects.get(ichr)->damage_resistance[DAMAGE_ZAP  ] );
 
         ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", _gameObjects.get(ichr)->pos.x / GRID_FSIZE, _gameObjects.get(ichr)->pos.y / GRID_FSIZE );
+        y = draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", _gameObjects.get(ichr)->getPosX() / GRID_FSIZE, _gameObjects.get(ichr)->getPosY() / GRID_FSIZE );
 
         ipla = ( PLA_REF )1;
         ichr = PlaStack.lst[ipla].index;
-        y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", _gameObjects.get(ichr)->pos.x / GRID_FSIZE, _gameObjects.get(ichr)->pos.y / GRID_FSIZE );
+        y = draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", _gameObjects.get(ichr)->getPosY() / GRID_FSIZE, _gameObjects.get(ichr)->getPosY() / GRID_FSIZE );
     }
 
     if ( SDL_KEYDOWN( keyb, SDLK_F6 ) )

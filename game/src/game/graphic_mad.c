@@ -806,7 +806,7 @@ void draw_chr_bbox( GameObject * pchr )
         {
             oct_bb_t bb;
 
-            oct_bb_add_fvec3( &( pchr->slot_cv[SLOT_LEFT] ), pchr->pos, &bb );
+            oct_bb_add_fvec3( &( pchr->slot_cv[SLOT_LEFT] ), pchr->getPosition(), &bb );
 
 			Ego::Renderer::getSingleton()->setColour(Ego::Math::Colour4f::WHITE);
             render_oct_bb( &bb, true, true );
@@ -1086,7 +1086,7 @@ void chr_instance_update_lighting_base( chr_instance_t * pinst, GameObject * pch
     pinst->vrt_count = pinst->vrt_count;
 
     // interpolate the lighting for the origin of the object
-    grid_lighting_interpolate( PMesh, &global_light, fvec2_t(pchr->pos[kX],pchr->pos[kY]) );
+    grid_lighting_interpolate( PMesh, &global_light, fvec2_t(pchr->getPosX(), pchr->getPosY()) );
 
     // rotate the lighting data to body_centered coordinates
     lighting_project_cache(&loc_light, &global_light, pinst->matrix);

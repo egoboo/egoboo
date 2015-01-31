@@ -585,7 +585,7 @@ void enc_apply_set( const ENC_REF  ienc, int value_idx, const PRO_REF profile )
 
                     case SETFLYTOHEIGHT:
                         penc->setsave[value_idx] = ptarget->flyheight;
-                        if ( 0 == ptarget->flyheight && ptarget->pos.z > -2 )
+                        if ( 0 == ptarget->flyheight && ptarget->getPosZ() > -2 )
                         {
                             ptarget->flyheight = peve->setvalue[value_idx];
                         }
@@ -959,7 +959,7 @@ enc_t * enc_config_do_init( enc_t * penc )
     // Create an overlay character?
     if ( peve->spawn_overlay && NULL != ptarget )
     {
-        overlay = spawn_one_character(ptarget->pos, pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, INVALID_CHR_REF );
+        overlay = spawn_one_character(ptarget->getPosition(), pdata->profile_ref, ptarget->team, 0, ptarget->ori.facing_z, NULL, INVALID_CHR_REF );
         if ( _gameObjects.exists( overlay ) )
         {
             GameObject *povl;
@@ -1043,7 +1043,7 @@ enc_t * enc_config_do_active( enc_t * penc )
         facing = ptarget->ori.facing_z;
         for ( tnc = 0; tnc < peve->contspawn_amount; tnc++ )
         {
-            spawn_one_particle( ptarget->pos, facing, penc->profile_ref, peve->contspawn_lpip,
+            spawn_one_particle( ptarget->getPosition(), facing, penc->profile_ref, peve->contspawn_lpip,
                                 INVALID_CHR_REF, GRIP_LAST, chr_get_iteam( penc->owner_ref ), penc->owner_ref, INVALID_PRT_REF, tnc, INVALID_CHR_REF );
 
             facing += peve->contspawn_facingadd;
