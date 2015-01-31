@@ -363,19 +363,6 @@ const char *undo_idsz(IDSZ idsz);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-/// The latch used by the input system
-    struct s_latch
-    {
-        float          x;         ///< the x input
-        float          y;         ///< the y input
-        BIT_FIELD      b;         ///< the button bits
-    };
-    typedef struct s_latch latch_t;
-
-    void latch_init( latch_t * platch );
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 // References
 
 /// @brief The base reference type, an unsigned integer value.

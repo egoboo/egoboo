@@ -144,7 +144,7 @@ void net_unbuffer_player_latches()
             // that much time without the hastle of actually integrating the trajectory.
 
             // blank the current latch so that we can sum the latch values
-            latch_init( &( tmp_latch ) );
+            tmp_latch.clear();
 
             // apply the latch
             weight_sum = 0;
@@ -231,7 +231,7 @@ void net_unbuffer_player_latches()
         if ( !_gameObjects.exists( character ) ) continue;
         pchr = _gameObjects.get( character );
 
-        if ( cfg.difficulty < GAME_HARD && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RESPAWN ) && PMod->isRespawnValid() )
+        if ( cfg.difficulty < GAME_HARD && pchr->latch.b[LATCHBUTTON_RESPAWN] && PMod->isRespawnValid() )
         {
             if ( !pchr->alive && 0 == local_stats.revivetimer )
             {
@@ -408,7 +408,7 @@ egolib_rv egonet_dispatchEvent( ENetEvent *event )
 
     if ( !handled )
     {
-        handled = ( rv_success == sv_handlePacket( &enet_pkt ) );
+        //handled = ( rv_success == sv_handlePacket( &enet_pkt ) );
     }
 
     if ( !handled )

@@ -168,20 +168,18 @@ Uint32 scancode_get_kmod( Uint32 scancode )
 }
 
 //--------------------------------------------------------------------------------------------
-control_t * scantag_parse_control( char * tag_string, control_t * pcontrol )
+void scantag_parse_control( char * tag_string, control_t &pcontrol )
 {
     int    tag_index = -1;
     const char * tag_token = NULL;
     const char * tag_name  = NULL;
     Uint32 tag_value = 0;
 
-    if ( NULL == pcontrol ) return pcontrol;
-
     // reset the control
-    control_init( pcontrol );
+    pcontrol.clear();
 
     // do we have a valid string?
-    if ( INVALID_CSTR( tag_string ) ) return pcontrol;
+    if ( INVALID_CSTR( tag_string ) ) return;
 
     // scan through the tag string for any valid commands
     // terminate on any bad command
@@ -210,30 +208,24 @@ control_t * scantag_parse_control( char * tag_string, control_t * pcontrol )
 
         if ( 'K' == tag_name[0] )
         {
-            if ( pcontrol->tag_key_count < MAXCONTROLKEYS )
-            {
-                // add the key control to the list
-                pcontrol->tag_key_lst[pcontrol->tag_key_count]  = tag_value;
-                pcontrol->tag_key_count++;
+            // add the key control to the list
+            pcontrol.mappedKeys.push_front(tag_value);
 
-                // add in any key modifiers
-                pcontrol->tag_key_mods |= scancode_get_kmod( tag_value );
+            // add in any key modifiers
+            pcontrol.tag_key_mods |= scancode_get_kmod( tag_value );
 
-                pcontrol->loaded = true;
-            }
+            pcontrol.loaded = true;
         }
         else
         {
-            pcontrol->tag_bits |= tag_value;
+            pcontrol.tag_bits |= tag_value;
 
-            pcontrol->loaded = true;
+            pcontrol.loaded = true;
         }
 
         // go to the next token
         tag_token = scantag_tok( NULL );
     }
-
-    return pcontrol;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -428,7 +420,7 @@ char * buffer_append_str( char * buffer_ptr, const char * buffer_end, const char
 }
 
 //--------------------------------------------------------------------------------------------
-const char * scantag_get_string( int device_type, control_t * pcontrol, char * buffer, size_t buffer_size )
+const char * scantag_get_string( int device_type, const control_t &pcontrol, char * buffer, size_t buffer_size )
 {
     /// @author ZF
     /// @details This translates a input pcontrol->tag value to a string
@@ -447,7 +439,6 @@ const char * scantag_get_string( int device_type, control_t * pcontrol, char * b
     size_t tag_name_len = 0;
     char * tag_name = NULL;
 
-    int cnt;
     scantag_t * ptag = NULL;
 
     if ( NULL == buffer || 0 == buffer_size )
@@ -472,13 +463,6 @@ const char * scantag_get_string( int device_type, control_t * pcontrol, char * b
     // blank out the buffer
     loc_buffer_stt[0] = CSTR_END;
 
-    // check for a NULL control
-    if ( NULL == pcontrol )
-    {
-        // place the default value
-        goto scantag_get_string_end;
-    }
-
     // no tag decoded yet
     tag_name = NULL;
     tag_name_len = 0;
@@ -486,20 +470,20 @@ const char * scantag_get_string( int device_type, control_t * pcontrol, char * b
     device_char = get_device_char_from_device_type( device_type );
 
     // find all the tags for the bits
-    control_bits = pcontrol->tag_bits;
-    if ( 0 != control_bits )
+    if ( pcontrol.tag_bits.any() )
     {
-        ptag = scantag_find_bits( NULL, device_char, control_bits );
+        ptag = scantag_find_bits( NULL, device_char, pcontrol.tag_bits.to_ulong() );
         while ( NULL != ptag )
         {
             // get the string name
             tag_name = ptag->name;
             tag_name_len = strlen( ptag->name );
 
+            //TODO: ZF> not ported
             // remove the tag bits from the control bits
             // so that similar tag bits are not counted multiple times.
             // example: "joy_0 + joy_1" should not be decoded as "joy_0 + joy_1 + joy_0_and_joy_1"
-            control_bits &= ~( ptag->value );
+            //pcontrol.tag_bits &= ~( ptag->value );
 
             // append the string
             if ( 0 == tag_name_len )
@@ -529,17 +513,17 @@ const char * scantag_get_string( int device_type, control_t * pcontrol, char * b
                 tag_count++;
             }
 
-            ptag = scantag_find_bits( NULL, device_char, control_bits );
+            ptag = scantag_find_bits( NULL, device_char, pcontrol.tag_bits.to_ulong() );
         }
     }
 
     // get the names for all the keyboard tags on this control
     // and put them in a list
-    if ( pcontrol->tag_key_count > 0 )
+    if ( !pcontrol.mappedKeys.empty() )
     {
-        for ( cnt = 0; cnt < pcontrol->tag_key_count; cnt++ )
+        for(uint32_t keycode : pcontrol.mappedKeys)
         {
-            ptag = scantag_find_value( NULL, 'K', pcontrol->tag_key_lst[cnt] );
+            ptag = scantag_find_value( NULL, 'K', keycode );
             if ( NULL == ptag ) continue;
 
             // get the string name

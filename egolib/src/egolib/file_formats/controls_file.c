@@ -37,11 +37,11 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void export_control( vfs_FILE * filewrite, const char * text, int device, control_t * pcontrol )
+void export_control( vfs_FILE * filewrite, const char * text, int device, const control_t &pcontrol )
 {
     STRING write;
 
-    if ( !pcontrol->loaded )
+    if ( !pcontrol.loaded )
     {
         snprintf( write, SDL_arraysize( write ), "%s : N/A\n", text );
     }

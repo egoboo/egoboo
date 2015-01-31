@@ -20,8 +20,6 @@
 /// @file game/menu.c
 /// @brief Implements the main menu tree, using the code in Ui.*
 /// @details
-#include <list>
-
 #include "game/menu.h"
 #include "game/mad.h"
 #include "game/player.h"
@@ -2288,8 +2286,6 @@ int doOptions( float deltaTime )
 int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
 {
     // get a key/button combo for the given device
-
-    control_t * pcontrol = NULL;
     scantag_t * ptag     = NULL;
     int         cnt;
     size_t      max_tag  = 0;
@@ -2317,10 +2313,10 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     if ( waitingforinput < 0 ) return waitingforinput;
 
     // grab the control
-    pcontrol = pdevice->control_lst + waitingforinput;
+    control_t &pcontrol = pdevice->keyMap[waitingforinput];
 
     // clear out all the old control data
-    control_init( pcontrol );
+    pcontrol.clear();
 
     // how many scantags are there?
     max_tag = scantag_get_count();
@@ -2339,8 +2335,8 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
 
             if ( SCANTAG_JOYBUTTON( joy_lst + ijoy, ptag->value ) )
             {
-                pcontrol->loaded = true;
-                pcontrol->tag_bits |= ptag->value;
+                pcontrol.loaded = true;
+                pcontrol.tag_bits |= ptag->value;
 
                 // count the valid tags
                 tag_count++;
@@ -2356,8 +2352,8 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
 
             if ( SCANTAG_MOUSBUTTON( ptag->value ) )
             {
-                pcontrol->loaded = true;
-                pcontrol->tag_bits |= ptag->value;
+                pcontrol.loaded = true;
+                pcontrol.tag_bits |= ptag->value;
 
                 // count the valid tags
                 tag_count++;
@@ -2366,19 +2362,18 @@ int doInputOptions_get_input( int waitingforinput, input_device_t * pdevice )
     }
 
     // grab any key combinations
-    for ( cnt = 0; cnt < SDLK_LAST && pcontrol->tag_key_count < MAXCONTROLKEYS; cnt++ )
+    for ( cnt = 0; cnt < SDLK_LAST; cnt++ )
     {
         if ( !SCANTAG_KEYMODDOWN( cnt ) ) continue;
 
         ptag = scantag_find_value( NULL, 'K', cnt );
         if ( NULL == ptag ) continue;
 
-        pcontrol->loaded = true;
-        pcontrol->tag_key_lst[pcontrol->tag_key_count] = ptag->value;
-        pcontrol->tag_key_count++;
+        pcontrol.loaded = true;
+        pcontrol.mappedKeys.push_front(ptag->value);
 
         // add in any tag keymods
-        pcontrol->tag_key_mods |= scancode_get_kmod( ptag->value );
+        pcontrol.tag_key_mods |= scancode_get_kmod( ptag->value );
 
         // count the valid tags
         tag_count++;
@@ -2417,7 +2412,6 @@ int doInputOptions( float deltaTime )
 
     Uint32              i;
     input_device_t      * pdevice = NULL;
-    control_t           * pcontrol = NULL;
 
     pdevice = NULL;
     if ( player < MAX_LOCAL_PLAYERS )
@@ -2491,7 +2485,7 @@ int doInputOptions( float deltaTime )
                 // update the control names
                 for ( i = 0; i < string_device; i++ )
                 {
-                    pcontrol = pdevice->control_lst + i;
+                    control_t &pcontrol = pdevice->keyMap[i];
 
                     scantag_get_string( pdevice->device_type, pcontrol, button_text[i], SDL_arraysize( button_text[i] ) );
                 }

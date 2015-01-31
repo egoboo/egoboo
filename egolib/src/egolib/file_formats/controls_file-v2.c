@@ -83,7 +83,7 @@ bool input_settings_load_vfs_2( const char* szFilename )
         {
             if ( vfs_get_next_line( fileread, currenttag, SDL_arraysize( currenttag ) ) )
             {
-                scantag_parse_control( currenttag, pdevice->control_lst + icontrol );
+                scantag_parse_control( currenttag, pdevice->keyMap[icontrol] );
             }
         }
 
@@ -151,36 +151,36 @@ bool input_settings_save_vfs_2(const char* szFilename)
         vfs_puts( write, filewrite );
 
         //Default input InputDevices
-        export_control( filewrite, "Jump                 ", pdevice->device_type, pdevice->control_lst + CONTROL_JUMP );
-        export_control( filewrite, "Left Hand Use        ", pdevice->device_type, pdevice->control_lst + CONTROL_LEFT_USE );
-        export_control( filewrite, "Left Hand Get/Drop   ", pdevice->device_type, pdevice->control_lst + CONTROL_LEFT_GET );
-        export_control( filewrite, "Left Hand Inventory  ", pdevice->device_type, pdevice->control_lst + CONTROL_LEFT_PACK );
-        export_control( filewrite, "Right Hand Use       ", pdevice->device_type, pdevice->control_lst + CONTROL_RIGHT_USE );
-        export_control( filewrite, "Right Hand Get/Drop  ", pdevice->device_type, pdevice->control_lst + CONTROL_RIGHT_GET );
-        export_control( filewrite, "Right Hand Inventory ", pdevice->device_type, pdevice->control_lst + CONTROL_RIGHT_PACK );
-        export_control( filewrite, "Sneak                ", pdevice->device_type, pdevice->control_lst + CONTROL_SNEAK );
+        export_control( filewrite, "Jump                 ", pdevice->device_type, pdevice->keyMap[CONTROL_JUMP] );
+        export_control( filewrite, "Left Hand Use        ", pdevice->device_type, pdevice->keyMap[CONTROL_LEFT_USE] );
+        export_control( filewrite, "Left Hand Get/Drop   ", pdevice->device_type, pdevice->keyMap[CONTROL_LEFT_GET] );
+        export_control( filewrite, "Left Hand Inventory  ", pdevice->device_type, pdevice->keyMap[CONTROL_LEFT_PACK] );
+        export_control( filewrite, "Right Hand Use       ", pdevice->device_type, pdevice->keyMap[CONTROL_RIGHT_USE] );
+        export_control( filewrite, "Right Hand Get/Drop  ", pdevice->device_type, pdevice->keyMap[CONTROL_RIGHT_GET] );
+        export_control( filewrite, "Right Hand Inventory ", pdevice->device_type, pdevice->keyMap[CONTROL_RIGHT_PACK] );
+        export_control( filewrite, "Sneak                ", pdevice->device_type, pdevice->keyMap[CONTROL_SNEAK] );
 
         //this is only needed for keyboard
         if ( INPUT_DEVICE_KEYBOARD == pdevice->device_type )
         {
             //Could be a global key?
-            export_control( filewrite, "Send Message", pdevice->device_type, pdevice->control_lst + CONTROL_MESSAGE );
+            export_control( filewrite, "Send Message", pdevice->device_type, pdevice->keyMap[CONTROL_MESSAGE] );
 
-            export_control( filewrite, "Camera Rotate Left  ", pdevice->device_type, pdevice->control_lst + CONTROL_CAMERA_LEFT );
-            export_control( filewrite, "Camera Rotate Right ", pdevice->device_type, pdevice->control_lst + CONTROL_CAMERA_RIGHT );
-            export_control( filewrite, "Camera Zoom In      ", pdevice->device_type, pdevice->control_lst + CONTROL_CAMERA_IN );
-            export_control( filewrite, "Camera Zoom Out     ", pdevice->device_type, pdevice->control_lst + CONTROL_CAMERA_OUT );
+            export_control( filewrite, "Camera Rotate Left  ", pdevice->device_type, pdevice->keyMap[CONTROL_CAMERA_LEFT] );
+            export_control( filewrite, "Camera Rotate Right ", pdevice->device_type, pdevice->keyMap[CONTROL_CAMERA_RIGHT] );
+            export_control( filewrite, "Camera Zoom In      ", pdevice->device_type, pdevice->keyMap[CONTROL_CAMERA_IN] );
+            export_control( filewrite, "Camera Zoom Out     ", pdevice->device_type, pdevice->keyMap[CONTROL_CAMERA_OUT] );
 
-            export_control( filewrite, "Up                  ", pdevice->device_type, pdevice->control_lst + CONTROL_UP );
-            export_control( filewrite, "Down                ", pdevice->device_type, pdevice->control_lst + CONTROL_DOWN );
-            export_control( filewrite, "Left                ", pdevice->device_type, pdevice->control_lst + CONTROL_LEFT );
-            export_control( filewrite, "Right               ", pdevice->device_type, pdevice->control_lst + CONTROL_RIGHT );
+            export_control( filewrite, "Up                  ", pdevice->device_type, pdevice->keyMap[CONTROL_UP] );
+            export_control( filewrite, "Down                ", pdevice->device_type, pdevice->keyMap[CONTROL_DOWN] );
+            export_control( filewrite, "Left                ", pdevice->device_type, pdevice->keyMap[CONTROL_LEFT] );
+            export_control( filewrite, "Right               ", pdevice->device_type, pdevice->keyMap[CONTROL_RIGHT] );
         }
 
         //Mouse and Joystick specific
         else
         {
-            export_control( filewrite, "Camera Control Mode	 ", pdevice->device_type, pdevice->control_lst + CONTROL_CAMERA );
+            export_control( filewrite, "Camera Control Mode	 ", pdevice->device_type, pdevice->keyMap[CONTROL_CAMERA] );
         }
     }
 

@@ -4267,7 +4267,7 @@ void change_character( const CHR_REF ichr, const PRO_REF profile_new, const int 
     pchr->ai.timer          = 0;
     pchr->turnmode          = TURNMODE_VELOCITY;
 
-    latch_init( &( pchr->latch ) );
+    pchr->latch.clear();
 
     // Flags
     pchr->stickybutt      = newProfile->hasStickyButt();
@@ -5486,11 +5486,11 @@ bool chr_do_latch_button( GameObject * pchr )
 
     pai = &( pchr->ai );
 
-    if ( !pchr->alive || 0 == pchr->latch.b ) return true;
+    if ( !pchr->alive || pchr->latch.b.none() ) return true;
 
     const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
 
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) && 0 == pchr->jump_timer )
+    if ( pchr->latch.b[LATCHBUTTON_JUMP] && 0 == pchr->jump_timer )
     {
 
         //Jump from our mount
@@ -5552,18 +5552,18 @@ bool chr_do_latch_button( GameObject * pchr )
         }
 
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
+    if ( pchr->latch.b[LATCHBUTTON_PACKLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = PACKDELAY;
         inventory_swap_item( ichr, MAXINVENTORY, SLOT_LEFT, false );
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
+    if ( pchr->latch.b[LATCHBUTTON_PACKRIGHT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = PACKDELAY;
         inventory_swap_item( ichr, MAXINVENTORY, SLOT_RIGHT, false );
     }
 
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
+    if ( pchr->latch.b[LATCHBUTTON_ALTLEFT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         pchr->reload_timer = GRABDELAY;
         if ( !_gameObjects.exists( pchr->holdingwhich[SLOT_LEFT] ) )
@@ -5577,7 +5577,7 @@ bool chr_do_latch_button( GameObject * pchr )
             chr_play_action( pchr, ACTION_MA, false );
         }
     }
-    if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->inst.action_ready && 0 == pchr->reload_timer )
+    if ( pchr->latch.b[LATCHBUTTON_ALTRIGHT] && pchr->inst.action_ready && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_ALTRIGHT;
 
@@ -5596,12 +5596,12 @@ bool chr_do_latch_button( GameObject * pchr )
 
     // LATCHBUTTON_LEFT and LATCHBUTTON_RIGHT are mutually exclusive
     attack_handled = false;
-    if ( !attack_handled && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_LEFT ) && 0 == pchr->reload_timer )
+    if ( !attack_handled && pchr->latch.b[LATCHBUTTON_LEFT] && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_LEFT;
         attack_handled = chr_do_latch_attack( pchr, SLOT_LEFT );
     }
-    if ( !attack_handled && HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RIGHT ) && 0 == pchr->reload_timer )
+    if ( !attack_handled && pchr->latch.b[LATCHBUTTON_RIGHT] && 0 == pchr->reload_timer )
     {
         //pchr->latch.b &= ~LATCHBUTTON_RIGHT;
 

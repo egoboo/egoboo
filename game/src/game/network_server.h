@@ -66,10 +66,10 @@ int  sv_init();
 void sv_shutDown();
 void sv_frameStep();
 
-egolib_rv sv_talkToRemotes();
+//egolib_rv sv_talkToRemotes();
 egolib_rv sv_hostGame();
 egolib_rv sv_letPlayersJoin();
-egolib_rv sv_handlePacket( enet_packet_t * enet_pkt );
+//egolib_rv sv_handlePacket( enet_packet_t * enet_pkt );
 
 // More to come...
 // int  sv_beginSinglePlayer(...)
