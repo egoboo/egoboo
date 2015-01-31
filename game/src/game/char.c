@@ -4974,14 +4974,12 @@ void move_one_character_do_floor_friction( GameObject * pchr )
     temp_friction_xy = 1.0f;
     vup.x = 0.0f; vup.y = 0.0f; vup.z = 1.0f;
 
+    const std::shared_ptr<GameObject> &platform = _gameObjects[pchr->onwhichplatform_ref];
+
     // figure out the acceleration due to the current "floor"
-    if ( _gameObjects.exists( pchr->onwhichplatform_ref ) )
+    if (platform != nullptr)
     {
-        GameObject * pplat = _gameObjects.get( pchr->onwhichplatform_ref );
-
-        temp_friction_xy = platstick;
-
-        chr_getMatUp(pplat, vup);
+        chr_getMatUp(platform.get(), vup);
     }
     else if ( !pchr->alive || pchr->isitem )
     {
@@ -5490,13 +5488,11 @@ bool chr_do_latch_button( GameObject * pchr )
 
     if ( !pchr->alive || 0 == pchr->latch.b ) return true;
 
-    std::shared_ptr<ObjectProfile> profile = _profileSystem.getProfile(pchr->profile_ref);
+    const std::shared_ptr<ObjectProfile> &profile = pchr->getProfile();
 
     if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) && 0 == pchr->jump_timer )
     {
-#if 0
-        int ijump;
-#endif
+
         //Jump from our mount
         if ( _gameObjects.exists( pchr->attachedto ) )
         {

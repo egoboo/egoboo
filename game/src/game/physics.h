@@ -232,12 +232,12 @@ extern float   waterfriction;               ///< Water resistance
 extern float   slippyfriction;              ///< Friction on tiles that are marked with MAPFX_SLIPPY
 extern float   noslipfriction;              ///< Friction on normal tiles
 extern float   gravity;                     ///< Gravitational accel
-extern float   platstick;                   ///< Friction between characters and platforms
 extern fvec3_t windspeed;                   ///< The game's windspeed
 extern fvec3_t waterspeed;                  ///< The game's waterspeed
 
 extern const float air_friction;            ///< gives the same terminal velocity in terms of the size of the game characters
 extern const float ice_friction;            ///< estimte if the friction on ice
+extern const float PLATFORM_STICKINESS;     ///< Friction between characters and platforms
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

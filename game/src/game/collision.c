@@ -2051,13 +2051,13 @@ bool do_chr_platform_physics( GameObject * pitem, GameObject * pplat )
     {
         phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f, kZ );
         phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel.z  - pitem->vel.z ) * 0.25f, kZ );
-        pitem->ori.facing_z += ( rot_a         - rot_b ) * platstick;
+        pitem->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS;
     }
     else
     {
         phys_data_sum_aplat_index( &( pitem->phys ), ( pitem->enviro.level - pitem->getPosZ() ) * 0.125f * lerp_z * vlerp_z, kZ );
         phys_data_sum_avel_index( &( pitem->phys ), ( pplat->vel.z  - pitem->vel.z ) * 0.25f * lerp_z * vlerp_z, kZ );
-        pitem->ori.facing_z += ( rot_a         - rot_b ) * platstick * lerp_z * vlerp_z;
+        pitem->ori.facing_z += ( rot_a - rot_b ) * PLATFORM_STICKINESS * lerp_z * vlerp_z;
     };
 
     return true;
@@ -2709,14 +2709,14 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
 
         if ( pdata->pprt->vel.z - pdata->pchr->vel.z < 0 )
         {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pchr->vel.z * pdata->ppip->dampen + platstick * pdata->pchr->vel.z - pdata->pprt->vel.z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pchr->vel.z * pdata->ppip->dampen + PLATFORM_STICKINESS * pdata->pchr->vel.z - pdata->pprt->vel.z, kZ );
         }
         else
         {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.z *( 1.0f - platstick ) + pdata->pchr->vel.z * platstick - pdata->pprt->vel.z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.z *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel.z * PLATFORM_STICKINESS - pdata->pprt->vel.z, kZ );
         }
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.x *( 1.0f - platstick ) + pdata->pchr->vel.x * platstick - pdata->pprt->vel.x, kX );
-        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.y *( 1.0f - platstick ) + pdata->pchr->vel.y * platstick - pdata->pprt->vel.y, kY );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.x *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel.x * PLATFORM_STICKINESS - pdata->pprt->vel.x, kX );
+        phys_data_sum_avel_index( &( pdata->pprt->phys ), pdata->pprt->vel.y *( 1.0f - PLATFORM_STICKINESS ) + pdata->pchr->vel.y * PLATFORM_STICKINESS - pdata->pprt->vel.y, kY );
 
         plat_collision = true;
     }
@@ -2728,9 +2728,9 @@ bool do_prt_platform_physics( chr_prt_collsion_data_t * pdata )
 
         if ( lerp_z > 0.0f )
         {
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.x - pdata->pprt->vel.x ) * platstick * lerp_z, kX );
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.y - pdata->pprt->vel.y ) * platstick * lerp_z, kY );
-            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.z - pdata->pprt->vel.z ) * platstick * lerp_z, kZ );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.x - pdata->pprt->vel.x ) * PLATFORM_STICKINESS * lerp_z, kX );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.y - pdata->pprt->vel.y ) * PLATFORM_STICKINESS * lerp_z, kY );
+            phys_data_sum_avel_index( &( pdata->pprt->phys ), ( pdata->pchr->vel.z - pdata->pprt->vel.z ) * PLATFORM_STICKINESS * lerp_z, kZ );
 
             plat_collision = true;
         }

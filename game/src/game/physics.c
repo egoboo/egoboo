@@ -38,7 +38,7 @@ float   airfriction     =  0.91f;
 float   waterfriction   =  0.80f;
 float   noslipfriction  =  0.91f;
 float   gravity         = -1.00f;
-float   platstick       =  0.01f;
+const float PLATFORM_STICKINESS =  0.01f;
 fvec3_t windspeed       = fvec3_t::zero;
 fvec3_t waterspeed      = fvec3_t::zero;
 

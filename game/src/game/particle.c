@@ -1560,7 +1560,7 @@ prt_bundle_t * move_one_particle_do_floor_friction( prt_bundle_t * pbdl_prt )
     {
         GameObject * pplat = _gameObjects.get( loc_pprt->onwhichplatform_ref );
 
-        temp_friction_xy = platstick;
+        temp_friction_xy = PLATFORM_STICKINESS;
 
         floor_acc.x = pplat->vel.x - pplat->vel_old.x;
         floor_acc.y = pplat->vel.y - pplat->vel_old.y;
