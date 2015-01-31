@@ -32,6 +32,7 @@
 
 #include "game/graphics/MD2Model.hpp"
 #include "game/profiles/Profile.hpp"
+#include "game/game_logic/GameObject.hpp"
 #include "game/enchant.h"
 #include "game/particle.h"
 
@@ -47,7 +48,6 @@ struct billboard_data_t;
 struct mesh_wall_data_t;
 
 struct prt_t;
-class ObjectProfile;
 
 //--------------------------------------------------------------------------------------------
 // internal structs
@@ -72,8 +72,8 @@ struct chr_spawn_data_t;
 #define MAXMONEY        9999                        ///< Maximum money
 #define SHOP_IDENTIFY   200                         ///< Maximum value for identifying shop items
 
-#define CHR_INFINITE_WEIGHT          (( Uint32 )0xFFFFFFFF)
-#define CHR_MAX_WEIGHT               (( Uint32 )0xFFFFFFFE)
+#define CHR_INFINITE_WEIGHT          (static_cast<uint32_t>(0xFFFFFFFF))
+#define CHR_MAX_WEIGHT               (static_cast<uint32_t>(0xFFFFFFFE))
 
 #define GRABSIZE            90.0f //135.0f             ///< Grab tolerance
 #define SEEINVISIBLE        128                        ///< Cutoff for invisible characters
@@ -109,7 +109,6 @@ struct chr_spawn_data_t;
 #define MAXTHROWVELOCITY    75.0f
 
 /// Inventory
-#define MAXNUMINPACK        6                       ///< Max number of items to carry in pack
 #define PACKDELAY           25                      ///< Time before inventory rotate again
 #define GRABDELAY           25                      ///< Time before grab again
 
@@ -138,21 +137,9 @@ struct chr_spawn_data_t;
 // team constants
 #define TEAM_NOLEADER       0xFFFF                        ///< If the team has no leader...
 
-#define PACK_BEGIN_LOOP(INVENTORY, PITEM, IT) { int IT##_internal; for(IT##_internal=0;IT##_internal<MAXNUMINPACK;IT##_internal++) { CHR_REF IT; chr_t * PITEM = NULL; IT = (CHR_REF)INVENTORY[IT##_internal]; if(!_gameObjects.exists (IT)) continue; PITEM = _gameObjects.get( IT );
-#define PACK_END_LOOP() } }
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-/// The possible methods for characters to determine what direction they are facing
-enum turn_mode_t
-{
-    TURNMODE_VELOCITY = 0,                       ///< Character gets rotation from velocity (normal)
-    TURNMODE_WATCH,                              ///< For watch towers, look towards waypoint
-    TURNMODE_SPIN,                               ///< For spinning objects
-    TURNMODE_WATCHTARGET,                        ///< For combat intensive AI
-    TURNMODE_COUNT
-};
 
 /// The vertex offsets for the various grips
 enum grip_offset_t
@@ -217,303 +204,6 @@ struct team_t
 
 //--------------------------------------------------------------------------------------------
 
-/// Everything that is necessary to compute the character's interaction with the environment
-struct chr_environment_t
-{
-    // floor stuff
-    Uint8   grid_twist;           ///< The twist parameter of the current grid (what angle it it at)
-    float   grid_level;           ///< Height relative to the current grid
-    float   grid_lerp;
-
-    float   water_level;           ///< Height relative to the current water level
-    float   water_lerp;
-
-    float  floor_level;           ///< Height of tile
-    float  level;                 ///< Height of a tile or a platform
-    float  fly_level;             ///< Height of tile, platform, or water, whever is highest.
-
-    float  zlerp;
-
-    fvec3_t floor_speed;
-
-    // friction stuff
-    bool is_slipping;
-    bool is_slippy,    is_watery;
-    float  air_friction, ice_friction;
-    float  fluid_friction_hrz, fluid_friction_vrt;
-    float  traction, friction_hrz;
-
-    // misc states
-    bool inwater;
-    bool grounded;              ///< standing on something?
-
-    // various motion parameters
-    fvec3_t  new_v;
-    fvec3_t  acc;
-    fvec3_t  vel;
-};
-
-//--------------------------------------------------------------------------------------------
-
-/// the data used to define the spawning of a character
-struct chr_spawn_data_t
-{
-    fvec3_t     pos;
-    PRO_REF     profile;
-    TEAM_REF    team;
-    int         skin;
-    FACING_T    facing;
-    STRING      name;
-    CHR_REF     override;
-};
-
-//--------------------------------------------------------------------------------------------
-
-/// The definition of the character object.
-class chr_t
-{
-public:
-    /**
-    * @brief Default constructor
-    **/
-    chr_t(const PRO_REF profile, const CHR_REF id);
-
-    /**
-    * @brief Deconstructor
-    **/
-    virtual ~chr_t();
-
-    /**
-    * @brief Gets a shared_ptr to the current ObjectProfile associated with this character.
-    *        The ObjectProfile can change for polymorphing objects.
-    **/
-    const std::shared_ptr<ObjectProfile>& getProfile() const;
-
-    /**
-    * @return the unique CHR_REF associated with this character
-    **/
-    inline CHR_REF getCharacterID() const {return _characterID;}
-
-    /**
-    * @return the current team this object is on. This can change in-game (mounts or pets for example)
-    **/
-    inline TEAM_REF getTeam() const {return team;}
-
-public:
-    bool terminateRequested;         ///< True if this character no longer exists in the game and should be destructed
-
-    BSP_leaf_t     bsp_leaf;
-
-    chr_spawn_data_t  spawn_data;
-
-    // character state
-    ai_state_t     ai;              ///< ai data
-    latch_t        latch;
-
-    // character stats
-    STRING         Name;            ///< My name
-    Uint8          gender;          ///< Gender
-
-    Uint8          life_color;      ///< Bar color
-	SFP8_T         life;            ///< (signed 8.8 fixed point)
-	UFP8_T         life_max;        ///< (unsigned 8.8 fixed point) @inv life_max >= life
-    SFP8_T         life_return;     ///< Regeneration/poison - (8.8 fixed point)
-
-    Uint8          mana_color;      ///< Bar color
-	SFP8_T         mana;            ///< (signed 8.8 fixed point)
-	UFP8_T         mana_max;        ///< (unsigned 8.8 fixed point) @inv mana_max >= mana
-    SFP8_T         mana_return;     ///< (8.8 fixed point)
-
-	SFP8_T         mana_flow;       ///< (8.8 fixed point)
-
-    SFP8_T         strength;        ///< Strength     - (8.8 fixed point)
-    SFP8_T         wisdom;          ///< Wisdom       - (8.8 fixed point)
-    SFP8_T         intelligence;    ///< Intelligence - (8.8 fixed point)
-    SFP8_T         dexterity;       ///< Dexterity    - (8.8 fixed point)
-
-    Uint32         experience;      ///< Experience
-    Uint8          experiencelevel; ///< Experience Level
-
-    Sint16         money;            ///< Money
-    Uint16         ammomax;          ///< Ammo stuff
-    Uint16         ammo;
-
-    // equipment and inventory
-    std::array<CHR_REF, SLOT_COUNT> holdingwhich; ///< != INVALID_CHR_REF if character is holding something
-    std::array<CHR_REF, INVEN_COUNT> equipment;   ///< != INVALID_CHR_REF if character has equipped something
-    std::array<CHR_REF, MAXNUMINPACK> inventory;  ///< != INVALID_CHR_REF if character has something in the inventory
-
-    // team stuff
-    TEAM_REF       team;            ///< Character's team
-    TEAM_REF       team_base;        ///< Character's starting team
-
-    // enchant data
-    ENC_REF        firstenchant;                  ///< Linked list for enchants
-    ENC_REF        undoenchant;                   ///< Last enchantment spawned
-
-    float          fat_stt;                       ///< Character's initial size
-    float          fat;                           ///< Character's size
-    float          fat_goto;                      ///< Character's size goto
-    Sint16         fat_goto_time;                 ///< Time left in size change
-
-    // jump stuff
-    float          jump_power;                    ///< Jump power
-    Uint8          jump_timer;                      ///< Delay until next jump
-    Uint8          jumpnumber;                    ///< Number of jumps remaining
-    Uint8          jumpnumberreset;               ///< Number of jumps total, 255=Flying
-    Uint8          jumpready;                     ///< For standing on a platform character
-
-    // attachments
-    CHR_REF        attachedto;                    ///< != INVALID_CHR_REF if character is a held weapon
-    slot_t         inwhich_slot;                  ///< SLOT_LEFT or SLOT_RIGHT
-    CHR_REF        inwhich_inventory;             ///< != INVALID_CHR_REF if character is inside an inventory
-
-    // platform stuff
-    bool         platform;                      ///< Can it be stood on
-    bool         canuseplatforms;               ///< Can use platforms?
-    int            holdingweight;                 ///< For weighted buttons
-    float          targetplatform_level;          ///< What is the height of the target platform?
-    CHR_REF        targetplatform_ref;            ///< Am I trying to attach to a platform?
-    CHR_REF        onwhichplatform_ref;           ///< Am I on a platform?
-    Uint32         onwhichplatform_update;        ///< When was the last platform attachment made?
-
-    // combat stuff
-    Uint8          damagetarget_damagetype;       ///< Type of damage for AI DamageTarget
-    Uint8          reaffirm_damagetype;           ///< For relighting torches
-    std::array<Uint8, DAMAGE_COUNT> damage_modifier; ///< Damage inversion
-    std::array<float, DAMAGE_COUNT> damage_resistance; ///< Damage Resistances
-    Uint8          defense;                       ///< Base defense rating
-    SFP8_T         damage_boost;                  ///< Add to swipe damage (8.8 fixed point)
-    SFP8_T         damage_threshold;              ///< Damage below this number is ignored (8.8 fixed point)
-
-    // missle handling
-    Uint8          missiletreatment;              ///< For deflection, etc.
-    Uint8          missilecost;                   ///< Mana cost for each one
-    CHR_REF        missilehandler;                ///< Who pays the bill for each one...
-
-    // "variable" properties
-    bool         is_hidden;
-    bool         alive;                         ///< Is it alive?
-    bool         waskilled;                     ///< Fix for network
-    PLA_REF        is_which_player;               ///< true = player
-    bool         islocalplayer;                 ///< true = local player
-    bool         invictus;                      ///< Totally invincible?
-    bool         iskursed;                      ///< Can't be dropped?
-    bool         nameknown;                     ///< Is the name known?
-    bool         ammoknown;                     ///< Is the ammo known?
-    bool         hitready;                      ///< Was it just dropped?
-    bool         isequipped;                    ///< For boots and rings and stuff
-
-    // "constant" properties
-    bool         isitem;                        ///< Is it grabbable?
-    bool         cangrabmoney;                  ///< Picks up coins?
-    bool         openstuff;                     ///< Can it open chests/doors?
-    bool         stickybutt;                    ///< Rests on floor
-    bool         isshopitem;                    ///< Spawned in a shop?
-    bool         ismount;                       ///< Can you ride it?
-    bool         canbecrushed;                  ///< Crush in a door?
-    bool         canchannel;                    ///< Can it convert life to mana?
-
-    // misc timers
-    Sint16         grog_timer;                    ///< Grog timer
-    Sint16         daze_timer;                    ///< Daze timer
-    Sint16         bore_timer;                    ///< Boredom timer
-    Uint8          careful_timer;                 ///< "You hurt me!" timer
-    Uint16         reload_timer;                  ///< Time before another shot
-    Uint8          damage_timer;                  ///< Invincibility timer
-
-    // graphica info
-    Uint8          flashand;        ///< 1,3,7,15,31 = Flash, 255 = Don't
-    bool         transferblend;   ///< Give transparency to weapons?
-    bool         draw_icon;       ///< Show the icon?
-    Uint8          sparkle;         ///< Sparkle color or 0 for off
-    bool         show_stats;      ///< Display stats?
-    SFP8_T         uoffvel;         ///< Moving texture speed (8.8 fixed point)
-    SFP8_T         voffvel;          ///< Moving texture speed (8.8 fixed point)
-    float          shadow_size_stt;  ///< Initial shadow size
-    Uint32         shadow_size;      ///< Size of shadow
-    Uint32         shadow_size_save; ///< Without size modifiers
-    BBOARD_REF     ibillboard;       ///< The attached billboard
-
-    // model info
-    bool         is_overlay;                    ///< Is this an overlay? Track aitarget...
-    SKIN_T         skin;                          ///< Character's skin
-    PRO_REF        profile_ref;                      ///< Character's profile
-    PRO_REF        basemodel_ref;                     ///< The true form
-    Uint8          alpha_base;
-    Uint8          light_base;
-    chr_instance_t inst;                          ///< the render data
-
-    // Skills
-    int           darkvision_level;
-    int           see_kurse_level;
-    int           see_invisible_level;
-    IDSZ_node_t   skills[MAX_IDSZ_MAP_SIZE];
-
-    // collision info
-
-    /// @note - to make it easier for things to "hit" one another (like a damage particle from
-    ///        a torch hitting a grub bug), Aaron sometimes made the bumper size much different
-    ///        than the shape of the actual object.
-    ///        The old bumper data that is read from the data.txt file will be kept in
-    ///        the struct "bump". A new bumper that actually matches the size of the object will
-    ///        be kept in the struct "collision"
-    bumper_t     bump_stt;
-    bumper_t     bump;
-    bumper_t     bump_save;
-
-    bumper_t     bump_1;       ///< the loosest collision volume that mimics the current bump
-    oct_bb_t     chr_max_cv;   ///< a looser collision volume for chr-prt interactions
-    oct_bb_t     chr_min_cv;   ///< the tightest collision volume for chr-chr interactions
-
-    std::array<oct_bb_t, SLOT_COUNT>     slot_cv;  ///< the cv's for the object's slots
-
-    Uint8        stoppedby;                     ///< Collision mask
-
-    // character location data
-    fvec3_t        pos_stt;                       ///< Starting position
-    fvec3_t        pos;                           ///< Character's position
-    fvec3_t        vel;                           ///< Character's velocity
-    orientation_t  ori;                           ///< Character's orientation
-
-    fvec3_t        pos_old;                       ///< Character's last position
-    fvec3_t        vel_old;                       ///< Character's last velocity
-    orientation_t  ori_old;                       ///< Character's last orientation
-
-    Uint32         onwhichgrid;                   ///< Where the char is
-    Uint32         onwhichblock;                  ///< The character's collision block
-    CHR_REF        bumplist_next;                 ///< Next character on fanblock
-
-    // movement properties
-    bool         waterwalk;                     ///< Always above watersurfacelevel?
-    turn_mode_t  turnmode;                      ///< Turning mode
-
-    BIT_FIELD      movement_bits;                 ///< What movement modes are allowed?
-    float          anim_speed_sneak;              ///< Movement rate of the sneak animation
-    float          anim_speed_walk;               ///< Walking if above this speed
-    float          anim_speed_run;                ///< Running if above this speed
-    float          maxaccel;                      ///< The actual maximum acelleration
-    float          maxaccel_reset;                ///< The current maxaccel_reset
-    Uint8          flyheight;                     ///< Height to stabilize at
-
-    // data for doing the physics in bump_all_objects()
-    phys_data_t       phys;
-    chr_environment_t enviro;
-
-    int               dismount_timer;                ///< a timer BB added in to make mounts and dismounts not so unpredictable
-    CHR_REF           dismount_object;               ///< the object that you were dismounting from
-
-    bool         safe_valid;                    ///< is the last "safe" position valid?
-    fvec3_t        safe_pos;                      ///< the last "safe" position
-    Uint32         safe_time;                     ///< the last "safe" time
-    Uint32         safe_grid;                     ///< the last "safe" grid
-
-    breadcrumb_list_t crumbs;                     ///< a list of previous valid positions that the object has passed through
-
-private:
-    CHR_REF _characterID;             ///< Our CHR_REF mapping key
-
-};
 
 bool  chr_request_terminate( chr_t * pchr );
 
@@ -663,12 +353,6 @@ bool chr_copy_enviro( chr_t * chr_psrc, chr_t * chr_pdst );
 bool chr_calc_grip_cv( chr_t * pmount, int grip_offset, oct_bb_t * grip_cv_ptr, fvec3_base_t grip_origin_vec, fvec3_base_t grip_up_vec, const bool shift_origin );
 
 // character state machine functions
-//chr_t * chr_run_config( chr_t * pchr );
-//chr_t * chr_config_construct( chr_t * pchr, int max_iterations );
-//chr_t * chr_config_initialize( chr_t * pchr, int max_iterations );
-//chr_t * chr_config_activate( chr_t * pchr, int max_iterations );
-//chr_t * chr_config_deinitialize( chr_t * pchr, int max_iterations );
-//chr_t * chr_config_deconstruct( chr_t * pchr, int max_iterations );
 chr_t * chr_config_do_init( chr_t * pchr );
 
 bool  chr_can_see_object( const chr_t * pchr, const chr_t * pobj );

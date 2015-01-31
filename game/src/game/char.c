@@ -170,209 +170,6 @@ static breadcrumb_t * chr_get_last_breadcrumb( chr_t * pchr );
 static void chr_init_size( chr_t * pchr, const std::shared_ptr<ObjectProfile> &profile);
 
 //--------------------------------------------------------------------------------------------
-chr_t::chr_t(const PRO_REF profile, const CHR_REF id) : 
-    terminateRequested(false),
-    bsp_leaf(),
-    spawn_data(),
-    ai(),
-    latch(),
-    Name(),
-    gender(GENDER_MALE),
-    life_color(0),
-    life(0),
-    life_max(0),
-    life_return(0),
-    mana_color(0),
-    mana(0),
-    mana_max(0),
-    mana_return(0),
-    mana_flow(0),
-    strength(0),
-    wisdom(0),
-    intelligence(0),
-    dexterity(0),
-    experience(0),
-    experiencelevel(0),
-    money(0),
-    ammomax(0),
-    ammo(0),
-    holdingwhich(),
-    equipment(),
-    inventory(),
-    team(TEAM_NULL),
-    team_base(TEAM_NULL),
-    firstenchant(INVALID_ENC_REF),
-    undoenchant(INVALID_ENC_REF), 
-    fat_stt(0.0f),
-    fat(0.0f),
-    fat_goto(0.0f),
-    fat_goto_time(0),
-    jump_power(0.0f),
-    jump_timer(JUMPDELAY),
-    jumpnumber(0),
-    jumpnumberreset(0),
-    jumpready(0),
-    attachedto(INVALID_CHR_REF),
-    inwhich_slot(SLOT_LEFT),
-    inwhich_inventory(INVALID_CHR_REF),
-    platform(false),
-    canuseplatforms(false),
-    holdingweight(0),
-    targetplatform_level(0.0f),
-    targetplatform_ref(INVALID_CHR_REF),
-    onwhichplatform_ref(INVALID_CHR_REF),
-    onwhichplatform_update(0),
-    damagetarget_damagetype(0),
-    reaffirm_damagetype(0),
-    damage_modifier(),
-    damage_resistance(),
-    defense(0),
-    damage_boost(0),
-    damage_threshold(0),
-    missiletreatment(MISSILE_NORMAL),
-    missilecost(0),
-    missilehandler(INVALID_CHR_REF),
-    is_hidden(false),
-    alive(true),
-    waskilled(false),
-    is_which_player(INVALID_PLAYER_REF),
-    islocalplayer(false),
-    invictus(false),
-    iskursed(false),
-    nameknown(false),
-    ammoknown(false),
-    hitready(true),
-    isequipped(false),
-    isitem(false),
-    cangrabmoney(false),
-    openstuff(false),
-    stickybutt(false),
-    isshopitem(false),
-    ismount(false),
-    canbecrushed(false),
-    canchannel(false),
-    grog_timer(0),
-    daze_timer(0),
-    bore_timer(BORETIME),
-    careful_timer(CAREFULTIME),
-    reload_timer(0),
-    damage_timer(0),
-    flashand(0),
-    transferblend(false),
-    draw_icon(false),
-    sparkle(NOSPARKLE),
-    show_stats(false),
-    uoffvel(0),
-    voffvel(0),
-    shadow_size_stt(0.0f),
-    shadow_size(0),
-    shadow_size_save(0),
-    ibillboard(INVALID_BILLBOARD_REF),
-    is_overlay(false),
-    skin(0),
-    profile_ref(profile),
-    basemodel_ref(profile),
-    alpha_base(0),
-    light_base(0),
-    inst(),
-    darkvision_level(0),
-    see_kurse_level(0),
-    see_invisible_level(0),
-    skills(),
-
-    bump_stt(),
-    bump(),
-    bump_save(),
-    bump_1(),      
-    chr_max_cv(),  
-    chr_min_cv(),  
-    slot_cv(),
-
-    stoppedby(0),
-    pos_stt(0, 0, 0),
-    pos(0, 0, 0),
-    vel(0, 0, 0),
-
-    ori(),
-    pos_old(0, 0, 0), 
-    vel_old(0, 0, 0),
-    ori_old(),
-    onwhichgrid(0),
-    onwhichblock(0),
-    bumplist_next(INVALID_CHR_REF),
-
-    waterwalk(false),
-    turnmode(TURNMODE_VELOCITY),
-    movement_bits(( unsigned )(~0)),    // all movements valid
-    anim_speed_sneak(0.0f),
-    anim_speed_walk(0.0f),
-    anim_speed_run(0.0f),
-    maxaccel(0.0f),
-    maxaccel_reset(0.0f),
-
-    flyheight(0),
-    phys(),
-    enviro(),
-    dismount_timer(0),  /// @note ZF@> If this is != 0 then scorpion claws and riders are dropped at spawn (non-item objects)
-    dismount_object(INVALID_CHR_REF),
-    safe_valid(false),
-    safe_pos(0, 0, 0),
-    safe_time(0),
-    safe_grid(0),
-    crumbs(),
-
-    _characterID(id)
-{
-    // Construct the BSP node for this entity.
-    bsp_leaf.ctor(&bsp_leaf, BSP_LEAF_CHR, _characterID);
-
-    // Grip info
-    holdingwhich.fill(INVALID_CHR_REF);
-
-    //Damage resistance
-    damage_modifier.fill(0);
-    damage_resistance.fill(0);
-
-    // pack/inventory info
-    equipment.fill(INVALID_CHR_REF);
-    inventory.fill(INVALID_CHR_REF);
-
-    // Set up position
-    ori.map_twist_facing_y = MAP_TURN_OFFSET;  // These two mean on level surface
-    ori.map_twist_facing_x = MAP_TURN_OFFSET;
-
-    //---- call the constructors of the "has a" classes
-
-    // set the insance values to safe values
-    chr_instance_ctor( &inst );
-
-    // intialize the ai_state
-    ai_state_ctor( &ai );
-
-    // initialize the physics
-    phys_data_ctor( &phys );
-}
-
-chr_t::~chr_t()
-{
-    /// Free all allocated memory
-
-    // deallocate
-    BillboardList_free_one(ibillboard);
-
-    chr_instance_dtor( &inst );
-    ai_state_dtor( &ai );
-
-    EGOBOO_ASSERT( NULL == inst.vrt_lst );
-}
-
-const std::shared_ptr<ObjectProfile>& chr_t::getProfile() const
-{
-    return _profileSystem.getProfile(profile_ref);
-}
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
 egolib_rv flash_character_height( const CHR_REF character, Uint8 valuelow, Sint16 low,
                                   Uint8 valuehigh, Sint16 high )
 {
@@ -1535,7 +1332,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     if ( inventory_slot >= MAXINVENTORY )
     {
         int i;
-        for ( i = 0; i < MAXNUMINPACK; i++ )
+        for ( i = 0; i < chr_t::MAXNUMINPACK; i++ )
         {
             if ( !_gameObjects.exists( pchr->inventory[i] ) )
             {
@@ -1615,7 +1412,7 @@ bool inventory_add_item( const CHR_REF ichr, const CHR_REF item, Uint8 inventory
     {
         //@todo: implement weight check here
         // Make sure we have room for another item
-        //if ( pchr_pack->count >= MAXNUMINPACK )
+        //if ( pchr_pack->count >= chr_t::MAXNUMINPACK )
         // {
         //    SET_BIT( pchr->ai.alert, ALERTIF_TOOMUCHBAGGAGE );
         //    return false;
@@ -1665,7 +1462,7 @@ bool inventory_swap_item( const CHR_REF ichr, Uint8 inventory_slot, const slot_t
     if ( inventory_slot >= MAXINVENTORY )
     {
         int i;
-        for ( i = 0; i < MAXNUMINPACK; i++ )
+        for ( i = 0; i < chr_t::MAXNUMINPACK; i++ )
         {
             if ( !_gameObjects.exists( pchr->inventory[i] ) )
             {
