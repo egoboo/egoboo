@@ -133,9 +133,7 @@ chr_t* ObjectHandler::get(const CHR_REF index) const
         return nullptr;
     }
 
-    const std::shared_ptr<chr_t> &result = _internalCharacterList[index];
-
-    return (result == nullptr) ? nullptr : result.get();
+    return _internalCharacterList[index].get();
 }
 
 const std::shared_ptr<chr_t>& ObjectHandler::operator[] (const CHR_REF index)
@@ -207,6 +205,7 @@ void ObjectHandler::maybeRunDeferred()
     {
         for (const std::shared_ptr<chr_t> &object : _allocateList)
         {
+            assert(object != nullptr);
             _iteratorList.push_back(object);
         }
         _allocateList.clear();        
