@@ -5072,11 +5072,8 @@ void move_one_character_do_voluntary( GameObject * pchr )
     // do voluntary motion
 
     float dvx, dvy;
-    float maxspeed;
-    float dv2;
     float new_ax, new_ay;
     CHR_REF ichr;
-    bool sneak_mode_active = false;
 
     if ( !ACTIVE_PCHR( pchr ) ) return;
 
@@ -5109,9 +5106,16 @@ void move_one_character_do_voluntary( GameObject * pchr )
     }
 
     // this is the maximum speed that a character could go under the v2.22 system
-    maxspeed = pchr->maxaccel * airfriction / ( 1.0f - airfriction );
+    float maxspeed = pchr->maxaccel * airfriction / ( 1.0f - airfriction );
 
-    sneak_mode_active = false;
+    //Check animation frame freeze movement
+    if ( chr_get_framefx( pchr ) & MADFX_STOP )
+    {
+        //TODO: ZF> might want skill that allows movement while blocking and attacking
+        maxspeed = 0;
+    }
+
+    bool sneak_mode_active = false;
     if ( VALID_PLA( pchr->is_which_player ) )
     {
         // determine whether the user is hitting the "sneak button"
@@ -5122,17 +5126,11 @@ void move_one_character_do_voluntary( GameObject * pchr )
     pchr->enviro.new_v.x = pchr->enviro.new_v.y = 0.0f;
 	if (std::abs(dvx) + std::abs(dvy) > 0.05f)
     {
-        PLA_REF ipla = pchr->is_which_player;
+        float dv2 = dvx * dvx + dvy * dvy;
 
-        dv2 = dvx * dvx + dvy * dvy;
-
-        if ( VALID_PLA( ipla ) )
+        if ( VALID_PLA( pchr->is_which_player ) )
         {
-            player_t * ppla;
-
             float dv = POW( dv2, 0.25f );
-
-            ppla = PlaStack.get_ptr( ipla );
 
             // determine whether the character is sneaking
             sneak_mode_active = TO_C_BOOL( dv2 < 1.0f / 9.0f );
@@ -5192,6 +5190,7 @@ void move_one_character_do_voluntary( GameObject * pchr )
 
     //Figure out how to turn around
     if ( 0 != pchr->maxaccel )
+    {
         switch ( pchr->turnmode )
         {
                 // Get direction from ACTUAL change in velocity
@@ -5240,19 +5239,12 @@ void move_one_character_do_voluntary( GameObject * pchr )
                     pchr->ori.facing_z += SPINRATE;
                 }
                 break;
-
         }
+    }
 
-    if ( chr_get_framefx( pchr ) & MADFX_STOP )
-    {
-        new_ax = 0;
-        new_ay = 0;
-    }
-    else
-    {
-        pchr->vel.x += new_ax;
-        pchr->vel.y += new_ay;
-    }
+    //Update velocity
+    pchr->vel.x += new_ax;
+    pchr->vel.y += new_ay;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5387,7 +5379,10 @@ bool chr_do_latch_attack( GameObject * pchr, slot_t which_slot )
     {
         if ( pchr->inst.action_ready && action_valid )
         {
+            if(pchr->getProfile()->getUseManaCost() <= pchr->mana)
             {
+                cost_mana(pchr->getCharacterID(), pchr->getProfile()->getUseManaCost(), pchr->getCharacterID());
+
                 Uint32 action_madfx = 0;
 
                 // randomize the action

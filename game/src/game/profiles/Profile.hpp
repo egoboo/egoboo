@@ -506,6 +506,11 @@ public:
     inline uint16_t getInvictusFrameFacing() const {return iframefacing;}
 
     /**
+    * @return How much mana the object spends when doing an unarmed attack (used for Healers and Paladins)
+    **/
+    inline float getUseManaCost() const {return _useManaCost*256.0f;}
+
+    /**
     * @brief ZF> I'm not sure what this is. 
     *            Something to do with particles reaffirming if it gets hurt by this damage type
     **/
@@ -767,5 +772,6 @@ private:
 
     // random stuff
     bool       _stickyButt;                       ///< Stick to the ground? (conform to hills like chair)
+    float      _useManaCost;                      ///< Mana usage for unarmed attack
 };
 

@@ -214,7 +214,8 @@ ObjectProfile::ObjectProfile() :
     _seeInvisibleLevel(0),
 
     // random stuff
-    _stickyButt(false)
+    _stickyButt(false),
+    _useManaCost(0.0f)
 {
     _experienceRate.fill(0.0f);
     _idsz.fill(IDSZ_NONE);
@@ -689,7 +690,7 @@ bool ObjectProfile::loadDataFile(const std::string &filePath)
 
     // More stuff I forgot
     vfs_get_next_float( fileRead );  //ZF> deprecated value LifeReturn (no longer used)
-    vfs_get_next_float( fileRead );  //ZF> deprecated value ManaCost (no longer used)
+    _useManaCost = vfs_get_next_float( fileRead );
     _startingLifeRegeneration  = vfs_get_next_int( fileRead );
     _stoppedBy   |= vfs_get_next_int( fileRead );
 
@@ -1294,7 +1295,7 @@ bool ObjectProfile::exportCharacterToFile(const std::string &filePath, const Gam
 
     // More stuff
     template_put_float(fileTemp, fileWrite, 0); //unused
-    template_put_float(fileTemp, fileWrite, 0); //unused
+    template_put_float(fileTemp, fileWrite, profile->_useManaCost);
     template_put_int( fileTemp, fileWrite, profile->_startingLifeRegeneration );
     template_put_int( fileTemp, fileWrite, character->stoppedby );   //Note: overridden by chr
     template_put_string_under( fileTemp, fileWrite, profile->getSkinInfo(0).name.c_str() );
