@@ -135,6 +135,8 @@
 #include <stack>
 #include <bitset>
 #include <unordered_set>
+#include <sstream>
+#include <iomanip>
 
 
 #if defined(__cplusplus)

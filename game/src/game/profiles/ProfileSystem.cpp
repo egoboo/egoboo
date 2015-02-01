@@ -277,9 +277,9 @@ PRO_REF ProfileSystem::loadOneProfile(const std::string &pathName, int slot_over
 
     //ZF> TODO: This is kind of a dirty hack and could be done cleaner. If this item is the book object, 
     //    then the icons are also loaded into the global book icon array
-    if ( SPELLBOOK == islot )
+    if ( SPELLBOOK == iobj )
     {
-        for(const auto &element : _profilesLoaded[iobj]->getAllIcons())
+        for(const auto &element : profile->getAllIcons())
         {
             _bookIcons.push_back(element.second);
         }

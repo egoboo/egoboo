@@ -21,9 +21,6 @@
 /// @brief The code for controlling the game
 /// @details
 
-#include <sstream>
-#include <iomanip>
-
 #include "game/game.h"
 
 #include "game/mad.h"
@@ -717,7 +714,7 @@ int update_game()
     PLA_REF ipla;
 
     // is the update counter free running?
-    free_running = GProc->ups_timer.free_running && !egonet_on();
+    free_running = GProc->ups_timer.free_running;
 
     // Check for all local players being dead
     local_stats.allpladead      = false;
@@ -907,7 +904,7 @@ int update_game()
                 {
                     let_all_characters_think();           // sets the non-player latches
                     net_unbuffer_player_latches();            // sets the player latches
-                    blah_billboard();
+                    //blah_billboard();
                 }
                 //---- end the code object I/O
 
@@ -955,22 +952,6 @@ int update_game()
 
     est_update_game_time = 0.9F * est_update_game_time + 0.1F * est_single_update_time * update_loop_cnt;
     est_max_game_ups     = 0.9F * est_max_game_ups     + 0.1F * ( 1.0F / est_update_game_time );
-
-    if ( egonet_on() )
-    {
-        if ( 0 == numplatimes )
-        {
-            // The remote ran out of messages, and is now twiddling its thumbs...
-            // Make it go slower so it doesn't happen again
-            clock_wld += 25;
-        }
-        if ( numplatimes > 3 && !egonet_get_hostactive() )
-        {
-            // The host has too many messages, and is probably experiencing control
-            // lag...  Speed it up so it gets closer to sync
-            clock_wld -= 5;
-        }
-    }
 
     return update_loop_cnt;
 }
@@ -1307,7 +1288,7 @@ int game_process_do_running( game_process_t * gproc )
     if ( !process_t::running(PROC_PBASE(gproc))) return 0;
 
     // are the updates free running?
-    ups_free_running = gproc->ups_timer.free_running && !egonet_on();
+    ups_free_running = gproc->ups_timer.free_running;
 
     // update all the timers
     game_update_timers();
@@ -1336,7 +1317,7 @@ int game_process_do_running( game_process_t * gproc )
         PROFILE_BEGIN( game_update_loop );
         {
             // do the updates
-            if ( gproc->mod_paused && !egonet_on() )
+            if (gproc->mod_paused)
             {
                 clock_wld = game_throttle.time_now;
             }
@@ -1371,10 +1352,12 @@ int game_process_do_running( game_process_t * gproc )
                 }
 
                 // This is the control loop
+#if 0
                 if ( egonet_on() && keyb.chat_done )
                 {
                     net_send_message();
                 }
+#endif
 
                 PROFILE_BEGIN( check_stats );
                 {
@@ -1384,14 +1367,7 @@ int game_process_do_running( game_process_t * gproc )
 
                 PMod->checkPassageMusic();
 
-                if ( egonet_get_waitingforclients() )
-                {
-                    clock_wld = game_throttle.time_now;
-                }
-                else
-                {
-                    update_loops = update_game();
-                }
+                update_loops = update_game();
             }
         }
         PROFILE_END2( game_update_loop );
